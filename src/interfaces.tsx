@@ -1,0 +1,46 @@
+import React from 'react';
+import { Sprite, Text } from 'pixi.js';
+import ThumbContainer from './ThumbContainer';
+
+export interface GridPosition {
+  x: number;
+  y: number;
+  scale: number;
+}
+
+export interface Props {
+  children: React.ReactNode;
+  screenWidth: number;
+  screenHeight: number;
+  worldWidth: number;
+  worldHeight: number;
+}
+
+export interface Thumb {
+  thumbContainerRef: ThumbContainer;
+  textRef: Text;
+  spriteRef: Sprite;
+  base64: string;
+  frameNumber: number;
+}
+
+export interface ThumbOptionOverlay {
+  show: boolean;
+  frameNumber?: number;
+  gridPosition?: GridPosition;
+}
+
+export interface SelectedThumb {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  id: string | undefined;
+  visibility?: boolean;
+}
+
+export interface MovieInfo {
+  frameCount?: number;
+  width?: number;
+  height?: number;
+}
