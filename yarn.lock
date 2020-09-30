@@ -1429,6 +1429,11 @@
     "@pixi/text" "5.3.3"
     "@pixi/utils" "5.3.3"
 
+"@pixi/text-html@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@pixi/text-html/-/text-html-1.0.0.tgz#34e72e3f605e1c5999bfd302768a5d9e2b19b4c9"
+  integrity sha512-Awcjah1Kx8fIEML92F1zXekaa8W2aGXX5wZOgUAnBZivCOPPQxZqYtV4dt1YUwjksgx8kdRzh7XoAsJQaCUzZA==
+
 "@pixi/text@5.3.3":
   version "5.3.3"
   resolved "https://registry.yarnpkg.com/@pixi/text/-/text-5.3.3.tgz#d6fc00c52bc054450ae43e2d5c6f7cedcee9ecd2"

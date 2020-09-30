@@ -18,6 +18,7 @@ module.exports = (env: { mode: 'development' | 'production' }) => {
 
     resolve: {
       extensions: ['.ts', '.tsx', '.js', '.json'],
+      mainFields: ['module', 'main'],
     },
 
     module: {

@@ -1,4 +1,9 @@
 import * as PIXI from 'pixi.js';
+import { HTMLText } from '@pixi/text-html';
+import { TextStyle } from '@pixi/text';
+
+// Can use the TextStyle class found in @pixi/text
+const style = new TextStyle({ fontSize: 20 });
 
 export default class ThumbContainer extends PIXI.Container {
   _spriteRef: PIXI.DisplayObject;
@@ -22,23 +27,25 @@ export default class ThumbContainer extends PIXI.Container {
     this.x = x;
     this.y = y;
     this.name = name;
-    const thumbInfo = new PIXI.Text(`x:${Math.round(x)}, y:${Math.round(y)}`, {
-      fontFamily: 'Arial',
-      fontSize: 12,
-      fill: 0xffffff,
-      // align: 'center',
-    });
-    thumbInfo.resolution = 8; // so one can zoom in closer and it keeps a decent resolution
+    // const thumbInfo = new PIXI.Text(`x:${Math.round(x)}, y:${Math.round(y)}`, {
+    //   fontFamily: 'Arial',
+    //   fontSize: 12,
+    //   fill: 0xffffff,
+    //   // align: 'center',
+    // });
+    // Make a new HTMLText object
+    const thumbInfo = new HTMLText('Hello World', style);
+    // thumbInfo.resolution = 8; // so one can zoom in closer and it keeps a decent resolution
 
     const frameSprite = new PIXI.Graphics();
     frameSprite.beginFill(0xde3249);
     frameSprite.drawRect(0, 0, 320, 240);
     frameSprite.endFill();
 
-    const frameSprite2 = new PIXI.Graphics();
-    frameSprite2.beginFill(0xffffff);
-    frameSprite2.drawRect(0, 0, 10, 10);
-    frameSprite2.endFill();
+    // const frameSprite2 = new PIXI.Graphics();
+    // frameSprite2.beginFill(0xffffff);
+    // frameSprite2.drawRect(0, 0, 10, 10);
+    // frameSprite2.endFill();
 
     frameSprite.width = width;
     frameSprite.height = width / aspectRatio;
@@ -51,7 +58,8 @@ export default class ThumbContainer extends PIXI.Container {
     selection.alpha = 0;
 
     this._spriteRef = this.addChild(frameSprite);
-    this._thumbInfoRef = this.addChild(frameSprite2);
+    this._thumbInfoRef = this.addChild(thumbInfo);
+    // this._thumbInfoRef = this.addChild(frameSprite2);
     this._SelectionRef = this.addChild(selection);
 
     this.interactive = true;

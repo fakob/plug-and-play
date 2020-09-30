@@ -19,6 +19,7 @@
   "author": "jkanchelov",
   "license": "MIT",
   "dependencies": {
+    "@pixi/text-html": "^1.0.0",
     "core-js": "^3.6.5",
     "dat.gui": "^0.7.7",
     "pixi-viewport": "^4.14.0",
