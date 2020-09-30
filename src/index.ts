@@ -2,11 +2,43 @@ import * as PIXI from 'pixi.js';
 import ThumbContainer from './ThumbContainer';
 import { getGridPositionArray } from './utils-pixi';
 import { Viewport } from 'pixi-viewport';
+import * as dat from 'dat.gui';
 
 import './style.css';
 
+const gui = new dat.GUI();
+
+const data = {
+  amount: 24,
+  columnCount: 4,
+  margin: 0,
+  width: 400,
+  height: 400,
+  color: '#FF0000',
+};
+
+gui.addColor(data, 'color').onChange(() => {
+  updateGrid();
+});
+gui.add(data, 'amount', 1, 100, 1).onChange(() => {
+  setupGrid();
+});
+gui.add(data, 'columnCount', 1, 20, 1).onChange(() => {
+  updateGrid();
+});
+gui.add(data, 'margin', 0, 100, 1).onChange(() => {
+  updateGrid();
+});
+gui.add(data, 'width', 0, 400, 1).onChange(() => {
+  updateGrid();
+});
+gui.add(data, 'height', 0, 400, 1).onChange(() => {
+  updateGrid();
+});
+
 const gameWidth = 800;
 const gameHeight = 600;
+let emptyThumbArray;
 
 const app = new PIXI.Application({
   backgroundColor: 0xd3d3d3,
@@ -14,7 +46,7 @@ const app = new PIXI.Application({
   height: gameHeight,
 });
 
-const stage = app.stage;
+// const stage = app.stage;
 
 // create viewport
 const viewport = new Viewport({
@@ -50,60 +82,12 @@ viewport
     friction: 0.8,
   });
 
-const gPA = getGridPositionArray(4, 400, 400, 32, 16);
-
-const frameNumberArray = Array.from(Array(24).keys());
-const emptyThumbArray = frameNumberArray.map((item, index) => {
-  const { x = 0, y = 0, scale = 0 } = gPA[index];
-  const thumbContainer = new ThumbContainer(x, y, 400);
-
-  // thumbContainer
-  //   .on("pointerdown", onThumbDragStart)
-  //   .on("pointerup", onThumbDragEnd)
-  //   .on("click", onThumbClick)
-  //   .on("dblclick", onThumbDoubleClick)
-  //   .on("pointerupoutside", onThumbDragEnd);
-
-  viewport.addChild(thumbContainer);
-  return {
-    thumbContainerRef: thumbContainer,
-    textRef: thumbContainer.thumbInfoRef,
-    spriteRef: thumbContainer.spriteRef,
-    frameNumber: item,
-    base64: 'data:image/jpeg;base64,',
-  };
-});
-
 window.onload = async (): Promise<void> => {
-  await loadGameAssets();
-
   document.body.appendChild(app.view);
 
   resizeCanvas();
-
-  const birdFromSprite = getBird();
-  birdFromSprite.anchor.set(0.5, 0.5);
-  birdFromSprite.position.set(gameWidth / 2, gameHeight / 2);
-
-  viewport.addChild(birdFromSprite);
+  setupGrid();
 };
-
-async function loadGameAssets(): Promise<void> {
-  return new Promise((res, rej) => {
-    const loader = PIXI.Loader.shared;
-    loader.add('rabbit', './assets/simpleSpriteSheet.json');
-
-    loader.onComplete.once(() => {
-      res();
-    });
-
-    loader.onError.once(() => {
-      rej();
-    });
-
-    loader.load();
-  });
-}
 
 function resizeCanvas(): void {
   const resize = () => {
@@ -118,17 +102,58 @@ function resizeCanvas(): void {
   window.addEventListener('resize', resize);
 }
 
-function getBird(): PIXI.AnimatedSprite {
-  const bird = new PIXI.AnimatedSprite([
-    PIXI.Texture.from('birdUp.png'),
-    PIXI.Texture.from('birdMiddle.png'),
-    PIXI.Texture.from('birdDown.png'),
-  ]);
+function setupGrid(): void {
+  // clear the stage
+  viewport.removeChildren();
+  // console.log(emptyThumbArray);
+  // emptyThumbArray;
 
-  bird.loop = true;
-  bird.animationSpeed = 0.1;
-  bird.play();
-  bird.scale.set(3);
+  const gPA = getGridPositionArray(
+    data.columnCount,
+    data.width,
+    data.height,
+    data.amount,
+    data.margin
+  );
 
-  return bird;
+  const frameNumberArray = Array.from(Array(data.amount).keys());
+  emptyThumbArray = frameNumberArray.map((item, index) => {
+    const { x = 0, y = 0, scale = 0 } = gPA[index];
+    const thumbContainer = new ThumbContainer(x, y, data.width);
+
+    // thumbContainer
+    //   .on("pointerdown", onThumbDragStart)
+    //   .on("pointerup", onThumbDragEnd)
+    //   .on("click", onThumbClick)
+    //   .on("dblclick", onThumbDoubleClick)
+    //   .on("pointerupoutside", onThumbDragEnd);
+
+    viewport.addChild(thumbContainer);
+    return {
+      thumbContainerRef: thumbContainer,
+      textRef: thumbContainer.thumbInfoRef,
+      spriteRef: thumbContainer.spriteRef,
+      frameNumber: item,
+      base64: 'data:image/jpeg;base64,',
+    };
+  });
+}
+
+function updateGrid(): void {
+  const gPA = getGridPositionArray(
+    data.columnCount,
+    data.width,
+    data.height,
+    data.amount,
+    data.margin
+  );
+
+  emptyThumbArray.map((item, index) => {
+    const { x = 0, y = 0, scale = 0 } = gPA[index];
+    const { thumbContainerRef, textRef, spriteRef } = item;
+    thumbContainerRef.x = x;
+    thumbContainerRef.y = y;
+    spriteRef.width = data.width;
+    spriteRef.tint = PIXI.utils.string2hex(data.color);
+  });
 }

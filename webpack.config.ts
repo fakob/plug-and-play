@@ -1,69 +1,72 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 
-import * as path from "path";
+import * as path from 'path';
 
-import { merge } from "webpack-merge";
-import { Configuration } from "webpack";
+import { merge } from 'webpack-merge';
+import { Configuration } from 'webpack';
 
 // plugins
-import HtmlWebpackPlugin from "html-webpack-plugin";
-import MiniCssExtractPlugin from "mini-css-extract-plugin";
-import CopyPlugin from "copy-webpack-plugin";
+import HtmlWebpackPlugin from 'html-webpack-plugin';
+import MiniCssExtractPlugin from 'mini-css-extract-plugin';
+import CopyPlugin from 'copy-webpack-plugin';
 
-module.exports = (env: { mode: "development" | "production" }) => {
-    const developmentMode = env.mode === "development";
+module.exports = (env: { mode: 'development' | 'production' }) => {
+  const developmentMode = env.mode === 'development';
 
-    const config: Configuration = {
-        entry: "./src/index.ts",
+  const config: Configuration = {
+    entry: './src/index.ts',
 
-        resolve: {
-            extensions: [".ts", ".tsx", ".js", ".json"],
-        },
+    resolve: {
+      extensions: ['.ts', '.tsx', '.js', '.json'],
+    },
 
-        module: {
-            rules: [
-                {
-                    test: /\.css$/i,
-                    use: [
-                        {
-                            loader: MiniCssExtractPlugin.loader,
-                            options: {
-                                hmr: developmentMode,
-                            },
-                        },
-                        "css-loader",
-                    ],
-                },
-            ],
-        },
-        optimization: {
-            splitChunks: {
-                chunks: "all",
+    module: {
+      rules: [
+        {
+          test: /\.css$/i,
+          use: [
+            {
+              loader: MiniCssExtractPlugin.loader,
+              options: {
+                hmr: developmentMode,
+              },
             },
+            'css-loader',
+          ],
         },
+      ],
+    },
+    optimization: {
+      splitChunks: {
+        chunks: 'all',
+      },
+    },
 
-        plugins: [
-            new HtmlWebpackPlugin(),
-            new CopyPlugin({
-                patterns: [
-                    {
-                        from: "assets/**",
+    plugins: [
+      new HtmlWebpackPlugin(),
+      new CopyPlugin({
+        patterns: [
+          {
+            from: 'assets/**',
 
-                        // if there are nested subdirectories , keep the hierarchy
-                        transformPath(targetPath, absolutePath) {
-                            const assetsPath = path.resolve(__dirname, "assets");
-                            const endpPath = absolutePath.slice(assetsPath.length);
+            // if there are nested subdirectories , keep the hierarchy
+            transformPath(targetPath, absolutePath) {
+              const assetsPath = path.resolve(__dirname, 'assets');
+              const endpPath = absolutePath.slice(assetsPath.length);
 
-                            return Promise.resolve(`assets/${endpPath}`);
-                        },
-                    },
-                ],
-            }),
+              return Promise.resolve(`assets/${endpPath}`);
+            },
+          },
         ],
-    };
-    const envConfig = require(path.resolve(__dirname, `./webpack.${env.mode}.ts`))(env);
+      }),
+    ],
+  };
+  const envConfig = require(path.resolve(
+    __dirname,
+    `./webpack.${env.mode}.ts`
+  ))(env);
 
-    const mergedConfig = merge(config, envConfig);
+  const mergedConfig = merge(config, envConfig);
 
-    return mergedConfig;
+  return mergedConfig;
 };

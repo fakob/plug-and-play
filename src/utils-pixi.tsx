@@ -6,7 +6,11 @@ export const getGridPosition = (
   height: number,
   margin: number,
   index: number
-) => {
+): {
+  x: number;
+  y: number;
+  scale: number;
+} => {
   const x = (index % columnCount) * (width + width * margin);
   const y = Math.floor(index / columnCount) * (height + width * margin);
   return {

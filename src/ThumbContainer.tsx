@@ -36,7 +36,7 @@ export default class ThumbContainer extends PIXI.Container {
     frameSprite.endFill();
 
     const frameSprite2 = new PIXI.Graphics();
-    frameSprite2.beginFill(0xff0000);
+    frameSprite2.beginFill(0xffffff);
     frameSprite2.drawRect(0, 0, 10, 10);
     frameSprite2.endFill();
 
@@ -66,21 +66,21 @@ export default class ThumbContainer extends PIXI.Container {
 
   // GETTERS & SETTERS
 
-  get spriteRef() {
+  get spriteRef(): PIXI.DisplayObject {
     return this._spriteRef;
   }
 
-  get thumbInfoRef() {
+  get thumbInfoRef(): PIXI.DisplayObject {
     return this._thumbInfoRef;
   }
 
-  get selected() {
+  get selected(): boolean {
     return this._selected;
   }
 
   // SETUP
 
-  _addListeners() {
+  _addListeners(): void {
     this.on('pointerdown', this._onDragStart.bind(this));
     this.on('pointerup', this._onDragEnd.bind(this));
     this.on('pointerupoutside', this._onDragEnd.bind(this));
@@ -90,7 +90,7 @@ export default class ThumbContainer extends PIXI.Container {
     // this.on('click', this._onClick.bind(this));
   }
 
-  _onDragStart(event: PIXI.InteractionEvent) {
+  _onDragStart(event: any): void {
     this.data = event.data;
     this.clickPosition = new PIXI.Point(
       event.data.originalEvent.screenX,
@@ -111,7 +111,7 @@ export default class ThumbContainer extends PIXI.Container {
     }
   }
 
-  _onDragEnd(event: PIXI.InteractionEvent) {
+  _onDragEnd(event: any): void {
     const evData = event.data.originalEvent;
     // if real dragend
     if (this.clickPosition !== null) {
@@ -131,7 +131,7 @@ export default class ThumbContainer extends PIXI.Container {
     this.data = null;
   }
 
-  _onDragMove() {
+  _onDragMove(): void {
     if (
       this.dragging &&
       this.data !== null &&
@@ -143,7 +143,7 @@ export default class ThumbContainer extends PIXI.Container {
     }
   }
 
-  _onSpriteOver() {
+  _onSpriteOver(): void {
     if (this._selected) {
       this.cursor = 'move';
     } else {
@@ -151,14 +151,14 @@ export default class ThumbContainer extends PIXI.Container {
     }
   }
 
-  _onSpriteOut() {
+  _onSpriteOut(): void {
     if (!this.dragging) {
       this.alpha = 1.0;
       this.cursor = 'default';
     }
   }
 
-  _onClick() {
+  _onClick(): void {
     if (this._selected) {
       // this.alpha = 1;
       this._selected = false;
