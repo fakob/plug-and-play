@@ -7,6 +7,15 @@ export interface GridPosition {
   scale: number;
 }
 
+export interface NodeData {
+  name: string;
+  type: string;
+  inputs: {
+    name: string;
+    type: string;
+  }[];
+}
+
 export interface Thumb {
   thumbContainerRef: ThumbContainer;
   textRef: Text;
