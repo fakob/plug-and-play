@@ -11,7 +11,7 @@ const gui = new dat.GUI();
 const data = {
   amount: 24,
   columnCount: 4,
-  margin: 0,
+  margin: 20,
   width: 400,
   height: 400,
   color: '#FF0000',
@@ -119,7 +119,12 @@ function setupGrid(): void {
   const frameNumberArray = Array.from(Array(data.amount).keys());
   emptyThumbArray = frameNumberArray.map((item, index) => {
     const { x = 0, y = 0, scale = 0 } = gPA[index];
-    const thumbContainer = new ThumbContainer(x, y, data.width);
+    const thumbContainer = new ThumbContainer(
+      x,
+      y,
+      data.width,
+      data.width / data.height
+    );
 
     // thumbContainer
     //   .on("pointerdown", onThumbDragStart)
@@ -154,6 +159,7 @@ function updateGrid(): void {
     thumbContainerRef.x = x;
     thumbContainerRef.y = y;
     spriteRef.width = data.width;
+    spriteRef.height = data.height;
     spriteRef.tint = PIXI.utils.string2hex(data.color);
   });
 }
