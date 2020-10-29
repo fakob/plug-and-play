@@ -1,7 +1,8 @@
 import * as PIXI from 'pixi.js';
-import ThumbContainer from './ThumbContainer';
-import NodeClass from './NodeClass';
-import { getGridPositionArray } from './utils-pixi';
+// import PPCanvas from './CanvasClass';
+// import PPGraph from './GraphClass';
+import PPNode from './NodeClass';
+import { addNode, watchNode } from './nodes';
 import { Viewport } from 'pixi-viewport';
 import * as dat from 'dat.gui';
 
@@ -16,6 +17,26 @@ const data = {
   width: 400,
   height: 400,
   color: '#FF0000',
+  addInput: function () {
+    console.log(viewport.children[0]);
+    console.log(nodeArray[0].addInput('New', 'string'));
+  },
+  addAddNode: function () {
+    console.log(nodeArray);
+    const myAddNode = new PPNode(addNode);
+    nodeArray.push(myAddNode);
+    myAddNode.on('pointerdown', onNodeDragStart).on('pointerup', onNodeDragEnd);
+    //   .on('click', onNodeClick)
+    //   .on('dblclick', onNodeDoubleClick)
+    //   .on('pointerupoutside', onNodeDragEnd);
+    viewport.addChild(myAddNode);
+  },
+  addWatchNode: function () {
+    console.log(nodeArray);
+    const myWatchNode = new PPNode(watchNode);
+    nodeArray.push(myWatchNode);
+    viewport.addChild(myWatchNode);
+  },
 };
 
 gui.addColor(data, 'color').onChange(() => {
@@ -36,10 +57,13 @@ gui.add(data, 'width', 0, 400, 1).onChange(() => {
 gui.add(data, 'height', 0, 400, 1).onChange(() => {
   updateGrid();
 });
+gui.add(data, 'addInput');
+gui.add(data, 'addAddNode');
+gui.add(data, 'addWatchNode');
 
 const gameWidth = 800;
 const gameHeight = 600;
-let emptyThumbArray;
+const nodeArray: PPNode[] = [];
 
 const app = new PIXI.Application({
   backgroundColor: 0xd3d3d3,
@@ -84,6 +108,27 @@ viewport
     friction: 0.8,
   });
 
+function onNodeDragStart() {
+  viewport.plugins.pause('drag');
+  // if (this._selected) {
+  //   this.select(false);
+  // } else {
+  this.select(true);
+  // }
+}
+
+function onNodeDragEnd() {
+  viewport.plugins.resume('drag');
+}
+
+function selectNode(node, add_to_current_selection) {
+  if (node == null) {
+    this.deselectAllNodes();
+  } else {
+    this.selectNodes([node], add_to_current_selection);
+  }
+}
+
 window.onload = async (): Promise<void> => {
   document.body.appendChild(app.view);
 
@@ -105,10 +150,21 @@ function resizeCanvas(): void {
 }
 
 function setupGrid(): void {
+  // const graph = new PPGraph();
+  // const graph_canvas = new PPCanvas(app, graph);
+
   // clear the stage
   viewport.removeChildren();
+  const texture = PIXI.Texture.from('assets/old_mathematics_@2X.png');
 
-  const ppNode = new NodeClass({
+  const tilingSprite = new PIXI.TilingSprite(
+    texture,
+    app.screen.width,
+    app.screen.height
+  );
+  viewport.addChild(tilingSprite);
+
+  const ppNode = new PPNode({
     name: 'First Node',
     type: 'testNode',
     inputs: [
@@ -122,6 +178,10 @@ function setupGrid(): void {
       },
     ],
   });
+
+  // ppNode.addInput('Input 3', 'string');
+  ppNode.on('pointerdown', onNodeDragStart).on('pointerup', onNodeDragEnd);
+  nodeArray.push(ppNode);
 
   viewport.addChild(ppNode);
 }
