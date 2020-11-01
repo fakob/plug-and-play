@@ -1,21 +1,69 @@
-import PPCanvas from './CanvasClass';
+import * as PIXI from 'pixi.js';
+import { Viewport } from 'pixi-viewport';
 // import PPLink from './LinkClass';
 import PPNode from './NodeClass';
 
 export default class PPGraph {
-  list_of_graphcanvas: PPCanvas[];
+  app: PIXI.Application;
+  viewport: Viewport;
 
   last_node_id: number;
 
   last_link_id: number;
 
   _nodes: PPNode[];
+
+  selected_nodes: number[];
+
   // links: PPLink;
 
-  constructor() {
+  constructor(app: PIXI.Application, viewport: Viewport) {
+    this.app = app;
+    this.viewport = viewport;
     console.log('Graph created');
-    this.list_of_graphcanvas = null;
+
+    // clear the stage
     this.clear();
+  }
+
+  onNodeDragStart(event: PIXI.InteractionEvent, node: PPNode): void {
+    this.viewport.plugins.pause('drag');
+    this.selectNode(node);
+    // if (this._selected) {
+    //   this.select(false);
+    // } else {
+    // this.select(true);
+    // }
+  }
+
+  onNodeDragEnd(): void {
+    this.viewport.plugins.resume('drag');
+  }
+
+  // selectNode(node, add_to_current_selection) {
+  //   if (node == null) {
+  //     this.deselectAllNodes();
+  //   } else {
+  //     this.selectNodes([node], add_to_current_selection);
+  //   }
+  // }
+
+  add(node: PPNode): PPNode {
+    if (!node) {
+      return;
+    }
+
+    node
+      .on('pointerdown', (e: PIXI.InteractionEvent) =>
+        this.onNodeDragStart(e, node)
+      )
+      .on('pointerup', this.onNodeDragEnd);
+
+    this.viewport.addChild(node);
+
+    this._nodes.push(node);
+
+    return node; //to chain actions
   }
 
   clear(): void {
@@ -26,35 +74,37 @@ export default class PPGraph {
     this._nodes = [];
 
     //links
-    this.links = {}; //container with all the links
+    // this.links = {}; //container with all the links
+
+    this.viewport.removeChildren();
+    const texture = PIXI.Texture.from('assets/old_mathematics_@2X.png');
+
+    const tilingSprite = new PIXI.TilingSprite(
+      texture,
+      this.app.screen.width,
+      this.app.screen.height
+    );
+    this.viewport.addChild(tilingSprite);
   }
 
-  attachCanvas(graphcanvas: PPCanvas): void {
-    // if (graphcanvas.constructor != LGraphCanvas) {
-    //   throw 'attachCanvas expects a LGraphCanvas instance';
-    // }
-    if (graphcanvas.graph && graphcanvas.graph != this) {
-      graphcanvas.graph.detachCanvas(graphcanvas);
+  selectNode(node: PPNode): void {
+    if (node === null) {
+      this.deselectAllNodes();
+    } else {
+      this.deselectAllNodes();
+      node.select(true);
+      this.selected_nodes = [node.id];
     }
-
-    graphcanvas.graph = this;
-
-    if (!this.list_of_graphcanvas) {
-      this.list_of_graphcanvas = [];
-    }
-    this.list_of_graphcanvas.push(graphcanvas);
   }
 
-  detachCanvas(graphcanvas: PPCanvas): void {
-    if (!this.list_of_graphcanvas) {
-      return;
+  deselectAllNodes(): void {
+    const nodes = this._nodes;
+    for (let i = 0, l = nodes.length; i < l; ++i) {
+      const node = nodes[i];
+      if (node.selected) {
+        node.select(false);
+      }
     }
-
-    const pos = this.list_of_graphcanvas.indexOf(graphcanvas);
-    if (pos == -1) {
-      return;
-    }
-    graphcanvas.graph = null;
-    this.list_of_graphcanvas.splice(pos, 1);
+    this.selected_nodes = [];
   }
 }

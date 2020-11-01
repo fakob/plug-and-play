@@ -42,8 +42,11 @@ export default class PPNode extends PIXI.Container {
 
   type: string;
 
+  id: number | null;
+
   constructor(node: NodeData) {
     super();
+    this.id = null;
     this.name = node.name;
     this.type = node.type;
     this.inputNodeArray = [];

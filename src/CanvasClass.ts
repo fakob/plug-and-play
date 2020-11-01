@@ -5,7 +5,7 @@ export default class PPCanvas {
   constructor(canvas: PIXI.Application, graph: PPGraph) {
     //link canvas and graph
     if (graph) {
-      graph.attachCanvas(this);
+      // graph.attachCanvas(this);
     }
 
     this.setCanvas(canvas);
