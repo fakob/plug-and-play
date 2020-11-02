@@ -18,6 +18,12 @@ import {
   INPUTSOCKET_CORNERRADIUS,
   INPUTSOCKET_TEXTMARGIN_LEFT,
   INPUTSOCKET_TEXTMARGIN_TOP,
+  OUTPUTNODE_HEIGHT,
+  OUTPUTNODE_TEXTSTYLE,
+  OUTPUTSOCKET_WIDTH,
+  OUTPUTSOCKET_CORNERRADIUS,
+  OUTPUTSOCKET_TEXTMARGIN_RIGHT,
+  OUTPUTSOCKET_TEXTMARGIN_TOP,
 } from './constants';
 
 const mainColorHex = PIXI.utils.string2hex(COLOR_MAIN);
@@ -39,6 +45,7 @@ export default class PPNode extends PIXI.Container {
   data: PIXI.InteractionData | null;
 
   inputNodeArray: PIXI.DisplayObject[];
+  outputNodeArray: PIXI.DisplayObject[];
 
   type: string;
 
@@ -50,6 +57,7 @@ export default class PPNode extends PIXI.Container {
     this.name = node.name;
     this.type = node.type;
     this.inputNodeArray = [];
+    this.outputNodeArray = [];
 
     const inputNameText = new PIXI.Text(this.name, NODE_TEXTSTYLE);
     inputNameText.x = NODE_OUTLINE_DISTANCE + NODE_HEADER_TEXTMARGIN_LEFT;
@@ -62,15 +70,37 @@ export default class PPNode extends PIXI.Container {
     this._BackgroundRef = this.addChild(background);
     this._NodeNameRef = this.addChild(inputNameText);
 
-    for (let index = 0; index < node.inputs.length; index++) {
-      const inputNode = new InputNode(
-        node.inputs[index].name,
-        node.inputs[index].type
-      );
-      const inputNodeRef = this.addChild(inputNode);
-      inputNodeRef.y =
-        NODE_MARGIN_TOP + NODE_HEADER_HEIGHT + index * INPUTNODE_HEIGHT;
-      this.inputNodeArray.push(inputNodeRef);
+    // adding outputs
+    if (node.outputs) {
+      for (let index = 0; index < node.outputs.length; index++) {
+        const outputNode = new OutputNode(
+          node.outputs[index].name,
+          node.outputs[index].type
+        );
+        const outputNodeRef = this.addChild(outputNode);
+        outputNodeRef.y =
+          NODE_MARGIN_TOP + NODE_HEADER_HEIGHT + index * INPUTNODE_HEIGHT;
+        this.outputNodeArray.push(outputNodeRef);
+      }
+    }
+
+    // adding inputs
+    if (node.inputs) {
+      for (let index = 0; index < node.inputs.length; index++) {
+        const inputNode = new InputNode(
+          node.inputs[index].name,
+          node.inputs[index].type
+        );
+        const inputNodeRef = this.addChild(inputNode);
+        inputNodeRef.y =
+          NODE_MARGIN_TOP +
+          NODE_HEADER_HEIGHT +
+          (node.outputs === undefined
+            ? 0
+            : node.outputs.length * OUTPUTNODE_HEIGHT) +
+          index * INPUTNODE_HEIGHT;
+        this.inputNodeArray.push(inputNodeRef);
+      }
     }
 
     // draw shape
@@ -214,6 +244,7 @@ export default class PPNode extends PIXI.Container {
       NODE_MARGIN_TOP +
         NODE_HEADER_HEIGHT +
         this.inputNodeArray.length * INPUTNODE_HEIGHT +
+        this.outputNodeArray.length * OUTPUTNODE_HEIGHT +
         NODE_MARGIN_BOTTOM,
       NODE_CORNERRADIUS
     );
@@ -228,6 +259,7 @@ export default class PPNode extends PIXI.Container {
           NODE_MARGIN_TOP +
           NODE_HEADER_HEIGHT +
           this.inputNodeArray.length * INPUTNODE_HEIGHT +
+          this.outputNodeArray.length * OUTPUTNODE_HEIGHT +
           NODE_MARGIN_BOTTOM,
         NODE_CORNERRADIUS + NODE_OUTLINE_DISTANCE
       );
@@ -298,6 +330,79 @@ class InputNode extends PIXI.Container {
     this.alpha = 1.0;
     this.cursor = 'default';
     (this._InputSocketRef as PIXI.Graphics).tint = 0xffffff;
+  }
+
+  _onClick(event: PIXI.InteractionEvent): void {
+    console.log(event.target);
+  }
+}
+
+class OutputNode extends PIXI.Container {
+  _OutputNameRef: PIXI.DisplayObject;
+
+  _OutputSocketRef: PIXI.DisplayObject;
+
+  data: PIXI.InteractionData | null;
+
+  type: string;
+
+  constructor(name = 'Number', type = 'number') {
+    super();
+    this.name = name;
+    this.type = type;
+
+    const socket = new PIXI.Graphics();
+    socket.beginFill(mainColorHex);
+    socket.drawRoundedRect(
+      NODE_OUTLINE_DISTANCE + NODE_WIDTH,
+      NODE_OUTLINE_DISTANCE + OUTPUTSOCKET_WIDTH / 2,
+      OUTPUTSOCKET_WIDTH,
+      OUTPUTSOCKET_WIDTH,
+      OUTPUTSOCKET_CORNERRADIUS
+    );
+    socket.endFill();
+
+    const outputNameText = new PIXI.Text(name, OUTPUTNODE_TEXTSTYLE);
+    outputNameText.x =
+      NODE_OUTLINE_DISTANCE +
+      NODE_WIDTH -
+      outputNameText.getBounds().width -
+      OUTPUTSOCKET_TEXTMARGIN_RIGHT;
+    outputNameText.y = NODE_OUTLINE_DISTANCE + OUTPUTSOCKET_TEXTMARGIN_TOP;
+    outputNameText.resolution = 8; // so one can zoom in closer and it keeps a decent resolution
+
+    this._OutputSocketRef = this.addChild(socket);
+    this._OutputNameRef = this.addChild(outputNameText);
+
+    this.data = null;
+    this.interactive = true;
+    this._OutputSocketRef.interactive = true;
+    this._OutputSocketRef.on('pointerover', this._onSpriteOver.bind(this));
+    this._OutputSocketRef.on('pointerout', this._onSpriteOut.bind(this));
+    this._OutputSocketRef.on('click', this._onClick.bind(this));
+  }
+
+  // GETTERS & SETTERS
+
+  get outputSocketRef(): PIXI.DisplayObject {
+    return this._OutputSocketRef;
+  }
+
+  get outputNameRef(): PIXI.DisplayObject {
+    return this._OutputNameRef;
+  }
+
+  // SETUP
+
+  _onSpriteOver(): void {
+    this.cursor = 'pointer';
+    (this._OutputSocketRef as PIXI.Graphics).tint = 0x00ff00;
+  }
+
+  _onSpriteOut(): void {
+    this.alpha = 1.0;
+    this.cursor = 'default';
+    (this._OutputSocketRef as PIXI.Graphics).tint = 0xffffff;
   }
 
   _onClick(event: PIXI.InteractionEvent): void {

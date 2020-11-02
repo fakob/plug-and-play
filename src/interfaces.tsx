@@ -10,7 +10,11 @@ export interface GridPosition {
 export interface NodeData {
   name: string;
   type: string;
-  inputs: {
+  inputs?: {
+    name: string;
+    type: string;
+  }[];
+  outputs?: {
     name: string;
     type: string;
   }[];

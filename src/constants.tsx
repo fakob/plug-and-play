@@ -12,6 +12,17 @@ export const INPUTSOCKET_CORNERRADIUS = 4;
 export const INPUTSOCKET_TEXTMARGIN_LEFT = 8;
 export const INPUTSOCKET_TEXTMARGIN_TOP = 4;
 
+export const OUTPUTNODE_TEXTSTYLE = new TextStyle({
+  fontSize: 12,
+  fill: COLOR_MAIN,
+  // textAlign: 'right',
+});
+export const OUTPUTNODE_HEIGHT = 24;
+export const OUTPUTSOCKET_WIDTH = 12;
+export const OUTPUTSOCKET_CORNERRADIUS = 4;
+export const OUTPUTSOCKET_TEXTMARGIN_RIGHT = 8;
+export const OUTPUTSOCKET_TEXTMARGIN_TOP = 4;
+
 export const NODE_TEXTSTYLE = new TextStyle({
   fontSize: 13,
   fontWeight: 'bold',

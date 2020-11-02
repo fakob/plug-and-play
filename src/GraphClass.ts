@@ -24,6 +24,14 @@ export default class PPGraph {
 
     // clear the stage
     this.clear();
+
+    this.viewport.on('pointerdown', this._onPointerDown.bind(this));
+  }
+
+  _onPointerDown(event: PIXI.InteractionEvent): void {
+    this.viewport.plugins.resume('drag');
+    this.deselectAllNodes();
+    console.log(event.target);
   }
 
   onNodeDragStart(event: PIXI.InteractionEvent, node: PPNode): void {

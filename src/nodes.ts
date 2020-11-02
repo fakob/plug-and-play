@@ -11,6 +11,12 @@ export const addNode = {
       type: 'number',
     },
   ],
+  outputs: [
+    {
+      name: 'Output 1',
+      type: 'number',
+    },
+  ],
 };
 
 export const watchNode = {
