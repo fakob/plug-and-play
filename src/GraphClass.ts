@@ -29,22 +29,15 @@ export default class PPGraph {
   }
 
   _onPointerDown(event: PIXI.InteractionEvent): void {
-    this.viewport.plugins.resume('drag');
     this.deselectAllNodes();
-    console.log(event.target);
   }
 
   onNodeDragStart(event: PIXI.InteractionEvent, node: PPNode): void {
     this.viewport.plugins.pause('drag');
     this.selectNode(node);
-    // if (this._selected) {
-    //   this.select(false);
-    // } else {
-    // this.select(true);
-    // }
   }
 
-  onNodeDragEnd(): void {
+  onNodeDragEnd(event: PIXI.InteractionEvent, node: PPNode): void {
     this.viewport.plugins.resume('drag');
   }
 
@@ -65,7 +58,9 @@ export default class PPGraph {
       .on('pointerdown', (e: PIXI.InteractionEvent) =>
         this.onNodeDragStart(e, node)
       )
-      .on('pointerup', this.onNodeDragEnd);
+      .on('pointerup', (e: PIXI.InteractionEvent) =>
+        this.onNodeDragEnd(e, node)
+      );
 
     this.viewport.addChild(node);
 
