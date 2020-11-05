@@ -10,6 +10,8 @@ import HtmlWebpackPlugin from 'html-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import CopyPlugin from 'copy-webpack-plugin';
 
+const webpack = require('webpack');
+
 module.exports = (env: { mode: 'development' | 'production' }) => {
   const developmentMode = env.mode === 'development';
 
@@ -45,6 +47,9 @@ module.exports = (env: { mode: 'development' | 'production' }) => {
 
     plugins: [
       new HtmlWebpackPlugin(),
+      new webpack.ProvidePlugin({
+        PIXI: 'pixi.js',
+      }),
       new CopyPlugin({
         patterns: [
           {

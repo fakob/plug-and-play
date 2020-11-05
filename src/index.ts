@@ -8,6 +8,9 @@ import * as dat from 'dat.gui';
 
 import './style.css';
 
+(window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__ &&
+  (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__.register({ PIXI: PIXI });
+
 const gui = new dat.GUI();
 
 const gameWidth = 800;
