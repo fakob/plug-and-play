@@ -1,6 +1,7 @@
 import * as PIXI from 'pixi.js';
 import PPGraph from './GraphClass';
 import PPNode from './NodeClass';
+// import PixelGrid from '../assets/Pixel_grid_4000x2000.svg.png';
 import { addNode, watchNode } from './nodes';
 import { Viewport } from 'pixi-viewport';
 import * as dat from 'dat.gui';
@@ -57,6 +58,18 @@ function resizeCanvas(): void {
 
 function setupGrid(): void {
   const graph = new PPGraph(app, viewport);
+
+  const texture = PIXI.Texture.from('../assets/Pixel_grid_4000x2000.svg.png');
+
+  // const background = PIXI.Sprite.from('https://upload.wikimedia.org/wikipedia/commons/6/63/Pixel_grid_4000x2000.svg');
+  const background = new PIXI.TilingSprite(
+    texture,
+    app.screen.width,
+    app.screen.height
+  );
+  background.tileScale.x = 0.5;
+  background.tileScale.y = 0.5;
+  viewport.addChild(background);
 
   const data = {
     amount: 24,

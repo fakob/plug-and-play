@@ -51,6 +51,8 @@ export default class PPNode extends PIXI.Container {
 
   id: number | null;
 
+  clickedSlotRef: null | OutputNode;
+
   constructor(node: NodeData) {
     super();
     this.id = null;
@@ -58,6 +60,7 @@ export default class PPNode extends PIXI.Container {
     this.type = node.type;
     this.inputNodeArray = [];
     this.outputNodeArray = [];
+    this.clickedSlotRef = null;
 
     const inputNameText = new PIXI.Text(this.name, NODE_TEXTSTYLE);
     inputNameText.x = NODE_OUTLINE_DISTANCE + NODE_HEADER_TEXTMARGIN_LEFT;
@@ -138,30 +141,32 @@ export default class PPNode extends PIXI.Container {
     this.on('click', this._onClick.bind(this));
   }
 
-  _onDragStart(event: any): void {
-    console.log('_onDragStart');
-    this.data = event.data;
-    this.clickPosition = new PIXI.Point(
-      event.data.originalEvent.screenX,
-      event.data.originalEvent.screenY
-    );
-    this.cursor = 'grabbing';
-    // if (this._selected) {
-    this.alpha = 0.5;
-    this.dragging = true;
-    const localPositionX = this.position.x;
-    const localPositionY = this.position.y;
-    const localClickPosition = this.data.getLocalPosition(this.parent);
-    const localClickPositionX = localClickPosition.x;
-    const localClickPositionY = localClickPosition.y;
-    const deltaX = localClickPositionX - localPositionX;
-    const deltaY = localClickPositionY - localPositionY;
-    this.relativeClickPosition = new PIXI.Point(deltaX, deltaY);
-    // }
+  _onDragStart(event: PIXI.InteractionEvent): void {
+    if ((event.target as PPNode).clickedSlotRef === null) {
+      console.log('_onDragStart');
+      this.data = event.data;
+      this.clickPosition = new PIXI.Point(
+        (event.data.originalEvent as any).screenX,
+        (event.data.originalEvent as any).screenY
+      );
+      this.cursor = 'grabbing';
+      // if (this._selected) {
+      this.alpha = 0.5;
+      this.dragging = true;
+      const localPositionX = this.position.x;
+      const localPositionY = this.position.y;
+      const localClickPosition = this.data.getLocalPosition(this.parent);
+      const localClickPositionX = localClickPosition.x;
+      const localClickPositionY = localClickPosition.y;
+      const deltaX = localClickPositionX - localPositionX;
+      const deltaY = localClickPositionY - localPositionY;
+      this.relativeClickPosition = new PIXI.Point(deltaX, deltaY);
+      // }
+    }
   }
 
-  _onDragEnd(event: any): void {
-    const evData = event.data.originalEvent;
+  _onDragEnd(event: PIXI.InteractionEvent): void {
+    const evData = event.data.originalEvent as any;
     // if real dragend
     if (this.clickPosition !== null) {
       if (
@@ -345,11 +350,13 @@ class OutputNode extends PIXI.Container {
   data: PIXI.InteractionData | null;
 
   type: string;
+  linkDragPos: null | PIXI.Point;
 
   constructor(name = 'Number', type = 'number') {
     super();
     this.name = name;
     this.type = type;
+    this.linkDragPos = null;
 
     const socket = new PIXI.Graphics();
     socket.beginFill(mainColorHex);
@@ -379,7 +386,10 @@ class OutputNode extends PIXI.Container {
     this._OutputSocketRef.interactive = true;
     this._OutputSocketRef.on('pointerover', this._onSpriteOver.bind(this));
     this._OutputSocketRef.on('pointerout', this._onSpriteOut.bind(this));
-    this._OutputSocketRef.on('click', this._onClick.bind(this));
+    this._OutputSocketRef.on('pointerdown', this._onCreateLink.bind(this));
+    // this._OutputSocketRef.on('pointerup', this._onDragEnd.bind(this));
+    // this._OutputSocketRef.on('pointermove', this._onDragMove.bind(this));
+    // this._OutputSocketRef.on('click', this._onClick.bind(this));
   }
 
   // GETTERS & SETTERS
@@ -405,7 +415,31 @@ class OutputNode extends PIXI.Container {
     (this._OutputSocketRef as PIXI.Graphics).tint = 0xffffff;
   }
 
-  _onClick(event: PIXI.InteractionEvent): void {
-    console.log(event.target);
+  _onCreateLink(event: PIXI.InteractionEvent): void {
+    // event.stopPropagation();
+    console.log('output socket _onCreateLink');
+    // console.log(event.target);
+    console.log(event.target.parent);
+    // console.log(event.target.parent.parent);
+    (event.target.parent.parent as PPNode).clickedSlotRef = event.target
+      .parent as OutputNode;
+    // console.log(event.target.parent.parent.parent);
+    // console.log(event.target.getGlobalPosition());
+    // this.data = event.data;
+    // this.alpha = 0.5;
+    // this.linkDragPos = event.target.getGlobalPosition();
   }
+
+  // _onDragEnd() {
+  //   this.alpha = 1;
+  //   this.linkDragPos = null;
+  //   // set the interaction data to null
+  //   this.data = null;
+  // }
+
+  // _onClick(event: PIXI.InteractionEvent): void {
+  //   event.stopPropagation;
+  //   console.log('output socket _onClick');
+  //   console.log(event.target);
+  // }
 }
