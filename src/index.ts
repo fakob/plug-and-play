@@ -73,6 +73,15 @@ function setupGrid(): void {
   background.tileScale.x = 0.5;
   background.tileScale.y = 0.5;
   viewport.addChild(background);
+  viewport.on('moved', () => {
+    background.tilePosition.y = -viewport.top;
+    background.tilePosition.x = -viewport.left;
+    background.y = viewport.top;
+    background.x = viewport.left;
+
+    background.width = innerWidth / viewport.scale.x;
+    background.height = innerHeight / viewport.scale.y;
+  });
 
   const data = {
     amount: 24,
