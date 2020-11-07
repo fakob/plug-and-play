@@ -52,6 +52,7 @@ export default class PPNode extends PIXI.Container {
   id: number | null;
 
   clickedSlotRef: null | OutputNode;
+  dragSourcePoint: null | PIXI.Point;
 
   constructor(node: NodeData) {
     super();
@@ -61,6 +62,7 @@ export default class PPNode extends PIXI.Container {
     this.inputNodeArray = [];
     this.outputNodeArray = [];
     this.clickedSlotRef = null;
+    this.dragSourcePoint = null;
 
     const inputNameText = new PIXI.Text(this.name, NODE_TEXTSTYLE);
     inputNameText.x = NODE_OUTLINE_DISTANCE + NODE_HEADER_TEXTMARGIN_LEFT;

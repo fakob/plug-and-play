@@ -36,7 +36,7 @@ export default class PPGraph {
     this.viewport.on('pointerdown', this._onPointerDown.bind(this));
   }
 
-  _onPointerDown(event: PIXI.InteractionEvent): void {
+  _onPointerDown(): void {
     this.deselectAllNodes();
     console.log(this.dragLink);
   }
@@ -46,16 +46,18 @@ export default class PPGraph {
     console.log(node);
     if (node.clickedSlotRef === null) {
       // clicked on the node, but not on a slot
-      // this.viewport.plugins.pause('drag');
       this.selectNode(node);
     } else {
-      console.log(event.data.global);
-      // console.log(node.clickedSlotRef);
-      console.log(node.clickedSlotRef.children);
-      console.log(node.clickedSlotRef.children[0].getBounds());
+      // event.data.global delivers the mouse coordinates from the top left corner in pixel
       node.data = event.data;
-      node.dragSource = node.clickedSlotRef.children[0].getBounds();
-      // node.dragSource = event.data.global.clone();
+
+      const dragSourceRect = node.clickedSlotRef.children[0].getBounds();
+      const dragSourcePoint = new PIXI.Point(
+        dragSourceRect.x + dragSourceRect.width / 2,
+        dragSourceRect.y + dragSourceRect.height / 2
+      );
+      // change dragSourcePoint coordinates from screen to world space
+      node.dragSourcePoint = this.viewport.toWorld(dragSourcePoint);
       // this.alpha = 0.5;
       // this.dragging = true;
     }
@@ -63,32 +65,28 @@ export default class PPGraph {
 
   onNodeDragMove(event: PIXI.InteractionEvent, node: PPNode): void {
     if (node.clickedSlotRef !== null) {
-      console.log(node.dragSource);
-      console.log(node.data.global);
-      // const newPosition = this.data.getLocalPosition(this.parent);
-      // this.x = node.clickedSlotRef.children[0].getGlobalPosition().x;
-      // this.y = node.clickedSlotRef.children[0].getGlobalPosition().y;
-
       this.linkGraphics.clear();
       this.linkGraphics.lineStyle(2, 0xff00ff, 1);
-      const sourcePointX = node.dragSource.x + node.dragSource.width / 2;
-      const sourcePointY = node.dragSource.y + node.dragSource.height / 2;
-      const toX = event.data.global.x - sourcePointX;
-      const toY = event.data.global.y - sourcePointY;
-      const cpX = Math.abs(toX - sourcePointX) / 2;
-      const cpY = sourcePointY;
-      const cpX2 = toX - Math.abs(toX - sourcePointX) / 2;
+      const sourcePointX = node.dragSourcePoint.x;
+      const sourcePointY = node.dragSourcePoint.y;
+
+      // change mouse coordinates from screen to world space
+      const mousePoint = this.viewport.toWorld(event.data.global);
+      const mousePointX = mousePoint.x;
+      const mousePointY = mousePoint.y;
+
+      // draw curve from 0,0 as PIXI.Graphics originates from 0,0
+      const toX = mousePointX - sourcePointX;
+      const toY = mousePointY - sourcePointY;
+      const cpX = Math.abs(toX) / 2;
+      const cpY = 0;
+      const cpX2 = cpX;
       const cpY2 = toY;
-
-      this.linkGraphics.beginFill(0xde3249);
-      this.linkGraphics.drawRect(sourcePointX, sourcePointY, 10, 10);
-      this.linkGraphics.drawRect(cpX, cpY, 10, 10);
-      this.linkGraphics.drawRect(cpX2, cpY2, 10, 10);
-      this.linkGraphics.endFill();
-
       this.linkGraphics.bezierCurveTo(cpX, cpY, cpX2, cpY2, toX, toY);
-      // this.linkGraphics.x = sourcePointX;
-      // this.linkGraphics.y = sourcePointY;
+
+      // offset curve to start from source
+      this.linkGraphics.x = sourcePointX;
+      this.linkGraphics.y = sourcePointY;
     }
   }
 
@@ -154,16 +152,6 @@ export default class PPGraph {
 
     //links
     // this.links = {}; //container with all the links
-
-    this.viewport.removeChildren();
-    const texture = PIXI.Texture.from('assets/old_mathematics_@2X.png');
-
-    const tilingSprite = new PIXI.TilingSprite(
-      texture,
-      this.app.screen.width,
-      this.app.screen.height
-    );
-    this.viewport.addChild(tilingSprite);
   }
 
   selectNode(node: PPNode): void {

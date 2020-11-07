@@ -60,10 +60,8 @@ function resizeCanvas(): void {
 }
 
 function setupGrid(): void {
-  const graph = new PPGraph(app, viewport);
-
+  // add background tiles
   const texture = PIXI.Texture.from('../assets/Pixel_grid_4000x2000.svg.png');
-
   // const background = PIXI.Sprite.from('https://upload.wikimedia.org/wikipedia/commons/6/63/Pixel_grid_4000x2000.svg');
   const background = new PIXI.TilingSprite(
     texture,
@@ -82,6 +80,9 @@ function setupGrid(): void {
     background.width = innerWidth / viewport.scale.x;
     background.height = innerHeight / viewport.scale.y;
   });
+
+  // add graph
+  const graph = new PPGraph(app, viewport);
 
   const data = {
     amount: 24,
