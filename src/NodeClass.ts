@@ -29,7 +29,7 @@ import {
 const mainColorHex = PIXI.utils.string2hex(COLOR_MAIN);
 const nodeBackgroundColorHex = PIXI.utils.string2hex(NODE_BACKGROUNDCOLOR);
 
-export default class PPNode extends PIXI.Container {
+export class PPNode extends PIXI.Container {
   _NodeNameRef: PIXI.DisplayObject;
 
   _BackgroundRef: PIXI.Graphics;
@@ -51,7 +51,8 @@ export default class PPNode extends PIXI.Container {
 
   id: number | null;
 
-  clickedSlotRef: null | OutputNode;
+  clickedOutputRef: null | OutputNode;
+  overInputRef: null | InputNode;
   dragSourcePoint: null | PIXI.Point;
 
   constructor(node: NodeData) {
@@ -61,7 +62,8 @@ export default class PPNode extends PIXI.Container {
     this.type = node.type;
     this.inputNodeArray = [];
     this.outputNodeArray = [];
-    this.clickedSlotRef = null;
+    this.clickedOutputRef = null;
+    this.overInputRef = null;
     this.dragSourcePoint = null;
 
     const inputNameText = new PIXI.Text(this.name, NODE_TEXTSTYLE);
@@ -144,7 +146,7 @@ export default class PPNode extends PIXI.Container {
   }
 
   _onDragStart(event: PIXI.InteractionEvent): void {
-    if ((event.target as PPNode).clickedSlotRef === null) {
+    if ((event.target as PPNode).clickedOutputRef === null) {
       console.log('_onDragStart');
       this.data = event.data;
       this.clickPosition = new PIXI.Point(
@@ -274,7 +276,7 @@ export default class PPNode extends PIXI.Container {
   }
 }
 
-class InputNode extends PIXI.Container {
+export class InputNode extends PIXI.Container {
   _InputNameRef: PIXI.DisplayObject;
 
   _InputSocketRef: PIXI.DisplayObject;
@@ -328,9 +330,13 @@ class InputNode extends PIXI.Container {
 
   // SETUP
 
-  _onSpriteOver(): void {
+  _onSpriteOver(event: PIXI.InteractionEvent): void {
     this.cursor = 'pointer';
     (this._InputSocketRef as PIXI.Graphics).tint = 0x00ff00;
+
+    console.log('over input', event.target.parent as InputNode);
+    (event.target.parent.parent as PPNode).overInputRef = event.target
+      .parent as InputNode;
   }
 
   _onSpriteOut(): void {
@@ -344,7 +350,7 @@ class InputNode extends PIXI.Container {
   }
 }
 
-class OutputNode extends PIXI.Container {
+export class OutputNode extends PIXI.Container {
   _OutputNameRef: PIXI.DisplayObject;
 
   _OutputSocketRef: PIXI.DisplayObject;
@@ -423,7 +429,7 @@ class OutputNode extends PIXI.Container {
     // console.log(event.target);
     console.log(event.target.parent);
     // console.log(event.target.parent.parent);
-    (event.target.parent.parent as PPNode).clickedSlotRef = event.target
+    (event.target.parent.parent as PPNode).clickedOutputRef = event.target
       .parent as OutputNode;
     // console.log(event.target.parent.parent.parent);
     // console.log(event.target.getGlobalPosition());

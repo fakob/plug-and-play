@@ -1,6 +1,6 @@
 import * as PIXI from 'pixi.js';
 import PPGraph from './GraphClass';
-import PPNode from './NodeClass';
+import { PPNode } from './NodeClass';
 // import PixelGrid from '../assets/Pixel_grid_4000x2000.svg.png';
 import { addNode, watchNode } from './nodes';
 import { Viewport } from 'pixi-viewport';

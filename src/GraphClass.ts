@@ -1,7 +1,7 @@
 import * as PIXI from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
 import PPLink from './LinkClass';
-import PPNode from './NodeClass';
+import { PPNode, OutputNode } from './NodeClass';
 
 export default class PPGraph {
   app: PIXI.Application;
@@ -12,11 +12,10 @@ export default class PPGraph {
   last_link_id: number;
 
   _nodes: PPNode[];
-  _connections: PPLink[];
+  _links: PPLink[];
 
   selected_nodes: number[];
-
-  _dragLink: boolean;
+  connectingOutput: null | OutputNode;
 
   linkGraphics: PIXI.Graphics;
 
@@ -27,7 +26,7 @@ export default class PPGraph {
 
     // clear the stage
     this.clear();
-    this._dragLink = false;
+    this.connectingOutput = null;
 
     // const linkGraphics = new PIXI.Graphics();
     this.linkGraphics = new PIXI.Graphics();
@@ -38,20 +37,20 @@ export default class PPGraph {
 
   _onPointerDown(): void {
     this.deselectAllNodes();
-    console.log(this.dragLink);
   }
 
   onNodeDragStart(event: PIXI.InteractionEvent, node: PPNode): void {
     event.stopPropagation();
     console.log(node);
-    if (node.clickedSlotRef === null) {
+    if (node.clickedOutputRef === null) {
       // clicked on the node, but not on a slot
       this.selectNode(node);
     } else {
+      this.connectingOutput = node.clickedOutputRef;
       // event.data.global delivers the mouse coordinates from the top left corner in pixel
       node.data = event.data;
 
-      const dragSourceRect = node.clickedSlotRef.children[0].getBounds();
+      const dragSourceRect = node.clickedOutputRef.children[0].getBounds();
       const dragSourcePoint = new PIXI.Point(
         dragSourceRect.x + dragSourceRect.width / 2,
         dragSourceRect.y + dragSourceRect.height / 2
@@ -64,7 +63,7 @@ export default class PPGraph {
   }
 
   onNodeDragMove(event: PIXI.InteractionEvent, node: PPNode): void {
-    if (node.clickedSlotRef !== null) {
+    if (this.connectingOutput !== null && node.clickedOutputRef !== null) {
       this.linkGraphics.clear();
       this.linkGraphics.lineStyle(2, 0xff00ff, 1);
       const sourcePointX = node.dragSourcePoint.x;
@@ -92,22 +91,40 @@ export default class PPGraph {
 
   onNodeDragEnd(event: PIXI.InteractionEvent, node: PPNode): void {
     console.log('onNodeDragEnd');
-    if (node.clickedSlotRef === null) {
+    if (this.connectingOutput === null) {
       // this.viewport.plugins.resume('drag');
     } else {
-      node.clickedSlotRef = null;
+      // check if over input
+      if (node.overInputRef !== null) {
+        console.log(
+          'connecting Output:',
+          this.connectingOutput.name,
+          'of',
+          this.connectingOutput.parent.name,
+          'with Input:',
+          node.overInputRef.name,
+          'of',
+          node.overInputRef.parent.name
+        );
+      }
+      this.connectingOutput = null;
+      node.clickedOutputRef = null;
+      node.overInputRef = null;
+    }
+  }
+
+  onNodeOver(event: PIXI.InteractionEvent, node: PPNode): void {
+    console.log('onNodeOver');
+    // is connecting node
+    if (this.connectingOutput !== null) {
+      console.log('over other node', node.name);
+      if (node.overInputRef !== null) {
+        console.log('over other nodes socket', node.overInputRef.name);
+      }
     }
   }
 
   // GETTERS & SETTERS
-
-  get dragLink(): boolean {
-    return this._dragLink;
-  }
-
-  set dragLink(isDraggingLink: boolean) {
-    this._dragLink = isDraggingLink;
-  }
 
   // selectNode(node, add_to_current_selection) {
   //   if (node == null) {
@@ -134,6 +151,9 @@ export default class PPGraph {
       )
       .on('pointerup', (e: PIXI.InteractionEvent) =>
         this.onNodeDragEnd(e, node)
+      )
+      .on('pointerover', (e: PIXI.InteractionEvent) =>
+        this.onNodeOver(e, node)
       );
 
     this.viewport.addChild(node);
@@ -151,7 +171,7 @@ export default class PPGraph {
     this._nodes = [];
 
     //links
-    // this.links = {}; //container with all the links
+    this._links = []; //container with all the links
   }
 
   selectNode(node: PPNode): void {
