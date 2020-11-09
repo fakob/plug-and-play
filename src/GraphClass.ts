@@ -1,18 +1,18 @@
 import * as PIXI from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
 import PPLink from './LinkClass';
-import { PPNode, OutputNode } from './NodeClass';
+import { PPNode, InputNode, OutputNode } from './NodeClass';
 
 export default class PPGraph {
   app: PIXI.Application;
   viewport: Viewport;
 
-  last_node_id: number;
+  lastNodeId: number;
 
-  last_link_id: number;
+  lastLinkId: number;
 
-  _nodes: PPNode[];
-  _links: PPLink[];
+  _nodes: { [key: number]: PPNode };
+  _links: { [key: number]: PPLink };
 
   selected_nodes: number[];
   connectingOutput: null | OutputNode;
@@ -106,7 +106,9 @@ export default class PPGraph {
           'of',
           node.overInputRef.parent.name
         );
+        this.connect(this.connectingOutput, node.overInputRef, this.viewport);
       }
+      this.linkGraphics.clear();
       this.connectingOutput = null;
       node.clickedOutputRef = null;
       node.overInputRef = null;
@@ -156,22 +158,68 @@ export default class PPGraph {
         this.onNodeOver(e, node)
       );
 
+    // give the node an id
+    node.id = ++this.lastNodeId;
+
+    // add the node to the canvas
     this.viewport.addChild(node);
 
-    this._nodes.push(node);
+    // add the node to the _nodes object
+    this._nodes[node.id] = node;
 
     return node; //to chain actions
   }
 
+  connect(output: OutputNode, input: InputNode, viewport: Viewport): PPLink {
+    // //if there is something already plugged there, disconnect
+    // if (target_node.inputs[target_slot].link != null) {
+    //   this.graph.beforeChange();
+    //   target_node.disconnectInput(target_slot);
+    //   changed = true;
+    // }
+
+    let linkInfo = null;
+
+    // //this slots cannot be connected (different types)
+    // if (!LiteGraph.isValidConnection(output.type, input.type)) {
+    //   this.setDirtyCanvas(false, true);
+    //   if (changed) this.graph.connectionChange(this, linkInfo);
+    //   return null;
+    // }
+
+    //create link class
+    linkInfo = new PPLink(
+      (this.lastLinkId += 1),
+      input.type,
+      output,
+      input,
+      viewport
+    );
+
+    //add to graph links list
+    this._links[linkInfo.id] = linkInfo;
+
+    //connect in output
+    output.links.push(linkInfo);
+    //connect in input
+    input.link = linkInfo;
+
+    console.log(linkInfo);
+
+    this.viewport.addChild(linkInfo);
+
+    return linkInfo;
+  }
+
   clear(): void {
-    this.last_node_id = 0;
-    this.last_link_id = 0;
+    this.lastNodeId = 0;
+    this.lastLinkId = 0;
 
     //nodes
     this._nodes = [];
 
     //links
-    this._links = []; //container with all the links
+    this._links = {}; //container with all the links
   }
 
   selectNode(node: PPNode): void {
@@ -186,75 +234,11 @@ export default class PPGraph {
 
   deselectAllNodes(): void {
     const nodes = this._nodes;
-    for (let i = 0, l = nodes.length; i < l; ++i) {
-      const node = nodes[i];
+    Object.entries(nodes).forEach(([, node]) => {
       if (node.selected) {
         node.select(false);
       }
-    }
+    });
     this.selected_nodes = [];
   }
-
-  // connect(slot, target_node, target_slot) {
-  //   target_slot = target_slot || 0;
-
-  //   var output = this.outputs[slot];
-
-  //   var input = target_node.inputs[target_slot];
-  //   var link_info = null;
-
-  //   //create link class
-  //   link_info = new LLink(
-  //     ++this.graph.last_link_id,
-  //     input.type,
-  //     this.id,
-  //     slot,
-  //     target_node.id,
-  //     target_slot
-  //   );
-
-  //   //add to graph links list
-  //   this.graph.links[link_info.id] = link_info;
-
-  //   //connect in output
-  //   if (output.links == null) {
-  //     output.links = [];
-  //   }
-  //   output.links.push(link_info.id);
-  //   //connect in input
-  //   target_node.inputs[target_slot].link = link_info.id;
-  //   if (this.graph) {
-  //     this.graph._version++;
-  //   }
-  //   if (this.onConnectionsChange) {
-  //     this.onConnectionsChange(LiteGraph.OUTPUT, slot, true, link_info, output);
-  //   } //link_info has been created now, so its updated
-  //   if (target_node.onConnectionsChange) {
-  //     target_node.onConnectionsChange(
-  //       LiteGraph.INPUT,
-  //       target_slot,
-  //       true,
-  //       link_info,
-  //       input
-  //     );
-  //   }
-  //   if (this.graph && this.graph.onNodeConnectionChange) {
-  //     this.graph.onNodeConnectionChange(
-  //       LiteGraph.INPUT,
-  //       target_node,
-  //       target_slot,
-  //       this,
-  //       slot
-  //     );
-  //     this.graph.onNodeConnectionChange(
-  //       LiteGraph.OUTPUT,
-  //       this,
-  //       slot,
-  //       target_node,
-  //       target_slot
-  //     );
-  //   }
-
-  //   return link_info;
-  // }
 }

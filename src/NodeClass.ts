@@ -1,4 +1,5 @@
 import * as PIXI from 'pixi.js';
+import PPLink from './LinkClass';
 import { NodeData } from './interfaces';
 import {
   COLOR_MAIN,
@@ -44,8 +45,8 @@ export class PPNode extends PIXI.Container {
 
   data: PIXI.InteractionData | null;
 
-  inputNodeArray: PIXI.DisplayObject[];
-  outputNodeArray: PIXI.DisplayObject[];
+  inputNodeArray: InputNode[];
+  outputNodeArray: OutputNode[];
 
   type: string;
 
@@ -198,6 +199,18 @@ export class PPNode extends PIXI.Container {
       const newPosition = this.data.getLocalPosition(this.parent);
       this.x = newPosition.x - this.relativeClickPosition.x;
       this.y = newPosition.y - this.relativeClickPosition.y;
+
+      // check for connections and move them too
+      this.outputNodeArray.map((output) => {
+        output.links.map((link) => {
+          link.updateConnection();
+        });
+      });
+      this.inputNodeArray.map((input) => {
+        if (input.link !== null) {
+          input.link.updateConnection();
+        }
+      });
     }
   }
 
@@ -285,10 +298,13 @@ export class InputNode extends PIXI.Container {
 
   type: string;
 
+  link: PPLink | null;
+
   constructor(name = 'Number', type = 'number') {
     super();
     this.name = name;
     this.type = type;
+    this.link = null;
 
     const socket = new PIXI.Graphics();
     socket.beginFill(mainColorHex);
@@ -360,11 +376,14 @@ export class OutputNode extends PIXI.Container {
   type: string;
   linkDragPos: null | PIXI.Point;
 
+  links: PPLink[];
+
   constructor(name = 'Number', type = 'number') {
     super();
     this.name = name;
     this.type = type;
     this.linkDragPos = null;
+    this.links = [];
 
     const socket = new PIXI.Graphics();
     socket.beginFill(mainColorHex);
