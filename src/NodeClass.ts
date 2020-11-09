@@ -2,7 +2,7 @@ import * as PIXI from 'pixi.js';
 import PPLink from './LinkClass';
 import { NodeData } from './interfaces';
 import {
-  COLOR_MAIN,
+  COLOR_MAIN_HEX,
   NODE_BACKGROUNDCOLOR,
   NODE_CORNERRADIUS,
   NODE_MARGIN_TOP,
@@ -27,7 +27,6 @@ import {
   OUTPUTSOCKET_TEXTMARGIN_TOP,
 } from './constants';
 
-const mainColorHex = PIXI.utils.string2hex(COLOR_MAIN);
 const nodeBackgroundColorHex = PIXI.utils.string2hex(NODE_BACKGROUNDCOLOR);
 
 export class PPNode extends PIXI.Container {
@@ -307,7 +306,7 @@ export class InputNode extends PIXI.Container {
     this.link = null;
 
     const socket = new PIXI.Graphics();
-    socket.beginFill(mainColorHex);
+    socket.beginFill(COLOR_MAIN_HEX);
     socket.drawRoundedRect(
       NODE_OUTLINE_DISTANCE + 0,
       NODE_OUTLINE_DISTANCE + INPUTSOCKET_WIDTH / 2,
@@ -386,7 +385,7 @@ export class OutputNode extends PIXI.Container {
     this.links = [];
 
     const socket = new PIXI.Graphics();
-    socket.beginFill(mainColorHex);
+    socket.beginFill(COLOR_MAIN_HEX);
     socket.drawRoundedRect(
       NODE_OUTLINE_DISTANCE + NODE_WIDTH,
       NODE_OUTLINE_DISTANCE + OUTPUTSOCKET_WIDTH / 2,

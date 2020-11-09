@@ -1,6 +1,13 @@
+import * as PIXI from 'pixi.js';
 import { TextStyle } from '@pixi/text';
 
+export const CANVAS_BACKGROUNDCOLOR = '#d3d3d3';
+export const CANVAS_BACKGROUNDCOLOR_HEX = PIXI.utils.string2hex(
+  CANVAS_BACKGROUNDCOLOR
+);
+
 export const COLOR_MAIN = '#2E3A59';
+export const COLOR_MAIN_HEX = PIXI.utils.string2hex(COLOR_MAIN);
 
 export const INPUTNODE_TEXTSTYLE = new TextStyle({
   fontSize: 12,
@@ -37,3 +44,5 @@ export const NODE_HEADER_TEXTMARGIN_TOP = 4;
 export const NODE_WIDTH = 160;
 export const NODE_CORNERRADIUS = 8;
 export const NODE_BACKGROUNDCOLOR = '#C1CADF';
+
+export const CONNECTION_COLOR_HEX = PIXI.utils.string2hex('#2E5942');

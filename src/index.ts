@@ -1,10 +1,11 @@
 import * as PIXI from 'pixi.js';
+import { Viewport } from 'pixi-viewport';
+import * as dat from 'dat.gui';
 import PPGraph from './GraphClass';
 import { PPNode } from './NodeClass';
 // import PixelGrid from '../assets/Pixel_grid_4000x2000.svg.png';
 import { addNode, watchNode } from './nodes';
-import { Viewport } from 'pixi-viewport';
-import * as dat from 'dat.gui';
+import { CANVAS_BACKGROUNDCOLOR_HEX } from './constants';
 
 import './style.css';
 
@@ -17,7 +18,7 @@ const gameWidth = 800;
 const gameHeight = 600;
 
 const app = new PIXI.Application({
-  backgroundColor: 0xd3d3d3,
+  backgroundColor: CANVAS_BACKGROUNDCOLOR_HEX,
   width: gameWidth,
   height: gameHeight,
   antialias: true,
@@ -80,6 +81,7 @@ function setupGrid(): void {
     background.width = innerWidth / viewport.scale.x;
     background.height = innerHeight / viewport.scale.y;
   });
+  background.alpha = 0.1;
 
   // add graph
   const graph = new PPGraph(app, viewport);

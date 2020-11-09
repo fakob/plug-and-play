@@ -2,6 +2,7 @@ import * as PIXI from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
 import PPLink from './LinkClass';
 import { PPNode, InputNode, OutputNode } from './NodeClass';
+import { CONNECTION_COLOR_HEX } from './constants';
 
 export default class PPGraph {
   app: PIXI.Application;
@@ -17,7 +18,9 @@ export default class PPGraph {
   selected_nodes: number[];
   connectingOutput: null | OutputNode;
 
-  linkGraphics: PIXI.Graphics;
+  tempConnection: PIXI.Graphics;
+  connectionContainer: PIXI.Container;
+  nodeContainer: PIXI.Container;
 
   constructor(app: PIXI.Application, viewport: Viewport) {
     this.app = app;
@@ -28,9 +31,15 @@ export default class PPGraph {
     this.clear();
     this.connectingOutput = null;
 
-    // const linkGraphics = new PIXI.Graphics();
-    this.linkGraphics = new PIXI.Graphics();
-    this.viewport.addChild(this.linkGraphics);
+    this.tempConnection = new PIXI.Graphics();
+    this.connectionContainer = new PIXI.Container();
+    this.connectionContainer.name = 'connectionContainer';
+    this.nodeContainer = new PIXI.Container();
+    this.nodeContainer.name = 'nodeContainer';
+
+    this.viewport.addChild(this.connectionContainer, this.nodeContainer);
+    this.connectionContainer.addChild(this.tempConnection);
+    this.tempConnection.name = 'tempConnection';
 
     this.viewport.on('pointerdown', this._onPointerDown.bind(this));
   }
@@ -64,8 +73,7 @@ export default class PPGraph {
 
   onNodeDragMove(event: PIXI.InteractionEvent, node: PPNode): void {
     if (this.connectingOutput !== null && node.clickedOutputRef !== null) {
-      this.linkGraphics.clear();
-      this.linkGraphics.lineStyle(2, 0xff00ff, 1);
+      // temporarily draw connection while dragging
       const sourcePointX = node.dragSourcePoint.x;
       const sourcePointY = node.dragSourcePoint.y;
 
@@ -79,13 +87,16 @@ export default class PPGraph {
       const toY = mousePointY - sourcePointY;
       const cpX = Math.abs(toX) / 2;
       const cpY = 0;
-      const cpX2 = cpX;
+      const cpX2 = toX - cpX;
       const cpY2 = toY;
-      this.linkGraphics.bezierCurveTo(cpX, cpY, cpX2, cpY2, toX, toY);
+
+      this.tempConnection.clear();
+      this.tempConnection.lineStyle(2, CONNECTION_COLOR_HEX, 1);
+      this.tempConnection.bezierCurveTo(cpX, cpY, cpX2, cpY2, toX, toY);
 
       // offset curve to start from source
-      this.linkGraphics.x = sourcePointX;
-      this.linkGraphics.y = sourcePointY;
+      this.tempConnection.x = sourcePointX;
+      this.tempConnection.y = sourcePointY;
     }
   }
 
@@ -108,7 +119,7 @@ export default class PPGraph {
         );
         this.connect(this.connectingOutput, node.overInputRef, this.viewport);
       }
-      this.linkGraphics.clear();
+      this.tempConnection.clear();
       this.connectingOutput = null;
       node.clickedOutputRef = null;
       node.overInputRef = null;
@@ -162,7 +173,7 @@ export default class PPGraph {
     node.id = ++this.lastNodeId;
 
     // add the node to the canvas
-    this.viewport.addChild(node);
+    this.nodeContainer.addChild(node);
 
     // add the node to the _nodes object
     this._nodes[node.id] = node;
@@ -206,7 +217,7 @@ export default class PPGraph {
 
     console.log(linkInfo);
 
-    this.viewport.addChild(linkInfo);
+    this.connectionContainer.addChild(linkInfo);
 
     return linkInfo;
   }
