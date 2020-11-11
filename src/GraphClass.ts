@@ -48,91 +48,144 @@ export default class PPGraph {
     this.deselectAllNodes();
   }
 
-  onNodeDragStart(event: PIXI.InteractionEvent, node: PPNode): void {
+  onNodePointerDown(event: PIXI.InteractionEvent): void {
+    console.log('onNodePointerDown');
+    // stop propagation so viewport does not get dragged
     event.stopPropagation();
-    console.log(node);
-    if (node.clickedOutputRef === null) {
-      // clicked on the node, but not on a slot
-      this.selectNode(node);
-    } else {
-      this.connectingOutput = node.clickedOutputRef;
-      // event.data.global delivers the mouse coordinates from the top left corner in pixel
-      node.data = event.data;
 
-      const dragSourceRect = node.clickedOutputRef.children[0].getBounds();
-      const dragSourcePoint = new PIXI.Point(
-        dragSourceRect.x + dragSourceRect.width / 2,
-        dragSourceRect.y + dragSourceRect.height / 2
-      );
-      // change dragSourcePoint coordinates from screen to world space
-      node.dragSourcePoint = this.viewport.toWorld(dragSourcePoint);
-      // this.alpha = 0.5;
-      // this.dragging = true;
-    }
-  }
+    const node = event.currentTarget as PPNode;
 
-  onNodeDragMove(event: PIXI.InteractionEvent, node: PPNode): void {
-    if (this.connectingOutput !== null && node.clickedOutputRef !== null) {
-      // temporarily draw connection while dragging
-      const sourcePointX = node.dragSourcePoint.x;
-      const sourcePointY = node.dragSourcePoint.y;
+    // not sure why the event.target could be null, but this happens sometimes
+    if (node !== null) {
+      const graph = node.graph;
+      console.log(node.id);
 
-      // change mouse coordinates from screen to world space
-      const mousePoint = this.viewport.toWorld(event.data.global);
-      const mousePointX = mousePoint.x;
-      const mousePointY = mousePoint.y;
+      if (node.clickedOutputRef === null) {
+        // clicked on the node, but not on a slot
+        graph.selectNode(node);
+      } else {
+        // console.log(node.id);
+        // console.log(node.clickedOutputRef);
+        graph.connectingOutput = node.clickedOutputRef;
+        // event.data.global delivers the mouse coordinates from the top left corner in pixel
+        node.data = event.data;
 
-      // draw curve from 0,0 as PIXI.Graphics originates from 0,0
-      const toX = mousePointX - sourcePointX;
-      const toY = mousePointY - sourcePointY;
-      const cpX = Math.abs(toX) / 2;
-      const cpY = 0;
-      const cpX2 = toX - cpX;
-      const cpY2 = toY;
-
-      this.tempConnection.clear();
-      this.tempConnection.lineStyle(2, CONNECTION_COLOR_HEX, 1);
-      this.tempConnection.bezierCurveTo(cpX, cpY, cpX2, cpY2, toX, toY);
-
-      // offset curve to start from source
-      this.tempConnection.x = sourcePointX;
-      this.tempConnection.y = sourcePointY;
-    }
-  }
-
-  onNodeDragEnd(event: PIXI.InteractionEvent, node: PPNode): void {
-    console.log('onNodeDragEnd');
-    if (this.connectingOutput === null) {
-      // this.viewport.plugins.resume('drag');
-    } else {
-      // check if over input
-      if (node.overInputRef !== null) {
-        console.log(
-          'connecting Output:',
-          this.connectingOutput.name,
-          'of',
-          this.connectingOutput.parent.name,
-          'with Input:',
-          node.overInputRef.name,
-          'of',
-          node.overInputRef.parent.name
+        const dragSourceRect = node.clickedOutputRef.children[0].getBounds();
+        const dragSourcePoint = new PIXI.Point(
+          dragSourceRect.x + dragSourceRect.width / 2,
+          dragSourceRect.y + dragSourceRect.height / 2
         );
-        this.connect(this.connectingOutput, node.overInputRef, this.viewport);
+        // change dragSourcePoint coordinates from screen to world space
+        node.dragSourcePoint = graph.viewport.toWorld(dragSourcePoint);
+        // graph.alpha = 0.5;
+        // graph.dragging = true;
       }
-      this.tempConnection.clear();
-      this.connectingOutput = null;
+
+      // subscribe to pointermove
+      node.on('pointermove', graph.onNodeDragMove);
+    }
+  }
+
+  onNodeDragMove(event: PIXI.InteractionEvent): void {
+    console.log('onNodeDragMove');
+
+    const node = event.currentTarget as PPNode;
+
+    // not sure why the event.target could be null, but this happens sometimes
+    if (node !== null) {
+      const graph = node.graph;
+      console.log(node.id);
+
+      if (graph.connectingOutput !== null && node.clickedOutputRef !== null) {
+        console.log(node.id);
+        // temporarily draw connection while dragging
+        const sourcePointX = node.dragSourcePoint.x;
+        const sourcePointY = node.dragSourcePoint.y;
+
+        // change mouse coordinates from screen to world space
+        const mousePoint = graph.viewport.toWorld(event.data.global);
+        const mousePointX = mousePoint.x;
+        const mousePointY = mousePoint.y;
+
+        // draw curve from 0,0 as PIXI.Graphics originates from 0,0
+        const toX = mousePointX - sourcePointX;
+        const toY = mousePointY - sourcePointY;
+        const cpX = Math.abs(toX) / 2;
+        const cpY = 0;
+        const cpX2 = toX - cpX;
+        const cpY2 = toY;
+
+        graph.tempConnection.clear();
+        graph.tempConnection.lineStyle(2, CONNECTION_COLOR_HEX, 1);
+        graph.tempConnection.bezierCurveTo(cpX, cpY, cpX2, cpY2, toX, toY);
+
+        // offset curve to start from source
+        graph.tempConnection.x = sourcePointX;
+        graph.tempConnection.y = sourcePointY;
+      }
+    }
+  }
+
+  onNodePointerUpAndUpOutside(event: PIXI.InteractionEvent): void {
+    console.log('onNodePointerUpAndUpOutside');
+
+    const node = event.currentTarget as PPNode;
+
+    // not sure why the event.target could be null, but this happens sometimes
+    if (node !== null) {
+      const graph = node.graph;
+      console.log(node.id);
+
+      // unsubscribe to pointermove
+      node.removeListener('pointermove', graph.onNodeDragMove);
+
+      if (graph !== null) {
+        if (graph.connectingOutput === null) {
+          // graph.viewport.plugins.resume('drag');
+        } else {
+          // check if over input
+          if (node.overInputRef !== null) {
+            console.log(
+              'connecting Output:',
+              graph.connectingOutput.name,
+              'of',
+              graph.connectingOutput.parent.name,
+              'with Input:',
+              node.overInputRef.name,
+              'of',
+              node.overInputRef.parent.name
+            );
+            graph.connect(
+              graph.connectingOutput,
+              node.overInputRef,
+              graph.viewport
+            );
+          }
+        }
+      }
+      graph.tempConnection.clear();
+      graph.connectingOutput = null;
       node.clickedOutputRef = null;
       node.overInputRef = null;
     }
   }
 
-  onNodeOver(event: PIXI.InteractionEvent, node: PPNode): void {
-    console.log('onNodeOver');
-    // is connecting node
-    if (this.connectingOutput !== null) {
-      console.log('over other node', node.name);
-      if (node.overInputRef !== null) {
-        console.log('over other nodes socket', node.overInputRef.name);
+  onNodePointerOver(event: PIXI.InteractionEvent): void {
+    console.log('onNodePointerOver');
+
+    const node = event.currentTarget as PPNode;
+    console.log(node.id);
+
+    // not sure why the event.target could be null, but this happens sometimes
+    if (node !== null) {
+      const graph = node.graph;
+
+      // is connecting node
+      if (graph.connectingOutput !== null) {
+        console.log('over other node', node.name);
+        if (node.overInputRef !== null) {
+          console.log('over other nodes socket', node.overInputRef.name);
+        }
       }
     }
   }
@@ -153,24 +206,18 @@ export default class PPGraph {
     }
 
     node
-      .on('pointerdown', (e: PIXI.InteractionEvent) =>
-        this.onNodeDragStart(e, node)
-      )
-      .on('pointermove', (e: PIXI.InteractionEvent) =>
-        this.onNodeDragMove(e, node)
-      )
-      .on('pointerupoutside', (e: PIXI.InteractionEvent) =>
-        this.onNodeDragEnd(e, node)
-      )
-      .on('pointerup', (e: PIXI.InteractionEvent) =>
-        this.onNodeDragEnd(e, node)
-      )
-      .on('pointerover', (e: PIXI.InteractionEvent) =>
-        this.onNodeOver(e, node)
-      );
+      .on('pointerdown', this.onNodePointerDown)
+      .on('pointerupoutside', this.onNodePointerUpAndUpOutside)
+      .on('pointerup', this.onNodePointerUpAndUpOutside)
+      .on('pointerover', this.onNodePointerOver);
 
     // give the node an id
     node.id = ++this.lastNodeId;
+
+    // change add id to title
+    const newTitle = `${node.nodeTitle} : ${node.id}`;
+    node.nodeTitle = newTitle;
+    console.log(node.nodeTitle);
 
     // add the node to the canvas
     this.nodeContainer.addChild(node);
@@ -188,6 +235,17 @@ export default class PPGraph {
     //   target_node.disconnectInput(target_slot);
     //   changed = true;
     // }
+
+    console.log(this._links);
+
+    // check if this input already has a connection
+    Object.entries(this._links).forEach(([key, link]) => {
+      if (link.target === input) {
+        console.log('same:', link.target);
+        this.connectionContainer.removeChild(this._links[key]);
+        delete this._links[key];
+      }
+    });
 
     let linkInfo = null;
 
@@ -209,6 +267,7 @@ export default class PPGraph {
 
     //add to graph links list
     this._links[linkInfo.id] = linkInfo;
+    console.log(this._links);
 
     //connect in output
     output.links.push(linkInfo);

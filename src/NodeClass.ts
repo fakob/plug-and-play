@@ -26,37 +26,30 @@ import {
   OUTPUTSOCKET_TEXTMARGIN_RIGHT,
   OUTPUTSOCKET_TEXTMARGIN_TOP,
 } from './constants';
+import PPGraph from './GraphClass';
 
 const nodeBackgroundColorHex = PIXI.utils.string2hex(NODE_BACKGROUNDCOLOR);
 
 export class PPNode extends PIXI.Container {
-  _NodeNameRef: PIXI.DisplayObject;
-
+  graph: PPGraph;
+  _NodeNameRef: PIXI.Text;
   _BackgroundRef: PIXI.Graphics;
-
   _selected: boolean;
-
   dragging: boolean;
-
   relativeClickPosition: PIXI.Point | null;
-
   clickPosition: PIXI.Point | null;
-
   data: PIXI.InteractionData | null;
-
   inputNodeArray: InputNode[];
   outputNodeArray: OutputNode[];
-
   type: string;
-
   id: number | null;
-
   clickedOutputRef: null | OutputNode;
   overInputRef: null | InputNode;
   dragSourcePoint: null | PIXI.Point;
 
-  constructor(node: NodeData) {
+  constructor(node: NodeData, graph: PPGraph) {
     super();
+    this.graph = graph;
     this.id = null;
     this.name = node.name;
     this.type = node.type;
@@ -131,6 +124,14 @@ export class PPNode extends PIXI.Container {
 
   get selected(): boolean {
     return this._selected;
+  }
+
+  get nodeTitle(): string {
+    return this._NodeNameRef.text;
+  }
+
+  set nodeTitle(text: string) {
+    this._NodeNameRef.text = text;
   }
 
   // SETUP

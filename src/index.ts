@@ -98,11 +98,11 @@ function setupGrid(): void {
     //   console.log(nodeArray[0].addInput('New', 'string'));
     // },
     addAddNode: function () {
-      const myAddNode = new PPNode(addNode);
+      const myAddNode = new PPNode(addNode, graph);
       graph.add(myAddNode);
     },
     addWatchNode: function () {
-      const myWatchNode = new PPNode(watchNode);
+      const myWatchNode = new PPNode(watchNode, graph);
       graph.add(myWatchNode);
     },
   };
