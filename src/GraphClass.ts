@@ -57,16 +57,15 @@ export default class PPGraph {
 
     // not sure why the event.target could be null, but this happens sometimes
     if (node !== null) {
-      const graph = node.graph;
-      console.log(node.id);
+      // console.log(node.id);
 
       if (node.clickedOutputRef === null) {
         // clicked on the node, but not on a slot
-        graph.selectNode(node);
+        this.selectNode(node);
       } else {
         // console.log(node.id);
         // console.log(node.clickedOutputRef);
-        graph.connectingOutput = node.clickedOutputRef;
+        this.connectingOutput = node.clickedOutputRef;
         // event.data.global delivers the mouse coordinates from the top left corner in pixel
         node.data = event.data;
 
@@ -76,52 +75,54 @@ export default class PPGraph {
           dragSourceRect.y + dragSourceRect.height / 2
         );
         // change dragSourcePoint coordinates from screen to world space
-        node.dragSourcePoint = graph.viewport.toWorld(dragSourcePoint);
-        // graph.alpha = 0.5;
-        // graph.dragging = true;
+        node.dragSourcePoint = this.viewport.toWorld(dragSourcePoint);
+        // console.log(node.dragSourcePoint);
+        // this.alpha = 0.5;
+        // this.dragging = true;
       }
 
       // subscribe to pointermove
-      node.on('pointermove', graph.onNodeDragMove);
+      console.log(node.id, ' addListener: onNodeDragMove');
+      node.on('pointermove', this.onNodeDragMove.bind(this));
     }
   }
 
   onNodeDragMove(event: PIXI.InteractionEvent): void {
-    console.log('onNodeDragMove');
+    // console.log('onNodeDragMove');
 
     const node = event.currentTarget as PPNode;
 
     // not sure why the event.target could be null, but this happens sometimes
     if (node !== null) {
-      const graph = node.graph;
-      console.log(node.id);
+      // console.log(node.id);
 
-      if (graph.connectingOutput !== null && node.clickedOutputRef !== null) {
-        console.log(node.id);
+      if (this.connectingOutput !== null && node.clickedOutputRef !== null) {
+        console.log(node.id, ' count:', node.listenerCount('pointermove'));
         // temporarily draw connection while dragging
         const sourcePointX = node.dragSourcePoint.x;
         const sourcePointY = node.dragSourcePoint.y;
 
         // change mouse coordinates from screen to world space
-        const mousePoint = graph.viewport.toWorld(event.data.global);
+        const mousePoint = this.viewport.toWorld(event.data.global);
         const mousePointX = mousePoint.x;
         const mousePointY = mousePoint.y;
 
-        // draw curve from 0,0 as PIXI.Graphics originates from 0,0
+        // draw curve from 0,0 as PIXI.thisics originates from 0,0
         const toX = mousePointX - sourcePointX;
         const toY = mousePointY - sourcePointY;
         const cpX = Math.abs(toX) / 2;
         const cpY = 0;
         const cpX2 = toX - cpX;
         const cpY2 = toY;
+        // console.log(sourcePointX, toX);
 
-        graph.tempConnection.clear();
-        graph.tempConnection.lineStyle(2, CONNECTION_COLOR_HEX, 1);
-        graph.tempConnection.bezierCurveTo(cpX, cpY, cpX2, cpY2, toX, toY);
+        this.tempConnection.clear();
+        this.tempConnection.lineStyle(2, CONNECTION_COLOR_HEX, 1);
+        this.tempConnection.bezierCurveTo(cpX, cpY, cpX2, cpY2, toX, toY);
 
         // offset curve to start from source
-        graph.tempConnection.x = sourcePointX;
-        graph.tempConnection.y = sourcePointY;
+        this.tempConnection.x = sourcePointX;
+        this.tempConnection.y = sourcePointY;
       }
     }
   }
@@ -133,40 +134,45 @@ export default class PPGraph {
 
     // not sure why the event.target could be null, but this happens sometimes
     if (node !== null) {
-      const graph = node.graph;
       console.log(node.id);
+      // console.log(node.listenerCount('pointermove'));
+      // console.log(node.listeners('pointermove'));
 
       // unsubscribe to pointermove
-      node.removeListener('pointermove', graph.onNodeDragMove);
+      console.log(node.id, ' removeListener: onNodeDragMove');
+      node.removeListener('pointermove', this.onNodeDragMove);
+      // console.log(node.listenerCount('pointermove'));
 
-      if (graph !== null) {
-        if (graph.connectingOutput === null) {
-          // graph.viewport.plugins.resume('drag');
+      if (this !== null) {
+        if (this.connectingOutput === null) {
+          // this.viewport.plugins.resume('drag');
         } else {
           // check if over input
           if (node.overInputRef !== null) {
             console.log(
               'connecting Output:',
-              graph.connectingOutput.name,
+              this.connectingOutput.name,
               'of',
-              graph.connectingOutput.parent.name,
+              this.connectingOutput.parent.name,
               'with Input:',
               node.overInputRef.name,
               'of',
               node.overInputRef.parent.name
             );
-            graph.connect(
-              graph.connectingOutput,
+            this.connect(
+              this.connectingOutput,
               node.overInputRef,
-              graph.viewport
+              this.viewport
             );
           }
         }
       }
-      graph.tempConnection.clear();
-      graph.connectingOutput = null;
+      this.tempConnection.clear();
+      this.connectingOutput = null;
       node.clickedOutputRef = null;
       node.overInputRef = null;
+    } else {
+      console.log('!!! node === null !!!');
     }
   }
 
@@ -178,10 +184,8 @@ export default class PPGraph {
 
     // not sure why the event.target could be null, but this happens sometimes
     if (node !== null) {
-      const graph = node.graph;
-
       // is connecting node
-      if (graph.connectingOutput !== null) {
+      if (this.connectingOutput !== null) {
         console.log('over other node', node.name);
         if (node.overInputRef !== null) {
           console.log('over other nodes socket', node.overInputRef.name);
@@ -206,10 +210,10 @@ export default class PPGraph {
     }
 
     node
-      .on('pointerdown', this.onNodePointerDown)
-      .on('pointerupoutside', this.onNodePointerUpAndUpOutside)
-      .on('pointerup', this.onNodePointerUpAndUpOutside)
-      .on('pointerover', this.onNodePointerOver);
+      .on('pointerdown', this.onNodePointerDown.bind(this))
+      .on('pointerupoutside', this.onNodePointerUpAndUpOutside.bind(this))
+      .on('pointerup', this.onNodePointerUpAndUpOutside.bind(this))
+      .on('pointerover', this.onNodePointerOver.bind(this));
 
     // give the node an id
     node.id = ++this.lastNodeId;
