@@ -58,32 +58,27 @@ export default class PPGraph {
     event.stopPropagation();
 
     const node = event.currentTarget as PPNode;
+    console.log(node.id);
 
-    // not sure why the event.target could be null, but this happens sometimes
-    if (node !== null) {
-      console.log(node.id);
+    if (node.clickedOutputRef === null) {
+      // clicked on the node, but not on a slot
+      this.selectNode(node);
+    } else {
+      this.connectingOutput = node.clickedOutputRef;
+      // event.data.global delivers the mouse coordinates from the top left corner in pixel
+      node.data = event.data;
 
-      if (node.clickedOutputRef === null) {
-        // clicked on the node, but not on a slot
-        this.selectNode(node);
-      } else {
-        this.connectingOutput = node.clickedOutputRef;
-        // event.data.global delivers the mouse coordinates from the top left corner in pixel
-        node.data = event.data;
-
-        const dragSourceRect = node.clickedOutputRef.children[0].getBounds();
-        const dragSourcePoint = new PIXI.Point(
-          dragSourceRect.x + dragSourceRect.width / 2,
-          dragSourceRect.y + dragSourceRect.height / 2
-        );
-        // change dragSourcePoint coordinates from screen to world space
-        this.dragSourcePoint = this.viewport.toWorld(dragSourcePoint);
-      }
-
-      // subscribe to pointermove
-      console.log(node.id, ' addListener: onNodeDragMove');
-      this.viewport.on('pointermove', this.onNodeDragMove.bind(this));
+      const dragSourceRect = node.clickedOutputRef.children[0].getBounds();
+      const dragSourcePoint = new PIXI.Point(
+        dragSourceRect.x + dragSourceRect.width / 2,
+        dragSourceRect.y + dragSourceRect.height / 2
+      );
+      // change dragSourcePoint coordinates from screen to world space
+      this.dragSourcePoint = this.viewport.toWorld(dragSourcePoint);
     }
+
+    // subscribe to pointermove
+    this.viewport.on('pointermove', this.onNodeDragMove.bind(this));
   }
 
   onNodeDragMove(event: PIXI.InteractionEvent): void {
@@ -122,46 +117,36 @@ export default class PPGraph {
     console.log('onNodePointerUpAndUpOutside');
 
     const node = event.currentTarget as PPNode;
+    console.log(node.id);
 
-    // not sure why the event.target could be null, but this happens sometimes
-    if (node !== null) {
-      console.log(node.id);
+    // unsubscribe from pointermove
+    this.viewport.removeListener('pointermove', this.onNodeDragMove);
 
-      // unsubscribe from pointermove
-      this.viewport.removeListener('pointermove', this.onNodeDragMove);
-
-      if (this !== null) {
-        if (this.connectingOutput === null) {
-          // this.viewport.plugins.resume('drag');
-        } else {
-          // check if over input
-          console.log(this.overInputRef);
-          if (this.overInputRef !== null) {
-            console.log(
-              'connecting Output:',
-              this.connectingOutput.name,
-              'of',
-              this.connectingOutput.parent.name,
-              'with Input:',
-              this.overInputRef.name,
-              'of',
-              this.overInputRef.parent.name
-            );
-            this.connect(
-              this.connectingOutput,
-              this.overInputRef,
-              this.viewport
-            );
-          }
+    if (this !== null) {
+      if (this.connectingOutput === null) {
+        // this.viewport.plugins.resume('drag');
+      } else {
+        // check if over input
+        console.log(this.overInputRef);
+        if (this.overInputRef !== null) {
+          console.log(
+            'connecting Output:',
+            this.connectingOutput.name,
+            'of',
+            this.connectingOutput.parent.name,
+            'with Input:',
+            this.overInputRef.name,
+            'of',
+            this.overInputRef.parent.name
+          );
+          this.connect(this.connectingOutput, this.overInputRef, this.viewport);
         }
       }
-      this.tempConnection.clear();
-      this.connectingOutput = null;
-      this.overInputRef = null;
-      node.clickedOutputRef = null;
-    } else {
-      console.log('!!! node === null !!!');
     }
+    this.tempConnection.clear();
+    this.connectingOutput = null;
+    this.overInputRef = null;
+    node.clickedOutputRef = null;
   }
 
   onNodePointerOver(event: PIXI.InteractionEvent): void {
