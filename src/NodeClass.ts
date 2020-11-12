@@ -44,7 +44,6 @@ export class PPNode extends PIXI.Container {
   type: string;
   id: number | null;
   clickedOutputRef: null | OutputNode;
-  overInputRef: null | InputNode;
 
   constructor(node: NodeData, graph: PPGraph) {
     super();
@@ -55,7 +54,6 @@ export class PPNode extends PIXI.Container {
     this.inputNodeArray = [];
     this.outputNodeArray = [];
     this.clickedOutputRef = null;
-    this.overInputRef = null;
 
     const inputNameText = new PIXI.Text(this.name, NODE_TEXTSTYLE);
     inputNameText.x = NODE_OUTLINE_DISTANCE + NODE_HEADER_TEXTMARGIN_LEFT;
@@ -345,12 +343,14 @@ export class InputNode extends PIXI.Container {
   // SETUP
 
   _onSpriteOver(event: PIXI.InteractionEvent): void {
+    console.log('over input', event.target.parent as InputNode);
+
+    // set overInputRef on graph
+    (event.target.parent.parent as PPNode).graph.overInputRef = event.target
+      .parent as InputNode;
+
     this.cursor = 'pointer';
     (this._InputSocketRef as PIXI.Graphics).tint = 0x00ff00;
-
-    console.log('over input', event.target.parent as InputNode);
-    (event.target.parent.parent as PPNode).overInputRef = event.target
-      .parent as InputNode;
   }
 
   _onSpriteOut(): void {

@@ -17,6 +17,7 @@ export default class PPGraph {
 
   selected_nodes: number[];
   connectingOutput: null | OutputNode;
+  overInputRef: null | InputNode;
   dragSourcePoint: null | PIXI.Point;
 
   tempConnection: PIXI.Graphics;
@@ -31,6 +32,7 @@ export default class PPGraph {
     // clear the stage
     this.clear();
     this.connectingOutput = null;
+    this.overInputRef = null;
     this.dragSourcePoint = null;
 
     this.tempConnection = new PIXI.Graphics();
@@ -59,14 +61,12 @@ export default class PPGraph {
 
     // not sure why the event.target could be null, but this happens sometimes
     if (node !== null) {
-      // console.log(node.id);
+      console.log(node.id);
 
       if (node.clickedOutputRef === null) {
         // clicked on the node, but not on a slot
         this.selectNode(node);
       } else {
-        // console.log(node.id);
-        // console.log(node.clickedOutputRef);
         this.connectingOutput = node.clickedOutputRef;
         // event.data.global delivers the mouse coordinates from the top left corner in pixel
         node.data = event.data;
@@ -78,9 +78,6 @@ export default class PPGraph {
         );
         // change dragSourcePoint coordinates from screen to world space
         this.dragSourcePoint = this.viewport.toWorld(dragSourcePoint);
-        // console.log(node.dragSourcePoint);
-        // this.alpha = 0.5;
-        // this.dragging = true;
       }
 
       // subscribe to pointermove
@@ -91,10 +88,6 @@ export default class PPGraph {
 
   onNodeDragMove(event: PIXI.InteractionEvent): void {
     // console.log('onNodeDragMove');
-
-    // not sure why the event.target could be null, but this happens sometimes
-    // if (node !== null) {
-    // console.log(node.id);
 
     if (this.connectingOutput !== null) {
       // temporarily draw connection while dragging
@@ -123,7 +116,6 @@ export default class PPGraph {
       this.tempConnection.x = sourcePointX;
       this.tempConnection.y = sourcePointY;
     }
-    // }
   }
 
   onNodePointerUpAndUpOutside(event: PIXI.InteractionEvent): void {
@@ -134,33 +126,30 @@ export default class PPGraph {
     // not sure why the event.target could be null, but this happens sometimes
     if (node !== null) {
       console.log(node.id);
-      // console.log(node.listenerCount('pointermove'));
-      // console.log(node.listeners('pointermove'));
 
-      // unsubscribe to pointermove
-      console.log(node.id, ' removeListener: onNodeDragMove');
+      // unsubscribe from pointermove
       this.viewport.removeListener('pointermove', this.onNodeDragMove);
-      // console.log(node.listenerCount('pointermove'));
 
       if (this !== null) {
         if (this.connectingOutput === null) {
           // this.viewport.plugins.resume('drag');
         } else {
           // check if over input
-          if (node.overInputRef !== null) {
+          console.log(this.overInputRef);
+          if (this.overInputRef !== null) {
             console.log(
               'connecting Output:',
               this.connectingOutput.name,
               'of',
               this.connectingOutput.parent.name,
               'with Input:',
-              node.overInputRef.name,
+              this.overInputRef.name,
               'of',
-              node.overInputRef.parent.name
+              this.overInputRef.parent.name
             );
             this.connect(
               this.connectingOutput,
-              node.overInputRef,
+              this.overInputRef,
               this.viewport
             );
           }
@@ -168,8 +157,8 @@ export default class PPGraph {
       }
       this.tempConnection.clear();
       this.connectingOutput = null;
+      this.overInputRef = null;
       node.clickedOutputRef = null;
-      node.overInputRef = null;
     } else {
       console.log('!!! node === null !!!');
     }
@@ -180,17 +169,6 @@ export default class PPGraph {
 
     const node = event.currentTarget as PPNode;
     console.log(node.id);
-
-    // not sure why the event.target could be null, but this happens sometimes
-    if (node !== null) {
-      // is connecting node
-      if (this.connectingOutput !== null) {
-        console.log('over other node', node.name);
-        if (node.overInputRef !== null) {
-          console.log('over other nodes socket', node.overInputRef.name);
-        }
-      }
-    }
   }
 
   // GETTERS & SETTERS
