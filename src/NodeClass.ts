@@ -147,8 +147,8 @@ export class PPNode extends PIXI.Container {
       console.log('_onDragStart');
       this.data = event.data;
       this.clickPosition = new PIXI.Point(
-        (event.data.originalEvent as any).screenX,
-        (event.data.originalEvent as any).screenY
+        (event.data.originalEvent as PointerEvent).screenX,
+        (event.data.originalEvent as PointerEvent).screenY
       );
       this.cursor = 'grabbing';
       // if (this._selected) {
@@ -167,7 +167,7 @@ export class PPNode extends PIXI.Container {
   }
 
   _onDragEnd(event: PIXI.InteractionEvent): void {
-    const evData = event.data.originalEvent as any;
+    const evData = event.data.originalEvent as PointerEvent;
     // if real dragend
     if (this.clickPosition !== null) {
       if (
@@ -325,9 +325,9 @@ export class InputNode extends PIXI.Container {
     this.data = null;
     this.interactive = true;
     this._InputSocketRef.interactive = true;
-    this._InputSocketRef.on('pointerover', this._onSpriteOver.bind(this));
-    this._InputSocketRef.on('pointerout', this._onSpriteOut.bind(this));
-    this._InputSocketRef.on('click', this._onClick.bind(this));
+    this._InputSocketRef.on('pointerover', this._onInputOver.bind(this));
+    this._InputSocketRef.on('pointerout', this._onInputOut.bind(this));
+    this._InputSocketRef.on('click', this._onInputClick.bind(this));
   }
 
   // GETTERS & SETTERS
@@ -342,8 +342,8 @@ export class InputNode extends PIXI.Container {
 
   // SETUP
 
-  _onSpriteOver(event: PIXI.InteractionEvent): void {
-    console.log('over input', event.target.parent as InputNode);
+  _onInputOver(event: PIXI.InteractionEvent): void {
+    console.log('_onInputOver', event.target.parent as InputNode);
 
     // set overInputRef on graph
     (event.target.parent.parent as PPNode).graph.overInputRef = event.target
@@ -353,13 +353,13 @@ export class InputNode extends PIXI.Container {
     (this._InputSocketRef as PIXI.Graphics).tint = 0x00ff00;
   }
 
-  _onSpriteOut(): void {
+  _onInputOut(): void {
     this.alpha = 1.0;
     this.cursor = 'default';
     (this._InputSocketRef as PIXI.Graphics).tint = 0xffffff;
   }
 
-  _onClick(event: PIXI.InteractionEvent): void {
+  _onInputClick(event: PIXI.InteractionEvent): void {
     console.log(event.target);
   }
 }
@@ -409,9 +409,9 @@ export class OutputNode extends PIXI.Container {
     this.data = null;
     this.interactive = true;
     this._OutputSocketRef.interactive = true;
-    this._OutputSocketRef.on('pointerover', this._onSpriteOver.bind(this));
-    this._OutputSocketRef.on('pointerout', this._onSpriteOut.bind(this));
-    this._OutputSocketRef.on('pointerdown', this._onCreateLink.bind(this));
+    this._OutputSocketRef.on('pointerover', this._onOutputOver.bind(this));
+    this._OutputSocketRef.on('pointerout', this._onOutputOut.bind(this));
+    this._OutputSocketRef.on('pointerdown', this._onOutputDown.bind(this));
     // this._OutputSocketRef.on('pointerup', this._onDragEnd.bind(this));
     // this._OutputSocketRef.on('pointermove', this._onDragMove.bind(this));
     // this._OutputSocketRef.on('click', this._onClick.bind(this));
@@ -429,42 +429,22 @@ export class OutputNode extends PIXI.Container {
 
   // SETUP
 
-  _onSpriteOver(): void {
+  _onOutputOver(): void {
     this.cursor = 'pointer';
     (this._OutputSocketRef as PIXI.Graphics).tint = 0x00ff00;
   }
 
-  _onSpriteOut(): void {
+  _onOutputOut(): void {
     this.alpha = 1.0;
     this.cursor = 'default';
     (this._OutputSocketRef as PIXI.Graphics).tint = 0xffffff;
   }
 
-  _onCreateLink(event: PIXI.InteractionEvent): void {
-    // event.stopPropagation();
-    console.log('output socket _onCreateLink');
-    // console.log(event.target);
+  _onOutputDown(event: PIXI.InteractionEvent): void {
+    console.log('_onOutputDown');
     console.log(event.target.parent);
-    // console.log(event.target.parent.parent);
-    (event.target.parent.parent as PPNode).clickedOutputRef = event.target
+    // set clickedOutputRef on graph
+    (event.target.parent.parent as PPNode).graph.clickedOutputRef = event.target
       .parent as OutputNode;
-    // console.log(event.target.parent.parent.parent);
-    // console.log(event.target.getGlobalPosition());
-    // this.data = event.data;
-    // this.alpha = 0.5;
-    // this.linkDragPos = event.target.getGlobalPosition();
   }
-
-  // _onDragEnd() {
-  //   this.alpha = 1;
-  //   this.linkDragPos = null;
-  //   // set the interaction data to null
-  //   this.data = null;
-  // }
-
-  // _onClick(event: PIXI.InteractionEvent): void {
-  //   event.stopPropagation;
-  //   console.log('output socket _onClick');
-  //   console.log(event.target);
-  // }
 }

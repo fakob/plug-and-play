@@ -16,7 +16,7 @@ export default class PPGraph {
   _links: { [key: number]: PPLink };
 
   selected_nodes: number[];
-  connectingOutput: null | OutputNode;
+  clickedOutputRef: null | OutputNode;
   overInputRef: null | InputNode;
   dragSourcePoint: null | PIXI.Point;
 
@@ -31,7 +31,7 @@ export default class PPGraph {
 
     // clear the stage
     this.clear();
-    this.connectingOutput = null;
+    this.clickedOutputRef = null;
     this.overInputRef = null;
     this.dragSourcePoint = null;
 
@@ -60,15 +60,14 @@ export default class PPGraph {
     const node = event.currentTarget as PPNode;
     console.log(node.id);
 
-    if (node.clickedOutputRef === null) {
+    if (this.clickedOutputRef === null) {
       // clicked on the node, but not on a slot
       this.selectNode(node);
     } else {
-      this.connectingOutput = node.clickedOutputRef;
       // event.data.global delivers the mouse coordinates from the top left corner in pixel
       node.data = event.data;
 
-      const dragSourceRect = node.clickedOutputRef.children[0].getBounds();
+      const dragSourceRect = this.clickedOutputRef.children[0].getBounds();
       const dragSourcePoint = new PIXI.Point(
         dragSourceRect.x + dragSourceRect.width / 2,
         dragSourceRect.y + dragSourceRect.height / 2
@@ -84,7 +83,7 @@ export default class PPGraph {
   onNodeDragMove(event: PIXI.InteractionEvent): void {
     // console.log('onNodeDragMove');
 
-    if (this.connectingOutput !== null) {
+    if (this.clickedOutputRef !== null) {
       // temporarily draw connection while dragging
       const sourcePointX = this.dragSourcePoint.x;
       const sourcePointY = this.dragSourcePoint.y;
@@ -123,7 +122,7 @@ export default class PPGraph {
     this.viewport.removeListener('pointermove', this.onNodeDragMove);
 
     if (this !== null) {
-      if (this.connectingOutput === null) {
+      if (this.clickedOutputRef === null) {
         // this.viewport.plugins.resume('drag');
       } else {
         // check if over input
@@ -131,22 +130,21 @@ export default class PPGraph {
         if (this.overInputRef !== null) {
           console.log(
             'connecting Output:',
-            this.connectingOutput.name,
+            this.clickedOutputRef.name,
             'of',
-            this.connectingOutput.parent.name,
+            this.clickedOutputRef.parent.name,
             'with Input:',
             this.overInputRef.name,
             'of',
             this.overInputRef.parent.name
           );
-          this.connect(this.connectingOutput, this.overInputRef, this.viewport);
+          this.connect(this.clickedOutputRef, this.overInputRef, this.viewport);
         }
       }
     }
     this.tempConnection.clear();
-    this.connectingOutput = null;
+    this.clickedOutputRef = null;
     this.overInputRef = null;
-    node.clickedOutputRef = null;
   }
 
   onNodePointerOver(event: PIXI.InteractionEvent): void {
