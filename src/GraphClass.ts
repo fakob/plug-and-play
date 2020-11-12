@@ -203,13 +203,7 @@ export default class PPGraph {
     console.log(this._links);
 
     // check if this input already has a connection
-    Object.entries(this._links).forEach(([key, link]) => {
-      if (link.target === input) {
-        console.log('same:', link.target);
-        this.connectionContainer.removeChild(this._links[key]);
-        delete this._links[key];
-      }
-    });
+    this.checkIfInputHasConnectionAndDeleteIt(input);
 
     let linkInfo = null;
 
@@ -243,6 +237,18 @@ export default class PPGraph {
     this.connectionContainer.addChild(linkInfo);
 
     return linkInfo;
+  }
+
+  checkIfInputHasConnectionAndDeleteIt(input: InputNode): boolean {
+    // check if this input already has a connection
+    Object.entries(this._links).forEach(([key, link]) => {
+      if (link.target === input) {
+        console.log('same:', link.target);
+        this.connectionContainer.removeChild(this._links[key]);
+        return delete this._links[key];
+      }
+    });
+    return false;
   }
 
   clear(): void {

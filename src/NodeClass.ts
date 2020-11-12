@@ -360,6 +360,11 @@ export class InputNode extends PIXI.Container {
   }
 
   _onInputClick(event: PIXI.InteractionEvent): void {
+    const input = event.target.parent as InputNode;
+    // check if this input already has a connection and delete it
+    (event.target.parent
+      .parent as PPNode).graph.checkIfInputHasConnectionAndDeleteIt(input);
+
     console.log(event.target);
   }
 }
