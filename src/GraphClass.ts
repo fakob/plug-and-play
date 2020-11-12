@@ -17,6 +17,7 @@ export default class PPGraph {
 
   selected_nodes: number[];
   connectingOutput: null | OutputNode;
+  dragSourcePoint: null | PIXI.Point;
 
   tempConnection: PIXI.Graphics;
   connectionContainer: PIXI.Container;
@@ -30,6 +31,7 @@ export default class PPGraph {
     // clear the stage
     this.clear();
     this.connectingOutput = null;
+    this.dragSourcePoint = null;
 
     this.tempConnection = new PIXI.Graphics();
     this.connectionContainer = new PIXI.Container();
@@ -75,7 +77,7 @@ export default class PPGraph {
           dragSourceRect.y + dragSourceRect.height / 2
         );
         // change dragSourcePoint coordinates from screen to world space
-        node.dragSourcePoint = this.viewport.toWorld(dragSourcePoint);
+        this.dragSourcePoint = this.viewport.toWorld(dragSourcePoint);
         // console.log(node.dragSourcePoint);
         // this.alpha = 0.5;
         // this.dragging = true;
@@ -83,48 +85,45 @@ export default class PPGraph {
 
       // subscribe to pointermove
       console.log(node.id, ' addListener: onNodeDragMove');
-      node.on('pointermove', this.onNodeDragMove.bind(this));
+      this.viewport.on('pointermove', this.onNodeDragMove.bind(this));
     }
   }
 
   onNodeDragMove(event: PIXI.InteractionEvent): void {
     // console.log('onNodeDragMove');
 
-    const node = event.currentTarget as PPNode;
-
     // not sure why the event.target could be null, but this happens sometimes
-    if (node !== null) {
-      // console.log(node.id);
+    // if (node !== null) {
+    // console.log(node.id);
 
-      if (this.connectingOutput !== null && node.clickedOutputRef !== null) {
-        console.log(node.id, ' count:', node.listenerCount('pointermove'));
-        // temporarily draw connection while dragging
-        const sourcePointX = node.dragSourcePoint.x;
-        const sourcePointY = node.dragSourcePoint.y;
+    if (this.connectingOutput !== null) {
+      // temporarily draw connection while dragging
+      const sourcePointX = this.dragSourcePoint.x;
+      const sourcePointY = this.dragSourcePoint.y;
 
-        // change mouse coordinates from screen to world space
-        const mousePoint = this.viewport.toWorld(event.data.global);
-        const mousePointX = mousePoint.x;
-        const mousePointY = mousePoint.y;
+      // change mouse coordinates from screen to world space
+      const mousePoint = this.viewport.toWorld(event.data.global);
+      const mousePointX = mousePoint.x;
+      const mousePointY = mousePoint.y;
 
-        // draw curve from 0,0 as PIXI.thisics originates from 0,0
-        const toX = mousePointX - sourcePointX;
-        const toY = mousePointY - sourcePointY;
-        const cpX = Math.abs(toX) / 2;
-        const cpY = 0;
-        const cpX2 = toX - cpX;
-        const cpY2 = toY;
-        // console.log(sourcePointX, toX);
+      // draw curve from 0,0 as PIXI.thisics originates from 0,0
+      const toX = mousePointX - sourcePointX;
+      const toY = mousePointY - sourcePointY;
+      const cpX = Math.abs(toX) / 2;
+      const cpY = 0;
+      const cpX2 = toX - cpX;
+      const cpY2 = toY;
+      // console.log(sourcePointX, toX);
 
-        this.tempConnection.clear();
-        this.tempConnection.lineStyle(2, CONNECTION_COLOR_HEX, 1);
-        this.tempConnection.bezierCurveTo(cpX, cpY, cpX2, cpY2, toX, toY);
+      this.tempConnection.clear();
+      this.tempConnection.lineStyle(2, CONNECTION_COLOR_HEX, 1);
+      this.tempConnection.bezierCurveTo(cpX, cpY, cpX2, cpY2, toX, toY);
 
-        // offset curve to start from source
-        this.tempConnection.x = sourcePointX;
-        this.tempConnection.y = sourcePointY;
-      }
+      // offset curve to start from source
+      this.tempConnection.x = sourcePointX;
+      this.tempConnection.y = sourcePointY;
     }
+    // }
   }
 
   onNodePointerUpAndUpOutside(event: PIXI.InteractionEvent): void {
@@ -140,7 +139,7 @@ export default class PPGraph {
 
       // unsubscribe to pointermove
       console.log(node.id, ' removeListener: onNodeDragMove');
-      node.removeListener('pointermove', this.onNodeDragMove);
+      this.viewport.removeListener('pointermove', this.onNodeDragMove);
       // console.log(node.listenerCount('pointermove'));
 
       if (this !== null) {
