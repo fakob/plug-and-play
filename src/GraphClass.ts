@@ -193,29 +193,20 @@ export default class PPGraph {
   }
 
   connect(output: OutputNode, input: InputNode, viewport: Viewport): PPLink {
-    // //if there is something already plugged there, disconnect
-    // if (target_node.inputs[target_slot].link != null) {
-    //   this.graph.beforeChange();
-    //   target_node.disconnectInput(target_slot);
-    //   changed = true;
-    // }
-
-    console.log(this._links);
-
     // check if this input already has a connection
     this.checkIfInputHasConnectionAndDeleteIt(input);
 
-    let linkInfo = null;
+    let link = null;
 
     // //this slots cannot be connected (different types)
     // if (!LiteGraph.isValidConnection(output.type, input.type)) {
     //   this.setDirtyCanvas(false, true);
-    //   if (changed) this.graph.connectionChange(this, linkInfo);
+    //   if (changed) this.graph.connectionChange(this, link);
     //   return null;
     // }
 
     //create link class
-    linkInfo = new PPLink(
+    link = new PPLink(
       (this.lastLinkId += 1),
       input.type,
       output,
@@ -224,26 +215,23 @@ export default class PPGraph {
     );
 
     //add to graph links list
-    this._links[linkInfo.id] = linkInfo;
-    console.log(this._links);
+    this._links[link.id] = link;
 
     //connect in output
-    output.links.push(linkInfo);
+    output.links.push(link);
     //connect in input
-    input.link = linkInfo;
+    input.link = link;
 
-    console.log(linkInfo);
+    this.connectionContainer.addChild(link);
 
-    this.connectionContainer.addChild(linkInfo);
-
-    return linkInfo;
+    return link;
   }
 
   checkIfInputHasConnectionAndDeleteIt(input: InputNode): boolean {
     // check if this input already has a connection
     Object.entries(this._links).forEach(([key, link]) => {
       if (link.target === input) {
-        console.log('same:', link.target);
+        console.log('deleting link:', link.target);
         this.connectionContainer.removeChild(this._links[key]);
         return delete this._links[key];
       }
