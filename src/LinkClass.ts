@@ -1,5 +1,5 @@
 import { Viewport } from 'pixi-viewport';
-import { InputNode, OutputNode } from './NodeClass';
+import { InputNode, OutputNode, PPNode } from './NodeClass';
 import { CONNECTION_COLOR_HEX } from './constants';
 
 export default class PPLink extends PIXI.Container {
@@ -38,6 +38,14 @@ export default class PPLink extends PIXI.Container {
       this.source,
       this.target
     );
+  }
+
+  getSource(): OutputNode {
+    return this.source;
+  }
+
+  getTarget(): InputNode {
+    return this.target;
   }
 
   _drawConnection(

@@ -217,9 +217,9 @@ export default class PPGraph {
     //add to graph links list
     this._links[link.id] = link;
 
-    //connect in output
+    //add link to output
     output.links.push(link);
-    //connect in input
+    //add link to input
     input.link = link;
 
     this.connectionContainer.addChild(link);
@@ -232,6 +232,14 @@ export default class PPGraph {
     Object.entries(this._links).forEach(([key, link]) => {
       if (link.target === input) {
         console.log('deleting link:', link.target);
+
+        // remove link from source and target socket
+        link.getTarget().link = null;
+        link.getSource().links = link
+          .getSource()
+          .links.filter((item) => item.id !== link.id);
+
+        // remove link from graph
         this.connectionContainer.removeChild(this._links[key]);
         return delete this._links[key];
       }
