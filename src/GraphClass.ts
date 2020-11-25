@@ -1,7 +1,7 @@
 import * as PIXI from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
 import PPLink from './LinkClass';
-import { PPNode, InputNode, OutputNode } from './NodeClass';
+import { PPNode, InputSocket, OutputSocket } from './NodeClass';
 import { CONNECTION_COLOR_HEX } from './constants';
 
 export default class PPGraph {
@@ -16,8 +16,8 @@ export default class PPGraph {
   _links: { [key: number]: PPLink };
 
   selected_nodes: number[];
-  clickedOutputRef: null | OutputNode;
-  overInputRef: null | InputNode;
+  clickedOutputRef: null | OutputSocket;
+  overInputRef: null | InputSocket;
   dragSourcePoint: null | PIXI.Point;
 
   tempConnection: PIXI.Graphics;
@@ -192,7 +192,11 @@ export default class PPGraph {
     return node; //to chain actions
   }
 
-  connect(output: OutputNode, input: InputNode, viewport: Viewport): PPLink {
+  connect(
+    output: OutputSocket,
+    input: InputSocket,
+    viewport: Viewport
+  ): PPLink {
     // check if this input already has a connection
     this.checkIfInputHasConnectionAndDeleteIt(input);
 
@@ -227,7 +231,7 @@ export default class PPGraph {
     return link;
   }
 
-  checkIfInputHasConnectionAndDeleteIt(input: InputNode): boolean {
+  checkIfInputHasConnectionAndDeleteIt(input: InputSocket): boolean {
     // check if this input already has a connection
     Object.entries(this._links).forEach(([key, link]) => {
       if (link.target === input) {

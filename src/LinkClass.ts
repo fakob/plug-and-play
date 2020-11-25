@@ -1,20 +1,20 @@
 import { Viewport } from 'pixi-viewport';
-import { InputNode, OutputNode, PPNode } from './NodeClass';
+import { InputSocket, OutputSocket, PPNode } from './NodeClass';
 import { CONNECTION_COLOR_HEX } from './constants';
 
 export default class PPLink extends PIXI.Container {
   id: number;
   type: string;
-  source: OutputNode;
-  target: InputNode;
+  source: OutputSocket;
+  target: InputSocket;
   viewport: Viewport;
   _connectionRef: PIXI.Graphics;
 
   constructor(
     id: number,
     type: string,
-    source: OutputNode,
-    target: InputNode,
+    source: OutputSocket,
+    target: InputSocket,
     viewport: Viewport
   ) {
     super();
@@ -40,19 +40,19 @@ export default class PPLink extends PIXI.Container {
     );
   }
 
-  getSource(): OutputNode {
+  getSource(): OutputSocket {
     return this.source;
   }
 
-  getTarget(): InputNode {
+  getTarget(): InputSocket {
     return this.target;
   }
 
   _drawConnection(
     viewport: Viewport,
     connection: PIXI.Graphics,
-    source: OutputNode,
-    target: InputNode
+    source: OutputSocket,
+    target: InputSocket
   ): void {
     // get source position
     const sourceRect = source.children[0].getBounds();
