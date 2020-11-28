@@ -177,18 +177,18 @@ export default class PPNode extends PIXI.Container {
   // SETUP
 
   _addListeners(): void {
-    this.on('pointerdown', this._onDragStart.bind(this));
-    this.on('pointerup', this._onDragEnd.bind(this));
-    this.on('pointerupoutside', this._onDragEnd.bind(this));
-    this.on('pointermove', this._onDragMove.bind(this));
-    this.on('pointerover', this._onSpriteOver.bind(this));
-    this.on('pointerout', this._onSpriteOut.bind(this));
+    this.on('pointerdown', this._onPointerDown.bind(this));
+    this.on('pointerup', this._onPointerUpAndUpOutside.bind(this));
+    this.on('pointerupoutside', this._onPointerUpAndUpOutside.bind(this));
+    this.on('pointermove', this._onPointerMove.bind(this));
+    this.on('pointerover', this._onPointerOver.bind(this));
+    this.on('pointerout', this._onPointerOut.bind(this));
     this.on('click', this._onClick.bind(this));
   }
 
-  _onDragStart(event: PIXI.InteractionEvent): void {
+  _onPointerDown(event: PIXI.InteractionEvent): void {
     if ((event.target as PPNode).clickedOutputRef === null) {
-      console.log('_onDragStart');
+      console.log('_onPointerDown');
       this.data = event.data;
       this.clickPosition = new PIXI.Point(
         (event.data.originalEvent as PointerEvent).screenX,
@@ -210,7 +210,7 @@ export default class PPNode extends PIXI.Container {
     }
   }
 
-  _onDragEnd(event: PIXI.InteractionEvent): void {
+  _onPointerUpAndUpOutside(event: PIXI.InteractionEvent): void {
     const evData = event.data.originalEvent as PointerEvent;
     // if real dragend
     if (this.clickPosition !== null) {
@@ -230,7 +230,7 @@ export default class PPNode extends PIXI.Container {
     this.data = null;
   }
 
-  _onDragMove(): void {
+  _onPointerMove(): void {
     if (
       this.dragging &&
       this.data !== null &&
@@ -254,11 +254,11 @@ export default class PPNode extends PIXI.Container {
     }
   }
 
-  _onSpriteOver(): void {
+  _onPointerOver(): void {
     this.cursor = 'move';
   }
 
-  _onSpriteOut(): void {
+  _onPointerOut(): void {
     if (!this.dragging) {
       this.alpha = 1.0;
       this.cursor = 'default';
