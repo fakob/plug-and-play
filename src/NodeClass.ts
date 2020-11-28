@@ -187,7 +187,10 @@ export default class PPNode extends PIXI.Container {
   }
 
   _onPointerDown(event: PIXI.InteractionEvent): void {
-    if ((event.target as PPNode).clickedOutputRef === null) {
+    const node = event.target as PPNode;
+
+    if (node.clickedOutputRef === null) {
+      // start dragging
       console.log('_onPointerDown');
       this.data = event.data;
       this.clickPosition = new PIXI.Point(
@@ -195,7 +198,6 @@ export default class PPNode extends PIXI.Container {
         (event.data.originalEvent as PointerEvent).screenY
       );
       this.cursor = 'grabbing';
-      // if (this._selected) {
       this.alpha = 0.5;
       this.dragging = true;
       const localPositionX = this.position.x;
@@ -206,7 +208,6 @@ export default class PPNode extends PIXI.Container {
       const deltaX = localClickPositionX - localPositionX;
       const deltaY = localClickPositionY - localPositionY;
       this.relativeClickPosition = new PIXI.Point(deltaX, deltaY);
-      // }
     }
   }
 

@@ -56,8 +56,8 @@ export default class PPGraph {
     this.deselectAllNodes();
   }
 
-  onNodePointerDown(event: PIXI.InteractionEvent): void {
-    console.log('onNodePointerDown');
+  _onNodePointerDown(event: PIXI.InteractionEvent): void {
+    console.log('_onNodePointerDown');
     // stop propagation so viewport does not get dragged
     event.stopPropagation();
 
@@ -116,8 +116,8 @@ export default class PPGraph {
     }
   }
 
-  onNodePointerUpAndUpOutside(event: PIXI.InteractionEvent): void {
-    console.log('onNodePointerUpAndUpOutside');
+  _onNodePointerUpAndUpOutside(event: PIXI.InteractionEvent): void {
+    console.log('_onNodePointerUpAndUpOutside');
 
     const node = event.currentTarget as PPNode;
     console.log(node.id);
@@ -151,8 +151,8 @@ export default class PPGraph {
     this.overInputRef = null;
   }
 
-  onNodePointerOver(event: PIXI.InteractionEvent): void {
-    console.log('onNodePointerOver');
+  _onNodePointerOver(event: PIXI.InteractionEvent): void {
+    console.log('_onNodePointerOver');
 
     const node = event.currentTarget as PPNode;
     console.log(node.id);
@@ -174,10 +174,10 @@ export default class PPGraph {
     }
 
     node
-      .on('pointerdown', this.onNodePointerDown.bind(this))
-      .on('pointerupoutside', this.onNodePointerUpAndUpOutside.bind(this))
-      .on('pointerup', this.onNodePointerUpAndUpOutside.bind(this))
-      .on('pointerover', this.onNodePointerOver.bind(this));
+      .on('pointerdown', this._onNodePointerDown.bind(this))
+      .on('pointerupoutside', this._onNodePointerUpAndUpOutside.bind(this))
+      .on('pointerup', this._onNodePointerUpAndUpOutside.bind(this))
+      .on('pointerover', this._onNodePointerOver.bind(this));
 
     // give the node an id
     node.id = ++this.lastNodeId;
