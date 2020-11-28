@@ -1,4 +1,5 @@
 import * as PIXI from 'pixi.js';
+import PPGraph from './GraphClass';
 import PPNode from './NodeClass';
 import PPLink from './LinkClass';
 import {
@@ -81,6 +82,10 @@ export default class OutputSocket extends PIXI.Container {
     this.links = this.links.filter((item) => item.id !== link.id);
   }
 
+  getGraph(): PPGraph {
+    return (this.parent as PPNode).graph;
+  }
+
   // SETUP
 
   _onOutputOver(): void {
@@ -96,9 +101,8 @@ export default class OutputSocket extends PIXI.Container {
 
   _onOutputDown(event: PIXI.InteractionEvent): void {
     console.log('_onOutputDown');
-    console.log(event.target.parent);
+    const output = event.target.parent as OutputSocket;
     // set clickedOutputRef on graph
-    (event.target.parent.parent as PPNode).graph.clickedOutputRef = event.target
-      .parent as OutputSocket;
+    output.getGraph().clickedOutputRef = event.target.parent as OutputSocket;
   }
 }

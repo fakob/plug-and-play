@@ -1,4 +1,5 @@
 import * as PIXI from 'pixi.js';
+import PPGraph from './GraphClass';
 import PPNode from './NodeClass';
 import PPLink from './LinkClass';
 import {
@@ -72,14 +73,18 @@ export default class InputSocket extends PIXI.Container {
     this.link = null;
   }
 
+  getGraph(): PPGraph {
+    return (this.parent as PPNode).graph;
+  }
+
   // SETUP
 
   _onInputOver(event: PIXI.InteractionEvent): void {
-    console.log('_onInputOver', event.target.parent as InputSocket);
+    const input = event.target.parent as InputSocket;
+    console.log('_onInputOver', input);
 
     // set overInputRef on graph
-    (event.target.parent.parent as PPNode).graph.overInputRef = event.target
-      .parent as InputSocket;
+    input.getGraph().overInputRef = event.target.parent as InputSocket;
 
     this.cursor = 'pointer';
     (this._InputSocketRef as PIXI.Graphics).tint = 0x00ff00;
@@ -92,11 +97,9 @@ export default class InputSocket extends PIXI.Container {
   }
 
   _onInputClick(event: PIXI.InteractionEvent): void {
+    console.log('_onInputClick');
     const input = event.target.parent as InputSocket;
     // check if this input already has a connection and delete it
-    (event.target.parent
-      .parent as PPNode).graph.checkIfInputHasConnectionAndDeleteIt(input);
-
-    console.log(event.target);
+    input.getGraph().checkIfInputHasConnectionAndDeleteIt(input);
   }
 }
