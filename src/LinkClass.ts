@@ -1,6 +1,7 @@
 import { Viewport } from 'pixi-viewport';
-import { InputSocket, OutputSocket, PPNode } from './NodeClass';
 import { CONNECTION_COLOR_HEX } from './constants';
+import InputSocket from './InputSocketClass';
+import OutputSocket from './OutputSocketClass';
 
 export default class PPLink extends PIXI.Container {
   id: number;

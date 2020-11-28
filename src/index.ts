@@ -1,11 +1,11 @@
 import * as PIXI from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
 import * as dat from 'dat.gui';
+import { CANVAS_BACKGROUNDCOLOR_HEX } from './constants';
 import PPGraph from './GraphClass';
-import { PPNode } from './NodeClass';
+import PPNode from './NodeClass';
 // import PixelGrid from '../assets/Pixel_grid_4000x2000.svg.png';
 import { addNode, watchNode } from './nodes';
-import { CANVAS_BACKGROUNDCOLOR_HEX } from './constants';
 
 import './style.css';
 

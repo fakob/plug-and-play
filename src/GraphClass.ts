@@ -1,8 +1,10 @@
 import * as PIXI from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
-import PPLink from './LinkClass';
-import { PPNode, InputSocket, OutputSocket } from './NodeClass';
 import { CONNECTION_COLOR_HEX } from './constants';
+import PPNode from './NodeClass';
+import InputSocket from './InputSocketClass';
+import OutputSocket from './OutputSocketClass';
+import PPLink from './LinkClass';
 
 export default class PPGraph {
   app: PIXI.Application;
