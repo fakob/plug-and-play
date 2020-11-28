@@ -50,6 +50,8 @@ export default class PPGraph {
     this.viewport.on('pointerdown', this._onPointerDown.bind(this));
   }
 
+  // SETUP
+
   _onPointerDown(): void {
     this.deselectAllNodes();
   }
@@ -156,7 +158,7 @@ export default class PPGraph {
     console.log(node.id);
   }
 
-  // GETTERS & SETTERS
+  // METHODS
 
   // selectNode(node, add_to_current_selection) {
   //   if (node == null) {

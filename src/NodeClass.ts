@@ -121,6 +121,59 @@ export default class PPNode extends PIXI.Container {
     this._NodeNameRef.text = text;
   }
 
+  // METHODS
+  select(selected: boolean): void {
+    this._selected = selected;
+    this.updateShape(selected);
+  }
+
+  addInput(name: string, type: string): void {
+    const inputSocket = new InputSocket(name, type);
+    const inputSocketRef = this.addChild(inputSocket);
+    inputSocketRef.y =
+      NODE_MARGIN_TOP +
+      NODE_HEADER_HEIGHT +
+      this.inputSocketArray.length * INPUTSOCKET_HEIGHT;
+
+    this.inputSocketArray.push(inputSocketRef);
+
+    // redraw background due to size change
+    this.updateShape(this._selected);
+  }
+
+  updateShape(selected: boolean): void {
+    // redraw background due to size change
+    this._BackgroundRef.clear();
+    this._BackgroundRef.beginFill(nodeBackgroundColorHex);
+    this._BackgroundRef.drawRoundedRect(
+      NODE_OUTLINE_DISTANCE + INPUTSOCKET_WIDTH / 2,
+      NODE_OUTLINE_DISTANCE + 0,
+      NODE_WIDTH,
+      NODE_MARGIN_TOP +
+        NODE_HEADER_HEIGHT +
+        this.inputSocketArray.length * INPUTSOCKET_HEIGHT +
+        this.outputSocketArray.length * OUTPUTSOCKET_HEIGHT +
+        NODE_MARGIN_BOTTOM,
+      NODE_CORNERRADIUS
+    );
+    this._BackgroundRef.endFill();
+    if (selected) {
+      this._BackgroundRef.lineStyle(1, 0xff00ff, 1, 0);
+      this._BackgroundRef.drawRoundedRect(
+        INPUTSOCKET_WIDTH / 2,
+        0,
+        NODE_OUTLINE_DISTANCE * 2 + NODE_WIDTH,
+        NODE_OUTLINE_DISTANCE * 2 +
+          NODE_MARGIN_TOP +
+          NODE_HEADER_HEIGHT +
+          this.inputSocketArray.length * INPUTSOCKET_HEIGHT +
+          this.outputSocketArray.length * OUTPUTSOCKET_HEIGHT +
+          NODE_MARGIN_BOTTOM,
+        NODE_CORNERRADIUS + NODE_OUTLINE_DISTANCE
+      );
+    }
+  }
+
   // SETUP
 
   _addListeners(): void {
@@ -219,59 +272,6 @@ export default class PPNode extends PIXI.Container {
     } else {
       this.select(true);
       this.cursor = 'move';
-    }
-  }
-
-  // METHODS
-  select(selected: boolean): void {
-    this._selected = selected;
-    this.updateShape(selected);
-  }
-
-  addInput(name: string, type: string): void {
-    const inputSocket = new InputSocket(name, type);
-    const inputSocketRef = this.addChild(inputSocket);
-    inputSocketRef.y =
-      NODE_MARGIN_TOP +
-      NODE_HEADER_HEIGHT +
-      this.inputSocketArray.length * INPUTSOCKET_HEIGHT;
-
-    this.inputSocketArray.push(inputSocketRef);
-
-    // redraw background due to size change
-    this.updateShape(this._selected);
-  }
-
-  updateShape(selected: boolean): void {
-    // redraw background due to size change
-    this._BackgroundRef.clear();
-    this._BackgroundRef.beginFill(nodeBackgroundColorHex);
-    this._BackgroundRef.drawRoundedRect(
-      NODE_OUTLINE_DISTANCE + INPUTSOCKET_WIDTH / 2,
-      NODE_OUTLINE_DISTANCE + 0,
-      NODE_WIDTH,
-      NODE_MARGIN_TOP +
-        NODE_HEADER_HEIGHT +
-        this.inputSocketArray.length * INPUTSOCKET_HEIGHT +
-        this.outputSocketArray.length * OUTPUTSOCKET_HEIGHT +
-        NODE_MARGIN_BOTTOM,
-      NODE_CORNERRADIUS
-    );
-    this._BackgroundRef.endFill();
-    if (selected) {
-      this._BackgroundRef.lineStyle(1, 0xff00ff, 1, 0);
-      this._BackgroundRef.drawRoundedRect(
-        INPUTSOCKET_WIDTH / 2,
-        0,
-        NODE_OUTLINE_DISTANCE * 2 + NODE_WIDTH,
-        NODE_OUTLINE_DISTANCE * 2 +
-          NODE_MARGIN_TOP +
-          NODE_HEADER_HEIGHT +
-          this.inputSocketArray.length * INPUTSOCKET_HEIGHT +
-          this.outputSocketArray.length * OUTPUTSOCKET_HEIGHT +
-          NODE_MARGIN_BOTTOM,
-        NODE_CORNERRADIUS + NODE_OUTLINE_DISTANCE
-      );
     }
   }
 }
