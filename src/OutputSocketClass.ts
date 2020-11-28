@@ -75,6 +75,12 @@ export default class OutputSocket extends PIXI.Container {
     return this._OutputNameRef;
   }
 
+  // METHODS
+
+  removeLink(link: PPLink): void {
+    this.links = this.links.filter((item) => item.id !== link.id);
+  }
+
   // SETUP
 
   _onOutputOver(): void {

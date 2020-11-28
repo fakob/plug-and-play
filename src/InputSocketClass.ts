@@ -66,6 +66,12 @@ export default class InputSocket extends PIXI.Container {
     return this._InputNameRef;
   }
 
+  // METHODS
+
+  removeLink(): void {
+    this.link = null;
+  }
+
   // SETUP
 
   _onInputOver(event: PIXI.InteractionEvent): void {

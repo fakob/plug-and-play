@@ -240,10 +240,8 @@ export default class PPGraph {
         console.log('deleting link:', link.target);
 
         // remove link from source and target socket
-        link.getTarget().link = null;
-        link.getSource().links = link
-          .getSource()
-          .links.filter((item) => item.id !== link.id);
+        link.getTarget().removeLink();
+        link.getSource().removeLink(link);
 
         // remove link from graph
         this.connectionContainer.removeChild(this._links[key]);
