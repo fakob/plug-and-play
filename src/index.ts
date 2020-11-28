@@ -38,9 +38,17 @@ console.log(window.devicePixelRatio);
 // add the viewport to the stage
 app.stage.addChild(viewport);
 
-viewport.drag().pinch().wheel().decelerate({
-  friction: 0.8,
-});
+viewport
+  .drag()
+  .pinch()
+  .wheel()
+  .decelerate({
+    friction: 0.8,
+  })
+  .clampZoom({
+    minScale: 0.05,
+    maxScale: 4,
+  });
 
 window.onload = async (): Promise<void> => {
   document.body.appendChild(app.view);
