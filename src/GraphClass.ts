@@ -1,6 +1,7 @@
 import * as PIXI from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
 import { CONNECTION_COLOR_HEX } from './constants';
+import { PPNodeConstructor } from './interfaces';
 import PPNode from './NodeClass';
 import InputSocket from './InputSocketClass';
 import OutputSocket from './OutputSocketClass';
@@ -16,6 +17,7 @@ export default class PPGraph {
 
   _nodes: { [key: number]: PPNode };
   _links: { [key: number]: PPLink };
+  _registeredNodeTypes: Record<string, PPNodeConstructor>;
 
   selected_nodes: number[];
   clickedOutputRef: null | OutputSocket;
@@ -168,10 +170,39 @@ export default class PPGraph {
   //   }
   // }
 
-  add(node: PPNode): PPNode {
-    if (!node) {
-      return;
+  registerNodeType(type: string, baseClass: PPNodeConstructor): void {
+    // baseClass.type = type;
+    console.log('Node registered: ' + type);
+
+    // const classname = baseClass.name;
+
+    // const pos = type.lastIndexOf('/');
+    // baseClass.category = type.substr(0, pos);
+
+    // if (!baseClass.title) {
+    //   baseClass.title = classname;
+    // }
+    console.log(this._registeredNodeTypes);
+    this._registeredNodeTypes[type] = baseClass;
+  }
+
+  // createNode(type: string): PPNode {
+  createNode<T extends PPNode = PPNode>(type: string): T {
+    const baseClass = this._registeredNodeTypes[type];
+    if (!baseClass) {
+      console.log('GraphNode type "' + type + '" not registered.');
+      return null;
     }
+
+    const title = type;
+    const node = new baseClass(title, this) as T;
+    return node;
+  }
+
+  add<T extends PPNode = PPNode>(node: T): T {
+    // if (!node) {
+    //   return;
+    // }
 
     node
       .on('pointerdown', this._onNodePointerDown.bind(this))
@@ -194,6 +225,14 @@ export default class PPGraph {
     this._nodes[node.id] = node;
 
     return node; //to chain actions
+  }
+
+  createAndAdd<T extends PPNode = PPNode>(type: string): T {
+    const node = this.createNode(type) as T;
+    // if (node) {
+    this.add(node);
+    return node;
+    // }
   }
 
   connect(
@@ -257,11 +296,14 @@ export default class PPGraph {
     this.lastNodeId = 0;
     this.lastLinkId = 0;
 
-    //nodes
+    // nodes
     this._nodes = [];
 
-    //links
+    // links
     this._links = {}; //container with all the links
+
+    // registered note types
+    this._registeredNodeTypes = {};
   }
 
   selectNode(node: PPNode): void {

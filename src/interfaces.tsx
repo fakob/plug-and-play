@@ -1,5 +1,12 @@
 import { Sprite, Text } from 'pixi.js';
 import ThumbContainer from './ThumbContainer';
+import PPGraph from './GraphClass';
+import PPNode from './NodeClass';
+
+export type PPNodeConstructor<T extends PPNode = PPNode> = {
+  // new (...args: any[]): T;
+  new (name: string, graph: PPGraph): T;
+};
 
 export interface GridPosition {
   x: number;

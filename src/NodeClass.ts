@@ -33,15 +33,18 @@ export default class PPNode extends PIXI.Container {
   inputSocketArray: InputSocket[];
   outputSocketArray: OutputSocket[];
   type: string;
+  title: string;
+  description: string;
+  category: string;
   id: number | null;
   clickedOutputRef: null | OutputSocket;
 
-  constructor(node: NodeData, graph: PPGraph) {
+  constructor(name: string, graph: PPGraph) {
     super();
     this.graph = graph;
     this.id = null;
-    this.name = node.name;
-    this.type = node.type;
+    this.name = name;
+    this.type = name;
     this.inputSocketArray = [];
     this.outputSocketArray = [];
     this.clickedOutputRef = null;
@@ -56,39 +59,6 @@ export default class PPNode extends PIXI.Container {
 
     this._BackgroundRef = this.addChild(background);
     this._NodeNameRef = this.addChild(inputNameText);
-
-    // adding outputs
-    if (node.outputs) {
-      for (let index = 0; index < node.outputs.length; index++) {
-        const outputSocket = new OutputSocket(
-          node.outputs[index].name,
-          node.outputs[index].type
-        );
-        const outputSocketRef = this.addChild(outputSocket);
-        outputSocketRef.y =
-          NODE_MARGIN_TOP + NODE_HEADER_HEIGHT + index * INPUTSOCKET_HEIGHT;
-        this.outputSocketArray.push(outputSocketRef);
-      }
-    }
-
-    // adding inputs
-    if (node.inputs) {
-      for (let index = 0; index < node.inputs.length; index++) {
-        const inputSocket = new InputSocket(
-          node.inputs[index].name,
-          node.inputs[index].type
-        );
-        const inputSocketRef = this.addChild(inputSocket);
-        inputSocketRef.y =
-          NODE_MARGIN_TOP +
-          NODE_HEADER_HEIGHT +
-          (node.outputs === undefined
-            ? 0
-            : node.outputs.length * OUTPUTSOCKET_HEIGHT) +
-          index * INPUTSOCKET_HEIGHT;
-        this.inputSocketArray.push(inputSocketRef);
-      }
-    }
 
     // draw shape
     this.updateShape(this._selected);
@@ -133,9 +103,24 @@ export default class PPNode extends PIXI.Container {
     inputSocketRef.y =
       NODE_MARGIN_TOP +
       NODE_HEADER_HEIGHT +
+      this.outputSocketArray.length * OUTPUTSOCKET_HEIGHT +
       this.inputSocketArray.length * INPUTSOCKET_HEIGHT;
 
     this.inputSocketArray.push(inputSocketRef);
+
+    // redraw background due to size change
+    this.updateShape(this._selected);
+  }
+
+  addOutput(name: string, type: string): void {
+    const outputSocket = new OutputSocket(name, type);
+    const outputSocketRef = this.addChild(outputSocket);
+    outputSocketRef.y =
+      NODE_MARGIN_TOP +
+      NODE_HEADER_HEIGHT +
+      this.outputSocketArray.length * OUTPUTSOCKET_HEIGHT;
+
+    this.outputSocketArray.push(outputSocketRef);
 
     // redraw background due to size change
     this.updateShape(this._selected);
@@ -172,6 +157,10 @@ export default class PPNode extends PIXI.Container {
         NODE_CORNERRADIUS + NODE_OUTLINE_DISTANCE
       );
     }
+  }
+
+  onExecute(): void {
+    // just define function
   }
 
   // SETUP

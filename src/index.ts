@@ -4,6 +4,7 @@ import * as dat from 'dat.gui';
 import { CANVAS_BACKGROUNDCOLOR_HEX } from './constants';
 import PPGraph from './GraphClass';
 import PPNode from './NodeClass';
+import MathNoise from './nodes/math';
 // import PixelGrid from '../assets/Pixel_grid_4000x2000.svg.png';
 import { addNode, watchNode } from './nodes';
 
@@ -94,6 +95,9 @@ function setupGrid(): void {
   // add graph
   const graph = new PPGraph(app, viewport);
 
+  graph.registerNodeType('math/noise', MathNoise);
+
+  // gui
   const data = {
     amount: 24,
     columnCount: 4,
@@ -105,14 +109,17 @@ function setupGrid(): void {
     //   console.log(viewport.children[0]);
     //   console.log(nodeArray[0].addInput('New', 'string'));
     // },
-    addAddNode: function () {
-      const myAddNode = new PPNode(addNode, graph);
-      graph.add(myAddNode);
+    addMathNoiseNode: function () {
+      graph.createAndAdd('math/noise');
     },
-    addWatchNode: function () {
-      const myWatchNode = new PPNode(watchNode, graph);
-      graph.add(myWatchNode);
-    },
+    // addNode: function () {
+    //   const myAddNode = new PPNode(myAddNode, graph);
+    //   graph.add(myAddNode);
+    // },
+    // addWatchNode: function () {
+    //   const myWatchNode = new PPNode(watchNode, graph);
+    //   graph.add(myWatchNode);
+    // },
   };
 
   gui.addColor(data, 'color').onChange(() => {
@@ -134,8 +141,9 @@ function setupGrid(): void {
     updateGrid();
   });
   // gui.add(data, 'addInput');
-  gui.add(data, 'addAddNode');
-  gui.add(data, 'addWatchNode');
+  gui.add(data, 'addMathNoiseNode');
+  // gui.add(data, 'addAddNode');
+  // gui.add(data, 'addWatchNode');
 }
 
 function updateGrid(): void {
