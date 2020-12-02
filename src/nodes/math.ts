@@ -9,6 +9,7 @@ export default class MathNoise extends PPNode {
   octaves: number;
   persistence: number;
   speed: number;
+  data2: Float32Array;
 
   constructor(name: string, graph: PPGraph) {
     super(name, graph);
@@ -26,13 +27,13 @@ export default class MathNoise extends PPNode {
     this.title = 'Noise';
     this.type = 'MathNoise';
     this.description = 'Random number with temporal continuity';
-    this.data = null;
+    this.data2 = null;
 
-    const getValue = function (f: number, smooth: boolean) {
-      if (!this.data) {
-        this.data = new Float32Array(1024);
-        for (let i = 0; i < this.data.length; ++i) {
-          this.data[i] = Math.random();
+    const getValue = (f: number, smooth: boolean) => {
+      if (!this.data2) {
+        this.data2 = new Float32Array(1024);
+        for (let i = 0; i < this.data2.length; ++i) {
+          this.data2[i] = Math.random();
         }
       }
       f = f % 1024;
@@ -41,8 +42,8 @@ export default class MathNoise extends PPNode {
       }
       const f_min = Math.floor(f);
       f = f - f_min;
-      const r1 = this.data[f_min];
-      const r2 = this.data[f_min == 1023 ? 0 : f_min + 1];
+      const r1 = this.data2[f_min];
+      const r2 = this.data2[f_min == 1023 ? 0 : f_min + 1];
       if (smooth) {
         f = f * f * f * (f * (f * 6.0 - 15.0) + 10.0);
       }
@@ -50,26 +51,27 @@ export default class MathNoise extends PPNode {
     };
 
     this.onExecute = function () {
-      // let f = this.getInputData(0) || 0;
-      let f = 0;
-      const iterations = this.properties.octaves || 1;
+      let f = this.getInputData(0) || 0;
+      // let f = 0;
+      const iterations = this.octaves || 1;
       let r = 0;
       let amp = 1;
-      const seed = this.properties.seed || 0;
+      const seed = this.seed || 0;
       f += seed;
-      const speed = this.properties.speed || 1;
+      const speed = this.speed || 1;
       let total_amp = 0;
       for (let i = 0; i < iterations; ++i) {
-        r += getValue(f * (1 + i) * speed, this.properties.smooth) * amp;
+        r += getValue(f * (1 + i) * speed, this.smooth) * amp;
         total_amp += amp;
-        amp *= this.properties.persistence;
+        amp *= this.persistence;
         if (amp < 0.001) break;
       }
       r /= total_amp;
-      const min = this.properties.min;
-      const max = this.properties.max;
+      const min = this.min;
+      const max = this.max;
       this._last_v = r * (max - min) + min;
       this.setOutputData(0, this._last_v);
+      console.log(this._last_v);
     };
   }
 }

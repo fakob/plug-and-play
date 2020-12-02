@@ -325,4 +325,15 @@ export default class PPGraph {
     });
     this.selected_nodes = [];
   }
+
+  runStep(): void {
+    const nodes = this._nodes;
+    if (!nodes) {
+      return;
+    }
+
+    Object.entries(nodes).forEach(([key, node]) => {
+      node.onExecute(); //hard to send elapsed time
+    });
+  }
 }

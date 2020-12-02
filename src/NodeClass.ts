@@ -159,6 +159,49 @@ export default class PPNode extends PIXI.Container {
     }
   }
 
+  getInputData<T = any>(slot: number): T {
+    if (!this.inputSocketArray) {
+      return;
+    } //undefined;
+
+    if (
+      slot >= this.inputSocketArray.length ||
+      this.inputSocketArray[slot].link == null
+    ) {
+      return;
+    }
+
+    const link = this.inputSocketArray[slot].link;
+    if (!link) {
+      //bug: weird case but it happens sometimes
+      return null;
+    }
+
+    return link._data;
+  }
+  setOutputData(slot: number, data: any): void {
+    if (!this.outputSocketArray) {
+      return;
+    }
+
+    if (slot == -1 || slot >= this.outputSocketArray.length) {
+      return;
+    }
+
+    const output_info = this.outputSocketArray[slot];
+    if (!output_info) {
+      return;
+    }
+
+    //if there are connections, pass the data to the connections
+    if (this.outputSocketArray[slot].links) {
+      for (let i = 0; i < this.outputSocketArray[slot].links.length; i++) {
+        const link = this.outputSocketArray[slot].links[i];
+        if (link) link._data = data;
+      }
+    }
+  }
+
   onExecute(): void {
     // just define function
   }
