@@ -3,7 +3,7 @@ import { Viewport } from 'pixi-viewport';
 import * as dat from 'dat.gui';
 import { CANVAS_BACKGROUNDCOLOR_HEX } from './constants';
 import PPGraph from './GraphClass';
-import MathNoise from './nodes/math';
+import { MathAdd, MathNoise } from './nodes/math';
 // import PixelGrid from '../assets/Pixel_grid_4000x2000.svg.png';
 
 import './style.css';
@@ -93,6 +93,7 @@ function setupGrid(): void {
   // add graph
   const graph = new PPGraph(app, viewport);
 
+  graph.registerNodeType('math/add', MathAdd);
   graph.registerNodeType('math/noise', MathNoise);
 
   // gui
@@ -107,6 +108,9 @@ function setupGrid(): void {
     //   console.log(viewport.children[0]);
     //   console.log(nodeArray[0].addInput('New', 'string'));
     // },
+    addMathAddNode: function () {
+      graph.createAndAdd('math/add');
+    },
     addMathNoiseNode: function () {
       graph.createAndAdd('math/noise');
     },
@@ -143,6 +147,7 @@ function setupGrid(): void {
   });
   gui.add(data, 'runStep');
   // gui.add(data, 'addInput');
+  gui.add(data, 'addMathAddNode');
   gui.add(data, 'addMathNoiseNode');
   // gui.add(data, 'addAddNode');
   // gui.add(data, 'addWatchNode');

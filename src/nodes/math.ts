@@ -1,7 +1,39 @@
 import PPGraph from '../GraphClass';
 import PPNode from '../NodeClass';
 
-export default class MathNoise extends PPNode {
+export class MathAdd extends PPNode {
+  min: number;
+  max: number;
+  smooth: boolean;
+  seed: number;
+  octaves: number;
+  persistence: number;
+  speed: number;
+  data2: Float32Array;
+
+  constructor(name: string, graph: PPGraph) {
+    super(name, graph);
+
+    this.addInput('in', 'number');
+    this.addInput('in2', 'number');
+    this.addOutput('out', 'number');
+
+    this.title = 'Add';
+    this.type = 'MathAdd';
+    this.description = 'Add 2 numbers';
+    this.data2 = null;
+
+    this.onExecute = function () {
+      const a = this.getInputData(0) || 0;
+      const b = this.getInputData(1) || 0;
+      const result = a + b;
+      this.setOutputData(0, result);
+      console.log(this.result);
+    };
+  }
+}
+
+export class MathNoise extends PPNode {
   min: number;
   max: number;
   smooth: boolean;
