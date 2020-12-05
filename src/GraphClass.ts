@@ -71,7 +71,7 @@ export default class PPGraph {
       this.selectNode(node);
     } else {
       // event.data.global delivers the mouse coordinates from the top left corner in pixel
-      node.data = event.data;
+      node.interactionData = event.data;
 
       const dragSourceRect = this.clickedOutputRef.children[0].getBounds();
       const dragSourcePoint = new PIXI.Point(
@@ -334,6 +334,10 @@ export default class PPGraph {
 
     Object.entries(nodes).forEach(([key, node]) => {
       node.onExecute(); //hard to send elapsed time
+      if (true) {
+        node.drawComment();
+      }
+      node.onAfterExecute();
     });
   }
 }

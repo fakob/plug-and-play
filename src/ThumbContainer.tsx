@@ -20,7 +20,7 @@ export default class ThumbContainer extends PIXI.Container {
 
   clickPosition: PIXI.Point | null;
 
-  data: PIXI.InteractionData | null;
+  interactionData: PIXI.InteractionData | null;
 
   constructor(x = 0, y = 0, width = 160, aspectRatio = 16 / 9, name = 'thumb') {
     super();
@@ -35,7 +35,7 @@ export default class ThumbContainer extends PIXI.Container {
     // });
     // Make a new HTMLText object
     const thumbInfo = new HTMLText('Hello World', style);
-    // thumbInfo.resolution = 8; // so one can zoom in closer and it keeps a decent resolution
+    // thumbInfo.resolution = TEXT_RESOLUTION; // so one can zoom in closer and it keeps a decent resolution
 
     const frameSprite = new PIXI.Graphics();
     frameSprite.beginFill(0xde3249);
@@ -63,7 +63,7 @@ export default class ThumbContainer extends PIXI.Container {
     this._SelectionRef = this.addChild(selection);
 
     this.interactive = true;
-    this.data = null;
+    this.interactionData = null;
     this.relativeClickPosition = null;
     this.clickPosition = null;
     this.dragging = false;
@@ -99,7 +99,7 @@ export default class ThumbContainer extends PIXI.Container {
   }
 
   _onDragStart(event: any): void {
-    this.data = event.data;
+    this.interactionData = event.data;
     this.clickPosition = new PIXI.Point(
       event.data.originalEvent.screenX,
       event.data.originalEvent.screenY
@@ -110,7 +110,9 @@ export default class ThumbContainer extends PIXI.Container {
       this.dragging = true;
       const localPositionX = this.position.x;
       const localPositionY = this.position.y;
-      const localClickPosition = this.data.getLocalPosition(this.parent);
+      const localClickPosition = this.interactionData.getLocalPosition(
+        this.parent
+      );
       const localClickPositionX = localClickPosition.x;
       const localClickPositionY = localClickPosition.y;
       const deltaX = localClickPositionX - localPositionX;
@@ -135,17 +137,17 @@ export default class ThumbContainer extends PIXI.Container {
 
     this.alpha = 1;
     this.dragging = false;
-    // set the interaction data to null
-    this.data = null;
+    // set the interactionData to null
+    this.interactionData = null;
   }
 
   _onDragMove(): void {
     if (
       this.dragging &&
-      this.data !== null &&
+      this.interactionData !== null &&
       this.relativeClickPosition !== null
     ) {
-      const newPosition = this.data.getLocalPosition(this.parent);
+      const newPosition = this.interactionData.getLocalPosition(this.parent);
       this.x = newPosition.x - this.relativeClickPosition.x;
       this.y = newPosition.y - this.relativeClickPosition.y;
     }

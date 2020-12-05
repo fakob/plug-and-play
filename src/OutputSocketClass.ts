@@ -11,6 +11,7 @@ import {
   OUTPUTSOCKET_CORNERRADIUS,
   OUTPUTSOCKET_TEXTMARGIN_RIGHT,
   OUTPUTSOCKET_TEXTMARGIN_TOP,
+  TEXT_RESOLUTION,
 } from './constants';
 
 export default class OutputSocket extends PIXI.Container {
@@ -18,7 +19,8 @@ export default class OutputSocket extends PIXI.Container {
 
   _OutputSocketRef: PIXI.DisplayObject;
 
-  data: PIXI.InteractionData | null;
+  // data: PIXI.InteractionData | null;
+  data: any;
 
   type: string;
   linkDragPos: null | PIXI.Point;
@@ -50,7 +52,7 @@ export default class OutputSocket extends PIXI.Container {
       outputNameText.getBounds().width -
       OUTPUTSOCKET_TEXTMARGIN_RIGHT;
     outputNameText.y = NODE_OUTLINE_DISTANCE + OUTPUTSOCKET_TEXTMARGIN_TOP;
-    outputNameText.resolution = 8; // so one can zoom in closer and it keeps a decent resolution
+    outputNameText.resolution = TEXT_RESOLUTION;
 
     this._OutputSocketRef = this.addChild(socket);
     this._OutputNameRef = this.addChild(outputNameText);

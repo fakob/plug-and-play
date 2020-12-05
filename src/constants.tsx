@@ -9,6 +9,9 @@ export const CANVAS_BACKGROUNDCOLOR_HEX = PIXI.utils.string2hex(
 export const COLOR_MAIN = '#2E3A59';
 export const COLOR_MAIN_HEX = PIXI.utils.string2hex(COLOR_MAIN);
 
+// common
+export const TEXT_RESOLUTION = 8; // so one can zoom in closer and it keeps a decent resolution
+
 export const INPUTSOCKET_TEXTSTYLE = new TextStyle({
   fontSize: 12,
   fill: COLOR_MAIN,
@@ -44,5 +47,12 @@ export const NODE_HEADER_TEXTMARGIN_TOP = 4;
 export const NODE_WIDTH = 160;
 export const NODE_CORNERRADIUS = 8;
 export const NODE_BACKGROUNDCOLOR = '#C1CADF';
+
+export const COMMENT_TEXTSTYLE = new TextStyle({
+  fontSize: 12,
+  fill: COLOR_MAIN,
+  textAlign: 'right',
+  fontStyle: 'italic',
+});
 
 export const CONNECTION_COLOR_HEX = PIXI.utils.string2hex('#2E5942');

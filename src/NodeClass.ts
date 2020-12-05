@@ -1,6 +1,7 @@
 import * as PIXI from 'pixi.js';
 import { NodeData } from './interfaces';
 import {
+  COMMENT_TEXTSTYLE,
   NODE_BACKGROUNDCOLOR,
   NODE_CORNERRADIUS,
   NODE_MARGIN_TOP,
@@ -14,6 +15,9 @@ import {
   INPUTSOCKET_HEIGHT,
   INPUTSOCKET_WIDTH,
   OUTPUTSOCKET_HEIGHT,
+  OUTPUTSOCKET_TEXTMARGIN_TOP,
+  OUTPUTSOCKET_WIDTH,
+  TEXT_RESOLUTION,
 } from './constants';
 import PPGraph from './GraphClass';
 import InputSocket from './InputSocketClass';
@@ -24,12 +28,13 @@ const nodeBackgroundColorHex = PIXI.utils.string2hex(NODE_BACKGROUNDCOLOR);
 export default class PPNode extends PIXI.Container {
   graph: PPGraph;
   _NodeNameRef: PIXI.Text;
+  _NodeCommentRef: PIXI.Text;
   _BackgroundRef: PIXI.Graphics;
   _selected: boolean;
   dragging: boolean;
   relativeClickPosition: PIXI.Point | null;
   clickPosition: PIXI.Point | null;
-  data: PIXI.InteractionData | null;
+  interactionData: PIXI.InteractionData | null;
   inputSocketArray: InputSocket[];
   outputSocketArray: OutputSocket[];
   type: string;
@@ -56,15 +61,18 @@ export default class PPNode extends PIXI.Container {
     inputNameText.resolution = 8;
 
     const background = new PIXI.Graphics();
+    const nodeComment = new PIXI.Text('', COMMENT_TEXTSTYLE);
+    nodeComment.resolution = TEXT_RESOLUTION;
 
     this._BackgroundRef = this.addChild(background);
     this._NodeNameRef = this.addChild(inputNameText);
+    this._NodeCommentRef = this.addChild(nodeComment);
 
     // draw shape
     this.updateShape(this._selected);
 
     this.interactive = true;
-    this.data = null;
+    this.interactionData = null;
     this.relativeClickPosition = null;
     this.clickPosition = null;
     this.dragging = false;
@@ -157,6 +165,26 @@ export default class PPNode extends PIXI.Container {
         NODE_CORNERRADIUS + NODE_OUTLINE_DISTANCE
       );
     }
+
+    // update position of comment
+    this._NodeCommentRef.x =
+      NODE_OUTLINE_DISTANCE * 2 + NODE_WIDTH + OUTPUTSOCKET_WIDTH;
+    this._NodeCommentRef.y =
+      NODE_MARGIN_TOP +
+      NODE_HEADER_HEIGHT +
+      NODE_OUTLINE_DISTANCE +
+      OUTPUTSOCKET_TEXTMARGIN_TOP;
+  }
+
+  drawComment(): void {
+    const commentData =
+      this.outputSocketArray[0] !== undefined
+        ? this.outputSocketArray[0].data
+        : undefined;
+    console.log(this.outputSocketArray[0], commentData);
+    if (commentData !== undefined) {
+      this._NodeCommentRef.text = JSON.stringify(commentData, null, 2);
+    }
   }
 
   getInputData<T = any>(slot: number): T {
@@ -188,10 +216,13 @@ export default class PPNode extends PIXI.Container {
       return;
     }
 
-    const output_info = this.outputSocketArray[slot];
-    if (!output_info) {
+    const outputSocket = this.outputSocketArray[slot];
+    if (!outputSocket) {
       return;
     }
+
+    //store data in the output itself in case we want to debug
+    outputSocket.data = data;
 
     //if there are connections, pass the data to the connections
     if (this.outputSocketArray[slot].links) {
@@ -203,6 +234,10 @@ export default class PPNode extends PIXI.Container {
   }
 
   onExecute(): void {
+    // just define function
+  }
+
+  onAfterExecute(): void {
     // just define function
   }
 
@@ -224,7 +259,7 @@ export default class PPNode extends PIXI.Container {
     if (node.clickedOutputRef === null) {
       // start dragging
       console.log('_onPointerDown');
-      this.data = event.data;
+      this.interactionData = event.data;
       this.clickPosition = new PIXI.Point(
         (event.data.originalEvent as PointerEvent).screenX,
         (event.data.originalEvent as PointerEvent).screenY
@@ -234,7 +269,9 @@ export default class PPNode extends PIXI.Container {
       this.dragging = true;
       const localPositionX = this.position.x;
       const localPositionY = this.position.y;
-      const localClickPosition = this.data.getLocalPosition(this.parent);
+      const localClickPosition = this.interactionData.getLocalPosition(
+        this.parent
+      );
       const localClickPositionX = localClickPosition.x;
       const localClickPositionY = localClickPosition.y;
       const deltaX = localClickPositionX - localPositionX;
@@ -259,17 +296,17 @@ export default class PPNode extends PIXI.Container {
 
     this.alpha = 1;
     this.dragging = false;
-    // set the interaction data to null
-    this.data = null;
+    // set the interactionData to null
+    this.interactionData = null;
   }
 
   _onPointerMove(): void {
     if (
       this.dragging &&
-      this.data !== null &&
+      this.interactionData !== null &&
       this.relativeClickPosition !== null
     ) {
-      const newPosition = this.data.getLocalPosition(this.parent);
+      const newPosition = this.interactionData.getLocalPosition(this.parent);
       this.x = newPosition.x - this.relativeClickPosition.x;
       this.y = newPosition.y - this.relativeClickPosition.y;
 

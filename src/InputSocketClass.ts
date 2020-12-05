@@ -10,6 +10,7 @@ import {
   INPUTSOCKET_CORNERRADIUS,
   INPUTSOCKET_TEXTMARGIN_LEFT,
   INPUTSOCKET_TEXTMARGIN_TOP,
+  TEXT_RESOLUTION,
 } from './constants';
 
 export default class InputSocket extends PIXI.Container {
@@ -44,7 +45,7 @@ export default class InputSocket extends PIXI.Container {
     inputNameText.x =
       NODE_OUTLINE_DISTANCE + socket.width + INPUTSOCKET_TEXTMARGIN_LEFT;
     inputNameText.y = NODE_OUTLINE_DISTANCE + INPUTSOCKET_TEXTMARGIN_TOP;
-    inputNameText.resolution = 8; // so one can zoom in closer and it keeps a decent resolution
+    inputNameText.resolution = TEXT_RESOLUTION;
 
     this._InputSocketRef = this.addChild(socket);
     this._InputNameRef = this.addChild(inputNameText);

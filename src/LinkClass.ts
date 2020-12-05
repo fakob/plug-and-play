@@ -10,7 +10,6 @@ export default class PPLink extends PIXI.Container {
   target: InputSocket;
   viewport: Viewport;
   _connectionRef: PIXI.Graphics;
-  _commentRef: PIXI.Text;
   _data: any;
 
   constructor(
@@ -32,8 +31,6 @@ export default class PPLink extends PIXI.Container {
     const comment = new PIXI.Text('');
     this._drawConnection(viewport, connection, source, target);
     this._connectionRef = this.addChild(connection);
-    // this._drawComment(viewport, connection);
-    this._commentRef = this.addChild(comment);
   }
 
   updateConnection(): void {
@@ -45,7 +42,6 @@ export default class PPLink extends PIXI.Container {
       this.source,
       this.target
     );
-    this._drawComment(this.viewport, this._connectionRef, this.source);
   }
 
   getSource(): OutputSocket {
@@ -94,24 +90,5 @@ export default class PPLink extends PIXI.Container {
     // offset curve to start from source
     connection.x = sourcePoint.x;
     connection.y = sourcePoint.y;
-  }
-
-  _drawComment(
-    viewport: Viewport,
-    connection: PIXI.Graphics,
-    source: OutputSocket
-  ): void {
-    this._commentRef.text = JSON.stringify(this._data, null, 2);
-
-    // get source position
-    const sourceRect = source.children[0].getBounds();
-    const sourcePoint = viewport.toWorld(
-      new PIXI.Point(
-        sourceRect.x + sourceRect.width / 2,
-        sourceRect.y + sourceRect.height / 2
-      )
-    );
-    this._commentRef.x = sourcePoint.x;
-    this._commentRef.y = sourcePoint.y;
   }
 }
