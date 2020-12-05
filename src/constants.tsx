@@ -7,6 +7,7 @@ export const CANVAS_BACKGROUNDCOLOR_HEX = PIXI.utils.string2hex(
 );
 
 export const COLOR_MAIN = '#2E3A59';
+export const COLOR_COMMENT = '#B15C5C';
 export const COLOR_MAIN_HEX = PIXI.utils.string2hex(COLOR_MAIN);
 
 // common
@@ -50,7 +51,7 @@ export const NODE_BACKGROUNDCOLOR = '#C1CADF';
 
 export const COMMENT_TEXTSTYLE = new TextStyle({
   fontSize: 12,
-  fill: COLOR_MAIN,
+  fill: COLOR_COMMENT,
   textAlign: 'right',
   fontStyle: 'italic',
 });

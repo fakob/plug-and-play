@@ -21,6 +21,8 @@ const app = new PIXI.Application({
   width: gameWidth,
   height: gameHeight,
   antialias: true,
+  autoDensity: true,
+  resolution: 2,
 });
 
 // create viewport
