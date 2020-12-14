@@ -102,6 +102,7 @@ function setupGrid(): void {
 
   // gui
   const data = {
+    run: false,
     amount: 24,
     columnCount: 4,
     margin: 20,
@@ -137,6 +138,7 @@ function setupGrid(): void {
   gui.addColor(data, 'color').onChange(() => {
     updateGrid();
   });
+  gui.add(data, 'run');
   gui.add(data, 'amount', 1, 100, 1).onChange(() => {
     setupGrid();
   });
@@ -160,9 +162,11 @@ function setupGrid(): void {
   // gui.add(data, 'addAddNode');
   // gui.add(data, 'addWatchNode');
 
-  // app.ticker.add(() => {
-  //   graph.runStep();
-  // });
+  app.ticker.add(() => {
+    if (data.run) {
+      graph.runStep();
+    }
+  });
 }
 
 function updateGrid(): void {
