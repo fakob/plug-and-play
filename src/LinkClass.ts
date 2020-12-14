@@ -10,7 +10,7 @@ export default class PPLink extends PIXI.Container {
   target: InputSocket;
   viewport: Viewport;
   _connectionRef: PIXI.Graphics;
-  _data: any;
+  // _data: any;
 
   constructor(
     id: number,
@@ -25,7 +25,7 @@ export default class PPLink extends PIXI.Container {
     this.source = source;
     this.target = target;
     this.viewport = viewport;
-    this._data = null;
+    // this._data = null;
 
     const connection = new PIXI.Graphics();
     const comment = new PIXI.Text('');

@@ -14,8 +14,8 @@ export class MathAdd extends PPNode {
   constructor(name: string, graph: PPGraph) {
     super(name, graph);
 
-    this.addInput('in', 'number');
-    this.addInput('in2', 'number');
+    this.addInput('in', 'number', 0);
+    this.addInput('in2', 'number', 0);
     this.addOutput('out', 'number');
 
     this.title = 'Add';
@@ -24,8 +24,8 @@ export class MathAdd extends PPNode {
     this.data2 = null;
 
     this.onExecute = function () {
-      const a = this.getInputData(0) || 0;
-      const b = this.getInputData(1) || 0;
+      const a = this.getInputData(0);
+      const b = this.getInputData(1);
       const result = a + b;
       this.setOutputData(0, result);
       console.log(this.result);

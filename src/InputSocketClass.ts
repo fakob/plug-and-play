@@ -15,20 +15,41 @@ import {
 
 export default class InputSocket extends PIXI.Container {
   _InputNameRef: PIXI.DisplayObject;
-
   _InputSocketRef: PIXI.DisplayObject;
-
-  data: PIXI.InteractionData | null;
-
+  interactionData: PIXI.InteractionData | null;
+  defaultValue: any;
+  _value: any;
   type: string;
-
   link: PPLink | null;
 
-  constructor(name = 'Number', type = 'number') {
+  constructor(
+    name = 'Number',
+    type = 'number',
+    defaultValue = null,
+    visible = true
+  ) {
     super();
+
+    // define defaultValues for different types
+    if (defaultValue === null) {
+      switch (type) {
+        case 'number':
+          defaultValue = 0;
+          break;
+        case 'string':
+          defaultValue = '';
+          break;
+        default:
+          break;
+      }
+    }
+
     this.name = name;
     this.type = type;
     this.link = null;
+    this.defaultValue = defaultValue;
+    this._value = defaultValue;
+    this.visible = visible;
 
     const socket = new PIXI.Graphics();
     socket.beginFill(COLOR_MAIN_HEX);
@@ -50,7 +71,7 @@ export default class InputSocket extends PIXI.Container {
     this._InputSocketRef = this.addChild(socket);
     this._InputNameRef = this.addChild(inputNameText);
 
-    this.data = null;
+    this.interactionData = null;
     this.interactive = true;
     this._InputSocketRef.interactive = true;
     this._InputSocketRef.on('pointerover', this._onInputOver.bind(this));
@@ -66,6 +87,14 @@ export default class InputSocket extends PIXI.Container {
 
   get inputNameRef(): PIXI.DisplayObject {
     return this._InputNameRef;
+  }
+
+  get value(): any {
+    return this._value;
+  }
+
+  set value(newValue: any) {
+    this._value = newValue;
   }
 
   // METHODS

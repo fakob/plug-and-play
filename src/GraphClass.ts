@@ -1,11 +1,14 @@
 import * as PIXI from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
+import * as dat from 'dat.gui';
 import { CONNECTION_COLOR_HEX } from './constants';
 import { PPNodeConstructor } from './interfaces';
 import PPNode from './NodeClass';
 import InputSocket from './InputSocketClass';
 import OutputSocket from './OutputSocketClass';
 import PPLink from './LinkClass';
+
+let gui: dat.GUI;
 
 export default class PPGraph {
   app: PIXI.Application;
@@ -162,14 +165,6 @@ export default class PPGraph {
 
   // METHODS
 
-  // selectNode(node, add_to_current_selection) {
-  //   if (node == null) {
-  //     this.deselectAllNodes();
-  //   } else {
-  //     this.selectNodes([node], add_to_current_selection);
-  //   }
-  // }
-
   registerNodeType(type: string, baseClass: PPNodeConstructor): void {
     // baseClass.type = type;
     console.log('Node registered: ' + type);
@@ -313,10 +308,28 @@ export default class PPGraph {
       this.deselectAllNodes();
       node.select(true);
       this.selected_nodes = [node.id];
+
+      // add node gui
+      gui = new dat.GUI();
+      const data = {};
+      node.inputSocketArray.forEach((item) => {
+        data[item.name] = item.value;
+        // console.log(item);
+        // console.log(data);
+        gui.add(data, item.name, 0, 100, 1).onChange((value) => {
+          console.log(item, value);
+          item.value = value;
+        });
+      });
     }
   }
 
   deselectAllNodes(): void {
+    if (gui instanceof dat.GUI) {
+      gui.destroy();
+      gui = undefined;
+    }
+
     const nodes = this._nodes;
     Object.entries(nodes).forEach(([, node]) => {
       if (node.selected) {

@@ -105,14 +105,20 @@ export default class PPNode extends PIXI.Container {
     this.updateShape(selected);
   }
 
-  addInput(name: string, type: string): void {
-    const inputSocket = new InputSocket(name, type);
+  addInput(
+    name: string,
+    type: string,
+    defaultValue?: any,
+    visible?: boolean
+  ): void {
+    const inputSocket = new InputSocket(name, type, defaultValue, visible);
     const inputSocketRef = this.addChild(inputSocket);
     inputSocketRef.y =
       NODE_MARGIN_TOP +
       NODE_HEADER_HEIGHT +
       this.outputSocketArray.length * OUTPUTSOCKET_HEIGHT +
-      this.inputSocketArray.length * INPUTSOCKET_HEIGHT;
+      this.inputSocketArray.filter((item) => item.visible === true).length *
+        INPUTSOCKET_HEIGHT;
 
     this.inputSocketArray.push(inputSocketRef);
 
@@ -192,11 +198,12 @@ export default class PPNode extends PIXI.Container {
       return;
     } //undefined;
 
+    // if no link, then return value
     if (
       slot >= this.inputSocketArray.length ||
-      this.inputSocketArray[slot].link == null
+      this.inputSocketArray[slot].link === null
     ) {
-      return;
+      return this.inputSocketArray[slot].value;
     }
 
     const link = this.inputSocketArray[slot].link;
@@ -205,8 +212,9 @@ export default class PPNode extends PIXI.Container {
       return null;
     }
 
-    return link._data;
+    return link.source.data;
   }
+
   setOutputData(slot: number, data: any): void {
     if (!this.outputSocketArray) {
       return;
@@ -224,13 +232,13 @@ export default class PPNode extends PIXI.Container {
     //store data in the output itself in case we want to debug
     outputSocket.data = data;
 
-    //if there are connections, pass the data to the connections
-    if (this.outputSocketArray[slot].links) {
-      for (let i = 0; i < this.outputSocketArray[slot].links.length; i++) {
-        const link = this.outputSocketArray[slot].links[i];
-        if (link) link._data = data;
-      }
-    }
+    // //if there are connections, pass the data to the connections
+    // if (this.outputSocketArray[slot].links) {
+    //   for (let i = 0; i < this.outputSocketArray[slot].links.length; i++) {
+    //     const link = this.outputSocketArray[slot].links[i];
+    //     if (link) link._data = data;
+    //   }
+    // }
   }
 
   onExecute(): void {
