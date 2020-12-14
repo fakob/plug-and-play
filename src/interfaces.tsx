@@ -5,7 +5,7 @@ import PPNode from './NodeClass';
 
 export type PPNodeConstructor<T extends PPNode = PPNode> = {
   // new (...args: any[]): T;
-  new (name: string, graph: PPGraph): T;
+  new (name: string, graph: PPGraph, ...args: any[]): T;
 };
 
 export interface GridPosition {

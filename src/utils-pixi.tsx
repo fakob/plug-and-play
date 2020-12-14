@@ -1,5 +1,27 @@
 import { GridPosition } from './interfaces';
 
+export const rgbToHex = (rgbArray: number[]): string => {
+  return rgbArray
+    .slice(0, 3)
+    .map((x) => {
+      const hex = x.toString(16);
+      return hex.length === 1 ? '0' + hex : hex;
+    })
+    .join('');
+};
+
+export const hexToRGB = (hex: string, alpha: string): number[] => {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+
+  if (alpha) {
+    return [r, g, b, parseFloat(alpha)];
+  } else {
+    return [r, g, b];
+  }
+};
+
 export const getGridPosition = (
   columnCount: number,
   width: number,

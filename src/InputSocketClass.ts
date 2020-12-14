@@ -39,6 +39,9 @@ export default class InputSocket extends PIXI.Container {
         case 'string':
           defaultValue = '';
           break;
+        case 'color':
+          defaultValue = [255, 55, 0, 0.5];
+          break;
         default:
           break;
       }

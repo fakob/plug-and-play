@@ -28,6 +28,8 @@ export default class PPGraph {
   dragSourcePoint: null | PIXI.Point;
 
   tempConnection: PIXI.Graphics;
+  backgroundCanvas: PIXI.Container;
+  foregroundCanvas: PIXI.Container;
   connectionContainer: PIXI.Container;
   nodeContainer: PIXI.Container;
 
@@ -43,12 +45,21 @@ export default class PPGraph {
     this.dragSourcePoint = null;
 
     this.tempConnection = new PIXI.Graphics();
+    this.backgroundCanvas = new PIXI.Container();
+    this.backgroundCanvas.name = 'backgroundCanvas';
     this.connectionContainer = new PIXI.Container();
     this.connectionContainer.name = 'connectionContainer';
     this.nodeContainer = new PIXI.Container();
     this.nodeContainer.name = 'nodeContainer';
+    this.foregroundCanvas = new PIXI.Container();
+    this.foregroundCanvas.name = 'foregroundCanvas';
 
-    this.viewport.addChild(this.connectionContainer, this.nodeContainer);
+    this.viewport.addChild(
+      this.backgroundCanvas,
+      this.connectionContainer,
+      this.nodeContainer,
+      this.foregroundCanvas
+    );
     this.connectionContainer.addChild(this.tempConnection);
     this.tempConnection.name = 'tempConnection';
 
@@ -316,10 +327,23 @@ export default class PPGraph {
         data[item.name] = item.value;
         // console.log(item);
         // console.log(data);
-        gui.add(data, item.name, 0, 100, 1).onChange((value) => {
-          console.log(item, value);
-          item.value = value;
-        });
+        switch (item.type) {
+          case 'number':
+            gui.add(data, item.name, 0, 100, 1).onChange((value) => {
+              console.log(item, value);
+              item.value = value;
+            });
+            break;
+          case 'color':
+            gui.addColor(data, item.name).onChange((value) => {
+              console.log(item, value);
+              item.value = value;
+            });
+            break;
+
+          default:
+            break;
+        }
       });
     }
   }
