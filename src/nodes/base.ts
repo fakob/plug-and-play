@@ -72,7 +72,6 @@ export class DrawRect extends PPNode {
     } else {
       convertedColor = PIXI.utils.string2hex(rgbToHex(color));
     }
-
     this._rectRef.beginFill(convertedColor, 0.5);
     this._rectRef.drawRect(this._x, this._y, this._width, this._height);
     this._rectRef.endFill();
@@ -84,13 +83,22 @@ export class DrawRect extends PPNode {
       const height = this.getInputData(3) || 100;
       const color = (this.getInputData(4) as number[]) || [255, 0, 0, 0.5];
       this._rectRef.clear();
+      let xArray: number[] = [];
+      if (Array.isArray(x)) {
+        xArray = x;
+      } else {
+        xArray.push(x);
+      }
       this._rectRef.beginFill(PIXI.utils.string2hex(rgbToHex(color)), color[3]);
-      this._rectRef.drawRect(
-        this.x + this.width + x,
-        this.y + y,
-        width,
-        height
-      );
+      xArray.forEach((xValue: number) => {
+        this._rectRef.drawRect(
+          this.x + this.width + xValue,
+          this.y + y,
+          width,
+          height
+        );
+        this._rectRef.moveTo(xValue + 2);
+      });
       this._rectRef.endFill();
       // this.setOutputData(1, Date.now());
     };
