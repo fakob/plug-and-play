@@ -59,7 +59,12 @@ export class DrawRect extends PPNode {
       const color = (this.getInputData(4) as number[]) || [255, 0, 0, 0.5];
       this._rectRef.clear();
       this._rectRef.beginFill(PIXI.utils.string2hex(rgbToHex(color)), color[3]);
-      this._rectRef.drawRect(x, y, width, height);
+      this._rectRef.drawRect(
+        this.x + this.width + x,
+        this.y + y,
+        width,
+        height
+      );
       this._rectRef.endFill();
       // this.setOutputData(1, Date.now());
     };
