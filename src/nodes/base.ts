@@ -2,6 +2,32 @@ import PPGraph from '../GraphClass';
 import PPNode from '../NodeClass';
 import { rgbToHex } from '../utils-pixi';
 
+export class RangeArray extends PPNode {
+  constructor(name: string, graph: PPGraph) {
+    super(name, graph);
+
+    this.addInput('start', 'number');
+    this.addInput('stop', 'number');
+    this.addInput('step', 'number');
+    this.addOutput('output array', 'array');
+
+    this.title = 'Range array';
+    this.type = 'RangeArray';
+    this.description = 'Create range array';
+
+    this.onExecute = function () {
+      const start = this.getInputData(0) || 0;
+      const stop = this.getInputData(1) || 100;
+      const step = this.getInputData(2) || 2;
+      const output = Array.from(
+        { length: (stop - start) / step + 1 },
+        (_, i) => start + i * step
+      );
+      this.setOutputData(0, output);
+    };
+  }
+}
+
 export class DrawRect extends PPNode {
   _x: number;
   _y: number;

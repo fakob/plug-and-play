@@ -4,7 +4,7 @@ import * as dat from 'dat.gui';
 import { CANVAS_BACKGROUNDCOLOR_HEX } from './constants';
 import PPGraph from './GraphClass';
 import { MathAdd, MathNoise } from './nodes/math';
-import { DrawRect, TimeAndDate } from './nodes/base';
+import { DrawRect, RangeArray, TimeAndDate } from './nodes/base';
 // import PixelGrid from '../assets/Pixel_grid_4000x2000.svg.png';
 
 import './style.css';
@@ -100,6 +100,7 @@ function setupGrid(): void {
   graph.registerNodeType('math/noise', MathNoise);
   graph.registerNodeType('base/timeAndDate', TimeAndDate);
   graph.registerNodeType('base/rect', DrawRect);
+  graph.registerNodeType('base/rangeArray', RangeArray);
 
   // gui
   const data = {
@@ -119,6 +120,9 @@ function setupGrid(): void {
     },
     addRectNode: function () {
       graph.createAndAdd('base/rect');
+    },
+    addRangeArrayNode: function () {
+      graph.createAndAdd('base/rangeArray');
     },
     addMathNoiseNode: function () {
       graph.createAndAdd('math/noise');
@@ -162,6 +166,7 @@ function setupGrid(): void {
   // gui.add(data, 'addInput');
   gui.add(data, 'addMathAddNode');
   gui.add(data, 'addRectNode');
+  gui.add(data, 'addRangeArrayNode');
   gui.add(data, 'addMathNoiseNode');
   gui.add(data, 'addTimeDate');
   // gui.add(data, 'addAddNode');
