@@ -187,7 +187,7 @@ export default class PPNode extends PIXI.Container {
       this.outputSocketArray[0] !== undefined
         ? this.outputSocketArray[0].data
         : undefined;
-    console.log(this.outputSocketArray[0], commentData);
+    // console.log(this.outputSocketArray[0], commentData);
     if (commentData !== undefined) {
       this._NodeCommentRef.text = JSON.stringify(commentData, null, 2);
     }
