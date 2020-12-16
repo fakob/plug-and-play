@@ -62,7 +62,7 @@ export default class PPNode extends PIXI.Container {
 
     const background = new PIXI.Graphics();
     const nodeComment = new PIXI.Text('', COMMENT_TEXTSTYLE);
-    nodeComment.resolution = TEXT_RESOLUTION;
+    nodeComment.resolution = 1;
 
     this._BackgroundRef = this.addChild(background);
     this._NodeNameRef = this.addChild(inputNameText);
