@@ -1,3 +1,4 @@
+import axios from 'axios';
 import PPGraph from '../GraphClass';
 import PPNode from '../NodeClass';
 import { rgbToHex } from '../utils-pixi';
@@ -25,6 +26,63 @@ export class RangeArray extends PPNode {
       );
       this.setOutputData(0, output);
     };
+  }
+}
+
+export class MakeAPICall extends PPNode {
+  _rectRef: PIXI.Graphics;
+  constructor(name: string, graph: PPGraph) {
+    super(name, graph);
+
+    const url = 'https://jsonplaceholder.typicode.com/users';
+
+    this.addInput('url', 'string', url);
+    this.addOutput('response', 'string');
+
+    this.title = 'Make API call';
+    this.type = 'MakeAPICall';
+    this.description = 'Makes an API call and outputs the response';
+
+    const button = new PIXI.Graphics();
+    this._rectRef = (this as PIXI.Container).addChild(button);
+    this._rectRef.beginFill(PIXI.utils.string2hex('#00FF00'), 0.5);
+    this._rectRef.drawRect(0, 0, 100, 100);
+    this._rectRef.endFill();
+    button.cursor = 'hover';
+
+    // make the button interactive...
+    button.interactive = true;
+
+    button
+      // Mouse & touch events are normalized into
+      // the pointer* events for handling different
+      // button events.
+      .on('pointerdown', this.executeOnce.bind(this));
+    // .on('pointerup', onButtonUp)
+    // .on('pointerupoutside', onButtonUp)
+    // .on('pointerover', onButtonOver)
+    // .on('pointerout', onButtonOut);
+
+    this.onExecute = function () {
+      // const start = this.getInputData(0) || url;
+      // this.setOutputData(0, output);
+    };
+  }
+  executeOnce(): void {
+    axios
+      .get(this.getInputData(0))
+      .then((response) => {
+        // handle success
+        console.log(response);
+        this.setOutputData(0, response.data);
+      })
+      .catch((error) => {
+        // handle error
+        console.log(error);
+      })
+      .then(function () {
+        // always executed
+      });
   }
 }
 
