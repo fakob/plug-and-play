@@ -17,7 +17,6 @@ import {
   OUTPUTSOCKET_HEIGHT,
   OUTPUTSOCKET_TEXTMARGIN_TOP,
   OUTPUTSOCKET_WIDTH,
-  TEXT_RESOLUTION,
 } from './constants';
 import PPGraph from './GraphClass';
 import InputSocket from './InputSocketClass';

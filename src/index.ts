@@ -4,7 +4,13 @@ import * as dat from 'dat.gui';
 import { CANVAS_BACKGROUNDCOLOR_HEX } from './constants';
 import PPGraph from './GraphClass';
 import { MathAdd, MathNoise } from './nodes/math';
-import { DrawRect, MakeAPICall, RangeArray, TimeAndDate } from './nodes/base';
+import {
+  DrawRect,
+  MakeAPICall,
+  RangeArray,
+  TimeAndDate,
+  Trigger,
+} from './nodes/base';
 // import PixelGrid from '../assets/Pixel_grid_4000x2000.svg.png';
 
 import './style.css';
@@ -102,6 +108,7 @@ function setupGrid(): void {
   graph.registerNodeType('base/rect', DrawRect);
   graph.registerNodeType('base/rangeArray', RangeArray);
   graph.registerNodeType('base/makeAPICall', MakeAPICall);
+  graph.registerNodeType('base/trigger', Trigger);
 
   // gui
   const data = {
@@ -118,6 +125,9 @@ function setupGrid(): void {
     // },
     addMathAddNode: function () {
       graph.createAndAdd('math/add');
+    },
+    addTrigger: function () {
+      graph.createAndAdd('base/trigger');
     },
     addMakeAPICall: function () {
       graph.createAndAdd('base/makeAPICall');
@@ -169,6 +179,7 @@ function setupGrid(): void {
   gui.add(data, 'runStep');
   // gui.add(data, 'addInput');
   gui.add(data, 'addMathAddNode');
+  gui.add(data, 'addTrigger');
   gui.add(data, 'addMakeAPICall');
   gui.add(data, 'addRectNode');
   gui.add(data, 'addRangeArrayNode');

@@ -1,5 +1,6 @@
 import PPGraph from '../GraphClass';
 import PPNode from '../NodeClass';
+import { INPUTTYPE, OUTPUTTYPE } from '../constants';
 
 export class MathAdd extends PPNode {
   min: number;
@@ -14,9 +15,9 @@ export class MathAdd extends PPNode {
   constructor(name: string, graph: PPGraph) {
     super(name, graph);
 
-    this.addInput('in', 'number', 0);
-    this.addInput('in2', 'number', 0);
-    this.addOutput('out', 'number');
+    this.addInput('in', INPUTTYPE.NUMBER, 0);
+    this.addInput('in2', INPUTTYPE.NUMBER, 0);
+    this.addOutput('out', OUTPUTTYPE.NUMBER);
 
     this.title = 'Add';
     this.type = 'MathAdd';
@@ -46,8 +47,8 @@ export class MathNoise extends PPNode {
   constructor(name: string, graph: PPGraph) {
     super(name, graph);
 
-    this.addInput('in', 'number');
-    this.addOutput('out', 'number');
+    this.addInput('in', INPUTTYPE.NUMBER);
+    this.addOutput('out', OUTPUTTYPE.NUMBER);
     this.min = 0;
     this.max = 1;
     this.smooth = true;

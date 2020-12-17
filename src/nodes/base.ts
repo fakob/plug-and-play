@@ -2,15 +2,16 @@ import axios from 'axios';
 import PPGraph from '../GraphClass';
 import PPNode from '../NodeClass';
 import { rgbToHex } from '../utils-pixi';
+import { INPUTTYPE, OUTPUTTYPE } from '../constants';
 
 export class RangeArray extends PPNode {
   constructor(name: string, graph: PPGraph) {
     super(name, graph);
 
-    this.addInput('start', 'number');
-    this.addInput('stop', 'number');
-    this.addInput('step', 'number');
-    this.addOutput('output array', 'array');
+    this.addInput('start', INPUTTYPE.NUMBER);
+    this.addInput('stop', INPUTTYPE.NUMBER);
+    this.addInput('step', INPUTTYPE.NUMBER);
+    this.addOutput('output array', OUTPUTTYPE.ARRAY);
 
     this.title = 'Range array';
     this.type = 'RangeArray';
@@ -30,47 +31,28 @@ export class RangeArray extends PPNode {
 }
 
 export class MakeAPICall extends PPNode {
-  _rectRef: PIXI.Graphics;
+  // _rectRef: PIXI.Graphics;
   constructor(name: string, graph: PPGraph) {
     super(name, graph);
 
     const url = 'https://jsonplaceholder.typicode.com/users';
 
-    this.addInput('url', 'string', url);
-    this.addOutput('response', 'string');
+    this.addInput('trigger', INPUTTYPE.STRING);
+    this.addInput('url', INPUTTYPE.STRING, url);
+    this.addOutput('response', OUTPUTTYPE.STRING);
 
     this.title = 'Make API call';
     this.type = 'MakeAPICall';
     this.description = 'Makes an API call and outputs the response';
 
-    const button = new PIXI.Graphics();
-    this._rectRef = (this as PIXI.Container).addChild(button);
-    this._rectRef.beginFill(PIXI.utils.string2hex('#00FF00'), 0.5);
-    this._rectRef.drawRect(0, 0, 100, 100);
-    this._rectRef.endFill();
-    button.cursor = 'hover';
-
-    // make the button interactive...
-    button.interactive = true;
-
-    button
-      // Mouse & touch events are normalized into
-      // the pointer* events for handling different
-      // button events.
-      .on('pointerdown', this.executeOnce.bind(this));
-    // .on('pointerup', onButtonUp)
-    // .on('pointerupoutside', onButtonUp)
-    // .on('pointerover', onButtonOver)
-    // .on('pointerout', onButtonOut);
-
-    this.onExecute = function () {
-      // const start = this.getInputData(0) || url;
-      // this.setOutputData(0, output);
-    };
+    // this.onExecute = function () {
+    //   const start = this.getInputData(0) || url;
+    //   this.setOutputData(0, output);
+    // };
   }
-  executeOnce(): void {
+  trigger(): void {
     axios
-      .get(this.getInputData(0))
+      .get(this.getInputData(1))
       .then((response) => {
         // handle success
         console.log(response);
@@ -83,6 +65,43 @@ export class MakeAPICall extends PPNode {
       .then(function () {
         // always executed
       });
+  }
+}
+export class Trigger extends PPNode {
+  _rectRef: PIXI.Graphics;
+  constructor(name: string, graph: PPGraph) {
+    super(name, graph);
+
+    this.addOutput('trigger', OUTPUTTYPE.STRING);
+
+    this.title = 'Trigger';
+    this.type = 'Trigger';
+    this.description = 'Creates a trigger event';
+
+    const button = new PIXI.Graphics();
+    this._rectRef = (this as PIXI.Container).addChild(button);
+    this._rectRef.beginFill(PIXI.utils.string2hex('#00FF00'), 0.5);
+    this._rectRef.drawRect(0, 0, 100, 100);
+    this._rectRef.endFill();
+
+    this._rectRef.buttonMode = true;
+    this._rectRef.interactive = true;
+
+    this._rectRef.on('pointerdown', this.trigger.bind(this));
+
+    this.onExecute = function () {
+      // const start = this.getInputData(0) || url;
+      // this.setOutputData(0, output);
+    };
+  }
+  trigger(): void {
+    console.log('Triggered node: ', this.title);
+    this.outputSocketArray[0].links.forEach((link) => {
+      (link.target.parent as any).trigger();
+    });
+  }
+  onButtonOver(): void {
+    this._rectRef.cursor = 'hover';
   }
 }
 
@@ -105,12 +124,11 @@ export class DrawRect extends PPNode {
   ) {
     super(name, graph);
 
-    this.addInput('x', 'number');
-    this.addInput('y', 'number');
-    this.addInput('width', 'number');
-    this.addInput('height', 'number');
+    this.addInput('x', INPUTTYPE.NUMBER);
+    this.addInput('y', INPUTTYPE.NUMBER);
+    this.addInput('width', INPUTTYPE.NUMBER);
+    this.addInput('height', INPUTTYPE.NUMBER);
     this.addInput('color', 'color');
-    // this.addOutput('time stamp', 'number');
 
     this.title = 'Draw Rect';
     this.type = 'DrawRect';
@@ -169,9 +187,8 @@ export class TimeAndDate extends PPNode {
   constructor(name: string, graph: PPGraph) {
     super(name, graph);
 
-    // this.addInput('in', 'number');
-    this.addOutput('date and time', 'string');
-    this.addOutput('time stamp', 'number');
+    this.addOutput('date and time', OUTPUTTYPE.STRING);
+    this.addOutput('time stamp', OUTPUTTYPE.NUMBER);
 
     this.title = 'Time';
     this.type = 'BaseTime';

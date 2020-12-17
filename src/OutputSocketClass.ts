@@ -12,6 +12,7 @@ import {
   OUTPUTSOCKET_TEXTMARGIN_RIGHT,
   OUTPUTSOCKET_TEXTMARGIN_TOP,
   TEXT_RESOLUTION,
+  OUTPUTTYPE,
 } from './constants';
 
 export default class OutputSocket extends PIXI.Container {
@@ -27,7 +28,7 @@ export default class OutputSocket extends PIXI.Container {
 
   links: PPLink[];
 
-  constructor(name = 'Number', type = 'number') {
+  constructor(name = 'Number', type = OUTPUTTYPE.NUMBER) {
     super();
     this.name = name;
     this.type = type;

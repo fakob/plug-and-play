@@ -22,6 +22,12 @@ export const INPUTSOCKET_WIDTH = 12;
 export const INPUTSOCKET_CORNERRADIUS = 4;
 export const INPUTSOCKET_TEXTMARGIN_LEFT = 8;
 export const INPUTSOCKET_TEXTMARGIN_TOP = 4;
+export const INPUTTYPE = {
+  STRING: 'string',
+  NUMBER: 'number',
+  COLOR: 'color',
+  TRIGGER: 'trigger', // node with trigger input needs trigger function which is called by linked output trigger
+};
 
 export const OUTPUTSOCKET_TEXTSTYLE = new TextStyle({
   fontSize: 12,
@@ -33,6 +39,13 @@ export const OUTPUTSOCKET_WIDTH = 12;
 export const OUTPUTSOCKET_CORNERRADIUS = 4;
 export const OUTPUTSOCKET_TEXTMARGIN_RIGHT = 8;
 export const OUTPUTSOCKET_TEXTMARGIN_TOP = 4;
+export const OUTPUTTYPE = {
+  STRING: 'string',
+  NUMBER: 'number',
+  COLOR: 'color',
+  ARRAY: 'array',
+  TRIGGER: 'trigger', // trigger output type calls trigger function on linked nodes
+};
 
 export const NODE_TEXTSTYLE = new TextStyle({
   fontSize: 13,

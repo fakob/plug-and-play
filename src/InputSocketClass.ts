@@ -11,6 +11,7 @@ import {
   INPUTSOCKET_TEXTMARGIN_LEFT,
   INPUTSOCKET_TEXTMARGIN_TOP,
   TEXT_RESOLUTION,
+  INPUTTYPE,
 } from './constants';
 
 export default class InputSocket extends PIXI.Container {
@@ -24,7 +25,7 @@ export default class InputSocket extends PIXI.Container {
 
   constructor(
     name = 'Number',
-    type = 'number',
+    type = INPUTTYPE.NUMBER,
     defaultValue = null,
     visible = true
   ) {
@@ -33,13 +34,13 @@ export default class InputSocket extends PIXI.Container {
     // define defaultValues for different types
     if (defaultValue === null) {
       switch (type) {
-        case 'number':
+        case INPUTTYPE.NUMBER:
           defaultValue = 0;
           break;
-        case 'string':
+        case INPUTTYPE.STRING:
           defaultValue = '';
           break;
-        case 'color':
+        case INPUTTYPE.COLOR:
           defaultValue = [255, 55, 0, 0.5];
           break;
         default:
