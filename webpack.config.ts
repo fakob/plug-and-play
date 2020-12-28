@@ -9,6 +9,8 @@ import { Configuration } from 'webpack';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import CopyPlugin from 'copy-webpack-plugin';
+import MonacoWebpackPlugin from 'monaco-editor-webpack-plugin';
+// const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 
 const webpack = require('webpack');
 
@@ -16,7 +18,7 @@ module.exports = (env: { mode: 'development' | 'production' }) => {
   const developmentMode = env.mode === 'development';
 
   const config: Configuration = {
-    entry: './src/index.ts',
+    entry: './src/index.tsx',
 
     resolve: {
       extensions: ['.ts', '.tsx', '.js', '.json'],
@@ -37,13 +39,17 @@ module.exports = (env: { mode: 'development' | 'production' }) => {
             'css-loader',
           ],
         },
+        {
+          test: /\.ttf$/,
+          use: ['file-loader'],
+        },
       ],
     },
-    optimization: {
-      splitChunks: {
-        chunks: 'all',
-      },
-    },
+    // optimization: {
+    //   splitChunks: {
+    //     chunks: 'all',
+    //   },
+    // },
 
     plugins: [
       new HtmlWebpackPlugin(),
@@ -65,8 +71,10 @@ module.exports = (env: { mode: 'development' | 'production' }) => {
           },
         ],
       }),
+      new MonacoWebpackPlugin(),
     ],
   };
+
   const envConfig = require(path.resolve(
     __dirname,
     `./webpack.${env.mode}.ts`
