@@ -3,7 +3,8 @@ import { Viewport } from 'pixi-viewport';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import * as dat from 'dat.gui';
-import { CANVAS_BACKGROUNDCOLOR_HEX } from './constants';
+import { CANVAS_BACKGROUNDCOLOR_HEX, INPUTTYPE, OUTPUTTYPE } from './constants';
+import PPNode from './NodeClass';
 import PPGraph from './GraphClass';
 import { MathAdd, MathNoise } from './nodes/math';
 import {
@@ -25,6 +26,9 @@ const gui = new dat.GUI();
 
 const gameWidth = 800;
 const gameHeight = 600;
+
+(window as any).classes = {};
+(window as any).classes.PPNode = PPNode;
 
 let reactRoot;
 
@@ -68,8 +72,8 @@ window.onload = async (): Promise<void> => {
 
   resizeCanvas();
   setupGrid();
-  setupReactContainer();
-  readFile();
+  // setupReactContainer();
+  // readFile();
   // document.getElementById('file').addEventListener('change', readFile, false);
 };
 
@@ -147,6 +151,17 @@ function setupGrid(): void {
   graph.registerNodeType('base/makeAPICall', MakeAPICall);
   graph.registerNodeType('base/trigger', Trigger);
 
+  function multiply(a, b) {
+    return a * b;
+  }
+
+  graph.wrapFunctionAsNode(
+    'math/multiply',
+    multiply,
+    [INPUTTYPE.NUMBER, INPUTTYPE.NUMBER],
+    OUTPUTTYPE.NUMBER
+  );
+
   // gui
   const data = {
     run: false,
@@ -162,6 +177,9 @@ function setupGrid(): void {
     // },
     addMathAddNode: function () {
       graph.createAndAdd('math/add');
+    },
+    addMathMultiplyNode: function () {
+      graph.createAndAdd('math/multiply');
     },
     addTrigger: function () {
       graph.createAndAdd('base/trigger');
@@ -216,6 +234,7 @@ function setupGrid(): void {
   gui.add(data, 'runStep');
   // gui.add(data, 'addInput');
   gui.add(data, 'addMathAddNode');
+  gui.add(data, 'addMathMultiplyNode');
   gui.add(data, 'addTrigger');
   gui.add(data, 'addMakeAPICall');
   gui.add(data, 'addRectNode');

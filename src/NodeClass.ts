@@ -49,6 +49,7 @@ export default class PPNode extends PIXI.Container {
     this.id = null;
     this.name = name;
     this.type = name;
+    this.description = '';
     this.inputSocketArray = [];
     this.outputSocketArray = [];
     this.clickedOutputRef = null;

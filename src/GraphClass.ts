@@ -201,6 +201,8 @@ export default class PPGraph {
     }
 
     const title = type;
+    console.log(this);
+    console.log(baseClass);
     const node = new baseClass(title, this) as T;
     return node;
   }
@@ -383,5 +385,65 @@ export default class PPGraph {
       }
       node.onAfterExecute();
     });
+  }
+
+  wrapFunctionAsNode(
+    name: string,
+    func: (...args: any[]) => any,
+    param_types?: string[],
+    return_type?: string
+  ): void {
+    const params = Array(func.length);
+    let code = '';
+
+    const names = this.getParameterNames(func);
+    console.log(names);
+    for (let i = 0; i < names.length; ++i) {
+      code += `
+      this.addInput('${names[i]}', '${
+        param_types && param_types[i] ? param_types[i] : 0
+      }');`;
+    }
+    code += `
+      this.addOutput('out', '${return_type ? return_type : 0}');\n`;
+    console.log(code);
+    console.log(this);
+    const classobj = new Function(
+      'PPNode',
+      `return class ${name.replace('/', '')} extends PPNode {
+    constructor(name, graph) {
+      super(name, graph);
+      ${code}
+    }
+        }
+    `
+    )(PPNode) as PPNodeConstructor;
+    console.log(classobj);
+    // (classobj as any).title = name.split('/').pop();
+    (classobj as any).description = 'Generated from ' + func.name;
+    (classobj as any).__proto__.onExecute = function onExecute() {
+      for (let i = 0; i < params.length; ++i) {
+        params[i] = this.getInputData(i);
+      }
+      const r = func.apply(this, params);
+      this.setOutputData(0, r);
+    };
+
+    this.registerNodeType(name, classobj);
+  }
+
+  //used to create nodes from wrapping functions
+  getParameterNames(func: any): Array<string> {
+    const parameterArray = (func + '')
+      .replace(/[/][/].*$/gm, '') // strip single-line comments
+      .replace(/\s+/g, '') // strip white space
+      .replace(/[/][*][^/*]*[*][/]/g, '') // strip multi-line comments  /**/
+      .split('){', 1)[0]
+      .replace(/^[^(]*[(]/, '') // extract the parameters
+      .replace(/=[^,]+/g, '') // strip any ES6 defaults
+      .split(',')
+      .filter(Boolean); // split & filter [""]
+    console.log(parameterArray);
+    return parameterArray;
   }
 }
