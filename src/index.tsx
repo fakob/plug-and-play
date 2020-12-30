@@ -3,17 +3,10 @@ import { Viewport } from 'pixi-viewport';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import * as dat from 'dat.gui';
-import { CANVAS_BACKGROUNDCOLOR_HEX, INPUTTYPE, OUTPUTTYPE } from './constants';
+import { CANVAS_BACKGROUNDCOLOR_HEX } from './constants';
 import PPNode from './NodeClass';
 import PPGraph from './GraphClass';
-import { MathAdd, MathNoise } from './nodes/math';
-import {
-  DrawRect,
-  MakeAPICall,
-  RangeArray,
-  TimeAndDate,
-  Trigger,
-} from './nodes/base';
+import { registerAllNodeTypes } from './nodes/allNodes';
 import ReactContainer from './ReactContainer';
 // import PixelGrid from '../assets/Pixel_grid_4000x2000.svg.png';
 
@@ -143,24 +136,7 @@ function setupGrid(): void {
   // add graph
   const graph = new PPGraph(app, viewport);
 
-  graph.registerNodeType('math/add', MathAdd);
-  graph.registerNodeType('math/noise', MathNoise);
-  graph.registerNodeType('base/timeAndDate', TimeAndDate);
-  graph.registerNodeType('base/rect', DrawRect);
-  graph.registerNodeType('base/rangeArray', RangeArray);
-  graph.registerNodeType('base/makeAPICall', MakeAPICall);
-  graph.registerNodeType('base/trigger', Trigger);
-
-  function multiply(a, b) {
-    return a * b;
-  }
-
-  graph.wrapFunctionAsNode(
-    'math/multiply',
-    multiply,
-    [INPUTTYPE.NUMBER, INPUTTYPE.NUMBER],
-    OUTPUTTYPE.NUMBER
-  );
+  registerAllNodeTypes(graph);
 
   // gui
   const data = {
@@ -176,28 +152,28 @@ function setupGrid(): void {
     //   console.log(nodeArray[0].addInput('New', 'string'));
     // },
     addMathAddNode: function () {
-      graph.createAndAdd('math/add');
+      graph.createAndAdd('math/MathAdd');
     },
     addMathMultiplyNode: function () {
       graph.createAndAdd('math/multiply');
     },
     addTrigger: function () {
-      graph.createAndAdd('base/trigger');
+      graph.createAndAdd('base/Trigger');
     },
     addMakeAPICall: function () {
-      graph.createAndAdd('base/makeAPICall');
+      graph.createAndAdd('base/MakeAPICall');
     },
     addRectNode: function () {
-      graph.createAndAdd('base/rect');
+      graph.createAndAdd('base/DrawRect');
     },
     addRangeArrayNode: function () {
-      graph.createAndAdd('base/rangeArray');
+      graph.createAndAdd('base/RangeArray');
     },
     addMathNoiseNode: function () {
-      graph.createAndAdd('math/noise');
+      graph.createAndAdd('math/MathNoise');
     },
     addTimeDate: function () {
-      graph.createAndAdd('base/timeAndDate');
+      graph.createAndAdd('base/TimeAndDate');
     },
     runStep: function () {
       graph.runStep();
