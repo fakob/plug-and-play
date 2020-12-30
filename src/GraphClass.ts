@@ -177,13 +177,13 @@ export default class PPGraph {
   // METHODS
 
   registerNodeType(type: string, baseClass: PPNodeConstructor): void {
-    // baseClass.type = type;
+    baseClass.type = type;
     console.log('Node registered: ' + type);
 
     // const classname = baseClass.name;
 
-    // const pos = type.lastIndexOf('/');
-    // baseClass.category = type.substr(0, pos);
+    const pos = type.lastIndexOf('/');
+    baseClass.category = type.substr(0, pos);
 
     // if (!baseClass.title) {
     //   baseClass.title = classname;
@@ -222,9 +222,9 @@ export default class PPGraph {
     node.id = ++this.lastNodeId;
 
     // change add id to title
-    const newTitle = `${node.nodeTitle} : ${node.id}`;
-    node.nodeTitle = newTitle;
-    console.log(node.nodeTitle);
+    const newName = `${node.nodeName} : ${node.id}`;
+    node.nodeName = newName;
+    console.log(node.nodeName);
 
     // add the node to the canvas
     this.nodeContainer.addChild(node);
@@ -388,7 +388,7 @@ export default class PPGraph {
   }
 
   wrapFunctionAsNode(
-    name: string,
+    type: string, // node name with namespace (e.g.: 'math/sum')
     func: (...args: any[]) => any,
     param_types?: string[],
     return_type?: string
@@ -408,20 +408,20 @@ export default class PPGraph {
       this.addOutput('out', '${return_type ? return_type : 0}');\n`;
     console.log(code);
     console.log(this);
+    // https://stackoverflow.com/a/46519949
     const classobj = new Function(
       'PPNode',
-      `return class ${name.replace('/', '')} extends PPNode {
-    constructor(name, graph) {
-      super(name, graph);
+      `return class ${type.replace('/', '')} extends PPNode {
+    constructor(type, graph) {
+      super(type, graph);
       ${code}
     }
         }
     `
     )(PPNode) as PPNodeConstructor;
     console.log(classobj);
-    // (classobj as any).title = name.split('/').pop();
     (classobj as any).description = 'Generated from ' + func.name;
-    (classobj as any).__proto__.onExecute = function onExecute() {
+    (classobj as any).prototype.onExecute = function onExecute() {
       for (let i = 0; i < params.length; ++i) {
         params[i] = this.getInputData(i);
       }
@@ -429,7 +429,7 @@ export default class PPGraph {
       this.setOutputData(0, r);
     };
 
-    this.registerNodeType(name, classobj);
+    this.registerNodeType(type, classobj);
   }
 
   //used to create nodes from wrapping functions

@@ -13,7 +13,7 @@ export class RangeArray extends PPNode {
     this.addInput('step', INPUTTYPE.NUMBER);
     this.addOutput('output array', OUTPUTTYPE.ARRAY);
 
-    this.title = 'Range array';
+    this.name = 'Range array';
     this.type = 'RangeArray';
     this.description = 'Create range array';
 
@@ -41,7 +41,7 @@ export class MakeAPICall extends PPNode {
     this.addInput('url', INPUTTYPE.STRING, url);
     this.addOutput('response', OUTPUTTYPE.STRING);
 
-    this.title = 'Make API call';
+    this.name = 'Make API call';
     this.type = 'MakeAPICall';
     this.description = 'Makes an API call and outputs the response';
 
@@ -74,7 +74,7 @@ export class Trigger extends PPNode {
 
     this.addOutput('trigger', OUTPUTTYPE.STRING);
 
-    this.title = 'Trigger';
+    this.name = 'Trigger';
     this.type = 'Trigger';
     this.description = 'Creates a trigger event';
 
@@ -95,7 +95,7 @@ export class Trigger extends PPNode {
     };
   }
   trigger(): void {
-    console.log('Triggered node: ', this.title);
+    console.log('Triggered node: ', this.name);
     this.outputSocketArray[0].links.forEach((link) => {
       (link.target.parent as any).trigger();
     });
@@ -130,7 +130,7 @@ export class DrawRect extends PPNode {
     this.addInput('height', INPUTTYPE.NUMBER);
     this.addInput('color', 'color');
 
-    this.title = 'Draw Rect';
+    this.name = 'Draw Rect';
     this.type = 'DrawRect';
     this.description = 'Draws a rectangle';
 
@@ -190,7 +190,7 @@ export class TimeAndDate extends PPNode {
     this.addOutput('date and time', OUTPUTTYPE.STRING);
     this.addOutput('time stamp', OUTPUTTYPE.NUMBER);
 
-    this.title = 'Time';
+    this.name = 'Time';
     this.type = 'BaseTime';
     this.description = 'Outputs current time in different formats';
     this.date = new Date();

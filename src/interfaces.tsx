@@ -2,7 +2,8 @@ import PPGraph from './GraphClass';
 import PPNode from './NodeClass';
 
 export type PPNodeConstructor<T extends PPNode = PPNode> = {
-  // new (...args: any[]): T;
+  type?: string;
+  category?: string;
   new (name: string, graph: PPGraph, ...args: any[]): T;
 };
 

@@ -25,30 +25,33 @@ import OutputSocket from './OutputSocketClass';
 const nodeBackgroundColorHex = PIXI.utils.string2hex(NODE_BACKGROUNDCOLOR);
 
 export default class PPNode extends PIXI.Container {
-  graph: PPGraph;
   _NodeNameRef: PIXI.Text;
   _NodeCommentRef: PIXI.Text;
   _BackgroundRef: PIXI.Graphics;
+  clickedOutputRef: null | OutputSocket;
+
+  graph: PPGraph;
+  id: number | null;
+  // name: string; // Display name - at first it is the type with spaces - defined on PIXI.Container
+  type: string; // Type
+  category: string; // Category - derived from type
+  description: string;
+
+  inputSocketArray: InputSocket[];
+  outputSocketArray: OutputSocket[];
+
   _selected: boolean;
   dragging: boolean;
   relativeClickPosition: PIXI.Point | null;
   clickPosition: PIXI.Point | null;
   interactionData: PIXI.InteractionData | null;
-  inputSocketArray: InputSocket[];
-  outputSocketArray: OutputSocket[];
-  type: string;
-  title: string;
-  description: string;
-  category: string;
-  id: number | null;
-  clickedOutputRef: null | OutputSocket;
 
-  constructor(name: string, graph: PPGraph) {
+  constructor(type: string, graph: PPGraph) {
     super();
     this.graph = graph;
     this.id = null;
-    this.name = name;
-    this.type = name;
+    this.name = type;
+    this.type = type;
     this.description = '';
     this.inputSocketArray = [];
     this.outputSocketArray = [];
@@ -91,11 +94,12 @@ export default class PPNode extends PIXI.Container {
     return this._selected;
   }
 
-  get nodeTitle(): string {
-    return this._NodeNameRef.text;
+  get nodeName(): string {
+    return this.name;
   }
 
-  set nodeTitle(text: string) {
+  set nodeName(text: string) {
+    this.name = text;
     this._NodeNameRef.text = text;
   }
 
