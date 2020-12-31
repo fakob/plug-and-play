@@ -26,6 +26,7 @@ export const INPUTTYPE = {
   STRING: 'string',
   NUMBER: 'number',
   COLOR: 'color',
+  ARRAY: 'array',
   TRIGGER: 'trigger', // node with trigger input needs trigger function which is called by linked output trigger
 };
 

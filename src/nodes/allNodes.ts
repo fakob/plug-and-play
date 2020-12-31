@@ -17,14 +17,29 @@ export const registerAllNodeTypes = (graph: PPGraph): void => {
     }
   }
 
+  // add additional nodes from functions
   function multiply(a, b) {
     return a * b;
   }
-
   graph.wrapFunctionAsNode(
-    'math/multiply',
+    'math/Multiply',
     multiply,
     [INPUTTYPE.NUMBER, INPUTTYPE.NUMBER],
     OUTPUTTYPE.NUMBER
+  );
+
+  function getElementFromArray(array: any[], index: number) {
+    if (Array.isArray(array) && !Number.isNaN(index)) {
+      if (index >= 0 && index < array.length) {
+        return array[index];
+      }
+    }
+    return undefined;
+  }
+  graph.wrapFunctionAsNode(
+    'base/GetElementFromArray',
+    getElementFromArray,
+    [INPUTTYPE.ARRAY, INPUTTYPE.NUMBER]
+    // OUTPUTTYPE.NUMBER
   );
 };

@@ -20,8 +20,8 @@ const gui = new dat.GUI();
 const gameWidth = 800;
 const gameHeight = 600;
 
-(window as any).classes = {};
-(window as any).classes.PPNode = PPNode;
+// (window as any).classes = {};
+// (window as any).classes.PPNode = PPNode;
 
 let reactRoot;
 
