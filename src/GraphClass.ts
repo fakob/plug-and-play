@@ -174,6 +174,12 @@ export default class PPGraph {
     console.log(node.id);
   }
 
+  // GETTERS & SETTERS
+
+  get registeredNodeTypes(): Record<string, PPNodeConstructor> {
+    return this._registeredNodeTypes;
+  }
+
   // METHODS
 
   registerNodeType(type: string, baseClass: PPNodeConstructor): void {

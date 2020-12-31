@@ -137,96 +137,27 @@ function setupGrid(): void {
   const graph = new PPGraph(app, viewport);
 
   registerAllNodeTypes(graph);
+  const allRegisteredNodeTypeNames = Object.keys(graph.registeredNodeTypes);
 
   // gui
   const data = {
     run: false,
-    amount: 24,
-    columnCount: 4,
-    margin: 20,
-    width: 400,
-    height: 400,
-    color: '#FF0000',
-    // addInput: function () {
-    //   console.log(viewport.children[0]);
-    //   console.log(nodeArray[0].addInput('New', 'string'));
-    // },
-    addMathAddNode: function () {
-      graph.createAndAdd('math/MathAdd');
-    },
-    addMathMultiplyNode: function () {
-      graph.createAndAdd('math/multiply');
-    },
-    addTrigger: function () {
-      graph.createAndAdd('base/Trigger');
-    },
-    addMakeAPICall: function () {
-      graph.createAndAdd('base/MakeAPICall');
-    },
-    addRectNode: function () {
-      graph.createAndAdd('base/DrawRect');
-    },
-    addRangeArrayNode: function () {
-      graph.createAndAdd('base/RangeArray');
-    },
-    addMathNoiseNode: function () {
-      graph.createAndAdd('math/MathNoise');
-    },
-    addTimeDate: function () {
-      graph.createAndAdd('base/TimeAndDate');
-    },
     runStep: function () {
       graph.runStep();
     },
-    // addNode: function () {
-    //   const myAddNode = new PPNode(myAddNode, graph);
-    //   graph.add(myAddNode);
-    // },
-    // addWatchNode: function () {
-    //   const myWatchNode = new PPNode(watchNode, graph);
-    //   graph.add(myWatchNode);
-    // },
+    addNode: '',
   };
 
-  gui.addColor(data, 'color').onChange(() => {
-    updateGrid();
-  });
   gui.add(data, 'run');
-  gui.add(data, 'amount', 1, 100, 1).onChange(() => {
-    setupGrid();
-  });
-  gui.add(data, 'columnCount', 1, 20, 1).onChange(() => {
-    updateGrid();
-  });
-  gui.add(data, 'margin', 0, 100, 1).onChange(() => {
-    updateGrid();
-  });
-  gui.add(data, 'width', 0, 400, 1).onChange(() => {
-    updateGrid();
-  });
-  gui.add(data, 'height', 0, 400, 1).onChange(() => {
-    updateGrid();
-  });
   gui.add(data, 'runStep');
-  // gui.add(data, 'addInput');
-  gui.add(data, 'addMathAddNode');
-  gui.add(data, 'addMathMultiplyNode');
-  gui.add(data, 'addTrigger');
-  gui.add(data, 'addMakeAPICall');
-  gui.add(data, 'addRectNode');
-  gui.add(data, 'addRangeArrayNode');
-  gui.add(data, 'addMathNoiseNode');
-  gui.add(data, 'addTimeDate');
-  // gui.add(data, 'addAddNode');
-  // gui.add(data, 'addWatchNode');
+  gui.add(data, 'addNode', allRegisteredNodeTypeNames).onChange((selected) => {
+    console.log(selected);
+    graph.createAndAdd(selected);
+  });
 
   app.ticker.add(() => {
     if (data.run) {
       graph.runStep();
     }
   });
-}
-
-function updateGrid(): void {
-  console.log('viewport');
 }
