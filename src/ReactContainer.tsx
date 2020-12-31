@@ -9,6 +9,7 @@ require('codemirror/mode/javascript/javascript.js');
 
 type MyProps = {
   value?: string;
+  onSave?: (code: string) => void;
 };
 
 const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
@@ -26,6 +27,12 @@ const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
         autoCloseBrackets: true,
         indentUnit: 2,
         tabSize: 2,
+        extraKeys: {
+          'Ctrl-Enter': (cm) => {
+            props.onSave(code);
+            console.log(cm);
+          },
+        },
       }}
       onBeforeChange={(editor, data, value) => {
         setCode(value);

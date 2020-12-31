@@ -1,4 +1,5 @@
 import * as PIXI from 'pixi.js';
+import strip from 'strip-comments';
 import { Viewport } from 'pixi-viewport';
 import * as dat from 'dat.gui';
 import { CONNECTION_COLOR_HEX } from './constants';
@@ -451,5 +452,22 @@ export default class PPGraph {
       .filter(Boolean); // split & filter [""]
     console.log(parameterArray);
     return parameterArray;
+  }
+
+  wrapFunctionStringAsNode(code: string): string {
+    // remove comments and possible empty line from start
+    const cleanCode = strip(code).replace(/^\n/, '');
+    console.log(cleanCode);
+    const func = new Function('return ' + cleanCode)();
+    console.log(func);
+    // const nodeName = `new/new`;
+    const nodeName = `new/${func.name}`;
+    this.wrapFunctionAsNode(
+      nodeName,
+      func
+      // [INPUTTYPE.NUMBER]
+      // OUTPUTTYPE.NUMBER
+    );
+    return nodeName;
   }
 }

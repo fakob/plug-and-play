@@ -3,7 +3,7 @@ import { Viewport } from 'pixi-viewport';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import * as dat from 'dat.gui';
-import { CANVAS_BACKGROUNDCOLOR_HEX } from './constants';
+import { CANVAS_BACKGROUNDCOLOR_HEX, INPUTTYPE } from './constants';
 import PPNode from './NodeClass';
 import PPGraph from './GraphClass';
 import { registerAllNodeTypes } from './nodes/allNodes';
@@ -24,6 +24,7 @@ const gameHeight = 600;
 // (window as any).classes.PPNode = PPNode;
 
 let reactRoot;
+let currentGraph;
 
 const app = new PIXI.Application({
   backgroundColor: CANVAS_BACKGROUNDCOLOR_HEX,
@@ -65,38 +66,28 @@ window.onload = async (): Promise<void> => {
 
   resizeCanvas();
   setupGrid();
-  // setupReactContainer();
-  // readFile();
-  // document.getElementById('file').addEventListener('change', readFile, false);
+  setupReactContainer();
 };
 
-function readFile() {
-  // const files = evt.target.files;
-  // const file = files[0];
-  const file = new File(
-    [''],
-    __dirname + __filename
-    // '‎⁨/⁨Users⁩/⁨jakobschindegger⁩/⁨Documents⁩/⁨Development⁩/⁨fakob⁩/⁨plug-and-play⁩/⁨src⁩/⁨nodes⁩/base.ts'
-  );
-  console.log(__dirname);
-  console.log(__filename);
-  console.log(file);
-  const reader = new FileReader();
-  reader.onload = function (event) {
-    console.log(event.target);
-    console.log(event.target.result);
-    const result = event.target.result as string;
-    ReactDOM.render(<ReactContainer value={result} />, reactRoot);
-  };
-  reader.readAsText(file);
+function createNodeFromCode(code) {
+  const nodeName = currentGraph.wrapFunctionStringAsNode(code);
+  currentGraph.createAndAdd(nodeName);
 }
+
+const defaultCode = `// Ctrl-Enter to create node
+function square(a) {
+  return a * a;
+}`;
 
 function setupReactContainer(): void {
   reactRoot = document.createElement('div');
   const child = document.body.appendChild(reactRoot);
   child.className = 'rootClass';
   child.id = 'container';
-  ReactDOM.render(<ReactContainer value="const test = 3;" />, reactRoot);
+  ReactDOM.render(
+    <ReactContainer value={defaultCode} onSave={createNodeFromCode} />,
+    reactRoot
+  );
 }
 
 function resizeCanvas(): void {
@@ -134,16 +125,18 @@ function setupGrid(): void {
   background.alpha = 0.1;
 
   // add graph
-  const graph = new PPGraph(app, viewport);
+  currentGraph = new PPGraph(app, viewport);
 
-  registerAllNodeTypes(graph);
-  const allRegisteredNodeTypeNames = Object.keys(graph.registeredNodeTypes);
+  registerAllNodeTypes(currentGraph);
+  const allRegisteredNodeTypeNames = Object.keys(
+    currentGraph.registeredNodeTypes
+  );
 
   // gui
   const data = {
     run: false,
     runStep: function () {
-      graph.runStep();
+      currentGraph.runStep();
     },
     addNode: '',
   };
@@ -152,12 +145,12 @@ function setupGrid(): void {
   gui.add(data, 'runStep');
   gui.add(data, 'addNode', allRegisteredNodeTypeNames).onChange((selected) => {
     console.log(selected);
-    graph.createAndAdd(selected);
+    currentGraph.createAndAdd(selected);
   });
 
   app.ticker.add(() => {
     if (data.run) {
-      graph.runStep();
+      currentGraph.runStep();
     }
   });
 }

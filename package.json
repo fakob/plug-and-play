@@ -30,6 +30,7 @@
     "react": "^17.0.1",
     "react-codemirror2": "^7.2.1",
     "react-dom": "^17.0.1",
+    "strip-comments": "^2.0.1",
     "to-json-schema": "^0.2.5"
   },
   "devDependencies": {
