@@ -6,6 +6,7 @@ require('codemirror/theme/material.css');
 require('codemirror/theme/neat.css');
 require('codemirror/mode/xml/xml.js');
 require('codemirror/mode/javascript/javascript.js');
+require('./style.css');
 
 type MyProps = {
   value?: string;

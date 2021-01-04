@@ -11,3 +11,12 @@ body {
   width: 300px;
   height: 600px;
 }
+
+.CodeMirror {
+  /* Set height, width, borders, and global font properties here */
+  background-color: rgba(38, 50, 56, 0.85) !important;
+}
+
+.CodeMirror-gutters {
+  background: rgba(38, 50, 56, 0.25) !important;
+}
