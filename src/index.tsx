@@ -3,8 +3,7 @@ import { Viewport } from 'pixi-viewport';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import * as dat from 'dat.gui';
-import { CANVAS_BACKGROUNDCOLOR_HEX, INPUTTYPE } from './constants';
-import PPNode from './NodeClass';
+import { CANVAS_BACKGROUNDCOLOR_HEX } from './constants';
 import PPGraph from './GraphClass';
 import { registerAllNodeTypes } from './nodes/allNodes';
 import ReactContainer from './ReactContainer';
@@ -16,6 +15,15 @@ import './style.css';
   (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__.register({ PIXI: PIXI });
 
 const gui = new dat.GUI();
+// gui
+const data = {
+  run: false,
+  runStep: function () {
+    currentGraph.runStep();
+  },
+  addNode: '',
+  showHideEditor: true,
+};
 
 const gameWidth = 800;
 const gameHeight = 600;
@@ -85,7 +93,11 @@ function setupReactContainer(): void {
   child.className = 'rootClass';
   child.id = 'container';
   ReactDOM.render(
-    <ReactContainer value={defaultCode} onSave={createNodeFromCode} />,
+    <ReactContainer
+      value={defaultCode}
+      onSave={createNodeFromCode}
+      visible={data.showHideEditor}
+    />,
     reactRoot
   );
 }
@@ -132,15 +144,17 @@ function setupGrid(): void {
     currentGraph.registeredNodeTypes
   );
 
-  // gui
-  const data = {
-    run: false,
-    runStep: function () {
-      currentGraph.runStep();
-    },
-    addNode: '',
-  };
-
+  gui.add(data, 'showHideEditor').onChange((visible) => {
+    const reactRoot = document.querySelector('#container');
+    ReactDOM.render(
+      <ReactContainer
+        value={defaultCode}
+        onSave={createNodeFromCode}
+        visible={visible}
+      />,
+      reactRoot
+    );
+  });
   gui.add(data, 'run');
   gui.add(data, 'runStep');
   gui.add(data, 'addNode', allRegisteredNodeTypeNames).onChange((selected) => {

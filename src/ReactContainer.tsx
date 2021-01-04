@@ -10,37 +10,44 @@ require('codemirror/mode/javascript/javascript.js');
 type MyProps = {
   value?: string;
   onSave?: (code: string) => void;
+  visible?: boolean;
 };
 
 const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
   const [code, setCode] = useState(props.value);
 
   return (
-    <CodeMirror
-      value={code}
-      options={{
-        lineNumbers: true,
-        theme: 'material',
-        mode: 'javascript',
-        autofocus: true,
-        matchBrackets: true,
-        autoCloseBrackets: true,
-        indentUnit: 2,
-        tabSize: 2,
-        extraKeys: {
-          'Ctrl-Enter': (cm) => {
-            props.onSave(code);
-            console.log(cm);
+    props.visible && (
+      <CodeMirror
+        value={code}
+        options={{
+          lineNumbers: true,
+          lineWrapping: true,
+          theme: 'material',
+          mode: 'javascript',
+          autofocus: true,
+          matchBrackets: true,
+          autoCloseBrackets: true,
+          indentUnit: 2,
+          tabSize: 2,
+          extraKeys: {
+            'Ctrl-Enter': (cm) => {
+              props.onSave(code);
+              console.log(cm);
+            },
           },
-        },
-      }}
-      onBeforeChange={(editor, data, value) => {
-        setCode(value);
-      }}
-      onChange={(editor, value) => {
-        console.log('controlled', value);
-      }}
-    />
+        }}
+        onBeforeChange={(editor, data, value) => {
+          setCode(value);
+        }}
+        onChange={(editor, value) => {
+          console.log('controlled', value);
+        }}
+        editorDidMount={(editor) => {
+          editor.setSize('', '600px');
+        }}
+      />
+    )
   );
 };
 
