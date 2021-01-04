@@ -71,6 +71,7 @@ viewport
 
 window.onload = async (): Promise<void> => {
   document.body.appendChild(app.view);
+  window.addEventListener('keydown', keysDown);
 
   resizeCanvas();
   setupGrid();
@@ -111,6 +112,14 @@ function resizeCanvas(): void {
   resize();
 
   window.addEventListener('resize', resize);
+}
+
+function keysDown(e: KeyboardEvent): void {
+  console.log(e.key);
+  //delete or backspace
+  if (e.key === 'Backspace' || e.key === 'Delete') {
+    currentGraph.deleteSelectedNodes();
+  }
 }
 
 function setupGrid(): void {

@@ -307,6 +307,24 @@ export default class PPGraph {
     return false;
   }
 
+  checkIfOutputHasConnectionAndDeleteIt(output: OutputSocket): boolean {
+    // check if this input already has a connection
+    Object.entries(this._links).forEach(([key, link]) => {
+      if (link.source === output) {
+        console.log('deleting link:', link.source);
+
+        // remove link from source and target socket
+        link.getTarget().removeLink();
+        link.getSource().removeLink(link);
+
+        // remove link from graph
+        this.connectionContainer.removeChild(this._links[key]);
+        return delete this._links[key];
+      }
+    });
+    return false;
+  }
+
   clear(): void {
     this.lastNodeId = 0;
     this.lastLinkId = 0;
@@ -469,5 +487,41 @@ export default class PPGraph {
       // OUTPUTTYPE.NUMBER
     );
     return nodeName;
+  }
+
+  removeNode(node: PPNode): void {
+    //disconnect inputs
+    for (let i = 0; i < node.inputSocketArray.length; i++) {
+      const inputSocket = node.inputSocketArray[i];
+      this.checkIfInputHasConnectionAndDeleteIt(inputSocket);
+    }
+
+    //disconnect outputs
+    for (let i = 0; i < node.outputSocketArray.length; i++) {
+      const outputSocket = node.outputSocketArray[i];
+      this.checkIfOutputHasConnectionAndDeleteIt(outputSocket);
+    }
+
+    // add the node to the canvas
+    this.nodeContainer.removeChild(node);
+
+    // remove node from graph
+    delete this._nodes[node.id];
+  }
+
+  deleteSelectedNodes(): void {
+    console.log(this.selected_nodes);
+    console.log(this._nodes);
+
+    // loop through selected nodes
+    this.selected_nodes.forEach((nodeId) => {
+      const node = this._nodes[nodeId];
+
+      // deselect node
+      node.select(false);
+
+      this.removeNode(node);
+    });
+    this.deselectAllNodes();
   }
 }
