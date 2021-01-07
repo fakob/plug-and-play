@@ -21,6 +21,9 @@ const data = {
   runStep: function () {
     currentGraph.runStep();
   },
+  serializeGraph: function () {
+    serializeGraph();
+  },
   addNode: '',
   showHideEditor: true,
 };
@@ -81,6 +84,12 @@ window.onload = async (): Promise<void> => {
 function createNodeFromCode(code) {
   const nodeName = currentGraph.wrapFunctionStringAsNode(code);
   currentGraph.createAndAdd(nodeName);
+}
+
+function serializeGraph() {
+  const serializedGraph = currentGraph.serialize();
+  console.log(serializedGraph);
+  console.log(JSON.stringify(serializedGraph));
 }
 
 const defaultCode = `// Ctrl-Enter to create node
@@ -165,6 +174,7 @@ function setupGrid(): void {
     );
   });
   gui.add(data, 'run');
+  gui.add(data, 'serializeGraph');
   gui.add(data, 'runStep');
   gui.add(data, 'addNode', allRegisteredNodeTypeNames).onChange((selected) => {
     console.log(selected);

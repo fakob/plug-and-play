@@ -1,7 +1,9 @@
 import { Viewport } from 'pixi-viewport';
+import { SerializedLink } from './interfaces';
 import { CONNECTION_COLOR_HEX } from './constants';
 import InputSocket from './InputSocketClass';
 import OutputSocket from './OutputSocketClass';
+import PPNode from './NodeClass';
 
 export default class PPLink extends PIXI.Container {
   id: number;
@@ -31,6 +33,19 @@ export default class PPLink extends PIXI.Container {
     const comment = new PIXI.Text('');
     this._drawConnection(viewport, connection, source, target);
     this._connectionRef = this.addChild(connection);
+  }
+
+  serialize(): SerializedLink {
+    //create serialization object
+    console.log(this.source.parent);
+    return {
+      id: this.id,
+      type: this.type,
+      sourceNodeId: (this.source.parent as PPNode).id,
+      sourceSocketIndex: this.source.index,
+      targetNodeId: (this.target.parent as PPNode).id,
+      targetSocketIndex: this.target.index,
+    };
   }
 
   updateConnection(): void {

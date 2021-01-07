@@ -2,8 +2,8 @@ import * as PIXI from 'pixi.js';
 import strip from 'strip-comments';
 import { Viewport } from 'pixi-viewport';
 import * as dat from 'dat.gui';
-import { CONNECTION_COLOR_HEX } from './constants';
-import { PPNodeConstructor } from './interfaces';
+import { CONNECTION_COLOR_HEX, PP_VERSION } from './constants';
+import { PPNodeConstructor, SerializedGraph } from './interfaces';
 import PPNode from './NodeClass';
 import InputSocket from './InputSocketClass';
 import OutputSocket from './OutputSocketClass';
@@ -330,7 +330,7 @@ export default class PPGraph {
     this.lastLinkId = 0;
 
     // nodes
-    this._nodes = [];
+    this._nodes = {};
 
     // links
     this._links = {}; //container with all the links
@@ -397,11 +397,37 @@ export default class PPGraph {
     this.selected_nodes = [];
   }
 
+  serialize(): SerializedGraph {
+    // get serialized nodes
+    const nodesSerialized = [];
+    for (const node of Object.values(this._nodes)) {
+      nodesSerialized.push(node.serialize());
+    }
+
+    // get serialized links
+    const linksSerialized = [];
+    for (const link of Object.values(this._links)) {
+      linksSerialized.push(link.serialize());
+    }
+
+    const data = {
+      nodes: nodesSerialized,
+      links: linksSerialized,
+      version: PP_VERSION,
+    };
+
+    return data;
+  }
+
   runStep(): void {
     const nodes = this._nodes;
     if (!nodes) {
       return;
     }
+
+    // currently nodes are executed not in the order of hierarchy, but order of key/creation
+    // would need to start with the ones having no input
+    // and then continue from there
 
     Object.entries(nodes).forEach(([key, node]) => {
       node.onExecute(); //hard to send elapsed time

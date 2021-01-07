@@ -1,6 +1,8 @@
 import * as PIXI from 'pixi.js';
 import { TextStyle } from '@pixi/text';
 
+export const PP_VERSION = 0.1;
+
 export const CANVAS_BACKGROUNDCOLOR = '#d3d3d3';
 export const CANVAS_BACKGROUNDCOLOR_HEX = PIXI.utils.string2hex(
   CANVAS_BACKGROUNDCOLOR

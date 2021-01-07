@@ -1,4 +1,5 @@
 import * as PIXI from 'pixi.js';
+import { SerializedOutputSocket } from './interfaces';
 import PPGraph from './GraphClass';
 import PPNode from './NodeClass';
 import PPLink from './LinkClass';
@@ -17,14 +18,12 @@ import {
 
 export default class OutputSocket extends PIXI.Container {
   _OutputNameRef: PIXI.DisplayObject;
-
   _OutputSocketRef: PIXI.DisplayObject;
 
-  // data: PIXI.InteractionData | null;
   data: any;
-
   type: string;
   linkDragPos: null | PIXI.Point;
+  // data: PIXI.InteractionData | null;
 
   links: PPLink[];
 
@@ -79,6 +78,12 @@ export default class OutputSocket extends PIXI.Container {
     return this._OutputNameRef;
   }
 
+  get index(): number {
+    return (this.parent as PPNode).outputSocketArray.findIndex((item) => {
+      return this === item;
+    });
+  }
+
   // METHODS
 
   removeLink(link: PPLink): void {
@@ -87,6 +92,15 @@ export default class OutputSocket extends PIXI.Container {
 
   getGraph(): PPGraph {
     return (this.parent as PPNode).graph;
+  }
+
+  serialize(): SerializedOutputSocket {
+    //create serialization object
+    return {
+      name: this.name,
+      type: this.type,
+      data: this.data,
+    };
   }
 
   // SETUP

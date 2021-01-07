@@ -1,5 +1,5 @@
 import * as PIXI from 'pixi.js';
-import { NodeData } from './interfaces';
+import { SerializedNode } from './interfaces';
 import {
   COMMENT_TEXTSTYLE,
   NODE_BACKGROUNDCOLOR,
@@ -142,6 +142,33 @@ export default class PPNode extends PIXI.Container {
 
     // redraw background due to size change
     this.updateShape(this._selected);
+  }
+
+  serialize(): SerializedNode {
+    //create serialization object
+    const o: SerializedNode = {
+      id: this.id,
+      name: this.name,
+      type: this.type,
+      x: this.x,
+      y: this.y,
+    };
+
+    if (this.inputSocketArray.length > 0) {
+      o.inputSocketArray = [];
+      this.inputSocketArray.forEach((item) => {
+        o.inputSocketArray.push(item.serialize());
+      });
+    }
+
+    if (this.outputSocketArray.length > 0) {
+      o.outputSocketArray = [];
+      this.outputSocketArray.forEach((item) => {
+        o.outputSocketArray.push(item.serialize());
+      });
+    }
+
+    return o;
   }
 
   updateShape(selected: boolean): void {
