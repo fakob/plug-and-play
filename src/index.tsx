@@ -7,6 +7,7 @@ import { CANVAS_BACKGROUNDCOLOR_HEX } from './constants';
 import PPGraph from './GraphClass';
 import { registerAllNodeTypes } from './nodes/allNodes';
 import ReactContainer from './ReactContainer';
+import { GraphDatabase } from './indexeddb';
 // import PixelGrid from '../assets/Pixel_grid_4000x2000.svg.png';
 
 import './style.css';
@@ -27,6 +28,8 @@ const data = {
   addNode: '',
   showHideEditor: true,
 };
+
+const db = new GraphDatabase();
 
 const gameWidth = 800;
 const gameHeight = 600;
@@ -79,6 +82,8 @@ window.onload = async (): Promise<void> => {
   resizeCanvas();
   setupGrid();
   setupReactContainer();
+
+  loadCurrentGraph();
 };
 
 function createNodeFromCode(code) {
@@ -89,7 +94,37 @@ function createNodeFromCode(code) {
 function serializeGraph() {
   const serializedGraph = currentGraph.serialize();
   console.log(serializedGraph);
-  console.log(JSON.stringify(serializedGraph));
+  // console.log(JSON.stringify(serializedGraph));
+  db.transaction('rw', db.currentGraph, async () => {
+    const id = await db.currentGraph.put({
+      id: 0,
+      date: new Date(),
+      data: serializedGraph,
+    });
+    console.log(`Saved currentGraph: ${id}`);
+  }).catch((e) => {
+    console.log(e.stack || e);
+  });
+}
+
+function loadCurrentGraph() {
+  db.transaction('rw', db.currentGraph, async () => {
+    const lastGraph = await db.currentGraph.where({ id: 0 }).toArray();
+    if (lastGraph.length > 0) {
+      const graphData = lastGraph[0].data;
+      console.log(graphData);
+      console.log(currentGraph._registeredNodeTypes);
+      const allRegisteredNodeTypeNames = Object.keys(
+        currentGraph.registeredNodeTypes
+      );
+      console.log(allRegisteredNodeTypeNames);
+      currentGraph.configure(graphData);
+    } else {
+      console.log('No saved graphData');
+    }
+  }).catch((e) => {
+    console.log(e.stack || e);
+  });
 }
 
 const defaultCode = `// Ctrl-Enter to create node

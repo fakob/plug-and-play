@@ -171,6 +171,11 @@ export default class PPNode extends PIXI.Container {
     return o;
   }
 
+  configure(node_info: PPNode): void {
+    this.x = node_info.x;
+    this.y = node_info.y;
+  }
+
   updateShape(selected: boolean): void {
     // redraw background due to size change
     this._BackgroundRef.clear();

@@ -41,6 +41,8 @@ export default class PPGraph {
 
     // clear the stage
     this.clear();
+    this._registeredNodeTypes = {};
+
     this.clickedOutputRef = null;
     this.overInputRef = null;
     this.dragSourcePoint = null;
@@ -201,6 +203,7 @@ export default class PPGraph {
 
   // createNode(type: string): PPNode {
   createNode<T extends PPNode = PPNode>(type: string): T {
+    // console.log(this._registeredNodeTypes);
     const baseClass = this._registeredNodeTypes[type];
     if (!baseClass) {
       console.log('GraphNode type "' + type + '" not registered.');
@@ -336,7 +339,7 @@ export default class PPGraph {
     this._links = {}; //container with all the links
 
     // registered note types
-    this._registeredNodeTypes = {};
+    // this._registeredNodeTypes = {};
   }
 
   selectNode(node: PPNode): void {
@@ -417,6 +420,63 @@ export default class PPGraph {
     };
 
     return data;
+  }
+
+  configure(data: SerializedGraph, keep_old?: boolean): boolean {
+    if (!data) {
+      return;
+    }
+
+    if (!keep_old) {
+      this.clear();
+    }
+
+    const nodes = data.nodes;
+
+    // //decode links info (they are very verbose)
+    // if (data.links && data.links.constructor === Array) {
+    //   var links = [];
+    //   for (var i = 0; i < data.links.length; ++i) {
+    //     var link_data = data.links[i];
+    //     if (!link_data) {
+    //       //weird bug
+    //       console.warn('serialized graph link data contains errors, skipping.');
+    //       continue;
+    //     }
+    //     var link = new LLink();
+    //     link.configure(link_data);
+    //     links[link.id] = link;
+    //   }
+    //   data.links = links;
+    // }
+
+    let error = false;
+
+    //create nodes
+    this._nodes = [];
+    if (nodes) {
+      for (let i = 0, l = nodes.length; i < l; ++i) {
+        const n_info = nodes[i]; //stored info
+        const node = this.createAndAdd(n_info.type);
+        if (!node) {
+          error = true;
+          console.log('Node not found or has errors: ' + n_info.type);
+        }
+        console.log(n_info);
+        node.configure(n_info);
+      }
+
+      // //configure nodes afterwards so they can reach each other
+      // for (var i = 0, l = nodes.length; i < l; ++i) {
+      //   var n_info = nodes[i];
+      //   var node = this.getNodeById(n_info.id);
+      //   if (node) {
+      //     node.configure(n_info);
+      //   }
+      // }
+    }
+
+    return error;
   }
 
   runStep(): void {
