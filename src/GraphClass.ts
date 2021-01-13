@@ -340,6 +340,10 @@ export default class PPGraph {
     this.nodeContainer.removeChildren();
     this._nodes = {};
 
+    // clearn back and foreground canvas
+    this.backgroundCanvas.removeChildren();
+    this.foregroundCanvas.removeChildren();
+
     // remove selected nodes
     this.deselectAllNodes();
   }
