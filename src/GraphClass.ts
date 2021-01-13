@@ -29,6 +29,7 @@ export default class PPGraph {
   dragSourcePoint: null | PIXI.Point;
 
   tempConnection: PIXI.Graphics;
+  tempContainer: PIXI.Container;
   backgroundCanvas: PIXI.Container;
   foregroundCanvas: PIXI.Container;
   connectionContainer: PIXI.Container;
@@ -44,6 +45,7 @@ export default class PPGraph {
     this.dragSourcePoint = null;
 
     this.tempConnection = new PIXI.Graphics();
+    this.tempContainer = new PIXI.Container();
     this.backgroundCanvas = new PIXI.Container();
     this.backgroundCanvas.name = 'backgroundCanvas';
     this.connectionContainer = new PIXI.Container();
@@ -56,10 +58,11 @@ export default class PPGraph {
     this.viewport.addChild(
       this.backgroundCanvas,
       this.connectionContainer,
+      this.tempContainer,
       this.nodeContainer,
       this.foregroundCanvas
     );
-    this.connectionContainer.addChild(this.tempConnection);
+    this.tempContainer.addChild(this.tempConnection);
     this.tempConnection.name = 'tempConnection';
 
     this.viewport.on('pointerdown', this._onPointerDown.bind(this));
@@ -191,8 +194,8 @@ export default class PPGraph {
 
     // const classname = baseClass.name;
 
-    const pos = type.lastIndexOf('/');
-    baseClass.category = type.substr(0, pos);
+    // const pos = type.lastIndexOf('/');
+    // baseClass.category = type.substr(0, pos);
 
     // if (!baseClass.title) {
     //   baseClass.title = classname;
@@ -541,11 +544,13 @@ export default class PPGraph {
   }
 
   wrapFunctionAsNode(
-    type: string, // node name with namespace (e.g.: 'math/sum')
+    // type: string, // node name with namespace (e.g.: 'math/sum')
     func: (...args: any[]) => any,
     param_types?: string[],
-    return_type?: string
+    return_type?: string,
+    customName?: string
   ): void {
+    const functionName = customName || func.name;
     const params = Array(func.length);
     let code = '';
 
@@ -564,7 +569,7 @@ export default class PPGraph {
     // https://stackoverflow.com/a/46519949
     const classobj = new Function(
       'PPNode',
-      `return class ${type.replace('/', '')} extends PPNode {
+      `return class ${functionName} extends PPNode {
     constructor(type, graph) {
       super(type, graph);
       ${code}
@@ -582,7 +587,7 @@ export default class PPGraph {
       this.setOutputData(0, r);
     };
 
-    this.registerNodeType(type, classobj);
+    this.registerNodeType(functionName, classobj);
   }
 
   //used to create nodes from wrapping functions
@@ -606,15 +611,12 @@ export default class PPGraph {
     console.log(cleanCode);
     const func = new Function('return ' + cleanCode)();
     console.log(func);
-    // const nodeName = `new/new`;
-    const nodeName = `new/${func.name}`;
     this.wrapFunctionAsNode(
-      nodeName,
       func
       // [INPUTTYPE.NUMBER]
       // OUTPUTTYPE.NUMBER
     );
-    return nodeName;
+    return func.name;
   }
 
   removeNode(node: PPNode): void {
