@@ -14,7 +14,6 @@ export class RangeArray extends PPNode {
     this.addOutput('output array', OUTPUTTYPE.ARRAY);
 
     this.name = 'Range array';
-    this.type = 'RangeArray';
     this.description = 'Create range array';
 
     this.onExecute = function () {
@@ -42,7 +41,6 @@ export class MakeAPICall extends PPNode {
     this.addOutput('response', OUTPUTTYPE.STRING);
 
     this.name = 'Make API call';
-    this.type = 'MakeAPICall';
     this.description = 'Makes an API call and outputs the response';
 
     // this.onExecute = function () {
@@ -75,7 +73,6 @@ export class Trigger extends PPNode {
     this.addOutput('trigger', OUTPUTTYPE.STRING);
 
     this.name = 'Trigger';
-    this.type = 'Trigger';
     this.description = 'Creates a trigger event';
 
     const button = new PIXI.Graphics();
@@ -131,7 +128,6 @@ export class DrawRect extends PPNode {
     this.addInput('color', 'color');
 
     this.name = 'Draw Rect';
-    this.type = 'DrawRect';
     this.description = 'Draws a rectangle';
 
     const rect = new PIXI.Graphics();
@@ -191,7 +187,6 @@ export class TimeAndDate extends PPNode {
     this.addOutput('time stamp', OUTPUTTYPE.NUMBER);
 
     this.name = 'Time';
-    this.type = 'BaseTime';
     this.description = 'Outputs current time in different formats';
     this.date = new Date();
 

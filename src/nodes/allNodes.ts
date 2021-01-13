@@ -9,7 +9,7 @@ console.log(math);
 export const registerAllNodeTypes = (graph: PPGraph): void => {
   const categories = { base, math };
   for (const [categoryKey, categoryValue] of Object.entries(categories)) {
-    console.log(categoryValue);
+    console.log(categoryKey, categoryValue);
     for (const key of Object.keys(categoryValue)) {
       // register nodes using the 'as ...' name when importing
       // e.g. * as base -> node types will be base/baseClass.type

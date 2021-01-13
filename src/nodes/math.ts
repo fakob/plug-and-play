@@ -20,7 +20,6 @@ export class MathAdd extends PPNode {
     this.addOutput('out', OUTPUTTYPE.NUMBER);
 
     this.name = 'Add';
-    this.type = 'MathAdd';
     this.description = 'Add 2 numbers';
     this.data2 = null;
 
@@ -58,7 +57,6 @@ export class MathNoise extends PPNode {
     this.speed = 1;
 
     this.name = 'Noise';
-    this.type = 'MathNoise';
     this.description = 'Random number with temporal continuity';
     this.data2 = null;
 
