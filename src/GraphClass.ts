@@ -39,10 +39,6 @@ export default class PPGraph {
     this.viewport = viewport;
     console.log('Graph created');
 
-    // clear the stage
-    this.clear();
-    this._registeredNodeTypes = {};
-
     this.clickedOutputRef = null;
     this.overInputRef = null;
     this.dragSourcePoint = null;
@@ -67,6 +63,10 @@ export default class PPGraph {
     this.tempConnection.name = 'tempConnection';
 
     this.viewport.on('pointerdown', this._onPointerDown.bind(this));
+
+    // clear the stage
+    this.clear();
+    this._registeredNodeTypes = {};
   }
 
   // SETUP
@@ -332,14 +332,16 @@ export default class PPGraph {
     this.lastNodeId = 0;
     this.lastLinkId = 0;
 
-    // nodes
+    // remove all links
+    this.connectionContainer.removeChildren();
+    this._links = {};
+
+    // remove all nodes from container
+    this.nodeContainer.removeChildren();
     this._nodes = {};
 
-    // links
-    this._links = {}; //container with all the links
-
-    // registered note types
-    // this._registeredNodeTypes = {};
+    // remove selected nodes
+    this.deselectAllNodes();
   }
 
   selectNode(node: PPNode): void {
@@ -431,7 +433,47 @@ export default class PPGraph {
       this.clear();
     }
 
+    let error = false;
+
+    //create nodes
     const nodes = data.nodes;
+    this._nodes = [];
+    if (nodes) {
+      for (let i = 0, l = nodes.length; i < l; ++i) {
+        const n_info = nodes[i]; //stored info
+        const node = this.createAndAdd(n_info.type);
+        if (!node) {
+          error = true;
+          console.log('Node not found or has errors: ' + n_info.type);
+        }
+        console.log(n_info);
+        node.configure(n_info);
+      }
+    }
+
+    // connect nodes
+    const links = data.links;
+    this._links = [];
+    if (links) {
+      for (let i = 0, l = links.length; i < l; ++i) {
+        const l_info = links[i]; //stored info
+        const outputRef = this.getOutputRef(
+          l_info.sourceNodeId,
+          l_info.sourceSocketIndex
+        );
+        const inputRef = this.getInputRef(
+          l_info.targetNodeId,
+          l_info.targetSocketIndex
+        );
+        console.log(outputRef, inputRef);
+        if (outputRef === undefined || inputRef === undefined) {
+          error = true;
+          console.log('In or Output socket not found: ' + l_info.type);
+        } else {
+          this.connect(outputRef, inputRef, this.viewport);
+        }
+      }
+    }
 
     // //decode links info (they are very verbose)
     // if (data.links && data.links.constructor === Array) {
@@ -450,33 +492,29 @@ export default class PPGraph {
     //   data.links = links;
     // }
 
-    let error = false;
-
-    //create nodes
-    this._nodes = [];
-    if (nodes) {
-      for (let i = 0, l = nodes.length; i < l; ++i) {
-        const n_info = nodes[i]; //stored info
-        const node = this.createAndAdd(n_info.type);
-        if (!node) {
-          error = true;
-          console.log('Node not found or has errors: ' + n_info.type);
-        }
-        console.log(n_info);
-        node.configure(n_info);
-      }
-
-      // //configure nodes afterwards so they can reach each other
-      // for (var i = 0, l = nodes.length; i < l; ++i) {
-      //   var n_info = nodes[i];
-      //   var node = this.getNodeById(n_info.id);
-      //   if (node) {
-      //     node.configure(n_info);
-      //   }
-      // }
-    }
-
     return error;
+  }
+
+  getOutputRef(
+    sourceNodeId: number,
+    sourceSocketIndex: number
+  ): OutputSocket | undefined {
+    const sourceNode = this._nodes[sourceNodeId];
+    if (sourceNode !== undefined) {
+      const sourceSocket = sourceNode.outputSocketArray[sourceSocketIndex];
+      return sourceSocket;
+    }
+  }
+
+  getInputRef(
+    targetNodeId: number,
+    targetSocketIndex: number
+  ): InputSocket | undefined {
+    const targetNode = this._nodes[targetNodeId];
+    if (targetNode !== undefined) {
+      const targetSocket = targetNode.inputSocketArray[targetSocketIndex];
+      return targetSocket;
+    }
   }
 
   runStep(): void {

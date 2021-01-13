@@ -22,8 +22,11 @@ const data = {
   runStep: function () {
     currentGraph.runStep();
   },
-  serializeGraph: function () {
+  saveGraph: function () {
     serializeGraph();
+  },
+  loadGraph: function () {
+    loadCurrentGraph();
   },
   addNode: '',
   showHideEditor: true,
@@ -38,7 +41,7 @@ const gameHeight = 600;
 // (window as any).classes.PPNode = PPNode;
 
 let reactRoot;
-let currentGraph;
+let currentGraph: PPGraph;
 
 const app = new PIXI.Application({
   backgroundColor: CANVAS_BACKGROUNDCOLOR_HEX,
@@ -118,7 +121,7 @@ function loadCurrentGraph() {
         currentGraph.registeredNodeTypes
       );
       console.log(allRegisteredNodeTypeNames);
-      currentGraph.configure(graphData);
+      currentGraph.configure(graphData, false);
     } else {
       console.log('No saved graphData');
     }
@@ -209,7 +212,8 @@ function setupGrid(): void {
     );
   });
   gui.add(data, 'run');
-  gui.add(data, 'serializeGraph');
+  gui.add(data, 'saveGraph');
+  gui.add(data, 'loadGraph');
   gui.add(data, 'runStep');
   gui.add(data, 'addNode', allRegisteredNodeTypeNames).onChange((selected) => {
     console.log(selected);

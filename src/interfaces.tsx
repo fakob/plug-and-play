@@ -12,8 +12,8 @@ export type PPNodeConstructor<T extends PPNode = PPNode> = {
 };
 
 export type SerializedGraph = {
-  nodes: PPNode[];
-  links: PPLink[];
+  nodes: SerializedNode[];
+  links: SerializedLink[];
   version: number;
 };
 
