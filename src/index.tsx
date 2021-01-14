@@ -117,13 +117,20 @@ function loadCurrentGraph() {
   db.transaction('rw', db.currentGraph, async () => {
     const lastGraph = await db.currentGraph.where({ id: 0 }).toArray();
     if (lastGraph.length > 0) {
-      const graphData = lastGraph[0].graphData;
-      console.log(graphData);
+      // register all node types
       console.log(currentGraph._registeredNodeTypes);
       const allRegisteredNodeTypeNames = Object.keys(
         currentGraph.registeredNodeTypes
       );
+
+      // register node types from editorData
+      const editorData = lastGraph[0].editorData;
+      createNodeFromCode(editorData);
       console.log(allRegisteredNodeTypeNames);
+
+      // configure graph
+      const graphData = lastGraph[0].graphData;
+      console.log(graphData);
       currentGraph.configure(graphData, false);
     } else {
       console.log('No saved graphData');
