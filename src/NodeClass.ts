@@ -174,6 +174,15 @@ export default class PPNode extends PIXI.Container {
   configure(node_info: SerializedNode): void {
     this.x = node_info.x;
     this.y = node_info.y;
+
+    // set parameters on inputSocket
+    if (this.inputSocketArray.length > 0) {
+      this.inputSocketArray.forEach((item, index) => {
+        item.defaultValue = node_info.inputSocketArray[index].defaultValue;
+        item.value = node_info.inputSocketArray[index].value;
+        item.visible = node_info.inputSocketArray[index].visible;
+      });
+    }
   }
 
   updateShape(selected: boolean): void {
