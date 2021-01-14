@@ -41,6 +41,7 @@ const gameHeight = 600;
 // (window as any).classes.PPNode = PPNode;
 
 let reactRoot;
+let editorData: string;
 let currentGraph: PPGraph;
 
 const app = new PIXI.Application({
@@ -91,6 +92,7 @@ window.onload = async (): Promise<void> => {
 
 function createNodeFromCode(code) {
   const nodeName = currentGraph.wrapFunctionStringAsNode(code);
+  editorData = code;
   currentGraph.createAndAdd(nodeName);
 }
 
@@ -102,7 +104,8 @@ function serializeGraph() {
     const id = await db.currentGraph.put({
       id: 0,
       date: new Date(),
-      data: serializedGraph,
+      graphData: serializedGraph,
+      editorData,
     });
     console.log(`Saved currentGraph: ${id}`);
   }).catch((e) => {
@@ -114,7 +117,7 @@ function loadCurrentGraph() {
   db.transaction('rw', db.currentGraph, async () => {
     const lastGraph = await db.currentGraph.where({ id: 0 }).toArray();
     if (lastGraph.length > 0) {
-      const graphData = lastGraph[0].data;
+      const graphData = lastGraph[0].graphData;
       console.log(graphData);
       console.log(currentGraph._registeredNodeTypes);
       const allRegisteredNodeTypeNames = Object.keys(

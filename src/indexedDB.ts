@@ -4,7 +4,8 @@ import { SerializedGraph } from './interfaces';
 interface Graph {
   id: number;
   date: Date;
-  data: SerializedGraph;
+  graphData: SerializedGraph;
+  editorData?: string;
   name?: string;
 }
 
@@ -15,7 +16,7 @@ export class GraphDatabase extends Dexie {
   public constructor() {
     super('GraphDatabase');
     this.version(1).stores({
-      currentGraph: '++id,date',
+      currentGraph: '++id',
     });
     this.currentGraph = this.table('currentGraph');
   }
