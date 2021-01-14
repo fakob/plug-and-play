@@ -1,5 +1,7 @@
 import { INPUTTYPE, OUTPUTTYPE } from '../constants';
+// import { isFunction, isClass } from '../utils';
 import PPGraph from '../GraphClass';
+import PPNode from '../NodeClass';
 import * as base from './base';
 import * as math from './math';
 
@@ -10,22 +12,16 @@ export const registerAllNodeTypes = (graph: PPGraph): void => {
   for (const [categoryKey, categoryValue] of Object.entries(categories)) {
     console.log(categoryKey, categoryValue);
     for (const key of Object.keys(categoryValue)) {
-      // // register nodes using the 'as ...' name when importing
-      // // e.g. * as base -> node types will be base/baseClass.type
-      // graph.registerNodeType(`${categoryKey}/${key}`, categoryValue[key]);
-      graph.registerNodeType(`${key}`, categoryValue[key]);
+      // check if it is a class inheriting from PPNode
+      // if not we consider it a function
+      // functions which are imported like this can not define input and output parameter types
+      if (categoryValue[key].prototype instanceof PPNode) {
+        graph.registerNodeType(`${key}`, categoryValue[key]);
+      } else {
+        graph.wrapFunctionAsNode(categoryValue[key]);
+      }
     }
   }
-
-  // add additional nodes from functions
-  function multiply(a, b) {
-    return a * b;
-  }
-  graph.wrapFunctionAsNode(
-    multiply,
-    [INPUTTYPE.NUMBER, INPUTTYPE.NUMBER],
-    OUTPUTTYPE.NUMBER
-  );
 
   function getElementFromArray(array: any[], index: number) {
     if (Array.isArray(array) && !Number.isNaN(index)) {

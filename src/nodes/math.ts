@@ -106,3 +106,8 @@ export class MathNoise extends PPNode {
     };
   }
 }
+
+// add additional nodes from functions
+export function multiply(a: number, b: number): number {
+  return a * b;
+}
