@@ -131,6 +131,9 @@ function loadCurrentGraph() {
       const graphData = lastGraph[0].graphData;
       console.log(graphData);
       currentGraph.configure(graphData, false);
+
+      console.log(currentGraph._nodes);
+      console.log(currentGraph.nodeContainer.children);
     } else {
       console.log('No saved graphData');
     }
@@ -226,7 +229,7 @@ function setupGrid(): void {
   gui.add(data, 'runStep');
   gui.add(data, 'addNode', allRegisteredNodeTypeNames).onChange((selected) => {
     console.log(selected);
-    currentGraph.createAndAdd(selected);
+    currentGraph.createAndAddNode(selected);
   });
 
   app.ticker.add(() => {

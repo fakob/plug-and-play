@@ -36,6 +36,7 @@ export default class PPNode extends PIXI.Container {
   type: string; // Type
   category: string; // Category - derived from type
   description: string;
+  _codeString?: string; // code string from code editor
 
   inputSocketArray: InputSocket[];
   outputSocketArray: OutputSocket[];
@@ -103,6 +104,14 @@ export default class PPNode extends PIXI.Container {
     this._NodeNameRef.text = text;
   }
 
+  get codeString(): string {
+    return this._codeString;
+  }
+
+  set codeString(text: string) {
+    this._codeString = text;
+  }
+
   // METHODS
   select(selected: boolean): void {
     this._selected = selected;
@@ -152,6 +161,7 @@ export default class PPNode extends PIXI.Container {
       type: this.type,
       x: this.x,
       y: this.y,
+      codeString: this.codeString,
     };
 
     if (this.inputSocketArray.length > 0) {
@@ -174,6 +184,7 @@ export default class PPNode extends PIXI.Container {
   configure(node_info: SerializedNode): void {
     this.x = node_info.x;
     this.y = node_info.y;
+    this.codeString = node_info.codeString;
 
     // set parameters on inputSocket
     if (this.inputSocketArray.length > 0) {

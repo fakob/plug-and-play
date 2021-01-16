@@ -23,6 +23,7 @@ export type SerializedNode = {
   name: string;
   x: number;
   y: number;
+  codeString?: string;
   inputSocketArray?: SerializedInputSocket[];
   outputSocketArray?: SerializedOutputSocket[];
 };

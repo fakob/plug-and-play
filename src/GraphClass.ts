@@ -241,10 +241,11 @@ export default class PPGraph {
     return node; //to chain actions
   }
 
-  createAndAdd<T extends PPNode = PPNode>(type: string): T {
+  createAndAddNode<T extends PPNode = PPNode>(type: string): T {
     const node = this.createNode(type) as T;
     // if (node) {
     this.addNode(node);
+    console.log(node);
     return node;
     // }
   }
@@ -449,7 +450,7 @@ export default class PPGraph {
     if (nodes) {
       for (let i = 0, l = nodes.length; i < l; ++i) {
         const n_info = nodes[i]; //stored info
-        const node = this.createAndAdd(n_info.type);
+        const node = this.createAndAddNode(n_info.type);
         if (!node) {
           error = true;
           console.log('Node not found or has errors: ' + n_info.type);
@@ -518,52 +519,73 @@ export default class PPGraph {
     // and then continue from there
 
     Object.entries(nodes).forEach(([key, node]) => {
-      node.onExecute(); //hard to send elapsed time
-      if (true) {
-        node.drawComment();
+      try {
+        node.onExecute(); //hard to send elapsed time
+        if (true) {
+          node.drawComment();
+        }
+        node.onAfterExecute();
+      } catch (error) {
+        console.error('Error onExecute', error);
       }
-      node.onAfterExecute();
     });
   }
 
   createOrUpdateNodeFromCode(code: string): void {
     const {
       functionName,
-      doesNodeTypeExist,
+      isNodeTypeRegistered,
     } = this.convertFunctionStringToNode(code);
-    console.log('doesNodeTypeExist: ', doesNodeTypeExist);
+    console.log('isNodeTypeRegistered: ', isNodeTypeRegistered);
+
+    let newNode: PPNode;
 
     // if it exists, then replace all instances
-    if (doesNodeTypeExist) {
+    if (isNodeTypeRegistered) {
       // get nodes of this type
       // replace node with new instance
       // move it to right position
       // apply links and values if possible
 
       const nodes = this._nodes;
-      console.log(nodes);
-      Object.entries(nodes).forEach(([id, oldNode]) => {
-        if (oldNode.type === functionName) {
-          console.log('I am of the same type', oldNode);
+      console.log(typeof nodes, nodes);
+      const nodesOnCanvas = Object.entries(nodes);
+      if (nodesOnCanvas.length > 0) {
+        nodesOnCanvas.forEach(([id, oldNode]) => {
+          if (oldNode.type === functionName) {
+            console.log('I am of the same type', oldNode);
 
-          const newNode = this.createNode(functionName);
-          this.addNode(newNode);
-          newNode.configure(oldNode.serialize());
-          this.reconnectLinksToNewNode(oldNode, newNode);
+            newNode = this.createNode(functionName);
+            this.addNode(newNode);
+            newNode.configure(oldNode.serialize());
+            this.reconnectLinksToNewNode(oldNode, newNode);
 
-          // remove previous node
-          this.removeNode(oldNode);
-        }
-      });
+            // remove previous node
+            this.removeNode(oldNode);
+          } else {
+            // node does not yet exist on graph
+            this.addNode(newNode);
+          }
+        });
+      } else {
+        // canvas is empty and node does not yet exist on graph
+        newNode = this.createNode(functionName);
+        this.addNode(newNode);
+      }
     } else {
       // if it is new, then just create it
-      this.createAndAdd(functionName);
+      newNode = this.createAndAddNode(functionName);
     }
+
+    // store code string on node
+    console.log(newNode);
+    newNode.codeString = code;
+    console.log(newNode);
   }
 
   convertFunctionStringToNode(
     code: string
-  ): { functionName: string; doesNodeTypeExist: boolean } {
+  ): { functionName: string; isNodeTypeRegistered: boolean } {
     // remove comments and possible empty line from start
     const cleanCode = strip(code).replace(/^\n/, '');
     console.log(cleanCode);
@@ -571,12 +593,12 @@ export default class PPGraph {
     console.log(func);
 
     // check if class already exists
-    let doesNodeTypeExist = true;
+    let isNodeTypeRegistered = true;
     if (this._registeredNodeTypes[func.name] === undefined) {
-      doesNodeTypeExist = false;
+      isNodeTypeRegistered = false;
     }
     const functionName = this.wrapFunctionAsNode(func);
-    return { functionName, doesNodeTypeExist };
+    return { functionName, isNodeTypeRegistered };
   }
 
   wrapFunctionAsNode(
