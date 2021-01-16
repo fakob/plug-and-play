@@ -40,6 +40,11 @@ const gameHeight = 600;
 // (window as any).classes = {};
 // (window as any).classes.PPNode = PPNode;
 
+const defaultEditorData = `// Ctrl-Enter to create node
+function square(a) {
+  return a * a;
+}`;
+
 let reactRoot;
 let editorData: string;
 let currentGraph: PPGraph;
@@ -98,6 +103,7 @@ function createOrUpdateNodeFromCode(code) {
 function serializeGraph() {
   const serializedGraph = currentGraph.serialize();
   console.log(serializedGraph);
+  console.info(serializedGraph.customNodeTypes);
   // console.log(JSON.stringify(serializedGraph));
   db.transaction('rw', db.currentGraph, async () => {
     const id = await db.currentGraph.put({
@@ -116,23 +122,13 @@ function loadCurrentGraph() {
   db.transaction('rw', db.currentGraph, async () => {
     const lastGraph = await db.currentGraph.where({ id: 0 }).toArray();
     if (lastGraph.length > 0) {
-      // register all node types
-      console.log(currentGraph._registeredNodeTypes);
-      const allRegisteredNodeTypeNames = Object.keys(
-        currentGraph.registeredNodeTypes
-      );
-
-      // register node types from editorData
-      const editorData = lastGraph[0].editorData;
-      createOrUpdateNodeFromCode(editorData);
-      console.log(allRegisteredNodeTypeNames);
+      // load editorData
+      editorData = lastGraph[0].editorData;
 
       // configure graph
       const graphData = lastGraph[0].graphData;
-      console.log(graphData);
       currentGraph.configure(graphData, false);
 
-      console.log(currentGraph._nodes);
       console.log(currentGraph.nodeContainer.children);
     } else {
       console.log('No saved graphData');
@@ -142,11 +138,6 @@ function loadCurrentGraph() {
   });
 }
 
-const defaultCode = `// Ctrl-Enter to create node
-function square(a) {
-  return a * a;
-}`;
-
 function setupReactContainer(): void {
   reactRoot = document.createElement('div');
   const child = document.body.appendChild(reactRoot);
@@ -154,7 +145,7 @@ function setupReactContainer(): void {
   child.id = 'container';
   ReactDOM.render(
     <ReactContainer
-      value={defaultCode}
+      value={editorData || defaultEditorData}
       onSave={createOrUpdateNodeFromCode}
       visible={data.showHideEditor}
     />,
@@ -216,7 +207,7 @@ function setupGrid(): void {
     const reactRoot = document.querySelector('#container');
     ReactDOM.render(
       <ReactContainer
-        value={defaultCode}
+        value={editorData || defaultEditorData}
         onSave={createOrUpdateNodeFromCode}
         visible={visible}
       />,

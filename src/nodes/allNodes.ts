@@ -1,4 +1,4 @@
-import { INPUTTYPE, OUTPUTTYPE } from '../constants';
+import { INPUTTYPE } from '../constants';
 // import { isFunction, isClass } from '../utils';
 import PPGraph from '../GraphClass';
 import PPNode from '../NodeClass';
@@ -16,9 +16,12 @@ export const registerAllNodeTypes = (graph: PPGraph): void => {
       // if not we consider it a function
       // functions which are imported like this can not define input and output parameter types
       if (categoryValue[key].prototype instanceof PPNode) {
-        graph.registerNodeType(`${key}`, categoryValue[key]);
+        graph.registerNodeType(key, categoryValue[key]);
       } else {
-        graph.wrapFunctionAsNode(categoryValue[key]);
+        const nodeConstructor = graph.convertFunctionToNodeConstructor(
+          categoryValue[key]
+        );
+        graph.registerNodeType(key, nodeConstructor);
       }
     }
   }
@@ -31,7 +34,7 @@ export const registerAllNodeTypes = (graph: PPGraph): void => {
     }
     return undefined;
   }
-  graph.wrapFunctionAsNode(
+  graph.convertFunctionToNodeConstructor(
     getElementFromArray,
     [INPUTTYPE.ARRAY, INPUTTYPE.NUMBER]
     // OUTPUTTYPE.NUMBER

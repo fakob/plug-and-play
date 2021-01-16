@@ -12,8 +12,8 @@ export class MathAdd extends PPNode {
   speed: number;
   data2: Float32Array;
 
-  constructor(name: string, graph: PPGraph) {
-    super(name, graph);
+  constructor(name: string, graph: PPGraph, customId: string) {
+    super(name, graph, customId);
 
     this.addInput('in', INPUTTYPE.NUMBER, 0);
     this.addInput('in2', INPUTTYPE.NUMBER, 0);
@@ -43,8 +43,8 @@ export class MathNoise extends PPNode {
   speed: number;
   data2: Float32Array;
 
-  constructor(name: string, graph: PPGraph) {
-    super(name, graph);
+  constructor(name: string, graph: PPGraph, customId: string) {
+    super(name, graph, customId);
 
     this.addInput('in', INPUTTYPE.NUMBER);
     this.addOutput('out', OUTPUTTYPE.NUMBER);

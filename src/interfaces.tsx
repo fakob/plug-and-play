@@ -1,9 +1,5 @@
-import { Viewport } from 'pixi-viewport';
 import PPGraph from './GraphClass';
 import PPNode from './NodeClass';
-import InputSocket from './InputSocketClass';
-import OutputSocket from './OutputSocketClass';
-import PPLink from './LinkClass';
 
 export type PPNodeConstructor<T extends PPNode = PPNode> = {
   type?: string;
@@ -12,18 +8,18 @@ export type PPNodeConstructor<T extends PPNode = PPNode> = {
 };
 
 export type SerializedGraph = {
+  version: number;
   nodes: SerializedNode[];
   links: SerializedLink[];
-  version: number;
+  customNodeTypes: Record<string, string>;
 };
 
 export type SerializedNode = {
   type: string;
-  id: number | null;
+  id: string;
   name: string;
   x: number;
   y: number;
-  codeString?: string;
   inputSocketArray?: SerializedInputSocket[];
   outputSocketArray?: SerializedOutputSocket[];
 };
@@ -31,9 +27,9 @@ export type SerializedNode = {
 export type SerializedLink = {
   id: number;
   type: string;
-  sourceNodeId: number;
+  sourceNodeId: string;
   sourceSocketIndex: number;
-  targetNodeId: number;
+  targetNodeId: string;
   targetSocketIndex: number;
 };
 

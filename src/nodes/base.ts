@@ -5,8 +5,8 @@ import { rgbToHex } from '../utils-pixi';
 import { INPUTTYPE, OUTPUTTYPE } from '../constants';
 
 export class RangeArray extends PPNode {
-  constructor(name: string, graph: PPGraph) {
-    super(name, graph);
+  constructor(name: string, graph: PPGraph, customId: string) {
+    super(name, graph, customId);
 
     this.addInput('start', INPUTTYPE.NUMBER);
     this.addInput('stop', INPUTTYPE.NUMBER);
@@ -31,8 +31,8 @@ export class RangeArray extends PPNode {
 
 export class MakeAPICall extends PPNode {
   // _rectRef: PIXI.Graphics;
-  constructor(name: string, graph: PPGraph) {
-    super(name, graph);
+  constructor(name: string, graph: PPGraph, customId: string) {
+    super(name, graph, customId);
 
     const url = 'https://jsonplaceholder.typicode.com/users';
 
@@ -67,8 +67,8 @@ export class MakeAPICall extends PPNode {
 }
 export class Trigger extends PPNode {
   _rectRef: PIXI.Graphics;
-  constructor(name: string, graph: PPGraph) {
-    super(name, graph);
+  constructor(name: string, graph: PPGraph, customId: string) {
+    super(name, graph, customId);
 
     this.addOutput('trigger', OUTPUTTYPE.STRING);
 
@@ -113,13 +113,14 @@ export class DrawRect extends PPNode {
   constructor(
     name: string,
     graph: PPGraph,
+    customId: string,
     x: number,
     y: number,
     width: number,
     height: number,
     color?: number[]
   ) {
-    super(name, graph);
+    super(name, graph, customId);
 
     this.addInput('x', INPUTTYPE.NUMBER);
     this.addInput('y', INPUTTYPE.NUMBER);
@@ -180,8 +181,8 @@ export class DrawRect extends PPNode {
 export class TimeAndDate extends PPNode {
   date: Date;
 
-  constructor(name: string, graph: PPGraph) {
-    super(name, graph);
+  constructor(name: string, graph: PPGraph, customId: string) {
+    super(name, graph, customId);
 
     this.addOutput('date and time', OUTPUTTYPE.STRING);
     this.addOutput('time stamp', OUTPUTTYPE.NUMBER);

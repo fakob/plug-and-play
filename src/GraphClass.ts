@@ -2,6 +2,7 @@ import * as PIXI from 'pixi.js';
 import strip from 'strip-comments';
 import { Viewport } from 'pixi-viewport';
 import * as dat from 'dat.gui';
+
 import { CONNECTION_COLOR_HEX, PP_VERSION } from './constants';
 import { PPNodeConstructor, SerializedGraph } from './interfaces';
 import PPNode from './NodeClass';
@@ -19,11 +20,11 @@ export default class PPGraph {
 
   lastLinkId: number;
 
-  _nodes: { [key: number]: PPNode };
   _links: { [key: number]: PPLink };
   _registeredNodeTypes: Record<string, PPNodeConstructor>;
+  customNodeTypes: Record<string, string>;
 
-  selected_nodes: number[];
+  selectedNodes: string[];
   clickedOutputRef: null | OutputSocket;
   overInputRef: null | InputSocket;
   dragSourcePoint: null | PIXI.Point;
@@ -69,6 +70,7 @@ export default class PPGraph {
 
     // clear the stage
     this.clear();
+    this.customNodeTypes = {};
     this._registeredNodeTypes = {};
   }
 
@@ -186,34 +188,49 @@ export default class PPGraph {
     return this._registeredNodeTypes;
   }
 
+  get nodes(): PPNode[] {
+    return this.nodeContainer.children as PPNode[];
+  }
+
   // METHODS
 
-  registerNodeType(type: string, baseClass: PPNodeConstructor): void {
-    baseClass.type = type;
+  getNodeById(id: string): PPNode {
+    return this.nodes.find((node) => node.id === id);
+  }
+
+  registerNodeType(type: string, nodeConstructor: PPNodeConstructor): void {
+    nodeConstructor.type = type;
     console.log('Node registered: ' + type);
     console.log(this._registeredNodeTypes);
 
     // create/update node type
-    this._registeredNodeTypes[type] = baseClass;
+    this._registeredNodeTypes[type] = nodeConstructor;
   }
 
-  // createNode(type: string): PPNode {
-  createNode<T extends PPNode = PPNode>(type: string): T {
+  registerCustomNodeType(code: string): string {
+    const func = this.convertStringToFunction(code);
+    const nodeConstructor = this.convertFunctionToNodeConstructor(func);
+    // register or update node type
+    this.registerNodeType(func.name, nodeConstructor);
+    return func.name;
+  }
+
+  createNode<T extends PPNode = PPNode>(type: string, customId = ''): T {
     // console.log(this._registeredNodeTypes);
-    const baseClass = this._registeredNodeTypes[type];
-    if (!baseClass) {
+    const nodeConstructor = this._registeredNodeTypes[type];
+    if (!nodeConstructor) {
       console.log('GraphNode type "' + type + '" not registered.');
       return null;
     }
 
     const title = type;
     console.log(this);
-    console.log(baseClass);
-    const node = new baseClass(title, this) as T;
+    console.log(nodeConstructor);
+    const node = new nodeConstructor(title, this, customId) as T;
     return node;
   }
 
-  addNode<T extends PPNode = PPNode>(node: T, customId?: number): T {
+  addNode<T extends PPNode = PPNode>(node: T): T {
     // if (!node) {
     //   return;
     // }
@@ -224,9 +241,6 @@ export default class PPGraph {
       .on('pointerup', this._onNodePointerUpAndUpOutside.bind(this))
       .on('pointerover', this._onNodePointerOver.bind(this));
 
-    // give the node an id
-    node.id = customId || ++this.lastNodeId;
-
     // change add id to title
     const newName = `${node.nodeName} : ${node.id}`;
     node.nodeName = newName;
@@ -235,14 +249,14 @@ export default class PPGraph {
     // add the node to the canvas
     this.nodeContainer.addChild(node);
 
-    // add the node to the _nodes object
-    this._nodes[node.id] = node;
-
     return node; //to chain actions
   }
 
-  createAndAddNode<T extends PPNode = PPNode>(type: string): T {
-    const node = this.createNode(type) as T;
+  createAndAddNode<T extends PPNode = PPNode>(
+    type: string,
+    customId?: string
+  ): T {
+    const node = this.createNode(type, customId) as T;
     // if (node) {
     this.addNode(node);
     console.log(node);
@@ -343,7 +357,6 @@ export default class PPGraph {
 
     // remove all nodes from container
     this.nodeContainer.removeChildren();
-    this._nodes = {};
 
     // clearn back and foreground canvas
     this.backgroundCanvas.removeChildren();
@@ -359,7 +372,7 @@ export default class PPGraph {
     } else {
       this.deselectAllNodes();
       node.select(true);
-      this.selected_nodes = [node.id];
+      this.selectedNodes = [node.id];
 
       // add node gui
       gui = new dat.GUI();
@@ -402,19 +415,18 @@ export default class PPGraph {
       gui = undefined;
     }
 
-    const nodes = this._nodes;
-    Object.entries(nodes).forEach(([, node]) => {
+    Object.entries(this.nodes).forEach(([, node]) => {
       if (node.selected) {
         node.select(false);
       }
     });
-    this.selected_nodes = [];
+    this.selectedNodes = [];
   }
 
   serialize(): SerializedGraph {
     // get serialized nodes
     const nodesSerialized = [];
-    for (const node of Object.values(this._nodes)) {
+    for (const node of Object.values(this.nodes)) {
       nodesSerialized.push(node.serialize());
     }
 
@@ -425,6 +437,7 @@ export default class PPGraph {
     }
 
     const data = {
+      customNodeTypes: this.customNodeTypes,
       nodes: nodesSerialized,
       links: linksSerialized,
       version: PP_VERSION,
@@ -444,13 +457,22 @@ export default class PPGraph {
 
     let error = false;
 
+    // register custom node types only
+    // standard nodes types are already registered on load
+    console.log('standard node types: ', this._registeredNodeTypes);
+    Object.values(data.customNodeTypes).forEach((value) => {
+      this.registerCustomNodeType(value);
+    });
+
+    // store customNodeTypes
+    this.customNodeTypes = data.customNodeTypes;
+
     //create nodes
     const nodes = data.nodes;
-    this._nodes = [];
     if (nodes) {
       for (let i = 0, l = nodes.length; i < l; ++i) {
         const n_info = nodes[i]; //stored info
-        const node = this.createAndAddNode(n_info.type);
+        const node = this.createAndAddNode(n_info.type, n_info.id);
         if (!node) {
           error = true;
           console.log('Node not found or has errors: ' + n_info.type);
@@ -487,10 +509,10 @@ export default class PPGraph {
   }
 
   getOutputRef(
-    sourceNodeId: number,
+    sourceNodeId: string,
     sourceSocketIndex: number
   ): OutputSocket | undefined {
-    const sourceNode = this._nodes[sourceNodeId];
+    const sourceNode = this.getNodeById(sourceNodeId);
     if (sourceNode !== undefined) {
       const sourceSocket = sourceNode.outputSocketArray[sourceSocketIndex];
       return sourceSocket;
@@ -498,10 +520,10 @@ export default class PPGraph {
   }
 
   getInputRef(
-    targetNodeId: number,
+    targetNodeId: string,
     targetSocketIndex: number
   ): InputSocket | undefined {
-    const targetNode = this._nodes[targetNodeId];
+    const targetNode = this.getNodeById(targetNodeId);
     if (targetNode !== undefined) {
       const targetSocket = targetNode.inputSocketArray[targetSocketIndex];
       return targetSocket;
@@ -509,7 +531,7 @@ export default class PPGraph {
   }
 
   runStep(): void {
-    const nodes = this._nodes;
+    const nodes = this.nodes;
     if (!nodes) {
       return;
     }
@@ -532,81 +554,54 @@ export default class PPGraph {
   }
 
   createOrUpdateNodeFromCode(code: string): void {
-    const {
-      functionName,
-      isNodeTypeRegistered,
-    } = this.convertFunctionStringToNode(code);
+    const functionName = this.registerCustomNodeType(code);
+    const isNodeTypeRegistered = this.checkIfFunctionIsRegistered(functionName);
     console.log('isNodeTypeRegistered: ', isNodeTypeRegistered);
 
     let newNode: PPNode;
+    const nodesWithTheSameType = this.nodes.filter(
+      (node) => node.type === functionName
+    );
+    if (nodesWithTheSameType.length > 0) {
+      nodesWithTheSameType.forEach((node) => {
+        console.log('I am of the same type', node);
 
-    // if it exists, then replace all instances
-    if (isNodeTypeRegistered) {
-      // get nodes of this type
-      // replace node with new instance
-      // move it to right position
-      // apply links and values if possible
+        newNode = this.createAndAddNode(functionName);
+        newNode.configure(node.serialize());
+        this.reconnectLinksToNewNode(node, newNode);
 
-      const nodes = this._nodes;
-      console.log(typeof nodes, nodes);
-      const nodesOnCanvas = Object.entries(nodes);
-      if (nodesOnCanvas.length > 0) {
-        nodesOnCanvas.forEach(([id, oldNode]) => {
-          if (oldNode.type === functionName) {
-            console.log('I am of the same type', oldNode);
-
-            newNode = this.createNode(functionName);
-            this.addNode(newNode);
-            newNode.configure(oldNode.serialize());
-            this.reconnectLinksToNewNode(oldNode, newNode);
-
-            // remove previous node
-            this.removeNode(oldNode);
-          } else {
-            // node does not yet exist on graph
-            this.addNode(newNode);
-          }
-        });
-      } else {
-        // canvas is empty and node does not yet exist on graph
-        newNode = this.createNode(functionName);
-        this.addNode(newNode);
-      }
+        // remove previous node
+        this.removeNode(node);
+      });
     } else {
-      // if it is new, then just create it
+      // canvas is empty and node does not yet exist on graph
       newNode = this.createAndAddNode(functionName);
     }
 
-    // store code string on node
-    console.log(newNode);
-    newNode.codeString = code;
-    console.log(newNode);
+    // store function code string on graph
+    this.customNodeTypes[functionName] = code;
   }
 
-  convertFunctionStringToNode(
-    code: string
-  ): { functionName: string; isNodeTypeRegistered: boolean } {
+  convertStringToFunction(code: string): (...args: any[]) => any {
     // remove comments and possible empty line from start
     const cleanCode = strip(code).replace(/^\n/, '');
     console.log(cleanCode);
-    const func = new Function('return ' + cleanCode)();
-    console.log(func);
-
-    // check if class already exists
-    let isNodeTypeRegistered = true;
-    if (this._registeredNodeTypes[func.name] === undefined) {
-      isNodeTypeRegistered = false;
-    }
-    const functionName = this.wrapFunctionAsNode(func);
-    return { functionName, isNodeTypeRegistered };
+    return new Function('return ' + cleanCode)();
   }
 
-  wrapFunctionAsNode(
+  checkIfFunctionIsRegistered(functionName: string): boolean {
+    if (this._registeredNodeTypes[functionName] === undefined) {
+      return false;
+    }
+    return true;
+  }
+
+  convertFunctionToNodeConstructor(
     // type: string, // node name with namespace (e.g.: 'math/sum')
     func: (...args: any[]) => any,
     param_types?: string[],
     return_type?: string
-  ): string {
+  ): PPNodeConstructor {
     const functionName = func.name;
     const params = Array(func.length);
     let code = '';
@@ -627,8 +622,8 @@ export default class PPGraph {
     const classobj = new Function(
       'PPNode',
       `return class ${functionName} extends PPNode {
-    constructor(type, graph) {
-      super(type, graph);
+    constructor(type, graph, customId) {
+      super(type, graph, customId);
       ${code}
     }
         }
@@ -643,9 +638,7 @@ export default class PPGraph {
       const r = func.apply(this, params);
       this.setOutputData(0, r);
     };
-
-    this.registerNodeType(functionName, classobj);
-    return functionName;
+    return classobj;
   }
 
   //used to create nodes from wrapping functions
@@ -692,20 +685,17 @@ export default class PPGraph {
       this.checkIfSocketHasConnectionAndDeleteIt(outputSocket, false);
     }
 
-    // add the node to the canvas
+    // remove node
     this.nodeContainer.removeChild(node);
-
-    // remove node from graph
-    delete this._nodes[node.id];
   }
 
   deleteSelectedNodes(): void {
-    console.log(this.selected_nodes);
-    console.log(this._nodes);
+    console.log(this.selectedNodes);
+    console.log(this.nodes);
 
     // loop through selected nodes
-    this.selected_nodes.forEach((nodeId) => {
-      const node = this._nodes[nodeId];
+    this.selectedNodes.forEach((nodeId) => {
+      const node = this.getNodeById(nodeId);
 
       // deselect node
       node.select(false);

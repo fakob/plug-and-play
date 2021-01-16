@@ -26,6 +26,7 @@
     "dat.gui": "^0.7.7",
     "dexie": "^3.0.3",
     "file-loader": "^6.2.0",
+    "human-readable-ids": "^1.0.4",
     "pixi-viewport": "^4.14.0",
     "pixi.js": "^5.3.3",
     "react": "^17.0.1",

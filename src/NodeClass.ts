@@ -1,4 +1,6 @@
 import * as PIXI from 'pixi.js';
+import { hri } from 'human-readable-ids';
+
 import { SerializedNode } from './interfaces';
 import {
   COMMENT_TEXTSTYLE,
@@ -31,7 +33,7 @@ export default class PPNode extends PIXI.Container {
   clickedOutputRef: null | OutputSocket;
 
   graph: PPGraph;
-  id: number | null;
+  id: string;
   // name: string; // Display name - at first it is the type with spaces - defined on PIXI.Container
   type: string; // Type
   category: string; // Category - derived from type
@@ -47,10 +49,10 @@ export default class PPNode extends PIXI.Container {
   clickPosition: PIXI.Point | null;
   interactionData: PIXI.InteractionData | null;
 
-  constructor(type: string, graph: PPGraph) {
+  constructor(type: string, graph: PPGraph, customId: string) {
     super();
     this.graph = graph;
-    this.id = null;
+    this.id = customId === '' ? hri.random() : customId;
     this.name = type;
     this.type = type;
     this.description = '';
@@ -161,7 +163,6 @@ export default class PPNode extends PIXI.Container {
       type: this.type,
       x: this.x,
       y: this.y,
-      codeString: this.codeString,
     };
 
     if (this.inputSocketArray.length > 0) {
@@ -184,7 +185,6 @@ export default class PPNode extends PIXI.Container {
   configure(node_info: SerializedNode): void {
     this.x = node_info.x;
     this.y = node_info.y;
-    this.codeString = node_info.codeString;
 
     // set parameters on inputSocket
     if (this.inputSocketArray.length > 0) {
