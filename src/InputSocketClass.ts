@@ -154,6 +154,6 @@ export default class InputSocket extends PIXI.Container {
     console.log('_onInputClick');
     const input = event.target.parent as InputSocket;
     // check if this input already has a connection and delete it
-    input.getGraph().checkIfInputHasConnectionAndDeleteIt(input);
+    input.getGraph().checkIfSocketHasConnectionAndDeleteIt(input, true);
   }
 }

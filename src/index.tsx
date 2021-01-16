@@ -90,10 +90,9 @@ window.onload = async (): Promise<void> => {
   loadCurrentGraph();
 };
 
-function createNodeFromCode(code) {
-  const nodeName = currentGraph.wrapFunctionStringAsNode(code);
+function createOrUpdateNodeFromCode(code) {
+  currentGraph.createOrUpdateNodeFromCode(code);
   editorData = code;
-  currentGraph.createAndAdd(nodeName);
 }
 
 function serializeGraph() {
@@ -125,7 +124,7 @@ function loadCurrentGraph() {
 
       // register node types from editorData
       const editorData = lastGraph[0].editorData;
-      createNodeFromCode(editorData);
+      createOrUpdateNodeFromCode(editorData);
       console.log(allRegisteredNodeTypeNames);
 
       // configure graph
@@ -153,7 +152,7 @@ function setupReactContainer(): void {
   ReactDOM.render(
     <ReactContainer
       value={defaultCode}
-      onSave={createNodeFromCode}
+      onSave={createOrUpdateNodeFromCode}
       visible={data.showHideEditor}
     />,
     reactRoot
@@ -215,7 +214,7 @@ function setupGrid(): void {
     ReactDOM.render(
       <ReactContainer
         value={defaultCode}
-        onSave={createNodeFromCode}
+        onSave={createOrUpdateNodeFromCode}
         visible={visible}
       />,
       reactRoot

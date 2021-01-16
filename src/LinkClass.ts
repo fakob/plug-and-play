@@ -67,6 +67,16 @@ export default class PPLink extends PIXI.Container {
     return this.target;
   }
 
+  updateSource(newSource: OutputSocket): void {
+    this.source = newSource;
+    this.updateConnection();
+  }
+
+  updateTarget(newTarget: InputSocket): void {
+    this.target = newTarget;
+    this.updateConnection();
+  }
+
   _drawConnection(
     viewport: Viewport,
     connection: PIXI.Graphics,

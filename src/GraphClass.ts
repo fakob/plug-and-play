@@ -191,16 +191,9 @@ export default class PPGraph {
   registerNodeType(type: string, baseClass: PPNodeConstructor): void {
     baseClass.type = type;
     console.log('Node registered: ' + type);
-
-    // const classname = baseClass.name;
-
-    // const pos = type.lastIndexOf('/');
-    // baseClass.category = type.substr(0, pos);
-
-    // if (!baseClass.title) {
-    //   baseClass.title = classname;
-    // }
     console.log(this._registeredNodeTypes);
+
+    // create/update node type
     this._registeredNodeTypes[type] = baseClass;
   }
 
@@ -220,7 +213,7 @@ export default class PPGraph {
     return node;
   }
 
-  add<T extends PPNode = PPNode>(node: T): T {
+  addNode<T extends PPNode = PPNode>(node: T, customId?: number): T {
     // if (!node) {
     //   return;
     // }
@@ -232,7 +225,7 @@ export default class PPGraph {
       .on('pointerover', this._onNodePointerOver.bind(this));
 
     // give the node an id
-    node.id = ++this.lastNodeId;
+    node.id = customId || ++this.lastNodeId;
 
     // change add id to title
     const newName = `${node.nodeName} : ${node.id}`;
@@ -251,7 +244,7 @@ export default class PPGraph {
   createAndAdd<T extends PPNode = PPNode>(type: string): T {
     const node = this.createNode(type) as T;
     // if (node) {
-    this.add(node);
+    this.addNode(node);
     return node;
     // }
   }
@@ -262,7 +255,7 @@ export default class PPGraph {
     viewport: Viewport
   ): PPLink {
     // check if this input already has a connection
-    this.checkIfInputHasConnectionAndDeleteIt(input);
+    this.checkIfSocketHasConnectionAndDeleteIt(input, true);
 
     let link = null;
 
@@ -295,29 +288,37 @@ export default class PPGraph {
     return link;
   }
 
-  checkIfInputHasConnectionAndDeleteIt(input: InputSocket): boolean {
-    // check if this input already has a connection
+  checkOldSocketAndUpdateIt<T extends InputSocket | OutputSocket>(
+    oldSocket: T,
+    newSocket: T,
+    isInput: boolean
+  ): boolean {
+    // check if this socket already has a connection
     Object.entries(this._links).forEach(([key, link]) => {
-      if (link.target === input) {
-        console.log('deleting link:', link.target);
+      if (isInput ? link.target === oldSocket : link.source === oldSocket) {
+        console.log('updating link:', isInput ? link.target : link.source);
 
-        // remove link from source and target socket
-        link.getTarget().removeLink();
-        link.getSource().removeLink(link);
-
-        // remove link from graph
-        this.connectionContainer.removeChild(this._links[key]);
-        return delete this._links[key];
+        if (isInput) {
+          link.updateTarget(newSocket as InputSocket);
+          (newSocket as InputSocket).link = link;
+        } else {
+          link.updateSource(newSocket as OutputSocket);
+          (newSocket as OutputSocket).links.push(link);
+        }
+        return true;
       }
     });
     return false;
   }
 
-  checkIfOutputHasConnectionAndDeleteIt(output: OutputSocket): boolean {
-    // check if this input already has a connection
+  checkIfSocketHasConnectionAndDeleteIt(
+    socket: InputSocket | OutputSocket,
+    isInput: boolean
+  ): boolean {
+    // check if this socket already has a connection
     Object.entries(this._links).forEach(([key, link]) => {
-      if (link.source === output) {
-        console.log('deleting link:', link.source);
+      if (isInput ? link.target === socket : link.source === socket) {
+        console.log('deleting link:', isInput ? link.target : link.source);
 
         // remove link from source and target socket
         link.getTarget().removeLink();
@@ -481,24 +482,6 @@ export default class PPGraph {
         }
       }
     }
-
-    // //decode links info (they are very verbose)
-    // if (data.links && data.links.constructor === Array) {
-    //   var links = [];
-    //   for (var i = 0; i < data.links.length; ++i) {
-    //     var link_data = data.links[i];
-    //     if (!link_data) {
-    //       //weird bug
-    //       console.warn('serialized graph link data contains errors, skipping.');
-    //       continue;
-    //     }
-    //     var link = new LLink();
-    //     link.configure(link_data);
-    //     links[link.id] = link;
-    //   }
-    //   data.links = links;
-    // }
-
     return error;
   }
 
@@ -543,14 +526,66 @@ export default class PPGraph {
     });
   }
 
+  createOrUpdateNodeFromCode(code: string): void {
+    const {
+      functionName,
+      doesNodeTypeExist,
+    } = this.convertFunctionStringToNode(code);
+    console.log('doesNodeTypeExist: ', doesNodeTypeExist);
+
+    // if it exists, then replace all instances
+    if (doesNodeTypeExist) {
+      // get nodes of this type
+      // replace node with new instance
+      // move it to right position
+      // apply links and values if possible
+
+      const nodes = this._nodes;
+      console.log(nodes);
+      Object.entries(nodes).forEach(([id, oldNode]) => {
+        if (oldNode.type === functionName) {
+          console.log('I am of the same type', oldNode);
+
+          const newNode = this.createNode(functionName);
+          this.addNode(newNode);
+          newNode.configure(oldNode.serialize());
+          this.reconnectLinksToNewNode(oldNode, newNode);
+
+          // remove previous node
+          this.removeNode(oldNode);
+        }
+      });
+    } else {
+      // if it is new, then just create it
+      this.createAndAdd(functionName);
+    }
+  }
+
+  convertFunctionStringToNode(
+    code: string
+  ): { functionName: string; doesNodeTypeExist: boolean } {
+    // remove comments and possible empty line from start
+    const cleanCode = strip(code).replace(/^\n/, '');
+    console.log(cleanCode);
+    const func = new Function('return ' + cleanCode)();
+    console.log(func);
+
+    // check if class already exists
+    let doesNodeTypeExist = true;
+    if (this._registeredNodeTypes[func.name] === undefined) {
+      doesNodeTypeExist = false;
+    }
+    const functionName = this.wrapFunctionAsNode(func);
+    return { functionName, doesNodeTypeExist };
+  }
+
   wrapFunctionAsNode(
     // type: string, // node name with namespace (e.g.: 'math/sum')
     func: (...args: any[]) => any,
     param_types?: string[],
-    return_type?: string,
-    customName?: string
-  ): void {
-    const functionName = customName || func.name;
+    return_type?: string
+  ): string {
+    const functionName = func.name;
     const params = Array(func.length);
     let code = '';
 
@@ -588,6 +623,7 @@ export default class PPGraph {
     };
 
     this.registerNodeType(functionName, classobj);
+    return functionName;
   }
 
   //used to create nodes from wrapping functions
@@ -605,31 +641,33 @@ export default class PPGraph {
     return parameterArray;
   }
 
-  wrapFunctionStringAsNode(code: string): string {
-    // remove comments and possible empty line from start
-    const cleanCode = strip(code).replace(/^\n/, '');
-    console.log(cleanCode);
-    const func = new Function('return ' + cleanCode)();
-    console.log(func);
-    this.wrapFunctionAsNode(
-      func
-      // [INPUTTYPE.NUMBER]
-      // OUTPUTTYPE.NUMBER
-    );
-    return func.name;
+  reconnectLinksToNewNode(oldNode: PPNode, newNode: PPNode): void {
+    //disconnect inputs
+    for (let i = 0; i < oldNode.inputSocketArray.length; i++) {
+      const oldInputSocket = oldNode.inputSocketArray[i];
+      const newInputSocket = newNode.inputSocketArray[i];
+      this.checkOldSocketAndUpdateIt(oldInputSocket, newInputSocket, true);
+    }
+
+    //disconnect outputs
+    for (let i = 0; i < oldNode.outputSocketArray.length; i++) {
+      const oldOutputSocket = oldNode.outputSocketArray[i];
+      const newOutputSocket = newNode.outputSocketArray[i];
+      this.checkOldSocketAndUpdateIt(oldOutputSocket, newOutputSocket, false);
+    }
   }
 
   removeNode(node: PPNode): void {
     //disconnect inputs
     for (let i = 0; i < node.inputSocketArray.length; i++) {
       const inputSocket = node.inputSocketArray[i];
-      this.checkIfInputHasConnectionAndDeleteIt(inputSocket);
+      this.checkIfSocketHasConnectionAndDeleteIt(inputSocket, true);
     }
 
     //disconnect outputs
     for (let i = 0; i < node.outputSocketArray.length; i++) {
       const outputSocket = node.outputSocketArray[i];
-      this.checkIfOutputHasConnectionAndDeleteIt(outputSocket);
+      this.checkIfSocketHasConnectionAndDeleteIt(outputSocket, false);
     }
 
     // add the node to the canvas
