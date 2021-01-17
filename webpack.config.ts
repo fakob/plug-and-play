@@ -11,6 +11,7 @@ import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import CopyPlugin from 'copy-webpack-plugin';
 
 const webpack = require('webpack');
+const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 
 module.exports = (env: { mode: 'development' | 'production' }) => {
   const developmentMode = env.mode === 'development';
@@ -37,16 +38,11 @@ module.exports = (env: { mode: 'development' | 'production' }) => {
             'css-loader',
           ],
         },
-        // {
-        //   test: /\.ttf$/,
-        //   use: ['file-loader'],
-        // },
+        {
+          test: /\.ttf$/,
+          use: ['file-loader'],
+        },
       ],
-    },
-    optimization: {
-      splitChunks: {
-        chunks: 'all',
-      },
     },
 
     plugins: [
@@ -68,6 +64,10 @@ module.exports = (env: { mode: 'development' | 'production' }) => {
             },
           },
         ],
+      }),
+      new MonacoWebpackPlugin({
+        // available options are documented at https://github.com/Microsoft/monaco-editor-webpack-plugin#options
+        languages: ['javascript'],
       }),
     ],
   };

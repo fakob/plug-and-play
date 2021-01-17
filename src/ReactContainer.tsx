@@ -1,12 +1,5 @@
-import React, { useState } from 'react';
-import { Controlled as CodeMirror } from 'react-codemirror2';
-
-require('codemirror/lib/codemirror.css');
-require('codemirror/theme/material.css');
-require('codemirror/theme/neat.css');
-require('codemirror/mode/xml/xml.js');
-require('codemirror/mode/javascript/javascript.js');
-require('./style.css');
+import React, { useRef, useState } from 'react';
+import MonacoEditor from 'react-monaco-editor';
 
 type MyProps = {
   value?: string;
@@ -15,38 +8,52 @@ type MyProps = {
 };
 
 const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
+  const editorRef = useRef<any>();
   const [code, setCode] = useState(props.value);
+
+  const saveCode = () => {
+    console.log('Create/Update node command from Editor');
+    const model = editorRef.current.getModel();
+    const value = model.getValue();
+    props.onSave(value);
+  };
+
+  const editorDidMount = (editor, monaco) => {
+    editorRef.current = editor;
+
+    editor.addAction({
+      id: 'my-unique-id',
+      label: 'Create/Update node',
+      keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter],
+      contextMenuGroupId: 'Test',
+      contextMenuOrder: 1,
+      run: function (ed) {
+        saveCode();
+      },
+    });
+
+    console.log('editorDidMount', editor);
+    editor.focus();
+  };
 
   return (
     props.visible && (
-      <CodeMirror
+      <MonacoEditor
+        // width="800"
+        // height="600"
+        language="javascript"
+        theme="vs-dark"
         value={code}
         options={{
-          lineNumbers: true,
-          lineWrapping: true,
-          theme: 'material',
-          mode: 'javascript',
-          autofocus: true,
-          matchBrackets: true,
-          autoCloseBrackets: true,
-          indentUnit: 2,
-          tabSize: 2,
-          extraKeys: {
-            'Ctrl-Enter': (cm) => {
-              props.onSave(code);
-              console.log(cm);
-            },
-          },
+          selectOnLineNumbers: true,
+          scrollBeyondLastLine: false,
+          wordWrap: 'on',
         }}
-        onBeforeChange={(editor, data, value) => {
-          setCode(value);
+        onChange={(newValue, e) => {
+          console.log('controlled', newValue, e, code);
+          setCode(newValue);
         }}
-        onChange={(editor, value) => {
-          console.log('controlled', value);
-        }}
-        editorDidMount={(editor) => {
-          editor.setSize('', '600px');
-        }}
+        editorDidMount={editorDidMount}
       />
     )
   );
