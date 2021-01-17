@@ -254,6 +254,10 @@ export default class PPGraph {
     // add the node to the canvas
     this.nodeContainer.addChild(node);
 
+    // move to center of canvas
+    node.x = this.viewport.center.x;
+    node.y = this.viewport.center.y;
+
     return node; //to chain actions
   }
 
