@@ -151,6 +151,32 @@ function setupReactContainer(): void {
     />,
     reactRoot
   );
+
+  // callbacks
+  currentGraph.onSelectionChange = (selectedNodes: string[]) => {
+    console.log(selectedNodes);
+    selectedNodes.forEach((nodeId) => {
+      const selectedNode = currentGraph.nodes.find(
+        (node) => node.id === nodeId
+      );
+      console.log(selectedNode);
+      const selectedNodeType = selectedNode.type;
+      const codeString = currentGraph.customNodeTypes[selectedNodeType];
+      if (codeString) {
+        console.log(codeString);
+        const reactRoot = document.querySelector('#container');
+        ReactDOM.render(
+          <ReactContainer
+            value={codeString}
+            onSave={createOrUpdateNodeFromCode}
+            visible={data.showHideEditor}
+          />,
+          reactRoot
+        );
+        editorData = codeString;
+      }
+    });
+  };
 }
 
 function resizeCanvas(): void {

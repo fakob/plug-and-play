@@ -36,6 +36,8 @@ export default class PPGraph {
   connectionContainer: PIXI.Container;
   nodeContainer: PIXI.Container;
 
+  onSelectionChange: ((selectedNodes: string[]) => void) | null;
+
   constructor(app: PIXI.Application, viewport: Viewport) {
     this.app = app;
     this.viewport = viewport;
@@ -72,6 +74,9 @@ export default class PPGraph {
     this.clear();
     this.customNodeTypes = {};
     this._registeredNodeTypes = {};
+
+    // define callbacks
+    this.onSelectionChange = null; //called if the selection changes
   }
 
   // SETUP
@@ -406,6 +411,10 @@ export default class PPGraph {
             break;
         }
       });
+
+      if (this.onSelectionChange) {
+        this.onSelectionChange(this.selectedNodes);
+      }
     }
   }
 

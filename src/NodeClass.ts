@@ -38,7 +38,6 @@ export default class PPNode extends PIXI.Container {
   type: string; // Type
   category: string; // Category - derived from type
   description: string;
-  _codeString?: string; // code string from code editor
 
   inputSocketArray: InputSocket[];
   outputSocketArray: OutputSocket[];
@@ -104,14 +103,6 @@ export default class PPNode extends PIXI.Container {
   set nodeName(text: string) {
     this.name = text;
     this._NodeNameRef.text = text;
-  }
-
-  get codeString(): string {
-    return this._codeString;
-  }
-
-  set codeString(text: string) {
-    this._codeString = text;
   }
 
   // METHODS

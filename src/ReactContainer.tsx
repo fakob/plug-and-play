@@ -9,7 +9,7 @@ type MyProps = {
 
 const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
   const editorRef = useRef<any>();
-  const [code, setCode] = useState(props.value);
+  console.log(props.value);
 
   const saveCode = () => {
     console.log('Create/Update node command from Editor');
@@ -43,15 +43,14 @@ const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
         // height="600"
         language="javascript"
         theme="vs-dark"
-        value={code}
+        value={props.value}
         options={{
           selectOnLineNumbers: true,
           scrollBeyondLastLine: false,
           wordWrap: 'on',
         }}
         onChange={(newValue, e) => {
-          console.log('controlled', newValue, e, code);
-          setCode(newValue);
+          console.log('controlled', newValue, e);
         }}
         editorDidMount={editorDidMount}
       />
