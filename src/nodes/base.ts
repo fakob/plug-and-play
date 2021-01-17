@@ -2,6 +2,7 @@ import axios from 'axios';
 import PPGraph from '../GraphClass';
 import PPNode from '../NodeClass';
 import { rgbToHex } from '../utils-pixi';
+import { convertToArray, getElement } from '../utils';
 import { INPUTTYPE, OUTPUTTYPE } from '../constants';
 
 export class RangeArray extends PPNode {
@@ -156,19 +157,18 @@ export class DrawRect extends PPNode {
       const height = this.getInputData(3) || 100;
       const color = (this.getInputData(4) as number[]) || [255, 0, 0, 0.5];
       this._rectRef.clear();
-      let xArray: number[] = [];
-      if (Array.isArray(x)) {
-        xArray = x;
-      } else {
-        xArray.push(x);
-      }
+
+      const xArray = convertToArray(x);
       this._rectRef.beginFill(PIXI.utils.string2hex(rgbToHex(color)), color[3]);
-      xArray.forEach((xValue: number) => {
+      xArray.forEach((xValue: number, index: number) => {
+        const yValue = getElement(y, index);
+        const widthValue = getElement(width, index);
+        const heightValue = getElement(height, index);
         this._rectRef.drawRect(
           this.x + this.width + xValue,
-          this.y + y,
-          width,
-          height
+          this.y + yValue - heightValue + this.height,
+          widthValue,
+          heightValue
         );
         this._rectRef.moveTo(xValue + 2);
       });
