@@ -430,6 +430,10 @@ export default class PPGraph {
       }
     });
     this.selectedNodes = [];
+
+    if (this.onSelectionChange) {
+      this.onSelectionChange(this.selectedNodes);
+    }
   }
 
   serialize(): SerializedGraph {

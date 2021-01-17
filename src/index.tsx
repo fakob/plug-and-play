@@ -155,27 +155,27 @@ function setupReactContainer(): void {
   // callbacks
   currentGraph.onSelectionChange = (selectedNodes: string[]) => {
     console.log(selectedNodes);
+    let codeString = '';
     selectedNodes.forEach((nodeId) => {
       const selectedNode = currentGraph.nodes.find(
         (node) => node.id === nodeId
       );
       console.log(selectedNode);
       const selectedNodeType = selectedNode.type;
-      const codeString = currentGraph.customNodeTypes[selectedNodeType];
-      if (codeString) {
-        console.log(codeString);
-        const reactRoot = document.querySelector('#container');
-        ReactDOM.render(
-          <ReactContainer
-            value={codeString}
-            onSave={createOrUpdateNodeFromCode}
-            visible={data.showHideEditor}
-          />,
-          reactRoot
-        );
-        editorData = codeString;
-      }
+      codeString = currentGraph.customNodeTypes[selectedNodeType];
+      // if (codeString) {
+      console.log(codeString);
+      editorData = codeString;
+      // }
     });
+    ReactDOM.render(
+      <ReactContainer
+        value={codeString}
+        onSave={createOrUpdateNodeFromCode}
+        visible={data.showHideEditor}
+      />,
+      reactRoot
+    );
   };
 }
 
@@ -230,7 +230,6 @@ function setupGrid(): void {
   );
 
   gui.add(data, 'showHideEditor').onChange((visible) => {
-    const reactRoot = document.querySelector('#container');
     ReactDOM.render(
       <ReactContainer
         value={editorData || defaultEditorData}
