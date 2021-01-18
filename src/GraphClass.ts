@@ -440,6 +440,21 @@ export default class PPGraph {
     }
   }
 
+  duplicateSelection(): string[] {
+    const arrayOfNewIds: string[] = [];
+    this.selectedNodes.forEach((id) => {
+      const node = this.getNodeById(id);
+      console.log(node);
+      const nodeType = node.type;
+      const newNode = this.createAndAddNode(nodeType);
+      newNode.configure(node.serialize());
+
+      arrayOfNewIds.push(newNode.id);
+    });
+    console.log(arrayOfNewIds);
+    return arrayOfNewIds;
+  }
+
   serialize(): SerializedGraph {
     // get serialized nodes
     const nodesSerialized = [];
@@ -488,14 +503,17 @@ export default class PPGraph {
     const nodes = data.nodes;
     if (nodes) {
       for (let i = 0, l = nodes.length; i < l; ++i) {
-        const n_info = nodes[i]; //stored info
-        const node = this.createAndAddNode(n_info.type, n_info.id);
+        const serializedNode = nodes[i]; //stored info
+        const node = this.createAndAddNode(
+          serializedNode.type,
+          serializedNode.id
+        );
         if (!node) {
           error = true;
-          console.log('Node not found or has errors: ' + n_info.type);
+          console.log('Node not found or has errors: ' + serializedNode.type);
         }
-        console.log(n_info);
-        node.configure(n_info);
+        console.log(serializedNode);
+        node.configure(serializedNode);
       }
     }
 
