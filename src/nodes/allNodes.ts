@@ -3,12 +3,13 @@ import { INPUTTYPE } from '../constants';
 import PPGraph from '../GraphClass';
 import PPNode from '../NodeClass';
 import * as base from './base';
+import * as draw from './draw';
 import * as math from './math';
 
 console.log(math);
 
 export const registerAllNodeTypes = (graph: PPGraph): void => {
-  const categories = { base, math };
+  const categories = { base, math, draw };
   for (const [categoryKey, categoryValue] of Object.entries(categories)) {
     console.log(categoryKey, categoryValue);
     for (const key of Object.keys(categoryValue)) {

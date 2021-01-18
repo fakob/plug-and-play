@@ -44,7 +44,6 @@ export type SerializedInputSocket = {
 export type SerializedOutputSocket = {
   name: string;
   type: string;
-  data: number;
 };
 
 export interface GridPosition {

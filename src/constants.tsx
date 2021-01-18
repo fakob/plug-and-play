@@ -30,6 +30,7 @@ export const INPUTTYPE = {
   COLOR: 'color',
   ARRAY: 'array',
   TRIGGER: 'trigger', // node with trigger input needs trigger function which is called by linked output trigger
+  PIXI: 'pixi',
 };
 
 export const OUTPUTSOCKET_TEXTSTYLE = new TextStyle({
@@ -48,6 +49,7 @@ export const OUTPUTTYPE = {
   COLOR: 'color',
   ARRAY: 'array',
   TRIGGER: 'trigger', // trigger output type calls trigger function on linked nodes
+  PIXI: 'pixi',
 };
 
 export const NODE_TEXTSTYLE = new TextStyle({

@@ -1,5 +1,6 @@
 import * as PIXI from 'pixi.js';
 import { hri } from 'human-readable-ids';
+import { inspect } from 'util'; // or directly
 
 import { SerializedNode } from './interfaces';
 import {
@@ -19,6 +20,7 @@ import {
   OUTPUTSOCKET_HEIGHT,
   OUTPUTSOCKET_TEXTMARGIN_TOP,
   OUTPUTSOCKET_WIDTH,
+  OUTPUTTYPE,
 } from './constants';
 import PPGraph from './GraphClass';
 import InputSocket from './InputSocketClass';
@@ -230,20 +232,40 @@ export default class PPNode extends PIXI.Container {
   }
 
   drawComment(): void {
-    const commentData =
-      this.outputSocketArray[0] !== undefined
-        ? this.outputSocketArray[0].data
-        : undefined;
+    const commentData = this.outputSocketArray[0]?.data;
     // console.log(this.outputSocketArray[0], commentData);
     if (commentData !== undefined) {
-      this._NodeCommentRef.text = JSON.stringify(commentData, null, 2);
+      if (this.outputSocketArray[0]?.type === OUTPUTTYPE.PIXI) {
+        const strippedCommentData = {
+          alpha: commentData.alpha,
+          // children: commentData.children,
+          // parent: commentData.parent,
+          // transform: commentData.transform,
+          visible: commentData.visible,
+          height: commentData.height,
+          pivot: commentData.pivot,
+          position: commentData.position,
+          rotation: commentData.rotation,
+          scale: commentData.scale,
+          width: commentData.width,
+          x: commentData.x,
+          y: commentData.y,
+          zIndex: commentData.zIndex,
+          bounds: commentData.getBounds(),
+          localBounds: commentData.getLocalBounds(),
+        };
+        this._NodeCommentRef.text = inspect(strippedCommentData, null, 1);
+      } else {
+        this._NodeCommentRef.text = inspect(commentData, null, 2);
+        // this._NodeCommentRef.text = JSON.stringify(commentData, null, 2);
+      }
     }
   }
 
   getInputData<T = any>(slot: number): T {
     if (!this.inputSocketArray) {
-      return;
-    } //undefined;
+      return undefined;
+    }
 
     // if no link, then return value
     if (
@@ -256,7 +278,7 @@ export default class PPNode extends PIXI.Container {
     const link = this.inputSocketArray[slot].link;
     if (!link) {
       //bug: weird case but it happens sometimes
-      return null;
+      return undefined;
     }
 
     return link.source.data;

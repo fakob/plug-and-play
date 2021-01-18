@@ -99,7 +99,6 @@ export default class OutputSocket extends PIXI.Container {
     return {
       name: this.name,
       type: this.type,
-      data: this.data,
     };
   }
 

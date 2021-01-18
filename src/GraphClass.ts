@@ -642,7 +642,7 @@ export default class PPGraph {
     let code = '';
 
     const names = this.getParameterNames(func);
-    console.log(names);
+    // console.log(names);
     for (let i = 0; i < names.length; ++i) {
       code += `
       this.addInput('${names[i]}', '${
@@ -687,7 +687,7 @@ export default class PPGraph {
       .replace(/=[^,]+/g, '') // strip any ES6 defaults
       .split(',')
       .filter(Boolean); // split & filter [""]
-    console.log(parameterArray);
+    // console.log(parameterArray);
     return parameterArray;
   }
 
