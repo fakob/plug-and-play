@@ -127,13 +127,23 @@ export default class PPGraph {
       const sourcePointY = this.dragSourcePoint.y;
 
       // change mouse coordinates from screen to world space
-      const mousePoint = this.viewport.toWorld(event.data.global);
-      const mousePointX = mousePoint.x;
-      const mousePointY = mousePoint.y;
+      let targetPoint = new PIXI.Point();
+      if (this.overInputRef !== null) {
+        // get target position
+        const targetRect = this.overInputRef.children[0].getBounds();
+        targetPoint = this.viewport.toWorld(
+          new PIXI.Point(
+            targetRect.x + targetRect.width / 2,
+            targetRect.y + targetRect.height / 2
+          )
+        );
+      } else {
+        targetPoint = this.viewport.toWorld(event.data.global);
+      }
 
       // draw curve from 0,0 as PIXI.thisics originates from 0,0
-      const toX = mousePointX - sourcePointX;
-      const toY = mousePointY - sourcePointY;
+      const toX = targetPoint.x - sourcePointX;
+      const toY = targetPoint.y - sourcePointY;
       const cpX = Math.abs(toX) / 2;
       const cpY = 0;
       const cpX2 = toX - cpX;

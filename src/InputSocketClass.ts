@@ -139,18 +139,18 @@ export default class InputSocket extends PIXI.Container {
 
   // SETUP
 
-  _onInputOver(event: PIXI.InteractionEvent): void {
-    const input = event.target.parent as InputSocket;
-    console.log('_onInputOver', input);
-
+  _onInputOver(): void {
     // set overInputRef on graph
-    input.getGraph().overInputRef = event.target.parent as InputSocket;
+    this.getGraph().overInputRef = this;
 
     this.cursor = 'pointer';
     (this._InputSocketRef as PIXI.Graphics).tint = 0x00ff00;
   }
 
   _onInputOut(): void {
+    // reset overInputRef on graph
+    this.getGraph().overInputRef = null;
+
     this.alpha = 1.0;
     this.cursor = 'default';
     (this._InputSocketRef as PIXI.Graphics).tint = 0xffffff;
