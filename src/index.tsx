@@ -223,7 +223,7 @@ function setupGrid(): void {
     background.width = innerWidth / viewport.scale.x;
     background.height = innerHeight / viewport.scale.y;
   });
-  background.alpha = 0.1;
+  background.alpha = 0.05;
 
   // add graph
   currentGraph = new PPGraph(app, viewport);

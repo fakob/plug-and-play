@@ -5,7 +5,8 @@ import { inspect } from 'util'; // or directly
 import { SerializedNode } from './interfaces';
 import {
   COMMENT_TEXTSTYLE,
-  NODE_BACKGROUNDCOLOR,
+  NODE_BACKGROUNDCOLOR_HEX,
+  NODE_SELECTIONCOLOR_HEX,
   NODE_CORNERRADIUS,
   NODE_MARGIN_TOP,
   NODE_MARGIN_BOTTOM,
@@ -18,16 +19,12 @@ import {
   INPUTSOCKET_HEIGHT,
   INPUTSOCKET_WIDTH,
   OUTPUTSOCKET_HEIGHT,
-  OUTPUTSOCKET_TEXTMARGIN_TOP,
-  OUTPUTSOCKET_WIDTH,
   OUTPUTTYPE,
 } from './constants';
 import PPGraph from './GraphClass';
 import InputSocket from './InputSocketClass';
 import OutputSocket from './OutputSocketClass';
 import { getNodeCommentPosX, getNodeCommentPosY } from './utils';
-
-const nodeBackgroundColorHex = PIXI.utils.string2hex(NODE_BACKGROUNDCOLOR);
 
 export default class PPNode extends PIXI.Container {
   _NodeNameRef: PIXI.Text;
@@ -197,7 +194,7 @@ export default class PPNode extends PIXI.Container {
   updateShape(selected: boolean): void {
     // redraw background due to size change
     this._BackgroundRef.clear();
-    this._BackgroundRef.beginFill(nodeBackgroundColorHex);
+    this._BackgroundRef.beginFill(NODE_BACKGROUNDCOLOR_HEX);
     this._BackgroundRef.drawRoundedRect(
       NODE_OUTLINE_DISTANCE + INPUTSOCKET_WIDTH / 2,
       NODE_OUTLINE_DISTANCE + 0,
@@ -211,7 +208,7 @@ export default class PPNode extends PIXI.Container {
     );
     this._BackgroundRef.endFill();
     if (selected) {
-      this._BackgroundRef.lineStyle(1, 0xff00ff, 1, 0);
+      this._BackgroundRef.lineStyle(2, NODE_SELECTIONCOLOR_HEX, 1, 0);
       this._BackgroundRef.drawRoundedRect(
         INPUTSOCKET_WIDTH / 2,
         0,

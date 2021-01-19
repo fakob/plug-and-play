@@ -4,7 +4,8 @@ import PPGraph from './GraphClass';
 import PPNode from './NodeClass';
 import PPLink from './LinkClass';
 import {
-  COLOR_MAIN_HEX,
+  SOCKET_COLOR_HEX,
+  SOCKET_COLOR_TINT_HEX,
   NODE_OUTLINE_DISTANCE,
   NODE_WIDTH,
   OUTPUTSOCKET_TEXTSTYLE,
@@ -35,7 +36,7 @@ export default class OutputSocket extends PIXI.Container {
     this.links = [];
 
     const socket = new PIXI.Graphics();
-    socket.beginFill(COLOR_MAIN_HEX);
+    socket.beginFill(SOCKET_COLOR_HEX);
     socket.drawRoundedRect(
       NODE_OUTLINE_DISTANCE + NODE_WIDTH,
       NODE_OUTLINE_DISTANCE + OUTPUTSOCKET_WIDTH / 2,
@@ -106,7 +107,7 @@ export default class OutputSocket extends PIXI.Container {
 
   _onOutputOver(): void {
     this.cursor = 'pointer';
-    (this._OutputSocketRef as PIXI.Graphics).tint = 0x00ff00;
+    (this._OutputSocketRef as PIXI.Graphics).tint = SOCKET_COLOR_TINT_HEX;
   }
 
   _onOutputOut(): void {

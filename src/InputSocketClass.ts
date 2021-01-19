@@ -4,7 +4,8 @@ import PPGraph from './GraphClass';
 import PPNode from './NodeClass';
 import PPLink from './LinkClass';
 import {
-  COLOR_MAIN_HEX,
+  SOCKET_COLOR_HEX,
+  SOCKET_COLOR_TINT_HEX,
   NODE_OUTLINE_DISTANCE,
   INPUTSOCKET_TEXTSTYLE,
   INPUTSOCKET_WIDTH,
@@ -65,7 +66,7 @@ export default class InputSocket extends PIXI.Container {
     this.visible = visible;
 
     const socket = new PIXI.Graphics();
-    socket.beginFill(COLOR_MAIN_HEX);
+    socket.beginFill(SOCKET_COLOR_HEX);
     socket.drawRoundedRect(
       NODE_OUTLINE_DISTANCE + 0,
       NODE_OUTLINE_DISTANCE + INPUTSOCKET_WIDTH / 2,
@@ -144,7 +145,7 @@ export default class InputSocket extends PIXI.Container {
     this.getGraph().overInputRef = this;
 
     this.cursor = 'pointer';
-    (this._InputSocketRef as PIXI.Graphics).tint = 0x00ff00;
+    (this._InputSocketRef as PIXI.Graphics).tint = SOCKET_COLOR_TINT_HEX;
   }
 
   _onInputOut(): void {
@@ -156,10 +157,8 @@ export default class InputSocket extends PIXI.Container {
     (this._InputSocketRef as PIXI.Graphics).tint = 0xffffff;
   }
 
-  _onInputClick(event: PIXI.InteractionEvent): void {
-    console.log('_onInputClick');
-    const input = event.target.parent as InputSocket;
+  _onInputClick(): void {
     // check if this input already has a connection and delete it
-    input.getGraph().checkIfSocketHasConnectionAndDeleteIt(input, true);
+    this.getGraph().checkIfSocketHasConnectionAndDeleteIt(this, true);
   }
 }
