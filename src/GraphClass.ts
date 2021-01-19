@@ -458,10 +458,18 @@ export default class PPGraph {
     const arrayOfNewIds: string[] = [];
     this.selectedNodes.forEach((id) => {
       const node = this.getNodeById(id);
-      console.log(node);
       const nodeType = node.type;
+
+      // add node and carry over its configuration
       const newNode = this.createAndAddNode(nodeType);
       newNode.configure(node.serialize());
+
+      // offset duplicated node
+      newNode.x += 32;
+      newNode.y += 32;
+
+      // select newNode
+      this.selectNode(newNode);
 
       arrayOfNewIds.push(newNode.id);
     });
