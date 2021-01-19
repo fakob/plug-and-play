@@ -25,6 +25,7 @@ import {
 import PPGraph from './GraphClass';
 import InputSocket from './InputSocketClass';
 import OutputSocket from './OutputSocketClass';
+import { getNodeCommentPosX, getNodeCommentPosY } from './utils';
 
 const nodeBackgroundColorHex = PIXI.utils.string2hex(NODE_BACKGROUNDCOLOR);
 
@@ -73,7 +74,9 @@ export default class PPNode extends PIXI.Container {
 
     this._BackgroundRef = this.addChild(background);
     this._NodeNameRef = this.addChild(inputNameText);
-    this._NodeCommentRef = this.addChild(nodeComment);
+    this._NodeCommentRef = (this.graph.viewport.getChildByName(
+      'commentContainer'
+    ) as PIXI.Container).addChild(nodeComment);
 
     // draw shape
     this.updateShape(this._selected);
@@ -178,6 +181,8 @@ export default class PPNode extends PIXI.Container {
   configure(node_info: SerializedNode): void {
     this.x = node_info.x;
     this.y = node_info.y;
+    // update position of comment
+    this.updateCommentPosition();
 
     // set parameters on inputSocket
     if (this.inputSocketArray.length > 0) {
@@ -222,19 +227,20 @@ export default class PPNode extends PIXI.Container {
     }
 
     // update position of comment
-    this._NodeCommentRef.x =
-      NODE_OUTLINE_DISTANCE * 2 + NODE_WIDTH + OUTPUTSOCKET_WIDTH;
-    this._NodeCommentRef.y =
-      NODE_MARGIN_TOP +
-      NODE_HEADER_HEIGHT +
-      NODE_OUTLINE_DISTANCE +
-      OUTPUTSOCKET_TEXTMARGIN_TOP;
+    this.updateCommentPosition();
+  }
+
+  updateCommentPosition(): void {
+    // console.log(this.x, this.y);
+    this._NodeCommentRef.x = getNodeCommentPosX(this.x);
+    this._NodeCommentRef.y = getNodeCommentPosY(this.y);
   }
 
   drawComment(): void {
     const commentData = this.outputSocketArray[0]?.data;
     // console.log(this.outputSocketArray[0], commentData);
     if (commentData !== undefined) {
+      // custom output for pixi elements
       if (this.outputSocketArray[0]?.type === OUTPUTTYPE.PIXI) {
         const strippedCommentData = {
           alpha: commentData.alpha,
@@ -257,7 +263,6 @@ export default class PPNode extends PIXI.Container {
         this._NodeCommentRef.text = inspect(strippedCommentData, null, 1);
       } else {
         this._NodeCommentRef.text = inspect(commentData, null, 2);
-        // this._NodeCommentRef.text = JSON.stringify(commentData, null, 2);
       }
     }
   }
@@ -386,6 +391,7 @@ export default class PPNode extends PIXI.Container {
       const newPosition = this.interactionData.getLocalPosition(this.parent);
       this.x = newPosition.x - this.relativeClickPosition.x;
       this.y = newPosition.y - this.relativeClickPosition.y;
+      this.updateCommentPosition();
 
       // check for connections and move them too
       this.outputSocketArray.map((output) => {

@@ -1,3 +1,12 @@
+import {
+  NODE_MARGIN_TOP,
+  NODE_OUTLINE_DISTANCE,
+  NODE_HEADER_HEIGHT,
+  NODE_WIDTH,
+  OUTPUTSOCKET_TEXTMARGIN_TOP,
+  OUTPUTSOCKET_WIDTH,
+} from './constants';
+
 export function isFunction(funcOrClass: any): boolean {
   const propertyNames = Object.getOwnPropertyNames(funcOrClass);
   console.log(propertyNames);
@@ -31,4 +40,18 @@ export function getElement(value: number | number[], index: number): number {
     array.push(value);
   }
   return index < array.length ? array[index] : array[array.length - 1];
+}
+
+export function getNodeCommentPosX(x: number): number {
+  return x + NODE_OUTLINE_DISTANCE * 2 + NODE_WIDTH + OUTPUTSOCKET_WIDTH;
+}
+
+export function getNodeCommentPosY(y: number): number {
+  return (
+    y +
+    NODE_MARGIN_TOP +
+    NODE_HEADER_HEIGHT +
+    NODE_OUTLINE_DISTANCE +
+    OUTPUTSOCKET_TEXTMARGIN_TOP
+  );
 }

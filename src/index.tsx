@@ -18,6 +18,7 @@ import './style.css';
 const gui = new dat.GUI();
 // gui
 const data = {
+  showComments: true,
   run: false,
   runStep: function () {
     currentGraph.runStep();
@@ -247,6 +248,10 @@ function setupGrid(): void {
   gui.add(data, 'loadGraph');
   gui.add(data, 'duplicateSelction');
   gui.add(data, 'runStep');
+  gui.add(data, 'showComments').onChange((value) => {
+    console.log(value);
+    currentGraph.showComments = value;
+  });
   gui.add(data, 'addNode', allRegisteredNodeTypeNames).onChange((selected) => {
     console.log(selected);
     currentGraph.createAndAddNode(selected);

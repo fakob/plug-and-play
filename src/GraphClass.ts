@@ -16,14 +16,13 @@ export default class PPGraph {
   app: PIXI.Application;
   viewport: Viewport;
 
-  lastNodeId: number;
-
   lastLinkId: number;
 
   _links: { [key: number]: PPLink };
   _registeredNodeTypes: Record<string, PPNodeConstructor>;
   customNodeTypes: Record<string, string>;
 
+  _showComments: boolean;
   selectedNodes: string[];
   clickedOutputRef: null | OutputSocket;
   overInputRef: null | InputSocket;
@@ -33,6 +32,7 @@ export default class PPGraph {
   tempContainer: PIXI.Container;
   backgroundCanvas: PIXI.Container;
   foregroundCanvas: PIXI.Container;
+  commentContainer: PIXI.Container;
   connectionContainer: PIXI.Container;
   nodeContainer: PIXI.Container;
 
@@ -43,12 +43,14 @@ export default class PPGraph {
     this.viewport = viewport;
     console.log('Graph created');
 
+    this._showComments = true;
     this.clickedOutputRef = null;
     this.overInputRef = null;
     this.dragSourcePoint = null;
 
     this.tempConnection = new PIXI.Graphics();
     this.tempContainer = new PIXI.Container();
+    this.tempContainer.name = 'tempContainer';
     this.backgroundCanvas = new PIXI.Container();
     this.backgroundCanvas.name = 'backgroundCanvas';
     this.connectionContainer = new PIXI.Container();
@@ -57,13 +59,16 @@ export default class PPGraph {
     this.nodeContainer.name = 'nodeContainer';
     this.foregroundCanvas = new PIXI.Container();
     this.foregroundCanvas.name = 'foregroundCanvas';
+    this.commentContainer = new PIXI.Container();
+    this.commentContainer.name = 'commentContainer';
 
     this.viewport.addChild(
       this.backgroundCanvas,
       this.connectionContainer,
       this.tempContainer,
       this.nodeContainer,
-      this.foregroundCanvas
+      this.foregroundCanvas,
+      this.commentContainer
     );
     this.tempContainer.addChild(this.tempConnection);
     this.tempConnection.name = 'tempConnection';
@@ -197,6 +202,10 @@ export default class PPGraph {
     return this.nodeContainer.children as PPNode[];
   }
 
+  set showComments(value: boolean) {
+    this._showComments = value;
+    this.commentContainer.visible = value;
+  }
   // METHODS
 
   getNodeById(id: string): PPNode {
@@ -229,8 +238,8 @@ export default class PPGraph {
     }
 
     const title = type;
-    console.log(this);
-    console.log(nodeConstructor);
+    // console.log(this);
+    // console.log(nodeConstructor);
     const node = new nodeConstructor(title, this, customId) as T;
     return node;
   }
@@ -257,6 +266,9 @@ export default class PPGraph {
     // move to center of canvas
     node.x = this.viewport.center.x;
     node.y = this.viewport.center.y;
+
+    // set comment position
+    node.updateCommentPosition();
 
     return node; //to chain actions
   }
@@ -357,7 +369,6 @@ export default class PPGraph {
   }
 
   clear(): void {
-    this.lastNodeId = 0;
     this.lastLinkId = 0;
 
     // remove all links
@@ -370,6 +381,9 @@ export default class PPGraph {
     // clearn back and foreground canvas
     this.backgroundCanvas.removeChildren();
     this.foregroundCanvas.removeChildren();
+
+    // clearn comment canvas
+    this.commentContainer.removeChildren();
 
     // remove selected nodes
     this.deselectAllNodes();
@@ -531,7 +545,7 @@ export default class PPGraph {
           l_info.targetNodeId,
           l_info.targetSocketIndex
         );
-        console.log(outputRef, inputRef);
+        // console.log(outputRef, inputRef);
         if (outputRef === undefined || inputRef === undefined) {
           error = true;
           console.log('In or Output socket not found: ' + l_info.type);
@@ -577,8 +591,8 @@ export default class PPGraph {
 
     Object.entries(nodes).forEach(([key, node]) => {
       try {
-        node.onExecute(); //hard to send elapsed time
-        if (true) {
+        node.onExecute();
+        if (this._showComments) {
           node.drawComment();
         }
         node.onAfterExecute();
@@ -620,7 +634,7 @@ export default class PPGraph {
   convertStringToFunction(code: string): (...args: any[]) => any {
     // remove comments and possible empty line from start
     const cleanCode = strip(code).replace(/^\n/, '');
-    console.log(cleanCode);
+    // console.log(cleanCode);
     return new Function('return ' + cleanCode)();
   }
 
@@ -651,8 +665,8 @@ export default class PPGraph {
     }
     code += `
       this.addOutput('out', '${return_type ? return_type : 0}');\n`;
-    console.log(code);
-    console.log(this);
+    // console.log(code);
+    // console.log(this);
     // https://stackoverflow.com/a/46519949
     const classobj = new Function(
       'PPNode',
@@ -664,7 +678,7 @@ export default class PPGraph {
         }
     `
     )(PPNode) as PPNodeConstructor;
-    console.log(classobj);
+    // console.log(classobj);
     (classobj as any).description = 'Generated from ' + func.name;
     (classobj as any).prototype.onExecute = function onExecute() {
       for (let i = 0; i < params.length; ++i) {
