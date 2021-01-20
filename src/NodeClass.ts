@@ -1,4 +1,5 @@
 import * as PIXI from 'pixi.js';
+import { DropShadowFilter } from '@pixi/filter-drop-shadow';
 import { hri } from 'human-readable-ids';
 import { inspect } from 'util'; // or directly
 
@@ -66,6 +67,13 @@ export default class PPNode extends PIXI.Container {
     inputNameText.resolution = 8;
 
     const background = new PIXI.Graphics();
+    background.filters = [
+      new DropShadowFilter({
+        distance: 0,
+        alpha: 0.2,
+        blur: 1,
+      }),
+    ];
     const nodeComment = new PIXI.Text('', COMMENT_TEXTSTYLE);
     nodeComment.resolution = 1;
 

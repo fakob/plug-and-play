@@ -1205,12 +1205,24 @@
     "@pixi/core" "5.3.7"
     "@pixi/math" "5.3.7"
 
+"@pixi/filter-drop-shadow@^3.2.0":
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/@pixi/filter-drop-shadow/-/filter-drop-shadow-3.2.0.tgz#073283fe0455b28f95fd4f54e3d9d56240c3da8f"
+  integrity sha512-yPoLl3fzRsnu5WfOQ+Q8AGhF3f4qFk6MIiXazYNeOoc3x+2Bmck/2DIomGmg/9z+I+/R/JIhMi9S/4p9vVCByQ==
+  dependencies:
+    "@pixi/filter-kawase-blur" "3.2.0"
+
 "@pixi/filter-fxaa@5.3.7":
   version "5.3.7"
   resolved "https://registry.yarnpkg.com/@pixi/filter-fxaa/-/filter-fxaa-5.3.7.tgz#55b778fbc60fd87f16d17d66a36b122e2f5c3b57"
   integrity sha512-NJpVcbOCUVYUDGqxvh7Jp/+arWEnLKgI/7Qf8VEYv0aQslqE8ZtFSAX7JfP+iGfFWXlkMe6AKspesYhUrIpRKg==
   dependencies:
     "@pixi/core" "5.3.7"
+
+"@pixi/filter-kawase-blur@3.2.0":
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/@pixi/filter-kawase-blur/-/filter-kawase-blur-3.2.0.tgz#f3fe6e3c17d191ae353959768c1170e85b2ad1dc"
+  integrity sha512-IO1UKn/XLvnV+ya4r1UOC9fTfXZjWvH9m6eQ/U+moBsQN5I5FihQfXCu586X4jb9VHNu3gFl7SUzirobhBfgtA==
 
 "@pixi/filter-noise@5.3.7":
   version "5.3.7"
