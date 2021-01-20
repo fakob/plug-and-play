@@ -32,6 +32,9 @@ export const CANVAS_BACKGROUNDCOLOR = Color(COLOR[0]).lighten(0.6).hex();
 export const CANVAS_BACKGROUNDCOLOR_HEX = PIXI.utils.string2hex(
   CANVAS_BACKGROUNDCOLOR
 );
+export const CANVAS_BACKGROUND_TEXTURE =
+  '../assets/Pixel_grid_4000x2000.svg.png';
+export const CANVAS_BACKGROUND_ALPHA = 0.02;
 
 // export const COLOR_MAIN = '#2E3A59';
 export const COLOR_MAIN = Color(COLOR[0]).lighten(0.8).hex();

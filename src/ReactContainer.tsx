@@ -4,7 +4,6 @@ import MonacoEditor from 'react-monaco-editor';
 type MyProps = {
   value?: string;
   onSave?: (code: string) => void;
-  visible?: boolean;
 };
 
 const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
@@ -37,24 +36,22 @@ const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
   };
 
   return (
-    props.visible && (
-      <MonacoEditor
-        // width="800"
-        // height="600"
-        language="javascript"
-        theme="vs-dark"
-        value={props.value}
-        options={{
-          selectOnLineNumbers: true,
-          scrollBeyondLastLine: false,
-          wordWrap: 'on',
-        }}
-        onChange={(newValue, e) => {
-          console.log('controlled', newValue, e);
-        }}
-        editorDidMount={editorDidMount}
-      />
-    )
+    <MonacoEditor
+      // width="800"
+      // height="600"
+      language="javascript"
+      theme="vs-dark"
+      value={props.value}
+      options={{
+        selectOnLineNumbers: true,
+        scrollBeyondLastLine: false,
+        wordWrap: 'on',
+      }}
+      onChange={(newValue, e) => {
+        console.log('controlled', newValue, e);
+      }}
+      editorDidMount={editorDidMount}
+    />
   );
 };
 

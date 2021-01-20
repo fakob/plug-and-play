@@ -3,7 +3,11 @@ import { Viewport } from 'pixi-viewport';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import * as dat from 'dat.gui';
-import { CANVAS_BACKGROUNDCOLOR_HEX } from './constants';
+import {
+  CANVAS_BACKGROUNDCOLOR_HEX,
+  CANVAS_BACKGROUND_ALPHA,
+  CANVAS_BACKGROUND_TEXTURE,
+} from './constants';
 import PPGraph from './GraphClass';
 import { registerAllNodeTypes } from './nodes/allNodes';
 import ReactContainer from './ReactContainer';
@@ -33,7 +37,7 @@ const data = {
     currentGraph.duplicateSelection();
   },
   addNode: '',
-  showHideEditor: true,
+  showEditor: true,
 };
 
 const db = new GraphDatabase();
@@ -151,7 +155,6 @@ function setupReactContainer(): void {
     <ReactContainer
       value={editorData || defaultEditorData}
       onSave={createOrUpdateNodeFromCode}
-      visible={data.showHideEditor}
     />,
     reactRoot
   );
@@ -173,11 +176,7 @@ function setupReactContainer(): void {
       // }
     });
     ReactDOM.render(
-      <ReactContainer
-        value={codeString}
-        onSave={createOrUpdateNodeFromCode}
-        visible={data.showHideEditor}
-      />,
+      <ReactContainer value={codeString} onSave={createOrUpdateNodeFromCode} />,
       reactRoot
     );
   };
@@ -204,7 +203,7 @@ function keysDown(e: KeyboardEvent): void {
 
 function setupGrid(): void {
   // add background tiles
-  const texture = PIXI.Texture.from('../assets/Pixel_grid_4000x2000.svg.png');
+  const texture = PIXI.Texture.from(CANVAS_BACKGROUND_TEXTURE);
   // const background = PIXI.Sprite.from('https://upload.wikimedia.org/wikipedia/commons/6/63/Pixel_grid_4000x2000.svg');
   const background = new PIXI.TilingSprite(
     texture,
@@ -223,7 +222,7 @@ function setupGrid(): void {
     background.width = innerWidth / viewport.scale.x;
     background.height = innerHeight / viewport.scale.y;
   });
-  background.alpha = 0.05;
+  background.alpha = CANVAS_BACKGROUND_ALPHA;
 
   // add graph
   currentGraph = new PPGraph(app, viewport);
@@ -233,15 +232,9 @@ function setupGrid(): void {
     currentGraph.registeredNodeTypes
   );
 
-  gui.add(data, 'showHideEditor').onChange((visible) => {
-    ReactDOM.render(
-      <ReactContainer
-        value={editorData || defaultEditorData}
-        onSave={createOrUpdateNodeFromCode}
-        visible={visible}
-      />,
-      reactRoot
-    );
+  gui.add(data, 'showEditor').onChange((value) => {
+    const element = document.getElementById('container');
+    value ? element.classList.remove('hide') : element.classList.add('hide');
   });
   gui.add(data, 'run');
   gui.add(data, 'saveGraph');
