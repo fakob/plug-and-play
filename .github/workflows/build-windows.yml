@@ -18,7 +18,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: yarn install
         run: |
-          yarn ci
+          yarn install --frozen-lockfile
       - name: code style check
         run: |
           yarn run code-style-check
