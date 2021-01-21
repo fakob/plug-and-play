@@ -31,7 +31,7 @@ export default class PPNode extends PIXI.Container {
   _NodeNameRef: PIXI.Text;
   _NodeCommentRef: PIXI.Text;
   _BackgroundRef: PIXI.Graphics;
-  clickedOutputRef: null | OutputSocket;
+  clickedSocketRef: null | OutputSocket;
 
   graph: PPGraph;
   id: string;
@@ -58,7 +58,7 @@ export default class PPNode extends PIXI.Container {
     this.description = '';
     this.inputSocketArray = [];
     this.outputSocketArray = [];
-    this.clickedOutputRef = null;
+    this.clickedSocketRef = null;
 
     const inputNameText = new PIXI.Text(this.name, NODE_TEXTSTYLE);
     inputNameText.x = NODE_OUTLINE_DISTANCE + NODE_HEADER_TEXTMARGIN_LEFT;
@@ -343,7 +343,7 @@ export default class PPNode extends PIXI.Container {
   _onPointerDown(event: PIXI.InteractionEvent): void {
     const node = event.target as PPNode;
 
-    if (node.clickedOutputRef === null) {
+    if (node.clickedSocketRef === null) {
       // start dragging
       console.log('_onPointerDown');
       this.interactionData = event.data;

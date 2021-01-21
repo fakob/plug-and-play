@@ -61,9 +61,9 @@ export default class OutputSocket extends PIXI.Container {
     this.data = null;
     this.interactive = true;
     this._OutputSocketRef.interactive = true;
-    this._OutputSocketRef.on('pointerover', this._onOutputOver.bind(this));
-    this._OutputSocketRef.on('pointerout', this._onOutputOut.bind(this));
-    this._OutputSocketRef.on('pointerdown', this._onOutputDown.bind(this));
+    this._OutputSocketRef.on('pointerover', this._onPointerOver.bind(this));
+    this._OutputSocketRef.on('pointerout', this._onPointerOut.bind(this));
+    this._OutputSocketRef.on('pointerdown', this._onPointerDown.bind(this));
     // this._OutputSocketRef.on('pointerup', this._onDragEnd.bind(this));
     // this._OutputSocketRef.on('pointermove', this._onDragMove.bind(this));
     // this._OutputSocketRef.on('click', this._onClick.bind(this));
@@ -105,21 +105,19 @@ export default class OutputSocket extends PIXI.Container {
 
   // SETUP
 
-  _onOutputOver(): void {
+  _onPointerOver(): void {
     this.cursor = 'pointer';
     (this._OutputSocketRef as PIXI.Graphics).tint = SOCKET_COLOR_TINT_HEX;
   }
 
-  _onOutputOut(): void {
+  _onPointerOut(): void {
     this.alpha = 1.0;
     this.cursor = 'default';
     (this._OutputSocketRef as PIXI.Graphics).tint = 0xffffff;
   }
 
-  _onOutputDown(event: PIXI.InteractionEvent): void {
-    console.log('_onOutputDown');
-    const output = event.target.parent as OutputSocket;
-    // set clickedOutputRef on graph
-    output.getGraph().clickedOutputRef = event.target.parent as OutputSocket;
+  _onPointerDown(event: PIXI.InteractionEvent): void {
+    console.log('_onPointerDown');
+    this.getGraph().clickedSocketRef = event.target.parent as OutputSocket;
   }
 }

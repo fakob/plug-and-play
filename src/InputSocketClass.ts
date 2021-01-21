@@ -24,6 +24,7 @@ export default class InputSocket extends PIXI.Container {
   _value: any;
   type: string;
   interactionData: PIXI.InteractionData | null;
+  // isMovingLink: boolean;
 
   link: PPLink | null;
 
@@ -88,9 +89,18 @@ export default class InputSocket extends PIXI.Container {
     this.interactionData = null;
     this.interactive = true;
     this._InputSocketRef.interactive = true;
-    this._InputSocketRef.on('pointerover', this._onInputOver.bind(this));
-    this._InputSocketRef.on('pointerout', this._onInputOut.bind(this));
-    this._InputSocketRef.on('click', this._onInputClick.bind(this));
+    this._InputSocketRef.on('pointerover', this._onPointerOver.bind(this));
+    this._InputSocketRef.on('pointerout', this._onPointerOut.bind(this));
+    this._InputSocketRef.on('pointerdown', this._onPointerDown.bind(this));
+    // this._InputSocketRef.on(
+    //   'pointerupoutside',
+    //   this._onPointerUpAndUpOutside.bind(this)
+    // );
+    // this._InputSocketRef.on(
+    //   'pointerup',
+    //   this._onPointerUpAndUpOutside.bind(this)
+    // );
+    // this._InputSocketRef.on('click', this._onInputClick.bind(this));
   }
 
   // GETTERS & SETTERS
@@ -140,7 +150,7 @@ export default class InputSocket extends PIXI.Container {
 
   // SETUP
 
-  _onInputOver(): void {
+  _onPointerOver(): void {
     // set overInputRef on graph
     this.getGraph().overInputRef = this;
 
@@ -148,7 +158,7 @@ export default class InputSocket extends PIXI.Container {
     (this._InputSocketRef as PIXI.Graphics).tint = SOCKET_COLOR_TINT_HEX;
   }
 
-  _onInputOut(): void {
+  _onPointerOut(): void {
     // reset overInputRef on graph
     this.getGraph().overInputRef = null;
 
@@ -157,8 +167,18 @@ export default class InputSocket extends PIXI.Container {
     (this._InputSocketRef as PIXI.Graphics).tint = 0xffffff;
   }
 
-  _onInputClick(): void {
-    // check if this input already has a connection and delete it
-    this.getGraph().checkIfSocketHasConnectionAndDeleteIt(this, true);
+  _onPointerDown(event: PIXI.InteractionEvent): void {
+    console.log('_onPointerDown');
+    this.getGraph().clickedSocketRef = event.target.parent as InputSocket;
   }
+
+  // _onPointerUpAndUpOutside(): void {
+  //   console.log('_onPointerUpAndUpOutside');
+  //   // this.isMovingLink = false;
+  // }
+
+  // _onInputClick(): void {
+  //   // check if this input already has a connection and delete it
+  //   this.getGraph().checkIfSocketHasConnectionAndDeleteIt(this, true);
+  // }
 }

@@ -9,6 +9,7 @@ import PPNode from './NodeClass';
 import InputSocket from './InputSocketClass';
 import OutputSocket from './OutputSocketClass';
 import PPLink from './LinkClass';
+import { Output, OutputFileSystem } from 'webpack';
 
 let gui: dat.GUI;
 
@@ -24,9 +25,10 @@ export default class PPGraph {
 
   _showComments: boolean;
   selectedNodes: string[];
-  clickedOutputRef: null | OutputSocket;
+  clickedSocketRef: null | InputSocket | OutputSocket;
   overInputRef: null | InputSocket;
   dragSourcePoint: null | PIXI.Point;
+  movingLink: null | PPLink;
 
   tempConnection: PIXI.Graphics;
   tempContainer: PIXI.Container;
@@ -44,9 +46,10 @@ export default class PPGraph {
     console.log('Graph created');
 
     this._showComments = true;
-    this.clickedOutputRef = null;
+    this.clickedSocketRef = null;
     this.overInputRef = null;
     this.dragSourcePoint = null;
+    this.movingLink = null;
 
     this.tempConnection = new PIXI.Graphics();
     this.tempContainer = new PIXI.Container();
@@ -98,20 +101,33 @@ export default class PPGraph {
     const node = event.currentTarget as PPNode;
     console.log(node.id);
 
-    if (this.clickedOutputRef === null) {
+    console.log(this.clickedSocketRef);
+    if (this.clickedSocketRef === null) {
       // clicked on the node, but not on a slot
       this.selectNode(node);
     } else {
-      // event.data.global delivers the mouse coordinates from the top left corner in pixel
-      node.interactionData = event.data;
-
-      const dragSourceRect = this.clickedOutputRef.children[0].getBounds();
-      const dragSourcePoint = new PIXI.Point(
-        dragSourceRect.x + dragSourceRect.width / 2,
-        dragSourceRect.y + dragSourceRect.height / 2
+      // check if user clicked InputSocket with link to move it
+      this.movingLink = this.checkIfSocketIsInputAndHasConnection(
+        this.clickedSocketRef
       );
-      // change dragSourcePoint coordinates from screen to world space
-      this.dragSourcePoint = this.viewport.toWorld(dragSourcePoint);
+      console.log(this.movingLink);
+      if (this.movingLink !== null) {
+        this.clickedSocketRef = this.movingLink.getSource();
+      }
+
+      // only start drawing if outputsocket or moving link
+      if (this.clickedSocketRef instanceof OutputSocket || this.movingLink) {
+        // event.data.global delivers the mouse coordinates from the top left corner in pixel
+        node.interactionData = event.data;
+
+        const dragSourceRect = this.clickedSocketRef.children[0].getBounds();
+        const dragSourcePoint = new PIXI.Point(
+          dragSourceRect.x + dragSourceRect.width / 2,
+          dragSourceRect.y + dragSourceRect.height / 2
+        );
+        // change dragSourcePoint coordinates from screen to world space
+        this.dragSourcePoint = this.viewport.toWorld(dragSourcePoint);
+      }
     }
 
     // subscribe to pointermove
@@ -121,7 +137,13 @@ export default class PPGraph {
   onNodeDragMove(event: PIXI.InteractionEvent): void {
     // console.log('onNodeDragMove');
 
-    if (this.clickedOutputRef !== null) {
+    if (this.clickedSocketRef instanceof OutputSocket) {
+      // remove original link
+      if (this.movingLink !== null) {
+        this.deleteLink(this.movingLink);
+        this.movingLink = null;
+      }
+
       // temporarily draw connection while dragging
       const sourcePointX = this.dragSourcePoint.x;
       const sourcePointY = this.dragSourcePoint.y;
@@ -170,29 +192,37 @@ export default class PPGraph {
     this.viewport.removeListener('pointermove', this.onNodeDragMove);
 
     if (this !== null) {
-      if (this.clickedOutputRef === null) {
+      if (this.clickedSocketRef === null) {
         // this.viewport.plugins.resume('drag');
       } else {
         // check if over input
         console.log(this.overInputRef);
-        if (this.overInputRef !== null) {
+        if (
+          this.overInputRef !== null &&
+          this.clickedSocketRef instanceof OutputSocket
+        ) {
           console.log(
             'connecting Output:',
-            this.clickedOutputRef.name,
+            this.clickedSocketRef.name,
             'of',
-            this.clickedOutputRef.parent.name,
+            this.clickedSocketRef.parent.name,
             'with Input:',
             this.overInputRef.name,
             'of',
             this.overInputRef.parent.name
           );
-          this.connect(this.clickedOutputRef, this.overInputRef, this.viewport);
+          this.connect(
+            this.clickedSocketRef as OutputSocket,
+            this.overInputRef,
+            this.viewport
+          );
         }
       }
     }
     this.tempConnection.clear();
-    this.clickedOutputRef = null;
+    this.clickedSocketRef = null;
     this.overInputRef = null;
+    this.movingLink = null;
   }
 
   _onNodePointerOver(event: PIXI.InteractionEvent): void {
@@ -357,25 +387,40 @@ export default class PPGraph {
     return false;
   }
 
+  checkIfSocketIsInputAndHasConnection(
+    socket: InputSocket | OutputSocket
+  ): PPLink | null {
+    // check if this socket is an input and has a connection
+    if (socket instanceof InputSocket) {
+      const foundLink = Object.values(this._links).find(
+        (link) => link.target === socket
+      );
+      return foundLink === undefined ? null : foundLink;
+    }
+    return null;
+  }
+
   checkIfSocketHasConnectionAndDeleteIt(
     socket: InputSocket | OutputSocket,
     isInput: boolean
-  ): boolean {
+  ): void {
     // check if this socket already has a connection
-    Object.entries(this._links).forEach(([key, link]) => {
+    Object.values(this._links).forEach((link) => {
       if (isInput ? link.target === socket : link.source === socket) {
         console.log('deleting link:', isInput ? link.target : link.source);
-
-        // remove link from source and target socket
-        link.getTarget().removeLink();
-        link.getSource().removeLink(link);
-
-        // remove link from graph
-        this.connectionContainer.removeChild(this._links[key]);
-        return delete this._links[key];
+        this.deleteLink(link);
       }
     });
-    return false;
+  }
+
+  deleteLink(link: PPLink): boolean {
+    // remove link from source and target socket
+    link.getTarget().removeLink();
+    link.getSource().removeLink(link);
+
+    // remove link from graph
+    this.connectionContainer.removeChild(this._links[link.id]);
+    return delete this._links[link.id];
   }
 
   clear(): void {
