@@ -1,6 +1,6 @@
 import * as webpack from 'webpack';
 import * as path from 'path';
-
+import ESLintPlugin from 'eslint-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 
 module.exports = (env: { mode: 'development' | 'production' }) => {
@@ -12,12 +12,6 @@ module.exports = (env: { mode: 'development' | 'production' }) => {
 
     module: {
       rules: [
-        {
-          enforce: 'pre',
-          test: /\.(js|jsx|ts|tsx)$/,
-          exclude: /node_modules/,
-          loader: 'eslint-loader',
-        },
         {
           test: /\.tsx?$/,
           loader: 'ts-loader',
@@ -33,6 +27,7 @@ module.exports = (env: { mode: 'development' | 'production' }) => {
     },
 
     plugins: [
+      new ESLintPlugin(),
       new MiniCssExtractPlugin({
         filename: '[name].css',
       }),
