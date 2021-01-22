@@ -2,7 +2,7 @@ import PPGraph from '../GraphClass';
 import PPNode from '../NodeClass';
 import { rgbToHex } from '../utils-pixi';
 import { convertToArray, getElement } from '../utils';
-import { INPUTTYPE, OUTPUTTYPE } from '../constants';
+import { INPUTTYPE, OUTPUTTYPE, NOTE_TEXTURE, NODE_WIDTH } from '../constants';
 
 export class DrawRect extends PPNode {
   _x: number;
@@ -78,6 +78,7 @@ export class DrawRect extends PPNode {
     };
   }
 }
+
 export class Rect extends PPNode {
   _x: number;
   _y: number;
@@ -186,5 +187,41 @@ export class Container extends PPNode {
       this._containerRef.x = this.x + this.width;
       this._containerRef.y = this.y;
     };
+  }
+}
+
+export class Note extends PPNode {
+  _rectRef: PIXI.Sprite;
+  constructor(name: string, graph: PPGraph, customId: string) {
+    super(name, graph, customId);
+
+    this.addOutput('trigger', OUTPUTTYPE.STRING);
+
+    this.name = 'Note';
+    this.description = 'Adds a note';
+    const note = PIXI.Sprite.from(NOTE_TEXTURE);
+    note.width = NODE_WIDTH;
+    note.height = NODE_WIDTH;
+
+    this._rectRef = (this as PIXI.Container).addChild(note);
+
+    this._rectRef.buttonMode = true;
+    this._rectRef.interactive = true;
+
+    this._rectRef.on('pointerdown', this.trigger.bind(this));
+
+    this.onExecute = function () {
+      // const start = this.getInputData(0) || url;
+      // this.setOutputData(0, output);
+    };
+  }
+  trigger(): void {
+    console.log('Triggered node: ', this.name);
+    this.outputSocketArray[0].links.forEach((link) => {
+      (link.target.parent as any).trigger();
+    });
+  }
+  onButtonOver(): void {
+    this._rectRef.cursor = 'hover';
   }
 }

@@ -1,8 +1,6 @@
 import axios from 'axios';
 import PPGraph from '../GraphClass';
 import PPNode from '../NodeClass';
-import { rgbToHex } from '../utils-pixi';
-import { convertToArray, getElement } from '../utils';
 import { INPUTTYPE, OUTPUTTYPE } from '../constants';
 
 export class RangeArray extends PPNode {

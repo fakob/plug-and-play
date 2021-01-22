@@ -120,3 +120,5 @@ export const COMMENT_TEXTSTYLE = new TextStyle({
 export const CONNECTION_COLOR_HEX = PIXI.utils.string2hex(
   Color(COLOR[0]).desaturate(0.3).hex()
 );
+
+export const NOTE_TEXTURE = '../assets/Note-white.png';
