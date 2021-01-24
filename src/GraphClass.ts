@@ -3,13 +3,12 @@ import strip from 'strip-comments';
 import { Viewport } from 'pixi-viewport';
 import * as dat from 'dat.gui';
 
-import { CONNECTION_COLOR_HEX, PP_VERSION } from './constants';
+import { CONNECTION_COLOR_HEX, PP_VERSION, NODE_WIDTH } from './constants';
 import { PPNodeConstructor, SerializedGraph } from './interfaces';
 import PPNode from './NodeClass';
 import InputSocket from './InputSocketClass';
 import OutputSocket from './OutputSocketClass';
 import PPLink from './LinkClass';
-import { Output, OutputFileSystem } from 'webpack';
 
 let gui: dat.GUI;
 
@@ -304,7 +303,7 @@ export default class PPGraph {
     this.nodeContainer.addChild(node);
 
     // move to center of canvas
-    node.x = this.viewport.center.x;
+    node.x = this.viewport.center.x - NODE_WIDTH / 2;
     node.y = this.viewport.center.y;
 
     // set comment position
