@@ -84,7 +84,7 @@ export default class PPNode extends PIXI.Container {
     ) as PIXI.Container).addChild(nodeComment);
 
     // draw shape
-    this.updateShape(this._selected);
+    this.drawNodeShape(this._selected);
 
     this.interactive = true;
     this.interactionData = null;
@@ -118,7 +118,7 @@ export default class PPNode extends PIXI.Container {
   // METHODS
   select(selected: boolean): void {
     this._selected = selected;
-    this.updateShape(selected);
+    this.drawNodeShape(selected);
   }
 
   addInput(
@@ -139,7 +139,7 @@ export default class PPNode extends PIXI.Container {
     this.inputSocketArray.push(inputSocketRef);
 
     // redraw background due to size change
-    this.updateShape(this._selected);
+    this.drawNodeShape(this._selected);
   }
 
   addOutput(name: string, type: string): void {
@@ -153,7 +153,7 @@ export default class PPNode extends PIXI.Container {
     this.outputSocketArray.push(outputSocketRef);
 
     // redraw background due to size change
-    this.updateShape(this._selected);
+    this.drawNodeShape(this._selected);
   }
 
   serialize(): SerializedNode {
@@ -199,7 +199,7 @@ export default class PPNode extends PIXI.Container {
     }
   }
 
-  updateShape(selected: boolean): void {
+  drawNodeShape(selected: boolean): void {
     // redraw background due to size change
     this._BackgroundRef.clear();
     this._BackgroundRef.beginFill(NODE_BACKGROUNDCOLOR_HEX);
@@ -215,6 +215,12 @@ export default class PPNode extends PIXI.Container {
       NODE_CORNERRADIUS
     );
     this._BackgroundRef.endFill();
+
+    // optional drawShape
+    // if (this.drawShape) {
+    this.drawShape();
+    // }
+
     if (selected) {
       this._BackgroundRef.lineStyle(2, NODE_SELECTIONCOLOR_HEX, 1, 0);
       this._BackgroundRef.drawRoundedRect(
@@ -239,6 +245,10 @@ export default class PPNode extends PIXI.Container {
     // console.log(this.x, this.y);
     this._NodeCommentRef.x = getNodeCommentPosX(this.x);
     this._NodeCommentRef.y = getNodeCommentPosY(this.y);
+  }
+
+  drawShape(): void {
+    // just define function
   }
 
   drawComment(): void {

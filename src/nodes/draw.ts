@@ -203,24 +203,36 @@ export class Note extends PPNode {
     note.width = NODE_WIDTH;
     note.height = NODE_WIDTH;
 
-    this._rectRef = (this as PIXI.Container).addChild(note);
+    // this._rectRef.on('pointerdown', this.trigger.bind(this));
 
-    this._rectRef.buttonMode = true;
-    this._rectRef.interactive = true;
+    this.drawShape = function () {
+      this._BackgroundRef.visible = false;
+      this._NodeNameRef.visible = false;
+      // this._rectRef.clear();
 
-    this._rectRef.on('pointerdown', this.trigger.bind(this));
+      (this._rectRef as any) = (this as PIXI.Container).addChild(note);
+      this._rectRef.alpha = 1;
+      this._rectRef.tint;
+      // this._rectRef.buttonMode = true;
+      // this._rectRef.interactive = true;
+    };
 
     this.onExecute = function () {
       // const start = this.getInputData(0) || url;
       // this.setOutputData(0, output);
     };
+
+    // update shape after initializing
+    this.drawNodeShape(false);
   }
+
   trigger(): void {
     console.log('Triggered node: ', this.name);
     this.outputSocketArray[0].links.forEach((link) => {
       (link.target.parent as any).trigger();
     });
   }
+
   onButtonOver(): void {
     this._rectRef.cursor = 'hover';
   }
