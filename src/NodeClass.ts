@@ -130,6 +130,7 @@ export default class PPNode extends PIXI.Container {
     const inputSocket = new InputSocket(name, type, defaultValue, visible);
     const inputSocketRef = this.addChild(inputSocket);
     inputSocketRef.y =
+      NODE_OUTLINE_DISTANCE +
       NODE_MARGIN_TOP +
       NODE_HEADER_HEIGHT +
       this.outputSocketArray.length * OUTPUTSOCKET_HEIGHT +
@@ -146,6 +147,7 @@ export default class PPNode extends PIXI.Container {
     const outputSocket = new OutputSocket(name, type);
     const outputSocketRef = this.addChild(outputSocket);
     outputSocketRef.y =
+      NODE_OUTLINE_DISTANCE +
       NODE_MARGIN_TOP +
       NODE_HEADER_HEIGHT +
       this.outputSocketArray.length * OUTPUTSOCKET_HEIGHT;

@@ -2,7 +2,14 @@ import PPGraph from '../GraphClass';
 import PPNode from '../NodeClass';
 import { rgbToHex } from '../utils-pixi';
 import { convertToArray, getElement } from '../utils';
-import { INPUTTYPE, OUTPUTTYPE, NOTE_TEXTURE, NODE_WIDTH } from '../constants';
+import {
+  INPUTTYPE,
+  OUTPUTTYPE,
+  NOTE_TEXTURE,
+  NODE_WIDTH,
+  NODE_OUTLINE_DISTANCE,
+  INPUTSOCKET_WIDTH,
+} from '../constants';
 
 export class DrawRect extends PPNode {
   _x: number;
@@ -99,12 +106,12 @@ export class Rect extends PPNode {
   ) {
     super(name, graph, customId);
 
+    this.addOutput('rect', OUTPUTTYPE.PIXI);
     this.addInput('x', INPUTTYPE.NUMBER);
     this.addInput('y', INPUTTYPE.NUMBER);
     this.addInput('width', INPUTTYPE.NUMBER);
     this.addInput('height', INPUTTYPE.NUMBER);
     this.addInput('color', 'color');
-    this.addOutput('rect', OUTPUTTYPE.PIXI);
 
     this.name = 'Create Rect';
     this.description = 'Creates a rectangle';
@@ -194,12 +201,13 @@ export class Note extends PPNode {
   _rectRef: PIXI.Sprite;
   constructor(name: string, graph: PPGraph, customId: string) {
     super(name, graph, customId);
-
-    this.addOutput('trigger', OUTPUTTYPE.STRING);
+    this.addOutput('output', OUTPUTTYPE.STRING);
+    this.addInput('input', INPUTTYPE.STRING);
 
     this.name = 'Note';
     this.description = 'Adds a note';
     const note = PIXI.Sprite.from(NOTE_TEXTURE);
+    note.x = NODE_OUTLINE_DISTANCE + INPUTSOCKET_WIDTH / 2;
     note.width = NODE_WIDTH;
     note.height = NODE_WIDTH;
 

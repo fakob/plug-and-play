@@ -1,16 +1,26 @@
 import axios from 'axios';
 import PPGraph from '../GraphClass';
 import PPNode from '../NodeClass';
-import { INPUTTYPE, OUTPUTTYPE } from '../constants';
+import {
+  INPUTTYPE,
+  INPUTSOCKET_WIDTH,
+  OUTPUTTYPE,
+  NODE_OUTLINE_DISTANCE,
+  NODE_CORNERRADIUS,
+  NODE_MARGIN_TOP,
+  NODE_HEADER_HEIGHT,
+  NODE_WIDTH,
+  OUTPUTSOCKET_HEIGHT,
+} from '../constants';
 
 export class RangeArray extends PPNode {
   constructor(name: string, graph: PPGraph, customId: string) {
     super(name, graph, customId);
 
+    this.addOutput('output array', OUTPUTTYPE.ARRAY);
     this.addInput('start', INPUTTYPE.NUMBER);
     this.addInput('stop', INPUTTYPE.NUMBER);
     this.addInput('step', INPUTTYPE.NUMBER);
-    this.addOutput('output array', OUTPUTTYPE.ARRAY);
 
     this.name = 'Range array';
     this.description = 'Create range array';
@@ -35,9 +45,9 @@ export class MakeAPICall extends PPNode {
 
     const url = 'https://jsonplaceholder.typicode.com/users';
 
+    this.addOutput('response', OUTPUTTYPE.STRING);
     this.addInput('trigger', INPUTTYPE.STRING);
     this.addInput('url', INPUTTYPE.STRING, url);
-    this.addOutput('response', OUTPUTTYPE.STRING);
 
     this.name = 'Make API call';
     this.description = 'Makes an API call and outputs the response';
@@ -76,8 +86,14 @@ export class Trigger extends PPNode {
 
     const button = new PIXI.Graphics();
     this._rectRef = (this as PIXI.Container).addChild(button);
-    this._rectRef.beginFill(PIXI.utils.string2hex('#00FF00'), 0.5);
-    this._rectRef.drawRect(0, 0, 100, 100);
+    this._rectRef.beginFill(PIXI.utils.string2hex('#00FF00'));
+    this._rectRef.drawRoundedRect(
+      NODE_OUTLINE_DISTANCE + INPUTSOCKET_WIDTH,
+      NODE_OUTLINE_DISTANCE + NODE_MARGIN_TOP + NODE_HEADER_HEIGHT,
+      NODE_WIDTH / 2,
+      OUTPUTSOCKET_HEIGHT,
+      NODE_CORNERRADIUS
+    );
     this._rectRef.endFill();
 
     this._rectRef.buttonMode = true;

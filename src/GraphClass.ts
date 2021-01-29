@@ -719,14 +719,14 @@ export default class PPGraph {
 
     const names = this.getParameterNames(func);
     // console.log(names);
+    code += `
+      this.addOutput('out', '${return_type ? return_type : 0}');\n`;
     for (let i = 0; i < names.length; ++i) {
       code += `
       this.addInput('${names[i]}', '${
         param_types && param_types[i] ? param_types[i] : 0
       }');`;
     }
-    code += `
-      this.addOutput('out', '${return_type ? return_type : 0}');\n`;
     // console.log(code);
     // console.log(this);
     // https://stackoverflow.com/a/46519949
