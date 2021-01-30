@@ -1,3 +1,5 @@
+import * as PIXI from 'pixi.js';
+// import * as TextInput from 'pixi-text-input';
 import PPGraph from '../GraphClass';
 import PPNode from '../NodeClass';
 import { rgbToHex } from '../utils-pixi';
@@ -10,6 +12,9 @@ import {
   NODE_OUTLINE_DISTANCE,
   INPUTSOCKET_WIDTH,
 } from '../constants';
+
+const TextInput = require('pixi-text-input');
+// console.log(TextInput);
 
 export class DrawRect extends PPNode {
   _x: number;
@@ -199,6 +204,8 @@ export class Container extends PPNode {
 
 export class Note extends PPNode {
   _rectRef: PIXI.Sprite;
+  _textInputRef: PIXI.Text;
+
   constructor(name: string, graph: PPGraph, customId: string) {
     super(name, graph, customId);
     this.addOutput('output', OUTPUTTYPE.STRING);
@@ -210,6 +217,35 @@ export class Note extends PPNode {
     note.x = NODE_OUTLINE_DISTANCE + INPUTSOCKET_WIDTH / 2;
     note.width = NODE_WIDTH;
     note.height = NODE_WIDTH;
+
+    const basicText = new PIXI.Text('Basic text in pixi', {
+      fontFamily: 'Arial',
+      fontSize: 36,
+      fontStyle: 'italic',
+      fontWeight: 'bold',
+      wordWrap: true,
+      wordWrapWidth: 440,
+      lineJoin: 'round',
+    });
+    basicText.x = NODE_OUTLINE_DISTANCE + INPUTSOCKET_WIDTH;
+    basicText.y = NODE_OUTLINE_DISTANCE + INPUTSOCKET_WIDTH;
+
+    // const input = new (PIXI as any).TextInput({
+    //   input: {
+    //     fontFamily: 'Arial',
+    //     fontSize: '25px',
+    //     multiline: true,
+    //     width: `${NODE_WIDTH - NODE_OUTLINE_DISTANCE * 2}px`,
+    //     height: `${NODE_WIDTH - NODE_OUTLINE_DISTANCE * 2}px`,
+    //   },
+    //   box: {},
+    //   // box: { fill: 0xeeeeee },
+    // });
+    // input.x = NODE_OUTLINE_DISTANCE + INPUTSOCKET_WIDTH;
+    // input.y = NODE_OUTLINE_DISTANCE;
+    // input.placeholder = 'Enter your Text...';
+    // input.substituteText = true;
+    // input.focus();
 
     // this._rectRef.on('pointerdown', this.trigger.bind(this));
 
@@ -223,11 +259,17 @@ export class Note extends PPNode {
       this._rectRef.tint;
       // this._rectRef.buttonMode = true;
       // this._rectRef.interactive = true;
+
+      this._textInputRef = (this as PIXI.Container).addChild(basicText);
+      this._textInputRef.width = NODE_WIDTH - NODE_OUTLINE_DISTANCE * 2;
+      // this._textInputRef.height  = NODE_WIDTH - NODE_OUTLINE_DISTANCE * 2;
+      // (this._textInputRef as any) = (this as PIXI.Container).addChild(input);
     };
 
     this.onExecute = function () {
-      // const start = this.getInputData(0) || url;
-      // this.setOutputData(0, output);
+      const inputText = this.getInputData(0);
+      this._textInputRef.text = inputText;
+      this.setOutputData(0, inputText);
     };
 
     // update shape after initializing

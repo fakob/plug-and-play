@@ -7604,6 +7604,11 @@ pirates@^4.0.1:
   dependencies:
     node-modules-regexp "^1.0.0"
 
+pixi-text-input@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/pixi-text-input/-/pixi-text-input-1.0.5.tgz#a7abcede5ec72373fed75f2adf312ddc51c87265"
+  integrity sha512-KVP3Y8JkUAOUt9cjQYxehzQOSvjJl9ColcNpA/FrCOpHC4YxdMMdAbnCUvpxG6k+l4ppKAuss7qFvNUWo7APcw==
+
 pixi-viewport@^4.14.0:
   version "4.18.1"
   resolved "https://registry.yarnpkg.com/pixi-viewport/-/pixi-viewport-4.18.1.tgz#10fd7fef68a0163c1c2a1c6f23cdca56fcdb46f3"
