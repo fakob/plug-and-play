@@ -6,7 +6,12 @@
     "jsx": "react",
     "sourceMap": true,
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "plugins": [
+      {
+        "name": "typescript-plugin-css-modules"
+      }
+    ]
   },
-  "include": ["src/index.tsx"]
+  "include": ["./src/**/*", "./src/custom.d.ts"]
 }

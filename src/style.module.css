@@ -1,0 +1,20 @@
+.editor {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 30%;
+  height: 600px;
+  /* height: 100vh; */
+}
+
+.pixicontainer {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+}
+
+.hide {
+  display: none;
+}

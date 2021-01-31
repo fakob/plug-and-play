@@ -1,6 +1,8 @@
 import React, { useRef, useState } from 'react';
 import MonacoEditor from 'react-monaco-editor';
 
+import styles from './style.module.css';
+
 type MyProps = {
   value?: string;
   onSave?: (code: string) => void;
@@ -36,22 +38,24 @@ const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
   };
 
   return (
-    <MonacoEditor
-      // width="800"
-      // height="600"
-      language="javascript"
-      theme="vs-dark"
-      value={props.value}
-      options={{
-        selectOnLineNumbers: true,
-        scrollBeyondLastLine: false,
-        wordWrap: 'on',
-      }}
-      onChange={(newValue, e) => {
-        console.log('controlled', newValue, e);
-      }}
-      editorDidMount={editorDidMount}
-    />
+    <div className={styles.editor} id="editorwrapper">
+      <MonacoEditor
+        // width="800"
+        // height="600"
+        language="javascript"
+        theme="vs-dark"
+        value={props.value}
+        options={{
+          selectOnLineNumbers: true,
+          scrollBeyondLastLine: false,
+          wordWrap: 'on',
+        }}
+        onChange={(newValue, e) => {
+          console.log('controlled', newValue, e);
+        }}
+        editorDidMount={editorDidMount}
+      />
+    </div>
   );
 };
 
