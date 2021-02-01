@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import * as PIXI from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
 import * as dat from 'dat.gui';
@@ -15,19 +15,13 @@ import styles from './style.module.css';
 (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__ &&
   (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__.register({ PIXI: PIXI });
 
-export default class PixiContainer extends React.Component {
-  pixi_cnt: HTMLDivElement;
-  app: PIXI.Application;
-  // currentGraph: PPGraph;
+const PixiContainer = (): JSX.Element => {
+  let app: PIXI.Application;
+  let currentGraph: PPGraph;
+  const pixiContext = useRef<HTMLDivElement | null>(null);
 
-  constructor(props) {
-    super(props);
-    this.state = {};
-    this.pixi_cnt = null;
-  }
-
-  componentDidMount(): void {
-    const app = new PIXI.Application({
+  useEffect(() => {
+    app = new PIXI.Application({
       backgroundColor: CANVAS_BACKGROUNDCOLOR_HEX,
       width: 800,
       height: 600,
@@ -35,7 +29,6 @@ export default class PixiContainer extends React.Component {
       autoDensity: true,
       resolution: 2,
     });
-    this.app = app;
     app.stage.interactive = true;
     app.stage.buttonMode = true;
 
@@ -66,11 +59,11 @@ export default class PixiContainer extends React.Component {
       });
 
     // app.stage.on('click', this.onClick);
-    this.pixi_cnt.appendChild(app.view);
+    pixiContext.current.appendChild(app.view);
     // this.drawCalendarScene(app);
 
     // add graph
-    this.currentGraph = new PPGraph(app, viewport);
+    currentGraph = new PPGraph(app, viewport);
 
     const gui = new dat.GUI();
     // gui
@@ -78,7 +71,7 @@ export default class PixiContainer extends React.Component {
       showComments: true,
       run: false,
       runStep: function () {
-        this.currentGraph.runStep();
+        currentGraph.runStep();
       },
       saveGraph: function () {
         // serializeGraph();
@@ -87,7 +80,7 @@ export default class PixiContainer extends React.Component {
         // loadCurrentGraph();
       },
       duplicateSelction: function () {
-        this.currentGraph.duplicateSelection();
+        currentGraph.duplicateSelection();
       },
       addNode: '',
       showEditor: true,
@@ -115,9 +108,9 @@ export default class PixiContainer extends React.Component {
     });
     background.alpha = CANVAS_BACKGROUND_ALPHA;
 
-    registerAllNodeTypes(this.currentGraph);
+    registerAllNodeTypes(currentGraph);
     const allRegisteredNodeTypeNames = Object.keys(
-      this.currentGraph.registeredNodeTypes
+      currentGraph.registeredNodeTypes
     );
 
     gui.add(data, 'showEditor').onChange((value) => {
@@ -131,18 +124,18 @@ export default class PixiContainer extends React.Component {
     gui.add(data, 'runStep');
     gui.add(data, 'showComments').onChange((value) => {
       console.log(value);
-      this.currentGraph.showComments = value;
+      currentGraph.showComments = value;
     });
     gui
       .add(data, 'addNode', allRegisteredNodeTypeNames)
       .onChange((selected) => {
         console.log(selected);
-        this.currentGraph.createAndAddNode(selected);
+        currentGraph.createAndAddNode(selected);
       });
 
     app.ticker.add(() => {
       if (data.run) {
-        this.currentGraph.runStep();
+        currentGraph.runStep();
       }
     });
 
@@ -158,17 +151,16 @@ export default class PixiContainer extends React.Component {
     };
 
     resizeCanvas();
-  }
 
-  render(): JSX.Element {
-    // return <div ref={this.updatePixiCnt} />;
-    return (
-      <div
-        className={styles.pixicontainer}
-        ref={(el) => {
-          this.pixi_cnt = el;
-        }}
-      ></div>
-    );
-  }
-}
+    return () => {
+      // On unload completely destroy the application and all of it's children
+      app.destroy(true, {
+        children: true,
+      });
+    };
+  }, []);
+
+  return <div className={styles.pixicontainer} ref={pixiContext}></div>;
+};
+
+export default PixiContainer;
