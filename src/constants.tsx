@@ -122,3 +122,8 @@ export const CONNECTION_COLOR_HEX = PIXI.utils.string2hex(
 );
 
 export const NOTE_TEXTURE = '../assets/Note-white.png';
+
+export const DEFAULT_EDITOR_DATA = `// Ctrl-Enter to create node
+function square(a) {
+  return a * a;
+}`;

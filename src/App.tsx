@@ -4,11 +4,13 @@ import { Viewport } from 'pixi-viewport';
 import ReactContainer from './ReactContainer';
 import PixiContainer from './PixiContainer';
 import * as dat from 'dat.gui';
+import { GraphDatabase } from './indexeddb';
 import PPGraph from './GraphClass';
 import {
   CANVAS_BACKGROUNDCOLOR_HEX,
   CANVAS_BACKGROUND_ALPHA,
   CANVAS_BACKGROUND_TEXTURE,
+  DEFAULT_EDITOR_DATA,
 } from './constants';
 import { registerAllNodeTypes } from './nodes/allNodes';
 import styles from './style.module.css';
@@ -19,16 +21,20 @@ import styles from './style.module.css';
 const App = (): JSX.Element => {
   let pixiApp: PIXI.Application;
   let currentGraph: PPGraph;
-  const pixiContext = useRef<HTMLDivElement | null>(null);
 
+  const db = new GraphDatabase();
+  const pixiContext = useRef<HTMLDivElement | null>(null);
+  const [editorData, setEditorData] = React.useState(DEFAULT_EDITOR_DATA);
+
+  // on mount
   useEffect(() => {
     console.log(pixiContext.current);
 
     // create pixiApp
     pixiApp = new PIXI.Application({
       backgroundColor: CANVAS_BACKGROUNDCOLOR_HEX,
-      width: 800,
-      height: 600,
+      width: window.innerWidth,
+      height: window.innerHeight,
       antialias: true,
       autoDensity: true,
       resolution: 2,
@@ -104,10 +110,10 @@ const App = (): JSX.Element => {
         currentGraph.runStep();
       },
       saveGraph: function () {
-        // serializeGraph();
+        serializeGraph();
       },
       loadGraph: function () {
-        // loadCurrentGraph();
+        loadCurrentGraph();
       },
       duplicateSelction: function () {
         currentGraph.duplicateSelection();
@@ -153,7 +159,9 @@ const App = (): JSX.Element => {
 
       window.addEventListener('resize', resize);
     };
+
     resizeCanvas();
+    loadCurrentGraph();
 
     return () => {
       // On unload completely destroy the application and all of it's children
@@ -163,13 +171,57 @@ const App = (): JSX.Element => {
     };
   }, []);
 
+  // useEffect(() => {
+
+  // }, []);
+
+  function serializeGraph() {
+    const serializedGraph = currentGraph.serialize();
+    console.log(serializedGraph);
+    console.info(serializedGraph.customNodeTypes);
+    // console.log(JSON.stringify(serializedGraph));
+    db.transaction('rw', db.currentGraph, async () => {
+      const id = await db.currentGraph.put({
+        id: 0,
+        date: new Date(),
+        graphData: serializedGraph,
+        editorData,
+      });
+      console.log(`Saved currentGraph: ${id}`);
+    }).catch((e) => {
+      console.log(e.stack || e);
+    });
+  }
+
+  function loadCurrentGraph() {
+    db.transaction('rw', db.currentGraph, async () => {
+      const lastGraph = await db.currentGraph.where({ id: 0 }).toArray();
+      if (lastGraph.length > 0) {
+        // load editorData
+        setEditorData(lastGraph[0].editorData);
+
+        // configure graph
+        const graphData = lastGraph[0].graphData;
+        currentGraph.configure(graphData, false);
+
+        console.log(currentGraph.nodeContainer.children);
+      } else {
+        console.log('No saved graphData');
+      }
+    }).catch((e) => {
+      console.log(e.stack || e);
+    });
+  }
+
+  function createOrUpdateNodeFromCode(code) {
+    currentGraph.createOrUpdateNodeFromCode(code);
+    setEditorData(code);
+  }
+
   return (
     <>
       <PixiContainer ref={pixiContext} />
-      <ReactContainer
-      // value={editorData || defaultEditorData}
-      // onSave={createOrUpdateNodeFromCode}
-      />
+      <ReactContainer value={editorData} onSave={createOrUpdateNodeFromCode} />
     </>
   );
 };
