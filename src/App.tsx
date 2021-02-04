@@ -19,9 +19,12 @@ import styles from './style.module.css';
 const App = (): JSX.Element => {
   let pixiApp: PIXI.Application;
   let currentGraph: PPGraph;
-  const pixiContext = useRef<HTMLElement | null>(null);
+  const pixiContext = useRef<HTMLDivElement | null>(null);
+
   useEffect(() => {
     console.log(pixiContext.current);
+
+    // create pixiApp
     pixiApp = new PIXI.Application({
       backgroundColor: CANVAS_BACKGROUNDCOLOR_HEX,
       width: 800,
@@ -42,11 +45,10 @@ const App = (): JSX.Element => {
       interaction: pixiApp.renderer.plugins.interaction, // the interaction module is important for wheel to work properly when renderer.view is placed or scaled
     });
 
-    console.log(viewport);
-    console.log(window.devicePixelRatio);
     // add the viewport to the stage
     pixiApp.stage.addChild(viewport);
 
+    // configure viewport
     viewport
       .drag()
       .pinch()
@@ -59,13 +61,40 @@ const App = (): JSX.Element => {
         maxScale: 4,
       });
 
-    // pixiApp.stage.on('click', this.onClick);
-    (pixiContext as any).current.appendChild(pixiApp.view);
-    // this.drawCalendarScene(pixiApp);
+    // add pixiApp to canvas
+    pixiContext.current.appendChild(pixiApp.view);
 
-    // add graph
+    // add background tiles
+    const texture = PIXI.Texture.from(CANVAS_BACKGROUND_TEXTURE);
+    const background = new PIXI.TilingSprite(
+      texture,
+      pixiApp.screen.width,
+      pixiApp.screen.height
+    );
+    background.tileScale.x = 0.5;
+    background.tileScale.y = 0.5;
+    viewport.addChild(background);
+    viewport.on('moved', () => {
+      background.tilePosition.y = -viewport.top;
+      background.tilePosition.x = -viewport.left;
+      background.y = viewport.top;
+      background.x = viewport.left;
+
+      background.width = innerWidth / viewport.scale.x;
+      background.height = innerHeight / viewport.scale.y;
+    });
+    background.alpha = CANVAS_BACKGROUND_ALPHA;
+
+    // add graph to pixiApp
     currentGraph = new PPGraph(pixiApp, viewport);
 
+    // register all available node types
+    registerAllNodeTypes(currentGraph);
+    const allRegisteredNodeTypeNames = Object.keys(
+      currentGraph.registeredNodeTypes
+    );
+
+    // draw temporary gui
     const gui = new dat.GUI();
     // gui
     const data = {
@@ -86,33 +115,6 @@ const App = (): JSX.Element => {
       addNode: '',
       showEditor: true,
     };
-
-    // add background tiles
-    const texture = PIXI.Texture.from(CANVAS_BACKGROUND_TEXTURE);
-    // const background = PIXI.Sprite.from('https://upload.wikimedia.org/wikipedia/commons/6/63/Pixel_grid_4000x2000.svg');
-    const background = new PIXI.TilingSprite(
-      texture,
-      pixiApp.screen.width,
-      pixiApp.screen.height
-    );
-    background.tileScale.x = 0.5;
-    background.tileScale.y = 0.5;
-    viewport.addChild(background);
-    viewport.on('moved', () => {
-      background.tilePosition.y = -viewport.top;
-      background.tilePosition.x = -viewport.left;
-      background.y = viewport.top;
-      background.x = viewport.left;
-
-      background.width = innerWidth / viewport.scale.x;
-      background.height = innerHeight / viewport.scale.y;
-    });
-    background.alpha = CANVAS_BACKGROUND_ALPHA;
-
-    registerAllNodeTypes(currentGraph);
-    const allRegisteredNodeTypeNames = Object.keys(
-      currentGraph.registeredNodeTypes
-    );
 
     gui.add(data, 'showEditor').onChange((value) => {
       const element = document.getElementById('container');
@@ -140,6 +142,7 @@ const App = (): JSX.Element => {
       }
     });
 
+    // listen to window resize event and resize pixiApp
     const resizeCanvas = (): void => {
       const resize = () => {
         viewport.resize(window.innerWidth, window.innerHeight);
@@ -150,7 +153,6 @@ const App = (): JSX.Element => {
 
       window.addEventListener('resize', resize);
     };
-
     resizeCanvas();
 
     return () => {
