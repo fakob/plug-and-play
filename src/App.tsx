@@ -115,7 +115,7 @@ const App = (): JSX.Element => {
       loadGraph: function () {
         loadCurrentGraph();
       },
-      duplicateSelction: function () {
+      duplicateSelection: function () {
         currentGraph.duplicateSelection();
       },
       addNode: '',
@@ -129,7 +129,7 @@ const App = (): JSX.Element => {
     gui.add(data, 'run');
     gui.add(data, 'saveGraph');
     gui.add(data, 'loadGraph');
-    gui.add(data, 'duplicateSelction');
+    gui.add(data, 'duplicateSelection');
     gui.add(data, 'runStep');
     gui.add(data, 'showComments').onChange((value) => {
       console.log(value);
@@ -148,20 +148,47 @@ const App = (): JSX.Element => {
       }
     });
 
-    // listen to window resize event and resize pixiApp
-    const resizeCanvas = (): void => {
+    // add event listeners
+    const addEventListeners = (): void => {
+      // listen to window resize event and resize pixiApp
       const resize = () => {
         viewport.resize(window.innerWidth, window.innerHeight);
         pixiApp.renderer.resize(window.innerWidth, window.innerHeight);
       };
-
       resize();
-
       window.addEventListener('resize', resize);
+
+      // register key events
+      const keysDown = (e: KeyboardEvent): void => {
+        console.log(e.key);
+        //delete or backspace
+        if (e.key === 'Backspace' || e.key === 'Delete') {
+          currentGraph.deleteSelectedNodes();
+        }
+      };
+      window.addEventListener('keydown', keysDown);
     };
 
-    resizeCanvas();
+    addEventListeners();
     loadCurrentGraph();
+
+    // register callbacks
+    currentGraph.onSelectionChange = (selectedNodes: string[]) => {
+      console.log(selectedNodes);
+      let codeString = '';
+      selectedNodes.forEach((nodeId) => {
+        const selectedNode = currentGraph.nodes.find(
+          (node) => node.id === nodeId
+        );
+        console.log(selectedNode);
+        const selectedNodeType = selectedNode.type;
+        codeString = currentGraph.customNodeTypes[selectedNodeType];
+        // if (codeString) {
+        console.log(codeString);
+        setEditorData(codeString);
+        // }
+      });
+    };
 
     return () => {
       // On unload completely destroy the application and all of it's children
@@ -170,10 +197,6 @@ const App = (): JSX.Element => {
       });
     };
   }, []);
-
-  // useEffect(() => {
-
-  // }, []);
 
   function serializeGraph() {
     const serializedGraph = currentGraph.serialize();
