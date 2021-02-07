@@ -2,6 +2,7 @@ import * as PIXI from 'pixi.js';
 import { DropShadowFilter } from '@pixi/filter-drop-shadow';
 import { hri } from 'human-readable-ids';
 import { inspect } from 'util'; // or directly
+import './pixi/dbclick.js';
 
 import { SerializedNode } from './interfaces';
 import {
@@ -48,6 +49,9 @@ export default class PPNode extends PIXI.Container {
   relativeClickPosition: PIXI.Point | null;
   clickPosition: PIXI.Point | null;
   interactionData: PIXI.InteractionData | null;
+
+  // supported callbacks
+  onNodeDoubleClick: ((event: PIXI.InteractionEvent) => void) | null;
 
   constructor(type: string, graph: PPGraph, customId: string) {
     super();
@@ -350,6 +354,7 @@ export default class PPNode extends PIXI.Container {
     this.on('pointerover', this._onPointerOver.bind(this));
     this.on('pointerout', this._onPointerOut.bind(this));
     this.on('click', this._onClick.bind(this));
+    this.on('dblclick', this._onDoubleClick.bind(this));
   }
 
   _onPointerDown(event: PIXI.InteractionEvent): void {
@@ -442,6 +447,13 @@ export default class PPNode extends PIXI.Container {
     } else {
       this.select(true);
       this.cursor = 'move';
+    }
+  }
+
+  _onDoubleClick(event: PIXI.InteractionEvent): void {
+    console.log('_onDoubleClick');
+    if (this.onNodeDoubleClick) {
+      this.onNodeDoubleClick(event);
     }
   }
 }

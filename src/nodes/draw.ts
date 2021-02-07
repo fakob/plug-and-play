@@ -1,5 +1,4 @@
 import * as PIXI from 'pixi.js';
-// import * as TextInput from 'pixi-text-input';
 import PPGraph from '../GraphClass';
 import PPNode from '../NodeClass';
 import { rgbToHex } from '../utils-pixi';
@@ -12,9 +11,6 @@ import {
   NODE_OUTLINE_DISTANCE,
   INPUTSOCKET_WIDTH,
 } from '../constants';
-
-const TextInput = require('pixi-text-input');
-// console.log(TextInput);
 
 export class DrawRect extends PPNode {
   _x: number;
@@ -205,6 +201,10 @@ export class Container extends PPNode {
 export class Note extends PPNode {
   _rectRef: PIXI.Sprite;
   _textInputRef: PIXI.Text;
+  createInputElement;
+  currentInput: HTMLTextAreaElement;
+  onViewportMove: (event: PIXI.InteractionEvent) => void;
+  onViewportMoveHandler: (event?: PIXI.InteractionEvent) => void;
 
   constructor(name: string, graph: PPGraph, customId: string) {
     super(name, graph, customId);
@@ -217,6 +217,20 @@ export class Note extends PPNode {
     note.x = NODE_OUTLINE_DISTANCE + INPUTSOCKET_WIDTH / 2;
     note.width = NODE_WIDTH;
     note.height = NODE_WIDTH;
+
+    this.currentInput = null;
+
+    //
+    this.onViewportMove = function (event: PIXI.InteractionEvent): void {
+      console.log('onViewportMove', event);
+      const screenPoint = this.graph.viewport.toScreen(
+        this.x + NODE_OUTLINE_DISTANCE + INPUTSOCKET_WIDTH,
+        this.y + NODE_OUTLINE_DISTANCE + INPUTSOCKET_WIDTH
+      );
+      this.currentInput.style.left = `${screenPoint.x}px`;
+      this.currentInput.style.top = `${screenPoint.y}px`;
+    };
+    this.onViewportMoveHandler = this.onViewportMove.bind(this);
 
     const basicText = new PIXI.Text('Basic text in pixi', {
       fontFamily: 'Arial',
@@ -257,13 +271,61 @@ export class Note extends PPNode {
       (this._rectRef as any) = (this as PIXI.Container).addChild(note);
       this._rectRef.alpha = 1;
       this._rectRef.tint;
-      // this._rectRef.buttonMode = true;
-      // this._rectRef.interactive = true;
 
       this._textInputRef = (this as PIXI.Container).addChild(basicText);
       this._textInputRef.width = NODE_WIDTH - NODE_OUTLINE_DISTANCE * 2;
       // this._textInputRef.height  = NODE_WIDTH - NODE_OUTLINE_DISTANCE * 2;
       // (this._textInputRef as any) = (this as PIXI.Container).addChild(input);
+    };
+
+    this.createInputElement = () => {
+      // create html input element
+      this.currentInput = document.createElement('textarea');
+      // this.currentInput.tabindex = -1;
+      this.currentInput.id = 'NoteInput';
+      this.currentInput.value = this._textInputRef.text;
+      this.currentInput.style.fontFamily = 'Arial';
+      this.currentInput.style.fontSize = '25px';
+      this.currentInput.style.position = 'absolute';
+      this.currentInput.style.background = 'transparent';
+      this.currentInput.style.border = '0 none';
+      // this.currentInput.style.outline = 'none';
+      const screenPoint = this.graph.viewport.toScreen(
+        this.x + NODE_OUTLINE_DISTANCE + INPUTSOCKET_WIDTH,
+        this.y + NODE_OUTLINE_DISTANCE + INPUTSOCKET_WIDTH
+      );
+      this.currentInput.style.left = `${screenPoint.x}px`;
+      this.currentInput.style.top = `${screenPoint.y}px`;
+      this.currentInput.style.width = `${
+        this.graph.viewport.scale.x * (NODE_WIDTH - NODE_OUTLINE_DISTANCE * 2)
+      }px`;
+      this.currentInput.style.height = `${
+        this.graph.viewport.scale.y * (NODE_WIDTH - NODE_OUTLINE_DISTANCE * 2)
+      }px`;
+      // this.currentInput.style.display = 'none';
+      this.currentInput.style.resize = 'none';
+      this.currentInput.style.overflowY = 'scroll';
+      setTimeout(() => {
+        this.currentInput.focus();
+      }, 100);
+
+      // add event handlers
+      this.currentInput.addEventListener('blur', (e) => {
+        console.log('blur', e);
+        this.graph.viewport.removeListener('moved', this.onViewportMoveHandler);
+        this._textInputRef.text = this.currentInput.value;
+        this.currentInput.remove();
+      });
+
+      this.graph.viewport.on('moved', (this as any).onViewportMoveHandler);
+
+      document.body.appendChild(this.currentInput);
+      console.log(this.currentInput);
+    };
+
+    this.onNodeDoubleClick = function () {
+      console.log('_onDoubleClick on Note:', this);
+      this.createInputElement();
     };
 
     this.onExecute = function () {
@@ -274,16 +336,5 @@ export class Note extends PPNode {
 
     // update shape after initializing
     this.drawNodeShape(false);
-  }
-
-  trigger(): void {
-    console.log('Triggered node: ', this.name);
-    this.outputSocketArray[0].links.forEach((link) => {
-      (link.target.parent as any).trigger();
-    });
-  }
-
-  onButtonOver(): void {
-    this._rectRef.cursor = 'hover';
   }
 }
