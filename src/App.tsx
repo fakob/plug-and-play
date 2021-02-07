@@ -148,28 +148,6 @@ const App = (): JSX.Element => {
       }
     });
 
-    // add event listeners
-    const addEventListeners = (): void => {
-      // listen to window resize event and resize pixiApp
-      const resize = () => {
-        viewport.resize(window.innerWidth, window.innerHeight);
-        pixiApp.renderer.resize(window.innerWidth, window.innerHeight);
-      };
-      resize();
-      window.addEventListener('resize', resize);
-
-      // register key events
-      const keysDown = (e: KeyboardEvent): void => {
-        console.log(e.key);
-        //delete or backspace
-        if (e.key === 'Backspace' || e.key === 'Delete') {
-          currentGraph.deleteSelectedNodes();
-        }
-      };
-      window.addEventListener('keydown', keysDown);
-    };
-
-    addEventListeners();
     loadCurrentGraph();
 
     // register callbacks

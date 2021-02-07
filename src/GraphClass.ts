@@ -75,7 +75,34 @@ export default class PPGraph {
     this.tempContainer.addChild(this.tempConnection);
     this.tempConnection.name = 'tempConnection';
 
-    this.viewport.on('pointerdown', this._onPointerDown.bind(this));
+    // add event listeners
+    const addEventListeners = (): void => {
+      // listen to window resize event and resize app
+      const resize = () => {
+        viewport.resize(window.innerWidth, window.innerHeight);
+        app.renderer.resize(window.innerWidth, window.innerHeight);
+      };
+      resize();
+      window.addEventListener('resize', resize);
+
+      // register key events
+      const keysDown = (e: KeyboardEvent): void => {
+        console.log(e.key);
+        if (e.key === 'Backspace' || e.key === 'Delete') {
+          if (
+            (e.target as any).localName !== 'input' &&
+            (e.target as any).localName !== 'textarea'
+          ) {
+            this.deleteSelectedNodes();
+          }
+        }
+      };
+      window.addEventListener('keydown', keysDown);
+
+      // register pointer events
+      this.viewport.on('pointerdown', this._onPointerDown.bind(this));
+    };
+    addEventListeners();
 
     // clear the stage
     this.clear();
