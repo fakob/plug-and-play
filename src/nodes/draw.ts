@@ -1,7 +1,8 @@
 import * as PIXI from 'pixi.js';
 import PPGraph from '../GraphClass';
 import PPNode from '../NodeClass';
-import { rgbToHex } from '../utils-pixi';
+import { SerializedNode } from '../interfaces';
+import { rgbToHex, getTextWithLineBreaks } from '../pixi/utils-pixi';
 import { convertToArray, getElement } from '../utils';
 import {
   INPUTTYPE,
@@ -11,6 +12,7 @@ import {
   NODE_OUTLINE_DISTANCE,
   INPUTSOCKET_WIDTH,
 } from '../constants';
+import '../pixi/textFit';
 
 export class DrawRect extends PPNode {
   _x: number;
@@ -202,7 +204,9 @@ export class Note extends PPNode {
   _rectRef: PIXI.Sprite;
   _textInputRef: PIXI.Text;
   createInputElement;
-  currentInput: HTMLTextAreaElement;
+  currentInput: HTMLDivElement;
+  setCleanAndDisplayText: (input: HTMLDivElement) => void;
+  setCleanText: (text: string) => void;
   onViewportMove: (event: PIXI.InteractionEvent) => void;
   onViewportMoveHandler: (event?: PIXI.InteractionEvent) => void;
 
@@ -222,46 +226,29 @@ export class Note extends PPNode {
 
     //
     this.onViewportMove = function (event: PIXI.InteractionEvent): void {
-      console.log('onViewportMove', event);
+      // console.log('onViewportMove', event);
       const screenPoint = this.graph.viewport.toScreen(
         this.x + NODE_OUTLINE_DISTANCE + INPUTSOCKET_WIDTH,
         this.y + NODE_OUTLINE_DISTANCE + INPUTSOCKET_WIDTH
       );
+      this.currentInput.style.transform = `scale(${this.graph.viewport.scale.x}`;
       this.currentInput.style.left = `${screenPoint.x}px`;
       this.currentInput.style.top = `${screenPoint.y}px`;
     };
     this.onViewportMoveHandler = this.onViewportMove.bind(this);
 
-    const basicText = new PIXI.Text('Basic text in pixi', {
+    const basicText = new PIXI.Text('Placeholder text', {
       fontFamily: 'Arial',
       fontSize: 36,
       fontStyle: 'italic',
       fontWeight: 'bold',
+      align: 'center',
       wordWrap: true,
-      wordWrapWidth: 440,
+      wordWrapWidth: NODE_WIDTH,
       lineJoin: 'round',
     });
     basicText.x = NODE_OUTLINE_DISTANCE + INPUTSOCKET_WIDTH;
     basicText.y = NODE_OUTLINE_DISTANCE + INPUTSOCKET_WIDTH;
-
-    // const input = new (PIXI as any).TextInput({
-    //   input: {
-    //     fontFamily: 'Arial',
-    //     fontSize: '25px',
-    //     multiline: true,
-    //     width: `${NODE_WIDTH - NODE_OUTLINE_DISTANCE * 2}px`,
-    //     height: `${NODE_WIDTH - NODE_OUTLINE_DISTANCE * 2}px`,
-    //   },
-    //   box: {},
-    //   // box: { fill: 0xeeeeee },
-    // });
-    // input.x = NODE_OUTLINE_DISTANCE + INPUTSOCKET_WIDTH;
-    // input.y = NODE_OUTLINE_DISTANCE;
-    // input.placeholder = 'Enter your Text...';
-    // input.substituteText = true;
-    // input.focus();
-
-    // this._rectRef.on('pointerdown', this.trigger.bind(this));
 
     this.drawShape = function () {
       this._BackgroundRef.visible = false;
@@ -273,22 +260,32 @@ export class Note extends PPNode {
       this._rectRef.tint;
 
       this._textInputRef = (this as PIXI.Container).addChild(basicText);
-      this._textInputRef.width = NODE_WIDTH - NODE_OUTLINE_DISTANCE * 2;
+      // this._textInputRef.width = NODE_WIDTH - NODE_OUTLINE_DISTANCE * 2;
       // this._textInputRef.height  = NODE_WIDTH - NODE_OUTLINE_DISTANCE * 2;
       // (this._textInputRef as any) = (this as PIXI.Container).addChild(input);
     };
 
-    this.createInputElement = () => {
+    this.createInputElement = (value?: string) => {
       // create html input element
-      this.currentInput = document.createElement('textarea');
+      // this.currentInput = document.createElement('textarea');
+      this.currentInput = document.createElement('div');
       // this.currentInput.tabindex = -1;
       this.currentInput.id = 'NoteInput';
-      this.currentInput.value = this._textInputRef.text;
+      this.currentInput.contentEditable = 'true';
+      this.currentInput.innerHTML =
+        this.inputSocketArray[0].defaultValue || value;
+      this._textInputRef.visible = false;
       this.currentInput.style.fontFamily = 'Arial';
-      this.currentInput.style.fontSize = '25px';
+      this.currentInput.style.fontStyle = 'italic';
+      this.currentInput.style.fontWeight = 'bold';
+      this.currentInput.style.fontSize = '36px';
+      this.currentInput.style.textAlign = 'center';
       this.currentInput.style.position = 'absolute';
       this.currentInput.style.background = 'transparent';
       this.currentInput.style.border = '0 none';
+      this.currentInput.style.transformOrigin = 'top left';
+      this.currentInput.style.transform = `translate(50%, 50%)`;
+      this.currentInput.style.transform = `scale(${this.graph.viewport.scale.x}`;
       // this.currentInput.style.outline = 'none';
       const screenPoint = this.graph.viewport.toScreen(
         this.x + NODE_OUTLINE_DISTANCE + INPUTSOCKET_WIDTH,
@@ -297,10 +294,10 @@ export class Note extends PPNode {
       this.currentInput.style.left = `${screenPoint.x}px`;
       this.currentInput.style.top = `${screenPoint.y}px`;
       this.currentInput.style.width = `${
-        this.graph.viewport.scale.x * (NODE_WIDTH - NODE_OUTLINE_DISTANCE * 2)
+        NODE_WIDTH - NODE_OUTLINE_DISTANCE * 2
       }px`;
       this.currentInput.style.height = `${
-        this.graph.viewport.scale.y * (NODE_WIDTH - NODE_OUTLINE_DISTANCE * 2)
+        NODE_WIDTH - NODE_OUTLINE_DISTANCE * 2
       }px`;
       // this.currentInput.style.display = 'none';
       this.currentInput.style.resize = 'none';
@@ -313,8 +310,9 @@ export class Note extends PPNode {
       this.currentInput.addEventListener('blur', (e) => {
         console.log('blur', e);
         this.graph.viewport.removeListener('moved', this.onViewportMoveHandler);
-        this._textInputRef.text = this.currentInput.value;
+        this.setCleanAndDisplayText(this.currentInput);
         this.currentInput.remove();
+        this._textInputRef.visible = true;
       });
 
       this.graph.viewport.on('moved', (this as any).onViewportMoveHandler);
@@ -323,12 +321,31 @@ export class Note extends PPNode {
       console.log(this.currentInput);
     };
 
-    this.onNodeDoubleClick = function () {
+    this.setCleanAndDisplayText = (input: HTMLDivElement) => {
+      console.log(getTextWithLineBreaks(input.childNodes[0]));
+      console.log(input.innerHTML);
+      this._textInputRef.text = getTextWithLineBreaks(input.childNodes[0]);
+      this.setCleanText(input.innerHTML);
+    };
+
+    this.setCleanText = (text: string) => {
+      this.inputSocketArray[0].value = text;
+      this.inputSocketArray[0].defaultValue = text;
+      this.setOutputData(0, text);
+    };
+
+    this.onConfigure = (node_info: SerializedNode) => {
+      console.log('onConfigure on Note:', node_info);
+      this.createInputElement(this.inputSocketArray[0].value);
+      this.currentInput.dispatchEvent(new Event('blur'));
+    };
+
+    this.onNodeDoubleClick = () => {
       console.log('_onDoubleClick on Note:', this);
       this.createInputElement();
     };
 
-    this.onExecute = function () {
+    this.onExecute = () => {
       const inputText = this.getInputData(0);
       this._textInputRef.text = inputText;
       this.setOutputData(0, inputText);

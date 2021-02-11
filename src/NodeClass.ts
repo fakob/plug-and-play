@@ -51,6 +51,7 @@ export default class PPNode extends PIXI.Container {
   interactionData: PIXI.InteractionData | null;
 
   // supported callbacks
+  onConfigure: ((node_info: SerializedNode) => void) | null;
   onNodeDoubleClick: ((event: PIXI.InteractionEvent) => void) | null;
 
   constructor(type: string, graph: PPGraph, customId: string) {
@@ -202,6 +203,10 @@ export default class PPNode extends PIXI.Container {
         item.value = node_info.inputSocketArray[index].value;
         item.visible = node_info.inputSocketArray[index].visible;
       });
+    }
+
+    if (this.onConfigure) {
+      this.onConfigure(node_info);
     }
   }
 

@@ -20,7 +20,7 @@ export default class InputSocket extends PIXI.Container {
   _InputNameRef: PIXI.DisplayObject;
   _InputSocketRef: PIXI.DisplayObject;
 
-  defaultValue: any;
+  _defaultValue: any;
   _value: any;
   type: string;
   interactionData: PIXI.InteractionData | null;
@@ -62,7 +62,7 @@ export default class InputSocket extends PIXI.Container {
     this.name = name;
     this.type = type;
     this.link = null;
-    this.defaultValue = defaultValue;
+    this._defaultValue = defaultValue;
     this._value = defaultValue;
     this.visible = visible;
 
@@ -127,6 +127,14 @@ export default class InputSocket extends PIXI.Container {
     this._value = newValue;
   }
 
+  get defaultValue(): any {
+    return this._defaultValue;
+  }
+
+  set defaultValue(newValue: any) {
+    this._defaultValue = newValue;
+  }
+
   // METHODS
 
   removeLink(): void {
@@ -142,7 +150,7 @@ export default class InputSocket extends PIXI.Container {
     return {
       name: this.name,
       type: this.type,
-      defaultValue: this.defaultValue,
+      defaultValue: this._defaultValue,
       value: this.value,
       visible: this.visible,
     };

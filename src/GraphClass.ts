@@ -87,9 +87,11 @@ export default class PPGraph {
 
       // register key events
       const keysDown = (e: KeyboardEvent): void => {
+        console.log(e);
         console.log(e.key);
         if (e.key === 'Backspace' || e.key === 'Delete') {
           if (
+            (e.target as any).id !== 'NoteInput' &&
             (e.target as any).localName !== 'input' &&
             (e.target as any).localName !== 'textarea'
           ) {
