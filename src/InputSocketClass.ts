@@ -69,7 +69,7 @@ export default class InputSocket extends PIXI.Container {
     const socket = new PIXI.Graphics();
     socket.beginFill(SOCKET_COLOR_HEX);
     socket.drawRoundedRect(
-      NODE_OUTLINE_DISTANCE + 0,
+      0,
       NODE_OUTLINE_DISTANCE + INPUTSOCKET_WIDTH / 2,
       INPUTSOCKET_WIDTH,
       INPUTSOCKET_WIDTH,
@@ -78,8 +78,7 @@ export default class InputSocket extends PIXI.Container {
     socket.endFill();
 
     const inputNameText = new PIXI.Text(name, INPUTSOCKET_TEXTSTYLE);
-    inputNameText.x =
-      NODE_OUTLINE_DISTANCE + socket.width + INPUTSOCKET_TEXTMARGIN_LEFT;
+    inputNameText.x = socket.width + INPUTSOCKET_TEXTMARGIN_LEFT;
     inputNameText.y = NODE_OUTLINE_DISTANCE + INPUTSOCKET_TEXTMARGIN_TOP;
     inputNameText.resolution = TEXT_RESOLUTION;
 

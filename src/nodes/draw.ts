@@ -7,6 +7,7 @@ import { convertToArray, getElement } from '../utils';
 import {
   INPUTTYPE,
   OUTPUTTYPE,
+  NOTE_PADDING,
   NOTE_TEXTURE,
   NODE_WIDTH,
   NODE_OUTLINE_DISTANCE,
@@ -218,7 +219,8 @@ export class Note extends PPNode {
     this.name = 'Note';
     this.description = 'Adds a note';
     const note = PIXI.Sprite.from(NOTE_TEXTURE);
-    note.x = NODE_OUTLINE_DISTANCE + INPUTSOCKET_WIDTH / 2;
+    note.x = INPUTSOCKET_WIDTH / 2;
+    note.y = NODE_OUTLINE_DISTANCE;
     note.width = NODE_WIDTH;
     note.height = NODE_WIDTH;
 
@@ -227,10 +229,7 @@ export class Note extends PPNode {
     //
     this.onViewportMove = function (event: PIXI.InteractionEvent): void {
       // console.log('onViewportMove', event);
-      const screenPoint = this.graph.viewport.toScreen(
-        this.x + NODE_OUTLINE_DISTANCE + INPUTSOCKET_WIDTH,
-        this.y + NODE_OUTLINE_DISTANCE + INPUTSOCKET_WIDTH
-      );
+      const screenPoint = this.graph.viewport.toScreen(this.x, this.y);
       this.currentInput.style.transform = `scale(${this.graph.viewport.scale.x}`;
       this.currentInput.style.left = `${screenPoint.x}px`;
       this.currentInput.style.top = `${screenPoint.y}px`;
@@ -243,12 +242,14 @@ export class Note extends PPNode {
       fontStyle: 'italic',
       fontWeight: 'bold',
       align: 'center',
+      whiteSpace: 'pre-line',
       wordWrap: true,
-      wordWrapWidth: NODE_WIDTH,
+      wordWrapWidth: NODE_WIDTH - NODE_OUTLINE_DISTANCE,
       lineJoin: 'round',
     });
-    basicText.x = NODE_OUTLINE_DISTANCE + INPUTSOCKET_WIDTH;
-    basicText.y = NODE_OUTLINE_DISTANCE + INPUTSOCKET_WIDTH;
+    basicText.anchor.set(0.5, 0.5);
+    basicText.x = (INPUTSOCKET_WIDTH + NODE_WIDTH) / 2;
+    basicText.y = (NODE_OUTLINE_DISTANCE + NODE_WIDTH) / 2;
 
     this.drawShape = function () {
       this._BackgroundRef.visible = false;
@@ -280,25 +281,21 @@ export class Note extends PPNode {
       this.currentInput.style.fontWeight = 'bold';
       this.currentInput.style.fontSize = '36px';
       this.currentInput.style.textAlign = 'center';
+      this.currentInput.style.padding = `${NOTE_PADDING}px`;
       this.currentInput.style.position = 'absolute';
       this.currentInput.style.background = 'transparent';
       this.currentInput.style.border = '0 none';
       this.currentInput.style.transformOrigin = 'top left';
       this.currentInput.style.transform = `translate(50%, 50%)`;
       this.currentInput.style.transform = `scale(${this.graph.viewport.scale.x}`;
-      // this.currentInput.style.outline = 'none';
-      const screenPoint = this.graph.viewport.toScreen(
-        this.x + NODE_OUTLINE_DISTANCE + INPUTSOCKET_WIDTH,
-        this.y + NODE_OUTLINE_DISTANCE + INPUTSOCKET_WIDTH
-      );
+      this.currentInput.style.outline = '1px dashed black';
+      const screenPoint = this.graph.viewport.toScreen(this.x, this.y);
       this.currentInput.style.left = `${screenPoint.x}px`;
       this.currentInput.style.top = `${screenPoint.y}px`;
       this.currentInput.style.width = `${
-        NODE_WIDTH - NODE_OUTLINE_DISTANCE * 2
+        NODE_WIDTH + INPUTSOCKET_WIDTH - NOTE_PADDING * 2
       }px`;
-      this.currentInput.style.height = `${
-        NODE_WIDTH - NODE_OUTLINE_DISTANCE * 2
-      }px`;
+      this.currentInput.style.height = `${NODE_WIDTH - NOTE_PADDING * 2}px`;
       // this.currentInput.style.display = 'none';
       this.currentInput.style.resize = 'none';
       this.currentInput.style.overflowY = 'scroll';
@@ -325,7 +322,7 @@ export class Note extends PPNode {
       console.log(getTextWithLineBreaks(input.childNodes[0]));
       console.log(input.innerHTML);
       this._textInputRef.text = getTextWithLineBreaks(input.childNodes[0]);
-      this.setCleanText(input.innerHTML);
+      this.setCleanText(input.textContent);
     };
 
     this.setCleanText = (text: string) => {

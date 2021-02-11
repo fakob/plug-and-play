@@ -1,5 +1,3 @@
-import os from 'os';
-
 export const rgbToHex = (rgbArray: number[]): string => {
   return rgbArray
     .slice(0, 3)
@@ -56,5 +54,5 @@ export const getTextWithLineBreaks = (node: any): string => {
   // push the last line
   lines.push(str.substr(lastFound));
 
-  return lines.join(os.EOL);
+  return lines.join('\n');
 };

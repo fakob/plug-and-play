@@ -66,7 +66,7 @@ export default class PPNode extends PIXI.Container {
     this.clickedSocketRef = null;
 
     const inputNameText = new PIXI.Text(this.name, NODE_TEXTSTYLE);
-    inputNameText.x = NODE_OUTLINE_DISTANCE + NODE_HEADER_TEXTMARGIN_LEFT;
+    inputNameText.x = NODE_HEADER_TEXTMARGIN_LEFT;
     inputNameText.y =
       NODE_OUTLINE_DISTANCE + NODE_MARGIN_TOP + NODE_HEADER_TEXTMARGIN_TOP;
     inputNameText.resolution = 8;
@@ -215,7 +215,7 @@ export default class PPNode extends PIXI.Container {
     this._BackgroundRef.clear();
     this._BackgroundRef.beginFill(NODE_BACKGROUNDCOLOR_HEX);
     this._BackgroundRef.drawRoundedRect(
-      NODE_OUTLINE_DISTANCE + INPUTSOCKET_WIDTH / 2,
+      INPUTSOCKET_WIDTH / 2,
       NODE_OUTLINE_DISTANCE + 0,
       NODE_WIDTH,
       NODE_MARGIN_TOP +
@@ -235,7 +235,7 @@ export default class PPNode extends PIXI.Container {
     if (selected) {
       this._BackgroundRef.lineStyle(2, NODE_SELECTIONCOLOR_HEX, 1, 0);
       this._BackgroundRef.drawRoundedRect(
-        INPUTSOCKET_WIDTH / 2,
+        INPUTSOCKET_WIDTH / 2 - NODE_OUTLINE_DISTANCE,
         0,
         NODE_OUTLINE_DISTANCE * 2 + NODE_WIDTH,
         NODE_OUTLINE_DISTANCE * 2 +
@@ -363,6 +363,7 @@ export default class PPNode extends PIXI.Container {
   }
 
   _onPointerDown(event: PIXI.InteractionEvent): void {
+    event.stopPropagation();
     const node = event.target as PPNode;
 
     if (node.clickedSocketRef === null) {
