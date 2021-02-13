@@ -2,6 +2,7 @@ import * as PIXI from 'pixi.js';
 import PPGraph from '../GraphClass';
 import PPNode from '../NodeClass';
 import { SerializedNode } from '../interfaces';
+import textFit from '../pixi/textFit';
 import { rgbToHex, getTextWithLineBreaks } from '../pixi/utils-pixi';
 import { convertToArray, getElement } from '../utils';
 import {
@@ -13,7 +14,6 @@ import {
   NODE_OUTLINE_DISTANCE,
   INPUTSOCKET_WIDTH,
 } from '../constants';
-import '../pixi/textFit';
 
 export class DrawRect extends PPNode {
   _x: number;
@@ -279,7 +279,7 @@ export class Note extends PPNode {
       this.currentInput.style.fontFamily = 'Arial';
       this.currentInput.style.fontStyle = 'italic';
       this.currentInput.style.fontWeight = 'bold';
-      this.currentInput.style.fontSize = '36px';
+      this.currentInput.style.fontSize = this._textInputRef.style.fontSize;
       this.currentInput.style.textAlign = 'center';
       this.currentInput.style.padding = `${NOTE_PADDING}px`;
       this.currentInput.style.position = 'absolute';
@@ -300,16 +300,44 @@ export class Note extends PPNode {
       this.currentInput.style.resize = 'none';
       this.currentInput.style.overflowY = 'scroll';
       setTimeout(() => {
+        const range = document.createRange();
+        const sel = window.getSelection();
+        // range.setStart(this.currentInput.childNodes[0], 2)
+        range.selectNodeContents(this.currentInput);
+        range.collapse(false);
+        sel.removeAllRanges();
+        sel.addRange(range);
         this.currentInput.focus();
-      }, 100);
+        console.log(this.currentInput);
+      }, 1);
+
+      this.currentInput.dispatchEvent(new Event('input'));
 
       // add event handlers
       this.currentInput.addEventListener('blur', (e) => {
         console.log('blur', e);
         this.graph.viewport.removeListener('moved', this.onViewportMoveHandler);
+        this.currentInput.dispatchEvent(new Event('input'));
         this.setCleanAndDisplayText(this.currentInput);
         this.currentInput.remove();
         this._textInputRef.visible = true;
+      });
+
+      this.currentInput.addEventListener('input', (e) => {
+        // console.log('input', e);
+        console.log(this.currentInput);
+
+        textFit(this.currentInput, { multiLine: true });
+        const style = window.getComputedStyle(
+          this.currentInput.children[0],
+          null
+        );
+        console.log(this.currentInput);
+        console.log(style.fontSize);
+        // this.graph.viewport.removeListener('moved', this.onViewportMoveHandler);
+        // this.setCleanAndDisplayText(this.currentInput);
+        // this.currentInput.remove();
+        // this._textInputRef.visible = true;
       });
 
       this.graph.viewport.on('moved', (this as any).onViewportMoveHandler);
@@ -319,9 +347,21 @@ export class Note extends PPNode {
     };
 
     this.setCleanAndDisplayText = (input: HTMLDivElement) => {
-      console.log(getTextWithLineBreaks(input.childNodes[0]));
+      console.log(
+        getTextWithLineBreaks(
+          input.children[0] === undefined
+            ? input.childNodes[0]
+            : input.children[0].childNodes[0]
+        )
+      );
       console.log(input.innerHTML);
-      this._textInputRef.text = getTextWithLineBreaks(input.childNodes[0]);
+      console.log(input.children);
+      console.log(input.children[0]);
+      const style = window.getComputedStyle(input.children[0], null);
+      this._textInputRef.style.fontSize = style.fontSize;
+      this._textInputRef.text = getTextWithLineBreaks(
+        input.children[0].childNodes[0]
+      );
       this.setCleanText(input.textContent);
     };
 
@@ -334,6 +374,7 @@ export class Note extends PPNode {
     this.onConfigure = (node_info: SerializedNode) => {
       console.log('onConfigure on Note:', node_info);
       this.createInputElement(this.inputSocketArray[0].value);
+      this.currentInput.dispatchEvent(new Event('input'));
       this.currentInput.dispatchEvent(new Event('blur'));
     };
 
