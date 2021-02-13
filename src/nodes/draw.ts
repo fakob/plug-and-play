@@ -226,6 +226,12 @@ export class Note extends PPNode {
 
     this.currentInput = null;
 
+    const textFitOptions = {
+      multiLine: true,
+      maxFontSize: 50,
+      // alignVertWithFlexbox: true,
+    };
+
     //
     this.onViewportMove = function (event: PIXI.InteractionEvent): void {
       // console.log('onViewportMove', event);
@@ -244,7 +250,7 @@ export class Note extends PPNode {
       align: 'center',
       whiteSpace: 'pre-line',
       wordWrap: true,
-      wordWrapWidth: NODE_WIDTH - NODE_OUTLINE_DISTANCE,
+      wordWrapWidth: NODE_WIDTH - NOTE_PADDING,
       lineJoin: 'round',
     });
     basicText.anchor.set(0.5, 0.5);
@@ -254,23 +260,17 @@ export class Note extends PPNode {
     this.drawShape = function () {
       this._BackgroundRef.visible = false;
       this._NodeNameRef.visible = false;
-      // this._rectRef.clear();
 
       (this._rectRef as any) = (this as PIXI.Container).addChild(note);
       this._rectRef.alpha = 1;
       this._rectRef.tint;
 
       this._textInputRef = (this as PIXI.Container).addChild(basicText);
-      // this._textInputRef.width = NODE_WIDTH - NODE_OUTLINE_DISTANCE * 2;
-      // this._textInputRef.height  = NODE_WIDTH - NODE_OUTLINE_DISTANCE * 2;
-      // (this._textInputRef as any) = (this as PIXI.Container).addChild(input);
     };
 
     this.createInputElement = (value?: string) => {
       // create html input element
-      // this.currentInput = document.createElement('textarea');
       this.currentInput = document.createElement('div');
-      // this.currentInput.tabindex = -1;
       this.currentInput.id = 'NoteInput';
       this.currentInput.contentEditable = 'true';
       this.currentInput.innerHTML =
@@ -300,16 +300,22 @@ export class Note extends PPNode {
       this.currentInput.style.resize = 'none';
       this.currentInput.style.overflowY = 'scroll';
       setTimeout(() => {
+        // run textfit once so span in div is already added
+        // and caret does not jump after first edit
+        textFit(this.currentInput, textFitOptions);
+
+        // set caret to end
         const range = document.createRange();
         const sel = window.getSelection();
-        // range.setStart(this.currentInput.childNodes[0], 2)
         range.selectNodeContents(this.currentInput);
         range.collapse(false);
         sel.removeAllRanges();
         sel.addRange(range);
+
+        // set focus
         this.currentInput.focus();
         console.log(this.currentInput);
-      }, 1);
+      }, 100);
 
       this.currentInput.dispatchEvent(new Event('input'));
 
@@ -325,19 +331,8 @@ export class Note extends PPNode {
 
       this.currentInput.addEventListener('input', (e) => {
         // console.log('input', e);
-        console.log(this.currentInput);
-
-        textFit(this.currentInput, { multiLine: true });
-        const style = window.getComputedStyle(
-          this.currentInput.children[0],
-          null
-        );
-        console.log(this.currentInput);
-        console.log(style.fontSize);
-        // this.graph.viewport.removeListener('moved', this.onViewportMoveHandler);
-        // this.setCleanAndDisplayText(this.currentInput);
-        // this.currentInput.remove();
-        // this._textInputRef.visible = true;
+        // run textFit to recalculate the font size
+        textFit(this.currentInput, textFitOptions);
       });
 
       this.graph.viewport.on('moved', (this as any).onViewportMoveHandler);
@@ -347,21 +342,10 @@ export class Note extends PPNode {
     };
 
     this.setCleanAndDisplayText = (input: HTMLDivElement) => {
-      console.log(
-        getTextWithLineBreaks(
-          input.children[0] === undefined
-            ? input.childNodes[0]
-            : input.children[0].childNodes[0]
-        )
-      );
-      console.log(input.innerHTML);
-      console.log(input.children);
-      console.log(input.children[0]);
+      // get font size of editable div
       const style = window.getComputedStyle(input.children[0], null);
       this._textInputRef.style.fontSize = style.fontSize;
-      this._textInputRef.text = getTextWithLineBreaks(
-        input.children[0].childNodes[0]
-      );
+      this._textInputRef.text = input.textContent;
       this.setCleanText(input.textContent);
     };
 
