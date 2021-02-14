@@ -214,7 +214,7 @@ export class Note extends PPNode {
   constructor(name: string, graph: PPGraph, customId: string) {
     super(name, graph, customId);
     this.addOutput('output', OUTPUTTYPE.STRING);
-    this.addInput('input', INPUTTYPE.STRING);
+    this.addInput('input', INPUTTYPE.STRING, 'type...');
 
     this.name = 'Note';
     this.description = 'Adds a note';
@@ -242,11 +242,11 @@ export class Note extends PPNode {
     };
     this.onViewportMoveHandler = this.onViewportMove.bind(this);
 
-    const basicText = new PIXI.Text('Placeholder text', {
+    const basicText = new PIXI.Text('', {
       fontFamily: 'Arial',
       fontSize: 36,
-      fontStyle: 'italic',
-      fontWeight: 'bold',
+      // fontStyle: 'italic',
+      // fontWeight: 'bold',
       align: 'center',
       whiteSpace: 'pre-line',
       wordWrap: true,
@@ -268,17 +268,16 @@ export class Note extends PPNode {
       this._textInputRef = (this as PIXI.Container).addChild(basicText);
     };
 
-    this.createInputElement = (value?: string) => {
+    this.createInputElement = () => {
       // create html input element
       this.currentInput = document.createElement('div');
       this.currentInput.id = 'NoteInput';
       this.currentInput.contentEditable = 'true';
-      this.currentInput.innerHTML =
-        this.inputSocketArray[0].defaultValue || value;
+      this.currentInput.innerHTML = this.inputSocketArray[0].defaultValue;
       this._textInputRef.visible = false;
       this.currentInput.style.fontFamily = 'Arial';
-      this.currentInput.style.fontStyle = 'italic';
-      this.currentInput.style.fontWeight = 'bold';
+      // this.currentInput.style.fontStyle = 'italic';
+      // this.currentInput.style.fontWeight = 'bold';
       this.currentInput.style.fontSize = this._textInputRef.style.fontSize;
       this.currentInput.style.textAlign = 'center';
       this.currentInput.style.padding = `${NOTE_PADDING}px`;
@@ -357,7 +356,7 @@ export class Note extends PPNode {
 
     this.onConfigure = (node_info: SerializedNode) => {
       console.log('onConfigure on Note:', node_info);
-      this.createInputElement(this.inputSocketArray[0].value);
+      this.createInputElement();
       this.currentInput.dispatchEvent(new Event('input'));
       this.currentInput.dispatchEvent(new Event('blur'));
     };
