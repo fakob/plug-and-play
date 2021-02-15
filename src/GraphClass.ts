@@ -282,8 +282,8 @@ export default class PPGraph {
 
   registerNodeType(type: string, nodeConstructor: PPNodeConstructor): void {
     nodeConstructor.type = type;
-    console.log('Node registered: ' + type);
-    console.log(this._registeredNodeTypes);
+    // console.log('Node registered: ' + type);
+    // console.log(this._registeredNodeTypes);
 
     // create/update node type
     this._registeredNodeTypes[type] = nodeConstructor;
@@ -326,7 +326,7 @@ export default class PPGraph {
     // change add id to title
     const newName = `${node.nodeName} : ${node.id}`;
     node.nodeName = newName;
-    console.log(node.nodeName);
+    // console.log(node.nodeName);
 
     // add the node to the canvas
     this.nodeContainer.addChild(node);
@@ -348,7 +348,7 @@ export default class PPGraph {
     const node = this.createNode(type, customId) as T;
     // if (node) {
     this.addNode(node);
-    console.log(node);
+    // console.log(node);
     return node;
     // }
   }

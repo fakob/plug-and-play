@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
 import * as PIXI from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
+import { MenuItem } from '@blueprintjs/core';
+import { Omnibar, ItemRenderer, ItemPredicate } from '@blueprintjs/select';
 import ReactContainer from './ReactContainer';
 import PixiContainer from './PixiContainer';
 import * as dat from 'dat.gui';
@@ -12,19 +14,26 @@ import {
   CANVAS_BACKGROUND_TEXTURE,
   DEFAULT_EDITOR_DATA,
 } from './constants';
+import { INodes } from './interfaces';
+import { highlightText } from './utils';
 import { registerAllNodeTypes } from './nodes/allNodes';
 import styles from './style.module.css';
 
 (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__ &&
   (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__.register({ PIXI: PIXI });
 
+const NodeSearch = Omnibar.ofType<INodes>();
+
 const App = (): JSX.Element => {
   let pixiApp: PIXI.Application;
-  let currentGraph: PPGraph;
+  // let currentGraph: PPGraph;
 
   const db = new GraphDatabase();
+  const currentGraph = useRef<PPGraph | null>(null);
   const pixiContext = useRef<HTMLDivElement | null>(null);
-  const [editorData, setEditorData] = React.useState(DEFAULT_EDITOR_DATA);
+  const [editorData, setEditorData] = useState(DEFAULT_EDITOR_DATA);
+  const [isOpen, setIsOpen] = useState(false);
+  const [isCurrentGraphLoaded, setIsCurrentGraphLoaded] = useState(false);
 
   // on mount
   useEffect(() => {
@@ -92,13 +101,20 @@ const App = (): JSX.Element => {
     background.alpha = CANVAS_BACKGROUND_ALPHA;
 
     // add graph to pixiApp
-    currentGraph = new PPGraph(pixiApp, viewport);
+    currentGraph.current = new PPGraph(pixiApp, viewport);
 
     // register all available node types
-    registerAllNodeTypes(currentGraph);
+    registerAllNodeTypes(currentGraph.current);
     const allRegisteredNodeTypeNames = Object.keys(
-      currentGraph.registeredNodeTypes
+      currentGraph.current.registeredNodeTypes
     );
+
+    console.log(
+      'currentGraph.current.registeredNodeTypes:',
+      currentGraph.current.registeredNodeTypes
+    );
+    console.log('allRegisteredNodeTypeNames:', allRegisteredNodeTypeNames);
+    console.log('currentGraph.current:', currentGraph.current);
 
     // draw temporary gui
     const gui = new dat.GUI();
@@ -107,7 +123,7 @@ const App = (): JSX.Element => {
       showComments: true,
       run: false,
       runStep: function () {
-        currentGraph.runStep();
+        currentGraph.current.runStep();
       },
       saveGraph: function () {
         serializeGraph();
@@ -116,7 +132,7 @@ const App = (): JSX.Element => {
         loadCurrentGraph();
       },
       duplicateSelection: function () {
-        currentGraph.duplicateSelection();
+        currentGraph.current.duplicateSelection();
       },
       addNode: '',
       showEditor: true,
@@ -133,40 +149,52 @@ const App = (): JSX.Element => {
     gui.add(data, 'runStep');
     gui.add(data, 'showComments').onChange((value) => {
       console.log(value);
-      currentGraph.showComments = value;
+      currentGraph.current.showComments = value;
     });
     gui
       .add(data, 'addNode', allRegisteredNodeTypeNames)
       .onChange((selected) => {
         console.log(selected);
-        currentGraph.createAndAddNode(selected);
+        currentGraph.current.createAndAddNode(selected);
       });
 
     pixiApp.ticker.add(() => {
       if (data.run) {
-        currentGraph.runStep();
+        currentGraph.current.runStep();
       }
     });
 
     loadCurrentGraph();
+    setIsCurrentGraphLoaded(true);
+    console.log('currentGraph.current:', currentGraph.current);
 
     // register callbacks
-    currentGraph.onSelectionChange = (selectedNodes: string[]) => {
+    currentGraph.current.onSelectionChange = (selectedNodes: string[]) => {
       console.log(selectedNodes);
       let codeString = '';
       selectedNodes.forEach((nodeId) => {
-        const selectedNode = currentGraph.nodes.find(
+        const selectedNode = currentGraph.current.nodes.find(
           (node) => node.id === nodeId
         );
         console.log(selectedNode);
         const selectedNodeType = selectedNode.type;
-        codeString = currentGraph.customNodeTypes[selectedNodeType];
+        codeString = currentGraph.current.customNodeTypes[selectedNodeType];
         // if (codeString) {
         console.log(codeString);
         setEditorData(codeString);
         // }
       });
     };
+
+    // register key events
+    const keysDown = (e: KeyboardEvent): void => {
+      console.log(e);
+      console.log(e.key);
+      if (e.ctrlKey && e.key === 'f') {
+        setIsOpen((prevState) => !prevState);
+      }
+    };
+    window.addEventListener('keydown', keysDown.bind(this));
 
     return () => {
       // On unload completely destroy the application and all of it's children
@@ -177,7 +205,7 @@ const App = (): JSX.Element => {
   }, []);
 
   function serializeGraph() {
-    const serializedGraph = currentGraph.serialize();
+    const serializedGraph = currentGraph.current.serialize();
     console.log(serializedGraph);
     console.info(serializedGraph.customNodeTypes);
     // console.log(JSON.stringify(serializedGraph));
@@ -203,9 +231,9 @@ const App = (): JSX.Element => {
 
         // configure graph
         const graphData = lastGraph[0].graphData;
-        currentGraph.configure(graphData, false);
+        currentGraph.current.configure(graphData, false);
 
-        console.log(currentGraph.nodeContainer.children);
+        console.log(currentGraph.current.nodeContainer.children);
       } else {
         console.log('No saved graphData');
       }
@@ -215,16 +243,70 @@ const App = (): JSX.Element => {
   }
 
   function createOrUpdateNodeFromCode(code) {
-    currentGraph.createOrUpdateNodeFromCode(code);
+    currentGraph.current.createOrUpdateNodeFromCode(code);
     setEditorData(code);
   }
+
+  const handleItemSelect = (selected: INodes) => {
+    console.log(selected);
+    currentGraph.current.createAndAddNode(selected.title);
+    setIsOpen(false);
+  };
 
   return (
     <>
       <PixiContainer ref={pixiContext} />
       <ReactContainer value={editorData} onSave={createOrUpdateNodeFromCode} />
+      {isCurrentGraphLoaded && (
+        <NodeSearch
+          itemRenderer={renderFilm}
+          items={
+            Object.keys(currentGraph.current.registeredNodeTypes).map(
+              (node) => {
+                return { title: node };
+              }
+            ) as INodes[]
+          }
+          itemPredicate={filterNode}
+          onItemSelect={handleItemSelect}
+          resetOnQuery={true}
+          resetOnSelect={true}
+          // onClose={this.handleClose}
+          isOpen={isOpen}
+        />
+      )}
     </>
   );
 };
 
 export default App;
+
+const filterNode: ItemPredicate<INodes> = (query, node, _index, exactMatch) => {
+  const normalizedTitle = node.title.toLowerCase();
+  const normalizedQuery = query.toLowerCase();
+
+  if (exactMatch) {
+    return normalizedTitle === normalizedQuery;
+  } else {
+    return `${normalizedTitle}`.indexOf(normalizedQuery) >= 0;
+  }
+};
+
+const renderFilm: ItemRenderer<INodes> = (
+  node,
+  { handleClick, modifiers, query }
+) => {
+  if (!modifiers.matchesPredicate) {
+    return null;
+  }
+  const text = `${node.title}`;
+  return (
+    <MenuItem
+      active={modifiers.active}
+      disabled={modifiers.disabled}
+      key={node.title}
+      onClick={handleClick}
+      text={highlightText(text, query)}
+    />
+  );
+};
