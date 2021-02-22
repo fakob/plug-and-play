@@ -480,39 +480,6 @@ export default class PPGraph {
       node.select(true);
       this.selectedNodes = [node.id];
 
-      // add node gui
-      gui = new dat.GUI();
-      const data = {};
-      node.inputSocketArray.forEach((item) => {
-        data[item.name] = item.value;
-        console.log(item);
-        console.log(item.value);
-        // console.log(data);
-        switch (item.type) {
-          case 'number':
-            gui.add(data, item.name, 0, 100, 1).onChange((value) => {
-              console.log(item, value);
-              item.value = value;
-            });
-            break;
-          case 'string':
-            gui.add(data, item.name).onChange((value) => {
-              console.log(item, value);
-              item.value = value;
-            });
-            break;
-          case 'color':
-            gui.addColor(data, item.name).onChange((value) => {
-              console.log(item, value);
-              item.value = value;
-            });
-            break;
-
-          default:
-            break;
-        }
-      });
-
       if (this.onSelectionChange) {
         this.onSelectionChange(this.selectedNodes);
       }

@@ -22,7 +22,7 @@ export default class InputSocket extends PIXI.Container {
 
   _defaultValue: any;
   _value: any;
-  type: string;
+  _type: string;
   interactionData: PIXI.InteractionData | null;
   // isMovingLink: boolean;
 
@@ -60,7 +60,7 @@ export default class InputSocket extends PIXI.Container {
     }
 
     this.name = name;
-    this.type = type;
+    this._type = type;
     this.link = null;
     this._defaultValue = defaultValue;
     this._value = defaultValue;
@@ -124,6 +124,14 @@ export default class InputSocket extends PIXI.Container {
 
   set value(newValue: any) {
     this._value = newValue;
+  }
+
+  get type(): string {
+    return this._type;
+  }
+
+  set type(newValue: string) {
+    this._type = newValue;
   }
 
   get defaultValue(): any {

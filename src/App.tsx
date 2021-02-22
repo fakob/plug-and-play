@@ -3,7 +3,7 @@ import * as PIXI from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
 import { Alignment, Button, MenuItem, Navbar } from '@blueprintjs/core';
 import { Omnibar, ItemRenderer, ItemPredicate } from '@blueprintjs/select';
-import ReactContainer from './ReactContainer';
+import InspectorContainer from './InspectorContainer';
 import PixiContainer from './PixiContainer';
 import { GraphDatabase } from './indexeddb';
 import PPGraph from './GraphClass';
@@ -17,6 +17,7 @@ import { INodes } from './interfaces';
 import { highlightText } from './utils';
 import { registerAllNodeTypes } from './nodes/allNodes';
 import styles from './style.module.css';
+import PPNode from './NodeClass';
 
 (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__ &&
   (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__.register({ PIXI: PIXI });
@@ -34,6 +35,7 @@ const App = (): JSX.Element => {
   const [isCurrentGraphLoaded, setIsCurrentGraphLoaded] = useState(false);
   const [showEditor, setShowEditor] = useState(false);
   const [showComments, setShowComments] = useState(false);
+  const [selectedNode, setSelectedNode] = useState<PPNode | null>(null);
 
   // on mount
   useEffect(() => {
@@ -131,8 +133,8 @@ const App = (): JSX.Element => {
       console.log(selectedNodes);
       let codeString = '';
       selectedNodes.forEach((nodeId) => {
-        const selectedNode = currentGraph.current.nodes.find(
-          (node) => node.id === nodeId
+        setSelectedNode(
+          currentGraph.current.nodes.find((node) => node.id === nodeId)
         );
         console.log(selectedNode);
         const selectedNodeType = selectedNode.type;
@@ -221,12 +223,13 @@ const App = (): JSX.Element => {
   return (
     <>
       <PixiContainer ref={pixiContext} />
-      <ReactContainer
+      <InspectorContainer
+        selectedNode={selectedNode}
         showEditor={showEditor}
         value={editorData}
         onSave={createOrUpdateNodeFromCode}
       />
-      <Navbar>
+      <Navbar className="bp3-dark">
         <Navbar.Group align={Alignment.LEFT}>
           <Navbar.Heading>Plug and Playground</Navbar.Heading>
           <Navbar.Divider />

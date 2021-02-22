@@ -1,9 +1,13 @@
 import React, { useRef, useState } from 'react';
 import MonacoEditor from 'react-monaco-editor';
+import { H3, H4, H5, Slider } from '@blueprintjs/core';
 
 import styles from './style.module.css';
+import PPNode from './NodeClass';
+import { InputContainer } from './InputContainer';
 
 type MyProps = {
+  selectedNode: PPNode;
   showEditor: boolean;
   value?: string;
   onSave?: (code: string) => void;
@@ -11,6 +15,7 @@ type MyProps = {
 
 const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
   const editorRef = useRef<any>();
+  console.log(props.selectedNode);
   console.log(props.value);
 
   const saveCode = () => {
@@ -39,11 +44,23 @@ const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
   };
 
   return (
-    <div className={styles.editor} id="editorwrapper">
+    <div className={`${styles.inspectorContainer} bp3-dark`} id="editorwrapper">
+      <H3>Inspector</H3>
+      <H4>{props.selectedNode?.id}</H4>
+      <H5>{props.selectedNode?.name}</H5>
+      <InputContainer inputSocketArray={props.selectedNode?.inputSocketArray} />
+      {/* <Slider
+        min={0}
+        max={10}
+        stepSize={0.1}
+        labelStepSize={10}
+        // onChange={this.getChangeHandler('value2')}
+        // value={this.state.value2}
+        // vertical={vertical}
+      /> */}
+      <pre>{JSON.stringify(props.selectedNode?.serialize())}</pre>
       {props.showEditor && (
         <MonacoEditor
-          // width="800"
-          // height="600"
           language="javascript"
           theme="vs-dark"
           value={props.value}
