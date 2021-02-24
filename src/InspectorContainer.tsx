@@ -1,22 +1,22 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import MonacoEditor from 'react-monaco-editor';
 import { H3, H4, H5, Slider } from '@blueprintjs/core';
 
 import styles from './style.module.css';
 import PPNode from './NodeClass';
-import { InputContainer } from './InputContainer';
+import { InputArrayContainer } from './InputArrayContainer';
+import PPGraph from './GraphClass';
 
 type MyProps = {
+  currentGraph: PPGraph;
   selectedNode: PPNode;
-  showEditor: boolean;
-  value?: string;
   onSave?: (code: string) => void;
 };
 
 const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
   const editorRef = useRef<any>();
+  const [codeString, setCodeString] = useState<string | undefined>(undefined);
   console.log(props.selectedNode);
-  console.log(props.value);
 
   const saveCode = () => {
     console.log('Create/Update node command from Editor');
@@ -43,12 +43,21 @@ const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
     editor.focus();
   };
 
+  useEffect(() => {
+    const selectedNodeType = props.selectedNode.type;
+    const value = props.currentGraph.customNodeTypes[selectedNodeType];
+    console.log(value);
+    setCodeString(value);
+  }, [codeString]);
+
   return (
     <div className={`${styles.inspectorContainer} bp3-dark`} id="editorwrapper">
       <H3>Inspector</H3>
       <H4>{props.selectedNode?.id}</H4>
       <H5>{props.selectedNode?.name}</H5>
-      <InputContainer inputSocketArray={props.selectedNode?.inputSocketArray} />
+      <InputArrayContainer
+        inputSocketArray={props.selectedNode?.inputSocketArray}
+      />
       {/* <Slider
         min={0}
         max={10}
@@ -59,11 +68,11 @@ const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
         // vertical={vertical}
       /> */}
       <pre>{JSON.stringify(props.selectedNode?.serialize())}</pre>
-      {props.showEditor && (
+      {codeString && (
         <MonacoEditor
           language="javascript"
           theme="vs-dark"
-          value={props.value}
+          value={codeString}
           options={{
             selectOnLineNumbers: true,
             scrollBeyondLastLine: false,

@@ -30,10 +30,8 @@ const App = (): JSX.Element => {
   const currentGraph = useRef<PPGraph | null>(null);
   const runGraph = useRef<boolean>(false);
   const pixiContext = useRef<HTMLDivElement | null>(null);
-  const [editorData, setEditorData] = useState(DEFAULT_EDITOR_DATA);
   const [isOpen, setIsOpen] = useState(false);
   const [isCurrentGraphLoaded, setIsCurrentGraphLoaded] = useState(false);
-  const [showEditor, setShowEditor] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [selectedNode, setSelectedNode] = useState<PPNode | null>(null);
 
@@ -131,19 +129,18 @@ const App = (): JSX.Element => {
     // register callbacks
     currentGraph.current.onSelectionChange = (selectedNodes: string[]) => {
       console.log(selectedNodes);
-      let codeString = '';
-      selectedNodes.forEach((nodeId) => {
-        setSelectedNode(
-          currentGraph.current.nodes.find((node) => node.id === nodeId)
-        );
-        console.log(selectedNode);
-        const selectedNodeType = selectedNode.type;
-        codeString = currentGraph.current.customNodeTypes[selectedNodeType];
-        // if (codeString) {
-        console.log(codeString);
-        setEditorData(codeString);
-        // }
-      });
+      if (selectedNodes.length === 0) {
+        setSelectedNode(null);
+      } else {
+        selectedNodes.forEach((nodeId) => {
+          console.log(
+            currentGraph.current.nodes.find((node) => node.id === nodeId)
+          );
+          setSelectedNode(
+            currentGraph.current.nodes.find((node) => node.id === nodeId)
+          );
+        });
+      }
     };
 
     // register key events
@@ -171,6 +168,17 @@ const App = (): JSX.Element => {
     currentGraph.current.showComments = showComments;
   }, [showComments]);
 
+  // useEffect(() => {
+  //   console.log(selectedNode);
+  //   if (selectedNode) {
+  //     const selectedNodeType = selectedNode.type;
+  //     const codeString = currentGraph.current.customNodeTypes[selectedNodeType];
+  //     console.log(codeString);
+  //     setEditorData(codeString || '');
+  //     currentGraph.current.showComments = showComments;
+  //   }
+  // }, [selectedNode]);
+
   function serializeGraph() {
     const serializedGraph = currentGraph.current.serialize();
     console.log(serializedGraph);
@@ -181,7 +189,6 @@ const App = (): JSX.Element => {
         id: 0,
         date: new Date(),
         graphData: serializedGraph,
-        editorData,
       });
       console.log(`Saved currentGraph: ${id}`);
     }).catch((e) => {
@@ -193,9 +200,6 @@ const App = (): JSX.Element => {
     db.transaction('rw', db.currentGraph, async () => {
       const lastGraph = await db.currentGraph.where({ id: 0 }).toArray();
       if (lastGraph.length > 0) {
-        // load editorData
-        setEditorData(lastGraph[0].editorData);
-
         // configure graph
         const graphData = lastGraph[0].graphData;
         currentGraph.current.configure(graphData, false);
@@ -211,7 +215,6 @@ const App = (): JSX.Element => {
 
   function createOrUpdateNodeFromCode(code) {
     currentGraph.current.createOrUpdateNodeFromCode(code);
-    setEditorData(code);
   }
 
   const handleItemSelect = (selected: INodes) => {
@@ -223,12 +226,13 @@ const App = (): JSX.Element => {
   return (
     <>
       <PixiContainer ref={pixiContext} />
-      <InspectorContainer
-        selectedNode={selectedNode}
-        showEditor={showEditor}
-        value={editorData}
-        onSave={createOrUpdateNodeFromCode}
-      />
+      {selectedNode && (
+        <InspectorContainer
+          currentGraph={currentGraph.current}
+          selectedNode={selectedNode}
+          onSave={createOrUpdateNodeFromCode}
+        />
+      )}
       <Navbar className="bp3-dark">
         <Navbar.Group align={Alignment.LEFT}>
           <Navbar.Heading>Plug and Playground</Navbar.Heading>
@@ -240,13 +244,6 @@ const App = (): JSX.Element => {
             icon="search"
           >
             Search nodes
-          </Button>
-          <Button
-            onClick={() => {
-              setShowEditor((prevState) => !prevState);
-            }}
-          >
-            {showEditor ? 'Hide Editor' : 'Show Editor'}
           </Button>
           <Button
             onClick={() => {
@@ -290,14 +287,6 @@ const App = (): JSX.Element => {
           >
             {showComments ? 'Hide Comments' : 'Show Comments'}
           </Button>
-          {/* <Checkbox
-            checked={showEditor}
-            label="Show Editor"
-            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-              console.log(event.target.checked);
-              setShowEditor(event.target.checked);
-            }}
-          /> */}
         </Navbar.Group>
       </Navbar>
       {isCurrentGraphLoaded && (
