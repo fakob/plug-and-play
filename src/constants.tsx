@@ -61,6 +61,7 @@ export const INPUTSOCKET_CORNERRADIUS = 4;
 export const INPUTSOCKET_TEXTMARGIN_LEFT = 8;
 export const INPUTSOCKET_TEXTMARGIN_TOP = 4;
 export const INPUTTYPE = {
+  ANY: 'undefined',
   STRING: 'string',
   NUMBER: 'number',
   COLOR: 'color',

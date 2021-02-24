@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { HTMLSelect, Slider } from '@blueprintjs/core';
 import InputSocket from './InputSocketClass';
 import { INPUTTYPE } from './constants';
+import { type } from 'os';
 
 type SliderWidgetProps = {
   input: InputSocket;
@@ -12,7 +13,7 @@ type SliderWidgetProps = {
 };
 
 const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (props) => {
-  console.log(props);
+  // console.log(props);
   const [value, setValue] = useState(props.input.value);
 
   useEffect(() => {
@@ -39,30 +40,19 @@ type TypeSelectWidgetProps = {
   input: InputSocket;
   index: number;
   type: string;
+  onChangeDropdown: (event) => void;
 };
 
 const TypeSelectWidget: React.FunctionComponent<TypeSelectWidgetProps> = (
   props
 ) => {
-  console.log(props);
-  // const [typeValue, setTypeValue] = useState('');
-
-  // useEffect(() => {
-  //   console.log(props.input.type, INPUTTYPE[typeValue]);
-  //   props.input.type = INPUTTYPE[typeValue];
-  // }, [typeValue]);
-
-  const onChangeDropdown = (event) => {
-    console.log(event.target.value);
-    // setTypeValue(event.target.value);
-    props.input.type = INPUTTYPE[event.target.value];
-  };
+  console.log(props.type);
 
   return (
-    <HTMLSelect onChange={onChangeDropdown}>
-      {Object.entries(INPUTTYPE).map(([key, value]) => {
+    <HTMLSelect onChange={props.onChangeDropdown} value={props.type}>
+      {Object.values(INPUTTYPE).map((value) => {
         return (
-          <option value={key} selected={props.type === value}>
+          <option key={value} value={value}>
             {value}
           </option>
         );
@@ -74,27 +64,43 @@ const TypeSelectWidget: React.FunctionComponent<TypeSelectWidgetProps> = (
 type InputContainerProps = {
   input: InputSocket;
   index: number;
+  type: string;
 };
 
 const InputContainer: React.FunctionComponent<InputContainerProps> = (
   props
 ) => {
-  console.log(props.input.type, INPUTTYPE.NUMBER);
+  const [typeValue, setTypeValue] = useState(props.type);
 
   let widget = null;
-  switch (props.input.type) {
+  switch (typeValue) {
     case INPUTTYPE.NUMBER:
-      widget = <SliderWidget input={props.input} index={props.index} />;
+      widget = (
+        <SliderWidget
+          key={props.type.toString()}
+          input={props.input}
+          index={props.index}
+        />
+      );
       break;
     default:
   }
 
+  const onChangeDropdown = (event) => {
+    const value = event.target.value;
+    // console.log(value);
+    props.input.type = value;
+    setTypeValue(value);
+  };
+
   return (
     <>
       <TypeSelectWidget
+        key={`TypeSelectWidget-${props.type.toString()}`}
         input={props.input}
         index={props.index}
-        type={props.input.type}
+        type={typeValue}
+        onChangeDropdown={onChangeDropdown}
       />
       {widget}
     </>
@@ -112,7 +118,14 @@ export const InputArrayContainer: React.FunctionComponent<InputArrayContainerPro
   return (
     <>
       {props.inputSocketArray?.map((input, index) => {
-        return <InputContainer input={input} index={index} />;
+        return (
+          <InputContainer
+            key={index}
+            input={input}
+            index={index}
+            type={input.type}
+          />
+        );
       })}
     </>
   );
