@@ -8,6 +8,8 @@ module.exports = () => {
   const devConfig = {
     mode: 'development',
 
+    target: 'web',
+
     devtool: 'eval',
     // devtool: 'eval-source-map',
 
@@ -32,7 +34,9 @@ module.exports = () => {
       new MiniCssExtractPlugin({
         filename: '[name].css',
       }),
-
+      new webpack.HotModuleReplacementPlugin({
+        // Options...
+      }),
       new webpack.DefinePlugin({
         'process.env': '{}',
         PRODUCTION: JSON.stringify(false),

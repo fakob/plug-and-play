@@ -7,7 +7,7 @@
     "webpack": "webpack",
     "webpack-dev-server": "webpack serve --hot --open",
     "build": "npx del-cli dist --force  && yarn run webpack --mode production --env production",
-    "dev": "yarn run webpack-dev-server --mode development --env development",
+    "dev": "yarn run webpack-dev-server --progress --mode development --env development",
     "test": "npx jest",
     "code-coverage": "jest --coverage",
     "prettier": "npx prettier",
