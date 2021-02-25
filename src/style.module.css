@@ -5,7 +5,7 @@
   width: 300px;
   /* height: 600px; */
   height: 100vh;
-  padding: 54px 16px 16px 16px;
+  padding: 54px 8px 8px 8px;
   background-color: #293742;
 }
 
@@ -28,4 +28,11 @@
 
 .hide {
   display: none;
+}
+
+.inputContainer {
+  margin: 8px 0 8px 0;
+  padding: 16px;
+  /* padding: 8px 0 8px 0; */
+  background-color: rgba(255, 255, 255, 0.05);
 }

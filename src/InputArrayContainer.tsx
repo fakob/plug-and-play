@@ -1,8 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { HTMLSelect, Slider } from '@blueprintjs/core';
+import {
+  ControlGroup,
+  FormGroup,
+  HTMLSelect,
+  NumericInput,
+  Slider,
+} from '@blueprintjs/core';
 import InputSocket from './InputSocketClass';
 import { INPUTTYPE } from './constants';
-import { type } from 'os';
+import styles from './style.module.css';
 
 type SliderWidgetProps = {
   input: InputSocket;
@@ -15,24 +21,52 @@ type SliderWidgetProps = {
 const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (props) => {
   // console.log(props);
   const [value, setValue] = useState(props.input.value);
+  const [minValue, setMinValue] = useState(props.min || 0);
+  const [maxValue, setMaxValue] = useState(props.max || 100);
 
   useEffect(() => {
     props.input.value = value;
-  }, [value]);
+  }, [value, minValue, maxValue]);
 
   return (
-    <Slider
-      key={`${props.input.name}-${props.index}`}
-      min={props.min}
-      max={props.max}
-      stepSize={0.1}
-      // labelStepSize={10}
-      onChange={(value) => {
-        setValue(value);
-      }}
-      value={value || 0}
-      // vertical={vertical}
-    />
+    <>
+      <Slider
+        key={`${props.input.name}-${props.index}`}
+        min={minValue}
+        max={maxValue}
+        labelValues={[minValue, maxValue]}
+        onChange={(value) => {
+          setValue(value);
+        }}
+        value={value || 0}
+      />
+      <ControlGroup>
+        <NumericInput
+          allowNumericCharactersOnly={false}
+          onValueChange={(value) => {
+            setMinValue(value);
+          }}
+          value={minValue}
+          fill={true}
+        />
+        <NumericInput
+          allowNumericCharactersOnly={false}
+          onValueChange={(value) => {
+            setValue(value);
+          }}
+          value={value || 0}
+          fill={true}
+        />
+        <NumericInput
+          allowNumericCharactersOnly={false}
+          onValueChange={(value) => {
+            setMaxValue(value);
+          }}
+          value={maxValue}
+          fill={true}
+        />
+      </ControlGroup>
+    </>
   );
 };
 
@@ -49,15 +83,17 @@ const TypeSelectWidget: React.FunctionComponent<TypeSelectWidgetProps> = (
   console.log(props.type);
 
   return (
-    <HTMLSelect onChange={props.onChangeDropdown} value={props.type}>
-      {Object.values(INPUTTYPE).map((value) => {
-        return (
-          <option key={value} value={value}>
-            {value}
-          </option>
-        );
-      })}
-    </HTMLSelect>
+    <FormGroup label={props.input.name} inline>
+      <HTMLSelect onChange={props.onChangeDropdown} value={props.type}>
+        {Object.values(INPUTTYPE).map((value) => {
+          return (
+            <option key={value} value={value}>
+              {value}
+            </option>
+          );
+        })}
+      </HTMLSelect>
+    </FormGroup>
   );
 };
 
@@ -94,7 +130,7 @@ const InputContainer: React.FunctionComponent<InputContainerProps> = (
   };
 
   return (
-    <>
+    <div className={styles.inputContainer}>
       <TypeSelectWidget
         key={`TypeSelectWidget-${props.type.toString()}`}
         input={props.input}
@@ -103,7 +139,7 @@ const InputContainer: React.FunctionComponent<InputContainerProps> = (
         onChangeDropdown={onChangeDropdown}
       />
       {widget}
-    </>
+    </div>
   );
 };
 
