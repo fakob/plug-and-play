@@ -3,12 +3,13 @@ import * as path from 'path';
 import ESLintPlugin from 'eslint-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 
-module.exports = (env: { mode: 'development' | 'production' }) => {
+module.exports = () => {
   /** @type {import('webpack').Configuration} */
   const devConfig = {
-    mode: env.mode,
+    mode: 'development',
 
-    devtool: 'cheap-module-eval-source-map',
+    devtool: 'eval',
+    // devtool: 'eval-source-map',
 
     module: {
       rules: [
@@ -33,6 +34,7 @@ module.exports = (env: { mode: 'development' | 'production' }) => {
       }),
 
       new webpack.DefinePlugin({
+        'process.env': '{}',
         PRODUCTION: JSON.stringify(false),
         VERSION: JSON.stringify('3.0.0'), // TODO Update from package.json
       }),

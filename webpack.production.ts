@@ -5,9 +5,9 @@ import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import OptimizeCssAssetsPlugin from 'optimize-css-assets-webpack-plugin';
 import TerserPlugin from 'terser-webpack-plugin';
 
-module.exports = (env: { mode: 'development' | 'production' }) => {
+module.exports = () => {
   return {
-    mode: env.mode,
+    mode: 'production',
 
     module: {
       rules: [
@@ -56,6 +56,7 @@ module.exports = (env: { mode: 'development' | 'production' }) => {
       }),
 
       new webpack.DefinePlugin({
+        'process.env': '{}',
         PRODUCTION: JSON.stringify(true),
         VERSION: JSON.stringify('3.0.0'), // TODO Update from package.json
       }),

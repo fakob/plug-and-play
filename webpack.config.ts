@@ -13,15 +13,14 @@ import CopyPlugin from 'copy-webpack-plugin';
 const webpack = require('webpack');
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 
-module.exports = (env: { mode: 'development' | 'production' }) => {
-  const developmentMode = env.mode === 'development';
-
+module.exports = (env, argv) => {
   const config: Configuration = {
     entry: './src/index.tsx',
 
     resolve: {
       extensions: ['.ts', '.tsx', '.js', '.json'],
       mainFields: ['module', 'main'],
+      fallback: { util: require.resolve('util/') },
     },
 
     module: {
@@ -31,9 +30,6 @@ module.exports = (env: { mode: 'development' | 'production' }) => {
           use: [
             {
               loader: MiniCssExtractPlugin.loader,
-              options: {
-                hmr: developmentMode,
-              },
             },
             'css-loader',
           ],
@@ -74,7 +70,7 @@ module.exports = (env: { mode: 'development' | 'production' }) => {
 
   const envConfig = require(path.resolve(
     __dirname,
-    `./webpack.${env.mode}.ts`
+    `./webpack.${argv.mode}.ts`
   ))(env);
 
   const mergedConfig = merge(config, envConfig);
