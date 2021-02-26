@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import {
+  Button,
   ControlGroup,
   FormGroup,
   HTMLSelect,
   NumericInput,
   Slider,
+  TextArea,
 } from '@blueprintjs/core';
 import InputSocket from './InputSocketClass';
 import { INPUTTYPE } from './constants';
@@ -31,6 +33,7 @@ const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (props) => {
   return (
     <>
       <Slider
+        className={styles.slider}
         key={`${props.input.name}-${props.index}`}
         min={minValue}
         max={maxValue}
@@ -66,6 +69,56 @@ const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (props) => {
           fill={true}
         />
       </ControlGroup>
+    </>
+  );
+};
+
+type TextWidgetProps = {
+  input: InputSocket;
+  index: number;
+};
+
+const TextWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
+  console.log(props.input.value);
+  const [value, setValue] = useState(props.input.value);
+
+  useEffect(() => {
+    props.input.value = value;
+  }, [value]);
+
+  return (
+    <>
+      <TextArea
+        className="bp3-fill"
+        growVertically={true}
+        onChange={(event) => {
+          const value = event.target.value;
+          setValue(value);
+        }}
+        value={value}
+      />
+    </>
+  );
+};
+
+type TriggerWidgetProps = {
+  input: InputSocket;
+  index: number;
+};
+
+const TriggerWidget: React.FunctionComponent<TriggerWidgetProps> = (props) => {
+  return (
+    <>
+      <Button
+        rightIcon="play"
+        onClick={() => {
+          // nodes with trigger input need a trigger function
+          (props.input.parent as any).trigger();
+        }}
+        fill
+      >
+        Execute
+      </Button>
     </>
   );
 };
@@ -113,6 +166,25 @@ const InputContainer: React.FunctionComponent<InputContainerProps> = (
     case INPUTTYPE.NUMBER:
       widget = (
         <SliderWidget
+          key={props.type.toString()}
+          input={props.input}
+          index={props.index}
+        />
+      );
+      break;
+    case INPUTTYPE.STRING:
+    case INPUTTYPE.ARRAY:
+      widget = (
+        <TextWidget
+          key={props.type.toString()}
+          input={props.input}
+          index={props.index}
+        />
+      );
+      break;
+    case INPUTTYPE.TRIGGER:
+      widget = (
+        <TriggerWidget
           key={props.type.toString()}
           input={props.input}
           index={props.index}

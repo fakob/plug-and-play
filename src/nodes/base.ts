@@ -46,7 +46,7 @@ export class MakeAPICall extends PPNode {
     const url = 'https://jsonplaceholder.typicode.com/users';
 
     this.addOutput('response', OUTPUTTYPE.STRING);
-    this.addInput('trigger', INPUTTYPE.STRING);
+    this.addInput('trigger', INPUTTYPE.TRIGGER);
     this.addInput('url', INPUTTYPE.STRING, url);
 
     this.name = 'Make API call';
@@ -79,7 +79,7 @@ export class Trigger extends PPNode {
   constructor(name: string, graph: PPGraph, customId: string) {
     super(name, graph, customId);
 
-    this.addOutput('trigger', OUTPUTTYPE.STRING);
+    this.addOutput('trigger', OUTPUTTYPE.TRIGGER);
 
     this.name = 'Trigger';
     this.description = 'Creates a trigger event';
