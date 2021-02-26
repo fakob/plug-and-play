@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Button,
   ControlGroup,
@@ -8,8 +8,10 @@ import {
   Slider,
   TextArea,
 } from '@blueprintjs/core';
+import { SketchPicker } from 'react-color';
 import InputSocket from './InputSocketClass';
 import { INPUTTYPE } from './constants';
+import { rgbToRgba } from './pixi/utils-pixi';
 import styles from './style.module.css';
 
 type SliderWidgetProps = {
@@ -123,6 +125,58 @@ const TriggerWidget: React.FunctionComponent<TriggerWidgetProps> = (props) => {
   );
 };
 
+type ColorWidgetProps = {
+  input: InputSocket;
+  index: number;
+};
+
+const ColorWidget: React.FunctionComponent<ColorWidgetProps> = (props) => {
+  console.log(props.input.value);
+  const [colorPicker, showColorPicker] = useState(false);
+  const [finalColor, changeColor] = useState(rgbToRgba(props.input.value));
+  const componentMounted = useRef(true);
+
+  console.log(finalColor);
+  // useEffect(() => {
+  //   props.input.value = value;
+  // }, [value]);
+
+  useEffect(() => {
+    if (componentMounted.current) {
+      // uses useRef to avoid running when component mounts
+      componentMounted.current = false;
+    } else {
+      console.log(finalColor);
+      const colorArray = Object.values(finalColor);
+      props.input.value = colorArray;
+    }
+    return () => undefined;
+  }, [finalColor]);
+
+  return (
+    <>
+      <Button
+        onClick={() => {
+          showColorPicker(!colorPicker);
+        }}
+        fill
+      >
+        Pick color
+      </Button>
+      {colorPicker && (
+        <span className="chrome-picker">
+          <SketchPicker
+            color={finalColor}
+            onChangeComplete={(colore) => {
+              changeColor(colore.rgb);
+            }}
+          />
+        </span>
+      )}
+    </>
+  );
+};
+
 type TypeSelectWidgetProps = {
   input: InputSocket;
   index: number;
@@ -185,6 +239,14 @@ const InputContainer: React.FunctionComponent<InputContainerProps> = (
     case INPUTTYPE.TRIGGER:
       widget = (
         <TriggerWidget
+          key={props.type.toString()}
+          input={props.input}
+          index={props.index}
+        />
+      );
+    case INPUTTYPE.COLOR:
+      widget = (
+        <ColorWidget
           key={props.type.toString()}
           input={props.input}
           index={props.index}
