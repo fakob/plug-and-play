@@ -10,7 +10,7 @@ module.exports = () => {
 
     target: 'web',
 
-    devtool: false,
+    devtool: 'inline-source-map',
 
     module: {
       rules: [
@@ -34,7 +34,7 @@ module.exports = () => {
         filename: '[name].css',
       }),
       new webpack.HotModuleReplacementPlugin(),
-      new webpack.EvalSourceMapDevToolPlugin({}),
+      // new webpack.EvalSourceMapDevToolPlugin({}),
       new webpack.DefinePlugin({
         'process.env': '{}',
         PRODUCTION: JSON.stringify(false),

@@ -27,6 +27,7 @@ import PPGraph from './GraphClass';
 import InputSocket from './InputSocketClass';
 import OutputSocket from './OutputSocketClass';
 import { getNodeCommentPosX, getNodeCommentPosY } from './utils';
+import { node } from 'webpack';
 
 export default class PPNode extends PIXI.Container {
   _NodeNameRef: PIXI.Text;
@@ -339,6 +340,18 @@ export default class PPNode extends PIXI.Container {
     //     if (link) link._data = data;
     //   }
     // }
+  }
+
+  remove(): void {
+    // remove node comment
+    (this.graph.viewport.getChildByName(
+      'commentContainer'
+    ) as PIXI.Container).removeChild(this._NodeCommentRef);
+
+    // remove node
+    (this.graph.viewport.getChildByName(
+      'nodeContainer'
+    ) as PIXI.Container).removeChild(this);
   }
 
   onExecute(): void {

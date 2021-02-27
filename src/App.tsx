@@ -1,4 +1,11 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useRef,
+} from 'react';
+import { useDropzone } from 'react-dropzone';
 import * as PIXI from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
 import { Alignment, Button, MenuItem, Navbar } from '@blueprintjs/core';
@@ -34,6 +41,69 @@ const App = (): JSX.Element => {
   const [isCurrentGraphLoaded, setIsCurrentGraphLoaded] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [selectedNode, setSelectedNode] = useState<PPNode | null>(null);
+
+  // react-dropzone
+  const onDrop = useCallback((acceptedFiles) => {
+    console.log(acceptedFiles);
+    acceptedFiles.forEach((file: File) => {
+      console.log(file);
+      const reader = new FileReader();
+
+      const extension = file.name
+        .slice(((file.name.lastIndexOf('.') - 1) >>> 0) + 2)
+        .toLowerCase();
+
+      reader.onabort = () => console.log('file reading was aborted');
+      reader.onerror = () => console.log('file reading has failed');
+      reader.onload = () => {
+        // Do whatever you want with the file contents
+        const result = reader.result;
+        console.log(result);
+
+        // select what node to create
+        switch (extension) {
+          case 'txt':
+            const newNode = currentGraph.current.createAndAddNode('Note');
+            (newNode as any).setCleanText(result);
+            break;
+          default:
+            break;
+        }
+      };
+
+      // select how to read the file
+      switch (extension) {
+        case 'txt':
+          reader.readAsText(file);
+          break;
+        default:
+          reader.readAsArrayBuffer(file);
+          break;
+      }
+    });
+  }, []);
+  const {
+    getRootProps,
+    getInputProps,
+    isDragActive,
+    isDragAccept,
+    isDragReject,
+  } = useDropzone({
+    noClick: true,
+    noKeyboard: true,
+    onDrop,
+  });
+  const style = useMemo(
+    () => ({
+      ...(isDragActive ? activeStyle : {}),
+      ...(isDragAccept ? acceptStyle : {}),
+      ...(isDragReject ? rejectStyle : {}),
+    }),
+    [isDragActive, isDragReject, isDragAccept]
+  ) as any;
+  useEffect(() => {
+    console.log('isDragActive');
+  }, [isDragActive]);
 
   // on mount
   useEffect(() => {
@@ -224,97 +294,101 @@ const App = (): JSX.Element => {
   };
 
   return (
-    <>
-      <PixiContainer ref={pixiContext} />
-      {selectedNode && (
-        <InspectorContainer
-          currentGraph={currentGraph.current}
-          selectedNode={selectedNode}
-          onSave={createOrUpdateNodeFromCode}
-        />
-      )}
-      <Navbar className="bp3-dark">
-        <Navbar.Group align={Alignment.LEFT}>
-          <Navbar.Heading>Plug and Playground</Navbar.Heading>
-          <Navbar.Divider />
-          <Button
-            onClick={() => {
-              setIsOpen((prevState) => !prevState);
-            }}
-            icon="search"
-          >
-            Search nodes
-          </Button>
-          <Button
-            onClick={() => {
-              currentGraph.current.runStep();
-            }}
-          >
-            Run step
-          </Button>
-          <Button
-            onClick={() => {
-              runGraph.current = !runGraph.current;
-            }}
-          >
-            {runGraph.current ? 'Stop' : 'Run'}
-          </Button>
-          <Button
-            onClick={() => {
-              currentGraph.current.duplicateSelection();
-            }}
-          >
-            Duplicate selection
-          </Button>
-          <Button
-            onClick={() => {
-              serializeGraph();
-            }}
-          >
-            Save graph
-          </Button>
-          <Button
-            onClick={() => {
-              loadCurrentGraph();
-            }}
-          >
-            Load graph
-          </Button>
-          <Button
-            onClick={() => {
-              setShowComments((prevState) => !prevState);
-            }}
-          >
-            {showComments ? 'Hide Comments' : 'Show Comments'}
-          </Button>
-          <Button
-            onClick={() => {
-              createOrUpdateNodeFromCode(DEFAULT_EDITOR_DATA);
-            }}
-          >
-            Add custom node
-          </Button>
-        </Navbar.Group>
-      </Navbar>
-      {isCurrentGraphLoaded && (
-        <NodeSearch
-          itemRenderer={renderFilm}
-          items={
-            Object.keys(currentGraph.current.registeredNodeTypes).map(
-              (node) => {
-                return { title: node };
-              }
-            ) as INodes[]
-          }
-          itemPredicate={filterNode}
-          onItemSelect={handleItemSelect}
-          resetOnQuery={true}
-          resetOnSelect={true}
-          // onClose={this.handleClose}
-          isOpen={isOpen}
-        />
-      )}
-    </>
+    <div>
+      <div {...getRootProps({ style })}>
+        <input {...getInputProps()} />
+        {/* </div> */}
+        <PixiContainer ref={pixiContext} />
+        {selectedNode && (
+          <InspectorContainer
+            currentGraph={currentGraph.current}
+            selectedNode={selectedNode}
+            onSave={createOrUpdateNodeFromCode}
+          />
+        )}
+        <Navbar className="bp3-dark">
+          <Navbar.Group align={Alignment.LEFT}>
+            <Navbar.Heading>Plug and Playground</Navbar.Heading>
+            <Navbar.Divider />
+            <Button
+              onClick={() => {
+                setIsOpen((prevState) => !prevState);
+              }}
+              icon="search"
+            >
+              Search nodes
+            </Button>
+            <Button
+              onClick={() => {
+                currentGraph.current.runStep();
+              }}
+            >
+              Run step
+            </Button>
+            <Button
+              onClick={() => {
+                runGraph.current = !runGraph.current;
+              }}
+            >
+              {runGraph.current ? 'Stop' : 'Run'}
+            </Button>
+            <Button
+              onClick={() => {
+                currentGraph.current.duplicateSelection();
+              }}
+            >
+              Duplicate selection
+            </Button>
+            <Button
+              onClick={() => {
+                serializeGraph();
+              }}
+            >
+              Save graph
+            </Button>
+            <Button
+              onClick={() => {
+                loadCurrentGraph();
+              }}
+            >
+              Load graph
+            </Button>
+            <Button
+              onClick={() => {
+                setShowComments((prevState) => !prevState);
+              }}
+            >
+              {showComments ? 'Hide Comments' : 'Show Comments'}
+            </Button>
+            <Button
+              onClick={() => {
+                createOrUpdateNodeFromCode(DEFAULT_EDITOR_DATA);
+              }}
+            >
+              Add custom node
+            </Button>
+          </Navbar.Group>
+        </Navbar>
+        {isCurrentGraphLoaded && (
+          <NodeSearch
+            itemRenderer={renderFilm}
+            items={
+              Object.keys(currentGraph.current.registeredNodeTypes).map(
+                (node) => {
+                  return { title: node };
+                }
+              ) as INodes[]
+            }
+            itemPredicate={filterNode}
+            onItemSelect={handleItemSelect}
+            resetOnQuery={true}
+            resetOnSelect={true}
+            // onClose={this.handleClose}
+            isOpen={isOpen}
+          />
+        )}
+      </div>
+    </div>
   );
 };
 
@@ -348,4 +422,18 @@ const renderFilm: ItemRenderer<INodes> = (
       text={highlightText(text, query)}
     />
   );
+};
+
+const activeStyle = {
+  opacity: 0.2,
+};
+
+const acceptStyle = {
+  backgroundColor: '#00FF00',
+  // opacity: 0.2,
+};
+
+const rejectStyle = {
+  backgroundColor: '#FF0000',
+  // opacity: 0.2,
 };

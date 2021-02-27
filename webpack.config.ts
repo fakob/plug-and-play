@@ -9,6 +9,7 @@ import { Configuration } from 'webpack';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import CopyPlugin from 'copy-webpack-plugin';
+import { CleanWebpackPlugin } from 'clean-webpack-plugin';
 
 const webpack = require('webpack');
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
@@ -43,6 +44,7 @@ module.exports = (env, argv) => {
 
     plugins: [
       new HtmlWebpackPlugin(),
+      new CleanWebpackPlugin(),
       new webpack.ProvidePlugin({
         PIXI: 'pixi.js',
       }),

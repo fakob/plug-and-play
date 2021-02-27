@@ -792,11 +792,7 @@ export default class PPGraph {
       this.checkIfSocketHasConnectionAndDeleteIt(outputSocket, false);
     }
 
-    // remove node comment
-    this.commentContainer.removeChild(node._NodeCommentRef);
-
-    // remove node
-    this.nodeContainer.removeChild(node);
+    node.remove();
   }
 
   deleteSelectedNodes(): void {
