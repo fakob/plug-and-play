@@ -10,7 +10,7 @@
     "dev": "yarn run webpack-dev-server --progress --mode development --env development",
     "test": "yarn jest",
     "code-coverage": "jest --coverage",
-    "prettier": "yarn prettier",
+    "prettier": "npx prettier",
     "prettier:format": "yarn run prettier -- --write src/**/*.ts",
     "prettier:check": "yarn run prettier -- -c ./src/**/*.ts",
     "lint-check": "yarn eslint ./src/**/*.ts",
