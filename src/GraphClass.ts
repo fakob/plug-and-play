@@ -691,7 +691,7 @@ export default class PPGraph {
 
   convertStringToFunction(code: string): (...args: any[]) => any {
     // remove comments and possible empty line from start
-    const cleanCode = strip(code).replace(/^\n/, '');
+    const cleanCode = strip(code).replaceAll(/^\s*\n/gm, '');
     // console.log(cleanCode);
     return new Function('return ' + cleanCode)();
   }
@@ -791,6 +791,9 @@ export default class PPGraph {
       const outputSocket = node.outputSocketArray[i];
       this.checkIfSocketHasConnectionAndDeleteIt(outputSocket, false);
     }
+
+    // remove node comment
+    this.commentContainer.removeChild(node._NodeCommentRef);
 
     // remove node
     this.nodeContainer.removeChild(node);

@@ -125,7 +125,8 @@ export const CONNECTION_COLOR_HEX = PIXI.utils.string2hex(
 export const NOTE_TEXTURE = '../assets/Note-white.png';
 export const NOTE_PADDING = 12;
 
-export const DEFAULT_EDITOR_DATA = `// Ctrl-Enter to create node
-function square(a) {
-  return a * a;
+export const DEFAULT_EDITOR_DATA = `// Cmd/Ctrl-Enter to update node
+// Change function name to create new node
+function multiply(a, b) {
+  return a * b;
 }`;
