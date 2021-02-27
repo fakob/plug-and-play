@@ -6,14 +6,14 @@
   "scripts": {
     "webpack": "webpack",
     "webpack-dev-server": "webpack serve --hot --open",
-    "build": "npx del-cli dist --force  && yarn run webpack --mode production --env production",
+    "build": "yarn del-cli dist --force  && yarn run webpack --mode production --env production",
     "dev": "yarn run webpack-dev-server --progress --mode development --env development",
-    "test": "npx jest",
+    "test": "yarn jest",
     "code-coverage": "jest --coverage",
-    "prettier": "npx prettier",
+    "prettier": "yarn prettier",
     "prettier:format": "yarn run prettier -- --write src/**/*.ts",
     "prettier:check": "yarn run prettier -- -c ./src/**/*.ts",
-    "lint-check": "npx eslint ./src/**/*.ts",
+    "lint-check": "yarn eslint ./src/**/*.ts",
     "code-style-check": "yarn run lint-check && yarn run prettier:check"
   },
   "author": "jkanchelov",
