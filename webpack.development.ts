@@ -24,8 +24,8 @@ module.exports = () => {
 
     output: {
       path: path.resolve(__dirname, 'dist'),
-      filename: 'game.js',
-      chunkFilename: 'game-library.js',
+      filename: 'main.js',
+      chunkFilename: 'main-library.js',
     },
 
     plugins: [

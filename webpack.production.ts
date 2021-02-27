@@ -30,8 +30,8 @@ module.exports = () => {
 
     output: {
       path: path.resolve(__dirname, 'dist'),
-      filename: 'game.[hash].js',
-      chunkFilename: 'game-library.[contenthash].js',
+      filename: 'main.[hash].js',
+      chunkFilename: 'main-library.[contenthash].js',
     },
 
     plugins: [
