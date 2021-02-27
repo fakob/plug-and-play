@@ -23,8 +23,6 @@ import {
 import { INodes } from './interfaces';
 import { highlightText } from './utils';
 import { registerAllNodeTypes } from './nodes/allNodes';
-import styles from './style.module.css';
-import PPNode from './NodeClass';
 
 (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__ &&
   (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__.register({ PIXI: PIXI });
