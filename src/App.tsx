@@ -287,6 +287,13 @@ const App = (): JSX.Element => {
           >
             {showComments ? 'Hide Comments' : 'Show Comments'}
           </Button>
+          <Button
+            onClick={() => {
+              createOrUpdateNodeFromCode(DEFAULT_EDITOR_DATA);
+            }}
+          >
+            Add custom node
+          </Button>
         </Navbar.Group>
       </Navbar>
       {isCurrentGraphLoaded && (

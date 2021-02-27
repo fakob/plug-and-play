@@ -131,15 +131,10 @@ type ColorWidgetProps = {
 };
 
 const ColorWidget: React.FunctionComponent<ColorWidgetProps> = (props) => {
-  console.log(props.input.value);
+  // console.log(props.input.value);
   const [colorPicker, showColorPicker] = useState(false);
   const [finalColor, changeColor] = useState(rgbToRgba(props.input.value));
   const componentMounted = useRef(true);
-
-  console.log(finalColor);
-  // useEffect(() => {
-  //   props.input.value = value;
-  // }, [value]);
 
   useEffect(() => {
     if (componentMounted.current) {
@@ -244,6 +239,7 @@ const InputContainer: React.FunctionComponent<InputContainerProps> = (
           index={props.index}
         />
       );
+      break;
     case INPUTTYPE.COLOR:
       widget = (
         <ColorWidget
