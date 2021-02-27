@@ -12,7 +12,7 @@ import { Alignment, Button, MenuItem, Navbar } from '@blueprintjs/core';
 import { Omnibar, ItemRenderer, ItemPredicate } from '@blueprintjs/select';
 import InspectorContainer from './InspectorContainer';
 import PixiContainer from './PixiContainer';
-import { GraphDatabase } from './indexeddb';
+import { GraphDatabase } from './indexedDB';
 import PPGraph from './GraphClass';
 import {
   CANVAS_BACKGROUNDCOLOR_HEX,
@@ -23,6 +23,7 @@ import {
 import { INodes } from './interfaces';
 import { highlightText } from './utils';
 import { registerAllNodeTypes } from './nodes/allNodes';
+import PPNode from './NodeClass';
 
 (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__ &&
   (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__.register({ PIXI: PIXI });
