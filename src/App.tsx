@@ -8,6 +8,8 @@ import React, {
 import { useDropzone } from 'react-dropzone';
 import * as PIXI from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
+import fs from 'fs';
+import { createFFmpeg, fetchFile } from '@ffmpeg/ffmpeg';
 import { Alignment, Button, MenuItem, Navbar } from '@blueprintjs/core';
 import { Omnibar, ItemRenderer, ItemPredicate } from '@blueprintjs/select';
 import InspectorContainer from './InspectorContainer';
@@ -27,6 +29,8 @@ import PPNode from './NodeClass';
 
 (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__ &&
   (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__.register({ PIXI: PIXI });
+
+const ffmpeg = createFFmpeg({ log: true });
 
 const NodeSearch = Omnibar.ofType<INodes>();
 
@@ -74,47 +78,41 @@ const App = (): JSX.Element => {
             objectURL,
           });
           break;
+        case 'mp4':
+          (async () => {
+            await ffmpeg.load();
+            ffmpeg.FS('writeFile', 'test.mp4', await fetchFile(objectURL));
+            await ffmpeg.run(
+              '-ss', // seek position (start)
+              '00:00:00',
+              '-i', // input file url
+              'test.mp4',
+              '-vf', // create video filtergraph
+              'scale=-2:200', // scale w:h
+              // '-c:v', // encoder
+              // 'png'
+              '-f', // force input or output file format
+              'image2',
+              '-vframes', // number of video frames to output
+              '1',
+              '-q:v', // quality video stream
+              '10',
+              'output.png'
+            );
+            const data = ffmpeg.FS('readFile', 'output.png');
+            const objectUrlFromStill = URL.createObjectURL(
+              new Blob([data.buffer], { type: 'image/png' })
+            );
+            ffmpeg.FS('unlink', 'test.mp4');
+            console.log(objectUrlFromStill);
+            currentGraph.current.createAndAddNode('PPImage', '', {
+              objectURL: objectUrlFromStill,
+            });
+          })();
+          break;
         default:
           break;
       }
-
-      // reader.onabort = () => console.log('file reading was aborted');
-      // reader.onerror = () => console.log('file reading has failed');
-      // reader.onload = () => {
-      //   // Do whatever you want with the file contents
-      //   const result = reader.result;
-      //   console.log(result);
-
-      //   // select what node to create
-      //   let newNode: PPNode;
-      //   switch (extension) {
-      //     case 'txt':
-      //       newNode = currentGraph.current.createAndAddNode('Note');
-      //       (newNode as any).setCleanText(result);
-      //       break;
-      //     case 'jpg':
-      //     case 'png':
-      //       const objectURL = URL.createObjectURL(result);
-      //       newNode = currentGraph.current.createAndAddNode('Image', objectURL);
-      //       break;
-      //     default:
-      //       break;
-      //   }
-      // };
-
-      // // select how to read the file
-      // switch (extension) {
-      //   case 'txt':
-      //     reader.readAsText(file);
-      //     break;
-      //   case 'jpg':
-      //   case 'png':
-      //     reader.readAsDataURL(file);
-      //     break;
-      //   default:
-      //     reader.readAsArrayBuffer(file);
-      //     break;
-      // }
     });
   }, []);
   const {
