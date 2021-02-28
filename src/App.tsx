@@ -30,7 +30,13 @@ import PPNode from './NodeClass';
 (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__ &&
   (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__.register({ PIXI: PIXI });
 
-const ffmpeg = createFFmpeg({ log: true });
+const ffmpeg = createFFmpeg({
+  log: true,
+  corePath: './node_modules/@ffmpeg/core/dist/ffmpeg-core.js',
+});
+(async () => {
+  await ffmpeg.load();
+})();
 
 const NodeSearch = Omnibar.ofType<INodes>();
 
@@ -80,7 +86,7 @@ const App = (): JSX.Element => {
           break;
         case 'mp4':
           (async () => {
-            await ffmpeg.load();
+            // await ffmpeg.load();
             ffmpeg.FS('writeFile', 'test.mp4', await fetchFile(objectURL));
             await ffmpeg.run(
               '-ss', // seek position (start)
