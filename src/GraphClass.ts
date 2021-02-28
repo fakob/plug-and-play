@@ -297,7 +297,11 @@ export default class PPGraph {
     return func.name;
   }
 
-  createNode<T extends PPNode = PPNode>(type: string, customId = ''): T {
+  createNode<T extends PPNode = PPNode>(
+    type: string,
+    customId = '',
+    customArgsObject?: any
+  ): T {
     // console.log(this._registeredNodeTypes);
     const nodeConstructor = this._registeredNodeTypes[type];
     if (!nodeConstructor) {
@@ -308,7 +312,12 @@ export default class PPGraph {
     const title = type;
     // console.log(this);
     // console.log(nodeConstructor);
-    const node = new nodeConstructor(title, this, customId) as T;
+    const node = new nodeConstructor(
+      title,
+      this,
+      customId,
+      customArgsObject
+    ) as T;
     return node;
   }
 
@@ -343,9 +352,11 @@ export default class PPGraph {
 
   createAndAddNode<T extends PPNode = PPNode>(
     type: string,
-    customId?: string
+    customId?: string,
+    customArgsObject?: any
   ): T {
-    const node = this.createNode(type, customId) as T;
+    console.log(customArgsObject);
+    const node = this.createNode(type, customId, customArgsObject) as T;
     // if (node) {
     this.addNode(node);
     // console.log(node);

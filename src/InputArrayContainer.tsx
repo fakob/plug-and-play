@@ -27,6 +27,7 @@ const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (props) => {
   const [value, setValue] = useState(props.input.value);
   const [minValue, setMinValue] = useState(props.min || 0);
   const [maxValue, setMaxValue] = useState(props.max || 100);
+  const [stepSizeValue, setStepSizeValue] = useState(props.stepSize || 0.01);
 
   useEffect(() => {
     props.input.value = value;
@@ -39,6 +40,7 @@ const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (props) => {
         key={`${props.input.name}-${props.index}`}
         min={minValue}
         max={maxValue}
+        stepSize={stepSizeValue}
         labelValues={[minValue, maxValue]}
         onChange={(value) => {
           setValue(value);

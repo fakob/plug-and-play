@@ -7,7 +7,8 @@
     "build": "yarn del-cli dist --force  && yarn run webpack --mode production --env production",
     "code-coverage": "jest --coverage",
     "code-style-check": "yarn run lint-check && yarn run prettier:check",
-    "dev": "yarn run webpack-dev-server --progress --mode development --env development",
+    "dev2": "yarn run webpack-dev-server --progress --mode development --env development",
+    "dev": "node --experimental-wasm-threads --experimental-wasm-bulk-memory ./node_modules/.bin/webpack-cli serve --hot --open --progress --mode development --env development",
     "lint-check": "yarn eslint ./src/**/*.ts",
     "prettier": "npx prettier",
     "prettier:check": "yarn run prettier -- -c ./src/**/*.ts",
@@ -22,6 +23,8 @@
   "dependencies": {
     "@blueprintjs/core": "^3.38.2",
     "@blueprintjs/select": "^3.15.4",
+    "@ffmpeg/core": "^0.8.5",
+    "@ffmpeg/ffmpeg": "^0.9.7",
     "@pixi/filter-drop-shadow": "^3.2.0",
     "@pixi/text-html": "^1.0.0",
     "axios": "^0.21.0",

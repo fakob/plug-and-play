@@ -46,39 +46,75 @@ const App = (): JSX.Element => {
     console.log(acceptedFiles);
     acceptedFiles.forEach((file: File) => {
       console.log(file);
-      const reader = new FileReader();
+      // const reader = new FileReader();
+      const objectURL = URL.createObjectURL(file);
+      console.log(objectURL);
 
       const extension = file.name
         .slice(((file.name.lastIndexOf('.') - 1) >>> 0) + 2)
         .toLowerCase();
 
-      reader.onabort = () => console.log('file reading was aborted');
-      reader.onerror = () => console.log('file reading has failed');
-      reader.onload = () => {
-        // Do whatever you want with the file contents
-        const result = reader.result;
-        console.log(result);
-
-        // select what node to create
-        switch (extension) {
-          case 'txt':
-            const newNode = currentGraph.current.createAndAddNode('Note');
-            (newNode as any).setCleanText(result);
-            break;
-          default:
-            break;
-        }
-      };
-
-      // select how to read the file
+      // select what node to create
       switch (extension) {
         case 'txt':
-          reader.readAsText(file);
+          fetch(objectURL)
+            .then((r) => {
+              console.log(r);
+              return r.text();
+            })
+            .then((data) => {
+              console.log(data);
+              const newNode = currentGraph.current.createAndAddNode('Note');
+              (newNode as any).setCleanText(data);
+            });
+          break;
+        case 'jpg':
+        case 'png':
+          currentGraph.current.createAndAddNode('PPImage', '', {
+            objectURL,
+          });
           break;
         default:
-          reader.readAsArrayBuffer(file);
           break;
       }
+
+      // reader.onabort = () => console.log('file reading was aborted');
+      // reader.onerror = () => console.log('file reading has failed');
+      // reader.onload = () => {
+      //   // Do whatever you want with the file contents
+      //   const result = reader.result;
+      //   console.log(result);
+
+      //   // select what node to create
+      //   let newNode: PPNode;
+      //   switch (extension) {
+      //     case 'txt':
+      //       newNode = currentGraph.current.createAndAddNode('Note');
+      //       (newNode as any).setCleanText(result);
+      //       break;
+      //     case 'jpg':
+      //     case 'png':
+      //       const objectURL = URL.createObjectURL(result);
+      //       newNode = currentGraph.current.createAndAddNode('Image', objectURL);
+      //       break;
+      //     default:
+      //       break;
+      //   }
+      // };
+
+      // // select how to read the file
+      // switch (extension) {
+      //   case 'txt':
+      //     reader.readAsText(file);
+      //     break;
+      //   case 'jpg':
+      //   case 'png':
+      //     reader.readAsDataURL(file);
+      //     break;
+      //   default:
+      //     reader.readAsArrayBuffer(file);
+      //     break;
+      // }
     });
   }, []);
   const {

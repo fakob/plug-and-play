@@ -123,6 +123,7 @@ export const CONNECTION_COLOR_HEX = PIXI.utils.string2hex(
 );
 
 export const NOTE_TEXTURE = '../assets/Note-white.png';
+export const EMPTY_TEXTURE = '../assets/Empty.png';
 export const NOTE_PADDING = 12;
 
 export const DEFAULT_EDITOR_DATA = `// Cmd/Ctrl-Enter to update node

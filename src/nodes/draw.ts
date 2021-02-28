@@ -6,6 +6,7 @@ import textFit from '../pixi/textFit';
 import { rgbToHex, getTextWithLineBreaks } from '../pixi/utils-pixi';
 import { convertToArray, getElement } from '../utils';
 import {
+  EMPTY_TEXTURE,
   INPUTTYPE,
   OUTPUTTYPE,
   NOTE_PADDING,
@@ -169,7 +170,9 @@ export class Container extends PPNode {
 
   constructor(name: string, graph: PPGraph, customId: string) {
     super(name, graph, customId);
-
+    this.addInput('x', INPUTTYPE.NUMBER);
+    this.addInput('y', INPUTTYPE.NUMBER);
+    this.addInput('scale', INPUTTYPE.NUMBER, 1.0);
     this.addInput('input1', INPUTTYPE.PIXI);
     this.addInput('input2', INPUTTYPE.PIXI);
     this.addInput('input3', INPUTTYPE.PIXI);
@@ -184,19 +187,22 @@ export class Container extends PPNode {
     ) as PIXI.Container).addChild(container);
 
     this.onExecute = function () {
-      const input1 = this.getInputData(0);
-      const input2 = this.getInputData(1);
-      const input3 = this.getInputData(2);
+      const x = this.getInputData(0);
+      const y = this.getInputData(1);
+      const scale = this.getInputData(2);
+      const input1 = this.getInputData(3);
+      const input2 = this.getInputData(4);
+      const input3 = this.getInputData(5);
       console.log(input1, input2, input3);
       console.log(this._containerRef);
       this._containerRef.removeChildren;
 
-      this._containerRef.addChild(input1);
-      input1 === null ? undefined : this._containerRef.addChild(input1);
-      input2 === null ? undefined : this._containerRef.addChild(input2);
-      input3 === null ? undefined : this._containerRef.addChild(input3);
-      this._containerRef.x = this.x + this.width;
-      this._containerRef.y = this.y;
+      input1 === undefined ? undefined : this._containerRef.addChild(input1);
+      input2 === undefined ? undefined : this._containerRef.addChild(input2);
+      input3 === undefined ? undefined : this._containerRef.addChild(input3);
+      this._containerRef.x = this.x + this.width + x;
+      this._containerRef.y = this.y + y;
+      this._containerRef.scale.set(scale);
     };
   }
 }
@@ -374,5 +380,82 @@ export class Note extends PPNode {
 
     // update shape after initializing
     this.drawNodeShape(false);
+  }
+}
+
+export class PPImage extends PPNode {
+  _imageRef: PIXI.Sprite;
+  _imageRefClone: PIXI.Sprite;
+
+  constructor(
+    name: string,
+    graph: PPGraph,
+    customId: string,
+    customArgsObject?: {
+      objectURL: string;
+    }
+  ) {
+    super(name, graph, customId);
+    this.addOutput('image', OUTPUTTYPE.PIXI);
+    this.addOutput('width', OUTPUTTYPE.NUMBER);
+    this.addOutput('height', OUTPUTTYPE.NUMBER);
+    this.addInput('Reload', INPUTTYPE.TRIGGER);
+    this.addInput('url', INPUTTYPE.STRING);
+
+    this.name = 'Image';
+    this.description = 'Adds an image';
+
+    const image = PIXI.Sprite.from(
+      customArgsObject?.objectURL || EMPTY_TEXTURE
+    );
+    image.x = INPUTSOCKET_WIDTH / 2;
+    image.y = NODE_OUTLINE_DISTANCE;
+    image.width = NODE_WIDTH;
+    image.height = NODE_WIDTH;
+
+    this._imageRefClone = PIXI.Sprite.from(
+      customArgsObject?.objectURL || EMPTY_TEXTURE
+    );
+
+    this.drawShape = function () {
+      this._BackgroundRef.visible = false;
+      this._NodeNameRef.visible = false;
+
+      (this._imageRef as any) = (this as PIXI.Container).addChild(image);
+      this._imageRef.alpha = 1;
+      this._imageRef.tint;
+    };
+
+    // this.onConfigure = (node_info: SerializedNode) => {
+    //   console.log('onConfigure on Note:', node_info);
+    //   this.createInputElement();
+    //   this.currentInput.dispatchEvent(new Event('input'));
+    //   this.currentInput.dispatchEvent(new Event('blur'));
+    // };
+
+    // this.onNodeDoubleClick = () => {
+    //   console.log('_onDoubleClick on Note:', this);
+    //   this.createInputElement();
+    // };
+
+    // this.onExecute = () => {};
+
+    // update shape after initializing
+    this.drawNodeShape(false);
+  }
+
+  trigger(): void {
+    const url: string = this.getInputData(1);
+    // if url is set then get image
+    if (url !== '') {
+      // const objectURL = URL.createObjectURL(url);
+      const newTexture = PIXI.Texture.from(url);
+      this._imageRef.texture = newTexture;
+      this._imageRefClone.texture = newTexture;
+    }
+    const { width, height } = this._imageRef.texture.orig;
+    this.setOutputData(0, this._imageRefClone);
+    this.setOutputData(1, width);
+    this.setOutputData(2, height);
   }
 }

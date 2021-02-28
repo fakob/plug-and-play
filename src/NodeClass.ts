@@ -270,22 +270,22 @@ export default class PPNode extends PIXI.Container {
       // custom output for pixi elements
       if (this.outputSocketArray[0]?.type === OUTPUTTYPE.PIXI) {
         const strippedCommentData = {
-          alpha: commentData.alpha,
-          // children: commentData.children,
-          // parent: commentData.parent,
-          // transform: commentData.transform,
-          visible: commentData.visible,
-          height: commentData.height,
-          pivot: commentData.pivot,
-          position: commentData.position,
-          rotation: commentData.rotation,
-          scale: commentData.scale,
-          width: commentData.width,
-          x: commentData.x,
-          y: commentData.y,
-          zIndex: commentData.zIndex,
-          bounds: commentData.getBounds(),
-          localBounds: commentData.getLocalBounds(),
+          alpha: commentData?.alpha,
+          // children: commentData?.children,
+          // parent: commentData?.parent,
+          // transform: commentData?.transform,
+          visible: commentData?.visible,
+          height: commentData?.height,
+          pivot: commentData?.pivot,
+          position: commentData?.position,
+          rotation: commentData?.rotation,
+          scale: commentData?.scale,
+          width: commentData?.width,
+          x: commentData?.x,
+          y: commentData?.y,
+          zIndex: commentData?.zIndex,
+          bounds: commentData?.getBounds(),
+          localBounds: commentData?.getLocalBounds(),
         };
         this._NodeCommentRef.text = inspect(strippedCommentData, null, 1);
       } else {
