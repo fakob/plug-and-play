@@ -100,3 +100,26 @@ export function highlightText(text: string, query: string): any {
 export function escapeRegExpChars(text: string): string {
   return text.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, '\\$1');
 }
+
+export const mapRange = (
+  value: number,
+  low1: number,
+  high1: number,
+  low2: number,
+  high2: number,
+  returnInt = true
+): number => {
+  // special case, prevent division by 0
+  if (high1 - low1 === 0) {
+    return 0;
+  }
+  // * 1.0 added to force float division
+  let newValue =
+    low2 + (high2 - low2) * (((value - low1) * 1.0) / (high1 - low1));
+  newValue = Math.round(newValue * 1000 + Number.EPSILON) / 1000; // rounds the number with 3 decimals
+  let limitedNewValue = Math.min(Math.max(newValue, low2), high2);
+  if (returnInt) {
+    limitedNewValue = Math.round(limitedNewValue);
+  }
+  return limitedNewValue;
+};

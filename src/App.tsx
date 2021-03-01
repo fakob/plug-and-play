@@ -8,7 +8,6 @@ import React, {
 import { useDropzone } from 'react-dropzone';
 import * as PIXI from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
-import fs from 'fs';
 import { createFFmpeg, fetchFile } from '@ffmpeg/ffmpeg';
 import { Alignment, Button, MenuItem, Navbar } from '@blueprintjs/core';
 import { Omnibar, ItemRenderer, ItemPredicate } from '@blueprintjs/select';
@@ -35,7 +34,9 @@ const ffmpeg = createFFmpeg({
   corePath: './node_modules/@ffmpeg/core/dist/ffmpeg-core.js',
 });
 (async () => {
-  await ffmpeg.load();
+  if (!ffmpeg.isLoaded()) {
+    await ffmpeg.load();
+  }
 })();
 
 const NodeSearch = Omnibar.ofType<INodes>();
@@ -87,12 +88,16 @@ const App = (): JSX.Element => {
         case 'mp4':
           (async () => {
             // await ffmpeg.load();
-            ffmpeg.FS('writeFile', 'test.mp4', await fetchFile(objectURL));
+            ffmpeg.FS(
+              'writeFile',
+              'fetchedVideo.mp4',
+              await fetchFile(objectURL)
+            );
             await ffmpeg.run(
               '-ss', // seek position (start)
               '00:00:00',
               '-i', // input file url
-              'test.mp4',
+              'fetchedVideo.mp4',
               '-vf', // create video filtergraph
               'scale=-2:200', // scale w:h
               // '-c:v', // encoder
@@ -109,10 +114,11 @@ const App = (): JSX.Element => {
             const objectUrlFromStill = URL.createObjectURL(
               new Blob([data.buffer], { type: 'image/png' })
             );
-            ffmpeg.FS('unlink', 'test.mp4');
+            ffmpeg.FS('unlink', 'fetchedVideo.mp4');
             console.log(objectUrlFromStill);
-            currentGraph.current.createAndAddNode('PPImage', '', {
-              objectURL: objectUrlFromStill,
+            currentGraph.current.createAndAddNode('PPVideo', '', {
+              thumbURL: objectUrlFromStill,
+              sourceURL: objectURL,
             });
           })();
           break;
