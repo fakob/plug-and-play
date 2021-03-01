@@ -188,7 +188,11 @@ const TypeSelectWidget: React.FunctionComponent<TypeSelectWidgetProps> = (
 
   return (
     <FormGroup label={props.input.name} inline>
-      <HTMLSelect onChange={props.onChangeDropdown} value={props.type}>
+      <HTMLSelect
+        className={`${styles.typeSelector} bp3-minimal`}
+        onChange={props.onChangeDropdown}
+        value={props.type}
+      >
         {Object.values(INPUTTYPE).map((value) => {
           return (
             <option key={value} value={value}>

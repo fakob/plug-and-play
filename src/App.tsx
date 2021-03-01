@@ -256,7 +256,8 @@ const App = (): JSX.Element => {
     const keysDown = (e: KeyboardEvent): void => {
       console.log(e);
       console.log(e.key);
-      if (e.ctrlKey && e.key === 'f') {
+      if (e.key === 'Tab') {
+        e.preventDefault();
         setIsOpen((prevState) => !prevState);
       }
       if (e.key === 'Escape') {

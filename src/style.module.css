@@ -41,3 +41,7 @@
 .slider {
   /* margin: 0 8px 0 8px; */
 }
+
+.typeSelector {
+  opacity: 0.3;
+}
