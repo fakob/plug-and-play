@@ -3,8 +3,12 @@ import strip from 'strip-comments';
 import { Viewport } from 'pixi-viewport';
 import * as dat from 'dat.gui';
 
-import { CONNECTION_COLOR_HEX, PP_VERSION, NODE_WIDTH } from './constants';
-import { PPNodeConstructor, SerializedGraph } from './interfaces';
+import {
+  CONNECTION_COLOR_HEX,
+  PP_VERSION,
+  NODE_WIDTH,
+} from '../utils/constants';
+import { PPNodeConstructor, SerializedGraph } from '../utils/interfaces';
 import PPNode from './NodeClass';
 import InputSocket from './InputSocketClass';
 import OutputSocket from './OutputSocketClass';

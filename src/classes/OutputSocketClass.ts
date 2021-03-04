@@ -1,5 +1,5 @@
 import * as PIXI from 'pixi.js';
-import { SerializedOutputSocket } from './interfaces';
+import { SerializedOutputSocket } from '../utils/interfaces';
 import PPGraph from './GraphClass';
 import PPNode from './NodeClass';
 import PPLink from './LinkClass';
@@ -15,7 +15,7 @@ import {
   OUTPUTSOCKET_TEXTMARGIN_TOP,
   TEXT_RESOLUTION,
   OUTPUTTYPE,
-} from './constants';
+} from '../utils/constants';
 
 export default class OutputSocket extends PIXI.Container {
   _OutputNameRef: PIXI.DisplayObject;

@@ -2,9 +2,9 @@ import * as PIXI from 'pixi.js';
 import { DropShadowFilter } from '@pixi/filter-drop-shadow';
 import { hri } from 'human-readable-ids';
 import { inspect } from 'util'; // or directly
-import './pixi/dbclick.js';
+import '../pixi/dbclick.js';
 
-import { SerializedNode } from './interfaces';
+import { SerializedNode } from '../utils/interfaces';
 import {
   COMMENT_TEXTSTYLE,
   NODE_BACKGROUNDCOLOR_HEX,
@@ -22,12 +22,11 @@ import {
   INPUTSOCKET_WIDTH,
   OUTPUTSOCKET_HEIGHT,
   OUTPUTTYPE,
-} from './constants';
+} from '../utils/constants';
 import PPGraph from './GraphClass';
 import InputSocket from './InputSocketClass';
 import OutputSocket from './OutputSocketClass';
-import { getNodeCommentPosX, getNodeCommentPosY } from './utils';
-import { node } from 'webpack';
+import { getNodeCommentPosX, getNodeCommentPosY } from '../utils/utils';
 
 export default class PPNode extends PIXI.Container {
   _NodeNameRef: PIXI.Text;

@@ -1,6 +1,6 @@
 import { Viewport } from 'pixi-viewport';
-import { SerializedLink } from './interfaces';
-import { CONNECTION_COLOR_HEX } from './constants';
+import { SerializedLink } from '../utils/interfaces';
+import { CONNECTION_COLOR_HEX } from '../utils/constants';
 import InputSocket from './InputSocketClass';
 import OutputSocket from './OutputSocketClass';
 import PPNode from './NodeClass';

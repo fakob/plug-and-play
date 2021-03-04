@@ -1,7 +1,7 @@
-import { INPUTTYPE } from '../constants';
+import { INPUTTYPE } from '../utils/constants';
 // import { isFunction, isClass } from '../utils';
-import PPGraph from '../GraphClass';
-import PPNode from '../NodeClass';
+import PPGraph from '../classes/GraphClass';
+import PPNode from '../classes/NodeClass';
 import * as base from './base';
 import * as draw from './draw';
 import * as math from './math';

@@ -1,5 +1,5 @@
-import PPGraph from './GraphClass';
-import PPNode from './NodeClass';
+import PPGraph from '../classes/GraphClass';
+import PPNode from '../classes/NodeClass';
 
 export type PPNodeConstructor<T extends PPNode = PPNode> = {
   type?: string;

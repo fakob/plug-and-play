@@ -6,33 +6,21 @@
 
 ---
 
-#### The previous version done with [Parcel](https://parceljs.org/), which I won't support any further is [here](https://github.com/jkanchelov/pixi-typescript-boilerplate/tree/parcel-template)
-
----
-
 ## Highlights
 
--   🔰 - Beginner friendly.
--   🛠 - Typescript + Babel.
--   ✈️ - Live reload.
--   🚀 - Blazing fast bundle times
--   📝 - Consistent code style using Prettier and Eslint
--   📝 - Unit test support with [Jest](https://jestjs.io/), generating code coverage.
-
-## Usage
-
-### Click on the green button "Use this template" on top of the repo or <br> <br> Simply copy paste this and start coding
-
-`git clone --depth=1 --branch=master https://github.com/jkanchelov/pixi-typescript-boilerplate`
-
-`rm -r -force ./pixi-typescript-boilerplate/.git`
+- 🔰 - Beginner friendly.
+- 🛠 - Typescript + Babel.
+- ✈️ - Live reload.
+- 🚀 - Blazing fast bundle times
+- 📝 - Consistent code style using Prettier and Eslint
+- 📝 - Unit test support with [Jest](https://jestjs.io/), generating code coverage.
 
 ## Commands:
 
--   `npm run build` - starts build procedure
--   `npm run dev` - start watching for files and open's server on localhost:8080
--   `npm run test` - run tests
--   `npm run code-coverage` - generate code coverage report
--   `npm run code-style-check` - run's eslint and prettier check on your code
+- `yarn build` - starts build procedure
+- `yarn dev` - start watching for files and open's server on localhost:8080
+- `yarn test` - run tests
+- `yarn code-coverage` - generate code coverage report
+- `yarn code-style-check` - run's eslint and prettier check on your code
 
 For vscode users - ctrl ( or ⌘ ) + shift + b will run the watch build as its set as default vscode task

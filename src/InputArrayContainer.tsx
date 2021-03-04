@@ -9,10 +9,10 @@ import {
   TextArea,
 } from '@blueprintjs/core';
 import { SketchPicker } from 'react-color';
-import InputSocket from './InputSocketClass';
-import { INPUTTYPE } from './constants';
+import InputSocket from './classes/InputSocketClass';
+import { INPUTTYPE } from './utils/constants';
 import { rgbToRgba } from './pixi/utils-pixi';
-import styles from './style.module.css';
+import styles from './utils/style.module.css';
 
 type SliderWidgetProps = {
   input: InputSocket;

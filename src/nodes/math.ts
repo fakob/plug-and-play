@@ -1,6 +1,6 @@
-import PPGraph from '../GraphClass';
-import PPNode from '../NodeClass';
-import { INPUTTYPE, OUTPUTTYPE } from '../constants';
+import PPGraph from '../classes/GraphClass';
+import PPNode from '../classes/NodeClass';
+import { INPUTTYPE, OUTPUTTYPE } from '../utils/constants';
 
 export class MathAdd extends PPNode {
   min: number;

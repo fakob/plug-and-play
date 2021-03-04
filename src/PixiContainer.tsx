@@ -1,6 +1,6 @@
 import React from 'react';
 
-import styles from './style.module.css';
+import styles from './utils/style.module.css';
 
 const PixiContainer = React.forwardRef(
   (props, forwardedRef: React.Ref<HTMLDivElement> | null): JSX.Element => {

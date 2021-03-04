@@ -1,6 +1,6 @@
 import axios from 'axios';
-import PPGraph from '../GraphClass';
-import PPNode from '../NodeClass';
+import PPGraph from '../classes/GraphClass';
+import PPNode from '../classes/NodeClass';
 import {
   INPUTTYPE,
   INPUTSOCKET_WIDTH,
@@ -11,7 +11,7 @@ import {
   NODE_HEADER_HEIGHT,
   NODE_WIDTH,
   OUTPUTSOCKET_HEIGHT,
-} from '../constants';
+} from '../utils/constants';
 
 export class RangeArray extends PPNode {
   constructor(name: string, graph: PPGraph, customId: string) {

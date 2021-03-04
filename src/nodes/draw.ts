@@ -1,10 +1,10 @@
 import * as PIXI from 'pixi.js';
-import PPGraph from '../GraphClass';
-import PPNode from '../NodeClass';
-import { SerializedNode } from '../interfaces';
+import PPGraph from '../classes/GraphClass';
+import PPNode from '../classes/NodeClass';
+import { SerializedNode } from '../utils/interfaces';
 import textFit from '../pixi/textFit';
 import { rgbToHex, getTextWithLineBreaks } from '../pixi/utils-pixi';
-import { convertToArray, getElement, mapRange } from '../utils';
+import { convertToArray, getElement, mapRange } from '../utils/utils';
 import {
   EMPTY_TEXTURE,
   INPUTTYPE,
@@ -14,7 +14,7 @@ import {
   NODE_WIDTH,
   NODE_OUTLINE_DISTANCE,
   INPUTSOCKET_WIDTH,
-} from '../constants';
+} from '../utils/constants';
 
 export class DrawRect extends PPNode {
   _x: number;

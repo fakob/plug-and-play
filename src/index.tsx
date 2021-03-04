@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
-import './global.css';
+import './utils/global.css';
 
 const reactRoot = document.createElement('div');
 const child = document.body.appendChild(reactRoot);

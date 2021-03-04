@@ -1,5 +1,5 @@
 import * as PIXI from 'pixi.js';
-import { SerializedInputSocket } from './interfaces';
+import { SerializedInputSocket } from '../utils/interfaces';
 import PPGraph from './GraphClass';
 import PPNode from './NodeClass';
 import PPLink from './LinkClass';
@@ -14,7 +14,7 @@ import {
   INPUTSOCKET_TEXTMARGIN_TOP,
   TEXT_RESOLUTION,
   INPUTTYPE,
-} from './constants';
+} from '../utils/constants';
 
 export default class InputSocket extends PIXI.Container {
   _InputNameRef: PIXI.DisplayObject;

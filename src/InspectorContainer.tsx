@@ -2,10 +2,10 @@ import React, { useRef, useEffect, useState } from 'react';
 import MonacoEditor from 'react-monaco-editor';
 import { H3, H4, H5, H6 } from '@blueprintjs/core';
 
-import styles from './style.module.css';
-import PPNode from './NodeClass';
+import styles from './utils/style.module.css';
+import PPNode from './classes/NodeClass';
 import { InputArrayContainer } from './InputArrayContainer';
-import PPGraph from './GraphClass';
+import PPGraph from './classes/GraphClass';
 
 type MyProps = {
   currentGraph: PPGraph;
