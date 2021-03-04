@@ -287,8 +287,8 @@ const App = (): JSX.Element => {
 
   const handleItemSelect = (selected: INodes) => {
     console.log(selected);
-    currentGraph.current.createAndAddNode(selected.title);
     setIsOpen(false);
+    currentGraph.current.createAndAddNode(selected.title);
   };
 
   return (
@@ -377,6 +377,8 @@ const App = (): JSX.Element => {
                 }
               ) as INodes[]
             }
+            createNewItemFromQuery={createNewItemFromQuery}
+            createNewItemRenderer={renderCreateFilmOption}
             itemPredicate={filterNode}
             onItemSelect={handleItemSelect}
             resetOnQuery={true}
@@ -421,6 +423,26 @@ const renderFilm: ItemRenderer<INodes> = (
     />
   );
 };
+
+function createNewItemFromQuery(title: string): INodes {
+  return {
+    title,
+  };
+}
+
+const renderCreateFilmOption = (
+  query: string,
+  active: boolean,
+  handleClick: React.MouseEventHandler<HTMLElement>
+) => (
+  <MenuItem
+    icon="add"
+    text={`Create "${query}"`}
+    active={active}
+    onClick={handleClick}
+    shouldDismissPopover={false}
+  />
+);
 
 const activeStyle = {
   opacity: 0.2,

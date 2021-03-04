@@ -199,9 +199,10 @@ export default class PPNode extends PIXI.Container {
     // set parameters on inputSocket
     if (this.inputSocketArray.length > 0) {
       this.inputSocketArray.forEach((item, index) => {
-        item.defaultValue = node_info.inputSocketArray[index].defaultValue;
-        item.value = node_info.inputSocketArray[index].value;
-        item.visible = node_info.inputSocketArray[index].visible;
+        item.defaultValue =
+          node_info.inputSocketArray[index]?.defaultValue || null;
+        item.value = node_info.inputSocketArray[index]?.value || null;
+        item.visible = node_info.inputSocketArray[index]?.visible || true;
       });
     }
 

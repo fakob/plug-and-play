@@ -5,8 +5,9 @@ import * as dat from 'dat.gui';
 
 import {
   CONNECTION_COLOR_HEX,
-  PP_VERSION,
+  DEFAULT_EDITOR_DATA,
   NODE_WIDTH,
+  PP_VERSION,
 } from '../utils/constants';
 import { PPNodeConstructor, SerializedGraph } from '../utils/interfaces';
 import PPNode from './NodeClass';
@@ -309,7 +310,10 @@ export default class PPGraph {
     // console.log(this._registeredNodeTypes);
     const nodeConstructor = this._registeredNodeTypes[type];
     if (!nodeConstructor) {
-      console.log('GraphNode type "' + type + '" not registered.');
+      console.log(
+        'GraphNode type "' + type + '" not registered. Will create new one.'
+      );
+      this.createOrUpdateNodeFromCode(DEFAULT_EDITOR_DATA, type);
       return null;
     }
 
@@ -326,9 +330,9 @@ export default class PPGraph {
   }
 
   addNode<T extends PPNode = PPNode>(node: T): T {
-    // if (!node) {
-    //   return;
-    // }
+    if (!node) {
+      return;
+    }
 
     node
       .on('pointerdown', this._onNodePointerDown.bind(this))
@@ -336,9 +340,9 @@ export default class PPGraph {
       .on('pointerup', this._onNodePointerUpAndUpOutside.bind(this))
       .on('pointerover', this._onNodePointerOver.bind(this));
 
-    // change add id to title
-    const newName = `${node.nodeName} : ${node.id}`;
-    node.nodeName = newName;
+    // // change add id to title
+    // const newName = `${node.nodeName} : ${node.id}`;
+    // node.nodeName = newName;
     // console.log(node.nodeName);
 
     // add the node to the canvas
@@ -363,7 +367,7 @@ export default class PPGraph {
     const node = this.createNode(type, customId, customArgsObject) as T;
     // if (node) {
     this.addNode(node);
-    // console.log(node);
+    console.log(node);
     return node;
     // }
   }
@@ -675,8 +679,15 @@ export default class PPGraph {
     });
   }
 
-  createOrUpdateNodeFromCode(code: string): void {
-    const functionName = this.registerCustomNodeType(code);
+  createOrUpdateNodeFromCode(
+    code: string,
+    newDefaultFunctionName?: string
+  ): void {
+    let newCode = code;
+    if (newDefaultFunctionName) {
+      newCode = code.replace('customFunctionNode', newDefaultFunctionName);
+    }
+    const functionName = this.registerCustomNodeType(newCode);
     const isNodeTypeRegistered = this.checkIfFunctionIsRegistered(functionName);
     console.log('isNodeTypeRegistered: ', isNodeTypeRegistered);
 
@@ -701,7 +712,7 @@ export default class PPGraph {
     }
 
     // store function code string on graph
-    this.customNodeTypes[functionName] = code;
+    this.customNodeTypes[functionName] = newCode;
   }
 
   convertStringToFunction(code: string): (...args: any[]) => any {

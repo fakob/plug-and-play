@@ -31,7 +31,7 @@ const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
     editor.addAction({
       id: 'my-unique-id',
       label: 'Create/Update node',
-      keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter],
+      keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S],
       contextMenuGroupId: 'Test',
       contextMenuOrder: 1,
       run: function (ed) {
@@ -75,7 +75,7 @@ const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
             wordWrap: 'on',
           }}
           onChange={(newValue, e) => {
-            console.log('controlled', newValue, e);
+            // console.log('controlled', newValue, e);
           }}
           editorDidMount={editorDidMount}
         />

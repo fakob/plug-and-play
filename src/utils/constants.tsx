@@ -126,8 +126,8 @@ export const NOTE_TEXTURE = '../assets/Note-white.png';
 export const EMPTY_TEXTURE = '../assets/Empty.png';
 export const NOTE_PADDING = 12;
 
-export const DEFAULT_EDITOR_DATA = `// Cmd/Ctrl-Enter to update node
+export const DEFAULT_EDITOR_DATA = `// Cmd/Ctrl-s to save/update node
 // Change function name to create new node
-function multiply(a, b) {
+function customFunctionNode(a, b) {
   return a * b;
 }`;
