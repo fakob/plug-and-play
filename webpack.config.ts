@@ -21,7 +21,13 @@ module.exports = (env, argv) => {
     resolve: {
       extensions: ['.ts', '.tsx', '.js', '.json'],
       mainFields: ['module', 'main'],
-      fallback: { util: require.resolve('util/') },
+      fallback: {
+        util: require.resolve('util/'),
+        crypto: require.resolve('crypto-browserify/'),
+        buffer: require.resolve('buffer/'),
+        path: require.resolve('path-browserify/'),
+        fs: false,
+      },
     },
 
     module: {

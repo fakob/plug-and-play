@@ -8,7 +8,6 @@ import React, {
 import { useDropzone } from 'react-dropzone';
 import * as PIXI from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
-import { createFFmpeg, fetchFile } from '@ffmpeg/ffmpeg';
 import { Alignment, Button, MenuItem, Navbar } from '@blueprintjs/core';
 import { Omnibar, ItemRenderer, ItemPredicate } from '@blueprintjs/select';
 import InspectorContainer from './InspectorContainer';
@@ -26,18 +25,18 @@ import { highlightText } from './utils';
 import { registerAllNodeTypes } from './nodes/allNodes';
 import PPNode from './NodeClass';
 
+import { cv, cvTranslateError } from 'opencv-wasm';
+
 (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__ &&
   (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__.register({ PIXI: PIXI });
 
-const ffmpeg = createFFmpeg({
-  log: true,
-  corePath: './node_modules/@ffmpeg/core/dist/ffmpeg-core.js',
-});
-(async () => {
-  if (!ffmpeg.isLoaded()) {
-    await ffmpeg.load();
-  }
-})();
+const mat = cv.matFromArray(2, 3, cv.CV_8UC1, [1, 2, 3, 4, 5, 6]);
+console.log('cols =', mat.cols, '; rows =', mat.rows);
+console.log(mat.data8S);
+
+cv.transpose(mat, mat);
+console.log('cols =', mat.cols, '; rows =', mat.rows);
+console.log(mat.data8S);
 
 const NodeSearch = Omnibar.ofType<INodes>();
 
@@ -86,41 +85,41 @@ const App = (): JSX.Element => {
           });
           break;
         case 'mp4':
-          (async () => {
-            // await ffmpeg.load();
-            ffmpeg.FS(
-              'writeFile',
-              'fetchedVideo.mp4',
-              await fetchFile(objectURL)
-            );
-            await ffmpeg.run(
-              '-ss', // seek position (start)
-              '00:00:00',
-              '-i', // input file url
-              'fetchedVideo.mp4',
-              '-vf', // create video filtergraph
-              'scale=-2:200', // scale w:h
-              // '-c:v', // encoder
-              // 'png'
-              '-f', // force input or output file format
-              'image2',
-              '-vframes', // number of video frames to output
-              '1',
-              '-q:v', // quality video stream
-              '10',
-              'output.png'
-            );
-            const data = ffmpeg.FS('readFile', 'output.png');
-            const objectUrlFromStill = URL.createObjectURL(
-              new Blob([data.buffer], { type: 'image/png' })
-            );
-            ffmpeg.FS('unlink', 'fetchedVideo.mp4');
-            console.log(objectUrlFromStill);
-            currentGraph.current.createAndAddNode('PPVideo', '', {
-              thumbURL: objectUrlFromStill,
-              sourceURL: objectURL,
-            });
-          })();
+          // (async () => {
+          //   // await ffmpeg.load();
+          //   ffmpeg.FS(
+          //     'writeFile',
+          //     'fetchedVideo.mp4',
+          //     await fetchFile(objectURL)
+          //   );
+          //   await ffmpeg.run(
+          //     '-ss', // seek position (start)
+          //     '00:00:00',
+          //     '-i', // input file url
+          //     'fetchedVideo.mp4',
+          //     '-vf', // create video filtergraph
+          //     'scale=-2:200', // scale w:h
+          //     // '-c:v', // encoder
+          //     // 'png'
+          //     '-f', // force input or output file format
+          //     'image2',
+          //     '-vframes', // number of video frames to output
+          //     '1',
+          //     '-q:v', // quality video stream
+          //     '10',
+          //     'output.png'
+          //   );
+          //   const data = ffmpeg.FS('readFile', 'output.png');
+          //   const objectUrlFromStill = URL.createObjectURL(
+          //     new Blob([data.buffer], { type: 'image/png' })
+          //   );
+          //   ffmpeg.FS('unlink', 'fetchedVideo.mp4');
+          //   console.log(objectUrlFromStill);
+          //   currentGraph.current.createAndAddNode('PPVideo', '', {
+          //     thumbURL: objectUrlFromStill,
+          //     sourceURL: objectURL,
+          //   });
+          // })();
           break;
         default:
           break;

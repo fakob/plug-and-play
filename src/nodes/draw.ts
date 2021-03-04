@@ -1,5 +1,4 @@
 import * as PIXI from 'pixi.js';
-import { createFFmpeg, fetchFile } from '@ffmpeg/ffmpeg';
 import PPGraph from '../GraphClass';
 import PPNode from '../NodeClass';
 import { SerializedNode } from '../interfaces';
@@ -16,11 +15,6 @@ import {
   NODE_OUTLINE_DISTANCE,
   INPUTSOCKET_WIDTH,
 } from '../constants';
-
-const ffmpeg = createFFmpeg({
-  log: true,
-  corePath: './node_modules/@ffmpeg/core/dist/ffmpeg-core.js',
-});
 
 export class DrawRect extends PPNode {
   _x: number;
@@ -535,64 +529,6 @@ export class PPVideo extends PPNode {
 
   captureThumbs(amountOfStills: number): void {
     console.log(this._sourceURL);
-    (async () => {
-      if (!ffmpeg.isLoaded()) {
-        await ffmpeg.load();
-      }
-      ffmpeg.FS(
-        'writeFile',
-        'fetchedVideo.mp4',
-        await fetchFile(this._sourceURL)
-      );
-      let duration: number;
-      let ratio: number;
-      ffmpeg.setProgress((info: any) => {
-        console.log(info);
-        if (info.duration != null) {
-          duration += info.duration; // if I expect multiple durations, I can add them
-        }
-        if (info.time != null) {
-          ratio = info.time / duration; // I can ignore `info.ratio` here, since I know it's wrong
-        }
-      });
-      await ffmpeg.run(
-        '-i', // input file url
-        'fetchedVideo.mp4',
-        '-f', // force input or output file format
-        'null',
-        'out'
-      );
-      console.log(duration, ratio);
-
-      // const data = ffmpeg.FS('readFile', 'out');
-      // console.log(amountOfStills, data);
-      // const frameNumberArray = Array.from(
-      //   Array(amountOfStills).keys()
-      // ).map((x) => mapRange(x, 0, amountOfStills - 1, 0, frameCount - 1, true));
-      // await ffmpeg.run(
-      //   '-ss', // seek position (start)
-      //   '00:00:00',
-      //   '-i', // input file url
-      //   'fetchedVideo.mp4',
-      //   '-vf', // create video filtergraph
-      //   'scale=-2:200', // scale w:h
-      //   // '-c:v', // encoder
-      //   // 'png'
-      //   '-f', // force input or output file format
-      //   'image2',
-      //   '-vframes', // number of video frames to output
-      //   '1',
-      //   '-q:v', // quality video stream
-      //   '10',
-      //   'output.png'
-      // );
-      // const data = ffmpeg.FS('readFile', 'output.png');
-      // const objectUrlFromStill = URL.createObjectURL(
-      //   new Blob([data.buffer], { type: 'image/png' })
-      // );
-      // ffmpeg.FS('unlink', 'fetchedVideo.mp4');
-      // console.log(objectUrlFromStill);
-    })();
   }
 
   trigger(): void {

@@ -11,6 +11,9 @@ module.exports = () => {
     target: 'web',
 
     devtool: 'inline-source-map',
+    // devServer: {
+    //   contentBase: path.join(__dirname, 'dist'),
+    // },
 
     module: {
       rules: [
@@ -18,6 +21,14 @@ module.exports = () => {
           test: /\.tsx?$/,
           loader: 'ts-loader',
           exclude: /node_modules/,
+        },
+        {
+          test: /\.(wasm)$/,
+          type: 'javascript/auto',
+          loader: 'file-loader',
+          options: {
+            publicPath: 'dist/',
+          },
         },
       ],
     },
