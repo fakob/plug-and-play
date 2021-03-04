@@ -60,20 +60,14 @@ const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
       <InputArrayContainer
         inputSocketArray={props.selectedNode?.inputSocketArray}
       />
-      {/* <Slider
-        min={0}
-        max={10}
-        stepSize={0.1}
-        labelStepSize={10}
-        // onChange={this.getChangeHandler('value2')}
-        // value={this.state.value2}
-        // vertical={vertical}
-      /> */}
-      <pre>{JSON.stringify(props.selectedNode?.serialize())}</pre>
+      <pre className={styles.serializedNode}>
+        {JSON.stringify(props.selectedNode?.serialize(), null, 2)}
+      </pre>
       {codeString && (
         <MonacoEditor
           language="javascript"
           theme="vs-dark"
+          height="70%"
           value={codeString}
           options={{
             selectOnLineNumbers: true,
