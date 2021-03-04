@@ -381,7 +381,7 @@ const App = (): JSX.Element => {
             onItemSelect={handleItemSelect}
             resetOnQuery={true}
             resetOnSelect={true}
-            // onClose={this.handleClose}
+            onClose={() => setIsOpen(false)}
             isOpen={isOpen}
           />
         )}
