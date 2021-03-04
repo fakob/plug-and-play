@@ -38,7 +38,7 @@ const App = (): JSX.Element => {
   const pixiContext = useRef<HTMLDivElement | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [isCurrentGraphLoaded, setIsCurrentGraphLoaded] = useState(false);
-  const [showComments, setShowComments] = useState(false);
+  const [showComments, setShowComments] = useState(true);
   const [selectedNode, setSelectedNode] = useState<PPNode | null>(null);
 
   // react-dropzone
@@ -316,34 +316,7 @@ const App = (): JSX.Element => {
             >
               Search nodes
             </Button>
-            <Button
-              onClick={() => {
-                currentGraph.current.runStep();
-              }}
-            >
-              Run step
-            </Button>
-            <Button
-              onClick={() => {
-                runGraph.current = !runGraph.current;
-              }}
-            >
-              {runGraph.current ? 'Stop' : 'Run'}
-            </Button>
-            <Button
-              onClick={() => {
-                currentGraph.current.duplicateSelection();
-              }}
-            >
-              Duplicate selection
-            </Button>
-            <Button
-              onClick={() => {
-                serializeGraph();
-              }}
-            >
-              Save graph
-            </Button>
+            <Navbar.Divider />
             <Button
               onClick={() => {
                 loadCurrentGraph();
@@ -352,18 +325,61 @@ const App = (): JSX.Element => {
               Load graph
             </Button>
             <Button
+              icon="floppy-disk"
+              onClick={() => {
+                serializeGraph();
+              }}
+            >
+              Save graph
+            </Button>
+            <Button
+              icon="cross"
+              onClick={() => {
+                currentGraph.current.clear();
+              }}
+            >
+              Clear graph
+            </Button>
+            <Navbar.Divider />
+            <Button
+              icon="step-forward"
+              onClick={() => {
+                currentGraph.current.runStep();
+              }}
+            >
+              Run step
+            </Button>
+            <Button
+              icon="play"
+              onClick={() => {
+                runGraph.current = !runGraph.current;
+              }}
+            >
+              {runGraph.current ? 'Stop' : 'Run'}
+            </Button>
+            <Navbar.Divider />
+            <Button
               onClick={() => {
                 setShowComments((prevState) => !prevState);
               }}
             >
               {showComments ? 'Hide Comments' : 'Show Comments'}
             </Button>
-            <Button
+            <Navbar.Divider />
+            {/* <Button
               onClick={() => {
                 createOrUpdateNodeFromCode(DEFAULT_EDITOR_DATA);
               }}
             >
               Add custom node
+            </Button> */}
+            <Button
+              icon="duplicate"
+              onClick={() => {
+                currentGraph.current.duplicateSelection();
+              }}
+            >
+              Duplicate node
             </Button>
           </Navbar.Group>
         </Navbar>

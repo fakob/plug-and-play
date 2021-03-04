@@ -5,6 +5,7 @@ import { H3, H4, H5, H6 } from '@blueprintjs/core';
 import styles from './utils/style.module.css';
 import PPNode from './classes/NodeClass';
 import { InputArrayContainer } from './InputArrayContainer';
+import { OutputArrayContainer } from './OutputArrayContainer';
 import PPGraph from './classes/GraphClass';
 
 type MyProps = {
@@ -59,6 +60,9 @@ const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
       </div>
       <InputArrayContainer
         inputSocketArray={props.selectedNode?.inputSocketArray}
+      />
+      <OutputArrayContainer
+        outputSocketArray={props.selectedNode?.outputSocketArray}
       />
       <pre className={styles.serializedNode}>
         {JSON.stringify(props.selectedNode?.serialize(), null, 2)}

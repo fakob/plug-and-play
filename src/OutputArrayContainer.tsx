@@ -9,13 +9,13 @@ import {
   TextArea,
 } from '@blueprintjs/core';
 import { SketchPicker } from 'react-color';
-import InputSocket from './classes/InputSocketClass';
-import { INPUTTYPE } from './utils/constants';
-import { rgbToRgba, rgbToHex } from './pixi/utils-pixi';
+import OutputSocket from './classes/OutputSocketClass';
+import { OUTPUTTYPE } from './utils/constants';
+import { rgbToRgba } from './pixi/utils-pixi';
 import styles from './utils/style.module.css';
 
 type SliderWidgetProps = {
-  input: InputSocket;
+  output: OutputSocket;
   index: number;
   min?: number;
   max?: number;
@@ -24,20 +24,20 @@ type SliderWidgetProps = {
 
 const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (props) => {
   // console.log(props);
-  const [value, setValue] = useState(props.input.value);
+  const [value, setValue] = useState(props.output.data);
   const [minValue, setMinValue] = useState(props.min || 0);
   const [maxValue, setMaxValue] = useState(props.max || 100);
   const [stepSizeValue, setStepSizeValue] = useState(props.stepSize || 0.01);
 
   useEffect(() => {
-    props.input.value = value;
+    props.output.data = value;
   }, [value, minValue, maxValue]);
 
   return (
     <>
       <Slider
         className={styles.slider}
-        key={`${props.input.name}-${props.index}`}
+        key={`${props.output.name}-${props.index}`}
         min={minValue}
         max={maxValue}
         stepSize={stepSizeValue}
@@ -78,16 +78,16 @@ const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (props) => {
 };
 
 type TextWidgetProps = {
-  input: InputSocket;
+  output: OutputSocket;
   index: number;
 };
 
 const TextWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
-  console.log(props.input.value);
-  const [value, setValue] = useState(props.input.value);
+  console.log(props.output.data);
+  const [value, setValue] = useState(props.output.data);
 
   useEffect(() => {
-    props.input.value = value;
+    props.output.data = value;
   }, [value]);
 
   return (
@@ -106,7 +106,7 @@ const TextWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
 };
 
 type TriggerWidgetProps = {
-  input: InputSocket;
+  output: OutputSocket;
   index: number;
 };
 
@@ -116,8 +116,8 @@ const TriggerWidget: React.FunctionComponent<TriggerWidgetProps> = (props) => {
       <Button
         rightIcon="play"
         onClick={() => {
-          // nodes with trigger input need a trigger function
-          (props.input.parent as any).trigger();
+          // nodes with trigger output need a trigger function
+          (props.output.parent as any).trigger();
         }}
         fill
       >
@@ -128,14 +128,14 @@ const TriggerWidget: React.FunctionComponent<TriggerWidgetProps> = (props) => {
 };
 
 type ColorWidgetProps = {
-  input: InputSocket;
+  output: OutputSocket;
   index: number;
 };
 
 const ColorWidget: React.FunctionComponent<ColorWidgetProps> = (props) => {
-  console.log(props.input.value);
+  // console.log(props.output.data);
   const [colorPicker, showColorPicker] = useState(false);
-  const [finalColor, changeColor] = useState(rgbToRgba(props.input.value));
+  const [finalColor, changeColor] = useState(rgbToRgba(props.output.data));
   const componentMounted = useRef(true);
 
   useEffect(() => {
@@ -145,7 +145,7 @@ const ColorWidget: React.FunctionComponent<ColorWidgetProps> = (props) => {
     } else {
       console.log(finalColor);
       const colorArray = Object.values(finalColor);
-      props.input.value = colorArray;
+      props.output.data = colorArray;
     }
     return () => undefined;
   }, [finalColor]);
@@ -178,7 +178,7 @@ const ColorWidget: React.FunctionComponent<ColorWidgetProps> = (props) => {
 };
 
 type TypeSelectWidgetProps = {
-  input: InputSocket;
+  output: OutputSocket;
   index: number;
   type: string;
   onChangeDropdown: (event) => void;
@@ -190,13 +190,13 @@ const TypeSelectWidget: React.FunctionComponent<TypeSelectWidgetProps> = (
   console.log(props.type);
 
   return (
-    <FormGroup label={props.input.name} inline>
+    <FormGroup label={props.output.name} inline>
       <HTMLSelect
         className={`${styles.typeSelector} bp3-minimal`}
         onChange={props.onChangeDropdown}
         value={props.type}
       >
-        {Object.values(INPUTTYPE).map((value) => {
+        {Object.values(OUTPUTTYPE).map((value) => {
           return (
             <option key={value} value={value}>
               {value}
@@ -208,52 +208,52 @@ const TypeSelectWidget: React.FunctionComponent<TypeSelectWidgetProps> = (
   );
 };
 
-type InputContainerProps = {
-  input: InputSocket;
+type OutputContainerProps = {
+  output: OutputSocket;
   index: number;
   type: string;
 };
 
-const InputContainer: React.FunctionComponent<InputContainerProps> = (
+const OutputContainer: React.FunctionComponent<OutputContainerProps> = (
   props
 ) => {
   const [typeValue, setTypeValue] = useState(props.type);
 
   let widget = null;
   switch (typeValue) {
-    case INPUTTYPE.NUMBER:
+    case OUTPUTTYPE.NUMBER:
       widget = (
         <SliderWidget
           key={props.type.toString()}
-          input={props.input}
+          output={props.output}
           index={props.index}
         />
       );
       break;
-    case INPUTTYPE.STRING:
-    case INPUTTYPE.ARRAY:
+    case OUTPUTTYPE.STRING:
+    case OUTPUTTYPE.ARRAY:
       widget = (
         <TextWidget
           key={props.type.toString()}
-          input={props.input}
+          output={props.output}
           index={props.index}
         />
       );
       break;
-    case INPUTTYPE.TRIGGER:
+    case OUTPUTTYPE.TRIGGER:
       widget = (
         <TriggerWidget
           key={props.type.toString()}
-          input={props.input}
+          output={props.output}
           index={props.index}
         />
       );
       break;
-    case INPUTTYPE.COLOR:
+    case OUTPUTTYPE.COLOR:
       widget = (
         <ColorWidget
           key={props.type.toString()}
-          input={props.input}
+          output={props.output}
           index={props.index}
         />
       );
@@ -264,15 +264,15 @@ const InputContainer: React.FunctionComponent<InputContainerProps> = (
   const onChangeDropdown = (event) => {
     const value = event.target.value;
     // console.log(value);
-    props.input.type = value;
+    props.output.type = value;
     setTypeValue(value);
   };
 
   return (
-    <div className={styles.inputContainer}>
+    <div className={styles.outputContainer}>
       <TypeSelectWidget
         key={`TypeSelectWidget-${props.type.toString()}`}
-        input={props.input}
+        output={props.output}
         index={props.index}
         type={typeValue}
         onChangeDropdown={onChangeDropdown}
@@ -282,23 +282,23 @@ const InputContainer: React.FunctionComponent<InputContainerProps> = (
   );
 };
 
-type InputArrayContainerProps = {
-  inputSocketArray: InputSocket[];
+type OutputArrayContainerProps = {
+  outputSocketArray: OutputSocket[];
 };
 
-export const InputArrayContainer: React.FunctionComponent<InputArrayContainerProps> = (
+export const OutputArrayContainer: React.FunctionComponent<OutputArrayContainerProps> = (
   props
 ) => {
-  console.log(props.inputSocketArray);
+  console.log(props.outputSocketArray);
   return (
     <>
-      {props.inputSocketArray?.map((input, index) => {
+      {props.outputSocketArray?.map((output, index) => {
         return (
-          <InputContainer
+          <OutputContainer
             key={index}
-            input={input}
+            output={output}
             index={index}
-            type={input.type}
+            type={output.type}
           />
         );
       })}
