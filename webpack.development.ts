@@ -34,7 +34,6 @@ module.exports = () => {
         filename: '[name].css',
       }),
       new webpack.HotModuleReplacementPlugin(),
-      // new webpack.EvalSourceMapDevToolPlugin({}),
       new webpack.DefinePlugin({
         'process.env': '{}',
         PRODUCTION: JSON.stringify(false),

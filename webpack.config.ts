@@ -23,6 +23,10 @@ module.exports = (env, argv) => {
       mainFields: ['module', 'main'],
       fallback: {
         util: require.resolve('util/'),
+        crypto: require.resolve('crypto-browserify/'),
+        buffer: require.resolve('buffer/'),
+        path: require.resolve('path-browserify/'),
+        fs: false,
       },
     },
 
@@ -40,6 +44,11 @@ module.exports = (env, argv) => {
         {
           test: /\.ttf$/,
           use: ['file-loader'],
+        },
+        {
+          test: /opencv-worker\.js$/,
+          loader: 'worker-loader',
+          exclude: /node_modules/,
         },
       ],
     },
@@ -62,6 +71,10 @@ module.exports = (env, argv) => {
 
               return Promise.resolve(`assets/${endpPath}`);
             },
+          },
+          {
+            from: path.join(__dirname, 'node_modules/opencv-wasm/opencv.wasm'),
+            to: 'opencv.wasm',
           },
         ],
       }),

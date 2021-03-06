@@ -18,12 +18,20 @@ import {
   CANVAS_BACKGROUNDCOLOR_HEX,
   CANVAS_BACKGROUND_ALPHA,
   CANVAS_BACKGROUND_TEXTURE,
-  DEFAULT_EDITOR_DATA,
 } from './utils/constants';
 import { INodes } from './utils/interfaces';
 import { highlightText } from './utils/utils';
 import { registerAllNodeTypes } from './nodes/allNodes';
 import PPNode from './classes/NodeClass';
+
+import PrimeWorker from 'worker-loader!./opencv-worker';
+
+const worker = new PrimeWorker();
+
+worker.postMessage({ limit: 1000 });
+worker.onmessage = (event) => {
+  console.log(event.data.primes);
+};
 
 (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__ &&
   (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__.register({ PIXI: PIXI });
