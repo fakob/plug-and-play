@@ -3,8 +3,8 @@ import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
 import { SerializedNode } from '../utils/interfaces';
 import textFit from '../pixi/textFit';
-import { rgbToHex, getTextWithLineBreaks } from '../pixi/utils-pixi';
-import { convertToArray, getElement, mapRange } from '../utils/utils';
+import { rgbToHex } from '../pixi/utils-pixi';
+import { convertToArray, getElement } from '../utils/utils';
 import {
   EMPTY_TEXTURE,
   INPUTTYPE,
@@ -36,10 +36,10 @@ export class DrawRect extends PPNode {
   ) {
     super(name, graph, customId);
 
-    this.addInput('x', INPUTTYPE.NUMBER);
-    this.addInput('y', INPUTTYPE.NUMBER);
-    this.addInput('width', INPUTTYPE.NUMBER);
-    this.addInput('height', INPUTTYPE.NUMBER);
+    this.addInput('x', INPUTTYPE.NUMBER.TYPE);
+    this.addInput('y', INPUTTYPE.NUMBER.TYPE);
+    this.addInput('width', INPUTTYPE.NUMBER.TYPE);
+    this.addInput('height', INPUTTYPE.NUMBER.TYPE);
     this.addInput('color', 'color');
 
     this.name = 'Draw Rect';
@@ -111,11 +111,11 @@ export class Rect extends PPNode {
   ) {
     super(name, graph, customId);
 
-    this.addOutput('rect', OUTPUTTYPE.PIXI);
-    this.addInput('x', INPUTTYPE.NUMBER);
-    this.addInput('y', INPUTTYPE.NUMBER);
-    this.addInput('width', INPUTTYPE.NUMBER);
-    this.addInput('height', INPUTTYPE.NUMBER);
+    this.addOutput('rect', OUTPUTTYPE.PIXI.TYPE);
+    this.addInput('x', INPUTTYPE.NUMBER.TYPE);
+    this.addInput('y', INPUTTYPE.NUMBER.TYPE);
+    this.addInput('width', INPUTTYPE.NUMBER.TYPE);
+    this.addInput('height', INPUTTYPE.NUMBER.TYPE);
     this.addInput('color', 'color');
 
     this.name = 'Create Rect';
@@ -170,12 +170,12 @@ export class Container extends PPNode {
 
   constructor(name: string, graph: PPGraph, customId: string) {
     super(name, graph, customId);
-    this.addInput('x', INPUTTYPE.NUMBER);
-    this.addInput('y', INPUTTYPE.NUMBER);
-    this.addInput('scale', INPUTTYPE.NUMBER, 1.0);
-    this.addInput('input1', INPUTTYPE.PIXI);
-    this.addInput('input2', INPUTTYPE.PIXI);
-    this.addInput('input3', INPUTTYPE.PIXI);
+    this.addInput('x', INPUTTYPE.NUMBER.TYPE);
+    this.addInput('y', INPUTTYPE.NUMBER.TYPE);
+    this.addInput('scale', INPUTTYPE.NUMBER.TYPE, 1.0);
+    this.addInput('input1', INPUTTYPE.PIXI.TYPE);
+    this.addInput('input2', INPUTTYPE.PIXI.TYPE);
+    this.addInput('input3', INPUTTYPE.PIXI.TYPE);
     // this.addInput('color', 'color');
 
     this.name = 'Container';
@@ -219,8 +219,8 @@ export class Note extends PPNode {
 
   constructor(name: string, graph: PPGraph, customId: string) {
     super(name, graph, customId);
-    this.addOutput('output', OUTPUTTYPE.STRING);
-    this.addInput('input', INPUTTYPE.STRING, 'type...');
+    this.addOutput('output', OUTPUTTYPE.STRING.TYPE);
+    this.addInput('input', INPUTTYPE.STRING.TYPE, 'type...');
 
     this.name = 'Note';
     this.description = 'Adds a note';
@@ -279,7 +279,7 @@ export class Note extends PPNode {
       this.currentInput = document.createElement('div');
       this.currentInput.id = 'NoteInput';
       this.currentInput.contentEditable = 'true';
-      this.currentInput.innerHTML = this.inputSocketArray[0].defaultValue;
+      this.currentInput.innerHTML = this.inputSocketArray[0].defaultData;
       this._textInputRef.visible = false;
       this.currentInput.style.fontFamily = 'Arial';
       // this.currentInput.style.fontStyle = 'italic';
@@ -355,8 +355,8 @@ export class Note extends PPNode {
     };
 
     this.setCleanText = (text: string) => {
-      this.inputSocketArray[0].value = text;
-      this.inputSocketArray[0].defaultValue = text;
+      this.inputSocketArray[0].data = text;
+      this.inputSocketArray[0].defaultData = text;
       this.setOutputData(0, text);
     };
 
@@ -396,11 +396,11 @@ export class PPImage extends PPNode {
     }
   ) {
     super(name, graph, customId);
-    this.addOutput('image', OUTPUTTYPE.PIXI);
-    this.addOutput('width', OUTPUTTYPE.NUMBER);
-    this.addOutput('height', OUTPUTTYPE.NUMBER);
-    this.addInput('Reload', INPUTTYPE.TRIGGER);
-    this.addInput('url', INPUTTYPE.STRING);
+    this.addOutput('image', OUTPUTTYPE.PIXI.TYPE);
+    this.addOutput('width', OUTPUTTYPE.NUMBER.TYPE);
+    this.addOutput('height', OUTPUTTYPE.NUMBER.TYPE);
+    this.addInput('Reload', INPUTTYPE.TRIGGER.TYPE);
+    this.addInput('url', INPUTTYPE.STRING.TYPE);
 
     this.name = 'Image';
     this.description = 'Adds an image';

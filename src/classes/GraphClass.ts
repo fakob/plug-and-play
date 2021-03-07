@@ -363,7 +363,7 @@ export default class PPGraph {
     customId?: string,
     customArgsObject?: any
   ): T {
-    console.log(customArgsObject);
+    // console.log(customArgsObject);
     const node = this.createNode(type, customId, customArgsObject) as T;
     // if (node) {
     this.addNode(node);

@@ -101,6 +101,18 @@ export function escapeRegExpChars(text: string): string {
   return text.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, '\\$1');
 }
 
+export const roundNumber = (number: number, decimals = 2): number =>
+  Math.round(number * 10 ** decimals + Number.EPSILON) / 10 ** decimals; // rounds the number with 3 decimals
+
+export const limitRange = (
+  value: number,
+  lowerLimit: number,
+  upperLimit: number
+): number => {
+  // value || 0 makes sure that NaN s are turned into a number to work with
+  return Math.min(Math.max(value || 0, lowerLimit || 0), upperLimit || 0);
+};
+
 export const mapRange = (
   value: number,
   low1: number,

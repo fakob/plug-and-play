@@ -8,13 +8,15 @@ export const rgbToHex = (rgbArray: number[]): string => {
     .join('');
 };
 
-export const rgbToRgba = (rgbArray: number[]): any => {
-  return {
-    r: rgbArray[0],
-    g: rgbArray[1],
-    b: rgbArray[2],
-    a: rgbArray[3],
-  };
+export const rgbToRgba = (rgbArray: number[] | undefined): any => {
+  if (rgbArray) {
+    return {
+      r: rgbArray[0],
+      g: rgbArray[1],
+      b: rgbArray[2],
+      a: rgbArray[3],
+    };
+  }
 };
 
 export const hexToRGB = (hex: string, alpha: string): number[] => {

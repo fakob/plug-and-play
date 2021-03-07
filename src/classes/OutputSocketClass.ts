@@ -28,7 +28,7 @@ export default class OutputSocket extends PIXI.Container {
 
   links: PPLink[];
 
-  constructor(name = 'Number', type = OUTPUTTYPE.NUMBER) {
+  constructor(name = 'Number', type = OUTPUTTYPE.NUMBER.TYPE) {
     super();
     this.name = name;
     this.type = type;
@@ -85,6 +85,15 @@ export default class OutputSocket extends PIXI.Container {
   }
 
   // METHODS
+
+  setName(newName: string): void {
+    this.name = newName;
+    (this._OutputNameRef as PIXI.Text).text = newName;
+  }
+
+  setVisible(value: boolean): void {
+    this.visible = value;
+  }
 
   removeLink(link: PPLink): void {
     this.links = this.links.filter((item) => item.id !== link.id);

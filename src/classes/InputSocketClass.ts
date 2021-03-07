@@ -20,8 +20,8 @@ export default class InputSocket extends PIXI.Container {
   _InputNameRef: PIXI.DisplayObject;
   _InputSocketRef: PIXI.DisplayObject;
 
-  _defaultValue: any;
-  _value: any;
+  _defaultData: any;
+  _data: any;
   _type: string;
   interactionData: PIXI.InteractionData | null;
   // isMovingLink: boolean;
@@ -30,29 +30,29 @@ export default class InputSocket extends PIXI.Container {
 
   constructor(
     name = 'Number',
-    type = INPUTTYPE.NUMBER,
-    defaultValue = null,
+    type = INPUTTYPE.NUMBER.TYPE,
+    defaultData = null,
     visible = true
   ) {
     super();
 
-    // define defaultValues for different types
-    if (defaultValue === null) {
+    // define defaultDatas for different types
+    if (defaultData === null) {
       switch (type) {
-        case INPUTTYPE.NUMBER:
-          defaultValue = 0;
+        case INPUTTYPE.NUMBER.TYPE:
+          defaultData = INPUTTYPE.NUMBER.DEFAULTVALUE;
           break;
-        case INPUTTYPE.STRING:
-          defaultValue = '';
+        case INPUTTYPE.STRING.TYPE:
+          defaultData = INPUTTYPE.STRING.DEFAULTVALUE;
           break;
-        case INPUTTYPE.COLOR:
-          defaultValue = [255, 55, 0, 0.5];
+        case INPUTTYPE.COLOR.TYPE:
+          defaultData = INPUTTYPE.COLOR.DEFAULTVALUE;
           break;
-        case INPUTTYPE.ARRAY:
-          defaultValue = [];
+        case INPUTTYPE.ARRAY.TYPE:
+          defaultData = INPUTTYPE.ARRAY.DEFAULTVALUE;
           break;
-        case INPUTTYPE.PIXI:
-          defaultValue = undefined;
+        case INPUTTYPE.PIXI.TYPE:
+          defaultData = INPUTTYPE.PIXI.DEFAULTVALUE;
           break;
         default:
           break;
@@ -62,8 +62,8 @@ export default class InputSocket extends PIXI.Container {
     this.name = name;
     this._type = type;
     this.link = null;
-    this._defaultValue = defaultValue;
-    this._value = defaultValue;
+    this._defaultData = defaultData;
+    this._data = defaultData;
     this.visible = visible;
 
     const socket = new PIXI.Graphics();
@@ -118,12 +118,12 @@ export default class InputSocket extends PIXI.Container {
     });
   }
 
-  get value(): any {
-    return this._value;
+  get data(): any {
+    return this._data;
   }
 
-  set value(newValue: any) {
-    this._value = newValue;
+  set data(newValue: any) {
+    this._data = newValue;
   }
 
   get type(): string {
@@ -134,15 +134,24 @@ export default class InputSocket extends PIXI.Container {
     this._type = newValue;
   }
 
-  get defaultValue(): any {
-    return this._defaultValue;
+  get defaultData(): any {
+    return this._defaultData;
   }
 
-  set defaultValue(newValue: any) {
-    this._defaultValue = newValue;
+  set defaultData(newValue: any) {
+    this._defaultData = newValue;
   }
 
   // METHODS
+
+  setName(newName: string): void {
+    this.name = newName;
+    (this._InputNameRef as PIXI.Text).text = newName;
+  }
+
+  setVisible(visible: boolean): void {
+    this.visible = visible;
+  }
 
   removeLink(): void {
     this.link = null;
@@ -157,8 +166,8 @@ export default class InputSocket extends PIXI.Container {
     return {
       name: this.name,
       type: this.type,
-      defaultValue: this._defaultValue,
-      value: this.value,
+      defaultData: this._defaultData,
+      data: this.data,
       visible: this.visible,
     };
   }

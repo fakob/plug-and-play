@@ -32,22 +32,30 @@
   display: none;
 }
 
+.nodeTitle {
+  text-align: center;
+  padding: 16px;
+}
+
 .inputContainer {
   margin: 8px 0 8px 0;
-  padding: 16px;
-  /* padding: 8px 0 8px 0; */
+  padding: 8px;
   background-color: rgba(255, 255, 255, 0.05);
+}
+
+.inputContainer > *:not(:last-child) {
+  margin-bottom: 16px;
 }
 
 .outputContainer {
   margin: 8px 0 8px 0;
-  padding: 16px;
-  /* padding: 8px 0 8px 0; */
+  padding: 8px;
   background-color: rgba(255, 255, 255, 0.05);
 }
 
 .slider {
-  /* margin: 0 8px 0 8px; */
+  width: unset !important;
+  margin: 0 16px;
 }
 
 .typeSelector {
@@ -67,4 +75,36 @@
   cursor: pointer;
   text-align: center;
   font-size: 1em;
+}
+
+.propertyTag {
+  cursor: pointer;
+  width: 40px;
+  text-align: center;
+  border-radius: 3px !important;
+  margin-right: 8px !important;
+}
+
+.brightOnDark {
+  background: rgba(138, 155, 168, 0.2);
+  color: #bfccd6;
+}
+
+.darkOnBright {
+  background: #bfccd6;
+  color: #182026;
+}
+
+.editablePropertyName {
+  line-height: 2em;
+  padding: 0 16px;
+  width: 65%;
+}
+
+.minMaxInput input {
+  width: 64px !important;
+}
+
+.outputTextArea {
+  max-height: 400px;
 }

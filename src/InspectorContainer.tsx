@@ -1,11 +1,11 @@
 import React, { useRef, useEffect, useState } from 'react';
 import MonacoEditor from 'react-monaco-editor';
-import { H3, H4, H5, H6 } from '@blueprintjs/core';
+import { Button, H5 } from '@blueprintjs/core';
+import { Popover2 } from '@blueprintjs/popover2';
 
 import styles from './utils/style.module.css';
 import PPNode from './classes/NodeClass';
-import { InputArrayContainer } from './InputArrayContainer';
-import { OutputArrayContainer } from './OutputArrayContainer';
+import { PropertyArrayContainer } from './PropertyArrayContainer';
 import PPGraph from './classes/GraphClass';
 
 type MyProps = {
@@ -54,19 +54,24 @@ const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
 
   return (
     <div className={`${styles.inspectorContainer} bp3-dark`} id="editorwrapper">
-      <H5>{props.selectedNode?.name}</H5>
-      <div className="bp3-text-small bp3-text-muted">
-        ID: {props.selectedNode?.id}
-      </div>
-      <InputArrayContainer
+      <Popover2
+        minimal
+        hasBackdrop
+        usePortal={true}
+        content={
+          <div className={`${styles.serializedNode} bp3-code`}>
+            {JSON.stringify(props.selectedNode?.serialize(), null, 2)}
+          </div>
+        }
+      >
+        <Button large rightIcon="code" minimal className={styles.nodeTitle}>
+          {props.selectedNode?.name}
+        </Button>
+      </Popover2>
+      <PropertyArrayContainer
         inputSocketArray={props.selectedNode?.inputSocketArray}
-      />
-      <OutputArrayContainer
         outputSocketArray={props.selectedNode?.outputSocketArray}
       />
-      <pre className={styles.serializedNode}>
-        {JSON.stringify(props.selectedNode?.serialize(), null, 2)}
-      </pre>
       {codeString && (
         <MonacoEditor
           language="javascript"

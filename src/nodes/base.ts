@@ -17,10 +17,10 @@ export class RangeArray extends PPNode {
   constructor(name: string, graph: PPGraph, customId: string) {
     super(name, graph, customId);
 
-    this.addOutput('output array', OUTPUTTYPE.ARRAY);
-    this.addInput('start', INPUTTYPE.NUMBER);
-    this.addInput('stop', INPUTTYPE.NUMBER);
-    this.addInput('step', INPUTTYPE.NUMBER);
+    this.addOutput('output array', OUTPUTTYPE.ARRAY.TYPE);
+    this.addInput('start', INPUTTYPE.NUMBER.TYPE);
+    this.addInput('stop', INPUTTYPE.NUMBER.TYPE);
+    this.addInput('step', INPUTTYPE.NUMBER.TYPE);
 
     this.name = 'Range array';
     this.description = 'Create range array';
@@ -45,9 +45,9 @@ export class MakeAPICall extends PPNode {
 
     const url = 'https://jsonplaceholder.typicode.com/users';
 
-    this.addOutput('response', OUTPUTTYPE.STRING);
-    this.addInput('trigger', INPUTTYPE.TRIGGER);
-    this.addInput('url', INPUTTYPE.STRING, url);
+    this.addOutput('response', OUTPUTTYPE.STRING.TYPE);
+    this.addInput('trigger', INPUTTYPE.TRIGGER.TYPE);
+    this.addInput('url', INPUTTYPE.STRING.TYPE, url);
 
     this.name = 'Make API call';
     this.description = 'Makes an API call and outputs the response';
@@ -79,7 +79,7 @@ export class Trigger extends PPNode {
   constructor(name: string, graph: PPGraph, customId: string) {
     super(name, graph, customId);
 
-    this.addOutput('trigger', OUTPUTTYPE.TRIGGER);
+    this.addOutput('trigger', OUTPUTTYPE.TRIGGER.TYPE);
 
     this.name = 'Trigger';
     this.description = 'Creates a trigger event';
@@ -123,8 +123,8 @@ export class TimeAndDate extends PPNode {
   constructor(name: string, graph: PPGraph, customId: string) {
     super(name, graph, customId);
 
-    this.addOutput('date and time', OUTPUTTYPE.STRING);
-    this.addOutput('time stamp', OUTPUTTYPE.NUMBER);
+    this.addOutput('date and time', OUTPUTTYPE.STRING.TYPE);
+    this.addOutput('time stamp', OUTPUTTYPE.NUMBER.TYPE);
 
     this.name = 'Time';
     this.description = 'Outputs current time in different formats';

@@ -18,7 +18,6 @@ import {
   CANVAS_BACKGROUNDCOLOR_HEX,
   CANVAS_BACKGROUND_ALPHA,
   CANVAS_BACKGROUND_TEXTURE,
-  DEFAULT_EDITOR_DATA,
 } from './utils/constants';
 import { INodes } from './utils/interfaces';
 import { highlightText } from './utils/utils';
@@ -29,6 +28,9 @@ import PPNode from './classes/NodeClass';
   (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__.register({ PIXI: PIXI });
 
 const NodeSearch = Omnibar.ofType<INodes>();
+
+const isMac = navigator.platform.indexOf('Mac') != -1;
+console.log('isMac: ', isMac);
 
 const App = (): JSX.Element => {
   const db = new GraphDatabase();
@@ -212,9 +214,8 @@ const App = (): JSX.Element => {
 
     // register key events
     const keysDown = (e: KeyboardEvent): void => {
-      console.log(e);
       console.log(e.key);
-      if (e.key === 'Tab') {
+      if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'f') {
         e.preventDefault();
         setIsOpen((prevState) => !prevState);
       }

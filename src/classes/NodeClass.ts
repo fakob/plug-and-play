@@ -129,10 +129,10 @@ export default class PPNode extends PIXI.Container {
   addInput(
     name: string,
     type: string,
-    defaultValue?: any,
+    defaultData?: any,
     visible?: boolean
   ): void {
-    const inputSocket = new InputSocket(name, type, defaultValue, visible);
+    const inputSocket = new InputSocket(name, type, defaultData, visible);
     const inputSocketRef = this.addChild(inputSocket);
     inputSocketRef.y =
       NODE_OUTLINE_DISTANCE +
@@ -199,10 +199,12 @@ export default class PPNode extends PIXI.Container {
     // set parameters on inputSocket
     if (this.inputSocketArray.length > 0) {
       this.inputSocketArray.forEach((item, index) => {
-        item.defaultValue =
-          node_info.inputSocketArray[index]?.defaultValue || null;
-        item.value = node_info.inputSocketArray[index]?.value || null;
-        item.visible = node_info.inputSocketArray[index]?.visible || true;
+        console.log(node_info.inputSocketArray[index]);
+        item.setName(node_info.inputSocketArray[index]?.name || null);
+        item.defaultData =
+          node_info.inputSocketArray[index]?.defaultData || null;
+        item.data = node_info.inputSocketArray[index]?.data || null;
+        item.setVisible(node_info.inputSocketArray[index]?.visible || true);
       });
     }
 
@@ -223,6 +225,11 @@ export default class PPNode extends PIXI.Container {
         NODE_HEADER_HEIGHT +
         this.inputSocketArray.length * INPUTSOCKET_HEIGHT +
         this.outputSocketArray.length * OUTPUTSOCKET_HEIGHT +
+        // NODE_HEADER_HEIGHT +
+        // this.inputSocketArray.filter((item) => item.visible === true).length *
+        //   INPUTSOCKET_HEIGHT +
+        // this.outputSocketArray.filter((item) => item.visible === true).length *
+        //   OUTPUTSOCKET_HEIGHT +
         NODE_MARGIN_BOTTOM,
       NODE_CORNERRADIUS
     );
@@ -244,6 +251,11 @@ export default class PPNode extends PIXI.Container {
           NODE_HEADER_HEIGHT +
           this.inputSocketArray.length * INPUTSOCKET_HEIGHT +
           this.outputSocketArray.length * OUTPUTSOCKET_HEIGHT +
+          // this.inputSocketArray.filter((item) => item.visible === true).length *
+          //   INPUTSOCKET_HEIGHT +
+          // this.outputSocketArray.filter((item) => item.visible === true)
+          //   .length *
+          //   OUTPUTSOCKET_HEIGHT +
           NODE_MARGIN_BOTTOM,
         NODE_CORNERRADIUS + NODE_OUTLINE_DISTANCE
       );
@@ -268,7 +280,7 @@ export default class PPNode extends PIXI.Container {
     // console.log(this.outputSocketArray[0], commentData);
     if (commentData !== undefined) {
       // custom output for pixi elements
-      if (this.outputSocketArray[0]?.type === OUTPUTTYPE.PIXI) {
+      if (this.outputSocketArray[0]?.type === OUTPUTTYPE.PIXI.TYPE) {
         const strippedCommentData = {
           alpha: commentData?.alpha,
           // children: commentData?.children,
@@ -299,12 +311,12 @@ export default class PPNode extends PIXI.Container {
       return undefined;
     }
 
-    // if no link, then return value
+    // if no link, then return data
     if (
       slot >= this.inputSocketArray.length ||
       this.inputSocketArray[slot].link === null
     ) {
-      return this.inputSocketArray[slot].value;
+      return this.inputSocketArray[slot].data;
     }
 
     const link = this.inputSocketArray[slot].link;

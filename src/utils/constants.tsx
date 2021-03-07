@@ -61,13 +61,13 @@ export const INPUTSOCKET_CORNERRADIUS = 4;
 export const INPUTSOCKET_TEXTMARGIN_LEFT = 8;
 export const INPUTSOCKET_TEXTMARGIN_TOP = 4;
 export const INPUTTYPE = {
-  ANY: 'undefined',
-  STRING: 'string',
-  NUMBER: 'number',
-  COLOR: 'color',
-  ARRAY: 'array',
-  TRIGGER: 'trigger', // node with trigger input needs trigger function which is called by linked output trigger
-  PIXI: 'pixi',
+  ANY: { TYPE: 'undefined', DEFAULTVALUE: undefined },
+  STRING: { TYPE: 'string', DEFAULTVALUE: '' },
+  NUMBER: { TYPE: 'number', DEFAULTVALUE: 0 },
+  COLOR: { TYPE: 'color', DEFAULTVALUE: [255, 55, 0, 0.5] },
+  ARRAY: { TYPE: 'array', DEFAULTVALUE: [] },
+  TRIGGER: { TYPE: 'trigger', DEFAULTVALUE: undefined }, // node with trigger input needs trigger function which is called by linked output trigger
+  PIXI: { TYPE: 'pixi', DEFAULTVALUE: undefined },
 };
 
 export const OUTPUTSOCKET_TEXTSTYLE = new TextStyle({
@@ -81,12 +81,12 @@ export const OUTPUTSOCKET_CORNERRADIUS = 4;
 export const OUTPUTSOCKET_TEXTMARGIN_RIGHT = 8;
 export const OUTPUTSOCKET_TEXTMARGIN_TOP = 4;
 export const OUTPUTTYPE = {
-  STRING: 'string',
-  NUMBER: 'number',
-  COLOR: 'color',
-  ARRAY: 'array',
-  TRIGGER: 'trigger', // trigger output type calls trigger function on linked nodes
-  PIXI: 'pixi',
+  STRING: { TYPE: 'string' },
+  NUMBER: { TYPE: 'number' },
+  COLOR: { TYPE: 'color' },
+  ARRAY: { TYPE: 'array' },
+  TRIGGER: { TYPE: 'trigger' }, // trigger output type calls trigger function on linked nodes
+  PIXI: { TYPE: 'pixi' },
 };
 
 export const NODE_TEXTSTYLE = new TextStyle({

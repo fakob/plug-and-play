@@ -37,7 +37,7 @@ export const registerAllNodeTypes = (graph: PPGraph): void => {
   }
   graph.convertFunctionToNodeConstructor(
     getElementFromArray,
-    [INPUTTYPE.ARRAY, INPUTTYPE.NUMBER]
-    // OUTPUTTYPE.NUMBER
+    [INPUTTYPE.ARRAY.TYPE, INPUTTYPE.NUMBER.TYPE]
+    // OUTPUTTYPE.NUMBER.TYPE
   );
 };

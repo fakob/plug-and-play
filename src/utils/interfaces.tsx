@@ -41,8 +41,8 @@ export type SerializedLink = {
 export type SerializedInputSocket = {
   name: string;
   type: string;
-  defaultValue: number;
-  value: number;
+  data: number;
+  defaultData: number;
   visible: boolean;
 };
 

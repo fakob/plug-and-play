@@ -15,9 +15,9 @@ export class MathAdd extends PPNode {
   constructor(name: string, graph: PPGraph, customId: string) {
     super(name, graph, customId);
 
-    this.addOutput('out', OUTPUTTYPE.NUMBER);
-    this.addInput('in', INPUTTYPE.NUMBER, 0);
-    this.addInput('in2', INPUTTYPE.NUMBER, 0);
+    this.addOutput('out', OUTPUTTYPE.NUMBER.TYPE);
+    this.addInput('in', INPUTTYPE.NUMBER.TYPE, 0);
+    this.addInput('in2', INPUTTYPE.NUMBER.TYPE, 0);
 
     this.name = 'Add';
     this.description = 'Add 2 numbers';
@@ -46,8 +46,8 @@ export class MathNoise extends PPNode {
   constructor(name: string, graph: PPGraph, customId: string) {
     super(name, graph, customId);
 
-    this.addOutput('out', OUTPUTTYPE.NUMBER);
-    this.addInput('in', INPUTTYPE.NUMBER);
+    this.addOutput('out', OUTPUTTYPE.NUMBER.TYPE);
+    this.addInput('in', INPUTTYPE.NUMBER.TYPE);
     this.min = 0;
     this.max = 1;
     this.smooth = true;
