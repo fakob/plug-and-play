@@ -24,14 +24,6 @@ import { highlightText } from './utils/utils';
 import { registerAllNodeTypes } from './nodes/allNodes';
 import PPNode from './classes/NodeClass';
 
-import PrimeWorker from 'worker-loader!./opencv-worker';
-
-const worker = new PrimeWorker();
-
-worker.onmessage = (event) => {
-  console.log(event.data);
-};
-
 (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__ &&
   (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__.register({ PIXI: PIXI });
 
@@ -82,7 +74,23 @@ const App = (): JSX.Element => {
           });
           break;
         case 'mp4':
-          worker.postMessage({ objectURL, file });
+          function loadOpencvWasm() {
+            return new Promise((resolve) => {
+              // eslint-disable-next-line @typescript-eslint/no-var-requires
+              const { cv } = require('opencv-wasm');
+              resolve(cv);
+            });
+          }
+          (async () => {
+            const cv = (await loadOpencvWasm()) as any;
+            const mat = cv.matFromArray(2, 3, cv.CV_8UC1, [1, 2, 3, 4, 5, 6]);
+            console.log('cols =', mat.cols, '; rows =', mat.rows);
+            console.log(mat.data8S);
+
+            cv.transpose(mat, mat);
+            console.log('cols =', mat.cols, '; rows =', mat.rows);
+            console.log(mat.data8S);
+          })();
           break;
         default:
           break;
