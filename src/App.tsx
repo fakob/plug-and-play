@@ -28,9 +28,8 @@ import PrimeWorker from 'worker-loader!./opencv-worker';
 
 const worker = new PrimeWorker();
 
-worker.postMessage({ limit: 1000 });
 worker.onmessage = (event) => {
-  console.log(event.data.primes);
+  console.log(event.data);
 };
 
 (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__ &&
@@ -81,6 +80,9 @@ const App = (): JSX.Element => {
           currentGraph.current.createAndAddNode('PPImage', '', {
             objectURL,
           });
+          break;
+        case 'mp4':
+          worker.postMessage({ objectURL, file });
           break;
         default:
           break;
