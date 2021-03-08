@@ -149,12 +149,25 @@ export default class InputSocket extends PIXI.Container {
     (this._InputNameRef as PIXI.Text).text = newName;
   }
 
-  setVisible(visible: boolean): void {
-    this.visible = visible;
+  setVisible(value: boolean): void {
+    this.visible = value;
+
+    // visibility change can result in position change
+    // therefore redraw Node and connected Links
+    this.getNode().drawNodeShape();
+    this.getNode().inputSocketArray.map((input) => {
+      if (input.link !== null) {
+        input.link.updateConnection();
+      }
+    });
   }
 
   removeLink(): void {
     this.link = null;
+  }
+
+  getNode(): PPNode {
+    return this.parent as PPNode;
   }
 
   getGraph(): PPGraph {

@@ -89,7 +89,7 @@ export default class PPNode extends PIXI.Container {
     ) as PIXI.Container).addChild(nodeComment);
 
     // draw shape
-    this.drawNodeShape(this._selected);
+    this.drawNodeShape();
 
     this.interactive = true;
     this.interactionData = null;
@@ -134,33 +134,19 @@ export default class PPNode extends PIXI.Container {
   ): void {
     const inputSocket = new InputSocket(name, type, defaultData, visible);
     const inputSocketRef = this.addChild(inputSocket);
-    inputSocketRef.y =
-      NODE_OUTLINE_DISTANCE +
-      NODE_MARGIN_TOP +
-      NODE_HEADER_HEIGHT +
-      this.outputSocketArray.length * OUTPUTSOCKET_HEIGHT +
-      this.inputSocketArray.filter((item) => item.visible === true).length *
-        INPUTSOCKET_HEIGHT;
-
     this.inputSocketArray.push(inputSocketRef);
 
     // redraw background due to size change
-    this.drawNodeShape(this._selected);
+    this.drawNodeShape();
   }
 
   addOutput(name: string, type: string): void {
     const outputSocket = new OutputSocket(name, type);
     const outputSocketRef = this.addChild(outputSocket);
-    outputSocketRef.y =
-      NODE_OUTLINE_DISTANCE +
-      NODE_MARGIN_TOP +
-      NODE_HEADER_HEIGHT +
-      this.outputSocketArray.length * OUTPUTSOCKET_HEIGHT;
-
     this.outputSocketArray.push(outputSocketRef);
 
     // redraw background due to size change
-    this.drawNodeShape(this._selected);
+    this.drawNodeShape();
   }
 
   serialize(): SerializedNode {
@@ -213,7 +199,14 @@ export default class PPNode extends PIXI.Container {
     }
   }
 
-  drawNodeShape(selected: boolean): void {
+  drawNodeShape(selected: boolean = this._selected): void {
+    const countOfVisibleInputSockets = this.inputSocketArray.filter(
+      (item) => item.visible === true
+    ).length;
+    const countOfVisibleOutputSockets = this.outputSocketArray.filter(
+      (item) => item.visible === true
+    ).length;
+
     // redraw background due to size change
     this._BackgroundRef.clear();
     this._BackgroundRef.beginFill(NODE_BACKGROUNDCOLOR_HEX);
@@ -223,17 +216,43 @@ export default class PPNode extends PIXI.Container {
       NODE_WIDTH,
       NODE_MARGIN_TOP +
         NODE_HEADER_HEIGHT +
-        this.inputSocketArray.length * INPUTSOCKET_HEIGHT +
-        this.outputSocketArray.length * OUTPUTSOCKET_HEIGHT +
-        // NODE_HEADER_HEIGHT +
-        // this.inputSocketArray.filter((item) => item.visible === true).length *
-        //   INPUTSOCKET_HEIGHT +
-        // this.outputSocketArray.filter((item) => item.visible === true).length *
-        //   OUTPUTSOCKET_HEIGHT +
+        countOfVisibleInputSockets * INPUTSOCKET_HEIGHT +
+        countOfVisibleOutputSockets * OUTPUTSOCKET_HEIGHT +
         NODE_MARGIN_BOTTOM,
       NODE_CORNERRADIUS
     );
     this._BackgroundRef.endFill();
+
+    // redraw outputs
+    if (this.outputSocketArray.length > 0) {
+      let posCounter = 0;
+      this.outputSocketArray.forEach((item) => {
+        if (item.visible) {
+          item.y =
+            NODE_OUTLINE_DISTANCE +
+            NODE_MARGIN_TOP +
+            NODE_HEADER_HEIGHT +
+            posCounter * OUTPUTSOCKET_HEIGHT;
+          posCounter += 1;
+        }
+      });
+    }
+
+    // redraw inputs
+    if (this.inputSocketArray.length > 0) {
+      let posCounter = 0;
+      this.inputSocketArray.forEach((item) => {
+        if (item.visible) {
+          item.y =
+            NODE_OUTLINE_DISTANCE +
+            NODE_MARGIN_TOP +
+            NODE_HEADER_HEIGHT +
+            countOfVisibleOutputSockets * OUTPUTSOCKET_HEIGHT +
+            posCounter * INPUTSOCKET_HEIGHT;
+          posCounter += 1;
+        }
+      });
+    }
 
     // optional drawShape
     // if (this.drawShape) {
@@ -249,13 +268,8 @@ export default class PPNode extends PIXI.Container {
         NODE_OUTLINE_DISTANCE * 2 +
           NODE_MARGIN_TOP +
           NODE_HEADER_HEIGHT +
-          this.inputSocketArray.length * INPUTSOCKET_HEIGHT +
-          this.outputSocketArray.length * OUTPUTSOCKET_HEIGHT +
-          // this.inputSocketArray.filter((item) => item.visible === true).length *
-          //   INPUTSOCKET_HEIGHT +
-          // this.outputSocketArray.filter((item) => item.visible === true)
-          //   .length *
-          //   OUTPUTSOCKET_HEIGHT +
+          countOfVisibleInputSockets * INPUTSOCKET_HEIGHT +
+          countOfVisibleOutputSockets * OUTPUTSOCKET_HEIGHT +
           NODE_MARGIN_BOTTOM,
         NODE_CORNERRADIUS + NODE_OUTLINE_DISTANCE
       );

@@ -152,7 +152,7 @@ const PropertyHeader: React.FunctionComponent<PropertyHeaderProps> = (
   const [name, setName] = useState(props.property.name);
 
   useEffect(() => {
-    props.property.visible = visible;
+    props.property.setVisible(visible);
   }, [visible]);
 
   useEffect(() => {
@@ -164,9 +164,13 @@ const PropertyHeader: React.FunctionComponent<PropertyHeaderProps> = (
       <Tag
         minimal={!visible}
         className={styles.propertyTag}
-        onClick={() => {
-          setVisible((value) => !value);
-        }}
+        onClick={
+          props.hasLink
+            ? undefined
+            : () => {
+                setVisible((value) => !value);
+              }
+        }
       >
         {props.hasLink && <Icon icon="lock" iconSize={8}></Icon>}
         {props.isInput ? 'IN' : 'OUT'}

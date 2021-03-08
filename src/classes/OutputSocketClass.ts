@@ -93,10 +93,23 @@ export default class OutputSocket extends PIXI.Container {
 
   setVisible(value: boolean): void {
     this.visible = value;
+
+    // visibility change can result in position change
+    // therefore redraw Node and connected Links
+    this.getNode().drawNodeShape();
+    this.getNode().outputSocketArray.map((output) => {
+      output.links.map((link) => {
+        link.updateConnection();
+      });
+    });
   }
 
   removeLink(link: PPLink): void {
     this.links = this.links.filter((item) => item.id !== link.id);
+  }
+
+  getNode(): PPNode {
+    return this.parent as PPNode;
   }
 
   getGraph(): PPGraph {
