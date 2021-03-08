@@ -3,7 +3,7 @@
   right: 0;
   bottom: 0;
   width: 30vw;
-  min-width: 300px;
+  min-width: 400px;
   /* height: 600px; */
   height: 100vh;
   padding: 54px 8px 8px 8px;
@@ -79,7 +79,7 @@
 
 .propertyTag {
   cursor: pointer;
-  width: 40px;
+  width: 48px;
   text-align: center;
   border-radius: 3px !important;
   margin-right: 8px !important;
@@ -98,7 +98,7 @@
 .editablePropertyName {
   line-height: 2em;
   padding: 0 16px;
-  width: 65%;
+  min-width: 220px;
 }
 
 .minMaxInput input {

@@ -6,6 +6,7 @@ import {
   Divider,
   EditableText,
   HTMLSelect,
+  Icon,
   NumericInput,
   Slider,
   Tag,
@@ -38,6 +39,7 @@ export const PropertyArrayContainer: React.FunctionComponent<PropertyArrayContai
             index={index}
             type={property.type}
             isInput={true}
+            hasLink={property.link !== null}
           />
         );
       })}
@@ -49,6 +51,7 @@ export const PropertyArrayContainer: React.FunctionComponent<PropertyArrayContai
             index={index}
             type={property.type}
             isInput={false}
+            hasLink={property.links.length !== 0}
           />
         );
       })}
@@ -61,6 +64,7 @@ type PropertyContainerProps = {
   index: number;
   type: string;
   isInput: boolean;
+  hasLink: boolean;
 };
 
 const PropertyContainer: React.FunctionComponent<PropertyContainerProps> = (
@@ -72,6 +76,7 @@ const PropertyContainer: React.FunctionComponent<PropertyContainerProps> = (
     property: props.property,
     index: props.index,
     isInput: props.isInput,
+    hasLink: props.hasLink,
   };
 
   let widget = null;
@@ -122,6 +127,7 @@ const PropertyContainer: React.FunctionComponent<PropertyContainerProps> = (
         property={props.property}
         index={props.index}
         isInput={props.isInput}
+        hasLink={props.hasLink}
         type={typeValue}
         onChangeDropdown={onChangeDropdown}
       />
@@ -134,6 +140,7 @@ type PropertyHeaderProps = {
   property: InputSocket | OutputSocket;
   index: number;
   isInput: boolean;
+  hasLink: boolean;
   type: string;
   onChangeDropdown: (event) => void;
 };
@@ -161,6 +168,7 @@ const PropertyHeader: React.FunctionComponent<PropertyHeaderProps> = (
           setVisible((value) => !value);
         }}
       >
+        {props.hasLink && <Icon icon="lock" iconSize={8}></Icon>}
         {props.isInput ? 'IN' : 'OUT'}
       </Tag>
       <EditableText
@@ -193,6 +201,7 @@ const PropertyHeader: React.FunctionComponent<PropertyHeaderProps> = (
 type SliderWidgetProps = {
   property: InputSocket | OutputSocket;
   isInput: boolean;
+  hasLink: boolean;
   index: number;
   min?: number;
   max?: number;
@@ -231,16 +240,16 @@ const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (props) => {
   return (
     <>
       <ControlGroup>
-        <Tag
-          minimal
-          className={styles.propertyTag}
+        <Button
+          disabled={props.hasLink}
           onClick={() => {
             setRound((value) => !value);
           }}
         >
           {round ? 'Integer' : 'Float'}
-        </Tag>
+        </Button>
         <NumericInput
+          disabled={props.hasLink}
           allowNumericCharactersOnly={false}
           selectAllOnFocus
           fill
@@ -252,6 +261,7 @@ const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (props) => {
         />
         <Divider />
         <NumericInput
+          disabled={props.hasLink}
           className={styles.minMaxInput}
           allowNumericCharactersOnly={false}
           selectAllOnFocus
@@ -262,6 +272,7 @@ const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (props) => {
           value={minValue}
         />
         <NumericInput
+          disabled={props.hasLink}
           className={styles.minMaxInput}
           allowNumericCharactersOnly={false}
           selectAllOnFocus
@@ -273,6 +284,7 @@ const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (props) => {
         />
       </ControlGroup>
       <Slider
+        disabled={props.hasLink}
         className={styles.slider}
         key={`${props.property.name}-${props.index}`}
         min={minValue}
@@ -291,6 +303,7 @@ const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (props) => {
 type TextWidgetProps = {
   property: InputSocket | OutputSocket;
   index: number;
+  hasLink: boolean;
 };
 
 const TextWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
@@ -304,6 +317,7 @@ const TextWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
   return (
     <>
       <TextArea
+        disabled={props.hasLink}
         className="bp3-fill"
         growVertically={true}
         onChange={(event) => {
@@ -342,6 +356,7 @@ type ColorWidgetProps = {
   property: InputSocket | OutputSocket;
   index: number;
   isInput: boolean;
+  hasLink: boolean;
 };
 
 const ColorWidget: React.FunctionComponent<ColorWidgetProps> = (props) => {
@@ -371,11 +386,15 @@ const ColorWidget: React.FunctionComponent<ColorWidgetProps> = (props) => {
         style={{
           backgroundColor: `rgba(${finalColor.r}, ${finalColor.g}, ${finalColor.b}, ${finalColor.a})`,
         }}
-        onClick={() => {
-          showColorPicker(!colorPicker);
-        }}
+        onClick={
+          props.hasLink
+            ? undefined
+            : () => {
+                showColorPicker(!colorPicker);
+              }
+        }
       >
-        {props.isInput ? 'Pick a color' : ''}
+        {props.isInput && !props.hasLink ? 'Pick a color' : ''}
       </div>
       {props.isInput && colorPicker && (
         <span className="chrome-picker">
