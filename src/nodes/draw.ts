@@ -459,3 +459,105 @@ export class PPImage extends PPNode {
     this.setOutputData(2, height);
   }
 }
+
+export class PPVideo extends PPNode {
+  _imageRef: PIXI.Sprite;
+  _imageRefClone: PIXI.Sprite;
+  _sourceURL: string;
+  _thumbArray: {
+    spriteRef: PIXI.Sprite;
+    textureRef: PIXI.Texture;
+  }[];
+  _frameCount: number;
+  _frameRate: number;
+
+  constructor(
+    name: string,
+    graph: PPGraph,
+    customId: string,
+    customArgsObject?: {
+      thumbURL: string;
+      sourceURL: string;
+      frameCount: number;
+      frameRate: number;
+    }
+  ) {
+    super(name, graph, customId);
+    this.addOutput('image', OUTPUTTYPE.PIXI.TYPE);
+    this.addOutput('width', OUTPUTTYPE.NUMBER.TYPE);
+    this.addOutput('height', OUTPUTTYPE.NUMBER.TYPE);
+    this.addOutput('frameCount', OUTPUTTYPE.NUMBER.TYPE, false);
+    this.addOutput('frameRate', OUTPUTTYPE.NUMBER.TYPE, false);
+    this.addInput('Reload', INPUTTYPE.TRIGGER.TYPE, undefined, false);
+    this.addInput('url', INPUTTYPE.STRING.TYPE, undefined, false);
+    this.addInput('amountOfStills', INPUTTYPE.NUMBER.TYPE, undefined, false);
+
+    this.name = 'Video';
+    this.description = 'Adds a video';
+    this._sourceURL = customArgsObject?.sourceURL;
+    this._frameCount = customArgsObject?.frameCount;
+    this._frameRate = customArgsObject?.frameRate;
+
+    const image = PIXI.Sprite.from(customArgsObject?.thumbURL || EMPTY_TEXTURE);
+    image.x = INPUTSOCKET_WIDTH / 2;
+    image.y = NODE_OUTLINE_DISTANCE;
+    image.width = NODE_WIDTH;
+    image.height = NODE_WIDTH;
+
+    this._imageRefClone = PIXI.Sprite.from(
+      customArgsObject?.thumbURL || EMPTY_TEXTURE
+    );
+
+    this.drawShape = function () {
+      this._BackgroundRef.visible = false;
+      this._NodeNameRef.visible = false;
+
+      (this._imageRef as any) = (this as PIXI.Container).addChild(image);
+      this._imageRef.alpha = 1;
+      this._imageRef.tint;
+    };
+
+    // this.onConfigure = (node_info: SerializedNode) => {
+    //   console.log('onConfigure on Note:', node_info);
+    //   this.createInputElement();
+    //   this.currentInput.dispatchEvent(new Event('input'));
+    //   this.currentInput.dispatchEvent(new Event('blur'));
+    // };
+
+    // this.onNodeDoubleClick = () => {
+    //   console.log('_onDoubleClick on Note:', this);
+    //   this.createInputElement();
+    // };
+
+    // this.onExecute = () => {};
+
+    // update shape after initializing
+    this.drawNodeShape(false);
+  }
+
+  captureThumbs(amountOfStills: number): void {
+    console.log(this._sourceURL);
+  }
+
+  trigger(): void {
+    const url: string = this.getInputData(1);
+    const amountOfStills: number = this.getInputData(2);
+
+    // if url is set then get image
+    if (url !== '') {
+      // const objectURL = URL.createObjectURL(url);
+      const newTexture = PIXI.Texture.from(url);
+      this._imageRef.texture = newTexture;
+      this._imageRefClone.texture = newTexture;
+    }
+
+    this.captureThumbs(amountOfStills);
+
+    const { width, height } = this._imageRef.texture.orig;
+    this.setOutputData(0, this._imageRefClone);
+    this.setOutputData(1, width);
+    this.setOutputData(2, height);
+    this.setOutputData(3, this._frameCount);
+    this.setOutputData(4, this._frameRate);
+  }
+}

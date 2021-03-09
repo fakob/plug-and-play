@@ -23,6 +23,8 @@
     "@blueprintjs/core": "^3.38.2",
     "@blueprintjs/popover2": "^0.3.1",
     "@blueprintjs/select": "^3.15.4",
+    "@ffmpeg/core": "^0.8.5",
+    "@ffmpeg/ffmpeg": "^0.9.7",
     "@pixi/filter-drop-shadow": "^3.2.0",
     "@pixi/text-html": "^1.0.0",
     "axios": "^0.21.0",
@@ -119,6 +121,6 @@
     ]
   },
   "engines": {
-    "node": "12.x"
+    "node": "12.16.x"
   }
 }

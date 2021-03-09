@@ -28,10 +28,11 @@ export default class OutputSocket extends PIXI.Container {
 
   links: PPLink[];
 
-  constructor(name = 'Number', type = OUTPUTTYPE.NUMBER.TYPE) {
+  constructor(name = 'Number', type = OUTPUTTYPE.NUMBER.TYPE, visible = true) {
     super();
     this.name = name;
     this.type = type;
+    this.visible = visible;
     this.linkDragPos = null;
     this.links = [];
 

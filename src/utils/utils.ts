@@ -135,3 +135,33 @@ export const mapRange = (
   }
   return limitedNewValue;
 };
+
+export const timecodeToFrameCount = (
+  timecodeString: string,
+  fps = 25
+): number => {
+  const time_array = timecodeString.split(/[:.]+/);
+  // 00:01:16.01
+  const frameCount =
+    parseInt(time_array[0], 10) * 60 * 60 * fps +
+    parseInt(time_array[1], 10) * 60 * fps +
+    parseInt(time_array[2], 10) * fps;
+  parseInt(time_array[3], 10);
+
+  console.log(frameCount);
+  return frameCount;
+};
+
+export const frameCountToTimeCode = (frames: number, fps = 25): string => {
+  // fps = (fps !== undefined ? fps : 30);
+  if (frames !== undefined) {
+    const paddedValue = (input) => (input < 10 ? `0${input}` : input);
+    const seconds = frames !== undefined ? frames / fps : 0;
+    return `${paddedValue(Math.floor(seconds / 3600))}:${paddedValue(
+      Math.floor((seconds % 3600) / 60)
+    )}:${paddedValue(Math.floor(seconds % 60))}.${paddedValue(
+      Math.floor(frames % fps)
+    )}`;
+  }
+  return `––:––:––.––`;
+};

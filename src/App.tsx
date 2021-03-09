@@ -20,6 +20,7 @@ import {
   CANVAS_BACKGROUND_TEXTURE,
 } from './utils/constants';
 import { INodes } from './utils/interfaces';
+import { getThumbnail } from './utils/ffmpeg';
 import { highlightText } from './utils/utils';
 import { registerAllNodeTypes } from './nodes/allNodes';
 import PPNode from './classes/NodeClass';
@@ -74,6 +75,29 @@ const App = (): JSX.Element => {
         case 'png':
           currentGraph.current.createAndAddNode('PPImage', '', {
             objectURL,
+          });
+          break;
+        case 'avi':
+        case 'divx':
+        case 'flv':
+        case 'mkv':
+        case 'mov':
+        case 'mp4':
+        case 'mpeg':
+        case 'mpg':
+        case 'vob':
+          getThumbnail(objectURL).then((resolve) => {
+            const {
+              objectURL: objectUrlFromStill,
+              frameCount,
+              frameRate,
+            } = resolve;
+            currentGraph.current.createAndAddNode('PPVideo', '', {
+              thumbURL: objectUrlFromStill,
+              sourceURL: objectURL,
+              frameCount,
+              frameRate,
+            });
           });
           break;
         default:

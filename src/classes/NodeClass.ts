@@ -140,8 +140,8 @@ export default class PPNode extends PIXI.Container {
     this.drawNodeShape();
   }
 
-  addOutput(name: string, type: string): void {
-    const outputSocket = new OutputSocket(name, type);
+  addOutput(name: string, type: string, visible?: boolean): void {
+    const outputSocket = new OutputSocket(name, type, visible);
     const outputSocketRef = this.addChild(outputSocket);
     this.outputSocketArray.push(outputSocketRef);
 
