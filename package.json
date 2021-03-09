@@ -36,7 +36,7 @@
     "file-loader": "^6.2.0",
     "human-readable-ids": "^1.0.4",
     "monaco-editor-webpack-plugin": "^3.0.0",
-    "opencv-wasm": "^4.3.0-10",
+    "opencv-wasm": "file:../opencv-wasm",
     "path-browserify": "^1.0.1",
     "pixi-viewport": "4.21.0",
     "pixi.js": "^5.3.3",

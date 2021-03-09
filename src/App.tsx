@@ -23,6 +23,8 @@ import { INodes } from './utils/interfaces';
 import { highlightText } from './utils/utils';
 import { registerAllNodeTypes } from './nodes/allNodes';
 import PPNode from './classes/NodeClass';
+import { cv } from 'opencv-wasm';
+import { VideoCaptureProperties } from './utils/openCVProperties';
 
 (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__ &&
   (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__.register({ PIXI: PIXI });
@@ -74,23 +76,68 @@ const App = (): JSX.Element => {
           });
           break;
         case 'mp4':
-          function loadOpencvWasm() {
-            return new Promise((resolve) => {
-              // eslint-disable-next-line @typescript-eslint/no-var-requires
-              const { cv } = require('opencv-wasm');
-              resolve(cv);
-            });
-          }
-          (async () => {
-            const cv = (await loadOpencvWasm()) as any;
-            const mat = cv.matFromArray(2, 3, cv.CV_8UC1, [1, 2, 3, 4, 5, 6]);
-            console.log('cols =', mat.cols, '; rows =', mat.rows);
-            console.log(mat.data8S);
+          console.log('mp4');
+          const mat = cv.matFromArray(2, 3, (cv as any).CV_8UC1, [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+          ]);
+          console.log('cols =', mat.cols, '; rows =', mat.rows);
+          console.log(mat.data8S);
 
-            cv.transpose(mat, mat);
-            console.log('cols =', mat.cols, '; rows =', mat.rows);
-            console.log(mat.data8S);
-          })();
+          (cv as any).transpose(mat, mat);
+          console.log('cols =', mat.cols, '; rows =', mat.rows);
+          console.log(mat.data8S);
+
+          // const video = document.createElement('video');
+
+          // video.src = objectURL;
+
+          const canvas = document.createElement('canvas');
+          const video = document.createElement('video');
+          canvas.setAttribute('id', 'canvasOutput');
+
+          // if (x.canPlayType('video/mp4')) {
+          video.setAttribute('src', objectURL);
+          // } else {
+          //   video.setAttribute('src', 'movie.ogg');
+          // }
+
+          video.setAttribute('width', '320');
+          video.setAttribute('height', '240');
+          video.setAttribute('controls', 'controls');
+          document.body.appendChild(canvas);
+          document.body.appendChild(video);
+          // video.autoplay = true;
+          console.log(video);
+          console.log(video.src);
+          const vid = new cv.VideoCapture(video);
+          console.log(vid);
+          const src = new (cv as any).Mat(
+            video.height,
+            video.width,
+            (cv as any).CV_8UC4
+          );
+          const dst = new (cv as any).Mat(
+            video.height,
+            video.width,
+            (cv as any).CV_8UC1
+          );
+          vid.read(src);
+          (cv as any).cvtColor(src, dst, (cv as any).COLOR_RGBA2GRAY);
+          console.log(dst);
+          cv.imshow('canvasOutput', dst);
+          // const frameCount = vid.read.get(
+          //   VideoCaptureProperties.CAP_PROP_FRAME_COUNT
+          // );
+          // const width = vid.videoWidth;
+          // const height = vid.videoHeight;
+          // const fps = vid.get(VideoCaptureProperties.CAP_PROP_FPS);
+          // console.log(frameCount, width, height, fps);
+
           break;
         default:
           break;

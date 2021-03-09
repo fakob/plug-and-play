@@ -45,11 +45,6 @@ module.exports = (env, argv) => {
           test: /\.ttf$/,
           use: ['file-loader'],
         },
-        {
-          test: /opencv-worker\.js$/,
-          loader: 'worker-loader',
-          exclude: /node_modules/,
-        },
       ],
     },
 
