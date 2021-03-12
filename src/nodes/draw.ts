@@ -63,12 +63,12 @@ export class DrawRect extends PPNode {
     this._rectRef.drawRect(this._x, this._y, this._width, this._height);
     this._rectRef.endFill();
 
-    this.onExecute = function () {
-      const x = this.getInputData(0) || 0;
-      const y = this.getInputData(1) || 0;
-      const width = this.getInputData(2) || 100;
-      const height = this.getInputData(3) || 100;
-      const color = (this.getInputData(4) as number[]) || [255, 0, 0, 0.5];
+    this.onExecute = function (input, output) {
+      const x = input['x'] || 0;
+      const y = input['y'] || 0;
+      const width = input['width'] || 100;
+      const height = input['height'] || 100;
+      const color = (input['color'] as number[]) || [255, 0, 0, 0.5];
       this._rectRef.clear();
 
       const xArray = convertToArray(x);
@@ -186,13 +186,13 @@ export class Container extends PPNode {
       'backgroundCanvas'
     ) as PIXI.Container).addChild(container);
 
-    this.onExecute = function () {
-      const x = this.getInputData(0);
-      const y = this.getInputData(1);
-      const scale = this.getInputData(2);
-      const input1 = this.getInputData(3);
-      const input2 = this.getInputData(4);
-      const input3 = this.getInputData(5);
+    this.onExecute = function (input, output) {
+      const x = input['x'];
+      const y = input['y'];
+      const scale = input['scale'];
+      const input1 = input['input1'];
+      const input2 = input['input2'];
+      const input3 = input['input3'];
       console.log(input1, input2, input3);
       console.log(this._containerRef);
       this._containerRef.removeChildren;
@@ -425,20 +425,6 @@ export class PPImage extends PPNode {
       this._imageRef.alpha = 1;
       this._imageRef.tint;
     };
-
-    // this.onConfigure = (node_info: SerializedNode) => {
-    //   console.log('onConfigure on Note:', node_info);
-    //   this.createInputElement();
-    //   this.currentInput.dispatchEvent(new Event('input'));
-    //   this.currentInput.dispatchEvent(new Event('blur'));
-    // };
-
-    // this.onNodeDoubleClick = () => {
-    //   console.log('_onDoubleClick on Note:', this);
-    //   this.createInputElement();
-    // };
-
-    // this.onExecute = () => {};
 
     // update shape after initializing
     this.drawNodeShape(false);

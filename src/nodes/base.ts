@@ -25,15 +25,14 @@ export class RangeArray extends PPNode {
     this.name = 'Range array';
     this.description = 'Create range array';
 
-    this.onExecute = function () {
-      const start = this.getInputData(0) || 0;
-      const stop = this.getInputData(1) || 100;
-      const step = this.getInputData(2) || 2;
-      const output = Array.from(
+    this.onExecute = function (input, output) {
+      const start = input['start'] || 0;
+      const stop = input['stop'] || 100;
+      const step = input['step'] || 2;
+      output['output array'] = Array.from(
         { length: (stop - start) / step + 1 },
         (_, i) => start + i * step
       );
-      this.setOutputData(0, output);
     };
   }
 }
@@ -51,11 +50,6 @@ export class MakeAPICall extends PPNode {
 
     this.name = 'Make API call';
     this.description = 'Makes an API call and outputs the response';
-
-    // this.onExecute = function () {
-    //   const start = this.getInputData(0) || url;
-    //   this.setOutputData(0, output);
-    // };
   }
   trigger(): void {
     axios

@@ -159,19 +159,15 @@ export default class PPNode extends PIXI.Container {
       y: this.y,
     };
 
-    if (this.inputSocketArray.length > 0) {
-      o.inputSocketArray = [];
-      this.inputSocketArray.forEach((item) => {
-        o.inputSocketArray.push(item.serialize());
-      });
-    }
+    o.inputSocketArray = [];
+    this.inputSocketArray.forEach((item) => {
+      o.inputSocketArray.push(item.serialize());
+    });
 
-    if (this.outputSocketArray.length > 0) {
-      o.outputSocketArray = [];
-      this.outputSocketArray.forEach((item) => {
-        o.outputSocketArray.push(item.serialize());
-      });
-    }
+    o.outputSocketArray = [];
+    this.outputSocketArray.forEach((item) => {
+      o.outputSocketArray.push(item.serialize());
+    });
 
     return o;
   }
@@ -183,16 +179,13 @@ export default class PPNode extends PIXI.Container {
     this.updateCommentPosition();
 
     // set parameters on inputSocket
-    if (this.inputSocketArray.length > 0) {
-      this.inputSocketArray.forEach((item, index) => {
-        console.log(node_info.inputSocketArray[index]);
-        item.setName(node_info.inputSocketArray[index]?.name || null);
-        item.defaultData =
-          node_info.inputSocketArray[index]?.defaultData || null;
-        item.data = node_info.inputSocketArray[index]?.data || null;
-        item.setVisible(node_info.inputSocketArray[index]?.visible || true);
-      });
-    }
+    this.inputSocketArray.forEach((item, index) => {
+      console.log(node_info.inputSocketArray[index]);
+      item.setName(node_info.inputSocketArray[index]?.name || null);
+      item.defaultData = node_info.inputSocketArray[index]?.defaultData || null;
+      item.data = node_info.inputSocketArray[index]?.data || null;
+      item.setVisible(node_info.inputSocketArray[index]?.visible || true);
+    });
 
     if (this.onConfigure) {
       this.onConfigure(node_info);
@@ -224,35 +217,31 @@ export default class PPNode extends PIXI.Container {
     this._BackgroundRef.endFill();
 
     // redraw outputs
-    if (this.outputSocketArray.length > 0) {
-      let posCounter = 0;
-      this.outputSocketArray.forEach((item) => {
-        if (item.visible) {
-          item.y =
-            NODE_OUTLINE_DISTANCE +
-            NODE_MARGIN_TOP +
-            NODE_HEADER_HEIGHT +
-            posCounter * OUTPUTSOCKET_HEIGHT;
-          posCounter += 1;
-        }
-      });
-    }
+    let posCounter = 0;
+    this.outputSocketArray.forEach((item) => {
+      if (item.visible) {
+        item.y =
+          NODE_OUTLINE_DISTANCE +
+          NODE_MARGIN_TOP +
+          NODE_HEADER_HEIGHT +
+          posCounter * OUTPUTSOCKET_HEIGHT;
+        posCounter += 1;
+      }
+    });
 
     // redraw inputs
-    if (this.inputSocketArray.length > 0) {
-      let posCounter = 0;
-      this.inputSocketArray.forEach((item) => {
-        if (item.visible) {
-          item.y =
-            NODE_OUTLINE_DISTANCE +
-            NODE_MARGIN_TOP +
-            NODE_HEADER_HEIGHT +
-            countOfVisibleOutputSockets * OUTPUTSOCKET_HEIGHT +
-            posCounter * INPUTSOCKET_HEIGHT;
-          posCounter += 1;
-        }
-      });
-    }
+    posCounter = 0;
+    this.inputSocketArray.forEach((item) => {
+      if (item.visible) {
+        item.y =
+          NODE_OUTLINE_DISTANCE +
+          NODE_MARGIN_TOP +
+          NODE_HEADER_HEIGHT +
+          countOfVisibleOutputSockets * OUTPUTSOCKET_HEIGHT +
+          posCounter * INPUTSOCKET_HEIGHT;
+        posCounter += 1;
+      }
+    });
 
     // optional drawShape
     // if (this.drawShape) {
@@ -336,6 +325,7 @@ export default class PPNode extends PIXI.Container {
     const link = this.inputSocketArray[slot].link;
     if (!link) {
       //bug: weird case but it happens sometimes
+      // Cringe /Tobias, we need to fix this
       return undefined;
     }
 
@@ -380,11 +370,31 @@ export default class PPNode extends PIXI.Container {
     ) as PIXI.Container).removeChild(this);
   }
 
-  onExecute(): void {
+  execute(): void {
+    // remap input
+    const inputObject = {};
+    this.inputSocketArray.forEach((input: InputSocket) => {
+      inputObject[input.name] = input.data;
+    });
+    const outputObject = {};
+
+    this.onExecute(inputObject, outputObject);
+    this.onAfterExecute();
+
+    // output whatever the user has put in
+    this.outputSocketArray.forEach((output: OutputSocket) => {
+      if (outputObject[output.name] !== undefined) {
+        output.data = outputObject[output.name];
+      }
+    });
+  }
+
+  // dont call this from outside, only from child class
+  protected onExecute(input, output): void {
     // just define function
   }
 
-  onAfterExecute(): void {
+  protected onAfterExecute(): void {
     // just define function
   }
 

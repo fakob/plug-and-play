@@ -23,11 +23,11 @@ export class MathAdd extends PPNode {
     this.description = 'Add 2 numbers';
     this.data2 = null;
 
-    this.onExecute = function () {
-      const a = this.getInputData(0);
-      const b = this.getInputData(1);
+    this.onExecute = function (input, output) {
+      const a = input['in'];
+      const b = input['in2'];
       const result = a + b;
-      this.setOutputData(0, result);
+      output['out'] = result;
       console.log(this.result);
     };
   }
@@ -81,8 +81,8 @@ export class MathNoise extends PPNode {
       return r1 * (1 - f) + r2 * f;
     };
 
-    this.onExecute = function () {
-      let f = this.getInputData(0) || 0;
+    this.onExecute = function (input, output) {
+      let f = input['in'] || 0;
       // let f = 0;
       const iterations = this.octaves || 1;
       let r = 0;
@@ -101,7 +101,7 @@ export class MathNoise extends PPNode {
       const min = this.min;
       const max = this.max;
       this._last_v = r * (max - min) + min;
-      this.setOutputData(0, this._last_v);
+      output['out'] = this._last_v;
       console.log(this._last_v);
     };
   }
