@@ -668,11 +668,10 @@ export default class PPGraph {
 
     Object.entries(nodes).forEach(([key, node]) => {
       try {
-        node.onExecute();
+        node.execute();
         if (this._showComments) {
           node.drawComment();
         }
-        node.onAfterExecute();
       } catch (error) {
         console.error('Error onExecute', error);
       }
