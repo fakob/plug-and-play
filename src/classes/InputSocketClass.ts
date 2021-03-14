@@ -23,16 +23,18 @@ export default class InputSocket extends PIXI.Container {
   _defaultData: any;
   _data: any;
   _type: string;
-  interactionData: PIXI.InteractionData | null;
-  // isMovingLink: boolean;
+  _custom: Record<string, any>;
 
   link: PPLink | null;
+
+  interactionData: PIXI.InteractionData | null;
 
   constructor(
     name = 'Number',
     type = INPUTTYPE.NUMBER.TYPE,
     defaultData = null,
-    visible = true
+    visible = true,
+    custom?: Record<string, any>
   ) {
     super();
 
@@ -65,6 +67,7 @@ export default class InputSocket extends PIXI.Container {
     this._defaultData = defaultData;
     this._data = defaultData;
     this.visible = visible;
+    this._custom = custom;
 
     const socket = new PIXI.Graphics();
     socket.beginFill(SOCKET_COLOR_HEX);
@@ -122,24 +125,32 @@ export default class InputSocket extends PIXI.Container {
     return this._data;
   }
 
-  set data(newValue: any) {
-    this._data = newValue;
+  set data(newData: any) {
+    this._data = newData;
   }
 
   get type(): string {
     return this._type;
   }
 
-  set type(newValue: string) {
-    this._type = newValue;
+  set type(newType: string) {
+    this._type = newType;
   }
 
   get defaultData(): any {
     return this._defaultData;
   }
 
-  set defaultData(newValue: any) {
-    this._defaultData = newValue;
+  set defaultData(newData: any) {
+    this._defaultData = newData;
+  }
+
+  get custom(): any {
+    return this._custom;
+  }
+
+  set custom(newObject: any) {
+    this._custom = newObject;
   }
 
   // METHODS
@@ -179,9 +190,10 @@ export default class InputSocket extends PIXI.Container {
     return {
       name: this.name,
       type: this.type,
-      defaultData: this._defaultData,
+      defaultData: this.defaultData,
       data: this.data,
       visible: this.visible,
+      custom: this.custom,
     };
   }
 

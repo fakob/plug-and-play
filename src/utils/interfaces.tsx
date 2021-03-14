@@ -44,11 +44,13 @@ export type SerializedInputSocket = {
   data: number;
   defaultData: number;
   visible: boolean;
+  custom?: Record<string, any>;
 };
 
 export type SerializedOutputSocket = {
   name: string;
   type: string;
+  custom?: Record<string, any>;
 };
 
 export interface GridPosition {
