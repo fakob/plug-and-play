@@ -137,12 +137,12 @@ export class Rect extends PPNode {
     this._rectRef.drawRect(this._x, this._y, this._width, this._height);
     this._rectRef.endFill();
 
-    this.onExecute = function () {
-      const x = this.getInputData(0) || 0;
-      const y = this.getInputData(1) || 0;
-      const width = this.getInputData(2) || 100;
-      const height = this.getInputData(3) || 100;
-      const color = (this.getInputData(4) as number[]) || [255, 0, 0, 0.5];
+    this.onExecute = function (input, output) {
+      const x = input['x'] || 0;
+      const y = input['y'] || 0;
+      const width = input['width'] || 100;
+      const height = input['height'] || 100;
+      const color = input['color'] || [255, 0, 0, 0.5];
       this._rectRef.clear();
 
       const xArray = convertToArray(x);
@@ -372,8 +372,8 @@ export class Note extends PPNode {
       this.createInputElement();
     };
 
-    this.onExecute = () => {
-      const inputText = this.getInputData(0);
+    this.onExecute = (input, output) => {
+      const inputText = input['input'];
       this._textInputRef.text = inputText;
       this.setOutputData(0, inputText);
     };
