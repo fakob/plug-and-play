@@ -77,6 +77,7 @@ const PropertyContainer: React.FunctionComponent<PropertyContainerProps> = (
     index: props.index,
     isInput: props.isInput,
     hasLink: props.hasLink,
+    data: props.property.data,
   };
 
   let widget = null;
@@ -308,11 +309,11 @@ type TextWidgetProps = {
   property: InputSocket | OutputSocket;
   index: number;
   hasLink: boolean;
+  data: string;
 };
 
 const TextWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
-  console.log(props.property.data);
-  const [data, setData] = useState(props.property.data);
+  const [data, setData] = useState(props.data);
 
   useEffect(() => {
     props.property.data = data;
@@ -328,7 +329,7 @@ const TextWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
           const value = event.target.value;
           setData(value);
         }}
-        value={props.property.data || ''}
+        value={data || ''}
       />
     </>
   );
@@ -361,13 +362,14 @@ type ColorWidgetProps = {
   index: number;
   isInput: boolean;
   hasLink: boolean;
+  data: number[];
 };
 
 const ColorWidget: React.FunctionComponent<ColorWidgetProps> = (props) => {
-  console.log(props.property.data);
+  console.log(props.data);
   const [colorPicker, showColorPicker] = useState(false);
   const [finalColor, changeColor] = useState(
-    rgbToRgba(props.property.data ? props.property.data : [0, 0, 0, 1.0])
+    rgbToRgba(props.data ? props.data : [0, 0, 0, 1.0])
   );
   const componentMounted = useRef(true);
 
@@ -377,7 +379,7 @@ const ColorWidget: React.FunctionComponent<ColorWidgetProps> = (props) => {
       componentMounted.current = false;
     } else {
       console.log(finalColor);
-      const colorArray = Object.values(finalColor);
+      const colorArray: number[] = Object.values(finalColor);
       props.property.data = colorArray;
     }
     return () => undefined;
@@ -417,17 +419,20 @@ const ColorWidget: React.FunctionComponent<ColorWidgetProps> = (props) => {
 type DefaultOutputWidgetProps = {
   property: InputSocket | OutputSocket;
   index: number;
+  data: any;
 };
 
 const DefaultOutputWidget: React.FunctionComponent<DefaultOutputWidgetProps> = (
   props
 ) => {
+  const [data] = useState(props.data);
+
   return (
     <>
       <TextArea
         className={`${styles.outputTextArea} bp3-fill`}
         growVertically={true}
-        value={prettyFormat(props.property.data)}
+        value={prettyFormat(data)}
         readOnly
       />
     </>
