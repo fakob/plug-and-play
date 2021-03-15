@@ -185,6 +185,7 @@ export default class PPNode extends PIXI.Container {
       item.defaultData = node_info.inputSocketArray[index]?.defaultData || null;
       item.data = node_info.inputSocketArray[index]?.data || null;
       item.setVisible(node_info.inputSocketArray[index]?.visible || true);
+      item.custom = node_info.inputSocketArray[index]?.custom || undefined;
     });
 
     if (this.onConfigure) {

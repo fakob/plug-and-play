@@ -21,19 +21,25 @@ export default class OutputSocket extends PIXI.Container {
   _OutputNameRef: PIXI.DisplayObject;
   _OutputSocketRef: PIXI.DisplayObject;
 
-  data: any;
-  type: string;
-  linkDragPos: null | PIXI.Point;
-  // data: PIXI.InteractionData | null;
+  _data: any;
+  _type: string;
+  _custom: Record<string, any>;
 
   links: PPLink[];
 
-  constructor(name = 'Number', type = OUTPUTTYPE.NUMBER.TYPE) {
+  linkDragPos: null | PIXI.Point;
+
+  constructor(
+    name = 'Number',
+    type = OUTPUTTYPE.NUMBER.TYPE,
+    custom?: Record<string, any>
+  ) {
     super();
     this.name = name;
-    this.type = type;
-    this.linkDragPos = null;
+    this._type = type;
+    this._custom = custom;
     this.links = [];
+    this.linkDragPos = null;
 
     const socket = new PIXI.Graphics();
     socket.beginFill(SOCKET_COLOR_HEX);
@@ -57,7 +63,7 @@ export default class OutputSocket extends PIXI.Container {
     this._OutputSocketRef = this.addChild(socket);
     this._OutputNameRef = this.addChild(outputNameText);
 
-    this.data = null;
+    this._data = null;
     this.interactive = true;
     this._OutputSocketRef.interactive = true;
     this._OutputSocketRef.on('pointerover', this._onPointerOver.bind(this));
@@ -69,6 +75,22 @@ export default class OutputSocket extends PIXI.Container {
   }
 
   // GETTERS & SETTERS
+
+  get data(): any {
+    return this._data;
+  }
+
+  set data(newData: any) {
+    this._data = newData;
+  }
+
+  get type(): string {
+    return this._type;
+  }
+
+  set type(newType: string) {
+    this._type = newType;
+  }
 
   get outputSocketRef(): PIXI.DisplayObject {
     return this._OutputSocketRef;
@@ -82,6 +104,14 @@ export default class OutputSocket extends PIXI.Container {
     return (this.parent as PPNode).outputSocketArray.findIndex((item) => {
       return this === item;
     });
+  }
+
+  get custom(): any {
+    return this._custom;
+  }
+
+  set custom(newObject: any) {
+    this._custom = newObject;
   }
 
   // METHODS
@@ -121,6 +151,7 @@ export default class OutputSocket extends PIXI.Container {
     return {
       name: this.name,
       type: this.type,
+      custom: this.custom,
     };
   }
 

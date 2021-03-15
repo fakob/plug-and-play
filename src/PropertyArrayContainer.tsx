@@ -208,18 +208,19 @@ type SliderWidgetProps = {
   isInput: boolean;
   hasLink: boolean;
   index: number;
-  min?: number;
-  max?: number;
-  stepSize?: number;
 };
 
 const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (props) => {
   // console.log(props);
   const [data, setData] = useState(props.property.data);
-  const [round, setRound] = useState(false);
-  const [minValue, setMinValue] = useState(props.min || 0);
-  const [maxValue, setMaxValue] = useState(props.max || 100);
-  const [stepSizeValue] = useState(props.stepSize || 0.01);
+  const [minValue, setMinValue] = useState(
+    props.property.custom?.minValue || 0
+  );
+  const [maxValue, setMaxValue] = useState(
+    props.property.custom?.maxValue || 100
+  );
+  const [round, setRound] = useState(props.property.custom?.round || false);
+  const [stepSizeValue] = useState(props.property.custom?.stepSize || 0.01);
 
   useEffect(() => {
     const newValue = round ? Math.round(data) : data;
@@ -239,6 +240,11 @@ const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (props) => {
     props.property.data = newValue;
     if (props.isInput) {
       (props.property as InputSocket).defaultData = newValue;
+      (props.property as InputSocket).custom = {
+        minValue,
+        maxValue,
+        round,
+      };
     }
   }, [minValue, maxValue, round]);
 
