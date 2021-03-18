@@ -1,3 +1,5 @@
+import { TRgba } from '../utils/interfaces';
+
 export const rgbToHex = (rgbArray: number[]): string => {
   return rgbArray
     .slice(0, 3)
@@ -8,8 +10,14 @@ export const rgbToHex = (rgbArray: number[]): string => {
     .join('');
 };
 
-export const rgbToRgba = (rgbArray: number[] | undefined): any => {
-  if (rgbArray) {
+export const rgbToRgba = (rgbInput: string | number[] | undefined): TRgba => {
+  let rgbArray;
+  if (rgbInput) {
+    if (typeof rgbInput === 'string') {
+      rgbArray = rgbInput.split(',');
+    } else {
+      rgbArray = rgbInput;
+    }
     return {
       r: rgbArray[0],
       g: rgbArray[1],

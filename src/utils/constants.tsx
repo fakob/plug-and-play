@@ -44,49 +44,42 @@ export const COLOR_COMMENT = COLOR[12];
 // common
 export const TEXT_RESOLUTION = 8; // so one can zoom in closer and it keeps a decent resolution
 
+export const SOCKET_TYPE = {
+  IN: 'in',
+  OUT: 'out',
+} as const;
+
 export const SOCKET_COLOR_HEX = PIXI.utils.string2hex(
   Color(COLOR[0]).lighten(0.4).hex()
 );
 export const SOCKET_COLOR_TINT_HEX = PIXI.utils.string2hex(
   Color(COLOR[0]).desaturate(0.3).hex()
 );
-
-export const INPUTSOCKET_TEXTSTYLE = new TextStyle({
+export const SOCKET_HEIGHT = 24;
+export const SOCKET_WIDTH = 12;
+export const SOCKET_CORNERRADIUS = 4;
+export const SOCKET_TEXTMARGIN = 8;
+export const SOCKET_TEXTMARGIN_TOP = 4;
+export const SOCKET_TEXTSTYLE = new TextStyle({
   fontSize: 12,
   fill: COLOR_MAIN,
 });
-export const INPUTSOCKET_HEIGHT = 24;
-export const INPUTSOCKET_WIDTH = 12;
-export const INPUTSOCKET_CORNERRADIUS = 4;
-export const INPUTSOCKET_TEXTMARGIN_LEFT = 8;
-export const INPUTSOCKET_TEXTMARGIN_TOP = 4;
-export const INPUTTYPE = {
-  ANY: { TYPE: 'undefined', DEFAULTVALUE: undefined },
-  STRING: { TYPE: 'string', DEFAULTVALUE: '' },
-  NUMBER: { TYPE: 'number', DEFAULTVALUE: 0 },
-  COLOR: { TYPE: 'color', DEFAULTVALUE: [255, 55, 0, 0.5] },
-  ARRAY: { TYPE: 'array', DEFAULTVALUE: [] },
-  TRIGGER: { TYPE: 'trigger', DEFAULTVALUE: undefined }, // node with trigger input needs trigger function which is called by linked output trigger
-  PIXI: { TYPE: 'pixi', DEFAULTVALUE: undefined },
+
+export const DATATYPE = {
+  ANY: 'undefined',
+  STRING: 'string',
+  NUMBER: 'number',
+  COLOR: 'color',
+  ARRAY: 'array',
+  TRIGGER: 'trigger',
+  PIXI: 'pixi',
 };
 
-export const OUTPUTSOCKET_TEXTSTYLE = new TextStyle({
-  fontSize: 12,
-  fill: COLOR_MAIN,
-  // textAlign: 'right',
-});
-export const OUTPUTSOCKET_HEIGHT = 24;
-export const OUTPUTSOCKET_WIDTH = 12;
-export const OUTPUTSOCKET_CORNERRADIUS = 4;
-export const OUTPUTSOCKET_TEXTMARGIN_RIGHT = 8;
-export const OUTPUTSOCKET_TEXTMARGIN_TOP = 4;
-export const OUTPUTTYPE = {
-  STRING: { TYPE: 'string' },
-  NUMBER: { TYPE: 'number' },
-  COLOR: { TYPE: 'color' },
-  ARRAY: { TYPE: 'array' },
-  TRIGGER: { TYPE: 'trigger' }, // trigger output type calls trigger function on linked nodes
-  PIXI: { TYPE: 'pixi' },
+export const DATATYPE_DEFAULTVALUE = {
+  STRING: '',
+  NUMBER: 0,
+  COLOR: [255, 55, 0, 0.5],
+  ARRAY: [],
 };
 
 export const NODE_TEXTSTYLE = new TextStyle({
@@ -98,7 +91,7 @@ export const NODE_HEADER_HEIGHT = 24;
 export const NODE_MARGIN_TOP = 8;
 export const NODE_MARGIN_BOTTOM = 8;
 export const NODE_OUTLINE_DISTANCE = 4;
-export const NODE_HEADER_TEXTMARGIN_LEFT = INPUTSOCKET_WIDTH / 2 + 14;
+export const NODE_HEADER_TEXTMARGIN_LEFT = SOCKET_WIDTH / 2 + 14;
 export const NODE_HEADER_TEXTMARGIN_TOP = 4;
 export const NODE_WIDTH = 160;
 export const NODE_CORNERRADIUS = 8;

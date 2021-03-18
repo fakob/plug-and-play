@@ -1,15 +1,14 @@
 import { Viewport } from 'pixi-viewport';
 import { SerializedLink } from '../utils/interfaces';
 import { CONNECTION_COLOR_HEX } from '../utils/constants';
-import InputSocket from './InputSocketClass';
-import OutputSocket from './OutputSocketClass';
+import Socket from './SocketClass';
 import PPNode from './NodeClass';
 
 export default class PPLink extends PIXI.Container {
   id: number;
   type: string;
-  source: OutputSocket;
-  target: InputSocket;
+  source: Socket;
+  target: Socket;
   viewport: Viewport;
   _connectionRef: PIXI.Graphics;
   // _data: any;
@@ -17,8 +16,8 @@ export default class PPLink extends PIXI.Container {
   constructor(
     id: number,
     type: string,
-    source: OutputSocket,
-    target: InputSocket,
+    source: Socket,
+    target: Socket,
     viewport: Viewport
   ) {
     super();
@@ -59,20 +58,20 @@ export default class PPLink extends PIXI.Container {
     );
   }
 
-  getSource(): OutputSocket {
+  getSource(): Socket {
     return this.source;
   }
 
-  getTarget(): InputSocket {
+  getTarget(): Socket {
     return this.target;
   }
 
-  updateSource(newSource: OutputSocket): void {
+  updateSource(newSource: Socket): void {
     this.source = newSource;
     this.updateConnection();
   }
 
-  updateTarget(newTarget: InputSocket): void {
+  updateTarget(newTarget: Socket): void {
     this.target = newTarget;
     this.updateConnection();
   }
@@ -80,8 +79,8 @@ export default class PPLink extends PIXI.Container {
   _drawConnection(
     viewport: Viewport,
     connection: PIXI.Graphics,
-    source: OutputSocket,
-    target: InputSocket
+    source: Socket,
+    target: Socket
   ): void {
     // get source position
     const sourceRect = source.children[0].getBounds();

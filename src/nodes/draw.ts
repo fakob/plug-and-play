@@ -7,13 +7,12 @@ import { rgbToHex } from '../pixi/utils-pixi';
 import { convertToArray, getElement } from '../utils/utils';
 import {
   EMPTY_TEXTURE,
-  INPUTTYPE,
-  OUTPUTTYPE,
+  DATATYPE,
   NOTE_PADDING,
   NOTE_TEXTURE,
   NODE_WIDTH,
   NODE_OUTLINE_DISTANCE,
-  INPUTSOCKET_WIDTH,
+  SOCKET_WIDTH,
 } from '../utils/constants';
 
 export class DrawRect extends PPNode {
@@ -36,10 +35,10 @@ export class DrawRect extends PPNode {
   ) {
     super(name, graph, customId);
 
-    this.addInput('x', INPUTTYPE.NUMBER.TYPE);
-    this.addInput('y', INPUTTYPE.NUMBER.TYPE);
-    this.addInput('width', INPUTTYPE.NUMBER.TYPE);
-    this.addInput('height', INPUTTYPE.NUMBER.TYPE);
+    this.addInput('x', DATATYPE.NUMBER);
+    this.addInput('y', DATATYPE.NUMBER);
+    this.addInput('width', DATATYPE.NUMBER);
+    this.addInput('height', DATATYPE.NUMBER);
     this.addInput('color', 'color');
 
     this.name = 'Draw Rect';
@@ -111,11 +110,11 @@ export class Rect extends PPNode {
   ) {
     super(name, graph, customId);
 
-    this.addOutput('rect', OUTPUTTYPE.PIXI.TYPE);
-    this.addInput('x', INPUTTYPE.NUMBER.TYPE);
-    this.addInput('y', INPUTTYPE.NUMBER.TYPE);
-    this.addInput('width', INPUTTYPE.NUMBER.TYPE);
-    this.addInput('height', INPUTTYPE.NUMBER.TYPE);
+    this.addOutput('rect', DATATYPE.PIXI);
+    this.addInput('x', DATATYPE.NUMBER);
+    this.addInput('y', DATATYPE.NUMBER);
+    this.addInput('width', DATATYPE.NUMBER);
+    this.addInput('height', DATATYPE.NUMBER);
     this.addInput('color', 'color');
 
     this.name = 'Create Rect';
@@ -170,12 +169,12 @@ export class Container extends PPNode {
 
   constructor(name: string, graph: PPGraph, customId: string) {
     super(name, graph, customId);
-    this.addInput('x', INPUTTYPE.NUMBER.TYPE);
-    this.addInput('y', INPUTTYPE.NUMBER.TYPE);
-    this.addInput('scale', INPUTTYPE.NUMBER.TYPE, 1.0);
-    this.addInput('input1', INPUTTYPE.PIXI.TYPE);
-    this.addInput('input2', INPUTTYPE.PIXI.TYPE);
-    this.addInput('input3', INPUTTYPE.PIXI.TYPE);
+    this.addInput('x', DATATYPE.NUMBER);
+    this.addInput('y', DATATYPE.NUMBER);
+    this.addInput('scale', DATATYPE.NUMBER, 1.0);
+    this.addInput('input1', DATATYPE.PIXI);
+    this.addInput('input2', DATATYPE.PIXI);
+    this.addInput('input3', DATATYPE.PIXI);
     // this.addInput('color', 'color');
 
     this.name = 'Container';
@@ -219,13 +218,13 @@ export class Note extends PPNode {
 
   constructor(name: string, graph: PPGraph, customId: string) {
     super(name, graph, customId);
-    this.addOutput('output', OUTPUTTYPE.STRING.TYPE);
-    this.addInput('input', INPUTTYPE.STRING.TYPE, 'type...');
+    this.addOutput('output', DATATYPE.STRING);
+    this.addInput('input', DATATYPE.STRING, 'type...');
 
     this.name = 'Note';
     this.description = 'Adds a note';
     const note = PIXI.Sprite.from(NOTE_TEXTURE);
-    note.x = INPUTSOCKET_WIDTH / 2;
+    note.x = SOCKET_WIDTH / 2;
     note.y = NODE_OUTLINE_DISTANCE;
     note.width = NODE_WIDTH;
     note.height = NODE_WIDTH;
@@ -260,7 +259,7 @@ export class Note extends PPNode {
       lineJoin: 'round',
     });
     basicText.anchor.set(0.5, 0.5);
-    basicText.x = (INPUTSOCKET_WIDTH + NODE_WIDTH) / 2;
+    basicText.x = (SOCKET_WIDTH + NODE_WIDTH) / 2;
     basicText.y = (NODE_OUTLINE_DISTANCE + NODE_WIDTH) / 2;
 
     this.drawShape = function () {
@@ -279,7 +278,7 @@ export class Note extends PPNode {
       this.currentInput = document.createElement('div');
       this.currentInput.id = 'NoteInput';
       this.currentInput.contentEditable = 'true';
-      this.currentInput.innerHTML = this.inputSocketArray[0].defaultData;
+      this.currentInput.innerHTML = this.inputSocketArray[0].data;
       this._textInputRef.visible = false;
       this.currentInput.style.fontFamily = 'Arial';
       // this.currentInput.style.fontStyle = 'italic';
@@ -298,7 +297,7 @@ export class Note extends PPNode {
       this.currentInput.style.left = `${screenPoint.x}px`;
       this.currentInput.style.top = `${screenPoint.y}px`;
       this.currentInput.style.width = `${
-        NODE_WIDTH + INPUTSOCKET_WIDTH - NOTE_PADDING * 2
+        NODE_WIDTH + SOCKET_WIDTH - NOTE_PADDING * 2
       }px`;
       this.currentInput.style.height = `${NODE_WIDTH - NOTE_PADDING * 2}px`;
       // this.currentInput.style.display = 'none';
@@ -356,7 +355,6 @@ export class Note extends PPNode {
 
     this.setCleanText = (text: string) => {
       this.inputSocketArray[0].data = text;
-      this.inputSocketArray[0].defaultData = text;
       this.setOutputData(0, text);
     };
 
@@ -396,11 +394,11 @@ export class PPImage extends PPNode {
     }
   ) {
     super(name, graph, customId);
-    this.addOutput('image', OUTPUTTYPE.PIXI.TYPE);
-    this.addOutput('width', OUTPUTTYPE.NUMBER.TYPE);
-    this.addOutput('height', OUTPUTTYPE.NUMBER.TYPE);
-    this.addInput('Reload', INPUTTYPE.TRIGGER.TYPE);
-    this.addInput('url', INPUTTYPE.STRING.TYPE);
+    this.addOutput('image', DATATYPE.PIXI);
+    this.addOutput('width', DATATYPE.NUMBER);
+    this.addOutput('height', DATATYPE.NUMBER);
+    this.addInput('Reload', DATATYPE.TRIGGER);
+    this.addInput('url', DATATYPE.STRING);
 
     this.name = 'Image';
     this.description = 'Adds an image';
@@ -408,7 +406,7 @@ export class PPImage extends PPNode {
     const image = PIXI.Sprite.from(
       customArgsObject?.objectURL || EMPTY_TEXTURE
     );
-    image.x = INPUTSOCKET_WIDTH / 2;
+    image.x = SOCKET_WIDTH / 2;
     image.y = NODE_OUTLINE_DISTANCE;
     image.width = NODE_WIDTH;
     image.height = NODE_WIDTH;

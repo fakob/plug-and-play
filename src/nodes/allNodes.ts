@@ -1,4 +1,4 @@
-import { INPUTTYPE } from '../utils/constants';
+import { DATATYPE } from '../utils/constants';
 // import { isFunction, isClass } from '../utils';
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
@@ -37,7 +37,7 @@ export const registerAllNodeTypes = (graph: PPGraph): void => {
   }
   graph.convertFunctionToNodeConstructor(
     getElementFromArray,
-    [INPUTTYPE.ARRAY.TYPE, INPUTTYPE.NUMBER.TYPE]
-    // OUTPUTTYPE.NUMBER.TYPE
+    [DATATYPE.ARRAY, DATATYPE.NUMBER]
+    // OUTPUTTYPE.NUMBER
   );
 };

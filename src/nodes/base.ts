@@ -2,25 +2,24 @@ import axios from 'axios';
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
 import {
-  INPUTTYPE,
-  INPUTSOCKET_WIDTH,
-  OUTPUTTYPE,
+  DATATYPE,
+  SOCKET_WIDTH,
   NODE_OUTLINE_DISTANCE,
   NODE_CORNERRADIUS,
   NODE_MARGIN_TOP,
   NODE_HEADER_HEIGHT,
   NODE_WIDTH,
-  OUTPUTSOCKET_HEIGHT,
+  SOCKET_HEIGHT,
 } from '../utils/constants';
 
 export class RangeArray extends PPNode {
   constructor(name: string, graph: PPGraph, customId: string) {
     super(name, graph, customId);
 
-    this.addOutput('output array', OUTPUTTYPE.ARRAY.TYPE);
-    this.addInput('start', INPUTTYPE.NUMBER.TYPE);
-    this.addInput('stop', INPUTTYPE.NUMBER.TYPE);
-    this.addInput('step', INPUTTYPE.NUMBER.TYPE);
+    this.addOutput('output array', DATATYPE.ARRAY);
+    this.addInput('start', DATATYPE.NUMBER);
+    this.addInput('stop', DATATYPE.NUMBER);
+    this.addInput('step', DATATYPE.NUMBER);
 
     this.name = 'Range array';
     this.description = 'Create range array';
@@ -44,9 +43,9 @@ export class MakeAPICall extends PPNode {
 
     const url = 'https://jsonplaceholder.typicode.com/users';
 
-    this.addOutput('response', OUTPUTTYPE.STRING.TYPE);
-    this.addInput('trigger', INPUTTYPE.TRIGGER.TYPE);
-    this.addInput('url', INPUTTYPE.STRING.TYPE, url);
+    this.addOutput('response', DATATYPE.STRING);
+    this.addInput('trigger', DATATYPE.TRIGGER);
+    this.addInput('url', DATATYPE.STRING, url);
 
     this.name = 'Make API call';
     this.description = 'Makes an API call and outputs the response';
@@ -73,7 +72,7 @@ export class Trigger extends PPNode {
   constructor(name: string, graph: PPGraph, customId: string) {
     super(name, graph, customId);
 
-    this.addOutput('trigger', OUTPUTTYPE.TRIGGER.TYPE);
+    this.addOutput('trigger', DATATYPE.TRIGGER);
 
     this.name = 'Trigger';
     this.description = 'Creates a trigger event';
@@ -82,10 +81,10 @@ export class Trigger extends PPNode {
     this._rectRef = (this as PIXI.Container).addChild(button);
     this._rectRef.beginFill(PIXI.utils.string2hex('#00FF00'));
     this._rectRef.drawRoundedRect(
-      NODE_OUTLINE_DISTANCE + INPUTSOCKET_WIDTH,
+      NODE_OUTLINE_DISTANCE + SOCKET_WIDTH,
       NODE_OUTLINE_DISTANCE + NODE_MARGIN_TOP + NODE_HEADER_HEIGHT,
       NODE_WIDTH / 2,
-      OUTPUTSOCKET_HEIGHT,
+      SOCKET_HEIGHT,
       NODE_CORNERRADIUS
     );
     this._rectRef.endFill();
@@ -117,8 +116,8 @@ export class TimeAndDate extends PPNode {
   constructor(name: string, graph: PPGraph, customId: string) {
     super(name, graph, customId);
 
-    this.addOutput('date and time', OUTPUTTYPE.STRING.TYPE);
-    this.addOutput('time stamp', OUTPUTTYPE.NUMBER.TYPE);
+    this.addOutput('date and time', DATATYPE.STRING);
+    this.addOutput('time stamp', DATATYPE.NUMBER);
 
     this.name = 'Time';
     this.description = 'Outputs current time in different formats';

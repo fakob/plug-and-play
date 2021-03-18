@@ -1,5 +1,6 @@
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
+import { SOCKET_TYPE } from './constants';
 
 export type PPNodeConstructor<T extends PPNode = PPNode> = {
   type?: string;
@@ -25,8 +26,8 @@ export type SerializedNode = {
   name: string;
   x: number;
   y: number;
-  inputSocketArray?: SerializedInputSocket[];
-  outputSocketArray?: SerializedOutputSocket[];
+  inputSocketArray?: SerializedSocket[];
+  outputSocketArray?: SerializedSocket[];
 };
 
 export type SerializedLink = {
@@ -36,6 +37,17 @@ export type SerializedLink = {
   sourceSocketIndex: number;
   targetNodeId: string;
   targetSocketIndex: number;
+};
+
+export type TSocketType = typeof SOCKET_TYPE[keyof typeof SOCKET_TYPE];
+
+export type SerializedSocket = {
+  socketType: TSocketType;
+  name: string;
+  dataType: string;
+  data: number;
+  visible: boolean;
+  custom?: Record<string, any>;
 };
 
 export type SerializedInputSocket = {
@@ -53,21 +65,9 @@ export type SerializedOutputSocket = {
   custom?: Record<string, any>;
 };
 
-export interface GridPosition {
-  x: number;
-  y: number;
-  scale: number;
-}
-
-export interface NodeData {
-  name: string;
-  type: string;
-  inputs?: {
-    name: string;
-    type: string;
-  }[];
-  outputs?: {
-    name: string;
-    type: string;
-  }[];
-}
+export type TRgba = {
+  r: number;
+  g: number;
+  b: number;
+  a?: number;
+};
