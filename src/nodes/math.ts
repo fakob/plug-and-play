@@ -1,34 +1,23 @@
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
-import { INPUTTYPE, OUTPUTTYPE } from '../utils/constants';
+import { DATATYPE } from '../utils/constants';
 
 export class MathAdd extends PPNode {
-  min: number;
-  max: number;
-  smooth: boolean;
-  seed: number;
-  octaves: number;
-  persistence: number;
-  speed: number;
-  data2: Float32Array;
-
   constructor(name: string, graph: PPGraph, customId: string) {
     super(name, graph, customId);
 
-    this.addOutput('out', OUTPUTTYPE.NUMBER.TYPE);
-    this.addInput('in', INPUTTYPE.NUMBER.TYPE, 0);
-    this.addInput('in2', INPUTTYPE.NUMBER.TYPE, 0);
+    this.addOutput('out', DATATYPE.NUMBER);
+    this.addInput('in', DATATYPE.NUMBER, 0);
+    this.addInput('in2', DATATYPE.NUMBER, 0);
 
     this.name = 'Add';
     this.description = 'Add 2 numbers';
-    this.data2 = null;
 
     this.onExecute = function (input, output) {
       const a = input['in'];
       const b = input['in2'];
       const result = a + b;
       output['out'] = result;
-      console.log(this.result);
     };
   }
 }
@@ -46,8 +35,8 @@ export class MathNoise extends PPNode {
   constructor(name: string, graph: PPGraph, customId: string) {
     super(name, graph, customId);
 
-    this.addOutput('out', OUTPUTTYPE.NUMBER.TYPE);
-    this.addInput('in', INPUTTYPE.NUMBER.TYPE);
+    this.addOutput('out', DATATYPE.NUMBER);
+    this.addInput('in', DATATYPE.NUMBER);
     this.min = 0;
     this.max = 1;
     this.smooth = true;

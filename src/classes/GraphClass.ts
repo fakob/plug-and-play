@@ -11,8 +11,7 @@ import {
 } from '../utils/constants';
 import { PPNodeConstructor, SerializedGraph } from '../utils/interfaces';
 import PPNode from './NodeClass';
-import InputSocket from './InputSocketClass';
-import OutputSocket from './OutputSocketClass';
+import Socket from './SocketClass';
 import PPLink from './LinkClass';
 
 let gui: dat.GUI;
@@ -29,8 +28,8 @@ export default class PPGraph {
 
   _showComments: boolean;
   selectedNodes: string[];
-  clickedSocketRef: null | InputSocket | OutputSocket;
-  overInputRef: null | InputSocket;
+  clickedSocketRef: null | Socket;
+  overInputRef: null | Socket;
   dragSourcePoint: null | PIXI.Point;
   movingLink: null | PPLink;
 
@@ -149,7 +148,7 @@ export default class PPGraph {
       }
 
       // only start drawing if outputsocket or moving link
-      if (this.clickedSocketRef instanceof OutputSocket || this.movingLink) {
+      if (!this.clickedSocketRef.isInput() || this.movingLink) {
         // event.data.global delivers the mouse coordinates from the top left corner in pixel
         node.interactionData = event.data;
 
@@ -169,8 +168,7 @@ export default class PPGraph {
 
   onNodeDragMove(event: PIXI.InteractionEvent): void {
     // console.log('onNodeDragMove');
-
-    if (this.clickedSocketRef instanceof OutputSocket) {
+    if (this.clickedSocketRef !== null && !this.clickedSocketRef.isInput()) {
       // remove original link
       if (this.movingLink !== null) {
         this.deleteLink(this.movingLink);
@@ -230,10 +228,7 @@ export default class PPGraph {
       } else {
         // check if over input
         console.log(this.overInputRef);
-        if (
-          this.overInputRef !== null &&
-          this.clickedSocketRef instanceof OutputSocket
-        ) {
+        if (this.overInputRef !== null && !this.clickedSocketRef.isInput()) {
           console.log(
             'connecting Output:',
             this.clickedSocketRef.name,
@@ -244,11 +239,7 @@ export default class PPGraph {
             'of',
             this.overInputRef.parent.name
           );
-          this.connect(
-            this.clickedSocketRef as OutputSocket,
-            this.overInputRef,
-            this.viewport
-          );
+          this.connect(this.clickedSocketRef, this.overInputRef, this.viewport);
         }
       }
     }
@@ -372,11 +363,7 @@ export default class PPGraph {
     // }
   }
 
-  connect(
-    output: OutputSocket,
-    input: InputSocket,
-    viewport: Viewport
-  ): PPLink {
+  connect(output: Socket, input: Socket, viewport: Viewport): PPLink {
     // check if this input already has a connection
     this.checkIfSocketHasConnectionAndDeleteIt(input, true);
 
@@ -392,7 +379,7 @@ export default class PPGraph {
     //create link class
     link = new PPLink(
       (this.lastLinkId += 1),
-      input.type,
+      input.dataType,
       output,
       input,
       viewport
@@ -403,15 +390,16 @@ export default class PPGraph {
 
     //add link to output
     output.links.push(link);
+
     //add link to input
-    input.link = link;
+    input.links = [link];
 
     this.connectionContainer.addChild(link);
 
     return link;
   }
 
-  checkOldSocketAndUpdateIt<T extends InputSocket | OutputSocket>(
+  checkOldSocketAndUpdateIt<T extends Socket>(
     oldSocket: T,
     newSocket: T,
     isInput: boolean
@@ -422,11 +410,11 @@ export default class PPGraph {
         console.log('updating link:', isInput ? link.target : link.source);
 
         if (isInput) {
-          link.updateTarget(newSocket as InputSocket);
-          (newSocket as InputSocket).link = link;
+          link.updateTarget(newSocket);
+          newSocket.links = [link];
         } else {
-          link.updateSource(newSocket as OutputSocket);
-          (newSocket as OutputSocket).links.push(link);
+          link.updateSource(newSocket);
+          newSocket.links.push(link);
         }
         return true;
       }
@@ -434,11 +422,9 @@ export default class PPGraph {
     return false;
   }
 
-  checkIfSocketIsInputAndHasConnection(
-    socket: InputSocket | OutputSocket
-  ): PPLink | null {
+  checkIfSocketIsInputAndHasConnection(socket: Socket): PPLink | null {
     // check if this socket is an input and has a connection
-    if (socket instanceof InputSocket) {
+    if (socket.isInput()) {
       const foundLink = Object.values(this._links).find(
         (link) => link.target === socket
       );
@@ -448,7 +434,7 @@ export default class PPGraph {
   }
 
   checkIfSocketHasConnectionAndDeleteIt(
-    socket: InputSocket | OutputSocket,
+    socket: Socket,
     isInput: boolean
   ): void {
     // check if this socket already has a connection
@@ -637,7 +623,7 @@ export default class PPGraph {
   getOutputRef(
     sourceNodeId: string,
     sourceSocketIndex: number
-  ): OutputSocket | undefined {
+  ): Socket | undefined {
     const sourceNode = this.getNodeById(sourceNodeId);
     if (sourceNode !== undefined) {
       const sourceSocket = sourceNode.outputSocketArray[sourceSocketIndex];
@@ -648,7 +634,7 @@ export default class PPGraph {
   getInputRef(
     targetNodeId: string,
     targetSocketIndex: number
-  ): InputSocket | undefined {
+  ): Socket | undefined {
     const targetNode = this.getNodeById(targetNodeId);
     if (targetNode !== undefined) {
       const targetSocket = targetNode.inputSocketArray[targetSocketIndex];

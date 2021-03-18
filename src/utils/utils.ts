@@ -5,8 +5,8 @@ import {
   NODE_OUTLINE_DISTANCE,
   NODE_HEADER_HEIGHT,
   NODE_WIDTH,
-  OUTPUTSOCKET_TEXTMARGIN_TOP,
-  OUTPUTSOCKET_WIDTH,
+  SOCKET_TEXTMARGIN_TOP,
+  SOCKET_WIDTH,
 } from './constants';
 
 export function isFunction(funcOrClass: any): boolean {
@@ -45,7 +45,7 @@ export function getElement(value: number | number[], index: number): number {
 }
 
 export function getNodeCommentPosX(x: number): number {
-  return x + NODE_OUTLINE_DISTANCE * 2 + NODE_WIDTH + OUTPUTSOCKET_WIDTH;
+  return x + NODE_OUTLINE_DISTANCE * 2 + NODE_WIDTH + SOCKET_WIDTH;
 }
 
 export function getNodeCommentPosY(y: number): number {
@@ -54,7 +54,7 @@ export function getNodeCommentPosY(y: number): number {
     NODE_MARGIN_TOP +
     NODE_HEADER_HEIGHT +
     NODE_OUTLINE_DISTANCE +
-    OUTPUTSOCKET_TEXTMARGIN_TOP
+    SOCKET_TEXTMARGIN_TOP
   );
 }
 

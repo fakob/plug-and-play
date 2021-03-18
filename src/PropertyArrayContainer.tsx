@@ -13,16 +13,15 @@ import {
   TextArea,
 } from '@blueprintjs/core';
 import { SketchPicker } from 'react-color';
-import InputSocket from './classes/InputSocketClass';
-import OutputSocket from './classes/OutputSocketClass';
-import { INPUTTYPE, OUTPUTTYPE } from './utils/constants';
+import Socket from './classes/SocketClass';
+import { DATATYPE } from './utils/constants';
 import { limitRange, roundNumber } from './utils/utils';
 import { rgbToRgba } from './pixi/utils-pixi';
 import styles from './utils/style.module.css';
 
 type PropertyArrayContainerProps = {
-  inputSocketArray: InputSocket[];
-  outputSocketArray: OutputSocket[];
+  inputSocketArray: Socket[];
+  outputSocketArray: Socket[];
 };
 
 export const PropertyArrayContainer: React.FunctionComponent<PropertyArrayContainerProps> = (
@@ -37,9 +36,9 @@ export const PropertyArrayContainer: React.FunctionComponent<PropertyArrayContai
             key={index}
             property={property}
             index={index}
-            type={property.type}
+            dataType={property.dataType}
             isInput={true}
-            hasLink={property.link !== null}
+            hasLink={property.links.length !== 0}
           />
         );
       })}
@@ -49,7 +48,7 @@ export const PropertyArrayContainer: React.FunctionComponent<PropertyArrayContai
             key={index}
             property={property}
             index={index}
-            type={property.type}
+            dataType={property.dataType}
             isInput={false}
             hasLink={property.links.length !== 0}
           />
@@ -60,9 +59,9 @@ export const PropertyArrayContainer: React.FunctionComponent<PropertyArrayContai
 };
 
 type PropertyContainerProps = {
-  property: InputSocket | OutputSocket;
+  property: Socket;
   index: number;
-  type: string;
+  dataType: string;
   isInput: boolean;
   hasLink: boolean;
 };
@@ -70,9 +69,9 @@ type PropertyContainerProps = {
 const PropertyContainer: React.FunctionComponent<PropertyContainerProps> = (
   props
 ) => {
-  const [typeValue, setTypeValue] = useState(props.type);
+  const [dataTypeValue, setDataTypeValue] = useState(props.dataType);
   const baseProps = {
-    key: props.type.toString(),
+    key: props.dataType.toString(),
     property: props.property,
     index: props.index,
     isInput: props.isInput,
@@ -82,33 +81,33 @@ const PropertyContainer: React.FunctionComponent<PropertyContainerProps> = (
 
   let widget = null;
   if (props.isInput) {
-    switch (typeValue) {
-      case INPUTTYPE.NUMBER.TYPE:
+    switch (dataTypeValue) {
+      case DATATYPE.NUMBER:
         widget = <SliderWidget {...baseProps} />;
         break;
-      case INPUTTYPE.STRING.TYPE:
-      case INPUTTYPE.ARRAY.TYPE:
+      case DATATYPE.STRING:
+      case DATATYPE.ARRAY:
         widget = <TextWidget {...baseProps} />;
         break;
-      case INPUTTYPE.TRIGGER.TYPE:
+      case DATATYPE.TRIGGER:
         widget = <TriggerWidget {...baseProps} />;
         break;
-      case INPUTTYPE.COLOR.TYPE:
+      case DATATYPE.COLOR:
         widget = <ColorWidget {...baseProps} />;
         break;
       default:
     }
   } else {
-    switch (typeValue) {
-      case OUTPUTTYPE.TRIGGER.TYPE:
+    switch (dataTypeValue) {
+      case DATATYPE.TRIGGER:
         widget = <TriggerWidget {...baseProps} />;
         break;
-      case OUTPUTTYPE.COLOR.TYPE:
+      case DATATYPE.COLOR:
         widget = <ColorWidget {...baseProps} />;
         break;
-      case OUTPUTTYPE.NUMBER.TYPE:
-      case OUTPUTTYPE.STRING.TYPE:
-      case OUTPUTTYPE.ARRAY.TYPE:
+      case DATATYPE.NUMBER:
+      case DATATYPE.STRING:
+      case DATATYPE.ARRAY:
         widget = <DefaultOutputWidget {...baseProps} />;
         break;
       default:
@@ -117,19 +116,19 @@ const PropertyContainer: React.FunctionComponent<PropertyContainerProps> = (
 
   const onChangeDropdown = (event) => {
     const value = event.target.value;
-    props.property.type = value;
-    setTypeValue(value);
+    props.property.dataType = value;
+    setDataTypeValue(value);
   };
 
   return (
     <div className={styles.inputContainer}>
       <PropertyHeader
-        key={`PropertyHeader-${props.type.toString()}`}
+        key={`PropertyHeader-${props.dataType.toString()}`}
         property={props.property}
         index={props.index}
         isInput={props.isInput}
         hasLink={props.hasLink}
-        type={typeValue}
+        dataType={dataTypeValue}
         onChangeDropdown={onChangeDropdown}
       />
       {widget}
@@ -138,11 +137,11 @@ const PropertyContainer: React.FunctionComponent<PropertyContainerProps> = (
 };
 
 type PropertyHeaderProps = {
-  property: InputSocket | OutputSocket;
+  property: Socket;
   index: number;
   isInput: boolean;
   hasLink: boolean;
-  type: string;
+  dataType: string;
   onChangeDropdown: (event) => void;
 };
 
@@ -189,12 +188,12 @@ const PropertyHeader: React.FunctionComponent<PropertyHeaderProps> = (
       <HTMLSelect
         className={`${styles.typeSelector} bp3-minimal`}
         onChange={props.onChangeDropdown}
-        value={props.type}
+        value={props.dataType}
       >
-        {Object.values(INPUTTYPE).map((value) => {
+        {Object.values(DATATYPE).map((value) => {
           return (
-            <option key={value.TYPE} value={value.TYPE}>
-              {value.TYPE}
+            <option key={value} value={value}>
+              {value}
             </option>
           );
         })}
@@ -204,30 +203,26 @@ const PropertyHeader: React.FunctionComponent<PropertyHeaderProps> = (
 };
 
 type SliderWidgetProps = {
-  property: InputSocket | OutputSocket;
+  property: Socket;
   isInput: boolean;
   hasLink: boolean;
   index: number;
 };
 
 const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (props) => {
-  // console.log(props);
-  const [data, setData] = useState(props.property.data);
+  const [data, setData] = useState(Number(props.property.data));
   const [minValue, setMinValue] = useState(
-    props.property.custom?.minValue || 0
+    props.property.custom?.minValue ?? 0
   );
   const [maxValue, setMaxValue] = useState(
-    props.property.custom?.maxValue || 100
+    props.property.custom?.maxValue ?? 100
   );
-  const [round, setRound] = useState(props.property.custom?.round || false);
-  const [stepSizeValue] = useState(props.property.custom?.stepSize || 0.01);
+  const [round, setRound] = useState(props.property.custom?.round ?? false);
+  const [stepSizeValue] = useState(props.property.custom?.stepSize ?? 0.01);
 
   useEffect(() => {
     const newValue = round ? Math.round(data) : data;
     props.property.data = newValue;
-    if (props.isInput) {
-      (props.property as InputSocket).defaultData = newValue;
-    }
   }, [data]);
 
   useEffect(() => {
@@ -239,8 +234,7 @@ const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (props) => {
     setData(newValue);
     props.property.data = newValue;
     if (props.isInput) {
-      (props.property as InputSocket).defaultData = newValue;
-      (props.property as InputSocket).custom = {
+      (props.property as Socket).custom = {
         minValue,
         maxValue,
         round,
@@ -312,7 +306,7 @@ const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (props) => {
 };
 
 type TextWidgetProps = {
-  property: InputSocket | OutputSocket;
+  property: Socket;
   index: number;
   hasLink: boolean;
   data: string;
@@ -342,7 +336,7 @@ const TextWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
 };
 
 type TriggerWidgetProps = {
-  property: InputSocket | OutputSocket;
+  property: Socket;
   index: number;
 };
 
@@ -364,7 +358,7 @@ const TriggerWidget: React.FunctionComponent<TriggerWidgetProps> = (props) => {
 };
 
 type ColorWidgetProps = {
-  property: InputSocket | OutputSocket;
+  property: Socket;
   index: number;
   isInput: boolean;
   hasLink: boolean;
@@ -423,7 +417,7 @@ const ColorWidget: React.FunctionComponent<ColorWidgetProps> = (props) => {
 };
 
 type DefaultOutputWidgetProps = {
-  property: InputSocket | OutputSocket;
+  property: Socket;
   index: number;
   data: any;
 };
