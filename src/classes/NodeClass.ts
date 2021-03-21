@@ -52,8 +52,10 @@ export default class PPNode extends PIXI.Container {
   // supported callbacks
   onConfigure: ((node_info: SerializedNode) => void) | null;
   onNodeDoubleClick: ((event: PIXI.InteractionEvent) => void) | null;
-  onNodeDrag:
-    | ((positions: {
+  onNodeAdded: (() => void) | null; // called when the node is added to the graph
+  onNodeRemoved: (() => void) | null; // called when the node is removed from the graph
+  onNodeDragOrViewportMove: // called when the node or or the viewport with the node is moved or scaled
+  | ((positions: {
         globalX: number;
         globalY: number;
         screenX: number;
@@ -417,18 +419,6 @@ export default class PPNode extends PIXI.Container {
     // }
   }
 
-  remove(): void {
-    // remove node comment
-    (this.graph.viewport.getChildByName(
-      'commentContainer'
-    ) as PIXI.Container).removeChild(this._NodeCommentRef);
-
-    // remove node
-    (this.graph.viewport.getChildByName(
-      'nodeContainer'
-    ) as PIXI.Container).removeChild(this);
-  }
-
   execute(): void {
     // remap input
     const inputObject = {};
@@ -476,6 +466,10 @@ export default class PPNode extends PIXI.Container {
     this.on('pointerout', this._onPointerOut.bind(this));
     this.on('click', this._onClick.bind(this));
     this.on('dblclick', this._onDoubleClick.bind(this));
+    this.on('added', this._onAdded.bind(this));
+    this.on('removed', this._onRemoved.bind(this));
+
+    this.graph.viewport.on('moved', this._onViewportMove.bind(this));
   }
 
   _onPointerDown(event: PIXI.InteractionEvent): void {
@@ -551,9 +545,9 @@ export default class PPNode extends PIXI.Container {
         });
       });
 
-      if (this.onNodeDrag) {
+      if (this.onNodeDragOrViewportMove) {
         const screenPoint = this.graph.viewport.toScreen(this.x, this.y);
-        this.onNodeDrag({
+        this.onNodeDragOrViewportMove({
           globalX,
           globalY,
           screenX: screenPoint.x,
@@ -561,6 +555,40 @@ export default class PPNode extends PIXI.Container {
           scale: this.graph.viewport.scale.x,
         });
       }
+    }
+  }
+
+  _onViewportMove(): void {
+    // console.log('_onViewportMove');
+    if (this.onNodeDragOrViewportMove) {
+      const screenPoint = this.graph.viewport.toScreen(this.x, this.y);
+      this.onNodeDragOrViewportMove({
+        globalX: this.x,
+        globalY: this.y,
+        screenX: screenPoint.x,
+        screenY: screenPoint.y,
+        scale: this.graph.viewport.scale.x,
+      });
+    }
+  }
+
+  _onAdded(): void {
+    // console.log('_onAdded');
+    if (this.onNodeAdded) {
+      this.onNodeAdded();
+    }
+  }
+
+  _onRemoved(): void {
+    // console.log('_onRemoved');
+
+    // remove node comment
+    (this.graph.viewport.getChildByName(
+      'commentContainer'
+    ) as PIXI.Container).removeChild(this._NodeCommentRef);
+
+    if (this.onNodeRemoved) {
+      this.onNodeRemoved();
     }
   }
 

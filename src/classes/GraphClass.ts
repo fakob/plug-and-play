@@ -803,7 +803,7 @@ export default class PPGraph {
       this.checkIfSocketHasConnectionAndDeleteIt(outputSocket, false);
     }
 
-    node.remove();
+    node.destroy();
   }
 
   deleteSelectedNodes(): void {

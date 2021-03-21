@@ -1,6 +1,7 @@
 import * as PIXI from 'pixi.js';
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { Table, Column, Cell } from '@blueprintjs/table';
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
 import { SerializedNode } from '../utils/interfaces';
@@ -473,8 +474,6 @@ export class PPTable extends PPNode {
   container: HTMLElement;
   defaultProps;
   createElement;
-  onViewportMove: (event: PIXI.InteractionEvent) => void;
-  onViewportMoveHandler: (event?: PIXI.InteractionEvent) => void;
 
   constructor(
     name: string,
@@ -493,27 +492,6 @@ export class PPTable extends PPNode {
 
     this.name = 'Table';
     this.description = 'Adds a table';
-
-    this.onViewportMove = function (event: PIXI.InteractionEvent): void {
-      console.log('onViewportMove', event);
-      const screenPoint = this.graph.viewport.toScreen(this.x, this.y);
-      this.container.style.transform = `scale(${this.graph.viewport.scale.x}`;
-      this.container.style.left = `${screenPoint.x}px`;
-      this.container.style.top = `${screenPoint.y}px`;
-      // this.defaultProps = {
-      //   id: 'table',
-      //   style: {
-      //     left: `${screenPoint.x}px`,
-      //     top: `${screenPoint.y}px`,
-      //     transform: `translate(50%, 50%) scale(${this.graph.viewport.scale.x}`,
-      //   },
-      //   x: screenPoint.x,
-      //   y: screenPoint.y,
-      //   scale: this.graph.viewport.scale.x,
-      // };
-      renderComponent(TableParent, this.defaultProps);
-    };
-    this.onViewportMoveHandler = this.onViewportMove.bind(this);
 
     const image = PIXI.Sprite.from(
       customArgsObject?.objectURL || EMPTY_TEXTURE
@@ -536,70 +514,76 @@ export class PPTable extends PPNode {
       this._imageRef.tint;
     };
 
-    this.onNodeDrag = ({ globalX, globalY, screenX, screenY, scale }) => {
+    this.onNodeDragOrViewportMove = ({
+      globalX,
+      globalY,
+      screenX,
+      screenY,
+      scale,
+    }) => {
       this.container.style.transform = `translate(50%, 50%)`;
       this.container.style.transform = `scale(${scale}`;
       this.container.style.left = `${screenX}px`;
       this.container.style.top = `${screenY}px`;
     };
 
-    this.createElement = () => {
-      // create html input element
+    // when the Node is added add the container and react component
+    this.onNodeAdded = () => {
+      // create html container
       this.container = document.createElement('div');
-      document.body.appendChild(this.container);
-      const screenPoint = this.graph.viewport.toScreen(this.x, this.y);
-      this.container.id = 'TableContainer';
-      this.container.style.position = 'absolute';
-      this.container.style.transform = `translate(50%, 50%)`;
-      this.container.style.transform = `scale(${this.graph.viewport.scale.x}`;
-      this.container.style.left = `${screenPoint.x}px`;
-      this.container.style.top = `${screenPoint.y}px`;
 
-      // // add event handlers
-      // this.container.addEventListener('blur', (e) => {
-      //   console.log('blur', e);
-      //   this.graph.viewport.removeListener('moved', this.onViewportMoveHandler);
-      // });
-
-      this.graph.viewport.on('moved', (this as any).onViewportMoveHandler);
-
+      // add it to the DOM
       document.body.appendChild(this.container);
       console.log(this.container);
+
+      setTimeout(() => {
+        // style and place the container
+        console.log(this);
+        console.log(this.x, this.y);
+        const screenPoint = this.graph.viewport.toScreen(this.x, this.y);
+        this.container.id = 'TableContainer';
+        this.container.style.position = 'absolute';
+        this.container.style.transformOrigin = 'top left';
+        this.container.style.transform = `translate(50%, 50%)`;
+        this.container.style.transform = `scale(${this.graph.viewport.scale.x}`;
+        // this.container.style.margin = NOTE_MARGIN_STRING;
+        this.container.style.left = `${screenPoint.x}px`;
+        this.container.style.top = `${screenPoint.y}px`;
+        this.container.style.width = `${NODE_WIDTH}px`;
+        this.container.style.height = `${NODE_WIDTH - NOTE_PADDING}px`;
+        this.container.style.zIndex = '0';
+
+        // render react component
+        renderComponent(TableParent, this.defaultProps);
+      }, 100);
     };
 
-    const screenPoint = this.graph.viewport.toScreen(this.x, this.y);
-    this.defaultProps = {
-      id: 'table',
-      x: screenPoint.x,
-      y: screenPoint.y,
-      scale: this.graph.viewport.scale.x,
+    // when the Node is removed also remove the react component and its container
+    this.onNodeRemoved = () => {
+      ReactDOM.unmountComponentAtNode(this.container);
+      document.body.removeChild(this.container);
     };
-
-    this.graph.viewport.on('moved', (this as any).onViewportMoveHandler);
 
     // the render method, takes a component and props, and renders it to the page
     const renderComponent = (component, props) => {
       ReactDOM.render(React.createElement(component, props), this.container);
     };
 
+    const cellRenderer = (rowIndex: number) => {
+      return <Cell>{`$${(rowIndex * 10).toFixed(2)}`}</Cell>;
+    };
+
     // small presentational component
     const TableParent = ({ x, y, scale }) => {
       return (
-        <div>
-          Hello {x} {y} {scale}
-        </div>
+        <Table numRows={10}>
+          <Column name="Dollars" cellRenderer={cellRenderer} />
+        </Table>
       );
     };
 
     // update shape after initializing
     this.drawNodeShape(false);
-
-    // this.onNodeDoubleClick = () => {
-    console.log('_onDoubleClick on Note:', this);
-    // initial render
-    this.createElement();
-    renderComponent(TableParent, this.defaultProps);
-    // };
   }
 
   trigger(): void {
