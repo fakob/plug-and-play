@@ -52,6 +52,15 @@ export default class PPNode extends PIXI.Container {
   // supported callbacks
   onConfigure: ((node_info: SerializedNode) => void) | null;
   onNodeDoubleClick: ((event: PIXI.InteractionEvent) => void) | null;
+  onNodeDrag:
+    | ((positions: {
+        globalX: number;
+        globalY: number;
+        screenX: number;
+        screenY: number;
+        scale: number;
+      }) => void)
+    | null;
 
   constructor(type: string, graph: PPGraph, customId: string) {
     super();
@@ -339,6 +348,26 @@ export default class PPNode extends PIXI.Container {
     }
   }
 
+  getInputSocketByName(slotName: string): Socket {
+    if (!this.inputSocketArray) {
+      return undefined;
+    }
+
+    return this.inputSocketArray[
+      this.inputSocketArray.findIndex((el) => el.name === slotName)
+    ];
+  }
+
+  getOutputSocketByName(slotName: string): Socket {
+    if (!this.outputSocketArray) {
+      return undefined;
+    }
+
+    return this.outputSocketArray[
+      this.outputSocketArray.findIndex((el) => el.name === slotName)
+    ];
+  }
+
   getInputData<T = any>(slot: number): T {
     if (!this.inputSocketArray) {
       return undefined;
@@ -504,8 +533,10 @@ export default class PPNode extends PIXI.Container {
       this.relativeClickPosition !== null
     ) {
       const newPosition = this.interactionData.getLocalPosition(this.parent);
-      this.x = newPosition.x - this.relativeClickPosition.x;
-      this.y = newPosition.y - this.relativeClickPosition.y;
+      const globalX = newPosition.x - this.relativeClickPosition.x;
+      const globalY = newPosition.y - this.relativeClickPosition.y;
+      this.x = globalX;
+      this.y = globalY;
       this.updateCommentPosition();
 
       // check for connections and move them too
@@ -519,6 +550,17 @@ export default class PPNode extends PIXI.Container {
           link.updateConnection();
         });
       });
+
+      if (this.onNodeDrag) {
+        const screenPoint = this.graph.viewport.toScreen(this.x, this.y);
+        this.onNodeDrag({
+          globalX,
+          globalY,
+          screenX: screenPoint.x,
+          screenY: screenPoint.y,
+          scale: this.graph.viewport.scale.x,
+        });
+      }
     }
   }
 

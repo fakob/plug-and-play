@@ -1,4 +1,6 @@
 import * as PIXI from 'pixi.js';
+import React from 'react';
+import ReactDOM from 'react-dom';
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
 import { SerializedNode } from '../utils/interfaces';
@@ -8,6 +10,9 @@ import { convertToArray, getElement } from '../utils/utils';
 import {
   EMPTY_TEXTURE,
   DATATYPE,
+  NOTE_FONTSIZE,
+  NOTE_LINEHEIGHT_FACTOR,
+  NOTE_MARGIN_STRING,
   NOTE_PADDING,
   NOTE_TEXTURE,
   NODE_WIDTH,
@@ -218,8 +223,10 @@ export class Note extends PPNode {
 
   constructor(name: string, graph: PPGraph, customId: string) {
     super(name, graph, customId);
-    this.addOutput('output', DATATYPE.STRING);
-    this.addInput('input', DATATYPE.STRING, 'type...');
+    this.addOutput('textOutput', DATATYPE.STRING);
+    this.addOutput('fontSize', DATATYPE.NUMBER, false);
+    this.addInput('textInput', DATATYPE.STRING, 'type...');
+    this.addInput('fontSize', DATATYPE.NUMBER, NOTE_FONTSIZE, false);
 
     this.name = 'Note';
     this.description = 'Adds a note';
@@ -233,7 +240,7 @@ export class Note extends PPNode {
 
     const textFitOptions = {
       multiLine: true,
-      maxFontSize: 50,
+      maxFontSize: 60,
       // alignVertWithFlexbox: true,
     };
 
@@ -249,9 +256,8 @@ export class Note extends PPNode {
 
     const basicText = new PIXI.Text('', {
       fontFamily: 'Arial',
-      fontSize: 36,
-      // fontStyle: 'italic',
-      // fontWeight: 'bold',
+      fontSize: NOTE_FONTSIZE,
+      lineHeight: NOTE_FONTSIZE * NOTE_LINEHEIGHT_FACTOR,
       align: 'center',
       whiteSpace: 'pre-line',
       wordWrap: true,
@@ -284,7 +290,9 @@ export class Note extends PPNode {
       // this.currentInput.style.fontStyle = 'italic';
       // this.currentInput.style.fontWeight = 'bold';
       this.currentInput.style.fontSize = this._textInputRef.style.fontSize;
+      this.currentInput.style.lineHeight = `${NOTE_LINEHEIGHT_FACTOR}`;
       this.currentInput.style.textAlign = 'center';
+      this.currentInput.style.margin = NOTE_MARGIN_STRING;
       this.currentInput.style.padding = `${NOTE_PADDING}px`;
       this.currentInput.style.position = 'absolute';
       this.currentInput.style.background = 'transparent';
@@ -296,10 +304,8 @@ export class Note extends PPNode {
       const screenPoint = this.graph.viewport.toScreen(this.x, this.y);
       this.currentInput.style.left = `${screenPoint.x}px`;
       this.currentInput.style.top = `${screenPoint.y}px`;
-      this.currentInput.style.width = `${
-        NODE_WIDTH + SOCKET_WIDTH - NOTE_PADDING * 2
-      }px`;
-      this.currentInput.style.height = `${NODE_WIDTH - NOTE_PADDING * 2}px`;
+      this.currentInput.style.width = `${NODE_WIDTH}px`;
+      this.currentInput.style.height = `${NODE_WIDTH - NOTE_PADDING}px`;
       // this.currentInput.style.display = 'none';
       this.currentInput.style.resize = 'none';
       this.currentInput.style.overflowY = 'scroll';
@@ -348,9 +354,26 @@ export class Note extends PPNode {
     this.setCleanAndDisplayText = (input: HTMLDivElement) => {
       // get font size of editable div
       const style = window.getComputedStyle(input.children[0], null);
-      this._textInputRef.style.fontSize = style.fontSize;
+
+      const newText = input.textContent;
+      const newFontSize = Math.min(
+        parseInt(style.fontSize, 10),
+        this.getInputData(1)
+      );
+      const newFontSizeString = `${newFontSize}px`;
+      const newLineHeight = newFontSize * NOTE_LINEHEIGHT_FACTOR;
+
+      this._textInputRef.style.fontSize = newFontSizeString;
+      this._textInputRef.style.lineHeight = newLineHeight;
       this._textInputRef.text = input.textContent;
-      this.setCleanText(input.textContent);
+
+      const textInput = this.getInputSocketByName('textInput');
+      textInput.data = newText;
+      this.setOutputData(0, newText);
+
+      const fontSizeInput = this.getInputSocketByName('fontSize');
+      fontSizeInput.data = newFontSize;
+      this.setOutputData(1, newFontSize);
     };
 
     this.setCleanText = (text: string) => {
@@ -426,6 +449,157 @@ export class PPImage extends PPNode {
 
     // update shape after initializing
     this.drawNodeShape(false);
+  }
+
+  trigger(): void {
+    const url: string = this.getInputData(1);
+    // if url is set then get image
+    if (url !== '') {
+      // const objectURL = URL.createObjectURL(url);
+      const newTexture = PIXI.Texture.from(url);
+      this._imageRef.texture = newTexture;
+      this._imageRefClone.texture = newTexture;
+    }
+    const { width, height } = this._imageRef.texture.orig;
+    this.setOutputData(0, this._imageRefClone);
+    this.setOutputData(1, width);
+    this.setOutputData(2, height);
+  }
+}
+
+export class PPTable extends PPNode {
+  _imageRef: PIXI.Sprite;
+  _imageRefClone: PIXI.Sprite;
+  container: HTMLElement;
+  defaultProps;
+  createElement;
+  onViewportMove: (event: PIXI.InteractionEvent) => void;
+  onViewportMoveHandler: (event?: PIXI.InteractionEvent) => void;
+
+  constructor(
+    name: string,
+    graph: PPGraph,
+    customId: string,
+    customArgsObject?: {
+      objectURL: string;
+    }
+  ) {
+    super(name, graph, customId);
+    this.addOutput('image', DATATYPE.PIXI);
+    this.addOutput('width', DATATYPE.NUMBER);
+    this.addOutput('height', DATATYPE.NUMBER);
+    this.addInput('Reload', DATATYPE.TRIGGER);
+    this.addInput('url', DATATYPE.STRING);
+
+    this.name = 'Table';
+    this.description = 'Adds a table';
+
+    this.onViewportMove = function (event: PIXI.InteractionEvent): void {
+      console.log('onViewportMove', event);
+      const screenPoint = this.graph.viewport.toScreen(this.x, this.y);
+      this.container.style.transform = `scale(${this.graph.viewport.scale.x}`;
+      this.container.style.left = `${screenPoint.x}px`;
+      this.container.style.top = `${screenPoint.y}px`;
+      // this.defaultProps = {
+      //   id: 'table',
+      //   style: {
+      //     left: `${screenPoint.x}px`,
+      //     top: `${screenPoint.y}px`,
+      //     transform: `translate(50%, 50%) scale(${this.graph.viewport.scale.x}`,
+      //   },
+      //   x: screenPoint.x,
+      //   y: screenPoint.y,
+      //   scale: this.graph.viewport.scale.x,
+      // };
+      renderComponent(TableParent, this.defaultProps);
+    };
+    this.onViewportMoveHandler = this.onViewportMove.bind(this);
+
+    const image = PIXI.Sprite.from(
+      customArgsObject?.objectURL || EMPTY_TEXTURE
+    );
+    image.x = SOCKET_WIDTH / 2;
+    image.y = NODE_OUTLINE_DISTANCE;
+    image.width = NODE_WIDTH;
+    image.height = NODE_WIDTH;
+
+    this._imageRefClone = PIXI.Sprite.from(
+      customArgsObject?.objectURL || EMPTY_TEXTURE
+    );
+
+    this.drawShape = function () {
+      this._BackgroundRef.visible = false;
+      this._NodeNameRef.visible = false;
+
+      (this._imageRef as any) = (this as PIXI.Container).addChild(image);
+      this._imageRef.alpha = 1;
+      this._imageRef.tint;
+    };
+
+    this.onNodeDrag = ({ globalX, globalY, screenX, screenY, scale }) => {
+      this.container.style.transform = `translate(50%, 50%)`;
+      this.container.style.transform = `scale(${scale}`;
+      this.container.style.left = `${screenX}px`;
+      this.container.style.top = `${screenY}px`;
+    };
+
+    this.createElement = () => {
+      // create html input element
+      this.container = document.createElement('div');
+      document.body.appendChild(this.container);
+      const screenPoint = this.graph.viewport.toScreen(this.x, this.y);
+      this.container.id = 'TableContainer';
+      this.container.style.position = 'absolute';
+      this.container.style.transform = `translate(50%, 50%)`;
+      this.container.style.transform = `scale(${this.graph.viewport.scale.x}`;
+      this.container.style.left = `${screenPoint.x}px`;
+      this.container.style.top = `${screenPoint.y}px`;
+
+      // // add event handlers
+      // this.container.addEventListener('blur', (e) => {
+      //   console.log('blur', e);
+      //   this.graph.viewport.removeListener('moved', this.onViewportMoveHandler);
+      // });
+
+      this.graph.viewport.on('moved', (this as any).onViewportMoveHandler);
+
+      document.body.appendChild(this.container);
+      console.log(this.container);
+    };
+
+    const screenPoint = this.graph.viewport.toScreen(this.x, this.y);
+    this.defaultProps = {
+      id: 'table',
+      x: screenPoint.x,
+      y: screenPoint.y,
+      scale: this.graph.viewport.scale.x,
+    };
+
+    this.graph.viewport.on('moved', (this as any).onViewportMoveHandler);
+
+    // the render method, takes a component and props, and renders it to the page
+    const renderComponent = (component, props) => {
+      ReactDOM.render(React.createElement(component, props), this.container);
+    };
+
+    // small presentational component
+    const TableParent = ({ x, y, scale }) => {
+      return (
+        <div>
+          Hello {x} {y} {scale}
+        </div>
+      );
+    };
+
+    // update shape after initializing
+    this.drawNodeShape(false);
+
+    // this.onNodeDoubleClick = () => {
+    console.log('_onDoubleClick on Note:', this);
+    // initial render
+    this.createElement();
+    renderComponent(TableParent, this.defaultProps);
+    // };
   }
 
   trigger(): void {
