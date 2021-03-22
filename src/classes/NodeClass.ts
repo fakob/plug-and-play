@@ -423,9 +423,7 @@ export default class PPNode extends PIXI.Container {
     // remap input
     const inputObject = {};
     this.inputSocketArray
-      .filter((socket) => {
-        socket.socketType === SOCKET_TYPE.IN;
-      })
+      .filter((socket) => socket.socketType === SOCKET_TYPE.IN)
       .forEach((input: Socket) => {
         inputObject[input.name] = input.data;
       });
@@ -436,9 +434,7 @@ export default class PPNode extends PIXI.Container {
 
     // output whatever the user has put in
     this.outputSocketArray
-      .filter((socket) => {
-        socket.socketType === SOCKET_TYPE.OUT;
-      })
+      .filter((socket) => socket.socketType === SOCKET_TYPE.OUT)
       .forEach((output: Socket) => {
         if (outputObject[output.name] !== undefined) {
           output.data = outputObject[output.name];
