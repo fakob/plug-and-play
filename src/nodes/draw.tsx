@@ -1,51 +1,52 @@
 import * as PIXI from 'pixi.js';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Table, Column, Cell } from '@blueprintjs/table';
+import {
+  Table as BPTable,
+  Column as BPColumn,
+  Cell as BPCell,
+} from '@blueprintjs/table';
+import * as csvParser from 'papaparse';
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
-import { SerializedNode } from '../utils/interfaces';
+import { CustomArgs, SerializedNode } from '../utils/interfaces';
 import textFit from '../pixi/textFit';
 import { rgbToHex } from '../pixi/utils-pixi';
 import { convertToArray, getElement } from '../utils/utils';
 import {
-  EMPTY_TEXTURE,
   DATATYPE,
+  EMPTY_TEXTURE,
+  NODE_HEADER_HEIGHT,
+  NODE_OUTLINE_DISTANCE,
+  NODE_WIDTH,
   NOTE_FONTSIZE,
   NOTE_LINEHEIGHT_FACTOR,
   NOTE_MARGIN_STRING,
   NOTE_PADDING,
   NOTE_TEXTURE,
-  NODE_WIDTH,
-  NODE_OUTLINE_DISTANCE,
   SOCKET_WIDTH,
 } from '../utils/constants';
 
 export class DrawRect extends PPNode {
-  _x: number;
-  _y: number;
-  _width: number;
-  _height: number;
   _color: number;
   _rectRef: PIXI.Graphics;
 
-  constructor(
-    name: string,
-    graph: PPGraph,
-    customId: string,
-    x: number,
-    y: number,
-    width: number,
-    height: number,
-    color?: number[]
-  ) {
-    super(name, graph, customId);
+  // uses customArgs?.color as defaultColor
+  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
+    super(name, graph, customArgs);
+    let convertedColor;
 
-    this.addInput('x', DATATYPE.NUMBER);
-    this.addInput('y', DATATYPE.NUMBER);
-    this.addInput('width', DATATYPE.NUMBER);
-    this.addInput('height', DATATYPE.NUMBER);
-    this.addInput('color', 'color');
+    if (customArgs?.color === undefined) {
+      convertedColor = PIXI.utils.string2hex('#00FF00');
+    } else {
+      convertedColor = PIXI.utils.string2hex(rgbToHex(customArgs?.color));
+    }
+
+    this.addInput('x', DATATYPE.NUMBER, 0);
+    this.addInput('y', DATATYPE.NUMBER, 0);
+    this.addInput('width', DATATYPE.NUMBER, 50);
+    this.addInput('height', DATATYPE.NUMBER, 100);
+    this.addInput('color', DATATYPE.COLOR, convertedColor);
 
     this.name = 'Draw Rect';
     this.description = 'Draws a rectangle';
@@ -54,18 +55,9 @@ export class DrawRect extends PPNode {
     this._rectRef = (this.graph.viewport.getChildByName(
       'backgroundCanvas'
     ) as PIXI.Container).addChild(rect);
-    this._x = x;
-    this._y = y;
-    this._width = width;
-    this._height = height;
-    let convertedColor;
-    if (color === undefined) {
-      convertedColor = PIXI.utils.string2hex('#00FF00');
-    } else {
-      convertedColor = PIXI.utils.string2hex(rgbToHex(color));
-    }
+
     this._rectRef.beginFill(convertedColor, 0.5);
-    this._rectRef.drawRect(this._x, this._y, this._width, this._height);
+    this._rectRef.drawRect(this.x, this.y, this.width, this.height);
     this._rectRef.endFill();
 
     this.onExecute = function (input, output) {
@@ -97,49 +89,34 @@ export class DrawRect extends PPNode {
 }
 
 export class Rect extends PPNode {
-  _x: number;
-  _y: number;
-  _width: number;
-  _height: number;
   _color: number;
   _rectRef: PIXI.Graphics;
 
-  constructor(
-    name: string,
-    graph: PPGraph,
-    customId: string,
-    x: number,
-    y: number,
-    width: number,
-    height: number,
-    color?: number[]
-  ) {
-    super(name, graph, customId);
+  // uses customArgs?.color as defaultColor
+  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
+    super(name, graph, customArgs);
+
+    let convertedColor;
+    if (customArgs?.color === undefined) {
+      convertedColor = PIXI.utils.string2hex('#00FF00');
+    } else {
+      convertedColor = PIXI.utils.string2hex(rgbToHex(customArgs?.color));
+    }
 
     this.addOutput('rect', DATATYPE.PIXI);
-    this.addInput('x', DATATYPE.NUMBER);
-    this.addInput('y', DATATYPE.NUMBER);
-    this.addInput('width', DATATYPE.NUMBER);
-    this.addInput('height', DATATYPE.NUMBER);
-    this.addInput('color', 'color');
+    this.addInput('x', DATATYPE.NUMBER, 0);
+    this.addInput('y', DATATYPE.NUMBER, 0);
+    this.addInput('width', DATATYPE.NUMBER, 50);
+    this.addInput('height', DATATYPE.NUMBER, 100);
+    this.addInput('color', DATATYPE.COLOR, convertedColor);
 
     this.name = 'Create Rect';
     this.description = 'Creates a rectangle';
 
     const rect = new PIXI.Graphics();
-    this._x = x;
-    this._y = y;
-    this._width = width;
-    this._height = height;
-    let convertedColor;
-    if (color === undefined) {
-      convertedColor = PIXI.utils.string2hex('#00FF00');
-    } else {
-      convertedColor = PIXI.utils.string2hex(rgbToHex(color));
-    }
     this._rectRef = rect;
     this._rectRef.beginFill(convertedColor, 0.5);
-    this._rectRef.drawRect(this._x, this._y, this._width, this._height);
+    this._rectRef.drawRect(this.x, this.y, this.width, this.height);
     this._rectRef.endFill();
 
     this.onExecute = function (input, output) {
@@ -173,15 +150,14 @@ export class Rect extends PPNode {
 export class Container extends PPNode {
   _containerRef: PIXI.Container;
 
-  constructor(name: string, graph: PPGraph, customId: string) {
-    super(name, graph, customId);
+  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
+    super(name, graph, customArgs);
     this.addInput('x', DATATYPE.NUMBER);
     this.addInput('y', DATATYPE.NUMBER);
     this.addInput('scale', DATATYPE.NUMBER, 1.0);
     this.addInput('input1', DATATYPE.PIXI);
     this.addInput('input2', DATATYPE.PIXI);
     this.addInput('input3', DATATYPE.PIXI);
-    // this.addInput('color', 'color');
 
     this.name = 'Container';
     this.description = 'General-purpose display object that holds children';
@@ -222,8 +198,8 @@ export class Note extends PPNode {
   onViewportMove: (event: PIXI.InteractionEvent) => void;
   onViewportMoveHandler: (event?: PIXI.InteractionEvent) => void;
 
-  constructor(name: string, graph: PPGraph, customId: string) {
-    super(name, graph, customId);
+  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
+    super(name, graph, customArgs);
     this.addOutput('textOutput', DATATYPE.STRING);
     this.addOutput('fontSize', DATATYPE.NUMBER, false);
     this.addInput('textInput', DATATYPE.STRING, 'type...');
@@ -409,15 +385,9 @@ export class PPImage extends PPNode {
   _imageRef: PIXI.Sprite;
   _imageRefClone: PIXI.Sprite;
 
-  constructor(
-    name: string,
-    graph: PPGraph,
-    customId: string,
-    customArgsObject?: {
-      objectURL: string;
-    }
-  ) {
-    super(name, graph, customId);
+  // uses customArgs?.objectURL as texture
+  constructor(name: string, graph: PPGraph, customArgs?: CustomArgs) {
+    super(name, graph, customArgs);
     this.addOutput('image', DATATYPE.PIXI);
     this.addOutput('width', DATATYPE.NUMBER);
     this.addOutput('height', DATATYPE.NUMBER);
@@ -427,16 +397,14 @@ export class PPImage extends PPNode {
     this.name = 'Image';
     this.description = 'Adds an image';
 
-    const image = PIXI.Sprite.from(
-      customArgsObject?.objectURL || EMPTY_TEXTURE
-    );
+    const image = PIXI.Sprite.from(customArgs?.objectURL || EMPTY_TEXTURE);
     image.x = SOCKET_WIDTH / 2;
     image.y = NODE_OUTLINE_DISTANCE;
     image.width = NODE_WIDTH;
     image.height = NODE_WIDTH;
 
     this._imageRefClone = PIXI.Sprite.from(
-      customArgsObject?.objectURL || EMPTY_TEXTURE
+      customArgs?.objectURL || EMPTY_TEXTURE
     );
 
     this.drawShape = function () {
@@ -468,42 +436,44 @@ export class PPImage extends PPNode {
   }
 }
 
-export class PPTable extends PPNode {
+export class Table extends PPNode {
   _imageRef: PIXI.Sprite;
   _imageRefClone: PIXI.Sprite;
   container: HTMLElement;
   defaultProps;
   createElement;
+  parseData: (data: string) => void;
+  parsedData: any;
 
-  constructor(
-    name: string,
-    graph: PPGraph,
-    customId: string,
-    customArgsObject?: {
-      objectURL: string;
-    }
-  ) {
-    super(name, graph, customId);
-    this.addOutput('image', DATATYPE.PIXI);
-    this.addOutput('width', DATATYPE.NUMBER);
-    this.addOutput('height', DATATYPE.NUMBER);
+  constructor(name: string, graph: PPGraph, customArgs?: CustomArgs) {
+    const nodeWidth = 400;
+    const nodeHeight = 400;
+
+    super(name, graph, { ...customArgs, nodeWidth, nodeHeight });
+    // this.addOutput('image', DATATYPE.PIXI);
     this.addInput('Reload', DATATYPE.TRIGGER);
     this.addInput('url', DATATYPE.STRING);
+    this.addInput('data', DATATYPE.STRING, customArgs?.data ?? '');
 
     this.name = 'Table';
     this.description = 'Adds a table';
 
-    const image = PIXI.Sprite.from(
-      customArgsObject?.objectURL || EMPTY_TEXTURE
-    );
+    const image = PIXI.Sprite.from(EMPTY_TEXTURE);
     image.x = SOCKET_WIDTH / 2;
     image.y = NODE_OUTLINE_DISTANCE;
-    image.width = NODE_WIDTH;
-    image.height = NODE_WIDTH;
+    image.width = nodeWidth;
+    image.height = nodeHeight;
 
-    this._imageRefClone = PIXI.Sprite.from(
-      customArgsObject?.objectURL || EMPTY_TEXTURE
-    );
+    this._imageRefClone = PIXI.Sprite.from(EMPTY_TEXTURE);
+
+    this.parseData = (data: string) => {
+      const results = csvParser.parse(data, {});
+      this.parsedData = results?.data;
+      console.log(results);
+    };
+
+    const data = customArgs?.data ?? '';
+    this.parseData(data);
 
     this.drawShape = function () {
       this._BackgroundRef.visible = false;
@@ -523,8 +493,8 @@ export class PPTable extends PPNode {
     }) => {
       this.container.style.transform = `translate(50%, 50%)`;
       this.container.style.transform = `scale(${scale}`;
-      this.container.style.left = `${screenX}px`;
-      this.container.style.top = `${screenY}px`;
+      this.container.style.left = `${screenX + (SOCKET_WIDTH / 2) * scale}px`;
+      this.container.style.top = `${screenY + NODE_HEADER_HEIGHT * scale}px`;
     };
 
     // when the Node is added add the container and react component
@@ -536,6 +506,7 @@ export class PPTable extends PPNode {
       document.body.appendChild(this.container);
       console.log(this.container);
 
+      // make sure the container is added before changing settings
       setTimeout(() => {
         // style and place the container
         console.log(this);
@@ -543,18 +514,23 @@ export class PPTable extends PPNode {
         const screenPoint = this.graph.viewport.toScreen(this.x, this.y);
         this.container.id = 'TableContainer';
         this.container.style.position = 'absolute';
+        this.container.style.zIndex = '0';
+        this.container.style.width = `${nodeWidth}px`;
+        this.container.style.height = `${nodeWidth - NOTE_PADDING}px`;
         this.container.style.transformOrigin = 'top left';
+
+        // set initial position
         this.container.style.transform = `translate(50%, 50%)`;
         this.container.style.transform = `scale(${this.graph.viewport.scale.x}`;
-        // this.container.style.margin = NOTE_MARGIN_STRING;
-        this.container.style.left = `${screenPoint.x}px`;
-        this.container.style.top = `${screenPoint.y}px`;
-        this.container.style.width = `${NODE_WIDTH}px`;
-        this.container.style.height = `${NODE_WIDTH - NOTE_PADDING}px`;
-        this.container.style.zIndex = '0';
+        this.container.style.left = `${
+          screenPoint.x + (SOCKET_WIDTH / 2) * this.graph.viewport.scale.x
+        }px`;
+        this.container.style.top = `${
+          screenPoint.y + NODE_HEADER_HEIGHT * this.graph.viewport.scale.x
+        }px`;
 
         // render react component
-        renderComponent(TableParent, this.defaultProps);
+        renderComponent(TableParent, { dataArray: this.parsedData });
       }, 100);
     };
 
@@ -569,16 +545,20 @@ export class PPTable extends PPNode {
       ReactDOM.render(React.createElement(component, props), this.container);
     };
 
-    const cellRenderer = (rowIndex: number) => {
-      return <Cell>{`$${(rowIndex * 10).toFixed(2)}`}</Cell>;
+    const getCellRenderer = (key: number) => {
+      return (row: number) => <BPCell>{`${this.parsedData[row][key]}`}</BPCell>;
     };
 
     // small presentational component
-    const TableParent = ({ x, y, scale }) => {
+    const TableParent = () => {
       return (
-        <Table numRows={10}>
-          <Column name="Dollars" cellRenderer={cellRenderer} />
-        </Table>
+        <BPTable numRows={this.parsedData.length}>
+          {this.parsedData[0].map((col, index) => {
+            return (
+              <BPColumn name={col} cellRenderer={getCellRenderer(index)} />
+            );
+          })}
+        </BPTable>
       );
     };
 

@@ -11,10 +11,11 @@ import {
   NODE_WIDTH,
   SOCKET_HEIGHT,
 } from '../utils/constants';
+import { CustomArgs } from '../utils/interfaces';
 
 export class RangeArray extends PPNode {
-  constructor(name: string, graph: PPGraph, customId: string) {
-    super(name, graph, customId);
+  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
+    super(name, graph, customArgs);
 
     this.addOutput('output array', DATATYPE.ARRAY);
     this.addInput('start', DATATYPE.NUMBER);
@@ -38,8 +39,8 @@ export class RangeArray extends PPNode {
 
 export class MakeAPICall extends PPNode {
   // _rectRef: PIXI.Graphics;
-  constructor(name: string, graph: PPGraph, customId: string) {
-    super(name, graph, customId);
+  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
+    super(name, graph, customArgs);
 
     const url = 'https://jsonplaceholder.typicode.com/users';
 
@@ -69,8 +70,8 @@ export class MakeAPICall extends PPNode {
 }
 export class Trigger extends PPNode {
   _rectRef: PIXI.Graphics;
-  constructor(name: string, graph: PPGraph, customId: string) {
-    super(name, graph, customId);
+  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
+    super(name, graph, customArgs);
 
     this.addOutput('trigger', DATATYPE.TRIGGER);
 
@@ -113,8 +114,8 @@ export class Trigger extends PPNode {
 export class TimeAndDate extends PPNode {
   date: Date;
 
-  constructor(name: string, graph: PPGraph, customId: string) {
-    super(name, graph, customId);
+  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
+    super(name, graph, customArgs);
 
     this.addOutput('date and time', DATATYPE.STRING);
     this.addOutput('time stamp', DATATYPE.NUMBER);

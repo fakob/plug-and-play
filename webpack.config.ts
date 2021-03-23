@@ -23,6 +23,8 @@ module.exports = (env, argv) => {
       mainFields: ['module', 'main'],
       fallback: {
         util: require.resolve('util/'),
+        stream: false,
+        buffer: false,
       },
     },
 

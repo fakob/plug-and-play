@@ -93,10 +93,13 @@ export default class Socket extends PIXI.Container {
     socket.endFill();
 
     const socketNameText = new PIXI.Text(name, SOCKET_TEXTSTYLE);
+    if (socketType === SOCKET_TYPE.OUT) {
+      socketNameText.anchor.set(1, 0);
+    }
     socketNameText.x =
       socketType === SOCKET_TYPE.IN
         ? socket.width + SOCKET_TEXTMARGIN
-        : NODE_WIDTH - socketNameText.getBounds().width - SOCKET_TEXTMARGIN;
+        : NODE_WIDTH - SOCKET_TEXTMARGIN;
     socketNameText.y = NODE_OUTLINE_DISTANCE + SOCKET_TEXTMARGIN_TOP;
     socketNameText.resolution = TEXT_RESOLUTION;
 

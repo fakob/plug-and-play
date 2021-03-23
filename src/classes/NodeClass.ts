@@ -21,6 +21,7 @@ import {
   SOCKET_HEIGHT,
   SOCKET_WIDTH,
   DATATYPE,
+  SOCKET_TEXTMARGIN,
   SOCKET_TYPE,
 } from '../utils/constants';
 import PPGraph from './GraphClass';
@@ -39,6 +40,10 @@ export default class PPNode extends PIXI.Container {
   type: string; // Type
   category: string; // Category - derived from type
   description: string;
+  nodePosX: number;
+  nodePosY: number;
+  nodeWidth: number;
+  nodeHeight: number;
 
   inputSocketArray: Socket[];
   outputSocketArray: Socket[];
@@ -64,16 +69,33 @@ export default class PPNode extends PIXI.Container {
       }) => void)
     | null;
 
-  constructor(type: string, graph: PPGraph, customId: string) {
+  constructor(
+    type: string,
+    graph: PPGraph,
+    customArgs?: {
+      customId?: string;
+      nodePosX?: number;
+      nodePosY?: number;
+      nodeWidth?: number;
+      nodeHeight?: number;
+    }
+  ) {
     super();
     this.graph = graph;
-    this.id = customId === '' ? hri.random() : customId;
+    this.id = customArgs?.customId ?? hri.random();
     this.name = type;
     this.type = type;
     this.description = '';
     this.inputSocketArray = [];
     this.outputSocketArray = [];
     this.clickedSocketRef = null;
+
+    // customArgs
+    this.x = customArgs?.nodePosX ?? 0;
+    this.y = customArgs?.nodePosY ?? 0;
+    console.log(customArgs);
+    this.nodeWidth = customArgs?.nodeWidth ?? NODE_WIDTH;
+    this.nodeHeight = customArgs?.nodeHeight ?? NODE_WIDTH;
 
     const inputNameText = new PIXI.Text(this.name, NODE_TEXTSTYLE);
     inputNameText.x = NODE_HEADER_TEXTMARGIN_LEFT;
@@ -247,7 +269,7 @@ export default class PPNode extends PIXI.Container {
     this._BackgroundRef.drawRoundedRect(
       SOCKET_WIDTH / 2,
       NODE_OUTLINE_DISTANCE + 0,
-      NODE_WIDTH,
+      this.nodeWidth,
       NODE_MARGIN_TOP +
         NODE_HEADER_HEIGHT +
         countOfVisibleInputSockets * SOCKET_HEIGHT +
@@ -260,12 +282,14 @@ export default class PPNode extends PIXI.Container {
     // redraw outputs
     let posCounter = 0;
     this.outputSocketArray.forEach((item) => {
+      console.log(item, item.x, item.getBounds().width, this.nodeWidth);
       if (item.visible) {
         item.y =
           NODE_OUTLINE_DISTANCE +
           NODE_MARGIN_TOP +
           NODE_HEADER_HEIGHT +
           posCounter * SOCKET_HEIGHT;
+        item.x = this.nodeWidth - NODE_WIDTH;
         posCounter += 1;
       }
     });
@@ -294,7 +318,7 @@ export default class PPNode extends PIXI.Container {
       this._BackgroundRef.drawRoundedRect(
         SOCKET_WIDTH / 2 - NODE_OUTLINE_DISTANCE,
         0,
-        NODE_OUTLINE_DISTANCE * 2 + NODE_WIDTH,
+        NODE_OUTLINE_DISTANCE * 2 + this.nodeWidth,
         NODE_OUTLINE_DISTANCE * 2 +
           NODE_MARGIN_TOP +
           NODE_HEADER_HEIGHT +

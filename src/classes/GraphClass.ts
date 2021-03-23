@@ -9,7 +9,11 @@ import {
   NODE_WIDTH,
   PP_VERSION,
 } from '../utils/constants';
-import { PPNodeConstructor, SerializedGraph } from '../utils/interfaces';
+import {
+  CustomArgs,
+  PPNodeConstructor,
+  SerializedGraph,
+} from '../utils/interfaces';
 import PPNode from './NodeClass';
 import Socket from './SocketClass';
 import PPLink from './LinkClass';
@@ -295,8 +299,7 @@ export default class PPGraph {
 
   createNode<T extends PPNode = PPNode>(
     type: string,
-    customId = '',
-    customArgsObject?: any
+    customArgs?: CustomArgs
   ): T {
     // console.log(this._registeredNodeTypes);
     const nodeConstructor = this._registeredNodeTypes[type];
@@ -309,14 +312,13 @@ export default class PPGraph {
     }
 
     const title = type;
-    // console.log(this);
+    console.log(this.viewport.center.x - NODE_WIDTH / 2);
     // console.log(nodeConstructor);
-    const node = new nodeConstructor(
-      title,
-      this,
-      customId,
-      customArgsObject
-    ) as T;
+    const node = new nodeConstructor(title, this, {
+      ...customArgs,
+      nodePosX: this.viewport.center.x - NODE_WIDTH / 2,
+      nodePosY: this.viewport.center.y,
+    }) as T;
     return node;
   }
 
@@ -339,9 +341,9 @@ export default class PPGraph {
     // add the node to the canvas
     this.nodeContainer.addChild(node);
 
-    // move to center of canvas
-    node.x = this.viewport.center.x - NODE_WIDTH / 2;
-    node.y = this.viewport.center.y;
+    // // move to center of canvas
+    // node.x = this.viewport.center.x - NODE_WIDTH / 2;
+    // node.y = this.viewport.center.y;
 
     // set comment position
     node.updateCommentPosition();
@@ -352,10 +354,10 @@ export default class PPGraph {
   createAndAddNode<T extends PPNode = PPNode>(
     type: string,
     customId?: string,
-    customArgsObject?: any
+    customArgs?: CustomArgs
   ): T {
-    // console.log(customArgsObject);
-    const node = this.createNode(type, customId, customArgsObject) as T;
+    // console.log(customArgs);
+    const node = this.createNode(type, customArgs) as T;
     // if (node) {
     this.addNode(node);
     console.log(node);

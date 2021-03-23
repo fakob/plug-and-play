@@ -15,6 +15,15 @@ export type SerializedGraph = {
   customNodeTypes: Record<string, string>;
 };
 
+export type CustomArgs = {
+  customId?: string;
+  nodePosX?: number;
+  nodePosY?: number;
+  nodeWidth?: number;
+  nodeHeight?: number;
+  [key: string]: any;
+};
+
 export interface INodes {
   /** Title of film. */
   title: string;
