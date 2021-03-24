@@ -21,7 +21,6 @@ import {
   SOCKET_HEIGHT,
   SOCKET_WIDTH,
   DATATYPE,
-  SOCKET_TEXTMARGIN,
   SOCKET_TYPE,
 } from '../utils/constants';
 import PPGraph from './GraphClass';
@@ -57,6 +56,7 @@ export default class PPNode extends PIXI.Container {
   // supported callbacks
   onConfigure: ((node_info: SerializedNode) => void) | null;
   onNodeDoubleClick: ((event: PIXI.InteractionEvent) => void) | null;
+  onViewportMoveHandler: (event?: PIXI.InteractionEvent) => void;
   onNodeAdded: (() => void) | null; // called when the node is added to the graph
   onNodeRemoved: (() => void) | null; // called when the node is removed from the graph
   onNodeDragOrViewportMove: // called when the node or or the viewport with the node is moved or scaled
@@ -489,7 +489,10 @@ export default class PPNode extends PIXI.Container {
     this.on('added', this._onAdded.bind(this));
     this.on('removed', this._onRemoved.bind(this));
 
-    this.graph.viewport.on('moved', this._onViewportMove.bind(this));
+    // first assign the bound function to a handler then add this handler as a listener
+    // otherwise removeListener won't work (bind creates a new function)
+    this.onViewportMoveHandler = this._onViewportMove.bind(this);
+    this.graph.viewport.on('moved', (this as any).onViewportMoveHandler);
   }
 
   _onPointerDown(event: PIXI.InteractionEvent): void {
@@ -606,6 +609,9 @@ export default class PPNode extends PIXI.Container {
     (this.graph.viewport.getChildByName(
       'commentContainer'
     ) as PIXI.Container).removeChild(this._NodeCommentRef);
+
+    // remove added listener from graph.viewport
+    this.graph.viewport.removeListener('moved', this.onViewportMoveHandler);
 
     if (this.onNodeRemoved) {
       this.onNodeRemoved();
