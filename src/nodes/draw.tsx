@@ -439,7 +439,6 @@ export class PPImage extends PPNode {
 export class Table extends PPNode {
   _imageRef: PIXI.Sprite;
   _imageRefClone: PIXI.Sprite;
-  container: HTMLElement;
   defaultProps;
   createElement;
   parseData: (data: string) => void;
@@ -448,8 +447,14 @@ export class Table extends PPNode {
   constructor(name: string, graph: PPGraph, customArgs?: CustomArgs) {
     const nodeWidth = 400;
     const nodeHeight = 400;
+    const isHybrid = true;
 
-    super(name, graph, { ...customArgs, nodeWidth, nodeHeight });
+    super(name, graph, {
+      ...customArgs,
+      nodeWidth,
+      nodeHeight,
+      isHybrid,
+    });
     // this.addOutput('image', DATATYPE.PIXI);
     this.addInput('Reload', DATATYPE.TRIGGER);
     this.addInput('url', DATATYPE.STRING);
@@ -457,14 +462,6 @@ export class Table extends PPNode {
 
     this.name = 'Table';
     this.description = 'Adds a table';
-
-    const image = PIXI.Sprite.from(EMPTY_TEXTURE);
-    image.x = SOCKET_WIDTH / 2;
-    image.y = NODE_OUTLINE_DISTANCE;
-    image.width = nodeWidth;
-    image.height = nodeHeight;
-
-    this._imageRefClone = PIXI.Sprite.from(EMPTY_TEXTURE);
 
     this.parseData = (data: string) => {
       const results = csvParser.parse(data, {});
@@ -475,86 +472,11 @@ export class Table extends PPNode {
     const data = customArgs?.data ?? '';
     this.parseData(data);
 
-    this.onDrawNodeShape = function () {
-      this._BackgroundRef.visible = false;
-      this._NodeNameRef.visible = false;
-
-      (this._imageRef as any) = (this as PIXI.Container).addChild(image);
-      this._imageRef.alpha = 1;
-      this._imageRef.tint;
-    };
-
-    this.onNodeDragOrViewportMove = ({
-      globalX,
-      globalY,
-      screenX,
-      screenY,
-      scale,
-    }) => {
-      this.container.style.transform = `translate(50%, 50%)`;
-      this.container.style.transform = `scale(${scale}`;
-      this.container.style.left = `${screenX + (SOCKET_WIDTH / 2) * scale}px`;
-      this.container.style.top = `${screenY + NODE_HEADER_HEIGHT * scale}px`;
-    };
-
     // when the Node is added add the container and react component
     this.onNodeAdded = () => {
-      // create html container
-      this.container = document.createElement('div');
-
-      // add it to the DOM
-      document.body.appendChild(this.container);
-      console.log(this.container);
-
-      // make sure the container is added before changing settings
-      setTimeout(() => {
-        // style and place the container
-        console.log(this);
-        console.log(this.x, this.y);
-        const screenPoint = this.graph.viewport.toScreen(this.x, this.y);
-        this.container.id = 'TableContainer';
-        this.container.style.pointerEvents = 'none';
-        this.container.style.position = 'absolute';
-        this.container.style.zIndex = '0';
-        this.container.style.width = `${nodeWidth}px`;
-        this.container.style.height = `${nodeWidth - NOTE_PADDING}px`;
-        this.container.style.transformOrigin = 'top left';
-
-        // set initial position
-        this.container.style.transform = `translate(50%, 50%)`;
-        this.container.style.transform = `scale(${this.graph.viewport.scale.x}`;
-        this.container.style.left = `${
-          screenPoint.x + (SOCKET_WIDTH / 2) * this.graph.viewport.scale.x
-        }px`;
-        this.container.style.top = `${
-          screenPoint.y + NODE_HEADER_HEIGHT * this.graph.viewport.scale.x
-        }px`;
-
-        // render react component
-        renderComponent(TableParent, { dataArray: this.parsedData });
-      }, 100);
-    };
-
-    // when the Node is removed also remove the react component and its container
-    this.onNodeRemoved = () => {
-      ReactDOM.unmountComponentAtNode(this.container);
-      document.body.removeChild(this.container);
-    };
-
-    // when the Node is selected/unselected turn on/off pointer events
-    // this allows to zoom and drag when the node is not selected
-    this.onNodeSelected = (selected) => {
-      console.log('I was selected: ', selected);
-      if (selected) {
-        this.container.style.pointerEvents = 'auto';
-      } else {
-        this.container.style.pointerEvents = 'none';
-      }
-    };
-
-    // the render method, takes a component and props, and renders it to the page
-    const renderComponent = (component, props) => {
-      ReactDOM.render(React.createElement(component, props), this.container);
+      this.createContainerComponent(document, TableParent, {
+        dataArray: this.parsedData,
+      });
     };
 
     const getCellRenderer = (key: number) => {
@@ -573,9 +495,6 @@ export class Table extends PPNode {
         </BPTable>
       );
     };
-
-    // update shape after initializing
-    this.drawNodeShape(false);
   }
 
   trigger(): void {

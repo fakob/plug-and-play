@@ -111,3 +111,14 @@
 .outputTextArea {
   max-height: 400px;
 }
+
+.hybridContainer {
+  pointer-events: none;
+  position: absolute;
+  z-index: 0;
+  transform-origin: top left;
+}
+
+.hybridContainer:focus {
+  outline: none;
+}

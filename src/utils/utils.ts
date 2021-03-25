@@ -1,7 +1,7 @@
 import React from 'react';
 
 import {
-  NODE_MARGIN_TOP,
+  NODE_PADDING_TOP,
   NODE_OUTLINE_DISTANCE,
   NODE_HEADER_HEIGHT,
   NODE_WIDTH,
@@ -51,7 +51,7 @@ export function getNodeCommentPosX(x: number): number {
 export function getNodeCommentPosY(y: number): number {
   return (
     y +
-    NODE_MARGIN_TOP +
+    NODE_PADDING_TOP +
     NODE_HEADER_HEIGHT +
     NODE_OUTLINE_DISTANCE +
     SOCKET_TEXTMARGIN_TOP

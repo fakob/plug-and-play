@@ -1,26 +1,29 @@
 import * as PIXI from 'pixi.js';
 import { DropShadowFilter } from '@pixi/filter-drop-shadow';
 import { hri } from 'human-readable-ids';
+import React from 'react';
+import ReactDOM from 'react-dom';
 import { inspect } from 'util'; // or directly
 import '../pixi/dbclick.js';
 
+import styles from '../utils/style.module.css';
 import { SerializedNode } from '../utils/interfaces';
 import {
   COMMENT_TEXTSTYLE,
+  DATATYPE,
   NODE_BACKGROUNDCOLOR_HEX,
-  NODE_SELECTIONCOLOR_HEX,
   NODE_CORNERRADIUS,
-  NODE_MARGIN_TOP,
-  NODE_MARGIN_BOTTOM,
-  NODE_OUTLINE_DISTANCE,
   NODE_HEADER_HEIGHT,
   NODE_HEADER_TEXTMARGIN_LEFT,
   NODE_HEADER_TEXTMARGIN_TOP,
+  NODE_MARGIN,
+  NODE_PADDING_BOTTOM,
+  NODE_PADDING_TOP,
+  NODE_OUTLINE_DISTANCE,
+  NODE_SELECTIONCOLOR_HEX,
   NODE_TEXTSTYLE,
   NODE_WIDTH,
   SOCKET_HEIGHT,
-  SOCKET_WIDTH,
-  DATATYPE,
   SOCKET_TYPE,
 } from '../utils/constants';
 import PPGraph from './GraphClass';
@@ -43,6 +46,7 @@ export default class PPNode extends PIXI.Container {
   nodePosY: number;
   nodeWidth: number;
   nodeHeight: number;
+  isHybrid: boolean; // true if it is a hybrid node (html and webgl)
 
   inputSocketArray: Socket[];
   outputSocketArray: Socket[];
@@ -52,6 +56,8 @@ export default class PPNode extends PIXI.Container {
   relativeClickPosition: PIXI.Point | null;
   clickPosition: PIXI.Point | null;
   interactionData: PIXI.InteractionData | null;
+
+  container: HTMLElement; // for hybrid nodes
 
   // supported callbacks
   onConfigure: ((node_info: SerializedNode) => void) | null;
@@ -80,6 +86,7 @@ export default class PPNode extends PIXI.Container {
       nodePosY?: number;
       nodeWidth?: number;
       nodeHeight?: number;
+      isHybrid?: boolean;
     }
   ) {
     super();
@@ -97,12 +104,13 @@ export default class PPNode extends PIXI.Container {
     this.y = customArgs?.nodePosY ?? 0;
     console.log(customArgs);
     this.nodeWidth = customArgs?.nodeWidth ?? NODE_WIDTH;
-    this.nodeHeight = customArgs?.nodeHeight ?? NODE_WIDTH;
+    this.nodeHeight = customArgs?.nodeHeight ?? undefined;
+    this.isHybrid = customArgs?.isHybrid ?? false;
 
     const inputNameText = new PIXI.Text(this.name, NODE_TEXTSTYLE);
     inputNameText.x = NODE_HEADER_TEXTMARGIN_LEFT;
     inputNameText.y =
-      NODE_OUTLINE_DISTANCE + NODE_MARGIN_TOP + NODE_HEADER_TEXTMARGIN_TOP;
+      NODE_OUTLINE_DISTANCE + NODE_PADDING_TOP + NODE_HEADER_TEXTMARGIN_TOP;
     inputNameText.resolution = 8;
 
     const background = new PIXI.Graphics();
@@ -267,21 +275,35 @@ export default class PPNode extends PIXI.Container {
     const countOfVisibleOutputSockets = this.outputSocketArray.filter(
       (item) => item.visible === true
     ).length;
-
-    // redraw background due to size change
-    this._BackgroundRef.clear();
-    this._BackgroundRef.beginFill(NODE_BACKGROUNDCOLOR_HEX);
-    this._BackgroundRef.drawRoundedRect(
-      SOCKET_WIDTH / 2,
-      NODE_OUTLINE_DISTANCE + 0,
-      this.nodeWidth,
-      NODE_MARGIN_TOP +
+    const nodeHeight = this.isHybrid
+      ? this.nodeHeight
+      : NODE_PADDING_TOP +
         NODE_HEADER_HEIGHT +
         countOfVisibleInputSockets * SOCKET_HEIGHT +
         countOfVisibleOutputSockets * SOCKET_HEIGHT +
-        NODE_MARGIN_BOTTOM,
-      NODE_CORNERRADIUS
-    );
+        NODE_PADDING_BOTTOM;
+
+    // redraw background due to size change
+    this._BackgroundRef.clear();
+    if (this.isHybrid) {
+      const shrinkMargin = 4; // for hybrid nodes, so the edge of the background rect does not show
+      this._BackgroundRef.beginFill(NODE_BACKGROUNDCOLOR_HEX, 0.01); // so it does not show when dragging fast
+      this._BackgroundRef.drawRect(
+        NODE_MARGIN + shrinkMargin / 2,
+        NODE_OUTLINE_DISTANCE + shrinkMargin / 2,
+        this.nodeWidth - shrinkMargin,
+        nodeHeight - shrinkMargin
+      );
+    } else {
+      this._BackgroundRef.beginFill(NODE_BACKGROUNDCOLOR_HEX);
+      this._BackgroundRef.drawRoundedRect(
+        NODE_MARGIN,
+        NODE_OUTLINE_DISTANCE,
+        this.nodeWidth,
+        nodeHeight,
+        NODE_CORNERRADIUS
+      );
+    }
     this._BackgroundRef.endFill();
 
     // redraw outputs
@@ -291,7 +313,7 @@ export default class PPNode extends PIXI.Container {
       if (item.visible) {
         item.y =
           NODE_OUTLINE_DISTANCE +
-          NODE_MARGIN_TOP +
+          NODE_PADDING_TOP +
           NODE_HEADER_HEIGHT +
           posCounter * SOCKET_HEIGHT;
         item.x = this.nodeWidth - NODE_WIDTH;
@@ -305,7 +327,7 @@ export default class PPNode extends PIXI.Container {
       if (item.visible) {
         item.y =
           NODE_OUTLINE_DISTANCE +
-          NODE_MARGIN_TOP +
+          NODE_PADDING_TOP +
           NODE_HEADER_HEIGHT +
           countOfVisibleOutputSockets * SOCKET_HEIGHT +
           posCounter * SOCKET_HEIGHT;
@@ -317,20 +339,27 @@ export default class PPNode extends PIXI.Container {
       this.onDrawNodeShape();
     }
 
+    // draw selection
     if (selected) {
-      this._BackgroundRef.lineStyle(2, NODE_SELECTIONCOLOR_HEX, 1, 0);
-      this._BackgroundRef.drawRoundedRect(
-        SOCKET_WIDTH / 2 - NODE_OUTLINE_DISTANCE,
-        0,
-        NODE_OUTLINE_DISTANCE * 2 + this.nodeWidth,
-        NODE_OUTLINE_DISTANCE * 2 +
-          NODE_MARGIN_TOP +
-          NODE_HEADER_HEIGHT +
-          countOfVisibleInputSockets * SOCKET_HEIGHT +
-          countOfVisibleOutputSockets * SOCKET_HEIGHT +
-          NODE_MARGIN_BOTTOM,
-        NODE_CORNERRADIUS + NODE_OUTLINE_DISTANCE
-      );
+      if (this.isHybrid) {
+        this._BackgroundRef.beginFill(NODE_BACKGROUNDCOLOR_HEX);
+        this._BackgroundRef.drawRect(
+          NODE_MARGIN - NODE_OUTLINE_DISTANCE,
+          0,
+          NODE_OUTLINE_DISTANCE * 2 + this.nodeWidth,
+          NODE_OUTLINE_DISTANCE * 2 + nodeHeight
+        );
+        this._BackgroundRef.endFill();
+      } else {
+        this._BackgroundRef.lineStyle(2, NODE_SELECTIONCOLOR_HEX, 1, 0);
+        this._BackgroundRef.drawRoundedRect(
+          NODE_MARGIN - NODE_OUTLINE_DISTANCE,
+          0,
+          NODE_OUTLINE_DISTANCE * 2 + this.nodeWidth,
+          NODE_OUTLINE_DISTANCE * 2 + nodeHeight,
+          NODE_CORNERRADIUS + NODE_OUTLINE_DISTANCE
+        );
+      }
     }
 
     // update position of comment
@@ -373,6 +402,81 @@ export default class PPNode extends PIXI.Container {
       }
     }
   }
+
+  screenPoint(): PIXI.Point {
+    return this.graph.viewport.toScreen(
+      this.x + NODE_MARGIN,
+      this.y + NODE_MARGIN - 2
+    );
+  }
+
+  // this function can be called for hybrid nodes, it
+  // • creates a container component
+  // • adds the onNodeDragOrViewportMove listener to it
+  // • adds a react parent component with props
+  createContainerComponent(
+    parentDocument: Document,
+    reactParent,
+    reactProps
+  ): HTMLElement {
+    // create html container
+    this.container = parentDocument.createElement('div');
+    this.container.id = `Container-${this.id}`;
+
+    // add it to the DOM
+    parentDocument.body.appendChild(this.container);
+
+    const screenPoint = this.screenPoint();
+    this.container.classList.add(styles.hybridContainer);
+    this.container.style.width = `${this.nodeWidth}px`;
+    this.container.style.height = `${this.nodeWidth}px`;
+
+    // set initial position
+    this.container.style.transform = `translate(50%, 50%)`;
+    this.container.style.transform = `scale(${this.graph.viewport.scale.x}`;
+    this.container.style.left = `${screenPoint.x}px`;
+    this.container.style.top = `${screenPoint.y}px`;
+
+    this.onNodeDragOrViewportMove = ({
+      globalX,
+      globalY,
+      screenX,
+      screenY,
+      scale,
+    }) => {
+      this.container.style.transform = `translate(50%, 50%)`;
+      this.container.style.transform = `scale(${scale}`;
+      this.container.style.left = `${screenX}px`;
+      this.container.style.top = `${screenY}px`;
+    };
+
+    // when the Node is selected/unselected turn on/off pointer events
+    // this allows to zoom and drag when the node is not selected
+    this.onNodeSelected = (selected) => {
+      console.log('I was selected: ', selected);
+      if (selected) {
+        this.container.style.pointerEvents = 'auto';
+      } else {
+        this.container.style.pointerEvents = 'none';
+      }
+    };
+
+    // when the Node is removed also remove the react component and its container
+    this.onNodeRemoved = () => {
+      ReactDOM.unmountComponentAtNode(this.container);
+      document.body.removeChild(this.container);
+    };
+
+    // render react component
+    this.renderReactComponent(reactParent, reactProps);
+
+    return this.container;
+  }
+
+  // the render method, takes a component and props, and renders it to the page
+  renderReactComponent = (component, props) => {
+    ReactDOM.render(React.createElement(component, props), this.container);
+  };
 
   getInputSocketByName(slotName: string): Socket {
     if (!this.inputSocketArray) {
@@ -569,7 +673,7 @@ export default class PPNode extends PIXI.Container {
       });
 
       if (this.onNodeDragOrViewportMove) {
-        const screenPoint = this.graph.viewport.toScreen(this.x, this.y);
+        const screenPoint = this.screenPoint();
         this.onNodeDragOrViewportMove({
           globalX,
           globalY,
@@ -584,7 +688,7 @@ export default class PPNode extends PIXI.Container {
   _onViewportMove(): void {
     // console.log('_onViewportMove');
     if (this.onNodeDragOrViewportMove) {
-      const screenPoint = this.graph.viewport.toScreen(this.x, this.y);
+      const screenPoint = this.screenPoint();
       this.onNodeDragOrViewportMove({
         globalX: this.x,
         globalY: this.y,
