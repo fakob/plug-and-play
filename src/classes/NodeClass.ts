@@ -57,6 +57,7 @@ export default class PPNode extends PIXI.Container {
   onConfigure: ((node_info: SerializedNode) => void) | null;
   onNodeDoubleClick: ((event: PIXI.InteractionEvent) => void) | null;
   onViewportMoveHandler: (event?: PIXI.InteractionEvent) => void;
+  onDrawNodeShape: (() => void) | null; // called when the node is drawn
   onNodeAdded: (() => void) | null; // called when the node is added to the graph
   onNodeRemoved: (() => void) | null; // called when the node is removed from the graph
   onNodeSelected: ((selected: boolean) => void) | null; // called when the node is selected/unselected
@@ -312,10 +313,9 @@ export default class PPNode extends PIXI.Container {
       }
     });
 
-    // optional drawShape
-    // if (this.drawShape) {
-    this.drawShape();
-    // }
+    if (this.onDrawNodeShape) {
+      this.onDrawNodeShape();
+    }
 
     if (selected) {
       this._BackgroundRef.lineStyle(2, NODE_SELECTIONCOLOR_HEX, 1, 0);
@@ -341,10 +341,6 @@ export default class PPNode extends PIXI.Container {
     // console.log(this.x, this.y);
     this._NodeCommentRef.x = getNodeCommentPosX(this.x);
     this._NodeCommentRef.y = getNodeCommentPosY(this.y);
-  }
-
-  drawShape(): void {
-    // just define function
   }
 
   drawComment(): void {

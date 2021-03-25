@@ -245,7 +245,7 @@ export class Note extends PPNode {
     basicText.x = (SOCKET_WIDTH + NODE_WIDTH) / 2;
     basicText.y = (NODE_OUTLINE_DISTANCE + NODE_WIDTH) / 2;
 
-    this.drawShape = function () {
+    this.onDrawNodeShape = function () {
       this._BackgroundRef.visible = false;
       this._NodeNameRef.visible = false;
 
@@ -407,7 +407,7 @@ export class PPImage extends PPNode {
       customArgs?.objectURL || EMPTY_TEXTURE
     );
 
-    this.drawShape = function () {
+    this.onDrawNodeShape = function () {
       this._BackgroundRef.visible = false;
       this._NodeNameRef.visible = false;
 
@@ -475,7 +475,7 @@ export class Table extends PPNode {
     const data = customArgs?.data ?? '';
     this.parseData(data);
 
-    this.drawShape = function () {
+    this.onDrawNodeShape = function () {
       this._BackgroundRef.visible = false;
       this._NodeNameRef.visible = false;
 
