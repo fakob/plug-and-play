@@ -513,6 +513,7 @@ export class Table extends PPNode {
         console.log(this.x, this.y);
         const screenPoint = this.graph.viewport.toScreen(this.x, this.y);
         this.container.id = 'TableContainer';
+        this.container.style.pointerEvents = 'none';
         this.container.style.position = 'absolute';
         this.container.style.zIndex = '0';
         this.container.style.width = `${nodeWidth}px`;
@@ -538,6 +539,17 @@ export class Table extends PPNode {
     this.onNodeRemoved = () => {
       ReactDOM.unmountComponentAtNode(this.container);
       document.body.removeChild(this.container);
+    };
+
+    // when the Node is selected/unselected turn on/off pointer events
+    // this allows to zoom and drag when the node is not selected
+    this.onNodeSelected = (selected) => {
+      console.log('I was selected: ', selected);
+      if (selected) {
+        this.container.style.pointerEvents = 'auto';
+      } else {
+        this.container.style.pointerEvents = 'none';
+      }
     };
 
     // the render method, takes a component and props, and renders it to the page

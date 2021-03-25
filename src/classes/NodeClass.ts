@@ -59,6 +59,7 @@ export default class PPNode extends PIXI.Container {
   onViewportMoveHandler: (event?: PIXI.InteractionEvent) => void;
   onNodeAdded: (() => void) | null; // called when the node is added to the graph
   onNodeRemoved: (() => void) | null; // called when the node is removed from the graph
+  onNodeSelected: ((selected: boolean) => void) | null; // called when the node is selected/unselected
   onNodeDragOrViewportMove: // called when the node or or the viewport with the node is moved or scaled
   | ((positions: {
         globalX: number;
@@ -156,6 +157,9 @@ export default class PPNode extends PIXI.Container {
   select(selected: boolean): void {
     this._selected = selected;
     this.drawNodeShape(selected);
+    if (this.onNodeSelected) {
+      this.onNodeSelected(selected);
+    }
   }
 
   addInput(
