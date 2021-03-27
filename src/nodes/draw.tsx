@@ -1,7 +1,7 @@
 import * as PIXI from 'pixi.js';
 import React from 'react';
-import ReactDOM from 'react-dom';
 import {
+  IRegion,
   Table as BPTable,
   Column as BPColumn,
   Cell as BPCell,
@@ -16,7 +16,6 @@ import { convertToArray, getElement } from '../utils/utils';
 import {
   DATATYPE,
   EMPTY_TEXTURE,
-  NODE_HEADER_HEIGHT,
   NODE_OUTLINE_DISTANCE,
   NODE_WIDTH,
   NOTE_FONTSIZE,
@@ -489,11 +488,44 @@ export class Table extends PPNode {
       return (row: number) => <BPCell>{`${this.parsedData[row][key]}`}</BPCell>;
     };
 
+    const onSelection = (selectedRegions: IRegion[]): void => {
+      const selectedData = selectedRegions.map((region) => {
+        const regionData = [];
+        const rowIndexStart = region.rows === undefined ? 0 : region.rows[0];
+        const rowIndexEnd =
+          region.rows === undefined
+            ? this.parsedData.length - 1
+            : region.rows[1];
+        for (
+          let rowIndex = rowIndexStart;
+          rowIndex <= rowIndexEnd;
+          rowIndex++
+        ) {
+          const rowData = [];
+          const colIndexStart = region.cols === undefined ? 0 : region.cols[0];
+          const colIndexEnd =
+            region.cols === undefined
+              ? this.parsedData[rowIndex].length - 1
+              : region.cols[1];
+          for (
+            let colIndex = colIndexStart;
+            colIndex <= colIndexEnd;
+            colIndex++
+          ) {
+            rowData.push(this.parsedData[rowIndex][colIndex]);
+          }
+          regionData.push(rowData);
+        }
+        return regionData;
+      });
+      this.setOutputData('selectedData', selectedData);
+    };
+
     // small presentational component
-    const TableParent = () => {
-      return this.parsedData.length > 0 ? (
-        <BPTable numRows={this.parsedData.length}>
-          {this.parsedData[0].map((col, index) => {
+    const TableParent = (props) => {
+      return props.dataArray.length > 0 ? (
+        <BPTable numRows={props.dataArray.length} onSelection={onSelection}>
+          {props.dataArray[0].map((col, index) => {
             return (
               <BPColumn name={col} cellRenderer={getCellRenderer(index)} />
             );

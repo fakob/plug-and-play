@@ -541,6 +541,21 @@ export default class PPNode extends PIXI.Container {
     return link.source.data;
   }
 
+  setInputData(name: string, data: any): void {
+    const inputSocket = this.inputSocketArray
+      .filter((socket) => socket.socketType === SOCKET_TYPE.IN)
+      .find((input: Socket) => {
+        return name === input.name;
+      });
+
+    if (!inputSocket) {
+      console.error('No input socket found with the name: ', name);
+      return undefined;
+    }
+
+    inputSocket.data = data;
+  }
+
   setOutputData(name: string, data: any): void {
     const outputSocket = this.outputSocketArray
       .filter((socket) => socket.socketType === SOCKET_TYPE.OUT)
@@ -553,7 +568,6 @@ export default class PPNode extends PIXI.Container {
       return undefined;
     }
 
-    //store data in the output itself in case we want to debug
     outputSocket.data = data;
   }
 
