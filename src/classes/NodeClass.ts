@@ -266,6 +266,10 @@ export default class PPNode extends PIXI.Container {
     if (this.onConfigure) {
       this.onConfigure(node_info);
     }
+
+    if (this.isHybrid) {
+      this._onViewportMove(); // trigger this once, so the react components get positioned properly
+    }
   }
 
   drawNodeShape(selected: boolean = this._selected): void {
@@ -368,7 +372,7 @@ export default class PPNode extends PIXI.Container {
 
   updateCommentPosition(): void {
     // console.log(this.x, this.y);
-    this._NodeCommentRef.x = getNodeCommentPosX(this.x);
+    this._NodeCommentRef.x = getNodeCommentPosX(this.x, this.width);
     this._NodeCommentRef.y = getNodeCommentPosY(this.y);
   }
 
@@ -498,7 +502,8 @@ export default class PPNode extends PIXI.Container {
     ];
   }
 
-  getInputData<T = any>(slot: number): T {
+  getInputDataBySlot(slot: number): any {
+    // to easily loop through it
     if (!this.inputSocketArray) {
       return undefined;
     }
@@ -512,39 +517,44 @@ export default class PPNode extends PIXI.Container {
     }
 
     const link = this.inputSocketArray[slot].links[0];
-    if (!link) {
-      //bug: weird case but it happens sometimes
-      // Cringe /Tobias, we need to fix this
-      return undefined;
-    }
-
     return link.source.data;
   }
 
-  setOutputData(slot: number, data: any): void {
-    if (!this.outputSocketArray) {
-      return;
+  getInputData(name: string): any {
+    const inputSocket = this.inputSocketArray
+      .filter((socket) => socket.socketType === SOCKET_TYPE.IN)
+      .find((input: Socket) => {
+        return name === input.name;
+      });
+
+    if (!inputSocket) {
+      console.error('No input socket found with the name: ', name);
+      return undefined;
     }
 
-    if (slot === -1 || slot >= this.outputSocketArray.length) {
-      return;
+    // if no link, then return data
+    if (inputSocket.links.length === 0) {
+      return inputSocket.data;
     }
 
-    const outputSocket = this.outputSocketArray[slot];
+    const link = inputSocket.links[0];
+    return link.source.data;
+  }
+
+  setOutputData(name: string, data: any): void {
+    const outputSocket = this.outputSocketArray
+      .filter((socket) => socket.socketType === SOCKET_TYPE.OUT)
+      .find((output: Socket) => {
+        return name === output.name;
+      });
+
     if (!outputSocket) {
-      return;
+      console.error('No output socket found with the name: ', name);
+      return undefined;
     }
 
     //store data in the output itself in case we want to debug
     outputSocket.data = data;
-
-    // //if there are connections, pass the data to the connections
-    // if (this.outputSocketArray[slot].links) {
-    //   for (let i = 0; i < this.outputSocketArray[slot].links.length; i++) {
-    //     const link = this.outputSocketArray[slot].links[i];
-    //     if (link) link._data = data;
-    //   }
-    // }
   }
 
   execute(): void {

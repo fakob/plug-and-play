@@ -44,8 +44,8 @@ export function getElement(value: number | number[], index: number): number {
   return index < array.length ? array[index] : array[array.length - 1];
 }
 
-export function getNodeCommentPosX(x: number): number {
-  return x + NODE_OUTLINE_DISTANCE * 2 + NODE_WIDTH + SOCKET_WIDTH;
+export function getNodeCommentPosX(x: number, width: number): number {
+  return x + NODE_OUTLINE_DISTANCE * 2 + width + SOCKET_WIDTH;
 }
 
 export function getNodeCommentPosY(y: number): number {

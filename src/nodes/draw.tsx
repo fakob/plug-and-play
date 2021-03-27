@@ -83,7 +83,6 @@ export class DrawRect extends PPNode {
         this._rectRef.moveTo(xValue + 2);
       });
       this._rectRef.endFill();
-      // this.setOutputData(1, Date.now());
     };
   }
 }
@@ -142,7 +141,7 @@ export class Rect extends PPNode {
         this._rectRef.moveTo(xValue + 2);
       });
       this._rectRef.endFill();
-      this.setOutputData(0, this._rectRef);
+      this.setOutputData('rect', this._rectRef);
     };
   }
 }
@@ -335,7 +334,7 @@ export class Note extends PPNode {
       const newText = input.textContent;
       const newFontSize = Math.min(
         parseInt(style.fontSize, 10),
-        this.getInputData(1)
+        this.getInputData('fontSize')
       );
       const newFontSizeString = `${newFontSize}px`;
       const newLineHeight = newFontSize * NOTE_LINEHEIGHT_FACTOR;
@@ -346,16 +345,16 @@ export class Note extends PPNode {
 
       const textInput = this.getInputSocketByName('textInput');
       textInput.data = newText;
-      this.setOutputData(0, newText);
+      this.setOutputData('textOutput', newText);
 
       const fontSizeInput = this.getInputSocketByName('fontSize');
       fontSizeInput.data = newFontSize;
-      this.setOutputData(1, newFontSize);
+      this.setOutputData('fontSize', newFontSize);
     };
 
     this.setCleanText = (text: string) => {
       this.inputSocketArray[0].data = text;
-      this.setOutputData(0, text);
+      this.setOutputData('textOutput', text);
     };
 
     this.onConfigure = (node_info: SerializedNode) => {
@@ -373,7 +372,7 @@ export class Note extends PPNode {
     this.onExecute = (input, output) => {
       const inputText = input['input'];
       this._textInputRef.text = inputText;
-      this.setOutputData(0, inputText);
+      this.setOutputData('textOutput', inputText);
     };
 
     // update shape after initializing
@@ -391,7 +390,7 @@ export class PPImage extends PPNode {
     this.addOutput('image', DATATYPE.PIXI);
     this.addOutput('width', DATATYPE.NUMBER);
     this.addOutput('height', DATATYPE.NUMBER);
-    this.addInput('Reload', DATATYPE.TRIGGER);
+    this.addInput('reload', DATATYPE.TRIGGER);
     this.addInput('url', DATATYPE.STRING);
 
     this.name = 'Image';
@@ -421,7 +420,7 @@ export class PPImage extends PPNode {
   }
 
   trigger(): void {
-    const url: string = this.getInputData(1);
+    const url: string = this.getInputData('url');
     // if url is set then get image
     if (url !== '') {
       // const objectURL = URL.createObjectURL(url);
@@ -430,9 +429,9 @@ export class PPImage extends PPNode {
       this._imageRefClone.texture = newTexture;
     }
     const { width, height } = this._imageRef.texture.orig;
-    this.setOutputData(0, this._imageRefClone);
-    this.setOutputData(1, width);
-    this.setOutputData(2, height);
+    this.setOutputData('image', this._imageRefClone);
+    this.setOutputData('width', width);
+    this.setOutputData('height', height);
   }
 }
 
@@ -441,8 +440,8 @@ export class Table extends PPNode {
   _imageRefClone: PIXI.Sprite;
   defaultProps;
   createElement;
-  parseData: (data: string) => void;
   parsedData: any;
+  update: () => void;
 
   constructor(name: string, graph: PPGraph, customArgs?: CustomArgs) {
     const nodeWidth = 400;
@@ -455,28 +454,35 @@ export class Table extends PPNode {
       nodeHeight,
       isHybrid,
     });
-    // this.addOutput('image', DATATYPE.PIXI);
-    this.addInput('Reload', DATATYPE.TRIGGER);
-    this.addInput('url', DATATYPE.STRING);
+    this.addOutput('selectedData', DATATYPE.STRING);
+    this.addInput('reload', DATATYPE.TRIGGER);
     this.addInput('data', DATATYPE.STRING, customArgs?.data ?? '');
 
     this.name = 'Table';
     this.description = 'Adds a table';
 
-    this.parseData = (data: string) => {
-      const results = csvParser.parse(data, {});
-      this.parsedData = results?.data;
-      console.log(results);
-    };
-
-    const data = customArgs?.data ?? '';
-    this.parseData(data);
-
-    // when the Node is added add the container and react component
+    // when the Node is added, add the container and react component
     this.onNodeAdded = () => {
+      const data = this.getInputData('data') ?? '';
+      this.parsedData = this.parseData(data);
       this.createContainerComponent(document, TableParent, {
         dataArray: this.parsedData,
       });
+    };
+
+    // when the Node is loaded, update the react component
+    this.onConfigure = (): void => {
+      this.update();
+    };
+
+    // when the Node is loaded, update the react component
+    this.update = (): void => {
+      const data = this.getInputData('data') ?? '';
+      this.parsedData = this.parseData(data);
+      this.renderReactComponent(TableParent, {
+        dataArray: this.parsedData,
+      });
+      this.setOutputData('selectedData', this.parsedData);
     };
 
     const getCellRenderer = (key: number) => {
@@ -485,7 +491,7 @@ export class Table extends PPNode {
 
     // small presentational component
     const TableParent = () => {
-      return (
+      return this.parsedData.length > 0 ? (
         <BPTable numRows={this.parsedData.length}>
           {this.parsedData[0].map((col, index) => {
             return (
@@ -493,22 +499,23 @@ export class Table extends PPNode {
             );
           })}
         </BPTable>
+      ) : (
+        <BPTable numRows={20}>
+          <BPColumn />
+          <BPColumn />
+          <BPColumn />
+        </BPTable>
       );
     };
   }
 
+  parseData(data: string): any {
+    const results = csvParser.parse(data, {});
+    console.log(results);
+    return results?.data;
+  }
+
   trigger(): void {
-    const url: string = this.getInputData(1);
-    // if url is set then get image
-    if (url !== '') {
-      // const objectURL = URL.createObjectURL(url);
-      const newTexture = PIXI.Texture.from(url);
-      this._imageRef.texture = newTexture;
-      this._imageRefClone.texture = newTexture;
-    }
-    const { width, height } = this._imageRef.texture.orig;
-    this.setOutputData(0, this._imageRefClone);
-    this.setOutputData(1, width);
-    this.setOutputData(2, height);
+    this.update();
   }
 }

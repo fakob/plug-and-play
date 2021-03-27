@@ -53,11 +53,11 @@ export class MakeAPICall extends PPNode {
   }
   trigger(): void {
     axios
-      .get(this.getInputData(1))
+      .get(this.getInputData('url'))
       .then((response) => {
         // handle success
         console.log(response);
-        this.setOutputData(0, response.data);
+        this.setOutputData('response', response.data);
       })
       .catch((error) => {
         // handle error
@@ -94,11 +94,6 @@ export class Trigger extends PPNode {
     this._rectRef.interactive = true;
 
     this._rectRef.on('pointerdown', this.trigger.bind(this));
-
-    this.onExecute = function () {
-      // const start = this.getInputData(0) || url;
-      // this.setOutputData(0, output);
-    };
   }
   trigger(): void {
     console.log('Triggered node: ', this.name);
@@ -125,10 +120,8 @@ export class TimeAndDate extends PPNode {
     this.date = new Date();
 
     this.onExecute = function () {
-      // const a = this.getInputData(0) || 0;
-      this.setOutputData(0, this.date.getUTCDate());
-      // this.setOutputData(1, this.date.getTime());
-      this.setOutputData(1, Date.now());
+      this.setOutputData('date and time', this.date.getUTCDate());
+      this.setOutputData('time stamp', Date.now());
       console.log(this.result);
     };
   }

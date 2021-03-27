@@ -753,10 +753,10 @@ export default class PPGraph {
     (classobj as any).description = 'Generated from ' + func.name;
     (classobj as any).prototype.onExecute = function onExecute() {
       for (let i = 0; i < params.length; ++i) {
-        params[i] = this.getInputData(i);
+        params[i] = this.getInputDataBySlot(i);
       }
       const r = func.apply(this, params);
-      this.setOutputData(0, r);
+      this.setOutputData('out', r);
     };
     return classobj;
   }
