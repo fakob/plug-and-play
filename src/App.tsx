@@ -72,13 +72,9 @@ const App = (): JSX.Element => {
             })
             .then((data) => {
               console.log(data);
-              const newNode = currentGraph.current.createAndAddNode(
-                'Table',
-                undefined,
-                {
-                  data,
-                }
-              );
+              const newNode = currentGraph.current.createAndAddNode('Table', {
+                data,
+              });
               console.log(newNode);
             });
           break;
@@ -96,7 +92,7 @@ const App = (): JSX.Element => {
           break;
         case 'jpg':
         case 'png':
-          currentGraph.current.createAndAddNode('Image', '', {
+          currentGraph.current.createAndAddNode('Image', {
             objectURL,
           });
           break;
