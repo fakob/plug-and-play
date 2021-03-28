@@ -96,7 +96,7 @@ const App = (): JSX.Element => {
           break;
         case 'jpg':
         case 'png':
-          currentGraph.current.createAndAddNode('PPImage', '', {
+          currentGraph.current.createAndAddNode('Image', '', {
             objectURL,
           });
           break;

@@ -12,7 +12,12 @@ import PPNode from '../classes/NodeClass';
 import { CustomArgs, SerializedNode } from '../utils/interfaces';
 import textFit from '../pixi/textFit';
 import { rgbToHex } from '../pixi/utils-pixi';
-import { convertToArray, getElement } from '../utils/utils';
+import {
+  convertBlobToBase64,
+  convertToArray,
+  fetchAsBlob,
+  getElement,
+} from '../utils/utils';
 import {
   DATATYPE,
   EMPTY_TEXTURE,
@@ -379,59 +384,113 @@ export class Note extends PPNode {
   }
 }
 
-export class PPImage extends PPNode {
+export class Image extends PPNode {
   _imageRef: PIXI.Sprite;
-  _imageRefClone: PIXI.Sprite;
+  textureLoaded: (baseTexture: PIXI.BaseTexture) => void;
 
   // uses customArgs?.objectURL as texture
   constructor(name: string, graph: PPGraph, customArgs?: CustomArgs) {
-    super(name, graph, customArgs);
-    this.addOutput('image', DATATYPE.PIXI);
+    const nodeWidth = 400;
+    const nodeHeight = 400;
+    const isHybrid = true;
+
+    super(name, graph, {
+      ...customArgs,
+      nodeWidth,
+      nodeHeight,
+      isHybrid,
+    });
+
+    // this.addOutput('image', DATATYPE.PIXI);
     this.addOutput('width', DATATYPE.NUMBER);
     this.addOutput('height', DATATYPE.NUMBER);
-    this.addInput('reload', DATATYPE.TRIGGER);
-    this.addInput('url', DATATYPE.STRING);
+    // this.addInput('reload', DATATYPE.TRIGGER);
+    this.addInput('base64', DATATYPE.STRING, undefined, false);
 
     this.name = 'Image';
     this.description = 'Adds an image';
 
-    const image = PIXI.Sprite.from(customArgs?.objectURL || EMPTY_TEXTURE);
-    image.x = SOCKET_WIDTH / 2;
-    image.y = NODE_OUTLINE_DISTANCE;
-    image.width = NODE_WIDTH;
-    image.height = NODE_WIDTH;
+    this.onNodeAdded = () => {
+      const objectURL = customArgs?.objectURL;
+      const texture = PIXI.Texture.from(objectURL || EMPTY_TEXTURE);
 
-    this._imageRefClone = PIXI.Sprite.from(
-      customArgs?.objectURL || EMPTY_TEXTURE
-    );
+      if (objectURL) {
+        texture.baseTexture.on('loaded', this.textureLoaded.bind(this));
+      }
 
-    this.onDrawNodeShape = function () {
-      this._BackgroundRef.visible = false;
-      this._NodeNameRef.visible = false;
-
+      const image = new PIXI.Sprite(texture);
+      image.x = SOCKET_WIDTH / 2;
+      image.y = NODE_OUTLINE_DISTANCE;
+      image.width = nodeWidth;
+      image.height = nodeHeight;
       (this._imageRef as any) = (this as PIXI.Container).addChild(image);
-      this._imageRef.alpha = 1;
-      this._imageRef.tint;
+
+      // store image as base64
+      if (objectURL) {
+        fetchAsBlob(objectURL)
+          .then(convertBlobToBase64)
+          .then((base64) => {
+            this.setInputData('base64', base64);
+          });
+      }
     };
 
-    // update shape after initializing
-    this.drawNodeShape(false);
+    // when the Node is loaded, load the base64 image and adjust the size
+    this.onConfigure = (): void => {
+      const base64 = this.getInputData('base64');
+      const texture = PIXI.Texture.from(base64);
+
+      // the base64 texture is loaded synchroniously
+      // so we need to call textureLoaded directly
+      this.textureLoaded(texture.baseTexture);
+
+      // swap the texture
+      this._imageRef.texture = texture;
+    };
+
+    this.textureLoaded = (baseTexture) => {
+      // get width and height
+      const { width, height } = baseTexture;
+
+      // calculate drawing width and height
+      const aspectRatio = width / height;
+      let newNodeWidth = nodeWidth;
+      let newNodeHeight = nodeHeight;
+      if (aspectRatio > 1) {
+        newNodeHeight = newNodeHeight / aspectRatio;
+      } else {
+        newNodeWidth = newNodeWidth * aspectRatio;
+      }
+
+      // set imageRef and node to new size
+      this._imageRef.width = newNodeWidth;
+      this._imageRef.height = newNodeHeight;
+      this.nodeWidth = newNodeWidth;
+      this.nodeHeight = newNodeHeight;
+
+      // update node shape
+      this.drawNodeShape();
+
+      // output width and height of image
+      this.setOutputData('width', width);
+      this.setOutputData('height', height);
+    };
   }
 
-  trigger(): void {
-    const url: string = this.getInputData('url');
-    // if url is set then get image
-    if (url !== '') {
-      // const objectURL = URL.createObjectURL(url);
-      const newTexture = PIXI.Texture.from(url);
-      this._imageRef.texture = newTexture;
-      this._imageRefClone.texture = newTexture;
-    }
-    const { width, height } = this._imageRef.texture.orig;
-    this.setOutputData('image', this._imageRefClone);
-    this.setOutputData('width', width);
-    this.setOutputData('height', height);
-  }
+  // trigger(): void {
+  //   const url: string = this.getInputData('url');
+  //   // if url is set then get image
+  //   if (url !== '') {
+  //     // const objectURL = URL.createObjectURL(url);
+  //     const newTexture = PIXI.Texture.from(url);
+  //     this._imageRef.texture = newTexture;
+  //     this._imageRefClone.texture = newTexture;
+  //   }
+  //   const { width, height } = this._imageRef.texture.orig;
+  //   this.setOutputData('image', this._imageRefClone);
+  //   this.setOutputData('width', width);
+  //   this.setOutputData('height', height);
+  // }
 }
 
 export class Table extends PPNode {

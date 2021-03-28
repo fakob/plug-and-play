@@ -313,7 +313,7 @@ export default class PPNode extends PIXI.Container {
     // redraw outputs
     let posCounter = 0;
     this.outputSocketArray.forEach((item) => {
-      console.log(item, item.x, item.getBounds().width, this.nodeWidth);
+      // console.log(item, item.x, item.getBounds().width, this.nodeWidth);
       if (item.visible) {
         item.y =
           NODE_OUTLINE_DISTANCE +

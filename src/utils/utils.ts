@@ -135,3 +135,18 @@ export const mapRange = (
   }
   return limitedNewValue;
 };
+
+export const fetchAsBlob = (url) => {
+  return fetch(url).then((response) => response.blob());
+};
+
+export const convertBlobToBase64 = (blob) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = reject;
+    reader.onload = () => {
+      resolve(reader.result);
+    };
+    reader.readAsDataURL(blob);
+  });
+};
