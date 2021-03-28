@@ -59,12 +59,6 @@ const App = (): JSX.Element => {
       // select what node to create
       switch (extension) {
         case 'csv':
-          // parseFile(objectURL)
-          //   .on('error', (error) => console.error(error))
-          //   .on('data', (row) => console.log(row))
-          //   .on('end', (rowCount: number) =>
-          //     console.log(`Parsed ${rowCount} rows`)
-          //   );
           fetch(objectURL)
             .then((r) => {
               console.log(r);
