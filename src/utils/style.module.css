@@ -108,8 +108,8 @@
   width: 64px !important;
 }
 
-.outputTextArea {
-  max-height: 400px;
+.textArea {
+  max-height: 50vh;
 }
 
 .hybridContainer {

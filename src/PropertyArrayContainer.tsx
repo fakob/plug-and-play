@@ -324,7 +324,7 @@ const TextWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
     <>
       <TextArea
         disabled={props.hasLink}
-        className="bp3-fill"
+        className={`${styles.textArea} bp3-fill`}
         growVertically={true}
         onChange={(event) => {
           const value = event.target.value;
@@ -431,7 +431,7 @@ const DefaultOutputWidget: React.FunctionComponent<DefaultOutputWidgetProps> = (
   return (
     <>
       <TextArea
-        className={`${styles.outputTextArea} bp3-fill`}
+        className={`${styles.textArea} bp3-fill`}
         growVertically={true}
         value={prettyFormat(data)}
         readOnly
