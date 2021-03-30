@@ -263,4 +263,10 @@ export default class Socket extends PIXI.Container {
     console.log('_onPointerDown');
     this.getGraph().clickedSocketRef = event.target.parent as Socket;
   }
+
+  notifyChange(): void {
+    this._links.forEach((link: PPLink) => {
+      link.notifyChange();
+    });
+  }
 }

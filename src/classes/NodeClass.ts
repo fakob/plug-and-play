@@ -571,6 +571,13 @@ export default class PPNode extends PIXI.Container {
     outputSocket.data = data;
   }
 
+  notifyChange(): void {
+    this.execute();
+    this.outputSocketArray.forEach((output: Socket) => {
+      output.notifyChange();
+    });
+  }
+
   execute(): void {
     // remap input
     const inputObject = {};
