@@ -222,6 +222,8 @@ export default class PPGraph {
     // unsubscribe from pointermove
     this.viewport.removeListener('pointermove', this.onNodeDragMove);
 
+    console.log('manomanomano');
+
     if (this !== null) {
       if (this.clickedSocketRef === null) {
         // this.viewport.plugins.resume('drag');
@@ -369,12 +371,7 @@ export default class PPGraph {
 
     let link = null;
 
-    // //this slots cannot be connected (different types)
-    // if (!LiteGraph.isValidConnection(output.type, input.type)) {
-    //   this.setDirtyCanvas(false, true);
-    //   if (changed) this.graph.connectionChange(this, link);
-    //   return null;
-    // }
+    console.log('connected');
 
     //create link class
     link = new PPLink(
@@ -657,9 +654,6 @@ export default class PPGraph {
     Object.entries(nodes).forEach(([key, node]) => {
       try {
         node.execute();
-        if (this._showComments) {
-          node.drawComment();
-        }
       } catch (error) {
         console.error('Error onExecute', error);
       }

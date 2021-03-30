@@ -576,6 +576,7 @@ export default class PPNode extends PIXI.Container {
     this.outputSocketArray.forEach((output: Socket) => {
       output.notifyChange();
     });
+    console.log('got notified in here ' + JSON.stringify(this));
   }
 
   execute(): void {
@@ -590,6 +591,10 @@ export default class PPNode extends PIXI.Container {
 
     this.onExecute(inputObject, outputObject);
     this.onAfterExecute();
+
+    if (this.graph.showComments) {
+      this.drawComment();
+    }
 
     // output whatever the user has put in
     this.outputSocketArray

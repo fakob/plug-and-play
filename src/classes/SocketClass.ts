@@ -265,8 +265,17 @@ export default class Socket extends PIXI.Container {
   }
 
   notifyChange(): void {
-    this._links.forEach((link: PPLink) => {
-      link.notifyChange();
-    });
+    switch (this.socketType) {
+      case SOCKET_TYPE.IN: {
+        this.getNode().notifyChange();
+        break;
+      }
+      case SOCKET_TYPE.OUT: {
+        this._links.forEach((link: PPLink) => {
+          link.notifyChange();
+        });
+        break;
+      }
+    }
   }
 }
