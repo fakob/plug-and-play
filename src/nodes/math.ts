@@ -1,10 +1,11 @@
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
 import { DATATYPE } from '../utils/constants';
+import { CustomArgs } from '../utils/interfaces';
 
 export class MathAdd extends PPNode {
-  constructor(name: string, graph: PPGraph, customId: string) {
-    super(name, graph, customId);
+  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
+    super(name, graph, customArgs);
 
     this.addOutput('out', DATATYPE.NUMBER);
     this.addInput('in', DATATYPE.NUMBER, 0);
@@ -32,8 +33,8 @@ export class MathNoise extends PPNode {
   speed: number;
   data2: Float32Array;
 
-  constructor(name: string, graph: PPGraph, customId: string) {
-    super(name, graph, customId);
+  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
+    super(name, graph, customArgs);
 
     this.addOutput('out', DATATYPE.NUMBER);
     this.addInput('in', DATATYPE.NUMBER);

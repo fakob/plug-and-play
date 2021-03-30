@@ -9,7 +9,11 @@ import {
   NODE_WIDTH,
   PP_VERSION,
 } from '../utils/constants';
-import { PPNodeConstructor, SerializedGraph } from '../utils/interfaces';
+import {
+  CustomArgs,
+  PPNodeConstructor,
+  SerializedGraph,
+} from '../utils/interfaces';
 import PPNode from './NodeClass';
 import Socket from './SocketClass';
 import PPLink from './LinkClass';
@@ -295,8 +299,7 @@ export default class PPGraph {
 
   createNode<T extends PPNode = PPNode>(
     type: string,
-    customId = '',
-    customArgsObject?: any
+    customArgs?: CustomArgs
   ): T {
     // console.log(this._registeredNodeTypes);
     const nodeConstructor = this._registeredNodeTypes[type];
@@ -309,14 +312,13 @@ export default class PPGraph {
     }
 
     const title = type;
-    // console.log(this);
+    console.log(this.viewport.center.x - NODE_WIDTH / 2);
     // console.log(nodeConstructor);
-    const node = new nodeConstructor(
-      title,
-      this,
-      customId,
-      customArgsObject
-    ) as T;
+    const node = new nodeConstructor(title, this, {
+      ...customArgs,
+      nodePosX: this.viewport.center.x - NODE_WIDTH / 2,
+      nodePosY: this.viewport.center.y,
+    }) as T;
     return node;
   }
 
@@ -331,17 +333,8 @@ export default class PPGraph {
       .on('pointerup', this._onNodePointerUpAndUpOutside.bind(this))
       .on('pointerover', this._onNodePointerOver.bind(this));
 
-    // // change add id to title
-    // const newName = `${node.nodeName} : ${node.id}`;
-    // node.nodeName = newName;
-    // console.log(node.nodeName);
-
     // add the node to the canvas
     this.nodeContainer.addChild(node);
-
-    // move to center of canvas
-    node.x = this.viewport.center.x - NODE_WIDTH / 2;
-    node.y = this.viewport.center.y;
 
     // set comment position
     node.updateCommentPosition();
@@ -351,11 +344,10 @@ export default class PPGraph {
 
   createAndAddNode<T extends PPNode = PPNode>(
     type: string,
-    customId?: string,
-    customArgsObject?: any
+    customArgs?: CustomArgs
   ): T {
-    // console.log(customArgsObject);
-    const node = this.createNode(type, customId, customArgsObject) as T;
+    // console.log(customArgs);
+    const node = this.createNode(type, customArgs) as T;
     // if (node) {
     this.addNode(node);
     console.log(node);
@@ -368,13 +360,6 @@ export default class PPGraph {
     this.checkIfSocketHasConnectionAndDeleteIt(input, true);
 
     let link = null;
-
-    // //this slots cannot be connected (different types)
-    // if (!LiteGraph.isValidConnection(output.type, input.type)) {
-    //   this.setDirtyCanvas(false, true);
-    //   if (changed) this.graph.connectionChange(this, link);
-    //   return null;
-    // }
 
     //create link class
     link = new PPLink(
@@ -581,10 +566,9 @@ export default class PPGraph {
     if (nodes) {
       for (let i = 0, l = nodes.length; i < l; ++i) {
         const serializedNode = nodes[i]; //stored info
-        const node = this.createAndAddNode(
-          serializedNode.type,
-          serializedNode.id
-        );
+        const node = this.createAndAddNode(serializedNode.type, {
+          customId: serializedNode.id,
+        });
         if (!node) {
           error = true;
           console.log('Node not found or has errors: ' + serializedNode.type);
@@ -751,10 +735,10 @@ export default class PPGraph {
     (classobj as any).description = 'Generated from ' + func.name;
     (classobj as any).prototype.onExecute = function onExecute() {
       for (let i = 0; i < params.length; ++i) {
-        params[i] = this.getInputData(i);
+        params[i] = this.getInputDataBySlot(i);
       }
       const r = func.apply(this, params);
-      this.setOutputData(0, r);
+      this.setOutputData('out', r);
     };
     return classobj;
   }
@@ -803,7 +787,7 @@ export default class PPGraph {
       this.checkIfSocketHasConnectionAndDeleteIt(outputSocket, false);
     }
 
-    node.remove();
+    node.destroy();
   }
 
   deleteSelectedNodes(): void {

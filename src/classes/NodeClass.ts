@@ -1,26 +1,29 @@
 import * as PIXI from 'pixi.js';
 import { DropShadowFilter } from '@pixi/filter-drop-shadow';
 import { hri } from 'human-readable-ids';
+import React from 'react';
+import ReactDOM from 'react-dom';
 import { inspect } from 'util'; // or directly
 import '../pixi/dbclick.js';
 
+import styles from '../utils/style.module.css';
 import { SerializedNode } from '../utils/interfaces';
 import {
   COMMENT_TEXTSTYLE,
+  DATATYPE,
   NODE_BACKGROUNDCOLOR_HEX,
-  NODE_SELECTIONCOLOR_HEX,
   NODE_CORNERRADIUS,
-  NODE_MARGIN_TOP,
-  NODE_MARGIN_BOTTOM,
-  NODE_OUTLINE_DISTANCE,
   NODE_HEADER_HEIGHT,
   NODE_HEADER_TEXTMARGIN_LEFT,
   NODE_HEADER_TEXTMARGIN_TOP,
+  NODE_MARGIN,
+  NODE_PADDING_BOTTOM,
+  NODE_PADDING_TOP,
+  NODE_OUTLINE_DISTANCE,
+  NODE_SELECTIONCOLOR_HEX,
   NODE_TEXTSTYLE,
   NODE_WIDTH,
   SOCKET_HEIGHT,
-  SOCKET_WIDTH,
-  DATATYPE,
   SOCKET_TYPE,
 } from '../utils/constants';
 import PPGraph from './GraphClass';
@@ -39,6 +42,11 @@ export default class PPNode extends PIXI.Container {
   type: string; // Type
   category: string; // Category - derived from type
   description: string;
+  nodePosX: number;
+  nodePosY: number;
+  nodeWidth: number;
+  nodeHeight: number;
+  isHybrid: boolean; // true if it is a hybrid node (html and webgl)
 
   inputSocketArray: Socket[];
   outputSocketArray: Socket[];
@@ -49,14 +57,41 @@ export default class PPNode extends PIXI.Container {
   clickPosition: PIXI.Point | null;
   interactionData: PIXI.InteractionData | null;
 
+  container: HTMLElement; // for hybrid nodes
+
   // supported callbacks
   onConfigure: ((node_info: SerializedNode) => void) | null;
   onNodeDoubleClick: ((event: PIXI.InteractionEvent) => void) | null;
+  onViewportMoveHandler: (event?: PIXI.InteractionEvent) => void;
+  onDrawNodeShape: (() => void) | null; // called when the node is drawn
+  onNodeAdded: (() => void) | null; // called when the node is added to the graph
+  onNodeRemoved: (() => void) | null; // called when the node is removed from the graph
+  onNodeSelected: ((selected: boolean) => void) | null; // called when the node is selected/unselected
+  onNodeDragOrViewportMove: // called when the node or or the viewport with the node is moved or scaled
+  | ((positions: {
+        globalX: number;
+        globalY: number;
+        screenX: number;
+        screenY: number;
+        scale: number;
+      }) => void)
+    | null;
 
-  constructor(type: string, graph: PPGraph, customId: string) {
+  constructor(
+    type: string,
+    graph: PPGraph,
+    customArgs?: {
+      customId?: string;
+      nodePosX?: number;
+      nodePosY?: number;
+      nodeWidth?: number;
+      nodeHeight?: number;
+      isHybrid?: boolean;
+    }
+  ) {
     super();
     this.graph = graph;
-    this.id = customId === '' ? hri.random() : customId;
+    this.id = customArgs?.customId ?? hri.random();
     this.name = type;
     this.type = type;
     this.description = '';
@@ -64,10 +99,18 @@ export default class PPNode extends PIXI.Container {
     this.outputSocketArray = [];
     this.clickedSocketRef = null;
 
+    // customArgs
+    this.x = customArgs?.nodePosX ?? 0;
+    this.y = customArgs?.nodePosY ?? 0;
+    console.log(customArgs);
+    this.nodeWidth = customArgs?.nodeWidth ?? NODE_WIDTH;
+    this.nodeHeight = customArgs?.nodeHeight ?? undefined;
+    this.isHybrid = customArgs?.isHybrid ?? false;
+
     const inputNameText = new PIXI.Text(this.name, NODE_TEXTSTYLE);
     inputNameText.x = NODE_HEADER_TEXTMARGIN_LEFT;
     inputNameText.y =
-      NODE_OUTLINE_DISTANCE + NODE_MARGIN_TOP + NODE_HEADER_TEXTMARGIN_TOP;
+      NODE_OUTLINE_DISTANCE + NODE_PADDING_TOP + NODE_HEADER_TEXTMARGIN_TOP;
     inputNameText.resolution = 8;
 
     const background = new PIXI.Graphics();
@@ -123,6 +166,9 @@ export default class PPNode extends PIXI.Container {
   select(selected: boolean): void {
     this._selected = selected;
     this.drawNodeShape(selected);
+    if (this.onNodeSelected) {
+      this.onNodeSelected(selected);
+    }
   }
 
   addInput(
@@ -220,6 +266,10 @@ export default class PPNode extends PIXI.Container {
     if (this.onConfigure) {
       this.onConfigure(node_info);
     }
+
+    if (this.isHybrid) {
+      this._onViewportMove(); // trigger this once, so the react components get positioned properly
+    }
   }
 
   drawNodeShape(selected: boolean = this._selected): void {
@@ -229,32 +279,48 @@ export default class PPNode extends PIXI.Container {
     const countOfVisibleOutputSockets = this.outputSocketArray.filter(
       (item) => item.visible === true
     ).length;
-
-    // redraw background due to size change
-    this._BackgroundRef.clear();
-    this._BackgroundRef.beginFill(NODE_BACKGROUNDCOLOR_HEX);
-    this._BackgroundRef.drawRoundedRect(
-      SOCKET_WIDTH / 2,
-      NODE_OUTLINE_DISTANCE + 0,
-      NODE_WIDTH,
-      NODE_MARGIN_TOP +
+    const nodeHeight = this.isHybrid
+      ? this.nodeHeight
+      : NODE_PADDING_TOP +
         NODE_HEADER_HEIGHT +
         countOfVisibleInputSockets * SOCKET_HEIGHT +
         countOfVisibleOutputSockets * SOCKET_HEIGHT +
-        NODE_MARGIN_BOTTOM,
-      NODE_CORNERRADIUS
-    );
+        NODE_PADDING_BOTTOM;
+
+    // redraw background due to size change
+    this._BackgroundRef.clear();
+    if (this.isHybrid) {
+      const shrinkMargin = 4; // for hybrid nodes, so the edge of the background rect does not show
+      this._BackgroundRef.beginFill(NODE_BACKGROUNDCOLOR_HEX, 0.01); // so it does not show when dragging fast
+      this._BackgroundRef.drawRect(
+        NODE_MARGIN + shrinkMargin / 2,
+        NODE_OUTLINE_DISTANCE + shrinkMargin / 2,
+        this.nodeWidth - shrinkMargin,
+        nodeHeight - shrinkMargin
+      );
+    } else {
+      this._BackgroundRef.beginFill(NODE_BACKGROUNDCOLOR_HEX);
+      this._BackgroundRef.drawRoundedRect(
+        NODE_MARGIN,
+        NODE_OUTLINE_DISTANCE,
+        this.nodeWidth,
+        nodeHeight,
+        NODE_CORNERRADIUS
+      );
+    }
     this._BackgroundRef.endFill();
 
     // redraw outputs
     let posCounter = 0;
     this.outputSocketArray.forEach((item) => {
+      // console.log(item, item.x, item.getBounds().width, this.nodeWidth);
       if (item.visible) {
         item.y =
           NODE_OUTLINE_DISTANCE +
-          NODE_MARGIN_TOP +
+          NODE_PADDING_TOP +
           NODE_HEADER_HEIGHT +
           posCounter * SOCKET_HEIGHT;
+        item.x = this.nodeWidth - NODE_WIDTH;
         posCounter += 1;
       }
     });
@@ -265,7 +331,7 @@ export default class PPNode extends PIXI.Container {
       if (item.visible) {
         item.y =
           NODE_OUTLINE_DISTANCE +
-          NODE_MARGIN_TOP +
+          NODE_PADDING_TOP +
           NODE_HEADER_HEIGHT +
           countOfVisibleOutputSockets * SOCKET_HEIGHT +
           posCounter * SOCKET_HEIGHT;
@@ -273,25 +339,31 @@ export default class PPNode extends PIXI.Container {
       }
     });
 
-    // optional drawShape
-    // if (this.drawShape) {
-    this.drawShape();
-    // }
+    if (this.onDrawNodeShape) {
+      this.onDrawNodeShape();
+    }
 
+    // draw selection
     if (selected) {
-      this._BackgroundRef.lineStyle(2, NODE_SELECTIONCOLOR_HEX, 1, 0);
-      this._BackgroundRef.drawRoundedRect(
-        SOCKET_WIDTH / 2 - NODE_OUTLINE_DISTANCE,
-        0,
-        NODE_OUTLINE_DISTANCE * 2 + NODE_WIDTH,
-        NODE_OUTLINE_DISTANCE * 2 +
-          NODE_MARGIN_TOP +
-          NODE_HEADER_HEIGHT +
-          countOfVisibleInputSockets * SOCKET_HEIGHT +
-          countOfVisibleOutputSockets * SOCKET_HEIGHT +
-          NODE_MARGIN_BOTTOM,
-        NODE_CORNERRADIUS + NODE_OUTLINE_DISTANCE
-      );
+      if (this.isHybrid) {
+        this._BackgroundRef.beginFill(NODE_BACKGROUNDCOLOR_HEX);
+        this._BackgroundRef.drawRect(
+          NODE_MARGIN - NODE_OUTLINE_DISTANCE,
+          0,
+          NODE_OUTLINE_DISTANCE * 2 + this.nodeWidth,
+          NODE_OUTLINE_DISTANCE * 2 + nodeHeight
+        );
+        this._BackgroundRef.endFill();
+      } else {
+        this._BackgroundRef.lineStyle(2, NODE_SELECTIONCOLOR_HEX, 1, 0);
+        this._BackgroundRef.drawRoundedRect(
+          NODE_MARGIN - NODE_OUTLINE_DISTANCE,
+          0,
+          NODE_OUTLINE_DISTANCE * 2 + this.nodeWidth,
+          NODE_OUTLINE_DISTANCE * 2 + nodeHeight,
+          NODE_CORNERRADIUS + NODE_OUTLINE_DISTANCE
+        );
+      }
     }
 
     // update position of comment
@@ -300,12 +372,8 @@ export default class PPNode extends PIXI.Container {
 
   updateCommentPosition(): void {
     // console.log(this.x, this.y);
-    this._NodeCommentRef.x = getNodeCommentPosX(this.x);
+    this._NodeCommentRef.x = getNodeCommentPosX(this.x, this.width);
     this._NodeCommentRef.y = getNodeCommentPosY(this.y);
-  }
-
-  drawShape(): void {
-    // just define function
   }
 
   drawComment(): void {
@@ -339,7 +407,103 @@ export default class PPNode extends PIXI.Container {
     }
   }
 
-  getInputData<T = any>(slot: number): T {
+  screenPoint(): PIXI.Point {
+    return this.graph.viewport.toScreen(
+      this.x + NODE_MARGIN,
+      this.y + NODE_MARGIN - 2
+    );
+  }
+
+  // this function can be called for hybrid nodes, it
+  // • creates a container component
+  // • adds the onNodeDragOrViewportMove listener to it
+  // • adds a react parent component with props
+  createContainerComponent(
+    parentDocument: Document,
+    reactParent,
+    reactProps
+  ): HTMLElement {
+    // create html container
+    this.container = parentDocument.createElement('div');
+    this.container.id = `Container-${this.id}`;
+
+    // add it to the DOM
+    parentDocument.body.appendChild(this.container);
+
+    const screenPoint = this.screenPoint();
+    this.container.classList.add(styles.hybridContainer);
+    this.container.style.width = `${this.nodeWidth}px`;
+    this.container.style.height = `${this.nodeWidth}px`;
+
+    // set initial position
+    this.container.style.transform = `translate(50%, 50%)`;
+    this.container.style.transform = `scale(${this.graph.viewport.scale.x}`;
+    this.container.style.left = `${screenPoint.x}px`;
+    this.container.style.top = `${screenPoint.y}px`;
+
+    this.onNodeDragOrViewportMove = ({
+      globalX,
+      globalY,
+      screenX,
+      screenY,
+      scale,
+    }) => {
+      this.container.style.transform = `translate(50%, 50%)`;
+      this.container.style.transform = `scale(${scale}`;
+      this.container.style.left = `${screenX}px`;
+      this.container.style.top = `${screenY}px`;
+    };
+
+    // when the Node is selected/unselected turn on/off pointer events
+    // this allows to zoom and drag when the node is not selected
+    this.onNodeSelected = (selected) => {
+      console.log('I was selected: ', selected);
+      if (selected) {
+        this.container.style.pointerEvents = 'auto';
+      } else {
+        this.container.style.pointerEvents = 'none';
+      }
+    };
+
+    // when the Node is removed also remove the react component and its container
+    this.onNodeRemoved = () => {
+      ReactDOM.unmountComponentAtNode(this.container);
+      document.body.removeChild(this.container);
+    };
+
+    // render react component
+    this.renderReactComponent(reactParent, reactProps);
+
+    return this.container;
+  }
+
+  // the render method, takes a component and props, and renders it to the page
+  renderReactComponent = (component, props) => {
+    ReactDOM.render(React.createElement(component, props), this.container);
+  };
+
+  getInputSocketByName(slotName: string): Socket {
+    if (!this.inputSocketArray) {
+      return undefined;
+    }
+
+    return this.inputSocketArray[
+      this.inputSocketArray.findIndex((el) => el.name === slotName)
+    ];
+  }
+
+  getOutputSocketByName(slotName: string): Socket {
+    if (!this.outputSocketArray) {
+      return undefined;
+    }
+
+    return this.outputSocketArray[
+      this.outputSocketArray.findIndex((el) => el.name === slotName)
+    ];
+  }
+
+  getInputDataBySlot(slot: number): any {
+    // to easily loop through it
     if (!this.inputSocketArray) {
       return undefined;
     }
@@ -353,60 +517,65 @@ export default class PPNode extends PIXI.Container {
     }
 
     const link = this.inputSocketArray[slot].links[0];
-    if (!link) {
-      //bug: weird case but it happens sometimes
-      // Cringe /Tobias, we need to fix this
-      return undefined;
-    }
-
     return link.source.data;
   }
 
-  setOutputData(slot: number, data: any): void {
-    if (!this.outputSocketArray) {
-      return;
+  getInputData(name: string): any {
+    const inputSocket = this.inputSocketArray
+      .filter((socket) => socket.socketType === SOCKET_TYPE.IN)
+      .find((input: Socket) => {
+        return name === input.name;
+      });
+
+    if (!inputSocket) {
+      console.error('No input socket found with the name: ', name);
+      return undefined;
     }
 
-    if (slot === -1 || slot >= this.outputSocketArray.length) {
-      return;
+    // if no link, then return data
+    if (inputSocket.links.length === 0) {
+      return inputSocket.data;
     }
 
-    const outputSocket = this.outputSocketArray[slot];
-    if (!outputSocket) {
-      return;
-    }
-
-    //store data in the output itself in case we want to debug
-    outputSocket.data = data;
-
-    // //if there are connections, pass the data to the connections
-    // if (this.outputSocketArray[slot].links) {
-    //   for (let i = 0; i < this.outputSocketArray[slot].links.length; i++) {
-    //     const link = this.outputSocketArray[slot].links[i];
-    //     if (link) link._data = data;
-    //   }
-    // }
+    const link = inputSocket.links[0];
+    return link.source.data;
   }
 
-  remove(): void {
-    // remove node comment
-    (this.graph.viewport.getChildByName(
-      'commentContainer'
-    ) as PIXI.Container).removeChild(this._NodeCommentRef);
+  setInputData(name: string, data: any): void {
+    const inputSocket = this.inputSocketArray
+      .filter((socket) => socket.socketType === SOCKET_TYPE.IN)
+      .find((input: Socket) => {
+        return name === input.name;
+      });
 
-    // remove node
-    (this.graph.viewport.getChildByName(
-      'nodeContainer'
-    ) as PIXI.Container).removeChild(this);
+    if (!inputSocket) {
+      console.error('No input socket found with the name: ', name);
+      return undefined;
+    }
+
+    inputSocket.data = data;
+  }
+
+  setOutputData(name: string, data: any): void {
+    const outputSocket = this.outputSocketArray
+      .filter((socket) => socket.socketType === SOCKET_TYPE.OUT)
+      .find((output: Socket) => {
+        return name === output.name;
+      });
+
+    if (!outputSocket) {
+      console.error('No output socket found with the name: ', name);
+      return undefined;
+    }
+
+    outputSocket.data = data;
   }
 
   execute(): void {
     // remap input
     const inputObject = {};
     this.inputSocketArray
-      .filter((socket) => {
-        socket.socketType === SOCKET_TYPE.IN;
-      })
+      .filter((socket) => socket.socketType === SOCKET_TYPE.IN)
       .forEach((input: Socket) => {
         inputObject[input.name] = input.data;
       });
@@ -417,9 +586,7 @@ export default class PPNode extends PIXI.Container {
 
     // output whatever the user has put in
     this.outputSocketArray
-      .filter((socket) => {
-        socket.socketType === SOCKET_TYPE.OUT;
-      })
+      .filter((socket) => socket.socketType === SOCKET_TYPE.OUT)
       .forEach((output: Socket) => {
         if (outputObject[output.name] !== undefined) {
           output.data = outputObject[output.name];
@@ -447,6 +614,13 @@ export default class PPNode extends PIXI.Container {
     this.on('pointerout', this._onPointerOut.bind(this));
     this.on('click', this._onClick.bind(this));
     this.on('dblclick', this._onDoubleClick.bind(this));
+    this.on('added', this._onAdded.bind(this));
+    this.on('removed', this._onRemoved.bind(this));
+
+    // first assign the bound function to a handler then add this handler as a listener
+    // otherwise removeListener won't work (bind creates a new function)
+    this.onViewportMoveHandler = this._onViewportMove.bind(this);
+    this.graph.viewport.on('moved', (this as any).onViewportMoveHandler);
   }
 
   _onPointerDown(event: PIXI.InteractionEvent): void {
@@ -504,8 +678,10 @@ export default class PPNode extends PIXI.Container {
       this.relativeClickPosition !== null
     ) {
       const newPosition = this.interactionData.getLocalPosition(this.parent);
-      this.x = newPosition.x - this.relativeClickPosition.x;
-      this.y = newPosition.y - this.relativeClickPosition.y;
+      const globalX = newPosition.x - this.relativeClickPosition.x;
+      const globalY = newPosition.y - this.relativeClickPosition.y;
+      this.x = globalX;
+      this.y = globalY;
       this.updateCommentPosition();
 
       // check for connections and move them too
@@ -519,6 +695,54 @@ export default class PPNode extends PIXI.Container {
           link.updateConnection();
         });
       });
+
+      if (this.onNodeDragOrViewportMove) {
+        const screenPoint = this.screenPoint();
+        this.onNodeDragOrViewportMove({
+          globalX,
+          globalY,
+          screenX: screenPoint.x,
+          screenY: screenPoint.y,
+          scale: this.graph.viewport.scale.x,
+        });
+      }
+    }
+  }
+
+  _onViewportMove(): void {
+    // console.log('_onViewportMove');
+    if (this.onNodeDragOrViewportMove) {
+      const screenPoint = this.screenPoint();
+      this.onNodeDragOrViewportMove({
+        globalX: this.x,
+        globalY: this.y,
+        screenX: screenPoint.x,
+        screenY: screenPoint.y,
+        scale: this.graph.viewport.scale.x,
+      });
+    }
+  }
+
+  _onAdded(): void {
+    // console.log('_onAdded');
+    if (this.onNodeAdded) {
+      this.onNodeAdded();
+    }
+  }
+
+  _onRemoved(): void {
+    // console.log('_onRemoved');
+
+    // remove node comment
+    (this.graph.viewport.getChildByName(
+      'commentContainer'
+    ) as PIXI.Container).removeChild(this._NodeCommentRef);
+
+    // remove added listener from graph.viewport
+    this.graph.viewport.removeListener('moved', this.onViewportMoveHandler);
+
+    if (this.onNodeRemoved) {
+      this.onNodeRemoved();
     }
   }
 

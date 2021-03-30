@@ -87,9 +87,10 @@ export const NODE_TEXTSTYLE = new TextStyle({
   fontWeight: 'bold',
   fill: COLOR_MAIN,
 });
+export const NODE_MARGIN = SOCKET_WIDTH / 2;
 export const NODE_HEADER_HEIGHT = 24;
-export const NODE_MARGIN_TOP = 8;
-export const NODE_MARGIN_BOTTOM = 8;
+export const NODE_PADDING_TOP = 8;
+export const NODE_PADDING_BOTTOM = 8;
 export const NODE_OUTLINE_DISTANCE = 4;
 export const NODE_HEADER_TEXTMARGIN_LEFT = SOCKET_WIDTH / 2 + 14;
 export const NODE_HEADER_TEXTMARGIN_TOP = 4;
@@ -115,9 +116,13 @@ export const CONNECTION_COLOR_HEX = PIXI.utils.string2hex(
   Color(COLOR[0]).desaturate(0.3).hex()
 );
 
-export const NOTE_TEXTURE = '../assets/Note-white.png';
 export const EMPTY_TEXTURE = '../assets/Empty.png';
+
+export const NOTE_TEXTURE = '../assets/Note-white.png';
+export const NOTE_MARGIN_STRING = '3px 0px 0px 5px';
 export const NOTE_PADDING = 12;
+export const NOTE_FONTSIZE = 32;
+export const NOTE_LINEHEIGHT_FACTOR = 1.5;
 
 export const DEFAULT_EDITOR_DATA = `// Cmd/Ctrl-s to save/update node
 // Change function name to create new node

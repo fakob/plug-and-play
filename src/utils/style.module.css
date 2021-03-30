@@ -9,6 +9,8 @@
   padding: 54px 8px 8px 8px;
   background-color: #293742;
   overflow: auto;
+  user-select: none;
+  z-index: 5;
 }
 
 .editor {
@@ -26,6 +28,7 @@
   top: 0;
   width: 100vw;
   height: 100vh;
+  z-index: 0;
 }
 
 .hide {
@@ -105,6 +108,17 @@
   width: 64px !important;
 }
 
-.outputTextArea {
-  max-height: 400px;
+.textArea {
+  max-height: 50vh;
+}
+
+.hybridContainer {
+  pointer-events: none;
+  position: absolute;
+  z-index: 0;
+  transform-origin: top left;
+}
+
+.hybridContainer:focus {
+  outline: none;
 }

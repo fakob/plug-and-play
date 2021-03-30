@@ -27,7 +27,6 @@ type PropertyArrayContainerProps = {
 export const PropertyArrayContainer: React.FunctionComponent<PropertyArrayContainerProps> = (
   props
 ) => {
-  // console.log(props.inputSocketArray);
   return (
     <>
       {props.inputSocketArray?.map((property, index) => {
@@ -39,6 +38,7 @@ export const PropertyArrayContainer: React.FunctionComponent<PropertyArrayContai
             dataType={property.dataType}
             isInput={true}
             hasLink={property.links.length !== 0}
+            data={property.data}
           />
         );
       })}
@@ -51,6 +51,7 @@ export const PropertyArrayContainer: React.FunctionComponent<PropertyArrayContai
             dataType={property.dataType}
             isInput={false}
             hasLink={property.links.length !== 0}
+            data={property.data}
           />
         );
       })}
@@ -64,6 +65,7 @@ type PropertyContainerProps = {
   dataType: string;
   isInput: boolean;
   hasLink: boolean;
+  data: any;
 };
 
 const PropertyContainer: React.FunctionComponent<PropertyContainerProps> = (
@@ -76,7 +78,7 @@ const PropertyContainer: React.FunctionComponent<PropertyContainerProps> = (
     index: props.index,
     isInput: props.isInput,
     hasLink: props.hasLink,
-    data: props.property.data,
+    data: props.data,
   };
 
   let widget = null;
@@ -108,7 +110,7 @@ const PropertyContainer: React.FunctionComponent<PropertyContainerProps> = (
       case DATATYPE.NUMBER:
       case DATATYPE.STRING:
       case DATATYPE.ARRAY:
-        widget = <DefaultOutputWidget {...baseProps} />;
+        widget = <DefaultOutputWidget data={props.data} {...baseProps} />;
         break;
       default:
     }
@@ -207,10 +209,11 @@ type SliderWidgetProps = {
   isInput: boolean;
   hasLink: boolean;
   index: number;
+  data: number;
 };
 
 const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (props) => {
-  const [data, setData] = useState(Number(props.property.data));
+  const [data, setData] = useState(Number(props.data));
   const [minValue, setMinValue] = useState(
     props.property.custom?.minValue ?? 0
   );
@@ -233,13 +236,11 @@ const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (props) => {
     );
     setData(newValue);
     props.property.data = newValue;
-    if (props.isInput) {
-      (props.property as Socket).custom = {
-        minValue,
-        maxValue,
-        round,
-      };
-    }
+    (props.property as Socket).custom = {
+      minValue,
+      maxValue,
+      round,
+    };
   }, [minValue, maxValue, round]);
 
   return (
@@ -323,7 +324,7 @@ const TextWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
     <>
       <TextArea
         disabled={props.hasLink}
-        className="bp3-fill"
+        className={`${styles.textArea} bp3-fill`}
         growVertically={true}
         onChange={(event) => {
           const value = event.target.value;
@@ -430,7 +431,7 @@ const DefaultOutputWidget: React.FunctionComponent<DefaultOutputWidgetProps> = (
   return (
     <>
       <TextArea
-        className={`${styles.outputTextArea} bp3-fill`}
+        className={`${styles.textArea} bp3-fill`}
         growVertically={true}
         value={prettyFormat(data)}
         readOnly

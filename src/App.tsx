@@ -20,7 +20,7 @@ import {
   CANVAS_BACKGROUND_TEXTURE,
 } from './utils/constants';
 import { INodes } from './utils/interfaces';
-import { highlightText } from './utils/utils';
+import { convertBlobToBase64, highlightText } from './utils/utils';
 import { registerAllNodeTypes } from './nodes/allNodes';
 import PPNode from './classes/NodeClass';
 
@@ -57,28 +57,37 @@ const App = (): JSX.Element => {
         .toLowerCase();
 
       // select what node to create
-      switch (extension) {
-        case 'txt':
-          fetch(objectURL)
-            .then((r) => {
-              console.log(r);
-              return r.text();
-            })
-            .then((data) => {
-              console.log(data);
-              const newNode = currentGraph.current.createAndAddNode('Note');
-              (newNode as any).setCleanText(data);
+      (async function () {
+        const response = await fetch(objectURL);
+        let data;
+        let newNode;
+
+        switch (extension) {
+          case 'csv':
+            data = await response.text();
+            newNode = currentGraph.current.createAndAddNode('Table', {
+              data,
             });
-          break;
-        case 'jpg':
-        case 'png':
-          currentGraph.current.createAndAddNode('PPImage', '', {
-            objectURL,
-          });
-          break;
-        default:
-          break;
-      }
+            break;
+          case 'txt':
+            data = await response.text();
+            newNode = currentGraph.current.createAndAddNode('Note');
+            (newNode as any).setCleanText(data);
+            break;
+          case 'jpg':
+          case 'png':
+            data = await response.blob();
+            const base64 = await convertBlobToBase64(data);
+            newNode = currentGraph.current.createAndAddNode('Image', {
+              base64,
+            });
+            break;
+          default:
+            break;
+        }
+        console.log(data);
+        console.log(newNode);
+      })();
     });
   }, []);
   const {
@@ -236,17 +245,6 @@ const App = (): JSX.Element => {
   useEffect(() => {
     currentGraph.current.showComments = showComments;
   }, [showComments]);
-
-  // useEffect(() => {
-  //   console.log(selectedNode);
-  //   if (selectedNode) {
-  //     const selectedNodeType = selectedNode.type;
-  //     const codeString = currentGraph.current.customNodeTypes[selectedNodeType];
-  //     console.log(codeString);
-  //     setEditorData(codeString || '');
-  //     currentGraph.current.showComments = showComments;
-  //   }
-  // }, [selectedNode]);
 
   function serializeGraph() {
     const serializedGraph = currentGraph.current.serialize();

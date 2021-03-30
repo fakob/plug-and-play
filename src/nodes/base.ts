@@ -6,15 +6,16 @@ import {
   SOCKET_WIDTH,
   NODE_OUTLINE_DISTANCE,
   NODE_CORNERRADIUS,
-  NODE_MARGIN_TOP,
+  NODE_PADDING_TOP,
   NODE_HEADER_HEIGHT,
   NODE_WIDTH,
   SOCKET_HEIGHT,
 } from '../utils/constants';
+import { CustomArgs } from '../utils/interfaces';
 
 export class RangeArray extends PPNode {
-  constructor(name: string, graph: PPGraph, customId: string) {
-    super(name, graph, customId);
+  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
+    super(name, graph, customArgs);
 
     this.addOutput('output array', DATATYPE.ARRAY);
     this.addInput('start', DATATYPE.NUMBER);
@@ -38,8 +39,8 @@ export class RangeArray extends PPNode {
 
 export class MakeAPICall extends PPNode {
   // _rectRef: PIXI.Graphics;
-  constructor(name: string, graph: PPGraph, customId: string) {
-    super(name, graph, customId);
+  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
+    super(name, graph, customArgs);
 
     const url = 'https://jsonplaceholder.typicode.com/users';
 
@@ -52,11 +53,11 @@ export class MakeAPICall extends PPNode {
   }
   trigger(): void {
     axios
-      .get(this.getInputData(1))
+      .get(this.getInputData('url'))
       .then((response) => {
         // handle success
         console.log(response);
-        this.setOutputData(0, response.data);
+        this.setOutputData('response', response.data);
       })
       .catch((error) => {
         // handle error
@@ -69,8 +70,8 @@ export class MakeAPICall extends PPNode {
 }
 export class Trigger extends PPNode {
   _rectRef: PIXI.Graphics;
-  constructor(name: string, graph: PPGraph, customId: string) {
-    super(name, graph, customId);
+  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
+    super(name, graph, customArgs);
 
     this.addOutput('trigger', DATATYPE.TRIGGER);
 
@@ -82,7 +83,7 @@ export class Trigger extends PPNode {
     this._rectRef.beginFill(PIXI.utils.string2hex('#00FF00'));
     this._rectRef.drawRoundedRect(
       NODE_OUTLINE_DISTANCE + SOCKET_WIDTH,
-      NODE_OUTLINE_DISTANCE + NODE_MARGIN_TOP + NODE_HEADER_HEIGHT,
+      NODE_OUTLINE_DISTANCE + NODE_PADDING_TOP + NODE_HEADER_HEIGHT,
       NODE_WIDTH / 2,
       SOCKET_HEIGHT,
       NODE_CORNERRADIUS
@@ -93,11 +94,6 @@ export class Trigger extends PPNode {
     this._rectRef.interactive = true;
 
     this._rectRef.on('pointerdown', this.trigger.bind(this));
-
-    this.onExecute = function () {
-      // const start = this.getInputData(0) || url;
-      // this.setOutputData(0, output);
-    };
   }
   trigger(): void {
     console.log('Triggered node: ', this.name);
@@ -113,8 +109,8 @@ export class Trigger extends PPNode {
 export class TimeAndDate extends PPNode {
   date: Date;
 
-  constructor(name: string, graph: PPGraph, customId: string) {
-    super(name, graph, customId);
+  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
+    super(name, graph, customArgs);
 
     this.addOutput('date and time', DATATYPE.STRING);
     this.addOutput('time stamp', DATATYPE.NUMBER);
@@ -124,10 +120,8 @@ export class TimeAndDate extends PPNode {
     this.date = new Date();
 
     this.onExecute = function () {
-      // const a = this.getInputData(0) || 0;
-      this.setOutputData(0, this.date.getUTCDate());
-      // this.setOutputData(1, this.date.getTime());
-      this.setOutputData(1, Date.now());
+      this.setOutputData('date and time', this.date.getUTCDate());
+      this.setOutputData('time stamp', Date.now());
       console.log(this.result);
     };
   }

@@ -1,7 +1,7 @@
 import React from 'react';
 
 import {
-  NODE_MARGIN_TOP,
+  NODE_PADDING_TOP,
   NODE_OUTLINE_DISTANCE,
   NODE_HEADER_HEIGHT,
   NODE_WIDTH,
@@ -44,14 +44,14 @@ export function getElement(value: number | number[], index: number): number {
   return index < array.length ? array[index] : array[array.length - 1];
 }
 
-export function getNodeCommentPosX(x: number): number {
-  return x + NODE_OUTLINE_DISTANCE * 2 + NODE_WIDTH + SOCKET_WIDTH;
+export function getNodeCommentPosX(x: number, width: number): number {
+  return x + NODE_OUTLINE_DISTANCE * 2 + width + SOCKET_WIDTH;
 }
 
 export function getNodeCommentPosY(y: number): number {
   return (
     y +
-    NODE_MARGIN_TOP +
+    NODE_PADDING_TOP +
     NODE_HEADER_HEIGHT +
     NODE_OUTLINE_DISTANCE +
     SOCKET_TEXTMARGIN_TOP
@@ -134,4 +134,19 @@ export const mapRange = (
     limitedNewValue = Math.round(limitedNewValue);
   }
   return limitedNewValue;
+};
+
+export const fetchAsBlob = (url) => {
+  return fetch(url).then((response) => response.blob());
+};
+
+export const convertBlobToBase64 = (blob) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = reject;
+    reader.onload = () => {
+      resolve(reader.result);
+    };
+    reader.readAsDataURL(blob);
+  });
 };
