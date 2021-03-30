@@ -386,7 +386,9 @@ export class Note extends PPNode {
 
 export class Image extends PPNode {
   _imageRef: PIXI.Sprite;
-  textureLoaded: (baseTexture: PIXI.BaseTexture) => void;
+  _texture: PIXI.Texture;
+  _loader: PIXI.Loader;
+  adjustImageAndNodeSize: (baseTexture: PIXI.BaseTexture) => void;
 
   // uses customArgs?.objectURL as texture
   constructor(name: string, graph: PPGraph, customArgs?: CustomArgs) {
@@ -405,50 +407,19 @@ export class Image extends PPNode {
     this.addOutput('width', DATATYPE.NUMBER);
     this.addOutput('height', DATATYPE.NUMBER);
     // this.addInput('reload', DATATYPE.TRIGGER);
-    this.addInput('base64', DATATYPE.STRING, undefined, false);
+    this.addInput('base64', DATATYPE.STRING, customArgs?.base64, false);
+    console.log(customArgs);
+    console.log(customArgs.base64);
+    console.log(typeof customArgs.base64);
 
     this.name = 'Image';
     this.description = 'Adds an image';
 
-    this.onNodeAdded = () => {
-      const objectURL = customArgs?.objectURL;
-      const texture = PIXI.Texture.from(objectURL || EMPTY_TEXTURE);
+    // when texture is loaded get width and height
+    // and set proper aspect ratio
+    this.adjustImageAndNodeSize = (baseTexture) => {
+      console.log('textureLoaded');
 
-      if (objectURL) {
-        texture.baseTexture.on('loaded', this.textureLoaded.bind(this));
-      }
-
-      const image = new PIXI.Sprite(texture);
-      image.x = SOCKET_WIDTH / 2;
-      image.y = NODE_OUTLINE_DISTANCE;
-      image.width = nodeWidth;
-      image.height = nodeHeight;
-      (this._imageRef as any) = (this as PIXI.Container).addChild(image);
-
-      // store image as base64
-      if (objectURL) {
-        fetchAsBlob(objectURL)
-          .then(convertBlobToBase64)
-          .then((base64) => {
-            this.setInputData('base64', base64);
-          });
-      }
-    };
-
-    // when the Node is loaded, load the base64 image and adjust the size
-    this.onConfigure = (): void => {
-      const base64 = this.getInputData('base64');
-      const texture = PIXI.Texture.from(base64);
-
-      // the base64 texture is loaded synchroniously
-      // so we need to call textureLoaded directly
-      this.textureLoaded(texture.baseTexture);
-
-      // swap the texture
-      this._imageRef.texture = texture;
-    };
-
-    this.textureLoaded = (baseTexture) => {
       // get width and height
       const { width, height } = baseTexture;
 
@@ -461,8 +432,11 @@ export class Image extends PPNode {
       } else {
         newNodeWidth = newNodeWidth * aspectRatio;
       }
+      console.log(newNodeWidth, newNodeHeight);
 
       // set imageRef and node to new size
+      this._imageRef.x = SOCKET_WIDTH / 2;
+      this._imageRef.y = NODE_OUTLINE_DISTANCE;
       this._imageRef.width = newNodeWidth;
       this._imageRef.height = newNodeHeight;
       this.nodeWidth = newNodeWidth;
@@ -474,6 +448,46 @@ export class Image extends PPNode {
       // output width and height of image
       this.setOutputData('width', width);
       this.setOutputData('height', height);
+    };
+
+    this._loader = new PIXI.Loader(); // PixiJS exposes a premade instance for you to use.
+    this._loader.onComplete.add((loader, resources) => {
+      console.log(loader, resources);
+      const sprite = PIXI.Sprite.from(resources[this.id].texture);
+      (this._imageRef as any) = (this as PIXI.Container).addChild(sprite);
+      console.log(
+        resources[this.id].texture.height,
+        resources[this.id].texture.width
+      );
+      console.log(sprite.height, sprite.width);
+      this.adjustImageAndNodeSize(resources[this.id].texture.baseTexture);
+    });
+
+    this.onNodeAdded = () => {
+      const base64 = this.getInputData('base64');
+      if (this._loader.resources[this.id] === undefined && base64 !== '') {
+        this._loader.add(this.id, base64);
+        this._loader.load();
+      }
+    };
+
+    // when the Node is loaded, load the base64 image and adjust the size
+    this.onConfigure = (): void => {
+      if (this._loader.resources[this.id] === undefined) {
+        const base64 = this.getInputData('base64');
+        if (base64 !== undefined) {
+          this._loader.add(this.id, base64);
+          this._loader.load();
+        }
+      } else {
+        const sprite = PIXI.Sprite.from(
+          this._loader.resources[this.id]?.texture
+        );
+        (this._imageRef as any) = (this as PIXI.Container).addChild(sprite);
+        this.adjustImageAndNodeSize(
+          this._loader.resources[this.id].texture.baseTexture
+        );
+      }
     };
   }
 

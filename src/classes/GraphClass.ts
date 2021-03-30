@@ -333,17 +333,8 @@ export default class PPGraph {
       .on('pointerup', this._onNodePointerUpAndUpOutside.bind(this))
       .on('pointerover', this._onNodePointerOver.bind(this));
 
-    // // change add id to title
-    // const newName = `${node.nodeName} : ${node.id}`;
-    // node.nodeName = newName;
-    // console.log(node.nodeName);
-
     // add the node to the canvas
     this.nodeContainer.addChild(node);
-
-    // // move to center of canvas
-    // node.x = this.viewport.center.x - NODE_WIDTH / 2;
-    // node.y = this.viewport.center.y;
 
     // set comment position
     node.updateCommentPosition();
@@ -369,13 +360,6 @@ export default class PPGraph {
     this.checkIfSocketHasConnectionAndDeleteIt(input, true);
 
     let link = null;
-
-    // //this slots cannot be connected (different types)
-    // if (!LiteGraph.isValidConnection(output.type, input.type)) {
-    //   this.setDirtyCanvas(false, true);
-    //   if (changed) this.graph.connectionChange(this, link);
-    //   return null;
-    // }
 
     //create link class
     link = new PPLink(
