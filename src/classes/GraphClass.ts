@@ -1,7 +1,6 @@
 import * as PIXI from 'pixi.js';
 import strip from 'strip-comments';
 import { Viewport } from 'pixi-viewport';
-import * as dat from 'dat.gui';
 
 import {
   CONNECTION_COLOR_HEX,
@@ -17,8 +16,6 @@ import {
 import PPNode from './NodeClass';
 import Socket from './SocketClass';
 import PPLink from './LinkClass';
-
-let gui: dat.GUI;
 
 export default class PPGraph {
   app: PIXI.Application;
@@ -481,11 +478,6 @@ export default class PPGraph {
   }
 
   deselectAllNodes(): void {
-    if (gui instanceof dat.GUI) {
-      gui.destroy();
-      gui = undefined;
-    }
-
     Object.entries(this.nodes).forEach(([, node]) => {
       if (node.selected) {
         node.select(false);
