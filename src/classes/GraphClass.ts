@@ -46,6 +46,7 @@ export default class PPGraph {
   nodeContainer: PIXI.Container;
 
   onSelectionChange: ((selectedNodes: string[]) => void) | null;
+  onNodeDragMoveHandler: (event?: PIXI.InteractionEvent) => void;
 
   constructor(app: PIXI.Application, viewport: Viewport) {
     this.app = app;
@@ -167,7 +168,10 @@ export default class PPGraph {
     }
 
     // subscribe to pointermove
-    this.viewport.on('pointermove', this.onNodeDragMove.bind(this));
+    // first assign the bound function to a handler then add this handler as a listener
+    // otherwise removeListener won't work (bind creates a new function)
+    this.onNodeDragMoveHandler = this.onNodeDragMove.bind(this);
+    this.viewport.on('pointermove', this.onNodeDragMoveHandler);
   }
 
   onNodeDragMove(event: PIXI.InteractionEvent): void {
@@ -224,7 +228,7 @@ export default class PPGraph {
     console.log(node.id);
 
     // unsubscribe from pointermove
-    this.viewport.removeListener('pointermove', this.onNodeDragMove);
+    this.viewport.removeListener('pointermove', this.onNodeDragMoveHandler);
 
     if (this !== null) {
       if (this.clickedSocketRef === null) {
