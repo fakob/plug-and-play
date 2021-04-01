@@ -122,7 +122,6 @@ export class TimeAndDate extends PPNode {
     this.onExecute = function () {
       this.setOutputData('date and time', this.date.getUTCDate());
       this.setOutputData('time stamp', Date.now());
-      console.log(this.result);
     };
   }
 }

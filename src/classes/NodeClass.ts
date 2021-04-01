@@ -457,7 +457,7 @@ export default class PPNode extends PIXI.Container {
     // when the Node is selected/unselected turn on/off pointer events
     // this allows to zoom and drag when the node is not selected
     this.onNodeSelected = (selected) => {
-      console.log('I was selected: ', selected);
+      console.log(this.id, 'was selected:', selected);
       if (selected) {
         this.container.style.pointerEvents = 'auto';
       } else {
@@ -612,7 +612,6 @@ export default class PPNode extends PIXI.Container {
     this.on('pointermove', this._onPointerMove.bind(this));
     this.on('pointerover', this._onPointerOver.bind(this));
     this.on('pointerout', this._onPointerOut.bind(this));
-    this.on('click', this._onClick.bind(this));
     this.on('dblclick', this._onDoubleClick.bind(this));
     this.on('added', this._onAdded.bind(this));
     this.on('removed', this._onRemoved.bind(this));
@@ -651,22 +650,12 @@ export default class PPNode extends PIXI.Container {
     }
   }
 
-  _onPointerUpAndUpOutside(event: PIXI.InteractionEvent): void {
-    const evData = event.data.originalEvent as PointerEvent;
-    // if real dragend
-    if (this.clickPosition !== null) {
-      if (
-        Math.abs(this.clickPosition.x - evData.screenX) < 2 ||
-        Math.abs(this.clickPosition.y - evData.screenY) < 2
-      ) {
-        this._onClick();
-      } else {
-        event.stopPropagation();
-      }
-    }
+  _onPointerUpAndUpOutside(): void {
+    console.log('_onPointerUpAndUpOutside');
 
     this.alpha = 1;
     this.dragging = false;
+    this.cursor = 'move';
     // set the interactionData to null
     this.interactionData = null;
   }
@@ -754,16 +743,6 @@ export default class PPNode extends PIXI.Container {
     if (!this.dragging) {
       this.alpha = 1.0;
       this.cursor = 'default';
-    }
-  }
-
-  _onClick(): void {
-    if (this._selected && !this.dragging) {
-      this.select(false);
-      this.cursor = 'pointer';
-    } else {
-      this.select(true);
-      this.cursor = 'move';
     }
   }
 

@@ -206,14 +206,10 @@ const App = (): JSX.Element => {
 
     // register callbacks
     currentGraph.current.onSelectionChange = (selectedNodes: string[]) => {
-      console.log(selectedNodes);
       if (selectedNodes.length === 0) {
         setSelectedNode(null);
       } else {
         selectedNodes.forEach((nodeId) => {
-          console.log(
-            currentGraph.current.nodes.find((node) => node.id === nodeId)
-          );
           setSelectedNode(
             currentGraph.current.nodes.find((node) => node.id === nodeId)
           );

@@ -33,6 +33,7 @@ export default class PPGraph {
   overInputRef: null | Socket;
   dragSourcePoint: null | PIXI.Point;
   movingLink: null | PPLink;
+  draggingNodes: boolean;
 
   tempConnection: PIXI.Graphics;
   tempContainer: PIXI.Container;
@@ -43,7 +44,7 @@ export default class PPGraph {
   nodeContainer: PIXI.Container;
 
   onSelectionChange: ((selectedNodes: string[]) => void) | null;
-  onNodeDragMoveHandler: (event?: PIXI.InteractionEvent) => void;
+  onViewportMoveHandler: (event?: PIXI.InteractionEvent) => void;
 
   constructor(app: PIXI.Application, viewport: Viewport) {
     this.app = app;
@@ -133,13 +134,9 @@ export default class PPGraph {
     event.stopPropagation();
 
     const node = event.currentTarget as PPNode;
-    console.log(node.id);
+    // console.log(node.id);
 
-    console.log(this.clickedSocketRef);
-    if (this.clickedSocketRef === null) {
-      // clicked on the node, but not on a slot
-      this.selectNode(node);
-    } else {
+    if (this.clickedSocketRef !== null) {
       // check if user clicked InputSocket with link to move it
       this.movingLink = this.checkIfSocketIsInputAndHasConnection(
         this.clickedSocketRef
@@ -167,12 +164,12 @@ export default class PPGraph {
     // subscribe to pointermove
     // first assign the bound function to a handler then add this handler as a listener
     // otherwise removeListener won't work (bind creates a new function)
-    this.onNodeDragMoveHandler = this.onNodeDragMove.bind(this);
-    this.viewport.on('pointermove', this.onNodeDragMoveHandler);
+    this.onViewportMoveHandler = this.onViewportMove.bind(this);
+    this.viewport.on('pointermove', this.onViewportMoveHandler);
   }
 
-  onNodeDragMove(event: PIXI.InteractionEvent): void {
-    // console.log('onNodeDragMove');
+  onViewportMove(event: PIXI.InteractionEvent): void {
+    // console.log('onViewportMove');
     if (this.clickedSocketRef !== null && !this.clickedSocketRef.isInput()) {
       // remove original link
       if (this.movingLink !== null) {
@@ -215,20 +212,25 @@ export default class PPGraph {
       // offset curve to start from source
       this.tempConnection.x = sourcePointX;
       this.tempConnection.y = sourcePointY;
+    } else {
+      this.draggingNodes = true;
     }
   }
 
   _onNodePointerUpAndUpOutside(event: PIXI.InteractionEvent): void {
     console.log('_onNodePointerUpAndUpOutside');
 
-    const node = event.currentTarget as PPNode;
-    console.log(node.id);
-
     // unsubscribe from pointermove
-    this.viewport.removeListener('pointermove', this.onNodeDragMoveHandler);
+    this.viewport.removeListener('pointermove', this.onViewportMoveHandler);
 
     if (this !== null) {
       if (this.clickedSocketRef === null) {
+        if (!this.draggingNodes && event.target === event.currentTarget) {
+          // only select if this was not a drag action
+          // and the element that triggered the event (target) is the same as
+          // the element that the event listener is attached to (currentTarget)
+          this.selectNode(event.currentTarget as PPNode);
+        }
         // this.viewport.plugins.resume('drag');
       } else {
         // check if over input
@@ -252,13 +254,7 @@ export default class PPGraph {
     this.clickedSocketRef = null;
     this.overInputRef = null;
     this.movingLink = null;
-  }
-
-  _onNodePointerOver(event: PIXI.InteractionEvent): void {
-    console.log('_onNodePointerOver');
-
-    const node = event.currentTarget as PPNode;
-    console.log(node.id);
+    this.draggingNodes = false;
   }
 
   // GETTERS & SETTERS
@@ -331,8 +327,7 @@ export default class PPGraph {
     node
       .on('pointerdown', this._onNodePointerDown.bind(this))
       .on('pointerupoutside', this._onNodePointerUpAndUpOutside.bind(this))
-      .on('pointerup', this._onNodePointerUpAndUpOutside.bind(this))
-      .on('pointerover', this._onNodePointerOver.bind(this));
+      .on('pointerup', this._onNodePointerUpAndUpOutside.bind(this));
 
     // add the node to the canvas
     this.nodeContainer.addChild(node);
@@ -464,10 +459,9 @@ export default class PPGraph {
   }
 
   selectNode(node: PPNode): void {
+    this.deselectAllNodes();
     if (node === null) {
-      this.deselectAllNodes();
     } else {
-      this.deselectAllNodes();
       node.select(true);
       this.selectedNodes = [node.id];
 
