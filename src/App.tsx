@@ -71,8 +71,10 @@ const App = (): JSX.Element => {
             break;
           case 'txt':
             data = await response.text();
-            newNode = currentGraph.current.createAndAddNode('Note');
-            (newNode as any).setCleanText(data);
+            newNode = currentGraph.current.createAndAddNode('Label', {
+              data,
+            });
+            // (newNode as any).setCleanText(data);
             break;
           case 'jpg':
           case 'png':

@@ -138,6 +138,11 @@ export default class PPNode extends PIXI.Container {
       'commentContainer'
     ) as PIXI.Container).addChild(nodeComment);
 
+    // hybrid nodes do not show the node name
+    if (this.isHybrid) {
+      this._NodeNameRef.alpha = 0;
+    }
+
     // draw shape
     this.drawNodeShape();
 
@@ -280,6 +285,15 @@ export default class PPNode extends PIXI.Container {
     }
   }
 
+  resizeNode(width: number, height: number): void {
+    // set new size
+    this.nodeWidth = width;
+    this.nodeHeight = height;
+
+    // update node shape
+    this.drawNodeShape();
+  }
+
   drawNodeShape(selected: boolean = this._selected): void {
     const countOfVisibleInputSockets = this.inputSocketArray.filter(
       (item) => item.visible === true
@@ -318,16 +332,17 @@ export default class PPNode extends PIXI.Container {
     }
     this._BackgroundRef.endFill();
 
+    // hide header for hybrid nodes
+    const headerHeight = this.isHybrid
+      ? 0
+      : NODE_PADDING_TOP + NODE_HEADER_HEIGHT;
     // redraw outputs
     let posCounter = 0;
     this.outputSocketArray.forEach((item) => {
       // console.log(item, item.x, item.getBounds().width, this.nodeWidth);
       if (item.visible) {
         item.y =
-          NODE_OUTLINE_DISTANCE +
-          NODE_PADDING_TOP +
-          NODE_HEADER_HEIGHT +
-          posCounter * SOCKET_HEIGHT;
+          NODE_OUTLINE_DISTANCE + headerHeight + posCounter * SOCKET_HEIGHT;
         item.x = this.nodeWidth - NODE_WIDTH;
         posCounter += 1;
       }
@@ -339,8 +354,7 @@ export default class PPNode extends PIXI.Container {
       if (item.visible) {
         item.y =
           NODE_OUTLINE_DISTANCE +
-          NODE_PADDING_TOP +
-          NODE_HEADER_HEIGHT +
+          headerHeight +
           countOfVisibleOutputSockets * SOCKET_HEIGHT +
           posCounter * SOCKET_HEIGHT;
         posCounter += 1;
@@ -446,7 +460,7 @@ export default class PPNode extends PIXI.Container {
     const screenPoint = this.screenPoint();
     this.container.classList.add(styles.hybridContainer);
     this.container.style.width = `${this.nodeWidth}px`;
-    this.container.style.height = `${this.nodeWidth}px`;
+    this.container.style.height = `${this.nodeHeight}px`;
 
     // set initial position
     this.container.style.transform = `translate(50%, 50%)`;
