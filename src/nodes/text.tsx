@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { Resizable } from 're-resizable';
-import { Button, ButtonGroup, Icon, H1 } from '@blueprintjs/core';
+import { Button, ButtonGroup, Icon, H1, Divider } from '@blueprintjs/core';
 // import { Classes, Popover2 } from '@blueprintjs/popover2';
 import {
   Editor,
@@ -43,7 +43,7 @@ declare module 'slate' {
 }
 
 export class Text extends PPNode {
-  update: () => void;
+  update: (width?: number, height?: number) => void;
   convertString: (text: string) => any;
 
   constructor(name: string, graph: PPGraph, customArgs?: CustomArgs) {
@@ -59,10 +59,11 @@ export class Text extends PPNode {
     });
 
     this.addOutput('data', DATATYPE.STRING, undefined, false);
+    this.addInput('data', DATATYPE.ANY, customArgs?.data ?? undefined, false);
     this.addInput(
-      'data',
+      'initialData',
       DATATYPE.STRING,
-      customArgs?.data ?? undefined,
+      customArgs?.initialData ?? undefined,
       false
     );
     this.addInput(
@@ -84,12 +85,18 @@ export class Text extends PPNode {
     // when the Node is added, add the container and react component
     this.onNodeAdded = () => {
       let data = this.getInputData('data');
-      // if string was inserted, return a value array of children derived by splitting the string
-      if (typeof data === 'string') {
-        data = this.convertString(data);
+
+      // check if data is null or undefined
+      // and use initialData to create data
+      if (data == null) {
+        data = this.convertString(this.getInputData('initialData'));
+        // store data
+        this.setInputData('data', data);
       }
-      console.log(data);
+
       this.createContainerComponent(document, Parent, {
+        width: nodeWidth,
+        height: nodeHeight,
         data,
         isEditing: true,
       });
@@ -105,16 +112,21 @@ export class Text extends PPNode {
       });
     };
 
-    // when the Node is loaded, update the react component
+    // when the stored data is read, resize the node and update the react component
     this.onConfigure = (): void => {
-      this.update();
+      const width = this.getInputData('width');
+      const height = this.getInputData('height');
+      this.resizeNode(width, height);
+
+      this.update(width, height);
     };
 
-    // when the Node is loaded, update the react component
-    this.update = (): void => {
+    // update the react component
+    this.update = (width?: number, height?: number): void => {
       const data = this.getInputData('data');
-      console.log(data);
       this.renderReactComponent(Parent, {
+        width,
+        height,
         data,
       });
       this.setOutputData('data', data);
@@ -255,16 +267,24 @@ export class Text extends PPNode {
     const Parent = (props) => {
       // const focused = useFocused();
       // const selected = useSelected();
-      const [width, setWidth] = React.useState(nodeWidth);
-      const [height, setHeight] = React.useState(nodeHeight);
+      const [width, setWidth] = React.useState(props.width);
+      const [height, setHeight] = React.useState(props.height);
       const [value, setValue] = useState<Descendant[]>(
         props.data === '' ? initialValue : props.data
       );
       const editor = useMemo(() => withReact(createEditor()), []);
 
+      // run on any props change after initial creation
       useEffect(() => {
         setValue(props.data === '' ? initialValue : props.data);
-      }, [props.data]);
+        // change width/height only if it was set
+        if (props.width) {
+          setWidth(props.width);
+        }
+        if (props.height) {
+          setHeight(props.height);
+        }
+      }, [props.data, props.width, props.height]);
 
       // useEffect(() => {
       //   console.log('focused', ReactEditor.isFocused(editor));
@@ -298,47 +318,45 @@ export class Text extends PPNode {
             setWidth(width);
             setHeight(height);
             this.resizeNode(width, height);
-            // console.log(width, height);
           }}
           onResizeStop={(e, direction, ref, d) => {
             const width = ref.offsetWidth;
             const height = ref.offsetHeight;
             this.setInputData('width', width);
             this.setInputData('height', height);
-            // console.log(width, height);
           }}
         >
-          <Slate
-            editor={editor}
-            value={value}
-            onChange={(value) => {
-              setValue(value);
-              console.log(value);
-
-              this.setInputData('data', value);
-              this.setOutputData('data', value);
-            }}
-          >
-            <HoveringToolbar />
-            <Editable
-              renderLeaf={(props) => <Leaf {...props} />}
-              placeholder="Enter some text..."
-              onDOMBeforeInput={(event: InputEvent) => {
-                console.log(event);
-                switch (event.inputType) {
-                  case 'formatBold':
-                    event.preventDefault();
-                    return toggleFormat(editor, 'bold');
-                  case 'formatItalic':
-                    event.preventDefault();
-                    return toggleFormat(editor, 'italic');
-                  case 'formatUnderline':
-                    event.preventDefault();
-                    return toggleFormat(editor, 'underline');
-                }
+          <div className={styles.slateEditorContainer}>
+            <Slate
+              editor={editor}
+              value={value}
+              onChange={(value) => {
+                setValue(value);
+                this.setInputData('data', value);
+                this.setOutputData('data', value);
               }}
-            />
-          </Slate>
+            >
+              <HoveringToolbar />
+              <Editable
+                renderLeaf={(props) => <Leaf {...props} />}
+                placeholder="Enter some text..."
+                onDOMBeforeInput={(event: InputEvent) => {
+                  // console.log(event);
+                  switch (event.inputType) {
+                    case 'formatBold':
+                      event.preventDefault();
+                      return toggleFormat(editor, 'bold');
+                    case 'formatItalic':
+                      event.preventDefault();
+                      return toggleFormat(editor, 'italic');
+                    case 'formatUnderline':
+                      event.preventDefault();
+                      return toggleFormat(editor, 'underline');
+                  }
+                }}
+              />
+            </Slate>
+          </div>
         </Resizable>
       );
     };

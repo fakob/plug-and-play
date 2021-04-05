@@ -72,7 +72,7 @@ const App = (): JSX.Element => {
           case 'txt':
             data = await response.text();
             newNode = currentGraph.current.createAndAddNode('Text', {
-              data,
+              initialData: data,
             });
             break;
           case 'jpg':

@@ -124,8 +124,12 @@
 }
 
 .resizeElement {
-  display: 'flex';
-  padding: '10px';
+  display: flex;
+  padding: 10px;
+}
+
+.slateEditorContainer {
+  overflow: auto;
 }
 
 .slateMenu {
