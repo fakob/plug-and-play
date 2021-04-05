@@ -215,10 +215,14 @@ type SliderWidgetProps = {
 const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (props) => {
   const [data, setData] = useState(Number(props.data));
   const [minValue, setMinValue] = useState(
-    props.property.custom?.minValue ?? 0
+    props.property.custom?.minValue
+      ? Math.min(props.property.custom?.minValue, data)
+      : 0
   );
   const [maxValue, setMaxValue] = useState(
-    props.property.custom?.maxValue ?? 100
+    props.property.custom?.maxValue
+      ? Math.max(props.property.custom?.maxValue, data)
+      : 0
   );
   const [round, setRound] = useState(props.property.custom?.round ?? false);
   const [stepSizeValue] = useState(props.property.custom?.stepSize ?? 0.01);
