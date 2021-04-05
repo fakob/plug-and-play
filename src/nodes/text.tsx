@@ -1,6 +1,23 @@
-import React, { useEffect, useMemo, useState, useRef } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { Resizable } from 're-resizable';
-import { Button, ButtonGroup, Icon, H1, Divider } from '@blueprintjs/core';
+import {
+  Button,
+  ButtonGroup,
+  Icon,
+  H1,
+  H2,
+  H3,
+  H4,
+  H5,
+  H6,
+  Divider,
+} from '@blueprintjs/core';
 // import { Classes, Popover2 } from '@blueprintjs/popover2';
 import {
   BaseEditor,
@@ -13,6 +30,7 @@ import {
   Transforms,
 } from 'slate';
 import { Slate, Editable, withReact, ReactEditor, useSlate } from 'slate-react';
+import { HistoryEditor, withHistory } from 'slate-history';
 import { Menu, Portal } from '../utils/slate-editor-components';
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
@@ -20,26 +38,51 @@ import { CustomArgs } from '../utils/interfaces';
 import { DATATYPE } from '../utils/constants';
 import styles from '../utils/style.module.css';
 
-type CustomElement = { type: 'paragraph'; children: CustomText[] };
+// type CustomElement = { type: 'paragraph'; children: CustomText[] };
 
-export type CustomText = {
-  bold?: boolean;
-  italic?: boolean;
-  code?: boolean;
-  text: string;
+// export type CustomText = {
+//   bold?: boolean;
+//   italic?: boolean;
+//   code?: boolean;
+//   text: string;
+// };
+
+// export type EmptyText = {
+//   text: string;
+// };
+
+// declare module 'slate' {
+//   interface CustomTypes {
+//     Editor: BaseEditor & ReactEditor & HistoryEditor;
+//     Element: CustomElement;
+//     Text: CustomText | EmptyText;
+//   }
+// }
+
+export type CustomEditor = BaseEditor & ReactEditor & HistoryEditor;
+
+export type ParagraphElement = {
+  type?: 'paragraph';
+  children: CustomText[];
 };
 
-export type EmptyText = {
-  text: string;
+export type HeadingElement = {
+  type: 'heading';
+  level: number;
+  children: CustomText[];
 };
 
-export type CustomEditor = BaseEditor & ReactEditor;
+export type CustomElement = ParagraphElement | HeadingElement;
+
+export type FormattedText = { text: string; bold: boolean; italic: boolean };
+
+export type CustomText = FormattedText;
 
 declare module 'slate' {
   interface CustomTypes {
     Editor: CustomEditor;
     Element: CustomElement;
-    Text: CustomText | EmptyText;
+    Text: CustomText;
   }
 }
 
@@ -151,6 +194,30 @@ export class Text extends PPNode {
       return !!match;
     };
 
+    const toggleType = (editor, nodeType, nodeLevel) => {
+      const match = isTypeActive(editor, nodeType, nodeLevel);
+      Transforms.setNodes(
+        editor,
+        {
+          type: match ? 'paragraph' : nodeType,
+          level: match ? undefined : nodeLevel,
+        },
+        { match: (n) => Editor.isBlock(editor, n) }
+      );
+    };
+
+    const isTypeActive = (editor, type, nodeLevel) => {
+      const [match] = Editor.nodes(editor, {
+        match: (n) => {
+          if (type === 'heading') {
+            return (n as any).type === type && (n as any).level === nodeLevel;
+          }
+          return (n as any).type === type;
+        },
+      });
+      return !!match;
+    };
+
     const HoveringToolbar = () => {
       const ref = useRef<HTMLDivElement | null>();
       const editor = useSlate();
@@ -158,6 +225,7 @@ export class Text extends PPNode {
       useEffect(() => {
         const el = ref.current;
         const { selection } = editor;
+        console.log(selection);
 
         if (!el) {
           return;
@@ -192,9 +260,16 @@ export class Text extends PPNode {
       return (
         <Portal>
           <Menu ref={ref} className={styles.slateMenu}>
+            <TypeButton type="heading" level={1} icon="header" />
+            <TypeButton type="heading" level={2} icon="header-one" />
+            <TypeButton type="heading" level={3} icon="header-two" />
+            <TypeButton type="paragraph" icon="paragraph" />
+            <TypeButton type="code" icon="code" />
+            <Divider />
             <FormatButton format="bold" icon="bold" />
             <FormatButton format="italic" icon="italic" />
             <FormatButton format="underlined" icon="underline" />
+            <FormatButton format="strikethrough" icon="strikethrough" />
           </Menu>
         </Portal>
       );
@@ -222,6 +297,20 @@ export class Text extends PPNode {
       );
     };
 
+    const TypeButton = ({ type, icon, level = undefined }) => {
+      const editor = useSlate();
+      return (
+        <Button
+          active={isTypeActive(editor, type, level)}
+          onMouseDown={(event) => {
+            event.preventDefault();
+            toggleType(editor, type, level);
+          }}
+          icon={icon}
+        />
+      );
+    };
+
     const Leaf = ({ attributes, children, leaf }) => {
       if (leaf.bold) {
         children = <strong>{children}</strong>;
@@ -235,7 +324,38 @@ export class Text extends PPNode {
         children = <u>{children}</u>;
       }
 
+      if (leaf.strikethrough) {
+        children = <del>{children}</del>;
+      }
+
       return <span {...attributes}>{children}</span>;
+    };
+
+    const HeadingElement = (props) => {
+      console.log(props);
+      switch (props.element?.level) {
+        case 1:
+          return <H1 {...props.attributes}>{props.children}</H1>;
+        case 2:
+          return <H2 {...props.attributes}>{props.children}</H2>;
+        case 3:
+          return <H3 {...props.attributes}>{props.children}</H3>;
+
+        default:
+          return <H1 {...props.attributes}>{props.children}</H1>;
+      }
+    };
+
+    const CodeElement = (props) => {
+      return (
+        <pre {...props.attributes}>
+          <code>{props.children}</code>
+        </pre>
+      );
+    };
+
+    const ParagraphElement = (props) => {
+      return <p {...props.attributes}>{props.children}</p>;
     };
 
     // small presentational component
@@ -245,7 +365,7 @@ export class Text extends PPNode {
       const [width, setWidth] = React.useState(props.width);
       const [height, setHeight] = React.useState(props.height);
       const [value, setValue] = useState<Descendant[]>(props.data);
-      const editor = useMemo(() => withReact(createEditor()), []);
+      const editor = useMemo(() => withHistory(withReact(createEditor())), []);
 
       // run on any props change after initial creation
       useEffect(() => {
@@ -260,6 +380,19 @@ export class Text extends PPNode {
           setHeight(props.height);
         }
       }, [props.data, props.width, props.height]);
+
+      // Define a rendering function based on the element passed to `props`. We use
+      // `useCallback` here to memoize the function for subsequent renders.
+      const renderElement = useCallback((props) => {
+        switch (props.element.type) {
+          case 'heading':
+            return <HeadingElement {...props} />;
+          case 'code':
+            return <CodeElement {...props} />;
+          default:
+            return <ParagraphElement {...props} />;
+        }
+      }, []);
 
       // useEffect(() => {
       //   console.log('focused', ReactEditor.isFocused(editor));
@@ -317,6 +450,7 @@ export class Text extends PPNode {
             >
               <HoveringToolbar />
               <Editable
+                renderElement={renderElement}
                 renderLeaf={(props) => <Leaf {...props} />}
                 placeholder="Enter some text..."
                 onDOMBeforeInput={(event: InputEvent) => {

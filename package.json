@@ -47,6 +47,7 @@
     "react-dropzone": "^11.3.1",
     "react-monaco-editor": "^0.42.0",
     "slate": "^0.62.0",
+    "slate-history": "^0.62.0",
     "slate-react": "^0.62.0",
     "strip-comments": "^2.0.1",
     "to-json-schema": "^0.2.5",
