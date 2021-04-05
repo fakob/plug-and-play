@@ -260,28 +260,22 @@ export class Text extends PPNode {
       return (
         <Portal>
           <Menu ref={ref} className={styles.slateMenu}>
-            <TypeButton type="heading" level={1} icon="header" />
-            <TypeButton type="heading" level={2} icon="header-one" />
-            <TypeButton type="heading" level={3} icon="header-two" />
-            <TypeButton type="paragraph" icon="paragraph" />
-            <TypeButton type="code" icon="code" />
-            <Divider />
-            <FormatButton format="bold" icon="bold" />
-            <FormatButton format="italic" icon="italic" />
-            <FormatButton format="underlined" icon="underline" />
-            <FormatButton format="strikethrough" icon="strikethrough" />
+            <ButtonGroup minimal={true}>
+              <TypeButton type="heading" level={1} icon="header" />
+              <TypeButton type="heading" level={2} icon="header-one" />
+              <TypeButton type="heading" level={3} icon="header-two" />
+              <TypeButton type="paragraph" icon="paragraph" />
+              <TypeButton type="code" icon="code" />
+              <Divider />
+              <FormatButton format="bold" icon="bold" />
+              <FormatButton format="italic" icon="italic" />
+              <FormatButton format="underlined" icon="underline" />
+              <FormatButton format="strikethrough" icon="strikethrough" />
+            </ButtonGroup>
           </Menu>
         </Portal>
       );
     };
-
-    // <ButtonGroup style={{ minWidth: 200 }} {...bgProps}>
-    //   <Button icon="database">{!iconOnly && 'Queries'}</Button>
-    //   <Button icon="function">{!iconOnly && 'Functions'}</Button>
-    //   <AnchorButton icon="cog" rightIcon="settings">
-    //     {!iconOnly && 'Options'}
-    //   </AnchorButton>
-    // </ButtonGroup>;
 
     const FormatButton = ({ format, icon }) => {
       const editor = useSlate();
