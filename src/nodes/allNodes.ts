@@ -5,11 +5,10 @@ import PPNode from '../classes/NodeClass';
 import * as base from './base';
 import * as draw from './draw';
 import * as math from './math';
-
-console.log(math);
+import * as text from './text';
 
 export const registerAllNodeTypes = (graph: PPGraph): void => {
-  const categories = { base, math, draw };
+  const categories = { base, math, draw, text };
   for (const [categoryKey, categoryValue] of Object.entries(categories)) {
     console.log(categoryKey, categoryValue);
     for (const key of Object.keys(categoryValue)) {

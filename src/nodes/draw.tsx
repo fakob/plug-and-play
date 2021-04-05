@@ -1,15 +1,6 @@
 import * as PIXI from 'pixi.js';
-import React, { useEffect, useMemo, useState } from 'react';
+import React from 'react';
 import { Resizable } from 're-resizable';
-import { BaseEditor, createEditor, Descendant } from 'slate';
-import {
-  Slate,
-  Editable,
-  withReact,
-  ReactEditor,
-  useFocused,
-  useSelected,
-} from 'slate-react';
 import { EditableText, H1 } from '@blueprintjs/core';
 import {
   IRegion,
@@ -36,18 +27,6 @@ import {
   NOTE_TEXTURE,
   SOCKET_WIDTH,
 } from '../utils/constants';
-import styles from '../utils/style.module.css';
-
-type CustomElement = { type: 'paragraph'; children: CustomText[] };
-type CustomText = { text: string };
-
-declare module 'slate' {
-  interface CustomTypes {
-    Editor: BaseEditor & ReactEditor;
-    Element: CustomElement;
-    Text: CustomText;
-  }
-}
 
 export class DrawRect extends PPNode {
   _color: number;
@@ -769,143 +748,6 @@ export class Label extends PPNode {
               multiline={true}
             />
           </H1>
-        </Resizable>
-      );
-    };
-
-    this.onExecute = (input, output) => {
-      const data = input['data'];
-      this.update();
-      this.setOutputData('data', data);
-    };
-  }
-}
-
-export class Editor extends PPNode {
-  update: () => void;
-
-  constructor(name: string, graph: PPGraph, customArgs?: CustomArgs) {
-    const nodeWidth = 300;
-    const nodeHeight = 300;
-    const isHybrid = true;
-
-    super(name, graph, {
-      ...customArgs,
-      nodeWidth,
-      nodeHeight,
-      isHybrid,
-    });
-
-    this.addOutput('data', DATATYPE.STRING, undefined, false);
-    this.addInput('data', DATATYPE.STRING, customArgs?.data ?? '', false);
-    this.addInput(
-      'width',
-      DATATYPE.NUMBER,
-      customArgs?.width ?? nodeWidth,
-      false
-    );
-    this.addInput(
-      'height',
-      DATATYPE.NUMBER,
-      customArgs?.height ?? nodeHeight,
-      false
-    );
-
-    this.name = 'Editor';
-    this.description = 'Adds text';
-
-    // when the Node is added, add the container and react component
-    this.onNodeAdded = () => {
-      const data = this.getInputData('data') ?? '';
-      this.createContainerComponent(document, Parent, {
-        data,
-        isEditing: true,
-      });
-      this.container.style.width = 'auto';
-      this.container.style.height = 'auto';
-    };
-
-    // when the Node is loaded, update the react component
-    this.onConfigure = (): void => {
-      this.update();
-    };
-
-    // when the Node is loaded, update the react component
-    this.update = (): void => {
-      const data = this.getInputData('data') ?? '';
-      this.renderReactComponent(Parent, {
-        data,
-      });
-      this.setOutputData('data', data);
-    };
-
-    const initialValue: Descendant[] = [
-      {
-        type: 'paragraph',
-        children: [
-          { text: 'This is editable plain text, just like a <textarea>!' },
-        ],
-      },
-    ];
-
-    // small presentational component
-    const Parent = (props) => {
-      // const focused = useFocused();
-      // const selected = useSelected();
-      const [width, setWidth] = React.useState(nodeWidth);
-      const [height, setHeight] = React.useState(nodeHeight);
-      const [value, setValue] = useState<Descendant[]>(initialValue);
-      const editor = useMemo(() => withReact(createEditor()), []);
-
-      // useEffect(() => {
-      //   console.log('focused', ReactEditor.isFocused(editor));
-      // }, [ReactEditor.isFocused(editor)]);
-
-      return (
-        <Resizable
-          enable={{
-            right: true,
-            bottom: true,
-            bottomRight: true,
-            top: false,
-            left: false,
-            topRight: false,
-            topLeft: false,
-            bottomLeft: false,
-          }}
-          className={styles.resizeElement}
-          style={
-            {
-              // border: ReactEditor.isFocused(editor)
-              //   ? 'solid 1px #ddd'
-              //   : undefined,
-              // background: ReactEditor.isFocused(editor) ? '#f0f0f0' : undefined,
-            }
-          }
-          size={{ width, height }}
-          onResize={(e, direction, ref, d) => {
-            const width = ref.offsetWidth;
-            const height = ref.offsetHeight;
-            setWidth(width);
-            setHeight(height);
-            this.resizeNode(width, height);
-            // console.log(width, height);
-          }}
-          onResizeStop={(e, direction, ref, d) => {
-            const width = ref.offsetWidth;
-            const height = ref.offsetHeight;
-            this.setInputData('width', width);
-            this.setInputData('height', height);
-            // console.log(width, height);
-          }}
-        >
-          <Slate
-            editor={editor}
-            value={value}
-            onChange={(value) => setValue(value)}
-          >
-            <Editable placeholder="Enter some plain text..." />
-          </Slate>
         </Resizable>
       );
     };
