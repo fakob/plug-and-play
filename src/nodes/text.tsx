@@ -3,13 +3,14 @@ import { Resizable } from 're-resizable';
 import { Button, ButtonGroup, Icon, H1, Divider } from '@blueprintjs/core';
 // import { Classes, Popover2 } from '@blueprintjs/popover2';
 import {
-  Editor,
-  Transforms,
-  Text as SlateText,
-  createEditor,
   BaseEditor,
-  Range,
+  createEditor,
   Descendant,
+  Editor,
+  Node,
+  Range,
+  Text as SlateText,
+  Transforms,
 } from 'slate';
 import { Slate, Editable, withReact, ReactEditor, useSlate } from 'slate-react';
 import { Menu, Portal } from '../utils/slate-editor-components';
@@ -58,14 +59,15 @@ export class Text extends PPNode {
       isHybrid,
     });
 
-    this.addOutput('data', DATATYPE.STRING, undefined, false);
-    this.addInput('data', DATATYPE.ANY, customArgs?.data ?? undefined, false);
+    this.addOutput('data', DATATYPE.ANY, undefined, false);
+    this.addOutput('text', DATATYPE.STRING, undefined, false);
     this.addInput(
       'initialData',
       DATATYPE.STRING,
-      customArgs?.initialData ?? undefined,
+      customArgs?.initialData ?? 'Write away...',
       false
     );
+    this.addInput('data', DATATYPE.ANY, customArgs?.data ?? undefined, false);
     this.addInput(
       'width',
       DATATYPE.NUMBER,
@@ -131,33 +133,6 @@ export class Text extends PPNode {
       });
       this.setOutputData('data', data);
     };
-
-    const initialValue: Descendant[] = [
-      {
-        type: 'paragraph',
-        children: [
-          {
-            text:
-              'This example shows how you can make a hovering menu appear above your content, which you can use to make text ',
-          },
-          { text: 'bold', bold: true },
-          { text: ', ' },
-          { text: 'italic', italic: true },
-          { text: ', or anything else you might want to do!' },
-        ],
-      },
-      {
-        type: 'paragraph',
-        children: [
-          { text: 'Try it out yourself! Just ' },
-          {
-            text: 'select any piece of text and the menu will appear',
-            bold: true,
-          },
-          { text: '.' },
-        ],
-      },
-    ];
 
     const toggleFormat = (editor, format) => {
       const isActive = isFormatActive(editor, format);
@@ -269,15 +244,15 @@ export class Text extends PPNode {
       // const selected = useSelected();
       const [width, setWidth] = React.useState(props.width);
       const [height, setHeight] = React.useState(props.height);
-      const [value, setValue] = useState<Descendant[]>(
-        props.data === '' ? initialValue : props.data
-      );
+      const [value, setValue] = useState<Descendant[]>(props.data);
       const editor = useMemo(() => withReact(createEditor()), []);
 
       // run on any props change after initial creation
       useEffect(() => {
-        setValue(props.data === '' ? initialValue : props.data);
-        // change width/height only if it was set
+        // change only if it was set
+        if (props.data) {
+          setValue(props.data);
+        }
         if (props.width) {
           setWidth(props.width);
         }
@@ -333,7 +308,11 @@ export class Text extends PPNode {
               onChange={(value) => {
                 setValue(value);
                 this.setInputData('data', value);
-                this.setOutputData('data', value);
+                this.setInputData('data', value);
+                this.setOutputData(
+                  'text',
+                  value.map((n) => Node.string(n)).join('\n')
+                );
               }}
             >
               <HoveringToolbar />
@@ -365,6 +344,7 @@ export class Text extends PPNode {
       const data = input['data'];
       this.update();
       this.setOutputData('data', data);
+      this.setOutputData('text', data.map((n) => Node.string(n)).join('\n'));
     };
   }
 }
