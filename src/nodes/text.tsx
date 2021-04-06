@@ -6,19 +6,7 @@ import React, {
   useState,
 } from 'react';
 import { Resizable } from 're-resizable';
-import {
-  Button,
-  ButtonGroup,
-  Icon,
-  H1,
-  H2,
-  H3,
-  H4,
-  H5,
-  H6,
-  Divider,
-} from '@blueprintjs/core';
-// import { Classes, Popover2 } from '@blueprintjs/popover2';
+import { Button, ButtonGroup, H1, H2, H3, Divider } from '@blueprintjs/core';
 import {
   BaseEditor,
   createEditor,
@@ -37,27 +25,6 @@ import PPNode from '../classes/NodeClass';
 import { CustomArgs } from '../utils/interfaces';
 import { DATATYPE } from '../utils/constants';
 import styles from '../utils/style.module.css';
-
-// type CustomElement = { type: 'paragraph'; children: CustomText[] };
-
-// export type CustomText = {
-//   bold?: boolean;
-//   italic?: boolean;
-//   code?: boolean;
-//   text: string;
-// };
-
-// export type EmptyText = {
-//   text: string;
-// };
-
-// declare module 'slate' {
-//   interface CustomTypes {
-//     Editor: BaseEditor & ReactEditor & HistoryEditor;
-//     Element: CustomElement;
-//     Text: CustomText | EmptyText;
-//   }
-// }
 
 export type CustomEditor = BaseEditor & ReactEditor & HistoryEditor;
 
