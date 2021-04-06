@@ -23,7 +23,10 @@ import { Menu, Portal } from '../utils/slate-editor-components';
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
 import { CustomArgs } from '../utils/interfaces';
-import { convertStringToSlateNodes } from '../utils/utils';
+import {
+  convertStringToSlateNodes,
+  convertSlateNodesToString,
+} from '../utils/utils';
 import { DATATYPE } from '../utils/constants';
 import styles from '../utils/style.module.css';
 
@@ -451,10 +454,7 @@ const SlateEditorContainer: React.FunctionComponent<SlateEditorContainerProps> =
           setValue(value);
           props.setInputData('data', value);
           props.setInputData('data', value);
-          props.setOutputData(
-            'text',
-            value.map((n) => Node.string(n)).join('\n')
-          );
+          props.setOutputData('text', convertSlateNodesToString(value));
         }}
       >
         <HoveringToolbar />
