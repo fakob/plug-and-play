@@ -97,14 +97,6 @@ export class Text extends PPNode {
     this.name = 'Text';
     this.description = 'Adds text';
 
-    const baseProps = {
-      resizeNode: this.resizeNode.bind(this),
-      setInputData: this.setInputData.bind(this),
-      setOutputData: this.setOutputData.bind(this),
-      width: nodeWidth,
-      height: nodeHeight,
-    };
-
     // when the Node is added, add the container and react component
     this.onNodeAdded = () => {
       let data = this.getInputData('data');
@@ -145,18 +137,34 @@ export class Text extends PPNode {
         data,
       });
       this.setOutputData('data', data);
+      this.setOutputData('text', convertSlateNodesToString(data));
     };
 
-    this.onExecute = (input, output) => {
-      const data = input['data'];
-      this.update();
-      this.setOutputData('data', data);
-      this.setOutputData('text', data.map((n) => Node.string(n)).join('\n'));
+    // this.onExecute = (input, output) => {
+    //   // const data = input['data']; // text can not be updated while running when using this function. Had to use getInputData. Why?
+    //   const data = this.getInputData('data');
+    //   this.setOutputData('data', data);
+    //   this.setOutputData('text', convertSlateNodesToString(data));
+
+    //   // without using the update function, a linked react component does not get updated while executing
+    //   // with using the update funciton, the react component rerenders all the time
+    //   // and the HoveringToolbar flickers and becomes unusable
+    //   // this.update();
+    // };
+
+    const baseProps = {
+      update: this.update.bind(this),
+      resizeNode: this.resizeNode.bind(this),
+      setInputData: this.setInputData.bind(this),
+      setOutputData: this.setOutputData.bind(this),
+      width: nodeWidth,
+      height: nodeHeight,
     };
   }
 }
 
 type ParentProps = {
+  update(): void;
   resizeNode(width: number, height: number): void;
   setInputData(name: string, data: any): void;
   setOutputData(name: string, data: any): void;
@@ -221,6 +229,7 @@ const Parent: React.FunctionComponent<ParentProps> = (props) => {
       }}
     >
       <SlateEditorContainer
+        update={props.update}
         setInputData={props.setInputData}
         setOutputData={props.setOutputData}
         width={props.width}
@@ -232,6 +241,7 @@ const Parent: React.FunctionComponent<ParentProps> = (props) => {
 };
 
 type SlateEditorContainerProps = {
+  update(): void;
   setInputData(name: string, data: any): void;
   setOutputData(name: string, data: any): void;
   isEditing?: boolean;
@@ -327,7 +337,7 @@ const SlateEditorContainer: React.FunctionComponent<SlateEditorContainerProps> =
       el.style.left = `${Math.abs(
         rect.left + window.pageXOffset - el.offsetWidth / 2 + rect.width / 2
       )}px`;
-    });
+    }, [editor.selection]);
 
     return (
       <Portal>
@@ -453,8 +463,9 @@ const SlateEditorContainer: React.FunctionComponent<SlateEditorContainerProps> =
         onChange={(value) => {
           setValue(value);
           props.setInputData('data', value);
-          props.setInputData('data', value);
-          props.setOutputData('text', convertSlateNodesToString(value));
+          props.update();
+          // props.setOutputData('data', value);
+          // props.setOutputData('text', convertSlateNodesToString(value));
         }}
       >
         <HoveringToolbar />
