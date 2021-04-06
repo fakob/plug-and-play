@@ -150,3 +150,11 @@ export const convertBlobToBase64 = (blob) => {
     reader.readAsDataURL(blob);
   });
 };
+
+export const convertStringToSlateNodes = (text: string): any => {
+  return text.split('\n').map((line) => {
+    return {
+      children: [{ text: line }],
+    };
+  });
+};
