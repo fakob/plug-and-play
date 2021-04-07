@@ -96,14 +96,14 @@ export const NODE_HEADER_TEXTMARGIN_LEFT = SOCKET_WIDTH / 2 + 14;
 export const NODE_HEADER_TEXTMARGIN_TOP = 4;
 export const NODE_WIDTH = 160;
 export const NODE_CORNERRADIUS = 8;
-export const NODE_BACKGROUNDCOLOR = COLOR[0];
-export const NODE_BACKGROUNDCOLOR_HEX = PIXI.utils.string2hex(
-  NODE_BACKGROUNDCOLOR
-);
-export const NODE_SELECTIONCOLOR = Color(COLOR[0]).saturate(0.3).hex();
-export const NODE_SELECTIONCOLOR_HEX = PIXI.utils.string2hex(
-  NODE_SELECTIONCOLOR
-);
+
+export const NODE_TYPE_COLOR = {
+  DEFAULT: COLOR[0],
+  INPUT: COLOR[0],
+  TRANSFORM: COLOR[1],
+  OUTPUT: COLOR[2],
+  DRAW: COLOR[3],
+};
 
 export const COMMENT_TEXTSTYLE = new TextStyle({
   fontSize: 12,
