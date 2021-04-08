@@ -2,6 +2,7 @@ import axios from 'axios';
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
 import {
+  NODE_TYPE_COLOR,
   DATATYPE,
   SOCKET_WIDTH,
   NODE_OUTLINE_DISTANCE,
@@ -15,7 +16,10 @@ import { CustomArgs } from '../utils/interfaces';
 
 export class RangeArray extends PPNode {
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, customArgs);
+    super(name, graph, {
+      ...customArgs,
+      color: NODE_TYPE_COLOR.TRANSFORM,
+    });
 
     this.addOutput('output array', DATATYPE.ARRAY);
     this.addInput('start', DATATYPE.NUMBER);
@@ -40,7 +44,10 @@ export class RangeArray extends PPNode {
 export class MakeAPICall extends PPNode {
   // _rectRef: PIXI.Graphics;
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, customArgs);
+    super(name, graph, {
+      ...customArgs,
+      color: NODE_TYPE_COLOR.INPUT,
+    });
 
     const url = 'https://jsonplaceholder.typicode.com/users';
 
@@ -71,7 +78,10 @@ export class MakeAPICall extends PPNode {
 export class Trigger extends PPNode {
   _rectRef: PIXI.Graphics;
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, customArgs);
+    super(name, graph, {
+      ...customArgs,
+      color: NODE_TYPE_COLOR.INPUT,
+    });
 
     this.addOutput('trigger', DATATYPE.TRIGGER);
 
@@ -110,7 +120,10 @@ export class TimeAndDate extends PPNode {
   date: Date;
 
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, customArgs);
+    super(name, graph, {
+      ...customArgs,
+      color: NODE_TYPE_COLOR.INPUT,
+    });
 
     this.addOutput('date and time', DATATYPE.STRING);
     this.addOutput('time stamp', DATATYPE.NUMBER);

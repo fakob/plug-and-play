@@ -3,6 +3,7 @@ import { DropShadowFilter } from '@pixi/filter-drop-shadow';
 import { hri } from 'human-readable-ids';
 import React from 'react';
 import ReactDOM from 'react-dom';
+import Color from 'color';
 import { inspect } from 'util'; // or directly
 import '../pixi/dbclick.js';
 
@@ -11,7 +12,7 @@ import { SerializedNode } from '../utils/interfaces';
 import {
   COMMENT_TEXTSTYLE,
   DATATYPE,
-  NODE_BACKGROUNDCOLOR_HEX,
+  NODE_TYPE_COLOR,
   NODE_CORNERRADIUS,
   NODE_HEADER_HEIGHT,
   NODE_HEADER_TEXTMARGIN_LEFT,
@@ -20,7 +21,6 @@ import {
   NODE_PADDING_BOTTOM,
   NODE_PADDING_TOP,
   NODE_OUTLINE_DISTANCE,
-  NODE_SELECTIONCOLOR_HEX,
   NODE_TEXTSTYLE,
   NODE_WIDTH,
   SOCKET_HEIGHT,
@@ -42,6 +42,8 @@ export default class PPNode extends PIXI.Container {
   type: string; // Type
   category: string; // Category - derived from type
   description: string;
+  color: number;
+  colorTransparency: number;
   nodePosX: number;
   nodePosY: number;
   nodeWidth: number;
@@ -82,6 +84,8 @@ export default class PPNode extends PIXI.Container {
     graph: PPGraph,
     customArgs?: {
       customId?: string;
+      color?: string;
+      colorTransparency?: number;
       nodePosX?: number;
       nodePosY?: number;
       nodeWidth?: number;
@@ -106,7 +110,11 @@ export default class PPNode extends PIXI.Container {
     this.nodeWidth = customArgs?.nodeWidth ?? NODE_WIDTH;
     this.nodeHeight = customArgs?.nodeHeight ?? undefined;
     this.isHybrid = customArgs?.isHybrid ?? false;
-
+    this.color = PIXI.utils.string2hex(
+      customArgs?.color ?? NODE_TYPE_COLOR.DEFAULT
+    );
+    this.colorTransparency =
+      customArgs?.colorTransparency ?? (this.isHybrid ? 0.01 : 1); // so it does not show when dragging fast
     const inputNameText = new PIXI.Text(this.name, NODE_TEXTSTYLE);
     inputNameText.x = NODE_HEADER_TEXTMARGIN_LEFT;
     inputNameText.y =
@@ -291,7 +299,7 @@ export default class PPNode extends PIXI.Container {
     this._BackgroundRef.clear();
     if (this.isHybrid) {
       const shrinkMargin = 4; // for hybrid nodes, so the edge of the background rect does not show
-      this._BackgroundRef.beginFill(NODE_BACKGROUNDCOLOR_HEX, 0.01); // so it does not show when dragging fast
+      this._BackgroundRef.beginFill(this.color, this.colorTransparency);
       this._BackgroundRef.drawRect(
         NODE_MARGIN + shrinkMargin / 2,
         NODE_OUTLINE_DISTANCE + shrinkMargin / 2,
@@ -299,7 +307,7 @@ export default class PPNode extends PIXI.Container {
         nodeHeight - shrinkMargin
       );
     } else {
-      this._BackgroundRef.beginFill(NODE_BACKGROUNDCOLOR_HEX);
+      this._BackgroundRef.beginFill(this.color, this.colorTransparency);
       this._BackgroundRef.drawRoundedRect(
         NODE_MARGIN,
         NODE_OUTLINE_DISTANCE,
@@ -346,7 +354,7 @@ export default class PPNode extends PIXI.Container {
     // draw selection
     if (selected) {
       if (this.isHybrid) {
-        this._BackgroundRef.beginFill(NODE_BACKGROUNDCOLOR_HEX);
+        this._BackgroundRef.beginFill(this.color, this.colorTransparency);
         this._BackgroundRef.drawRect(
           NODE_MARGIN - NODE_OUTLINE_DISTANCE,
           0,
@@ -355,7 +363,12 @@ export default class PPNode extends PIXI.Container {
         );
         this._BackgroundRef.endFill();
       } else {
-        this._BackgroundRef.lineStyle(2, NODE_SELECTIONCOLOR_HEX, 1, 0);
+        this._BackgroundRef.lineStyle(
+          2,
+          PIXI.utils.string2hex(Color(this.color).saturate(0.3).hex()),
+          1,
+          0
+        );
         this._BackgroundRef.drawRoundedRect(
           NODE_MARGIN - NODE_OUTLINE_DISTANCE,
           0,

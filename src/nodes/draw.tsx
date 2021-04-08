@@ -20,7 +20,7 @@ import {
 } from '../utils/utils';
 import {
   DATATYPE,
-  EMPTY_TEXTURE,
+  NODE_TYPE_COLOR,
   NODE_OUTLINE_DISTANCE,
   NODE_WIDTH,
   NOTE_FONTSIZE,
@@ -37,20 +37,18 @@ export class DrawRect extends PPNode {
 
   // uses customArgs?.color as defaultColor
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, customArgs);
-    let convertedColor;
+    super(name, graph, {
+      ...customArgs,
+      color: NODE_TYPE_COLOR.DRAW,
+    });
 
-    if (customArgs?.color === undefined) {
-      convertedColor = PIXI.utils.string2hex('#00FF00');
-    } else {
-      convertedColor = PIXI.utils.string2hex(rgbToHex(customArgs?.color));
-    }
+    const defaultColor = PIXI.utils.string2hex('#00FF00');
 
     this.addInput('x', DATATYPE.NUMBER, 0);
     this.addInput('y', DATATYPE.NUMBER, 0);
     this.addInput('width', DATATYPE.NUMBER, 50);
     this.addInput('height', DATATYPE.NUMBER, 100);
-    this.addInput('color', DATATYPE.COLOR, convertedColor);
+    this.addInput('color', DATATYPE.COLOR, defaultColor);
 
     this.name = 'Draw Rect';
     this.description = 'Draws a rectangle';
@@ -60,7 +58,7 @@ export class DrawRect extends PPNode {
       'backgroundCanvas'
     ) as PIXI.Container).addChild(rect);
 
-    this._rectRef.beginFill(convertedColor, 0.5);
+    this._rectRef.beginFill(defaultColor, 0.5);
     this._rectRef.drawRect(this.x, this.y, this.width, this.height);
     this._rectRef.endFill();
 
@@ -97,28 +95,26 @@ export class Rect extends PPNode {
 
   // uses customArgs?.color as defaultColor
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, customArgs);
+    super(name, graph, {
+      ...customArgs,
+      color: NODE_TYPE_COLOR.DRAW,
+    });
 
-    let convertedColor;
-    if (customArgs?.color === undefined) {
-      convertedColor = PIXI.utils.string2hex('#00FF00');
-    } else {
-      convertedColor = PIXI.utils.string2hex(rgbToHex(customArgs?.color));
-    }
+    const defaultColor = PIXI.utils.string2hex('#00FF00');
 
     this.addOutput('rect', DATATYPE.PIXI);
     this.addInput('x', DATATYPE.NUMBER, 0);
     this.addInput('y', DATATYPE.NUMBER, 0);
     this.addInput('width', DATATYPE.NUMBER, 50);
     this.addInput('height', DATATYPE.NUMBER, 100);
-    this.addInput('color', DATATYPE.COLOR, convertedColor);
+    this.addInput('color', DATATYPE.COLOR, defaultColor);
 
     this.name = 'Create Rect';
     this.description = 'Creates a rectangle';
 
     const rect = new PIXI.Graphics();
     this._rectRef = rect;
-    this._rectRef.beginFill(convertedColor, 0.5);
+    this._rectRef.beginFill(defaultColor, 0.5);
     this._rectRef.drawRect(this.x, this.y, this.width, this.height);
     this._rectRef.endFill();
 
@@ -154,7 +150,11 @@ export class Container extends PPNode {
   _containerRef: PIXI.Container;
 
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, customArgs);
+    super(name, graph, {
+      ...customArgs,
+      color: NODE_TYPE_COLOR.DRAW,
+    });
+
     this.addInput('x', DATATYPE.NUMBER);
     this.addInput('y', DATATYPE.NUMBER);
     this.addInput('scale', DATATYPE.NUMBER, 1.0);
@@ -522,10 +522,12 @@ export class Table extends PPNode {
 
     super(name, graph, {
       ...customArgs,
+      color: NODE_TYPE_COLOR.TRANSFORM,
       nodeWidth,
       nodeHeight,
       isHybrid,
     });
+
     this.addOutput('selectedData', DATATYPE.STRING);
     this.addInput('reload', DATATYPE.TRIGGER);
     this.addInput('data', DATATYPE.STRING, customArgs?.data ?? '');
