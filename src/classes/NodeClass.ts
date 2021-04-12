@@ -54,6 +54,7 @@ export default class PPNode extends PIXI.Container {
   outputSocketArray: Socket[];
 
   _selected: boolean;
+  _doubleClicked: boolean;
   dragging: boolean;
   relativeClickPosition: PIXI.Point | null;
   clickPosition: PIXI.Point | null;
@@ -152,6 +153,7 @@ export default class PPNode extends PIXI.Container {
     this.clickPosition = null;
     this.dragging = false;
     this._selected = false;
+    this._doubleClicked = false;
 
     this._addListeners();
   }
@@ -164,6 +166,10 @@ export default class PPNode extends PIXI.Container {
 
   get selected(): boolean {
     return this._selected;
+  }
+
+  get doubleClicked(): boolean {
+    return this._doubleClicked;
   }
 
   get nodeName(): string {
@@ -179,6 +185,18 @@ export default class PPNode extends PIXI.Container {
   select(selected: boolean): void {
     this._selected = selected;
     this.drawNodeShape(selected);
+
+    if (!selected) {
+      this._doubleClicked = false;
+    }
+
+    // this allows to zoom and drag when the hybrid node is not selected
+    if (this.isHybrid) {
+      if (!this.selected) {
+        this.container.style.pointerEvents = 'none';
+      }
+    }
+
     if (this.onNodeSelected) {
       this.onNodeSelected(selected);
     }
@@ -367,30 +385,19 @@ export default class PPNode extends PIXI.Container {
 
     // draw selection
     if (selected) {
-      if (this.isHybrid) {
-        this._BackgroundRef.beginFill(this.color, this.colorTransparency);
-        this._BackgroundRef.drawRect(
-          NODE_MARGIN - NODE_OUTLINE_DISTANCE,
-          0,
-          NODE_OUTLINE_DISTANCE * 2 + this.nodeWidth,
-          NODE_OUTLINE_DISTANCE * 2 + nodeHeight
-        );
-        this._BackgroundRef.endFill();
-      } else {
-        this._BackgroundRef.lineStyle(
-          2,
-          PIXI.utils.string2hex(Color(this.color).saturate(0.3).hex()),
-          1,
-          0
-        );
-        this._BackgroundRef.drawRoundedRect(
-          NODE_MARGIN - NODE_OUTLINE_DISTANCE,
-          0,
-          NODE_OUTLINE_DISTANCE * 2 + this.nodeWidth,
-          NODE_OUTLINE_DISTANCE * 2 + nodeHeight,
-          NODE_CORNERRADIUS + NODE_OUTLINE_DISTANCE
-        );
-      }
+      this._BackgroundRef.lineStyle(
+        2,
+        PIXI.utils.string2hex(Color(this.color).saturate(0.3).hex()),
+        1,
+        0
+      );
+      this._BackgroundRef.drawRoundedRect(
+        NODE_MARGIN - NODE_OUTLINE_DISTANCE,
+        0,
+        NODE_OUTLINE_DISTANCE * 2 + this.nodeWidth,
+        NODE_OUTLINE_DISTANCE * 2 + nodeHeight,
+        this.isHybrid ? 0 : NODE_CORNERRADIUS + NODE_OUTLINE_DISTANCE
+      );
     }
 
     // update position of comment
@@ -481,17 +488,6 @@ export default class PPNode extends PIXI.Container {
       this.container.style.top = `${screenY}px`;
     };
 
-    // when the Node is selected/unselected turn on/off pointer events
-    // this allows to zoom and drag when the node is not selected
-    this.onNodeSelected = (selected) => {
-      console.log(this.id, 'was selected:', selected);
-      if (selected) {
-        this.container.style.pointerEvents = 'auto';
-      } else {
-        this.container.style.pointerEvents = 'none';
-      }
-    };
-
     // when the Node is removed also remove the react component and its container
     this.onNodeRemoved = () => {
       ReactDOM.unmountComponentAtNode(this.container);
@@ -506,7 +502,14 @@ export default class PPNode extends PIXI.Container {
 
   // the render method, takes a component and props, and renders it to the page
   renderReactComponent = (component, props) => {
-    ReactDOM.render(React.createElement(component, props), this.container);
+    ReactDOM.render(
+      React.createElement(component, {
+        ...props,
+        selected: this.selected,
+        doubleClicked: this.doubleClicked,
+      }),
+      this.container
+    );
   };
 
   getInputSocketByName(slotName: string): Socket {
@@ -775,6 +778,13 @@ export default class PPNode extends PIXI.Container {
 
   _onDoubleClick(event: PIXI.InteractionEvent): void {
     console.log('_onDoubleClick');
+    this._doubleClicked = true;
+
+    // turn on pointer events for hybrid nodes so the react components become reactive
+    if (this.isHybrid) {
+      this.container.style.pointerEvents = 'auto';
+    }
+
     if (this.onNodeDoubleClick) {
       this.onNodeDoubleClick(event);
     }

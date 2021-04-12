@@ -128,8 +128,17 @@
   padding: 10px;
 }
 
+.resizeHandle {
+  background-color: none;
+}
+
+.resizeHandle:hover {
+  background-color: rgba(225, 84, 125, 0.1);
+}
+
 .slateEditorContainer {
   overflow: auto;
+  width: 100%;
 }
 
 .slateMenu {

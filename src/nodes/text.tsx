@@ -12,7 +12,6 @@ import {
   createEditor,
   Descendant,
   Editor,
-  Node,
   Range,
   Text as SlateText,
   Transforms,
@@ -30,24 +29,24 @@ import {
 import { DATATYPE } from '../utils/constants';
 import styles from '../utils/style.module.css';
 
-export type CustomEditor = BaseEditor & ReactEditor & HistoryEditor;
+type CustomEditor = BaseEditor & ReactEditor & HistoryEditor;
 
-export type ParagraphElement = {
+type ParagraphElement = {
   type?: 'paragraph';
   children: CustomText[];
 };
 
-export type HeadingElement = {
+type HeadingElement = {
   type: 'heading';
   level: number;
   children: CustomText[];
 };
 
-export type CustomElement = ParagraphElement | HeadingElement;
+type CustomElement = ParagraphElement | HeadingElement;
 
-export type FormattedText = { text: string; bold: boolean; italic: boolean };
+type FormattedText = { text: string; bold: boolean; italic: boolean };
 
-export type CustomText = FormattedText;
+type CustomText = FormattedText;
 
 declare module 'slate' {
   interface CustomTypes {
@@ -57,12 +56,17 @@ declare module 'slate' {
   }
 }
 
+type AdditionalProps = {
+  width?: number;
+  height?: number;
+};
+
 export class Text extends PPNode {
-  update: (width?: number, height?: number) => void;
+  update: (additionalProps: AdditionalProps) => void;
 
   constructor(name: string, graph: PPGraph, customArgs?: CustomArgs) {
     const nodeWidth = 300;
-    const nodeHeight = 300;
+    const nodeHeight = 100;
     const isHybrid = true;
 
     super(name, graph, {
@@ -77,7 +81,7 @@ export class Text extends PPNode {
     this.addInput(
       'initialData',
       DATATYPE.STRING,
-      customArgs?.initialData ?? 'Write away...',
+      customArgs?.initialData,
       false
     );
     this.addInput('data', DATATYPE.ANY, customArgs?.data ?? undefined, false);
@@ -111,8 +115,10 @@ export class Text extends PPNode {
 
       this.createContainerComponent(document, Parent, {
         ...baseProps,
+        width: nodeWidth,
+        height: nodeHeight,
         data,
-        isEditing: true,
+        focus: true,
       });
       this.container.style.width = 'auto';
       this.container.style.height = 'auto';
@@ -124,20 +130,24 @@ export class Text extends PPNode {
       const height = this.getInputData('height');
       this.resizeNode(width, height);
 
-      this.update(width, height);
+      this.update({ width, height });
     };
 
     // update the react component
-    this.update = (width?: number, height?: number): void => {
+    this.update = (additionalProps: AdditionalProps): void => {
+      // this.update = (width?: number, height?: number): void => {
       const data = this.getInputData('data');
       this.renderReactComponent(Parent, {
         ...baseProps,
-        width,
-        height,
+        ...additionalProps,
         data,
       });
       this.setOutputData('data', data);
       this.setOutputData('text', convertSlateNodesToString(data));
+    };
+
+    this.onNodeDoubleClick = () => {
+      console.log('_onDoubleClick on Note:', this);
     };
 
     // this.onExecute = (input, output) => {
@@ -157,25 +167,25 @@ export class Text extends PPNode {
       resizeNode: this.resizeNode.bind(this),
       setInputData: this.setInputData.bind(this),
       setOutputData: this.setOutputData.bind(this),
-      width: nodeWidth,
-      height: nodeHeight,
     };
   }
 }
 
-type ParentProps = {
+type Props = {
   update(): void;
   resizeNode(width: number, height: number): void;
   setInputData(name: string, data: any): void;
   setOutputData(name: string, data: any): void;
-  isEditing?: boolean;
+  selected: boolean;
+  doubleClicked: boolean;
+  focus?: boolean;
 
   width: number;
   height: number;
   data: any;
 };
 
-const Parent: React.FunctionComponent<ParentProps> = (props) => {
+const Parent: React.FunctionComponent<Props> = (props) => {
   // const focused = useFocused();
   // const selected = useSelected();
   const [width, setWidth] = React.useState(props.width);
@@ -192,6 +202,10 @@ const Parent: React.FunctionComponent<ParentProps> = (props) => {
     }
   }, [props.width, props.height]);
 
+  useEffect(() => {
+    console.log(props.selected);
+  }, [props.selected]);
+
   return (
     <Resizable
       enable={{
@@ -205,14 +219,20 @@ const Parent: React.FunctionComponent<ParentProps> = (props) => {
         bottomLeft: false,
       }}
       className={styles.resizeElement}
-      style={
-        {
-          // border: ReactEditor.isFocused(editor)
-          //   ? 'solid 1px #ddd'
-          //   : undefined,
-          // background: ReactEditor.isFocused(editor) ? '#f0f0f0' : undefined,
-        }
-      }
+      handleClasses={{
+        right: styles.resizeHandle,
+        bottomRight: styles.resizeHandle,
+        bottom: styles.resizeHandle,
+      }}
+      style={{
+        borderStyle: 'dashed',
+        borderWidth: props.selected ? '0 1px 1px 0' : '0',
+        borderColor: 'rgba(225, 84, 125, 1)',
+        // border: ReactEditor.isFocused(editor)
+        //   ? 'solid 1px #ddd'
+        //   : undefined,
+        // background: ReactEditor.isFocused(editor) ? '#f0f0f0' : undefined,
+      }}
       size={{ width, height }}
       onResize={(e, direction, ref, d) => {
         const width = ref.offsetWidth;
@@ -228,32 +248,12 @@ const Parent: React.FunctionComponent<ParentProps> = (props) => {
         props.setInputData('height', height);
       }}
     >
-      <SlateEditorContainer
-        update={props.update}
-        setInputData={props.setInputData}
-        setOutputData={props.setOutputData}
-        width={props.width}
-        height={props.height}
-        data={props.data}
-      />
+      <SlateEditorContainer {...props} />
     </Resizable>
   );
 };
 
-type SlateEditorContainerProps = {
-  update(): void;
-  setInputData(name: string, data: any): void;
-  setOutputData(name: string, data: any): void;
-  isEditing?: boolean;
-
-  width: number;
-  height: number;
-  data: any;
-};
-
-const SlateEditorContainer: React.FunctionComponent<SlateEditorContainerProps> = (
-  props
-) => {
+const SlateEditorContainer: React.FunctionComponent<Props> = (props) => {
   // const focused = useFocused();
   // const selected = useSelected();
   const [value, setValue] = useState<Descendant[]>(props.data);
@@ -307,7 +307,6 @@ const SlateEditorContainer: React.FunctionComponent<SlateEditorContainerProps> =
     useEffect(() => {
       const el = ref.current;
       const { selection } = editor;
-      console.log(selection);
 
       if (!el) {
         return;
@@ -343,9 +342,8 @@ const SlateEditorContainer: React.FunctionComponent<SlateEditorContainerProps> =
       <Portal>
         <Menu ref={ref} className={styles.slateMenu}>
           <ButtonGroup minimal={true}>
-            <TypeButton type="heading" level={1} icon="header" />
-            <TypeButton type="heading" level={2} icon="header-one" />
-            <TypeButton type="heading" level={3} icon="header-two" />
+            <TypeButton type="heading" level={1} icon="header-one" />
+            <TypeButton type="heading" level={2} icon="header-two" />
             <TypeButton type="paragraph" icon="paragraph" />
             <TypeButton type="code" icon="code" />
             <Divider />
@@ -408,17 +406,14 @@ const SlateEditorContainer: React.FunctionComponent<SlateEditorContainerProps> =
   };
 
   const HeadingElement = (props) => {
-    console.log(props);
     switch (props.element?.level) {
       case 1:
-        return <H1 {...props.attributes}>{props.children}</H1>;
-      case 2:
         return <H2 {...props.attributes}>{props.children}</H2>;
-      case 3:
+      case 2:
         return <H3 {...props.attributes}>{props.children}</H3>;
 
       default:
-        return <H1 {...props.attributes}>{props.children}</H1>;
+        return <H2 {...props.attributes}>{props.children}</H2>;
     }
   };
 
@@ -434,14 +429,6 @@ const SlateEditorContainer: React.FunctionComponent<SlateEditorContainerProps> =
     return <p {...props.attributes}>{props.children}</p>;
   };
 
-  // run on any props change after initial creation
-  useEffect(() => {
-    // change only if it was set
-    if (props.data) {
-      setValue(props.data);
-    }
-  }, [props.data]);
-
   // Define a rendering function based on the element passed to `props`. We use
   // `useCallback` here to memoize the function for subsequent renders.
   const renderElement = useCallback((props) => {
@@ -454,6 +441,26 @@ const SlateEditorContainer: React.FunctionComponent<SlateEditorContainerProps> =
         return <ParagraphElement {...props} />;
     }
   }, []);
+
+  // run on any props change after initial creation
+  useEffect(() => {
+    // change only if it was set
+    if (props.data) {
+      setValue(props.data);
+    }
+  }, [props.data]);
+
+  useEffect(() => {
+    console.log(props.selected);
+  }, [props.selected]);
+
+  useEffect(() => {
+    console.log(props.focus);
+    if (props.focus) {
+      ReactEditor.focus(editor);
+      console.log(props.data);
+    }
+  }, [props.focus]);
 
   return (
     <div className={styles.slateEditorContainer}>
@@ -472,7 +479,7 @@ const SlateEditorContainer: React.FunctionComponent<SlateEditorContainerProps> =
         <Editable
           renderElement={renderElement}
           renderLeaf={(props) => <Leaf {...props} />}
-          placeholder="Enter some text..."
+          placeholder="Write away..."
           onDOMBeforeInput={(event: InputEvent) => {
             // console.log(event);
             switch (event.inputType) {
