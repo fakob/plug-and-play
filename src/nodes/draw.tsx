@@ -1,5 +1,7 @@
 import * as PIXI from 'pixi.js';
 import React from 'react';
+import { Resizable } from 're-resizable';
+import { EditableText, H1 } from '@blueprintjs/core';
 import {
   IRegion,
   Table as BPTable,
@@ -12,12 +14,7 @@ import PPNode from '../classes/NodeClass';
 import { CustomArgs, SerializedNode } from '../utils/interfaces';
 import textFit from '../pixi/textFit';
 import { rgbToHex } from '../pixi/utils-pixi';
-import {
-  convertBlobToBase64,
-  convertToArray,
-  fetchAsBlob,
-  getElement,
-} from '../utils/utils';
+import { convertToArray, getElement } from '../utils/utils';
 import {
   DATATYPE,
   NODE_TYPE_COLOR,
@@ -439,11 +436,7 @@ export class Image extends PPNode {
       this._imageRef.y = NODE_OUTLINE_DISTANCE;
       this._imageRef.width = newNodeWidth;
       this._imageRef.height = newNodeHeight;
-      this.nodeWidth = newNodeWidth;
-      this.nodeHeight = newNodeHeight;
-
-      // update node shape
-      this.drawNodeShape();
+      this.resizeNode(newNodeWidth, newNodeHeight);
 
       // output width and height of image
       this.setOutputData('width', width);
@@ -624,5 +617,145 @@ export class Table extends PPNode {
 
   trigger(): void {
     this.update();
+  }
+}
+
+export class Label extends PPNode {
+  update: () => void;
+
+  constructor(name: string, graph: PPGraph, customArgs?: CustomArgs) {
+    const nodeWidth = 300;
+    const nodeHeight = 100;
+    const isHybrid = true;
+
+    super(name, graph, {
+      ...customArgs,
+      nodeWidth,
+      nodeHeight,
+      isHybrid,
+    });
+
+    this.addOutput('data', DATATYPE.STRING, undefined, false);
+    this.addInput('data', DATATYPE.STRING, customArgs?.data ?? '', false);
+    this.addInput(
+      'width',
+      DATATYPE.NUMBER,
+      customArgs?.width ?? nodeWidth,
+      false
+    );
+    this.addInput(
+      'height',
+      DATATYPE.NUMBER,
+      customArgs?.height ?? nodeHeight,
+      false
+    );
+
+    this.name = 'Label';
+    this.description = 'Adds text';
+
+    const resize = (): void => {
+      // setTimeout(() => {
+      //   // get width and height of parentRef
+      //   const width = this.parentRef.current.offsetWidth;
+      //   const height = this.parentRef.current.offsetHeight;
+      //   console.log(width, height);
+      //   this.resizeNode(width, height);
+      // }, 100);
+    };
+
+    // when the Node is added, add the container and react component
+    this.onNodeAdded = () => {
+      const data = this.getInputData('data') ?? '';
+      this.createContainerComponent(document, Parent, {
+        data,
+        isEditing: true,
+      });
+      // reset width and height
+      // this.container.style.width = 'auto';
+      // this.container.style.height = 'auto';
+      resize();
+    };
+
+    // when the Node is loaded, update the react component
+    this.onConfigure = (): void => {
+      this.update();
+    };
+
+    // when the Node is loaded, update the react component
+    this.update = (): void => {
+      const data = this.getInputData('data') ?? '';
+      this.renderReactComponent(Parent, {
+        data,
+      });
+      this.setOutputData('data', data);
+      resize();
+    };
+
+    const onEdit = (value: string): void => {
+      // this.container.style.width = 'auto';
+      // this.container.style.height = 'auto';
+    };
+
+    const onConfirm = (value: string): void => {
+      resize();
+
+      this.setInputData('data', value);
+      this.setOutputData('data', value);
+    };
+
+    const style = {
+      display: 'flex',
+      // alignItems: 'center',
+      // justifyContent: 'center',
+      border: 'solid 1px #ddd',
+      background: '#f0f0f0',
+    } as const;
+
+    // small presentational component
+    const Parent = (props) => {
+      const [width, setWidth] = React.useState(nodeWidth);
+      const [height, setHeight] = React.useState(nodeHeight);
+
+      return (
+        <Resizable
+          style={style}
+          size={{ width, height }}
+          onResize={(e, direction, ref, d) => {
+            const width = ref.offsetWidth;
+            const height = ref.offsetHeight;
+            setWidth(width);
+            setHeight(height);
+            this.resizeNode(width, height);
+            // console.log(width, height);
+          }}
+          onResizeStop={(e, direction, ref, d) => {
+            const width = ref.offsetWidth;
+            const height = ref.offsetHeight;
+            this.setInputData('width', width);
+            this.setInputData('height', height);
+            // console.log(width, height);
+          }}
+        >
+          <H1>
+            <EditableText
+              placeholder="Write away..."
+              onEdit={onEdit}
+              onConfirm={onConfirm}
+              isEditing={props.isEditing}
+              defaultValue={props.data}
+              key={props.data} // hack so defaultValue get's set
+              // selectAllOnFocus={true}
+              multiline={true}
+            />
+          </H1>
+        </Resizable>
+      );
+    };
+
+    this.onExecute = (input, output) => {
+      const data = input['data'];
+      this.update();
+      this.setOutputData('data', data);
+    };
   }
 }
