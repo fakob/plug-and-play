@@ -168,9 +168,6 @@ export class Text extends PPNode {
         this.setOutputData('data', data);
         this.setOutputData('text', convertSlateNodesToString(data));
 
-        // without using the update function, a linked react component does not get updated while executing
-        // with using the update funciton, the react component rerenders all the time
-        // and the HoveringToolbar flickers and becomes unusable
         this.update({});
       }
     };
