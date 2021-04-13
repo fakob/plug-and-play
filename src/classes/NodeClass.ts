@@ -303,6 +303,18 @@ export default class PPNode extends PIXI.Container {
     }
   }
 
+  setPosition(x: number, y: number, isRelative = false): void {
+    this.x = isRelative ? this.x + x : x;
+    this.y = isRelative ? this.y + y : y;
+
+    // update position of comment
+    this.updateCommentPosition();
+
+    if (this.isHybrid) {
+      this._onViewportMove(); // trigger this once, so the react components get positioned properly
+    }
+  }
+
   resizeNode(width: number, height: number): void {
     // set new size
     this.nodeWidth = width;
@@ -505,6 +517,7 @@ export default class PPNode extends PIXI.Container {
     ReactDOM.render(
       React.createElement(component, {
         ...props,
+        id: this.id,
         selected: this.selected,
         doubleClicked: this.doubleClicked,
       }),

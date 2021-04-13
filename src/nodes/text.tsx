@@ -59,10 +59,11 @@ declare module 'slate' {
 type AdditionalProps = {
   width?: number;
   height?: number;
+  focus?: boolean;
 };
 
 export class Text extends PPNode {
-  update: (additionalProps: AdditionalProps) => void;
+  update: (additionalProps?: AdditionalProps) => void;
 
   constructor(name: string, graph: PPGraph, customArgs?: CustomArgs) {
     const nodeWidth = 300;
@@ -134,7 +135,7 @@ export class Text extends PPNode {
     };
 
     // update the react component
-    this.update = (additionalProps: AdditionalProps): void => {
+    this.update = (additionalProps?: AdditionalProps): void => {
       // this.update = (width?: number, height?: number): void => {
       const data = this.getInputData('data');
       this.renderReactComponent(Parent, {
@@ -146,21 +147,33 @@ export class Text extends PPNode {
       this.setOutputData('text', convertSlateNodesToString(data));
     };
 
-    this.onNodeDoubleClick = () => {
-      console.log('_onDoubleClick on Note:', this);
+    this.onNodeSelected = () => {
+      console.log('onNodeSelected:', this.id);
+      const width = this.getInputData('width');
+      const height = this.getInputData('height');
+      this.update({ width, height });
     };
 
-    // this.onExecute = (input, output) => {
-    //   // const data = input['data']; // text can not be updated while running when using this function. Had to use getInputData. Why?
-    //   const data = this.getInputData('data');
-    //   this.setOutputData('data', data);
-    //   this.setOutputData('text', convertSlateNodesToString(data));
+    this.onNodeDoubleClick = () => {
+      console.log('onNodeDoubleClick:', this.id);
+      const width = this.getInputData('width');
+      const height = this.getInputData('height');
+      this.update({ width, height, focus: true });
+    };
 
-    //   // without using the update function, a linked react component does not get updated while executing
-    //   // with using the update funciton, the react component rerenders all the time
-    //   // and the HoveringToolbar flickers and becomes unusable
-    //   // this.update();
-    // };
+    this.onExecute = (input, output) => {
+      // const data = input['data']; // text can not be updated while running when using this function. Had to use getInputData. Why?
+      if (!this.doubleClicked) {
+        const data = this.getInputData('data');
+        this.setOutputData('data', data);
+        this.setOutputData('text', convertSlateNodesToString(data));
+
+        // without using the update function, a linked react component does not get updated while executing
+        // with using the update funciton, the react component rerenders all the time
+        // and the HoveringToolbar flickers and becomes unusable
+        this.update({});
+      }
+    };
 
     const baseProps = {
       update: this.update.bind(this),
@@ -176,6 +189,7 @@ type Props = {
   resizeNode(width: number, height: number): void;
   setInputData(name: string, data: any): void;
   setOutputData(name: string, data: any): void;
+  id: string;
   selected: boolean;
   doubleClicked: boolean;
   focus?: boolean;
@@ -186,8 +200,6 @@ type Props = {
 };
 
 const Parent: React.FunctionComponent<Props> = (props) => {
-  // const focused = useFocused();
-  // const selected = useSelected();
   const [width, setWidth] = React.useState(props.width);
   const [height, setHeight] = React.useState(props.height);
 
@@ -201,10 +213,6 @@ const Parent: React.FunctionComponent<Props> = (props) => {
       setHeight(props.height);
     }
   }, [props.width, props.height]);
-
-  useEffect(() => {
-    console.log(props.selected);
-  }, [props.selected]);
 
   return (
     <Resizable
@@ -226,7 +234,7 @@ const Parent: React.FunctionComponent<Props> = (props) => {
       }}
       style={{
         borderStyle: 'dashed',
-        borderWidth: props.selected ? '0 1px 1px 0' : '0',
+        borderWidth: props.doubleClicked ? '0 1px 1px 0' : '0',
         borderColor: 'rgba(225, 84, 125, 1)',
         // border: ReactEditor.isFocused(editor)
         //   ? 'solid 1px #ddd'
@@ -246,6 +254,7 @@ const Parent: React.FunctionComponent<Props> = (props) => {
         const height = ref.offsetHeight;
         props.setInputData('width', width);
         props.setInputData('height', height);
+        console.log('onResizeStop: ', props.width, props.height);
       }}
     >
       <SlateEditorContainer {...props} />
@@ -325,10 +334,6 @@ const SlateEditorContainer: React.FunctionComponent<Props> = (props) => {
       const domSelection = window.getSelection();
       const domRange = domSelection.getRangeAt(0);
       const rect = domRange.getBoundingClientRect();
-      console.log(
-        rect.left + window.pageXOffset - el.offsetWidth / 2 + rect.width / 2,
-        rect.top + window.pageYOffset - el.offsetHeight
-      );
       el.style.opacity = '1';
       el.style.top = `${Math.abs(
         rect.top + window.pageYOffset - el.offsetHeight
@@ -451,14 +456,8 @@ const SlateEditorContainer: React.FunctionComponent<Props> = (props) => {
   }, [props.data]);
 
   useEffect(() => {
-    console.log(props.selected);
-  }, [props.selected]);
-
-  useEffect(() => {
-    console.log(props.focus);
     if (props.focus) {
       ReactEditor.focus(editor);
-      console.log(props.data);
     }
   }, [props.focus]);
 
@@ -481,7 +480,6 @@ const SlateEditorContainer: React.FunctionComponent<Props> = (props) => {
           renderLeaf={(props) => <Leaf {...props} />}
           placeholder="Write away..."
           onDOMBeforeInput={(event: InputEvent) => {
-            // console.log(event);
             switch (event.inputType) {
               case 'formatBold':
                 event.preventDefault();

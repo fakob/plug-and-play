@@ -497,15 +497,13 @@ export default class PPGraph {
       newNode.configure(node.serialize());
 
       // offset duplicated node
-      newNode.x += 32;
-      newNode.y += 32;
+      newNode.setPosition(32, 32, true);
 
       // select newNode
       this.selectNode(newNode);
 
       arrayOfNewIds.push(newNode.id);
     });
-    console.log(arrayOfNewIds);
     return arrayOfNewIds;
   }
 
