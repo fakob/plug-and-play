@@ -73,7 +73,7 @@ const PropertyContainer: React.FunctionComponent<PropertyContainerProps> = (
 ) => {
   const [dataTypeValue, setDataTypeValue] = useState(props.dataType);
   const baseProps = {
-    key: props.dataType.toString(),
+    key: props.dataType ? props.dataType.toString() : undefined,
     property: props.property,
     index: props.index,
     isInput: props.isInput,
@@ -125,7 +125,9 @@ const PropertyContainer: React.FunctionComponent<PropertyContainerProps> = (
   return (
     <div className={styles.inputContainer}>
       <PropertyHeader
-        key={`PropertyHeader-${props.dataType.toString()}`}
+        key={`PropertyHeader-${
+          props.dataType ? props.dataType.toString() : undefined
+        }`}
         property={props.property}
         index={props.index}
         isInput={props.isInput}

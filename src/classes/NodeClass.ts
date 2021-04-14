@@ -735,10 +735,13 @@ export default class PPNode extends PIXI.Container {
   _onRemoved(): void {
     // console.log('_onRemoved');
 
-    // remove node comment
-    (this.graph.viewport.getChildByName(
+    // if comment container exists, remove node comment
+    const commentContainer = this.graph.viewport.getChildByName(
       'commentContainer'
-    ) as PIXI.Container).removeChild(this._NodeCommentRef);
+    ) as PIXI.Container;
+    if (commentContainer) {
+      commentContainer.removeChild(this._NodeCommentRef);
+    }
 
     // remove added listener from graph.viewport
     this.graph.viewport.removeListener('moved', this.onViewportMoveHandler);
