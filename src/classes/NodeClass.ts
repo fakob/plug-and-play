@@ -280,8 +280,13 @@ export default class PPNode extends PIXI.Container {
     }
   }
 
-  notifyChange() {
-    console.log('node notified');
+  notifyChange(upstreamContent: Set<string>): void {
+    if (upstreamContent.has(this.id)) {
+      console.log('circular loop detected in graph, stopping execution');
+    } else {
+      upstreamContent.add(this.id);
+      this.execute(upstreamContent);
+    }
   }
 
   drawNodeShape(selected: boolean = this._selected): void {
@@ -559,6 +564,7 @@ export default class PPNode extends PIXI.Container {
   }
 
   setInputData(name: string, data: any): void {
+    console.log('input data set');
     const inputSocket = this.inputSocketArray
       .filter((socket) => socket.socketType === SOCKET_TYPE.IN)
       .find((input: Socket) => {
@@ -588,7 +594,7 @@ export default class PPNode extends PIXI.Container {
     outputSocket.data = data;
   }
 
-  execute(): void {
+  execute(upstreamContent: Set<string>): void {
     // remap input
     const inputObject = {};
     this.inputSocketArray
@@ -609,6 +615,14 @@ export default class PPNode extends PIXI.Container {
           output.data = outputObject[output.name];
         }
       });
+
+    if (this.graph._showComments) {
+      this.drawComment();
+    }
+
+    this.outputSocketArray.forEach((outputSocket) =>
+      outputSocket.notifyChange(upstreamContent)
+    );
   }
 
   // dont call this from outside, only from child class

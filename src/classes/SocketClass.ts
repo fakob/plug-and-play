@@ -237,17 +237,15 @@ export default class Socket extends PIXI.Container {
     };
   }
 
-  notifyChange() {
+  notifyChange(upstreamContent: Set<string>): void {
     switch (this.socketType) {
       case SOCKET_TYPE.IN: {
-        console.log('insocket notified');
-        this.getNode().notifyChange();
+        this.getNode().notifyChange(upstreamContent);
         break;
       }
       case SOCKET_TYPE.OUT: {
-        console.log('outsocket notified');
         this.links.forEach((link) => {
-          link.notifyChange();
+          link.notifyChange(upstreamContent);
         });
         break;
       }

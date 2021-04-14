@@ -378,7 +378,7 @@ export default class PPGraph {
     this.connectionContainer.addChild(link);
 
     // send notification pulse
-    link.notifyChange();
+    link.notifyChange(new Set());
 
     return link;
   }
@@ -620,6 +620,7 @@ export default class PPGraph {
   }
 
   runStep(): void {
+    // can we get rid of this function entirely???
     const nodes = this.nodes;
     if (!nodes) {
       return;
@@ -631,10 +632,7 @@ export default class PPGraph {
 
     Object.entries(nodes).forEach(([key, node]) => {
       try {
-        node.execute();
-        if (this._showComments) {
-          node.drawComment();
-        }
+        node.execute(new Set());
       } catch (error) {
         console.error('Error onExecute', error);
       }
