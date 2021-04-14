@@ -367,7 +367,6 @@ type ColorWidgetProps = {
 };
 
 const ColorWidget: React.FunctionComponent<ColorWidgetProps> = (props) => {
-  console.log(props.data);
   const [colorPicker, showColorPicker] = useState(false);
   const [finalColor, changeColor] = useState(
     rgbToRgba(props.data ? props.data : [0, 0, 0, 1.0])

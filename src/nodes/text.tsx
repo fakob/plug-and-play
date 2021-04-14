@@ -136,7 +136,6 @@ export class Text extends PPNode {
 
     // update the react component
     this.update = (additionalProps?: AdditionalProps): void => {
-      // this.update = (width?: number, height?: number): void => {
       const data = this.getInputData('data');
       this.renderReactComponent(Parent, {
         ...baseProps,
@@ -168,7 +167,7 @@ export class Text extends PPNode {
         this.setOutputData('data', data);
         this.setOutputData('text', convertSlateNodesToString(data));
 
-        this.update({});
+        this.update();
       }
     };
 
@@ -233,10 +232,6 @@ const Parent: React.FunctionComponent<Props> = (props) => {
         borderStyle: 'dashed',
         borderWidth: props.doubleClicked ? '0 1px 1px 0' : '0',
         borderColor: 'rgba(225, 84, 125, 1)',
-        // border: ReactEditor.isFocused(editor)
-        //   ? 'solid 1px #ddd'
-        //   : undefined,
-        // background: ReactEditor.isFocused(editor) ? '#f0f0f0' : undefined,
       }}
       size={{ width, height }}
       onResize={(e, direction, ref, d) => {
@@ -467,8 +462,6 @@ const SlateEditorContainer: React.FunctionComponent<Props> = (props) => {
           setValue(value);
           props.setInputData('data', value);
           props.update();
-          // props.setOutputData('data', value);
-          // props.setOutputData('text', convertSlateNodesToString(value));
         }}
       >
         <HoveringToolbar />
