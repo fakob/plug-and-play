@@ -1,10 +1,10 @@
 import React from 'react';
+import { Node } from 'slate';
 
 import {
   NODE_PADDING_TOP,
   NODE_OUTLINE_DISTANCE,
   NODE_HEADER_HEIGHT,
-  NODE_WIDTH,
   SOCKET_TEXTMARGIN_TOP,
   SOCKET_WIDTH,
 } from './constants';
@@ -149,4 +149,16 @@ export const convertBlobToBase64 = (blob) => {
     };
     reader.readAsDataURL(blob);
   });
+};
+
+export const convertStringToSlateNodes = (text: string): any => {
+  return text.split('\n').map((line) => {
+    return {
+      children: [{ text: line }],
+    };
+  });
+};
+
+export const convertSlateNodesToString = (value: any): string => {
+  return value.map((n) => Node.string(n)).join('\n');
 };

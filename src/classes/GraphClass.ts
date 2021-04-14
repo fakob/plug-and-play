@@ -94,11 +94,10 @@ export default class PPGraph {
 
       // register key events
       const keysDown = (e: KeyboardEvent): void => {
-        console.log(e);
         console.log(e.key);
         if (e.key === 'Backspace' || e.key === 'Delete') {
           if (
-            (e.target as any).id !== 'NoteInput' &&
+            (e.target as any).dataset.slateEditor === undefined &&
             (e.target as any).localName !== 'input' &&
             (e.target as any).localName !== 'textarea'
           ) {
@@ -115,7 +114,6 @@ export default class PPGraph {
 
     // clear the stage
     this.clear();
-    this.customNodeTypes = {};
     this._registeredNodeTypes = {};
 
     // define callbacks
@@ -456,6 +454,9 @@ export default class PPGraph {
 
     // remove selected nodes
     this.deselectAllNodes();
+
+    // remove custom node types
+    this.customNodeTypes = {};
   }
 
   selectNode(node: PPNode): void {
@@ -495,15 +496,13 @@ export default class PPGraph {
       newNode.configure(node.serialize());
 
       // offset duplicated node
-      newNode.x += 32;
-      newNode.y += 32;
+      newNode.setPosition(32, 32, true);
 
       // select newNode
       this.selectNode(newNode);
 
       arrayOfNewIds.push(newNode.id);
     });
-    console.log(arrayOfNewIds);
     return arrayOfNewIds;
   }
 
@@ -782,7 +781,7 @@ export default class PPGraph {
 
   deleteSelectedNodes(): void {
     console.log(this.selectedNodes);
-    console.log(this.nodes);
+    // console.log(this.nodes);
 
     // loop through selected nodes
     this.selectedNodes.forEach((nodeId) => {

@@ -17,7 +17,6 @@ type MyProps = {
 const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
   const editorRef = useRef<any>();
   const [codeString, setCodeString] = useState<string | undefined>(undefined);
-  console.log(props.selectedNode);
 
   const saveCode = () => {
     console.log('Create/Update node command from Editor');
@@ -48,7 +47,7 @@ const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
   useEffect(() => {
     const selectedNodeType = props.selectedNode.type;
     const value = props.currentGraph.customNodeTypes[selectedNodeType];
-    console.log(value);
+    // console.log(value);
     setCodeString(value);
   }, [codeString]);
 

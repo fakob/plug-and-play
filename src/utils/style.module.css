@@ -122,3 +122,39 @@
 .hybridContainer:focus {
   outline: none;
 }
+
+.resizeElement {
+  display: flex;
+  padding: 10px;
+}
+
+.resizeElementLabel {
+  display: flex;
+  padding: 8px 16px;
+}
+
+.resizeHandle {
+  background-color: none;
+}
+
+.resizeHandle:hover {
+  background-color: rgba(225, 84, 125, 0.1);
+}
+
+.slateEditorContainer {
+  overflow: auto;
+  width: 100%;
+}
+
+.slateMenu {
+  padding: 8px 7px 6px;
+  position: absolute;
+  z-index: 1000;
+  top: -10000px;
+  left: -10000px;
+  margin-top: -6px;
+  opacity: 0;
+  background-color: #222;
+  border-radius: 4px;
+  transition: opacity 0.75s;
+}
