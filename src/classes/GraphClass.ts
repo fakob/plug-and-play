@@ -231,7 +231,7 @@ export default class PPGraph {
           // the element that the event listener is attached to (currentTarget)
           this.selectNode(event.currentTarget as PPNode);
         }
-        // this.viewport.plugins.resume('drag');
+        // thiss.viewport.plugins.resume('drag');
       } else {
         // check if over input
         console.log(this.overInputRef);
@@ -376,6 +376,9 @@ export default class PPGraph {
     input.links = [link];
 
     this.connectionContainer.addChild(link);
+
+    // send notification pulse
+    link.notifyChange();
 
     return link;
   }

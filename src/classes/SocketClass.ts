@@ -18,6 +18,7 @@ import {
   SOCKET_WIDTH,
   TEXT_RESOLUTION,
 } from '../utils/constants';
+import { link } from 'node:fs';
 
 export default class Socket extends PIXI.Container {
   // Input sockets
@@ -234,6 +235,23 @@ export default class Socket extends PIXI.Container {
       visible: this.visible,
       custom: this.custom,
     };
+  }
+
+  notifyChange() {
+    switch (this.socketType) {
+      case SOCKET_TYPE.IN: {
+        console.log('insocket notified');
+        this.getNode().notifyChange();
+        break;
+      }
+      case SOCKET_TYPE.OUT: {
+        console.log('outsocket notified');
+        this.links.forEach((link) => {
+          link.notifyChange();
+        });
+        break;
+      }
+    }
   }
 
   // SETUP

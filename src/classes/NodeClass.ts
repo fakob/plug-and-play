@@ -280,6 +280,10 @@ export default class PPNode extends PIXI.Container {
     }
   }
 
+  notifyChange() {
+    console.log('node notified');
+  }
+
   drawNodeShape(selected: boolean = this._selected): void {
     const countOfVisibleInputSockets = this.inputSocketArray.filter(
       (item) => item.visible === true
