@@ -229,7 +229,6 @@ export default class PPGraph {
           // the element that the event listener is attached to (currentTarget)
           this.selectNode(event.currentTarget as PPNode);
         }
-        // this.viewport.plugins.resume('drag');
       } else {
         // check if over input
         console.log(this.overInputRef);
@@ -374,6 +373,9 @@ export default class PPGraph {
     input.links = [link];
 
     this.connectionContainer.addChild(link);
+
+    // send notification pulse
+    link.notifyChange(new Set());
 
     return link;
   }
@@ -616,6 +618,7 @@ export default class PPGraph {
   }
 
   runStep(): void {
+    // can we get rid of this function entirely???
     const nodes = this.nodes;
     if (!nodes) {
       return;
@@ -627,10 +630,7 @@ export default class PPGraph {
 
     Object.entries(nodes).forEach(([key, node]) => {
       try {
-        node.execute();
-        if (this._showComments) {
-          node.drawComment();
-        }
+        node.execute(new Set());
       } catch (error) {
         console.error('Error onExecute', error);
       }

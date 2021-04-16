@@ -115,4 +115,9 @@ export default class PPLink extends PIXI.Container {
     connection.x = sourcePoint.x;
     connection.y = sourcePoint.y;
   }
+
+  notifyChange(upstreamContent: Set<string>): void {
+    this.getTarget().data = this.getSource().data;
+    this.getTarget().notifyChange(upstreamContent);
+  }
 }

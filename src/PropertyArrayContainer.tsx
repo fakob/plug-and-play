@@ -226,6 +226,7 @@ const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (props) => {
   useEffect(() => {
     const newValue = round ? Math.round(data) : data;
     props.property.data = newValue;
+    props.property.notifyChange(new Set());
   }, [data]);
 
   useEffect(() => {
@@ -236,11 +237,12 @@ const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (props) => {
     );
     setData(newValue);
     props.property.data = newValue;
-    (props.property as Socket).custom = {
+    props.property.custom = {
       minValue,
       maxValue,
       round,
     };
+    props.property.notifyChange(new Set());
   }, [minValue, maxValue, round]);
 
   return (

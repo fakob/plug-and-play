@@ -303,6 +303,15 @@ export default class PPNode extends PIXI.Container {
     }
   }
 
+  notifyChange(upstreamContent: Set<string>): void {
+    if (upstreamContent.has(this.id)) {
+      console.log('circular loop detected in graph, stopping execution');
+    } else {
+      upstreamContent.add(this.id);
+      this.execute(upstreamContent);
+    }
+  }
+
   setPosition(x: number, y: number, isRelative = false): void {
     this.x = isRelative ? this.x + x : x;
     this.y = isRelative ? this.y + y : y;
@@ -323,7 +332,6 @@ export default class PPNode extends PIXI.Container {
     // update node shape
     this.drawNodeShape();
   }
-
   drawNodeShape(selected: boolean = this._selected): void {
     const countOfVisibleInputSockets = this.inputSocketArray.filter(
       (item) => item.visible === true
@@ -585,6 +593,7 @@ export default class PPNode extends PIXI.Container {
   }
 
   setInputData(name: string, data: any): void {
+    console.log('input data set');
     const inputSocket = this.inputSocketArray
       .filter((socket) => socket.socketType === SOCKET_TYPE.IN)
       .find((input: Socket) => {
@@ -614,7 +623,7 @@ export default class PPNode extends PIXI.Container {
     outputSocket.data = data;
   }
 
-  execute(): void {
+  execute(upstreamContent: Set<string>): void {
     // remap input
     const inputObject = {};
     this.inputSocketArray
@@ -635,6 +644,14 @@ export default class PPNode extends PIXI.Container {
           output.data = outputObject[output.name];
         }
       });
+
+    if (this.graph._showComments) {
+      this.drawComment();
+    }
+
+    this.outputSocketArray.forEach((outputSocket) =>
+      outputSocket.notifyChange(upstreamContent)
+    );
   }
 
   // dont call this from outside, only from child class

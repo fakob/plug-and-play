@@ -236,6 +236,21 @@ export default class Socket extends PIXI.Container {
     };
   }
 
+  notifyChange(upstreamContent: Set<string>): void {
+    switch (this.socketType) {
+      case SOCKET_TYPE.IN: {
+        this.getNode().notifyChange(upstreamContent);
+        break;
+      }
+      case SOCKET_TYPE.OUT: {
+        this.links.forEach((link) => {
+          link.notifyChange(upstreamContent);
+        });
+        break;
+      }
+    }
+  }
+
   // SETUP
 
   _onPointerOver(): void {
