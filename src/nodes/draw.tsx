@@ -1,5 +1,8 @@
 import * as PIXI from 'pixi.js';
-import React from 'react';
+import React, { useEffect } from 'react';
+import { Resizable } from 're-resizable';
+import Color from 'color';
+import { EditableText, H1 } from '@blueprintjs/core';
 import {
   IRegion,
   Table as BPTable,
@@ -12,13 +15,9 @@ import PPNode from '../classes/NodeClass';
 import { CustomArgs, SerializedNode } from '../utils/interfaces';
 import textFit from '../pixi/textFit';
 import { rgbToHex } from '../pixi/utils-pixi';
+import { convertToArray, getElement } from '../utils/utils';
 import {
-  convertBlobToBase64,
-  convertToArray,
-  fetchAsBlob,
-  getElement,
-} from '../utils/utils';
-import {
+  COLOR,
   DATATYPE,
   NODE_TYPE_COLOR,
   NODE_OUTLINE_DISTANCE,
@@ -30,9 +29,9 @@ import {
   NOTE_TEXTURE,
   SOCKET_WIDTH,
 } from '../utils/constants';
+import styles from '../utils/style.module.css';
 
 export class DrawRect extends PPNode {
-  _color: number;
   _rectRef: PIXI.Graphics;
 
   // uses customArgs?.color as defaultColor
@@ -48,7 +47,7 @@ export class DrawRect extends PPNode {
     this.addInput('y', DATATYPE.NUMBER, 0);
     this.addInput('width', DATATYPE.NUMBER, 50);
     this.addInput('height', DATATYPE.NUMBER, 100);
-    this.addInput('color', DATATYPE.COLOR, defaultColor);
+    this.addInput('color', DATATYPE.COLOR, Color(defaultColor).rgbArray);
 
     this.name = 'Draw Rect';
     this.description = 'Draws a rectangle';
@@ -90,7 +89,6 @@ export class DrawRect extends PPNode {
 }
 
 export class Rect extends PPNode {
-  _color: number;
   _rectRef: PIXI.Graphics;
 
   // uses customArgs?.color as defaultColor
@@ -107,7 +105,7 @@ export class Rect extends PPNode {
     this.addInput('y', DATATYPE.NUMBER, 0);
     this.addInput('width', DATATYPE.NUMBER, 50);
     this.addInput('height', DATATYPE.NUMBER, 100);
-    this.addInput('color', DATATYPE.COLOR, defaultColor);
+    this.addInput('color', DATATYPE.COLOR, Color(defaultColor).rgbArray);
 
     this.name = 'Create Rect';
     this.description = 'Creates a rectangle';
@@ -439,11 +437,7 @@ export class Image extends PPNode {
       this._imageRef.y = NODE_OUTLINE_DISTANCE;
       this._imageRef.width = newNodeWidth;
       this._imageRef.height = newNodeHeight;
-      this.nodeWidth = newNodeWidth;
-      this.nodeHeight = newNodeHeight;
-
-      // update node shape
-      this.drawNodeShape();
+      this.resizeNode(newNodeWidth, newNodeHeight);
 
       // output width and height of image
       this.setOutputData('width', width);
@@ -626,3 +620,235 @@ export class Table extends PPNode {
     this.update();
   }
 }
+
+type AdditionalProps = {
+  backgroundColor?: string;
+  width?: number;
+  height?: number;
+  focus?: boolean;
+};
+
+export class Label extends PPNode {
+  update: (additionalProps?: AdditionalProps) => void;
+
+  constructor(name: string, graph: PPGraph, customArgs?: CustomArgs) {
+    const nodeWidth = 300;
+    const nodeHeight = 62;
+    const isHybrid = true;
+    const defaultColor = COLOR[5];
+
+    super(name, graph, {
+      ...customArgs,
+      nodeWidth,
+      nodeHeight,
+      isHybrid,
+      color: defaultColor,
+      colorTransparency: 1.0,
+    });
+
+    this.addOutput('data', DATATYPE.STRING, undefined, false);
+    this.addInput('data', DATATYPE.STRING, customArgs?.data ?? '', false);
+    this.addInput(
+      'backgroundColor',
+      DATATYPE.COLOR,
+      Color(defaultColor).rgbArray,
+      false
+    );
+    this.addInput(
+      'width',
+      DATATYPE.NUMBER,
+      customArgs?.width ?? nodeWidth,
+      false
+    );
+    this.addInput(
+      'height',
+      DATATYPE.NUMBER,
+      customArgs?.height ?? nodeHeight,
+      false
+    );
+
+    this.name = 'Label';
+    this.description = 'Adds text';
+
+    // when the Node is added, add the container and react component
+    this.onNodeAdded = () => {
+      const data = this.getInputData('data') ?? '';
+      this.createContainerComponent(document, Parent, {
+        data,
+        focus: true,
+      });
+      // reset width and height
+      this.container.style.width = 'auto';
+      this.container.style.height = 'auto';
+    };
+
+    // when the stored data is read, resize the node and update the react component
+    this.onConfigure = (): void => {
+      const color = Color.rgb(this.getInputData('backgroundColor') as number[]);
+      // console.log(input['color']);
+      this.color = PIXI.utils.string2hex(color.hex());
+      this.colorTransparency = color.alpha();
+      const width = this.getInputData('width');
+      const height = this.getInputData('height');
+      this.resizeNode(width, height);
+
+      this.update({ width, height });
+    };
+
+    // update the react component
+    this.update = (additionalProps?: AdditionalProps): void => {
+      const data = this.getInputData('data');
+      this.renderReactComponent(Parent, {
+        ...baseProps,
+        ...additionalProps,
+        data,
+      });
+      this.setOutputData('data', data);
+    };
+
+    this.onNodeSelected = () => {
+      console.log('onNodeSelected:', this.id);
+      const width = this.getInputData('width');
+      const height = this.getInputData('height');
+      this.update({ width, height });
+    };
+
+    this.onNodeDoubleClick = () => {
+      console.log('onNodeDoubleClick:', this.id);
+      const width = this.getInputData('width');
+      const height = this.getInputData('height');
+      this.update({ width, height, focus: true });
+    };
+
+    this.onExecute = (input, output) => {
+      if (!this.doubleClicked) {
+        const data = input['data'];
+        const color = Color.rgb(input['backgroundColor'] as number[]);
+        // console.log(input['color']);
+        this.color = PIXI.utils.string2hex(color.hex());
+        this.colorTransparency = color.alpha();
+        this.setOutputData('data', data);
+
+        this.update();
+      }
+    };
+
+    const baseProps = {
+      update: this.update.bind(this),
+      resizeNode: this.resizeNode.bind(this),
+      setInputData: this.setInputData.bind(this),
+      setOutputData: this.setOutputData.bind(this),
+    };
+
+    // const style = {
+    //   display: 'flex',
+    //   // alignItems: 'center',
+    //   // justifyContent: 'center',
+    //   border: 'solid 1px #ddd',
+    //   background: '#f0f0f0',
+    // } as const;
+  }
+}
+
+type Props = {
+  update(): void;
+  resizeNode(width: number, height: number): void;
+  setInputData(name: string, data: any): void;
+  setOutputData(name: string, data: any): void;
+  id: string;
+  selected: boolean;
+  doubleClicked: boolean;
+  focus?: boolean;
+
+  width: number;
+  height: number;
+  data: any;
+};
+
+const Parent: React.FunctionComponent<Props> = (props) => {
+  const [width, setWidth] = React.useState(props.width);
+  const [height, setHeight] = React.useState(props.height);
+  const [value, setValue] = React.useState(props.data);
+
+  // run on any props change after initial creation
+  useEffect(() => {
+    // change only if it was set
+    if (props.width) {
+      setWidth(props.width);
+    }
+    if (props.height) {
+      setHeight(props.height);
+    }
+  }, [props.width, props.height]);
+
+  useEffect(() => {
+    setValue(props.data);
+  }, [props.data]);
+
+  useEffect(() => {
+    // save value
+    if (!props.selected && props.setInputData !== undefined) {
+      onConfirm(value);
+    }
+  }, [props.selected]);
+
+  const onConfirm = (value) => {
+    setValue(value);
+    props.setInputData('data', value);
+    props.update();
+  };
+
+  return (
+    <Resizable
+      enable={{
+        right: true,
+        bottom: false,
+        bottomRight: false,
+        top: false,
+        left: false,
+        topRight: false,
+        topLeft: false,
+        bottomLeft: false,
+      }}
+      className={styles.resizeElementLabel}
+      handleClasses={{
+        right: styles.resizeHandle,
+        // bottomRight: styles.resizeHandle,
+        // bottom: styles.resizeHandle,
+      }}
+      style={{
+        borderStyle: 'dashed',
+        borderWidth: props.doubleClicked ? '0 1px 0 0' : '0',
+        borderColor: 'rgba(225, 84, 125, 1)',
+      }}
+      size={{ width, height }}
+      onResize={(e, direction, ref, d) => {
+        const width = ref.offsetWidth;
+        const height = ref.offsetHeight;
+        setWidth(width);
+        setHeight(height);
+        props.resizeNode(width, height);
+      }}
+      onResizeStop={(e, direction, ref, d) => {
+        const width = ref.offsetWidth;
+        const height = ref.offsetHeight;
+        props.setInputData('width', width);
+        props.setInputData('height', height);
+        console.log('onResizeStop: ', props.width, props.height);
+      }}
+    >
+      <H1>
+        <EditableText
+          placeholder="Write away..."
+          onChange={(value) => setValue(value)}
+          onConfirm={onConfirm}
+          isEditing={props.focus || props.doubleClicked}
+          defaultValue={props.data}
+          key={props.data} // hack so defaultValue get's set
+          selectAllOnFocus={true}
+          // multiline={true}
+        />
+      </H1>
+    </Resizable>
+  );
+};

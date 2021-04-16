@@ -35,7 +35,7 @@ export const hexToRGB = (hex: string, alpha: string): number[] => {
   if (alpha) {
     return [r, g, b, parseFloat(alpha)];
   } else {
-    return [r, g, b];
+    return [r, g, b, 1.0];
   }
 };
 
