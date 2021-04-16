@@ -18,7 +18,6 @@ import {
   SOCKET_WIDTH,
   TEXT_RESOLUTION,
 } from '../utils/constants';
-import { link } from 'node:fs';
 
 export default class Socket extends PIXI.Container {
   // Input sockets

@@ -231,7 +231,6 @@ export default class PPGraph {
           // the element that the event listener is attached to (currentTarget)
           this.selectNode(event.currentTarget as PPNode);
         }
-        // thiss.viewport.plugins.resume('drag');
       } else {
         // check if over input
         console.log(this.overInputRef);
