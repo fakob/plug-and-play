@@ -118,6 +118,15 @@ const App = (): JSX.Element => {
   useEffect(() => {
     console.log(pixiContext.current);
 
+    // disable browser window zoom on trackpad pinch
+    window.addEventListener(
+      'mousewheel',
+      (e: Event) => {
+        e.preventDefault();
+      },
+      { passive: false }
+    );
+
     // create pixiApp
     pixiApp.current = new PIXI.Application({
       backgroundColor: CANVAS_BACKGROUNDCOLOR_HEX,
