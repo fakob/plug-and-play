@@ -92,21 +92,6 @@ export default class PPGraph {
       resize();
       window.addEventListener('resize', resize);
 
-      // register key events
-      const keysDown = (e: KeyboardEvent): void => {
-        console.log(e.key);
-        if (e.key === 'Backspace' || e.key === 'Delete') {
-          if (
-            (e.target as any).dataset.slateEditor === undefined &&
-            (e.target as any).localName !== 'input' &&
-            (e.target as any).localName !== 'textarea'
-          ) {
-            this.deleteSelectedNodes();
-          }
-        }
-      };
-      window.addEventListener('keydown', keysDown);
-
       // register pointer events
       this.viewport.on('pointerdown', this._onPointerDown.bind(this));
     };
