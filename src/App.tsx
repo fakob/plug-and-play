@@ -23,6 +23,7 @@ import { INodes } from './utils/interfaces';
 import { convertBlobToBase64, highlightText } from './utils/utils';
 import { registerAllNodeTypes } from './nodes/allNodes';
 import PPNode from './classes/NodeClass';
+import { InputParser } from './utils/inputParser';
 
 (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__ &&
   (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__.register({ PIXI: PIXI });
@@ -230,6 +231,13 @@ const App = (): JSX.Element => {
       }
     };
     window.addEventListener('keydown', keysDown.bind(this));
+
+    window.addEventListener('keydown', (e: KeyboardEvent) =>
+      InputParser.parseKeyDown(e, currentGraph.current)
+    );
+    window.addEventListener('keyup', (e: KeyboardEvent) =>
+      InputParser.parseKeyUp(e)
+    );
 
     return () => {
       // On unload completely destroy the application and all of it's children
