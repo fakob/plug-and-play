@@ -741,13 +741,6 @@ const LabelParent: React.FunctionComponent<LabelProps> = (props) => {
   );
 };
 
-type NoteAdditionalProps = {
-  backgroundColor?: string;
-  width?: number;
-  height?: number;
-  focus?: boolean;
-};
-
 export class Note extends PPNode {
   _rectRef: PIXI.Sprite;
   _textInputRef: PIXI.BitmapText;
@@ -755,11 +748,12 @@ export class Note extends PPNode {
   fontSize: number;
   createInputElement: () => void;
   setCleanAndDisplayText: (input: HTMLDivElement) => void;
-  update: (additionalProps?: NoteAdditionalProps) => void;
+  update: () => void;
 
   constructor(name: string, graph: PPGraph, customArgs?: CustomArgs) {
     const nodeWidth = 160;
     const nodeHeight = 160;
+    const defaultColor = '#F4FAF9';
 
     super(name, graph, {
       ...customArgs,
@@ -772,7 +766,7 @@ export class Note extends PPNode {
     this.addInput(
       'data',
       DATATYPE.STRING,
-      customArgs?.data ?? 'type...',
+      customArgs?.data ?? 'Write away...',
       false
     );
 
@@ -797,12 +791,15 @@ export class Note extends PPNode {
       note.height = nodeHeight;
 
       // create and position PIXI.Text
-      const basicText = new PIXI.BitmapText(customArgs?.data ?? 'type...', {
-        fontName: 'Arial',
-        fontSize: NOTE_FONTSIZE,
-        align: 'center',
-        maxWidth: nodeWidth - NOTE_PADDING * 2,
-      });
+      const basicText = new PIXI.BitmapText(
+        customArgs?.data ?? 'Write away...',
+        {
+          fontName: 'Arial',
+          fontSize: NOTE_FONTSIZE,
+          align: 'center',
+          maxWidth: nodeWidth - NOTE_PADDING * 2,
+        }
+      );
       basicText.anchor = new PIXI.Point(0.5, 0.5);
       basicText.x = (SOCKET_WIDTH + nodeWidth) / 2;
       basicText.y = (NODE_OUTLINE_DISTANCE + nodeHeight) / 2;
@@ -811,7 +808,7 @@ export class Note extends PPNode {
 
       (this._rectRef as any) = (this as PIXI.Container).addChild(note);
       this._rectRef.alpha = 1;
-      this._rectRef.tint;
+      this._rectRef.tint = PIXI.utils.string2hex(Color(defaultColor).hex());
 
       const mask = new PIXI.Graphics();
       mask.beginFill(0xffffff);

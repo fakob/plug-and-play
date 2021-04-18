@@ -98,6 +98,7 @@ export default class PPGraph {
         if (e.key === 'Backspace' || e.key === 'Delete') {
           if (
             (e.target as any).dataset.slateEditor === undefined &&
+            (e.target as any).localName !== 'NoteInput' &&
             (e.target as any).localName !== 'input' &&
             (e.target as any).localName !== 'textarea'
           ) {
