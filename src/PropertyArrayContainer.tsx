@@ -37,7 +37,7 @@ export const PropertyArrayContainer: React.FunctionComponent<PropertyArrayContai
             index={index}
             dataType={property.dataType}
             isInput={true}
-            hasLink={property.links.length !== 0}
+            hasLink={property.hasLink()}
             data={property.data}
           />
         );
@@ -50,7 +50,7 @@ export const PropertyArrayContainer: React.FunctionComponent<PropertyArrayContai
             index={index}
             dataType={property.dataType}
             isInput={false}
-            hasLink={property.links.length !== 0}
+            hasLink={property.hasLink()}
             data={property.data}
           />
         );

@@ -10,6 +10,7 @@ import {
 import * as csvParser from 'papaparse';
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
+import Socket from '../classes/SocketClass';
 import { CustomArgs, SerializedNode } from '../utils/interfaces';
 import textFit from '../pixi/textFit';
 import { rgbToHex } from '../pixi/utils-pixi';
@@ -27,23 +28,39 @@ import {
   SOCKET_WIDTH,
 } from '../utils/constants';
 
-export class DrawRect extends PPNode {
+export class Rect extends PPNode {
   _rectRef: PIXI.Graphics;
 
   // uses customArgs?.color as defaultColor
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
+    const nodeWidth = 100;
+    const nodeHeight = 100;
+    const nodeColor = NODE_TYPE_COLOR.DRAW;
+    const defaultRectColor = COLOR[5];
+
     super(name, graph, {
       ...customArgs,
-      color: NODE_TYPE_COLOR.DRAW,
+      nodeWidth,
+      nodeHeight,
+      color: nodeColor,
     });
 
-    const defaultColor = PIXI.utils.string2hex('#00FF00');
-
+    this.addOutput('rectangle', DATATYPE.PIXI);
     this.addInput('x', DATATYPE.NUMBER, 0);
     this.addInput('y', DATATYPE.NUMBER, 0);
-    this.addInput('width', DATATYPE.NUMBER, 50);
-    this.addInput('height', DATATYPE.NUMBER, 100);
-    this.addInput('color', DATATYPE.COLOR, Color(defaultColor).array());
+    this.addInput(
+      'width',
+      DATATYPE.NUMBER,
+      customArgs?.width ?? nodeWidth,
+      false
+    );
+    this.addInput(
+      'height',
+      DATATYPE.NUMBER,
+      customArgs?.height ?? nodeHeight,
+      false
+    );
+    this.addInput('color', DATATYPE.COLOR, Color(defaultRectColor).rgbArray);
 
     this.name = 'Draw Rect';
     this.description = 'Draws a rectangle';
@@ -51,91 +68,40 @@ export class DrawRect extends PPNode {
     const rect = new PIXI.Graphics();
     this._rectRef = (this.graph.viewport.getChildByName(
       'backgroundCanvas'
-    ) as PIXI.Container).addChild(rect);
-
-    this._rectRef.beginFill(defaultColor, 0.5);
+    ) as PIXI.Graphics).addChild(rect);
+    this._rectRef.beginFill(
+      PIXI.utils.string2hex(Color(defaultRectColor).hex()),
+      1
+    );
     this._rectRef.drawRect(this.x, this.y, this.width, this.height);
     this._rectRef.endFill();
 
     this.onExecute = function (input, output) {
-      const x = input['x'] || 0;
-      const y = input['y'] || 0;
-      const width = input['width'] || 100;
-      const height = input['height'] || 100;
-      const color = (input['color'] as number[]) || [255, 0, 0, 0.5];
+      const x = input['x'];
+      const y = input['y'];
+      const width = input['width'];
+      const height = input['height'];
+      const color = Color.rgb(input['color'] as number[]);
+
       this._rectRef.clear();
+      this._rectRef.beginFill(
+        PIXI.utils.string2hex(color.hex()),
+        color.alpha()
+      );
 
-      const xArray = convertToArray(x);
-      this._rectRef.beginFill(PIXI.utils.string2hex(rgbToHex(color)), color[3]);
-      xArray.forEach((xValue: number, index: number) => {
-        const yValue = getElement(y, index);
-        const widthValue = getElement(width, index);
-        const heightValue = getElement(height, index);
+      // if output is not connected, then draw it next to the node
+      if (!(this as PPNode).getOutputSocketByName('rectangle').hasLink()) {
         this._rectRef.drawRect(
-          this.x + this.width + xValue,
-          this.y + yValue - heightValue + this.height,
-          widthValue,
-          heightValue
+          this.x + this.width + x,
+          this.y + y,
+          width,
+          height
         );
-        this._rectRef.moveTo(xValue + 2);
-      });
+      } else {
+        this._rectRef.drawRect(x, y, width, height);
+      }
       this._rectRef.endFill();
-    };
-  }
-}
-
-export class Rect extends PPNode {
-  _rectRef: PIXI.Graphics;
-
-  // uses customArgs?.color as defaultColor
-  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, {
-      ...customArgs,
-      color: NODE_TYPE_COLOR.DRAW,
-    });
-
-    const defaultColor = PIXI.utils.string2hex('#00FF00');
-
-    this.addOutput('rect', DATATYPE.PIXI);
-    this.addInput('x', DATATYPE.NUMBER, 0);
-    this.addInput('y', DATATYPE.NUMBER, 0);
-    this.addInput('width', DATATYPE.NUMBER, 50);
-    this.addInput('height', DATATYPE.NUMBER, 100);
-    this.addInput('color', DATATYPE.COLOR, Color(defaultColor).array());
-
-    this.name = 'Create Rect';
-    this.description = 'Creates a rectangle';
-
-    const rect = new PIXI.Graphics();
-    this._rectRef = rect;
-    this._rectRef.beginFill(defaultColor, 0.5);
-    this._rectRef.drawRect(this.x, this.y, this.width, this.height);
-    this._rectRef.endFill();
-
-    this.onExecute = function (input, output) {
-      const x = input['x'] || 0;
-      const y = input['y'] || 0;
-      const width = input['width'] || 100;
-      const height = input['height'] || 100;
-      const color = input['color'] || [255, 0, 0, 0.5];
-      this._rectRef.clear();
-
-      const xArray = convertToArray(x);
-      this._rectRef.beginFill(PIXI.utils.string2hex(rgbToHex(color)), color[3]);
-      xArray.forEach((xValue: number, index: number) => {
-        const yValue = getElement(y, index);
-        const widthValue = getElement(width, index);
-        const heightValue = getElement(height, index);
-        this._rectRef.drawRect(
-          xValue,
-          yValue - heightValue,
-          widthValue,
-          heightValue
-        );
-        this._rectRef.moveTo(xValue + 2);
-      });
-      this._rectRef.endFill();
-      this.setOutputData('rect', this._rectRef);
+      output['rectangle'] = this._rectRef;
     };
   }
 }
@@ -149,6 +115,7 @@ export class Container extends PPNode {
       color: NODE_TYPE_COLOR.DRAW,
     });
 
+    this.addOutput('container', DATATYPE.PIXI);
     this.addInput('x', DATATYPE.NUMBER);
     this.addInput('y', DATATYPE.NUMBER);
     this.addInput('scale', DATATYPE.NUMBER, 1.0);
@@ -171,16 +138,24 @@ export class Container extends PPNode {
       const input1 = input['input1'];
       const input2 = input['input2'];
       const input3 = input['input3'];
-      console.log(input1, input2, input3);
-      console.log(this._containerRef);
+      // console.log(input1, input2, input3);
+      // console.log(this._containerRef);
       this._containerRef.removeChildren;
 
-      input1 === undefined ? undefined : this._containerRef.addChild(input1);
-      input2 === undefined ? undefined : this._containerRef.addChild(input2);
-      input3 === undefined ? undefined : this._containerRef.addChild(input3);
-      this._containerRef.x = this.x + this.width + x;
-      this._containerRef.y = this.y + y;
+      input1 == undefined ? undefined : this._containerRef.addChild(input1);
+      input2 == undefined ? undefined : this._containerRef.addChild(input2);
+      input3 == undefined ? undefined : this._containerRef.addChild(input3);
+
+      // if output is not connected, then draw it next to the node
+      if (!(this as PPNode).getOutputSocketByName('container').hasLink()) {
+        this._containerRef.x = this.x + this.width + x;
+        this._containerRef.y = this.y + y;
+      } else {
+        this._containerRef.x = x;
+        this._containerRef.y = y;
+      }
       this._containerRef.scale.set(scale);
+      output['container'] = this._containerRef;
     };
   }
 }

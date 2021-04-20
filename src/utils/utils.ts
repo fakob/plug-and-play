@@ -163,6 +163,19 @@ export const convertSlateNodesToString = (value: any): string => {
   return value.map((n) => Node.string(n)).join('\n');
 };
 
+export const getCircularReplacer = () => {
+  const seen = new WeakSet();
+  return (key, value) => {
+    if (typeof value === 'object' && value !== null) {
+      if (seen.has(value)) {
+        return;
+      }
+      seen.add(value);
+    }
+    return value;
+  };
+};
+
 export const downloadFile = (
   content: string,
   fileName: string,

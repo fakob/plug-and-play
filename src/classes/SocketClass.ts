@@ -185,6 +185,10 @@ export default class Socket extends PIXI.Container {
     return false;
   }
 
+  hasLink(): boolean {
+    return this.links.length !== 0;
+  }
+
   setName(newName: string): void {
     this.name = newName;
     (this._SocketNameRef as PIXI.Text).text = newName;
@@ -224,13 +228,18 @@ export default class Socket extends PIXI.Container {
     return (this.parent as PPNode).graph;
   }
 
+  //create serialization object
   serialize(): SerializedSocket {
-    //create serialization object
+    // ignore data for output sockets and input sockets with pixi data type
+    const data =
+      this.socketType === SOCKET_TYPE.IN && this.dataType !== DATATYPE.PIXI
+        ? this.data
+        : undefined;
     return {
       socketType: this.socketType,
       name: this.name,
       dataType: this.dataType,
-      data: this.socketType === SOCKET_TYPE.IN ? this.data : undefined, // ignore data for output sockets
+      data,
       visible: this.visible,
       custom: this.custom,
     };

@@ -4,6 +4,7 @@ import { Button, H5 } from '@blueprintjs/core';
 import { Popover2 } from '@blueprintjs/popover2';
 
 import styles from './utils/style.module.css';
+import { getCircularReplacer } from './utils/utils';
 import PPNode from './classes/NodeClass';
 import { PropertyArrayContainer } from './PropertyArrayContainer';
 import PPGraph from './classes/GraphClass';
@@ -60,7 +61,11 @@ const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
         usePortal={true}
         content={
           <div className={`${styles.serializedNode} bp3-code`}>
-            {JSON.stringify(props.selectedNode?.serialize(), null, 2)}
+            {JSON.stringify(
+              props.selectedNode?.serialize(),
+              getCircularReplacer(),
+              2
+            )}
           </div>
         }
       >
