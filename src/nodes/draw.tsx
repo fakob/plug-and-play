@@ -43,7 +43,7 @@ export class DrawRect extends PPNode {
     this.addInput('y', DATATYPE.NUMBER, 0);
     this.addInput('width', DATATYPE.NUMBER, 50);
     this.addInput('height', DATATYPE.NUMBER, 100);
-    this.addInput('color', DATATYPE.COLOR, Color(defaultColor).rgbArray);
+    this.addInput('color', DATATYPE.COLOR, Color(defaultColor).array());
 
     this.name = 'Draw Rect';
     this.description = 'Draws a rectangle';
@@ -101,7 +101,7 @@ export class Rect extends PPNode {
     this.addInput('y', DATATYPE.NUMBER, 0);
     this.addInput('width', DATATYPE.NUMBER, 50);
     this.addInput('height', DATATYPE.NUMBER, 100);
-    this.addInput('color', DATATYPE.COLOR, Color(defaultColor).rgbArray);
+    this.addInput('color', DATATYPE.COLOR, Color(defaultColor).array());
 
     this.name = 'Create Rect';
     this.description = 'Creates a rectangle';
