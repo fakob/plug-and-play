@@ -47,6 +47,7 @@ class deleteNodeAction extends Hotkey {
     if (currPressed.key === 'Backspace' || currPressed.key === 'Delete') {
       if (
         currPressed.target.dataset.slateEditor === undefined &&
+        currPressed.localName !== 'NoteInput' &&
         currPressed.localName !== 'input' &&
         currPressed.localName !== 'textarea'
       ) {
