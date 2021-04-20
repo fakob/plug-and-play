@@ -539,7 +539,7 @@ export class Label extends PPNode {
     this.addInput(
       'backgroundColor',
       DATATYPE.COLOR,
-      Color(defaultColor).rgbArray,
+      Color(defaultColor).array(),
       false
     );
     this.addInput(
