@@ -93,13 +93,6 @@ export default class PPGraph {
       resize();
       window.addEventListener('resize', resize);
 
-      window.addEventListener('keydown', (e: KeyboardEvent) =>
-        InputParser.parseKeyDown(e, this)
-      );
-      window.addEventListener('keyup', (e: KeyboardEvent) =>
-        InputParser.parseKeyUp(e)
-      );
-
       // register pointer events
       this.viewport.on('pointerdown', this._onPointerDown.bind(this));
     };
