@@ -10,11 +10,8 @@ import {
 import * as csvParser from 'papaparse';
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
-import Socket from '../classes/SocketClass';
 import { CustomArgs, SerializedNode } from '../utils/interfaces';
 import textFit from '../pixi/textFit';
-import { rgbToHex } from '../pixi/utils-pixi';
-import { convertToArray, getElement } from '../utils/utils';
 import {
   DATATYPE,
   NODE_TYPE_COLOR,
@@ -28,20 +25,87 @@ import {
   SOCKET_WIDTH,
 } from '../utils/constants';
 
+export class Circle extends PPNode {
+  _circleRef: PIXI.Graphics;
+
+  // uses customArgs?.color as defaultColor
+  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
+    const nodeColor = NODE_TYPE_COLOR.DRAW;
+    const radius = 50;
+    const rectColor = COLOR[5];
+
+    super(name, graph, {
+      ...customArgs,
+      color: nodeColor,
+    });
+
+    this.addOutput('rectangle', DATATYPE.PIXI);
+    this.addInput('x', DATATYPE.NUMBER, 0);
+    this.addInput('y', DATATYPE.NUMBER, 0);
+    this.addInput(
+      'radius',
+      DATATYPE.NUMBER,
+      customArgs?.radius ?? radius,
+      false
+    );
+
+    this.addInput('color', DATATYPE.COLOR, Color(rectColor).array());
+
+    this.name = 'Draw circle';
+    this.description = 'Draws a circle';
+
+    const rect = new PIXI.Graphics();
+    this._circleRef = (this.graph.viewport.getChildByName(
+      'backgroundCanvas'
+    ) as PIXI.Graphics).addChild(rect);
+    this._circleRef.beginFill(PIXI.utils.string2hex(Color(rectColor).hex()), 1);
+    this._circleRef.drawCircle(
+      this.x + this.width + radius,
+      this.y + radius,
+      radius
+    );
+    this._circleRef.endFill();
+
+    this.onExecute = function (input, output) {
+      const x = input['x'];
+      const y = input['y'];
+      const radius = input['radius'];
+      const color = Color.rgb(input['color'] as number[]);
+
+      this._circleRef.clear();
+      this._circleRef.beginFill(
+        PIXI.utils.string2hex(color.hex()),
+        color.alpha()
+      );
+
+      // if output is not connected, then draw it next to the node
+      if (!(this as PPNode).getOutputSocketByName('rectangle').hasLink()) {
+        this._circleRef.drawCircle(
+          this.x + this.width + radius + x,
+          this.y + radius + y,
+          radius
+        );
+      } else {
+        this._circleRef.drawCircle(x + radius, y + radius, radius);
+      }
+      this._circleRef.endFill();
+      output['rectangle'] = this._circleRef;
+    };
+  }
+}
+
 export class Rect extends PPNode {
   _rectRef: PIXI.Graphics;
 
   // uses customArgs?.color as defaultColor
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    const nodeWidth = 100;
-    const nodeHeight = 100;
     const nodeColor = NODE_TYPE_COLOR.DRAW;
-    const defaultRectColor = COLOR[5];
+    const rectWidth = 100;
+    const rectHeight = 100;
+    const rectColor = COLOR[5];
 
     super(name, graph, {
       ...customArgs,
-      nodeWidth,
-      nodeHeight,
       color: nodeColor,
     });
 
@@ -51,29 +115,26 @@ export class Rect extends PPNode {
     this.addInput(
       'width',
       DATATYPE.NUMBER,
-      customArgs?.width ?? nodeWidth,
+      customArgs?.width ?? rectWidth,
       false
     );
     this.addInput(
       'height',
       DATATYPE.NUMBER,
-      customArgs?.height ?? nodeHeight,
+      customArgs?.height ?? rectHeight,
       false
     );
-    this.addInput('color', DATATYPE.COLOR, Color(defaultRectColor).rgbArray);
+    this.addInput('color', DATATYPE.COLOR, Color(rectColor).array());
 
-    this.name = 'Draw Rect';
+    this.name = 'Draw rectangle';
     this.description = 'Draws a rectangle';
 
     const rect = new PIXI.Graphics();
     this._rectRef = (this.graph.viewport.getChildByName(
       'backgroundCanvas'
     ) as PIXI.Graphics).addChild(rect);
-    this._rectRef.beginFill(
-      PIXI.utils.string2hex(Color(defaultRectColor).hex()),
-      1
-    );
-    this._rectRef.drawRect(this.x, this.y, this.width, this.height);
+    this._rectRef.beginFill(PIXI.utils.string2hex(Color(rectColor).hex()), 1);
+    this._rectRef.drawRect(this.x + this.width, this.y, rectWidth, rectHeight);
     this._rectRef.endFill();
 
     this.onExecute = function (input, output) {
@@ -398,3 +459,235 @@ export class Table extends PPNode {
     this.update();
   }
 }
+
+type AdditionalProps = {
+  backgroundColor?: string;
+  width?: number;
+  height?: number;
+  focus?: boolean;
+};
+
+export class Label extends PPNode {
+  update: (additionalProps?: AdditionalProps) => void;
+
+  constructor(name: string, graph: PPGraph, customArgs?: CustomArgs) {
+    const nodeWidth = 300;
+    const nodeHeight = 62;
+    const isHybrid = true;
+    const defaultColor = COLOR[5];
+
+    super(name, graph, {
+      ...customArgs,
+      nodeWidth,
+      nodeHeight,
+      isHybrid,
+      color: defaultColor,
+      colorTransparency: 1.0,
+    });
+
+    this.addOutput('data', DATATYPE.STRING, undefined, false);
+    this.addInput('data', DATATYPE.STRING, customArgs?.data ?? '', false);
+    this.addInput(
+      'backgroundColor',
+      DATATYPE.COLOR,
+      Color(defaultColor).array(),
+      false
+    );
+    this.addInput(
+      'width',
+      DATATYPE.NUMBER,
+      customArgs?.width ?? nodeWidth,
+      false
+    );
+    this.addInput(
+      'height',
+      DATATYPE.NUMBER,
+      customArgs?.height ?? nodeHeight,
+      false
+    );
+
+    this.name = 'Label';
+    this.description = 'Adds text';
+
+    // when the Node is added, add the container and react component
+    this.onNodeAdded = () => {
+      const data = this.getInputData('data') ?? '';
+      this.createContainerComponent(document, Parent, {
+        data,
+        focus: true,
+      });
+      // reset width and height
+      this.container.style.width = 'auto';
+      this.container.style.height = 'auto';
+    };
+
+    // when the stored data is read, resize the node and update the react component
+    this.onConfigure = (): void => {
+      const color = Color.rgb(this.getInputData('backgroundColor') as number[]);
+      // console.log(input['color']);
+      this.color = PIXI.utils.string2hex(color.hex());
+      this.colorTransparency = color.alpha();
+      const width = this.getInputData('width');
+      const height = this.getInputData('height');
+      this.resizeNode(width, height);
+
+      this.update({ width, height });
+    };
+
+    // update the react component
+    this.update = (additionalProps?: AdditionalProps): void => {
+      const data = this.getInputData('data');
+      this.renderReactComponent(Parent, {
+        ...baseProps,
+        ...additionalProps,
+        data,
+      });
+      this.setOutputData('data', data);
+    };
+
+    this.onNodeSelected = () => {
+      console.log('onNodeSelected:', this.id);
+      const width = this.getInputData('width');
+      const height = this.getInputData('height');
+      this.update({ width, height });
+    };
+
+    this.onNodeDoubleClick = () => {
+      console.log('onNodeDoubleClick:', this.id);
+      const width = this.getInputData('width');
+      const height = this.getInputData('height');
+      this.update({ width, height, focus: true });
+    };
+
+    this.onExecute = (input, output) => {
+      if (!this.doubleClicked) {
+        const data = input['data'];
+        const color = Color.rgb(input['backgroundColor'] as number[]);
+        // console.log(input['color']);
+        this.color = PIXI.utils.string2hex(color.hex());
+        this.colorTransparency = color.alpha();
+        this.setOutputData('data', data);
+
+        this.update();
+      }
+    };
+
+    const baseProps = {
+      update: this.update.bind(this),
+      resizeNode: this.resizeNode.bind(this),
+      setInputData: this.setInputData.bind(this),
+      setOutputData: this.setOutputData.bind(this),
+    };
+
+    // const style = {
+    //   display: 'flex',
+    //   // alignItems: 'center',
+    //   // justifyContent: 'center',
+    //   border: 'solid 1px #ddd',
+    //   background: '#f0f0f0',
+    // } as const;
+  }
+}
+
+type Props = {
+  update(): void;
+  resizeNode(width: number, height: number): void;
+  setInputData(name: string, data: any): void;
+  setOutputData(name: string, data: any): void;
+  id: string;
+  selected: boolean;
+  doubleClicked: boolean;
+  focus?: boolean;
+
+  width: number;
+  height: number;
+  data: any;
+};
+
+const Parent: React.FunctionComponent<Props> = (props) => {
+  const [width, setWidth] = React.useState(props.width);
+  const [height, setHeight] = React.useState(props.height);
+  const [value, setValue] = React.useState(props.data);
+
+  // run on any props change after initial creation
+  useEffect(() => {
+    // change only if it was set
+    if (props.width) {
+      setWidth(props.width);
+    }
+    if (props.height) {
+      setHeight(props.height);
+    }
+  }, [props.width, props.height]);
+
+  useEffect(() => {
+    setValue(props.data);
+  }, [props.data]);
+
+  useEffect(() => {
+    // save value
+    if (!props.selected && props.setInputData !== undefined) {
+      onConfirm(value);
+    }
+  }, [props.selected]);
+
+  const onConfirm = (value) => {
+    setValue(value);
+    props.setInputData('data', value);
+    props.update();
+  };
+
+  return (
+    <Resizable
+      enable={{
+        right: true,
+        bottom: false,
+        bottomRight: false,
+        top: false,
+        left: false,
+        topRight: false,
+        topLeft: false,
+        bottomLeft: false,
+      }}
+      className={styles.resizeElementLabel}
+      handleClasses={{
+        right: styles.resizeHandle,
+        // bottomRight: styles.resizeHandle,
+        // bottom: styles.resizeHandle,
+      }}
+      style={{
+        borderStyle: 'dashed',
+        borderWidth: props.doubleClicked ? '0 1px 0 0' : '0',
+        borderColor: 'rgba(225, 84, 125, 1)',
+      }}
+      size={{ width, height }}
+      onResize={(e, direction, ref, d) => {
+        const width = ref.offsetWidth;
+        const height = ref.offsetHeight;
+        setWidth(width);
+        setHeight(height);
+        props.resizeNode(width, height);
+      }}
+      onResizeStop={(e, direction, ref, d) => {
+        const width = ref.offsetWidth;
+        const height = ref.offsetHeight;
+        props.setInputData('width', width);
+        props.setInputData('height', height);
+        console.log('onResizeStop: ', props.width, props.height);
+      }}
+    >
+      <H1>
+        <EditableText
+          placeholder="Write away..."
+          onChange={(value) => setValue(value)}
+          onConfirm={onConfirm}
+          isEditing={props.focus || props.doubleClicked}
+          defaultValue={props.data}
+          key={props.data} // hack so defaultValue get's set
+          selectAllOnFocus={true}
+          // multiline={true}
+        />
+      </H1>
+    </Resizable>
+  );
+};
