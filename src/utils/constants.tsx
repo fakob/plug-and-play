@@ -119,10 +119,11 @@ export const CONNECTION_COLOR_HEX = PIXI.utils.string2hex(
 export const EMPTY_TEXTURE = '../assets/Empty.png';
 
 export const NOTE_TEXTURE = '../assets/Note-white.png';
+export const NOTE_FONT = '../assets/Arial-normal-black.fnt';
 export const NOTE_MARGIN_STRING = '3px 0px 0px 5px';
 export const NOTE_PADDING = 12;
 export const NOTE_FONTSIZE = 32;
-export const NOTE_LINEHEIGHT_FACTOR = 1.5;
+export const NOTE_LINEHEIGHT_FACTOR = 1.15;
 
 export const DEFAULT_EDITOR_DATA = `// Cmd/Ctrl-s to save/update node
 // Change function name to create new node
