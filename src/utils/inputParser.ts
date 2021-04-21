@@ -45,10 +45,12 @@ class createAddNodeAction extends Hotkey {
 class deleteNodeAction extends Hotkey {
   potentiallyExecute(currPressed, allPressed, graph): boolean {
     if (currPressed.key === 'Backspace' || currPressed.key === 'Delete') {
+      console.log(currPressed, currPressed.localName);
       if (
         currPressed.target.dataset.slateEditor === undefined &&
-        currPressed.localName !== 'input' &&
-        currPressed.localName !== 'textarea'
+        currPressed.target.id !== 'NoteInput' &&
+        currPressed.target.localName !== 'input' &&
+        currPressed.target.localName !== 'textarea'
       ) {
         graph.deleteSelectedNodes();
       }

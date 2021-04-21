@@ -339,9 +339,9 @@ export default class PPNode extends PIXI.Container {
     const countOfVisibleOutputSockets = this.outputSocketArray.filter(
       (item) => item.visible === true
     ).length;
-    const nodeHeight = this.isHybrid
-      ? this.nodeHeight
-      : NODE_PADDING_TOP +
+    const nodeHeight =
+      this.nodeHeight ||
+      NODE_PADDING_TOP +
         NODE_HEADER_HEIGHT +
         countOfVisibleInputSockets * SOCKET_HEIGHT +
         countOfVisibleOutputSockets * SOCKET_HEIGHT +

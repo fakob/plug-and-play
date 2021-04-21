@@ -5,8 +5,18 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import Color from 'color';
 import { Resizable } from 're-resizable';
-import { Button, ButtonGroup, H1, H2, H3, Divider } from '@blueprintjs/core';
+import textFit from '../pixi/textFit';
+import {
+  Button,
+  ButtonGroup,
+  EditableText,
+  H1,
+  H2,
+  H3,
+  Divider,
+} from '@blueprintjs/core';
 import {
   BaseEditor,
   createEditor,
@@ -26,7 +36,18 @@ import {
   convertStringToSlateNodes,
   convertSlateNodesToString,
 } from '../utils/utils';
-import { DATATYPE } from '../utils/constants';
+import {
+  COLOR,
+  DATATYPE,
+  NODE_OUTLINE_DISTANCE,
+  NOTE_FONTSIZE,
+  NOTE_LINEHEIGHT_FACTOR,
+  NOTE_FONT,
+  NOTE_MARGIN_STRING,
+  NOTE_PADDING,
+  NOTE_TEXTURE,
+  SOCKET_WIDTH,
+} from '../utils/constants';
 import styles from '../utils/style.module.css';
 
 type CustomEditor = BaseEditor & ReactEditor & HistoryEditor;
@@ -56,14 +77,14 @@ declare module 'slate' {
   }
 }
 
-type AdditionalProps = {
+type TextAdditionalProps = {
   width?: number;
   height?: number;
   focus?: boolean;
 };
 
 export class Text extends PPNode {
-  update: (additionalProps?: AdditionalProps) => void;
+  update: (additionalProps?: TextAdditionalProps) => void;
 
   constructor(name: string, graph: PPGraph, customArgs?: CustomArgs) {
     const nodeWidth = 300;
@@ -114,7 +135,7 @@ export class Text extends PPNode {
         this.setInputData('data', data);
       }
 
-      this.createContainerComponent(document, Parent, {
+      this.createContainerComponent(document, TextParent, {
         ...baseProps,
         width: nodeWidth,
         height: nodeHeight,
@@ -135,9 +156,9 @@ export class Text extends PPNode {
     };
 
     // update the react component
-    this.update = (additionalProps?: AdditionalProps): void => {
+    this.update = (additionalProps?: TextAdditionalProps): void => {
       const data = this.getInputData('data');
-      this.renderReactComponent(Parent, {
+      this.renderReactComponent(TextParent, {
         ...baseProps,
         ...additionalProps,
         data,
@@ -180,7 +201,7 @@ export class Text extends PPNode {
   }
 }
 
-type Props = {
+type TextProps = {
   update(): void;
   resizeNode(width: number, height: number): void;
   setInputData(name: string, data: any): void;
@@ -195,7 +216,7 @@ type Props = {
   data: any;
 };
 
-const Parent: React.FunctionComponent<Props> = (props) => {
+const TextParent: React.FunctionComponent<TextProps> = (props) => {
   const [width, setWidth] = React.useState(props.width);
   const [height, setHeight] = React.useState(props.height);
 
@@ -254,7 +275,7 @@ const Parent: React.FunctionComponent<Props> = (props) => {
   );
 };
 
-const SlateEditorContainer: React.FunctionComponent<Props> = (props) => {
+const SlateEditorContainer: React.FunctionComponent<TextProps> = (props) => {
   // const focused = useFocused();
   // const selected = useSelected();
   const [value, setValue] = useState<Descendant[]>(props.data);
@@ -487,3 +508,446 @@ const SlateEditorContainer: React.FunctionComponent<Props> = (props) => {
     </div>
   );
 };
+
+type LabelAdditionalProps = {
+  backgroundColor?: string;
+  width?: number;
+  height?: number;
+  focus?: boolean;
+};
+
+export class Label extends PPNode {
+  update: (additionalProps?: LabelAdditionalProps) => void;
+
+  constructor(name: string, graph: PPGraph, customArgs?: CustomArgs) {
+    const nodeWidth = 300;
+    const nodeHeight = 62;
+    const isHybrid = true;
+    const defaultColor = COLOR[5];
+
+    super(name, graph, {
+      ...customArgs,
+      nodeWidth,
+      nodeHeight,
+      isHybrid,
+      color: defaultColor,
+      colorTransparency: 1.0,
+    });
+
+    this.addOutput('data', DATATYPE.STRING, undefined, false);
+    this.addInput('data', DATATYPE.STRING, customArgs?.data ?? '', false);
+    this.addInput(
+      'backgroundColor',
+      DATATYPE.COLOR,
+      Color(defaultColor).array(),
+      false
+    );
+    this.addInput(
+      'width',
+      DATATYPE.NUMBER,
+      customArgs?.width ?? nodeWidth,
+      false
+    );
+    this.addInput(
+      'height',
+      DATATYPE.NUMBER,
+      customArgs?.height ?? nodeHeight,
+      false
+    );
+
+    this.name = 'Label';
+    this.description = 'Adds text';
+
+    // when the Node is added, add the container and react component
+    this.onNodeAdded = () => {
+      const data = this.getInputData('data') ?? '';
+      this.createContainerComponent(document, LabelParent, {
+        data,
+        focus: true,
+      });
+      // reset width and height
+      this.container.style.width = 'auto';
+      this.container.style.height = 'auto';
+    };
+
+    // when the stored data is read, resize the node and update the react component
+    this.onConfigure = (): void => {
+      const color = Color.rgb(this.getInputData('backgroundColor') as number[]);
+      // console.log(input['color']);
+      this.color = PIXI.utils.string2hex(color.hex());
+      this.colorTransparency = color.alpha();
+      const width = this.getInputData('width');
+      const height = this.getInputData('height');
+      this.resizeNode(width, height);
+
+      this.update({ width, height });
+    };
+
+    // update the react component
+    this.update = (additionalProps?: LabelAdditionalProps): void => {
+      const data = this.getInputData('data');
+      this.renderReactComponent(LabelParent, {
+        ...baseProps,
+        ...additionalProps,
+        data,
+      });
+      this.setOutputData('data', data);
+    };
+
+    this.onNodeSelected = () => {
+      console.log('onNodeSelected:', this.id);
+      const width = this.getInputData('width');
+      const height = this.getInputData('height');
+      this.update({ width, height });
+    };
+
+    this.onNodeDoubleClick = () => {
+      console.log('onNodeDoubleClick:', this.id);
+      const width = this.getInputData('width');
+      const height = this.getInputData('height');
+      this.update({ width, height, focus: true });
+    };
+
+    this.onExecute = (input, output) => {
+      if (!this.doubleClicked) {
+        const data = input['data'];
+        const color = Color.rgb(input['backgroundColor'] as number[]);
+        // console.log(input['color']);
+        this.color = PIXI.utils.string2hex(color.hex());
+        this.colorTransparency = color.alpha();
+        this.setOutputData('data', data);
+
+        this.update();
+      }
+    };
+
+    const baseProps = {
+      update: this.update.bind(this),
+      resizeNode: this.resizeNode.bind(this),
+      setInputData: this.setInputData.bind(this),
+      setOutputData: this.setOutputData.bind(this),
+    };
+
+    // const style = {
+    //   display: 'flex',
+    //   // alignItems: 'center',
+    //   // justifyContent: 'center',
+    //   border: 'solid 1px #ddd',
+    //   background: '#f0f0f0',
+    // } as const;
+  }
+}
+
+type LabelProps = {
+  update(): void;
+  resizeNode(width: number, height: number): void;
+  setInputData(name: string, data: any): void;
+  setOutputData(name: string, data: any): void;
+  id: string;
+  selected: boolean;
+  doubleClicked: boolean;
+  focus?: boolean;
+
+  width: number;
+  height: number;
+  data: any;
+};
+
+const LabelParent: React.FunctionComponent<LabelProps> = (props) => {
+  const [width, setWidth] = React.useState(props.width);
+  const [height, setHeight] = React.useState(props.height);
+  const [value, setValue] = React.useState(props.data);
+
+  // run on any props change after initial creation
+  useEffect(() => {
+    // change only if it was set
+    if (props.width) {
+      setWidth(props.width);
+    }
+    if (props.height) {
+      setHeight(props.height);
+    }
+  }, [props.width, props.height]);
+
+  useEffect(() => {
+    setValue(props.data);
+  }, [props.data]);
+
+  useEffect(() => {
+    // save value
+    if (!props.selected && props.setInputData !== undefined) {
+      onConfirm(value);
+    }
+  }, [props.selected]);
+
+  const onConfirm = (value) => {
+    setValue(value);
+    props.setInputData('data', value);
+    props.update();
+  };
+
+  return (
+    <Resizable
+      enable={{
+        right: true,
+        bottom: false,
+        bottomRight: false,
+        top: false,
+        left: false,
+        topRight: false,
+        topLeft: false,
+        bottomLeft: false,
+      }}
+      className={styles.resizeElementLabel}
+      handleClasses={{
+        right: styles.resizeHandle,
+        // bottomRight: styles.resizeHandle,
+        // bottom: styles.resizeHandle,
+      }}
+      style={{
+        borderStyle: 'dashed',
+        borderWidth: props.doubleClicked ? '0 1px 0 0' : '0',
+        borderColor: 'rgba(225, 84, 125, 1)',
+      }}
+      size={{ width, height }}
+      onResize={(e, direction, ref, d) => {
+        const width = ref.offsetWidth;
+        const height = ref.offsetHeight;
+        setWidth(width);
+        setHeight(height);
+        props.resizeNode(width, height);
+      }}
+      onResizeStop={(e, direction, ref, d) => {
+        const width = ref.offsetWidth;
+        const height = ref.offsetHeight;
+        props.setInputData('width', width);
+        props.setInputData('height', height);
+        console.log('onResizeStop: ', props.width, props.height);
+      }}
+    >
+      <H1>
+        <EditableText
+          placeholder="Write away..."
+          onChange={(value) => setValue(value)}
+          onConfirm={onConfirm}
+          isEditing={props.focus || props.doubleClicked}
+          defaultValue={props.data}
+          key={props.data} // hack so defaultValue get's set
+          selectAllOnFocus={true}
+          // multiline={true}
+        />
+      </H1>
+    </Resizable>
+  );
+};
+
+export class Note extends PPNode {
+  _rectRef: PIXI.Sprite;
+  _textInputRef: PIXI.BitmapText;
+  currentInput: HTMLDivElement;
+  fontSize: number;
+  createInputElement: () => void;
+  setCleanAndDisplayText: (input: HTMLDivElement) => void;
+  update: () => void;
+
+  constructor(name: string, graph: PPGraph, customArgs?: CustomArgs) {
+    const nodeWidth = 160;
+    const nodeHeight = 160;
+    const defaultColor = '#F4FAF9';
+
+    super(name, graph, {
+      ...customArgs,
+      nodeWidth,
+      nodeHeight,
+      colorTransparency: 0,
+    });
+
+    this.addOutput('data', DATATYPE.STRING, undefined, false);
+    this.addInput(
+      'data',
+      DATATYPE.STRING,
+      customArgs?.data ?? 'Write away...',
+      false
+    );
+
+    this.name = 'Note';
+    this.description = 'Adds a note';
+
+    this.currentInput = null;
+    this.fontSize = 60; // set default to maxFontSize
+
+    const textFitOptions = {
+      multiLine: true,
+      maxFontSize: this.fontSize,
+      // alignVertWithFlexbox: true,
+    };
+
+    const loader = new PIXI.Loader();
+    loader.add('NoteFont', NOTE_FONT).load(() => {
+      const note = PIXI.Sprite.from(NOTE_TEXTURE);
+      note.x = SOCKET_WIDTH / 2;
+      note.y = NODE_OUTLINE_DISTANCE;
+      note.width = nodeWidth;
+      note.height = nodeHeight;
+
+      // create and position PIXI.Text
+      const basicText = new PIXI.BitmapText(
+        customArgs?.data ?? 'Write away...',
+        {
+          fontName: 'Arial',
+          fontSize: NOTE_FONTSIZE,
+          align: 'center',
+          maxWidth: nodeWidth - NOTE_PADDING * 2,
+        }
+      );
+      basicText.anchor = new PIXI.Point(0.5, 0.5);
+      basicText.x = (SOCKET_WIDTH + nodeWidth) / 2;
+      basicText.y = (NODE_OUTLINE_DISTANCE + nodeHeight) / 2;
+
+      this._NodeNameRef.visible = false;
+
+      (this._rectRef as any) = (this as PIXI.Container).addChild(note);
+      this._rectRef.alpha = 1;
+      this._rectRef.tint = PIXI.utils.string2hex(Color(defaultColor).hex());
+
+      const mask = new PIXI.Graphics();
+      mask.beginFill(0xffffff);
+      mask.drawRect(note.x, note.y, note.width, note.height); // In this case it is 8000x8000
+      mask.endFill();
+      (this as PIXI.Container).addChild(mask);
+
+      this._textInputRef = (this as PIXI.Container).addChild(basicText);
+      this._textInputRef.mask = mask;
+      this.update();
+    });
+
+    this.createInputElement = () => {
+      // create html input element
+      this._textInputRef.visible = false;
+      const screenPoint = this.graph.viewport.toScreen(this.x, this.y);
+
+      this.currentInput = document.createElement('div');
+      this.currentInput.id = 'NoteInput';
+      this.currentInput.contentEditable = 'true';
+      this.currentInput.innerHTML = this.inputSocketArray[0].data;
+
+      const style = {
+        fontFamily: 'Arial',
+        fontSize: `${this.fontSize}px`,
+        lineHeight: `${NOTE_LINEHEIGHT_FACTOR}`,
+        textAlign: 'center',
+        margin: NOTE_MARGIN_STRING,
+        padding: `${NOTE_PADDING}px`,
+        position: 'absolute',
+        background: 'transparent',
+        border: '0 none',
+        transformOrigin: 'top left',
+        transform: `scale(${this.graph.viewport.scale.x}`,
+        outline: '1px dashed black',
+        left: `${screenPoint.x}px`,
+        top: `${screenPoint.y}px`,
+        width: `${nodeWidth}px`,
+        height: `${nodeHeight - NOTE_PADDING}px`,
+        resize: 'none',
+        overflowY: 'scroll',
+        display: 'flex',
+        justifyContent: 'center',
+        alignContent: 'center',
+        flexDirection: 'column',
+      };
+      Object.assign(this.currentInput.style, style);
+
+      setTimeout(() => {
+        // run textfit once so span in div is already added
+        // and caret does not jump after first edit
+        textFit(this.currentInput, textFitOptions);
+
+        // set caret to end
+        const range = document.createRange();
+        const sel = window.getSelection();
+        range.selectNodeContents(this.currentInput);
+        range.collapse(false);
+        sel.removeAllRanges();
+        sel.addRange(range);
+
+        // set focus
+        this.currentInput.focus();
+        console.log(this.currentInput);
+      }, 100);
+
+      this.currentInput.dispatchEvent(new Event('input'));
+
+      // add event handlers
+      this.currentInput.addEventListener('blur', (e) => {
+        console.log('blur', e);
+        this.currentInput.dispatchEvent(new Event('input'));
+        this.setCleanAndDisplayText(this.currentInput);
+        this.currentInput.remove();
+        this._textInputRef.visible = true;
+      });
+
+      this.currentInput.addEventListener('input', (e) => {
+        // console.log('input', e);
+        // run textFit to recalculate the font size
+        textFit(this.currentInput, textFitOptions);
+      });
+
+      document.body.appendChild(this.currentInput);
+      console.log(this.currentInput);
+    };
+
+    this.setCleanAndDisplayText = (input: HTMLDivElement) => {
+      // get font size of editable div
+      const style = window.getComputedStyle(input.children[0], null);
+
+      const newText = input.textContent;
+      const newFontSize = Math.min(parseInt(style.fontSize, 10), this.fontSize);
+
+      this._textInputRef.fontSize = newFontSize;
+      this._textInputRef.text = input.textContent;
+
+      this.setInputData('data', newText);
+      this.setOutputData('data', newText);
+
+      this.fontSize = newFontSize;
+    };
+
+    this.onNodeDoubleClick = () => {
+      console.log('onNodeDoubleClick:', this.id);
+      this.createInputElement();
+    };
+
+    this.update = () => {
+      const data = this.getInputData('data');
+      if (this._textInputRef) {
+        this._textInputRef.text = data;
+        while (
+          (this._textInputRef.height > nodeHeight - NOTE_PADDING * 2 ||
+            this._textInputRef.width > nodeWidth - NOTE_PADDING * 2) &&
+          this._textInputRef.fontSize > 8
+        ) {
+          this._textInputRef.fontSize -= 2;
+        }
+        this.fontSize = this._textInputRef.fontSize;
+        this._textInputRef.text = data;
+        this.setOutputData('data', data);
+      }
+    };
+
+    // scale input if node is scaled
+    this.onNodeDragOrViewportMove = () => {
+      if (this.currentInput !== null) {
+        const screenPoint = this.graph.viewport.toScreen(this.x, this.y);
+        this.currentInput.style.transform = `scale(${this.graph.viewport.scale.x}`;
+        this.currentInput.style.left = `${screenPoint.x}px`;
+        this.currentInput.style.top = `${screenPoint.y}px`;
+      }
+    };
+
+    this.onExecute = () => {
+      if (!this.doubleClicked) {
+        this.update();
+      }
+    };
+  }
+}
