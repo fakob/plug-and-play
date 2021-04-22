@@ -201,7 +201,7 @@ export class Container extends PPNode {
       const input3 = input['input3'];
       // console.log(input1, input2, input3);
       // console.log(this._containerRef);
-      this._containerRef.removeChildren;
+      this._containerRef.removeChildren();
 
       input1 == undefined ? undefined : this._containerRef.addChild(input1);
       input2 == undefined ? undefined : this._containerRef.addChild(input2);
@@ -218,6 +218,291 @@ export class Container extends PPNode {
       this._containerRef.scale.set(scale);
       output['container'] = this._containerRef;
     };
+  }
+}
+
+export class GraphicsMultiplier extends PPNode {
+  _containerRef: PIXI.Container;
+
+  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
+    super(name, graph, {
+      ...customArgs,
+      color: NODE_TYPE_COLOR.DRAW,
+    });
+
+    this.addOutput('container', DATATYPE.PIXI);
+    this.addInput('input', DATATYPE.PIXI);
+    this.addInput('count', DATATYPE.NUMBER, 3, undefined, {
+      round: true,
+    });
+    this.addInput('distance', DATATYPE.NUMBER, 10.0);
+    this.addInput('scale', DATATYPE.NUMBER, 1.0);
+
+    this.name = 'GraphicsMultiplier';
+    this.description = 'Multiplies the input graphics';
+
+    const container = new PIXI.Container();
+    this._containerRef = (this.graph.viewport.getChildByName(
+      'backgroundCanvas'
+    ) as PIXI.Container).addChild(container);
+    this._containerRef.name = this.id;
+
+    this.onExecute = function (input, output) {
+      const input1: PIXI.DisplayObject = input['input'];
+      const count = input['count'];
+      const distance = input['distance'];
+      const scale = input['scale'];
+      this._containerRef.removeChildren();
+      // console.log(this._containerRef.children);
+
+      if (input1 != undefined) {
+        let x = 0;
+        let y = 0;
+        if (!(this as PPNode).getOutputSocketByName('container').hasLink()) {
+          x = this.x + this.width;
+          y = this.y;
+        }
+
+        // position original at index zero and clone the rest
+        input1.x += x;
+        input1.y += y;
+
+        switch (input1.constructor.name) {
+          case 'Graphics':
+            for (let indexCount = 1; indexCount < count; indexCount++) {
+              const clone = (input1 as PIXI.Graphics).clone();
+              clone.name = `${this.id}-${indexCount}`;
+              clone.x = input1.x + (clone.width + distance) * indexCount;
+              clone.y = input1.y;
+              this._containerRef.addChild(clone);
+            }
+            break;
+          case 'Container':
+            const children = (input1 as PIXI.Container).children;
+            for (let indexCount = 0; indexCount < count; indexCount++) {
+              const subContainer = this._containerRef.addChild(
+                new PIXI.Container()
+              );
+              subContainer.name = `${this.id}-subContainer-${indexCount}`;
+              for (
+                let indexChildren = 0;
+                indexChildren < children.length;
+                indexChildren++
+              ) {
+                const element = children[indexChildren];
+                const clone = (element as PIXI.Graphics).clone();
+                clone.name = `${subContainer.name}-${indexChildren}`;
+                clone.x = element.x;
+                clone.y = element.y;
+                subContainer.addChild(clone);
+              }
+              subContainer.x =
+                input1.x + (subContainer.width + distance) * indexCount;
+              subContainer.y = input1.y;
+              this._containerRef.addChild(subContainer);
+            }
+            break;
+
+          default:
+            break;
+        }
+        this._containerRef.scale.set(scale);
+        output['container'] = this._containerRef;
+      }
+    };
+  }
+}
+
+export class Note extends PPNode {
+  _rectRef: PIXI.Sprite;
+  _textInputRef: PIXI.Text;
+  createInputElement;
+  currentInput: HTMLDivElement;
+  setCleanAndDisplayText: (input: HTMLDivElement) => void;
+  setCleanText: (text: string) => void;
+  onViewportMove: (event: PIXI.InteractionEvent) => void;
+  onViewportMoveHandler: (event?: PIXI.InteractionEvent) => void;
+
+  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
+    super(name, graph, customArgs);
+    this.addOutput('textOutput', DATATYPE.STRING);
+    this.addOutput('fontSize', DATATYPE.NUMBER, false);
+    this.addInput('textInput', DATATYPE.STRING, 'type...');
+    this.addInput('fontSize', DATATYPE.NUMBER, NOTE_FONTSIZE, false);
+
+    this.name = 'Note';
+    this.description = 'Adds a note';
+    const note = PIXI.Sprite.from(NOTE_TEXTURE);
+    note.x = SOCKET_WIDTH / 2;
+    note.y = NODE_OUTLINE_DISTANCE;
+    note.width = NODE_WIDTH;
+    note.height = NODE_WIDTH;
+
+    this.currentInput = null;
+
+    const textFitOptions = {
+      multiLine: true,
+      maxFontSize: 60,
+      // alignVertWithFlexbox: true,
+    };
+
+    //
+    this.onViewportMove = function (event: PIXI.InteractionEvent): void {
+      // console.log('onViewportMove', event);
+      const screenPoint = this.graph.viewport.toScreen(this.x, this.y);
+      this.currentInput.style.transform = `scale(${this.graph.viewport.scale.x}`;
+      this.currentInput.style.left = `${screenPoint.x}px`;
+      this.currentInput.style.top = `${screenPoint.y}px`;
+    };
+    this.onViewportMoveHandler = this.onViewportMove.bind(this);
+
+    const basicText = new PIXI.Text('', {
+      fontFamily: 'Arial',
+      fontSize: NOTE_FONTSIZE,
+      lineHeight: NOTE_FONTSIZE * NOTE_LINEHEIGHT_FACTOR,
+      align: 'center',
+      whiteSpace: 'pre-line',
+      wordWrap: true,
+      wordWrapWidth: NODE_WIDTH - NOTE_PADDING,
+      lineJoin: 'round',
+    });
+    basicText.anchor.set(0.5, 0.5);
+    basicText.x = (SOCKET_WIDTH + NODE_WIDTH) / 2;
+    basicText.y = (NODE_OUTLINE_DISTANCE + NODE_WIDTH) / 2;
+
+    this.onDrawNodeShape = function () {
+      this._BackgroundRef.visible = false;
+      this._NodeNameRef.visible = false;
+
+      (this._rectRef as any) = (this as PIXI.Container).addChild(note);
+      this._rectRef.alpha = 1;
+      this._rectRef.tint;
+
+      this._textInputRef = (this as PIXI.Container).addChild(basicText);
+    };
+
+    this.createInputElement = () => {
+      // create html input element
+      this.currentInput = document.createElement('div');
+      this.currentInput.id = 'NoteInput';
+      this.currentInput.contentEditable = 'true';
+      this.currentInput.innerHTML = this.inputSocketArray[0].data;
+      this._textInputRef.visible = false;
+      this.currentInput.style.fontFamily = 'Arial';
+      // this.currentInput.style.fontStyle = 'italic';
+      // this.currentInput.style.fontWeight = 'bold';
+      this.currentInput.style.fontSize = this._textInputRef.style.fontSize;
+      this.currentInput.style.lineHeight = `${NOTE_LINEHEIGHT_FACTOR}`;
+      this.currentInput.style.textAlign = 'center';
+      this.currentInput.style.margin = NOTE_MARGIN_STRING;
+      this.currentInput.style.padding = `${NOTE_PADDING}px`;
+      this.currentInput.style.position = 'absolute';
+      this.currentInput.style.background = 'transparent';
+      this.currentInput.style.border = '0 none';
+      this.currentInput.style.transformOrigin = 'top left';
+      this.currentInput.style.transform = `translate(50%, 50%)`;
+      this.currentInput.style.transform = `scale(${this.graph.viewport.scale.x}`;
+      this.currentInput.style.outline = '1px dashed black';
+      const screenPoint = this.graph.viewport.toScreen(this.x, this.y);
+      this.currentInput.style.left = `${screenPoint.x}px`;
+      this.currentInput.style.top = `${screenPoint.y}px`;
+      this.currentInput.style.width = `${NODE_WIDTH}px`;
+      this.currentInput.style.height = `${NODE_WIDTH - NOTE_PADDING}px`;
+      // this.currentInput.style.display = 'none';
+      this.currentInput.style.resize = 'none';
+      this.currentInput.style.overflowY = 'scroll';
+      setTimeout(() => {
+        // run textfit once so span in div is already added
+        // and caret does not jump after first edit
+        textFit(this.currentInput, textFitOptions);
+
+        // set caret to end
+        const range = document.createRange();
+        const sel = window.getSelection();
+        range.selectNodeContents(this.currentInput);
+        range.collapse(false);
+        sel.removeAllRanges();
+        sel.addRange(range);
+
+        // set focus
+        this.currentInput.focus();
+        console.log(this.currentInput);
+      }, 100);
+
+      this.currentInput.dispatchEvent(new Event('input'));
+
+      // add event handlers
+      this.currentInput.addEventListener('blur', (e) => {
+        console.log('blur', e);
+        this.graph.viewport.removeListener('moved', this.onViewportMoveHandler);
+        this.currentInput.dispatchEvent(new Event('input'));
+        this.setCleanAndDisplayText(this.currentInput);
+        this.currentInput.remove();
+        this._textInputRef.visible = true;
+      });
+
+      this.currentInput.addEventListener('input', (e) => {
+        // console.log('input', e);
+        // run textFit to recalculate the font size
+        textFit(this.currentInput, textFitOptions);
+      });
+
+      this.graph.viewport.on('moved', (this as any).onViewportMoveHandler);
+
+      document.body.appendChild(this.currentInput);
+      console.log(this.currentInput);
+    };
+
+    this.setCleanAndDisplayText = (input: HTMLDivElement) => {
+      // get font size of editable div
+      const style = window.getComputedStyle(input.children[0], null);
+
+      const newText = input.textContent;
+      const newFontSize = Math.min(
+        parseInt(style.fontSize, 10),
+        this.getInputData('fontSize')
+      );
+      const newFontSizeString = `${newFontSize}px`;
+      const newLineHeight = newFontSize * NOTE_LINEHEIGHT_FACTOR;
+
+      this._textInputRef.style.fontSize = newFontSizeString;
+      this._textInputRef.style.lineHeight = newLineHeight;
+      this._textInputRef.text = input.textContent;
+
+      const textInput = this.getInputSocketByName('textInput');
+      textInput.data = newText;
+      this.setOutputData('textOutput', newText);
+
+      const fontSizeInput = this.getInputSocketByName('fontSize');
+      fontSizeInput.data = newFontSize;
+      this.setOutputData('fontSize', newFontSize);
+    };
+
+    this.setCleanText = (text: string) => {
+      this.inputSocketArray[0].data = text;
+      this.setOutputData('textOutput', text);
+    };
+
+    this.onConfigure = (node_info: SerializedNode) => {
+      console.log('onConfigure on Note:', node_info);
+      this.createInputElement();
+      this.currentInput.dispatchEvent(new Event('input'));
+      this.currentInput.dispatchEvent(new Event('blur'));
+    };
+
+    this.onNodeDoubleClick = () => {
+      console.log('_onDoubleClick on Note:', this);
+      this.createInputElement();
+    };
+
+    this.onExecute = (input, output) => {
+      const inputText = input['input'];
+      this._textInputRef.text = inputText;
+      this.setOutputData('textOutput', inputText);
+    };
+
+    // update shape after initializing
+    this.drawNodeShape(false);
   }
 }
 
