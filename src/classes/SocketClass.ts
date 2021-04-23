@@ -218,6 +218,12 @@ export default class Socket extends PIXI.Container {
     } else {
       this.links = this.links.filter((item) => item.id !== link.id);
     }
+
+    // for pixi types which are display object references,
+    // reset data to remove the reference
+    if (this.dataType === DATATYPE.PIXI) {
+      this.data = null;
+    }
   }
 
   getNode(): PPNode {
