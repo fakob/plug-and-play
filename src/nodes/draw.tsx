@@ -39,7 +39,7 @@ export class Circle extends PPNode {
       color: nodeColor,
     });
 
-    this.addOutput('rectangle', DATATYPE.PIXI);
+    this.addOutput('circle', DATATYPE.PIXI);
     this.addInput('x', DATATYPE.NUMBER, 0);
     this.addInput('y', DATATYPE.NUMBER, 0);
     this.addInput(
@@ -58,6 +58,8 @@ export class Circle extends PPNode {
     this._circleRef = (this.graph.viewport.getChildByName(
       'backgroundCanvas'
     ) as PIXI.Graphics).addChild(rect);
+    this.setOutputData('circle', this._circleRef);
+
     this._circleRef.beginFill(PIXI.utils.string2hex(Color(rectColor).hex()), 1);
     this._circleRef.drawCircle(
       this.x + this.width + radius,
@@ -79,17 +81,16 @@ export class Circle extends PPNode {
       );
 
       // if output is not connected, then draw it next to the node
-      if (!(this as PPNode).getOutputSocketByName('rectangle').hasLink()) {
+      if ((this as PPNode).getOutputSocketByName('circle')?.hasLink()) {
+        this._circleRef.drawCircle(x + radius, y + radius, radius);
+      } else {
         this._circleRef.drawCircle(
           this.x + this.width + radius + x,
           this.y + radius + y,
           radius
         );
-      } else {
-        this._circleRef.drawCircle(x + radius, y + radius, radius);
       }
       this._circleRef.endFill();
-      output['rectangle'] = this._circleRef;
     };
   }
 }
@@ -133,6 +134,8 @@ export class Rect extends PPNode {
     this._rectRef = (this.graph.viewport.getChildByName(
       'backgroundCanvas'
     ) as PIXI.Graphics).addChild(rect);
+    this.setOutputData('rectangle', this._rectRef);
+
     this._rectRef.beginFill(PIXI.utils.string2hex(Color(rectColor).hex()), 1);
     this._rectRef.drawRect(this.x + this.width, this.y, rectWidth, rectHeight);
     this._rectRef.endFill();
@@ -151,18 +154,18 @@ export class Rect extends PPNode {
       );
 
       // if output is not connected, then draw it next to the node
-      if (!(this as PPNode).getOutputSocketByName('rectangle').hasLink()) {
+      if ((this as PPNode).getOutputSocketByName('rectangle')?.hasLink()) {
+        this._rectRef.drawRect(x, y, width, height);
+      } else {
         this._rectRef.drawRect(
           this.x + this.width + x,
           this.y + y,
           width,
           height
         );
-      } else {
-        this._rectRef.drawRect(x, y, width, height);
       }
       this._rectRef.endFill();
-      output['rectangle'] = this._rectRef;
+      // output['rectangle'] = this._rectRef;
     };
   }
 }
@@ -191,6 +194,7 @@ export class Container extends PPNode {
     this._containerRef = (this.graph.viewport.getChildByName(
       'backgroundCanvas'
     ) as PIXI.Container).addChild(container);
+    this.setOutputData('container', this._containerRef);
 
     this.onExecute = function (input, output) {
       const x = input['x'];
@@ -208,15 +212,14 @@ export class Container extends PPNode {
       input3 == undefined ? undefined : this._containerRef.addChild(input3);
 
       // if output is not connected, then draw it next to the node
-      if (!(this as PPNode).getOutputSocketByName('container').hasLink()) {
-        this._containerRef.x = this.x + this.width + x;
-        this._containerRef.y = this.y + y;
-      } else {
+      if ((this as PPNode).getOutputSocketByName('container')?.hasLink()) {
         this._containerRef.x = x;
         this._containerRef.y = y;
+      } else {
+        this._containerRef.x = this.x + this.width + x;
+        this._containerRef.y = this.y + y;
       }
       this._containerRef.scale.set(scale);
-      output['container'] = this._containerRef;
     };
   }
 }
@@ -232,8 +235,13 @@ export class GraphicsMultiplier extends PPNode {
 
     this.addOutput('container', DATATYPE.PIXI);
     this.addInput('input', DATATYPE.PIXI);
-    this.addInput('count', DATATYPE.NUMBER, 3, undefined, {
+    this.addInput('count', DATATYPE.NUMBER, 9, undefined, {
       round: true,
+      minValue: 0,
+    });
+    this.addInput('column', DATATYPE.NUMBER, 3, undefined, {
+      round: true,
+      minValue: 0,
     });
     this.addInput('distance', DATATYPE.NUMBER, 10.0);
     this.addInput('scale', DATATYPE.NUMBER, 1.0);
@@ -245,11 +253,13 @@ export class GraphicsMultiplier extends PPNode {
     this._containerRef = (this.graph.viewport.getChildByName(
       'backgroundCanvas'
     ) as PIXI.Container).addChild(container);
+    this.setOutputData('container', this._containerRef);
     this._containerRef.name = this.id;
 
     this.onExecute = function (input, output) {
       const input1: PIXI.DisplayObject = input['input'];
       const count = input['count'];
+      const column = input['column'];
       const distance = input['distance'];
       const scale = input['scale'];
       this._containerRef.removeChildren();
@@ -258,22 +268,24 @@ export class GraphicsMultiplier extends PPNode {
       if (input1 != undefined) {
         let x = 0;
         let y = 0;
-        if (!(this as PPNode).getOutputSocketByName('container').hasLink()) {
+
+        // if output is not connected, then draw it next to the node
+        if ((this as PPNode).getOutputSocketByName('container')?.hasLink()) {
+          this._containerRef.x = 0;
+          this._containerRef.y = 0;
+        } else {
           x = this.x + this.width;
           y = this.y;
         }
 
-        // position original at index zero and clone the rest
-        input1.x += x;
-        input1.y += y;
-
         switch (input1.constructor.name) {
           case 'Graphics':
-            for (let indexCount = 1; indexCount < count; indexCount++) {
+            for (let indexCount = 0; indexCount < count; indexCount++) {
               const clone = (input1 as PIXI.Graphics).clone();
               clone.name = `${this.id}-${indexCount}`;
-              clone.x = input1.x + (clone.width + distance) * indexCount;
-              clone.y = input1.y;
+              clone.x = x + (clone.width + distance) * (indexCount % column);
+              clone.y =
+                y + (clone.height + distance) * Math.floor(indexCount / column);
               this._containerRef.addChild(clone);
             }
             break;
@@ -297,8 +309,11 @@ export class GraphicsMultiplier extends PPNode {
                 subContainer.addChild(clone);
               }
               subContainer.x =
-                input1.x + (subContainer.width + distance) * indexCount;
-              subContainer.y = input1.y;
+                x + (subContainer.width + distance) * (indexCount % column);
+              subContainer.y =
+                y +
+                (subContainer.height + distance) *
+                  Math.floor(indexCount / column);
               this._containerRef.addChild(subContainer);
             }
             break;
@@ -307,7 +322,6 @@ export class GraphicsMultiplier extends PPNode {
             break;
         }
         this._containerRef.scale.set(scale);
-        output['container'] = this._containerRef;
       }
     };
   }
