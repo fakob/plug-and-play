@@ -92,7 +92,7 @@ export default class PPNode extends PIXI.Container {
   container: HTMLElement; // for hybrid nodes
 
   // supported callbacks
-  onConfigure: ((node_info: SerializedNode) => void) | null;
+  onConfigure: ((nodeConfig: SerializedNode) => void) | null;
   onNodeDoubleClick: ((event: PIXI.InteractionEvent) => void) | null;
   onViewportMoveHandler: (event?: PIXI.InteractionEvent) => void;
   onDrawNodeShape: (() => void) | null; // called when the node is drawn
@@ -299,33 +299,42 @@ export default class PPNode extends PIXI.Container {
     return o;
   }
 
-  configure(node_info: SerializedNode): void {
-    this.x = node_info.x;
-    this.y = node_info.y;
+  configure(nodeConfig: SerializedNode): void {
+    this.x = nodeConfig.x;
+    this.y = nodeConfig.y;
     // update position of comment
     this.updateCommentPosition();
 
     // set parameters on inputSocket
     this.inputSocketArray.forEach((item, index) => {
-      console.log(node_info.inputSocketArray[index]);
-      item.setName(node_info.inputSocketArray[index]?.name ?? null);
-      item.dataType = node_info.inputSocketArray[index]?.dataType ?? null;
-      item.data = node_info.inputSocketArray[index]?.data ?? null;
-      item.setVisible(node_info.inputSocketArray[index]?.visible ?? true);
-      item.custom = node_info.inputSocketArray[index]?.custom ?? undefined;
+      console.log(nodeConfig.inputSocketArray[index]);
+
+      // skip configuring the input if there is no config data
+      if (nodeConfig.inputSocketArray[index] !== undefined) {
+        item.setName(nodeConfig.inputSocketArray[index].name ?? null);
+        item.dataType = nodeConfig.inputSocketArray[index].dataType ?? null;
+        item.data = nodeConfig.inputSocketArray[index].data ?? null;
+        item.setVisible(nodeConfig.inputSocketArray[index].visible ?? true);
+        item.custom = nodeConfig.inputSocketArray[index].custom ?? undefined;
+      }
     });
 
     // set parameters on outputSocket
     this.outputSocketArray.forEach((item, index) => {
-      console.log(node_info.outputSocketArray[index]);
-      item.setName(node_info.outputSocketArray[index]?.name ?? null);
-      item.dataType = node_info.outputSocketArray[index]?.dataType ?? undefined;
-      item.setVisible(node_info.outputSocketArray[index]?.visible ?? true);
-      item.custom = node_info.outputSocketArray[index]?.custom ?? undefined;
+      console.log(nodeConfig.outputSocketArray[index]);
+
+      // skip configuring the output if there is no config data
+      if (nodeConfig.outputSocketArray[index] !== undefined) {
+        item.setName(nodeConfig.outputSocketArray[index].name ?? null);
+        item.dataType =
+          nodeConfig.outputSocketArray[index].dataType ?? undefined;
+        item.setVisible(nodeConfig.outputSocketArray[index].visible ?? true);
+        item.custom = nodeConfig.outputSocketArray[index].custom ?? undefined;
+      }
     });
 
     if (this.onConfigure) {
-      this.onConfigure(node_info);
+      this.onConfigure(nodeConfig);
     }
 
     if (this.isHybrid) {
