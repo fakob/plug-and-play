@@ -84,12 +84,14 @@ export class Circle extends PPNode {
       // if output is not connected, then draw it next to the node
       if ((this as PPNode).getOutputSocketByName('circle')?.hasLink()) {
         this._circleRef.drawCircle(x + radius, y + radius, radius);
+        this._circleRef.visible = false;
       } else {
         this._circleRef.drawCircle(
           this.x + this.width + radius + x,
           this.y + radius + y,
           radius
         );
+        this._circleRef.visible = true;
       }
       this._circleRef.endFill();
     };
@@ -163,6 +165,7 @@ export class Rect extends PPNode {
       // if output is not connected, then draw it next to the node
       if ((this as PPNode).getOutputSocketByName('rectangle')?.hasLink()) {
         this._rectRef.drawRect(x, y, width, height);
+        this._rectRef.visible = false;
       } else {
         this._rectRef.drawRect(
           this.x + this.width + x,
@@ -170,6 +173,7 @@ export class Rect extends PPNode {
           width,
           height
         );
+        this._rectRef.visible = true;
       }
       this._rectRef.endFill();
       // output['rectangle'] = this._rectRef;
@@ -228,9 +232,11 @@ export class Container extends PPNode {
       if ((this as PPNode).getOutputSocketByName('container')?.hasLink()) {
         this._containerRef.x = x;
         this._containerRef.y = y;
+        this._containerRef.visible = false;
       } else {
         this._containerRef.x = this.x + this.width + x;
         this._containerRef.y = this.y + y;
+        this._containerRef.visible = true;
       }
       this._containerRef.scale.set(scale);
     };
@@ -293,9 +299,11 @@ export class GraphicsMultiplier extends PPNode {
         if ((this as PPNode).getOutputSocketByName('container')?.hasLink()) {
           this._containerRef.x = 0;
           this._containerRef.y = 0;
+          this._containerRef.visible = false;
         } else {
           x = this.x + this.width;
           y = this.y;
+          this._containerRef.visible = true;
         }
 
         switch (input1.constructor.name) {
