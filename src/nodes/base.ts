@@ -86,6 +86,31 @@ export class RangeArray extends PPNode {
   }
 }
 
+export class RandomArray extends PPNode {
+  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
+    super(name, graph, {
+      ...customArgs,
+      color: NODE_TYPE_COLOR.TRANSFORM,
+    });
+
+    this.addOutput('output array', DATATYPE.ARRAY);
+    this.addInput('trigger', DATATYPE.TRIGGER);
+    this.addInput('length', DATATYPE.NUMBER);
+    this.addInput('min', DATATYPE.NUMBER);
+    this.addInput('max', DATATYPE.NUMBER);
+
+    this.name = 'Random array';
+    this.description = 'Create random array';
+  }
+
+  trigger(): void {
+    const randomArray = Array.from({ length: length }, () => {
+      return { height: Math.floor(Math.random() * length) };
+    });
+    this.setOutputData('output array', randomArray);
+  }
+}
+
 export class MakeAPICall extends PPNode {
   // _rectRef: PIXI.Graphics;
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
@@ -120,6 +145,7 @@ export class MakeAPICall extends PPNode {
       });
   }
 }
+
 export class Trigger extends PPNode {
   _rectRef: PIXI.Graphics;
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
