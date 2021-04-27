@@ -220,8 +220,8 @@ export default class Socket extends PIXI.Container {
     }
 
     // for pixi types which are display object references,
-    // reset data to remove the reference
-    if (this.dataType === DATATYPE.PIXI) {
+    // reset data to remove the input reference
+    if (this.socketType === SOCKET_TYPE.IN && this.dataType === DATATYPE.PIXI) {
       this.data = null;
     }
   }

@@ -93,6 +93,12 @@ export class Circle extends PPNode {
       }
       this._circleRef.endFill();
     };
+
+    this.onNodeRemoved = (): void => {
+      (this.graph.viewport.getChildByName(
+        'backgroundCanvas'
+      ) as PIXI.Graphics).removeChild(this._circleRef);
+    };
   }
 }
 
@@ -168,6 +174,12 @@ export class Rect extends PPNode {
       this._rectRef.endFill();
       // output['rectangle'] = this._rectRef;
     };
+
+    this.onNodeRemoved = (): void => {
+      (this.graph.viewport.getChildByName(
+        'backgroundCanvas'
+      ) as PIXI.Graphics).removeChild(this._rectRef);
+    };
   }
 }
 
@@ -222,6 +234,12 @@ export class Container extends PPNode {
       }
       this._containerRef.scale.set(scale);
     };
+
+    this.onNodeRemoved = (): void => {
+      (this.graph.viewport.getChildByName(
+        'backgroundCanvas'
+      ) as PIXI.Graphics).removeChild(this._containerRef);
+    };
   }
 }
 
@@ -246,6 +264,7 @@ export class GraphicsMultiplier extends PPNode {
     });
     this.addInput('distance', DATATYPE.NUMBER, 10.0);
     this.addInput('scale', DATATYPE.NUMBER, 1.0);
+    this.addInput('adjustArray', DATATYPE.ARRAY);
 
     this.name = 'GraphicsMultiplier';
     this.description = 'Multiplies the input graphics';
@@ -263,8 +282,8 @@ export class GraphicsMultiplier extends PPNode {
       const column = input['column'];
       const distance = input['distance'];
       const scale = input['scale'];
+      const adjustArray = input['adjustArray'];
       this._containerRef.removeChildren();
-      // console.log(this._containerRef.children);
 
       if (input1 != undefined) {
         let x = 0;
@@ -287,6 +306,12 @@ export class GraphicsMultiplier extends PPNode {
               clone.x = x + (clone.width + distance) * (indexCount % column);
               clone.y =
                 y + (clone.height + distance) * Math.floor(indexCount / column);
+              if (adjustArray?.[indexCount]?.height !== undefined) {
+                clone.height = adjustArray[indexCount].height;
+              }
+              if (adjustArray?.[indexCount]?.width !== undefined) {
+                clone.width = adjustArray[indexCount].width;
+              }
               this._containerRef.addChild(clone);
             }
             break;
@@ -324,6 +349,12 @@ export class GraphicsMultiplier extends PPNode {
         }
         this._containerRef.scale.set(scale);
       }
+    };
+
+    this.onNodeRemoved = (): void => {
+      (this.graph.viewport.getChildByName(
+        'backgroundCanvas'
+      ) as PIXI.Graphics).removeChild(this._containerRef);
     };
   }
 }
