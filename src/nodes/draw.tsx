@@ -26,6 +26,81 @@ import {
   SOCKET_WIDTH,
 } from '../utils/constants';
 
+export class PIXIText extends PPNode {
+  // _circleRef: PIXI.Graphics;
+  _textInputRef: PIXI.Text;
+
+  // uses customArgs?.color as defaultColor
+  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
+    const nodeColor = NODE_TYPE_COLOR.DRAW;
+    const rectColor = COLOR[5];
+
+    super(name, graph, {
+      ...customArgs,
+      color: nodeColor,
+    });
+
+    this.addOutput('text', DATATYPE.PIXI);
+    this.addInput('x', DATATYPE.NUMBER, 0);
+    this.addInput('y', DATATYPE.NUMBER, 0);
+    this.addInput('text', DATATYPE.STRING, 'Text');
+    this.addInput('size', DATATYPE.NUMBER, 24, undefined, {
+      round: true,
+      minValue: 1,
+    });
+    this.addInput('color', DATATYPE.COLOR, Color(rectColor).array());
+
+    this.name = 'Draw text';
+    this.description = 'Draws a text';
+
+    const textStyle = {
+      fontFamily: 'Arial',
+      fontSize: this.getInputData('size'),
+      lineHeight: this.getInputData('size') * NOTE_LINEHEIGHT_FACTOR,
+      align: 'center',
+      whiteSpace: 'pre-line',
+      wordWrap: true,
+      wordWrapWidth: NODE_WIDTH - NOTE_PADDING,
+      lineJoin: 'round',
+    };
+    const basicText = new PIXI.Text(this.getInputData('text'), textStyle);
+    // basicText.anchor.set(0.5, 0.5);
+    // basicText.x = (SOCKET_WIDTH + NODE_WIDTH) / 2;
+    // basicText.y = (NODE_OUTLINE_DISTANCE + NODE_WIDTH) / 2;
+    this._textInputRef = (this as PIXI.Container).addChild(basicText);
+
+    this._textInputRef = (this.graph.viewport.getChildByName(
+      'backgroundCanvas'
+    ) as PIXI.Graphics).addChild(basicText);
+    this.setOutputData('text', this._textInputRef);
+
+    this.onExecute = function (input, output) {
+      const text = input['text'];
+      // const size = input['size'];
+      const x = input['x'];
+      const y = input['y'];
+      // const color = Color.rgb(input['color'] as number[]);
+
+      this._textInputRef.text = text;
+
+      // if output is not connected, then draw it next to the node
+      if ((this as PPNode).getOutputSocketByName('text')?.hasLink()) {
+        this._textInputRef.x = x;
+        this._textInputRef.y = y;
+      } else {
+        this._textInputRef.x = this.x + this.width;
+        this._textInputRef.y = this.y;
+      }
+    };
+
+    this.onNodeRemoved = (): void => {
+      (this.graph.viewport.getChildByName(
+        'backgroundCanvas'
+      ) as PIXI.Graphics).removeChild(this._textInputRef);
+    };
+  }
+}
+
 export class Circle extends PPNode {
   _circleRef: PIXI.Graphics;
 
@@ -376,7 +451,7 @@ export class GraphicsMultiplier extends PPNode {
       adjustArray?: any,
       testString?: string
     ): PIXI.Graphics => {
-      console.log(adjustArray);
+      // console.log(adjustArray);
       const clone = objectToClone.clone();
       clone.name =
         container === this._containerRef
@@ -405,7 +480,7 @@ export class GraphicsMultiplier extends PPNode {
       adjustArray?: any,
       testString?: string
     ): PIXI.Container => {
-      console.log(adjustArray);
+      // console.log(adjustArray);
       const children = objectToClone.children;
       const subContainer = container.addChild(new PIXI.Container());
       subContainer.name =
