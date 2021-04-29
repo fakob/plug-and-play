@@ -251,6 +251,20 @@ export class Container extends PPNode {
 
 export class GraphicsMultiplier extends PPNode {
   _containerRef: PIXI.Container;
+  createAndAddClone: (
+    x: number,
+    y: number,
+    parentContainer: PIXI.Container,
+    objectToClone: PIXI.Graphics,
+    index: number
+  ) => PIXI.Graphics;
+  createSubcontainerAndIterateOverChildren: (
+    x: number,
+    y: number,
+    container: PIXI.Container,
+    objectToClone: PIXI.Container,
+    index: number
+  ) => PIXI.Container;
 
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
     super(name, graph, {
@@ -306,61 +320,38 @@ export class GraphicsMultiplier extends PPNode {
           // this._containerRef.visible = true;
         }
 
-        switch (input1.constructor.name) {
-          case 'Graphics':
-            for (let indexCount = 0; indexCount < count; indexCount++) {
-              const clone = (input1 as PIXI.Graphics).clone();
-              clone.name = `${this.id}-${indexCount}`;
-              clone.x = x + (clone.width + distance) * (indexCount % column);
-              clone.y =
-                y + (clone.height + distance) * Math.floor(indexCount / column);
-              if (adjustArray?.[indexCount]?.height !== undefined) {
-                clone.height = adjustArray[indexCount].height;
-              }
-              if (adjustArray?.[indexCount]?.width !== undefined) {
-                clone.width = adjustArray[indexCount].width;
-              }
-              this._containerRef.addChild(clone);
-            }
-            break;
-          case 'Container':
-            const children = (input1 as PIXI.Container).children;
-            for (let indexCount = 0; indexCount < count; indexCount++) {
-              const subContainer = this._containerRef.addChild(
-                new PIXI.Container()
-              );
-              subContainer.name = `${this.id}-subContainer-${indexCount}`;
-              for (
-                let indexChildren = 0;
-                indexChildren < children.length;
-                indexChildren++
-              ) {
-                const element = children[indexChildren];
-                const clone = (element as PIXI.Graphics).clone();
-                clone.name = `${subContainer.name}-${indexChildren}`;
-                clone.x = element.x;
-                clone.y = element.y;
-                subContainer.addChild(clone);
-              }
-              subContainer.x =
-                x + (subContainer.width + distance) * (indexCount % column);
-              subContainer.y =
-                y +
-                (subContainer.height + distance) *
-                  Math.floor(indexCount / column);
-              if (adjustArray?.[indexCount]?.height !== undefined) {
-                subContainer.height = adjustArray[indexCount].height;
-              }
-              if (adjustArray?.[indexCount]?.width !== undefined) {
-                subContainer.width = adjustArray[indexCount].width;
-              }
-              this._containerRef.addChild(subContainer);
-            }
-            break;
+        for (let indexCount = 0; indexCount < count; indexCount++) {
+          let objectToPosition;
+          if (input1.constructor.name === 'Container') {
+            objectToPosition = this.createSubcontainerAndIterateOverChildren(
+              x,
+              y,
+              this._containerRef,
+              input1 as PIXI.Container,
+              indexCount,
+              column,
+              distance
+            );
+          } else {
+            objectToPosition = this.createAndAddClone(
+              x,
+              y,
+              this._containerRef,
+              input1 as PIXI.Graphics,
+              indexCount,
+              column,
+              distance
+            );
+          }
 
-          default:
-            break;
+          objectToPosition.x =
+            x + (objectToPosition.width + distance) * (indexCount % column);
+          objectToPosition.y =
+            y +
+            (objectToPosition.height + distance) *
+              Math.floor(indexCount / column);
         }
+
         this._containerRef.scale.set(scale);
       }
     };
@@ -369,6 +360,77 @@ export class GraphicsMultiplier extends PPNode {
       (this.graph.viewport.getChildByName(
         'backgroundCanvas'
       ) as PIXI.Graphics).removeChild(this._containerRef);
+    };
+
+    this.createAndAddClone = (
+      x: number,
+      y: number,
+      container: PIXI.Container,
+      objectToClone: PIXI.Graphics,
+      index: number
+    ): PIXI.Graphics => {
+      const clone = objectToClone.clone();
+      clone.name =
+        container === this._containerRef
+          ? `${this.id}-${index}`
+          : `${container.name}-${index}`;
+      clone.x = 0;
+      clone.y = 0;
+      // if (adjustArray?.[index]?.height !== undefined) {
+      //   clone.height = adjustArray[index].height;
+      // }
+      // if (adjustArray?.[index]?.width !== undefined) {
+      //   clone.width = adjustArray[index].width;
+      // }
+      return container.addChild(clone);
+    };
+
+    this.createSubcontainerAndIterateOverChildren = (
+      x: number,
+      y: number,
+      container: PIXI.Container,
+      objectToClone: PIXI.Container,
+      index: number
+    ): PIXI.Container => {
+      const children = objectToClone.children;
+      const subContainer = container.addChild(new PIXI.Container());
+      subContainer.name =
+        container === this._containerRef
+          ? `${this.id}-subContainer-${index}`
+          : `${subContainer.name}-subContainer-${index}`;
+      for (
+        let indexChildren = 0;
+        indexChildren < children.length;
+        indexChildren++
+      ) {
+        const element = children[indexChildren];
+        if (element.constructor.name === 'Container') {
+          this.createSubcontainerAndIterateOverChildren(
+            x,
+            y,
+            subContainer,
+            element as PIXI.Container,
+            indexChildren
+          );
+        } else {
+          this.createAndAddClone(
+            x,
+            y,
+            subContainer,
+            element as PIXI.Graphics,
+            indexChildren
+          );
+        }
+      }
+      subContainer.x = 0;
+      subContainer.y = 0;
+      // if (adjustArray?.[indexCount]?.height !== undefined) {
+      //   subContainer.height = adjustArray[indexCount].height;
+      // }
+      // if (adjustArray?.[indexCount]?.width !== undefined) {
+      //   subContainer.width = adjustArray[indexCount].width;
+      // }
+      return container.addChild(subContainer);
     };
   }
 }
