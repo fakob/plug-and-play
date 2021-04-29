@@ -95,18 +95,28 @@ export class RandomArray extends PPNode {
 
     this.addOutput('output array', DATATYPE.ARRAY);
     this.addInput('trigger', DATATYPE.TRIGGER);
-    this.addInput('length', DATATYPE.NUMBER);
-    this.addInput('min', DATATYPE.NUMBER);
-    this.addInput('max', DATATYPE.NUMBER);
+    this.addInput('length', DATATYPE.NUMBER, 20, undefined, {
+      round: true,
+      minValue: 1,
+    });
+    this.addInput('min', DATATYPE.NUMBER, 0);
+    this.addInput('max', DATATYPE.NUMBER, 1);
 
     this.name = 'Random array';
     this.description = 'Create random array';
   }
 
   trigger(): void {
+    const length = this.getInputData('length');
     const randomArray = Array.from({ length: length }, () => {
-      return { height: Math.floor(Math.random() * length) };
+      return {
+        container: [undefined, { height: Math.floor(Math.random() * length) }],
+      };
     });
+    // const output = { container: [undefined, randomArray] };
+    console.log(randomArray);
+    console.log(randomArray[0].container);
+    console.log(randomArray[0].container[1]);
     this.setOutputData('output array', randomArray);
   }
 }

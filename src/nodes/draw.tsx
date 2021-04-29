@@ -256,14 +256,18 @@ export class GraphicsMultiplier extends PPNode {
     y: number,
     parentContainer: PIXI.Container,
     objectToClone: PIXI.Graphics,
-    index: number
+    index: number,
+    adjustArray?: any,
+    testString?: string
   ) => PIXI.Graphics;
   createSubcontainerAndIterateOverChildren: (
     x: number,
     y: number,
     container: PIXI.Container,
     objectToClone: PIXI.Container,
-    index: number
+    index: number,
+    adjustArray?: any,
+    testString?: string
   ) => PIXI.Container;
 
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
@@ -304,6 +308,7 @@ export class GraphicsMultiplier extends PPNode {
       const scale = input['scale'];
       const adjustArray = input['adjustArray'];
       this._containerRef.removeChildren();
+      console.log(adjustArray);
 
       if (input1 != undefined) {
         let x = 0;
@@ -329,8 +334,8 @@ export class GraphicsMultiplier extends PPNode {
               this._containerRef,
               input1 as PIXI.Container,
               indexCount,
-              column,
-              distance
+              adjustArray?.[indexCount]?.container,
+              `[${indexCount}].container`
             );
           } else {
             objectToPosition = this.createAndAddClone(
@@ -339,8 +344,8 @@ export class GraphicsMultiplier extends PPNode {
               this._containerRef,
               input1 as PIXI.Graphics,
               indexCount,
-              column,
-              distance
+              adjustArray?.[indexCount],
+              `[${indexCount}]`
             );
           }
 
@@ -367,8 +372,11 @@ export class GraphicsMultiplier extends PPNode {
       y: number,
       container: PIXI.Container,
       objectToClone: PIXI.Graphics,
-      index: number
+      index: number,
+      adjustArray?: any,
+      testString?: string
     ): PIXI.Graphics => {
+      console.log(adjustArray);
       const clone = objectToClone.clone();
       clone.name =
         container === this._containerRef
@@ -376,12 +384,15 @@ export class GraphicsMultiplier extends PPNode {
           : `${container.name}-${index}`;
       clone.x = 0;
       clone.y = 0;
-      // if (adjustArray?.[index]?.height !== undefined) {
-      //   clone.height = adjustArray[index].height;
-      // }
-      // if (adjustArray?.[index]?.width !== undefined) {
-      //   clone.width = adjustArray[index].width;
-      // }
+      if (adjustArray?.height !== undefined) {
+        clone.height = adjustArray.height;
+      }
+      if (adjustArray?.width !== undefined) {
+        clone.width = adjustArray.width;
+      }
+      if (adjustArray?.scale !== undefined) {
+        clone.scale.x = adjustArray.scale;
+      }
       return container.addChild(clone);
     };
 
@@ -390,8 +401,11 @@ export class GraphicsMultiplier extends PPNode {
       y: number,
       container: PIXI.Container,
       objectToClone: PIXI.Container,
-      index: number
+      index: number,
+      adjustArray?: any,
+      testString?: string
     ): PIXI.Container => {
+      console.log(adjustArray);
       const children = objectToClone.children;
       const subContainer = container.addChild(new PIXI.Container());
       subContainer.name =
@@ -410,7 +424,9 @@ export class GraphicsMultiplier extends PPNode {
             y,
             subContainer,
             element as PIXI.Container,
-            indexChildren
+            indexChildren,
+            adjustArray?.[indexChildren]?.container,
+            `${testString}[${indexChildren}].container`
           );
         } else {
           this.createAndAddClone(
@@ -418,18 +434,14 @@ export class GraphicsMultiplier extends PPNode {
             y,
             subContainer,
             element as PIXI.Graphics,
-            indexChildren
+            indexChildren,
+            adjustArray?.[indexChildren],
+            `${testString}[${indexChildren}]`
           );
         }
       }
       subContainer.x = 0;
       subContainer.y = 0;
-      // if (adjustArray?.[indexCount]?.height !== undefined) {
-      //   subContainer.height = adjustArray[indexCount].height;
-      // }
-      // if (adjustArray?.[indexCount]?.width !== undefined) {
-      //   subContainer.width = adjustArray[indexCount].width;
-      // }
       return container.addChild(subContainer);
     };
   }
