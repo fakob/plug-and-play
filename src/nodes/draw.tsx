@@ -327,10 +327,11 @@ export class Container extends PPNode {
 export class GraphicsMultiplier extends PPNode {
   _containerRef: PIXI.Container;
   createAndAddClone: (
+    type: string,
     x: number,
     y: number,
     parentContainer: PIXI.Container,
-    objectToClone: PIXI.Graphics,
+    objectToClone: PIXI.Graphics | PIXI.Text,
     index: number,
     adjustArray?: any,
     testString?: string
@@ -383,7 +384,7 @@ export class GraphicsMultiplier extends PPNode {
       const scale = input['scale'];
       const adjustArray = input['adjustArray'];
       this._containerRef.removeChildren();
-      console.log(adjustArray);
+      // console.log(adjustArray);
 
       if (input1 != undefined) {
         let x = 0;
@@ -414,6 +415,7 @@ export class GraphicsMultiplier extends PPNode {
             );
           } else {
             objectToPosition = this.createAndAddClone(
+              input1.constructor.name,
               x,
               y,
               this._containerRef,
@@ -443,16 +445,31 @@ export class GraphicsMultiplier extends PPNode {
     };
 
     this.createAndAddClone = (
+      type: string,
       x: number,
       y: number,
       container: PIXI.Container,
-      objectToClone: PIXI.Graphics,
+      objectToClone: PIXI.Graphics | PIXI.Text,
       index: number,
       adjustArray?: any,
       testString?: string
     ): PIXI.Graphics => {
       // console.log(adjustArray);
-      const clone = objectToClone.clone();
+      let clone;
+      switch (type) {
+        case 'Graphics':
+          clone = (objectToClone as PIXI.Graphics).clone();
+          break;
+        case 'Text':
+          clone = new PIXI.Text(
+            (objectToClone as PIXI.Text).text,
+            (objectToClone as PIXI.Text).style
+          );
+          break;
+
+        default:
+          break;
+      }
       clone.name =
         container === this._containerRef
           ? `${this.id}-${index}`
@@ -503,8 +520,20 @@ export class GraphicsMultiplier extends PPNode {
             adjustArray?.[indexChildren]?.container,
             `${testString}[${indexChildren}].container`
           );
+        } else if (element.constructor.name === 'Text') {
+          this.createAndAddClone(
+            'Text',
+            x,
+            y,
+            subContainer,
+            element as PIXI.Text,
+            indexChildren,
+            adjustArray?.[indexChildren],
+            `${testString}[${indexChildren}]`
+          );
         } else {
           this.createAndAddClone(
+            'Graphics',
             x,
             y,
             subContainer,
