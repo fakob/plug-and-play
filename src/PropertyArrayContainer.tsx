@@ -369,10 +369,16 @@ type ColorWidgetProps = {
 };
 
 const ColorWidget: React.FunctionComponent<ColorWidgetProps> = (props) => {
+  let defaultColor = [0, 0, 0, 1.0];
+  if (props.data) {
+    defaultColor = props.data;
+    if (props.data?.length === 3) {
+      // add alpha if missing
+      defaultColor.push(1.0);
+    }
+  }
   const [colorPicker, showColorPicker] = useState(false);
-  const [finalColor, changeColor] = useState(
-    rgbToRgba(props.data ? props.data : [0, 0, 0, 1.0])
-  );
+  const [finalColor, changeColor] = useState(rgbToRgba(defaultColor));
   const componentMounted = useRef(true);
 
   useEffect(() => {
