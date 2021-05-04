@@ -23,6 +23,7 @@ import {
   NOTE_MARGIN_STRING,
   NOTE_PADDING,
   NOTE_TEXTURE,
+  PIXI_PIVOT_OPTIONS,
   SOCKET_WIDTH,
 } from '../utils/constants';
 
@@ -293,6 +294,9 @@ export class Rect2 extends PPNode {
       false
     );
     this.addInput('color', DATATYPE.COLOR, Color(rectColor).array());
+    this.addInput('anchor', DATATYPE.ENUM, 0, false, {
+      options: PIXI_PIVOT_OPTIONS,
+    });
 
     this.name = 'Draw rectangle2';
     this.description = 'Draws a rectangle2';
@@ -323,6 +327,7 @@ export class Rect2 extends PPNode {
       const width = [].concat(input['width']);
       const height = [].concat(input['height']);
       const color = Color.rgb(input['color'] as number[]);
+      const anchor = input['anchor'];
       const lengthOfLargestArray = Math.max(
         0,
         x.length,
@@ -331,7 +336,6 @@ export class Rect2 extends PPNode {
         height.length
       );
 
-      console.log(lengthOfLargestArray, this._rectRef);
       if (lengthOfLargestArray !== this._rectRef.length) {
         for (let index = 0; index < this._rectRef.length; index++) {
           this._rectRef[index].destroy();
@@ -339,7 +343,6 @@ export class Rect2 extends PPNode {
         this._rectRef = [];
       }
       for (let index = 0; index < lengthOfLargestArray; index++) {
-        console.log(this._rectRef[0]);
         if (!this._rectRef[index]) {
           const rect = new PIXI.Graphics();
           this._rectRef[index] = (this.graph.viewport.getChildByName(
@@ -348,6 +351,7 @@ export class Rect2 extends PPNode {
         } else {
           this._rectRef[index].clear();
         }
+
         this._rectRef[index].beginFill(
           PIXI.utils.string2hex(color.hex()),
           color.alpha()
@@ -358,14 +362,14 @@ export class Rect2 extends PPNode {
         const myY = y[index] ?? y[y.length - 1];
         const myWidth = width[index] ?? width[width.length - 1];
         const myHeight = height[index] ?? height[height.length - 1];
-        // console.log(
-        //   myX,
-        //   myY,
-        //   myWidth,
-        //   myHeight,
-        //   this.x + this.width + myX,
-        //   this.y + myY
-        // );
+        const pivotPoint = PIXI_PIVOT_OPTIONS[anchor].value;
+
+        // set pivot point
+        (this._rectRef[index] as PIXI.Graphics).pivot.x =
+          pivotPoint.x * myWidth;
+        (this._rectRef[index] as PIXI.Graphics).pivot.y =
+          pivotPoint.y * myHeight;
+
         if ((this as PPNode).getOutputSocketByName('rectangle')?.hasLink()) {
           this._rectRef[index].drawRect(myX, myY, myWidth, myHeight);
         } else {

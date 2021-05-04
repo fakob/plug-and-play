@@ -68,12 +68,13 @@ export const SOCKET_TEXTSTYLE = new TextStyle({
 
 export const DATATYPE = {
   ANY: 'undefined',
-  STRING: 'string',
-  NUMBER: 'number',
-  COLOR: 'color',
   ARRAY: 'array',
-  TRIGGER: 'trigger',
+  COLOR: 'color',
+  ENUM: 'enum',
+  NUMBER: 'number',
   PIXI: 'pixi',
+  STRING: 'string',
+  TRIGGER: 'trigger',
 };
 
 export const DATATYPE_DEFAULTVALUE = {
@@ -131,3 +132,42 @@ export const DEFAULT_EDITOR_DATA = `// Cmd/Ctrl-s to save/update node
 function customFunctionNode(a, b) {
   return a * b;
 }`;
+
+export const PIXI_PIVOT_OPTIONS = [
+  {
+    text: 'top left',
+    value: { x: 0.0, y: 0.0 },
+  },
+  {
+    text: 'top center',
+    value: { x: 0.5, y: 0.0 },
+  },
+  {
+    text: 'top right',
+    value: { x: 1.0, y: 0.0 },
+  },
+  {
+    text: 'center left',
+    value: { x: 0.0, y: 0.5 },
+  },
+  {
+    text: 'center center',
+    value: { x: 0.5, y: 0.5 },
+  },
+  {
+    text: 'center right',
+    value: { x: 1.0, y: 0.5 },
+  },
+  {
+    text: 'bottom left',
+    value: { x: 0.0, y: 1.0 },
+  },
+  {
+    text: 'bottom center',
+    value: { x: 0.5, y: 1.0 },
+  },
+  {
+    text: 'bottom right',
+    value: { x: 1.0, y: 1.0 },
+  },
+];

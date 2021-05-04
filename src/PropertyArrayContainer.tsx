@@ -91,6 +91,9 @@ const PropertyContainer: React.FunctionComponent<PropertyContainerProps> = (
       case DATATYPE.ARRAY:
         widget = <TextWidget {...baseProps} />;
         break;
+      case DATATYPE.ENUM:
+        widget = <SelectWidget {...baseProps} />;
+        break;
       case DATATYPE.TRIGGER:
         widget = <TriggerWidget {...baseProps} />;
         break;
@@ -304,6 +307,42 @@ const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (props) => {
         }}
         value={data || 0}
       />
+    </>
+  );
+};
+
+type SelectWidgetProps = {
+  property: Socket;
+  index: number;
+  hasLink: boolean;
+  data: number;
+};
+
+const SelectWidget: React.FunctionComponent<SelectWidgetProps> = (props) => {
+  const [data, setData] = useState(props.data);
+  const [options] = useState(props.property.custom?.options);
+
+  const onChangeDropdown = (event) => {
+    const value = event.target.value;
+    props.property.data = parseInt(value);
+    setData(parseInt(value));
+  };
+
+  return (
+    <>
+      <HTMLSelect
+        className={`bp3-minimal`}
+        onChange={onChangeDropdown}
+        value={data.toString()}
+      >
+        {options.map(({ text }, index) => {
+          return (
+            <option key={index} value={index.toString()}>
+              {text}
+            </option>
+          );
+        })}
+      </HTMLSelect>
     </>
   );
 };
