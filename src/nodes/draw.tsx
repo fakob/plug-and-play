@@ -262,6 +262,129 @@ export class Rect extends PPNode {
   }
 }
 
+export class Rect2 extends PPNode {
+  _rectRef: PIXI.Graphics[];
+
+  // uses customArgs?.color as defaultColor
+  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
+    const nodeColor = NODE_TYPE_COLOR.DRAW;
+    const rectWidth = 100;
+    const rectHeight = 100;
+    const rectColor = COLOR[5];
+
+    super(name, graph, {
+      ...customArgs,
+      color: nodeColor,
+    });
+
+    this.addOutput('rectangle', DATATYPE.ANY);
+    this.addInput('x', DATATYPE.NUMBER, 0);
+    this.addInput('y', DATATYPE.NUMBER, 0);
+    this.addInput(
+      'width',
+      DATATYPE.NUMBER,
+      customArgs?.width ?? rectWidth,
+      false
+    );
+    this.addInput(
+      'height',
+      DATATYPE.NUMBER,
+      customArgs?.height ?? rectHeight,
+      false
+    );
+    this.addInput('color', DATATYPE.COLOR, Color(rectColor).array());
+
+    this.name = 'Draw rectangle2';
+    this.description = 'Draws a rectangle2';
+
+    const rect = new PIXI.Graphics();
+    this._rectRef = [
+      (this.graph.viewport.getChildByName(
+        'backgroundCanvas'
+      ) as PIXI.Graphics).addChild(rect),
+    ];
+    this.setOutputData('rectangle', this._rectRef);
+
+    this._rectRef[0].beginFill(
+      PIXI.utils.string2hex(Color(rectColor).hex()),
+      1
+    );
+    this._rectRef[0].drawRect(
+      this.x + this.width,
+      this.y,
+      rectWidth,
+      rectHeight
+    );
+    this._rectRef[0].endFill();
+
+    this.onExecute = function (input, output) {
+      const x = [].concat(input['x']);
+      const y = [].concat(input['y']);
+      const width = [].concat(input['width']);
+      const height = [].concat(input['height']);
+      const color = Color.rgb(input['color'] as number[]);
+      const lengthOfLargestArray = Math.max(
+        0,
+        x.length,
+        y.length,
+        width.length,
+        height.length
+      );
+
+      console.log(lengthOfLargestArray, this._rectRef);
+      if (lengthOfLargestArray !== this._rectRef.length) {
+        for (let index = 0; index < this._rectRef.length; index++) {
+          this._rectRef[index].destroy();
+        }
+        this._rectRef = [];
+      }
+      for (let index = 0; index < lengthOfLargestArray; index++) {
+        console.log(this._rectRef[0]);
+        if (!this._rectRef[index]) {
+          const rect = new PIXI.Graphics();
+          this._rectRef[index] = (this.graph.viewport.getChildByName(
+            'backgroundCanvas'
+          ) as PIXI.Graphics).addChild(rect);
+        } else {
+          this._rectRef[index].clear();
+        }
+        this._rectRef[index].beginFill(
+          PIXI.utils.string2hex(color.hex()),
+          color.alpha()
+        );
+
+        // if output is not connected, then draw it next to the node
+        console.log(x[index] || x[x.length - 1], y[index] || y[y.length - 1]);
+        if ((this as PPNode).getOutputSocketByName('rectangle')?.hasLink()) {
+          this._rectRef[index].drawRect(
+            x[index] || x[x.length - 1],
+            y[index] || y[y.length - 1],
+            width[index] || width[width.length - 1],
+            height[index] || height[height.length - 1]
+          );
+        } else {
+          this._rectRef[index].drawRect(
+            this.x + this.width + x[index] || x[x.length - 1],
+            this.y + y[index] || y[y.length - 1],
+            width[index] || width[width.length - 1],
+            height[index] || height[height.length - 1]
+          );
+        }
+        this._rectRef[index].endFill();
+        // output['rectangle'] = this._rectRef;
+      }
+    };
+
+    this.onNodeRemoved = (): void => {
+      for (let index = 0; index < this._rectRef.length; index++) {
+        (this.graph.viewport.getChildByName(
+          'backgroundCanvas'
+        ) as PIXI.Graphics).removeChild(this._rectRef[index]);
+      }
+    };
+  }
+}
+
 export class Container extends PPNode {
   _containerRef: PIXI.Container;
 
