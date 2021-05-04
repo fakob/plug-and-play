@@ -354,20 +354,26 @@ export class Rect2 extends PPNode {
         );
 
         // if output is not connected, then draw it next to the node
-        console.log(x[index] || x[x.length - 1], y[index] || y[y.length - 1]);
+        const myX = x[index] ?? x[x.length - 1];
+        const myY = y[index] ?? y[y.length - 1];
+        const myWidth = width[index] ?? width[width.length - 1];
+        const myHeight = height[index] ?? height[height.length - 1];
+        // console.log(
+        //   myX,
+        //   myY,
+        //   myWidth,
+        //   myHeight,
+        //   this.x + this.width + myX,
+        //   this.y + myY
+        // );
         if ((this as PPNode).getOutputSocketByName('rectangle')?.hasLink()) {
-          this._rectRef[index].drawRect(
-            x[index] || x[x.length - 1],
-            y[index] || y[y.length - 1],
-            width[index] || width[width.length - 1],
-            height[index] || height[height.length - 1]
-          );
+          this._rectRef[index].drawRect(myX, myY, myWidth, myHeight);
         } else {
           this._rectRef[index].drawRect(
-            this.x + this.width + x[index] || x[x.length - 1],
-            this.y + y[index] || y[y.length - 1],
-            width[index] || width[width.length - 1],
-            height[index] || height[height.length - 1]
+            this.x + this.width + myX,
+            this.y + myY,
+            myWidth,
+            myHeight
           );
         }
         this._rectRef[index].endFill();
