@@ -288,7 +288,7 @@ export class Rect2 extends PPNode {
       const y = [].concat(input['y']);
       const width = [].concat(input['width']);
       const height = [].concat(input['height']);
-      const color = [].concat(trgbaToColor(input['color']));
+      const color = [].concat(input['color']);
       const pivot = input['pivot'];
       const lengthOfLargestArray = Math.max(
         0,
@@ -319,7 +319,7 @@ export class Rect2 extends PPNode {
         const myY = y[index] ?? y[y.length - 1];
         const myWidth = width[index] ?? width[width.length - 1];
         const myHeight = height[index] ?? height[height.length - 1];
-        const myColor = color[index] ?? color[color.length - 1];
+        const myColor = trgbaToColor(color[index] ?? color[color.length - 1]);
 
         this._ref[index].beginFill(
           PIXI.utils.string2hex(myColor.hex()),

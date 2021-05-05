@@ -2,6 +2,7 @@ import axios from 'axios';
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
 import {
+  COLOR,
   NODE_TYPE_COLOR,
   DATATYPE,
   SOCKET_WIDTH,
@@ -13,6 +14,7 @@ import {
   SOCKET_HEIGHT,
 } from '../utils/constants';
 import { CustomArgs } from '../utils/interfaces';
+import { colorToTrgba, hexToTRgba, trgbaToColor } from '../pixi/utils-pixi';
 
 export class Mouse extends PPNode {
   onViewportMove: (event: PIXI.InteractionEvent) => void;
@@ -59,11 +61,88 @@ export class Mouse extends PPNode {
   }
 }
 
+export class GridCoordinates extends PPNode {
+  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
+    super(name, graph, {
+      ...customArgs,
+      color: NODE_TYPE_COLOR.INPUT,
+    });
+
+    this.addOutput('x-array', DATATYPE.ARRAY);
+    this.addOutput('y-array', DATATYPE.ARRAY);
+    this.addInput('x', DATATYPE.NUMBER, 0, false);
+    this.addInput('y', DATATYPE.NUMBER, 0, false);
+    this.addInput('count', DATATYPE.NUMBER, 9, false, {
+      round: true,
+      minValue: 0,
+    });
+    this.addInput('column', DATATYPE.NUMBER, 3, false, {
+      round: true,
+      minValue: 0,
+    });
+    this.addInput('distance', DATATYPE.NUMBER, 10.0, false);
+
+    this.name = 'Grid coordinates';
+    this.description = 'Create grid coordinates';
+
+    this.onExecute = function (input, output) {
+      const x = input['x'];
+      const y = input['y'];
+      const count = input['count'];
+      const column = input['column'];
+      const distance = input['distance'];
+      const xArray = [];
+      const yArray = [];
+      for (let indexCount = 0; indexCount < count; indexCount++) {
+        xArray.push(x + distance * (indexCount % column));
+        yArray.push(y + distance * Math.floor(indexCount / column));
+      }
+      output['x-array'] = xArray;
+      output['y-array'] = yArray;
+    };
+  }
+}
+
+export class ColorArray extends PPNode {
+  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
+    const colorA = COLOR[5];
+    const colorB = COLOR[15];
+
+    super(name, graph, {
+      ...customArgs,
+      color: NODE_TYPE_COLOR.INPUT,
+    });
+
+    this.addOutput('color-array', DATATYPE.ARRAY);
+    this.addInput('count', DATATYPE.NUMBER, 9, false, {
+      round: true,
+      minValue: 0,
+    });
+    this.addInput('colorA', DATATYPE.COLOR, hexToTRgba(colorA), false);
+    this.addInput('colorB', DATATYPE.COLOR, hexToTRgba(colorB), false);
+
+    this.name = 'Grid coordinates';
+    this.description = 'Create grid coordinates';
+
+    this.onExecute = function (input, output) {
+      const count = input['count'];
+      const colorA = trgbaToColor(input['colorA']);
+      const colorB = trgbaToColor(input['colorB']);
+      const colorArray = [];
+      for (let indexCount = 0; indexCount < count; indexCount++) {
+        const blendFactor = count <= 1 ? 0 : indexCount / (count - 1);
+        colorArray.push(colorToTrgba(colorA.mix(colorB, blendFactor)));
+      }
+      output['color-array'] = colorArray;
+    };
+  }
+}
+
 export class RangeArray extends PPNode {
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
     super(name, graph, {
       ...customArgs,
-      color: NODE_TYPE_COLOR.TRANSFORM,
+      color: NODE_TYPE_COLOR.INPUT,
     });
 
     this.addOutput('output array', DATATYPE.ARRAY);
@@ -90,7 +169,7 @@ export class RandomArray extends PPNode {
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
     super(name, graph, {
       ...customArgs,
-      color: NODE_TYPE_COLOR.TRANSFORM,
+      color: NODE_TYPE_COLOR.INPUT,
     });
 
     this.addOutput('output array', DATATYPE.ARRAY);

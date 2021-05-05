@@ -48,6 +48,10 @@ export const trgbaToColor = (trgba: TRgba): Color => {
   }).alpha(trgba.a);
 };
 
+export const colorToTrgba = (color: Color): TRgba => {
+  return { ...color.object(), a: color.alpha() };
+};
+
 export const getTextWithLineBreaks = (node: any): string => {
   // we only deal with TextNodes
   if (!node || !node.parentNode || node.nodeType !== 3) return '';
