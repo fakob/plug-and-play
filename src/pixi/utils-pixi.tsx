@@ -1,3 +1,4 @@
+import Color from 'color';
 import { TRgba } from '../utils/interfaces';
 
 export const rgbToHex = (rgbArray: number[]): string => {
@@ -27,16 +28,24 @@ export const rgbToRgba = (rgbInput: string | number[] | undefined): TRgba => {
   }
 };
 
-export const hexToRGB = (hex: string, alpha: string): number[] => {
+export const hexToTRgba = (hex: string, alpha?: number): TRgba => {
   const r = parseInt(hex.slice(1, 3), 16);
   const g = parseInt(hex.slice(3, 5), 16);
   const b = parseInt(hex.slice(5, 7), 16);
 
   if (alpha) {
-    return [r, g, b, parseFloat(alpha)];
+    return { r, g, b, a: alpha };
   } else {
-    return [r, g, b, 1.0];
+    return { r, g, b, a: 1.0 };
   }
+};
+
+export const trgbaToColor = (trgba: TRgba): Color => {
+  return Color({
+    r: trgba.r,
+    g: trgba.g,
+    b: trgba.b,
+  }).alpha(trgba.a);
 };
 
 export const getTextWithLineBreaks = (node: any): string => {

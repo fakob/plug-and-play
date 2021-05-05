@@ -25,6 +25,7 @@ export const COLOR = [
   '#7BA442',
   '#A58E43',
   '#A45140',
+  '#F4FAF9',
 ];
 
 export const PLUGANDPLAY_ICON = '../assets/PlugAndPlayIcon.svg';

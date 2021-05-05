@@ -18,6 +18,7 @@ import { DATATYPE } from './utils/constants';
 import { limitRange, roundNumber } from './utils/utils';
 import { rgbToRgba } from './pixi/utils-pixi';
 import styles from './utils/style.module.css';
+import { TRgba } from './utils/interfaces';
 
 type PropertyArrayContainerProps = {
   inputSocketArray: Socket[];
@@ -404,20 +405,19 @@ type ColorWidgetProps = {
   index: number;
   isInput: boolean;
   hasLink: boolean;
-  data: number[];
+  data: TRgba;
 };
 
 const ColorWidget: React.FunctionComponent<ColorWidgetProps> = (props) => {
-  let defaultColor = [0, 0, 0, 1.0];
-  if (props.data) {
-    defaultColor = props.data;
-    if (props.data?.length === 3) {
-      // add alpha if missing
-      defaultColor.push(1.0);
-    }
-  }
+  const defaultColor: TRgba = props.data ?? {
+    r: 0,
+    g: 0,
+    b: 0,
+    a: 1.0,
+  };
+
   const [colorPicker, showColorPicker] = useState(false);
-  const [finalColor, changeColor] = useState(rgbToRgba(defaultColor));
+  const [finalColor, changeColor] = useState(defaultColor);
   const componentMounted = useRef(true);
 
   useEffect(() => {
@@ -426,8 +426,7 @@ const ColorWidget: React.FunctionComponent<ColorWidgetProps> = (props) => {
       componentMounted.current = false;
     } else {
       console.log(finalColor);
-      const colorArray: number[] = Object.values(finalColor);
-      props.property.data = colorArray;
+      props.property.data = finalColor;
       props.property.notifyChange(new Set());
     }
     return () => undefined;
