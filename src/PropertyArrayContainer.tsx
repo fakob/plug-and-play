@@ -332,7 +332,7 @@ const SelectWidget: React.FunctionComponent<SelectWidgetProps> = (props) => {
   return (
     <>
       <HTMLSelect
-        className={`bp3-minimal`}
+        // className={`bp3-minimal`}
         onChange={onChangeDropdown}
         value={data}
       >
