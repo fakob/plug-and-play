@@ -294,7 +294,7 @@ export class Rect2 extends PPNode {
       false
     );
     this.addInput('color', DATATYPE.COLOR, Color(rectColor).array());
-    this.addInput('anchor', DATATYPE.ENUM, 0, false, {
+    this.addInput('pivot', DATATYPE.ENUM, 0, false, {
       options: PIXI_PIVOT_OPTIONS,
     });
 
@@ -327,7 +327,7 @@ export class Rect2 extends PPNode {
       const width = [].concat(input['width']);
       const height = [].concat(input['height']);
       const color = Color.rgb(input['color'] as number[]);
-      const anchor = input['anchor'];
+      const pivot = input['pivot'];
       const lengthOfLargestArray = Math.max(
         0,
         x.length,
@@ -362,7 +362,9 @@ export class Rect2 extends PPNode {
         const myY = y[index] ?? y[y.length - 1];
         const myWidth = width[index] ?? width[width.length - 1];
         const myHeight = height[index] ?? height[height.length - 1];
-        const pivotPoint = PIXI_PIVOT_OPTIONS[anchor].value;
+        const pivotPoint =
+          PIXI_PIVOT_OPTIONS.find((item) => item.text === pivot)?.value ??
+          PIXI_PIVOT_OPTIONS[0].value; // use first entry if not found
 
         // set pivot point
         (this._rectRef[index] as PIXI.Graphics).pivot.x =

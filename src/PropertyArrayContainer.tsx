@@ -324,8 +324,9 @@ const SelectWidget: React.FunctionComponent<SelectWidgetProps> = (props) => {
 
   const onChangeDropdown = (event) => {
     const value = event.target.value;
-    props.property.data = parseInt(value);
-    setData(parseInt(value));
+    props.property.data = value;
+    props.property.notifyChange(new Set());
+    setData(value);
   };
 
   return (
@@ -333,11 +334,11 @@ const SelectWidget: React.FunctionComponent<SelectWidgetProps> = (props) => {
       <HTMLSelect
         className={`bp3-minimal`}
         onChange={onChangeDropdown}
-        value={data.toString()}
+        value={data}
       >
         {options.map(({ text }, index) => {
           return (
-            <option key={index} value={index.toString()}>
+            <option key={index} value={text}>
               {text}
             </option>
           );
@@ -359,6 +360,7 @@ const TextWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
 
   useEffect(() => {
     props.property.data = data;
+    props.property.notifyChange(new Set());
   }, [data]);
 
   return (
@@ -428,6 +430,7 @@ const ColorWidget: React.FunctionComponent<ColorWidgetProps> = (props) => {
       console.log(finalColor);
       const colorArray: number[] = Object.values(finalColor);
       props.property.data = colorArray;
+      props.property.notifyChange(new Set());
     }
     return () => undefined;
   }, [finalColor]);
