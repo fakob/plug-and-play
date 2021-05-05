@@ -77,11 +77,15 @@ export const DATATYPE = {
   TRIGGER: 'trigger',
 };
 
-export const DATATYPE_DEFAULTVALUE = {
-  STRING: '',
-  NUMBER: 0,
-  COLOR: [255, 55, 0, 0.5],
+export const DATATYPE_DEFAULT_VALUE = {
+  ANY: undefined,
   ARRAY: [],
+  COLOR: [255, 55, 0, 0.5],
+  ENUM: [],
+  NUMBER: 0,
+  PIXI: null,
+  STRING: '',
+  TRIGGER: undefined,
 };
 
 export const NODE_TEXTSTYLE = new TextStyle({

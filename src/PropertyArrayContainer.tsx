@@ -82,7 +82,7 @@ const PropertyContainer: React.FunctionComponent<PropertyContainerProps> = (
   };
 
   let widget = null;
-  if (props.isInput) {
+  if (props.isInput && !props.hasLink) {
     switch (dataTypeValue) {
       case DATATYPE.NUMBER:
         widget = <SliderWidget {...baseProps} />;
@@ -102,7 +102,7 @@ const PropertyContainer: React.FunctionComponent<PropertyContainerProps> = (
         break;
       default:
     }
-  } else {
+  } else if (!props.isInput) {
     switch (dataTypeValue) {
       case DATATYPE.TRIGGER:
         widget = <TriggerWidget {...baseProps} />;
@@ -183,17 +183,19 @@ const PropertyHeader: React.FunctionComponent<PropertyHeaderProps> = (
       <EditableText
         className={`${styles.editablePropertyName} ${
           visible ? styles.darkOnBright : styles.brightOnDark
-        }`}
+        } ${props.hasLink && styles.opacity30}`}
         selectAllOnFocus
         value={name}
         onChange={(name) => {
           setName(name);
         }}
+        disabled={props.hasLink}
       />
       <HTMLSelect
-        className={`${styles.typeSelector} bp3-minimal`}
+        className={`${styles.opacity30} bp3-minimal`}
         onChange={props.onChangeDropdown}
         value={props.dataType}
+        disabled={props.hasLink}
       >
         {Object.values(DATATYPE).map((value) => {
           return (
@@ -331,11 +333,7 @@ const SelectWidget: React.FunctionComponent<SelectWidgetProps> = (props) => {
 
   return (
     <>
-      <HTMLSelect
-        // className={`bp3-minimal`}
-        onChange={onChangeDropdown}
-        value={data}
-      >
+      <HTMLSelect onChange={onChangeDropdown} value={data}>
         {options.map(({ text }, index) => {
           return (
             <option key={index} value={text}>

@@ -321,7 +321,7 @@ export class Rect2 extends PPNode {
     );
     this._rectRef[0].endFill();
 
-    this.onExecute = function (input, output) {
+    this.onExecute = function (input) {
       const x = [].concat(input['x']);
       const y = [].concat(input['y']);
       const width = [].concat(input['width']);
@@ -383,7 +383,6 @@ export class Rect2 extends PPNode {
           );
         }
         this._rectRef[index].endFill();
-        // output['rectangle'] = this._rectRef;
       }
     };
 
