@@ -1,5 +1,6 @@
 import Color from 'color';
 import { TRgba } from '../utils/interfaces';
+import { COLOR } from '../utils/constants';
 
 export const rgbToHex = (rgbArray: number[]): string => {
   return rgbArray
@@ -41,11 +42,15 @@ export const hexToTRgba = (hex: string, alpha?: number): TRgba => {
 };
 
 export const trgbaToColor = (trgba: TRgba): Color => {
-  return Color({
-    r: trgba.r,
-    g: trgba.g,
-    b: trgba.b,
-  }).alpha(trgba.a);
+  if (trgba) {
+    return Color({
+      r: trgba.r,
+      g: trgba.g,
+      b: trgba.b,
+    }).alpha(trgba.a);
+  } else {
+    return Color(COLOR[5]);
+  }
 };
 
 export const colorToTrgba = (color: Color): TRgba => {

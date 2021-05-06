@@ -33,7 +33,7 @@ export default class Socket extends PIXI.Container {
   _socketType: TSocketType;
   _dataType: string;
   _data: any;
-  _defaultdata: any; // for inputs: data backup while unplugged, restores data when unplugged again
+  _defaultData: any; // for inputs: data backup while unplugged, restores data when unplugged again
   _custom: Record<string, any>;
   _links: PPLink[];
 
@@ -69,7 +69,7 @@ export default class Socket extends PIXI.Container {
     this.name = name;
     this._dataType = dataType;
     this._data = data;
-    this._defaultdata = defaultData;
+    this._defaultData = defaultData;
     this.visible = visible;
     this._custom = custom;
     this._links = [];
@@ -155,8 +155,16 @@ export default class Socket extends PIXI.Container {
     // update defaultData only if socket is input
     // and does not have a link
     if (this.isInput() && !this.hasLink()) {
-      this._defaultdata = newData;
+      this._defaultData = newData;
     }
+  }
+
+  get defaultData(): any {
+    return this._defaultData;
+  }
+
+  set defaultData(newData: any) {
+    this._defaultData = newData;
   }
 
   get dataType(): string {
@@ -225,7 +233,7 @@ export default class Socket extends PIXI.Container {
       if (this.dataType === DATATYPE.PIXI) {
         this._data = null;
       } else {
-        this._data = this._defaultdata;
+        this._data = this._defaultData;
       }
     }
   }
@@ -240,16 +248,22 @@ export default class Socket extends PIXI.Container {
 
   //create serialization object
   serialize(): SerializedSocket {
-    // ignore data for output sockets and input sockets with pixi data type
-    const data =
-      this.socketType === SOCKET_TYPE.IN && this.dataType !== DATATYPE.PIXI
-        ? this.data
-        : undefined;
+    // ignore data for output sockets, input sockets with links
+    // and input sockets with pixi data type
+    let data;
+    let defaultData;
+    if (this.isInput()) {
+      if (!this.hasLink() && this.dataType !== DATATYPE.PIXI) {
+        data = this.data;
+      }
+      defaultData = this.defaultData;
+    }
     return {
       socketType: this.socketType,
       name: this.name,
       dataType: this.dataType,
       data,
+      defaultData,
       visible: this.visible,
       custom: this.custom,
     };

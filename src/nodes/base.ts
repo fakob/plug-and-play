@@ -121,8 +121,8 @@ export class ColorArray extends PPNode {
     this.addInput('colorA', DATATYPE.COLOR, hexToTRgba(colorA), false);
     this.addInput('colorB', DATATYPE.COLOR, hexToTRgba(colorB), false);
 
-    this.name = 'Grid coordinates';
-    this.description = 'Create grid coordinates';
+    this.name = 'Color array';
+    this.description = 'Create color array';
 
     this.onExecute = function (input, output) {
       const count = input['count'];

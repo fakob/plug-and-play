@@ -295,7 +295,8 @@ export class Rect2 extends PPNode {
         x.length,
         y.length,
         width.length,
-        height.length
+        height.length,
+        color.length
       );
 
       if (lengthOfLargestArray !== this._ref.length) {
@@ -313,7 +314,6 @@ export class Rect2 extends PPNode {
         } else {
           this._ref[index].clear();
         }
-
         // if output is not connected, then draw it next to the node
         const myX = x[index] ?? x[x.length - 1];
         const myY = y[index] ?? y[y.length - 1];
