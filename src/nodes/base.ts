@@ -80,7 +80,7 @@ export class GridCoordinates extends PPNode {
       round: true,
       minValue: 0,
     });
-    this.addInput('distance', DATATYPE.NUMBER, 10.0, false);
+    this.addInput('distance', DATATYPE.NUMBER, 100.0, false);
 
     this.name = 'Grid coordinates';
     this.description = 'Create grid coordinates';
