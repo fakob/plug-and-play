@@ -29,25 +29,29 @@ import { hexToTRgba, trgbaToColor } from '../pixi/utils-pixi';
 import textFit from '../pixi/textFit';
 
 export class PIXIText extends PPNode {
-  _ref: PIXI.Text;
+  _ref: PIXI.Text[];
 
-  // uses customArgs?.color as defaultColor
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
     const nodeColor = NODE_TYPE_COLOR.DRAW;
+    const fillColor = COLOR[5];
 
     super(name, graph, {
       ...customArgs,
       color: nodeColor,
     });
 
-    this.addOutput('text', DATATYPE.PIXI);
+    this.addOutput('graphics', DATATYPE.ANY);
     this.addInput('x', DATATYPE.NUMBER, 0);
     this.addInput('y', DATATYPE.NUMBER, 0);
+    this.addInput('pivot', DATATYPE.ENUM, 0, false, {
+      options: PIXI_PIVOT_OPTIONS,
+    });
     this.addInput('text', DATATYPE.STRING, 'Text');
     this.addInput('size', DATATYPE.NUMBER, 24, undefined, {
       round: true,
       minValue: 1,
     });
+    this.addInput('color', DATATYPE.COLOR, hexToTRgba(fillColor));
 
     this.name = 'Draw text';
     this.description = 'Draws a text';
@@ -62,36 +66,78 @@ export class PIXIText extends PPNode {
       wordWrapWidth: NODE_WIDTH - NOTE_PADDING,
       lineJoin: 'round',
     };
-    const basicText = new PIXI.Text(this.getInputData('text'), textStyle);
-    this._ref = (this as PIXI.Container).addChild(basicText);
 
-    this._ref = (this.graph.viewport.getChildByName(
+    const canvas = this.graph.viewport.getChildByName(
       'backgroundCanvas'
-    ) as PIXI.Graphics).addChild(basicText);
-    this.setOutputData('text', this._ref);
+    ) as PIXI.Container;
+
+    const basicText = new PIXI.Text(this.getInputData('text'), textStyle);
+
+    this._ref = [canvas.addChild(basicText)];
+    this.setOutputData('graphics', this._ref);
 
     this.onExecute = function (input) {
-      const text = input['text'];
-      // const size = input['size'];
-      const x = input['x'];
-      const y = input['y'];
+      const x = [].concat(input['x']);
+      const y = [].concat(input['y']);
+      const text = [].concat(input['text']);
+      const size = [].concat(input['size']);
+      const color = [].concat(input['color']);
+      const pivot = input['pivot'];
+      const lengthOfLargestArray = Math.max(
+        0,
+        x.length,
+        y.length,
+        text.length,
+        size.length,
+        color.length
+      );
 
-      this._ref.text = text;
+      for (let index = 0; index < this._ref.length; index++) {
+        this._ref[index].destroy();
+      }
+      this._ref.splice(0, this._ref.length); // clear array without removing reference
 
-      // if output is not connected, then draw it next to the node
-      if ((this as PPNode).getOutputSocketByName('text')?.hasLink()) {
-        this._ref.x = x;
-        this._ref.y = y;
-      } else {
-        this._ref.x = this.x + this.width;
-        this._ref.y = this.y;
+      for (let index = 0; index < lengthOfLargestArray; index++) {
+        // if output is not connected, then draw it next to the node
+        const myX = x[index] ?? x[x.length - 1];
+        const myY = y[index] ?? y[y.length - 1];
+        const myText = text[index] ?? text[text.length - 1];
+        const mySize = size[index] ?? size[size.length - 1];
+        const myColor = trgbaToColor(color[index] ?? color[color.length - 1]);
+
+        const PIXIText = new PIXI.Text(myText, {
+          ...textStyle,
+          fontSize: mySize,
+          lineHeight: mySize * NOTE_LINEHEIGHT_FACTOR,
+          fill: PIXI.utils.string2hex(myColor.hex()),
+        });
+        this._ref[index] = canvas.addChild(PIXIText);
+        this._ref[index].name = `${this.id}-${index}`;
+
+        const pivotPoint =
+          PIXI_PIVOT_OPTIONS.find((item) => item.text === pivot)?.value ??
+          PIXI_PIVOT_OPTIONS[0].value; // use first entry if not found
+
+        // set pivot point
+        (this._ref[index] as PIXI.Text).pivot.x =
+          pivotPoint.x * this._ref[index].width;
+        (this._ref[index] as PIXI.Text).pivot.y =
+          pivotPoint.y * this._ref[index].height;
+
+        if ((this as PPNode).getOutputSocketByName('graphics')?.hasLink()) {
+          this._ref[index].x = myX;
+          this._ref[index].y = myY;
+        } else {
+          this._ref[index].x = this.x + this.width + myX;
+          this._ref[index].y = this.y + myY;
+        }
       }
     };
 
     this.onNodeRemoved = (): void => {
-      (this.graph.viewport.getChildByName(
-        'backgroundCanvas'
-      ) as PIXI.Graphics).removeChild(this._ref);
+      for (let index = 0; index < this._ref.length; index++) {
+        canvas.removeChild(this._ref[index]);
+      }
     };
   }
 }
