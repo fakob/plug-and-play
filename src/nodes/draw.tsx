@@ -271,12 +271,12 @@ export class Rect2 extends PPNode {
     this.name = 'Draw rectangle2';
     this.description = 'Draws a rectangle2';
 
+    const canvas = this.graph.viewport.getChildByName(
+      'backgroundCanvas'
+    ) as PIXI.Container;
+
     const rect = new PIXI.Graphics();
-    this._ref = [
-      (this.graph.viewport.getChildByName(
-        'backgroundCanvas'
-      ) as PIXI.Graphics).addChild(rect),
-    ];
+    this._ref = [canvas.addChild(rect)];
     this.setOutputData('rectangle', this._ref);
 
     this._ref[0].beginFill(PIXI.utils.string2hex(Color(fillColor).hex()), 1);
@@ -303,17 +303,17 @@ export class Rect2 extends PPNode {
         for (let index = 0; index < this._ref.length; index++) {
           this._ref[index].destroy();
         }
-        this._ref = [];
+        this._ref.splice(0, this._ref.length); // clear array without removing reference
       }
       for (let index = 0; index < lengthOfLargestArray; index++) {
         if (!this._ref[index]) {
           const rect = new PIXI.Graphics();
-          this._ref[index] = (this.graph.viewport.getChildByName(
-            'backgroundCanvas'
-          ) as PIXI.Graphics).addChild(rect);
+          this._ref[index] = canvas.addChild(rect);
         } else {
           this._ref[index].clear();
         }
+        this._ref[index].name = `${this.id}-${index}`;
+
         // if output is not connected, then draw it next to the node
         const myX = x[index] ?? x[x.length - 1];
         const myY = y[index] ?? y[y.length - 1];
@@ -349,16 +349,14 @@ export class Rect2 extends PPNode {
 
     this.onNodeRemoved = (): void => {
       for (let index = 0; index < this._ref.length; index++) {
-        (this.graph.viewport.getChildByName(
-          'backgroundCanvas'
-        ) as PIXI.Graphics).removeChild(this._ref[index]);
+        canvas.removeChild(this._ref[index]);
       }
     };
   }
 }
 
 export class Container extends PPNode {
-  _containerRef: PIXI.Container;
+  _containerRef: PIXI.Container[];
 
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
     super(name, graph, {
@@ -367,6 +365,9 @@ export class Container extends PPNode {
     });
 
     this.addOutput('container', DATATYPE.PIXI);
+    this.addInput('mode', DATATYPE.BOOLEAN, false, false, {
+      label: 'One container per instance',
+    });
     this.addInput('x', DATATYPE.NUMBER);
     this.addInput('y', DATATYPE.NUMBER);
     this.addInput('scale', DATATYPE.NUMBER, 1.0);
@@ -377,41 +378,109 @@ export class Container extends PPNode {
     this.name = 'Container';
     this.description = 'General-purpose display object that holds children';
 
-    const container = new PIXI.Container();
-    this._containerRef = (this.graph.viewport.getChildByName(
+    const canvas = this.graph.viewport.getChildByName(
       'backgroundCanvas'
-    ) as PIXI.Container).addChild(container);
+    ) as PIXI.Container;
+
+    const container = new PIXI.Container();
+    this._containerRef = [canvas.addChild(container)];
+    this._containerRef[0].name = `${this.id}-${0}`;
+
     this.setOutputData('container', this._containerRef);
 
     this.onExecute = function (input) {
-      const x = input['x'];
-      const y = input['y'];
-      const scale = input['scale'];
-      const input1 = input['input1'];
-      const input2 = input['input2'];
-      const input3 = input['input3'];
+      const mode = input['mode'];
+      const x = [].concat(input['x']);
+      const y = [].concat(input['y']);
+      const scale = [].concat(input['scale']);
+      const input1 = [].concat(input['input1']);
+      const input2 = [].concat(input['input2']);
+      const input3 = [].concat(input['input3']);
 
-      this._containerRef.removeChildren();
+      if (mode) {
+        const lengthOfLargestArray = Math.max(
+          0,
+          x.length,
+          y.length,
+          scale.length,
+          input1.length,
+          input2.length,
+          input3.length
+        );
 
-      input1 == undefined ? undefined : this._containerRef.addChild(input1);
-      input2 == undefined ? undefined : this._containerRef.addChild(input2);
-      input3 == undefined ? undefined : this._containerRef.addChild(input3);
+        if (lengthOfLargestArray !== this._containerRef.length) {
+          for (let index = 0; index < this._containerRef.length; index++) {
+            this._containerRef[index].destroy();
+          }
+          this._containerRef.splice(0, this._containerRef.length); // clear array without removing reference
+        }
 
-      // if output is not connected, then draw it next to the node
-      if ((this as PPNode).getOutputSocketByName('container')?.hasLink()) {
-        this._containerRef.x = x;
-        this._containerRef.y = y;
+        for (let index = 0; index < lengthOfLargestArray; index++) {
+          if (!this._containerRef[index]) {
+            const container = new PIXI.Container();
+            this._containerRef[index] = canvas.addChild(container);
+          } else {
+            this._containerRef[index].removeChildren();
+          }
+          this._containerRef[index].name = `${this.id}-${index}`;
+
+          const myInput1 = input1[index] ?? input1[input1.length - 1];
+          const myInput2 = input2[index] ?? input2[input2.length - 1];
+          const myInput3 = input3[index] ?? input3[input3.length - 1];
+
+          myInput1 == undefined
+            ? undefined
+            : this._containerRef[index].addChild(myInput1);
+          myInput2 == undefined
+            ? undefined
+            : this._containerRef[index].addChild(myInput2);
+          myInput3 == undefined
+            ? undefined
+            : this._containerRef[index].addChild(myInput3);
+
+          // if output is not connected, then draw it next to the node
+          if ((this as PPNode).getOutputSocketByName('container')?.hasLink()) {
+            this._containerRef[index].x = x;
+            this._containerRef[index].y = y;
+          } else {
+            this._containerRef[index].x = this.x + this.width + x;
+            this._containerRef[index].y = this.y + y;
+          }
+          this._containerRef[index].scale.set(scale);
+        }
       } else {
-        this._containerRef.x = this.x + this.width + x;
-        this._containerRef.y = this.y + y;
+        for (let index = 0; index < this._containerRef.length; index++) {
+          this._containerRef[index].destroy();
+        }
+        this._containerRef.splice(0, this._containerRef.length); // clear array without removing reference
+        const container = new PIXI.Container();
+        this._containerRef[0] = canvas.addChild(container);
+        this._containerRef[0].name = `${this.id}`;
+
+        const allInputs = [...input1, ...input2, ...input3];
+
+        for (let index = 0; index < allInputs.length; index++) {
+          if (allInputs[index]) {
+            this._containerRef[0].addChild(allInputs[index]);
+          }
+        }
+
+        // if output is not connected, then draw it next to the node
+        if ((this as PPNode).getOutputSocketByName('container')?.hasLink()) {
+          this._containerRef[0].x = x;
+          this._containerRef[0].y = y;
+        } else {
+          this._containerRef[0].x = this.x + this.width + x;
+          this._containerRef[0].y = this.y + y;
+        }
+        this._containerRef[0].scale.set(scale);
       }
-      this._containerRef.scale.set(scale);
     };
 
     this.onNodeRemoved = (): void => {
-      (this.graph.viewport.getChildByName(
-        'backgroundCanvas'
-      ) as PIXI.Graphics).removeChild(this._containerRef);
+      for (let index = 0; index < this._containerRef.length; index++) {
+        canvas.removeChild(this._containerRef[index]);
+      }
     };
   }
 }

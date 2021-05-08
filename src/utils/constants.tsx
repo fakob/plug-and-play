@@ -70,6 +70,7 @@ export const SOCKET_TEXTSTYLE = new TextStyle({
 export const DATATYPE = {
   ANY: 'undefined',
   ARRAY: 'array',
+  BOOLEAN: 'boolean',
   COLOR: 'color',
   ENUM: 'enum',
   NUMBER: 'number',
@@ -81,6 +82,7 @@ export const DATATYPE = {
 export const DATATYPE_DEFAULT_VALUE = {
   ANY: undefined,
   ARRAY: [],
+  BOOLEAN: false,
   COLOR: [255, 55, 0, 0.5],
   ENUM: [],
   NUMBER: 0,

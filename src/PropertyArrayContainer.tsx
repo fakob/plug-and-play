@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import prettyFormat from 'pretty-format';
 import {
   Button,
+  Checkbox,
   ControlGroup,
   Divider,
   EditableText,
@@ -16,7 +17,6 @@ import { SketchPicker } from 'react-color';
 import Socket from './classes/SocketClass';
 import { DATATYPE } from './utils/constants';
 import { limitRange, roundNumber } from './utils/utils';
-import { rgbToRgba } from './pixi/utils-pixi';
 import styles from './utils/style.module.css';
 import { TRgba } from './utils/interfaces';
 
@@ -101,6 +101,9 @@ const PropertyContainer: React.FunctionComponent<PropertyContainerProps> = (
       case DATATYPE.COLOR:
         widget = <ColorWidget {...baseProps} />;
         break;
+      case DATATYPE.BOOLEAN:
+        widget = <BooleanWidget {...baseProps} />;
+        break;
       default:
     }
   } else if (!props.isInput) {
@@ -111,6 +114,7 @@ const PropertyContainer: React.FunctionComponent<PropertyContainerProps> = (
       case DATATYPE.COLOR:
         widget = <ColorWidget {...baseProps} />;
         break;
+      case DATATYPE.BOOLEAN:
       case DATATYPE.NUMBER:
       case DATATYPE.STRING:
       case DATATYPE.ARRAY:
@@ -325,16 +329,17 @@ const SelectWidget: React.FunctionComponent<SelectWidgetProps> = (props) => {
   const [data, setData] = useState(props.data);
   const [options] = useState(props.property.custom?.options);
 
-  const onChangeDropdown = (event) => {
+  const onChange = (event) => {
     const value = event.target.value;
     props.property.data = value;
+    console.log(value);
     props.property.notifyChange(new Set());
     setData(value);
   };
 
   return (
     <>
-      <HTMLSelect onChange={onChangeDropdown} value={data}>
+      <HTMLSelect onChange={onChange} value={data}>
         {options.map(({ text }, index) => {
           return (
             <option key={index} value={text}>
@@ -343,6 +348,36 @@ const SelectWidget: React.FunctionComponent<SelectWidgetProps> = (props) => {
           );
         })}
       </HTMLSelect>
+    </>
+  );
+};
+
+type BooleanWidgetProps = {
+  property: Socket;
+  index: number;
+  hasLink: boolean;
+  data: boolean;
+};
+
+const BooleanWidget: React.FunctionComponent<BooleanWidgetProps> = (props) => {
+  const [data, setData] = useState(props.data);
+  console.log(props.property);
+
+  const onChange = (event) => {
+    const checked = event.target.checked;
+    props.property.data = checked;
+    console.log(checked);
+    props.property.notifyChange(new Set());
+    setData(checked);
+  };
+
+  return (
+    <>
+      <Checkbox
+        checked={data}
+        label={props.property.custom?.label}
+        onChange={onChange}
+      />
     </>
   );
 };

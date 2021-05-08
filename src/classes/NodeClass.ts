@@ -478,7 +478,10 @@ export default class PPNode extends PIXI.Container {
     // console.log(this.outputSocketArray[0], commentData);
     if (commentData !== undefined) {
       // custom output for pixi elements
-      if (this.outputSocketArray[0]?.dataType === DATATYPE.PIXI) {
+      if (
+        this.outputSocketArray[0]?.dataType === DATATYPE.PIXI &&
+        !Array.isArray(this.outputSocketArray[0].data)
+      ) {
         const strippedCommentData = {
           alpha: commentData?.alpha,
           // children: commentData?.children,
