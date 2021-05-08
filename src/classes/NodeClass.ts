@@ -30,6 +30,18 @@ import PPGraph from './GraphClass';
 import Socket from './SocketClass';
 import { getNodeCommentPosX, getNodeCommentPosY } from '../utils/utils';
 
+export class UpdateBehaviour {
+  manual: boolean;
+  update: boolean;
+  interval: number;
+
+  constructor(inManual: boolean, inUpdate: boolean, inInterval: number) {
+    this.manual = inManual;
+    this.update = inUpdate;
+    this.interval = inInterval;
+  }
+}
+
 export default class PPNode extends PIXI.Container {
   _NodeNameRef: PIXI.Text;
   _NodeCommentRef: PIXI.Text;
@@ -49,6 +61,8 @@ export default class PPNode extends PIXI.Container {
   nodeWidth: number;
   nodeHeight: number;
   isHybrid: boolean; // true if it is a hybrid node (html and webgl)
+
+  updateBehaviour: UpdateBehaviour = new UpdateBehaviour(true, false, 0);
 
   inputSocketArray: Socket[];
   outputSocketArray: Socket[];
