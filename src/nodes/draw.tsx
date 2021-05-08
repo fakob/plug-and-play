@@ -448,6 +448,8 @@ export class Container extends PPNode {
           }
           this._containerRef[index].name = `${this.id}-${index}`;
 
+          const myX = x[index] ?? x[x.length - 1];
+          const myY = y[index] ?? y[y.length - 1];
           const myInput1 = input1[index] ?? input1[input1.length - 1];
           const myInput2 = input2[index] ?? input2[input2.length - 1];
           const myInput3 = input3[index] ?? input3[input3.length - 1];
@@ -464,11 +466,11 @@ export class Container extends PPNode {
 
           // if output is not connected, then draw it next to the node
           if ((this as PPNode).getOutputSocketByName('container')?.hasLink()) {
-            this._containerRef[index].x = x;
-            this._containerRef[index].y = y;
+            this._containerRef[index].x = myX;
+            this._containerRef[index].y = myY;
           } else {
-            this._containerRef[index].x = this.x + this.width + x;
-            this._containerRef[index].y = this.y + y;
+            this._containerRef[index].x = this.x + this.width + myX;
+            this._containerRef[index].y = this.y + myY;
           }
           this._containerRef[index].scale.set(scale);
         }
@@ -491,11 +493,11 @@ export class Container extends PPNode {
 
         // if output is not connected, then draw it next to the node
         if ((this as PPNode).getOutputSocketByName('container')?.hasLink()) {
-          this._containerRef[0].x = x;
-          this._containerRef[0].y = y;
+          this._containerRef[0].x = x[0];
+          this._containerRef[0].y = y[0];
         } else {
-          this._containerRef[0].x = this.x + this.width + x;
-          this._containerRef[0].y = this.y + y;
+          this._containerRef[0].x = this.x + this.width + x[0];
+          this._containerRef[0].y = this.y + y[0];
         }
         this._containerRef[0].scale.set(scale);
       }
