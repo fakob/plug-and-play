@@ -283,6 +283,7 @@ export default class PPNode extends PIXI.Container {
       type: this.type,
       x: this.x,
       y: this.y,
+      updateBehaviour: this.updateBehaviour,
     };
 
     o.inputSocketArray = [];
@@ -330,6 +331,8 @@ export default class PPNode extends PIXI.Container {
     if (this.isHybrid) {
       this._onViewportMove(); // trigger this once, so the react components get positioned properly
     }
+
+    this.updateBehaviour = node_info.updateBehaviour;
   }
 
   notifyChange(upstreamContent: Set<string>): void {
