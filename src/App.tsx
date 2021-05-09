@@ -37,12 +37,13 @@ const App = (): JSX.Element => {
   const db = new GraphDatabase();
   const pixiApp = useRef<PIXI.Application | null>(null);
   const currentGraph = useRef<PPGraph | null>(null);
-  const runGraph = useRef<boolean>(false);
   const pixiContext = useRef<HTMLDivElement | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [isCurrentGraphLoaded, setIsCurrentGraphLoaded] = useState(false);
   const [showComments, setShowComments] = useState(true);
   const [selectedNode, setSelectedNode] = useState<PPNode | null>(null);
+
+  let lastTimeTicked = 0;
 
   // react-dropzone
   const onDrop = useCallback((acceptedFiles) => {
@@ -206,9 +207,10 @@ const App = (): JSX.Element => {
     console.log('currentGraph.current:', currentGraph.current);
 
     pixiApp.current.ticker.add(() => {
-      if (runGraph.current) {
-        currentGraph.current.runStep();
-      }
+      const currentTime: number = new Date().getTime();
+      const delta = currentTime - lastTimeTicked;
+      lastTimeTicked = currentTime;
+      currentGraph.current.tick(currentTime, delta);
     });
 
     loadCurrentGraph();
@@ -352,23 +354,6 @@ const App = (): JSX.Element => {
               }}
             >
               Clear graph
-            </Button>
-            <Navbar.Divider />
-            <Button
-              icon="step-forward"
-              onClick={() => {
-                currentGraph.current.runStep();
-              }}
-            >
-              Run step
-            </Button>
-            <Button
-              icon="play"
-              onClick={() => {
-                runGraph.current = !runGraph.current;
-              }}
-            >
-              {runGraph.current ? 'Stop' : 'Run'}
             </Button>
             <Navbar.Divider />
             <Button

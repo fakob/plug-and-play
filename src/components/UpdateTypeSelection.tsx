@@ -3,53 +3,44 @@ import React, { useRef, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import NodeClass from '../classes/NodeClass';
 
+const ToggleButton = (props) => {
+  const [showEnabled, setShowEnabled] = React.useState(props.enabled);
+
+  return (
+    <Button
+      style={{
+        backgroundColor: showEnabled ? 'gray' : 'black',
+      }}
+      text={props.text}
+      onClick={() => {
+        props.setValue(!showEnabled);
+        setShowEnabled(!showEnabled);
+      }}
+    />
+  );
+};
 const UpdateTypeSelection = (props) => {
   const selectedNode: NodeClass = props.selectedNode;
   if (!selectedNode) {
     return <div />;
   }
-  const [update, setUpdate] = React.useState(
-    selectedNode.updateBehaviour.update
-  );
-  const [manual, setManual] = React.useState(
-    selectedNode.updateBehaviour.manual
-  );
-  const [interval, setInterval] = React.useState(
-    selectedNode.updateBehaviour.interval
-  );
 
   return (
     <div>
-      <Button
-        style={{
-          backgroundColor: update ? 'gray' : 'black',
-        }}
+      <ToggleButton
+        enabled={selectedNode.updateBehaviour.update}
+        setValue={(newVal) => (selectedNode.updateBehaviour.update = newVal)}
         text={'Update'}
-        onClick={() => {
-          selectedNode.updateBehaviour.update = !update;
-          setUpdate(!update);
-        }}
       />
-      <Button
+      <ToggleButton
+        enabled={selectedNode.updateBehaviour.interval}
+        setValue={(newVal) => (selectedNode.updateBehaviour.interval = newVal)}
         text={'Interval'}
-        style={{
-          backgroundColor: interval !== 0 ? 'gray' : 'black',
-        }}
-        onClick={() => {
-          selectedNode.updateBehaviour.interval = interval ? 0 : 1;
-          setInterval(interval ? 0 : 1);
-          console.log('gloggas');
-        }}
       />
-      <Button
-        style={{
-          backgroundColor: manual ? 'gray' : 'black',
-        }}
+      <ToggleButton
+        enabled={selectedNode.updateBehaviour.manual}
+        setValue={(newVal) => (selectedNode.updateBehaviour.manual = newVal)}
         text={'Manual'}
-        onClick={() => {
-          selectedNode.updateBehaviour.manual = !manual;
-          setManual(!manual);
-        }}
       />
     </div>
   );

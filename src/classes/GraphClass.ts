@@ -602,25 +602,12 @@ export default class PPGraph {
       return targetSocket;
     }
   }
-
   runStep(): void {
-    // can we get rid of this function entirely???
-    const nodes = this.nodes;
-    if (!nodes) {
-      return;
-    }
+    this.nodes.forEach((node) => node.execute(new Set()));
+  }
 
-    // currently nodes are executed not in the order of hierarchy, but order of key/creation
-    // would need to start with the ones having no input
-    // and then continue from there
-
-    Object.entries(nodes).forEach(([key, node]) => {
-      try {
-        node.execute(new Set());
-      } catch (error) {
-        console.error('Error onExecute', error);
-      }
-    });
+  tick(currentTime: number, deltaTime: number): void {
+    this.nodes.forEach((node) => node.tick(currentTime, deltaTime));
   }
 
   createOrUpdateNodeFromCode(

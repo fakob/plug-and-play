@@ -31,14 +31,22 @@ import Socket from './SocketClass';
 import { getNodeCommentPosX, getNodeCommentPosY } from '../utils/utils';
 
 export class UpdateBehaviour {
+  // currently changing manual does nothing, maybe we don't even need to control this?
   manual: boolean;
   update: boolean;
-  interval: number;
+  interval: boolean;
+  intervalFrequency: number;
 
-  constructor(inManual: boolean, inUpdate: boolean, inInterval: number) {
+  constructor(
+    inManual: boolean,
+    inUpdate: boolean,
+    inInterval: boolean,
+    inIntervalFrequency: number
+  ) {
     this.manual = inManual;
     this.update = inUpdate;
     this.interval = inInterval;
+    this.intervalFrequency = inIntervalFrequency;
   }
 }
 
@@ -62,7 +70,14 @@ export default class PPNode extends PIXI.Container {
   nodeHeight: number;
   isHybrid: boolean; // true if it is a hybrid node (html and webgl)
 
-  updateBehaviour: UpdateBehaviour = new UpdateBehaviour(true, false, 0);
+  // default to update on manual and update, 1 sec time update interval
+  updateBehaviour: UpdateBehaviour = new UpdateBehaviour(
+    true,
+    true,
+    false,
+    1000
+  );
+  lastTimeTicked = 0;
 
   inputSocketArray: Socket[];
   outputSocketArray: Socket[];
@@ -320,7 +335,7 @@ export default class PPNode extends PIXI.Container {
   notifyChange(upstreamContent: Set<string>): void {
     if (upstreamContent.has(this.id)) {
       console.log('circular loop detected in graph, stopping execution');
-    } else {
+    } else if (this.updateBehaviour.update) {
       upstreamContent.add(this.id);
       this.execute(upstreamContent);
     }
@@ -586,11 +601,9 @@ export default class PPNode extends PIXI.Container {
   }
 
   getInputData(name: string): any {
-    const inputSocket = this.inputSocketArray
-      .filter((socket) => socket.socketType === SOCKET_TYPE.IN)
-      .find((input: Socket) => {
-        return name === input.name;
-      });
+    const inputSocket = this.inputSocketArray.find((input: Socket) => {
+      return name === input.name;
+    });
 
     if (!inputSocket) {
       console.error('No input socket found with the name: ', name);
@@ -608,11 +621,9 @@ export default class PPNode extends PIXI.Container {
 
   setInputData(name: string, data: any): void {
     console.log('input data set');
-    const inputSocket = this.inputSocketArray
-      .filter((socket) => socket.socketType === SOCKET_TYPE.IN)
-      .find((input: Socket) => {
-        return name === input.name;
-      });
+    const inputSocket = this.inputSocketArray.find((input: Socket) => {
+      return name === input.name;
+    });
 
     if (!inputSocket) {
       console.error('No input socket found with the name: ', name);
@@ -637,27 +648,34 @@ export default class PPNode extends PIXI.Container {
     outputSocket.data = data;
   }
 
+  tick(currentTime: number, deltaTime: number): void {
+    if (
+      this.updateBehaviour.interval &&
+      currentTime - this.lastTimeTicked >=
+        this.updateBehaviour.intervalFrequency
+    ) {
+      this.lastTimeTicked = currentTime;
+      this.execute(new Set());
+    }
+  }
+
   execute(upstreamContent: Set<string>): void {
     // remap input
     const inputObject = {};
-    this.inputSocketArray
-      .filter((socket) => socket.socketType === SOCKET_TYPE.IN)
-      .forEach((input: Socket) => {
-        inputObject[input.name] = input.data;
-      });
+    this.inputSocketArray.forEach((input: Socket) => {
+      inputObject[input.name] = input.data;
+    });
     const outputObject = {};
 
     this.onExecute(inputObject, outputObject);
     this.onAfterExecute();
 
     // output whatever the user has put in
-    this.outputSocketArray
-      .filter((socket) => socket.socketType === SOCKET_TYPE.OUT)
-      .forEach((output: Socket) => {
-        if (outputObject[output.name] !== undefined) {
-          output.data = outputObject[output.name];
-        }
-      });
+    this.outputSocketArray.forEach((output: Socket) => {
+      if (outputObject[output.name] !== undefined) {
+        output.data = outputObject[output.name];
+      }
+    });
 
     if (this.graph._showComments) {
       this.drawComment();
