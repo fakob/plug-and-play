@@ -1,5 +1,5 @@
 import PPGraph from '../classes/GraphClass';
-import PPNode from '../classes/NodeClass';
+import PPNode, { UpdateBehaviour } from '../classes/NodeClass';
 import { SOCKET_TYPE } from './constants';
 
 export type PPNodeConstructor<T extends PPNode = PPNode> = {
@@ -37,6 +37,7 @@ export type SerializedNode = {
   y: number;
   inputSocketArray?: SerializedSocket[];
   outputSocketArray?: SerializedSocket[];
+  updateBehaviour: UpdateBehaviour;
 };
 
 export type SerializedLink = {
