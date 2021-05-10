@@ -8,7 +8,7 @@ import React, {
 import { useDropzone } from 'react-dropzone';
 import * as PIXI from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
-import { Alignment, Button, MenuItem, Navbar } from '@blueprintjs/core';
+import { Classes, Menu, MenuDivider, MenuItem } from '@blueprintjs/core';
 import { Omnibar, ItemRenderer, ItemPredicate } from '@blueprintjs/select';
 import InspectorContainer from './InspectorContainer';
 import PixiContainer from './PixiContainer';
@@ -18,12 +18,15 @@ import {
   CANVAS_BACKGROUNDCOLOR_HEX,
   CANVAS_BACKGROUND_ALPHA,
   CANVAS_BACKGROUND_TEXTURE,
+  PLUGANDPLAY_ICON,
 } from './utils/constants';
 import { INodes } from './utils/interfaces';
 import { convertBlobToBase64, highlightText } from './utils/utils';
 import { registerAllNodeTypes } from './nodes/allNodes';
+import PPSocket from './classes/SocketClass';
 import PPNode from './classes/NodeClass';
 import { InputParser } from './utils/inputParser';
+import styles from './utils/style.module.css';
 
 (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__ &&
   (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__.register({ PIXI: PIXI });
@@ -31,6 +34,7 @@ import { InputParser } from './utils/inputParser';
 const NodeSearch = Omnibar.ofType<INodes>();
 
 const isMac = navigator.platform.indexOf('Mac') != -1;
+const controlOrMetaKey = isMac ? '⌘' : 'Ctrl';
 console.log('isMac: ', isMac);
 
 const App = (): JSX.Element => {
@@ -38,7 +42,10 @@ const App = (): JSX.Element => {
   const pixiApp = useRef<PIXI.Application | null>(null);
   const currentGraph = useRef<PPGraph | null>(null);
   const pixiContext = useRef<HTMLDivElement | null>(null);
-  const [isOpen, setIsOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isGraphContextMenuOpen, setIsGraphContextMenuOpen] = useState(false);
+  const [isNodeContextMenuOpen, setIsNodeContextMenuOpen] = useState(false);
+  const [contextMenuPosition, setContextMenuPosition] = useState([0, 0]);
   const [isCurrentGraphLoaded, setIsCurrentGraphLoaded] = useState(false);
   const [showComments, setShowComments] = useState(true);
   const [selectedNode, setSelectedNode] = useState<PPNode | null>(null);
@@ -128,6 +135,11 @@ const App = (): JSX.Element => {
       },
       { passive: false }
     );
+
+    // disable default context menu
+    window.addEventListener('contextmenu', (e: Event) => {
+      e.preventDefault();
+    });
 
     // create pixiApp
     pixiApp.current = new PIXI.Application({
@@ -230,15 +242,46 @@ const App = (): JSX.Element => {
       }
     };
 
+    currentGraph.current.onRightClick = (
+      event: PIXI.InteractionEvent,
+      target: PIXI.DisplayObject
+    ) => {
+      setIsGraphContextMenuOpen(false);
+      setIsNodeContextMenuOpen(false);
+      setContextMenuPosition(
+        // creating new point so react updates
+        [event.data.global.x, event.data.global.y]
+      );
+      console.log(event, target, event.data.global);
+      switch (true) {
+        case target instanceof PPSocket:
+          console.log('app right click, socket');
+          break;
+        case target instanceof PPNode:
+          console.log('app right click, node');
+          setIsNodeContextMenuOpen(true);
+          break;
+        case target instanceof Viewport:
+          console.log('app right click, viewport');
+          setIsGraphContextMenuOpen(true);
+          break;
+        default:
+          console.log('app right click, something else');
+          break;
+      }
+    };
+
     // register key events
     const keysDown = (e: KeyboardEvent): void => {
       console.log(e.key);
       if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'f') {
         e.preventDefault();
-        setIsOpen((prevState) => !prevState);
+        setIsSearchOpen((prevState) => !prevState);
       }
       if (e.key === 'Escape') {
-        setIsOpen(false);
+        setIsSearchOpen(false);
+        setIsGraphContextMenuOpen(false);
+        setIsNodeContextMenuOpen(false);
       }
     };
     window.addEventListener('keydown', keysDown.bind(this));
@@ -302,15 +345,102 @@ const App = (): JSX.Element => {
 
   const handleItemSelect = (selected: INodes) => {
     console.log(selected);
-    setIsOpen(false);
+    setIsSearchOpen(false);
     currentGraph.current.createAndAddNode(selected.title);
   };
 
   return (
-    <div>
+    <div
+      // close open context menu again on click
+      onClick={() => {
+        if (isGraphContextMenuOpen) {
+          setIsGraphContextMenuOpen(false);
+        }
+        if (isNodeContextMenuOpen) {
+          setIsNodeContextMenuOpen(false);
+        }
+      }}
+    >
       <div {...getRootProps({ style })}>
         <input {...getInputProps()} />
         {/* </div> */}
+        {isGraphContextMenuOpen && (
+          <Menu
+            className={Classes.ELEVATION_1}
+            style={{
+              position: 'absolute',
+              zIndex: 10,
+              left: contextMenuPosition[0],
+              top: contextMenuPosition[1],
+            }}
+          >
+            <MenuItem
+              icon="search"
+              text="Search nodes"
+              label={`${controlOrMetaKey}+F`}
+              onClick={() => {
+                setIsSearchOpen(true);
+              }}
+            />
+            <MenuDivider title="Graph" />
+            <MenuItem
+              icon="document"
+              text="Load graph"
+              onClick={() => {
+                loadCurrentGraph();
+              }}
+            />
+            <MenuItem
+              icon="saved"
+              text="Save graph"
+              onClick={() => {
+                serializeGraph();
+              }}
+            />
+            <MenuItem
+              icon="cross"
+              text="Clear graph"
+              onClick={() => {
+                currentGraph.current.clear();
+              }}
+            />
+            <MenuDivider />
+            <MenuItem
+              text={showComments ? 'Hide Comments' : 'Show Comments'}
+              onClick={() => {
+                setShowComments((prevState) => !prevState);
+              }}
+            />
+          </Menu>
+        )}
+        {isNodeContextMenuOpen && (
+          <Menu
+            className={Classes.ELEVATION_1}
+            style={{
+              position: 'absolute',
+              zIndex: 10,
+              left: contextMenuPosition[0],
+              top: contextMenuPosition[1],
+            }}
+          >
+            <MenuItem
+              icon="duplicate"
+              text="Duplicate"
+              label={`${controlOrMetaKey}+D`}
+              onClick={() => {
+                currentGraph.current.duplicateSelection();
+              }}
+            />
+            <MenuItem
+              icon="trash"
+              text="Delete"
+              label="Delete"
+              onClick={() => {
+                currentGraph.current.deleteSelectedNodes();
+              }}
+            />
+          </Menu>
+        )}
         <PixiContainer ref={pixiContext} />
         {selectedNode && (
           <InspectorContainer
@@ -319,68 +449,14 @@ const App = (): JSX.Element => {
             onSave={createOrUpdateNodeFromCode}
           />
         )}
-        <Navbar className="bp3-dark">
-          <Navbar.Group align={Alignment.LEFT}>
-            <Navbar.Heading>Plug and Playground</Navbar.Heading>
-            <Navbar.Divider />
-            <Button
-              onClick={() => {
-                setIsOpen((prevState) => !prevState);
-              }}
-              icon="search"
-            >
-              Search nodes
-            </Button>
-            <Navbar.Divider />
-            <Button
-              onClick={() => {
-                loadCurrentGraph();
-              }}
-            >
-              Load graph
-            </Button>
-            <Button
-              icon="floppy-disk"
-              onClick={() => {
-                serializeGraph();
-              }}
-            >
-              Save graph
-            </Button>
-            <Button
-              icon="cross"
-              onClick={() => {
-                currentGraph.current.clear();
-              }}
-            >
-              Clear graph
-            </Button>
-            <Navbar.Divider />
-            <Button
-              onClick={() => {
-                setShowComments((prevState) => !prevState);
-              }}
-            >
-              {showComments ? 'Hide Comments' : 'Show Comments'}
-            </Button>
-            <Navbar.Divider />
-            {/* <Button
-              onClick={() => {
-                createOrUpdateNodeFromCode(DEFAULT_EDITOR_DATA);
-              }}
-            >
-              Add custom node
-            </Button> */}
-            <Button
-              icon="duplicate"
-              onClick={() => {
-                currentGraph.current.duplicateSelection();
-              }}
-            >
-              Duplicate node
-            </Button>
-          </Navbar.Group>
-        </Navbar>
+        <img
+          className={styles.plugAndPlaygroundIcon}
+          src={PLUGANDPLAY_ICON}
+          onClick={() => {
+            setContextMenuPosition([80, 40]);
+            setIsGraphContextMenuOpen(true);
+          }}
+        />
         {isCurrentGraphLoaded && (
           <NodeSearch
             itemRenderer={renderFilm}
@@ -397,8 +473,8 @@ const App = (): JSX.Element => {
             onItemSelect={handleItemSelect}
             resetOnQuery={true}
             resetOnSelect={true}
-            onClose={() => setIsOpen(false)}
-            isOpen={isOpen}
+            onClose={() => setIsSearchOpen(false)}
+            isOpen={isSearchOpen}
           />
         )}
       </div>

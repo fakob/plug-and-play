@@ -27,8 +27,9 @@ export const COLOR = [
   '#A45140',
 ];
 
-// export const CANVAS_BACKGROUNDCOLOR = '#d3d3d3';
-export const CANVAS_BACKGROUNDCOLOR = Color(COLOR[0]).lighten(0.6).hex();
+export const PLUGANDPLAY_ICON = '../assets/PlugAndPlayIcon.svg';
+
+export const CANVAS_BACKGROUNDCOLOR = Color(COLOR[0]).lighten(0.8).hex();
 export const CANVAS_BACKGROUNDCOLOR_HEX = PIXI.utils.string2hex(
   CANVAS_BACKGROUNDCOLOR
 );

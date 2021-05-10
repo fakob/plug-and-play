@@ -1,6 +1,10 @@
 /* eslint-disable prettier/prettier */
 import PPGraph from '../classes/GraphClass';
 
+// if it is a mac use the "Cmd" key instead of "Ctrl"
+const isMac = navigator.platform.indexOf('Mac') != -1;
+const controlOrMetaKey = isMac ? 'Meta' : 'Control';
+
 abstract class Hotkey {
   protected getKeys(): string[] {
     return [];
@@ -31,13 +35,24 @@ abstract class Hotkey {
   }
 }
 
-// you can create new hotkeys like this by extending hotkey and providing which keys are needed and then the function, this is the ideal and smallest case
+// you can create new hotkeys like this by extending hotkey
+// and providing which keys are needed and then the function,
+// this is the ideal and smallest case
 class createAddNodeAction extends Hotkey {
   protected getKeys(): string[] {
-    return ['m', 'Control'];
+    return ['m', controlOrMetaKey];
   }
   protected execute(graph: PPGraph): void {
     graph.createAndAddNode('MathAdd');
+  }
+}
+
+class duplicateNodeAction extends Hotkey {
+  protected getKeys(): string[] {
+    return ['d', controlOrMetaKey];
+  }
+  protected execute(graph: PPGraph): void {
+    graph.duplicateSelection();
   }
 }
 
@@ -63,23 +78,24 @@ class deleteNodeAction extends Hotkey {
 // remember to add your hotkey to the list
 const activeHotkeys: Hotkey[] = [
   new createAddNodeAction(),
+  new duplicateNodeAction(),
   new deleteNodeAction(),
 ];
 
 export class InputParser {
   static keysPressed: Set<string> = new Set();
 
-  static parseKeyDown(key: KeyboardEvent, graph: PPGraph): void {
-    console.log('parsed keykey: ' + JSON.stringify(key.key));
-    this.keysPressed.add(key.key);
+  static parseKeyDown(event: KeyboardEvent, graph: PPGraph): void {
+    console.log('parsed keykey: ' + JSON.stringify(event.key));
+    this.keysPressed.add(event.key);
     activeHotkeys.forEach((hotkey) =>
-      hotkey.potentiallyExecute(key, this.keysPressed, graph)
+      hotkey.potentiallyExecute(event, this.keysPressed, graph)
     );
   }
 
   // no action triggers on key up, so no graph passed
-  static parseKeyUp(key: KeyboardEvent): void {
-    console.log('parsed keyup: ' + JSON.stringify(key.key));
-    this.keysPressed.delete(key.key);
+  static parseKeyUp(event: KeyboardEvent): void {
+    console.log('parsed keyup: ' + JSON.stringify(event.key));
+    this.keysPressed.delete(event.key);
   }
 }

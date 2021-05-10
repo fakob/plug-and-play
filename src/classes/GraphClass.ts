@@ -8,7 +8,6 @@ import {
   NODE_WIDTH,
   PP_VERSION,
 } from '../utils/constants';
-import { InputParser } from '../utils/inputParser';
 import {
   CustomArgs,
   PPNodeConstructor,
@@ -44,7 +43,11 @@ export default class PPGraph {
   connectionContainer: PIXI.Container;
   nodeContainer: PIXI.Container;
 
-  onSelectionChange: ((selectedNodes: string[]) => void) | null;
+  onSelectionChange: ((selectedNodes: string[]) => void) | null; // called when the selection has changed
+  onRightClick:
+    | ((event: PIXI.InteractionEvent, target: PIXI.DisplayObject) => void)
+    | null; // called when the graph is right clicked
+
   onViewportMoveHandler: (event?: PIXI.InteractionEvent) => void;
 
   constructor(app: PIXI.Application, viewport: Viewport) {
@@ -95,6 +98,7 @@ export default class PPGraph {
 
       // register pointer events
       this.viewport.on('pointerdown', this._onPointerDown.bind(this));
+      this.viewport.on('rightclick', this._onPointerRightClicked.bind(this));
     };
     addEventListeners();
 
@@ -108,15 +112,26 @@ export default class PPGraph {
 
   // SETUP
 
+  _onPointerRightClicked(event: PIXI.InteractionEvent): void {
+    console.log('GraphClass - _onPointerRightClicked');
+    event.stopPropagation();
+    const target = event.target;
+    console.log(target, event.data.originalEvent);
+
+    if (this.onRightClick) {
+      this.onRightClick(event, target);
+    }
+  }
+
   _onPointerDown(): void {
     this.deselectAllNodes();
   }
 
   _onNodePointerDown(event: PIXI.InteractionEvent): void {
-    console.log('_onNodePointerDown');
     // stop propagation so viewport does not get dragged
     event.stopPropagation();
 
+    console.log('_onNodePointerDown');
     const node = event.currentTarget as PPNode;
     // console.log(node.id);
 
