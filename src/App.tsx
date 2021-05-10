@@ -9,7 +9,7 @@ import { useDropzone } from 'react-dropzone';
 import * as PIXI from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
 import { Classes, Menu, MenuDivider, MenuItem } from '@blueprintjs/core';
-import { Omnibar, ItemRenderer, ItemPredicate } from '@blueprintjs/select';
+import { ItemRenderer, ItemPredicate, Suggest } from '@blueprintjs/select';
 import InspectorContainer from './InspectorContainer';
 import PixiContainer from './PixiContainer';
 import { GraphDatabase } from './utils/indexedDB';
@@ -31,7 +31,7 @@ import styles from './utils/style.module.css';
 (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__ &&
   (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__.register({ PIXI: PIXI });
 
-const NodeSearch = Omnibar.ofType<INodes>();
+const NodeSearch = Suggest.ofType<INodes>();
 
 const isMac = navigator.platform.indexOf('Mac') != -1;
 const controlOrMetaKey = isMac ? '⌘' : 'Ctrl';
@@ -42,6 +42,7 @@ const App = (): JSX.Element => {
   const pixiApp = useRef<PIXI.Application | null>(null);
   const currentGraph = useRef<PPGraph | null>(null);
   const pixiContext = useRef<HTMLDivElement | null>(null);
+  const nodeSearchInput = useRef<HTMLInputElement | null>(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isGraphContextMenuOpen, setIsGraphContextMenuOpen] = useState(false);
   const [isNodeContextMenuOpen, setIsNodeContextMenuOpen] = useState(false);
@@ -277,6 +278,11 @@ const App = (): JSX.Element => {
       if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'f') {
         e.preventDefault();
         setIsSearchOpen((prevState) => !prevState);
+        nodeSearchInput.current.focus();
+      }
+      if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 's') {
+        e.preventDefault();
+        serializeGraph();
       }
       if (e.key === 'Escape') {
         setIsSearchOpen(false);
@@ -359,6 +365,9 @@ const App = (): JSX.Element => {
         if (isNodeContextMenuOpen) {
           setIsNodeContextMenuOpen(false);
         }
+        if (isSearchOpen) {
+          setIsSearchOpen(false);
+        }
       }}
     >
       <div {...getRootProps({ style })}>
@@ -380,6 +389,7 @@ const App = (): JSX.Element => {
               label={`${controlOrMetaKey}+F`}
               onClick={() => {
                 setIsSearchOpen(true);
+                nodeSearchInput.current.focus();
               }}
             />
             <MenuDivider title="Graph" />
@@ -393,6 +403,7 @@ const App = (): JSX.Element => {
             <MenuItem
               icon="saved"
               text="Save graph"
+              label={`${controlOrMetaKey}+S`}
               onClick={() => {
                 serializeGraph();
               }}
@@ -459,6 +470,7 @@ const App = (): JSX.Element => {
         />
         {isCurrentGraphLoaded && (
           <NodeSearch
+            className={styles.nodeSearch}
             itemRenderer={renderFilm}
             items={
               Object.keys(currentGraph.current.registeredNodeTypes).map(
@@ -473,8 +485,14 @@ const App = (): JSX.Element => {
             onItemSelect={handleItemSelect}
             resetOnQuery={true}
             resetOnSelect={true}
-            onClose={() => setIsSearchOpen(false)}
-            isOpen={isSearchOpen}
+            inputValueRenderer={(node: INodes) => node.title}
+            noResults={<MenuItem disabled={true} text="No results." />}
+            inputProps={{
+              inputRef: nodeSearchInput,
+              large: true,
+              placeholder: 'Search Nodes',
+            }}
+            popoverProps={{ minimal: true }}
           />
         )}
       </div>
