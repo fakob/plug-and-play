@@ -162,3 +162,32 @@ export const convertStringToSlateNodes = (text: string): any => {
 export const convertSlateNodesToString = (value: any): string => {
   return value.map((n) => Node.string(n)).join('\n');
 };
+
+export const downloadFile = (
+  content: string,
+  fileName: string,
+  contentType: string
+): void => {
+  const a = document.createElement('a');
+  const file = new Blob([content], { type: contentType });
+  a.href = URL.createObjectURL(file);
+  a.download = fileName;
+  a.click();
+};
+
+export const formatDate = () => {
+  const d = new Date();
+  let month = '' + (d.getMonth() + 1);
+  let day = '' + d.getDate();
+  const year = d.getFullYear();
+  const hour = d.getHours();
+  const minutes = d.getMinutes();
+  const seconds = d.getSeconds();
+
+  if (month.length < 2) month = '0' + month;
+  if (day.length < 2) day = '0' + day;
+
+  return `${[year, month, day].join('-')} at ${[hour, minutes, seconds].join(
+    '.'
+  )}`;
+};
