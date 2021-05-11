@@ -40,7 +40,7 @@ export const GraphContextMenu = (props) => {
       <MenuItem disabled text="" />
       <MenuItem
         icon="export"
-        text="Upload graph"
+        text="Open graph"
         onClick={() => {
           props.uploadGraph();
         }}
