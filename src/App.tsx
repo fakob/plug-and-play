@@ -8,10 +8,11 @@ import React, {
 import { useDropzone } from 'react-dropzone';
 import * as PIXI from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
-import { Classes, Menu, MenuDivider, MenuItem } from '@blueprintjs/core';
+import { Button, MenuItem } from '@blueprintjs/core';
 import { ItemRenderer, ItemPredicate, Suggest } from '@blueprintjs/select';
 import InspectorContainer from './InspectorContainer';
 import PixiContainer from './PixiContainer';
+import { GraphContextMenu, NodeContextMenu } from './components/ContextMenus';
 import { GraphDatabase } from './utils/indexedDB';
 import PPGraph from './classes/GraphClass';
 import {
@@ -359,98 +360,33 @@ const App = (): JSX.Element => {
     <div
       // close open context menu again on click
       onClick={() => {
-        if (isGraphContextMenuOpen) {
-          setIsGraphContextMenuOpen(false);
-        }
-        if (isNodeContextMenuOpen) {
-          setIsNodeContextMenuOpen(false);
-        }
-        if (isSearchOpen) {
-          setIsSearchOpen(false);
-        }
+        isGraphContextMenuOpen && setIsGraphContextMenuOpen(false);
+        isNodeContextMenuOpen && setIsNodeContextMenuOpen(false);
+        isSearchOpen && setIsSearchOpen(false);
       }}
     >
       <div {...getRootProps({ style })}>
         <input {...getInputProps()} />
         {/* </div> */}
         {isGraphContextMenuOpen && (
-          <Menu
-            className={Classes.ELEVATION_1}
-            style={{
-              position: 'absolute',
-              zIndex: 10,
-              left: contextMenuPosition[0],
-              top: contextMenuPosition[1],
-            }}
-          >
-            <MenuItem
-              icon="search"
-              text="Search nodes"
-              label={`${controlOrMetaKey}+F`}
-              onClick={() => {
-                setIsSearchOpen(true);
-                nodeSearchInput.current.focus();
-              }}
-            />
-            <MenuDivider title="Graph" />
-            <MenuItem
-              icon="document"
-              text="Load graph"
-              onClick={() => {
-                loadCurrentGraph();
-              }}
-            />
-            <MenuItem
-              icon="saved"
-              text="Save graph"
-              label={`${controlOrMetaKey}+S`}
-              onClick={() => {
-                serializeGraph();
-              }}
-            />
-            <MenuItem
-              icon="cross"
-              text="Clear graph"
-              onClick={() => {
-                currentGraph.current.clear();
-              }}
-            />
-            <MenuDivider />
-            <MenuItem
-              text={showComments ? 'Hide Comments' : 'Show Comments'}
-              onClick={() => {
-                setShowComments((prevState) => !prevState);
-              }}
-            />
-          </Menu>
+          <GraphContextMenu
+            controlOrMetaKey={controlOrMetaKey}
+            contextMenuPosition={contextMenuPosition}
+            currentGraph={currentGraph}
+            setIsSearchOpen={setIsSearchOpen}
+            nodeSearchInput={nodeSearchInput}
+            loadCurrentGraph={loadCurrentGraph}
+            serializeGraph={serializeGraph}
+            showComments={showComments}
+            setShowComments={setShowComments}
+          />
         )}
         {isNodeContextMenuOpen && (
-          <Menu
-            className={Classes.ELEVATION_1}
-            style={{
-              position: 'absolute',
-              zIndex: 10,
-              left: contextMenuPosition[0],
-              top: contextMenuPosition[1],
-            }}
-          >
-            <MenuItem
-              icon="duplicate"
-              text="Duplicate"
-              label={`${controlOrMetaKey}+D`}
-              onClick={() => {
-                currentGraph.current.duplicateSelection();
-              }}
-            />
-            <MenuItem
-              icon="trash"
-              text="Delete"
-              label="Delete"
-              onClick={() => {
-                currentGraph.current.deleteSelectedNodes();
-              }}
-            />
-          </Menu>
+          <NodeContextMenu
+            controlOrMetaKey={controlOrMetaKey}
+            contextMenuPosition={contextMenuPosition}
+            currentGraph={currentGraph}
+          />
         )}
         <PixiContainer ref={pixiContext} />
         {selectedNode && (
@@ -471,6 +407,11 @@ const App = (): JSX.Element => {
         {isCurrentGraphLoaded && (
           <NodeSearch
             className={styles.nodeSearch}
+            inputProps={{
+              inputRef: nodeSearchInput,
+              large: true,
+              placeholder: 'Search Nodes',
+            }}
             itemRenderer={renderFilm}
             items={
               Object.keys(currentGraph.current.registeredNodeTypes).map(
@@ -479,20 +420,15 @@ const App = (): JSX.Element => {
                 }
               ) as INodes[]
             }
-            createNewItemFromQuery={createNewItemFromQuery}
-            createNewItemRenderer={renderCreateFilmOption}
             itemPredicate={filterNode}
             onItemSelect={handleItemSelect}
+            resetOnClose={true}
             resetOnQuery={true}
             resetOnSelect={true}
-            inputValueRenderer={(node: INodes) => node.title}
-            noResults={<MenuItem disabled={true} text="No results." />}
-            inputProps={{
-              inputRef: nodeSearchInput,
-              large: true,
-              placeholder: 'Search Nodes',
-            }}
             popoverProps={{ minimal: true }}
+            inputValueRenderer={(node: INodes) => node.title}
+            createNewItemFromQuery={createNewItemFromQuery}
+            createNewItemRenderer={renderCreateFilmOption}
           />
         )}
       </div>
