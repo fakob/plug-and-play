@@ -8,7 +8,7 @@ import React, {
 import { useDropzone } from 'react-dropzone';
 import * as PIXI from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
-import { Button, MenuItem } from '@blueprintjs/core';
+import { MenuItem } from '@blueprintjs/core';
 import { ItemRenderer, ItemPredicate, Suggest } from '@blueprintjs/select';
 import InspectorContainer from './InspectorContainer';
 import PixiContainer from './PixiContainer';
@@ -22,7 +22,12 @@ import {
   PLUGANDPLAY_ICON,
 } from './utils/constants';
 import { INodes } from './utils/interfaces';
-import { convertBlobToBase64, highlightText } from './utils/utils';
+import {
+  convertBlobToBase64,
+  downloadFile,
+  formatDate,
+  highlightText,
+} from './utils/utils';
 import { registerAllNodeTypes } from './nodes/allNodes';
 import PPSocket from './classes/SocketClass';
 import PPNode from './classes/NodeClass';
@@ -74,6 +79,10 @@ const App = (): JSX.Element => {
         let newNode;
 
         switch (extension) {
+          case 'ppgraph':
+            data = await response.text();
+            currentGraph.current.configure(JSON.parse(data), false);
+            break;
           case 'csv':
             data = await response.text();
             newNode = currentGraph.current.createAndAddNode('Table', {
@@ -108,6 +117,7 @@ const App = (): JSX.Element => {
     isDragActive,
     isDragAccept,
     isDragReject,
+    open,
   } = useDropzone({
     noClick: true,
     noKeyboard: true,
@@ -312,6 +322,19 @@ const App = (): JSX.Element => {
     currentGraph.current.showComments = showComments;
   }, [showComments]);
 
+  function downloadGraph() {
+    const serializedGraph = currentGraph.current.serialize();
+    downloadFile(
+      JSON.stringify(serializedGraph, null, 2),
+      `${formatDate()}.ppgraph`,
+      'text/plain'
+    );
+  }
+
+  function uploadGraph() {
+    open();
+  }
+
   function serializeGraph() {
     const serializedGraph = currentGraph.current.serialize();
     console.log(serializedGraph);
@@ -377,6 +400,8 @@ const App = (): JSX.Element => {
             nodeSearchInput={nodeSearchInput}
             loadCurrentGraph={loadCurrentGraph}
             serializeGraph={serializeGraph}
+            downloadGraph={downloadGraph}
+            uploadGraph={uploadGraph}
             showComments={showComments}
             setShowComments={setShowComments}
           />

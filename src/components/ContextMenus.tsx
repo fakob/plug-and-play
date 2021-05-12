@@ -24,19 +24,35 @@ export const GraphContextMenu = (props) => {
       <MenuDivider title="Graph" />
       <MenuItem
         icon="document"
-        text="Load graph"
+        text="Recall graph"
         onClick={() => {
           props.loadCurrentGraph();
         }}
       />
       <MenuItem
         icon="saved"
-        text="Save graph"
+        text="Store graph"
         label={`${props.controlOrMetaKey}+S`}
         onClick={() => {
           props.serializeGraph();
         }}
       />
+      <MenuItem disabled text="" />
+      <MenuItem
+        icon="export"
+        text="Load graph from file"
+        onClick={() => {
+          props.uploadGraph();
+        }}
+      />
+      <MenuItem
+        icon="import"
+        text="Download graph"
+        onClick={() => {
+          props.downloadGraph();
+        }}
+      />
+      <MenuItem disabled text="" />
       <MenuItem
         icon="cross"
         text="Clear graph"
