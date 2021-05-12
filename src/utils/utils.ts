@@ -177,15 +177,12 @@ export const downloadFile = (
 
 export const formatDate = () => {
   const d = new Date();
-  let month = '' + (d.getMonth() + 1);
-  let day = '' + d.getDate();
   const year = d.getFullYear();
-  const hour = d.getHours();
-  const minutes = d.getMinutes();
-  const seconds = d.getSeconds();
-
-  if (month.length < 2) month = '0' + month;
-  if (day.length < 2) day = '0' + day;
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  const hour = String(d.getHours()).padStart(2, '0');
+  const minutes = String(d.getMinutes()).padStart(2, '0');
+  const seconds = String(d.getSeconds()).padStart(2, '0');
 
   return `${[year, month, day].join('-')} at ${[hour, minutes, seconds].join(
     '.'
