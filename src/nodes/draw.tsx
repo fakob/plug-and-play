@@ -269,7 +269,7 @@ export class Circle extends PPNode {
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
     const nodeColor = NODE_TYPE_COLOR.DRAW;
     const radius = 50;
-    const fillColor = COLOR[5];
+    const fillColor = COLOR[7];
 
     super(name, graph, {
       ...customArgs,
@@ -511,6 +511,7 @@ export class Container extends PPNode {
 }
 
 export class GraphicsMultiplier extends PPNode {
+  _inputContainerRef: PIXI.Container;
   _containerRef: PIXI.Container;
   createAndAddClone: (
     type: string,
@@ -555,24 +556,33 @@ export class GraphicsMultiplier extends PPNode {
     this.name = 'GraphicsMultiplier';
     this.description = 'Multiplies the input graphics';
 
+    const inputContainer = new PIXI.Container();
     const container = new PIXI.Container();
     this._containerRef = (
       this.graph.viewport.getChildByName('backgroundCanvas') as PIXI.Container
     ).addChild(container);
+    this._inputContainerRef = this._containerRef.addChild(inputContainer);
     this.setOutputData('container', this._containerRef);
     this._containerRef.name = this.id;
 
     this.onExecute = function (input) {
-      const input1: PIXI.DisplayObject = input['input'];
+      let inputRef: PIXI.DisplayObject[] | PIXI.DisplayObject = input['input'];
       const count = input['count'];
       const column = input['column'];
       const distance = input['distance'];
       const scale = input['scale'];
       const adjustArray = input['adjustArray'];
       this._containerRef.removeChildren();
+      this._inputContainerRef.removeChildren();
       // console.log(adjustArray);
 
-      if (input1 != undefined) {
+      // if inputRef is array, wrap it into container
+      if (inputRef.constructor.name === 'Array') {
+        this._inputContainerRef.addChild(...(inputRef as PIXI.DisplayObject[]));
+        inputRef = this._inputContainerRef;
+      }
+
+      if (inputRef != undefined) {
         let x = 0;
         let y = 0;
 
@@ -589,23 +599,23 @@ export class GraphicsMultiplier extends PPNode {
 
         for (let indexCount = 0; indexCount < count; indexCount++) {
           let objectToPosition;
-          if (input1.constructor.name === 'Container') {
+          if (inputRef.constructor.name === 'Container') {
             objectToPosition = this.createSubcontainerAndIterateOverChildren(
               x,
               y,
               this._containerRef,
-              input1 as PIXI.Container,
+              inputRef as PIXI.Container,
               indexCount,
               adjustArray?.[indexCount]?.container,
               `[${indexCount}].container`
             );
           } else {
             objectToPosition = this.createAndAddClone(
-              input1.constructor.name,
+              inputRef.constructor.name,
               x,
               y,
               this._containerRef,
-              input1 as PIXI.Graphics,
+              inputRef as PIXI.Graphics,
               indexCount,
               adjustArray?.[indexCount],
               `[${indexCount}]`
@@ -640,7 +650,6 @@ export class GraphicsMultiplier extends PPNode {
       adjustArray?: any,
       testString?: string
     ): PIXI.Graphics => {
-      // console.log(adjustArray);
       let clone;
       switch (type) {
         case 'Graphics':
@@ -656,6 +665,7 @@ export class GraphicsMultiplier extends PPNode {
         default:
           break;
       }
+      console.log(adjustArray, clone, type);
       clone.name =
         container === this._containerRef
           ? `${this.id}-${index}`
