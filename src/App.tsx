@@ -48,6 +48,7 @@ const App = (): JSX.Element => {
   const pixiApp = useRef<PIXI.Application | null>(null);
   const currentGraph = useRef<PPGraph | null>(null);
   const pixiContext = useRef<HTMLDivElement | null>(null);
+  const viewport = useRef<Viewport | null>(null);
   const nodeSearchInput = useRef<HTMLInputElement | null>(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isGraphContextMenuOpen, setIsGraphContextMenuOpen] = useState(false);
@@ -166,7 +167,7 @@ const App = (): JSX.Element => {
     pixiApp.current.stage.buttonMode = true;
 
     // create viewport
-    const viewport = new Viewport({
+    viewport.current = new Viewport({
       screenWidth: window.innerWidth,
       screenHeight: window.innerHeight,
       worldWidth: window.innerWidth,
@@ -175,10 +176,10 @@ const App = (): JSX.Element => {
     });
 
     // add the viewport to the stage
-    pixiApp.current.stage.addChild(viewport);
+    pixiApp.current.stage.addChild(viewport.current);
 
     // configure viewport
-    viewport
+    viewport.current
       .drag()
       .pinch()
       .wheel()
@@ -202,20 +203,20 @@ const App = (): JSX.Element => {
     );
     background.tileScale.x = 0.5;
     background.tileScale.y = 0.5;
-    viewport.addChild(background);
-    viewport.on('moved', () => {
-      background.tilePosition.y = -viewport.top;
-      background.tilePosition.x = -viewport.left;
-      background.y = viewport.top;
-      background.x = viewport.left;
+    viewport.current.addChild(background);
+    viewport.current.on('moved', () => {
+      background.tilePosition.y = -viewport.current.top;
+      background.tilePosition.x = -viewport.current.left;
+      background.y = viewport.current.top;
+      background.x = viewport.current.left;
 
-      background.width = innerWidth / viewport.scale.x;
-      background.height = innerHeight / viewport.scale.y;
+      background.width = innerWidth / viewport.current.scale.x;
+      background.height = innerHeight / viewport.current.scale.y;
     });
     background.alpha = CANVAS_BACKGROUND_ALPHA;
 
     // add graph to pixiApp
-    currentGraph.current = new PPGraph(pixiApp.current, viewport);
+    currentGraph.current = new PPGraph(pixiApp.current, viewport.current);
 
     // register all available node types
     registerAllNodeTypes(currentGraph.current);
@@ -295,6 +296,9 @@ const App = (): JSX.Element => {
         e.preventDefault();
         serializeGraph();
       }
+      if (e.shiftKey && e.code === 'Digit1') {
+        zoomToFit();
+      }
       if (e.key === 'Escape') {
         setIsSearchOpen(false);
         setIsGraphContextMenuOpen(false);
@@ -321,6 +325,21 @@ const App = (): JSX.Element => {
   useEffect(() => {
     currentGraph.current.showComments = showComments;
   }, [showComments]);
+
+  const zoomToFit = () => {
+    const nodeContainerBounds =
+      currentGraph.current.nodeContainer.getLocalBounds();
+    viewport.current.fit(
+      true,
+      nodeContainerBounds.width,
+      nodeContainerBounds.height
+    );
+    viewport.current.moveCenter(
+      nodeContainerBounds.x + nodeContainerBounds.width / 2,
+      nodeContainerBounds.y + nodeContainerBounds.height / 2
+    );
+    viewport.current.zoomPercent(-0.1, true); // zoom out a bit
+  };
 
   function downloadGraph() {
     const serializedGraph = currentGraph.current.serialize();
@@ -404,6 +423,7 @@ const App = (): JSX.Element => {
             uploadGraph={uploadGraph}
             showComments={showComments}
             setShowComments={setShowComments}
+            zoomToFit={zoomToFit}
           />
         )}
         {isNodeContextMenuOpen && (

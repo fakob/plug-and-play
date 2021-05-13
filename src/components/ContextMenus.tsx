@@ -60,6 +60,15 @@ export const GraphContextMenu = (props) => {
           props.currentGraph.current.clear();
         }}
       />
+      <MenuDivider title="Viewport" />
+      <MenuItem
+        icon="zoom-to-fit"
+        text="Zoom to Fit"
+        label={'Shift+1'}
+        onClick={() => {
+          props.zoomToFit();
+        }}
+      />
       <MenuDivider />
       <MenuItem
         text={props.showComments ? 'Hide Comments' : 'Show Comments'}
