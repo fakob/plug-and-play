@@ -357,9 +357,8 @@ export class Circle extends PPNode {
           pivotPoint.x * myRadius * 2;
         (this._ref[index] as PIXI.Graphics).pivot.y =
           pivotPoint.y * myRadius * 2;
-
         if ((this as PPNode).getOutputSocketByName('graphics')?.hasLink()) {
-          this._ref.drawCircle(myX + myRadius, myY + myRadius, myRadius);
+          this._ref[index].drawCircle(myX + myRadius, myY + myRadius, myRadius);
         } else {
           this._ref[index].drawCircle(
             this.x + this.width + myX + myRadius,
