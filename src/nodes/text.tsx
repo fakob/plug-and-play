@@ -1,3 +1,4 @@
+import * as PIXI from 'pixi.js';
 import React, {
   useCallback,
   useEffect,
@@ -801,7 +802,7 @@ export class Note extends PPNode {
           maxWidth: nodeWidth - NOTE_PADDING * 2,
         }
       );
-      basicText.anchor = new PIXI.Point(0.5, 0.5);
+      (basicText.anchor as PIXI.Point) = new PIXI.Point(0.5, 0.5);
       basicText.x = (SOCKET_WIDTH + nodeWidth) / 2;
       basicText.y = (NODE_OUTLINE_DISTANCE + nodeHeight) / 2;
 

@@ -56,7 +56,7 @@ export class PIXIText extends PPNode {
     this.name = 'Draw text';
     this.description = 'Draws a text';
 
-    const textStyle = {
+    const textStyle = new PIXI.TextStyle({
       fontFamily: 'Arial',
       fontSize: this.getInputData('size'),
       lineHeight: this.getInputData('size') * NOTE_LINEHEIGHT_FACTOR,
@@ -65,7 +65,7 @@ export class PIXIText extends PPNode {
       wordWrap: true,
       wordWrapWidth: NODE_WIDTH - NOTE_PADDING,
       lineJoin: 'round',
-    };
+    });
 
     const canvas = this.graph.viewport.getChildByName(
       'backgroundCanvas'
@@ -557,9 +557,9 @@ export class GraphicsMultiplier extends PPNode {
     this.description = 'Multiplies the input graphics';
 
     const container = new PIXI.Container();
-    this._containerRef = (this.graph.viewport.getChildByName(
-      'backgroundCanvas'
-    ) as PIXI.Container).addChild(container);
+    this._containerRef = (
+      this.graph.viewport.getChildByName('backgroundCanvas') as PIXI.Container
+    ).addChild(container);
     this.setOutputData('container', this._containerRef);
     this._containerRef.name = this.id;
 
@@ -626,9 +626,9 @@ export class GraphicsMultiplier extends PPNode {
     };
 
     this.onNodeRemoved = (): void => {
-      (this.graph.viewport.getChildByName(
-        'backgroundCanvas'
-      ) as PIXI.Graphics).removeChild(this._containerRef);
+      (
+        this.graph.viewport.getChildByName('backgroundCanvas') as PIXI.Graphics
+      ).removeChild(this._containerRef);
     };
 
     this.createAndAddClone = (
@@ -816,7 +816,7 @@ export class Note extends PPNode {
       this.currentInput.style.fontFamily = 'Arial';
       // this.currentInput.style.fontStyle = 'italic';
       // this.currentInput.style.fontWeight = 'bold';
-      this.currentInput.style.fontSize = this._textInputRef.style.fontSize;
+      this.currentInput.style.fontSize = `${this._textInputRef.style.fontSize}`;
       this.currentInput.style.lineHeight = `${NOTE_LINEHEIGHT_FACTOR}`;
       this.currentInput.style.textAlign = 'center';
       this.currentInput.style.margin = NOTE_MARGIN_STRING;

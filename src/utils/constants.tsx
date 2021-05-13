@@ -117,7 +117,7 @@ export const NODE_TYPE_COLOR = {
 export const COMMENT_TEXTSTYLE = new TextStyle({
   fontSize: 12,
   fill: COLOR_COMMENT,
-  textAlign: 'right',
+  align: 'right',
   fontStyle: 'italic',
 });
 

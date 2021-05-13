@@ -164,9 +164,9 @@ export default class PPNode extends PIXI.Container {
 
     this._BackgroundRef = this.addChild(background);
     this._NodeNameRef = this.addChild(inputNameText);
-    this._NodeCommentRef = (this.graph.viewport.getChildByName(
-      'commentContainer'
-    ) as PIXI.Container).addChild(nodeComment);
+    this._NodeCommentRef = (
+      this.graph.viewport.getChildByName('commentContainer') as PIXI.Container
+    ).addChild(nodeComment);
 
     // hybrid nodes do not show the node name
     if (this.isHybrid) {
@@ -343,7 +343,7 @@ export default class PPNode extends PIXI.Container {
       this._onViewportMove(); // trigger this once, so the react components get positioned properly
     }
 
-    this.updateBehaviour = node_info.updateBehaviour;
+    this.updateBehaviour = nodeConfig.updateBehaviour;
   }
 
   notifyChange(upstreamContent: Set<string>): void {
@@ -832,9 +832,9 @@ export default class PPNode extends PIXI.Container {
     // console.log('_onRemoved');
 
     // remove node comment
-    (this.graph.viewport.getChildByName(
-      'commentContainer'
-    ) as PIXI.Container).removeChild(this._NodeCommentRef);
+    (
+      this.graph.viewport.getChildByName('commentContainer') as PIXI.Container
+    ).removeChild(this._NodeCommentRef);
 
     // remove added listener from graph.viewport
     this.graph.viewport.removeListener('moved', this.onViewportMoveHandler);
