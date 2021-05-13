@@ -142,7 +142,7 @@ export class PIXIText extends PPNode {
   }
 }
 
-export class Rect extends PPNode {
+export class PIXIRect extends PPNode {
   _ref: PIXI.Graphics[];
 
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
@@ -263,7 +263,7 @@ export class Rect extends PPNode {
   }
 }
 
-export class Circle extends PPNode {
+export class PIXICircle extends PPNode {
   _ref: PIXI.Graphics[];
 
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
@@ -378,7 +378,7 @@ export class Circle extends PPNode {
   }
 }
 
-export class Container extends PPNode {
+export class PIXIContainer extends PPNode {
   _containerRef: PIXI.Container[];
 
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
@@ -510,7 +510,7 @@ export class Container extends PPNode {
   }
 }
 
-export class GraphicsMultiplier extends PPNode {
+export class PIXIMultiplier extends PPNode {
   _inputContainerRef: PIXI.Container;
   _containerRef: PIXI.Container;
   createAndAddClone: (
