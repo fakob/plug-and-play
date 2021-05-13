@@ -188,15 +188,11 @@ export class RandomArray extends PPNode {
 
   trigger(): void {
     const length = this.getInputData('length');
+    const min = this.getInputData('min');
+    const max = this.getInputData('max');
     const randomArray = Array.from({ length: length }, () => {
-      return {
-        container: [undefined, { height: Math.floor(Math.random() * length) }],
-      };
+      return Math.floor(Math.random() * (max - min) + min);
     });
-    // const output = { container: [undefined, randomArray] };
-    console.log(randomArray);
-    console.log(randomArray[0].container);
-    console.log(randomArray[0].container[1]);
     this.setOutputData('output array', randomArray);
   }
 }
