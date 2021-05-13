@@ -139,20 +139,6 @@ const App = (): JSX.Element => {
   useEffect(() => {
     console.log(pixiContext.current);
 
-    // disable browser window zoom on trackpad pinch
-    window.addEventListener(
-      'mousewheel',
-      (e: Event) => {
-        e.preventDefault();
-      },
-      { passive: false }
-    );
-
-    // disable default context menu
-    window.addEventListener('contextmenu', (e: Event) => {
-      e.preventDefault();
-    });
-
     // create pixiApp
     pixiApp.current = new PIXI.Application({
       backgroundColor: CANVAS_BACKGROUNDCOLOR_HEX,
@@ -164,6 +150,20 @@ const App = (): JSX.Element => {
     });
     pixiApp.current.stage.interactive = true;
     pixiApp.current.stage.buttonMode = true;
+
+    // disable browser window zoom on trackpad pinch
+    pixiApp.current.view.addEventListener(
+      'mousewheel',
+      (e: Event) => {
+        e.preventDefault();
+      },
+      { passive: false }
+    );
+
+    // disable default context menu
+    window.addEventListener('contextmenu', (e: Event) => {
+      e.preventDefault();
+    });
 
     // create viewport
     const viewport = new Viewport({
