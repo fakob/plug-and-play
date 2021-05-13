@@ -54,7 +54,7 @@ const App = (): JSX.Element => {
   const [isNodeContextMenuOpen, setIsNodeContextMenuOpen] = useState(false);
   const [contextMenuPosition, setContextMenuPosition] = useState([0, 0]);
   const [isCurrentGraphLoaded, setIsCurrentGraphLoaded] = useState(false);
-  const [showComments, setShowComments] = useState(true);
+  const [showComments, setShowComments] = useState(false);
   const [selectedNode, setSelectedNode] = useState<PPNode | null>(null);
 
   let lastTimeTicked = 0;
