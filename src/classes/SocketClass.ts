@@ -4,8 +4,8 @@ import PPGraph from './GraphClass';
 import PPNode from './NodeClass';
 import PPLink from './LinkClass';
 import {
-  DATATYPE_DEFAULTVALUE,
   DATATYPE,
+  DATATYPE_DEFAULT_VALUE,
   NODE_OUTLINE_DISTANCE,
   NODE_WIDTH,
   SOCKET_COLOR_HEX,
@@ -33,6 +33,7 @@ export default class Socket extends PIXI.Container {
   _socketType: TSocketType;
   _dataType: string;
   _data: any;
+  _defaultData: any; // for inputs: data backup while unplugged, restores data when unplugged again
   _custom: Record<string, any>;
   _links: PPLink[];
 
@@ -49,25 +50,16 @@ export default class Socket extends PIXI.Container {
   ) {
     super();
 
+    let defaultData;
     if (socketType === SOCKET_TYPE.IN) {
       // define defaultData for different types
       if (data === null) {
-        switch (dataType) {
-          case DATATYPE.NUMBER:
-            data = DATATYPE_DEFAULTVALUE.NUMBER;
-            break;
-          case DATATYPE.STRING:
-            data = DATATYPE_DEFAULTVALUE.STRING;
-            break;
-          case DATATYPE.COLOR:
-            data = DATATYPE_DEFAULTVALUE.COLOR;
-            break;
-          case DATATYPE.ARRAY:
-            data = DATATYPE_DEFAULTVALUE.ARRAY;
-            break;
-          default:
-            break;
-        }
+        data = DATATYPE_DEFAULT_VALUE[dataType];
+      }
+      if (custom?.defaultData) {
+        defaultData = DATATYPE_DEFAULT_VALUE[dataType];
+      } else {
+        defaultData = data;
       }
     } else {
       data = null; // for output sockets, data is calculated
@@ -77,6 +69,7 @@ export default class Socket extends PIXI.Container {
     this.name = name;
     this._dataType = dataType;
     this._data = data;
+    this._defaultData = defaultData;
     this.visible = visible;
     this._custom = custom;
     this._links = [];
@@ -158,6 +151,20 @@ export default class Socket extends PIXI.Container {
 
   set data(newData: any) {
     this._data = newData;
+
+    // update defaultData only if socket is input
+    // and does not have a link
+    if (this.isInput() && !this.hasLink()) {
+      this._defaultData = newData;
+    }
+  }
+
+  get defaultData(): any {
+    return this._defaultData;
+  }
+
+  set defaultData(newData: any) {
+    this._defaultData = newData;
   }
 
   get dataType(): string {
@@ -183,6 +190,10 @@ export default class Socket extends PIXI.Container {
       return true;
     }
     return false;
+  }
+
+  hasLink(): boolean {
+    return this.links.length !== 0;
   }
 
   setName(newName: string): void {
@@ -214,6 +225,17 @@ export default class Socket extends PIXI.Container {
     } else {
       this.links = this.links.filter((item) => item.id !== link.id);
     }
+
+    // for pixi types which are display object references,
+    // reset data to remove the input reference
+    // for all others set to defaultData
+    if (this.isInput()) {
+      if (this.dataType === DATATYPE.PIXI) {
+        this._data = null;
+      } else {
+        this._data = this._defaultData;
+      }
+    }
   }
 
   getNode(): PPNode {
@@ -224,13 +246,24 @@ export default class Socket extends PIXI.Container {
     return (this.parent as PPNode).graph;
   }
 
+  //create serialization object
   serialize(): SerializedSocket {
-    //create serialization object
+    // ignore data for output sockets, input sockets with links
+    // and input sockets with pixi data type
+    let data;
+    let defaultData;
+    if (this.isInput()) {
+      if (!this.hasLink() && this.dataType !== DATATYPE.PIXI) {
+        data = this.data;
+      }
+      defaultData = this.defaultData;
+    }
     return {
       socketType: this.socketType,
       name: this.name,
       dataType: this.dataType,
-      data: this.socketType === SOCKET_TYPE.IN ? this.data : undefined, // ignore data for output sockets
+      data,
+      defaultData,
       visible: this.visible,
       custom: this.custom,
     };

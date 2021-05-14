@@ -55,7 +55,7 @@ const App = (): JSX.Element => {
   const [isNodeContextMenuOpen, setIsNodeContextMenuOpen] = useState(false);
   const [contextMenuPosition, setContextMenuPosition] = useState([0, 0]);
   const [isCurrentGraphLoaded, setIsCurrentGraphLoaded] = useState(false);
-  const [showComments, setShowComments] = useState(true);
+  const [showComments, setShowComments] = useState(false);
   const [selectedNode, setSelectedNode] = useState<PPNode | null>(null);
 
   let lastTimeTicked = 0;
@@ -140,20 +140,6 @@ const App = (): JSX.Element => {
   useEffect(() => {
     console.log(pixiContext.current);
 
-    // disable browser window zoom on trackpad pinch
-    window.addEventListener(
-      'mousewheel',
-      (e: Event) => {
-        e.preventDefault();
-      },
-      { passive: false }
-    );
-
-    // disable default context menu
-    window.addEventListener('contextmenu', (e: Event) => {
-      e.preventDefault();
-    });
-
     // create pixiApp
     pixiApp.current = new PIXI.Application({
       backgroundColor: CANVAS_BACKGROUNDCOLOR_HEX,
@@ -165,6 +151,20 @@ const App = (): JSX.Element => {
     });
     pixiApp.current.stage.interactive = true;
     pixiApp.current.stage.buttonMode = true;
+
+    // disable browser window zoom on trackpad pinch
+    pixiApp.current.view.addEventListener(
+      'mousewheel',
+      (e: Event) => {
+        e.preventDefault();
+      },
+      { passive: false }
+    );
+
+    // disable default context menu
+    window.addEventListener('contextmenu', (e: Event) => {
+      e.preventDefault();
+    });
 
     // create viewport
     viewport.current = new Viewport({
@@ -286,7 +286,7 @@ const App = (): JSX.Element => {
 
     // register key events
     const keysDown = (e: KeyboardEvent): void => {
-      console.log(e.key);
+      // console.log(e.key);
       if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'f') {
         e.preventDefault();
         setIsSearchOpen((prevState) => !prevState);

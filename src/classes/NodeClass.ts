@@ -92,7 +92,7 @@ export default class PPNode extends PIXI.Container {
   container: HTMLElement; // for hybrid nodes
 
   // supported callbacks
-  onConfigure: ((node_info: SerializedNode) => void) | null;
+  onConfigure: ((nodeConfig: SerializedNode) => void) | null;
   onNodeDoubleClick: ((event: PIXI.InteractionEvent) => void) | null;
   onViewportMoveHandler: (event?: PIXI.InteractionEvent) => void;
   onDrawNodeShape: (() => void) | null; // called when the node is drawn
@@ -164,9 +164,9 @@ export default class PPNode extends PIXI.Container {
 
     this._BackgroundRef = this.addChild(background);
     this._NodeNameRef = this.addChild(inputNameText);
-    this._NodeCommentRef = (this.graph.viewport.getChildByName(
-      'commentContainer'
-    ) as PIXI.Container).addChild(nodeComment);
+    this._NodeCommentRef = (
+      this.graph.viewport.getChildByName('commentContainer') as PIXI.Container
+    ).addChild(nodeComment);
 
     // hybrid nodes do not show the node name
     if (this.isHybrid) {
@@ -299,40 +299,51 @@ export default class PPNode extends PIXI.Container {
     return o;
   }
 
-  configure(node_info: SerializedNode): void {
-    this.x = node_info.x;
-    this.y = node_info.y;
+  configure(nodeConfig: SerializedNode): void {
+    this.x = nodeConfig.x;
+    this.y = nodeConfig.y;
     // update position of comment
     this.updateCommentPosition();
 
     // set parameters on inputSocket
     this.inputSocketArray.forEach((item, index) => {
-      console.log(node_info.inputSocketArray[index]);
-      item.setName(node_info.inputSocketArray[index]?.name ?? null);
-      item.dataType = node_info.inputSocketArray[index]?.dataType ?? null;
-      item.data = node_info.inputSocketArray[index]?.data ?? null;
-      item.setVisible(node_info.inputSocketArray[index]?.visible ?? true);
-      item.custom = node_info.inputSocketArray[index]?.custom ?? undefined;
+      console.log(nodeConfig.inputSocketArray[index]);
+
+      // skip configuring the input if there is no config data
+      if (nodeConfig.inputSocketArray[index] !== undefined) {
+        item.setName(nodeConfig.inputSocketArray[index].name ?? null);
+        item.dataType = nodeConfig.inputSocketArray[index].dataType ?? null;
+        item.data = nodeConfig.inputSocketArray[index].data ?? null;
+        item.defaultData =
+          nodeConfig.inputSocketArray[index].defaultData ?? null;
+        item.setVisible(nodeConfig.inputSocketArray[index].visible ?? true);
+        item.custom = nodeConfig.inputSocketArray[index].custom ?? undefined;
+      }
     });
 
     // set parameters on outputSocket
     this.outputSocketArray.forEach((item, index) => {
-      console.log(node_info.outputSocketArray[index]);
-      item.setName(node_info.outputSocketArray[index]?.name ?? null);
-      item.dataType = node_info.outputSocketArray[index]?.dataType ?? undefined;
-      item.setVisible(node_info.outputSocketArray[index]?.visible ?? true);
-      item.custom = node_info.outputSocketArray[index]?.custom ?? undefined;
+      console.log(nodeConfig.outputSocketArray[index]);
+
+      // skip configuring the output if there is no config data
+      if (nodeConfig.outputSocketArray[index] !== undefined) {
+        item.setName(nodeConfig.outputSocketArray[index].name ?? null);
+        item.dataType =
+          nodeConfig.outputSocketArray[index].dataType ?? undefined;
+        item.setVisible(nodeConfig.outputSocketArray[index].visible ?? true);
+        item.custom = nodeConfig.outputSocketArray[index].custom ?? undefined;
+      }
     });
 
     if (this.onConfigure) {
-      this.onConfigure(node_info);
+      this.onConfigure(nodeConfig);
     }
 
     if (this.isHybrid) {
       this._onViewportMove(); // trigger this once, so the react components get positioned properly
     }
 
-    this.updateBehaviour = node_info.updateBehaviour;
+    this.updateBehaviour = nodeConfig.updateBehaviour;
   }
 
   notifyChange(upstreamContent: Set<string>): void {
@@ -467,7 +478,10 @@ export default class PPNode extends PIXI.Container {
     // console.log(this.outputSocketArray[0], commentData);
     if (commentData !== undefined) {
       // custom output for pixi elements
-      if (this.outputSocketArray[0]?.dataType === DATATYPE.PIXI) {
+      if (
+        this.outputSocketArray[0]?.dataType === DATATYPE.PIXI &&
+        !Array.isArray(this.outputSocketArray[0].data)
+      ) {
         const strippedCommentData = {
           alpha: commentData?.alpha,
           // children: commentData?.children,
@@ -818,9 +832,9 @@ export default class PPNode extends PIXI.Container {
     // console.log('_onRemoved');
 
     // remove node comment
-    (this.graph.viewport.getChildByName(
-      'commentContainer'
-    ) as PIXI.Container).removeChild(this._NodeCommentRef);
+    (
+      this.graph.viewport.getChildByName('commentContainer') as PIXI.Container
+    ).removeChild(this._NodeCommentRef);
 
     // remove added listener from graph.viewport
     this.graph.viewport.removeListener('moved', this.onViewportMoveHandler);

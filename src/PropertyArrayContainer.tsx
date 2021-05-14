@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import prettyFormat from 'pretty-format';
 import {
   Button,
+  Checkbox,
   ControlGroup,
   Divider,
   EditableText,
@@ -16,8 +17,8 @@ import { SketchPicker } from 'react-color';
 import Socket from './classes/SocketClass';
 import { DATATYPE } from './utils/constants';
 import { limitRange, roundNumber } from './utils/utils';
-import { rgbToRgba } from './pixi/utils-pixi';
 import styles from './utils/style.module.css';
+import { TRgba } from './utils/interfaces';
 
 type PropertyArrayContainerProps = {
   inputSocketArray: Socket[];
@@ -37,7 +38,7 @@ export const PropertyArrayContainer: React.FunctionComponent<PropertyArrayContai
             index={index}
             dataType={property.dataType}
             isInput={true}
-            hasLink={property.links.length !== 0}
+            hasLink={property.hasLink()}
             data={property.data}
           />
         );
@@ -50,7 +51,7 @@ export const PropertyArrayContainer: React.FunctionComponent<PropertyArrayContai
             index={index}
             dataType={property.dataType}
             isInput={false}
-            hasLink={property.links.length !== 0}
+            hasLink={property.hasLink()}
             data={property.data}
           />
         );
@@ -82,7 +83,7 @@ const PropertyContainer: React.FunctionComponent<PropertyContainerProps> = (
   };
 
   let widget = null;
-  if (props.isInput) {
+  if (props.isInput && !props.hasLink) {
     switch (dataTypeValue) {
       case DATATYPE.NUMBER:
         widget = <SliderWidget {...baseProps} />;
@@ -91,15 +92,21 @@ const PropertyContainer: React.FunctionComponent<PropertyContainerProps> = (
       case DATATYPE.ARRAY:
         widget = <TextWidget {...baseProps} />;
         break;
+      case DATATYPE.ENUM:
+        widget = <SelectWidget {...baseProps} />;
+        break;
       case DATATYPE.TRIGGER:
         widget = <TriggerWidget {...baseProps} />;
         break;
       case DATATYPE.COLOR:
         widget = <ColorWidget {...baseProps} />;
         break;
+      case DATATYPE.BOOLEAN:
+        widget = <BooleanWidget {...baseProps} />;
+        break;
       default:
     }
-  } else {
+  } else if (!props.isInput) {
     switch (dataTypeValue) {
       case DATATYPE.TRIGGER:
         widget = <TriggerWidget {...baseProps} />;
@@ -107,6 +114,7 @@ const PropertyContainer: React.FunctionComponent<PropertyContainerProps> = (
       case DATATYPE.COLOR:
         widget = <ColorWidget {...baseProps} />;
         break;
+      case DATATYPE.BOOLEAN:
       case DATATYPE.NUMBER:
       case DATATYPE.STRING:
       case DATATYPE.ARRAY:
@@ -180,17 +188,19 @@ const PropertyHeader: React.FunctionComponent<PropertyHeaderProps> = (
       <EditableText
         className={`${styles.editablePropertyName} ${
           visible ? styles.darkOnBright : styles.brightOnDark
-        }`}
+        } ${props.hasLink && styles.opacity30}`}
         selectAllOnFocus
         value={name}
         onChange={(name) => {
           setName(name);
         }}
+        disabled={props.hasLink}
       />
       <HTMLSelect
-        className={`${styles.typeSelector} bp3-minimal`}
+        className={`${styles.opacity30} bp3-minimal`}
         onChange={props.onChangeDropdown}
         value={props.dataType}
+        disabled={props.hasLink}
       >
         {Object.values(DATATYPE).map((value) => {
           return (
@@ -308,6 +318,70 @@ const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (props) => {
   );
 };
 
+type SelectWidgetProps = {
+  property: Socket;
+  index: number;
+  hasLink: boolean;
+  data: number;
+};
+
+const SelectWidget: React.FunctionComponent<SelectWidgetProps> = (props) => {
+  const [data, setData] = useState(props.data);
+  const [options] = useState(props.property.custom?.options);
+
+  const onChange = (event) => {
+    const value = event.target.value;
+    props.property.data = value;
+    console.log(value);
+    props.property.notifyChange(new Set());
+    setData(value);
+  };
+
+  return (
+    <>
+      <HTMLSelect onChange={onChange} value={data}>
+        {options.map(({ text }, index) => {
+          return (
+            <option key={index} value={text}>
+              {text}
+            </option>
+          );
+        })}
+      </HTMLSelect>
+    </>
+  );
+};
+
+type BooleanWidgetProps = {
+  property: Socket;
+  index: number;
+  hasLink: boolean;
+  data: boolean;
+};
+
+const BooleanWidget: React.FunctionComponent<BooleanWidgetProps> = (props) => {
+  const [data, setData] = useState(props.data);
+  console.log(props.property);
+
+  const onChange = (event) => {
+    const checked = event.target.checked;
+    props.property.data = checked;
+    console.log(checked);
+    props.property.notifyChange(new Set());
+    setData(checked);
+  };
+
+  return (
+    <>
+      <Checkbox
+        checked={data}
+        label={props.property.custom?.label}
+        onChange={onChange}
+      />
+    </>
+  );
+};
+
 type TextWidgetProps = {
   property: Socket;
   index: number;
@@ -320,6 +394,7 @@ const TextWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
 
   useEffect(() => {
     props.property.data = data;
+    props.property.notifyChange(new Set());
   }, [data]);
 
   return (
@@ -365,14 +440,19 @@ type ColorWidgetProps = {
   index: number;
   isInput: boolean;
   hasLink: boolean;
-  data: number[];
+  data: TRgba;
 };
 
 const ColorWidget: React.FunctionComponent<ColorWidgetProps> = (props) => {
+  const defaultColor: TRgba = props.data ?? {
+    r: 0,
+    g: 0,
+    b: 0,
+    a: 1.0,
+  };
+
   const [colorPicker, showColorPicker] = useState(false);
-  const [finalColor, changeColor] = useState(
-    rgbToRgba(props.data ? props.data : [0, 0, 0, 1.0])
-  );
+  const [finalColor, changeColor] = useState(defaultColor);
   const componentMounted = useRef(true);
 
   useEffect(() => {
@@ -381,8 +461,8 @@ const ColorWidget: React.FunctionComponent<ColorWidgetProps> = (props) => {
       componentMounted.current = false;
     } else {
       console.log(finalColor);
-      const colorArray: number[] = Object.values(finalColor);
-      props.property.data = colorArray;
+      props.property.data = finalColor;
+      props.property.notifyChange(new Set());
     }
     return () => undefined;
   }, [finalColor]);

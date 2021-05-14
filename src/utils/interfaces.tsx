@@ -55,23 +55,9 @@ export type SerializedSocket = {
   socketType: TSocketType;
   name: string;
   dataType: string;
-  data: number;
+  data: any;
+  defaultData: any;
   visible: boolean;
-  custom?: Record<string, any>;
-};
-
-export type SerializedInputSocket = {
-  name: string;
-  type: string;
-  data: number;
-  defaultData: number;
-  visible: boolean;
-  custom?: Record<string, any>;
-};
-
-export type SerializedOutputSocket = {
-  name: string;
-  type: string;
   custom?: Record<string, any>;
 };
 

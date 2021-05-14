@@ -25,6 +25,7 @@ export const COLOR = [
   '#7BA442',
   '#A58E43',
   '#A45140',
+  '#F4FAF9',
 ];
 
 export const PLUGANDPLAY_ICON = '../assets/PlugAndPlayIcon.svg';
@@ -68,19 +69,26 @@ export const SOCKET_TEXTSTYLE = new TextStyle({
 
 export const DATATYPE = {
   ANY: 'undefined',
-  STRING: 'string',
-  NUMBER: 'number',
-  COLOR: 'color',
   ARRAY: 'array',
-  TRIGGER: 'trigger',
+  BOOLEAN: 'boolean',
+  COLOR: 'color',
+  ENUM: 'enum',
+  NUMBER: 'number',
   PIXI: 'pixi',
+  STRING: 'string',
+  TRIGGER: 'trigger',
 };
 
-export const DATATYPE_DEFAULTVALUE = {
-  STRING: '',
-  NUMBER: 0,
-  COLOR: [255, 55, 0, 0.5],
+export const DATATYPE_DEFAULT_VALUE = {
+  ANY: undefined,
   ARRAY: [],
+  BOOLEAN: false,
+  COLOR: [255, 55, 0, 0.5],
+  ENUM: [],
+  NUMBER: 0,
+  PIXI: null,
+  STRING: '',
+  TRIGGER: undefined,
 };
 
 export const NODE_TEXTSTYLE = new TextStyle({
@@ -131,3 +139,42 @@ export const DEFAULT_EDITOR_DATA = `// Cmd/Ctrl-s to save/update node
 function customFunctionNode(a, b) {
   return a * b;
 }`;
+
+export const PIXI_PIVOT_OPTIONS = [
+  {
+    text: 'top left',
+    value: { x: 0.0, y: 0.0 },
+  },
+  {
+    text: 'top center',
+    value: { x: 0.5, y: 0.0 },
+  },
+  {
+    text: 'top right',
+    value: { x: 1.0, y: 0.0 },
+  },
+  {
+    text: 'center left',
+    value: { x: 0.0, y: 0.5 },
+  },
+  {
+    text: 'center center',
+    value: { x: 0.5, y: 0.5 },
+  },
+  {
+    text: 'center right',
+    value: { x: 1.0, y: 0.5 },
+  },
+  {
+    text: 'bottom left',
+    value: { x: 0.0, y: 1.0 },
+  },
+  {
+    text: 'bottom center',
+    value: { x: 0.5, y: 1.0 },
+  },
+  {
+    text: 'bottom right',
+    value: { x: 1.0, y: 1.0 },
+  },
+];

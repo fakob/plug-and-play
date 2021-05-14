@@ -86,7 +86,7 @@ export class InputParser {
   static keysPressed: Set<string> = new Set();
 
   static parseKeyDown(event: KeyboardEvent, graph: PPGraph): void {
-    console.log('parsed keykey: ' + JSON.stringify(event.key));
+    // console.log('parsed keykey: ' + JSON.stringify(event.key));
     this.keysPressed.add(event.key);
     activeHotkeys.forEach((hotkey) =>
       hotkey.potentiallyExecute(event, this.keysPressed, graph)

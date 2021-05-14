@@ -8,7 +8,6 @@ import React, {
 } from 'react';
 import Color from 'color';
 import { Resizable } from 're-resizable';
-import textFit from '../pixi/textFit';
 import {
   Button,
   ButtonGroup,
@@ -32,7 +31,7 @@ import { HistoryEditor, withHistory } from 'slate-history';
 import { Menu, Portal } from '../utils/slate-editor-components';
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
-import { CustomArgs } from '../utils/interfaces';
+import { CustomArgs, TRgba } from '../utils/interfaces';
 import {
   convertStringToSlateNodes,
   convertSlateNodesToString,
@@ -49,6 +48,8 @@ import {
   NOTE_TEXTURE,
   SOCKET_WIDTH,
 } from '../utils/constants';
+import { hexToTRgba, trgbaToColor } from '../pixi/utils-pixi';
+import textFit from '../pixi/textFit';
 import styles from '../utils/style.module.css';
 
 type CustomEditor = BaseEditor & ReactEditor & HistoryEditor;
@@ -511,7 +512,7 @@ const SlateEditorContainer: React.FunctionComponent<TextProps> = (props) => {
 };
 
 type LabelAdditionalProps = {
-  backgroundColor?: string;
+  backgroundColor?: TRgba;
   width?: number;
   height?: number;
   focus?: boolean;
@@ -524,14 +525,14 @@ export class Label extends PPNode {
     const nodeWidth = 300;
     const nodeHeight = 62;
     const isHybrid = true;
-    const defaultColor = COLOR[5];
+    const fillColor = COLOR[5];
 
     super(name, graph, {
       ...customArgs,
       nodeWidth,
       nodeHeight,
       isHybrid,
-      color: defaultColor,
+      color: fillColor,
       colorTransparency: 1.0,
     });
 
@@ -540,7 +541,7 @@ export class Label extends PPNode {
     this.addInput(
       'backgroundColor',
       DATATYPE.COLOR,
-      Color(defaultColor).array(),
+      hexToTRgba(fillColor),
       false
     );
     this.addInput(
@@ -573,7 +574,7 @@ export class Label extends PPNode {
 
     // when the stored data is read, resize the node and update the react component
     this.onConfigure = (): void => {
-      const color = Color.rgb(this.getInputData('backgroundColor') as number[]);
+      const color = trgbaToColor(this.getInputData('backgroundColor'));
       // console.log(input['color']);
       this.color = PIXI.utils.string2hex(color.hex());
       this.colorTransparency = color.alpha();
@@ -612,7 +613,7 @@ export class Label extends PPNode {
     this.onExecute = (input, output) => {
       if (!this.doubleClicked) {
         const data = input['data'];
-        const color = Color.rgb(input['backgroundColor'] as number[]);
+        const color = trgbaToColor(input['backgroundColor']);
         // console.log(input['color']);
         this.color = PIXI.utils.string2hex(color.hex());
         this.colorTransparency = color.alpha();
@@ -754,7 +755,7 @@ export class Note extends PPNode {
   constructor(name: string, graph: PPGraph, customArgs?: CustomArgs) {
     const nodeWidth = 160;
     const nodeHeight = 160;
-    const defaultColor = '#F4FAF9';
+    const defaultColor = COLOR[19];
 
     super(name, graph, {
       ...customArgs,
