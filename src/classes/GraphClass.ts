@@ -434,7 +434,9 @@ export default class PPGraph {
     link.getSource().removeLink(link);
 
     // remove link from graph
-    this.connectionContainer.removeChild(this._links[link.id]);
+    this.connectionContainer.removeChild(
+      this._links[link.id] as PIXI.Container
+    );
     return delete this._links[link.id];
   }
 
