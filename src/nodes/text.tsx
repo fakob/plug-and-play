@@ -518,6 +518,109 @@ type LabelAdditionalProps = {
   focus?: boolean;
 };
 
+export class Label2 extends PPNode {
+  _refText: PIXI.Text;
+  _refBackground: PIXI.Sprite;
+  update: (additionalProps?: LabelAdditionalProps) => void;
+
+  constructor(name: string, graph: PPGraph, customArgs?: CustomArgs) {
+    const nodeWidth = 300;
+    const nodeHeight = 62;
+    const fontSize = 32;
+    const isHybrid = true;
+    const fillColor = COLOR[5];
+
+    super(name, graph, {
+      ...customArgs,
+      nodeWidth,
+      nodeHeight,
+      isHybrid,
+      color: fillColor,
+      colorTransparency: 1.0,
+    });
+
+    this.addOutput('text', DATATYPE.STRING, undefined, false);
+    this.addInput('text', DATATYPE.STRING, customArgs?.data ?? '', false);
+    this.addInput(
+      'fontSize',
+      DATATYPE.STRING,
+      customArgs?.fontSize ?? fontSize,
+      false
+    );
+    this.addInput(
+      'backgroundColor',
+      DATATYPE.COLOR,
+      hexToTRgba(fillColor),
+      false
+    );
+    this.addInput(
+      'min-width',
+      DATATYPE.NUMBER,
+      customArgs?.width ?? nodeWidth,
+      false
+    );
+
+    this.name = 'Label';
+    this.description = 'Adds text';
+
+    const myFontSize = this.getInputData('fontSize');
+    const textStyle = new PIXI.TextStyle({
+      fontFamily: 'Arial',
+      fontSize: myFontSize,
+      lineHeight: myFontSize * NOTE_LINEHEIGHT_FACTOR,
+      align: 'left',
+      whiteSpace: 'pre-line',
+      lineJoin: 'round',
+    });
+    const textMetrics = PIXI.TextMetrics.measureText(
+      this.getInputData('text'),
+      textStyle
+    );
+
+    const canvas = this.graph.viewport.getChildByName(
+      'backgroundCanvas'
+    ) as PIXI.Container;
+
+    const background = new PIXI.Sprite(PIXI.Texture.WHITE);
+    background.tint = PIXI.utils.string2hex(Color(fillColor).hex());
+    background.width = Math.max(
+      this.getInputData('min-width'),
+      textMetrics.width
+    );
+    background.height = textMetrics.height;
+    background.alpha = trgbaToColor(
+      this.getInputData('backgroundColor')
+    ).alpha();
+    const basicText = new PIXI.Text(
+      String(this.getInputData('text')),
+      textStyle
+    );
+
+    this._refBackground = canvas.addChild(background);
+    this._refText = canvas.addChild(basicText);
+
+    this.onExecute = function (input) {
+      const text = String(input['text']);
+      const minWidth = input['min-width'];
+      const color = trgbaToColor(input['backgroundColor']);
+
+      console.log(text);
+      const textMetrics = PIXI.TextMetrics.measureText(text, textStyle);
+      console.log(textMetrics);
+
+      this._refBackground.tint = PIXI.utils.string2hex(color.hex());
+      this._refBackground.width = Math.max(minWidth, textMetrics.width);
+      this._refBackground.height = textMetrics.height;
+      this._refBackground.alpha = color.alpha();
+
+      this.color = PIXI.utils.string2hex(color.hex());
+      this.colorTransparency = color.alpha();
+      this.setOutputData('text', text);
+
+      this._refText.text = text;
+    };
+  }
+}
 export class Label extends PPNode {
   update: (additionalProps?: LabelAdditionalProps) => void;
 
@@ -545,15 +648,9 @@ export class Label extends PPNode {
       false
     );
     this.addInput(
-      'width',
+      'min-width',
       DATATYPE.NUMBER,
       customArgs?.width ?? nodeWidth,
-      false
-    );
-    this.addInput(
-      'height',
-      DATATYPE.NUMBER,
-      customArgs?.height ?? nodeHeight,
       false
     );
 
@@ -689,57 +786,18 @@ const LabelParent: React.FunctionComponent<LabelProps> = (props) => {
   };
 
   return (
-    <Resizable
-      enable={{
-        right: true,
-        bottom: false,
-        bottomRight: false,
-        top: false,
-        left: false,
-        topRight: false,
-        topLeft: false,
-        bottomLeft: false,
-      }}
-      className={styles.resizeElementLabel}
-      handleClasses={{
-        right: styles.resizeHandle,
-        // bottomRight: styles.resizeHandle,
-        // bottom: styles.resizeHandle,
-      }}
-      style={{
-        borderStyle: 'dashed',
-        borderWidth: props.doubleClicked ? '0 1px 0 0' : '0',
-        borderColor: 'rgba(225, 84, 125, 1)',
-      }}
-      size={{ width, height }}
-      onResize={(e, direction, ref, d) => {
-        const width = ref.offsetWidth;
-        const height = ref.offsetHeight;
-        setWidth(width);
-        setHeight(height);
-        props.resizeNode(width, height);
-      }}
-      onResizeStop={(e, direction, ref, d) => {
-        const width = ref.offsetWidth;
-        const height = ref.offsetHeight;
-        props.setInputData('width', width);
-        props.setInputData('height', height);
-        console.log('onResizeStop: ', props.width, props.height);
-      }}
-    >
-      <H1>
-        <EditableText
-          placeholder="Write away..."
-          onChange={(value) => setValue(value)}
-          onConfirm={onConfirm}
-          isEditing={props.focus || props.doubleClicked}
-          defaultValue={props.data}
-          key={props.data} // hack so defaultValue get's set
-          selectAllOnFocus={true}
-          // multiline={true}
-        />
-      </H1>
-    </Resizable>
+    <H1>
+      <EditableText
+        placeholder="Write away..."
+        onChange={(value) => setValue(value)}
+        onConfirm={onConfirm}
+        isEditing={props.focus || props.doubleClicked}
+        defaultValue={props.data}
+        key={props.data} // hack so defaultValue get's set
+        selectAllOnFocus={true}
+        // multiline={true}
+      />
+    </H1>
   );
 };
 
