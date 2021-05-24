@@ -72,12 +72,7 @@ export default class PPNode extends PIXI.Container {
   isHybrid: boolean; // true if it is a hybrid node (html and webgl)
 
   // default to update on manual and update, 1 sec time update interval
-  updateBehaviour: UpdateBehaviour = new UpdateBehaviour(
-    true,
-    true,
-    false,
-    1000
-  );
+  updateBehaviour: UpdateBehaviour;
   lastTimeTicked = 0;
 
   inputSocketArray: Socket[];
@@ -133,6 +128,7 @@ export default class PPNode extends PIXI.Container {
     this.inputSocketArray = [];
     this.outputSocketArray = [];
     this.clickedSocketRef = null;
+    this.updateBehaviour = this.getUpdateBehaviour();
 
     // customArgs
     this.x = customArgs?.nodePosX ?? 0;
@@ -470,6 +466,10 @@ export default class PPNode extends PIXI.Container {
 
   protected shouldExecuteOnMove(): boolean {
     return false;
+  }
+
+  protected getUpdateBehaviour(): UpdateBehaviour {
+    return new UpdateBehaviour(true, true, false, 1000);
   }
 
   updateCommentPosition(): void {
