@@ -29,7 +29,6 @@ import {
 import PPGraph from './GraphClass';
 import Socket from './SocketClass';
 import { getNodeCommentPosX, getNodeCommentPosY } from '../utils/utils';
-import { exec } from 'node:child_process';
 
 export class UpdateBehaviour {
   // currently changing manual does nothing, maybe we don't even need to control this?
