@@ -95,7 +95,6 @@ export class InputParser {
 
   // no action triggers on key up, so no graph passed
   static parseKeyUp(event: KeyboardEvent): void {
-    console.log('parsed keyup: ' + JSON.stringify(event.key));
     this.keysPressed.delete(event.key);
   }
 }

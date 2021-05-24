@@ -29,6 +29,7 @@ import {
 import PPGraph from './GraphClass';
 import Socket from './SocketClass';
 import { getNodeCommentPosX, getNodeCommentPosY } from '../utils/utils';
+import { exec } from 'node:child_process';
 
 export class UpdateBehaviour {
   // currently changing manual does nothing, maybe we don't even need to control this?
@@ -164,9 +165,9 @@ export default class PPNode extends PIXI.Container {
 
     this._BackgroundRef = this.addChild(background);
     this._NodeNameRef = this.addChild(inputNameText);
-    this._NodeCommentRef = (
-      this.graph.viewport.getChildByName('commentContainer') as PIXI.Container
-    ).addChild(nodeComment);
+    this._NodeCommentRef = (this.graph.viewport.getChildByName(
+      'commentContainer'
+    ) as PIXI.Container).addChild(nodeComment);
 
     // hybrid nodes do not show the node name
     if (this.isHybrid) {
@@ -465,6 +466,10 @@ export default class PPNode extends PIXI.Container {
 
     // update position of comment
     this.updateCommentPosition();
+  }
+
+  protected shouldExecuteOnMove(): boolean {
+    return false;
   }
 
   updateCommentPosition(): void {
@@ -781,6 +786,9 @@ export default class PPNode extends PIXI.Container {
       this.x = globalX;
       this.y = globalY;
       this.updateCommentPosition();
+      if (this.shouldExecuteOnMove()) {
+        this.execute(new Set());
+      }
 
       // check for connections and move them too
       this.outputSocketArray.map((output) => {
@@ -826,15 +834,16 @@ export default class PPNode extends PIXI.Container {
     if (this.onNodeAdded) {
       this.onNodeAdded();
     }
+    this.execute(new Set());
   }
 
   _onRemoved(): void {
     // console.log('_onRemoved');
 
     // remove node comment
-    (
-      this.graph.viewport.getChildByName('commentContainer') as PIXI.Container
-    ).removeChild(this._NodeCommentRef);
+    (this.graph.viewport.getChildByName(
+      'commentContainer'
+    ) as PIXI.Container).removeChild(this._NodeCommentRef);
 
     // remove added listener from graph.viewport
     this.graph.viewport.removeListener('moved', this.onViewportMoveHandler);
