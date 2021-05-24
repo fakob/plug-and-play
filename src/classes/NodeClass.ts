@@ -71,12 +71,7 @@ export default class PPNode extends PIXI.Container {
   isHybrid: boolean; // true if it is a hybrid node (html and webgl)
 
   // default to update on manual and update, 1 sec time update interval
-  updateBehaviour: UpdateBehaviour = new UpdateBehaviour(
-    true,
-    true,
-    false,
-    1000
-  );
+  updateBehaviour: UpdateBehaviour;
   lastTimeTicked = 0;
 
   inputSocketArray: Socket[];
@@ -132,6 +127,7 @@ export default class PPNode extends PIXI.Container {
     this.inputSocketArray = [];
     this.outputSocketArray = [];
     this.clickedSocketRef = null;
+    this.updateBehaviour = this.getUpdateBehaviour();
 
     // customArgs
     this.x = customArgs?.nodePosX ?? 0;
@@ -164,9 +160,9 @@ export default class PPNode extends PIXI.Container {
 
     this._BackgroundRef = this.addChild(background);
     this._NodeNameRef = this.addChild(inputNameText);
-    this._NodeCommentRef = (
-      this.graph.viewport.getChildByName('commentContainer') as PIXI.Container
-    ).addChild(nodeComment);
+    this._NodeCommentRef = (this.graph.viewport.getChildByName(
+      'commentContainer'
+    ) as PIXI.Container).addChild(nodeComment);
 
     // hybrid nodes do not show the node name
     if (this.isHybrid) {
@@ -465,6 +461,14 @@ export default class PPNode extends PIXI.Container {
 
     // update position of comment
     this.updateCommentPosition();
+  }
+
+  protected shouldExecuteOnMove(): boolean {
+    return false;
+  }
+
+  protected getUpdateBehaviour(): UpdateBehaviour {
+    return new UpdateBehaviour(true, true, false, 1000);
   }
 
   updateCommentPosition(): void {
@@ -781,6 +785,9 @@ export default class PPNode extends PIXI.Container {
       this.x = globalX;
       this.y = globalY;
       this.updateCommentPosition();
+      if (this.shouldExecuteOnMove()) {
+        this.execute(new Set());
+      }
 
       // check for connections and move them too
       this.outputSocketArray.map((output) => {
@@ -826,15 +833,16 @@ export default class PPNode extends PIXI.Container {
     if (this.onNodeAdded) {
       this.onNodeAdded();
     }
+    this.execute(new Set());
   }
 
   _onRemoved(): void {
     // console.log('_onRemoved');
 
     // remove node comment
-    (
-      this.graph.viewport.getChildByName('commentContainer') as PIXI.Container
-    ).removeChild(this._NodeCommentRef);
+    (this.graph.viewport.getChildByName(
+      'commentContainer'
+    ) as PIXI.Container).removeChild(this._NodeCommentRef);
 
     // remove added listener from graph.viewport
     this.graph.viewport.removeListener('moved', this.onViewportMoveHandler);

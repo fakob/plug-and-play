@@ -6,9 +6,10 @@ import * as base from './base';
 import * as draw from './draw';
 import * as math from './math';
 import * as text from './text';
+import * as shader from './shader';
 
 export const registerAllNodeTypes = (graph: PPGraph): void => {
-  const categories = { base, math, draw, text };
+  const categories = { base, math, draw, text, shader };
   for (const [categoryKey, categoryValue] of Object.entries(categories)) {
     console.log(categoryKey, categoryValue);
     for (const key of Object.keys(categoryValue)) {

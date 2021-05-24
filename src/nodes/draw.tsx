@@ -140,6 +140,10 @@ export class PIXIText extends PPNode {
       }
     };
   }
+
+  protected shouldExecuteOnMove(): boolean {
+    return true;
+  }
 }
 
 export class PIXIRect extends PPNode {
@@ -186,10 +190,6 @@ export class PIXIRect extends PPNode {
     const graphics = new PIXI.Graphics();
     this._ref = [canvas.addChild(graphics)];
     this.setOutputData('graphics', this._ref);
-
-    this._ref[0].beginFill(PIXI.utils.string2hex(Color(fillColor).hex()), 1);
-    this._ref[0].drawRect(this.x + this.width, this.y, rectWidth, rectHeight);
-    this._ref[0].endFill();
 
     this.onExecute = function (input) {
       const x = [].concat(input['x']);
@@ -261,6 +261,10 @@ export class PIXIRect extends PPNode {
       }
     };
   }
+
+  protected shouldExecuteOnMove(): boolean {
+    return true;
+  }
 }
 
 export class PIXICircle extends PPNode {
@@ -300,14 +304,6 @@ export class PIXICircle extends PPNode {
     const graphics = new PIXI.Graphics();
     this._ref = [canvas.addChild(graphics)];
     this.setOutputData('graphics', this._ref);
-
-    this._ref[0].beginFill(PIXI.utils.string2hex(Color(fillColor).hex()), 1);
-    this._ref[0].drawCircle(
-      this.x + this.width + radius,
-      this.y + radius,
-      radius
-    );
-    this._ref[0].endFill();
 
     this.onExecute = function (input) {
       const x = [].concat(input['x']);
@@ -375,6 +371,10 @@ export class PIXICircle extends PPNode {
         canvas.removeChild(this._ref[index]);
       }
     };
+  }
+
+  protected shouldExecuteOnMove(): boolean {
+    return true;
   }
 }
 
@@ -558,9 +558,9 @@ export class PIXIMultiplier extends PPNode {
 
     const inputContainer = new PIXI.Container();
     const container = new PIXI.Container();
-    this._containerRef = (
-      this.graph.viewport.getChildByName('backgroundCanvas') as PIXI.Container
-    ).addChild(container);
+    this._containerRef = (this.graph.viewport.getChildByName(
+      'backgroundCanvas'
+    ) as PIXI.Container).addChild(container);
     this._inputContainerRef = this._containerRef.addChild(inputContainer);
     this.setOutputData('container', this._containerRef);
     this._containerRef.name = this.id;
@@ -635,9 +635,9 @@ export class PIXIMultiplier extends PPNode {
     };
 
     this.onNodeRemoved = (): void => {
-      (
-        this.graph.viewport.getChildByName('backgroundCanvas') as PIXI.Graphics
-      ).removeChild(this._containerRef);
+      (this.graph.viewport.getChildByName(
+        'backgroundCanvas'
+      ) as PIXI.Graphics).removeChild(this._containerRef);
     };
 
     this.createAndAddClone = (
