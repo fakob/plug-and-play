@@ -160,9 +160,9 @@ export default class PPNode extends PIXI.Container {
 
     this._BackgroundRef = this.addChild(background);
     this._NodeNameRef = this.addChild(inputNameText);
-    this._NodeCommentRef = (this.graph.viewport.getChildByName(
-      'commentContainer'
-    ) as PIXI.Container).addChild(nodeComment);
+    this._NodeCommentRef = (
+      this.graph.viewport.getChildByName('commentContainer') as PIXI.Container
+    ).addChild(nodeComment);
 
     // hybrid nodes do not show the node name
     if (this.isHybrid) {
@@ -390,6 +390,7 @@ export default class PPNode extends PIXI.Container {
     // update node shape
     this.drawNodeShape();
   }
+
   drawNodeShape(selected: boolean = this._selected): void {
     const countOfVisibleInputSockets = this.inputSocketArray.filter(
       (item) => item.visible === true
@@ -861,9 +862,9 @@ export default class PPNode extends PIXI.Container {
     // console.log('_onRemoved');
 
     // remove node comment
-    (this.graph.viewport.getChildByName(
-      'commentContainer'
-    ) as PIXI.Container).removeChild(this._NodeCommentRef);
+    (
+      this.graph.viewport.getChildByName('commentContainer') as PIXI.Container
+    ).removeChild(this._NodeCommentRef);
 
     // remove added listener from graph.viewport
     this.graph.viewport.removeListener('moved', this.onViewportMoveHandler);

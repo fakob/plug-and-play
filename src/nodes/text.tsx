@@ -39,10 +39,11 @@ import {
 import {
   COLOR,
   DATATYPE,
+  NODE_MARGIN,
   NODE_OUTLINE_DISTANCE,
+  NOTE_FONT,
   NOTE_FONTSIZE,
   NOTE_LINEHEIGHT_FACTOR,
-  NOTE_FONT,
   NOTE_MARGIN_STRING,
   NOTE_PADDING,
   NOTE_TEXTURE,
@@ -520,8 +521,7 @@ type LabelAdditionalProps = {
 
 export class Label2 extends PPNode {
   _refText: PIXI.Text;
-  _refBackground: PIXI.Sprite;
-  update: (additionalProps?: LabelAdditionalProps) => void;
+  _refTextStyle: PIXI.TextStyle;
 
   constructor(name: string, graph: PPGraph, customArgs?: CustomArgs) {
     const nodeWidth = 300;
@@ -543,7 +543,7 @@ export class Label2 extends PPNode {
     this.addInput('text', DATATYPE.STRING, customArgs?.data ?? '', false);
     this.addInput(
       'fontSize',
-      DATATYPE.STRING,
+      DATATYPE.NUMBER,
       customArgs?.fontSize ?? fontSize,
       false
     );
@@ -563,64 +563,55 @@ export class Label2 extends PPNode {
     this.name = 'Label';
     this.description = 'Adds text';
 
-    const myFontSize = this.getInputData('fontSize');
-    const textStyle = new PIXI.TextStyle({
-      fontFamily: 'Arial',
-      fontSize: myFontSize,
-      lineHeight: myFontSize * NOTE_LINEHEIGHT_FACTOR,
-      align: 'left',
-      whiteSpace: 'pre-line',
-      lineJoin: 'round',
-    });
-    const textMetrics = PIXI.TextMetrics.measureText(
-      this.getInputData('text'),
-      textStyle
-    );
-
     const canvas = this.graph.viewport.getChildByName(
-      'backgroundCanvas'
+      'foregroundCanvas'
     ) as PIXI.Container;
 
-    const background = new PIXI.Sprite(PIXI.Texture.WHITE);
-    background.tint = PIXI.utils.string2hex(Color(fillColor).hex());
-    background.width = Math.max(
-      this.getInputData('min-width'),
-      textMetrics.width
-    );
-    background.height = textMetrics.height;
-    background.alpha = trgbaToColor(
-      this.getInputData('backgroundColor')
-    ).alpha();
-    const basicText = new PIXI.Text(
-      String(this.getInputData('text')),
-      textStyle
-    );
+    this._refTextStyle = new PIXI.TextStyle();
+    const basicText = new PIXI.Text('', this._refTextStyle);
 
-    this._refBackground = canvas.addChild(background);
     this._refText = canvas.addChild(basicText);
 
     this.onExecute = function (input) {
       const text = String(input['text']);
+      const fontSize = input['fontSize'];
       const minWidth = input['min-width'];
       const color = trgbaToColor(input['backgroundColor']);
 
-      console.log(text);
-      const textMetrics = PIXI.TextMetrics.measureText(text, textStyle);
-      console.log(textMetrics);
+      const marginTopBottom = fontSize / 2;
+      const marginLeftRight = fontSize / 1.5;
 
-      this._refBackground.tint = PIXI.utils.string2hex(color.hex());
-      this._refBackground.width = Math.max(minWidth, textMetrics.width);
-      this._refBackground.height = textMetrics.height;
-      this._refBackground.alpha = color.alpha();
+      this._refTextStyle.fontSize = fontSize;
+      this._refTextStyle.lineHeight = fontSize * NOTE_LINEHEIGHT_FACTOR;
+      this._refTextStyle.fill = color.isDark()
+        ? PIXI.utils.string2hex(COLOR[20])
+        : PIXI.utils.string2hex(COLOR[21]);
+
+      const textMetrics = PIXI.TextMetrics.measureText(
+        text,
+        this._refTextStyle
+      );
+
+      this.resizeNode(
+        Math.max(minWidth, textMetrics.width + marginLeftRight * 2),
+        textMetrics.height + marginTopBottom * 2
+      );
 
       this.color = PIXI.utils.string2hex(color.hex());
       this.colorTransparency = color.alpha();
       this.setOutputData('text', text);
 
       this._refText.text = text;
+      this._refText.x = this.x + NODE_MARGIN + marginLeftRight;
+      this._refText.y = this.y + NODE_OUTLINE_DISTANCE + marginTopBottom;
     };
   }
+
+  protected shouldExecuteOnMove(): boolean {
+    return true;
+  }
 }
+
 export class Label extends PPNode {
   update: (additionalProps?: LabelAdditionalProps) => void;
 
