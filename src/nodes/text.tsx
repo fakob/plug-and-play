@@ -524,8 +524,7 @@ export class Label2 extends PPNode {
   _refTextStyle: PIXI.TextStyle;
 
   constructor(name: string, graph: PPGraph, customArgs?: CustomArgs) {
-    const nodeWidth = 300;
-    const nodeHeight = 62;
+    const nodeWidth = 128;
     const fontSize = 32;
     const isHybrid = true;
     const fillColor = COLOR[5];
@@ -533,7 +532,6 @@ export class Label2 extends PPNode {
     super(name, graph, {
       ...customArgs,
       nodeWidth,
-      nodeHeight,
       isHybrid,
       color: fillColor,
       colorTransparency: 1.0,
@@ -545,7 +543,10 @@ export class Label2 extends PPNode {
       'fontSize',
       DATATYPE.NUMBER,
       customArgs?.fontSize ?? fontSize,
-      false
+      false,
+      {
+        minValue: 1,
+      }
     );
     this.addInput(
       'backgroundColor',
@@ -557,7 +558,10 @@ export class Label2 extends PPNode {
       'min-width',
       DATATYPE.NUMBER,
       customArgs?.width ?? nodeWidth,
-      false
+      false,
+      {
+        minValue: 1,
+      }
     );
 
     this.name = 'Label';

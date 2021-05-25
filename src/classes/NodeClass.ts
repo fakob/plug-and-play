@@ -220,7 +220,7 @@ export default class PPNode extends PIXI.Container {
 
     // this allows to zoom and drag when the hybrid node is not selected
     if (this.isHybrid) {
-      if (!this.selected) {
+      if (!selected && this.container !== undefined) {
         this.container.style.pointerEvents = 'none';
       }
     }
@@ -359,6 +359,9 @@ export default class PPNode extends PIXI.Container {
     }
 
     this.updateBehaviour = nodeConfig.updateBehaviour;
+
+    // update node after configure
+    this.execute(new Set());
   }
 
   notifyChange(upstreamContent: Set<string>): void {
