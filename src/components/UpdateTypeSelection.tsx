@@ -1,8 +1,8 @@
-import { Button } from '@blueprintjs/core';
+import { Button, EditableText } from '@blueprintjs/core';
 import React, { useRef, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import NodeClass from '../classes/NodeClass';
-
+import styles from './../utils/style.module.css';
 const ToggleButton = (props) => {
   const [showEnabled, setShowEnabled] = React.useState(props.enabled);
 
@@ -25,6 +25,10 @@ const UpdateTypeSelection = (props) => {
     return <div />;
   }
 
+  const [frequency, setFrequency] = React.useState(
+    selectedNode.updateBehaviour.intervalFrequency
+  );
+
   return (
     <div>
       <ToggleButton
@@ -33,14 +37,24 @@ const UpdateTypeSelection = (props) => {
         text={'Update'}
       />
       <ToggleButton
+        enabled={selectedNode.updateBehaviour.manual}
+        setValue={(newVal) => (selectedNode.updateBehaviour.manual = newVal)}
+        text={'Manual'}
+      />
+      <ToggleButton
         enabled={selectedNode.updateBehaviour.interval}
         setValue={(newVal) => (selectedNode.updateBehaviour.interval = newVal)}
         text={'Interval'}
       />
-      <ToggleButton
-        enabled={selectedNode.updateBehaviour.manual}
-        setValue={(newVal) => (selectedNode.updateBehaviour.manual = newVal)}
-        text={'Manual'}
+      <EditableText
+        className={`${styles.editablePropertyName} ${styles.darkOnBright}`}
+        selectAllOnFocus
+        value={frequency.toString()}
+        onChange={(name) => {
+          selectedNode.updateBehaviour.intervalFrequency = parseInt(name);
+          setFrequency(parseInt(name));
+        }}
+        disabled={!selectedNode.updateBehaviour.interval}
       />
     </div>
   );
