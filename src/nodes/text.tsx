@@ -522,17 +522,18 @@ type LabelAdditionalProps = {
 export class Label2 extends PPNode {
   _refText: PIXI.Text;
   _refTextStyle: PIXI.TextStyle;
+  currentInput: HTMLDivElement;
+  createInputElement: () => void;
+  // update: (additionalProps?: LabelAdditionalProps) => void;
 
   constructor(name: string, graph: PPGraph, customArgs?: CustomArgs) {
     const nodeWidth = 128;
     const fontSize = 32;
-    const isHybrid = true;
     const fillColor = COLOR[5];
 
     super(name, graph, {
       ...customArgs,
       nodeWidth,
-      isHybrid,
       color: fillColor,
       colorTransparency: 1.0,
     });
@@ -567,6 +568,8 @@ export class Label2 extends PPNode {
     this.name = 'Label';
     this.description = 'Adds text';
 
+    this.currentInput = null;
+
     const canvas = this.graph.viewport.getChildByName(
       'foregroundCanvas'
     ) as PIXI.Container;
@@ -576,11 +579,108 @@ export class Label2 extends PPNode {
 
     this._refText = canvas.addChild(basicText);
 
+    // when the Node is added, focus it so one can start writing
+    this.onNodeAdded = () => {
+      this._refText.visible = false;
+      this.createInputElement();
+    };
+
+    // when the Node has been configured, remove focus
+    this.onConfigure = () => {
+      this.currentInput.remove();
+      this._refText.visible = true;
+    };
+
+    this.createInputElement = () => {
+      // create html input element
+      const screenPoint = this.graph.viewport.toScreen(this.x, this.y);
+      const text = this.getInputData('text');
+      const fontSize = this.getInputData('fontSize');
+      const marginLeftRight = fontSize / 1.5;
+      const marginTopBottom = fontSize / 2;
+
+      this.currentInput = document.createElement('div');
+      this.currentInput.id = 'Input';
+      this.currentInput.contentEditable = 'true';
+      this.currentInput.innerText = text;
+
+      const style = {
+        fontFamily: 'Arial',
+        fontSize: `${fontSize}px`,
+        lineHeight: `${fontSize * NOTE_LINEHEIGHT_FACTOR}px`,
+        textAlign: 'left',
+        margin: NOTE_MARGIN_STRING,
+        padding: `${marginTopBottom}px ${marginLeftRight}px`,
+        position: 'absolute',
+        background: 'transparent',
+        border: '0 none',
+        transformOrigin: 'top left',
+        transform: `scale(${this.graph.viewport.scale.x}`,
+        outline: '0px dashed black',
+        left: `${screenPoint.x}px`,
+        top: `${screenPoint.y}px`,
+        width: `${this.nodeWidth}px`,
+        height: `${this.nodeHeight}px`,
+      };
+      Object.assign(this.currentInput.style, style);
+
+      setTimeout(() => {
+        // set caret to end
+        const range = document.createRange();
+        const sel = window.getSelection();
+        range.selectNodeContents(this.currentInput);
+        range.collapse(false);
+        sel.removeAllRanges();
+        sel.addRange(range);
+
+        // set focus
+        this.currentInput.focus();
+        console.log(this.currentInput);
+      }, 100);
+
+      // add event handlers
+      this.currentInput.addEventListener('blur', (e) => {
+        console.log('blur', e);
+        this.currentInput.remove();
+        this._refText.visible = true;
+      });
+
+      this.currentInput.addEventListener('input', (e) => {
+        const text = (e as any).target.innerText;
+        this._refText.text = text;
+        const minWidth = this.getInputData('min-width');
+        const textMetrics = PIXI.TextMetrics.measureText(
+          text,
+          this._refTextStyle
+        );
+
+        const newWidth = textMetrics.width + marginLeftRight * 2;
+        const newHeight =
+          textMetrics.height * NOTE_LINEHEIGHT_FACTOR + marginTopBottom * 2;
+        this.currentInput.style.width = `${newWidth}px`;
+        this.currentInput.style.height = `${newHeight}px`;
+
+        this.resizeNode(Math.max(minWidth, newWidth), newHeight);
+
+        this.setInputData('text', text);
+        this.setOutputData('text', text);
+      });
+
+      document.body.appendChild(this.currentInput);
+    };
+
+    this.onNodeDoubleClick = () => {
+      console.log('onNodeDoubleClick:', this.id);
+      this._refText.visible = false;
+      this.createInputElement();
+    };
+
     this.onExecute = function (input) {
       const text = String(input['text']);
       const fontSize = input['fontSize'];
       const minWidth = input['min-width'];
       const color = trgbaToColor(input['backgroundColor']);
+      console.log(text);
 
       const marginTopBottom = fontSize / 2;
       const marginLeftRight = fontSize / 1.5;
@@ -596,18 +696,28 @@ export class Label2 extends PPNode {
         this._refTextStyle
       );
 
+      this.color = PIXI.utils.string2hex(color.hex());
+      this.colorTransparency = color.alpha();
+
       this.resizeNode(
         Math.max(minWidth, textMetrics.width + marginLeftRight * 2),
         textMetrics.height + marginTopBottom * 2
       );
-
-      this.color = PIXI.utils.string2hex(color.hex());
-      this.colorTransparency = color.alpha();
       this.setOutputData('text', text);
 
       this._refText.text = text;
       this._refText.x = this.x + NODE_MARGIN + marginLeftRight;
       this._refText.y = this.y + NODE_OUTLINE_DISTANCE + marginTopBottom;
+    };
+
+    // scale input if node is scaled
+    this.onNodeDragOrViewportMove = () => {
+      if (this.currentInput !== null) {
+        const screenPoint = this.graph.viewport.toScreen(this.x, this.y);
+        this.currentInput.style.transform = `scale(${this.graph.viewport.scale.x}`;
+        this.currentInput.style.left = `${screenPoint.x}px`;
+        this.currentInput.style.top = `${screenPoint.y}px`;
+      }
     };
   }
 
@@ -882,7 +992,7 @@ export class Note extends PPNode {
       const screenPoint = this.graph.viewport.toScreen(this.x, this.y);
 
       this.currentInput = document.createElement('div');
-      this.currentInput.id = 'NoteInput';
+      this.currentInput.id = 'Input';
       this.currentInput.contentEditable = 'true';
       this.currentInput.innerHTML = this.inputSocketArray[0].data;
 

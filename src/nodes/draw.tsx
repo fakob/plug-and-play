@@ -558,9 +558,9 @@ export class PIXIMultiplier extends PPNode {
 
     const inputContainer = new PIXI.Container();
     const container = new PIXI.Container();
-    this._containerRef = (this.graph.viewport.getChildByName(
-      'backgroundCanvas'
-    ) as PIXI.Container).addChild(container);
+    this._containerRef = (
+      this.graph.viewport.getChildByName('backgroundCanvas') as PIXI.Container
+    ).addChild(container);
     this._inputContainerRef = this._containerRef.addChild(inputContainer);
     this.setOutputData('container', this._containerRef);
     this._containerRef.name = this.id;
@@ -635,9 +635,9 @@ export class PIXIMultiplier extends PPNode {
     };
 
     this.onNodeRemoved = (): void => {
-      (this.graph.viewport.getChildByName(
-        'backgroundCanvas'
-      ) as PIXI.Graphics).removeChild(this._containerRef);
+      (
+        this.graph.viewport.getChildByName('backgroundCanvas') as PIXI.Graphics
+      ).removeChild(this._containerRef);
     };
 
     this.createAndAddClone = (
@@ -818,7 +818,7 @@ export class Note extends PPNode {
     this.createInputElement = () => {
       // create html input element
       this.currentInput = document.createElement('div');
-      this.currentInput.id = 'NoteInput';
+      this.currentInput.id = 'Input';
       this.currentInput.contentEditable = 'true';
       this.currentInput.innerHTML = this.inputSocketArray[0].data;
       this._textInputRef.visible = false;

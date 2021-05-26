@@ -63,7 +63,7 @@ class deleteNodeAction extends Hotkey {
       console.log(currPressed, currPressed.localName);
       if (
         currPressed.target.dataset.slateEditor === undefined &&
-        currPressed.target.id !== 'NoteInput' &&
+        currPressed.target.id !== 'Input' &&
         currPressed.target.localName !== 'input' &&
         currPressed.target.localName !== 'textarea'
       ) {
