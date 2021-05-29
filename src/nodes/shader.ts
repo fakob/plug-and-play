@@ -54,8 +54,19 @@ const inputDataName = 'Input Data';
 export class Shader extends PPNode {
   graphics: PIXI.Mesh;
 
-  prevVertex: string = defaultVertex;
-  prevFragment: string = defaultFragment;
+  prevVertex: string;
+  prevFragment: string;
+
+  protected getInitialVertex(): string {
+    return defaultVertex;
+  }
+  protected getInitialFragment(): string {
+    return defaultFragment;
+  }
+
+  protected getDefaultSize(): number {
+    return 200;
+  }
 
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
     super(name, graph, {
@@ -66,20 +77,31 @@ export class Shader extends PPNode {
     this.name = 'Draw shader';
     this.description = 'Draws a shader';
 
-    this.addInput(sizeXInputName, DATATYPE.NUMBER, 200);
-    this.addInput(sizeYInputName, DATATYPE.NUMBER, 200);
+    this.addInput(sizeXInputName, DATATYPE.NUMBER, this.getDefaultSize());
+    this.addInput(sizeYInputName, DATATYPE.NUMBER, this.getDefaultSize());
     this.addInput(offsetYInputName, DATATYPE.NUMBER, 0);
     this.addInput(offsetXInputName, DATATYPE.NUMBER, 300);
     this.addInput(inputDataName, DATATYPE.ANY, '');
 
-    this.addInput(vertexShaderInputName, DATATYPE.STRING, defaultVertex);
-    this.addInput(fragmentShaderInputName, DATATYPE.STRING, defaultFragment);
+    this.addInput(
+      vertexShaderInputName,
+      DATATYPE.STRING,
+      this.getInitialVertex()
+    );
+    this.addInput(
+      fragmentShaderInputName,
+      DATATYPE.STRING,
+      this.getInitialFragment()
+    );
 
     const canvas = this.graph.viewport.getChildByName(
       'backgroundCanvas'
     ) as PIXI.Container;
 
-    let shader = PIXI.Shader.from(defaultVertex, defaultFragment);
+    this.prevVertex = this.getInitialVertex();
+    this.prevFragment = this.getInitialFragment();
+
+    let shader = PIXI.Shader.from(this.prevVertex, this.prevFragment);
 
     this.onExecute = function (input) {
       canvas.removeChild(this.graphics);
@@ -156,5 +178,38 @@ export class Shader extends PPNode {
 
   protected getUpdateBehaviour(): UpdateBehaviour {
     return new UpdateBehaviour(false, false, true, 16);
+  }
+}
+
+const mandelbrotFragment = `
+precision mediump float;
+uniform float time;
+uniform float inputData;
+varying vec2 uv;
+
+
+void main() {
+  vec2 current = vec2(0,0);
+  int max = int(inputData);
+  float deathPoint = 0.;
+ 
+  for (int i = 0; i < 200; i++){
+    current = vec2(pow(current.x,2.) - pow(current.y,2.), current.x*current.y*2.) + (uv - vec2(0.5,0.5))*3.;
+    if (length(current) > 2.){
+        deathPoint = float(i);
+        }
+
+  }
+
+  gl_FragColor = vec4(deathPoint/100.0,pow(length(current),2.0),length(current-uv),1);
+}
+`;
+
+export class Mandelbrot extends Shader {
+  protected getInitialFragment(): string {
+    return mandelbrotFragment;
+  }
+  protected getDefaultSize(): number {
+    return 50000;
   }
 }
