@@ -210,6 +210,10 @@ export class Mandelbrot extends Shader {
     return mandelbrotFragment;
   }
   protected getDefaultSize(): number {
-    return 50000;
+    return 20000;
+  }
+
+  protected getUpdateBehaviour(): UpdateBehaviour {
+    return new UpdateBehaviour(false, true, false, 16);
   }
 }
