@@ -26,6 +26,8 @@ const defaultFragment = `
 precision mediump float;
 uniform float time;
 
+// designate your input data yourself, it will be automatically fed in here
+//uniform float inputData;
 varying vec2 uv;
 
 void main() {
@@ -36,8 +38,6 @@ void main() {
 
 const errorFragment = `
 precision mediump float;
-uniform float time;
-
 varying vec2 uv;
 
 void main() {
@@ -46,6 +46,11 @@ void main() {
 `;
 const vertexShaderInputName = 'Vertex Shader';
 const fragmentShaderInputName = 'Fragment Shader';
+const sizeXInputName = 'Size X';
+const sizeYInputName = 'Size Y';
+const offsetXInputName = 'Offset X';
+const offsetYInputName = 'Offset Y';
+const inputDataName = 'Input Data';
 export class Shader extends PPNode {
   graphics: PIXI.Mesh;
 
@@ -61,55 +66,18 @@ export class Shader extends PPNode {
     this.name = 'Draw shader';
     this.description = 'Draws a shader';
 
+    this.addInput(sizeXInputName, DATATYPE.NUMBER, 200);
+    this.addInput(sizeYInputName, DATATYPE.NUMBER, 200);
+    this.addInput(offsetYInputName, DATATYPE.NUMBER, 0);
+    this.addInput(offsetXInputName, DATATYPE.NUMBER, 300);
+    this.addInput(inputDataName, DATATYPE.ANY, '');
+
     this.addInput(vertexShaderInputName, DATATYPE.STRING, defaultVertex);
     this.addInput(fragmentShaderInputName, DATATYPE.STRING, defaultFragment);
 
     const canvas = this.graph.viewport.getChildByName(
       'backgroundCanvas'
     ) as PIXI.Container;
-
-    this.updateBehaviour.update = false;
-    this.updateBehaviour.interval = true;
-    this.updateBehaviour.intervalFrequency = 1;
-
-    //const geometry = new PIXI.QuadUv();
-
-    const geometry = new PIXI.Geometry()
-      .addAttribute(
-        'aVertexPosition', // the attribute name
-        [
-          -100,
-          100, // x, y
-          100,
-          100, // x, y
-          100,
-          -100,
-          -100,
-          -100,
-        ], // x, y
-        2
-      ) // the size of the attribute
-
-      .addAttribute(
-        'aColor', // the attribute name
-        [
-          1,
-          0,
-          0, // r, g, b
-          0,
-          1,
-          0, // r, g, b
-          0,
-          0,
-          1,
-          0,
-          1,
-          0,
-        ], // r, g, b
-        3
-      )
-      .addAttribute('vUV', [0, 0, 1, 0, 1, 1, 0, 1], 2)
-      .addIndex([0, 1, 2, 0, 2, 3]); // the size of the attribute
 
     let shader = PIXI.Shader.from(defaultVertex, defaultFragment);
 
@@ -137,15 +105,43 @@ export class Shader extends PPNode {
         }
       }
 
+      const startX = input[offsetXInputName];
+      const endX = startX + input[sizeXInputName];
+
+      const startY = input[offsetYInputName];
+      const endY = input[offsetYInputName] + input[sizeYInputName];
+
+      const geometry = new PIXI.Geometry()
+        .addAttribute(
+          'aVertexPosition', // the attribute name
+          [
+            startX,
+            endY, // x, y
+            endX,
+            endY, // x, y
+            endX,
+            startY,
+            startX,
+            startY,
+          ], // x, y
+          2
+        ) // the size of the attribute
+
+        .addAttribute('vUV', [0, 0, 1, 0, 1, 1, 0, 1], 2)
+        .addIndex([0, 1, 2, 0, 2, 3]); // the size of the attribute
+
       this.graphics = new PIXI.Mesh(
         geometry,
         new PIXI.MeshMaterial(PIXI.Texture.WHITE, {
           program: shader.program,
-          uniforms: { time: (currentTime / 1000) % 1000 },
+          uniforms: {
+            time: (currentTime / 1000) % 1000,
+            inputData: input[inputDataName],
+          },
         })
       );
 
-      this.graphics.position.set(this.x + 400, this.y);
+      this.graphics.position.set(this.x, this.y);
       canvas.addChild(this.graphics);
     };
 
