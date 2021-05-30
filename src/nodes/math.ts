@@ -17,7 +17,7 @@ export class MathAdd extends PPNode {
     this.name = 'Add';
     this.description = 'Add 2 numbers';
 
-    this.onExecute = function (input, output) {
+    this.onExecute = async function (input, output) {
       const a = input['in'];
       const b = input['in2'];
       const result = a + b;
@@ -77,7 +77,7 @@ export class MathNoise extends PPNode {
       return r1 * (1 - f) + r2 * f;
     };
 
-    this.onExecute = function (input, output) {
+    this.onExecute = async function (input, output) {
       let f = input['in'] || 0;
       // let f = 0;
       const iterations = this.octaves || 1;

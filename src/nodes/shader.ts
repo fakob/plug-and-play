@@ -3,7 +3,8 @@ import * as PIXI from 'pixi.js';
 import PPGraph from '../classes/GraphClass';
 import PPNode, { UpdateBehaviour } from '../classes/NodeClass';
 import { CustomArgs } from '../utils/interfaces';
-import { DATATYPE, NODE_TYPE_COLOR } from '../utils/constants';
+import { DATATYPE, NODE_TYPE_COLOR, SOCKET_TYPE } from '../utils/constants';
+import Socket from '../classes/SocketClass';
 
 const defaultVertex = `
 precision mediump float;
@@ -68,6 +69,38 @@ export class Shader extends PPNode {
     return 200;
   }
 
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(
+        SOCKET_TYPE.IN,
+        sizeXInputName,
+        DATATYPE.NUMBER,
+        this.getDefaultSize()
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        sizeYInputName,
+        DATATYPE.NUMBER,
+        this.getDefaultSize()
+      ),
+      new Socket(SOCKET_TYPE.IN, offsetYInputName, DATATYPE.NUMBER, 0),
+      new Socket(SOCKET_TYPE.IN, offsetXInputName, DATATYPE.NUMBER, 300),
+      new Socket(SOCKET_TYPE.IN, inputDataName, DATATYPE.ANY, ''),
+      new Socket(
+        SOCKET_TYPE.IN,
+        vertexShaderInputName,
+        DATATYPE.STRING,
+        this.getInitialVertex()
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        fragmentShaderInputName,
+        DATATYPE.STRING,
+        this.getInitialFragment()
+      ),
+    ];
+  }
+
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
     super(name, graph, {
       ...customArgs,
@@ -76,23 +109,6 @@ export class Shader extends PPNode {
 
     this.name = 'Draw shader';
     this.description = 'Draws a shader';
-
-    this.addInput(sizeXInputName, DATATYPE.NUMBER, this.getDefaultSize());
-    this.addInput(sizeYInputName, DATATYPE.NUMBER, this.getDefaultSize());
-    this.addInput(offsetYInputName, DATATYPE.NUMBER, 0);
-    this.addInput(offsetXInputName, DATATYPE.NUMBER, 300);
-    this.addInput(inputDataName, DATATYPE.ANY, '');
-
-    this.addInput(
-      vertexShaderInputName,
-      DATATYPE.STRING,
-      this.getInitialVertex()
-    );
-    this.addInput(
-      fragmentShaderInputName,
-      DATATYPE.STRING,
-      this.getInitialFragment()
-    );
 
     const canvas = this.graph.viewport.getChildByName(
       'backgroundCanvas'
@@ -103,7 +119,7 @@ export class Shader extends PPNode {
 
     let shader = PIXI.Shader.from(this.prevVertex, this.prevFragment);
 
-    this.onExecute = function (input) {
+    this.onExecute = async function (input) {
       canvas.removeChild(this.graphics);
 
       const currentTime = new Date().getTime();
@@ -170,6 +186,7 @@ export class Shader extends PPNode {
     this.onNodeRemoved = (): void => {
       canvas.removeChild(this.graphics);
     };
+    return;
   }
 
   protected shouldExecuteOnMove(): boolean {
@@ -213,6 +230,7 @@ export class Mandelbrot extends Shader {
     return 20000;
   }
 
+  // dont need to update on interval really
   protected getUpdateBehaviour(): UpdateBehaviour {
     return new UpdateBehaviour(false, true, false, 16);
   }

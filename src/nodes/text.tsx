@@ -183,7 +183,7 @@ export class Text extends PPNode {
       this.update({ width, height, focus: true });
     };
 
-    this.onExecute = (input, output) => {
+    this.onExecute = async (input, output) => {
       // const data = input['data']; // text can not be updated while running when using this function. Had to use getInputData. Why?
       if (!this.doubleClicked) {
         const data = this.getInputData('data');
@@ -610,7 +610,7 @@ export class Label extends PPNode {
       this.update({ width, height, focus: true });
     };
 
-    this.onExecute = (input, output) => {
+    this.onExecute = async (input, output) => {
       if (!this.doubleClicked) {
         const data = input['data'];
         const color = trgbaToColor(input['backgroundColor']);
@@ -946,7 +946,7 @@ export class Note extends PPNode {
       }
     };
 
-    this.onExecute = () => {
+    this.onExecute = async () => {
       if (!this.doubleClicked) {
         this.update();
       }

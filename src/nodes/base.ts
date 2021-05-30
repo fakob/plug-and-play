@@ -86,7 +86,7 @@ export class GridCoordinates extends PPNode {
     this.name = 'Grid coordinates';
     this.description = 'Create grid coordinates';
 
-    this.onExecute = function (input, output) {
+    this.onExecute = async function (input, output) {
       const x = input['x'];
       const y = input['y'];
       const count = input['count'];
@@ -125,7 +125,7 @@ export class ColorArray extends PPNode {
     this.name = 'Color array';
     this.description = 'Create color array';
 
-    this.onExecute = function (input, output) {
+    this.onExecute = async function (input, output) {
       const count = input['count'];
       const colorA = trgbaToColor(input['colorA']);
       const colorB = trgbaToColor(input['colorB']);
@@ -154,7 +154,7 @@ export class RangeArray extends PPNode {
     this.name = 'Range array';
     this.description = 'Create range array';
 
-    this.onExecute = function (input, output) {
+    this.onExecute = async function (input, output) {
       const start = input['start'] || 0;
       const stop = input['stop'] || 100;
       const step = input['step'] || 2;
@@ -289,7 +289,7 @@ export class TimeAndDate extends PPNode {
     this.description = 'Outputs current time in different formats';
     this.date = new Date();
 
-    this.onExecute = function () {
+    this.onExecute = async function () {
       this.setOutputData('date and time', this.date.getUTCDate());
       this.setOutputData('time stamp', Date.now());
     };

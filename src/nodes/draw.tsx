@@ -76,7 +76,7 @@ export class PIXIText extends PPNode {
     this._ref = [canvas.addChild(basicText)];
     this.setOutputData('graphics', this._ref);
 
-    this.onExecute = function (input) {
+    this.onExecute = async function (input) {
       const x = [].concat(input['x']);
       const y = [].concat(input['y']);
       const text = [].concat(input['text']);
@@ -191,7 +191,7 @@ export class PIXIRect extends PPNode {
     this._ref = [canvas.addChild(graphics)];
     this.setOutputData('graphics', this._ref);
 
-    this.onExecute = function (input) {
+    this.onExecute = async function (input) {
       const x = [].concat(input['x']);
       const y = [].concat(input['y']);
       const width = [].concat(input['width']);
@@ -305,7 +305,7 @@ export class PIXICircle extends PPNode {
     this._ref = [canvas.addChild(graphics)];
     this.setOutputData('graphics', this._ref);
 
-    this.onExecute = function (input) {
+    this.onExecute = async function (input) {
       const x = [].concat(input['x']);
       const y = [].concat(input['y']);
       const radius = [].concat(input['radius']);
@@ -411,7 +411,7 @@ export class PIXIContainer extends PPNode {
 
     this.setOutputData('container', this._containerRef);
 
-    this.onExecute = function (input) {
+    this.onExecute = async function (input) {
       const mode = input['mode'];
       const x = [].concat(input['x']);
       const y = [].concat(input['y']);
@@ -565,7 +565,7 @@ export class PIXIMultiplier extends PPNode {
     this.setOutputData('container', this._containerRef);
     this._containerRef.name = this.id;
 
-    this.onExecute = function (input) {
+    this.onExecute = async function (input) {
       let inputRef: PIXI.DisplayObject[] | PIXI.DisplayObject = input['input'];
       const count = input['count'];
       const column = input['column'];
@@ -929,7 +929,7 @@ export class Note extends PPNode {
       this.createInputElement();
     };
 
-    this.onExecute = (input, output) => {
+    this.onExecute = async (input, output) => {
       const inputText = input['input'];
       this._textInputRef.text = inputText;
       this.setOutputData('textOutput', inputText);
