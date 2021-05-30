@@ -698,9 +698,7 @@ export default class PPNode extends PIXI.Container {
       }
     });
 
-    if (this.graph._showComments) {
-      this.drawComment();
-    }
+    this.drawComment();
 
     this.outputSocketArray.forEach((outputSocket) =>
       outputSocket.notifyChange(upstreamContent)
