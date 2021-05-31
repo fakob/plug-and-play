@@ -528,6 +528,8 @@ export class Label extends PPNode {
       nodeWidth,
       color: fillColor,
       colorTransparency: 1.0,
+      noRoundedCorners: true,
+      noLabels: true,
     });
 
     this.addOutput('text', DATATYPE.STRING, undefined, false);

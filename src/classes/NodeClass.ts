@@ -69,6 +69,8 @@ export default class PPNode extends PIXI.Container {
   nodeWidth: number;
   nodeHeight: number;
   isHybrid: boolean; // true if it is a hybrid node (html and webgl)
+  noRoundedCorners: boolean;
+  noLabels: boolean;
 
   // default to update on manual and update, 1 sec time update interval
   updateBehaviour: UpdateBehaviour;
@@ -116,6 +118,8 @@ export default class PPNode extends PIXI.Container {
       nodeWidth?: number;
       nodeHeight?: number;
       isHybrid?: boolean;
+      noRoundedCorners?: boolean;
+      noLabels?: boolean;
     }
   ) {
     super();
@@ -136,6 +140,15 @@ export default class PPNode extends PIXI.Container {
     this.nodeWidth = customArgs?.nodeWidth ?? NODE_WIDTH;
     this.nodeHeight = customArgs?.nodeHeight ?? undefined;
     this.isHybrid = customArgs?.isHybrid ?? false;
+
+    if (this.isHybrid) {
+      this.noRoundedCorners = customArgs?.noRoundedCorners ?? true;
+      this.noLabels = customArgs?.noLabels ?? true;
+    } else {
+      this.noRoundedCorners = customArgs?.noRoundedCorners ?? false;
+      this.noLabels = customArgs?.noLabels ?? false;
+    }
+
     this.color = PIXI.utils.string2hex(
       customArgs?.color ?? NODE_TYPE_COLOR.DEFAULT
     );
@@ -164,8 +177,8 @@ export default class PPNode extends PIXI.Container {
       this.graph.viewport.getChildByName('commentContainer') as PIXI.Container
     ).addChild(nodeComment);
 
-    // hybrid nodes do not show the node name
-    if (this.isHybrid) {
+    // do not show the node name
+    if (this.noLabels) {
       this._NodeNameRef.alpha = 0;
     }
 
@@ -427,13 +440,13 @@ export default class PPNode extends PIXI.Container {
         NODE_OUTLINE_DISTANCE,
         this.nodeWidth,
         nodeHeight,
-        NODE_CORNERRADIUS
+        this.noRoundedCorners ? 0 : NODE_CORNERRADIUS
       );
     }
     this._BackgroundRef.endFill();
 
-    // hide header for hybrid nodes
-    const headerHeight = this.isHybrid
+    // hide header if noLabels
+    const headerHeight = this.noLabels
       ? 0
       : NODE_PADDING_TOP + NODE_HEADER_HEIGHT;
     // redraw outputs
@@ -445,6 +458,9 @@ export default class PPNode extends PIXI.Container {
           NODE_OUTLINE_DISTANCE + headerHeight + posCounter * SOCKET_HEIGHT;
         item.x = this.nodeWidth - NODE_WIDTH;
         posCounter += 1;
+        if (this.noLabels) {
+          item._SocketNameRef.alpha = 0;
+        }
       }
     });
 
@@ -458,6 +474,9 @@ export default class PPNode extends PIXI.Container {
           countOfVisibleOutputSockets * SOCKET_HEIGHT +
           posCounter * SOCKET_HEIGHT;
         posCounter += 1;
+        if (this.noLabels) {
+          item._SocketNameRef.alpha = 0;
+        }
       }
     });
 
@@ -478,7 +497,7 @@ export default class PPNode extends PIXI.Container {
         0,
         NODE_OUTLINE_DISTANCE * 2 + this.nodeWidth,
         NODE_OUTLINE_DISTANCE * 2 + nodeHeight,
-        this.isHybrid ? 0 : NODE_CORNERRADIUS + NODE_OUTLINE_DISTANCE
+        this.noRoundedCorners ? 0 : NODE_CORNERRADIUS + NODE_OUTLINE_DISTANCE
       );
     }
 
