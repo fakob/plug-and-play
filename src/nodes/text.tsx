@@ -590,6 +590,7 @@ export class Label extends PPNode {
       const screenPoint = this.graph.viewport.toScreen(this.x, this.y);
       const text = this.getInputData('text');
       const fontSize = this.getInputData('fontSize');
+      const color = trgbaToColor(this.getInputData('backgroundColor'));
       const marginLeftRight = fontSize / 1.5;
       const marginTopBottom = fontSize / 2;
 
@@ -604,6 +605,7 @@ export class Label extends PPNode {
         lineHeight: `${fontSize * NOTE_LINEHEIGHT_FACTOR}px`,
         textAlign: 'left',
         margin: NOTE_MARGIN_STRING,
+        color: color.isDark() ? COLOR[20] : COLOR[21],
         padding: `${marginTopBottom}px ${marginLeftRight}px`,
         position: 'absolute',
         background: 'transparent',
