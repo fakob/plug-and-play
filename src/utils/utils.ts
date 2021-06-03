@@ -152,6 +152,13 @@ export const convertBlobToBase64 = (blob) => {
 };
 
 export const convertStringToSlateNodes = (text: string): any => {
+  if (text === undefined) {
+    return [
+      {
+        children: [{ text: '' }],
+      },
+    ];
+  }
   return text.split('\n').map((line) => {
     return {
       children: [{ text: line }],
