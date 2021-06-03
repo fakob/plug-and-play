@@ -688,7 +688,6 @@ export class Label extends PPNode {
       const fontSize = input['fontSize'];
       const minWidth = input['min-width'];
       const color = trgbaToColor(input['backgroundColor']);
-      console.log(text);
 
       const marginTopBottom = fontSize / 2;
       const marginLeftRight = fontSize / 1.5;
