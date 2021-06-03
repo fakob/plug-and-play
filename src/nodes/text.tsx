@@ -602,7 +602,7 @@ export class Label extends PPNode {
       const style = {
         fontFamily: 'Arial',
         fontSize: `${fontSize}px`,
-        lineHeight: `${fontSize * NOTE_LINEHEIGHT_FACTOR}px`,
+        lineHeight: `${fontSize * (NOTE_LINEHEIGHT_FACTOR + 0.022)}px`, // 0.022 corrects difference between div and PIXI.Text
         textAlign: 'left',
         margin: NOTE_MARGIN_STRING,
         color: color.isDark() ? COLOR[20] : COLOR[21],
@@ -650,13 +650,25 @@ export class Label extends PPNode {
           this._refTextStyle
         );
 
+        // correct for issue in chrome where pressing enter would add 2 linebreaks
+        let myTextMetrics = textMetrics.height;
+        const length = textMetrics.lines.length;
+        if (
+          textMetrics.lines[length - 1] === '' &&
+          textMetrics.lines[length - 1] === ''
+        ) {
+          myTextMetrics = textMetrics.lineHeight * (length - 1);
+        }
         const newWidth = textMetrics.width + marginLeftRight * 2;
-        const newHeight =
-          textMetrics.height * NOTE_LINEHEIGHT_FACTOR + marginTopBottom * 2;
+        const newHeight = myTextMetrics * NOTE_LINEHEIGHT_FACTOR;
         this.currentInput.style.width = `${newWidth}px`;
-        this.currentInput.style.height = `${newHeight}px`;
+        this.currentInput.style.height = `${newHeight + marginTopBottom * 2}px`;
+        console.log(textMetrics, myTextMetrics, newHeight, text);
 
-        this.resizeNode(Math.max(minWidth, newWidth), newHeight);
+        this.resizeNode(
+          Math.max(minWidth, newWidth),
+          newHeight + marginTopBottom
+        );
 
         this.setInputData('text', text);
         this.setOutputData('text', text);
