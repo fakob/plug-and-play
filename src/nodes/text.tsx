@@ -644,7 +644,7 @@ export class Label extends PPNode {
       });
 
       this.currentInput.addEventListener('input', (e) => {
-        const text = (e as any).target.innerText;
+        let text = (e as any).target.innerText;
         this._refText.text = text;
         const minWidth = this.getInputData('min-width');
         const textMetrics = PIXI.TextMetrics.measureText(
@@ -652,20 +652,23 @@ export class Label extends PPNode {
           this._refTextStyle
         );
 
-        // correct for issue in chrome where pressing enter would add 2 linebreaks
-        let myTextMetrics = textMetrics.height;
+        // correct for issue in chrome where pressing enter would add 2 line breaks
+        // so I check for 2 empty line breaks at the end and delete one
+        let textMetricsHeight = textMetrics.height;
         const length = textMetrics.lines.length;
         if (
           textMetrics.lines[length - 1] === '' &&
-          textMetrics.lines[length - 1] === ''
+          textMetrics.lines[length - 2] === ''
         ) {
-          myTextMetrics = textMetrics.lineHeight * (length - 1);
+          text = textMetrics.text.substr(0, textMetrics.text.length - 2);
+          this._refText.text = text;
+          textMetricsHeight = textMetrics.lineHeight * (length - 1);
         }
+
         const newWidth = textMetrics.width + marginLeftRight * 2;
-        const newHeight = myTextMetrics * NOTE_LINEHEIGHT_FACTOR;
+        const newHeight = textMetricsHeight * NOTE_LINEHEIGHT_FACTOR;
         this.currentInput.style.width = `${newWidth}px`;
         this.currentInput.style.height = `${newHeight + marginTopBottom * 2}px`;
-        console.log(textMetrics, myTextMetrics, newHeight, text);
 
         this.resizeNode(
           Math.max(minWidth, newWidth),
