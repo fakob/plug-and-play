@@ -761,6 +761,8 @@ export class Note extends PPNode {
       nodeWidth,
       nodeHeight,
       colorTransparency: 0,
+      noRoundedCorners: true,
+      noLabels: true,
     });
 
     this.addOutput('data', DATATYPE.STRING, undefined, false);
