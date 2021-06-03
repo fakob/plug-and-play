@@ -727,6 +727,10 @@ export class Label extends PPNode {
         this.currentInput.style.top = `${screenPoint.y}px`;
       }
     };
+
+    this.onNodeRemoved = () => {
+      this._refText.destroy();
+    };
   }
 
   protected shouldExecuteOnMove(): boolean {
