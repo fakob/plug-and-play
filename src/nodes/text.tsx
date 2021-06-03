@@ -540,6 +540,7 @@ export class Label extends PPNode {
       customArgs?.fontSize ?? fontSize,
       false,
       {
+        round: true,
         minValue: 1,
       }
     );
@@ -555,6 +556,7 @@ export class Label extends PPNode {
       customArgs?.width ?? nodeWidth,
       false,
       {
+        round: true,
         minValue: 1,
       }
     );
