@@ -169,6 +169,9 @@ export default class PPNode extends PIXI.Container {
       this._NodeNameRef.alpha = 0;
     }
 
+    // add static inputs and outputs
+    this.getDefaultIO().forEach((IO) => this.addSocket(IO));
+
     // draw shape
     this.drawNodeShape();
 
@@ -227,10 +230,26 @@ export default class PPNode extends PIXI.Container {
     }
   }
 
+  addSocket(socket: Socket): void {
+    const socketRef = this.addChild(socket);
+    switch (socket.socketType) {
+      case SOCKET_TYPE.IN: {
+        this.inputSocketArray.push(socketRef);
+        break;
+      }
+      case SOCKET_TYPE.OUT: {
+        this.outputSocketArray.push(socketRef);
+        break;
+      }
+    }
+
+    this.drawNodeShape();
+  }
+
   addInput(
     name: string,
     type: string,
-    data?: any,
+    data?: unknown,
     visible?: boolean,
     custom?: Record<string, any>
   ): void {
@@ -471,6 +490,10 @@ export default class PPNode extends PIXI.Container {
     return new UpdateBehaviour(true, true, false, 1000);
   }
 
+  protected getDefaultIO(): Socket[] {
+    return [];
+  }
+
   updateCommentPosition(): void {
     // console.log(this.x, this.y);
     this._NodeCommentRef.x = getNodeCommentPosX(this.x, this.width);
@@ -680,7 +703,7 @@ export default class PPNode extends PIXI.Container {
     }
   }
 
-  execute(upstreamContent: Set<string>): void {
+  async execute(upstreamContent: Set<string>): Promise<void> {
     // remap input
     const inputObject = {};
     this.inputSocketArray.forEach((input: Socket) => {
@@ -688,7 +711,7 @@ export default class PPNode extends PIXI.Container {
     });
     const outputObject = {};
 
-    this.onExecute(inputObject, outputObject);
+    await this.onExecute(inputObject, outputObject);
     this.onAfterExecute();
 
     // output whatever the user has put in
@@ -706,7 +729,7 @@ export default class PPNode extends PIXI.Container {
   }
 
   // dont call this from outside, only from child class
-  protected onExecute(input, output): void {
+  protected async onExecute(input, output): Promise<void> {
     // just define function
   }
 
