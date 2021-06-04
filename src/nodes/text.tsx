@@ -528,8 +528,8 @@ export class Label extends PPNode {
       nodeWidth,
       color: fillColor,
       colorTransparency: 1.0,
-      noRoundedCorners: true,
-      noLabels: true,
+      roundedCorners: false,
+      showLabels: false,
     });
 
     this.addOutput('text', DATATYPE.STRING, undefined, false);
@@ -761,8 +761,8 @@ export class Note extends PPNode {
       nodeWidth,
       nodeHeight,
       colorTransparency: 0,
-      noRoundedCorners: true,
-      noLabels: true,
+      roundedCorners: false,
+      showLabels: false,
     });
 
     this.addOutput('data', DATATYPE.STRING, undefined, false);
