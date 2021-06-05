@@ -98,6 +98,11 @@ export default class PPGraph {
 
       // register pointer events
       this.viewport.on('pointerdown', this._onPointerDown.bind(this));
+      this.viewport.on(
+        'pointerupoutside',
+        this._onPointerUpAndUpOutside.bind(this)
+      );
+      this.viewport.on('pointerup', this._onPointerUpAndUpOutside.bind(this));
       this.viewport.on('rightclick', this._onPointerRightClicked.bind(this));
     };
     addEventListeners();
@@ -123,13 +128,43 @@ export default class PPGraph {
     }
   }
 
-  _onPointerDown(): void {
-    this.deselectAllNodes();
+  _onPointerDown(event: PIXI.InteractionEvent): void {
+    // console.log('_onPointerDown');
+    event.stopPropagation();
+    if (event.data.originalEvent.shiftKey) {
+      this.viewport.plugins.pause('drag');
+      const dragSourcePoint = new PIXI.Point(
+        (event.data.originalEvent as MouseEvent).clientX,
+        (event.data.originalEvent as MouseEvent).clientY
+      );
+      // change dragSourcePoint coordinates from screen to world space
+      this.dragSourcePoint = this.viewport.toWorld(dragSourcePoint);
+      console.log(event.target, this.dragSourcePoint);
+
+      // subscribe to pointermove
+      this.onViewportMoveHandler = this.onViewportMove.bind(this);
+      this.viewport.on('pointermove', this.onViewportMoveHandler);
+    } else {
+      this.deselectAllNodes();
+    }
+  }
+
+  _onPointerUpAndUpOutside(): void {
+    // unsubscribe from pointermove
+    console.log('_onPointerUpAndUpOutside');
+    if (this.dragSourcePoint !== null) {
+      this.viewport.removeListener('pointermove', this.onViewportMoveHandler);
+    }
+
+    this.viewport.plugins.resume('drag');
+    this.tempConnection.clear();
+    this.draggingNodes = false;
+    this.dragSourcePoint = null;
   }
 
   _onNodePointerDown(event: PIXI.InteractionEvent): void {
-    // stop propagation so viewport does not get dragged
     event.stopPropagation();
+    this.viewport.plugins.pause('drag');
 
     console.log('_onNodePointerDown');
     const node = event.currentTarget as PPNode;
@@ -168,6 +203,8 @@ export default class PPGraph {
 
   onViewportMove(event: PIXI.InteractionEvent): void {
     // console.log('onViewportMove');
+
+    // draw connection
     if (this.clickedSocketRef !== null && !this.clickedSocketRef.isInput()) {
       // remove original link
       if (this.movingLink !== null) {
@@ -210,6 +247,27 @@ export default class PPGraph {
       // offset curve to start from source
       this.tempConnection.x = sourcePointX;
       this.tempConnection.y = sourcePointY;
+    } else if (this.dragSourcePoint !== null) {
+      // temporarily draw rectangle while dragging
+      const clickPoint = new PIXI.Point(
+        (event.data.originalEvent as MouseEvent).clientX,
+        (event.data.originalEvent as MouseEvent).clientY
+      );
+      const targetPoint = this.viewport.toWorld(clickPoint);
+      const sx = this.dragSourcePoint.x;
+      const sy = this.dragSourcePoint.y;
+      const tx = targetPoint.x;
+      const ty = targetPoint.y;
+
+      this.tempConnection.clear();
+      this.tempConnection.beginFill(CONNECTION_COLOR_HEX, 0.2);
+      this.tempConnection.lineStyle(1, CONNECTION_COLOR_HEX, 0.3);
+      this.tempConnection.drawRect(
+        Math.min(sx, tx),
+        Math.min(sy, ty),
+        Math.max(sx, tx) - Math.min(sx, tx),
+        Math.max(sy, ty) - Math.min(sy, ty)
+      );
     } else {
       this.draggingNodes = true;
     }
@@ -247,11 +305,13 @@ export default class PPGraph {
         }
       }
     }
+    this.viewport.plugins.resume('drag');
     this.tempConnection.clear();
     this.clickedSocketRef = null;
     this.overInputRef = null;
     this.movingLink = null;
     this.draggingNodes = false;
+    this.dragSourcePoint = null;
   }
 
   // GETTERS & SETTERS
