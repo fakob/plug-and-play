@@ -87,6 +87,8 @@ export default class PPGraph {
     this.tempContainer.addChild(this.tempConnection);
     this.tempConnection.name = 'tempConnection';
 
+    this.viewport.cursor = 'grab';
+
     // add event listeners
     const addEventListeners = (): void => {
       // listen to window resize event and resize app
@@ -117,7 +119,6 @@ export default class PPGraph {
   }
 
   // SETUP
-
   _onPointerRightClicked(event: PIXI.InteractionEvent): void {
     console.log('GraphClass - _onPointerRightClicked');
     event.stopPropagation();
@@ -146,6 +147,7 @@ export default class PPGraph {
       this.onViewportMoveHandler = this.onViewportMove.bind(this);
       this.viewport.on('pointermove', this.onViewportMoveHandler);
     } else {
+      this.viewport.cursor = 'grabbing';
       this.deselectAllNodes();
     }
   }
@@ -157,6 +159,7 @@ export default class PPGraph {
       this.viewport.removeListener('pointermove', this.onViewportMoveHandler);
     }
 
+    this.viewport.cursor = 'grab';
     this.viewport.plugins.resume('drag');
     this.tempConnection.clear();
     this.draggingNodes = false;
@@ -255,37 +258,25 @@ export default class PPGraph {
         (event.data.originalEvent as MouseEvent).clientY
       );
       const targetPoint = this.viewport.toWorld(clickPoint);
-      console.log(clickPoint, targetPoint, this.viewport.scale.x);
-      const sx = this.dragSourcePoint.x;
-      const sy = this.dragSourcePoint.y;
-      const tx = targetPoint.x;
-      const ty = targetPoint.y;
 
-      const selectionRect = new PIXI.Rectangle(
-        Math.min(sx, tx),
-        Math.min(sy, ty),
-        Math.max(sx, tx) - Math.min(sx, tx),
-        Math.max(sy, ty) - Math.min(sy, ty)
-      );
+      const selX = Math.min(this.dragSourcePoint.x, targetPoint.x);
+      const selY = Math.min(this.dragSourcePoint.y, targetPoint.y);
+      const selWidth = Math.max(this.dragSourcePoint.x, targetPoint.x) - selX;
+      const selHeight = Math.max(this.dragSourcePoint.y, targetPoint.y) - selY;
 
       this.tempConnection.clear();
       this.tempConnection.beginFill(CONNECTION_COLOR_HEX, 0.2);
       this.tempConnection.lineStyle(1, CONNECTION_COLOR_HEX, 0.3);
-      this.tempConnection.drawRect(
-        selectionRect.x,
-        selectionRect.y,
-        selectionRect.width,
-        selectionRect.height
-      );
+      this.tempConnection.drawRect(selX, selY, selWidth, selHeight);
 
-      // bring selectionRect into node nodeContainer space
-      const selectionRectForBounds = new PIXI.Rectangle(
-        Math.min(sx, tx) * this.viewport.scale.x + this.viewport.x,
-        Math.min(sy, ty) * this.viewport.scale.x + this.viewport.y,
-        (Math.max(sx, tx) - Math.min(sx, tx)) * this.viewport.scale.x,
-        (Math.max(sy, ty) - Math.min(sy, ty)) * this.viewport.scale.x
+      // bring drawing rect into node nodeContainer space
+      const selectionRect = new PIXI.Rectangle(
+        selX * this.viewport.scale.x + this.viewport.x,
+        selY * this.viewport.scale.x + this.viewport.y,
+        selWidth * this.viewport.scale.x,
+        selHeight * this.viewport.scale.x
       );
-      getObjectsInsideBounds(this.nodes, selectionRectForBounds);
+      getObjectsInsideBounds(this.nodes, selectionRect);
     } else {
       this.draggingNodes = true;
     }

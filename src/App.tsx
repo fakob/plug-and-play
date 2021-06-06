@@ -287,6 +287,9 @@ const App = (): JSX.Element => {
     // register key events
     const keysDown = (e: KeyboardEvent): void => {
       // console.log(e.key);
+      if (e.shiftKey) {
+        viewport.current.cursor = 'default';
+      }
       if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'f') {
         e.preventDefault();
         setIsSearchOpen((prevState) => !prevState);
