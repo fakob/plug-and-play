@@ -162,6 +162,8 @@ export default class PPGraph {
     this.viewport.cursor = 'grab';
     this.viewport.plugins.resume('drag');
     this.tempConnection.clear();
+    this.tempConnection.x = 0;
+    this.tempConnection.y = 0;
     this.draggingNodes = false;
     this.dragSourcePoint = null;
   }
@@ -276,7 +278,7 @@ export default class PPGraph {
         selWidth * this.viewport.scale.x,
         selHeight * this.viewport.scale.x
       );
-      getObjectsInsideBounds(this.nodes, selectionRect);
+      this.selectNodes(getObjectsInsideBounds(this.nodes, selectionRect));
     } else {
       this.draggingNodes = true;
     }
@@ -533,15 +535,25 @@ export default class PPGraph {
   }
 
   selectNode(node: PPNode): void {
-    this.deselectAllNodes();
-    if (node === null) {
+    if (node == null) {
+      this.deselectAllNodes();
     } else {
-      node.select(true);
-      this.selectedNodes = [node.id];
+      this.selectNodes([node]);
+    }
+  }
 
-      if (this.onSelectionChange) {
-        this.onSelectionChange(this.selectedNodes);
-      }
+  selectNodes(nodes: PPNode[]): void {
+    this.deselectAllNodes();
+    if (nodes == null) {
+      this.deselectAllNodes();
+    } else {
+      nodes.map((node) => {
+        node.select(true);
+        this.selectedNodes.push(node.id);
+      });
+    }
+    if (this.onSelectionChange) {
+      this.onSelectionChange(this.selectedNodes);
     }
   }
 

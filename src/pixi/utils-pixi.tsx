@@ -99,8 +99,9 @@ export const getTextWithLineBreaks = (node: any): string => {
 export const getObjectsInsideBounds = (
   nodes: PPNode[],
   selectionRect: PIXI.Rectangle
-): void => {
+): PPNode[] => {
   console.log(selectionRect);
+  const selectedNodes: PPNode[] = [];
   for (let i = 0; i < nodes.length; i++) {
     const node = nodes[i];
     const nodeBounds = node.getBounds();
@@ -115,6 +116,9 @@ export const getObjectsInsideBounds = (
         selectionRect.x + selectionRect.width &&
       nodeBounds.y + nodeBounds.height <=
         selectionRect.y + selectionRect.height;
-    isInside ? (node.alpha = 0.5) : (node.alpha = 1.0);
+    if (isInside) {
+      selectedNodes.push(node);
+    }
   }
+  return selectedNodes;
 };
