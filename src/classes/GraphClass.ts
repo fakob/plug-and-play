@@ -16,6 +16,7 @@ import {
 import PPNode from './NodeClass';
 import Socket from './SocketClass';
 import PPLink from './LinkClass';
+import { getObjectsInsideBounds } from '../pixi/utils-pixi';
 
 export default class PPGraph {
   app: PIXI.Application;
@@ -254,20 +255,37 @@ export default class PPGraph {
         (event.data.originalEvent as MouseEvent).clientY
       );
       const targetPoint = this.viewport.toWorld(clickPoint);
+      console.log(clickPoint, targetPoint, this.viewport.scale.x);
       const sx = this.dragSourcePoint.x;
       const sy = this.dragSourcePoint.y;
       const tx = targetPoint.x;
       const ty = targetPoint.y;
 
-      this.tempConnection.clear();
-      this.tempConnection.beginFill(CONNECTION_COLOR_HEX, 0.2);
-      this.tempConnection.lineStyle(1, CONNECTION_COLOR_HEX, 0.3);
-      this.tempConnection.drawRect(
+      const selectionRect = new PIXI.Rectangle(
         Math.min(sx, tx),
         Math.min(sy, ty),
         Math.max(sx, tx) - Math.min(sx, tx),
         Math.max(sy, ty) - Math.min(sy, ty)
       );
+
+      this.tempConnection.clear();
+      this.tempConnection.beginFill(CONNECTION_COLOR_HEX, 0.2);
+      this.tempConnection.lineStyle(1, CONNECTION_COLOR_HEX, 0.3);
+      this.tempConnection.drawRect(
+        selectionRect.x,
+        selectionRect.y,
+        selectionRect.width,
+        selectionRect.height
+      );
+
+      // bring selectionRect into node nodeContainer space
+      const selectionRectForBounds = new PIXI.Rectangle(
+        Math.min(sx, tx) * this.viewport.scale.x + this.viewport.x,
+        Math.min(sy, ty) * this.viewport.scale.x + this.viewport.y,
+        (Math.max(sx, tx) - Math.min(sx, tx)) * this.viewport.scale.x,
+        (Math.max(sy, ty) - Math.min(sy, ty)) * this.viewport.scale.x
+      );
+      getObjectsInsideBounds(this.nodes, selectionRectForBounds);
     } else {
       this.draggingNodes = true;
     }

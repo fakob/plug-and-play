@@ -1,4 +1,6 @@
+import * as PIXI from 'pixi.js';
 import Color from 'color';
+import PPNode from '../classes/NodeClass';
 import { TRgba } from '../utils/interfaces';
 import { COLOR } from '../utils/constants';
 
@@ -92,4 +94,27 @@ export const getTextWithLineBreaks = (node: any): string => {
   lines.push(str.substr(lastFound));
 
   return lines.join('\n');
+};
+
+export const getObjectsInsideBounds = (
+  nodes: PPNode[],
+  selectionRect: PIXI.Rectangle
+): void => {
+  console.log(selectionRect);
+  for (let i = 0; i < nodes.length; i++) {
+    const node = nodes[i];
+    const nodeBounds = node.getBounds();
+    console.log(
+      nodeBounds,
+      nodeBounds.x >= selectionRect.x && nodeBounds.y >= selectionRect.y
+    );
+    const isInside =
+      nodeBounds.x >= selectionRect.x &&
+      nodeBounds.y >= selectionRect.y &&
+      nodeBounds.x + nodeBounds.width <=
+        selectionRect.x + selectionRect.width &&
+      nodeBounds.y + nodeBounds.height <=
+        selectionRect.y + selectionRect.height;
+    isInside ? (node.alpha = 0.5) : (node.alpha = 1.0);
+  }
 };
