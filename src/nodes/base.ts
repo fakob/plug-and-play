@@ -196,42 +196,6 @@ export class RandomArray extends PPNode {
     this.setOutputData('output array', randomArray);
   }
 }
-
-export class MakeAPICall extends PPNode {
-  // _rectRef: PIXI.Graphics;
-  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, {
-      ...customArgs,
-      color: NODE_TYPE_COLOR.INPUT,
-    });
-
-    const url = 'https://jsonplaceholder.typicode.com/users';
-
-    this.addOutput('response', DATATYPE.STRING);
-    this.addInput('trigger', DATATYPE.TRIGGER);
-    this.addInput('url', DATATYPE.STRING, url);
-
-    this.name = 'Make API call';
-    this.description = 'Makes an API call and outputs the response';
-  }
-  trigger(): void {
-    axios
-      .get(this.getInputData('url'))
-      .then((response) => {
-        // handle success
-        console.log(response);
-        this.setOutputData('response', response.data);
-      })
-      .catch((error) => {
-        // handle error
-        console.log(error);
-      })
-      .then(function () {
-        // always executed
-      });
-  }
-}
-
 export class Trigger extends PPNode {
   _rectRef: PIXI.Graphics;
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
