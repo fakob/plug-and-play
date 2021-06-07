@@ -1304,6 +1304,24 @@
     mkdirp "^1.0.4"
     rimraf "^3.0.2"
 
+"@pixi-essentials/bounds@~2.1.1":
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/@pixi-essentials/bounds/-/bounds-2.1.1.tgz#8860bb109f68600ac09c3b36bc78eb48b73619b5"
+  integrity sha512-i/rhUHrC9wxBrpsxhN0HpvgtkKDnjJ2VYn4HaSjyN+X8QWXTPK6pla+rqRFcMiJTVAkE8rHjdd0nPdpxTE4ypQ==
+
+"@pixi-essentials/object-pool@~0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@pixi-essentials/object-pool/-/object-pool-0.1.0.tgz#e612a3a57b13fa1c92061a9a8e80cd5cd0bbc707"
+  integrity sha512-TAppOWSKBbONgphgx5W9Kw06dvoPRChcDLLB5O/+/pUBbx13fDk6Ra+azqLXqOvwzBEZ5pG3AGFIxRn2twJbOg==
+
+"@pixi-essentials/transformer@^2.3.3":
+  version "2.3.3"
+  resolved "https://registry.yarnpkg.com/@pixi-essentials/transformer/-/transformer-2.3.3.tgz#db6ae0be3df64c02913d18ad1f56aed80672bb32"
+  integrity sha512-V2HC/usJ6Wt9LW/L2Vd4oZAuwkZBYqtpJGTppGPvmWos+/ywKauj8bZWF23JbHpsgvPN0+elUv9GKu0s8g3oIA==
+  dependencies:
+    "@pixi-essentials/bounds" "~2.1.1"
+    "@pixi-essentials/object-pool" "~0.1.0"
+
 "@pixi/accessibility@6.0.4":
   version "6.0.4"
   resolved "https://registry.yarnpkg.com/@pixi/accessibility/-/accessibility-6.0.4.tgz#842ff8e4303cbc46fc2dd02c263a110fd23fb656"

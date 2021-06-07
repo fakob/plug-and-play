@@ -1,6 +1,7 @@
 import * as PIXI from 'pixi.js';
 import strip from 'strip-comments';
 import { Viewport } from 'pixi-viewport';
+import { Transformer } from '@pixi-essentials/transformer';
 
 import {
   CONNECTION_COLOR_HEX,
@@ -39,12 +40,13 @@ export default class PPGraph {
   backgroundTempContainer: PIXI.Container;
   backgroundCanvas: PIXI.Container;
   foregroundCanvas: PIXI.Container;
-  foregroundTempContainer: PIXI.Container;
+  commentContainer: PIXI.Container;
   connectionContainer: PIXI.Container;
   nodeContainer: PIXI.Container;
 
   tempConnection: PIXI.Graphics;
   selectionGraphics: PIXI.Graphics;
+  transformer: Transformer;
 
   onSelectionChange: ((selectedNodes: string[]) => void) | null; // called when the selection has changed
   onRightClick:
@@ -74,8 +76,8 @@ export default class PPGraph {
     this.nodeContainer.name = 'nodeContainer';
     this.foregroundCanvas = new PIXI.Container();
     this.foregroundCanvas.name = 'foregroundCanvas';
-    this.foregroundTempContainer = new PIXI.Container();
-    this.foregroundTempContainer.name = 'foregroundTempContainer';
+    this.commentContainer = new PIXI.Container();
+    this.commentContainer.name = 'commentContainer';
 
     this.viewport.addChild(
       this.backgroundCanvas,
@@ -83,16 +85,30 @@ export default class PPGraph {
       this.backgroundTempContainer,
       this.nodeContainer,
       this.foregroundCanvas,
-      this.foregroundTempContainer
+      this.commentContainer
     );
 
     this.tempConnection = new PIXI.Graphics();
-    this.backgroundTempContainer.addChild(this.tempConnection);
     this.tempConnection.name = 'tempConnection';
+    this.backgroundTempContainer.addChild(this.tempConnection);
 
     this.selectionGraphics = new PIXI.Graphics();
-    this.backgroundTempContainer.addChild(this.selectionGraphics);
     this.selectionGraphics.name = 'selectionGraphics';
+    this.backgroundTempContainer.addChild(this.selectionGraphics);
+    this.transformer = app.stage.addChild(
+      new Transformer({
+        boundingBoxes: 'groupOnly',
+        rotateEnabled: false,
+        boxRotationEnabled: false,
+        scaleEnabled: false,
+        boxScalingEnabled: false,
+        group: [],
+        wireframeStyle: {
+          thickness: 0.5,
+          color: CONNECTION_COLOR_HEX,
+        },
+      })
+    );
 
     this.viewport.cursor = 'grab';
 
@@ -155,6 +171,7 @@ export default class PPGraph {
       this.viewport.on('pointermove', this.onViewportMoveHandler);
     } else {
       this.viewport.cursor = 'grabbing';
+      this.transformer.group = [];
       this.deselectAllNodes();
     }
   }
@@ -164,6 +181,15 @@ export default class PPGraph {
     console.log('_onPointerUpAndUpOutside');
     if (this.dragSourcePoint !== null) {
       this.viewport.removeListener('pointermove', this.onViewportMoveHandler);
+      console.log(this.selectedNodes);
+      const arrayOfNodes: PPNode[] = [];
+      this.selectedNodes.forEach((id) => {
+        arrayOfNodes.push(this.getNodeById(id));
+      });
+      console.log(arrayOfNodes);
+      if (arrayOfNodes.length > 0) {
+        this.transformer.group = arrayOfNodes;
+      }
     }
 
     this.viewport.cursor = 'grab';
@@ -344,7 +370,7 @@ export default class PPGraph {
 
   set showComments(value: boolean) {
     this._showComments = value;
-    this.foregroundTempContainer.visible = value;
+    this.commentContainer.visible = value;
   }
   // METHODS
 
@@ -532,7 +558,7 @@ export default class PPGraph {
     this.foregroundCanvas.removeChildren();
 
     // clearn comment canvas
-    this.foregroundTempContainer.removeChildren();
+    this.commentContainer.removeChildren();
 
     // remove selected nodes
     this.deselectAllNodes();

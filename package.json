@@ -24,6 +24,7 @@
     "@blueprintjs/popover2": "^0.3.1",
     "@blueprintjs/select": "^3.15.4",
     "@blueprintjs/table": "^3.8.26",
+    "@pixi-essentials/transformer": "^2.3.3",
     "@pixi/filter-drop-shadow": "^4.1.0",
     "@pixi/text-html": "^1.0.0",
     "axios": "^0.21.0",
