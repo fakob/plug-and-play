@@ -159,7 +159,9 @@ export default class PPNode extends PIXI.Container {
     this._BackgroundRef = this.addChild(background);
     this._NodeNameRef = this.addChild(inputNameText);
     this._NodeCommentRef = (
-      this.graph.viewport.getChildByName('commentContainer') as PIXI.Container
+      this.graph.viewport.getChildByName(
+        'foregroundTempContainer'
+      ) as PIXI.Container
     ).addChild(nodeComment);
 
     // do not show the node name
@@ -886,7 +888,9 @@ export default class PPNode extends PIXI.Container {
 
     // remove node comment
     (
-      this.graph.viewport.getChildByName('commentContainer') as PIXI.Container
+      this.graph.viewport.getChildByName(
+        'foregroundTempContainer'
+      ) as PIXI.Container
     ).removeChild(this._NodeCommentRef);
 
     // remove added listener from graph.viewport

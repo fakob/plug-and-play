@@ -36,13 +36,15 @@ export default class PPGraph {
   movingLink: null | PPLink;
   draggingNodes: boolean;
 
-  tempConnection: PIXI.Graphics;
-  tempContainer: PIXI.Container;
+  backgroundTempContainer: PIXI.Container;
   backgroundCanvas: PIXI.Container;
   foregroundCanvas: PIXI.Container;
-  commentContainer: PIXI.Container;
+  foregroundTempContainer: PIXI.Container;
   connectionContainer: PIXI.Container;
   nodeContainer: PIXI.Container;
+
+  tempConnection: PIXI.Graphics;
+  selectionGraphics: PIXI.Graphics;
 
   onSelectionChange: ((selectedNodes: string[]) => void) | null; // called when the selection has changed
   onRightClick:
@@ -62,9 +64,8 @@ export default class PPGraph {
     this.dragSourcePoint = null;
     this.movingLink = null;
 
-    this.tempConnection = new PIXI.Graphics();
-    this.tempContainer = new PIXI.Container();
-    this.tempContainer.name = 'tempContainer';
+    this.backgroundTempContainer = new PIXI.Container();
+    this.backgroundTempContainer.name = 'backgroundTempContainer';
     this.backgroundCanvas = new PIXI.Container();
     this.backgroundCanvas.name = 'backgroundCanvas';
     this.connectionContainer = new PIXI.Container();
@@ -73,19 +74,25 @@ export default class PPGraph {
     this.nodeContainer.name = 'nodeContainer';
     this.foregroundCanvas = new PIXI.Container();
     this.foregroundCanvas.name = 'foregroundCanvas';
-    this.commentContainer = new PIXI.Container();
-    this.commentContainer.name = 'commentContainer';
+    this.foregroundTempContainer = new PIXI.Container();
+    this.foregroundTempContainer.name = 'foregroundTempContainer';
 
     this.viewport.addChild(
       this.backgroundCanvas,
       this.connectionContainer,
-      this.tempContainer,
+      this.backgroundTempContainer,
       this.nodeContainer,
       this.foregroundCanvas,
-      this.commentContainer
+      this.foregroundTempContainer
     );
-    this.tempContainer.addChild(this.tempConnection);
+
+    this.tempConnection = new PIXI.Graphics();
+    this.backgroundTempContainer.addChild(this.tempConnection);
     this.tempConnection.name = 'tempConnection';
+
+    this.selectionGraphics = new PIXI.Graphics();
+    this.backgroundTempContainer.addChild(this.selectionGraphics);
+    this.selectionGraphics.name = 'selectionGraphics';
 
     this.viewport.cursor = 'grab';
 
@@ -161,9 +168,9 @@ export default class PPGraph {
 
     this.viewport.cursor = 'grab';
     this.viewport.plugins.resume('drag');
-    this.tempConnection.clear();
-    this.tempConnection.x = 0;
-    this.tempConnection.y = 0;
+    this.selectionGraphics.clear();
+    this.selectionGraphics.x = 0;
+    this.selectionGraphics.y = 0;
     this.draggingNodes = false;
     this.dragSourcePoint = null;
   }
@@ -266,10 +273,10 @@ export default class PPGraph {
       const selWidth = Math.max(this.dragSourcePoint.x, targetPoint.x) - selX;
       const selHeight = Math.max(this.dragSourcePoint.y, targetPoint.y) - selY;
 
-      this.tempConnection.clear();
-      this.tempConnection.beginFill(CONNECTION_COLOR_HEX, 0.2);
-      this.tempConnection.lineStyle(1, CONNECTION_COLOR_HEX, 0.3);
-      this.tempConnection.drawRect(selX, selY, selWidth, selHeight);
+      this.selectionGraphics.clear();
+      this.selectionGraphics.beginFill(CONNECTION_COLOR_HEX, 0.2);
+      this.selectionGraphics.lineStyle(1, CONNECTION_COLOR_HEX, 0.3);
+      this.selectionGraphics.drawRect(selX, selY, selWidth, selHeight);
 
       // bring drawing rect into node nodeContainer space
       const selectionRect = new PIXI.Rectangle(
@@ -337,7 +344,7 @@ export default class PPGraph {
 
   set showComments(value: boolean) {
     this._showComments = value;
-    this.commentContainer.visible = value;
+    this.foregroundTempContainer.visible = value;
   }
   // METHODS
 
@@ -525,7 +532,7 @@ export default class PPGraph {
     this.foregroundCanvas.removeChildren();
 
     // clearn comment canvas
-    this.commentContainer.removeChildren();
+    this.foregroundTempContainer.removeChildren();
 
     // remove selected nodes
     this.deselectAllNodes();
