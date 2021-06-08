@@ -122,3 +122,26 @@ export const getObjectsInsideBounds = (
   }
   return selectedNodes;
 };
+
+export const getBoundsOfNodes = (nodes: PPNode[]): PIXI.Rectangle => {
+  let minX = Number.MAX_VALUE;
+  let minY = Number.MAX_VALUE;
+  let maxX = -Number.MAX_VALUE;
+  let maxY = -Number.MAX_VALUE;
+
+  for (let i = 0; i < nodes.length; i++) {
+    const node = nodes[i];
+    const nodeBounds = node.getBounds();
+    minX = nodeBounds.x < minX ? nodeBounds.x : minX;
+    minY = nodeBounds.y < minY ? nodeBounds.y : minY;
+    maxX =
+      nodeBounds.x + nodeBounds.width > maxX
+        ? nodeBounds.x + nodeBounds.width
+        : maxX;
+    maxY =
+      nodeBounds.y + nodeBounds.height > maxY
+        ? nodeBounds.y + nodeBounds.height
+        : maxY;
+  }
+  return new PIXI.Rectangle(minX, minY, maxX - minX, maxY - minY);
+};

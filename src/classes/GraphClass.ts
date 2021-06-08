@@ -1,7 +1,6 @@
 import * as PIXI from 'pixi.js';
 import strip from 'strip-comments';
 import { Viewport } from 'pixi-viewport';
-import { Transformer } from '@pixi-essentials/transformer';
 
 import {
   CONNECTION_COLOR_HEX,
@@ -17,7 +16,7 @@ import {
 import PPNode from './NodeClass';
 import Socket from './SocketClass';
 import PPLink from './LinkClass';
-import { getObjectsInsideBounds } from '../pixi/utils-pixi';
+import { getBoundsOfNodes, getObjectsInsideBounds } from '../pixi/utils-pixi';
 
 export default class PPGraph {
   app: PIXI.Application;
@@ -39,10 +38,11 @@ export default class PPGraph {
 
   backgroundTempContainer: PIXI.Container;
   backgroundCanvas: PIXI.Container;
-  foregroundCanvas: PIXI.Container;
-  commentContainer: PIXI.Container;
   connectionContainer: PIXI.Container;
   nodeContainer: PIXI.Container;
+  commentContainer: PIXI.Container;
+  foregroundCanvas: PIXI.Container;
+  foregroundTempContainer: PIXI.Container;
 
   tempConnection: PIXI.Graphics;
   selectionGraphics: PIXI.Graphics;
@@ -78,13 +78,16 @@ export default class PPGraph {
     this.foregroundCanvas.name = 'foregroundCanvas';
     this.commentContainer = new PIXI.Container();
     this.commentContainer.name = 'commentContainer';
+    this.foregroundTempContainer = new PIXI.Container();
+    this.foregroundTempContainer.name = 'foregroundTempContainer';
 
     this.viewport.addChild(
       this.backgroundCanvas,
-      this.connectionContainer,
       this.backgroundTempContainer,
+      this.connectionContainer,
       this.nodeContainer,
       this.foregroundCanvas,
+      this.foregroundTempContainer,
       this.commentContainer
     );
 
@@ -94,21 +97,7 @@ export default class PPGraph {
 
     this.selectionGraphics = new PIXI.Graphics();
     this.selectionGraphics.name = 'selectionGraphics';
-    this.backgroundTempContainer.addChild(this.selectionGraphics);
-    this.transformer = app.stage.addChild(
-      new Transformer({
-        boundingBoxes: 'groupOnly',
-        rotateEnabled: false,
-        boxRotationEnabled: false,
-        scaleEnabled: false,
-        boxScalingEnabled: false,
-        group: [],
-        wireframeStyle: {
-          thickness: 0.5,
-          color: CONNECTION_COLOR_HEX,
-        },
-      })
-    );
+    this.app.stage.addChild(this.selectionGraphics);
 
     this.viewport.cursor = 'grab';
 
@@ -163,7 +152,7 @@ export default class PPGraph {
         (event.data.originalEvent as MouseEvent).clientY
       );
       // change dragSourcePoint coordinates from screen to world space
-      this.dragSourcePoint = this.viewport.toWorld(dragSourcePoint);
+      this.dragSourcePoint = dragSourcePoint;
       console.log(event.target, this.dragSourcePoint);
 
       // subscribe to pointermove
@@ -171,7 +160,9 @@ export default class PPGraph {
       this.viewport.on('pointermove', this.onViewportMoveHandler);
     } else {
       this.viewport.cursor = 'grabbing';
-      this.transformer.group = [];
+      this.selectionGraphics.clear();
+      this.selectionGraphics.x = 0;
+      this.selectionGraphics.y = 0;
       this.deselectAllNodes();
     }
   }
@@ -188,15 +179,24 @@ export default class PPGraph {
       });
       console.log(arrayOfNodes);
       if (arrayOfNodes.length > 0) {
-        this.transformer.group = arrayOfNodes;
+        const selectionRect = getBoundsOfNodes(arrayOfNodes);
+        console.log(selectionRect);
+        this.selectionGraphics.clear();
+        this.selectionGraphics.x = 0;
+        this.selectionGraphics.y = 0;
+        this.selectionGraphics.beginFill(CONNECTION_COLOR_HEX, 0.2);
+        this.selectionGraphics.lineStyle(1, CONNECTION_COLOR_HEX, 0.3);
+        this.selectionGraphics.drawRect(
+          selectionRect.x,
+          selectionRect.y,
+          selectionRect.width,
+          selectionRect.height
+        );
       }
     }
 
     this.viewport.cursor = 'grab';
     this.viewport.plugins.resume('drag');
-    this.selectionGraphics.clear();
-    this.selectionGraphics.x = 0;
-    this.selectionGraphics.y = 0;
     this.draggingNodes = false;
     this.dragSourcePoint = null;
   }
@@ -288,12 +288,10 @@ export default class PPGraph {
       this.tempConnection.y = sourcePointY;
     } else if (this.dragSourcePoint !== null) {
       // temporarily draw rectangle while dragging
-      const clickPoint = new PIXI.Point(
+      const targetPoint = new PIXI.Point(
         (event.data.originalEvent as MouseEvent).clientX,
         (event.data.originalEvent as MouseEvent).clientY
       );
-      const targetPoint = this.viewport.toWorld(clickPoint);
-
       const selX = Math.min(this.dragSourcePoint.x, targetPoint.x);
       const selY = Math.min(this.dragSourcePoint.y, targetPoint.y);
       const selWidth = Math.max(this.dragSourcePoint.x, targetPoint.x) - selX;
@@ -305,12 +303,7 @@ export default class PPGraph {
       this.selectionGraphics.drawRect(selX, selY, selWidth, selHeight);
 
       // bring drawing rect into node nodeContainer space
-      const selectionRect = new PIXI.Rectangle(
-        selX * this.viewport.scale.x + this.viewport.x,
-        selY * this.viewport.scale.x + this.viewport.y,
-        selWidth * this.viewport.scale.x,
-        selHeight * this.viewport.scale.x
-      );
+      const selectionRect = new PIXI.Rectangle(selX, selY, selWidth, selHeight);
       this.selectNodes(getObjectsInsideBounds(this.nodes, selectionRect));
     } else {
       this.draggingNodes = true;
