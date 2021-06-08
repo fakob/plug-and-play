@@ -39,10 +39,11 @@ import {
 import {
   COLOR,
   DATATYPE,
+  NODE_MARGIN,
   NODE_OUTLINE_DISTANCE,
+  NOTE_FONT,
   NOTE_FONTSIZE,
   NOTE_LINEHEIGHT_FACTOR,
-  NOTE_FONT,
   NOTE_MARGIN_STRING,
   NOTE_PADDING,
   NOTE_TEXTURE,
@@ -511,33 +512,38 @@ const SlateEditorContainer: React.FunctionComponent<TextProps> = (props) => {
   );
 };
 
-type LabelAdditionalProps = {
-  backgroundColor?: TRgba;
-  width?: number;
-  height?: number;
-  focus?: boolean;
-};
-
 export class Label extends PPNode {
-  update: (additionalProps?: LabelAdditionalProps) => void;
+  _refText: PIXI.Text;
+  _refTextStyle: PIXI.TextStyle;
+  currentInput: HTMLDivElement;
+  createInputElement: () => void;
 
   constructor(name: string, graph: PPGraph, customArgs?: CustomArgs) {
-    const nodeWidth = 300;
-    const nodeHeight = 62;
-    const isHybrid = true;
+    const nodeWidth = 128;
+    const fontSize = 32;
     const fillColor = COLOR[5];
 
     super(name, graph, {
       ...customArgs,
       nodeWidth,
-      nodeHeight,
-      isHybrid,
       color: fillColor,
       colorTransparency: 1.0,
+      roundedCorners: false,
+      showLabels: false,
     });
 
-    this.addOutput('data', DATATYPE.STRING, undefined, false);
-    this.addInput('data', DATATYPE.STRING, customArgs?.data ?? '', false);
+    this.addOutput('text', DATATYPE.STRING, undefined, false);
+    this.addInput('text', DATATYPE.STRING, customArgs?.data ?? '', false);
+    this.addInput(
+      'fontSize',
+      DATATYPE.NUMBER,
+      customArgs?.fontSize ?? fontSize,
+      false,
+      {
+        round: true,
+        minValue: 1,
+      }
+    );
     this.addInput(
       'backgroundColor',
       DATATYPE.COLOR,
@@ -545,203 +551,196 @@ export class Label extends PPNode {
       false
     );
     this.addInput(
-      'width',
+      'min-width',
       DATATYPE.NUMBER,
       customArgs?.width ?? nodeWidth,
-      false
-    );
-    this.addInput(
-      'height',
-      DATATYPE.NUMBER,
-      customArgs?.height ?? nodeHeight,
-      false
+      false,
+      {
+        round: true,
+        minValue: 1,
+      }
     );
 
     this.name = 'Label';
     this.description = 'Adds text';
 
-    // when the Node is added, add the container and react component
+    this.currentInput = null;
+
+    const canvas = this.graph.viewport.getChildByName(
+      'foregroundCanvas'
+    ) as PIXI.Container;
+
+    this._refTextStyle = new PIXI.TextStyle();
+    const basicText = new PIXI.Text('', this._refTextStyle);
+
+    this._refText = canvas.addChild(basicText);
+
+    // when the Node is added, focus it so one can start writing
     this.onNodeAdded = () => {
-      const data = this.getInputData('data') ?? '';
-      this.createContainerComponent(document, LabelParent, {
-        data,
-        focus: true,
-      });
-      // reset width and height
-      this.container.style.width = 'auto';
-      this.container.style.height = 'auto';
+      this._refText.visible = false;
+      this.createInputElement();
     };
 
-    // when the stored data is read, resize the node and update the react component
-    this.onConfigure = (): void => {
+    // when the Node has been configured, remove focus
+    this.onConfigure = () => {
+      this.currentInput.remove();
+      this._refText.visible = true;
+    };
+
+    this.createInputElement = () => {
+      // create html input element
+      const screenPoint = this.graph.viewport.toScreen(this.x, this.y);
+      const text = this.getInputData('text');
+      const fontSize = this.getInputData('fontSize');
       const color = trgbaToColor(this.getInputData('backgroundColor'));
-      // console.log(input['color']);
-      this.color = PIXI.utils.string2hex(color.hex());
-      this.colorTransparency = color.alpha();
-      const width = this.getInputData('width');
-      const height = this.getInputData('height');
-      this.resizeNode(width, height);
+      const marginLeftRight = fontSize / 1.5;
+      const marginTopBottom = fontSize / 2;
 
-      this.update({ width, height });
-    };
+      this.currentInput = document.createElement('div');
+      this.currentInput.id = 'Input';
+      this.currentInput.contentEditable = 'true';
+      this.currentInput.innerText = text;
 
-    // update the react component
-    this.update = (additionalProps?: LabelAdditionalProps): void => {
-      const data = this.getInputData('data');
-      this.renderReactComponent(LabelParent, {
-        ...baseProps,
-        ...additionalProps,
-        data,
+      const style = {
+        fontFamily: 'Arial',
+        fontSize: `${fontSize}px`,
+        lineHeight: `${fontSize * (NOTE_LINEHEIGHT_FACTOR + 0.022)}px`, // 0.022 corrects difference between div and PIXI.Text
+        textAlign: 'left',
+        margin: NOTE_MARGIN_STRING,
+        color: color.isDark() ? COLOR[20] : COLOR[21],
+        padding: `${marginTopBottom}px ${marginLeftRight}px`,
+        position: 'absolute',
+        background: 'transparent',
+        border: '0 none',
+        transformOrigin: 'top left',
+        transform: `scale(${this.graph.viewport.scale.x}`,
+        outline: '0px dashed black',
+        left: `${screenPoint.x}px`,
+        top: `${screenPoint.y}px`,
+        width: `${this.nodeWidth}px`,
+        height: `${this.nodeHeight}px`,
+      };
+      Object.assign(this.currentInput.style, style);
+
+      setTimeout(() => {
+        // set caret to end
+        const range = document.createRange();
+        const sel = window.getSelection();
+        range.selectNodeContents(this.currentInput);
+        range.collapse(false);
+        sel.removeAllRanges();
+        sel.addRange(range);
+
+        // set focus
+        this.currentInput.focus();
+        console.log(this.currentInput);
+      }, 100);
+
+      // add event handlers
+      this.currentInput.addEventListener('blur', (e) => {
+        console.log('blur', e);
+        this.currentInput.remove();
+        this._refText.visible = true;
       });
-      this.setOutputData('data', data);
-    };
 
-    this.onNodeSelected = () => {
-      console.log('onNodeSelected:', this.id);
-      const width = this.getInputData('width');
-      const height = this.getInputData('height');
-      this.update({ width, height });
+      this.currentInput.addEventListener('input', (e) => {
+        let text = (e as any).target.innerText;
+        this._refText.text = text;
+        const minWidth = this.getInputData('min-width');
+        const textMetrics = PIXI.TextMetrics.measureText(
+          text,
+          this._refTextStyle
+        );
+
+        // correct for issue in chrome where pressing enter would add 2 line breaks
+        // so I check for 2 empty line breaks at the end and delete one
+        let textMetricsHeight = textMetrics.height;
+        const length = textMetrics.lines.length;
+        if (
+          textMetrics.lines[length - 1] === '' &&
+          textMetrics.lines[length - 2] === ''
+        ) {
+          text = textMetrics.text.substr(0, textMetrics.text.length - 2);
+          this._refText.text = text;
+          textMetricsHeight = textMetrics.lineHeight * (length - 1);
+        }
+
+        const newWidth = textMetrics.width + marginLeftRight * 2;
+        const newHeight = textMetricsHeight * NOTE_LINEHEIGHT_FACTOR;
+        this.currentInput.style.width = `${newWidth}px`;
+        this.currentInput.style.height = `${newHeight + marginTopBottom * 2}px`;
+
+        this.resizeNode(
+          Math.max(minWidth, newWidth),
+          newHeight + marginTopBottom
+        );
+
+        this.setInputData('text', text);
+        this.setOutputData('text', text);
+      });
+
+      document.body.appendChild(this.currentInput);
     };
 
     this.onNodeDoubleClick = () => {
       console.log('onNodeDoubleClick:', this.id);
-      const width = this.getInputData('width');
-      const height = this.getInputData('height');
-      this.update({ width, height, focus: true });
+      this._refText.visible = false;
+      this.createInputElement();
     };
 
-    this.onExecute = async (input, output) => {
-      if (!this.doubleClicked) {
-        const data = input['data'];
-        const color = trgbaToColor(input['backgroundColor']);
-        // console.log(input['color']);
-        this.color = PIXI.utils.string2hex(color.hex());
-        this.colorTransparency = color.alpha();
-        this.setOutputData('data', data);
+    this.onExecute = async (input) => {
+      const text = String(input['text']);
+      const fontSize = input['fontSize'];
+      const minWidth = input['min-width'];
+      const color = trgbaToColor(input['backgroundColor']);
 
-        this.update();
+      const marginTopBottom = fontSize / 2;
+      const marginLeftRight = fontSize / 1.5;
+
+      this._refTextStyle.fontSize = fontSize;
+      this._refTextStyle.lineHeight = fontSize * NOTE_LINEHEIGHT_FACTOR;
+      this._refTextStyle.fill = color.isDark()
+        ? PIXI.utils.string2hex(COLOR[20])
+        : PIXI.utils.string2hex(COLOR[21]);
+
+      const textMetrics = PIXI.TextMetrics.measureText(
+        text,
+        this._refTextStyle
+      );
+
+      this.color = PIXI.utils.string2hex(color.hex());
+      this.colorTransparency = color.alpha();
+
+      this.resizeNode(
+        Math.max(minWidth, textMetrics.width + marginLeftRight * 2),
+        textMetrics.height + marginTopBottom * 2
+      );
+      this.setOutputData('text', text);
+
+      this._refText.text = text;
+      this._refText.x = this.x + NODE_MARGIN + marginLeftRight;
+      this._refText.y = this.y + NODE_OUTLINE_DISTANCE + marginTopBottom;
+    };
+
+    // scale input if node is scaled
+    this.onNodeDragOrViewportMove = () => {
+      if (this.currentInput !== null) {
+        const screenPoint = this.graph.viewport.toScreen(this.x, this.y);
+        this.currentInput.style.transform = `scale(${this.graph.viewport.scale.x}`;
+        this.currentInput.style.left = `${screenPoint.x}px`;
+        this.currentInput.style.top = `${screenPoint.y}px`;
       }
     };
 
-    const baseProps = {
-      update: this.update.bind(this),
-      resizeNode: this.resizeNode.bind(this),
-      setInputData: this.setInputData.bind(this),
-      setOutputData: this.setOutputData.bind(this),
+    this.onNodeRemoved = () => {
+      this._refText.destroy();
     };
+  }
 
-    // const style = {
-    //   display: 'flex',
-    //   // alignItems: 'center',
-    //   // justifyContent: 'center',
-    //   border: 'solid 1px #ddd',
-    //   background: '#f0f0f0',
-    // } as const;
+  protected shouldExecuteOnMove(): boolean {
+    return true;
   }
 }
-
-type LabelProps = {
-  update(): void;
-  resizeNode(width: number, height: number): void;
-  setInputData(name: string, data: any): void;
-  setOutputData(name: string, data: any): void;
-  id: string;
-  selected: boolean;
-  doubleClicked: boolean;
-  focus?: boolean;
-
-  width: number;
-  height: number;
-  data: any;
-};
-
-const LabelParent: React.FunctionComponent<LabelProps> = (props) => {
-  const [width, setWidth] = React.useState(props.width);
-  const [height, setHeight] = React.useState(props.height);
-  const [value, setValue] = React.useState(props.data);
-
-  // run on any props change after initial creation
-  useEffect(() => {
-    // change only if it was set
-    if (props.width) {
-      setWidth(props.width);
-    }
-    if (props.height) {
-      setHeight(props.height);
-    }
-  }, [props.width, props.height]);
-
-  useEffect(() => {
-    setValue(props.data);
-  }, [props.data]);
-
-  useEffect(() => {
-    // save value
-    if (!props.selected && props.setInputData !== undefined) {
-      onConfirm(value);
-    }
-  }, [props.selected]);
-
-  const onConfirm = (value) => {
-    setValue(value);
-    props.setInputData('data', value);
-    props.update();
-  };
-
-  return (
-    <Resizable
-      enable={{
-        right: true,
-        bottom: false,
-        bottomRight: false,
-        top: false,
-        left: false,
-        topRight: false,
-        topLeft: false,
-        bottomLeft: false,
-      }}
-      className={styles.resizeElementLabel}
-      handleClasses={{
-        right: styles.resizeHandle,
-        // bottomRight: styles.resizeHandle,
-        // bottom: styles.resizeHandle,
-      }}
-      style={{
-        borderStyle: 'dashed',
-        borderWidth: props.doubleClicked ? '0 1px 0 0' : '0',
-        borderColor: 'rgba(225, 84, 125, 1)',
-      }}
-      size={{ width, height }}
-      onResize={(e, direction, ref, d) => {
-        const width = ref.offsetWidth;
-        const height = ref.offsetHeight;
-        setWidth(width);
-        setHeight(height);
-        props.resizeNode(width, height);
-      }}
-      onResizeStop={(e, direction, ref, d) => {
-        const width = ref.offsetWidth;
-        const height = ref.offsetHeight;
-        props.setInputData('width', width);
-        props.setInputData('height', height);
-        console.log('onResizeStop: ', props.width, props.height);
-      }}
-    >
-      <H1>
-        <EditableText
-          placeholder="Write away..."
-          onChange={(value) => setValue(value)}
-          onConfirm={onConfirm}
-          isEditing={props.focus || props.doubleClicked}
-          defaultValue={props.data}
-          key={props.data} // hack so defaultValue get's set
-          selectAllOnFocus={true}
-          // multiline={true}
-        />
-      </H1>
-    </Resizable>
-  );
-};
 
 export class Note extends PPNode {
   _rectRef: PIXI.Sprite;
@@ -762,6 +761,8 @@ export class Note extends PPNode {
       nodeWidth,
       nodeHeight,
       colorTransparency: 0,
+      roundedCorners: false,
+      showLabels: false,
     });
 
     this.addOutput('data', DATATYPE.STRING, undefined, false);
@@ -829,7 +830,7 @@ export class Note extends PPNode {
       const screenPoint = this.graph.viewport.toScreen(this.x, this.y);
 
       this.currentInput = document.createElement('div');
-      this.currentInput.id = 'NoteInput';
+      this.currentInput.id = 'Input';
       this.currentInput.contentEditable = 'true';
       this.currentInput.innerHTML = this.inputSocketArray[0].data;
 

@@ -69,6 +69,8 @@ export default class PPNode extends PIXI.Container {
   nodeWidth: number;
   nodeHeight: number;
   isHybrid: boolean; // true if it is a hybrid node (html and webgl)
+  roundedCorners: boolean;
+  showLabels: boolean;
 
   // default to update on manual and update, 1 sec time update interval
   updateBehaviour: UpdateBehaviour;
@@ -116,6 +118,8 @@ export default class PPNode extends PIXI.Container {
       nodeWidth?: number;
       nodeHeight?: number;
       isHybrid?: boolean;
+      roundedCorners?: boolean;
+      showLabels?: boolean;
     }
   ) {
     super();
@@ -135,7 +139,16 @@ export default class PPNode extends PIXI.Container {
     console.log(customArgs);
     this.nodeWidth = customArgs?.nodeWidth ?? NODE_WIDTH;
     this.nodeHeight = customArgs?.nodeHeight ?? undefined;
-    this.isHybrid = customArgs?.isHybrid ?? false;
+    this.isHybrid = Boolean(customArgs?.isHybrid ?? false);
+
+    if (this.isHybrid) {
+      this.roundedCorners = Boolean(customArgs?.roundedCorners ?? false);
+      this.showLabels = Boolean(customArgs?.showLabels ?? false);
+    } else {
+      this.roundedCorners = Boolean(customArgs?.roundedCorners ?? true);
+      this.showLabels = Boolean(customArgs?.showLabels ?? true);
+    }
+
     this.color = PIXI.utils.string2hex(
       customArgs?.color ?? NODE_TYPE_COLOR.DEFAULT
     );
@@ -160,12 +173,12 @@ export default class PPNode extends PIXI.Container {
 
     this._BackgroundRef = this.addChild(background);
     this._NodeNameRef = this.addChild(inputNameText);
-    this._NodeCommentRef = (this.graph.viewport.getChildByName(
-      'commentContainer'
-    ) as PIXI.Container).addChild(nodeComment);
+    this._NodeCommentRef = (
+      this.graph.viewport.getChildByName('commentContainer') as PIXI.Container
+    ).addChild(nodeComment);
 
-    // hybrid nodes do not show the node name
-    if (this.isHybrid) {
+    // do not show the node name
+    if (this.showLabels === false) {
       this._NodeNameRef.alpha = 0;
     }
 
@@ -220,7 +233,7 @@ export default class PPNode extends PIXI.Container {
 
     // this allows to zoom and drag when the hybrid node is not selected
     if (this.isHybrid) {
-      if (!this.selected) {
+      if (!selected && this.container !== undefined) {
         this.container.style.pointerEvents = 'none';
       }
     }
@@ -359,6 +372,9 @@ export default class PPNode extends PIXI.Container {
     }
 
     this.updateBehaviour = nodeConfig.updateBehaviour;
+
+    // update node after configure
+    this.execute(new Set());
   }
 
   notifyChange(upstreamContent: Set<string>): void {
@@ -390,6 +406,7 @@ export default class PPNode extends PIXI.Container {
     // update node shape
     this.drawNodeShape();
   }
+
   drawNodeShape(selected: boolean = this._selected): void {
     const countOfVisibleInputSockets = this.inputSocketArray.filter(
       (item) => item.visible === true
@@ -423,15 +440,15 @@ export default class PPNode extends PIXI.Container {
         NODE_OUTLINE_DISTANCE,
         this.nodeWidth,
         nodeHeight,
-        NODE_CORNERRADIUS
+        this.roundedCorners ? NODE_CORNERRADIUS : 0
       );
     }
     this._BackgroundRef.endFill();
 
-    // hide header for hybrid nodes
-    const headerHeight = this.isHybrid
-      ? 0
-      : NODE_PADDING_TOP + NODE_HEADER_HEIGHT;
+    // hide header if showLabels === false
+    const headerHeight = this.showLabels
+      ? NODE_PADDING_TOP + NODE_HEADER_HEIGHT
+      : 0;
     // redraw outputs
     let posCounter = 0;
     this.outputSocketArray.forEach((item) => {
@@ -441,6 +458,9 @@ export default class PPNode extends PIXI.Container {
           NODE_OUTLINE_DISTANCE + headerHeight + posCounter * SOCKET_HEIGHT;
         item.x = this.nodeWidth - NODE_WIDTH;
         posCounter += 1;
+        if (this.showLabels === false) {
+          item._SocketNameRef.alpha = 0;
+        }
       }
     });
 
@@ -454,6 +474,9 @@ export default class PPNode extends PIXI.Container {
           countOfVisibleOutputSockets * SOCKET_HEIGHT +
           posCounter * SOCKET_HEIGHT;
         posCounter += 1;
+        if (this.showLabels === false) {
+          item._SocketNameRef.alpha = 0;
+        }
       }
     });
 
@@ -474,7 +497,7 @@ export default class PPNode extends PIXI.Container {
         0,
         NODE_OUTLINE_DISTANCE * 2 + this.nodeWidth,
         NODE_OUTLINE_DISTANCE * 2 + nodeHeight,
-        this.isHybrid ? 0 : NODE_CORNERRADIUS + NODE_OUTLINE_DISTANCE
+        this.roundedCorners ? NODE_CORNERRADIUS + NODE_OUTLINE_DISTANCE : 0
       );
     }
 
@@ -861,9 +884,9 @@ export default class PPNode extends PIXI.Container {
     // console.log('_onRemoved');
 
     // remove node comment
-    (this.graph.viewport.getChildByName(
-      'commentContainer'
-    ) as PIXI.Container).removeChild(this._NodeCommentRef);
+    (
+      this.graph.viewport.getChildByName('commentContainer') as PIXI.Container
+    ).removeChild(this._NodeCommentRef);
 
     // remove added listener from graph.viewport
     this.graph.viewport.removeListener('moved', this.onViewportMoveHandler);
