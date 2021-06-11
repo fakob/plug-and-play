@@ -726,6 +726,10 @@ export default class PPNode extends PIXI.Container {
     }
   }
 
+  async initialExecute(): Promise<void> {
+    return this.execute(new Set());
+  }
+
   async execute(upstreamContent: Set<string>): Promise<void> {
     // remap input
     const inputObject = {};
