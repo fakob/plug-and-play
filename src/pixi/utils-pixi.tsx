@@ -100,15 +100,15 @@ export const getObjectsInsideBounds = (
   nodes: PPNode[],
   selectionRect: PIXI.Rectangle
 ): PPNode[] => {
-  console.log(selectionRect);
+  // console.log(selectionRect);
   const selectedNodes: PPNode[] = [];
   for (let i = 0; i < nodes.length; i++) {
     const node = nodes[i];
     const nodeBounds = node.getBounds();
-    console.log(
-      nodeBounds,
-      nodeBounds.x >= selectionRect.x && nodeBounds.y >= selectionRect.y
-    );
+    // console.log(
+    //   nodeBounds,
+    //   nodeBounds.x >= selectionRect.x && nodeBounds.y >= selectionRect.y
+    // );
     const isInside =
       nodeBounds.x >= selectionRect.x &&
       nodeBounds.y >= selectionRect.y &&

@@ -16,7 +16,7 @@ import {
 import PPNode from './NodeClass';
 import Socket from './SocketClass';
 import PPLink from './LinkClass';
-import { getBoundsOfNodes, getObjectsInsideBounds } from '../pixi/utils-pixi';
+import PPSelection from './SelectionClass';
 
 export default class PPGraph {
   app: PIXI.Application;
@@ -45,10 +45,8 @@ export default class PPGraph {
   foregroundTempContainer: PIXI.Container;
 
   tempConnection: PIXI.Graphics;
-  selectionGraphics: PIXI.Graphics;
-  transformer: Transformer;
+  selection: PPSelection;
 
-  onSelectionChange: ((selectedNodes: string[]) => void) | null; // called when the selection has changed
   onRightClick:
     | ((event: PIXI.InteractionEvent, target: PIXI.DisplayObject) => void)
     | null; // called when the graph is right clicked
@@ -95,9 +93,16 @@ export default class PPGraph {
     this.tempConnection.name = 'tempConnection';
     this.backgroundTempContainer.addChild(this.tempConnection);
 
-    this.selectionGraphics = new PIXI.Graphics();
-    this.selectionGraphics.name = 'selectionGraphics';
-    this.app.stage.addChild(this.selectionGraphics);
+    this.selection = new PPSelection(this.nodes);
+    this.app.stage.addChild(this.selection);
+
+    this.selection.onSelectionChange = (selectedNodes: PPNode[]) => {
+      if (selectedNodes.length === 0) {
+        // console.log('no nodes selected');
+      } else {
+        // console.log('these nodes selected: ', selectedNodes);
+      }
+    };
 
     this.viewport.cursor = 'grab';
 
@@ -127,7 +132,6 @@ export default class PPGraph {
     this._registeredNodeTypes = {};
 
     // define callbacks
-    this.onSelectionChange = null; //called if the selection changes
   }
 
   // SETUP
@@ -146,24 +150,14 @@ export default class PPGraph {
     // console.log('_onPointerDown');
     event.stopPropagation();
     if (event.data.originalEvent.shiftKey) {
-      this.viewport.plugins.pause('drag');
-      const dragSourcePoint = new PIXI.Point(
-        (event.data.originalEvent as MouseEvent).clientX,
-        (event.data.originalEvent as MouseEvent).clientY
-      );
-      // change dragSourcePoint coordinates from screen to world space
-      this.dragSourcePoint = dragSourcePoint;
-      console.log(event.target, this.dragSourcePoint);
+      this.selection.drawStart(event);
 
-      // subscribe to pointermove
-      this.onViewportMoveHandler = this.onViewportMove.bind(this);
-      this.viewport.on('pointermove', this.onViewportMoveHandler);
+      // pause viewport drag
+      this.viewport.plugins.pause('drag');
     } else {
       this.viewport.cursor = 'grabbing';
-      this.selectionGraphics.clear();
-      this.selectionGraphics.x = 0;
-      this.selectionGraphics.y = 0;
-      this.deselectAllNodes();
+      this.selection.clearSelection();
+      this.selection.deselectAllNodes();
     }
   }
 
@@ -172,27 +166,9 @@ export default class PPGraph {
     console.log('_onPointerUpAndUpOutside');
     if (this.dragSourcePoint !== null) {
       this.viewport.removeListener('pointermove', this.onViewportMoveHandler);
-      console.log(this.selectedNodes);
-      const arrayOfNodes: PPNode[] = [];
-      this.selectedNodes.forEach((id) => {
-        arrayOfNodes.push(this.getNodeById(id));
-      });
-      console.log(arrayOfNodes);
-      if (arrayOfNodes.length > 0) {
-        const selectionRect = getBoundsOfNodes(arrayOfNodes);
-        console.log(selectionRect);
-        this.selectionGraphics.clear();
-        this.selectionGraphics.x = 0;
-        this.selectionGraphics.y = 0;
-        this.selectionGraphics.beginFill(CONNECTION_COLOR_HEX, 0.2);
-        this.selectionGraphics.lineStyle(1, CONNECTION_COLOR_HEX, 0.3);
-        this.selectionGraphics.drawRect(
-          selectionRect.x,
-          selectionRect.y,
-          selectionRect.width,
-          selectionRect.height
-        );
-      }
+    }
+    if (this.selection.hasStarted) {
+      this.selection.drawFinalSelection();
     }
 
     this.viewport.cursor = 'grab';
@@ -286,25 +262,6 @@ export default class PPGraph {
       // offset curve to start from source
       this.tempConnection.x = sourcePointX;
       this.tempConnection.y = sourcePointY;
-    } else if (this.dragSourcePoint !== null) {
-      // temporarily draw rectangle while dragging
-      const targetPoint = new PIXI.Point(
-        (event.data.originalEvent as MouseEvent).clientX,
-        (event.data.originalEvent as MouseEvent).clientY
-      );
-      const selX = Math.min(this.dragSourcePoint.x, targetPoint.x);
-      const selY = Math.min(this.dragSourcePoint.y, targetPoint.y);
-      const selWidth = Math.max(this.dragSourcePoint.x, targetPoint.x) - selX;
-      const selHeight = Math.max(this.dragSourcePoint.y, targetPoint.y) - selY;
-
-      this.selectionGraphics.clear();
-      this.selectionGraphics.beginFill(CONNECTION_COLOR_HEX, 0.2);
-      this.selectionGraphics.lineStyle(1, CONNECTION_COLOR_HEX, 0.3);
-      this.selectionGraphics.drawRect(selX, selY, selWidth, selHeight);
-
-      // bring drawing rect into node nodeContainer space
-      const selectionRect = new PIXI.Rectangle(selX, selY, selWidth, selHeight);
-      this.selectNodes(getObjectsInsideBounds(this.nodes, selectionRect));
     } else {
       this.draggingNodes = true;
     }
@@ -322,7 +279,7 @@ export default class PPGraph {
           // only select if this was not a drag action
           // and the element that triggered the event (target) is the same as
           // the element that the event listener is attached to (currentTarget)
-          this.selectNode(event.currentTarget as PPNode);
+          this.selection.selectNode(event.currentTarget as PPNode);
         }
       } else {
         // check if over input
@@ -554,46 +511,10 @@ export default class PPGraph {
     this.commentContainer.removeChildren();
 
     // remove selected nodes
-    this.deselectAllNodes();
+    this.selection.deselectAllNodes();
 
     // remove custom node types
     this.customNodeTypes = {};
-  }
-
-  selectNode(node: PPNode): void {
-    if (node == null) {
-      this.deselectAllNodes();
-    } else {
-      this.selectNodes([node]);
-    }
-  }
-
-  selectNodes(nodes: PPNode[]): void {
-    this.deselectAllNodes();
-    if (nodes == null) {
-      this.deselectAllNodes();
-    } else {
-      nodes.map((node) => {
-        node.select(true);
-        this.selectedNodes.push(node.id);
-      });
-    }
-    if (this.onSelectionChange) {
-      this.onSelectionChange(this.selectedNodes);
-    }
-  }
-
-  deselectAllNodes(): void {
-    Object.entries(this.nodes).forEach(([, node]) => {
-      if (node.selected) {
-        node.select(false);
-      }
-    });
-    this.selectedNodes = [];
-
-    if (this.onSelectionChange) {
-      this.onSelectionChange(this.selectedNodes);
-    }
   }
 
   duplicateSelection(): string[] {
@@ -610,7 +531,7 @@ export default class PPGraph {
       newNode.setPosition(32, 32, true);
 
       // select newNode
-      this.selectNode(newNode);
+      this.selection.selectNode(newNode);
 
       arrayOfNewIds.push(newNode.id);
     });
@@ -888,6 +809,6 @@ export default class PPGraph {
 
       this.removeNode(node);
     });
-    this.deselectAllNodes();
+    this.selection.deselectAllNodes();
   }
 }

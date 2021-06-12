@@ -243,14 +243,14 @@ const App = (): JSX.Element => {
     console.log('currentGraph.current:', currentGraph.current);
 
     // register callbacks
-    currentGraph.current.onSelectionChange = (selectedNodes: string[]) => {
+    currentGraph.current.selection.onSelectionChange = (
+      selectedNodes: PPNode[]
+    ) => {
       if (selectedNodes.length === 0) {
         setSelectedNode(null);
       } else {
-        selectedNodes.forEach((nodeId) => {
-          setSelectedNode(
-            currentGraph.current.nodes.find((node) => node.id === nodeId)
-          );
+        selectedNodes.forEach((node) => {
+          setSelectedNode(node);
         });
       }
     };
