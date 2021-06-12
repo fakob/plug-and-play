@@ -1,9 +1,12 @@
 import * as PIXI from 'pixi.js';
+import { Viewport } from 'pixi-viewport';
+
 import PPNode from './NodeClass';
 import { CONNECTION_COLOR_HEX, NODE_MARGIN } from '../utils/constants';
 import { getBoundsOfNodes, getObjectsInsideBounds } from '../pixi/utils-pixi';
 
 export default class PPSelection extends PIXI.Container {
+  protected viewport: Viewport;
   protected nodes: PPNode[];
   protected selectedNodes: PPNode[];
 
@@ -14,8 +17,9 @@ export default class PPSelection extends PIXI.Container {
   protected onMoveHandler: (event?: PIXI.InteractionEvent) => void;
   onSelectionChange: ((selectedNodes: PPNode[]) => void) | null; // called when the selection has changed
 
-  constructor(nodes: PPNode[]) {
+  constructor(viewport: Viewport, nodes: PPNode[]) {
     super();
+    this.viewport = viewport;
     this.nodes = nodes;
     this.sourcePoint = null;
     this.hasStarted = false;
@@ -30,15 +34,15 @@ export default class PPSelection extends PIXI.Container {
 
     this.on('pointerupoutside', this.onPointerUpAndUpOutside.bind(this));
     this.on('pointerup', this.onPointerUpAndUpOutside.bind(this));
-    // this.on('pointerdown', this.onPointerDown.bind(this));
+    this.viewport.on('moved', (this as any).onViewportMoved.bind(this));
 
     // define callbacks
     this.onSelectionChange = null; //called if the selection changes
   }
 
-  // onPointerDown(): void {
-  //   console.log('Selection: onPointerDown');
-  // }
+  onViewportMoved(): void {
+    this.drawRectangleFromSelection(this.selectedNodes);
+  }
 
   onPointerUpAndUpOutside(): void {
     console.log('Selection: onPointerUpAndUpOutside');
@@ -47,6 +51,8 @@ export default class PPSelection extends PIXI.Container {
       this.removeListener('pointermove', this.onMoveHandler);
       console.log(this.selectedNodes);
       this.drawFinalSelection();
+    } else {
+      this.resetSelectionGraphics();
     }
   }
 
@@ -74,14 +80,20 @@ export default class PPSelection extends PIXI.Container {
     this.selectNodes(this.selectedNodes);
   }
 
-  clearSelection(): void {
+  resetSelectionGraphics(): void {
+    this.hasStarted = false;
+    this.sourcePoint = null;
+
     this.selectionGraphics.clear();
     this.selectionGraphics.x = 0;
     this.selectionGraphics.y = 0;
-    this.sourcePoint = null;
+    this.selectionGraphics.scale.x = 1;
+    this.selectionGraphics.scale.y = 1;
   }
 
   drawStart(event: PIXI.InteractionEvent): void {
+    this.resetSelectionGraphics();
+
     this.hasStarted = true;
     const sourcePoint = new PIXI.Point(
       (event.data.originalEvent as MouseEvent).clientX,
@@ -101,23 +113,26 @@ export default class PPSelection extends PIXI.Container {
       this.removeListener('pointermove', this.onMoveHandler);
       console.log(this.selectedNodes);
       if (this.selectedNodes.length > 0) {
-        const selectionRect = getBoundsOfNodes(this.selectedNodes);
-        console.log(selectionRect);
-        this.selectionGraphics.clear();
-        this.selectionGraphics.x = 0;
-        this.selectionGraphics.y = 0;
-        this.selectionGraphics.beginFill(CONNECTION_COLOR_HEX, 0.2);
-        this.selectionGraphics.lineStyle(1, CONNECTION_COLOR_HEX, 0.3);
-        this.selectionGraphics.drawRect(
-          selectionRect.x - NODE_MARGIN / 2,
-          selectionRect.y - NODE_MARGIN / 2,
-          selectionRect.width + NODE_MARGIN,
-          selectionRect.height + NODE_MARGIN
-        );
+        this.drawRectangleFromSelection(this.selectedNodes);
       } else {
-        this.clearSelection();
+        this.resetSelectionGraphics();
       }
     }
+  }
+
+  drawRectangleFromSelection(selectedNodes: PPNode[]): void {
+    const selectionRect = getBoundsOfNodes(selectedNodes);
+    this.selectionGraphics.clear();
+    this.selectionGraphics.x = 0;
+    this.selectionGraphics.y = 0;
+    this.selectionGraphics.beginFill(CONNECTION_COLOR_HEX, 0.2);
+    this.selectionGraphics.lineStyle(1, CONNECTION_COLOR_HEX, 0.3);
+    this.selectionGraphics.drawRect(
+      selectionRect.x - NODE_MARGIN / 2,
+      selectionRect.y - NODE_MARGIN / 2,
+      selectionRect.width + NODE_MARGIN,
+      selectionRect.height + NODE_MARGIN
+    );
   }
 
   selectNode(node: PPNode): void {

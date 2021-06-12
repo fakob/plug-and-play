@@ -93,7 +93,7 @@ export default class PPGraph {
     this.tempConnection.name = 'tempConnection';
     this.backgroundTempContainer.addChild(this.tempConnection);
 
-    this.selection = new PPSelection(this.nodes);
+    this.selection = new PPSelection(this.viewport, this.nodes);
     this.app.stage.addChild(this.selection);
 
     this.selection.onSelectionChange = (selectedNodes: PPNode[]) => {
@@ -156,7 +156,6 @@ export default class PPGraph {
       this.viewport.plugins.pause('drag');
     } else {
       this.viewport.cursor = 'grabbing';
-      this.selection.clearSelection();
       this.selection.deselectAllNodes();
     }
   }
