@@ -141,7 +141,7 @@ export class PIXIText extends PPNode {
     };
   }
 
-  protected shouldExecuteOnMove(): boolean {
+  shouldExecuteOnMove(): boolean {
     return true;
   }
 }
@@ -262,7 +262,7 @@ export class PIXIRect extends PPNode {
     };
   }
 
-  protected shouldExecuteOnMove(): boolean {
+  shouldExecuteOnMove(): boolean {
     return true;
   }
 }
@@ -373,7 +373,7 @@ export class PIXICircle extends PPNode {
     };
   }
 
-  protected shouldExecuteOnMove(): boolean {
+  shouldExecuteOnMove(): boolean {
     return true;
   }
 }

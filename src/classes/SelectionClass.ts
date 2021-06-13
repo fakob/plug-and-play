@@ -81,9 +81,6 @@ export default class PPSelection extends PIXI.Container {
       // unsubscribe from pointermove
       this.removeListener('pointermove', this.onMoveHandler);
     }
-    //  else {
-    //   this.resetSelectionGraphics();
-    // }
   }
 
   onMove(event: PIXI.InteractionEvent): void {
@@ -127,6 +124,21 @@ export default class PPSelection extends PIXI.Container {
 
         node.updateCommentPosition();
         node.updateConnectionPosition();
+
+        if (node.shouldExecuteOnMove()) {
+          node.execute(new Set());
+        }
+
+        if (node.onNodeDragOrViewportMove) {
+          const screenPoint = node.screenPoint();
+          node.onNodeDragOrViewportMove({
+            globalX: undefined,
+            globalY: undefined,
+            screenX: screenPoint.x,
+            screenY: screenPoint.y,
+            scale: this.viewport.scale.x,
+          });
+        }
       });
 
       // update selection position
@@ -134,7 +146,8 @@ export default class PPSelection extends PIXI.Container {
     }
   }
 
-  resetSelectionGraphics(): void {
+  resetSelection(): void {
+    console.trace('resetSelection');
     this.sourcePoint = null;
 
     this.selectionGraphics.clear();
@@ -146,7 +159,7 @@ export default class PPSelection extends PIXI.Container {
 
   drawStart(event: PIXI.InteractionEvent): void {
     console.log('startDrawAction');
-    this.resetSelectionGraphics();
+    this.resetSelection();
 
     this.isDrawingSelection = true;
     this.interactionData = event.data;
@@ -167,7 +180,7 @@ export default class PPSelection extends PIXI.Container {
     if (this.selectedNodes.length > 0) {
       this.drawRectangleFromSelection();
     } else {
-      this.resetSelectionGraphics();
+      this.resetSelection();
     }
   }
 
@@ -220,5 +233,10 @@ export default class PPSelection extends PIXI.Container {
     if (this.onSelectionChange) {
       this.onSelectionChange(this.selectedNodes);
     }
+  }
+
+  deselectAllNodesAndResetSelection(): void {
+    this.resetSelection();
+    this.deselectAllNodes();
   }
 }

@@ -147,7 +147,7 @@ export default class PPGraph {
   }
 
   _onPointerDown(event: PIXI.InteractionEvent): void {
-    // console.log('_onPointerDown');
+    console.log('_onPointerDown');
     event.stopPropagation();
     if (event.data.originalEvent.shiftKey) {
       this.selection.drawStart(event);
@@ -156,7 +156,7 @@ export default class PPGraph {
       this.viewport.plugins.pause('drag');
     } else {
       this.viewport.cursor = 'grabbing';
-      this.selection.deselectAllNodes();
+      this.selection.deselectAllNodesAndResetSelection();
     }
   }
 
@@ -510,7 +510,7 @@ export default class PPGraph {
     this.commentContainer.removeChildren();
 
     // remove selected nodes
-    this.selection.deselectAllNodes();
+    this.selection.deselectAllNodesAndResetSelection();
 
     // remove custom node types
     this.customNodeTypes = {};
@@ -808,6 +808,6 @@ export default class PPGraph {
 
       this.removeNode(node);
     });
-    this.selection.deselectAllNodes();
+    this.selection.deselectAllNodesAndResetSelection();
   }
 }

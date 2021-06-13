@@ -495,7 +495,7 @@ export default class PPNode extends PIXI.Container {
     this.updateCommentPosition();
   }
 
-  protected shouldExecuteOnMove(): boolean {
+  shouldExecuteOnMove(): boolean {
     return false;
   }
 
