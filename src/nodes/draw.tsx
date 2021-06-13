@@ -818,7 +818,7 @@ export class Note extends PPNode {
     this.createInputElement = () => {
       // create html input element
       this.currentInput = document.createElement('div');
-      this.currentInput.id = 'NoteInput';
+      this.currentInput.id = 'Input';
       this.currentInput.contentEditable = 'true';
       this.currentInput.innerHTML = this.inputSocketArray[0].data;
       this._textInputRef.visible = false;
