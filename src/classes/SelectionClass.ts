@@ -175,8 +175,6 @@ export default class PPSelection extends PIXI.Container {
   }
 
   resetAllGraphics(): void {
-    this.sourcePoint = null;
-
     this.resetGraphics(this.selectionIntendGraphics);
     this.resetGraphics(this.singleSelectionsGraphics);
     this.resetGraphics(this.selectionGraphics);
