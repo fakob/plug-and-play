@@ -17,11 +17,16 @@ export type SerializedGraph = {
 
 export type CustomArgs = {
   customId?: string;
+  color?: string;
+  colorTransparency?: number;
   nodePosX?: number;
   nodePosY?: number;
   nodeWidth?: number;
   nodeHeight?: number;
-  [key: string]: any;
+  isHybrid?: boolean;
+  roundedCorners?: boolean;
+  showLabels?: boolean;
+  // [key: string]: any;
 };
 
 export interface INodes {
