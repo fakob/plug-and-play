@@ -940,7 +940,7 @@ export class Note extends PPNode {
   }
 }
 
-export class Image extends PPNode {
+/*export class Image extends PPNode {
   _imageRef: PIXI.Sprite;
   _texture: PIXI.Texture;
   _loader: PIXI.Loader;
@@ -1041,23 +1041,23 @@ export class Image extends PPNode {
         );
       }
     };
-  }
+  }*/
 
-  // trigger(): void {
-  //   const url: string = this.getInputData('url');
-  //   // if url is set then get image
-  //   if (url !== '') {
-  //     // const objectURL = URL.createObjectURL(url);
-  //     const newTexture = PIXI.Texture.from(url);
-  //     this._imageRef.texture = newTexture;
-  //     this._imageRefClone.texture = newTexture;
-  //   }
-  //   const { width, height } = this._imageRef.texture.orig;
-  //   this.setOutputData('image', this._imageRefClone);
-  //   this.setOutputData('width', width);
-  //   this.setOutputData('height', height);
-  // }
-}
+// trigger(): void {
+//   const url: string = this.getInputData('url');
+//   // if url is set then get image
+//   if (url !== '') {
+//     // const objectURL = URL.createObjectURL(url);
+//     const newTexture = PIXI.Texture.from(url);
+//     this._imageRef.texture = newTexture;
+//     this._imageRefClone.texture = newTexture;
+//   }
+//   const { width, height } = this._imageRef.texture.orig;
+//   this.setOutputData('image', this._imageRefClone);
+//   this.setOutputData('width', width);
+//   this.setOutputData('height', height);
+// }
+//}
 
 export class Table extends PPNode {
   _imageRef: PIXI.Sprite;
