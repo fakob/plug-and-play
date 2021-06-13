@@ -8,7 +8,7 @@ import { getBoundsOfNodes, getObjectsInsideBounds } from '../pixi/utils-pixi';
 export default class PPSelection extends PIXI.Container {
   protected viewport: Viewport;
   protected nodes: PPNode[];
-  protected selectedNodes: PPNode[];
+  selectedNodes: PPNode[];
 
   protected selectionGraphics: PIXI.Graphics;
   protected sourcePoint: null | PIXI.Point;
@@ -147,7 +147,6 @@ export default class PPSelection extends PIXI.Container {
   }
 
   resetSelection(): void {
-    console.trace('resetSelection');
     this.sourcePoint = null;
 
     this.selectionGraphics.clear();

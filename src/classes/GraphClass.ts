@@ -29,7 +29,6 @@ export default class PPGraph {
   customNodeTypes: Record<string, string>;
 
   _showComments: boolean;
-  selectedNodes: string[];
   clickedSocketRef: null | Socket;
   overInputRef: null | Socket;
   dragSourcePoint: null | PIXI.Point;
@@ -518,8 +517,7 @@ export default class PPGraph {
 
   duplicateSelection(): string[] {
     const arrayOfNewIds: string[] = [];
-    this.selectedNodes.forEach((id) => {
-      const node = this.getNodeById(id);
+    this.selection.selectedNodes.forEach((node) => {
       const nodeType = node.type;
 
       // add node and carry over its configuration
@@ -796,13 +794,11 @@ export default class PPGraph {
   }
 
   deleteSelectedNodes(): void {
-    console.log(this.selectedNodes);
+    console.log(this.selection.selectedNodes);
     // console.log(this.nodes);
 
     // loop through selected nodes
-    this.selectedNodes.forEach((nodeId) => {
-      const node = this.getNodeById(nodeId);
-
+    this.selection.selectedNodes.forEach((node) => {
       // deselect node
       node.select(false);
 
