@@ -781,7 +781,7 @@ export default class PPNode extends PIXI.Container {
       console.log('_onPointerDown');
 
       // select node
-      this.graph.selection.selectNode(this);
+      this.graph.selection.selectNode(this, event.data.originalEvent.shiftKey);
 
       this.interactionData = event.data;
       this.cursor = 'grabbing';

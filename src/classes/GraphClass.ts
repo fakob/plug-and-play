@@ -149,7 +149,10 @@ export default class PPGraph {
     console.log('_onPointerDown');
     event.stopPropagation();
     if (event.data.originalEvent.shiftKey) {
-      this.selection.drawStart(event);
+      this.selection.drawSelectionStart(
+        event,
+        event.data.originalEvent.shiftKey
+      );
 
       // pause viewport drag
       this.viewport.plugins.pause('drag');
@@ -166,7 +169,7 @@ export default class PPGraph {
       this.viewport.removeListener('pointermove', this.onViewportMoveHandler);
     }
     if (this.selection.isDrawingSelection) {
-      this.selection.drawFinalSelection();
+      this.selection.drawSelectionFinish();
     }
 
     this.viewport.cursor = 'grab';
