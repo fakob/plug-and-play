@@ -105,20 +105,26 @@ export const getObjectsInsideBounds = (
   for (let i = 0; i < nodes.length; i++) {
     const node = nodes[i];
     const nodeBounds = node.getBounds();
-    // console.log(
-    //   nodeBounds,
-    //   nodeBounds.x >= selectionRect.x && nodeBounds.y >= selectionRect.y
-    // );
-    const isInside =
-      nodeBounds.x >= selectionRect.x &&
-      nodeBounds.y >= selectionRect.y &&
-      nodeBounds.x + nodeBounds.width <=
-        selectionRect.x + selectionRect.width &&
-      nodeBounds.y + nodeBounds.height <=
-        selectionRect.y + selectionRect.height;
+
+    const isInside = doRectsIntersect(nodeBounds, selectionRect);
     if (isInside) {
       selectedNodes.push(node);
     }
   }
   return selectedNodes;
+};
+
+export const doRectsIntersect = (
+  firstRect: PIXI.Rectangle,
+  secondRect: PIXI.Rectangle
+): boolean => {
+  return (
+    Math.max(firstRect.x, secondRect.x) <
+      Math.min(
+        firstRect.x + firstRect.width,
+        secondRect.x + secondRect.width
+      ) &&
+    Math.max(firstRect.y, secondRect.y) <
+      Math.min(firstRect.y + firstRect.height, secondRect.y + secondRect.height)
+  );
 };
