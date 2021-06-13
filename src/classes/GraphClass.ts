@@ -166,7 +166,7 @@ export default class PPGraph {
     if (this.dragSourcePoint !== null) {
       this.viewport.removeListener('pointermove', this.onViewportMoveHandler);
     }
-    if (this.selection.hasStarted) {
+    if (this.selection.isDrawingSelection) {
       this.selection.drawFinalSelection();
     }
 

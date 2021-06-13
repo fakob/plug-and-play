@@ -81,9 +81,8 @@ export default class PPNode extends PIXI.Container {
 
   _selected: boolean;
   _doubleClicked: boolean;
-  dragging: boolean;
-  relativeClickPosition: PIXI.Point | null;
-  clickPosition: PIXI.Point | null;
+  isDraggingNode: boolean;
+  sourcePoint: PIXI.Point | null;
   interactionData: PIXI.InteractionData | null;
 
   container: HTMLElement; // for hybrid nodes
@@ -138,7 +137,7 @@ export default class PPNode extends PIXI.Container {
       customArgs?.color ?? NODE_TYPE_COLOR.DEFAULT
     );
     this.colorTransparency =
-      customArgs?.colorTransparency ?? (this.isHybrid ? 0.01 : 1); // so it does not show when dragging fast
+      customArgs?.colorTransparency ?? (this.isHybrid ? 0.01 : 1); // so it does not show when dragging the node fast
     const inputNameText = new PIXI.Text(this.name, NODE_TEXTSTYLE);
     inputNameText.x = NODE_HEADER_TEXTMARGIN_LEFT;
     inputNameText.y =
@@ -182,9 +181,8 @@ export default class PPNode extends PIXI.Container {
 
     this.interactive = true;
     this.interactionData = null;
-    this.relativeClickPosition = null;
-    this.clickPosition = null;
-    this.dragging = false;
+    this.sourcePoint = null;
+    this.isDraggingNode = false;
     this._selected = false;
     this._doubleClicked = false;
 
@@ -515,6 +513,20 @@ export default class PPNode extends PIXI.Container {
     this._NodeCommentRef.y = getNodeCommentPosY(this.y);
   }
 
+  updateConnectionPosition(): void {
+    // check for connections and move them too
+    this.outputSocketArray.map((output) => {
+      output.links.map((link) => {
+        link.updateConnection();
+      });
+    });
+    this.inputSocketArray.map((input) => {
+      input.links.map((link) => {
+        link.updateConnection();
+      });
+    });
+  }
+
   drawComment(): void {
     const commentData = this.outputSocketArray[0]?.data;
     // console.log(this.outputSocketArray[0], commentData);
@@ -785,26 +797,20 @@ export default class PPNode extends PIXI.Container {
     const node = event.target as PPNode;
 
     if (node.clickedSocketRef === null) {
-      // start dragging
+      // start dragging the node
       console.log('_onPointerDown');
       this.interactionData = event.data;
-      this.clickPosition = new PIXI.Point(
-        (event.data.originalEvent as PointerEvent).screenX,
-        (event.data.originalEvent as PointerEvent).screenY
-      );
       this.cursor = 'grabbing';
       this.alpha = 0.5;
-      this.dragging = true;
+      this.isDraggingNode = true;
       const localPositionX = this.position.x;
       const localPositionY = this.position.y;
       const localClickPosition = this.interactionData.getLocalPosition(
         this.parent
       );
-      const localClickPositionX = localClickPosition.x;
-      const localClickPositionY = localClickPosition.y;
-      const deltaX = localClickPositionX - localPositionX;
-      const deltaY = localClickPositionY - localPositionY;
-      this.relativeClickPosition = new PIXI.Point(deltaX, deltaY);
+      const deltaX = localClickPosition.x - localPositionX;
+      const deltaY = localClickPosition.y - localPositionY;
+      this.sourcePoint = new PIXI.Point(deltaX, deltaY);
     }
   }
 
@@ -812,7 +818,7 @@ export default class PPNode extends PIXI.Container {
     console.log('_onPointerUpAndUpOutside');
 
     this.alpha = 1;
-    this.dragging = false;
+    this.isDraggingNode = false;
     this.cursor = 'move';
     // set the interactionData to null
     this.interactionData = null;
@@ -820,31 +826,22 @@ export default class PPNode extends PIXI.Container {
 
   _onPointerMove(): void {
     if (
-      this.dragging &&
+      this.isDraggingNode &&
       this.interactionData !== null &&
-      this.relativeClickPosition !== null
+      this.sourcePoint !== null
     ) {
-      const newPosition = this.interactionData.getLocalPosition(this.parent);
-      const globalX = newPosition.x - this.relativeClickPosition.x;
-      const globalY = newPosition.y - this.relativeClickPosition.y;
+      const targetPoint = this.interactionData.getLocalPosition(this.parent);
+      const globalX = targetPoint.x - this.sourcePoint.x;
+      const globalY = targetPoint.y - this.sourcePoint.y;
       this.x = globalX;
       this.y = globalY;
+
       this.updateCommentPosition();
+      this.updateConnectionPosition();
+
       if (this.shouldExecuteOnMove()) {
         this.execute(new Set());
       }
-
-      // check for connections and move them too
-      this.outputSocketArray.map((output) => {
-        output.links.map((link) => {
-          link.updateConnection();
-        });
-      });
-      this.inputSocketArray.map((input) => {
-        input.links.map((link) => {
-          link.updateConnection();
-        });
-      });
 
       if (this.onNodeDragOrViewportMove) {
         const screenPoint = this.screenPoint();
@@ -902,7 +899,7 @@ export default class PPNode extends PIXI.Container {
   }
 
   _onPointerOut(): void {
-    if (!this.dragging) {
+    if (!this.isDraggingNode) {
       this.alpha = 1.0;
       this.cursor = 'default';
     }
