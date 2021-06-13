@@ -265,21 +265,14 @@ export default class PPGraph {
     }
   }
 
-  _onNodePointerUpAndUpOutside(event: PIXI.InteractionEvent): void {
+  _onNodePointerUpAndUpOutside(): void {
     console.log('_onNodePointerUpAndUpOutside');
 
     // unsubscribe from pointermove
     this.viewport.removeListener('pointermove', this.onViewportMoveHandler);
 
     if (this !== null) {
-      if (this.clickedSocketRef === null) {
-        if (!this.draggingNodes && event.target === event.currentTarget) {
-          // only select if this was not a drag action
-          // and the element that triggered the event (target) is the same as
-          // the element that the event listener is attached to (currentTarget)
-          this.selection.selectNode(event.currentTarget as PPNode);
-        }
-      } else {
+      if (this.clickedSocketRef !== null) {
         // check if over input
         console.log(this.overInputRef);
         if (this.overInputRef !== null && !this.clickedSocketRef.isInput()) {

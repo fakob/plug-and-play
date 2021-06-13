@@ -780,6 +780,9 @@ export default class PPNode extends PIXI.Container {
       // start dragging the node
       console.log('_onPointerDown');
 
+      // select node
+      this.graph.selection.selectNode(this);
+
       this.interactionData = event.data;
       this.cursor = 'grabbing';
       this.alpha = 0.5;
@@ -819,6 +822,9 @@ export default class PPNode extends PIXI.Container {
 
       this.updateCommentPosition();
       this.updateConnectionPosition();
+
+      // move selection
+      this.graph.selection.drawRectanglesFromSelection();
 
       if (this.shouldExecuteOnMove()) {
         this.execute(new Set());

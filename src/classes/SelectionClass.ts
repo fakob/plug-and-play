@@ -161,17 +161,17 @@ export default class PPSelection extends PIXI.Container {
   resetSelection(): void {
     this.sourcePoint = null;
 
-    this.selectionIntendGraphics.clear();
-    this.selectionIntendGraphics.x = 0;
-    this.selectionIntendGraphics.y = 0;
-    this.selectionIntendGraphics.scale.x = 1;
-    this.selectionIntendGraphics.scale.y = 1;
+    this.resetGraphics(this.selectionIntendGraphics);
+    this.resetGraphics(this.singleSelectionsGraphics);
+    this.resetGraphics(this.selectionGraphics);
+  }
 
-    this.selectionGraphics.clear();
-    this.selectionGraphics.x = 0;
-    this.selectionGraphics.y = 0;
-    this.selectionGraphics.scale.x = 1;
-    this.selectionGraphics.scale.y = 1;
+  resetGraphics(graphics: PIXI.Graphics): void {
+    graphics.clear();
+    graphics.x = 0;
+    graphics.y = 0;
+    graphics.scale.x = 1;
+    graphics.scale.y = 1;
   }
 
   drawStart(event: PIXI.InteractionEvent): void {
@@ -205,7 +205,7 @@ export default class PPSelection extends PIXI.Container {
     this.singleSelectionsGraphics.clear();
     this.singleSelectionsGraphics.x = 0;
     this.singleSelectionsGraphics.y = 0;
-    this.singleSelectionsGraphics.beginFill(CONNECTION_COLOR_HEX, 0.2);
+    // this.singleSelectionsGraphics.beginFill(CONNECTION_COLOR_HEX, 0.2);
     this.singleSelectionsGraphics.lineStyle(1, CONNECTION_COLOR_HEX, 0.3);
 
     // draw single selections
@@ -243,10 +243,12 @@ export default class PPSelection extends PIXI.Container {
   }
 
   selectNode(node: PPNode): void {
+    console.trace('selectNode');
     if (node == null) {
       this.deselectAllNodes();
     } else {
       this.selectNodes([node]);
+      this.drawRectanglesFromSelection();
     }
   }
 
