@@ -936,7 +936,7 @@ export class Note extends PPNode {
     };
 
     // update shape after initializing
-    this.drawNodeShape(false);
+    this.drawNodeShape();
   }
 }
 

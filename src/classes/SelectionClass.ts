@@ -10,7 +10,9 @@ export default class PPSelection extends PIXI.Container {
   protected nodes: PPNode[];
   selectedNodes: PPNode[];
 
+  protected selectionIntendGraphics: PIXI.Graphics;
   protected selectionGraphics: PIXI.Graphics;
+  protected singleSelectionsGraphics: PIXI.Graphics;
   protected sourcePoint: null | PIXI.Point;
   isDrawingSelection: boolean;
   isDraggingSelection: boolean;
@@ -30,6 +32,15 @@ export default class PPSelection extends PIXI.Container {
     this.interactionData = null;
 
     this.name = 'selectionContainer';
+
+    this.selectionIntendGraphics = new PIXI.Graphics();
+    this.selectionIntendGraphics.name = 'selectionIntendGraphics';
+    this.addChild(this.selectionIntendGraphics);
+
+    this.singleSelectionsGraphics = new PIXI.Graphics();
+    this.singleSelectionsGraphics.name = 'singleSelectionsGraphics';
+    this.addChild(this.singleSelectionsGraphics);
+
     this.selectionGraphics = new PIXI.Graphics();
     this.selectionGraphics.name = 'selectionGraphics';
     this.addChild(this.selectionGraphics);
@@ -69,7 +80,7 @@ export default class PPSelection extends PIXI.Container {
   }
 
   onViewportMoved(): void {
-    this.drawRectangleFromSelection();
+    this.drawRectanglesFromSelection();
   }
 
   onPointerUpAndUpOutside(): void {
@@ -98,16 +109,17 @@ export default class PPSelection extends PIXI.Container {
       const selWidth = Math.max(this.sourcePoint.x, targetPoint.x) - selX;
       const selHeight = Math.max(this.sourcePoint.y, targetPoint.y) - selY;
 
-      this.selectionGraphics.clear();
-      this.selectionGraphics.beginFill(CONNECTION_COLOR_HEX, 0.2);
-      this.selectionGraphics.lineStyle(1, CONNECTION_COLOR_HEX, 0.3);
-      this.selectionGraphics.drawRect(selX, selY, selWidth, selHeight);
+      this.selectionIntendGraphics.clear();
+      this.selectionIntendGraphics.beginFill(CONNECTION_COLOR_HEX, 0.2);
+      this.selectionIntendGraphics.lineStyle(1, CONNECTION_COLOR_HEX, 0.3);
+      this.selectionIntendGraphics.drawRect(selX, selY, selWidth, selHeight);
 
       // bring drawing rect into node nodeContainer space
       const selectionRect = new PIXI.Rectangle(selX, selY, selWidth, selHeight);
-      this.selectedNodes = getObjectsInsideBounds(this.nodes, selectionRect);
+      const selectedNodes = getObjectsInsideBounds(this.nodes, selectionRect);
 
-      this.selectNodes(this.selectedNodes);
+      this.selectNodes(selectedNodes);
+      this.drawSingleSelections();
     } else if (this.isDraggingSelection) {
       // console.log('onMove: isDraggingSelection');
 
@@ -142,12 +154,18 @@ export default class PPSelection extends PIXI.Container {
       });
 
       // update selection position
-      this.drawRectangleFromSelection();
+      this.drawRectanglesFromSelection();
     }
   }
 
   resetSelection(): void {
     this.sourcePoint = null;
+
+    this.selectionIntendGraphics.clear();
+    this.selectionIntendGraphics.x = 0;
+    this.selectionIntendGraphics.y = 0;
+    this.selectionIntendGraphics.scale.x = 1;
+    this.selectionIntendGraphics.scale.y = 1;
 
     this.selectionGraphics.clear();
     this.selectionGraphics.x = 0;
@@ -177,25 +195,51 @@ export default class PPSelection extends PIXI.Container {
     this.removeListener('pointermove', this.onMoveHandler);
     console.log(this.selectedNodes);
     if (this.selectedNodes.length > 0) {
-      this.drawRectangleFromSelection();
+      this.drawRectanglesFromSelection();
     } else {
       this.resetSelection();
     }
   }
 
-  drawRectangleFromSelection(): void {
-    const selectionRect = getBoundsOfNodes(this.selectedNodes);
+  drawSingleSelections(): void {
+    this.singleSelectionsGraphics.clear();
+    this.singleSelectionsGraphics.x = 0;
+    this.singleSelectionsGraphics.y = 0;
+    this.singleSelectionsGraphics.beginFill(CONNECTION_COLOR_HEX, 0.2);
+    this.singleSelectionsGraphics.lineStyle(1, CONNECTION_COLOR_HEX, 0.3);
+
+    // draw single selections
+    this.selectedNodes.map((node) => {
+      const nodeBounds = node.getBounds();
+      this.singleSelectionsGraphics.drawRect(
+        nodeBounds.x - NODE_MARGIN / 2,
+        nodeBounds.y - NODE_MARGIN / 2,
+        nodeBounds.width + NODE_MARGIN,
+        nodeBounds.height + NODE_MARGIN
+      );
+    });
+  }
+
+  drawRectanglesFromSelection(): void {
+    this.drawSingleSelections();
+
+    const selectionBounds = this.singleSelectionsGraphics.getBounds();
+    this.selectionIntendGraphics.clear();
     this.selectionGraphics.clear();
     this.selectionGraphics.x = 0;
     this.selectionGraphics.y = 0;
     this.selectionGraphics.beginFill(CONNECTION_COLOR_HEX, 0.2);
     this.selectionGraphics.lineStyle(1, CONNECTION_COLOR_HEX, 0.3);
     this.selectionGraphics.drawRect(
-      selectionRect.x - NODE_MARGIN / 2,
-      selectionRect.y - NODE_MARGIN / 2,
-      selectionRect.width + NODE_MARGIN,
-      selectionRect.height + NODE_MARGIN
+      selectionBounds.x,
+      selectionBounds.y,
+      selectionBounds.width,
+      selectionBounds.height
     );
+  }
+
+  isNodeSelected(node: PPNode): boolean {
+    return this.selectedNodes.includes(node);
   }
 
   selectNode(node: PPNode): void {
@@ -207,14 +251,10 @@ export default class PPSelection extends PIXI.Container {
   }
 
   selectNodes(nodes: PPNode[]): void {
-    this.deselectAllNodes();
     if (nodes == null) {
       this.deselectAllNodes();
     } else {
-      nodes.map((node) => {
-        node.select(true);
-        this.selectedNodes.push(node);
-      });
+      this.selectedNodes = nodes;
     }
     if (this.onSelectionChange) {
       this.onSelectionChange(this.selectedNodes);
@@ -222,11 +262,6 @@ export default class PPSelection extends PIXI.Container {
   }
 
   deselectAllNodes(): void {
-    Object.entries(this.nodes).forEach(([, node]) => {
-      if (node.selected) {
-        node.select(false);
-      }
-    });
     this.selectedNodes = [];
 
     if (this.onSelectionChange) {

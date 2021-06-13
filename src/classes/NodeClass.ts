@@ -79,7 +79,6 @@ export default class PPNode extends PIXI.Container {
   inputSocketArray: Socket[];
   outputSocketArray: Socket[];
 
-  _selected: boolean;
   _doubleClicked: boolean;
   isDraggingNode: boolean;
   sourcePoint: PIXI.Point | null;
@@ -94,7 +93,7 @@ export default class PPNode extends PIXI.Container {
   onDrawNodeShape: (() => void) | null; // called when the node is drawn
   onNodeAdded: (() => void) | null; // called when the node is added to the graph
   onNodeRemoved: (() => void) | null; // called when the node is removed from the graph
-  onNodeSelected: ((selected: boolean) => void) | null; // called when the node is selected/unselected
+  onNodeSelected: (() => void) | null; // called when the node is selected/unselected
   onNodeDragOrViewportMove: // called when the node or or the viewport with the node is moved or scaled
   | ((positions: {
         globalX: number;
@@ -183,7 +182,6 @@ export default class PPNode extends PIXI.Container {
     this.interactionData = null;
     this.sourcePoint = null;
     this.isDraggingNode = false;
-    this._selected = false;
     this._doubleClicked = false;
 
     this._addListeners();
@@ -196,7 +194,7 @@ export default class PPNode extends PIXI.Container {
   }
 
   get selected(): boolean {
-    return this._selected;
+    return this.graph.selection.isNodeSelected(this);
   }
 
   get doubleClicked(): boolean {
@@ -213,23 +211,22 @@ export default class PPNode extends PIXI.Container {
   }
 
   // METHODS
-  select(selected: boolean): void {
-    this._selected = selected;
-    this.drawNodeShape(selected);
+  select(): void {
+    this.graph.selection.selectNode(this);
 
-    if (!selected) {
+    if (!this.selected) {
       this._doubleClicked = false;
     }
 
     // this allows to zoom and drag when the hybrid node is not selected
     if (this.isHybrid) {
-      if (!selected && this.container !== undefined) {
+      if (!this.selected && this.container !== undefined) {
         this.container.style.pointerEvents = 'none';
       }
     }
 
     if (this.onNodeSelected) {
-      this.onNodeSelected(selected);
+      this.onNodeSelected();
     }
   }
 
@@ -397,7 +394,7 @@ export default class PPNode extends PIXI.Container {
     this.drawNodeShape();
   }
 
-  drawNodeShape(selected: boolean = this._selected): void {
+  drawNodeShape(): void {
     const countOfVisibleInputSockets = this.inputSocketArray.filter(
       (item) => item.visible === true
     ).length;
@@ -472,23 +469,6 @@ export default class PPNode extends PIXI.Container {
 
     if (this.onDrawNodeShape) {
       this.onDrawNodeShape();
-    }
-
-    // draw selection
-    if (selected) {
-      this._BackgroundRef.lineStyle(
-        2,
-        PIXI.utils.string2hex(Color(this.color).saturate(0.3).hex()),
-        1,
-        0
-      );
-      this._BackgroundRef.drawRoundedRect(
-        NODE_MARGIN - NODE_OUTLINE_DISTANCE,
-        0,
-        NODE_OUTLINE_DISTANCE * 2 + this.nodeWidth,
-        NODE_OUTLINE_DISTANCE * 2 + nodeHeight,
-        this.roundedCorners ? NODE_CORNERRADIUS + NODE_OUTLINE_DISTANCE : 0
-      );
     }
 
     // update position of comment
@@ -799,6 +779,7 @@ export default class PPNode extends PIXI.Container {
     if (node.clickedSocketRef === null) {
       // start dragging the node
       console.log('_onPointerDown');
+
       this.interactionData = event.data;
       this.cursor = 'grabbing';
       this.alpha = 0.5;
