@@ -8,7 +8,7 @@ import { inspect } from 'util'; // or directly
 import '../pixi/dbclick.js';
 
 import styles from '../utils/style.module.css';
-import { SerializedNode } from '../utils/interfaces';
+import { CustomArgs, SerializedNode } from '../utils/interfaces';
 import {
   COMMENT_TEXTSTYLE,
   DATATYPE,
@@ -106,22 +106,7 @@ export default class PPNode extends PIXI.Container {
       }) => void)
     | null;
 
-  constructor(
-    type: string,
-    graph: PPGraph,
-    customArgs?: {
-      customId?: string;
-      color?: string;
-      colorTransparency?: number;
-      nodePosX?: number;
-      nodePosY?: number;
-      nodeWidth?: number;
-      nodeHeight?: number;
-      isHybrid?: boolean;
-      roundedCorners?: boolean;
-      showLabels?: boolean;
-    }
-  ) {
+  constructor(type: string, graph: PPGraph, customArgs?: CustomArgs) {
     super();
     this.graph = graph;
     this.id = customArgs?.customId ?? hri.random();
