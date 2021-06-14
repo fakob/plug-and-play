@@ -160,8 +160,6 @@ export default class PPSelection extends PIXI.Container {
         if (node.onNodeDragOrViewportMove) {
           const screenPoint = node.screenPoint();
           node.onNodeDragOrViewportMove({
-            globalX: undefined,
-            globalY: undefined,
             screenX: screenPoint.x,
             screenY: screenPoint.y,
             scale: this.viewport.scale.x,
@@ -254,7 +252,7 @@ export default class PPSelection extends PIXI.Container {
     this.selectionGraphics.x = 0;
     this.selectionGraphics.y = 0;
     // this.selectionGraphics.beginFill(SELECTION_COLOR_HEX, 0.05);
-    this.selectionGraphics.lineStyle(1, SELECTION_COLOR_HEX, 1);
+    this.selectionGraphics.lineStyle(2, SELECTION_COLOR_HEX, 1);
     this.selectionGraphics.drawRect(
       selectionBounds.x,
       selectionBounds.y,

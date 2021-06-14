@@ -95,13 +95,7 @@ export default class PPNode extends PIXI.Container {
   onNodeRemoved: (() => void) | null; // called when the node is removed from the graph
   onNodeSelected: (() => void) | null; // called when the node is selected/unselected
   onNodeDragOrViewportMove: // called when the node or or the viewport with the node is moved or scaled
-  | ((positions: {
-        globalX: number;
-        globalY: number;
-        screenX: number;
-        screenY: number;
-        scale: number;
-      }) => void)
+  | ((positions: { screenX: number; screenY: number; scale: number }) => void)
     | null;
 
   constructor(type: string, graph: PPGraph, customArgs?: CustomArgs) {
@@ -575,13 +569,7 @@ export default class PPNode extends PIXI.Container {
     this.container.style.left = `${screenPoint.x}px`;
     this.container.style.top = `${screenPoint.y}px`;
 
-    this.onNodeDragOrViewportMove = ({
-      globalX,
-      globalY,
-      screenX,
-      screenY,
-      scale,
-    }) => {
+    this.onNodeDragOrViewportMove = ({ screenX, screenY, scale }) => {
       this.container.style.transform = `translate(50%, 50%)`;
       this.container.style.transform = `scale(${scale}`;
       this.container.style.left = `${screenX}px`;
@@ -787,14 +775,7 @@ export default class PPNode extends PIXI.Container {
       this.cursor = 'grabbing';
       this.alpha = 0.5;
       this.isDraggingNode = true;
-      const localPositionX = this.position.x;
-      const localPositionY = this.position.y;
-      const localClickPosition = this.interactionData.getLocalPosition(
-        this.parent
-      );
-      const deltaX = localClickPosition.x - localPositionX;
-      const deltaY = localClickPosition.y - localPositionY;
-      this.sourcePoint = new PIXI.Point(deltaX, deltaY);
+      this.sourcePoint = this.interactionData.getLocalPosition(this);
     }
   }
 
@@ -814,11 +795,11 @@ export default class PPNode extends PIXI.Container {
       this.interactionData !== null &&
       this.sourcePoint !== null
     ) {
-      const targetPoint = this.interactionData.getLocalPosition(this.parent);
-      const globalX = targetPoint.x - this.sourcePoint.x;
-      const globalY = targetPoint.y - this.sourcePoint.y;
-      this.x = globalX;
-      this.y = globalY;
+      const targetPoint = this.interactionData.getLocalPosition(this);
+      const deltaX = targetPoint.x - this.sourcePoint.x;
+      const deltaY = targetPoint.y - this.sourcePoint.y;
+      this.x += deltaX;
+      this.y += deltaY;
 
       this.updateCommentPosition();
       this.updateConnectionPosition();
@@ -833,8 +814,6 @@ export default class PPNode extends PIXI.Container {
       if (this.onNodeDragOrViewportMove) {
         const screenPoint = this.screenPoint();
         this.onNodeDragOrViewportMove({
-          globalX,
-          globalY,
           screenX: screenPoint.x,
           screenY: screenPoint.y,
           scale: this.graph.viewport.scale.x,
@@ -848,8 +827,6 @@ export default class PPNode extends PIXI.Container {
     if (this.onNodeDragOrViewportMove) {
       const screenPoint = this.screenPoint();
       this.onNodeDragOrViewportMove({
-        globalX: this.x,
-        globalY: this.y,
         screenX: screenPoint.x,
         screenY: screenPoint.y,
         scale: this.graph.viewport.scale.x,
