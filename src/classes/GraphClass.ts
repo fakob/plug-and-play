@@ -511,8 +511,8 @@ export default class PPGraph {
     this.customNodeTypes = {};
   }
 
-  duplicateSelection(): string[] {
-    const arrayOfNewIds: string[] = [];
+  duplicateSelection(): PPNode[] {
+    const arrayOfNewNodes: PPNode[] = [];
     this.selection.selectedNodes.forEach((node) => {
       const nodeType = node.type;
 
@@ -523,12 +523,14 @@ export default class PPGraph {
       // offset duplicated node
       newNode.setPosition(32, 32, true);
 
-      // select newNode
-      this.selection.selectNode(newNode);
-
-      arrayOfNewIds.push(newNode.id);
+      arrayOfNewNodes.push(newNode);
     });
-    return arrayOfNewIds;
+
+    // select newNode
+    this.selection.selectNodes(arrayOfNewNodes);
+    this.selection.drawRectanglesFromSelection();
+
+    return arrayOfNewNodes;
   }
 
   serialize(): SerializedGraph {
