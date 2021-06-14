@@ -558,9 +558,9 @@ export class PIXIMultiplier extends PPNode {
 
     const inputContainer = new PIXI.Container();
     const container = new PIXI.Container();
-    this._containerRef = (this.graph.viewport.getChildByName(
-      'backgroundCanvas'
-    ) as PIXI.Container).addChild(container);
+    this._containerRef = (
+      this.graph.viewport.getChildByName('backgroundCanvas') as PIXI.Container
+    ).addChild(container);
     this._inputContainerRef = this._containerRef.addChild(inputContainer);
     this.setOutputData('container', this._containerRef);
     this._containerRef.name = this.id;
@@ -635,9 +635,9 @@ export class PIXIMultiplier extends PPNode {
     };
 
     this.onNodeRemoved = (): void => {
-      (this.graph.viewport.getChildByName(
-        'backgroundCanvas'
-      ) as PIXI.Graphics).removeChild(this._containerRef);
+      (
+        this.graph.viewport.getChildByName('backgroundCanvas') as PIXI.Graphics
+      ).removeChild(this._containerRef);
     };
 
     this.createAndAddClone = (
@@ -1041,23 +1041,23 @@ export class Note extends PPNode {
         );
       }
     };
-  }*/
+  }
 
-// trigger(): void {
-//   const url: string = this.getInputData('url');
-//   // if url is set then get image
-//   if (url !== '') {
-//     // const objectURL = URL.createObjectURL(url);
-//     const newTexture = PIXI.Texture.from(url);
-//     this._imageRef.texture = newTexture;
-//     this._imageRefClone.texture = newTexture;
-//   }
-//   const { width, height } = this._imageRef.texture.orig;
-//   this.setOutputData('image', this._imageRefClone);
-//   this.setOutputData('width', width);
-//   this.setOutputData('height', height);
-// }
-//}
+  // trigger(): void {
+  //   const url: string = this.getInputData('url');
+  //   // if url is set then get image
+  //   if (url !== '') {
+  //     // const objectURL = URL.createObjectURL(url);
+  //     const newTexture = PIXI.Texture.from(url);
+  //     this._imageRef.texture = newTexture;
+  //     this._imageRefClone.texture = newTexture;
+  //   }
+  //   const { width, height } = this._imageRef.texture.orig;
+  //   this.setOutputData('image', this._imageRefClone);
+  //   this.setOutputData('width', width);
+  //   this.setOutputData('height', height);
+  // }
+}*/
 
 export class Table extends PPNode {
   _imageRef: PIXI.Sprite;

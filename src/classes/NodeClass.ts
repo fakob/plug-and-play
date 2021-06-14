@@ -158,9 +158,9 @@ export default class PPNode extends PIXI.Container {
 
     this._BackgroundRef = this.addChild(background);
     this._NodeNameRef = this.addChild(inputNameText);
-    this._NodeCommentRef = (this.graph.viewport.getChildByName(
-      'commentContainer'
-    ) as PIXI.Container).addChild(nodeComment);
+    this._NodeCommentRef = (
+      this.graph.viewport.getChildByName('commentContainer') as PIXI.Container
+    ).addChild(nodeComment);
 
     // do not show the node name
     if (this.showLabels === false) {
@@ -168,7 +168,14 @@ export default class PPNode extends PIXI.Container {
     }
 
     // add static inputs and outputs
-    this.getDefaultIO().forEach((IO) => this.addSocket(IO));
+    this.getDefaultIO().forEach((IO) => {
+      // add in default data if supplied
+      const newDefault = customArgs?.defaultArguments?.[IO.name];
+      if (newDefault) {
+        IO.data = newDefault;
+      }
+      this.addSocket(IO);
+    });
 
     // draw shape
     this.drawNodeShape();
@@ -873,9 +880,9 @@ export default class PPNode extends PIXI.Container {
     // console.log('_onRemoved');
 
     // remove node comment
-    (this.graph.viewport.getChildByName(
-      'commentContainer'
-    ) as PIXI.Container).removeChild(this._NodeCommentRef);
+    (
+      this.graph.viewport.getChildByName('commentContainer') as PIXI.Container
+    ).removeChild(this._NodeCommentRef);
 
     // remove added listener from graph.viewport
     this.graph.viewport.removeListener('moved', this.onViewportMoveHandler);
