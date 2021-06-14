@@ -2,7 +2,7 @@ import * as PIXI from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
 
 import PPNode from './NodeClass';
-import { CONNECTION_COLOR_HEX, NODE_MARGIN } from '../utils/constants';
+import { SELECTION_COLOR_HEX, NODE_MARGIN } from '../utils/constants';
 import { getObjectsInsideBounds } from '../pixi/utils-pixi';
 
 export default class PPSelection extends PIXI.Container {
@@ -112,8 +112,8 @@ export default class PPSelection extends PIXI.Container {
       const selHeight = Math.max(this.sourcePoint.y, targetPoint.y) - selY;
 
       this.selectionIntendGraphics.clear();
-      this.selectionIntendGraphics.beginFill(CONNECTION_COLOR_HEX, 0.2);
-      this.selectionIntendGraphics.lineStyle(1, CONNECTION_COLOR_HEX, 0.3);
+      this.selectionIntendGraphics.beginFill(SELECTION_COLOR_HEX, 0.05);
+      this.selectionIntendGraphics.lineStyle(1, SELECTION_COLOR_HEX, 0.8);
       this.selectionIntendGraphics.drawRect(selX, selY, selWidth, selHeight);
 
       // bring drawing rect into node nodeContainer space
@@ -232,17 +232,16 @@ export default class PPSelection extends PIXI.Container {
     this.singleSelectionsGraphics.clear();
     this.singleSelectionsGraphics.x = 0;
     this.singleSelectionsGraphics.y = 0;
-    // this.singleSelectionsGraphics.beginFill(CONNECTION_COLOR_HEX, 0.2);
-    this.singleSelectionsGraphics.lineStyle(1, CONNECTION_COLOR_HEX, 0.3);
+    this.singleSelectionsGraphics.lineStyle(1, SELECTION_COLOR_HEX, 0.8);
 
     // draw single selections
     this.selectedNodes.map((node) => {
       const nodeBounds = node.getBounds();
       this.singleSelectionsGraphics.drawRect(
-        nodeBounds.x - NODE_MARGIN / 2,
-        nodeBounds.y - NODE_MARGIN / 2,
-        nodeBounds.width + NODE_MARGIN,
-        nodeBounds.height + NODE_MARGIN
+        nodeBounds.x,
+        nodeBounds.y,
+        nodeBounds.width,
+        nodeBounds.height
       );
     });
   }
@@ -254,8 +253,8 @@ export default class PPSelection extends PIXI.Container {
     this.selectionGraphics.clear();
     this.selectionGraphics.x = 0;
     this.selectionGraphics.y = 0;
-    this.selectionGraphics.beginFill(CONNECTION_COLOR_HEX, 0.2);
-    this.selectionGraphics.lineStyle(1, CONNECTION_COLOR_HEX, 0.3);
+    // this.selectionGraphics.beginFill(SELECTION_COLOR_HEX, 0.05);
+    this.selectionGraphics.lineStyle(1, SELECTION_COLOR_HEX, 1);
     this.selectionGraphics.drawRect(
       selectionBounds.x,
       selectionBounds.y,
