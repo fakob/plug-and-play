@@ -26,7 +26,7 @@ export type CustomArgs = {
   isHybrid?: boolean;
   roundedCorners?: boolean;
   showLabels?: boolean;
-  // [key: string]: any;
+  [key: string]: any;
 };
 
 export interface INodes {
