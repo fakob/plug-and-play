@@ -2,8 +2,9 @@ import * as PIXI from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
 
 import PPNode from './NodeClass';
-import { SELECTION_COLOR_HEX, NODE_MARGIN } from '../utils/constants';
+import { SELECTION_COLOR_HEX } from '../utils/constants';
 import { getObjectsInsideBounds } from '../pixi/utils-pixi';
+import { getDifferenceSelection } from '../utils/utils';
 
 export default class PPSelection extends PIXI.Container {
   protected viewport: Viewport;
@@ -125,13 +126,10 @@ export default class PPSelection extends PIXI.Container {
         this.nodes,
         selectionRect
       );
-      const differenceSelection = this.previousSelectedNodes
-        .filter((x) => !newlySelectedNodes.includes(x))
-        .concat(
-          newlySelectedNodes.filter(
-            (x) => !this.previousSelectedNodes.includes(x)
-          )
-        );
+      const differenceSelection = getDifferenceSelection(
+        this.previousSelectedNodes,
+        newlySelectedNodes
+      );
 
       this.selectNodes(differenceSelection);
       this.drawRectanglesFromSelection();
@@ -185,7 +183,9 @@ export default class PPSelection extends PIXI.Container {
     addToOrToggleSelection: boolean
   ): void {
     console.log('startDrawAction');
-    // keep selectedNodes in previousSelectedNodes
+
+    // store selectedNodes in previousSelectedNodes
+    // if addToOrToggleSelection is true
     this.previousSelectedNodes = addToOrToggleSelection
       ? this.selectedNodes
       : [];
@@ -275,9 +275,10 @@ export default class PPSelection extends PIXI.Container {
       this.deselectAllNodes();
     } else {
       if (addToOrToggleSelection) {
-        const differenceSelection = this.selectedNodes
-          .filter((x) => !nodes.includes(x))
-          .concat(nodes.filter((x) => !this.selectedNodes.includes(x)));
+        const differenceSelection = getDifferenceSelection(
+          this.selectedNodes,
+          nodes
+        );
         this.selectedNodes = differenceSelection;
       } else {
         this.selectedNodes = nodes;

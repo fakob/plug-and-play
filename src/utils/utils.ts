@@ -1,6 +1,7 @@
 import React from 'react';
 import { Node } from 'slate';
 
+import PPNode from '../classes/NodeClass';
 import {
   NODE_PADDING_TOP,
   NODE_OUTLINE_DISTANCE,
@@ -207,4 +208,13 @@ export const formatDate = () => {
   return `${[year, month, day].join('-')} at ${[hour, minutes, seconds].join(
     '.'
   )}`;
+};
+
+export const getDifferenceSelection = (
+  firstSelection: PPNode[],
+  secondSelection: PPNode[]
+): PPNode[] => {
+  return firstSelection
+    .filter((x) => !secondSelection.includes(x))
+    .concat(secondSelection.filter((x) => !firstSelection.includes(x)));
 };
