@@ -768,8 +768,13 @@ export default class PPNode extends PIXI.Container {
       // start dragging the node
       console.log('_onPointerDown');
 
-      // select node
-      this.graph.selection.selectNode(this, event.data.originalEvent.shiftKey);
+      const shiftKey = event.data.originalEvent.shiftKey;
+
+      // select node if the shiftKey is pressed
+      // or the node is not yet selected
+      if (shiftKey || !this.selected) {
+        this.graph.selection.selectNode(this, shiftKey);
+      }
 
       this.interactionData = event.data;
       this.cursor = 'grabbing';
@@ -798,27 +803,9 @@ export default class PPNode extends PIXI.Container {
       const targetPoint = this.interactionData.getLocalPosition(this);
       const deltaX = targetPoint.x - this.sourcePoint.x;
       const deltaY = targetPoint.y - this.sourcePoint.y;
-      this.x += deltaX;
-      this.y += deltaY;
-
-      this.updateCommentPosition();
-      this.updateConnectionPosition();
 
       // move selection
-      this.graph.selection.drawRectanglesFromSelection();
-
-      if (this.shouldExecuteOnMove()) {
-        this.execute(new Set());
-      }
-
-      if (this.onNodeDragOrViewportMove) {
-        const screenPoint = this.screenPoint();
-        this.onNodeDragOrViewportMove({
-          screenX: screenPoint.x,
-          screenY: screenPoint.y,
-          scale: this.graph.viewport.scale.x,
-        });
-      }
+      this.graph.selection.moveSelection(deltaX, deltaY);
     }
   }
 
