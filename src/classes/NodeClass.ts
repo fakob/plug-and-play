@@ -722,7 +722,8 @@ export default class PPNode extends PIXI.Container {
     return this.execute(new Set());
   }
 
-  async execute(upstreamContent: Set<string>): Promise<void> {
+  // if you want to optimize the mapping, override this function instead of execute()
+  protected async rawExecute(): Promise<void> {
     // remap input
     const inputObject = {};
     this.inputSocketArray.forEach((input: Socket) => {
@@ -739,8 +740,12 @@ export default class PPNode extends PIXI.Container {
         output.data = outputObject[output.name];
       }
     });
+  }
 
+  async execute(upstreamContent: Set<string>): Promise<void> {
     this.drawComment();
+
+    this.rawExecute();
 
     this.outputSocketArray.forEach((outputSocket) =>
       outputSocket.notifyChange(upstreamContent)

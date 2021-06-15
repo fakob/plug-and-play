@@ -28,16 +28,15 @@ export class Image extends PPNode {
     ];
   }
 
+  borderDistance = 10;
+
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    const nodeWidth = defaultWidth;
-    const nodeHeight = defaultHeight;
-    const isHybrid = true;
     super(name, graph, {
       ...customArgs,
-      color: NODE_TYPE_COLOR.DEFAULT,
-      nodeWidth,
-      nodeHeight,
-      isHybrid,
+      color: NODE_TYPE_COLOR.INPUT,
+      nodeWidth: defaultWidth,
+      nodeHeight: defaultHeight,
+      colorTransparency: 0.0,
     });
     this.name = 'Draw Image';
     this.description = 'Draws an Image (base64)';
@@ -49,8 +48,10 @@ export class Image extends PPNode {
       if (base64) {
         const image = PIXI.Texture.from(base64);
         this.sprite = new PIXI.Sprite(image);
-        this.sprite.width = this.width;
-        this.sprite.height = this.height;
+        this.sprite.width = this.width - 2 * this.borderDistance;
+        this.sprite.height = this.height - 2 * this.borderDistance;
+        this.sprite.x = this.borderDistance;
+        this.sprite.y = this.borderDistance;
         this.addChild(this.sprite);
       }
       output[imageOutputName] = base64;
