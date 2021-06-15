@@ -33,7 +33,6 @@ export default class PPGraph {
   overInputRef: null | Socket;
   dragSourcePoint: null | PIXI.Point;
   movingLink: null | PPLink;
-  draggingNodes: boolean;
 
   backgroundTempContainer: PIXI.Container;
   backgroundCanvas: PIXI.Container;
@@ -158,15 +157,22 @@ export default class PPGraph {
       this.viewport.plugins.pause('drag');
     } else {
       this.viewport.cursor = 'grabbing';
-      this.selection.deselectAllNodesAndResetSelection();
+      this.dragSourcePoint = new PIXI.Point(this.viewport.x, this.viewport.y);
     }
   }
 
   _onPointerUpAndUpOutside(): void {
-    // unsubscribe from pointermove
     console.log('_onPointerUpAndUpOutside');
+    // check if viewport has been dragged,
+    // if not, this is a deselect all nodes action
     if (this.dragSourcePoint !== null) {
-      this.viewport.removeListener('pointermove', this.onViewportMoveHandler);
+      if (
+        this.dragSourcePoint.x === this.viewport.x &&
+        this.dragSourcePoint.y === this.viewport.y
+      ) {
+        console.log('deselectAllNodesAndResetSelection');
+        this.selection.deselectAllNodesAndResetSelection();
+      }
     }
     if (this.selection.isDrawingSelection) {
       this.selection.drawSelectionFinish();
@@ -174,7 +180,6 @@ export default class PPGraph {
 
     this.viewport.cursor = 'grab';
     this.viewport.plugins.resume('drag');
-    this.draggingNodes = false;
     this.dragSourcePoint = null;
   }
 
@@ -263,8 +268,6 @@ export default class PPGraph {
       // offset curve to start from source
       this.tempConnection.x = sourcePointX;
       this.tempConnection.y = sourcePointY;
-    } else {
-      this.draggingNodes = true;
     }
   }
 
@@ -298,7 +301,6 @@ export default class PPGraph {
     this.clickedSocketRef = null;
     this.overInputRef = null;
     this.movingLink = null;
-    this.draggingNodes = false;
     this.dragSourcePoint = null;
   }
 
