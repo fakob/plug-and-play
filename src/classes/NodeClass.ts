@@ -3,7 +3,6 @@ import { DropShadowFilter } from '@pixi/filter-drop-shadow';
 import { hri } from 'human-readable-ids';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Color from 'color';
 import { inspect } from 'util'; // or directly
 import '../pixi/dbclick.js';
 

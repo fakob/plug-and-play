@@ -512,9 +512,23 @@ export default class PPGraph {
   }
 
   duplicateSelection(): PPNode[] {
-    const arrayOfNewNodes: PPNode[] = [];
+    const newNodes: PPNode[] = [];
+    const linksContainedInSelection: PPLink[] = [];
+    const mappingOfOldAndNewNodes: { [key: string]: PPNode } = {};
+
     this.selection.selectedNodes.forEach((node) => {
       const nodeType = node.type;
+
+      // get links which are completely contained in selection
+      node.inputSocketArray.forEach((socket) => {
+        if (socket.hasLink()) {
+          const connectedNode = socket.links[0].source.parent as PPNode;
+          if (this.selection.selectedNodes.includes(connectedNode)) {
+            linksContainedInSelection.push(socket.links[0]);
+          }
+        }
+      });
+      console.log(linksContainedInSelection);
 
       // add node and carry over its configuration
       const newNode = this.createAndAddNode(nodeType);
@@ -523,14 +537,31 @@ export default class PPGraph {
       // offset duplicated node
       newNode.setPosition(32, 32, true);
 
-      arrayOfNewNodes.push(newNode);
+      mappingOfOldAndNewNodes[node.id] = newNode;
+      newNodes.push(newNode);
+    });
+
+    // create new links
+    linksContainedInSelection.forEach((link: PPLink) => {
+      const oldSourceNode = link.source.parent as PPNode;
+      const sourceSocketName = link.source.name;
+      const oldTargetNode = link.target.parent as PPNode;
+      const targetSocketName = link.target.name;
+      const newSource = mappingOfOldAndNewNodes[
+        oldSourceNode.id
+      ].outputSocketArray.find((socket) => socket.name === sourceSocketName);
+      const newTarget = mappingOfOldAndNewNodes[
+        oldTargetNode.id
+      ].inputSocketArray.find((socket) => socket.name === targetSocketName);
+      console.log(newSource, newTarget);
+      this.connect(newSource, newTarget, this.viewport);
     });
 
     // select newNode
-    this.selection.selectNodes(arrayOfNewNodes);
+    this.selection.selectNodes(newNodes);
     this.selection.drawRectanglesFromSelection();
 
-    return arrayOfNewNodes;
+    return newNodes;
   }
 
   serialize(): SerializedGraph {
