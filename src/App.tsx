@@ -101,7 +101,7 @@ const App = (): JSX.Element => {
             data = await response.blob();
             const base64 = await convertBlobToBase64(data);
             newNode = currentGraph.current.createAndAddNode('Image', {
-              base64,
+              defaultArguments: { Image: base64 },
             });
             break;
           default:

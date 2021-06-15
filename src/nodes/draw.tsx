@@ -940,7 +940,7 @@ export class Note extends PPNode {
   }
 }
 
-export class Image extends PPNode {
+/*export class Image extends PPNode {
   _imageRef: PIXI.Sprite;
   _texture: PIXI.Texture;
   _loader: PIXI.Loader;
@@ -1057,7 +1057,7 @@ export class Image extends PPNode {
   //   this.setOutputData('width', width);
   //   this.setOutputData('height', height);
   // }
-}
+}*/
 
 export class Table extends PPNode {
   _imageRef: PIXI.Sprite;
