@@ -23,6 +23,10 @@ export default class PPSelection extends PIXI.Container {
   protected onMoveHandler: (event?: PIXI.InteractionEvent) => void;
   onSelectionChange: ((selectedNodes: PPNode[]) => void) | null; // called when the selection has changed
 
+  onRightClick:
+    | ((event: PIXI.InteractionEvent, target: PIXI.DisplayObject) => void)
+    | null; // called when the selection is right clicked
+
   constructor(viewport: Viewport, nodes: PPNode[]) {
     super();
     this.viewport = viewport;
@@ -54,12 +58,24 @@ export default class PPSelection extends PIXI.Container {
     this.on('pointerupoutside', this.onPointerUpAndUpOutside.bind(this));
     this.on('pointerup', this.onPointerUpAndUpOutside.bind(this));
     this.on('pointerover', this.onPointerOver.bind(this));
+    this.on('rightclick', this.onPointerRightClicked.bind(this));
     this.viewport.on('moved', (this as any).onViewportMoved.bind(this));
 
     this.onMoveHandler = this.onMove.bind(this);
 
     // define callbacks
     this.onSelectionChange = null; //called if the selection changes
+  }
+
+  onPointerRightClicked(event: PIXI.InteractionEvent): void {
+    console.log('Selection - onPointerRightClicked');
+    event.stopPropagation();
+    const target = event.target;
+    console.log(target, event.data.originalEvent);
+
+    if (this.onRightClick) {
+      this.onRightClick(event, target);
+    }
   }
 
   onPointerDown(event: PIXI.InteractionEvent): void {

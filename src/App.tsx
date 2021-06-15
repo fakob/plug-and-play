@@ -29,6 +29,7 @@ import {
   highlightText,
 } from './utils/utils';
 import { registerAllNodeTypes } from './nodes/allNodes';
+import PPSelection from './classes/SelectionClass';
 import PPSocket from './classes/SocketClass';
 import PPNode from './classes/NodeClass';
 import { InputParser } from './utils/inputParser';
@@ -282,6 +283,23 @@ const App = (): JSX.Element => {
           console.log('app right click, something else');
           break;
       }
+    };
+
+    (
+      pixiApp.current.stage.getChildByName('selectionContainer') as PPSelection
+    ).onRightClick = (
+      event: PIXI.InteractionEvent,
+      target: PIXI.DisplayObject
+    ) => {
+      setIsGraphContextMenuOpen(false);
+      setIsNodeContextMenuOpen(false);
+      setContextMenuPosition(
+        // creating new point so react updates
+        [event.data.global.x, event.data.global.y]
+      );
+      console.log(event, target, event.data.global);
+      console.log('app right click, selection');
+      setIsNodeContextMenuOpen(true);
     };
 
     // register key events
