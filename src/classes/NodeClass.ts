@@ -88,6 +88,7 @@ export default class PPNode extends PIXI.Container {
   // supported callbacks
   onConfigure: ((nodeConfig: SerializedNode) => void) | null;
   onNodeDoubleClick: ((event: PIXI.InteractionEvent) => void) | null;
+  onMoveHandler: (event?: PIXI.InteractionEvent) => void;
   onViewportMoveHandler: (event?: PIXI.InteractionEvent) => void;
   onDrawNodeShape: (() => void) | null; // called when the node is drawn
   onNodeAdded: (() => void) | null; // called when the node is added to the graph
@@ -743,10 +744,11 @@ export default class PPNode extends PIXI.Container {
   // SETUP
 
   _addListeners(): void {
+    this.onMoveHandler = this._onPointerMove.bind(this);
+
     this.on('pointerdown', this._onPointerDown.bind(this));
     this.on('pointerup', this._onPointerUpAndUpOutside.bind(this));
     this.on('pointerupoutside', this._onPointerUpAndUpOutside.bind(this));
-    this.on('pointermove', this._onPointerMove.bind(this));
     this.on('pointerover', this._onPointerOver.bind(this));
     this.on('pointerout', this._onPointerOut.bind(this));
     this.on('dblclick', this._onDoubleClick.bind(this));
@@ -780,11 +782,17 @@ export default class PPNode extends PIXI.Container {
       this.alpha = 0.5;
       this.isDraggingNode = true;
       this.sourcePoint = this.interactionData.getLocalPosition(this);
+
+      // subscribe to pointermove
+      this.on('pointermove', this.onMoveHandler);
     }
   }
 
   _onPointerUpAndUpOutside(): void {
     console.log('_onPointerUpAndUpOutside');
+
+    // unsubscribe from pointermove
+    this.removeListener('pointermove', this.onMoveHandler);
 
     this.alpha = 1;
     this.isDraggingNode = false;

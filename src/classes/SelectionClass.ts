@@ -65,16 +65,40 @@ export default class PPSelection extends PIXI.Container {
   onPointerDown(event: PIXI.InteractionEvent): void {
     console.log('Selection: onPointerDown');
     if (this.selectedNodes.length > 0) {
-      console.log('startDragAction');
-      this.cursor = 'move';
-      this.isDraggingSelection = true;
-      this.interactionData = event.data;
-      this.sourcePoint = this.interactionData.getLocalPosition(
-        this.selectedNodes[0]
-      );
+      if (event.data.originalEvent.shiftKey) {
+        const targetPoint = new PIXI.Point(
+          (event.data.originalEvent as MouseEvent).clientX,
+          (event.data.originalEvent as MouseEvent).clientY
+        );
+        const selectionRect = new PIXI.Rectangle(
+          targetPoint.x,
+          targetPoint.y,
+          1,
+          1
+        );
+        const newlySelectedNodes = getObjectsInsideBounds(
+          this.nodes,
+          selectionRect
+        );
+        const differenceSelection = getDifferenceSelection(
+          this.selectedNodes,
+          newlySelectedNodes
+        );
 
-      // subscribe to pointermove
-      this.on('pointermove', this.onMoveHandler);
+        this.selectNodes(differenceSelection);
+        this.drawRectanglesFromSelection();
+      } else {
+        console.log('startDragAction');
+        this.cursor = 'move';
+        this.isDraggingSelection = true;
+        this.interactionData = event.data;
+        this.sourcePoint = this.interactionData.getLocalPosition(
+          this.selectedNodes[0]
+        );
+
+        // subscribe to pointermove
+        this.on('pointermove', this.onMoveHandler);
+      }
     }
   }
 
@@ -134,6 +158,13 @@ export default class PPSelection extends PIXI.Container {
       this.selectNodes(differenceSelection);
       this.drawRectanglesFromSelection();
       // this.drawSingleSelections();
+    } else if (this.isDraggingSelection) {
+      const targetPoint = this.interactionData.getLocalPosition(
+        this.selectedNodes[0]
+      );
+      const deltaX = targetPoint.x - this.sourcePoint.x;
+      const deltaY = targetPoint.y - this.sourcePoint.y;
+      this.moveSelection(deltaX, deltaY);
     }
   }
 
@@ -247,7 +278,7 @@ export default class PPSelection extends PIXI.Container {
     this.selectionGraphics.clear();
     this.selectionGraphics.x = 0;
     this.selectionGraphics.y = 0;
-    // this.selectionGraphics.beginFill(SELECTION_COLOR_HEX, 0.05);
+    this.selectionGraphics.beginFill(SELECTION_COLOR_HEX, 0.01);
     this.selectionGraphics.lineStyle(2, SELECTION_COLOR_HEX, 1);
     this.selectionGraphics.drawRect(
       selectionBounds.x,
