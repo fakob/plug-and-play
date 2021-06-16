@@ -133,7 +133,6 @@ export default class PPGraph {
 
     console.log('_onNodePointerDown');
     const node = event.currentTarget as PPNode;
-    // console.log(node.id);
 
     if (this.clickedSocketRef !== null) {
       // check if user clicked InputSocket with link to move it
