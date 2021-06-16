@@ -233,7 +233,7 @@ export class Shader extends PPNode {
     return;
   }
 
-  protected shouldExecuteOnMove(): boolean {
+  shouldExecuteOnMove(): boolean {
     return true;
   }
 
@@ -253,7 +253,7 @@ void main() {
   vec2 current = vec2(0,0);
   int max = int(inputData);
   float deathPoint = 0.;
- 
+
   for (int i = 0; i < 200; i++){
     current = vec2(pow(current.x,2.) - pow(current.y,2.), current.x*current.y*2.) + (uv - vec2(0.5,0.5))*3.;
     if (length(current) > 2.){

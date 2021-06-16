@@ -737,7 +737,7 @@ export class Label extends PPNode {
     };
   }
 
-  protected shouldExecuteOnMove(): boolean {
+  shouldExecuteOnMove(): boolean {
     return true;
   }
 }
