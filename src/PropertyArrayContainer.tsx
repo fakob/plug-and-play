@@ -25,40 +25,39 @@ type PropertyArrayContainerProps = {
   outputSocketArray: Socket[];
 };
 
-export const PropertyArrayContainer: React.FunctionComponent<PropertyArrayContainerProps> = (
-  props
-) => {
-  return (
-    <>
-      {props.inputSocketArray?.map((property, index) => {
-        return (
-          <PropertyContainer
-            key={index}
-            property={property}
-            index={index}
-            dataType={property.dataType}
-            isInput={true}
-            hasLink={property.hasLink()}
-            data={property.data}
-          />
-        );
-      })}
-      {props.outputSocketArray?.map((property, index) => {
-        return (
-          <PropertyContainer
-            key={index}
-            property={property}
-            index={index}
-            dataType={property.dataType}
-            isInput={false}
-            hasLink={property.hasLink()}
-            data={property.data}
-          />
-        );
-      })}
-    </>
-  );
-};
+export const PropertyArrayContainer: React.FunctionComponent<PropertyArrayContainerProps> =
+  (props) => {
+    return (
+      <>
+        {props.inputSocketArray?.map((property, index) => {
+          return (
+            <PropertyContainer
+              key={index}
+              property={property}
+              index={index}
+              dataType={property.dataType}
+              isInput={true}
+              hasLink={property.hasLink()}
+              data={property.data}
+            />
+          );
+        })}
+        {props.outputSocketArray?.map((property, index) => {
+          return (
+            <PropertyContainer
+              key={index}
+              property={property}
+              index={index}
+              dataType={property.dataType}
+              isInput={false}
+              hasLink={property.hasLink()}
+              data={property.data}
+            />
+          );
+        })}
+      </>
+    );
+  };
 
 type PropertyContainerProps = {
   property: Socket;
