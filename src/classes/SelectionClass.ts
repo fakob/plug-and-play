@@ -301,7 +301,7 @@ export default class PPSelection extends PIXI.Container {
     this.selectedNodes.length > 1 &&
       this.selectionGraphics.beginFill(SELECTION_COLOR_HEX, 0.01);
 
-    this.selectionGraphics.lineStyle(2, SELECTION_COLOR_HEX, 1);
+    this.selectionGraphics.lineStyle(1, SELECTION_COLOR_HEX, 1);
     this.selectionGraphics.drawRect(
       selectionBounds.x,
       selectionBounds.y,
