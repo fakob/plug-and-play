@@ -27,7 +27,7 @@ export type CustomArgs = {
   roundedCorners?: boolean;
   showLabels?: boolean;
   defaultArguments?: Record<string, any>;
-  [key: string]: any; // lets try to deprecate this
+  [key: string]: any; //  lets try to deprecate this
 };
 
 export interface INodes {

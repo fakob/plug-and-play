@@ -16,6 +16,7 @@ import {
 import PPNode from './NodeClass';
 import Socket from './SocketClass';
 import PPLink from './LinkClass';
+import PPSelection from './SelectionClass';
 
 export default class PPGraph {
   app: PIXI.Application;
@@ -28,22 +29,22 @@ export default class PPGraph {
   customNodeTypes: Record<string, string>;
 
   _showComments: boolean;
-  selectedNodes: string[];
   clickedSocketRef: null | Socket;
   overInputRef: null | Socket;
   dragSourcePoint: null | PIXI.Point;
   movingLink: null | PPLink;
-  draggingNodes: boolean;
 
-  tempConnection: PIXI.Graphics;
-  tempContainer: PIXI.Container;
+  backgroundTempContainer: PIXI.Container;
   backgroundCanvas: PIXI.Container;
-  foregroundCanvas: PIXI.Container;
-  commentContainer: PIXI.Container;
   connectionContainer: PIXI.Container;
   nodeContainer: PIXI.Container;
+  commentContainer: PIXI.Container;
+  foregroundCanvas: PIXI.Container;
+  foregroundTempContainer: PIXI.Container;
 
-  onSelectionChange: ((selectedNodes: string[]) => void) | null; // called when the selection has changed
+  tempConnection: PIXI.Graphics;
+  selection: PPSelection;
+
   onRightClick:
     | ((event: PIXI.InteractionEvent, target: PIXI.DisplayObject) => void)
     | null; // called when the graph is right clicked
@@ -61,9 +62,8 @@ export default class PPGraph {
     this.dragSourcePoint = null;
     this.movingLink = null;
 
-    this.tempConnection = new PIXI.Graphics();
-    this.tempContainer = new PIXI.Container();
-    this.tempContainer.name = 'tempContainer';
+    this.backgroundTempContainer = new PIXI.Container();
+    this.backgroundTempContainer.name = 'backgroundTempContainer';
     this.backgroundCanvas = new PIXI.Container();
     this.backgroundCanvas.name = 'backgroundCanvas';
     this.connectionContainer = new PIXI.Container();
@@ -74,17 +74,27 @@ export default class PPGraph {
     this.foregroundCanvas.name = 'foregroundCanvas';
     this.commentContainer = new PIXI.Container();
     this.commentContainer.name = 'commentContainer';
+    this.foregroundTempContainer = new PIXI.Container();
+    this.foregroundTempContainer.name = 'foregroundTempContainer';
 
     this.viewport.addChild(
       this.backgroundCanvas,
+      this.backgroundTempContainer,
       this.connectionContainer,
-      this.tempContainer,
       this.nodeContainer,
       this.foregroundCanvas,
+      this.foregroundTempContainer,
       this.commentContainer
     );
-    this.tempContainer.addChild(this.tempConnection);
+
+    this.tempConnection = new PIXI.Graphics();
     this.tempConnection.name = 'tempConnection';
+    this.backgroundTempContainer.addChild(this.tempConnection);
+
+    this.selection = new PPSelection(this.viewport, this.nodes);
+    this.app.stage.addChild(this.selection);
+
+    this.viewport.cursor = 'grab';
 
     // add event listeners
     const addEventListeners = (): void => {
@@ -98,6 +108,11 @@ export default class PPGraph {
 
       // register pointer events
       this.viewport.on('pointerdown', this._onPointerDown.bind(this));
+      this.viewport.on(
+        'pointerupoutside',
+        this._onPointerUpAndUpOutside.bind(this)
+      );
+      this.viewport.on('pointerup', this._onPointerUpAndUpOutside.bind(this));
       this.viewport.on('rightclick', this._onPointerRightClicked.bind(this));
     };
     addEventListeners();
@@ -107,11 +122,9 @@ export default class PPGraph {
     this._registeredNodeTypes = {};
 
     // define callbacks
-    this.onSelectionChange = null; //called if the selection changes
   }
 
   // SETUP
-
   _onPointerRightClicked(event: PIXI.InteractionEvent): void {
     console.log('GraphClass - _onPointerRightClicked');
     event.stopPropagation();
@@ -123,13 +136,48 @@ export default class PPGraph {
     }
   }
 
-  _onPointerDown(): void {
-    this.deselectAllNodes();
+  _onPointerDown(event: PIXI.InteractionEvent): void {
+    console.log('_onPointerDown');
+    event.stopPropagation();
+    if (event.data.originalEvent.shiftKey) {
+      this.selection.drawSelectionStart(
+        event,
+        event.data.originalEvent.shiftKey
+      );
+
+      // pause viewport drag
+      this.viewport.plugins.pause('drag');
+    } else {
+      this.viewport.cursor = 'grabbing';
+      this.dragSourcePoint = new PIXI.Point(this.viewport.x, this.viewport.y);
+    }
+  }
+
+  _onPointerUpAndUpOutside(): void {
+    console.log('_onPointerUpAndUpOutside');
+    // check if viewport has been dragged,
+    // if not, this is a deselect all nodes action
+    if (this.dragSourcePoint !== null) {
+      if (
+        this.dragSourcePoint.x === this.viewport.x &&
+        this.dragSourcePoint.y === this.viewport.y
+      ) {
+        console.log('deselectAllNodesAndResetSelection');
+        this.selection.deselectAllNodesAndResetSelection();
+      }
+    }
+    if (this.selection.isDrawingSelection) {
+      this.selection.drawSelectionFinish();
+    }
+
+    this.viewport.cursor = 'grab';
+    this.viewport.plugins.resume('drag');
+    this.dragSourcePoint = null;
   }
 
   _onNodePointerDown(event: PIXI.InteractionEvent): void {
-    // stop propagation so viewport does not get dragged
     event.stopPropagation();
+    this.viewport.plugins.pause('drag');
 
     console.log('_onNodePointerDown');
     const node = event.currentTarget as PPNode;
@@ -168,6 +216,8 @@ export default class PPGraph {
 
   onViewportMove(event: PIXI.InteractionEvent): void {
     // console.log('onViewportMove');
+
+    // draw connection
     if (this.clickedSocketRef !== null && !this.clickedSocketRef.isInput()) {
       // remove original link
       if (this.movingLink !== null) {
@@ -210,26 +260,17 @@ export default class PPGraph {
       // offset curve to start from source
       this.tempConnection.x = sourcePointX;
       this.tempConnection.y = sourcePointY;
-    } else {
-      this.draggingNodes = true;
     }
   }
 
-  _onNodePointerUpAndUpOutside(event: PIXI.InteractionEvent): void {
+  _onNodePointerUpAndUpOutside(): void {
     console.log('_onNodePointerUpAndUpOutside');
 
     // unsubscribe from pointermove
     this.viewport.removeListener('pointermove', this.onViewportMoveHandler);
 
     if (this !== null) {
-      if (this.clickedSocketRef === null) {
-        if (!this.draggingNodes && event.target === event.currentTarget) {
-          // only select if this was not a drag action
-          // and the element that triggered the event (target) is the same as
-          // the element that the event listener is attached to (currentTarget)
-          this.selectNode(event.currentTarget as PPNode);
-        }
-      } else {
+      if (this.clickedSocketRef !== null) {
         // check if over input
         console.log(this.overInputRef);
         if (this.overInputRef !== null && !this.clickedSocketRef.isInput()) {
@@ -247,11 +288,12 @@ export default class PPGraph {
         }
       }
     }
+    this.viewport.plugins.resume('drag');
     this.tempConnection.clear();
     this.clickedSocketRef = null;
     this.overInputRef = null;
     this.movingLink = null;
-    this.draggingNodes = false;
+    this.dragSourcePoint = null;
   }
 
   // GETTERS & SETTERS
@@ -457,43 +499,30 @@ export default class PPGraph {
     this.commentContainer.removeChildren();
 
     // remove selected nodes
-    this.deselectAllNodes();
+    this.selection.deselectAllNodesAndResetSelection();
 
     // remove custom node types
     this.customNodeTypes = {};
   }
 
-  selectNode(node: PPNode): void {
-    this.deselectAllNodes();
-    if (node === null) {
-    } else {
-      node.select(true);
-      this.selectedNodes = [node.id];
+  duplicateSelection(): PPNode[] {
+    const newNodes: PPNode[] = [];
+    const linksContainedInSelection: PPLink[] = [];
+    const mappingOfOldAndNewNodes: { [key: string]: PPNode } = {};
 
-      if (this.onSelectionChange) {
-        this.onSelectionChange(this.selectedNodes);
-      }
-    }
-  }
-
-  deselectAllNodes(): void {
-    Object.entries(this.nodes).forEach(([, node]) => {
-      if (node.selected) {
-        node.select(false);
-      }
-    });
-    this.selectedNodes = [];
-
-    if (this.onSelectionChange) {
-      this.onSelectionChange(this.selectedNodes);
-    }
-  }
-
-  duplicateSelection(): string[] {
-    const arrayOfNewIds: string[] = [];
-    this.selectedNodes.forEach((id) => {
-      const node = this.getNodeById(id);
+    this.selection.selectedNodes.forEach((node) => {
       const nodeType = node.type;
+
+      // get links which are completely contained in selection
+      node.inputSocketArray.forEach((socket) => {
+        if (socket.hasLink()) {
+          const connectedNode = socket.links[0].source.parent as PPNode;
+          if (this.selection.selectedNodes.includes(connectedNode)) {
+            linksContainedInSelection.push(socket.links[0]);
+          }
+        }
+      });
+      console.log(linksContainedInSelection);
 
       // add node and carry over its configuration
       const newNode = this.createAndAddNode(nodeType);
@@ -502,12 +531,31 @@ export default class PPGraph {
       // offset duplicated node
       newNode.setPosition(32, 32, true);
 
-      // select newNode
-      this.selectNode(newNode);
-
-      arrayOfNewIds.push(newNode.id);
+      mappingOfOldAndNewNodes[node.id] = newNode;
+      newNodes.push(newNode);
     });
-    return arrayOfNewIds;
+
+    // create new links
+    linksContainedInSelection.forEach((link: PPLink) => {
+      const oldSourceNode = link.source.parent as PPNode;
+      const sourceSocketName = link.source.name;
+      const oldTargetNode = link.target.parent as PPNode;
+      const targetSocketName = link.target.name;
+      const newSource = mappingOfOldAndNewNodes[
+        oldSourceNode.id
+      ].outputSocketArray.find((socket) => socket.name === sourceSocketName);
+      const newTarget = mappingOfOldAndNewNodes[
+        oldTargetNode.id
+      ].inputSocketArray.find((socket) => socket.name === targetSocketName);
+      console.log(newSource, newTarget);
+      this.connect(newSource, newTarget, this.viewport);
+    });
+
+    // select newNode
+    this.selection.selectNodes(newNodes);
+    this.selection.drawRectanglesFromSelection();
+
+    return newNodes;
   }
 
   serialize(): SerializedGraph {
@@ -769,18 +817,10 @@ export default class PPGraph {
   }
 
   deleteSelectedNodes(): void {
-    console.log(this.selectedNodes);
-    // console.log(this.nodes);
-
     // loop through selected nodes
-    this.selectedNodes.forEach((nodeId) => {
-      const node = this.getNodeById(nodeId);
-
-      // deselect node
-      node.select(false);
-
+    this.selection.selectedNodes.forEach((node) => {
       this.removeNode(node);
     });
-    this.deselectAllNodes();
+    this.selection.deselectAllNodesAndResetSelection();
   }
 }

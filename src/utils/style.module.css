@@ -6,7 +6,7 @@
   min-width: 400px;
   /* height: 600px; */
   height: 100vh;
-  padding: 54px 8px 8px 8px;
+  padding: 8px;
   background-color: #293742;
   overflow: auto;
   user-select: none;
@@ -164,6 +164,7 @@
   left: 24px;
   top: 24px;
   filter: drop-shadow(0px 0px 24px rgba(0, 0, 0, 0.25));
+  user-select: none;
 }
 
 .nodeSearch {

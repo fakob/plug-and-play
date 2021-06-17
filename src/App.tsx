@@ -29,6 +29,7 @@ import {
   highlightText,
 } from './utils/utils';
 import { registerAllNodeTypes } from './nodes/allNodes';
+import PPSelection from './classes/SelectionClass';
 import PPSocket from './classes/SocketClass';
 import PPNode from './classes/NodeClass';
 import { InputParser } from './utils/inputParser';
@@ -243,14 +244,14 @@ const App = (): JSX.Element => {
     console.log('currentGraph.current:', currentGraph.current);
 
     // register callbacks
-    currentGraph.current.onSelectionChange = (selectedNodes: string[]) => {
+    currentGraph.current.selection.onSelectionChange = (
+      selectedNodes: PPNode[]
+    ) => {
       if (selectedNodes.length === 0) {
         setSelectedNode(null);
       } else {
-        selectedNodes.forEach((nodeId) => {
-          setSelectedNode(
-            currentGraph.current.nodes.find((node) => node.id === nodeId)
-          );
+        selectedNodes.forEach((node) => {
+          setSelectedNode(node);
         });
       }
     };
@@ -284,9 +285,29 @@ const App = (): JSX.Element => {
       }
     };
 
+    (
+      pixiApp.current.stage.getChildByName('selectionContainer') as PPSelection
+    ).onRightClick = (
+      event: PIXI.InteractionEvent,
+      target: PIXI.DisplayObject
+    ) => {
+      setIsGraphContextMenuOpen(false);
+      setIsNodeContextMenuOpen(false);
+      setContextMenuPosition(
+        // creating new point so react updates
+        [event.data.global.x, event.data.global.y]
+      );
+      console.log(event, target, event.data.global);
+      console.log('app right click, selection');
+      setIsNodeContextMenuOpen(true);
+    };
+
     // register key events
     const keysDown = (e: KeyboardEvent): void => {
       // console.log(e.key);
+      if (e.shiftKey) {
+        viewport.current.cursor = 'default';
+      }
       if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'f') {
         e.preventDefault();
         setIsSearchOpen((prevState) => !prevState);
