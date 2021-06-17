@@ -25,40 +25,39 @@ type PropertyArrayContainerProps = {
   outputSocketArray: Socket[];
 };
 
-export const PropertyArrayContainer: React.FunctionComponent<PropertyArrayContainerProps> = (
-  props
-) => {
-  return (
-    <>
-      {props.inputSocketArray?.map((property, index) => {
-        return (
-          <PropertyContainer
-            key={index}
-            property={property}
-            index={index}
-            dataType={property.dataType}
-            isInput={true}
-            hasLink={property.hasLink()}
-            data={property.data}
-          />
-        );
-      })}
-      {props.outputSocketArray?.map((property, index) => {
-        return (
-          <PropertyContainer
-            key={index}
-            property={property}
-            index={index}
-            dataType={property.dataType}
-            isInput={false}
-            hasLink={property.hasLink()}
-            data={property.data}
-          />
-        );
-      })}
-    </>
-  );
-};
+export const PropertyArrayContainer: React.FunctionComponent<PropertyArrayContainerProps> =
+  (props) => {
+    return (
+      <>
+        {props.inputSocketArray?.map((property, index) => {
+          return (
+            <PropertyContainer
+              key={index}
+              property={property}
+              index={index}
+              dataType={property.dataType}
+              isInput={true}
+              hasLink={property.hasLink()}
+              data={property.data}
+            />
+          );
+        })}
+        {props.outputSocketArray?.map((property, index) => {
+          return (
+            <PropertyContainer
+              key={index}
+              property={property}
+              index={index}
+              dataType={property.dataType}
+              isInput={false}
+              hasLink={property.hasLink()}
+              data={property.data}
+            />
+          );
+        })}
+      </>
+    );
+  };
 
 type PropertyContainerProps = {
   property: Socket;
@@ -222,6 +221,13 @@ type SliderWidgetProps = {
   data: number;
 };
 
+function potentiallyNotify(property, newValue) {
+  if (property.data !== newValue) {
+    property.data = newValue;
+    property.notifyChange(new Set());
+  }
+}
+
 const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (props) => {
   const [data, setData] = useState(Number(props.data));
   const [minValue, setMinValue] = useState(
@@ -235,8 +241,11 @@ const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (props) => {
 
   useEffect(() => {
     const newValue = round ? Math.round(data) : data;
-    props.property.data = newValue;
-    props.property.notifyChange(new Set());
+    potentiallyNotify(props.property, newValue);
+    /*if (props.property.data != newValue) {
+      props.property.data = newValue;
+      props.property.notifyChange(new Set());
+    }*/
   }, [data]);
 
   useEffect(() => {
@@ -246,13 +255,12 @@ const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (props) => {
       maxValue
     );
     setData(newValue);
-    props.property.data = newValue;
+    potentiallyNotify(props.property, newValue);
     props.property.custom = {
       minValue,
       maxValue,
       round,
     };
-    props.property.notifyChange(new Set());
   }, [minValue, maxValue, round]);
 
   return (
@@ -333,7 +341,6 @@ const SelectWidget: React.FunctionComponent<SelectWidgetProps> = (props) => {
     const value = event.target.value;
     props.property.data = value;
     console.log(value);
-    props.property.notifyChange(new Set());
     setData(value);
   };
 
@@ -367,7 +374,6 @@ const BooleanWidget: React.FunctionComponent<BooleanWidgetProps> = (props) => {
     const checked = event.target.checked;
     props.property.data = checked;
     console.log(checked);
-    props.property.notifyChange(new Set());
     setData(checked);
   };
 
@@ -393,8 +399,7 @@ const TextWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
   const [data, setData] = useState(props.data);
 
   useEffect(() => {
-    props.property.data = data;
-    props.property.notifyChange(new Set());
+    potentiallyNotify(props.property, data);
   }, [data]);
 
   return (
@@ -461,8 +466,8 @@ const ColorWidget: React.FunctionComponent<ColorWidgetProps> = (props) => {
       componentMounted.current = false;
     } else {
       console.log(finalColor);
-      props.property.data = finalColor;
-      props.property.notifyChange(new Set());
+
+      potentiallyNotify(props.property, finalColor);
     }
     return () => undefined;
   }, [finalColor]);
