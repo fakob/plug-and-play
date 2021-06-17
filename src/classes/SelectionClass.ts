@@ -187,24 +187,7 @@ export default class PPSelection extends PIXI.Container {
   moveSelection(deltaX: number, deltaY: number): void {
     // update nodes positions
     this.selectedNodes.forEach((node) => {
-      node.x += deltaX;
-      node.y += deltaY;
-
-      node.updateCommentPosition();
-      node.updateConnectionPosition();
-
-      if (node.shouldExecuteOnMove()) {
-        node.execute(new Set());
-      }
-
-      if (node.onNodeDragOrViewportMove) {
-        const screenPoint = node.screenPoint();
-        node.onNodeDragOrViewportMove({
-          screenX: screenPoint.x,
-          screenY: screenPoint.y,
-          scale: this.viewport.scale.x,
-        });
-      }
+      node.setPosition(deltaX, deltaY, true);
     });
 
     // update selection position

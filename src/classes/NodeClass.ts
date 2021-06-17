@@ -371,8 +371,21 @@ export default class PPNode extends PIXI.Container {
     this.x = isRelative ? this.x + x : x;
     this.y = isRelative ? this.y + y : y;
 
-    // update position of comment
     this.updateCommentPosition();
+    this.updateConnectionPosition();
+
+    if (this.shouldExecuteOnMove()) {
+      this.execute(new Set());
+    }
+
+    if (this.onNodeDragOrViewportMove) {
+      const screenPoint = this.screenPoint();
+      this.onNodeDragOrViewportMove({
+        screenX: screenPoint.x,
+        screenY: screenPoint.y,
+        scale: this.graph.viewport.scale.x,
+      });
+    }
 
     if (this.isHybrid) {
       this._onViewportMove(); // trigger this once, so the react components get positioned properly
@@ -489,13 +502,8 @@ export default class PPNode extends PIXI.Container {
 
   updateConnectionPosition(): void {
     // check for connections and move them too
-    this.outputSocketArray.map((output) => {
-      output.links.map((link) => {
-        link.updateConnection();
-      });
-    });
-    this.inputSocketArray.map((input) => {
-      input.links.map((link) => {
+    this.inputSocketArray.concat(this.outputSocketArray).forEach((socket) => {
+      socket.links.map((link) => {
         link.updateConnection();
       });
     });

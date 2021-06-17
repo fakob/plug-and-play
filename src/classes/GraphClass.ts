@@ -94,14 +94,6 @@ export default class PPGraph {
     this.selection = new PPSelection(this.viewport, this.nodes);
     this.app.stage.addChild(this.selection);
 
-    this.selection.onSelectionChange = (selectedNodes: PPNode[]) => {
-      if (selectedNodes.length === 0) {
-        // console.log('no nodes selected');
-      } else {
-        // console.log('these nodes selected: ', selectedNodes);
-      }
-    };
-
     this.viewport.cursor = 'grab';
 
     // add event listeners
