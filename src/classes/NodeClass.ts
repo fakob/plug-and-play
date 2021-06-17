@@ -292,7 +292,12 @@ export default class PPNode extends PIXI.Container {
       type: this.type,
       x: this.x,
       y: this.y,
-      updateBehaviour: this.updateBehaviour,
+      updateBehaviour: {
+        manual: this.updateBehaviour.manual,
+        update: this.updateBehaviour.update,
+        interval: this.updateBehaviour.interval,
+        intervalFrequency: this.updateBehaviour.intervalFrequency,
+      },
     };
 
     o.inputSocketArray = [];
