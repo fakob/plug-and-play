@@ -148,7 +148,7 @@ export class Shader extends PPNode {
 
     let shader = PIXI.Shader.from(this.prevVertex, this.prevFragment);
 
-    this.onExecute = async function (input) {
+    this.onExecute = async function (input, output): Promise<void> {
       canvas.removeChild(this.graphics);
 
       const currentTime = new Date().getTime();
@@ -224,7 +224,12 @@ export class Shader extends PPNode {
       );
 
       this.graphics.position.set(this.x, this.y);
-      canvas.addChild(this.graphics);
+      this.graphics = canvas.addChild(this.graphics);
+      const base64out = this.graph.app.renderer.plugins.extract.image(
+        this.graphics
+      );
+      output[imageOutputName] = base64out;
+      return;
     };
 
     this.onNodeRemoved = (): void => {
