@@ -30,19 +30,15 @@ import Socket from './SocketClass';
 import { getNodeCommentPosX, getNodeCommentPosY } from '../utils/utils';
 
 export class UpdateBehaviour {
-  // currently changing manual does nothing, maybe we don't even need to control this?
-  manual: boolean;
   update: boolean;
   interval: boolean;
   intervalFrequency: number;
 
   constructor(
-    inManual: boolean,
     inUpdate: boolean,
     inInterval: boolean,
     inIntervalFrequency: number
   ) {
-    this.manual = inManual;
     this.update = inUpdate;
     this.interval = inInterval;
     this.intervalFrequency = inIntervalFrequency;
@@ -71,7 +67,7 @@ export default class PPNode extends PIXI.Container {
   roundedCorners: boolean;
   showLabels: boolean;
 
-  // default to update on manual and update, 1 sec time update interval
+  // default to update on update, 1 sec time update interval
   updateBehaviour: UpdateBehaviour;
   lastTimeTicked = 0;
 
@@ -293,7 +289,6 @@ export default class PPNode extends PIXI.Container {
       x: this.x,
       y: this.y,
       updateBehaviour: {
-        manual: this.updateBehaviour.manual,
         update: this.updateBehaviour.update,
         interval: this.updateBehaviour.interval,
         intervalFrequency: this.updateBehaviour.intervalFrequency,
@@ -492,7 +487,7 @@ export default class PPNode extends PIXI.Container {
   }
 
   protected getUpdateBehaviour(): UpdateBehaviour {
-    return new UpdateBehaviour(true, true, false, 1000);
+    return new UpdateBehaviour(true, false, 1000);
   }
 
   protected getDefaultIO(): Socket[] {

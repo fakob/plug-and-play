@@ -238,7 +238,7 @@ export class Shader extends PPNode {
   }
 
   protected getUpdateBehaviour(): UpdateBehaviour {
-    return new UpdateBehaviour(false, false, true, 16);
+    return new UpdateBehaviour(false, true, 16);
   }
 }
 
@@ -276,7 +276,7 @@ export class Mandelbrot extends Shader {
 
   // dont need to update on interval really
   protected getUpdateBehaviour(): UpdateBehaviour {
-    return new UpdateBehaviour(false, true, false, 16);
+    return new UpdateBehaviour(true, false, 16);
   }
 }
 
@@ -308,6 +308,6 @@ export class ImageShader extends Shader {
 
   // dont need to update on interval really
   protected getUpdateBehaviour(): UpdateBehaviour {
-    return new UpdateBehaviour(false, true, false, 16);
+    return new UpdateBehaviour(true, false, 16);
   }
 }
