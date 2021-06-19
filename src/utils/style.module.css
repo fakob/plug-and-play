@@ -40,6 +40,20 @@
   padding: 16px;
 }
 
+.updateTypeSelection {
+  margin: 8px 0 8px 0;
+  padding: 8px 8px 0px 8px;
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.updateTypeSelectionRow {
+  margin: 8px 0 0 0;
+}
+
+.intervalFrequency {
+  width: 80px;
+}
+
 .inputContainer {
   margin: 8px 0 8px 0;
   padding: 8px;

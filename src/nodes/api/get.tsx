@@ -9,7 +9,7 @@ const outputContentName = 'Content';
 export class Get extends PPNode {
   // default to poll on interval X seconds
   protected getUpdateBehaviour(): UpdateBehaviour {
-    return new UpdateBehaviour(true, false, true, 10000);
+    return new UpdateBehaviour(false, true, 10000);
   }
   protected getDefaultIO(): Socket[] {
     return [
