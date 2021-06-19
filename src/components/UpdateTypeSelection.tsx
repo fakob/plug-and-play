@@ -2,17 +2,19 @@ import {
   Button,
   Checkbox,
   ControlGroup,
-  EditableText,
   FormGroup,
   InputGroup,
 } from '@blueprintjs/core';
-import React, { useState } from 'react';
-import PropTypes from 'prop-types';
-import NodeClass from '../classes/NodeClass';
+import React, { useEffect, useState } from 'react';
+import PPNode from '../classes/NodeClass';
 import styles from './../utils/style.module.css';
 
-const UpdateTypeSelection = (props) => {
-  const selectedNode: NodeClass = props.selectedNode;
+type MyProps = {
+  selectedNode: PPNode;
+};
+
+const UpdateTypeSelection: React.FunctionComponent<MyProps> = (props) => {
+  const selectedNode: PPNode = props.selectedNode;
   if (!selectedNode) {
     return <div />;
   }
@@ -20,6 +22,15 @@ const UpdateTypeSelection = (props) => {
   const [updateBehaviour, setUpdatebehaviour] = useState(
     selectedNode.updateBehaviour
   );
+
+  // detect prop changes when switching between nodes
+  useEffect(() => {
+    setUpdatebehaviour(selectedNode.updateBehaviour);
+  }, [
+    selectedNode.updateBehaviour.update,
+    selectedNode.updateBehaviour.interval,
+    selectedNode.updateBehaviour.intervalFrequency,
+  ]);
 
   const onCheckboxChange = (event) => {
     const checked = (event.target as HTMLInputElement).checked;
@@ -76,10 +87,6 @@ const UpdateTypeSelection = (props) => {
       </FormGroup>
     </div>
   );
-};
-
-UpdateTypeSelection.propTypes = {
-  selectedNode: PropTypes.object.isRequired,
 };
 
 export default UpdateTypeSelection;
