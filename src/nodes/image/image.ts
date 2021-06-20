@@ -12,8 +12,7 @@ const defaultImage =
 const imageInputName = 'Image';
 const imageOutputName = 'Image';
 
-const defaultWidth = 200;
-const defaultHeight = 200;
+const defaultWidth = 300;
 export class Image extends PPNode {
   sprite: PIXI.Texture;
   protected getDefaultIO(): Socket[] {
@@ -34,12 +33,16 @@ export class Image extends PPNode {
     super(name, graph, {
       ...customArgs,
       color: NODE_TYPE_COLOR.INPUT,
-      nodeWidth: defaultWidth,
-      nodeHeight: defaultHeight,
       colorTransparency: 0.0,
     });
     this.name = 'Draw Image';
     this.description = 'Draws an Image (base64)';
+
+    const initialImage = customArgs.defaultArguments[imageInputName];
+
+    if (initialImage) {
+      this.initialExecute();
+    }
 
     this.onExecute = async function (input, output) {
       this.removeChild(this.sprite);
@@ -47,6 +50,10 @@ export class Image extends PPNode {
       const base64 = input[imageInputName];
       if (base64) {
         const image = PIXI.Texture.from(base64);
+
+        const imageRatio = image.height / image.width;
+        this.resizeNode(defaultWidth, defaultWidth * imageRatio);
+
         this.sprite = new PIXI.Sprite(image);
         this.sprite.width = this.width - 2 * this.borderDistance;
         this.sprite.height = this.height - 2 * this.borderDistance;

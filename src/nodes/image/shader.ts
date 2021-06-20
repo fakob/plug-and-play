@@ -272,9 +272,9 @@ void main() {
 `;
 
 export class Mandelbrot extends Shader {
-  //protected getInitialFragment(): string {
-  //  return mandelbrotFragment;
-  //}
+  protected getInitialFragment(): string {
+    return mandelbrotFragment;
+  }
   protected getDefaultSize(): number {
     return 20000;
   }
