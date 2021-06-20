@@ -250,9 +250,7 @@ const App = (): JSX.Element => {
       if (selectedNodes.length === 0) {
         setSelectedNode(null);
       } else {
-        selectedNodes.forEach((node) => {
-          setSelectedNode(node);
-        });
+        setSelectedNode(selectedNodes[selectedNodes.length - 1]);
       }
     };
 
