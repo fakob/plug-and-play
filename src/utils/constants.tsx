@@ -114,6 +114,7 @@ export const NODE_TYPE_COLOR = {
   TRANSFORM: COLOR[1],
   OUTPUT: COLOR[2],
   DRAW: COLOR[3],
+  SHADER: COLOR[4],
 };
 
 export const COMMENT_TEXTSTYLE = new TextStyle({

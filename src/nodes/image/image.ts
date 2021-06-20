@@ -38,7 +38,7 @@ export class Image extends PPNode {
     this.name = 'Draw Image';
     this.description = 'Draws an Image (base64)';
 
-    const initialImage = customArgs.defaultArguments[imageInputName];
+    const initialImage = customArgs?.defaultArguments?.[imageInputName];
 
     if (initialImage) {
       this.initialExecute();
