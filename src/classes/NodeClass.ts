@@ -360,7 +360,6 @@ export default class PPNode extends PIXI.Container {
 
   notifyChange(upstreamContent: Set<string>): void {
     if (upstreamContent.has(this.id)) {
-      console.log('circular loop detected in graph, stopping execution');
     } else if (this.updateBehaviour.update) {
       upstreamContent.add(this.id);
       this.execute(upstreamContent);
