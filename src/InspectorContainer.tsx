@@ -54,7 +54,11 @@ const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
   }, [codeString]);
 
   return (
-    <div className={`${styles.inspectorContainer} bp3-dark`} id="editorwrapper">
+    <div
+      className={`${styles.inspectorContainer} bp3-dark`}
+      id="editorwrapper"
+      key={props?.selectedNode?.id}
+    >
       <Popover2
         minimal
         hasBackdrop
