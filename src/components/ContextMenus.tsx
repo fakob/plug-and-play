@@ -81,6 +81,8 @@ export const GraphContextMenu = (props) => {
 };
 
 export const NodeContextMenu = (props) => {
+  const canAddInput: boolean = props.currentGraph.current.getCanAddInput();
+  const canAddOutput: boolean = props.currentGraph.current.getCanAddOutput();
   return (
     <Menu
       className={Classes.ELEVATION_1}
@@ -107,6 +109,24 @@ export const NodeContextMenu = (props) => {
           props.currentGraph.current.deleteSelectedNodes();
         }}
       />
+      {canAddInput && (
+        <MenuItem
+          text="Add Input"
+          label="Add Input"
+          onClick={() => {
+            props.currentGraph.current.addInput();
+          }}
+        />
+      )}
+      {canAddOutput && (
+        <MenuItem
+          text="Add Output"
+          label="Add Output"
+          onClick={() => {
+            props.currentGraph.current.addOutput();
+          }}
+        />
+      )}
     </Menu>
   );
 };
