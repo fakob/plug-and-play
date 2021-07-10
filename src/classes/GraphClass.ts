@@ -558,6 +558,27 @@ export default class PPGraph {
     return newNodes;
   }
 
+  getCanAddInput(): boolean {
+    return !this.selection.selectedNodes.find((node) => !node.getCanAddInput());
+  }
+
+  addInput(): void {
+    this.selection.selectedNodes
+      .filter((node) => node.getCanAddInput())
+      .forEach((node) => node.addDefaultInput());
+  }
+
+  getCanAddOutput(): boolean {
+    return !this.selection.selectedNodes.find(
+      (node) => !node.getCanAddOutput()
+    );
+  }
+  addOutput(): void {
+    this.selection.selectedNodes
+      .filter((node) => node.getCanAddOutput())
+      .forEach((node) => node.addDefaultOutput());
+  }
+
   serialize(): SerializedGraph {
     // get serialized nodes
     const nodesSerialized = [];

@@ -493,6 +493,36 @@ export default class PPNode extends PIXI.Container {
     return [];
   }
 
+  public getCanAddInput(): boolean {
+    return false;
+  }
+
+  constructSocketName(prefix: string, existing: Socket[]): string {
+    let count = 1;
+    let newName = prefix + ' ' + count;
+    while (existing.find((socket) => socket.name === newName)) {
+      newName = prefix + ' ' + count++;
+    }
+    return newName;
+  }
+
+  public addDefaultInput(): void {
+    this.addInput(
+      this.constructSocketName('Custom Input', this.inputSocketArray),
+      DATATYPE.ANY
+    );
+  }
+
+  public getCanAddOutput(): boolean {
+    return false;
+  }
+  public addDefaultOutput(): void {
+    this.addOutput(
+      this.constructSocketName('Custom Output', this.outputSocketArray),
+      DATATYPE.ANY
+    );
+  }
+
   updateCommentPosition(): void {
     // console.log(this.x, this.y);
     this._NodeCommentRef.x = getNodeCommentPosX(this.x, this.width);

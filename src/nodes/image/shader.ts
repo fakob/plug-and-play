@@ -82,6 +82,10 @@ export class Shader extends PPNode {
     return undefined;
   }
 
+  getCanAddInput(): boolean {
+    return true;
+  }
+
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, inputDataName, DATATYPE.ANY, {}),
