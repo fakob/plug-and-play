@@ -15,6 +15,15 @@ export const GraphContextMenu = (props) => {
       <MenuItem
         icon="search"
         text="Search nodes"
+        label={`${props.controlOrMetaKey}+O`}
+        onClick={() => {
+          props.setIsSearchOpen(true);
+          props.graphSearchInput.current.focus();
+        }}
+      />
+      <MenuItem
+        icon="search"
+        text="Search nodes"
         label={`${props.controlOrMetaKey}+F`}
         onClick={() => {
           props.setIsSearchOpen(true);
@@ -34,7 +43,15 @@ export const GraphContextMenu = (props) => {
         text="Store graph"
         label={`${props.controlOrMetaKey}+S`}
         onClick={() => {
-          props.serializeGraph();
+          props.saveGraph();
+        }}
+      />
+      <MenuItem
+        icon="saved"
+        text="Store new graph"
+        label={`${props.controlOrMetaKey}+Shift+S`}
+        onClick={() => {
+          props.saveNewGraph();
         }}
       />
       <MenuItem disabled text="" />

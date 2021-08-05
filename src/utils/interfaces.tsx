@@ -30,8 +30,11 @@ export type CustomArgs = {
   [key: string]: any; //  lets try to deprecate this
 };
 
-export interface INodes {
-  /** Title of film. */
+export interface IGraphSearch {
+  id: number;
+}
+
+export interface INodeSearch {
   title: string;
 }
 
