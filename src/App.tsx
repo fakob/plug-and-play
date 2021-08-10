@@ -11,6 +11,7 @@ import * as PIXI from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
 import { MenuItem } from '@blueprintjs/core';
 import { ItemRenderer, ItemPredicate, Suggest } from '@blueprintjs/select';
+import { hri } from 'human-readable-ids';
 import InspectorContainer from './InspectorContainer';
 import PixiContainer from './PixiContainer';
 import { GraphContextMenu, NodeContextMenu } from './components/ContextMenus';
@@ -66,7 +67,7 @@ const App = (): JSX.Element => {
   const [selectedNode, setSelectedNode] = useState<PPNode | null>(null);
   const [graphSearchItems, setGraphSearchItems] = useState<
     IGraphSearch[] | null
-  >([{ id: 0 }]);
+  >([{ id: 0, name: hri.random() as string }]);
   const [graphSearchActiveItem, setGraphSearchActiveItem] =
     useState<IGraphSearch | null>(null);
 
@@ -410,28 +411,51 @@ const App = (): JSX.Element => {
     open();
   }
 
-  function saveGraph() {
+  function saveGraph(saveNew = false) {
     const serializedGraph = currentGraph.current.serialize();
     console.log(serializedGraph);
     console.info(serializedGraph.customNodeTypes);
     // console.log(JSON.stringify(serializedGraph));
     db.transaction('rw', db.graphs, db.settings, async () => {
-      // const settings = await db.settings.toArray();
+      const graphs = await db.graphs.toArray();
       const loadedGraphIdObject = await db.settings
         .where({
           name: 'loadedGraphId',
         })
         .first();
-      const loadedGraphId = loadedGraphIdObject['value']
-        ? parseInt(loadedGraphIdObject['value'])
+      const loadedGraphId = loadedGraphIdObject?.value
+        ? parseInt(loadedGraphIdObject.value)
         : 0;
       console.log(loadedGraphIdObject);
       console.log(loadedGraphId);
-      const id = await db.graphs.put({
-        id: loadedGraphId,
-        date: new Date(),
-        graphData: serializedGraph,
-      });
+
+      let graphObject;
+      if (
+        saveNew ||
+        graphs.length === 0 ||
+        graphs[loadedGraphId] === undefined
+      ) {
+        graphObject = {
+          id: graphs.length,
+          date: new Date(),
+          name: hri.random(),
+          graphData: serializedGraph,
+        };
+
+        // save loadedGraphId
+        await db.settings.put({
+          name: 'loadedGraphId',
+          value: graphs.length.toString(),
+        });
+      } else {
+        graphObject = {
+          id: loadedGraphId,
+          date: new Date(),
+          name: graphs[loadedGraphId].name,
+          graphData: serializedGraph,
+        };
+      }
+      const id = await db.graphs.put(graphObject);
       console.log(`Saved currentGraph: ${id}`);
     }).catch((e) => {
       console.log(e.stack || e);
@@ -439,22 +463,7 @@ const App = (): JSX.Element => {
   }
 
   function saveNewGraph() {
-    const serializedGraph = currentGraph.current.serialize();
-    console.log(serializedGraph);
-    console.info(serializedGraph.customNodeTypes);
-    // console.log(JSON.stringify(serializedGraph));
-    db.transaction('rw', db.graphs, async () => {
-      const graphs = await db.graphs.toArray();
-      console.log(graphs);
-      const id = await db.graphs.put({
-        id: graphs.length,
-        date: new Date(),
-        graphData: serializedGraph,
-      });
-      console.log(`Saved currentGraph: ${id}`);
-    }).catch((e) => {
-      console.log(e.stack || e);
-    });
+    saveGraph(true);
   }
 
   function loadGraph(id = undefined) {
@@ -465,10 +474,10 @@ const App = (): JSX.Element => {
           name: 'loadedGraphId',
         })
         .first();
-      const loadedGraphId = loadedGraphIdObject['value']
-        ? parseInt(loadedGraphIdObject['value'])
-        : 0;
-      if (graphs.length > 0) {
+      if (loadedGraphIdObject !== undefined && graphs.length > 0) {
+        const loadedGraphId = loadedGraphIdObject?.value
+          ? parseInt(loadedGraphIdObject.value)
+          : 0;
         // configure graph
         let idOfGraphToLoad;
         if (id === undefined) {
@@ -524,13 +533,14 @@ const App = (): JSX.Element => {
           name: 'loadedGraphId',
         })
         .first();
-      const loadedGraphId = loadedGraphIdObject['value']
-        ? parseInt(loadedGraphIdObject['value'])
+      const loadedGraphId = loadedGraphIdObject?.value
+        ? parseInt(loadedGraphIdObject.value)
         : 0;
       console.log(graphs);
       const newGraphSearchItems = graphs.map((graph) => {
         return {
           id: graph.id,
+          name: graph.name,
         } as IGraphSearch;
       });
       setGraphSearchItems(newGraphSearchItems);
@@ -613,10 +623,7 @@ const App = (): JSX.Element => {
                 resetOnQuery={true}
                 resetOnSelect={true}
                 popoverProps={{ minimal: true }}
-                inputValueRenderer={(item: IGraphSearch) =>
-                  item.id.toString(10)
-                }
-                // createNewItemRenderer={renderCreateFilmOption}
+                inputValueRenderer={(item: IGraphSearch) => item.name}
               />
               <NodeSearch
                 className={styles.nodeSearch}
@@ -705,7 +712,7 @@ const renderGraphItem: ItemRenderer<IGraphSearch> = (
   if (!modifiers.matchesPredicate) {
     return null;
   }
-  const text = `${graph.id}`;
+  const text = `${graph.name}`;
   return (
     <MenuItem
       active={modifiers.active}
