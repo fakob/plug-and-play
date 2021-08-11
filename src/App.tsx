@@ -12,6 +12,8 @@ import { Viewport } from 'pixi-viewport';
 import { MenuItem } from '@blueprintjs/core';
 import { ItemRenderer, ItemPredicate, Suggest } from '@blueprintjs/select';
 import { hri } from 'human-readable-ids';
+import TimeAgo from 'javascript-time-ago';
+import en from 'javascript-time-ago/locale/en';
 import InspectorContainer from './InspectorContainer';
 import PixiContainer from './PixiContainer';
 import { GraphContextMenu, NodeContextMenu } from './components/ContextMenus';
@@ -40,6 +42,10 @@ import styles from './utils/style.module.css';
 (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__ &&
   (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__.register({ PIXI: PIXI });
 
+TimeAgo.addDefaultLocale(en);
+// Create formatter (English).
+const timeAgo = new TimeAgo('en-US');
+
 const GraphSearch = Suggest.ofType<IGraphSearch>();
 const NodeSearch = Suggest.ofType<INodeSearch>();
 
@@ -67,7 +73,7 @@ const App = (): JSX.Element => {
   const [selectedNode, setSelectedNode] = useState<PPNode | null>(null);
   const [graphSearchItems, setGraphSearchItems] = useState<
     IGraphSearch[] | null
-  >([{ id: 0, name: hri.random() as string }]);
+  >([{ id: 0, name: hri.random() as string, date: new Date() }]);
   const [graphSearchActiveItem, setGraphSearchActiveItem] =
     useState<IGraphSearch | null>(null);
 
@@ -541,6 +547,7 @@ const App = (): JSX.Element => {
         return {
           id: graph.id,
           name: graph.name,
+          date: graph.date,
         } as IGraphSearch;
       });
       setGraphSearchItems(newGraphSearchItems);
@@ -719,6 +726,7 @@ const renderGraphItem: ItemRenderer<IGraphSearch> = (
       disabled={modifiers.disabled}
       key={graph.id}
       onClick={handleClick}
+      label={timeAgo.format(graph.date)}
       text={highlightText(text, query)}
     />
   );

@@ -33,6 +33,7 @@ export type CustomArgs = {
 export interface IGraphSearch {
   id: number;
   name: string;
+  date: Date;
 }
 
 export interface INodeSearch {
