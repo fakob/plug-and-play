@@ -5,11 +5,15 @@ import React, {
   useState,
   useRef,
 } from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
 import { useDropzone } from 'react-dropzone';
 import * as PIXI from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
 import { MenuItem } from '@blueprintjs/core';
 import { ItemRenderer, ItemPredicate, Suggest } from '@blueprintjs/select';
+import { hri } from 'human-readable-ids';
+import TimeAgo from 'javascript-time-ago';
+import en from 'javascript-time-ago/locale/en';
 import InspectorContainer from './InspectorContainer';
 import PixiContainer from './PixiContainer';
 import { GraphContextMenu, NodeContextMenu } from './components/ContextMenus';
@@ -21,7 +25,7 @@ import {
   CANVAS_BACKGROUND_TEXTURE,
   PLUGANDPLAY_ICON,
 } from './utils/constants';
-import { INodes } from './utils/interfaces';
+import { IGraphSearch, INodeSearch } from './utils/interfaces';
 import {
   convertBlobToBase64,
   downloadFile,
@@ -38,18 +42,27 @@ import styles from './utils/style.module.css';
 (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__ &&
   (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__.register({ PIXI: PIXI });
 
-const NodeSearch = Suggest.ofType<INodes>();
+TimeAgo.addDefaultLocale(en);
+// Create formatter (English).
+const timeAgo = new TimeAgo('en-US');
+
+const GraphSearch = Suggest.ofType<IGraphSearch>();
+const NodeSearch = Suggest.ofType<INodeSearch>();
 
 const isMac = navigator.platform.indexOf('Mac') != -1;
 const controlOrMetaKey = isMac ? '⌘' : 'Ctrl';
 console.log('isMac: ', isMac);
 
 const App = (): JSX.Element => {
+  document.title = 'Your Plug and Playground';
+
   const db = new GraphDatabase();
   const pixiApp = useRef<PIXI.Application | null>(null);
   const currentGraph = useRef<PPGraph | null>(null);
   const pixiContext = useRef<HTMLDivElement | null>(null);
   const viewport = useRef<Viewport | null>(null);
+  const graphSearchInput = useRef<HTMLInputElement | null>(null);
+  const [graphSearchVisible, setGraphSearchVisible] = useState(false);
   const nodeSearchInput = useRef<HTMLInputElement | null>(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isGraphContextMenuOpen, setIsGraphContextMenuOpen] = useState(false);
@@ -58,6 +71,11 @@ const App = (): JSX.Element => {
   const [isCurrentGraphLoaded, setIsCurrentGraphLoaded] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [selectedNode, setSelectedNode] = useState<PPNode | null>(null);
+  const [graphSearchItems, setGraphSearchItems] = useState<
+    IGraphSearch[] | null
+  >([{ id: 0, name: hri.random() as string, date: new Date() }]);
+  const [graphSearchActiveItem, setGraphSearchActiveItem] =
+    useState<IGraphSearch | null>(null);
 
   let lastTimeTicked = 0;
 
@@ -113,6 +131,7 @@ const App = (): JSX.Element => {
       })();
     });
   }, []);
+
   const {
     getRootProps,
     getInputProps,
@@ -125,6 +144,7 @@ const App = (): JSX.Element => {
     noKeyboard: true,
     onDrop,
   });
+
   const style = useMemo(
     () => ({
       ...(isDragActive ? activeStyle : {}),
@@ -133,6 +153,7 @@ const App = (): JSX.Element => {
     }),
     [isDragActive, isDragReject, isDragAccept]
   ) as any;
+
   useEffect(() => {
     console.log('isDragActive');
   }, [isDragActive]);
@@ -239,7 +260,7 @@ const App = (): JSX.Element => {
       currentGraph.current.tick(currentTime, delta);
     });
 
-    loadCurrentGraph();
+    loadGraph();
     setIsCurrentGraphLoaded(true);
     console.log('currentGraph.current:', currentGraph.current);
 
@@ -306,6 +327,11 @@ const App = (): JSX.Element => {
       if (e.shiftKey) {
         viewport.current.cursor = 'default';
       }
+      if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'o') {
+        e.preventDefault();
+        setIsSearchOpen((prevState) => !prevState);
+        graphSearchInput.current.focus();
+      }
       if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'f') {
         e.preventDefault();
         setIsSearchOpen((prevState) => !prevState);
@@ -313,7 +339,11 @@ const App = (): JSX.Element => {
       }
       if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 's') {
         e.preventDefault();
-        serializeGraph();
+        if (e.shiftKey) {
+          saveNewGraph();
+        } else {
+          saveGraph();
+        }
       }
       if (e.shiftKey && e.code === 'Digit1') {
         zoomToFit();
@@ -329,17 +359,31 @@ const App = (): JSX.Element => {
     window.addEventListener('keydown', (e: KeyboardEvent) =>
       InputParser.parseKeyDown(e, currentGraph.current)
     );
+
     window.addEventListener('keyup', (e: KeyboardEvent) =>
       InputParser.parseKeyUp(e)
     );
 
     return () => {
-      // On unload completely destroy the application and all of it's children
-      pixiApp.current.destroy(true, {
-        children: true,
-      });
+      // Passing the same reference
+      graphSearchInput.current.removeEventListener(
+        'focus',
+        updateGraphSearchItems
+      );
     };
   }, []);
+
+  // addEventListener to graphSearchInput
+  useEffect(() => {
+    if (!graphSearchVisible) {
+      return;
+    }
+    // if (graphSearchInput.current) {
+    // Passing the same reference
+    console.log('add eventlistener to graphSearchInput');
+    graphSearchInput.current.addEventListener('focus', updateGraphSearchItems);
+    // }
+  }, [graphSearchVisible]);
 
   useEffect(() => {
     currentGraph.current.showComments = showComments;
@@ -373,30 +417,90 @@ const App = (): JSX.Element => {
     open();
   }
 
-  function serializeGraph() {
+  function saveGraph(saveNew = false) {
     const serializedGraph = currentGraph.current.serialize();
     console.log(serializedGraph);
     console.info(serializedGraph.customNodeTypes);
     // console.log(JSON.stringify(serializedGraph));
-    db.transaction('rw', db.currentGraph, async () => {
-      const id = await db.currentGraph.put({
-        id: 0,
-        date: new Date(),
-        graphData: serializedGraph,
-      });
+    db.transaction('rw', db.graphs, db.settings, async () => {
+      const graphs = await db.graphs.toArray();
+      const loadedGraphIdObject = await db.settings
+        .where({
+          name: 'loadedGraphId',
+        })
+        .first();
+      const loadedGraphId = loadedGraphIdObject?.value
+        ? parseInt(loadedGraphIdObject.value)
+        : 0;
+      console.log(loadedGraphIdObject);
+      console.log(loadedGraphId);
+
+      let graphObject;
+      if (
+        saveNew ||
+        graphs.length === 0 ||
+        graphs[loadedGraphId] === undefined
+      ) {
+        graphObject = {
+          id: graphs.length,
+          date: new Date(),
+          name: hri.random(),
+          graphData: serializedGraph,
+        };
+
+        // save loadedGraphId
+        await db.settings.put({
+          name: 'loadedGraphId',
+          value: graphs.length.toString(),
+        });
+      } else {
+        graphObject = {
+          id: loadedGraphId,
+          date: new Date(),
+          name: graphs[loadedGraphId].name,
+          graphData: serializedGraph,
+        };
+      }
+      const id = await db.graphs.put(graphObject);
       console.log(`Saved currentGraph: ${id}`);
     }).catch((e) => {
       console.log(e.stack || e);
     });
   }
 
-  function loadCurrentGraph() {
-    db.transaction('rw', db.currentGraph, async () => {
-      const lastGraph = await db.currentGraph.where({ id: 0 }).toArray();
-      if (lastGraph.length > 0) {
+  function saveNewGraph() {
+    saveGraph(true);
+  }
+
+  function loadGraph(id = undefined) {
+    db.transaction('rw', db.graphs, db.settings, async () => {
+      const graphs = await db.graphs.toArray();
+      const loadedGraphIdObject = await db.settings
+        .where({
+          name: 'loadedGraphId',
+        })
+        .first();
+      if (loadedGraphIdObject !== undefined && graphs.length > 0) {
+        const loadedGraphId = loadedGraphIdObject?.value
+          ? parseInt(loadedGraphIdObject.value)
+          : 0;
         // configure graph
-        const graphData = lastGraph[0].graphData;
+        let idOfGraphToLoad;
+        if (id === undefined) {
+          idOfGraphToLoad = loadedGraphId;
+        } else {
+          idOfGraphToLoad = id;
+        }
+        // check if graph exists and load last graph if it does not
+        idOfGraphToLoad = Math.min(graphs.length - 1, idOfGraphToLoad);
+        const graphData = graphs[idOfGraphToLoad]?.graphData;
         currentGraph.current.configure(graphData, false);
+
+        // save loadedGraphId
+        await db.settings.put({
+          name: 'loadedGraphId',
+          value: idOfGraphToLoad.toString(),
+        });
 
         console.log(currentGraph.current.nodeContainer.children);
       } else {
@@ -411,98 +515,193 @@ const App = (): JSX.Element => {
     currentGraph.current.createOrUpdateNodeFromCode(code);
   }
 
-  const handleItemSelect = (selected: INodes) => {
+  const handleGraphItemSelect = (selected: IGraphSearch) => {
+    console.log(selected);
+    setIsSearchOpen(false);
+    loadGraph(selected.id);
+    setGraphSearchActiveItem(selected);
+  };
+
+  const handleNodeItemSelect = (selected: INodeSearch) => {
     console.log(selected);
     setIsSearchOpen(false);
     currentGraph.current.createAndAddNode(selected.title);
   };
 
+  const updateGraphSearchItems = () => {
+    console.log('updateGraphSearchItems');
+    load();
+
+    async function load() {
+      const graphs = await db.graphs.toArray();
+      const loadedGraphIdObject = await db.settings
+        .where({
+          name: 'loadedGraphId',
+        })
+        .first();
+      const loadedGraphId = loadedGraphIdObject?.value
+        ? parseInt(loadedGraphIdObject.value)
+        : 0;
+      console.log(graphs);
+      const newGraphSearchItems = graphs.map((graph) => {
+        return {
+          id: graph.id,
+          name: graph.name,
+          date: graph.date,
+        } as IGraphSearch;
+      });
+      setGraphSearchItems(newGraphSearchItems);
+      setGraphSearchActiveItem(newGraphSearchItems[loadedGraphId]);
+    }
+  };
+
   return (
-    <div
-      // close open context menu again on click
-      onClick={() => {
-        isGraphContextMenuOpen && setIsGraphContextMenuOpen(false);
-        isNodeContextMenuOpen && setIsNodeContextMenuOpen(false);
-        isSearchOpen && setIsSearchOpen(false);
-      }}
-    >
-      <div {...getRootProps({ style })}>
-        <input {...getInputProps()} />
-        {/* </div> */}
-        {isGraphContextMenuOpen && (
-          <GraphContextMenu
-            controlOrMetaKey={controlOrMetaKey}
-            contextMenuPosition={contextMenuPosition}
-            currentGraph={currentGraph}
-            setIsSearchOpen={setIsSearchOpen}
-            nodeSearchInput={nodeSearchInput}
-            loadCurrentGraph={loadCurrentGraph}
-            serializeGraph={serializeGraph}
-            downloadGraph={downloadGraph}
-            uploadGraph={uploadGraph}
-            showComments={showComments}
-            setShowComments={setShowComments}
-            zoomToFit={zoomToFit}
-          />
-        )}
-        {isNodeContextMenuOpen && (
-          <NodeContextMenu
-            controlOrMetaKey={controlOrMetaKey}
-            contextMenuPosition={contextMenuPosition}
-            currentGraph={currentGraph}
-          />
-        )}
-        <PixiContainer ref={pixiContext} />
-        {selectedNode && (
-          <InspectorContainer
-            currentGraph={currentGraph.current}
-            selectedNode={selectedNode}
-            onSave={createOrUpdateNodeFromCode}
-          />
-        )}
-        <img
-          className={styles.plugAndPlaygroundIcon}
-          src={PLUGANDPLAY_ICON}
-          onClick={() => {
-            setContextMenuPosition([80, 40]);
-            setIsGraphContextMenuOpen(true);
-          }}
-        />
-        {isCurrentGraphLoaded && (
-          <NodeSearch
-            className={styles.nodeSearch}
-            inputProps={{
-              inputRef: nodeSearchInput,
-              large: true,
-              placeholder: 'Search Nodes',
+    <ErrorBoundary FallbackComponent={ErrorFallback}>
+      <div
+        // close open context menu again on click
+        onClick={() => {
+          isGraphContextMenuOpen && setIsGraphContextMenuOpen(false);
+          isNodeContextMenuOpen && setIsNodeContextMenuOpen(false);
+          isSearchOpen && setIsSearchOpen(false);
+        }}
+      >
+        <div {...getRootProps({ style })}>
+          <input {...getInputProps()} />
+          {/* </div> */}
+          {isGraphContextMenuOpen && (
+            <GraphContextMenu
+              controlOrMetaKey={controlOrMetaKey}
+              contextMenuPosition={contextMenuPosition}
+              currentGraph={currentGraph}
+              setIsSearchOpen={setIsSearchOpen}
+              graphSearchInput={graphSearchInput}
+              nodeSearchInput={nodeSearchInput}
+              loadGraph={loadGraph}
+              saveGraph={saveGraph}
+              saveNewGraph={saveNewGraph}
+              downloadGraph={downloadGraph}
+              uploadGraph={uploadGraph}
+              showComments={showComments}
+              setShowComments={setShowComments}
+              zoomToFit={zoomToFit}
+            />
+          )}
+          {isNodeContextMenuOpen && (
+            <NodeContextMenu
+              controlOrMetaKey={controlOrMetaKey}
+              contextMenuPosition={contextMenuPosition}
+              currentGraph={currentGraph}
+            />
+          )}
+          <PixiContainer ref={pixiContext} />
+          {selectedNode && (
+            <InspectorContainer
+              currentGraph={currentGraph.current}
+              selectedNode={selectedNode}
+              onSave={createOrUpdateNodeFromCode}
+            />
+          )}
+          <img
+            className={styles.plugAndPlaygroundIcon}
+            src={PLUGANDPLAY_ICON}
+            onClick={() => {
+              setContextMenuPosition([80, 40]);
+              setIsGraphContextMenuOpen(true);
             }}
-            itemRenderer={renderFilm}
-            items={
-              Object.keys(currentGraph.current.registeredNodeTypes).map(
-                (node) => {
-                  return { title: node };
-                }
-              ) as INodes[]
-            }
-            itemPredicate={filterNode}
-            onItemSelect={handleItemSelect}
-            resetOnClose={true}
-            resetOnQuery={true}
-            resetOnSelect={true}
-            popoverProps={{ minimal: true }}
-            inputValueRenderer={(node: INodes) => node.title}
-            createNewItemFromQuery={createNewItemFromQuery}
-            createNewItemRenderer={renderCreateFilmOption}
           />
-        )}
+          {isCurrentGraphLoaded && (
+            <>
+              <GraphSearch
+                className={styles.graphSearch}
+                inputProps={{
+                  inputRef: (el) => {
+                    graphSearchInput.current = el;
+                    setGraphSearchVisible(!!el);
+                  },
+                  large: true,
+                  placeholder: 'Search playgrounds',
+                }}
+                itemRenderer={renderGraphItem}
+                items={graphSearchItems}
+                activeItem={graphSearchActiveItem}
+                itemPredicate={filterGraph}
+                onItemSelect={handleGraphItemSelect}
+                resetOnClose={true}
+                resetOnQuery={true}
+                resetOnSelect={true}
+                popoverProps={{ minimal: true }}
+                inputValueRenderer={(item: IGraphSearch) => item.name}
+              />
+              <NodeSearch
+                className={styles.nodeSearch}
+                inputProps={{
+                  inputRef: nodeSearchInput,
+                  large: true,
+                  placeholder: 'Search Nodes',
+                }}
+                itemRenderer={renderNodeItem}
+                items={
+                  Object.keys(currentGraph.current.registeredNodeTypes).map(
+                    (node) => {
+                      return { title: node };
+                    }
+                  ) as INodeSearch[]
+                }
+                itemPredicate={filterNode}
+                onItemSelect={handleNodeItemSelect}
+                resetOnClose={true}
+                resetOnQuery={true}
+                resetOnSelect={true}
+                popoverProps={{ minimal: true }}
+                inputValueRenderer={(node: INodeSearch) => node.title}
+                createNewItemFromQuery={createNewItemFromQuery}
+                createNewItemRenderer={renderCreateFilmOption}
+              />
+            </>
+          )}
+        </div>
       </div>
-    </div>
+    </ErrorBoundary>
   );
 };
 
 export default App;
 
-const filterNode: ItemPredicate<INodes> = (query, node, _index, exactMatch) => {
+function ErrorFallback({ error, resetErrorBoundary }) {
+  return (
+    <div role="alert" style={{ color: 'white' }}>
+      <p>Something went wrong:</p>
+      <pre>{error.message}</pre>
+      <button onClick={resetErrorBoundary}>Try again</button>
+    </div>
+  );
+}
+
+const filterGraph: ItemPredicate<IGraphSearch> = (
+  query,
+  graph,
+  _index,
+  exactMatch
+) => {
+  if (graph) {
+    console.log(graph);
+    const normalizedTitle = graph?.id?.toString(10).toLowerCase();
+    const normalizedQuery = query.toLowerCase();
+
+    if (exactMatch) {
+      return normalizedTitle === normalizedQuery;
+    } else {
+      return `${normalizedTitle}`.indexOf(normalizedQuery) >= 0;
+    }
+  }
+};
+
+const filterNode: ItemPredicate<INodeSearch> = (
+  query,
+  node,
+  _index,
+  exactMatch
+) => {
   const normalizedTitle = node.title.toLowerCase();
   const normalizedQuery = query.toLowerCase();
 
@@ -513,7 +712,27 @@ const filterNode: ItemPredicate<INodes> = (query, node, _index, exactMatch) => {
   }
 };
 
-const renderFilm: ItemRenderer<INodes> = (
+const renderGraphItem: ItemRenderer<IGraphSearch> = (
+  graph,
+  { handleClick, modifiers, query }
+) => {
+  if (!modifiers.matchesPredicate) {
+    return null;
+  }
+  const text = `${graph.name}`;
+  return (
+    <MenuItem
+      active={modifiers.active}
+      disabled={modifiers.disabled}
+      key={graph.id}
+      onClick={handleClick}
+      label={timeAgo.format(graph.date)}
+      text={highlightText(text, query)}
+    />
+  );
+};
+
+const renderNodeItem: ItemRenderer<INodeSearch> = (
   node,
   { handleClick, modifiers, query }
 ) => {
@@ -532,7 +751,7 @@ const renderFilm: ItemRenderer<INodes> = (
   );
 };
 
-function createNewItemFromQuery(title: string): INodes {
+function createNewItemFromQuery(title: string): INodeSearch {
   return {
     title,
   };
