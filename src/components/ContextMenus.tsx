@@ -14,7 +14,7 @@ export const GraphContextMenu = (props) => {
     >
       <MenuItem
         icon="search"
-        text="Search nodes"
+        text="Search playgrounds"
         label={`${props.controlOrMetaKey}+O`}
         onClick={() => {
           props.setIsSearchOpen(true);
