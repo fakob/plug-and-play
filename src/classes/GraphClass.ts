@@ -48,6 +48,7 @@ export default class PPGraph {
   onRightClick:
     | ((event: PIXI.InteractionEvent, target: PIXI.DisplayObject) => void)
     | null; // called when the graph is right clicked
+  onOpenNodeSearch: ((pos: PIXI.Point) => void) | null; // called node search should be openend
 
   onViewportMoveHandler: (event?: PIXI.InteractionEvent) => void;
 
@@ -114,6 +115,7 @@ export default class PPGraph {
       );
       this.viewport.on('pointerup', this._onPointerUpAndUpOutside.bind(this));
       this.viewport.on('rightclick', this._onPointerRightClicked.bind(this));
+      this.viewport.on('dblclick', this._onPointerDoubleClicked.bind(this));
     };
     addEventListeners();
 
@@ -133,6 +135,14 @@ export default class PPGraph {
 
     if (this.onRightClick) {
       this.onRightClick(event, target);
+    }
+  }
+
+  _onPointerDoubleClicked(event: PIXI.InteractionEvent): void {
+    console.log('_onPointerDoubleClicked');
+    event.stopPropagation();
+    if (this.onOpenNodeSearch) {
+      this.onOpenNodeSearch(event.data.global);
     }
   }
 
@@ -263,7 +273,7 @@ export default class PPGraph {
     }
   }
 
-  _onNodePointerUpAndUpOutside(): void {
+  _onNodePointerUpAndUpOutside(event: PIXI.InteractionEvent): void {
     console.log('_onNodePointerUpAndUpOutside');
 
     // unsubscribe from pointermove
@@ -285,15 +295,18 @@ export default class PPGraph {
             this.overInputRef.parent.name
           );
           this.connect(this.clickedSocketRef, this.overInputRef, this.viewport);
+
+          this.clearTempConnection();
+        } else {
+          console.log('not over input -> open node search');
+          if (this.onOpenNodeSearch) {
+            this.onOpenNodeSearch(event.data.global);
+          }
         }
       }
     }
+
     this.viewport.plugins.resume('drag');
-    this.tempConnection.clear();
-    this.clickedSocketRef = null;
-    this.overInputRef = null;
-    this.movingLink = null;
-    this.dragSourcePoint = null;
   }
 
   // GETTERS & SETTERS
@@ -311,6 +324,14 @@ export default class PPGraph {
     this.commentContainer.visible = value;
   }
   // METHODS
+
+  clearTempConnection(): void {
+    this.tempConnection.clear();
+    this.clickedSocketRef = null;
+    this.overInputRef = null;
+    this.movingLink = null;
+    this.dragSourcePoint = null;
+  }
 
   getNodeById(id: string): PPNode {
     return this.nodes.find((node) => node.id === id);

@@ -287,6 +287,10 @@ const App = (): JSX.Element => {
       }
     };
 
+    currentGraph.current.onOpenNodeSearch = (pos: PIXI.Point) => {
+      openNodeSearch(pos);
+    };
+
     currentGraph.current.onRightClick = (
       event: PIXI.InteractionEvent,
       target: PIXI.DisplayObject
@@ -345,11 +349,7 @@ const App = (): JSX.Element => {
       }
       if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'f') {
         e.preventDefault();
-        setContextMenuPosition([
-          Math.min(window.innerWidth - 200, mousePosition.x),
-          Math.min(window.innerHeight - 56, mousePosition.y),
-        ]);
-        setIsNodeSearchVisible(true);
+        openNodeSearch(mousePosition);
       }
       if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 's') {
         e.preventDefault();
@@ -417,6 +417,8 @@ const App = (): JSX.Element => {
   useEffect(() => {
     if (isNodeSearchVisible) {
       nodeSearchInput.current.focus();
+    } else {
+      currentGraph.current.clearTempConnection();
     }
   }, [isNodeSearchVisible]);
 
@@ -568,6 +570,18 @@ const App = (): JSX.Element => {
       nodePosX: nodePos.x,
       nodePosY: nodePos.y,
     });
+    currentGraph.current.clearTempConnection();
+  };
+
+  const openNodeSearch = (pos = undefined) => {
+    console.log('openNodeSearch');
+    if (pos !== undefined) {
+      setContextMenuPosition([
+        Math.min(window.innerWidth - 200, pos.x),
+        Math.min(window.innerHeight - 56, pos.y),
+      ]);
+    }
+    setIsNodeSearchVisible(true);
   };
 
   const nodeSearchInputBlurred = () => {
@@ -610,14 +624,6 @@ const App = (): JSX.Element => {
           isGraphContextMenuOpen && setIsGraphContextMenuOpen(false);
           isNodeContextMenuOpen && setIsNodeContextMenuOpen(false);
           isGraphSearchOpen && setIsGraphSearchOpen(false);
-          isNodeSearchVisible && setIsNodeSearchVisible(false);
-        }}
-        onDoubleClick={(event) => {
-          setContextMenuPosition([
-            Math.min(window.innerWidth - 200, event.clientX),
-            Math.min(window.innerHeight - 56, event.clientY),
-          ]);
-          !isNodeSearchVisible && setIsNodeSearchVisible(true);
         }}
       >
         <div {...getRootProps({ style })}>
@@ -629,7 +635,7 @@ const App = (): JSX.Element => {
               contextMenuPosition={contextMenuPosition}
               currentGraph={currentGraph}
               setIsGraphSearchOpen={setIsGraphSearchOpen}
-              setIsNodeSearchVisible={setIsNodeSearchVisible}
+              openNodeSearch={openNodeSearch}
               loadGraph={loadGraph}
               saveGraph={saveGraph}
               saveNewGraph={saveNewGraph}

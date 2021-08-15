@@ -25,7 +25,7 @@ export const GraphContextMenu = (props) => {
         text="Search nodes"
         label={`${props.controlOrMetaKey}+F`}
         onClick={() => {
-          props.setIsNodeSearchVisible(true);
+          props.openNodeSearch();
         }}
       />
       <MenuDivider title="Graph" />
