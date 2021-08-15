@@ -560,7 +560,10 @@ const App = (): JSX.Element => {
   const handleNodeItemSelect = (selected: INodeSearch) => {
     console.log(selected);
     setIsNodeSearchVisible(false);
-    currentGraph.current.createAndAddNode(selected.title);
+    currentGraph.current.createAndAddNode(selected.title, {
+      nodePosX: contextMenuPosition[0],
+      nodePosY: contextMenuPosition[1],
+    });
   };
 
   const nodeSearchInputBlurred = () => {

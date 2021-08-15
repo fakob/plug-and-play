@@ -348,12 +348,11 @@ export default class PPGraph {
     }
 
     const title = type;
-    console.log(this.viewport.center.x - NODE_WIDTH / 2);
     // console.log(nodeConstructor);
     const node = new nodeConstructor(title, this, {
       ...customArgs,
-      nodePosX: this.viewport.center.x - NODE_WIDTH / 2,
-      nodePosY: this.viewport.center.y,
+      nodePosX: customArgs?.nodePosX ?? this.viewport.center.x - NODE_WIDTH / 2,
+      nodePosY: customArgs?.nodePosY ?? this.viewport.center.y,
     }) as T;
     return node;
   }
@@ -381,7 +380,7 @@ export default class PPGraph {
     type: string,
     customArgs?: CustomArgs
   ): T {
-    // console.log(customArgs);
+    console.log(customArgs);
     const node = this.createNode(type, customArgs) as T;
     // if (node) {
     this.addNode(node);
