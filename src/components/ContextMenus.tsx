@@ -17,7 +17,7 @@ export const GraphContextMenu = (props) => {
         text="Search playgrounds"
         label={`${props.controlOrMetaKey}+O`}
         onClick={() => {
-          props.setIsSearchOpen(true);
+          props.setIsGraphSearchOpen(true);
           props.graphSearchInput.current.focus();
         }}
       />
@@ -26,7 +26,7 @@ export const GraphContextMenu = (props) => {
         text="Search nodes"
         label={`${props.controlOrMetaKey}+F`}
         onClick={() => {
-          props.setIsSearchOpen(true);
+          props.setIsNodeSearchVisible(true);
           props.nodeSearchInput.current.focus();
         }}
       />

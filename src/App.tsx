@@ -66,7 +66,7 @@ const App = (): JSX.Element => {
   const [graphSearchRendered, setGraphSearchRendered] = useState(false);
   const [nodeSearchRendered, setNodeSearchRendered] = useState(false);
   const nodeSearchInput = useRef<HTMLInputElement | null>(null);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isSearchOpen, setIsGraphSearchOpen] = useState(false);
   const [isNodeSearchVisible, setIsNodeSearchVisible] = useState(false);
   const [isGraphContextMenuOpen, setIsGraphContextMenuOpen] = useState(false);
   const [isNodeContextMenuOpen, setIsNodeContextMenuOpen] = useState(false);
@@ -341,7 +341,7 @@ const App = (): JSX.Element => {
       }
       if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'o') {
         e.preventDefault();
-        setIsSearchOpen((prevState) => !prevState);
+        setIsGraphSearchOpen((prevState) => !prevState);
         graphSearchInput.current.focus();
       }
       if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'f') {
@@ -351,7 +351,6 @@ const App = (): JSX.Element => {
           Math.min(window.innerHeight - 56, mousePosition.y),
         ]);
         setIsNodeSearchVisible(true);
-        setIsSearchOpen(true);
         nodeSearchInput.current.focus();
       }
       if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 's') {
@@ -366,7 +365,7 @@ const App = (): JSX.Element => {
         zoomToFit();
       }
       if (e.key === 'Escape') {
-        setIsSearchOpen(false);
+        setIsGraphSearchOpen(false);
         setIsNodeSearchVisible(false);
         setIsGraphContextMenuOpen(false);
         setIsNodeContextMenuOpen(false);
@@ -543,21 +542,19 @@ const App = (): JSX.Element => {
 
   const handleGraphItemSelect = (selected: IGraphSearch) => {
     console.log(selected);
-    setIsSearchOpen(false);
+    setIsGraphSearchOpen(false);
     loadGraph(selected.id);
     setGraphSearchActiveItem(selected);
   };
 
   const handleNodeItemSelect = (selected: INodeSearch) => {
     console.log(selected);
-    setIsSearchOpen(false);
     setIsNodeSearchVisible(false);
     currentGraph.current.createAndAddNode(selected.title);
   };
 
   const nodeSearchInputBlurred = () => {
     console.log('nodeSearchInputBlurred');
-    setIsSearchOpen(false);
     setIsNodeSearchVisible(false);
   };
 
@@ -595,7 +592,7 @@ const App = (): JSX.Element => {
         onClick={() => {
           isGraphContextMenuOpen && setIsGraphContextMenuOpen(false);
           isNodeContextMenuOpen && setIsNodeContextMenuOpen(false);
-          isSearchOpen && setIsSearchOpen(false);
+          isSearchOpen && setIsGraphSearchOpen(false);
         }}
       >
         <div {...getRootProps({ style })}>
@@ -606,7 +603,8 @@ const App = (): JSX.Element => {
               controlOrMetaKey={controlOrMetaKey}
               contextMenuPosition={contextMenuPosition}
               currentGraph={currentGraph}
-              setIsSearchOpen={setIsSearchOpen}
+              setIsGraphSearchOpen={setIsGraphSearchOpen}
+              setIsNodeSearchVisible={setIsNodeSearchVisible}
               graphSearchInput={graphSearchInput}
               nodeSearchInput={nodeSearchInput}
               loadGraph={loadGraph}
