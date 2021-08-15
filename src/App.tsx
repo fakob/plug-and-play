@@ -66,7 +66,7 @@ const App = (): JSX.Element => {
   const [graphSearchRendered, setGraphSearchRendered] = useState(false);
   const [nodeSearchRendered, setNodeSearchRendered] = useState(false);
   const nodeSearchInput = useRef<HTMLInputElement | null>(null);
-  const [isSearchOpen, setIsGraphSearchOpen] = useState(false);
+  const [isGraphSearchOpen, setIsGraphSearchOpen] = useState(false);
   const [isNodeSearchVisible, setIsNodeSearchVisible] = useState(false);
   const [isGraphContextMenuOpen, setIsGraphContextMenuOpen] = useState(false);
   const [isNodeContextMenuOpen, setIsNodeContextMenuOpen] = useState(false);
@@ -293,10 +293,10 @@ const App = (): JSX.Element => {
     ) => {
       setIsGraphContextMenuOpen(false);
       setIsNodeContextMenuOpen(false);
-      setContextMenuPosition(
-        // creating new point so react updates
-        [event.data.global.x, event.data.global.y]
-      );
+      setContextMenuPosition([
+        Math.min(window.innerWidth - 240, event.data.global.x),
+        Math.min(window.innerHeight - 432, event.data.global.y),
+      ]);
       console.log(event, target, event.data.global);
       switch (true) {
         case target instanceof PPSocket:
@@ -324,10 +324,10 @@ const App = (): JSX.Element => {
     ) => {
       setIsGraphContextMenuOpen(false);
       setIsNodeContextMenuOpen(false);
-      setContextMenuPosition(
-        // creating new point so react updates
-        [event.data.global.x, event.data.global.y]
-      );
+      setContextMenuPosition([
+        Math.min(window.innerWidth - 240, event.data.global.x),
+        Math.min(window.innerHeight - 432, event.data.global.y),
+      ]);
       console.log(event, target, event.data.global);
       console.log('app right click, selection');
       setIsNodeContextMenuOpen(true);
@@ -342,7 +342,6 @@ const App = (): JSX.Element => {
       if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'o') {
         e.preventDefault();
         setIsGraphSearchOpen((prevState) => !prevState);
-        graphSearchInput.current.focus();
       }
       if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'f') {
         e.preventDefault();
@@ -351,7 +350,6 @@ const App = (): JSX.Element => {
           Math.min(window.innerHeight - 56, mousePosition.y),
         ]);
         setIsNodeSearchVisible(true);
-        nodeSearchInput.current.focus();
       }
       if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 's') {
         e.preventDefault();
@@ -409,6 +407,18 @@ const App = (): JSX.Element => {
     nodeSearchInput.current.addEventListener('blur', nodeSearchInputBlurred);
     // }
   }, [nodeSearchRendered]);
+
+  useEffect(() => {
+    if (isGraphSearchOpen) {
+      graphSearchInput.current.focus();
+    }
+  }, [isGraphSearchOpen]);
+
+  useEffect(() => {
+    if (isNodeSearchVisible) {
+      nodeSearchInput.current.focus();
+    }
+  }, [isNodeSearchVisible]);
 
   useEffect(() => {
     currentGraph.current.showComments = showComments;
@@ -592,7 +602,8 @@ const App = (): JSX.Element => {
         onClick={() => {
           isGraphContextMenuOpen && setIsGraphContextMenuOpen(false);
           isNodeContextMenuOpen && setIsNodeContextMenuOpen(false);
-          isSearchOpen && setIsGraphSearchOpen(false);
+          isGraphSearchOpen && setIsGraphSearchOpen(false);
+          isNodeSearchVisible && setIsNodeSearchVisible(false);
         }}
       >
         <div {...getRootProps({ style })}>
@@ -605,8 +616,6 @@ const App = (): JSX.Element => {
               currentGraph={currentGraph}
               setIsGraphSearchOpen={setIsGraphSearchOpen}
               setIsNodeSearchVisible={setIsNodeSearchVisible}
-              graphSearchInput={graphSearchInput}
-              nodeSearchInput={nodeSearchInput}
               loadGraph={loadGraph}
               saveGraph={saveGraph}
               saveNewGraph={saveNewGraph}

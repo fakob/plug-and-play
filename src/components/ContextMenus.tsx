@@ -18,7 +18,6 @@ export const GraphContextMenu = (props) => {
         label={`${props.controlOrMetaKey}+O`}
         onClick={() => {
           props.setIsGraphSearchOpen(true);
-          props.graphSearchInput.current.focus();
         }}
       />
       <MenuItem
@@ -27,7 +26,6 @@ export const GraphContextMenu = (props) => {
         label={`${props.controlOrMetaKey}+F`}
         onClick={() => {
           props.setIsNodeSearchVisible(true);
-          props.nodeSearchInput.current.focus();
         }}
       />
       <MenuDivider title="Graph" />
