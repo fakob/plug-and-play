@@ -560,9 +560,13 @@ const App = (): JSX.Element => {
   const handleNodeItemSelect = (selected: INodeSearch) => {
     console.log(selected);
     setIsNodeSearchVisible(false);
+    const nodePos = viewport.current.toWorld(
+      contextMenuPosition[0],
+      contextMenuPosition[1]
+    );
     currentGraph.current.createAndAddNode(selected.title, {
-      nodePosX: contextMenuPosition[0],
-      nodePosY: contextMenuPosition[1],
+      nodePosX: nodePos.x,
+      nodePosY: nodePos.y,
     });
   };
 
@@ -607,6 +611,13 @@ const App = (): JSX.Element => {
           isNodeContextMenuOpen && setIsNodeContextMenuOpen(false);
           isGraphSearchOpen && setIsGraphSearchOpen(false);
           isNodeSearchVisible && setIsNodeSearchVisible(false);
+        }}
+        onDoubleClick={(event) => {
+          setContextMenuPosition([
+            Math.min(window.innerWidth - 200, event.clientX),
+            Math.min(window.innerHeight - 56, event.clientY),
+          ]);
+          !isNodeSearchVisible && setIsNodeSearchVisible(true);
         }}
       >
         <div {...getRootProps({ style })}>
