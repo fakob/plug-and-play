@@ -418,7 +418,11 @@ const App = (): JSX.Element => {
     if (isNodeSearchVisible) {
       nodeSearchInput.current.focus();
     } else {
-      currentGraph.current.clearTempConnection();
+      // wait before clearing clickedSocketRef
+      // so handleNodeItemSelect has access
+      setTimeout(() => {
+        currentGraph.current.clearTempConnection();
+      }, 100);
     }
   }, [isNodeSearchVisible]);
 
@@ -561,7 +565,9 @@ const App = (): JSX.Element => {
 
   const handleNodeItemSelect = (selected: INodeSearch) => {
     console.log(selected);
-    setIsNodeSearchVisible(false);
+    console.log(currentGraph.current.clickedSocketRef);
+    // store link before search gets hidden and temp connection gets reset
+    const addLink = currentGraph.current.clickedSocketRef;
     const nodePos = viewport.current.toWorld(
       contextMenuPosition[0],
       contextMenuPosition[1]
@@ -569,8 +575,9 @@ const App = (): JSX.Element => {
     currentGraph.current.createAndAddNode(selected.title, {
       nodePosX: nodePos.x,
       nodePosY: nodePos.y,
+      addLink,
     });
-    currentGraph.current.clearTempConnection();
+    setIsNodeSearchVisible(false);
   };
 
   const openNodeSearch = (pos = undefined) => {
