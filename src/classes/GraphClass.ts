@@ -183,7 +183,6 @@ export default class PPGraph {
     this.viewport.cursor = 'grab';
     this.viewport.plugins.resume('drag');
     this.dragSourcePoint = null;
-    console.log(this.clickedSocketRef);
   }
 
   _onNodePointerDown(event: PIXI.InteractionEvent): void {
@@ -306,7 +305,6 @@ export default class PPGraph {
         }
       }
     }
-    console.log(this.clickedSocketRef);
 
     this.viewport.plugins.resume('drag');
   }
@@ -328,7 +326,6 @@ export default class PPGraph {
   // METHODS
 
   clearTempConnection(): void {
-    console.trace(this.clickedSocketRef);
     this.tempConnection.clear();
     this.clickedSocketRef = null;
     this.overInputRef = null;
@@ -408,12 +405,8 @@ export default class PPGraph {
     const node = this.createNode(type, customArgs) as T;
     // if (node) {
     this.addNode(node);
-    console.log(this.clickedSocketRef);
-    console.log(customArgs?.addLink);
 
     if (customArgs?.addLink) {
-      console.log(customArgs.addLink?.isInput());
-      console.log(!customArgs.addLink?.isInput());
       if (node.inputSocketArray.length > 0 && !customArgs.addLink.isInput()) {
         console.log(
           'connecting Output:',
@@ -430,7 +423,6 @@ export default class PPGraph {
           node.inputSocketArray[0],
           this.viewport
         );
-
         this.clearTempConnection();
       }
     }

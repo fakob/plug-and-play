@@ -565,7 +565,6 @@ const App = (): JSX.Element => {
 
   const handleNodeItemSelect = (selected: INodeSearch) => {
     console.log(selected);
-    console.log(currentGraph.current.clickedSocketRef);
     // store link before search gets hidden and temp connection gets reset
     const addLink = currentGraph.current.clickedSocketRef;
     const nodePos = viewport.current.toWorld(
