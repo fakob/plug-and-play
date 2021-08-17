@@ -190,7 +190,5 @@
 
 .nodeSearch {
   position: absolute;
-  /* left: 291px;
-  top: 36px; */
   filter: drop-shadow(0px 0px 24px rgba(0, 0, 0, 0.15));
 }
