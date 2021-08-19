@@ -815,6 +815,9 @@ export class Note extends PPNode {
       this.basicText.anchor.set(0.5, 0.5);
       this.basicText.x = (SOCKET_WIDTH + NODE_WIDTH) / 2;
       this.basicText.y = (NODE_OUTLINE_DISTANCE + NODE_WIDTH) / 2;
+
+      // update shape after adding
+      this.drawNodeShape();
     };
 
     //
@@ -957,9 +960,6 @@ export class Note extends PPNode {
       this._textInputRef.text = inputText;
       this.setOutputData('textOutput', inputText);
     };
-
-    // update shape after initializing
-    this.drawNodeShape();
   }
 }
 

@@ -2,6 +2,11 @@ import PPGraph from '../classes/GraphClass';
 import PPNode, { UpdateBehaviour } from '../classes/NodeClass';
 import { SOCKET_TYPE } from './constants';
 
+export type RegisteredNodeTypes = Record<
+  string,
+  { constructor: PPNodeConstructor; hasInputs?: boolean }
+>;
+
 export type PPNodeConstructor<T extends PPNode = PPNode> = {
   type?: string;
   category?: string;

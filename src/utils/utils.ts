@@ -1,6 +1,7 @@
 import React from 'react';
 import { Node } from 'slate';
 
+import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
 import {
   NODE_PADDING_TOP,
@@ -9,6 +10,8 @@ import {
   SOCKET_TEXTMARGIN_TOP,
   SOCKET_WIDTH,
 } from './constants';
+
+import { PPNodeConstructor } from './interfaces';
 
 export function isFunction(funcOrClass: any): boolean {
   const propertyNames = Object.getOwnPropertyNames(funcOrClass);
@@ -23,6 +26,16 @@ export function isClass(item: any): boolean {
   return (
     item.constructor.name !== 'Function' && item.constructor.name !== 'Object'
   );
+}
+
+export function checkHasInputsOfRegisteredNode(
+  graph: PPGraph,
+  key: string,
+  constructor: PPNodeConstructor
+): boolean {
+  const node = new constructor(key, graph);
+  const hasInputs = node.inputSocketArray.length > 0;
+  return hasInputs;
 }
 
 export function convertToArray<T>(value: T | T[]): T[] {
