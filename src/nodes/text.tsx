@@ -564,19 +564,19 @@ export class Label extends PPNode {
     this.name = 'Label';
     this.description = 'Adds text';
 
-    this.currentInput = null;
-
-    const canvas = this.graph.viewport.getChildByName(
-      'foregroundCanvas'
-    ) as PIXI.Container;
-
-    this._refTextStyle = new PIXI.TextStyle();
-    const basicText = new PIXI.Text('', this._refTextStyle);
-
-    this._refText = canvas.addChild(basicText);
-
     // when the Node is added, focus it so one can start writing
     this.onNodeAdded = () => {
+      this.currentInput = null;
+
+      const canvas = this.graph.viewport.getChildByName(
+        'foregroundCanvas'
+      ) as PIXI.Container;
+
+      this._refTextStyle = new PIXI.TextStyle();
+      const basicText = new PIXI.Text('', this._refTextStyle);
+
+      this._refText = canvas.addChild(basicText);
+
       this._refText.visible = false;
       this.createInputElement();
     };
@@ -785,44 +785,46 @@ export class Note extends PPNode {
       // alignVertWithFlexbox: true,
     };
 
-    const loader = new PIXI.Loader();
-    loader.add('NoteFont', NOTE_FONT).load(() => {
-      const note = PIXI.Sprite.from(NOTE_TEXTURE);
-      note.x = SOCKET_WIDTH / 2;
-      note.y = NODE_OUTLINE_DISTANCE;
-      note.width = nodeWidth;
-      note.height = nodeHeight;
+    this.onNodeAdded = () => {
+      const loader = new PIXI.Loader();
+      loader.add('NoteFont', NOTE_FONT).load(() => {
+        const note = PIXI.Sprite.from(NOTE_TEXTURE);
+        note.x = SOCKET_WIDTH / 2;
+        note.y = NODE_OUTLINE_DISTANCE;
+        note.width = nodeWidth;
+        note.height = nodeHeight;
 
-      // create and position PIXI.Text
-      const basicText = new PIXI.BitmapText(
-        customArgs?.data ?? 'Write away...',
-        {
-          fontName: 'Arial',
-          fontSize: NOTE_FONTSIZE,
-          align: 'center',
-          maxWidth: nodeWidth - NOTE_PADDING * 2,
-        }
-      );
-      (basicText.anchor as PIXI.Point) = new PIXI.Point(0.5, 0.5);
-      basicText.x = (SOCKET_WIDTH + nodeWidth) / 2;
-      basicText.y = (NODE_OUTLINE_DISTANCE + nodeHeight) / 2;
+        // create and position PIXI.Text
+        const basicText = new PIXI.BitmapText(
+          customArgs?.data ?? 'Write away...',
+          {
+            fontName: 'Arial',
+            fontSize: NOTE_FONTSIZE,
+            align: 'center',
+            maxWidth: nodeWidth - NOTE_PADDING * 2,
+          }
+        );
+        (basicText.anchor as PIXI.Point) = new PIXI.Point(0.5, 0.5);
+        basicText.x = (SOCKET_WIDTH + nodeWidth) / 2;
+        basicText.y = (NODE_OUTLINE_DISTANCE + nodeHeight) / 2;
 
-      this._NodeNameRef.visible = false;
+        this._NodeNameRef.visible = false;
 
-      (this._rectRef as any) = (this as PIXI.Container).addChild(note);
-      this._rectRef.alpha = 1;
-      this._rectRef.tint = PIXI.utils.string2hex(Color(defaultColor).hex());
+        (this._rectRef as any) = (this as PIXI.Container).addChild(note);
+        this._rectRef.alpha = 1;
+        this._rectRef.tint = PIXI.utils.string2hex(Color(defaultColor).hex());
 
-      const mask = new PIXI.Graphics();
-      mask.beginFill(0xffffff);
-      mask.drawRect(note.x, note.y, note.width, note.height); // In this case it is 8000x8000
-      mask.endFill();
-      (this as PIXI.Container).addChild(mask);
+        const mask = new PIXI.Graphics();
+        mask.beginFill(0xffffff);
+        mask.drawRect(note.x, note.y, note.width, note.height); // In this case it is 8000x8000
+        mask.endFill();
+        (this as PIXI.Container).addChild(mask);
 
-      this._textInputRef = (this as PIXI.Container).addChild(basicText);
-      this._textInputRef.mask = mask;
-      this.update();
-    });
+        this._textInputRef = (this as PIXI.Container).addChild(basicText);
+        this._textInputRef.mask = mask;
+        this.update();
+      });
+    };
 
     this.createInputElement = () => {
       // create html input element

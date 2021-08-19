@@ -209,22 +209,24 @@ export class Trigger extends PPNode {
     this.name = 'Trigger';
     this.description = 'Creates a trigger event';
 
-    const button = new PIXI.Graphics();
-    this._rectRef = (this as PIXI.Container).addChild(button);
-    this._rectRef.beginFill(PIXI.utils.string2hex('#00FF00'));
-    this._rectRef.drawRoundedRect(
-      NODE_OUTLINE_DISTANCE + SOCKET_WIDTH,
-      NODE_OUTLINE_DISTANCE + NODE_PADDING_TOP + NODE_HEADER_HEIGHT,
-      NODE_WIDTH / 2,
-      SOCKET_HEIGHT,
-      NODE_CORNERRADIUS
-    );
-    this._rectRef.endFill();
+    this.onNodeAdded = () => {
+      const button = new PIXI.Graphics();
+      this._rectRef = (this as PIXI.Container).addChild(button);
+      this._rectRef.beginFill(PIXI.utils.string2hex('#00FF00'));
+      this._rectRef.drawRoundedRect(
+        NODE_OUTLINE_DISTANCE + SOCKET_WIDTH,
+        NODE_OUTLINE_DISTANCE + NODE_PADDING_TOP + NODE_HEADER_HEIGHT,
+        NODE_WIDTH / 2,
+        SOCKET_HEIGHT,
+        NODE_CORNERRADIUS
+      );
+      this._rectRef.endFill();
 
-    this._rectRef.buttonMode = true;
-    this._rectRef.interactive = true;
+      this._rectRef.buttonMode = true;
+      this._rectRef.interactive = true;
 
-    this._rectRef.on('pointerdown', this.trigger.bind(this));
+      this._rectRef.on('pointerdown', this.trigger.bind(this));
+    };
   }
   trigger(): void {
     console.log('Triggered node: ', this.name);
