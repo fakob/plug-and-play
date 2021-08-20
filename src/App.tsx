@@ -580,6 +580,24 @@ const App = (): JSX.Element => {
     setIsNodeSearchVisible(false);
   };
 
+  const getNodes = (): INodeSearch[] => {
+    const addLink = currentGraph.current.clickedSocketRef;
+    const tempItems = Object.entries(currentGraph.current.registeredNodeTypes)
+      .map(([title, obj]) => {
+        return {
+          title,
+          name: obj.name,
+          description: obj.description,
+          hasInputs: obj.hasInputs.toString(),
+        };
+      })
+      .sort((a, b) => (a.title > b.title ? 1 : b.title > a.title ? -1 : 0))
+      .filter((node) =>
+        addLink ? node.hasInputs === 'true' : 'true'
+      ) as INodeSearch[];
+    return tempItems;
+  };
+
   const openNodeSearch = (pos = undefined) => {
     console.log('openNodeSearch');
     if (pos !== undefined) {
@@ -718,27 +736,7 @@ const App = (): JSX.Element => {
                     placeholder: 'Search Nodes',
                   }}
                   itemRenderer={renderNodeItem}
-                  items={(() => {
-                    const addLink = currentGraph.current.clickedSocketRef;
-                    const tempItems = Object.entries(
-                      currentGraph.current.registeredNodeTypes
-                    )
-                      .map(([title, obj]) => {
-                        return {
-                          title,
-                          name: obj.name,
-                          description: obj.description,
-                          hasInputs: obj.hasInputs.toString(),
-                        };
-                      })
-                      .sort((a, b) =>
-                        a.title > b.title ? 1 : b.title > a.title ? -1 : 0
-                      )
-                      .filter((node) =>
-                        addLink ? node.hasInputs === 'true' : 'true'
-                      ) as INodeSearch[];
-                    return tempItems;
-                  })()}
+                  items={getNodes()}
                   itemPredicate={filterNode}
                   onItemSelect={handleNodeItemSelect}
                   resetOnClose={true}
@@ -846,14 +844,14 @@ const renderNodeItem: ItemRenderer<INodeSearch> = (
   );
 };
 
-function createNewItemFromQuery(title: string): INodeSearch {
+const createNewItemFromQuery = (title: string): INodeSearch => {
   return {
     title,
     name: title,
     description: '',
     hasInputs: '',
   };
-}
+};
 
 const renderCreateNodeOption = (
   query: string,
