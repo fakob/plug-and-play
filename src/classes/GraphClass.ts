@@ -143,7 +143,8 @@ export default class PPGraph {
   _onPointerDoubleClicked(event: PIXI.InteractionEvent): void {
     console.log('_onPointerDoubleClicked');
     event.stopPropagation();
-    if (this.onOpenNodeSearch) {
+    const target = event.target;
+    if (target instanceof Viewport && this.onOpenNodeSearch) {
       this.onOpenNodeSearch(event.data.global);
     }
   }
