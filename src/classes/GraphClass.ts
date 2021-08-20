@@ -14,7 +14,7 @@ import {
   RegisteredNodeTypes,
   SerializedGraph,
 } from '../utils/interfaces';
-import { checkHasInputsOfRegisteredNode } from '../utils/utils';
+import { getInfoFromRegisteredNode } from '../utils/utils';
 import PPNode from './NodeClass';
 import Socket from './SocketClass';
 import PPLink from './LinkClass';
@@ -345,14 +345,12 @@ export default class PPGraph {
     // console.log(this._registeredNodeTypes);
 
     // create/update node type
-    const hasInputs = checkHasInputsOfRegisteredNode(
-      this,
-      type,
-      nodeConstructor
-    );
+    const nodeInfo = getInfoFromRegisteredNode(this, type, nodeConstructor);
     this._registeredNodeTypes[type] = {
       constructor: nodeConstructor,
-      hasInputs,
+      name: nodeInfo.name,
+      description: nodeInfo.description,
+      hasInputs: nodeInfo.hasInputs,
     };
   }
 

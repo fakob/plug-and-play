@@ -28,14 +28,14 @@ export function isClass(item: any): boolean {
   );
 }
 
-export function checkHasInputsOfRegisteredNode(
+export function getInfoFromRegisteredNode(
   graph: PPGraph,
   key: string,
   constructor: PPNodeConstructor
-): boolean {
+): { hasInputs: boolean; name: string; description: string } {
   const node = new constructor(key, graph);
   const hasInputs = node.inputSocketArray.length > 0;
-  return hasInputs;
+  return { hasInputs, name: node.name, description: node.description };
 }
 
 export function convertToArray<T>(value: T | T[]): T[] {
@@ -230,4 +230,14 @@ export const getDifferenceSelection = (
   return firstSelection
     .filter((x) => !secondSelection.includes(x))
     .concat(secondSelection.filter((x) => !firstSelection.includes(x)));
+};
+
+export const truncateText = (
+  inputString: string,
+  maxLength: number
+): string => {
+  if (inputString.length > maxLength) {
+    return inputString.substring(0, maxLength) + '...';
+  }
+  return inputString;
 };

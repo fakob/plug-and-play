@@ -31,6 +31,7 @@ import {
   downloadFile,
   formatDate,
   highlightText,
+  truncateText,
 } from './utils/utils';
 import { registerAllNodeTypes } from './nodes/allNodes';
 import PPSelection from './classes/SelectionClass';
@@ -723,8 +724,16 @@ const App = (): JSX.Element => {
                       currentGraph.current.registeredNodeTypes
                     )
                       .map(([title, obj]) => {
-                        return { title, hasInputs: obj.hasInputs.toString() };
+                        return {
+                          title,
+                          name: obj.name,
+                          description: obj.description,
+                          hasInputs: obj.hasInputs.toString(),
+                        };
                       })
+                      .sort((a, b) =>
+                        a.title > b.title ? 1 : b.title > a.title ? -1 : 0
+                      )
                       .filter((node) =>
                         addLink ? node.hasInputs === 'true' : 'true'
                       ) as INodeSearch[];
@@ -738,7 +747,7 @@ const App = (): JSX.Element => {
                   popoverProps={{ minimal: true }}
                   inputValueRenderer={(node: INodeSearch) => node.title}
                   createNewItemFromQuery={createNewItemFromQuery}
-                  createNewItemRenderer={renderCreateFilmOption}
+                  createNewItemRenderer={renderCreateNodeOption}
                 />
               </div>
             </>
@@ -829,7 +838,8 @@ const renderNodeItem: ItemRenderer<INodeSearch> = (
       active={modifiers.active}
       disabled={modifiers.disabled}
       key={node.title}
-      label={node.hasInputs}
+      title={node.description}
+      label={truncateText(node.description, 24)}
       onClick={handleClick}
       text={highlightText(text, query)}
     />
@@ -839,11 +849,13 @@ const renderNodeItem: ItemRenderer<INodeSearch> = (
 function createNewItemFromQuery(title: string): INodeSearch {
   return {
     title,
+    name: title,
+    description: '',
     hasInputs: '',
   };
 }
 
-const renderCreateFilmOption = (
+const renderCreateNodeOption = (
   query: string,
   active: boolean,
   handleClick: React.MouseEventHandler<HTMLElement>
