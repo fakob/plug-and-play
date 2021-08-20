@@ -717,13 +717,19 @@ const App = (): JSX.Element => {
                     placeholder: 'Search Nodes',
                   }}
                   itemRenderer={renderNodeItem}
-                  items={
-                    Object.keys(currentGraph.current.registeredNodeTypes).map(
-                      (node) => {
-                        return { title: node };
-                      }
-                    ) as INodeSearch[]
-                  }
+                  items={(() => {
+                    const addLink = currentGraph.current.clickedSocketRef;
+                    const tempItems = Object.entries(
+                      currentGraph.current.registeredNodeTypes
+                    )
+                      .map(([title, obj]) => {
+                        return { title, hasInputs: obj.hasInputs.toString() };
+                      })
+                      .filter((node) =>
+                        addLink ? node.hasInputs === 'true' : 'true'
+                      ) as INodeSearch[];
+                    return tempItems;
+                  })()}
                   itemPredicate={filterNode}
                   onItemSelect={handleNodeItemSelect}
                   resetOnClose={true}
@@ -823,6 +829,7 @@ const renderNodeItem: ItemRenderer<INodeSearch> = (
       active={modifiers.active}
       disabled={modifiers.disabled}
       key={node.title}
+      label={node.hasInputs}
       onClick={handleClick}
       text={highlightText(text, query)}
     />
@@ -832,6 +839,7 @@ const renderNodeItem: ItemRenderer<INodeSearch> = (
 function createNewItemFromQuery(title: string): INodeSearch {
   return {
     title,
+    hasInputs: '',
   };
 }
 

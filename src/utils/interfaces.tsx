@@ -43,6 +43,7 @@ export interface IGraphSearch {
 
 export interface INodeSearch {
   title: string;
+  hasInputs: string;
 }
 
 export type SerializedNode = {
