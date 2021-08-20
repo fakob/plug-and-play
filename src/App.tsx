@@ -591,7 +591,9 @@ const App = (): JSX.Element => {
           hasInputs: obj.hasInputs.toString(),
         };
       })
-      .sort((a, b) => (a.title > b.title ? 1 : b.title > a.title ? -1 : 0))
+      .sort(
+        (a, b) => a.title.localeCompare(b.title, 'en', { sensitivity: 'base' }) // case insensitive sorting
+      )
       .filter((node) =>
         addLink ? node.hasInputs === 'true' : 'true'
       ) as INodeSearch[];
