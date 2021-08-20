@@ -724,7 +724,7 @@ export class Label extends PPNode {
 
     // scale input if node is scaled
     this.onNodeDragOrViewportMove = () => {
-      if (this.currentInput !== null) {
+      if (this.currentInput != null) {
         const screenPoint = this.graph.viewport.toScreen(this.x, this.y);
         this.currentInput.style.transform = `scale(${this.graph.viewport.scale.x}`;
         this.currentInput.style.left = `${screenPoint.x}px`;
