@@ -30,6 +30,7 @@ import {
   convertBlobToBase64,
   downloadFile,
   formatDate,
+  getRemoteGraphs,
   highlightText,
   truncateText,
 } from './utils/utils';
@@ -258,6 +259,8 @@ const App = (): JSX.Element => {
     const allRegisteredNodeTypeNames = Object.keys(
       currentGraph.current.registeredNodeTypes
     );
+
+    getRemoteGraphs();
 
     console.log(
       'currentGraph.current.registeredNodeTypes:',

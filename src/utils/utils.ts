@@ -241,3 +241,58 @@ export const truncateText = (
   }
   return inputString;
 };
+
+export const getRemoteGraphs = async () => {
+  console.log('getRemoteGraphs');
+  // const branchName = 'main';
+  // const branches = await fetch(
+  //   `https://api.github.com/repos/fakob/plug-and-play-graphs/branches/${branchName}`,
+  //   {
+  //     headers: {
+  //       accept: 'application/vnd.github.v3+json',
+  //     },
+  //   }
+  // );
+  // const branchesData = await branches.json();
+  // console.log(branchesData);
+  // console.log(branchesData.commit.sha);
+  // const sha = branchesData.commit.sha;
+
+  const tagName = 'v0.0.2';
+  const tags = await fetch(
+    `https://api.github.com/repos/fakob/plug-and-play-graphs/tags`,
+    {
+      headers: {
+        accept: 'application/vnd.github.v3+json',
+      },
+    }
+  );
+  const tagsData = await tags.json();
+  console.log(tagsData);
+  const foundTag = tagsData.find((tag) => tag.name === tagName);
+  const sha = foundTag.commit.sha;
+
+  const fileList = await fetch(
+    `https://api.github.com/repos/fakob/plug-and-play-graphs/git/trees/${sha}`,
+    {
+      headers: {
+        accept: 'application/vnd.github.v3+json',
+      },
+    }
+  );
+  const fileListData = await fileList.json();
+  console.log(fileListData.tree);
+  const fileName = fileListData.tree[0].path;
+
+  const file = await fetch(
+    `https://api.github.com/repos/fakob/plug-and-play-graphs/contents/${fileName}?ref=${tagName}`,
+    {
+      headers: {
+        accept: 'application/vnd.github.v3.raw',
+      },
+    }
+  );
+  console.log(file);
+  const fileData = await file.json();
+  console.log(fileData);
+};
