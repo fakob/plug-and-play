@@ -9,7 +9,7 @@ import { ErrorBoundary } from 'react-error-boundary';
 import { useDropzone } from 'react-dropzone';
 import * as PIXI from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
-import { MenuItem } from '@blueprintjs/core';
+import { MenuDivider, MenuItem } from '@blueprintjs/core';
 import { ItemRenderer, ItemPredicate, Suggest } from '@blueprintjs/select';
 import { hri } from 'human-readable-ids';
 import TimeAgo from 'javascript-time-ago';
@@ -60,7 +60,7 @@ console.log('isMac: ', isMac);
 const App = (): JSX.Element => {
   document.title = 'Your Plug and Playground';
 
-  // remote graph database
+  // remote playground database
   const githubBaseURL =
     'https://api.github.com/repos/fakob/plug-and-play-graphs';
   const githubTagName = 'v0.0.2';
@@ -671,14 +671,14 @@ const App = (): JSX.Element => {
           return {
             id: `remote-${index}`,
             name: graph.replace(/\.[^/.]+$/, ''), // remove .ppgraph extension
-            label: 'remote graph',
+            label: 'remote',
           } as IGraphSearch;
         }
       );
       // add remote header entry
       remoteGraphSearchItems.unshift({
         id: `remote-header`,
-        name: 'remote graphs -----------------------------------',
+        name: 'Remote playgrounds', // opening a remote playground creates a local copy
         isDisabled: true,
       });
 
@@ -704,7 +704,7 @@ const App = (): JSX.Element => {
       if (graphs.length > 0) {
         newGraphSearchItems.unshift({
           id: `local-header`,
-          name: 'local graphs -------------------------------------',
+          name: 'Local playgrounds',
           isDisabled: true,
         });
       }
@@ -889,20 +889,27 @@ const renderGraphItem: ItemRenderer<IGraphSearch> = (
   const text = graph.name;
   const title = graph.id.startsWith('remote') // hover title tag
     ? `${graph.name}
-NOTE: opening a remote graph creates a local copy`
+NOTE: opening a remote playground creates a local copy`
     : graph.name;
-  const label = graph.isDisabled ? '' : graph.label;
-  return (
+  const icon = graph.id.startsWith('remote') // hover title tag
+    ? 'duplicate'
+    : undefined;
+  const label = graph.label;
+  const itemToReturn = graph.isDisabled ? (
+    <MenuDivider title={text} />
+  ) : (
     <MenuItem
       active={modifiers.active}
       disabled={graph.isDisabled || modifiers.disabled}
       key={graph.id}
       title={title}
+      icon={icon}
       onClick={handleClick}
       label={label}
       text={highlightText(text, query)}
     />
   );
+  return itemToReturn;
 };
 
 const renderNodeItem: ItemRenderer<INodeSearch> = (
