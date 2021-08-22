@@ -666,7 +666,6 @@ const App = (): JSX.Element => {
     load();
 
     async function load() {
-      console.log(remoteGraphsRef.current);
       const remoteGraphSearchItems = remoteGraphsRef.current.map(
         (graph, index) => {
           return {
@@ -714,7 +713,6 @@ const App = (): JSX.Element => {
         ...newGraphSearchItems,
         ...remoteGraphSearchItems,
       ];
-      console.log(remoteGraphsRef.current, allGraphSearchItems);
       setGraphSearchItems(allGraphSearchItems);
       setGraphSearchActiveItem(newGraphSearchItems[loadedGraphId + 1]); // +1 is to compensate for the local graphs header
     }
@@ -776,7 +774,7 @@ const App = (): JSX.Element => {
           {isCurrentGraphLoaded && (
             <>
               <GraphSearch
-                className={styles.graphSearch}
+                className={`${styles.graphSearch} graphSearch`}
                 inputProps={{
                   inputRef: (el) => {
                     graphSearchInput.current = el;
@@ -793,7 +791,7 @@ const App = (): JSX.Element => {
                 resetOnClose={true}
                 resetOnQuery={true}
                 resetOnSelect={true}
-                popoverProps={{ minimal: true }}
+                popoverProps={{ minimal: true, portalClassName: 'graphSearch' }}
                 inputValueRenderer={(item: IGraphSearch) => item.name}
               />
               <div
@@ -890,7 +888,8 @@ const renderGraphItem: ItemRenderer<IGraphSearch> = (
   }
   const text = graph.name;
   const title = graph.id.startsWith('remote') // hover title tag
-    ? `${graph.name} (opening a remote graph creates a local copy)`
+    ? `${graph.name}
+NOTE: opening a remote graph creates a local copy`
     : graph.name;
   const label = graph.isDisabled ? '' : graph.label;
   return (

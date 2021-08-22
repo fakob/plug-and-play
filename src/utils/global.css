@@ -9,3 +9,17 @@ body {
   margin: 0 auto;
   background-color: black;
 }
+
+.bp3-popover-wrapper.graphSearch,
+.bp3-popover-wrapper.graphSearch > .bp3-popover-target {
+  display: block;
+  max-width: 80vw;
+  max-height: 80vh;
+}
+
+.bp3-overlay.graphSearch .bp3-select-popover,
+.bp3-overlay.graphSearch .bp3-select-popover .bp3-popover-content,
+.bp3-overlay.graphSearch .bp3-select-popover .bp3-menu {
+  max-width: 80vw;
+  max-height: 80vh;
+}
