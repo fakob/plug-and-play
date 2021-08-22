@@ -716,7 +716,7 @@ const App = (): JSX.Element => {
       ];
       console.log(remoteGraphsRef.current, allGraphSearchItems);
       setGraphSearchItems(allGraphSearchItems);
-      setGraphSearchActiveItem(newGraphSearchItems[loadedGraphId]);
+      setGraphSearchActiveItem(newGraphSearchItems[loadedGraphId + 1]); // +1 is to compensate for the local graphs header
     }
   };
 
