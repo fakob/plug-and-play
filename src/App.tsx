@@ -896,7 +896,7 @@ NOTE: opening a remote playground creates a local copy`
     : undefined;
   const label = graph.label;
   const itemToReturn = graph.isDisabled ? (
-    <MenuDivider title={text} />
+    <MenuDivider key={graph.id} title={text} />
   ) : (
     <MenuItem
       active={modifiers.active}
