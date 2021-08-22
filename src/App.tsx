@@ -476,7 +476,7 @@ const App = (): JSX.Element => {
     open();
   }
 
-  function saveGraph(saveNew = false) {
+  function saveGraph(saveNew = false, newName = undefined) {
     const serializedGraph = currentGraph.current.serialize();
     console.log(serializedGraph);
     console.info(serializedGraph.customNodeTypes);
@@ -503,7 +503,7 @@ const App = (): JSX.Element => {
         graphObject = {
           id: graphs.length,
           date: new Date(),
-          name: hri.random(),
+          name: newName ?? hri.random(),
           graphData: serializedGraph,
         };
 
@@ -527,8 +527,8 @@ const App = (): JSX.Element => {
     });
   }
 
-  function saveNewGraph() {
-    saveGraph(true);
+  function saveNewGraph(newName = undefined) {
+    saveGraph(true, newName);
   }
 
   function loadGraph(id = undefined) {
@@ -576,9 +576,13 @@ const App = (): JSX.Element => {
       githubTagName,
       remoteGraphsRef.current[id]
     );
-    console.log(fileData);
+    console.log(fileData, remoteGraphsRef.current[id]);
     currentGraph.current.configure(fileData);
-    saveNewGraph();
+    const newName = `${remoteGraphsRef.current[id].replace(
+      /\.[^/.]+$/,
+      ''
+    )} - copy`; // remove .graph extension
+    saveNewGraph(newName);
   };
 
   function createOrUpdateNodeFromCode(code) {
@@ -674,7 +678,7 @@ const App = (): JSX.Element => {
       // add remote header entry
       remoteGraphSearchItems.unshift({
         id: `remote-header`,
-        name: 'remote graphs ---------------------------------',
+        name: 'remote graphs -----------------------------------',
         isDisabled: true,
       });
 
@@ -688,15 +692,6 @@ const App = (): JSX.Element => {
         ? parseInt(loadedGraphIdObject.value)
         : 0;
 
-      // add local header entry
-      if (graphs.length > 0) {
-        remoteGraphSearchItems.push({
-          id: `local-header`,
-          name: 'local graphs ----------------------------------',
-          isDisabled: true,
-        });
-      }
-
       const newGraphSearchItems = graphs.map((graph) => {
         return {
           id: `local-${graph.id}`,
@@ -705,9 +700,18 @@ const App = (): JSX.Element => {
         } as IGraphSearch;
       });
 
+      // add local header entry
+      if (graphs.length > 0) {
+        newGraphSearchItems.unshift({
+          id: `local-header`,
+          name: 'local graphs -------------------------------------',
+          isDisabled: true,
+        });
+      }
+
       const allGraphSearchItems = [
-        ...remoteGraphSearchItems,
         ...newGraphSearchItems,
+        ...remoteGraphSearchItems,
       ];
       console.log(remoteGraphsRef.current, allGraphSearchItems);
       setGraphSearchItems(allGraphSearchItems);
@@ -883,19 +887,21 @@ const renderGraphItem: ItemRenderer<IGraphSearch> = (
   if (!modifiers.matchesPredicate) {
     return null;
   }
-  const text = `${graph.name}`;
+  const text = graph.id.startsWith('remote')
+    ? `${graph.name.replace(/\.[^/.]+$/, '')}` // remove .graph extension
+    : graph.name;
+  const title = graph.id.startsWith('remote') // hover title tag
+    ? `${graph.name} (opening a remote graph creates a local copy)`
+    : graph.name;
+  const label = graph.isDisabled ? '' : graph.label;
   return (
     <MenuItem
       active={modifiers.active}
       disabled={graph.isDisabled || modifiers.disabled}
       key={graph.id}
-      title={
-        graph.id.startsWith('remote')
-          ? `${graph.name} (opening a remote graph creates a local copy)`
-          : graph.name
-      }
+      title={title}
       onClick={handleClick}
-      label={graph.isDisabled ? '' : graph.label}
+      label={label}
       text={highlightText(text, query)}
     />
   );
