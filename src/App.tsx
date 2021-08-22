@@ -571,17 +571,18 @@ const App = (): JSX.Element => {
   }
 
   const cloneRemoteGraph = async (id = undefined) => {
+    const nameOfFileToClone = remoteGraphsRef.current[id];
     const fileData = await getRemoteGraph(
       githubBaseURL,
       githubTagName,
-      remoteGraphsRef.current[id]
+      nameOfFileToClone
     );
-    console.log(fileData, remoteGraphsRef.current[id]);
+    console.log(fileData);
     currentGraph.current.configure(fileData);
     const newName = `${remoteGraphsRef.current[id].replace(
       /\.[^/.]+$/,
       ''
-    )} - copy`; // remove .graph extension
+    )} - copy`; // remove .ppgraph extension and add copy
     saveNewGraph(newName);
   };
 
@@ -670,7 +671,7 @@ const App = (): JSX.Element => {
         (graph, index) => {
           return {
             id: `remote-${index}`,
-            name: graph,
+            name: graph.replace(/\.[^/.]+$/, ''), // remove .ppgraph extension
             label: 'remote graph',
           } as IGraphSearch;
         }
@@ -887,9 +888,7 @@ const renderGraphItem: ItemRenderer<IGraphSearch> = (
   if (!modifiers.matchesPredicate) {
     return null;
   }
-  const text = graph.id.startsWith('remote')
-    ? `${graph.name.replace(/\.[^/.]+$/, '')}` // remove .graph extension
-    : graph.name;
+  const text = graph.name;
   const title = graph.id.startsWith('remote') // hover title tag
     ? `${graph.name} (opening a remote graph creates a local copy)`
     : graph.name;
