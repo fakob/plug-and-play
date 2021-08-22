@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Node } from 'slate';
 
 import PPGraph from '../classes/GraphClass';
@@ -242,50 +242,40 @@ export const truncateText = (
   return inputString;
 };
 
-export const getRemoteGraphs = async () => {
-  console.log('getRemoteGraphs');
-  // const branchName = 'main';
-  // const branches = await fetch(
-  //   `https://api.github.com/repos/fakob/plug-and-play-graphs/branches/${branchName}`,
-  //   {
-  //     headers: {
-  //       accept: 'application/vnd.github.v3+json',
-  //     },
-  //   }
-  // );
-  // const branchesData = await branches.json();
-  // console.log(branchesData);
-  // console.log(branchesData.commit.sha);
-  // const sha = branchesData.commit.sha;
-
-  const tagName = 'v0.0.2';
-  const tags = await fetch(
-    `https://api.github.com/repos/fakob/plug-and-play-graphs/tags`,
-    {
-      headers: {
-        accept: 'application/vnd.github.v3+json',
-      },
-    }
-  );
+export const getRemoteGraphsList = async (
+  githubBaseURL: string,
+  githubTagName: string
+): Promise<string[]> => {
+  const tags = await fetch(`${githubBaseURL}/tags`, {
+    headers: {
+      accept: 'application/vnd.github.v3+json',
+    },
+  });
   const tagsData = await tags.json();
   console.log(tagsData);
-  const foundTag = tagsData.find((tag) => tag.name === tagName);
+  const foundTag = tagsData.find((tag) => tag.name === githubTagName);
   const sha = foundTag.commit.sha;
 
-  const fileList = await fetch(
-    `https://api.github.com/repos/fakob/plug-and-play-graphs/git/trees/${sha}`,
-    {
-      headers: {
-        accept: 'application/vnd.github.v3+json',
-      },
-    }
-  );
+  const fileList = await fetch(`${githubBaseURL}/git/trees/${sha}`, {
+    headers: {
+      accept: 'application/vnd.github.v3+json',
+    },
+  });
   const fileListData = await fileList.json();
   console.log(fileListData.tree);
-  const fileName = fileListData.tree[0].path;
+  const files = fileListData.tree;
+  const arrayOfFileNames = files.map((file) => file.path);
 
+  return arrayOfFileNames;
+};
+
+export const getRemoteGraph = async (
+  githubBaseURL: string,
+  githubTagName: string,
+  fileName: string
+): Promise<any> => {
   const file = await fetch(
-    `https://api.github.com/repos/fakob/plug-and-play-graphs/contents/${fileName}?ref=${tagName}`,
+    `${githubBaseURL}/contents/${fileName}?ref=${githubTagName}`,
     {
       headers: {
         accept: 'application/vnd.github.v3.raw',
@@ -295,4 +285,17 @@ export const getRemoteGraphs = async () => {
   console.log(file);
   const fileData = await file.json();
   console.log(fileData);
+  return fileData;
+};
+
+export const useStateRef = (initialValue: any) => {
+  const [value, setValue] = useState(initialValue);
+
+  const ref = useRef(value);
+
+  useEffect(() => {
+    ref.current = value;
+  }, [value]);
+
+  return [value, setValue, ref];
 };

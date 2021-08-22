@@ -30,9 +30,11 @@ import {
   convertBlobToBase64,
   downloadFile,
   formatDate,
-  getRemoteGraphs,
+  getRemoteGraph,
+  getRemoteGraphsList,
   highlightText,
   truncateText,
+  useStateRef,
 } from './utils/utils';
 import { registerAllNodeTypes } from './nodes/allNodes';
 import PPSelection from './classes/SelectionClass';
@@ -57,6 +59,12 @@ console.log('isMac: ', isMac);
 
 const App = (): JSX.Element => {
   document.title = 'Your Plug and Playground';
+
+  // remote graph database
+  const githubBaseURL =
+    'https://api.github.com/repos/fakob/plug-and-play-graphs';
+  const githubTagName = 'v0.0.2';
+
   const mousePosition = { x: 0, y: 0 };
 
   const db = new GraphDatabase();
@@ -76,9 +84,10 @@ const App = (): JSX.Element => {
   const [isCurrentGraphLoaded, setIsCurrentGraphLoaded] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [selectedNode, setSelectedNode] = useState<PPNode | null>(null);
+  const [remoteGraphs, setRemoteGraphs, remoteGraphsRef] = useStateRef([]);
   const [graphSearchItems, setGraphSearchItems] = useState<
     IGraphSearch[] | null
-  >([{ id: 0, name: hri.random() as string, date: new Date() }]);
+  >([{ id: 'local-0', name: hri.random() as string, label: '' }]);
   const [graphSearchActiveItem, setGraphSearchActiveItem] =
     useState<IGraphSearch | null>(null);
 
@@ -260,8 +269,6 @@ const App = (): JSX.Element => {
       currentGraph.current.registeredNodeTypes
     );
 
-    getRemoteGraphs();
-
     console.log(
       'currentGraph.current.registeredNodeTypes:',
       currentGraph.current.registeredNodeTypes
@@ -279,6 +286,13 @@ const App = (): JSX.Element => {
     loadGraph();
     setIsCurrentGraphLoaded(true);
     console.log('currentGraph.current:', currentGraph.current);
+
+    getRemoteGraphsList(githubBaseURL, githubTagName).then(
+      (arrayOfFileNames) => {
+        console.log(arrayOfFileNames);
+        setRemoteGraphs(arrayOfFileNames);
+      }
+    );
 
     // register callbacks
     currentGraph.current.selection.onSelectionChange = (
@@ -556,6 +570,17 @@ const App = (): JSX.Element => {
     });
   }
 
+  const cloneRemoteGraph = async (id = undefined) => {
+    const fileData = await getRemoteGraph(
+      githubBaseURL,
+      githubTagName,
+      remoteGraphsRef.current[id]
+    );
+    console.log(fileData);
+    currentGraph.current.configure(fileData);
+    saveNewGraph();
+  };
+
   function createOrUpdateNodeFromCode(code) {
     currentGraph.current.createOrUpdateNodeFromCode(code);
   }
@@ -563,8 +588,20 @@ const App = (): JSX.Element => {
   const handleGraphItemSelect = (selected: IGraphSearch) => {
     console.log(selected);
     setIsGraphSearchOpen(false);
-    loadGraph(selected.id);
-    setGraphSearchActiveItem(selected);
+
+    const [type, index] = selected.id.split('-');
+    switch (type) {
+      case 'remote':
+        cloneRemoteGraph(index);
+        break;
+      case 'local':
+        loadGraph(index);
+        setGraphSearchActiveItem(selected);
+        break;
+
+      default:
+        break;
+    }
   };
 
   const handleNodeItemSelect = (selected: INodeSearch) => {
@@ -624,6 +661,23 @@ const App = (): JSX.Element => {
     load();
 
     async function load() {
+      console.log(remoteGraphsRef.current);
+      const remoteGraphSearchItems = remoteGraphsRef.current.map(
+        (graph, index) => {
+          return {
+            id: `remote-${index}`,
+            name: graph,
+            label: 'remote graph',
+          } as IGraphSearch;
+        }
+      );
+      // add remote header entry
+      remoteGraphSearchItems.unshift({
+        id: `remote-header`,
+        name: 'remote graphs ---------------------------------',
+        isDisabled: true,
+      });
+
       const graphs = await db.graphs.toArray();
       const loadedGraphIdObject = await db.settings
         .where({
@@ -633,15 +687,30 @@ const App = (): JSX.Element => {
       const loadedGraphId = loadedGraphIdObject?.value
         ? parseInt(loadedGraphIdObject.value)
         : 0;
-      console.log(graphs);
+
+      // add local header entry
+      if (graphs.length > 0) {
+        remoteGraphSearchItems.push({
+          id: `local-header`,
+          name: 'local graphs ----------------------------------',
+          isDisabled: true,
+        });
+      }
+
       const newGraphSearchItems = graphs.map((graph) => {
         return {
-          id: graph.id,
+          id: `local-${graph.id}`,
           name: graph.name,
-          date: graph.date,
+          label: `saved ${timeAgo.format(graph.date)}`,
         } as IGraphSearch;
       });
-      setGraphSearchItems(newGraphSearchItems);
+
+      const allGraphSearchItems = [
+        ...remoteGraphSearchItems,
+        ...newGraphSearchItems,
+      ];
+      console.log(remoteGraphsRef.current, allGraphSearchItems);
+      setGraphSearchItems(allGraphSearchItems);
       setGraphSearchActiveItem(newGraphSearchItems[loadedGraphId]);
     }
   };
@@ -780,8 +849,7 @@ const filterGraph: ItemPredicate<IGraphSearch> = (
   exactMatch
 ) => {
   if (graph) {
-    console.log(graph);
-    const normalizedTitle = graph?.id?.toString(10).toLowerCase();
+    const normalizedTitle = graph?.name?.toLowerCase();
     const normalizedQuery = query.toLowerCase();
 
     if (exactMatch) {
@@ -819,10 +887,15 @@ const renderGraphItem: ItemRenderer<IGraphSearch> = (
   return (
     <MenuItem
       active={modifiers.active}
-      disabled={modifiers.disabled}
+      disabled={graph.isDisabled || modifiers.disabled}
       key={graph.id}
+      title={
+        graph.id.startsWith('remote')
+          ? `${graph.name} (opening a remote graph creates a local copy)`
+          : graph.name
+      }
       onClick={handleClick}
-      label={timeAgo.format(graph.date)}
+      label={graph.isDisabled ? '' : graph.label}
       text={highlightText(text, query)}
     />
   );
