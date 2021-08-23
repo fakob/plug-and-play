@@ -466,12 +466,28 @@ const App = (): JSX.Element => {
   };
 
   function downloadGraph() {
-    const serializedGraph = currentGraph.current.serialize();
-    downloadFile(
-      JSON.stringify(serializedGraph, null, 2),
-      `${formatDate()}.ppgraph`,
-      'text/plain'
-    );
+    db.transaction('rw', db.graphs, db.settings, async () => {
+      const graphs = await db.graphs.toArray();
+      const loadedGraphIdObject = await db.settings
+        .where({
+          name: 'loadedGraphId',
+        })
+        .first();
+      const loadedGraphId = loadedGraphIdObject?.value
+        ? parseInt(loadedGraphIdObject.value)
+        : 0;
+      console.log(loadedGraphIdObject);
+      console.log(loadedGraphId);
+
+      const serializedGraph = currentGraph.current.serialize();
+      downloadFile(
+        JSON.stringify(serializedGraph, null, 2),
+        `${graphs[loadedGraphId]?.name} - ${formatDate()}.ppgraph`,
+        'text/plain'
+      );
+    }).catch((e) => {
+      console.log(e.stack || e);
+    });
   }
 
   function uploadGraph() {
