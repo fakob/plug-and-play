@@ -34,6 +34,7 @@ import {
   getRemoteGraphsList,
   highlightText,
   truncateText,
+  removeExtension,
   useStateRef,
 } from './utils/utils';
 import { registerAllNodeTypes } from './nodes/allNodes';
@@ -116,6 +117,7 @@ const App = (): JSX.Element => {
           case 'ppgraph':
             data = await response.text();
             currentGraph.current.configure(JSON.parse(data), false);
+            saveNewGraph(removeExtension(file.name));
             break;
           case 'csv':
             data = await response.text();
@@ -579,10 +581,7 @@ const App = (): JSX.Element => {
     );
     console.log(fileData);
     currentGraph.current.configure(fileData);
-    const newName = `${remoteGraphsRef.current[id].replace(
-      /\.[^/.]+$/,
-      ''
-    )} - copy`; // remove .ppgraph extension and add copy
+    const newName = `${removeExtension(remoteGraphsRef.current[id])} - copy`; // remove .ppgraph extension and add copy
     saveNewGraph(newName);
   };
 
@@ -670,7 +669,7 @@ const App = (): JSX.Element => {
         (graph, index) => {
           return {
             id: `remote-${index}`,
-            name: graph.replace(/\.[^/.]+$/, ''), // remove .ppgraph extension
+            name: removeExtension(graph), // remove .ppgraph extension
             label: 'remote',
           } as IGraphSearch;
         }

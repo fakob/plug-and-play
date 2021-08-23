@@ -299,3 +299,7 @@ export const useStateRef = (initialValue: any) => {
 
   return [value, setValue, ref];
 };
+
+export const removeExtension = (fileName: string): string => {
+  return fileName.replace(/\.[^/.]+$/, '');
+};
