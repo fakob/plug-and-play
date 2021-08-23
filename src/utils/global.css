@@ -23,3 +23,19 @@ body {
   max-width: 80vw;
   max-height: 80vh;
 }
+
+.bp3-menu-item .menuItemButton:focus {
+  outline: none;
+}
+
+.bp3-menu-item .menuItemButtonGroup {
+  background-color: #ced9e0;
+  position: absolute;
+  right: 4px;
+  margin-top: -5px;
+  visibility: hidden;
+}
+
+.bp3-menu-item:hover .menuItemButtonGroup {
+  visibility: visible;
+}

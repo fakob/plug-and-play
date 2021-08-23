@@ -9,7 +9,7 @@ import { ErrorBoundary } from 'react-error-boundary';
 import { useDropzone } from 'react-dropzone';
 import * as PIXI from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
-import { MenuDivider, MenuItem } from '@blueprintjs/core';
+import { Button, ButtonGroup, MenuDivider, MenuItem } from '@blueprintjs/core';
 import { ItemRenderer, ItemPredicate, Suggest } from '@blueprintjs/select';
 import { hri } from 'human-readable-ids';
 import TimeAgo from 'javascript-time-ago';
@@ -901,14 +901,13 @@ const renderGraphItem: ItemRenderer<IGraphSearch> = (
   if (!modifiers.matchesPredicate) {
     return null;
   }
+  const isRemote = graph.id.startsWith('remote');
   const text = graph.name;
-  const title = graph.id.startsWith('remote') // hover title tag
+  const title = isRemote // hover title tag
     ? `${graph.name}
 NOTE: opening a remote playground creates a local copy`
     : graph.name;
-  const icon = graph.id.startsWith('remote') // hover title tag
-    ? 'duplicate'
-    : undefined;
+  const icon = isRemote ? 'duplicate' : undefined;
   const label = graph.label;
   const itemToReturn = graph.isDisabled ? (
     <MenuDivider key={graph.id} title={text} />
@@ -921,6 +920,36 @@ NOTE: opening a remote playground creates a local copy`
       icon={icon}
       onClick={handleClick}
       label={label}
+      labelElement={
+        !isRemote && (
+          <ButtonGroup minimal={true} className="menuItemButtonGroup">
+            <Button
+              minimal
+              icon="edit"
+              text="Rename"
+              title="Rename playground"
+              className="menuItemButton"
+              onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+                event.preventDefault();
+                event.stopPropagation();
+                console.log(graph.name);
+              }}
+            />
+            <Button
+              minimal
+              intent="danger"
+              icon="trash"
+              title="Delete playground"
+              className="menuItemButton"
+              onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+                event.preventDefault();
+                event.stopPropagation();
+                console.log(graph.name);
+              }}
+            />
+          </ButtonGroup>
+        )
+      }
       text={highlightText(text, query)}
     />
   );
