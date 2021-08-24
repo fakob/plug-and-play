@@ -13,15 +13,23 @@ body {
 .bp3-popover-wrapper.graphSearch,
 .bp3-popover-wrapper.graphSearch > .bp3-popover-target {
   display: block;
-  max-width: 80vw;
+  width: 85vw;
   max-height: 80vh;
 }
 
 .bp3-overlay.graphSearch .bp3-select-popover,
 .bp3-overlay.graphSearch .bp3-select-popover .bp3-popover-content,
 .bp3-overlay.graphSearch .bp3-select-popover .bp3-menu {
-  max-width: 80vw;
+  max-width: 85vw;
   max-height: 80vh;
+}
+
+.graphSearch .bp3-input {
+  background: rgba(225, 84, 125, 0.05);
+  box-shadow: none;
+  border-radius: 24px;
+  letter-spacing: 0.4px;
+  padding-left: 16px;
 }
 
 .bp3-menu-item .menuItemButton:focus {
