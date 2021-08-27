@@ -9,7 +9,17 @@ import { ErrorBoundary } from 'react-error-boundary';
 import { useDropzone } from 'react-dropzone';
 import * as PIXI from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
-import { Button, ButtonGroup, MenuDivider, MenuItem } from '@blueprintjs/core';
+import {
+  Button,
+  ButtonGroup,
+  Classes,
+  Dialog,
+  FormGroup,
+  InputGroup,
+  Intent,
+  MenuDivider,
+  MenuItem,
+} from '@blueprintjs/core';
 import { ItemRenderer, ItemPredicate, Suggest } from '@blueprintjs/select';
 import { hri } from 'human-readable-ids';
 import TimeAgo from 'javascript-time-ago';
@@ -83,6 +93,8 @@ const App = (): JSX.Element => {
   const [isNodeContextMenuOpen, setIsNodeContextMenuOpen] = useState(false);
   const [contextMenuPosition, setContextMenuPosition] = useState([0, 0]);
   const [isCurrentGraphLoaded, setIsCurrentGraphLoaded] = useState(false);
+  const [actionObject, setActionObject] = useState(null);
+  const [showEdit, setShowEdit] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [selectedNode, setSelectedNode] = useState<PPNode | null>(null);
   const [remoteGraphs, setRemoteGraphs, remoteGraphsRef] = useStateRef([]);
@@ -429,8 +441,10 @@ const App = (): JSX.Element => {
   }, [nodeSearchRendered]);
 
   useEffect(() => {
-    if (isGraphSearchOpen) {
-      graphSearchInput.current.focus();
+    if (graphSearchInput.current != null) {
+      if (isGraphSearchOpen) {
+        graphSearchInput.current.focus();
+      }
     }
   }, [isGraphSearchOpen]);
 
@@ -493,6 +507,18 @@ const App = (): JSX.Element => {
   function uploadGraph() {
     open();
   }
+
+  const renameGraph = (graphId: number, newName = undefined) => {
+    db.transaction('rw', db.graphs, db.settings, async () => {
+      const graphs = await db.graphs.toArray();
+      if (graphs.length !== 0 || graphs[graphId] !== undefined) {
+        const id = await db.graphs.put({ ...graphs[graphId], name: newName });
+        console.log(`Renamed graph: ${id} to ${newName}`);
+      }
+    }).catch((e) => {
+      console.log(e.stack || e);
+    });
+  };
 
   function saveGraph(saveNew = false, newName = undefined) {
     const serializedGraph = currentGraph.current.serialize();
@@ -733,6 +759,170 @@ const App = (): JSX.Element => {
     }
   };
 
+  function ErrorFallback({ error, resetErrorBoundary }) {
+    return (
+      <div role="alert" style={{ color: 'white' }}>
+        <p>Something went wrong:</p>
+        <pre>{error.message}</pre>
+        <button onClick={resetErrorBoundary}>Try again</button>
+      </div>
+    );
+  }
+
+  const filterGraph: ItemPredicate<IGraphSearch> = (
+    query,
+    graph,
+    _index,
+    exactMatch
+  ) => {
+    if (graph) {
+      const normalizedTitle = graph?.name?.toLowerCase();
+      const normalizedQuery = query.toLowerCase();
+
+      if (exactMatch) {
+        return normalizedTitle === normalizedQuery;
+      } else {
+        return `${normalizedTitle}`.indexOf(normalizedQuery) >= 0;
+      }
+    }
+  };
+
+  const filterNode: ItemPredicate<INodeSearch> = (
+    query,
+    node,
+    _index,
+    exactMatch
+  ) => {
+    const normalizedTitle = node.title.toLowerCase();
+    const normalizedQuery = query.toLowerCase();
+
+    if (exactMatch) {
+      return normalizedTitle === normalizedQuery;
+    } else {
+      return `${normalizedTitle}`.indexOf(normalizedQuery) >= 0;
+    }
+  };
+
+  const renderGraphItem: ItemRenderer<IGraphSearch> = (
+    graph,
+    { handleClick, modifiers, query }
+  ) => {
+    if (!modifiers.matchesPredicate) {
+      return null;
+    }
+    const isRemote = graph.id.startsWith('remote');
+    const text = graph.name;
+    const title = isRemote // hover title tag
+      ? `${graph.name}
+NOTE: opening a remote playground creates a local copy`
+      : graph.name;
+    const icon = isRemote ? 'duplicate' : undefined;
+    const label = graph.label;
+    const itemToReturn = graph.isDisabled ? (
+      <MenuDivider key={graph.id} title={text} />
+    ) : (
+      <MenuItem
+        active={modifiers.active}
+        disabled={graph.isDisabled || modifiers.disabled}
+        key={graph.id}
+        title={title}
+        icon={icon}
+        onClick={handleClick}
+        label={label}
+        labelElement={
+          !isRemote && (
+            <ButtonGroup minimal={true} className="menuItemButtonGroup">
+              <Button
+                minimal
+                icon="edit"
+                title="Rename playground"
+                className="menuItemButton"
+                onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+                  event.stopPropagation();
+                  console.log(graph.name);
+                  setIsGraphSearchOpen(false);
+                  setActionObject(graph);
+                  setShowEdit(true);
+                }}
+              />
+              <Button
+                minimal
+                intent="danger"
+                icon="trash"
+                title="Delete playground"
+                className="menuItemButton"
+                onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+                  event.stopPropagation();
+                  console.log(graph.name);
+                }}
+              />
+            </ButtonGroup>
+          )
+        }
+        text={highlightText(text, query)}
+      />
+    );
+    return itemToReturn;
+  };
+
+  const renderNodeItem: ItemRenderer<INodeSearch> = (
+    node,
+    { handleClick, modifiers, query }
+  ) => {
+    if (!modifiers.matchesPredicate) {
+      return null;
+    }
+    const text = `${node.title}`;
+    return (
+      <MenuItem
+        active={modifiers.active}
+        disabled={modifiers.disabled}
+        key={node.title}
+        title={node.description}
+        label={truncateText(node.description, 24)}
+        onClick={handleClick}
+        text={highlightText(text, query)}
+      />
+    );
+  };
+
+  const createNewItemFromQuery = (title: string): INodeSearch => {
+    return {
+      title,
+      name: title,
+      description: '',
+      hasInputs: '',
+    };
+  };
+
+  const renderCreateNodeOption = (
+    query: string,
+    active: boolean,
+    handleClick: React.MouseEventHandler<HTMLElement>
+  ) => (
+    <MenuItem
+      icon="add"
+      text={`Create "${query}"`}
+      active={active}
+      onClick={handleClick}
+      shouldDismissPopover={false}
+    />
+  );
+
+  const activeStyle = {
+    opacity: 0.2,
+  };
+
+  const acceptStyle = {
+    backgroundColor: '#00FF00',
+    // opacity: 0.2,
+  };
+
+  const rejectStyle = {
+    backgroundColor: '#FF0000',
+    // opacity: 0.2,
+  };
+
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
       <div
@@ -745,7 +935,50 @@ const App = (): JSX.Element => {
       >
         <div {...getRootProps({ style })}>
           <input {...getInputProps()} />
-          {/* </div> */}
+          <Dialog
+            onClose={() => setShowEdit(false)}
+            title="Edit playground details"
+            autoFocus={true}
+            canEscapeKeyClose={true}
+            canOutsideClickClose={true}
+            enforceFocus={true}
+            isOpen={showEdit}
+            usePortal={true}
+          >
+            <div className={Classes.DIALOG_BODY}>
+              <FormGroup label="Name of playground" labelFor="text-input">
+                <InputGroup
+                  id="playground-name-input"
+                  defaultValue={`${actionObject?.name}`}
+                  placeholder={`${actionObject?.name}`}
+                />
+              </FormGroup>
+              <div className={Classes.DIALOG_FOOTER}>
+                <div className={Classes.DIALOG_FOOTER_ACTIONS}>
+                  <Button onClick={() => setShowEdit(false)}>Cancel</Button>
+                  <Button
+                    intent={Intent.WARNING}
+                    onClick={() => {
+                      const name = (
+                        document.getElementById(
+                          'playground-name-input'
+                        ) as HTMLInputElement
+                      ).value;
+                      setShowEdit(false);
+                      renameGraph(
+                        parseInt(actionObject.id.replace('local-', '')),
+                        name
+                      );
+                      updateGraphSearchItems();
+                      // graphSearchInput.current.focus();
+                    }}
+                  >
+                    Rename
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </Dialog>
           {isGraphContextMenuOpen && (
             <GraphContextMenu
               controlOrMetaKey={controlOrMetaKey}
@@ -849,167 +1082,3 @@ const App = (): JSX.Element => {
 };
 
 export default App;
-
-function ErrorFallback({ error, resetErrorBoundary }) {
-  return (
-    <div role="alert" style={{ color: 'white' }}>
-      <p>Something went wrong:</p>
-      <pre>{error.message}</pre>
-      <button onClick={resetErrorBoundary}>Try again</button>
-    </div>
-  );
-}
-
-const filterGraph: ItemPredicate<IGraphSearch> = (
-  query,
-  graph,
-  _index,
-  exactMatch
-) => {
-  if (graph) {
-    const normalizedTitle = graph?.name?.toLowerCase();
-    const normalizedQuery = query.toLowerCase();
-
-    if (exactMatch) {
-      return normalizedTitle === normalizedQuery;
-    } else {
-      return `${normalizedTitle}`.indexOf(normalizedQuery) >= 0;
-    }
-  }
-};
-
-const filterNode: ItemPredicate<INodeSearch> = (
-  query,
-  node,
-  _index,
-  exactMatch
-) => {
-  const normalizedTitle = node.title.toLowerCase();
-  const normalizedQuery = query.toLowerCase();
-
-  if (exactMatch) {
-    return normalizedTitle === normalizedQuery;
-  } else {
-    return `${normalizedTitle}`.indexOf(normalizedQuery) >= 0;
-  }
-};
-
-const renderGraphItem: ItemRenderer<IGraphSearch> = (
-  graph,
-  { handleClick, modifiers, query }
-) => {
-  if (!modifiers.matchesPredicate) {
-    return null;
-  }
-  const isRemote = graph.id.startsWith('remote');
-  const text = graph.name;
-  const title = isRemote // hover title tag
-    ? `${graph.name}
-NOTE: opening a remote playground creates a local copy`
-    : graph.name;
-  const icon = isRemote ? 'duplicate' : undefined;
-  const label = graph.label;
-  const itemToReturn = graph.isDisabled ? (
-    <MenuDivider key={graph.id} title={text} />
-  ) : (
-    <MenuItem
-      active={modifiers.active}
-      disabled={graph.isDisabled || modifiers.disabled}
-      key={graph.id}
-      title={title}
-      icon={icon}
-      onClick={handleClick}
-      label={label}
-      labelElement={
-        !isRemote && (
-          <ButtonGroup minimal={true} className="menuItemButtonGroup">
-            <Button
-              minimal
-              icon="edit"
-              text="Rename"
-              title="Rename playground"
-              className="menuItemButton"
-              onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
-                event.preventDefault();
-                event.stopPropagation();
-                console.log(graph.name);
-              }}
-            />
-            <Button
-              minimal
-              intent="danger"
-              icon="trash"
-              title="Delete playground"
-              className="menuItemButton"
-              onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
-                event.preventDefault();
-                event.stopPropagation();
-                console.log(graph.name);
-              }}
-            />
-          </ButtonGroup>
-        )
-      }
-      text={highlightText(text, query)}
-    />
-  );
-  return itemToReturn;
-};
-
-const renderNodeItem: ItemRenderer<INodeSearch> = (
-  node,
-  { handleClick, modifiers, query }
-) => {
-  if (!modifiers.matchesPredicate) {
-    return null;
-  }
-  const text = `${node.title}`;
-  return (
-    <MenuItem
-      active={modifiers.active}
-      disabled={modifiers.disabled}
-      key={node.title}
-      title={node.description}
-      label={truncateText(node.description, 24)}
-      onClick={handleClick}
-      text={highlightText(text, query)}
-    />
-  );
-};
-
-const createNewItemFromQuery = (title: string): INodeSearch => {
-  return {
-    title,
-    name: title,
-    description: '',
-    hasInputs: '',
-  };
-};
-
-const renderCreateNodeOption = (
-  query: string,
-  active: boolean,
-  handleClick: React.MouseEventHandler<HTMLElement>
-) => (
-  <MenuItem
-    icon="add"
-    text={`Create "${query}"`}
-    active={active}
-    onClick={handleClick}
-    shouldDismissPopover={false}
-  />
-);
-
-const activeStyle = {
-  opacity: 0.2,
-};
-
-const acceptStyle = {
-  backgroundColor: '#00FF00',
-  // opacity: 0.2,
-};
-
-const rejectStyle = {
-  backgroundColor: '#FF0000',
-  // opacity: 0.2,
-};
