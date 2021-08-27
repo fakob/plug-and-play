@@ -81,7 +81,7 @@ export const DATATYPE = {
   TRIGGER: 'trigger',
 };
 
-export const DATATYPE_DEFAULT_VALUE = {
+/*export const DATATYPE_DEFAULT_VALUE = {
   ANY: undefined,
   ARRAY: [],
   BOOLEAN: false,
@@ -91,7 +91,7 @@ export const DATATYPE_DEFAULT_VALUE = {
   PIXI: null,
   STRING: '',
   TRIGGER: undefined,
-};
+};*/
 
 export const NODE_TEXTSTYLE = new TextStyle({
   fontSize: 13,

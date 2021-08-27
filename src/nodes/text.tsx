@@ -52,6 +52,9 @@ import {
 import { hexToTRgba, trgbaToColor } from '../pixi/utils-pixi';
 import textFit from '../pixi/textFit';
 import styles from '../utils/style.module.css';
+import { StringType } from './datatypes/stringType';
+import { NumberType } from './datatypes/numberType';
+import { ColorType } from './datatypes/colorType';
 
 // type CustomEditor = BaseEditor & ReactEditor & HistoryEditor;
 
@@ -532,33 +535,25 @@ export class Label extends PPNode {
       showLabels: false,
     });
 
-    this.addOutput('text', DATATYPE.STRING, undefined, false);
-    this.addInput('text', DATATYPE.STRING, customArgs?.data ?? '', false);
+    this.addOutput('text', new StringType(), undefined, false);
+    this.addInput('text', new StringType(), customArgs?.data ?? '', false);
     this.addInput(
       'fontSize',
-      DATATYPE.NUMBER,
+      new NumberType(true, 1),
       customArgs?.fontSize ?? fontSize,
-      false,
-      {
-        round: true,
-        minValue: 1,
-      }
+      false
     );
     this.addInput(
       'backgroundColor',
-      DATATYPE.COLOR,
+      new ColorType(),
       hexToTRgba(fillColor),
       false
     );
     this.addInput(
       'min-width',
-      DATATYPE.NUMBER,
+      new NumberType(true, 1),
       customArgs?.width ?? nodeWidth,
-      false,
-      {
-        round: true,
-        minValue: 1,
-      }
+      false
     );
 
     this.name = 'Label';
@@ -765,10 +760,10 @@ export class Note extends PPNode {
       showLabels: false,
     });
 
-    this.addOutput('data', DATATYPE.STRING, undefined, false);
+    this.addOutput('data', new StringType(), undefined, false);
     this.addInput(
       'data',
-      DATATYPE.STRING,
+      new StringType(),
       customArgs?.data ?? 'Write away...',
       false
     );

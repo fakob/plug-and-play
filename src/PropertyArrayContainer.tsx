@@ -28,6 +28,7 @@ import {
   TextWidget,
   TriggerWidget,
 } from './widgets';
+import { AbstractType } from './nodes/datatypes/abstractType';
 
 type PropertyArrayContainerProps = {
   inputSocketArray: Socket[];
@@ -71,7 +72,7 @@ export const PropertyArrayContainer: React.FunctionComponent<PropertyArrayContai
 type PropertyContainerProps = {
   property: Socket;
   index: number;
-  dataType: string;
+  dataType: AbstractType;
   isInput: boolean;
   hasLink: boolean;
   data: any;
@@ -82,7 +83,7 @@ const PropertyContainer: React.FunctionComponent<PropertyContainerProps> = (
 ) => {
   const [dataTypeValue, setDataTypeValue] = useState(props.dataType);
   const baseProps = {
-    key: props.dataType.toString(),
+    key: props.dataType.getName(),
     property: props.property,
     index: props.index,
     isInput: props.isInput,
@@ -90,7 +91,9 @@ const PropertyContainer: React.FunctionComponent<PropertyContainerProps> = (
     data: props.data,
   };
 
-  let widget = null;
+  const widget = props.dataType.getInputWidget(baseProps);
+
+  /*
   if (props.isInput && !props.hasLink) {
     switch (dataTypeValue) {
       case DATATYPE.NUMBER:
@@ -126,11 +129,12 @@ const PropertyContainer: React.FunctionComponent<PropertyContainerProps> = (
       case DATATYPE.NUMBER:
       case DATATYPE.STRING:
       case DATATYPE.ARRAY:
-        widget = <DefaultOutputWidget data={props.data} {...baseProps} />;
+        widget = <DefaultOutputWidget {...baseProps} />;
         break;
       default:
     }
   }
+  */
 
   const onChangeDropdown = (event) => {
     const value = event.target.value;
@@ -141,12 +145,12 @@ const PropertyContainer: React.FunctionComponent<PropertyContainerProps> = (
   return (
     <div className={styles.inputContainer}>
       <PropertyHeader
-        key={`PropertyHeader-${props.dataType.toString()}`}
+        key={`PropertyHeader-${props.dataType.getName()}`}
         property={props.property}
         index={props.index}
         isInput={props.isInput}
         hasLink={props.hasLink}
-        dataType={dataTypeValue}
+        dataType={''} // TODO fix
         onChangeDropdown={onChangeDropdown}
       />
       {widget}

@@ -1,5 +1,6 @@
 import PPGraph from '../classes/GraphClass';
 import PPNode, { UpdateBehaviour } from '../classes/NodeClass';
+import { AbstractType } from '../nodes/datatypes/abstractType';
 import { SOCKET_TYPE } from './constants';
 
 export type PPNodeConstructor<T extends PPNode = PPNode> = {
@@ -53,7 +54,7 @@ export type SerializedNode = {
 
 export type SerializedLink = {
   id: number;
-  type: string;
+  type: AbstractType;
   sourceNodeId: string;
   sourceSocketIndex: number;
   targetNodeId: string;
@@ -65,7 +66,7 @@ export type TSocketType = typeof SOCKET_TYPE[keyof typeof SOCKET_TYPE];
 export type SerializedSocket = {
   socketType: TSocketType;
   name: string;
-  dataType: string;
+  dataType: AbstractType;
   data: any;
   defaultData: any;
   visible: boolean;

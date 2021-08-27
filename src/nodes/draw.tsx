@@ -27,6 +27,15 @@ import {
 } from '../utils/constants';
 import { hexToTRgba, trgbaToColor } from '../pixi/utils-pixi';
 import textFit from '../pixi/textFit';
+import { AnyType } from './datatypes/anyType';
+import { NumberType } from './datatypes/numberType';
+import { EnumType } from './datatypes/enumType';
+import { ColorType } from './datatypes/colorType';
+import { PixiType } from './datatypes/pixiType';
+import { BooleanType } from './datatypes/booleanType';
+import { StringType } from './datatypes/stringType';
+import { ArrayType } from './datatypes/arrayType';
+import { TriggerType } from './datatypes/triggerType';
 
 export class PIXIText extends PPNode {
   _ref: PIXI.Text[];
@@ -40,18 +49,13 @@ export class PIXIText extends PPNode {
       color: nodeColor,
     });
 
-    this.addOutput('graphics', DATATYPE.ANY);
-    this.addInput('x', DATATYPE.NUMBER, 0);
-    this.addInput('y', DATATYPE.NUMBER, 0);
-    this.addInput('pivot', DATATYPE.ENUM, 0, false, {
-      options: PIXI_PIVOT_OPTIONS,
-    });
-    this.addInput('text', DATATYPE.STRING, 'Text');
-    this.addInput('size', DATATYPE.NUMBER, 24, undefined, {
-      round: true,
-      minValue: 1,
-    });
-    this.addInput('color', DATATYPE.COLOR, hexToTRgba(fillColor));
+    this.addOutput('graphics', new AnyType());
+    this.addInput('x', new NumberType(), 0);
+    this.addInput('y', new NumberType(), 0);
+    this.addInput('pivot', new EnumType(PIXI_PIVOT_OPTIONS), 0, false);
+    this.addInput('text', new StringType(), 'Text');
+    this.addInput('size', new NumberType(true, 1), 24, undefined);
+    this.addInput('color', new ColorType(), hexToTRgba(fillColor));
 
     this.name = 'Draw text';
     this.description = 'Draws a text';
@@ -160,25 +164,23 @@ export class PIXIRect extends PPNode {
       color: nodeColor,
     });
 
-    this.addOutput('graphics', DATATYPE.ANY);
-    this.addInput('x', DATATYPE.NUMBER, 0);
-    this.addInput('y', DATATYPE.NUMBER, 0);
-    this.addInput('pivot', DATATYPE.ENUM, 0, false, {
-      options: PIXI_PIVOT_OPTIONS,
-    });
+    this.addOutput('graphics', new AnyType());
+    this.addInput('x', new NumberType(), 0);
+    this.addInput('y', new NumberType(), 0);
+    this.addInput('pivot', new EnumType(PIXI_PIVOT_OPTIONS), 0, false);
     this.addInput(
       'width',
-      DATATYPE.NUMBER,
+      new NumberType(),
       customArgs?.width ?? rectWidth,
       false
     );
     this.addInput(
       'height',
-      DATATYPE.NUMBER,
+      new NumberType(),
       customArgs?.height ?? rectHeight,
       false
     );
-    this.addInput('color', DATATYPE.COLOR, hexToTRgba(fillColor));
+    this.addInput('color', new ColorType(), hexToTRgba(fillColor));
 
     this.name = 'Draw rectangle';
     this.description = 'Draws a rectangle';
@@ -280,19 +282,17 @@ export class PIXICircle extends PPNode {
       color: nodeColor,
     });
 
-    this.addOutput('graphics', DATATYPE.ANY);
-    this.addInput('x', DATATYPE.NUMBER, 0);
-    this.addInput('y', DATATYPE.NUMBER, 0);
-    this.addInput('pivot', DATATYPE.ENUM, 0, false, {
-      options: PIXI_PIVOT_OPTIONS,
-    });
+    this.addOutput('graphics', new AnyType());
+    this.addInput('x', new NumberType(), 0);
+    this.addInput('y', new NumberType(), 0);
+    this.addInput('pivot', new EnumType(PIXI_PIVOT_OPTIONS), 0, false);
     this.addInput(
       'radius',
-      DATATYPE.NUMBER,
+      new NumberType(),
       customArgs?.radius ?? radius,
       false
     );
-    this.addInput('color', DATATYPE.COLOR, hexToTRgba(fillColor));
+    this.addInput('color', new ColorType(), hexToTRgba(fillColor));
 
     this.name = 'Draw circle';
     this.description = 'Draws a circle';
@@ -387,16 +387,14 @@ export class PIXIContainer extends PPNode {
       color: NODE_TYPE_COLOR.DRAW,
     });
 
-    this.addOutput('container', DATATYPE.PIXI);
-    this.addInput('mode', DATATYPE.BOOLEAN, false, false, {
-      label: 'One container per instance',
-    });
-    this.addInput('x', DATATYPE.NUMBER);
-    this.addInput('y', DATATYPE.NUMBER);
-    this.addInput('scale', DATATYPE.NUMBER, 1.0);
-    this.addInput('input1', DATATYPE.PIXI);
-    this.addInput('input2', DATATYPE.PIXI);
-    this.addInput('input3', DATATYPE.PIXI);
+    this.addOutput('container', new PixiType());
+    this.addInput('mode', new BooleanType(), false, false);
+    this.addInput('x', new NumberType());
+    this.addInput('y', new NumberType());
+    this.addInput('scale', new NumberType(), 1.0);
+    this.addInput('input1', new PixiType());
+    this.addInput('input2', new PixiType());
+    this.addInput('input3', new PixiType());
 
     this.name = 'Container';
     this.description = 'General-purpose display object that holds children';
@@ -539,19 +537,13 @@ export class PIXIMultiplier extends PPNode {
       color: NODE_TYPE_COLOR.DRAW,
     });
 
-    this.addOutput('container', DATATYPE.PIXI);
-    this.addInput('input', DATATYPE.PIXI);
-    this.addInput('count', DATATYPE.NUMBER, 9, undefined, {
-      round: true,
-      minValue: 0,
-    });
-    this.addInput('column', DATATYPE.NUMBER, 3, undefined, {
-      round: true,
-      minValue: 0,
-    });
-    this.addInput('distance', DATATYPE.NUMBER, 10.0);
-    this.addInput('scale', DATATYPE.NUMBER, 1.0);
-    this.addInput('adjustArray', DATATYPE.ARRAY);
+    this.addOutput('container', new PixiType());
+    this.addInput('input', new PixiType());
+    this.addInput('count', new NumberType(true, 0), 9, undefined);
+    this.addInput('column', new NumberType(true, 0), 3, undefined);
+    this.addInput('distance', new NumberType(), 10.0);
+    this.addInput('scale', new NumberType(), 1.0);
+    this.addInput('adjustArray', new ArrayType());
 
     this.name = 'GraphicsMultiplier';
     this.description = 'Multiplies the input graphics';
@@ -759,10 +751,10 @@ export class Note extends PPNode {
 
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
     super(name, graph, customArgs);
-    this.addOutput('textOutput', DATATYPE.STRING);
-    this.addOutput('fontSize', DATATYPE.NUMBER, false);
-    this.addInput('textInput', DATATYPE.STRING, 'type...');
-    this.addInput('fontSize', DATATYPE.NUMBER, NOTE_FONTSIZE, false);
+    this.addOutput('textOutput', new StringType());
+    this.addOutput('fontSize', new NumberType(), false);
+    this.addInput('textInput', new StringType(), 'type...');
+    this.addInput('fontSize', new NumberType(), NOTE_FONTSIZE, false);
 
     this.name = 'Note';
     this.description = 'Adds a note';
@@ -1080,9 +1072,9 @@ export class Table extends PPNode {
       isHybrid,
     });
 
-    this.addOutput('selectedData', DATATYPE.STRING);
-    this.addInput('reload', DATATYPE.TRIGGER);
-    this.addInput('data', DATATYPE.STRING, customArgs?.data ?? '');
+    this.addOutput('selectedData', new StringType());
+    this.addInput('reload', new TriggerType());
+    this.addInput('data', new StringType(), customArgs?.data ?? '');
 
     this.name = 'Table';
     this.description = 'Adds a table';

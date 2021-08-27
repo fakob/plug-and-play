@@ -4,10 +4,11 @@ import { SerializedLink } from '../utils/interfaces';
 import { CONNECTION_COLOR_HEX } from '../utils/constants';
 import Socket from './SocketClass';
 import PPNode from './NodeClass';
+import { AbstractType } from '../nodes/datatypes/abstractType';
 
 export default class PPLink extends PIXI.Container {
   id: number;
-  type: string;
+  type: AbstractType;
   source: Socket;
   target: Socket;
   viewport: Viewport;
@@ -16,7 +17,7 @@ export default class PPLink extends PIXI.Container {
 
   constructor(
     id: number,
-    type: string,
+    type: AbstractType,
     source: Socket,
     target: Socket,
     viewport: Viewport

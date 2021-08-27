@@ -2,6 +2,7 @@ import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
 import { DATATYPE, NODE_TYPE_COLOR } from '../utils/constants';
 import { CustomArgs } from '../utils/interfaces';
+import { NumberType } from './datatypes/numberType';
 
 export class MathAdd extends PPNode {
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
@@ -10,9 +11,9 @@ export class MathAdd extends PPNode {
       color: NODE_TYPE_COLOR.TRANSFORM,
     });
 
-    this.addOutput('out', DATATYPE.NUMBER);
-    this.addInput('in', DATATYPE.NUMBER, 0);
-    this.addInput('in2', DATATYPE.NUMBER, 0);
+    this.addOutput('out', new NumberType());
+    this.addInput('in', new NumberType(), 0);
+    this.addInput('in2', new NumberType(), 0);
 
     this.name = 'Add';
     this.description = 'Add 2 numbers';
@@ -42,8 +43,8 @@ export class MathNoise extends PPNode {
       color: NODE_TYPE_COLOR.TRANSFORM,
     });
 
-    this.addOutput('out', DATATYPE.NUMBER);
-    this.addInput('in', DATATYPE.NUMBER);
+    this.addOutput('out', new NumberType());
+    this.addInput('in', new NumberType());
     this.min = 0;
     this.max = 1;
     this.smooth = true;

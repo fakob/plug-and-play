@@ -3,14 +3,12 @@ import { DropShadowFilter } from '@pixi/filter-drop-shadow';
 import { hri } from 'human-readable-ids';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { inspect } from 'util'; // or directly
 import '../pixi/dbclick.js';
 
 import styles from '../utils/style.module.css';
 import { CustomArgs, SerializedNode } from '../utils/interfaces';
 import {
   COMMENT_TEXTSTYLE,
-  DATATYPE,
   NODE_TYPE_COLOR,
   NODE_CORNERRADIUS,
   NODE_HEADER_HEIGHT,
@@ -28,6 +26,8 @@ import {
 import PPGraph from './GraphClass';
 import Socket from './SocketClass';
 import { getNodeCommentPosX, getNodeCommentPosY } from '../utils/utils';
+import { AbstractType } from '../nodes/datatypes/abstractType.js';
+import { AnyType } from '../nodes/datatypes/anyType.js';
 
 export class UpdateBehaviour {
   update: boolean;
@@ -238,19 +238,11 @@ export default class PPNode extends PIXI.Container {
 
   addInput(
     name: string,
-    type: string,
+    type: AbstractType,
     data?: unknown,
-    visible?: boolean,
-    custom?: Record<string, any>
+    visible?: boolean
   ): void {
-    const inputSocket = new Socket(
-      SOCKET_TYPE.IN,
-      name,
-      type,
-      data,
-      visible,
-      custom
-    );
+    const inputSocket = new Socket(SOCKET_TYPE.IN, name, type, data, visible);
     const inputSocketRef = this.addChild(inputSocket);
     this.inputSocketArray.push(inputSocketRef);
 
@@ -260,19 +252,11 @@ export default class PPNode extends PIXI.Container {
 
   addOutput(
     name: string,
-    type: string,
+    type: AbstractType,
     data?: any,
-    visible?: boolean,
-    custom?: Record<string, any>
+    visible?: boolean
   ): void {
-    const outputSocket = new Socket(
-      SOCKET_TYPE.OUT,
-      name,
-      type,
-      null,
-      visible,
-      custom
-    );
+    const outputSocket = new Socket(SOCKET_TYPE.OUT, name, type, null, visible);
     const outputSocketRef = this.addChild(outputSocket);
     this.outputSocketArray.push(outputSocketRef);
 
@@ -509,7 +493,7 @@ export default class PPNode extends PIXI.Container {
   public addDefaultInput(): void {
     this.addInput(
       this.constructSocketName('Custom Input', this.inputSocketArray),
-      DATATYPE.ANY
+      null /*new AbstractType()*/ // TODO ANYTYPE
     );
   }
 
@@ -519,7 +503,7 @@ export default class PPNode extends PIXI.Container {
   public addDefaultOutput(): void {
     this.addOutput(
       this.constructSocketName('Custom Output', this.outputSocketArray),
-      DATATYPE.ANY
+      null /*new AbstractType()*/ // TODO ANYTYPE
     );
   }
 
@@ -539,6 +523,8 @@ export default class PPNode extends PIXI.Container {
   }
 
   drawComment(): void {
+    // TODO add this in the types themselves
+    /*
     const commentData = this.outputSocketArray[0]?.data;
     // console.log(this.outputSocketArray[0], commentData);
     if (commentData !== undefined) {
@@ -569,7 +555,7 @@ export default class PPNode extends PIXI.Container {
       } else {
         this._NodeCommentRef.text = inspect(commentData, null, 2);
       }
-    }
+    }*/
   }
 
   screenPoint(): PIXI.Point {
