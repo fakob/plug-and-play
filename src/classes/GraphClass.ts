@@ -11,8 +11,10 @@ import {
 import {
   CustomArgs,
   PPNodeConstructor,
+  RegisteredNodeTypes,
   SerializedGraph,
 } from '../utils/interfaces';
+import { getInfoFromRegisteredNode } from '../utils/utils';
 import PPNode from './NodeClass';
 import Socket from './SocketClass';
 import PPLink from './LinkClass';
@@ -25,7 +27,7 @@ export default class PPGraph {
   lastLinkId: number;
 
   _links: { [key: number]: PPLink };
-  _registeredNodeTypes: Record<string, PPNodeConstructor>;
+  _registeredNodeTypes: RegisteredNodeTypes;
   customNodeTypes: Record<string, string>;
 
   _showComments: boolean;
@@ -141,7 +143,8 @@ export default class PPGraph {
   _onPointerDoubleClicked(event: PIXI.InteractionEvent): void {
     console.log('_onPointerDoubleClicked');
     event.stopPropagation();
-    if (this.onOpenNodeSearch) {
+    const target = event.target;
+    if (target instanceof Viewport && this.onOpenNodeSearch) {
       this.onOpenNodeSearch(event.data.global);
     }
   }
@@ -311,7 +314,7 @@ export default class PPGraph {
 
   // GETTERS & SETTERS
 
-  get registeredNodeTypes(): Record<string, PPNodeConstructor> {
+  get registeredNodeTypes(): RegisteredNodeTypes {
     return this._registeredNodeTypes;
   }
 
@@ -343,7 +346,13 @@ export default class PPGraph {
     // console.log(this._registeredNodeTypes);
 
     // create/update node type
-    this._registeredNodeTypes[type] = nodeConstructor;
+    const nodeInfo = getInfoFromRegisteredNode(this, type, nodeConstructor);
+    this._registeredNodeTypes[type] = {
+      constructor: nodeConstructor,
+      name: nodeInfo.name,
+      description: nodeInfo.description,
+      hasInputs: nodeInfo.hasInputs,
+    };
   }
 
   registerCustomNodeType(code: string): string {
@@ -359,7 +368,7 @@ export default class PPGraph {
     customArgs?: CustomArgs
   ): T {
     // console.log(this._registeredNodeTypes);
-    const nodeConstructor = this._registeredNodeTypes[type];
+    const nodeConstructor = this._registeredNodeTypes[type]?.constructor;
     if (!nodeConstructor) {
       console.log(
         'GraphNode type "' + type + '" not registered. Will create new one.'

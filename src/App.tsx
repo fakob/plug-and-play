@@ -31,6 +31,7 @@ import {
   downloadFile,
   formatDate,
   highlightText,
+  truncateText,
 } from './utils/utils';
 import { registerAllNodeTypes } from './nodes/allNodes';
 import PPSelection from './classes/SelectionClass';
@@ -579,6 +580,26 @@ const App = (): JSX.Element => {
     setIsNodeSearchVisible(false);
   };
 
+  const getNodes = (): INodeSearch[] => {
+    const addLink = currentGraph.current.clickedSocketRef;
+    const tempItems = Object.entries(currentGraph.current.registeredNodeTypes)
+      .map(([title, obj]) => {
+        return {
+          title,
+          name: obj.name,
+          description: obj.description,
+          hasInputs: obj.hasInputs.toString(),
+        };
+      })
+      .sort(
+        (a, b) => a.title.localeCompare(b.title, 'en', { sensitivity: 'base' }) // case insensitive sorting
+      )
+      .filter((node) =>
+        addLink ? node.hasInputs === 'true' : 'true'
+      ) as INodeSearch[];
+    return tempItems;
+  };
+
   const openNodeSearch = (pos = undefined) => {
     console.log('openNodeSearch');
     if (pos !== undefined) {
@@ -717,13 +738,7 @@ const App = (): JSX.Element => {
                     placeholder: 'Search Nodes',
                   }}
                   itemRenderer={renderNodeItem}
-                  items={
-                    Object.keys(currentGraph.current.registeredNodeTypes).map(
-                      (node) => {
-                        return { title: node };
-                      }
-                    ) as INodeSearch[]
-                  }
+                  items={getNodes()}
                   itemPredicate={filterNode}
                   onItemSelect={handleNodeItemSelect}
                   resetOnClose={true}
@@ -732,7 +747,7 @@ const App = (): JSX.Element => {
                   popoverProps={{ minimal: true }}
                   inputValueRenderer={(node: INodeSearch) => node.title}
                   createNewItemFromQuery={createNewItemFromQuery}
-                  createNewItemRenderer={renderCreateFilmOption}
+                  createNewItemRenderer={renderCreateNodeOption}
                 />
               </div>
             </>
@@ -823,19 +838,24 @@ const renderNodeItem: ItemRenderer<INodeSearch> = (
       active={modifiers.active}
       disabled={modifiers.disabled}
       key={node.title}
+      title={node.description}
+      label={truncateText(node.description, 24)}
       onClick={handleClick}
       text={highlightText(text, query)}
     />
   );
 };
 
-function createNewItemFromQuery(title: string): INodeSearch {
+const createNewItemFromQuery = (title: string): INodeSearch => {
   return {
     title,
+    name: title,
+    description: '',
+    hasInputs: '',
   };
-}
+};
 
-const renderCreateFilmOption = (
+const renderCreateNodeOption = (
   query: string,
   active: boolean,
   handleClick: React.MouseEventHandler<HTMLElement>

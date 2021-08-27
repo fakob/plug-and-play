@@ -2,6 +2,16 @@ import PPGraph from '../classes/GraphClass';
 import PPNode, { UpdateBehaviour } from '../classes/NodeClass';
 import { SOCKET_TYPE } from './constants';
 
+export type RegisteredNodeTypes = Record<
+  string,
+  {
+    constructor: PPNodeConstructor;
+    name?: string;
+    description?: string;
+    hasInputs?: boolean;
+  }
+>;
+
 export type PPNodeConstructor<T extends PPNode = PPNode> = {
   type?: string;
   category?: string;
@@ -38,6 +48,9 @@ export interface IGraphSearch {
 
 export interface INodeSearch {
   title: string;
+  name: string;
+  description: string;
+  hasInputs: string;
 }
 
 export type SerializedNode = {
