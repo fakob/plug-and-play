@@ -6,6 +6,9 @@ export class ArrayType extends AbstractType {
   constructor() {
     super();
   }
+  getName(): string {
+    return 'Array';
+  }
   getInputWidget = (data: any): any => {
     return <TextWidget {...data} />;
   };
