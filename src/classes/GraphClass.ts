@@ -684,7 +684,6 @@ export default class PPGraph {
           error = true;
           console.log('Node not found or has errors: ' + serializedNode.type);
         }
-        // console.log(serializedNode);
         node.configure(serializedNode);
       }
     }

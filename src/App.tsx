@@ -100,13 +100,13 @@ const App = (): JSX.Element => {
   const [remoteGraphs, setRemoteGraphs, remoteGraphsRef] = useStateRef([]);
   const [graphSearchItems, setGraphSearchItems] = useState<
     IGraphSearch[] | null
-  >([{ id: 'local-0', name: hri.random() as string, label: '' }]);
+  >([{ id: '', name: '' }]);
   const [graphSearchActiveItem, setGraphSearchActiveItem] =
     useState<IGraphSearch | null>(null);
 
   // dialogs
   const [showEdit, setShowEdit] = useState(false);
-  const [showAltertDeleteGraph, setShowAltertDeleteGraph] = useState(false);
+  const [showDeleteGraph, setShowDeleteGraph] = useState(false);
 
   let lastTimeTicked = 0;
 
@@ -886,7 +886,7 @@ NOTE: opening a remote playground creates a local copy`
                   console.log(graph.name);
                   setIsGraphSearchOpen(false);
                   setActionObject(graph);
-                  setShowAltertDeleteGraph(true);
+                  setShowDeleteGraph(true);
                 }}
               />
             </ButtonGroup>
@@ -972,10 +972,10 @@ NOTE: opening a remote playground creates a local copy`
             cancelButtonText="Cancel"
             confirmButtonText="Delete"
             intent={Intent.DANGER}
-            isOpen={showAltertDeleteGraph}
-            onCancel={() => setShowAltertDeleteGraph(false)}
+            isOpen={showDeleteGraph}
+            onCancel={() => setShowDeleteGraph(false)}
             onConfirm={() => {
-              setShowAltertDeleteGraph(false);
+              setShowDeleteGraph(false);
               deleteGraph(actionObject.id);
             }}
           >
@@ -1075,7 +1075,7 @@ NOTE: opening a remote playground creates a local copy`
                     setGraphSearchRendered(!!el);
                   },
                   large: true,
-                  placeholder: `Search playgrounds: ${graphSearchActiveItem?.name}`,
+                  placeholder: 'Search playgrounds',
                 }}
                 // defaultSelectedItem={graphSearchActiveItem}
                 itemRenderer={renderGraphItem}
