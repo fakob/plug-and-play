@@ -1075,9 +1075,9 @@ NOTE: opening a remote playground creates a local copy`
                     setGraphSearchRendered(!!el);
                   },
                   large: true,
-                  placeholder: 'Search playgrounds',
+                  placeholder: `Search playgrounds: ${graphSearchActiveItem?.name}`,
                 }}
-                defaultSelectedItem={graphSearchActiveItem}
+                // defaultSelectedItem={graphSearchActiveItem}
                 itemRenderer={renderGraphItem}
                 items={graphSearchItems}
                 activeItem={graphSearchActiveItem}
