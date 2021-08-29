@@ -1041,7 +1041,7 @@ NOTE: opening a remote playground creates a local copy`
                   placeholder: 'Search playgrounds',
                 }}
                 // defaultSelectedItem={graphSearchActiveItem}
-                initialContent={'No playgrounds available'}
+                noResults={'No playgrounds available'}
                 itemRenderer={renderGraphItem}
                 items={graphSearchItems}
                 activeItem={graphSearchActiveItem}
