@@ -245,17 +245,18 @@ export const truncateText = (
 
 export const getRemoteGraphsList = async (
   githubBaseURL: string,
-  githubTagName: string
+  githubBranchName: string
 ): Promise<string[]> => {
-  const tags = await fetch(`${githubBaseURL}/tags`, {
-    headers: {
-      accept: 'application/vnd.github.v3+json',
-    },
-  });
-  const tagsData = await tags.json();
-  console.log(tagsData);
-  const foundTag = tagsData.find((tag) => tag.name === githubTagName);
-  const sha = foundTag.commit.sha;
+  const branches = await fetch(
+    `${githubBaseURL}/branches/${githubBranchName}`,
+    {
+      headers: {
+        accept: 'application/vnd.github.v3+json',
+      },
+    }
+  );
+  const branchesData = await branches.json();
+  const sha = branchesData.commit.sha;
 
   const fileList = await fetch(`${githubBaseURL}/git/trees/${sha}`, {
     headers: {
@@ -272,18 +273,17 @@ export const getRemoteGraphsList = async (
 
 export const getRemoteGraph = async (
   githubBaseURL: string,
-  githubTagName: string,
+  githubBranchName: string,
   fileName: string
 ): Promise<any> => {
   const file = await fetch(
-    `${githubBaseURL}/contents/${fileName}?ref=${githubTagName}`,
+    `${githubBaseURL}/contents/${fileName}?ref=${githubBranchName}`,
     {
       headers: {
         accept: 'application/vnd.github.v3.raw',
       },
     }
   );
-  console.log(file);
   const fileData = await file.json();
   console.log(fileData);
   return fileData;

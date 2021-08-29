@@ -76,7 +76,7 @@ const App = (): JSX.Element => {
   // remote playground database
   const githubBaseURL =
     'https://api.github.com/repos/fakob/plug-and-play-examples';
-  const githubTagName = 'v0.0.2';
+  const githubBranchName = 'dev';
 
   const mousePosition = { x: 0, y: 0 };
 
@@ -306,7 +306,7 @@ const App = (): JSX.Element => {
     setIsCurrentGraphLoaded(true);
     console.log('currentGraph.current:', currentGraph.current);
 
-    getRemoteGraphsList(githubBaseURL, githubTagName).then(
+    getRemoteGraphsList(githubBaseURL, githubBranchName).then(
       (arrayOfFileNames) => {
         console.log(arrayOfFileNames);
         setRemoteGraphs(arrayOfFileNames);
@@ -620,7 +620,7 @@ const App = (): JSX.Element => {
     const nameOfFileToClone = remoteGraphsRef.current[id];
     const fileData = await getRemoteGraph(
       githubBaseURL,
-      githubTagName,
+      githubBranchName,
       nameOfFileToClone
     );
     console.log(fileData);
