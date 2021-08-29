@@ -637,6 +637,11 @@ const App = (): JSX.Element => {
           name: 'loadedGraphId',
           value: loadedGraph.id,
         });
+
+        setGraphSearchActiveItem({
+          id: loadedGraph.id,
+          name: loadedGraph.name,
+        });
       } else {
         console.log('No saved graphData');
       }
@@ -873,7 +878,6 @@ NOTE: opening a remote playground creates a local copy`
               />
               <Button
                 minimal
-                intent="danger"
                 icon="trash"
                 title="Delete playground"
                 className="menuItemButton"
@@ -1073,6 +1077,7 @@ NOTE: opening a remote playground creates a local copy`
                   large: true,
                   placeholder: 'Search playgrounds',
                 }}
+                defaultSelectedItem={graphSearchActiveItem}
                 itemRenderer={renderGraphItem}
                 items={graphSearchItems}
                 activeItem={graphSearchActiveItem}
