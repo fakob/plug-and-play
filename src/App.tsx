@@ -486,13 +486,13 @@ const App = (): JSX.Element => {
 
   function downloadGraph() {
     db.transaction('rw', db.graphs, db.settings, async () => {
-      const graphs = await db.graphs.toArray();
       const loadedGraphId = await getLoadedGraphId(db);
+      const graph = await db.graphs.where('id').equals(loadedGraphId).first();
 
       const serializedGraph = currentGraph.current.serialize();
       downloadFile(
         JSON.stringify(serializedGraph, null, 2),
-        `${graphs[loadedGraphId]?.name} - ${formatDate()}.ppgraph`,
+        `${graph?.name} - ${formatDate()}.ppgraph`,
         'text/plain'
       );
     }).catch((e) => {
@@ -506,14 +506,10 @@ const App = (): JSX.Element => {
 
   const renameGraph = (graphId: number, newName = undefined) => {
     db.transaction('rw', db.graphs, db.settings, async () => {
-      const graphs = await db.graphs.toArray();
-      if (graphs.length !== 0 || graphs[graphId] !== undefined) {
-        const id = await db.graphs.where('id').equals(graphId).modify({
-          name: newName,
-        });
-        // const id = await db.graphs.put({ ...graphs[graphId], name: newName });
-        console.log(`Renamed graph: ${id} to ${newName}`);
-      }
+      const id = await db.graphs.where('id').equals(graphId).modify({
+        name: newName,
+      });
+      console.log(`Renamed graph: ${id} to ${newName}`);
     }).catch((e) => {
       console.log(e.stack || e);
     });
