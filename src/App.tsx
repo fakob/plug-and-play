@@ -10,6 +10,7 @@ import { useDropzone } from 'react-dropzone';
 import * as PIXI from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
 import {
+  Alert,
   Button,
   ButtonGroup,
   Classes,
@@ -94,7 +95,6 @@ const App = (): JSX.Element => {
   const [contextMenuPosition, setContextMenuPosition] = useState([0, 0]);
   const [isCurrentGraphLoaded, setIsCurrentGraphLoaded] = useState(false);
   const [actionObject, setActionObject] = useState(null);
-  const [showEdit, setShowEdit] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [selectedNode, setSelectedNode] = useState<PPNode | null>(null);
   const [remoteGraphs, setRemoteGraphs, remoteGraphsRef] = useStateRef([]);
@@ -103,6 +103,10 @@ const App = (): JSX.Element => {
   >([{ id: 'local-0', name: hri.random() as string, label: '' }]);
   const [graphSearchActiveItem, setGraphSearchActiveItem] =
     useState<IGraphSearch | null>(null);
+
+  // dialogs
+  const [showEdit, setShowEdit] = useState(false);
+  const [showAltertDeleteGraph, setShowAltertDeleteGraph] = useState(false);
 
   let lastTimeTicked = 0;
 
@@ -512,13 +516,42 @@ const App = (): JSX.Element => {
     db.transaction('rw', db.graphs, db.settings, async () => {
       const graphs = await db.graphs.toArray();
       if (graphs.length !== 0 || graphs[graphId] !== undefined) {
-        const id = await db.graphs.put({ ...graphs[graphId], name: newName });
+        const id = await db.graphs.where('id').equals(graphId).modify({
+          name: newName,
+        });
+        // const id = await db.graphs.put({ ...graphs[graphId], name: newName });
         console.log(`Renamed graph: ${id} to ${newName}`);
       }
     }).catch((e) => {
       console.log(e.stack || e);
     });
   };
+
+  function deleteGraph(graphId: string) {
+    console.log(graphId);
+    db.transaction('rw', db.graphs, db.settings, async () => {
+      const loadedGraphIdObject = await db.settings
+        .where({
+          name: 'loadedGraphId',
+        })
+        .first();
+      const loadedGraphId = loadedGraphIdObject?.value;
+      console.log(loadedGraphIdObject);
+      console.log(loadedGraphId);
+
+      if (loadedGraphId === graphId) {
+        // save loadedGraphId
+        await db.settings.put({
+          name: 'loadedGraphId',
+          value: undefined,
+        });
+      }
+      const id = await db.graphs.where('id').equals(graphId).delete();
+      console.log(`Deleted graph: ${id}`);
+    }).catch((e) => {
+      console.log(e.stack || e);
+    });
+  }
 
   function saveGraph(saveNew = false, newName = undefined) {
     const serializedGraph = currentGraph.current.serialize();
@@ -532,40 +565,39 @@ const App = (): JSX.Element => {
           name: 'loadedGraphId',
         })
         .first();
-      const loadedGraphId = loadedGraphIdObject?.value
-        ? parseInt(loadedGraphIdObject.value)
-        : 0;
+      const loadedGraphId = loadedGraphIdObject?.value;
       console.log(loadedGraphIdObject);
       console.log(loadedGraphId);
 
-      let graphObject;
-      if (
-        saveNew ||
-        graphs.length === 0 ||
-        graphs[loadedGraphId] === undefined
-      ) {
-        graphObject = {
-          id: graphs.length,
+      const id = hri.random();
+      const tempName = id.substring(0, id.lastIndexOf('-')).replace('-', ' ');
+
+      const loadedGraph = graphs.find((graph) => graph.id === loadedGraphId);
+
+      if (saveNew || graphs.length === 0 || loadedGraph === undefined) {
+        const indexId = await db.graphs.put({
+          id,
           date: new Date(),
-          name: newName ?? hri.random(),
+          name: newName ?? tempName,
           graphData: serializedGraph,
-        };
+        });
 
         // save loadedGraphId
         await db.settings.put({
           name: 'loadedGraphId',
-          value: graphs.length.toString(),
+          value: id,
         });
+        console.log(`Saved currentGraph: ${indexId}`);
       } else {
-        graphObject = {
-          id: loadedGraphId,
-          date: new Date(),
-          name: graphs[loadedGraphId].name,
-          graphData: serializedGraph,
-        };
+        const indexId = await db.graphs
+          .where('id')
+          .equals(loadedGraphId)
+          .modify({
+            date: new Date(),
+            graphData: serializedGraph,
+          });
+        console.log(`Updated currentGraph: ${indexId}`);
       }
-      const id = await db.graphs.put(graphObject);
-      console.log(`Saved currentGraph: ${id}`);
     }).catch((e) => {
       console.log(e.stack || e);
     });
@@ -578,34 +610,33 @@ const App = (): JSX.Element => {
   function loadGraph(id = undefined) {
     db.transaction('rw', db.graphs, db.settings, async () => {
       const graphs = await db.graphs.toArray();
+
       const loadedGraphIdObject = await db.settings
         .where({
           name: 'loadedGraphId',
         })
         .first();
+
       if (loadedGraphIdObject !== undefined && graphs.length > 0) {
-        const loadedGraphId = loadedGraphIdObject?.value
-          ? parseInt(loadedGraphIdObject.value)
-          : 0;
-        // configure graph
-        let idOfGraphToLoad;
-        if (id === undefined) {
-          idOfGraphToLoad = loadedGraphId;
-        } else {
-          idOfGraphToLoad = id;
-        }
+        const loadedGraphId = loadedGraphIdObject?.value;
+
+        let loadedGraph = graphs.find(
+          (graph) => graph.id === (id || loadedGraphId)
+        );
+
         // check if graph exists and load last graph if it does not
-        idOfGraphToLoad = Math.min(graphs.length - 1, idOfGraphToLoad);
-        const graphData = graphs[idOfGraphToLoad]?.graphData;
+        if (loadedGraph === undefined) {
+          loadedGraph = graphs[graphs.length - 1];
+        }
+
+        const graphData = loadedGraph.graphData;
         currentGraph.current.configure(graphData, false);
 
-        // save loadedGraphId
+        // update loadedGraphId
         await db.settings.put({
           name: 'loadedGraphId',
-          value: idOfGraphToLoad.toString(),
+          value: loadedGraph.id,
         });
-
-        console.log(currentGraph.current.nodeContainer.children);
       } else {
         console.log('No saved graphData');
       }
@@ -635,18 +666,11 @@ const App = (): JSX.Element => {
     console.log(selected);
     setIsGraphSearchOpen(false);
 
-    const [type, index] = selected.id.split('-');
-    switch (type) {
-      case 'remote':
-        cloneRemoteGraph(index);
-        break;
-      case 'local':
-        loadGraph(index);
-        setGraphSearchActiveItem(selected);
-        break;
-
-      default:
-        break;
+    if (selected.isRemote) {
+      cloneRemoteGraph(selected.id);
+    } else {
+      loadGraph(selected.id);
+      setGraphSearchActiveItem(selected);
     }
   };
 
@@ -710,9 +734,10 @@ const App = (): JSX.Element => {
       const remoteGraphSearchItems = remoteGraphsRef.current.map(
         (graph, index) => {
           return {
-            id: `remote-${index}`,
+            id: index,
             name: removeExtension(graph), // remove .ppgraph extension
             label: 'remote',
+            isRemote: true,
           } as IGraphSearch;
         }
       );
@@ -723,19 +748,10 @@ const App = (): JSX.Element => {
         isDisabled: true,
       });
 
-      const graphs = await db.graphs.toArray();
-      const loadedGraphIdObject = await db.settings
-        .where({
-          name: 'loadedGraphId',
-        })
-        .first();
-      const loadedGraphId = loadedGraphIdObject?.value
-        ? parseInt(loadedGraphIdObject.value)
-        : 0;
-
+      const graphs = await db.graphs.toCollection().sortBy('date');
       const newGraphSearchItems = graphs.map((graph) => {
         return {
-          id: `local-${graph.id}`,
+          id: graph.id,
           name: graph.name,
           label: `saved ${timeAgo.format(graph.date)}`,
         } as IGraphSearch;
@@ -755,7 +771,17 @@ const App = (): JSX.Element => {
         ...remoteGraphSearchItems,
       ];
       setGraphSearchItems(allGraphSearchItems);
-      setGraphSearchActiveItem(newGraphSearchItems[loadedGraphId + 1]); // +1 is to compensate for the local graphs header
+
+      const loadedGraphIdObject = await db.settings
+        .where({
+          name: 'loadedGraphId',
+        })
+        .first();
+      const loadedGraphId = loadedGraphIdObject?.value;
+      const loadedGraphIndex = allGraphSearchItems.findIndex(
+        (graph) => graph.id === loadedGraphId
+      );
+      setGraphSearchActiveItem(newGraphSearchItems[loadedGraphIndex]);
     }
   };
 
@@ -810,7 +836,7 @@ const App = (): JSX.Element => {
     if (!modifiers.matchesPredicate) {
       return null;
     }
-    const isRemote = graph.id.startsWith('remote');
+    const isRemote = graph.isRemote;
     const text = graph.name;
     const title = isRemote // hover title tag
       ? `${graph.name}
@@ -854,6 +880,9 @@ NOTE: opening a remote playground creates a local copy`
                 onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
                   event.stopPropagation();
                   console.log(graph.name);
+                  setIsGraphSearchOpen(false);
+                  setActionObject(graph);
+                  setShowAltertDeleteGraph(true);
                 }}
               />
             </ButtonGroup>
@@ -935,6 +964,23 @@ NOTE: opening a remote playground creates a local copy`
       >
         <div {...getRootProps({ style })}>
           <input {...getInputProps()} />
+          <Alert
+            cancelButtonText="Cancel"
+            confirmButtonText="Delete"
+            intent={Intent.DANGER}
+            isOpen={showAltertDeleteGraph}
+            onCancel={() => setShowAltertDeleteGraph(false)}
+            onConfirm={() => {
+              setShowAltertDeleteGraph(false);
+              deleteGraph(actionObject.id);
+            }}
+          >
+            <p>
+              Are you sure you want to delete
+              <br />
+              <b>{`${actionObject?.name}`}</b>?
+            </p>
+          </Alert>
           <Dialog
             onClose={() => setShowEdit(false)}
             title="Edit playground details"
@@ -965,12 +1011,8 @@ NOTE: opening a remote playground creates a local copy`
                         ) as HTMLInputElement
                       ).value;
                       setShowEdit(false);
-                      renameGraph(
-                        parseInt(actionObject.id.replace('local-', '')),
-                        name
-                      );
+                      renameGraph(actionObject.id, name);
                       updateGraphSearchItems();
-                      // graphSearchInput.current.focus();
                     }}
                   >
                     Rename

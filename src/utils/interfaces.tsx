@@ -44,6 +44,7 @@ export interface IGraphSearch {
   id: string;
   name: string;
   label?: string;
+  isRemote?: boolean;
   isDisabled?: boolean;
 }
 

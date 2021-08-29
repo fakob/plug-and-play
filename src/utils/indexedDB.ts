@@ -2,7 +2,7 @@ import Dexie from 'dexie';
 import { SerializedGraph } from './interfaces';
 
 interface Graph {
-  id: number;
+  id: string;
   date: Date;
   graphData: SerializedGraph;
   editorData?: string;
