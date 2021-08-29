@@ -17,8 +17,7 @@ export const GraphContextMenu = (props) => {
         text="Search playgrounds"
         label={`${props.controlOrMetaKey}+O`}
         onClick={() => {
-          props.setIsSearchOpen(true);
-          props.graphSearchInput.current.focus();
+          props.setIsGraphSearchOpen(true);
         }}
       />
       <MenuItem
@@ -26,8 +25,7 @@ export const GraphContextMenu = (props) => {
         text="Search nodes"
         label={`${props.controlOrMetaKey}+F`}
         onClick={() => {
-          props.setIsSearchOpen(true);
-          props.nodeSearchInput.current.focus();
+          props.openNodeSearch();
         }}
       />
       <MenuDivider title="Graph" />

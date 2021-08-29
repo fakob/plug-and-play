@@ -31,6 +31,7 @@ import {
   downloadFile,
   formatDate,
   highlightText,
+  truncateText,
 } from './utils/utils';
 import { registerAllNodeTypes } from './nodes/allNodes';
 import PPSelection from './classes/SelectionClass';
@@ -55,6 +56,7 @@ console.log('isMac: ', isMac);
 
 const App = (): JSX.Element => {
   document.title = 'Your Plug and Playground';
+  const mousePosition = { x: 0, y: 0 };
 
   const db = new GraphDatabase();
   const pixiApp = useRef<PIXI.Application | null>(null);
@@ -62,9 +64,11 @@ const App = (): JSX.Element => {
   const pixiContext = useRef<HTMLDivElement | null>(null);
   const viewport = useRef<Viewport | null>(null);
   const graphSearchInput = useRef<HTMLInputElement | null>(null);
-  const [graphSearchVisible, setGraphSearchVisible] = useState(false);
+  const [graphSearchRendered, setGraphSearchRendered] = useState(false);
+  const [nodeSearchRendered, setNodeSearchRendered] = useState(false);
   const nodeSearchInput = useRef<HTMLInputElement | null>(null);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isGraphSearchOpen, setIsGraphSearchOpen] = useState(false);
+  const [isNodeSearchVisible, setIsNodeSearchVisible] = useState(false);
   const [isGraphContextMenuOpen, setIsGraphContextMenuOpen] = useState(false);
   const [isNodeContextMenuOpen, setIsNodeContextMenuOpen] = useState(false);
   const [contextMenuPosition, setContextMenuPosition] = useState([0, 0]);
@@ -183,6 +187,15 @@ const App = (): JSX.Element => {
       { passive: false }
     );
 
+    window.addEventListener(
+      'mousemove',
+      function (mouseMoveEvent) {
+        mousePosition.x = mouseMoveEvent.pageX;
+        mousePosition.y = mouseMoveEvent.pageY;
+      },
+      false
+    );
+
     // disable default context menu
     window.addEventListener('contextmenu', (e: Event) => {
       e.preventDefault();
@@ -275,16 +288,20 @@ const App = (): JSX.Element => {
       }
     };
 
+    currentGraph.current.onOpenNodeSearch = (pos: PIXI.Point) => {
+      openNodeSearch(pos);
+    };
+
     currentGraph.current.onRightClick = (
       event: PIXI.InteractionEvent,
       target: PIXI.DisplayObject
     ) => {
       setIsGraphContextMenuOpen(false);
       setIsNodeContextMenuOpen(false);
-      setContextMenuPosition(
-        // creating new point so react updates
-        [event.data.global.x, event.data.global.y]
-      );
+      setContextMenuPosition([
+        Math.min(window.innerWidth - 240, event.data.global.x),
+        Math.min(window.innerHeight - 432, event.data.global.y),
+      ]);
       console.log(event, target, event.data.global);
       switch (true) {
         case target instanceof PPSocket:
@@ -312,10 +329,10 @@ const App = (): JSX.Element => {
     ) => {
       setIsGraphContextMenuOpen(false);
       setIsNodeContextMenuOpen(false);
-      setContextMenuPosition(
-        // creating new point so react updates
-        [event.data.global.x, event.data.global.y]
-      );
+      setContextMenuPosition([
+        Math.min(window.innerWidth - 240, event.data.global.x),
+        Math.min(window.innerHeight - 432, event.data.global.y),
+      ]);
       console.log(event, target, event.data.global);
       console.log('app right click, selection');
       setIsNodeContextMenuOpen(true);
@@ -329,13 +346,11 @@ const App = (): JSX.Element => {
       }
       if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'o') {
         e.preventDefault();
-        setIsSearchOpen((prevState) => !prevState);
-        graphSearchInput.current.focus();
+        setIsGraphSearchOpen((prevState) => !prevState);
       }
       if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'f') {
         e.preventDefault();
-        setIsSearchOpen((prevState) => !prevState);
-        nodeSearchInput.current.focus();
+        openNodeSearch(mousePosition);
       }
       if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 's') {
         e.preventDefault();
@@ -349,7 +364,8 @@ const App = (): JSX.Element => {
         zoomToFit();
       }
       if (e.key === 'Escape') {
-        setIsSearchOpen(false);
+        setIsGraphSearchOpen(false);
+        setIsNodeSearchVisible(false);
         setIsGraphContextMenuOpen(false);
         setIsNodeContextMenuOpen(false);
       }
@@ -375,15 +391,41 @@ const App = (): JSX.Element => {
 
   // addEventListener to graphSearchInput
   useEffect(() => {
-    if (!graphSearchVisible) {
+    if (!graphSearchRendered) {
       return;
     }
-    // if (graphSearchInput.current) {
-    // Passing the same reference
     console.log('add eventlistener to graphSearchInput');
     graphSearchInput.current.addEventListener('focus', updateGraphSearchItems);
     // }
-  }, [graphSearchVisible]);
+  }, [graphSearchRendered]);
+
+  // addEventListener to nodeSearchInput
+  useEffect(() => {
+    if (!nodeSearchRendered) {
+      return;
+    }
+    console.log('add eventlistener to nodeSearchInput');
+    nodeSearchInput.current.addEventListener('blur', nodeSearchInputBlurred);
+    // }
+  }, [nodeSearchRendered]);
+
+  useEffect(() => {
+    if (isGraphSearchOpen) {
+      graphSearchInput.current.focus();
+    }
+  }, [isGraphSearchOpen]);
+
+  useEffect(() => {
+    if (isNodeSearchVisible) {
+      nodeSearchInput.current.focus();
+    } else {
+      // wait before clearing clickedSocketRef
+      // so handleNodeItemSelect has access
+      setTimeout(() => {
+        currentGraph.current.clearTempConnection();
+      }, 100);
+    }
+  }, [isNodeSearchVisible]);
 
   useEffect(() => {
     currentGraph.current.showComments = showComments;
@@ -517,15 +559,61 @@ const App = (): JSX.Element => {
 
   const handleGraphItemSelect = (selected: IGraphSearch) => {
     console.log(selected);
-    setIsSearchOpen(false);
+    setIsGraphSearchOpen(false);
     loadGraph(selected.id);
     setGraphSearchActiveItem(selected);
   };
 
   const handleNodeItemSelect = (selected: INodeSearch) => {
     console.log(selected);
-    setIsSearchOpen(false);
-    currentGraph.current.createAndAddNode(selected.title);
+    // store link before search gets hidden and temp connection gets reset
+    const addLink = currentGraph.current.clickedSocketRef;
+    const nodePos = viewport.current.toWorld(
+      contextMenuPosition[0],
+      contextMenuPosition[1]
+    );
+    currentGraph.current.createAndAddNode(selected.title, {
+      nodePosX: nodePos.x,
+      nodePosY: nodePos.y,
+      addLink,
+    });
+    setIsNodeSearchVisible(false);
+  };
+
+  const getNodes = (): INodeSearch[] => {
+    const addLink = currentGraph.current.clickedSocketRef;
+    const tempItems = Object.entries(currentGraph.current.registeredNodeTypes)
+      .map(([title, obj]) => {
+        return {
+          title,
+          name: obj.name,
+          description: obj.description,
+          hasInputs: obj.hasInputs.toString(),
+        };
+      })
+      .sort(
+        (a, b) => a.title.localeCompare(b.title, 'en', { sensitivity: 'base' }) // case insensitive sorting
+      )
+      .filter((node) =>
+        addLink ? node.hasInputs === 'true' : 'true'
+      ) as INodeSearch[];
+    return tempItems;
+  };
+
+  const openNodeSearch = (pos = undefined) => {
+    console.log('openNodeSearch');
+    if (pos !== undefined) {
+      setContextMenuPosition([
+        Math.min(window.innerWidth - 200, pos.x),
+        Math.min(window.innerHeight - 56, pos.y),
+      ]);
+    }
+    setIsNodeSearchVisible(true);
+  };
+
+  const nodeSearchInputBlurred = () => {
+    console.log('nodeSearchInputBlurred');
+    setIsNodeSearchVisible(false);
   };
 
   const updateGraphSearchItems = () => {
@@ -562,7 +650,7 @@ const App = (): JSX.Element => {
         onClick={() => {
           isGraphContextMenuOpen && setIsGraphContextMenuOpen(false);
           isNodeContextMenuOpen && setIsNodeContextMenuOpen(false);
-          isSearchOpen && setIsSearchOpen(false);
+          isGraphSearchOpen && setIsGraphSearchOpen(false);
         }}
       >
         <div {...getRootProps({ style })}>
@@ -573,9 +661,8 @@ const App = (): JSX.Element => {
               controlOrMetaKey={controlOrMetaKey}
               contextMenuPosition={contextMenuPosition}
               currentGraph={currentGraph}
-              setIsSearchOpen={setIsSearchOpen}
-              graphSearchInput={graphSearchInput}
-              nodeSearchInput={nodeSearchInput}
+              setIsGraphSearchOpen={setIsGraphSearchOpen}
+              openNodeSearch={openNodeSearch}
               loadGraph={loadGraph}
               saveGraph={saveGraph}
               saveNewGraph={saveNewGraph}
@@ -616,7 +703,7 @@ const App = (): JSX.Element => {
                 inputProps={{
                   inputRef: (el) => {
                     graphSearchInput.current = el;
-                    setGraphSearchVisible(!!el);
+                    setGraphSearchRendered(!!el);
                   },
                   large: true,
                   placeholder: 'Search playgrounds',
@@ -632,31 +719,37 @@ const App = (): JSX.Element => {
                 popoverProps={{ minimal: true }}
                 inputValueRenderer={(item: IGraphSearch) => item.name}
               />
-              <NodeSearch
-                className={styles.nodeSearch}
-                inputProps={{
-                  inputRef: nodeSearchInput,
-                  large: true,
-                  placeholder: 'Search Nodes',
+              <div
+                style={{
+                  visibility: isNodeSearchVisible ? undefined : 'hidden',
+                  position: 'relative',
+                  left: `${contextMenuPosition[0]}px`,
+                  top: `${contextMenuPosition[1]}px`,
                 }}
-                itemRenderer={renderNodeItem}
-                items={
-                  Object.keys(currentGraph.current.registeredNodeTypes).map(
-                    (node) => {
-                      return { title: node };
-                    }
-                  ) as INodeSearch[]
-                }
-                itemPredicate={filterNode}
-                onItemSelect={handleNodeItemSelect}
-                resetOnClose={true}
-                resetOnQuery={true}
-                resetOnSelect={true}
-                popoverProps={{ minimal: true }}
-                inputValueRenderer={(node: INodeSearch) => node.title}
-                createNewItemFromQuery={createNewItemFromQuery}
-                createNewItemRenderer={renderCreateFilmOption}
-              />
+              >
+                <NodeSearch
+                  className={styles.nodeSearch}
+                  inputProps={{
+                    inputRef: (el) => {
+                      nodeSearchInput.current = el;
+                      setNodeSearchRendered(!!el);
+                    },
+                    large: true,
+                    placeholder: 'Search Nodes',
+                  }}
+                  itemRenderer={renderNodeItem}
+                  items={getNodes()}
+                  itemPredicate={filterNode}
+                  onItemSelect={handleNodeItemSelect}
+                  resetOnClose={true}
+                  resetOnQuery={true}
+                  resetOnSelect={true}
+                  popoverProps={{ minimal: true }}
+                  inputValueRenderer={(node: INodeSearch) => node.title}
+                  createNewItemFromQuery={createNewItemFromQuery}
+                  createNewItemRenderer={renderCreateNodeOption}
+                />
+              </div>
             </>
           )}
         </div>
@@ -745,19 +838,24 @@ const renderNodeItem: ItemRenderer<INodeSearch> = (
       active={modifiers.active}
       disabled={modifiers.disabled}
       key={node.title}
+      title={node.description}
+      label={truncateText(node.description, 24)}
       onClick={handleClick}
       text={highlightText(text, query)}
     />
   );
 };
 
-function createNewItemFromQuery(title: string): INodeSearch {
+const createNewItemFromQuery = (title: string): INodeSearch => {
   return {
     title,
+    name: title,
+    description: '',
+    hasInputs: '',
   };
-}
+};
 
-const renderCreateFilmOption = (
+const renderCreateNodeOption = (
   query: string,
   active: boolean,
   handleClick: React.MouseEventHandler<HTMLElement>

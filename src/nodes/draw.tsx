@@ -39,6 +39,8 @@ import { TriggerType } from './datatypes/triggerType';
 
 export class PIXIText extends PPNode {
   _ref: PIXI.Text[];
+  textStyle: PIXI.TextStyle;
+  canvas: PIXI.Container;
 
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
     const nodeColor = NODE_TYPE_COLOR.DRAW;
@@ -60,25 +62,30 @@ export class PIXIText extends PPNode {
     this.name = 'Draw text';
     this.description = 'Draws a text';
 
-    const textStyle = new PIXI.TextStyle({
-      fontFamily: 'Arial',
-      fontSize: this.getInputData('size'),
-      lineHeight: this.getInputData('size') * NOTE_LINEHEIGHT_FACTOR,
-      align: 'center',
-      whiteSpace: 'pre-line',
-      wordWrap: true,
-      wordWrapWidth: NODE_WIDTH - NOTE_PADDING,
-      lineJoin: 'round',
-    });
+    this.onNodeAdded = () => {
+      this.textStyle = new PIXI.TextStyle({
+        fontFamily: 'Arial',
+        fontSize: this.getInputData('size'),
+        lineHeight: this.getInputData('size') * NOTE_LINEHEIGHT_FACTOR,
+        align: 'center',
+        whiteSpace: 'pre-line',
+        wordWrap: true,
+        wordWrapWidth: NODE_WIDTH - NOTE_PADDING,
+        lineJoin: 'round',
+      });
 
-    const canvas = this.graph.viewport.getChildByName(
-      'backgroundCanvas'
-    ) as PIXI.Container;
+      this.canvas = this.graph.viewport.getChildByName(
+        'backgroundCanvas'
+      ) as PIXI.Container;
 
-    const basicText = new PIXI.Text(this.getInputData('text'), textStyle);
+      const basicText = new PIXI.Text(
+        this.getInputData('text'),
+        this.textStyle
+      );
 
-    this._ref = [canvas.addChild(basicText)];
-    this.setOutputData('graphics', this._ref);
+      this._ref = [this.canvas.addChild(basicText)];
+      this.setOutputData('graphics', this._ref);
+    };
 
     this.onExecute = async function (input) {
       const x = [].concat(input['x']);
@@ -110,12 +117,12 @@ export class PIXIText extends PPNode {
         const myColor = trgbaToColor(color[index] ?? color[color.length - 1]);
 
         const PIXIText = new PIXI.Text(myText, {
-          ...textStyle,
+          ...this.textStyle,
           fontSize: mySize,
           lineHeight: mySize * NOTE_LINEHEIGHT_FACTOR,
           fill: PIXI.utils.string2hex(myColor.hex()),
         });
-        this._ref[index] = canvas.addChild(PIXIText);
+        this._ref[index] = this.canvas.addChild(PIXIText);
         this._ref[index].name = `${this.id}-${index}`;
 
         const pivotPoint =
@@ -140,7 +147,7 @@ export class PIXIText extends PPNode {
 
     this.onNodeRemoved = (): void => {
       for (let index = 0; index < this._ref.length; index++) {
-        canvas.removeChild(this._ref[index]);
+        this.canvas.removeChild(this._ref[index]);
       }
     };
   }
@@ -152,6 +159,7 @@ export class PIXIText extends PPNode {
 
 export class PIXIRect extends PPNode {
   _ref: PIXI.Graphics[];
+  canvas: PIXI.Container;
 
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
     const nodeColor = NODE_TYPE_COLOR.DRAW;
@@ -185,13 +193,15 @@ export class PIXIRect extends PPNode {
     this.name = 'Draw rectangle';
     this.description = 'Draws a rectangle';
 
-    const canvas = this.graph.viewport.getChildByName(
-      'backgroundCanvas'
-    ) as PIXI.Container;
+    this.onNodeAdded = () => {
+      this.canvas = this.graph.viewport.getChildByName(
+        'backgroundCanvas'
+      ) as PIXI.Container;
 
-    const graphics = new PIXI.Graphics();
-    this._ref = [canvas.addChild(graphics)];
-    this.setOutputData('graphics', this._ref);
+      const graphics = new PIXI.Graphics();
+      this._ref = [this.canvas.addChild(graphics)];
+      this.setOutputData('graphics', this._ref);
+    };
 
     this.onExecute = async function (input) {
       const x = [].concat(input['x']);
@@ -218,7 +228,7 @@ export class PIXIRect extends PPNode {
       for (let index = 0; index < lengthOfLargestArray; index++) {
         if (!this._ref[index]) {
           const graphics = new PIXI.Graphics();
-          this._ref[index] = canvas.addChild(graphics);
+          this._ref[index] = this.canvas.addChild(graphics);
         } else {
           this._ref[index].clear();
         }
@@ -259,7 +269,7 @@ export class PIXIRect extends PPNode {
 
     this.onNodeRemoved = (): void => {
       for (let index = 0; index < this._ref.length; index++) {
-        canvas.removeChild(this._ref[index]);
+        this.canvas.removeChild(this._ref[index]);
       }
     };
   }
@@ -271,6 +281,7 @@ export class PIXIRect extends PPNode {
 
 export class PIXICircle extends PPNode {
   _ref: PIXI.Graphics[];
+  canvas: PIXI.Container;
 
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
     const nodeColor = NODE_TYPE_COLOR.DRAW;
@@ -297,13 +308,15 @@ export class PIXICircle extends PPNode {
     this.name = 'Draw circle';
     this.description = 'Draws a circle';
 
-    const canvas = this.graph.viewport.getChildByName(
-      'backgroundCanvas'
-    ) as PIXI.Container;
+    this.onNodeAdded = () => {
+      this.canvas = this.graph.viewport.getChildByName(
+        'backgroundCanvas'
+      ) as PIXI.Container;
 
-    const graphics = new PIXI.Graphics();
-    this._ref = [canvas.addChild(graphics)];
-    this.setOutputData('graphics', this._ref);
+      const graphics = new PIXI.Graphics();
+      this._ref = [this.canvas.addChild(graphics)];
+      this.setOutputData('graphics', this._ref);
+    };
 
     this.onExecute = async function (input) {
       const x = [].concat(input['x']);
@@ -328,7 +341,7 @@ export class PIXICircle extends PPNode {
       for (let index = 0; index < lengthOfLargestArray; index++) {
         if (!this._ref[index]) {
           const graphics = new PIXI.Graphics();
-          this._ref[index] = canvas.addChild(graphics);
+          this._ref[index] = this.canvas.addChild(graphics);
         } else {
           this._ref[index].clear();
         }
@@ -368,7 +381,7 @@ export class PIXICircle extends PPNode {
 
     this.onNodeRemoved = (): void => {
       for (let index = 0; index < this._ref.length; index++) {
-        canvas.removeChild(this._ref[index]);
+        this.canvas.removeChild(this._ref[index]);
       }
     };
   }
@@ -380,6 +393,7 @@ export class PIXICircle extends PPNode {
 
 export class PIXIContainer extends PPNode {
   _containerRef: PIXI.Container[];
+  canvas: PIXI.Container;
 
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
     super(name, graph, {
@@ -399,15 +413,17 @@ export class PIXIContainer extends PPNode {
     this.name = 'Container';
     this.description = 'General-purpose display object that holds children';
 
-    const canvas = this.graph.viewport.getChildByName(
-      'backgroundCanvas'
-    ) as PIXI.Container;
+    this.onNodeAdded = () => {
+      this.canvas = this.graph.viewport.getChildByName(
+        'backgroundCanvas'
+      ) as PIXI.Container;
 
-    const container = new PIXI.Container();
-    this._containerRef = [canvas.addChild(container)];
-    this._containerRef[0].name = `${this.id}-${0}`;
+      const container = new PIXI.Container();
+      this._containerRef = [this.canvas.addChild(container)];
+      this._containerRef[0].name = `${this.id}-${0}`;
 
-    this.setOutputData('container', this._containerRef);
+      this.setOutputData('container', this._containerRef);
+    };
 
     this.onExecute = async function (input) {
       const mode = input['mode'];
@@ -439,7 +455,7 @@ export class PIXIContainer extends PPNode {
         for (let index = 0; index < lengthOfLargestArray; index++) {
           if (!this._containerRef[index]) {
             const container = new PIXI.Container();
-            this._containerRef[index] = canvas.addChild(container);
+            this._containerRef[index] = this.canvas.addChild(container);
           } else {
             this._containerRef[index].removeChildren();
           }
@@ -477,7 +493,7 @@ export class PIXIContainer extends PPNode {
         }
         this._containerRef.splice(0, this._containerRef.length); // clear array without removing reference
         const container = new PIXI.Container();
-        this._containerRef[0] = canvas.addChild(container);
+        this._containerRef[0] = this.canvas.addChild(container);
         this._containerRef[0].name = `${this.id}`;
 
         const allInputs = [...input1, ...input2, ...input3];
@@ -502,7 +518,7 @@ export class PIXIContainer extends PPNode {
 
     this.onNodeRemoved = (): void => {
       for (let index = 0; index < this._containerRef.length; index++) {
-        canvas.removeChild(this._containerRef[index]);
+        this.canvas.removeChild(this._containerRef[index]);
       }
     };
   }
@@ -548,14 +564,16 @@ export class PIXIMultiplier extends PPNode {
     this.name = 'GraphicsMultiplier';
     this.description = 'Multiplies the input graphics';
 
-    const inputContainer = new PIXI.Container();
-    const container = new PIXI.Container();
-    this._containerRef = (
-      this.graph.viewport.getChildByName('backgroundCanvas') as PIXI.Container
-    ).addChild(container);
-    this._inputContainerRef = this._containerRef.addChild(inputContainer);
-    this.setOutputData('container', this._containerRef);
-    this._containerRef.name = this.id;
+    this.onNodeAdded = () => {
+      const inputContainer = new PIXI.Container();
+      const container = new PIXI.Container();
+      this._containerRef = (
+        this.graph.viewport.getChildByName('backgroundCanvas') as PIXI.Container
+      ).addChild(container);
+      this._inputContainerRef = this._containerRef.addChild(inputContainer);
+      this.setOutputData('container', this._containerRef);
+      this._containerRef.name = this.id;
+    };
 
     this.onExecute = async function (input) {
       let inputRef: PIXI.DisplayObject[] | PIXI.DisplayObject = input['input'];
@@ -742,6 +760,8 @@ export class PIXIMultiplier extends PPNode {
 export class Note extends PPNode {
   _rectRef: PIXI.Sprite;
   _textInputRef: PIXI.Text;
+  note: PIXI.Sprite;
+  basicText: PIXI.Text;
   createInputElement;
   currentInput: HTMLDivElement;
   setCleanAndDisplayText: (input: HTMLDivElement) => void;
@@ -758,13 +778,6 @@ export class Note extends PPNode {
 
     this.name = 'Note';
     this.description = 'Adds a note';
-    const note = PIXI.Sprite.from(NOTE_TEXTURE);
-    note.x = SOCKET_WIDTH / 2;
-    note.y = NODE_OUTLINE_DISTANCE;
-    note.width = NODE_WIDTH;
-    note.height = NODE_WIDTH;
-
-    this.currentInput = null;
 
     const textFitOptions = {
       multiLine: true,
@@ -772,8 +785,35 @@ export class Note extends PPNode {
       // alignVertWithFlexbox: true,
     };
 
+    this.onNodeAdded = () => {
+      this.note = PIXI.Sprite.from(NOTE_TEXTURE);
+      this.note.x = SOCKET_WIDTH / 2;
+      this.note.y = NODE_OUTLINE_DISTANCE;
+      this.note.width = NODE_WIDTH;
+      this.note.height = NODE_WIDTH;
+
+      this.currentInput = null;
+
+      this.basicText = new PIXI.Text('', {
+        fontFamily: 'Arial',
+        fontSize: NOTE_FONTSIZE,
+        lineHeight: NOTE_FONTSIZE * NOTE_LINEHEIGHT_FACTOR,
+        align: 'center',
+        whiteSpace: 'pre-line',
+        wordWrap: true,
+        wordWrapWidth: NODE_WIDTH - NOTE_PADDING,
+        lineJoin: 'round',
+      });
+      this.basicText.anchor.set(0.5, 0.5);
+      this.basicText.x = (SOCKET_WIDTH + NODE_WIDTH) / 2;
+      this.basicText.y = (NODE_OUTLINE_DISTANCE + NODE_WIDTH) / 2;
+
+      // update shape after adding
+      this.drawNodeShape();
+    };
+
     //
-    this.onViewportMove = function (event: PIXI.InteractionEvent): void {
+    this.onViewportMove = function (): void {
       // console.log('onViewportMove', event);
       const screenPoint = this.graph.viewport.toScreen(this.x, this.y);
       this.currentInput.style.transform = `scale(${this.graph.viewport.scale.x}`;
@@ -782,29 +822,15 @@ export class Note extends PPNode {
     };
     this.onViewportMoveHandler = this.onViewportMove.bind(this);
 
-    const basicText = new PIXI.Text('', {
-      fontFamily: 'Arial',
-      fontSize: NOTE_FONTSIZE,
-      lineHeight: NOTE_FONTSIZE * NOTE_LINEHEIGHT_FACTOR,
-      align: 'center',
-      whiteSpace: 'pre-line',
-      wordWrap: true,
-      wordWrapWidth: NODE_WIDTH - NOTE_PADDING,
-      lineJoin: 'round',
-    });
-    basicText.anchor.set(0.5, 0.5);
-    basicText.x = (SOCKET_WIDTH + NODE_WIDTH) / 2;
-    basicText.y = (NODE_OUTLINE_DISTANCE + NODE_WIDTH) / 2;
-
     this.onDrawNodeShape = function () {
       this._BackgroundRef.visible = false;
       this._NodeNameRef.visible = false;
 
-      (this._rectRef as any) = (this as PIXI.Container).addChild(note);
+      (this._rectRef as any) = (this as PIXI.Container).addChild(this.note);
       this._rectRef.alpha = 1;
       this._rectRef.tint;
 
-      this._textInputRef = (this as PIXI.Container).addChild(basicText);
+      this._textInputRef = (this as PIXI.Container).addChild(this.basicText);
     };
 
     this.createInputElement = () => {
@@ -926,9 +952,6 @@ export class Note extends PPNode {
       this._textInputRef.text = inputText;
       this.setOutputData('textOutput', inputText);
     };
-
-    // update shape after initializing
-    this.drawNodeShape();
   }
 }
 
