@@ -1015,7 +1015,7 @@ NOTE: opening a remote playground creates a local copy`
                         submitEditDialog();
                       }}
                     >
-                      Rename
+                      Save
                     </Button>
                   </div>
                 </div>
