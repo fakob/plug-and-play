@@ -504,7 +504,7 @@ const App = (): JSX.Element => {
     open();
   }
 
-  const renameGraph = (graphId: number, newName = undefined) => {
+  function renameGraph(graphId: number, newName = undefined) {
     db.transaction('rw', db.graphs, db.settings, async () => {
       const id = await db.graphs.where('id').equals(graphId).modify({
         name: newName,
@@ -513,7 +513,7 @@ const App = (): JSX.Element => {
     }).catch((e) => {
       console.log(e.stack || e);
     });
-  };
+  }
 
   function deleteGraph(graphId: string) {
     console.log(graphId);
@@ -616,7 +616,7 @@ const App = (): JSX.Element => {
     });
   }
 
-  const cloneRemoteGraph = async (id = undefined) => {
+  async function cloneRemoteGraph(id = undefined) {
     const nameOfFileToClone = remoteGraphsRef.current[id];
     const fileData = await getRemoteGraph(
       githubBaseURL,
@@ -627,7 +627,7 @@ const App = (): JSX.Element => {
     currentGraph.current.configure(fileData);
     const newName = `${removeExtension(remoteGraphsRef.current[id])} - copy`; // remove .ppgraph extension and add copy
     saveNewGraph(newName);
-  };
+  }
 
   function createOrUpdateNodeFromCode(code) {
     currentGraph.current.createOrUpdateNodeFromCode(code);
