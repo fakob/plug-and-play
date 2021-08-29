@@ -76,7 +76,7 @@ const App = (): JSX.Element => {
   // remote playground database
   const githubBaseURL =
     'https://api.github.com/repos/fakob/plug-and-play-examples';
-  const githubBranchName = 'dev2';
+  const githubBranchName = 'dev';
 
   const mousePosition = { x: 0, y: 0 };
 
@@ -1041,6 +1041,7 @@ NOTE: opening a remote playground creates a local copy`
                   placeholder: 'Search playgrounds',
                 }}
                 // defaultSelectedItem={graphSearchActiveItem}
+                initialContent={'No playgrounds available'}
                 itemRenderer={renderGraphItem}
                 items={graphSearchItems}
                 activeItem={graphSearchActiveItem}
