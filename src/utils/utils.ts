@@ -247,28 +247,32 @@ export const getRemoteGraphsList = async (
   githubBaseURL: string,
   githubBranchName: string
 ): Promise<string[]> => {
-  const branches = await fetch(
-    `${githubBaseURL}/branches/${githubBranchName}`,
-    {
+  try {
+    const branches = await fetch(
+      `${githubBaseURL}/branches/${githubBranchName}`,
+      {
+        headers: {
+          accept: 'application/vnd.github.v3+json',
+        },
+      }
+    );
+    const branchesData = await branches.json();
+    const sha = branchesData.commit.sha;
+
+    const fileList = await fetch(`${githubBaseURL}/git/trees/${sha}`, {
       headers: {
         accept: 'application/vnd.github.v3+json',
       },
-    }
-  );
-  const branchesData = await branches.json();
-  const sha = branchesData.commit.sha;
+    });
+    const fileListData = await fileList.json();
+    console.log(fileListData.tree);
+    const files = fileListData.tree;
+    const arrayOfFileNames = files.map((file) => file.path);
 
-  const fileList = await fetch(`${githubBaseURL}/git/trees/${sha}`, {
-    headers: {
-      accept: 'application/vnd.github.v3+json',
-    },
-  });
-  const fileListData = await fileList.json();
-  console.log(fileListData.tree);
-  const files = fileListData.tree;
-  const arrayOfFileNames = files.map((file) => file.path);
-
-  return arrayOfFileNames;
+    return arrayOfFileNames;
+  } catch (error) {
+    return [];
+  }
 };
 
 export const getRemoteGraph = async (
@@ -276,17 +280,21 @@ export const getRemoteGraph = async (
   githubBranchName: string,
   fileName: string
 ): Promise<any> => {
-  const file = await fetch(
-    `${githubBaseURL}/contents/${fileName}?ref=${githubBranchName}`,
-    {
-      headers: {
-        accept: 'application/vnd.github.v3.raw',
-      },
-    }
-  );
-  const fileData = await file.json();
-  console.log(fileData);
-  return fileData;
+  try {
+    const file = await fetch(
+      `${githubBaseURL}/contents/${fileName}?ref=${githubBranchName}`,
+      {
+        headers: {
+          accept: 'application/vnd.github.v3.raw',
+        },
+      }
+    );
+    const fileData = await file.json();
+    console.log(fileData);
+    return fileData;
+  } catch (error) {
+    return undefined;
+  }
 };
 
 export const useStateRef = (initialValue: any) => {

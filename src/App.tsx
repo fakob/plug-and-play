@@ -76,7 +76,7 @@ const App = (): JSX.Element => {
   // remote playground database
   const githubBaseURL =
     'https://api.github.com/repos/fakob/plug-and-play-examples';
-  const githubBranchName = 'dev';
+  const githubBranchName = 'dev2';
 
   const mousePosition = { x: 0, y: 0 };
 
@@ -713,11 +713,13 @@ const App = (): JSX.Element => {
         }
       );
       // add remote header entry
-      remoteGraphSearchItems.unshift({
-        id: `remote-header`,
-        name: 'Remote playgrounds', // opening a remote playground creates a local copy
-        isDisabled: true,
-      });
+      if (remoteGraphSearchItems.length > 0) {
+        remoteGraphSearchItems.unshift({
+          id: `remote-header`,
+          name: 'Remote playgrounds', // opening a remote playground creates a local copy
+          isDisabled: true,
+        });
+      }
 
       const graphs = await db.graphs.toCollection().sortBy('date');
       const newGraphSearchItems = graphs.map((graph) => {
