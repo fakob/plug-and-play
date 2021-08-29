@@ -12,6 +12,7 @@ export const GraphContextMenu = (props) => {
         top: props.contextMenuPosition[1],
       }}
     >
+      <MenuDivider title="Playground" />
       <MenuItem
         icon="search"
         text="Open playground"
@@ -21,14 +22,21 @@ export const GraphContextMenu = (props) => {
         }}
       />
       <MenuItem
-        icon="search"
-        text="Find node"
-        label={`${props.controlOrMetaKey}+F`}
+        icon="export"
+        text="Load from file"
         onClick={() => {
-          props.openNodeSearch();
+          props.uploadGraph();
         }}
       />
-      <MenuDivider title="Playground" />
+      <MenuItem disabled text="" />
+      <MenuItem
+        icon="edit"
+        text="Edit details"
+        label={`${props.controlOrMetaKey}+E`}
+        onClick={() => {
+          props.setShowEdit(true);
+        }}
+      />
       <MenuItem
         icon="saved"
         text="Save"
@@ -43,14 +51,6 @@ export const GraphContextMenu = (props) => {
         label={`${props.controlOrMetaKey}+Shift+S`}
         onClick={() => {
           props.saveNewGraph();
-        }}
-      />
-      <MenuItem disabled text="" />
-      <MenuItem
-        icon="export"
-        text="Load from file"
-        onClick={() => {
-          props.uploadGraph();
         }}
       />
       <MenuItem
@@ -68,6 +68,15 @@ export const GraphContextMenu = (props) => {
           props.currentGraph.current.clear();
         }}
       />
+      <MenuDivider title="Nodes" />
+      <MenuItem
+        icon="search"
+        text="Find node"
+        label={`${props.controlOrMetaKey}+F`}
+        onClick={() => {
+          props.openNodeSearch();
+        }}
+      />
       <MenuDivider title="Viewport" />
       <MenuItem
         icon="zoom-to-fit"
@@ -77,9 +86,10 @@ export const GraphContextMenu = (props) => {
           props.zoomToFit();
         }}
       />
-      <MenuDivider />
+      <MenuDivider title="Debug" />
       <MenuItem
-        text={props.showComments ? 'Hide Comments' : 'Show Comments'}
+        text={`${props.showComments ? 'Hide' : 'Show'} output`}
+        label={`${props.controlOrMetaKey}+Shift+Y`}
         onClick={() => {
           props.setShowComments((prevState) => !prevState);
         }}

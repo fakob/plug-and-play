@@ -95,7 +95,7 @@ const App = (): JSX.Element => {
   const [isNodeContextMenuOpen, setIsNodeContextMenuOpen] = useState(false);
   const [contextMenuPosition, setContextMenuPosition] = useState([0, 0]);
   const [isCurrentGraphLoaded, setIsCurrentGraphLoaded] = useState(false);
-  const [actionObject, setActionObject] = useState(null);
+  const [actionObject, setActionObject] = useState(null); // id and name of graph to edit/delete
   const [showComments, setShowComments] = useState(false);
   const [selectedNode, setSelectedNode] = useState<PPNode | null>(null);
   const [remoteGraphs, setRemoteGraphs, remoteGraphsRef] = useStateRef([]);
@@ -388,6 +388,10 @@ const App = (): JSX.Element => {
         e.preventDefault();
         openNodeSearch(mousePosition);
       }
+      if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'e') {
+        e.preventDefault();
+        setShowEdit((prevState) => !prevState);
+      }
       if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 's') {
         e.preventDefault();
         if (e.shiftKey) {
@@ -398,6 +402,10 @@ const App = (): JSX.Element => {
       }
       if (e.shiftKey && e.code === 'Digit1') {
         zoomToFit();
+      }
+      if ((isMac ? e.metaKey : e.ctrlKey) && e.shiftKey && e.key === 'y') {
+        e.preventDefault();
+        setShowComments((prevState) => !prevState);
       }
       if (e.key === 'Escape') {
         setIsGraphSearchOpen(false);
@@ -509,6 +517,7 @@ const App = (): JSX.Element => {
       const id = await db.graphs.where('id').equals(graphId).modify({
         name: newName,
       });
+      setActionObject({ id: graphId, name: newName });
       console.log(`Renamed graph: ${id} to ${newName}`);
     }).catch((e) => {
       console.log(e.stack || e);
@@ -548,10 +557,11 @@ const App = (): JSX.Element => {
       const loadedGraph = graphs.find((graph) => graph.id === loadedGraphId);
 
       if (saveNew || graphs.length === 0 || loadedGraph === undefined) {
+        const name = newName ?? tempName;
         const indexId = await db.graphs.put({
           id,
           date: new Date(),
-          name: newName ?? tempName,
+          name,
           graphData: serializedGraph,
         });
 
@@ -560,7 +570,11 @@ const App = (): JSX.Element => {
           name: 'loadedGraphId',
           value: id,
         });
-        console.log(`Saved currentGraph: ${indexId}`);
+
+        setActionObject({ id, name });
+        setGraphSearchActiveItem({ id, name });
+
+        console.log(`Saved new graph: ${indexId}`);
       } else {
         const indexId = await db.graphs
           .where('id')
@@ -604,6 +618,10 @@ const App = (): JSX.Element => {
           value: loadedGraph.id,
         });
 
+        setActionObject({
+          id: loadedGraph.id,
+          name: loadedGraph.name,
+        });
         setGraphSearchActiveItem({
           id: loadedGraph.id,
           name: loadedGraph.name,
@@ -995,6 +1013,7 @@ NOTE: opening a remote playground creates a local copy`
               currentGraph={currentGraph}
               setIsGraphSearchOpen={setIsGraphSearchOpen}
               openNodeSearch={openNodeSearch}
+              setShowEdit={setShowEdit}
               loadGraph={loadGraph}
               saveGraph={saveGraph}
               saveNewGraph={saveNewGraph}
