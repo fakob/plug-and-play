@@ -909,6 +909,15 @@ NOTE: opening a remote playground creates a local copy`
     };
   };
 
+  const submitEditDialog = (): void => {
+    const name = (
+      document.getElementById('playground-name-input') as HTMLInputElement
+    ).value;
+    setShowEdit(false);
+    renameGraph(actionObject.id, name);
+    updateGraphSearchItems();
+  };
+
   const renderCreateNodeOption = (
     query: string,
     active: boolean,
@@ -975,35 +984,42 @@ NOTE: opening a remote playground creates a local copy`
             enforceFocus={true}
             isOpen={showEdit}
             usePortal={true}
+            onOpened={() => {
+              const input = document.getElementById(
+                'playground-name-input'
+              ) as HTMLInputElement;
+              input.focus();
+              input.select();
+            }}
           >
             <div className={Classes.DIALOG_BODY}>
-              <FormGroup label="Name of playground" labelFor="text-input">
-                <InputGroup
-                  id="playground-name-input"
-                  defaultValue={`${actionObject?.name}`}
-                  placeholder={`${actionObject?.name}`}
-                />
-              </FormGroup>
-              <div className={Classes.DIALOG_FOOTER}>
-                <div className={Classes.DIALOG_FOOTER_ACTIONS}>
-                  <Button onClick={() => setShowEdit(false)}>Cancel</Button>
-                  <Button
-                    intent={Intent.WARNING}
-                    onClick={() => {
-                      const name = (
-                        document.getElementById(
-                          'playground-name-input'
-                        ) as HTMLInputElement
-                      ).value;
-                      setShowEdit(false);
-                      renameGraph(actionObject.id, name);
-                      updateGraphSearchItems();
-                    }}
-                  >
-                    Rename
-                  </Button>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  submitEditDialog();
+                }}
+              >
+                <FormGroup label="Name of playground" labelFor="text-input">
+                  <InputGroup
+                    id="playground-name-input"
+                    defaultValue={`${actionObject?.name}`}
+                    placeholder={`${actionObject?.name}`}
+                  />
+                </FormGroup>
+                <div className={Classes.DIALOG_FOOTER}>
+                  <div className={Classes.DIALOG_FOOTER_ACTIONS}>
+                    <Button onClick={() => setShowEdit(false)}>Cancel</Button>
+                    <Button
+                      intent={Intent.WARNING}
+                      onClick={() => {
+                        submitEditDialog();
+                      }}
+                    >
+                      Rename
+                    </Button>
+                  </div>
                 </div>
-              </div>
+              </form>
             </div>
           </Dialog>
           {isGraphContextMenuOpen && (
