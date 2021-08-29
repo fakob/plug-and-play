@@ -10,6 +10,7 @@ import {
   SOCKET_TEXTMARGIN_TOP,
   SOCKET_WIDTH,
 } from './constants';
+import { GraphDatabase } from './indexedDB';
 
 import { PPNodeConstructor } from './interfaces';
 
@@ -302,4 +303,16 @@ export const useStateRef = (initialValue: any) => {
 
 export const removeExtension = (fileName: string): string => {
   return fileName.replace(/\.[^/.]+$/, '');
+};
+
+export const getLoadedGraphId = async (
+  db: GraphDatabase
+): Promise<string | undefined> => {
+  const loadedGraphIdObject = await db.settings
+    .where({
+      name: 'loadedGraphId',
+    })
+    .first();
+  const loadedGraphId = loadedGraphIdObject?.value;
+  return loadedGraphId;
 };

@@ -41,6 +41,7 @@ import {
   convertBlobToBase64,
   downloadFile,
   formatDate,
+  getLoadedGraphId,
   getRemoteGraph,
   getRemoteGraphsList,
   highlightText,
@@ -486,16 +487,7 @@ const App = (): JSX.Element => {
   function downloadGraph() {
     db.transaction('rw', db.graphs, db.settings, async () => {
       const graphs = await db.graphs.toArray();
-      const loadedGraphIdObject = await db.settings
-        .where({
-          name: 'loadedGraphId',
-        })
-        .first();
-      const loadedGraphId = loadedGraphIdObject?.value
-        ? parseInt(loadedGraphIdObject.value)
-        : 0;
-      console.log(loadedGraphIdObject);
-      console.log(loadedGraphId);
+      const loadedGraphId = await getLoadedGraphId(db);
 
       const serializedGraph = currentGraph.current.serialize();
       downloadFile(
@@ -530,15 +522,7 @@ const App = (): JSX.Element => {
   function deleteGraph(graphId: string) {
     console.log(graphId);
     db.transaction('rw', db.graphs, db.settings, async () => {
-      const loadedGraphIdObject = await db.settings
-        .where({
-          name: 'loadedGraphId',
-        })
-        .first();
-      const loadedGraphId = loadedGraphIdObject?.value;
-      console.log(loadedGraphIdObject);
-      console.log(loadedGraphId);
-
+      const loadedGraphId = await getLoadedGraphId(db);
       if (loadedGraphId === graphId) {
         // save loadedGraphId
         await db.settings.put({
@@ -560,14 +544,7 @@ const App = (): JSX.Element => {
     // console.log(JSON.stringify(serializedGraph));
     db.transaction('rw', db.graphs, db.settings, async () => {
       const graphs = await db.graphs.toArray();
-      const loadedGraphIdObject = await db.settings
-        .where({
-          name: 'loadedGraphId',
-        })
-        .first();
-      const loadedGraphId = loadedGraphIdObject?.value;
-      console.log(loadedGraphIdObject);
-      console.log(loadedGraphId);
+      const loadedGraphId = await getLoadedGraphId(db);
 
       const id = hri.random();
       const tempName = id.substring(0, id.lastIndexOf('-')).replace('-', ' ');
@@ -610,16 +587,9 @@ const App = (): JSX.Element => {
   function loadGraph(id = undefined) {
     db.transaction('rw', db.graphs, db.settings, async () => {
       const graphs = await db.graphs.toArray();
+      const loadedGraphId = await getLoadedGraphId(db);
 
-      const loadedGraphIdObject = await db.settings
-        .where({
-          name: 'loadedGraphId',
-        })
-        .first();
-
-      if (loadedGraphIdObject !== undefined && graphs.length > 0) {
-        const loadedGraphId = loadedGraphIdObject?.value;
-
+      if (loadedGraphId !== undefined && graphs.length > 0) {
         let loadedGraph = graphs.find(
           (graph) => graph.id === (id || loadedGraphId)
         );
@@ -777,12 +747,7 @@ const App = (): JSX.Element => {
       ];
       setGraphSearchItems(allGraphSearchItems);
 
-      const loadedGraphIdObject = await db.settings
-        .where({
-          name: 'loadedGraphId',
-        })
-        .first();
-      const loadedGraphId = loadedGraphIdObject?.value;
+      const loadedGraphId = await getLoadedGraphId(db);
       const loadedGraphIndex = allGraphSearchItems.findIndex(
         (graph) => graph.id === loadedGraphId
       );
