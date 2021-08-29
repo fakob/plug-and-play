@@ -14,7 +14,7 @@ export const GraphContextMenu = (props) => {
     >
       <MenuItem
         icon="search"
-        text="Search playgrounds"
+        text="Open playground"
         label={`${props.controlOrMetaKey}+O`}
         onClick={() => {
           props.setIsGraphSearchOpen(true);
@@ -22,23 +22,16 @@ export const GraphContextMenu = (props) => {
       />
       <MenuItem
         icon="search"
-        text="Search nodes"
+        text="Find node"
         label={`${props.controlOrMetaKey}+F`}
         onClick={() => {
           props.openNodeSearch();
         }}
       />
-      <MenuDivider title="Graph" />
-      <MenuItem
-        icon="document"
-        text="Recall graph"
-        onClick={() => {
-          props.loadCurrentGraph();
-        }}
-      />
+      <MenuDivider title="Playground" />
       <MenuItem
         icon="saved"
-        text="Store graph"
+        text="Save"
         label={`${props.controlOrMetaKey}+S`}
         onClick={() => {
           props.saveGraph();
@@ -46,7 +39,7 @@ export const GraphContextMenu = (props) => {
       />
       <MenuItem
         icon="saved"
-        text="Store new graph"
+        text="Save as new"
         label={`${props.controlOrMetaKey}+Shift+S`}
         onClick={() => {
           props.saveNewGraph();
@@ -55,14 +48,14 @@ export const GraphContextMenu = (props) => {
       <MenuItem disabled text="" />
       <MenuItem
         icon="export"
-        text="Load graph from file"
+        text="Load from file"
         onClick={() => {
           props.uploadGraph();
         }}
       />
       <MenuItem
         icon="import"
-        text="Download graph"
+        text="Download"
         onClick={() => {
           props.downloadGraph();
         }}
@@ -70,7 +63,7 @@ export const GraphContextMenu = (props) => {
       <MenuItem disabled text="" />
       <MenuItem
         icon="cross"
-        text="Clear graph"
+        text="Clear"
         onClick={() => {
           props.currentGraph.current.clear();
         }}
