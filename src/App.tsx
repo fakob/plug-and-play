@@ -75,7 +75,7 @@ const App = (): JSX.Element => {
 
   // remote playground database
   const githubBaseURL =
-    'https://api.github.com/repos/fakob/plug-and-play-graphs';
+    'https://api.github.com/repos/fakob/plug-and-play-examples';
   const githubTagName = 'v0.0.2';
 
   const mousePosition = { x: 0, y: 0 };
