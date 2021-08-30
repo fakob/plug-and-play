@@ -1,15 +1,17 @@
 import React from 'react';
-import { SelectWidget } from '../../widgets';
+import { SelectWidget, SelectWidgetProps } from '../../widgets';
 import { AbstractType } from './abstractType';
 
 export class EnumType extends AbstractType {
-  classEnum;
-  constructor(inEnum: unknown) {
+  options;
+  constructor(inOptions: [any]) {
     super();
-    this.classEnum = inEnum;
+    this.options = inOptions;
   }
 
   getInputWidget = (data: any): any => {
-    return <SelectWidget {...data} />;
+    const widgetProps: SelectWidgetProps = data;
+    widgetProps.options;
+    return <SelectWidget {...widgetProps} />;
   };
 }

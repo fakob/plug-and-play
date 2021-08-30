@@ -16,8 +16,12 @@ import { limitRange, roundNumber } from './utils/utils';
 import styles from './utils/style.module.css';
 import { TRgba } from './utils/interfaces';
 
-type SliderWidgetProps = {
+export type SliderWidgetProps = {
   property: Socket;
+  minValue: number;
+  maxValue: number;
+  round: boolean;
+  stepSize: number;
   isInput: boolean;
   hasLink: boolean;
   index: number;
@@ -35,22 +39,20 @@ export const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (
   props
 ) => {
   const [data, setData] = useState(Number(props.data));
-  const [minValue, setMinValue] = useState(
-    Math.min(props.property.custom?.minValue ?? 0, data)
-  );
+  const [minValue, setMinValue] = useState(Math.min(props.minValue ?? 0, data));
   const [maxValue, setMaxValue] = useState(
-    Math.max(props.property.custom?.maxValue ?? 100, data)
+    Math.max(props.maxValue ?? 100, data)
   );
-  const [round, setRound] = useState(props.property.custom?.round ?? false);
-  const [stepSizeValue] = useState(props.property.custom?.stepSize ?? 0.01);
+  const [round, setRound] = useState(props.round ?? false);
+  const [stepSizeValue] = useState(props.stepSize ?? 0.01);
 
   useEffect(() => {
     const newValue = round ? Math.round(data) : data;
     potentiallyNotify(props.property, newValue);
-    /*if (props.property.data != newValue) {
+    if (props.property.data != newValue) {
       props.property.data = newValue;
       props.property.notifyChange(new Set());
-    }*/
+    }
   }, [data]);
 
   useEffect(() => {
@@ -131,18 +133,19 @@ export const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (
   );
 };
 
-type SelectWidgetProps = {
+export type SelectWidgetProps = {
   property: Socket;
   index: number;
   hasLink: boolean;
   data: number;
+  options: [any];
 };
 
 export const SelectWidget: React.FunctionComponent<SelectWidgetProps> = (
   props
 ) => {
   const [data, setData] = useState(props.data);
-  const [options] = useState(props.property.custom?.options);
+  const [options] = useState(props.options);
 
   const onChange = (event) => {
     const value = event.target.value;

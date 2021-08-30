@@ -1,5 +1,6 @@
 /* eslint-disable prettier/prettier */
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
+import { inspect } from 'util';
 import { DefaultOutputWidget, SliderWidget } from '../../widgets';
 export class AbstractType {
   // an extensive list of all widgets you allow for input
@@ -16,7 +17,10 @@ export class AbstractType {
     return data.toString();
   }
   getComment(data: any): string {
-    return data.toString();
+    if (data) {
+      return inspect(data.toString(), null, 1);
+    }
+    return 'null';
   }
 
   getInputWidget = (data: any): any => {

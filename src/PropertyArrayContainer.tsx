@@ -150,7 +150,7 @@ const PropertyContainer: React.FunctionComponent<PropertyContainerProps> = (
         index={props.index}
         isInput={props.isInput}
         hasLink={props.hasLink}
-        dataType={''} // TODO fix
+        dataType={props.property.dataType} // TODO fix
         onChangeDropdown={onChangeDropdown}
       />
       {widget}
@@ -163,7 +163,7 @@ type PropertyHeaderProps = {
   index: number;
   isInput: boolean;
   hasLink: boolean;
-  dataType: string;
+  dataType: AbstractType;
   onChangeDropdown: (event) => void;
 };
 
@@ -211,7 +211,7 @@ const PropertyHeader: React.FunctionComponent<PropertyHeaderProps> = (
       <HTMLSelect
         className={`${styles.opacity30} bp3-minimal`}
         onChange={props.onChangeDropdown}
-        value={props.dataType}
+        value={props.dataType.getName()}
         disabled={props.hasLink}
       >
         {Object.values(DATATYPE).map((value) => {

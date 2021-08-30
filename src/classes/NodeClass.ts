@@ -26,8 +26,9 @@ import {
 import PPGraph from './GraphClass';
 import Socket from './SocketClass';
 import { getNodeCommentPosX, getNodeCommentPosY } from '../utils/utils';
-import { AbstractType } from '../nodes/datatypes/abstractType.js';
-import { AnyType } from '../nodes/datatypes/anyType.js';
+import { AbstractType } from '../nodes/datatypes/abstractType';
+import { AnyType } from '../nodes/datatypes/anyType';
+import { inspect } from 'util';
 
 export class UpdateBehaviour {
   update: boolean;
@@ -493,7 +494,7 @@ export default class PPNode extends PIXI.Container {
   public addDefaultInput(): void {
     this.addInput(
       this.constructSocketName('Custom Input', this.inputSocketArray),
-      null /*new AbstractType()*/ // TODO ANYTYPE
+      new AnyType()
     );
   }
 
@@ -503,7 +504,7 @@ export default class PPNode extends PIXI.Container {
   public addDefaultOutput(): void {
     this.addOutput(
       this.constructSocketName('Custom Output', this.outputSocketArray),
-      null /*new AbstractType()*/ // TODO ANYTYPE
+      new AnyType()
     );
   }
 
@@ -523,13 +524,16 @@ export default class PPNode extends PIXI.Container {
   }
 
   drawComment(): void {
+    const commentData = this.outputSocketArray[0]?.dataType?.getComment(
+      this.outputSocketArray[0]?.data
+    );
+    this._NodeCommentRef.text = commentData;
     // TODO add this in the types themselves
-    /*
-    const commentData = this.outputSocketArray[0]?.data;
     // console.log(this.outputSocketArray[0], commentData);
-    if (commentData !== undefined) {
+    if (!Array.isArray(this.outputSocketArray[0].data)) {
       // custom output for pixi elements
-      if (
+      //this._NodeCommentRef.text = inspect(commentData, null, 1);
+      /*if (
         this.outputSocketArray[0]?.dataType === DATATYPE.PIXI &&
         !Array.isArray(this.outputSocketArray[0].data)
       ) {
@@ -554,8 +558,8 @@ export default class PPNode extends PIXI.Container {
         this._NodeCommentRef.text = inspect(strippedCommentData, null, 1);
       } else {
         this._NodeCommentRef.text = inspect(commentData, null, 2);
-      }
-    }*/
+      }*/
+    }
   }
 
   screenPoint(): PIXI.Point {
