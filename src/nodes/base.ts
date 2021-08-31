@@ -1,5 +1,4 @@
 import * as PIXI from 'pixi.js';
-import axios from 'axios';
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
 import {

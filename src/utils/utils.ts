@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Node } from 'slate';
 
 import PPGraph from '../classes/GraphClass';
@@ -10,6 +10,7 @@ import {
   SOCKET_TEXTMARGIN_TOP,
   SOCKET_WIDTH,
 } from './constants';
+import { GraphDatabase } from './indexedDB';
 
 import { PPNodeConstructor } from './interfaces';
 
@@ -240,4 +241,84 @@ export const truncateText = (
     return inputString.substring(0, maxLength) + '...';
   }
   return inputString;
+};
+
+export const getRemoteGraphsList = async (
+  githubBaseURL: string,
+  githubBranchName: string
+): Promise<string[]> => {
+  try {
+    const branches = await fetch(
+      `${githubBaseURL}/branches/${githubBranchName}`,
+      {
+        headers: {
+          accept: 'application/vnd.github.v3+json',
+        },
+      }
+    );
+    const branchesData = await branches.json();
+    const sha = branchesData.commit.sha;
+
+    const fileList = await fetch(`${githubBaseURL}/git/trees/${sha}`, {
+      headers: {
+        accept: 'application/vnd.github.v3+json',
+      },
+    });
+    const fileListData = await fileList.json();
+    const files = fileListData.tree;
+    const arrayOfFileNames = files.map((file) => file.path);
+
+    return arrayOfFileNames;
+  } catch (error) {
+    return [];
+  }
+};
+
+export const getRemoteGraph = async (
+  githubBaseURL: string,
+  githubBranchName: string,
+  fileName: string
+): Promise<any> => {
+  try {
+    const file = await fetch(
+      `${githubBaseURL}/contents/${fileName}?ref=${githubBranchName}`,
+      {
+        headers: {
+          accept: 'application/vnd.github.v3.raw',
+        },
+      }
+    );
+    const fileData = await file.json();
+    return fileData;
+  } catch (error) {
+    return undefined;
+  }
+};
+
+export const useStateRef = (initialValue: any) => {
+  const [value, setValue] = useState(initialValue);
+
+  const ref = useRef(value);
+
+  useEffect(() => {
+    ref.current = value;
+  }, [value]);
+
+  return [value, setValue, ref];
+};
+
+export const removeExtension = (fileName: string): string => {
+  return fileName.replace(/\.[^/.]+$/, '');
+};
+
+export const getLoadedGraphId = async (
+  db: GraphDatabase
+): Promise<string | undefined> => {
+  const loadedGraphIdObject = await db.settings
+    .where({
+      name: 'loadedGraphId',
+    })
+    .first();
+  const loadedGraphId = loadedGraphIdObject?.value;
+  return loadedGraphId;
 };

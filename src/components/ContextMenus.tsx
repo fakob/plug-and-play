@@ -12,33 +12,34 @@ export const GraphContextMenu = (props) => {
         top: props.contextMenuPosition[1],
       }}
     >
+      <MenuDivider title="Playground" />
       <MenuItem
         icon="search"
-        text="Search playgrounds"
+        text="Open playground"
         label={`${props.controlOrMetaKey}+O`}
         onClick={() => {
           props.setIsGraphSearchOpen(true);
         }}
       />
       <MenuItem
-        icon="search"
-        text="Search nodes"
-        label={`${props.controlOrMetaKey}+F`}
+        icon="export"
+        text="Load from file"
         onClick={() => {
-          props.openNodeSearch();
+          props.uploadGraph();
         }}
       />
-      <MenuDivider title="Graph" />
+      <MenuItem disabled text="" />
       <MenuItem
-        icon="document"
-        text="Recall graph"
+        icon="edit"
+        text="Edit details"
+        label={`${props.controlOrMetaKey}+E`}
         onClick={() => {
-          props.loadCurrentGraph();
+          props.setShowEdit(true);
         }}
       />
       <MenuItem
         icon="saved"
-        text="Store graph"
+        text="Save"
         label={`${props.controlOrMetaKey}+S`}
         onClick={() => {
           props.saveGraph();
@@ -46,23 +47,15 @@ export const GraphContextMenu = (props) => {
       />
       <MenuItem
         icon="saved"
-        text="Store new graph"
+        text="Save as new"
         label={`${props.controlOrMetaKey}+Shift+S`}
         onClick={() => {
           props.saveNewGraph();
         }}
       />
-      <MenuItem disabled text="" />
-      <MenuItem
-        icon="export"
-        text="Load graph from file"
-        onClick={() => {
-          props.uploadGraph();
-        }}
-      />
       <MenuItem
         icon="import"
-        text="Download graph"
+        text="Download"
         onClick={() => {
           props.downloadGraph();
         }}
@@ -70,9 +63,18 @@ export const GraphContextMenu = (props) => {
       <MenuItem disabled text="" />
       <MenuItem
         icon="cross"
-        text="Clear graph"
+        text="Clear"
         onClick={() => {
           props.currentGraph.current.clear();
+        }}
+      />
+      <MenuDivider title="Nodes" />
+      <MenuItem
+        icon="search"
+        text="Find node"
+        label={`${props.controlOrMetaKey}+F`}
+        onClick={() => {
+          props.openNodeSearch();
         }}
       />
       <MenuDivider title="Viewport" />
@@ -84,9 +86,10 @@ export const GraphContextMenu = (props) => {
           props.zoomToFit();
         }}
       />
-      <MenuDivider />
+      <MenuDivider title="Debug" />
       <MenuItem
-        text={props.showComments ? 'Hide Comments' : 'Show Comments'}
+        text={`${props.showComments ? 'Hide' : 'Show'} output`}
+        label={`${props.controlOrMetaKey}+Shift+Y`}
         onClick={() => {
           props.setShowComments((prevState) => !prevState);
         }}

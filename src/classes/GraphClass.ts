@@ -410,7 +410,6 @@ export default class PPGraph {
     type: string,
     customArgs?: CustomArgs
   ): T {
-    console.log(customArgs);
     const node = this.createNode(type, customArgs) as T;
     // if (node) {
     this.addNode(node);
@@ -685,7 +684,6 @@ export default class PPGraph {
           error = true;
           console.log('Node not found or has errors: ' + serializedNode.type);
         }
-        console.log(serializedNode);
         node.configure(serializedNode);
       }
     }

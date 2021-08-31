@@ -9,7 +9,18 @@ import { ErrorBoundary } from 'react-error-boundary';
 import { useDropzone } from 'react-dropzone';
 import * as PIXI from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
-import { MenuItem } from '@blueprintjs/core';
+import {
+  Alert,
+  Button,
+  ButtonGroup,
+  Classes,
+  Dialog,
+  FormGroup,
+  InputGroup,
+  Intent,
+  MenuDivider,
+  MenuItem,
+} from '@blueprintjs/core';
 import { ItemRenderer, ItemPredicate, Suggest } from '@blueprintjs/select';
 import { hri } from 'human-readable-ids';
 import TimeAgo from 'javascript-time-ago';
@@ -30,8 +41,13 @@ import {
   convertBlobToBase64,
   downloadFile,
   formatDate,
+  getLoadedGraphId,
+  getRemoteGraph,
+  getRemoteGraphsList,
   highlightText,
   truncateText,
+  removeExtension,
+  useStateRef,
 } from './utils/utils';
 import { registerAllNodeTypes } from './nodes/allNodes';
 import PPSelection from './classes/SelectionClass';
@@ -56,6 +72,12 @@ console.log('isMac: ', isMac);
 
 const App = (): JSX.Element => {
   document.title = 'Your Plug and Playground';
+
+  // remote playground database
+  const githubBaseURL =
+    'https://api.github.com/repos/fakob/plug-and-play-examples';
+  const githubBranchName = 'dev';
+
   const mousePosition = { x: 0, y: 0 };
 
   const db = new GraphDatabase();
@@ -73,13 +95,19 @@ const App = (): JSX.Element => {
   const [isNodeContextMenuOpen, setIsNodeContextMenuOpen] = useState(false);
   const [contextMenuPosition, setContextMenuPosition] = useState([0, 0]);
   const [isCurrentGraphLoaded, setIsCurrentGraphLoaded] = useState(false);
+  const [actionObject, setActionObject] = useState(null); // id and name of graph to edit/delete
   const [showComments, setShowComments] = useState(false);
   const [selectedNode, setSelectedNode] = useState<PPNode | null>(null);
+  const [remoteGraphs, setRemoteGraphs, remoteGraphsRef] = useStateRef([]);
   const [graphSearchItems, setGraphSearchItems] = useState<
     IGraphSearch[] | null
-  >([{ id: 0, name: hri.random() as string, date: new Date() }]);
+  >([{ id: '', name: '' }]);
   const [graphSearchActiveItem, setGraphSearchActiveItem] =
     useState<IGraphSearch | null>(null);
+
+  // dialogs
+  const [showEdit, setShowEdit] = useState(false);
+  const [showDeleteGraph, setShowDeleteGraph] = useState(false);
 
   let lastTimeTicked = 0;
 
@@ -106,6 +134,7 @@ const App = (): JSX.Element => {
           case 'ppgraph':
             data = await response.text();
             currentGraph.current.configure(JSON.parse(data), false);
+            saveNewGraph(removeExtension(file.name));
             break;
           case 'csv':
             data = await response.text();
@@ -277,6 +306,13 @@ const App = (): JSX.Element => {
     setIsCurrentGraphLoaded(true);
     console.log('currentGraph.current:', currentGraph.current);
 
+    getRemoteGraphsList(githubBaseURL, githubBranchName).then(
+      (arrayOfFileNames) => {
+        console.log(arrayOfFileNames);
+        setRemoteGraphs(arrayOfFileNames);
+      }
+    );
+
     // register callbacks
     currentGraph.current.selection.onSelectionChange = (
       selectedNodes: PPNode[]
@@ -352,6 +388,10 @@ const App = (): JSX.Element => {
         e.preventDefault();
         openNodeSearch(mousePosition);
       }
+      if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'e') {
+        e.preventDefault();
+        setShowEdit((prevState) => !prevState);
+      }
       if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 's') {
         e.preventDefault();
         if (e.shiftKey) {
@@ -362,6 +402,10 @@ const App = (): JSX.Element => {
       }
       if (e.shiftKey && e.code === 'Digit1') {
         zoomToFit();
+      }
+      if ((isMac ? e.metaKey : e.ctrlKey) && e.shiftKey && e.key === 'y') {
+        e.preventDefault();
+        setShowComments((prevState) => !prevState);
       }
       if (e.key === 'Escape') {
         setIsGraphSearchOpen(false);
@@ -410,8 +454,10 @@ const App = (): JSX.Element => {
   }, [nodeSearchRendered]);
 
   useEffect(() => {
-    if (isGraphSearchOpen) {
-      graphSearchInput.current.focus();
+    if (graphSearchInput.current != null) {
+      if (isGraphSearchOpen) {
+        graphSearchInput.current.focus();
+      }
     }
   }, [isGraphSearchOpen]);
 
@@ -447,110 +493,158 @@ const App = (): JSX.Element => {
   };
 
   function downloadGraph() {
-    const serializedGraph = currentGraph.current.serialize();
-    downloadFile(
-      JSON.stringify(serializedGraph, null, 2),
-      `${formatDate()}.ppgraph`,
-      'text/plain'
-    );
+    db.transaction('rw', db.graphs, db.settings, async () => {
+      const loadedGraphId = await getLoadedGraphId(db);
+      const graph = await db.graphs.where('id').equals(loadedGraphId).first();
+
+      const serializedGraph = currentGraph.current.serialize();
+      downloadFile(
+        JSON.stringify(serializedGraph, null, 2),
+        `${graph?.name} - ${formatDate()}.ppgraph`,
+        'text/plain'
+      );
+    }).catch((e) => {
+      console.log(e.stack || e);
+    });
   }
 
   function uploadGraph() {
     open();
   }
 
-  function saveGraph(saveNew = false) {
+  function renameGraph(graphId: number, newName = undefined) {
+    db.transaction('rw', db.graphs, db.settings, async () => {
+      const id = await db.graphs.where('id').equals(graphId).modify({
+        name: newName,
+      });
+      setActionObject({ id: graphId, name: newName });
+      console.log(`Renamed graph: ${id} to ${newName}`);
+    }).catch((e) => {
+      console.log(e.stack || e);
+    });
+  }
+
+  function deleteGraph(graphId: string) {
+    console.log(graphId);
+    db.transaction('rw', db.graphs, db.settings, async () => {
+      const loadedGraphId = await getLoadedGraphId(db);
+      if (loadedGraphId === graphId) {
+        // save loadedGraphId
+        await db.settings.put({
+          name: 'loadedGraphId',
+          value: undefined,
+        });
+      }
+      const id = await db.graphs.where('id').equals(graphId).delete();
+      console.log(`Deleted graph: ${id}`);
+    }).catch((e) => {
+      console.log(e.stack || e);
+    });
+  }
+
+  function saveGraph(saveNew = false, newName = undefined) {
     const serializedGraph = currentGraph.current.serialize();
     console.log(serializedGraph);
     console.info(serializedGraph.customNodeTypes);
     // console.log(JSON.stringify(serializedGraph));
     db.transaction('rw', db.graphs, db.settings, async () => {
       const graphs = await db.graphs.toArray();
-      const loadedGraphIdObject = await db.settings
-        .where({
-          name: 'loadedGraphId',
-        })
-        .first();
-      const loadedGraphId = loadedGraphIdObject?.value
-        ? parseInt(loadedGraphIdObject.value)
-        : 0;
-      console.log(loadedGraphIdObject);
-      console.log(loadedGraphId);
+      const loadedGraphId = await getLoadedGraphId(db);
 
-      let graphObject;
-      if (
-        saveNew ||
-        graphs.length === 0 ||
-        graphs[loadedGraphId] === undefined
-      ) {
-        graphObject = {
-          id: graphs.length,
+      const id = hri.random();
+      const tempName = id.substring(0, id.lastIndexOf('-')).replace('-', ' ');
+
+      const loadedGraph = graphs.find((graph) => graph.id === loadedGraphId);
+
+      if (saveNew || graphs.length === 0 || loadedGraph === undefined) {
+        const name = newName ?? tempName;
+        const indexId = await db.graphs.put({
+          id,
           date: new Date(),
-          name: hri.random(),
+          name,
           graphData: serializedGraph,
-        };
+        });
 
         // save loadedGraphId
         await db.settings.put({
           name: 'loadedGraphId',
-          value: graphs.length.toString(),
+          value: id,
         });
+
+        setActionObject({ id, name });
+        setGraphSearchActiveItem({ id, name });
+
+        console.log(`Saved new graph: ${indexId}`);
       } else {
-        graphObject = {
-          id: loadedGraphId,
-          date: new Date(),
-          name: graphs[loadedGraphId].name,
-          graphData: serializedGraph,
-        };
+        const indexId = await db.graphs
+          .where('id')
+          .equals(loadedGraphId)
+          .modify({
+            date: new Date(),
+            graphData: serializedGraph,
+          });
+        console.log(`Updated currentGraph: ${indexId}`);
       }
-      const id = await db.graphs.put(graphObject);
-      console.log(`Saved currentGraph: ${id}`);
     }).catch((e) => {
       console.log(e.stack || e);
     });
   }
 
-  function saveNewGraph() {
-    saveGraph(true);
+  function saveNewGraph(newName = undefined) {
+    saveGraph(true, newName);
   }
 
   function loadGraph(id = undefined) {
     db.transaction('rw', db.graphs, db.settings, async () => {
       const graphs = await db.graphs.toArray();
-      const loadedGraphIdObject = await db.settings
-        .where({
-          name: 'loadedGraphId',
-        })
-        .first();
-      if (loadedGraphIdObject !== undefined && graphs.length > 0) {
-        const loadedGraphId = loadedGraphIdObject?.value
-          ? parseInt(loadedGraphIdObject.value)
-          : 0;
-        // configure graph
-        let idOfGraphToLoad;
-        if (id === undefined) {
-          idOfGraphToLoad = loadedGraphId;
-        } else {
-          idOfGraphToLoad = id;
-        }
+      const loadedGraphId = await getLoadedGraphId(db);
+
+      if (loadedGraphId !== undefined && graphs.length > 0) {
+        let loadedGraph = graphs.find(
+          (graph) => graph.id === (id || loadedGraphId)
+        );
+
         // check if graph exists and load last graph if it does not
-        idOfGraphToLoad = Math.min(graphs.length - 1, idOfGraphToLoad);
-        const graphData = graphs[idOfGraphToLoad]?.graphData;
+        if (loadedGraph === undefined) {
+          loadedGraph = graphs[graphs.length - 1];
+        }
+
+        const graphData = loadedGraph.graphData;
         currentGraph.current.configure(graphData, false);
 
-        // save loadedGraphId
+        // update loadedGraphId
         await db.settings.put({
           name: 'loadedGraphId',
-          value: idOfGraphToLoad.toString(),
+          value: loadedGraph.id,
         });
 
-        console.log(currentGraph.current.nodeContainer.children);
+        setActionObject({
+          id: loadedGraph.id,
+          name: loadedGraph.name,
+        });
+        setGraphSearchActiveItem({
+          id: loadedGraph.id,
+          name: loadedGraph.name,
+        });
       } else {
         console.log('No saved graphData');
       }
     }).catch((e) => {
       console.log(e.stack || e);
     });
+  }
+
+  async function cloneRemoteGraph(id = undefined) {
+    const nameOfFileToClone = remoteGraphsRef.current[id];
+    const fileData = await getRemoteGraph(
+      githubBaseURL,
+      githubBranchName,
+      nameOfFileToClone
+    );
+    console.log(fileData);
+    currentGraph.current.configure(fileData);
+    const newName = `${removeExtension(remoteGraphsRef.current[id])} - copy`; // remove .ppgraph extension and add copy
+    saveNewGraph(newName);
   }
 
   function createOrUpdateNodeFromCode(code) {
@@ -560,8 +654,13 @@ const App = (): JSX.Element => {
   const handleGraphItemSelect = (selected: IGraphSearch) => {
     console.log(selected);
     setIsGraphSearchOpen(false);
-    loadGraph(selected.id);
-    setGraphSearchActiveItem(selected);
+
+    if (selected.isRemote) {
+      cloneRemoteGraph(selected.id);
+    } else {
+      loadGraph(selected.id);
+      setGraphSearchActiveItem(selected);
+    }
   };
 
   const handleNodeItemSelect = (selected: INodeSearch) => {
@@ -621,26 +720,230 @@ const App = (): JSX.Element => {
     load();
 
     async function load() {
-      const graphs = await db.graphs.toArray();
-      const loadedGraphIdObject = await db.settings
-        .where({
-          name: 'loadedGraphId',
-        })
-        .first();
-      const loadedGraphId = loadedGraphIdObject?.value
-        ? parseInt(loadedGraphIdObject.value)
-        : 0;
-      console.log(graphs);
+      const remoteGraphSearchItems = remoteGraphsRef.current.map(
+        (graph, index) => {
+          return {
+            id: index,
+            name: removeExtension(graph), // remove .ppgraph extension
+            label: 'remote',
+            isRemote: true,
+          } as IGraphSearch;
+        }
+      );
+      // add remote header entry
+      if (remoteGraphSearchItems.length > 0) {
+        remoteGraphSearchItems.unshift({
+          id: `remote-header`,
+          name: 'Remote playgrounds', // opening a remote playground creates a local copy
+          isDisabled: true,
+        });
+      }
+
+      const graphs = await db.graphs.toCollection().sortBy('date');
       const newGraphSearchItems = graphs.map((graph) => {
         return {
           id: graph.id,
           name: graph.name,
-          date: graph.date,
+          label: `saved ${timeAgo.format(graph.date)}`,
         } as IGraphSearch;
       });
-      setGraphSearchItems(newGraphSearchItems);
-      setGraphSearchActiveItem(newGraphSearchItems[loadedGraphId]);
+
+      // add local header entry
+      if (graphs.length > 0) {
+        newGraphSearchItems.unshift({
+          id: `local-header`,
+          name: 'Local playgrounds',
+          isDisabled: true,
+        });
+      }
+
+      const allGraphSearchItems = [
+        ...newGraphSearchItems,
+        ...remoteGraphSearchItems,
+      ];
+      setGraphSearchItems(allGraphSearchItems);
+
+      const loadedGraphId = await getLoadedGraphId(db);
+      const loadedGraphIndex = allGraphSearchItems.findIndex(
+        (graph) => graph.id === loadedGraphId
+      );
+      setGraphSearchActiveItem(newGraphSearchItems[loadedGraphIndex]);
     }
+  };
+
+  function ErrorFallback({ error, resetErrorBoundary }) {
+    return (
+      <div role="alert" style={{ color: 'white' }}>
+        <p>Something went wrong:</p>
+        <pre>{error.message}</pre>
+        <button onClick={resetErrorBoundary}>Try again</button>
+      </div>
+    );
+  }
+
+  const filterGraph: ItemPredicate<IGraphSearch> = (
+    query,
+    graph,
+    _index,
+    exactMatch
+  ) => {
+    if (graph) {
+      const normalizedTitle = graph?.name?.toLowerCase();
+      const normalizedQuery = query.toLowerCase();
+
+      if (exactMatch) {
+        return normalizedTitle === normalizedQuery;
+      } else {
+        return `${normalizedTitle}`.indexOf(normalizedQuery) >= 0;
+      }
+    }
+  };
+
+  const filterNode: ItemPredicate<INodeSearch> = (
+    query,
+    node,
+    _index,
+    exactMatch
+  ) => {
+    const normalizedTitle = node.title.toLowerCase();
+    const normalizedQuery = query.toLowerCase();
+
+    if (exactMatch) {
+      return normalizedTitle === normalizedQuery;
+    } else {
+      return `${normalizedTitle}`.indexOf(normalizedQuery) >= 0;
+    }
+  };
+
+  const renderGraphItem: ItemRenderer<IGraphSearch> = (
+    graph,
+    { handleClick, modifiers, query }
+  ) => {
+    if (!modifiers.matchesPredicate) {
+      return null;
+    }
+    const isRemote = graph.isRemote;
+    const text = graph.name;
+    const title = isRemote // hover title tag
+      ? `${graph.name}
+NOTE: opening a remote playground creates a local copy`
+      : graph.name;
+    const icon = isRemote ? 'duplicate' : undefined;
+    const label = graph.label;
+    const itemToReturn = graph.isDisabled ? (
+      <MenuDivider key={graph.id} title={text} />
+    ) : (
+      <MenuItem
+        active={modifiers.active}
+        disabled={graph.isDisabled || modifiers.disabled}
+        key={graph.id}
+        title={title}
+        icon={icon}
+        onClick={handleClick}
+        label={label}
+        labelElement={
+          !isRemote && (
+            <ButtonGroup minimal={true} className="menuItemButtonGroup">
+              <Button
+                minimal
+                icon="edit"
+                title="Rename playground"
+                className="menuItemButton"
+                onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+                  event.stopPropagation();
+                  console.log(graph.name);
+                  setIsGraphSearchOpen(false);
+                  setActionObject(graph);
+                  setShowEdit(true);
+                }}
+              />
+              <Button
+                minimal
+                icon="trash"
+                title="Delete playground"
+                className="menuItemButton"
+                onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+                  event.stopPropagation();
+                  console.log(graph.name);
+                  setIsGraphSearchOpen(false);
+                  setActionObject(graph);
+                  setShowDeleteGraph(true);
+                }}
+              />
+            </ButtonGroup>
+          )
+        }
+        text={highlightText(text, query)}
+      />
+    );
+    return itemToReturn;
+  };
+
+  const renderNodeItem: ItemRenderer<INodeSearch> = (
+    node,
+    { handleClick, modifiers, query }
+  ) => {
+    if (!modifiers.matchesPredicate) {
+      return null;
+    }
+    const text = `${node.title}`;
+    return (
+      <MenuItem
+        active={modifiers.active}
+        disabled={modifiers.disabled}
+        key={node.title}
+        title={node.description}
+        label={truncateText(node.description, 24)}
+        onClick={handleClick}
+        text={highlightText(text, query)}
+      />
+    );
+  };
+
+  const createNewItemFromQuery = (title: string): INodeSearch => {
+    return {
+      title,
+      name: title,
+      description: '',
+      hasInputs: '',
+    };
+  };
+
+  const submitEditDialog = (): void => {
+    const name = (
+      document.getElementById('playground-name-input') as HTMLInputElement
+    ).value;
+    setShowEdit(false);
+    renameGraph(actionObject.id, name);
+    updateGraphSearchItems();
+  };
+
+  const renderCreateNodeOption = (
+    query: string,
+    active: boolean,
+    handleClick: React.MouseEventHandler<HTMLElement>
+  ) => (
+    <MenuItem
+      icon="add"
+      text={`Create "${query}"`}
+      active={active}
+      onClick={handleClick}
+      shouldDismissPopover={false}
+    />
+  );
+
+  const activeStyle = {
+    opacity: 0.2,
+  };
+
+  const acceptStyle = {
+    backgroundColor: '#00FF00',
+    // opacity: 0.2,
+  };
+
+  const rejectStyle = {
+    backgroundColor: '#FF0000',
+    // opacity: 0.2,
   };
 
   return (
@@ -655,7 +958,70 @@ const App = (): JSX.Element => {
       >
         <div {...getRootProps({ style })}>
           <input {...getInputProps()} />
-          {/* </div> */}
+          <Alert
+            cancelButtonText="Cancel"
+            confirmButtonText="Delete"
+            intent={Intent.DANGER}
+            isOpen={showDeleteGraph}
+            onCancel={() => setShowDeleteGraph(false)}
+            onConfirm={() => {
+              setShowDeleteGraph(false);
+              deleteGraph(actionObject.id);
+            }}
+          >
+            <p>
+              Are you sure you want to delete
+              <br />
+              <b>{`${actionObject?.name}`}</b>?
+            </p>
+          </Alert>
+          <Dialog
+            onClose={() => setShowEdit(false)}
+            title="Edit playground details"
+            autoFocus={true}
+            canEscapeKeyClose={true}
+            canOutsideClickClose={true}
+            enforceFocus={true}
+            isOpen={showEdit}
+            usePortal={true}
+            onOpened={() => {
+              const input = document.getElementById(
+                'playground-name-input'
+              ) as HTMLInputElement;
+              input.focus();
+              input.select();
+            }}
+          >
+            <div className={Classes.DIALOG_BODY}>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  submitEditDialog();
+                }}
+              >
+                <FormGroup label="Name of playground" labelFor="text-input">
+                  <InputGroup
+                    id="playground-name-input"
+                    defaultValue={`${actionObject?.name}`}
+                    placeholder={`${actionObject?.name}`}
+                  />
+                </FormGroup>
+                <div className={Classes.DIALOG_FOOTER}>
+                  <div className={Classes.DIALOG_FOOTER_ACTIONS}>
+                    <Button onClick={() => setShowEdit(false)}>Cancel</Button>
+                    <Button
+                      intent={Intent.WARNING}
+                      onClick={() => {
+                        submitEditDialog();
+                      }}
+                    >
+                      Save
+                    </Button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </Dialog>
           {isGraphContextMenuOpen && (
             <GraphContextMenu
               controlOrMetaKey={controlOrMetaKey}
@@ -663,6 +1029,7 @@ const App = (): JSX.Element => {
               currentGraph={currentGraph}
               setIsGraphSearchOpen={setIsGraphSearchOpen}
               openNodeSearch={openNodeSearch}
+              setShowEdit={setShowEdit}
               loadGraph={loadGraph}
               saveGraph={saveGraph}
               saveNewGraph={saveNewGraph}
@@ -699,7 +1066,7 @@ const App = (): JSX.Element => {
           {isCurrentGraphLoaded && (
             <>
               <GraphSearch
-                className={styles.graphSearch}
+                className={`${styles.graphSearch} graphSearch`}
                 inputProps={{
                   inputRef: (el) => {
                     graphSearchInput.current = el;
@@ -708,6 +1075,8 @@ const App = (): JSX.Element => {
                   large: true,
                   placeholder: 'Search playgrounds',
                 }}
+                // defaultSelectedItem={graphSearchActiveItem}
+                noResults={'No playgrounds available'}
                 itemRenderer={renderGraphItem}
                 items={graphSearchItems}
                 activeItem={graphSearchActiveItem}
@@ -716,7 +1085,7 @@ const App = (): JSX.Element => {
                 resetOnClose={true}
                 resetOnQuery={true}
                 resetOnSelect={true}
-                popoverProps={{ minimal: true }}
+                popoverProps={{ minimal: true, portalClassName: 'graphSearch' }}
                 inputValueRenderer={(item: IGraphSearch) => item.name}
               />
               <div
@@ -759,126 +1128,3 @@ const App = (): JSX.Element => {
 };
 
 export default App;
-
-function ErrorFallback({ error, resetErrorBoundary }) {
-  return (
-    <div role="alert" style={{ color: 'white' }}>
-      <p>Something went wrong:</p>
-      <pre>{error.message}</pre>
-      <button onClick={resetErrorBoundary}>Try again</button>
-    </div>
-  );
-}
-
-const filterGraph: ItemPredicate<IGraphSearch> = (
-  query,
-  graph,
-  _index,
-  exactMatch
-) => {
-  if (graph) {
-    console.log(graph);
-    const normalizedTitle = graph?.id?.toString(10).toLowerCase();
-    const normalizedQuery = query.toLowerCase();
-
-    if (exactMatch) {
-      return normalizedTitle === normalizedQuery;
-    } else {
-      return `${normalizedTitle}`.indexOf(normalizedQuery) >= 0;
-    }
-  }
-};
-
-const filterNode: ItemPredicate<INodeSearch> = (
-  query,
-  node,
-  _index,
-  exactMatch
-) => {
-  const normalizedTitle = node.title.toLowerCase();
-  const normalizedQuery = query.toLowerCase();
-
-  if (exactMatch) {
-    return normalizedTitle === normalizedQuery;
-  } else {
-    return `${normalizedTitle}`.indexOf(normalizedQuery) >= 0;
-  }
-};
-
-const renderGraphItem: ItemRenderer<IGraphSearch> = (
-  graph,
-  { handleClick, modifiers, query }
-) => {
-  if (!modifiers.matchesPredicate) {
-    return null;
-  }
-  const text = `${graph.name}`;
-  return (
-    <MenuItem
-      active={modifiers.active}
-      disabled={modifiers.disabled}
-      key={graph.id}
-      onClick={handleClick}
-      label={timeAgo.format(graph.date)}
-      text={highlightText(text, query)}
-    />
-  );
-};
-
-const renderNodeItem: ItemRenderer<INodeSearch> = (
-  node,
-  { handleClick, modifiers, query }
-) => {
-  if (!modifiers.matchesPredicate) {
-    return null;
-  }
-  const text = `${node.title}`;
-  return (
-    <MenuItem
-      active={modifiers.active}
-      disabled={modifiers.disabled}
-      key={node.title}
-      title={node.description}
-      label={truncateText(node.description, 24)}
-      onClick={handleClick}
-      text={highlightText(text, query)}
-    />
-  );
-};
-
-const createNewItemFromQuery = (title: string): INodeSearch => {
-  return {
-    title,
-    name: title,
-    description: '',
-    hasInputs: '',
-  };
-};
-
-const renderCreateNodeOption = (
-  query: string,
-  active: boolean,
-  handleClick: React.MouseEventHandler<HTMLElement>
-) => (
-  <MenuItem
-    icon="add"
-    text={`Create "${query}"`}
-    active={active}
-    onClick={handleClick}
-    shouldDismissPopover={false}
-  />
-);
-
-const activeStyle = {
-  opacity: 0.2,
-};
-
-const acceptStyle = {
-  backgroundColor: '#00FF00',
-  // opacity: 0.2,
-};
-
-const rejectStyle = {
-  backgroundColor: '#FF0000',
-  // opacity: 0.2,
-};
