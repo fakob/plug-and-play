@@ -265,7 +265,6 @@ export const getRemoteGraphsList = async (
       },
     });
     const fileListData = await fileList.json();
-    console.log(fileListData.tree);
     const files = fileListData.tree;
     const arrayOfFileNames = files.map((file) => file.path);
 
@@ -290,7 +289,6 @@ export const getRemoteGraph = async (
       }
     );
     const fileData = await file.json();
-    console.log(fileData);
     return fileData;
   } catch (error) {
     return undefined;
