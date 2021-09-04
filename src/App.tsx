@@ -32,7 +32,6 @@ import { GraphContextMenu, NodeContextMenu } from './components/ContextMenus';
 import { GraphDatabase } from './utils/indexedDB';
 import PPGraph from './classes/GraphClass';
 import {
-  CANVAS_BACKGROUNDCOLOR_HEX,
   CANVAS_BACKGROUND_ALPHA,
   CANVAS_BACKGROUND_TEXTURE,
   COLOR,
@@ -73,6 +72,7 @@ const controlOrMetaKey = isMac ? '⌘' : 'Ctrl';
 console.log('isMac: ', isMac);
 
 const randomMainColor = COLOR[Math.floor(Math.random() * COLOR.length)];
+const randomMainColorHex = PIXI.utils.string2hex(Color(randomMainColor).hex());
 
 const App = (): JSX.Element => {
   document.title = 'Your Plug and Playground';
@@ -214,7 +214,8 @@ const App = (): JSX.Element => {
 
     // create pixiApp
     pixiApp.current = new PIXI.Application({
-      backgroundColor: CANVAS_BACKGROUNDCOLOR_HEX,
+      backgroundColor: randomMainColorHex,
+      backgroundAlpha: 0.3,
       width: window.innerWidth,
       height: window.innerHeight,
       antialias: true,
