@@ -2,7 +2,7 @@ import * as path from 'path';
 import * as webpack from 'webpack';
 import ESLintPlugin from 'eslint-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
-import OptimizeCssAssetsPlugin from 'optimize-css-assets-webpack-plugin';
+import CssMinimizerPlugin from 'css-minimizer-webpack-plugin';
 import TerserPlugin from 'terser-webpack-plugin';
 
 module.exports = () => {
@@ -45,16 +45,6 @@ module.exports = () => {
       new MiniCssExtractPlugin({
         filename: '[name].[hash].css',
       }),
-
-      new OptimizeCssAssetsPlugin({
-        assetNameRegExp: /\.css$/i,
-        cssProcessor: require('cssnano'),
-        cssProcessorPluginOptions: {
-          preset: ['default', { discardComments: { removeAll: true } }],
-        },
-        canPrint: true,
-      }),
-
       new webpack.DefinePlugin({
         'process.env': '{}',
         PRODUCTION: JSON.stringify(true),
@@ -73,6 +63,12 @@ module.exports = () => {
             toplevel: true,
             keep_classnames: false,
             keep_fnames: true,
+          },
+        }),
+        new CssMinimizerPlugin({
+          test: /\.css$/i,
+          minimizerOptions: {
+            preset: ['default', { discardComments: { removeAll: true } }],
           },
         }),
       ],
