@@ -13,14 +13,14 @@ body {
 .bp3-popover-wrapper.graphSearch,
 .bp3-popover-wrapper.graphSearch > .bp3-popover-target {
   display: block;
-  width: 85vw;
+  width: calc(100vw - 120px);
   max-height: 80vh;
 }
 
 .bp3-overlay.graphSearch .bp3-select-popover,
 .bp3-overlay.graphSearch .bp3-select-popover .bp3-popover-content,
 .bp3-overlay.graphSearch .bp3-select-popover .bp3-menu {
-  max-width: 85vw;
+  max-width: calc(100vw - 120px);
   max-height: 80vh;
 }
 

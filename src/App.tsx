@@ -22,6 +22,7 @@ import {
   MenuItem,
 } from '@blueprintjs/core';
 import { ItemRenderer, ItemPredicate, Suggest } from '@blueprintjs/select';
+import Color from 'color';
 import { hri } from 'human-readable-ids';
 import TimeAgo from 'javascript-time-ago';
 import en from 'javascript-time-ago/locale/en';
@@ -34,6 +35,7 @@ import {
   CANVAS_BACKGROUNDCOLOR_HEX,
   CANVAS_BACKGROUND_ALPHA,
   CANVAS_BACKGROUND_TEXTURE,
+  COLOR,
   PLUGANDPLAY_ICON,
 } from './utils/constants';
 import { IGraphSearch, INodeSearch } from './utils/interfaces';
@@ -69,6 +71,8 @@ const NodeSearch = Suggest.ofType<INodeSearch>();
 const isMac = navigator.platform.indexOf('Mac') != -1;
 const controlOrMetaKey = isMac ? '⌘' : 'Ctrl';
 console.log('isMac: ', isMac);
+
+const randomMainColor = COLOR[Math.floor(Math.random() * COLOR.length)];
 
 const App = (): JSX.Element => {
   document.title = 'Your Plug and Playground';
@@ -180,9 +184,22 @@ const App = (): JSX.Element => {
 
   const style = useMemo(
     () => ({
-      ...(isDragActive ? activeStyle : {}),
-      ...(isDragAccept ? acceptStyle : {}),
-      ...(isDragReject ? rejectStyle : {}),
+      ...(isDragActive
+        ? {
+            opacity: 0.5,
+          }
+        : {}),
+      ...(isDragAccept
+        ? {
+            backgroundColor: randomMainColor,
+            opacity: 0.5,
+          }
+        : {}),
+      ...(isDragReject
+        ? {
+            backgroundColor: '#FF0000',
+          }
+        : {}),
     }),
     [isDragActive, isDragReject, isDragAccept]
   ) as any;
@@ -932,20 +949,6 @@ NOTE: opening a remote playground creates a local copy`
     />
   );
 
-  const activeStyle = {
-    opacity: 0.2,
-  };
-
-  const acceptStyle = {
-    backgroundColor: '#00FF00',
-    // opacity: 0.2,
-  };
-
-  const rejectStyle = {
-    backgroundColor: '#FF0000',
-    // opacity: 0.2,
-  };
-
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
       <div
@@ -1057,6 +1060,9 @@ NOTE: opening a remote playground creates a local copy`
           )}
           <img
             className={styles.plugAndPlaygroundIcon}
+            style={{
+              backgroundColor: randomMainColor,
+            }}
             src={PLUGANDPLAY_ICON}
             onClick={() => {
               setContextMenuPosition([80, 40]);
@@ -1074,6 +1080,10 @@ NOTE: opening a remote playground creates a local copy`
                   },
                   large: true,
                   placeholder: 'Search playgrounds',
+                  className: styles.brightPlaceholder,
+                  style: {
+                    backgroundColor: Color(randomMainColor).alpha(0.3),
+                  },
                 }}
                 // defaultSelectedItem={graphSearchActiveItem}
                 noResults={'No playgrounds available'}

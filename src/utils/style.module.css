@@ -179,6 +179,7 @@
   top: 24px;
   filter: drop-shadow(0px 0px 24px rgba(0, 0, 0, 0.15));
   user-select: none;
+  border-radius: 32px;
 }
 
 .graphSearch {
@@ -186,6 +187,10 @@
   left: 96px;
   top: 36px;
   filter: drop-shadow(0px 0px 24px rgba(94, 69, 69, 0.15));
+}
+
+.brightPlaceholder input::placeholder {
+  color: #f5f5f5;
 }
 
 .nodeSearch {

@@ -26,11 +26,12 @@ export const COLOR = [
   '#A58E43',
   '#A45140',
   '#F4FAF9',
-  '#F5F5F5', // white
-  '#0C0C0C', // dark
 ];
 
-export const PLUGANDPLAY_ICON = '../assets/PlugAndPlayIcon.svg';
+export const COLOR_WHITE = '#F5F5F5';
+export const COLOR_DARK = '#0C0C0C';
+
+export const PLUGANDPLAY_ICON = '../assets/PlugAndPlayIcon-transparent.svg';
 
 export const CANVAS_BACKGROUNDCOLOR = Color(COLOR[0]).lighten(0.8).hex();
 export const CANVAS_BACKGROUNDCOLOR_HEX = PIXI.utils.string2hex(
