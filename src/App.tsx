@@ -897,6 +897,29 @@ NOTE: opening a remote playground creates a local copy`
     return itemToReturn;
   };
 
+  // const renderCreateGraphOption = (
+  //   query: string,
+  //   active: boolean,
+  //   handleClick: React.MouseEventHandler<HTMLElement>
+  // ) => (
+  //   <MenuItem
+  //     icon="add"
+  //     text={`Create new Playground named "${query}"`}
+  //     active={active}
+  //     onClick={handleClick}
+  //     shouldDismissPopover={false}
+  //   />
+  // );
+
+  // const createNewGraphFromQuery = (title: string): IGraphSearch => {
+  //   currentGraph.current.clear();
+  //   saveNewGraph(title);
+  //   return {
+  //     id: hri.random(),
+  //     name: title,
+  //   };
+  // };
+
   const renderNodeItem: ItemRenderer<INodeSearch> = (
     node,
     { handleClick, modifiers, query }
@@ -918,7 +941,7 @@ NOTE: opening a remote playground creates a local copy`
     );
   };
 
-  const createNewItemFromQuery = (title: string): INodeSearch => {
+  const createNewNodeFromQuery = (title: string): INodeSearch => {
     return {
       title,
       name: title,
@@ -1083,7 +1106,7 @@ NOTE: opening a remote playground creates a local copy`
                   placeholder: 'Search playgrounds',
                   className: styles.brightPlaceholder,
                   style: {
-                    backgroundColor: Color(randomMainColor).alpha(0.3),
+                    backgroundColor: Color(randomMainColor).alpha(0.5),
                   },
                 }}
                 // defaultSelectedItem={graphSearchActiveItem}
@@ -1098,6 +1121,8 @@ NOTE: opening a remote playground creates a local copy`
                 resetOnSelect={true}
                 popoverProps={{ minimal: true, portalClassName: 'graphSearch' }}
                 inputValueRenderer={(item: IGraphSearch) => item.name}
+                // createNewItemFromQuery={createNewGraphFromQuery}
+                // createNewItemRenderer={renderCreateGraphOption}
               />
               <div
                 style={{
@@ -1126,7 +1151,7 @@ NOTE: opening a remote playground creates a local copy`
                   resetOnSelect={true}
                   popoverProps={{ minimal: true }}
                   inputValueRenderer={(node: INodeSearch) => node.title}
-                  createNewItemFromQuery={createNewItemFromQuery}
+                  createNewItemFromQuery={createNewNodeFromQuery}
                   createNewItemRenderer={renderCreateNodeOption}
                 />
               </div>
