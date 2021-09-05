@@ -373,7 +373,7 @@ export default class PPGraph {
       console.log(
         'GraphNode type "' + type + '" not registered. Will create new one.'
       );
-      this.createOrUpdateNodeFromCode(DEFAULT_EDITOR_DATA, type);
+      this.createOrUpdateNodeFromCode(DEFAULT_EDITOR_DATA, type, customArgs);
       return null;
     }
 
@@ -745,7 +745,8 @@ export default class PPGraph {
 
   createOrUpdateNodeFromCode(
     code: string,
-    newDefaultFunctionName?: string
+    newDefaultFunctionName?: string,
+    customArgs?: CustomArgs
   ): void {
     let newCode = code;
     if (newDefaultFunctionName) {
@@ -782,7 +783,7 @@ export default class PPGraph {
       });
     } else {
       // canvas is empty and node does not yet exist on graph
-      this.createAndAddNode(functionName);
+      this.createAndAddNode(functionName, customArgs);
     }
   }
 
