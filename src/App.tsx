@@ -317,7 +317,6 @@ const App = (): JSX.Element => {
     currentGraph.current.selection.onSelectionChange = (
       selectedNodes: PPNode[]
     ) => {
-      console.log('selectionChange');
       if (selectedNodes.length === 0) {
         setSelectedNode(null);
       } else {
