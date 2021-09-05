@@ -759,15 +759,15 @@ export default class PPGraph {
       (node) => node.type === functionName
     );
 
-    const newNode = this.createAndAddNode(functionName);
-
     // store function code string on graph
     this.customNodeTypes[functionName] = newCode;
 
-    // do nodes of the same type exist on the on the graph
+    // do nodes of the same type exist on the graph
     if (nodesWithTheSameType.length > 0) {
       nodesWithTheSameType.forEach((node) => {
         console.log('I am of the same type', node);
+
+        const newNode = this.createAndAddNode(functionName);
 
         newNode.configure(node.serialize());
         this.reconnectLinksToNewNode(node, newNode);
@@ -780,6 +780,9 @@ export default class PPGraph {
         // remove previous node
         this.removeNode(node);
       });
+    } else {
+      // canvas is empty and node does not yet exist on graph
+      this.createAndAddNode(functionName);
     }
   }
 

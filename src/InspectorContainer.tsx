@@ -51,8 +51,8 @@ const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
   };
 
   useEffect(() => {
+    // update codeString when the type changes
     const selectedNodeType = props.selectedNode.type;
-    // console.log('useEffect', selectedNodeType);
     const value = props.currentGraph.customNodeTypes[selectedNodeType];
     setCodeString(value);
   }, [props.selectedNode.type]);
