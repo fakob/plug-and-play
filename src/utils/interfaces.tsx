@@ -46,6 +46,7 @@ export interface IGraphSearch {
   label?: string;
   isRemote?: boolean;
   isDisabled?: boolean;
+  isNew?: boolean;
 }
 
 export interface INodeSearch {

@@ -676,7 +676,14 @@ const App = (): JSX.Element => {
     if (selected.isRemote) {
       cloneRemoteGraph(selected.id);
     } else {
-      loadGraph(selected.id);
+      if (selected.isNew) {
+        currentGraph.current.clear();
+        saveNewGraph(selected.name);
+        // remove selection flag
+        selected.isNew = undefined;
+      } else {
+        loadGraph(selected.id);
+      }
       setGraphSearchActiveItem(selected);
     }
   };
@@ -897,6 +904,32 @@ NOTE: opening a remote playground creates a local copy`
     return itemToReturn;
   };
 
+  const renderCreateGraphOption = (
+    query: string,
+    active: boolean,
+    handleClick: React.MouseEventHandler<HTMLElement>
+  ) => (
+    <MenuItem
+      icon="add"
+      text={
+        <span>
+          Create empty playground: <strong>{query}</strong>
+        </span>
+      }
+      active={active}
+      onClick={handleClick}
+      shouldDismissPopover={false}
+    />
+  );
+
+  const createNewGraphFromQuery = (title: string): IGraphSearch => {
+    return {
+      id: hri.random(),
+      name: title,
+      isNew: true,
+    };
+  };
+
   const renderNodeItem: ItemRenderer<INodeSearch> = (
     node,
     { handleClick, modifiers, query }
@@ -943,7 +976,11 @@ NOTE: opening a remote playground creates a local copy`
   ) => (
     <MenuItem
       icon="add"
-      text={`Create "${query}"`}
+      text={
+        <span>
+          Create custom node: <strong>{query}</strong>
+        </span>
+      }
       active={active}
       onClick={handleClick}
       shouldDismissPopover={false}
@@ -1097,6 +1134,8 @@ NOTE: opening a remote playground creates a local copy`
                 resetOnSelect={true}
                 popoverProps={{ minimal: true, portalClassName: 'graphSearch' }}
                 inputValueRenderer={(item: IGraphSearch) => item.name}
+                createNewItemFromQuery={createNewGraphFromQuery}
+                createNewItemRenderer={renderCreateGraphOption}
               />
               <div
                 style={{
