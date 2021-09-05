@@ -229,12 +229,13 @@ function potentiallyNotify(property, newValue) {
 }
 
 const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (props) => {
-  const [data, setData] = useState(Number(props.data));
+  const dataToSet = Number(isNaN(props.data) ? 0 : props.data);
+  const [data, setData] = useState(dataToSet);
   const [minValue, setMinValue] = useState(
-    Math.min(props.property.custom?.minValue ?? 0, data)
+    Math.min(props.property.custom?.minValue ?? 0, dataToSet)
   );
   const [maxValue, setMaxValue] = useState(
-    Math.max(props.property.custom?.maxValue ?? 100, data)
+    Math.max(props.property.custom?.maxValue ?? 100, dataToSet)
   );
   const [round, setRound] = useState(props.property.custom?.round ?? false);
   const [stepSizeValue] = useState(props.property.custom?.stepSize ?? 0.01);
@@ -242,10 +243,6 @@ const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (props) => {
   useEffect(() => {
     const newValue = round ? Math.round(data) : data;
     potentiallyNotify(props.property, newValue);
-    /*if (props.property.data != newValue) {
-      props.property.data = newValue;
-      props.property.notifyChange(new Set());
-    }*/
   }, [data]);
 
   useEffect(() => {
@@ -335,7 +332,9 @@ type SelectWidgetProps = {
 
 const SelectWidget: React.FunctionComponent<SelectWidgetProps> = (props) => {
   const [data, setData] = useState(props.data);
-  const [options] = useState(props.property.custom?.options);
+  const [options] = useState(
+    props.property.custom?.options ? props.property.custom.options : []
+  );
 
   const onChange = (event) => {
     const value = event.target.value;

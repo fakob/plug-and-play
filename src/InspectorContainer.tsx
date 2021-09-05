@@ -13,17 +13,21 @@ import UpdateTypeSelection from './components/UpdateTypeSelection';
 type MyProps = {
   currentGraph: PPGraph;
   selectedNode: PPNode;
+  isCustomNode: boolean;
   onSave?: (code: string) => void;
 };
 
 const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
   const editorRef = useRef<any>();
-  const [codeString, setCodeString] = useState<string | undefined>(undefined);
+  const [codeString, setCodeString] = useState<string | undefined>(
+    props.currentGraph.customNodeTypes[props.selectedNode.type]
+  );
 
   const saveCode = () => {
     console.log('Create/Update node command from Editor');
     const model = editorRef.current.getModel();
     const value = model.getValue();
+    setCodeString(value);
     props.onSave(value);
   };
 
@@ -33,7 +37,7 @@ const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
     editor.addAction({
       id: 'my-unique-id',
       label: 'Create/Update node',
-      keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S],
+      keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter],
       contextMenuGroupId: 'Test',
       contextMenuOrder: 1,
       run: function (ed) {
@@ -48,10 +52,10 @@ const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
 
   useEffect(() => {
     const selectedNodeType = props.selectedNode.type;
+    // console.log('useEffect', selectedNodeType);
     const value = props.currentGraph.customNodeTypes[selectedNodeType];
-    // console.log(value);
     setCodeString(value);
-  }, [codeString]);
+  }, [props.selectedNode.type]);
 
   return (
     <div
@@ -82,7 +86,7 @@ const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
         inputSocketArray={props.selectedNode?.inputSocketArray}
         outputSocketArray={props.selectedNode?.outputSocketArray}
       />
-      {codeString && (
+      {props.isCustomNode && (
         <MonacoEditor
           language="javascript"
           theme="vs-dark"

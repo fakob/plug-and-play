@@ -317,6 +317,7 @@ const App = (): JSX.Element => {
     currentGraph.current.selection.onSelectionChange = (
       selectedNodes: PPNode[]
     ) => {
+      console.log('selectionChange');
       if (selectedNodes.length === 0) {
         setSelectedNode(null);
       } else {
@@ -1052,6 +1053,7 @@ NOTE: opening a remote playground creates a local copy`
             <InspectorContainer
               currentGraph={currentGraph.current}
               selectedNode={selectedNode}
+              isCustomNode={currentGraph.current.isCustomNode(selectedNode)}
               onSave={createOrUpdateNodeFromCode}
             />
           )}
