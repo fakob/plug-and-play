@@ -2,7 +2,7 @@ import * as PIXI from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
 
 import PPNode from './NodeClass';
-import { SELECTION_COLOR_HEX } from '../utils/constants';
+import { SCALEHANDLE_SIZE, SELECTION_COLOR_HEX } from '../utils/constants';
 import { getObjectsInsideBounds } from '../pixi/utils-pixi';
 import { getDifferenceSelection } from '../utils/utils';
 
@@ -15,6 +15,8 @@ export default class PPSelection extends PIXI.Container {
   protected selectionIntendGraphics: PIXI.Graphics;
   protected selectionGraphics: PIXI.Graphics;
   protected singleSelectionsGraphics: PIXI.Graphics;
+  protected scaleHandle: ScaleHandle;
+
   protected sourcePoint: null | PIXI.Point;
   isDrawingSelection: boolean;
   isDraggingSelection: boolean;
@@ -52,7 +54,16 @@ export default class PPSelection extends PIXI.Container {
     this.selectionGraphics.name = 'selectionGraphics';
     this.addChild(this.selectionGraphics);
 
-    this.interactive = true;
+    const commitGroup = (): void => {
+      console.log('I am done scaling');
+    };
+    const onHandleDelta = (pointerPosition: PIXI.Point): void => {
+      console.log(pointerPosition);
+    };
+    this.scaleHandle = new ScaleHandle(onHandleDelta, commitGroup);
+    this.addChild(this.scaleHandle);
+
+    // this.interactive = true;
 
     this.on('pointerdown', this.onPointerDown.bind(this));
     this.on('pointerupoutside', this.onPointerUpAndUpOutside.bind(this));
@@ -118,7 +129,9 @@ export default class PPSelection extends PIXI.Container {
     }
   }
 
-  onPointerOver(): void {
+  onPointerOver(event: PIXI.InteractionEvent): void {
+    // const target = event.target;
+    // console.log(target, target.name);
     this.cursor = 'move';
   }
 
@@ -198,6 +211,7 @@ export default class PPSelection extends PIXI.Container {
     this.resetGraphics(this.selectionIntendGraphics);
     this.resetGraphics(this.singleSelectionsGraphics);
     this.resetGraphics(this.selectionGraphics);
+    this.scaleHandle.visible = false;
   }
 
   resetGraphics(graphics: PIXI.Graphics): void {
@@ -291,6 +305,12 @@ export default class PPSelection extends PIXI.Container {
       selectionBounds.width,
       selectionBounds.height
     );
+    this.selectionGraphics.endFill();
+
+    this.scaleHandle.x =
+      selectionBounds.x + selectionBounds.width - SCALEHANDLE_SIZE / 2;
+    this.scaleHandle.y =
+      selectionBounds.y + selectionBounds.height - SCALEHANDLE_SIZE / 2;
   }
 
   isNodeSelected(node: PPNode): boolean {
@@ -319,6 +339,7 @@ export default class PPSelection extends PIXI.Container {
       } else {
         this.selectedNodes = nodes;
       }
+      this.scaleHandle.visible = true;
     }
     if (this.onSelectionChange) {
       this.onSelectionChange(this.selectedNodes);
@@ -338,3 +359,430 @@ export default class PPSelection extends PIXI.Container {
     this.deselectAllNodes();
   }
 }
+
+class ScaleHandle extends PIXI.Graphics {
+  onHandleDelta: (pointerPosition: PIXI.Point) => void;
+  onHandleCommit: () => void;
+
+  private _pointerDown: boolean;
+  private _pointerDragging: boolean;
+  private _pointerPosition: PIXI.Point;
+  private _pointerMoveTarget: PIXI.Container | null;
+
+  constructor(
+    handler: (pointerPosition: PIXI.Point) => void,
+    commit: () => void
+  ) {
+    super();
+
+    this.onHandleDelta = handler;
+    this.onHandleCommit = commit;
+
+    this.interactive = true;
+
+    this._pointerDown = false;
+    this._pointerDragging = false;
+    this._pointerPosition = new PIXI.Point();
+    this._pointerMoveTarget = null;
+    this.on('pointerover', this.onPointerOver.bind(this));
+    this.on('mousedown', this.onPointerDown, this);
+    this.on('mouseup', this.onPointerUp, this);
+    this.on('mouseupoutside', this.onPointerUp, this);
+  }
+
+  render(renderer: PIXI.Renderer): void {
+    this.clear();
+    this.beginFill(0xffffff);
+    this.lineStyle(1, 0xff0000);
+    this.drawRect(0, 0, SCALEHANDLE_SIZE, SCALEHANDLE_SIZE);
+    this.endFill();
+
+    super.render(renderer);
+  }
+
+  protected onPointerOver(event: PIXI.InteractionEvent): void {
+    event.stopPropagation();
+    const target = event.target;
+    console.log(target, target.name);
+    this.cursor = 'nwse-resize';
+  }
+
+  protected onPointerDown(e: PIXI.InteractionEvent): void {
+    this._pointerDown = true;
+    this._pointerDragging = false;
+
+    e.stopPropagation();
+
+    if (this._pointerMoveTarget) {
+      this._pointerMoveTarget.off('pointermove', this.onPointerMove, this);
+      this._pointerMoveTarget = null;
+    }
+
+    this._pointerMoveTarget = this;
+    this._pointerMoveTarget.on('pointermove', this.onPointerMove, this);
+  }
+
+  protected onPointerMove(e: PIXI.InteractionEvent): void {
+    if (!this._pointerDown) {
+      return;
+    }
+
+    if (this._pointerDragging) {
+      this.onDrag(e);
+    } else {
+      this.onDragStart(e);
+    }
+
+    e.stopPropagation();
+  }
+
+  protected onPointerUp(e: PIXI.InteractionEvent): void {
+    if (this._pointerDragging) {
+      this.onDragEnd(e);
+    }
+
+    this._pointerDown = false;
+
+    if (this._pointerMoveTarget) {
+      this._pointerMoveTarget.off('pointermove', this.onPointerMove, this);
+      this._pointerMoveTarget = null;
+    }
+  }
+
+  protected onDragStart(e: PIXI.InteractionEvent): void {
+    this._pointerPosition.copyFrom(e.data.global);
+
+    this._pointerDragging = true;
+  }
+
+  protected onDrag(e: PIXI.InteractionEvent): void {
+    const currentPosition = e.data.global;
+
+    // Callback handles the rest!
+    if (this.onHandleDelta) {
+      this.onHandleDelta(currentPosition);
+    }
+
+    this._pointerPosition.copyFrom(currentPosition);
+  }
+
+  protected onDragEnd(_: PIXI.InteractionEvent): void {
+    this._pointerDragging = false;
+
+    if (this.onHandleCommit) {
+      this.onHandleCommit();
+    }
+  }
+}
+
+// type Handle =
+//   | 'topLeft'
+//   | 'topCenter'
+//   | 'topRight'
+//   | 'middleLeft'
+//   | 'middleCenter'
+//   | 'middleRight'
+//   | 'bottomLeft'
+//   | 'bottomCenter'
+//   | 'bottomRight';
+
+// interface ITransformerHandleStyle {
+//   /** Fill color of the handle */
+//   color: number;
+
+//   /** Outline color of the handle */
+//   outlineColor: number;
+
+//   /** Outline thickness around the handle */
+//   outlineThickness: number;
+
+//   /** Radius (or size for non-circular handles) of the handle */
+//   radius: number;
+
+//   /** {@link TransformerHandle} provides three types of handle shapes - 'circle', 'square', 'tooth'. */
+//   shape: string;
+// }
+
+// /**
+//  * The default transformer handle style.
+//  *
+//  * @ignore
+//  */
+// const DEFAULT_HANDLE_STYLE: ITransformerHandleStyle = {
+//   color: 0xffffff,
+//   outlineColor: 0x000000,
+//   outlineThickness: 1,
+//   radius: 8,
+//   shape: 'tooth',
+// };
+
+// class ScaleHandle extends PIXI.Graphics {
+//   onHandleDelta: (pointerPosition: PIXI.Point) => void;
+//   onHandleCommit: () => void;
+
+//   protected _handle: Handle;
+//   protected _style: ITransformerHandleStyle;
+//   protected _dirty: boolean;
+
+//   private _pointerDown: boolean;
+//   private _pointerDragging: boolean;
+//   private _pointerPosition: PIXI.Point;
+//   private _pointerMoveTarget: PIXI.Container | null;
+
+//   /**
+//    * @param {Transformer} transformer
+//    * @param {string} handle - the type of handle being drawn
+//    * @param {object} styleOpts - styling options passed by the user
+//    * @param {function} handler - handler for drag events, it receives the pointer position; used by {@code onDrag}.
+//    * @param {function} commit - handler for drag-end events.
+//    * @param {string}[cursor='move'] - a custom cursor to be applied on this handle
+//    */
+//   constructor(
+//     // protected readonly transformer: Transformer,
+//     handle: Handle,
+//     styleOpts: Partial<ITransformerHandleStyle> = {},
+//     handler: (pointerPosition: PIXI.Point) => void,
+//     commit: () => void,
+//     cursor?: string
+//   ) {
+//     super();
+
+//     const style: ITransformerHandleStyle = Object.assign(
+//       {},
+//       DEFAULT_HANDLE_STYLE,
+//       styleOpts
+//     );
+
+//     this._handle = handle;
+//     this._style = style;
+//     this.onHandleDelta = handler;
+//     this.onHandleCommit = commit;
+
+//     /**
+//      * This flags whether this handle should be redrawn in the next frame due to style changes.
+//      */
+//     this._dirty = true;
+
+//     // Pointer events
+//     this.interactive = true;
+//     this.cursor = cursor || 'move';
+//     this._pointerDown = false;
+//     this._pointerDragging = false;
+//     this._pointerPosition = new PIXI.Point();
+//     this._pointerMoveTarget = null;
+//     this.on('mousedown', this.onPointerDown, this);
+//     this.on('mouseup', this.onPointerUp, this);
+//     this.on('mouseupoutside', this.onPointerUp, this);
+//   }
+
+//   get handle(): Handle {
+//     return this._handle;
+//   }
+//   set handle(handle: Handle) {
+//     this._handle = handle;
+//     this._dirty = true;
+//   }
+
+//   /**
+//    * The currently applied handle style.
+//    */
+//   get style(): Partial<ITransformerHandleStyle> {
+//     return this._style;
+//   }
+//   set style(value: Partial<ITransformerHandleStyle>) {
+//     this._style = Object.assign({}, DEFAULT_HANDLE_STYLE, value);
+//     this._dirty = true;
+//   }
+
+//   render(renderer: PIXI.Renderer): void {
+//     if (this._dirty) {
+//       this.draw();
+
+//       this._dirty = false;
+//     }
+
+//     super.render(renderer);
+//   }
+
+//   /**
+//    * Redraws the handle's geometry. This is called on a `render` if {@code this._dirty} is true.
+//    */
+//   protected draw(): void {
+//     const handle = this._handle;
+//     const style = this._style;
+
+//     const radius = style.radius;
+
+//     this.clear()
+//       .lineStyle(style.outlineThickness, style.outlineColor)
+//       .beginFill(style.color);
+
+//     if (style.shape === 'square') {
+//       this.drawRect(-radius / 2, -radius / 2, radius, radius);
+//     } else if (style.shape === 'tooth') {
+//       switch (handle) {
+//         case 'middleLeft':
+//           this.drawPolygon([
+//             -radius / 2,
+//             -radius / 2,
+//             -radius / 2,
+//             radius / 2,
+//             radius / 2,
+//             radius / 2,
+//             radius * 1.1,
+//             0,
+//             radius / 2,
+//             -radius / 2,
+//           ]);
+//           break;
+//         case 'topCenter':
+//           this.drawPolygon([
+//             -radius / 2,
+//             -radius / 2,
+//             radius / 2,
+//             -radius / 2,
+//             radius / 2,
+//             radius / 2,
+//             0,
+//             radius * 1.1,
+//             -radius / 2,
+//             radius / 2,
+//           ]);
+//           break;
+//         case 'middleRight':
+//           this.drawPolygon([
+//             -radius / 2,
+//             radius / 2,
+//             -radius * 1.1,
+//             0,
+//             -radius / 2,
+//             -radius / 2,
+//             radius / 2,
+//             -radius / 2,
+//             radius / 2,
+//             radius / 2,
+//           ]);
+//           break;
+//         case 'bottomCenter':
+//           this.drawPolygon([
+//             0,
+//             -radius * 1.1,
+//             radius / 2,
+//             -radius / 2,
+//             radius / 2,
+//             radius / 2,
+//             -radius / 2,
+//             radius / 2,
+//             -radius / 2,
+//             -radius / 2,
+//           ]);
+//           break;
+//         default:
+//           this.drawRect(-radius / 2, -radius / 2, radius, radius);
+//           break;
+//       }
+//     } else {
+//       this.drawCircle(0, 0, radius);
+//     }
+
+//     this.endFill();
+//   }
+
+//   /**
+//    * Handles the `pointerdown` event. You must call the super implementation.
+//    *
+//    * @param e
+//    */
+//   protected onPointerDown(e: PIXI.InteractionEvent): void {
+//     this._pointerDown = true;
+//     this._pointerDragging = false;
+
+//     e.stopPropagation();
+
+//     if (this._pointerMoveTarget) {
+//       this._pointerMoveTarget.off('pointermove', this.onPointerMove, this);
+//       this._pointerMoveTarget = null;
+//     }
+
+//     // this._pointerMoveTarget = this.transformer.stage || this;
+//     this._pointerMoveTarget.on('pointermove', this.onPointerMove, this);
+//   }
+
+//   /**
+//    * Handles the `pointermove` event. You must call the super implementation.
+//    *
+//    * @param e
+//    */
+//   protected onPointerMove(e: PIXI.InteractionEvent): void {
+//     if (!this._pointerDown) {
+//       return;
+//     }
+
+//     if (this._pointerDragging) {
+//       this.onDrag(e);
+//     } else {
+//       this.onDragStart(e);
+//     }
+
+//     e.stopPropagation();
+//   }
+
+//   /**
+//    * Handles the `pointerup` event. You must call the super implementation.
+//    *
+//    * @param e
+//    */
+//   protected onPointerUp(e: PIXI.InteractionEvent): void {
+//     if (this._pointerDragging) {
+//       this.onDragEnd(e);
+//     }
+
+//     this._pointerDown = false;
+
+//     if (this._pointerMoveTarget) {
+//       this._pointerMoveTarget.off('pointermove', this.onPointerMove, this);
+//       this._pointerMoveTarget = null;
+//     }
+//   }
+
+//   /**
+//    * Called on the first `pointermove` when {@code this._pointerDown} is true. You must call the super implementation.
+//    *
+//    * @param e
+//    */
+//   protected onDragStart(e: PIXI.InteractionEvent): void {
+//     this._pointerPosition.copyFrom(e.data.global);
+
+//     this._pointerDragging = true;
+//   }
+
+//   /**
+//    * Called on a `pointermove` when {@code this._pointerDown} & {@code this._pointerDragging}.
+//    *
+//    * @param e
+//    */
+//   protected onDrag(e: PIXI.InteractionEvent): void {
+//     const currentPosition = e.data.global;
+
+//     // Callback handles the rest!
+//     if (this.onHandleDelta) {
+//       this.onHandleDelta(currentPosition);
+//     }
+
+//     this._pointerPosition.copyFrom(currentPosition);
+//   }
+
+//   /**
+//    * Called on a `pointerup` or `pointerupoutside` & {@code this._pointerDragging} was true.
+//    *
+//    * @param _
+//    */
+//   // eslint-disable-next-line @typescript-eslint/no-unused-vars
+//   protected onDragEnd(_: PIXI.InteractionEvent): void {
+//     this._pointerDragging = false;
+
+//     if (this.onHandleCommit) {
+//       this.onHandleCommit();
+//     }
+//   }
+// }

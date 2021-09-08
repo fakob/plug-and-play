@@ -182,3 +182,5 @@ export const PIXI_PIVOT_OPTIONS = [
     value: { x: 1.0, y: 1.0 },
   },
 ];
+
+export const SCALEHANDLE_SIZE = 8;
