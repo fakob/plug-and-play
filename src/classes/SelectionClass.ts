@@ -63,7 +63,7 @@ export default class PPSelection extends PIXI.Container {
     this.scaleHandle = new ScaleHandle(onHandleDelta, commitGroup);
     this.addChild(this.scaleHandle);
 
-    // this.interactive = true;
+    this.interactive = true;
 
     this.on('pointerdown', this.onPointerDown.bind(this));
     this.on('pointerupoutside', this.onPointerUpAndUpOutside.bind(this));
@@ -339,7 +339,8 @@ export default class PPSelection extends PIXI.Container {
       } else {
         this.selectedNodes = nodes;
       }
-      this.scaleHandle.visible = true;
+      // show scaleHandle only if there is only 1 node selected
+      this.scaleHandle.visible = this.selectedNodes.length === 1;
     }
     if (this.onSelectionChange) {
       this.onSelectionChange(this.selectedNodes);
