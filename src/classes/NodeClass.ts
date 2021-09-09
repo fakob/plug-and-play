@@ -62,6 +62,7 @@ export default class PPNode extends PIXI.Container {
   nodePosX: number;
   nodePosY: number;
   nodeWidth: number;
+  minNodeWidth: number;
   nodeHeight: number;
   isHybrid: boolean; // true if it is a hybrid node (html and webgl)
   roundedCorners: boolean;
@@ -110,6 +111,7 @@ export default class PPNode extends PIXI.Container {
     this.x = customArgs?.nodePosX ?? 0;
     this.y = customArgs?.nodePosY ?? 0;
     this.nodeWidth = customArgs?.nodeWidth ?? NODE_WIDTH;
+    this.minNodeWidth = this.nodeWidth;
     this.nodeHeight = customArgs?.nodeHeight ?? undefined;
     this.isHybrid = Boolean(customArgs?.isHybrid ?? false);
 
@@ -188,6 +190,25 @@ export default class PPNode extends PIXI.Container {
 
   get doubleClicked(): boolean {
     return this._doubleClicked;
+  }
+
+  get countOfVisibleInputSockets(): number {
+    return this.inputSocketArray.filter((item) => item.visible === true).length;
+  }
+
+  get countOfVisibleOutputSockets(): number {
+    return this.outputSocketArray.filter((item) => item.visible === true)
+      .length;
+  }
+
+  get minNodeHeight(): number {
+    const minHeight =
+      NODE_PADDING_TOP +
+      NODE_HEADER_HEIGHT +
+      this.countOfVisibleInputSockets * SOCKET_HEIGHT +
+      this.countOfVisibleOutputSockets * SOCKET_HEIGHT +
+      NODE_PADDING_BOTTOM;
+    return minHeight;
   }
 
   get nodeName(): string {
@@ -388,28 +409,17 @@ export default class PPNode extends PIXI.Container {
 
   resizeNode(width: number, height: number): void {
     // set new size
-    this.nodeWidth = width;
-    this.nodeHeight = height;
+    this.nodeWidth = Math.max(width, this.minNodeWidth);
+    this.nodeHeight = Math.max(height, this.minNodeHeight);
 
     // update node shape
     this.drawNodeShape();
+
+    this.updateCommentPosition();
+    this.updateConnectionPosition();
   }
 
   drawNodeShape(): void {
-    const countOfVisibleInputSockets = this.inputSocketArray.filter(
-      (item) => item.visible === true
-    ).length;
-    const countOfVisibleOutputSockets = this.outputSocketArray.filter(
-      (item) => item.visible === true
-    ).length;
-    const nodeHeight =
-      this.nodeHeight ||
-      NODE_PADDING_TOP +
-        NODE_HEADER_HEIGHT +
-        countOfVisibleInputSockets * SOCKET_HEIGHT +
-        countOfVisibleOutputSockets * SOCKET_HEIGHT +
-        NODE_PADDING_BOTTOM;
-
     // redraw background due to size change
     this._BackgroundRef.clear();
     if (this.isHybrid) {
@@ -419,7 +429,7 @@ export default class PPNode extends PIXI.Container {
         NODE_MARGIN + shrinkMargin / 2,
         NODE_OUTLINE_DISTANCE + shrinkMargin / 2,
         this.nodeWidth - shrinkMargin,
-        nodeHeight - shrinkMargin
+        this.nodeHeight || this.minNodeHeight - shrinkMargin
       );
     } else {
       this._BackgroundRef.beginFill(this.color, this.colorTransparency);
@@ -427,7 +437,7 @@ export default class PPNode extends PIXI.Container {
         NODE_MARGIN,
         NODE_OUTLINE_DISTANCE,
         this.nodeWidth,
-        nodeHeight,
+        this.nodeHeight || this.minNodeHeight,
         this.roundedCorners ? NODE_CORNERRADIUS : 0
       );
     }
@@ -459,7 +469,7 @@ export default class PPNode extends PIXI.Container {
         item.y =
           NODE_OUTLINE_DISTANCE +
           headerHeight +
-          countOfVisibleOutputSockets * SOCKET_HEIGHT +
+          this.countOfVisibleOutputSockets * SOCKET_HEIGHT +
           posCounter * SOCKET_HEIGHT;
         posCounter += 1;
         if (this.showLabels === false) {
