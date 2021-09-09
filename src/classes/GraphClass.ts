@@ -373,7 +373,7 @@ export default class PPGraph {
       console.log(
         'GraphNode type "' + type + '" not registered. Will create new one.'
       );
-      this.createOrUpdateNodeFromCode(DEFAULT_EDITOR_DATA, type);
+      this.createOrUpdateNodeFromCode(DEFAULT_EDITOR_DATA, type, customArgs);
       return null;
     }
 
@@ -745,7 +745,8 @@ export default class PPGraph {
 
   createOrUpdateNodeFromCode(
     code: string,
-    newDefaultFunctionName?: string
+    newDefaultFunctionName?: string,
+    customArgs?: CustomArgs
   ): void {
     let newCode = code;
     if (newDefaultFunctionName) {
@@ -755,28 +756,39 @@ export default class PPGraph {
     const isNodeTypeRegistered = this.checkIfFunctionIsRegistered(functionName);
     console.log('isNodeTypeRegistered: ', isNodeTypeRegistered);
 
-    let newNode: PPNode;
     const nodesWithTheSameType = this.nodes.filter(
       (node) => node.type === functionName
     );
+
+    // store function code string on graph
+    this.customNodeTypes[functionName] = newCode;
+
+    // do nodes of the same type exist on the graph
     if (nodesWithTheSameType.length > 0) {
       nodesWithTheSameType.forEach((node) => {
         console.log('I am of the same type', node);
 
-        newNode = this.createAndAddNode(functionName);
+        const newNode = this.createAndAddNode(functionName);
+
         newNode.configure(node.serialize());
         this.reconnectLinksToNewNode(node, newNode);
+
+        // if the old node was selected, select the new one instead
+        if (this.selection.selectedNodes.includes(node)) {
+          this.selection.selectNodes([newNode]);
+        }
 
         // remove previous node
         this.removeNode(node);
       });
     } else {
       // canvas is empty and node does not yet exist on graph
-      newNode = this.createAndAddNode(functionName);
+      this.createAndAddNode(functionName, customArgs);
     }
+  }
 
-    // store function code string on graph
-    this.customNodeTypes[functionName] = newCode;
+  isCustomNode(node: PPNode): boolean {
+    return this.customNodeTypes[node.type] !== undefined;
   }
 
   convertStringToFunction(code: string): (...args: any[]) => any {

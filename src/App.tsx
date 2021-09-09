@@ -1093,6 +1093,7 @@ NOTE: opening a remote playground creates a local copy`
             <InspectorContainer
               currentGraph={currentGraph.current}
               selectedNode={selectedNode}
+              isCustomNode={currentGraph.current.isCustomNode(selectedNode)}
               onSave={createOrUpdateNodeFromCode}
             />
           )}
