@@ -38,6 +38,8 @@ import {
 } from '../utils/utils';
 import {
   COLOR,
+  COLOR_DARK,
+  COLOR_WHITE,
   DATATYPE,
   NODE_MARGIN,
   NODE_OUTLINE_DISTANCE,
@@ -607,7 +609,7 @@ export class Label extends PPNode {
         lineHeight: `${fontSize * (NOTE_LINEHEIGHT_FACTOR + 0.022)}px`, // 0.022 corrects difference between div and PIXI.Text
         textAlign: 'left',
         margin: NOTE_MARGIN_STRING,
-        color: color.isDark() ? COLOR[20] : COLOR[21],
+        color: color.isDark() ? COLOR_WHITE : COLOR_DARK,
         padding: `${marginTopBottom}px ${marginLeftRight}px`,
         position: 'absolute',
         background: 'transparent',
@@ -700,8 +702,8 @@ export class Label extends PPNode {
       this._refTextStyle.fontSize = fontSize;
       this._refTextStyle.lineHeight = fontSize * NOTE_LINEHEIGHT_FACTOR;
       this._refTextStyle.fill = color.isDark()
-        ? PIXI.utils.string2hex(COLOR[20])
-        : PIXI.utils.string2hex(COLOR[21]);
+        ? PIXI.utils.string2hex(COLOR_WHITE)
+        : PIXI.utils.string2hex(COLOR_DARK);
 
       const textMetrics = PIXI.TextMetrics.measureText(
         text,

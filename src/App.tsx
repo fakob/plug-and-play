@@ -22,6 +22,7 @@ import {
   MenuItem,
 } from '@blueprintjs/core';
 import { ItemRenderer, ItemPredicate, Suggest } from '@blueprintjs/select';
+import Color from 'color';
 import { hri } from 'human-readable-ids';
 import TimeAgo from 'javascript-time-ago';
 import en from 'javascript-time-ago/locale/en';
@@ -31,9 +32,9 @@ import { GraphContextMenu, NodeContextMenu } from './components/ContextMenus';
 import { GraphDatabase } from './utils/indexedDB';
 import PPGraph from './classes/GraphClass';
 import {
-  CANVAS_BACKGROUNDCOLOR_HEX,
   CANVAS_BACKGROUND_ALPHA,
   CANVAS_BACKGROUND_TEXTURE,
+  COLOR,
   PLUGANDPLAY_ICON,
 } from './utils/constants';
 import { IGraphSearch, INodeSearch } from './utils/interfaces';
@@ -69,6 +70,9 @@ const NodeSearch = Suggest.ofType<INodeSearch>();
 const isMac = navigator.platform.indexOf('Mac') != -1;
 const controlOrMetaKey = isMac ? '⌘' : 'Ctrl';
 console.log('isMac: ', isMac);
+
+const randomMainColor = COLOR[Math.floor(Math.random() * COLOR.length)];
+const randomMainColorHex = PIXI.utils.string2hex(Color(randomMainColor).hex());
 
 const App = (): JSX.Element => {
   document.title = 'Your Plug and Playground';
@@ -180,9 +184,22 @@ const App = (): JSX.Element => {
 
   const style = useMemo(
     () => ({
-      ...(isDragActive ? activeStyle : {}),
-      ...(isDragAccept ? acceptStyle : {}),
-      ...(isDragReject ? rejectStyle : {}),
+      ...(isDragActive
+        ? {
+            opacity: 0.5,
+          }
+        : {}),
+      ...(isDragAccept
+        ? {
+            backgroundColor: randomMainColor,
+            opacity: 0.5,
+          }
+        : {}),
+      ...(isDragReject
+        ? {
+            backgroundColor: '#FF0000',
+          }
+        : {}),
     }),
     [isDragActive, isDragReject, isDragAccept]
   ) as any;
@@ -197,7 +214,8 @@ const App = (): JSX.Element => {
 
     // create pixiApp
     pixiApp.current = new PIXI.Application({
-      backgroundColor: CANVAS_BACKGROUNDCOLOR_HEX,
+      backgroundColor: randomMainColorHex,
+      backgroundAlpha: 0.3,
       width: window.innerWidth,
       height: window.innerHeight,
       antialias: true,
@@ -658,7 +676,14 @@ const App = (): JSX.Element => {
     if (selected.isRemote) {
       cloneRemoteGraph(selected.id);
     } else {
-      loadGraph(selected.id);
+      if (selected.isNew) {
+        currentGraph.current.clear();
+        saveNewGraph(selected.name);
+        // remove selection flag
+        selected.isNew = undefined;
+      } else {
+        loadGraph(selected.id);
+      }
       setGraphSearchActiveItem(selected);
     }
   };
@@ -879,6 +904,32 @@ NOTE: opening a remote playground creates a local copy`
     return itemToReturn;
   };
 
+  const renderCreateGraphOption = (
+    query: string,
+    active: boolean,
+    handleClick: React.MouseEventHandler<HTMLElement>
+  ) => (
+    <MenuItem
+      icon="add"
+      text={
+        <span>
+          Create empty playground: <strong>{query}</strong>
+        </span>
+      }
+      active={active}
+      onClick={handleClick}
+      shouldDismissPopover={false}
+    />
+  );
+
+  const createNewGraphFromQuery = (title: string): IGraphSearch => {
+    return {
+      id: hri.random(),
+      name: title,
+      isNew: true,
+    };
+  };
+
   const renderNodeItem: ItemRenderer<INodeSearch> = (
     node,
     { handleClick, modifiers, query }
@@ -900,7 +951,7 @@ NOTE: opening a remote playground creates a local copy`
     );
   };
 
-  const createNewItemFromQuery = (title: string): INodeSearch => {
+  const createNewNodeFromQuery = (title: string): INodeSearch => {
     return {
       title,
       name: title,
@@ -925,26 +976,16 @@ NOTE: opening a remote playground creates a local copy`
   ) => (
     <MenuItem
       icon="add"
-      text={`Create "${query}"`}
+      text={
+        <span>
+          Create custom node: <strong>{query}</strong>
+        </span>
+      }
       active={active}
       onClick={handleClick}
       shouldDismissPopover={false}
     />
   );
-
-  const activeStyle = {
-    opacity: 0.2,
-  };
-
-  const acceptStyle = {
-    backgroundColor: '#00FF00',
-    // opacity: 0.2,
-  };
-
-  const rejectStyle = {
-    backgroundColor: '#FF0000',
-    // opacity: 0.2,
-  };
 
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
@@ -1057,6 +1098,9 @@ NOTE: opening a remote playground creates a local copy`
           )}
           <img
             className={styles.plugAndPlaygroundIcon}
+            style={{
+              backgroundColor: randomMainColor,
+            }}
             src={PLUGANDPLAY_ICON}
             onClick={() => {
               setContextMenuPosition([80, 40]);
@@ -1074,8 +1118,11 @@ NOTE: opening a remote playground creates a local copy`
                   },
                   large: true,
                   placeholder: 'Search playgrounds',
+                  className: styles.brightPlaceholder,
+                  style: {
+                    backgroundColor: Color(randomMainColor).alpha(0.5),
+                  },
                 }}
-                // defaultSelectedItem={graphSearchActiveItem}
                 noResults={'No playgrounds available'}
                 itemRenderer={renderGraphItem}
                 items={graphSearchItems}
@@ -1087,6 +1134,8 @@ NOTE: opening a remote playground creates a local copy`
                 resetOnSelect={true}
                 popoverProps={{ minimal: true, portalClassName: 'graphSearch' }}
                 inputValueRenderer={(item: IGraphSearch) => item.name}
+                createNewItemFromQuery={createNewGraphFromQuery}
+                createNewItemRenderer={renderCreateGraphOption}
               />
               <div
                 style={{
@@ -1115,7 +1164,7 @@ NOTE: opening a remote playground creates a local copy`
                   resetOnSelect={true}
                   popoverProps={{ minimal: true }}
                   inputValueRenderer={(node: INodeSearch) => node.title}
-                  createNewItemFromQuery={createNewItemFromQuery}
+                  createNewItemFromQuery={createNewNodeFromQuery}
                   createNewItemRenderer={renderCreateNodeOption}
                 />
               </div>
