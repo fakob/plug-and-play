@@ -62,6 +62,9 @@ export type SerializedNode = {
   name: string;
   x: number;
   y: number;
+  minWidth: number;
+  width: number;
+  height: number;
   inputSocketArray?: SerializedSocket[];
   outputSocketArray?: SerializedSocket[];
   updateBehaviour: UpdateBehaviour;

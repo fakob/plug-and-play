@@ -201,10 +201,14 @@ export default class PPNode extends PIXI.Container {
       .length;
   }
 
+  get headerHeight(): number {
+    // hide header if showLabels === false
+    return this.showLabels ? NODE_PADDING_TOP + NODE_HEADER_HEIGHT : 0;
+  }
+
   get minNodeHeight(): number {
     const minHeight =
-      NODE_PADDING_TOP +
-      NODE_HEADER_HEIGHT +
+      this.headerHeight +
       this.countOfVisibleInputSockets * SOCKET_HEIGHT +
       this.countOfVisibleOutputSockets * SOCKET_HEIGHT +
       NODE_PADDING_BOTTOM;
@@ -302,12 +306,15 @@ export default class PPNode extends PIXI.Container {
 
   serialize(): SerializedNode {
     //create serialization object
-    const o: SerializedNode = {
+    const node: SerializedNode = {
       id: this.id,
       name: this.name,
       type: this.type,
       x: this.x,
       y: this.y,
+      minWidth: this.minNodeWidth,
+      width: this.nodeWidth,
+      height: this.nodeHeight,
       updateBehaviour: {
         update: this.updateBehaviour.update,
         interval: this.updateBehaviour.interval,
@@ -315,22 +322,26 @@ export default class PPNode extends PIXI.Container {
       },
     };
 
-    o.inputSocketArray = [];
+    node.inputSocketArray = [];
     this.inputSocketArray.forEach((item) => {
-      o.inputSocketArray.push(item.serialize());
+      node.inputSocketArray.push(item.serialize());
     });
 
-    o.outputSocketArray = [];
+    node.outputSocketArray = [];
     this.outputSocketArray.forEach((item) => {
-      o.outputSocketArray.push(item.serialize());
+      node.outputSocketArray.push(item.serialize());
     });
 
-    return o;
+    return node;
   }
 
   configure(nodeConfig: SerializedNode): void {
     this.x = nodeConfig.x;
     this.y = nodeConfig.y;
+    this.minNodeWidth = nodeConfig.minWidth ?? NODE_WIDTH;
+    if (nodeConfig.width && nodeConfig.height) {
+      this.resizeNode(nodeConfig.width, nodeConfig.height);
+    }
     // update position of comment
     this.updateCommentPosition();
 
@@ -443,17 +454,15 @@ export default class PPNode extends PIXI.Container {
     }
     this._BackgroundRef.endFill();
 
-    // hide header if showLabels === false
-    const headerHeight = this.showLabels
-      ? NODE_PADDING_TOP + NODE_HEADER_HEIGHT
-      : 0;
     // redraw outputs
     let posCounter = 0;
     this.outputSocketArray.forEach((item) => {
       // console.log(item, item.x, item.getBounds().width, this.nodeWidth);
       if (item.visible) {
         item.y =
-          NODE_OUTLINE_DISTANCE + headerHeight + posCounter * SOCKET_HEIGHT;
+          NODE_OUTLINE_DISTANCE +
+          this.headerHeight +
+          posCounter * SOCKET_HEIGHT;
         item.x = this.nodeWidth - NODE_WIDTH;
         posCounter += 1;
         if (this.showLabels === false) {
@@ -468,7 +477,7 @@ export default class PPNode extends PIXI.Container {
       if (item.visible) {
         item.y =
           NODE_OUTLINE_DISTANCE +
-          headerHeight +
+          this.headerHeight +
           this.countOfVisibleOutputSockets * SOCKET_HEIGHT +
           posCounter * SOCKET_HEIGHT;
         posCounter += 1;
