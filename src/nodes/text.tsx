@@ -40,6 +40,7 @@ import {
   COLOR,
   COLOR_DARK,
   COLOR_WHITE,
+  COLOR_WHITE_TEXT,
   DATATYPE,
   NODE_MARGIN,
   NODE_OUTLINE_DISTANCE,
@@ -756,7 +757,7 @@ export class Note extends PPNode {
   constructor(name: string, graph: PPGraph, customArgs?: CustomArgs) {
     const nodeWidth = 160;
     const nodeHeight = 160;
-    const defaultColor = COLOR[19];
+    const defaultColor = COLOR_WHITE_TEXT;
 
     super(name, graph, {
       ...customArgs,

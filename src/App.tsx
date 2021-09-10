@@ -72,7 +72,9 @@ const controlOrMetaKey = isMac ? '⌘' : 'Ctrl';
 console.log('isMac: ', isMac);
 
 const randomMainColor = COLOR[Math.floor(Math.random() * COLOR.length)];
-const randomMainColorHex = PIXI.utils.string2hex(Color(randomMainColor).hex());
+const randomMainColorLightHex = PIXI.utils.string2hex(
+  Color(randomMainColor).mix(Color('white'), 0.9).hex()
+);
 
 const App = (): JSX.Element => {
   document.title = 'Your Plug and Playground';
@@ -214,8 +216,8 @@ const App = (): JSX.Element => {
 
     // create pixiApp
     pixiApp.current = new PIXI.Application({
-      backgroundColor: randomMainColorHex,
-      backgroundAlpha: 0.3,
+      backgroundColor: randomMainColorLightHex,
+      backgroundAlpha: 1,
       width: window.innerWidth,
       height: window.innerHeight,
       antialias: true,

@@ -25,11 +25,11 @@ export const COLOR = [
   '#7BA442',
   '#A58E43',
   '#A45140',
-  '#F4FAF9',
 ];
 
 export const COLOR_WHITE = '#F5F5F5';
 export const COLOR_DARK = '#0C0C0C';
+export const COLOR_WHITE_TEXT = '#F4FAF9';
 
 export const PLUGANDPLAY_ICON = '../assets/PlugAndPlayIcon-transparent.svg';
 
