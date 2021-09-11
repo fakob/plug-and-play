@@ -866,7 +866,7 @@ export class Note extends PPNode {
         border: '0 none',
         transformOrigin: 'top left',
         transform: `scale(${this.graph.viewport.scale.x}`,
-        outline: '1px dashed black',
+        outline: '0px dashed black',
         left: `${screenPoint.x}px`,
         top: `${screenPoint.y}px`,
         width: `${nodeWidth}px`,
