@@ -837,6 +837,7 @@ export class Note extends PPNode {
         (this as PIXI.Container).addChild(this._bitmapTextRef);
         this._bitmapTextRef.mask = this._maskRef;
 
+        this.onNodeResized();
         this.update();
       });
     };
