@@ -10,7 +10,7 @@ export default class PPSelection extends PIXI.Container {
   protected viewport: Viewport;
   protected nodes: PPNode[];
   protected previousSelectedNodes: PPNode[];
-  selectedNodes: PPNode[];
+  _selectedNodes: PPNode[];
 
   protected selectionIntendGraphics: PIXI.Graphics;
   protected selectionGraphics: PIXI.Graphics;
@@ -37,7 +37,7 @@ export default class PPSelection extends PIXI.Container {
     this.isDrawingSelection = false;
     this.isDraggingSelection = false;
     this.previousSelectedNodes = [];
-    this.selectedNodes = null;
+    this._selectedNodes = [];
     this.interactionData = null;
 
     this.name = 'selectionContainer';
@@ -70,6 +70,17 @@ export default class PPSelection extends PIXI.Container {
 
     // define callbacks
     this.onSelectionChange = null; //called if the selection changes
+  }
+
+  get selectedNodes(): PPNode[] {
+    return this._selectedNodes;
+  }
+
+  set selectedNodes(newNodes: PPNode[]) {
+    this._selectedNodes = newNodes;
+    this._selectedNodes.forEach((node) => {
+      node.select();
+    });
   }
 
   onScaled = (): void => {
@@ -140,9 +151,7 @@ export default class PPSelection extends PIXI.Container {
     }
   }
 
-  onPointerOver(event: PIXI.InteractionEvent): void {
-    // const target = event.target;
-    // console.log(target, target.name);
+  onPointerOver(): void {
     this.cursor = 'move';
   }
 

@@ -643,6 +643,7 @@ export class Label extends PPNode {
         console.log('blur', e);
         this.currentInput.remove();
         this._refText.visible = true;
+        this.doubleClicked = false;
       });
 
       this.currentInput.addEventListener('input', (e) => {
@@ -685,43 +686,44 @@ export class Label extends PPNode {
     };
 
     this.onNodeDoubleClick = () => {
-      console.log('onNodeDoubleClick:', this.id);
       this._refText.visible = false;
       this.createInputElement();
     };
 
     this.onExecute = async (input) => {
-      const text = String(input['text']);
-      const fontSize = input['fontSize'];
-      const minWidth = input['min-width'];
-      const color = trgbaToColor(input['backgroundColor']);
+      if (!this.doubleClicked) {
+        const text = String(input['text']);
+        const fontSize = input['fontSize'];
+        const minWidth = input['min-width'];
+        const color = trgbaToColor(input['backgroundColor']);
 
-      const marginTopBottom = fontSize / 2;
-      const marginLeftRight = fontSize / 1.5;
+        const marginTopBottom = fontSize / 2;
+        const marginLeftRight = fontSize / 1.5;
 
-      this._refTextStyle.fontSize = fontSize;
-      this._refTextStyle.lineHeight = fontSize * NOTE_LINEHEIGHT_FACTOR;
-      this._refTextStyle.fill = color.isDark()
-        ? PIXI.utils.string2hex(COLOR_WHITE)
-        : PIXI.utils.string2hex(COLOR_DARK);
+        this._refTextStyle.fontSize = fontSize;
+        this._refTextStyle.lineHeight = fontSize * NOTE_LINEHEIGHT_FACTOR;
+        this._refTextStyle.fill = color.isDark()
+          ? PIXI.utils.string2hex(COLOR_WHITE)
+          : PIXI.utils.string2hex(COLOR_DARK);
 
-      const textMetrics = PIXI.TextMetrics.measureText(
-        text,
-        this._refTextStyle
-      );
+        const textMetrics = PIXI.TextMetrics.measureText(
+          text,
+          this._refTextStyle
+        );
 
-      this.color = PIXI.utils.string2hex(color.hex());
-      this.colorTransparency = color.alpha();
+        this.color = PIXI.utils.string2hex(color.hex());
+        this.colorTransparency = color.alpha();
 
-      this.resizeNode(
-        Math.max(minWidth, textMetrics.width + marginLeftRight * 2),
-        textMetrics.height + marginTopBottom * 2
-      );
-      this.setOutputData('text', text);
+        this.resizeNode(
+          Math.max(minWidth, textMetrics.width + marginLeftRight * 2),
+          textMetrics.height + marginTopBottom * 2
+        );
+        this.setOutputData('text', text);
 
-      this._refText.text = text;
-      this._refText.x = this.x + NODE_MARGIN + marginLeftRight;
-      this._refText.y = this.y + marginTopBottom;
+        this._refText.text = text;
+        this._refText.x = this.x + NODE_MARGIN + marginLeftRight;
+        this._refText.y = this.y + marginTopBottom;
+      }
     };
 
     // scale input if node is scaled
@@ -909,6 +911,7 @@ export class Note extends PPNode {
         this.setCleanAndDisplayText(this.currentInput);
         this.currentInput.remove();
         this._bitmapTextRef.visible = true;
+        this.doubleClicked = false;
       });
 
       this.currentInput.addEventListener('input', (e) => {

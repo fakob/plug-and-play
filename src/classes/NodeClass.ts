@@ -194,6 +194,10 @@ export default class PPNode extends PIXI.Container {
     return this._doubleClicked;
   }
 
+  set doubleClicked(state: boolean) {
+    this._doubleClicked = state;
+  }
+
   get countOfVisibleInputSockets(): number {
     return this.inputSocketArray.filter((item) => item.visible === true).length;
   }
@@ -230,12 +234,6 @@ export default class PPNode extends PIXI.Container {
 
   // METHODS
   select(): void {
-    this.graph.selection.selectNode(this);
-
-    if (!this.selected) {
-      this._doubleClicked = false;
-    }
-
     // this allows to zoom and drag when the hybrid node is not selected
     if (this.isHybrid) {
       if (!this.selected && this.container !== undefined) {
@@ -929,7 +927,7 @@ export default class PPNode extends PIXI.Container {
 
   _onDoubleClick(event: PIXI.InteractionEvent): void {
     console.log('_onDoubleClick');
-    this._doubleClicked = true;
+    this.doubleClicked = true;
 
     // turn on pointer events for hybrid nodes so the react components become reactive
     if (this.isHybrid) {
