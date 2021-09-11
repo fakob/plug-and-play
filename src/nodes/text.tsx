@@ -43,7 +43,6 @@ import {
   COLOR_WHITE_TEXT,
   DATATYPE,
   NODE_MARGIN,
-  NODE_OUTLINE_DISTANCE,
   NOTE_FONT,
   NOTE_FONTSIZE,
   NOTE_LINEHEIGHT_FACTOR,
@@ -722,7 +721,7 @@ export class Label extends PPNode {
 
       this._refText.text = text;
       this._refText.x = this.x + NODE_MARGIN + marginLeftRight;
-      this._refText.y = this.y + NODE_OUTLINE_DISTANCE + marginTopBottom;
+      this._refText.y = this.y + marginTopBottom;
     };
 
     // scale input if node is scaled
@@ -746,8 +745,8 @@ export class Label extends PPNode {
 }
 
 export class Note extends PPNode {
-  _rectRef: PIXI.Sprite;
-  _textInputRef: PIXI.BitmapText;
+  _spriteRef: PIXI.Sprite;
+  _bitmapTextRef: PIXI.BitmapText;
   _maskRef: PIXI.Graphics;
   currentInput: HTMLDivElement;
   fontSize: number;
@@ -759,7 +758,11 @@ export class Note extends PPNode {
     const baseWidth = 160;
     const baseHeight = 160;
     const defaultColor = COLOR_WHITE_TEXT;
-    const maxFontSize = 60;
+    const baseFontSize = 60;
+    const maxFontSize = 1200;
+
+    // to compensate for that the note texture includes a drop shadow at the bottom
+    const verticalTextureOffset = 0.92;
 
     super(name, graph, {
       ...customArgs,
@@ -783,14 +786,11 @@ export class Note extends PPNode {
     this.description = 'Adds a note';
 
     this.currentInput = null;
-    this.fontSize = maxFontSize; // set default to maxFontSize
+    this.fontSize = baseFontSize;
 
     const textFitOptions = {
       multiLine: true,
       maxFontSize: maxFontSize,
-      // alignHoriz: true,
-      // alignVert: true,
-      // alignVertWithFlexbox: true,
     };
 
     this.onNodeAdded = () => {
@@ -798,14 +798,31 @@ export class Note extends PPNode {
       loader.add('NoteFont', NOTE_FONT).load(() => {
         const nodeWidth = this.nodeWidth ?? baseWidth;
         const nodeHeight = this.nodeHeight ?? baseHeight;
-        const note = PIXI.Sprite.from(NOTE_TEXTURE);
-        note.x = SOCKET_WIDTH / 2;
-        note.y = NODE_OUTLINE_DISTANCE;
-        note.width = nodeWidth;
-        note.height = nodeHeight;
+
+        this._NodeNameRef.visible = false;
+
+        this._spriteRef = PIXI.Sprite.from(NOTE_TEXTURE);
+        this._spriteRef.x = SOCKET_WIDTH / 2;
+        this._spriteRef.y = 0;
+        this._spriteRef.width = nodeWidth;
+        this._spriteRef.height = nodeHeight;
+        (this as PIXI.Container).addChild(this._spriteRef);
+        this._spriteRef.alpha = 1;
+        this._spriteRef.tint = PIXI.utils.string2hex(Color(defaultColor).hex());
+
+        this._maskRef = new PIXI.Graphics();
+        this._maskRef.beginFill(0xffffff);
+        this._maskRef.drawRect(
+          this._spriteRef.x,
+          this._spriteRef.y,
+          this._spriteRef.width,
+          this._spriteRef.height
+        );
+        this._maskRef.endFill();
+        (this as PIXI.Container).addChild(this._maskRef);
 
         // create and position PIXI.Text
-        const basicText = new PIXI.BitmapText(
+        this._bitmapTextRef = new PIXI.BitmapText(
           customArgs?.data ?? 'Write away...',
           {
             fontName: 'Arial',
@@ -814,24 +831,11 @@ export class Note extends PPNode {
             maxWidth: nodeWidth - NOTE_PADDING * 2,
           }
         );
-        (basicText.anchor as PIXI.Point) = new PIXI.Point(0.5, 0.5);
-        basicText.x = (SOCKET_WIDTH + nodeWidth) / 2;
-        basicText.y = (NODE_OUTLINE_DISTANCE + nodeHeight) / 2;
-
-        this._NodeNameRef.visible = false;
-
-        (this._rectRef as any) = (this as PIXI.Container).addChild(note);
-        this._rectRef.alpha = 1;
-        this._rectRef.tint = PIXI.utils.string2hex(Color(defaultColor).hex());
-
-        const mask = new PIXI.Graphics();
-        mask.beginFill(0xffffff);
-        mask.drawRect(note.x, note.y, note.width, note.height); // In this case it is 8000x8000
-        mask.endFill();
-        this._maskRef = (this as PIXI.Container).addChild(mask);
-
-        this._textInputRef = (this as PIXI.Container).addChild(basicText);
-        this._textInputRef.mask = mask;
+        (this._bitmapTextRef.anchor as PIXI.Point) = new PIXI.Point(0.5, 0.5);
+        this._bitmapTextRef.x = (SOCKET_WIDTH + nodeWidth) / 2;
+        this._bitmapTextRef.y = (nodeHeight * verticalTextureOffset) / 2;
+        (this as PIXI.Container).addChild(this._bitmapTextRef);
+        this._bitmapTextRef.mask = this._maskRef;
 
         this.update();
       });
@@ -841,7 +845,7 @@ export class Note extends PPNode {
       const nodeWidth = this.nodeWidth ?? baseWidth;
       const nodeHeight = this.nodeHeight ?? baseHeight;
       // create html input element
-      this._textInputRef.visible = false;
+      this._bitmapTextRef.visible = false;
       const screenPoint = this.graph.viewport.toScreen(this.x, this.y);
 
       this.currentInput = document.createElement('div');
@@ -865,7 +869,7 @@ export class Note extends PPNode {
         left: `${screenPoint.x}px`,
         top: `${screenPoint.y}px`,
         width: `${nodeWidth}px`,
-        height: `${nodeHeight - NOTE_PADDING}px`,
+        height: `${nodeHeight * verticalTextureOffset}px`,
         resize: 'none',
         overflowY: 'scroll',
         display: 'flex',
@@ -903,7 +907,7 @@ export class Note extends PPNode {
         this.currentInput.dispatchEvent(new Event('input'));
         this.setCleanAndDisplayText(this.currentInput);
         this.currentInput.remove();
-        this._textInputRef.visible = true;
+        this._bitmapTextRef.visible = true;
       });
 
       this.currentInput.addEventListener('input', (e) => {
@@ -917,6 +921,9 @@ export class Note extends PPNode {
     };
 
     this.setCleanAndDisplayText = (input: HTMLDivElement) => {
+      const nodeWidth = this.nodeWidth ?? baseWidth;
+      const nodeHeight = this.nodeHeight ?? baseHeight;
+
       // get font size of editable div
       const style = window.getComputedStyle(input.children[0], null);
       console.log(input, input.children[0]);
@@ -928,8 +935,10 @@ export class Note extends PPNode {
         this.fontSize
       );
 
-      this._textInputRef.fontSize = newFontSize;
-      this._textInputRef.text = input.textContent;
+      this._bitmapTextRef.fontSize = newFontSize;
+      this._bitmapTextRef.text = input.textContent;
+      this._bitmapTextRef.x = (SOCKET_WIDTH + nodeWidth) / 2;
+      this._bitmapTextRef.y = (nodeHeight * verticalTextureOffset) / 2;
 
       this.setInputData('data', newText);
       this.setOutputData('data', newText);
@@ -941,19 +950,53 @@ export class Note extends PPNode {
       const nodeWidth = this.nodeWidth ?? baseWidth;
       const nodeHeight = this.nodeHeight ?? baseHeight;
       const data = this.getInputData('data');
-      if (this._textInputRef) {
-        this._textInputRef.text = data;
+      if (this._bitmapTextRef) {
+        this._bitmapTextRef.text = data;
         while (
-          (this._textInputRef.width > nodeWidth - NOTE_PADDING * 2 ||
-            this._textInputRef.height > nodeHeight - NOTE_PADDING * 2) &&
-          this._textInputRef.fontSize > 8
+          (this._bitmapTextRef.width > nodeWidth - NOTE_PADDING * 2 ||
+            this._bitmapTextRef.height > nodeHeight - NOTE_PADDING * 2) &&
+          this._bitmapTextRef.fontSize > 8
         ) {
-          this._textInputRef.fontSize -= 2;
+          console.log('while resize');
+          this._bitmapTextRef.fontSize -= 2;
         }
-        this.fontSize = this._textInputRef.fontSize;
-        console.log(this.fontSize);
-        this._textInputRef.text = data;
+        this.fontSize = this._bitmapTextRef.fontSize;
+        this._bitmapTextRef.text = data;
         this.setOutputData('data', data);
+      }
+    };
+
+    // scale input if node is scaled
+    this.onNodeResize = (newWidth, newHeight) => {
+      this.nodeWidth = newWidth;
+      this.nodeHeight = newHeight;
+      if (this._spriteRef !== undefined) {
+        this._spriteRef.width = newWidth;
+        this._spriteRef.height = newHeight;
+        this._bitmapTextRef.maxWidth = newWidth - NOTE_PADDING * 2;
+        this._bitmapTextRef.x = (SOCKET_WIDTH + newWidth) / 2;
+        this._bitmapTextRef.y = (newHeight * verticalTextureOffset) / 2;
+        this._maskRef.x = this._spriteRef.x;
+        this._maskRef.y = this._spriteRef.y;
+        this._maskRef.width = newWidth;
+        this._maskRef.height = newHeight;
+      }
+      if (this.currentInput !== null) {
+        this.currentInput.style.width = `${newWidth}px`;
+        this.currentInput.style.height = `${
+          newHeight * verticalTextureOffset
+        }px`;
+      }
+    };
+
+    this.onNodeResized = () => {
+      if (this._bitmapTextRef !== undefined) {
+        this._bitmapTextRef.visible = false;
+        this.createInputElement(true);
+        this.currentInput.dispatchEvent(new Event('input'));
+        this.setCleanAndDisplayText(this.currentInput);
+        this.currentInput.remove();
+        this._bitmapTextRef.visible = true;
       }
     };
 
@@ -970,34 +1013,6 @@ export class Note extends PPNode {
         this.currentInput.style.left = `${screenPoint.x}px`;
         this.currentInput.style.top = `${screenPoint.y}px`;
       }
-    };
-
-    // scale input if node is scaled
-    this.onNodeResize = (newWidth, newHeight) => {
-      this.nodeWidth = newWidth;
-      this.nodeHeight = newHeight;
-      if (this._rectRef !== undefined) {
-        this._rectRef.width = newWidth;
-        this._rectRef.height = newHeight;
-        this._textInputRef.maxWidth = newWidth - NOTE_PADDING * 2;
-        this._textInputRef.x = (SOCKET_WIDTH + newWidth) / 2;
-        this._textInputRef.y = newHeight / 2;
-        this._maskRef.width = newWidth;
-        this._maskRef.height = newHeight;
-      }
-      if (this.currentInput !== null) {
-        this.currentInput.style.width = `${newWidth}px`;
-        this.currentInput.style.height = `${newHeight - NOTE_PADDING}px`;
-      }
-    };
-
-    this.onNodeResized = () => {
-      this._textInputRef.visible = false;
-      this.createInputElement(true);
-      this.currentInput.dispatchEvent(new Event('input'));
-      this.setCleanAndDisplayText(this.currentInput);
-      this.currentInput.remove();
-      this._textInputRef.visible = true;
     };
 
     this.onExecute = async () => {

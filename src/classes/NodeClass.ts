@@ -19,7 +19,6 @@ import {
   NODE_MARGIN,
   NODE_PADDING_BOTTOM,
   NODE_PADDING_TOP,
-  NODE_OUTLINE_DISTANCE,
   NODE_TEXTSTYLE,
   NODE_WIDTH,
   SOCKET_HEIGHT,
@@ -134,8 +133,7 @@ export default class PPNode extends PIXI.Container {
       customArgs?.colorTransparency ?? (this.isHybrid ? 0.01 : 1); // so it does not show when dragging the node fast
     const inputNameText = new PIXI.Text(this.name, NODE_TEXTSTYLE);
     inputNameText.x = NODE_HEADER_TEXTMARGIN_LEFT;
-    inputNameText.y =
-      NODE_OUTLINE_DISTANCE + NODE_PADDING_TOP + NODE_HEADER_TEXTMARGIN_TOP;
+    inputNameText.y = NODE_PADDING_TOP + NODE_HEADER_TEXTMARGIN_TOP;
     inputNameText.resolution = 8;
 
     const background = new PIXI.Graphics();
@@ -343,13 +341,13 @@ export default class PPNode extends PIXI.Container {
   }
 
   configure(nodeConfig: SerializedNode): void {
-    console.log('configure');
     this.x = nodeConfig.x;
     this.y = nodeConfig.y;
     this.minNodeWidth = nodeConfig.minWidth ?? NODE_WIDTH;
     this.minNodeHeight = nodeConfig.minHeight;
     if (nodeConfig.width && nodeConfig.height) {
       this.resizeNode(nodeConfig.width, nodeConfig.height);
+      this.resizedNode();
     }
     // update position of comment
     this.updateCommentPosition();
@@ -457,7 +455,7 @@ export default class PPNode extends PIXI.Container {
       this._BackgroundRef.beginFill(this.color, this.colorTransparency);
       this._BackgroundRef.drawRect(
         NODE_MARGIN + shrinkMargin / 2,
-        NODE_OUTLINE_DISTANCE + shrinkMargin / 2,
+        shrinkMargin / 2,
         this.nodeWidth - shrinkMargin,
         this.nodeHeight || this.calculatedMinNodeHeight - shrinkMargin
       );
@@ -465,7 +463,7 @@ export default class PPNode extends PIXI.Container {
       this._BackgroundRef.beginFill(this.color, this.colorTransparency);
       this._BackgroundRef.drawRoundedRect(
         NODE_MARGIN,
-        NODE_OUTLINE_DISTANCE,
+        0,
         this.nodeWidth,
         this.nodeHeight || this.calculatedMinNodeHeight,
         this.roundedCorners ? NODE_CORNERRADIUS : 0
@@ -478,10 +476,7 @@ export default class PPNode extends PIXI.Container {
     this.outputSocketArray.forEach((item) => {
       // console.log(item, item.x, item.getBounds().width, this.nodeWidth);
       if (item.visible) {
-        item.y =
-          NODE_OUTLINE_DISTANCE +
-          this.headerHeight +
-          posCounter * SOCKET_HEIGHT;
+        item.y = this.headerHeight + posCounter * SOCKET_HEIGHT;
         item.x = this.nodeWidth - NODE_WIDTH;
         posCounter += 1;
         if (this.showLabels === false) {
@@ -495,7 +490,6 @@ export default class PPNode extends PIXI.Container {
     this.inputSocketArray.forEach((item) => {
       if (item.visible) {
         item.y =
-          NODE_OUTLINE_DISTANCE +
           this.headerHeight +
           this.countOfVisibleOutputSockets * SOCKET_HEIGHT +
           posCounter * SOCKET_HEIGHT;
