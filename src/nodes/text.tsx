@@ -751,7 +751,7 @@ export class Note extends PPNode {
   _maskRef: PIXI.Graphics;
   currentInput: HTMLDivElement;
   fontSize: number;
-  createInputElement: () => void;
+  createInputElement: (temporary?: boolean) => void;
   setCleanAndDisplayText: (input: HTMLDivElement) => void;
   update: () => void;
 
@@ -759,6 +759,7 @@ export class Note extends PPNode {
     const baseWidth = 160;
     const baseHeight = 160;
     const defaultColor = COLOR_WHITE_TEXT;
+    const maxFontSize = 60;
 
     super(name, graph, {
       ...customArgs,
@@ -782,11 +783,13 @@ export class Note extends PPNode {
     this.description = 'Adds a note';
 
     this.currentInput = null;
-    this.fontSize = 60; // set default to maxFontSize
+    this.fontSize = maxFontSize; // set default to maxFontSize
 
     const textFitOptions = {
       multiLine: true,
-      maxFontSize: this.fontSize,
+      maxFontSize: maxFontSize,
+      // alignHoriz: true,
+      // alignVert: true,
       // alignVertWithFlexbox: true,
     };
 
@@ -834,7 +837,7 @@ export class Note extends PPNode {
       });
     };
 
-    this.createInputElement = () => {
+    this.createInputElement = (temporary = false) => {
       const nodeWidth = this.nodeWidth ?? baseWidth;
       const nodeHeight = this.nodeHeight ?? baseHeight;
       // create html input element
@@ -872,23 +875,25 @@ export class Note extends PPNode {
       };
       Object.assign(this.currentInput.style, style);
 
-      setTimeout(() => {
-        // run textfit once so span in div is already added
-        // and caret does not jump after first edit
-        textFit(this.currentInput, textFitOptions);
+      if (!temporary) {
+        setTimeout(() => {
+          // run textfit once so span in div is already added
+          // and caret does not jump after first edit
+          textFit(this.currentInput, textFitOptions);
 
-        // set caret to end
-        const range = document.createRange();
-        const sel = window.getSelection();
-        range.selectNodeContents(this.currentInput);
-        range.collapse(false);
-        sel.removeAllRanges();
-        sel.addRange(range);
+          // set caret to end
+          const range = document.createRange();
+          const sel = window.getSelection();
+          range.selectNodeContents(this.currentInput);
+          range.collapse(false);
+          sel.removeAllRanges();
+          sel.addRange(range);
 
-        // set focus
-        this.currentInput.focus();
-        console.log(this.currentInput);
-      }, 100);
+          // set focus
+          this.currentInput.focus();
+          console.log(this.currentInput);
+        }, 100);
+      }
 
       this.currentInput.dispatchEvent(new Event('input'));
 
@@ -914,9 +919,14 @@ export class Note extends PPNode {
     this.setCleanAndDisplayText = (input: HTMLDivElement) => {
       // get font size of editable div
       const style = window.getComputedStyle(input.children[0], null);
-
+      console.log(input, input.children[0]);
       const newText = input.textContent;
-      const newFontSize = Math.min(parseInt(style.fontSize, 10), this.fontSize);
+      const newFontSize = parseInt(style.getPropertyValue('font-size'), 10);
+      console.log(
+        style.getPropertyValue('font-size'),
+        newFontSize,
+        this.fontSize
+      );
 
       this._textInputRef.fontSize = newFontSize;
       this._textInputRef.text = input.textContent;
@@ -925,11 +935,6 @@ export class Note extends PPNode {
       this.setOutputData('data', newText);
 
       this.fontSize = newFontSize;
-    };
-
-    this.onNodeDoubleClick = () => {
-      console.log('onNodeDoubleClick:', this.id);
-      this.createInputElement();
     };
 
     this.update = () => {
@@ -946,9 +951,15 @@ export class Note extends PPNode {
           this._textInputRef.fontSize -= 2;
         }
         this.fontSize = this._textInputRef.fontSize;
+        console.log(this.fontSize);
         this._textInputRef.text = data;
         this.setOutputData('data', data);
       }
+    };
+
+    this.onNodeDoubleClick = () => {
+      console.log('onNodeDoubleClick:', this.id);
+      this.createInputElement();
     };
 
     // scale input if node is scaled
@@ -968,14 +979,25 @@ export class Note extends PPNode {
       if (this._rectRef !== undefined) {
         this._rectRef.width = newWidth;
         this._rectRef.height = newHeight;
-        this._textInputRef.maxWidth = newWidth;
+        this._textInputRef.maxWidth = newWidth - NOTE_PADDING * 2;
         this._textInputRef.x = (SOCKET_WIDTH + newWidth) / 2;
+        this._textInputRef.y = newHeight / 2;
         this._maskRef.width = newWidth;
+        this._maskRef.height = newHeight;
       }
       if (this.currentInput !== null) {
         this.currentInput.style.width = `${newWidth}px`;
         this.currentInput.style.height = `${newHeight - NOTE_PADDING}px`;
       }
+    };
+
+    this.onNodeResized = () => {
+      this._textInputRef.visible = false;
+      this.createInputElement(true);
+      this.currentInput.dispatchEvent(new Event('input'));
+      this.setCleanAndDisplayText(this.currentInput);
+      this.currentInput.remove();
+      this._textInputRef.visible = true;
     };
 
     this.onExecute = async () => {

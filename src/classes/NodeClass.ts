@@ -93,6 +93,7 @@ export default class PPNode extends PIXI.Container {
   onNodeRemoved: (() => void) | null; // called when the node is removed from the graph
   onNodeSelected: (() => void) | null; // called when the node is selected/unselected
   onNodeResize: ((width: number, height: number) => void) | null; // called when the node is resized
+  onNodeResized: (() => void) | null; // called when the node resize ended
   onNodeDragOrViewportMove: // called when the node or or the viewport with the node is moved or scaled
   | ((positions: { screenX: number; screenY: number; scale: number }) => void)
     | null;
@@ -439,6 +440,12 @@ export default class PPNode extends PIXI.Container {
 
     if (this.onNodeResize) {
       this.onNodeResize(this.nodeWidth, this.nodeHeight);
+    }
+  }
+
+  resizedNode(): void {
+    if (this.onNodeResized) {
+      this.onNodeResized();
     }
   }
 

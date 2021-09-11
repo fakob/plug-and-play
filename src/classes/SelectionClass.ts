@@ -54,7 +54,7 @@ export default class PPSelection extends PIXI.Container {
     this.selectionGraphics.name = 'selectionGraphics';
     this.addChild(this.selectionGraphics);
 
-    this.scaleHandle = new ScaleHandle(this.onHandleDelta, this.commitGroup);
+    this.scaleHandle = new ScaleHandle(this.onScaling, this.onScaled);
     this.addChild(this.scaleHandle);
 
     this.interactive = true;
@@ -72,11 +72,11 @@ export default class PPSelection extends PIXI.Container {
     this.onSelectionChange = null; //called if the selection changes
   }
 
-  commitGroup = (): void => {
-    console.log(`I am done scaling: ${this.selectedNodes[0]}`);
+  onScaled = (): void => {
+    this.selectedNodes[0].resizedNode();
   };
 
-  onHandleDelta = (pointerPosition: PIXI.Point): void => {
+  onScaling = (pointerPosition: PIXI.Point): void => {
     const worldPosition = this.viewport.toWorld(
       pointerPosition.x,
       pointerPosition.y
