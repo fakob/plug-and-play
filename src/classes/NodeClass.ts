@@ -234,13 +234,6 @@ export default class PPNode extends PIXI.Container {
 
   // METHODS
   select(): void {
-    // this allows to zoom and drag when the hybrid node is not selected
-    if (this.isHybrid) {
-      if (!this.selected && this.container !== undefined) {
-        this.container.style.pointerEvents = 'none';
-      }
-    }
-
     if (this.onNodeSelected) {
       this.onNodeSelected();
     }
@@ -637,6 +630,14 @@ export default class PPNode extends PIXI.Container {
       this.container.style.left = `${screenX}px`;
       this.container.style.top = `${screenY}px`;
     };
+
+    this.container.addEventListener('focusout', (e) => {
+      console.log('focusout', e);
+      this.doubleClicked = false;
+
+      // this allows to zoom and drag when the hybrid node is not selected
+      this.container.style.pointerEvents = 'none';
+    });
 
     // when the Node is removed also remove the react component and its container
     this.onNodeRemoved = () => {
