@@ -748,6 +748,7 @@ export class Label extends PPNode {
 export class Note extends PPNode {
   _rectRef: PIXI.Sprite;
   _textInputRef: PIXI.BitmapText;
+  _maskRef: PIXI.Graphics;
   currentInput: HTMLDivElement;
   fontSize: number;
   createInputElement: () => void;
@@ -755,14 +756,15 @@ export class Note extends PPNode {
   update: () => void;
 
   constructor(name: string, graph: PPGraph, customArgs?: CustomArgs) {
-    const nodeWidth = 160;
-    const nodeHeight = 160;
+    const baseWidth = 160;
+    const baseHeight = 160;
     const defaultColor = COLOR_WHITE_TEXT;
 
     super(name, graph, {
       ...customArgs,
-      nodeWidth,
-      nodeHeight,
+      baseWidth,
+      baseHeight,
+      minHeight: baseHeight,
       colorTransparency: 0,
       roundedCorners: false,
       showLabels: false,
@@ -791,6 +793,8 @@ export class Note extends PPNode {
     this.onNodeAdded = () => {
       const loader = new PIXI.Loader();
       loader.add('NoteFont', NOTE_FONT).load(() => {
+        const nodeWidth = this.nodeWidth ?? baseWidth;
+        const nodeHeight = this.nodeHeight ?? baseHeight;
         const note = PIXI.Sprite.from(NOTE_TEXTURE);
         note.x = SOCKET_WIDTH / 2;
         note.y = NODE_OUTLINE_DISTANCE;
@@ -821,15 +825,18 @@ export class Note extends PPNode {
         mask.beginFill(0xffffff);
         mask.drawRect(note.x, note.y, note.width, note.height); // In this case it is 8000x8000
         mask.endFill();
-        (this as PIXI.Container).addChild(mask);
+        this._maskRef = (this as PIXI.Container).addChild(mask);
 
         this._textInputRef = (this as PIXI.Container).addChild(basicText);
         this._textInputRef.mask = mask;
+
         this.update();
       });
     };
 
     this.createInputElement = () => {
+      const nodeWidth = this.nodeWidth ?? baseWidth;
+      const nodeHeight = this.nodeHeight ?? baseHeight;
       // create html input element
       this._textInputRef.visible = false;
       const screenPoint = this.graph.viewport.toScreen(this.x, this.y);
@@ -926,12 +933,14 @@ export class Note extends PPNode {
     };
 
     this.update = () => {
+      const nodeWidth = this.nodeWidth ?? baseWidth;
+      const nodeHeight = this.nodeHeight ?? baseHeight;
       const data = this.getInputData('data');
       if (this._textInputRef) {
         this._textInputRef.text = data;
         while (
-          (this._textInputRef.height > nodeHeight - NOTE_PADDING * 2 ||
-            this._textInputRef.width > nodeWidth - NOTE_PADDING * 2) &&
+          (this._textInputRef.width > nodeWidth - NOTE_PADDING * 2 ||
+            this._textInputRef.height > nodeHeight - NOTE_PADDING * 2) &&
           this._textInputRef.fontSize > 8
         ) {
           this._textInputRef.fontSize -= 2;
@@ -949,6 +958,23 @@ export class Note extends PPNode {
         this.currentInput.style.transform = `scale(${this.graph.viewport.scale.x}`;
         this.currentInput.style.left = `${screenPoint.x}px`;
         this.currentInput.style.top = `${screenPoint.y}px`;
+      }
+    };
+
+    // scale input if node is scaled
+    this.onNodeResize = (newWidth, newHeight) => {
+      this.nodeWidth = newWidth;
+      this.nodeHeight = newHeight;
+      if (this._rectRef !== undefined) {
+        this._rectRef.width = newWidth;
+        this._rectRef.height = newHeight;
+        this._textInputRef.maxWidth = newWidth;
+        this._textInputRef.x = (SOCKET_WIDTH + newWidth) / 2;
+        this._maskRef.width = newWidth;
+      }
+      if (this.currentInput !== null) {
+        this.currentInput.style.width = `${newWidth}px`;
+        this.currentInput.style.height = `${newHeight - NOTE_PADDING}px`;
       }
     };
 

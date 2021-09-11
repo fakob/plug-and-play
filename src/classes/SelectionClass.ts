@@ -414,8 +414,6 @@ class ScaleHandle extends PIXI.Graphics {
 
   protected onPointerOver(event: PIXI.InteractionEvent): void {
     event.stopPropagation();
-    const target = event.target;
-    console.log(target, target.name);
     this.cursor = 'nwse-resize';
   }
 

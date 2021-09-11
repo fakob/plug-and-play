@@ -63,6 +63,7 @@ export default class PPNode extends PIXI.Container {
   nodePosY: number;
   nodeWidth: number;
   minNodeWidth: number;
+  minNodeHeight: number;
   nodeHeight: number;
   isHybrid: boolean; // true if it is a hybrid node (html and webgl)
   roundedCorners: boolean;
@@ -91,6 +92,7 @@ export default class PPNode extends PIXI.Container {
   onNodeAdded: (() => void) | null; // called when the node is added to the graph
   onNodeRemoved: (() => void) | null; // called when the node is removed from the graph
   onNodeSelected: (() => void) | null; // called when the node is selected/unselected
+  onNodeResize: ((width: number, height: number) => void) | null; // called when the node is resized
   onNodeDragOrViewportMove: // called when the node or or the viewport with the node is moved or scaled
   | ((positions: { screenX: number; screenY: number; scale: number }) => void)
     | null;
@@ -113,6 +115,7 @@ export default class PPNode extends PIXI.Container {
     this.nodeWidth = customArgs?.nodeWidth ?? NODE_WIDTH;
     this.minNodeWidth = this.nodeWidth;
     this.nodeHeight = customArgs?.nodeHeight ?? undefined;
+    this.minNodeHeight = customArgs?.minHeight ?? undefined;
     this.isHybrid = Boolean(customArgs?.isHybrid ?? false);
 
     if (this.isHybrid) {
@@ -206,13 +209,15 @@ export default class PPNode extends PIXI.Container {
     return this.showLabels ? NODE_PADDING_TOP + NODE_HEADER_HEIGHT : 0;
   }
 
-  get minNodeHeight(): number {
+  get calculatedMinNodeHeight(): number {
     const minHeight =
       this.headerHeight +
       this.countOfVisibleInputSockets * SOCKET_HEIGHT +
       this.countOfVisibleOutputSockets * SOCKET_HEIGHT +
       NODE_PADDING_BOTTOM;
-    return minHeight;
+    return this.minNodeHeight === undefined
+      ? minHeight
+      : Math.max(minHeight, this.minNodeHeight);
   }
 
   get nodeName(): string {
@@ -312,9 +317,10 @@ export default class PPNode extends PIXI.Container {
       type: this.type,
       x: this.x,
       y: this.y,
-      minWidth: this.minNodeWidth,
       width: this.nodeWidth,
       height: this.nodeHeight,
+      minWidth: this.minNodeWidth,
+      minHeight: this.minNodeHeight,
       updateBehaviour: {
         update: this.updateBehaviour.update,
         interval: this.updateBehaviour.interval,
@@ -336,9 +342,11 @@ export default class PPNode extends PIXI.Container {
   }
 
   configure(nodeConfig: SerializedNode): void {
+    console.log('configure');
     this.x = nodeConfig.x;
     this.y = nodeConfig.y;
     this.minNodeWidth = nodeConfig.minWidth ?? NODE_WIDTH;
+    this.minNodeHeight = nodeConfig.minHeight;
     if (nodeConfig.width && nodeConfig.height) {
       this.resizeNode(nodeConfig.width, nodeConfig.height);
     }
@@ -421,13 +429,17 @@ export default class PPNode extends PIXI.Container {
   resizeNode(width: number, height: number): void {
     // set new size
     this.nodeWidth = Math.max(width, this.minNodeWidth);
-    this.nodeHeight = Math.max(height, this.minNodeHeight);
+    this.nodeHeight = Math.max(height, this.calculatedMinNodeHeight);
 
     // update node shape
     this.drawNodeShape();
 
     this.updateCommentPosition();
     this.updateConnectionPosition();
+
+    if (this.onNodeResize) {
+      this.onNodeResize(this.nodeWidth, this.nodeHeight);
+    }
   }
 
   drawNodeShape(): void {
@@ -440,7 +452,7 @@ export default class PPNode extends PIXI.Container {
         NODE_MARGIN + shrinkMargin / 2,
         NODE_OUTLINE_DISTANCE + shrinkMargin / 2,
         this.nodeWidth - shrinkMargin,
-        this.nodeHeight || this.minNodeHeight - shrinkMargin
+        this.nodeHeight || this.calculatedMinNodeHeight - shrinkMargin
       );
     } else {
       this._BackgroundRef.beginFill(this.color, this.colorTransparency);
@@ -448,7 +460,7 @@ export default class PPNode extends PIXI.Container {
         NODE_MARGIN,
         NODE_OUTLINE_DISTANCE,
         this.nodeWidth,
-        this.nodeHeight || this.minNodeHeight,
+        this.nodeHeight || this.calculatedMinNodeHeight,
         this.roundedCorners ? NODE_CORNERRADIUS : 0
       );
     }
