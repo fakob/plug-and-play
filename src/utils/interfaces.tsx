@@ -42,9 +42,12 @@ export type CustomArgs = {
 };
 
 export interface IGraphSearch {
-  id: number;
+  id: string;
   name: string;
-  date: Date;
+  label?: string;
+  isRemote?: boolean;
+  isDisabled?: boolean;
+  isNew?: boolean;
 }
 
 export interface INodeSearch {

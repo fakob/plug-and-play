@@ -110,7 +110,6 @@ export default class PPNode extends PIXI.Container {
     // customArgs
     this.x = customArgs?.nodePosX ?? 0;
     this.y = customArgs?.nodePosY ?? 0;
-    console.log(customArgs);
     this.nodeWidth = customArgs?.nodeWidth ?? NODE_WIDTH;
     this.nodeHeight = customArgs?.nodeHeight ?? undefined;
     this.isHybrid = Boolean(customArgs?.isHybrid ?? false);
@@ -301,8 +300,6 @@ export default class PPNode extends PIXI.Container {
 
     // set parameters on inputSocket
     this.inputSocketArray.forEach((item, index) => {
-      console.log(nodeConfig.inputSocketArray[index]);
-
       // skip configuring the input if there is no config data
       if (nodeConfig.inputSocketArray[index] !== undefined) {
         item.setName(nodeConfig.inputSocketArray[index].name ?? null);
@@ -317,8 +314,6 @@ export default class PPNode extends PIXI.Container {
 
     // set parameters on outputSocket
     this.outputSocketArray.forEach((item, index) => {
-      console.log(nodeConfig.outputSocketArray[index]);
-
       // skip configuring the output if there is no config data
       if (nodeConfig.outputSocketArray[index] !== undefined) {
         item.setName(nodeConfig.outputSocketArray[index].name ?? null);

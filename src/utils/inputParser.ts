@@ -47,15 +47,6 @@ class createAddNodeAction extends Hotkey {
   }
 }
 
-class duplicateNodeAction extends Hotkey {
-  protected getKeys(): string[] {
-    return ['d', controlOrMetaKey];
-  }
-  protected execute(graph: PPGraph): void {
-    graph.duplicateSelection();
-  }
-}
-
 // delete behaviour is a little more specialized so overriding "potentiallyexecute"
 class deleteNodeAction extends Hotkey {
   potentiallyExecute(currPressed, allPressed, graph): boolean {
@@ -78,7 +69,6 @@ class deleteNodeAction extends Hotkey {
 // remember to add your hotkey to the list
 const activeHotkeys: Hotkey[] = [
   new createAddNodeAction(),
-  new duplicateNodeAction(),
   new deleteNodeAction(),
 ];
 

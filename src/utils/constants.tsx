@@ -1,6 +1,7 @@
 import * as PIXI from 'pixi.js';
 import Color from 'color';
 import { TextStyle } from '@pixi/text';
+import { EnumStructure } from '../nodes/datatypes/enumType';
 
 export const PP_VERSION = 0.1;
 
@@ -25,17 +26,14 @@ export const COLOR = [
   '#7BA442',
   '#A58E43',
   '#A45140',
-  '#F4FAF9',
-  '#F5F5F5', // white
-  '#0C0C0C', // dark
 ];
 
-export const PLUGANDPLAY_ICON = '../assets/PlugAndPlayIcon.svg';
+export const COLOR_WHITE = '#F5F5F5';
+export const COLOR_DARK = '#0C0C0C';
+export const COLOR_WHITE_TEXT = '#F4FAF9';
 
-export const CANVAS_BACKGROUNDCOLOR = Color(COLOR[0]).lighten(0.8).hex();
-export const CANVAS_BACKGROUNDCOLOR_HEX = PIXI.utils.string2hex(
-  CANVAS_BACKGROUNDCOLOR
-);
+export const PLUGANDPLAY_ICON = '../assets/PlugAndPlayIcon-transparent.svg';
+
 export const CANVAS_BACKGROUND_TEXTURE =
   '../assets/Pixel_grid_4000x2000.svg.png';
 export const CANVAS_BACKGROUND_ALPHA = 0.02;
@@ -120,7 +118,7 @@ export const NODE_TYPE_COLOR = {
 export const COMMENT_TEXTSTYLE = new TextStyle({
   fontSize: 12,
   fill: COLOR_COMMENT,
-  align: 'right',
+  align: 'left',
   fontStyle: 'italic',
 });
 
@@ -141,13 +139,13 @@ export const NOTE_PADDING = 12;
 export const NOTE_FONTSIZE = 32;
 export const NOTE_LINEHEIGHT_FACTOR = 1.15;
 
-export const DEFAULT_EDITOR_DATA = `// Cmd/Ctrl-s to save/update node
+export const DEFAULT_EDITOR_DATA = `// Cmd/Ctrl-Enter to update node
 // Change function name to create new node
 function customFunctionNode(a, b) {
   return a * b;
 }`;
 
-export const PIXI_PIVOT_OPTIONS = [
+export const PIXI_PIVOT_OPTIONS: EnumStructure = [
   {
     text: 'top left',
     value: { x: 0.0, y: 0.0 },

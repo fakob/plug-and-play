@@ -15,6 +15,7 @@ import Socket from './classes/SocketClass';
 import { limitRange, roundNumber } from './utils/utils';
 import styles from './utils/style.module.css';
 import { TRgba } from './utils/interfaces';
+import { EnumStructure } from './nodes/datatypes/enumType';
 
 export type SliderWidgetProps = {
   property: Socket;
@@ -138,7 +139,7 @@ export type SelectWidgetProps = {
   index: number;
   hasLink: boolean;
   data: number;
-  options: [any];
+  options: EnumStructure;
 };
 
 export const SelectWidget: React.FunctionComponent<SelectWidgetProps> = (

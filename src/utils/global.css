@@ -9,3 +9,42 @@ body {
   margin: 0 auto;
   background-color: black;
 }
+
+.bp3-popover-wrapper.graphSearch,
+.bp3-popover-wrapper.graphSearch > .bp3-popover-target {
+  display: block;
+  width: calc(100vw - 120px);
+  max-height: 80vh;
+}
+
+.bp3-overlay.graphSearch .bp3-select-popover,
+.bp3-overlay.graphSearch .bp3-select-popover .bp3-popover-content,
+.bp3-overlay.graphSearch .bp3-select-popover .bp3-menu {
+  max-width: calc(100vw - 120px);
+  max-height: 80vh;
+}
+
+.graphSearch .bp3-input {
+  background: rgba(225, 84, 125, 0.05);
+  box-shadow: none;
+  border-radius: 16px;
+  letter-spacing: 0.6px;
+  padding-left: 16px;
+  font-weight: 600;
+}
+
+.bp3-menu-item .menuItemButton:focus {
+  outline: none;
+}
+
+.bp3-menu-item .menuItemButtonGroup {
+  background-color: #ced9e0;
+  position: absolute;
+  right: 4px;
+  margin-top: -5px;
+  visibility: hidden;
+}
+
+.bp3-menu-item:hover .menuItemButtonGroup {
+  visibility: visible;
+}
