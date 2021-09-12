@@ -15,7 +15,6 @@ import {
   COLOR,
   DATATYPE,
   NODE_TYPE_COLOR,
-  NODE_OUTLINE_DISTANCE,
   NODE_WIDTH,
   NOTE_FONTSIZE,
   NOTE_LINEHEIGHT_FACTOR,
@@ -817,7 +816,7 @@ export class PIXIMultiplier extends PPNode {
 
       // set imageRef and node to new size
       this._imageRef.x = SOCKET_WIDTH / 2;
-      this._imageRef.y = NODE_OUTLINE_DISTANCE;
+      this._imageRef.y = 0;
       this._imageRef.width = newNodeWidth;
       this._imageRef.height = newNodeHeight;
       this.resizeNode(newNodeWidth, newNodeHeight);

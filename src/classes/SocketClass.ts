@@ -6,7 +6,6 @@ import PPLink from './LinkClass';
 import {
   DATATYPE,
   DATATYPE_DEFAULT_VALUE,
-  NODE_OUTLINE_DISTANCE,
   NODE_WIDTH,
   SOCKET_COLOR_HEX,
   SOCKET_COLOR_TINT_HEX,
@@ -78,7 +77,7 @@ export default class Socket extends PIXI.Container {
     socket.beginFill(SOCKET_COLOR_HEX);
     socket.drawRoundedRect(
       socketType === SOCKET_TYPE.IN ? 0 : NODE_WIDTH,
-      NODE_OUTLINE_DISTANCE + SOCKET_WIDTH / 2,
+      SOCKET_WIDTH / 2,
       SOCKET_WIDTH,
       SOCKET_WIDTH,
       SOCKET_CORNERRADIUS
@@ -93,7 +92,7 @@ export default class Socket extends PIXI.Container {
       socketType === SOCKET_TYPE.IN
         ? socket.width + SOCKET_TEXTMARGIN
         : NODE_WIDTH - SOCKET_TEXTMARGIN;
-    socketNameText.y = NODE_OUTLINE_DISTANCE + SOCKET_TEXTMARGIN_TOP;
+    socketNameText.y = SOCKET_TEXTMARGIN_TOP;
     socketNameText.resolution = TEXT_RESOLUTION;
 
     this._SocketRef = this.addChild(socket);

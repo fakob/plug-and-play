@@ -99,7 +99,6 @@ export const NODE_MARGIN = SOCKET_WIDTH / 2;
 export const NODE_HEADER_HEIGHT = 24;
 export const NODE_PADDING_TOP = 8;
 export const NODE_PADDING_BOTTOM = 8;
-export const NODE_OUTLINE_DISTANCE = 4;
 export const NODE_HEADER_TEXTMARGIN_LEFT = SOCKET_WIDTH / 2 + 14;
 export const NODE_HEADER_TEXTMARGIN_TOP = 4;
 export const NODE_WIDTH = 160;
