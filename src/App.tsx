@@ -412,6 +412,10 @@ const App = (): JSX.Element => {
         e.preventDefault();
         setShowEdit((prevState) => !prevState);
       }
+      if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'd') {
+        e.preventDefault();
+        currentGraph.current.duplicateSelection();
+      }
       if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 's') {
         e.preventDefault();
         if (e.shiftKey) {
