@@ -391,8 +391,8 @@ export default class PPSelection extends PIXI.Container {
 }
 
 class ScaleHandle extends PIXI.Graphics {
-  onHandleDelta: (pointerPosition: PIXI.Point) => void;
-  onHandleCommit: () => void;
+  onHandleResize: (pointerPosition: PIXI.Point) => void;
+  onHandleResized: () => void;
   onHandleReset: () => void;
 
   private _pointerDown: boolean;
@@ -401,15 +401,15 @@ class ScaleHandle extends PIXI.Graphics {
   private _pointerMoveTarget: PIXI.Container | null;
 
   constructor(
-    handler: (pointerPosition: PIXI.Point) => void,
-    commit: () => void,
-    reset: () => void
+    onResize: (pointerPosition: PIXI.Point) => void,
+    onResized: () => void,
+    onReset: () => void
   ) {
     super();
 
-    this.onHandleDelta = handler;
-    this.onHandleCommit = commit;
-    this.onHandleReset = reset;
+    this.onHandleResize = onResize;
+    this.onHandleResized = onResized;
+    this.onHandleReset = onReset;
 
     this.interactive = true;
 
@@ -486,6 +486,9 @@ class ScaleHandle extends PIXI.Graphics {
     if (this.onHandleReset) {
       this.onHandleReset();
     }
+    if (this.onHandleResized) {
+      this.onHandleResized();
+    }
   }
 
   protected onDragStart(event: PIXI.InteractionEvent): void {
@@ -497,8 +500,8 @@ class ScaleHandle extends PIXI.Graphics {
     const currentPosition = event.data.global;
 
     // Callback handles the rest!
-    if (this.onHandleDelta) {
-      this.onHandleDelta(currentPosition);
+    if (this.onHandleResize) {
+      this.onHandleResize(currentPosition);
     }
 
     this._pointerPosition.copyFrom(currentPosition);
@@ -507,8 +510,8 @@ class ScaleHandle extends PIXI.Graphics {
   protected onDragEnd(_: PIXI.InteractionEvent): void {
     this._pointerDragging = false;
 
-    if (this.onHandleCommit) {
-      this.onHandleCommit();
+    if (this.onHandleResized) {
+      this.onHandleResized();
     }
   }
 }
