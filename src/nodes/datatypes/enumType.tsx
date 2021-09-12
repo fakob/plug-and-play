@@ -4,7 +4,7 @@ import { AbstractType } from './abstractType';
 
 export type EnumStructure = { text: string; value: any }[];
 
-// IMPORTANT: This class is a crutch for legacy reasons, you shouldn't need it but instead create new types
+// IMPORTANT: This class is a crutch for legacy reasons, you normally shouldn't need it but instead create new types
 
 export class EnumType extends AbstractType {
   options: EnumStructure;

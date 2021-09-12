@@ -523,38 +523,6 @@ export default class PPNode extends PIXI.Container {
       this.outputSocketArray[0]?.data
     );
     this._NodeCommentRef.text = commentData;
-    // TODO add this in the types themselves
-    // console.log(this.outputSocketArray[0], commentData);
-    if (!Array.isArray(this.outputSocketArray[0].data)) {
-      // custom output for pixi elements
-      //this._NodeCommentRef.text = inspect(commentData, null, 1);
-      /*if (
-        this.outputSocketArray[0]?.dataType === DATATYPE.PIXI &&
-        !Array.isArray(this.outputSocketArray[0].data)
-      ) {
-        const strippedCommentData = {
-          alpha: commentData?.alpha,
-          // children: commentData?.children,
-          // parent: commentData?.parent,
-          // transform: commentData?.transform,
-          visible: commentData?.visible,
-          height: commentData?.height,
-          pivot: commentData?.pivot,
-          position: commentData?.position,
-          rotation: commentData?.rotation,
-          scale: commentData?.scale,
-          width: commentData?.width,
-          x: commentData?.x,
-          y: commentData?.y,
-          zIndex: commentData?.zIndex,
-          bounds: commentData?.getBounds(),
-          localBounds: commentData?.getLocalBounds(),
-        };
-        this._NodeCommentRef.text = inspect(strippedCommentData, null, 1);
-      } else {
-        this._NodeCommentRef.text = inspect(commentData, null, 2);
-      }*/
-    }
   }
 
   screenPoint(): PIXI.Point {

@@ -1,33 +1,14 @@
-import React, { useEffect, useRef, useState } from 'react';
-import prettyFormat from 'pretty-format';
+import React, { useEffect, useState } from 'react';
 import {
-  Button,
-  Checkbox,
   ControlGroup,
-  Divider,
   EditableText,
   HTMLSelect,
   Icon,
-  NumericInput,
-  Slider,
   Tag,
-  TextArea,
 } from '@blueprintjs/core';
-import { SketchPicker } from 'react-color';
 import Socket from './classes/SocketClass';
 import { DATATYPE } from './utils/constants';
-import { limitRange, roundNumber } from './utils/utils';
 import styles from './utils/style.module.css';
-import { TRgba } from './utils/interfaces';
-import {
-  BooleanWidget,
-  ColorWidget,
-  DefaultOutputWidget,
-  SelectWidget,
-  SliderWidget,
-  TextWidget,
-  TriggerWidget,
-} from './widgets';
 import { AbstractType } from './nodes/datatypes/abstractType';
 
 type PropertyArrayContainerProps = {
@@ -93,49 +74,6 @@ const PropertyContainer: React.FunctionComponent<PropertyContainerProps> = (
 
   const widget = props.dataType.getInputWidget(baseProps);
 
-  /*
-  if (props.isInput && !props.hasLink) {
-    switch (dataTypeValue) {
-      case DATATYPE.NUMBER:
-        widget = <SliderWidget {...baseProps} />;
-        break;
-      case DATATYPE.STRING:
-      case DATATYPE.ARRAY:
-        widget = <TextWidget {...baseProps} />;
-        break;
-      case DATATYPE.ENUM:
-        widget = <SelectWidget {...baseProps} />;
-        break;
-      case DATATYPE.TRIGGER:
-        widget = <TriggerWidget {...baseProps} />;
-        break;
-      case DATATYPE.COLOR:
-        widget = <ColorWidget {...baseProps} />;
-        break;
-      case DATATYPE.BOOLEAN:
-        widget = <BooleanWidget {...baseProps} />;
-        break;
-      default:
-    }
-  } else if (!props.isInput) {
-    switch (dataTypeValue) {
-      case DATATYPE.TRIGGER:
-        widget = <TriggerWidget {...baseProps} />;
-        break;
-      case DATATYPE.COLOR:
-        widget = <ColorWidget {...baseProps} />;
-        break;
-      case DATATYPE.BOOLEAN:
-      case DATATYPE.NUMBER:
-      case DATATYPE.STRING:
-      case DATATYPE.ARRAY:
-        widget = <DefaultOutputWidget {...baseProps} />;
-        break;
-      default:
-    }
-  }
-  */
-
   const onChangeDropdown = (event) => {
     const value = event.target.value;
     props.property.dataType = value;
@@ -150,7 +88,7 @@ const PropertyContainer: React.FunctionComponent<PropertyContainerProps> = (
         index={props.index}
         isInput={props.isInput}
         hasLink={props.hasLink}
-        dataType={props.property.dataType} // TODO fix
+        dataType={props.property.dataType}
         onChangeDropdown={onChangeDropdown}
       />
       {widget}

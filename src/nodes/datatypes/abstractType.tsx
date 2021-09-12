@@ -3,13 +3,15 @@ import React from 'react';
 import { inspect } from 'util';
 import { DefaultOutputWidget, SliderWidget } from '../../widgets';
 export class AbstractType {
-  // an extensive list of all widgets you allow for input
+  // TODO add functionality for switching between types n stuff, its what the below stuff here will be used for
+  // an extensive list of all widgets you allow for input only allow these when switching widget type
   inputWidgets: any = [SliderWidget];
   // the same, for output
   outputWidgets: any = [DefaultOutputWidget];
+  // define possible type conversions
+  possibleConversions: AbstractType[] = [];
 
   // override any and all of these in child classes
-
   getName(): string {
     return 'Abstract Type';
   }
