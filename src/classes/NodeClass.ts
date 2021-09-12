@@ -450,25 +450,14 @@ export default class PPNode extends PIXI.Container {
   drawNodeShape(): void {
     // redraw background due to size change
     this._BackgroundRef.clear();
-    if (this.isHybrid) {
-      const shrinkMargin = 4; // for hybrid nodes, so the edge of the background rect does not show
-      this._BackgroundRef.beginFill(this.color, this.colorTransparency);
-      this._BackgroundRef.drawRect(
-        NODE_MARGIN + shrinkMargin / 2,
-        shrinkMargin / 2,
-        this.nodeWidth - shrinkMargin,
-        this.nodeHeight || this.calculatedMinNodeHeight - shrinkMargin
-      );
-    } else {
-      this._BackgroundRef.beginFill(this.color, this.colorTransparency);
-      this._BackgroundRef.drawRoundedRect(
-        NODE_MARGIN,
-        0,
-        this.nodeWidth,
-        this.nodeHeight || this.calculatedMinNodeHeight,
-        this.roundedCorners ? NODE_CORNERRADIUS : 0
-      );
-    }
+    this._BackgroundRef.beginFill(this.color, this.colorTransparency);
+    this._BackgroundRef.drawRoundedRect(
+      NODE_MARGIN,
+      0,
+      this.nodeWidth,
+      this.nodeHeight || this.calculatedMinNodeHeight,
+      this.roundedCorners ? NODE_CORNERRADIUS : 0
+    );
     this._BackgroundRef.endFill();
 
     // redraw outputs
@@ -600,10 +589,7 @@ export default class PPNode extends PIXI.Container {
   }
 
   screenPoint(): PIXI.Point {
-    return this.graph.viewport.toScreen(
-      this.x + NODE_MARGIN,
-      this.y + NODE_MARGIN - 2
-    );
+    return this.graph.viewport.toScreen(this.x + NODE_MARGIN, this.y);
   }
 
   // this function can be called for hybrid nodes, it
