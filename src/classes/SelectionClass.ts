@@ -54,7 +54,11 @@ export default class PPSelection extends PIXI.Container {
     this.selectionGraphics.name = 'selectionGraphics';
     this.addChild(this.selectionGraphics);
 
-    this.scaleHandle = new ScaleHandle(this.onScaling, this.onScaled);
+    this.scaleHandle = new ScaleHandle(
+      this.onScaling,
+      this.onScaled,
+      this.onScaleReset
+    );
     this.addChild(this.scaleHandle);
 
     this.interactive = true;
@@ -83,10 +87,6 @@ export default class PPSelection extends PIXI.Container {
     });
   }
 
-  onScaled = (): void => {
-    this.selectedNodes[0].resizedNode();
-  };
-
   onScaling = (pointerPosition: PIXI.Point): void => {
     const worldPosition = this.viewport.toWorld(
       pointerPosition.x,
@@ -97,6 +97,15 @@ export default class PPSelection extends PIXI.Container {
       Math.abs(worldPosition.x - this.selectedNodes[0].x),
       Math.abs(worldPosition.y - this.selectedNodes[0].y)
     );
+    this.drawRectanglesFromSelection();
+  };
+
+  onScaled = (): void => {
+    this.selectedNodes[0].resizedNode();
+  };
+
+  onScaleReset = (): void => {
+    this.selectedNodes[0].resetSize();
     this.drawRectanglesFromSelection();
   };
 
@@ -384,6 +393,7 @@ export default class PPSelection extends PIXI.Container {
 class ScaleHandle extends PIXI.Graphics {
   onHandleDelta: (pointerPosition: PIXI.Point) => void;
   onHandleCommit: () => void;
+  onHandleReset: () => void;
 
   private _pointerDown: boolean;
   private _pointerDragging: boolean;
@@ -392,12 +402,14 @@ class ScaleHandle extends PIXI.Graphics {
 
   constructor(
     handler: (pointerPosition: PIXI.Point) => void,
-    commit: () => void
+    commit: () => void,
+    reset: () => void
   ) {
     super();
 
     this.onHandleDelta = handler;
     this.onHandleCommit = commit;
+    this.onHandleReset = reset;
 
     this.interactive = true;
 
@@ -409,6 +421,7 @@ class ScaleHandle extends PIXI.Graphics {
     this.on('mousedown', this.onPointerDown, this);
     this.on('mouseup', this.onPointerUp, this);
     this.on('mouseupoutside', this.onPointerUp, this);
+    this.on('dblclick', this._onDoubleClick.bind(this));
   }
 
   render(renderer: PIXI.Renderer): void {
@@ -465,6 +478,13 @@ class ScaleHandle extends PIXI.Graphics {
     if (this._pointerMoveTarget) {
       this._pointerMoveTarget.off('pointermove', this.onPointerMove, this);
       this._pointerMoveTarget = null;
+    }
+  }
+
+  protected _onDoubleClick(event: PIXI.InteractionEvent): void {
+    event.stopPropagation();
+    if (this.onHandleReset) {
+      this.onHandleReset();
     }
   }
 

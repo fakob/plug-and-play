@@ -902,6 +902,8 @@ export class Table extends PPNode {
       color: NODE_TYPE_COLOR.TRANSFORM,
       nodeWidth,
       nodeHeight,
+      minWidth: nodeWidth,
+      minHeight: nodeHeight,
       isHybrid,
     });
 

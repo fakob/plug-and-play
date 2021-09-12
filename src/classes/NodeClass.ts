@@ -443,6 +443,10 @@ export default class PPNode extends PIXI.Container {
     }
   }
 
+  resetSize(): void {
+    this.resizeNode(this.minNodeWidth, this.calculatedMinNodeHeight);
+  }
+
   drawNodeShape(): void {
     // redraw background due to size change
     this._BackgroundRef.clear();
