@@ -4,7 +4,6 @@ import PPNode from '../classes/NodeClass';
 import {
   COLOR,
   NODE_TYPE_COLOR,
-  DATATYPE,
   SOCKET_WIDTH,
   NODE_OUTLINE_DISTANCE,
   NODE_CORNERRADIUS,

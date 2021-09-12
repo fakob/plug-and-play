@@ -34,6 +34,6 @@ export class AbstractType {
   };
 
   getDefaultValue(): any {
-    return 0;
+    return undefined;
   }
 }

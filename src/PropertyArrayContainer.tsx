@@ -7,9 +7,9 @@ import {
   Tag,
 } from '@blueprintjs/core';
 import Socket from './classes/SocketClass';
-import { DATATYPE } from './utils/constants';
 import styles from './utils/style.module.css';
 import { AbstractType } from './nodes/datatypes/abstractType';
+import { allDataTypes } from './nodes/datatypes/dataTypesMap';
 
 type PropertyArrayContainerProps = {
   inputSocketArray: Socket[];
@@ -152,9 +152,12 @@ const PropertyHeader: React.FunctionComponent<PropertyHeaderProps> = (
         value={props.dataType.getName()}
         disabled={props.hasLink}
       >
-        {Object.values(DATATYPE).map((value) => {
+        {Object.values(allDataTypes).map((value) => {
           return (
-            <option key={value} value={value}>
+            <option
+              key={value.getName()}
+              value={value.getInputWidget(props.property.data)}
+            >
               {value}
             </option>
           );

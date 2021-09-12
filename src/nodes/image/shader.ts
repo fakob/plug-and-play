@@ -3,7 +3,7 @@ import * as PIXI from 'pixi.js';
 import PPGraph from '../../classes/GraphClass';
 import PPNode, { UpdateBehaviour } from '../../classes/NodeClass';
 import { CustomArgs } from '../../utils/interfaces';
-import { DATATYPE, NODE_TYPE_COLOR, SOCKET_TYPE } from '../../utils/constants';
+import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../../utils/constants';
 import Socket from '../../classes/SocketClass';
 import { AnyType } from '../datatypes/anyType';
 import { StringType } from '../datatypes/stringType';

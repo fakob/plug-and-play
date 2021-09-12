@@ -1,6 +1,6 @@
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
-import { DATATYPE, NODE_TYPE_COLOR } from '../utils/constants';
+import { NODE_TYPE_COLOR } from '../utils/constants';
 import { CustomArgs } from '../utils/interfaces';
 import { NumberType } from './datatypes/numberType';
 

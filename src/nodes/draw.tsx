@@ -13,7 +13,6 @@ import PPNode from '../classes/NodeClass';
 import { CustomArgs, SerializedNode } from '../utils/interfaces';
 import {
   COLOR,
-  DATATYPE,
   NODE_TYPE_COLOR,
   NODE_OUTLINE_DISTANCE,
   NODE_WIDTH,

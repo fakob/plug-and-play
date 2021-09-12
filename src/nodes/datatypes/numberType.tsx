@@ -40,4 +40,8 @@ export class NumberType extends AbstractType {
     };
     return <SliderWidget {...sliderProps} />;
   };
+
+  getDefaultValue(): any {
+    return 0;
+  }
 }

@@ -7,6 +7,10 @@ export class BooleanType extends AbstractType {
     super();
   }
 
+  getDefaultValue(): any {
+    return false;
+  }
+
   getInputWidget = (data: any): any => {
     return <BooleanWidget {...data} />;
   };

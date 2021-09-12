@@ -10,4 +10,8 @@ export class StringType extends AbstractType {
   getInputWidget = (data: any): any => {
     return <TextWidget {...data} />;
   };
+
+  getDefaultValue(): any {
+    return '';
+  }
 }

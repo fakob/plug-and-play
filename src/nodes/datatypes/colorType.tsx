@@ -7,6 +7,10 @@ export class ColorType extends AbstractType {
     super();
   }
 
+  getDefaultValue(): any {
+    return [255, 55, 0, 0.5];
+  }
+
   getInputWidget = (data: any): any => {
     return <ColorWidget {...data} />;
   };

@@ -1,6 +1,6 @@
 import PPNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
-import { DATATYPE, SOCKET_TYPE } from '../../utils/constants';
+import { SOCKET_TYPE } from '../../utils/constants';
 import { AnyType } from '../datatypes/anyType';
 import { ArrayType } from '../datatypes/arrayType';
 import { NumberType } from '../datatypes/numberType';

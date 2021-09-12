@@ -818,12 +818,16 @@ export default class PPGraph {
     const names = this.getParameterNames(func);
     // console.log(names);
     code += `
-      this.addOutput('out', '${return_type ? return_type : 0}');\n`;
+      this.addOutput('out', ${
+        return_type ? return_type.toString() : 'getDefaultType()'
+      });\n`;
     for (let i = 0; i < names.length; ++i) {
       code += `
-      this.addInput('${names[i]}', '${
-        param_types && param_types[i] ? param_types[i] : 0
-      }');`;
+      this.addInput('${names[i]}', ${
+        param_types && param_types[i]
+          ? param_types[i].toString()
+          : 'getDefaultType()'
+      });`;
     }
     // console.log(code);
     // console.log(this);

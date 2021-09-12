@@ -236,13 +236,25 @@ export default class PPNode extends PIXI.Container {
     this.drawNodeShape();
   }
 
+  getDefaultType(): AbstractType {
+    return new AnyType();
+  }
+
   addInput(
     name: string,
     type: AbstractType,
     data?: unknown,
-    visible?: boolean
+    visible?: boolean,
+    custom?: Record<string, any> // lets get rid of this ASAP
   ): void {
-    const inputSocket = new Socket(SOCKET_TYPE.IN, name, type, data, visible);
+    const inputSocket = new Socket(
+      SOCKET_TYPE.IN,
+      name,
+      type,
+      data,
+      visible,
+      custom
+    );
     const inputSocketRef = this.addChild(inputSocket);
     this.inputSocketArray.push(inputSocketRef);
 
@@ -305,8 +317,7 @@ export default class PPNode extends PIXI.Container {
         item.setName(nodeConfig.inputSocketArray[index].name ?? null);
         item.dataType = nodeConfig.inputSocketArray[index].dataType ?? null;
         item.data = nodeConfig.inputSocketArray[index].data ?? null;
-        item.defaultData =
-          nodeConfig.inputSocketArray[index].defaultData ?? null;
+        nodeConfig.inputSocketArray[index].defaultData ?? null;
         item.setVisible(nodeConfig.inputSocketArray[index].visible ?? true);
         item.custom = nodeConfig.inputSocketArray[index].custom ?? undefined;
       }

@@ -9,6 +9,10 @@ export class ArrayType extends AbstractType {
   getName(): string {
     return 'Array';
   }
+
+  getDefaultValue(): any {
+    return [];
+  }
   getInputWidget = (data: any): any => {
     return <TextWidget {...data} />;
   };

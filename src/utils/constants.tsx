@@ -67,7 +67,7 @@ export const SOCKET_TEXTSTYLE = new TextStyle({
   fill: COLOR_MAIN,
 });
 
-export const DATATYPE = {
+/*export const DATATYPE = {
   ANY: 'undefined',
   ARRAY: 'array',
   BOOLEAN: 'boolean',
@@ -77,7 +77,7 @@ export const DATATYPE = {
   PIXI: 'pixi',
   STRING: 'string',
   TRIGGER: 'trigger',
-};
+};*/
 
 /*export const DATATYPE_DEFAULT_VALUE = {
   ANY: undefined,

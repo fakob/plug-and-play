@@ -44,32 +44,29 @@ export default class Socket extends PIXI.Container {
     name: string,
     dataType: AbstractType,
     data = null,
-    visible = true
+    visible = true,
+    custom?: Record<string, any>
   ) {
     super();
-    /*
+
     let defaultData;
     if (socketType === SOCKET_TYPE.IN) {
       // define defaultData for different types
-      if (data === null) {
-        data = DATATYPE_DEFAULT_VALUE[dataType];
-      }
-      if (custom?.defaultData) {
-        defaultData = DATATYPE_DEFAULT_VALUE[dataType];
-      } else {
-        defaultData = data;
+      if (data === null && dataType) {
+        console.log('datattype: ' + JSON.stringify(dataType));
+        data = dataType.getDefaultValue();
       }
     } else {
       data = null; // for output sockets, data is calculated
-    }*/
+    }
 
     this._socketType = socketType;
     this.name = name;
     this._dataType = dataType;
     this._data = data;
-    //this._defaultData = defaultData;
+    this._defaultData = defaultData;
     this.visible = visible;
-    //this._custom = custom;
+    this._custom = custom;
     this._links = [];
 
     const socket = new PIXI.Graphics();
@@ -158,11 +155,8 @@ export default class Socket extends PIXI.Container {
   }
 
   get defaultData(): any {
-    return this._defaultData;
-  }
-
-  set defaultData(newData: any) {
-    this._defaultData = newData;
+    console.log('default didderino: ' + JSON.stringify(this.dataType));
+    return this.dataType?.getDefaultValue();
   }
 
   get dataType(): AbstractType {
@@ -223,17 +217,6 @@ export default class Socket extends PIXI.Container {
     } else {
       this.links = this.links.filter((item) => item.id !== link.id);
     }
-
-    // for pixi types which are display object references,
-    // reset data to remove the input reference
-    // for all others set to defaultData
-    /*if (this.isInput()) {
-      if (this.dataType === DATATYPE.PIXI) {
-        this._data = null;
-      } else {
-        this._data = this._defaultData;
-      }
-    }*/
   }
 
   getNode(): PPNode {
