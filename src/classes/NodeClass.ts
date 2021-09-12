@@ -455,7 +455,9 @@ export default class PPNode extends PIXI.Container {
       NODE_MARGIN,
       0,
       this.nodeWidth,
-      this.nodeHeight || this.calculatedMinNodeHeight,
+      this.nodeHeight === undefined
+        ? this.calculatedMinNodeHeight
+        : Math.max(this.nodeHeight, this.calculatedMinNodeHeight),
       this.roundedCorners ? NODE_CORNERRADIUS : 0
     );
     this._BackgroundRef.endFill();
@@ -477,6 +479,7 @@ export default class PPNode extends PIXI.Container {
     // redraw inputs
     posCounter = 0;
     this.inputSocketArray.forEach((item) => {
+      console.log(item.name);
       if (item.visible) {
         item.y =
           this.headerHeight +
@@ -495,6 +498,11 @@ export default class PPNode extends PIXI.Container {
 
     // update position of comment
     this.updateCommentPosition();
+
+    // update selection
+    if (this.graph.selection.isNodeSelected(this)) {
+      this.graph.selection.drawRectanglesFromSelection();
+    }
   }
 
   shouldExecuteOnMove(): boolean {
