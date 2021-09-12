@@ -768,9 +768,9 @@ export class Note extends PPNode {
 
     super(name, graph, {
       ...customArgs,
-      baseWidth,
-      baseHeight,
-      minHeight: baseHeight,
+      nodeWidth: baseWidth,
+      nodeHeight: baseHeight,
+      minNodeHeight: baseHeight,
       colorTransparency: 0,
       roundedCorners: false,
       showLabels: false,

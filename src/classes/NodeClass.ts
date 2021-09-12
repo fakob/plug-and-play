@@ -113,9 +113,9 @@ export default class PPNode extends PIXI.Container {
     this.x = customArgs?.nodePosX ?? 0;
     this.y = customArgs?.nodePosY ?? 0;
     this.nodeWidth = customArgs?.nodeWidth ?? NODE_WIDTH;
-    this.minNodeWidth = this.nodeWidth;
-    this.nodeHeight = customArgs?.nodeHeight ?? undefined;
-    this.minNodeHeight = customArgs?.minHeight ?? undefined;
+    this.minNodeWidth = customArgs?.minNodeWidth ?? this.nodeWidth;
+    this.nodeHeight = customArgs?.nodeHeight; // if not set height is defined by in/out sockets
+    this.minNodeHeight = customArgs?.minNodeHeight;
     this.isHybrid = Boolean(customArgs?.isHybrid ?? false);
 
     if (this.isHybrid) {
