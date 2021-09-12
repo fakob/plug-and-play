@@ -173,13 +173,9 @@ const PropertyHeader: React.FunctionComponent<PropertyHeaderProps> = (
       <Tag
         minimal={!visible}
         className={styles.propertyTag}
-        onClick={
-          props.hasLink
-            ? undefined
-            : () => {
-                setVisible((value) => !value);
-              }
-        }
+        onClick={() => {
+          setVisible((value) => !value);
+        }}
       >
         {props.hasLink && <Icon icon="lock" iconSize={8}></Icon>}
         {props.isInput ? 'IN' : 'OUT'}

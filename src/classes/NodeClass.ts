@@ -19,7 +19,6 @@ import {
   NODE_MARGIN,
   NODE_PADDING_BOTTOM,
   NODE_PADDING_TOP,
-  NODE_OUTLINE_DISTANCE,
   NODE_TEXTSTYLE,
   NODE_WIDTH,
   SOCKET_HEIGHT,
@@ -62,6 +61,8 @@ export default class PPNode extends PIXI.Container {
   nodePosX: number;
   nodePosY: number;
   nodeWidth: number;
+  minNodeWidth: number;
+  minNodeHeight: number;
   nodeHeight: number;
   isHybrid: boolean; // true if it is a hybrid node (html and webgl)
   roundedCorners: boolean;
@@ -90,6 +91,8 @@ export default class PPNode extends PIXI.Container {
   onNodeAdded: (() => void) | null; // called when the node is added to the graph
   onNodeRemoved: (() => void) | null; // called when the node is removed from the graph
   onNodeSelected: (() => void) | null; // called when the node is selected/unselected
+  onNodeResize: ((width: number, height: number) => void) | null; // called when the node is resized
+  onNodeResized: (() => void) | null; // called when the node resize ended
   onNodeDragOrViewportMove: // called when the node or or the viewport with the node is moved or scaled
   | ((positions: { screenX: number; screenY: number; scale: number }) => void)
     | null;
@@ -110,7 +113,9 @@ export default class PPNode extends PIXI.Container {
     this.x = customArgs?.nodePosX ?? 0;
     this.y = customArgs?.nodePosY ?? 0;
     this.nodeWidth = customArgs?.nodeWidth ?? NODE_WIDTH;
-    this.nodeHeight = customArgs?.nodeHeight ?? undefined;
+    this.minNodeWidth = customArgs?.minNodeWidth ?? this.nodeWidth;
+    this.nodeHeight = customArgs?.nodeHeight; // if not set height is defined by in/out sockets
+    this.minNodeHeight = customArgs?.minNodeHeight;
     this.isHybrid = Boolean(customArgs?.isHybrid ?? false);
 
     if (this.isHybrid) {
@@ -128,8 +133,7 @@ export default class PPNode extends PIXI.Container {
       customArgs?.colorTransparency ?? (this.isHybrid ? 0.01 : 1); // so it does not show when dragging the node fast
     const inputNameText = new PIXI.Text(this.name, NODE_TEXTSTYLE);
     inputNameText.x = NODE_HEADER_TEXTMARGIN_LEFT;
-    inputNameText.y =
-      NODE_OUTLINE_DISTANCE + NODE_PADDING_TOP + NODE_HEADER_TEXTMARGIN_TOP;
+    inputNameText.y = NODE_PADDING_TOP + NODE_HEADER_TEXTMARGIN_TOP;
     inputNameText.resolution = 8;
 
     const background = new PIXI.Graphics();
@@ -190,6 +194,34 @@ export default class PPNode extends PIXI.Container {
     return this._doubleClicked;
   }
 
+  set doubleClicked(state: boolean) {
+    this._doubleClicked = state;
+  }
+
+  get countOfVisibleInputSockets(): number {
+    return this.inputSocketArray.filter((item) => item.visible).length;
+  }
+
+  get countOfVisibleOutputSockets(): number {
+    return this.outputSocketArray.filter((item) => item.visible).length;
+  }
+
+  get headerHeight(): number {
+    // hide header if showLabels === false
+    return this.showLabels ? NODE_PADDING_TOP + NODE_HEADER_HEIGHT : 0;
+  }
+
+  get calculatedMinNodeHeight(): number {
+    const minHeight =
+      this.headerHeight +
+      this.countOfVisibleInputSockets * SOCKET_HEIGHT +
+      this.countOfVisibleOutputSockets * SOCKET_HEIGHT +
+      NODE_PADDING_BOTTOM;
+    return this.minNodeHeight === undefined
+      ? minHeight
+      : Math.max(minHeight, this.minNodeHeight);
+  }
+
   get nodeName(): string {
     return this.name;
   }
@@ -201,19 +233,6 @@ export default class PPNode extends PIXI.Container {
 
   // METHODS
   select(): void {
-    this.graph.selection.selectNode(this);
-
-    if (!this.selected) {
-      this._doubleClicked = false;
-    }
-
-    // this allows to zoom and drag when the hybrid node is not selected
-    if (this.isHybrid) {
-      if (!this.selected && this.container !== undefined) {
-        this.container.style.pointerEvents = 'none';
-      }
-    }
-
     if (this.onNodeSelected) {
       this.onNodeSelected();
     }
@@ -260,7 +279,6 @@ export default class PPNode extends PIXI.Container {
   addOutput(
     name: string,
     type: string,
-    data?: any,
     visible?: boolean,
     custom?: Record<string, any>
   ): void {
@@ -281,12 +299,16 @@ export default class PPNode extends PIXI.Container {
 
   serialize(): SerializedNode {
     //create serialization object
-    const o: SerializedNode = {
+    const node: SerializedNode = {
       id: this.id,
       name: this.name,
       type: this.type,
       x: this.x,
       y: this.y,
+      width: this.nodeWidth,
+      height: this.nodeHeight,
+      minWidth: this.minNodeWidth,
+      minHeight: this.minNodeHeight,
       updateBehaviour: {
         update: this.updateBehaviour.update,
         interval: this.updateBehaviour.interval,
@@ -294,48 +316,71 @@ export default class PPNode extends PIXI.Container {
       },
     };
 
-    o.inputSocketArray = [];
+    node.inputSocketArray = [];
     this.inputSocketArray.forEach((item) => {
-      o.inputSocketArray.push(item.serialize());
+      node.inputSocketArray.push(item.serialize());
     });
 
-    o.outputSocketArray = [];
+    node.outputSocketArray = [];
     this.outputSocketArray.forEach((item) => {
-      o.outputSocketArray.push(item.serialize());
+      node.outputSocketArray.push(item.serialize());
     });
 
-    return o;
+    return node;
   }
 
   configure(nodeConfig: SerializedNode): void {
     this.x = nodeConfig.x;
     this.y = nodeConfig.y;
+    this.minNodeWidth = nodeConfig.minWidth ?? NODE_WIDTH;
+    this.minNodeHeight = nodeConfig.minHeight;
+    if (nodeConfig.width && nodeConfig.height) {
+      this.resizeNode(nodeConfig.width, nodeConfig.height);
+      this.resizedNode();
+    }
     // update position of comment
     this.updateCommentPosition();
 
     // set parameters on inputSocket
-    this.inputSocketArray.forEach((item, index) => {
+    nodeConfig.inputSocketArray.forEach((item, index) => {
       // skip configuring the input if there is no config data
-      if (nodeConfig.inputSocketArray[index] !== undefined) {
-        item.setName(nodeConfig.inputSocketArray[index].name ?? null);
-        item.dataType = nodeConfig.inputSocketArray[index].dataType ?? null;
-        item.data = nodeConfig.inputSocketArray[index].data ?? null;
-        item.defaultData =
-          nodeConfig.inputSocketArray[index].defaultData ?? null;
-        item.setVisible(nodeConfig.inputSocketArray[index].visible ?? true);
-        item.custom = nodeConfig.inputSocketArray[index].custom ?? undefined;
+      if (this.inputSocketArray[index] !== undefined) {
+        this.inputSocketArray[index].setName(item.name);
+        this.inputSocketArray[index].dataType = item.dataType;
+        this.inputSocketArray[index].data = item.data;
+        this.inputSocketArray[index].defaultData = item.defaultData;
+        this.inputSocketArray[index].setVisible(item.visible ?? true);
+        this.inputSocketArray[index].custom = item.custom;
+      } else {
+        // add socket if it does not exist yet
+        this.addInput(
+          item.name,
+          item.dataType,
+          item.data,
+          item.visible ?? true,
+          item.custom === undefined
+            ? { defaultData: item.defaultData }
+            : { ...item.custom, defaultData: item.defaultData }
+        );
       }
     });
 
     // set parameters on outputSocket
-    this.outputSocketArray.forEach((item, index) => {
+    nodeConfig.outputSocketArray.forEach((item, index) => {
       // skip configuring the output if there is no config data
-      if (nodeConfig.outputSocketArray[index] !== undefined) {
-        item.setName(nodeConfig.outputSocketArray[index].name ?? null);
-        item.dataType =
-          nodeConfig.outputSocketArray[index].dataType ?? undefined;
-        item.setVisible(nodeConfig.outputSocketArray[index].visible ?? true);
-        item.custom = nodeConfig.outputSocketArray[index].custom ?? undefined;
+      if (this.outputSocketArray[index] !== undefined) {
+        this.outputSocketArray[index].setName(item.name);
+        this.outputSocketArray[index].dataType = item.dataType;
+        this.outputSocketArray[index].setVisible(item.visible ?? true);
+        this.outputSocketArray[index].custom = item.custom;
+      } else {
+        // add socket if it does not exist
+        this.addOutput(
+          item.name,
+          item.dataType,
+          item.visible ?? true,
+          item.custom
+        );
       }
     });
 
@@ -388,62 +433,56 @@ export default class PPNode extends PIXI.Container {
 
   resizeNode(width: number, height: number): void {
     // set new size
-    this.nodeWidth = width;
-    this.nodeHeight = height;
+    this.nodeWidth = Math.max(width, this.minNodeWidth);
+    this.nodeHeight = Math.max(height, this.calculatedMinNodeHeight);
 
     // update node shape
     this.drawNodeShape();
+
+    this.updateCommentPosition();
+    this.updateConnectionPosition();
+
+    if (this.isHybrid) {
+      this.container.style.width = `${this.nodeWidth}px`;
+      this.container.style.height = `${this.nodeHeight}px`;
+    }
+
+    if (this.onNodeResize) {
+      this.onNodeResize(this.nodeWidth, this.nodeHeight);
+    }
+  }
+
+  resizedNode(): void {
+    if (this.onNodeResized) {
+      this.onNodeResized();
+    }
+  }
+
+  resetSize(): void {
+    this.resizeNode(this.minNodeWidth, this.calculatedMinNodeHeight);
   }
 
   drawNodeShape(): void {
-    const countOfVisibleInputSockets = this.inputSocketArray.filter(
-      (item) => item.visible === true
-    ).length;
-    const countOfVisibleOutputSockets = this.outputSocketArray.filter(
-      (item) => item.visible === true
-    ).length;
-    const nodeHeight =
-      this.nodeHeight ||
-      NODE_PADDING_TOP +
-        NODE_HEADER_HEIGHT +
-        countOfVisibleInputSockets * SOCKET_HEIGHT +
-        countOfVisibleOutputSockets * SOCKET_HEIGHT +
-        NODE_PADDING_BOTTOM;
-
     // redraw background due to size change
     this._BackgroundRef.clear();
-    if (this.isHybrid) {
-      const shrinkMargin = 4; // for hybrid nodes, so the edge of the background rect does not show
-      this._BackgroundRef.beginFill(this.color, this.colorTransparency);
-      this._BackgroundRef.drawRect(
-        NODE_MARGIN + shrinkMargin / 2,
-        NODE_OUTLINE_DISTANCE + shrinkMargin / 2,
-        this.nodeWidth - shrinkMargin,
-        nodeHeight - shrinkMargin
-      );
-    } else {
-      this._BackgroundRef.beginFill(this.color, this.colorTransparency);
-      this._BackgroundRef.drawRoundedRect(
-        NODE_MARGIN,
-        NODE_OUTLINE_DISTANCE,
-        this.nodeWidth,
-        nodeHeight,
-        this.roundedCorners ? NODE_CORNERRADIUS : 0
-      );
-    }
+    this._BackgroundRef.beginFill(this.color, this.colorTransparency);
+    this._BackgroundRef.drawRoundedRect(
+      NODE_MARGIN,
+      0,
+      this.nodeWidth,
+      this.nodeHeight === undefined
+        ? this.calculatedMinNodeHeight
+        : Math.max(this.nodeHeight, this.calculatedMinNodeHeight),
+      this.roundedCorners ? NODE_CORNERRADIUS : 0
+    );
     this._BackgroundRef.endFill();
 
-    // hide header if showLabels === false
-    const headerHeight = this.showLabels
-      ? NODE_PADDING_TOP + NODE_HEADER_HEIGHT
-      : 0;
     // redraw outputs
     let posCounter = 0;
     this.outputSocketArray.forEach((item) => {
       // console.log(item, item.x, item.getBounds().width, this.nodeWidth);
       if (item.visible) {
-        item.y =
-          NODE_OUTLINE_DISTANCE + headerHeight + posCounter * SOCKET_HEIGHT;
+        item.y = this.headerHeight + posCounter * SOCKET_HEIGHT;
         item.x = this.nodeWidth - NODE_WIDTH;
         posCounter += 1;
         if (this.showLabels === false) {
@@ -457,9 +496,8 @@ export default class PPNode extends PIXI.Container {
     this.inputSocketArray.forEach((item) => {
       if (item.visible) {
         item.y =
-          NODE_OUTLINE_DISTANCE +
-          headerHeight +
-          countOfVisibleOutputSockets * SOCKET_HEIGHT +
+          this.headerHeight +
+          this.countOfVisibleOutputSockets * SOCKET_HEIGHT +
           posCounter * SOCKET_HEIGHT;
         posCounter += 1;
         if (this.showLabels === false) {
@@ -474,6 +512,11 @@ export default class PPNode extends PIXI.Container {
 
     // update position of comment
     this.updateCommentPosition();
+
+    // update selection
+    if (this.graph.selection.isNodeSelected(this)) {
+      this.graph.selection.drawRectanglesFromSelection();
+    }
   }
 
   shouldExecuteOnMove(): boolean {
@@ -568,10 +611,7 @@ export default class PPNode extends PIXI.Container {
   }
 
   screenPoint(): PIXI.Point {
-    return this.graph.viewport.toScreen(
-      this.x + NODE_MARGIN,
-      this.y + NODE_MARGIN - 2
-    );
+    return this.graph.viewport.toScreen(this.x + NODE_MARGIN, this.y);
   }
 
   // this function can be called for hybrid nodes, it
@@ -607,6 +647,14 @@ export default class PPNode extends PIXI.Container {
       this.container.style.left = `${screenX}px`;
       this.container.style.top = `${screenY}px`;
     };
+
+    this.container.addEventListener('focusout', (e) => {
+      console.log('focusout', e);
+      this.doubleClicked = false;
+
+      // this allows to zoom and drag when the hybrid node is not selected
+      this.container.style.pointerEvents = 'none';
+    });
 
     // when the Node is removed also remove the react component and its container
     this.onNodeRemoved = () => {
@@ -691,7 +739,6 @@ export default class PPNode extends PIXI.Container {
   }
 
   setInputData(name: string, data: any): void {
-    console.log('input data set');
     const inputSocket = this.inputSocketArray.find((input: Socket) => {
       return name === input.name;
     });
@@ -897,7 +944,7 @@ export default class PPNode extends PIXI.Container {
 
   _onDoubleClick(event: PIXI.InteractionEvent): void {
     console.log('_onDoubleClick');
-    this._doubleClicked = true;
+    this.doubleClicked = true;
 
     // turn on pointer events for hybrid nodes so the react components become reactive
     if (this.isHybrid) {

@@ -5,7 +5,6 @@ import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
 import {
   NODE_PADDING_TOP,
-  NODE_OUTLINE_DISTANCE,
   NODE_HEADER_HEIGHT,
   SOCKET_TEXTMARGIN_TOP,
   SOCKET_WIDTH,
@@ -60,17 +59,11 @@ export function getElement(value: number | number[], index: number): number {
 }
 
 export function getNodeCommentPosX(x: number, width: number): number {
-  return x + NODE_OUTLINE_DISTANCE * 2 + width + SOCKET_WIDTH;
+  return x + width + SOCKET_WIDTH;
 }
 
 export function getNodeCommentPosY(y: number): number {
-  return (
-    y +
-    NODE_PADDING_TOP +
-    NODE_HEADER_HEIGHT +
-    NODE_OUTLINE_DISTANCE +
-    SOCKET_TEXTMARGIN_TOP
-  );
+  return y + NODE_PADDING_TOP + NODE_HEADER_HEIGHT + SOCKET_TEXTMARGIN_TOP;
 }
 
 export function highlightText(text: string, query: string): any {
