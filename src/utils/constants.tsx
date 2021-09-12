@@ -30,6 +30,7 @@ export const COLOR = [
 export const COLOR_WHITE = '#F5F5F5';
 export const COLOR_DARK = '#0C0C0C';
 export const COLOR_WHITE_TEXT = '#F4FAF9';
+export const WHITE_HEX = 0xffffff;
 
 export const PLUGANDPLAY_ICON = '../assets/PlugAndPlayIcon-transparent.svg';
 

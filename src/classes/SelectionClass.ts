@@ -2,7 +2,11 @@ import * as PIXI from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
 
 import PPNode from './NodeClass';
-import { SCALEHANDLE_SIZE, SELECTION_COLOR_HEX } from '../utils/constants';
+import {
+  SCALEHANDLE_SIZE,
+  SELECTION_COLOR_HEX,
+  WHITE_HEX,
+} from '../utils/constants';
 import { getObjectsInsideBounds } from '../pixi/utils-pixi';
 import { getDifferenceSelection } from '../utils/utils';
 
@@ -426,8 +430,8 @@ class ScaleHandle extends PIXI.Graphics {
 
   render(renderer: PIXI.Renderer): void {
     this.clear();
-    this.beginFill(0xffffff);
-    this.lineStyle(1, 0xff0000);
+    this.beginFill(WHITE_HEX);
+    this.lineStyle(1, SELECTION_COLOR_HEX);
     this.drawRect(0, 0, SCALEHANDLE_SIZE, SCALEHANDLE_SIZE);
     this.endFill();
 
