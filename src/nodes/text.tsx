@@ -103,8 +103,8 @@ import styles from '../utils/style.module.css';
 //       isHybrid,
 //     });
 
-//     this.addOutput('data', DATATYPE.ANY, undefined, false);
-//     this.addOutput('text', DATATYPE.STRING, undefined, false);
+//     this.addOutput('data', DATATYPE.ANY, false);
+//     this.addOutput('text', DATATYPE.STRING, false);
 //     this.addInput(
 //       'initialData',
 //       DATATYPE.STRING,
@@ -534,7 +534,7 @@ export class Label extends PPNode {
       showLabels: false,
     });
 
-    this.addOutput('text', DATATYPE.STRING, undefined, false);
+    this.addOutput('text', DATATYPE.STRING, false);
     this.addInput('text', DATATYPE.STRING, customArgs?.data ?? '', false);
     this.addInput(
       'fontSize',
@@ -776,7 +776,7 @@ export class Note extends PPNode {
       showLabels: false,
     });
 
-    this.addOutput('data', DATATYPE.STRING, undefined, false);
+    this.addOutput('data', DATATYPE.STRING, false);
     this.addInput(
       'data',
       DATATYPE.STRING,
@@ -914,14 +914,12 @@ export class Note extends PPNode {
         this.doubleClicked = false;
       });
 
-      this.currentInput.addEventListener('input', (e) => {
-        // console.log('input', e);
+      this.currentInput.addEventListener('input', () => {
         // run textFit to recalculate the font size
         textFit(this.currentInput, textFitOptions);
       });
 
       document.body.appendChild(this.currentInput);
-      console.log(this.currentInput);
     };
 
     this.setCleanAndDisplayText = (input: HTMLDivElement) => {
@@ -930,14 +928,8 @@ export class Note extends PPNode {
 
       // get font size of editable div
       const style = window.getComputedStyle(input.children[0], null);
-      console.log(input, input.children[0]);
       const newText = input.textContent;
       const newFontSize = parseInt(style.getPropertyValue('font-size'), 10);
-      console.log(
-        style.getPropertyValue('font-size'),
-        newFontSize,
-        this.fontSize
-      );
 
       this._bitmapTextRef.fontSize = newFontSize;
       this._bitmapTextRef.text = input.textContent;
@@ -961,7 +953,6 @@ export class Note extends PPNode {
             this._bitmapTextRef.height > nodeHeight - NOTE_PADDING * 2) &&
           this._bitmapTextRef.fontSize > 8
         ) {
-          console.log('while resize');
           this._bitmapTextRef.fontSize -= 2;
         }
         this.fontSize = this._bitmapTextRef.fontSize;

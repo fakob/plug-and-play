@@ -280,7 +280,6 @@ export default class PPNode extends PIXI.Container {
   addOutput(
     name: string,
     type: string,
-    data?: any,
     visible?: boolean,
     custom?: Record<string, any>
   ): void {
@@ -344,28 +343,45 @@ export default class PPNode extends PIXI.Container {
     this.updateCommentPosition();
 
     // set parameters on inputSocket
-    this.inputSocketArray.forEach((item, index) => {
+    nodeConfig.inputSocketArray.forEach((item, index) => {
       // skip configuring the input if there is no config data
-      if (nodeConfig.inputSocketArray[index] !== undefined) {
-        item.setName(nodeConfig.inputSocketArray[index].name ?? null);
-        item.dataType = nodeConfig.inputSocketArray[index].dataType ?? null;
-        item.data = nodeConfig.inputSocketArray[index].data ?? null;
-        item.defaultData =
-          nodeConfig.inputSocketArray[index].defaultData ?? null;
-        item.setVisible(nodeConfig.inputSocketArray[index].visible ?? true);
-        item.custom = nodeConfig.inputSocketArray[index].custom ?? undefined;
+      if (this.inputSocketArray[index] !== undefined) {
+        this.inputSocketArray[index].setName(item.name ?? null);
+        this.inputSocketArray[index].dataType = item.dataType ?? null;
+        this.inputSocketArray[index].data = item.data ?? null;
+        this.inputSocketArray[index].defaultData = item.defaultData ?? null;
+        this.inputSocketArray[index].setVisible(item.visible ?? true);
+        this.inputSocketArray[index].custom = item.custom ?? undefined;
+      } else {
+        // add socket if it does not exist yet
+        this.addInput(
+          item.name,
+          item.dataType ?? null,
+          item.data ?? null,
+          item.visible ?? true,
+          item.custom === undefined
+            ? { defaultData: item.defaultData }
+            : { ...item.custom, defaultData: item.defaultData }
+        );
       }
     });
 
     // set parameters on outputSocket
-    this.outputSocketArray.forEach((item, index) => {
+    nodeConfig.outputSocketArray.forEach((item, index) => {
       // skip configuring the output if there is no config data
-      if (nodeConfig.outputSocketArray[index] !== undefined) {
-        item.setName(nodeConfig.outputSocketArray[index].name ?? null);
-        item.dataType =
-          nodeConfig.outputSocketArray[index].dataType ?? undefined;
-        item.setVisible(nodeConfig.outputSocketArray[index].visible ?? true);
-        item.custom = nodeConfig.outputSocketArray[index].custom ?? undefined;
+      if (this.outputSocketArray[index] !== undefined) {
+        this.outputSocketArray[index].setName(item.name ?? null);
+        this.outputSocketArray[index].dataType = item.dataType ?? undefined;
+        this.outputSocketArray[index].setVisible(item.visible ?? true);
+        this.outputSocketArray[index].custom = item.custom ?? undefined;
+      } else {
+        // add socket if it does not exist
+        this.addOutput(
+          item.name,
+          item.dataType ?? null,
+          item.visible ?? true,
+          item.custom ?? undefined
+        );
       }
     });
 
@@ -479,7 +495,6 @@ export default class PPNode extends PIXI.Container {
     // redraw inputs
     posCounter = 0;
     this.inputSocketArray.forEach((item) => {
-      console.log(item.name);
       if (item.visible) {
         item.y =
           this.headerHeight +
@@ -725,7 +740,6 @@ export default class PPNode extends PIXI.Container {
   }
 
   setInputData(name: string, data: any): void {
-    console.log('input data set');
     const inputSocket = this.inputSocketArray.find((input: Socket) => {
       return name === input.name;
     });
