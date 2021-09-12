@@ -427,6 +427,11 @@ export default class PPNode extends PIXI.Container {
     this.updateCommentPosition();
     this.updateConnectionPosition();
 
+    if (this.isHybrid) {
+      this.container.style.width = `${this.nodeWidth}px`;
+      this.container.style.height = `${this.nodeHeight}px`;
+    }
+
     if (this.onNodeResize) {
       this.onNodeResize(this.nodeWidth, this.nodeHeight);
     }
