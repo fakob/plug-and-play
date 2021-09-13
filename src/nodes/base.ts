@@ -5,7 +5,6 @@ import {
   COLOR,
   NODE_TYPE_COLOR,
   SOCKET_WIDTH,
-  NODE_OUTLINE_DISTANCE,
   NODE_CORNERRADIUS,
   NODE_PADDING_TOP,
   NODE_HEADER_HEIGHT,
@@ -205,8 +204,8 @@ export class Trigger extends PPNode {
       this._rectRef = (this as PIXI.Container).addChild(button);
       this._rectRef.beginFill(PIXI.utils.string2hex('#00FF00'));
       this._rectRef.drawRoundedRect(
-        NODE_OUTLINE_DISTANCE + SOCKET_WIDTH,
-        NODE_OUTLINE_DISTANCE + NODE_PADDING_TOP + NODE_HEADER_HEIGHT,
+        SOCKET_WIDTH,
+        NODE_PADDING_TOP + NODE_HEADER_HEIGHT,
         NODE_WIDTH / 2,
         SOCKET_HEIGHT,
         NODE_CORNERRADIUS

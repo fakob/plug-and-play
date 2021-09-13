@@ -2,7 +2,11 @@ import * as PIXI from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
 
 import PPNode from './NodeClass';
-import { SELECTION_COLOR_HEX } from '../utils/constants';
+import {
+  SCALEHANDLE_SIZE,
+  SELECTION_COLOR_HEX,
+  WHITE_HEX,
+} from '../utils/constants';
 import { getObjectsInsideBounds } from '../pixi/utils-pixi';
 import { getDifferenceSelection } from '../utils/utils';
 
@@ -10,11 +14,13 @@ export default class PPSelection extends PIXI.Container {
   protected viewport: Viewport;
   protected nodes: PPNode[];
   protected previousSelectedNodes: PPNode[];
-  selectedNodes: PPNode[];
+  _selectedNodes: PPNode[];
 
   protected selectionIntendGraphics: PIXI.Graphics;
   protected selectionGraphics: PIXI.Graphics;
   protected singleSelectionsGraphics: PIXI.Graphics;
+  protected scaleHandle: ScaleHandle;
+
   protected sourcePoint: null | PIXI.Point;
   isDrawingSelection: boolean;
   isDraggingSelection: boolean;
@@ -35,7 +41,7 @@ export default class PPSelection extends PIXI.Container {
     this.isDrawingSelection = false;
     this.isDraggingSelection = false;
     this.previousSelectedNodes = [];
-    this.selectedNodes = null;
+    this._selectedNodes = [];
     this.interactionData = null;
 
     this.name = 'selectionContainer';
@@ -52,6 +58,13 @@ export default class PPSelection extends PIXI.Container {
     this.selectionGraphics.name = 'selectionGraphics';
     this.addChild(this.selectionGraphics);
 
+    this.scaleHandle = new ScaleHandle(
+      this.onScaling,
+      this.onScaled,
+      this.onScaleReset
+    );
+    this.addChild(this.scaleHandle);
+
     this.interactive = true;
 
     this.on('pointerdown', this.onPointerDown.bind(this));
@@ -66,6 +79,39 @@ export default class PPSelection extends PIXI.Container {
     // define callbacks
     this.onSelectionChange = null; //called if the selection changes
   }
+
+  get selectedNodes(): PPNode[] {
+    return this._selectedNodes;
+  }
+
+  set selectedNodes(newNodes: PPNode[]) {
+    this._selectedNodes = newNodes;
+    this._selectedNodes.forEach((node) => {
+      node.select();
+    });
+  }
+
+  onScaling = (pointerPosition: PIXI.Point): void => {
+    const worldPosition = this.viewport.toWorld(
+      pointerPosition.x,
+      pointerPosition.y
+    );
+
+    this.selectedNodes[0].resizeNode(
+      Math.abs(worldPosition.x - this.selectedNodes[0].x),
+      Math.abs(worldPosition.y - this.selectedNodes[0].y)
+    );
+    this.drawRectanglesFromSelection();
+  };
+
+  onScaled = (): void => {
+    this.selectedNodes[0].resizedNode();
+  };
+
+  onScaleReset = (): void => {
+    this.selectedNodes[0].resetSize();
+    this.drawRectanglesFromSelection();
+  };
 
   onPointerRightClicked(event: PIXI.InteractionEvent): void {
     console.log('Selection - onPointerRightClicked');
@@ -198,6 +244,7 @@ export default class PPSelection extends PIXI.Container {
     this.resetGraphics(this.selectionIntendGraphics);
     this.resetGraphics(this.singleSelectionsGraphics);
     this.resetGraphics(this.selectionGraphics);
+    this.scaleHandle.visible = false;
   }
 
   resetGraphics(graphics: PIXI.Graphics): void {
@@ -291,6 +338,12 @@ export default class PPSelection extends PIXI.Container {
       selectionBounds.width,
       selectionBounds.height
     );
+    this.selectionGraphics.endFill();
+
+    this.scaleHandle.x =
+      selectionBounds.x + selectionBounds.width - SCALEHANDLE_SIZE / 2;
+    this.scaleHandle.y =
+      selectionBounds.y + selectionBounds.height - SCALEHANDLE_SIZE / 2;
   }
 
   isNodeSelected(node: PPNode): boolean {
@@ -319,6 +372,8 @@ export default class PPSelection extends PIXI.Container {
       } else {
         this.selectedNodes = nodes;
       }
+      // show scaleHandle only if there is only 1 node selected
+      this.scaleHandle.visible = this.selectedNodes.length === 1;
     }
     if (this.onSelectionChange) {
       this.onSelectionChange(this.selectedNodes);
@@ -336,5 +391,131 @@ export default class PPSelection extends PIXI.Container {
   deselectAllNodesAndResetSelection(): void {
     this.resetAllGraphics();
     this.deselectAllNodes();
+  }
+}
+
+class ScaleHandle extends PIXI.Graphics {
+  onHandleResize: (pointerPosition: PIXI.Point) => void;
+  onHandleResized: () => void;
+  onHandleReset: () => void;
+
+  private _pointerDown: boolean;
+  private _pointerDragging: boolean;
+  private _pointerPosition: PIXI.Point;
+  private _pointerMoveTarget: PIXI.Container | null;
+
+  constructor(
+    onResize: (pointerPosition: PIXI.Point) => void,
+    onResized: () => void,
+    onReset: () => void
+  ) {
+    super();
+
+    this.onHandleResize = onResize;
+    this.onHandleResized = onResized;
+    this.onHandleReset = onReset;
+
+    this.interactive = true;
+
+    this._pointerDown = false;
+    this._pointerDragging = false;
+    this._pointerPosition = new PIXI.Point();
+    this._pointerMoveTarget = null;
+    this.on('pointerover', this.onPointerOver.bind(this));
+    this.on('mousedown', this.onPointerDown, this);
+    this.on('mouseup', this.onPointerUp, this);
+    this.on('mouseupoutside', this.onPointerUp, this);
+    this.on('dblclick', this._onDoubleClick.bind(this));
+  }
+
+  render(renderer: PIXI.Renderer): void {
+    this.clear();
+    this.beginFill(WHITE_HEX);
+    this.lineStyle(1, SELECTION_COLOR_HEX);
+    this.drawRect(0, 0, SCALEHANDLE_SIZE, SCALEHANDLE_SIZE);
+    this.endFill();
+
+    super.render(renderer);
+  }
+
+  protected onPointerOver(event: PIXI.InteractionEvent): void {
+    event.stopPropagation();
+    this.cursor = 'nwse-resize';
+  }
+
+  protected onPointerDown(event: PIXI.InteractionEvent): void {
+    this._pointerDown = true;
+    this._pointerDragging = false;
+
+    event.stopPropagation();
+
+    if (this._pointerMoveTarget) {
+      this._pointerMoveTarget.off('pointermove', this.onPointerMove, this);
+      this._pointerMoveTarget = null;
+    }
+
+    this._pointerMoveTarget = this;
+    this._pointerMoveTarget.on('pointermove', this.onPointerMove, this);
+  }
+
+  protected onPointerMove(event: PIXI.InteractionEvent): void {
+    if (!this._pointerDown) {
+      return;
+    }
+
+    if (this._pointerDragging) {
+      this.onDrag(event);
+    } else {
+      this.onDragStart(event);
+    }
+
+    event.stopPropagation();
+  }
+
+  protected onPointerUp(event: PIXI.InteractionEvent): void {
+    if (this._pointerDragging) {
+      this.onDragEnd(event);
+    }
+
+    this._pointerDown = false;
+
+    if (this._pointerMoveTarget) {
+      this._pointerMoveTarget.off('pointermove', this.onPointerMove, this);
+      this._pointerMoveTarget = null;
+    }
+  }
+
+  protected _onDoubleClick(event: PIXI.InteractionEvent): void {
+    event.stopPropagation();
+    if (this.onHandleReset) {
+      this.onHandleReset();
+    }
+    if (this.onHandleResized) {
+      this.onHandleResized();
+    }
+  }
+
+  protected onDragStart(event: PIXI.InteractionEvent): void {
+    this._pointerPosition.copyFrom(event.data.global);
+    this._pointerDragging = true;
+  }
+
+  protected onDrag(event: PIXI.InteractionEvent): void {
+    const currentPosition = event.data.global;
+
+    // Callback handles the rest!
+    if (this.onHandleResize) {
+      this.onHandleResize(currentPosition);
+    }
+
+    this._pointerPosition.copyFrom(currentPosition);
+  }
+
+  protected onDragEnd(_: PIXI.InteractionEvent): void {
+    this._pointerDragging = false;
+
+    if (this.onHandleResized) {
+      this.onHandleResized();
+    }
   }
 }
