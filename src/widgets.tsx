@@ -16,17 +16,15 @@ import { limitRange, roundNumber } from './utils/utils';
 import styles from './utils/style.module.css';
 import { TRgba } from './utils/interfaces';
 import { EnumStructure } from './nodes/datatypes/enumType';
+import { NumberType } from './nodes/datatypes/numberType';
 
 export type SliderWidgetProps = {
   property: Socket;
-  minValue: number;
-  maxValue: number;
-  round: boolean;
-  stepSize: number;
   isInput: boolean;
   hasLink: boolean;
   index: number;
   data: number;
+  type: NumberType;
 };
 
 function potentiallyNotify(property, newValue) {
@@ -40,12 +38,14 @@ export const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (
   props
 ) => {
   const [data, setData] = useState(Number(props.data));
-  const [minValue, setMinValue] = useState(Math.min(props.minValue ?? 0, data));
-  const [maxValue, setMaxValue] = useState(
-    Math.max(props.maxValue ?? 100, data)
+  const [minValue, setMinValue] = useState(
+    Math.min(props.type.minValue ?? 0, data)
   );
-  const [round, setRound] = useState(props.round ?? false);
-  const [stepSizeValue] = useState(props.stepSize ?? 0.01);
+  const [maxValue, setMaxValue] = useState(
+    Math.max(props.type.maxValue ?? 100, data)
+  );
+  const [round, setRound] = useState(props.type.round ?? false);
+  const [stepSizeValue] = useState(props.type.stepSize ?? 0.01);
 
   useEffect(() => {
     const newValue = round ? Math.round(data) : data;
@@ -64,11 +64,14 @@ export const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (
     );
     setData(newValue);
     potentiallyNotify(props.property, newValue);
-    props.property.custom = {
+    props.type.minValue = minValue;
+    props.type.maxValue = maxValue;
+    props.type.round = round;
+    /*props.property.custom = {
       minValue,
       maxValue,
       round,
-    };
+    };*/
   }, [minValue, maxValue, round]);
 
   return (

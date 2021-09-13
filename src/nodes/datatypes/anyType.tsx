@@ -5,10 +5,7 @@ export class AnyType extends AbstractType {
   getName(): string {
     return 'Any';
   }
-  toString(data: any): string {
-    return data ? data.toString() : "null";
-  }
   getDefaultValue() : any {
-    return undefined;
+    return 0;
   }
 }

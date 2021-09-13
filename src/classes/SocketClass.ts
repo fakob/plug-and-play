@@ -51,7 +51,7 @@ export default class Socket extends PIXI.Container {
     let defaultData;
     if (socketType === SOCKET_TYPE.IN) {
       // define defaultData for different types
-      if (data === null && dataType) {
+      if (data === null && dataType && dataType instanceof AbstractType) {
         console.log('datattype: ' + JSON.stringify(dataType));
         data = dataType.getDefaultValue();
       }

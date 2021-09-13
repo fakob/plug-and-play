@@ -29,14 +29,11 @@ export class NumberType extends AbstractType {
   getInputWidget = (props: any): any => {
     const sliderProps: SliderWidgetProps = {
       property: props.property,
-      minValue: this.minValue,
-      maxValue: this.maxValue,
-      round: this.round,
-      stepSize: this.stepSize,
       isInput: props.isInput,
       hasLink: props.hasLink,
       index: props.index,
       data: props.data,
+      type: this,
     };
     return <SliderWidget {...sliderProps} />;
   };

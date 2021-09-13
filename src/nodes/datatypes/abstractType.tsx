@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 import React from 'react';
 import { inspect } from 'util';
-import { DefaultOutputWidget, SliderWidget } from '../../widgets';
+import { DefaultOutputWidget, SliderWidget, TextWidget } from '../../widgets';
 export class AbstractType {
   // TODO add functionality for switching between types n stuff, its what the below stuff here will be used for
   // an extensive list of all widgets you allow for input only allow these when switching widget type
@@ -16,7 +16,7 @@ export class AbstractType {
     return 'Abstract Type';
   }
   toString(data: any): string {
-    return data.toString();
+    return this.getComment(data);
   }
   getComment(data: any): string {
     if (data) {
@@ -26,7 +26,7 @@ export class AbstractType {
   }
 
   getInputWidget = (data: any): any => {
-    return <SliderWidget {...data} />;
+    return <TextWidget {...data} />;
   };
 
   getOutputWidget = (data: any): any => {

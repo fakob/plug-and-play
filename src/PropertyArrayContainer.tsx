@@ -142,23 +142,25 @@ const PropertyHeader: React.FunctionComponent<PropertyHeaderProps> = (
         }}
         disabled={props.hasLink}
       />
-      <HTMLSelect
-        className={`${styles.opacity30} bp3-minimal`}
-        onChange={props.onChangeDropdown}
-        value={props.dataType.getName()}
-        disabled={props.hasLink}
-      >
-        {Object.values(allDataTypes).map((value) => {
-          return (
-            <option
-              key={value.getName()}
-              value={value.getInputWidget(props.property.data)}
-            >
-              {value}
-            </option>
-          );
-        })}
-      </HTMLSelect>
+      {false && (
+        <HTMLSelect
+          className={`${styles.opacity30} bp3-minimal`}
+          onChange={props.onChangeDropdown}
+          value={props.dataType.getName()}
+          disabled={props.hasLink}
+        >
+          {Object.values(allDataTypes).map((value) => {
+            return (
+              <option
+                key={value.getName()}
+                value={value.getInputWidget(props.property.data)}
+              >
+                {value}
+              </option>
+            );
+          })}
+        </HTMLSelect>
+      )}
     </ControlGroup>
   );
 };
