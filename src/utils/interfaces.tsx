@@ -86,9 +86,8 @@ export type TSocketType = typeof SOCKET_TYPE[keyof typeof SOCKET_TYPE];
 export type SerializedSocket = {
   socketType: TSocketType;
   name: string;
-  dataType: AbstractType;
+  dataType: string;
   data: any;
-  defaultData: any;
   visible: boolean;
   custom?: Record<string, any>;
 };

@@ -151,10 +151,7 @@ const PropertyHeader: React.FunctionComponent<PropertyHeaderProps> = (
         >
           {Object.values(allDataTypes).map((value) => {
             return (
-              <option
-                key={value.getName()}
-                value={value.getInputWidget(props.property.data)}
-              >
+              <option key={''} value={''}>
                 {value}
               </option>
             );

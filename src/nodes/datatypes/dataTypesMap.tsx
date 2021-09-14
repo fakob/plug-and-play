@@ -7,13 +7,14 @@ import { PixiType } from './pixiType';
 import { StringType } from './stringType';
 import { TriggerType } from './triggerType';
 
-export const allDataTypes = [
-  new AnyType(),
-  new ArrayType(),
-  new BooleanType(),
-  new ColorType(),
-  new NumberType(),
-  new PixiType(),
-  new StringType(),
-  new TriggerType(),
-];
+// I hate this
+export const allDataTypes = {
+  AnyType: AnyType,
+  ArrayType: ArrayType,
+  BooleanType: BooleanType,
+  ColorType: ColorType,
+  NumberType: NumberType,
+  PixiType: PixiType,
+  StringType: StringType,
+  TriggerType: TriggerType,
+};

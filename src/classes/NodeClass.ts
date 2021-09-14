@@ -28,6 +28,7 @@ import { getNodeCommentPosX, getNodeCommentPosY } from '../utils/utils';
 import { AbstractType } from '../nodes/datatypes/abstractType';
 import { AnyType } from '../nodes/datatypes/anyType';
 import { inspect } from 'util';
+import { deSerializeType } from '../nodes/datatypes/typehelper';
 
 export class UpdateBehaviour {
   update: boolean;
@@ -344,20 +345,20 @@ export default class PPNode extends PIXI.Container {
       // skip configuring the input if there is no config data
       if (this.inputSocketArray[index] !== undefined) {
         this.inputSocketArray[index].setName(item.name);
-        this.inputSocketArray[index].dataType = item.dataType;
-        this.inputSocketArray[index].data = item.data;
+        (this.inputSocketArray[index].dataType = deSerializeType(
+          item.dataType
+        )),
+          (this.inputSocketArray[index].data = item.data);
         this.inputSocketArray[index].setVisible(item.visible ?? true);
         this.inputSocketArray[index].custom = item.custom;
       } else {
         // add socket if it does not exist yet
         this.addInput(
           item.name,
-          item.dataType,
+          deSerializeType(item.dataType),
           item.data,
           item.visible ?? true,
-          item.custom === undefined
-            ? { defaultData: item.defaultData }
-            : { ...item.custom, defaultData: item.defaultData }
+          item.custom === undefined ? {} : { ...item.custom }
         );
       }
     });
@@ -367,14 +368,14 @@ export default class PPNode extends PIXI.Container {
       // skip configuring the output if there is no config data
       if (this.outputSocketArray[index] !== undefined) {
         this.outputSocketArray[index].setName(item.name);
-        this.outputSocketArray[index].dataType = item.dataType;
+        this.outputSocketArray[index].dataType = deSerializeType(item.dataType);
         this.outputSocketArray[index].setVisible(item.visible ?? true);
         this.outputSocketArray[index].custom = item.custom;
       } else {
         // add socket if it does not exist
         this.addOutput(
           item.name,
-          item.dataType,
+          deSerializeType(item.dataType),
           item.visible ?? true,
           item.custom
         );

@@ -16,6 +16,7 @@ import {
   TEXT_RESOLUTION,
 } from '../utils/constants';
 import { AbstractType } from '../nodes/datatypes/abstractType';
+import { serializeType } from '../nodes/datatypes/typehelper';
 
 export default class Socket extends PIXI.Container {
   // Input sockets
@@ -52,7 +53,6 @@ export default class Socket extends PIXI.Container {
     if (socketType === SOCKET_TYPE.IN) {
       // define defaultData for different types
       if (data === null && dataType && dataType instanceof AbstractType) {
-        console.log('datattype: ' + JSON.stringify(dataType));
         data = dataType.getDefaultValue();
       }
     } else {
@@ -231,19 +231,16 @@ export default class Socket extends PIXI.Container {
     // ignore data for output sockets, input sockets with links
     // and input sockets with pixi data type
     let data;
-    let defaultData;
     if (this.isInput()) {
       if (!this.hasLink() /* && this.dataType !== DATATYPE.PIXI*/) {
         data = this.data;
       }
-      defaultData = this.defaultData;
     }
     return {
       socketType: this.socketType,
       name: this.name,
-      dataType: this.dataType,
+      dataType: serializeType(this.dataType),
       data,
-      defaultData,
       visible: this.visible,
       custom: this.custom,
     };
