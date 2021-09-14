@@ -145,7 +145,6 @@ export default class Socket extends PIXI.Container {
 
   set data(newData: any) {
     this._data = newData;
-
     // update defaultData only if socket is input
     // and does not have a link
     if (this.isInput() && !this.hasLink()) {
@@ -154,7 +153,6 @@ export default class Socket extends PIXI.Container {
   }
 
   get defaultData(): any {
-    console.log('default didderino: ' + JSON.stringify(this.dataType));
     return this.dataType?.getDefaultValue();
   }
 

@@ -20,7 +20,7 @@ export class AbstractType {
   }
   getComment(data: any): string {
     if (data) {
-      return inspect(data.toString(), null, 1);
+      return inspect(data, null, 1);
     }
     return 'null';
   }
