@@ -1,4 +1,3 @@
-import { DATATYPE } from '../utils/constants';
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
 import * as base from './base';
@@ -38,8 +37,7 @@ export const registerAllNodeTypes = (graph: PPGraph): void => {
     return undefined;
   }
   const nodeConstructor = graph.convertFunctionToNodeConstructor(
-    getElementFromArray,
-    [DATATYPE.ARRAY, DATATYPE.NUMBER]
+    getElementFromArray
     // OUTPUTTYPE.NUMBER
   );
   graph.registerNodeType(getElementFromArray.name, nodeConstructor);

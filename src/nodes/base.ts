@@ -4,7 +4,6 @@ import PPNode from '../classes/NodeClass';
 import {
   COLOR,
   NODE_TYPE_COLOR,
-  DATATYPE,
   SOCKET_WIDTH,
   NODE_CORNERRADIUS,
   NODE_PADDING_TOP,
@@ -14,6 +13,11 @@ import {
 } from '../utils/constants';
 import { CustomArgs } from '../utils/interfaces';
 import { colorToTrgba, hexToTRgba, trgbaToColor } from '../pixi/utils-pixi';
+import { NumberType } from './datatypes/numberType';
+import { AnyType } from './datatypes/anyType';
+import { TriggerType } from './datatypes/triggerType';
+import { ColorType } from './datatypes/colorType';
+import { StringType } from './datatypes/stringType';
 
 export class Mouse extends PPNode {
   onViewportMove: (event: PIXI.InteractionEvent) => void;
@@ -27,12 +31,12 @@ export class Mouse extends PPNode {
       color: NODE_TYPE_COLOR.INPUT,
     });
 
-    this.addOutput('screen-x', DATATYPE.NUMBER);
-    this.addOutput('screen-y', DATATYPE.NUMBER);
-    this.addOutput('world-x', DATATYPE.NUMBER);
-    this.addOutput('world-y', DATATYPE.NUMBER);
-    this.addOutput('scale', DATATYPE.NUMBER);
-    this.addOutput('buttons', DATATYPE.NUMBER);
+    this.addOutput('screen-x', new NumberType());
+    this.addOutput('screen-y', new NumberType());
+    this.addOutput('world-x', new NumberType());
+    this.addOutput('world-y', new NumberType());
+    this.addOutput('scale', new NumberType());
+    this.addOutput('buttons', new NumberType());
 
     this.name = 'Mouse';
     this.description = 'Get mouse coordinates';
@@ -67,19 +71,13 @@ export class GridCoordinates extends PPNode {
       color: NODE_TYPE_COLOR.INPUT,
     });
 
-    this.addOutput('x-array', DATATYPE.ARRAY);
-    this.addOutput('y-array', DATATYPE.ARRAY);
-    this.addInput('x', DATATYPE.NUMBER, 0, false);
-    this.addInput('y', DATATYPE.NUMBER, 0, false);
-    this.addInput('count', DATATYPE.NUMBER, 9, false, {
-      round: true,
-      minValue: 0,
-    });
-    this.addInput('column', DATATYPE.NUMBER, 3, false, {
-      round: true,
-      minValue: 0,
-    });
-    this.addInput('distance', DATATYPE.NUMBER, 100.0, false);
+    this.addOutput('x-array', new AnyType());
+    this.addOutput('y-array', new AnyType());
+    this.addInput('x', new NumberType(), 0, false);
+    this.addInput('y', new NumberType(), 0, false);
+    this.addInput('count', new NumberType(true), 9, false);
+    this.addInput('column', new NumberType(true), 3, false);
+    this.addInput('distance', new NumberType(), 100.0, false);
 
     this.name = 'Grid coordinates';
     this.description = 'Create grid coordinates';
@@ -112,13 +110,10 @@ export class ColorArray extends PPNode {
       color: NODE_TYPE_COLOR.INPUT,
     });
 
-    this.addOutput('color-array', DATATYPE.ARRAY);
-    this.addInput('count', DATATYPE.NUMBER, 9, false, {
-      round: true,
-      minValue: 0,
-    });
-    this.addInput('colorA', DATATYPE.COLOR, hexToTRgba(colorA), false);
-    this.addInput('colorB', DATATYPE.COLOR, hexToTRgba(colorB), false);
+    this.addOutput('color-array', new AnyType());
+    this.addInput('count', new NumberType(true), 9, false);
+    this.addInput('colorA', new ColorType(), hexToTRgba(colorA), false);
+    this.addInput('colorB', new ColorType(), hexToTRgba(colorB), false);
 
     this.name = 'Color array';
     this.description = 'Create color array';
@@ -144,10 +139,10 @@ export class RangeArray extends PPNode {
       color: NODE_TYPE_COLOR.INPUT,
     });
 
-    this.addOutput('output array', DATATYPE.ARRAY);
-    this.addInput('start', DATATYPE.NUMBER);
-    this.addInput('stop', DATATYPE.NUMBER);
-    this.addInput('step', DATATYPE.NUMBER);
+    this.addOutput('output array', new AnyType());
+    this.addInput('start', new NumberType());
+    this.addInput('stop', new NumberType());
+    this.addInput('step', new NumberType());
 
     this.name = 'Range array';
     this.description = 'Create range array';
@@ -171,14 +166,11 @@ export class RandomArray extends PPNode {
       color: NODE_TYPE_COLOR.INPUT,
     });
 
-    this.addOutput('output array', DATATYPE.ARRAY);
-    this.addInput('trigger', DATATYPE.TRIGGER);
-    this.addInput('length', DATATYPE.NUMBER, 20, undefined, {
-      round: true,
-      minValue: 1,
-    });
-    this.addInput('min', DATATYPE.NUMBER, 0);
-    this.addInput('max', DATATYPE.NUMBER, 1);
+    this.addOutput('output array', new AnyType());
+    this.addInput('trigger', new TriggerType());
+    this.addInput('length', new NumberType(true, 1), 20, undefined);
+    this.addInput('min', new NumberType(), 0);
+    this.addInput('max', new NumberType(), 1);
 
     this.name = 'Random array';
     this.description = 'Create random array';
@@ -202,7 +194,7 @@ export class Trigger extends PPNode {
       color: NODE_TYPE_COLOR.INPUT,
     });
 
-    this.addOutput('trigger', DATATYPE.TRIGGER);
+    this.addOutput('trigger', new TriggerType());
 
     this.name = 'Trigger';
     this.description = 'Creates a trigger event';
@@ -246,8 +238,8 @@ export class TimeAndDate extends PPNode {
       color: NODE_TYPE_COLOR.INPUT,
     });
 
-    this.addOutput('date and time', DATATYPE.STRING);
-    this.addOutput('time stamp', DATATYPE.NUMBER);
+    this.addOutput('date and time', new StringType());
+    this.addOutput('time stamp', new StringType());
 
     this.name = 'Time';
     this.description = 'Outputs current time in different formats';

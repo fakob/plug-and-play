@@ -1,5 +1,6 @@
 import PPGraph from '../classes/GraphClass';
 import PPNode, { UpdateBehaviour } from '../classes/NodeClass';
+import { AbstractType } from '../nodes/datatypes/abstractType';
 import { SOCKET_TYPE } from './constants';
 
 export type RegisteredNodeTypes = Record<
@@ -73,7 +74,6 @@ export type SerializedNode = {
 
 export type SerializedLink = {
   id: number;
-  type: string;
   sourceNodeId: string;
   sourceSocketIndex: number;
   targetNodeId: string;
@@ -87,7 +87,6 @@ export type SerializedSocket = {
   name: string;
   dataType: string;
   data: any;
-  defaultData: any;
   visible: boolean;
   custom?: Record<string, any>;
 };

@@ -1,6 +1,7 @@
 import * as PIXI from 'pixi.js';
 import Color from 'color';
 import { TextStyle } from '@pixi/text';
+import { EnumStructure } from '../nodes/datatypes/enumType';
 
 export const PP_VERSION = 0.1;
 
@@ -67,7 +68,7 @@ export const SOCKET_TEXTSTYLE = new TextStyle({
   fill: COLOR_MAIN,
 });
 
-export const DATATYPE = {
+/*export const DATATYPE = {
   ANY: 'undefined',
   ARRAY: 'array',
   BOOLEAN: 'boolean',
@@ -77,9 +78,9 @@ export const DATATYPE = {
   PIXI: 'pixi',
   STRING: 'string',
   TRIGGER: 'trigger',
-};
+};*/
 
-export const DATATYPE_DEFAULT_VALUE = {
+/*export const DATATYPE_DEFAULT_VALUE = {
   ANY: undefined,
   ARRAY: [],
   BOOLEAN: false,
@@ -89,7 +90,7 @@ export const DATATYPE_DEFAULT_VALUE = {
   PIXI: null,
   STRING: '',
   TRIGGER: undefined,
-};
+};*/
 
 export const NODE_TEXTSTYLE = new TextStyle({
   fontSize: 13,
@@ -144,7 +145,7 @@ function customFunctionNode(a, b) {
   return a * b;
 }`;
 
-export const PIXI_PIVOT_OPTIONS = [
+export const PIXI_PIVOT_OPTIONS: EnumStructure = [
   {
     text: 'top left',
     value: { x: 0.0, y: 0.0 },

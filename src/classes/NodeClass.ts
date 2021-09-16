@@ -3,14 +3,12 @@ import { DropShadowFilter } from '@pixi/filter-drop-shadow';
 import { hri } from 'human-readable-ids';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { inspect } from 'util'; // or directly
 import '../pixi/dbclick.js';
 
 import styles from '../utils/style.module.css';
 import { CustomArgs, SerializedNode } from '../utils/interfaces';
 import {
   COMMENT_TEXTSTYLE,
-  DATATYPE,
   NODE_TYPE_COLOR,
   NODE_CORNERRADIUS,
   NODE_HEADER_HEIGHT,
@@ -27,6 +25,10 @@ import {
 import PPGraph from './GraphClass';
 import Socket from './SocketClass';
 import { getNodeCommentPosX, getNodeCommentPosY } from '../utils/utils';
+import { AbstractType } from '../nodes/datatypes/abstractType';
+import { AnyType } from '../nodes/datatypes/anyType';
+import { inspect } from 'util';
+import { deSerializeType } from '../nodes/datatypes/typehelper';
 
 export class UpdateBehaviour {
   update: boolean;
@@ -254,12 +256,16 @@ export default class PPNode extends PIXI.Container {
     this.drawNodeShape();
   }
 
+  getDefaultType(): AbstractType {
+    return new AnyType();
+  }
+
   addInput(
     name: string,
-    type: string,
+    type: AbstractType,
     data?: unknown,
     visible?: boolean,
-    custom?: Record<string, any>
+    custom?: Record<string, any> // lets get rid of this ASAP
   ): void {
     const inputSocket = new Socket(
       SOCKET_TYPE.IN,
@@ -278,18 +284,11 @@ export default class PPNode extends PIXI.Container {
 
   addOutput(
     name: string,
-    type: string,
+    type: AbstractType,
     visible?: boolean,
     custom?: Record<string, any>
   ): void {
-    const outputSocket = new Socket(
-      SOCKET_TYPE.OUT,
-      name,
-      type,
-      null,
-      visible,
-      custom
-    );
+    const outputSocket = new Socket(SOCKET_TYPE.OUT, name, type, null, visible);
     const outputSocketRef = this.addChild(outputSocket);
     this.outputSocketArray.push(outputSocketRef);
 
@@ -346,21 +345,20 @@ export default class PPNode extends PIXI.Container {
       // skip configuring the input if there is no config data
       if (this.inputSocketArray[index] !== undefined) {
         this.inputSocketArray[index].setName(item.name);
-        this.inputSocketArray[index].dataType = item.dataType;
-        this.inputSocketArray[index].data = item.data;
-        this.inputSocketArray[index].defaultData = item.defaultData;
+        (this.inputSocketArray[index].dataType = deSerializeType(
+          item.dataType
+        )),
+          (this.inputSocketArray[index].data = item.data);
         this.inputSocketArray[index].setVisible(item.visible ?? true);
         this.inputSocketArray[index].custom = item.custom;
       } else {
         // add socket if it does not exist yet
         this.addInput(
           item.name,
-          item.dataType,
+          deSerializeType(item.dataType),
           item.data,
           item.visible ?? true,
-          item.custom === undefined
-            ? { defaultData: item.defaultData }
-            : { ...item.custom, defaultData: item.defaultData }
+          item.custom === undefined ? {} : { ...item.custom }
         );
       }
     });
@@ -370,14 +368,14 @@ export default class PPNode extends PIXI.Container {
       // skip configuring the output if there is no config data
       if (this.outputSocketArray[index] !== undefined) {
         this.outputSocketArray[index].setName(item.name);
-        this.outputSocketArray[index].dataType = item.dataType;
+        this.outputSocketArray[index].dataType = deSerializeType(item.dataType);
         this.outputSocketArray[index].setVisible(item.visible ?? true);
         this.outputSocketArray[index].custom = item.custom;
       } else {
         // add socket if it does not exist
         this.addOutput(
           item.name,
-          item.dataType,
+          deSerializeType(item.dataType),
           item.visible ?? true,
           item.custom
         );
@@ -547,7 +545,7 @@ export default class PPNode extends PIXI.Container {
   public addDefaultInput(): void {
     this.addInput(
       this.constructSocketName('Custom Input', this.inputSocketArray),
-      DATATYPE.ANY
+      new AnyType()
     );
   }
 
@@ -557,7 +555,7 @@ export default class PPNode extends PIXI.Container {
   public addDefaultOutput(): void {
     this.addOutput(
       this.constructSocketName('Custom Output', this.outputSocketArray),
-      DATATYPE.ANY
+      new AnyType()
     );
   }
 
@@ -577,37 +575,10 @@ export default class PPNode extends PIXI.Container {
   }
 
   drawComment(): void {
-    const commentData = this.outputSocketArray[0]?.data;
-    // console.log(this.outputSocketArray[0], commentData);
-    if (commentData !== undefined) {
-      // custom output for pixi elements
-      if (
-        this.outputSocketArray[0]?.dataType === DATATYPE.PIXI &&
-        !Array.isArray(this.outputSocketArray[0].data)
-      ) {
-        const strippedCommentData = {
-          alpha: commentData?.alpha,
-          // children: commentData?.children,
-          // parent: commentData?.parent,
-          // transform: commentData?.transform,
-          visible: commentData?.visible,
-          height: commentData?.height,
-          pivot: commentData?.pivot,
-          position: commentData?.position,
-          rotation: commentData?.rotation,
-          scale: commentData?.scale,
-          width: commentData?.width,
-          x: commentData?.x,
-          y: commentData?.y,
-          zIndex: commentData?.zIndex,
-          bounds: commentData?.getBounds(),
-          localBounds: commentData?.getLocalBounds(),
-        };
-        this._NodeCommentRef.text = inspect(strippedCommentData, null, 1);
-      } else {
-        this._NodeCommentRef.text = inspect(commentData, null, 2);
-      }
-    }
+    const commentData = this.outputSocketArray[0]?.dataType?.getComment(
+      this.outputSocketArray[0]?.data
+    );
+    this._NodeCommentRef.text = commentData;
   }
 
   screenPoint(): PIXI.Point {
@@ -802,9 +773,8 @@ export default class PPNode extends PIXI.Container {
   }
 
   async execute(upstreamContent: Set<string>): Promise<void> {
-    this.drawComment();
-
     await this.rawExecute();
+    this.drawComment();
 
     this.outputSocketArray.forEach((outputSocket) =>
       outputSocket.notifyChange(upstreamContent)

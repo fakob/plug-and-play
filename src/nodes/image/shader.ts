@@ -3,8 +3,10 @@ import * as PIXI from 'pixi.js';
 import PPGraph from '../../classes/GraphClass';
 import PPNode, { UpdateBehaviour } from '../../classes/NodeClass';
 import { CustomArgs } from '../../utils/interfaces';
-import { DATATYPE, NODE_TYPE_COLOR, SOCKET_TYPE } from '../../utils/constants';
+import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../../utils/constants';
 import Socket from '../../classes/SocketClass';
+import { AnyType } from '../datatypes/anyType';
+import { StringType } from '../datatypes/stringType';
 
 const defaultVertex = `
 precision mediump float;
@@ -90,32 +92,32 @@ export class Shader extends PPNode {
 
   protected getDefaultIO(): Socket[] {
     return [
-      new Socket(SOCKET_TYPE.IN, inputDataName, DATATYPE.ANY, {}),
+      new Socket(SOCKET_TYPE.IN, inputDataName, new AnyType(), {}),
       new Socket(
         SOCKET_TYPE.IN,
         imageInputDataName,
-        DATATYPE.ANY,
+        new AnyType(),
         this.getDefaultImageData()
       ),
       new Socket(
         SOCKET_TYPE.IN,
         imageNamesName,
-        DATATYPE.ANY,
+        new AnyType(),
         this.getDefaultImageNames()
       ),
       new Socket(
         SOCKET_TYPE.IN,
         vertexShaderInputName,
-        DATATYPE.STRING,
+        new AnyType(),
         this.getInitialVertex()
       ),
       new Socket(
         SOCKET_TYPE.IN,
         fragmentShaderInputName,
-        DATATYPE.STRING,
+        new AnyType(),
         this.getInitialFragment()
       ),
-      new Socket(SOCKET_TYPE.OUT, imageOutputName, DATATYPE.STRING),
+      new Socket(SOCKET_TYPE.OUT, imageOutputName, new StringType()),
     ];
   }
 

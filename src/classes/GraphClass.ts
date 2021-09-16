@@ -446,13 +446,7 @@ export default class PPGraph {
     let link = null;
 
     //create link class
-    link = new PPLink(
-      (this.lastLinkId += 1),
-      input.dataType,
-      output,
-      input,
-      viewport
-    );
+    link = new PPLink((this.lastLinkId += 1), output, input, viewport);
 
     //add to graph links list
     this._links[link.id] = link;
@@ -705,7 +699,6 @@ export default class PPGraph {
         // console.log(outputRef, inputRef);
         if (outputRef === undefined || inputRef === undefined) {
           error = true;
-          console.log('In or Output socket not found: ' + l_info.type);
         } else {
           this.connect(outputRef, inputRef, this.viewport);
         }
@@ -818,7 +811,8 @@ export default class PPGraph {
     const names = this.getParameterNames(func);
     // console.log(names);
     code += `
-      this.addOutput('out', '${return_type ? return_type : 0}');\n`;
+    this.addOutput('out', '${return_type ? return_type : 0}');\n`;
+
     for (let i = 0; i < names.length; ++i) {
       code += `
       this.addInput('${names[i]}', '${
