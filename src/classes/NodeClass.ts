@@ -773,9 +773,8 @@ export default class PPNode extends PIXI.Container {
   }
 
   async execute(upstreamContent: Set<string>): Promise<void> {
-    this.drawComment();
-
     await this.rawExecute();
+    this.drawComment();
 
     this.outputSocketArray.forEach((outputSocket) =>
       outputSocket.notifyChange(upstreamContent)
