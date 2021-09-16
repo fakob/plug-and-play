@@ -4,27 +4,19 @@ import { SerializedLink } from '../utils/interfaces';
 import { CONNECTION_COLOR_HEX } from '../utils/constants';
 import Socket from './SocketClass';
 import PPNode from './NodeClass';
-import { AbstractType } from '../nodes/datatypes/abstractType';
+import { serializeType } from '../nodes/datatypes/typehelper';
 
 export default class PPLink extends PIXI.Container {
   id: number;
-  type: AbstractType;
   source: Socket;
   target: Socket;
   viewport: Viewport;
   _connectionRef: PIXI.Graphics;
   // _data: any;
 
-  constructor(
-    id: number,
-    type: AbstractType,
-    source: Socket,
-    target: Socket,
-    viewport: Viewport
-  ) {
+  constructor(id: number, source: Socket, target: Socket, viewport: Viewport) {
     super();
     this.id = id;
-    this.type = type;
     this.source = source;
     this.target = target;
     this.viewport = viewport;
@@ -41,7 +33,6 @@ export default class PPLink extends PIXI.Container {
     console.log(this.source.parent);
     return {
       id: this.id,
-      type: this.type,
       sourceNodeId: (this.source.parent as PPNode).id,
       sourceSocketIndex: this.source.index,
       targetNodeId: (this.target.parent as PPNode).id,

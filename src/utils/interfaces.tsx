@@ -74,7 +74,6 @@ export type SerializedNode = {
 
 export type SerializedLink = {
   id: number;
-  type: AbstractType;
   sourceNodeId: string;
   sourceSocketIndex: number;
   targetNodeId: string;
