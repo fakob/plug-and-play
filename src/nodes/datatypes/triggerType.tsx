@@ -7,6 +7,10 @@ export class TriggerType extends AbstractType {
     super();
   }
 
+  getName(): string {
+    return 'Trigger';
+  }
+
   getInputWidget = (data: any): any => {
     return <TriggerWidget {...data} />;
   };

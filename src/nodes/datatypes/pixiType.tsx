@@ -13,6 +13,10 @@ export class PixiType extends AbstractType {
     return null;
   };
 
+  getName(): string {
+    return 'Pixi';
+  }
+
   getComment(commentData: any): string {
     const strippedCommentData = {
       alpha: commentData?.alpha,

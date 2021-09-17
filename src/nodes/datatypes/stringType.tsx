@@ -7,6 +7,10 @@ export class StringType extends AbstractType {
     super();
   }
 
+  getName() {
+    return 'String';
+  }
+
   getInputWidget = (data: any): any => {
     return <TextWidget {...data} />;
   };

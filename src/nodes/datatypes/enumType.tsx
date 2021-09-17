@@ -13,6 +13,10 @@ export class EnumType extends AbstractType {
     this.options = inOptions;
   }
 
+  getName(): string {
+    return 'Enum';
+  }
+
   getInputWidget = (data: any): any => {
     const widgetProps: SelectWidgetProps = data;
     widgetProps.options = this.options;

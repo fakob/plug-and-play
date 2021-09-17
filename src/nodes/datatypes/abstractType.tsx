@@ -13,7 +13,7 @@ export class AbstractType {
 
   // override any and all of these in child classes
   getName(): string {
-    return 'Abstract Type';
+    return this.constructor.name;
   }
   toString(data: any): string {
     return this.getComment(data);

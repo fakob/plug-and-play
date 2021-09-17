@@ -7,6 +7,10 @@ export class BooleanType extends AbstractType {
     super();
   }
 
+  getName(): string {
+    return 'Boolean';
+  }
+
   getDefaultValue(): any {
     return false;
   }

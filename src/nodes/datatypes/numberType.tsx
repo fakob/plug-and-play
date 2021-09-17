@@ -38,6 +38,10 @@ export class NumberType extends AbstractType {
     return <SliderWidget {...sliderProps} />;
   };
 
+  getName(): string {
+    return 'Number';
+  }
+
   getDefaultValue(): any {
     return 0;
   }

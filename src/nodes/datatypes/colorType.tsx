@@ -7,6 +7,10 @@ export class ColorType extends AbstractType {
     super();
   }
 
+  getName(): string {
+    return 'Color';
+  }
+
   getDefaultValue(): any {
     return [255, 55, 0, 0.5];
   }

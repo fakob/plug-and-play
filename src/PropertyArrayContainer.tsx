@@ -72,12 +72,14 @@ const PropertyContainer: React.FunctionComponent<PropertyContainerProps> = (
     data: props.data,
   };
 
-  const widget = props.dataType.getInputWidget(baseProps);
+  const widget = dataTypeValue.getInputWidget(baseProps);
 
   const onChangeDropdown = (event) => {
     const value = event.target.value;
-    props.property.dataType = value;
-    setDataTypeValue(value);
+    console.log('newVal: ' + JSON.stringify(value));
+    const entry = new allDataTypes[value]();
+    props.property.dataType = entry;
+    setDataTypeValue(entry);
   };
 
   return (
@@ -88,7 +90,6 @@ const PropertyContainer: React.FunctionComponent<PropertyContainerProps> = (
         index={props.index}
         isInput={props.isInput}
         hasLink={props.hasLink}
-        dataType={props.property.dataType}
         onChangeDropdown={onChangeDropdown}
       />
       {widget}
@@ -101,7 +102,6 @@ type PropertyHeaderProps = {
   index: number;
   isInput: boolean;
   hasLink: boolean;
-  dataType: AbstractType;
   onChangeDropdown: (event) => void;
 };
 
@@ -142,22 +142,23 @@ const PropertyHeader: React.FunctionComponent<PropertyHeaderProps> = (
         }}
         disabled={props.hasLink}
       />
-      {false && (
+      {
         <HTMLSelect
           className={`${styles.opacity30} bp3-minimal`}
           onChange={props.onChangeDropdown}
-          value={props.dataType.getName()}
+          value={props.property.dataType.constructor.name}
           disabled={props.hasLink}
         >
-          {Object.values(allDataTypes).map((value) => {
+          {Object.keys(allDataTypes).map((name) => {
+            const entry = new allDataTypes[name]().getName();
             return (
-              <option key={''} value={''}>
-                {value}
+              <option key={name} value={name}>
+                {entry}
               </option>
             );
           })}
         </HTMLSelect>
-      )}
+      }
     </ControlGroup>
   );
 };
