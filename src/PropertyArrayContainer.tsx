@@ -76,7 +76,6 @@ const PropertyContainer: React.FunctionComponent<PropertyContainerProps> = (
 
   const onChangeDropdown = (event) => {
     const value = event.target.value;
-    console.log('newVal: ' + JSON.stringify(value));
     const entry = new allDataTypes[value]();
     props.property.dataType = entry;
     setDataTypeValue(entry);
