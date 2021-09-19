@@ -8,9 +8,20 @@ import * as shader from './image/shader';
 import * as image from './image/image';
 import * as get from './api/get';
 import * as array from './data/array';
+import * as json from './data/json';
 
 export const registerAllNodeTypes = (graph: PPGraph): void => {
-  const categories = { base, math, draw, text, shader, image, get, array };
+  const categories = {
+    base,
+    math,
+    draw,
+    text,
+    shader,
+    image,
+    get,
+    array,
+    json,
+  };
   for (const [categoryKey, categoryValue] of Object.entries(categories)) {
     console.log(categoryKey, categoryValue);
     for (const key of Object.keys(categoryValue)) {
