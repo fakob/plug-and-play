@@ -18,24 +18,28 @@ export class PixiType extends AbstractType {
   }
 
   getComment(commentData: any): string {
-    const strippedCommentData = {
-      alpha: commentData?.alpha,
-      // children: commentData?.children,
-      // parent: commentData?.parent,
-      // transform: commentData?.transform,
-      visible: commentData?.visible,
-      height: commentData?.height,
-      pivot: commentData?.pivot,
-      position: commentData?.position,
-      rotation: commentData?.rotation,
-      scale: commentData?.scale,
-      width: commentData?.width,
-      x: commentData?.x,
-      y: commentData?.y,
-      zIndex: commentData?.zIndex,
-      bounds: commentData?.getBounds(),
-      localBounds: commentData?.getLocalBounds(),
-    };
-    return inspect(strippedCommentData, null, 1);
+    if (commentData !== undefined && !Array.isArray(commentData)) {
+      const strippedCommentData = {
+        alpha: commentData?.alpha,
+        // children: commentData?.children,
+        // parent: commentData?.parent,
+        // transform: commentData?.transform,
+        visible: commentData?.visible,
+        height: commentData?.height,
+        pivot: commentData?.pivot,
+        position: commentData?.position,
+        rotation: commentData?.rotation,
+        scale: commentData?.scale,
+        width: commentData?.width,
+        x: commentData?.x,
+        y: commentData?.y,
+        zIndex: commentData?.zIndex,
+        bounds: commentData?.getBounds(),
+        localBounds: commentData?.getLocalBounds(),
+      };
+      return inspect(strippedCommentData, null, 1);
+    } else {
+      return 'null';
+    }
   }
 }

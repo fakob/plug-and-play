@@ -585,7 +585,7 @@ export class PIXIMultiplier extends PPNode {
       // console.log(adjustArray);
 
       // if inputRef is array, wrap it into container
-      if (inputRef.constructor.name === 'Array') {
+      if (inputRef && inputRef.constructor.name === 'Array') {
         this._inputContainerRef.addChild(...(inputRef as PIXI.DisplayObject[]));
         inputRef = this._inputContainerRef;
       }
