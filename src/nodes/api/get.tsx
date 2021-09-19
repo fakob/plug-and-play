@@ -2,6 +2,7 @@ import PPGraph from '../../classes/GraphClass';
 import PPNode, { UpdateBehaviour } from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
 import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../../utils/constants';
+import { JSONType } from '../datatypes/jsonType';
 import { StringType } from '../datatypes/stringType';
 
 const urlInputName = 'URL';
@@ -20,7 +21,7 @@ export class Get extends PPNode {
         new StringType(),
         'https://jsonplaceholder.typicode.com/posts'
       ),
-      new Socket(SOCKET_TYPE.OUT, outputContentName, new StringType(), ''),
+      new Socket(SOCKET_TYPE.OUT, outputContentName, new JSONType(), ''),
     ];
   }
   protected async onExecute(

@@ -36,4 +36,9 @@ export class AbstractType {
   getDefaultValue(): any {
     return undefined;
   }
+  
+  // override this in children to check whether data is valid, can be used to give user information
+  isDataValidForType(data:any) : boolean{
+    return true;
+  }
 }
