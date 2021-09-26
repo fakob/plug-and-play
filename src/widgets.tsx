@@ -234,6 +234,29 @@ export const TextWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
   );
 };
 
+export const JSONWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
+  const [data, setData] = useState(props.data);
+
+  useEffect(() => {
+    potentiallyNotify(props.property, data);
+  }, [data]);
+
+  return (
+    <>
+      <TextArea
+        disabled={props.hasLink}
+        className={`${styles.textArea} bp3-fill`}
+        growVertically={true}
+        onChange={(event) => {
+          const value = JSON.parse(event.target.value);
+          setData(value);
+        }}
+        value={JSON.stringify(data) || ''}
+      />
+    </>
+  );
+};
+
 export type TriggerWidgetProps = {
   property: Socket;
   index: number;

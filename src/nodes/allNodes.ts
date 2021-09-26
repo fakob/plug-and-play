@@ -9,6 +9,7 @@ import * as image from './image/image';
 import * as get from './api/get';
 import * as array from './data/array';
 import * as json from './data/json';
+import * as pixotopegateway from './api/pixotopeGateway';
 
 export const registerAllNodeTypes = (graph: PPGraph): void => {
   const categories = {
@@ -21,6 +22,7 @@ export const registerAllNodeTypes = (graph: PPGraph): void => {
     get,
     array,
     json,
+    pixotopegateway,
   };
   for (const [categoryKey, categoryValue] of Object.entries(categories)) {
     console.log(categoryKey, categoryValue);

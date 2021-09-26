@@ -1,6 +1,6 @@
 import { inspect } from 'util';
 import React from 'react';
-import { TextWidget } from '../../widgets';
+import { JSONWidget, TextWidget } from '../../widgets';
 import { AbstractType } from './abstractType';
 
 export class JSONType extends AbstractType {
@@ -14,7 +14,7 @@ export class JSONType extends AbstractType {
 
   // TODO get a better JSON widget
   getInputWidget = (data: any): any => {
-    return <TextWidget {...data} />;
+    return <JSONWidget {...data} />;
   };
 
   getDefaultValue(): any {
