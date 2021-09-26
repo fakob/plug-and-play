@@ -41,3 +41,33 @@ export class JSONGet extends PPNode {
     );
   }
 }
+
+export class JSONKeys extends PPNode {
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(SOCKET_TYPE.IN, JSONName, new JSONType()),
+      new Socket(SOCKET_TYPE.OUT, outValueName, new JSONType()),
+    ];
+  }
+  protected async onExecute(
+    inputObject: unknown,
+    outputObject: Record<string, unknown>
+  ): Promise<void> {
+    outputObject[outValueName] = Object.keys(inputObject[JSONName]);
+  }
+}
+
+export class JSONValues extends PPNode {
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(SOCKET_TYPE.IN, JSONName, new JSONType()),
+      new Socket(SOCKET_TYPE.OUT, outValueName, new JSONType()),
+    ];
+  }
+  protected async onExecute(
+    inputObject: unknown,
+    outputObject: Record<string, unknown>
+  ): Promise<void> {
+    outputObject[outValueName] = Object.values(inputObject[JSONName]);
+  }
+}
