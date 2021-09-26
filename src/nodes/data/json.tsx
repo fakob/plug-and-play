@@ -5,7 +5,7 @@ import { JSONType } from '../datatypes/jsonType';
 import { StringType } from '../datatypes/stringType';
 
 const JSONName = 'JSON';
-const JSONParamName = 'Name';
+const JSONParamName = 'Name 1';
 const outValueName = 'Value';
 
 export class JSONGet extends PPNode {
@@ -20,7 +20,24 @@ export class JSONGet extends PPNode {
     inputObject: unknown,
     outputObject: Record<string, unknown>
   ): Promise<void> {
-    outputObject[outValueName] =
-      inputObject[JSONName][inputObject[JSONParamName]];
+    let current = inputObject[JSONName];
+    this.inputSocketArray.forEach((input) => {
+      // pretty hacky
+      if (input.name.includes('Name')) {
+        current = current[input.data];
+      }
+    });
+    outputObject[outValueName] = current;
+  }
+
+  public getCanAddInput(): boolean {
+    return true;
+  }
+
+  public addDefaultInput(): void {
+    this.addInput(
+      this.constructSocketName('Name', this.inputSocketArray),
+      new StringType()
+    );
   }
 }
