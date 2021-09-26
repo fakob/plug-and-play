@@ -8,6 +8,7 @@ const targetName = 'Target';
 const nameName = 'Name';
 const methodName = 'Method';
 const paramsName = 'Params';
+const valueName = 'Value';
 const outputContentName = 'Content';
 
 export class PixotopeGatewayGet extends PPNode {
@@ -34,21 +35,25 @@ export class PixotopeGatewayGet extends PPNode {
       '&Type=Get&Name=' +
       name;
     const res = await fetch(assembledString);
-    outputObject[outputContentName] = await res.json();
+    outputObject[outputContentName] = (await res.json()).Message.Value;
   }
 }
 
-/*export class PixotopeGatewaySet extends PPNode {
-  // default to poll on interval X seconds
+export class PixotopeGatewaySet extends PPNode {
   protected getUpdateBehaviour(): UpdateBehaviour {
-    return new UpdateBehaviour(false, true, 1000);
+    return new UpdateBehaviour(false, false, 1000);
   }
+
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, targetName, new StringType(), 'Store'),
-      new Socket(SOCKET_TYPE.IN, nameName, new StringType(), 'State'),
-      new Socket(SOCKET_TYPE.IN, )
-      new Socket(SOCKET_TYPE.OUT, outputContentName, new JSONType(), ''),
+      new Socket(
+        SOCKET_TYPE.IN,
+        nameName,
+        new StringType(),
+        'State.ThirdParty.PlugAndPlaygroundSettable'
+      ),
+      new Socket(SOCKET_TYPE.IN, valueName, new StringType(), 'TempValue'),
     ];
   }
   protected async onExecute(
@@ -57,15 +62,17 @@ export class PixotopeGatewayGet extends PPNode {
   ): Promise<void> {
     const target = inputObject[targetName];
     const name = inputObject[nameName];
-    const assembledString =
-      'http://localhost:16208/gateway/2.0.0/publish?Target=' +
-      target +
-      '&Type=Get&Name=' +
-      name;
-    const res = await fetch(assembledString);
-    outputObject[outputContentName] = await res.json();
+    const value = inputObject[valueName];
+
+    await fetch('http://localhost:16208/gateway/2.0.0/publish', {
+      method: 'POST',
+      body: JSON.stringify({
+        Topic: { Type: 'Set', Target: target, Name: name },
+        Message: { Value: value },
+      }),
+    });
   }
-}*/
+}
 
 export class PixotopeGatewayCall extends PPNode {
   // default to poll on interval X seconds
@@ -100,6 +107,6 @@ export class PixotopeGatewayCall extends PPNode {
         Message: { Params: params },
       }),
     });
-    outputObject[outputContentName] = await res.json();
+    outputObject[outputContentName] = (await res.json()).Message.Result;
   }
 }
