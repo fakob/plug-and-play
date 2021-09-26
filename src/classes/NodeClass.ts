@@ -575,9 +575,12 @@ export default class PPNode extends PIXI.Container {
   }
 
   drawComment(): void {
-    const commentData = this.outputSocketArray[0]?.dataType?.getComment(
+    let commentData = this.outputSocketArray[0]?.dataType?.getComment(
       this.outputSocketArray[0]?.data
     );
+    if (commentData.length > 5000) {
+      commentData = 'Too long to display';
+    }
     this._NodeCommentRef.text = commentData;
   }
 

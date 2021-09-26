@@ -248,10 +248,11 @@ export const JSONWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
         className={`${styles.textArea} bp3-fill`}
         growVertically={true}
         onChange={(event) => {
-          const value = JSON.parse(event.target.value);
+          const value = event.target.value;
           setData(value);
+          setData(JSON.parse(value));
         }}
-        value={JSON.stringify(data) || ''}
+        value={typeof data === 'object' ? JSON.stringify(data) : data}
       />
     </>
   );

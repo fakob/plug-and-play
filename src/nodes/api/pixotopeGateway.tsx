@@ -92,20 +92,14 @@ export class PixotopeGatewayCall extends PPNode {
     const target = inputObject[targetName];
     const method = inputObject[methodName];
     const params = inputObject[paramsName];
-    const paramsString = Object.keys(params).reduce(
-      (prev, curr) => prev + '&Param' + curr + '=' + params[curr],
-      ''
-    );
 
-    const assembledString =
-      'http://localhost:16208/gateway/2.0.0/publish?Type=Call&Target=' +
-      target +
-      '&Method=' +
-      method +
-      paramsString;
-
-    const res = await fetch(assembledString);
-    console.log('assembled: ' + assembledString);
+    const res = await fetch('http://localhost:16208/gateway/2.0.0/publish', {
+      method: 'POST',
+      body: JSON.stringify({
+        Topic: { Type: 'Call', Target: target, Method: method },
+        Message: { Params: params },
+      }),
+    });
     outputObject[outputContentName] = await res.json();
   }
 }
