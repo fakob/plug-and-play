@@ -2,6 +2,7 @@ import { AnyType } from './anyType';
 import { ArrayType } from './arrayType';
 import { BooleanType } from './booleanType';
 import { ColorType } from './colorType';
+import { ImageType } from './imageType';
 import { JSONType } from './jsonType';
 import { NumberType } from './numberType';
 import { PixiType } from './pixiType';
@@ -19,4 +20,5 @@ export const allDataTypes = {
   StringType: StringType,
   TriggerType: TriggerType,
   JSONType: JSONType,
+  ImageType: ImageType,
 };

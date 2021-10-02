@@ -14,7 +14,7 @@ const outputContentName = 'Content';
 export class PixotopeGatewayGet extends PPNode {
   // default to poll on interval X seconds
   protected getUpdateBehaviour(): UpdateBehaviour {
-    return new UpdateBehaviour(false, true, 1000);
+    return new UpdateBehaviour(false, true, 3000);
   }
   protected getDefaultIO(): Socket[] {
     return [
@@ -29,12 +29,19 @@ export class PixotopeGatewayGet extends PPNode {
   ): Promise<void> {
     const target = inputObject[targetName];
     const name = inputObject[nameName];
-    const assembledString =
-      'http://localhost:16208/gateway/2.0.0/publish?Target=' +
-      target +
-      '&Type=Get&Name=' +
-      name;
-    const res = await fetch(assembledString);
+    const res = await fetch('http://localhost:16208/gateway/2.0.0/publish', {
+      method: 'POST',
+      body: JSON.stringify({
+        Topic: {
+          Type: 'Get',
+          Target: target,
+          Name: name,
+          RespondTo: 'PlugAndPlay',
+        },
+        Message: {},
+      }),
+    });
+
     outputObject[outputContentName] = (await res.json()).Message.Value;
   }
 }
@@ -64,7 +71,7 @@ export class PixotopeGatewaySet extends PPNode {
     const name = inputObject[nameName];
     const value = inputObject[valueName];
 
-    await fetch('http://localhost:16208/gateway/2.0.0/publish', {
+    fetch('http://localhost:16208/gateway/2.0.0/publish', {
       method: 'POST',
       body: JSON.stringify({
         Topic: { Type: 'Set', Target: target, Name: name },
