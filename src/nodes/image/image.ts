@@ -44,28 +44,21 @@ export class Image extends PPNode {
     this.name = 'Draw Image';
     this.description = 'Draws an Image (base64)';
 
-    const initialImage = customArgs?.defaultArguments?.[imageInputName];
-
-    if (initialImage) {
-      this.initialExecute();
-    }
 
     this.onExecute = async function (input, output) {
-      this.removeChild(this.sprite);
 
       const base64 = input[imageInputName];
       if (base64) {
         const image = PIXI.Texture.from(base64);
-
-        const imageRatio = image.height / image.width;
-        this.resizeNode(defaultWidth, defaultWidth * imageRatio);
-
+        const prevSprite : PIXI.Sprite= this.sprite;
         this.sprite = new PIXI.Sprite(image);
         this.sprite.width = this.width - 2 * this.borderDistance;
         this.sprite.height = this.height - 2 * this.borderDistance;
         this.sprite.x = this.borderDistance;
         this.sprite.y = this.borderDistance;
         this.addChild(this.sprite);
+        // wait with the clear to avoid flashing
+        setTimeout(() => this.removeChild(prevSprite),100);
       }
       output[imageOutputName] = base64;
     };

@@ -20,6 +20,6 @@ export class ImageType extends AbstractType {
   }
 
   getComment(data: any): string {
-    return 'Image';
+    return data ? 'Image' : 'No Image';
   }
 }
