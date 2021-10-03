@@ -7,7 +7,7 @@ export class StringType extends AbstractType {
     super();
   }
 
-  getName() {
+  getName(): string {
     return 'String';
   }
 

@@ -50,7 +50,7 @@ export class Image extends PPNode {
       const base64 = input[imageInputName];
       if (base64) {
         const image = PIXI.Texture.from(base64);
-        const prevSprite : PIXI.Sprite= this.sprite;
+        const prevSprite : PIXI.Sprite = this.sprite;
         this.sprite = new PIXI.Sprite(image);
         this.sprite.width = this.width - 2 * this.borderDistance;
         this.sprite.height = this.height - 2 * this.borderDistance;
@@ -58,7 +58,7 @@ export class Image extends PPNode {
         this.sprite.y = this.borderDistance;
         this.addChild(this.sprite);
         // wait with the clear to avoid flashing
-        setTimeout(() => this.removeChild(prevSprite),100);
+        setTimeout(() => this.removeChild(prevSprite),20);
       }
       output[imageOutputName] = base64;
     };

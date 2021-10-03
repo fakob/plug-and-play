@@ -69,6 +69,24 @@ export class Filter extends PPNode {
   }
 }
 
+export class Map extends PPNode {
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(SOCKET_TYPE.IN, arrayName, new ArrayType(), []),
+      new Socket(SOCKET_TYPE.IN, filterCodeName, new CodeType(), '(a) => a'),
+      new Socket(SOCKET_TYPE.OUT, arrayOutName, new ArrayType()),
+    ];
+  }
+  protected async onExecute(
+    inputObject: any,
+    outputObject: Record<string, unknown>
+  ): Promise<void> {
+    const filterCode = inputObject[filterCodeName];
+    const inputArray = inputObject[arrayName];
+    outputObject[arrayOutName] = inputArray.map(eval(filterCode));
+  }
+}
+
 export class Constant extends PPNode {
   protected getDefaultIO(): Socket[] {
     return [

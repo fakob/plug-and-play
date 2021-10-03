@@ -10,7 +10,7 @@ export class ImageType extends AbstractType {
     return 'Image';
   }
 
-  // no widget for this, or maybe something that displays the image?
+  // no widget for this, or maybe something that displays the image or some cool data?
   getInputWidget = (data: any): any => {
     return <div></div>;
   };

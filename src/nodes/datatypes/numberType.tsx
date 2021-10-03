@@ -22,8 +22,6 @@ export class NumberType extends AbstractType {
     this.minValue = inMinValue;
     this.maxValue = inMaxValue;
     this.stepSize = stepSize;
-    this.inputWidgets = [SliderWidget];
-    this.outputWidgets = [DefaultOutputWidget];
   }
 
   getInputWidget = (props: any): any => {

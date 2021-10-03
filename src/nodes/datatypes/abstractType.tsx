@@ -3,13 +3,6 @@ import React from 'react';
 import { inspect } from 'util';
 import { DefaultOutputWidget, SliderWidget, TextWidget } from '../../widgets';
 export class AbstractType {
-  // TODO add functionality for switching between types n stuff, its what the below stuff here will be used for
-  // an extensive list of all widgets you allow for input only allow these when switching widget type
-  inputWidgets: any = [SliderWidget];
-  // the same, for output
-  outputWidgets: any = [DefaultOutputWidget];
-  // define possible type conversions
-  possibleConversions: AbstractType[] = [];
 
   // override any and all of these in child classes
   getName(): string {
@@ -41,4 +34,10 @@ export class AbstractType {
   isDataValidForType(data:any) : boolean{
     return true;
   }
+  
+  // TODO add more support for this in children, and make sure to call it from above
+  parse(data:any, type : AbstractType) : any{
+    return data;
+  }
+
 }
