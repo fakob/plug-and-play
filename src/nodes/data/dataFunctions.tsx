@@ -9,6 +9,9 @@ const filterCodeName = 'Filter';
 const arrayName = 'Array';
 const arrayOutName = 'FilteredArray';
 
+const mapCodeName = 'Function';
+const mapOutName = 'OutArray';
+
 const anyCodeName = 'Code';
 const inDataName = 'InData';
 const outDataName = 'OutData';
@@ -73,17 +76,17 @@ export class Map extends PPNode {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, arrayName, new ArrayType(), []),
-      new Socket(SOCKET_TYPE.IN, filterCodeName, new CodeType(), '(a) => a'),
-      new Socket(SOCKET_TYPE.OUT, arrayOutName, new ArrayType()),
+      new Socket(SOCKET_TYPE.IN, mapCodeName, new CodeType(), '(a) => a'),
+      new Socket(SOCKET_TYPE.OUT, mapOutName, new ArrayType()),
     ];
   }
   protected async onExecute(
     inputObject: any,
     outputObject: Record<string, unknown>
   ): Promise<void> {
-    const filterCode = inputObject[filterCodeName];
+    const mapCode = inputObject[mapCodeName];
     const inputArray = inputObject[arrayName];
-    outputObject[arrayOutName] = inputArray.map(eval(filterCode));
+    outputObject[mapOutName] = inputArray.map(eval(mapCode));
   }
 }
 

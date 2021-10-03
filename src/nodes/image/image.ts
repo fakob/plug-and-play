@@ -33,6 +33,10 @@ export class Image extends PPNode {
     ];
   }
 
+  protected shouldCheckForEqualBeforeNotification() : boolean{
+    return false;
+  }
+
   borderDistance = 10;
 
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
