@@ -7,6 +7,9 @@ import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../../utils/constants';
 import Socket from '../../classes/SocketClass';
 import { AnyType } from '../datatypes/anyType';
 import { StringType } from '../datatypes/stringType';
+import { ArrayType } from '../datatypes/arrayType';
+import { ImageType } from '../datatypes/imageType';
+import { CodeType } from '../datatypes/codeType';
 
 const defaultVertex = `
 precision mediump float;
@@ -96,31 +99,33 @@ export class Shader extends PPNode {
       new Socket(
         SOCKET_TYPE.IN,
         imageInputDataName,
-        new AnyType(),
+        new ArrayType(),
         this.getDefaultImageData()
       ),
       new Socket(
         SOCKET_TYPE.IN,
         imageNamesName,
-        new AnyType(),
+        new ArrayType(),
         this.getDefaultImageNames()
       ),
       new Socket(
         SOCKET_TYPE.IN,
         vertexShaderInputName,
-        new AnyType(),
+        new CodeType(),
         this.getInitialVertex()
       ),
       new Socket(
         SOCKET_TYPE.IN,
         fragmentShaderInputName,
-        new AnyType(),
+        new CodeType(),
         this.getInitialFragment()
       ),
-      new Socket(SOCKET_TYPE.OUT, imageOutputName, new StringType()),
+      new Socket(SOCKET_TYPE.OUT, imageOutputName, new ImageType()),
     ];
   }
 
+  prevWidth = defaultWidth;
+  prevHeight = defaultWidth;
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
     super(name, graph, {
       ...customArgs,
@@ -142,7 +147,8 @@ export class Shader extends PPNode {
     };
 
     this.onExecute = async function (input, output): Promise<void> {
-      this.removeChild(this.graphics);
+      const prevGraphics = this.graphics;
+      //this.removeChild(this.graphics);
 
       const currentTime = new Date().getTime();
 
@@ -190,25 +196,25 @@ export class Shader extends PPNode {
         }
       }
 
-      const actualWidth = largestX !== -1 ? largestX : defaultWidth;
-      const actualHeight = largestY !== -1 ? largestY : defaultHeight;
+      this.prevWidth = largestX !== -1 ? largestX : this.prevWidth;
+      this.prevHeight = largestY !== -1 ? largestY : this.prevHeight;
 
-      const scaleRatio = defaultWidth / actualWidth;
-      const aspRatio = actualHeight / actualWidth;
+      const scaleRatio = defaultWidth / this.prevWidth;
+      const aspRatio = this.prevHeight / this.prevWidth;
 
       const scaledBorderDistanceX = borderDistanceX / scaleRatio;
       const scaledBorderDistanceY = borderDistanceY / scaleRatio;
 
       const startX = scaledBorderDistanceX;
-      const endX = scaledBorderDistanceX + actualWidth;
+      const endX = scaledBorderDistanceX + this.prevWidth;
 
       const startY = scaledBorderDistanceY;
-      const endY = scaledBorderDistanceY + actualHeight;
+      const endY = scaledBorderDistanceY + this.prevHeight;
 
-      this.resizeNode(
-        defaultWidth + 2 * borderDistanceX,
-        defaultWidth * aspRatio + 2 * borderDistanceY
-      );
+        this.resizeNode(
+          defaultWidth + 2 * borderDistanceX,
+          defaultWidth * aspRatio + 2 * borderDistanceY
+        );
 
       const geometry = new PIXI.Geometry()
         .addAttribute(
@@ -240,11 +246,13 @@ export class Shader extends PPNode {
       this.graphics.scale.y = scaleRatio;
 
       //this.graphics.position.set(this.x, this.y);
-      this.graphics = this.addChild(this.graphics);
+      this.addChild(this.graphics);
       const base64out = this.graph.app.renderer.plugins.extract.image(
         this.graphics
       );
+      //await new Promise(resolve => setTimeout(resolve, 100));
       output[imageOutputName] = base64out;
+      this.removeChild(prevGraphics);
       return;
     };
     return;

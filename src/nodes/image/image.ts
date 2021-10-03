@@ -63,8 +63,10 @@ export class Image extends PPNode {
         this.addChild(this.sprite);
         // wait with the clear to avoid flashing
         setTimeout(() => this.removeChild(prevSprite),20);
+        // race condition here? dont know why this is needed...
+        await new Promise(resolve => setTimeout(resolve, 1));
+        output[imageOutputName] = base64;
       }
-      output[imageOutputName] = base64;
     };
     return;
   }
