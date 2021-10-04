@@ -3,6 +3,7 @@ import { ArrayType } from './arrayType';
 import { BooleanType } from './booleanType';
 import { CodeType } from './codeType';
 import { ColorType } from './colorType';
+import { EnumType } from './enumType';
 import { ImageType } from './imageType';
 import { JSONType } from './jsonType';
 import { NumberType } from './numberType';
@@ -23,4 +24,5 @@ export const allDataTypes = {
   JSONType: JSONType,
   ImageType: ImageType,
   CodeType: CodeType,
+  EnumType: EnumType,
 };
