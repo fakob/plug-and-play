@@ -766,7 +766,7 @@ export default class PPNode extends PIXI.Container {
   }
 
   // if you want to optimize the mapping, override this function instead of execute()
-  protected async rawExecute(): Promise<void> {
+  protected async rawExecute(): Promise<boolean> {
     // remap input
     const inputObject = {};
     this.inputSocketArray.forEach((input: Socket) => {
@@ -777,21 +777,31 @@ export default class PPNode extends PIXI.Container {
     await this.onExecute(inputObject, outputObject);
     this.onAfterExecute();
 
+    let foundChange = !this.shouldCheckForEqualBeforeNotification();
     // output whatever the user has put in
     this.outputSocketArray.forEach((output: Socket) => {
       if (outputObject[output.name] !== undefined) {
+        if (!foundChange) {
+          // see if anything has changed, but only need to do this if no previous has been found
+          foundChange =
+            JSON.stringify(outputObject[output.name]) !==
+            JSON.stringify(output.data);
+        }
         output.data = outputObject[output.name];
       }
     });
+    return foundChange;
   }
 
   async execute(upstreamContent: Set<string>): Promise<void> {
-    await this.rawExecute();
+    const foundChange = await this.rawExecute();
     this.drawComment();
 
-    this.outputSocketArray.forEach((outputSocket) =>
-      outputSocket.notifyChange(upstreamContent)
-    );
+    if (foundChange) {
+      this.outputSocketArray.forEach((outputSocket) =>
+        outputSocket.notifyChange(upstreamContent)
+      );
+    }
   }
 
   // dont call this from outside, only from child class
@@ -801,6 +811,11 @@ export default class PPNode extends PIXI.Container {
 
   protected onAfterExecute(): void {
     // just define function
+  }
+
+  // purely optimization, we dont want to push an update if the new result is the same, however you might not always want to run this comparison if very expensive (for example for an image)
+  protected shouldCheckForEqualBeforeNotification(): boolean {
+    return true;
   }
 
   // SETUP

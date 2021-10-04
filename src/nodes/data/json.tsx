@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import PPNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
 import { SOCKET_TYPE } from '../../utils/constants';
