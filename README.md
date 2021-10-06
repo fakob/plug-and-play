@@ -1,19 +1,20 @@
-[![Netlify Status](https://api.netlify.com/api/v1/badges/14e7ef42-5c90-44c8-a7ec-0b6e20c59735/deploy-status)](https://pixi-typescript-boilerplate.netlify.com) ![Windows build](https://github.com/jkanchelov/pixi-typescript-boilerplate/workflows/Windows%20build/badge.svg?branch=master) ![Linux build](https://github.com/jkanchelov/pixi-typescript-boilerplate/workflows/Linux%20build/badge.svg) ![MacOs build](https://github.com/jkanchelov/pixi-typescript-boilerplate/workflows/MacOs%20build/badge.svg)
+# Plug and Playground
+A visual toolkit for creative prototyping to explore, transform or visualise data.
 
-# pixi-typescript-boilerplate
+Work in progress - https://plugandplayground.dev
 
-## Beginner friendly template for pixi.js with [Webpack](https://webpack.js.org/)
+## Problems to solve
+- As a user with no/little programming knowledge I am creatively limited by prototyping or design tools.
+- As a programmer the threshold for fast and creative prototyping with code is too high.
 
----
-
-## Highlights
-
-- 🔰 - Beginner friendly.
-- 🛠 - Typescript + Babel.
-- ✈️ - Live reload.
-- 🚀 - Blazing fast bundle times
-- 📝 - Consistent code style using Prettier and Eslint
-- 📝 - Unit test support with [Jest](https://jestjs.io/), generating code coverage.
+## Goals to reach
+- Provide an extensive library of nodes to receive, transform and output data
+- Make it easy to jump between visual and real coding
+- Make it easy to use for mouse, trackpad and keyboard people
+- Make it easy to add nodes or libraries of others
+- Allow for easy sharing, forking and collaborating
+- Make the tool self explanatory and build in examples and comments
+- Make it cross platform and open source
 
 ## Commands:
 
@@ -22,5 +23,3 @@
 - `yarn test` - run tests
 - `yarn code-coverage` - generate code coverage report
 - `yarn code-style-check` - run's eslint and prettier check on your code
-
-For vscode users - ctrl ( or ⌘ ) + shift + b will run the watch build as its set as default vscode task
