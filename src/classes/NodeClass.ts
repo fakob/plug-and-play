@@ -777,7 +777,7 @@ export default class PPNode extends PIXI.Container {
     await this.onExecute(inputObject, outputObject);
     this.onAfterExecute();
 
-    let foundChange = !this.shouldCheckForEqualBeforeNotification();
+    let foundChange = !this.isPure();
     // output whatever the user has put in
     this.outputSocketArray.forEach((output: Socket) => {
       if (outputObject[output.name] !== undefined) {
@@ -813,9 +813,9 @@ export default class PPNode extends PIXI.Container {
     // just define function
   }
 
-  // purely optimization, we dont want to push an update if the new result is the same, however you might not always want to run this comparison if very expensive (for example for an image)
-  protected shouldCheckForEqualBeforeNotification(): boolean {
-    return true;
+  // return true if this node has no effects on the graph apart from what it returns, if this is indeed the case then there are a ton of optimizations and improvements that can be done, so mark all nodes that can be made pure as pure
+  protected isPure(): boolean {
+    return false;
   }
 
   // SETUP
@@ -952,5 +952,11 @@ export default class PPNode extends PIXI.Container {
     if (this.onNodeDoubleClick) {
       this.onNodeDoubleClick(event);
     }
+  }
+}
+
+export class PureNode extends PPNode {
+  protected isPure(): boolean {
+    return true;
   }
 }

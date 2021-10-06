@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import PPNode from '../../classes/NodeClass';
+import  PureNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
 import { SOCKET_TYPE } from '../../utils/constants';
 import { JSONType } from '../datatypes/jsonType';
@@ -9,7 +9,7 @@ const JSONName = 'JSON';
 const JSONParamName = 'Name 1';
 const outValueName = 'Value';
 
-export class JSONGet extends PPNode {
+export class JSONGet extends PureNode {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, JSONName, new JSONType()),
@@ -43,7 +43,7 @@ export class JSONGet extends PPNode {
   }
 }
 
-export class JSONKeys extends PPNode {
+export class JSONKeys extends PureNode {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, JSONName, new JSONType()),
@@ -58,7 +58,7 @@ export class JSONKeys extends PPNode {
   }
 }
 
-export class JSONValues extends PPNode {
+export class JSONValues extends PureNode {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, JSONName, new JSONType()),

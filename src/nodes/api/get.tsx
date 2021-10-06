@@ -1,5 +1,5 @@
 import PPGraph from '../../classes/GraphClass';
-import PPNode, { UpdateBehaviour } from '../../classes/NodeClass';
+import PureNode, { UpdateBehaviour } from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
 import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../../utils/constants';
 import { JSONType } from '../datatypes/jsonType';
@@ -8,7 +8,7 @@ import { StringType } from '../datatypes/stringType';
 const urlInputName = 'URL';
 const outputContentName = 'Content';
 
-export class Get extends PPNode {
+export class Get extends PureNode {
   // default to poll on interval X seconds
   protected getUpdateBehaviour(): UpdateBehaviour {
     return new UpdateBehaviour(false, true, 10000);
