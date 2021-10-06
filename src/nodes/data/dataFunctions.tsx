@@ -1,4 +1,4 @@
-import PPNode, { UpdateBehaviour } from '../../classes/NodeClass';
+import PureNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
 import { SOCKET_TYPE } from '../../utils/constants';
 import { AnyType } from '../datatypes/anyType';
@@ -19,7 +19,7 @@ const outDataName = 'OutData';
 const constantInName = 'In';
 const constantOutName = 'Out';
 
-export class Code extends PPNode {
+export class Code extends PureNode {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, inDataName, new AnyType(), 'bruh'),
@@ -54,7 +54,7 @@ export class Code extends PPNode {
   }
 }
 
-export class Filter extends PPNode {
+export class Filter extends PureNode {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, arrayName, new ArrayType(), []),
@@ -72,7 +72,7 @@ export class Filter extends PPNode {
   }
 }
 
-export class Map extends PPNode {
+export class Map extends PureNode {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, arrayName, new ArrayType(), []),
@@ -90,7 +90,7 @@ export class Map extends PPNode {
   }
 }
 
-export class Constant extends PPNode {
+export class Constant extends PureNode {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, constantInName, new AnyType(), 0),

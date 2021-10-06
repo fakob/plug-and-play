@@ -1,4 +1,4 @@
-import PPNode from '../../classes/NodeClass';
+import PureNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
 import { SOCKET_TYPE } from '../../utils/constants';
 import { AnyType } from '../datatypes/anyType';
@@ -9,7 +9,7 @@ const elementName = 'Element';
 const arrayName = 'Array';
 const indexName = 'Index';
 
-export class ArrayCreate extends PPNode {
+export class ArrayCreate extends PureNode {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, elementName, new AnyType()),
@@ -29,7 +29,7 @@ export class ArrayCreate extends PPNode {
   }
 }
 
-export class ArrayGet extends PPNode {
+export class ArrayGet extends PureNode {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, arrayName, new ArrayType()),
