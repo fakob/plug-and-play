@@ -47,33 +47,6 @@ export const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (
   const [round, setRound] = useState(props.type.round ?? false);
   const [stepSizeValue] = useState(props.type.stepSize ?? 0.01);
 
-  useEffect(() => {
-    const newValue = round ? Math.round(data) : data;
-    potentiallyNotify(props.property, newValue);
-    if (props.property.data != newValue) {
-      props.property.data = newValue;
-      props.property.notifyChange(new Set());
-    }
-  }, [data]);
-
-  useEffect(() => {
-    const newValue = limitRange(
-      round ? Math.round(data) : data,
-      minValue,
-      maxValue
-    );
-    setData(newValue);
-    potentiallyNotify(props.property, newValue);
-    props.type.minValue = minValue;
-    props.type.maxValue = maxValue;
-    props.type.round = round;
-    /*props.property.custom = {
-      minValue,
-      maxValue,
-      round,
-    };*/
-  }, [minValue, maxValue, round]);
-
   return (
     <>
       <ControlGroup>
@@ -129,6 +102,7 @@ export const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (
         stepSize={round ? 1 : stepSizeValue}
         labelValues={[minValue, maxValue]}
         onChange={(value) => {
+          potentiallyNotify(props.property, value);
           setData(roundNumber(value, 4));
         }}
         value={data || 0}
