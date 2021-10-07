@@ -104,12 +104,10 @@ export class PIXIText extends PPNode {
         color.length
       );
 
-      if (lengthOfLargestArray !== this._ref.length) {
-        for (let index = 0; index < this._ref.length; index++) {
-          this._ref[index].destroy();
-        }
-        this._ref.splice(0, this._ref.length); // clear array without removing reference
+      for (let index = 0; index < this._ref.length; index++) {
+        this._ref[index].destroy();
       }
+      this._ref.splice(0, this._ref.length); // clear array without removing reference
 
       for (let index = 0; index < lengthOfLargestArray; index++) {
         // if output is not connected, then draw it next to the node
