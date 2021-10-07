@@ -86,8 +86,8 @@ export class GridCoordinates extends PPNode {
       const x = input['x'];
       const y = input['y'];
       const count = input['count'];
-      const column = input['column'];
-      const distance = input['distance'];
+      const column = Math.abs(input['column']);
+      const distance = Math.abs(input['distance']);
       const xArray = [];
       const yArray = [];
       for (let indexCount = 0; indexCount < count; indexCount++) {
