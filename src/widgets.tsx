@@ -65,6 +65,7 @@ export const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (
           fill
           minorStepSize={round ? null : stepSizeValue}
           onValueChange={(value) => {
+            potentiallyNotify(props.property, value);
             setData(value);
           }}
           value={data || 0}
