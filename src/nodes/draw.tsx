@@ -50,10 +50,11 @@ export class PIXIText extends PPNode {
     });
 
     this.addOutput('graphics', new AnyType());
+    this.addInput('text', new StringType(), 'Text');
     this.addInput('x', new NumberType(), 0);
     this.addInput('y', new NumberType(), 0);
+    this.addInput('angle', new NumberType(true, -360, 360), 0);
     this.addInput('pivot', new EnumType(PIXI_PIVOT_OPTIONS), 0, false);
-    this.addInput('text', new StringType(), 'Text');
     this.addInput('size', new NumberType(true, 1), 24, undefined);
     this.addInput('color', new ColorType(), hexToTRgba(fillColor));
 
@@ -88,6 +89,7 @@ export class PIXIText extends PPNode {
     this.onExecute = async function (input) {
       const x = [].concat(input['x']);
       const y = [].concat(input['y']);
+      const angle = [].concat(input['angle']);
       const text = [].concat(input['text']);
       const size = [].concat(input['size']);
       const color = [].concat(input['color']);
@@ -96,6 +98,7 @@ export class PIXIText extends PPNode {
         0,
         x.length,
         y.length,
+        angle.length,
         text.length,
         size.length,
         color.length
@@ -110,6 +113,7 @@ export class PIXIText extends PPNode {
         // if output is not connected, then draw it next to the node
         const myX = x[index] ?? x[x.length - 1];
         const myY = y[index] ?? y[y.length - 1];
+        const myAngle = angle[index] ?? angle[angle.length - 1];
         const myText = text[index] ?? text[text.length - 1];
         const mySize = size[index] ?? size[size.length - 1];
         const myColor = trgbaToColor(color[index] ?? color[color.length - 1]);
@@ -127,11 +131,12 @@ export class PIXIText extends PPNode {
           PIXI_PIVOT_OPTIONS.find((item) => item.text === pivot)?.value ??
           PIXI_PIVOT_OPTIONS[0].value; // use first entry if not found
 
-        // set pivot point
+        // set pivot point and rotate
         (this._ref[index] as PIXI.Text).pivot.x =
           pivotPoint.x * this._ref[index].width;
         (this._ref[index] as PIXI.Text).pivot.y =
           pivotPoint.y * this._ref[index].height;
+        (this._ref[index] as PIXI.Text).angle = myAngle;
 
         if ((this as PPNode).getOutputSocketByName('graphics')?.hasLink()) {
           this._ref[index].x = myX;
@@ -173,6 +178,7 @@ export class PIXIRect extends PPNode {
     this.addOutput('graphics', new AnyType());
     this.addInput('x', new NumberType(), 0);
     this.addInput('y', new NumberType(), 0);
+    this.addInput('angle', new NumberType(true, -360, 360), 0);
     this.addInput('pivot', new EnumType(PIXI_PIVOT_OPTIONS), 0, false);
     this.addInput(
       'width',
@@ -204,6 +210,7 @@ export class PIXIRect extends PPNode {
     this.onExecute = async function (input) {
       const x = [].concat(input['x']);
       const y = [].concat(input['y']);
+      const angle = [].concat(input['angle']);
       const width = [].concat(input['width']);
       const height = [].concat(input['height']);
       const color = [].concat(input['color']);
@@ -212,6 +219,7 @@ export class PIXIRect extends PPNode {
         0,
         x.length,
         y.length,
+        angle.length,
         width.length,
         height.length,
         color.length
@@ -235,6 +243,7 @@ export class PIXIRect extends PPNode {
         // if output is not connected, then draw it next to the node
         const myX = x[index] ?? x[x.length - 1];
         const myY = y[index] ?? y[y.length - 1];
+        const myAngle = angle[index] ?? angle[angle.length - 1];
         const myWidth = width[index] ?? width[width.length - 1];
         const myHeight = height[index] ?? height[height.length - 1];
         const myColor = trgbaToColor(color[index] ?? color[color.length - 1]);
@@ -247,9 +256,10 @@ export class PIXIRect extends PPNode {
           PIXI_PIVOT_OPTIONS.find((item) => item.text === pivot)?.value ??
           PIXI_PIVOT_OPTIONS[0].value; // use first entry if not found
 
-        // set pivot point
+        // set pivot point and rotate
         (this._ref[index] as PIXI.Graphics).pivot.x = pivotPoint.x * myWidth;
         (this._ref[index] as PIXI.Graphics).pivot.y = pivotPoint.y * myHeight;
+        (this._ref[index] as PIXI.Graphics).angle = myAngle;
 
         if ((this as PPNode).getOutputSocketByName('graphics')?.hasLink()) {
           this._ref[index].drawRect(myX, myY, myWidth, myHeight);
@@ -403,6 +413,7 @@ export class PIXIContainer extends PPNode {
     this.addInput('mode', new BooleanType(), false, false);
     this.addInput('x', new NumberType());
     this.addInput('y', new NumberType());
+    this.addInput('angle', new NumberType(true, -360, 360), 0);
     this.addInput('scale', new NumberType(), 1.0);
     this.addInput('input1', new PixiType());
     this.addInput('input2', new PixiType());
@@ -427,6 +438,7 @@ export class PIXIContainer extends PPNode {
       const mode = input['mode'];
       const x = [].concat(input['x']);
       const y = [].concat(input['y']);
+      const angle = [].concat(input['angle']);
       const scale = [].concat(input['scale']);
       const input1 = [].concat(input['input1']);
       const input2 = [].concat(input['input2']);
@@ -437,6 +449,7 @@ export class PIXIContainer extends PPNode {
           0,
           x.length,
           y.length,
+          angle.length,
           scale.length,
           input1.length,
           input2.length,
@@ -461,6 +474,7 @@ export class PIXIContainer extends PPNode {
 
           const myX = x[index] ?? x[x.length - 1];
           const myY = y[index] ?? y[y.length - 1];
+          const myAngle = angle[index] ?? angle[angle.length - 1];
           const myInput1 = input1[index] ?? input1[input1.length - 1];
           const myInput2 = input2[index] ?? input2[input2.length - 1];
           const myInput3 = input3[index] ?? input3[input3.length - 1];
@@ -483,6 +497,7 @@ export class PIXIContainer extends PPNode {
             this._containerRef[index].x = this.x + this.width + myX;
             this._containerRef[index].y = this.y + myY;
           }
+          this._containerRef[index].angle = myAngle;
           this._containerRef[index].scale.set(scale);
         }
       } else {
@@ -510,6 +525,7 @@ export class PIXIContainer extends PPNode {
           this._containerRef[0].x = this.x + this.width + x[0];
           this._containerRef[0].y = this.y + y[0];
         }
+        this._containerRef[0].angle = angle;
         this._containerRef[0].scale.set(scale);
       }
     };
@@ -519,6 +535,10 @@ export class PIXIContainer extends PPNode {
         this.canvas.removeChild(this._containerRef[index]);
       }
     };
+  }
+
+  shouldExecuteOnMove(): boolean {
+    return true;
   }
 }
 
@@ -962,7 +982,12 @@ export class Table extends PPNode {
         }
         return regionData;
       });
-      this.setOutputData('selectedData', selectedData);
+      if (selectedRegions.length === 1) {
+        this.setOutputData('selectedData', selectedData[0]);
+      } else {
+        this.setOutputData('selectedData', selectedData);
+      }
+      this.execute(new Set());
     };
 
     // small presentational component
