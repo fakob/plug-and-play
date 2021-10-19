@@ -104,6 +104,9 @@ const App = (): JSX.Element => {
   const [actionObject, setActionObject] = useState(null); // id and name of graph to edit/delete
   const [showComments, setShowComments] = useState(false);
   const [selectedNode, setSelectedNode] = useState<PPNode | null>(null);
+  const [selectedNodePos, setSelectedNodePos] = useState<PIXI.Point | null>(
+    null
+  );
   const [remoteGraphs, setRemoteGraphs, remoteGraphsRef] = useStateRef([]);
   const [graphSearchItems, setGraphSearchItems] = useState<
     IGraphSearch[] | null
@@ -297,6 +300,15 @@ const App = (): JSX.Element => {
       background.width = innerWidth / viewport.current.scale.x;
       background.height = innerHeight / viewport.current.scale.y;
     });
+
+    viewport.current.on('move', () => {
+      // reposition node menu
+      if (selectedNode) {
+        console.log(selectedNode.screenPoint());
+        setSelectedNodePos(selectedNode.screenPoint());
+      }
+    });
+
     background.alpha = CANVAS_BACKGROUND_ALPHA;
 
     // add graph to pixiApp
@@ -339,8 +351,11 @@ const App = (): JSX.Element => {
     ) => {
       if (selectedNodes.length === 0) {
         setSelectedNode(null);
+        setSelectedNodePos(null);
       } else {
-        setSelectedNode(selectedNodes[selectedNodes.length - 1]);
+        const selectedNode = selectedNodes[selectedNodes.length - 1];
+        setSelectedNode(selectedNode);
+        setSelectedNodePos(selectedNode.screenPoint());
       }
     };
 
@@ -1102,6 +1117,20 @@ NOTE: opening a remote playground creates a local copy`
               isCustomNode={currentGraph.current.isCustomNode(selectedNode)}
               onSave={createOrUpdateNodeFromCode}
             />
+          )}
+          {selectedNode && selectedNodePos && (
+            <ButtonGroup
+              style={{
+                minWidth: 200,
+                position: 'absolute',
+                left: selectedNodePos?.x + selectedNode.width / 2,
+                top: Math.max(0, selectedNodePos?.y - 32),
+                transform: 'translate(-50%, -50%)',
+              }}
+            >
+              <Button icon="database">'Queries'</Button>
+              <Button icon="function">'Functions'</Button>
+            </ButtonGroup>
           )}
           <img
             className={styles.plugAndPlaygroundIcon}
