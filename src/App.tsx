@@ -13,6 +13,7 @@ import {
   Alert,
   Button,
   ButtonGroup,
+  Checkbox,
   Classes,
   Dialog,
   FormGroup,
@@ -26,6 +27,7 @@ import Color from 'color';
 import { hri } from 'human-readable-ids';
 import TimeAgo from 'javascript-time-ago';
 import en from 'javascript-time-ago/locale/en';
+import FloatingNodeMenu from './components/FloatingNodeMenu';
 import InspectorContainer from './InspectorContainer';
 import PixiContainer from './PixiContainer';
 import { GraphContextMenu, NodeContextMenu } from './components/ContextMenus';
@@ -1119,18 +1121,11 @@ NOTE: opening a remote playground creates a local copy`
             />
           )}
           {selectedNode && selectedNodePos && (
-            <ButtonGroup
-              style={{
-                minWidth: 200,
-                position: 'absolute',
-                left: selectedNodePos?.x + selectedNode.width / 2,
-                top: Math.max(0, selectedNodePos?.y - 32),
-                transform: 'translate(-50%, -50%)',
-              }}
-            >
-              <Button icon="database">'Queries'</Button>
-              <Button icon="function">'Functions'</Button>
-            </ButtonGroup>
+            <FloatingNodeMenu
+              x={selectedNodePos?.x + selectedNode.width / 2}
+              y={Math.max(0, selectedNodePos?.y - 32)}
+              selectedNode={selectedNode}
+            />
           )}
           <img
             className={styles.plugAndPlaygroundIcon}
