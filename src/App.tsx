@@ -106,9 +106,8 @@ const App = (): JSX.Element => {
   const [actionObject, setActionObject] = useState(null); // id and name of graph to edit/delete
   const [showComments, setShowComments] = useState(false);
   const [selectedNode, setSelectedNode] = useState<PPNode | null>(null);
-  const [selectedNodePos, setSelectedNodePos] = useState<PIXI.Point | null>(
-    null
-  );
+  const [selectedNodes, setSelectedNodes] = useState<PPNode[] | null>(null);
+  const [selectionPos, setSelectionPos] = useState<PIXI.Point | null>(null);
   const [remoteGraphs, setRemoteGraphs, remoteGraphsRef] = useStateRef([]);
   const [graphSearchItems, setGraphSearchItems] = useState<
     IGraphSearch[] | null
@@ -301,13 +300,10 @@ const App = (): JSX.Element => {
 
       background.width = innerWidth / viewport.current.scale.x;
       background.height = innerHeight / viewport.current.scale.y;
-    });
 
-    viewport.current.on('move', () => {
       // reposition node menu
-      if (selectedNode) {
-        console.log(selectedNode.screenPoint());
-        setSelectedNodePos(selectedNode.screenPoint());
+      if (currentGraph.current.selection.selectedNodes.length > 0) {
+        setSelectionPos(currentGraph.current.selection.screenPoint());
       }
     });
 
@@ -353,11 +349,13 @@ const App = (): JSX.Element => {
     ) => {
       if (selectedNodes.length === 0) {
         setSelectedNode(null);
-        setSelectedNodePos(null);
+        setSelectedNodes(null);
+        setSelectionPos(null);
       } else {
         const selectedNode = selectedNodes[selectedNodes.length - 1];
         setSelectedNode(selectedNode);
-        setSelectedNodePos(selectedNode.screenPoint());
+        setSelectedNodes(selectedNodes);
+        setSelectionPos(currentGraph.current.selection.screenPoint());
       }
     };
 
@@ -1120,10 +1118,13 @@ NOTE: opening a remote playground creates a local copy`
               onSave={createOrUpdateNodeFromCode}
             />
           )}
-          {selectedNode && selectedNodePos && (
+          {selectedNode && selectionPos && (
             <FloatingNodeMenu
-              x={selectedNodePos?.x + selectedNode.width / 2}
-              y={Math.max(0, selectedNodePos?.y - 32)}
+              x={
+                selectionPos.x +
+                currentGraph.current.selection.selectionGraphics.width / 2
+              }
+              y={Math.max(0, selectionPos.y - 32)}
               selectedNode={selectedNode}
             />
           )}

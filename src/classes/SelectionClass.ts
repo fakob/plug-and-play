@@ -3,6 +3,7 @@ import { Viewport } from 'pixi-viewport';
 
 import PPNode from './NodeClass';
 import {
+  NODE_MARGIN,
   SCALEHANDLE_SIZE,
   SELECTION_COLOR_HEX,
   WHITE_HEX,
@@ -17,7 +18,7 @@ export default class PPSelection extends PIXI.Container {
   _selectedNodes: PPNode[];
 
   protected selectionIntendGraphics: PIXI.Graphics;
-  protected selectionGraphics: PIXI.Graphics;
+  selectionGraphics: PIXI.Graphics;
   protected singleSelectionsGraphics: PIXI.Graphics;
   protected scaleHandle: ScaleHandle;
 
@@ -348,6 +349,13 @@ export default class PPSelection extends PIXI.Container {
 
   isNodeSelected(node: PPNode): boolean {
     return this.selectedNodes.includes(node);
+  }
+
+  screenPoint(): PIXI.Point {
+    return new PIXI.Point(
+      this.selectionGraphics.getBounds().x + NODE_MARGIN,
+      this.selectionGraphics.getBounds().y
+    );
   }
 
   selectNode(node: PPNode, addToOrToggleSelection = false): void {
