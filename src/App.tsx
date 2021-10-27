@@ -350,13 +350,18 @@ const App = (): JSX.Element => {
       if (selectedNodes.length === 0) {
         setSelectedNode(null);
         setSelectedNodes(null);
-        setSelectionPos(null);
       } else {
         const selectedNode = selectedNodes[selectedNodes.length - 1];
         setSelectedNode(selectedNode);
         setSelectedNodes(selectedNodes);
-        setSelectionPos(currentGraph.current.selection.screenPoint());
       }
+    };
+
+    // register callbacks
+    currentGraph.current.selection.onSelectionRedrawn = (
+      screenPoint: PIXI.Point
+    ) => {
+      setSelectionPos(screenPoint);
     };
 
     currentGraph.current.onOpenNodeSearch = (pos: PIXI.Point) => {
