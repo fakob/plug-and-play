@@ -629,7 +629,6 @@ export class Label extends PPNode {
 
         // set focus
         this.currentInput.focus();
-        console.log(this.currentInput);
       }, 100);
 
       // add event handlers

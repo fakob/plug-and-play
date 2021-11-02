@@ -13,25 +13,68 @@ import {
 } from '@blueprintjs/core';
 import { Select } from '@blueprintjs/select';
 import { Popover2 } from '@blueprintjs/popover2';
-import React, { useState } from 'react';
-import NodeClass from '../classes/NodeClass';
+import React, { useEffect, useState } from 'react';
+import PPNode from '../classes/NodeClass';
 import { ColorWidget } from '../widgets';
 import styles from './../utils/style.module.css';
 
 const FloatingNodeMenu = (props) => {
-  const selectedNode: NodeClass = props.selectedNode;
-  if (!selectedNode) {
+  const selectedNodes: PPNode[] = props.selectedNodes;
+  if (
+    selectedNodes === null ||
+    selectedNodes.length === 0 ||
+    selectedNodes[0] === undefined
+  ) {
     return <div />;
   }
 
+  // returns null for a specific property,
+  // if its value is not the same throughout the array
+  // else it returns the value
+  const getUpdateBehaviourStateForArray = () => {
+    const areAllIntervalsTheSame = selectedNodes.every(
+      (selectedNode) =>
+        selectedNode.updateBehaviour.interval ===
+        selectedNodes[0].updateBehaviour.interval
+    );
+    const areAllFrequenciesTheSame = selectedNodes.every(
+      (selectedNode) =>
+        selectedNode.updateBehaviour.intervalFrequency ===
+        selectedNodes[0].updateBehaviour.intervalFrequency
+    );
+    const areAllUpdatesTheSame = selectedNodes.every(
+      (selectedNode) =>
+        selectedNode.updateBehaviour.update ===
+        selectedNodes[0].updateBehaviour.update
+    );
+    const updateBehaviourObject = {
+      interval: areAllIntervalsTheSame
+        ? selectedNodes[0].updateBehaviour.interval
+        : null,
+      intervalFrequency: areAllFrequenciesTheSame
+        ? selectedNodes[0].updateBehaviour.intervalFrequency
+        : null,
+      update: areAllUpdatesTheSame
+        ? selectedNodes[0].updateBehaviour.update
+        : null,
+    };
+    return updateBehaviourObject;
+  };
+
   const [updateBehaviour, setUpdatebehaviour] = useState(
-    selectedNode.updateBehaviour
+    getUpdateBehaviourStateForArray()
   );
+
+  useEffect(() => {
+    setUpdatebehaviour(getUpdateBehaviourStateForArray());
+  }, [selectedNodes.length]);
 
   const onCheckboxChange = (event) => {
     const checked = (event.target as HTMLInputElement).checked;
     const name = (event.target as HTMLInputElement).name;
-    selectedNode.updateBehaviour[event.target.name] = checked;
+    selectedNodes.forEach((selectedNode) => {
+      selectedNode.updateBehaviour[event.target.name] = checked;
+    });
     setUpdatebehaviour((prevState) => ({
       ...prevState,
       [name]: checked,
@@ -40,39 +83,41 @@ const FloatingNodeMenu = (props) => {
 
   const onFrequencyChange = (event) => {
     const value = (event.target as HTMLInputElement).value;
-    selectedNode.updateBehaviour.intervalFrequency = parseInt(value);
+    selectedNodes.forEach((selectedNode) => {
+      selectedNode.updateBehaviour.intervalFrequency = parseInt(value);
+    });
     setUpdatebehaviour((prevState) => ({
       ...prevState,
       intervalFrequency: parseInt(value),
     }));
   };
 
+  const onUpdateNow = (event) => {
+    selectedNodes.forEach((selectedNode) => {
+      selectedNode.execute(new Set());
+    });
+  };
+
   return (
     <ControlGroup
-      className={styles.noSelect}
+      className={`${styles.floatingNodeMenu} ${styles.noSelect}`}
       vertical={false}
       style={{
-        position: 'absolute',
         left: props.x,
         top: props.y,
-        transform: 'translate(-50%, -50%)',
       }}
     >
-      <EditableText
-        className={styles.editablePropertyName2}
-        selectAllOnFocus
-        value={selectedNode.name}
-        onChange={(name) => {
-          // setName(name);
-        }}
-      />
+      <span className={`${styles.floatingNodeMenuName} ${styles.noSelect}`}>
+        {selectedNodes.length === 1
+          ? selectedNodes[0].name
+          : `${selectedNodes.length} nodes`}
+      </span>
       <Button
         className={styles.noSelect}
-        onClick={() => {
-          selectedNode.execute(new Set());
-        }}
+        onClick={onUpdateNow}
         title="Update now"
-        icon="refresh"
+        icon="repeat"
+        minimal
       />
       <Popover2
         position={Position.BOTTOM}
@@ -83,7 +128,8 @@ const FloatingNodeMenu = (props) => {
               text={
                 <Checkbox
                   className={`${styles.noSelect} ${Classes.POPOVER_DISMISS_OVERRIDE}`}
-                  checked={selectedNode.updateBehaviour.update}
+                  checked={updateBehaviour.update}
+                  indeterminate={updateBehaviour.update === null}
                   name="update"
                   label="Update on change"
                   onChange={onCheckboxChange}
@@ -96,6 +142,7 @@ const FloatingNodeMenu = (props) => {
                   <Checkbox
                     className={`${styles.noSelect} ${Classes.POPOVER_DISMISS_OVERRIDE}`}
                     checked={updateBehaviour.interval}
+                    indeterminate={updateBehaviour.interval === null}
                     name="interval"
                     label="Update on interval (in ms)"
                     onChange={onCheckboxChange}
@@ -103,7 +150,11 @@ const FloatingNodeMenu = (props) => {
                   <InputGroup
                     className={`${Classes.POPOVER_DISMISS_OVERRIDE}`}
                     disabled={!updateBehaviour.interval}
-                    value={updateBehaviour.intervalFrequency.toString()}
+                    value={
+                      updateBehaviour.intervalFrequency === null
+                        ? 'null'
+                        : updateBehaviour.intervalFrequency.toString()
+                    }
                     type="number"
                     onChange={onFrequencyChange}
                   />
@@ -113,7 +164,7 @@ const FloatingNodeMenu = (props) => {
           </Menu>
         }
       >
-        <Button rightIcon="caret-down" />
+        <Button className={styles.noSelect} rightIcon="caret-down" minimal />
       </Popover2>
     </ControlGroup>
   );

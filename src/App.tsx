@@ -1123,14 +1123,14 @@ NOTE: opening a remote playground creates a local copy`
               onSave={createOrUpdateNodeFromCode}
             />
           )}
-          {selectedNode && selectionPos && (
+          {selectedNodes && selectionPos && (
             <FloatingNodeMenu
               x={
                 selectionPos.x +
                 currentGraph.current.selection.selectionGraphics.width / 2
               }
               y={Math.max(0, selectionPos.y - 32)}
-              selectedNode={selectedNode}
+              selectedNodes={selectedNodes}
             />
           )}
           <img
