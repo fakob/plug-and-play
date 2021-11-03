@@ -118,6 +118,7 @@ const FloatingNodeMenu = (props) => {
         title="Update now"
         icon="repeat"
         minimal
+        large
       />
       <Popover2
         position={Position.BOTTOM}
@@ -164,7 +165,12 @@ const FloatingNodeMenu = (props) => {
           </Menu>
         }
       >
-        <Button className={styles.noSelect} rightIcon="caret-down" minimal />
+        <Button
+          className={styles.noSelect}
+          rightIcon="caret-down"
+          minimal
+          large
+        />
       </Popover2>
     </ControlGroup>
   );

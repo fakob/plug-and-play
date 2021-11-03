@@ -1129,7 +1129,7 @@ NOTE: opening a remote playground creates a local copy`
                 selectionPos.x +
                 currentGraph.current.selection.selectionGraphics.width / 2
               }
-              y={Math.max(0, selectionPos.y - 32)}
+              y={Math.max(0, selectionPos.y - 40)}
               selectedNodes={selectedNodes}
             />
           )}

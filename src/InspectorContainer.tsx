@@ -8,7 +8,6 @@ import { getCircularReplacer } from './utils/utils';
 import PPNode from './classes/NodeClass';
 import { PropertyArrayContainer } from './PropertyArrayContainer';
 import PPGraph from './classes/GraphClass';
-import UpdateTypeSelection from './components/UpdateTypeSelection';
 
 type MyProps = {
   currentGraph: PPGraph;
@@ -81,7 +80,6 @@ const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
           {props.selectedNode?.name}
         </Button>
       </Popover2>
-      <UpdateTypeSelection selectedNode={props.selectedNode} />
       <PropertyArrayContainer
         inputSocketArray={props.selectedNode?.inputSocketArray}
         outputSocketArray={props.selectedNode?.outputSocketArray}
