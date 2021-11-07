@@ -244,15 +244,15 @@ export default class Socket extends PIXI.Container {
     };
   }
 
-  notifyChange(upstreamContent: Set<string>): void {
+  async notifyChange(upstreamContent: Set<string>): Promise<void> {
     switch (this.socketType) {
       case SOCKET_TYPE.IN: {
-        this.getNode().notifyChange(upstreamContent);
+        await this.getNode().notifyChange(upstreamContent);
         break;
       }
       case SOCKET_TYPE.OUT: {
-        this.links.forEach((link) => {
-          link.notifyChange(upstreamContent);
+        this.links.forEach(async (link) => {
+          await link.notifyChange(upstreamContent);
         });
         break;
       }

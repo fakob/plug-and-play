@@ -406,11 +406,11 @@ export default class PPNode extends PIXI.Container {
     this.execute(new Set());
   }
 
-  notifyChange(upstreamContent: Set<string>): void {
+  async notifyChange(upstreamContent: Set<string>): Promise<void> {
     if (upstreamContent.has(this.id)) {
     } else if (this.updateBehaviour.update) {
       upstreamContent.add(this.id);
-      this.execute(upstreamContent);
+      await this.execute(upstreamContent);
     }
   }
 
@@ -765,13 +765,18 @@ export default class PPNode extends PIXI.Container {
     return this.execute(new Set());
   }
 
+  remapInput(sockets: Socket[]): any {
+    const inputObject = {};
+    sockets.forEach((input: Socket) => {
+      inputObject[input.name] = input.data;
+    });
+    return inputObject;
+  }
+
   // if you want to optimize the mapping, override this function instead of execute()
   protected async rawExecute(): Promise<boolean> {
     // remap input
-    const inputObject = {};
-    this.inputSocketArray.forEach((input: Socket) => {
-      inputObject[input.name] = input.data;
-    });
+    const inputObject = this.remapInput(this.inputSocketArray);
     const outputObject = {};
 
     await this.onExecute(inputObject, outputObject);
@@ -793,14 +798,14 @@ export default class PPNode extends PIXI.Container {
     return foundChange;
   }
 
-  async execute(upstreamContent: Set<string>): Promise<void> {
+  public async execute(upstreamContent: Set<string>): Promise<void> {
     const foundChange = await this.rawExecute();
     this.drawComment();
 
     if (foundChange) {
-      this.outputSocketArray.forEach((outputSocket) =>
-        outputSocket.notifyChange(upstreamContent)
-      );
+      for (const outputSocket of this.outputSocketArray) {
+        await outputSocket.notifyChange(upstreamContent);
+      }
     }
   }
 
