@@ -20,11 +20,7 @@ import styles from './../utils/style.module.css';
 
 const FloatingNodeMenu = (props) => {
   const selectedNodes: PPNode[] = props.selectedNodes;
-  if (
-    selectedNodes === null ||
-    selectedNodes.length === 0 ||
-    selectedNodes[0] === undefined
-  ) {
+  if (selectedNodes === null || selectedNodes.length === 0) {
     return <div />;
   }
 
