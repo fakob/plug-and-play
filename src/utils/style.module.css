@@ -119,6 +119,14 @@
   min-width: 220px;
 }
 
+.editablePropertyName2 {
+  line-height: 2em;
+  padding: 0 16px;
+  /* min-width: 220px; */
+  background: rgba(41, 55, 66, 1);
+  color: #bfccd6;
+}
+
 .minMaxInput input {
   width: 64px !important;
 }
@@ -197,4 +205,23 @@
 .nodeSearch {
   position: absolute;
   filter: drop-shadow(0px 0px 24px rgba(0, 0, 0, 0.15));
+}
+
+.noSelect:focus,
+.noSelect > input:focus,
+.noSelect > span:focus {
+  outline: none !important;
+}
+
+.floatingNodeMenu {
+  position: absolute;
+  transform: translate(-50%, -50%) !important;
+  background: rgb(245, 248, 250);
+  filter: drop-shadow(0px 0px 16px rgba(94, 69, 69, 0.32));
+  z-index: 100;
+}
+
+.floatingNodeMenuName {
+  margin: auto;
+  padding: 0 16px;
 }

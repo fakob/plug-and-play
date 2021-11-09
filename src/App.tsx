@@ -13,6 +13,7 @@ import {
   Alert,
   Button,
   ButtonGroup,
+  Checkbox,
   Classes,
   Dialog,
   FormGroup,
@@ -26,6 +27,7 @@ import Color from 'color';
 import { hri } from 'human-readable-ids';
 import TimeAgo from 'javascript-time-ago';
 import en from 'javascript-time-ago/locale/en';
+import FloatingNodeMenu from './components/FloatingNodeMenu';
 import InspectorContainer from './InspectorContainer';
 import PixiContainer from './PixiContainer';
 import { GraphContextMenu, NodeContextMenu } from './components/ContextMenus';
@@ -104,6 +106,8 @@ const App = (): JSX.Element => {
   const [actionObject, setActionObject] = useState(null); // id and name of graph to edit/delete
   const [showComments, setShowComments] = useState(false);
   const [selectedNode, setSelectedNode] = useState<PPNode | null>(null);
+  const [selectedNodes, setSelectedNodes] = useState<PPNode[] | null>(null);
+  const [selectionPos, setSelectionPos] = useState<PIXI.Point | null>(null);
   const [remoteGraphs, setRemoteGraphs, remoteGraphsRef] = useStateRef([]);
   const [graphSearchItems, setGraphSearchItems] = useState<
     IGraphSearch[] | null
@@ -296,7 +300,13 @@ const App = (): JSX.Element => {
 
       background.width = innerWidth / viewport.current.scale.x;
       background.height = innerHeight / viewport.current.scale.y;
+
+      // reposition node menu
+      if (currentGraph.current.selection.selectedNodes.length > 0) {
+        setSelectionPos(currentGraph.current.selection.screenPoint());
+      }
     });
+
     background.alpha = CANVAS_BACKGROUND_ALPHA;
 
     // add graph to pixiApp
@@ -339,9 +349,19 @@ const App = (): JSX.Element => {
     ) => {
       if (selectedNodes.length === 0) {
         setSelectedNode(null);
+        setSelectedNodes(null);
       } else {
-        setSelectedNode(selectedNodes[selectedNodes.length - 1]);
+        const selectedNode = selectedNodes[selectedNodes.length - 1];
+        setSelectedNode(selectedNode);
+        setSelectedNodes(selectedNodes);
       }
+    };
+
+    // register callbacks
+    currentGraph.current.selection.onSelectionRedrawn = (
+      screenPoint: PIXI.Point
+    ) => {
+      setSelectionPos(screenPoint);
     };
 
     currentGraph.current.onOpenNodeSearch = (pos: PIXI.Point) => {
@@ -1101,6 +1121,16 @@ NOTE: opening a remote playground creates a local copy`
               selectedNode={selectedNode}
               isCustomNode={currentGraph.current.isCustomNode(selectedNode)}
               onSave={createOrUpdateNodeFromCode}
+            />
+          )}
+          {selectedNodes && selectionPos && (
+            <FloatingNodeMenu
+              x={
+                selectionPos.x +
+                currentGraph.current.selection.selectionGraphics.width / 2
+              }
+              y={Math.max(0, selectionPos.y - 40)}
+              selectedNodes={selectedNodes}
             />
           )}
           <img

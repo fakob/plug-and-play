@@ -3,6 +3,7 @@ import { Viewport } from 'pixi-viewport';
 
 import PPNode from './NodeClass';
 import {
+  NODE_MARGIN,
   SCALEHANDLE_SIZE,
   SELECTION_COLOR_HEX,
   WHITE_HEX,
@@ -17,7 +18,7 @@ export default class PPSelection extends PIXI.Container {
   _selectedNodes: PPNode[];
 
   protected selectionIntendGraphics: PIXI.Graphics;
-  protected selectionGraphics: PIXI.Graphics;
+  selectionGraphics: PIXI.Graphics;
   protected singleSelectionsGraphics: PIXI.Graphics;
   protected scaleHandle: ScaleHandle;
 
@@ -28,6 +29,7 @@ export default class PPSelection extends PIXI.Container {
 
   protected onMoveHandler: (event?: PIXI.InteractionEvent) => void;
   onSelectionChange: ((selectedNodes: PPNode[]) => void) | null; // called when the selection has changed
+  onSelectionRedrawn: ((screenPoint: PIXI.Point) => void) | null; // called when the selection is redrawn becaused its boundaries changed, were moved
 
   onRightClick:
     | ((event: PIXI.InteractionEvent, target: PIXI.DisplayObject) => void)
@@ -78,6 +80,7 @@ export default class PPSelection extends PIXI.Container {
 
     // define callbacks
     this.onSelectionChange = null; //called if the selection changes
+    this.onSelectionRedrawn = null; //called if the selection is moved
   }
 
   get selectedNodes(): PPNode[] {
@@ -344,10 +347,21 @@ export default class PPSelection extends PIXI.Container {
       selectionBounds.x + selectionBounds.width - SCALEHANDLE_SIZE / 2;
     this.scaleHandle.y =
       selectionBounds.y + selectionBounds.height - SCALEHANDLE_SIZE / 2;
+
+    if (this.onSelectionRedrawn) {
+      this.onSelectionRedrawn(this.screenPoint());
+    }
   }
 
   isNodeSelected(node: PPNode): boolean {
     return this.selectedNodes.includes(node);
+  }
+
+  screenPoint(): PIXI.Point {
+    return new PIXI.Point(
+      this.selectionGraphics.getBounds().x + NODE_MARGIN,
+      this.selectionGraphics.getBounds().y
+    );
   }
 
   selectNode(node: PPNode, addToOrToggleSelection = false): void {
