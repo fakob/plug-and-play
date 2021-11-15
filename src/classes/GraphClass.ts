@@ -892,10 +892,11 @@ export default class PPGraph {
   }
 
   deleteSelectedNodes(): void {
-    // loop through selected nodes
-    this.selection.selectedNodes.forEach((node) => {
+    const storedSelection = this.selection.selectedNodes;
+    this.selection.deselectAllNodesAndResetSelection();
+    // loop through storedSelection
+    storedSelection.forEach((node) => {
       this.removeNode(node);
     });
-    this.selection.deselectAllNodesAndResetSelection();
   }
 }
