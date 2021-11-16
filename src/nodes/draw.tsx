@@ -26,6 +26,7 @@ import {
 import { hexToTRgba, trgbaToColor } from '../pixi/utils-pixi';
 import textFit from '../pixi/textFit';
 import { AnyType } from './datatypes/anyType';
+import { CodeType } from './datatypes/codeType';
 import { NumberType } from './datatypes/numberType';
 import { EnumType } from './datatypes/enumType';
 import { ColorType } from './datatypes/colorType';
@@ -163,12 +164,16 @@ export class PIXIText extends PPNode {
 export class PIXIRect extends PPNode {
   _ref: PIXI.Graphics[];
   canvas: PIXI.Container;
+  onClickHandler: (event?: PIXI.InteractionEvent) => void;
 
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
     const nodeColor = NODE_TYPE_COLOR.DRAW;
     const rectWidth = 100;
     const rectHeight = 100;
     const fillColor = COLOR[5];
+    const customOnClickFunction =
+      // '(e) => console.log("Triggered node:", this, this.name, this.index, e);';
+      '(e) => console.log("Triggered node:", e.currentTarget.index);';
 
     super(name, graph, {
       ...customArgs,
@@ -176,6 +181,7 @@ export class PIXIRect extends PPNode {
     });
 
     this.addOutput('graphics', new AnyType());
+    // this.addOutput('clickedTargetIndex', new NumberType());
     this.addInput('x', new NumberType(), 0);
     this.addInput('y', new NumberType(), 0);
     this.addInput('angle', new NumberType(true, -360, 360), 0);
@@ -193,6 +199,8 @@ export class PIXIRect extends PPNode {
       false
     );
     this.addInput('color', new ColorType(), hexToTRgba(fillColor));
+    // this.addInput('onClick', new CodeType(), '(e) => console.log(e)');
+    this.addInput('onClick', new CodeType(), customOnClickFunction);
 
     this.name = 'Draw rectangle';
     this.description = 'Draws a rectangle';
@@ -204,6 +212,10 @@ export class PIXIRect extends PPNode {
 
       const graphics = new PIXI.Graphics();
       this._ref = [this.canvas.addChild(graphics)];
+      this.onClickHandler = eval(customOnClickFunction);
+      console.log(this.onClickHandler);
+      this._ref[0].on('pointerdown', this.onClickHandler);
+
       this.setOutputData('graphics', this._ref);
     };
 
@@ -214,6 +226,7 @@ export class PIXIRect extends PPNode {
       const width = [].concat(input['width']);
       const height = [].concat(input['height']);
       const color = [].concat(input['color']);
+      const onClick = input['onClick'];
       const pivot = input['pivot'];
       const lengthOfLargestArray = Math.max(
         0,
@@ -235,6 +248,14 @@ export class PIXIRect extends PPNode {
         if (!this._ref[index]) {
           const graphics = new PIXI.Graphics();
           this._ref[index] = this.canvas.addChild(graphics);
+          // this.onClickHandler = eval(onClick).bind(this._ref[index]);
+          this.onClickHandler = eval(onClick);
+          console.log(this.onClickHandler);
+          // this.onClickHandler = this.onClick.bind(this._ref[index]);
+          (this._ref[index] as PIXI.Graphics).on(
+            'pointerdown',
+            this.onClickHandler
+          );
         } else {
           this._ref[index].clear();
         }
@@ -257,9 +278,12 @@ export class PIXIRect extends PPNode {
           PIXI_PIVOT_OPTIONS[0].value; // use first entry if not found
 
         // set pivot point and rotate
+        (this._ref[index] as any).index = index;
         (this._ref[index] as PIXI.Graphics).pivot.x = pivotPoint.x * myWidth;
         (this._ref[index] as PIXI.Graphics).pivot.y = pivotPoint.y * myHeight;
         (this._ref[index] as PIXI.Graphics).angle = myAngle;
+        (this._ref[index] as PIXI.Graphics).buttonMode = true;
+        (this._ref[index] as PIXI.Graphics).interactive = true;
 
         if ((this as PPNode).getOutputSocketByName('graphics')?.hasLink()) {
           this._ref[index].drawRect(myX, myY, myWidth, myHeight);
