@@ -164,6 +164,7 @@ export class PIXIText extends PPNode {
 export class PIXIRect extends PPNode {
   _ref: PIXI.Graphics[];
   canvas: PIXI.Container;
+  executeOnClick: (index: number) => void;
   onClickHandler: (event?: PIXI.InteractionEvent) => void;
 
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
@@ -171,9 +172,11 @@ export class PIXIRect extends PPNode {
     const rectWidth = 100;
     const rectHeight = 100;
     const fillColor = COLOR[5];
-    const customOnClickFunction =
-      // '(e) => console.log("Triggered node:", this, this.name, this.index, e);';
-      '(e) => console.log("Triggered node:", e.currentTarget.index);';
+    const customOnClickFunction = `(e) => {
+  console.log("Clicked node:", this);
+  console.log("Clicked index:", e.currentTarget.index);
+  this.executeOnClick(e.currentTarget.index);
+}`;
 
     super(name, graph, {
       ...customArgs,
@@ -181,7 +184,7 @@ export class PIXIRect extends PPNode {
     });
 
     this.addOutput('graphics', new AnyType());
-    // this.addOutput('clickedTargetIndex', new NumberType());
+    this.addOutput('clickedTargetIndex', new NumberType());
     this.addInput('x', new NumberType(), 0);
     this.addInput('y', new NumberType(), 0);
     this.addInput('angle', new NumberType(true, -360, 360), 0);
@@ -199,8 +202,7 @@ export class PIXIRect extends PPNode {
       false
     );
     this.addInput('color', new ColorType(), hexToTRgba(fillColor));
-    // this.addInput('onClick', new CodeType(), '(e) => console.log(e)');
-    this.addInput('onClick', new CodeType(), customOnClickFunction);
+    this.addInput('onClick', new CodeType(), customOnClickFunction, false);
 
     this.name = 'Draw rectangle';
     this.description = 'Draws a rectangle';
@@ -297,6 +299,11 @@ export class PIXIRect extends PPNode {
         }
         this._ref[index].endFill();
       }
+    };
+
+    this.executeOnClick = (index: number): void => {
+      this.setOutputData('clickedTargetIndex', index);
+      this.execute(new Set());
     };
 
     this.onNodeRemoved = (): void => {
