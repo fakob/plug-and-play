@@ -302,6 +302,7 @@ export class PIXIRect extends PPNode {
     };
 
     this.executeOnClick = (index: number): void => {
+      this._ref[index].alpha = this._ref[index].alpha === 0.3 ? 1 : 0.3;
       this.setOutputData('clickedTargetIndex', index);
       this.execute(new Set());
     };
