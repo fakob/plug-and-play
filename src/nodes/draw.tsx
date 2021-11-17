@@ -185,6 +185,7 @@ export class PIXIRect extends PPNode {
 
     this.addOutput('graphics', new AnyType());
     this.addOutput('clickedTargetIndex', new NumberType());
+    this.addOutput('clickedTargetArray', new ArrayType());
     this.addInput('x', new NumberType(), 0);
     this.addInput('y', new NumberType(), 0);
     this.addInput('angle', new NumberType(true, -360, 360), 0);
@@ -304,6 +305,10 @@ export class PIXIRect extends PPNode {
     this.executeOnClick = (index: number): void => {
       this._ref[index].alpha = this._ref[index].alpha === 0.3 ? 1 : 0.3;
       this.setOutputData('clickedTargetIndex', index);
+      const clickedTargetArray = this._ref.map((item) => {
+        return item.alpha === 0.3;
+      });
+      this.setOutputData('clickedTargetArray', clickedTargetArray);
       this.execute(new Set());
     };
 
