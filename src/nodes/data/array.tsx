@@ -48,7 +48,8 @@ export class ArrayGet extends PureNode {
     inputObject: unknown,
     outputObject: Record<string, unknown>
   ): Promise<void> {
-    outputObject[elementName] = inputObject[arrayName][inputObject[indexName]];
+    outputObject[elementName] =
+      inputObject?.[arrayName]?.[inputObject[indexName]];
   }
 }
 

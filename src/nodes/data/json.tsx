@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import  PureNode from '../../classes/NodeClass';
+import PureNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
 import { SOCKET_TYPE } from '../../utils/constants';
 import { JSONType } from '../datatypes/jsonType';
@@ -22,13 +22,15 @@ export class JSONGet extends PureNode {
     outputObject: Record<string, unknown>
   ): Promise<void> {
     let current = inputObject[JSONName];
-    this.inputSocketArray.forEach((input) => {
-      // pretty hacky
-      if (input.name.includes('Name')) {
-        current = current[input.data];
-      }
-    });
-    outputObject[outValueName] = current;
+    if (current) {
+      this.inputSocketArray.forEach((input) => {
+        // pretty hacky
+        if (input.name.includes('Name')) {
+          current = current[input.data];
+        }
+      });
+      outputObject[outValueName] = current;
+    }
   }
 
   public getCanAddInput(): boolean {
