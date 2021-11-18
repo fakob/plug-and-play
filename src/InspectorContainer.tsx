@@ -62,24 +62,7 @@ const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
       id="editorwrapper"
       key={props?.selectedNode?.id}
     >
-      <Popover2
-        minimal
-        hasBackdrop
-        usePortal={true}
-        content={
-          <div className={`${styles.serializedNode} bp3-code`}>
-            {JSON.stringify(
-              props.selectedNode?.serialize(),
-              getCircularReplacer(),
-              2
-            )}
-          </div>
-        }
-      >
-        <Button large rightIcon="code" minimal className={styles.nodeTitle}>
-          {props.selectedNode?.name}
-        </Button>
-      </Popover2>
+      {props.selectedNode?.name}
       <PropertyArrayContainer
         inputSocketArray={props.selectedNode?.inputSocketArray}
         outputSocketArray={props.selectedNode?.outputSocketArray}

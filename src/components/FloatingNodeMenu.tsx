@@ -14,6 +14,7 @@ import {
 import { Select } from '@blueprintjs/select';
 import { Popover2 } from '@blueprintjs/popover2';
 import React, { useEffect, useState } from 'react';
+import { getCircularReplacer } from './../utils/utils';
 import PPNode from '../classes/NodeClass';
 import { ColorWidget } from '../widgets';
 import styles from './../utils/style.module.css';
@@ -108,6 +109,26 @@ const FloatingNodeMenu = (props) => {
           ? selectedNodes[0].name
           : `${selectedNodes.length} nodes`}
       </span>
+      {selectedNodes?.length === 1 && (
+        <Popover2
+          minimal
+          hasBackdrop
+          usePortal={true}
+          content={
+            <div
+              className={`${styles.serializedNode} ${styles.scrollablePortal} bp3-code`}
+            >
+              {JSON.stringify(
+                props?.selectedNodes[0]?.serialize(),
+                getCircularReplacer(),
+                2
+              )}
+            </div>
+          }
+        >
+          <Button className={styles.noSelect} rightIcon="code" minimal large />
+        </Popover2>
+      )}
       <Button
         className={styles.noSelect}
         onClick={onUpdateNow}
