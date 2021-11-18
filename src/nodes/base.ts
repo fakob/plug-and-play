@@ -77,7 +77,8 @@ export class GridCoordinates extends PPNode {
     this.addInput('y', new NumberType(), 0, false);
     this.addInput('count', new NumberType(true), 9, false);
     this.addInput('column', new NumberType(true), 3, false);
-    this.addInput('distance', new NumberType(), 100.0, false);
+    this.addInput('distanceWidth', new NumberType(), 110.0, false);
+    this.addInput('distanceHeight', new NumberType(), 110.0, false);
 
     this.name = 'Grid coordinates';
     this.description = 'Create grid coordinates';
@@ -87,12 +88,13 @@ export class GridCoordinates extends PPNode {
       const y = input['y'];
       const count = input['count'];
       const column = Math.abs(input['column']);
-      const distance = Math.abs(input['distance']);
+      const distanceWidth = Math.abs(input['distanceWidth']);
+      const distanceHeight = Math.abs(input['distanceHeight']);
       const xArray = [];
       const yArray = [];
       for (let indexCount = 0; indexCount < count; indexCount++) {
-        xArray.push(x + distance * (indexCount % column));
-        yArray.push(y + distance * Math.floor(indexCount / column));
+        xArray.push(x + distanceWidth * (indexCount % column));
+        yArray.push(y + distanceHeight * Math.floor(indexCount / column));
       }
       output['x-array'] = xArray;
       output['y-array'] = yArray;

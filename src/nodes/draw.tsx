@@ -22,6 +22,7 @@ import {
   NOTE_PADDING,
   NOTE_TEXTURE,
   PIXI_PIVOT_OPTIONS,
+  PIXI_TEXT_ALIGN_OPTIONS,
   SOCKET_WIDTH,
 } from '../utils/constants';
 import { hexToTRgba, trgbaToColor } from '../pixi/utils-pixi';
@@ -55,8 +56,9 @@ export class PIXIText extends PPNode {
     this.addInput('text', new StringType(), 'Text');
     this.addInput('x', new NumberType(), 0);
     this.addInput('y', new NumberType(), 0);
-    this.addInput('width', new NumberType(), NODE_WIDTH - NOTE_PADDING);
+    this.addInput('width', new NumberType(), 100);
     this.addInput('angle', new NumberType(true, -360, 360), 0);
+    this.addInput('align', new EnumType(PIXI_TEXT_ALIGN_OPTIONS), 0, false);
     this.addInput('pivot', new EnumType(PIXI_PIVOT_OPTIONS), 0, false);
     this.addInput('size', new NumberType(true, 1), 24, undefined);
     this.addInput('color', new ColorType(), hexToTRgba(fillColor));
@@ -69,7 +71,7 @@ export class PIXIText extends PPNode {
         fontFamily: 'Arial',
         fontSize: this.getInputData('size'),
         lineHeight: this.getInputData('size') * NOTE_LINEHEIGHT_FACTOR,
-        align: 'center',
+        align: this.getInputData('align'),
         whiteSpace: 'pre-line',
         wordWrap: true,
         wordWrapWidth: this.getInputData('width'),
@@ -97,6 +99,7 @@ export class PIXIText extends PPNode {
       const text = [].concat(input['text']);
       const size = [].concat(input['size']);
       const color = [].concat(input['color']);
+      const align = input['align'];
       const pivot = input['pivot'];
       const lengthOfLargestArray = Math.max(
         0,
@@ -116,20 +119,20 @@ export class PIXIText extends PPNode {
 
       for (let index = 0; index < lengthOfLargestArray; index++) {
         // if output is not connected, then draw it next to the node
-        const myX = x[index] ?? x[x.length - 1];
-        const myY = y[index] ?? y[y.length - 1];
-        const myWidth = width[index] ?? width[width.length - 1];
-        const myAngle = angle[index] ?? angle[angle.length - 1];
+        const myX = +(x[index] ?? x[x.length - 1]);
+        const myY = +(y[index] ?? y[y.length - 1]);
+        const myWidth = +(width[index] ?? width[width.length - 1]);
+        const myAngle = +(angle[index] ?? angle[angle.length - 1]);
+        const mySize = +(size[index] ?? size[size.length - 1]);
         const myText = text[index] ?? text[text.length - 1];
-        const mySize = size[index] ?? size[size.length - 1];
         const myColor = trgbaToColor(color[index] ?? color[color.length - 1]);
-
         const PIXIText = new PIXI.Text(myText, {
           ...this.textStyle,
           fontSize: mySize,
           lineHeight: mySize * NOTE_LINEHEIGHT_FACTOR,
           fill: PIXI.utils.string2hex(myColor.hex()),
           wordWrapWidth: myWidth,
+          align: align,
         });
         this._ref[index] = this.canvas.addChild(PIXIText);
         this._ref[index].name = `${this.id}-${index}`;
@@ -271,11 +274,11 @@ export class PIXIRect extends PPNode {
         this._ref[index].name = `${this.id}-${index}`;
 
         // if output is not connected, then draw it next to the node
-        const myX = x[index] ?? x[x.length - 1];
-        const myY = y[index] ?? y[y.length - 1];
-        const myAngle = angle[index] ?? angle[angle.length - 1];
-        const myWidth = width[index] ?? width[width.length - 1];
-        const myHeight = height[index] ?? height[height.length - 1];
+        const myX = +(x[index] ?? x[x.length - 1]);
+        const myY = +(y[index] ?? y[y.length - 1]);
+        const myAngle = +(angle[index] ?? angle[angle.length - 1]);
+        const myWidth = +(width[index] ?? width[width.length - 1]);
+        const myHeight = +(height[index] ?? height[height.length - 1]);
         const myColor = trgbaToColor(color[index] ?? color[color.length - 1]);
 
         this._ref[index].beginFill(
@@ -399,9 +402,9 @@ export class PIXICircle extends PPNode {
         this._ref[index].name = `${this.id}-${index}`;
 
         // if output is not connected, then draw it next to the node
-        const myX = x[index] ?? x[x.length - 1];
-        const myY = y[index] ?? y[y.length - 1];
-        const myRadius = radius[index] ?? radius[radius.length - 1];
+        const myX = +(x[index] ?? x[x.length - 1]);
+        const myY = +(y[index] ?? y[y.length - 1]);
+        const myRadius = +(radius[index] ?? radius[radius.length - 1]);
         const myColor = trgbaToColor(color[index] ?? color[color.length - 1]);
 
         this._ref[index].beginFill(
@@ -515,9 +518,9 @@ export class PIXIContainer extends PPNode {
           }
           this._containerRef[index].name = `${this.id}-${index}`;
 
-          const myX = x[index] ?? x[x.length - 1];
-          const myY = y[index] ?? y[y.length - 1];
-          const myAngle = angle[index] ?? angle[angle.length - 1];
+          const myX = +(x[index] ?? x[x.length - 1]);
+          const myY = +(y[index] ?? y[y.length - 1]);
+          const myAngle = +(angle[index] ?? angle[angle.length - 1]);
           const myInput1 = input1[index] ?? input1[input1.length - 1];
           const myInput2 = input2[index] ?? input2[input2.length - 1];
           const myInput3 = input3[index] ?? input3[input3.length - 1];
