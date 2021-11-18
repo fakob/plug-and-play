@@ -47,8 +47,8 @@ export class PixotopeGatewayGet extends PureNode {
         Message: {},
       }),
     });
-
-    outputObject[outputContentName] = (await res.json())?.Message?.Value;
+    const JSONRes = await res.json();
+    outputObject[outputContentName] = JSONRes[0]?.Message?.Value;
   }
 }
 
@@ -114,7 +114,7 @@ export class PixotopeGatewayCall extends PureNode {
         Message: { Params: params },
       }),
     });
-    outputObject[outputContentName] = (await res.json())?.Message?.Result;
+    outputObject[outputContentName] = (await res.json())[0]?.Message?.Result;
   }
 }
 
@@ -154,6 +154,6 @@ export class PixotopeGatewayCallSaveImage extends PureNode {
     });
     outputObject[outputContentName] = (
       await res.json()
-    )?.Message?.Result?.Image;
+    )[0]?.Message?.Result?.Image;
   }
 }
