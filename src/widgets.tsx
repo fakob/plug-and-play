@@ -159,7 +159,6 @@ export const BooleanWidget: React.FunctionComponent<BooleanWidgetProps> = (
   props
 ) => {
   const [data, setData] = useState(props.data);
-  console.log(props.property);
 
   const onChange = (event) => {
     const checked = event.target.checked;
