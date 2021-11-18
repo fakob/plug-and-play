@@ -159,7 +159,6 @@ export const BooleanWidget: React.FunctionComponent<BooleanWidgetProps> = (
   props
 ) => {
   const [data, setData] = useState(props.data);
-  console.log(props.property);
 
   const onChange = (event) => {
     const checked = event.target.checked;
@@ -315,6 +314,30 @@ export const ColorWidget: React.FunctionComponent<ColorWidgetProps> = (
             onChangeComplete={(colore) => {
               changeColor(colore.rgb);
             }}
+            presetColors={[
+              '#F4FAF9',
+              '#F5F5F5',
+              '#0C0C0C',
+              '#E1547D',
+              '#E154BB',
+              '#AB53DE',
+              '#5952DF',
+              '#549BE0',
+              '#56E1CC',
+              '#55E179',
+              '#7FE158',
+              '#D4E25A',
+              '#E19757',
+              '#A43F6C',
+              '#5F3EA3',
+              '#3E54A3',
+              '#4092A4',
+              '#40A577',
+              '#42A541',
+              '#7BA442',
+              '#A58E43',
+              '#A45140',
+            ]}
           />
         </span>
       )}

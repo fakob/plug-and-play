@@ -58,7 +58,7 @@ export class Code extends PureNode {
     inputObject: any,
     outputObject: Record<string, unknown>
   ): Promise<void> {
-    eval(inputObject[anyCodeName]);
+    eval(inputObject?.[anyCodeName]);
   }
 }
 
@@ -76,7 +76,7 @@ export class Filter extends PureNode {
   ): Promise<void> {
     const filterCode = inputObject[filterCodeName];
     const inputArray = inputObject[arrayName];
-    outputObject[arrayOutName] = inputArray.filter(eval(filterCode));
+    outputObject[arrayOutName] = inputArray?.filter(eval(filterCode));
   }
 }
 
@@ -94,7 +94,7 @@ export class Map extends PureNode {
   ): Promise<void> {
     const mapCode = inputObject[mapCodeName];
     const inputArray = inputObject[arrayName];
-    outputObject[mapOutName] = inputArray.map(eval(mapCode));
+    outputObject[mapOutName] = inputArray?.map(eval(mapCode));
   }
 }
 
@@ -109,7 +109,7 @@ export class Constant extends PureNode {
     inputObject: any,
     outputObject: Record<string, unknown>
   ): Promise<void> {
-    outputObject[constantOutName] = inputObject[constantInName];
+    outputObject[constantOutName] = inputObject?.[constantInName];
   }
 }
 
@@ -124,7 +124,7 @@ export class Uniques extends PureNode {
     inputObject: any,
     outputObject: Record<string, unknown>
   ): Promise<void> {
-    const inputArray = inputObject[arrayName];
+    const inputArray = inputObject?.[arrayName];
     outputObject[arrayOutName] = [...new Set(inputArray)];
   }
 }
@@ -185,7 +185,7 @@ export class ConsolePrint extends NodeClass {
   }
 
   protected async onExecute(inputObject: any): Promise<void> {
-    console.log(inputObject[constantInName]);
+    console.log(inputObject?.[constantInName]);
   }
 }
 
@@ -212,7 +212,8 @@ export class ForEachLoop extends ForLoop {
     inputObject: any,
     outputObject: Record<string, unknown>
   ): Promise<void> {
-    outputObject[outElementName] = inputObject[arrayName][this.currentIndex];
+    outputObject[outElementName] =
+      inputObject?.[arrayName]?.[this.currentIndex];
   }
 }
 

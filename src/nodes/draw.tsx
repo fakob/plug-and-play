@@ -13,6 +13,7 @@ import PPNode from '../classes/NodeClass';
 import { CustomArgs, SerializedNode } from '../utils/interfaces';
 import {
   COLOR,
+  COLOR_DARK,
   NODE_TYPE_COLOR,
   NODE_WIDTH,
   NOTE_FONTSIZE,
@@ -21,11 +22,13 @@ import {
   NOTE_PADDING,
   NOTE_TEXTURE,
   PIXI_PIVOT_OPTIONS,
+  PIXI_TEXT_ALIGN_OPTIONS,
   SOCKET_WIDTH,
 } from '../utils/constants';
 import { hexToTRgba, trgbaToColor } from '../pixi/utils-pixi';
 import textFit from '../pixi/textFit';
 import { AnyType } from './datatypes/anyType';
+import { CodeType } from './datatypes/codeType';
 import { NumberType } from './datatypes/numberType';
 import { EnumType } from './datatypes/enumType';
 import { ColorType } from './datatypes/colorType';
@@ -42,7 +45,7 @@ export class PIXIText extends PPNode {
 
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
     const nodeColor = NODE_TYPE_COLOR.DRAW;
-    const fillColor = COLOR[5];
+    const fillColor = COLOR_DARK;
 
     super(name, graph, {
       ...customArgs,
@@ -53,7 +56,9 @@ export class PIXIText extends PPNode {
     this.addInput('text', new StringType(), 'Text');
     this.addInput('x', new NumberType(), 0);
     this.addInput('y', new NumberType(), 0);
+    this.addInput('width', new NumberType(), 100);
     this.addInput('angle', new NumberType(true, -360, 360), 0);
+    this.addInput('align', new EnumType(PIXI_TEXT_ALIGN_OPTIONS), 0, false);
     this.addInput('pivot', new EnumType(PIXI_PIVOT_OPTIONS), 0, false);
     this.addInput('size', new NumberType(true, 1), 24, undefined);
     this.addInput('color', new ColorType(), hexToTRgba(fillColor));
@@ -66,10 +71,10 @@ export class PIXIText extends PPNode {
         fontFamily: 'Arial',
         fontSize: this.getInputData('size'),
         lineHeight: this.getInputData('size') * NOTE_LINEHEIGHT_FACTOR,
-        align: 'center',
+        align: this.getInputData('align'),
         whiteSpace: 'pre-line',
         wordWrap: true,
-        wordWrapWidth: NODE_WIDTH - NOTE_PADDING,
+        wordWrapWidth: this.getInputData('width'),
         lineJoin: 'round',
       });
 
@@ -89,15 +94,18 @@ export class PIXIText extends PPNode {
     this.onExecute = async function (input) {
       const x = [].concat(input['x']);
       const y = [].concat(input['y']);
+      const width = [].concat(input['width']);
       const angle = [].concat(input['angle']);
       const text = [].concat(input['text']);
       const size = [].concat(input['size']);
       const color = [].concat(input['color']);
+      const align = input['align'];
       const pivot = input['pivot'];
       const lengthOfLargestArray = Math.max(
         0,
         x.length,
         y.length,
+        width.length,
         angle.length,
         text.length,
         size.length,
@@ -111,18 +119,20 @@ export class PIXIText extends PPNode {
 
       for (let index = 0; index < lengthOfLargestArray; index++) {
         // if output is not connected, then draw it next to the node
-        const myX = x[index] ?? x[x.length - 1];
-        const myY = y[index] ?? y[y.length - 1];
-        const myAngle = angle[index] ?? angle[angle.length - 1];
+        const myX = +(x[index] ?? x[x.length - 1]);
+        const myY = +(y[index] ?? y[y.length - 1]);
+        const myWidth = +(width[index] ?? width[width.length - 1]);
+        const myAngle = +(angle[index] ?? angle[angle.length - 1]);
+        const mySize = +(size[index] ?? size[size.length - 1]);
         const myText = text[index] ?? text[text.length - 1];
-        const mySize = size[index] ?? size[size.length - 1];
         const myColor = trgbaToColor(color[index] ?? color[color.length - 1]);
-
         const PIXIText = new PIXI.Text(myText, {
           ...this.textStyle,
           fontSize: mySize,
           lineHeight: mySize * NOTE_LINEHEIGHT_FACTOR,
           fill: PIXI.utils.string2hex(myColor.hex()),
+          wordWrapWidth: myWidth,
+          align: align,
         });
         this._ref[index] = this.canvas.addChild(PIXIText);
         this._ref[index].name = `${this.id}-${index}`;
@@ -168,7 +178,7 @@ export class PIXIRect extends PPNode {
     const nodeColor = NODE_TYPE_COLOR.DRAW;
     const rectWidth = 100;
     const rectHeight = 100;
-    const fillColor = COLOR[5];
+    const fillColor = COLOR[1];
 
     super(name, graph, {
       ...customArgs,
@@ -204,6 +214,7 @@ export class PIXIRect extends PPNode {
 
       const graphics = new PIXI.Graphics();
       this._ref = [this.canvas.addChild(graphics)];
+
       this.setOutputData('graphics', this._ref);
     };
 
@@ -241,11 +252,11 @@ export class PIXIRect extends PPNode {
         this._ref[index].name = `${this.id}-${index}`;
 
         // if output is not connected, then draw it next to the node
-        const myX = x[index] ?? x[x.length - 1];
-        const myY = y[index] ?? y[y.length - 1];
-        const myAngle = angle[index] ?? angle[angle.length - 1];
-        const myWidth = width[index] ?? width[width.length - 1];
-        const myHeight = height[index] ?? height[height.length - 1];
+        const myX = +(x[index] ?? x[x.length - 1]);
+        const myY = +(y[index] ?? y[y.length - 1]);
+        const myAngle = +(angle[index] ?? angle[angle.length - 1]);
+        const myWidth = +(width[index] ?? width[width.length - 1]);
+        const myHeight = +(height[index] ?? height[height.length - 1]);
         const myColor = trgbaToColor(color[index] ?? color[color.length - 1]);
 
         this._ref[index].beginFill(
@@ -294,7 +305,7 @@ export class PIXICircle extends PPNode {
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
     const nodeColor = NODE_TYPE_COLOR.DRAW;
     const radius = 50;
-    const fillColor = COLOR[7];
+    const fillColor = COLOR[8];
 
     super(name, graph, {
       ...customArgs,
@@ -356,9 +367,9 @@ export class PIXICircle extends PPNode {
         this._ref[index].name = `${this.id}-${index}`;
 
         // if output is not connected, then draw it next to the node
-        const myX = x[index] ?? x[x.length - 1];
-        const myY = y[index] ?? y[y.length - 1];
-        const myRadius = radius[index] ?? radius[radius.length - 1];
+        const myX = +(x[index] ?? x[x.length - 1]);
+        const myY = +(y[index] ?? y[y.length - 1]);
+        const myRadius = +(radius[index] ?? radius[radius.length - 1]);
         const myColor = trgbaToColor(color[index] ?? color[color.length - 1]);
 
         this._ref[index].beginFill(
@@ -402,19 +413,35 @@ export class PIXICircle extends PPNode {
 export class PIXIContainer extends PPNode {
   _containerRef: PIXI.Container[];
   canvas: PIXI.Container;
+  executeOnClick: (index: number) => void;
+  onClickHandler: (event?: PIXI.InteractionEvent) => void;
 
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
+    const customOnClickFunction = `(e) => {
+  console.log("Clicked node:", this);
+  console.log("Clicked index:", e.currentTarget.index);
+  this.executeOnClick(e.currentTarget.index);
+}`;
+
     super(name, graph, {
       ...customArgs,
       color: NODE_TYPE_COLOR.DRAW,
     });
 
     this.addOutput('container', new PixiType());
+    this.addOutput('clickedTargetIndex', new NumberType());
+    this.addOutput('clickedTargetArray', new ArrayType());
+
+    // when true, group inputs and duplicate these containers
+    // use this mode for custom click events
+    // when false, all inputs are duplicated within one container
     this.addInput('mode', new BooleanType(), false, false);
-    this.addInput('x', new NumberType());
-    this.addInput('y', new NumberType());
-    this.addInput('angle', new NumberType(true, -360, 360), 0);
-    this.addInput('scale', new NumberType(), 1.0);
+
+    this.addInput('x', new NumberType(), 0, false);
+    this.addInput('y', new NumberType(), 0, false);
+    this.addInput('angle', new NumberType(true, -360, 360), 0, false);
+    this.addInput('scale', new NumberType(), 1.0, false);
+    this.addInput('onClick', new CodeType(), customOnClickFunction, false);
     this.addInput('input1', new PixiType());
     this.addInput('input2', new PixiType());
     this.addInput('input3', new PixiType());
@@ -430,6 +457,8 @@ export class PIXIContainer extends PPNode {
       const container = new PIXI.Container();
       this._containerRef = [this.canvas.addChild(container)];
       this._containerRef[0].name = `${this.id}-${0}`;
+      this.onClickHandler = eval(customOnClickFunction);
+      this._containerRef[0].on('pointerdown', this.onClickHandler);
 
       this.setOutputData('container', this._containerRef);
     };
@@ -440,6 +469,7 @@ export class PIXIContainer extends PPNode {
       const y = [].concat(input['y']);
       const angle = [].concat(input['angle']);
       const scale = [].concat(input['scale']);
+      const onClick = input['onClick'];
       const input1 = [].concat(input['input1']);
       const input2 = [].concat(input['input2']);
       const input3 = [].concat(input['input3']);
@@ -467,14 +497,19 @@ export class PIXIContainer extends PPNode {
           if (!this._containerRef[index]) {
             const container = new PIXI.Container();
             this._containerRef[index] = this.canvas.addChild(container);
+            this.onClickHandler = eval(onClick);
+            (this._containerRef[index] as PIXI.Container).on(
+              'pointerdown',
+              this.onClickHandler
+            );
           } else {
             this._containerRef[index].removeChildren();
           }
           this._containerRef[index].name = `${this.id}-${index}`;
 
-          const myX = x[index] ?? x[x.length - 1];
-          const myY = y[index] ?? y[y.length - 1];
-          const myAngle = angle[index] ?? angle[angle.length - 1];
+          const myX = +(x[index] ?? x[x.length - 1]);
+          const myY = +(y[index] ?? y[y.length - 1]);
+          const myAngle = +(angle[index] ?? angle[angle.length - 1]);
           const myInput1 = input1[index] ?? input1[input1.length - 1];
           const myInput2 = input2[index] ?? input2[input2.length - 1];
           const myInput3 = input3[index] ?? input3[input3.length - 1];
@@ -497,7 +532,10 @@ export class PIXIContainer extends PPNode {
             this._containerRef[index].x = this.x + this.width + myX;
             this._containerRef[index].y = this.y + myY;
           }
+          this._containerRef[index].index = index;
           this._containerRef[index].angle = myAngle;
+          this._containerRef[index].buttonMode = true;
+          this._containerRef[index].interactive = true;
           this._containerRef[index].scale.set(scale);
         }
       } else {
@@ -513,14 +551,24 @@ export class PIXIContainer extends PPNode {
 
         for (let index = 0; index < allInputs.length; index++) {
           if (allInputs[index]) {
-            this._containerRef[0].addChild(allInputs[index]);
+            const allInputsRef = this._containerRef[0].addChild(
+              allInputs[index]
+            );
+            this.onClickHandler = eval(onClick);
+            (allInputsRef as PIXI.Container).on(
+              'pointerdown',
+              this.onClickHandler
+            );
+            allInputsRef.index = index;
+            allInputsRef.buttonMode = true;
+            allInputsRef.interactive = true;
           }
         }
 
         // if output is not connected, then draw it next to the node
         if ((this as PPNode).getOutputSocketByName('container')?.hasLink()) {
-          this._containerRef[0].x = x[0];
-          this._containerRef[0].y = y[0];
+          this._containerRef[0].x = +x[0];
+          this._containerRef[0].y = +y[0];
         } else {
           this._containerRef[0].x = this.x + this.width + x[0];
           this._containerRef[0].y = this.y + y[0];
@@ -528,6 +576,17 @@ export class PIXIContainer extends PPNode {
         this._containerRef[0].angle = angle;
         this._containerRef[0].scale.set(scale);
       }
+    };
+
+    this.executeOnClick = (index: number): void => {
+      this._containerRef[index].alpha =
+        this._containerRef[index].alpha === 0.3 ? 1 : 0.3;
+      this.setOutputData('clickedTargetIndex', index);
+      const clickedTargetArray = this._containerRef.map((item) => {
+        return item.alpha === 0.3;
+      });
+      this.setOutputData('clickedTargetArray', clickedTargetArray);
+      this.execute(new Set());
     };
 
     this.onNodeRemoved = (): void => {

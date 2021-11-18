@@ -7,6 +7,7 @@ import { NumberType } from '../datatypes/numberType';
 
 const elementName = 'Element';
 const arrayName = 'Array';
+const arrayLength = 'ArrayLength';
 const indexName = 'Index';
 
 export class ArrayCreate extends PureNode {
@@ -47,6 +48,22 @@ export class ArrayGet extends PureNode {
     inputObject: unknown,
     outputObject: Record<string, unknown>
   ): Promise<void> {
-    outputObject[elementName] = inputObject[arrayName][inputObject[indexName]];
+    outputObject[elementName] =
+      inputObject?.[arrayName]?.[inputObject[indexName]];
+  }
+}
+
+export class ArrayLength extends PureNode {
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(SOCKET_TYPE.IN, arrayName, new ArrayType()),
+      new Socket(SOCKET_TYPE.OUT, arrayLength, new NumberType()),
+    ];
+  }
+  protected async onExecute(
+    inputObject: unknown,
+    outputObject: Record<string, unknown>
+  ): Promise<void> {
+    outputObject[arrayLength] = inputObject[arrayName]?.length;
   }
 }
