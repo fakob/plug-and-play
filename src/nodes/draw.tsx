@@ -13,6 +13,7 @@ import PPNode from '../classes/NodeClass';
 import { CustomArgs, SerializedNode } from '../utils/interfaces';
 import {
   COLOR,
+  COLOR_DARK,
   NODE_TYPE_COLOR,
   NODE_WIDTH,
   NOTE_FONTSIZE,
@@ -43,7 +44,7 @@ export class PIXIText extends PPNode {
 
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
     const nodeColor = NODE_TYPE_COLOR.DRAW;
-    const fillColor = COLOR[5];
+    const fillColor = COLOR_DARK;
 
     super(name, graph, {
       ...customArgs,
@@ -54,6 +55,7 @@ export class PIXIText extends PPNode {
     this.addInput('text', new StringType(), 'Text');
     this.addInput('x', new NumberType(), 0);
     this.addInput('y', new NumberType(), 0);
+    this.addInput('width', new NumberType(), NODE_WIDTH - NOTE_PADDING);
     this.addInput('angle', new NumberType(true, -360, 360), 0);
     this.addInput('pivot', new EnumType(PIXI_PIVOT_OPTIONS), 0, false);
     this.addInput('size', new NumberType(true, 1), 24, undefined);
@@ -70,7 +72,7 @@ export class PIXIText extends PPNode {
         align: 'center',
         whiteSpace: 'pre-line',
         wordWrap: true,
-        wordWrapWidth: NODE_WIDTH - NOTE_PADDING,
+        wordWrapWidth: this.getInputData('width'),
         lineJoin: 'round',
       });
 
@@ -90,6 +92,7 @@ export class PIXIText extends PPNode {
     this.onExecute = async function (input) {
       const x = [].concat(input['x']);
       const y = [].concat(input['y']);
+      const width = [].concat(input['width']);
       const angle = [].concat(input['angle']);
       const text = [].concat(input['text']);
       const size = [].concat(input['size']);
@@ -99,6 +102,7 @@ export class PIXIText extends PPNode {
         0,
         x.length,
         y.length,
+        width.length,
         angle.length,
         text.length,
         size.length,
@@ -114,6 +118,7 @@ export class PIXIText extends PPNode {
         // if output is not connected, then draw it next to the node
         const myX = x[index] ?? x[x.length - 1];
         const myY = y[index] ?? y[y.length - 1];
+        const myWidth = width[index] ?? width[width.length - 1];
         const myAngle = angle[index] ?? angle[angle.length - 1];
         const myText = text[index] ?? text[text.length - 1];
         const mySize = size[index] ?? size[size.length - 1];
@@ -124,6 +129,7 @@ export class PIXIText extends PPNode {
           fontSize: mySize,
           lineHeight: mySize * NOTE_LINEHEIGHT_FACTOR,
           fill: PIXI.utils.string2hex(myColor.hex()),
+          wordWrapWidth: myWidth,
         });
         this._ref[index] = this.canvas.addChild(PIXIText);
         this._ref[index].name = `${this.id}-${index}`;
@@ -171,7 +177,7 @@ export class PIXIRect extends PPNode {
     const nodeColor = NODE_TYPE_COLOR.DRAW;
     const rectWidth = 100;
     const rectHeight = 100;
-    const fillColor = COLOR[5];
+    const fillColor = COLOR[1];
     const customOnClickFunction = `(e) => {
   console.log("Clicked node:", this);
   console.log("Clicked index:", e.currentTarget.index);
@@ -331,7 +337,7 @@ export class PIXICircle extends PPNode {
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
     const nodeColor = NODE_TYPE_COLOR.DRAW;
     const radius = 50;
-    const fillColor = COLOR[7];
+    const fillColor = COLOR[8];
 
     super(name, graph, {
       ...customArgs,
