@@ -458,7 +458,6 @@ export class PIXIContainer extends PPNode {
       this._containerRef = [this.canvas.addChild(container)];
       this._containerRef[0].name = `${this.id}-${0}`;
       this.onClickHandler = eval(customOnClickFunction);
-      // console.log(this.onClickHandler);
       this._containerRef[0].on('pointerdown', this.onClickHandler);
 
       this.setOutputData('container', this._containerRef);
@@ -499,7 +498,6 @@ export class PIXIContainer extends PPNode {
             const container = new PIXI.Container();
             this._containerRef[index] = this.canvas.addChild(container);
             this.onClickHandler = eval(onClick);
-            console.log(this.onClickHandler);
             (this._containerRef[index] as PIXI.Container).on(
               'pointerdown',
               this.onClickHandler
@@ -557,7 +555,6 @@ export class PIXIContainer extends PPNode {
               allInputs[index]
             );
             this.onClickHandler = eval(onClick);
-            console.log(this.onClickHandler);
             (allInputsRef as PIXI.Container).on(
               'pointerdown',
               this.onClickHandler
