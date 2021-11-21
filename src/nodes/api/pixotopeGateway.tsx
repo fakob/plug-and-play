@@ -17,7 +17,7 @@ const scaleName = 'Scale';
 
 const gatewayAddress = 'http://localhost:16208/gateway/2.0.0/publish';
 
-export class PixotopeGatewayGet extends PureNode {
+export class PixotopeGatewayGet extends PPNode {
   // default to poll on interval X seconds
   protected getUpdateBehaviour(): UpdateBehaviour {
     return new UpdateBehaviour(true, false, 1000);
@@ -52,7 +52,7 @@ export class PixotopeGatewayGet extends PureNode {
   }
 }
 
-export class PixotopeGatewaySet extends PureNode {
+export class PixotopeGatewaySet extends PPNode {
   protected getUpdateBehaviour(): UpdateBehaviour {
     return new UpdateBehaviour(false, false, 1000);
   }
@@ -87,7 +87,7 @@ export class PixotopeGatewaySet extends PureNode {
   }
 }
 
-export class PixotopeGatewayCall extends PureNode {
+export class PixotopeGatewayCall extends PPNode {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, targetName, new StringType(), 'Store'),
@@ -118,7 +118,7 @@ export class PixotopeGatewayCall extends PureNode {
   }
 }
 
-export class PixotopeGatewayCallSaveImage extends PureNode {
+export class PixotopeGatewayCallSaveImage extends PPNode {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, targetName, new StringType(), 'Pipeline'),
