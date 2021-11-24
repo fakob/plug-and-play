@@ -25,6 +25,11 @@
     "@blueprintjs/popover2": "^0.11.4",
     "@blueprintjs/select": "^3.18.10",
     "@blueprintjs/table": "^3.9.12",
+    "@emotion/react": "^11.6.0",
+    "@emotion/styled": "^11.6.0",
+    "@fontsource/roboto": "^4.5.1",
+    "@mui/icons-material": "5.1.1",
+    "@mui/material": "5.1.1",
     "@pixi/filter-drop-shadow": "^4.1.5",
     "@pixi/text-html": "^2.0.0",
     "color": "^4.0.1",
@@ -108,6 +113,10 @@
     "webpack-cli": "^4.9.1",
     "webpack-dev-server": "^4.5.0",
     "webpack-merge": "^5.8.0"
+  },
+  "resolutions": {
+    "@mui/utils": "5.1.1",
+    "@mui/material": "5.1.1"
   },
   "jest": {
     "transform": {
