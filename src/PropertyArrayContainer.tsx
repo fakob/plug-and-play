@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import {
-  ControlGroup,
-  EditableText,
-  HTMLSelect,
-  Icon,
-  Tag,
-} from '@blueprintjs/core';
+  Box,
+  FormControl,
+  FormGroup,
+  MenuItem,
+  Select,
+  ToggleButton,
+} from '@mui/material';
+import LockIcon from '@mui/icons-material/Lock';
 import Socket from './classes/SocketClass';
 import styles from './utils/style.module.css';
 import { AbstractType } from './nodes/datatypes/abstractType';
@@ -119,45 +121,39 @@ const PropertyHeader: React.FunctionComponent<PropertyHeaderProps> = (
   }, [name]);
 
   return (
-    <ControlGroup>
-      <Tag
-        minimal={!visible}
-        className={styles.propertyTag}
-        onClick={() => {
-          setVisible((value) => !value);
-        }}
-      >
-        {props.hasLink && <Icon icon="lock" iconSize={8}></Icon>}
-        {props.isInput ? 'IN' : 'OUT'}
-      </Tag>
-      <EditableText
-        className={`${styles.editablePropertyName} ${
-          visible ? styles.darkOnBright : styles.brightOnDark
-        } ${props.hasLink && styles.opacity30}`}
-        selectAllOnFocus
-        value={name}
-        onChange={(name) => {
-          setName(name);
-        }}
-        disabled={props.hasLink}
-      />
-      {
-        <HTMLSelect
-          className={`${styles.opacity30} bp3-minimal`}
-          onChange={props.onChangeDropdown}
+    <FormControl size="small">
+      <FormGroup row={true}>
+        <ToggleButton
+          value="check"
+          size="small"
+          selected={!visible}
+          onChange={() => {
+            setVisible((value) => !value);
+          }}
+        >
+          {props.hasLink && <LockIcon />}
+          {props.isInput ? 'IN' : 'OUT'}
+        </ToggleButton>
+        <Box sx={{ p: 1, typography: 'subtitle2' }}>{name}</Box>
+        {/* <InputLabel id="demo-simple-select-label">Type</InputLabel> */}
+        <Select
+          labelId="demo-simple-select-label"
+          id="demo-simple-select"
           value={props.property.dataType.constructor.name}
+          label="Property type"
+          onChange={props.onChangeDropdown}
           disabled={props.hasLink}
         >
           {Object.keys(allDataTypes).map((name) => {
             const entry = new allDataTypes[name]().getName();
             return (
-              <option key={name} value={name}>
+              <MenuItem key={name} value={name}>
                 {entry}
-              </option>
+              </MenuItem>
             );
           })}
-        </HTMLSelect>
-      }
-    </ControlGroup>
+        </Select>
+      </FormGroup>
+    </FormControl>
   );
 };

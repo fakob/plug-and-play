@@ -1,10 +1,10 @@
 import React, { useRef, useEffect, useState } from 'react';
 import MonacoEditor from 'react-monaco-editor';
-import { Button, H5 } from '@blueprintjs/core';
-import { Popover2 } from '@blueprintjs/popover2';
 
+import { ThemeProvider } from '@mui/material';
+
+import { theme } from './utils/customTheme';
 import styles from './utils/style.module.css';
-import { getCircularReplacer } from './utils/utils';
 import PPNode from './classes/NodeClass';
 import { PropertyArrayContainer } from './PropertyArrayContainer';
 import PPGraph from './classes/GraphClass';
@@ -57,34 +57,36 @@ const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
   }, [props.selectedNode.type]);
 
   return (
-    <div
-      className={`${styles.inspectorContainer} bp3-dark`}
-      id="editorwrapper"
-      key={props?.selectedNode?.id}
-    >
-      {props.selectedNode?.name}
-      <PropertyArrayContainer
-        inputSocketArray={props.selectedNode?.inputSocketArray}
-        outputSocketArray={props.selectedNode?.outputSocketArray}
-      />
-      {props.isCustomNode && (
-        <MonacoEditor
-          language="javascript"
-          theme="vs-dark"
-          height="70%"
-          value={codeString}
-          options={{
-            selectOnLineNumbers: true,
-            scrollBeyondLastLine: false,
-            wordWrap: 'on',
-          }}
-          onChange={(newValue, e) => {
-            // console.log('controlled', newValue, e);
-          }}
-          editorDidMount={editorDidMount}
+    <ThemeProvider theme={theme}>
+      <div
+        className={`${styles.inspectorContainer} bp3-dark`}
+        id="editorwrapper"
+        key={props?.selectedNode?.id}
+      >
+        {props.selectedNode?.name}
+        <PropertyArrayContainer
+          inputSocketArray={props.selectedNode?.inputSocketArray}
+          outputSocketArray={props.selectedNode?.outputSocketArray}
         />
-      )}
-    </div>
+        {props.isCustomNode && (
+          <MonacoEditor
+            language="javascript"
+            theme="vs-dark"
+            height="70%"
+            value={codeString}
+            options={{
+              selectOnLineNumbers: true,
+              scrollBeyondLastLine: false,
+              wordWrap: 'on',
+            }}
+            onChange={(newValue, e) => {
+              // console.log('controlled', newValue, e);
+            }}
+            editorDidMount={editorDidMount}
+          />
+        )}
+      </div>
+    </ThemeProvider>
   );
 };
 

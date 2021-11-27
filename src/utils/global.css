@@ -4,6 +4,11 @@
 @import '~@blueprintjs/popover2/lib/css/blueprint-popover2.css';
 @import '~@blueprintjs/table/lib/css/table.css';
 
+@import '~@fontsource/roboto/300.css';
+@import '~@fontsource/roboto/400.css';
+@import '~@fontsource/roboto/500.css';
+@import '~@fontsource/roboto/700.css';
+
 body {
   overflow: hidden;
   margin: 0 auto;
