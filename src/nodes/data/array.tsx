@@ -1,9 +1,15 @@
 import PureNode from '../../classes/NodeClass';
+import Graph from '../../classes/GraphClass';
 import Socket from '../../classes/SocketClass';
 import { SOCKET_TYPE } from '../../utils/constants';
 import { AnyType } from '../datatypes/anyType';
 import { ArrayType } from '../datatypes/arrayType';
+import { CodeType } from '../datatypes/codeType';
 import { NumberType } from '../datatypes/numberType';
+import { EnumType } from '../datatypes/enumType';
+import { CustomArgs } from '../../utils/interfaces';
+import { NODE_TYPE_COLOR } from '../../utils/constants';
+import { getMethods } from '../../utils/utils';
 
 const elementName = 'Element';
 const arrayName = 'Array';
@@ -65,5 +71,53 @@ export class ArrayLength extends PureNode {
     outputObject: Record<string, unknown>
   ): Promise<void> {
     outputObject[arrayLength] = inputObject[arrayName]?.length;
+  }
+}
+
+export class ArrayMethod extends PureNode {
+  constructor(name: string, graph: Graph, customArgs: CustomArgs) {
+    super(name, graph, {
+      ...customArgs,
+      color: NODE_TYPE_COLOR.TRANSFORM,
+    });
+
+    const arrayMethodsArray = getMethods(new Array(1));
+    const arrayMethodsArrayOptions = arrayMethodsArray
+      .sort()
+      .map((methodName) => {
+        return {
+          text: methodName,
+          value: methodName,
+        };
+      });
+
+    this.addInput('Array', new ArrayType());
+    this.addInput(
+      'Array method',
+      new EnumType(arrayMethodsArrayOptions),
+      'map',
+      false
+    );
+    this.addInput(
+      'Callback',
+      new CodeType(),
+      '(item, index) => `${index}: ${item}`',
+      false
+    );
+    this.addOutput('Output', new AnyType());
+
+    this.name = 'Array methods';
+    this.description = 'Apply a method to the array';
+
+    this.onExecute = async function (
+      inputObject: any,
+      outputObject: Record<string, unknown>
+    ) {
+      const array = inputObject['Array'];
+      const arrayMethod = inputObject['Array method'];
+      const callback = inputObject['Callback'];
+      const output = array[arrayMethod](eval(callback));
+      outputObject['Output'] = output;
+    };
   }
 }

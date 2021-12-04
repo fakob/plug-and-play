@@ -242,18 +242,18 @@ export class DateAndTime extends PPNode {
 
     const dateMethodsArray = getMethods(new Date());
     const dateMethodsArrayOptions = dateMethodsArray
-      .filter((dateMethod) => {
+      .filter((methodName) => {
         // do not expose constructor and setters
         const shouldExposeMethod = !(
-          dateMethod === 'constructor' || dateMethod.startsWith('set')
+          methodName === 'constructor' || methodName.startsWith('set')
         );
         return shouldExposeMethod;
       })
       .sort()
-      .map((dateMethod) => {
+      .map((methodName) => {
         return {
-          text: dateMethod,
-          value: dateMethod,
+          text: methodName,
+          value: methodName,
         };
       });
 
