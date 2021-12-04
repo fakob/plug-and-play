@@ -106,7 +106,7 @@ export class ArrayMethod extends PureNode {
     );
     this.addOutput('Output', new AnyType());
 
-    this.name = 'Array.map';
+    this.name = 'Array method';
     this.description = 'Apply a method to the array';
 
     this.onExecute = async function (
