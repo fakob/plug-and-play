@@ -93,7 +93,7 @@ export class ArrayMethod extends PureNode {
 
     this.addInput('Array', new ArrayType());
     this.addInput(
-      'Array method',
+      'Method',
       new EnumType(arrayMethodsArrayOptions),
       'map',
       false
@@ -106,7 +106,7 @@ export class ArrayMethod extends PureNode {
     );
     this.addOutput('Output', new AnyType());
 
-    this.name = 'Array methods';
+    this.name = 'Array.map';
     this.description = 'Apply a method to the array';
 
     this.onExecute = async function (
@@ -114,7 +114,8 @@ export class ArrayMethod extends PureNode {
       outputObject: Record<string, unknown>
     ) {
       const array = inputObject['Array'];
-      const arrayMethod = inputObject['Array method'];
+      const arrayMethod = inputObject['Method'];
+      this.nodeName = `Array.${arrayMethod}`;
       const callback = inputObject['Callback'];
       const output = array[arrayMethod](eval(callback));
       outputObject['Output'] = output;
