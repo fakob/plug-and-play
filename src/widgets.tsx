@@ -12,7 +12,7 @@ import {
 } from '@blueprintjs/core';
 import { SketchPicker } from 'react-color';
 import Socket from './classes/SocketClass';
-import { limitRange, roundNumber } from './utils/utils';
+import { roundNumber } from './utils/utils';
 import styles from './utils/style.module.css';
 import { TRgba } from './utils/interfaces';
 import { EnumStructure } from './nodes/datatypes/enumType';
@@ -128,15 +128,14 @@ export const SelectWidget: React.FunctionComponent<SelectWidgetProps> = (
 
   const onChange = (event) => {
     const value = event.target.value;
-    props.property.data = value;
-    console.log(value);
+    potentiallyNotify(props.property, value);
     setData(value);
   };
 
   return (
     <>
       <HTMLSelect onChange={onChange} value={data}>
-        {options.map(({ text }, index) => {
+        {options?.map(({ text }, index) => {
           return (
             <option key={index} value={text}>
               {text}
@@ -161,10 +160,9 @@ export const BooleanWidget: React.FunctionComponent<BooleanWidgetProps> = (
   const [data, setData] = useState(props.data);
 
   const onChange = (event) => {
-    const checked = event.target.checked;
-    props.property.data = checked;
-    console.log(checked);
-    setData(checked);
+    const value = event.target.checked;
+    potentiallyNotify(props.property, value);
+    setData(value);
   };
 
   return (
@@ -188,10 +186,6 @@ export type TextWidgetProps = {
 export const TextWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
   const [data, setData] = useState(props.data);
 
-  useEffect(() => {
-    potentiallyNotify(props.property, data);
-  }, [data]);
-
   return (
     <>
       <TextArea
@@ -200,6 +194,7 @@ export const TextWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
         growVertically={true}
         onChange={(event) => {
           const value = event.target.value;
+          potentiallyNotify(props.property, value);
           setData(value);
         }}
         value={data || ''}
@@ -211,10 +206,6 @@ export const TextWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
 export const JSONWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
   const [data, setData] = useState(props.data);
 
-  useEffect(() => {
-    potentiallyNotify(props.property, data);
-  }, [data]);
-
   return (
     <>
       <TextArea
@@ -223,7 +214,7 @@ export const JSONWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
         growVertically={true}
         onChange={(event) => {
           const value = event.target.value;
-          setData(value);
+          potentiallyNotify(props.property, value);
           setData(JSON.parse(value));
         }}
         value={typeof data === 'object' ? JSON.stringify(data) : data}
@@ -283,8 +274,6 @@ export const ColorWidget: React.FunctionComponent<ColorWidgetProps> = (
       // uses useRef to avoid running when component mounts
       componentMounted.current = false;
     } else {
-      console.log(finalColor);
-
       potentiallyNotify(props.property, finalColor);
     }
     return () => undefined;

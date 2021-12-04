@@ -315,3 +315,9 @@ export const getLoadedGraphId = async (
   const loadedGraphId = loadedGraphIdObject?.value;
   return loadedGraphId;
 };
+
+export const getMethods = (o): string[] => {
+  return Object.getOwnPropertyNames(Object.getPrototypeOf(o)).filter(
+    (m) => 'function' === typeof o[m]
+  );
+};

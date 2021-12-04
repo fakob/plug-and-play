@@ -12,12 +12,14 @@ import {
   SOCKET_HEIGHT,
 } from '../utils/constants';
 import { CustomArgs } from '../utils/interfaces';
+import { getMethods } from '../utils/utils';
 import { colorToTrgba, hexToTRgba, trgbaToColor } from '../pixi/utils-pixi';
 import { NumberType } from './datatypes/numberType';
 import { AnyType } from './datatypes/anyType';
 import { TriggerType } from './datatypes/triggerType';
 import { ColorType } from './datatypes/colorType';
 import { StringType } from './datatypes/stringType';
+import { EnumType } from './datatypes/enumType';
 
 export class Mouse extends PPNode {
   onViewportMove: (event: PIXI.InteractionEvent) => void;
@@ -231,25 +233,44 @@ export class Trigger extends PPNode {
   }
 }
 
-export class TimeAndDate extends PPNode {
-  date: Date;
-
+export class DateAndTime extends PPNode {
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
     super(name, graph, {
       ...customArgs,
       color: NODE_TYPE_COLOR.INPUT,
     });
 
+    const dateMethodsArray = getMethods(new Date());
+    const dateMethodsArrayOptions = dateMethodsArray
+      .filter((methodName) => {
+        // do not expose constructor and setters
+        const shouldExposeMethod = !(
+          methodName === 'constructor' || methodName.startsWith('set')
+        );
+        return shouldExposeMethod;
+      })
+      .sort()
+      .map((methodName) => {
+        return {
+          text: methodName,
+          value: methodName,
+        };
+      });
+
+    this.addInput(
+      'Date method',
+      new EnumType(dateMethodsArrayOptions),
+      'toUTCString',
+      false
+    );
     this.addOutput('date and time', new StringType());
-    this.addOutput('time stamp', new StringType());
 
-    this.name = 'Time';
+    this.name = 'Date and time';
     this.description = 'Outputs current time in different formats';
-    this.date = new Date();
 
-    this.onExecute = async function () {
-      this.setOutputData('date and time', this.date.getUTCDate());
-      this.setOutputData('time stamp', Date.now());
+    this.onExecute = async function (input) {
+      const dateMethod = input['Date method'];
+      this.setOutputData('date and time', new Date()[dateMethod]());
     };
   }
 }
