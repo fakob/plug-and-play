@@ -7,10 +7,10 @@
   /* height: 600px; */
   height: 100vh;
   padding: 8px;
-  background-color: #293742;
+  /* background-color: #293742; */
   overflow: auto;
   user-select: none;
-  z-index: 5;
+  z-index: 200;
 }
 
 .editor {

@@ -1,13 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import {
   Box,
-  FormControl,
-  FormGroup,
+  ButtonGroup,
   MenuItem,
+  Paper,
   Select,
+  Stack,
   ToggleButton,
 } from '@mui/material';
-import LockIcon from '@mui/icons-material/Lock';
+import {
+  Lock as LockIcon,
+  Visibility as VisibilityIcon,
+  VisibilityOff as VisibilityOffIcon,
+} from '@mui/icons-material';
 import Socket from './classes/SocketClass';
 import styles from './utils/style.module.css';
 import { AbstractType } from './nodes/datatypes/abstractType';
@@ -21,7 +26,7 @@ type PropertyArrayContainerProps = {
 export const PropertyArrayContainer: React.FunctionComponent<PropertyArrayContainerProps> =
   (props) => {
     return (
-      <>
+      <Stack spacing={1}>
         {props.inputSocketArray?.map((property, index) => {
           return (
             <PropertyContainer
@@ -48,7 +53,7 @@ export const PropertyArrayContainer: React.FunctionComponent<PropertyArrayContai
             />
           );
         })}
-      </>
+      </Stack>
     );
   };
 
@@ -84,7 +89,7 @@ const PropertyContainer: React.FunctionComponent<PropertyContainerProps> = (
   };
 
   return (
-    <div className={styles.inputContainer}>
+    <Box sx={{ bgcolor: 'background.paper' }}>
       <PropertyHeader
         key={`PropertyHeader-${props.dataType.getName()}`}
         property={props.property}
@@ -94,7 +99,7 @@ const PropertyContainer: React.FunctionComponent<PropertyContainerProps> = (
         onChangeDropdown={onChangeDropdown}
       />
       {widget}
-    </div>
+    </Box>
   );
 };
 
@@ -121,39 +126,56 @@ const PropertyHeader: React.FunctionComponent<PropertyHeaderProps> = (
   }, [name]);
 
   return (
-    <FormControl size="small">
-      <FormGroup row={true}>
-        <ToggleButton
-          value="check"
-          size="small"
-          selected={!visible}
-          onChange={() => {
-            setVisible((value) => !value);
-          }}
-        >
-          {props.hasLink && <LockIcon />}
-          {props.isInput ? 'IN' : 'OUT'}
-        </ToggleButton>
-        <Box sx={{ p: 1, typography: 'subtitle2' }}>{name}</Box>
-        {/* <InputLabel id="demo-simple-select-label">Type</InputLabel> */}
-        <Select
-          labelId="demo-simple-select-label"
-          id="demo-simple-select"
-          value={props.property.dataType.constructor.name}
-          label="Property type"
-          onChange={props.onChangeDropdown}
-          disabled={props.hasLink}
-        >
-          {Object.keys(allDataTypes).map((name) => {
-            const entry = new allDataTypes[name]().getName();
-            return (
-              <MenuItem key={name} value={name}>
-                {entry}
-              </MenuItem>
-            );
-          })}
-        </Select>
-      </FormGroup>
-    </FormControl>
+    <ButtonGroup
+      fullWidth={true}
+      style={{
+        height: '16px',
+        fontSize: '12px',
+      }}
+    >
+      <ToggleButton
+        value="check"
+        size="small"
+        selected={!visible}
+        onChange={() => {
+          setVisible((value) => !value);
+        }}
+        sx={{
+          fontSize: '12px',
+        }}
+      >
+        {visible ? (
+          <VisibilityIcon fontSize="inherit" />
+        ) : (
+          <VisibilityOffIcon fontSize="inherit" />
+        )}
+      </ToggleButton>
+      <Paper component={Stack} direction="row" sx={{ flexGrow: 1, px: 1 }}>
+        <Box sx={{ px: 1 }}>{props.isInput ? 'IN' : 'OUT'}</Box>
+        <Box sx={{ px: 1 }}>
+          {props.property.name} {props.hasLink && 'LINKED'}
+        </Box>
+      </Paper>
+      <Select
+        labelId="demo-simple-select-label"
+        id="demo-simple-select"
+        value={props.property.dataType.constructor.name}
+        label="Property type"
+        onChange={props.onChangeDropdown}
+        disabled={props.hasLink}
+        sx={{
+          fontSize: '12px',
+        }}
+      >
+        {Object.keys(allDataTypes).map((name) => {
+          const entry = new allDataTypes[name]().getName();
+          return (
+            <MenuItem key={name} value={name}>
+              {entry}
+            </MenuItem>
+          );
+        })}
+      </Select>
+    </ButtonGroup>
   );
 };

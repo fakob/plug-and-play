@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import MonacoEditor from 'react-monaco-editor';
 
-import { ThemeProvider } from '@mui/material';
+import { Box, ThemeProvider } from '@mui/material';
 
 import { theme } from './utils/customTheme';
 import styles from './utils/style.module.css';
@@ -58,8 +58,9 @@ const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
 
   return (
     <ThemeProvider theme={theme}>
-      <div
-        className={`${styles.inspectorContainer} bp3-dark`}
+      <Box
+        className={`${styles.inspectorContainer}`}
+        sx={{ bgcolor: 'background.default' }}
         id="editorwrapper"
         key={props?.selectedNode?.id}
       >
@@ -85,7 +86,7 @@ const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
             editorDidMount={editorDidMount}
           />
         )}
-      </div>
+      </Box>
     </ThemeProvider>
   );
 };

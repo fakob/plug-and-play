@@ -9,6 +9,10 @@ export const theme = createTheme({
     secondary: {
       main: '#f50057',
     },
+    background: {
+      paper: '#505050',
+      default: '#272727',
+    },
   },
   spacing: 8,
   shape: {
@@ -59,6 +63,16 @@ export const theme = createTheme({
       defaultProps: {
         margin: 'dense',
         size: 'small',
+      },
+    },
+    MuiFilledInput: {
+      styleOverrides: {
+        root: {
+          padding: '8px',
+        },
+        input: {
+          padding: '0',
+        },
       },
     },
     MuiFormHelperText: {

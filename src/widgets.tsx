@@ -54,60 +54,6 @@ export const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (
 
   return (
     <>
-      <FormGroup>
-        <Button
-          disabled={props.hasLink}
-          onClick={() => {
-            setRound((value) => !value);
-          }}
-        >
-          {round ? 'Integer' : 'Float'}
-        </Button>
-        <TextField
-          label="Value"
-          disabled={props.hasLink}
-          inputProps={{
-            type: 'number',
-            inputMode: 'numeric',
-            // pattern: '[0-9]*',
-            step: round ? null : stepSizeValue,
-          }}
-          onChange={(event) => {
-            potentiallyNotify(props.property, Number(event.target.value));
-            setData(Number(event.target.value));
-          }}
-          value={data || 0}
-        />
-        <Divider />
-        <TextField
-          label="Min"
-          disabled={props.hasLink}
-          inputProps={{
-            type: 'number',
-            inputMode: 'numeric',
-            // pattern: '[0-9]*',
-            step: round ? null : stepSizeValue,
-          }}
-          onChange={(event) => {
-            setMinValue(Number(event.target.value));
-          }}
-          value={minValue}
-        />
-        <TextField
-          label="Max"
-          disabled={props.hasLink}
-          inputProps={{
-            type: 'number',
-            inputMode: 'numeric',
-            // pattern: '[0-9]*',
-            step: round ? null : stepSizeValue,
-          }}
-          onChange={(event) => {
-            setMaxValue(Number(event.target.value));
-          }}
-          value={maxValue}
-        />
-      </FormGroup>
       <Slider
         size="small"
         valueLabelDisplay="auto"
@@ -125,6 +71,71 @@ export const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (
         }}
         value={data || 0}
       />
+      <FormGroup row={true}>
+        <Button
+          disabled={props.hasLink}
+          onClick={() => {
+            setRound((value) => !value);
+          }}
+        >
+          {round ? 'Int' : 'Float'}
+        </Button>
+        <TextField
+          // hiddenLabel
+          variant="filled"
+          label="Value"
+          sx={{
+            width: '136px',
+          }}
+          disabled={props.hasLink}
+          inputProps={{
+            type: 'number',
+            inputMode: 'numeric',
+            step: round ? null : stepSizeValue,
+          }}
+          onChange={(event) => {
+            potentiallyNotify(props.property, Number(event.target.value));
+            setData(Number(event.target.value));
+          }}
+          value={data || 0}
+        />
+        <TextField
+          // hiddenLabel
+          variant="filled"
+          label="Min"
+          sx={{
+            width: '80px',
+          }}
+          disabled={props.hasLink}
+          inputProps={{
+            type: 'number',
+            inputMode: 'numeric',
+            step: round ? null : stepSizeValue,
+          }}
+          onChange={(event) => {
+            setMinValue(Number(event.target.value));
+          }}
+          value={minValue}
+        />
+        <TextField
+          // hiddenLabel
+          variant="filled"
+          label="Max"
+          sx={{
+            width: '80px',
+          }}
+          disabled={props.hasLink}
+          inputProps={{
+            type: 'number',
+            inputMode: 'numeric',
+            step: round ? null : stepSizeValue,
+          }}
+          onChange={(event) => {
+            setMaxValue(Number(event.target.value));
+          }}
+          value={maxValue}
+        />
+      </FormGroup>
     </>
   );
 };
@@ -151,7 +162,15 @@ export const SelectWidget: React.FunctionComponent<SelectWidgetProps> = (
 
   return (
     <FormGroup>
-      <Select value={data} onChange={onChange} disabled={props.hasLink}>
+      <Select
+        variant="filled"
+        // labelId="demo-simple-select-label"
+        // id="demo-simple-select"
+        value={data}
+        // label="Property type"
+        onChange={onChange}
+        disabled={props.hasLink}
+      >
         {options.map(({ text }, index) => {
           return (
             <MenuItem key={index} value={text}>
@@ -206,7 +225,9 @@ export const TextWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
   return (
     <FormGroup>
       <TextField
-        label={props.property.name}
+        hiddenLabel
+        variant="filled"
+        // label={props.property.name}
         multiline
         disabled={props.hasLink}
         onChange={(event) => {
@@ -230,7 +251,9 @@ export const JSONWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
   return (
     <FormGroup>
       <TextField
-        label={props.property.name}
+        hiddenLabel
+        variant="filled"
+        // label={props.property.name}
         multiline
         disabled={props.hasLink}
         onChange={(event) => {
@@ -376,7 +399,9 @@ export const DefaultOutputWidget: React.FunctionComponent<DefaultOutputWidgetPro
     return (
       <FormGroup>
         <TextField
-          label={props.property.name}
+          hiddenLabel
+          variant="filled"
+          // label={props.property.name}
           multiline
           InputProps={{
             readOnly: true,
