@@ -65,16 +65,16 @@ export const theme = createTheme({
         size: 'small',
       },
     },
-    MuiFilledInput: {
-      styleOverrides: {
-        root: {
-          padding: '8px',
-        },
-        input: {
-          padding: '0',
-        },
-      },
-    },
+    // MuiFilledInput: {
+    //   styleOverrides: {
+    //     root: {
+    //       padding: '8px',
+    //     },
+    //     input: {
+    //       padding: '0',
+    //     },
+    //   },
+    // },
     MuiFormHelperText: {
       defaultProps: {
         margin: 'dense',

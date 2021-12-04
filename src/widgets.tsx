@@ -13,6 +13,7 @@ import {
   Slider,
   TextareaAutosize,
   TextField,
+  ToggleButton,
 } from '@mui/material';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import { SketchPicker } from 'react-color';
@@ -56,6 +57,7 @@ export const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (
     <>
       <Slider
         size="small"
+        color="secondary"
         valueLabelDisplay="auto"
         disabled={props.hasLink}
         key={`${props.property.name}-${props.index}`}
@@ -72,16 +74,31 @@ export const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (
         value={data || 0}
       />
       <FormGroup row={true}>
-        <Button
+        {/* <Button
+          color="secondary"
           disabled={props.hasLink}
           onClick={() => {
             setRound((value) => !value);
           }}
         >
           {round ? 'Int' : 'Float'}
-        </Button>
+        </Button> */}
+        <ToggleButton
+          value="check"
+          size="small"
+          selected={!round}
+          color="secondary"
+          disabled={props.hasLink}
+          onChange={() => {
+            setRound((value) => !value);
+          }}
+          sx={{
+            fontSize: '12px',
+          }}
+        >
+          {round ? 'Int' : 'Float'}
+        </ToggleButton>
         <TextField
-          // hiddenLabel
           variant="filled"
           label="Value"
           sx={{
@@ -100,7 +117,6 @@ export const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (
           value={data || 0}
         />
         <TextField
-          // hiddenLabel
           variant="filled"
           label="Min"
           sx={{
@@ -118,7 +134,6 @@ export const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (
           value={minValue}
         />
         <TextField
-          // hiddenLabel
           variant="filled"
           label="Max"
           sx={{
