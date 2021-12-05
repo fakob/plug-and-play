@@ -28,6 +28,7 @@
     "@emotion/react": "^11.6.0",
     "@emotion/styled": "^11.6.0",
     "@fontsource/roboto": "^4.5.1",
+    "@fontsource/roboto-mono": "^4.5.0",
     "@mui/icons-material": "^5.2.0",
     "@mui/material": "^5.2.1",
     "@mui/utils": "^5.2.1",
