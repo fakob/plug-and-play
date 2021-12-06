@@ -2,16 +2,13 @@ import React, { useEffect, useRef, useState } from 'react';
 import prettyFormat from 'pretty-format';
 import {
   Alert,
-  Box,
   Button,
   Checkbox,
-  Divider,
   FormControlLabel,
   FormGroup,
   MenuItem,
   Select,
   Slider,
-  TextareaAutosize,
   TextField,
   ToggleButton,
 } from '@mui/material';
