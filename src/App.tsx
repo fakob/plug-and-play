@@ -95,7 +95,6 @@ const App = (): JSX.Element => {
   const viewport = useRef<Viewport | null>(null);
   const graphSearchInput = useRef<HTMLInputElement | null>(null);
   const [graphSearchRendered, setGraphSearchRendered] = useState(false);
-  const [nodeSearchRendered, setNodeSearchRendered] = useState(false);
   const nodeSearchInput = useRef<HTMLInputElement | null>(null);
   const [isGraphSearchOpen, setIsGraphSearchOpen] = useState(false);
   const [isNodeSearchVisible, setIsNodeSearchVisible] = useState(false);
@@ -491,15 +490,14 @@ const App = (): JSX.Element => {
     // }
   }, [graphSearchRendered]);
 
-  // addEventListener to nodeSearchInput
   useEffect(() => {
-    if (!nodeSearchRendered) {
+    if (!nodeSearchInput?.current) {
       return;
     }
     console.log('add eventlistener to nodeSearchInput');
     nodeSearchInput.current.addEventListener('blur', nodeSearchInputBlurred);
     // }
-  }, [nodeSearchRendered]);
+  }, [nodeSearchInput?.current]);
 
   useEffect(() => {
     if (graphSearchInput.current != null) {
@@ -509,17 +507,17 @@ const App = (): JSX.Element => {
     }
   }, [isGraphSearchOpen]);
 
-  // useEffect(() => {
-  //   if (isNodeSearchVisible) {
-  //     nodeSearchInput.current.focus();
-  //   } else {
-  //     // wait before clearing clickedSocketRef
-  //     // so handleNodeItemSelect has access
-  //     setTimeout(() => {
-  //       currentGraph.current.clearTempConnection();
-  //     }, 100);
-  //   }
-  // }, [isNodeSearchVisible]);
+  useEffect(() => {
+    if (isNodeSearchVisible) {
+      nodeSearchInput.current.focus();
+    } else {
+      // wait before clearing clickedSocketRef
+      // so handleNodeItemSelect has access
+      setTimeout(() => {
+        currentGraph.current.clearTempConnection();
+      }, 100);
+    }
+  }, [isNodeSearchVisible]);
 
   useEffect(() => {
     currentGraph.current.showComments = showComments;
@@ -735,26 +733,6 @@ const App = (): JSX.Element => {
   };
 
   const getNodes = (): INodeSearch[] => {
-    const addLink = currentGraph.current.clickedSocketRef;
-    const tempItems = Object.entries(currentGraph.current.registeredNodeTypes)
-      .map(([title, obj]) => {
-        return {
-          title,
-          name: obj.name,
-          description: obj.description,
-          hasInputs: obj.hasInputs.toString(),
-        };
-      })
-      .sort(
-        (a, b) => a.title.localeCompare(b.title, 'en', { sensitivity: 'base' }) // case insensitive sorting
-      )
-      .filter((node) =>
-        addLink ? node.hasInputs === 'true' : 'true'
-      ) as INodeSearch[];
-    return tempItems;
-  };
-
-  const getNodes2 = (): INodeSearch[] => {
     const addLink = currentGraph.current.clickedSocketRef;
     const tempItems = Object.entries(currentGraph.current.registeredNodeTypes)
       .map(([title, obj]) => {
@@ -1230,6 +1208,9 @@ NOTE: opening a remote playground creates a local copy`
                 /> */}
                 <Autocomplete
                   disablePortal
+                  // freeSolo
+                  // openOnFocus
+                  // selectOnFocus={true}
                   options={Object.entries(
                     currentGraph.current.registeredNodeTypes
                   )
@@ -1254,70 +1235,33 @@ NOTE: opening a remote playground creates a local copy`
                         : 'true'
                     )}
                   sx={{ width: 300 }}
+                  onChange={(event, selected) => {
+                    console.log(selected);
+                    // store link before search gets hidden and temp connection gets reset
+                    const addLink = currentGraph.current.clickedSocketRef;
+                    const nodePos = viewport.current.toWorld(
+                      contextMenuPosition[0],
+                      contextMenuPosition[1]
+                    );
+                    currentGraph.current.createAndAddNode(
+                      (selected as any).title,
+                      {
+                        nodePosX: nodePos.x,
+                        nodePosY: nodePos.y,
+                        addLink,
+                      }
+                    );
+                    setIsNodeSearchVisible(false);
+                  }}
                   renderInput={(params) => (
-                    <TextField {...params} label="Movie" />
+                    <TextField
+                      {...params}
+                      inputRef={nodeSearchInput}
+                      label="Movie"
+                      variant="filled"
+                    />
                   )}
                 />
-                {/* <Autocomplete
-                  disablePortal
-                  options={getNodes()}
-                  sx={{ width: 300 }}
-                  renderInput={(params) => (
-                    <MenuItem
-                      key={(params as any).title}
-                      value={(params as any).title}
-                    >
-                      {(params as any).description}
-                    </MenuItem>
-                    // <MenuItem
-                    //   active={modifiers.active}
-                    //   disabled={modifiers.disabled}
-                    //   key={node.title}
-                    //   title={node.description}
-                    //   label={truncateText(node.description, 24)}
-                    //   onClick={handleClick}
-                    //   text={highlightText(text, query)}
-                    // />
-                    // <TextField {...params} label="Movie" />
-                  )}
-                /> */}
-                {/* <Select
-                  className={styles.nodeSearch}
-                  open={isNodeSearchVisible}
-                  // onClose={handleClose}
-                  // onOpen={handleOpen}
-                  // value={age}
-                  label="Search nodes"
-                  // onChange={handleNodeItemSelect}
-                >
-                  {Object.entries(currentGraph.current.registeredNodeTypes)
-                    .map(([title, obj]) => {
-                      return {
-                        title,
-                        name: obj.name,
-                        description: obj.description,
-                        hasInputs: obj.hasInputs.toString(),
-                      };
-                    })
-                    .sort(
-                      (a, b) =>
-                        a.title.localeCompare(b.title, 'en', {
-                          sensitivity: 'base',
-                        }) // case insensitive sorting
-                    )
-                    .filter((node) =>
-                      currentGraph.current.clickedSocketRef
-                        ? node.hasInputs === 'true'
-                        : 'true'
-                    )
-                    .map((item) => {
-                      return (
-                        <MenuItem key={item.name} value={item.name}>
-                          {item.name}
-                        </MenuItem>
-                      );
-                    })}
-                </Select> */}
               </div>
             </>
           )}
