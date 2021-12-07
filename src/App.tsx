@@ -491,6 +491,14 @@ const App = (): JSX.Element => {
   }, [graphSearchRendered]);
 
   useEffect(() => {
+    if (graphSearchInput.current != null) {
+      if (isGraphSearchOpen) {
+        graphSearchInput.current.focus();
+      }
+    }
+  }, [isGraphSearchOpen]);
+
+  useEffect(() => {
     if (!nodeSearchInput?.current) {
       return;
     }
@@ -500,16 +508,9 @@ const App = (): JSX.Element => {
   }, [nodeSearchInput?.current]);
 
   useEffect(() => {
-    if (graphSearchInput.current != null) {
-      if (isGraphSearchOpen) {
-        graphSearchInput.current.focus();
-      }
-    }
-  }, [isGraphSearchOpen]);
-
-  useEffect(() => {
     if (isNodeSearchVisible) {
       nodeSearchInput.current.focus();
+      nodeSearchInput.current.select();
     } else {
       // wait before clearing clickedSocketRef
       // so handleNodeItemSelect has access
@@ -1207,10 +1208,11 @@ NOTE: opening a remote playground creates a local copy`
                   createNewItemRenderer={renderCreateNodeOption}
                 /> */}
                 <Autocomplete
-                  disablePortal
-                  // freeSolo
-                  // openOnFocus
-                  // selectOnFocus={true}
+                  freeSolo
+                  openOnFocus
+                  selectOnFocus
+                  autoHighlight
+                  getOptionLabel={(option) => option.label}
                   options={Object.entries(
                     currentGraph.current.registeredNodeTypes
                   )
@@ -1244,7 +1246,7 @@ NOTE: opening a remote playground creates a local copy`
                       contextMenuPosition[1]
                     );
                     currentGraph.current.createAndAddNode(
-                      (selected as any).title,
+                      (selected as any).label,
                       {
                         nodePosX: nodePos.x,
                         nodePosY: nodePos.y,
