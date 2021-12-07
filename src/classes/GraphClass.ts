@@ -893,10 +893,13 @@ export default class PPGraph {
 
   deleteSelectedNodes(): void {
     const storedSelection = this.selection.selectedNodes;
+    console.log(storedSelection);
     this.selection.deselectAllNodesAndResetSelection();
-    // loop through storedSelection
-    storedSelection.forEach((node) => {
-      this.removeNode(node);
-    });
+
+    // loop through storedSelection backwards
+    // as the array I am iterating on gets mutated as well
+    for (let i = storedSelection.length - 1; i >= 0; i--) {
+      this.removeNode(storedSelection[i]);
+    }
   }
 }
