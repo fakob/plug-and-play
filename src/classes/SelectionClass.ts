@@ -394,6 +394,15 @@ export default class PPSelection extends PIXI.Container {
     }
   }
 
+  selectAllNodes(): void {
+    this.selectedNodes = this.nodes;
+    // show scaleHandle only if there is only 1 node selected
+    this.scaleHandle.visible = this.selectedNodes.length === 1;
+    if (this.onSelectionChange) {
+      this.onSelectionChange(this.selectedNodes);
+    }
+  }
+
   deselectAllNodes(): void {
     this.selectedNodes = [];
 

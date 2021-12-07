@@ -420,6 +420,10 @@ const App = (): JSX.Element => {
       if (e.shiftKey) {
         viewport.current.cursor = 'default';
       }
+      if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'a') {
+        e.preventDefault();
+        currentGraph.current.selection.selectAllNodes();
+      }
       if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'o') {
         e.preventDefault();
         setIsGraphSearchOpen((prevState) => !prevState);
