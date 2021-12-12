@@ -22,7 +22,16 @@ import {
   MenuItem as MenuItemBP,
 } from '@blueprintjs/core';
 import { ItemRenderer, ItemPredicate, Suggest } from '@blueprintjs/select';
-import { Autocomplete, MenuItem, Select, TextField } from '@mui/material';
+import {
+  Autocomplete,
+  Box,
+  MenuItem,
+  Select,
+  TextField,
+  ThemeProvider,
+  createFilterOptions,
+} from '@mui/material';
+import { theme } from './utils/customTheme';
 import Color from 'color';
 import { hri } from 'human-readable-ids';
 import TimeAgo from 'javascript-time-ago';
@@ -67,7 +76,6 @@ TimeAgo.addDefaultLocale(en);
 const timeAgo = new TimeAgo('en-US');
 
 const GraphSearch = Suggest.ofType<IGraphSearch>();
-const NodeSearch = Suggest.ofType<INodeSearch>();
 
 const isMac = navigator.platform.indexOf('Mac') != -1;
 const controlOrMetaKey = isMac ? '⌘' : 'Ctrl';
@@ -113,6 +121,8 @@ const App = (): JSX.Element => {
   >([{ id: '', name: '' }]);
   const [graphSearchActiveItem, setGraphSearchActiveItem] =
     useState<IGraphSearch | null>(null);
+
+  const filter = createFilterOptions<INodeSearch>();
 
   // dialogs
   const [showEdit, setShowEdit] = useState(false);
@@ -511,6 +521,7 @@ const App = (): JSX.Element => {
     if (isNodeSearchVisible) {
       nodeSearchInput.current.focus();
       nodeSearchInput.current.select();
+      console.dir(nodeSearchInput.current);
     } else {
       // wait before clearing clickedSocketRef
       // so handleNodeItemSelect has access
@@ -717,7 +728,7 @@ const App = (): JSX.Element => {
     }
   };
 
-  const handleNodeItemSelect = (selected: INodeSearch) => {
+  const handleNodeItemSelect = (event, selected: INodeSearch) => {
     console.log(selected);
     // store link before search gets hidden and temp connection gets reset
     const addLink = currentGraph.current.clickedSocketRef;
@@ -740,6 +751,7 @@ const App = (): JSX.Element => {
         return {
           title,
           name: obj.name,
+          key: title,
           description: obj.description,
           hasInputs: obj.hasInputs.toString(),
         };
@@ -853,20 +865,19 @@ const App = (): JSX.Element => {
     }
   };
 
-  const filterNode: ItemPredicate<INodeSearch> = (
-    query,
-    node,
-    _index,
-    exactMatch
-  ) => {
-    const normalizedTitle = node.title.toLowerCase();
-    const normalizedQuery = query.toLowerCase();
-
-    if (exactMatch) {
-      return normalizedTitle === normalizedQuery;
-    } else {
-      return `${normalizedTitle}`.indexOf(normalizedQuery) >= 0;
+  const filterNode = (options, params) => {
+    const filtered = filter(options, params);
+    if (params.inputValue !== '') {
+      console.log(params, params.inputValue);
+      filtered.push({
+        title: params.inputValue,
+        key: params.inputValue,
+        name: `Add "${params.inputValue}"`,
+        description: '',
+        hasInputs: '',
+      });
     }
+    return filtered;
   };
 
   const renderGraphItem: ItemRenderer<IGraphSearch> = (
@@ -980,15 +991,6 @@ NOTE: opening a remote playground creates a local copy`
     );
   };
 
-  const createNewNodeFromQuery = (title: string): INodeSearch => {
-    return {
-      title,
-      name: title,
-      description: '',
-      hasInputs: '',
-    };
-  };
-
   const submitEditDialog = (): void => {
     const name = (
       document.getElementById('playground-name-input') as HTMLInputElement
@@ -1018,257 +1020,222 @@ NOTE: opening a remote playground creates a local copy`
 
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
-      <div
-        // close open context menu again on click
-        onClick={() => {
-          isGraphContextMenuOpen && setIsGraphContextMenuOpen(false);
-          isNodeContextMenuOpen && setIsNodeContextMenuOpen(false);
-          isGraphSearchOpen && setIsGraphSearchOpen(false);
-        }}
-      >
-        <div {...getRootProps({ style })}>
-          <input {...getInputProps()} />
-          <Alert
-            cancelButtonText="Cancel"
-            confirmButtonText="Delete"
-            intent={Intent.DANGER}
-            isOpen={showDeleteGraph}
-            onCancel={() => setShowDeleteGraph(false)}
-            onConfirm={() => {
-              setShowDeleteGraph(false);
-              deleteGraph(actionObject.id);
-            }}
-          >
-            <p>
-              Are you sure you want to delete
-              <br />
-              <b>{`${actionObject?.name}`}</b>?
-            </p>
-          </Alert>
-          <Dialog
-            onClose={() => setShowEdit(false)}
-            title="Edit playground details"
-            autoFocus={true}
-            canEscapeKeyClose={true}
-            canOutsideClickClose={true}
-            enforceFocus={true}
-            isOpen={showEdit}
-            usePortal={true}
-            onOpened={() => {
-              const input = document.getElementById(
-                'playground-name-input'
-              ) as HTMLInputElement;
-              input.focus();
-              input.select();
-            }}
-          >
-            <div className={Classes.DIALOG_BODY}>
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  submitEditDialog();
-                }}
-              >
-                <FormGroup label="Name of playground" labelFor="text-input">
-                  <InputGroup
-                    id="playground-name-input"
-                    defaultValue={`${actionObject?.name}`}
-                    placeholder={`${actionObject?.name}`}
-                  />
-                </FormGroup>
-                <div className={Classes.DIALOG_FOOTER}>
-                  <div className={Classes.DIALOG_FOOTER_ACTIONS}>
-                    <Button onClick={() => setShowEdit(false)}>Cancel</Button>
-                    <Button
-                      intent={Intent.WARNING}
-                      onClick={() => {
-                        submitEditDialog();
-                      }}
-                    >
-                      Save
-                    </Button>
+      <ThemeProvider theme={theme}>
+        <div
+          // close open context menu again on click
+          onClick={() => {
+            isGraphContextMenuOpen && setIsGraphContextMenuOpen(false);
+            isNodeContextMenuOpen && setIsNodeContextMenuOpen(false);
+            isGraphSearchOpen && setIsGraphSearchOpen(false);
+          }}
+        >
+          <div {...getRootProps({ style })}>
+            <input {...getInputProps()} />
+            <Alert
+              cancelButtonText="Cancel"
+              confirmButtonText="Delete"
+              intent={Intent.DANGER}
+              isOpen={showDeleteGraph}
+              onCancel={() => setShowDeleteGraph(false)}
+              onConfirm={() => {
+                setShowDeleteGraph(false);
+                deleteGraph(actionObject.id);
+              }}
+            >
+              <p>
+                Are you sure you want to delete
+                <br />
+                <b>{`${actionObject?.name}`}</b>?
+              </p>
+            </Alert>
+            <Dialog
+              onClose={() => setShowEdit(false)}
+              title="Edit playground details"
+              autoFocus={true}
+              canEscapeKeyClose={true}
+              canOutsideClickClose={true}
+              enforceFocus={true}
+              isOpen={showEdit}
+              usePortal={true}
+              onOpened={() => {
+                const input = document.getElementById(
+                  'playground-name-input'
+                ) as HTMLInputElement;
+                input.focus();
+                input.select();
+              }}
+            >
+              <div className={Classes.DIALOG_BODY}>
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    submitEditDialog();
+                  }}
+                >
+                  <FormGroup label="Name of playground" labelFor="text-input">
+                    <InputGroup
+                      id="playground-name-input"
+                      defaultValue={`${actionObject?.name}`}
+                      placeholder={`${actionObject?.name}`}
+                    />
+                  </FormGroup>
+                  <div className={Classes.DIALOG_FOOTER}>
+                    <div className={Classes.DIALOG_FOOTER_ACTIONS}>
+                      <Button onClick={() => setShowEdit(false)}>Cancel</Button>
+                      <Button
+                        intent={Intent.WARNING}
+                        onClick={() => {
+                          submitEditDialog();
+                        }}
+                      >
+                        Save
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              </form>
-            </div>
-          </Dialog>
-          {isGraphContextMenuOpen && (
-            <GraphContextMenu
-              controlOrMetaKey={controlOrMetaKey}
-              contextMenuPosition={contextMenuPosition}
-              currentGraph={currentGraph}
-              setIsGraphSearchOpen={setIsGraphSearchOpen}
-              openNodeSearch={openNodeSearch}
-              setShowEdit={setShowEdit}
-              loadGraph={loadGraph}
-              saveGraph={saveGraph}
-              saveNewGraph={saveNewGraph}
-              downloadGraph={downloadGraph}
-              uploadGraph={uploadGraph}
-              showComments={showComments}
-              setShowComments={setShowComments}
-              zoomToFit={zoomToFit}
-            />
-          )}
-          {isNodeContextMenuOpen && (
-            <NodeContextMenu
-              controlOrMetaKey={controlOrMetaKey}
-              contextMenuPosition={contextMenuPosition}
-              currentGraph={currentGraph}
-            />
-          )}
-          <PixiContainer ref={pixiContext} />
-          {selectedNode && (
-            <InspectorContainer
-              currentGraph={currentGraph.current}
-              selectedNode={selectedNode}
-              isCustomNode={currentGraph.current.isCustomNode(selectedNode)}
-              onSave={createOrUpdateNodeFromCode}
-            />
-          )}
-          {selectedNodes && selectionPos && (
-            <FloatingNodeMenu
-              x={
-                selectionPos.x +
-                currentGraph.current.selection.selectionGraphics.width / 2
-              }
-              y={Math.max(0, selectionPos.y - 40)}
-              selectedNodes={selectedNodes}
-            />
-          )}
-          <img
-            className={styles.plugAndPlaygroundIcon}
-            style={{
-              backgroundColor: randomMainColor,
-            }}
-            src={PLUGANDPLAY_ICON}
-            onClick={() => {
-              setContextMenuPosition([80, 40]);
-              setIsGraphContextMenuOpen(true);
-            }}
-          />
-          {isCurrentGraphLoaded && (
-            <>
-              <GraphSearch
-                className={`${styles.graphSearch} graphSearch`}
-                inputProps={{
-                  inputRef: (el) => {
-                    graphSearchInput.current = el;
-                    setGraphSearchRendered(!!el);
-                  },
-                  large: true,
-                  placeholder: 'Search playgrounds',
-                  className: styles.brightPlaceholder,
-                  style: {
-                    backgroundColor: Color(randomMainColor).alpha(0.5),
-                  },
-                }}
-                noResults={'No playgrounds available'}
-                itemRenderer={renderGraphItem}
-                items={graphSearchItems}
-                activeItem={graphSearchActiveItem}
-                itemPredicate={filterGraph}
-                onItemSelect={handleGraphItemSelect}
-                resetOnClose={true}
-                resetOnQuery={true}
-                resetOnSelect={true}
-                popoverProps={{ minimal: true, portalClassName: 'graphSearch' }}
-                inputValueRenderer={(item: IGraphSearch) => item.name}
-                createNewItemFromQuery={createNewGraphFromQuery}
-                createNewItemRenderer={renderCreateGraphOption}
+                </form>
+              </div>
+            </Dialog>
+            {isGraphContextMenuOpen && (
+              <GraphContextMenu
+                controlOrMetaKey={controlOrMetaKey}
+                contextMenuPosition={contextMenuPosition}
+                currentGraph={currentGraph}
+                setIsGraphSearchOpen={setIsGraphSearchOpen}
+                openNodeSearch={openNodeSearch}
+                setShowEdit={setShowEdit}
+                loadGraph={loadGraph}
+                saveGraph={saveGraph}
+                saveNewGraph={saveNewGraph}
+                downloadGraph={downloadGraph}
+                uploadGraph={uploadGraph}
+                showComments={showComments}
+                setShowComments={setShowComments}
+                zoomToFit={zoomToFit}
               />
-              <div
-                style={{
-                  visibility: isNodeSearchVisible ? undefined : 'hidden',
-                  position: 'relative',
-                  left: `${contextMenuPosition[0]}px`,
-                  top: `${contextMenuPosition[1]}px`,
-                }}
-              >
-                {/* <NodeSearch
-                  className={styles.nodeSearch}
+            )}
+            {isNodeContextMenuOpen && (
+              <NodeContextMenu
+                controlOrMetaKey={controlOrMetaKey}
+                contextMenuPosition={contextMenuPosition}
+                currentGraph={currentGraph}
+              />
+            )}
+            <PixiContainer ref={pixiContext} />
+            {selectedNode && (
+              <InspectorContainer
+                currentGraph={currentGraph.current}
+                selectedNode={selectedNode}
+                isCustomNode={currentGraph.current.isCustomNode(selectedNode)}
+                onSave={createOrUpdateNodeFromCode}
+              />
+            )}
+            {selectedNodes && selectionPos && (
+              <FloatingNodeMenu
+                x={
+                  selectionPos.x +
+                  currentGraph.current.selection.selectionGraphics.width / 2
+                }
+                y={Math.max(0, selectionPos.y - 40)}
+                selectedNodes={selectedNodes}
+              />
+            )}
+            <img
+              className={styles.plugAndPlaygroundIcon}
+              style={{
+                backgroundColor: randomMainColor,
+              }}
+              src={PLUGANDPLAY_ICON}
+              onClick={() => {
+                setContextMenuPosition([80, 40]);
+                setIsGraphContextMenuOpen(true);
+              }}
+            />
+            {isCurrentGraphLoaded && (
+              <>
+                <GraphSearch
+                  className={`${styles.graphSearch} graphSearch`}
                   inputProps={{
                     inputRef: (el) => {
-                      nodeSearchInput.current = el;
-                      setNodeSearchRendered(!!el);
+                      graphSearchInput.current = el;
+                      setGraphSearchRendered(!!el);
                     },
                     large: true,
-                    placeholder: 'Search Nodes',
+                    placeholder: 'Search playgrounds',
+                    className: styles.brightPlaceholder,
+                    style: {
+                      backgroundColor: Color(randomMainColor).alpha(0.5),
+                    },
                   }}
-                  itemRenderer={renderNodeItem}
-                  items={getNodes()}
-                  itemPredicate={filterNode}
-                  onItemSelect={handleNodeItemSelect}
+                  noResults={'No playgrounds available'}
+                  itemRenderer={renderGraphItem}
+                  items={graphSearchItems}
+                  activeItem={graphSearchActiveItem}
+                  itemPredicate={filterGraph}
+                  onItemSelect={handleGraphItemSelect}
                   resetOnClose={true}
                   resetOnQuery={true}
                   resetOnSelect={true}
-                  popoverProps={{ minimal: true }}
-                  inputValueRenderer={(node: INodeSearch) => node.title}
-                  createNewItemFromQuery={createNewNodeFromQuery}
-                  createNewItemRenderer={renderCreateNodeOption}
-                /> */}
-                <Autocomplete
-                  freeSolo
-                  openOnFocus
-                  selectOnFocus
-                  autoHighlight
-                  getOptionLabel={(option) => option.label}
-                  options={Object.entries(
-                    currentGraph.current.registeredNodeTypes
-                  )
-                    .map(([title, obj]) => {
-                      return {
-                        title,
-                        label: title,
-                        name: obj.name,
-                        description: obj.description,
-                        hasInputs: obj.hasInputs.toString(),
-                      };
-                    })
-                    .sort(
-                      (a, b) =>
-                        a.title.localeCompare(b.title, 'en', {
-                          sensitivity: 'base',
-                        }) // case insensitive sorting
-                    )
-                    .filter((node) =>
-                      currentGraph.current.clickedSocketRef
-                        ? node.hasInputs === 'true'
-                        : 'true'
-                    )}
-                  sx={{ width: 300 }}
-                  onChange={(event, selected) => {
-                    console.log(selected);
-                    // store link before search gets hidden and temp connection gets reset
-                    const addLink = currentGraph.current.clickedSocketRef;
-                    const nodePos = viewport.current.toWorld(
-                      contextMenuPosition[0],
-                      contextMenuPosition[1]
-                    );
-                    currentGraph.current.createAndAddNode(
-                      (selected as any).label,
-                      {
-                        nodePosX: nodePos.x,
-                        nodePosY: nodePos.y,
-                        addLink,
-                      }
-                    );
-                    setIsNodeSearchVisible(false);
+                  popoverProps={{
+                    minimal: true,
+                    portalClassName: 'graphSearch',
                   }}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      inputRef={nodeSearchInput}
-                      label="Movie"
-                      variant="filled"
-                    />
-                  )}
+                  inputValueRenderer={(item: IGraphSearch) => item.name}
+                  createNewItemFromQuery={createNewGraphFromQuery}
+                  createNewItemRenderer={renderCreateGraphOption}
                 />
-              </div>
-            </>
-          )}
+                <div
+                  style={{
+                    visibility: isNodeSearchVisible ? undefined : 'hidden',
+                    position: 'relative',
+                    left: `${contextMenuPosition[0]}px`,
+                    top: `${contextMenuPosition[1]}px`,
+                  }}
+                >
+                  <Autocomplete
+                    freeSolo
+                    openOnFocus
+                    selectOnFocus
+                    autoHighlight
+                    clearOnBlur
+                    getOptionLabel={(option) => option.name}
+                    options={getNodes()}
+                    sx={{ width: 300, background: 'black' }}
+                    onChange={handleNodeItemSelect}
+                    filterOptions={filterNode}
+                    renderOption={(props, option, { selected }) => (
+                      <li {...props} key={option.title}>
+                        <Box
+                          sx={{
+                            flexGrow: 1,
+                            '& span': {
+                              color:
+                                theme.palette.mode === 'light'
+                                  ? '#586069'
+                                  : '#8b949e',
+                            },
+                          }}
+                        >
+                          {option.name}
+                          <span> {option.title}</span>
+                          <br />
+                          <span>{option.description}</span>
+                        </Box>
+                      </li>
+                    )}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        inputRef={nodeSearchInput}
+                        variant="filled"
+                      />
+                    )}
+                  />
+                </div>
+              </>
+            )}
+          </div>
         </div>
-      </div>
+      </ThemeProvider>
     </ErrorBoundary>
   );
 };
