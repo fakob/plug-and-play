@@ -42,6 +42,7 @@ export type CustomArgs = {
 };
 
 export interface IGraphSearch {
+  inputValue?: string;
   id: string;
   name: string;
   label?: string;

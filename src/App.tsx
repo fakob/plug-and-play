@@ -12,7 +12,7 @@ import { Viewport } from 'pixi-viewport';
 import {
   Alert,
   Button,
-  ButtonGroup,
+  // ButtonGroup,
   Classes,
   Dialog,
   FormGroup,
@@ -21,16 +21,20 @@ import {
   MenuDivider,
   MenuItem as MenuItemBP,
 } from '@blueprintjs/core';
-import { ItemRenderer, ItemPredicate, Suggest } from '@blueprintjs/select';
 import {
   Autocomplete,
   Box,
+  ButtonGroup,
+  IconButton,
   MenuItem,
   Select,
   TextField,
   ThemeProvider,
   createFilterOptions,
 } from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { theme } from './utils/customTheme';
 import Color from 'color';
 import { hri } from 'human-readable-ids';
@@ -56,7 +60,6 @@ import {
   getLoadedGraphId,
   getRemoteGraph,
   getRemoteGraphsList,
-  highlightText,
   truncateText,
   removeExtension,
   useStateRef,
@@ -74,8 +77,6 @@ import styles from './utils/style.module.css';
 TimeAgo.addDefaultLocale(en);
 // Create formatter (English).
 const timeAgo = new TimeAgo('en-US');
-
-const GraphSearch = Suggest.ofType<IGraphSearch>();
 
 const isMac = navigator.platform.indexOf('Mac') != -1;
 const controlOrMetaKey = isMac ? '⌘' : 'Ctrl';
@@ -102,7 +103,6 @@ const App = (): JSX.Element => {
   const pixiContext = useRef<HTMLDivElement | null>(null);
   const viewport = useRef<Viewport | null>(null);
   const graphSearchInput = useRef<HTMLInputElement | null>(null);
-  const [graphSearchRendered, setGraphSearchRendered] = useState(false);
   const nodeSearchInput = useRef<HTMLInputElement | null>(null);
   const [isGraphSearchOpen, setIsGraphSearchOpen] = useState(false);
   const [isNodeSearchVisible, setIsNodeSearchVisible] = useState(false);
@@ -119,10 +119,13 @@ const App = (): JSX.Element => {
   const [graphSearchItems, setGraphSearchItems] = useState<
     IGraphSearch[] | null
   >([{ id: '', name: '' }]);
+  const [nodeSearchActiveItem, setNodeSearchActiveItem] =
+    useState<INodeSearch | null>(null);
   const [graphSearchActiveItem, setGraphSearchActiveItem] =
     useState<IGraphSearch | null>(null);
 
-  const filter = createFilterOptions<INodeSearch>();
+  const filterOptionGraph = createFilterOptions<IGraphSearch>();
+  const filterOptionNode = createFilterOptions<INodeSearch>();
 
   // dialogs
   const [showEdit, setShowEdit] = useState(false);
@@ -492,13 +495,13 @@ const App = (): JSX.Element => {
 
   // addEventListener to graphSearchInput
   useEffect(() => {
-    if (!graphSearchRendered) {
+    if (!graphSearchInput?.current) {
       return;
     }
     console.log('add eventlistener to graphSearchInput');
     graphSearchInput.current.addEventListener('focus', updateGraphSearchItems);
     // }
-  }, [graphSearchRendered]);
+  }, [graphSearchInput?.current]);
 
   useEffect(() => {
     if (graphSearchInput.current != null) {
@@ -709,7 +712,7 @@ const App = (): JSX.Element => {
     currentGraph.current.createOrUpdateNodeFromCode(code);
   }
 
-  const handleGraphItemSelect = (selected: IGraphSearch) => {
+  const handleGraphItemSelect = (event, selected: IGraphSearch) => {
     console.log(selected);
     setIsGraphSearchOpen(false);
 
@@ -741,6 +744,7 @@ const App = (): JSX.Element => {
       nodePosY: nodePos.y,
       addLink,
     });
+    setNodeSearchActiveItem(selected);
     setIsNodeSearchVisible(false);
   };
 
@@ -827,6 +831,7 @@ const App = (): JSX.Element => {
         ...newGraphSearchItems,
         ...remoteGraphSearchItems,
       ];
+      console.log(allGraphSearchItems);
       setGraphSearchItems(allGraphSearchItems);
 
       const loadedGraphId = await getLoadedGraphId(db);
@@ -847,32 +852,27 @@ const App = (): JSX.Element => {
     );
   }
 
-  const filterGraph: ItemPredicate<IGraphSearch> = (
-    query,
-    graph,
-    _index,
-    exactMatch
-  ) => {
-    if (graph) {
-      const normalizedTitle = graph?.name?.toLowerCase();
-      const normalizedQuery = query.toLowerCase();
-
-      if (exactMatch) {
-        return normalizedTitle === normalizedQuery;
-      } else {
-        return `${normalizedTitle}`.indexOf(normalizedQuery) >= 0;
-      }
+  const filterGraph = (options, params) => {
+    const filtered = filterOptionGraph(options, params);
+    if (params.inputValue !== '') {
+      console.log(params, params.inputValue);
+      filtered.push({
+        id: hri.random(),
+        name: `Create empty playground: "${params.inputValue}"`,
+        isNew: true,
+      });
     }
+    return filtered;
   };
 
   const filterNode = (options, params) => {
-    const filtered = filter(options, params);
+    const filtered = filterOptionNode(options, params);
     if (params.inputValue !== '') {
       console.log(params, params.inputValue);
       filtered.push({
         title: params.inputValue,
         key: params.inputValue,
-        name: `Add "${params.inputValue}"`,
+        name: `Create custom node: "${params.inputValue}"`,
         description: '',
         hasInputs: '',
       });
@@ -880,115 +880,70 @@ const App = (): JSX.Element => {
     return filtered;
   };
 
-  const renderGraphItem: ItemRenderer<IGraphSearch> = (
-    graph,
-    { handleClick, modifiers, query }
-  ) => {
-    if (!modifiers.matchesPredicate) {
-      return null;
-    }
-    const isRemote = graph.isRemote;
-    const text = graph.name;
+  const renderGraphItem = (props, option, state) => {
+    console.log(props, option, state);
+    // if (!modifiers.matchesPredicate) {
+    //   return null;
+    // }
+    const isRemote = option.isRemote;
+    const text = option.name;
     const title = isRemote // hover title tag
-      ? `${graph.name}
+      ? `${option.name}
 NOTE: opening a remote playground creates a local copy`
-      : graph.name;
-    const icon = isRemote ? 'duplicate' : undefined;
-    const label = graph.label;
-    const itemToReturn = graph.isDisabled ? (
-      <MenuDivider key={graph.id} title={text} />
+      : option.name;
+    const optionLabel = option.label;
+    const itemToReturn = option.isDisabled ? (
+      <li {...props} key={option.id}>
+        {text}
+      </li>
     ) : (
-      <MenuItemBP
-        active={modifiers.active}
-        disabled={graph.isDisabled || modifiers.disabled}
-        key={graph.id}
-        title={title}
-        icon={icon}
-        onClick={handleClick}
-        label={label}
-        labelElement={
-          !isRemote && (
-            <ButtonGroup minimal={true} className="menuItemButtonGroup">
-              <Button
-                minimal
-                icon="edit"
-                title="Rename playground"
-                className="menuItemButton"
-                onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
-                  event.stopPropagation();
-                  console.log(graph.name);
-                  setIsGraphSearchOpen(false);
-                  setActionObject(graph);
-                  setShowEdit(true);
-                }}
-              />
-              <Button
-                minimal
-                icon="trash"
-                title="Delete playground"
-                className="menuItemButton"
-                onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
-                  event.stopPropagation();
-                  console.log(graph.name);
-                  setIsGraphSearchOpen(false);
-                  setActionObject(graph);
-                  setShowDeleteGraph(true);
-                }}
-              />
-            </ButtonGroup>
-          )
-        }
-        text={highlightText(text, query)}
-      />
+      <li {...props} key={option.id} title={title}>
+        {isRemote && <ContentCopyIcon />}
+        <Box>
+          {text} {optionLabel}
+        </Box>
+        {!isRemote && (
+          <ButtonGroup
+            size="small"
+            sx={{
+              display: 'none',
+              '.Mui-focused &': {
+                display: 'inline-block',
+              },
+            }}
+          >
+            <IconButton
+              onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+                event.stopPropagation();
+                console.log(option.name);
+                setIsGraphSearchOpen(false);
+                setActionObject(option);
+                setShowEdit(true);
+              }}
+              title="Rename playground"
+              className="menuItemButton"
+            >
+              <EditIcon />
+            </IconButton>
+            <IconButton
+              title="Delete playground"
+              className="menuItemButton"
+              onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+                event.stopPropagation();
+                console.log(option.name);
+                setIsGraphSearchOpen(false);
+                setActionObject(option);
+                setShowDeleteGraph(true);
+              }}
+            >
+              <DeleteIcon />
+            </IconButton>
+          </ButtonGroup>
+        )}
+      </li>
     );
+
     return itemToReturn;
-  };
-
-  const renderCreateGraphOption = (
-    query: string,
-    active: boolean,
-    handleClick: React.MouseEventHandler<HTMLElement>
-  ) => (
-    <MenuItemBP
-      icon="add"
-      text={
-        <span>
-          Create empty playground: <strong>{query}</strong>
-        </span>
-      }
-      active={active}
-      onClick={handleClick}
-      shouldDismissPopover={false}
-    />
-  );
-
-  const createNewGraphFromQuery = (title: string): IGraphSearch => {
-    return {
-      id: hri.random(),
-      name: title,
-      isNew: true,
-    };
-  };
-
-  const renderNodeItem: ItemRenderer<INodeSearch> = (
-    node,
-    { handleClick, modifiers, query }
-  ) => {
-    if (!modifiers.matchesPredicate) {
-      return null;
-    }
-    const text = `${node.title}`;
-    return (
-      <MenuItemBP
-        active={modifiers.active}
-        disabled={modifiers.disabled}
-        key={node.title}
-        title={node.description}
-        label={truncateText(node.description, 24)}
-        onClick={handleClick}
-        text={highlightText(text, query)}
-      />
-    );
   };
 
   const submitEditDialog = (): void => {
@@ -999,24 +954,6 @@ NOTE: opening a remote playground creates a local copy`
     renameGraph(actionObject.id, name);
     updateGraphSearchItems();
   };
-
-  const renderCreateNodeOption = (
-    query: string,
-    active: boolean,
-    handleClick: React.MouseEventHandler<HTMLElement>
-  ) => (
-    <MenuItemBP
-      icon="add"
-      text={
-        <span>
-          Create custom node: <strong>{query}</strong>
-        </span>
-      }
-      active={active}
-      onClick={handleClick}
-      shouldDismissPopover={false}
-    />
-  );
 
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
@@ -1152,36 +1089,32 @@ NOTE: opening a remote playground creates a local copy`
             />
             {isCurrentGraphLoaded && (
               <>
-                <GraphSearch
-                  className={`${styles.graphSearch} graphSearch`}
-                  inputProps={{
-                    inputRef: (el) => {
-                      graphSearchInput.current = el;
-                      setGraphSearchRendered(!!el);
-                    },
-                    large: true,
-                    placeholder: 'Search playgrounds',
-                    className: styles.brightPlaceholder,
-                    style: {
-                      backgroundColor: Color(randomMainColor).alpha(0.5),
-                    },
-                  }}
-                  noResults={'No playgrounds available'}
-                  itemRenderer={renderGraphItem}
-                  items={graphSearchItems}
-                  activeItem={graphSearchActiveItem}
-                  itemPredicate={filterGraph}
-                  onItemSelect={handleGraphItemSelect}
-                  resetOnClose={true}
-                  resetOnQuery={true}
-                  resetOnSelect={true}
-                  popoverProps={{
-                    minimal: true,
-                    portalClassName: 'graphSearch',
-                  }}
-                  inputValueRenderer={(item: IGraphSearch) => item.name}
-                  createNewItemFromQuery={createNewGraphFromQuery}
-                  createNewItemRenderer={renderCreateGraphOption}
+                <Autocomplete
+                  className={styles.graphSearch}
+                  freeSolo
+                  openOnFocus
+                  selectOnFocus
+                  autoHighlight
+                  clearOnBlur
+                  value={graphSearchActiveItem}
+                  getOptionDisabled={(option) => option.isDisabled}
+                  getOptionLabel={(option) => option.name}
+                  options={graphSearchItems}
+                  sx={{ width: 'calc(100vw - 120px)', background: 'black' }}
+                  onChange={handleGraphItemSelect}
+                  filterOptions={filterGraph}
+                  renderOption={renderGraphItem}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      inputRef={graphSearchInput}
+                      variant="filled"
+                      className={styles.brightPlaceholder}
+                      sx={{
+                        backgroundColor: `${Color(randomMainColor).alpha(0.5)}`,
+                      }}
+                    />
+                  )}
                 />
                 <div
                   style={{
@@ -1197,28 +1130,31 @@ NOTE: opening a remote playground creates a local copy`
                     selectOnFocus
                     autoHighlight
                     clearOnBlur
+                    value={nodeSearchActiveItem} // does not seem to work. why?
                     getOptionLabel={(option) => option.name}
                     options={getNodes()}
                     sx={{ width: 300, background: 'black' }}
                     onChange={handleNodeItemSelect}
                     filterOptions={filterNode}
-                    renderOption={(props, option, { selected }) => (
+                    renderOption={(
+                      props,
+                      option,
+                      { selected } // selected is always false. why?
+                    ) => (
                       <li {...props} key={option.title}>
                         <Box
+                          title={option.description}
                           sx={{
                             flexGrow: 1,
                             '& span': {
-                              color:
-                                theme.palette.mode === 'light'
-                                  ? '#586069'
-                                  : '#8b949e',
+                              color: selected ? '#586069' : '#8b949e',
                             },
                           }}
                         >
-                          {option.name}
+                          {option.name} {selected ? 'yes' : 'no'}
                           <span> {option.title}</span>
                           <br />
-                          <span>{option.description}</span>
+                          <span>{truncateText(option.description, 24)}</span>
                         </Box>
                       </li>
                     )}
