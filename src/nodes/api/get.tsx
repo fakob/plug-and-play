@@ -26,8 +26,8 @@ export class Get extends PureNode {
       new Socket(
         SOCKET_TYPE.IN,
         headersInputName,
-        new JSONType(),
-        { 'Content-Type': 'application/json' }
+        new StringType(),
+        '{ "Content-Type": "application/json" }'
       ),
 
       new Socket(SOCKET_TYPE.OUT, outputContentName, new JSONType(), ''),
@@ -39,7 +39,7 @@ export class Get extends PureNode {
   ): Promise<void> {
     const res = await fetch(inputObject[urlInputName], {
       method: 'Get',
-      headers: inputObject[headersInputName],
+      headers: JSON.parse(inputObject[headersInputName]),
     });
     outputObject[outputContentName] = await res.json();
   }
@@ -62,7 +62,7 @@ export class Post extends PureNode {
         SOCKET_TYPE.IN,
         headersInputName,
         new StringType(),
-        "{ 'Content-Type': 'application/json' }"
+        '{ "Content-Type": "application/json" }'
       ),
       new Socket(SOCKET_TYPE.IN, bodyInputName, new JSONType(), {}),
       new Socket(SOCKET_TYPE.OUT, outputContentName, new JSONType(), ''),
