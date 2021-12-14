@@ -798,7 +798,42 @@ export default class PPNode extends PIXI.Container {
     return foundChange;
   }
 
+  // override if you don't want your node to show outline for some reason
+  public shouldDrawOutline(): boolean {
+    return true;
+  }
+
+  public renderOutline(): void {
+    let activeOutline;
+    const iterations = 30;
+    const interval = 16;
+    for (let i = 1; i <= iterations; i++) {
+      setTimeout(() => {
+        this.removeChild(activeOutline);
+        activeOutline = new PIXI.Graphics();
+        activeOutline.beginFill(
+          PIXI.utils.string2hex('33FF00'),
+          0.7 - i * (0.7 / iterations)
+        );
+        activeOutline.drawRoundedRect(
+          NODE_MARGIN,
+          0,
+          this.nodeWidth,
+          this.nodeHeight === undefined
+            ? this.calculatedMinNodeHeight
+            : Math.max(this.nodeHeight, this.calculatedMinNodeHeight),
+          this.roundedCorners ? NODE_CORNERRADIUS : 0
+        );
+        activeOutline.endFill();
+        this.addChild(activeOutline);
+      }, i * interval);
+    }
+  }
+
   public async execute(upstreamContent: Set<string>): Promise<void> {
+    if (this.shouldDrawOutline()) {
+      this.renderOutline();
+    }
     const foundChange = await this.rawExecute();
     this.drawComment();
 
