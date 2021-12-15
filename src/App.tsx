@@ -946,6 +946,27 @@ NOTE: opening a remote playground creates a local copy`
     return itemToReturn;
   };
 
+  const renderNodeItem = (props, option, { selected }) => {
+    return (
+      <li {...props} key={option.title}>
+        <Box
+          title={option.description}
+          sx={{
+            flexGrow: 1,
+            '& span': {
+              color: selected ? '#586069' : '#8b949e',
+            },
+          }}
+        >
+          {option.name} {selected ? 'yes' : 'no'}
+          <span> {option.title}</span>
+          <br />
+          <span>{truncateText(option.description, 24)}</span>
+        </Box>
+      </li>
+    );
+  };
+
   const submitEditDialog = (): void => {
     const name = (
       document.getElementById('playground-name-input') as HTMLInputElement
@@ -1096,6 +1117,9 @@ NOTE: opening a remote playground creates a local copy`
                   selectOnFocus
                   autoHighlight
                   clearOnBlur
+                  isOptionEqualToValue={(option, value) =>
+                    option.title === value.title
+                  }
                   value={graphSearchActiveItem}
                   getOptionDisabled={(option) => option.isDisabled}
                   getOptionLabel={(option) => option.name}
@@ -1107,9 +1131,11 @@ NOTE: opening a remote playground creates a local copy`
                   renderInput={(params) => (
                     <TextField
                       {...params}
+                      hiddenLabel
+                      className={styles.brightPlaceholder}
                       inputRef={graphSearchInput}
                       variant="filled"
-                      className={styles.brightPlaceholder}
+                      placeholder="Search playgrounds"
                       sx={{
                         backgroundColor: `${Color(randomMainColor).alpha(0.5)}`,
                       }}
@@ -1130,39 +1156,23 @@ NOTE: opening a remote playground creates a local copy`
                     selectOnFocus
                     autoHighlight
                     clearOnBlur
+                    isOptionEqualToValue={(option, value) =>
+                      option.title === value.title
+                    }
                     value={nodeSearchActiveItem} // does not seem to work. why?
                     getOptionLabel={(option) => option.name}
                     options={getNodes()}
                     sx={{ width: 300, background: 'black' }}
                     onChange={handleNodeItemSelect}
                     filterOptions={filterNode}
-                    renderOption={(
-                      props,
-                      option,
-                      { selected } // selected is always false. why?
-                    ) => (
-                      <li {...props} key={option.title}>
-                        <Box
-                          title={option.description}
-                          sx={{
-                            flexGrow: 1,
-                            '& span': {
-                              color: selected ? '#586069' : '#8b949e',
-                            },
-                          }}
-                        >
-                          {option.name} {selected ? 'yes' : 'no'}
-                          <span> {option.title}</span>
-                          <br />
-                          <span>{truncateText(option.description, 24)}</span>
-                        </Box>
-                      </li>
-                    )}
+                    renderOption={renderNodeItem}
                     renderInput={(params) => (
                       <TextField
                         {...params}
+                        hiddenLabel
                         inputRef={nodeSearchInput}
                         variant="filled"
+                        placeholder="Search nodes"
                       />
                     )}
                   />
