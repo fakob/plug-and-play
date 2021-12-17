@@ -799,23 +799,23 @@ export default class PPNode extends PIXI.Container {
   }
 
   // override if you don't want your node to show outline for some reason
-  public shouldDrawOutline(): boolean {
+  public shouldDrawExecution(): boolean {
     return true;
   }
 
   public renderOutline(): void {
-    let activeOutline;
-    const iterations = 30;
-    const interval = 16;
+    const iterations = 6;
+    const interval = 32;
+    const activeExecution = new PIXI.Graphics();
+    this.addChild(activeExecution);
     for (let i = 1; i <= iterations; i++) {
       setTimeout(() => {
-        this.removeChild(activeOutline);
-        activeOutline = new PIXI.Graphics();
-        activeOutline.beginFill(
-          PIXI.utils.string2hex('33FF00'),
-          0.7 - i * (0.7 / iterations)
+        activeExecution.clear();
+        activeExecution.beginFill(
+          PIXI.utils.string2hex('#EBF5FB'),
+          0.6 - i * (0.6 / iterations)
         );
-        activeOutline.drawRoundedRect(
+        activeExecution.drawRoundedRect(
           NODE_MARGIN,
           0,
           this.nodeWidth,
@@ -824,14 +824,16 @@ export default class PPNode extends PIXI.Container {
             : Math.max(this.nodeHeight, this.calculatedMinNodeHeight),
           this.roundedCorners ? NODE_CORNERRADIUS : 0
         );
-        activeOutline.endFill();
-        this.addChild(activeOutline);
+        activeExecution.endFill();
+        if (i == iterations) {
+          this.removeChild(activeExecution);
+        }
       }, i * interval);
     }
   }
 
   public async execute(upstreamContent: Set<string>): Promise<void> {
-    if (this.shouldDrawOutline()) {
+    if (this.shouldDrawExecution()) {
       this.renderOutline();
     }
     const foundChange = await this.rawExecute();
