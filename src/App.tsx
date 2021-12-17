@@ -10,24 +10,16 @@ import { useDropzone } from 'react-dropzone';
 import * as PIXI from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
 import {
-  Alert,
-  Button,
-  // ButtonGroup,
-  Classes,
-  Dialog,
-  FormGroup,
-  InputGroup,
-  Intent,
-  MenuDivider,
-  MenuItem as MenuItemBP,
-} from '@blueprintjs/core';
-import {
   Autocomplete,
   Box,
+  Button,
   ButtonGroup,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   IconButton,
-  MenuItem,
-  Select,
   TextField,
   ThemeProvider,
   createFilterOptions,
@@ -35,11 +27,16 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import { theme } from './utils/customTheme';
+import { theme, lightThemeOverride } from './utils/customTheme';
 import Color from 'color';
 import { hri } from 'human-readable-ids';
 import TimeAgo from 'javascript-time-ago';
 import en from 'javascript-time-ago/locale/en';
+import {
+  GraphSearchInput,
+  GraphSearchPopper,
+  NodeSearchInput,
+} from './components/Search';
 import FloatingNodeMenu from './components/FloatingNodeMenu';
 import InspectorContainer from './InspectorContainer';
 import PixiContainer from './PixiContainer';
@@ -897,22 +894,45 @@ NOTE: opening a remote playground creates a local copy`
         {text}
       </li>
     ) : (
-      <li {...props} key={option.id} title={title}>
+      <li
+        {...props}
+        key={option.id}
+        title={title}
+        sx={{
+          '&.MuiAutocomplete-listbox .MuiAutocomplete-option[aria-selected="true"]':
+            {
+              backgroundColor: 'blue',
+            },
+        }}
+      >
         {isRemote && <ContentCopyIcon />}
-        <Box>
-          {text} {optionLabel}
+        <Box
+          sx={{
+            flexGrow: 1,
+          }}
+        >
+          {text}
+        </Box>
+        <Box
+          sx={{
+            fontSize: '12px',
+            opacity: '0.75',
+          }}
+        >
+          {optionLabel}
         </Box>
         {!isRemote && (
           <ButtonGroup
             size="small"
             sx={{
-              display: 'none',
+              visibility: 'hidden',
               '.Mui-focused &': {
-                display: 'inline-block',
+                visibility: 'visible',
               },
             }}
           >
             <IconButton
+              size="small"
               onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
                 event.stopPropagation();
                 console.log(option.name);
@@ -926,6 +946,7 @@ NOTE: opening a remote playground creates a local copy`
               <EditIcon />
             </IconButton>
             <IconButton
+              size="small"
               title="Delete playground"
               className="menuItemButton"
               onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
@@ -989,69 +1010,67 @@ NOTE: opening a remote playground creates a local copy`
         >
           <div {...getRootProps({ style })}>
             <input {...getInputProps()} />
-            <Alert
-              cancelButtonText="Cancel"
-              confirmButtonText="Delete"
-              intent={Intent.DANGER}
-              isOpen={showDeleteGraph}
-              onCancel={() => setShowDeleteGraph(false)}
-              onConfirm={() => {
-                setShowDeleteGraph(false);
-                deleteGraph(actionObject.id);
-              }}
-            >
-              <p>
-                Are you sure you want to delete
-                <br />
-                <b>{`${actionObject?.name}`}</b>?
-              </p>
-            </Alert>
             <Dialog
-              onClose={() => setShowEdit(false)}
-              title="Edit playground details"
-              autoFocus={true}
-              canEscapeKeyClose={true}
-              canOutsideClickClose={true}
-              enforceFocus={true}
-              isOpen={showEdit}
-              usePortal={true}
-              onOpened={() => {
-                const input = document.getElementById(
-                  'playground-name-input'
-                ) as HTMLInputElement;
-                input.focus();
-                input.select();
-              }}
+              open={showDeleteGraph}
+              onClose={() => setShowDeleteGraph(false)}
+              aria-labelledby="alert-dialog-title"
+              aria-describedby="alert-dialog-description"
             >
-              <div className={Classes.DIALOG_BODY}>
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    submitEditDialog();
+              <DialogTitle id="alert-dialog-title">
+                {"Use Google's location service?"}
+              </DialogTitle>
+              <DialogContent>
+                <DialogContentText id="alert-dialog-description">
+                  Are you sure you want to delete
+                  <br />
+                  <b>{`${actionObject?.name}`}</b>?
+                </DialogContentText>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={() => setShowDeleteGraph(false)} autoFocus>
+                  Cancel
+                </Button>
+                <Button
+                  onClick={() => {
+                    setShowDeleteGraph(false);
+                    deleteGraph(actionObject.id);
                   }}
                 >
-                  <FormGroup label="Name of playground" labelFor="text-input">
-                    <InputGroup
-                      id="playground-name-input"
-                      defaultValue={`${actionObject?.name}`}
-                      placeholder={`${actionObject?.name}`}
-                    />
-                  </FormGroup>
-                  <div className={Classes.DIALOG_FOOTER}>
-                    <div className={Classes.DIALOG_FOOTER_ACTIONS}>
-                      <Button onClick={() => setShowEdit(false)}>Cancel</Button>
-                      <Button
-                        intent={Intent.WARNING}
-                        onClick={() => {
-                          submitEditDialog();
-                        }}
-                      >
-                        Save
-                      </Button>
-                    </div>
-                  </div>
-                </form>
-              </div>
+                  Delete
+                </Button>
+              </DialogActions>
+            </Dialog>
+            <Dialog open={showEdit} onClose={() => setShowEdit(false)}>
+              <DialogTitle>Edit playground details</DialogTitle>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  submitEditDialog();
+                }}
+              >
+                <DialogContent>
+                  <TextField
+                    id="playground-name-input"
+                    autoFocus
+                    margin="dense"
+                    label="Name of playground"
+                    fullWidth
+                    variant="standard"
+                    defaultValue={`${actionObject?.name}`}
+                    placeholder={`${actionObject?.name}`}
+                  />
+                </DialogContent>
+                <DialogActions>
+                  <Button onClick={() => setShowEdit(false)}>Cancel</Button>
+                  <Button
+                    onClick={() => {
+                      submitEditDialog();
+                    }}
+                  >
+                    Save
+                  </Button>
+                </DialogActions>
+              </form>
             </Dialog>
             {isGraphContextMenuOpen && (
               <GraphContextMenu
@@ -1109,7 +1128,7 @@ NOTE: opening a remote playground creates a local copy`
               }}
             />
             {isCurrentGraphLoaded && (
-              <>
+              <ThemeProvider theme={lightThemeOverride}>
                 <Autocomplete
                   className={styles.graphSearch}
                   freeSolo
@@ -1120,25 +1139,21 @@ NOTE: opening a remote playground creates a local copy`
                   isOptionEqualToValue={(option, value) =>
                     option.title === value.title
                   }
+                  // open
+                  PopperComponent={(props) => <GraphSearchPopper {...props} />}
                   value={graphSearchActiveItem}
                   getOptionDisabled={(option) => option.isDisabled}
                   getOptionLabel={(option) => option.name}
                   options={graphSearchItems}
-                  sx={{ width: 'calc(100vw - 120px)', background: 'black' }}
+                  sx={{ width: 'calc(100vw - 120px)' }}
                   onChange={handleGraphItemSelect}
                   filterOptions={filterGraph}
                   renderOption={renderGraphItem}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      hiddenLabel
-                      className={styles.brightPlaceholder}
+                  renderInput={(props) => (
+                    <GraphSearchInput
+                      {...props}
                       inputRef={graphSearchInput}
-                      variant="filled"
-                      placeholder="Search playgrounds"
-                      sx={{
-                        backgroundColor: `${Color(randomMainColor).alpha(0.5)}`,
-                      }}
+                      randommaincolor={randomMainColor}
                     />
                   )}
                 />
@@ -1166,18 +1181,12 @@ NOTE: opening a remote playground creates a local copy`
                     onChange={handleNodeItemSelect}
                     filterOptions={filterNode}
                     renderOption={renderNodeItem}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        hiddenLabel
-                        inputRef={nodeSearchInput}
-                        variant="filled"
-                        placeholder="Search nodes"
-                      />
+                    renderInput={(props) => (
+                      <NodeSearchInput {...props} inputRef={nodeSearchInput} />
                     )}
                   />
                 </div>
-              </>
+              </ThemeProvider>
             )}
           </div>
         </div>

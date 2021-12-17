@@ -1,5 +1,11 @@
 import { createTheme } from '@mui/material';
 
+export const lightThemeOverride = createTheme({
+  palette: {
+    mode: 'light',
+  },
+});
+
 export const theme = createTheme({
   typography: {
     fontFamily: [
@@ -18,16 +24,6 @@ export const theme = createTheme({
   },
   palette: {
     mode: 'dark',
-    primary: {
-      main: '#3f51b5',
-    },
-    secondary: {
-      main: '#f50057',
-    },
-    background: {
-      paper: '#505050',
-      default: '#272727',
-    },
   },
   spacing: 8,
   shape: {
