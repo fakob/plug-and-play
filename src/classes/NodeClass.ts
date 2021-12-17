@@ -804,21 +804,21 @@ export default class PPNode extends PIXI.Container {
   }
 
   public renderOutline(): void {
-    const iterations = 6;
-    const interval = 32;
+    const iterations = 20;
+    const interval = 16;
     const activeExecution = new PIXI.Graphics();
     this.addChild(activeExecution);
     for (let i = 1; i <= iterations; i++) {
       setTimeout(() => {
         activeExecution.clear();
         activeExecution.beginFill(
-          PIXI.utils.string2hex('#EBF5FB'),
-          0.6 - i * (0.6 / iterations)
+          PIXI.utils.string2hex('#CCFFFF'),
+          0.7 - i * (0.7 / iterations)
         );
         activeExecution.drawRoundedRect(
           NODE_MARGIN,
           0,
-          this.nodeWidth,
+          this.nodeWidth * ((i + 1) / iterations),
           this.nodeHeight === undefined
             ? this.calculatedMinNodeHeight
             : Math.max(this.nodeHeight, this.calculatedMinNodeHeight),

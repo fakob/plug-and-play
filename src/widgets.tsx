@@ -9,6 +9,7 @@ import {
   NumericInput,
   Slider,
   TextArea,
+  Icon,
 } from '@blueprintjs/core';
 import { SketchPicker } from 'react-color';
 import Socket from './classes/SocketClass';
@@ -205,6 +206,10 @@ export const TextWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
 
 export const JSONWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
   const [data, setData] = useState(props.data);
+  const [displayedString, setDisplayedString] = useState(
+    typeof data === 'object' ? JSON.stringify(data) : data
+  );
+  const [validJSON, setValidJSON] = useState(true);
 
   return (
     <>
@@ -214,11 +219,23 @@ export const JSONWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
         growVertically={true}
         onChange={(event) => {
           const value = event.target.value;
-          potentiallyNotify(props.property, value);
-          setData(JSON.parse(value));
+          setDisplayedString(value);
+          try {
+            setData(JSON.parse(value));
+            potentiallyNotify(props.property, value);
+            setValidJSON(true);
+          } catch (error) {
+            setValidJSON(false);
+          }
         }}
-        value={typeof data === 'object' ? JSON.stringify(data) : data}
+        value={displayedString}
       />
+      {!validJSON && (
+        <div style={{ display: 'flex' }}>
+          <div>Invalid JSON </div>
+          <Icon icon="cross" />
+        </div>
+      )}
     </>
   );
 };

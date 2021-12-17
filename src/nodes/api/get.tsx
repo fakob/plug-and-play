@@ -23,12 +23,9 @@ export class Get extends PureNode {
         new StringType(),
         'https://jsonplaceholder.typicode.com/posts'
       ),
-      new Socket(
-        SOCKET_TYPE.IN,
-        headersInputName,
-        new StringType(),
-        '{ "Content-Type": "application/json" }'
-      ),
+      new Socket(SOCKET_TYPE.IN, headersInputName, new JSONType(), {
+        'Content-Type': 'application/json',
+      }),
 
       new Socket(SOCKET_TYPE.OUT, outputContentName, new JSONType(), ''),
     ];
@@ -58,12 +55,9 @@ export class Post extends PureNode {
         new StringType(),
         'https://jsonplaceholder.typicode.com/posts'
       ),
-      new Socket(
-        SOCKET_TYPE.IN,
-        headersInputName,
-        new StringType(),
-        '{ "Content-Type": "application/json" }'
-      ),
+      new Socket(SOCKET_TYPE.IN, headersInputName, new JSONType(), {
+        'Content-Type': 'application/json',
+      }),
       new Socket(SOCKET_TYPE.IN, bodyInputName, new JSONType(), {}),
       new Socket(SOCKET_TYPE.OUT, outputContentName, new JSONType(), ''),
     ];
