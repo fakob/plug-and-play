@@ -1,8 +1,8 @@
 import { createTheme } from '@mui/material';
 
-export const lightThemeOverride = createTheme({
+export const darkThemeOverride = createTheme({
   palette: {
-    mode: 'light',
+    mode: 'dark',
   },
 });
 
@@ -23,7 +23,7 @@ export const theme = createTheme({
     ].join(','),
   },
   palette: {
-    mode: 'dark',
+    mode: 'light',
   },
   spacing: 8,
   shape: {

@@ -27,7 +27,7 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import { theme, lightThemeOverride } from './utils/customTheme';
+import { theme } from './utils/customTheme';
 import Color from 'color';
 import { hri } from 'human-readable-ids';
 import TimeAgo from 'javascript-time-ago';
@@ -1128,7 +1128,7 @@ NOTE: opening a remote playground creates a local copy`
               }}
             />
             {isCurrentGraphLoaded && (
-              <ThemeProvider theme={lightThemeOverride}>
+              <>
                 <Autocomplete
                   className={styles.graphSearch}
                   freeSolo
@@ -1177,16 +1177,20 @@ NOTE: opening a remote playground creates a local copy`
                     value={nodeSearchActiveItem} // does not seem to work. why?
                     getOptionLabel={(option) => option.name}
                     options={getNodes()}
-                    sx={{ width: 300, background: 'black' }}
+                    sx={{ width: 300 }}
                     onChange={handleNodeItemSelect}
                     filterOptions={filterNode}
                     renderOption={renderNodeItem}
                     renderInput={(props) => (
-                      <NodeSearchInput {...props} inputRef={nodeSearchInput} />
+                      <NodeSearchInput
+                        {...props}
+                        inputRef={nodeSearchInput}
+                        randommaincolor={randomMainColor}
+                      />
                     )}
                   />
                 </div>
-              </ThemeProvider>
+              </>
             )}
           </div>
         </div>

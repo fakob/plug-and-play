@@ -3,7 +3,7 @@ import MonacoEditor from 'react-monaco-editor';
 
 import { Box, ThemeProvider } from '@mui/material';
 
-import { theme } from './utils/customTheme';
+import { theme, darkThemeOverride } from './utils/customTheme';
 import styles from './utils/style.module.css';
 import PPNode from './classes/NodeClass';
 import { PropertyArrayContainer } from './PropertyArrayContainer';
@@ -57,7 +57,7 @@ const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
   }, [props.selectedNode.type]);
 
   return (
-    <ThemeProvider theme={theme}>
+    <ThemeProvider theme={darkThemeOverride}>
       <Box
         className={`${styles.inspectorContainer}`}
         sx={{ bgcolor: 'background.default' }}
