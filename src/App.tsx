@@ -20,6 +20,7 @@ import {
   DialogContentText,
   DialogTitle,
   IconButton,
+  Stack,
   TextField,
   ThemeProvider,
   createFilterOptions,
@@ -894,17 +895,7 @@ NOTE: opening a remote playground creates a local copy`
         {text}
       </li>
     ) : (
-      <li
-        {...props}
-        key={option.id}
-        title={title}
-        sx={{
-          '&.MuiAutocomplete-listbox .MuiAutocomplete-option[aria-selected="true"]':
-            {
-              backgroundColor: 'blue',
-            },
-        }}
-      >
+      <li {...props} key={option.id} title={title}>
         {isRemote && <ContentCopyIcon />}
         <Box
           sx={{
@@ -970,20 +961,45 @@ NOTE: opening a remote playground creates a local copy`
   const renderNodeItem = (props, option, { selected }) => {
     return (
       <li {...props} key={option.title}>
-        <Box
-          title={option.description}
+        <Stack
           sx={{
-            flexGrow: 1,
-            '& span': {
-              color: selected ? '#586069' : '#8b949e',
-            },
+            width: '100%',
           }}
         >
-          {option.name} {selected ? 'yes' : 'no'}
-          <span> {option.title}</span>
-          <br />
-          <span>{truncateText(option.description, 24)}</span>
-        </Box>
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+            <Box
+              title={option.description}
+              sx={{
+                flexGrow: 1,
+              }}
+            >
+              {option.name}
+            </Box>
+            <Box
+              sx={{
+                fontSize: '12px',
+                opacity: '0.75',
+              }}
+            >
+              {option.title}
+            </Box>
+          </Box>
+          <Box
+            sx={{
+              fontSize: '12px',
+              opacity: '0.75',
+              textOverflow: 'ellipsis',
+            }}
+          >
+            {option.description}
+          </Box>
+        </Stack>
       </li>
     );
   };
@@ -1171,13 +1187,14 @@ NOTE: opening a remote playground creates a local copy`
                     selectOnFocus
                     autoHighlight
                     clearOnBlur
+                    // open
                     isOptionEqualToValue={(option, value) =>
                       option.title === value.title
                     }
                     value={nodeSearchActiveItem} // does not seem to work. why?
                     getOptionLabel={(option) => option.name}
                     options={getNodes()}
-                    sx={{ width: 300 }}
+                    sx={{ maxWidth: '50vw', width: '400px', minWidth: '200px' }}
                     onChange={handleNodeItemSelect}
                     filterOptions={filterNode}
                     renderOption={renderNodeItem}

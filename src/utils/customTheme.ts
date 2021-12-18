@@ -8,19 +8,8 @@ export const darkThemeOverride = createTheme({
 
 export const theme = createTheme({
   typography: {
-    fontFamily: [
-      '-apple-system',
-      'BlinkMacSystemFont',
-      '"Segoe UI"',
-      'Roboto',
-      '"Helvetica Neue"',
-      'Arial',
-      'sans-serif',
-      '"Apple Color Emoji"',
-      '"Segoe UI Emoji"',
-      '"Segoe UI Symbol"',
-      '"Roboto Mono"',
-    ].join(','),
+    // the MuiBox component ignores this setting so a global.css overrides is set for it
+    fontFamily: ['Roboto', 'Helvetica', 'Arial', 'sans-serif'].join(','),
   },
   palette: {
     mode: 'light',
@@ -76,16 +65,6 @@ export const theme = createTheme({
         size: 'small',
       },
     },
-    // MuiFilledInput: {
-    //   styleOverrides: {
-    //     root: {
-    //       padding: '8px',
-    //     },
-    //     input: {
-    //       padding: '0',
-    //     },
-    //   },
-    // },
     MuiFormHelperText: {
       defaultProps: {
         margin: 'dense',
