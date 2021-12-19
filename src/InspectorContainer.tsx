@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import MonacoEditor from 'react-monaco-editor';
 
-import { Box, ThemeProvider } from '@mui/material';
+import { Stack, ThemeProvider } from '@mui/material';
 
 import { theme, darkThemeOverride } from './utils/customTheme';
 import styles from './utils/style.module.css';
@@ -58,7 +58,7 @@ const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
 
   return (
     <ThemeProvider theme={darkThemeOverride}>
-      <Box
+      <Stack
         className={`${styles.inspectorContainer}`}
         sx={{ bgcolor: 'background.default' }}
         id="editorwrapper"
@@ -86,7 +86,7 @@ const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
             editorDidMount={editorDidMount}
           />
         )}
-      </Box>
+      </Stack>
     </ThemeProvider>
   );
 };

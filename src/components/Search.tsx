@@ -29,9 +29,10 @@ export const GraphSearchInput = (props) => {
         '& input': {
           paddingBottom: '8px !important',
           paddingTop: '1px !important',
-          color: Color(props.randommaincolor).isDark()
-            ? COLOR_WHITE_TEXT
-            : COLOR_DARK,
+          color: COLOR_WHITE_TEXT,
+          // color: Color(props.randommaincolor).isDark()
+          //   ? COLOR_WHITE_TEXT
+          //   : COLOR_DARK,
         },
       }}
     />

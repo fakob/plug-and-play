@@ -70,16 +70,13 @@ export const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (
         }}
         value={data || 0}
       />
-      <FormGroup row={true}>
-        {/* <Button
-          color="secondary"
-          disabled={props.hasLink}
-          onClick={() => {
-            setRound((value) => !value);
-          }}
-        >
-          {round ? 'Int' : 'Float'}
-        </Button> */}
+      <FormGroup
+        row={true}
+        sx={{
+          display: 'flex',
+          flexWrap: 'nowrap',
+        }}
+      >
         <ToggleButton
           value="check"
           size="small"
@@ -99,7 +96,7 @@ export const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (
           variant="filled"
           label="Value"
           sx={{
-            width: '136px',
+            flexGrow: 1,
           }}
           disabled={props.hasLink}
           inputProps={{
@@ -116,9 +113,9 @@ export const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (
         <TextField
           variant="filled"
           label="Min"
-          sx={{
-            width: '80px',
-          }}
+          // sx={{
+          //   width: '80px',
+          // }}
           disabled={props.hasLink}
           inputProps={{
             type: 'number',
@@ -133,9 +130,9 @@ export const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (
         <TextField
           variant="filled"
           label="Max"
-          sx={{
-            width: '80px',
-          }}
+          // sx={{
+          //   width: '80px',
+          // }}
           disabled={props.hasLink}
           inputProps={{
             type: 'number',

@@ -386,7 +386,7 @@ const App = (): JSX.Element => {
       setIsNodeContextMenuOpen(false);
       setContextMenuPosition([
         Math.min(window.innerWidth - 240, event.data.global.x),
-        Math.min(window.innerHeight - 432, event.data.global.y),
+        Math.min(window.innerHeight - 530, event.data.global.y),
       ]);
       console.log(event, target, event.data.global);
       switch (true) {

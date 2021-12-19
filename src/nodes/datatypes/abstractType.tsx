@@ -1,9 +1,8 @@
 /* eslint-disable prettier/prettier */
 import React from 'react';
 import { inspect } from 'util';
-import { DefaultOutputWidget, SliderWidget, TextWidget } from '../../widgets';
+import { DefaultOutputWidget, TextWidget } from '../../widgets';
 export class AbstractType {
-
   // override any and all of these in child classes
   getName(): string {
     return this.constructor.name;
@@ -29,15 +28,14 @@ export class AbstractType {
   getDefaultValue(): any {
     return undefined;
   }
-  
+
   // override this in children to check whether data is valid, can be used to give user information
-  isDataValidForType(data:any) : boolean{
+  isDataValidForType(data: any): boolean {
     return true;
   }
-  
+
   // TODO add more support for this in children, and make sure to call it from above
-  parse(data:any, type : AbstractType) : any{
+  parse(data: any, type: AbstractType): any {
     return data;
   }
-
 }

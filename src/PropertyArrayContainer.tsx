@@ -1,20 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import {
   Box,
-  ButtonGroup,
+  Divider,
+  IconButton,
+  Menu,
   MenuItem,
-  Paper,
-  Select,
   Stack,
   ToggleButton,
 } from '@mui/material';
 import {
+  MoreVert as MoreVertIcon,
   Lock as LockIcon,
   Visibility as VisibilityIcon,
   VisibilityOff as VisibilityOffIcon,
 } from '@mui/icons-material';
 import Socket from './classes/SocketClass';
-import styles from './utils/style.module.css';
 import { AbstractType } from './nodes/datatypes/abstractType';
 import { allDataTypes } from './nodes/datatypes/dataTypesMap';
 
@@ -26,33 +26,47 @@ type PropertyArrayContainerProps = {
 export const PropertyArrayContainer: React.FunctionComponent<PropertyArrayContainerProps> =
   (props) => {
     return (
-      <Stack spacing={1}>
-        {props.inputSocketArray?.map((property, index) => {
-          return (
-            <PropertyContainer
-              key={index}
-              property={property}
-              index={index}
-              dataType={property.dataType}
-              isInput={true}
-              hasLink={property.hasLink()}
-              data={property.data}
-            />
-          );
-        })}
-        {props.outputSocketArray?.map((property, index) => {
-          return (
-            <PropertyContainer
-              key={index}
-              property={property}
-              index={index}
-              dataType={property.dataType}
-              isInput={false}
-              hasLink={property.hasLink()}
-              data={property.data}
-            />
-          );
-        })}
+      <Stack spacing={2}>
+        {props.inputSocketArray?.length > 0 && (
+          <Stack spacing={1}>
+            <Divider textAlign="center" sx={{ color: 'text.primary' }}>
+              IN
+            </Divider>
+            {props.inputSocketArray?.map((property, index) => {
+              return (
+                <PropertyContainer
+                  key={index}
+                  property={property}
+                  index={index}
+                  dataType={property.dataType}
+                  isInput={true}
+                  hasLink={property.hasLink()}
+                  data={property.data}
+                />
+              );
+            })}
+          </Stack>
+        )}
+        {props.outputSocketArray?.length > 0 && (
+          <Stack spacing={1}>
+            <Divider textAlign="center" sx={{ color: 'text.primary' }}>
+              OUT
+            </Divider>
+            {props.outputSocketArray?.map((property, index) => {
+              return (
+                <PropertyContainer
+                  key={index}
+                  property={property}
+                  index={index}
+                  dataType={property.dataType}
+                  isInput={false}
+                  hasLink={property.hasLink()}
+                  data={property.data}
+                />
+              );
+            })}
+          </Stack>
+        )}
       </Stack>
     );
   };
@@ -79,7 +93,9 @@ const PropertyContainer: React.FunctionComponent<PropertyContainerProps> = (
     data: props.data,
   };
 
-  const widget = dataTypeValue.getInputWidget(baseProps);
+  const widget = props.isInput
+    ? dataTypeValue.getInputWidget(baseProps)
+    : dataTypeValue.getOutputWidget(baseProps);
 
   const onChangeDropdown = (event) => {
     const value = event.target.value;
@@ -89,7 +105,7 @@ const PropertyContainer: React.FunctionComponent<PropertyContainerProps> = (
   };
 
   return (
-    <Box sx={{ bgcolor: 'background.paper' }}>
+    <Box sx={{ bgcolor: 'divider' }}>
       <PropertyHeader
         key={`PropertyHeader-${props.dataType.getName()}`}
         property={props.property}
@@ -98,7 +114,7 @@ const PropertyContainer: React.FunctionComponent<PropertyContainerProps> = (
         hasLink={props.hasLink}
         onChangeDropdown={onChangeDropdown}
       />
-      {widget}
+      <Box sx={{ px: 1, pb: 1 }}>{widget}</Box>
     </Box>
   );
 };
@@ -116,6 +132,14 @@ const PropertyHeader: React.FunctionComponent<PropertyHeaderProps> = (
 ) => {
   const [visible, setVisible] = useState(props.property.visible);
   const [name, setName] = useState(props.property.name);
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
   useEffect(() => {
     props.property.setVisible(visible);
@@ -126,13 +150,19 @@ const PropertyHeader: React.FunctionComponent<PropertyHeaderProps> = (
   }, [name]);
 
   return (
-    <ButtonGroup
-      fullWidth={true}
-      style={{
-        height: '16px',
-        fontSize: '12px',
+    <Box
+      sx={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
       }}
     >
+      <Box sx={{ flexGrow: 1, display: 'inline-flex', alignItems: 'center' }}>
+        <Box sx={{ px: 1, color: 'text.primary' }}>{props.property.name}</Box>
+        {props.hasLink && (
+          <LockIcon fontSize="inherit" sx={{ color: 'text.primary' }} />
+        )}
+      </Box>
       <ToggleButton
         value="check"
         size="small"
@@ -141,7 +171,8 @@ const PropertyHeader: React.FunctionComponent<PropertyHeaderProps> = (
           setVisible((value) => !value);
         }}
         sx={{
-          fontSize: '12px',
+          fontSize: '16px',
+          border: 0,
         }}
       >
         {visible ? (
@@ -150,13 +181,45 @@ const PropertyHeader: React.FunctionComponent<PropertyHeaderProps> = (
           <VisibilityOffIcon fontSize="inherit" />
         )}
       </ToggleButton>
-      <Paper component={Stack} direction="row" sx={{ flexGrow: 1, px: 1 }}>
-        <Box sx={{ px: 1 }}>{props.isInput ? 'IN' : 'OUT'}</Box>
-        <Box sx={{ px: 1 }}>
-          {props.property.name} {props.hasLink && 'LINKED'}
-        </Box>
-      </Paper>
-      <Select
+      <IconButton
+        title={`Property type: ${props.property.dataType.constructor.name}`}
+        aria-label="more"
+        id="select-type"
+        aria-controls="long-menu"
+        aria-expanded={open ? 'true' : undefined}
+        aria-haspopup="true"
+        onClick={handleClick}
+        disabled={props.hasLink}
+      >
+        <MoreVertIcon />
+      </IconButton>
+      <Menu
+        id="demo-simple-select-label"
+        onChange={props.onChangeDropdown}
+        sx={{
+          fontSize: '12px',
+        }}
+        MenuListProps={{
+          'aria-labelledby': 'long-button',
+        }}
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleClose}
+      >
+        {Object.keys(allDataTypes).map((name) => {
+          const entry = new allDataTypes[name]().getName();
+          return (
+            <MenuItem
+              key={name}
+              value={name}
+              selected={props.property.dataType.constructor.name === name}
+            >
+              {entry}
+            </MenuItem>
+          );
+        })}
+      </Menu>
+      {/* <Select
         labelId="demo-simple-select-label"
         id="demo-simple-select"
         value={props.property.dataType.constructor.name}
@@ -175,7 +238,7 @@ const PropertyHeader: React.FunctionComponent<PropertyHeaderProps> = (
             </MenuItem>
           );
         })}
-      </Select>
-    </ButtonGroup>
+      </Select> */}
+    </Box>
   );
 };

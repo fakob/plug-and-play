@@ -13,6 +13,7 @@ body {
   background-color: black;
 }
 
-.MuiBox-root {
+.MuiBox-root,
+.MuiDivider-root {
   font-family: 'Roboto', 'Helvetica', 'Arial', 'sans-serif';
 }
