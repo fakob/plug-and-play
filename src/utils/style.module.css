@@ -3,11 +3,9 @@
   right: 0;
   bottom: 0;
   width: 30vw;
-  min-width: 400px;
-  /* height: 600px; */
-  height: 100vh;
+  min-width: 240px;
+  height: calc(100vh - 16px);
   padding: 8px;
-  /* background-color: #293742; */
   overflow: auto;
   user-select: none;
   z-index: 200;

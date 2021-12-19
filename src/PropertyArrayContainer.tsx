@@ -219,26 +219,6 @@ const PropertyHeader: React.FunctionComponent<PropertyHeaderProps> = (
           );
         })}
       </Menu>
-      {/* <Select
-        labelId="demo-simple-select-label"
-        id="demo-simple-select"
-        value={props.property.dataType.constructor.name}
-        label="Property type"
-        onChange={props.onChangeDropdown}
-        disabled={props.hasLink}
-        sx={{
-          fontSize: '12px',
-        }}
-      >
-        {Object.keys(allDataTypes).map((name) => {
-          const entry = new allDataTypes[name]().getName();
-          return (
-            <MenuItem key={name} value={name}>
-              {entry}
-            </MenuItem>
-          );
-        })}
-      </Select> */}
     </Box>
   );
 };

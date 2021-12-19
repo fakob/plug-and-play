@@ -80,7 +80,7 @@ export const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (
         <ToggleButton
           value="check"
           size="small"
-          selected={!round}
+          selected={round}
           color="secondary"
           disabled={props.hasLink}
           onChange={() => {
@@ -88,6 +88,8 @@ export const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (
           }}
           sx={{
             fontSize: '12px',
+            marginTop: '8px',
+            marginBottom: '4px',
           }}
         >
           {round ? 'Int' : 'Float'}

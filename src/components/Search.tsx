@@ -63,9 +63,9 @@ export const NodeSearchInput = (props) => {
         '&&& .MuiInputBase-root': {
           backgroundColor: 'transparent',
         },
-        '& input': {
-          paddingBottom: '8px !important',
-          paddingTop: '1px !important',
+        '&&& input': {
+          paddingBottom: '8px',
+          paddingTop: '1px',
           color: Color(props.randommaincolor).isDark()
             ? COLOR_WHITE_TEXT
             : COLOR_DARK,
