@@ -26,9 +26,9 @@ export const GraphSearchInput = (props) => {
         '&&& .MuiInputBase-root': {
           backgroundColor: 'transparent',
         },
-        '& input': {
-          paddingBottom: '8px !important',
-          paddingTop: '1px !important',
+        '&&&& input': {
+          paddingBottom: '8px',
+          paddingTop: '0px',
           color: COLOR_WHITE_TEXT,
           // color: Color(props.randommaincolor).isDark()
           //   ? COLOR_WHITE_TEXT
@@ -63,9 +63,9 @@ export const NodeSearchInput = (props) => {
         '&&& .MuiInputBase-root': {
           backgroundColor: 'transparent',
         },
-        '&&& input': {
+        '&&&& input': {
           paddingBottom: '8px',
-          paddingTop: '1px',
+          paddingTop: '0px',
           color: Color(props.randommaincolor).isDark()
             ? COLOR_WHITE_TEXT
             : COLOR_DARK,

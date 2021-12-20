@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import MonacoEditor from 'react-monaco-editor';
 
-import { Stack, ThemeProvider } from '@mui/material';
+import { Box, Stack, ThemeProvider } from '@mui/material';
 
 import { theme, darkThemeOverride } from './utils/customTheme';
 import styles from './utils/style.module.css';
@@ -58,13 +58,26 @@ const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
 
   return (
     <ThemeProvider theme={darkThemeOverride}>
+      {/* <ThemeProvider theme={theme}> */}
       <Stack
+        spacing={1}
         className={`${styles.inspectorContainer}`}
-        sx={{ bgcolor: 'background.default' }}
+        sx={{
+          bgcolor: 'background.default',
+          color: 'text.primary',
+          fontFamily: "'Roboto', 'Helvetica', 'Arial', 'sans-serif'",
+        }}
         id="editorwrapper"
         key={props?.selectedNode?.id}
       >
-        {props.selectedNode?.name}
+        <Box
+          sx={{
+            pt: '8px',
+            px: '8px',
+          }}
+        >
+          {props.selectedNode?.name}
+        </Box>
         <PropertyArrayContainer
           inputSocketArray={props.selectedNode?.inputSocketArray}
           outputSocketArray={props.selectedNode?.outputSocketArray}

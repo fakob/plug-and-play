@@ -88,8 +88,6 @@ export const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (
           }}
           sx={{
             fontSize: '12px',
-            marginTop: '8px',
-            marginBottom: '4px',
           }}
         >
           {round ? 'Int' : 'Float'}
@@ -115,9 +113,9 @@ export const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (
         <TextField
           variant="filled"
           label="Min"
-          // sx={{
-          //   width: '80px',
-          // }}
+          sx={{
+            width: '104px',
+          }}
           disabled={props.hasLink}
           inputProps={{
             type: 'number',
@@ -132,9 +130,9 @@ export const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (
         <TextField
           variant="filled"
           label="Max"
-          // sx={{
-          //   width: '80px',
-          // }}
+          sx={{
+            width: '104px',
+          }}
           disabled={props.hasLink}
           inputProps={{
             type: 'number',
@@ -182,7 +180,7 @@ export const SelectWidget: React.FunctionComponent<SelectWidgetProps> = (
         onChange={onChange}
         disabled={props.hasLink}
       >
-        {options.map(({ text }, index) => {
+        {options?.map(({ text }, index) => {
           return (
             <MenuItem key={index} value={text}>
               {text}
@@ -400,6 +398,8 @@ export const ColorWidget: React.FunctionComponent<ColorWidgetProps> = (
 export type DefaultOutputWidgetProps = {
   property: Socket;
   index: number;
+  isInput: boolean;
+  hasLink: boolean;
   data: any;
 };
 

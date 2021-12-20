@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
   Box,
-  Divider,
   IconButton,
   Menu,
   MenuItem,
@@ -28,10 +27,16 @@ export const PropertyArrayContainer: React.FunctionComponent<PropertyArrayContai
     return (
       <Stack spacing={2}>
         {props.inputSocketArray?.length > 0 && (
-          <Stack spacing={1}>
-            <Divider textAlign="center" sx={{ color: 'text.primary' }}>
+          <Stack
+            spacing={1}
+            sx={{
+              p: '8px',
+              bgcolor: 'divider',
+            }}
+          >
+            <Box textAlign="left" sx={{ color: 'text.primary' }}>
               IN
-            </Divider>
+            </Box>
             {props.inputSocketArray?.map((property, index) => {
               return (
                 <PropertyContainer
@@ -48,10 +53,16 @@ export const PropertyArrayContainer: React.FunctionComponent<PropertyArrayContai
           </Stack>
         )}
         {props.outputSocketArray?.length > 0 && (
-          <Stack spacing={1}>
-            <Divider textAlign="center" sx={{ color: 'text.primary' }}>
+          <Stack
+            spacing={1}
+            sx={{
+              p: '8px',
+              bgcolor: 'divider',
+            }}
+          >
+            <Box textAlign="right" sx={{ color: 'text.primary' }}>
               OUT
-            </Divider>
+            </Box>
             {props.outputSocketArray?.map((property, index) => {
               return (
                 <PropertyContainer
@@ -93,13 +104,15 @@ const PropertyContainer: React.FunctionComponent<PropertyContainerProps> = (
     data: props.data,
   };
 
+  // const widget = dataTypeValue.getInputWidget(baseProps);
   const widget = props.isInput
     ? dataTypeValue.getInputWidget(baseProps)
     : dataTypeValue.getOutputWidget(baseProps);
 
   const onChangeDropdown = (event) => {
-    const value = event.target.value;
-    const entry = new allDataTypes[value]();
+    const { myValue } = event.currentTarget.dataset;
+    const entry = new allDataTypes[myValue]();
+    console.log(myValue, entry);
     props.property.dataType = entry;
     setDataTypeValue(entry);
   };
@@ -114,7 +127,15 @@ const PropertyContainer: React.FunctionComponent<PropertyContainerProps> = (
         hasLink={props.hasLink}
         onChangeDropdown={onChangeDropdown}
       />
-      <Box sx={{ px: 1, pb: 1 }}>{widget}</Box>
+      <Box
+        sx={{
+          px: 1,
+          pb: 1,
+          ...(props.isInput ? { marginLeft: '30px' } : { marginRight: '30px' }),
+        }}
+      >
+        {widget}
+      </Box>
     </Box>
   );
 };
@@ -153,16 +174,11 @@ const PropertyHeader: React.FunctionComponent<PropertyHeaderProps> = (
     <Box
       sx={{
         display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
+        flexWrap: 'nowrap',
+        width: '100%',
+        ...(!props.isInput && { flexDirection: 'row-reverse' }),
       }}
     >
-      <Box sx={{ flexGrow: 1, display: 'inline-flex', alignItems: 'center' }}>
-        <Box sx={{ px: 1, color: 'text.primary' }}>{props.property.name}</Box>
-        {props.hasLink && (
-          <LockIcon fontSize="inherit" sx={{ color: 'text.primary' }} />
-        )}
-      </Box>
       <ToggleButton
         value="check"
         size="small"
@@ -181,44 +197,59 @@ const PropertyHeader: React.FunctionComponent<PropertyHeaderProps> = (
           <VisibilityOffIcon fontSize="inherit" />
         )}
       </ToggleButton>
-      <IconButton
-        title={`Property type: ${props.property.dataType.constructor.name}`}
-        aria-label="more"
-        id="select-type"
-        aria-controls="long-menu"
-        aria-expanded={open ? 'true' : undefined}
-        aria-haspopup="true"
-        onClick={handleClick}
-        disabled={props.hasLink}
-      >
-        <MoreVertIcon />
-      </IconButton>
-      <Menu
-        id="demo-simple-select-label"
-        onChange={props.onChangeDropdown}
+      <Box
         sx={{
-          fontSize: '12px',
+          flexGrow: 1,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
         }}
-        MenuListProps={{
-          'aria-labelledby': 'long-button',
-        }}
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
       >
-        {Object.keys(allDataTypes).map((name) => {
-          const entry = new allDataTypes[name]().getName();
-          return (
-            <MenuItem
-              key={name}
-              value={name}
-              selected={props.property.dataType.constructor.name === name}
-            >
-              {entry}
-            </MenuItem>
-          );
-        })}
-      </Menu>
+        <Box sx={{ flexGrow: 1, display: 'inline-flex', alignItems: 'center' }}>
+          <Box sx={{ px: 1, color: 'text.primary' }}>{props.property.name}</Box>
+          {props.hasLink && (
+            <LockIcon fontSize="inherit" sx={{ color: 'text.primary' }} />
+          )}
+        </Box>
+        <IconButton
+          title={`Property type: ${props.property.dataType.constructor.name}`}
+          aria-label="more"
+          id="select-type"
+          aria-controls="long-menu"
+          aria-expanded={open ? 'true' : undefined}
+          aria-haspopup="true"
+          onClick={handleClick}
+          disabled={props.hasLink}
+        >
+          <MoreVertIcon />
+        </IconButton>
+        <Menu
+          sx={{
+            fontSize: '12px',
+          }}
+          MenuListProps={{
+            'aria-labelledby': 'long-button',
+          }}
+          anchorEl={anchorEl}
+          open={open}
+          onClose={handleClose}
+        >
+          {Object.keys(allDataTypes).map((name) => {
+            const entry = new allDataTypes[name]().getName();
+            return (
+              <MenuItem
+                key={name}
+                value={name}
+                data-my-value={name}
+                selected={props.property.dataType.constructor.name === name}
+                onClick={props.onChangeDropdown}
+              >
+                {entry}
+              </MenuItem>
+            );
+          })}
+        </Menu>
+      </Box>
     </Box>
   );
 };
