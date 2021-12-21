@@ -24,6 +24,7 @@ import {
   TextField,
   ThemeProvider,
   createFilterOptions,
+  createTheme,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -1015,7 +1016,13 @@ NOTE: opening a remote playground creates a local copy`
 
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
-      <ThemeProvider theme={theme}>
+      <ThemeProvider
+        theme={createTheme(theme, {
+          palette: {
+            primary: { main: randomMainColor },
+          },
+        })}
+      >
         <div
           // close open context menu again on click
           onClick={() => {
@@ -1120,6 +1127,7 @@ NOTE: opening a remote playground creates a local copy`
                 selectedNode={selectedNode}
                 isCustomNode={currentGraph.current.isCustomNode(selectedNode)}
                 onSave={createOrUpdateNodeFromCode}
+                randomMainColor={randomMainColor}
               />
             )}
             {selectedNodes && selectionPos && (

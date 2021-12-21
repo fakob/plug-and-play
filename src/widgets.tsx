@@ -417,7 +417,8 @@ export const DefaultOutputWidget: React.FunctionComponent<DefaultOutputWidgetPro
           InputProps={{
             readOnly: true,
           }}
-          value={prettyFormat(data)}
+          // value={prettyFormat(data)}
+          value={data}
         />
       </FormGroup>
     );

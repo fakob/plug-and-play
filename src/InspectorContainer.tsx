@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import MonacoEditor from 'react-monaco-editor';
-
-import { Box, Stack, ThemeProvider } from '@mui/material';
+import Color from 'color';
+import { Box, Stack, ThemeProvider, createTheme } from '@mui/material';
 
 import { theme, darkThemeOverride } from './utils/customTheme';
 import styles from './utils/style.module.css';
@@ -14,6 +14,7 @@ type MyProps = {
   selectedNode: PPNode;
   isCustomNode: boolean;
   onSave?: (code: string) => void;
+  randomMainColor: string;
 };
 
 const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
@@ -57,8 +58,14 @@ const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
   }, [props.selectedNode.type]);
 
   return (
-    <ThemeProvider theme={darkThemeOverride}>
-      {/* <ThemeProvider theme={theme}> */}
+    <ThemeProvider
+      theme={createTheme(darkThemeOverride, {
+        palette: {
+          primary: { main: props.randomMainColor },
+          secondary: { main: Color(props.randomMainColor).negate().hex() },
+        },
+      })}
+    >
       <Stack
         spacing={1}
         className={`${styles.inspectorContainer}`}
@@ -74,6 +81,7 @@ const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
           sx={{
             pt: '8px',
             px: '8px',
+            color: 'primary.main',
           }}
         >
           {props.selectedNode?.name}
