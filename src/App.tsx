@@ -1169,7 +1169,7 @@ NOTE: opening a remote playground creates a local copy`
                   getOptionDisabled={(option) => option.isDisabled}
                   getOptionLabel={(option) => option.name}
                   options={graphSearchItems}
-                  sx={{ width: 'calc(100vw - 120px)' }}
+                  sx={{ width: 'calc(65vw - 120px)' }}
                   onChange={handleGraphItemSelect}
                   filterOptions={filterGraph}
                   renderOption={renderGraphItem}
