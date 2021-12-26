@@ -1,7 +1,7 @@
 {
-  "name": "pixi-typescript-boilerplate",
-  "version": "3.0.0",
-  "description": "pixi.js typescript boilerplate webpack",
+  "name": "plug_and_playground",
+  "version": "0.1.0",
+  "description": "nodes",
   "browserslist": "> 0.25%, not dead",
   "scripts": {
     "build": "yarn del-cli dist --force  && yarn run webpack --mode production --env production",
@@ -127,6 +127,6 @@
     ]
   },
   "engines": {
-    "node": "14.x"
+    "node": ">=14.x"
   }
 }
