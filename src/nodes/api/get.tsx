@@ -36,7 +36,7 @@ export class Get extends PureNode {
   ): Promise<void> {
     const res = await fetch(inputObject[urlInputName], {
       method: 'Get',
-      headers: JSON.parse(inputObject[headersInputName]),
+      headers: inputObject[headersInputName],
     });
     outputObject[outputContentName] = await res.json();
   }
@@ -68,7 +68,7 @@ export class Post extends PureNode {
   ): Promise<void> {
     const response = await fetch(inputObject[urlInputName], {
       method: 'POST', // *GET, POST, PUT, DELETE, etc.
-      headers: JSON.parse(inputObject[headersInputName]),
+      headers: inputObject[headersInputName],
       body: inputObject[bodyInputName], // body data type must match "Content-Type" header
     });
     outputObject[outputContentName] = await response.json();

@@ -221,8 +221,9 @@ export const JSONWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
           const value = event.target.value;
           setDisplayedString(value);
           try {
-            setData(JSON.parse(value));
-            potentiallyNotify(props.property, value);
+            const parsedValue = JSON.parse(value);
+            setData(parsedValue);
+            potentiallyNotify(props.property, parsedValue);
             setValidJSON(true);
           } catch (error) {
             setValidJSON(false);
