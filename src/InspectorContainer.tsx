@@ -93,6 +93,7 @@ const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
         <PropertyArrayContainer
           inputSocketArray={props.selectedNode?.inputSocketArray}
           outputSocketArray={props.selectedNode?.outputSocketArray}
+          randomMainColor={props.randomMainColor}
         />
         {props.isCustomNode && (
           <MonacoEditor

@@ -21,6 +21,7 @@ import { allDataTypes } from './nodes/datatypes/dataTypesMap';
 type PropertyArrayContainerProps = {
   inputSocketArray: Socket[];
   outputSocketArray: Socket[];
+  randomMainColor: string;
 };
 
 export const PropertyArrayContainer: React.FunctionComponent<PropertyArrayContainerProps> =
@@ -48,6 +49,7 @@ export const PropertyArrayContainer: React.FunctionComponent<PropertyArrayContai
                   isInput={true}
                   hasLink={property.hasLink()}
                   data={property.data}
+                  randomMainColor={props.randomMainColor}
                 />
               );
             })}
@@ -74,6 +76,7 @@ export const PropertyArrayContainer: React.FunctionComponent<PropertyArrayContai
                   isInput={false}
                   hasLink={property.hasLink()}
                   data={property.data}
+                  randomMainColor={props.randomMainColor}
                 />
               );
             })}
@@ -90,6 +93,7 @@ type PropertyContainerProps = {
   isInput: boolean;
   hasLink: boolean;
   data: any;
+  randomMainColor: string;
 };
 
 const PropertyContainer: React.FunctionComponent<PropertyContainerProps> = (
@@ -103,6 +107,7 @@ const PropertyContainer: React.FunctionComponent<PropertyContainerProps> = (
     isInput: props.isInput,
     hasLink: props.hasLink,
     data: props.data,
+    randomMainColor: props.randomMainColor,
   };
 
   // const widget = dataTypeValue.getInputWidget(baseProps);
@@ -127,6 +132,7 @@ const PropertyContainer: React.FunctionComponent<PropertyContainerProps> = (
         isInput={props.isInput}
         hasLink={props.hasLink}
         onChangeDropdown={onChangeDropdown}
+        randomMainColor={props.randomMainColor}
       />
       <Box
         sx={{
@@ -147,6 +153,7 @@ type PropertyHeaderProps = {
   isInput: boolean;
   hasLink: boolean;
   onChangeDropdown: (event) => void;
+  randomMainColor: string;
 };
 
 const PropertyHeader: React.FunctionComponent<PropertyHeaderProps> = (
@@ -244,6 +251,11 @@ const PropertyHeader: React.FunctionComponent<PropertyHeaderProps> = (
                 data-my-value={name}
                 selected={props.property.dataType.constructor.name === name}
                 onClick={props.onChangeDropdown}
+                sx={{
+                  '&.Mui-selected': {
+                    backgroundColor: `${Color(props.randomMainColor).negate()}`,
+                  },
+                }}
               >
                 {entry}
               </MenuItem>

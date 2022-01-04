@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import prettyFormat from 'pretty-format';
+import Color from 'color';
 import {
   Alert,
   Button,
@@ -155,6 +156,7 @@ export type SelectWidgetProps = {
   hasLink: boolean;
   data: number;
   options: EnumStructure;
+  randomMainColor: string;
 };
 
 export const SelectWidget: React.FunctionComponent<SelectWidgetProps> = (
@@ -173,8 +175,6 @@ export const SelectWidget: React.FunctionComponent<SelectWidgetProps> = (
     <FormGroup>
       <Select
         variant="filled"
-        // labelId="demo-simple-select-label"
-        // id="demo-simple-select"
         value={data}
         // label="Property type"
         onChange={onChange}
@@ -182,7 +182,15 @@ export const SelectWidget: React.FunctionComponent<SelectWidgetProps> = (
       >
         {options?.map(({ text }, index) => {
           return (
-            <MenuItem key={index} value={text}>
+            <MenuItem
+              key={index}
+              value={text}
+              sx={{
+                '&.Mui-selected': {
+                  backgroundColor: `${Color(props.randomMainColor).negate()}`,
+                },
+              }}
+            >
               {text}
             </MenuItem>
           );
