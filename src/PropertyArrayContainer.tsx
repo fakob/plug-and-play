@@ -21,7 +21,6 @@ import { allDataTypes } from './nodes/datatypes/dataTypesMap';
 type PropertyArrayContainerProps = {
   inputSocketArray: Socket[];
   outputSocketArray: Socket[];
-  randomMainColor: string;
 };
 
 export const PropertyArrayContainer: React.FunctionComponent<PropertyArrayContainerProps> =
@@ -33,6 +32,7 @@ export const PropertyArrayContainer: React.FunctionComponent<PropertyArrayContai
             spacing={1}
             sx={{
               p: '8px',
+              bgcolor: 'background.paper',
             }}
           >
             <Box textAlign="left" sx={{ color: 'text.primary' }}>
@@ -48,7 +48,6 @@ export const PropertyArrayContainer: React.FunctionComponent<PropertyArrayContai
                   isInput={true}
                   hasLink={property.hasLink()}
                   data={property.data}
-                  randomMainColor={props.randomMainColor}
                 />
               );
             })}
@@ -59,6 +58,7 @@ export const PropertyArrayContainer: React.FunctionComponent<PropertyArrayContai
             spacing={1}
             sx={{
               p: '8px',
+              bgcolor: 'background.paper',
             }}
           >
             <Box textAlign="right" sx={{ color: 'text.primary' }}>
@@ -74,7 +74,6 @@ export const PropertyArrayContainer: React.FunctionComponent<PropertyArrayContai
                   isInput={false}
                   hasLink={property.hasLink()}
                   data={property.data}
-                  randomMainColor={props.randomMainColor}
                 />
               );
             })}
@@ -91,7 +90,6 @@ type PropertyContainerProps = {
   isInput: boolean;
   hasLink: boolean;
   data: any;
-  randomMainColor: string;
 };
 
 const PropertyContainer: React.FunctionComponent<PropertyContainerProps> = (

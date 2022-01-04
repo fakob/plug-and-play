@@ -65,7 +65,7 @@ const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
           secondary: { main: `${Color(props.randomMainColor).negate()}` },
           background: {
             default: `${Color(props.randomMainColor).darken(0.85)}`,
-            paper: `${Color(props.randomMainColor).darken(0.75)}`,
+            paper: `${Color(props.randomMainColor).darken(0.1)}`,
           },
         },
       })}
@@ -85,7 +85,7 @@ const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
             pt: '8px',
             px: '8px',
             color: 'text.primary',
-            fontWeight: 'bold',
+            fontWeight: 'medium',
           }}
         >
           {props.selectedNode?.name}
@@ -93,7 +93,6 @@ const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
         <PropertyArrayContainer
           inputSocketArray={props.selectedNode?.inputSocketArray}
           outputSocketArray={props.selectedNode?.outputSocketArray}
-          randomMainColor={props.randomMainColor}
         />
         {props.isCustomNode && (
           <MonacoEditor
