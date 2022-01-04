@@ -15,7 +15,11 @@ export const GraphSearchInput = (props) => {
       inputRef={props.inputRef}
       variant="filled"
       placeholder="Search playgrounds"
-      InputProps={{ ...props.InputProps, disableUnderline: true }}
+      InputProps={{
+        ...props.InputProps,
+        disableUnderline: true,
+        endAdornment: null,
+      }}
       sx={{
         margin: 0,
         borderRadius: '16px',
