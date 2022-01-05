@@ -386,7 +386,7 @@ const App = (): JSX.Element => {
       setIsGraphContextMenuOpen(false);
       setIsNodeContextMenuOpen(false);
       setContextMenuPosition([
-        Math.min(window.innerWidth - 240, event.data.global.x),
+        Math.min(window.innerWidth - 248, event.data.global.x),
         Math.min(window.innerHeight - 530, event.data.global.y),
       ]);
       console.log(event, target, event.data.global);
@@ -417,7 +417,7 @@ const App = (): JSX.Element => {
       setIsGraphContextMenuOpen(false);
       setIsNodeContextMenuOpen(false);
       setContextMenuPosition([
-        Math.min(window.innerWidth - 240, event.data.global.x),
+        Math.min(window.innerWidth - 248, event.data.global.x),
         Math.min(window.innerHeight - 432, event.data.global.y),
       ]);
       console.log(event, target, event.data.global);
@@ -772,7 +772,7 @@ const App = (): JSX.Element => {
     console.log('openNodeSearch');
     if (pos !== undefined) {
       setContextMenuPosition([
-        Math.min(window.innerWidth - 200, pos.x),
+        Math.min(window.innerWidth - 408, pos.x),
         Math.min(window.innerHeight - 56, pos.y),
       ]);
     }
