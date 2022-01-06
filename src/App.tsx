@@ -884,10 +884,6 @@ const App = (): JSX.Element => {
   };
 
   const renderGraphItem = (props, option, state) => {
-    console.log(props, option, state);
-    // if (!modifiers.matchesPredicate) {
-    //   return null;
-    // }
     const isRemote = option.isRemote;
     const text = option.name;
     const title = isRemote // hover title tag
@@ -911,7 +907,9 @@ NOTE: opening a remote playground creates a local copy`
             flexGrow: 1,
           }}
         >
-          {option.isNew && 'Create empty playground: '}
+          <Box component="div" sx={{ display: 'inline', opacity: '0.5' }}>
+            {option.isNew && 'Create empty playground: '}
+          </Box>
           {text}
         </Box>
         <Box
@@ -1014,7 +1012,9 @@ NOTE: opening a remote playground creates a local copy`
                 flexGrow: 1,
               }}
             >
-              {option.isNew && 'Create custom node: '}
+              <Box component="div" sx={{ display: 'inline', opacity: '0.5' }}>
+                {option.isNew && 'Create custom node: '}
+              </Box>
               {option.name}
             </Box>
             <Box
@@ -1046,7 +1046,6 @@ NOTE: opening a remote playground creates a local copy`
     ).value;
     setShowEdit(false);
     renameGraph(actionObject.id, name);
-    updateGraphSearchItems();
   };
 
   return (

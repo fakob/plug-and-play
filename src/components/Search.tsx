@@ -11,7 +11,7 @@ export const GraphSearchInput = (props) => {
     <TextField
       {...props}
       hiddenLabel
-      className={styles.brightPlaceholder}
+      // className={styles.brightPlaceholder}
       inputRef={props.inputRef}
       variant="filled"
       placeholder="Search playgrounds"
@@ -33,10 +33,10 @@ export const GraphSearchInput = (props) => {
         '&&&& input': {
           paddingBottom: '8px',
           paddingTop: '0px',
-          color: COLOR_WHITE_TEXT,
-          // color: Color(props.randommaincolor).isDark()
-          //   ? COLOR_WHITE_TEXT
-          //   : COLOR_DARK,
+          // color: COLOR_WHITE_TEXT,
+          color: Color(props.randommaincolor).isDark()
+            ? COLOR_WHITE_TEXT
+            : COLOR_DARK,
         },
       }}
     />
