@@ -896,8 +896,12 @@ NOTE: opening a remote playground creates a local copy`
         {text}
       </li>
     ) : (
-      <li {...props} key={option.id} title={title}>
-        {isRemote && <ContentCopyIcon />}
+      <li
+        {...props}
+        key={option.id}
+        title={title}
+        sx={{ position: 'relative' }}
+      >
         <Box
           sx={{
             flexGrow: 1,
@@ -909,14 +913,39 @@ NOTE: opening a remote playground creates a local copy`
           sx={{
             fontSize: '12px',
             opacity: '0.75',
+            visibility: 'visible',
+            '.Mui-focused &': {
+              visibility: 'hidden',
+            },
           }}
         >
           {optionLabel}
         </Box>
+        {isRemote && (
+          <Box
+            sx={{
+              py: 1,
+              px: 2,
+              fontSize: '12px',
+              fontStyle: 'italic',
+              opacity: '0.75',
+              position: 'absolute',
+              right: '0px',
+              visibility: 'hidden',
+              '.Mui-focused &': {
+                visibility: 'visible',
+              },
+            }}
+          >
+            Creates a local copy
+          </Box>
+        )}
         {!isRemote && (
           <ButtonGroup
             size="small"
             sx={{
+              position: 'absolute',
+              right: '0px',
               visibility: 'hidden',
               '.Mui-focused &': {
                 visibility: 'visible',
