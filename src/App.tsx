@@ -743,6 +743,9 @@ const App = (): JSX.Element => {
       nodePosY: nodePos.y,
       addLink,
     });
+    if (selected.isNew) {
+      selected.isNew = undefined;
+    }
     setNodeSearchActiveItem(selected);
     setIsNodeSearchVisible(false);
   };
@@ -857,7 +860,7 @@ const App = (): JSX.Element => {
       console.log(params, params.inputValue);
       filtered.push({
         id: hri.random(),
-        name: `Create empty playground: "${params.inputValue}"`,
+        name: params.inputValue,
         isNew: true,
       });
     }
@@ -871,9 +874,10 @@ const App = (): JSX.Element => {
       filtered.push({
         title: params.inputValue,
         key: params.inputValue,
-        name: `Create custom node: "${params.inputValue}"`,
+        name: params.inputValue,
         description: '',
         hasInputs: '',
+        isNew: true,
       });
     }
     return filtered;
@@ -907,6 +911,7 @@ NOTE: opening a remote playground creates a local copy`
             flexGrow: 1,
           }}
         >
+          {option.isNew && 'Create empty playground: '}
           {text}
         </Box>
         <Box
@@ -1009,6 +1014,7 @@ NOTE: opening a remote playground creates a local copy`
                 flexGrow: 1,
               }}
             >
+              {option.isNew && 'Create custom node: '}
               {option.name}
             </Box>
             <Box

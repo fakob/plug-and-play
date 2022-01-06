@@ -58,6 +58,7 @@ export interface INodeSearch {
   name: string;
   description: string;
   hasInputs: string;
+  isNew?: boolean;
 }
 
 export type SerializedNode = {
