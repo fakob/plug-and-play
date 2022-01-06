@@ -44,7 +44,7 @@ export const GraphSearchInput = (props) => {
 };
 
 export const GraphSearchPopper = (props) => {
-  return <Popper {...props} placement="top" />;
+  return <Popper {...props} placement="bottom" />;
 };
 
 export const NodeSearchInput = (props) => {

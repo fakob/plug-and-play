@@ -1072,9 +1072,11 @@ NOTE: opening a remote playground creates a local copy`
               onClose={() => setShowDeleteGraph(false)}
               aria-labelledby="alert-dialog-title"
               aria-describedby="alert-dialog-description"
+              fullWidth
+              maxWidth="sm"
             >
               <DialogTitle id="alert-dialog-title">
-                {"Use Google's location service?"}
+                {'Delete Graph?'}
               </DialogTitle>
               <DialogContent>
                 <DialogContentText id="alert-dialog-description">
@@ -1097,7 +1099,12 @@ NOTE: opening a remote playground creates a local copy`
                 </Button>
               </DialogActions>
             </Dialog>
-            <Dialog open={showEdit} onClose={() => setShowEdit(false)}>
+            <Dialog
+              open={showEdit}
+              onClose={() => setShowEdit(false)}
+              fullWidth
+              maxWidth="sm"
+            >
               <DialogTitle>Edit playground details</DialogTitle>
               <form
                 onSubmit={(e) => {
