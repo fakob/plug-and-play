@@ -76,6 +76,7 @@ const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
         sx={{
           background: `${Color(props.randomMainColor).alpha(0.8)}`,
           fontFamily: "'Roboto', 'Helvetica', 'Arial', 'sans-serif'",
+          height: '100%',
         }}
         id="editorwrapper"
         key={props?.selectedNode?.id}
