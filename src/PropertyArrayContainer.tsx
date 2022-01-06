@@ -24,67 +24,68 @@ type PropertyArrayContainerProps = {
   randomMainColor: string;
 };
 
-export const PropertyArrayContainer: React.FunctionComponent<PropertyArrayContainerProps> =
-  (props) => {
-    return (
-      <Stack spacing={2}>
-        {props.inputSocketArray?.length > 0 && (
-          <Stack
-            spacing={1}
-            sx={{
-              p: '8px',
-              bgcolor: 'background.paper',
-            }}
-          >
-            <Box textAlign="left" sx={{ color: 'text.primary' }}>
-              IN
-            </Box>
-            {props.inputSocketArray?.map((property, index) => {
-              return (
-                <PropertyContainer
-                  key={index}
-                  property={property}
-                  index={index}
-                  dataType={property.dataType}
-                  isInput={true}
-                  hasLink={property.hasLink()}
-                  data={property.data}
-                  randomMainColor={props.randomMainColor}
-                />
-              );
-            })}
-          </Stack>
-        )}
-        {props.outputSocketArray?.length > 0 && (
-          <Stack
-            spacing={1}
-            sx={{
-              p: '8px',
-              bgcolor: 'background.paper',
-            }}
-          >
-            <Box textAlign="right" sx={{ color: 'text.primary' }}>
-              OUT
-            </Box>
-            {props.outputSocketArray?.map((property, index) => {
-              return (
-                <PropertyContainer
-                  key={index}
-                  property={property}
-                  index={index}
-                  dataType={property.dataType}
-                  isInput={false}
-                  hasLink={property.hasLink()}
-                  data={property.data}
-                  randomMainColor={props.randomMainColor}
-                />
-              );
-            })}
-          </Stack>
-        )}
-      </Stack>
-    );
-  };
+export const PropertyArrayContainer: React.FunctionComponent<
+  PropertyArrayContainerProps
+> = (props) => {
+  return (
+    <Stack spacing={2}>
+      {props.inputSocketArray?.length > 0 && (
+        <Stack
+          spacing={1}
+          sx={{
+            p: '8px',
+            bgcolor: 'background.paper',
+          }}
+        >
+          <Box textAlign="left" sx={{ color: 'text.primary' }}>
+            IN
+          </Box>
+          {props.inputSocketArray?.map((property, index) => {
+            return (
+              <PropertyContainer
+                key={index}
+                property={property}
+                index={index}
+                dataType={property.dataType}
+                isInput={true}
+                hasLink={property.hasLink()}
+                data={property.data}
+                randomMainColor={props.randomMainColor}
+              />
+            );
+          })}
+        </Stack>
+      )}
+      {props.outputSocketArray?.length > 0 && (
+        <Stack
+          spacing={1}
+          sx={{
+            p: '8px',
+            bgcolor: 'background.paper',
+          }}
+        >
+          <Box textAlign="right" sx={{ color: 'text.primary' }}>
+            OUT
+          </Box>
+          {props.outputSocketArray?.map((property, index) => {
+            return (
+              <PropertyContainer
+                key={index}
+                property={property}
+                index={index}
+                dataType={property.dataType}
+                isInput={false}
+                hasLink={property.hasLink()}
+                data={property.data}
+                randomMainColor={props.randomMainColor}
+              />
+            );
+          })}
+        </Stack>
+      )}
+    </Stack>
+  );
+};
 
 type PropertyContainerProps = {
   property: Socket;
