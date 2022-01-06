@@ -62,7 +62,7 @@ const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
       theme={createTheme(darkThemeOverride, {
         palette: {
           primary: { main: props.randomMainColor },
-          secondary: { main: `${Color(props.randomMainColor).negate()}` },
+          secondary: { main: `${Color(props.randomMainColor).lighten(0.85)}` },
           background: {
             default: `${Color(props.randomMainColor).darken(0.85)}`,
             paper: `${Color(props.randomMainColor).darken(0.1)}`,
