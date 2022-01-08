@@ -438,7 +438,12 @@ export default class PPGraph {
     // }
   }
 
-  connect(output: Socket, input: Socket, viewport: Viewport): PPLink {
+  connect(
+    output: Socket,
+    input: Socket,
+    viewport: Viewport,
+    notify = true
+  ): PPLink {
     // check if this input already has a connection
     this.checkIfSocketHasConnectionAndDeleteIt(input, true);
 
@@ -459,7 +464,9 @@ export default class PPGraph {
     this.connectionContainer.addChild(link);
 
     // send notification pulse
-    link.notifyChange(new Set());
+    if (notify) {
+      link.notifyChange(new Set());
+    }
 
     return link;
   }
@@ -698,7 +705,7 @@ export default class PPGraph {
         if (outputRef === undefined || inputRef === undefined) {
           error = true;
         } else {
-          this.connect(outputRef, inputRef, this.viewport);
+          this.connect(outputRef, inputRef, this.viewport, false);
         }
       }
     }
