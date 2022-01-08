@@ -27,8 +27,8 @@ import Socket from './SocketClass';
 import { getNodeCommentPosX, getNodeCommentPosY } from '../utils/utils';
 import { AbstractType } from '../nodes/datatypes/abstractType';
 import { AnyType } from '../nodes/datatypes/anyType';
-import { inspect } from 'util';
 import { deSerializeType } from '../nodes/datatypes/typehelper';
+import { throttle } from 'lodash';
 
 export class UpdateBehaviour {
   update: boolean;
@@ -803,6 +803,10 @@ export default class PPNode extends PIXI.Container {
     return true;
   }
 
+  public renderOutlineThrottled = throttle(this.renderOutline, 200, {
+    trailing: true,
+  });
+
   public renderOutline(): void {
     const iterations = 20;
     const interval = 16;
@@ -813,7 +817,7 @@ export default class PPNode extends PIXI.Container {
         activeExecution.clear();
         activeExecution.beginFill(
           PIXI.utils.string2hex('#CCFFFF'),
-          0.7 - i * (0.7 / iterations)
+          0.5 - i * (0.5 / iterations)
         );
         activeExecution.drawRoundedRect(
           NODE_MARGIN,
@@ -834,7 +838,7 @@ export default class PPNode extends PIXI.Container {
 
   public async execute(upstreamContent: Set<string>): Promise<void> {
     if (this.shouldDrawExecution()) {
-      this.renderOutline();
+      this.renderOutlineThrottled();
     }
     const foundChange = await this.rawExecute();
     this.drawComment();

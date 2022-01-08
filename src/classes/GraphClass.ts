@@ -40,6 +40,7 @@ export default class PPGraph {
   backgroundCanvas: PIXI.Container;
   connectionContainer: PIXI.Container;
   nodeContainer: PIXI.Container;
+  nodes: { [key: string]: PPNode }; //<string, PPNode>;
   commentContainer: PIXI.Container;
   foregroundCanvas: PIXI.Container;
   foregroundTempContainer: PIXI.Container;
@@ -79,6 +80,7 @@ export default class PPGraph {
     this.commentContainer.name = 'commentContainer';
     this.foregroundTempContainer = new PIXI.Container();
     this.foregroundTempContainer.name = 'foregroundTempContainer';
+    this.nodes = {};
 
     this.viewport.addChild(
       this.backgroundCanvas,
@@ -94,7 +96,7 @@ export default class PPGraph {
     this.tempConnection.name = 'tempConnection';
     this.backgroundTempContainer.addChild(this.tempConnection);
 
-    this.selection = new PPSelection(this.viewport, this.nodes);
+    this.selection = new PPSelection(this.viewport, Object.values(this.nodes));
     this.app.stage.addChild(this.selection);
 
     this.viewport.cursor = 'grab';
@@ -318,10 +320,6 @@ export default class PPGraph {
     return this._registeredNodeTypes;
   }
 
-  get nodes(): PPNode[] {
-    return this.nodeContainer.children as PPNode[];
-  }
-
   set showComments(value: boolean) {
     this._showComments = value;
     this.commentContainer.visible = value;
@@ -337,7 +335,7 @@ export default class PPGraph {
   }
 
   getNodeById(id: string): PPNode {
-    return this.nodes.find((node) => node.id === id);
+    return this.nodes[id];
   }
 
   registerNodeType(type: string, nodeConstructor: PPNodeConstructor): void {
@@ -398,6 +396,7 @@ export default class PPGraph {
       .on('pointerup', this._onNodePointerUpAndUpOutside.bind(this));
 
     // add the node to the canvas
+    this.nodes[node.id] = node;
     this.nodeContainer.addChild(node);
 
     // set comment position
@@ -532,6 +531,7 @@ export default class PPGraph {
     this._links = {};
 
     // remove all nodes from container
+    this.nodes = {};
     this.nodeContainer.removeChildren();
 
     // clearn back and foreground canvas
@@ -624,16 +624,14 @@ export default class PPGraph {
 
   serialize(): SerializedGraph {
     // get serialized nodes
-    const nodesSerialized = [];
-    for (const node of Object.values(this.nodes)) {
-      nodesSerialized.push(node.serialize());
-    }
+    const nodesSerialized = Object.values(this.nodes).map((node) =>
+      node.serialize()
+    );
 
     // get serialized links
-    const linksSerialized = [];
-    for (const link of Object.values(this._links)) {
-      linksSerialized.push(link.serialize());
-    }
+    const linksSerialized = Object.values(this._links).map((link) =>
+      link.serialize()
+    );
 
     const data = {
       customNodeTypes: this.customNodeTypes,
@@ -728,12 +726,11 @@ export default class PPGraph {
       return targetSocket;
     }
   }
-  runStep(): void {
-    this.nodes.forEach((node) => node.execute(new Set()));
-  }
 
   tick(currentTime: number, deltaTime: number): void {
-    this.nodes.forEach((node) => node.tick(currentTime, deltaTime));
+    Object.values(this.nodes).forEach((node) =>
+      node.tick(currentTime, deltaTime)
+    );
   }
 
   createOrUpdateNodeFromCode(
@@ -749,7 +746,7 @@ export default class PPGraph {
     const isNodeTypeRegistered = this.checkIfFunctionIsRegistered(functionName);
     console.log('isNodeTypeRegistered: ', isNodeTypeRegistered);
 
-    const nodesWithTheSameType = this.nodes.filter(
+    const nodesWithTheSameType = Object.values(this.nodes).filter(
       (node) => node.type === functionName
     );
 
@@ -889,6 +886,7 @@ export default class PPGraph {
     }
 
     node.destroy();
+    delete this.nodes[node.id];
   }
 
   deleteSelectedNodes(): void {
