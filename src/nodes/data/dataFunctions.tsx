@@ -155,7 +155,7 @@ export class ForLoop extends NodeClass {
   }
 
   // we actually override the base execute function here as we are modifying the flow
-  public async execute(upstreamContent: Set<string>): Promise<void> {
+  public async execute(): Promise<void> {
     const inputObject = this.remapInput(this.inputSocketArray);
     for (
       this.currentIndex = this.getMinIndex(inputObject);
@@ -164,9 +164,9 @@ export class ForLoop extends NodeClass {
     ) {
       await this.rawExecute();
 
-      for (const outputSocket of this.outputSocketArray) {
+      /*for (const outputSocket of this.outputSocketArray) {
         await outputSocket.notifyChange(new Set());
-      }
+      }*/
     }
     // comment here is just gonna show the last output but eh
     this.drawComment();

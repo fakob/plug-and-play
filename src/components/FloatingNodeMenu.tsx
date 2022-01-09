@@ -1,22 +1,17 @@
 import {
   Button,
-  ButtonGroup,
   Checkbox,
   Classes,
   ControlGroup,
-  EditableText,
-  FormGroup,
   InputGroup,
   Menu,
   MenuItem,
   Position,
 } from '@blueprintjs/core';
-import { Select } from '@blueprintjs/select';
 import { Popover2 } from '@blueprintjs/popover2';
 import React, { useEffect, useState } from 'react';
 import { getCircularReplacer } from './../utils/utils';
 import PPNode from '../classes/NodeClass';
-import { ColorWidget } from '../widgets';
 import styles from './../utils/style.module.css';
 
 const FloatingNodeMenu = (props) => {
@@ -91,7 +86,7 @@ const FloatingNodeMenu = (props) => {
 
   const onUpdateNow = (event) => {
     selectedNodes.forEach((selectedNode) => {
-      selectedNode.execute(new Set());
+      selectedNode.executeOptimizedChain();
     });
   };
 

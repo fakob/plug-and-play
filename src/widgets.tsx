@@ -28,10 +28,10 @@ export type SliderWidgetProps = {
   type: NumberType;
 };
 
-function potentiallyNotify(property, newValue) {
+function potentiallyNotify(property: Socket, newValue) {
   if (property.data !== newValue) {
     property.data = newValue;
-    property.notifyChange(new Set());
+    property.getNode().executeOptimizedChain();
   }
 }
 
