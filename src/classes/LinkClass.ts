@@ -4,7 +4,6 @@ import { SerializedLink } from '../utils/interfaces';
 import { CONNECTION_COLOR_HEX } from '../utils/constants';
 import Socket from './SocketClass';
 import PPNode from './NodeClass';
-import { serializeType } from '../nodes/datatypes/typehelper';
 
 export default class PPLink extends PIXI.Container {
   id: number;
@@ -23,7 +22,6 @@ export default class PPLink extends PIXI.Container {
     // this._data = null;
 
     const connection = new PIXI.Graphics();
-    const comment = new PIXI.Text('');
     this._drawConnection(viewport, connection, source, target);
     this._connectionRef = this.addChild(connection);
   }
