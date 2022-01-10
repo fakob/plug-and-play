@@ -461,20 +461,22 @@ export default class PPNode extends PIXI.Container {
       node.aggregateDependents(dependents, numDepending);
     });
     // now that we have the complete chain, execute them in order that makes sure all dependents are waiting on their parents, there should always be a node with no more lingering dependents (unless there is an infinite loop)
-    let currentExecuting: PPNode = foundational[0];
-    while (currentExecuting !== undefined) {
+    const readyToGo: PPNode[] = foundational;
+    let currentExecuting: PPNode = foundational.shift();
+    while (readyToGo.length > 0) {
       await currentExecuting.execute();
       // uncomment if you want to see the execution in more detail by slowing it down (to make sure order is correct)
-      //await new Promise((resolve) => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
       delete dependents[currentExecuting.id];
       Object.keys(currentExecuting.getDirectDependents()).forEach(
         (dependentKey) => {
           numDepending[dependentKey].delete(currentExecuting.id);
+          if (numDepending[dependentKey].size == 0) {
+            readyToGo.push(dependents[dependentKey]);
+          }
         }
       );
-      currentExecuting = Object.values(dependents).find(
-        (dependent) => numDepending[dependent.id].size == 0
-      );
+      currentExecuting = readyToGo.shift();
     }
     return;
   }
