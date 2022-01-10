@@ -1,10 +1,10 @@
 import React, { useRef, useEffect, useState } from 'react';
 import MonacoEditor from 'react-monaco-editor';
-import { Button, H5 } from '@blueprintjs/core';
-import { Popover2 } from '@blueprintjs/popover2';
+import Color from 'color';
+import { Box, Stack, ThemeProvider, createTheme } from '@mui/material';
 
+import { theme, darkThemeOverride } from './utils/customTheme';
 import styles from './utils/style.module.css';
-import { getCircularReplacer } from './utils/utils';
 import PPNode from './classes/NodeClass';
 import { PropertyArrayContainer } from './PropertyArrayContainer';
 import PPGraph from './classes/GraphClass';
@@ -14,6 +14,7 @@ type MyProps = {
   selectedNode: PPNode;
   isCustomNode: boolean;
   onSave?: (code: string) => void;
+  randomMainColor: string;
 };
 
 const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
@@ -57,34 +58,63 @@ const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
   }, [props.selectedNode.type]);
 
   return (
-    <div
-      className={`${styles.inspectorContainer} bp3-dark`}
-      id="editorwrapper"
-      key={props?.selectedNode?.id}
+    <ThemeProvider
+      theme={createTheme(darkThemeOverride, {
+        palette: {
+          primary: { main: props.randomMainColor },
+          secondary: { main: `${Color(props.randomMainColor).lighten(0.85)}` },
+          background: {
+            default: `${Color(props.randomMainColor).darken(0.85)}`,
+            paper: `${Color(props.randomMainColor).darken(0.1)}`,
+          },
+        },
+      })}
     >
-      {props.selectedNode?.name}
-      <PropertyArrayContainer
-        inputSocketArray={props.selectedNode?.inputSocketArray}
-        outputSocketArray={props.selectedNode?.outputSocketArray}
-      />
-      {props.isCustomNode && (
-        <MonacoEditor
-          language="javascript"
-          theme="vs-dark"
-          height="70%"
-          value={codeString}
-          options={{
-            selectOnLineNumbers: true,
-            scrollBeyondLastLine: false,
-            wordWrap: 'on',
+      <Stack
+        spacing={1}
+        className={`${styles.inspectorContainer}`}
+        sx={{
+          background: `${Color(props.randomMainColor).alpha(0.8)}`,
+          fontFamily: "'Roboto', 'Helvetica', 'Arial', 'sans-serif'",
+          height: '100%',
+        }}
+        id="editorwrapper"
+        key={props?.selectedNode?.id}
+      >
+        <Box
+          sx={{
+            pt: '8px',
+            px: '8px',
+            color: 'text.primary',
+            fontWeight: 'medium',
           }}
-          onChange={(newValue, e) => {
-            // console.log('controlled', newValue, e);
-          }}
-          editorDidMount={editorDidMount}
+        >
+          {props.selectedNode?.name}
+        </Box>
+        <PropertyArrayContainer
+          inputSocketArray={props.selectedNode?.inputSocketArray}
+          outputSocketArray={props.selectedNode?.outputSocketArray}
+          randomMainColor={props.randomMainColor}
         />
-      )}
-    </div>
+        {props.isCustomNode && (
+          <MonacoEditor
+            language="javascript"
+            theme="vs-dark"
+            height="70%"
+            value={codeString}
+            options={{
+              selectOnLineNumbers: true,
+              scrollBeyondLastLine: false,
+              wordWrap: 'on',
+            }}
+            onChange={(newValue, e) => {
+              // console.log('controlled', newValue, e);
+            }}
+            editorDidMount={editorDidMount}
+          />
+        )}
+      </Stack>
+    </ThemeProvider>
   );
 };
 

@@ -1,24 +1,54 @@
 import {
-  Button,
+  Box,
+  ButtonGroup,
   Checkbox,
-  Classes,
-  ControlGroup,
-  InputGroup,
+  FormControlLabel,
+  FormGroup,
+  IconButton,
   Menu,
   MenuItem,
-  Position,
-} from '@blueprintjs/core';
-import { Popover2 } from '@blueprintjs/popover2';
+  Paper,
+  Popover,
+  Stack,
+  TextField,
+  ThemeProvider,
+  Typography,
+} from '@mui/material';
+import CodeIcon from '@mui/icons-material/Code';
+import UpdateIcon from '@mui/icons-material/Update';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import React, { useEffect, useState } from 'react';
 import { getCircularReplacer } from './../utils/utils';
 import PPNode from '../classes/NodeClass';
 import styles from './../utils/style.module.css';
+import { theme } from './../utils/customTheme';
 
 const FloatingNodeMenu = (props) => {
   const selectedNodes: PPNode[] = props.selectedNodes;
+  const [anchorElCode, setAnchorElCode] =
+    React.useState<HTMLButtonElement | null>(null);
+  const [anchorElMore, setAnchorElMore] =
+    React.useState<HTMLButtonElement | null>(null);
+
   if (selectedNodes === null || selectedNodes.length === 0) {
     return <div />;
   }
+
+  const handleClickCode = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorElCode(event.currentTarget);
+  };
+
+  const handleClickMore = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorElMore(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorElCode(null);
+    setAnchorElMore(null);
+  };
+
+  const openCode = Boolean(anchorElCode);
+  const openMore = Boolean(anchorElMore);
 
   // returns null for a specific property,
   // if its value is not the same throughout the array
@@ -91,100 +121,106 @@ const FloatingNodeMenu = (props) => {
   };
 
   return (
-    <ControlGroup
-      className={`${styles.floatingNodeMenu} ${styles.noSelect}`}
-      vertical={false}
-      style={{
-        left: props.x,
-        top: props.y,
-      }}
-    >
-      <span className={`${styles.floatingNodeMenuName} ${styles.noSelect}`}>
-        {selectedNodes.length === 1
-          ? selectedNodes[0].name
-          : `${selectedNodes.length} nodes`}
-      </span>
-      {selectedNodes?.length === 1 && (
-        <Popover2
-          minimal
-          hasBackdrop
-          usePortal={true}
-          content={
-            <div
-              className={`${styles.serializedNode} ${styles.scrollablePortal} bp3-code`}
-            >
-              {JSON.stringify(
-                props?.selectedNodes[0]?.serialize(),
-                getCircularReplacer(),
-                2
-              )}
-            </div>
-          }
-        >
-          <Button className={styles.noSelect} rightIcon="code" minimal large />
-        </Popover2>
-      )}
-      <Button
-        className={styles.noSelect}
-        onClick={onUpdateNow}
-        title="Update now"
-        icon="repeat"
-        minimal
-        large
-      />
-      <Popover2
-        position={Position.BOTTOM}
-        minimal={true}
-        content={
-          <Menu>
-            <MenuItem
-              text={
-                <Checkbox
-                  className={`${styles.noSelect} ${Classes.POPOVER_DISMISS_OVERRIDE}`}
-                  checked={updateBehaviour.update}
-                  indeterminate={updateBehaviour.update === null}
-                  name="update"
+    <ThemeProvider theme={theme}>
+      <Paper
+        className={styles.floatingNodeMenu}
+        elevation={3}
+        sx={{
+          left: props.x,
+          top: props.y,
+        }}
+      >
+        <Stack direction="row" spacing={1}>
+          <Box sx={{ p: 1 }}>
+            {selectedNodes.length === 1
+              ? selectedNodes[0].name
+              : `${selectedNodes.length} nodes`}
+          </Box>
+          {selectedNodes?.length === 1 && (
+            <>
+              <IconButton onClick={handleClickCode} title="Show code">
+                <CodeIcon />
+              </IconButton>
+              <Popover
+                open={openCode}
+                anchorEl={anchorElCode}
+                onClose={handleClose}
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'left',
+                }}
+              >
+                <Typography
+                  fontFamily="Roboto Mono"
+                  fontSize="12px"
+                  sx={{ p: 2, bgcolor: 'background.paper' }}
+                  className={`${styles.serializedNode} ${styles.scrollablePortal}`}
+                >
+                  {JSON.stringify(
+                    props?.selectedNodes[0]?.serialize(),
+                    getCircularReplacer(),
+                    2
+                  )}
+                </Typography>
+              </Popover>
+            </>
+          )}
+          <ButtonGroup>
+            <IconButton onClick={onUpdateNow} title="Update now">
+              <UpdateIcon />
+            </IconButton>
+            <IconButton onClick={handleClickMore} title="More update options">
+              <ArrowDropDownIcon />
+            </IconButton>
+            <Menu anchorEl={anchorElMore} open={openMore} onClose={handleClose}>
+              <MenuItem>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      name="update"
+                      checked={updateBehaviour.update}
+                      indeterminate={updateBehaviour.update === null}
+                      onChange={onCheckboxChange}
+                    />
+                  }
                   label="Update on change"
-                  onChange={onCheckboxChange}
                 />
-              }
-            />
-            <MenuItem
-              text={
-                <>
-                  <Checkbox
-                    className={`${styles.noSelect} ${Classes.POPOVER_DISMISS_OVERRIDE}`}
-                    checked={updateBehaviour.interval}
-                    indeterminate={updateBehaviour.interval === null}
-                    name="interval"
+              </MenuItem>
+              <MenuItem>
+                <FormGroup>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        name="interval"
+                        checked={updateBehaviour.interval}
+                        indeterminate={updateBehaviour.interval === null}
+                        onChange={onCheckboxChange}
+                      />
+                    }
                     label="Update on interval (in ms)"
-                    onChange={onCheckboxChange}
                   />
-                  <InputGroup
-                    className={`${Classes.POPOVER_DISMISS_OVERRIDE}`}
+                  <TextField
+                    variant="filled"
+                    label="Frequency"
                     disabled={!updateBehaviour.interval}
+                    inputProps={{
+                      type: 'number',
+                      inputMode: 'numeric',
+                    }}
+                    onChange={onFrequencyChange}
                     value={
                       updateBehaviour.intervalFrequency === null
                         ? 'null'
                         : updateBehaviour.intervalFrequency.toString()
                     }
-                    type="number"
-                    onChange={onFrequencyChange}
                   />
-                </>
-              }
-            />
-          </Menu>
-        }
-      >
-        <Button
-          className={styles.noSelect}
-          rightIcon="caret-down"
-          minimal
-          large
-        />
-      </Popover2>
-    </ControlGroup>
+                </FormGroup>
+              </MenuItem>
+            </Menu>
+          </ButtonGroup>
+        </Stack>
+      </Paper>
+    </ThemeProvider>
   );
 };
 

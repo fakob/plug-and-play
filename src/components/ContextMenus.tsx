@@ -1,100 +1,176 @@
 import React from 'react';
-import { Classes, Menu, MenuDivider, MenuItem } from '@blueprintjs/core';
+import {
+  Divider,
+  ListItemIcon,
+  ListItemText,
+  MenuItem,
+  MenuList,
+  Paper,
+  Typography,
+} from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
+import UploadIcon from '@mui/icons-material/Upload';
+import EditIcon from '@mui/icons-material/Edit';
+import SaveIcon from '@mui/icons-material/Save';
+import SaveAsIcon from '@mui/icons-material/SaveAs';
+import DownloadIcon from '@mui/icons-material/Download';
+import ClearIcon from '@mui/icons-material/Clear';
+import FitScreenIcon from '@mui/icons-material/FitScreen';
+import AdbIcon from '@mui/icons-material/Adb';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import DeleteIcon from '@mui/icons-material/Delete';
+import AddIcon from '@mui/icons-material/Add';
 
 export const GraphContextMenu = (props) => {
   return (
-    <Menu
-      className={Classes.ELEVATION_1}
-      style={{
+    <Paper
+      sx={{
+        width: 240,
+        maxWidth: '100%',
         position: 'absolute',
-        zIndex: 10,
+        zIndex: 400,
         left: props.contextMenuPosition[0],
         top: props.contextMenuPosition[1],
       }}
     >
-      <MenuDivider title="Playground" />
-      <MenuItem
-        icon="search"
-        text="Open playground"
-        label={`${props.controlOrMetaKey}+O`}
-        onClick={() => {
-          props.setIsGraphSearchOpen(true);
-        }}
-      />
-      <MenuItem
-        icon="export"
-        text="Load from file"
-        onClick={() => {
-          props.uploadGraph();
-        }}
-      />
-      <MenuItem disabled text="" />
-      <MenuItem
-        icon="edit"
-        text="Edit details"
-        label={`${props.controlOrMetaKey}+E`}
-        onClick={() => {
-          props.setShowEdit(true);
-        }}
-      />
-      <MenuItem
-        icon="saved"
-        text="Save"
-        label={`${props.controlOrMetaKey}+S`}
-        onClick={() => {
-          props.saveGraph();
-        }}
-      />
-      <MenuItem
-        icon="saved"
-        text="Save as new"
-        label={`${props.controlOrMetaKey}+Shift+S`}
-        onClick={() => {
-          props.saveNewGraph();
-        }}
-      />
-      <MenuItem
-        icon="import"
-        text="Download"
-        onClick={() => {
-          props.downloadGraph();
-        }}
-      />
-      <MenuItem disabled text="" />
-      <MenuItem
-        icon="cross"
-        text="Clear"
-        onClick={() => {
-          props.currentGraph.current.clear();
-        }}
-      />
-      <MenuDivider title="Nodes" />
-      <MenuItem
-        icon="search"
-        text="Find node"
-        label={`${props.controlOrMetaKey}+F`}
-        onClick={() => {
-          props.openNodeSearch();
-        }}
-      />
-      <MenuDivider title="Viewport" />
-      <MenuItem
-        icon="zoom-to-fit"
-        text="Zoom to Fit"
-        label={'Shift+1'}
-        onClick={() => {
-          props.zoomToFit();
-        }}
-      />
-      <MenuDivider title="Debug" />
-      <MenuItem
-        text={`${props.showComments ? 'Hide' : 'Show'} output`}
-        label={`${props.controlOrMetaKey}+Shift+Y`}
-        onClick={() => {
-          props.setShowComments((prevState) => !prevState);
-        }}
-      />
-    </Menu>
+      <MenuList dense>
+        <MenuItem disabled>Playground</MenuItem>
+        <MenuItem
+          onClick={() => {
+            props.setIsGraphSearchOpen(true);
+          }}
+        >
+          <ListItemIcon>
+            <SearchIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Open playground</ListItemText>
+          <Typography variant="body2" color="text.secondary">
+            {`${props.controlOrMetaKey}+O`}
+          </Typography>
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            props.uploadGraph();
+          }}
+        >
+          <ListItemIcon>
+            <UploadIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Load from file</ListItemText>
+        </MenuItem>
+        <MenuItem
+          sx={{ mt: 1 }}
+          onClick={() => {
+            props.setShowEdit(true);
+          }}
+        >
+          <ListItemIcon>
+            <EditIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Edit details</ListItemText>
+          <Typography variant="body2" color="text.secondary">
+            {`${props.controlOrMetaKey}+E`}
+          </Typography>
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            props.saveGraph();
+          }}
+        >
+          <ListItemIcon>
+            <SaveIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Save</ListItemText>
+          <Typography variant="body2" color="text.secondary">
+            {`${props.controlOrMetaKey}+S`}
+          </Typography>
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            props.saveNewGraph();
+          }}
+        >
+          <ListItemIcon>
+            <SaveAsIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Save as new</ListItemText>
+          <Typography variant="body2" color="text.secondary">
+            {`${props.controlOrMetaKey}+Shift+S`}
+          </Typography>
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            props.downloadGraph();
+          }}
+        >
+          <ListItemIcon>
+            <DownloadIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Download</ListItemText>
+          <Typography variant="body2" color="text.secondary">
+            {`${props.controlOrMetaKey}+Shift+S`}
+          </Typography>
+        </MenuItem>
+        <MenuItem
+          sx={{ mt: 1 }}
+          onClick={() => {
+            props.currentGraph.current.clear();
+          }}
+        >
+          <ListItemIcon>
+            <ClearIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Clear</ListItemText>
+        </MenuItem>
+        <Divider />
+        <MenuItem disabled>Nodes</MenuItem>
+        <MenuItem
+          onClick={() => {
+            props.openNodeSearch();
+          }}
+        >
+          <ListItemIcon>
+            <SearchIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Find node</ListItemText>
+          <Typography variant="body2" color="text.secondary">
+            {`${props.controlOrMetaKey}+F`}
+          </Typography>
+        </MenuItem>
+        <Divider />
+        <MenuItem disabled>Viewport</MenuItem>
+        <MenuItem
+          onClick={() => {
+            props.zoomToFit();
+          }}
+        >
+          <ListItemIcon>
+            <FitScreenIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Zoom to Fit</ListItemText>
+          <Typography variant="body2" color="text.secondary">
+            Shift+1
+          </Typography>
+        </MenuItem>
+        <Divider />
+        <MenuItem disabled>Debug</MenuItem>
+        <MenuItem
+          onClick={() => {
+            props.setShowComments((prevState) => !prevState);
+          }}
+        >
+          <ListItemIcon>
+            <AdbIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>
+            {props.showComments ? 'Hide output' : 'Show output'}
+          </ListItemText>
+          <Typography variant="body2" color="text.secondary">
+            {`${props.controlOrMetaKey}+Shift+Y`}
+          </Typography>
+        </MenuItem>
+      </MenuList>
+    </Paper>
   );
 };
 
@@ -102,49 +178,68 @@ export const NodeContextMenu = (props) => {
   const canAddInput: boolean = props.currentGraph.current.getCanAddInput();
   const canAddOutput: boolean = props.currentGraph.current.getCanAddOutput();
   return (
-    <Menu
-      className={Classes.ELEVATION_1}
-      style={{
+    <Paper
+      sx={{
+        width: 240,
+        maxWidth: '100%',
         position: 'absolute',
-        zIndex: 10,
+        zIndex: 400,
         left: props.contextMenuPosition[0],
         top: props.contextMenuPosition[1],
       }}
     >
-      <MenuItem
-        icon="duplicate"
-        text="Duplicate"
-        label={`${props.controlOrMetaKey}+D`}
-        onClick={() => {
-          props.currentGraph.current.duplicateSelection();
-        }}
-      />
-      <MenuItem
-        icon="trash"
-        text="Delete"
-        label="Delete"
-        onClick={() => {
-          props.currentGraph.current.deleteSelectedNodes();
-        }}
-      />
-      {canAddInput && (
+      <MenuList dense>
         <MenuItem
-          text="Add Input"
-          label="Add Input"
           onClick={() => {
-            props.currentGraph.current.addInput();
+            props.currentGraph.current.duplicateSelection();
           }}
-        />
-      )}
-      {canAddOutput && (
+        >
+          <ListItemIcon>
+            <ContentCopyIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Duplicate</ListItemText>
+          <Typography variant="body2" color="text.secondary">
+            {`${props.controlOrMetaKey}+D`}
+          </Typography>
+        </MenuItem>
         <MenuItem
-          text="Add Output"
-          label="Add Output"
           onClick={() => {
-            props.currentGraph.current.addOutput();
+            props.currentGraph.current.deleteSelectedNodes();
           }}
-        />
-      )}
-    </Menu>
+        >
+          <ListItemIcon>
+            <DeleteIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Delete</ListItemText>
+          <Typography variant="body2" color="text.secondary">
+            Delete
+          </Typography>
+        </MenuItem>
+        {canAddInput && (
+          <MenuItem
+            onClick={() => {
+              props.currentGraph.current.addInput();
+            }}
+          >
+            <ListItemIcon>
+              <AddIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Add Input</ListItemText>
+          </MenuItem>
+        )}
+        {canAddOutput && (
+          <MenuItem
+            onClick={() => {
+              props.currentGraph.current.addOutput();
+            }}
+          >
+            <ListItemIcon>
+              <AddIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Add Output</ListItemText>
+          </MenuItem>
+        )}
+      </MenuList>
+    </Paper>
   );
 };
