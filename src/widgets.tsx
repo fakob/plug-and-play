@@ -1,16 +1,19 @@
 import React, { useEffect, useRef, useState } from 'react';
 import prettyFormat from 'pretty-format';
+import Color from 'color';
 import {
+  Alert,
   Button,
   Checkbox,
-  ControlGroup,
-  Divider,
-  HTMLSelect,
-  NumericInput,
+  FormControlLabel,
+  FormGroup,
+  MenuItem,
+  Select,
   Slider,
-  TextArea,
-  Icon,
-} from '@blueprintjs/core';
+  TextField,
+  ToggleButton,
+} from '@mui/material';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import { SketchPicker } from 'react-color';
 import Socket from './classes/SocketClass';
 import { roundNumber } from './utils/utils';
@@ -50,65 +53,99 @@ export const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (
 
   return (
     <>
-      <ControlGroup>
-        <Button
-          disabled={props.hasLink}
-          onClick={() => {
-            setRound((value) => !value);
-          }}
-        >
-          {round ? 'Integer' : 'Float'}
-        </Button>
-        <NumericInput
-          disabled={props.hasLink}
-          allowNumericCharactersOnly={false}
-          selectAllOnFocus
-          fill
-          minorStepSize={round ? null : stepSizeValue}
-          onValueChange={(value) => {
-            potentiallyNotify(props.property, value);
-            setData(value);
-          }}
-          value={data || 0}
-        />
-        <Divider />
-        <NumericInput
-          disabled={props.hasLink}
-          className={styles.minMaxInput}
-          allowNumericCharactersOnly={false}
-          selectAllOnFocus
-          minorStepSize={round ? null : stepSizeValue}
-          onValueChange={(value) => {
-            setMinValue(value);
-          }}
-          value={minValue}
-        />
-        <NumericInput
-          disabled={props.hasLink}
-          className={styles.minMaxInput}
-          allowNumericCharactersOnly={false}
-          selectAllOnFocus
-          minorStepSize={round ? null : stepSizeValue}
-          onValueChange={(value) => {
-            setMaxValue(value);
-          }}
-          value={maxValue}
-        />
-      </ControlGroup>
       <Slider
+        size="small"
+        color="secondary"
+        valueLabelDisplay="auto"
         disabled={props.hasLink}
-        className={styles.slider}
         key={`${props.property.name}-${props.index}`}
         min={minValue}
         max={maxValue}
-        stepSize={round ? 1 : stepSizeValue}
-        labelValues={[minValue, maxValue]}
-        onChange={(value) => {
+        step={round ? 1 : stepSizeValue}
+        marks={[{ value: minValue }, { value: maxValue }]}
+        onChange={(event, value) => {
           potentiallyNotify(props.property, value);
-          setData(roundNumber(value, 4));
+          if (!Array.isArray(value)) {
+            setData(roundNumber(value, 4));
+          }
         }}
         value={data || 0}
       />
+      <FormGroup
+        row={true}
+        sx={{
+          display: 'flex',
+          flexWrap: 'nowrap',
+        }}
+      >
+        <ToggleButton
+          value="check"
+          size="small"
+          selected={round}
+          color="secondary"
+          disabled={props.hasLink}
+          onChange={() => {
+            setRound((value) => !value);
+          }}
+          sx={{
+            fontSize: '12px',
+          }}
+        >
+          {round ? 'Int' : 'Float'}
+        </ToggleButton>
+        <TextField
+          variant="filled"
+          label="Value"
+          sx={{
+            flexGrow: 1,
+          }}
+          disabled={props.hasLink}
+          inputProps={{
+            type: 'number',
+            inputMode: 'numeric',
+            step: round ? null : stepSizeValue,
+          }}
+          onChange={(event) => {
+            potentiallyNotify(props.property, Number(event.target.value));
+            setData(Number(event.target.value));
+          }}
+          value={data || 0}
+        />
+        <TextField
+          variant="filled"
+          label="Min"
+          sx={{
+            width: '104px',
+          }}
+          disabled={props.hasLink}
+          inputProps={{
+            type: 'number',
+            inputMode: 'numeric',
+            step: round ? null : stepSizeValue,
+          }}
+          onChange={(event) => {
+            setMinValue(Number(event.target.value));
+          }}
+          value={minValue}
+        />
+        <TextField
+          variant="filled"
+          label="Max"
+          sx={{
+            width: '104px',
+          }}
+          disabled={props.hasLink}
+          inputProps={{
+            type: 'number',
+            inputMode: 'numeric',
+            step: round ? null : stepSizeValue,
+          }}
+          onChange={(event) => {
+            setMaxValue(Number(event.target.value));
+          }}
+          value={maxValue}
+        />
+      </FormGroup>
     </>
   );
 };
@@ -119,6 +156,7 @@ export type SelectWidgetProps = {
   hasLink: boolean;
   data: number;
   options: EnumStructure;
+  randomMainColor: string;
 };
 
 export const SelectWidget: React.FunctionComponent<SelectWidgetProps> = (
@@ -134,17 +172,30 @@ export const SelectWidget: React.FunctionComponent<SelectWidgetProps> = (
   };
 
   return (
-    <>
-      <HTMLSelect onChange={onChange} value={data}>
+    <FormGroup>
+      <Select
+        variant="filled"
+        value={data}
+        onChange={onChange}
+        disabled={props.hasLink}
+      >
         {options?.map(({ text }, index) => {
           return (
-            <option key={index} value={text}>
+            <MenuItem
+              key={index}
+              value={text}
+              sx={{
+                '&.Mui-selected': {
+                  backgroundColor: `${Color(props.randomMainColor).negate()}`,
+                },
+              }}
+            >
               {text}
-            </option>
+            </MenuItem>
           );
         })}
-      </HTMLSelect>
-    </>
+      </Select>
+    </FormGroup>
   );
 };
 
@@ -167,13 +218,12 @@ export const BooleanWidget: React.FunctionComponent<BooleanWidgetProps> = (
   };
 
   return (
-    <>
-      <Checkbox
-        checked={data}
-        label={props.property.custom?.label}
-        onChange={onChange}
+    <FormGroup>
+      <FormControlLabel
+        control={<Checkbox checked={data} onChange={onChange} />}
+        label={props.property.custom?.label ?? ''}
       />
-    </>
+    </FormGroup>
   );
 };
 
@@ -186,13 +236,16 @@ export type TextWidgetProps = {
 
 export const TextWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
   const [data, setData] = useState(props.data);
+  console.log(props);
 
   return (
-    <>
-      <TextArea
+    <FormGroup>
+      <TextField
+        hiddenLabel
+        variant="filled"
+        // label={props.property.name}
+        multiline
         disabled={props.hasLink}
-        className={`${styles.textArea} bp3-fill`}
-        growVertically={true}
         onChange={(event) => {
           const value = event.target.value;
           potentiallyNotify(props.property, value);
@@ -200,7 +253,7 @@ export const TextWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
         }}
         value={data || ''}
       />
-    </>
+    </FormGroup>
   );
 };
 
@@ -212,11 +265,13 @@ export const JSONWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
   const [validJSON, setValidJSON] = useState(true);
 
   return (
-    <>
-      <TextArea
+    <FormGroup>
+      <TextField
+        hiddenLabel
+        variant="filled"
+        // label={props.property.name}
+        multiline
         disabled={props.hasLink}
-        className={`${styles.textArea} bp3-fill`}
-        growVertically={true}
         onChange={(event) => {
           const value = event.target.value;
           setDisplayedString(value);
@@ -231,13 +286,8 @@ export const JSONWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
         }}
         value={displayedString}
       />
-      {!validJSON && (
-        <div style={{ display: 'flex' }}>
-          <div>Invalid JSON </div>
-          <Icon icon="cross" />
-        </div>
-      )}
-    </>
+      {!validJSON && <Alert severity="error">Invalid JSON!</Alert>}
+    </FormGroup>
   );
 };
 
@@ -252,12 +302,12 @@ export const TriggerWidget: React.FunctionComponent<TriggerWidgetProps> = (
   return (
     <>
       <Button
-        rightIcon="play"
+        startIcon={<PlayArrowIcon />}
         onClick={() => {
           // nodes with trigger input need a trigger function
           (props.property.parent as any).trigger();
         }}
-        fill
+        variant="contained"
       >
         Execute
       </Button>
@@ -355,21 +405,29 @@ export const ColorWidget: React.FunctionComponent<ColorWidgetProps> = (
 export type DefaultOutputWidgetProps = {
   property: Socket;
   index: number;
+  isInput: boolean;
+  hasLink: boolean;
   data: any;
 };
 
-export const DefaultOutputWidget: React.FunctionComponent<DefaultOutputWidgetProps> =
-  (props) => {
-    const [data] = useState(props.data);
+export const DefaultOutputWidget: React.FunctionComponent<
+  DefaultOutputWidgetProps
+> = (props) => {
+  const [data] = useState(props.data);
 
-    return (
-      <>
-        <TextArea
-          className={`${styles.textArea} bp3-fill`}
-          growVertically={true}
-          value={prettyFormat(data)}
-          readOnly
-        />
-      </>
-    );
-  };
+  return (
+    <FormGroup>
+      <TextField
+        hiddenLabel
+        variant="filled"
+        // label={props.property.name}
+        multiline
+        InputProps={{
+          readOnly: true,
+        }}
+        // value={prettyFormat(data)}
+        value={data}
+      />
+    </FormGroup>
+  );
+};

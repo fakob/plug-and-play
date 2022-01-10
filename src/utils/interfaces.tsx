@@ -42,6 +42,7 @@ export type CustomArgs = {
 };
 
 export interface IGraphSearch {
+  inputValue?: string;
   id: string;
   name: string;
   label?: string;
@@ -51,10 +52,13 @@ export interface IGraphSearch {
 }
 
 export interface INodeSearch {
+  inputValue?: string;
   title: string;
+  key: string;
   name: string;
   description: string;
   hasInputs: string;
+  isNew?: boolean;
 }
 
 export type SerializedNode = {
