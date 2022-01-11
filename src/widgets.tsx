@@ -1,5 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
-import prettyFormat from 'pretty-format';
+import CodeMirror from '@uiw/react-codemirror';
+import { oneDark } from '@codemirror/theme-one-dark';
+import { javascript } from '@codemirror/lang-javascript';
+// import prettyFormat from 'pretty-format';
 import Color from 'color';
 import {
   Alert,
@@ -254,6 +257,34 @@ export const TextWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
         value={data || ''}
       />
     </FormGroup>
+  );
+};
+
+export type CodeWidgetProps = {
+  property: Socket;
+  index: number;
+  hasLink: boolean;
+  data: string;
+};
+
+export const CodeWidget: React.FunctionComponent<CodeWidgetProps> = (props) => {
+  const [data, setData] = useState(props.data);
+  console.log(props);
+
+  return (
+    <CodeMirror
+      value={data || ''}
+      width="100%"
+      height="100%"
+      theme={oneDark}
+      editable={!props.hasLink}
+      extensions={[javascript({ jsx: true })]}
+      onChange={(value, viewUpdate) => {
+        console.log('value:', value);
+        potentiallyNotify(props.property, value);
+        setData(value);
+      }}
+    />
   );
 };
 

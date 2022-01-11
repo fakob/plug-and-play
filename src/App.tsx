@@ -1169,6 +1169,7 @@ NOTE: opening a remote playground creates a local copy`
                 isCustomNode={currentGraph.current.isCustomNode(selectedNode)}
                 onSave={createOrUpdateNodeFromCode}
                 randomMainColor={randomMainColor}
+                isMac={isMac}
               />
             )}
             {selectedNodes && selectionPos && (

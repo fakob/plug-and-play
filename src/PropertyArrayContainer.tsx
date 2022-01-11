@@ -1,4 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
+import CodeMirror, {
+  EditorView,
+  KeyBinding,
+  keymap,
+} from '@uiw/react-codemirror';
+import { oneDark } from '@codemirror/theme-one-dark';
+import { javascript } from '@codemirror/lang-javascript';
 import Color from 'color';
 import {
   Box,
@@ -14,19 +21,80 @@ import {
   Visibility as VisibilityIcon,
   VisibilityOff as VisibilityOffIcon,
 } from '@mui/icons-material';
+import PPGraph from './classes/GraphClass';
+import PPNode from './classes/NodeClass';
 import Socket from './classes/SocketClass';
 import { AbstractType } from './nodes/datatypes/abstractType';
 import { allDataTypes } from './nodes/datatypes/dataTypesMap';
 
 type PropertyArrayContainerProps = {
+  currentGraph: PPGraph;
+  selectedNode: PPNode;
+  isCustomNode: boolean;
+  onSave?: (code: string) => void;
+  randomMainColor: string;
   inputSocketArray: Socket[];
   outputSocketArray: Socket[];
-  randomMainColor: string;
+  isMac: boolean;
 };
 
 export const PropertyArrayContainer: React.FunctionComponent<
   PropertyArrayContainerProps
 > = (props) => {
+  // const editorRef = useRef<any>();
+  const [codeString, setCodeString] = useState<string | undefined>(
+    props.currentGraph.customNodeTypes[props.selectedNode.type]
+  );
+
+  // const editorDidMount = (editor, monaco) => {
+  //   editorRef.current = editor;
+
+  //   editor.addAction({
+  //     id: 'my-unique-id',
+  //     label: 'Create/Update node',
+  //     keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter],
+  //     contextMenuGroupId: 'Test',
+  //     contextMenuOrder: 1,
+  //     run: function (ed) {
+  //       console.log(ed);
+  //       saveCode();
+  //     },
+  //   });
+
+  //   console.log('editorDidMount', editor);
+  //   editor.focus();
+  // };
+
+  useEffect(() => {
+    // update codeString when the type changes
+    const selectedNodeType = props.selectedNode.type;
+    const value = props.currentGraph.customNodeTypes[selectedNodeType];
+    setCodeString(value);
+  }, [props.selectedNode.type]);
+
+  const saveCode = () => {
+    console.log('Create/Update node command from Editor');
+    props.onSave(codeString);
+  };
+
+  /*
+   * Create a KeyMap extension
+   */
+  function getKeymap() {
+    // Save command
+    const save = () => {
+      saveCode();
+      this.toString();
+      return false;
+    };
+
+    const conf: readonly KeyBinding[] = [
+      { key: `${props.isMac ? 'cmd' : 'ctrl'}-s`, run: save },
+    ];
+
+    return keymap.of(conf);
+  }
+
   return (
     <Stack spacing={2}>
       {props.inputSocketArray?.length > 0 && (
@@ -55,6 +123,23 @@ export const PropertyArrayContainer: React.FunctionComponent<
             );
           })}
         </Stack>
+      )}
+      {props.isCustomNode && (
+        <CodeMirror
+          value={codeString}
+          width="100%"
+          height="100%"
+          theme={oneDark}
+          extensions={[
+            javascript({ jsx: true }),
+            EditorView.lineWrapping,
+            getKeymap(),
+          ]}
+          onChange={(value) => {
+            console.log('value:', value);
+            setCodeString(value);
+          }}
+        />
       )}
       {props.outputSocketArray?.length > 0 && (
         <Stack

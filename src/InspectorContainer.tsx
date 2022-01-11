@@ -1,13 +1,13 @@
-import React, { useRef, useEffect, useState } from 'react';
-import MonacoEditor from 'react-monaco-editor';
+import React from 'react';
+// import MonacoEditor from 'react-monaco-editor';
 import Color from 'color';
 import { Box, Stack, ThemeProvider, createTheme } from '@mui/material';
 
 import { theme, darkThemeOverride } from './utils/customTheme';
 import styles from './utils/style.module.css';
+import PPGraph from './classes/GraphClass';
 import PPNode from './classes/NodeClass';
 import { PropertyArrayContainer } from './PropertyArrayContainer';
-import PPGraph from './classes/GraphClass';
 
 type MyProps = {
   currentGraph: PPGraph;
@@ -15,48 +15,10 @@ type MyProps = {
   isCustomNode: boolean;
   onSave?: (code: string) => void;
   randomMainColor: string;
+  isMac: boolean;
 };
 
 const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
-  const editorRef = useRef<any>();
-  const [codeString, setCodeString] = useState<string | undefined>(
-    props.currentGraph.customNodeTypes[props.selectedNode.type]
-  );
-
-  const saveCode = () => {
-    console.log('Create/Update node command from Editor');
-    const model = editorRef.current.getModel();
-    const value = model.getValue();
-    setCodeString(value);
-    props.onSave(value);
-  };
-
-  const editorDidMount = (editor, monaco) => {
-    editorRef.current = editor;
-
-    editor.addAction({
-      id: 'my-unique-id',
-      label: 'Create/Update node',
-      keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter],
-      contextMenuGroupId: 'Test',
-      contextMenuOrder: 1,
-      run: function (ed) {
-        console.log(ed);
-        saveCode();
-      },
-    });
-
-    console.log('editorDidMount', editor);
-    editor.focus();
-  };
-
-  useEffect(() => {
-    // update codeString when the type changes
-    const selectedNodeType = props.selectedNode.type;
-    const value = props.currentGraph.customNodeTypes[selectedNodeType];
-    setCodeString(value);
-  }, [props.selectedNode.type]);
-
   return (
     <ThemeProvider
       theme={createTheme(darkThemeOverride, {
@@ -92,27 +54,15 @@ const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
           {props.selectedNode?.name}
         </Box>
         <PropertyArrayContainer
+          currentGraph={props.currentGraph}
+          selectedNode={props.selectedNode}
+          isCustomNode={props.isCustomNode}
+          onSave={props.onSave}
+          randomMainColor={props.randomMainColor}
           inputSocketArray={props.selectedNode?.inputSocketArray}
           outputSocketArray={props.selectedNode?.outputSocketArray}
-          randomMainColor={props.randomMainColor}
+          isMac={props.isMac}
         />
-        {props.isCustomNode && (
-          <MonacoEditor
-            language="javascript"
-            theme="vs-dark"
-            height="70%"
-            value={codeString}
-            options={{
-              selectOnLineNumbers: true,
-              scrollBeyondLastLine: false,
-              wordWrap: 'on',
-            }}
-            onChange={(newValue, e) => {
-              // console.log('controlled', newValue, e);
-            }}
-            editorDidMount={editorDidMount}
-          />
-        )}
       </Stack>
     </ThemeProvider>
   );
