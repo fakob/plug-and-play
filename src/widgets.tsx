@@ -1,7 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import CodeMirror from '@uiw/react-codemirror';
-import { oneDark } from '@codemirror/theme-one-dark';
-import { javascript } from '@codemirror/lang-javascript';
 // import prettyFormat from 'pretty-format';
 import Color from 'color';
 import {
@@ -18,6 +15,7 @@ import {
 } from '@mui/material';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import { SketchPicker } from 'react-color';
+import { CodeEditor } from './components/Editor';
 import Socket from './classes/SocketClass';
 import { roundNumber } from './utils/utils';
 import styles from './utils/style.module.css';
@@ -265,6 +263,7 @@ export type CodeWidgetProps = {
   index: number;
   hasLink: boolean;
   data: string;
+  randomMainColor: string;
 };
 
 export const CodeWidget: React.FunctionComponent<CodeWidgetProps> = (props) => {
@@ -272,14 +271,11 @@ export const CodeWidget: React.FunctionComponent<CodeWidgetProps> = (props) => {
   console.log(props);
 
   return (
-    <CodeMirror
+    <CodeEditor
       value={data || ''}
-      width="100%"
-      height="100%"
-      theme={oneDark}
+      randomMainColor={props.randomMainColor}
       editable={!props.hasLink}
-      extensions={[javascript({ jsx: true })]}
-      onChange={(value, viewUpdate) => {
+      onChange={(value) => {
         console.log('value:', value);
         potentiallyNotify(props.property, value);
         setData(value);

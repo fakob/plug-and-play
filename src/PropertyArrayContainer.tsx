@@ -1,11 +1,4 @@
 import React, { useRef, useEffect, useState } from 'react';
-import CodeMirror, {
-  EditorView,
-  KeyBinding,
-  keymap,
-} from '@uiw/react-codemirror';
-import { oneDark } from '@codemirror/theme-one-dark';
-import { javascript } from '@codemirror/lang-javascript';
 import Color from 'color';
 import {
   Box,
@@ -24,6 +17,7 @@ import {
 import PPGraph from './classes/GraphClass';
 import PPNode from './classes/NodeClass';
 import Socket from './classes/SocketClass';
+import { CodeEditor } from './components/Editor';
 import { AbstractType } from './nodes/datatypes/abstractType';
 import { allDataTypes } from './nodes/datatypes/dataTypesMap';
 
@@ -45,64 +39,12 @@ export const PropertyArrayContainer: React.FunctionComponent<
     props.currentGraph.customNodeTypes[props.selectedNode.type]
   );
 
-  const theme = EditorView.theme(
-    {
-      '&.cm-editor': {
-        fontFamily: 'Roboto Mono, sans-serif',
-        backgroundColor: `${Color(props.randomMainColor).darken(0.85)}`,
-      },
-      '& .cm-gutters': {
-        backgroundColor: `${Color(props.randomMainColor).darken(
-          0.85
-        )} !important`,
-      },
-      '& .cm-activeLineGutter, & .cm-activeLine': {
-        backgroundColor: `${Color(props.randomMainColor).darken(
-          0.75
-        )} !important`,
-      },
-      // /* Disable CodeMirror's focused editor outline. */
-      // '&.cm-editor.cm-focused': {
-      //   outline: 'none',
-      // },
-    }
-    // { dark: true }
-  );
-
   useEffect(() => {
     // update codeString when the type changes
     const selectedNodeType = props.selectedNode.type;
     const value = props.currentGraph.customNodeTypes[selectedNodeType];
     setCodeString(value);
   }, [props.selectedNode.type]);
-
-  const saveCode = () => {
-    console.log('Create/Update node command from Editor');
-    props.onSave(codeString);
-  };
-
-  /*
-   * Create a KeyMap extension
-   */
-  function getKeymap() {
-    // Save command
-    const save = (editor) => {
-      saveCode();
-      console.log(editor.toString());
-      return true;
-    };
-
-    const conf: readonly KeyBinding[] = [
-      {
-        key: 'Ctrl-Enter',
-        // mac: 'Cmd-Enter', // seems to not work in chrome
-        run: save,
-        preventDefault: true,
-      },
-    ];
-
-    return keymap.of(conf);
-  }
 
   return (
     <Stack spacing={2}>
@@ -134,17 +76,10 @@ export const PropertyArrayContainer: React.FunctionComponent<
         </Stack>
       )}
       {props.isCustomNode && (
-        <CodeMirror
+        <CodeEditor
           value={codeString}
-          width="100%"
-          height="100%"
-          theme={oneDark}
-          extensions={[
-            javascript({ jsx: true }),
-            EditorView.lineWrapping,
-            getKeymap(),
-            theme,
-          ]}
+          randomMainColor={props.randomMainColor}
+          onSave={props.onSave}
           onChange={(value) => {
             console.log('value:', value);
             setCodeString(value);
