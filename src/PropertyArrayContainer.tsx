@@ -35,7 +35,6 @@ type PropertyArrayContainerProps = {
   randomMainColor: string;
   inputSocketArray: Socket[];
   outputSocketArray: Socket[];
-  isMac: boolean;
 };
 
 export const PropertyArrayContainer: React.FunctionComponent<
@@ -46,24 +45,29 @@ export const PropertyArrayContainer: React.FunctionComponent<
     props.currentGraph.customNodeTypes[props.selectedNode.type]
   );
 
-  // const editorDidMount = (editor, monaco) => {
-  //   editorRef.current = editor;
-
-  //   editor.addAction({
-  //     id: 'my-unique-id',
-  //     label: 'Create/Update node',
-  //     keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter],
-  //     contextMenuGroupId: 'Test',
-  //     contextMenuOrder: 1,
-  //     run: function (ed) {
-  //       console.log(ed);
-  //       saveCode();
-  //     },
-  //   });
-
-  //   console.log('editorDidMount', editor);
-  //   editor.focus();
-  // };
+  const theme = EditorView.theme(
+    {
+      '&.cm-editor': {
+        fontFamily: 'Roboto Mono, sans-serif',
+        backgroundColor: `${Color(props.randomMainColor).darken(0.85)}`,
+      },
+      '& .cm-gutters': {
+        backgroundColor: `${Color(props.randomMainColor).darken(
+          0.85
+        )} !important`,
+      },
+      '& .cm-activeLineGutter, & .cm-activeLine': {
+        backgroundColor: `${Color(props.randomMainColor).darken(
+          0.75
+        )} !important`,
+      },
+      // /* Disable CodeMirror's focused editor outline. */
+      // '&.cm-editor.cm-focused': {
+      //   outline: 'none',
+      // },
+    }
+    // { dark: true }
+  );
 
   useEffect(() => {
     // update codeString when the type changes
@@ -82,14 +86,19 @@ export const PropertyArrayContainer: React.FunctionComponent<
    */
   function getKeymap() {
     // Save command
-    const save = () => {
+    const save = (editor) => {
       saveCode();
-      this.toString();
-      return false;
+      console.log(editor.toString());
+      return true;
     };
 
     const conf: readonly KeyBinding[] = [
-      { key: `${props.isMac ? 'cmd' : 'ctrl'}-s`, run: save },
+      {
+        key: 'Ctrl-Enter',
+        // mac: 'Cmd-Enter', // seems to not work in chrome
+        run: save,
+        preventDefault: true,
+      },
     ];
 
     return keymap.of(conf);
@@ -134,6 +143,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
             javascript({ jsx: true }),
             EditorView.lineWrapping,
             getKeymap(),
+            theme,
           ]}
           onChange={(value) => {
             console.log('value:', value);

@@ -15,7 +15,6 @@ type MyProps = {
   isCustomNode: boolean;
   onSave?: (code: string) => void;
   randomMainColor: string;
-  isMac: boolean;
 };
 
 const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
@@ -61,7 +60,6 @@ const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
           randomMainColor={props.randomMainColor}
           inputSocketArray={props.selectedNode?.inputSocketArray}
           outputSocketArray={props.selectedNode?.outputSocketArray}
-          isMac={props.isMac}
         />
       </Stack>
     </ThemeProvider>

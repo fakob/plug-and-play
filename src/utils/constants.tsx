@@ -139,7 +139,7 @@ export const NOTE_PADDING = 12;
 export const NOTE_FONTSIZE = 32;
 export const NOTE_LINEHEIGHT_FACTOR = 1.15;
 
-export const DEFAULT_EDITOR_DATA = `// Cmd/Ctrl-Enter to update node
+export const DEFAULT_EDITOR_DATA = `// Ctrl-Enter to update node
 // Change function name to create new node
 function customFunctionNode(a, b) {
   return a * b;
