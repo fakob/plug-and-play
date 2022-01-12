@@ -36,7 +36,17 @@ export const PropertyArrayContainer: React.FunctionComponent<
 > = (props) => {
   // const editorRef = useRef<any>();
   const [codeString, setCodeString] = useState<string | undefined>(
+    // props.isCustomNode
+    // ?
     props.currentGraph.customNodeTypes[props.selectedNode.type]
+    // : props.selectedNode.sourceCode()
+  );
+
+  console.log(
+    props.selectedNode,
+    typeof props.selectedNode,
+    props.selectedNode.sourceCode(),
+    props.selectedNode instanceof PPNode
   );
 
   useEffect(() => {
@@ -75,17 +85,17 @@ export const PropertyArrayContainer: React.FunctionComponent<
           })}
         </Stack>
       )}
-      {props.isCustomNode && (
-        <CodeEditor
-          value={codeString}
-          randomMainColor={props.randomMainColor}
-          onSave={props.onSave}
-          onChange={(value) => {
-            console.log('value:', value);
-            setCodeString(value);
-          }}
-        />
-      )}
+      {/* {props.isCustomNode && ( */}
+      <CodeEditor
+        value={codeString ?? props.selectedNode.sourceCode()}
+        randomMainColor={props.randomMainColor}
+        onSave={props.onSave}
+        onChange={(value) => {
+          console.log('value:', value);
+          setCodeString(value);
+        }}
+      />
+      {/* )} */}
       {props.outputSocketArray?.length > 0 && (
         <Stack
           spacing={1}
