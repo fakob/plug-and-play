@@ -301,11 +301,7 @@ export default class PPGraph {
             'of',
             this.overInputRef.parent.name
           );
-          await this.connect(
-            this.clickedSocketRef,
-            this.overInputRef,
-            this.viewport
-          );
+          this.connect(this.clickedSocketRef, this.overInputRef, this.viewport);
 
           this.clearTempConnection();
         } else {

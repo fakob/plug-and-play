@@ -484,7 +484,7 @@ export default class PPNode extends PIXI.Container {
     await this.executeOptimizedChain();
   }
 
-  async setPosition(x: number, y: number, isRelative = false): Promise<void> {
+  setPosition(x: number, y: number, isRelative = false): void {
     this.x = isRelative ? this.x + x : x;
     this.y = isRelative ? this.y + y : y;
 
@@ -492,7 +492,7 @@ export default class PPNode extends PIXI.Container {
     this.updateConnectionPosition();
 
     if (this.shouldExecuteOnMove()) {
-      await this.executeOptimizedChain();
+      this.executeOptimizedChain();
     }
 
     if (this.onNodeDragOrViewportMove) {
@@ -911,14 +911,6 @@ export default class PPNode extends PIXI.Container {
     }
     const foundChange = await this.rawExecute();
     this.drawComment();
-
-    // move data across links
-
-    /*if (foundChange) {
-      for (const outputSocket of this.outputSocketArray) {
-        await outputSocket.notifyChange(upstreamContent);
-      }
-    }*/
   }
 
   // dont call this from outside, only from child class
