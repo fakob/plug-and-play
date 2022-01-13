@@ -570,7 +570,7 @@ export class PIXIContainer extends PPNode {
       }
     };
 
-    this.executeOnClick = (index: number): void => {
+    this.executeOnClick = async (index: number): Promise<void> => {
       this._containerRef[index].alpha =
         this._containerRef[index].alpha === 0.3 ? 1 : 0.3;
       this.setOutputData('clickedTargetIndex', index);
@@ -578,7 +578,7 @@ export class PIXIContainer extends PPNode {
         return item.alpha === 0.3;
       });
       this.setOutputData('clickedTargetArray', clickedTargetArray);
-      this.executeOptimizedChain();
+      await this.executeOptimizedChain();
     };
 
     this.onNodeRemoved = (): void => {
@@ -884,7 +884,7 @@ export class Table extends PPNode {
       return (row: number) => <BPCell>{`${this.parsedData[row][key]}`}</BPCell>;
     };
 
-    const onSelection = (selectedRegions: IRegion[]): void => {
+    const onSelection = async (selectedRegions: IRegion[]): Promise<void> => {
       const selectedData = selectedRegions.map((region) => {
         const regionData = [];
         const rowIndexStart = region.rows === undefined ? 0 : region.rows[0];
@@ -919,7 +919,7 @@ export class Table extends PPNode {
       } else {
         this.setOutputData('selectedData', selectedData);
       }
-      this.executeOptimizedChain();
+      await this.executeOptimizedChain();
     };
 
     // small presentational component

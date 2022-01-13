@@ -115,8 +115,8 @@ const FloatingNodeMenu = (props) => {
   };
 
   const onUpdateNow = (event) => {
-    selectedNodes.forEach((selectedNode) => {
-      selectedNode.executeOptimizedChain();
+    selectedNodes.forEach(async (selectedNode) => {
+      await selectedNode.executeOptimizedChain();
     });
   };
 

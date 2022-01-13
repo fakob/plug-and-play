@@ -718,8 +718,8 @@ export default class PPGraph {
         }
       }
     }
-    // execute all seed nodes
-    PPNode.executeOptimizedChainBatch(
+    // execute all seed nodes (twice, as order can be problematic otherwise)
+    await PPNode.executeOptimizedChainBatch(
       Object.values(this.nodes).filter((node) => !node.getHasDependencies())
     );
 

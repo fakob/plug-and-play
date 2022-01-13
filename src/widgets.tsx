@@ -31,10 +31,10 @@ export type SliderWidgetProps = {
   type: NumberType;
 };
 
-function potentiallyNotify(property: Socket, newValue) {
+async function potentiallyNotify(property: Socket, newValue) {
   if (property.data !== newValue) {
     property.data = newValue;
-    property.getNode().executeOptimizedChain();
+    await property.getNode().executeOptimizedChain();
   }
 }
 
@@ -410,24 +410,23 @@ export type DefaultOutputWidgetProps = {
   data: any;
 };
 
-export const DefaultOutputWidget: React.FunctionComponent<
-  DefaultOutputWidgetProps
-> = (props) => {
-  const [data] = useState(props.data);
+export const DefaultOutputWidget: React.FunctionComponent<DefaultOutputWidgetProps> =
+  (props) => {
+    const [data] = useState(props.data);
 
-  return (
-    <FormGroup>
-      <TextField
-        hiddenLabel
-        variant="filled"
-        // label={props.property.name}
-        multiline
-        InputProps={{
-          readOnly: true,
-        }}
-        // value={prettyFormat(data)}
-        value={data}
-      />
-    </FormGroup>
-  );
-};
+    return (
+      <FormGroup>
+        <TextField
+          hiddenLabel
+          variant="filled"
+          // label={props.property.name}
+          multiline
+          InputProps={{
+            readOnly: true,
+          }}
+          // value={prettyFormat(data)}
+          value={data}
+        />
+      </FormGroup>
+    );
+  };

@@ -437,8 +437,8 @@ export default class PPNode extends PIXI.Container {
         numDepending[dependentKey] = new Set();
       }
       numDepending[dependentKey].add(this.id);
+      dependents[dependentKey] = currentDependents[dependentKey];
     });
-    dependents = Object.assign(dependents, currentDependents);
 
     // accumulate results from children
     Object.values(currentDependents).forEach((dependent) => {
@@ -461,22 +461,21 @@ export default class PPNode extends PIXI.Container {
       node.aggregateDependents(dependents, numDepending);
     });
     // now that we have the complete chain, execute them in order that makes sure all dependents are waiting on their parents, there should always be a node with no more lingering dependents (unless there is an infinite loop)
-    const readyToGo: PPNode[] = foundational;
     let currentExecuting: PPNode = foundational.shift();
-    while (readyToGo.length > 0) {
+    while (currentExecuting) {
       await currentExecuting.execute();
       // uncomment if you want to see the execution in more detail by slowing it down (to make sure order is correct)
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      //await new Promise((resolve) => setTimeout(resolve, 500));
       delete dependents[currentExecuting.id];
       Object.keys(currentExecuting.getDirectDependents()).forEach(
         (dependentKey) => {
           numDepending[dependentKey].delete(currentExecuting.id);
           if (numDepending[dependentKey].size == 0) {
-            readyToGo.push(dependents[dependentKey]);
+            foundational.push(dependents[dependentKey]);
           }
         }
       );
-      currentExecuting = readyToGo.shift();
+      currentExecuting = foundational.shift();
     }
     return;
   }
@@ -485,7 +484,7 @@ export default class PPNode extends PIXI.Container {
     await this.executeOptimizedChain();
   }
 
-  setPosition(x: number, y: number, isRelative = false): void {
+  async setPosition(x: number, y: number, isRelative = false): Promise<void> {
     this.x = isRelative ? this.x + x : x;
     this.y = isRelative ? this.y + y : y;
 
@@ -493,7 +492,7 @@ export default class PPNode extends PIXI.Container {
     this.updateConnectionPosition();
 
     if (this.shouldExecuteOnMove()) {
-      this.executeOptimizedChain();
+      await this.executeOptimizedChain();
     }
 
     if (this.onNodeDragOrViewportMove) {
@@ -818,14 +817,14 @@ export default class PPNode extends PIXI.Container {
     outputSocket.data = data;
   }
 
-  tick(currentTime: number, deltaTime: number): void {
+  async tick(currentTime: number, deltaTime: number): Promise<void> {
     if (
       this.updateBehaviour.interval &&
       currentTime - this.lastTimeTicked >=
         this.updateBehaviour.intervalFrequency
     ) {
       this.lastTimeTicked = currentTime;
-      this.executeOptimizedChain();
+      await this.executeOptimizedChain();
     }
   }
 
