@@ -33,6 +33,7 @@
     "@fontsource/roboto-mono": "^4.5.0",
     "@mui/icons-material": "^5.2.0",
     "@mui/material": "^5.2.1",
+    "@mui/styles": "^5.2.3",
     "@mui/utils": "^5.2.1",
     "@pixi/filter-drop-shadow": "^4.1.5",
     "@pixi/text-html": "^2.0.0",

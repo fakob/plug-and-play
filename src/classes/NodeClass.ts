@@ -234,7 +234,7 @@ export default class PPNode extends PIXI.Container {
   }
 
   // METHODS
-  sourceCode(): string {
+  getSourceCode(): string {
     return this.constructor.toString();
   }
 
