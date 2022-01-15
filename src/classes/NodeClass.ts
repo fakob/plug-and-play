@@ -423,27 +423,48 @@ export default class PPNode extends PIXI.Container {
     );
   }
 
-  aggregateDependents(
-    dependents: { [key: string]: PPNode },
-    numDepending: { [key: string]: Set<string> }
+  static combineNumDependings(
+    numDepending1: { [key: string]: Set<string> },
+    numDepending2: { [key: string]: Set<string> }
   ): void {
-    // populate dependents
-    const currentDependents: { [key: string]: PPNode } =
+    Object.keys(numDepending2).forEach((childDependent) => {
+      if (numDepending1[childDependent] === undefined) {
+        numDepending1[childDependent] = numDepending2[childDependent];
+      } else {
+        numDepending2[childDependent].forEach((childDependentKey) => {
+          numDepending1[childDependent].add(childDependentKey);
+        });
+      }
+    });
+  }
+
+  aggregateDependents(dependents: { [key: string]: PPNode }): {
+    [key: string]: Set<string>;
+  } {
+    // don't add from same node several times
+    if (dependents[this.id] !== undefined) {
+      return {};
+    }
+    const currDependents: { [key: string]: PPNode } =
       this.getDirectDependents();
 
-    // merge current dependents into big one
-    Object.keys(currentDependents).forEach((dependentKey) => {
-      if (numDepending[dependentKey] === undefined) {
-        numDepending[dependentKey] = new Set();
-      }
+    dependents[this.id] = this;
+
+    // populate dependents
+
+    const numDepending: { [key: string]: Set<string> } = {};
+    Object.keys(currDependents).forEach((dependentKey) => {
+      numDepending[dependentKey] = new Set();
       numDepending[dependentKey].add(this.id);
-      dependents[dependentKey] = currentDependents[dependentKey];
     });
 
-    // accumulate results from children
-    Object.values(currentDependents).forEach((dependent) => {
-      dependent.aggregateDependents(dependents, numDepending);
+    // accumulate results from children and merge with mine
+    Object.values(currDependents).forEach((dependent) => {
+      const result = dependent.aggregateDependents(dependents);
+      PPNode.combineNumDependings(numDepending, result);
     });
+
+    return numDepending;
   }
 
   async executeOptimizedChain(): Promise<void> {
@@ -456,9 +477,14 @@ export default class PPNode extends PIXI.Container {
     const dependents: { [key: string]: PPNode } = {};
     const numDepending: { [key: string]: Set<string> } = {};
     foundational.forEach((node: PPNode) => {
-      numDepending[node.id] = new Set();
-      dependents[node.id] = node;
-      node.aggregateDependents(dependents, numDepending);
+      Object.keys(node.getDirectDependents()).forEach((dependentKey) => {
+        numDepending[dependentKey] = new Set();
+        numDepending[dependentKey].add(node.id);
+      });
+      PPNode.combineNumDependings(
+        numDepending,
+        node.aggregateDependents(dependents)
+      );
     });
     // now that we have the complete chain, execute them in order that makes sure all dependents are waiting on their parents, there should always be a node with no more lingering dependents (unless there is an infinite loop)
     let currentExecuting: PPNode = foundational.shift();
@@ -466,7 +492,6 @@ export default class PPNode extends PIXI.Container {
       await currentExecuting.execute();
       // uncomment if you want to see the execution in more detail by slowing it down (to make sure order is correct)
       //await new Promise((resolve) => setTimeout(resolve, 500));
-      delete dependents[currentExecuting.id];
       Object.keys(currentExecuting.getDirectDependents()).forEach(
         (dependentKey) => {
           numDepending[dependentKey].delete(currentExecuting.id);
@@ -480,8 +505,8 @@ export default class PPNode extends PIXI.Container {
     return;
   }
 
-  async notifyChange(): Promise<void> {
-    await this.executeOptimizedChain();
+  notifyChange(): void {
+    this.executeOptimizedChain();
   }
 
   setPosition(x: number, y: number, isRelative = false): void {
@@ -824,12 +849,12 @@ export default class PPNode extends PIXI.Container {
         this.updateBehaviour.intervalFrequency
     ) {
       this.lastTimeTicked = currentTime;
-      await this.executeOptimizedChain();
+      this.executeOptimizedChain();
     }
   }
 
-  async initialExecute(): Promise<void> {
-    return await this.executeOptimizedChain();
+  initialExecute(): void {
+    this.executeOptimizedChain();
   }
 
   remapInput(sockets: Socket[]): any {

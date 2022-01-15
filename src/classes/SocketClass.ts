@@ -251,11 +251,9 @@ export default class Socket extends PIXI.Container {
 
   getDirectDependents(): PPNode[] {
     // only continue with nodes that execute on update
-    const filteredLinks = this.links.filter(
-      (link) => link.getTarget().getNode().updateBehaviour.update
-    );
-    const nodes = filteredLinks.map((link) => link.getTarget().getNode());
-    return nodes;
+    const nodes = this.links.map((link) => link.getTarget().getNode());
+    const filteredNodes = nodes.filter((node) => node.updateBehaviour.update);
+    return filteredNodes;
   }
 
   // SETUP
