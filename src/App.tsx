@@ -28,7 +28,6 @@ import {
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { theme } from './utils/customTheme';
 import Color from 'color';
 import { hri } from 'human-readable-ids';
@@ -41,7 +40,6 @@ import {
 } from './components/Search';
 import ResponsiveDrawer from './components/ResponsiveDrawer';
 import FloatingNodeMenu from './components/FloatingNodeMenu';
-// import InspectorContainer from './InspectorContainer';
 import PixiContainer from './PixiContainer';
 import { GraphContextMenu, NodeContextMenu } from './components/ContextMenus';
 import { GraphDatabase } from './utils/indexedDB';
@@ -60,7 +58,6 @@ import {
   getLoadedGraphId,
   getRemoteGraph,
   getRemoteGraphsList,
-  truncateText,
   removeExtension,
   useStateRef,
 } from './utils/utils';

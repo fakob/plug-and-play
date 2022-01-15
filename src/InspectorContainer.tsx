@@ -1,5 +1,4 @@
 import React from 'react';
-// import MonacoEditor from 'react-monaco-editor';
 import Color from 'color';
 import {
   Box,
@@ -10,8 +9,7 @@ import {
   ToggleButtonGroup,
   createTheme,
 } from '@mui/material';
-import ViewColumnIcon from '@mui/icons-material/ViewColumn';
-import { theme, darkThemeOverride } from './utils/customTheme';
+import { darkThemeOverride } from './utils/customTheme';
 import styles from './utils/style.module.css';
 import PPGraph from './classes/GraphClass';
 import PPNode from './classes/NodeClass';

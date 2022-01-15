@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-// import prettyFormat from 'pretty-format';
 import Color from 'color';
 import {
   Alert,
@@ -447,12 +446,10 @@ export const DefaultOutputWidget: React.FunctionComponent<
       <TextField
         hiddenLabel
         variant="filled"
-        // label={props.property.name}
         multiline
         InputProps={{
           readOnly: true,
         }}
-        // value={prettyFormat(data)}
         value={data}
       />
     </FormGroup>
