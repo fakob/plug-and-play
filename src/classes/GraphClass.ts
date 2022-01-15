@@ -781,7 +781,9 @@ export default class PPGraph {
   }
 
   isCustomNode(node: PPNode): boolean {
-    return this.customNodeTypes[node.type] !== undefined;
+    if (node) {
+      return this.customNodeTypes[node.type] !== undefined;
+    }
   }
 
   convertStringToFunction(code: string): (...args: any[]) => any {

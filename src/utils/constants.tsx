@@ -34,6 +34,10 @@ export const COLOR_WHITE_TEXT = '#F4FAF9';
 export const WHITE_HEX = 0xffffff;
 
 export const PLUGANDPLAY_ICON = '../assets/PlugAndPlayIcon-transparent.svg';
+export const DRAWER30_ICON = '../assets/Drawer30_Icon.svg';
+export const DRAWER50_ICON = '../assets/Drawer50_Icon.svg';
+export const DRAWER60_ICON = '../assets/Drawer60_Icon.svg';
+export const DRAWER90_ICON = '../assets/Drawer90_Icon.svg';
 
 export const CANVAS_BACKGROUND_TEXTURE =
   '../assets/Pixel_grid_4000x2000.svg.png';
