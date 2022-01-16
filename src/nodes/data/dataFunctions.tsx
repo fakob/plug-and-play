@@ -1,12 +1,19 @@
+import * as PIXI from 'pixi.js';
+import React, { useEffect, useState } from 'react';
+import { JsonPathPicker } from 'react-json-path-picker';
+
 import NodeClass from '../../classes/NodeClass';
-import PPNode from '../../classes/NodeClass';
+import GraphClass from '../../classes/GraphClass';
 import PureNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
 import { SOCKET_TYPE } from '../../utils/constants';
 import { AnyType } from '../datatypes/anyType';
 import { ArrayType } from '../datatypes/arrayType';
+import { StringType } from '../datatypes/stringType';
 import { CodeType } from '../datatypes/codeType';
 import { NumberType } from '../datatypes/numberType';
+import { CustomArgs } from '../../utils/interfaces';
+import { NODE_TYPE_COLOR } from '../../utils/constants';
 
 const filterCodeName = 'Filter';
 const arrayName = 'Array';
@@ -26,6 +33,79 @@ const outDataName = 'OutData';
 
 const constantInName = 'In';
 const constantOutName = 'Out';
+
+export class JSONPicker extends NodeClass {
+  _imageRef: PIXI.Sprite;
+  _imageRefClone: PIXI.Sprite;
+  defaultProps;
+  createElement;
+  parsedData: any;
+  update: () => void;
+
+  constructor(name: string, graph: GraphClass, customArgs?: CustomArgs) {
+    const nodeWidth = 400;
+    const nodeHeight = 400;
+    const isHybrid = true;
+
+    super(name, graph, {
+      ...customArgs,
+      color: NODE_TYPE_COLOR.TRANSFORM,
+      nodeWidth,
+      nodeHeight,
+      isHybrid,
+    });
+
+    this.addInput('json', new StringType(), customArgs?.data ?? '');
+    this.addOutput('path', new StringType(), customArgs?.data ?? '');
+
+    this.name = 'JSONPicker';
+    this.description = 'Pick a part of the JSON';
+
+    // when the Node is added, add the container and react component
+    this.onNodeAdded = () => {
+      const jsonString = this.getInputData('json') ?? '';
+      this.createContainerComponent(document, ReactParent, {
+        json: jsonString,
+      });
+    };
+
+    // when the Node is loaded, update the react component
+    this.onConfigure = (): void => {
+      this.update();
+    };
+
+    // when the Node is loaded, update the react component
+    this.update = (): void => {
+      const jsonString = this.getInputData('json') ?? '';
+      this.renderReactComponent(ReactParent, {
+        json: jsonString,
+      });
+      this.setOutputData('path', this.parsedData);
+    };
+
+    // small presentational component
+    const ReactParent = (props) => {
+      const [json, setJson] = useState<string | undefined>(
+        props.json.trim() || '""'
+      );
+      const [path, setPath] = useState('');
+
+      console.log(json);
+
+      useEffect(() => {
+        // update codeString when the type changes
+        setJson(props.json);
+      }, [props.json]);
+
+      const onChoosePath = (path: string) => {
+        console.log(path);
+        setPath(path);
+      };
+
+      return <JsonPathPicker json={json} onChoose={onChoosePath} path={path} />;
+    };
+  }
+}
 
 export class Code extends PureNode {
   protected getDefaultIO(): Socket[] {
