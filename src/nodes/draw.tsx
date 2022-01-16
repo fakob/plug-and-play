@@ -1,6 +1,5 @@
 import * as PIXI from 'pixi.js';
 import React from 'react';
-import Color from 'color';
 import {
   IRegion,
   Table as BPTable,
@@ -10,23 +9,16 @@ import {
 import * as csvParser from 'papaparse';
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
-import { CustomArgs, SerializedNode } from '../utils/interfaces';
+import { CustomArgs } from '../utils/interfaces';
 import {
   COLOR,
   COLOR_DARK,
   NODE_TYPE_COLOR,
-  NODE_WIDTH,
-  NOTE_FONTSIZE,
   NOTE_LINEHEIGHT_FACTOR,
-  NOTE_MARGIN_STRING,
-  NOTE_PADDING,
-  NOTE_TEXTURE,
   PIXI_PIVOT_OPTIONS,
   PIXI_TEXT_ALIGN_OPTIONS,
-  SOCKET_WIDTH,
 } from '../utils/constants';
 import { hexToTRgba, trgbaToColor } from '../pixi/utils-pixi';
-import textFit from '../pixi/textFit';
 import { AnyType } from './datatypes/anyType';
 import { CodeType } from './datatypes/codeType';
 import { NumberType } from './datatypes/numberType';
@@ -586,7 +578,7 @@ export class PIXIContainer extends PPNode {
         return item.alpha === 0.3;
       });
       this.setOutputData('clickedTargetArray', clickedTargetArray);
-      this.execute(new Set());
+      this.executeOptimizedChain();
     };
 
     this.onNodeRemoved = (): void => {
@@ -834,125 +826,6 @@ export class PIXIMultiplier extends PPNode {
   }
 }
 
-/*export class Image extends PPNode {
-  _imageRef: PIXI.Sprite;
-  _texture: PIXI.Texture;
-  _loader: PIXI.Loader;
-  adjustImageAndNodeSize: (baseTexture: PIXI.BaseTexture) => void;
-
-  // uses customArgs?.objectURL as texture
-  constructor(name: string, graph: PPGraph, customArgs?: CustomArgs) {
-    const nodeWidth = 400;
-    const nodeHeight = 400;
-    const isHybrid = true;
-
-    super(name, graph, {
-      ...customArgs,
-      nodeWidth,
-      nodeHeight,
-      isHybrid,
-    });
-
-    // this.addOutput('image', DATATYPE.PIXI);
-    this.addOutput('width', DATATYPE.NUMBER);
-    this.addOutput('height', DATATYPE.NUMBER);
-    // this.addInput('reload', DATATYPE.TRIGGER);
-    this.addInput('base64', DATATYPE.STRING, customArgs?.base64, false);
-    console.log(customArgs);
-    console.log(customArgs.base64);
-    console.log(typeof customArgs.base64);
-
-    this.name = 'Image';
-    this.description = 'Adds an image';
-
-    // when texture is loaded get width and height
-    // and set proper aspect ratio
-    this.adjustImageAndNodeSize = (baseTexture) => {
-      console.log('textureLoaded');
-
-      // get width and height
-      const { width, height } = baseTexture;
-
-      // calculate drawing width and height
-      const aspectRatio = width / height;
-      let newNodeWidth = nodeWidth;
-      let newNodeHeight = nodeHeight;
-      if (aspectRatio > 1) {
-        newNodeHeight = newNodeHeight / aspectRatio;
-      } else {
-        newNodeWidth = newNodeWidth * aspectRatio;
-      }
-      console.log(newNodeWidth, newNodeHeight);
-
-      // set imageRef and node to new size
-      this._imageRef.x = SOCKET_WIDTH / 2;
-      this._imageRef.y = 0;
-      this._imageRef.width = newNodeWidth;
-      this._imageRef.height = newNodeHeight;
-      this.resizeNode(newNodeWidth, newNodeHeight);
-
-      // output width and height of image
-      this.setOutputData('width', width);
-      this.setOutputData('height', height);
-    };
-
-    this._loader = new PIXI.Loader(); // PixiJS exposes a premade instance for you to use.
-    this._loader.onComplete.add((loader, resources) => {
-      console.log(loader, resources);
-      const sprite = PIXI.Sprite.from(resources[this.id].texture);
-      (this._imageRef as any) = (this as PIXI.Container).addChild(sprite);
-      console.log(
-        resources[this.id].texture.height,
-        resources[this.id].texture.width
-      );
-      console.log(sprite.height, sprite.width);
-      this.adjustImageAndNodeSize(resources[this.id].texture.baseTexture);
-    });
-
-    this.onNodeAdded = () => {
-      const base64 = this.getInputData('base64');
-      if (this._loader.resources[this.id] === undefined && base64 !== '') {
-        this._loader.add(this.id, base64);
-        this._loader.load();
-      }
-    };
-
-    // when the Node is loaded, load the base64 image and adjust the size
-    this.onConfigure = (): void => {
-      if (this._loader.resources[this.id] === undefined) {
-        const base64 = this.getInputData('base64');
-        if (base64 !== undefined) {
-          this._loader.add(this.id, base64);
-          this._loader.load();
-        }
-      } else {
-        const sprite = PIXI.Sprite.from(
-          this._loader.resources[this.id]?.texture
-        );
-        (this._imageRef as any) = (this as PIXI.Container).addChild(sprite);
-        this.adjustImageAndNodeSize(
-          this._loader.resources[this.id].texture.baseTexture
-        );
-      }
-    };
-  }
-
-  // trigger(): void {
-  //   const url: string = this.getInputData('url');
-  //   // if url is set then get image
-  //   if (url !== '') {
-  //     // const objectURL = URL.createObjectURL(url);
-  //     const newTexture = PIXI.Texture.from(url);
-  //     this._imageRef.texture = newTexture;
-  //     this._imageRefClone.texture = newTexture;
-  //   }
-  //   const { width, height } = this._imageRef.texture.orig;
-  //   this.setOutputData('image', this._imageRefClone);
-  //   this.setOutputData('width', width);
-  //   this.setOutputData('height', height);
-  // }
-}*/
-
 export class Table extends PPNode {
   _imageRef: PIXI.Sprite;
   _imageRefClone: PIXI.Sprite;
@@ -1046,7 +919,7 @@ export class Table extends PPNode {
       } else {
         this.setOutputData('selectedData', selectedData);
       }
-      this.execute(new Set());
+      this.executeOptimizedChain();
     };
 
     // small presentational component

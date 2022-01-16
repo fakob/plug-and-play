@@ -140,6 +140,10 @@ export default class Socket extends PIXI.Container {
   }
 
   get data(): any {
+    // just point to data from last node if there to avoid copying it
+    if (this.isInput() && this.hasLink()) {
+      return this.links[0].getSource().data;
+    }
     return this._data;
   }
 
@@ -157,6 +161,10 @@ export default class Socket extends PIXI.Container {
   }
 
   get dataType(): AbstractType {
+    // just point to data from last node if there to avoid copying it
+    if (this.isInput() && this.hasLink()) {
+      return this.links[0].getSource().dataType;
+    }
     return this._dataType;
   }
 
@@ -175,14 +183,11 @@ export default class Socket extends PIXI.Container {
   // METHODS
 
   isInput(): boolean {
-    if (this.socketType === SOCKET_TYPE.IN) {
-      return true;
-    }
-    return false;
+    return this.socketType === SOCKET_TYPE.IN;
   }
 
   hasLink(): boolean {
-    return this.links.length !== 0;
+    return this.links.length > 0;
   }
 
   setName(newName: string): void {
@@ -244,19 +249,11 @@ export default class Socket extends PIXI.Container {
     };
   }
 
-  async notifyChange(upstreamContent: Set<string>): Promise<void> {
-    switch (this.socketType) {
-      case SOCKET_TYPE.IN: {
-        await this.getNode().notifyChange(upstreamContent);
-        break;
-      }
-      case SOCKET_TYPE.OUT: {
-        this.links.forEach(async (link) => {
-          await link.notifyChange(upstreamContent);
-        });
-        break;
-      }
-    }
+  getDirectDependents(): PPNode[] {
+    // only continue with nodes that execute on update
+    const nodes = this.links.map((link) => link.getTarget().getNode());
+    const filteredNodes = nodes.filter((node) => node.updateBehaviour.update);
+    return filteredNodes;
   }
 
   // SETUP

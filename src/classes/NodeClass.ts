@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-this-alias */
 import * as PIXI from 'pixi.js';
 import { DropShadowFilter } from '@pixi/filter-drop-shadow';
 import { hri } from 'human-readable-ids';
@@ -403,15 +404,110 @@ export default class PPNode extends PIXI.Container {
     this.updateBehaviour = nodeConfig.updateBehaviour;
 
     // update node after configure
-    this.execute(new Set());
+    //this.executeOptimizedChain();
   }
 
-  async notifyChange(upstreamContent: Set<string>): Promise<void> {
-    if (upstreamContent.has(this.id)) {
-    } else if (this.updateBehaviour.update) {
-      upstreamContent.add(this.id);
-      await this.execute(upstreamContent);
+  getDirectDependents(): { [key: string]: PPNode } {
+    const currDependents: { [key: string]: PPNode } = {};
+    this.outputSocketArray.forEach((socket) => {
+      Object.values(socket.getDirectDependents()).forEach((dependent) => {
+        currDependents[dependent.id] = dependent;
+      });
+    });
+    return currDependents;
+  }
+
+  getHasDependencies(): boolean {
+    return (
+      this.inputSocketArray.find((socket) => socket.hasLink()) !== undefined
+    );
+  }
+
+  static combineNumDependings(
+    numDepending1: { [key: string]: Set<string> },
+    numDepending2: { [key: string]: Set<string> }
+  ): void {
+    Object.keys(numDepending2).forEach((childDependent) => {
+      if (numDepending1[childDependent] === undefined) {
+        numDepending1[childDependent] = numDepending2[childDependent];
+      } else {
+        numDepending2[childDependent].forEach((childDependentKey) => {
+          numDepending1[childDependent].add(childDependentKey);
+        });
+      }
+    });
+  }
+
+  aggregateDependents(dependents: { [key: string]: PPNode }): {
+    [key: string]: Set<string>;
+  } {
+    // don't add from same node several times
+    if (dependents[this.id] !== undefined) {
+      return {};
     }
+    const currDependents: { [key: string]: PPNode } =
+      this.getDirectDependents();
+
+    dependents[this.id] = this;
+
+    // populate dependents
+
+    const numDepending: { [key: string]: Set<string> } = {};
+    Object.keys(currDependents).forEach((dependentKey) => {
+      numDepending[dependentKey] = new Set();
+      numDepending[dependentKey].add(this.id);
+    });
+
+    // accumulate results from children and merge with mine
+    Object.values(currDependents).forEach((dependent) => {
+      const result = dependent.aggregateDependents(dependents);
+      PPNode.combineNumDependings(numDepending, result);
+    });
+
+    return numDepending;
+  }
+
+  async executeOptimizedChain(): Promise<void> {
+    //console.log('executing: ' + this.id);
+    await PPNode.executeOptimizedChainBatch([this]);
+  }
+
+  static async executeOptimizedChainBatch(
+    foundational: PPNode[]
+  ): Promise<void> {
+    const dependents: { [key: string]: PPNode } = {};
+    const numDepending: { [key: string]: Set<string> } = {};
+    foundational.forEach((node: PPNode) => {
+      Object.keys(node.getDirectDependents()).forEach((dependentKey) => {
+        numDepending[dependentKey] = new Set();
+        numDepending[dependentKey].add(node.id);
+      });
+      PPNode.combineNumDependings(
+        numDepending,
+        node.aggregateDependents(dependents)
+      );
+    });
+    // now that we have the complete chain, execute them in order that makes sure all dependents are waiting on their parents, there should always be a node with no more lingering dependents (unless there is an infinite loop)
+    let currentExecuting: PPNode = foundational.shift();
+    while (currentExecuting) {
+      await currentExecuting.execute();
+      // uncomment if you want to see the execution in more detail by slowing it down (to make sure order is correct)
+      //await new Promise((resolve) => setTimeout(resolve, 500));
+      Object.keys(currentExecuting.getDirectDependents()).forEach(
+        (dependentKey) => {
+          numDepending[dependentKey].delete(currentExecuting.id);
+          if (numDepending[dependentKey].size == 0) {
+            foundational.push(dependents[dependentKey]);
+          }
+        }
+      );
+      currentExecuting = foundational.shift();
+    }
+    return;
+  }
+
+  notifyChange(): void {
+    this.executeOptimizedChain();
   }
 
   setPosition(x: number, y: number, isRelative = false): void {
@@ -422,7 +518,7 @@ export default class PPNode extends PIXI.Container {
     this.updateConnectionPosition();
 
     if (this.shouldExecuteOnMove()) {
-      this.execute(new Set());
+      this.executeOptimizedChain();
     }
 
     if (this.onNodeDragOrViewportMove) {
@@ -488,7 +584,6 @@ export default class PPNode extends PIXI.Container {
     // redraw outputs
     let posCounter = 0;
     this.outputSocketArray.forEach((item) => {
-      // console.log(item, item.x, item.getBounds().width, this.nodeWidth);
       if (item.visible) {
         item.y = this.headerHeight + posCounter * SOCKET_HEIGHT;
         item.x = this.nodeWidth - NODE_WIDTH;
@@ -570,7 +665,6 @@ export default class PPNode extends PIXI.Container {
   }
 
   updateCommentPosition(): void {
-    // console.log(this.x, this.y);
     this._NodeCommentRef.x = getNodeCommentPosX(this.x, this.width);
     this._NodeCommentRef.y = getNodeCommentPosY(this.y);
   }
@@ -633,7 +727,6 @@ export default class PPNode extends PIXI.Container {
     };
 
     this.container.addEventListener('focusout', (e) => {
-      console.log('focusout', e);
       this.doubleClicked = false;
 
       // this allows to zoom and drag when the hybrid node is not selected
@@ -750,19 +843,19 @@ export default class PPNode extends PIXI.Container {
     outputSocket.data = data;
   }
 
-  tick(currentTime: number, deltaTime: number): void {
+  async tick(currentTime: number, deltaTime: number): Promise<void> {
     if (
       this.updateBehaviour.interval &&
       currentTime - this.lastTimeTicked >=
         this.updateBehaviour.intervalFrequency
     ) {
       this.lastTimeTicked = currentTime;
-      this.execute(new Set());
+      this.executeOptimizedChain();
     }
   }
 
-  async initialExecute(): Promise<void> {
-    return this.execute(new Set());
+  initialExecute(): void {
+    this.executeOptimizedChain();
   }
 
   remapInput(sockets: Socket[]): any {
@@ -782,20 +875,21 @@ export default class PPNode extends PIXI.Container {
     await this.onExecute(inputObject, outputObject);
     this.onAfterExecute();
 
-    let foundChange = !this.isPure();
+    //let foundChange = !this.isPure();
     // output whatever the user has put in
     this.outputSocketArray.forEach((output: Socket) => {
       if (outputObject[output.name] !== undefined) {
-        if (!foundChange) {
+        // some assumptions about this are no longer correct and therefore remove this
+        /*if (!foundChange) {
           // see if anything has changed, but only need to do this if no previous has been found
           foundChange =
             JSON.stringify(outputObject[output.name]) !==
             JSON.stringify(output.data);
-        }
+        }*/
         output.data = outputObject[output.name];
       }
     });
-    return foundChange;
+    return true;
   }
 
   // override if you don't want your node to show outline for some reason
@@ -805,6 +899,7 @@ export default class PPNode extends PIXI.Container {
 
   public renderOutlineThrottled = throttle(this.renderOutline, 200, {
     trailing: true,
+    leading: true,
   });
 
   public renderOutline(): void {
@@ -817,7 +912,7 @@ export default class PPNode extends PIXI.Container {
         activeExecution.clear();
         activeExecution.beginFill(
           PIXI.utils.string2hex('#CCFFFF'),
-          0.5 - i * (0.5 / iterations)
+          0.3 - i * (0.3 / iterations)
         );
         activeExecution.drawRoundedRect(
           NODE_MARGIN,
@@ -836,18 +931,12 @@ export default class PPNode extends PIXI.Container {
     }
   }
 
-  public async execute(upstreamContent: Set<string>): Promise<void> {
+  public async execute(): Promise<void> {
     if (this.shouldDrawExecution()) {
       this.renderOutlineThrottled();
     }
     const foundChange = await this.rawExecute();
     this.drawComment();
-
-    if (foundChange) {
-      for (const outputSocket of this.outputSocketArray) {
-        await outputSocket.notifyChange(upstreamContent);
-      }
-    }
   }
 
   // dont call this from outside, only from child class
@@ -890,7 +979,6 @@ export default class PPNode extends PIXI.Container {
 
     if (node.clickedSocketRef === null) {
       // start dragging the node
-      console.log('_onPointerDown');
 
       const shiftKey = event.data.originalEvent.shiftKey;
 
@@ -912,8 +1000,6 @@ export default class PPNode extends PIXI.Container {
   }
 
   _onPointerUpAndUpOutside(): void {
-    console.log('_onPointerUpAndUpOutside');
-
     // unsubscribe from pointermove
     this.removeListener('pointermove', this.onMoveHandler);
 
@@ -940,7 +1026,6 @@ export default class PPNode extends PIXI.Container {
   }
 
   _onViewportMove(): void {
-    // console.log('_onViewportMove');
     if (this.onNodeDragOrViewportMove) {
       const screenPoint = this.screenPoint();
       this.onNodeDragOrViewportMove({
@@ -952,11 +1037,12 @@ export default class PPNode extends PIXI.Container {
   }
 
   _onAdded(): void {
-    // console.log('_onAdded');
     if (this.onNodeAdded) {
       this.onNodeAdded();
     }
-    this.initialExecute();
+    if (this.graph.ticking) {
+      this.initialExecute();
+    }
   }
 
   _onRemoved(): void {
@@ -987,7 +1073,6 @@ export default class PPNode extends PIXI.Container {
   }
 
   _onDoubleClick(event: PIXI.InteractionEvent): void {
-    console.log('_onDoubleClick');
     this.doubleClicked = true;
 
     // turn on pointer events for hybrid nodes so the react components become reactive

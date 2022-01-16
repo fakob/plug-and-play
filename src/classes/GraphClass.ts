@@ -48,6 +48,8 @@ export default class PPGraph {
   tempConnection: PIXI.Graphics;
   selection: PPSelection;
 
+  ticking: boolean;
+
   onRightClick:
     | ((event: PIXI.InteractionEvent, target: PIXI.DisplayObject) => void)
     | null; // called when the graph is right clicked
@@ -81,6 +83,7 @@ export default class PPGraph {
     this.foregroundTempContainer = new PIXI.Container();
     this.foregroundTempContainer.name = 'foregroundTempContainer';
     this.nodes = {};
+    this.ticking = false;
 
     this.viewport.addChild(
       this.backgroundCanvas,
@@ -278,7 +281,9 @@ export default class PPGraph {
     }
   }
 
-  _onNodePointerUpAndUpOutside(event: PIXI.InteractionEvent): void {
+  async _onNodePointerUpAndUpOutside(
+    event: PIXI.InteractionEvent
+  ): Promise<void> {
     console.log('_onNodePointerUpAndUpOutside');
 
     // unsubscribe from pointermove
@@ -407,7 +412,8 @@ export default class PPGraph {
 
   createAndAddNode<T extends PPNode = PPNode>(
     type: string,
-    customArgs?: CustomArgs
+    customArgs?: CustomArgs,
+    notify = true
   ): T {
     const node = this.createNode(type, customArgs) as T;
     // if (node) {
@@ -428,7 +434,8 @@ export default class PPGraph {
         this.connect(
           customArgs.addLink,
           node.inputSocketArray[0],
-          this.viewport
+          this.viewport,
+          notify
         );
         this.clearTempConnection();
       }
@@ -438,19 +445,22 @@ export default class PPGraph {
     // }
   }
 
-  connect(
+  async connect(
     output: Socket,
     input: Socket,
     viewport: Viewport,
     notify = true
-  ): PPLink {
+  ): Promise<PPLink> {
     // check if this input already has a connection
     this.checkIfSocketHasConnectionAndDeleteIt(input, true);
 
-    let link = null;
-
     //create link class
-    link = new PPLink((this.lastLinkId += 1), output, input, viewport);
+    const link: PPLink = new PPLink(
+      (this.lastLinkId += 1),
+      output,
+      input,
+      viewport
+    );
 
     //add to graph links list
     this._links[link.id] = link;
@@ -465,7 +475,7 @@ export default class PPGraph {
 
     // send notification pulse
     if (notify) {
-      link.notifyChange(new Set());
+      await link.getTarget().getNode().executeOptimizedChain();
     }
 
     return link;
@@ -586,7 +596,7 @@ export default class PPGraph {
     });
 
     // create new links
-    linksContainedInSelection.forEach((link: PPLink) => {
+    linksContainedInSelection.forEach(async (link: PPLink) => {
       const oldSourceNode = link.source.parent as PPNode;
       const sourceSocketName = link.source.name;
       const oldTargetNode = link.target.parent as PPNode;
@@ -598,7 +608,7 @@ export default class PPGraph {
         oldTargetNode.id
       ].inputSocketArray.find((socket) => socket.name === targetSocketName);
       console.log(newSource, newTarget);
-      this.connect(newSource, newTarget, this.viewport);
+      await this.connect(newSource, newTarget, this.viewport, false);
     });
 
     // select newNode
@@ -650,7 +660,8 @@ export default class PPGraph {
     return data;
   }
 
-  configure(data: SerializedGraph, keep_old?: boolean): boolean {
+  async configure(data: SerializedGraph, keep_old?: boolean): Promise<boolean> {
+    this.ticking = false;
     if (!data) {
       return;
     }
@@ -676,9 +687,13 @@ export default class PPGraph {
     if (nodes) {
       for (let i = 0, l = nodes.length; i < l; ++i) {
         const serializedNode = nodes[i]; //stored info
-        const node = this.createAndAddNode(serializedNode.type, {
-          customId: serializedNode.id,
-        });
+        const node = this.createAndAddNode(
+          serializedNode.type,
+          {
+            customId: serializedNode.id,
+          },
+          false
+        );
         if (!node) {
           error = true;
           console.log('Node not found or has errors: ' + serializedNode.type);
@@ -705,10 +720,16 @@ export default class PPGraph {
         if (outputRef === undefined || inputRef === undefined) {
           error = true;
         } else {
-          this.connect(outputRef, inputRef, this.viewport, false);
+          await this.connect(outputRef, inputRef, this.viewport, false);
         }
       }
     }
+    // execute all seed nodes to make sure there are values everywhere
+    await PPNode.executeOptimizedChainBatch(
+      Object.values(this.nodes).filter((node) => !node.getHasDependencies())
+    );
+    this.ticking = true;
+
     return error;
   }
 
@@ -735,9 +756,11 @@ export default class PPGraph {
   }
 
   tick(currentTime: number, deltaTime: number): void {
-    Object.values(this.nodes).forEach((node) =>
-      node.tick(currentTime, deltaTime)
-    );
+    if (this.ticking) {
+      Object.values(this.nodes).forEach((node) =>
+        node.tick(currentTime, deltaTime)
+      );
+    }
   }
 
   createOrUpdateNodeFromCode(

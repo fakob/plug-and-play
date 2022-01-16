@@ -32,11 +32,6 @@ export class Image extends PPNode {
     ];
   }
 
-  // dont want to check for equal etc
-  protected isPure() : boolean{
-    return false;
-  }
-
   borderDistance = 10;
 
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {

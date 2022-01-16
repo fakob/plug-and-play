@@ -1,7 +1,7 @@
+import PPNode from '../../classes/NodeClass';
 import PureNode, { UpdateBehaviour } from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
 import { SOCKET_TYPE } from '../../utils/constants';
-import { ArrayType } from '../datatypes/arrayType';
 import { JSONType } from '../datatypes/jsonType';
 import { StringType } from '../datatypes/stringType';
 
@@ -10,7 +10,7 @@ const bodyInputName = 'Body';
 const headersInputName = 'Headers';
 const outputContentName = 'Content';
 
-export class Get extends PureNode {
+export class Get extends PPNode {
   // default to poll on interval X seconds
   protected getUpdateBehaviour(): UpdateBehaviour {
     return new UpdateBehaviour(false, true, 10000);
@@ -42,7 +42,7 @@ export class Get extends PureNode {
   }
 }
 
-export class Post extends PureNode {
+export class Post extends PPNode {
   // default to only manual
   protected getUpdateBehaviour(): UpdateBehaviour {
     return new UpdateBehaviour(false, false, 10000);
