@@ -404,7 +404,7 @@ export default class PPNode extends PIXI.Container {
     this.updateBehaviour = nodeConfig.updateBehaviour;
 
     // update node after configure
-    this.executeOptimizedChain();
+    //this.executeOptimizedChain();
   }
 
   getDirectDependents(): { [key: string]: PPNode } {
@@ -468,6 +468,7 @@ export default class PPNode extends PIXI.Container {
   }
 
   async executeOptimizedChain(): Promise<void> {
+    console.log('executing: ' + this.id);
     await PPNode.executeOptimizedChainBatch([this]);
   }
 

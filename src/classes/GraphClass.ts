@@ -48,6 +48,8 @@ export default class PPGraph {
   tempConnection: PIXI.Graphics;
   selection: PPSelection;
 
+  ticking: boolean;
+
   onRightClick:
     | ((event: PIXI.InteractionEvent, target: PIXI.DisplayObject) => void)
     | null; // called when the graph is right clicked
@@ -81,6 +83,7 @@ export default class PPGraph {
     this.foregroundTempContainer = new PIXI.Container();
     this.foregroundTempContainer.name = 'foregroundTempContainer';
     this.nodes = {};
+    this.ticking = false;
 
     this.viewport.addChild(
       this.backgroundCanvas,
@@ -409,7 +412,8 @@ export default class PPGraph {
 
   createAndAddNode<T extends PPNode = PPNode>(
     type: string,
-    customArgs?: CustomArgs
+    customArgs?: CustomArgs,
+    notify = true
   ): T {
     const node = this.createNode(type, customArgs) as T;
     // if (node) {
@@ -430,7 +434,8 @@ export default class PPGraph {
         this.connect(
           customArgs.addLink,
           node.inputSocketArray[0],
-          this.viewport
+          this.viewport,
+          notify
         );
         this.clearTempConnection();
       }
@@ -656,6 +661,7 @@ export default class PPGraph {
   }
 
   async configure(data: SerializedGraph, keep_old?: boolean): Promise<boolean> {
+    this.ticking = false;
     if (!data) {
       return;
     }
@@ -681,9 +687,13 @@ export default class PPGraph {
     if (nodes) {
       for (let i = 0, l = nodes.length; i < l; ++i) {
         const serializedNode = nodes[i]; //stored info
-        const node = this.createAndAddNode(serializedNode.type, {
-          customId: serializedNode.id,
-        });
+        const node = this.createAndAddNode(
+          serializedNode.type,
+          {
+            customId: serializedNode.id,
+          },
+          false
+        );
         if (!node) {
           error = true;
           console.log('Node not found or has errors: ' + serializedNode.type);
@@ -714,10 +724,11 @@ export default class PPGraph {
         }
       }
     }
-    // execute all seed nodes (twice, as order can be problematic otherwise)
-    await PPNode.executeOptimizedChainBatch(
-      Object.values(this.nodes).filter((node) => !node.getHasDependencies())
-    );
+    // execute all seed nodes to make sure there are values everywhere
+    //await PPNode.executeOptimizedChainBatch(
+    //  Object.values(this.nodes).filter((node) => !node.getHasDependencies())
+    //);
+    this.ticking = true;
 
     return error;
   }
@@ -745,9 +756,11 @@ export default class PPGraph {
   }
 
   tick(currentTime: number, deltaTime: number): void {
-    Object.values(this.nodes).forEach((node) =>
-      node.tick(currentTime, deltaTime)
-    );
+    if (this.ticking) {
+      Object.values(this.nodes).forEach((node) =>
+        node.tick(currentTime, deltaTime)
+      );
+    }
   }
 
   createOrUpdateNodeFromCode(
