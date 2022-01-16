@@ -699,7 +699,8 @@ export default class PPNode extends PIXI.Container {
   createContainerComponent(
     parentDocument: Document,
     reactParent,
-    reactProps
+    reactProps,
+    customStyles = {}
   ): HTMLElement {
     // create html container
     this.container = parentDocument.createElement('div');
@@ -712,6 +713,7 @@ export default class PPNode extends PIXI.Container {
     this.container.classList.add(styles.hybridContainer);
     this.container.style.width = `${this.nodeWidth}px`;
     this.container.style.height = `${this.nodeHeight}px`;
+    Object.assign(this.container.style, customStyles);
 
     // set initial position
     this.container.style.transform = `translate(50%, 50%)`;

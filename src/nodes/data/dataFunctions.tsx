@@ -1,6 +1,5 @@
 import * as PIXI from 'pixi.js';
 import React, { useEffect, useState } from 'react';
-import { JsonPathPicker } from 'react-json-path-picker';
 
 import NodeClass from '../../classes/NodeClass';
 import GraphClass from '../../classes/GraphClass';
@@ -13,7 +12,9 @@ import { StringType } from '../datatypes/stringType';
 import { CodeType } from '../datatypes/codeType';
 import { NumberType } from '../datatypes/numberType';
 import { CustomArgs } from '../../utils/interfaces';
-import { NODE_TYPE_COLOR } from '../../utils/constants';
+import { JSONType } from '../datatypes/jsonType';
+import { COLOR_WHITE, NODE_TYPE_COLOR } from '../../utils/constants';
+import { JsonPathPicker } from '../../components/JsonPathPicker';
 
 const filterCodeName = 'Filter';
 const arrayName = 'Array';
@@ -55,8 +56,9 @@ export class JSONPicker extends NodeClass {
       isHybrid,
     });
 
-    this.addInput('json', new StringType(), customArgs?.data ?? '');
+    this.addInput('json', new JSONType(), customArgs?.data ?? '');
     this.addOutput('path', new StringType(), customArgs?.data ?? '');
+    this.addOutput('value', new JSONType(), customArgs?.data ?? '');
 
     this.name = 'JSONPicker';
     this.description = 'Pick a part of the JSON';
@@ -64,9 +66,14 @@ export class JSONPicker extends NodeClass {
     // when the Node is added, add the container and react component
     this.onNodeAdded = () => {
       const jsonString = this.getInputData('json') ?? '';
-      this.createContainerComponent(document, ReactParent, {
-        json: jsonString,
-      });
+      this.createContainerComponent(
+        document,
+        ReactParent,
+        {
+          json: jsonString,
+        },
+        { backgroundColor: COLOR_WHITE }
+      );
     };
 
     // when the Node is loaded, update the react component
@@ -77,25 +84,46 @@ export class JSONPicker extends NodeClass {
     // when the Node is loaded, update the react component
     this.update = (): void => {
       const jsonString = this.getInputData('json') ?? '';
+      console.log('update:', jsonString);
       this.renderReactComponent(ReactParent, {
         json: jsonString,
       });
-      this.setOutputData('path', this.parsedData);
+    };
+
+    this.onExecute = async (input, output) => {
+      this.update();
     };
 
     // small presentational component
     const ReactParent = (props) => {
-      const [json, setJson] = useState<string | undefined>(
-        props.json.trim() || '""'
-      );
+      const [json, setJson] = useState<string | undefined>(props.json || '""');
       const [path, setPath] = useState('');
 
       console.log(json);
 
+      const getData = function (json, path) {
+        const tokens = path.substring(1, path.length - 1).split('][');
+
+        console.log(tokens);
+        let val =
+          json[tokens[0].replace(/^"(.+(?="$))"$/, '$1').replace('"', '"')];
+        console.log(val, tokens);
+        if (tokens.length < 2) return val;
+        for (let i = 1; i < tokens.length; i++) {
+          val =
+            val[tokens[i].replace(/^"(.+(?="$))"$/, '$1').replace('"', '"')];
+        }
+        return val;
+      };
+
       useEffect(() => {
-        // update codeString when the type changes
+        console.log(json);
         setJson(props.json);
-      }, [props.json]);
+        this.setOutputData('path', path);
+        console.log(json, path, getData(json, path));
+        this.setOutputData('value', getData(json, path));
+        this.execute(new Set());
+      }, [props.json, path]);
 
       const onChoosePath = (path: string) => {
         console.log(path);

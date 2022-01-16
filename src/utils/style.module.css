@@ -151,6 +151,7 @@
   position: absolute;
   z-index: 0;
   transform-origin: top left;
+  overflow: auto;
 }
 
 .hybridContainer:focus {
