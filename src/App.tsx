@@ -892,15 +892,18 @@ NOTE: opening a remote playground creates a local copy`
       : option.name;
     const optionLabel = option.label;
     const itemToReturn = option.isDisabled ? (
-      <li {...props} key={option.id}>
+      <Box {...props} key={option.id} component="li">
         {text}
-      </li>
+      </Box>
     ) : (
-      <li
+      <Box
         {...props}
+        component="li"
         key={option.id}
         title={title}
-        sx={{ position: 'relative' }}
+        sx={{
+          position: 'relative',
+        }}
       >
         <Box
           sx={{
@@ -985,7 +988,7 @@ NOTE: opening a remote playground creates a local copy`
             </IconButton>
           </ButtonGroup>
         )}
-      </li>
+      </Box>
     );
 
     return itemToReturn;
