@@ -468,7 +468,7 @@ export default class PPNode extends PIXI.Container {
   }
 
   async executeOptimizedChain(): Promise<void> {
-    console.log('executing: ' + this.id);
+    //console.log('executing: ' + this.id);
     await PPNode.executeOptimizedChainBatch([this]);
   }
 
@@ -1040,7 +1040,9 @@ export default class PPNode extends PIXI.Container {
     if (this.onNodeAdded) {
       this.onNodeAdded();
     }
-    this.initialExecute();
+    if (this.graph.ticking) {
+      this.initialExecute();
+    }
   }
 
   _onRemoved(): void {
