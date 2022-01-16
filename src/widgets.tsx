@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import prettyFormat from 'pretty-format';
 import Color from 'color';
 import {
   Alert,
@@ -15,6 +14,7 @@ import {
 } from '@mui/material';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import { SketchPicker } from 'react-color';
+import { CodeEditor } from './components/Editor';
 import Socket from './classes/SocketClass';
 import { roundNumber } from './utils/utils';
 import styles from './utils/style.module.css';
@@ -257,6 +257,31 @@ export const TextWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
   );
 };
 
+export type CodeWidgetProps = {
+  property: Socket;
+  index: number;
+  hasLink: boolean;
+  data: string;
+  randomMainColor: string;
+};
+
+export const CodeWidget: React.FunctionComponent<CodeWidgetProps> = (props) => {
+  const [data, setData] = useState(props.data);
+
+  return (
+    <CodeEditor
+      value={data || ''}
+      randomMainColor={props.randomMainColor}
+      editable={!props.hasLink}
+      onChange={(value) => {
+        console.log('value:', value);
+        potentiallyNotify(props.property, value);
+        setData(value);
+      }}
+    />
+  );
+};
+
 export const JSONWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
   const [data, setData] = useState(props.data);
   const [displayedString, setDisplayedString] = useState(
@@ -420,12 +445,10 @@ export const DefaultOutputWidget: React.FunctionComponent<
       <TextField
         hiddenLabel
         variant="filled"
-        // label={props.property.name}
         multiline
         InputProps={{
           readOnly: true,
         }}
-        // value={prettyFormat(data)}
         value={data}
       />
     </FormGroup>

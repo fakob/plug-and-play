@@ -1,13 +1,20 @@
-import React, { useRef, useEffect, useState } from 'react';
-import MonacoEditor from 'react-monaco-editor';
+import React from 'react';
 import Color from 'color';
-import { Box, Stack, ThemeProvider, createTheme } from '@mui/material';
-
-import { theme, darkThemeOverride } from './utils/customTheme';
+import {
+  Box,
+  Icon,
+  Stack,
+  ThemeProvider,
+  ToggleButton,
+  ToggleButtonGroup,
+  createTheme,
+} from '@mui/material';
+import { darkThemeOverride } from './utils/customTheme';
 import styles from './utils/style.module.css';
+import PPGraph from './classes/GraphClass';
 import PPNode from './classes/NodeClass';
 import { PropertyArrayContainer } from './PropertyArrayContainer';
-import PPGraph from './classes/GraphClass';
+import { DRAWER30_ICON, DRAWER60_ICON, DRAWER90_ICON } from './utils/constants';
 
 type MyProps = {
   currentGraph: PPGraph;
@@ -15,47 +22,17 @@ type MyProps = {
   isCustomNode: boolean;
   onSave?: (code: string) => void;
   randomMainColor: string;
+  widthPercentage: number;
+  setWidthPercentage: (value: number | ((prevVar: number) => number)) => void;
 };
 
 const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
-  const editorRef = useRef<any>();
-  const [codeString, setCodeString] = useState<string | undefined>(
-    props.currentGraph.customNodeTypes[props.selectedNode.type]
-  );
-
-  const saveCode = () => {
-    console.log('Create/Update node command from Editor');
-    const model = editorRef.current.getModel();
-    const value = model.getValue();
-    setCodeString(value);
-    props.onSave(value);
+  const handleWidthPercentage = (
+    event: React.MouseEvent<HTMLElement>,
+    newPercentage: number | null
+  ) => {
+    props.setWidthPercentage(newPercentage);
   };
-
-  const editorDidMount = (editor, monaco) => {
-    editorRef.current = editor;
-
-    editor.addAction({
-      id: 'my-unique-id',
-      label: 'Create/Update node',
-      keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter],
-      contextMenuGroupId: 'Test',
-      contextMenuOrder: 1,
-      run: function (ed) {
-        console.log(ed);
-        saveCode();
-      },
-    });
-
-    console.log('editorDidMount', editor);
-    editor.focus();
-  };
-
-  useEffect(() => {
-    // update codeString when the type changes
-    const selectedNodeType = props.selectedNode.type;
-    const value = props.currentGraph.customNodeTypes[selectedNodeType];
-    setCodeString(value);
-  }, [props.selectedNode.type]);
 
   return (
     <ThemeProvider
@@ -74,7 +51,6 @@ const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
         spacing={1}
         className={`${styles.inspectorContainer}`}
         sx={{
-          background: `${Color(props.randomMainColor).alpha(0.8)}`,
           fontFamily: "'Roboto', 'Helvetica', 'Arial', 'sans-serif'",
           height: '100%',
         }}
@@ -83,36 +59,61 @@ const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
       >
         <Box
           sx={{
-            pt: '8px',
-            px: '8px',
-            color: 'text.primary',
-            fontWeight: 'medium',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
           }}
         >
-          {props.selectedNode?.name}
+          <Box
+            sx={{
+              pt: '8px',
+              px: '8px',
+              color: 'text.primary',
+              fontWeight: 'medium',
+              flexGrow: 1,
+              display: 'inline-flex',
+              alignItems: 'center',
+            }}
+          >
+            {props.selectedNode?.name}
+          </Box>
+          <ToggleButtonGroup
+            value={props.widthPercentage}
+            exclusive
+            onChange={handleWidthPercentage}
+            size="small"
+            sx={{
+              '& .MuiToggleButtonGroup-grouped': {
+                border: 0,
+              },
+            }}
+          >
+            <ToggleButton value="0.9">
+              <Icon classes={{ root: styles.iconRoot }}>
+                <img className={styles.imageIcon} src={DRAWER90_ICON} />
+              </Icon>
+            </ToggleButton>
+            <ToggleButton value="0.6">
+              <Icon classes={{ root: styles.iconRoot }}>
+                <img className={styles.imageIcon} src={DRAWER60_ICON} />
+              </Icon>
+            </ToggleButton>
+            <ToggleButton value="0.3">
+              <Icon classes={{ root: styles.iconRoot }}>
+                <img className={styles.imageIcon} src={DRAWER30_ICON} />
+              </Icon>
+            </ToggleButton>
+          </ToggleButtonGroup>
         </Box>
         <PropertyArrayContainer
+          currentGraph={props.currentGraph}
+          selectedNode={props.selectedNode}
+          isCustomNode={props.isCustomNode}
+          onSave={props.onSave}
+          randomMainColor={props.randomMainColor}
           inputSocketArray={props.selectedNode?.inputSocketArray}
           outputSocketArray={props.selectedNode?.outputSocketArray}
-          randomMainColor={props.randomMainColor}
         />
-        {props.isCustomNode && (
-          <MonacoEditor
-            language="javascript"
-            theme="vs-dark"
-            height="70%"
-            value={codeString}
-            options={{
-              selectOnLineNumbers: true,
-              scrollBeyondLastLine: false,
-              wordWrap: 'on',
-            }}
-            onChange={(newValue, e) => {
-              // console.log('controlled', newValue, e);
-            }}
-            editorDidMount={editorDidMount}
-          />
-        )}
       </Stack>
     </ThemeProvider>
   );

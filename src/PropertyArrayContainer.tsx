@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import Color from 'color';
 import {
+  Accordion,
+  AccordionProps,
+  AccordionDetails,
+  AccordionSummary,
+  AccordionSummaryProps,
   Box,
   IconButton,
   Menu,
@@ -13,75 +18,133 @@ import {
   Lock as LockIcon,
   Visibility as VisibilityIcon,
   VisibilityOff as VisibilityOffIcon,
+  ExpandMore as ExpandMoreIcon,
 } from '@mui/icons-material';
+import { styled } from '@mui/styles';
+import PPGraph from './classes/GraphClass';
+import PPNode from './classes/NodeClass';
 import Socket from './classes/SocketClass';
+import { CodeEditor } from './components/Editor';
 import { AbstractType } from './nodes/datatypes/abstractType';
 import { allDataTypes } from './nodes/datatypes/dataTypesMap';
 
 type PropertyArrayContainerProps = {
+  currentGraph: PPGraph;
+  selectedNode: PPNode;
+  isCustomNode: boolean;
+  onSave?: (code: string) => void;
+  randomMainColor: string;
   inputSocketArray: Socket[];
   outputSocketArray: Socket[];
-  randomMainColor: string;
 };
+
+const StyledAccordion = styled((props: AccordionProps) => (
+  <Accordion disableGutters elevation={0} square {...props} />
+))(() => ({
+  '&:not(:last-child)': {
+    borderBottom: 0,
+  },
+  '&:before': {
+    display: 'none',
+  },
+}));
+
+const StyledAccordionSummary = styled((props: AccordionSummaryProps) => (
+  <AccordionSummary expandIcon={<ExpandMoreIcon />} {...props} />
+))(({ theme }) => ({
+  paddingLeft: '8px',
+  bgcolor: 'background.paper',
+}));
+
+const StyledAccordionDetails = styled(AccordionDetails)(({ theme }) => ({
+  padding: '8px',
+  bgcolor: 'background.paper',
+}));
 
 export const PropertyArrayContainer: React.FunctionComponent<
   PropertyArrayContainerProps
 > = (props) => {
+  // const editorRef = useRef<any>();
+  const [codeString, setCodeString] = useState<string | undefined>(
+    props.currentGraph.customNodeTypes[props.selectedNode.type]
+  );
+
+  useEffect(() => {
+    // update codeString when the type changes
+    const selectedNodeType = props.selectedNode.type;
+    const value = props.currentGraph.customNodeTypes[selectedNodeType];
+    setCodeString(value);
+  }, [props.selectedNode.type]);
+
   return (
-    <Stack spacing={2}>
+    <Stack spacing={1}>
       {props.inputSocketArray?.length > 0 && (
-        <Stack
-          spacing={1}
-          sx={{
-            p: '8px',
-            bgcolor: 'background.paper',
-          }}
-        >
-          <Box textAlign="left" sx={{ color: 'text.primary' }}>
-            IN
-          </Box>
-          {props.inputSocketArray?.map((property, index) => {
-            return (
-              <PropertyContainer
-                key={index}
-                property={property}
-                index={index}
-                dataType={property.dataType}
-                isInput={true}
-                hasLink={property.hasLink()}
-                data={property.data}
-                randomMainColor={props.randomMainColor}
-              />
-            );
-          })}
-        </Stack>
+        <StyledAccordion defaultExpanded>
+          <StyledAccordionSummary>
+            <Box textAlign="left" sx={{ color: 'text.primary' }}>
+              IN
+            </Box>
+          </StyledAccordionSummary>
+          <StyledAccordionDetails>
+            {props.inputSocketArray?.map((property, index) => {
+              return (
+                <PropertyContainer
+                  key={index}
+                  property={property}
+                  index={index}
+                  dataType={property.dataType}
+                  isInput={true}
+                  hasLink={property.hasLink()}
+                  data={property.data}
+                  randomMainColor={props.randomMainColor}
+                />
+              );
+            })}
+          </StyledAccordionDetails>
+        </StyledAccordion>
       )}
-      {props.outputSocketArray?.length > 0 && (
-        <Stack
-          spacing={1}
-          sx={{
-            p: '8px',
-            bgcolor: 'background.paper',
-          }}
-        >
-          <Box textAlign="right" sx={{ color: 'text.primary' }}>
-            OUT
+      <StyledAccordion defaultExpanded={props.isCustomNode}>
+        <StyledAccordionSummary>
+          <Box textAlign="center" sx={{ color: 'text.primary' }}>
+            CODE
           </Box>
-          {props.outputSocketArray?.map((property, index) => {
-            return (
-              <PropertyContainer
-                key={index}
-                property={property}
-                index={index}
-                dataType={property.dataType}
-                isInput={false}
-                hasLink={property.hasLink()}
-                data={property.data}
-                randomMainColor={props.randomMainColor}
-              />
-            );
-          })}
-        </Stack>
+        </StyledAccordionSummary>
+        <StyledAccordionDetails>
+          <CodeEditor
+            value={codeString ?? props.selectedNode.getSourceCode()}
+            randomMainColor={props.randomMainColor}
+            onSave={props.onSave}
+            onChange={(value) => {
+              setCodeString(value);
+            }}
+            editable={props.isCustomNode}
+          />
+        </StyledAccordionDetails>
+      </StyledAccordion>
+      {props.outputSocketArray?.length > 0 && (
+        <StyledAccordion defaultExpanded>
+          <StyledAccordionSummary>
+            <Box textAlign="right" sx={{ color: 'text.primary' }}>
+              OUT
+            </Box>
+          </StyledAccordionSummary>
+          <StyledAccordionDetails>
+            {props.outputSocketArray?.map((property, index) => {
+              return (
+                <PropertyContainer
+                  key={index}
+                  property={property}
+                  index={index}
+                  dataType={property.dataType}
+                  isInput={false}
+                  hasLink={property.hasLink()}
+                  data={property.data}
+                  randomMainColor={props.randomMainColor}
+                />
+              );
+            })}
+          </StyledAccordionDetails>
+        </StyledAccordion>
       )}
     </Stack>
   );

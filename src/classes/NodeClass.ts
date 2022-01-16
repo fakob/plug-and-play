@@ -235,6 +235,10 @@ export default class PPNode extends PIXI.Container {
   }
 
   // METHODS
+  getSourceCode(): string {
+    return this.constructor.toString();
+  }
+
   select(): void {
     if (this.onNodeSelected) {
       this.onNodeSelected();

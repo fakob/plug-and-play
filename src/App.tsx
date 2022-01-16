@@ -28,7 +28,6 @@ import {
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { theme } from './utils/customTheme';
 import Color from 'color';
 import { hri } from 'human-readable-ids';
@@ -39,8 +38,8 @@ import {
   GraphSearchPopper,
   NodeSearchInput,
 } from './components/Search';
+import ResponsiveDrawer from './components/ResponsiveDrawer';
 import FloatingNodeMenu from './components/FloatingNodeMenu';
-import InspectorContainer from './InspectorContainer';
 import PixiContainer from './PixiContainer';
 import { GraphContextMenu, NodeContextMenu } from './components/ContextMenus';
 import { GraphDatabase } from './utils/indexedDB';
@@ -59,7 +58,6 @@ import {
   getLoadedGraphId,
   getRemoteGraph,
   getRemoteGraphsList,
-  truncateText,
   removeExtension,
   useStateRef,
 } from './utils/utils';
@@ -129,6 +127,10 @@ const App = (): JSX.Element => {
   // dialogs
   const [showEdit, setShowEdit] = useState(false);
   const [showDeleteGraph, setShowDeleteGraph] = useState(false);
+
+  // drawer
+  const defaultDrawerWidth = 320;
+  const [drawerWidth, setDrawerWidth] = useState(defaultDrawerWidth);
 
   let lastTimeTicked = 0;
 
@@ -1165,15 +1167,15 @@ NOTE: opening a remote playground creates a local copy`
               />
             )}
             <PixiContainer ref={pixiContext} />
-            {selectedNode && (
-              <InspectorContainer
-                currentGraph={currentGraph.current}
-                selectedNode={selectedNode}
-                isCustomNode={currentGraph.current.isCustomNode(selectedNode)}
-                onSave={createOrUpdateNodeFromCode}
-                randomMainColor={randomMainColor}
-              />
-            )}
+            <ResponsiveDrawer
+              drawerWidth={drawerWidth}
+              setDrawerWidth={setDrawerWidth}
+              currentGraph={currentGraph.current}
+              selectedNode={selectedNode}
+              isCustomNode={currentGraph.current?.isCustomNode(selectedNode)}
+              onSave={createOrUpdateNodeFromCode}
+              randomMainColor={randomMainColor}
+            />
             {selectedNodes && selectionPos && (
               <FloatingNodeMenu
                 x={

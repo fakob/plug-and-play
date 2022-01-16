@@ -1,15 +1,23 @@
 .inspectorContainer {
   position: absolute;
-  right: 0;
+  left: 0;
   top: 0;
-  width: 30vw;
-  min-width: 320px;
+  width: 100%;
   max-height: 100vh;
-  /* height: calc(100vh - 16px); */
-  /* padding: 8px; */
   overflow: auto;
   user-select: none;
   z-index: 200;
+}
+
+.dragger {
+  width: 8px;
+  cursor: ew-resize;
+  padding: 4px 0 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 300;
 }
 
 .editor {
@@ -221,4 +229,14 @@
   position: absolute;
   transform: translate(-50%, -50%) !important;
   z-index: 100;
+}
+
+.imageIcon {
+  display: flex;
+  height: inherit;
+  width: inherit;
+}
+
+.iconRoot {
+  text-align: 'center';
 }

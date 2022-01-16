@@ -1,5 +1,5 @@
 import React from 'react';
-import { TextWidget } from '../../widgets';
+import { CodeWidget } from '../../widgets';
 import { AbstractType } from './abstractType';
 
 export class CodeType extends AbstractType {
@@ -13,7 +13,7 @@ export class CodeType extends AbstractType {
 
   // TODO use cooler widget for this
   getInputWidget = (data: any): any => {
-    return <TextWidget {...data} />;
+    return <CodeWidget {...data} />;
   };
 
   getDefaultValue(): any {

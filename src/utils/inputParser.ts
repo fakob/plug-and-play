@@ -56,7 +56,8 @@ class deleteNodeAction extends Hotkey {
         currPressed.target.dataset.slateEditor === undefined &&
         currPressed.target.id !== 'Input' &&
         currPressed.target.localName !== 'input' &&
-        currPressed.target.localName !== 'textarea'
+        currPressed.target.localName !== 'textarea' &&
+        !currPressed.target.className.includes('cm-content')
       ) {
         graph.deleteSelectedNodes();
       }
