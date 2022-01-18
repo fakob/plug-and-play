@@ -55,6 +55,7 @@ export default class PPGraph {
     | ((event: PIXI.InteractionEvent, target: PIXI.DisplayObject) => void)
     | null; // called when the graph is right clicked
   onOpenNodeSearch: ((pos: PIXI.Point) => void) | null; // called node search should be openend
+  onOpenSocketInfo: ((pos: PIXI.Point, data: any) => void) | null; // called node search should be openend
 
   onViewportMoveHandler: (event?: PIXI.InteractionEvent) => void;
 
@@ -228,7 +229,13 @@ export default class PPGraph {
         this.dragSourcePoint = this.viewport.toWorld(dragSourcePoint);
       }
     } else if (this.clickedSocketNameRef !== null) {
-      console.log('clickedSocketNameRef');
+      console.log('clickedSocketNameRef', this.clickedSocketNameRef.data);
+      if (this.onOpenSocketInfo) {
+        this.onOpenSocketInfo(
+          event.data.global,
+          this.clickedSocketNameRef.data
+        );
+      }
     }
 
     // subscribe to pointermove

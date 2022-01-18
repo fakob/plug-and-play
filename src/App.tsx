@@ -369,6 +369,10 @@ const App = (): JSX.Element => {
       openNodeSearch(pos);
     };
 
+    currentGraph.current.onOpenSocketInfo = (pos: PIXI.Point, data: any) => {
+      openSocketInfo(pos, data);
+    };
+
     currentGraph.current.onRightClick = (
       event: PIXI.InteractionEvent,
       target: PIXI.DisplayObject
@@ -770,6 +774,17 @@ const App = (): JSX.Element => {
       ]);
     }
     setIsNodeSearchVisible(true);
+  };
+
+  const openSocketInfo = (pos = undefined, data = undefined) => {
+    console.log('openSocketInfo', pos, data);
+    // if (pos !== undefined) {
+    //   setContextMenuPosition([
+    //     Math.min(window.innerWidth - 408, pos.x),
+    //     Math.min(window.innerHeight - 56, pos.y),
+    //   ]);
+    // }
+    // setIsNodeSearchVisible(true);
   };
 
   const nodeSearchInputBlurred = () => {
