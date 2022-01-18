@@ -32,6 +32,7 @@ export default class PPGraph {
 
   _showComments: boolean;
   clickedSocketRef: null | Socket;
+  clickedSocketNameRef: null | Socket;
   overInputRef: null | Socket;
   dragSourcePoint: null | PIXI.Point;
   movingLink: null | PPLink;
@@ -64,6 +65,7 @@ export default class PPGraph {
 
     this._showComments = true;
     this.clickedSocketRef = null;
+    this.clickedSocketNameRef = null;
     this.overInputRef = null;
     this.dragSourcePoint = null;
     this.movingLink = null;
@@ -225,6 +227,8 @@ export default class PPGraph {
         // change dragSourcePoint coordinates from screen to world space
         this.dragSourcePoint = this.viewport.toWorld(dragSourcePoint);
       }
+    } else if (this.clickedSocketNameRef !== null) {
+      console.log('clickedSocketNameRef');
     }
 
     // subscribe to pointermove

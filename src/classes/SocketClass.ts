@@ -95,10 +95,16 @@ export default class Socket extends PIXI.Container {
 
     this.interactionData = null;
     this.interactive = true;
+    this._SocketRef.name = 'SocketRef';
     this._SocketRef.interactive = true;
     this._SocketRef.on('pointerover', this._onPointerOver.bind(this));
     this._SocketRef.on('pointerout', this._onPointerOut.bind(this));
     this._SocketRef.on('pointerdown', this._onPointerDown.bind(this));
+    this._SocketNameRef.name = 'SocketNameRef';
+    this._SocketNameRef.interactive = true;
+    this._SocketNameRef.on('pointerover', this._onPointerOver.bind(this));
+    this._SocketNameRef.on('pointerout', this._onPointerOut.bind(this));
+    this._SocketNameRef.on('pointerdown', this._onPointerDown.bind(this));
   }
 
   // GETTERS & SETTERS
@@ -258,9 +264,12 @@ export default class Socket extends PIXI.Container {
 
   // SETUP
 
-  _onPointerOver(): void {
+  _onPointerOver(event: PIXI.InteractionEvent): void {
     // set overInputRef on graph
-    if (this.socketType === SOCKET_TYPE.IN) {
+    if (
+      this.socketType === SOCKET_TYPE.IN &&
+      event.target.name === 'SocketRef'
+    ) {
       this.getGraph().overInputRef = this;
     }
 
@@ -274,6 +283,7 @@ export default class Socket extends PIXI.Container {
       this.getGraph().overInputRef = null;
     }
 
+    this.getGraph().clickedSocketNameRef = null;
     this.alpha = 1.0;
     this.cursor = 'default';
     (this._SocketRef as PIXI.Graphics).tint = 0xffffff;
@@ -281,6 +291,10 @@ export default class Socket extends PIXI.Container {
 
   _onPointerDown(event: PIXI.InteractionEvent): void {
     console.log('_onPointerDown');
-    this.getGraph().clickedSocketRef = event.target.parent as Socket;
+    if (event.target.name === 'SocketRef') {
+      this.getGraph().clickedSocketRef = event.target.parent as Socket;
+    } else if (event.target.name === 'SocketNameRef') {
+      this.getGraph().clickedSocketNameRef = event.target.parent as Socket;
+    }
   }
 }
