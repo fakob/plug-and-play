@@ -56,7 +56,7 @@ export class JSONKeys extends PureNode {
     inputObject: unknown,
     outputObject: Record<string, unknown>
   ): Promise<void> {
-    outputObject[outValueName] = Object.keys(inputObject[JSONName]);
+    outputObject[outValueName] = Object.keys(inputObject?.[JSONName]);
   }
 }
 
@@ -71,6 +71,6 @@ export class JSONValues extends PureNode {
     inputObject: unknown,
     outputObject: Record<string, unknown>
   ): Promise<void> {
-    outputObject[outValueName] = Object.values(inputObject[JSONName]);
+    outputObject[outValueName] = Object.values(inputObject?.[JSONName]);
   }
 }
