@@ -236,7 +236,6 @@ export type TextWidgetProps = {
 
 export const TextWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
   const [data, setData] = useState(props.data);
-  console.log(props);
 
   return (
     <FormGroup>

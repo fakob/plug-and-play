@@ -99,7 +99,9 @@ export default class PPGraph {
     this.tempConnection.name = 'tempConnection';
     this.backgroundTempContainer.addChild(this.tempConnection);
 
-    this.selection = new PPSelection(this.viewport, Object.values(this.nodes));
+    this.selection = new PPSelection(this.viewport, () =>
+      Object.values(this.nodes)
+    );
     this.app.stage.addChild(this.selection);
 
     this.viewport.cursor = 'grab';
