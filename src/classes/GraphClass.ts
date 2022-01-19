@@ -229,7 +229,6 @@ export default class PPGraph {
         this.dragSourcePoint = this.viewport.toWorld(dragSourcePoint);
       }
     } else if (this.clickedSocketNameRef !== null) {
-      console.log('clickedSocketNameRef', this.clickedSocketNameRef.data);
       if (this.onOpenSocketInfo) {
         this.onOpenSocketInfo(
           event.data.global,

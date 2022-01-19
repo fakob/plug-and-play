@@ -20,12 +20,15 @@ import {
   DialogContentText,
   DialogTitle,
   IconButton,
+  Popover,
   Stack,
   TextField,
   ThemeProvider,
+  Typography,
   createFilterOptions,
   createTheme,
 } from '@mui/material';
+import { inspect } from 'util';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { theme } from './utils/customTheme';
@@ -130,6 +133,11 @@ const App = (): JSX.Element => {
   // drawer
   const defaultDrawerWidth = 320;
   const [drawerWidth, setDrawerWidth] = useState(defaultDrawerWidth);
+
+  // socket info
+  const [socketInfoOpen, setSocketInfoOpen] = useState(false);
+  const [socketInfoPosition, setSocketInfoPosition] = useState([0, 0]);
+  const [socketInfoData, setSocketInfoData] = useState<unknown>(undefined);
 
   let lastTimeTicked = 0;
 
@@ -778,13 +786,20 @@ const App = (): JSX.Element => {
 
   const openSocketInfo = (pos = undefined, data = undefined) => {
     console.log('openSocketInfo', pos, data);
-    // if (pos !== undefined) {
-    //   setContextMenuPosition([
-    //     Math.min(window.innerWidth - 408, pos.x),
-    //     Math.min(window.innerHeight - 56, pos.y),
-    //   ]);
-    // }
-    // setIsNodeSearchVisible(true);
+    if (pos !== undefined) {
+      const worldPos = viewport.current.toWorld(pos.x, pos.y);
+      setSocketInfoPosition([
+        Math.min(window.innerWidth - 408, worldPos.x),
+        Math.min(window.innerHeight - 56, worldPos.y),
+      ]);
+    }
+    setSocketInfoData(data);
+    setSocketInfoOpen(true);
+  };
+
+  const onCloseSocketInfo = () => {
+    console.log('onCloseSocketInfo');
+    setSocketInfoOpen(false);
   };
 
   const nodeSearchInputBlurred = () => {
@@ -1144,6 +1159,29 @@ NOTE: opening a remote playground creates a local copy`
                 </DialogActions>
               </form>
             </Dialog>
+            <Popover
+              open={socketInfoOpen}
+              anchorReference="anchorPosition"
+              anchorPosition={{
+                top: socketInfoPosition?.[0],
+                left: socketInfoPosition?.[1],
+              }}
+              transformOrigin={{
+                vertical: 'bottom',
+                horizontal: 'left',
+              }}
+              onClose={onCloseSocketInfo}
+            >
+              <Typography
+                fontFamily="Roboto Mono"
+                fontSize="12px"
+                sx={{ p: 2, bgcolor: 'background.paper' }}
+                className={`${styles.serializedNode} ${styles.scrollablePortal}`}
+              >
+                {inspect(socketInfoData)}
+                {/* {JSON.stringify(socketInfoData, getCircularReplacer(), 2)} */}
+              </Typography>
+            </Popover>
             {isGraphContextMenuOpen && (
               <GraphContextMenu
                 controlOrMetaKey={controlOrMetaKey}
