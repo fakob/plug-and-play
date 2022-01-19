@@ -787,11 +787,8 @@ const App = (): JSX.Element => {
   const openSocketInfo = (pos = undefined, data = undefined) => {
     console.log('openSocketInfo', pos, data);
     if (pos !== undefined) {
-      const worldPos = viewport.current.toWorld(pos.x, pos.y);
-      setSocketInfoPosition([
-        Math.min(window.innerWidth - 408, worldPos.x),
-        Math.min(window.innerHeight - 56, worldPos.y),
-      ]);
+      const worldPos = viewport.current.toScreen(pos.x, pos.y);
+      setSocketInfoPosition([worldPos.x, worldPos.y]);
     }
     setSocketInfoData(data);
     setSocketInfoOpen(true);
@@ -799,6 +796,10 @@ const App = (): JSX.Element => {
 
   const onCloseSocketInfo = () => {
     console.log('onCloseSocketInfo');
+    setSocketInfoOpen(false);
+  };
+
+  const socketInfoLeave = ({ currentTarget }) => {
     setSocketInfoOpen(false);
   };
 
@@ -1163,14 +1164,23 @@ NOTE: opening a remote playground creates a local copy`
               open={socketInfoOpen}
               anchorReference="anchorPosition"
               anchorPosition={{
-                top: socketInfoPosition?.[0],
-                left: socketInfoPosition?.[1],
+                left: socketInfoPosition?.[0],
+                top: socketInfoPosition?.[1],
               }}
               transformOrigin={{
-                vertical: 'bottom',
+                vertical: 'top',
                 horizontal: 'left',
               }}
               onClose={onCloseSocketInfo}
+              sx={{
+                pointerEvents: 'none',
+                '& .MuiPopover-paper': {
+                  pointerEvents: 'auto',
+                },
+              }}
+              PaperProps={{
+                onMouseLeave: socketInfoLeave,
+              }}
             >
               <Typography
                 fontFamily="Roboto Mono"
