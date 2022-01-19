@@ -13,7 +13,7 @@ import { getDifferenceSelection } from '../utils/utils';
 
 export default class PPSelection extends PIXI.Container {
   protected viewport: Viewport;
-  protected nodes: PPNode[];
+  protected getNodes: () => PPNode[];
   protected previousSelectedNodes: PPNode[];
   _selectedNodes: PPNode[];
 
@@ -35,10 +35,10 @@ export default class PPSelection extends PIXI.Container {
     | ((event: PIXI.InteractionEvent, target: PIXI.DisplayObject) => void)
     | null; // called when the selection is right clicked
 
-  constructor(viewport: Viewport, nodes: PPNode[]) {
+  constructor(viewport: Viewport, getNodes: () => PPNode[]) {
     super();
     this.viewport = viewport;
-    this.nodes = nodes;
+    this.getNodes = getNodes;
     this.sourcePoint = null;
     this.isDrawingSelection = false;
     this.isDraggingSelection = false;
@@ -142,7 +142,7 @@ export default class PPSelection extends PIXI.Container {
           1
         );
         const newlySelectedNodes = getObjectsInsideBounds(
-          this.nodes,
+          this.getNodes(),
           selectionRect
         );
         const differenceSelection = getDifferenceSelection(
@@ -212,7 +212,7 @@ export default class PPSelection extends PIXI.Container {
       // get differenceSelection of newlySelectedNodes and
       // previousSelectedNodes (is empty if not addToOrToggleSelection)
       const newlySelectedNodes = getObjectsInsideBounds(
-        this.nodes,
+        this.getNodes(),
         selectionRect
       );
       const differenceSelection = getDifferenceSelection(
@@ -365,6 +365,7 @@ export default class PPSelection extends PIXI.Container {
   }
 
   selectNode(node: PPNode, addToOrToggleSelection = false): void {
+    console.log('selecto: ' + node.id);
     if (node == null) {
       this.deselectAllNodes();
     } else {
@@ -395,7 +396,7 @@ export default class PPSelection extends PIXI.Container {
   }
 
   selectAllNodes(): void {
-    this.selectedNodes = this.nodes;
+    this.selectedNodes = this.getNodes();
     this.drawRectanglesFromSelection();
     // show scaleHandle only if there is only 1 node selected
     this.scaleHandle.visible = this.selectedNodes.length === 1;

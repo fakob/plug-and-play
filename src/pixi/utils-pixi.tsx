@@ -101,17 +101,9 @@ export const getObjectsInsideBounds = (
   selectionRect: PIXI.Rectangle
 ): PPNode[] => {
   // console.log(selectionRect);
-  const selectedNodes: PPNode[] = [];
-  for (let i = 0; i < nodes.length; i++) {
-    const node = nodes[i];
-    const nodeBounds = node.getBounds();
-
-    const isInside = doRectsIntersect(nodeBounds, selectionRect);
-    if (isInside) {
-      selectedNodes.push(node);
-    }
-  }
-  return selectedNodes;
+  return nodes.filter((node) =>
+    doRectsIntersect(selectionRect, node.getBounds())
+  );
 };
 
 export const doRectsIntersect = (
