@@ -161,9 +161,9 @@ type PropertyContainerProps = {
   randomMainColor: string;
 };
 
-const PropertyContainer: React.FunctionComponent<PropertyContainerProps> = (
-  props
-) => {
+export const PropertyContainer: React.FunctionComponent<
+  PropertyContainerProps
+> = (props) => {
   const [dataTypeValue, setDataTypeValue] = useState(props.dataType);
   const baseProps = {
     key: props.dataType.getName(),

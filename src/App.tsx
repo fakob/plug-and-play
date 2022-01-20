@@ -136,7 +136,7 @@ const App = (): JSX.Element => {
   // socket info
   const [socketInfoOpen, setSocketInfoOpen] = useState(false);
   const [socketInfoPosition, setSocketInfoPosition] = useState([0, 0]);
-  const [socketInfoData, setSocketInfoData] = useState<unknown>(undefined);
+  const [socketInfo, setSocketInfo] = useState<PPSocket | undefined>(undefined);
 
   let lastTimeTicked = 0;
 
@@ -376,8 +376,11 @@ const App = (): JSX.Element => {
       openNodeSearch(pos);
     };
 
-    currentGraph.current.onOpenSocketInfo = (pos: PIXI.Point, data: any) => {
-      openSocketInfo(pos, data);
+    currentGraph.current.onOpenSocketInfo = (
+      pos: PIXI.Point,
+      socket: PPSocket
+    ) => {
+      openSocketInfo(pos, socket);
     };
 
     currentGraph.current.onRightClick = (
@@ -783,13 +786,13 @@ const App = (): JSX.Element => {
     setIsNodeSearchVisible(true);
   };
 
-  const openSocketInfo = (pos = undefined, data = undefined) => {
-    console.log('openSocketInfo', pos, data);
+  const openSocketInfo = (pos = undefined, socket = undefined) => {
+    console.log('openSocketInfo', pos, socket);
     if (pos !== undefined) {
       const worldPos = viewport.current.toScreen(pos.x, pos.y);
       setSocketInfoPosition([worldPos.x, worldPos.y]);
     }
-    setSocketInfoData(data);
+    setSocketInfo(socket);
     setSocketInfoOpen(true);
   };
 
@@ -1159,13 +1162,16 @@ NOTE: opening a remote playground creates a local copy`
                 </DialogActions>
               </form>
             </Dialog>
-            <FloatingSocketInspector
-              socketInfoOpen={socketInfoOpen}
-              socketInfoPosition={socketInfoPosition}
-              socketInfoData={socketInfoData}
-              onCloseSocketInfo={onCloseSocketInfo}
-              socketInfoLeave={socketInfoLeave}
-            />
+            {socketInfo && (
+              <FloatingSocketInspector
+                socketInfoOpen={socketInfoOpen}
+                socketInfoPosition={socketInfoPosition}
+                socketInfo={socketInfo}
+                onCloseSocketInfo={onCloseSocketInfo}
+                socketInfoLeave={socketInfoLeave}
+                randomMainColor={randomMainColor}
+              />
+            )}
             {isGraphContextMenuOpen && (
               <GraphContextMenu
                 controlOrMetaKey={controlOrMetaKey}

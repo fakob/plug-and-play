@@ -230,10 +230,7 @@ export default class PPGraph {
       }
     } else if (this.clickedSocketNameRef !== null) {
       if (this.onOpenSocketInfo) {
-        this.onOpenSocketInfo(
-          event.data.global,
-          this.clickedSocketNameRef.data
-        );
+        this.onOpenSocketInfo(event.data.global, this.clickedSocketNameRef);
       }
     }
 

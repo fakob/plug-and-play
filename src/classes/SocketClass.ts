@@ -294,6 +294,7 @@ export default class Socket extends PIXI.Container {
     if (event.target.name === 'SocketRef') {
       this.getGraph().clickedSocketRef = event.target.parent as Socket;
     } else if (event.target.name === 'SocketNameRef') {
+      console.log(event.target);
       this.getGraph().clickedSocketNameRef = event.target.parent as Socket;
     }
   }

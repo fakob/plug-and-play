@@ -13,6 +13,7 @@ import {
 // import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { getCircularReplacer } from './../utils/utils';
 // import PPNode from '../classes/NodeClass';
+import { PropertyContainer } from '../PropertyArrayContainer';
 import styles from './../utils/style.module.css';
 import { theme } from './../utils/customTheme';
 
@@ -91,19 +92,27 @@ const FloatingSocketInspector = (props) => {
           </Tabs>
         </Box>
         <TabPanel value={value} index={0}>
-          Item One
+          <Typography
+            fontFamily="Roboto Mono"
+            fontSize="12px"
+            sx={{ p: 2, bgcolor: 'background.paper' }}
+            className={`${styles.serializedNode} ${styles.scrollablePortal}`}
+          >
+            {JSON.stringify(props.socketInfo.data, getCircularReplacer(), 2)}
+          </Typography>
         </TabPanel>
         <TabPanel value={value} index={1}>
-          Item Two
+          <PropertyContainer
+            key={0}
+            property={props.socketInfo}
+            index={0}
+            dataType={props.socketInfo.dataType}
+            isInput={true}
+            hasLink={props.socketInfo.hasLink()}
+            data={props.socketInfo.data}
+            randomMainColor={props.randomMainColor}
+          />
         </TabPanel>
-        <Typography
-          fontFamily="Roboto Mono"
-          fontSize="12px"
-          sx={{ p: 2, bgcolor: 'background.paper' }}
-          className={`${styles.serializedNode} ${styles.scrollablePortal}`}
-        >
-          {JSON.stringify(props.socketInfoData, getCircularReplacer(), 2)}
-        </Typography>
       </Popover>
     </ThemeProvider>
   );
