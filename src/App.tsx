@@ -20,7 +20,6 @@ import {
   DialogContentText,
   DialogTitle,
   IconButton,
-  Popover,
   Stack,
   TextField,
   ThemeProvider,
@@ -28,7 +27,6 @@ import {
   createFilterOptions,
   createTheme,
 } from '@mui/material';
-import { inspect } from 'util';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { theme } from './utils/customTheme';
@@ -43,6 +41,7 @@ import {
 } from './components/Search';
 import ResponsiveDrawer from './components/ResponsiveDrawer';
 import FloatingNodeMenu from './components/FloatingNodeMenu';
+import FloatingSocketInspector from './components/FloatingSocketInspector';
 import PixiContainer from './PixiContainer';
 import { GraphContextMenu, NodeContextMenu } from './components/ContextMenus';
 import { GraphDatabase } from './utils/indexedDB';
@@ -1160,38 +1159,13 @@ NOTE: opening a remote playground creates a local copy`
                 </DialogActions>
               </form>
             </Dialog>
-            <Popover
-              open={socketInfoOpen}
-              anchorReference="anchorPosition"
-              anchorPosition={{
-                left: socketInfoPosition?.[0],
-                top: socketInfoPosition?.[1],
-              }}
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'left',
-              }}
-              onClose={onCloseSocketInfo}
-              sx={{
-                pointerEvents: 'none',
-                '& .MuiPopover-paper': {
-                  pointerEvents: 'auto',
-                },
-              }}
-              PaperProps={{
-                onMouseLeave: socketInfoLeave,
-              }}
-            >
-              <Typography
-                fontFamily="Roboto Mono"
-                fontSize="12px"
-                sx={{ p: 2, bgcolor: 'background.paper' }}
-                className={`${styles.serializedNode} ${styles.scrollablePortal}`}
-              >
-                {inspect(socketInfoData)}
-                {/* {JSON.stringify(socketInfoData, getCircularReplacer(), 2)} */}
-              </Typography>
-            </Popover>
+            <FloatingSocketInspector
+              socketInfoOpen={socketInfoOpen}
+              socketInfoPosition={socketInfoPosition}
+              socketInfoData={socketInfoData}
+              onCloseSocketInfo={onCloseSocketInfo}
+              socketInfoLeave={socketInfoLeave}
+            />
             {isGraphContextMenuOpen && (
               <GraphContextMenu
                 controlOrMetaKey={controlOrMetaKey}
