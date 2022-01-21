@@ -789,8 +789,7 @@ const App = (): JSX.Element => {
   const openSocketInfo = (pos = undefined, socket = undefined) => {
     console.log('openSocketInfo', pos, socket);
     if (pos !== undefined) {
-      const worldPos = viewport.current.toScreen(pos.x, pos.y);
-      setSocketInfoPosition([worldPos.x, worldPos.y]);
+      setSocketInfoPosition([pos.x, pos.y]);
     }
     setSocketInfo(socket);
     setSocketInfoOpen(true);
