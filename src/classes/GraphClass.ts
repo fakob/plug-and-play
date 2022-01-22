@@ -55,7 +55,9 @@ export default class PPGraph {
     | ((event: PIXI.InteractionEvent, target: PIXI.DisplayObject) => void)
     | null; // called when the graph is right clicked
   onOpenNodeSearch: ((pos: PIXI.Point) => void) | null; // called node search should be openend
-  onOpenSocketInfo: ((pos: PIXI.Point, data: any) => void) | null; // called node search should be openend
+  onOpenSocketInfo:
+    | ((pos: PIXI.Point | null, data: unknown | null) => void)
+    | null; // called node search should be openend
 
   onViewportMoveHandler: (event?: PIXI.InteractionEvent) => void;
 
@@ -162,6 +164,10 @@ export default class PPGraph {
   _onPointerDown(event: PIXI.InteractionEvent): void {
     console.log('_onPointerDown');
     event.stopPropagation();
+
+    // reset floatingsocketinspector
+    this.onOpenSocketInfo(null, null);
+
     if (event.data.originalEvent.shiftKey) {
       this.selection.drawSelectionStart(
         event,
@@ -187,6 +193,9 @@ export default class PPGraph {
       ) {
         console.log('deselectAllNodesAndResetSelection');
         this.selection.deselectAllNodesAndResetSelection();
+
+        // reset floatingsocketinspector
+        this.onOpenSocketInfo(null, null);
       }
     }
     if (this.selection.isDrawingSelection) {
@@ -229,9 +238,11 @@ export default class PPGraph {
         this.dragSourcePoint = this.viewport.toWorld(dragSourcePoint);
       }
     } else if (this.clickedSocketNameRef !== null) {
-      if (this.onOpenSocketInfo) {
-        this.onOpenSocketInfo(event.data.global, this.clickedSocketNameRef);
-      }
+      const clickedSourcePoint = new PIXI.Point(
+        event.data.global.x,
+        event.data.global.y
+      );
+      this.onOpenSocketInfo(clickedSourcePoint, this.clickedSocketNameRef);
     }
 
     // subscribe to pointermove
@@ -242,7 +253,7 @@ export default class PPGraph {
   }
 
   onViewportMove(event: PIXI.InteractionEvent): void {
-    // console.log('onViewportMove');
+    console.log('onViewportMove');
 
     // draw connection
     if (this.clickedSocketRef !== null && !this.clickedSocketRef.isInput()) {

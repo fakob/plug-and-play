@@ -23,7 +23,6 @@ import {
   Stack,
   TextField,
   ThemeProvider,
-  Typography,
   createFilterOptions,
   createTheme,
 } from '@mui/material';
@@ -134,8 +133,8 @@ const App = (): JSX.Element => {
   const [drawerWidth, setDrawerWidth] = useState(defaultDrawerWidth);
 
   // socket info
-  const [socketInfoOpen, setSocketInfoOpen] = useState(false);
-  const [socketInfoPosition, setSocketInfoPosition] = useState([0, 0]);
+  const [socketInfoPosition, setSocketInfoPosition] =
+    useState<PIXI.Point | null>(null);
   const [socketInfo, setSocketInfo] = useState<PPSocket | undefined>(undefined);
 
   let lastTimeTicked = 0;
@@ -786,22 +785,10 @@ const App = (): JSX.Element => {
     setIsNodeSearchVisible(true);
   };
 
-  const openSocketInfo = (pos = undefined, socket = undefined) => {
+  const openSocketInfo = (pos = null, socket = null) => {
     console.log('openSocketInfo', pos, socket);
-    if (pos !== undefined) {
-      setSocketInfoPosition([pos.x, pos.y]);
-    }
+    setSocketInfoPosition(pos);
     setSocketInfo(socket);
-    setSocketInfoOpen(true);
-  };
-
-  const onCloseSocketInfo = () => {
-    console.log('onCloseSocketInfo');
-    setSocketInfoOpen(false);
-  };
-
-  const socketInfoLeave = ({ currentTarget }) => {
-    setSocketInfoOpen(false);
   };
 
   const nodeSearchInputBlurred = () => {
@@ -1163,11 +1150,8 @@ NOTE: opening a remote playground creates a local copy`
             </Dialog>
             {socketInfo && (
               <FloatingSocketInspector
-                socketInfoOpen={socketInfoOpen}
                 socketInfoPosition={socketInfoPosition}
                 socketInfo={socketInfo}
-                onCloseSocketInfo={onCloseSocketInfo}
-                socketInfoLeave={socketInfoLeave}
                 randomMainColor={randomMainColor}
               />
             )}

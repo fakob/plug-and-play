@@ -2,8 +2,7 @@ import React, { useEffect } from 'react';
 import Color from 'color';
 import {
   Box,
-  Popper,
-  PopperProps,
+  Paper,
   ThemeProvider,
   Typography,
   createTheme,
@@ -17,35 +16,8 @@ import { PropertyContainer } from '../PropertyArrayContainer';
 import styles from './../utils/style.module.css';
 import { darkThemeOverride } from './../utils/customTheme';
 
-function generateGetBoundingClientRect(x = 0, y = 0) {
-  console.log(x, y);
-  return () =>
-    ({
-      width: 0,
-      height: 0,
-      top: y,
-      right: x,
-      bottom: y,
-      left: x,
-    } as DOMRect);
-}
-
 const FloatingSocketInspector = (props) => {
-  const [anchorEl, setAnchorEl] = React.useState<PopperProps['anchorEl']>({
-    getBoundingClientRect: generateGetBoundingClientRect(
-      props.socketInfoPosition?.[0],
-      props.socketInfoPosition?.[1]
-    ),
-  });
-
-  useEffect(() => {
-    setAnchorEl({
-      getBoundingClientRect: generateGetBoundingClientRect(
-        props.socketInfoPosition?.[0],
-        props.socketInfoPosition?.[1]
-      ),
-    });
-  }, [props.socketInfoPosition]);
+  const showFloatingSocketInspector = Boolean(props.socketInfoPosition);
 
   return (
     <ThemeProvider
@@ -60,34 +32,38 @@ const FloatingSocketInspector = (props) => {
         },
       })}
     >
-      <Popper
-        open={props.socketInfoOpen}
-        anchorEl={anchorEl}
-        placement="bottom-start"
+      <Paper
+        className={styles.floatingSocketInspector}
+        elevation={3}
+        sx={{
+          left: props.socketInfoPosition?.x,
+          top: props.socketInfoPosition?.y + 16,
+          display: showFloatingSocketInspector ? 'auto' : 'none',
+        }}
       >
-        {props.socketInfo.hasLink() && (
+        {props.socketInfo?.hasLink() && (
           <Typography
             fontFamily="Roboto Mono"
             fontSize="12px"
             sx={{ p: 2, bgcolor: 'background.default', color: 'text.primary' }}
             className={`${styles.serializedNode} ${styles.scrollablePortal}`}
           >
-            {JSON.stringify(props.socketInfo.data, getCircularReplacer(), 2)}
+            {JSON.stringify(props.socketInfo?.data, getCircularReplacer(), 2)}
           </Typography>
         )}
-        {!props.socketInfo.hasLink() && (
+        {!props.socketInfo?.hasLink() && (
           <PropertyContainer
             key={0}
             property={props.socketInfo}
             index={0}
-            dataType={props.socketInfo.dataType}
+            dataType={props.socketInfo?.dataType}
             isInput={true}
-            hasLink={props.socketInfo.hasLink()}
-            data={props.socketInfo.data}
+            hasLink={props.socketInfo?.hasLink()}
+            data={props.socketInfo?.data}
             randomMainColor={props.randomMainColor}
           />
         )}
-      </Popper>
+      </Paper>
     </ThemeProvider>
   );
 };

@@ -232,6 +232,11 @@
   z-index: 100;
 }
 
+.floatingSocketInspector {
+  position: absolute;
+  z-index: 200;
+}
+
 .imageIcon {
   display: flex;
   height: inherit;
