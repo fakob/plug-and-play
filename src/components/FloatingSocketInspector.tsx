@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Color from 'color';
 import {
   Box,
-  Popover,
+  Popper,
+  PopperProps,
   ThemeProvider,
   Typography,
   createTheme,
@@ -16,7 +17,36 @@ import { PropertyContainer } from '../PropertyArrayContainer';
 import styles from './../utils/style.module.css';
 import { darkThemeOverride } from './../utils/customTheme';
 
+function generateGetBoundingClientRect(x = 0, y = 0) {
+  console.log(x, y);
+  return () =>
+    ({
+      width: 0,
+      height: 0,
+      top: y,
+      right: x,
+      bottom: y,
+      left: x,
+    } as DOMRect);
+}
+
 const FloatingSocketInspector = (props) => {
+  const [anchorEl, setAnchorEl] = React.useState<PopperProps['anchorEl']>({
+    getBoundingClientRect: generateGetBoundingClientRect(
+      props.socketInfoPosition?.[0],
+      props.socketInfoPosition?.[1]
+    ),
+  });
+
+  useEffect(() => {
+    setAnchorEl({
+      getBoundingClientRect: generateGetBoundingClientRect(
+        props.socketInfoPosition?.[0],
+        props.socketInfoPosition?.[1]
+      ),
+    });
+  }, [props.socketInfoPosition]);
+
   return (
     <ThemeProvider
       theme={createTheme(darkThemeOverride, {
@@ -30,35 +60,16 @@ const FloatingSocketInspector = (props) => {
         },
       })}
     >
-      <Popover
+      <Popper
         open={props.socketInfoOpen}
-        transitionDuration={0}
-        anchorReference="anchorPosition"
-        anchorPosition={{
-          left: props.socketInfoPosition?.[0],
-          top: props.socketInfoPosition?.[1],
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'left',
-        }}
-        onClose={props.onCloseSocketInfo}
-        sx={{
-          pointerEvents: 'none',
-          '& .MuiPopover-paper': {
-            pointerEvents: 'auto',
-          },
-        }}
-        PaperProps={{
-          onMouseLeave: props.socketInfoLeave,
-        }}
+        anchorEl={anchorEl}
+        placement="bottom-start"
       >
-        {/* <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>buttons</Box> */}
         {props.socketInfo.hasLink() && (
           <Typography
             fontFamily="Roboto Mono"
             fontSize="12px"
-            sx={{ p: 2, bgcolor: 'background.default' }}
+            sx={{ p: 2, bgcolor: 'background.default', color: 'text.primary' }}
             className={`${styles.serializedNode} ${styles.scrollablePortal}`}
           >
             {JSON.stringify(props.socketInfo.data, getCircularReplacer(), 2)}
@@ -76,7 +87,7 @@ const FloatingSocketInspector = (props) => {
             randomMainColor={props.randomMainColor}
           />
         )}
-      </Popover>
+      </Popper>
     </ThemeProvider>
   );
 };
