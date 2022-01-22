@@ -1,13 +1,21 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import Color from 'color';
 import {
   Box,
+  Icon,
   Paper,
   ThemeProvider,
+  ToggleButton,
+  ToggleButtonGroup,
   Typography,
   createTheme,
 } from '@mui/material';
 import Draggable from 'react-draggable';
+import {
+  DRAWER30_ICON,
+  DRAWER60_ICON,
+  DRAWER90_ICON,
+} from './../utils/constants';
 import { getCircularReplacer } from './../utils/utils';
 import { PropertyContainer } from '../PropertyArrayContainer';
 import styles from './../utils/style.module.css';
@@ -27,6 +35,14 @@ function PaperComponent(props) {
 
 const FloatingSocketInspector = (props) => {
   const showFloatingSocketInspector = Boolean(props.socketInfoPosition);
+  const [newWidth, setNewWidth] = useState(undefined);
+
+  const handleWidthPercentage = (
+    event: React.MouseEvent<HTMLElement>,
+    newWidth: number | null
+  ) => {
+    setNewWidth(newWidth);
+  };
 
   return (
     <ThemeProvider
@@ -43,19 +59,65 @@ const FloatingSocketInspector = (props) => {
     >
       <PaperComponent
         className={styles.floatingSocketInspector}
-        elevation={3}
+        elevation={8}
         sx={{
           left: props.socketInfoPosition?.x - 32,
           top: props.socketInfoPosition?.y + 16,
           display: showFloatingSocketInspector ? 'auto' : 'none',
+          width: newWidth ? newWidth : 'undefined',
         }}
         socketinfo={props.socketInfo}
       >
         <Box
-          sx={{ cursor: 'move', fontSize: 'small', px: '8px', py: '4px' }}
           id="draggable-title"
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            cursor: 'move',
+            fontSize: 'small',
+          }}
         >
-          {props.socketInfo?.parent.name}.{props.socketInfo?.name}
+          <Box
+            sx={{
+              px: '8px',
+              py: '4px',
+              color: 'text.primary',
+              fontWeight: 'medium',
+              flexGrow: 1,
+              display: 'inline-flex',
+              alignItems: 'center',
+            }}
+          >
+            {props.socketInfo?.parent.name}.{props.socketInfo?.name}
+          </Box>
+          <ToggleButtonGroup
+            value={props.widthPercentage}
+            exclusive
+            onChange={handleWidthPercentage}
+            size="small"
+            sx={{
+              '& .MuiToggleButtonGroup-grouped': {
+                border: 0,
+              },
+            }}
+          >
+            <ToggleButton value="0.9">
+              <Icon classes={{ root: styles.iconRoot }}>
+                <img className={styles.imageIcon} src={DRAWER90_ICON} />
+              </Icon>
+            </ToggleButton>
+            <ToggleButton value="0.6">
+              <Icon classes={{ root: styles.iconRoot }}>
+                <img className={styles.imageIcon} src={DRAWER60_ICON} />
+              </Icon>
+            </ToggleButton>
+            <ToggleButton value="0.3">
+              <Icon classes={{ root: styles.iconRoot }}>
+                <img className={styles.imageIcon} src={DRAWER30_ICON} />
+              </Icon>
+            </ToggleButton>
+          </ToggleButtonGroup>
         </Box>
         <Box id="draggable-content">
           {props.socketInfo?.hasLink() && (
