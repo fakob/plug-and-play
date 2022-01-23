@@ -3,20 +3,20 @@ ul.json-dict,
 ol.json-array {
   list-style-type: none;
   margin: 0 0 0 1px;
-  border-left: 1px dotted #ccc;
-  padding-left: 2em;
+  border-left: 1px dotted #505050;
+  padding-left: 1em;
 }
 .json-literal {
-  color: #777;
+  color: #f4faf972;
 }
 .json-key {
-  font-weight: bold;
+  /* font-weight: bold; */
   color: #108ee9;
 }
 
 /* Copy path icon */
 .json-pick_path {
-  color: #ccc;
+  color: #f4faf9;
   cursor: pointer;
   margin-right: 12px;
   margin-left: 5px;
@@ -33,13 +33,15 @@ ol.json-array {
 }
 
 .json-picked_tree {
-  background: #eee;
+  /* background: #eee; */
+  font-size: 1em;
+  font-family: monospace;
 }
 
 .json-pick_arr {
   position: relative;
   right: 2px;
-  color: #ccc;
+  color: #f4faf9;
   cursor: pointer;
   font-style: normal;
   font-weight: bold;

@@ -1,9 +1,5 @@
 import React from 'react';
-import {
-  DefaultOutputWidget,
-  SliderWidget,
-  SliderWidgetProps,
-} from '../../widgets';
+import { SliderWidget, SliderWidgetProps } from '../../widgets';
 import { AbstractType } from './abstractType';
 
 export class NumberType extends AbstractType {

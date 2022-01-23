@@ -122,14 +122,12 @@ function renderNull(
 ): React.ReactElement<any> {
   return (
     <span className="json-literal">
-      <i
+      <span
         data-pathkey={pathKey}
         className={getPickerStyle(getRelationship(choosenPath, pathKey))}
       >
-        █
-      </i>
-      <span>
-        {'null'} {isLast ? '' : ','}
+        {'null'}
+        {isLast ? '' : ','}
       </span>
     </span>
   );
@@ -142,14 +140,12 @@ function renderUndefined(
 ): React.ReactElement<any> {
   return (
     <span className="json-literal">
-      <i
+      <span
         data-pathkey={pathKey}
         className={getPickerStyle(getRelationship(choosenPath, pathKey))}
       >
-        █
-      </i>
-      <span>
-        {'undefined'} {isLast ? '' : ','}
+        {'undefined'}
+        {isLast ? '' : ','}
       </span>
     </span>
   );
@@ -173,7 +169,7 @@ function renderString(
         </i>
         <a target="_blank" href={str} className="json-literal">
           <span>
-            "{str}" {isLast ? '' : ','}
+            "{str}"{isLast ? '' : ','}
           </span>
         </a>
       </span>
@@ -181,14 +177,11 @@ function renderString(
   } else {
     return (
       <span className="json-literal">
-        <i
+        <span
           data-pathkey={pathKey}
           className={getPickerStyle(getRelationship(choosenPath, pathKey))}
         >
-          █
-        </i>
-        <span>
-          "{str}" {isLast ? '' : ','}
+          "{str}"{isLast ? '' : ','}
         </span>
       </span>
     );
@@ -203,14 +196,12 @@ function renderNumber(
 ): React.ReactElement<any> {
   return (
     <span className="json-literal">
-      <i
+      <span
         data-pathkey={pathKey}
         className={getPickerStyle(getRelationship(choosenPath, pathKey))}
       >
-        █
-      </i>
-      <span>
-        {num} {isLast ? '' : ','}
+        {num}
+        {isLast ? '' : ','}
       </span>
     </span>
   );
@@ -224,14 +215,12 @@ function renderBoolean(
 ): React.ReactElement<any> {
   return (
     <span className="json-literal">
-      <i
+      <span
         data-pathkey={pathKey}
         className={getPickerStyle(getRelationship(choosenPath, pathKey))}
       >
-        █
-      </i>
-      <span>
-        {bool} {isLast ? '' : ','}
+        {bool}
+        {isLast ? '' : ','}
       </span>
     </span>
   );
@@ -251,10 +240,9 @@ function renderObject(
     return (
       <div className={relation == 1 ? 'json-picked_tree' : ''}>
         <div>
-          <span>{'{'}</span>
-          <i data-pathkey={pathKey} className={getPickerStyle(relation)}>
-            █
-          </i>
+          <span data-pathkey={pathKey} className={getPickerStyle(relation)}>
+            {'{'}
+          </span>
         </div>
         <ul className="json-dict">
           {keys.map((key, idx) => {
@@ -262,7 +250,7 @@ function renderObject(
             return (
               <li key={nextPathKey}>
                 <span className="json-literal json-key">{key}</span>
-                <span> : </span>
+                <span>:</span>
                 {json2Jsx(
                   choosenPath,
                   obj[key],
@@ -274,7 +262,10 @@ function renderObject(
           })}
         </ul>
         <div>
-          {'}'} {isLast ? '' : ','}
+          <span data-pathkey={pathKey} className={getPickerStyle(relation)}>
+            {'}'}
+          </span>
+          {isLast ? '' : ','}
         </div>
       </div>
     );
@@ -285,7 +276,8 @@ function renderObject(
           █
         </i>
         <span>
-          {'{ }'} {isLast ? '' : ','}
+          {'{ }'}
+          {isLast ? '' : ','}
         </span>
       </span>
     );
@@ -335,7 +327,8 @@ function renderArray(
           })}
         </ol>
         <div>
-          {']'} {isLast ? '' : ','}
+          {']'}
+          {isLast ? '' : ','}
         </div>
       </div>
     );
@@ -346,7 +339,8 @@ function renderArray(
           █
         </i>
         <span>
-          {'[ ]'} {isLast ? '' : ','}
+          {'[ ]'}
+          {isLast ? '' : ','}
         </span>
       </span>
     );

@@ -10,7 +10,7 @@ import Color from 'color';
 
 type CodeEditorProps = {
   value: string;
-  onChange: (code: string) => void;
+  onChange?: (code: string) => void;
   onSave?: (code: string) => void;
   randomMainColor: string;
   editable?: boolean;

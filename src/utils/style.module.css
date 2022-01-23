@@ -246,3 +246,8 @@
 .iconRoot {
   text-align: 'center';
 }
+
+.propertyContainerContent {
+  max-height: 60vh;
+  overflow: auto;
+}

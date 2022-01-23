@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import * as PIXI from 'pixi.js';
 import Color from 'color';
 import {
   Box,
@@ -7,12 +8,11 @@ import {
   ThemeProvider,
   ToggleButton,
   ToggleButtonGroup,
-  Typography,
   createTheme,
 } from '@mui/material';
 import Draggable from 'react-draggable';
+import Socket from '../classes/SocketClass';
 import { DRAWER60M_ICON, DRAWER30M_ICON } from './../utils/constants';
-import { getCircularReplacer } from './../utils/utils';
 import { PropertyContainer } from '../PropertyArrayContainer';
 import styles from './../utils/style.module.css';
 import { darkThemeOverride } from './../utils/customTheme';
@@ -29,7 +29,15 @@ function PaperComponent(props) {
   );
 }
 
-const FloatingSocketInspector = (props) => {
+type MyProps = {
+  socketInfoPosition: PIXI.Point;
+  socketInfo: Socket;
+  randomMainColor: string;
+};
+
+export const FloatingSocketInspector: React.FunctionComponent<MyProps> = (
+  props
+) => {
   const showFloatingSocketInspector = Boolean(props.socketInfoPosition);
   const [newWidth, setNewWidth] = useState(undefined);
 
@@ -111,32 +119,17 @@ const FloatingSocketInspector = (props) => {
           </ToggleButtonGroup>
         </Box>
         <Box id="draggable-content">
-          {props.socketInfo?.hasLink() && (
-            <Typography
-              fontFamily="Roboto Mono"
-              fontSize="12px"
-              sx={{
-                p: 2,
-                bgcolor: 'background.default',
-                color: 'text.primary',
-              }}
-              className={`${styles.serializedNode} ${styles.scrollablePortal}`}
-            >
-              {JSON.stringify(props.socketInfo?.data, getCircularReplacer(), 2)}
-            </Typography>
-          )}
-          {!props.socketInfo?.hasLink() && (
-            <PropertyContainer
-              key={0}
-              property={props.socketInfo}
-              index={0}
-              dataType={props.socketInfo?.dataType}
-              isInput={true}
-              hasLink={props.socketInfo?.hasLink()}
-              data={props.socketInfo?.data}
-              randomMainColor={props.randomMainColor}
-            />
-          )}
+          <PropertyContainer
+            key={0}
+            property={props.socketInfo}
+            index={0}
+            dataType={props.socketInfo?.dataType}
+            isInput={props.socketInfo?.isInput()}
+            hasLink={props.socketInfo?.hasLink()}
+            data={props.socketInfo?.data}
+            randomMainColor={props.randomMainColor}
+            showHeader={false}
+          />
         </Box>
       </PaperComponent>
     </ThemeProvider>

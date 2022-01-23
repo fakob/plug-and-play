@@ -21,6 +21,7 @@ import {
   ExpandMore as ExpandMoreIcon,
 } from '@mui/icons-material';
 import { styled } from '@mui/styles';
+import styles from './utils/style.module.css';
 import PPGraph from './classes/GraphClass';
 import PPNode from './classes/NodeClass';
 import Socket from './classes/SocketClass';
@@ -159,11 +160,13 @@ type PropertyContainerProps = {
   hasLink: boolean;
   data: any;
   randomMainColor: string;
+  showHeader?: boolean;
 };
 
 export const PropertyContainer: React.FunctionComponent<
   PropertyContainerProps
 > = (props) => {
+  const { showHeader = true } = props;
   const [dataTypeValue, setDataTypeValue] = useState(props.dataType);
   const baseProps = {
     key: props.dataType.getName(),
@@ -190,21 +193,25 @@ export const PropertyContainer: React.FunctionComponent<
 
   return (
     <Box sx={{ bgcolor: 'background.default' }}>
-      <PropertyHeader
-        key={`PropertyHeader-${props.dataType.getName()}`}
-        property={props.property}
-        index={props.index}
-        isInput={props.isInput}
-        hasLink={props.hasLink}
-        onChangeDropdown={onChangeDropdown}
-        randomMainColor={props.randomMainColor}
-      />
+      {showHeader && (
+        <PropertyHeader
+          key={`PropertyHeader-${props.dataType.getName()}`}
+          property={props.property}
+          index={props.index}
+          isInput={props.isInput}
+          hasLink={props.hasLink}
+          onChangeDropdown={onChangeDropdown}
+          randomMainColor={props.randomMainColor}
+        />
+      )}
       <Box
         sx={{
           px: 1,
           pb: 1,
           ...(props.isInput ? { marginLeft: '30px' } : { marginRight: '30px' }),
+          ...(!showHeader && { margin: '0px' }), // if no header, then override the margins
         }}
+        className={styles.propertyContainerContent}
       >
         {widget}
       </Box>

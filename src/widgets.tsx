@@ -14,9 +14,10 @@ import {
 } from '@mui/material';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import { SketchPicker } from 'react-color';
+import { JsonPathPicker } from './components/JsonPathPicker';
 import { CodeEditor } from './components/Editor';
 import Socket from './classes/SocketClass';
-import { roundNumber } from './utils/utils';
+import { getCircularReplacer, roundNumber } from './utils/utils';
 import styles from './utils/style.module.css';
 import { TRgba } from './utils/interfaces';
 import { EnumStructure } from './nodes/datatypes/enumType';
@@ -315,6 +316,47 @@ export const JSONWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
   );
 };
 
+export const JSONPathWidget: React.FunctionComponent<TextWidgetProps> = (
+  props
+) => {
+  const [data, setData] = useState(props.data);
+  const [displayedString, setDisplayedString] = useState(
+    typeof data === 'object' ? JSON.stringify(data) : data
+  );
+  const [validJSON, setValidJSON] = useState(true);
+
+  const onChoosePath = (path: string) => {
+    console.log(path);
+  };
+
+  return (
+    <JsonPathPicker json={displayedString} onChoose={onChoosePath} path={''} />
+    // <FormGroup>
+    //   <TextField
+    //     hiddenLabel
+    //     variant="filled"
+    //     // label={props.property.name}
+    //     multiline
+    //     disabled={props.hasLink}
+    //     onChange={(event) => {
+    //       const value = event.target.value;
+    //       setDisplayedString(value);
+    //       try {
+    //         const parsedValue = JSON.parse(value);
+    //         setData(parsedValue);
+    //         potentiallyNotify(props.property, parsedValue);
+    //         setValidJSON(true);
+    //       } catch (error) {
+    //         setValidJSON(false);
+    //       }
+    //     }}
+    //     value={displayedString}
+    //   />
+    //   {!validJSON && <Alert severity="error">Invalid JSON!</Alert>}
+    // </FormGroup>
+  );
+};
+
 export type TriggerWidgetProps = {
   property: Socket;
   index: number;
@@ -432,6 +474,7 @@ export type DefaultOutputWidgetProps = {
   isInput: boolean;
   hasLink: boolean;
   data: any;
+  randomMainColor?: string;
 };
 
 export const DefaultOutputWidget: React.FunctionComponent<
@@ -440,16 +483,10 @@ export const DefaultOutputWidget: React.FunctionComponent<
   const [data] = useState(props.data);
 
   return (
-    <FormGroup>
-      <TextField
-        hiddenLabel
-        variant="filled"
-        multiline
-        InputProps={{
-          readOnly: true,
-        }}
-        value={data}
-      />
-    </FormGroup>
+    <CodeEditor
+      value={JSON.stringify(data, getCircularReplacer(), 2) || ''}
+      randomMainColor={props.randomMainColor}
+      editable={false}
+    />
   );
 };
