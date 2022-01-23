@@ -11,7 +11,7 @@ import {
   createTheme,
 } from '@mui/material';
 import Draggable from 'react-draggable';
-import { WIDEN_ICON, NARROW_ICON } from './../utils/constants';
+import { DRAWER60M_ICON, DRAWER30M_ICON } from './../utils/constants';
 import { getCircularReplacer } from './../utils/utils';
 import { PropertyContainer } from '../PropertyArrayContainer';
 import styles from './../utils/style.module.css';
@@ -100,12 +100,12 @@ const FloatingSocketInspector = (props) => {
           >
             <ToggleButton value="0.3">
               <Icon classes={{ root: styles.iconRoot }}>
-                <img className={styles.imageIcon} src={NARROW_ICON} />
+                <img className={styles.imageIcon} src={DRAWER30M_ICON} />
               </Icon>
             </ToggleButton>
             <ToggleButton value="0.6">
               <Icon classes={{ root: styles.iconRoot }}>
-                <img className={styles.imageIcon} src={WIDEN_ICON} />
+                <img className={styles.imageIcon} src={DRAWER60M_ICON} />
               </Icon>
             </ToggleButton>
           </ToggleButtonGroup>
