@@ -11,11 +11,7 @@ import {
   createTheme,
 } from '@mui/material';
 import Draggable from 'react-draggable';
-import {
-  DRAWER30_ICON,
-  DRAWER60_ICON,
-  DRAWER90_ICON,
-} from './../utils/constants';
+import { WIDEN_ICON, NARROW_ICON } from './../utils/constants';
 import { getCircularReplacer } from './../utils/utils';
 import { PropertyContainer } from '../PropertyArrayContainer';
 import styles from './../utils/style.module.css';
@@ -61,8 +57,8 @@ const FloatingSocketInspector = (props) => {
         className={styles.floatingSocketInspector}
         elevation={8}
         sx={{
-          left: props.socketInfoPosition?.x - 32,
-          top: props.socketInfoPosition?.y + 16,
+          left: props.socketInfoPosition?.x + 32,
+          top: props.socketInfoPosition?.y,
           display: showFloatingSocketInspector ? 'auto' : 'none',
           width: newWidth ? newWidth : 'undefined',
         }}
@@ -92,7 +88,7 @@ const FloatingSocketInspector = (props) => {
             {props.socketInfo?.parent.name}.{props.socketInfo?.name}
           </Box>
           <ToggleButtonGroup
-            value={props.widthPercentage}
+            value={newWidth}
             exclusive
             onChange={handleWidthPercentage}
             size="small"
@@ -102,19 +98,14 @@ const FloatingSocketInspector = (props) => {
               },
             }}
           >
-            <ToggleButton value="0.9">
+            <ToggleButton value="0.3">
               <Icon classes={{ root: styles.iconRoot }}>
-                <img className={styles.imageIcon} src={DRAWER90_ICON} />
+                <img className={styles.imageIcon} src={NARROW_ICON} />
               </Icon>
             </ToggleButton>
             <ToggleButton value="0.6">
               <Icon classes={{ root: styles.iconRoot }}>
-                <img className={styles.imageIcon} src={DRAWER60_ICON} />
-              </Icon>
-            </ToggleButton>
-            <ToggleButton value="0.3">
-              <Icon classes={{ root: styles.iconRoot }}>
-                <img className={styles.imageIcon} src={DRAWER30_ICON} />
+                <img className={styles.imageIcon} src={WIDEN_ICON} />
               </Icon>
             </ToggleButton>
           </ToggleButtonGroup>
