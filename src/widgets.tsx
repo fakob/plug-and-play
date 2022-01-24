@@ -2,10 +2,12 @@ import React, { useEffect, useRef, useState } from 'react';
 import Color from 'color';
 import {
   Alert,
+  Box,
   Button,
   Checkbox,
   FormControlLabel,
   FormGroup,
+  IconButton,
   MenuItem,
   Select,
   Slider,
@@ -13,11 +15,16 @@ import {
   ToggleButton,
 } from '@mui/material';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { SketchPicker } from 'react-color';
 import { JsonPathPicker } from './components/JsonPathPicker';
 import { CodeEditor } from './components/Editor';
 import Socket from './classes/SocketClass';
-import { getCircularReplacer, roundNumber } from './utils/utils';
+import {
+  getCircularReplacer,
+  roundNumber,
+  updateClipboard,
+} from './utils/utils';
 import styles from './utils/style.module.css';
 import { TRgba } from './utils/interfaces';
 import { EnumStructure } from './nodes/datatypes/enumType';
@@ -320,6 +327,7 @@ export const JSONPathWidget: React.FunctionComponent<TextWidgetProps> = (
   props
 ) => {
   const [data, setData] = useState(props.data);
+  const [path, setPath] = useState('');
   const [displayedString, setDisplayedString] = useState(
     typeof data === 'object' ? JSON.stringify(data) : data
   );
@@ -327,10 +335,37 @@ export const JSONPathWidget: React.FunctionComponent<TextWidgetProps> = (
 
   const onChoosePath = (path: string) => {
     console.log(path);
+    setPath(path);
   };
 
   return (
-    <JsonPathPicker json={displayedString} onChoose={onChoosePath} path={''} />
+    <>
+      <JsonPathPicker
+        json={displayedString}
+        onChoose={onChoosePath}
+        path={path}
+      />
+      <Box
+        sx={{
+          bgcolor: 'background.paper',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          fontSize: 'small',
+          position: 'absolute',
+          bottom: 0,
+        }}
+      >
+        <IconButton
+          onClick={() => {
+            updateClipboard(displayedString);
+          }}
+        >
+          <ContentCopyIcon />
+        </IconButton>
+        {path === '' ? '' : `Copied path to clipboard:${path}`}
+      </Box>
+    </>
     // <FormGroup>
     //   <TextField
     //     hiddenLabel

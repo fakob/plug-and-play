@@ -4,6 +4,7 @@
  */
 
 import * as React from 'react';
+import { updateClipboard } from '../utils/utils';
 import './JsonPathPicker-style.css';
 
 const pathR = /(\.".+?")|(\[.+?\])/g;
@@ -35,7 +36,7 @@ export class JsonPathPicker extends React.PureComponent<P, unknown> {
       } else {
         choosenPath = pathKey;
       }
-
+      updateClipboard(choosenPath);
       this.props.onChoose && this.props.onChoose(choosenPath);
     }
   };

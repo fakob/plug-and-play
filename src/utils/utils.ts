@@ -321,3 +321,14 @@ export const getMethods = (o): string[] => {
     (m) => 'function' === typeof o[m]
   );
 };
+
+export const updateClipboard = (newClip: string): void => {
+  navigator.clipboard.writeText(newClip).then(
+    function () {
+      /* clipboard successfully set */
+    },
+    function () {
+      /* clipboard write failed */
+    }
+  );
+};

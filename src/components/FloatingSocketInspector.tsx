@@ -4,15 +4,18 @@ import Color from 'color';
 import {
   Box,
   Icon,
+  IconButton,
   Paper,
   ThemeProvider,
   ToggleButton,
   ToggleButtonGroup,
   createTheme,
 } from '@mui/material';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import Draggable from 'react-draggable';
 import Socket from '../classes/SocketClass';
 import { DRAWER60M_ICON, DRAWER30M_ICON } from './../utils/constants';
+import { getCircularReplacer, updateClipboard } from './../utils/utils';
 import { PropertyContainer } from '../PropertyArrayContainer';
 import styles from './../utils/style.module.css';
 import { darkThemeOverride } from './../utils/customTheme';
@@ -46,6 +49,12 @@ export const FloatingSocketInspector: React.FunctionComponent<MyProps> = (
     newWidth: number | null
   ) => {
     setNewWidth(newWidth);
+  };
+
+  const copyDataToClipBoard = (): void => {
+    updateClipboard(
+      JSON.stringify(props.socketInfo?.data, getCircularReplacer(), 2) || ''
+    );
   };
 
   return (
@@ -88,12 +97,20 @@ export const FloatingSocketInspector: React.FunctionComponent<MyProps> = (
               py: '4px',
               color: 'text.primary',
               fontWeight: 'medium',
-              flexGrow: 1,
               display: 'inline-flex',
               alignItems: 'center',
             }}
           >
             {props.socketInfo?.parent.name}.{props.socketInfo?.name}
+          </Box>
+          <Box
+            sx={{
+              flexGrow: 1,
+            }}
+          >
+            <IconButton size="small" onClick={copyDataToClipBoard}>
+              <ContentCopyIcon sx={{ fontSize: '16px' }} />
+            </IconButton>
           </Box>
           <ToggleButtonGroup
             value={newWidth}
