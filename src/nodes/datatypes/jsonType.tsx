@@ -17,10 +17,6 @@ export class JSONType extends AbstractType {
     return <JSONWidget {...data} />;
   };
 
-  getOutputWidget = (data: any): any => {
-    return <JSONPathWidget {...data} />;
-  };
-
   getDefaultValue(): any {
     return {};
   }

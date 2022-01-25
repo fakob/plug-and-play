@@ -84,6 +84,7 @@ export default class PPNode extends PIXI.Container {
   interactionData: PIXI.InteractionData | null;
 
   container: HTMLElement; // for hybrid nodes
+  modal: HTMLElement;
 
   // supported callbacks
   onConfigure: ((nodeConfig: SerializedNode) => void) | null;
@@ -692,6 +693,43 @@ export default class PPNode extends PIXI.Container {
     return this.graph.viewport.toScreen(this.x + NODE_MARGIN, this.y);
   }
 
+  // this function
+  // • creates a modal component
+  createModalComponent(
+    parentDocument: Document,
+    reactParent: any,
+    reactProps: any,
+    customStyles = {}
+  ): HTMLElement {
+    // create html container
+    const modalId = `Modal-${this.id}`;
+    // if (this.modal?.id !== modalId) {
+    this.modal = parentDocument.createElement('div');
+    this.modal.id = modalId;
+
+    // add it to the DOM
+    parentDocument.body.appendChild(this.modal);
+
+    // when the Node is removed also remove the react component and its modal
+    this.onNodeRemoved = () => {
+      this.removeModalComponent();
+    };
+    // } else {
+    //   console.log('Modal already exists', this.modal);
+    // }
+    console.log(this.modal, this.modal.childNodes);
+    // render react component
+    this.renderReactComponent(reactParent, reactProps, this.modal);
+
+    return this.modal;
+  }
+
+  removeModalComponent(): void {
+    console.log(this.modal);
+    ReactDOM.unmountComponentAtNode(this.modal);
+    document.body.removeChild(this.modal);
+  }
+
   // this function can be called for hybrid nodes, it
   // • creates a container component
   // • adds the onNodeDragOrViewportMove listener to it
@@ -748,7 +786,13 @@ export default class PPNode extends PIXI.Container {
   }
 
   // the render method, takes a component and props, and renders it to the page
-  renderReactComponent = (component, props) => {
+  renderReactComponent = (
+    component: any,
+    props: {
+      [key: string]: any;
+    },
+    container = this.container
+  ): void => {
     ReactDOM.render(
       React.createElement(component, {
         ...props,
@@ -756,7 +800,7 @@ export default class PPNode extends PIXI.Container {
         selected: this.selected,
         doubleClicked: this.doubleClicked,
       }),
-      this.container
+      container
     );
   };
 

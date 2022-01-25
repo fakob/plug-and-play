@@ -332,3 +332,15 @@ export const updateClipboard = (newClip: string): void => {
     }
   );
 };
+
+export const queryJSON = (json, path): string => {
+  const tokens = path.substring(1, path.length - 1).split('][');
+  console.log(tokens);
+  let val = json[tokens[0].replace(/^"(.+(?="$))"$/, '$1').replace('"', '"')];
+  console.log(val, tokens);
+  if (tokens.length < 2) return val;
+  for (let i = 1; i < tokens.length; i++) {
+    val = val[tokens[i].replace(/^"(.+(?="$))"$/, '$1').replace('"', '"')];
+  }
+  return val;
+};

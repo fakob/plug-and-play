@@ -19,8 +19,10 @@ import {
   Visibility as VisibilityIcon,
   VisibilityOff as VisibilityOffIcon,
   ExpandMore as ExpandMoreIcon,
+  ContentCopy as ContentCopyIcon,
 } from '@mui/icons-material';
 import { styled } from '@mui/styles';
+import { getCircularReplacer, updateClipboard } from './utils/utils';
 import styles from './utils/style.module.css';
 import PPGraph from './classes/GraphClass';
 import PPNode from './classes/NodeClass';
@@ -250,6 +252,12 @@ const PropertyHeader: React.FunctionComponent<PropertyHeaderProps> = (
     props.property.setName(name);
   }, [name]);
 
+  const copyDataToClipBoard = (): void => {
+    updateClipboard(
+      JSON.stringify(props.property?.data, getCircularReplacer(), 2) || ''
+    );
+  };
+
   return (
     <Box
       sx={{
@@ -286,10 +294,13 @@ const PropertyHeader: React.FunctionComponent<PropertyHeaderProps> = (
         }}
       >
         <Box sx={{ flexGrow: 1, display: 'inline-flex', alignItems: 'center' }}>
-          <Box sx={{ px: 1, color: 'text.primary' }}>{props.property.name}</Box>
+          <Box sx={{ pl: 1, color: 'text.primary' }}>{props.property.name}</Box>
           {props.hasLink && (
-            <LockIcon fontSize="inherit" sx={{ color: 'text.primary' }} />
+            <LockIcon sx={{ pl: '2px', fontSize: '16px', opacity: 0.5 }} />
           )}
+          <IconButton size="small" onClick={copyDataToClipBoard}>
+            <ContentCopyIcon sx={{ pl: 1, fontSize: '16px' }} />
+          </IconButton>
         </Box>
         <IconButton
           title={`Property type: ${props.property.dataType.constructor.name}`}
