@@ -4,12 +4,14 @@ import Draggable from 'react-draggable';
 import {
   Box,
   Icon,
+  IconButton,
   Paper,
   ThemeProvider,
   ToggleButton,
   ToggleButtonGroup,
   createTheme,
 } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 import Color from 'color';
 import { JsonPathPicker } from '../../components/JsonPathPicker';
 import PureNode from '../../classes/NodeClass';
@@ -121,7 +123,7 @@ function JsonPathPickerModal(props) {
                   alignItems: 'center',
                 }}
               >
-                {props.socketInfo?.parent.name}.{props.socketInfo?.name}
+                {props.inputPathArray?.[0]}
               </Box>
               <Box
                 sx={{
@@ -129,8 +131,8 @@ function JsonPathPickerModal(props) {
                 }}
               >
                 {/* <IconButton size="small" onClick={copyDataToClipBoard}>
-                <ContentCopyIcon sx={{ fontSize: '16px' }} />
-              </IconButton> */}
+                  <ContentCopyIcon sx={{ fontSize: '16px' }} />
+                </IconButton> */}
               </Box>
               <ToggleButtonGroup
                 value={newWidth}
@@ -154,6 +156,9 @@ function JsonPathPickerModal(props) {
                   </Icon>
                 </ToggleButton>
               </ToggleButtonGroup>
+              <IconButton size="small" onClick={handleClose}>
+                <CloseIcon sx={{ fontSize: '16px' }} />
+              </IconButton>
             </Box>
             <Box
               id="draggable-content"
