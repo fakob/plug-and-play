@@ -84,7 +84,7 @@ export default class PPNode extends PIXI.Container {
   interactionData: PIXI.InteractionData | null;
 
   container: HTMLElement; // for hybrid nodes
-  modal: HTMLElement;
+  static: HTMLElement;
 
   // supported callbacks
   onConfigure: ((nodeConfig: SerializedNode) => void) | null;
@@ -694,40 +694,34 @@ export default class PPNode extends PIXI.Container {
   }
 
   // this function
-  // • creates a modal component
-  createModalComponent(
+  // • creates a static component
+  createStaticContainerComponent(
     parentDocument: Document,
     reactParent: any,
     reactProps: any,
     customStyles = {}
   ): HTMLElement {
     // create html container
-    const modalId = `Modal-${this.id}`;
-    // if (this.modal?.id !== modalId) {
-    this.modal = parentDocument.createElement('div');
-    this.modal.id = modalId;
+    const staticId = `Static-${this.id}`;
+    if (this.static?.id !== staticId) {
+      this.static = parentDocument.createElement('div');
+      this.static.id = staticId;
 
-    // add it to the DOM
-    parentDocument.body.appendChild(this.modal);
+      // add it to the DOM
+      parentDocument.body.appendChild(this.static);
 
-    // when the Node is removed also remove the react component and its modal
-    this.onNodeRemoved = () => {
-      this.removeModalComponent();
-    };
-    // } else {
-    //   console.log('Modal already exists', this.modal);
-    // }
-    console.log(this.modal, this.modal.childNodes);
+      // when the Node is removed also remove the react component and its static
+      this.onNodeRemoved = () => {
+        this.removeContainerComponent(this.static);
+      };
+    } else {
+      console.log('Modal already exists', this.static);
+    }
+    console.dir(this.static, this.static.childNodes);
     // render react component
-    this.renderReactComponent(reactParent, reactProps, this.modal);
+    this.renderReactComponent(reactParent, reactProps, this.static);
 
-    return this.modal;
-  }
-
-  removeModalComponent(): void {
-    console.log(this.modal);
-    ReactDOM.unmountComponentAtNode(this.modal);
-    document.body.removeChild(this.modal);
+    return this.static;
   }
 
   // this function can be called for hybrid nodes, it
@@ -775,8 +769,7 @@ export default class PPNode extends PIXI.Container {
 
     // when the Node is removed also remove the react component and its container
     this.onNodeRemoved = () => {
-      ReactDOM.unmountComponentAtNode(this.container);
-      document.body.removeChild(this.container);
+      this.removeContainerComponent(this.container);
     };
 
     // render react component
@@ -803,6 +796,11 @@ export default class PPNode extends PIXI.Container {
       container
     );
   };
+
+  removeContainerComponent(container: HTMLElement): void {
+    ReactDOM.unmountComponentAtNode(container);
+    document.body.removeChild(container);
+  }
 
   getInputSocketByName(slotName: string): Socket {
     if (!this.inputSocketArray) {

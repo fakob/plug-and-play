@@ -27,16 +27,17 @@ export class JsonPathPicker extends React.PureComponent<P, unknown> {
     if (target.hasAttribute('data-pathkey')) {
       const pathKey = target.getAttribute('data-pathkey');
       let choosenPath;
-
+      console.log(this.props.path, pathKey);
       if (target.hasAttribute('data-choosearr')) {
         const tmp = parsePath(this.props.path);
         const idx = parsePath(pathKey).length;
+        console.log(tmp, idx);
         tmp[idx] = '[*]';
         choosenPath = tmp.join('');
       } else {
         choosenPath = pathKey;
       }
-      updateClipboard(choosenPath);
+      // updateClipboard(choosenPath);
       this.props.onChoose && this.props.onChoose(choosenPath);
     }
   };

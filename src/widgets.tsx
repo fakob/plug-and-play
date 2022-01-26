@@ -331,8 +331,6 @@ export const JSONPathWidget: React.FunctionComponent<TextWidgetProps> = (
   const [displayedString, setDisplayedString] = useState(
     typeof data === 'object' ? JSON.stringify(data) : data
   );
-  const [validJSON, setValidJSON] = useState(true);
-
   const onChoosePath = (path: string) => {
     console.log(path);
     setPath(path);

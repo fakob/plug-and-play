@@ -2,8 +2,10 @@
 import React, { useEffect } from 'react';
 import { Box, Modal, ThemeProvider, createTheme } from '@mui/material';
 import { JsonPathPicker } from '../../components/JsonPathPicker';
+import PPGraph from '../../classes/GraphClass';
 import PureNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
+import { CustomArgs } from '../../utils/interfaces';
 import { darkThemeOverride } from '../../utils/customTheme';
 import { SOCKET_TYPE } from '../../utils/constants';
 import { queryJSON } from '../../utils/utils';
@@ -16,21 +18,15 @@ const JSONParamName = 'Name 1';
 const outValueName = 'Value';
 
 function JsonPathPickerModal(props) {
-  const [open, setOpen] = React.useState(props.open);
-  // const handleOpen = () => setOpen(true);
+  const [open, setOpen] = React.useState(true);
+
   const handleClose = () => {
     setOpen(false);
   };
-  console.log('props.open', props.open);
 
-  // useEffect(() => {
-  //   console.log('props.open', props.open);
-  //   // setOpen(props.open);
-  // }, [props.open, open]);
-
-  // useEffect(() => {
-  //   handleOpen();
-  // }, []);
+  useEffect(() => {
+    setOpen(true);
+  }, [props.forceRefresh]);
 
   return (
     <ThemeProvider theme={createTheme(darkThemeOverride)}>
@@ -111,22 +107,17 @@ export class JSONGet extends PureNode {
     const json = this.getInputData(JSONName) ?? '';
     const path = this.getInputData(JSONParamName) ?? '';
 
-    const onChoosePath = (path: string) => {
-      console.log(path);
+    const onChoosePath = (path: string): void => {
       this.setInputData(JSONParamName, path);
       this.execute(new Set());
     };
 
-    this.createModalComponent(document, JsonPathPickerModal, {
-      name: 'World',
-      open: true,
+    this.createStaticContainerComponent(document, JsonPathPickerModal, {
+      forceRefresh: Math.random(),
       json,
-      onChoose: onChoosePath,
       path,
+      onChoose: onChoosePath,
     });
-    // this.renderReactComponent(JsonPathPickerModal, {
-    //   name: 'World',
-    // });
   }
 }
 
