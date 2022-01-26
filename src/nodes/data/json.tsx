@@ -1,32 +1,70 @@
 /* eslint-disable prettier/prettier */
-import React, { useEffect } from 'react';
-import { Box, Modal, ThemeProvider, createTheme } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import Draggable from 'react-draggable';
+import {
+  Box,
+  Icon,
+  Paper,
+  ThemeProvider,
+  ToggleButton,
+  ToggleButtonGroup,
+  createTheme,
+} from '@mui/material';
 import Color from 'color';
 import { JsonPathPicker } from '../../components/JsonPathPicker';
 import PureNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
 import { darkThemeOverride } from '../../utils/customTheme';
-import { SOCKET_TYPE } from '../../utils/constants';
+import {
+  DRAWER60M_ICON,
+  DRAWER30M_ICON,
+  SOCKET_TYPE,
+} from '../../utils/constants';
 import { queryJSON } from '../../utils/utils';
 import { JSONType } from '../datatypes/jsonType';
 import { StringType } from '../datatypes/stringType';
 import { TriggerType } from '../datatypes/triggerType';
+import styles from '../../utils/style.module.css';
 
 const JSONName = 'JSON';
 const JSONParamName = 'Name 1';
 const outValueName = 'Value';
 
+function PaperComponent(props) {
+  return (
+    <Draggable
+      handle="#draggable-title"
+      cancel={'[id=draggable-content]'}
+      key={`${props.socketinfo?.parent.id}.${props.socketinfo?.name}`}
+    >
+      <Paper {...props} />
+    </Draggable>
+  );
+}
+
 function JsonPathPickerModal(props) {
-  const [open, setOpen] = React.useState(true);
-  console.log(props, props.randomMainColor);
+  const [open, setOpen] = useState(true);
+  const [newWidth, setNewWidth] = useState(undefined);
 
   const handleClose = () => {
     setOpen(false);
   };
 
+  const handleChoosePath = (path: string): void => {
+    props.onChoose(path);
+    handleClose();
+  };
+
   useEffect(() => {
     setOpen(true);
   }, [props.forceRefresh]);
+
+  const handleWidthPercentage = (
+    event: React.MouseEvent<HTMLElement>,
+    newWidth: number | null
+  ) => {
+    setNewWidth(newWidth);
+  };
 
   return (
     <ThemeProvider
@@ -41,33 +79,95 @@ function JsonPathPickerModal(props) {
         },
       })}
     >
-      <Modal
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
-      >
+      {open && (
         <Box
           sx={{
-            position: 'absolute' as const,
+            position: 'absolute',
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            width: '60vw',
-            height: '80vh',
-            overflow: 'auto',
-            bgcolor: 'background.default',
-            boxShadow: 24,
-            p: 4,
+            zIndex: 2000,
           }}
         >
-          <JsonPathPicker
-            json={props.json}
-            onChoose={props.onChoose}
-            path={props.path}
-          />
+          <PaperComponent
+            elevation={8}
+            sx={{
+              width: newWidth ? newWidth : '60vw',
+              height: '80vh',
+              // bgcolor: 'background.default',
+              boxShadow: 24,
+              display: 'flex',
+              flexDirection: 'column',
+            }}
+            socketinfo={props.socketInfo}
+          >
+            <Box
+              id="draggable-title"
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                cursor: 'move',
+                fontSize: 'small',
+              }}
+            >
+              <Box
+                sx={{
+                  px: '8px',
+                  py: '4px',
+                  color: 'text.primary',
+                  fontWeight: 'medium',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                }}
+              >
+                {props.socketInfo?.parent.name}.{props.socketInfo?.name}
+              </Box>
+              <Box
+                sx={{
+                  flexGrow: 1,
+                }}
+              >
+                {/* <IconButton size="small" onClick={copyDataToClipBoard}>
+                <ContentCopyIcon sx={{ fontSize: '16px' }} />
+              </IconButton> */}
+              </Box>
+              <ToggleButtonGroup
+                value={newWidth}
+                exclusive
+                onChange={handleWidthPercentage}
+                size="small"
+                sx={{
+                  '& .MuiToggleButtonGroup-grouped': {
+                    border: 0,
+                  },
+                }}
+              >
+                <ToggleButton value="0.3">
+                  <Icon classes={{ root: styles.iconRoot }}>
+                    <img className={styles.imageIcon} src={DRAWER30M_ICON} />
+                  </Icon>
+                </ToggleButton>
+                <ToggleButton value="0.6">
+                  <Icon classes={{ root: styles.iconRoot }}>
+                    <img className={styles.imageIcon} src={DRAWER60M_ICON} />
+                  </Icon>
+                </ToggleButton>
+              </ToggleButtonGroup>
+            </Box>
+            <Box
+              id="draggable-content"
+              sx={{ overflow: 'auto', bgcolor: 'background.default' }}
+            >
+              <JsonPathPicker
+                json={props.json}
+                onChoose={handleChoosePath}
+                path={props.path}
+              />
+            </Box>
+          </PaperComponent>
         </Box>
-      </Modal>
+      )}
     </ThemeProvider>
   );
 }
@@ -117,7 +217,10 @@ export class JSONGet extends PureNode {
   trigger(): void {
     const json = this.getInputData(JSONName) ?? '';
     const path = this.getInputData(JSONParamName) ?? '';
-
+    const inputPathArray = this.inputSocketArray
+      .filter((input) => input.name.includes('Name'))
+      .map((input) => input.name);
+    console.log(inputPathArray);
     const onChoosePath = (path: string): void => {
       this.setInputData(JSONParamName, path);
       this.execute(new Set());
@@ -128,6 +231,7 @@ export class JSONGet extends PureNode {
       json,
       path,
       onChoose: onChoosePath,
+      inputPathArray,
     });
   }
 }
