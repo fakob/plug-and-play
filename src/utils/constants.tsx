@@ -33,6 +33,8 @@ export const COLOR_DARK = '#0C0C0C';
 export const COLOR_WHITE_TEXT = '#F4FAF9';
 export const WHITE_HEX = 0xffffff;
 
+export const RANDOMMAINCOLOR = COLOR[Math.floor(Math.random() * COLOR.length)];
+
 export const PLUGANDPLAY_ICON = '../assets/PlugAndPlayIcon-transparent.svg';
 export const DRAWER30_ICON = '../assets/Drawer30_Icon.svg';
 export const DRAWER50_ICON = '../assets/Drawer50_Icon.svg';

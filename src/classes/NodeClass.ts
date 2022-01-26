@@ -10,6 +10,7 @@ import styles from '../utils/style.module.css';
 import { CustomArgs, SerializedNode } from '../utils/interfaces';
 import {
   COMMENT_TEXTSTYLE,
+  RANDOMMAINCOLOR,
   NODE_TYPE_COLOR,
   NODE_CORNERRADIUS,
   NODE_HEADER_HEIGHT,
@@ -719,7 +720,14 @@ export default class PPNode extends PIXI.Container {
     }
     console.dir(this.static, this.static.childNodes);
     // render react component
-    this.renderReactComponent(reactParent, reactProps, this.static);
+    this.renderReactComponent(
+      reactParent,
+      {
+        ...reactProps,
+        randomMainColor: RANDOMMAINCOLOR,
+      },
+      this.static
+    );
 
     return this.static;
   }
@@ -773,7 +781,10 @@ export default class PPNode extends PIXI.Container {
     };
 
     // render react component
-    this.renderReactComponent(reactParent, reactProps);
+    this.renderReactComponent(reactParent, {
+      ...reactProps,
+      randomMainColor: RANDOMMAINCOLOR,
+    });
 
     return this.container;
   }

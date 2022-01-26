@@ -1,11 +1,10 @@
 /* eslint-disable prettier/prettier */
 import React, { useEffect } from 'react';
 import { Box, Modal, ThemeProvider, createTheme } from '@mui/material';
+import Color from 'color';
 import { JsonPathPicker } from '../../components/JsonPathPicker';
-import PPGraph from '../../classes/GraphClass';
 import PureNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
-import { CustomArgs } from '../../utils/interfaces';
 import { darkThemeOverride } from '../../utils/customTheme';
 import { SOCKET_TYPE } from '../../utils/constants';
 import { queryJSON } from '../../utils/utils';
@@ -19,6 +18,7 @@ const outValueName = 'Value';
 
 function JsonPathPickerModal(props) {
   const [open, setOpen] = React.useState(true);
+  console.log(props, props.randomMainColor);
 
   const handleClose = () => {
     setOpen(false);
@@ -29,7 +29,18 @@ function JsonPathPickerModal(props) {
   }, [props.forceRefresh]);
 
   return (
-    <ThemeProvider theme={createTheme(darkThemeOverride)}>
+    <ThemeProvider
+      theme={createTheme(darkThemeOverride, {
+        palette: {
+          primary: { main: props.randomMainColor },
+          secondary: { main: `${Color(props.randomMainColor).lighten(0.85)}` },
+          background: {
+            default: `${Color(props.randomMainColor).darken(0.85)}`,
+            paper: `${Color(props.randomMainColor).darken(0.1)}`,
+          },
+        },
+      })}
+    >
       <Modal
         open={open}
         onClose={handleClose}
@@ -45,7 +56,7 @@ function JsonPathPickerModal(props) {
             width: '60vw',
             height: '80vh',
             overflow: 'auto',
-            bgcolor: 'background.paper',
+            bgcolor: 'background.default',
             boxShadow: 24,
             p: 4,
           }}

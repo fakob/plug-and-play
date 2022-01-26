@@ -4,6 +4,7 @@ import { Node } from 'slate';
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
 import {
+  COLOR,
   NODE_PADDING_TOP,
   NODE_HEADER_HEIGHT,
   SOCKET_TEXTMARGIN_TOP,

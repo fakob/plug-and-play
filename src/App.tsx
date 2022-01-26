@@ -46,9 +46,9 @@ import { GraphContextMenu, NodeContextMenu } from './components/ContextMenus';
 import { GraphDatabase } from './utils/indexedDB';
 import PPGraph from './classes/GraphClass';
 import {
+  RANDOMMAINCOLOR,
   CANVAS_BACKGROUND_ALPHA,
   CANVAS_BACKGROUND_TEXTURE,
-  COLOR,
   PLUGANDPLAY_ICON,
 } from './utils/constants';
 import { IGraphSearch, INodeSearch } from './utils/interfaces';
@@ -80,9 +80,8 @@ const isMac = navigator.platform.indexOf('Mac') != -1;
 const controlOrMetaKey = isMac ? '⌘' : 'Ctrl';
 console.log('isMac: ', isMac);
 
-const randomMainColor = COLOR[Math.floor(Math.random() * COLOR.length)];
 const randomMainColorLightHex = PIXI.utils.string2hex(
-  Color(randomMainColor).mix(Color('white'), 0.9).hex()
+  Color(RANDOMMAINCOLOR).mix(Color('white'), 0.9).hex()
 );
 
 const App = (): JSX.Element => {
@@ -215,7 +214,7 @@ const App = (): JSX.Element => {
         : {}),
       ...(isDragAccept
         ? {
-            backgroundColor: randomMainColor,
+            backgroundColor: RANDOMMAINCOLOR,
             opacity: 0.5,
           }
         : {}),
@@ -1065,7 +1064,7 @@ NOTE: opening a remote playground creates a local copy`
       <ThemeProvider
         theme={createTheme(theme, {
           palette: {
-            primary: { main: randomMainColor },
+            primary: { main: RANDOMMAINCOLOR },
           },
         })}
       >
@@ -1152,7 +1151,7 @@ NOTE: opening a remote playground creates a local copy`
               <FloatingSocketInspector
                 socketInfoPosition={socketInfoPosition}
                 socketInfo={socketInfo}
-                randomMainColor={randomMainColor}
+                randomMainColor={RANDOMMAINCOLOR}
               />
             )}
             {isGraphContextMenuOpen && (
@@ -1192,7 +1191,7 @@ NOTE: opening a remote playground creates a local copy`
                   : false
               }
               onSave={createOrUpdateNodeFromCode}
-              randomMainColor={randomMainColor}
+              randomMainColor={RANDOMMAINCOLOR}
             />
             {selectedNodes.length > 0 && selectionPos && (
               <FloatingNodeMenu
@@ -1207,7 +1206,7 @@ NOTE: opening a remote playground creates a local copy`
             <img
               className={styles.plugAndPlaygroundIcon}
               style={{
-                backgroundColor: randomMainColor,
+                backgroundColor: RANDOMMAINCOLOR,
               }}
               src={PLUGANDPLAY_ICON}
               onClick={() => {
@@ -1241,7 +1240,7 @@ NOTE: opening a remote playground creates a local copy`
                     <GraphSearchInput
                       {...props}
                       inputRef={graphSearchInput}
-                      randommaincolor={randomMainColor}
+                      randommaincolor={RANDOMMAINCOLOR}
                     />
                   )}
                 />
@@ -1274,7 +1273,7 @@ NOTE: opening a remote playground creates a local copy`
                       <NodeSearchInput
                         {...props}
                         inputRef={nodeSearchInput}
-                        randommaincolor={randomMainColor}
+                        randommaincolor={RANDOMMAINCOLOR}
                       />
                     )}
                   />
