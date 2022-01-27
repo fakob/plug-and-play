@@ -35,42 +35,136 @@ const JSONName = 'JSON';
 const JSONParamName = 'Name 1';
 const outValueName = 'Value';
 
-function BasicModal() {
-  const [open, setOpen] = React.useState(false);
+function FloatingJsonPathPicker(props) {
+  const [open, setOpen] = useState(false);
+  const [newWidth, setNewWidth] = useState(undefined);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
+  const node: PureNode = props.selectedNode;
+  const json =
+    node?.inputSocketArray.find((socket) => {
+      return socket.name === props.jsonSocketName;
+    })?.data ?? '';
+  const path =
+    node?.inputSocketArray.find((socket) => {
+      return socket.name === props.jsonPathSocketName;
+    })?.data ?? '';
+
+  console.log(json, path, props.jsonPathSocketName);
+
+  const handleChoosePath = (path: string): void => {
+    node.setInputData(props.jsonPathSocketName, path);
+    node.execute(new Set());
+    handleClose();
+  };
+
+  const handleWidthPercentage = (
+    event: React.MouseEvent<HTMLElement>,
+    newWidth: number | null
+  ) => {
+    setNewWidth(newWidth);
+  };
+
   return (
-    <div>
-      <Button onClick={handleOpen}>Open modal</Button>
-      <Modal
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
-      >
+    <ThemeProvider
+      theme={createTheme(darkThemeOverride, {
+        palette: {
+          primary: { main: props.randomMainColor },
+          secondary: { main: `${Color(props.randomMainColor).lighten(0.85)}` },
+          background: {
+            default: `${Color(props.randomMainColor).darken(0.85)}`,
+            paper: `${Color(props.randomMainColor).darken(0.1)}`,
+          },
+        },
+      })}
+    >
+      <Button onClick={handleOpen}>Open Picker</Button>
+      <Modal open={open} onClose={handleClose}>
         <Box
           sx={{
             position: 'absolute',
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            width: 400,
+            width: newWidth ? newWidth : '0.6',
+            height: '80vh',
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'auto',
             bgcolor: 'background.paper',
-            border: '2px solid #000',
             boxShadow: 24,
-            p: 4,
           }}
         >
-          <Typography id="modal-modal-title" variant="h6" component="h2">
-            Text in a modal
-          </Typography>
-          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-            Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
-          </Typography>
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              cursor: 'move',
+              fontSize: 'small',
+            }}
+          >
+            <Box
+              sx={{
+                px: '8px',
+                py: '4px',
+                color: 'text.primary',
+                fontWeight: 'medium',
+                display: 'inline-flex',
+                alignItems: 'center',
+              }}
+            >
+              {props.inputPathArray?.[0]}
+            </Box>
+            <Box
+              sx={{
+                flexGrow: 1,
+              }}
+            >
+              {/* <IconButton size="small" onClick={copyDataToClipBoard}>
+                  <ContentCopyIcon sx={{ fontSize: '16px' }} />
+                </IconButton> */}
+            </Box>
+            <ToggleButtonGroup
+              value={newWidth}
+              exclusive
+              onChange={handleWidthPercentage}
+              size="small"
+              sx={{
+                '& .MuiToggleButtonGroup-grouped': {
+                  border: 0,
+                },
+              }}
+            >
+              <ToggleButton value="0.3">
+                <Icon classes={{ root: styles.iconRoot }}>
+                  <img className={styles.imageIcon} src={DRAWER30M_ICON} />
+                </Icon>
+              </ToggleButton>
+              <ToggleButton value="0.6">
+                <Icon classes={{ root: styles.iconRoot }}>
+                  <img className={styles.imageIcon} src={DRAWER60M_ICON} />
+                </Icon>
+              </ToggleButton>
+            </ToggleButtonGroup>
+            <IconButton size="small" onClick={handleClose}>
+              <CloseIcon sx={{ fontSize: '16px' }} />
+            </IconButton>
+          </Box>
+          <Box
+            id="draggable-content"
+            sx={{ overflow: 'auto', bgcolor: 'background.default' }}
+          >
+            <JsonPathPicker
+              json={json}
+              onChoose={handleChoosePath}
+              path={path}
+            />
+          </Box>
         </Box>
       </Modal>
-    </div>
+    </ThemeProvider>
   );
 }
 
@@ -86,16 +180,29 @@ function PaperComponent(props) {
   );
 }
 
-function FloatingJsonPathPicker(props) {
+function FloatingJsonPathPicker2(props) {
   const [open, setOpen] = useState(true);
   const [newWidth, setNewWidth] = useState(undefined);
+
+  const node: PureNode = props.selectedNode;
+  const json =
+    node?.inputSocketArray.find((socket) => {
+      return socket.name === props.jsonSocketName;
+    })?.data ?? '';
+  const path =
+    node?.inputSocketArray.find((socket) => {
+      return socket.name === props.jsonPathSocketName;
+    })?.data ?? '';
+
+  console.log(json, path, props.jsonPathSocketName);
 
   const handleClose = () => {
     setOpen(false);
   };
 
   const handleChoosePath = (path: string): void => {
-    props.onChoose(path);
+    node.setInputData(props.jsonPathSocketName, path);
+    node.execute(new Set());
     handleClose();
   };
 
@@ -207,9 +314,9 @@ function FloatingJsonPathPicker(props) {
               sx={{ overflow: 'auto', bgcolor: 'background.default' }}
             >
               <JsonPathPicker
-                json={props.json}
+                json={json}
                 onChoose={handleChoosePath}
-                path={props.path}
+                path={path}
               />
             </Box>
           </PaperComponent>
@@ -229,15 +336,16 @@ export class JSONGet extends PureNode {
         new StringType(),
         undefined,
         undefined,
-        // { inspectorAction: FloatingJsonPathPicker }
-        { inspectorAction: BasicModal }
-      ),
-      new Socket(
-        SOCKET_TYPE.IN,
-        'OpenPathPicker',
-        new TriggerType(),
-        undefined,
-        false
+        {
+          inspectorInjection: {
+            reactComponent: FloatingJsonPathPicker,
+            props: {
+              jsonSocketName: JSONName,
+              jsonPathSocketName: JSONParamName,
+              forceRefresh: Math.random(),
+            },
+          },
+        }
       ),
       new Socket(SOCKET_TYPE.OUT, outValueName, new JSONType()),
     ];
@@ -263,30 +371,16 @@ export class JSONGet extends PureNode {
   }
 
   public addDefaultInput(): void {
-    this.addInput(
-      this.constructSocketName('Name', this.inputSocketArray),
-      new StringType()
-    );
-  }
-
-  trigger(): void {
-    const json = this.getInputData(JSONName) ?? '';
-    const path = this.getInputData(JSONParamName) ?? '';
-    const inputPathArray = this.inputSocketArray
-      .filter((input) => input.name.includes('Name'))
-      .map((input) => input.name);
-    console.log(inputPathArray);
-    const onChoosePath = (path: string): void => {
-      this.setInputData(JSONParamName, path);
-      this.execute(new Set());
-    };
-
-    this.createStaticContainerComponent(document, FloatingJsonPathPicker, {
-      forceRefresh: Math.random(),
-      json,
-      path,
-      onChoose: onChoosePath,
-      inputPathArray,
+    const newName = this.constructSocketName('Name', this.inputSocketArray);
+    this.addInput(newName, new StringType(), undefined, undefined, {
+      inspectorInjection: {
+        reactComponent: FloatingJsonPathPicker,
+        props: {
+          jsonSocketName: JSONName,
+          jsonPathSocketName: newName,
+          forceRefresh: Math.random(),
+        },
+      },
     });
   }
 }

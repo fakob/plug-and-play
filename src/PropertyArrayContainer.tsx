@@ -101,6 +101,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
                   hasLink={property.hasLink()}
                   data={property.data}
                   randomMainColor={props.randomMainColor}
+                  selectedNode={props.selectedNode}
                 />
               );
             })}
@@ -144,6 +145,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
                   hasLink={property.hasLink()}
                   data={property.data}
                   randomMainColor={props.randomMainColor}
+                  selectedNode={props.selectedNode}
                 />
               );
             })}
@@ -163,6 +165,7 @@ type PropertyContainerProps = {
   data: any;
   randomMainColor: string;
   showHeader?: boolean;
+  selectedNode?: PPNode;
 };
 
 export const PropertyContainer: React.FunctionComponent<
@@ -192,23 +195,13 @@ export const PropertyContainer: React.FunctionComponent<
     setDataTypeValue(entry);
   };
 
-  const onChoosePath = (path: string): void => {
-    console.log(path);
-    // this.setInputData(JSONParamName, path);
-    // this.execute(new Set());
+  const CustomSocketInjection = ({ InjectionContent, props }) => {
+    console.log(props);
+
+    return <InjectionContent {...props} />;
   };
 
-  const CustomSocketInjection = ({ InjectionContent }) => {
-    return (
-      <InjectionContent
-        forceRefresh={Math.random()}
-        json={props.property.data}
-        path={props.property.data}
-        onChoose={onChoosePath}
-        // inputName={}
-      />
-    );
-  };
+  console.log(props);
 
   return (
     <Box sx={{ bgcolor: 'background.default' }}>
@@ -232,9 +225,16 @@ export const PropertyContainer: React.FunctionComponent<
         }}
         className={styles.propertyContainerContent}
       >
-        {props.property.custom?.inspectorAction && (
+        {props.property.custom?.inspectorInjection && (
           <CustomSocketInjection
-            InjectionContent={props.property.custom?.inspectorAction}
+            InjectionContent={
+              props.property.custom?.inspectorInjection?.reactComponent
+            }
+            props={{
+              ...props.property.custom?.inspectorInjection?.props,
+              randomMainColor: props.randomMainColor,
+              selectedNode: props.selectedNode,
+            }}
           />
         )}
         {widget}
