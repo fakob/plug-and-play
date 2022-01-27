@@ -179,7 +179,6 @@ export const PropertyContainer: React.FunctionComponent<
     data: props.data,
     randomMainColor: props.randomMainColor,
   };
-
   // const widget = dataTypeValue.getInputWidget(baseProps);
   const widget = props.isInput
     ? dataTypeValue.getInputWidget(baseProps)
@@ -191,6 +190,24 @@ export const PropertyContainer: React.FunctionComponent<
     console.log(myValue, entry);
     props.property.dataType = entry;
     setDataTypeValue(entry);
+  };
+
+  const onChoosePath = (path: string): void => {
+    console.log(path);
+    // this.setInputData(JSONParamName, path);
+    // this.execute(new Set());
+  };
+
+  const CustomSocketInjection = ({ InjectionContent }) => {
+    return (
+      <InjectionContent
+        forceRefresh={Math.random()}
+        json={props.property.data}
+        path={props.property.data}
+        onChoose={onChoosePath}
+        // inputName={}
+      />
+    );
   };
 
   return (
@@ -215,6 +232,11 @@ export const PropertyContainer: React.FunctionComponent<
         }}
         className={styles.propertyContainerContent}
       >
+        {props.property.custom?.inspectorAction && (
+          <CustomSocketInjection
+            InjectionContent={props.property.custom?.inspectorAction}
+          />
+        )}
         {widget}
       </Box>
     </Box>

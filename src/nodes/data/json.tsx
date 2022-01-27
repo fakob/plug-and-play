@@ -3,12 +3,15 @@ import React, { useEffect, useState } from 'react';
 import Draggable from 'react-draggable';
 import {
   Box,
+  Button,
   Icon,
   IconButton,
+  Modal,
   Paper,
   ThemeProvider,
   ToggleButton,
   ToggleButtonGroup,
+  Typography,
   createTheme,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
@@ -32,6 +35,45 @@ const JSONName = 'JSON';
 const JSONParamName = 'Name 1';
 const outValueName = 'Value';
 
+function BasicModal() {
+  const [open, setOpen] = React.useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+
+  return (
+    <div>
+      <Button onClick={handleOpen}>Open modal</Button>
+      <Modal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: 400,
+            bgcolor: 'background.paper',
+            border: '2px solid #000',
+            boxShadow: 24,
+            p: 4,
+          }}
+        >
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            Text in a modal
+          </Typography>
+          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+            Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
+          </Typography>
+        </Box>
+      </Modal>
+    </div>
+  );
+}
+
 function PaperComponent(props) {
   return (
     <Draggable
@@ -44,7 +86,7 @@ function PaperComponent(props) {
   );
 }
 
-function JsonPathPickerModal(props) {
+function FloatingJsonPathPicker(props) {
   const [open, setOpen] = useState(true);
   const [newWidth, setNewWidth] = useState(undefined);
 
@@ -181,7 +223,15 @@ export class JSONGet extends PureNode {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, JSONName, new JSONType()),
-      new Socket(SOCKET_TYPE.IN, JSONParamName, new StringType()),
+      new Socket(
+        SOCKET_TYPE.IN,
+        JSONParamName,
+        new StringType(),
+        undefined,
+        undefined,
+        // { inspectorAction: FloatingJsonPathPicker }
+        { inspectorAction: BasicModal }
+      ),
       new Socket(
         SOCKET_TYPE.IN,
         'OpenPathPicker',
@@ -231,7 +281,7 @@ export class JSONGet extends PureNode {
       this.execute(new Set());
     };
 
-    this.createStaticContainerComponent(document, JsonPathPickerModal, {
+    this.createStaticContainerComponent(document, FloatingJsonPathPicker, {
       forceRefresh: Math.random(),
       json,
       path,
