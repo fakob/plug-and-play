@@ -201,8 +201,6 @@ export const PropertyContainer: React.FunctionComponent<
     return <InjectionContent {...props} />;
   };
 
-  console.log(props);
-
   return (
     <Box sx={{ bgcolor: 'background.default' }}>
       {showHeader && (

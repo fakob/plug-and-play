@@ -251,7 +251,6 @@ export default class Socket extends PIXI.Container {
       dataType: serializeType(this.dataType),
       data,
       visible: this.visible,
-      // custom: this.custom,
     };
   }
 

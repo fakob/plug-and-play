@@ -367,15 +367,13 @@ export default class PPNode extends PIXI.Container {
         )),
           (this.inputSocketArray[index].data = item.data);
         this.inputSocketArray[index].setVisible(item.visible ?? true);
-        this.inputSocketArray[index].custom = item.custom;
       } else {
         // add socket if it does not exist yet
         this.addInput(
           item.name,
           deSerializeType(item.dataType),
           item.data,
-          item.visible ?? true,
-          item.custom === undefined ? {} : { ...item.custom }
+          item.visible ?? true
         );
       }
     });
@@ -387,14 +385,12 @@ export default class PPNode extends PIXI.Container {
         this.outputSocketArray[index].setName(item.name);
         this.outputSocketArray[index].dataType = deSerializeType(item.dataType);
         this.outputSocketArray[index].setVisible(item.visible ?? true);
-        this.outputSocketArray[index].custom = item.custom;
       } else {
         // add socket if it does not exist
         this.addOutput(
           item.name,
           deSerializeType(item.dataType),
-          item.visible ?? true,
-          item.custom
+          item.visible ?? true
         );
       }
     });
