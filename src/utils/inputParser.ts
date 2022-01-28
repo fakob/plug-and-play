@@ -1,5 +1,6 @@
 /* eslint-disable prettier/prettier */
 import PPGraph from '../classes/GraphClass';
+import { isEventNotComingFromWithinTextInput } from './utils';
 
 // if it is a mac use the "Cmd" key instead of "Ctrl"
 const isMac = navigator.platform.indexOf('Mac') != -1;
@@ -52,13 +53,7 @@ class deleteNodeAction extends Hotkey {
   potentiallyExecute(currPressed, allPressed, graph): boolean {
     if (currPressed.key === 'Backspace' || currPressed.key === 'Delete') {
       console.log(currPressed, currPressed.localName);
-      if (
-        currPressed.target.dataset.slateEditor === undefined &&
-        currPressed.target.id !== 'Input' &&
-        currPressed.target.localName !== 'input' &&
-        currPressed.target.localName !== 'textarea' &&
-        !currPressed.target.className.includes('cm-content')
-      ) {
+      if (isEventNotComingFromWithinTextInput(currPressed)) {
         graph.deleteSelectedNodes();
       }
       return true;

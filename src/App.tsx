@@ -59,6 +59,7 @@ import {
   getLoadedGraphId,
   getRemoteGraph,
   getRemoteGraphsList,
+  isEventNotComingFromWithinTextInput,
   removeExtension,
   useStateRef,
 } from './utils/utils';
@@ -434,8 +435,10 @@ const App = (): JSX.Element => {
         viewport.current.cursor = 'default';
       }
       if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'a') {
-        e.preventDefault();
-        currentGraph.current.selection.selectAllNodes();
+        if (isEventNotComingFromWithinTextInput(e)) {
+          e.preventDefault();
+          currentGraph.current.selection.selectAllNodes();
+        }
       }
       if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'o') {
         e.preventDefault();
