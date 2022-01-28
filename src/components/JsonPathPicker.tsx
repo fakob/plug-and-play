@@ -240,7 +240,8 @@ function renderObject(
   const length = keys.length;
   if (length > 0) {
     return (
-      <div className={relation == 1 ? 'json-picked_tree' : ''}>
+      // <div className={relation == 1 ? 'json-picked_tree' : ''}>
+      <div className={'json-picked_tree'}>
         <div>
           <span data-pathkey={pathKey} className={getPickerStyle(relation)}>
             {'{'}
