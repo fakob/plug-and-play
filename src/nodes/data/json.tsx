@@ -74,6 +74,12 @@ function FloatingJsonPathPicker(props) {
       })}
     >
       <Button onClick={handleOpen}>Open Picker</Button>
+      <Button
+        href="https://jsonpath-plus.github.io/JSONPath/docs/ts/"
+        target="_blank"
+      >
+        Help
+      </Button>
       <Modal open={open} onClose={handleClose}>
         <Box
           sx={{

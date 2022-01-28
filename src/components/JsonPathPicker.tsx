@@ -265,9 +265,8 @@ function renderObject(
         </ul>
         <div>
           <span data-pathkey={pathKey} className={getPickerStyle(relation)}>
-            {'}'}
+            {isLast ? '}' : '},'}
           </span>
-          {isLast ? '' : ','}
         </div>
       </div>
     );
@@ -277,10 +276,7 @@ function renderObject(
         <i data-pathkey={pathKey} className={getPickerStyle(relation)}>
           █
         </i>
-        <span>
-          {'{ }'}
-          {isLast ? '' : ','}
-        </span>
+        <span>{isLast ? '{ }' : '{ },'}</span>
       </span>
     );
   }
@@ -329,10 +325,7 @@ function renderArray(
             );
           })}
         </ol>
-        <div>
-          {']'}
-          {isLast ? '' : ','}
-        </div>
+        <div>{isLast ? ']' : '],'}</div>
       </div>
     );
   } else {
@@ -341,10 +334,7 @@ function renderArray(
         <i data-pathkey={pathKey} className={getPickerStyle(relation)}>
           █
         </i>
-        <span>
-          {'[ ]'}
-          {isLast ? '' : ','}
-        </span>
+        <span>{isLast ? '[ ]' : '[ ],'}</span>
       </span>
     );
   }
@@ -358,11 +348,10 @@ function renderArray(
  */
 function getRelationship(choosenPath: string, path: string): number {
   if (choosenPath === null) return 0;
-  console.log(choosenPath, path);
-  const choosenAttrs = parsePath(choosenPath);
+  const choosenAttrs = choosenPath.split('.');
   const choosenLen = choosenAttrs.length;
 
-  const nowAttrs = parsePath(path);
+  const nowAttrs = path.split('.');
   const nowLen = nowAttrs.length;
 
   if (nowLen > choosenLen) return 0;
