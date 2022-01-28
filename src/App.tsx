@@ -133,9 +133,11 @@ const App = (): JSX.Element => {
   const [drawerWidth, setDrawerWidth] = useState(defaultDrawerWidth);
 
   // socket info
-  const [socketInfoPosition, setSocketInfoPosition] =
+  const [socketInspectorPosition, setSocketInspectorPosition] =
     useState<PIXI.Point | null>(null);
-  const [socketInfo, setSocketInfo] = useState<PPSocket | undefined>(undefined);
+  const [socketToInspect, setSocketToInspect] = useState<PPSocket | undefined>(
+    undefined
+  );
 
   let lastTimeTicked = 0;
 
@@ -375,11 +377,11 @@ const App = (): JSX.Element => {
       openNodeSearch(pos);
     };
 
-    currentGraph.current.onOpenSocketInfo = (
+    currentGraph.current.onOpenSocketInspector = (
       pos: PIXI.Point,
       socket: PPSocket
     ) => {
-      openSocketInfo(pos, socket);
+      openSocketInspector(pos, socket);
     };
 
     currentGraph.current.onRightClick = (
@@ -787,10 +789,10 @@ const App = (): JSX.Element => {
     setIsNodeSearchVisible(true);
   };
 
-  const openSocketInfo = (pos = null, socket = null) => {
-    console.log('openSocketInfo', pos, socket);
-    setSocketInfoPosition(pos);
-    setSocketInfo(socket);
+  const openSocketInspector = (pos = null, socket = null) => {
+    console.log('openSocketInspector', pos, socket);
+    setSocketInspectorPosition(pos);
+    setSocketToInspect(socket);
   };
 
   const nodeSearchInputBlurred = () => {
@@ -1150,10 +1152,10 @@ NOTE: opening a remote playground creates a local copy`
                 </DialogActions>
               </form>
             </Dialog>
-            {socketInfo && (
+            {socketToInspect && (
               <FloatingSocketInspector
-                socketInfoPosition={socketInfoPosition}
-                socketInfo={socketInfo}
+                socketInspectorPosition={socketInspectorPosition}
+                socketToInspect={socketToInspect}
                 randomMainColor={RANDOMMAINCOLOR}
               />
             )}

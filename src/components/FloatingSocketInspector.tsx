@@ -13,6 +13,7 @@ import {
 } from '@mui/material';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import Draggable from 'react-draggable';
+import PPNode from '../classes/NodeClass';
 import Socket from '../classes/SocketClass';
 import { DRAWER60M_ICON, DRAWER30M_ICON } from './../utils/constants';
 import { getCircularReplacer, updateClipboard } from './../utils/utils';
@@ -33,15 +34,15 @@ function PaperComponent(props) {
 }
 
 type MyProps = {
-  socketInfoPosition: PIXI.Point;
-  socketInfo: Socket;
+  socketInspectorPosition: PIXI.Point;
+  socketToInspect: Socket;
   randomMainColor: string;
 };
 
 export const FloatingSocketInspector: React.FunctionComponent<MyProps> = (
   props
 ) => {
-  const showFloatingSocketInspector = Boolean(props.socketInfoPosition);
+  const showFloatingSocketInspector = Boolean(props.socketInspectorPosition);
   const [newWidth, setNewWidth] = useState(undefined);
 
   const handleWidthPercentage = (
@@ -53,9 +54,12 @@ export const FloatingSocketInspector: React.FunctionComponent<MyProps> = (
 
   const copyDataToClipBoard = (): void => {
     updateClipboard(
-      JSON.stringify(props.socketInfo?.data, getCircularReplacer(), 2) || ''
+      JSON.stringify(props.socketToInspect?.data, getCircularReplacer(), 2) ||
+        ''
     );
   };
+
+  console.log(props.socketToInspect);
 
   return (
     <ThemeProvider
@@ -74,12 +78,12 @@ export const FloatingSocketInspector: React.FunctionComponent<MyProps> = (
         className={styles.floatingSocketInspector}
         elevation={8}
         sx={{
-          left: props.socketInfoPosition?.x + 32,
-          top: props.socketInfoPosition?.y,
+          left: props.socketInspectorPosition?.x + 32,
+          top: props.socketInspectorPosition?.y,
           display: showFloatingSocketInspector ? 'auto' : 'none',
           width: newWidth ? newWidth : 'undefined',
         }}
-        socketinfo={props.socketInfo}
+        socketinfo={props.socketToInspect}
       >
         <Box
           id="draggable-title"
@@ -101,7 +105,7 @@ export const FloatingSocketInspector: React.FunctionComponent<MyProps> = (
               alignItems: 'center',
             }}
           >
-            {props.socketInfo?.parent.name}.{props.socketInfo?.name}
+            {props.socketToInspect?.parent.name}.{props.socketToInspect?.name}
           </Box>
           <Box
             sx={{
@@ -138,14 +142,15 @@ export const FloatingSocketInspector: React.FunctionComponent<MyProps> = (
         <Box id="draggable-content">
           <PropertyContainer
             key={0}
-            property={props.socketInfo}
+            property={props.socketToInspect}
             index={0}
-            dataType={props.socketInfo?.dataType}
-            isInput={props.socketInfo?.isInput()}
-            hasLink={props.socketInfo?.hasLink()}
-            data={props.socketInfo?.data}
+            dataType={props.socketToInspect?.dataType}
+            isInput={props.socketToInspect?.isInput()}
+            hasLink={props.socketToInspect?.hasLink()}
+            data={props.socketToInspect?.data}
             randomMainColor={props.randomMainColor}
             showHeader={false}
+            selectedNode={props.socketToInspect.parent as PPNode}
           />
         </Box>
       </PaperComponent>

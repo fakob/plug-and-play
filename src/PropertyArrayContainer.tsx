@@ -165,7 +165,7 @@ type PropertyContainerProps = {
   data: any;
   randomMainColor: string;
   showHeader?: boolean;
-  selectedNode?: PPNode;
+  selectedNode: PPNode;
 };
 
 export const PropertyContainer: React.FunctionComponent<

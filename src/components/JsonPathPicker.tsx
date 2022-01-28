@@ -32,7 +32,7 @@ export class JsonPathPicker extends React.PureComponent<P, unknown> {
         const tmp = parsePath(this.props.path);
         const idx = parsePath(pathKey).length;
         console.log(tmp, idx);
-        tmp[idx] = '[*]';
+        tmp[idx] = '*';
         choosenPath = tmp.join('');
       } else {
         choosenPath = pathKey;
@@ -45,7 +45,7 @@ export class JsonPathPicker extends React.PureComponent<P, unknown> {
   render() {
     let jsonObj: any;
     try {
-      console.log(this.props.json);
+      // console.log(this.props.json);
       switch (typeof this.props.json) {
         case 'string':
           jsonObj = JSON.parse(this.props.json);
@@ -248,7 +248,7 @@ function renderObject(
         </div>
         <ul className="json-dict">
           {keys.map((key, idx) => {
-            const nextPathKey = `${pathKey}["${key}"]`;
+            const nextPathKey = pathKey === '' ? `${key}` : `${pathKey}.${key}`;
             return (
               <li key={nextPathKey}>
                 <span className="json-literal json-key">{key}</span>
@@ -315,7 +315,8 @@ function renderArray(
         </div>
         <ol className="json-array">
           {arr.map((value, idx) => {
-            const nextPathKey = `${pathKey}[${idx}]`;
+            const nextPathKey =
+              pathKey === '' ? `${idx}` : `${pathKey}.[${idx}]`;
             return (
               <li key={nextPathKey}>
                 {json2Jsx(
@@ -357,7 +358,7 @@ function renderArray(
  */
 function getRelationship(choosenPath: string, path: string): number {
   if (choosenPath === null) return 0;
-
+  console.log(choosenPath, path);
   const choosenAttrs = parsePath(choosenPath);
   const choosenLen = choosenAttrs.length;
 

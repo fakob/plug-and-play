@@ -55,7 +55,7 @@ export default class PPGraph {
     | ((event: PIXI.InteractionEvent, target: PIXI.DisplayObject) => void)
     | null; // called when the graph is right clicked
   onOpenNodeSearch: ((pos: PIXI.Point) => void) | null; // called node search should be openend
-  onOpenSocketInfo:
+  onOpenSocketInspector:
     | ((pos: PIXI.Point | null, data: unknown | null) => void)
     | null; // called node search should be openend
 
@@ -166,7 +166,7 @@ export default class PPGraph {
     event.stopPropagation();
 
     // reset floatingsocketinspector
-    this.onOpenSocketInfo(null, null);
+    this.onOpenSocketInspector(null, null);
 
     if (event.data.originalEvent.shiftKey) {
       this.selection.drawSelectionStart(
@@ -195,7 +195,7 @@ export default class PPGraph {
         this.selection.deselectAllNodesAndResetSelection();
 
         // reset floatingsocketinspector
-        this.onOpenSocketInfo(null, null);
+        this.onOpenSocketInspector(null, null);
       }
     }
     if (this.selection.isDrawingSelection) {
@@ -242,7 +242,7 @@ export default class PPGraph {
         event.data.global.x,
         event.data.global.y
       );
-      this.onOpenSocketInfo(clickedSourcePoint, this.clickedSocketNameRef);
+      this.onOpenSocketInspector(clickedSourcePoint, this.clickedSocketNameRef);
     }
 
     // subscribe to pointermove
