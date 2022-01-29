@@ -7,14 +7,17 @@ import {
   ThemeProvider,
   ToggleButton,
   ToggleButtonGroup,
-  createTheme,
 } from '@mui/material';
-import { darkThemeOverride } from './utils/customTheme';
 import styles from './utils/style.module.css';
 import PPGraph from './classes/GraphClass';
 import PPNode from './classes/NodeClass';
 import { PropertyArrayContainer } from './PropertyArrayContainer';
-import { DRAWER30_ICON, DRAWER60_ICON, DRAWER90_ICON } from './utils/constants';
+import {
+  DRAWER30_ICON,
+  DRAWER60_ICON,
+  DRAWER90_ICON,
+  customTheme,
+} from './utils/constants';
 
 type MyProps = {
   currentGraph: PPGraph;
@@ -26,7 +29,7 @@ type MyProps = {
   setWidthPercentage: (value: number | ((prevVar: number) => number)) => void;
 };
 
-const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
+const InspectorContainer: React.FunctionComponent<MyProps> = (props) => {
   const handleWidthPercentage = (
     event: React.MouseEvent<HTMLElement>,
     newPercentage: number | null
@@ -35,18 +38,7 @@ const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
   };
 
   return (
-    <ThemeProvider
-      theme={createTheme(darkThemeOverride, {
-        palette: {
-          primary: { main: props.randomMainColor },
-          secondary: { main: `${Color(props.randomMainColor).lighten(0.85)}` },
-          background: {
-            default: `${Color(props.randomMainColor).darken(0.85)}`,
-            paper: `${Color(props.randomMainColor).darken(0.1)}`,
-          },
-        },
-      })}
-    >
+    <ThemeProvider theme={customTheme}>
       <Stack
         spacing={1}
         className={`${styles.inspectorContainer}`}
@@ -117,4 +109,4 @@ const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
   );
 };
 
-export default ReactContainer;
+export default InspectorContainer;

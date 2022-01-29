@@ -24,11 +24,9 @@ import {
   TextField,
   ThemeProvider,
   createFilterOptions,
-  createTheme,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { theme } from './utils/customTheme';
 import Color from 'color';
 import { hri } from 'human-readable-ids';
 import TimeAgo from 'javascript-time-ago';
@@ -50,6 +48,7 @@ import {
   CANVAS_BACKGROUND_ALPHA,
   CANVAS_BACKGROUND_TEXTURE,
   PLUGANDPLAY_ICON,
+  customTheme,
 } from './utils/constants';
 import { IGraphSearch, INodeSearch } from './utils/interfaces';
 import {
@@ -1066,13 +1065,7 @@ NOTE: opening a remote playground creates a local copy`
 
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
-      <ThemeProvider
-        theme={createTheme(theme, {
-          palette: {
-            primary: { main: RANDOMMAINCOLOR },
-          },
-        })}
-      >
+      <ThemeProvider theme={customTheme}>
         <div
           // close open context menu again on click
           onClick={() => {

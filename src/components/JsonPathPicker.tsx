@@ -4,19 +4,45 @@
  */
 
 import * as React from 'react';
-import { updateClipboard } from '../utils/utils';
+import { Box, ThemeProvider, styled } from '@mui/material';
+import { customTheme } from '../utils/constants';
 import './JsonPathPicker-style.css';
 
-const pathR = /(\.".+?")|(\[.+?\])/g;
 function parsePath(path: string): string[] {
-  return path.match(pathR) || [];
+  return path.split('.');
 }
 
 export interface P {
-  json: string; // json string
+  json: string;
   onChoose(path: string): any;
   path: string | null;
+  randomMainColor: string;
 }
+
+const MyValueSpan = styled('span')(({ theme }) => ({
+  color: theme.palette.secondary.contrastText,
+  fontFamily: 'Roboto Mono, sans-serif',
+  fontSize: '13px',
+}));
+
+const MyValueLinkSpan = styled('a')(({ theme }) => ({
+  color: theme.palette.secondary.contrastText,
+  fontFamily: 'Roboto Mono, sans-serif',
+  fontSize: '13px',
+}));
+
+const MyKeySpan = styled('span')(({ theme }) => ({
+  color: theme.palette.primary.contrastText,
+  fontFamily: 'Roboto Mono, sans-serif',
+  fontSize: '13px',
+}));
+
+const MySeparatorSpan = styled('span')(({ theme }) => ({
+  color: theme.palette.primary.contrastText,
+  opacity: 0.5,
+  fontFamily: 'Roboto Mono, sans-serif',
+  fontSize: '13px',
+}));
 
 export class JsonPathPicker extends React.PureComponent<P, unknown> {
   constructor(props: P) {
@@ -27,17 +53,14 @@ export class JsonPathPicker extends React.PureComponent<P, unknown> {
     if (target.hasAttribute('data-pathkey')) {
       const pathKey = target.getAttribute('data-pathkey');
       let choosenPath;
-      console.log(this.props.path, pathKey);
       if (target.hasAttribute('data-choosearr')) {
         const tmp = parsePath(this.props.path);
         const idx = parsePath(pathKey).length;
-        console.log(tmp, idx);
-        tmp[idx] = '*';
-        choosenPath = tmp.join('');
+        tmp[idx] = '[*]';
+        choosenPath = tmp.join('.');
       } else {
         choosenPath = pathKey;
       }
-      // updateClipboard(choosenPath);
       this.props.onChoose && this.props.onChoose(choosenPath);
     }
   };
@@ -45,7 +68,6 @@ export class JsonPathPicker extends React.PureComponent<P, unknown> {
   render() {
     let jsonObj: any;
     try {
-      // console.log(this.props.json);
       switch (typeof this.props.json) {
         case 'string':
           jsonObj = JSON.parse(this.props.json);
@@ -63,7 +85,9 @@ export class JsonPathPicker extends React.PureComponent<P, unknown> {
       return <div>Wrong json string input</div>;
     }
     return (
-      <div onClick={this.choose}>{json2Jsx(this.props.path, jsonObj)}</div>
+      <ThemeProvider theme={customTheme}>
+        <Box onClick={this.choose}>{json2Jsx(this.props.path, jsonObj)}</Box>
+      </ThemeProvider>
     );
   }
 }
@@ -123,15 +147,15 @@ function renderNull(
   pathKey: string
 ): React.ReactElement<any> {
   return (
-    <span className="json-literal">
-      <span
-        data-pathkey={pathKey}
-        className={getPickerStyle(getRelationship(choosenPath, pathKey))}
-      >
-        {'null'}
-        {isLast ? '' : ','}
-      </span>
-    </span>
+    <MyValueSpan
+      data-pathkey={pathKey}
+      className={`json-literal json-value ${getPickerStyle(
+        getRelationship(choosenPath, pathKey)
+      )}`}
+    >
+      {'null'}
+      <MySeparatorSpan>{isLast ? '' : ','}</MySeparatorSpan>
+    </MyValueSpan>
   );
 }
 
@@ -141,15 +165,15 @@ function renderUndefined(
   pathKey: string
 ): React.ReactElement<any> {
   return (
-    <span className="json-literal">
-      <span
-        data-pathkey={pathKey}
-        className={getPickerStyle(getRelationship(choosenPath, pathKey))}
-      >
-        {'undefined'}
-        {isLast ? '' : ','}
-      </span>
-    </span>
+    <MyValueSpan
+      data-pathkey={pathKey}
+      className={`json-literal json-value ${getPickerStyle(
+        getRelationship(choosenPath, pathKey)
+      )}`}
+    >
+      {'undefined'}
+      <MySeparatorSpan>{isLast ? '' : ','}</MySeparatorSpan>
+    </MyValueSpan>
   );
 }
 
@@ -162,30 +186,31 @@ function renderString(
   str = escape(str);
   if (isUrl(str)) {
     return (
-      <span>
-        <i
-          data-pathkey={pathKey}
-          className={getPickerStyle(getRelationship(choosenPath, pathKey))}
-        >
-          █
-        </i>
-        <a target="_blank" href={str} className="json-literal">
-          <span>
-            "{str}"{isLast ? '' : ','}
-          </span>
-        </a>
-      </span>
+      <MyValueLinkSpan
+        data-pathkey={pathKey}
+        className={`json-literal json-value ${getPickerStyle(
+          getRelationship(choosenPath, pathKey)
+        )}`}
+        target="_blank"
+        href={str}
+      >
+        <MySeparatorSpan>"</MySeparatorSpan>
+        {str}
+        <MySeparatorSpan>{isLast ? '"' : '",'}</MySeparatorSpan>
+      </MyValueLinkSpan>
     );
   } else {
     return (
-      <span className="json-literal">
-        <span
-          data-pathkey={pathKey}
-          className={getPickerStyle(getRelationship(choosenPath, pathKey))}
-        >
-          "{str}"{isLast ? '' : ','}
-        </span>
-      </span>
+      <MyValueSpan
+        data-pathkey={pathKey}
+        className={`json-literal json-value ${getPickerStyle(
+          getRelationship(choosenPath, pathKey)
+        )}`}
+      >
+        <MySeparatorSpan>"</MySeparatorSpan>
+        {str}
+        <MySeparatorSpan>{isLast ? '"' : '",'}</MySeparatorSpan>
+      </MyValueSpan>
     );
   }
 }
@@ -197,15 +222,15 @@ function renderNumber(
   num: number
 ): React.ReactElement<any> {
   return (
-    <span className="json-literal">
-      <span
-        data-pathkey={pathKey}
-        className={getPickerStyle(getRelationship(choosenPath, pathKey))}
-      >
-        {num}
-        {isLast ? '' : ','}
-      </span>
-    </span>
+    <MyValueSpan
+      data-pathkey={pathKey}
+      className={`json-literal json-value ${getPickerStyle(
+        getRelationship(choosenPath, pathKey)
+      )}`}
+    >
+      {num}
+      <MySeparatorSpan>{isLast ? '' : ','}</MySeparatorSpan>
+    </MyValueSpan>
   );
 }
 
@@ -216,15 +241,15 @@ function renderBoolean(
   bool: boolean
 ): React.ReactElement<any> {
   return (
-    <span className="json-literal">
-      <span
-        data-pathkey={pathKey}
-        className={getPickerStyle(getRelationship(choosenPath, pathKey))}
-      >
-        {bool}
-        {isLast ? '' : ','}
-      </span>
-    </span>
+    <MyValueSpan
+      data-pathkey={pathKey}
+      className={`json-literal json-value ${getPickerStyle(
+        getRelationship(choosenPath, pathKey)
+      )}`}
+    >
+      {bool}
+      <MySeparatorSpan>{isLast ? '' : ','}</MySeparatorSpan>
+    </MyValueSpan>
   );
 }
 
@@ -240,20 +265,33 @@ function renderObject(
   const length = keys.length;
   if (length > 0) {
     return (
-      // <div className={relation == 1 ? 'json-picked_tree' : ''}>
-      <div className={'json-picked_tree'}>
+      <div className={relation == 1 ? 'json-picked_tree' : ''}>
         <div>
-          <span data-pathkey={pathKey} className={getPickerStyle(relation)}>
+          <MySeparatorSpan
+            data-pathkey={pathKey}
+            className={getPickerStyle(relation)}
+          >
             {'{'}
-          </span>
+          </MySeparatorSpan>
         </div>
         <ul className="json-dict">
           {keys.map((key, idx) => {
             const nextPathKey = pathKey === '' ? `${key}` : `${pathKey}.${key}`;
             return (
-              <li key={nextPathKey}>
-                <span className="json-literal json-key">{key}</span>
-                <span>:</span>
+              <li
+                key={nextPathKey}
+                data-pathkey={nextPathKey}
+                className={'listItem'}
+              >
+                <MyKeySpan
+                  data-pathkey={nextPathKey}
+                  className={`json-literal json-key ${getPickerStyle(
+                    getRelationship(choosenPath, nextPathKey)
+                  )}`}
+                >
+                  {key}
+                </MyKeySpan>
+                <MySeparatorSpan>:</MySeparatorSpan>
                 {json2Jsx(
                   choosenPath,
                   obj[key],
@@ -265,20 +303,23 @@ function renderObject(
           })}
         </ul>
         <div>
-          <span data-pathkey={pathKey} className={getPickerStyle(relation)}>
+          <MySeparatorSpan
+            data-pathkey={pathKey}
+            className={getPickerStyle(relation)}
+          >
             {isLast ? '}' : '},'}
-          </span>
+          </MySeparatorSpan>
         </div>
       </div>
     );
   } else {
     return (
-      <span>
-        <i data-pathkey={pathKey} className={getPickerStyle(relation)}>
-          █
-        </i>
-        <span>{isLast ? '{ }' : '{ },'}</span>
-      </span>
+      <MyKeySpan
+        data-pathkey={pathKey}
+        className={`json-literal json-key ${getPickerStyle(relation)}`}
+      >
+        {isLast ? '{ }' : '{ },'}
+      </MyKeySpan>
     );
   }
 }
@@ -302,13 +343,15 @@ function renderArray(
               data-choosearr="1"
               className={getPickArrStyle(choosenPath, pathKey)}
             >
-              [✚]
+              [*]
             </i>
           ) : null}
-          <span>{'['}</span>
-          <i data-pathkey={pathKey} className={getPickerStyle(relation)}>
-            █
-          </i>
+          <MySeparatorSpan
+            data-pathkey={pathKey}
+            className={getPickerStyle(relation)}
+          >
+            {'['}
+          </MySeparatorSpan>
         </div>
         <ol className="json-array">
           {arr.map((value, idx) => {
@@ -326,17 +369,24 @@ function renderArray(
             );
           })}
         </ol>
-        <div>{isLast ? ']' : '],'}</div>
+        <div>
+          <MySeparatorSpan
+            data-pathkey={pathKey}
+            className={getPickerStyle(relation)}
+          >
+            {isLast ? ']' : '],'}
+          </MySeparatorSpan>
+        </div>
       </div>
     );
   } else {
     return (
-      <span>
-        <i data-pathkey={pathKey} className={getPickerStyle(relation)}>
-          █
-        </i>
-        <span>{isLast ? '[ ]' : '[ ],'}</span>
-      </span>
+      <MyKeySpan
+        data-pathkey={pathKey}
+        className={`json-literal json-key ${getPickerStyle(relation)}`}
+      >
+        {isLast ? '[ ]' : '[ ],'}
+      </MyKeySpan>
     );
   }
 }
@@ -349,10 +399,10 @@ function renderArray(
  */
 function getRelationship(choosenPath: string, path: string): number {
   if (choosenPath === null) return 0;
-  const choosenAttrs = choosenPath.split('.');
+  const choosenAttrs = parsePath(choosenPath);
   const choosenLen = choosenAttrs.length;
 
-  const nowAttrs = path.split('.');
+  const nowAttrs = parsePath(path);
   const nowLen = nowAttrs.length;
 
   if (nowLen > choosenLen) return 0;

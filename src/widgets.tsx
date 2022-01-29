@@ -240,6 +240,7 @@ export type TextWidgetProps = {
   index: number;
   hasLink: boolean;
   data: string;
+  randomMainColor: string;
 };
 
 export const TextWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
@@ -342,6 +343,7 @@ export const JSONPathWidget: React.FunctionComponent<TextWidgetProps> = (
         json={displayedString}
         onChoose={onChoosePath}
         path={path}
+        randomMainColor={props.randomMainColor}
       />
       <Box
         sx={{

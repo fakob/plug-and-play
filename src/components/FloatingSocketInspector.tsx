@@ -9,13 +9,16 @@ import {
   ThemeProvider,
   ToggleButton,
   ToggleButtonGroup,
-  createTheme,
 } from '@mui/material';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import Draggable from 'react-draggable';
 import PPNode from '../classes/NodeClass';
 import Socket from '../classes/SocketClass';
-import { DRAWER60M_ICON, DRAWER30M_ICON } from './../utils/constants';
+import {
+  DRAWER60M_ICON,
+  DRAWER30M_ICON,
+  customTheme,
+} from './../utils/constants';
 import { getCircularReplacer, updateClipboard } from './../utils/utils';
 import { PropertyContainer } from '../PropertyArrayContainer';
 import styles from './../utils/style.module.css';
@@ -62,18 +65,7 @@ export const FloatingSocketInspector: React.FunctionComponent<MyProps> = (
   console.log(props.socketToInspect);
 
   return (
-    <ThemeProvider
-      theme={createTheme(darkThemeOverride, {
-        palette: {
-          primary: { main: props.randomMainColor },
-          secondary: { main: `${Color(props.randomMainColor).lighten(0.85)}` },
-          background: {
-            default: `${Color(props.randomMainColor).darken(0.85)}`,
-            paper: `${Color(props.randomMainColor).darken(0.1)}`,
-          },
-        },
-      })}
-    >
+    <ThemeProvider theme={customTheme}>
       <PaperComponent
         className={styles.floatingSocketInspector}
         elevation={8}

@@ -1,7 +1,9 @@
 import * as PIXI from 'pixi.js';
+import { createTheme } from '@mui/material';
 import Color from 'color';
 import { TextStyle } from '@pixi/text';
 import { EnumStructure } from '../nodes/datatypes/enumType';
+import { darkThemeOverride } from './customTheme';
 
 export const PP_VERSION = 0.1;
 
@@ -34,6 +36,27 @@ export const COLOR_WHITE_TEXT = '#F4FAF9';
 export const WHITE_HEX = 0xffffff;
 
 export const RANDOMMAINCOLOR = COLOR[Math.floor(Math.random() * COLOR.length)];
+
+export const customTheme = createTheme(darkThemeOverride, {
+  palette: {
+    primary: {
+      light: `${Color(RANDOMMAINCOLOR).lighten(0.1)}`,
+      main: `${RANDOMMAINCOLOR}`,
+      dark: `${Color(RANDOMMAINCOLOR).darken(0.1)}`,
+      contrastText: `${Color(RANDOMMAINCOLOR).lighten(0.85)}`,
+    },
+    secondary: {
+      light: `${Color(RANDOMMAINCOLOR).negate().lighten(0.1)}`,
+      main: `${Color(RANDOMMAINCOLOR).negate()}`,
+      dark: `${Color(RANDOMMAINCOLOR).negate().darken(0.1)}`,
+      contrastText: `${Color(RANDOMMAINCOLOR).negate().lighten(0.85)}`,
+    },
+    background: {
+      default: `${Color(RANDOMMAINCOLOR).darken(0.85)}`,
+      paper: `${Color(RANDOMMAINCOLOR).darken(0.5)}`,
+    },
+  },
+});
 
 export const PLUGANDPLAY_ICON = '../assets/PlugAndPlayIcon-transparent.svg';
 export const DRAWER30_ICON = '../assets/Drawer30_Icon.svg';

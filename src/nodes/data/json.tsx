@@ -9,15 +9,12 @@ import {
   ThemeProvider,
   ToggleButton,
   ToggleButtonGroup,
-  createTheme,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import Color from 'color';
 import { JSONPath } from 'jsonpath-plus';
 import { JsonPathPicker } from '../../components/JsonPathPicker';
 import PureNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
-import { darkThemeOverride } from '../../utils/customTheme';
 import {
   DRAWER60M_ICON,
   DRAWER30M_ICON,
@@ -26,6 +23,7 @@ import {
 import { JSONType } from '../datatypes/jsonType';
 import { StringType } from '../datatypes/stringType';
 import styles from '../../utils/style.module.css';
+import { customTheme } from '../../utils/constants';
 
 const JSONName = 'JSON';
 const JSONParamName = 'Name 1';
@@ -61,18 +59,7 @@ function FloatingJsonPathPicker(props) {
   };
 
   return (
-    <ThemeProvider
-      theme={createTheme(darkThemeOverride, {
-        palette: {
-          primary: { main: props.randomMainColor },
-          secondary: { main: `${Color(props.randomMainColor).lighten(0.85)}` },
-          background: {
-            default: `${Color(props.randomMainColor).darken(0.85)}`,
-            paper: `${Color(props.randomMainColor).darken(0.1)}`,
-          },
-        },
-      })}
-    >
+    <ThemeProvider theme={customTheme}>
       <Button onClick={handleOpen}>Open Picker</Button>
       <Button
         href="https://jsonpath-plus.github.io/JSONPath/docs/ts/"
@@ -160,6 +147,7 @@ function FloatingJsonPathPicker(props) {
               json={json}
               onChoose={handleChoosePath}
               path={path}
+              randomMainColor={props.randomMainColor}
             />
           </Box>
         </Box>
