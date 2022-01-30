@@ -268,9 +268,10 @@ export type CodeWidgetProps = {
 
 export const CodeWidget: React.FunctionComponent<CodeWidgetProps> = (props) => {
   const [data, setData] = useState(
-    typeof props.data === 'object' ? JSON.stringify(props.data) : props.data
+    typeof props.data === 'object'
+      ? JSON.stringify(props.data, getCircularReplacer(), 2)
+      : props.data
   );
-  console.log(props);
 
   return (
     <CodeEditor
@@ -288,7 +289,9 @@ export const CodeWidget: React.FunctionComponent<CodeWidgetProps> = (props) => {
 export const JSONWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
   const [data, setData] = useState(props.data);
   const [displayedString, setDisplayedString] = useState(
-    typeof data === 'object' ? JSON.stringify(data, null, 2) : data
+    typeof data === 'object'
+      ? JSON.stringify(data, getCircularReplacer(), 2)
+      : data
   );
   const [validJSON, setValidJSON] = useState(true);
 
