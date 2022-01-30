@@ -181,7 +181,7 @@ export class JSONGet extends PureNode {
       this.inputSocketArray.forEach((input) => {
         // pretty hacky
         if (input.name.includes('Name')) {
-          current = JSONPath({ path: input.data, json: current });
+          current = JSONPath({ path: input.data, json: current, wrap: false });
         }
       });
       outputObject[outValueName] = current;
