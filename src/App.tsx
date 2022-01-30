@@ -101,6 +101,7 @@ const App = (): JSX.Element => {
   const viewport = useRef<Viewport | null>(null);
   const graphSearchInput = useRef<HTMLInputElement | null>(null);
   const nodeSearchInput = useRef<HTMLInputElement | null>(null);
+  const selectionPos = useRef<PIXI.Point>(new PIXI.Point(0, 0));
   const [isGraphSearchOpen, setIsGraphSearchOpen] = useState(false);
   const [isNodeSearchVisible, setIsNodeSearchVisible] = useState(false);
   const [isGraphContextMenuOpen, setIsGraphContextMenuOpen] = useState(false);
@@ -109,9 +110,7 @@ const App = (): JSX.Element => {
   const [isCurrentGraphLoaded, setIsCurrentGraphLoaded] = useState(false);
   const [actionObject, setActionObject] = useState(null); // id and name of graph to edit/delete
   const [showComments, setShowComments] = useState(false);
-  const [selectedNode, setSelectedNode] = useState<PPNode | null>(null);
-  const [selectedNodes, setSelectedNodes] = useState<PPNode[] | null>(null);
-  const [selectionPos, setSelectionPos] = useState<PIXI.Point | null>(null);
+  const [selectedNodes, setSelectedNodes] = useState<PPNode[]>([]);
   const [remoteGraphs, setRemoteGraphs, remoteGraphsRef] = useStateRef([]);
   const [graphSearchItems, setGraphSearchItems] = useState<
     IGraphSearch[] | null
@@ -316,7 +315,7 @@ const App = (): JSX.Element => {
 
       // reposition node menu
       if (currentGraph.current.selection.selectedNodes.length > 0) {
-        setSelectionPos(currentGraph.current.selection.screenPoint());
+        selectionPos.current = currentGraph.current.selection.screenPoint();
       }
     });
 
@@ -357,24 +356,13 @@ const App = (): JSX.Element => {
     );
 
     // register callbacks
-    currentGraph.current.selection.onSelectionChange = (
-      selectedNodes: PPNode[]
-    ) => {
-      if (selectedNodes.length === 0) {
-        setSelectedNode(null);
-        setSelectedNodes(null);
-      } else {
-        const selectedNode = selectedNodes[selectedNodes.length - 1];
-        setSelectedNode(selectedNode);
-        setSelectedNodes(selectedNodes);
-      }
-    };
+    currentGraph.current.selection.onSelectionChange = setSelectedNodes;
 
     // register callbacks
     currentGraph.current.selection.onSelectionRedrawn = (
       screenPoint: PIXI.Point
     ) => {
-      setSelectionPos(screenPoint);
+      selectionPos.current = screenPoint;
     };
 
     currentGraph.current.onOpenNodeSearch = (pos: PIXI.Point) => {
@@ -1171,18 +1159,22 @@ NOTE: opening a remote playground creates a local copy`
               drawerWidth={drawerWidth}
               setDrawerWidth={setDrawerWidth}
               currentGraph={currentGraph.current}
-              selectedNode={selectedNode}
-              isCustomNode={currentGraph.current?.isCustomNode(selectedNode)}
+              selectedNode={selectedNodes.length > 0 ? selectedNodes[0] : null}
+              isCustomNode={
+                selectedNodes.length > 0
+                  ? currentGraph.current.isCustomNode(selectedNodes[0])
+                  : false
+              }
               onSave={createOrUpdateNodeFromCode}
               randomMainColor={randomMainColor}
             />
-            {selectedNodes && selectionPos && (
+            {selectedNodes.length > 0 && selectionPos && (
               <FloatingNodeMenu
                 x={
-                  selectionPos.x +
+                  selectionPos.current.x +
                   currentGraph.current.selection.selectionGraphics.width / 2
                 }
-                y={Math.max(0, selectionPos.y - 40)}
+                y={Math.max(0, selectionPos.current.y - 40)}
                 selectedNodes={selectedNodes}
               />
             )}

@@ -510,10 +510,6 @@ export default class PPNode extends PIXI.Container {
     return;
   }
 
-  notifyChange(): void {
-    this.executeOptimizedChain();
-  }
-
   setPosition(x: number, y: number, isRelative = false): void {
     this.x = isRelative ? this.x + x : x;
     this.y = isRelative ? this.y + y : y;

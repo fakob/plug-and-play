@@ -34,8 +34,6 @@ type PropertyArrayContainerProps = {
   isCustomNode: boolean;
   onSave?: (code: string) => void;
   randomMainColor: string;
-  inputSocketArray: Socket[];
-  outputSocketArray: Socket[];
 };
 
 const StyledAccordion = styled((props: AccordionProps) => (
@@ -69,6 +67,9 @@ export const PropertyArrayContainer: React.FunctionComponent<
     props.currentGraph.customNodeTypes[props.selectedNode.type]
   );
 
+  // leaving this commented here for potential future testing
+  //console.log('recreated propertycontainer');
+
   useEffect(() => {
     // update codeString when the type changes
     const selectedNodeType = props.selectedNode.type;
@@ -78,7 +79,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
 
   return (
     <Stack spacing={1}>
-      {props.inputSocketArray?.length > 0 && (
+      {props.selectedNode.inputSocketArray?.length > 0 && (
         <StyledAccordion defaultExpanded>
           <StyledAccordionSummary>
             <Box textAlign="left" sx={{ color: 'text.primary' }}>
@@ -86,7 +87,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
             </Box>
           </StyledAccordionSummary>
           <StyledAccordionDetails>
-            {props.inputSocketArray?.map((property, index) => {
+            {props.selectedNode.inputSocketArray?.map((property, index) => {
               return (
                 <PropertyContainer
                   key={index}
@@ -121,7 +122,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
           />
         </StyledAccordionDetails>
       </StyledAccordion>
-      {props.outputSocketArray?.length > 0 && (
+      {props.selectedNode.outputSocketArray?.length > 0 && (
         <StyledAccordion defaultExpanded>
           <StyledAccordionSummary>
             <Box textAlign="right" sx={{ color: 'text.primary' }}>
@@ -129,7 +130,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
             </Box>
           </StyledAccordionSummary>
           <StyledAccordionDetails>
-            {props.outputSocketArray?.map((property, index) => {
+            {props.selectedNode.outputSocketArray.map((property, index) => {
               return (
                 <PropertyContainer
                   key={index}
