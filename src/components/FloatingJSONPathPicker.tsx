@@ -48,7 +48,7 @@ export const FloatingJsonPathPicker: React.FunctionComponent<MyProps> = (
 
   const handleChoosePath = (path: string): void => {
     node.setInputData(props.jsonPathSocketName, path);
-    node.execute(new Set());
+    node.executeOptimizedChain();
     handleClose();
   };
 
