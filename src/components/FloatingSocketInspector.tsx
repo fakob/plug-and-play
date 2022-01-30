@@ -19,7 +19,7 @@ import {
   DRAWER30M_ICON,
   customTheme,
 } from './../utils/constants';
-import { getCircularReplacer, updateClipboard } from './../utils/utils';
+import { writeDataToClipboard } from './../utils/utils';
 import { PropertyContainer } from '../PropertyArrayContainer';
 import styles from './../utils/style.module.css';
 
@@ -53,13 +53,6 @@ export const FloatingSocketInspector: React.FunctionComponent<MyProps> = (
     newWidth: number | null
   ) => {
     setNewWidth(newWidth);
-  };
-
-  const copyDataToClipBoard = (): void => {
-    updateClipboard(
-      JSON.stringify(props.socketToInspect?.data, getCircularReplacer(), 2) ||
-        ''
-    );
   };
 
   return (
@@ -102,7 +95,10 @@ export const FloatingSocketInspector: React.FunctionComponent<MyProps> = (
               flexGrow: 1,
             }}
           >
-            <IconButton size="small" onClick={copyDataToClipBoard}>
+            <IconButton
+              size="small"
+              onClick={() => writeDataToClipboard(props.socketToInspect?.data)}
+            >
               <ContentCopyIcon sx={{ fontSize: '16px' }} />
             </IconButton>
           </Box>

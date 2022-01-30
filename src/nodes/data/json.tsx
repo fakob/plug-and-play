@@ -188,23 +188,24 @@ export class JSONGet extends PureNode {
     }
   }
 
-  public getCanAddInput(): boolean {
-    return true;
-  }
+  // keeping it as I want to add/fix this later
+  // public getCanAddInput(): boolean {
+  //   return true;
+  // }
 
-  public addDefaultInput(): void {
-    const newName = this.constructSocketName('Name', this.inputSocketArray);
-    this.addInput(newName, new StringType(), undefined, undefined, {
-      inspectorInjection: {
-        reactComponent: FloatingJsonPathPicker,
-        props: {
-          jsonSocketName: JSONName,
-          jsonPathSocketName: newName,
-          forceRefresh: Math.random(),
-        },
-      },
-    });
-  }
+  // public addDefaultInput(): void {
+  //   const newName = this.constructSocketName('Name', this.inputSocketArray);
+  //   this.addInput(newName, new StringType(), undefined, undefined, {
+  //     inspectorInjection: {
+  //       reactComponent: FloatingJsonPathPicker,
+  //       props: {
+  //         jsonSocketName: JSONName,
+  //         jsonPathSocketName: newName,
+  //         forceRefresh: Math.random(),
+  //       },
+  //     },
+  //   });
+  // }
 }
 
 export class JSONKeys extends PureNode {

@@ -22,7 +22,7 @@ import {
   ContentCopy as ContentCopyIcon,
 } from '@mui/icons-material';
 import { styled } from '@mui/styles';
-import { getCircularReplacer, updateClipboard } from './utils/utils';
+import { writeDataToClipboard, writeTextToClipboard } from './utils/utils';
 import styles from './utils/style.module.css';
 import PPGraph from './classes/GraphClass';
 import PPNode from './classes/NodeClass';
@@ -115,6 +115,26 @@ export const PropertyArrayContainer: React.FunctionComponent<
           </Box>
         </StyledAccordionSummary>
         <StyledAccordionDetails>
+          <Box
+            sx={{ flexGrow: 1, display: 'inline-flex', alignItems: 'center' }}
+          >
+            <Box sx={{ pl: 1, color: 'text.primary' }}>
+              {props.selectedNode.name}:{props.selectedNode.type}
+            </Box>
+            {!props.isCustomNode && (
+              <LockIcon sx={{ pl: '2px', fontSize: '16px', opacity: 0.5 }} />
+            )}
+            <IconButton
+              size="small"
+              onClick={() =>
+                writeTextToClipboard(
+                  codeString ?? props.selectedNode.getSourceCode()
+                )
+              }
+            >
+              <ContentCopyIcon sx={{ pl: 1, fontSize: '16px' }} />
+            </IconButton>
+          </Box>
           <CodeEditor
             value={codeString ?? props.selectedNode.getSourceCode()}
             randomMainColor={props.randomMainColor}
@@ -272,12 +292,6 @@ const PropertyHeader: React.FunctionComponent<PropertyHeaderProps> = (
     props.property.setName(name);
   }, [name]);
 
-  const copyDataToClipBoard = (): void => {
-    updateClipboard(
-      JSON.stringify(props.property?.data, getCircularReplacer(), 2) || ''
-    );
-  };
-
   return (
     <Box
       sx={{
@@ -318,7 +332,10 @@ const PropertyHeader: React.FunctionComponent<PropertyHeaderProps> = (
           {props.hasLink && (
             <LockIcon sx={{ pl: '2px', fontSize: '16px', opacity: 0.5 }} />
           )}
-          <IconButton size="small" onClick={copyDataToClipBoard}>
+          <IconButton
+            size="small"
+            onClick={() => writeDataToClipboard(props.property?.data)}
+          >
             <ContentCopyIcon sx={{ pl: 1, fontSize: '16px' }} />
           </IconButton>
         </Box>
