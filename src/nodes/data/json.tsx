@@ -88,7 +88,6 @@ function FloatingJsonPathPicker(props) {
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              cursor: 'move',
               fontSize: 'small',
             }}
           >
@@ -108,11 +107,7 @@ function FloatingJsonPathPicker(props) {
               sx={{
                 flexGrow: 1,
               }}
-            >
-              {/* <IconButton size="small" onClick={copyDataToClipBoard}>
-                  <ContentCopyIcon sx={{ fontSize: '16px' }} />
-                </IconButton> */}
-            </Box>
+            ></Box>
             <ToggleButtonGroup
               value={newWidth}
               exclusive
@@ -139,10 +134,7 @@ function FloatingJsonPathPicker(props) {
               <CloseIcon sx={{ fontSize: '16px' }} />
             </IconButton>
           </Box>
-          <Box
-            id="draggable-content"
-            sx={{ overflow: 'auto', bgcolor: 'background.default' }}
-          >
+          <Box sx={{ overflow: 'auto', bgcolor: 'background.default' }}>
             <JsonPathPicker
               json={json}
               onChoose={handleChoosePath}

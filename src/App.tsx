@@ -794,6 +794,12 @@ const App = (): JSX.Element => {
     setSocketToInspect(socket);
   };
 
+  const closeSocketInspector = () => {
+    console.log('closeSocketInspector');
+    setSocketInspectorPosition(null);
+    setSocketToInspect(null);
+  };
+
   const nodeSearchInputBlurred = () => {
     console.log('nodeSearchInputBlurred');
     setIsNodeSearchVisible(false);
@@ -1150,6 +1156,7 @@ NOTE: opening a remote playground creates a local copy`
                 socketInspectorPosition={socketInspectorPosition}
                 socketToInspect={socketToInspect}
                 randomMainColor={RANDOMMAINCOLOR}
+                closeSocketInspector={closeSocketInspector}
               />
             )}
             {isGraphContextMenuOpen && (

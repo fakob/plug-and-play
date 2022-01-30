@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import * as PIXI from 'pixi.js';
-import Color from 'color';
 import {
   Box,
   Icon,
@@ -10,8 +9,9 @@ import {
   ToggleButton,
   ToggleButtonGroup,
 } from '@mui/material';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import Draggable from 'react-draggable';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import CloseIcon from '@mui/icons-material/Close';
 import PPNode from '../classes/NodeClass';
 import Socket from '../classes/SocketClass';
 import {
@@ -22,7 +22,6 @@ import {
 import { getCircularReplacer, updateClipboard } from './../utils/utils';
 import { PropertyContainer } from '../PropertyArrayContainer';
 import styles from './../utils/style.module.css';
-import { darkThemeOverride } from './../utils/customTheme';
 
 function PaperComponent(props) {
   return (
@@ -40,6 +39,7 @@ type MyProps = {
   socketInspectorPosition: PIXI.Point;
   socketToInspect: Socket;
   randomMainColor: string;
+  closeSocketInspector: () => void;
 };
 
 export const FloatingSocketInspector: React.FunctionComponent<MyProps> = (
@@ -61,8 +61,6 @@ export const FloatingSocketInspector: React.FunctionComponent<MyProps> = (
         ''
     );
   };
-
-  console.log(props.socketToInspect);
 
   return (
     <ThemeProvider theme={customTheme}>
@@ -130,6 +128,9 @@ export const FloatingSocketInspector: React.FunctionComponent<MyProps> = (
               </Icon>
             </ToggleButton>
           </ToggleButtonGroup>
+          <IconButton size="small" onClick={props.closeSocketInspector}>
+            <CloseIcon sx={{ fontSize: '16px' }} />
+          </IconButton>
         </Box>
         <Box id="draggable-content">
           <PropertyContainer
