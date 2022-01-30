@@ -7,7 +7,6 @@ import {
   Checkbox,
   FormControlLabel,
   FormGroup,
-  IconButton,
   MenuItem,
   Select,
   Slider,
@@ -15,16 +14,10 @@ import {
   ToggleButton,
 } from '@mui/material';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { SketchPicker } from 'react-color';
-import { JsonPathPicker } from './components/JsonPathPicker';
 import { CodeEditor } from './components/Editor';
 import Socket from './classes/SocketClass';
-import {
-  getCircularReplacer,
-  roundNumber,
-  updateClipboard,
-} from './utils/utils';
+import { getCircularReplacer, roundNumber } from './utils/utils';
 import styles from './utils/style.module.css';
 import { TRgba } from './utils/interfaces';
 import { EnumStructure } from './nodes/datatypes/enumType';
@@ -293,20 +286,17 @@ export const CodeWidget: React.FunctionComponent<CodeWidgetProps> = (props) => {
 export const JSONWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
   const [data, setData] = useState(props.data);
   const [displayedString, setDisplayedString] = useState(
-    typeof data === 'object' ? JSON.stringify(data) : data
+    typeof data === 'object' ? JSON.stringify(data, null, 2) : data
   );
   const [validJSON, setValidJSON] = useState(true);
 
   return (
-    <FormGroup>
-      <TextField
-        hiddenLabel
-        variant="filled"
-        // label={props.property.name}
-        multiline
-        disabled={props.hasLink}
-        onChange={(event) => {
-          const value = event.target.value;
+    <Box>
+      <CodeEditor
+        value={displayedString || ''}
+        randomMainColor={props.randomMainColor}
+        editable={!props.hasLink}
+        onChange={(value) => {
           setDisplayedString(value);
           try {
             const parsedValue = JSON.parse(value);
@@ -317,78 +307,9 @@ export const JSONWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
             setValidJSON(false);
           }
         }}
-        value={displayedString}
       />
       {!validJSON && <Alert severity="error">Invalid JSON!</Alert>}
-    </FormGroup>
-  );
-};
-
-export const JSONPathWidget: React.FunctionComponent<TextWidgetProps> = (
-  props
-) => {
-  const [data, setData] = useState(props.data);
-  const [path, setPath] = useState('');
-  const [displayedString, setDisplayedString] = useState(
-    typeof data === 'object' ? JSON.stringify(data) : data
-  );
-  const onChoosePath = (path: string) => {
-    console.log(path);
-    setPath(path);
-  };
-
-  return (
-    <>
-      <JsonPathPicker
-        json={displayedString}
-        onChoose={onChoosePath}
-        path={path}
-        randomMainColor={props.randomMainColor}
-      />
-      <Box
-        sx={{
-          bgcolor: 'background.paper',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          fontSize: 'small',
-          position: 'absolute',
-          bottom: 0,
-        }}
-      >
-        <IconButton
-          onClick={() => {
-            updateClipboard(displayedString);
-          }}
-        >
-          <ContentCopyIcon />
-        </IconButton>
-        {path === '' ? '' : `Copied path to clipboard:${path}`}
-      </Box>
-    </>
-    // <FormGroup>
-    //   <TextField
-    //     hiddenLabel
-    //     variant="filled"
-    //     // label={props.property.name}
-    //     multiline
-    //     disabled={props.hasLink}
-    //     onChange={(event) => {
-    //       const value = event.target.value;
-    //       setDisplayedString(value);
-    //       try {
-    //         const parsedValue = JSON.parse(value);
-    //         setData(parsedValue);
-    //         potentiallyNotify(props.property, parsedValue);
-    //         setValidJSON(true);
-    //       } catch (error) {
-    //         setValidJSON(false);
-    //       }
-    //     }}
-    //     value={displayedString}
-    //   />
-    //   {!validJSON && <Alert severity="error">Invalid JSON!</Alert>}
-    // </FormGroup>
+    </Box>
   );
 };
 

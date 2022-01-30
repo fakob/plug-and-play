@@ -1,6 +1,6 @@
 import { inspect } from 'util';
 import React from 'react';
-import { JSONWidget, JSONPathWidget } from '../../widgets';
+import { JSONWidget } from '../../widgets';
 import { AbstractType } from './abstractType';
 
 export class JSONType extends AbstractType {
