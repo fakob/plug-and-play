@@ -5,7 +5,9 @@
 // udpated by jakob
 
 import * as React from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
 import { Box, ThemeProvider, styled } from '@mui/material';
+import ErrorFallback from './ErrorFallback';
 import { customTheme } from '../utils/constants';
 import './JsonPathPicker-style.css';
 
@@ -83,11 +85,18 @@ export class JsonPathPicker extends React.PureComponent<P, unknown> {
       }
     } catch (error) {
       console.log(error);
-      return <div>Wrong json string input</div>;
+      return (
+        <Box sx={{ p: 1, color: 'white' }}>
+          Input seems to not be a correct JSON format.
+        </Box>
+      );
     }
+
     return (
       <ThemeProvider theme={customTheme}>
-        <Box onClick={this.choose}>{json2Jsx(this.props.path, jsonObj)}</Box>
+        <ErrorBoundary FallbackComponent={ErrorFallback}>
+          <Box onClick={this.choose}>{json2Jsx(this.props.path, jsonObj)}</Box>
+        </ErrorBoundary>
       </ThemeProvider>
     );
   }
