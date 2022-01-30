@@ -1,20 +1,11 @@
-import * as PIXI from 'pixi.js';
-import React, { useEffect, useState } from 'react';
-
 import NodeClass from '../../classes/NodeClass';
-import GraphClass from '../../classes/GraphClass';
 import PureNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
 import { SOCKET_TYPE } from '../../utils/constants';
 import { AnyType } from '../datatypes/anyType';
 import { ArrayType } from '../datatypes/arrayType';
-import { StringType } from '../datatypes/stringType';
 import { CodeType } from '../datatypes/codeType';
 import { NumberType } from '../datatypes/numberType';
-import { CustomArgs } from '../../utils/interfaces';
-import { JSONType } from '../datatypes/jsonType';
-import { COLOR_WHITE, NODE_TYPE_COLOR } from '../../utils/constants';
-import { JsonPathPicker } from '../../components/JsonPathPicker';
 
 const filterCodeName = 'Filter';
 const arrayName = 'Array';

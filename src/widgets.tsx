@@ -278,7 +278,6 @@ export const CodeWidget: React.FunctionComponent<CodeWidgetProps> = (props) => {
       randomMainColor={props.randomMainColor}
       editable={!props.hasLink}
       onChange={(value) => {
-        console.log('value:', value);
         potentiallyNotify(props.property, value);
         setData(value);
       }}

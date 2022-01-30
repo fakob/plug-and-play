@@ -58,7 +58,7 @@ import {
   getLoadedGraphId,
   getRemoteGraph,
   getRemoteGraphsList,
-  isEventNotComingFromWithinTextInput,
+  isEventComingFromWithinTextInput,
   removeExtension,
   useStateRef,
 } from './utils/utils';
@@ -383,6 +383,10 @@ const App = (): JSX.Element => {
       openSocketInspector(pos, socket);
     };
 
+    currentGraph.current.onCloseSocketInspector = () => {
+      closeSocketInspector();
+    };
+
     currentGraph.current.onRightClick = (
       event: PIXI.InteractionEvent,
       target: PIXI.DisplayObject
@@ -436,7 +440,7 @@ const App = (): JSX.Element => {
         viewport.current.cursor = 'default';
       }
       if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'a') {
-        if (isEventNotComingFromWithinTextInput(e)) {
+        if (!isEventComingFromWithinTextInput(e)) {
           e.preventDefault();
           currentGraph.current.selection.selectAllNodes();
         }
@@ -795,7 +799,6 @@ const App = (): JSX.Element => {
   };
 
   const closeSocketInspector = () => {
-    console.log('closeSocketInspector');
     setSocketInspectorPosition(null);
     setSocketToInspect(null);
   };

@@ -57,7 +57,8 @@ export default class PPGraph {
   onOpenNodeSearch: ((pos: PIXI.Point) => void) | null; // called node search should be openend
   onOpenSocketInspector:
     | ((pos: PIXI.Point | null, data: unknown | null) => void)
-    | null; // called node search should be openend
+    | null; // called when socket inspector should be opened
+  onCloseSocketInspector: () => void; // called when socket inspector should be closed
 
   onViewportMoveHandler: (event?: PIXI.InteractionEvent) => void;
 
@@ -165,8 +166,7 @@ export default class PPGraph {
     console.log('_onPointerDown');
     event.stopPropagation();
 
-    // reset floatingsocketinspector
-    this.onOpenSocketInspector(null, null);
+    this.onCloseSocketInspector();
 
     if (event.data.originalEvent.shiftKey) {
       this.selection.drawSelectionStart(
@@ -194,8 +194,7 @@ export default class PPGraph {
         console.log('deselectAllNodesAndResetSelection');
         this.selection.deselectAllNodesAndResetSelection();
 
-        // reset floatingsocketinspector
-        this.onOpenSocketInspector(null, null);
+        this.onCloseSocketInspector();
       }
     }
     if (this.selection.isDrawingSelection) {
@@ -253,7 +252,7 @@ export default class PPGraph {
   }
 
   onViewportMove(event: PIXI.InteractionEvent): void {
-    console.log('onViewportMove');
+    // console.log('onViewportMove');
 
     // draw connection
     if (this.clickedSocketRef !== null && !this.clickedSocketRef.isInput()) {

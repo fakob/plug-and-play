@@ -4,7 +4,6 @@ import { Node } from 'slate';
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
 import {
-  COLOR,
   NODE_PADDING_TOP,
   NODE_HEADER_HEIGHT,
   SOCKET_TEXTMARGIN_TOP,
@@ -338,30 +337,13 @@ export const writeDataToClipboard = (data: unknown): void => {
   writeTextToClipboard(JSON.stringify(data, getCircularReplacer(), 2) || '');
 };
 
-export const queryJSON = (json, path: string): string => {
-  const tokens = path.substring(1, path.length - 1).split('][');
-  // console.log(tokens, path);
-  if (json) {
-    let val = json[tokens[0].replace(/^"(.+(?="$))"$/, '$1').replace('"', '"')];
-    // console.log(val, tokens);
-    if (tokens.length < 2) return val;
-    for (let i = 1; i < tokens.length; i++) {
-      val = val[tokens[i].replace(/^"(.+(?="$))"$/, '$1').replace('"', '"')];
-    }
-    // const result = tokens.reduce((a, v) => a[v], json);
-    // console.log(result);
-    console.log(val);
-    return val;
-  }
-};
-
-export const isEventNotComingFromWithinTextInput = (event: any): boolean => {
+export const isEventComingFromWithinTextInput = (event: any): boolean => {
   return (
-    event.target.dataset.slateEditor === undefined &&
-    event.target.id !== 'Input' &&
-    event.target.localName !== 'input' &&
-    event.target.localName !== 'textarea' &&
-    !event.target.className.includes('cm-content') &&
-    !event.target.className.includes('cm-scroller')
+    event.target.dataset.slateEditor !== undefined ||
+    event.target.id === 'Input' ||
+    event.target.localName === 'input' ||
+    event.target.localName === 'textarea' ||
+    event.target.className.includes('cm-content') ||
+    event.target.className.includes('cm-scroller')
   );
 };
