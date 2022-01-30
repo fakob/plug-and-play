@@ -38,6 +38,7 @@ import {
 } from './components/Search';
 import ResponsiveDrawer from './components/ResponsiveDrawer';
 import FloatingNodeMenu from './components/FloatingNodeMenu';
+import ErrorFallback from './components/ErrorFallback';
 import FloatingSocketInspector from './components/FloatingSocketInspector';
 import PixiContainer from './PixiContainer';
 import { GraphContextMenu, NodeContextMenu } from './components/ContextMenus';
@@ -616,7 +617,6 @@ const App = (): JSX.Element => {
     const serializedGraph = currentGraph.current.serialize();
     console.log(serializedGraph);
     console.info(serializedGraph.customNodeTypes);
-    // console.log(JSON.stringify(serializedGraph));
     db.transaction('rw', db.graphs, db.settings, async () => {
       const graphs = await db.graphs.toArray();
       const loadedGraphId = await getLoadedGraphId(db);
@@ -865,20 +865,9 @@ const App = (): JSX.Element => {
     }
   };
 
-  function ErrorFallback({ error, resetErrorBoundary }) {
-    return (
-      <div role="alert" style={{ color: 'white' }}>
-        <p>Something went wrong:</p>
-        <pre>{error.message}</pre>
-        <button onClick={resetErrorBoundary}>Try again</button>
-      </div>
-    );
-  }
-
   const filterGraph = (options, params) => {
     const filtered = filterOptionGraph(options, params);
     if (params.inputValue !== '') {
-      console.log(params, params.inputValue);
       filtered.push({
         id: hri.random(),
         name: params.inputValue,
@@ -891,7 +880,6 @@ const App = (): JSX.Element => {
   const filterNode = (options, params) => {
     const filtered = filterOptionNode(options, params);
     if (params.inputValue !== '') {
-      console.log(params, params.inputValue);
       filtered.push({
         title: params.inputValue,
         key: params.inputValue,

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
 import CodeMirror, {
   EditorView,
   KeyBinding,
@@ -6,6 +7,7 @@ import CodeMirror, {
 } from '@uiw/react-codemirror';
 import { oneDark } from '@codemirror/theme-one-dark';
 import { javascript } from '@codemirror/lang-javascript';
+import ErrorFallback from './ErrorFallback';
 import Color from 'color';
 
 type CodeEditorProps = {
@@ -69,19 +71,21 @@ export const CodeEditor: React.FunctionComponent<CodeEditorProps> = (props) => {
   }
 
   return (
-    <CodeMirror
-      value={props.value}
-      width="100%"
-      height="100%"
-      theme={oneDark}
-      editable={props.editable}
-      extensions={[
-        javascript({ jsx: true }),
-        EditorView.lineWrapping,
-        getKeymap(),
-        theme,
-      ]}
-      onChange={props.onChange}
-    />
+    <ErrorBoundary FallbackComponent={ErrorFallback}>
+      <CodeMirror
+        value={props.value}
+        width="100%"
+        height="100%"
+        theme={oneDark}
+        editable={props.editable}
+        extensions={[
+          javascript({ jsx: true }),
+          EditorView.lineWrapping,
+          getKeymap(),
+          theme,
+        ]}
+        onChange={props.onChange}
+      />
+    </ErrorBoundary>
   );
 };

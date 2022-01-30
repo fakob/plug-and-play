@@ -88,7 +88,7 @@ export const FloatingSocketInspector: React.FunctionComponent<MyProps> = (
               alignItems: 'center',
             }}
           >
-            {props.socketToInspect?.parent.name}.{props.socketToInspect?.name}
+            {props.socketToInspect?.parent?.name}.{props.socketToInspect?.name}
           </Box>
           <Box
             sx={{
@@ -139,7 +139,7 @@ export const FloatingSocketInspector: React.FunctionComponent<MyProps> = (
             data={props.socketToInspect?.data}
             randomMainColor={props.randomMainColor}
             showHeader={false}
-            selectedNode={props.socketToInspect.parent as PPNode}
+            selectedNode={props.socketToInspect?.parent as PPNode}
           />
         </Box>
       </PaperComponent>
