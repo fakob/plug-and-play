@@ -267,7 +267,10 @@ export type CodeWidgetProps = {
 };
 
 export const CodeWidget: React.FunctionComponent<CodeWidgetProps> = (props) => {
-  const [data, setData] = useState(props.data);
+  const [data, setData] = useState(
+    typeof props.data === 'object' ? JSON.stringify(props.data) : props.data
+  );
+  console.log(props);
 
   return (
     <CodeEditor
