@@ -793,7 +793,7 @@ const App = (): JSX.Element => {
   };
 
   const openSocketInspector = (pos = null, socket = null) => {
-    console.log('openSocketInspector', pos, socket);
+    console.log('openSocketInspector');
     setSocketInspectorPosition(pos);
     setSocketToInspect(socket);
   };

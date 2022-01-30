@@ -50,8 +50,13 @@ export class PIXIText extends PPNode {
     this.addInput('y', new NumberType(), 0);
     this.addInput('width', new NumberType(), 100);
     this.addInput('angle', new NumberType(true, -360, 360), 0);
-    this.addInput('align', new EnumType(PIXI_TEXT_ALIGN_OPTIONS), 0, false);
-    this.addInput('pivot', new EnumType(PIXI_PIVOT_OPTIONS), 0, false);
+    this.addInput(
+      'align',
+      new EnumType(PIXI_TEXT_ALIGN_OPTIONS),
+      'left',
+      false
+    );
+    this.addInput('pivot', new EnumType(PIXI_PIVOT_OPTIONS), 'top left', false);
     this.addInput('size', new NumberType(true, 1), 24, undefined);
     this.addInput('color', new ColorType(), hexToTRgba(fillColor));
 
@@ -181,7 +186,7 @@ export class PIXIRect extends PPNode {
     this.addInput('x', new NumberType(), 0);
     this.addInput('y', new NumberType(), 0);
     this.addInput('angle', new NumberType(true, -360, 360), 0);
-    this.addInput('pivot', new EnumType(PIXI_PIVOT_OPTIONS), 0, false);
+    this.addInput('pivot', new EnumType(PIXI_PIVOT_OPTIONS), 'top left', false);
     this.addInput(
       'width',
       new NumberType(),
@@ -307,7 +312,7 @@ export class PIXICircle extends PPNode {
     this.addOutput('graphics', new AnyType());
     this.addInput('x', new NumberType(), 0);
     this.addInput('y', new NumberType(), 0);
-    this.addInput('pivot', new EnumType(PIXI_PIVOT_OPTIONS), 0, false);
+    this.addInput('pivot', new EnumType(PIXI_PIVOT_OPTIONS), 'top left', false);
     this.addInput(
       'radius',
       new NumberType(),
