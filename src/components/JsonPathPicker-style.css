@@ -6,22 +6,6 @@ ol.json-array {
   border-left: 1px dotted #505050;
   padding-left: 1em;
 }
-.json-literal {
-  color: #f4faf972;
-}
-.json-key {
-  /* font-weight: bold; */
-  color: #108ee9;
-}
-
-/* Copy path icon */
-.json-pick_path {
-  /* color: #f4faf9; */
-  /* cursor: pointer;
-  margin-right: 12px;
-  margin-left: 5px;
-  font-style: normal; */
-}
 
 .json-pick_path_ancestor {
   background-color: rgba(255, 255, 255, 0.1) !important;
@@ -35,11 +19,6 @@ ol.json-array {
 
 .json-pick_path:hover.json-key {
   background-color: rgba(255, 255, 255, 0.2) !important;
-}
-
-.json-picked_tree {
-  font-size: 1em;
-  font-family: monospace;
 }
 
 .json-pick_arr {

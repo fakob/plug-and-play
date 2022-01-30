@@ -113,14 +113,14 @@ export const FloatingSocketInspector: React.FunctionComponent<MyProps> = (
               },
             }}
           >
-            <ToggleButton value="0.3">
-              <Icon classes={{ root: styles.iconRoot }}>
-                <img className={styles.imageIcon} src={DRAWER30M_ICON} />
-              </Icon>
-            </ToggleButton>
             <ToggleButton value="0.6">
               <Icon classes={{ root: styles.iconRoot }}>
                 <img className={styles.imageIcon} src={DRAWER60M_ICON} />
+              </Icon>
+            </ToggleButton>
+            <ToggleButton value="0.3">
+              <Icon classes={{ root: styles.iconRoot }}>
+                <img className={styles.imageIcon} src={DRAWER30M_ICON} />
               </Icon>
             </ToggleButton>
           </ToggleButtonGroup>

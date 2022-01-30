@@ -440,27 +440,27 @@ const App = (): JSX.Element => {
       if (e.shiftKey) {
         viewport.current.cursor = 'default';
       }
-      if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'a') {
-        if (!isEventComingFromWithinTextInput(e)) {
+      if (!isEventComingFromWithinTextInput(e)) {
+        if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'a') {
           e.preventDefault();
           currentGraph.current.selection.selectAllNodes();
+        }
+        if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'f') {
+          e.preventDefault();
+          openNodeSearch(mousePosition);
+        }
+        if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'd') {
+          e.preventDefault();
+          currentGraph.current.duplicateSelection();
         }
       }
       if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'o') {
         e.preventDefault();
         setIsGraphSearchOpen((prevState) => !prevState);
       }
-      if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'f') {
-        e.preventDefault();
-        openNodeSearch(mousePosition);
-      }
       if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'e') {
         e.preventDefault();
         setShowEdit((prevState) => !prevState);
-      }
-      if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'd') {
-        e.preventDefault();
-        currentGraph.current.duplicateSelection();
       }
       if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 's') {
         e.preventDefault();
