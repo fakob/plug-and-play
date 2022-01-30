@@ -359,18 +359,11 @@ export default class PPSelection extends PIXI.Container {
       this.selectionGraphics.getBounds().y
     );
   }
-
-  selectNode(node: PPNode, addToOrToggleSelection = false): void {
-    if (node == null) {
-      this.deselectAllNodes();
-    } else {
-      this.selectNodes([node], addToOrToggleSelection);
-      this.drawRectanglesFromSelection();
-      this.onSelectionChange(this.selectedNodes);
-    }
-  }
-
-  selectNodes(nodes: PPNode[], addToOrToggleSelection = false): void {
+  selectNodes(
+    nodes: PPNode[],
+    addToOrToggleSelection = false,
+    notify = false
+  ): void {
     if (nodes == null) {
       this.deselectAllNodes();
     } else {
@@ -386,19 +379,22 @@ export default class PPSelection extends PIXI.Container {
       // show scaleHandle only if there is only 1 node selected
       this.scaleHandle.visible = this.selectedNodes.length === 1;
     }
+    this.drawRectanglesFromSelection();
+    if (notify) {
+      this.onSelectionChange(this.selectedNodes);
+    }
   }
 
   selectAllNodes(): void {
     this.selectedNodes = this.getNodes();
-    this.drawRectanglesFromSelection();
     // show scaleHandle only if there is only 1 node selected
     this.scaleHandle.visible = this.selectedNodes.length === 1;
-    this.onSelectionChange(this.selectedNodes);
+    this.selectNodes(this.selectedNodes, false, true);
   }
 
   deselectAllNodes(): void {
     this.selectedNodes = [];
-    this.onSelectionChange(this.selectedNodes);
+    this.selectNodes(this.selectedNodes, false, true);
   }
 
   deselectAllNodesAndResetSelection(): void {
