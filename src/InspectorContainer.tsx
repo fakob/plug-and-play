@@ -111,8 +111,6 @@ const ReactContainer: React.FunctionComponent<MyProps> = (props) => {
           isCustomNode={props.isCustomNode}
           onSave={props.onSave}
           randomMainColor={props.randomMainColor}
-          inputSocketArray={props.selectedNode?.inputSocketArray}
-          outputSocketArray={props.selectedNode?.outputSocketArray}
         />
       </Stack>
     </ThemeProvider>

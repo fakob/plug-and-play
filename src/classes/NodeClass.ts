@@ -510,10 +510,6 @@ export default class PPNode extends PIXI.Container {
     return;
   }
 
-  notifyChange(): void {
-    this.executeOptimizedChain();
-  }
-
   setPosition(x: number, y: number, isRelative = false): void {
     this.x = isRelative ? this.x + x : x;
     this.y = isRelative ? this.y + y : y;
@@ -989,7 +985,7 @@ export default class PPNode extends PIXI.Container {
       // select node if the shiftKey is pressed
       // or the node is not yet selected
       if (shiftKey || !this.selected) {
-        this.graph.selection.selectNode(this, shiftKey);
+        this.graph.selection.selectNodes([this], shiftKey, true);
       }
 
       this.interactionData = event.data;
