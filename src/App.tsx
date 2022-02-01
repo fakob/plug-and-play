@@ -37,7 +37,7 @@ import {
   NodeSearchInput,
 } from './components/Search';
 import ResponsiveDrawer from './components/ResponsiveDrawer';
-import FloatingNodeMenu from './components/FloatingNodeMenu';
+import GraphOverlay from './components/GraphOverlay';
 import ErrorFallback from './components/ErrorFallback';
 import FloatingSocketInspector from './components/FloatingSocketInspector';
 import PixiContainer from './PixiContainer';
@@ -1189,16 +1189,12 @@ NOTE: opening a remote playground creates a local copy`
               onSave={createOrUpdateNodeFromCode}
               randomMainColor={RANDOMMAINCOLOR}
             />
-            {selectedNodes.length > 0 && selectionPos && (
-              <FloatingNodeMenu
-                x={
-                  selectionPos.current.x +
-                  currentGraph.current.selection.selectionGraphics.width / 2
-                }
-                y={Math.max(0, selectionPos.current.y - 40)}
-                selectedNodes={selectedNodes}
-              />
-            )}
+            <GraphOverlay
+              currentGraph={currentGraph.current}
+              selectedNodes={selectedNodes}
+              selectionPos={selectionPos.current}
+              randomMainColor={RANDOMMAINCOLOR}
+            />
             <img
               className={styles.plugAndPlaygroundIcon}
               style={{
