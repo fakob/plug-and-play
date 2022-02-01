@@ -1,7 +1,8 @@
 import { inspect } from 'util';
 import React from 'react';
-import { JSONWidget, TextWidget } from '../../widgets';
+import { JSONWidget } from '../../widgets';
 import { AbstractType } from './abstractType';
+import { convertToString } from '../../utils/utils';
 
 export class JSONType extends AbstractType {
   constructor() {
@@ -12,9 +13,11 @@ export class JSONType extends AbstractType {
     return 'JSON';
   }
 
-  // TODO get a better JSON widget
-  getInputWidget = (data: any): any => {
-    return <JSONWidget {...data} />;
+  getInputWidget = (props: any): any => {
+    if (typeof props.data !== 'string') {
+      props.data = convertToString(props.data);
+    }
+    return <JSONWidget {...props} />;
   };
 
   getDefaultValue(): any {

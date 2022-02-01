@@ -28,7 +28,6 @@ export default class PPLink extends PIXI.Container {
 
   serialize(): SerializedLink {
     //create serialization object
-    console.log(this.source.parent);
     return {
       id: this.id,
       sourceNodeId: (this.source.parent as PPNode).id,

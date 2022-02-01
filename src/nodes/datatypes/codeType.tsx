@@ -1,6 +1,7 @@
 import React from 'react';
 import { CodeWidget } from '../../widgets';
 import { AbstractType } from './abstractType';
+import { convertToString } from '../../utils/utils';
 
 export class CodeType extends AbstractType {
   constructor() {
@@ -11,9 +12,11 @@ export class CodeType extends AbstractType {
     return 'Code';
   }
 
-  // TODO use cooler widget for this
-  getInputWidget = (data: any): any => {
-    return <CodeWidget {...data} />;
+  getInputWidget = (props: any): any => {
+    if (typeof props.data !== 'string') {
+      props.data = convertToString(props.data);
+    }
+    return <CodeWidget {...props} />;
   };
 
   getDefaultValue(): any {

@@ -1,4 +1,6 @@
 /* eslint-disable prettier/prettier */
+import { JSONPath } from 'jsonpath-plus';
+import FloatingJsonPathPicker from '../../components/FloatingJsonPathPicker';
 import PureNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
 import { SOCKET_TYPE } from '../../utils/constants';
@@ -13,7 +15,22 @@ export class JSONGet extends PureNode {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, JSONName, new JSONType()),
-      new Socket(SOCKET_TYPE.IN, JSONParamName, new StringType()),
+      new Socket(
+        SOCKET_TYPE.IN,
+        JSONParamName,
+        new StringType(),
+        undefined,
+        undefined,
+        {
+          inspectorInjection: {
+            reactComponent: FloatingJsonPathPicker,
+            props: {
+              jsonSocketName: JSONName,
+              jsonPathSocketName: JSONParamName,
+            },
+          },
+        }
+      ),
       new Socket(SOCKET_TYPE.OUT, outValueName, new JSONType()),
     ];
   }
@@ -26,23 +43,31 @@ export class JSONGet extends PureNode {
       this.inputSocketArray.forEach((input) => {
         // pretty hacky
         if (input.name.includes('Name')) {
-          current = current[input.data];
+          current = JSONPath({ path: input.data, json: current, wrap: false });
         }
       });
       outputObject[outValueName] = current;
     }
   }
 
-  public getCanAddInput(): boolean {
-    return true;
-  }
+  // keeping it as I want to add/fix this later
+  // public getCanAddInput(): boolean {
+  //   return true;
+  // }
 
-  public addDefaultInput(): void {
-    this.addInput(
-      this.constructSocketName('Name', this.inputSocketArray),
-      new StringType()
-    );
-  }
+  // public addDefaultInput(): void {
+  //   const newName = this.constructSocketName('Name', this.inputSocketArray);
+  //   this.addInput(newName, new StringType(), undefined, undefined, {
+  //     inspectorInjection: {
+  //       reactComponent: FloatingJsonPathPicker,
+  //       props: {
+  //         jsonSocketName: JSONName,
+  //         jsonPathSocketName: newName,
+  //         forceRefresh: Math.random(),
+  //       },
+  //     },
+  //   });
+  // }
 }
 
 export class JSONKeys extends PureNode {
@@ -56,7 +81,7 @@ export class JSONKeys extends PureNode {
     inputObject: unknown,
     outputObject: Record<string, unknown>
   ): Promise<void> {
-    outputObject[outValueName] = Object.keys(inputObject?.[JSONName] ?? {});
+    outputObject[outValueName] = Object.keys(inputObject[JSONName] ?? {});
   }
 }
 
@@ -71,6 +96,6 @@ export class JSONValues extends PureNode {
     inputObject: unknown,
     outputObject: Record<string, unknown>
   ): Promise<void> {
-    outputObject[outValueName] = Object.values(inputObject?.[JSONName] ?? {});
+    outputObject[outValueName] = Object.values(inputObject[JSONName] ?? {});
   }
 }

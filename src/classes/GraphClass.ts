@@ -32,6 +32,7 @@ export default class PPGraph {
 
   _showComments: boolean;
   clickedSocketRef: null | Socket;
+  clickedSocketNameRef: null | Socket;
   overInputRef: null | Socket;
   dragSourcePoint: null | PIXI.Point;
   movingLink: null | PPLink;
@@ -54,6 +55,10 @@ export default class PPGraph {
     | ((event: PIXI.InteractionEvent, target: PIXI.DisplayObject) => void)
     | null; // called when the graph is right clicked
   onOpenNodeSearch: ((pos: PIXI.Point) => void) | null; // called node search should be openend
+  onOpenSocketInspector:
+    | ((pos: PIXI.Point | null, data: unknown | null) => void)
+    | null; // called when socket inspector should be opened
+  onCloseSocketInspector: () => void; // called when socket inspector should be closed
 
   onViewportMoveHandler: (event?: PIXI.InteractionEvent) => void;
 
@@ -64,6 +69,7 @@ export default class PPGraph {
 
     this._showComments = true;
     this.clickedSocketRef = null;
+    this.clickedSocketNameRef = null;
     this.overInputRef = null;
     this.dragSourcePoint = null;
     this.movingLink = null;
@@ -159,6 +165,9 @@ export default class PPGraph {
   _onPointerDown(event: PIXI.InteractionEvent): void {
     console.log('_onPointerDown');
     event.stopPropagation();
+
+    this.onCloseSocketInspector();
+
     if (event.data.originalEvent.shiftKey) {
       this.selection.drawSelectionStart(
         event,
@@ -184,6 +193,8 @@ export default class PPGraph {
       ) {
         console.log('deselectAllNodesAndResetSelection');
         this.selection.deselectAllNodesAndResetSelection();
+
+        this.onCloseSocketInspector();
       }
     }
     if (this.selection.isDrawingSelection) {
@@ -225,6 +236,12 @@ export default class PPGraph {
         // change dragSourcePoint coordinates from screen to world space
         this.dragSourcePoint = this.viewport.toWorld(dragSourcePoint);
       }
+    } else if (this.clickedSocketNameRef !== null) {
+      const clickedSourcePoint = new PIXI.Point(
+        event.data.global.x,
+        event.data.global.y
+      );
+      this.onOpenSocketInspector(clickedSourcePoint, this.clickedSocketNameRef);
     }
 
     // subscribe to pointermove

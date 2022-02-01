@@ -24,11 +24,9 @@ import {
   TextField,
   ThemeProvider,
   createFilterOptions,
-  createTheme,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { theme } from './utils/customTheme';
 import Color from 'color';
 import { hri } from 'human-readable-ids';
 import TimeAgo from 'javascript-time-ago';
@@ -40,15 +38,18 @@ import {
 } from './components/Search';
 import ResponsiveDrawer from './components/ResponsiveDrawer';
 import FloatingNodeMenu from './components/FloatingNodeMenu';
+import ErrorFallback from './components/ErrorFallback';
+import FloatingSocketInspector from './components/FloatingSocketInspector';
 import PixiContainer from './PixiContainer';
 import { GraphContextMenu, NodeContextMenu } from './components/ContextMenus';
 import { GraphDatabase } from './utils/indexedDB';
 import PPGraph from './classes/GraphClass';
 import {
+  RANDOMMAINCOLOR,
   CANVAS_BACKGROUND_ALPHA,
   CANVAS_BACKGROUND_TEXTURE,
-  COLOR,
   PLUGANDPLAY_ICON,
+  customTheme,
 } from './utils/constants';
 import { IGraphSearch, INodeSearch } from './utils/interfaces';
 import {
@@ -58,6 +59,7 @@ import {
   getLoadedGraphId,
   getRemoteGraph,
   getRemoteGraphsList,
+  isEventComingFromWithinTextInput,
   removeExtension,
   useStateRef,
 } from './utils/utils';
@@ -79,9 +81,8 @@ const isMac = navigator.platform.indexOf('Mac') != -1;
 const controlOrMetaKey = isMac ? '⌘' : 'Ctrl';
 console.log('isMac: ', isMac);
 
-const randomMainColor = COLOR[Math.floor(Math.random() * COLOR.length)];
 const randomMainColorLightHex = PIXI.utils.string2hex(
-  Color(randomMainColor).mix(Color('white'), 0.9).hex()
+  Color(RANDOMMAINCOLOR).mix(Color('white'), 0.9).hex()
 );
 
 const App = (): JSX.Element => {
@@ -130,6 +131,13 @@ const App = (): JSX.Element => {
   // drawer
   const defaultDrawerWidth = 320;
   const [drawerWidth, setDrawerWidth] = useState(defaultDrawerWidth);
+
+  // socket info
+  const [socketInspectorPosition, setSocketInspectorPosition] =
+    useState<PIXI.Point>(new PIXI.Point(0, 0));
+  const [socketToInspect, setSocketToInspect] = useState<PPSocket | undefined>(
+    undefined
+  );
 
   let lastTimeTicked = 0;
 
@@ -209,7 +217,7 @@ const App = (): JSX.Element => {
         : {}),
       ...(isDragAccept
         ? {
-            backgroundColor: randomMainColor,
+            backgroundColor: RANDOMMAINCOLOR,
             opacity: 0.5,
           }
         : {}),
@@ -369,6 +377,17 @@ const App = (): JSX.Element => {
       openNodeSearch(pos);
     };
 
+    currentGraph.current.onOpenSocketInspector = (
+      pos: PIXI.Point,
+      socket: PPSocket
+    ) => {
+      openSocketInspector(pos, socket);
+    };
+
+    currentGraph.current.onCloseSocketInspector = () => {
+      closeSocketInspector();
+    };
+
     currentGraph.current.onRightClick = (
       event: PIXI.InteractionEvent,
       target: PIXI.DisplayObject
@@ -421,25 +440,27 @@ const App = (): JSX.Element => {
       if (e.shiftKey) {
         viewport.current.cursor = 'default';
       }
-      if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'a') {
-        e.preventDefault();
-        currentGraph.current.selection.selectAllNodes();
+      if (!isEventComingFromWithinTextInput(e)) {
+        if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'a') {
+          e.preventDefault();
+          currentGraph.current.selection.selectAllNodes();
+        }
+        if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'f') {
+          e.preventDefault();
+          openNodeSearch(mousePosition);
+        }
+        if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'd') {
+          e.preventDefault();
+          currentGraph.current.duplicateSelection();
+        }
       }
       if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'o') {
         e.preventDefault();
         setIsGraphSearchOpen((prevState) => !prevState);
       }
-      if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'f') {
-        e.preventDefault();
-        openNodeSearch(mousePosition);
-      }
       if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'e') {
         e.preventDefault();
         setShowEdit((prevState) => !prevState);
-      }
-      if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'd') {
-        e.preventDefault();
-        currentGraph.current.duplicateSelection();
       }
       if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 's') {
         e.preventDefault();
@@ -596,7 +617,6 @@ const App = (): JSX.Element => {
     const serializedGraph = currentGraph.current.serialize();
     console.log(serializedGraph);
     console.info(serializedGraph.customNodeTypes);
-    // console.log(JSON.stringify(serializedGraph));
     db.transaction('rw', db.graphs, db.settings, async () => {
       const graphs = await db.graphs.toArray();
       const loadedGraphId = await getLoadedGraphId(db);
@@ -772,6 +792,17 @@ const App = (): JSX.Element => {
     setIsNodeSearchVisible(true);
   };
 
+  const openSocketInspector = (pos = null, socket = null) => {
+    console.log('openSocketInspector');
+    setSocketInspectorPosition(pos);
+    setSocketToInspect(socket);
+  };
+
+  const closeSocketInspector = () => {
+    setSocketInspectorPosition(null);
+    setSocketToInspect(null);
+  };
+
   const nodeSearchInputBlurred = () => {
     console.log('nodeSearchInputBlurred');
     setIsNodeSearchVisible(false);
@@ -834,20 +865,9 @@ const App = (): JSX.Element => {
     }
   };
 
-  function ErrorFallback({ error, resetErrorBoundary }) {
-    return (
-      <div role="alert" style={{ color: 'white' }}>
-        <p>Something went wrong:</p>
-        <pre>{error.message}</pre>
-        <button onClick={resetErrorBoundary}>Try again</button>
-      </div>
-    );
-  }
-
   const filterGraph = (options, params) => {
     const filtered = filterOptionGraph(options, params);
     if (params.inputValue !== '') {
-      console.log(params, params.inputValue);
       filtered.push({
         id: hri.random(),
         name: params.inputValue,
@@ -860,7 +880,6 @@ const App = (): JSX.Element => {
   const filterNode = (options, params) => {
     const filtered = filterOptionNode(options, params);
     if (params.inputValue !== '') {
-      console.log(params, params.inputValue);
       filtered.push({
         title: params.inputValue,
         key: params.inputValue,
@@ -1043,13 +1062,7 @@ NOTE: opening a remote playground creates a local copy`
 
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
-      <ThemeProvider
-        theme={createTheme(theme, {
-          palette: {
-            primary: { main: randomMainColor },
-          },
-        })}
-      >
+      <ThemeProvider theme={customTheme}>
         <div
           // close open context menu again on click
           onClick={() => {
@@ -1129,6 +1142,14 @@ NOTE: opening a remote playground creates a local copy`
                 </DialogActions>
               </form>
             </Dialog>
+            {socketToInspect && (
+              <FloatingSocketInspector
+                socketInspectorPosition={socketInspectorPosition}
+                socketToInspect={socketToInspect}
+                randomMainColor={RANDOMMAINCOLOR}
+                closeSocketInspector={closeSocketInspector}
+              />
+            )}
             {isGraphContextMenuOpen && (
               <GraphContextMenu
                 controlOrMetaKey={controlOrMetaKey}
@@ -1166,7 +1187,7 @@ NOTE: opening a remote playground creates a local copy`
                   : false
               }
               onSave={createOrUpdateNodeFromCode}
-              randomMainColor={randomMainColor}
+              randomMainColor={RANDOMMAINCOLOR}
             />
             {selectedNodes.length > 0 && selectionPos && (
               <FloatingNodeMenu
@@ -1181,7 +1202,7 @@ NOTE: opening a remote playground creates a local copy`
             <img
               className={styles.plugAndPlaygroundIcon}
               style={{
-                backgroundColor: randomMainColor,
+                backgroundColor: RANDOMMAINCOLOR,
               }}
               src={PLUGANDPLAY_ICON}
               onClick={() => {
@@ -1215,7 +1236,7 @@ NOTE: opening a remote playground creates a local copy`
                     <GraphSearchInput
                       {...props}
                       inputRef={graphSearchInput}
-                      randommaincolor={randomMainColor}
+                      randommaincolor={RANDOMMAINCOLOR}
                     />
                   )}
                 />
@@ -1248,7 +1269,7 @@ NOTE: opening a remote playground creates a local copy`
                       <NodeSearchInput
                         {...props}
                         inputRef={nodeSearchInput}
-                        randommaincolor={randomMainColor}
+                        randommaincolor={RANDOMMAINCOLOR}
                       />
                     )}
                   />

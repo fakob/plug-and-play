@@ -19,8 +19,11 @@ import {
   Visibility as VisibilityIcon,
   VisibilityOff as VisibilityOffIcon,
   ExpandMore as ExpandMoreIcon,
+  ContentCopy as ContentCopyIcon,
 } from '@mui/icons-material';
 import { styled } from '@mui/styles';
+import { writeDataToClipboard, writeTextToClipboard } from './utils/utils';
+import styles from './utils/style.module.css';
 import PPGraph from './classes/GraphClass';
 import PPNode from './classes/NodeClass';
 import Socket from './classes/SocketClass';
@@ -98,6 +101,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
                   hasLink={property.hasLink()}
                   data={property.data}
                   randomMainColor={props.randomMainColor}
+                  selectedNode={props.selectedNode}
                 />
               );
             })}
@@ -111,6 +115,26 @@ export const PropertyArrayContainer: React.FunctionComponent<
           </Box>
         </StyledAccordionSummary>
         <StyledAccordionDetails>
+          <Box
+            sx={{ flexGrow: 1, display: 'inline-flex', alignItems: 'center' }}
+          >
+            <Box sx={{ pl: 1, color: 'text.primary' }}>
+              {props.selectedNode.name}:{props.selectedNode.type}
+            </Box>
+            {!props.isCustomNode && (
+              <LockIcon sx={{ pl: '2px', fontSize: '16px', opacity: 0.5 }} />
+            )}
+            <IconButton
+              size="small"
+              onClick={() =>
+                writeTextToClipboard(
+                  codeString ?? props.selectedNode.getSourceCode()
+                )
+              }
+            >
+              <ContentCopyIcon sx={{ pl: 1, fontSize: '16px' }} />
+            </IconButton>
+          </Box>
           <CodeEditor
             value={codeString ?? props.selectedNode.getSourceCode()}
             randomMainColor={props.randomMainColor}
@@ -141,6 +165,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
                   hasLink={property.hasLink()}
                   data={property.data}
                   randomMainColor={props.randomMainColor}
+                  selectedNode={props.selectedNode}
                 />
               );
             })}
@@ -159,11 +184,14 @@ type PropertyContainerProps = {
   hasLink: boolean;
   data: any;
   randomMainColor: string;
+  showHeader?: boolean;
+  selectedNode: PPNode;
 };
 
-const PropertyContainer: React.FunctionComponent<PropertyContainerProps> = (
-  props
-) => {
+export const PropertyContainer: React.FunctionComponent<
+  PropertyContainerProps
+> = (props) => {
+  const { showHeader = true } = props;
   const [dataTypeValue, setDataTypeValue] = useState(props.dataType);
   const baseProps = {
     key: props.dataType.getName(),
@@ -174,7 +202,6 @@ const PropertyContainer: React.FunctionComponent<PropertyContainerProps> = (
     data: props.data,
     randomMainColor: props.randomMainColor,
   };
-
   // const widget = dataTypeValue.getInputWidget(baseProps);
   const widget = props.isInput
     ? dataTypeValue.getInputWidget(baseProps)
@@ -188,24 +215,46 @@ const PropertyContainer: React.FunctionComponent<PropertyContainerProps> = (
     setDataTypeValue(entry);
   };
 
+  const CustomSocketInjection = ({ InjectionContent, props }) => {
+    console.log(props);
+
+    return <InjectionContent {...props} />;
+  };
+
   return (
     <Box sx={{ bgcolor: 'background.default' }}>
-      <PropertyHeader
-        key={`PropertyHeader-${props.dataType.getName()}`}
-        property={props.property}
-        index={props.index}
-        isInput={props.isInput}
-        hasLink={props.hasLink}
-        onChangeDropdown={onChangeDropdown}
-        randomMainColor={props.randomMainColor}
-      />
+      {showHeader && (
+        <PropertyHeader
+          key={`PropertyHeader-${props.dataType.getName()}`}
+          property={props.property}
+          index={props.index}
+          isInput={props.isInput}
+          hasLink={props.hasLink}
+          onChangeDropdown={onChangeDropdown}
+          randomMainColor={props.randomMainColor}
+        />
+      )}
       <Box
         sx={{
           px: 1,
           pb: 1,
           ...(props.isInput ? { marginLeft: '30px' } : { marginRight: '30px' }),
+          ...(!showHeader && { margin: '0px' }), // if no header, then override the margins
         }}
+        className={styles.propertyContainerContent}
       >
+        {props.property.custom?.inspectorInjection && (
+          <CustomSocketInjection
+            InjectionContent={
+              props.property.custom?.inspectorInjection?.reactComponent
+            }
+            props={{
+              ...props.property.custom?.inspectorInjection?.props,
+              randomMainColor: props.randomMainColor,
+              selectedNode: props.selectedNode,
+            }}
+          />
+        )}
         {widget}
       </Box>
     </Box>
@@ -279,10 +328,16 @@ const PropertyHeader: React.FunctionComponent<PropertyHeaderProps> = (
         }}
       >
         <Box sx={{ flexGrow: 1, display: 'inline-flex', alignItems: 'center' }}>
-          <Box sx={{ px: 1, color: 'text.primary' }}>{props.property.name}</Box>
+          <Box sx={{ pl: 1, color: 'text.primary' }}>{props.property.name}</Box>
           {props.hasLink && (
-            <LockIcon fontSize="inherit" sx={{ color: 'text.primary' }} />
+            <LockIcon sx={{ pl: '2px', fontSize: '16px', opacity: 0.5 }} />
           )}
+          <IconButton
+            size="small"
+            onClick={() => writeDataToClipboard(props.property?.data)}
+          >
+            <ContentCopyIcon sx={{ pl: 1, fontSize: '16px' }} />
+          </IconButton>
         </Box>
         <IconButton
           title={`Property type: ${props.property.dataType.constructor.name}`}

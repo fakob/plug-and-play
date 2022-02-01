@@ -1,5 +1,4 @@
 import NodeClass from '../../classes/NodeClass';
-import PPNode from '../../classes/NodeClass';
 import PureNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
 import { SOCKET_TYPE } from '../../utils/constants';

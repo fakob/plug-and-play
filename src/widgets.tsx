@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import Color from 'color';
 import {
   Alert,
+  Box,
   Button,
   Checkbox,
   FormControlLabel,
@@ -232,6 +233,7 @@ export type TextWidgetProps = {
   index: number;
   hasLink: boolean;
   data: string;
+  randomMainColor: string;
 };
 
 export const TextWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
@@ -273,7 +275,6 @@ export const CodeWidget: React.FunctionComponent<CodeWidgetProps> = (props) => {
       randomMainColor={props.randomMainColor}
       editable={!props.hasLink}
       onChange={(value) => {
-        console.log('value:', value);
         potentiallyNotify(props.property, value);
         setData(value);
       }}
@@ -283,21 +284,16 @@ export const CodeWidget: React.FunctionComponent<CodeWidgetProps> = (props) => {
 
 export const JSONWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
   const [data, setData] = useState(props.data);
-  const [displayedString, setDisplayedString] = useState(
-    typeof data === 'object' ? JSON.stringify(data) : data
-  );
+  const [displayedString, setDisplayedString] = useState(props.data);
   const [validJSON, setValidJSON] = useState(true);
 
   return (
-    <FormGroup>
-      <TextField
-        hiddenLabel
-        variant="filled"
-        // label={props.property.name}
-        multiline
-        disabled={props.hasLink}
-        onChange={(event) => {
-          const value = event.target.value;
+    <Box>
+      <CodeEditor
+        value={displayedString || ''}
+        randomMainColor={props.randomMainColor}
+        editable={!props.hasLink}
+        onChange={(value) => {
           setDisplayedString(value);
           try {
             const parsedValue = JSON.parse(value);
@@ -308,10 +304,9 @@ export const JSONWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
             setValidJSON(false);
           }
         }}
-        value={displayedString}
       />
       {!validJSON && <Alert severity="error">Invalid JSON!</Alert>}
-    </FormGroup>
+    </Box>
   );
 };
 
@@ -432,6 +427,7 @@ export type DefaultOutputWidgetProps = {
   isInput: boolean;
   hasLink: boolean;
   data: any;
+  randomMainColor?: string;
 };
 
 export const DefaultOutputWidget: React.FunctionComponent<
@@ -440,16 +436,10 @@ export const DefaultOutputWidget: React.FunctionComponent<
   const [data] = useState(props.data);
 
   return (
-    <FormGroup>
-      <TextField
-        hiddenLabel
-        variant="filled"
-        multiline
-        InputProps={{
-          readOnly: true,
-        }}
-        value={data}
-      />
-    </FormGroup>
+    <CodeEditor
+      value={data || ''}
+      randomMainColor={props.randomMainColor}
+      editable={false}
+    />
   );
 };

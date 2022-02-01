@@ -48,6 +48,18 @@ export function convertToArray<T>(value: T | T[]): T[] {
   return array;
 }
 
+export function convertToString(value: unknown): string {
+  let newValue;
+  if (typeof value === 'object') {
+    newValue = JSON.stringify(value, getCircularReplacer(), 2);
+  } else if (typeof value !== 'string') {
+    newValue = String(value);
+  } else {
+    newValue = value;
+  }
+  return newValue;
+}
+
 export function getElement(value: number | number[], index: number): number {
   let array: number[] = [];
   if (Array.isArray(value)) {
@@ -183,7 +195,7 @@ export const getCircularReplacer = () => {
   return (key, value) => {
     if (typeof value === 'object' && value !== null) {
       if (seen.has(value)) {
-        return;
+        return '[Circular]';
       }
       seen.add(value);
     }
@@ -319,5 +331,31 @@ export const getLoadedGraphId = async (
 export const getMethods = (o): string[] => {
   return Object.getOwnPropertyNames(Object.getPrototypeOf(o)).filter(
     (m) => 'function' === typeof o[m]
+  );
+};
+
+export const writeTextToClipboard = (newClip: string): void => {
+  navigator.clipboard.writeText(newClip).then(
+    function () {
+      /* clipboard successfully set */
+    },
+    function () {
+      console.error('Write to clipboard of this text failed:', newClip);
+    }
+  );
+};
+
+export const writeDataToClipboard = (data: unknown): void => {
+  writeTextToClipboard(JSON.stringify(data, getCircularReplacer(), 2) || '');
+};
+
+export const isEventComingFromWithinTextInput = (event: any): boolean => {
+  return (
+    event.target.dataset.slateEditor !== undefined ||
+    event.target.id === 'Input' ||
+    event.target.localName === 'input' ||
+    event.target.localName === 'textarea' ||
+    event.target.className.includes('cm-content') ||
+    event.target.className.includes('cm-scroller')
   );
 };

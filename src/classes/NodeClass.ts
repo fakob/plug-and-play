@@ -10,6 +10,7 @@ import styles from '../utils/style.module.css';
 import { CustomArgs, SerializedNode } from '../utils/interfaces';
 import {
   COMMENT_TEXTSTYLE,
+  RANDOMMAINCOLOR,
   NODE_TYPE_COLOR,
   NODE_CORNERRADIUS,
   NODE_HEADER_HEIGHT,
@@ -84,6 +85,7 @@ export default class PPNode extends PIXI.Container {
   interactionData: PIXI.InteractionData | null;
 
   container: HTMLElement; // for hybrid nodes
+  static: HTMLElement;
 
   // supported callbacks
   onConfigure: ((nodeConfig: SerializedNode) => void) | null;
@@ -365,15 +367,13 @@ export default class PPNode extends PIXI.Container {
         )),
           (this.inputSocketArray[index].data = item.data);
         this.inputSocketArray[index].setVisible(item.visible ?? true);
-        this.inputSocketArray[index].custom = item.custom;
       } else {
         // add socket if it does not exist yet
         this.addInput(
           item.name,
           deSerializeType(item.dataType),
           item.data,
-          item.visible ?? true,
-          item.custom === undefined ? {} : { ...item.custom }
+          item.visible ?? true
         );
       }
     });
@@ -385,14 +385,12 @@ export default class PPNode extends PIXI.Container {
         this.outputSocketArray[index].setName(item.name);
         this.outputSocketArray[index].dataType = deSerializeType(item.dataType);
         this.outputSocketArray[index].setVisible(item.visible ?? true);
-        this.outputSocketArray[index].custom = item.custom;
       } else {
         // add socket if it does not exist
         this.addOutput(
           item.name,
           deSerializeType(item.dataType),
-          item.visible ?? true,
-          item.custom
+          item.visible ?? true
         );
       }
     });
@@ -692,6 +690,44 @@ export default class PPNode extends PIXI.Container {
     return this.graph.viewport.toScreen(this.x + NODE_MARGIN, this.y);
   }
 
+  // this function
+  // • creates a static component
+  createStaticContainerComponent(
+    parentDocument: Document,
+    reactParent: any,
+    reactProps: any,
+    customStyles = {}
+  ): HTMLElement {
+    // create html container
+    const staticId = `Static-${this.id}`;
+    if (this.static?.id !== staticId) {
+      this.static = parentDocument.createElement('div');
+      this.static.id = staticId;
+
+      // add it to the DOM
+      parentDocument.body.appendChild(this.static);
+
+      // when the Node is removed also remove the react component and its static
+      this.onNodeRemoved = () => {
+        this.removeContainerComponent(this.static);
+      };
+    } else {
+      console.log('Modal already exists', this.static);
+    }
+    console.dir(this.static, this.static.childNodes);
+    // render react component
+    this.renderReactComponent(
+      reactParent,
+      {
+        ...reactProps,
+        randomMainColor: RANDOMMAINCOLOR,
+      },
+      this.static
+    );
+
+    return this.static;
+  }
+
   // this function can be called for hybrid nodes, it
   // • creates a container component
   // • adds the onNodeDragOrViewportMove listener to it
@@ -699,7 +735,8 @@ export default class PPNode extends PIXI.Container {
   createContainerComponent(
     parentDocument: Document,
     reactParent,
-    reactProps
+    reactProps,
+    customStyles = {}
   ): HTMLElement {
     // create html container
     this.container = parentDocument.createElement('div');
@@ -712,6 +749,7 @@ export default class PPNode extends PIXI.Container {
     this.container.classList.add(styles.hybridContainer);
     this.container.style.width = `${this.nodeWidth}px`;
     this.container.style.height = `${this.nodeHeight}px`;
+    Object.assign(this.container.style, customStyles);
 
     // set initial position
     this.container.style.transform = `translate(50%, 50%)`;
@@ -735,18 +773,26 @@ export default class PPNode extends PIXI.Container {
 
     // when the Node is removed also remove the react component and its container
     this.onNodeRemoved = () => {
-      ReactDOM.unmountComponentAtNode(this.container);
-      document.body.removeChild(this.container);
+      this.removeContainerComponent(this.container);
     };
 
     // render react component
-    this.renderReactComponent(reactParent, reactProps);
+    this.renderReactComponent(reactParent, {
+      ...reactProps,
+      randomMainColor: RANDOMMAINCOLOR,
+    });
 
     return this.container;
   }
 
   // the render method, takes a component and props, and renders it to the page
-  renderReactComponent = (component, props) => {
+  renderReactComponent = (
+    component: any,
+    props: {
+      [key: string]: any;
+    },
+    container = this.container
+  ): void => {
     ReactDOM.render(
       React.createElement(component, {
         ...props,
@@ -754,9 +800,14 @@ export default class PPNode extends PIXI.Container {
         selected: this.selected,
         doubleClicked: this.doubleClicked,
       }),
-      this.container
+      container
     );
   };
+
+  removeContainerComponent(container: HTMLElement): void {
+    ReactDOM.unmountComponentAtNode(container);
+    document.body.removeChild(container);
+  }
 
   getInputSocketByName(slotName: string): Socket {
     if (!this.inputSocketArray) {

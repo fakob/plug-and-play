@@ -1,4 +1,5 @@
-import * as React from 'react';
+import React, { useState } from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
 import CodeMirror, {
   EditorView,
   KeyBinding,
@@ -6,11 +7,13 @@ import CodeMirror, {
 } from '@uiw/react-codemirror';
 import { oneDark } from '@codemirror/theme-one-dark';
 import { javascript } from '@codemirror/lang-javascript';
+import { Box, Button } from '@mui/material';
+import ErrorFallback from './ErrorFallback';
 import Color from 'color';
 
 type CodeEditorProps = {
   value: string;
-  onChange: (code: string) => void;
+  onChange?: (code: string) => void;
   onSave?: (code: string) => void;
   randomMainColor: string;
   editable?: boolean;
@@ -38,6 +41,18 @@ export const CodeEditor: React.FunctionComponent<CodeEditorProps> = (props) => {
     // },
   });
 
+  const maxStringLength = 10000;
+  const valueLength = props.value?.length;
+  const [loadAll, setLoadAll] = useState(valueLength < maxStringLength);
+  const [loadedValue, setLoadedValue] = useState(
+    loadAll ? props.value : props.value?.slice(0, maxStringLength) + '...'
+  );
+
+  const onLoadAll = () => {
+    setLoadedValue(props.value);
+    setLoadAll(true);
+  };
+
   const saveCode = () => {
     console.log('Create/Update node command from Editor');
     if (props.onSave) {
@@ -52,7 +67,7 @@ export const CodeEditor: React.FunctionComponent<CodeEditorProps> = (props) => {
     // Save command
     const save = (editor) => {
       saveCode();
-      console.log(editor.toString());
+      // console.log(editor.toString());
       return true;
     };
 
@@ -69,19 +84,35 @@ export const CodeEditor: React.FunctionComponent<CodeEditorProps> = (props) => {
   }
 
   return (
-    <CodeMirror
-      value={props.value}
-      width="100%"
-      height="100%"
-      theme={oneDark}
-      editable={props.editable}
-      extensions={[
-        javascript({ jsx: true }),
-        EditorView.lineWrapping,
-        getKeymap(),
-        theme,
-      ]}
-      onChange={props.onChange}
-    />
+    <ErrorBoundary FallbackComponent={ErrorFallback}>
+      <Box sx={{ position: 'relative' }}>
+        {!loadAll && (
+          <Button
+            sx={{ position: 'absolute', top: '8px', right: '8px', zIndex: 10 }}
+            color="secondary"
+            variant="contained"
+            size="small"
+            onClick={onLoadAll}
+          >
+            Load all{props.editable && ' (to edit)'}
+          </Button>
+        )}
+        <CodeMirror
+          value={loadedValue}
+          width="100%"
+          minHeight="40px"
+          maxHeight="60vh"
+          theme={oneDark}
+          editable={props.editable}
+          extensions={[
+            javascript({ jsx: true }),
+            EditorView.lineWrapping,
+            getKeymap(),
+            theme,
+          ]}
+          onChange={props.onChange}
+        />
+      </Box>
+    </ErrorBoundary>
   );
 };

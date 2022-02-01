@@ -1,0 +1,41 @@
+/* Syntax highlighting for JSON objects */
+ul.json-dict,
+ol.json-array {
+  list-style-type: none;
+  margin: 0 0 0 1px;
+  border-left: 1px dotted #505050;
+  padding-left: 1em;
+}
+
+.json-pick_path_ancestor {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.json-pick_path:hover.json-value,
+.json-picked {
+  background-color: rgba(255, 255, 255, 0.8) !important;
+  color: rgba(0, 0, 0, 1) !important;
+}
+
+.json-pick_path:hover.json-key {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.json-pick_arr {
+  position: relative;
+  color: #f4faf9;
+  cursor: pointer;
+  font-style: normal;
+  margin-left: -16px;
+}
+
+.json-pick_arr:hover,
+.json-picked_arr {
+  background-color: rgba(255, 255, 255, 0.8) !important;
+  color: rgba(0, 0, 0, 1) !important;
+}
+
+.listItem {
+  background-color: rgba(255, 255, 255, 0.01);
+  cursor: pointer;
+}

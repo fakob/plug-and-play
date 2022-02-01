@@ -151,6 +151,7 @@
   position: absolute;
   z-index: 0;
   transform-origin: top left;
+  overflow: auto;
 }
 
 .hybridContainer:focus {
@@ -231,6 +232,11 @@
   z-index: 100;
 }
 
+.floatingSocketInspector {
+  position: absolute;
+  z-index: 200;
+}
+
 .imageIcon {
   display: flex;
   height: inherit;
@@ -239,4 +245,9 @@
 
 .iconRoot {
   text-align: 'center';
+}
+
+.propertyContainerContent {
+  max-height: 60vh;
+  overflow: auto;
 }
