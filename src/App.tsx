@@ -134,7 +134,7 @@ const App = (): JSX.Element => {
 
   // socket info
   const [socketInspectorPosition, setSocketInspectorPosition] =
-    useState<PIXI.Point | null>(null);
+    useState<PIXI.Point>(new PIXI.Point(0, 0));
   const [socketToInspect, setSocketToInspect] = useState<PPSocket | undefined>(
     undefined
   );

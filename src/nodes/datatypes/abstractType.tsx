@@ -2,6 +2,8 @@
 import React from 'react';
 import { inspect } from 'util';
 import { DefaultOutputWidget, CodeWidget } from '../../widgets';
+import { convertToString } from '../../utils/utils';
+
 export class AbstractType {
   // override any and all of these in child classes
   getName(): string {
@@ -21,8 +23,11 @@ export class AbstractType {
     return <CodeWidget {...data} />;
   };
 
-  getOutputWidget = (data: any): any => {
-    return <DefaultOutputWidget {...data} />;
+  getOutputWidget = (props: any): any => {
+    if (typeof props.data !== 'string') {
+      props.data = convertToString(props.data);
+    }
+    return <DefaultOutputWidget {...props} />;
   };
 
   getDefaultValue(): any {

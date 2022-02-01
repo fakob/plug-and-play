@@ -48,6 +48,18 @@ export function convertToArray<T>(value: T | T[]): T[] {
   return array;
 }
 
+export function convertToString(value: unknown): string {
+  let newValue;
+  if (typeof value === 'object') {
+    newValue = JSON.stringify(value, getCircularReplacer(), 2);
+  } else if (typeof value !== 'string') {
+    newValue = String(value);
+  } else {
+    newValue = value;
+  }
+  return newValue;
+}
+
 export function getElement(value: number | number[], index: number): number {
   let array: number[] = [];
   if (Array.isArray(value)) {

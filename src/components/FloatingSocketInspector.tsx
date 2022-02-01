@@ -88,7 +88,7 @@ export const FloatingSocketInspector: React.FunctionComponent<MyProps> = (
               alignItems: 'center',
             }}
           >
-            {props.socketToInspect?.parent?.name}.{props.socketToInspect?.name}
+            {props.socketToInspect.parent?.name}.{props.socketToInspect.name}
           </Box>
           <Box
             sx={{
@@ -97,7 +97,7 @@ export const FloatingSocketInspector: React.FunctionComponent<MyProps> = (
           >
             <IconButton
               size="small"
-              onClick={() => writeDataToClipboard(props.socketToInspect?.data)}
+              onClick={() => writeDataToClipboard(props.socketToInspect.data)}
             >
               <ContentCopyIcon sx={{ fontSize: '16px' }} />
             </IconButton>
@@ -133,13 +133,13 @@ export const FloatingSocketInspector: React.FunctionComponent<MyProps> = (
             key={0}
             property={props.socketToInspect}
             index={0}
-            dataType={props.socketToInspect?.dataType}
-            isInput={props.socketToInspect?.isInput()}
-            hasLink={props.socketToInspect?.hasLink()}
-            data={props.socketToInspect?.data}
+            dataType={props.socketToInspect.dataType}
+            isInput={props.socketToInspect.isInput()}
+            hasLink={props.socketToInspect.hasLink()}
+            data={props.socketToInspect.data}
             randomMainColor={props.randomMainColor}
             showHeader={false}
-            selectedNode={props.socketToInspect?.parent as PPNode}
+            selectedNode={props.socketToInspect.parent as PPNode}
           />
         </Box>
       </PaperComponent>

@@ -27,7 +27,6 @@ export class JSONGet extends PureNode {
             props: {
               jsonSocketName: JSONName,
               jsonPathSocketName: JSONParamName,
-              forceRefresh: Math.random(),
             },
           },
         }

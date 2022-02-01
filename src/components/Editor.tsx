@@ -45,7 +45,7 @@ export const CodeEditor: React.FunctionComponent<CodeEditorProps> = (props) => {
   const valueLength = props.value?.length;
   const [loadAll, setLoadAll] = useState(valueLength < maxStringLength);
   const [loadedValue, setLoadedValue] = useState(
-    loadAll ? props.value : props.value.slice(0, maxStringLength) + '...'
+    loadAll ? props.value : props.value?.slice(0, maxStringLength) + '...'
   );
 
   const onLoadAll = () => {

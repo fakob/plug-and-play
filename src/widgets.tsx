@@ -17,7 +17,7 @@ import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import { SketchPicker } from 'react-color';
 import { CodeEditor } from './components/Editor';
 import Socket from './classes/SocketClass';
-import { getCircularReplacer, roundNumber } from './utils/utils';
+import { roundNumber } from './utils/utils';
 import styles from './utils/style.module.css';
 import { TRgba } from './utils/interfaces';
 import { EnumStructure } from './nodes/datatypes/enumType';
@@ -267,11 +267,7 @@ export type CodeWidgetProps = {
 };
 
 export const CodeWidget: React.FunctionComponent<CodeWidgetProps> = (props) => {
-  const [data, setData] = useState(
-    typeof props.data === 'object'
-      ? JSON.stringify(props.data, getCircularReplacer(), 2)
-      : props.data
-  );
+  const [data, setData] = useState(props.data);
 
   return (
     <CodeEditor
@@ -288,11 +284,7 @@ export const CodeWidget: React.FunctionComponent<CodeWidgetProps> = (props) => {
 
 export const JSONWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
   const [data, setData] = useState(props.data);
-  const [displayedString, setDisplayedString] = useState(
-    typeof data === 'object'
-      ? JSON.stringify(data, getCircularReplacer(), 2)
-      : data
-  );
+  const [displayedString, setDisplayedString] = useState(props.data);
   const [validJSON, setValidJSON] = useState(true);
 
   return (
@@ -445,7 +437,7 @@ export const DefaultOutputWidget: React.FunctionComponent<
 
   return (
     <CodeEditor
-      value={JSON.stringify(data, getCircularReplacer(), 2) || ''}
+      value={data || ''}
       randomMainColor={props.randomMainColor}
       editable={false}
     />
