@@ -36,7 +36,6 @@ import {
   GraphSearchPopper,
   NodeSearchInput,
 } from './components/Search';
-import ResponsiveDrawer from './components/ResponsiveDrawer';
 import GraphOverlay from './components/GraphOverlay';
 import ErrorFallback from './components/ErrorFallback';
 import FloatingSocketInspector from './components/FloatingSocketInspector';
@@ -102,7 +101,6 @@ const App = (): JSX.Element => {
   const viewport = useRef<Viewport | null>(null);
   const graphSearchInput = useRef<HTMLInputElement | null>(null);
   const nodeSearchInput = useRef<HTMLInputElement | null>(null);
-  const selectionPos = useRef<PIXI.Point>(new PIXI.Point(0, 0));
   const [isGraphSearchOpen, setIsGraphSearchOpen] = useState(false);
   const [isNodeSearchVisible, setIsNodeSearchVisible] = useState(false);
   const [isGraphContextMenuOpen, setIsGraphContextMenuOpen] = useState(false);
@@ -111,7 +109,6 @@ const App = (): JSX.Element => {
   const [isCurrentGraphLoaded, setIsCurrentGraphLoaded] = useState(false);
   const [actionObject, setActionObject] = useState(null); // id and name of graph to edit/delete
   const [showComments, setShowComments] = useState(false);
-  const [selectedNodes, setSelectedNodes] = useState<PPNode[]>([]);
   const [remoteGraphs, setRemoteGraphs, remoteGraphsRef] = useStateRef([]);
   const [graphSearchItems, setGraphSearchItems] = useState<
     IGraphSearch[] | null
@@ -127,10 +124,6 @@ const App = (): JSX.Element => {
   // dialogs
   const [showEdit, setShowEdit] = useState(false);
   const [showDeleteGraph, setShowDeleteGraph] = useState(false);
-
-  // drawer
-  const defaultDrawerWidth = 320;
-  const [drawerWidth, setDrawerWidth] = useState(defaultDrawerWidth);
 
   // socket info
   const [socketInspectorPosition, setSocketInspectorPosition] =
@@ -320,11 +313,6 @@ const App = (): JSX.Element => {
 
       background.width = innerWidth / viewport.current.scale.x;
       background.height = innerHeight / viewport.current.scale.y;
-
-      // reposition node menu
-      if (currentGraph.current.selection.selectedNodes.length > 0) {
-        selectionPos.current = currentGraph.current.selection.screenPoint();
-      }
     });
 
     background.alpha = CANVAS_BACKGROUND_ALPHA;
@@ -362,16 +350,6 @@ const App = (): JSX.Element => {
         setRemoteGraphs(arrayOfFileNames);
       }
     );
-
-    // register callbacks
-    currentGraph.current.selection.onSelectionChange = setSelectedNodes;
-
-    // register callbacks
-    currentGraph.current.selection.onSelectionRedrawn = (
-      screenPoint: PIXI.Point
-    ) => {
-      selectionPos.current = screenPoint;
-    };
 
     currentGraph.current.onOpenNodeSearch = (pos: PIXI.Point) => {
       openNodeSearch(pos);
@@ -715,10 +693,6 @@ const App = (): JSX.Element => {
     currentGraph.current.configure(fileData);
     const newName = `${removeExtension(remoteGraphsRef.current[id])} - copy`; // remove .ppgraph extension and add copy
     saveNewGraph(newName);
-  }
-
-  function createOrUpdateNodeFromCode(code) {
-    currentGraph.current.createOrUpdateNodeFromCode(code);
   }
 
   const handleGraphItemSelect = (event, selected: IGraphSearch) => {
@@ -1176,23 +1150,8 @@ NOTE: opening a remote playground creates a local copy`
               />
             )}
             <PixiContainer ref={pixiContext} />
-            <ResponsiveDrawer
-              drawerWidth={drawerWidth}
-              setDrawerWidth={setDrawerWidth}
-              currentGraph={currentGraph.current}
-              selectedNode={selectedNodes.length > 0 ? selectedNodes[0] : null}
-              isCustomNode={
-                selectedNodes.length > 0
-                  ? currentGraph.current.isCustomNode(selectedNodes[0])
-                  : false
-              }
-              onSave={createOrUpdateNodeFromCode}
-              randomMainColor={RANDOMMAINCOLOR}
-            />
             <GraphOverlay
               currentGraph={currentGraph.current}
-              selectedNodes={selectedNodes}
-              selectionPos={selectionPos.current}
               randomMainColor={RANDOMMAINCOLOR}
             />
             <img
