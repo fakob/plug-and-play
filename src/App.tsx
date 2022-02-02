@@ -38,7 +38,6 @@ import {
 } from './components/Search';
 import GraphOverlay from './components/GraphOverlay';
 import ErrorFallback from './components/ErrorFallback';
-import FloatingSocketInspector from './components/FloatingSocketInspector';
 import PixiContainer from './PixiContainer';
 import { GraphContextMenu, NodeContextMenu } from './components/ContextMenus';
 import { GraphDatabase } from './utils/indexedDB';
@@ -124,13 +123,6 @@ const App = (): JSX.Element => {
   // dialogs
   const [showEdit, setShowEdit] = useState(false);
   const [showDeleteGraph, setShowDeleteGraph] = useState(false);
-
-  // socket info
-  const [socketInspectorPosition, setSocketInspectorPosition] =
-    useState<PIXI.Point>(new PIXI.Point(0, 0));
-  const [socketToInspect, setSocketToInspect] = useState<PPSocket | undefined>(
-    undefined
-  );
 
   let lastTimeTicked = 0;
 
@@ -353,17 +345,6 @@ const App = (): JSX.Element => {
 
     currentGraph.current.onOpenNodeSearch = (pos: PIXI.Point) => {
       openNodeSearch(pos);
-    };
-
-    currentGraph.current.onOpenSocketInspector = (
-      pos: PIXI.Point,
-      socket: PPSocket
-    ) => {
-      openSocketInspector(pos, socket);
-    };
-
-    currentGraph.current.onCloseSocketInspector = () => {
-      closeSocketInspector();
     };
 
     currentGraph.current.onRightClick = (
@@ -766,17 +747,6 @@ const App = (): JSX.Element => {
     setIsNodeSearchVisible(true);
   };
 
-  const openSocketInspector = (pos = null, socket = null) => {
-    console.log('openSocketInspector');
-    setSocketInspectorPosition(pos);
-    setSocketToInspect(socket);
-  };
-
-  const closeSocketInspector = () => {
-    setSocketInspectorPosition(null);
-    setSocketToInspect(null);
-  };
-
   const nodeSearchInputBlurred = () => {
     console.log('nodeSearchInputBlurred');
     setIsNodeSearchVisible(false);
@@ -1116,14 +1086,6 @@ NOTE: opening a remote playground creates a local copy`
                 </DialogActions>
               </form>
             </Dialog>
-            {socketToInspect && (
-              <FloatingSocketInspector
-                socketInspectorPosition={socketInspectorPosition}
-                socketToInspect={socketToInspect}
-                randomMainColor={RANDOMMAINCOLOR}
-                closeSocketInspector={closeSocketInspector}
-              />
-            )}
             {isGraphContextMenuOpen && (
               <GraphContextMenu
                 controlOrMetaKey={controlOrMetaKey}
