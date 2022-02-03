@@ -147,7 +147,7 @@ export default class PPSelection extends PIXI.Container {
           newlySelectedNodes
         );
 
-        this.selectNodes(differenceSelection);
+        this.selectNodes(differenceSelection, false, true);
         this.drawRectanglesFromSelection();
       } else {
         console.log('startDragAction');
