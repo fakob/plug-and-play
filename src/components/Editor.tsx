@@ -1,10 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import CodeMirror, {
   EditorView,
   KeyBinding,
   keymap,
-  ReactCodeMirrorRef,
 } from '@uiw/react-codemirror';
 import { oneDark } from '@codemirror/theme-one-dark';
 import { javascript } from '@codemirror/lang-javascript';
@@ -18,8 +17,6 @@ type CodeEditorProps = {
   onSave?: (code: string) => void;
   randomMainColor: string;
   editable?: boolean;
-  height?: string;
-  scale?: number;
 };
 
 export const CodeEditor: React.FunctionComponent<CodeEditorProps> = (props) => {
@@ -42,30 +39,14 @@ export const CodeEditor: React.FunctionComponent<CodeEditorProps> = (props) => {
     // '&.cm-editor.cm-focused': {
     //   outline: 'none',
     // },
-    //     .CodeMirror-cursors,
-    // .CodeMirror-measure:nth-child(2) + div{
-    // '& .cm-cursorLayer, & .cm-selectionLayer,': {
-    // '& .cm-selectionLayer,': {
-    //   transformOrigin: '0 0',
-    //   transform: `scale(${1 / props.scale})`, // Reverse scale
-    // },
   });
 
-  const editorRef = useRef<ReactCodeMirrorRef | null>(null);
   const maxStringLength = 10000;
   const valueLength = props.value?.length;
   const [loadAll, setLoadAll] = useState(valueLength < maxStringLength);
   const [loadedValue, setLoadedValue] = useState(
     loadAll ? props.value : props.value?.slice(0, maxStringLength) + '...'
   );
-  console.log(props.value);
-
-  useEffect(() => {
-    console.log(editorRef.current);
-    if (editorRef.current) {
-      // editorRef.current.editor.
-    }
-  }, [editorRef.current]);
 
   const onLoadAll = () => {
     setLoadedValue(props.value);
@@ -102,14 +83,6 @@ export const CodeEditor: React.FunctionComponent<CodeEditorProps> = (props) => {
     return keymap.of(conf);
   }
 
-  // function showCode() {
-  //   const editor = document.querySelector('.CodeMirror');
-  //   editor.classList.toggle('active');
-
-  //   // use the object for refresh CodeMirror
-  //   editor.CodeMirror.refresh();
-  // }
-
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
       <Box sx={{ position: 'relative' }}>
@@ -125,12 +98,10 @@ export const CodeEditor: React.FunctionComponent<CodeEditorProps> = (props) => {
           </Button>
         )}
         <CodeMirror
-          ref={editorRef}
           value={loadedValue}
           width="100%"
           minHeight="40px"
           maxHeight="60vh"
-          height={props.height}
           theme={oneDark}
           editable={props.editable}
           extensions={[
