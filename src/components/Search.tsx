@@ -64,6 +64,7 @@ export const NodeSearchInput = (props) => {
         height: '40px',
         lineHeight: '40px',
         backgroundColor: `${backgroundColor}`,
+        zIndex: 10,
         '&&& .MuiInputBase-root': {
           backgroundColor: 'transparent',
         },

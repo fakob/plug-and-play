@@ -42,11 +42,13 @@ export const CodeEditor: React.FunctionComponent<CodeEditorProps> = (props) => {
     // '&.cm-editor.cm-focused': {
     //   outline: 'none',
     // },
-    // .CodeMirror-cursors,
+    //     .CodeMirror-cursors,
     // .CodeMirror-measure:nth-child(2) + div{
-    //     transform:scale(1.1); /* Reverse scale from 0.9 */
-    //     transform-origin: 0 0;
-    // }
+    // '& .cm-cursorLayer, & .cm-selectionLayer,': {
+    // '& .cm-selectionLayer,': {
+    //   transformOrigin: '0 0',
+    //   transform: `scale(${1 / props.scale})`, // Reverse scale
+    // },
   });
 
   const editorRef = useRef<ReactCodeMirrorRef | null>(null);
@@ -56,8 +58,7 @@ export const CodeEditor: React.FunctionComponent<CodeEditorProps> = (props) => {
   const [loadedValue, setLoadedValue] = useState(
     loadAll ? props.value : props.value?.slice(0, maxStringLength) + '...'
   );
-  console.log(EditorView);
-  console.log(props.scale);
+  console.log(props.value);
 
   useEffect(() => {
     console.log(editorRef.current);
@@ -65,10 +66,6 @@ export const CodeEditor: React.FunctionComponent<CodeEditorProps> = (props) => {
       // editorRef.current.editor.
     }
   }, [editorRef.current]);
-
-  useEffect(() => {
-    console.log(props.scale);
-  }, [props.scale]);
 
   const onLoadAll = () => {
     setLoadedValue(props.value);
