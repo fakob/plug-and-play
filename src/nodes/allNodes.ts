@@ -4,6 +4,7 @@ import * as base from './base';
 import * as draw from './draw';
 import * as math from './math';
 import * as text from './text';
+import * as logViewer from './logViewer';
 import * as codeEditor from './codeEditor';
 import * as shader from './image/shader';
 import * as image from './image/image';
@@ -20,6 +21,7 @@ export const registerAllNodeTypes = (graph: PPGraph): void => {
     draw,
     text,
     codeEditor,
+    logViewer,
     shader,
     image,
     get,
