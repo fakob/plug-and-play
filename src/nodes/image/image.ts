@@ -2,7 +2,11 @@
 import * as PIXI from 'pixi.js';
 import PPGraph from '../../classes/GraphClass';
 import { CustomArgs } from '../../utils/interfaces';
-import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../../utils/constants';
+import {
+  NODE_MARGIN,
+  NODE_TYPE_COLOR,
+  SOCKET_TYPE,
+} from '../../utils/constants';
 import Socket from '../../classes/SocketClass';
 import { ImageType } from '../datatypes/imageType';
 import PPNode from '../../classes/NodeClass';
@@ -14,15 +18,10 @@ const imageInputName = 'Image';
 const imageOutputName = 'Image';
 
 export class Image extends PPNode {
-  sprite: PIXI.Texture;
+  sprite: PIXI.Sprite;
   protected getDefaultIO(): Socket[] {
     return [
-      new Socket(
-        SOCKET_TYPE.IN,
-        imageInputName,
-        new ImageType(),
-        defaultImage
-      ),
+      new Socket(SOCKET_TYPE.IN, imageInputName, new ImageType(), defaultImage),
       new Socket(
         SOCKET_TYPE.OUT,
         imageOutputName,
@@ -31,8 +30,6 @@ export class Image extends PPNode {
       ),
     ];
   }
-
-  borderDistance = 10;
 
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
     super(name, graph, {
@@ -43,26 +40,32 @@ export class Image extends PPNode {
     this.name = 'Draw Image';
     this.description = 'Draws an Image (base64)';
 
-
     this.onExecute = async function (input, output) {
-
       const base64 = input[imageInputName];
       if (base64) {
         const image = PIXI.Texture.from(base64);
-        const prevSprite : PIXI.Sprite = this.sprite;
+        const prevSprite: PIXI.Sprite = this.sprite;
         this.sprite = new PIXI.Sprite(image);
-        this.sprite.width = this.width - 2 * this.borderDistance;
-        this.sprite.height = this.height - 2 * this.borderDistance;
-        this.sprite.x = this.borderDistance;
-        this.sprite.y = this.borderDistance;
+        this.sprite.width = this.width - 2 * NODE_MARGIN;
+        this.sprite.height = this.height - 2 * NODE_MARGIN;
+        this.sprite.x = NODE_MARGIN;
+        this.sprite.y = NODE_MARGIN;
         this.addChild(this.sprite);
         // wait with the clear to avoid flashing
-        setTimeout(() => this.removeChild(prevSprite),20);
+        setTimeout(() => this.removeChild(prevSprite), 20);
         // race condition here? dont know why this is needed...
-        await new Promise(resolve => setTimeout(resolve, 1));
+        await new Promise((resolve) => setTimeout(resolve, 1));
         output[imageOutputName] = base64;
       }
     };
+
+    this.onNodeResize = (newWidth, newHeight) => {
+      if (this.sprite !== undefined) {
+        this.sprite.width = newWidth;
+        this.sprite.height = newHeight - 2 * NODE_MARGIN;
+      }
+    };
+
     return;
   }
 }
