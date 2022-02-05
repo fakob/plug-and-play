@@ -29,14 +29,8 @@ export class LogViewer extends PPNode {
 
     // when the Node is added, add the container and react component
     this.onNodeAdded = () => {
-      const data = this.getInputData('input');
-      const rowLimit = this.getInputData('rowLimit');
-      const hasLink = this.getInputSocketByName('input').hasLink();
       this.createContainerComponent(document, ParentComponent, {
-        data: data,
-        hasLink,
         nodeHeight,
-        rowLimit,
       });
     };
 
@@ -52,7 +46,6 @@ export class LogViewer extends PPNode {
     type MyProps = {
       data: string;
       randomMainColor: string;
-      hasLink: boolean;
       nodeHeight: number;
       rowLimit: number;
     };
