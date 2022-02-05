@@ -30,7 +30,7 @@ import { Slate, Editable, withReact, ReactEditor, useSlate } from 'slate-react';
 import { HistoryEditor, withHistory } from 'slate-history';
 import { Menu, Portal } from '../utils/slate-editor-components';
 import PPGraph from '../classes/GraphClass';
-import PPNode from '../classes/NodeClass';
+import PPNode, { PureNode } from '../classes/NodeClass';
 import { CustomArgs, TRgba } from '../utils/interfaces';
 import {
   convertStringToSlateNodes,
@@ -516,7 +516,7 @@ import { ColorType } from './datatypes/colorType';
 //   );
 // };
 
-export class Label extends PPNode {
+export class Label extends PureNode {
   _refText: PIXI.Text;
   _refTextStyle: PIXI.TextStyle;
   currentInput: HTMLDivElement;
@@ -683,7 +683,7 @@ export class Label extends PPNode {
       this.createInputElement();
     };
 
-    this.onExecute = async (input) => {
+    this.onExecute = async (input, output) => {
       if (!this.doubleClicked) {
         const text = String(input['text']);
         const fontSize = input['fontSize'];
@@ -711,7 +711,7 @@ export class Label extends PPNode {
           Math.max(minWidth, textMetrics.width + marginLeftRight * 2),
           textMetrics.height + marginTopBottom * 2
         );
-        this.setOutputData('text', text);
+        output['text'] = text;
 
         this._refText.text = text;
         this._refText.x = this.x + NODE_MARGIN + marginLeftRight;
