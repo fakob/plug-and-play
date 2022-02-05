@@ -245,6 +245,15 @@ const App = (): JSX.Element => {
       { passive: false }
     );
 
+    // disable default context menu for pixi only
+    pixiApp.current.view.addEventListener(
+      'contextmenu',
+      (e: Event) => {
+        e.preventDefault();
+      },
+      { passive: false }
+    );
+
     window.addEventListener(
       'mousemove',
       function (mouseMoveEvent) {
@@ -253,11 +262,6 @@ const App = (): JSX.Element => {
       },
       false
     );
-
-    // disable default context menu
-    window.addEventListener('contextmenu', (e: Event) => {
-      e.preventDefault();
-    });
 
     // create viewport
     viewport.current = new Viewport({
