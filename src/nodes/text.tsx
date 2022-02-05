@@ -179,7 +179,7 @@ export class Label extends PureNode {
           newHeight + marginTopBottom
         );
 
-        this.setInputData('text', text);
+        this.setInputData('data', text);
         this.executeOptimizedChain();
       });
 
@@ -192,39 +192,37 @@ export class Label extends PureNode {
     };
 
     this.onExecute = async (input, output) => {
-      if (!this.doubleClicked) {
-        const text = String(input['text']);
-        const fontSize = input['fontSize'];
-        const minWidth = input['min-width'];
-        const color = trgbaToColor(input['backgroundColor']);
+      const text = String(input['text']);
+      const fontSize = input['fontSize'];
+      const minWidth = input['min-width'];
+      const color = trgbaToColor(input['backgroundColor']);
 
-        const marginTopBottom = fontSize / 2;
-        const marginLeftRight = fontSize / 1.5;
+      const marginTopBottom = fontSize / 2;
+      const marginLeftRight = fontSize / 1.5;
 
-        this._refTextStyle.fontSize = fontSize;
-        this._refTextStyle.lineHeight = fontSize * NOTE_LINEHEIGHT_FACTOR;
-        this._refTextStyle.fill = color.isDark()
-          ? PIXI.utils.string2hex(COLOR_WHITE)
-          : PIXI.utils.string2hex(COLOR_DARK);
+      this._refTextStyle.fontSize = fontSize;
+      this._refTextStyle.lineHeight = fontSize * NOTE_LINEHEIGHT_FACTOR;
+      this._refTextStyle.fill = color.isDark()
+        ? PIXI.utils.string2hex(COLOR_WHITE)
+        : PIXI.utils.string2hex(COLOR_DARK);
 
-        const textMetrics = PIXI.TextMetrics.measureText(
-          text,
-          this._refTextStyle
-        );
+      const textMetrics = PIXI.TextMetrics.measureText(
+        text,
+        this._refTextStyle
+      );
 
-        this.color = PIXI.utils.string2hex(color.hex());
-        this.colorTransparency = color.alpha();
+      this.color = PIXI.utils.string2hex(color.hex());
+      this.colorTransparency = color.alpha();
 
-        this.resizeNode(
-          Math.max(minWidth, textMetrics.width + marginLeftRight * 2),
-          textMetrics.height + marginTopBottom * 2
-        );
-        output['text'] = text;
+      this.resizeNode(
+        Math.max(minWidth, textMetrics.width + marginLeftRight * 2),
+        textMetrics.height + marginTopBottom * 2
+      );
+      output['text'] = text;
 
-        this._refText.text = text;
-        this._refText.x = this.x + NODE_MARGIN + marginLeftRight;
-        this._refText.y = this.y + marginTopBottom;
-      }
+      this._refText.text = text;
+      this._refText.x = this.x + NODE_MARGIN + marginLeftRight;
+      this._refText.y = this.y + marginTopBottom;
     };
 
     // scale input if node is scaled
@@ -255,7 +253,6 @@ export class Note extends PureNode {
   fontSize: number;
   createInputElement: (temporary?: boolean) => void;
   setCleanAndDisplayText: (input: HTMLDivElement) => void;
-  update: () => void;
 
   constructor(name: string, graph: PPGraph, customArgs?: CustomArgs) {
     const baseWidth = 160;
@@ -341,7 +338,7 @@ export class Note extends PureNode {
         this._bitmapTextRef.mask = this._maskRef;
 
         this.onNodeResized();
-        this.update();
+        this.executeOptimizedChain();
       });
     };
 
@@ -413,6 +410,7 @@ export class Note extends PureNode {
         this.currentInput.remove();
         this._bitmapTextRef.visible = true;
         this.doubleClicked = false;
+        this.executeOptimizedChain();
       });
 
       this.currentInput.addEventListener('input', () => {
@@ -437,31 +435,10 @@ export class Note extends PureNode {
       this._bitmapTextRef.x = (SOCKET_WIDTH + nodeWidth) / 2;
       this._bitmapTextRef.y = (nodeHeight * verticalTextureOffset) / 2;
 
-      this.setInputData('text', newText);
-      //this.setOutputData('data', newText);
+      this.setInputData('data', newText);
 
       this.fontSize = newFontSize;
       this.executeOptimizedChain();
-    };
-
-    this.update = () => {
-      const nodeWidth = this.nodeWidth ?? baseWidth;
-      const nodeHeight = this.nodeHeight ?? baseHeight;
-      const data = this.getInputData('data');
-      if (this._bitmapTextRef) {
-        this._bitmapTextRef.text = data;
-        while (
-          (this._bitmapTextRef.width > nodeWidth - NOTE_PADDING * 2 ||
-            this._bitmapTextRef.height > nodeHeight - NOTE_PADDING * 2) &&
-          this._bitmapTextRef.fontSize > 8
-        ) {
-          this._bitmapTextRef.fontSize -= 2;
-        }
-        this.fontSize = this._bitmapTextRef.fontSize;
-        this._bitmapTextRef.text = data;
-        //this.setOutputData('data', data);
-        this.executeOptimizedChain();
-      }
     };
 
     // scale input if node is scaled
@@ -513,9 +490,24 @@ export class Note extends PureNode {
       }
     };
 
-    this.onExecute = async () => {
+    this.onExecute = async (input, output) => {
       if (!this.doubleClicked) {
-        this.update();
+        const nodeWidth = this.nodeWidth ?? baseWidth;
+        const nodeHeight = this.nodeHeight ?? baseHeight;
+        const data = input['data'];
+        if (this._bitmapTextRef) {
+          this._bitmapTextRef.text = data;
+          while (
+            (this._bitmapTextRef.width > nodeWidth - NOTE_PADDING * 2 ||
+              this._bitmapTextRef.height > nodeHeight - NOTE_PADDING * 2) &&
+            this._bitmapTextRef.fontSize > 8
+          ) {
+            this._bitmapTextRef.fontSize -= 2;
+          }
+          this.fontSize = this._bitmapTextRef.fontSize;
+          this._bitmapTextRef.text = data;
+          output['data'] = data;
+        }
       }
     };
   }
