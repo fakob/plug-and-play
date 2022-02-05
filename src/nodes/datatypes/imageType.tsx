@@ -1,7 +1,6 @@
 import React from 'react';
 import { AbstractType } from './abstractType';
-import { CodeWidget } from '../../widgets';
-import { convertToString } from '../../utils/utils';
+import { BROKEN_IMAGE } from '../../utils/constants';
 
 export class ImageType extends AbstractType {
   constructor() {
@@ -14,9 +13,18 @@ export class ImageType extends AbstractType {
 
   // no widget for this, or maybe something that displays the image or some cool data?
   getInputWidget = (props: any): any => {
-    console.log(props, typeof props);
     if (typeof props.data === 'string') {
-      return <img src={props.data} alt="Red dot" />;
+      return (
+        <img
+          src={props.data}
+          alt={props.key}
+          onError={({ currentTarget }) => {
+            currentTarget.onerror = null; // prevents looping
+            currentTarget.src = BROKEN_IMAGE;
+            currentTarget.style.width = '48px';
+          }}
+        />
+      );
     }
     return '';
   };
