@@ -810,20 +810,12 @@ export default class PPNode extends PIXI.Container {
   }
 
   getInputSocketByName(slotName: string): Socket {
-    if (!this.inputSocketArray) {
-      return undefined;
-    }
-
     return this.inputSocketArray[
       this.inputSocketArray.findIndex((el) => el.name === slotName)
     ];
   }
 
   getOutputSocketByName(slotName: string): Socket {
-    if (!this.outputSocketArray) {
-      return undefined;
-    }
-
     return this.outputSocketArray[
       this.outputSocketArray.findIndex((el) => el.name === slotName)
     ];
@@ -847,6 +839,7 @@ export default class PPNode extends PIXI.Container {
     return link.source.data;
   }
 
+  // avoid calling this directly
   getInputData(name: string): any {
     const inputSocket = this.inputSocketArray.find((input: Socket) => {
       return name === input.name;
@@ -866,6 +859,7 @@ export default class PPNode extends PIXI.Container {
     return link.source.data;
   }
 
+  // avoid calling this directly, instead use the input/output objects in onExecute
   setInputData(name: string, data: any): void {
     const inputSocket = this.inputSocketArray.find((input: Socket) => {
       return name === input.name;
@@ -879,6 +873,7 @@ export default class PPNode extends PIXI.Container {
     inputSocket.data = data;
   }
 
+  // avoid calling this directly, instead use the input/output objects in onExecute
   setOutputData(name: string, data: any): void {
     const outputSocket = this.outputSocketArray
       .filter((socket) => socket.socketType === SOCKET_TYPE.OUT)
