@@ -19,8 +19,11 @@ export class AbstractType {
     return 'null';
   }
 
-  getInputWidget = (data: any): any => {
-    return <CodeWidget {...data} />;
+  getInputWidget = (props: any): any => {
+    if (typeof props.data !== 'string') {
+      props.data = convertToString(props.data);
+    }
+    return <CodeWidget {...props} />;
   };
 
   getOutputWidget = (props: any): any => {

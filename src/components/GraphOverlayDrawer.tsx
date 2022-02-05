@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
-import { ErrorBoundary } from 'react-error-boundary';
 import { Box } from '@mui/material';
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
-import ErrorFallback from './ErrorFallback';
 import ResponsiveDrawer from './ResponsiveDrawer';
 
 type GraphOverlayDrawerProps = {
@@ -24,25 +22,23 @@ const GraphOverlayDrawer: React.FunctionComponent<GraphOverlayDrawerProps> = (
   }
 
   return (
-    <ErrorBoundary FallbackComponent={ErrorFallback}>
-      <Box sx={{ position: 'relative' }}>
-        <ResponsiveDrawer
-          drawerWidth={drawerWidth}
-          setDrawerWidth={setDrawerWidth}
-          currentGraph={props.currentGraph}
-          selectedNode={
-            props.selectedNodes.length > 0 ? props.selectedNodes[0] : null
-          }
-          isCustomNode={
-            props.selectedNodes.length > 0
-              ? props.currentGraph.isCustomNode(props.selectedNodes[0])
-              : false
-          }
-          onSave={createOrUpdateNodeFromCode}
-          randomMainColor={props.randomMainColor}
-        />
-      </Box>
-    </ErrorBoundary>
+    <Box sx={{ position: 'relative' }}>
+      <ResponsiveDrawer
+        drawerWidth={drawerWidth}
+        setDrawerWidth={setDrawerWidth}
+        currentGraph={props.currentGraph}
+        selectedNode={
+          props.selectedNodes.length > 0 ? props.selectedNodes[0] : null
+        }
+        isCustomNode={
+          props.selectedNodes.length > 0
+            ? props.currentGraph.isCustomNode(props.selectedNodes[0])
+            : false
+        }
+        onSave={createOrUpdateNodeFromCode}
+        randomMainColor={props.randomMainColor}
+      />
+    </Box>
   );
 };
 

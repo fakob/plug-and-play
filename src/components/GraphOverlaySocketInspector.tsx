@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { ErrorBoundary } from 'react-error-boundary';
 import { Box } from '@mui/material';
 import * as PIXI from 'pixi.js';
 import PPGraph from '../classes/GraphClass';
 import PPSocket from '../classes/SocketClass';
 import FloatingSocketInspector from './FloatingSocketInspector';
-import ErrorFallback from './ErrorFallback';
 
 type GraphOverlaySocketInspectorProps = {
   currentGraph: PPGraph;
@@ -49,18 +47,16 @@ const GraphOverlaySocketInspector: React.FunctionComponent<
   };
 
   return (
-    <ErrorBoundary FallbackComponent={ErrorFallback}>
-      <Box sx={{ position: 'relative' }}>
-        {socketToInspect && (
-          <FloatingSocketInspector
-            socketInspectorPosition={socketInspectorPosition}
-            socketToInspect={socketToInspect}
-            randomMainColor={props.randomMainColor}
-            closeSocketInspector={closeSocketInspector}
-          />
-        )}
-      </Box>
-    </ErrorBoundary>
+    <Box sx={{ position: 'relative' }}>
+      {socketToInspect && (
+        <FloatingSocketInspector
+          socketInspectorPosition={socketInspectorPosition}
+          socketToInspect={socketToInspect}
+          randomMainColor={props.randomMainColor}
+          closeSocketInspector={closeSocketInspector}
+        />
+      )}
+    </Box>
   );
 };
 
