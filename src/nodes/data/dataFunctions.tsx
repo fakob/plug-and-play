@@ -174,7 +174,7 @@ export class ForLoop extends NodeClass {
   }
 
   // we actually override the base execute function here as we are modifying the flow
-  public async execute(): Promise<void> {
+  public async execute(): Promise<boolean> {
     const inputObject = this.remapInput(this.inputSocketArray);
     for (
       this.currentIndex = this.getMinIndex(inputObject);
@@ -189,6 +189,7 @@ export class ForLoop extends NodeClass {
     }
     // comment here is just gonna show the last output but eh
     this.drawComment();
+    return true;
   }
   protected async onExecute(
     inputObject: any,

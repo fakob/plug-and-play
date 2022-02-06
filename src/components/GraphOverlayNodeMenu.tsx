@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { ErrorBoundary } from 'react-error-boundary';
 import { Box } from '@mui/material';
 import * as PIXI from 'pixi.js';
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
 import FloatingNodeMenu from './FloatingNodeMenu';
-import ErrorFallback from './ErrorFallback';
 
 type GraphOverlayNodeMenuProps = {
   currentGraph: PPGraph;
@@ -32,20 +30,18 @@ const GraphOverlayNodeMenu: React.FunctionComponent<
   }, [props.currentGraph]);
 
   return (
-    <ErrorBoundary FallbackComponent={ErrorFallback}>
-      <Box sx={{ position: 'relative' }}>
-        {props.selectedNodes.length > 0 && selectionPos && (
-          <FloatingNodeMenu
-            x={
-              selectionPos.x +
-              props.currentGraph.selection.selectionGraphics.width / 2
-            }
-            y={Math.max(0, selectionPos.y - 40)}
-            selectedNodes={props.selectedNodes}
-          />
-        )}
-      </Box>
-    </ErrorBoundary>
+    <Box sx={{ position: 'relative' }}>
+      {props.selectedNodes.length > 0 && selectionPos && (
+        <FloatingNodeMenu
+          x={
+            selectionPos.x +
+            props.currentGraph.selection.selectionGraphics.width / 2
+          }
+          y={Math.max(0, selectionPos.y - 40)}
+          selectedNodes={props.selectedNodes}
+        />
+      )}
+    </Box>
   );
 };
 

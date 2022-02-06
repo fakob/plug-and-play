@@ -480,6 +480,7 @@ export default class PPNode extends PIXI.Container {
   ): Promise<void> {
     const dependents: { [key: string]: PPNode } = {};
     const numDepending: { [key: string]: Set<string> } = {};
+    const dirtyState: Set<string> = new Set();
     foundational.forEach((node: PPNode) => {
       Object.keys(node.getDirectDependents()).forEach((dependentKey) => {
         numDepending[dependentKey] = new Set();
@@ -493,13 +494,19 @@ export default class PPNode extends PIXI.Container {
     // now that we have the complete chain, execute them in order that makes sure all dependents are waiting on their parents, there should always be a node with no more lingering dependents (unless there is an infinite loop)
     let currentExecuting: PPNode = foundational.shift();
     while (currentExecuting) {
-      await currentExecuting.execute();
+      const changeDetected: boolean = await currentExecuting.execute();
       // uncomment if you want to see the execution in more detail by slowing it down (to make sure order is correct)
       //await new Promise((resolve) => setTimeout(resolve, 500));
       Object.keys(currentExecuting.getDirectDependents()).forEach(
         (dependentKey) => {
+          if (changeDetected) {
+            dirtyState.add(dependentKey);
+          }
           numDepending[dependentKey].delete(currentExecuting.id);
-          if (numDepending[dependentKey].size == 0) {
+          if (
+            numDepending[dependentKey].size == 0 &&
+            dirtyState.has(dependentKey)
+          ) {
             foundational.push(dependents[dependentKey]);
           }
         }
@@ -922,21 +929,20 @@ export default class PPNode extends PIXI.Container {
     await this.onExecute(inputObject, outputObject);
     this.onAfterExecute();
 
-    //let foundChange = !this.isPure();
+    let foundChange = !this.isPure();
     // output whatever the user has put in
     this.outputSocketArray.forEach((output: Socket) => {
       if (outputObject[output.name] !== undefined) {
-        // some assumptions about this are no longer correct and therefore remove this
-        /*if (!foundChange) {
+        if (!foundChange) {
           // see if anything has changed, but only need to do this if no previous has been found
           foundChange =
             JSON.stringify(outputObject[output.name]) !==
             JSON.stringify(output.data);
-        }*/
+        }
         output.data = outputObject[output.name];
       }
     });
-    return true;
+    return foundChange;
   }
 
   // override if you don't want your node to show outline for some reason
@@ -978,12 +984,13 @@ export default class PPNode extends PIXI.Container {
     }
   }
 
-  public async execute(): Promise<void> {
+  public async execute(): Promise<boolean> {
     if (this.shouldDrawExecution()) {
       this.renderOutlineThrottled();
     }
     const foundChange = await this.rawExecute();
     this.drawComment();
+    return foundChange;
   }
 
   // dont call this from outside, only from child class
@@ -995,7 +1002,7 @@ export default class PPNode extends PIXI.Container {
     // just define function
   }
 
-  // return true if this node has no effects on the graph apart from what it returns, if this is indeed the case then there are a ton of optimizations and improvements that can be done, so mark all nodes that can be made pure as pure
+  // return true if this node has no effects on the graph apart from what it returns and does within itself, if this is indeed the case then there are a ton of optimizations and improvements that can be done, so mark all nodes that can be made pure as pure
   protected isPure(): boolean {
     return false;
   }
