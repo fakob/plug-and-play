@@ -227,7 +227,14 @@ export class PIXIText2 extends PIXIDrawNode {
   protected getDefaultIO(): Socket[] {
     return super
       .getDefaultIO()
-      .concat([new Socket(SOCKET_TYPE.IN, inputTextName, new StringType())]);
+      .concat([
+        new Socket(
+          SOCKET_TYPE.IN,
+          inputTextName,
+          new StringType(),
+          'ExampleText'
+        ),
+      ]);
   }
 
   protected drawOnContainer(
@@ -338,17 +345,23 @@ export class PIXIMultiplier2 extends PIXIDrawNode {
     container: PIXI.Container,
     injectedData: any
   ): void {
+    inputObject = { ...inputObject, ...injectedData };
     const myContainer = new PIXI.Container();
     let injected = [];
     try {
-      injected = JSON.parse(inputObject[injectedDataName]);
+      if (typeof inputObject[injectedDataName] == 'object') {
+        injected = inputObject[injectedDataName];
+      } else {
+        injected = JSON.parse(inputObject[injectedDataName]);
+      }
     } catch (e) {
       console.log('failed to parse injected data');
     }
+    let currentIndex = 0;
     for (let x = 0; x < inputObject[multiplyXName]; x++) {
       for (let y = 0; y < inputObject[multiplyYName]; y++) {
         const currentInjectedData =
-          injected.length > x && injected[x].length > y ? injected[x][y] : [];
+          injected.length > currentIndex ? injected[currentIndex] : [];
 
         /* console.log(
           'currentInjectedInMultiplier: ' +
@@ -372,6 +385,7 @@ export class PIXIMultiplier2 extends PIXIDrawNode {
         });
 
         myContainer.addChild(shallowContainer);
+        currentIndex++;
       }
     }
     myContainer.x = inputObject[inputXName];
