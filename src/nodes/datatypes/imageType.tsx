@@ -20,7 +20,7 @@ export class ImageType extends AbstractType {
             width: '100%',
             height: '100%',
             maxHeight: '60vh',
-            objectFit: 'contain',
+            objectFit: 'scale-down',
           }}
           src={props.data}
           alt={props.key}

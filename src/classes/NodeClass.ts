@@ -355,50 +355,59 @@ export default class PPNode extends PIXI.Container {
     this.y = nodeConfig.y;
     this.minNodeWidth = nodeConfig.minWidth ?? NODE_WIDTH;
     this.minNodeHeight = nodeConfig.minHeight;
-    if (nodeConfig.width && nodeConfig.height) {
-      this.resizeNode(nodeConfig.width, nodeConfig.height);
-      this.resizedNode();
+    try {
+      if (nodeConfig.width && nodeConfig.height) {
+        this.resizeNode(nodeConfig.width, nodeConfig.height);
+        this.resizedNode();
+      }
+      // update position of comment
+      this.updateCommentPosition();
+
+      // set parameters on inputSocket
+      nodeConfig.inputSocketArray.forEach((item, index) => {
+        // skip configuring the input if there is no config data
+        if (this.inputSocketArray[index] !== undefined) {
+          this.inputSocketArray[index].setName(item.name);
+          (this.inputSocketArray[index].dataType = deSerializeType(
+            item.dataType
+          )),
+            (this.inputSocketArray[index].data = item.data);
+          this.inputSocketArray[index].setVisible(item.visible ?? true);
+        } else {
+          // add socket if it does not exist yet
+          this.addInput(
+            item.name,
+            deSerializeType(item.dataType),
+            item.data,
+            item.visible ?? true
+          );
+        }
+      });
+
+      // set parameters on outputSocket
+      nodeConfig.outputSocketArray.forEach((item, index) => {
+        // skip configuring the output if there is no config data
+        if (this.outputSocketArray[index] !== undefined) {
+          this.outputSocketArray[index].setName(item.name);
+          this.outputSocketArray[index].dataType = deSerializeType(
+            item.dataType
+          );
+          this.outputSocketArray[index].setVisible(item.visible ?? true);
+        } else {
+          // add socket if it does not exist
+          this.addOutput(
+            item.name,
+            deSerializeType(item.dataType),
+            item.visible ?? true
+          );
+        }
+      });
+    } catch (error) {
+      console.error(
+        `Could not configure node: ${this.name}, id: ${this.id}`,
+        error
+      );
     }
-    // update position of comment
-    this.updateCommentPosition();
-
-    // set parameters on inputSocket
-    nodeConfig.inputSocketArray.forEach((item, index) => {
-      // skip configuring the input if there is no config data
-      if (this.inputSocketArray[index] !== undefined) {
-        this.inputSocketArray[index].setName(item.name);
-        (this.inputSocketArray[index].dataType = deSerializeType(
-          item.dataType
-        )),
-          (this.inputSocketArray[index].data = item.data);
-        this.inputSocketArray[index].setVisible(item.visible ?? true);
-      } else {
-        // add socket if it does not exist yet
-        this.addInput(
-          item.name,
-          deSerializeType(item.dataType),
-          item.data,
-          item.visible ?? true
-        );
-      }
-    });
-
-    // set parameters on outputSocket
-    nodeConfig.outputSocketArray.forEach((item, index) => {
-      // skip configuring the output if there is no config data
-      if (this.outputSocketArray[index] !== undefined) {
-        this.outputSocketArray[index].setName(item.name);
-        this.outputSocketArray[index].dataType = deSerializeType(item.dataType);
-        this.outputSocketArray[index].setVisible(item.visible ?? true);
-      } else {
-        // add socket if it does not exist
-        this.addOutput(
-          item.name,
-          deSerializeType(item.dataType),
-          item.visible ?? true
-        );
-      }
-    });
 
     if (this.onConfigure) {
       this.onConfigure(nodeConfig);

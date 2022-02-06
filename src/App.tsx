@@ -39,10 +39,12 @@ import {
 import GraphOverlay from './components/GraphOverlay';
 import ErrorFallback from './components/ErrorFallback';
 import PixiContainer from './PixiContainer';
+import { Image as ImageNode } from './nodes/image/image';
 import { GraphContextMenu, NodeContextMenu } from './components/ContextMenus';
 import { GraphDatabase } from './utils/indexedDB';
 import PPGraph from './classes/GraphClass';
 import {
+  NODE_WIDTH,
   RANDOMMAINCOLOR,
   CANVAS_BACKGROUND_ALPHA,
   CANVAS_BACKGROUND_TEXTURE,
@@ -67,6 +69,7 @@ import PPSocket from './classes/SocketClass';
 import PPNode from './classes/NodeClass';
 import { InputParser } from './utils/inputParser';
 import styles from './utils/style.module.css';
+import { LocalConvenienceStoreOutlined } from '@mui/icons-material';
 
 (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__ &&
   (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__.register({ PIXI: PIXI });
@@ -127,9 +130,16 @@ const App = (): JSX.Element => {
   let lastTimeTicked = 0;
 
   // react-dropzone
-  const onDrop = useCallback((acceptedFiles) => {
-    console.log(acceptedFiles);
-    acceptedFiles.forEach((file: File) => {
+  const onDrop = useCallback((acceptedFiles, fileRejections, event) => {
+    console.log(acceptedFiles, fileRejections);
+
+    const dropPoint = viewport.current.toWorld(
+      new PIXI.Point(event.clientX, event.clientY)
+    );
+    let nodePosX = dropPoint.x;
+    const nodePosY = dropPoint.y;
+
+    acceptedFiles.forEach((file: File, index) => {
       console.log(file);
       // const reader = new FileReader();
       const objectURL = URL.createObjectURL(file);
@@ -154,32 +164,54 @@ const App = (): JSX.Element => {
           case 'csv':
             data = await response.text();
             newNode = currentGraph.current.createAndAddNode('Table', {
+              nodePosX,
+              nodePosY,
               data,
             });
             break;
           case 'txt':
             data = await response.text();
             newNode = currentGraph.current.createAndAddNode('Text', {
+              nodePosX,
+              nodePosY,
               initialData: data,
             });
             break;
           case 'jpg':
           case 'png':
             data = await response.blob();
-            const base64 = await convertBlobToBase64(data);
-            console.log(
-              currentGraph.current.selection.selectedNodes?.[0]?.type ===
-                'Image'
-            );
-            newNode = currentGraph.current.createAndAddNode('Image', {
-              defaultArguments: { Image: base64 },
+            const base64 = await convertBlobToBase64(data).catch((err) => {
+              console.error(err);
             });
+            if (base64) {
+              if (
+                currentGraph.current.selection.selectedNodes?.[index]?.type ===
+                'Image'
+              ) {
+                (
+                  currentGraph.current.selection.selectedNodes[
+                    index
+                  ] as ImageNode
+                ).updateTexture(base64 as string);
+              } else {
+                newNode = currentGraph.current.createAndAddNode('Image', {
+                  nodePosX,
+                  nodePosY,
+                  defaultArguments: { Image: base64 },
+                });
+              }
+            }
             break;
           default:
             break;
         }
         console.log(data);
         console.log(newNode);
+
+        // update postion if there are more than one
+        if (newNode) {
+          nodePosX = nodePosX + NODE_WIDTH + 32;
+        }
       })();
     });
   }, []);

@@ -426,6 +426,7 @@ export default class PPGraph {
 
     // set comment position
     node.updateCommentPosition();
+    node.execute();
 
     return node; //to chain actions
   }
@@ -608,9 +609,10 @@ export default class PPGraph {
       // add node and carry over its configuration
       const newNode = this.createAndAddNode(nodeType);
       newNode.configure(node.serialize());
+      newNode.execute();
 
       // offset duplicated node
-      newNode.setPosition(32, 32, true);
+      newNode.setPosition(newNode.width + 32, 0, true);
 
       mappingOfOldAndNewNodes[node.id] = newNode;
       newNodes.push(newNode);
