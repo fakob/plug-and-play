@@ -35,6 +35,7 @@ export const availableShapes: EnumStructure = [
 
 const inputXName = 'Offset X';
 const inputYName = 'Offset Y';
+const scaleName = 'Scale';
 
 const inputShapeName = 'Shape';
 const inputColorName = 'Color';
@@ -95,7 +96,6 @@ export abstract class PIXIDrawNode extends PureNode {
   // if you are a child you likely want to use this instead of normal execute
   protected drawOnContainer(
     inputObject: any,
-    outputObject: Record<string, unknown>,
     container: PIXI.Container
   ): void {}
 
@@ -104,7 +104,7 @@ export abstract class PIXIDrawNode extends PureNode {
     outputObject: Record<string, unknown>
   ): Promise<void> {
     outputObject[outputPixiName] = [
-      (container) => this.drawOnContainer(inputObject, outputObject, container),
+      (container) => this.drawOnContainer(inputObject, container),
     ];
   }
 
@@ -176,11 +176,7 @@ export class PIXIShape extends PIXIDrawNode {
       ]);
   }
 
-  protected drawOnContainer(
-    inputObject: any,
-    outputObject: Record<string, unknown>,
-    container: PIXI.Container
-  ): void {
+  protected drawOnContainer(inputObject: any, container: PIXI.Container): void {
     const graphics: PIXI.Graphics = new PIXI.Graphics();
     const selectedColor = PIXI.utils.string2hex(
       trgbaToColor(inputObject[inputColorName]).hex()
@@ -229,11 +225,7 @@ export class PIXIText2 extends PIXIDrawNode {
       .concat([new Socket(SOCKET_TYPE.IN, inputTextName, new StringType())]);
   }
 
-  protected drawOnContainer(
-    inputObject: any,
-    outputObject: Record<string, unknown>,
-    container: PIXI.Container
-  ): void {
+  protected drawOnContainer(inputObject: any, container: PIXI.Container): void {
     const textStyle = new PIXI.TextStyle({
       fontFamily: 'Arial',
       fontSize: 24, //this.getInputData('size'),
@@ -263,30 +255,16 @@ export class PIXIContainer2 extends PIXIDrawNode {
         new Socket(SOCKET_TYPE.IN, inputCombine2Name, new DeferredPixiType()),
       ]);
   }
-  protected drawOnContainer(
-    inputObject: any,
-    outputObject: Record<string, unknown>,
-    container: PIXI.Container
-  ): void {
+  protected drawOnContainer(inputObject: any, container: PIXI.Container): void {
     const myContainer = new PIXI.Container();
-    if (inputObject[inputCombine1Name])
-      inputObject[inputCombine1Name].forEach((func) => func(myContainer));
     if (inputObject[inputCombine2Name])
       inputObject[inputCombine2Name].forEach((func) => func(myContainer));
+    if (inputObject[inputCombine1Name])
+      inputObject[inputCombine1Name].forEach((func) => func(myContainer));
     myContainer.x = inputObject[inputXName];
     myContainer.y = inputObject[inputYName];
     container.addChild(myContainer);
   }
-
-  /*protected async onExecute(
-    inputObject: any,
-    outputObject: Record<string, unknown>
-  ): Promise<void> {
-    const combinedContainer = new PIXI.Container();
-    outputObject[outputPixiName] = inputObject[inputCombine1Name].concat(
-      inputObject[inputCombine2Name]
-    );
-  }*/
 }
 
 /*
