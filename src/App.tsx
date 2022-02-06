@@ -188,17 +188,17 @@ const App = (): JSX.Element => {
                 currentGraph.current.selection.selectedNodes?.[index]?.type ===
                 'Image'
               ) {
-                (
-                  currentGraph.current.selection.selectedNodes[
-                    index
-                  ] as ImageNode
-                ).updateTexture(base64 as string);
+                const existingNode = currentGraph.current.selection
+                  .selectedNodes[index] as ImageNode;
+                existingNode.updateTexture(base64 as string);
+                existingNode.resetMinNodeHeight();
               } else {
                 newNode = currentGraph.current.createAndAddNode('Image', {
                   nodePosX,
                   nodePosY,
                   defaultArguments: { Image: base64 },
                 });
+                newNode.resetImageNodeSize();
               }
             }
             break;
