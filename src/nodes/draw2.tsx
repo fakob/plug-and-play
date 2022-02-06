@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
 import { DisplayObject } from 'pixi.js';
 import PPNode, { PureNode } from '../classes/NodeClass';
 import Socket from '../classes/SocketClass';
@@ -62,8 +63,8 @@ function deepClone(graphics: PIXI.Graphics): PIXI.Graphics {
 }
 
 // a PIXI draw node is a pure node that also draws its graphics if graphics at the end
-export class PIXIDrawNode extends PureNode {
-  deferredGraphics: PIXI.Graphics;
+export abstract class PIXIDrawNode extends PureNode {
+  deferredGraphics: PIXI.Container;
 
   // you probably want to maintain this output in children
   protected getDefaultIO(): Socket[] {
@@ -91,25 +92,50 @@ export class PIXIDrawNode extends PureNode {
     this.handleDrawing();
   }
 
+  // if you are a child you likely want to use this instead of normal execute
+  protected drawOnContainer(
+    inputObject: any,
+    outputObject: Record<string, unknown>,
+    container: PIXI.Container
+  ): void {}
+
+  protected async onExecute(
+    inputObject: any,
+    outputObject: Record<string, unknown>
+  ): Promise<void> {
+    outputObject[outputPixiName] = [
+      (container) => this.drawOnContainer(inputObject, outputObject, container),
+    ];
+  }
+
   handleDrawing(): void {
     const canvas = this.graph.viewport.getChildByName(
       'backgroundCanvas'
     ) as PIXI.Container;
+
+    //this.deferredGraphics.removeChildren();
     canvas.removeChild(this.deferredGraphics);
     //this.removeChild(this.deferredGraphics);
     // we draw if no dependents
     const shouldDraw: boolean =
       Object.keys(this.getDirectDependents()).length < 1;
-    const cloned = deepClone(this.getOutputSocketByName(outputPixiName).data);
-    if (shouldDraw && cloned) {
-      this.deferredGraphics = cloned;
+    // const cloned = deepClone(this.getOutputSocketByName(outputPixiName).data);
+    if (shouldDraw) {
+      this.deferredGraphics = new PIXI.Container();
+      this.deferredGraphics.x = this.x + 400;
+      this.deferredGraphics.y = this.y;
+      const data: ((container: PIXI.Container) => void)[] =
+        this.getOutputSocketByName(outputPixiName).data;
+      data.forEach((drawing) => drawing(this.deferredGraphics));
+      canvas.addChild(this.deferredGraphics);
+
+      /*this.deferredGraphics = cloned;
       this.deferredGraphics.x += 400;
 
       // canvas mode
       this.deferredGraphics.x += this.x;
       this.deferredGraphics.y += this.y;
-      canvas.addChild(this.deferredGraphics);
-
+      canvas.addChild(this.deferredGraphics);*/
       // me mode
       //this.addChild(this.deferredGraphics);
     } else {
@@ -126,20 +152,6 @@ export class PIXIDrawNode extends PureNode {
   shouldExecuteOnMove(): boolean {
     return true;
   }
-}
-
-export class PIXIMakeClickable extends PureNode {
-  protected getDefaultIO(): Socket[] {
-    return super
-      .getDefaultIO()
-      .concat([
-        new Socket(SOCKET_TYPE.IN, inputSeveralShapesName, new ArrayType()),
-      ]);
-  }
-  protected async onExecute(
-    inputObject: any,
-    outputObject: Record<string, unknown>
-  ): Promise<void> {}
 }
 
 export class PIXIShape extends PIXIDrawNode {
@@ -163,10 +175,12 @@ export class PIXIShape extends PIXIDrawNode {
         new Socket(SOCKET_TYPE.IN, inputBorderName, new BooleanType(), true),
       ]);
   }
-  protected async onExecute(
+
+  protected drawOnContainer(
     inputObject: any,
-    outputObject: Record<string, unknown>
-  ): Promise<void> {
+    outputObject: Record<string, unknown>,
+    container: PIXI.Container
+  ): void {
     const graphics: PIXI.Graphics = new PIXI.Graphics();
     const selectedColor = PIXI.utils.string2hex(
       trgbaToColor(inputObject[inputColorName]).hex()
@@ -201,10 +215,10 @@ export class PIXIShape extends PIXIDrawNode {
         break;
       }
     }
-    graphics.x += inputObject[inputXName];
-    graphics.y += inputObject[inputYName];
+    graphics.x = inputObject[inputXName];
+    graphics.y = inputObject[inputYName];
     graphics.on('pointerdown', () => console.log('clicked shape'));
-    outputObject[outputPixiName] = graphics;
+    container.addChild(graphics);
   }
 }
 
@@ -214,27 +228,33 @@ export class PIXIText2 extends PIXIDrawNode {
       .getDefaultIO()
       .concat([new Socket(SOCKET_TYPE.IN, inputTextName, new StringType())]);
   }
+
+  protected drawOnContainer(
+    inputObject: any,
+    outputObject: Record<string, unknown>,
+    container: PIXI.Container
+  ): void {
+    const textStyle = new PIXI.TextStyle({
+      fontFamily: 'Arial',
+      fontSize: 24, //this.getInputData('size'),
+      lineHeight: 24, //this.getInputData('size') * NOTE_LINEHEIGHT_FACTOR,
+      whiteSpace: 'pre-line',
+      wordWrap: true,
+      lineJoin: 'round',
+    });
+    const basicText = new PIXI.Text(inputObject[inputTextName], textStyle);
+    basicText.x = inputObject[inputXName];
+    basicText.y = inputObject[inputYName];
+    container.addChild(basicText);
+  }
   /*protected async onExecute(
     inputObject: any,
     outputObject: Record<string, unknown>
   ): Promise<void> {
-    const textStyle = new PIXI.TextStyle({
-      fontFamily: 'Arial',
-      fontSize: this.getInputData('size'),
-      lineHeight: this.getInputData('size') * NOTE_LINEHEIGHT_FACTOR,
-      align: this.getInputData('align'),
-      whiteSpace: 'pre-line',
-      wordWrap: true,
-      wordWrapWidth: this.getInputData('width'),
-      lineJoin: 'round',
-    });
-
-    const basicText = new PIXI.Text(inputObject[inputTextName], textStyle);
-    outputObject[outputPixiName] = basicText;
   }*/
 }
 
-export class PIXICombine extends PIXIDrawNode {
+export class PIXIContainer2 extends PIXIDrawNode {
   protected getDefaultIO(): Socket[] {
     return super
       .getDefaultIO()
@@ -243,27 +263,30 @@ export class PIXICombine extends PIXIDrawNode {
         new Socket(SOCKET_TYPE.IN, inputCombine2Name, new DeferredPixiType()),
       ]);
   }
-  protected async onExecute(
+  protected drawOnContainer(
+    inputObject: any,
+    outputObject: Record<string, unknown>,
+    container: PIXI.Container
+  ): void {
+    const myContainer = new PIXI.Container();
+    if (inputObject[inputCombine1Name])
+      inputObject[inputCombine1Name].forEach((func) => func(myContainer));
+    if (inputObject[inputCombine2Name])
+      inputObject[inputCombine2Name].forEach((func) => func(myContainer));
+    myContainer.x = inputObject[inputXName];
+    myContainer.y = inputObject[inputYName];
+    container.addChild(myContainer);
+  }
+
+  /*protected async onExecute(
     inputObject: any,
     outputObject: Record<string, unknown>
   ): Promise<void> {
-    let outputGraphics: PIXI.Graphics = deepClone(
-      inputObject[inputCombine1Name]
+    const combinedContainer = new PIXI.Container();
+    outputObject[outputPixiName] = inputObject[inputCombine1Name].concat(
+      inputObject[inputCombine2Name]
     );
-    const graphics2: PIXI.Graphics = deepClone(inputObject[inputCombine2Name]);
-    if (outputGraphics) {
-      if (graphics2) {
-        outputGraphics.addChild(graphics2);
-      }
-    } else if (graphics2) {
-      outputGraphics = graphics2;
-    }
-    if (outputGraphics) {
-      outputGraphics.x += inputObject[inputXName];
-      outputGraphics.y += inputObject[inputYName];
-    }
-    outputObject[outputPixiName] = outputGraphics;
-  }
+  }*/
 }
 
 /*
