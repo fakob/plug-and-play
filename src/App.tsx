@@ -138,19 +138,21 @@ const App = (): JSX.Element => {
     );
     let nodePosX = dropPoint.x;
     const nodePosY = dropPoint.y;
+    const newNodeSelection: PPNode[] = [];
 
-    acceptedFiles.forEach((file: File, index) => {
-      console.log(file);
-      // const reader = new FileReader();
-      const objectURL = URL.createObjectURL(file);
-      console.log(objectURL);
+    (async function () {
+      for (let index = 0; index < acceptedFiles.length; index++) {
+        const file = acceptedFiles[index];
+        console.log(file);
+        // const reader = new FileReader();
+        const objectURL = URL.createObjectURL(file);
+        console.log(objectURL);
 
-      const extension = file.name
-        .slice(((file.name.lastIndexOf('.') - 1) >>> 0) + 2)
-        .toLowerCase();
+        const extension = file.name
+          .slice(((file.name.lastIndexOf('.') - 1) >>> 0) + 2)
+          .toLowerCase();
 
-      // select what node to create
-      (async function () {
+        // select what node to create
         const response = await fetch(objectURL);
         let data;
         let newNode;
@@ -210,10 +212,17 @@ const App = (): JSX.Element => {
 
         // update postion if there are more than one
         if (newNode) {
+          newNodeSelection.push(newNode);
           nodePosX = nodePosX + NODE_WIDTH + 32;
         }
-      })();
-    });
+      }
+      // select the newly added nodes
+      if (newNodeSelection.length > 0) {
+        // currentGraph.current.selection.selectedNodes = newNodeSelection;
+        currentGraph.current.selection.onSelectionChange(newNodeSelection);
+        zoomToFitSelection();
+      }
+    })();
   }, []);
 
   const {
@@ -472,6 +481,9 @@ const App = (): JSX.Element => {
       if (e.shiftKey && e.code === 'Digit1') {
         zoomToFit();
       }
+      if (e.shiftKey && e.code === 'Digit2') {
+        zoomToFitSelection();
+      }
       if ((isMac ? e.metaKey : e.ctrlKey) && e.shiftKey && e.key === 'y') {
         e.preventDefault();
         setShowComments((prevState) => !prevState);
@@ -559,6 +571,22 @@ const App = (): JSX.Element => {
     viewport.current.moveCenter(
       nodeContainerBounds.x + nodeContainerBounds.width / 2,
       nodeContainerBounds.y + nodeContainerBounds.height / 2
+    );
+    viewport.current.zoomPercent(-0.1, true); // zoom out a bit
+  };
+
+  const zoomToFitSelection = () => {
+    const selectionBounds = new PIXI.Rectangle();
+    currentGraph.current.selection.selectedNodes.forEach(
+      (node: PIXI.DisplayObject) => {
+        selectionBounds.enlarge(node.getBounds());
+        console.log(node.getBounds(), selectionBounds);
+      }
+    );
+    viewport.current.fit(true, selectionBounds.width, selectionBounds.height);
+    viewport.current.moveCenter(
+      selectionBounds.x + selectionBounds.width / 2,
+      selectionBounds.y + selectionBounds.height / 2
     );
     viewport.current.zoomPercent(-0.1, true); // zoom out a bit
   };
