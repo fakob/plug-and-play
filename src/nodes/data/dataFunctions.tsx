@@ -5,6 +5,7 @@ import { SOCKET_TYPE } from '../../utils/constants';
 import { AnyType } from '../datatypes/anyType';
 import { ArrayType } from '../datatypes/arrayType';
 import { CodeType } from '../datatypes/codeType';
+import { JSONType } from '../datatypes/jsonType';
 import { NumberType } from '../datatypes/numberType';
 
 const filterCodeName = 'Filter';
@@ -94,6 +95,25 @@ export class Map extends PureNode {
     const mapCode = inputObject[mapCodeName];
     const inputArray = inputObject[arrayName];
     outputObject[mapOutName] = inputArray?.map(eval(mapCode));
+  }
+}
+
+export class Merge extends PureNode {
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(SOCKET_TYPE.IN, arrayName, new ArrayType(), []),
+      new Socket(SOCKET_TYPE.OUT, constantOutName, new JSONType()),
+    ];
+  }
+  protected async onExecute(
+    inputObject: any,
+    outputObject: Record<string, unknown>
+  ): Promise<void> {
+    let mergedObject = {};
+    inputObject[arrayName].forEach(
+      (entry) => (mergedObject = { ...mergedObject, ...entry })
+    );
+    outputObject[constantOutName] = mergedObject;
   }
 }
 

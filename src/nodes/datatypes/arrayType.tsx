@@ -1,5 +1,5 @@
 import React from 'react';
-import { TextWidget } from '../../widgets';
+import { CodeWidget, TextWidget } from '../../widgets';
 import { AbstractType } from './abstractType';
 
 export class ArrayType extends AbstractType {
@@ -13,7 +13,4 @@ export class ArrayType extends AbstractType {
   getDefaultValue(): any {
     return [];
   }
-  getInputWidget = (data: any): any => {
-    return <TextWidget {...data} />;
-  };
 }

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
-import { DisplayObject } from 'pixi.js';
+import { DisplayObject, ObservablePoint } from 'pixi.js';
 import PPNode, { PureNode } from '../classes/NodeClass';
 import Socket from '../classes/SocketClass';
 import {
@@ -37,7 +37,9 @@ export const availableShapes: EnumStructure = [
 
 const inputXName = 'Offset X';
 const inputYName = 'Offset Y';
-const scaleName = 'Scale';
+const scaleXName = 'Scale X';
+const scaleYName = 'Scale Y';
+const inputRotationName = 'Rotation';
 
 const inputShapeName = 'Shape';
 const inputColorName = 'Color';
@@ -89,6 +91,27 @@ export abstract class PIXIDrawNode extends PureNode {
         0,
         false
       ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        scaleXName,
+        new NumberType(false, 0.01, 10),
+        1,
+        false
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        scaleYName,
+        new NumberType(false, 0.01, 10),
+        1,
+        false
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        inputRotationName,
+        new NumberType(false, -3.14159, 3.14159),
+        0,
+        false
+      ),
       new Socket(SOCKET_TYPE.OUT, outputPixiName, new DeferredPixiType()),
     ];
   }
@@ -131,6 +154,18 @@ export abstract class PIXIDrawNode extends PureNode {
     }
   }
 
+  protected positionAndScale(toModify: DisplayObject, inputObject: any): void {
+    toModify.setTransform(
+      inputObject[inputXName],
+      inputObject[inputYName],
+      inputObject[scaleXName],
+      inputObject[scaleYName],
+      inputObject[inputRotationName]
+    );
+
+    //toModify.scale = new ObservablePoint(1, 1);
+  }
+
   public outputPlugged(): void {
     this.handleDrawing();
   }
@@ -145,24 +180,22 @@ export abstract class PIXIDrawNode extends PureNode {
 
 export class PIXIShape extends PIXIDrawNode {
   protected getDefaultIO(): Socket[] {
-    return super
-      .getDefaultIO()
-      .concat([
-        new Socket(
-          SOCKET_TYPE.IN,
-          inputShapeName,
-          new EnumType(availableShapes),
-          'Circle'
-        ),
-        new Socket(SOCKET_TYPE.IN, inputColorName, new ColorType(), COLOR_DARK),
-        new Socket(
-          SOCKET_TYPE.IN,
-          inputSizeName,
-          new NumberType(false, 1, 1000),
-          200
-        ),
-        new Socket(SOCKET_TYPE.IN, inputBorderName, new BooleanType(), true),
-      ]);
+    return [
+      new Socket(
+        SOCKET_TYPE.IN,
+        inputShapeName,
+        new EnumType(availableShapes),
+        'Circle'
+      ),
+      new Socket(SOCKET_TYPE.IN, inputColorName, new ColorType(), COLOR_DARK),
+      new Socket(
+        SOCKET_TYPE.IN,
+        inputSizeName,
+        new NumberType(false, 1, 1000),
+        200
+      ),
+      new Socket(SOCKET_TYPE.IN, inputBorderName, new BooleanType(), true),
+    ].concat(super.getDefaultIO());
   }
 
   protected drawOnContainer(
@@ -205,37 +238,33 @@ export class PIXIShape extends PIXIDrawNode {
         break;
       }
     }
-    graphics.x = inputObject[inputXName];
-    graphics.y = inputObject[inputYName];
-    graphics.on('pointerdown', () => console.log('clicked shape'));
+    this.positionAndScale(graphics, inputObject);
     container.addChild(graphics);
   }
 }
 
 export class PIXIText2 extends PIXIDrawNode {
   protected getDefaultIO(): Socket[] {
-    return super
-      .getDefaultIO()
-      .concat([
-        new Socket(
-          SOCKET_TYPE.IN,
-          inputTextName,
-          new StringType(),
-          'ExampleText'
-        ),
-        new Socket(
-          SOCKET_TYPE.IN,
-          inputSizeName,
-          new NumberType(true, 1, 100),
-          24
-        ),
-        new Socket(
-          SOCKET_TYPE.IN,
-          inputLineHeightName,
-          new NumberType(true, 1, 100),
-          18
-        ),
-      ]);
+    return [
+      new Socket(
+        SOCKET_TYPE.IN,
+        inputTextName,
+        new StringType(),
+        'ExampleText'
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        inputSizeName,
+        new NumberType(true, 1, 100),
+        24
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        inputLineHeightName,
+        new NumberType(true, 1, 100),
+        18
+      ),
+    ].concat(super.getDefaultIO());
   }
 
   protected drawOnContainer(
@@ -253,25 +282,18 @@ export class PIXIText2 extends PIXIDrawNode {
       lineJoin: 'round',
     });
     const basicText = new PIXI.Text(inputObject[inputTextName], textStyle);
-    basicText.x = inputObject[inputXName];
-    basicText.y = inputObject[inputYName];
+
+    this.positionAndScale(basicText, inputObject);
     container.addChild(basicText);
   }
-  /*protected async onExecute(
-    inputObject: any,
-    outputObject: Record<string, unknown>
-  ): Promise<void> {
-  }*/
 }
 
 export class PIXICombiner extends PIXIDrawNode {
   protected getDefaultIO(): Socket[] {
-    return super
-      .getDefaultIO()
-      .concat([
-        new Socket(SOCKET_TYPE.IN, inputCombine1Name, new DeferredPixiType()),
-        new Socket(SOCKET_TYPE.IN, inputCombine2Name, new DeferredPixiType()),
-      ]);
+    return [
+      new Socket(SOCKET_TYPE.IN, inputCombine1Name, new DeferredPixiType()),
+      new Socket(SOCKET_TYPE.IN, inputCombine2Name, new DeferredPixiType()),
+    ].concat(super.getDefaultIO());
   }
   protected drawOnContainer(
     inputObject: any,
@@ -283,23 +305,12 @@ export class PIXICombiner extends PIXIDrawNode {
       injectedData && injectedData.length > 0 ? injectedData[0] : {};
     const array2Data =
       injectedData && injectedData.length > 1 ? injectedData[1] : {};
-    //console.log('array1Data: ' + JSON.stringify(array1Data));
-    //console.log('array2Data: ' + JSON.stringify(array2Data));
 
-    //if (inputObject[inputCombine2Name]) {
-    //  for (let i = 0; i < inputObject[inputCombine2Name].length; i++) {
     inputObject[inputCombine2Name](myContainer, array2Data);
-    //  }
-    //}
-
-    //if (inputObject[inputCombine1Name]) {
-    //  for (let i = 0; i < inputObject[inputCombine1Name].length; i++) {
     inputObject[inputCombine1Name](myContainer, array1Data);
-    //  }
-    //}
 
-    myContainer.x = inputObject[inputXName];
-    myContainer.y = inputObject[inputYName];
+    this.positionAndScale(myContainer, inputObject);
+
     myContainer.interactive = true;
     myContainer.on('pointerdown', (e) => {
       console.log('im pressed');
@@ -310,42 +321,36 @@ export class PIXICombiner extends PIXIDrawNode {
 
 export class PIXIMultiplier2 extends PIXIDrawNode {
   protected getDefaultIO(): Socket[] {
-    return super
-      .getDefaultIO()
-      .concat([
-        new Socket(SOCKET_TYPE.IN, inputGraphicsName, new DeferredPixiType()),
-        new Socket(
-          SOCKET_TYPE.IN,
-          multiplyXName,
-          new NumberType(true, 0, 100),
-          2
-        ),
-        new Socket(
-          SOCKET_TYPE.IN,
-          multiplyYName,
-          new NumberType(true, 0, 100),
-          2
-        ),
-        new Socket(
-          SOCKET_TYPE.IN,
-          spacingXName,
-          new NumberType(true, 0, 1000),
-          400
-        ),
-        new Socket(
-          SOCKET_TYPE.IN,
-          spacingYName,
-          new NumberType(true, 0, 1000),
-          300
-        ),
-        new Socket(SOCKET_TYPE.IN, injectedDataName, new ArrayType(), []),
-        new Socket(
-          SOCKET_TYPE.OUT,
-          outputMultiplierIndex,
-          new NumberType(true)
-        ),
-        new Socket(SOCKET_TYPE.OUT, outputMultiplierInjected, new ArrayType()),
-      ]);
+    return [
+      new Socket(SOCKET_TYPE.IN, inputGraphicsName, new DeferredPixiType()),
+      new Socket(
+        SOCKET_TYPE.IN,
+        multiplyXName,
+        new NumberType(true, 0, 100),
+        2
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        multiplyYName,
+        new NumberType(true, 0, 100),
+        2
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        spacingXName,
+        new NumberType(true, 0, 1000),
+        400
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        spacingYName,
+        new NumberType(true, 0, 1000),
+        300
+      ),
+      new Socket(SOCKET_TYPE.IN, injectedDataName, new ArrayType(), []),
+      new Socket(SOCKET_TYPE.OUT, outputMultiplierIndex, new NumberType(true)),
+      new Socket(SOCKET_TYPE.OUT, outputMultiplierInjected, new ArrayType()),
+    ].concat(super.getDefaultIO());
   }
   protected drawOnContainer(
     inputObject: any,
@@ -388,397 +393,16 @@ export class PIXIMultiplier2 extends PIXIDrawNode {
         myContainer.addChild(shallowContainer);
       }
     }
-    myContainer.x = inputObject[inputXName];
-    myContainer.y = inputObject[inputYName];
+    this.positionAndScale(myContainer, inputObject);
     myContainer.interactive = true;
     myContainer.on('pointerdown', (e) => {
       console.log('im pressed');
     });
     container.addChild(myContainer);
-
-    // hack set on outputs directly UGLY
-    //this.setOutputData(outputMultiplierContainers, this.containers);
   }
 }
 
 /*
-export class PIXIText extends PPNode {
-  _ref: PIXI.Text[];
-  textStyle: PIXI.TextStyle;
-  canvas: PIXI.Container;
-
-  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    const nodeColor = NODE_TYPE_COLOR.DRAW;
-    const fillColor = COLOR_DARK;
-
-    super(name, graph, {
-      ...customArgs,
-      color: nodeColor,
-    });
-
-    this.addOutput('graphics', new AnyType());
-    this.addInput('text', new StringType(), 'Text');
-    this.addInput('x', new NumberType(), 0);
-    this.addInput('y', new NumberType(), 0);
-    this.addInput('width', new NumberType(), 100);
-    this.addInput('angle', new NumberType(true, -360, 360), 0);
-    this.addInput(
-      'align',
-      new EnumType(PIXI_TEXT_ALIGN_OPTIONS),
-      'left',
-      false
-    );
-    this.addInput('pivot', new EnumType(PIXI_PIVOT_OPTIONS), 'top left', false);
-    this.addInput('size', new NumberType(true, 1), 24, undefined);
-    this.addInput('color', new ColorType(), hexToTRgba(fillColor));
-
-    this.name = 'Draw text';
-    this.description = 'Draws a text';
-
-    this.onNodeAdded = () => {
-      this.textStyle = new PIXI.TextStyle({
-        fontFamily: 'Arial',
-        fontSize: this.getInputData('size'),
-        lineHeight: this.getInputData('size') * NOTE_LINEHEIGHT_FACTOR,
-        align: this.getInputData('align'),
-        whiteSpace: 'pre-line',
-        wordWrap: true,
-        wordWrapWidth: this.getInputData('width'),
-        lineJoin: 'round',
-      });
-
-      this.canvas = this.graph.viewport.getChildByName(
-        'backgroundCanvas'
-      ) as PIXI.Container;
-
-      const basicText = new PIXI.Text(
-        this.getInputData('text'),
-        this.textStyle
-      );
-
-      this._ref = [this.canvas.addChild(basicText)];
-      this.setOutputData('graphics', this._ref);
-    };
-
-    this.onExecute = async function (input) {
-      const x = [].concat(input['x']);
-      const y = [].concat(input['y']);
-      const width = [].concat(input['width']);
-      const angle = [].concat(input['angle']);
-      const text = [].concat(input['text']);
-      const size = [].concat(input['size']);
-      const color = [].concat(input['color']);
-      const align = input['align'];
-      const pivot = input['pivot'];
-      const lengthOfLargestArray = Math.max(
-        0,
-        x.length,
-        y.length,
-        width.length,
-        angle.length,
-        text.length,
-        size.length,
-        color.length
-      );
-
-      for (let index = 0; index < this._ref.length; index++) {
-        this._ref[index].destroy();
-      }
-      this._ref.splice(0, this._ref.length); // clear array without removing reference
-
-      for (let index = 0; index < lengthOfLargestArray; index++) {
-        // if output is not connected, then draw it next to the node
-        const myX = +(x[index] ?? x[x.length - 1]);
-        const myY = +(y[index] ?? y[y.length - 1]);
-        const myWidth = +(width[index] ?? width[width.length - 1]);
-        const myAngle = +(angle[index] ?? angle[angle.length - 1]);
-        const mySize = +(size[index] ?? size[size.length - 1]);
-        const myText = text[index] ?? text[text.length - 1];
-        const myColor = trgbaToColor(color[index] ?? color[color.length - 1]);
-        const PIXIText = new PIXI.Text(myText, {
-          ...this.textStyle,
-          fontSize: mySize,
-          lineHeight: mySize * NOTE_LINEHEIGHT_FACTOR,
-          fill: PIXI.utils.string2hex(myColor.hex()),
-          wordWrapWidth: myWidth,
-          align: align,
-        });
-        this._ref[index] = this.canvas.addChild(PIXIText);
-        this._ref[index].name = `${this.id}-${index}`;
-
-        const pivotPoint =
-          PIXI_PIVOT_OPTIONS.find((item) => item.text === pivot)?.value ??
-          PIXI_PIVOT_OPTIONS[0].value; // use first entry if not found
-
-        // set pivot point and rotate
-        (this._ref[index] as PIXI.Text).pivot.x =
-          pivotPoint.x * this._ref[index].width;
-        (this._ref[index] as PIXI.Text).pivot.y =
-          pivotPoint.y * this._ref[index].height;
-        (this._ref[index] as PIXI.Text).angle = myAngle;
-
-        if ((this as PPNode).getOutputSocketByName('graphics')?.hasLink()) {
-          this._ref[index].x = myX;
-          this._ref[index].y = myY;
-        } else {
-          this._ref[index].x = this.x + this.width + myX;
-          this._ref[index].y = this.y + myY;
-        }
-      }
-    };
-
-    this.onNodeRemoved = (): void => {
-      for (let index = 0; index < this._ref.length; index++) {
-        this.canvas.removeChild(this._ref[index]);
-      }
-    };
-  }
-
-  shouldExecuteOnMove(): boolean {
-    return true;
-  }
-}
-
-export class PIXIRect extends PPNode {
-  _ref: PIXI.Graphics[];
-  canvas: PIXI.Container;
-
-  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    const nodeColor = NODE_TYPE_COLOR.DRAW;
-    const rectWidth = 100;
-    const rectHeight = 100;
-    const fillColor = COLOR[1];
-
-    super(name, graph, {
-      ...customArgs,
-      color: nodeColor,
-    });
-
-    this.addOutput('graphics', new AnyType());
-    this.addInput('x', new NumberType(), 0);
-    this.addInput('y', new NumberType(), 0);
-    this.addInput('angle', new NumberType(true, -360, 360), 0);
-    this.addInput('pivot', new EnumType(PIXI_PIVOT_OPTIONS), 'top left', false);
-    this.addInput(
-      'width',
-      new NumberType(),
-      customArgs?.width ?? rectWidth,
-      false
-    );
-    this.addInput(
-      'height',
-      new NumberType(),
-      customArgs?.height ?? rectHeight,
-      false
-    );
-    this.addInput('color', new ColorType(), hexToTRgba(fillColor));
-
-    this.name = 'Draw rectangle';
-    this.description = 'Draws a rectangle';
-
-    this.onNodeAdded = () => {
-      this.canvas = this.graph.viewport.getChildByName(
-        'backgroundCanvas'
-      ) as PIXI.Container;
-
-      const graphics = new PIXI.Graphics();
-      this._ref = [this.canvas.addChild(graphics)];
-
-      this.setOutputData('graphics', this._ref);
-    };
-
-    this.onExecute = async function (input) {
-      const x = [].concat(input['x']);
-      const y = [].concat(input['y']);
-      const angle = [].concat(input['angle']);
-      const width = [].concat(input['width']);
-      const height = [].concat(input['height']);
-      const color = [].concat(input['color']);
-      const pivot = input['pivot'];
-      const lengthOfLargestArray = Math.max(
-        0,
-        x.length,
-        y.length,
-        angle.length,
-        width.length,
-        height.length,
-        color.length
-      );
-
-      if (lengthOfLargestArray !== this._ref.length) {
-        for (let index = 0; index < this._ref.length; index++) {
-          this._ref[index].destroy();
-        }
-        this._ref.splice(0, this._ref.length); // clear array without removing reference
-      }
-      for (let index = 0; index < lengthOfLargestArray; index++) {
-        if (!this._ref[index]) {
-          const graphics = new PIXI.Graphics();
-          this._ref[index] = this.canvas.addChild(graphics);
-        } else {
-          this._ref[index].clear();
-        }
-        this._ref[index].name = `${this.id}-${index}`;
-
-        // if output is not connected, then draw it next to the node
-        const myX = +(x[index] ?? x[x.length - 1]);
-        const myY = +(y[index] ?? y[y.length - 1]);
-        const myAngle = +(angle[index] ?? angle[angle.length - 1]);
-        const myWidth = +(width[index] ?? width[width.length - 1]);
-        const myHeight = +(height[index] ?? height[height.length - 1]);
-        const myColor = trgbaToColor(color[index] ?? color[color.length - 1]);
-
-        this._ref[index].beginFill(
-          PIXI.utils.string2hex(myColor.hex()),
-          myColor.alpha()
-        );
-        const pivotPoint =
-          PIXI_PIVOT_OPTIONS.find((item) => item.text === pivot)?.value ??
-          PIXI_PIVOT_OPTIONS[0].value; // use first entry if not found
-
-        // set pivot point and rotate
-        (this._ref[index] as PIXI.Graphics).pivot.x = pivotPoint.x * myWidth;
-        (this._ref[index] as PIXI.Graphics).pivot.y = pivotPoint.y * myHeight;
-        (this._ref[index] as PIXI.Graphics).angle = myAngle;
-
-        if ((this as PPNode).getOutputSocketByName('graphics')?.hasLink()) {
-          this._ref[index].drawRect(myX, myY, myWidth, myHeight);
-        } else {
-          this._ref[index].drawRect(
-            this.x + this.width + myX,
-            this.y + myY,
-            myWidth,
-            myHeight
-          );
-        }
-        this._ref[index].endFill();
-      }
-    };
-
-    this.onNodeRemoved = (): void => {
-      for (let index = 0; index < this._ref.length; index++) {
-        this.canvas.removeChild(this._ref[index]);
-      }
-    };
-  }
-
-  shouldExecuteOnMove(): boolean {
-    return true;
-  }
-}
-
-export class PIXICircle extends PPNode {
-  _ref: PIXI.Graphics[];
-  canvas: PIXI.Container;
-
-  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    const nodeColor = NODE_TYPE_COLOR.DRAW;
-    const radius = 50;
-    const fillColor = COLOR[8];
-
-    super(name, graph, {
-      ...customArgs,
-      color: nodeColor,
-    });
-
-    this.addOutput('graphics', new AnyType());
-    this.addInput('x', new NumberType(), 0);
-    this.addInput('y', new NumberType(), 0);
-    this.addInput('pivot', new EnumType(PIXI_PIVOT_OPTIONS), 'top left', false);
-    this.addInput(
-      'radius',
-      new NumberType(),
-      customArgs?.radius ?? radius,
-      false
-    );
-    this.addInput('color', new ColorType(), hexToTRgba(fillColor));
-
-    this.name = 'Draw circle';
-    this.description = 'Draws a circle';
-
-    this.onNodeAdded = () => {
-      this.canvas = this.graph.viewport.getChildByName(
-        'backgroundCanvas'
-      ) as PIXI.Container;
-
-      const graphics = new PIXI.Graphics();
-      this._ref = [this.canvas.addChild(graphics)];
-      this.setOutputData('graphics', this._ref);
-    };
-
-    this.onExecute = async function (input) {
-      const x = [].concat(input['x']);
-      const y = [].concat(input['y']);
-      const radius = [].concat(input['radius']);
-      const color = [].concat(input['color']);
-      const pivot = input['pivot'];
-      const lengthOfLargestArray = Math.max(
-        0,
-        x.length,
-        y.length,
-        radius.length,
-        color.length
-      );
-
-      if (lengthOfLargestArray !== this._ref.length) {
-        for (let index = 0; index < this._ref.length; index++) {
-          this._ref[index].destroy();
-        }
-        this._ref.splice(0, this._ref.length); // clear array without removing reference
-      }
-      for (let index = 0; index < lengthOfLargestArray; index++) {
-        if (!this._ref[index]) {
-          const graphics = new PIXI.Graphics();
-          this._ref[index] = this.canvas.addChild(graphics);
-        } else {
-          this._ref[index].clear();
-        }
-        this._ref[index].name = `${this.id}-${index}`;
-
-        // if output is not connected, then draw it next to the node
-        const myX = +(x[index] ?? x[x.length - 1]);
-        const myY = +(y[index] ?? y[y.length - 1]);
-        const myRadius = +(radius[index] ?? radius[radius.length - 1]);
-        const myColor = trgbaToColor(color[index] ?? color[color.length - 1]);
-
-        this._ref[index].beginFill(
-          PIXI.utils.string2hex(myColor.hex()),
-          myColor.alpha()
-        );
-        const pivotPoint =
-          PIXI_PIVOT_OPTIONS.find((item) => item.text === pivot)?.value ??
-          PIXI_PIVOT_OPTIONS[0].value; // use first entry if not found
-
-        // set pivot point
-        (this._ref[index] as PIXI.Graphics).pivot.x =
-          pivotPoint.x * myRadius * 2;
-        (this._ref[index] as PIXI.Graphics).pivot.y =
-          pivotPoint.y * myRadius * 2;
-        if ((this as PPNode).getOutputSocketByName('graphics')?.hasLink()) {
-          this._ref[index].drawCircle(myX + myRadius, myY + myRadius, myRadius);
-        } else {
-          this._ref[index].drawCircle(
-            this.x + this.width + myX + myRadius,
-            this.y + myY + myRadius,
-            myRadius
-          );
-        }
-        this._ref[index].endFill();
-      }
-    };
-
-    this.onNodeRemoved = (): void => {
-      for (let index = 0; index < this._ref.length; index++) {
-        this.canvas.removeChild(this._ref[index]);
-      }
-    };
-  }
-
-  shouldExecuteOnMove(): boolean {
-    return true;
-  }
-}
-
 export class PIXIContainer extends PPNode {
   _containerRef: PIXI.Container[];
   canvas: PIXI.Container;
