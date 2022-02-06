@@ -19,7 +19,14 @@ export const availableShapes: EnumStructure = [
     text: 'Rectangle',
     value: 'Rectangle',
   },
+  {
+    text: 'Rounded Rectangle',
+    value: 'Rounded Rectangle',
+  },
 ];
+
+const inputXName = 'Offset X';
+const inputYName = 'Offset Y';
 
 const inputShapeName = 'Shape';
 const inputColorName = 'Color';
@@ -27,18 +34,45 @@ const inputSizeName = 'Size';
 const inputBorderName = 'Border';
 const outputPixiName = 'Graphics';
 
+const inputCombine1Name = 'Primary';
+const inputCombine2Name = 'Secondary';
+
 const inputTextName = 'Text';
 
-// assume you have output deferred renderings, add them
-//function drawIfFinished(node: PPNode): void {}
+function deepClone(graphics: PIXI.Graphics): PIXI.Graphics {
+  if (!graphics) {
+    return undefined;
+  }
+  const newGraphics = graphics.clone();
+  newGraphics.x = graphics.x;
+  newGraphics.y = graphics.y;
+  graphics.children.forEach((child) =>
+    newGraphics.addChild(deepClone(child as PIXI.Graphics))
+  );
+  return newGraphics;
+}
 
 // a PIXI draw node is a pure node that also draws its graphics if graphics at the end
 export class PIXIDrawNode extends PureNode {
-  deferredGraphics: DisplayObject;
+  deferredGraphics: PIXI.Graphics;
 
   // you probably want to maintain this output in children
   protected getDefaultIO(): Socket[] {
     return [
+      new Socket(
+        SOCKET_TYPE.IN,
+        inputXName,
+        new NumberType(false, -500, 500),
+        0,
+        false
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        inputYName,
+        new NumberType(false, -500, 500),
+        0,
+        false
+      ),
       new Socket(SOCKET_TYPE.OUT, outputPixiName, new DeferredPixiType()),
     ];
   }
@@ -53,12 +87,20 @@ export class PIXIDrawNode extends PureNode {
     // we draw if no dependents
     const shouldDraw: boolean =
       Object.keys(this.getDirectDependents()).length < 1;
-    if (shouldDraw) {
+    const cloned = deepClone(this.getOutputSocketByName(outputPixiName).data);
+    if (shouldDraw && cloned) {
       this.deferredGraphics = this.getOutputSocketByName(outputPixiName).data;
-      this.deferredGraphics.x = 500;
+      this.deferredGraphics.x += 400;
       this.addChild(this.deferredGraphics);
     } else {
     }
+  }
+
+  public outputPlugged(): void {
+    this.handleDrawing();
+  }
+  public outputUnplugged(): void {
+    this.handleDrawing();
   }
 }
 
@@ -91,7 +133,6 @@ export class PIXIShape extends PIXIDrawNode {
     const selectedColor = PIXI.utils.string2hex(
       trgbaToColor(inputObject[inputColorName]).hex()
     );
-    console.log('selectedColor: ' + JSON.stringify(selectedColor));
     const drawBorder = inputObject[inputBorderName];
     graphics.beginFill(selectedColor);
     graphics.lineStyle(drawBorder ? 3 : 0, selectedColor << 1);
@@ -111,12 +152,56 @@ export class PIXIShape extends PIXIDrawNode {
         );
         break;
       }
+      case 'Rounded Rectangle': {
+        graphics.drawRoundedRect(
+          0,
+          0,
+          inputObject[inputSizeName] * 1.618,
+          inputObject[inputSizeName],
+          inputObject[inputSizeName] * 0.1
+        );
+        break;
+      }
     }
+    graphics.x += inputObject[inputXName];
+    graphics.y += inputObject[inputYName];
     outputObject[outputPixiName] = graphics;
   }
 }
 
 export class PIXIText2 extends PIXIDrawNode {}
+
+export class PIXICombine extends PIXIDrawNode {
+  protected getDefaultIO(): Socket[] {
+    return super
+      .getDefaultIO()
+      .concat([
+        new Socket(SOCKET_TYPE.IN, inputCombine1Name, new DeferredPixiType()),
+        new Socket(SOCKET_TYPE.IN, inputCombine2Name, new DeferredPixiType()),
+      ]);
+  }
+  protected async onExecute(
+    inputObject: any,
+    outputObject: Record<string, unknown>
+  ): Promise<void> {
+    let outputGraphics: PIXI.Graphics = deepClone(
+      inputObject[inputCombine1Name]
+    );
+    const graphics2: PIXI.Graphics = deepClone(inputObject[inputCombine2Name]);
+    if (outputGraphics) {
+      if (graphics2) {
+        outputGraphics.addChild(graphics2);
+      }
+    } else if (graphics2) {
+      outputGraphics = graphics2;
+    }
+    if (outputGraphics) {
+      outputGraphics.x += inputObject[inputXName];
+      outputGraphics.y += inputObject[inputYName];
+    }
+    outputObject[outputPixiName] = outputGraphics;
+  }
+}
 
 /*
 export class PIXIText extends PPNode {

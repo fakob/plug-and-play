@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
 /* eslint-disable @typescript-eslint/no-this-alias */
 import * as PIXI from 'pixi.js';
 import { DropShadowFilter } from '@pixi/filter-drop-shadow';
@@ -1130,6 +1131,9 @@ export default class PPNode extends PIXI.Container {
       this.onNodeDoubleClick(event);
     }
   }
+
+  public outputPlugged(): void {}
+  public outputUnplugged(): void {}
 }
 
 export class PureNode extends PPNode {
