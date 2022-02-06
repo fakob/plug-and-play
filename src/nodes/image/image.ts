@@ -12,7 +12,6 @@ import {
 } from '../../utils/constants';
 import Socket from '../../classes/SocketClass';
 import { ImageType } from '../datatypes/imageType';
-import { NumberType } from '../datatypes/numberType';
 import PPNode from '../../classes/NodeClass';
 import { JSONType } from '../datatypes/jsonType';
 import { EnumType } from '../datatypes/enumType';
@@ -121,7 +120,14 @@ export class Image extends PPNode {
         setTimeout(() => this.removeChild(prevSprite), 20);
         // race condition here? dont know why this is needed...
         await new Promise((resolve) => setTimeout(resolve, 1));
+
         output[imageOutputName] = base64;
+        output[imageOutputDetails] = {
+          textureWidth: this.texture.width,
+          textureHeight: this.texture.height,
+          width: Math.round(this.width),
+          height: Math.round(this.height),
+        };
       }
     };
 
@@ -132,6 +138,12 @@ export class Image extends PPNode {
         this.maskRef.width = newWidth;
         this.maskRef.height = newHeight;
       }
+      this.setOutputData(imageOutputDetails, {
+        textureWidth: this.texture.width,
+        textureHeight: this.texture.height,
+        width: Math.round(this.width),
+        height: Math.round(this.height),
+      });
     };
   }
 }
