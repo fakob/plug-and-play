@@ -27,6 +27,9 @@ const outDataName = 'OutData';
 const constantInName = 'In';
 const constantOutName = 'Out';
 
+const input1Name = 'Input 1';
+const input2Name = 'Input 2';
+
 export class Code extends PureNode {
   protected getDefaultIO(): Socket[] {
     return [
@@ -98,7 +101,7 @@ export class Map extends PureNode {
   }
 }
 
-export class Merge extends PureNode {
+export class MergeDataArrays extends PureNode {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, arrayName, new ArrayType(), []),
@@ -109,11 +112,9 @@ export class Merge extends PureNode {
     inputObject: any,
     outputObject: Record<string, unknown>
   ): Promise<void> {
-    let mergedObject = {};
-    inputObject[arrayName].forEach(
-      (entry) => (mergedObject = { ...mergedObject, ...entry })
-    );
-    outputObject[constantOutName] = mergedObject;
+    const mergedObject = {};
+    const merged = [].concat.apply([], inputObject[arrayName]);
+    outputObject[constantOutName] = merged;
   }
 }
 

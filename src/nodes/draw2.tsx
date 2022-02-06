@@ -116,9 +116,10 @@ export abstract class PIXIDrawNode extends PureNode {
     ];
   }
 
-  public async execute(): Promise<void> {
-    await super.execute();
+  public async execute(): Promise<boolean> {
+    const result: boolean = await super.execute();
     this.handleDrawing();
+    return true;
   }
 
   // if you are a child you likely want to use this instead of normal execute
