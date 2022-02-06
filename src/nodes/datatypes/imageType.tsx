@@ -16,7 +16,12 @@ export class ImageType extends AbstractType {
     if (typeof props.data === 'string') {
       return (
         <img
-          style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+          style={{
+            width: '100%',
+            height: '100%',
+            maxHeight: '60vh',
+            objectFit: 'contain',
+          }}
           src={props.data}
           alt={props.key}
           onError={({ currentTarget }) => {
