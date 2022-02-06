@@ -1,7 +1,12 @@
 import { DisplayObject } from 'pixi.js';
 import PPNode, { PureNode } from '../classes/NodeClass';
 import Socket from '../classes/SocketClass';
-import { COLOR_DARK, NODE_TYPE_COLOR, SOCKET_TYPE } from '../utils/constants';
+import {
+  COLOR_DARK,
+  NODE_TYPE_COLOR,
+  NOTE_LINEHEIGHT_FACTOR,
+  SOCKET_TYPE,
+} from '../utils/constants';
 import { DeferredPixiType } from './datatypes/deferredPixiType';
 import { EnumStructure, EnumType } from './datatypes/enumType';
 import * as PIXI from 'pixi.js';
@@ -9,6 +14,8 @@ import { ColorType } from './datatypes/colorType';
 import { NumberType } from './datatypes/numberType';
 import { BooleanType } from './datatypes/booleanType';
 import { trgbaToColor } from '../pixi/utils-pixi';
+import { ArrayType } from './datatypes/arrayType';
+import { StringType } from './datatypes/stringType';
 
 export const availableShapes: EnumStructure = [
   {
@@ -38,6 +45,8 @@ const inputCombine1Name = 'Primary';
 const inputCombine2Name = 'Secondary';
 
 const inputTextName = 'Text';
+
+const inputSeveralShapesName = 'Graphics';
 
 function deepClone(graphics: PIXI.Graphics): PIXI.Graphics {
   if (!graphics) {
@@ -83,15 +92,26 @@ export class PIXIDrawNode extends PureNode {
   }
 
   handleDrawing(): void {
-    this.removeChild(this.deferredGraphics);
+    const canvas = this.graph.viewport.getChildByName(
+      'backgroundCanvas'
+    ) as PIXI.Container;
+    canvas.removeChild(this.deferredGraphics);
+    //this.removeChild(this.deferredGraphics);
     // we draw if no dependents
     const shouldDraw: boolean =
       Object.keys(this.getDirectDependents()).length < 1;
     const cloned = deepClone(this.getOutputSocketByName(outputPixiName).data);
     if (shouldDraw && cloned) {
-      this.deferredGraphics = this.getOutputSocketByName(outputPixiName).data;
+      this.deferredGraphics = cloned;
       this.deferredGraphics.x += 400;
-      this.addChild(this.deferredGraphics);
+
+      // canvas mode
+      this.deferredGraphics.x += this.x;
+      this.deferredGraphics.y += this.y;
+      canvas.addChild(this.deferredGraphics);
+
+      // me mode
+      //this.addChild(this.deferredGraphics);
     } else {
     }
   }
@@ -102,6 +122,24 @@ export class PIXIDrawNode extends PureNode {
   public outputUnplugged(): void {
     this.handleDrawing();
   }
+
+  shouldExecuteOnMove(): boolean {
+    return true;
+  }
+}
+
+export class PIXIMakeClickable extends PureNode {
+  protected getDefaultIO(): Socket[] {
+    return super
+      .getDefaultIO()
+      .concat([
+        new Socket(SOCKET_TYPE.IN, inputSeveralShapesName, new ArrayType()),
+      ]);
+  }
+  protected async onExecute(
+    inputObject: any,
+    outputObject: Record<string, unknown>
+  ): Promise<void> {}
 }
 
 export class PIXIShape extends PIXIDrawNode {
@@ -129,7 +167,7 @@ export class PIXIShape extends PIXIDrawNode {
     inputObject: any,
     outputObject: Record<string, unknown>
   ): Promise<void> {
-    const graphics = new PIXI.Graphics();
+    const graphics: PIXI.Graphics = new PIXI.Graphics();
     const selectedColor = PIXI.utils.string2hex(
       trgbaToColor(inputObject[inputColorName]).hex()
     );
@@ -165,11 +203,36 @@ export class PIXIShape extends PIXIDrawNode {
     }
     graphics.x += inputObject[inputXName];
     graphics.y += inputObject[inputYName];
+    graphics.on('pointerdown', () => console.log('clicked shape'));
     outputObject[outputPixiName] = graphics;
   }
 }
 
-export class PIXIText2 extends PIXIDrawNode {}
+export class PIXIText2 extends PIXIDrawNode {
+  protected getDefaultIO(): Socket[] {
+    return super
+      .getDefaultIO()
+      .concat([new Socket(SOCKET_TYPE.IN, inputTextName, new StringType())]);
+  }
+  /*protected async onExecute(
+    inputObject: any,
+    outputObject: Record<string, unknown>
+  ): Promise<void> {
+    const textStyle = new PIXI.TextStyle({
+      fontFamily: 'Arial',
+      fontSize: this.getInputData('size'),
+      lineHeight: this.getInputData('size') * NOTE_LINEHEIGHT_FACTOR,
+      align: this.getInputData('align'),
+      whiteSpace: 'pre-line',
+      wordWrap: true,
+      wordWrapWidth: this.getInputData('width'),
+      lineJoin: 'round',
+    });
+
+    const basicText = new PIXI.Text(inputObject[inputTextName], textStyle);
+    outputObject[outputPixiName] = basicText;
+  }*/
+}
 
 export class PIXICombine extends PIXIDrawNode {
   protected getDefaultIO(): Socket[] {

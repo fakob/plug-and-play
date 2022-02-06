@@ -1044,7 +1044,10 @@ export default class PPNode extends PIXI.Container {
       // subscribe to pointermove
       this.on('pointermove', this.onMoveHandler);
     }
+    this.nodeHandlePressed(event);
   }
+
+  nodeHandlePressed(event: PIXI.InteractionEvent): void {}
 
   _onPointerUpAndUpOutside(): void {
     // unsubscribe from pointermove
