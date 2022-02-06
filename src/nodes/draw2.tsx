@@ -17,6 +17,8 @@ import { BooleanType } from './datatypes/booleanType';
 import { trgbaToColor } from '../pixi/utils-pixi';
 import { ArrayType } from './datatypes/arrayType';
 import { StringType } from './datatypes/stringType';
+import { AnyType } from './datatypes/anyType';
+import { JSONType } from './datatypes/jsonType';
 
 export const availableShapes: EnumStructure = [
   {
@@ -53,6 +55,7 @@ const multiplyXName = 'Num X';
 const multiplyYName = 'Num Y';
 const spacingXName = 'Spacing X';
 const spacingYName = 'Spacing Y';
+const injectedDataName = 'Injected Data';
 
 // a PIXI draw node is a pure node that also draws its graphics if graphics at the end
 export abstract class PIXIDrawNode extends PureNode {
@@ -87,7 +90,8 @@ export abstract class PIXIDrawNode extends PureNode {
   // if you are a child you likely want to use this instead of normal execute
   protected drawOnContainer(
     inputObject: any,
-    container: PIXI.Container
+    container: PIXI.Container,
+    injectedData: any
   ): void {}
 
   protected async onExecute(
@@ -95,7 +99,8 @@ export abstract class PIXIDrawNode extends PureNode {
     outputObject: Record<string, unknown>
   ): Promise<void> {
     outputObject[outputPixiName] = [
-      (container) => this.drawOnContainer(inputObject, container),
+      (container, injectedData) =>
+        this.drawOnContainer(inputObject, container, injectedData),
     ];
   }
 
@@ -170,7 +175,11 @@ export class PIXIShape extends PIXIDrawNode {
       ]);
   }
 
-  protected drawOnContainer(inputObject: any, container: PIXI.Container): void {
+  protected drawOnContainer(
+    inputObject: any,
+    container: PIXI.Container,
+    injectedData
+  ): void {
     const graphics: PIXI.Graphics = new PIXI.Graphics();
     const selectedColor = PIXI.utils.string2hex(
       trgbaToColor(inputObject[inputColorName]).hex()
@@ -219,7 +228,11 @@ export class PIXIText2 extends PIXIDrawNode {
       .concat([new Socket(SOCKET_TYPE.IN, inputTextName, new StringType())]);
   }
 
-  protected drawOnContainer(inputObject: any, container: PIXI.Container): void {
+  protected drawOnContainer(
+    inputObject: any,
+    container: PIXI.Container,
+    injectedData
+  ): void {
     const textStyle = new PIXI.TextStyle({
       fontFamily: 'Arial',
       fontSize: 24, //this.getInputData('size'),
@@ -249,12 +262,24 @@ export class PIXIContainer2 extends PIXIDrawNode {
         new Socket(SOCKET_TYPE.IN, inputCombine2Name, new DeferredPixiType()),
       ]);
   }
-  protected drawOnContainer(inputObject: any, container: PIXI.Container): void {
+  protected drawOnContainer(
+    inputObject: any,
+    container: PIXI.Container,
+    injectedData
+  ): void {
     const myContainer = new PIXI.Container();
-    if (inputObject[inputCombine2Name])
-      inputObject[inputCombine2Name].forEach((func) => func(myContainer));
-    if (inputObject[inputCombine1Name])
-      inputObject[inputCombine1Name].forEach((func) => func(myContainer));
+    const array1Data =
+      injectedData && injectedData.length > 0 ? injectedData[0] : [];
+    const array2Data =
+      injectedData && injectedData.length > 1 ? injectedData[1] : [];
+
+    for (let i = 0; i < inputObject[inputCombine2Name].length; i++) {
+      inputObject[inputCombine2Name][i](myContainer, array2Data[i]);
+    }
+
+    for (let i = 0; i < inputObject[inputCombine1Name].length; i++) {
+      inputObject[inputCombine1Name][i](myContainer, array1Data[i]);
+    }
     myContainer.x = inputObject[inputXName];
     myContainer.y = inputObject[inputYName];
     myContainer.interactive = true;
@@ -295,16 +320,26 @@ export class PIXIMultiplier2 extends PIXIDrawNode {
           new NumberType(true, 0, 1000),
           400
         ),
+        new Socket(SOCKET_TYPE.IN, injectedDataName, new ArrayType(), []),
       ]);
   }
-  protected drawOnContainer(inputObject: any, container: PIXI.Container): void {
+  protected drawOnContainer(
+    inputObject: any,
+    container: PIXI.Container,
+    injectedData: any
+  ): void {
     const myContainer = new PIXI.Container();
     for (let x = 0; x < inputObject[multiplyXName]; x++) {
       for (let y = 0; y < inputObject[multiplyYName]; y++) {
+        const currentInjectedData =
+          inputObject[injectedDataName].length > x &&
+          inputObject[injectedDataName][x].length > y
+            ? inputObject[injectedDataName][x][y]
+            : [];
         const shallowContainer = new PIXI.Container();
         if (inputObject[inputGraphicsName])
-          inputObject[inputGraphicsName].forEach((func) =>
-            func(shallowContainer)
+          inputObject[inputGraphicsName].forEach((drawOnContainer) =>
+            drawOnContainer(shallowContainer, currentInjectedData)
           );
         shallowContainer.x = x * inputObject[spacingXName];
         shallowContainer.y = y * inputObject[spacingYName];
