@@ -27,7 +27,11 @@ import {
 } from '../utils/constants';
 import PPGraph from './GraphClass';
 import Socket from './SocketClass';
-import { getNodeCommentPosX, getNodeCommentPosY } from '../utils/utils';
+import {
+  calculateAspectRatioFit,
+  getNodeCommentPosX,
+  getNodeCommentPosY,
+} from '../utils/utils';
 import { AbstractType } from '../nodes/datatypes/abstractType';
 import { AnyType } from '../nodes/datatypes/anyType';
 import { deSerializeType } from '../nodes/datatypes/typehelper';
@@ -548,10 +552,28 @@ export default class PPNode extends PIXI.Container {
     }
   }
 
-  resizeNode(width: number, height: number): void {
+  resizeNode(width: number, height: number, maintainAspectRatio = false): void {
     // set new size
-    this.nodeWidth = Math.max(width, this.minNodeWidth);
-    this.nodeHeight = Math.max(height, this.calculatedMinNodeHeight);
+    let newNodeWidth = Math.max(width, this.minNodeWidth);
+    let newNodeHeight = Math.max(height, this.calculatedMinNodeHeight);
+
+    if (maintainAspectRatio) {
+      const oldWidth = this.nodeWidth;
+      const oldHeight = this.nodeHeight;
+      const newRect = calculateAspectRatioFit(
+        oldWidth,
+        oldHeight,
+        newNodeWidth,
+        newNodeHeight,
+        this.minNodeWidth,
+        this.calculatedMinNodeHeight
+      );
+      newNodeWidth = newRect.width;
+      newNodeHeight = newRect.height;
+    }
+
+    this.nodeWidth = newNodeWidth;
+    this.nodeHeight = newNodeHeight;
 
     // update node shape
     this.drawNodeShape();

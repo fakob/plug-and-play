@@ -359,3 +359,20 @@ export const isEventComingFromWithinTextInput = (event: any): boolean => {
     event.target.className.includes('cm-scroller')
   );
 };
+
+export const calculateAspectRatioFit = (
+  oldWidth: number,
+  oldHeight: number,
+  newWidth: number,
+  newHeight: number,
+  minWidth: number,
+  minHeight: number
+): { width: number; height: number } => {
+  let ratio = Math.min(newWidth / oldWidth, newHeight / oldHeight);
+  const tempWidth = oldWidth * ratio;
+  const tempHeight = oldHeight * ratio;
+  if (tempWidth < minWidth || tempHeight < minHeight) {
+    ratio = Math.max(minWidth / oldWidth, minHeight / oldHeight);
+  }
+  return { width: oldWidth * ratio, height: oldHeight * ratio };
+};
