@@ -180,6 +180,8 @@ export class PIXIShape extends PIXIDrawNode {
     container: PIXI.Container,
     injectedData
   ): void {
+    console.log('injectedData: ' + JSON.stringify(injectedData));
+    inputObject = { ...inputObject, ...injectedData };
     const graphics: PIXI.Graphics = new PIXI.Graphics();
     const selectedColor = PIXI.utils.string2hex(
       trgbaToColor(inputObject[inputColorName]).hex()
@@ -233,6 +235,7 @@ export class PIXIText2 extends PIXIDrawNode {
     container: PIXI.Container,
     injectedData
   ): void {
+    inputObject = { ...inputObject, ...injectedData };
     const textStyle = new PIXI.TextStyle({
       fontFamily: 'Arial',
       fontSize: 24, //this.getInputData('size'),
@@ -272,14 +275,21 @@ export class PIXIContainer2 extends PIXIDrawNode {
       injectedData && injectedData.length > 0 ? injectedData[0] : [];
     const array2Data =
       injectedData && injectedData.length > 1 ? injectedData[1] : [];
+    //console.log('array1Data: ' + JSON.stringify(array1Data));
+    //console.log('array2Data: ' + JSON.stringify(array2Data));
 
-    for (let i = 0; i < inputObject[inputCombine2Name].length; i++) {
-      inputObject[inputCombine2Name][i](myContainer, array2Data[i]);
+    if (inputObject[inputCombine2Name]) {
+      for (let i = 0; i < inputObject[inputCombine2Name].length; i++) {
+        inputObject[inputCombine2Name][i](myContainer, array1Data[i]);
+      }
     }
 
-    for (let i = 0; i < inputObject[inputCombine1Name].length; i++) {
-      inputObject[inputCombine1Name][i](myContainer, array1Data[i]);
+    if (inputObject[inputCombine1Name]) {
+      for (let i = 0; i < inputObject[inputCombine1Name].length; i++) {
+        inputObject[inputCombine1Name][i](myContainer, array2Data[i]);
+      }
     }
+
     myContainer.x = inputObject[inputXName];
     myContainer.y = inputObject[inputYName];
     myContainer.interactive = true;
@@ -329,13 +339,25 @@ export class PIXIMultiplier2 extends PIXIDrawNode {
     injectedData: any
   ): void {
     const myContainer = new PIXI.Container();
+    let injected = [];
+    try {
+      injected = JSON.parse(inputObject[injectedDataName]);
+    } catch (e) {
+      console.log('failed to parse injected data');
+    }
     for (let x = 0; x < inputObject[multiplyXName]; x++) {
       for (let y = 0; y < inputObject[multiplyYName]; y++) {
         const currentInjectedData =
-          inputObject[injectedDataName].length > x &&
-          inputObject[injectedDataName][x].length > y
-            ? inputObject[injectedDataName][x][y]
-            : [];
+          injected.length > x && injected[x].length > y ? injected[x][y] : [];
+
+        /* console.log(
+          'currentInjectedInMultiplier: ' +
+            JSON.stringify(currentInjectedData) +
+            ' x: ' +
+            x +
+            ' y: ' +
+            y
+        );*/
         const shallowContainer = new PIXI.Container();
         if (inputObject[inputGraphicsName])
           inputObject[inputGraphicsName].forEach((drawOnContainer) =>
