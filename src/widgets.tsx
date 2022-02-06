@@ -168,6 +168,7 @@ export const SelectWidget: React.FunctionComponent<SelectWidgetProps> = (
 
   const onChange = (event) => {
     const value = event.target.value;
+    console.log(value);
     potentiallyNotify(props.property, value);
     setData(value);
   };
@@ -181,6 +182,7 @@ export const SelectWidget: React.FunctionComponent<SelectWidgetProps> = (
         disabled={props.hasLink}
       >
         {options?.map(({ text }, index) => {
+          console.log(text);
           return (
             <MenuItem
               key={index}

@@ -49,6 +49,7 @@
     "human-readable-ids": "^1.0.4",
     "javascript-time-ago": "^2.3.10",
     "jsonpath-plus": "^6.0.1",
+    "object-fit-math": "^1.0.0",
     "papaparse": "^5.3.1",
     "pixi-viewport": "^4.34.1",
     "pixi.js": "^6.2.0",

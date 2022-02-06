@@ -167,6 +167,10 @@ const App = (): JSX.Element => {
           case 'png':
             data = await response.blob();
             const base64 = await convertBlobToBase64(data);
+            console.log(
+              currentGraph.current.selection.selectedNodes?.[0]?.type ===
+                'Image'
+            );
             newNode = currentGraph.current.createAndAddNode('Image', {
               defaultArguments: { Image: base64 },
             });

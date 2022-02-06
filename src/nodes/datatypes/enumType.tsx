@@ -2,7 +2,7 @@ import React from 'react';
 import { SelectWidget, SelectWidgetProps } from '../../widgets';
 import { AbstractType } from './abstractType';
 
-export type EnumStructure = { text: string; value: any }[];
+export type EnumStructure = { text: string; value?: any }[];
 
 // This class is a crutch for legacy reasons, you normally shouldn't need it but instead create new types
 
