@@ -48,20 +48,11 @@ const inputCombine2Name = 'Secondary';
 
 const inputTextName = 'Text';
 
-const inputSeveralShapesName = 'Graphics';
-
-function deepClone(graphics: PIXI.Graphics): PIXI.Graphics {
-  if (!graphics) {
-    return undefined;
-  }
-  const newGraphics = graphics.clone();
-  newGraphics.x = graphics.x;
-  newGraphics.y = graphics.y;
-  graphics.children.forEach((child) =>
-    newGraphics.addChild(deepClone(child as PIXI.Graphics))
-  );
-  return newGraphics;
-}
+const inputGraphicsName = 'Graphics';
+const multiplyXName = 'Num X';
+const multiplyYName = 'Num Y';
+const spacingXName = 'Spacing X';
+const spacingYName = 'Spacing Y';
 
 // a PIXI draw node is a pure node that also draws its graphics if graphics at the end
 export abstract class PIXIDrawNode extends PureNode {
@@ -127,6 +118,9 @@ export abstract class PIXIDrawNode extends PureNode {
       const data: ((container: PIXI.Container) => void)[] =
         this.getOutputSocketByName(outputPixiName).data;
       data.forEach((drawing) => drawing(this.deferredGraphics));
+      //this.deferredGraphics.on('pointerdown', (e) => {
+      //  console.log('top drawing registerd pointer');
+      //});
       canvas.addChild(this.deferredGraphics);
 
       /*this.deferredGraphics = cloned;
@@ -263,6 +257,72 @@ export class PIXIContainer2 extends PIXIDrawNode {
       inputObject[inputCombine1Name].forEach((func) => func(myContainer));
     myContainer.x = inputObject[inputXName];
     myContainer.y = inputObject[inputYName];
+    myContainer.interactive = true;
+    myContainer.on('pointerdown', (e) => {
+      console.log('im pressed');
+    });
+    container.addChild(myContainer);
+  }
+}
+
+export class PIXIMultiplier2 extends PIXIDrawNode {
+  protected getDefaultIO(): Socket[] {
+    return super
+      .getDefaultIO()
+      .concat([
+        new Socket(SOCKET_TYPE.IN, inputGraphicsName, new DeferredPixiType()),
+        new Socket(
+          SOCKET_TYPE.IN,
+          multiplyXName,
+          new NumberType(true, 0, 100),
+          2
+        ),
+        new Socket(
+          SOCKET_TYPE.IN,
+          multiplyYName,
+          new NumberType(true, 0, 100),
+          2
+        ),
+        new Socket(
+          SOCKET_TYPE.IN,
+          spacingXName,
+          new NumberType(true, 0, 1000),
+          400
+        ),
+        new Socket(
+          SOCKET_TYPE.IN,
+          spacingYName,
+          new NumberType(true, 0, 1000),
+          400
+        ),
+      ]);
+  }
+  protected drawOnContainer(inputObject: any, container: PIXI.Container): void {
+    const myContainer = new PIXI.Container();
+    for (let x = 0; x < inputObject[multiplyXName]; x++) {
+      for (let y = 0; y < inputObject[multiplyYName]; y++) {
+        const shallowContainer = new PIXI.Container();
+        if (inputObject[inputGraphicsName])
+          inputObject[inputGraphicsName].forEach((func) =>
+            func(shallowContainer)
+          );
+        shallowContainer.x = x * inputObject[spacingXName];
+        shallowContainer.y = y * inputObject[spacingYName];
+
+        shallowContainer.interactive = true;
+        shallowContainer.on('pointerdown', (e) => {
+          console.log('pressed: ' + x + ' y: ' + y);
+        });
+
+        myContainer.addChild(shallowContainer);
+      }
+    }
+    myContainer.x = inputObject[inputXName];
+    myContainer.y = inputObject[inputYName];
+    myContainer.interactive = true;
+    myContainer.on('pointerdown', (e) => {
+      console.log('im pressed');
+    });
     container.addChild(myContainer);
   }
 }
