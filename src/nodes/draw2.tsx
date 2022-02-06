@@ -47,8 +47,11 @@ const outputPixiName = 'Graphics';
 
 const inputCombine1Name = 'Primary';
 const inputCombine2Name = 'Secondary';
+const outputMultiplierIndex = 'LatestPressedIndex';
+const outputMultiplierInjected = 'LastPressedInjected';
 
 const inputTextName = 'Text';
+const inputLineHeightName = 'Line Height';
 
 const inputGraphicsName = 'Graphics';
 const multiplyXName = 'Num X';
@@ -60,6 +63,14 @@ const injectedDataName = 'Injected Data';
 // a PIXI draw node is a pure node that also draws its graphics if graphics at the end
 export abstract class PIXIDrawNode extends PureNode {
   deferredGraphics: PIXI.Container;
+
+  onNodeRemoved = (): void => {
+    const canvas = this.graph.viewport.getChildByName(
+      'backgroundCanvas'
+    ) as PIXI.Container;
+
+    canvas.removeChild(this.deferredGraphics);
+  };
 
   // you probably want to maintain this output in children
   protected getDefaultIO(): Socket[] {
@@ -98,10 +109,8 @@ export abstract class PIXIDrawNode extends PureNode {
     inputObject: any,
     outputObject: Record<string, unknown>
   ): Promise<void> {
-    outputObject[outputPixiName] = [
-      (container, injectedData) =>
-        this.drawOnContainer(inputObject, container, injectedData),
-    ];
+    outputObject[outputPixiName] = (container, injectedData) =>
+      this.drawOnContainer(inputObject, container, injectedData);
   }
 
   handleDrawing(): void {
@@ -109,35 +118,16 @@ export abstract class PIXIDrawNode extends PureNode {
       'backgroundCanvas'
     ) as PIXI.Container;
 
-    //this.deferredGraphics.removeChildren();
     canvas.removeChild(this.deferredGraphics);
-    //this.removeChild(this.deferredGraphics);
-    // we draw if no dependents
-    const shouldDraw: boolean =
-      Object.keys(this.getDirectDependents()).length < 1;
-    // const cloned = deepClone(this.getOutputSocketByName(outputPixiName).data);
+    const shouldDraw = !this.getOutputSocketByName(outputPixiName).hasLink();
     if (shouldDraw) {
       this.deferredGraphics = new PIXI.Container();
       this.deferredGraphics.x = this.x + 400;
       this.deferredGraphics.y = this.y;
-      const data: ((container: PIXI.Container) => void)[] =
+      const data: (container: PIXI.Container) => void =
         this.getOutputSocketByName(outputPixiName).data;
-      data.forEach((drawing) => drawing(this.deferredGraphics));
-      //this.deferredGraphics.on('pointerdown', (e) => {
-      //  console.log('top drawing registerd pointer');
-      //});
+      data(this.deferredGraphics);
       canvas.addChild(this.deferredGraphics);
-
-      /*this.deferredGraphics = cloned;
-      this.deferredGraphics.x += 400;
-
-      // canvas mode
-      this.deferredGraphics.x += this.x;
-      this.deferredGraphics.y += this.y;
-      canvas.addChild(this.deferredGraphics);*/
-      // me mode
-      //this.addChild(this.deferredGraphics);
-    } else {
     }
   }
 
@@ -180,7 +170,6 @@ export class PIXIShape extends PIXIDrawNode {
     container: PIXI.Container,
     injectedData
   ): void {
-    console.log('injectedData: ' + JSON.stringify(injectedData));
     inputObject = { ...inputObject, ...injectedData };
     const graphics: PIXI.Graphics = new PIXI.Graphics();
     const selectedColor = PIXI.utils.string2hex(
@@ -234,6 +223,18 @@ export class PIXIText2 extends PIXIDrawNode {
           new StringType(),
           'ExampleText'
         ),
+        new Socket(
+          SOCKET_TYPE.IN,
+          inputSizeName,
+          new NumberType(true, 1, 100),
+          24
+        ),
+        new Socket(
+          SOCKET_TYPE.IN,
+          inputLineHeightName,
+          new NumberType(true, 1, 100),
+          18
+        ),
       ]);
   }
 
@@ -245,8 +246,8 @@ export class PIXIText2 extends PIXIDrawNode {
     inputObject = { ...inputObject, ...injectedData };
     const textStyle = new PIXI.TextStyle({
       fontFamily: 'Arial',
-      fontSize: 24, //this.getInputData('size'),
-      lineHeight: 24, //this.getInputData('size') * NOTE_LINEHEIGHT_FACTOR,
+      fontSize: inputObject[inputSizeName],
+      lineHeight: inputObject[inputLineHeightName] * NOTE_LINEHEIGHT_FACTOR,
       whiteSpace: 'pre-line',
       wordWrap: true,
       lineJoin: 'round',
@@ -263,7 +264,7 @@ export class PIXIText2 extends PIXIDrawNode {
   }*/
 }
 
-export class PIXIContainer2 extends PIXIDrawNode {
+export class PIXICombiner extends PIXIDrawNode {
   protected getDefaultIO(): Socket[] {
     return super
       .getDefaultIO()
@@ -279,23 +280,23 @@ export class PIXIContainer2 extends PIXIDrawNode {
   ): void {
     const myContainer = new PIXI.Container();
     const array1Data =
-      injectedData && injectedData.length > 0 ? injectedData[0] : [];
+      injectedData && injectedData.length > 0 ? injectedData[0] : {};
     const array2Data =
-      injectedData && injectedData.length > 1 ? injectedData[1] : [];
+      injectedData && injectedData.length > 1 ? injectedData[1] : {};
     //console.log('array1Data: ' + JSON.stringify(array1Data));
     //console.log('array2Data: ' + JSON.stringify(array2Data));
 
-    if (inputObject[inputCombine2Name]) {
-      for (let i = 0; i < inputObject[inputCombine2Name].length; i++) {
-        inputObject[inputCombine2Name][i](myContainer, array1Data[i]);
-      }
-    }
+    //if (inputObject[inputCombine2Name]) {
+    //  for (let i = 0; i < inputObject[inputCombine2Name].length; i++) {
+    inputObject[inputCombine2Name](myContainer, array2Data);
+    //  }
+    //}
 
-    if (inputObject[inputCombine1Name]) {
-      for (let i = 0; i < inputObject[inputCombine1Name].length; i++) {
-        inputObject[inputCombine1Name][i](myContainer, array2Data[i]);
-      }
-    }
+    //if (inputObject[inputCombine1Name]) {
+    //  for (let i = 0; i < inputObject[inputCombine1Name].length; i++) {
+    inputObject[inputCombine1Name](myContainer, array1Data);
+    //  }
+    //}
 
     myContainer.x = inputObject[inputXName];
     myContainer.y = inputObject[inputYName];
@@ -335,9 +336,15 @@ export class PIXIMultiplier2 extends PIXIDrawNode {
           SOCKET_TYPE.IN,
           spacingYName,
           new NumberType(true, 0, 1000),
-          400
+          300
         ),
         new Socket(SOCKET_TYPE.IN, injectedDataName, new ArrayType(), []),
+        new Socket(
+          SOCKET_TYPE.OUT,
+          outputMultiplierIndex,
+          new NumberType(true)
+        ),
+        new Socket(SOCKET_TYPE.OUT, outputMultiplierInjected, new ArrayType()),
       ]);
   }
   protected drawOnContainer(
@@ -357,35 +364,28 @@ export class PIXIMultiplier2 extends PIXIDrawNode {
     } catch (e) {
       console.log('failed to parse injected data');
     }
-    let currentIndex = 0;
     for (let x = 0; x < inputObject[multiplyXName]; x++) {
       for (let y = 0; y < inputObject[multiplyYName]; y++) {
+        const currentIndex = x + inputObject[multiplyXName] * y;
         const currentInjectedData =
           injected.length > currentIndex ? injected[currentIndex] : [];
 
-        /* console.log(
-          'currentInjectedInMultiplier: ' +
-            JSON.stringify(currentInjectedData) +
-            ' x: ' +
-            x +
-            ' y: ' +
-            y
-        );*/
         const shallowContainer = new PIXI.Container();
         if (inputObject[inputGraphicsName])
-          inputObject[inputGraphicsName].forEach((drawOnContainer) =>
-            drawOnContainer(shallowContainer, currentInjectedData)
-          );
+          inputObject[inputGraphicsName](shallowContainer, currentInjectedData);
         shallowContainer.x = x * inputObject[spacingXName];
         shallowContainer.y = y * inputObject[spacingYName];
 
         shallowContainer.interactive = true;
         shallowContainer.on('pointerdown', (e) => {
+          this.setOutputData(outputMultiplierIndex, currentIndex);
+          this.setOutputData(outputMultiplierInjected, currentInjectedData);
+          // redraw me when someone presses something
+          this.executeOptimizedChain();
           console.log('pressed: ' + x + ' y: ' + y);
         });
 
         myContainer.addChild(shallowContainer);
-        currentIndex++;
       }
     }
     myContainer.x = inputObject[inputXName];
@@ -395,6 +395,9 @@ export class PIXIMultiplier2 extends PIXIDrawNode {
       console.log('im pressed');
     });
     container.addChild(myContainer);
+
+    // hack set on outputs directly UGLY
+    //this.setOutputData(outputMultiplierContainers, this.containers);
   }
 }
 

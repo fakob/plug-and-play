@@ -495,6 +495,7 @@ const App = (): JSX.Element => {
       nodeSearchInput.current.select();
       console.dir(nodeSearchInput.current);
     } else {
+      // TODO remove timeout here
       // wait before clearing clickedSocketRef
       // so handleNodeItemSelect has access
       setTimeout(() => {

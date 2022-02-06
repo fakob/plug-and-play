@@ -22,6 +22,6 @@ export class DeferredPixiType extends AbstractType {
   }
 
   getComment(commentData: any): string {
-    return 'null';
+    return commentData ? 'Graphics' : 'null';
   }
 }
