@@ -63,7 +63,7 @@ const spacingYName = 'Spacing Y';
 const injectedDataName = 'Injected Data';
 
 // a PIXI draw node is a pure node that also draws its graphics if graphics at the end
-export abstract class PIXIDrawNode extends PureNode {
+export abstract class DRAW_Base extends PureNode {
   deferredGraphics: PIXI.Container;
 
   onNodeRemoved = (): void => {
@@ -179,7 +179,7 @@ export abstract class PIXIDrawNode extends PureNode {
   }
 }
 
-export class PIXIShape extends PIXIDrawNode {
+export class DRAW_Shape extends DRAW_Base {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(
@@ -244,7 +244,7 @@ export class PIXIShape extends PIXIDrawNode {
   }
 }
 
-export class PIXIText2 extends PIXIDrawNode {
+export class DRAW_Text extends DRAW_Base {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(
@@ -289,7 +289,7 @@ export class PIXIText2 extends PIXIDrawNode {
   }
 }
 
-export class PIXICombiner extends PIXIDrawNode {
+export class DRAW_Combine extends DRAW_Base {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, inputCombine1Name, new DeferredPixiType()),
@@ -307,8 +307,10 @@ export class PIXICombiner extends PIXIDrawNode {
     const array2Data =
       injectedData && injectedData.length > 1 ? injectedData[1] : {};
 
-    inputObject[inputCombine2Name](myContainer, array2Data);
-    inputObject[inputCombine1Name](myContainer, array1Data);
+    if (inputObject[inputCombine2Name])
+      inputObject[inputCombine2Name](myContainer, array2Data);
+    if (inputObject[inputCombine1Name])
+      inputObject[inputCombine1Name](myContainer, array1Data);
 
     this.positionAndScale(myContainer, inputObject);
 
@@ -320,7 +322,7 @@ export class PIXICombiner extends PIXIDrawNode {
   }
 }
 
-export class PIXIMultiplier2 extends PIXIDrawNode {
+export class DRAW_Multiplier extends DRAW_Base {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, inputGraphicsName, new DeferredPixiType()),
