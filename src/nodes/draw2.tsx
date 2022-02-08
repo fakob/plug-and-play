@@ -19,6 +19,7 @@ import { ArrayType } from './datatypes/arrayType';
 import { StringType } from './datatypes/stringType';
 import { AnyType } from './datatypes/anyType';
 import { JSONType } from './datatypes/jsonType';
+import { ImageType } from './datatypes/imageType';
 
 export const availableShapes: EnumStructure = [
   {
@@ -61,6 +62,8 @@ const multiplyYName = 'Num Y';
 const spacingXName = 'Spacing X';
 const spacingYName = 'Spacing Y';
 const injectedDataName = 'Injected Data';
+
+const inputImageName = "Image";
 
 // a PIXI draw node is a pure node that also draws its graphics if graphics at the end
 export abstract class DRAW_Base extends PureNode {
@@ -402,6 +405,35 @@ export class DRAW_Multiplier extends DRAW_Base {
       console.log('im pressed');
     });
     container.addChild(myContainer);
+  }
+}
+
+
+export class DRAW_Image extends DRAW_Base {
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(
+        SOCKET_TYPE.IN,
+        inputImageName,
+        new ImageType(),
+      ),
+    ].concat(super.getDefaultIO());
+  }
+
+  protected drawOnContainer(
+    inputObject: any,
+    container: PIXI.Container,
+    injectedData
+  ): void {
+    inputObject = { ...inputObject, ...injectedData };
+
+    const image = PIXI.Texture.from(inputObject[inputImageName]);
+    const sprite = new PIXI.Sprite(image);
+    //sprite.width = 200;
+    //sprite.height = 200;
+    this.positionAndScale(sprite, inputObject);
+
+    container.addChild(sprite);
   }
 }
 
