@@ -200,6 +200,7 @@ const App = (): JSX.Element => {
                   nodePosY,
                   defaultArguments: { Image: base64 },
                 });
+                console.log(newNode.texture.width, newNode.texture.height);
                 newNode.resetImageNodeSize();
               }
             }
@@ -220,7 +221,7 @@ const App = (): JSX.Element => {
       if (newNodeSelection.length > 0) {
         // currentGraph.current.selection.selectedNodes = newNodeSelection;
         currentGraph.current.selection.onSelectionChange(newNodeSelection);
-        zoomToFitSelection();
+        // zoomToFitSelection();
       }
     })();
   }, []);

@@ -81,6 +81,15 @@ export class Image extends PPNode {
       this.resizeNode(this.minNodeWidth, this.minNodeHeight);
     };
 
+    this.updateTexture = (base64: string): void => {
+      this.setInputData(imageOutputName, base64);
+      this.setOutputData(imageOutputName, base64);
+      this.texture = PIXI.Texture.from(base64);
+      this.sprite.texture = this.texture;
+      this.sprite.texture.update();
+      this.execute();
+    };
+
     const doFitAndPosition = (
       newWidth: number,
       newHeight: number,
@@ -110,8 +119,13 @@ export class Image extends PPNode {
     this.onExecute = async function (input, output) {
       const base64 = input[imageInputName];
       const objectFit = input[imageObjectFit];
+      console.log('onExecute');
       if (base64) {
         this.texture = PIXI.Texture.from(base64);
+        this.texture.on('updated', () => {
+          console.log('baseTexture updated');
+          this.resetImageNodeSize();
+        });
 
         if (this.maskRef === undefined) {
           this.maskRef = new PIXI.Graphics();
@@ -162,16 +176,6 @@ export class Image extends PPNode {
         width: Math.round(this.width),
         height: Math.round(this.height),
       });
-    };
-
-    this.updateTexture = (base64: string): void => {
-      this.setInputData(imageOutputName, base64);
-      this.setOutputData(imageOutputName, base64);
-
-      this.texture = PIXI.Texture.from(base64);
-      this.sprite.texture = this.texture;
-      this.sprite.texture.update();
-      this.execute();
     };
   }
 }
