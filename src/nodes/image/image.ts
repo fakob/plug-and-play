@@ -82,29 +82,28 @@ export class Image extends PPNode {
     this.setMinNodeHeight = (nodeWidth: number) => {
       const aspectRatio = this.texture.width / this.texture.height;
       const newNodeHeight = nodeWidth / aspectRatio;
-      console.log(
-        this.texture.width,
-        this.texture.height,
-        this.minNodeWidth,
-        this.minNodeHeight
-      );
       this.minNodeHeight = newNodeHeight;
     };
 
     this.resetNodeSize = () => {
-      console.log('resetNodeSize');
       this.setMinNodeHeight(this.minNodeWidth);
       this.resizeNode(this.minNodeWidth, this.minNodeHeight);
     };
 
     this.updateTexture = (base64: string): void => {
-      console.log('updateTexture');
       this.setInputData(imageOutputName, base64);
       this.setOutputData(imageOutputName, base64);
       this.texture = PIXI.Texture.from(base64);
       this.sprite.texture = this.texture;
       this.sprite.texture.update();
       this.execute();
+    };
+
+    const hasBaseTextureLoaded = (): void => {
+      if (this.texture.valid) {
+        this.setMinNodeHeight(this.minNodeWidth);
+        this.resizeNode(this.minNodeWidth, this.minNodeHeight);
+      }
     };
 
     const doFitAndPosition = (
@@ -134,20 +133,13 @@ export class Image extends PPNode {
     };
 
     this.onExecute = async function (input, output) {
-      console.log('onExecute');
       const base64 = input[imageInputName];
       const objectFit = input[imageObjectFit];
       if (base64) {
         this.texture = PIXI.Texture.from(base64);
 
         // callback when a new texture has been loaded
-        this.texture.baseTexture.on('loaded', () => {
-          console.log('PIXI.Texture.from callback', this.texture.valid);
-          if (this.texture.valid) {
-            this.setMinNodeHeight(this.minNodeWidth);
-            this.resizeNode(this.minNodeWidth, this.minNodeHeight);
-          }
-        });
+        this.texture.baseTexture.on('loaded', hasBaseTextureLoaded);
 
         // create image mask
         // only run once if the mask is not yet defined
@@ -200,6 +192,10 @@ export class Image extends PPNode {
         width: Math.round(this.width),
         height: Math.round(this.height),
       });
+    };
+
+    this.onNodeRemoved = (): void => {
+      this.texture.baseTexture.removeAllListeners('loaded');
     };
   }
 
