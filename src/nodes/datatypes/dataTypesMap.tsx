@@ -3,6 +3,7 @@ import { ArrayType } from './arrayType';
 import { BooleanType } from './booleanType';
 import { CodeType } from './codeType';
 import { ColorType } from './colorType';
+import { DeferredPixiType } from './deferredPixiType';
 import { EnumType } from './enumType';
 import { ImageType } from './imageType';
 import { JSONType } from './jsonType';
@@ -11,7 +12,7 @@ import { PixiType } from './pixiType';
 import { StringType } from './stringType';
 import { TriggerType } from './triggerType';
 
-// I hate this
+// I hate this but what can you do
 export const allDataTypes = {
   AnyType: AnyType,
   ArrayType: ArrayType,
@@ -19,6 +20,7 @@ export const allDataTypes = {
   ColorType: ColorType,
   NumberType: NumberType,
   PixiType: PixiType,
+  DeferredPixiType: DeferredPixiType,
   StringType: StringType,
   TriggerType: TriggerType,
   JSONType: JSONType,

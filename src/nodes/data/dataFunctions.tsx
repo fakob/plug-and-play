@@ -5,6 +5,7 @@ import { SOCKET_TYPE } from '../../utils/constants';
 import { AnyType } from '../datatypes/anyType';
 import { ArrayType } from '../datatypes/arrayType';
 import { CodeType } from '../datatypes/codeType';
+import { JSONType } from '../datatypes/jsonType';
 import { NumberType } from '../datatypes/numberType';
 
 const filterCodeName = 'Filter';
@@ -25,6 +26,9 @@ const outDataName = 'OutData';
 
 const constantInName = 'In';
 const constantOutName = 'Out';
+
+const input1Name = 'Input 1';
+const input2Name = 'Input 2';
 
 export class Code extends PureNode {
   protected getDefaultIO(): Socket[] {
@@ -94,6 +98,52 @@ export class Map extends PureNode {
     const mapCode = inputObject[mapCodeName];
     const inputArray = inputObject[arrayName];
     outputObject[mapOutName] = inputArray?.map(eval(mapCode));
+  }
+}
+
+function merge(array1, array2) {
+  const validEntry1: boolean =
+    (Array.isArray(array1) && array1.length > 0) ||
+    Object.keys(array1).length > 0;
+  const validEntry2: boolean =
+    (Array.isArray(array2) && array2.length > 0) ||
+    Object.keys(array2).length > 0;
+  if (!validEntry1) {
+    return array2;
+  } else if (!validEntry2) {
+    return array1;
+  } else {
+    const newArray = [];
+    for (let i = 0; i < array1.length && i < array2.length; i++) {
+      newArray.push(merge(array1[i], array2[i]));
+    }
+    for (let i = array1.length; i < array2.length; i++) {
+      newArray.push(array2[i]);
+    }
+    for (let i = array2.length; i < array1.length; i++) {
+      newArray.push(array1[i]);
+    }
+    return newArray;
+  }
+}
+
+// mostly useful for draw nodes
+export class MergeDataArrays extends PureNode {
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(SOCKET_TYPE.IN, input1Name, new ArrayType(), []),
+      new Socket(SOCKET_TYPE.IN, input2Name, new ArrayType(), []),
+      new Socket(SOCKET_TYPE.OUT, constantOutName, new JSONType()),
+    ];
+  }
+  protected async onExecute(
+    inputObject: any,
+    outputObject: Record<string, unknown>
+  ): Promise<void> {
+    outputObject[constantOutName] = merge(
+      inputObject[input1Name],
+      inputObject[input2Name]
+    );
   }
 }
 

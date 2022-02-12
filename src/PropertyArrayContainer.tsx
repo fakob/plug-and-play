@@ -80,6 +80,8 @@ export const PropertyArrayContainer: React.FunctionComponent<
     setCodeString(value);
   }, [props.selectedNode.type]);
 
+  console.log('rendering property array yada');
+
   return (
     <Stack spacing={1}>
       {props.selectedNode.inputSocketArray?.length > 0 && (

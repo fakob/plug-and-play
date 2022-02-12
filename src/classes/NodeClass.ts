@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
 /* eslint-disable @typescript-eslint/no-this-alias */
 import * as PIXI from 'pixi.js';
 import { DropShadowFilter } from '@pixi/filter-drop-shadow';
@@ -474,6 +475,13 @@ export default class PPNode extends PIXI.Container {
     await PPNode.executeOptimizedChainBatch([this]);
   }
 
+  async executeChildren(): Promise<void> {
+    this.drawComment();
+    PPNode.executeOptimizedChainBatch(
+      Object.values(this.getDirectDependents())
+    );
+  }
+
   static async executeOptimizedChainBatch(
     foundational: PPNode[]
   ): Promise<void> {
@@ -817,20 +825,12 @@ export default class PPNode extends PIXI.Container {
   }
 
   getInputSocketByName(slotName: string): Socket {
-    if (!this.inputSocketArray) {
-      return undefined;
-    }
-
     return this.inputSocketArray[
       this.inputSocketArray.findIndex((el) => el.name === slotName)
     ];
   }
 
   getOutputSocketByName(slotName: string): Socket {
-    if (!this.outputSocketArray) {
-      return undefined;
-    }
-
     return this.outputSocketArray[
       this.outputSocketArray.findIndex((el) => el.name === slotName)
     ];
@@ -854,6 +854,7 @@ export default class PPNode extends PIXI.Container {
     return link.source.data;
   }
 
+  // avoid calling this directly
   getInputData(name: string): any {
     const inputSocket = this.inputSocketArray.find((input: Socket) => {
       return name === input.name;
@@ -873,6 +874,7 @@ export default class PPNode extends PIXI.Container {
     return link.source.data;
   }
 
+  // avoid calling this directly, instead use the input/output objects in onExecute
   setInputData(name: string, data: any): void {
     const inputSocket = this.inputSocketArray.find((input: Socket) => {
       return name === input.name;
@@ -886,6 +888,7 @@ export default class PPNode extends PIXI.Container {
     inputSocket.data = data;
   }
 
+  // avoid calling this directly, instead use the input/output objects in onExecute
   setOutputData(name: string, data: any): void {
     const outputSocket = this.outputSocketArray
       .filter((socket) => socket.socketType === SOCKET_TYPE.OUT)
@@ -1055,7 +1058,10 @@ export default class PPNode extends PIXI.Container {
       // subscribe to pointermove
       this.on('pointermove', this.onMoveHandler);
     }
+    this.nodeHandlePressed(event);
   }
+
+  nodeHandlePressed(event: PIXI.InteractionEvent): void {}
 
   _onPointerUpAndUpOutside(): void {
     // unsubscribe from pointermove
@@ -1142,6 +1148,9 @@ export default class PPNode extends PIXI.Container {
       this.onNodeDoubleClick(event);
     }
   }
+
+  public outputPlugged(): void {}
+  public outputUnplugged(): void {}
 }
 
 export class PureNode extends PPNode {

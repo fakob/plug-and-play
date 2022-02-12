@@ -327,6 +327,7 @@ export default class PPGraph {
 
           this.clearTempConnection();
         } else {
+          this.clickedSocketRef.getNode().outputUnplugged();
           console.log('not over input -> open node search');
           if (this.onOpenNodeSearch) {
             this.onOpenNodeSearch(event.data.global);
@@ -494,6 +495,7 @@ export default class PPGraph {
 
     // send notification pulse
     if (notify) {
+      await link.getSource().getNode().outputPlugged();
       await link.getTarget().getNode().executeOptimizedChain();
     }
 

@@ -74,6 +74,24 @@ export class ArrayLength extends PureNode {
   }
 }
 
+export class ArrayPush extends PureNode {
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(SOCKET_TYPE.IN, arrayName, new ArrayType()),
+      new Socket(SOCKET_TYPE.IN, elementName, new AnyType()),
+      new Socket(SOCKET_TYPE.OUT, arrayName, new ArrayType()),
+    ];
+  }
+  protected async onExecute(
+    inputObject: unknown,
+    outputObject: Record<string, unknown>
+  ): Promise<void> {
+    const newArray = [...inputObject[arrayName]];
+    newArray.push(inputObject[elementName]);
+    outputObject[arrayName] = newArray;
+  }
+}
+
 export class ArrayMethod extends PureNode {
   constructor(name: string, graph: Graph, customArgs: CustomArgs) {
     super(name, graph, {
