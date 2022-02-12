@@ -48,13 +48,14 @@ const inputSizeName = 'Size';
 const inputBorderName = 'Border';
 const outputPixiName = 'Graphics';
 
-const inputCombine1Name = 'Primary';
-const inputCombine2Name = 'Secondary';
+const inputCombine1Name = 'Foreground';
+const inputCombine2Name = 'Background';
 const outputMultiplierIndex = 'LatestPressedIndex';
 const outputMultiplierInjected = 'LastPressedInjected';
 
 const inputTextName = 'Text';
 const inputLineHeightName = 'Line Height';
+const inputWidthName = 'Width';
 
 const inputGraphicsName = 'Graphics';
 const multiplyXName = 'Num X';
@@ -191,7 +192,7 @@ export class DRAW_Shape extends DRAW_Base {
         new EnumType(availableShapes),
         'Circle'
       ),
-      new Socket(SOCKET_TYPE.IN, inputColorName, new ColorType(), COLOR_DARK),
+      new Socket(SOCKET_TYPE.IN, inputColorName, new ColorType()),
       new Socket(
         SOCKET_TYPE.IN,
         inputSizeName,
@@ -268,6 +269,13 @@ export class DRAW_Text extends DRAW_Base {
         new NumberType(true, 1, 100),
         18
       ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        inputWidthName,
+        new NumberType(true, 1, 1000),
+        100
+      ),
+      new Socket(SOCKET_TYPE.IN, inputColorName, new ColorType()),
     ].concat(super.getDefaultIO());
   }
 
@@ -286,6 +294,9 @@ export class DRAW_Text extends DRAW_Base {
       lineJoin: 'round',
     });
     const basicText = new PIXI.Text(inputObject[inputTextName], textStyle);
+    basicText.width = inputObject[inputWidthName];
+    //PIXI.utils.string2hex(trgbaToColor(inputObject[inputColorName]).hex());
+    basicText.style.fill = trgbaToColor(inputObject[inputColorName]);
 
     this.positionAndScale(basicText, inputObject);
     container.addChild(basicText);
