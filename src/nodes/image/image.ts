@@ -16,9 +16,11 @@ import { ImageType } from '../datatypes/imageType';
 import PPNode from '../../classes/NodeClass';
 import { JSONType } from '../datatypes/jsonType';
 import { EnumType } from '../datatypes/enumType';
+import { TriggerType } from '../datatypes/triggerType';
 
 const imageInputName = 'Image';
 const imageObjectFit = 'Object fit';
+const imageResetSize = 'Reset size';
 const imageOutputName = 'Image';
 const imageOutputDetails = 'Details';
 
@@ -27,8 +29,8 @@ export class Image extends PPNode {
   texture: PIXI.Texture;
   maskRef: PIXI.Graphics;
   updateTexture: (base64: string) => void;
-  resetMinNodeHeight: () => void;
-  resetImageNodeSize: () => void;
+  setMinNodeHeight: (nodeWidth: number) => void;
+  resetNodeSize: () => void;
 
   protected getDefaultIO(): Socket[] {
     return [
@@ -43,6 +45,13 @@ export class Image extends PPNode {
         imageObjectFit,
         new EnumType(OBJECT_FIT_OPTIONS),
         'cover',
+        false
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        imageResetSize,
+        new TriggerType(),
+        undefined,
         false
       ),
       new Socket(
@@ -70,18 +79,26 @@ export class Image extends PPNode {
     this.name = 'Draw Image';
     this.description = 'Draws an Image (base64)';
 
-    this.resetMinNodeHeight = () => {
+    this.setMinNodeHeight = (nodeWidth: number) => {
       const aspectRatio = this.texture.width / this.texture.height;
-      const newNodeHeight = this.nodeWidth / aspectRatio;
+      const newNodeHeight = nodeWidth / aspectRatio;
+      console.log(
+        this.texture.width,
+        this.texture.height,
+        this.minNodeWidth,
+        this.minNodeHeight
+      );
       this.minNodeHeight = newNodeHeight;
     };
 
-    this.resetImageNodeSize = () => {
-      this.resetMinNodeHeight();
+    this.resetNodeSize = () => {
+      console.log('resetNodeSize');
+      this.setMinNodeHeight(this.minNodeWidth);
       this.resizeNode(this.minNodeWidth, this.minNodeHeight);
     };
 
     this.updateTexture = (base64: string): void => {
+      console.log('updateTexture');
       this.setInputData(imageOutputName, base64);
       this.setOutputData(imageOutputName, base64);
       this.texture = PIXI.Texture.from(base64);
@@ -117,16 +134,23 @@ export class Image extends PPNode {
     };
 
     this.onExecute = async function (input, output) {
+      console.log('onExecute');
       const base64 = input[imageInputName];
       const objectFit = input[imageObjectFit];
-      console.log('onExecute');
       if (base64) {
         this.texture = PIXI.Texture.from(base64);
-        this.texture.on('updated', () => {
-          console.log('baseTexture updated');
-          this.resetImageNodeSize();
+
+        // callback when a new texture has been loaded
+        this.texture.baseTexture.on('loaded', () => {
+          console.log('PIXI.Texture.from callback', this.texture.valid);
+          if (this.texture.valid) {
+            this.setMinNodeHeight(this.minNodeWidth);
+            this.resizeNode(this.minNodeWidth, this.minNodeHeight);
+          }
         });
 
+        // create image mask
+        // only run once if the mask is not yet defined
         if (this.maskRef === undefined) {
           this.maskRef = new PIXI.Graphics();
           this.maskRef.beginFill(0xffffff);
@@ -171,11 +195,15 @@ export class Image extends PPNode {
         this.maskRef.height = newHeight;
       }
       this.setOutputData(imageOutputDetails, {
-        textureWidth: this.texture.width,
-        textureHeight: this.texture.height,
+        textureWidth: this.texture?.width,
+        textureHeight: this.texture?.height,
         width: Math.round(this.width),
         height: Math.round(this.height),
       });
     };
+  }
+
+  trigger(): void {
+    this.resetNodeSize();
   }
 }

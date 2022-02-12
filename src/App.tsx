@@ -193,7 +193,7 @@ const App = (): JSX.Element => {
                 const existingNode = currentGraph.current.selection
                   .selectedNodes[index] as ImageNode;
                 existingNode.updateTexture(base64 as string);
-                existingNode.resetMinNodeHeight();
+                existingNode.setMinNodeHeight(existingNode.nodeWidth);
               } else {
                 newNode = currentGraph.current.createAndAddNode('Image', {
                   nodePosX,
@@ -201,7 +201,7 @@ const App = (): JSX.Element => {
                   defaultArguments: { Image: base64 },
                 });
                 console.log(newNode.texture.width, newNode.texture.height);
-                newNode.resetImageNodeSize();
+                newNode.resetNodeSize();
               }
             }
             break;
