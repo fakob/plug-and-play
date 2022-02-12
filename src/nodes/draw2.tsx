@@ -69,7 +69,7 @@ const injectedDataName = 'Injected Data';
 const inputImageName = 'Image';
 
 // a PIXI draw node is a pure node that also draws its graphics if graphics at the end
-export abstract class DRAW_Base extends PureNode {
+abstract class DRAW_Base extends PureNode {
   deferredGraphics: PIXI.Container;
 
   onNodeRemoved = (): void => {
@@ -345,9 +345,7 @@ export class DRAW_Combine extends DRAW_Base {
     this.positionAndScale(myContainer, inputObject);
 
     myContainer.interactive = true;
-    myContainer.on('pointerdown', (e) => {
-      console.log('im pressed');
-    });
+
     container.addChild(myContainer);
   }
 }
@@ -415,12 +413,24 @@ export class DRAW_Multiplier extends DRAW_Base {
         shallowContainer.y = y * inputObject[spacingYName];
 
         shallowContainer.interactive = true;
+        const alphaPre = shallowContainer.alpha;
+        const scalePreX = shallowContainer.scale.x;
+        const scalePreY = shallowContainer.scale.y;
         shallowContainer.on('pointerdown', (e) => {
           this.setOutputData(outputMultiplierIndex, currentIndex);
           this.setOutputData(outputMultiplierInjected, currentInjectedData);
-          // redraw me when someone presses something
-          this.executeOptimizedChain();
+          // tell all children when something is pressed
+          this.executeChildren();
           console.log('pressed: ' + x + ' y: ' + y);
+          shallowContainer.scale.x *= 0.97;
+          shallowContainer.scale.y *= 0.97;
+          shallowContainer.alpha = alphaPre * 0.8;
+        });
+
+        shallowContainer.on('pointerup', (e) => {
+          shallowContainer.alpha = alphaPre;
+          shallowContainer.scale.x = scalePreX;
+          shallowContainer.scale.y = scalePreY;
         });
 
         myContainer.addChild(shallowContainer);
