@@ -288,8 +288,8 @@ export class DRAW_Text extends DRAW_Base {
       new Socket(
         SOCKET_TYPE.IN,
         inputWidthName,
-        new NumberType(true, 1, 1000),
-        150
+        new NumberType(true, 0, 1000),
+        0
       ),
       new Socket(SOCKET_TYPE.IN, inputColorName, new ColorType()),
     ].concat(super.getDefaultIO());
@@ -310,7 +310,8 @@ export class DRAW_Text extends DRAW_Base {
       lineJoin: 'round',
     });
     const basicText = new PIXI.Text(inputObject[inputTextName], textStyle);
-    basicText.width = inputObject[inputWidthName];
+    if (inputObject[inputWidthName] !== 0)
+      basicText.width = inputObject[inputWidthName];
     //PIXI.utils.string2hex(trgbaToColor(inputObject[inputColorName]).hex());
     basicText.style.fill = trgbaToColor(inputObject[inputColorName]);
 
