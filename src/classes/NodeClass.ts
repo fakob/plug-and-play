@@ -368,10 +368,11 @@ export default class PPNode extends PIXI.Container {
         // skip configuring the input if there is no config data
         if (this.inputSocketArray[index] !== undefined) {
           this.inputSocketArray[index].setName(item.name);
-          (this.inputSocketArray[index].dataType = deSerializeType(
+          this.inputSocketArray[index].dataType = deSerializeType(
             item.dataType
-          )),
-            (this.inputSocketArray[index].data = item.data);
+          );
+          this.inputSocketArray[index].data = item.data;
+          this.inputSocketArray[index].defaultData = item.defaultData;
           this.inputSocketArray[index].setVisible(item.visible ?? true);
         } else {
           // add socket if it does not exist yet

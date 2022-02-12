@@ -559,6 +559,10 @@ export default class PPGraph {
     this.connectionContainer.removeChild(
       this._links[link.id] as PIXI.Container
     );
+
+    // update target node
+    link.getTarget()?.getNode()?.execute();
+
     return delete this._links[link.id];
   }
 
