@@ -6,6 +6,7 @@ import {
   COLOR_DARK,
   NODE_TYPE_COLOR,
   NOTE_LINEHEIGHT_FACTOR,
+  PIXI_PIVOT_OPTIONS,
   SOCKET_TYPE,
 } from '../utils/constants';
 import { DeferredPixiType } from './datatypes/deferredPixiType';
@@ -41,6 +42,7 @@ const inputYName = 'Offset Y';
 const scaleXName = 'Scale X';
 const scaleYName = 'Scale Y';
 const inputRotationName = 'Rotation';
+const inputPivotName = 'Pivot';
 
 const inputShapeName = 'Shape';
 const inputColorName = 'Color';
@@ -116,6 +118,13 @@ export abstract class DRAW_Base extends PureNode {
         0,
         false
       ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        inputPivotName,
+        new EnumType(PIXI_PIVOT_OPTIONS),
+        PIXI_PIVOT_OPTIONS[0].text,
+        false
+      ),
       new Socket(SOCKET_TYPE.OUT, outputPixiName, new DeferredPixiType()),
     ];
   }
@@ -141,14 +150,17 @@ export abstract class DRAW_Base extends PureNode {
       this.drawOnContainer(inputObject, container, injectedData);
   }
 
+  protected shouldDraw(): boolean {
+    return !this.getOutputSocketByName(outputPixiName).hasLink();
+  }
+
   handleDrawing(): void {
     const canvas = this.graph.viewport.getChildByName(
       'backgroundCanvas'
     ) as PIXI.Container;
 
     canvas.removeChild(this.deferredGraphics);
-    const shouldDraw = !this.getOutputSocketByName(outputPixiName).hasLink();
-    if (shouldDraw) {
+    if (this.shouldDraw()) {
       this.deferredGraphics = new PIXI.Container();
       this.deferredGraphics.x = this.x + 400;
       this.deferredGraphics.y = this.y;
@@ -160,6 +172,10 @@ export abstract class DRAW_Base extends PureNode {
   }
 
   protected positionAndScale(toModify: DisplayObject, inputObject: any): void {
+    const pivotPoint = PIXI_PIVOT_OPTIONS.find(
+      (item) => item.text === inputObject[inputPivotName]
+    ).value;
+
     toModify.setTransform(
       inputObject[inputXName],
       inputObject[inputYName],
@@ -167,8 +183,8 @@ export abstract class DRAW_Base extends PureNode {
       inputObject[scaleYName],
       inputObject[inputRotationName]
     );
-
-    //toModify.scale = new ObservablePoint(1, 1);
+    toModify.pivot.x = pivotPoint.x * toModify.getBounds().width;
+    toModify.pivot.y = pivotPoint.y * toModify.getBounds().height;
   }
 
   public outputPlugged(): void {
@@ -179,7 +195,7 @@ export abstract class DRAW_Base extends PureNode {
   }
 
   shouldExecuteOnMove(): boolean {
-    return true;
+    return this.shouldDraw();
   }
 }
 
@@ -215,7 +231,7 @@ export class DRAW_Shape extends DRAW_Base {
     );
     const drawBorder = inputObject[inputBorderName];
     graphics.beginFill(selectedColor);
-    graphics.lineStyle(drawBorder ? 3 : 0, selectedColor << 1);
+    graphics.lineStyle(drawBorder ? 3 : 0, 0x000000f);
 
     const shapeEnum = inputObject[inputShapeName];
     switch (shapeEnum) {
@@ -273,7 +289,7 @@ export class DRAW_Text extends DRAW_Base {
         SOCKET_TYPE.IN,
         inputWidthName,
         new NumberType(true, 1, 1000),
-        100
+        150
       ),
       new Socket(SOCKET_TYPE.IN, inputColorName, new ColorType()),
     ].concat(super.getDefaultIO());
