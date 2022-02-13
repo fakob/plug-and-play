@@ -200,7 +200,6 @@ const App = (): JSX.Element => {
                   nodePosY,
                   defaultArguments: { Image: base64 },
                 });
-                console.log(newNode.texture.width, newNode.texture.height);
                 newNode.resetNodeSize();
               }
             }
@@ -220,8 +219,8 @@ const App = (): JSX.Element => {
       // select the newly added nodes
       if (newNodeSelection.length > 0) {
         // currentGraph.current.selection.selectedNodes = newNodeSelection;
-        currentGraph.current.selection.onSelectionChange(newNodeSelection);
-        // zoomToFitSelection();
+        currentGraph.current.selection.selectNodes(newNodeSelection);
+        zoomToFitSelection();
       }
     })();
   }, []);
@@ -577,19 +576,27 @@ const App = (): JSX.Element => {
   };
 
   const zoomToFitSelection = () => {
-    const selectionBounds = new PIXI.Rectangle();
-    currentGraph.current.selection.selectedNodes.forEach(
-      (node: PIXI.DisplayObject) => {
-        selectionBounds.enlarge(node.getBounds());
-        console.log(node.getBounds(), selectionBounds);
-      }
-    );
-    viewport.current.fit(true, selectionBounds.width, selectionBounds.height);
-    viewport.current.moveCenter(
-      selectionBounds.x + selectionBounds.width / 2,
-      selectionBounds.y + selectionBounds.height / 2
-    );
-    viewport.current.zoomPercent(-0.1, true); // zoom out a bit
+    if (currentGraph.current.selection.selectedNodes.length > 0) {
+      let selectionBounds = new PIXI.Rectangle();
+      currentGraph.current.selection.selectedNodes.forEach(
+        (node: PIXI.DisplayObject, index: number) => {
+          const tempRect = node.getLocalBounds();
+          // move rect to get bounds local to nodeContainer
+          tempRect.x += node.transform.position.x;
+          tempRect.y += node.transform.position.y;
+          if (index === 0) {
+            selectionBounds = tempRect;
+          }
+          selectionBounds.enlarge(tempRect);
+        }
+      );
+      viewport.current.fit(true, selectionBounds.width, selectionBounds.height);
+      viewport.current.moveCenter(
+        selectionBounds.x + selectionBounds.width / 2,
+        selectionBounds.y + selectionBounds.height / 2
+      );
+      viewport.current.zoomPercent(-0.1, true); // zoom out a bit
+    }
   };
 
   function downloadGraph() {

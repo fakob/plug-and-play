@@ -55,6 +55,7 @@ export class UpdateBehaviour {
 
 export default class PPNode extends PIXI.Container {
   _NodeNameRef: PIXI.Text;
+  _NodeDebugRef: PIXI.Text;
   _NodeCommentRef: PIXI.Text;
   _BackgroundRef: PIXI.Graphics;
   clickedSocketRef: null | Socket;
@@ -154,11 +155,16 @@ export default class PPNode extends PIXI.Container {
         blur: 1,
       }),
     ];
+    const debugText = new PIXI.Text('', COMMENT_TEXTSTYLE);
+    debugText.resolution = 1;
     const nodeComment = new PIXI.Text('', COMMENT_TEXTSTYLE);
     nodeComment.resolution = 1;
 
     this._BackgroundRef = this.addChild(background);
     this._NodeNameRef = this.addChild(inputNameText);
+    this._NodeDebugRef = (
+      this.graph.viewport.getChildByName('commentContainer') as PIXI.Container
+    ).addChild(debugText);
     this._NodeCommentRef = (
       this.graph.viewport.getChildByName('commentContainer') as PIXI.Container
     ).addChild(nodeComment);
@@ -710,6 +716,8 @@ export default class PPNode extends PIXI.Container {
   }
 
   updateCommentPosition(): void {
+    this._NodeDebugRef.x = getNodeCommentPosX(this.x, this.width);
+    this._NodeDebugRef.y = getNodeCommentPosY(this.y - 32);
     this._NodeCommentRef.x = getNodeCommentPosX(this.x, this.width);
     this._NodeCommentRef.y = getNodeCommentPosY(this.y);
   }
@@ -730,6 +738,12 @@ export default class PPNode extends PIXI.Container {
     if (commentData && commentData.length > 10000) {
       commentData = 'Too long to display';
     }
+    this._NodeDebugRef.text = `${Math.round(
+      this.transform.position.x
+    )}, ${Math.round(this.transform.position.y)}
+${Math.round(this._bounds.minX)}, ${Math.round(
+      this._bounds.minY
+    )}, ${Math.round(this._bounds.maxX)}, ${Math.round(this._bounds.maxY)}`;
     this._NodeCommentRef.text = commentData;
   }
 
@@ -1148,6 +1162,9 @@ export default class PPNode extends PIXI.Container {
     (
       this.graph.viewport.getChildByName('commentContainer') as PIXI.Container
     ).removeChild(this._NodeCommentRef);
+    (
+      this.graph.viewport.getChildByName('commentContainer') as PIXI.Container
+    ).removeChild(this._NodeDebugRef);
 
     // remove added listener from graph.viewport
     this.graph.viewport.removeListener('moved', this.onViewportMoveHandler);

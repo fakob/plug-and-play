@@ -194,6 +194,11 @@ export class Image extends PPNode {
       });
     };
 
+    // scale input if node is scaled
+    this.onNodeDragOrViewportMove = () => {
+      this.drawComment();
+    };
+
     this.onNodeRemoved = (): void => {
       this.texture.baseTexture.removeAllListeners('loaded');
     };
