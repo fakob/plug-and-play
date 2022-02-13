@@ -139,6 +139,8 @@ export const NODE_HEADER_TEXTMARGIN_TOP = 4;
 export const NODE_WIDTH = 160;
 export const NODE_CORNERRADIUS = 8;
 
+export const DRAGANDDROP_GRID_MARGIN = 32;
+
 export const NODE_TYPE_COLOR = {
   DEFAULT: COLOR[0],
   INPUT: COLOR[0],

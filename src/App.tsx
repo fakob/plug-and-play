@@ -44,11 +44,12 @@ import { GraphContextMenu, NodeContextMenu } from './components/ContextMenus';
 import { GraphDatabase } from './utils/indexedDB';
 import PPGraph from './classes/GraphClass';
 import {
-  NODE_WIDTH,
-  RANDOMMAINCOLOR,
   CANVAS_BACKGROUND_ALPHA,
   CANVAS_BACKGROUND_TEXTURE,
+  DRAGANDDROP_GRID_MARGIN,
+  NODE_WIDTH,
   PLUGANDPLAY_ICON,
+  RANDOMMAINCOLOR,
   customTheme,
 } from './utils/constants';
 import { IGraphSearch, INodeSearch } from './utils/interfaces';
@@ -213,7 +214,7 @@ const App = (): JSX.Element => {
         // update postion if there are more than one
         if (newNode) {
           newNodeSelection.push(newNode);
-          nodePosX = nodePosX + NODE_WIDTH + 32;
+          nodePosX = nodePosX + NODE_WIDTH + DRAGANDDROP_GRID_MARGIN;
         }
       }
       // select the newly added nodes
