@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Node } from 'slate';
+import * as PIXI from 'pixi.js';
 
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
@@ -375,4 +376,19 @@ export const calculateAspectRatioFit = (
     ratio = Math.max(minWidth / oldWidth, minHeight / oldHeight);
   }
   return { width: oldWidth * ratio, height: oldHeight * ratio };
+};
+
+export const getSelectionBounds = (selectedNodes: PPNode[]): PIXI.Rectangle => {
+  let selectionBounds = new PIXI.Rectangle();
+  selectedNodes.forEach((node: PIXI.DisplayObject, index: number) => {
+    const tempRect = node.getLocalBounds();
+    // move rect to get bounds local to nodeContainer
+    tempRect.x += node.transform.position.x;
+    tempRect.y += node.transform.position.y;
+    if (index === 0) {
+      selectionBounds = tempRect;
+    }
+    selectionBounds.enlarge(tempRect);
+  });
+  return selectionBounds;
 };

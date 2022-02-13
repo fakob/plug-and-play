@@ -59,6 +59,7 @@ import {
   getLoadedGraphId,
   getRemoteGraph,
   getRemoteGraphsList,
+  getSelectionBounds,
   isEventComingFromWithinTextInput,
   removeExtension,
   useStateRef,
@@ -69,7 +70,6 @@ import PPSocket from './classes/SocketClass';
 import PPNode from './classes/NodeClass';
 import { InputParser } from './utils/inputParser';
 import styles from './utils/style.module.css';
-import { LocalConvenienceStoreOutlined } from '@mui/icons-material';
 
 (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__ &&
   (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__.register({ PIXI: PIXI });
@@ -560,42 +560,34 @@ const App = (): JSX.Element => {
     currentGraph.current.showComments = showComments;
   }, [showComments]);
 
+  const moveToCenter = (bounds: PIXI.Rectangle) => {
+    viewport.current.moveCenter(
+      bounds.x + bounds.width / 2,
+      bounds.y + bounds.height / 2
+    );
+  };
+
   const zoomToFit = () => {
     const nodeContainerBounds =
       currentGraph.current.nodeContainer.getLocalBounds();
+    moveToCenter(nodeContainerBounds);
     viewport.current.fit(
       true,
       nodeContainerBounds.width,
       nodeContainerBounds.height
     );
-    viewport.current.moveCenter(
-      nodeContainerBounds.x + nodeContainerBounds.width / 2,
-      nodeContainerBounds.y + nodeContainerBounds.height / 2
-    );
-    viewport.current.zoomPercent(-0.1, true); // zoom out a bit
+    viewport.current.zoomPercent(-0.2, true); // zoom out a bit
   };
 
   const zoomToFitSelection = () => {
     if (currentGraph.current.selection.selectedNodes.length > 0) {
-      let selectionBounds = new PIXI.Rectangle();
-      currentGraph.current.selection.selectedNodes.forEach(
-        (node: PIXI.DisplayObject, index: number) => {
-          const tempRect = node.getLocalBounds();
-          // move rect to get bounds local to nodeContainer
-          tempRect.x += node.transform.position.x;
-          tempRect.y += node.transform.position.y;
-          if (index === 0) {
-            selectionBounds = tempRect;
-          }
-          selectionBounds.enlarge(tempRect);
-        }
+      const selectionBounds = getSelectionBounds(
+        currentGraph.current.selection.selectedNodes
       );
+      moveToCenter(selectionBounds);
       viewport.current.fit(true, selectionBounds.width, selectionBounds.height);
-      viewport.current.moveCenter(
-        selectionBounds.x + selectionBounds.width / 2,
-        selectionBounds.y + selectionBounds.height / 2
-      );
-      viewport.current.zoomPercent(-0.1, true); // zoom out a bit
+      viewport.current.zoomPercent(-0.3, true); // zoom out a bit more
+      currentGraph.current.selection.drawRectanglesFromSelection();
     }
   };
 
