@@ -1,14 +1,14 @@
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
 import { NODE_TYPE_COLOR } from '../utils/constants';
-import { CustomArgs } from '../utils/interfaces';
+import { CustomArgs, TRgba } from '../utils/interfaces';
 import { NumberType } from './datatypes/numberType';
 
 export class MathAdd extends PPNode {
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
     super(name, graph, {
       ...customArgs,
-      color: NODE_TYPE_COLOR.TRANSFORM,
+      color: TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM),
     });
 
     this.addOutput('out', new NumberType());
@@ -40,7 +40,7 @@ export class MathNoise extends PPNode {
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
     super(name, graph, {
       ...customArgs,
-      color: NODE_TYPE_COLOR.TRANSFORM,
+      color: TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM),
     });
 
     this.addOutput('out', new NumberType());

@@ -39,4 +39,8 @@ export class NumberType extends AbstractType {
   getDefaultValue(): any {
     return 0;
   }
+
+  /*getColor(): number {
+
+  }*/
 }

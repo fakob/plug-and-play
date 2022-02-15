@@ -1,11 +1,10 @@
 import * as PIXI from 'pixi.js';
-import { SerializedSocket, TSocketType } from '../utils/interfaces';
+import { SerializedSocket, TRgba, TSocketType } from '../utils/interfaces';
 import PPGraph from './GraphClass';
 import PPNode from './NodeClass';
 import PPLink from './LinkClass';
 import {
   NODE_WIDTH,
-  SOCKET_COLOR_HEX,
   SOCKET_COLOR_TINT_HEX,
   SOCKET_CORNERRADIUS,
   SOCKET_TEXTMARGIN_TOP,
@@ -52,11 +51,9 @@ export default class Socket extends PIXI.Container {
     let defaultData;
     if (socketType === SOCKET_TYPE.IN) {
       // define defaultData for different types
-      if (data === null && dataType && dataType instanceof AbstractType) {
+      if (data === null && dataType) {
         data = dataType.getDefaultValue();
       }
-    } else {
-      data = null; // for output sockets, data is calculated
     }
 
     this._socketType = socketType;
@@ -69,7 +66,7 @@ export default class Socket extends PIXI.Container {
     this._links = [];
 
     const socket = new PIXI.Graphics();
-    socket.beginFill(SOCKET_COLOR_HEX);
+    socket.beginFill(dataType.getColor().hexNumber());
     socket.drawRoundedRect(
       socketType === SOCKET_TYPE.IN ? 0 : NODE_WIDTH,
       SOCKET_WIDTH / 2,
@@ -207,7 +204,9 @@ export default class Socket extends PIXI.Container {
     // visibility change can result in position change
     // therefore redraw Node and connected Links
     this.getNode().drawNodeShape();
-    this.getNode().inputSocketArray.map((input) => {
+
+    // is below neccessary? if so should be inside node and not here
+    /*this.getNode().inputSocketArray.map((input) => {
       input.links.map((link) => {
         link.updateConnection();
       });
@@ -216,7 +215,7 @@ export default class Socket extends PIXI.Container {
       output.links.map((link) => {
         link.updateConnection();
       });
-    });
+    });*/
   }
 
   removeLink(link?: PPLink): void {
@@ -241,7 +240,7 @@ export default class Socket extends PIXI.Container {
     // and input sockets with pixi data type
     let data;
     if (this.isInput()) {
-      if (!this.hasLink() /* && this.dataType !== DATATYPE.PIXI*/) {
+      if (!this.hasLink()) {
         data = this.data;
       }
     }
@@ -273,7 +272,7 @@ export default class Socket extends PIXI.Container {
     }
 
     this.cursor = 'pointer';
-    (this._SocketRef as PIXI.Graphics).tint = SOCKET_COLOR_TINT_HEX;
+    (this._SocketRef as PIXI.Graphics).tint = TRgba.white().hexNumber();
   }
 
   _onPointerOut(): void {

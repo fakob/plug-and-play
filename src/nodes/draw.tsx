@@ -9,7 +9,7 @@ import {
 import * as csvParser from 'papaparse';
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
-import { CustomArgs } from '../utils/interfaces';
+import { CustomArgs, TRgba } from '../utils/interfaces';
 import {
   COLOR,
   COLOR_DARK,
@@ -18,7 +18,6 @@ import {
   PIXI_PIVOT_OPTIONS,
   PIXI_TEXT_ALIGN_OPTIONS,
 } from '../utils/constants';
-import { hexToTRgba, trgbaToColor } from '../pixi/utils-pixi';
 import { AnyType } from './datatypes/anyType';
 import { CodeType } from './datatypes/codeType';
 import { NumberType } from './datatypes/numberType';
@@ -36,8 +35,8 @@ export class PIXIText extends PPNode {
   canvas: PIXI.Container;
 
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    const nodeColor = NODE_TYPE_COLOR.DRAW;
-    const fillColor = COLOR_DARK;
+    const nodeColor: TRgba = TRgba.fromString(NODE_TYPE_COLOR.DRAW);
+    const fillColor: TRgba = TRgba.fromString(COLOR_DARK);
 
     super(name, graph, {
       ...customArgs,
@@ -58,7 +57,7 @@ export class PIXIText extends PPNode {
     );
     this.addInput('pivot', new EnumType(PIXI_PIVOT_OPTIONS), 'top left', false);
     this.addInput('size', new NumberType(true, 1), 24, undefined);
-    this.addInput('color', new ColorType(), hexToTRgba(fillColor));
+    this.addInput('color', new ColorType(), fillColor);
 
     this.name = 'Draw text';
     this.description = 'Draws a text';
@@ -122,7 +121,7 @@ export class PIXIText extends PPNode {
         const myAngle = +(angle[index] ?? angle[angle.length - 1]);
         const mySize = +(size[index] ?? size[size.length - 1]);
         const myText = text[index] ?? text[text.length - 1];
-        const myColor = trgbaToColor(color[index] ?? color[color.length - 1]);
+        const myColor = color[index] ?? color[color.length - 1];
         const PIXIText = new PIXI.Text(myText, {
           ...this.textStyle,
           fontSize: mySize,
@@ -179,7 +178,6 @@ export class PIXIRect extends PPNode {
 
     super(name, graph, {
       ...customArgs,
-      color: nodeColor,
     });
 
     this.addOutput('graphics', new AnyType());
@@ -199,7 +197,7 @@ export class PIXIRect extends PPNode {
       customArgs?.height ?? rectHeight,
       false
     );
-    this.addInput('color', new ColorType(), hexToTRgba(fillColor));
+    this.addInput('color', new ColorType(), TRgba.fromString(fillColor));
 
     this.name = 'Draw rectangle';
     this.description = 'Draws a rectangle';
@@ -254,11 +252,11 @@ export class PIXIRect extends PPNode {
         const myAngle = +(angle[index] ?? angle[angle.length - 1]);
         const myWidth = +(width[index] ?? width[width.length - 1]);
         const myHeight = +(height[index] ?? height[height.length - 1]);
-        const myColor = trgbaToColor(color[index] ?? color[color.length - 1]);
+        const myColor: TRgba = color[index] ?? color[color.length - 1];
 
         this._ref[index].beginFill(
           PIXI.utils.string2hex(myColor.hex()),
-          myColor.alpha()
+          myColor.a
         );
         const pivotPoint =
           PIXI_PIVOT_OPTIONS.find((item) => item.text === pivot)?.value ??
@@ -306,7 +304,6 @@ export class PIXICircle extends PPNode {
 
     super(name, graph, {
       ...customArgs,
-      color: nodeColor,
     });
 
     this.addOutput('graphics', new AnyType());
@@ -319,7 +316,6 @@ export class PIXICircle extends PPNode {
       customArgs?.radius ?? radius,
       false
     );
-    this.addInput('color', new ColorType(), hexToTRgba(fillColor));
 
     this.name = 'Draw circle';
     this.description = 'Draws a circle';
@@ -367,12 +363,8 @@ export class PIXICircle extends PPNode {
         const myX = +(x[index] ?? x[x.length - 1]);
         const myY = +(y[index] ?? y[y.length - 1]);
         const myRadius = +(radius[index] ?? radius[radius.length - 1]);
-        const myColor = trgbaToColor(color[index] ?? color[color.length - 1]);
 
-        this._ref[index].beginFill(
-          PIXI.utils.string2hex(myColor.hex()),
-          myColor.alpha()
-        );
+        this._ref[index].beginFill(PIXI.utils.string2hex('#0x000000'), 1);
         const pivotPoint =
           PIXI_PIVOT_OPTIONS.find((item) => item.text === pivot)?.value ??
           PIXI_PIVOT_OPTIONS[0].value; // use first entry if not found
@@ -422,7 +414,6 @@ export class PIXIContainer extends PPNode {
 
     super(name, graph, {
       ...customArgs,
-      color: NODE_TYPE_COLOR.DRAW,
     });
 
     this.addOutput('container', new PixiType());
@@ -624,7 +615,6 @@ export class PIXIMultiplier extends PPNode {
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
     super(name, graph, {
       ...customArgs,
-      color: NODE_TYPE_COLOR.DRAW,
     });
 
     this.addOutput('container', new PixiType());
@@ -846,7 +836,6 @@ export class Table extends PPNode {
 
     super(name, graph, {
       ...customArgs,
-      color: NODE_TYPE_COLOR.TRANSFORM,
       nodeWidth,
       nodeHeight,
       minNodeWidth: nodeWidth / 2,

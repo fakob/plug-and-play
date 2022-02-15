@@ -1,10 +1,8 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
-import { DisplayObject, ObservablePoint } from 'pixi.js';
-import PPNode, { PureNode } from '../classes/NodeClass';
+import { DisplayObject } from 'pixi.js';
+import { PureNode } from '../classes/NodeClass';
 import Socket from '../classes/SocketClass';
 import {
-  COLOR_DARK,
-  NODE_TYPE_COLOR,
   NOTE_LINEHEIGHT_FACTOR,
   PIXI_PIVOT_OPTIONS,
   SOCKET_TYPE,
@@ -15,12 +13,10 @@ import * as PIXI from 'pixi.js';
 import { ColorType } from './datatypes/colorType';
 import { NumberType } from './datatypes/numberType';
 import { BooleanType } from './datatypes/booleanType';
-import { trgbaToColor } from '../pixi/utils-pixi';
 import { ArrayType } from './datatypes/arrayType';
 import { StringType } from './datatypes/stringType';
-import { AnyType } from './datatypes/anyType';
-import { JSONType } from './datatypes/jsonType';
 import { ImageType } from './datatypes/imageType';
+import { TRgba } from '../utils/interfaces';
 
 export const availableShapes: EnumStructure = [
   {
@@ -226,12 +222,13 @@ export class DRAW_Shape extends DRAW_Base {
   ): void {
     inputObject = { ...inputObject, ...injectedData };
     const graphics: PIXI.Graphics = new PIXI.Graphics();
-    const selectedColor = PIXI.utils.string2hex(
-      trgbaToColor(inputObject[inputColorName]).hex()
-    );
+    const selectedColor: TRgba = inputObject[inputColorName];
     const drawBorder = inputObject[inputBorderName];
-    graphics.beginFill(selectedColor);
-    graphics.lineStyle(drawBorder ? 3 : 0, 0x000000f);
+    graphics.beginFill(selectedColor.hexNumber());
+    graphics.lineStyle(
+      drawBorder ? 3 : 0,
+      selectedColor.multiply(0.7).hexNumber()
+    );
 
     const shapeEnum = inputObject[inputShapeName];
     switch (shapeEnum) {
@@ -312,8 +309,7 @@ export class DRAW_Text extends DRAW_Base {
     const basicText = new PIXI.Text(inputObject[inputTextName], textStyle);
     if (inputObject[inputWidthName] !== 0)
       basicText.width = inputObject[inputWidthName];
-    //PIXI.utils.string2hex(trgbaToColor(inputObject[inputColorName]).hex());
-    basicText.style.fill = trgbaToColor(inputObject[inputColorName]);
+    basicText.style.fill = inputObject[inputColorName].hex();
 
     this.positionAndScale(basicText, inputObject);
     container.addChild(basicText);

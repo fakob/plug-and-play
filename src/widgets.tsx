@@ -345,12 +345,7 @@ export type ColorWidgetProps = {
 export const ColorWidget: React.FunctionComponent<ColorWidgetProps> = (
   props
 ) => {
-  const defaultColor: TRgba = props.data ?? {
-    r: 0,
-    g: 0,
-    b: 0,
-    a: 1.0,
-  };
+  const defaultColor: TRgba = props.data ?? new TRgba();
 
   const [colorPicker, showColorPicker] = useState(false);
   const [finalColor, changeColor] = useState(defaultColor);
@@ -358,7 +353,7 @@ export const ColorWidget: React.FunctionComponent<ColorWidgetProps> = (
 
   useEffect(() => {
     if (componentMounted.current) {
-      // uses useRef to avoid running when component mounts
+      // uses useRef to avoid running when component' mounts
       componentMounted.current = false;
     } else {
       potentiallyNotify(props.property, finalColor);
@@ -371,7 +366,7 @@ export const ColorWidget: React.FunctionComponent<ColorWidgetProps> = (
       <div
         className={styles.colorPickerSwatch}
         style={{
-          backgroundColor: `rgba(${finalColor.r}, ${finalColor.g}, ${finalColor.b}, ${finalColor.a})`,
+          backgroundColor: finalColor.hex(),
         }}
         onClick={
           props.hasLink
@@ -386,9 +381,12 @@ export const ColorWidget: React.FunctionComponent<ColorWidgetProps> = (
       {props.isInput && colorPicker && (
         <span className="chrome-picker">
           <SketchPicker
-            color={finalColor}
-            onChangeComplete={(colore) => {
-              changeColor(colore.rgb);
+            color={finalColor.hex()}
+            onChangeComplete={(color) => {
+              const pickedrgb = color.rgb;
+              changeColor(
+                new TRgba(pickedrgb.r, pickedrgb.g, pickedrgb.b, pickedrgb.a)
+              );
             }}
             presetColors={[
               '#F4FAF9',
