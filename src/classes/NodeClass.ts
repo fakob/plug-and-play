@@ -97,7 +97,7 @@ export default class PPNode extends PIXI.Container {
   onNodeAdded: (() => void) | null; // called when the node is added to the graph
   onNodeRemoved: (() => void) | null; // called when the node is removed from the graph
   onNodeSelected: (() => void) | null; // called when the node is selected/unselected
-  onNodeDragging: ((isDraggingNode: boolean) => void) | null; // called when the selection is being dragged
+  onNodeDragging: ((isDraggingNode: boolean) => void) | null; // called when the node is being dragged
   onNodeResize: ((width: number, height: number) => void) | null; // called when the node is resized
   onNodeResized: (() => void) | null; // called when the node resize ended
   onNodeDragOrViewportMove: // called when the node or or the viewport with the node is moved or scaled
@@ -320,7 +320,7 @@ export default class PPNode extends PIXI.Container {
 
   serialize(): SerializedNode {
     //create serialization object
-    // console.log(this);
+    console.log(this);
     const node: SerializedNode = {
       id: this.id,
       name: this.name,

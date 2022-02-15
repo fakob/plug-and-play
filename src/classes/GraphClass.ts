@@ -59,7 +59,7 @@ export default class PPGraph {
     | ((pos: PIXI.Point | null, data: unknown | null) => void)
     | null; // called when socket inspector should be opened
   onCloseSocketInspector: () => void; // called when socket inspector should be closed
-  onViewportDragging: ((isDraggingViewport: boolean) => void) | null; // called when the selection is being dragged
+  onViewportDragging: ((isDraggingViewport: boolean) => void) | null; // called when the viewport is being dragged
 
   onViewportMoveHandler: (event?: PIXI.InteractionEvent) => void;
 

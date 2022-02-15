@@ -42,9 +42,7 @@ const GraphOverlay: React.FunctionComponent<GraphOverlayProps> = (props) => {
         selectedNodes={selectedNodes}
         currentGraph={props.currentGraph}
         randomMainColor={props.randomMainColor}
-        isDraggingSelection={
-          isDraggingViewport || isDraggingNode || isDraggingSelection
-        }
+        isDragging={isDraggingViewport || isDraggingNode || isDraggingSelection}
       />
       <GraphOverlaySocketInspector
         currentGraph={props.currentGraph}
