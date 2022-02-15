@@ -162,12 +162,11 @@ export default class PPNode extends PIXI.Container {
 
     this._BackgroundRef = this.addChild(background);
     this._NodeNameRef = this.addChild(inputNameText);
-    this._NodeDebugRef = (
-      this.graph.viewport.getChildByName('commentContainer') as PIXI.Container
-    ).addChild(debugText);
-    this._NodeCommentRef = (
-      this.graph.viewport.getChildByName('commentContainer') as PIXI.Container
-    ).addChild(nodeComment);
+    const commentContainer = this.graph.viewport.getChildByName(
+      'commentContainer'
+    ) as PIXI.Container;
+    this._NodeDebugRef = commentContainer.addChild(debugText);
+    this._NodeCommentRef = commentContainer.addChild(nodeComment);
 
     // do not show the node name
     if (this.showLabels === false) {
@@ -570,8 +569,8 @@ export default class PPNode extends PIXI.Container {
 
   resizeNode(width: number, height: number, maintainAspectRatio = false): void {
     // set new size
-    let newNodeWidth = Math.max(width, this.minNodeWidth);
-    let newNodeHeight = Math.max(height, this.calculatedMinNodeHeight);
+    const newNodeWidth = Math.max(width, this.minNodeWidth);
+    const newNodeHeight = Math.max(height, this.calculatedMinNodeHeight);
 
     if (maintainAspectRatio) {
       const oldWidth = this.nodeWidth;
@@ -584,12 +583,12 @@ export default class PPNode extends PIXI.Container {
         this.minNodeWidth,
         this.calculatedMinNodeHeight
       );
-      newNodeWidth = newRect.width;
-      newNodeHeight = newRect.height;
+      this.nodeWidth = newRect.width;
+      this.nodeHeight = newRect.height;
+    } else {
+      this.nodeWidth = newNodeWidth;
+      this.nodeHeight = newNodeHeight;
     }
-
-    this.nodeWidth = newNodeWidth;
-    this.nodeHeight = newNodeHeight;
 
     // update node shape
     this.drawNodeShape();
@@ -1159,12 +1158,11 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     // console.log('_onRemoved');
 
     // remove node comment
-    (
-      this.graph.viewport.getChildByName('commentContainer') as PIXI.Container
-    ).removeChild(this._NodeCommentRef);
-    (
-      this.graph.viewport.getChildByName('commentContainer') as PIXI.Container
-    ).removeChild(this._NodeDebugRef);
+    const commentContainer = this.graph.viewport.getChildByName(
+      'commentContainer'
+    ) as PIXI.Container;
+    commentContainer.removeChild(this._NodeCommentRef);
+    commentContainer.removeChild(this._NodeDebugRef);
 
     // remove added listener from graph.viewport
     this.graph.viewport.removeListener('moved', this.onViewportMoveHandler);

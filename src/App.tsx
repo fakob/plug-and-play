@@ -144,10 +144,9 @@ const App = (): JSX.Element => {
     (async function () {
       for (let index = 0; index < acceptedFiles.length; index++) {
         const file = acceptedFiles[index];
-        console.log(file);
+
         // const reader = new FileReader();
         const objectURL = URL.createObjectURL(file);
-        console.log(objectURL);
 
         const extension = file.name
           .slice(((file.name.lastIndexOf('.') - 1) >>> 0) + 2)
@@ -208,8 +207,6 @@ const App = (): JSX.Element => {
           default:
             break;
         }
-        console.log(data);
-        console.log(newNode);
 
         // update postion if there are more than one
         if (newNode) {
@@ -480,7 +477,7 @@ const App = (): JSX.Element => {
         }
       }
       if (e.shiftKey && e.code === 'Digit1') {
-        zoomToFit();
+        zoomToFitSelection(true);
       }
       if (e.shiftKey && e.code === 'Digit2') {
         zoomToFitSelection();
@@ -568,28 +565,24 @@ const App = (): JSX.Element => {
     );
   };
 
-  const zoomToFit = () => {
-    const nodeContainerBounds =
-      currentGraph.current.nodeContainer.getLocalBounds();
-    moveToCenter(nodeContainerBounds);
-    viewport.current.fit(
-      true,
-      nodeContainerBounds.width,
-      nodeContainerBounds.height
-    );
-    viewport.current.zoomPercent(-0.2, true); // zoom out a bit
-  };
+  const zoomToFitSelection = (fitAll = false) => {
+    let boundsToZoomTo: PIXI.Rectangle;
+    let zoomOutFactor: number;
 
-  const zoomToFitSelection = () => {
-    if (currentGraph.current.selection.selectedNodes.length > 0) {
-      const selectionBounds = getSelectionBounds(
-        currentGraph.current.selection.selectedNodes
+    if (fitAll || currentGraph.current.selection.selectedNodes.length < 1) {
+      boundsToZoomTo = currentGraph.current.nodeContainer.getLocalBounds(); // get bounds of the whole nodeContainer
+      zoomOutFactor = -0.2;
+    } else {
+      boundsToZoomTo = getSelectionBounds(
+        currentGraph.current.selection.selectedNodes // get bounds of the selectedNodes
       );
-      moveToCenter(selectionBounds);
-      viewport.current.fit(true, selectionBounds.width, selectionBounds.height);
-      viewport.current.zoomPercent(-0.3, true); // zoom out a bit more
-      currentGraph.current.selection.drawRectanglesFromSelection();
+      zoomOutFactor = -0.3;
     }
+
+    moveToCenter(boundsToZoomTo);
+    viewport.current.fit(true, boundsToZoomTo.width, boundsToZoomTo.height);
+    viewport.current.zoomPercent(zoomOutFactor, true); // zoom out a bit more
+    currentGraph.current.selection.drawRectanglesFromSelection();
   };
 
   function downloadGraph() {
@@ -1171,7 +1164,7 @@ NOTE: opening a remote playground creates a local copy`
                 uploadGraph={uploadGraph}
                 showComments={showComments}
                 setShowComments={setShowComments}
-                zoomToFit={zoomToFit}
+                zoomToFitSelection={zoomToFitSelection}
               />
             )}
             {isNodeContextMenuOpen && (
@@ -1179,6 +1172,7 @@ NOTE: opening a remote playground creates a local copy`
                 controlOrMetaKey={controlOrMetaKey}
                 contextMenuPosition={contextMenuPosition}
                 currentGraph={currentGraph}
+                zoomToFitSelection={zoomToFitSelection}
               />
             )}
             <PixiContainer ref={pixiContext} />
