@@ -88,6 +88,7 @@ export class Image extends PPNode {
     this.resetNodeSize = () => {
       this.setMinNodeHeight(this.minNodeWidth);
       this.resizeNode(this.minNodeWidth, this.minNodeHeight);
+      graph.selection.drawRectanglesFromSelection();
     };
 
     this.updateTexture = (base64: string): void => {
