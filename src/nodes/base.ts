@@ -105,8 +105,8 @@ export class GridCoordinates extends PPNode {
 
 export class ColorArray extends PPNode {
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    const colorA = COLOR[5];
-    const colorB = COLOR[15];
+    const colorA: TRgba = TRgba.fromString(COLOR[5]);
+    const colorB: TRgba = TRgba.fromString(COLOR[15]);
 
     super(name, graph, {
       ...customArgs,
@@ -115,8 +115,8 @@ export class ColorArray extends PPNode {
 
     this.addOutput('color-array', new AnyType());
     this.addInput('count', new NumberType(true), 9, false);
-    this.addInput('colorA', new ColorType(), TRgba.fromString(colorA), false);
-    this.addInput('colorB', new ColorType(), TRgba.fromString(colorB), false);
+    this.addInput('colorA', new ColorType(), colorA, false);
+    this.addInput('colorB', new ColorType(), colorB, false);
 
     this.name = 'Color array';
     this.description = 'Create color array';

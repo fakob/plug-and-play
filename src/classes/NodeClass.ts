@@ -402,9 +402,6 @@ export default class PPNode extends PIXI.Container {
     }
 
     this.updateBehaviour = nodeConfig.updateBehaviour;
-
-    // update node after configure
-    //this.executeOptimizedChain();
   }
 
   getDirectDependents(): { [key: string]: PPNode } {
@@ -914,6 +911,7 @@ export default class PPNode extends PIXI.Container {
   }
 
   initialExecute(): void {
+    console.log('initial eecuting');
     this.executeOptimizedChain();
   }
 
@@ -1023,7 +1021,6 @@ export default class PPNode extends PIXI.Container {
     this.on('pointerover', this._onPointerOver.bind(this));
     this.on('pointerout', this._onPointerOut.bind(this));
     this.on('dblclick', this._onDoubleClick.bind(this));
-    this.on('added', this._onAdded.bind(this));
     this.on('removed', this._onRemoved.bind(this));
 
     // first assign the bound function to a handler then add this handler as a listener
@@ -1098,7 +1095,7 @@ export default class PPNode extends PIXI.Container {
     }
   }
 
-  _onAdded(): void {
+  onAdded(): void {
     if (this.onNodeAdded) {
       this.onNodeAdded();
     }

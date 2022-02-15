@@ -152,10 +152,16 @@ export class TRgba {
       r: this.r,
       g: this.g,
       b: this.b,
-    });
+    }).alpha(this.a);
   }
 
   private static fromColor = (color: Color): TRgba => {
-    return new TRgba(color.r, color.g, color.b, color.a);
+    console.log('color: ' + JSON.stringify(color));
+    return new TRgba(
+      color.color[0],
+      color.color[1],
+      color.color[2],
+      color.valpha
+    );
   };
 }

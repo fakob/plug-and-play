@@ -5,7 +5,6 @@ import PPNode from './NodeClass';
 import PPLink from './LinkClass';
 import {
   NODE_WIDTH,
-  SOCKET_COLOR_TINT_HEX,
   SOCKET_CORNERRADIUS,
   SOCKET_TEXTMARGIN_TOP,
   SOCKET_TEXTMARGIN,

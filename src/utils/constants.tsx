@@ -86,9 +86,6 @@ export const SOCKET_TYPE = {
 } as const;
 
 export const SOCKET_COLOR_HEX: string = Color(COLOR[0]).lighten(0.4).hex();
-export const SOCKET_COLOR_TINT_HEX: string = Color(COLOR[0])
-  .desaturate(0.3)
-  .hex();
 export const SOCKET_HEIGHT = 24;
 export const SOCKET_WIDTH = 12;
 export const SOCKET_CORNERRADIUS = 4;
