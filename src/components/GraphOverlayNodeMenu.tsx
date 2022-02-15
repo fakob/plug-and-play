@@ -9,6 +9,7 @@ type GraphOverlayNodeMenuProps = {
   currentGraph: PPGraph;
   randomMainColor: string;
   selectedNodes: PPNode[];
+  isDraggingSelection: boolean;
 };
 
 const GraphOverlayNodeMenu: React.FunctionComponent<
@@ -31,16 +32,18 @@ const GraphOverlayNodeMenu: React.FunctionComponent<
 
   return (
     <Box sx={{ position: 'relative' }}>
-      {props.selectedNodes.length > 0 && selectionPos && (
-        <FloatingNodeMenu
-          x={
-            selectionPos.x +
-            props.currentGraph.selection.selectionGraphics.width / 2
-          }
-          y={Math.max(0, selectionPos.y - 40)}
-          selectedNodes={props.selectedNodes}
-        />
-      )}
+      {props.selectedNodes.length > 0 &&
+        selectionPos &&
+        !props.isDraggingSelection && (
+          <FloatingNodeMenu
+            x={
+              selectionPos.x +
+              props.currentGraph.selection.selectionGraphics.width / 2
+            }
+            y={Math.max(0, selectionPos.y - 40)}
+            selectedNodes={props.selectedNodes}
+          />
+        )}
     </Box>
   );
 };

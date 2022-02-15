@@ -12,14 +12,23 @@ type GraphOverlayProps = {
 
 const GraphOverlay: React.FunctionComponent<GraphOverlayProps> = (props) => {
   const [selectedNodes, setSelectedNodes] = useState<PPNode[]>([]);
+  const [isDraggingSelection, setIsDraggingSelection] = useState(false);
+  const [isDraggingNode, setIsDraggingNode] = useState(false);
 
   useEffect(() => {
     if (props.currentGraph) {
       // register callbacks when currentGraph mounted
       props.currentGraph.selection.onSelectionChange = setSelectedNodes;
+      props.currentGraph.selection.onSelectionDragging = setIsDraggingSelection;
     }
     console.log('GraphOverlay:', selectedNodes);
   }, [props.currentGraph]);
+
+  useEffect(() => {
+    if (selectedNodes.length === 1) {
+      selectedNodes[0].onNodeDragging = setIsDraggingNode;
+    }
+  }, [selectedNodes.length]);
 
   return (
     <>
@@ -32,6 +41,7 @@ const GraphOverlay: React.FunctionComponent<GraphOverlayProps> = (props) => {
         selectedNodes={selectedNodes}
         currentGraph={props.currentGraph}
         randomMainColor={props.randomMainColor}
+        isDraggingSelection={isDraggingNode || isDraggingSelection}
       />
       <GraphOverlaySocketInspector
         currentGraph={props.currentGraph}
