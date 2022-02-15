@@ -320,7 +320,6 @@ export default class PPNode extends PIXI.Container {
 
   serialize(): SerializedNode {
     //create serialization object
-    console.log(this);
     const node: SerializedNode = {
       id: this.id,
       name: this.name,
