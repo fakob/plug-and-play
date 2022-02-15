@@ -1,7 +1,31 @@
 import React from 'react';
 import { AbstractType } from './abstractType';
-import { CodeWidget } from '../../widgets';
-import { convertToString } from '../../utils/utils';
+import { BROKEN_IMAGE } from '../../utils/constants';
+
+type ImgComponentProps = {
+  data: string;
+  alt: string;
+};
+
+const ImgComponent: React.FunctionComponent<ImgComponentProps> = (props) => {
+  return (
+    <img
+      style={{
+        width: '100%',
+        height: '100%',
+        maxHeight: '60vh',
+        objectFit: 'scale-down',
+      }}
+      src={props.data}
+      alt={props.alt}
+      onError={({ currentTarget }) => {
+        currentTarget.onerror = null; // prevents looping
+        currentTarget.src = BROKEN_IMAGE;
+        currentTarget.style.width = '48px';
+      }}
+    />
+  );
+};
 
 export class ImageType extends AbstractType {
   constructor() {
@@ -12,11 +36,16 @@ export class ImageType extends AbstractType {
     return 'Image';
   }
 
-  // no widget for this, or maybe something that displays the image or some cool data?
   getInputWidget = (props: any): any => {
-    console.log(props, typeof props);
     if (typeof props.data === 'string') {
-      return <img src={props.data} alt="Red dot" />;
+      return <ImgComponent data={props.data} alt={props.key} />;
+    }
+    return '';
+  };
+
+  getOutputWidget = (props: any): any => {
+    if (typeof props.data === 'string') {
+      return <ImgComponent data={props.data} alt={props.key} />;
     }
     return '';
   };

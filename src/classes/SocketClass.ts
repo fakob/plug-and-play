@@ -51,7 +51,7 @@ export default class Socket extends PIXI.Container {
 
     let defaultData;
     if (socketType === SOCKET_TYPE.IN) {
-      // define defaultData for different types
+      // define defaultValue for different types
       if (data === null && dataType && dataType instanceof AbstractType) {
         data = dataType.getDefaultValue();
       }
@@ -163,7 +163,11 @@ export default class Socket extends PIXI.Container {
   }
 
   get defaultData(): any {
-    return this.dataType?.getDefaultValue();
+    return this._defaultData;
+  }
+
+  set defaultData(defaultData: any) {
+    this._defaultData = defaultData;
   }
 
   get dataType(): AbstractType {
@@ -225,6 +229,12 @@ export default class Socket extends PIXI.Container {
     } else {
       this.links = this.links.filter((item) => item.id !== link.id);
     }
+
+    // if this is an input which has defaultData stored
+    // copy it back into data
+    if (this.isInput()) {
+      this.data = this.defaultData;
+    }
   }
 
   getNode(): PPNode {
@@ -237,19 +247,23 @@ export default class Socket extends PIXI.Container {
 
   //create serialization object
   serialize(): SerializedSocket {
-    // ignore data for output sockets, input sockets with links
-    // and input sockets with pixi data type
+    // ignore data for output sockets and input sockets with links
+    // for input sockets with links store defaultData
     let data;
+    let defaultData;
     if (this.isInput()) {
-      if (!this.hasLink() /* && this.dataType !== DATATYPE.PIXI*/) {
+      if (!this.hasLink()) {
         data = this.data;
+      } else {
+        defaultData = this.defaultData;
       }
     }
     return {
       socketType: this.socketType,
       name: this.name,
       dataType: serializeType(this.dataType),
-      data,
+      ...(data && { data: data }),
+      ...(defaultData && { defaultData: defaultData }),
       visible: this.visible,
     };
   }

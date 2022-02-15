@@ -250,6 +250,6 @@
 }
 
 .propertyContainerContent {
-  max-height: 60vh;
+  max-height: 40vh;
   overflow: auto;
 }

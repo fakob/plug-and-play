@@ -91,7 +91,7 @@ export default class PPSelection extends PIXI.Container {
     });
   }
 
-  onScaling = (pointerPosition: PIXI.Point): void => {
+  onScaling = (pointerPosition: PIXI.Point, shiftKeyPressed: boolean): void => {
     const worldPosition = this.viewport.toWorld(
       pointerPosition.x,
       pointerPosition.y
@@ -99,7 +99,8 @@ export default class PPSelection extends PIXI.Container {
 
     this.selectedNodes[0].resizeNode(
       Math.abs(worldPosition.x - this.selectedNodes[0].x),
-      Math.abs(worldPosition.y - this.selectedNodes[0].y)
+      Math.abs(worldPosition.y - this.selectedNodes[0].y),
+      shiftKeyPressed
     );
     this.drawRectanglesFromSelection();
   };
@@ -501,7 +502,8 @@ class ScaleHandle extends PIXI.Graphics {
     const currentPosition = event.data.global;
 
     // Callback handles the rest!
-    this.selection.onScaling(currentPosition);
+    const shiftKeyPressed = event.data.originalEvent.shiftKey;
+    this.selection.onScaling(currentPosition, shiftKeyPressed);
 
     this._pointerPosition.copyFrom(currentPosition);
   }

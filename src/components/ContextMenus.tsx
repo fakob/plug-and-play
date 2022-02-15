@@ -16,6 +16,7 @@ import SaveAsIcon from '@mui/icons-material/SaveAs';
 import DownloadIcon from '@mui/icons-material/Download';
 import ClearIcon from '@mui/icons-material/Clear';
 import FitScreenIcon from '@mui/icons-material/FitScreen';
+import ZoomOutMapIcon from '@mui/icons-material/ZoomOutMap';
 import AdbIcon from '@mui/icons-material/Adb';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -141,13 +142,13 @@ export const GraphContextMenu = (props) => {
         <MenuItem disabled>Viewport</MenuItem>
         <MenuItem
           onClick={() => {
-            props.zoomToFit();
+            props.zoomToFitSelection(true);
           }}
         >
           <ListItemIcon>
-            <FitScreenIcon fontSize="small" />
+            <ZoomOutMapIcon fontSize="small" />
           </ListItemIcon>
-          <ListItemText>Zoom to Fit</ListItemText>
+          <ListItemText>Zoom to fit all</ListItemText>
           <Typography variant="body2" color="text.secondary">
             Shift+1
           </Typography>
@@ -189,6 +190,20 @@ export const NodeContextMenu = (props) => {
       }}
     >
       <MenuList dense>
+        <MenuItem
+          onClick={() => {
+            props.zoomToFitSelection();
+          }}
+        >
+          <ListItemIcon>
+            <FitScreenIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Zoom to fit</ListItemText>
+          <Typography variant="body2" color="text.secondary">
+            Shift+2
+          </Typography>
+        </MenuItem>
+        <Divider />
         <MenuItem
           onClick={() => {
             props.currentGraph.current.duplicateSelection();
