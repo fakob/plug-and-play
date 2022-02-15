@@ -15,6 +15,7 @@ const GraphOverlay: React.FunctionComponent<GraphOverlayProps> = (props) => {
   const [isDraggingSelection, setIsDraggingSelection] = useState(false);
   const [isDraggingNode, setIsDraggingNode] = useState(false);
   const [isDraggingViewport, setIsDraggingViewport] = useState(false);
+  const [isZoomingViewport, setIsZoomingViewport] = useState(false);
 
   useEffect(() => {
     if (props.currentGraph) {
@@ -22,6 +23,12 @@ const GraphOverlay: React.FunctionComponent<GraphOverlayProps> = (props) => {
       props.currentGraph.selection.onSelectionChange = setSelectedNodes;
       props.currentGraph.selection.onSelectionDragging = setIsDraggingSelection;
       props.currentGraph.onViewportDragging = setIsDraggingViewport;
+      props.currentGraph.viewport.on('zoomed', () => {
+        setIsZoomingViewport(true);
+      });
+      props.currentGraph.viewport.on('zoomed-end', () => {
+        setIsZoomingViewport(false);
+      });
     }
   }, [props.currentGraph]);
 
@@ -42,7 +49,12 @@ const GraphOverlay: React.FunctionComponent<GraphOverlayProps> = (props) => {
         selectedNodes={selectedNodes}
         currentGraph={props.currentGraph}
         randomMainColor={props.randomMainColor}
-        isDragging={isDraggingViewport || isDraggingNode || isDraggingSelection}
+        isDragging={
+          isZoomingViewport ||
+          isDraggingViewport ||
+          isDraggingNode ||
+          isDraggingSelection
+        }
       />
       <GraphOverlaySocketInspector
         currentGraph={props.currentGraph}
