@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
 import * as PIXI from 'pixi.js';
 import strip from 'strip-comments';
 import { Viewport } from 'pixi-viewport';
