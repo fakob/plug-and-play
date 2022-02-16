@@ -102,6 +102,7 @@ export default class PPNode extends PIXI.Container {
   onNodeAdded: (() => void) | null; // called when the node is added to the graph
   onNodeRemoved: (() => void) | null; // called when the node is removed from the graph
   onNodeSelected: (() => void) | null; // called when the node is selected/unselected
+  onNodeDragging: ((isDraggingNode: boolean) => void) | null; // called when the node is being dragged
   onNodeResize: ((width: number, height: number) => void) | null; // called when the node is resized
   onNodeResized: (() => void) | null; // called when the node resize ended
   onNodeDragOrViewportMove: // called when the node or or the viewport with the node is moved or scaled
@@ -193,6 +194,9 @@ export default class PPNode extends PIXI.Container {
     this._doubleClicked = false;
 
     this._addListeners();
+
+    // define callbacks
+    this.onNodeDragging = (isDraggingNode: boolean) => {};
   }
 
   // GETTERS & SETTERS
@@ -1098,6 +1102,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
       this.cursor = 'grabbing';
       this.alpha = 0.5;
       this.isDraggingNode = true;
+      this.onNodeDragging(this.isDraggingNode);
       this.sourcePoint = this.interactionData.getLocalPosition(this);
 
       // subscribe to pointermove
@@ -1114,6 +1119,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
 
     this.alpha = 1;
     this.isDraggingNode = false;
+    this.onNodeDragging(this.isDraggingNode);
     this.cursor = 'move';
     // set the interactionData to null
     this.interactionData = null;
