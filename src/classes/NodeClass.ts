@@ -1062,6 +1062,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     // otherwise removeListener won't work (bind creates a new function)
     this.onViewportMoveHandler = this._onViewportMove.bind(this);
     this.graph.viewport.on('moved', (this as any).onViewportMoveHandler);
+    this.graph.viewport.on('moved-end', (this as any).onViewportMoveHandler);
   }
 
   _onPointerDown(event: PIXI.InteractionEvent): void {
@@ -1145,6 +1146,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
 
     // remove added listener from graph.viewport
     this.graph.viewport.removeListener('moved', this.onViewportMoveHandler);
+    this.graph.viewport.removeListener('moved-end', this.onViewportMoveHandler);
 
     this.getAllSockets().forEach((socket) => {
       socket.links.forEach((link) => link.delete());
