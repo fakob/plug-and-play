@@ -22,11 +22,13 @@ export class CodeEditor extends PPNode {
   createElement;
   parsedData: any;
   update: () => void;
+  getChange: (value: string) => void;
 
   constructor(name: string, graph: PPGraph, customArgs?: CustomArgs) {
     const nodeWidth = 400;
     const nodeHeight = 400;
     const isHybrid = true;
+    let editedData = '';
 
     super(name, graph, {
       ...customArgs,
@@ -44,7 +46,7 @@ export class CodeEditor extends PPNode {
 
     // when the Node is added, add the container and react component
     this.onNodeAdded = () => {
-      const data = this.getInputData('input');
+      const data = this.getInputData('input') ?? DEFAULT_EDITOR_DATA;
       console.log('data onNodeAdded:', data);
       const hasLink = this.getInputSocketByName('input').hasLink();
       this.createContainerComponent(document, ParentComponent, {
@@ -52,41 +54,38 @@ export class CodeEditor extends PPNode {
         hasLink,
         nodeHeight: this.nodeHeight,
         graph: this.graph,
+        getChange: this.getChange,
       });
-    };
-
-    // when the Node is loaded, update the react component with the stored data
-    this.onConfigure = (): void => {
-      const storedData = this.getInputData('input') ?? DEFAULT_EDITOR_DATA;
-      this.renderReactComponent(ParentComponent, {
-        data: storedData,
-        nodeHeight: this.nodeHeight,
-      });
-      this.setOutputData('output', storedData);
-      this.executeOptimizedChain();
     };
 
     this.onNodeDoubleClick = () => {
+      // center the editor and set zoom to 100%
+      // as a scaled editor has issues with selection and cursor placement
       zoomToFitSelection(graph);
       graph.viewport.setZoom(1, true); // zoom to 100%
       graph.selection.drawRectanglesFromSelection();
-      console.log('onNodeDoubleClick');
+
       this.renderReactComponent(ParentComponent, {
         editable: true,
+        getChange: this.getChange,
       });
     };
 
     this.onNodeFocusOut = () => {
-      console.log('onNodeFocusOut');
       this.renderReactComponent(ParentComponent, {
         editable: false,
+        getChange: this.getChange,
       });
-      // this.setInputData('input', value);
+      console.log(editedData);
+      console.log(this.getInputData('input'));
+      this.setInputData('input', editedData);
     };
 
     this.onNodeResize = (newWidth, newHeight) => {
       this.renderReactComponent(ParentComponent, {
         nodeHeight: newHeight,
+        data: editedData,
+        getChange: this.getChange,
       });
     };
 
@@ -95,7 +94,12 @@ export class CodeEditor extends PPNode {
       this.renderReactComponent(ParentComponent, {
         data: newData,
         nodeHeight: this.nodeHeight,
+        getChange: this.getChange,
       });
+    };
+
+    this.getChange = (value) => {
+      editedData = value;
     };
 
     type MyProps = {
@@ -105,6 +109,7 @@ export class CodeEditor extends PPNode {
       nodeHeight: number;
       graph: PPGraph;
       editable?: boolean;
+      getChange?: (value: string) => void;
     };
 
     // small presentational component
@@ -142,7 +147,8 @@ export class CodeEditor extends PPNode {
       const editor = useRef();
 
       const onChange = (value) => {
-        // console.log(value);
+        console.log(props.getChange);
+        props.getChange(value);
         setCodeString(value);
         this.setOutputData('output', value);
         this.executeOptimizedChain();
@@ -155,7 +161,7 @@ export class CodeEditor extends PPNode {
         } else {
           dataAsString = props.data;
         }
-        console.log(typeof dataAsString);
+        console.log(dataAsString);
         setCodeString(dataAsString);
       }, [props.data]);
 
@@ -188,11 +194,6 @@ export class CodeEditor extends PPNode {
         return keymap.of(conf);
       }
 
-      const saveCodeEditorChanges = (data) => {
-        console.log(data);
-        console.log(data.valueOf());
-      };
-
       return (
         <CodeMirror
           ref={editor}
@@ -208,9 +209,7 @@ export class CodeEditor extends PPNode {
             theme,
           ]}
           basicSetup={true}
-          // autoFocus={true}
           onChange={onChange}
-          onBlur={(data) => saveCodeEditorChanges(data)}
         />
       );
     };
