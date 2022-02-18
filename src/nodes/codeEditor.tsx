@@ -13,7 +13,7 @@ import PPNode from '../classes/NodeClass';
 import { CodeType } from './datatypes/codeType';
 import { convertToString, zoomToFitSelection } from '../utils/utils';
 import { CustomArgs } from '../utils/interfaces';
-import { DEFAULT_EDITOR_DATA, NODE_TYPE_COLOR } from '../utils/constants';
+import { NODE_TYPE_COLOR } from '../utils/constants';
 
 export class CodeEditor extends PPNode {
   _imageRef: PIXI.Sprite;
@@ -31,11 +31,11 @@ export class CodeEditor extends PPNode {
     let editedData = '';
 
     super(name, graph, {
-      ...customArgs,
       color: NODE_TYPE_COLOR.TRANSFORM,
       nodeWidth,
       nodeHeight,
       isHybrid,
+      ...customArgs,
     });
 
     this.addInput('input', new CodeType(), customArgs?.data, false);
@@ -44,17 +44,24 @@ export class CodeEditor extends PPNode {
     this.name = 'CodeEditor';
     this.description = 'Edit your code';
 
+    this.getChange = (value) => {
+      editedData = value;
+    };
+
+    const defaultProps = {
+      graph: this.graph,
+      getChange: this.getChange,
+    };
+
     // when the Node is added, add the container and react component
     this.onNodeAdded = () => {
-      const data = this.getInputData('input') ?? DEFAULT_EDITOR_DATA;
-      console.log('data onNodeAdded:', data);
+      const data = this.getInputData('input');
       const hasLink = this.getInputSocketByName('input').hasLink();
       this.createContainerComponent(document, ParentComponent, {
+        ...defaultProps,
+        nodeHeight: this.nodeHeight,
         data,
         hasLink,
-        nodeHeight: this.nodeHeight,
-        graph: this.graph,
-        getChange: this.getChange,
       });
     };
 
@@ -66,40 +73,33 @@ export class CodeEditor extends PPNode {
       graph.selection.drawRectanglesFromSelection();
 
       this.renderReactComponent(ParentComponent, {
+        ...defaultProps,
         editable: true,
-        getChange: this.getChange,
       });
     };
 
     this.onNodeFocusOut = () => {
       this.renderReactComponent(ParentComponent, {
+        ...defaultProps,
         editable: false,
-        getChange: this.getChange,
       });
-      console.log(editedData);
-      console.log(this.getInputData('input'));
       this.setInputData('input', editedData);
     };
 
     this.onNodeResize = (newWidth, newHeight) => {
       this.renderReactComponent(ParentComponent, {
+        ...defaultProps,
         nodeHeight: newHeight,
         data: editedData,
-        getChange: this.getChange,
       });
     };
 
     this.onExecute = async function (input) {
       const newData = input['input'];
       this.renderReactComponent(ParentComponent, {
+        ...defaultProps,
         data: newData,
-        nodeHeight: this.nodeHeight,
-        getChange: this.getChange,
       });
-    };
-
-    this.getChange = (value) => {
-      editedData = value;
     };
 
     type MyProps = {
@@ -147,7 +147,6 @@ export class CodeEditor extends PPNode {
       const editor = useRef();
 
       const onChange = (value) => {
-        console.log(props.getChange);
         props.getChange(value);
         setCodeString(value);
         this.setOutputData('output', value);
@@ -161,12 +160,12 @@ export class CodeEditor extends PPNode {
         } else {
           dataAsString = props.data;
         }
-        console.log(dataAsString);
         setCodeString(dataAsString);
       }, [props.data]);
 
       useEffect(() => {
         if (editor.current) {
+          // CodeMirror ref if needed
           // console.log(editor.current);
         }
       }, [editor.current]);
