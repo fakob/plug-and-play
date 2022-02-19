@@ -47,8 +47,7 @@ export class AbstractType {
     return true;
   }
 
-  // TODO add more support for this in children, and make sure to call it from above
-  parse(data: any, type: AbstractType): any {
+  parse(data: any): any {
     return data;
   }
 }

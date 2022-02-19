@@ -576,7 +576,6 @@ export default class PPNode extends PIXI.Container {
   drawNodeShape(): void {
     // redraw background due to size change
     this._BackgroundRef.clear();
-    console.log('my color: ' + JSON.stringify(this.color));
     this._BackgroundRef.beginFill(this.color.hexNumber(), this.color.a);
     this._BackgroundRef.drawRoundedRect(
       NODE_MARGIN,
@@ -911,7 +910,6 @@ export default class PPNode extends PIXI.Container {
   }
 
   initialExecute(): void {
-    console.log('initial eecuting');
     this.executeOptimizedChain();
   }
 

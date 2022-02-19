@@ -143,10 +143,14 @@ export default class Socket extends PIXI.Container {
 
   get data(): any {
     // just point to data from last node if there to avoid copying it
+    let dataToReturn;
     if (this.isInput() && this.hasLink()) {
-      return this.links[0].getSource().data;
+      dataToReturn = this.links[0].getSource().data;
+    } else {
+      dataToReturn = this._data;
     }
-    return this._data;
+    // allow the type to potentially sanitize the data before passing it on
+    return this.dataType.parse(dataToReturn);
   }
 
   set data(newData: any) {
