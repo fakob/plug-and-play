@@ -256,7 +256,7 @@ export class CodeEditor extends PPNode {
                 basicSetup={true}
                 onChange={onChange}
               />
-            </Box>{' '}
+            </Box>
           </ThemeProvider>
         </ErrorBoundary>
       );
