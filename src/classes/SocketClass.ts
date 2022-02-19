@@ -211,18 +211,7 @@ export default class Socket extends PIXI.Container {
     // visibility change can result in position change
     // therefore redraw Node and connected Links
     this.getNode().drawNodeShape();
-
-    // is below neccessary? if so should be inside node and not here
-    /*this.getNode().inputSocketArray.map((input) => {
-      input.links.map((link) => {
-        link.updateConnection();
-      });
-    });
-    this.getNode().outputSocketArray.map((output) => {
-      output.links.map((link) => {
-        link.updateConnection();
-      });
-    });*/
+    this.getNode().updateConnectionPosition();
   }
 
   removeLink(link?: PPLink): void {
