@@ -11,9 +11,14 @@ import { javascript } from '@codemirror/lang-javascript';
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
 import { CodeType } from './datatypes/codeType';
-import { convertToString, zoomToFitSelection } from '../utils/utils';
+import {
+  convertToString,
+  getSelectionBounds,
+  zoomToFitSelection,
+} from '../utils/utils';
 import { CustomArgs } from '../utils/interfaces';
 import { NODE_TYPE_COLOR } from '../utils/constants';
+import { graphicsUtils } from 'pixi.js';
 
 export class CodeEditor extends PPNode {
   _imageRef: PIXI.Sprite;
@@ -23,6 +28,8 @@ export class CodeEditor extends PPNode {
   parsedData: any;
   update: () => void;
   getChange: (value: string) => void;
+  previousPosition: PIXI.Point;
+  previousScale: number;
 
   constructor(name: string, graph: PPGraph, customArgs?: CustomArgs) {
     const nodeWidth = 400;
@@ -53,6 +60,31 @@ export class CodeEditor extends PPNode {
       getChange: this.getChange,
     };
 
+    const nodeFocusOut = () => {
+      this.setInputData('input', editedData);
+      this.renderReactComponent(ParentComponent, {
+        ...defaultProps,
+        nodeHeight: this.nodeHeight,
+        editable: false,
+      });
+
+      graph.viewport.animate({
+        position: this.previousPosition,
+        time: 250,
+        scale: this.previousScale,
+        ease: 'easeInOutSine',
+      });
+      graph.selection.drawRectanglesFromSelection();
+    };
+
+    const keysDown = (e: KeyboardEvent): void => {
+      if (e.key === 'Escape') {
+        e.stopPropagation();
+        e.preventDefault();
+        nodeFocusOut();
+      }
+    };
+
     // when the Node is added, add the container and react component
     this.onNodeAdded = () => {
       const data = this.getInputData('input');
@@ -63,13 +95,30 @@ export class CodeEditor extends PPNode {
         data,
         hasLink,
       });
+
+      // add event listeners
+      window.addEventListener('keydown', keysDown.bind(this));
     };
 
     this.onNodeDoubleClick = () => {
       // center the editor and set zoom to 100%
       // as a scaled editor has issues with selection and cursor placement
-      zoomToFitSelection(graph);
-      graph.viewport.setZoom(1, true); // zoom to 100%
+      const boundsToZoomTo = getSelectionBounds(
+        graph.selection.selectedNodes // get bounds of the selectedNodes
+      );
+      this.previousPosition = graph.viewport.center;
+      this.previousScale = graph.viewport.scale.x;
+      const newPosition = new PIXI.Point(
+        boundsToZoomTo.x + (window.innerWidth / 2 - 56), // move 56 from left
+        boundsToZoomTo.y + (window.innerHeight / 2 - 128) // move 120px from top
+      );
+
+      graph.viewport.animate({
+        position: newPosition,
+        time: 250,
+        scale: 1,
+        ease: 'easeInOutSine',
+      });
       graph.selection.drawRectanglesFromSelection();
 
       this.renderReactComponent(ParentComponent, {
@@ -80,12 +129,7 @@ export class CodeEditor extends PPNode {
     };
 
     this.onNodeFocusOut = () => {
-      this.renderReactComponent(ParentComponent, {
-        ...defaultProps,
-        nodeHeight: this.nodeHeight,
-        editable: false,
-      });
-      this.setInputData('input', editedData);
+      nodeFocusOut();
     };
 
     this.onNodeResize = (newWidth, newHeight) => {
