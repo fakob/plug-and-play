@@ -1,14 +1,10 @@
 import * as PIXI from 'pixi.js';
 import React, { useEffect, useRef, useState } from 'react';
 import Color from 'color';
-import CodeMirror, {
-  EditorView,
-  KeyBinding,
-  keymap,
-} from '@uiw/react-codemirror';
+import CodeMirror, { EditorView } from '@uiw/react-codemirror';
 import { oneDark } from '@codemirror/theme-one-dark';
 import { javascript } from '@codemirror/lang-javascript';
-import { Box, Button } from '@mui/material';
+import { Box, Button, ThemeProvider } from '@mui/material';
 import { ErrorBoundary } from 'react-error-boundary';
 import ErrorFallback from '../components/ErrorFallback';
 import PPGraph from '../classes/GraphClass';
@@ -16,7 +12,7 @@ import PPNode from '../classes/NodeClass';
 import { CodeType } from './datatypes/codeType';
 import { convertToString, getSelectionBounds } from '../utils/utils';
 import { CustomArgs } from '../utils/interfaces';
-import { NODE_TYPE_COLOR } from '../utils/constants';
+import { NODE_TYPE_COLOR, customTheme } from '../utils/constants';
 
 export class CodeEditor extends PPNode {
   _imageRef: PIXI.Sprite;
@@ -167,7 +163,7 @@ export class CodeEditor extends PPNode {
 
     // small presentational component
     const ParentComponent: React.FunctionComponent<MyProps> = (props) => {
-      const theme = EditorView.theme({
+      const editorTheme = EditorView.theme({
         '&.cm-editor': {
           fontFamily: 'Roboto Mono, sans-serif',
           backgroundColor: `${Color(props.randomMainColor).darken(0.85)}`,
@@ -226,40 +222,42 @@ export class CodeEditor extends PPNode {
 
       return (
         <ErrorBoundary FallbackComponent={ErrorFallback}>
-          <Box sx={{ position: 'relative' }}>
-            {props.editable && (
-              <Button
-                sx={{
-                  position: 'absolute',
-                  top: '8px',
-                  right: '8px',
-                  zIndex: 10,
-                }}
-                color="secondary"
-                variant="contained"
-                size="small"
-                onClick={nodeFocusOut}
-              >
-                Exit
-              </Button>
-            )}
-            <CodeMirror
-              ref={editor}
-              value={codeString}
-              width="100%"
-              height={`${props.nodeHeight}px`}
-              theme={oneDark}
-              editable={props.editable}
-              autoFocus={props.editable}
-              extensions={[
-                javascript({ jsx: true }),
-                EditorView.lineWrapping,
-                theme,
-              ]}
-              basicSetup={true}
-              onChange={onChange}
-            />
-          </Box>
+          <ThemeProvider theme={customTheme}>
+            <Box sx={{ position: 'relative' }}>
+              {props.editable && (
+                <Button
+                  sx={{
+                    position: 'absolute',
+                    top: '8px',
+                    right: '8px',
+                    zIndex: 10,
+                  }}
+                  color="secondary"
+                  variant="contained"
+                  size="small"
+                  onClick={nodeFocusOut}
+                >
+                  Exit
+                </Button>
+              )}
+              <CodeMirror
+                ref={editor}
+                value={codeString}
+                width="100%"
+                height={`${props.nodeHeight}px`}
+                theme={oneDark}
+                editable={props.editable}
+                autoFocus={props.editable}
+                extensions={[
+                  javascript({ jsx: true }),
+                  EditorView.lineWrapping,
+                  editorTheme,
+                ]}
+                basicSetup={true}
+                onChange={onChange}
+              />
+            </Box>{' '}
+          </ThemeProvider>
         </ErrorBoundary>
       );
     };

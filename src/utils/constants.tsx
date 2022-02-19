@@ -49,7 +49,7 @@ export const customTheme = createTheme(darkThemeOverride, {
       light: `${Color(RANDOMMAINCOLOR).negate().lighten(0.1)}`,
       main: `${Color(RANDOMMAINCOLOR).negate()}`,
       dark: `${Color(RANDOMMAINCOLOR).negate().darken(0.1)}`,
-      contrastText: `${Color(RANDOMMAINCOLOR).negate().lighten(0.9)}`,
+      contrastText: `${Color(RANDOMMAINCOLOR).negate().lighten(1.3)}`,
     },
     background: {
       default: `${Color(RANDOMMAINCOLOR).darken(0.85)}`,
