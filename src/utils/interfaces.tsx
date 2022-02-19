@@ -92,6 +92,7 @@ export type SerializedSocket = {
   name: string;
   dataType: string;
   data: any;
+  defaultData?: any;
   visible: boolean;
 };
 export class TRgba {

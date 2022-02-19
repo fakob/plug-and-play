@@ -27,7 +27,11 @@ import {
 } from '../utils/constants';
 import PPGraph from './GraphClass';
 import Socket from './SocketClass';
-import { getNodeCommentPosX, getNodeCommentPosY } from '../utils/utils';
+import {
+  calculateAspectRatioFit,
+  getNodeCommentPosX,
+  getNodeCommentPosY,
+} from '../utils/utils';
 import { AbstractType } from '../nodes/datatypes/abstractType';
 import { AnyType } from '../nodes/datatypes/anyType';
 import { deSerializeType } from '../nodes/datatypes/typehelper';
@@ -51,6 +55,7 @@ export class UpdateBehaviour {
 
 export default class PPNode extends PIXI.Container {
   _NodeNameRef: PIXI.Text;
+  _NodeDebugRef: PIXI.Text;
   _NodeCommentRef: PIXI.Text;
   _BackgroundRef: PIXI.Graphics;
   clickedSocketRef: null | Socket;
@@ -88,7 +93,7 @@ export default class PPNode extends PIXI.Container {
   static: HTMLElement;
 
   // supported callbacks
-  onConfigure: ((nodeConfig: SerializedNode) => void) | null;
+  onConfigure: ((nodeConfig: SerializedNode) => void) | null; // called after the node has been configured
   onNodeDoubleClick: ((event: PIXI.InteractionEvent) => void) | null;
   onMoveHandler: (event?: PIXI.InteractionEvent) => void;
   onViewportMoveHandler: (event?: PIXI.InteractionEvent) => void;
@@ -96,6 +101,7 @@ export default class PPNode extends PIXI.Container {
   onNodeAdded: (() => void) | null; // called when the node is added to the graph
   onNodeRemoved: (() => void) | null; // called when the node is removed from the graph
   onNodeSelected: (() => void) | null; // called when the node is selected/unselected
+  onNodeDragging: ((isDraggingNode: boolean) => void) | null; // called when the node is being dragged
   onNodeResize: ((width: number, height: number) => void) | null; // called when the node is resized
   onNodeResized: (() => void) | null; // called when the node resize ended
   onNodeDragOrViewportMove: // called when the node or or the viewport with the node is moved or scaled
@@ -147,14 +153,18 @@ export default class PPNode extends PIXI.Container {
         blur: 1,
       }),
     ];
+    const debugText = new PIXI.Text('', COMMENT_TEXTSTYLE);
+    debugText.resolution = 1;
     const nodeComment = new PIXI.Text('', COMMENT_TEXTSTYLE);
     nodeComment.resolution = 1;
 
     this._BackgroundRef = this.addChild(background);
     this._NodeNameRef = this.addChild(inputNameText);
-    this._NodeCommentRef = (
-      this.graph.viewport.getChildByName('commentContainer') as PIXI.Container
-    ).addChild(nodeComment);
+    const commentContainer = this.graph.viewport.getChildByName(
+      'commentContainer'
+    ) as PIXI.Container;
+    this._NodeDebugRef = commentContainer.addChild(debugText);
+    this._NodeCommentRef = commentContainer.addChild(nodeComment);
 
     // do not show the node name
     if (this.showLabels === false) {
@@ -181,6 +191,9 @@ export default class PPNode extends PIXI.Container {
     this._doubleClicked = false;
 
     this._addListeners();
+
+    // define callbacks
+    this.onNodeDragging = (isDraggingNode: boolean) => {};
   }
 
   // GETTERS & SETTERS
@@ -348,50 +361,60 @@ export default class PPNode extends PIXI.Container {
     this.y = nodeConfig.y;
     this.minNodeWidth = nodeConfig.minWidth ?? NODE_WIDTH;
     this.minNodeHeight = nodeConfig.minHeight;
-    if (nodeConfig.width && nodeConfig.height) {
-      this.resizeNode(nodeConfig.width, nodeConfig.height);
-      this.resizedNode();
+    try {
+      if (nodeConfig.width && nodeConfig.height) {
+        this.resizeNode(nodeConfig.width, nodeConfig.height);
+        this.resizedNode();
+      }
+      // update position of comment
+      this.updateCommentPosition();
+
+      // set parameters on inputSocket
+      nodeConfig.inputSocketArray.forEach((item, index) => {
+        // skip configuring the input if there is no config data
+        if (this.inputSocketArray[index] !== undefined) {
+          this.inputSocketArray[index].setName(item.name);
+          this.inputSocketArray[index].dataType = deSerializeType(
+            item.dataType
+          );
+          this.inputSocketArray[index].data = item.data;
+          this.inputSocketArray[index].defaultData = item.defaultData;
+          this.inputSocketArray[index].setVisible(item.visible ?? true);
+        } else {
+          // add socket if it does not exist yet
+          this.addInput(
+            item.name,
+            deSerializeType(item.dataType),
+            item.data,
+            item.visible ?? true
+          );
+        }
+      });
+
+      // set parameters on outputSocket
+      nodeConfig.outputSocketArray.forEach((item, index) => {
+        // skip configuring the output if there is no config data
+        if (this.outputSocketArray[index] !== undefined) {
+          this.outputSocketArray[index].setName(item.name);
+          this.outputSocketArray[index].dataType = deSerializeType(
+            item.dataType
+          );
+          this.outputSocketArray[index].setVisible(item.visible ?? true);
+        } else {
+          // add socket if it does not exist
+          this.addOutput(
+            item.name,
+            deSerializeType(item.dataType),
+            item.visible ?? true
+          );
+        }
+      });
+    } catch (error) {
+      console.error(
+        `Could not configure node: ${this.name}, id: ${this.id}`,
+        error
+      );
     }
-    // update position of comment
-    this.updateCommentPosition();
-
-    // set parameters on inputSocket
-    nodeConfig.inputSocketArray.forEach((item, index) => {
-      // skip configuring the input if there is no config data
-      if (this.inputSocketArray[index] !== undefined) {
-        this.inputSocketArray[index].setName(item.name);
-        (this.inputSocketArray[index].dataType = deSerializeType(
-          item.dataType
-        )),
-          (this.inputSocketArray[index].data = item.data);
-        this.inputSocketArray[index].setVisible(item.visible ?? true);
-      } else {
-        // add socket if it does not exist yet
-        this.addInput(
-          item.name,
-          deSerializeType(item.dataType),
-          item.data,
-          item.visible ?? true
-        );
-      }
-    });
-
-    // set parameters on outputSocket
-    nodeConfig.outputSocketArray.forEach((item, index) => {
-      // skip configuring the output if there is no config data
-      if (this.outputSocketArray[index] !== undefined) {
-        this.outputSocketArray[index].setName(item.name);
-        this.outputSocketArray[index].dataType = deSerializeType(item.dataType);
-        this.outputSocketArray[index].setVisible(item.visible ?? true);
-      } else {
-        // add socket if it does not exist
-        this.addOutput(
-          item.name,
-          deSerializeType(item.dataType),
-          item.visible ?? true
-        );
-      }
-    });
 
     if (this.onConfigure) {
       this.onConfigure(nodeConfig);
@@ -542,10 +565,28 @@ export default class PPNode extends PIXI.Container {
     }
   }
 
-  resizeNode(width: number, height: number): void {
+  resizeNode(width: number, height: number, maintainAspectRatio = false): void {
     // set new size
-    this.nodeWidth = Math.max(width, this.minNodeWidth);
-    this.nodeHeight = Math.max(height, this.calculatedMinNodeHeight);
+    const newNodeWidth = Math.max(width, this.minNodeWidth);
+    const newNodeHeight = Math.max(height, this.calculatedMinNodeHeight);
+
+    if (maintainAspectRatio) {
+      const oldWidth = this.nodeWidth;
+      const oldHeight = this.nodeHeight;
+      const newRect = calculateAspectRatioFit(
+        oldWidth,
+        oldHeight,
+        newNodeWidth,
+        newNodeHeight,
+        this.minNodeWidth,
+        this.calculatedMinNodeHeight
+      );
+      this.nodeWidth = newRect.width;
+      this.nodeHeight = newRect.height;
+    } else {
+      this.nodeWidth = newNodeWidth;
+      this.nodeHeight = newNodeHeight;
+    }
 
     // update node shape
     this.drawNodeShape();
@@ -672,6 +713,8 @@ export default class PPNode extends PIXI.Container {
   }
 
   updateCommentPosition(): void {
+    this._NodeDebugRef.x = getNodeCommentPosX(this.x, this.width);
+    this._NodeDebugRef.y = getNodeCommentPosY(this.y - 32);
     this._NodeCommentRef.x = getNodeCommentPosX(this.x, this.width);
     this._NodeCommentRef.y = getNodeCommentPosY(this.y);
   }
@@ -692,6 +735,12 @@ export default class PPNode extends PIXI.Container {
     if (commentData && commentData.length > 10000) {
       commentData = 'Too long to display';
     }
+    this._NodeDebugRef.text = `${Math.round(
+      this.transform.position.x
+    )}, ${Math.round(this.transform.position.y)}
+${Math.round(this._bounds.minX)}, ${Math.round(
+      this._bounds.minY
+    )}, ${Math.round(this._bounds.maxX)}, ${Math.round(this._bounds.maxY)}`;
     this._NodeCommentRef.text = commentData;
   }
 
@@ -1046,6 +1095,7 @@ export default class PPNode extends PIXI.Container {
       this.cursor = 'grabbing';
       this.alpha = 0.5;
       this.isDraggingNode = true;
+      this.onNodeDragging(this.isDraggingNode);
       this.sourcePoint = this.interactionData.getLocalPosition(this);
 
       // subscribe to pointermove
@@ -1062,6 +1112,7 @@ export default class PPNode extends PIXI.Container {
 
     this.alpha = 1;
     this.isDraggingNode = false;
+    this.onNodeDragging(this.isDraggingNode);
     this.cursor = 'move';
     // set the interactionData to null
     this.interactionData = null;
@@ -1106,9 +1157,11 @@ export default class PPNode extends PIXI.Container {
     // console.log('_onRemoved');
 
     // remove node comment
-    (
-      this.graph.viewport.getChildByName('commentContainer') as PIXI.Container
-    ).removeChild(this._NodeCommentRef);
+    const commentContainer = this.graph.viewport.getChildByName(
+      'commentContainer'
+    ) as PIXI.Container;
+    commentContainer.removeChild(this._NodeCommentRef);
+    commentContainer.removeChild(this._NodeDebugRef);
 
     // remove added listener from graph.viewport
     this.graph.viewport.removeListener('moved', this.onViewportMoveHandler);

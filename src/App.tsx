@@ -39,14 +39,17 @@ import {
 import GraphOverlay from './components/GraphOverlay';
 import ErrorFallback from './components/ErrorFallback';
 import PixiContainer from './PixiContainer';
+import { Image as ImageNode } from './nodes/image/image';
 import { GraphContextMenu, NodeContextMenu } from './components/ContextMenus';
 import { GraphDatabase } from './utils/indexedDB';
 import PPGraph from './classes/GraphClass';
 import {
-  RANDOMMAINCOLOR,
   CANVAS_BACKGROUND_ALPHA,
   CANVAS_BACKGROUND_TEXTURE,
+  DRAGANDDROP_GRID_MARGIN,
+  NODE_WIDTH,
   PLUGANDPLAY_ICON,
+  RANDOMMAINCOLOR,
   customTheme,
 } from './utils/constants';
 import { IGraphSearch, INodeSearch } from './utils/interfaces';
@@ -57,6 +60,7 @@ import {
   getLoadedGraphId,
   getRemoteGraph,
   getRemoteGraphsList,
+  getSelectionBounds,
   isEventComingFromWithinTextInput,
   removeExtension,
   useStateRef,
@@ -127,20 +131,28 @@ const App = (): JSX.Element => {
   let lastTimeTicked = 0;
 
   // react-dropzone
-  const onDrop = useCallback((acceptedFiles) => {
-    console.log(acceptedFiles);
-    acceptedFiles.forEach((file: File) => {
-      console.log(file);
-      // const reader = new FileReader();
-      const objectURL = URL.createObjectURL(file);
-      console.log(objectURL);
+  const onDrop = useCallback((acceptedFiles, fileRejections, event) => {
+    console.log(acceptedFiles, fileRejections);
 
-      const extension = file.name
-        .slice(((file.name.lastIndexOf('.') - 1) >>> 0) + 2)
-        .toLowerCase();
+    const dropPoint = viewport.current.toWorld(
+      new PIXI.Point(event.clientX, event.clientY)
+    );
+    let nodePosX = dropPoint.x;
+    const nodePosY = dropPoint.y;
+    const newNodeSelection: PPNode[] = [];
 
-      // select what node to create
-      (async function () {
+    (async function () {
+      for (let index = 0; index < acceptedFiles.length; index++) {
+        const file = acceptedFiles[index];
+
+        // const reader = new FileReader();
+        const objectURL = URL.createObjectURL(file);
+
+        const extension = file.name
+          .slice(((file.name.lastIndexOf('.') - 1) >>> 0) + 2)
+          .toLowerCase();
+
+        // select what node to create
         const response = await fetch(objectURL);
         let data;
         let newNode;
@@ -154,30 +166,61 @@ const App = (): JSX.Element => {
           case 'csv':
             data = await response.text();
             newNode = currentGraph.current.createAndAddNode('Table', {
+              nodePosX,
+              nodePosY,
               data,
             });
             break;
           case 'txt':
             data = await response.text();
             newNode = currentGraph.current.createAndAddNode('Text', {
+              nodePosX,
+              nodePosY,
               initialData: data,
             });
             break;
           case 'jpg':
           case 'png':
             data = await response.blob();
-            const base64 = await convertBlobToBase64(data);
-            newNode = currentGraph.current.createAndAddNode('Image', {
-              defaultArguments: { Image: base64 },
+            const base64 = await convertBlobToBase64(data).catch((err) => {
+              console.error(err);
             });
+            if (base64) {
+              if (
+                currentGraph.current.selection.selectedNodes?.[index]?.type ===
+                'Image'
+              ) {
+                const existingNode = currentGraph.current.selection
+                  .selectedNodes[index] as ImageNode;
+                existingNode.updateTexture(base64 as string);
+                existingNode.setMinNodeHeight(existingNode.nodeWidth);
+              } else {
+                newNode = currentGraph.current.createAndAddNode('Image', {
+                  nodePosX,
+                  nodePosY,
+                  defaultArguments: { Image: base64 },
+                });
+                newNode.resetNodeSize();
+              }
+            }
             break;
           default:
             break;
         }
-        console.log(data);
-        console.log(newNode);
-      })();
-    });
+
+        // update postion if there are more than one
+        if (newNode) {
+          newNodeSelection.push(newNode);
+          nodePosX = nodePosX + NODE_WIDTH + DRAGANDDROP_GRID_MARGIN;
+        }
+      }
+      // select the newly added nodes
+      if (newNodeSelection.length > 0) {
+        // currentGraph.current.selection.selectedNodes = newNodeSelection;
+        currentGraph.current.selection.selectNodes(newNodeSelection);
+        zoomToFitSelection();
+      }
+    })();
   }, []);
 
   const {
@@ -245,6 +288,15 @@ const App = (): JSX.Element => {
       { passive: false }
     );
 
+    // disable default context menu for pixi only
+    pixiApp.current.view.addEventListener(
+      'contextmenu',
+      (e: Event) => {
+        e.preventDefault();
+      },
+      { passive: false }
+    );
+
     window.addEventListener(
       'mousemove',
       function (mouseMoveEvent) {
@@ -253,11 +305,6 @@ const App = (): JSX.Element => {
       },
       false
     );
-
-    // disable default context menu
-    window.addEventListener('contextmenu', (e: Event) => {
-      e.preventDefault();
-    });
 
     // create viewport
     viewport.current = new Viewport({
@@ -430,7 +477,10 @@ const App = (): JSX.Element => {
         }
       }
       if (e.shiftKey && e.code === 'Digit1') {
-        zoomToFit();
+        zoomToFitSelection(true);
+      }
+      if (e.shiftKey && e.code === 'Digit2') {
+        zoomToFitSelection();
       }
       if ((isMac ? e.metaKey : e.ctrlKey) && e.shiftKey && e.key === 'y') {
         e.preventDefault();
@@ -508,19 +558,31 @@ const App = (): JSX.Element => {
     currentGraph.current.showComments = showComments;
   }, [showComments]);
 
-  const zoomToFit = () => {
-    const nodeContainerBounds =
-      currentGraph.current.nodeContainer.getLocalBounds();
-    viewport.current.fit(
-      true,
-      nodeContainerBounds.width,
-      nodeContainerBounds.height
-    );
+  const moveToCenter = (bounds: PIXI.Rectangle) => {
     viewport.current.moveCenter(
-      nodeContainerBounds.x + nodeContainerBounds.width / 2,
-      nodeContainerBounds.y + nodeContainerBounds.height / 2
+      bounds.x + bounds.width / 2,
+      bounds.y + bounds.height / 2
     );
-    viewport.current.zoomPercent(-0.1, true); // zoom out a bit
+  };
+
+  const zoomToFitSelection = (fitAll = false) => {
+    let boundsToZoomTo: PIXI.Rectangle;
+    let zoomOutFactor: number;
+
+    if (fitAll || currentGraph.current.selection.selectedNodes.length < 1) {
+      boundsToZoomTo = currentGraph.current.nodeContainer.getLocalBounds(); // get bounds of the whole nodeContainer
+      zoomOutFactor = -0.2;
+    } else {
+      boundsToZoomTo = getSelectionBounds(
+        currentGraph.current.selection.selectedNodes // get bounds of the selectedNodes
+      );
+      zoomOutFactor = -0.3;
+    }
+
+    moveToCenter(boundsToZoomTo);
+    viewport.current.fit(true, boundsToZoomTo.width, boundsToZoomTo.height);
+    viewport.current.zoomPercent(zoomOutFactor, true); // zoom out a bit more
+    currentGraph.current.selection.drawRectanglesFromSelection();
   };
 
   function downloadGraph() {
@@ -1102,7 +1164,7 @@ NOTE: opening a remote playground creates a local copy`
                 uploadGraph={uploadGraph}
                 showComments={showComments}
                 setShowComments={setShowComments}
-                zoomToFit={zoomToFit}
+                zoomToFitSelection={zoomToFitSelection}
               />
             )}
             {isNodeContextMenuOpen && (
@@ -1110,6 +1172,7 @@ NOTE: opening a remote playground creates a local copy`
                 controlOrMetaKey={controlOrMetaKey}
                 contextMenuPosition={contextMenuPosition}
                 currentGraph={currentGraph}
+                zoomToFitSelection={zoomToFitSelection}
               />
             )}
             <PixiContainer ref={pixiContext} />

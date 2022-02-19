@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
 import * as PIXI from 'pixi.js';
 import strip from 'strip-comments';
 import { Viewport } from 'pixi-viewport';
@@ -59,6 +60,7 @@ export default class PPGraph {
     | ((pos: PIXI.Point | null, data: unknown | null) => void)
     | null; // called when socket inspector should be opened
   onCloseSocketInspector: () => void; // called when socket inspector should be closed
+  onViewportDragging: ((isDraggingViewport: boolean) => void) | null; // called when the viewport is being dragged
 
   onViewportMoveHandler: (event?: PIXI.InteractionEvent) => void;
 
@@ -139,6 +141,7 @@ export default class PPGraph {
     this._registeredNodeTypes = {};
 
     // define callbacks
+    this.onViewportDragging = (isDraggingViewport: boolean) => {};
   }
 
   // SETUP
@@ -179,6 +182,7 @@ export default class PPGraph {
     } else {
       this.viewport.cursor = 'grabbing';
       this.dragSourcePoint = new PIXI.Point(this.viewport.x, this.viewport.y);
+      this.onViewportDragging(true);
     }
   }
 
@@ -204,6 +208,7 @@ export default class PPGraph {
     this.viewport.cursor = 'grab';
     this.viewport.plugins.resume('drag');
     this.dragSourcePoint = null;
+    this.onViewportDragging(false);
   }
 
   _onNodePointerDown(event: PIXI.InteractionEvent): void {
@@ -349,6 +354,7 @@ export default class PPGraph {
     this._showComments = value;
     this.commentContainer.visible = value;
   }
+
   // METHODS
 
   clearTempConnection(): void {
@@ -426,6 +432,7 @@ export default class PPGraph {
 
     // set comment position
     node.updateCommentPosition();
+    node.execute();
 
     return node; //to chain actions
   }
@@ -559,6 +566,10 @@ export default class PPGraph {
     this.connectionContainer.removeChild(
       this._links[link.id] as PIXI.Container
     );
+
+    // update target node
+    link.getTarget()?.getNode()?.execute();
+
     return delete this._links[link.id];
   }
 
@@ -609,9 +620,10 @@ export default class PPGraph {
       // add node and carry over its configuration
       const newNode = this.createAndAddNode(nodeType);
       newNode.configure(node.serialize());
+      newNode.execute();
 
       // offset duplicated node
-      newNode.setPosition(32, 32, true);
+      newNode.setPosition(newNode.width + 32, 0, true);
 
       mappingOfOldAndNewNodes[node.id] = newNode;
       newNodes.push(newNode);

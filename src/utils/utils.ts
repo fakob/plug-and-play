@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Node } from 'slate';
+import * as PIXI from 'pixi.js';
 
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
@@ -358,4 +359,36 @@ export const isEventComingFromWithinTextInput = (event: any): boolean => {
     event.target.className.includes('cm-content') ||
     event.target.className.includes('cm-scroller')
   );
+};
+
+export const calculateAspectRatioFit = (
+  oldWidth: number,
+  oldHeight: number,
+  newWidth: number,
+  newHeight: number,
+  minWidth: number,
+  minHeight: number
+): { width: number; height: number } => {
+  let ratio = Math.min(newWidth / oldWidth, newHeight / oldHeight);
+  const tempWidth = oldWidth * ratio;
+  const tempHeight = oldHeight * ratio;
+  if (tempWidth < minWidth || tempHeight < minHeight) {
+    ratio = Math.max(minWidth / oldWidth, minHeight / oldHeight);
+  }
+  return { width: oldWidth * ratio, height: oldHeight * ratio };
+};
+
+export const getSelectionBounds = (selectedNodes: PPNode[]): PIXI.Rectangle => {
+  let selectionBounds = new PIXI.Rectangle();
+  selectedNodes.forEach((node: PIXI.DisplayObject, index: number) => {
+    const tempRect = node.getLocalBounds();
+    // move rect to get bounds local to nodeContainer
+    tempRect.x += node.transform.position.x;
+    tempRect.y += node.transform.position.y;
+    if (index === 0) {
+      selectionBounds = tempRect;
+    }
+    selectionBounds.enlarge(tempRect);
+  });
+  return selectionBounds;
 };

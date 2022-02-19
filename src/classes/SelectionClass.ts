@@ -30,6 +30,7 @@ export default class PPSelection extends PIXI.Container {
 
   protected onMoveHandler: (event?: PIXI.InteractionEvent) => void;
   onSelectionChange: ((selectedNodes: PPNode[]) => void) | null; // called when the selection has changed
+  onSelectionDragging: ((isDraggingSelection: boolean) => void) | null; // called when the selection is being dragged
   onSelectionRedrawn: ((screenPoint: PIXI.Point) => void) | null; // called when the selection is redrawn becaused its boundaries changed, were moved
 
   onRightClick:
@@ -76,8 +77,9 @@ export default class PPSelection extends PIXI.Container {
     this.onMoveHandler = this.onMove.bind(this);
 
     // define callbacks
-    this.onSelectionChange = (nodes: PPNode[]) => {}; //called if the selection changes
-    this.onSelectionRedrawn = () => {}; //called if the selection is moved
+    this.onSelectionChange = (nodes: PPNode[]) => {};
+    this.onSelectionDragging = (isDraggingSelection: boolean) => {};
+    this.onSelectionRedrawn = () => {};
   }
 
   get selectedNodes(): PPNode[] {
@@ -91,7 +93,7 @@ export default class PPSelection extends PIXI.Container {
     });
   }
 
-  onScaling = (pointerPosition: PIXI.Point): void => {
+  onScaling = (pointerPosition: PIXI.Point, shiftKeyPressed: boolean): void => {
     const worldPosition = this.viewport.toWorld(
       pointerPosition.x,
       pointerPosition.y
@@ -99,7 +101,8 @@ export default class PPSelection extends PIXI.Container {
 
     this.selectedNodes[0].resizeNode(
       Math.abs(worldPosition.x - this.selectedNodes[0].x),
-      Math.abs(worldPosition.y - this.selectedNodes[0].y)
+      Math.abs(worldPosition.y - this.selectedNodes[0].y),
+      shiftKeyPressed
     );
     this.drawRectanglesFromSelection();
   };
@@ -153,6 +156,7 @@ export default class PPSelection extends PIXI.Container {
         console.log('startDragAction');
         this.cursor = 'move';
         this.isDraggingSelection = true;
+        this.onSelectionDragging(this.isDraggingSelection);
         this.interactionData = event.data;
         this.sourcePoint = this.interactionData.getLocalPosition(
           this.selectedNodes[0]
@@ -177,6 +181,7 @@ export default class PPSelection extends PIXI.Container {
     if (this.isDraggingSelection) {
       this.cursor = 'default';
       this.isDraggingSelection = false;
+      this.onSelectionDragging(this.isDraggingSelection);
       this.interactionData = null;
       // unsubscribe from pointermove
       this.removeListener('pointermove', this.onMoveHandler);
@@ -501,7 +506,8 @@ class ScaleHandle extends PIXI.Graphics {
     const currentPosition = event.data.global;
 
     // Callback handles the rest!
-    this.selection.onScaling(currentPosition);
+    const shiftKeyPressed = event.data.originalEvent.shiftKey;
+    this.selection.onScaling(currentPosition, shiftKeyPressed);
 
     this._pointerPosition.copyFrom(currentPosition);
   }
