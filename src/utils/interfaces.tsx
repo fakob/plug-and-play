@@ -156,7 +156,6 @@ export class TRgba {
   }
 
   private static fromColor = (color: Color): TRgba => {
-    console.log('color: ' + JSON.stringify(color));
     return new TRgba(
       color.color[0],
       color.color[1],
