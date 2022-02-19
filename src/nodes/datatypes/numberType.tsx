@@ -1,4 +1,5 @@
 import React from 'react';
+import { TRgba } from '../../utils/interfaces';
 import { SliderWidget, SliderWidgetProps } from '../../widgets';
 import { AbstractType } from './abstractType';
 
@@ -40,7 +41,7 @@ export class NumberType extends AbstractType {
     return 0;
   }
 
-  /*getColor(): number {
-
-  }*/
+  getColor(): TRgba {
+    return new TRgba(128, 229, 229);
+  }
 }

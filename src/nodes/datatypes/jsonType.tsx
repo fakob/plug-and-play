@@ -3,6 +3,7 @@ import React from 'react';
 import { JSONWidget } from '../../widgets';
 import { AbstractType } from './abstractType';
 import { convertToString } from '../../utils/utils';
+import { TRgba } from '../../utils/interfaces';
 
 export class JSONType extends AbstractType {
   constructor() {
@@ -22,6 +23,10 @@ export class JSONType extends AbstractType {
 
   getDefaultValue(): any {
     return {};
+  }
+
+  getColor(): TRgba {
+    return new TRgba(128, 128, 250);
   }
 
   getComment(data: any): string {

@@ -1,5 +1,4 @@
-import React from 'react';
-import { CodeWidget, TextWidget } from '../../widgets';
+import { TRgba } from '../../utils/interfaces';
 import { AbstractType } from './abstractType';
 
 export class ArrayType extends AbstractType {
@@ -12,5 +11,9 @@ export class ArrayType extends AbstractType {
 
   getDefaultValue(): any {
     return [];
+  }
+
+  getColor(): TRgba {
+    return new TRgba(204, 153, 255);
   }
 }

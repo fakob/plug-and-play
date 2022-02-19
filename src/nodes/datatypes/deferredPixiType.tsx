@@ -1,7 +1,5 @@
 import React from 'react';
-import { inspect } from 'util';
-import { convertToString } from '../../utils/utils';
-import { CodeWidget } from '../../widgets';
+import { TRgba } from '../../utils/interfaces';
 import { AbstractType } from './abstractType';
 
 export class DeferredPixiType extends AbstractType {
@@ -23,5 +21,9 @@ export class DeferredPixiType extends AbstractType {
 
   getComment(commentData: any): string {
     return commentData ? 'Graphics' : 'null';
+  }
+
+  getColor(): TRgba {
+    return new TRgba(229, 229, 128);
   }
 }
