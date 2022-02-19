@@ -201,6 +201,7 @@ export class CodeEditor extends PPNode {
           height={`${props.nodeHeight}px`}
           theme={oneDark}
           editable={props.editable}
+          autoFocus={props.editable}
           extensions={[
             javascript({ jsx: true }),
             EditorView.lineWrapping,

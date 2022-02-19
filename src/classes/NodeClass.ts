@@ -794,6 +794,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
 
     const screenPoint = this.screenPoint();
     this.container.classList.add(styles.hybridContainer);
+    this.container.style.outlineColor = RANDOMMAINCOLOR;
     this.container.style.width = `${this.nodeWidth}px`;
     this.container.style.height = `${this.nodeHeight}px`;
     Object.assign(this.container.style, customStyles);
@@ -1169,6 +1170,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     // turn on pointer events for hybrid nodes so the react components become reactive
     if (this.isHybrid) {
       this.container.style.pointerEvents = 'auto';
+      this.container.classList.add(styles.hybridContainerDoubleClicked);
     }
 
     this.onNodeDoubleClick(event);    }
@@ -1180,6 +1182,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     if (this.isHybrid) {
       // this allows to zoom and drag when the hybrid node is not selected
       this.container.style.pointerEvents = 'none';
+      this.container.classList.remove(styles.hybridContainerDoubleClicked);
     }
 
     this.onNodeFocusOut(event);
