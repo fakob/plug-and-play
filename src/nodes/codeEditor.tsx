@@ -74,6 +74,7 @@ export class CodeEditor extends PPNode {
 
       this.renderReactComponent(ParentComponent, {
         ...defaultProps,
+        nodeHeight: this.nodeHeight,
         editable: true,
       });
     };
@@ -81,6 +82,7 @@ export class CodeEditor extends PPNode {
     this.onNodeFocusOut = () => {
       this.renderReactComponent(ParentComponent, {
         ...defaultProps,
+        nodeHeight: this.nodeHeight,
         editable: false,
       });
       this.setInputData('input', editedData);
@@ -98,6 +100,7 @@ export class CodeEditor extends PPNode {
       const newData = input['input'];
       this.renderReactComponent(ParentComponent, {
         ...defaultProps,
+        nodeHeight: this.nodeHeight,
         data: newData,
       });
     };
