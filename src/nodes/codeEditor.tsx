@@ -8,17 +8,15 @@ import CodeMirror, {
 } from '@uiw/react-codemirror';
 import { oneDark } from '@codemirror/theme-one-dark';
 import { javascript } from '@codemirror/lang-javascript';
+import { Box, Button } from '@mui/material';
+import { ErrorBoundary } from 'react-error-boundary';
+import ErrorFallback from '../components/ErrorFallback';
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
 import { CodeType } from './datatypes/codeType';
-import {
-  convertToString,
-  getSelectionBounds,
-  zoomToFitSelection,
-} from '../utils/utils';
+import { convertToString, getSelectionBounds } from '../utils/utils';
 import { CustomArgs } from '../utils/interfaces';
 import { NODE_TYPE_COLOR } from '../utils/constants';
-import { graphicsUtils } from 'pixi.js';
 
 export class CodeEditor extends PPNode {
   _imageRef: PIXI.Sprite;
@@ -30,6 +28,7 @@ export class CodeEditor extends PPNode {
   getChange: (value: string) => void;
   previousPosition: PIXI.Point;
   previousScale: number;
+  editable: boolean;
 
   constructor(name: string, graph: PPGraph, customArgs?: CustomArgs) {
     const nodeWidth = 400;
@@ -51,6 +50,8 @@ export class CodeEditor extends PPNode {
     this.name = 'CodeEditor';
     this.description = 'Edit your code';
 
+    this.editable = false;
+
     this.getChange = (value) => {
       editedData = value;
     };
@@ -61,11 +62,12 @@ export class CodeEditor extends PPNode {
     };
 
     const nodeFocusOut = () => {
+      this.editable = false;
       this.setInputData('input', editedData);
       this.renderReactComponent(ParentComponent, {
         ...defaultProps,
         nodeHeight: this.nodeHeight,
-        editable: false,
+        editable: this.editable,
       });
 
       graph.viewport.animate({
@@ -94,6 +96,7 @@ export class CodeEditor extends PPNode {
         nodeHeight: this.nodeHeight,
         data,
         hasLink,
+        editable: this.editable,
       });
 
       // add event listeners
@@ -121,10 +124,11 @@ export class CodeEditor extends PPNode {
       });
       graph.selection.drawRectanglesFromSelection();
 
+      this.editable = true;
       this.renderReactComponent(ParentComponent, {
         ...defaultProps,
         nodeHeight: this.nodeHeight,
-        editable: true,
+        editable: this.editable,
       });
     };
 
@@ -137,6 +141,7 @@ export class CodeEditor extends PPNode {
         ...defaultProps,
         nodeHeight: newHeight,
         data: editedData,
+        editable: this.editable,
       });
     };
 
@@ -146,6 +151,7 @@ export class CodeEditor extends PPNode {
         ...defaultProps,
         nodeHeight: this.nodeHeight,
         data: newData,
+        editable: this.editable,
       });
     };
 
@@ -155,8 +161,8 @@ export class CodeEditor extends PPNode {
       hasLink: boolean;
       nodeHeight: number;
       graph: PPGraph;
-      editable?: boolean;
-      getChange?: (value: string) => void;
+      editable: boolean;
+      getChange: (value: string) => void;
     };
 
     // small presentational component
@@ -188,10 +194,10 @@ export class CodeEditor extends PPNode {
       } else {
         dataAsString = props.data;
       }
+      const editor = useRef();
       const [codeString, setCodeString] = useState<string | undefined>(
         dataAsString
       );
-      const editor = useRef();
 
       const onChange = (value) => {
         props.getChange(value);
@@ -216,48 +222,45 @@ export class CodeEditor extends PPNode {
           // console.log(editor.current);
         }
       }, [editor.current]);
-
-      /*
-       * Create a KeyMap extension
-       */
-      function getKeymap() {
-        // Save command
-        const save = (editor) => {
-          // saveCode();
-          console.log(editor.toString());
-          return true;
-        };
-
-        const conf: readonly KeyBinding[] = [
-          {
-            key: 'Ctrl-Enter',
-            // mac: 'Cmd-Enter', // seems to not work in chrome
-            run: save,
-            preventDefault: true,
-          },
-        ];
-
-        return keymap.of(conf);
-      }
+      console.log(props.editable);
 
       return (
-        <CodeMirror
-          ref={editor}
-          value={codeString}
-          width="100%"
-          height={`${props.nodeHeight}px`}
-          theme={oneDark}
-          editable={props.editable}
-          autoFocus={props.editable}
-          extensions={[
-            javascript({ jsx: true }),
-            EditorView.lineWrapping,
-            getKeymap(),
-            theme,
-          ]}
-          basicSetup={true}
-          onChange={onChange}
-        />
+        <ErrorBoundary FallbackComponent={ErrorFallback}>
+          <Box sx={{ position: 'relative' }}>
+            {props.editable && (
+              <Button
+                sx={{
+                  position: 'absolute',
+                  top: '8px',
+                  right: '8px',
+                  zIndex: 10,
+                }}
+                color="secondary"
+                variant="contained"
+                size="small"
+                onClick={nodeFocusOut}
+              >
+                Exit
+              </Button>
+            )}
+            <CodeMirror
+              ref={editor}
+              value={codeString}
+              width="100%"
+              height={`${props.nodeHeight}px`}
+              theme={oneDark}
+              editable={props.editable}
+              autoFocus={props.editable}
+              extensions={[
+                javascript({ jsx: true }),
+                EditorView.lineWrapping,
+                theme,
+              ]}
+              basicSetup={true}
+              onChange={onChange}
+            />
+          </Box>
+        </ErrorBoundary>
       );
     };
   }
