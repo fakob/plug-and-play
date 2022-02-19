@@ -1,12 +1,10 @@
 import * as PIXI from 'pixi.js';
-import { SerializedSocket, TSocketType } from '../utils/interfaces';
+import { SerializedSocket, TRgba, TSocketType } from '../utils/interfaces';
 import PPGraph from './GraphClass';
 import PPNode from './NodeClass';
 import PPLink from './LinkClass';
 import {
   NODE_WIDTH,
-  SOCKET_COLOR_HEX,
-  SOCKET_COLOR_TINT_HEX,
   SOCKET_CORNERRADIUS,
   SOCKET_TEXTMARGIN_TOP,
   SOCKET_TEXTMARGIN,
@@ -51,12 +49,10 @@ export default class Socket extends PIXI.Container {
 
     let defaultData;
     if (socketType === SOCKET_TYPE.IN) {
-      // define defaultValue for different types
-      if (data === null && dataType && dataType instanceof AbstractType) {
+      // define defaultData for different types
+      if (data === null && dataType) {
         data = dataType.getDefaultValue();
       }
-    } else {
-      data = null; // for output sockets, data is calculated
     }
 
     this._socketType = socketType;
@@ -69,7 +65,7 @@ export default class Socket extends PIXI.Container {
     this._links = [];
 
     const socket = new PIXI.Graphics();
-    socket.beginFill(SOCKET_COLOR_HEX);
+    socket.beginFill(dataType.getColor().hexNumber());
     socket.drawRoundedRect(
       socketType === SOCKET_TYPE.IN ? 0 : NODE_WIDTH,
       SOCKET_WIDTH / 2,
@@ -147,10 +143,14 @@ export default class Socket extends PIXI.Container {
 
   get data(): any {
     // just point to data from last node if there to avoid copying it
+    let dataToReturn;
     if (this.isInput() && this.hasLink()) {
-      return this.links[0].getSource().data;
+      dataToReturn = this.links[0].getSource().data;
+    } else {
+      dataToReturn = this._data;
     }
-    return this._data;
+    // allow the type to potentially sanitize the data before passing it on
+    return this.dataType.parse(dataToReturn);
   }
 
   set data(newData: any) {
@@ -211,16 +211,7 @@ export default class Socket extends PIXI.Container {
     // visibility change can result in position change
     // therefore redraw Node and connected Links
     this.getNode().drawNodeShape();
-    this.getNode().inputSocketArray.map((input) => {
-      input.links.map((link) => {
-        link.updateConnection();
-      });
-    });
-    this.getNode().outputSocketArray.map((output) => {
-      output.links.map((link) => {
-        link.updateConnection();
-      });
-    });
+    this.getNode().updateConnectionPosition();
   }
 
   removeLink(link?: PPLink): void {
@@ -287,7 +278,7 @@ export default class Socket extends PIXI.Container {
     }
 
     this.cursor = 'pointer';
-    (this._SocketRef as PIXI.Graphics).tint = SOCKET_COLOR_TINT_HEX;
+    (this._SocketRef as PIXI.Graphics).tint = TRgba.white().hexNumber();
   }
 
   _onPointerOut(): void {

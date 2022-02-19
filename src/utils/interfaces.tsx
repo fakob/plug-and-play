@@ -1,7 +1,8 @@
 import PPGraph from '../classes/GraphClass';
 import PPNode, { UpdateBehaviour } from '../classes/NodeClass';
 import { AbstractType } from '../nodes/datatypes/abstractType';
-import { SOCKET_TYPE } from './constants';
+import { COLOR, COLOR_DARK, COLOR_WHITE, SOCKET_TYPE } from './constants';
+import Color from 'color';
 
 export type RegisteredNodeTypes = Record<
   string,
@@ -28,7 +29,7 @@ export type SerializedGraph = {
 
 export type CustomArgs = {
   customId?: string;
-  color?: string;
+  color?: TRgba;
   colorTransparency?: number;
   nodePosX?: number;
   nodePosY?: number;
@@ -94,10 +95,73 @@ export type SerializedSocket = {
   defaultData?: any;
   visible: boolean;
 };
+export class TRgba {
+  r = 0;
+  g = 0;
+  b = 0;
+  a = 1;
 
-export type TRgba = {
-  r: number;
-  g: number;
-  b: number;
-  a?: number;
-};
+  constructor(r = 0, g = 0, b = 0, a = 1) {
+    this.r = r;
+    this.g = g;
+    this.b = b;
+    this.a = a;
+  }
+
+  static fromString(hex: string): TRgba {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return new TRgba(r, g, b);
+  }
+
+  hex(): string {
+    return this.toColor().hex();
+  }
+  hexNumber(): number {
+    return parseInt(this.hex().replace(/^#/, ''), 16);
+  }
+
+  isDark(): boolean {
+    return this.toColor().isDark();
+  }
+
+  mix(otherColor: TRgba, blendFactor: number): TRgba {
+    return TRgba.fromColor(
+      this.toColor().mix(otherColor.toColor(), blendFactor)
+    );
+  }
+
+  static white(): TRgba {
+    return TRgba.fromString(COLOR_WHITE);
+  }
+  static black(): TRgba {
+    return TRgba.fromString(COLOR_DARK);
+  }
+
+  multiply(value: number): TRgba {
+    return new TRgba(
+      this.r * value,
+      this.g * value,
+      this.b * value,
+      this.a * value
+    );
+  }
+  // private so no temptation to call from outside (lets not expose the Color class at all and keep it TRgba)
+  private toColor(): Color {
+    return Color({
+      r: this.r,
+      g: this.g,
+      b: this.b,
+    }).alpha(this.a);
+  }
+
+  private static fromColor = (color: Color): TRgba => {
+    return new TRgba(
+      color.color[0],
+      color.color[1],
+      color.color[2],
+      color.valpha
+    );
+  };
+}

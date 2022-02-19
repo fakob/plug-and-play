@@ -85,12 +85,7 @@ export const SOCKET_TYPE = {
   OUT: 'out',
 } as const;
 
-export const SOCKET_COLOR_HEX = PIXI.utils.string2hex(
-  Color(COLOR[0]).lighten(0.4).hex()
-);
-export const SOCKET_COLOR_TINT_HEX = PIXI.utils.string2hex(
-  Color(COLOR[0]).desaturate(0.3).hex()
-);
+export const SOCKET_COLOR_HEX: string = Color(COLOR[0]).lighten(0.4).hex();
 export const SOCKET_HEIGHT = 24;
 export const SOCKET_WIDTH = 12;
 export const SOCKET_CORNERRADIUS = 4;
@@ -100,30 +95,6 @@ export const SOCKET_TEXTSTYLE = new TextStyle({
   fontSize: 12,
   fill: COLOR_MAIN,
 });
-
-/*export const DATATYPE = {
-  ANY: 'undefined',
-  ARRAY: 'array',
-  BOOLEAN: 'boolean',
-  COLOR: 'color',
-  ENUM: 'enum',
-  NUMBER: 'number',
-  PIXI: 'pixi',
-  STRING: 'string',
-  TRIGGER: 'trigger',
-};*/
-
-/*export const DATATYPE_DEFAULT_VALUE = {
-  ANY: undefined,
-  ARRAY: [],
-  BOOLEAN: false,
-  COLOR: [255, 55, 0, 0.5],
-  ENUM: [],
-  NUMBER: 0,
-  PIXI: null,
-  STRING: '',
-  TRIGGER: undefined,
-};*/
 
 export const NODE_TEXTSTYLE = new TextStyle({
   fontSize: 13,

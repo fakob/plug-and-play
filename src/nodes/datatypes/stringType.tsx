@@ -1,4 +1,5 @@
 import React from 'react';
+import { TRgba } from '../../utils/interfaces';
 import { TextWidget } from '../../widgets';
 import { AbstractType } from './abstractType';
 
@@ -17,5 +18,9 @@ export class StringType extends AbstractType {
 
   getDefaultValue(): any {
     return '';
+  }
+
+  getColor(): TRgba {
+    return new TRgba(128, 250, 128);
   }
 }

@@ -3,7 +3,8 @@ import React from 'react';
 import { inspect } from 'util';
 import { DefaultOutputWidget, CodeWidget } from '../../widgets';
 import { convertToString } from '../../utils/utils';
-
+import { TRgba } from '../../utils/interfaces';
+import { SOCKET_COLOR_HEX } from '../../utils/constants';
 export class AbstractType {
   // override any and all of these in child classes
   getName(): string {
@@ -34,7 +35,11 @@ export class AbstractType {
   };
 
   getDefaultValue(): any {
-    return undefined;
+    return {};
+  }
+
+  getColor(): TRgba{
+    return TRgba.fromString(SOCKET_COLOR_HEX);
   }
 
   // override this in children to check whether data is valid, can be used to give user information
@@ -42,8 +47,7 @@ export class AbstractType {
     return true;
   }
 
-  // TODO add more support for this in children, and make sure to call it from above
-  parse(data: any, type: AbstractType): any {
+  parse(data: any): any {
     return data;
   }
 }

@@ -7,7 +7,7 @@ import { ArrayType } from '../datatypes/arrayType';
 import { CodeType } from '../datatypes/codeType';
 import { NumberType } from '../datatypes/numberType';
 import { EnumType } from '../datatypes/enumType';
-import { CustomArgs } from '../../utils/interfaces';
+import { CustomArgs, TRgba } from '../../utils/interfaces';
 import { NODE_TYPE_COLOR } from '../../utils/constants';
 import { getMethods } from '../../utils/utils';
 
@@ -96,7 +96,7 @@ export class ArrayMethod extends PureNode {
   constructor(name: string, graph: Graph, customArgs: CustomArgs) {
     super(name, graph, {
       ...customArgs,
-      color: NODE_TYPE_COLOR.TRANSFORM,
+      color: TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM),
     });
 
     const arrayMethodsArray = getMethods(new Array(1));

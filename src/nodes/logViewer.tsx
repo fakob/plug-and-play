@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { LazyLog, ScrollFollow } from 'react-lazylog';
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
-import { CustomArgs } from '../utils/interfaces';
+import { CustomArgs, TRgba } from '../utils/interfaces';
 import { CodeType } from './datatypes/codeType';
 import { NumberType } from './datatypes/numberType';
 import { NODE_TYPE_COLOR } from '../utils/constants';
@@ -15,7 +15,7 @@ export class LogViewer extends PPNode {
 
     super(name, graph, {
       ...customArgs,
-      color: NODE_TYPE_COLOR.TRANSFORM,
+      color: TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM),
       nodeWidth,
       nodeHeight,
       isHybrid,

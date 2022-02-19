@@ -2,11 +2,9 @@ import * as PIXI from 'pixi.js';
 import Color from 'color';
 import PPGraph from '../classes/GraphClass';
 import { PureNode } from '../classes/NodeClass';
-import { CustomArgs } from '../utils/interfaces';
+import { CustomArgs, TRgba } from '../utils/interfaces';
 import {
   COLOR,
-  COLOR_DARK,
-  COLOR_WHITE,
   COLOR_WHITE_TEXT,
   NODE_MARGIN,
   NOTE_FONT,
@@ -17,7 +15,6 @@ import {
   NOTE_TEXTURE,
   SOCKET_WIDTH,
 } from '../utils/constants';
-import { hexToTRgba, trgbaToColor } from '../pixi/utils-pixi';
 import textFit from '../pixi/textFit';
 import { StringType } from './datatypes/stringType';
 import { NumberType } from './datatypes/numberType';
@@ -37,7 +34,7 @@ export class Label extends PureNode {
     super(name, graph, {
       ...customArgs,
       nodeWidth,
-      color: fillColor,
+      color: TRgba.fromString(fillColor),
       colorTransparency: 1.0,
       roundedCorners: false,
       showLabels: false,
@@ -54,7 +51,7 @@ export class Label extends PureNode {
     this.addInput(
       'backgroundColor',
       new ColorType(),
-      hexToTRgba(fillColor),
+      TRgba.fromString(fillColor),
       false
     );
     this.addInput(
@@ -95,7 +92,7 @@ export class Label extends PureNode {
       const screenPoint = this.graph.viewport.toScreen(this.x, this.y);
       const text = this.getInputData('text');
       const fontSize = this.getInputData('fontSize');
-      const color = trgbaToColor(this.getInputData('backgroundColor'));
+      const color = this.getInputData('backgroundColor');
       const marginLeftRight = fontSize / 1.5;
       const marginTopBottom = fontSize / 2;
 
@@ -110,7 +107,7 @@ export class Label extends PureNode {
         lineHeight: `${fontSize * (NOTE_LINEHEIGHT_FACTOR + 0.022)}px`, // 0.022 corrects difference between div and PIXI.Text
         textAlign: 'left',
         margin: NOTE_MARGIN_STRING,
-        color: color.isDark() ? COLOR_WHITE : COLOR_DARK,
+        color: color.isDark() ? TRgba.white().hex() : TRgba.black().hex(),
         padding: `${marginTopBottom}px ${marginLeftRight}px`,
         position: 'absolute',
         background: 'transparent',
@@ -179,7 +176,7 @@ export class Label extends PureNode {
           newHeight + marginTopBottom
         );
 
-        this.setInputData('data', text);
+        this.setInputData('text', text);
         this.executeOptimizedChain();
       });
 
@@ -195,7 +192,7 @@ export class Label extends PureNode {
       const text = String(input['text']);
       const fontSize = input['fontSize'];
       const minWidth = input['min-width'];
-      const color = trgbaToColor(input['backgroundColor']);
+      const color: TRgba = input['backgroundColor'];
 
       const marginTopBottom = fontSize / 2;
       const marginLeftRight = fontSize / 1.5;
@@ -203,16 +200,15 @@ export class Label extends PureNode {
       this._refTextStyle.fontSize = fontSize;
       this._refTextStyle.lineHeight = fontSize * NOTE_LINEHEIGHT_FACTOR;
       this._refTextStyle.fill = color.isDark()
-        ? PIXI.utils.string2hex(COLOR_WHITE)
-        : PIXI.utils.string2hex(COLOR_DARK);
+        ? TRgba.white().hex()
+        : TRgba.black().hex();
 
       const textMetrics = PIXI.TextMetrics.measureText(
         text,
         this._refTextStyle
       );
 
-      this.color = PIXI.utils.string2hex(color.hex());
-      this.colorTransparency = color.alpha();
+      this.color = color;
 
       this.resizeNode(
         Math.max(minWidth, textMetrics.width + marginLeftRight * 2),

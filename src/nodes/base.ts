@@ -11,9 +11,8 @@ import {
   NODE_WIDTH,
   SOCKET_HEIGHT,
 } from '../utils/constants';
-import { CustomArgs } from '../utils/interfaces';
+import { CustomArgs, TRgba } from '../utils/interfaces';
 import { getMethods } from '../utils/utils';
-import { colorToTrgba, hexToTRgba, trgbaToColor } from '../pixi/utils-pixi';
 import { NumberType } from './datatypes/numberType';
 import { AnyType } from './datatypes/anyType';
 import { TriggerType } from './datatypes/triggerType';
@@ -30,7 +29,7 @@ export class Mouse extends PPNode {
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
     super(name, graph, {
       ...customArgs,
-      color: NODE_TYPE_COLOR.INPUT,
+      color: TRgba.fromString(NODE_TYPE_COLOR.INPUT),
     });
 
     this.addOutput('screen-x', new NumberType());
@@ -70,7 +69,7 @@ export class GridCoordinates extends PPNode {
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
     super(name, graph, {
       ...customArgs,
-      color: NODE_TYPE_COLOR.INPUT,
+      color: TRgba.fromString(NODE_TYPE_COLOR.INPUT),
     });
 
     this.addOutput('x-array', new AnyType());
@@ -106,30 +105,30 @@ export class GridCoordinates extends PPNode {
 
 export class ColorArray extends PPNode {
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    const colorA = COLOR[5];
-    const colorB = COLOR[15];
+    const colorA: TRgba = TRgba.fromString(COLOR[5]);
+    const colorB: TRgba = TRgba.fromString(COLOR[15]);
 
     super(name, graph, {
       ...customArgs,
-      color: NODE_TYPE_COLOR.INPUT,
+      color: TRgba.fromString(NODE_TYPE_COLOR.INPUT),
     });
 
     this.addOutput('color-array', new AnyType());
     this.addInput('count', new NumberType(true), 9, false);
-    this.addInput('colorA', new ColorType(), hexToTRgba(colorA), false);
-    this.addInput('colorB', new ColorType(), hexToTRgba(colorB), false);
+    this.addInput('colorA', new ColorType(), colorA, false);
+    this.addInput('colorB', new ColorType(), colorB, false);
 
     this.name = 'Color array';
     this.description = 'Create color array';
 
     this.onExecute = async function (input, output) {
       const count = input['count'];
-      const colorA = trgbaToColor(input['colorA']);
-      const colorB = trgbaToColor(input['colorB']);
+      const colorA: TRgba = input['colorA'];
+      const colorB: TRgba = input['colorB'];
       const colorArray = [];
       for (let indexCount = 0; indexCount < count; indexCount++) {
         const blendFactor = count <= 1 ? 0 : indexCount / (count - 1);
-        colorArray.push(colorToTrgba(colorA.mix(colorB, blendFactor)));
+        colorArray.push(colorA.mix(colorB, blendFactor));
       }
       output['color-array'] = colorArray;
     };
@@ -140,7 +139,7 @@ export class RangeArray extends PPNode {
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
     super(name, graph, {
       ...customArgs,
-      color: NODE_TYPE_COLOR.INPUT,
+      color: TRgba.fromString(NODE_TYPE_COLOR.INPUT),
     });
 
     this.addOutput('output array', new AnyType());
@@ -167,7 +166,7 @@ export class RandomArray extends PPNode {
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
     super(name, graph, {
       ...customArgs,
-      color: NODE_TYPE_COLOR.INPUT,
+      color: TRgba.fromString(NODE_TYPE_COLOR.INPUT),
     });
 
     this.addOutput('output array', new AnyType());
@@ -195,7 +194,7 @@ export class Trigger extends PPNode {
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
     super(name, graph, {
       ...customArgs,
-      color: NODE_TYPE_COLOR.INPUT,
+      color: TRgba.fromString(NODE_TYPE_COLOR.INPUT),
     });
 
     this.addOutput('trigger', new TriggerType());
@@ -237,7 +236,7 @@ export class DateAndTime extends PPNode {
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
     super(name, graph, {
       ...customArgs,
-      color: NODE_TYPE_COLOR.INPUT,
+      color: TRgba.fromString(NODE_TYPE_COLOR.INPUT),
     });
 
     const dateMethodsArray = getMethods(new Date());

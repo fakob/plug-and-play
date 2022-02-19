@@ -8,7 +8,7 @@ import ReactDOM from 'react-dom';
 import '../pixi/dbclick.js';
 
 import styles from '../utils/style.module.css';
-import { CustomArgs, SerializedNode } from '../utils/interfaces';
+import { CustomArgs, SerializedNode, TRgba } from '../utils/interfaces';
 import {
   COMMENT_TEXTSTYLE,
   RANDOMMAINCOLOR,
@@ -66,8 +66,7 @@ export default class PPNode extends PIXI.Container {
   type: string; // Type
   category: string; // Category - derived from type
   description: string;
-  color: number;
-  colorTransparency: number;
+  color: TRgba;
   nodePosX: number;
   nodePosY: number;
   nodeWidth: number;
@@ -138,11 +137,9 @@ export default class PPNode extends PIXI.Container {
       this.showLabels = Boolean(customArgs?.showLabels ?? true);
     }
 
-    this.color = PIXI.utils.string2hex(
-      customArgs?.color ?? NODE_TYPE_COLOR.DEFAULT
-    );
-    this.colorTransparency =
-      customArgs?.colorTransparency ?? (this.isHybrid ? 0.01 : 1); // so it does not show when dragging the node fast
+    this.color = customArgs?.color ?? TRgba.fromString(NODE_TYPE_COLOR.DEFAULT);
+
+    this.color.a = customArgs?.colorTransparency ?? (this.isHybrid ? 0.01 : 1); // so it does not show when dragging the node fast
     const inputNameText = new PIXI.Text(this.name, NODE_TEXTSTYLE);
     inputNameText.x = NODE_HEADER_TEXTMARGIN_LEFT;
     inputNameText.y = NODE_PADDING_TOP + NODE_HEADER_TEXTMARGIN_TOP;
@@ -428,9 +425,6 @@ export default class PPNode extends PIXI.Container {
     }
 
     this.updateBehaviour = nodeConfig.updateBehaviour;
-
-    // update node after configure
-    //this.executeOptimizedChain();
   }
 
   getDirectDependents(): { [key: string]: PPNode } {
@@ -623,7 +617,7 @@ export default class PPNode extends PIXI.Container {
   drawNodeShape(): void {
     // redraw background due to size change
     this._BackgroundRef.clear();
-    this._BackgroundRef.beginFill(this.color, this.colorTransparency);
+    this._BackgroundRef.beginFill(this.color.hexNumber(), this.color.a);
     this._BackgroundRef.drawRoundedRect(
       NODE_MARGIN,
       0,
@@ -1074,7 +1068,6 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     this.on('pointerover', this._onPointerOver.bind(this));
     this.on('pointerout', this._onPointerOut.bind(this));
     this.on('dblclick', this._onDoubleClick.bind(this));
-    this.on('added', this._onAdded.bind(this));
     this.on('removed', this._onRemoved.bind(this));
 
     // first assign the bound function to a handler then add this handler as a listener
@@ -1151,7 +1144,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     }
   }
 
-  _onAdded(): void {
+  onAdded(): void {
     if (this.onNodeAdded) {
       this.onNodeAdded();
     }

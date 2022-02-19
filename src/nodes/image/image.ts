@@ -3,13 +3,12 @@ import * as PIXI from 'pixi.js';
 import { fitAndPosition } from 'object-fit-math';
 import type { FitMode } from 'object-fit-math/dist/types';
 import PPGraph from '../../classes/GraphClass';
-import { CustomArgs } from '../../utils/interfaces';
+import { CustomArgs, TRgba } from '../../utils/interfaces';
+import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../../utils/constants';
 import {
   DEFAULT_IMAGE,
   NODE_MARGIN,
-  NODE_TYPE_COLOR,
   OBJECT_FIT_OPTIONS,
-  SOCKET_TYPE,
 } from '../../utils/constants';
 import Socket from '../../classes/SocketClass';
 import { ImageType } from '../datatypes/imageType';
@@ -73,7 +72,7 @@ export class Image extends PPNode {
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
     super(name, graph, {
       ...customArgs,
-      color: NODE_TYPE_COLOR.INPUT,
+      color: TRgba.fromString(NODE_TYPE_COLOR.INPUT),
       colorTransparency: 0.2,
     });
     this.name = 'Draw Image';

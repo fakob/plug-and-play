@@ -1,6 +1,7 @@
 import { inspect } from 'util';
 import { AbstractType } from './abstractType';
 
+// Can we deprecate this type once draw.tsx is gone?
 export class PixiType extends AbstractType {
   constructor() {
     super();
