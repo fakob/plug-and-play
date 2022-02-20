@@ -102,6 +102,7 @@ const App = (): JSX.Element => {
   const mousePosition = { x: 0, y: 0 };
   const pixiDebugRef = new PIXI.Text('', COMMENT_TEXTSTYLE);
   pixiDebugRef.resolution = 1;
+  pixiDebugRef.x = 4;
 
   const db = new GraphDatabase();
   const pixiApp = useRef<PIXI.Application | null>(null);
@@ -147,10 +148,12 @@ const App = (): JSX.Element => {
     const viewportScreenX = Math.round(viewport.current.x);
     const viewportScreenY = Math.round(viewport.current.y);
     const viewportScale = roundNumber(viewport.current.scale.x);
-    pixiDebugRef.text = `mouse: ${mousePosition.x}, ${
+    pixiDebugRef.text = `Mouse position (world): ${mousePosition.x}, ${
       mousePosition.y
     } (${mouseWorldX}, ${mouseWorldY})
-viewport: ${viewportScreenX}, ${Math.round(viewportScreenY)}, ${viewportScale}`;
+Viewport position (scale): ${viewportScreenX}, ${Math.round(
+      viewportScreenY
+    )} (${viewportScale})`;
   };
 
   // react-dropzone
