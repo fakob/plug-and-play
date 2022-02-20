@@ -1,3 +1,4 @@
+import * as PIXI from 'pixi.js';
 import PPGraph from '../classes/GraphClass';
 import PPNode, { UpdateBehaviour } from '../classes/NodeClass';
 import { AbstractType } from '../nodes/datatypes/abstractType';
@@ -21,6 +22,10 @@ export type PPNodeConstructor<T extends PPNode = PPNode> = {
 
 export type SerializedGraph = {
   version: number;
+  graphSettings: {
+    viewportCenterPosition: PIXI.Point;
+    viewportScale: number;
+  };
   nodes: SerializedNode[];
   links: SerializedLink[];
   customNodeTypes: Record<string, string>;
