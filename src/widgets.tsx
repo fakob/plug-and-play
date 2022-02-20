@@ -86,7 +86,12 @@ export const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (
           color="secondary"
           disabled={props.hasLink}
           onChange={() => {
-            setRound((value) => !value);
+            setRound((value) => {
+              // have to add this in here as there is an issue with getting the value from the event
+              // https://github.com/mui/material-ui/issues/17454
+              (props.type as NumberType).round = !value;
+              return !value;
+            });
           }}
           sx={{
             fontSize: '12px',
@@ -125,7 +130,9 @@ export const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (
             step: round ? null : stepSizeValue,
           }}
           onChange={(event) => {
-            setMinValue(Number(event.target.value));
+            const newMinValue = Number(event.target.value);
+            setMinValue(newMinValue);
+            (props.type as NumberType).minValue = newMinValue;
           }}
           value={minValue}
         />
@@ -142,7 +149,9 @@ export const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (
             step: round ? null : stepSizeValue,
           }}
           onChange={(event) => {
-            setMaxValue(Number(event.target.value));
+            const newMaxValue = Number(event.target.value);
+            setMaxValue(newMaxValue);
+            (props.type as NumberType).maxValue = newMaxValue;
           }}
           value={maxValue}
         />
