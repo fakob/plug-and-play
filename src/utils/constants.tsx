@@ -259,3 +259,40 @@ export const OBJECT_FIT_OPTIONS: EnumStructure = [
     text: 'scale-down',
   },
 ];
+
+export const GRID_SHADER = `
+  precision mediump float;
+  varying vec2 vUvs;
+  uniform float zoom;
+
+  void main()
+  {
+      //Generate a simple grid.
+      //Offset uv so that center is 0,0 and edges are -1,1
+      vec2 uv = (vUvs-vec2(0.5))*2.0;
+      vec2 gUv = floor(uv*zoom);
+      vec4 color1 = vec4(0.0, 0.0, 0.0, 0.0);
+      vec4 color2 = vec4(0.0, 0.0, 0.0, 0.05);
+      vec4 outColor = mod(gUv.x + gUv.y, 2.) < 0.5 ? color1 : color2;
+      gl_FragColor = outColor;
+
+  }`;
+
+// Vertex shader. Use same shader for all passes.
+export const BASIC_VERTEX_SHADER = `
+  precision mediump float;
+
+  attribute vec2 aVertexPosition;
+  attribute vec2 aUvs;
+
+  uniform mat3 translationMatrix;
+  uniform mat3 projectionMatrix;
+
+  varying vec2 vUvs;
+
+  void main() {
+
+      vUvs = aUvs;
+      gl_Position = vec4((projectionMatrix * translationMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);
+
+  }`;
