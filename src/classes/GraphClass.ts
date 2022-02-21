@@ -720,11 +720,11 @@ export default class PPGraph {
     this.customNodeTypes = data.customNodeTypes;
 
     // position and scale viewport
-    const newX = data.graphSettings?.viewportCenterPosition.x ?? 0;
-    const newY = data.graphSettings?.viewportCenterPosition.y ?? 0;
+    const newX = data.graphSettings.viewportCenterPosition.x ?? 0;
+    const newY = data.graphSettings.viewportCenterPosition.y ?? 0;
     this.viewport.animate({
       position: new PIXI.Point(newX, newY),
-      scale: data.graphSettings?.viewportScale ?? 1,
+      scale: data.graphSettings.viewportScale ?? 1,
       ease: 'easeOutExpo',
       time: 750,
     });
