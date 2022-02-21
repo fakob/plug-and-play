@@ -450,3 +450,47 @@ export const DefaultOutputWidget: React.FunctionComponent<
     />
   );
 };
+
+export type NumberOutputWidgetProps = {
+  property: Socket;
+  index: number;
+  isInput: boolean;
+  hasLink: boolean;
+  data: any;
+  randomMainColor?: string;
+};
+
+export const NumberOutputWidget: React.FunctionComponent<
+  NumberOutputWidgetProps
+> = (props) => {
+  const [data, setData] = useState(Number(props.data));
+
+  return (
+    <>
+      <FormGroup
+        row={true}
+        sx={{
+          display: 'flex',
+          flexWrap: 'nowrap',
+        }}
+      >
+        <TextField
+          variant="filled"
+          label="Value"
+          sx={{
+            flexGrow: 1,
+          }}
+          disabled={props.hasLink}
+          inputProps={{
+            type: 'number',
+          }}
+          onChange={(event) => {
+            potentiallyNotify(props.property, Number(event.target.value));
+            setData(Number(event.target.value));
+          }}
+          value={data || 0}
+        />
+      </FormGroup>
+    </>
+  );
+};
