@@ -308,8 +308,7 @@ export class DRAW_Text extends DRAW_Base {
       lineJoin: 'round',
     });
     const basicText = new PIXI.Text(inputObject[inputTextName], textStyle);
-    if (inputObject[inputWidthName] !== 0)
-      basicText.style.fill = inputObject[inputColorName].hex();
+    basicText.style.fill = inputObject[inputColorName].hex();
 
     this.positionAndScale(basicText, inputObject);
     container.addChild(basicText);
