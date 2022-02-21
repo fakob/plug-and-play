@@ -685,10 +685,14 @@ export default class PPGraph {
     );
 
     const data = {
-      customNodeTypes: this.customNodeTypes,
+      version: PP_VERSION,
+      graphSettings: {
+        viewportCenterPosition: this.viewport.center,
+        viewportScale: this.viewport.scale.x,
+      },
       nodes: nodesSerialized,
       links: linksSerialized,
-      version: PP_VERSION,
+      customNodeTypes: this.customNodeTypes,
     };
 
     return data;
@@ -715,6 +719,16 @@ export default class PPGraph {
 
     // store customNodeTypes
     this.customNodeTypes = data.customNodeTypes;
+
+    // position and scale viewport
+    const newX = data.graphSettings.viewportCenterPosition.x ?? 0;
+    const newY = data.graphSettings.viewportCenterPosition.y ?? 0;
+    this.viewport.animate({
+      position: new PIXI.Point(newX, newY),
+      scale: data.graphSettings.viewportScale ?? 1,
+      ease: 'easeOutExpo',
+      time: 750,
+    });
 
     //create nodes
     const nodes = data.nodes;

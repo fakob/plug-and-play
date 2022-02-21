@@ -44,9 +44,12 @@ import { GraphContextMenu, NodeContextMenu } from './components/ContextMenus';
 import { GraphDatabase } from './utils/indexedDB';
 import PPGraph from './classes/GraphClass';
 import {
+  BASIC_VERTEX_SHADER,
   CANVAS_BACKGROUND_ALPHA,
   CANVAS_BACKGROUND_TEXTURE,
+  COMMENT_TEXTSTYLE,
   DRAGANDDROP_GRID_MARGIN,
+  GRID_SHADER,
   NODE_WIDTH,
   PLUGANDPLAY_ICON,
   RANDOMMAINCOLOR,
@@ -63,6 +66,7 @@ import {
   getSelectionBounds,
   isEventComingFromWithinTextInput,
   removeExtension,
+  roundNumber,
   useStateRef,
 } from './utils/utils';
 import { registerAllNodeTypes } from './nodes/allNodes';
@@ -96,12 +100,16 @@ const App = (): JSX.Element => {
   const githubBranchName = 'dev';
 
   const mousePosition = { x: 0, y: 0 };
+  const pixiDebugRef = new PIXI.Text('', COMMENT_TEXTSTYLE);
+  pixiDebugRef.resolution = 1;
+  pixiDebugRef.x = 4;
 
   const db = new GraphDatabase();
   const pixiApp = useRef<PIXI.Application | null>(null);
   const currentGraph = useRef<PPGraph | null>(null);
   const pixiContext = useRef<HTMLDivElement | null>(null);
   const viewport = useRef<Viewport | null>(null);
+  const overlayCommentContainer = useRef<PIXI.Container | null>(null);
   const graphSearchInput = useRef<HTMLInputElement | null>(null);
   const nodeSearchInput = useRef<HTMLInputElement | null>(null);
   const [isGraphSearchOpen, setIsGraphSearchOpen] = useState(false);
@@ -129,6 +137,24 @@ const App = (): JSX.Element => {
   const [showDeleteGraph, setShowDeleteGraph] = useState(false);
 
   let lastTimeTicked = 0;
+
+  // get/set mouse position and also update debug text
+  const setMousePosition = (mouseMoveEvent) => {
+    mousePosition.x = mouseMoveEvent.pageX;
+    mousePosition.y = mouseMoveEvent.pageY;
+    const mouseWorld = viewport.current.toWorld(mousePosition);
+    const mouseWorldX = Math.round(mouseWorld.x);
+    const mouseWorldY = Math.round(mouseWorld.y);
+    const viewportScreenX = Math.round(viewport.current.x);
+    const viewportScreenY = Math.round(viewport.current.y);
+    const viewportScale = roundNumber(viewport.current.scale.x);
+    pixiDebugRef.text = `Mouse position (world): ${mousePosition.x}, ${
+      mousePosition.y
+    } (${mouseWorldX}, ${mouseWorldY})
+Viewport position (scale): ${viewportScreenX}, ${Math.round(
+      viewportScreenY
+    )} (${viewportScale})`;
+  };
 
   // react-dropzone
   const onDrop = useCallback((acceptedFiles, fileRejections, event) => {
@@ -297,14 +323,7 @@ const App = (): JSX.Element => {
       { passive: false }
     );
 
-    window.addEventListener(
-      'mousemove',
-      function (mouseMoveEvent) {
-        mousePosition.x = mouseMoveEvent.pageX;
-        mousePosition.y = mouseMoveEvent.pageY;
-      },
-      false
-    );
+    window.addEventListener('mousemove', setMousePosition, false);
 
     // create viewport
     viewport.current = new Viewport({
@@ -331,6 +350,13 @@ const App = (): JSX.Element => {
         maxScale: 4,
       });
 
+    // add overlayCommentContainer to the stage
+    overlayCommentContainer.current = new PIXI.Container();
+    overlayCommentContainer.current.name = 'OverlayContainer';
+
+    pixiApp.current.stage.addChild(overlayCommentContainer.current);
+    overlayCommentContainer.current.addChild(pixiDebugRef);
+
     // add pixiApp to canvas
     pixiContext.current.appendChild(pixiApp.current.view);
 
@@ -344,7 +370,7 @@ const App = (): JSX.Element => {
     background.tileScale.x = 0.5;
     background.tileScale.y = 0.5;
     viewport.current.addChild(background);
-    viewport.current.on('moved', () => {
+    viewport.current.on('moved', (event) => {
       background.tilePosition.y = -viewport.current.top;
       background.tilePosition.x = -viewport.current.left;
       background.y = viewport.current.top;
@@ -352,9 +378,30 @@ const App = (): JSX.Element => {
 
       background.width = innerWidth / viewport.current.scale.x;
       background.height = innerHeight / viewport.current.scale.y;
+
+      setMousePosition(event);
     });
 
     background.alpha = CANVAS_BACKGROUND_ALPHA;
+
+    const geometry = new PIXI.Geometry()
+      .addAttribute('aVertexPosition', [0, 0, 1000, 0, 1000, 1000, 0, 1000], 2)
+      .addAttribute('aUvs', [0, 0, 1, 0, 1, 1, 0, 1], 2)
+      .addIndex([0, 1, 2, 0, 2, 3]);
+
+    const gridUniforms = {
+      x: 0,
+      y: 0,
+      zoom: 5,
+    };
+    const gridShader = PIXI.Shader.from(
+      BASIC_VERTEX_SHADER,
+      GRID_SHADER,
+      gridUniforms
+    );
+    const gridQuad = new PIXI.Mesh(geometry, gridShader);
+    gridQuad.name = 'debugGrid';
+    viewport.current.addChild(gridQuad);
 
     // add graph to pixiApp
     currentGraph.current = new PPGraph(pixiApp.current, viewport.current);
@@ -445,6 +492,12 @@ const App = (): JSX.Element => {
       // console.log(e.key);
       if (e.shiftKey) {
         viewport.current.cursor = 'default';
+      }
+      if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'u') {
+        // added ctrl+u shortcut for trying to debug the issue where drag would stop working
+        // I want to see if the plugin was just paused
+        console.log(viewport);
+        viewport.current.plugins.resume('drag');
       }
       if (!isEventComingFromWithinTextInput(e)) {
         if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'a') {
@@ -556,6 +609,9 @@ const App = (): JSX.Element => {
 
   useEffect(() => {
     currentGraph.current.showComments = showComments;
+    overlayCommentContainer.current.visible = showComments;
+    (viewport.current.getChildByName('debugGrid') as PIXI.Mesh).visible =
+      showComments;
   }, [showComments]);
 
   const moveToCenter = (bounds: PIXI.Rectangle) => {
