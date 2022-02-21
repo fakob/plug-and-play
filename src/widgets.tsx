@@ -463,8 +463,6 @@ export type NumberOutputWidgetProps = {
 export const NumberOutputWidget: React.FunctionComponent<
   NumberOutputWidgetProps
 > = (props) => {
-  const [data, setData] = useState(Number(props.data));
-
   return (
     <>
       <FormGroup
@@ -480,15 +478,11 @@ export const NumberOutputWidget: React.FunctionComponent<
           sx={{
             flexGrow: 1,
           }}
-          disabled={props.hasLink}
+          disabled={true}
           inputProps={{
             type: 'number',
           }}
-          onChange={(event) => {
-            potentiallyNotify(props.property, Number(event.target.value));
-            setData(Number(event.target.value));
-          }}
-          value={data || 0}
+          value={Number(props.data)}
         />
       </FormGroup>
     </>
