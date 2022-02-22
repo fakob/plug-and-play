@@ -167,6 +167,7 @@ export type SelectWidgetProps = {
   data: number;
   options: EnumStructure;
   randomMainColor: string;
+  onChange: (value: string) => void;
 };
 
 export const SelectWidget: React.FunctionComponent<SelectWidgetProps> = (
@@ -179,6 +180,7 @@ export const SelectWidget: React.FunctionComponent<SelectWidgetProps> = (
     const value = event.target.value;
     potentiallyNotify(props.property, value);
     setData(value);
+    props.onChange(value);
   };
 
   return (

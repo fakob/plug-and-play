@@ -6,6 +6,7 @@ import { NumberType } from './datatypes/numberType';
 import { EnumType } from './datatypes/enumType';
 
 export class MathFunction extends PPNode {
+  onOptionChange?: (value: string) => void;
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
     super(name, graph, {
       ...customArgs,
@@ -33,9 +34,18 @@ export class MathFunction extends PPNode {
     const staticMethodsWith0Parameters = ['random'];
     const staticMethodsWith2Parameters = ['atan2', 'imul', 'pow'];
 
+    this.onOptionChange = (value) => {
+      this.nodeName = 'Math.' + value;
+    };
+
     this.addInput('Input', new NumberType(false, -10, 10), 0, true);
     this.addInput('Input2', new NumberType(false, -10, 10), 0, false);
-    this.addInput('Option', new EnumType(mathOptions), 'abs', false);
+    this.addInput(
+      'Option',
+      new EnumType(mathOptions, this.onOptionChange),
+      'abs',
+      false
+    );
     this.addOutput('Output', new NumberType());
 
     this.name = 'Math function';
@@ -43,7 +53,6 @@ export class MathFunction extends PPNode {
 
     this.onExecute = async function (input) {
       const mathOption = input['Option'];
-      this.nodeName = 'Math.' + mathOption;
       if (staticProperties.includes(mathOption)) {
         // check for properties
         this.setOutputData('Output', Math[mathOption]);
