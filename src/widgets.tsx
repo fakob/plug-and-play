@@ -180,7 +180,9 @@ export const SelectWidget: React.FunctionComponent<SelectWidgetProps> = (
     const value = event.target.value;
     potentiallyNotify(props.property, value);
     setData(value);
-    props.onChange(value);
+    if (props.onChange) {
+      props.onChange(value);
+    }
   };
 
   return (
