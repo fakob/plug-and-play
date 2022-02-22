@@ -253,3 +253,8 @@
   max-height: 40vh;
   overflow: auto;
 }
+
+.snackbarContainerRoot.snackbarContainerRoot.snackbarContainerRoot {
+  right: 24px;
+  top: 24px;
+}

@@ -22,11 +22,11 @@ import {
   IconButton,
   Stack,
   TextField,
-  ThemeProvider,
   createFilterOptions,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { useSnackbar } from 'notistack';
 import Color from 'color';
 import { hri } from 'human-readable-ids';
 import TimeAgo from 'javascript-time-ago';
@@ -53,7 +53,6 @@ import {
   NODE_WIDTH,
   PLUGANDPLAY_ICON,
   RANDOMMAINCOLOR,
-  customTheme,
 } from './utils/constants';
 import { IGraphSearch, INodeSearch } from './utils/interfaces';
 import {
@@ -105,6 +104,7 @@ const App = (): JSX.Element => {
   pixiDebugRef.x = 4;
 
   const db = new GraphDatabase();
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const pixiApp = useRef<PIXI.Application | null>(null);
   const currentGraph = useRef<PPGraph | null>(null);
   const pixiContext = useRef<HTMLDivElement | null>(null);
@@ -189,7 +189,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         switch (extension) {
           case 'ppgraph':
             data = await response.text();
-            currentGraph.current.configure(JSON.parse(data), false);
+            await currentGraph.current.configure(JSON.parse(data), false);
             saveNewGraph(removeExtension(file.name));
             break;
           case 'csv':
@@ -248,6 +248,11 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         // currentGraph.current.selection.selectedNodes = newNodeSelection;
         currentGraph.current.selection.selectNodes(newNodeSelection);
         zoomToFitSelection();
+        enqueueSnackbar(
+          `${newNodeSelection.length} new ${
+            newNodeSelection.length === 1 ? 'node was' : 'nodes were'
+          } added`
+        );
       }
     })();
   }, []);
@@ -655,6 +660,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         `${graph?.name} - ${formatDate()}.ppgraph`,
         'text/plain'
       );
+      enqueueSnackbar('Playground was saved to your Download folder');
     }).catch((e) => {
       console.log(e.stack || e);
     });
@@ -672,6 +678,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       setActionObject({ id: graphId, name: newName });
       updateGraphSearchItems();
       console.log(`Renamed graph: ${id} to ${newName}`);
+      enqueueSnackbar(`Playground was renamed to ${newName}`);
     }).catch((e) => {
       console.log(e.stack || e);
     });
@@ -691,6 +698,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       const id = await db.graphs.where('id').equals(graphId).delete();
       updateGraphSearchItems();
       console.log(`Deleted graph: ${id}`);
+      enqueueSnackbar('Playground was deleted');
     }).catch((e) => {
       console.log(e.stack || e);
     });
@@ -728,6 +736,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         setGraphSearchActiveItem({ id, name });
 
         console.log(`Saved new graph: ${indexId}`);
+        enqueueSnackbar('New playground was saved');
       } else {
         const indexId = await db.graphs
           .where('id')
@@ -737,6 +746,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
             graphData: serializedGraph,
           });
         console.log(`Updated currentGraph: ${indexId}`);
+        enqueueSnackbar('Playground was saved');
       }
     }).catch((e) => {
       console.log(e.stack || e);
@@ -763,7 +773,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         }
 
         const graphData = loadedGraph.graphData;
-        currentGraph.current.configure(graphData, false);
+        await currentGraph.current.configure(graphData, false);
 
         // update loadedGraphId
         await db.settings.put({
@@ -779,6 +789,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           id: loadedGraph.id,
           name: loadedGraph.name,
         });
+        enqueueSnackbar(`${loadedGraph.name} was loaded`);
       } else {
         console.log('No saved graphData');
       }
@@ -797,7 +808,20 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     console.log(fileData);
     currentGraph.current.configure(fileData);
     const newName = `${removeExtension(remoteGraphsRef.current[id])} - copy`; // remove .ppgraph extension and add copy
-    saveNewGraph(newName);
+    enqueueSnackbar('Remote playground was loaded', {
+      variant: 'default',
+      persist: true,
+      action: (key) => (
+        <>
+          <Button size="small" onClick={() => saveNewGraph(newName)}>
+            Save
+          </Button>
+          <Button size="small" onClick={() => closeSnackbar(key)}>
+            Dismiss
+          </Button>
+        </>
+      ),
+    });
   }
 
   const handleGraphItemSelect = (event, selected: IGraphSearch) => {
@@ -965,7 +989,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     const text = option.name;
     const title = isRemote // hover title tag
       ? `${option.name}
-NOTE: opening a remote playground creates a local copy`
+NOTE: save the playground after loading, if you want to make changes to it`
       : option.name;
     const optionLabel = option.label;
     const itemToReturn = option.isDisabled ? (
@@ -1020,7 +1044,7 @@ NOTE: opening a remote playground creates a local copy`
               },
             }}
           >
-            Creates a local copy
+            Load remote playground
           </Box>
         )}
         {!isRemote && (
@@ -1130,197 +1154,197 @@ NOTE: opening a remote playground creates a local copy`
 
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
-      <ThemeProvider theme={customTheme}>
-        <div
-          // close open context menu again on click
-          onClick={() => {
-            isGraphContextMenuOpen && setIsGraphContextMenuOpen(false);
-            isNodeContextMenuOpen && setIsNodeContextMenuOpen(false);
-            isGraphSearchOpen && setIsGraphSearchOpen(false);
-          }}
-        >
-          <div {...getRootProps({ style })}>
-            <input {...getInputProps()} />
-            <Dialog
-              open={showDeleteGraph}
-              onClose={() => setShowDeleteGraph(false)}
-              aria-labelledby="alert-dialog-title"
-              aria-describedby="alert-dialog-description"
-              fullWidth
-              maxWidth="sm"
-            >
-              <DialogTitle id="alert-dialog-title">
-                {'Delete Graph?'}
-              </DialogTitle>
-              <DialogContent>
-                <DialogContentText id="alert-dialog-description">
-                  Are you sure you want to delete
-                  <br />
-                  <b>{`${actionObject?.name}`}</b>?
-                </DialogContentText>
-              </DialogContent>
-              <DialogActions>
-                <Button onClick={() => setShowDeleteGraph(false)} autoFocus>
-                  Cancel
-                </Button>
-                <Button
-                  onClick={() => {
-                    setShowDeleteGraph(false);
-                    deleteGraph(actionObject.id);
-                  }}
-                >
-                  Delete
-                </Button>
-              </DialogActions>
-            </Dialog>
-            <Dialog
-              open={showEdit}
-              onClose={() => setShowEdit(false)}
-              fullWidth
-              maxWidth="sm"
-            >
-              <DialogTitle>Edit playground details</DialogTitle>
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  submitEditDialog();
+      <div
+        // close open context menu again on click
+        onClick={() => {
+          isGraphContextMenuOpen && setIsGraphContextMenuOpen(false);
+          isNodeContextMenuOpen && setIsNodeContextMenuOpen(false);
+          isGraphSearchOpen && setIsGraphSearchOpen(false);
+        }}
+      >
+        <div {...getRootProps({ style })}>
+          <input {...getInputProps()} />
+          <Dialog
+            open={showDeleteGraph}
+            onClose={() => setShowDeleteGraph(false)}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+            fullWidth
+            maxWidth="sm"
+          >
+            <DialogTitle id="alert-dialog-title">{'Delete Graph?'}</DialogTitle>
+            <DialogContent>
+              <DialogContentText id="alert-dialog-description">
+                Are you sure you want to delete
+                <br />
+                <b>{`${actionObject?.name}`}</b>?
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setShowDeleteGraph(false)} autoFocus>
+                Cancel
+              </Button>
+              <Button
+                onClick={() => {
+                  setShowDeleteGraph(false);
+                  deleteGraph(actionObject.id);
                 }}
               >
-                <DialogContent>
-                  <TextField
-                    id="playground-name-input"
-                    autoFocus
-                    margin="dense"
-                    label="Name of playground"
-                    fullWidth
-                    variant="standard"
-                    defaultValue={`${actionObject?.name}`}
-                    placeholder={`${actionObject?.name}`}
+                Delete
+              </Button>
+            </DialogActions>
+          </Dialog>
+          <Dialog
+            open={showEdit}
+            onClose={() => setShowEdit(false)}
+            fullWidth
+            maxWidth="sm"
+          >
+            <DialogTitle>Edit playground details</DialogTitle>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                submitEditDialog();
+              }}
+            >
+              <DialogContent>
+                <TextField
+                  id="playground-name-input"
+                  autoFocus
+                  margin="dense"
+                  label="Name of playground"
+                  fullWidth
+                  variant="standard"
+                  defaultValue={`${actionObject?.name}`}
+                  placeholder={`${actionObject?.name}`}
+                />
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={() => setShowEdit(false)}>Cancel</Button>
+                <Button
+                  onClick={() => {
+                    submitEditDialog();
+                  }}
+                >
+                  Save
+                </Button>
+              </DialogActions>
+            </form>
+          </Dialog>
+          {isGraphContextMenuOpen && (
+            <GraphContextMenu
+              controlOrMetaKey={controlOrMetaKey}
+              contextMenuPosition={contextMenuPosition}
+              currentGraph={currentGraph}
+              setIsGraphSearchOpen={setIsGraphSearchOpen}
+              openNodeSearch={openNodeSearch}
+              setShowEdit={setShowEdit}
+              loadGraph={loadGraph}
+              saveGraph={saveGraph}
+              saveNewGraph={saveNewGraph}
+              downloadGraph={downloadGraph}
+              uploadGraph={uploadGraph}
+              showComments={showComments}
+              setShowComments={setShowComments}
+              zoomToFitSelection={zoomToFitSelection}
+            />
+          )}
+          {isNodeContextMenuOpen && (
+            <NodeContextMenu
+              controlOrMetaKey={controlOrMetaKey}
+              contextMenuPosition={contextMenuPosition}
+              currentGraph={currentGraph}
+              zoomToFitSelection={zoomToFitSelection}
+            />
+          )}
+          <PixiContainer ref={pixiContext} />
+          <GraphOverlay
+            currentGraph={currentGraph.current}
+            randomMainColor={RANDOMMAINCOLOR}
+          />
+          <img
+            className={styles.plugAndPlaygroundIcon}
+            style={{
+              backgroundColor: RANDOMMAINCOLOR,
+            }}
+            src={PLUGANDPLAY_ICON}
+            onClick={() => {
+              setContextMenuPosition([80, 40]);
+              setIsGraphContextMenuOpen(true);
+            }}
+          />
+          {isCurrentGraphLoaded && (
+            <>
+              <Autocomplete
+                className={styles.graphSearch}
+                freeSolo
+                openOnFocus
+                selectOnFocus
+                autoHighlight
+                clearOnBlur
+                isOptionEqualToValue={(option, value) =>
+                  option.title === value.title
+                }
+                // open
+                PopperComponent={(props) => <GraphSearchPopper {...props} />}
+                value={graphSearchActiveItem}
+                getOptionDisabled={(option) => option.isDisabled}
+                getOptionLabel={(option) => option.name}
+                options={graphSearchItems}
+                sx={{ width: 'calc(65vw - 120px)' }}
+                onChange={handleGraphItemSelect}
+                filterOptions={filterGraph}
+                renderOption={renderGraphItem}
+                renderInput={(props) => (
+                  <GraphSearchInput
+                    {...props}
+                    inputRef={graphSearchInput}
+                    randommaincolor={RANDOMMAINCOLOR}
                   />
-                </DialogContent>
-                <DialogActions>
-                  <Button onClick={() => setShowEdit(false)}>Cancel</Button>
-                  <Button
-                    onClick={() => {
-                      submitEditDialog();
-                    }}
-                  >
-                    Save
-                  </Button>
-                </DialogActions>
-              </form>
-            </Dialog>
-            {isGraphContextMenuOpen && (
-              <GraphContextMenu
-                controlOrMetaKey={controlOrMetaKey}
-                contextMenuPosition={contextMenuPosition}
-                currentGraph={currentGraph}
-                setIsGraphSearchOpen={setIsGraphSearchOpen}
-                openNodeSearch={openNodeSearch}
-                setShowEdit={setShowEdit}
-                loadGraph={loadGraph}
-                saveGraph={saveGraph}
-                saveNewGraph={saveNewGraph}
-                downloadGraph={downloadGraph}
-                uploadGraph={uploadGraph}
-                showComments={showComments}
-                setShowComments={setShowComments}
-                zoomToFitSelection={zoomToFitSelection}
+                )}
               />
-            )}
-            {isNodeContextMenuOpen && (
-              <NodeContextMenu
-                controlOrMetaKey={controlOrMetaKey}
-                contextMenuPosition={contextMenuPosition}
-                currentGraph={currentGraph}
-                zoomToFitSelection={zoomToFitSelection}
-              />
-            )}
-            <PixiContainer ref={pixiContext} />
-            <GraphOverlay
-              currentGraph={currentGraph.current}
-              randomMainColor={RANDOMMAINCOLOR}
-            />
-            <img
-              className={styles.plugAndPlaygroundIcon}
-              style={{
-                backgroundColor: RANDOMMAINCOLOR,
-              }}
-              src={PLUGANDPLAY_ICON}
-              onClick={() => {
-                setContextMenuPosition([80, 40]);
-                setIsGraphContextMenuOpen(true);
-              }}
-            />
-            {isCurrentGraphLoaded && (
-              <>
+              <div
+                style={{
+                  visibility: isNodeSearchVisible ? undefined : 'hidden',
+                  position: 'relative',
+                  left: `${contextMenuPosition[0]}px`,
+                  top: `${contextMenuPosition[1]}px`,
+                }}
+              >
                 <Autocomplete
-                  className={styles.graphSearch}
                   freeSolo
                   openOnFocus
                   selectOnFocus
                   autoHighlight
                   clearOnBlur
+                  // open
                   isOptionEqualToValue={(option, value) =>
                     option.title === value.title
                   }
-                  // open
-                  PopperComponent={(props) => <GraphSearchPopper {...props} />}
-                  value={graphSearchActiveItem}
-                  getOptionDisabled={(option) => option.isDisabled}
+                  value={nodeSearchActiveItem} // does not seem to work. why?
                   getOptionLabel={(option) => option.name}
-                  options={graphSearchItems}
-                  sx={{ width: 'calc(65vw - 120px)' }}
-                  onChange={handleGraphItemSelect}
-                  filterOptions={filterGraph}
-                  renderOption={renderGraphItem}
+                  options={getNodes()}
+                  sx={{
+                    maxWidth: '50vw',
+                    width: '400px',
+                    minWidth: '200px',
+                  }}
+                  onChange={handleNodeItemSelect}
+                  filterOptions={filterNode}
+                  renderOption={renderNodeItem}
                   renderInput={(props) => (
-                    <GraphSearchInput
+                    <NodeSearchInput
                       {...props}
-                      inputRef={graphSearchInput}
+                      inputRef={nodeSearchInput}
                       randommaincolor={RANDOMMAINCOLOR}
                     />
                   )}
                 />
-                <div
-                  style={{
-                    visibility: isNodeSearchVisible ? undefined : 'hidden',
-                    position: 'relative',
-                    left: `${contextMenuPosition[0]}px`,
-                    top: `${contextMenuPosition[1]}px`,
-                  }}
-                >
-                  <Autocomplete
-                    freeSolo
-                    openOnFocus
-                    selectOnFocus
-                    autoHighlight
-                    clearOnBlur
-                    // open
-                    isOptionEqualToValue={(option, value) =>
-                      option.title === value.title
-                    }
-                    value={nodeSearchActiveItem} // does not seem to work. why?
-                    getOptionLabel={(option) => option.name}
-                    options={getNodes()}
-                    sx={{ maxWidth: '50vw', width: '400px', minWidth: '200px' }}
-                    onChange={handleNodeItemSelect}
-                    filterOptions={filterNode}
-                    renderOption={renderNodeItem}
-                    renderInput={(props) => (
-                      <NodeSearchInput
-                        {...props}
-                        inputRef={nodeSearchInput}
-                        randommaincolor={RANDOMMAINCOLOR}
-                      />
-                    )}
-                  />
-                </div>
-              </>
-            )}
-          </div>
+              </div>
+            </>
+          )}
         </div>
-      </ThemeProvider>
+      </div>
     </ErrorBoundary>
   );
 };
