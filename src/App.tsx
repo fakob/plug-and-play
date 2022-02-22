@@ -810,7 +810,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     const newName = `${removeExtension(remoteGraphsRef.current[id])} - copy`; // remove .ppgraph extension and add copy
     enqueueSnackbar('Remote playground was loaded', {
       variant: 'default',
-      persist: true,
+      autoHideDuration: 20000,
       action: (key) => (
         <>
           <Button size="small" onClick={() => saveNewGraph(newName)}>
