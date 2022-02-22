@@ -40,6 +40,14 @@ export class Label extends PureNode {
       showLabels: false,
     });
 
+    const canvas = this.graph.viewport.getChildByName(
+      'foregroundCanvas'
+    ) as PIXI.Container;
+    this._refTextStyle = new PIXI.TextStyle();
+    const basicText = new PIXI.Text('', this._refTextStyle);
+    this._refText = canvas.addChild(basicText);
+    this._refText.visible = false;
+
     this.addOutput('Output', new StringType(), false);
     this.addInput('Input', new StringType(), customArgs?.data ?? '', false);
     this.addInput(
@@ -67,17 +75,6 @@ export class Label extends PureNode {
     // when the Node is added, focus it so one can start writing
     this.onNodeAdded = () => {
       this.currentInput = null;
-
-      const canvas = this.graph.viewport.getChildByName(
-        'foregroundCanvas'
-      ) as PIXI.Container;
-
-      this._refTextStyle = new PIXI.TextStyle();
-      const basicText = new PIXI.Text('', this._refTextStyle);
-
-      this._refText = canvas.addChild(basicText);
-
-      this._refText.visible = false;
       this.createInputElement();
     };
 
