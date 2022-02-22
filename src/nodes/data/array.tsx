@@ -93,6 +93,7 @@ export class ArrayPush extends PureNode {
 }
 
 export class ArrayMethod extends PureNode {
+  onOptionChange?: (value: string) => void;
   constructor(name: string, graph: Graph, customArgs: CustomArgs) {
     super(name, graph, {
       ...customArgs,
@@ -109,10 +110,14 @@ export class ArrayMethod extends PureNode {
         };
       });
 
+    this.onOptionChange = (value) => {
+      this.nodeName = 'Array.' + value;
+    };
+
     this.addInput('Array', new ArrayType());
     this.addInput(
       'Method',
-      new EnumType(arrayMethodsArrayOptions),
+      new EnumType(arrayMethodsArrayOptions, this.onOptionChange),
       'map',
       false
     );
@@ -125,7 +130,7 @@ export class ArrayMethod extends PureNode {
     this.addOutput('Output', new AnyType());
 
     this.name = 'Array method';
-    this.description = 'Apply a method to the array';
+    this.description = 'Perform common array operations';
 
     this.onExecute = async function (
       inputObject: any,
@@ -133,7 +138,6 @@ export class ArrayMethod extends PureNode {
     ) {
       const array = inputObject['Array'];
       const arrayMethod = inputObject['Method'];
-      this.nodeName = `Array.${arrayMethod}`;
       const callback = inputObject['Callback'];
       const output = array[arrayMethod](eval(callback));
       outputObject['Output'] = output;
