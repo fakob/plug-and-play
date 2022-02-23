@@ -296,7 +296,14 @@ export default class Socket extends PIXI.Container {
   _onPointerDown(event: PIXI.InteractionEvent): void {
     console.log('_onPointerDown');
     if (event.target.name === 'SocketRef') {
-      this.getGraph().clickedSocketRef = event.target.parent as Socket;
+      if (event.data.button === 2) {
+        this.getGraph().checkIfSocketHasConnectionAndDeleteIt(
+          this,
+          this.isInput()
+        );
+      } else {
+        this.getGraph().clickedSocketRef = event.target.parent as Socket;
+      }
     } else if (event.target.name === 'SocketNameRef') {
       this.getGraph().clickedSocketNameRef = event.target.parent as Socket;
     }
