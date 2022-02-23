@@ -130,7 +130,10 @@ const App = (): JSX.Element => {
     useState<IGraphSearch | null>(null);
 
   const filterOptionGraph = createFilterOptions<IGraphSearch>();
-  const filterOptionNode = createFilterOptions<INodeSearch>();
+  const filterOptionNode = createFilterOptions<INodeSearch>({
+    stringify: (option) =>
+      `${option.title} ${option.name} ${option.description}`,
+  });
 
   // dialogs
   const [showEdit, setShowEdit] = useState(false);
