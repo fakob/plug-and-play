@@ -667,6 +667,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         name: newName,
       });
       setActionObject({ id: graphId, name: newName });
+      updateGraphSearchItems();
       console.log(`Renamed graph: ${id} to ${newName}`);
     }).catch((e) => {
       console.log(e.stack || e);
@@ -685,6 +686,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         });
       }
       const id = await db.graphs.where('id').equals(graphId).delete();
+      updateGraphSearchItems();
       console.log(`Deleted graph: ${id}`);
     }).catch((e) => {
       console.log(e.stack || e);
