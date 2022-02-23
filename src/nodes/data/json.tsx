@@ -3,11 +3,13 @@ import { JSONPath } from 'jsonpath-plus';
 import FloatingJsonPathPicker from '../../components/FloatingJsonPathPicker';
 import PureNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
+import { put } from '../../utils/utils';
 import { SOCKET_TYPE } from '../../utils/constants';
 import { JSONType } from '../datatypes/jsonType';
 import { StringType } from '../datatypes/stringType';
 
 const JSONName = 'JSON';
+const JSONInsert = 'Insert';
 const JSONParamName = 'Name 1';
 const outValueName = 'Value';
 
@@ -68,6 +70,43 @@ export class JSONGet extends PureNode {
   //     },
   //   });
   // }
+}
+
+export class JSONSet extends PureNode {
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(SOCKET_TYPE.IN, JSONName, new JSONType()),
+      new Socket(
+        SOCKET_TYPE.IN,
+        JSONParamName,
+        new StringType(),
+        undefined,
+        undefined,
+        {
+          inspectorInjection: {
+            reactComponent: FloatingJsonPathPicker,
+            props: {
+              jsonSocketName: JSONName,
+              jsonPathSocketName: JSONParamName,
+            },
+          },
+        }
+      ),
+      new Socket(SOCKET_TYPE.IN, JSONInsert, new JSONType()),
+      new Socket(SOCKET_TYPE.OUT, outValueName, new JSONType()),
+    ];
+  }
+  protected async onExecute(
+    inputObject: unknown,
+    outputObject: Record<string, unknown>
+  ): Promise<void> {
+    const current = inputObject[JSONName];
+    const path = inputObject[JSONParamName];
+    const insert = inputObject[JSONInsert];
+    if (current) {
+      outputObject[outValueName] = put(current, path, insert);
+    }
+  }
 }
 
 export class JSONKeys extends PureNode {
