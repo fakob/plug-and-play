@@ -18,7 +18,7 @@ import { StringType } from './datatypes/stringType';
 import { ImageType } from './datatypes/imageType';
 import { TRgba } from '../utils/interfaces';
 
-export const availableShapes: EnumStructure = [
+const availableShapes: EnumStructure = [
   {
     text: 'Circle',
     value: 'Circle',
