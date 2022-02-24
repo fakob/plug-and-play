@@ -328,7 +328,11 @@ export default class PPGraph {
           'of',
           this.overInputRef.parent.name
         );
-        this.connect(this.clickedSocketRef, this.overInputRef, this.viewport);
+        await this.connect(
+          this.clickedSocketRef,
+          this.overInputRef,
+          this.viewport
+        );
 
         this.clearTempConnection();
       } else {
@@ -733,7 +737,7 @@ export default class PPGraph {
           link.targetNodeId,
           link.targetSocketIndex
         );
-        this.connect(outputRef, inputRef, this.viewport, false);
+        await this.connect(outputRef, inputRef, this.viewport, false);
       });
     } catch (error) {
       configureError = error;
