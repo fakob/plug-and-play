@@ -315,7 +315,7 @@ export default class PPNode extends PIXI.Container {
       SOCKET_TYPE.OUT,
       name,
       toUseType,
-      null,
+      null, // need to get rid of this
       visible
     );
     const outputSocketRef = this.addChild(outputSocket);
@@ -1153,6 +1153,10 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
 
     // remove added listener from graph.viewport
     this.graph.viewport.removeListener('moved', this.onViewportMoveHandler);
+
+    this.getAllSockets().forEach((socket) => {
+      socket.links.forEach((link) => link.delete());
+    });
 
     this.onNodeRemoved();
   }

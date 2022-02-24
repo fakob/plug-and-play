@@ -66,6 +66,16 @@ export default class PPLink extends PIXI.Container {
     this.updateConnection();
   }
 
+  delete(): void {
+    if (this.getTarget()) {
+      this.getTarget().removeLink(this);
+      this.getTarget().getNode().executeOptimizedChain();
+    }
+    this.getSource().removeLink(this);
+    this.getSource().getGraph().connectionContainer.removeChild(this);
+    delete this.getSource().getGraph()._links[this.id];
+  }
+
   _drawConnection(
     viewport: Viewport,
     connection: PIXI.Graphics,

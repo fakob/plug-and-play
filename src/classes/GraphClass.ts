@@ -52,15 +52,17 @@ export default class PPGraph {
 
   ticking: boolean;
 
-  onRightClick:
-    | ((event: PIXI.InteractionEvent, target: PIXI.DisplayObject) => void)
-    | null; // called when the graph is right clicked
-  onOpenNodeSearch: ((pos: PIXI.Point) => void) | null; // called node search should be openend
-  onOpenSocketInspector:
-    | ((pos: PIXI.Point | null, data: unknown | null) => void)
-    | null; // called when socket inspector should be opened
+  onRightClick: (
+    event: PIXI.InteractionEvent,
+    target: PIXI.DisplayObject
+  ) => void = () => {}; // called when the graph is right clicked
+  onOpenNodeSearch: (pos: PIXI.Point) => void = () => {}; // called node search should be openend
+  onOpenSocketInspector: (
+    pos: PIXI.Point | null,
+    data: unknown | null
+  ) => void = () => {}; // called when socket inspector should be opened
   onCloseSocketInspector: () => void; // called when socket inspector should be closed
-  onViewportDragging: ((isDraggingViewport: boolean) => void) | null; // called when the viewport is being dragged
+  onViewportDragging: (isDraggingViewport: boolean) => void = () => {}; // called when the viewport is being dragged
 
   onViewportMoveHandler: (event?: PIXI.InteractionEvent) => void;
 
@@ -151,16 +153,14 @@ export default class PPGraph {
     const target = event.target;
     console.log(target, event.data.originalEvent);
 
-    if (this.onRightClick) {
-      this.onRightClick(event, target);
-    }
+    this.onRightClick(event, target);
   }
 
   _onPointerDoubleClicked(event: PIXI.InteractionEvent): void {
     console.log('_onPointerDoubleClicked');
     event.stopPropagation();
     const target = event.target;
-    if (target instanceof Viewport && this.onOpenNodeSearch) {
+    if (target instanceof Viewport) {
       this.onOpenNodeSearch(event.data.global);
     }
   }
@@ -263,7 +263,7 @@ export default class PPGraph {
     if (this.clickedSocketRef !== null && !this.clickedSocketRef.isInput()) {
       // remove original link
       if (this.movingLink !== null) {
-        this.deleteLink(this.movingLink);
+        this.movingLink.delete();
         this.movingLink = null;
       }
 
@@ -313,30 +313,28 @@ export default class PPGraph {
     // unsubscribe from pointermove
     this.viewport.removeListener('pointermove', this.onViewportMoveHandler);
 
-    if (this !== null) {
-      if (this.clickedSocketRef !== null) {
-        // check if over input
-        console.log(this.overInputRef);
-        if (this.overInputRef !== null && !this.clickedSocketRef.isInput()) {
-          console.log(
-            'connecting Output:',
-            this.clickedSocketRef.name,
-            'of',
-            this.clickedSocketRef.parent.name,
-            'with Input:',
-            this.overInputRef.name,
-            'of',
-            this.overInputRef.parent.name
-          );
-          this.connect(this.clickedSocketRef, this.overInputRef, this.viewport);
+    if (this.clickedSocketRef !== null) {
+      // check if over input
+      console.log(this.overInputRef);
+      if (this.overInputRef !== null && !this.clickedSocketRef.isInput()) {
+        console.log(
+          'connecting Output:',
+          this.clickedSocketRef.name,
+          'of',
+          this.clickedSocketRef.parent.name,
+          'with Input:',
+          this.overInputRef.name,
+          'of',
+          this.overInputRef.parent.name
+        );
+        this.connect(this.clickedSocketRef, this.overInputRef, this.viewport);
 
-          this.clearTempConnection();
-        } else {
-          this.clickedSocketRef.getNode().outputUnplugged();
-          console.log('not over input -> open node search');
-          if (this.onOpenNodeSearch) {
-            this.onOpenNodeSearch(event.data.global);
-          }
+        this.clearTempConnection();
+      } else {
+        this.clickedSocketRef.getNode().outputUnplugged();
+        console.log('not over input -> open node search');
+        if (this.onOpenNodeSearch) {
+          this.onOpenNodeSearch(event.data.global);
         }
       }
     }
@@ -351,7 +349,6 @@ export default class PPGraph {
   }
 
   set showComments(value: boolean) {
-    this._showComments = value;
     this.commentContainer.visible = value;
   }
 
@@ -552,25 +549,9 @@ export default class PPGraph {
     Object.values(this._links).forEach((link) => {
       if (isInput ? link.target === socket : link.source === socket) {
         console.log('deleting link:', isInput ? link.target : link.source);
-        this.deleteLink(link);
+        link.delete();
       }
     });
-  }
-
-  deleteLink(link: PPLink): boolean {
-    // remove link from source and target socket
-    link.getTarget().removeLink();
-    link.getSource().removeLink(link);
-
-    // remove link from graph
-    this.connectionContainer.removeChild(
-      this._links[link.id] as PIXI.Container
-    );
-
-    // update target node
-    link.getTarget()?.getNode()?.execute();
-
-    return delete this._links[link.id];
   }
 
   clear(): void {
@@ -953,18 +934,6 @@ export default class PPGraph {
   }
 
   removeNode(node: PPNode): void {
-    //disconnect inputs
-    for (let i = 0; i < node.inputSocketArray.length; i++) {
-      const inputSocket = node.inputSocketArray[i];
-      this.checkIfSocketHasConnectionAndDeleteIt(inputSocket, true);
-    }
-
-    //disconnect outputs
-    for (let i = 0; i < node.outputSocketArray.length; i++) {
-      const outputSocket = node.outputSocketArray[i];
-      this.checkIfSocketHasConnectionAndDeleteIt(outputSocket, false);
-    }
-
     node.destroy();
     delete this.nodes[node.id];
   }
@@ -973,11 +942,6 @@ export default class PPGraph {
     const storedSelection = this.selection.selectedNodes;
     console.log(storedSelection);
     this.selection.deselectAllNodesAndResetSelection();
-
-    // loop through storedSelection backwards
-    // as the array I am iterating on gets mutated as well
-    for (let i = storedSelection.length - 1; i >= 0; i--) {
-      this.removeNode(storedSelection[i]);
-    }
+    storedSelection.forEach((node) => this.removeNode(node));
   }
 }
