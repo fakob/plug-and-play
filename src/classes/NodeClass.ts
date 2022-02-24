@@ -377,12 +377,6 @@ export default class PPNode extends PIXI.Container {
             item.visible
           )
         );
-        /*this.addInput(
-            item.name,
-            deSerializeType(item.dataType),
-            item.data,
-            item.visible ?? true
-          );*/
       }
     });
     this.drawNodeShape();
