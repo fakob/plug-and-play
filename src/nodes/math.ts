@@ -88,94 +88,125 @@ export class MathFunction extends PureNode {
   }
 }
 
-export class Add extends PureNode {
+class SimpleMathOperation extends PureNode {
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
     super(name, graph, {
       ...customArgs,
       color: TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM),
     });
 
-    this.addInput('Input', new NumberType(false, -10, 10), 0, true);
-    this.addInput('Input2', new NumberType(false, -10, 10), 0, true);
-    this.addOutput('Output', new NumberType());
+    this.name = this.getName();
+    this.description = this.getDescription();
+  }
+  protected async onExecute(
+    inputObject: any,
+    outputObject: Record<string, unknown>
+  ): Promise<void> {
+    const a = inputObject['Input'];
+    const b = inputObject['Input 2'];
+    const result = this.getOperation(a, b);
+    outputObject['Output'] = result;
+  }
 
-    this.name = 'Add';
-    this.description = 'Adds 2 numbers or strings';
+  protected getDefaultIO(): Socket[] {
+    return [
+      this.getInput1(),
+      this.getInput2(),
+      new Socket(SOCKET_TYPE.OUT, 'Output', new NumberType()),
+    ];
+  }
 
-    this.onExecute = async function (input, output) {
-      const a = input['Input'];
-      const b = input['Input2'];
-      const result = a + b;
-      output['Output'] = result;
-    };
+  protected getInput1(): Socket {
+    return new Socket(
+      SOCKET_TYPE.IN,
+      'Input',
+      new NumberType(false, -10, 10),
+      0,
+      true
+    );
+  }
+  protected getInput2(): Socket {
+    return new Socket(
+      SOCKET_TYPE.IN,
+      'Input 2',
+      new NumberType(false, -10, 10),
+      0,
+      true
+    );
+  }
+  protected getName(): string {
+    return 'MathOperation';
+  }
+  protected getDescription(): string {
+    return 'Does a math operation to two numbers or strings';
+  }
+
+  protected getOperation(a: any, b: any): any {
+    return a;
   }
 }
 
-export class Subtract extends PureNode {
-  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, {
-      ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM),
-    });
-
-    this.addInput('Input', new NumberType(false, -10, 10), 0, true);
-    this.addInput('Input2', new NumberType(false, -10, 10), 0, true);
-    this.addOutput('Output', new NumberType());
-
-    this.name = 'Subtract';
-    this.description = 'Subtracts 2 numbers';
-
-    this.onExecute = async function (input, output) {
-      const a = input['Input'];
-      const b = input['Input2'];
-      const result = a - b;
-      output['Output'] = result;
-    };
+export class Add extends SimpleMathOperation {
+  protected getName(): string {
+    return 'Add';
+  }
+  protected getDescription(): string {
+    return 'Adds 2 numbers or strings';
+  }
+  protected getOperation(a: any, b: any): any {
+    return a + b;
   }
 }
 
-export class Multiply extends PureNode {
-  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, {
-      ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM),
-    });
-
-    this.addInput('Input', new NumberType(false, -10, 10), 0, true);
-    this.addInput('Input2', new NumberType(false, 0, 10), 1, true);
-    this.addOutput('Output', new NumberType());
-
-    this.name = 'Multiply';
-    this.description = 'Multiplys 2 numbers';
-
-    this.onExecute = async function (input, output) {
-      const a = input['Input'];
-      const b = input['Input2'];
-      const result = a * b;
-      output['Output'] = result;
-    };
+export class Subtract extends SimpleMathOperation {
+  protected getName(): string {
+    return 'Subtract';
+  }
+  protected getDescription(): string {
+    return 'Subtracts 2 numbers';
+  }
+  protected getOperation(a: any, b: any): any {
+    return a - b;
   }
 }
 
-export class Divide extends PureNode {
-  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, {
-      ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM),
-    });
-
-    this.addInput('Input', new NumberType(false, -10, 10), 0, true);
-    this.addInput('Input2', new NumberType(false, 0.1, 10), 1, true);
-    this.addOutput('Output', new NumberType());
-
-    this.name = 'Divide';
-    this.description = 'Divides 2 numbers';
-
-    this.onExecute = async function (input, output) {
-      const a = input['Input'];
-      const b = input['Input2'];
-      const result = a / b;
-      output['Output'] = result;
-    };
+export class Multiply extends SimpleMathOperation {
+  protected getName(): string {
+    return 'Multiply';
+  }
+  protected getDescription(): string {
+    return 'Multiplies 2 numbers';
+  }
+  protected getOperation(a: any, b: any): any {
+    return a * b;
+  }
+  protected getInput2(): Socket {
+    return new Socket(
+      SOCKET_TYPE.IN,
+      'Input 2',
+      new NumberType(false, 0, 10),
+      1,
+      true
+    );
+  }
+}
+export class Divide extends SimpleMathOperation {
+  protected getName(): string {
+    return 'Divide';
+  }
+  protected getDescription(): string {
+    return 'Divides 2 numbers';
+  }
+  protected getOperation(a: any, b: any): any {
+    return a / b;
+  }
+  protected getInput2(): Socket {
+    return new Socket(
+      SOCKET_TYPE.IN,
+      'Input 2',
+      new NumberType(false, 0.1, 10),
+      1,
+      true
+    );
   }
 }
