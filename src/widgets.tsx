@@ -167,6 +167,7 @@ export type SelectWidgetProps = {
   data: number;
   options: EnumStructure;
   randomMainColor: string;
+  onChange: (value: string) => void;
 };
 
 export const SelectWidget: React.FunctionComponent<SelectWidgetProps> = (
@@ -179,6 +180,9 @@ export const SelectWidget: React.FunctionComponent<SelectWidgetProps> = (
     const value = event.target.value;
     potentiallyNotify(props.property, value);
     setData(value);
+    if (props.onChange) {
+      props.onChange(value);
+    }
   };
 
   return (
@@ -448,5 +452,43 @@ export const DefaultOutputWidget: React.FunctionComponent<
       randomMainColor={props.randomMainColor}
       editable={false}
     />
+  );
+};
+
+export type NumberOutputWidgetProps = {
+  property: Socket;
+  index: number;
+  isInput: boolean;
+  hasLink: boolean;
+  data: any;
+  randomMainColor?: string;
+};
+
+export const NumberOutputWidget: React.FunctionComponent<
+  NumberOutputWidgetProps
+> = (props) => {
+  return (
+    <>
+      <FormGroup
+        row={true}
+        sx={{
+          display: 'flex',
+          flexWrap: 'nowrap',
+        }}
+      >
+        <TextField
+          variant="filled"
+          label="Value"
+          sx={{
+            flexGrow: 1,
+          }}
+          disabled={true}
+          inputProps={{
+            type: 'number',
+          }}
+          value={Number(props.data)}
+        />
+      </FormGroup>
+    </>
   );
 };

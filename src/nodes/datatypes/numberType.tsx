@@ -1,6 +1,10 @@
 import React from 'react';
 import { TRgba } from '../../utils/interfaces';
-import { SliderWidget, SliderWidgetProps } from '../../widgets';
+import {
+  NumberOutputWidget,
+  SliderWidget,
+  SliderWidgetProps,
+} from '../../widgets';
 import { AbstractType } from './abstractType';
 
 export class NumberType extends AbstractType {
@@ -33,6 +37,13 @@ export class NumberType extends AbstractType {
     return <SliderWidget {...sliderProps} />;
   };
 
+  getOutputWidget = (props: any): any => {
+    if (typeof props.data !== 'number') {
+      props.data = Number(props.data);
+    }
+    return <NumberOutputWidget {...props} />;
+  };
+
   getName(): string {
     return 'Number';
   }
@@ -43,5 +54,9 @@ export class NumberType extends AbstractType {
 
   getColor(): TRgba {
     return new TRgba(128, 229, 229);
+  }
+
+  parse(data: any): any {
+    return Number(data);
   }
 }

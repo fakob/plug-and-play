@@ -40,8 +40,8 @@ export class Label extends PureNode {
       showLabels: false,
     });
 
-    this.addOutput('text', new StringType(), false);
-    this.addInput('text', new StringType(), customArgs?.data ?? '', false);
+    this.addOutput('Output', new StringType(), false);
+    this.addInput('Input', new StringType(), customArgs?.data ?? '', false);
     this.addInput(
       'fontSize',
       new NumberType(true, 1),
@@ -62,7 +62,7 @@ export class Label extends PureNode {
     );
 
     this.name = 'Label';
-    this.description = 'Adds text';
+    this.description = 'Adds a text label';
 
     // when the Node is added, focus it so one can start writing
     this.onNodeAdded = () => {
@@ -90,7 +90,7 @@ export class Label extends PureNode {
     this.createInputElement = () => {
       // create html input element
       const screenPoint = this.graph.viewport.toScreen(this.x, this.y);
-      const text = this.getInputData('text');
+      const text = this.getInputData('Input');
       const fontSize = this.getInputData('fontSize');
       const color = this.getInputData('backgroundColor');
       const marginLeftRight = fontSize / 1.5;
@@ -176,7 +176,7 @@ export class Label extends PureNode {
           newHeight + marginTopBottom
         );
 
-        this.setInputData('text', text);
+        this.setInputData('Input', text);
         this.executeOptimizedChain();
       });
 
@@ -189,7 +189,7 @@ export class Label extends PureNode {
     };
 
     this.onExecute = async (input, output) => {
-      const text = String(input['text']);
+      const text = String(input['Input']);
       const fontSize = input['fontSize'];
       const minWidth = input['min-width'];
       const color: TRgba = input['backgroundColor'];
@@ -214,7 +214,7 @@ export class Label extends PureNode {
         Math.max(minWidth, textMetrics.width + marginLeftRight * 2),
         textMetrics.height + marginTopBottom * 2
       );
-      output['text'] = text;
+      output['Output'] = text;
 
       this._refText.text = text;
       this._refText.x = this.x + NODE_MARGIN + marginLeftRight;
@@ -270,9 +270,9 @@ export class Note extends PureNode {
       showLabels: false,
     });
 
-    this.addOutput('data', new StringType(), false);
+    this.addOutput('Output', new StringType(), false);
     this.addInput(
-      'data',
+      'Input',
       new StringType(),
       customArgs?.data ?? 'Write away...',
       false
@@ -431,7 +431,7 @@ export class Note extends PureNode {
       this._bitmapTextRef.x = (SOCKET_WIDTH + nodeWidth) / 2;
       this._bitmapTextRef.y = (nodeHeight * verticalTextureOffset) / 2;
 
-      this.setInputData('data', newText);
+      this.setInputData('Input', newText);
 
       this.fontSize = newFontSize;
       this.executeOptimizedChain();
@@ -490,7 +490,7 @@ export class Note extends PureNode {
       if (!this.doubleClicked) {
         const nodeWidth = this.nodeWidth ?? baseWidth;
         const nodeHeight = this.nodeHeight ?? baseHeight;
-        const data = input['data'];
+        const data = input['Input'];
         if (this._bitmapTextRef) {
           this._bitmapTextRef.text = data;
           while (
@@ -502,7 +502,7 @@ export class Note extends PureNode {
           }
           this.fontSize = this._bitmapTextRef.fontSize;
           this._bitmapTextRef.text = data;
-          output['data'] = data;
+          output['Output'] = data;
         }
       }
     };

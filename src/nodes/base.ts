@@ -189,6 +189,7 @@ export class RandomArray extends PPNode {
     this.setOutputData('output array', randomArray);
   }
 }
+
 export class Trigger extends PPNode {
   _rectRef: PIXI.Graphics;
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {

@@ -349,7 +349,7 @@ const PropertyHeader: React.FunctionComponent<PropertyHeaderProps> = (
           aria-expanded={open ? 'true' : undefined}
           aria-haspopup="true"
           onClick={handleClick}
-          disabled={props.hasLink}
+          disabled={props.isInput && props.hasLink}
         >
           <MoreVertIcon />
         </IconButton>
