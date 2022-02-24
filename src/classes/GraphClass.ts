@@ -20,6 +20,7 @@ import PPNode from './NodeClass';
 import Socket from './SocketClass';
 import PPLink from './LinkClass';
 import PPSelection from './SelectionClass';
+import { node } from 'webpack';
 
 export default class PPGraph {
   app: PIXI.Application;
@@ -52,15 +53,17 @@ export default class PPGraph {
 
   ticking: boolean;
 
-  onRightClick:
-    | ((event: PIXI.InteractionEvent, target: PIXI.DisplayObject) => void)
-    | null; // called when the graph is right clicked
-  onOpenNodeSearch: ((pos: PIXI.Point) => void) | null; // called node search should be openend
-  onOpenSocketInspector:
-    | ((pos: PIXI.Point | null, data: unknown | null) => void)
-    | null; // called when socket inspector should be opened
+  onRightClick: (
+    event: PIXI.InteractionEvent,
+    target: PIXI.DisplayObject
+  ) => void = () => {}; // called when the graph is right clicked
+  onOpenNodeSearch: (pos: PIXI.Point) => void = () => {}; // called node search should be openend
+  onOpenSocketInspector: (
+    pos: PIXI.Point | null,
+    data: unknown | null
+  ) => void = () => {}; // called when socket inspector should be opened
   onCloseSocketInspector: () => void; // called when socket inspector should be closed
-  onViewportDragging: ((isDraggingViewport: boolean) => void) | null; // called when the viewport is being dragged
+  onViewportDragging: (isDraggingViewport: boolean) => void = () => {}; // called when the viewport is being dragged
 
   onViewportMoveHandler: (event?: PIXI.InteractionEvent) => void;
 
@@ -151,16 +154,14 @@ export default class PPGraph {
     const target = event.target;
     console.log(target, event.data.originalEvent);
 
-    if (this.onRightClick) {
-      this.onRightClick(event, target);
-    }
+    this.onRightClick(event, target);
   }
 
   _onPointerDoubleClicked(event: PIXI.InteractionEvent): void {
     console.log('_onPointerDoubleClicked');
     event.stopPropagation();
     const target = event.target;
-    if (target instanceof Viewport && this.onOpenNodeSearch) {
+    if (target instanceof Viewport) {
       this.onOpenNodeSearch(event.data.global);
     }
   }
@@ -263,7 +264,7 @@ export default class PPGraph {
     if (this.clickedSocketRef !== null && !this.clickedSocketRef.isInput()) {
       // remove original link
       if (this.movingLink !== null) {
-        this.deleteLink(this.movingLink);
+        this.movingLink.delete();
         this.movingLink = null;
       }
 
@@ -313,30 +314,28 @@ export default class PPGraph {
     // unsubscribe from pointermove
     this.viewport.removeListener('pointermove', this.onViewportMoveHandler);
 
-    if (this !== null) {
-      if (this.clickedSocketRef !== null) {
-        // check if over input
-        console.log(this.overInputRef);
-        if (this.overInputRef !== null && !this.clickedSocketRef.isInput()) {
-          console.log(
-            'connecting Output:',
-            this.clickedSocketRef.name,
-            'of',
-            this.clickedSocketRef.parent.name,
-            'with Input:',
-            this.overInputRef.name,
-            'of',
-            this.overInputRef.parent.name
-          );
-          this.connect(this.clickedSocketRef, this.overInputRef, this.viewport);
+    if (this.clickedSocketRef !== null) {
+      // check if over input
+      console.log(this.overInputRef);
+      if (this.overInputRef !== null && !this.clickedSocketRef.isInput()) {
+        console.log(
+          'connecting Output:',
+          this.clickedSocketRef.name,
+          'of',
+          this.clickedSocketRef.parent.name,
+          'with Input:',
+          this.overInputRef.name,
+          'of',
+          this.overInputRef.parent.name
+        );
+        this.connect(this.clickedSocketRef, this.overInputRef, this.viewport);
 
-          this.clearTempConnection();
-        } else {
-          this.clickedSocketRef.getNode().outputUnplugged();
-          console.log('not over input -> open node search');
-          if (this.onOpenNodeSearch) {
-            this.onOpenNodeSearch(event.data.global);
-          }
+        this.clearTempConnection();
+      } else {
+        this.clickedSocketRef.getNode().outputUnplugged();
+        console.log('not over input -> open node search');
+        if (this.onOpenNodeSearch) {
+          this.onOpenNodeSearch(event.data.global);
         }
       }
     }
@@ -351,7 +350,6 @@ export default class PPGraph {
   }
 
   set showComments(value: boolean) {
-    this._showComments = value;
     this.commentContainer.visible = value;
   }
 
@@ -552,25 +550,9 @@ export default class PPGraph {
     Object.values(this._links).forEach((link) => {
       if (isInput ? link.target === socket : link.source === socket) {
         console.log('deleting link:', isInput ? link.target : link.source);
-        this.deleteLink(link);
+        link.delete();
       }
     });
-  }
-
-  deleteLink(link: PPLink): boolean {
-    // remove link from source and target socket
-    link.getTarget().removeLink();
-    link.getSource().removeLink(link);
-
-    // remove link from graph
-    this.connectionContainer.removeChild(
-      this._links[link.id] as PIXI.Container
-    );
-
-    // update target node
-    link.getTarget()?.getNode()?.execute();
-
-    return delete this._links[link.id];
   }
 
   clear(): void {
@@ -708,7 +690,7 @@ export default class PPGraph {
       this.clear();
     }
 
-    let error = false;
+    let configureError = false;
 
     // register custom node types only
     // standard nodes types are already registered on load
@@ -731,54 +713,39 @@ export default class PPGraph {
     });
 
     //create nodes
-    const nodes = data.nodes;
-    if (nodes) {
-      for (let i = 0, l = nodes.length; i < l; ++i) {
-        const serializedNode = nodes[i]; //stored info
-        const node = this.createAndAddNode(
-          serializedNode.type,
+    try {
+      data.nodes.forEach((node) => {
+        this.createAndAddNode(
+          node.type,
           {
-            customId: serializedNode.id,
+            customId: node.id,
           },
           false
-        );
-        if (!node) {
-          error = true;
-          console.log('Node not found or has errors: ' + serializedNode.type);
-        }
-        node.configure(serializedNode);
-      }
-    }
+        ).configure(node);
+      });
 
-    // connect nodes
-    const links = data.links;
-    this._links = [];
-    if (links) {
-      for (let i = 0, l = links.length; i < l; ++i) {
-        const l_info = links[i]; //stored info
+      data.links.forEach(async (link) => {
         const outputRef = this.getOutputRef(
-          l_info.sourceNodeId,
-          l_info.sourceSocketIndex
+          link.sourceNodeId,
+          link.sourceSocketIndex
         );
         const inputRef = this.getInputRef(
-          l_info.targetNodeId,
-          l_info.targetSocketIndex
+          link.targetNodeId,
+          link.targetSocketIndex
         );
-        // console.log(outputRef, inputRef);
-        if (outputRef === undefined || inputRef === undefined) {
-          error = true;
-        } else {
-          await this.connect(outputRef, inputRef, this.viewport, false);
-        }
-      }
+        this.connect(outputRef, inputRef, this.viewport, false);
+      });
+    } catch (error) {
+      configureError = error;
     }
+
     // execute all seed nodes to make sure there are values everywhere
     await PPNode.executeOptimizedChainBatch(
       Object.values(this.nodes).filter((node) => !node.getHasDependencies())
     );
     this.ticking = true;
 
-    return error;
+    return configureError;
   }
 
   getOutputRef(
@@ -953,18 +920,6 @@ export default class PPGraph {
   }
 
   removeNode(node: PPNode): void {
-    //disconnect inputs
-    for (let i = 0; i < node.inputSocketArray.length; i++) {
-      const inputSocket = node.inputSocketArray[i];
-      this.checkIfSocketHasConnectionAndDeleteIt(inputSocket, true);
-    }
-
-    //disconnect outputs
-    for (let i = 0; i < node.outputSocketArray.length; i++) {
-      const outputSocket = node.outputSocketArray[i];
-      this.checkIfSocketHasConnectionAndDeleteIt(outputSocket, false);
-    }
-
     node.destroy();
     delete this.nodes[node.id];
   }
@@ -973,11 +928,6 @@ export default class PPGraph {
     const storedSelection = this.selection.selectedNodes;
     console.log(storedSelection);
     this.selection.deselectAllNodesAndResetSelection();
-
-    // loop through storedSelection backwards
-    // as the array I am iterating on gets mutated as well
-    for (let i = storedSelection.length - 1; i >= 0; i--) {
-      this.removeNode(storedSelection[i]);
-    }
+    storedSelection.forEach((node) => this.removeNode(node));
   }
 }

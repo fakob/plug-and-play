@@ -8,7 +8,12 @@ import ReactDOM from 'react-dom';
 import '../pixi/dbclick.js';
 
 import styles from '../utils/style.module.css';
-import { CustomArgs, SerializedNode, TRgba } from '../utils/interfaces';
+import {
+  CustomArgs,
+  SerializedNode,
+  SerializedSocket,
+  TRgba,
+} from '../utils/interfaces';
 import {
   COMMENT_TEXTSTYLE,
   RANDOMMAINCOLOR,
@@ -58,7 +63,7 @@ export default class PPNode extends PIXI.Container {
   _NodeDebugRef: PIXI.Text;
   _NodeCommentRef: PIXI.Text;
   _BackgroundRef: PIXI.Graphics;
-  clickedSocketRef: null | Socket;
+  clickedSocketRef: Socket;
 
   graph: PPGraph;
   id: string;
@@ -86,27 +91,27 @@ export default class PPNode extends PIXI.Container {
 
   _doubleClicked: boolean;
   isDraggingNode: boolean;
-  sourcePoint: PIXI.Point | null;
-  interactionData: PIXI.InteractionData | null;
+  sourcePoint: PIXI.Point;
+  interactionData: PIXI.InteractionData;
 
   container: HTMLElement; // for hybrid nodes
   static: HTMLElement;
 
   // supported callbacks
-  onConfigure: ((nodeConfig: SerializedNode) => void) | null; // called after the node has been configured
-  onNodeDoubleClick: ((event: PIXI.InteractionEvent) => void) | null;
-  onMoveHandler: (event?: PIXI.InteractionEvent) => void;
-  onViewportMoveHandler: (event?: PIXI.InteractionEvent) => void;
-  onDrawNodeShape: (() => void) | null; // called when the node is drawn
-  onNodeAdded: (() => void) | null; // called when the node is added to the graph
-  onNodeRemoved: (() => void) | null; // called when the node is removed from the graph
-  onNodeSelected: (() => void) | null; // called when the node is selected/unselected
-  onNodeDragging: ((isDraggingNode: boolean) => void) | null; // called when the node is being dragged
-  onNodeResize: ((width: number, height: number) => void) | null; // called when the node is resized
-  onNodeResized: (() => void) | null; // called when the node resize ended
+  onConfigure: (nodeConfig: SerializedNode) => void = () => {}; // called after the node has been configured
+  onNodeDoubleClick: (event: PIXI.InteractionEvent) => void = () => {};
+  onMoveHandler: (event?: PIXI.InteractionEvent) => void = () => {};
+  onViewportMoveHandler: (event?: PIXI.InteractionEvent) => void = () => {};
+  onDrawNodeShape: () => void = () => {}; // called when the node is drawn
+  onNodeAdded: () => void = () => {}; // called when the node is added to the graph
+  onNodeRemoved: () => void = () => {}; // called when the node is removed from the graph
+  onNodeSelected: () => void = () => {}; // called when the node is selected/unselected
+  onNodeDragging: (isDraggingNode: boolean) => void = () => {}; // called when the node is being dragged
+  onNodeResize: (width: number, height: number) => void = () => {}; // called when the node is resized
+  onNodeResized: () => void = () => {}; // called when the node resize ended
   onNodeDragOrViewportMove: // called when the node or or the viewport with the node is moved or scaled
-  | ((positions: { screenX: number; screenY: number; scale: number }) => void)
-    | null;
+  (positions: { screenX: number; screenY: number; scale: number }) => void =
+    () => {};
 
   constructor(type: string, graph: PPGraph, customArgs?: CustomArgs) {
     super();
@@ -185,8 +190,6 @@ export default class PPNode extends PIXI.Container {
     this.drawNodeShape();
 
     this.interactive = true;
-    this.interactionData = null;
-    this.sourcePoint = null;
     this.isDraggingNode = false;
     this._doubleClicked = false;
 
@@ -253,9 +256,7 @@ export default class PPNode extends PIXI.Container {
   }
 
   select(): void {
-    if (this.onNodeSelected) {
-      this.onNodeSelected();
-    }
+    this.onNodeSelected();
   }
 
   addSocket(socket: Socket): void {
@@ -270,8 +271,6 @@ export default class PPNode extends PIXI.Container {
         break;
       }
     }
-
-    this.drawNodeShape();
   }
 
   getDefaultType(): AbstractType {
@@ -314,7 +313,7 @@ export default class PPNode extends PIXI.Container {
       SOCKET_TYPE.OUT,
       name,
       toUseType,
-      null,
+      null, // need to get rid of this
       visible
     );
     const outputSocketRef = this.addChild(outputSocket);
@@ -356,6 +355,33 @@ export default class PPNode extends PIXI.Container {
     return node;
   }
 
+  deSerializeSocketArray(
+    serialized: SerializedSocket[],
+    array: Socket[]
+  ): void {
+    serialized.forEach((item: SerializedSocket, index) => {
+      if (array[index] !== undefined) {
+        array[index].setName(item.name);
+        array[index].dataType = deSerializeType(item.dataType);
+        array[index].data = item.data;
+        array[index].defaultData = item.defaultData;
+        array[index].setVisible(item.visible);
+      } else {
+        // add socket if it does not exist yet
+        this.addSocket(
+          new Socket(
+            item.socketType,
+            item.name,
+            deSerializeType(item.dataType),
+            item.data,
+            item.visible
+          )
+        );
+      }
+    });
+    this.drawNodeShape();
+  }
+
   configure(nodeConfig: SerializedNode): void {
     this.x = nodeConfig.x;
     this.y = nodeConfig.y;
@@ -369,46 +395,14 @@ export default class PPNode extends PIXI.Container {
       // update position of comment
       this.updateCommentPosition();
 
-      // set parameters on inputSocket
-      nodeConfig.inputSocketArray.forEach((item, index) => {
-        // skip configuring the input if there is no config data
-        if (this.inputSocketArray[index] !== undefined) {
-          this.inputSocketArray[index].setName(item.name);
-          this.inputSocketArray[index].dataType = deSerializeType(
-            item.dataType
-          );
-          this.inputSocketArray[index].data = item.data;
-          this.inputSocketArray[index].defaultData = item.defaultData;
-          this.inputSocketArray[index].setVisible(item.visible ?? true);
-        } else {
-          // add socket if it does not exist yet
-          this.addInput(
-            item.name,
-            deSerializeType(item.dataType),
-            item.data,
-            item.visible ?? true
-          );
-        }
-      });
-
-      // set parameters on outputSocket
-      nodeConfig.outputSocketArray.forEach((item, index) => {
-        // skip configuring the output if there is no config data
-        if (this.outputSocketArray[index] !== undefined) {
-          this.outputSocketArray[index].setName(item.name);
-          this.outputSocketArray[index].dataType = deSerializeType(
-            item.dataType
-          );
-          this.outputSocketArray[index].setVisible(item.visible ?? true);
-        } else {
-          // add socket if it does not exist
-          this.addOutput(
-            item.name,
-            deSerializeType(item.dataType),
-            item.visible ?? true
-          );
-        }
-      });
+      this.deSerializeSocketArray(
+        nodeConfig.inputSocketArray,
+        this.inputSocketArray
+      );
+      this.deSerializeSocketArray(
+        nodeConfig.outputSocketArray,
+        this.outputSocketArray
+      );
     } catch (error) {
       console.error(
         `Could not configure node: ${this.name}, id: ${this.id}`,
@@ -551,14 +545,12 @@ export default class PPNode extends PIXI.Container {
       this.executeOptimizedChain();
     }
 
-    if (this.onNodeDragOrViewportMove) {
-      const screenPoint = this.screenPoint();
-      this.onNodeDragOrViewportMove({
-        screenX: screenPoint.x,
-        screenY: screenPoint.y,
-        scale: this.graph.viewport.scale.x,
-      });
-    }
+    const screenPoint = this.screenPoint();
+    this.onNodeDragOrViewportMove({
+      screenX: screenPoint.x,
+      screenY: screenPoint.y,
+      scale: this.graph.viewport.scale.x,
+    });
 
     if (this.isHybrid) {
       this._onViewportMove(); // trigger this once, so the react components get positioned properly
@@ -599,19 +591,22 @@ export default class PPNode extends PIXI.Container {
       this.container.style.height = `${this.nodeHeight}px`;
     }
 
-    if (this.onNodeResize) {
-      this.onNodeResize(this.nodeWidth, this.nodeHeight);
-    }
+    this.onNodeResize(this.nodeWidth, this.nodeHeight);
   }
 
   resizedNode(): void {
-    if (this.onNodeResized) {
-      this.onNodeResized();
-    }
+    this.onNodeResized();
   }
 
   resetSize(): void {
     this.resizeNode(this.minNodeWidth, this.calculatedMinNodeHeight);
+  }
+
+  getAllSockets(): Socket[] {
+    return this.inputSocketArray.concat(this.outputSocketArray);
+  }
+  getSocketByName(name: string): Socket {
+    return this.getAllSockets().find((socket) => socket.name === name);
   }
 
   drawNodeShape(): void {
@@ -630,12 +625,10 @@ export default class PPNode extends PIXI.Container {
     this._BackgroundRef.endFill();
 
     // redraw outputs
-    let posCounter = 0;
-    this.outputSocketArray.forEach((item) => {
+    this.outputSocketArray.forEach((item, index) => {
       if (item.visible) {
-        item.y = this.headerHeight + posCounter * SOCKET_HEIGHT;
+        item.y = this.headerHeight + index * SOCKET_HEIGHT;
         item.x = this.nodeWidth - NODE_WIDTH;
-        posCounter += 1;
         if (this.showLabels === false) {
           item._SocketNameRef.alpha = 0;
         }
@@ -643,23 +636,18 @@ export default class PPNode extends PIXI.Container {
     });
 
     // redraw inputs
-    posCounter = 0;
-    this.inputSocketArray.forEach((item) => {
+    this.inputSocketArray.forEach((item, index) => {
       if (item.visible) {
         item.y =
           this.headerHeight +
           this.countOfVisibleOutputSockets * SOCKET_HEIGHT +
-          posCounter * SOCKET_HEIGHT;
-        posCounter += 1;
+          index * SOCKET_HEIGHT;
         if (this.showLabels === false) {
           item._SocketNameRef.alpha = 0;
         }
       }
     });
-
-    if (this.onDrawNodeShape) {
-      this.onDrawNodeShape();
-    }
+    this.onDrawNodeShape();
 
     // update position of comment
     this.updateCommentPosition();
@@ -721,7 +709,7 @@ export default class PPNode extends PIXI.Container {
 
   updateConnectionPosition(): void {
     // check for connections and move them too
-    this.inputSocketArray.concat(this.outputSocketArray).forEach((socket) => {
+    this.getAllSockets().forEach((socket) => {
       socket.links.map((link) => {
         link.updateConnection();
       });
@@ -1114,16 +1102,10 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     this.isDraggingNode = false;
     this.onNodeDragging(this.isDraggingNode);
     this.cursor = 'move';
-    // set the interactionData to null
-    this.interactionData = null;
   }
 
   _onPointerMove(): void {
-    if (
-      this.isDraggingNode &&
-      this.interactionData !== null &&
-      this.sourcePoint !== null
-    ) {
+    if (this.isDraggingNode) {
       const targetPoint = this.interactionData.getLocalPosition(this);
       const deltaX = targetPoint.x - this.sourcePoint.x;
       const deltaY = targetPoint.y - this.sourcePoint.y;
@@ -1145,9 +1127,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   }
 
   onAdded(): void {
-    if (this.onNodeAdded) {
-      this.onNodeAdded();
-    }
+    this.onNodeAdded();
     if (this.graph.ticking) {
       this.initialExecute();
     }
@@ -1166,9 +1146,11 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     // remove added listener from graph.viewport
     this.graph.viewport.removeListener('moved', this.onViewportMoveHandler);
 
-    if (this.onNodeRemoved) {
-      this.onNodeRemoved();
-    }
+    this.getAllSockets().forEach((socket) => {
+      socket.links.forEach((link) => link.delete());
+    });
+
+    this.onNodeRemoved();
   }
 
   _onPointerOver(): void {
