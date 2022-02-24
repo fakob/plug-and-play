@@ -1,25 +1,20 @@
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
-import { NODE_TYPE_COLOR } from '../utils/constants';
+import Socket from '../classes/SocketClass';
+import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../utils/constants';
 import { CustomArgs, TRgba } from '../utils/interfaces';
 import { NumberType } from './datatypes/numberType';
 import { EnumType } from './datatypes/enumType';
 
 export class MathFunction extends PPNode {
-  onOptionChange?: (value: string) => void;
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
     super(name, graph, {
       ...customArgs,
       color: TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM),
     });
 
-    const math = Object.getOwnPropertyNames(Math);
-    const mathOptions = math.map((methodName) => {
-      return {
-        text: methodName,
-        value: methodName,
-      };
-    });
+    this.name = 'Math function';
+    this.description = 'Mathematical constants and functions';
 
     const staticProperties = [
       'E',
@@ -33,23 +28,6 @@ export class MathFunction extends PPNode {
     ];
     const staticMethodsWith0Parameters = ['random'];
     const staticMethodsWith2Parameters = ['atan2', 'imul', 'pow'];
-
-    this.onOptionChange = (value) => {
-      this.nodeName = 'Math.' + value;
-    };
-
-    this.addInput('Input', new NumberType(false, -10, 10), 0, true);
-    this.addInput('Input2', new NumberType(false, -10, 10), 0, false);
-    this.addInput(
-      'Option',
-      new EnumType(mathOptions, this.onOptionChange),
-      'abs',
-      false
-    );
-    this.addOutput('Output', new NumberType());
-
-    this.name = 'Math function';
-    this.description = 'Mathematical constants and functions';
 
     this.onExecute = async function (input) {
       const mathOption = input['Option'];
@@ -69,6 +47,44 @@ export class MathFunction extends PPNode {
         this.setOutputData('Output', Math[mathOption](input['Input']));
       }
     };
+  }
+
+  protected getDefaultIO(): Socket[] {
+    const onOptionChange = (value) => {
+      this.nodeName = 'Math.' + value;
+    };
+    const math = Object.getOwnPropertyNames(Math);
+    const mathOptions = math.map((methodName) => {
+      return {
+        text: methodName,
+        value: methodName,
+      };
+    });
+
+    return [
+      new Socket(
+        SOCKET_TYPE.IN,
+        'Input',
+        new NumberType(false, -10, 10),
+        0,
+        true
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        'Input2',
+        new NumberType(false, -10, 10),
+        0,
+        true
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        'Option',
+        new EnumType(mathOptions, onOptionChange),
+        'abs',
+        false
+      ),
+      new Socket(SOCKET_TYPE.OUT, 'Output', new NumberType()),
+    ];
   }
 }
 
