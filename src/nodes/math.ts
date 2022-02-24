@@ -1,12 +1,12 @@
 import PPGraph from '../classes/GraphClass';
-import PPNode from '../classes/NodeClass';
+import { PureNode } from '../classes/NodeClass';
 import Socket from '../classes/SocketClass';
 import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../utils/constants';
 import { CustomArgs, TRgba } from '../utils/interfaces';
 import { NumberType } from './datatypes/numberType';
 import { EnumType } from './datatypes/enumType';
 
-export class MathFunction extends PPNode {
+export class MathFunction extends PureNode {
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
     super(name, graph, {
       ...customArgs,
@@ -88,7 +88,7 @@ export class MathFunction extends PPNode {
   }
 }
 
-export class Add extends PPNode {
+export class Add extends PureNode {
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
     super(name, graph, {
       ...customArgs,
@@ -111,7 +111,7 @@ export class Add extends PPNode {
   }
 }
 
-export class Subtract extends PPNode {
+export class Subtract extends PureNode {
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
     super(name, graph, {
       ...customArgs,
@@ -134,7 +134,7 @@ export class Subtract extends PPNode {
   }
 }
 
-export class Multiply extends PPNode {
+export class Multiply extends PureNode {
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
     super(name, graph, {
       ...customArgs,
@@ -157,7 +157,7 @@ export class Multiply extends PPNode {
   }
 }
 
-export class Divide extends PPNode {
+export class Divide extends PureNode {
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
     super(name, graph, {
       ...customArgs,
