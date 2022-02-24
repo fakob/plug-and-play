@@ -20,6 +20,7 @@ import PPNode from './NodeClass';
 import Socket from './SocketClass';
 import PPLink from './LinkClass';
 import PPSelection from './SelectionClass';
+import { node } from 'webpack';
 
 export default class PPGraph {
   app: PIXI.Application;
@@ -689,7 +690,7 @@ export default class PPGraph {
       this.clear();
     }
 
-    let error = false;
+    let configureError = false;
 
     // register custom node types only
     // standard nodes types are already registered on load
@@ -712,54 +713,39 @@ export default class PPGraph {
     });
 
     //create nodes
-    const nodes = data.nodes;
-    if (nodes) {
-      for (let i = 0, l = nodes.length; i < l; ++i) {
-        const serializedNode = nodes[i]; //stored info
-        const node = this.createAndAddNode(
-          serializedNode.type,
+    try {
+      data.nodes.forEach((node) => {
+        this.createAndAddNode(
+          node.type,
           {
-            customId: serializedNode.id,
+            customId: node.id,
           },
           false
-        );
-        if (!node) {
-          error = true;
-          console.log('Node not found or has errors: ' + serializedNode.type);
-        }
-        node.configure(serializedNode);
-      }
-    }
+        ).configure(node);
+      });
 
-    // connect nodes
-    const links = data.links;
-    this._links = [];
-    if (links) {
-      for (let i = 0, l = links.length; i < l; ++i) {
-        const l_info = links[i]; //stored info
+      data.links.forEach(async (link) => {
         const outputRef = this.getOutputRef(
-          l_info.sourceNodeId,
-          l_info.sourceSocketIndex
+          link.sourceNodeId,
+          link.sourceSocketIndex
         );
         const inputRef = this.getInputRef(
-          l_info.targetNodeId,
-          l_info.targetSocketIndex
+          link.targetNodeId,
+          link.targetSocketIndex
         );
-        // console.log(outputRef, inputRef);
-        if (outputRef === undefined || inputRef === undefined) {
-          error = true;
-        } else {
-          await this.connect(outputRef, inputRef, this.viewport, false);
-        }
-      }
+        this.connect(outputRef, inputRef, this.viewport, false);
+      });
+    } catch (error) {
+      configureError = error;
     }
+
     // execute all seed nodes to make sure there are values everywhere
     await PPNode.executeOptimizedChainBatch(
       Object.values(this.nodes).filter((node) => !node.getHasDependencies())
     );
     this.ticking = true;
 
-    return error;
+    return configureError;
   }
 
   getOutputRef(
