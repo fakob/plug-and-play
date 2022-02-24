@@ -63,7 +63,7 @@ export default class PPNode extends PIXI.Container {
   _NodeDebugRef: PIXI.Text;
   _NodeCommentRef: PIXI.Text;
   _BackgroundRef: PIXI.Graphics;
-  clickedSocketRef: null | Socket;
+  clickedSocketRef: Socket;
 
   graph: PPGraph;
   id: string;
@@ -91,15 +91,15 @@ export default class PPNode extends PIXI.Container {
 
   _doubleClicked: boolean;
   isDraggingNode: boolean;
-  sourcePoint: PIXI.Point | null;
-  interactionData: PIXI.InteractionData | null;
+  sourcePoint: PIXI.Point;
+  interactionData: PIXI.InteractionData;
 
   container: HTMLElement; // for hybrid nodes
   static: HTMLElement;
 
   // supported callbacks
-  onConfigure: ((nodeConfig: SerializedNode) => void) | null; // called after the node has been configured
-  onNodeDoubleClick: ((event: PIXI.InteractionEvent) => void) | null = () => {};
+  onConfigure: (nodeConfig: SerializedNode) => void = () => {}; // called after the node has been configured
+  onNodeDoubleClick: (event: PIXI.InteractionEvent) => void = () => {};
   onMoveHandler: (event?: PIXI.InteractionEvent) => void = () => {};
   onViewportMoveHandler: (event?: PIXI.InteractionEvent) => void = () => {};
   onDrawNodeShape: () => void = () => {}; // called when the node is drawn
@@ -192,8 +192,6 @@ export default class PPNode extends PIXI.Container {
     this.drawNodeShape();
 
     this.interactive = true;
-    this.interactionData = null;
-    this.sourcePoint = null;
     this.isDraggingNode = false;
     this._doubleClicked = false;
 
@@ -1112,16 +1110,10 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     this.isDraggingNode = false;
     this.onNodeDragging(this.isDraggingNode);
     this.cursor = 'move';
-    // set the interactionData to null
-    this.interactionData = null;
   }
 
   _onPointerMove(): void {
-    if (
-      this.isDraggingNode &&
-      this.interactionData !== null &&
-      this.sourcePoint !== null
-    ) {
+    if (this.isDraggingNode) {
       const targetPoint = this.interactionData.getLocalPosition(this);
       const deltaX = targetPoint.x - this.sourcePoint.x;
       const deltaY = targetPoint.y - this.sourcePoint.y;
