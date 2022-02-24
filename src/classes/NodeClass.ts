@@ -184,8 +184,6 @@ export default class PPNode extends PIXI.Container {
         IO.data = newDefault;
       }
       this.addSocket(IO);
-
-      this.drawNodeShape();
     });
 
     // draw shape
