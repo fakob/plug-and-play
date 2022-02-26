@@ -306,6 +306,12 @@ export default class PPGraph {
     }
   }
 
+  socketMouseDown(socket: Socket, event: PIXI.InteractionEvent): void {
+    //
+  }
+
+  socketMouseUp(socket: Socket, event: PIXI.InteractionEvent): void {}
+
   async _onNodePointerUpAndUpOutside(
     event: PIXI.InteractionEvent
   ): Promise<void> {
@@ -432,18 +438,14 @@ export default class PPGraph {
     this.nodes[node.id] = node;
     this.nodeContainer.addChild(node);
 
-    // set comment position
-    node.updateCommentPosition();
-    node.execute();
-
     return node; //to chain actions
   }
 
-  createAndAddNode<T extends PPNode = PPNode>(
+  async createAndAddNode<T extends PPNode = PPNode>(
     type: string,
     customArgs?: CustomArgs,
     notify = true
-  ): T {
+  ): Promise<T> {
     const node = this.createNode(type, customArgs) as T;
     // if (node) {
     this.addNode(node);
@@ -460,7 +462,7 @@ export default class PPGraph {
           'of',
           node.inputSocketArray[0].parent.name
         );
-        this.connect(
+        await this.connect(
           customArgs.addLink,
           node.inputSocketArray[0],
           this.viewport,
@@ -589,7 +591,7 @@ export default class PPGraph {
     const linksContainedInSelection: PPLink[] = [];
     const mappingOfOldAndNewNodes: { [key: string]: PPNode } = {};
 
-    this.selection.selectedNodes.forEach((node) => {
+    this.selection.selectedNodes.forEach(async (node) => {
       const nodeType = node.type;
 
       // get links which are completely contained in selection
@@ -604,9 +606,9 @@ export default class PPGraph {
       console.log(linksContainedInSelection);
 
       // add node and carry over its configuration
-      const newNode = this.createAndAddNode(nodeType);
+      const newNode = await this.createAndAddNode(nodeType);
       newNode.configure(node.serialize());
-      newNode.execute();
+      newNode.executeOptimizedChain();
 
       // offset duplicated node
       newNode.setPosition(newNode.width + 32, 0, true);
@@ -718,13 +720,15 @@ export default class PPGraph {
 
     //create nodes
     try {
-      data.nodes.forEach((node) => {
-        this.createAndAddNode(
-          node.type,
-          {
-            customId: node.id,
-          },
-          false
+      data.nodes.forEach(async (node) => {
+        (
+          await this.createAndAddNode(
+            node.type,
+            {
+              customId: node.id,
+            },
+            false
+          )
         ).configure(node);
       });
 
@@ -804,10 +808,10 @@ export default class PPGraph {
 
     // do nodes of the same type exist on the graph
     if (nodesWithTheSameType.length > 0) {
-      nodesWithTheSameType.forEach((node) => {
+      nodesWithTheSameType.forEach(async (node) => {
         console.log('I am of the same type', node);
 
-        const newNode = this.createAndAddNode(functionName);
+        const newNode = await this.createAndAddNode(functionName);
 
         newNode.configure(node.serialize());
         this.reconnectLinksToNewNode(node, newNode);
