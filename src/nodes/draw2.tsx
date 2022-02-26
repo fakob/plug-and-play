@@ -328,10 +328,8 @@ export class DRAW_Combine extends DRAW_Base {
     const array2Data =
       injectedData && injectedData.length > 1 ? injectedData[1] : {};
 
-    if (inputObject[inputCombine2Name])
-      inputObject[inputCombine2Name](myContainer, array2Data);
-    if (inputObject[inputCombine1Name])
-      inputObject[inputCombine1Name](myContainer, array1Data);
+    inputObject[inputCombine2Name](myContainer, array2Data);
+    inputObject[inputCombine1Name](myContainer, array1Data);
 
     this.positionAndScale(myContainer, inputObject);
 

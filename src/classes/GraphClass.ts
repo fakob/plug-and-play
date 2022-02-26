@@ -8,6 +8,7 @@ import {
   DEFAULT_EDITOR_DATA,
   NODE_WIDTH,
   PP_VERSION,
+  SOCKET_TYPE,
 } from '../utils/constants';
 import {
   CustomArgs,
@@ -20,7 +21,6 @@ import PPNode from './NodeClass';
 import Socket from './SocketClass';
 import PPLink from './LinkClass';
 import PPSelection from './SelectionClass';
-import { node } from 'webpack';
 
 export default class PPGraph {
   app: PIXI.Application;
@@ -33,11 +33,10 @@ export default class PPGraph {
   customNodeTypes: Record<string, string>;
 
   _showComments: boolean;
-  clickedSocketRef: null | Socket;
-  clickedSocketNameRef: null | Socket;
+  selectedSourceSocket: null | Socket;
+  lastSelectedSocketWasInput = false;
   overInputRef: null | Socket;
   dragSourcePoint: null | PIXI.Point;
-  movingLink: null | PPLink;
 
   backgroundTempContainer: PIXI.Container;
   backgroundCanvas: PIXI.Container;
@@ -58,14 +57,11 @@ export default class PPGraph {
     target: PIXI.DisplayObject
   ) => void = () => {}; // called when the graph is right clicked
   onOpenNodeSearch: (pos: PIXI.Point) => void = () => {}; // called node search should be openend
-  onOpenSocketInspector: (
-    pos: PIXI.Point | null,
-    data: unknown | null
-  ) => void = () => {}; // called when socket inspector should be opened
+  onOpenSocketInspector: (pos: PIXI.Point, data: Socket) => void = () => {}; // called when socket inspector should be opened
   onCloseSocketInspector: () => void; // called when socket inspector should be closed
   onViewportDragging: (isDraggingViewport: boolean) => void = () => {}; // called when the viewport is being dragged
 
-  onViewportMoveHandler: (event?: PIXI.InteractionEvent) => void;
+  //onViewportMoveHandler: (event?: PIXI.InteractionEvent) => void;
 
   constructor(app: PIXI.Application, viewport: Viewport) {
     this.app = app;
@@ -73,11 +69,7 @@ export default class PPGraph {
     console.log('Graph created');
 
     this._showComments = true;
-    this.clickedSocketRef = null;
-    this.clickedSocketNameRef = null;
-    this.overInputRef = null;
-    this.dragSourcePoint = null;
-    this.movingLink = null;
+    this.selectedSourceSocket = null;
 
     this.backgroundTempContainer = new PIXI.Container();
     this.backgroundTempContainer.name = 'backgroundTempContainer';
@@ -118,26 +110,24 @@ export default class PPGraph {
     this.viewport.cursor = 'grab';
 
     // add event listeners
-    const addEventListeners = (): void => {
-      // listen to window resize event and resize app
-      const resize = () => {
-        viewport.resize(window.innerWidth, window.innerHeight);
-        app.renderer.resize(window.innerWidth, window.innerHeight);
-      };
-      resize();
-      window.addEventListener('resize', resize);
-
-      // register pointer events
-      this.viewport.on('pointerdown', this._onPointerDown.bind(this));
-      this.viewport.on(
-        'pointerupoutside',
-        this._onPointerUpAndUpOutside.bind(this)
-      );
-      this.viewport.on('pointerup', this._onPointerUpAndUpOutside.bind(this));
-      this.viewport.on('rightclick', this._onPointerRightClicked.bind(this));
-      this.viewport.on('dblclick', this._onPointerDoubleClicked.bind(this));
+    // listen to window resize event and resize app
+    const resize = () => {
+      viewport.resize(window.innerWidth, window.innerHeight);
+      app.renderer.resize(window.innerWidth, window.innerHeight);
     };
-    addEventListeners();
+    resize();
+    window.addEventListener('resize', resize);
+
+    // register pointer events
+    this.viewport.on('pointerdown', this._onPointerDown.bind(this));
+    this.viewport.on(
+      'pointerupoutside',
+      this._onPointerUpAndUpOutside.bind(this)
+    );
+    this.viewport.on('pointerup', this._onPointerUpAndUpOutside.bind(this));
+    this.viewport.on('rightclick', this._onPointerRightClicked.bind(this));
+    this.viewport.on('dblclick', this._onPointerDoubleClicked.bind(this));
+    this.viewport.on('pointermove', (event) => this.onViewportMove(event));
 
     // clear the stage
     this.clear();
@@ -187,7 +177,14 @@ export default class PPGraph {
     }
   }
 
-  _onPointerUpAndUpOutside(): void {
+  _onPointerUpAndUpOutside(event: PIXI.InteractionEvent): void {
+    if (!this.overInputRef && this.selectedSourceSocket) {
+      if (this.lastSelectedSocketWasInput) {
+        this.selectedSourceSocket = null;
+      } else {
+        this.onOpenNodeSearch(event.data.global);
+      }
+    }
     console.log('_onPointerUpAndUpOutside');
     // check if viewport has been dragged,
     // if not, this is a deselect all nodes action
@@ -212,77 +209,36 @@ export default class PPGraph {
     this.onViewportDragging(false);
   }
 
+  getObjectCenter(object: any): PIXI.Point {
+    const dragSourceRect = object.children[0].getBounds();
+    const dragSourcePoint = new PIXI.Point(
+      dragSourceRect.x + dragSourceRect.width / 2,
+      dragSourceRect.y + dragSourceRect.height / 2
+    );
+    // change dragSourcePoint coordinates from screen to world space
+    return this.viewport.toWorld(dragSourcePoint);
+  }
+
   _onNodePointerDown(event: PIXI.InteractionEvent): void {
     event.stopPropagation();
     this.viewport.plugins.pause('drag');
-
-    console.log('_onNodePointerDown');
-    const node = event.currentTarget as PPNode;
-
-    if (this.clickedSocketRef !== null) {
-      // check if user clicked InputSocket with link to move it
-      this.movingLink = this.checkIfSocketIsInputAndHasConnection(
-        this.clickedSocketRef
-      );
-      console.log(this.movingLink);
-      if (this.movingLink !== null) {
-        this.clickedSocketRef = this.movingLink.getSource();
-      }
-
-      // only start drawing if outputsocket or moving link
-      if (!this.clickedSocketRef.isInput() || this.movingLink) {
-        // event.data.global delivers the mouse coordinates from the top left corner in pixel
-        node.interactionData = event.data;
-
-        const dragSourceRect = this.clickedSocketRef.children[0].getBounds();
-        const dragSourcePoint = new PIXI.Point(
-          dragSourceRect.x + dragSourceRect.width / 2,
-          dragSourceRect.y + dragSourceRect.height / 2
-        );
-        // change dragSourcePoint coordinates from screen to world space
-        this.dragSourcePoint = this.viewport.toWorld(dragSourcePoint);
-      }
-    } else if (this.clickedSocketNameRef !== null) {
-      const clickedSourcePoint = new PIXI.Point(
-        event.data.global.x,
-        event.data.global.y
-      );
-      this.onOpenSocketInspector(clickedSourcePoint, this.clickedSocketNameRef);
-    }
-
-    // subscribe to pointermove
-    // first assign the bound function to a handler then add this handler as a listener
-    // otherwise removeListener won't work (bind creates a new function)
-    this.onViewportMoveHandler = this.onViewportMove.bind(this);
-    this.viewport.on('pointermove', this.onViewportMoveHandler);
   }
 
   onViewportMove(event: PIXI.InteractionEvent): void {
-    // console.log('onViewportMove');
+    this.tempConnection.clear();
 
     // draw connection
-    if (this.clickedSocketRef !== null && !this.clickedSocketRef.isInput()) {
-      // remove original link
-      if (this.movingLink !== null) {
-        this.movingLink.delete();
-        this.movingLink = null;
-      }
-
-      // temporarily draw connection while dragging
-      const sourcePointX = this.dragSourcePoint.x;
-      const sourcePointY = this.dragSourcePoint.y;
+    if (this.selectedSourceSocket) {
+      // draw connection while dragging
+      const socketCenter = this.getObjectCenter(this.selectedSourceSocket);
+      const sourcePointX = socketCenter.x;
+      const sourcePointY = socketCenter.y;
 
       // change mouse coordinates from screen to world space
       let targetPoint = new PIXI.Point();
-      if (this.overInputRef !== null) {
+      if (this.overInputRef) {
         // get target position
-        const targetRect = this.overInputRef.children[0].getBounds();
-        targetPoint = this.viewport.toWorld(
-          new PIXI.Point(
-            targetRect.x + targetRect.width / 2,
-            targetRect.y + targetRect.height / 2
-          )
-        );
+        targetPoint = this.getObjectCenter(this.overInputRef);
       } else {
         targetPoint = this.viewport.toWorld(event.data.global);
       }
@@ -296,7 +252,6 @@ export default class PPGraph {
       const cpY2 = toY;
       // console.log(sourcePointX, toX);
 
-      this.tempConnection.clear();
       this.tempConnection.lineStyle(2, CONNECTION_COLOR_HEX, 1);
       this.tempConnection.bezierCurveTo(cpX, cpY, cpX2, cpY2, toX, toY);
 
@@ -306,51 +261,54 @@ export default class PPGraph {
     }
   }
 
-  socketMouseDown(socket: Socket, event: PIXI.InteractionEvent): void {
-    //
+  socketHoverOver(socket: Socket) {
+    this.overInputRef = socket;
   }
 
-  socketMouseUp(socket: Socket, event: PIXI.InteractionEvent): void {}
+  socketHoverOut(socket: Socket) {
+    this.overInputRef = null;
+  }
 
-  async _onNodePointerUpAndUpOutside(
+  socketMouseDown(socket: Socket, event: PIXI.InteractionEvent): void {
+    if (event.data.button === 2) {
+      socket.links.forEach((link) => link.delete());
+    } else if (socket.socketType === SOCKET_TYPE.OUT) {
+      this.selectedSourceSocket = socket;
+      this.lastSelectedSocketWasInput = false;
+    } else {
+      // if output socket selected, get its corresponding input instead, and delete previous link, also note down that we grabbed an output
+      this.selectedSourceSocket = socket.links[0].getSource();
+      socket.links.forEach((link) => link.delete());
+      this.lastSelectedSocketWasInput = true;
+      this.onViewportMove(event);
+      this.selectedSourceSocket.getNode().outputUnplugged();
+    }
+  }
+
+  async socketMouseUp(
+    socket: Socket,
     event: PIXI.InteractionEvent
   ): Promise<void> {
-    console.log('_onNodePointerUpAndUpOutside');
-
-    // unsubscribe from pointermove
-    this.viewport.removeListener('pointermove', this.onViewportMoveHandler);
-
-    if (this.clickedSocketRef !== null) {
-      // check if over input
-      console.log(this.overInputRef);
-      if (this.overInputRef !== null && !this.clickedSocketRef.isInput()) {
-        console.log(
-          'connecting Output:',
-          this.clickedSocketRef.name,
-          'of',
-          this.clickedSocketRef.parent.name,
-          'with Input:',
-          this.overInputRef.name,
-          'of',
-          this.overInputRef.parent.name
-        );
-        await this.connect(
-          this.clickedSocketRef,
-          this.overInputRef,
-          this.viewport
-        );
-
-        this.clearTempConnection();
-      } else {
-        this.clickedSocketRef.getNode().outputUnplugged();
-        console.log('not over input -> open node search');
-        if (this.onOpenNodeSearch) {
-          this.onOpenNodeSearch(event.data.global);
-        }
-      }
+    const source = this.selectedSourceSocket;
+    this.selectedSourceSocket = null;
+    if (
+      socket !== this.selectedSourceSocket &&
+      socket.socketType === SOCKET_TYPE.IN
+    ) {
+      // two matching sockets, connect them
+      await this.connect(source, socket);
     }
+  }
 
-    this.viewport.plugins.resume('drag');
+  async socketNameRefMouseDown(
+    socket: Socket,
+    event: PIXI.InteractionEvent
+  ): Promise<void> {
+    const clickedSourcePoint = new PIXI.Point(
+      event.data.global.x,
+      event.data.global.y
+    );
+    this.onOpenSocketInspector(clickedSourcePoint, socket);
   }
 
   // GETTERS & SETTERS
@@ -367,9 +325,6 @@ export default class PPGraph {
 
   clearTempConnection(): void {
     this.tempConnection.clear();
-    this.clickedSocketRef = null;
-    this.overInputRef = null;
-    this.movingLink = null;
     this.dragSourcePoint = null;
   }
 
@@ -429,11 +384,6 @@ export default class PPGraph {
       return;
     }
 
-    node
-      .on('pointerdown', this._onNodePointerDown.bind(this))
-      .on('pointerupoutside', this._onNodePointerUpAndUpOutside.bind(this))
-      .on('pointerup', this._onNodePointerUpAndUpOutside.bind(this));
-
     // add the node to the canvas
     this.nodes[node.id] = node;
     this.nodeContainer.addChild(node);
@@ -465,7 +415,6 @@ export default class PPGraph {
         await this.connect(
           customArgs.addLink,
           node.inputSocketArray[0],
-          this.viewport,
           notify
         );
         this.clearTempConnection();
@@ -477,21 +426,16 @@ export default class PPGraph {
     // }
   }
 
-  async connect(
-    output: Socket,
-    input: Socket,
-    viewport: Viewport,
-    notify = true
-  ): Promise<PPLink> {
-    // check if this input already has a connection
-    this.checkIfSocketHasConnectionAndDeleteIt(input, true);
+  async connect(output: Socket, input: Socket, notify = true): Promise<PPLink> {
+    // remove all input links from before on this socket
+    input.links.forEach((link) => link.delete());
 
     //create link class
     const link: PPLink = new PPLink(
-      (this.lastLinkId += 1),
+      ++this.lastLinkId,
       output,
       input,
-      viewport
+      this.viewport
     );
 
     //add to graph links list
@@ -535,30 +479,6 @@ export default class PPGraph {
       }
     });
     return false;
-  }
-
-  checkIfSocketIsInputAndHasConnection(socket: Socket): PPLink | null {
-    // check if this socket is an input and has a connection
-    if (socket.isInput()) {
-      const foundLink = Object.values(this._links).find(
-        (link) => link.target === socket
-      );
-      return foundLink === undefined ? null : foundLink;
-    }
-    return null;
-  }
-
-  checkIfSocketHasConnectionAndDeleteIt(
-    socket: Socket,
-    isInput: boolean
-  ): void {
-    // check if this socket already has a connection
-    Object.values(this._links).forEach((link) => {
-      if (isInput ? link.target === socket : link.source === socket) {
-        console.log('deleting link:', isInput ? link.target : link.source);
-        link.delete();
-      }
-    });
   }
 
   clear(): void {
@@ -630,7 +550,7 @@ export default class PPGraph {
         oldTargetNode.id
       ].inputSocketArray.find((socket) => socket.name === targetSocketName);
       console.log(newSource, newTarget);
-      await this.connect(newSource, newTarget, this.viewport, false);
+      await this.connect(newSource, newTarget, false);
     });
 
     // select newNode
@@ -741,7 +661,7 @@ export default class PPGraph {
           link.targetNodeId,
           link.targetSocketIndex
         );
-        await this.connect(outputRef, inputRef, this.viewport, false);
+        await this.connect(outputRef, inputRef, false);
       });
     } catch (error) {
       configureError = error;

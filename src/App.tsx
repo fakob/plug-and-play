@@ -846,7 +846,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
   const handleNodeItemSelect = (event, selected: INodeSearch) => {
     console.log(selected);
     // store link before search gets hidden and temp connection gets reset
-    const addLink = currentGraph.current.clickedSocketRef;
+    const addLink = currentGraph.current.selectedSourceSocket;
     const nodePos = viewport.current.toWorld(
       contextMenuPosition[0],
       contextMenuPosition[1]
@@ -864,7 +864,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
   };
 
   const getNodes = (): INodeSearch[] => {
-    const addLink = currentGraph.current.clickedSocketRef;
+    const addLink = currentGraph.current.selectedSourceSocket;
     const tempItems = Object.entries(currentGraph.current.registeredNodeTypes)
       .map(([title, obj]) => {
         return {
@@ -898,6 +898,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
   const nodeSearchInputBlurred = () => {
     console.log('nodeSearchInputBlurred');
     setIsNodeSearchVisible(false);
+    currentGraph.current.selectedSourceSocket = null;
   };
 
   const updateGraphSearchItems = () => {
