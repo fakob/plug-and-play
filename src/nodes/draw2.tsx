@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import { DisplayObject } from 'pixi.js';
-import { PureNode } from '../classes/NodeClass';
+import PPNode, { PureNode } from '../classes/NodeClass';
 import Socket from '../classes/SocketClass';
 import {
   NOTE_LINEHEIGHT_FACTOR,
@@ -65,7 +65,7 @@ const injectedDataName = 'Injected Data';
 const inputImageName = 'Image';
 
 // a PIXI draw node is a pure node that also draws its graphics if graphics at the end
-abstract class DRAW_Base extends PureNode {
+abstract class DRAW_Base extends PPNode {
   deferredGraphics: PIXI.Container;
 
   onNodeRemoved = (): void => {
@@ -125,12 +125,6 @@ abstract class DRAW_Base extends PureNode {
     ];
   }
 
-  public async execute(): Promise<boolean> {
-    const result: boolean = await super.execute();
-    this.handleDrawing();
-    return true;
-  }
-
   // if you are a child you likely want to use this instead of normal execute
   protected drawOnContainer(
     inputObject: any,
@@ -142,15 +136,17 @@ abstract class DRAW_Base extends PureNode {
     inputObject: any,
     outputObject: Record<string, unknown>
   ): Promise<void> {
-    outputObject[outputPixiName] = (container, injectedData) =>
+    const drawingFunction = (container, injectedData) =>
       this.drawOnContainer(inputObject, container, injectedData);
+    outputObject[outputPixiName] = drawingFunction;
+    this.handleDrawing(drawingFunction);
   }
 
   protected shouldDraw(): boolean {
     return !this.getOutputSocketByName(outputPixiName).hasLink();
   }
 
-  handleDrawing(): void {
+  handleDrawing(data: any): void {
     const canvas = this.graph.viewport.getChildByName(
       'backgroundCanvas'
     ) as PIXI.Container;
@@ -160,8 +156,6 @@ abstract class DRAW_Base extends PureNode {
       this.deferredGraphics = new PIXI.Container();
       this.deferredGraphics.x = this.x + 400;
       this.deferredGraphics.y = this.y;
-      const data: (container: PIXI.Container) => void =
-        this.getOutputSocketByName(outputPixiName).data;
       data(this.deferredGraphics);
       canvas.addChild(this.deferredGraphics);
     }
@@ -184,17 +178,16 @@ abstract class DRAW_Base extends PureNode {
   }
 
   public outputPlugged(): void {
-    this.handleDrawing();
+    this.executeOptimizedChain();
   }
   public outputUnplugged(): void {
-    this.handleDrawing();
+    this.executeOptimizedChain();
   }
 
   shouldExecuteOnMove(): boolean {
     return this.shouldDraw();
   }
 }
-
 export class DRAW_Shape extends DRAW_Base {
   protected getDefaultIO(): Socket[] {
     return [
@@ -333,10 +326,8 @@ export class DRAW_Combine extends DRAW_Base {
     const array2Data =
       injectedData && injectedData.length > 1 ? injectedData[1] : {};
 
-    if (inputObject[inputCombine2Name])
-      inputObject[inputCombine2Name](myContainer, array2Data);
-    if (inputObject[inputCombine1Name])
-      inputObject[inputCombine1Name](myContainer, array1Data);
+    inputObject[inputCombine2Name](myContainer, array2Data);
+    inputObject[inputCombine1Name](myContainer, array1Data);
 
     this.positionAndScale(myContainer, inputObject);
 
@@ -394,6 +385,7 @@ export class DRAW_Multiplier extends DRAW_Base {
         injected = JSON.parse(inputObject[injectedDataName]);
       }
     } catch (e) {
+      this.successfullyExecuted = false;
       console.log('failed to parse injected data');
     }
     for (let x = 0; x < inputObject[multiplyXName]; x++) {
