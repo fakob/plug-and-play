@@ -228,9 +228,7 @@ export default class PPGraph {
     // draw connection
     if (this.selectedSourceSocket) {
       // draw connection while dragging
-      const socketCenter = this.getObjectCenter(this.selectedSourceSocket);
-      const sourcePointX = socketCenter.x;
-      const sourcePointY = socketCenter.y;
+      let socketCenter = this.getObjectCenter(this.selectedSourceSocket);
 
       // change mouse coordinates from screen to world space
       let targetPoint = new PIXI.Point();
@@ -241,6 +239,15 @@ export default class PPGraph {
         targetPoint = this.viewport.toWorld(event.data.global);
       }
 
+      // swap points if i grabbed an input, to make curve look nice
+      if (this.selectedSourceSocket.socketType === SOCKET_TYPE.IN) {
+        const temp: PIXI.Point = targetPoint;
+        targetPoint = socketCenter;
+        socketCenter = temp;
+      }
+
+      const sourcePointX = socketCenter.x;
+      const sourcePointY = socketCenter.y;
       // draw curve from 0,0 as PIXI.thisics originates from 0,0
       const toX = targetPoint.x - sourcePointX;
       const toY = targetPoint.y - sourcePointY;
@@ -278,12 +285,17 @@ export default class PPGraph {
       this.selectedSourceSocket = socket;
       this.lastSelectedSocketWasInput = false;
     } else {
-      // if output socket selected, get its corresponding input instead, and delete previous link, also note down that we grabbed an output
-      this.selectedSourceSocket = socket.links[0].getSource();
-      socket.links.forEach((link) => link.delete());
+      // if output socket selected, either make a new link from here backwards or re-link old existing link
       this.lastSelectedSocketWasInput = true;
-      this.onViewportMove(event);
-      this.selectedSourceSocket.getNode().outputUnplugged();
+      const hasLink = socket.links.length > 0;
+      if (hasLink) {
+        this.selectedSourceSocket = socket.links[0].getSource();
+        socket.links.forEach((link) => link.delete());
+        this.onViewportMove(event);
+        this.selectedSourceSocket.getNode().outputUnplugged();
+      } else {
+        this.selectedSourceSocket = socket;
+      }
     }
   }
 
@@ -293,12 +305,18 @@ export default class PPGraph {
   ): Promise<void> {
     const source = this.selectedSourceSocket;
     this.selectedSourceSocket = null;
-    if (
-      socket !== this.selectedSourceSocket &&
-      socket.socketType === SOCKET_TYPE.IN
-    ) {
-      // two matching sockets, connect them
-      await this.connect(source, socket);
+    if (socket !== this.selectedSourceSocket) {
+      if (
+        source.socketType === SOCKET_TYPE.IN &&
+        socket.socketType === SOCKET_TYPE.OUT
+      ) {
+        await this.connect(socket, source);
+      } else if (
+        source.socketType === SOCKET_TYPE.OUT &&
+        socket.socketType === SOCKET_TYPE.IN
+      ) {
+        await this.connect(source, socket);
+      }
     }
   }
 
