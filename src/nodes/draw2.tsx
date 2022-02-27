@@ -156,8 +156,6 @@ abstract class DRAW_Base extends PPNode {
       this.deferredGraphics = new PIXI.Container();
       this.deferredGraphics.x = this.x + 400;
       this.deferredGraphics.y = this.y;
-      //const data: (container: PIXI.Container) => void =
-      //  this.getOutputSocketByName(outputPixiName).data;
       data(this.deferredGraphics);
       canvas.addChild(this.deferredGraphics);
     }

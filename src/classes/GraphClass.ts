@@ -61,8 +61,6 @@ export default class PPGraph {
   onCloseSocketInspector: () => void; // called when socket inspector should be closed
   onViewportDragging: (isDraggingViewport: boolean) => void = () => {}; // called when the viewport is being dragged
 
-  //onViewportMoveHandler: (event?: PIXI.InteractionEvent) => void;
-
   constructor(app: PIXI.Application, viewport: Viewport) {
     this.app = app;
     this.viewport = viewport;
@@ -252,7 +250,11 @@ export default class PPGraph {
       const cpY2 = toY;
       // console.log(sourcePointX, toX);
 
-      this.tempConnection.lineStyle(2, CONNECTION_COLOR_HEX, 1);
+      this.tempConnection.lineStyle(
+        2,
+        this.selectedSourceSocket.dataType.getColor().hexNumber(),
+        1
+      );
       this.tempConnection.bezierCurveTo(cpX, cpY, cpX2, cpY2, toX, toY);
 
       // offset curve to start from source
@@ -261,11 +263,11 @@ export default class PPGraph {
     }
   }
 
-  socketHoverOver(socket: Socket) {
+  socketHoverOver(socket: Socket): void {
     this.overInputRef = socket;
   }
 
-  socketHoverOut(socket: Socket) {
+  socketHoverOut(socket: Socket): void {
     this.overInputRef = null;
   }
 
@@ -431,12 +433,7 @@ export default class PPGraph {
     input.links.forEach((link) => link.delete());
 
     //create link class
-    const link: PPLink = new PPLink(
-      ++this.lastLinkId,
-      output,
-      input,
-      this.viewport
-    );
+    const link: PPLink = new PPLink(++this.lastLinkId, output, input);
 
     //add to graph links list
     this._links[link.id] = link;

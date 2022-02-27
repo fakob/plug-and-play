@@ -9,20 +9,18 @@ export default class PPLink extends PIXI.Container {
   id: number;
   source: Socket;
   target: Socket;
-  viewport: Viewport;
   _connectionRef: PIXI.Graphics;
   // _data: any;
 
-  constructor(id: number, source: Socket, target: Socket, viewport: Viewport) {
+  constructor(id: number, source: Socket, target: Socket) {
     super();
     this.id = id;
     this.source = source;
     this.target = target;
-    this.viewport = viewport;
     // this._data = null;
 
     const connection = new PIXI.Graphics();
-    this._drawConnection(viewport, connection, source, target);
+    this._drawConnection(connection, source, target);
     this._connectionRef = this.addChild(connection);
   }
 
@@ -40,12 +38,7 @@ export default class PPLink extends PIXI.Container {
   updateConnection(): void {
     // redraw background due to node movement
     this._connectionRef.clear();
-    this._drawConnection(
-      this.viewport,
-      this._connectionRef,
-      this.source,
-      this.target
-    );
+    this._drawConnection(this._connectionRef, this.source, this.target);
   }
 
   getSource(): Socket {
@@ -77,28 +70,12 @@ export default class PPLink extends PIXI.Container {
   }
 
   _drawConnection(
-    viewport: Viewport,
     connection: PIXI.Graphics,
     source: Socket,
     target: Socket
   ): void {
-    // get source position
-    const sourceRect = source.children[0].getBounds();
-    const sourcePoint = viewport.toWorld(
-      new PIXI.Point(
-        sourceRect.x + sourceRect.width / 2,
-        sourceRect.y + sourceRect.height / 2
-      )
-    );
-
-    // get target position
-    const targetRect = target.children[0].getBounds();
-    const targetPoint = viewport.toWorld(
-      new PIXI.Point(
-        targetRect.x + targetRect.width / 2,
-        targetRect.y + targetRect.height / 2
-      )
-    );
+    const sourcePoint = source.getNode().graph.getObjectCenter(source);
+    const targetPoint = source.getNode().graph.getObjectCenter(target);
 
     // draw curve from 0,0 as PIXI.Graphics sourceates from 0,0
     const toX = targetPoint.x - sourcePoint.x;
@@ -108,7 +85,7 @@ export default class PPLink extends PIXI.Container {
     const cpX2 = toX - cpX;
     const cpY2 = toY;
 
-    connection.lineStyle(2, CONNECTION_COLOR_HEX, 1);
+    connection.lineStyle(2, source.dataType.getColor().hexNumber(), 1);
     connection.bezierCurveTo(cpX, cpY, cpX2, cpY2, toX, toY);
 
     // offset curve to start from source
