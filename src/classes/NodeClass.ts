@@ -989,13 +989,15 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     let foundChange = !this.isPure();
     // output whatever the user has put in
     this.outputSocketArray.forEach((output: Socket) => {
-      if (!foundChange) {
-        // see if anything has changed, but only need to do this if no previous has been found
-        foundChange =
-          JSON.stringify(outputObject[output.name]) !==
-          JSON.stringify(output.data);
+      if (outputObject[output.name] !== undefined) {
+        if (!foundChange) {
+          // see if anything has changed, but only need to do this if no previous has been found
+          foundChange =
+            JSON.stringify(outputObject[output.name]) !==
+            JSON.stringify(output.data);
+        }
+        output.data = outputObject[output.name];
       }
-      output.data = outputObject[output.name];
     });
     return foundChange;
   }
@@ -1058,13 +1060,14 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
       this.drawComment();
     } catch (error) {
       foundError = error;
-      console.log('node ' + this.id + ' execution error: ' + error);
+      console.log(
+        'node ' + this.id + ' execution error: ' + JSON.stringify(error)
+      );
       this.successfullyExecuted = false;
     }
     if (executedSuccessOld !== this.successfullyExecuted) {
       this.drawNodeShape();
     }
-    if (!this.successfullyExecuted) throw foundError;
     return foundChange;
   }
 

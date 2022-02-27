@@ -393,11 +393,11 @@ export default class PPGraph {
     return node; //to chain actions
   }
 
-  async createAndAddNode<T extends PPNode = PPNode>(
+  createAndAddNode<T extends PPNode = PPNode>(
     type: string,
     customArgs?: CustomArgs,
     notify = true
-  ): Promise<T> {
+  ): T {
     const node = this.createNode(type, customArgs) as T;
     // if (node) {
     this.addNode(node);
@@ -414,11 +414,7 @@ export default class PPGraph {
           'of',
           node.inputSocketArray[0].parent.name
         );
-        await this.connect(
-          customArgs.addLink,
-          node.inputSocketArray[0],
-          notify
-        );
+        this.connect(customArgs.addLink, node.inputSocketArray[0], notify);
         this.clearTempConnection();
       }
     }
@@ -637,29 +633,29 @@ export default class PPGraph {
 
     //create nodes
     try {
-      data.nodes.forEach(async (node) => {
-        (
-          await this.createAndAddNode(
-            node.type,
-            {
-              customId: node.id,
-            },
-            false
-          )
+      data.nodes.forEach((node) => {
+        this.createAndAddNode(
+          node.type,
+          {
+            customId: node.id,
+          },
+          false
         ).configure(node);
       });
 
-      data.links.forEach(async (link) => {
-        const outputRef = this.getOutputRef(
-          link.sourceNodeId,
-          link.sourceSocketIndex
-        );
-        const inputRef = this.getInputRef(
-          link.targetNodeId,
-          link.targetSocketIndex
-        );
-        await this.connect(outputRef, inputRef, false);
-      });
+      await Promise.all(
+        data.links.map(async (link) => {
+          const outputRef = this.getOutputRef(
+            link.sourceNodeId,
+            link.sourceSocketIndex
+          );
+          const inputRef = this.getInputRef(
+            link.targetNodeId,
+            link.targetSocketIndex
+          );
+          await this.connect(outputRef, inputRef, false);
+        })
+      );
     } catch (error) {
       configureError = error;
     }
