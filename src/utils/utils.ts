@@ -474,3 +474,32 @@ export const put = (obj: any, path: string | string[], val: any): any => {
   });
   return obj;
 };
+
+export const stringToObj = (obj: any, path: string, value: any) => {
+  let objValue = value;
+  try {
+    objValue = JSON.parse(value);
+  } catch (e) {} //eat the error, must not be json so carry on... Hack to do a valid JSON check
+
+  const parts = path.split('.');
+  let part;
+  const last = parts.pop();
+  while ((part = parts.shift())) {
+    if (typeof obj[part] != 'object') obj[part] = {};
+    obj = obj[part];
+  }
+  if (
+    obj.hasOwnProperty(last) &&
+    obj[last] &&
+    obj[last].constructor === Array
+  ) {
+    obj[last].push(objValue);
+  } else if (obj.hasOwnProperty(last) && obj[last]) {
+    const objArray = [];
+    objArray.push(obj[last]);
+    objArray.push(objValue);
+    obj[last] = objArray;
+  } else {
+    obj[last] = objValue;
+  }
+};

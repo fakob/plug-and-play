@@ -3,7 +3,7 @@ import { JSONPath } from 'jsonpath-plus';
 import FloatingJsonPathPicker from '../../components/FloatingJsonPathPicker';
 import PureNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
-import { put } from '../../utils/utils';
+import { stringToObj } from '../../utils/utils';
 import { SOCKET_TYPE } from '../../utils/constants';
 import { JSONType } from '../datatypes/jsonType';
 import { StringType } from '../datatypes/stringType';
@@ -104,7 +104,7 @@ export class JSONSet extends PureNode {
     const path = inputObject[JSONParamName];
     const insert = inputObject[JSONInsert];
     if (current) {
-      outputObject[outValueName] = put(current, path, insert);
+      outputObject[outValueName] = stringToObj(current, path, insert);
     }
   }
 }
