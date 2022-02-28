@@ -13,7 +13,7 @@ import { StringType } from '../datatypes/stringType';
 
 const JSONName = 'JSON';
 const JSONParamName = 'Path';
-const JSONInsert = 'Insert';
+const JSONInsert = 'New value';
 const outValueName = 'Value';
 
 export class JSONGet extends PureNode {
