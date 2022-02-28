@@ -85,7 +85,11 @@ export default class PPLink extends PIXI.Container {
     const cpX2 = toX - cpX;
     const cpY2 = toY;
 
-    connection.lineStyle(2, source.dataType.getColor().hexNumber(), 1);
+    connection.lineStyle(
+      2,
+      source.dataType.getColor().multiply(0.9).hexNumber(),
+      1
+    );
     connection.bezierCurveTo(cpX, cpY, cpX2, cpY2, toX, toY);
 
     // offset curve to start from source

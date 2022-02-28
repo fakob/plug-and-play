@@ -259,7 +259,7 @@ export default class PPGraph {
 
       this.tempConnection.lineStyle(
         2,
-        this.selectedSourceSocket.dataType.getColor().hexNumber(),
+        this.selectedSourceSocket.dataType.getColor().multiply(0.9).hexNumber(),
         1
       );
       this.tempConnection.bezierCurveTo(cpX, cpY, cpX2, cpY2, toX, toY);
