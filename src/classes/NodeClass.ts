@@ -1007,14 +1007,14 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     return true;
   }
 
-  public renderOutlineThrottled = throttle(this.renderOutline, 200, {
+  public renderOutlineThrottled = throttle(this.renderOutline, 500, {
     trailing: true,
     leading: true,
   });
 
   public renderOutline(): void {
-    const iterations = 20;
-    const interval = 16;
+    const iterations = 30;
+    const interval = 16.67;
     const activeExecution = new PIXI.Graphics();
     this.addChild(activeExecution);
     for (let i = 1; i <= iterations; i++) {
@@ -1023,7 +1023,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
         if (this.successfullyExecuted) {
           activeExecution.beginFill(
             PIXI.utils.string2hex('#CCFFFF'),
-            0.3 - i * (0.3 / iterations)
+            0.4 - i * (0.4 / iterations)
           );
         } else {
           activeExecution.beginFill(
@@ -1035,7 +1035,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
         activeExecution.drawRoundedRect(
           NODE_MARGIN,
           0,
-          this.nodeWidth * ((i + 1) / iterations),
+          this.nodeWidth,
           this.getNodeHeight(),
           this.roundedCorners ? NODE_CORNERRADIUS : 0
         );
