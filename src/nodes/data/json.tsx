@@ -95,7 +95,7 @@ export class JSONSet extends PureNode {
           },
         }
       ),
-      new Socket(SOCKET_TYPE.IN, JSONInsert, new AnyType()),
+      new Socket(SOCKET_TYPE.IN, JSONInsert, new AnyType(), 'newValueOrObject'),
       new Socket(SOCKET_TYPE.OUT, outValueName, new JSONType()),
     ];
   }
