@@ -95,12 +95,14 @@ export default class Socket extends PIXI.Container {
     this._SocketRef.interactive = true;
     this._SocketRef.on('pointerover', this._onPointerOver.bind(this));
     this._SocketRef.on('pointerout', this._onPointerOut.bind(this));
-    this._SocketRef.on('pointerdown', this._onPointerDown.bind(this));
-    this._SocketNameRef.name = 'SocketNameRef';
+    this._SocketRef.on('pointerdown', (event) => this._onPointerDown(event));
+    this._SocketRef.on('pointerup', (event) => this._onPointerUp(event));
     this._SocketNameRef.interactive = true;
     this._SocketNameRef.on('pointerover', this._onPointerOver.bind(this));
     this._SocketNameRef.on('pointerout', this._onPointerOut.bind(this));
-    this._SocketNameRef.on('pointerdown', this._onPointerDown.bind(this));
+    this._SocketNameRef.on('pointerdown', (event) => {
+      this.getGraph().socketNameRefMouseDown(this, event);
+    });
   }
 
   // GETTERS & SETTERS
@@ -253,8 +255,8 @@ export default class Socket extends PIXI.Container {
       socketType: this.socketType,
       name: this.name,
       dataType: serializeType(this.dataType),
-      ...(data && { data: data }),
-      ...(defaultData && { defaultData: defaultData }),
+      ...{ data: data },
+      ...{ defaultData: defaultData },
       visible: this.visible,
     };
   }
@@ -268,44 +270,23 @@ export default class Socket extends PIXI.Container {
 
   // SETUP
 
-  _onPointerOver(event: PIXI.InteractionEvent): void {
-    // set overInputRef on graph
-    if (
-      this.socketType === SOCKET_TYPE.IN &&
-      event.target.name === 'SocketRef'
-    ) {
-      this.getGraph().overInputRef = this;
-    }
-
+  _onPointerOver(): void {
     this.cursor = 'pointer';
     (this._SocketRef as PIXI.Graphics).tint = TRgba.white().hexNumber();
+    this.getGraph().socketHoverOver(this);
   }
 
   _onPointerOut(): void {
-    // reset overInputRef on graph
-    if (this.socketType === SOCKET_TYPE.IN) {
-      this.getGraph().overInputRef = null;
-    }
-
-    this.getGraph().clickedSocketNameRef = null;
     this.alpha = 1.0;
     this.cursor = 'default';
     (this._SocketRef as PIXI.Graphics).tint = 0xffffff;
+    this.getGraph().socketHoverOut(this);
   }
 
   _onPointerDown(event: PIXI.InteractionEvent): void {
-    console.log('_onPointerDown');
-    if (event.target.name === 'SocketRef') {
-      if (event.data.button === 2) {
-        this.getGraph().checkIfSocketHasConnectionAndDeleteIt(
-          this,
-          this.isInput()
-        );
-      } else {
-        this.getGraph().clickedSocketRef = event.target.parent as Socket;
-      }
-    } else if (event.target.name === 'SocketNameRef') {
-      this.getGraph().clickedSocketNameRef = event.target.parent as Socket;
-    }
+    this.getGraph().socketMouseDown(this, event);
+  }
+  _onPointerUp(event: PIXI.InteractionEvent): void {
+    this.getGraph().socketMouseUp(this, event);
   }
 }
