@@ -11,7 +11,7 @@ import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
 import { CodeType } from './datatypes/codeType';
 import { convertToString, getSelectionBounds } from '../utils/utils';
-import { CustomArgs } from '../utils/interfaces';
+import { CustomArgs, TRgba } from '../utils/interfaces';
 import { NODE_TYPE_COLOR, customTheme } from '../utils/constants';
 
 export class CodeEditor extends PPNode {
@@ -33,7 +33,7 @@ export class CodeEditor extends PPNode {
     let editedData = '';
 
     super(name, graph, {
-      color: NODE_TYPE_COLOR.TRANSFORM,
+      color: TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM),
       nodeWidth,
       nodeHeight,
       isHybrid,
