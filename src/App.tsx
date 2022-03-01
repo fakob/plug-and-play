@@ -62,11 +62,11 @@ import {
   getLoadedGraphId,
   getRemoteGraph,
   getRemoteGraphsList,
+  getSelectionBounds,
   isEventComingFromWithinTextInput,
   removeExtension,
   roundNumber,
   useStateRef,
-  zoomToFitSelection,
 } from './utils/utils';
 import { registerAllNodeTypes } from './nodes/allNodes';
 import PPSelection from './classes/SelectionClass';
@@ -247,7 +247,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       if (newNodeSelection.length > 0) {
         // currentGraph.current.selection.selectedNodes = newNodeSelection;
         currentGraph.current.selection.selectNodes(newNodeSelection);
-        zoomToFitSelection(currentGraph.current);
+        zoomToFitSelection();
         enqueueSnackbar(
           `${newNodeSelection.length} new ${
             newNodeSelection.length === 1 ? 'node was' : 'nodes were'
@@ -538,15 +538,10 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         }
       }
       if (e.shiftKey && e.code === 'Digit1') {
-        zoomToFitSelection(currentGraph.current, true);
+        zoomToFitSelection(true);
       }
       if (e.shiftKey && e.code === 'Digit2') {
-        zoomToFitSelection(currentGraph.current);
-      }
-      if (e.shiftKey && e.code === 'Digit3') {
-        zoomToFitSelection(currentGraph.current, true);
-        currentGraph.current.viewport.setZoom(1, false); // zoom to 100%
-        currentGraph.current.selection.drawRectanglesFromSelection();
+        zoomToFitSelection();
       }
       if ((isMac ? e.metaKey : e.ctrlKey) && e.shiftKey && e.key === 'y') {
         e.preventDefault();
@@ -626,6 +621,33 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     (viewport.current.getChildByName('debugGrid') as PIXI.Mesh).visible =
       showComments;
   }, [showComments]);
+
+  const moveToCenter = (bounds: PIXI.Rectangle) => {
+    viewport.current.moveCenter(
+      bounds.x + bounds.width / 2,
+      bounds.y + bounds.height / 2
+    );
+  };
+
+  const zoomToFitSelection = (fitAll = false) => {
+    let boundsToZoomTo: PIXI.Rectangle;
+    let zoomOutFactor: number;
+
+    if (fitAll || currentGraph.current.selection.selectedNodes.length < 1) {
+      boundsToZoomTo = currentGraph.current.nodeContainer.getLocalBounds(); // get bounds of the whole nodeContainer
+      zoomOutFactor = -0.2;
+    } else {
+      boundsToZoomTo = getSelectionBounds(
+        currentGraph.current.selection.selectedNodes // get bounds of the selectedNodes
+      );
+      zoomOutFactor = -0.3;
+    }
+
+    moveToCenter(boundsToZoomTo);
+    viewport.current.fit(true, boundsToZoomTo.width, boundsToZoomTo.height);
+    viewport.current.zoomPercent(zoomOutFactor, true); // zoom out a bit more
+    currentGraph.current.selection.drawRectanglesFromSelection();
+  };
 
   function downloadGraph() {
     db.transaction('rw', db.graphs, db.settings, async () => {
@@ -824,7 +846,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
   const handleNodeItemSelect = (event, selected: INodeSearch) => {
     console.log(selected);
     // store link before search gets hidden and temp connection gets reset
-    const addLink = currentGraph.current.clickedSocketRef;
+    const addLink = currentGraph.current.selectedSourceSocket;
     const nodePos = viewport.current.toWorld(
       contextMenuPosition[0],
       contextMenuPosition[1]
@@ -842,7 +864,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
   };
 
   const getNodes = (): INodeSearch[] => {
-    const addLink = currentGraph.current.clickedSocketRef;
+    const addLink = currentGraph.current.selectedSourceSocket;
     const tempItems = Object.entries(currentGraph.current.registeredNodeTypes)
       .map(([title, obj]) => {
         return {
@@ -876,6 +898,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
   const nodeSearchInputBlurred = () => {
     console.log('nodeSearchInputBlurred');
     setIsNodeSearchVisible(false);
+    currentGraph.current.selectedSourceSocket = null;
   };
 
   const updateGraphSearchItems = () => {
