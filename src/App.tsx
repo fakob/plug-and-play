@@ -543,6 +543,11 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       if (e.shiftKey && e.code === 'Digit2') {
         zoomToFitSelection(currentGraph.current);
       }
+      if (e.shiftKey && e.code === 'Digit3') {
+        zoomToFitSelection(currentGraph.current, true);
+        currentGraph.current.viewport.setZoom(1, false); // zoom to 100%
+        currentGraph.current.selection.drawRectanglesFromSelection();
+      }
       if ((isMac ? e.metaKey : e.ctrlKey) && e.shiftKey && e.key === 'y') {
         e.preventDefault();
         setShowComments((prevState) => !prevState);

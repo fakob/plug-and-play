@@ -100,6 +100,7 @@ export default class PPNode extends PIXI.Container {
   // supported callbacks
   onConfigure: (nodeConfig: SerializedNode) => void = () => {}; // called after the node has been configured
   onNodeDoubleClick: (event: PIXI.InteractionEvent) => void = () => {};
+  onNodeFocusOut: (event: PIXI.InteractionEvent) => void = () => {};
   onMoveHandler: (event?: PIXI.InteractionEvent) => void = () => {};
   onViewportMoveHandler: (event?: PIXI.InteractionEvent) => void = () => {};
   onDrawNodeShape: () => void = () => {}; // called when the node is drawn
@@ -810,12 +811,8 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
       this.container.style.top = `${screenY}px`;
     };
 
-    this.container.addEventListener('focusout', (e) => {
-      this.doubleClicked = false;
-
-      // this allows to zoom and drag when the hybrid node is not selected
-      this.container.style.pointerEvents = 'none';
-    });
+    this.container.addEventListener('focusout', this._onFocusOut.bind(this));
+    this.container.addEventListener('blur', this._onFocusOut.bind(this));
 
     // when the Node is removed also remove the react component and its container
     this.onNodeRemoved = () => {
@@ -1174,9 +1171,18 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
       this.container.style.pointerEvents = 'auto';
     }
 
-    if (this.onNodeDoubleClick) {
-      this.onNodeDoubleClick(event);
+    this.onNodeDoubleClick(event);    }
+  }
+
+  _onFocusOut(event: PIXI.InteractionEvent): void {
+    this.doubleClicked = false;
+
+    if (this.isHybrid) {
+      // this allows to zoom and drag when the hybrid node is not selected
+      this.container.style.pointerEvents = 'none';
     }
+
+    this.onNodeFocusOut(event);
   }
 
   public outputPlugged(): void {}

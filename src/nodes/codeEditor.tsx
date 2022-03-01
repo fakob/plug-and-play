@@ -70,11 +70,18 @@ export class CodeEditor extends PPNode {
       zoomToFitSelection(graph);
       graph.viewport.setZoom(1, true); // zoom to 100%
       graph.selection.drawRectanglesFromSelection();
-      // this.executeOptimizedChain();
-      // const storedData = this.getInputData('input') ?? DEFAULT_EDITOR_DATA;
-      // this.renderReactComponent(ParentComponent, {
-      //   data: storedData,
-      // });
+      console.log('onNodeDoubleClick');
+      this.renderReactComponent(ParentComponent, {
+        editable: true,
+      });
+    };
+
+    this.onNodeFocusOut = () => {
+      console.log('onNodeFocusOut');
+      this.renderReactComponent(ParentComponent, {
+        editable: false,
+      });
+      // this.setInputData('input', value);
     };
 
     this.onNodeResize = (newWidth, newHeight) => {
@@ -97,6 +104,7 @@ export class CodeEditor extends PPNode {
       hasLink: boolean;
       nodeHeight: number;
       graph: PPGraph;
+      editable?: boolean;
     };
 
     // small presentational component
@@ -131,28 +139,14 @@ export class CodeEditor extends PPNode {
       const [codeString, setCodeString] = useState<string | undefined>(
         dataAsString
       );
-      const [scale, setScale] = useState(props.graph?.viewport.scale.x ?? 1);
       const editor = useRef();
-
-      function updateScale() {
-        setScale(props.graph.viewport.scale.x);
-      }
 
       const onChange = (value) => {
         // console.log(value);
         setCodeString(value);
-        this.setInputData('input', value);
         this.setOutputData('output', value);
         this.executeOptimizedChain();
       };
-
-      // on mount subscribing to moved event
-      useEffect(() => {
-        props.graph.viewport.on('moved', updateScale);
-        return function cleanup() {
-          props.graph.viewport.removeListener('moved', updateScale);
-        };
-      }, []);
 
       useEffect(() => {
         let dataAsString;
@@ -167,7 +161,7 @@ export class CodeEditor extends PPNode {
 
       useEffect(() => {
         if (editor.current) {
-          console.log(editor.current);
+          // console.log(editor.current);
         }
       }, [editor.current]);
 
@@ -195,7 +189,7 @@ export class CodeEditor extends PPNode {
       }
 
       const saveCodeEditorChanges = (data) => {
-        console.log();
+        console.log(data);
         console.log(data.valueOf());
       };
 
@@ -204,10 +198,9 @@ export class CodeEditor extends PPNode {
           ref={editor}
           value={codeString}
           width="100%"
-          minHeight={`${props.nodeHeight}px`}
-          maxHeight="60vh"
+          height={`${props.nodeHeight}px`}
           theme={oneDark}
-          // editable={!props.hasLink}
+          editable={props.editable}
           extensions={[
             javascript({ jsx: true }),
             EditorView.lineWrapping,
@@ -215,9 +208,9 @@ export class CodeEditor extends PPNode {
             theme,
           ]}
           basicSetup={true}
-          autoFocus={true}
+          // autoFocus={true}
           onChange={onChange}
-          onBlur={(a) => saveCodeEditorChanges(a)}
+          onBlur={(data) => saveCodeEditorChanges(data)}
         />
       );
     };
