@@ -392,3 +392,37 @@ export const getSelectionBounds = (selectedNodes: PPNode[]): PIXI.Rectangle => {
   });
   return selectionBounds;
 };
+
+export const replacePartOfObject = (
+  originalObject: any,
+  pathToReplace: string,
+  value: any
+): any => {
+  let objValue = value;
+  try {
+    objValue = JSON.parse(value);
+  } catch (e) {
+    console.log('Value is probably a primitive:', value);
+  }
+
+  // duplicate originalObject
+  const obj = JSON.parse(JSON.stringify(originalObject));
+
+  let movingPointer = obj;
+  const parts = pathToReplace
+    .split('.')
+    .map((item) => item.replace(/[\[\]']+/g, '')); // remove square brackets for arrays
+
+  let part;
+  const last = parts.pop();
+
+  // navigate to the property to be replaced
+  while ((part = parts.shift())) {
+    if (typeof movingPointer[part] !== 'object') movingPointer[part] = {};
+    movingPointer = movingPointer[part];
+  }
+
+  // replace with value
+  movingPointer[last] = objValue;
+  return obj;
+};
