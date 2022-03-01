@@ -86,6 +86,8 @@ export default class PPNode extends PIXI.Container {
   updateBehaviour: UpdateBehaviour;
   lastTimeTicked = 0;
 
+  successfullyExecuted = true;
+
   inputSocketArray: Socket[];
   outputSocketArray: Socket[];
 
@@ -142,7 +144,6 @@ export default class PPNode extends PIXI.Container {
       this.roundedCorners = Boolean(customArgs?.roundedCorners ?? true);
       this.showLabels = Boolean(customArgs?.showLabels ?? true);
     }
-
     this.color = customArgs?.color ?? TRgba.fromString(NODE_TYPE_COLOR.DEFAULT);
 
     this.color.a = customArgs?.colorTransparency ?? (this.isHybrid ? 0.01 : 1); // so it does not show when dragging the node fast
@@ -610,19 +611,37 @@ export default class PPNode extends PIXI.Container {
     return this.getAllSockets().find((socket) => socket.name === name);
   }
 
+  getNodeHeight(): number {
+    return this.nodeHeight === undefined
+      ? this.calculatedMinNodeHeight
+      : Math.max(this.nodeHeight, this.calculatedMinNodeHeight);
+  }
+
   drawNodeShape(): void {
     // redraw background due to size change
     this._BackgroundRef.clear();
+    if (!this.successfullyExecuted) {
+      this._BackgroundRef.beginFill(
+        new TRgba(255, 0, 0).hexNumber(),
+        this.color.a
+      );
+      this._BackgroundRef.drawRoundedRect(
+        NODE_MARGIN - 3,
+        -3,
+        this.nodeWidth + 6,
+        this.getNodeHeight() + 6,
+        this.roundedCorners ? NODE_CORNERRADIUS : 0
+      );
+    }
     this._BackgroundRef.beginFill(this.color.hexNumber(), this.color.a);
     this._BackgroundRef.drawRoundedRect(
       NODE_MARGIN,
       0,
       this.nodeWidth,
-      this.nodeHeight === undefined
-        ? this.calculatedMinNodeHeight
-        : Math.max(this.nodeHeight, this.calculatedMinNodeHeight),
+      this.getNodeHeight(),
       this.roundedCorners ? NODE_CORNERRADIUS : 0
     );
+
     this._BackgroundRef.endFill();
 
     // redraw outputs
@@ -794,7 +813,6 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
 
     const screenPoint = this.screenPoint();
     this.container.classList.add(styles.hybridContainer);
-    this.container.style.outlineColor = RANDOMMAINCOLOR;
     this.container.style.width = `${this.nodeWidth}px`;
     this.container.style.height = `${this.nodeHeight}px`;
     Object.assign(this.container.style, customStyles);
@@ -986,30 +1004,36 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     return true;
   }
 
-  public renderOutlineThrottled = throttle(this.renderOutline, 200, {
+  public renderOutlineThrottled = throttle(this.renderOutline, 500, {
     trailing: true,
     leading: true,
   });
 
   public renderOutline(): void {
-    const iterations = 20;
-    const interval = 16;
+    const iterations = 30;
+    const interval = 16.67;
     const activeExecution = new PIXI.Graphics();
     this.addChild(activeExecution);
     for (let i = 1; i <= iterations; i++) {
       setTimeout(() => {
         activeExecution.clear();
-        activeExecution.beginFill(
-          PIXI.utils.string2hex('#CCFFFF'),
-          0.3 - i * (0.3 / iterations)
-        );
+        if (this.successfullyExecuted) {
+          activeExecution.beginFill(
+            PIXI.utils.string2hex('#CCFFFF'),
+            0.4 - i * (0.4 / iterations)
+          );
+        } else {
+          activeExecution.beginFill(
+            new TRgba(255, 0, 0).hexNumber(),
+            1.0 - i * (1.0 / iterations)
+          );
+        }
+
         activeExecution.drawRoundedRect(
           NODE_MARGIN,
           0,
-          this.nodeWidth * ((i + 1) / iterations),
-          this.nodeHeight === undefined
-            ? this.calculatedMinNodeHeight
-            : Math.max(this.nodeHeight, this.calculatedMinNodeHeight),
+          this.nodeWidth,
+          this.getNodeHeight(),
           this.roundedCorners ? NODE_CORNERRADIUS : 0
         );
         activeExecution.endFill();
@@ -1020,12 +1044,27 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     }
   }
 
-  public async execute(): Promise<boolean> {
-    if (this.shouldDrawExecution()) {
-      this.renderOutlineThrottled();
+  protected async execute(): Promise<boolean> {
+    const executedSuccessOld = this.successfullyExecuted;
+    let foundChange = false;
+    let foundError = '';
+    try {
+      this.successfullyExecuted = true;
+      if (this.shouldDrawExecution()) {
+        this.renderOutlineThrottled();
+      }
+      foundChange = await this.rawExecute();
+      this.drawComment();
+    } catch (error) {
+      foundError = error;
+      console.log(
+        'node ' + this.id + ' execution error: ' + JSON.stringify(error)
+      );
+      this.successfullyExecuted = false;
     }
-    const foundChange = await this.rawExecute();
-    this.drawComment();
+    if (executedSuccessOld !== this.successfullyExecuted) {
+      this.drawNodeShape();
+    }
     return foundChange;
   }
 
@@ -1173,7 +1212,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
       this.container.classList.add(styles.hybridContainerDoubleClicked);
     }
 
-    this.onNodeDoubleClick(event);    }
+    this.onNodeDoubleClick(event);
   }
 
   _onFocusOut(event: PIXI.InteractionEvent): void {
