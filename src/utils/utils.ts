@@ -392,3 +392,26 @@ export const getSelectionBounds = (selectedNodes: PPNode[]): PIXI.Rectangle => {
   });
   return selectionBounds;
 };
+
+export const zoomToFitSelection = (graph: PPGraph, fitAll = false) => {
+  let boundsToZoomTo: PIXI.Rectangle;
+  let zoomOutFactor: number;
+
+  if (fitAll || graph.selection.selectedNodes.length < 1) {
+    boundsToZoomTo = graph.nodeContainer.getLocalBounds(); // get bounds of the whole nodeContainer
+    zoomOutFactor = -0.2;
+  } else {
+    boundsToZoomTo = getSelectionBounds(
+      graph.selection.selectedNodes // get bounds of the selectedNodes
+    );
+    zoomOutFactor = -0.3;
+  }
+
+  graph.viewport.moveCenter(
+    boundsToZoomTo.x + boundsToZoomTo.width / 2,
+    boundsToZoomTo.y + boundsToZoomTo.height / 2
+  );
+  graph.viewport.fit(true, boundsToZoomTo.width, boundsToZoomTo.height);
+  graph.viewport.zoomPercent(zoomOutFactor, true); // zoom out a bit more
+  graph.selection.drawRectanglesFromSelection();
+};

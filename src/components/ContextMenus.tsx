@@ -142,7 +142,7 @@ export const GraphContextMenu = (props) => {
         <MenuItem disabled>Viewport</MenuItem>
         <MenuItem
           onClick={() => {
-            props.zoomToFitSelection(true);
+            props.zoomToFitSelection(props.currentGraph.current, true);
           }}
         >
           <ListItemIcon>
@@ -192,7 +192,7 @@ export const NodeContextMenu = (props) => {
       <MenuList dense>
         <MenuItem
           onClick={() => {
-            props.zoomToFitSelection();
+            props.zoomToFitSelection(props.currentGraph.current);
           }}
         >
           <ListItemIcon>

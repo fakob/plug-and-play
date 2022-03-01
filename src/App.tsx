@@ -62,11 +62,11 @@ import {
   getLoadedGraphId,
   getRemoteGraph,
   getRemoteGraphsList,
-  getSelectionBounds,
   isEventComingFromWithinTextInput,
   removeExtension,
   roundNumber,
   useStateRef,
+  zoomToFitSelection,
 } from './utils/utils';
 import { registerAllNodeTypes } from './nodes/allNodes';
 import PPSelection from './classes/SelectionClass';
@@ -247,7 +247,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       if (newNodeSelection.length > 0) {
         // currentGraph.current.selection.selectedNodes = newNodeSelection;
         currentGraph.current.selection.selectNodes(newNodeSelection);
-        zoomToFitSelection();
+        zoomToFitSelection(currentGraph.current);
         enqueueSnackbar(
           `${newNodeSelection.length} new ${
             newNodeSelection.length === 1 ? 'node was' : 'nodes were'
@@ -538,10 +538,10 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         }
       }
       if (e.shiftKey && e.code === 'Digit1') {
-        zoomToFitSelection(true);
+        zoomToFitSelection(currentGraph.current, true);
       }
       if (e.shiftKey && e.code === 'Digit2') {
-        zoomToFitSelection();
+        zoomToFitSelection(currentGraph.current);
       }
       if ((isMac ? e.metaKey : e.ctrlKey) && e.shiftKey && e.key === 'y') {
         e.preventDefault();
@@ -621,33 +621,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     (viewport.current.getChildByName('debugGrid') as PIXI.Mesh).visible =
       showComments;
   }, [showComments]);
-
-  const moveToCenter = (bounds: PIXI.Rectangle) => {
-    viewport.current.moveCenter(
-      bounds.x + bounds.width / 2,
-      bounds.y + bounds.height / 2
-    );
-  };
-
-  const zoomToFitSelection = (fitAll = false) => {
-    let boundsToZoomTo: PIXI.Rectangle;
-    let zoomOutFactor: number;
-
-    if (fitAll || currentGraph.current.selection.selectedNodes.length < 1) {
-      boundsToZoomTo = currentGraph.current.nodeContainer.getLocalBounds(); // get bounds of the whole nodeContainer
-      zoomOutFactor = -0.2;
-    } else {
-      boundsToZoomTo = getSelectionBounds(
-        currentGraph.current.selection.selectedNodes // get bounds of the selectedNodes
-      );
-      zoomOutFactor = -0.3;
-    }
-
-    moveToCenter(boundsToZoomTo);
-    viewport.current.fit(true, boundsToZoomTo.width, boundsToZoomTo.height);
-    viewport.current.zoomPercent(zoomOutFactor, true); // zoom out a bit more
-    currentGraph.current.selection.drawRectanglesFromSelection();
-  };
 
   function downloadGraph() {
     db.transaction('rw', db.graphs, db.settings, async () => {
