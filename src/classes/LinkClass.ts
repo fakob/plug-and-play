@@ -10,14 +10,12 @@ export default class PPLink extends PIXI.Container {
   source: Socket;
   target: Socket;
   _connectionRef: PIXI.Graphics;
-  // _data: any;
 
   constructor(id: number, source: Socket, target: Socket) {
     super();
     this.id = id;
     this.source = source;
     this.target = target;
-    // this._data = null;
 
     const connection = new PIXI.Graphics();
     this._drawConnection(connection, source, target);

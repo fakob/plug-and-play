@@ -51,6 +51,13 @@ export class NumberType extends AbstractType {
   getDefaultValue(): any {
     return 0;
   }
+  isDataValidForType(data: any): boolean {
+    if (typeof data === 'object') {
+      return true;
+    } else {
+      return false;
+    }
+  }
 
   getColor(): TRgba {
     return new TRgba(128, 229, 229);

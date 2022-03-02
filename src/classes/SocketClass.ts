@@ -27,6 +27,8 @@ export default class Socket extends PIXI.Container {
   _SocketNameRef: PIXI.DisplayObject;
   _SocketRef: PIXI.DisplayObject;
 
+  socketOutline: PIXI.Graphics;
+
   _socketType: TSocketType;
   _dataType: AbstractType;
   _data: any;
@@ -34,8 +36,9 @@ export default class Socket extends PIXI.Container {
   _custom: Record<string, any>;
   _links: PPLink[];
 
+  hasValidInput = true;
+
   interactionData: PIXI.InteractionData | null;
-  linkDragPos: null | PIXI.Point;
 
   constructor(
     socketType: TSocketType,
@@ -89,6 +92,8 @@ export default class Socket extends PIXI.Container {
     this._SocketRef = this.addChild(socket);
     this._SocketNameRef = this.addChild(socketNameText);
 
+    this.socketOutline = new PIXI.Graphics();
+
     this.interactionData = null;
     this.interactive = true;
     this._SocketRef.name = 'SocketRef';
@@ -103,6 +108,38 @@ export default class Socket extends PIXI.Container {
     this._SocketNameRef.on('pointerdown', (event) => {
       this.getGraph().socketNameRefMouseDown(this, event);
     });
+  }
+
+  updateSocketNotification(shouldOutline: boolean): void {
+    this.removeChild(this.socketOutline);
+    if (shouldOutline) {
+      this.socketOutline = new PIXI.Graphics();
+      this.socketOutline.beginFill(new TRgba(255, 200, 0).hexNumber());
+      this.socketOutline.drawRoundedRect(
+        this.socketType === SOCKET_TYPE.IN ? -5 : NODE_WIDTH + 5 + SOCKET_WIDTH,
+        SOCKET_WIDTH / 2 - 1 - 10,
+        3,
+        10,
+        3
+      );
+      this.socketOutline.drawRoundedRect(
+        this.socketType === SOCKET_TYPE.IN ? -5 : NODE_WIDTH + 5 + SOCKET_WIDTH,
+        SOCKET_WIDTH / 2,
+        3,
+        3,
+        3
+      );
+      this.socketOutline.endFill();
+      this.addChild(this.socketOutline);
+    }
+  }
+
+  potentiallyUpdateSocketNotification(data : any): void {
+    const shouldOutline = !this.dataType.isDataValidForType(data);
+    //if (shouldOutline !== this.hasValidInput) {
+    //  this.hasValidInput = shouldOutline;
+    this.updateSocketNotification(shouldOutline);
+    //}
   }
 
   // GETTERS & SETTERS
@@ -152,6 +189,7 @@ export default class Socket extends PIXI.Container {
       dataToReturn = this._data;
     }
     // allow the type to potentially sanitize the data before passing it on
+    this.potentiallyUpdateSocketNotification(dataToReturn);
     return this.dataType.parse(dataToReturn);
   }
 
@@ -182,6 +220,7 @@ export default class Socket extends PIXI.Container {
 
   set dataType(newType: AbstractType) {
     this._dataType = newType;
+    this.potentiallyUpdateSocketNotification(this.data);
   }
 
   get custom(): any {

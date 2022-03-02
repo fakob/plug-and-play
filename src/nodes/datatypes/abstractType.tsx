@@ -44,7 +44,7 @@ export class AbstractType {
 
   // override this in children to check whether data is valid, can be used to give user information
   isDataValidForType(data: any): boolean {
-    return true;
+    return data !== undefined;
   }
 
   parse(data: any): any {

@@ -31,4 +31,6 @@ export class ColorType extends AbstractType {
   getInputWidget = (data: any): any => {
     return <ColorWidget {...data} />;
   };
+
+
 }
