@@ -400,9 +400,10 @@ export const replacePartOfObject = (
   value: any
 ): any => {
   let objValue = value;
-  try {
-    objValue = JSON.parse(value);
-  } catch (e) {
+  const parsedJSON = parseJSON(value);
+  if (parsedJSON) {
+    objValue = parsedJSON;
+  } else {
     console.log('Value is probably a primitive:', value);
   }
 

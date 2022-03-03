@@ -17,7 +17,7 @@ import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import { SketchPicker } from 'react-color';
 import { CodeEditor } from './components/Editor';
 import Socket from './classes/SocketClass';
-import { roundNumber } from './utils/utils';
+import { parseJSON, roundNumber } from './utils/utils';
 import styles from './utils/style.module.css';
 import { TRgba } from './utils/interfaces';
 import { EnumStructure } from './nodes/datatypes/enumType';
@@ -308,11 +308,15 @@ export const JSONWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
         editable={!props.hasLink}
         onChange={(value) => {
           setDisplayedString(value);
-          try {
-            const parsedValue = JSON.parse(value);
-            setData(parsedValue);
-            potentiallyNotify(props.property, parsedValue);
+          const parsedJSON = parseJSON(value);
+          if (parsedJSON) {
+            setData(parsedJSON as any);
+            potentiallyNotify(props.property, parsedJSON);
             setValidJSON(true);
+          } else {
+            setValidJSON(false);
+          }
+          try {
           } catch (error) {
             setValidJSON(false);
           }
