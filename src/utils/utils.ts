@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import JSON5 from 'json5';
 import { Node } from 'slate';
 import * as PIXI from 'pixi.js';
 
@@ -425,4 +426,28 @@ export const replacePartOfObject = (
   // replace with value
   movingPointer[last] = objValue;
   return obj;
+};
+
+export const parseJSON = (
+  jsonToParse: any
+): { [key: string]: any } | undefined => {
+  let jsonObj: any;
+  try {
+    switch (typeof jsonToParse) {
+      case 'string':
+        jsonObj = JSON5.parse(jsonToParse);
+        break;
+      case 'object':
+        jsonObj = jsonToParse;
+        break;
+
+      default:
+        jsonObj = {};
+        break;
+    }
+    return jsonObj;
+  } catch (error) {
+    console.error(error);
+    return undefined;
+  }
 };
