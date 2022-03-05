@@ -449,7 +449,6 @@ export const parseJSON = (jsonToParse: any): { [key: string]: any } => {
 export const isInputTrue = (input: unknown): boolean => {
   if (typeof input === 'string') {
     const inputLowerCase = input.toLowerCase();
-    console.log(typeof input, input, inputLowerCase);
     switch (inputLowerCase) {
       case 'undefined':
       case 'NaN':

@@ -304,7 +304,6 @@ export class If_Else extends PPNode {
     outputObject: Record<string, unknown>
   ): Promise<void> {
     const condition = isInputTrue(inputObject['Condition']);
-    console.log(condition, typeof condition, Boolean(condition));
     if (condition) {
       outputObject['Output'] = inputObject?.['InputA'];
     } else {
