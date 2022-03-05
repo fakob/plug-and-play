@@ -190,6 +190,7 @@ export class Multiply extends SimpleMathOperation {
     );
   }
 }
+
 export class Divide extends SimpleMathOperation {
   protected getName(): string {
     return 'Divide';

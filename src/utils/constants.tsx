@@ -231,6 +231,33 @@ export const OBJECT_FIT_OPTIONS: EnumStructure = [
   },
 ];
 
+export const COMPARISON_OPTIONS: EnumStructure = [
+  {
+    text: '<',
+  },
+  {
+    text: '>',
+  },
+  {
+    text: '<=',
+  },
+  {
+    text: '>=',
+  },
+  {
+    text: '==',
+  },
+  {
+    text: '!=',
+  },
+  {
+    text: '===',
+  },
+  {
+    text: '!==',
+  },
+];
+
 export const GRID_SHADER = `
   precision mediump float;
   varying vec2 vUvs;

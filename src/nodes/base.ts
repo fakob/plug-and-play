@@ -1,8 +1,10 @@
 import * as PIXI from 'pixi.js';
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
+import Socket from '../classes/SocketClass';
 import {
   COLOR,
+  COMPARISON_OPTIONS,
   NODE_TYPE_COLOR,
   SOCKET_WIDTH,
   NODE_CORNERRADIUS,
@@ -10,15 +12,17 @@ import {
   NODE_HEADER_HEIGHT,
   NODE_WIDTH,
   SOCKET_HEIGHT,
+  SOCKET_TYPE,
 } from '../utils/constants';
 import { CustomArgs, TRgba } from '../utils/interfaces';
-import { getMethods } from '../utils/utils';
+import { compare, getMethods, isInputTrue } from '../utils/utils';
 import { NumberType } from './datatypes/numberType';
 import { AnyType } from './datatypes/anyType';
 import { TriggerType } from './datatypes/triggerType';
 import { ColorType } from './datatypes/colorType';
 import { StringType } from './datatypes/stringType';
 import { EnumType } from './datatypes/enumType';
+import { BooleanType } from './datatypes/booleanType';
 
 export class Mouse extends PPNode {
   onViewportMove: (event: PIXI.InteractionEvent) => void;
@@ -272,5 +276,76 @@ export class DateAndTime extends PPNode {
       const dateMethod = input['Date method'];
       this.setOutputData('date and time', new Date()[dateMethod]());
     };
+  }
+}
+
+export class If_Else extends PPNode {
+  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
+    super(name, graph, {
+      ...customArgs,
+      color: TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM),
+    });
+
+    this.name = 'If else condition';
+    this.description = 'Passes through input A or B based on a condition';
+  }
+
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(SOCKET_TYPE.IN, 'Condition', new AnyType(), 0),
+      new Socket(SOCKET_TYPE.IN, 'InputA', new AnyType(), 'A'),
+      new Socket(SOCKET_TYPE.IN, 'InputB', new AnyType(), 'B'),
+      new Socket(SOCKET_TYPE.OUT, 'Output', new AnyType()),
+    ];
+  }
+
+  protected async onExecute(
+    inputObject: any,
+    outputObject: Record<string, unknown>
+  ): Promise<void> {
+    const condition = isInputTrue(inputObject['Condition']);
+    console.log(condition, typeof condition, Boolean(condition));
+    if (condition) {
+      outputObject['Output'] = inputObject?.['InputA'];
+    } else {
+      outputObject['Output'] = inputObject?.['InputB'];
+    }
+  }
+}
+
+export class Comparison extends PPNode {
+  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
+    super(name, graph, {
+      ...customArgs,
+      color: TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM),
+    });
+
+    this.name = 'Compare';
+    this.description = 'Compares two values';
+  }
+
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(SOCKET_TYPE.IN, 'InputA', new AnyType(), 0),
+      new Socket(
+        SOCKET_TYPE.IN,
+        'Operator',
+        new EnumType(COMPARISON_OPTIONS),
+        COMPARISON_OPTIONS[0].text,
+        false
+      ),
+      new Socket(SOCKET_TYPE.IN, 'InputB', new AnyType(), 1),
+      new Socket(SOCKET_TYPE.OUT, 'Output', new BooleanType()),
+    ];
+  }
+
+  protected async onExecute(
+    inputObject: any,
+    outputObject: Record<string, unknown>
+  ): Promise<void> {
+    const inputA = inputObject['InputA'];
+    const inputB = inputObject['InputB'];
+    const operator = inputObject['Operator'];
+    outputObject['Output'] = compare(inputA, operator, inputB);
   }
 }

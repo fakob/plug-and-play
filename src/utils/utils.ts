@@ -445,3 +445,44 @@ export const parseJSON = (jsonToParse: any): { [key: string]: any } => {
   }
   return jsonObj;
 };
+
+export const isInputTrue = (input: unknown): boolean => {
+  if (typeof input === 'string') {
+    const inputLowerCase = input.toLowerCase();
+    console.log(typeof input, input, inputLowerCase);
+    switch (inputLowerCase) {
+      case 'undefined':
+      case 'NaN':
+      case 'null':
+      case '':
+      case '0':
+      case 'false':
+        return false;
+
+      default:
+        return true;
+    }
+  }
+  return Boolean(input);
+};
+
+export const compare = (post: unknown, operator: string, value: unknown) => {
+  switch (operator) {
+    case '>':
+      return post > value;
+    case '<':
+      return post < value;
+    case '>=':
+      return post >= value;
+    case '<=':
+      return post <= value;
+    case '==':
+      return post == value;
+    case '!=':
+      return post != value;
+    case '===':
+      return post === value;
+    case '!==':
+      return post !== value;
+  }
+};
