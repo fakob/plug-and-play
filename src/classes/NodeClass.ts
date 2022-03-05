@@ -666,35 +666,6 @@ export default class PPNode extends PIXI.Container {
         }
       }
     });
-
-    // redraw outputs
-    let posCounter = 0;
-    this.outputSocketArray.forEach((item) => {
-      if (item.visible) {
-        item.y = this.headerHeight + posCounter * SOCKET_HEIGHT;
-        item.x = this.nodeWidth - NODE_WIDTH;
-        posCounter += 1;
-        if (this.showLabels === false) {
-          item._SocketNameRef.alpha = 0;
-        }
-      }
-    });
-
-    // redraw inputs
-    posCounter = 0;
-    this.inputSocketArray.forEach((item) => {
-      if (item.visible) {
-        item.y =
-          this.headerHeight +
-          this.countOfVisibleOutputSockets * SOCKET_HEIGHT +
-          posCounter * SOCKET_HEIGHT;
-        posCounter += 1;
-        if (this.showLabels === false) {
-          item._SocketNameRef.alpha = 0;
-        }
-      }
-    });
-
     this.onDrawNodeShape();
 
     // update position of comment
