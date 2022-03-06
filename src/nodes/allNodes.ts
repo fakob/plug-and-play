@@ -2,7 +2,6 @@ import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
 import * as base from './base';
 import * as draw from './draw';
-import * as draw2 from './draw2';
 import * as math from './math';
 import * as text from './text';
 import * as logViewer from './logViewer';
@@ -19,7 +18,6 @@ export const registerAllNodeTypes = (graph: PPGraph): void => {
     base,
     math,
     draw,
-    draw2,
     text,
     logViewer,
     shader,
