@@ -15,7 +15,12 @@ import {
   SOCKET_TYPE,
 } from '../utils/constants';
 import { CustomArgs, TRgba } from '../utils/interfaces';
-import { compare, getMethods, isInputTrue } from '../utils/utils';
+import {
+  compare,
+  convertToString,
+  getMethods,
+  isInputTrue,
+} from '../utils/utils';
 import { NumberType } from './datatypes/numberType';
 import { AnyType } from './datatypes/anyType';
 import { TriggerType } from './datatypes/triggerType';
@@ -23,6 +28,7 @@ import { ColorType } from './datatypes/colorType';
 import { StringType } from './datatypes/stringType';
 import { EnumType } from './datatypes/enumType';
 import { BooleanType } from './datatypes/booleanType';
+import { JSONType } from './datatypes/jsonType';
 
 export class Mouse extends PPNode {
   onViewportMove: (event: PIXI.InteractionEvent) => void;
@@ -67,6 +73,53 @@ export class Mouse extends PPNode {
     this.onViewportZoomedHandler = this.onViewportZoomed.bind(this);
     this.graph.viewport.on('zoomed', (this as any).onViewportZoomedHandler);
   }
+}
+
+export class Keyboard extends PPNode {
+  onViewportMove: (event: PIXI.InteractionEvent) => void;
+  onViewportMoveHandler: (event?: PIXI.InteractionEvent) => void;
+  onViewportZoomed: (event: PIXI.InteractionEvent) => void;
+  onViewportZoomedHandler: (event?: PIXI.InteractionEvent) => void;
+  lastEvent: KeyboardEvent;
+  keysDown = (event: KeyboardEvent): void => {
+    this.lastEvent = event;
+    console.log(event.target);
+    this.setOutputData('key', event.key);
+    this.setOutputData('code', event.code);
+    this.setOutputData('shiftKey', event.shiftKey);
+    this.setOutputData('ctrlKey', event.ctrlKey);
+    this.setOutputData('altKey', event.altKey);
+    this.setOutputData('metaKey', event.metaKey);
+    this.setOutputData('repeat', event.repeat);
+    // this.setOutputData('target', event.target);
+    this.executeOptimizedChain();
+  };
+
+  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
+    super(name, graph, {
+      ...customArgs,
+      color: TRgba.fromString(NODE_TYPE_COLOR.INPUT),
+    });
+
+    this.addOutput('key', new StringType());
+    this.addOutput('code', new StringType());
+    this.addOutput('shiftKey', new BooleanType());
+    this.addOutput('ctrlKey', new BooleanType());
+    this.addOutput('altKey', new BooleanType());
+    this.addOutput('metaKey', new BooleanType());
+    this.addOutput('repeat', new BooleanType());
+    // this.addOutput('target', new JSONType());
+
+    this.name = 'Keyboard';
+    this.description = 'Get keyboard input';
+
+    // add event listener
+    window.addEventListener('keydown', this.keysDown.bind(this));
+  }
+
+  onNodeRemoved = (): void => {
+    window.removeEventListener('keydown', this.keysDown);
+  };
 }
 
 export class GridCoordinates extends PPNode {
