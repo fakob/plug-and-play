@@ -77,8 +77,9 @@ export class Mouse extends PPNode {
 }
 
 export class Keyboard extends PPNode {
-  onKeysDownHandler: (event?: KeyboardEvent) => void = () => {};
-  _onKeysDown = (event: KeyboardEvent): void => {
+  onKeyDownHandler: (event?: KeyboardEvent) => void = () => {};
+  onKeyUpHandler: (event?: KeyboardEvent) => void = () => {};
+  _onKeyDown = (event: KeyboardEvent): void => {
     this.setOutputData('key', event.key);
     this.setOutputData('code', event.code);
     this.setOutputData('shiftKey', event.shiftKey);
@@ -87,6 +88,18 @@ export class Keyboard extends PPNode {
     this.setOutputData('metaKey', event.metaKey);
     this.setOutputData('repeat', event.repeat);
     this.executeOptimizedChain();
+  };
+  _onKeyUp = (event: KeyboardEvent): void => {
+    if (!this.getInputData('keep last')) {
+      this.setOutputData('key', '');
+      this.setOutputData('code', '');
+      this.setOutputData('shiftKey', false);
+      this.setOutputData('ctrlKey', false);
+      this.setOutputData('altKey', false);
+      this.setOutputData('metaKey', false);
+      this.setOutputData('repeat', false);
+      this.executeOptimizedChain();
+    }
   };
 
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
@@ -102,17 +115,21 @@ export class Keyboard extends PPNode {
     this.addOutput('altKey', new BooleanType());
     this.addOutput('metaKey', new BooleanType());
     this.addOutput('repeat', new BooleanType());
+    this.addInput('keep last', new BooleanType(), false, false);
 
     this.name = 'Keyboard';
     this.description = 'Get keyboard input';
 
     // add event listener
-    this.onKeysDownHandler = this._onKeysDown.bind(this);
-    window.addEventListener('keydown', (this as any).onKeysDownHandler);
+    this.onKeyDownHandler = this._onKeyDown.bind(this);
+    window.addEventListener('keydown', (this as any).onKeyDownHandler);
+    this.onKeyUpHandler = this._onKeyUp.bind(this);
+    window.addEventListener('keyup', (this as any).onKeyUpHandler);
   }
 
   onNodeRemoved = (): void => {
-    window.removeEventListener('keydown', this.onKeysDownHandler);
+    window.removeEventListener('keydown', this.onKeyDownHandler);
+    window.removeEventListener('keyup', this.onKeyUpHandler);
   };
 }
 
