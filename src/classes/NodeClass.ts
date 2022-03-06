@@ -644,28 +644,28 @@ export default class PPNode extends PIXI.Container {
     this._BackgroundRef.endFill();
 
     // redraw outputs
-    this.outputSocketArray.forEach((item, index) => {
-      if (item.visible) {
+    this.outputSocketArray
+      .filter((item) => item.visible)
+      .forEach((item, index) => {
         item.y = this.headerHeight + index * SOCKET_HEIGHT;
         item.x = this.nodeWidth - NODE_WIDTH;
         if (this.showLabels === false) {
           item._SocketNameRef.alpha = 0;
         }
-      }
-    });
+      });
 
     // redraw inputs
-    this.inputSocketArray.forEach((item, index) => {
-      if (item.visible) {
+    this.inputSocketArray
+      .filter((item) => item.visible)
+      .forEach((item, index) => {
         item.y =
           this.headerHeight +
           this.countOfVisibleOutputSockets * SOCKET_HEIGHT +
           index * SOCKET_HEIGHT;
         if (this.showLabels === false) {
-          item._SocketNameRef.alpha = 0;
         }
-      }
-    });
+      });
+
     this.onDrawNodeShape();
 
     // update position of comment
