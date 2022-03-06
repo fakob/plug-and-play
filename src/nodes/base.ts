@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
 import * as PIXI from 'pixi.js';
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
@@ -76,14 +77,8 @@ export class Mouse extends PPNode {
 }
 
 export class Keyboard extends PPNode {
-  onViewportMove: (event: PIXI.InteractionEvent) => void;
-  onViewportMoveHandler: (event?: PIXI.InteractionEvent) => void;
-  onViewportZoomed: (event: PIXI.InteractionEvent) => void;
-  onViewportZoomedHandler: (event?: PIXI.InteractionEvent) => void;
-  lastEvent: KeyboardEvent;
-  keysDown = (event: KeyboardEvent): void => {
-    this.lastEvent = event;
-    console.log(event.target);
+  onKeysDownHandler: (event?: KeyboardEvent) => void = () => {};
+  _onKeysDown = (event: KeyboardEvent): void => {
     this.setOutputData('key', event.key);
     this.setOutputData('code', event.code);
     this.setOutputData('shiftKey', event.shiftKey);
@@ -91,7 +86,6 @@ export class Keyboard extends PPNode {
     this.setOutputData('altKey', event.altKey);
     this.setOutputData('metaKey', event.metaKey);
     this.setOutputData('repeat', event.repeat);
-    // this.setOutputData('target', event.target);
     this.executeOptimizedChain();
   };
 
@@ -108,17 +102,17 @@ export class Keyboard extends PPNode {
     this.addOutput('altKey', new BooleanType());
     this.addOutput('metaKey', new BooleanType());
     this.addOutput('repeat', new BooleanType());
-    // this.addOutput('target', new JSONType());
 
     this.name = 'Keyboard';
     this.description = 'Get keyboard input';
 
     // add event listener
-    window.addEventListener('keydown', this.keysDown.bind(this));
+    this.onKeysDownHandler = this._onKeysDown.bind(this);
+    window.addEventListener('keydown', (this as any).onKeysDownHandler);
   }
 
   onNodeRemoved = (): void => {
-    window.removeEventListener('keydown', this.keysDown);
+    window.removeEventListener('keydown', this.onKeysDownHandler);
   };
 }
 
