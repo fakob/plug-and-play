@@ -39,6 +39,7 @@ import {
 } from '../utils/utils';
 import { AbstractType } from '../nodes/datatypes/abstractType';
 import { AnyType } from '../nodes/datatypes/anyType';
+import { TriggerType } from '../nodes/datatypes/triggerType';
 import { deSerializeType } from '../nodes/datatypes/typehelper';
 import { throttle } from 'lodash';
 
@@ -1224,5 +1225,21 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
 export class PureNode extends PPNode {
   protected isPure(): boolean {
     return true;
+  }
+}
+
+export class TriggerNode extends PPNode {
+  triggerUpdate: () => void = () => {};
+  onTriggerUpdate: () => void = () => {}; // called when the node is triggered
+  constructor(type: string, graph: PPGraph, customArgs?: CustomArgs) {
+    super(type, graph, customArgs);
+
+    this.addInput('trigger update', new TriggerType(), false, false);
+
+    this.triggerUpdate = () => {
+      this.onTriggerUpdate();
+      this.execute();
+      this.executeChildren();
+    };
   }
 }

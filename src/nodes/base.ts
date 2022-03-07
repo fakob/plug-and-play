@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import * as PIXI from 'pixi.js';
 import PPGraph from '../classes/GraphClass';
-import PPNode from '../classes/NodeClass';
+import PPNode, { TriggerNode } from '../classes/NodeClass';
 import Socket from '../classes/SocketClass';
 import {
   COLOR,
@@ -230,7 +230,7 @@ export class RangeArray extends PPNode {
   }
 }
 
-export class RandomArray extends PPNode {
+export class RandomArray extends TriggerNode {
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
     super(name, graph, {
       ...customArgs,
@@ -238,7 +238,6 @@ export class RandomArray extends PPNode {
     });
 
     this.addOutput('output array', new AnyType());
-    this.addInput('trigger', new TriggerType());
     this.addInput('length', new NumberType(true, 1), 20, undefined);
     this.addInput('min', new NumberType(), 0);
     this.addInput('max', new NumberType(), 1);
@@ -247,7 +246,7 @@ export class RandomArray extends PPNode {
     this.description = 'Create random array';
   }
 
-  trigger(): void {
+  onTriggerUpdate = (): void => {
     const length = this.getInputData('length');
     const min = this.getInputData('min');
     const max = this.getInputData('max');
@@ -255,7 +254,7 @@ export class RandomArray extends PPNode {
       return Math.floor(Math.random() * (max - min) + min);
     });
     this.setOutputData('output array', randomArray);
-  }
+  };
 }
 
 export class Trigger extends PPNode {
@@ -290,18 +289,45 @@ export class Trigger extends PPNode {
       this._rectRef.on('pointerdown', this.trigger.bind(this));
     };
   }
+
   trigger(): void {
-    console.log('Triggered node: ', this.name);
     this.outputSocketArray[0].links.forEach((link) => {
-      (link.target.parent as any).trigger();
+      // trigger both a normal trigger as well as a node update
+      (link.target.parent as any).triggerUpdate();
+      if ((link.target.parent as any).trigger) {
+        (link.target.parent as any).trigger();
+      }
     });
+    this.executeChildren();
   }
+
   onButtonOver(): void {
     this._rectRef.cursor = 'hover';
   }
 }
 
-export class DateAndTime extends PPNode {
+export class PassThrough extends TriggerNode {
+  _rectRef: PIXI.Graphics;
+  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
+    super(name, graph, {
+      ...customArgs,
+      color: TRgba.fromString(NODE_TYPE_COLOR.INPUT),
+    });
+
+    this.addOutput('Out', new AnyType());
+    this.addInput('In', new AnyType());
+
+    this.name = 'Pass through';
+    this.description = 'Passes the input to the output on trigger';
+
+    this.onTriggerUpdate = () => {
+      this.setOutputData('Out', this.getInputData('In'));
+      this.executeChildren();
+    };
+  }
+}
+
+export class DateAndTime extends TriggerNode {
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
     super(name, graph, {
       ...customArgs,
@@ -336,9 +362,9 @@ export class DateAndTime extends PPNode {
     this.name = 'Date and time';
     this.description = 'Outputs current time in different formats';
 
-    this.onExecute = async function (input) {
+    this.onExecute = async function (input, output) {
       const dateMethod = input['Date method'];
-      this.setOutputData('date and time', new Date()[dateMethod]());
+      output['date and time'] = new Date()[dateMethod]();
     };
   }
 }

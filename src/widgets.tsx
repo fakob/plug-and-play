@@ -341,8 +341,11 @@ export const TriggerWidget: React.FunctionComponent<TriggerWidgetProps> = (
       <Button
         startIcon={<PlayArrowIcon />}
         onClick={() => {
-          // nodes with trigger input need a trigger function
-          (props.property.parent as any).trigger();
+          // trigger both a normal trigger as well as a node update
+          (props.property.parent as any).triggerUpdate();
+          if ((props.property.parent as any).trigger) {
+            (props.property.parent as any).trigger();
+          }
         }}
         variant="contained"
       >
