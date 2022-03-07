@@ -70,24 +70,26 @@ export class JsonPathPicker extends React.PureComponent<P, unknown> {
   };
 
   render() {
-    const parsedJSON = parseJSON(this.props.json);
-    if (parsedJSON) {
-      return (
-        <ThemeProvider theme={customTheme}>
-          <ErrorBoundary FallbackComponent={ErrorFallback}>
-            <Box onClick={this.choose}>
-              {json2Jsx(this.props.path, parsedJSON)}
-            </Box>
-          </ErrorBoundary>
-        </ThemeProvider>
-      );
-    } else {
+    let parsedJSON: any;
+    try {
+      parsedJSON = parseJSON(this.props.json);
+    } catch (error) {
+      console.warn(error);
       return (
         <Box sx={{ p: 1, color: 'white' }}>
           Input seems to not be a correct JSON format.
         </Box>
       );
     }
+    return (
+      <ThemeProvider theme={customTheme}>
+        <ErrorBoundary FallbackComponent={ErrorFallback}>
+          <Box onClick={this.choose}>
+            {json2Jsx(this.props.path, parsedJSON)}
+          </Box>
+        </ErrorBoundary>
+      </ThemeProvider>
+    );
   }
 }
 

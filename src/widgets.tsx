@@ -307,17 +307,18 @@ export const JSONWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
         randomMainColor={props.randomMainColor}
         editable={!props.hasLink}
         onChange={(value) => {
-          setDisplayedString(value);
-          const parsedJSON = parseJSON(value);
-          if (parsedJSON) {
-            setData(parsedJSON as any);
-            potentiallyNotify(props.property, parsedJSON);
-            setValidJSON(true);
-          } else {
-            setValidJSON(false);
-          }
           try {
+            setDisplayedString(value);
+            const parsedJSON = parseJSON(value);
+            if (parsedJSON) {
+              setData(parsedJSON as any);
+              potentiallyNotify(props.property, parsedJSON);
+              setValidJSON(true);
+            } else {
+              setValidJSON(false);
+            }
           } catch (error) {
+            console.warn(error);
             setValidJSON(false);
           }
         }}
