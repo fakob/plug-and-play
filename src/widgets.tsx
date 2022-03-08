@@ -234,7 +234,13 @@ export const BooleanWidget: React.FunctionComponent<BooleanWidgetProps> = (
   return (
     <FormGroup>
       <FormControlLabel
-        control={<Checkbox checked={data} onChange={onChange} />}
+        control={
+          <Checkbox
+            checked={data}
+            onChange={onChange}
+            disabled={props.hasLink}
+          />
+        }
         label={props.property.custom?.label ?? ''}
       />
     </FormGroup>
@@ -342,7 +348,9 @@ export const TriggerWidget: React.FunctionComponent<TriggerWidgetProps> = (
         startIcon={<PlayArrowIcon />}
         onClick={() => {
           // trigger both a normal trigger as well as a node update
-          (props.property.parent as any).triggerUpdate();
+          if ((props.property.parent as any).triggerUpdate) {
+            (props.property.parent as any).triggerUpdate();
+          }
           if ((props.property.parent as any).trigger) {
             (props.property.parent as any).trigger();
           }

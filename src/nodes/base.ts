@@ -244,17 +244,17 @@ export class RandomArray extends TriggerNode {
 
     this.name = 'Random array';
     this.description = 'Create random array';
-  }
 
-  onTriggerUpdate = (): void => {
-    const length = this.getInputData('length');
-    const min = this.getInputData('min');
-    const max = this.getInputData('max');
-    const randomArray = Array.from({ length: length }, () => {
-      return Math.floor(Math.random() * (max - min) + min);
-    });
-    this.setOutputData('output array', randomArray);
-  };
+    this.onTriggerUpdate = (): void => {
+      const length = this.getInputData('length');
+      const min = this.getInputData('min');
+      const max = this.getInputData('max');
+      const randomArray = Array.from({ length: length }, () => {
+        return Math.floor(Math.random() * (max - min) + min);
+      });
+      this.setOutputData('output array', randomArray);
+    };
+  }
 }
 
 export class Trigger extends PPNode {
@@ -293,7 +293,9 @@ export class Trigger extends PPNode {
   trigger(): void {
     this.outputSocketArray[0].links.forEach((link) => {
       // trigger both a normal trigger as well as a node update
-      (link.target.parent as any).triggerUpdate();
+      if ((link.target.parent as any).triggerUpdate) {
+        (link.target.parent as any).triggerUpdate();
+      }
       if ((link.target.parent as any).trigger) {
         (link.target.parent as any).trigger();
       }
@@ -303,6 +305,45 @@ export class Trigger extends PPNode {
 
   onButtonOver(): void {
     this._rectRef.cursor = 'hover';
+  }
+}
+
+export class TriggerOnUpFlank extends PPNode {
+  _rectRef: PIXI.Graphics;
+  previousValue: any = false;
+  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
+    super(name, graph, {
+      ...customArgs,
+      color: TRgba.fromString(NODE_TYPE_COLOR.INPUT),
+    });
+
+    this.addOutput('Trigger', new TriggerType());
+    this.addInput('In', new AnyType());
+
+    this.name = 'Trigger on up flank';
+    this.description =
+      'Creates a trigger event when switching from false to true/0 to 1';
+
+    this.onExecute = async function (input) {
+      const newValue = input['In'];
+      if (!isInputTrue(this.previousValue) && isInputTrue(newValue)) {
+        this.trigger();
+      }
+      this.previousValue = newValue;
+    };
+  }
+
+  trigger(): void {
+    this.outputSocketArray[0].links.forEach((link) => {
+      // trigger both a normal trigger as well as a node update
+      if ((link.target.parent as any).triggerUpdate) {
+        (link.target.parent as any).triggerUpdate();
+      }
+      if ((link.target.parent as any).trigger) {
+        (link.target.parent as any).trigger();
+      }
+    });
+    this.executeChildren();
   }
 }
 
