@@ -1,5 +1,5 @@
 import PPNode from '../../classes/NodeClass';
-import PureNode, { UpdateBehaviour } from '../../classes/NodeClass';
+import { UpdateBehaviour, TriggerNode } from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
 import { SOCKET_TYPE } from '../../utils/constants';
 import { JSONType } from '../datatypes/jsonType';
@@ -10,7 +10,7 @@ const bodyInputName = 'Body';
 const headersInputName = 'Headers';
 const outputContentName = 'Content';
 
-export class Get extends PPNode {
+export class Get extends TriggerNode {
   // default to poll on interval X seconds
   protected getUpdateBehaviour(): UpdateBehaviour {
     return new UpdateBehaviour(false, true, 10000);
