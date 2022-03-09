@@ -233,28 +233,48 @@ export const OBJECT_FIT_OPTIONS: EnumStructure = [
 
 export const COMPARISON_OPTIONS: EnumStructure = [
   {
-    text: '<',
+    text: 'Greater than (>)',
+    value: '>',
   },
   {
-    text: '>',
+    text: 'Greater than or equal (>=)',
+    value: '>=',
   },
   {
-    text: '<=',
+    text: 'Less than (<)',
+    value: '<',
   },
   {
-    text: '>=',
+    text: 'Less than or equal (<=)',
+    value: '<=',
   },
   {
-    text: '==',
+    text: 'Equal (==)',
+    value: '==',
   },
   {
-    text: '!=',
+    text: 'Not equal (!=)',
+    value: '!=',
   },
   {
-    text: '===',
+    text: 'Strict equal (===)',
+    value: '===',
   },
   {
-    text: '!==',
+    text: 'Strict not equal (!==)',
+    value: '!==',
+  },
+  {
+    text: 'Logical AND (&&)',
+    value: '&&',
+  },
+  {
+    text: 'Logical OR (||)',
+    value: '||',
+  },
+  {
+    text: 'Logical NOT (!)',
+    value: '!',
   },
 ];
 

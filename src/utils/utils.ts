@@ -6,6 +6,7 @@ import * as PIXI from 'pixi.js';
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
 import {
+  COMPARISON_OPTIONS,
   NODE_PADDING_TOP,
   NODE_HEADER_HEIGHT,
   SOCKET_TEXTMARGIN_TOP,
@@ -465,23 +466,36 @@ export const isInputTrue = (input: unknown): boolean => {
   return Boolean(input);
 };
 
-export const compare = (post: unknown, operator: string, value: unknown) => {
-  switch (operator) {
+export const compare = (
+  inputA: unknown,
+  chosenOperator: string,
+  inputB: unknown
+) => {
+  const operator = COMPARISON_OPTIONS.find(
+    (item) => item.text === chosenOperator
+  );
+  switch (operator.value) {
     case '>':
-      return post > value;
+      return inputA > inputB;
     case '<':
-      return post < value;
+      return inputA < inputB;
     case '>=':
-      return post >= value;
+      return inputA >= inputB;
     case '<=':
-      return post <= value;
+      return inputA <= inputB;
     case '==':
-      return post == value;
+      return inputA == inputB;
     case '!=':
-      return post != value;
+      return inputA != inputB;
     case '===':
-      return post === value;
+      return inputA === inputB;
     case '!==':
-      return post !== value;
+      return inputA !== inputB;
+    case '&&':
+      return inputA && inputB;
+    case '||':
+      return inputA || inputB;
+    case '!':
+      return !inputA;
   }
 };

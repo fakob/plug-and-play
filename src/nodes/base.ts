@@ -318,14 +318,14 @@ export class TriggerOnUpFlank extends PPNode {
     });
 
     this.addOutput('Trigger', new TriggerType());
-    this.addInput('In', new AnyType());
+    this.addInput('Input', new AnyType());
 
     this.name = 'Trigger on up flank';
     this.description =
       'Creates a trigger event when switching from false to true/0 to 1';
 
     this.onExecute = async function (input) {
-      const newValue = input['In'];
+      const newValue = input['Input'];
       if (!isInputTrue(this.previousValue) && isInputTrue(newValue)) {
         this.trigger();
       }
@@ -355,14 +355,14 @@ export class PassThrough extends TriggerNode {
       color: TRgba.fromString(NODE_TYPE_COLOR.INPUT),
     });
 
-    this.addOutput('Out', new AnyType());
-    this.addInput('In', new AnyType());
+    this.addOutput('Output', new AnyType());
+    this.addInput('Input', new AnyType());
 
     this.name = 'Pass through';
     this.description = 'Passes the input to the output on trigger';
 
     this.onTriggerUpdate = () => {
-      this.setOutputData('Out', this.getInputData('In'));
+      this.setOutputData('Output', this.getInputData('Input'));
       this.executeChildren();
     };
   }
@@ -424,8 +424,8 @@ export class If_Else extends PPNode {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, 'Condition', new AnyType(), 0),
-      new Socket(SOCKET_TYPE.IN, 'InputA', new AnyType(), 'A'),
-      new Socket(SOCKET_TYPE.IN, 'InputB', new AnyType(), 'B'),
+      new Socket(SOCKET_TYPE.IN, 'A', new AnyType(), 'A'),
+      new Socket(SOCKET_TYPE.IN, 'B', new AnyType(), 'B'),
       new Socket(SOCKET_TYPE.OUT, 'Output', new AnyType()),
     ];
   }
@@ -436,9 +436,9 @@ export class If_Else extends PPNode {
   ): Promise<void> {
     const condition = isInputTrue(inputObject['Condition']);
     if (condition) {
-      outputObject['Output'] = inputObject?.['InputA'];
+      outputObject['Output'] = inputObject?.['A'];
     } else {
-      outputObject['Output'] = inputObject?.['InputB'];
+      outputObject['Output'] = inputObject?.['B'];
     }
   }
 }
@@ -451,20 +451,24 @@ export class Comparison extends PPNode {
     });
 
     this.name = 'Compare';
-    this.description = 'Compares two values';
+    this.description = 'Compares two values (greater, less, equal, logical)';
   }
 
   protected getDefaultIO(): Socket[] {
+    const onOptionChange = (value) => {
+      this.nodeName = value;
+    };
+
     return [
-      new Socket(SOCKET_TYPE.IN, 'InputA', new AnyType(), 0),
       new Socket(
         SOCKET_TYPE.IN,
         'Operator',
-        new EnumType(COMPARISON_OPTIONS),
+        new EnumType(COMPARISON_OPTIONS, onOptionChange),
         COMPARISON_OPTIONS[0].text,
         false
       ),
-      new Socket(SOCKET_TYPE.IN, 'InputB', new AnyType(), 1),
+      new Socket(SOCKET_TYPE.IN, 'A', new AnyType(), 0),
+      new Socket(SOCKET_TYPE.IN, 'B', new AnyType(), 1),
       new Socket(SOCKET_TYPE.OUT, 'Output', new BooleanType()),
     ];
   }
@@ -473,8 +477,8 @@ export class Comparison extends PPNode {
     inputObject: any,
     outputObject: Record<string, unknown>
   ): Promise<void> {
-    const inputA = inputObject['InputA'];
-    const inputB = inputObject['InputB'];
+    const inputA = inputObject['A'];
+    const inputB = inputObject['B'];
     const operator = inputObject['Operator'];
     outputObject['Output'] = compare(inputA, operator, inputB);
   }
