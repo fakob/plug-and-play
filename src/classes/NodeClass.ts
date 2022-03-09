@@ -387,6 +387,7 @@ export default class PPNode extends PIXI.Container {
   configure(nodeConfig: SerializedNode): void {
     this.x = nodeConfig.x;
     this.y = nodeConfig.y;
+    this.nodeName = nodeConfig.name;
     this.minNodeWidth = nodeConfig.minWidth ?? NODE_WIDTH;
     this.minNodeHeight = nodeConfig.minHeight;
     try {
@@ -1234,7 +1235,7 @@ export class TriggerNode extends PPNode {
   constructor(type: string, graph: PPGraph, customArgs?: CustomArgs) {
     super(type, graph, customArgs);
 
-    this.addInput('trigger update', new TriggerType(), false, false);
+    this.addInput('Trigger update', new TriggerType(), false, false);
 
     this.triggerUpdate = () => {
       this.onTriggerUpdate();
