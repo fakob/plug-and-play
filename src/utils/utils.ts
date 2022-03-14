@@ -7,6 +7,7 @@ import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
 import {
   COMPARISON_OPTIONS,
+  CONDITION_OPTIONS,
   NODE_PADDING_TOP,
   NODE_HEADER_HEIGHT,
   SOCKET_TEXTMARGIN_TOP,
@@ -497,5 +498,22 @@ export const compare = (
       return inputA || inputB;
     case '!':
       return !inputA;
+  }
+};
+
+export const isVariable = (inputA: unknown, chosenCondition: string) => {
+  const condition = CONDITION_OPTIONS.find(
+    (item) => item.text === chosenCondition
+  );
+  console.log(inputA, chosenCondition, typeof inputA);
+  switch (condition.text) {
+    case 'is null OR undefined':
+      return typeof inputA === 'undefined' || inputA === null;
+    case 'is undefined':
+      return typeof inputA === 'undefined';
+    case 'is null':
+      return inputA === null;
+    default:
+      return false;
   }
 };

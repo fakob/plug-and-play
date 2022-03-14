@@ -278,6 +278,18 @@ export const COMPARISON_OPTIONS: EnumStructure = [
   },
 ];
 
+export const CONDITION_OPTIONS: EnumStructure = [
+  {
+    text: 'is null OR undefined',
+  },
+  {
+    text: 'is undefined',
+  },
+  {
+    text: 'is null',
+  },
+];
+
 export const GRID_SHADER = `
   precision mediump float;
   varying vec2 vUvs;

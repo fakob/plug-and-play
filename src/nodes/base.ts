@@ -6,6 +6,7 @@ import Socket from '../classes/SocketClass';
 import {
   COLOR,
   COMPARISON_OPTIONS,
+  CONDITION_OPTIONS,
   NODE_TYPE_COLOR,
   SOCKET_WIDTH,
   NODE_CORNERRADIUS,
@@ -16,12 +17,7 @@ import {
   SOCKET_TYPE,
 } from '../utils/constants';
 import { CustomArgs, TRgba } from '../utils/interfaces';
-import {
-  compare,
-  convertToString,
-  getMethods,
-  isInputTrue,
-} from '../utils/utils';
+import { compare, isVariable, getMethods, isInputTrue } from '../utils/utils';
 import { NumberType } from './datatypes/numberType';
 import { AnyType } from './datatypes/anyType';
 import { TriggerType } from './datatypes/triggerType';
@@ -460,6 +456,8 @@ export class Comparison extends PPNode {
     };
 
     return [
+      new Socket(SOCKET_TYPE.IN, 'A', new AnyType(), 0),
+      new Socket(SOCKET_TYPE.IN, 'B', new AnyType(), 1),
       new Socket(
         SOCKET_TYPE.IN,
         'Operator',
@@ -467,8 +465,6 @@ export class Comparison extends PPNode {
         COMPARISON_OPTIONS[0].text,
         false
       ),
-      new Socket(SOCKET_TYPE.IN, 'A', new AnyType(), 0),
-      new Socket(SOCKET_TYPE.IN, 'B', new AnyType(), 1),
       new Socket(SOCKET_TYPE.OUT, 'Output', new BooleanType()),
     ];
   }
@@ -481,5 +477,44 @@ export class Comparison extends PPNode {
     const inputB = inputObject['B'];
     const operator = inputObject['Operator'];
     outputObject['Output'] = compare(inputA, operator, inputB);
+  }
+}
+
+export class Check extends PPNode {
+  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
+    super(name, graph, {
+      ...customArgs,
+      color: TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM),
+    });
+
+    this.name = 'Check';
+    this.description = 'Check if an input is undefined, null, etc';
+  }
+
+  protected getDefaultIO(): Socket[] {
+    const onOptionChange = (value) => {
+      this.nodeName = value;
+    };
+
+    return [
+      new Socket(SOCKET_TYPE.IN, 'A', new AnyType(), 0),
+      new Socket(
+        SOCKET_TYPE.IN,
+        'Condition',
+        new EnumType(CONDITION_OPTIONS, onOptionChange),
+        CONDITION_OPTIONS[0].text,
+        false
+      ),
+      new Socket(SOCKET_TYPE.OUT, 'Output', new BooleanType()),
+    ];
+  }
+
+  protected async onExecute(
+    inputObject: any,
+    outputObject: Record<string, unknown>
+  ): Promise<void> {
+    const inputA = inputObject['A'];
+    const condition = inputObject['Condition'];
+    outputObject['Output'] = isVariable(inputA, condition);
   }
 }
