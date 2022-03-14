@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   Divider,
   ListItemIcon,
@@ -23,6 +23,20 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 
 export const GraphContextMenu = (props) => {
+  useEffect(() => {
+    window.addEventListener('contextmenu', handleContextMenu);
+  });
+
+  useEffect(() => {
+    return () => {
+      window.removeEventListener('contextmenu', handleContextMenu);
+    };
+  }, []);
+
+  function handleContextMenu(e: Event) {
+    e.preventDefault();
+  }
+
   return (
     <Paper
       sx={{
@@ -176,6 +190,20 @@ export const GraphContextMenu = (props) => {
 };
 
 export const NodeContextMenu = (props) => {
+  useEffect(() => {
+    window.addEventListener('contextmenu', handleContextMenu);
+  });
+
+  useEffect(() => {
+    return () => {
+      window.removeEventListener('contextmenu', handleContextMenu);
+    };
+  }, []);
+
+  function handleContextMenu(e: Event) {
+    e.preventDefault();
+  }
+
   const canAddInput: boolean = props.currentGraph.current.getCanAddInput();
   const canAddOutput: boolean = props.currentGraph.current.getCanAddOutput();
   return (
