@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import JSON5 from 'json5';
 import { Node } from 'slate';
 import * as PIXI from 'pixi.js';
 
@@ -399,9 +400,10 @@ export const replacePartOfObject = (
   value: any
 ): any => {
   let objValue = value;
-  try {
-    objValue = JSON.parse(value);
-  } catch (e) {
+  const parsedJSON = parseJSON(value);
+  if (parsedJSON) {
+    objValue = parsedJSON;
+  } else {
     console.log('Value is probably a primitive:', value);
   }
 
@@ -425,4 +427,21 @@ export const replacePartOfObject = (
   // replace with value
   movingPointer[last] = objValue;
   return obj;
+};
+
+export const parseJSON = (jsonToParse: any): { [key: string]: any } => {
+  let jsonObj: any;
+  switch (typeof jsonToParse) {
+    case 'string':
+      jsonObj = JSON5.parse(jsonToParse);
+      break;
+    case 'object':
+      jsonObj = jsonToParse;
+      break;
+
+    default:
+      jsonObj = {};
+      break;
+  }
+  return jsonObj;
 };

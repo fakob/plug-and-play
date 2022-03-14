@@ -4,7 +4,7 @@ import PPGraph from '../../classes/GraphClass';
 import PureNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
 import FloatingJsonPathPicker from '../../components/FloatingJsonPathPicker';
-import { replacePartOfObject } from '../../utils/utils';
+import { parseJSON, replacePartOfObject } from '../../utils/utils';
 import { CustomArgs, TRgba } from '../../utils/interfaces';
 import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../../utils/constants';
 import { AnyType } from '../datatypes/anyType';
@@ -23,7 +23,7 @@ export class JSONGet extends PureNode {
       color: TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM),
     });
 
-    this.name = 'Get JSON value';
+    this.name = 'Get a JSON value';
     this.description = 'Get the value of a JSON at the defined path';
   }
 
@@ -53,12 +53,11 @@ export class JSONGet extends PureNode {
     inputObject: unknown,
     outputObject: Record<string, unknown>
   ): Promise<void> {
-    const current = inputObject[JSONName];
-    const path = inputObject[JSONParamName];
-    if (current) {
+    const parsedJSON = parseJSON(inputObject[JSONName]);
+    if (parsedJSON) {
       outputObject[outValueName] = JSONPath({
-        path: path,
-        json: current,
+        path: inputObject[JSONParamName],
+        json: parsedJSON,
         wrap: false,
       });
     }
@@ -72,7 +71,7 @@ export class JSONSet extends PureNode {
       color: TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM),
     });
 
-    this.name = 'Set JSON value';
+    this.name = 'Set a JSON value';
     this.description = 'Set a value on a JSON at the defined path';
   }
 
@@ -103,11 +102,13 @@ export class JSONSet extends PureNode {
     inputObject: unknown,
     outputObject: Record<string, unknown>
   ): Promise<void> {
-    const current = inputObject[JSONName];
-    const path = inputObject[JSONParamName];
-    const insert = inputObject[JSONInsert];
-    if (current) {
-      outputObject[outValueName] = replacePartOfObject(current, path, insert);
+    const parsedJSON = parseJSON(inputObject[JSONName]);
+    if (parsedJSON) {
+      outputObject[outValueName] = replacePartOfObject(
+        parsedJSON,
+        inputObject[JSONParamName],
+        inputObject[JSONInsert]
+      );
     }
   }
 }
@@ -119,7 +120,7 @@ export class JSONKeys extends PureNode {
       color: TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM),
     });
 
-    this.name = 'Get JSON properties';
+    this.name = 'Get all JSON properties';
     this.description = "Returns an array of the given object's property names";
   }
 
@@ -133,7 +134,10 @@ export class JSONKeys extends PureNode {
     inputObject: unknown,
     outputObject: Record<string, unknown>
   ): Promise<void> {
-    outputObject[outValueName] = Object.keys(inputObject[JSONName] ?? {});
+    const parsedJSON = parseJSON(inputObject[JSONName]);
+    if (parsedJSON) {
+      outputObject[outValueName] = Object.keys(parsedJSON);
+    }
   }
 }
 
@@ -144,7 +148,7 @@ export class JSONValues extends PureNode {
       color: TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM),
     });
 
-    this.name = 'Get JSON values';
+    this.name = 'Get all JSON values';
     this.description = 'Returns an array of the given objects values';
   }
 
@@ -158,6 +162,9 @@ export class JSONValues extends PureNode {
     inputObject: unknown,
     outputObject: Record<string, unknown>
   ): Promise<void> {
-    outputObject[outValueName] = Object.values(inputObject[JSONName] ?? {});
+    const parsedJSON = parseJSON(inputObject[JSONName]);
+    if (parsedJSON) {
+      outputObject[outValueName] = Object.values(parsedJSON);
+    }
   }
 }

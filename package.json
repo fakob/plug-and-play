@@ -48,6 +48,7 @@
     "http-proxy": "^1.18.1",
     "human-readable-ids": "^1.0.4",
     "javascript-time-ago": "^2.3.10",
+    "json5": "^2.2.0",
     "jsonpath-plus": "^6.0.1",
     "notistack": "^2.0.3",
     "object-fit-math": "^1.0.0",

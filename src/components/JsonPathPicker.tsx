@@ -9,6 +9,7 @@ import { ErrorBoundary } from 'react-error-boundary';
 import { Box, ThemeProvider, styled } from '@mui/material';
 import ErrorFallback from './ErrorFallback';
 import { customTheme } from '../utils/constants';
+import { parseJSON } from '../utils/utils';
 import './JsonPathPicker-style.css';
 
 function parsePath(path: string): string[] {
@@ -69,33 +70,23 @@ export class JsonPathPicker extends React.PureComponent<P, unknown> {
   };
 
   render() {
-    let jsonObj: any;
+    let parsedJSON: any;
     try {
-      switch (typeof this.props.json) {
-        case 'string':
-          jsonObj = JSON.parse(this.props.json);
-          break;
-        case 'object':
-          jsonObj = this.props.json;
-          break;
-
-        default:
-          jsonObj = {};
-          break;
-      }
+      parsedJSON = parseJSON(this.props.json);
     } catch (error) {
-      console.log(error);
+      console.warn(error);
       return (
         <Box sx={{ p: 1, color: 'white' }}>
           Input seems to not be a correct JSON format.
         </Box>
       );
     }
-
     return (
       <ThemeProvider theme={customTheme}>
         <ErrorBoundary FallbackComponent={ErrorFallback}>
-          <Box onClick={this.choose}>{json2Jsx(this.props.path, jsonObj)}</Box>
+          <Box onClick={this.choose}>
+            {json2Jsx(this.props.path, parsedJSON)}
+          </Box>
         </ErrorBoundary>
       </ThemeProvider>
     );
