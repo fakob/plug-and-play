@@ -513,6 +513,12 @@ export const isVariable = (inputA: unknown, chosenCondition: string) => {
       return typeof inputA === 'undefined';
     case 'is null':
       return inputA === null;
+    case 'is NOT null OR undefined':
+      return typeof inputA !== 'undefined' && inputA !== null;
+    case 'is NOT undefined':
+      return typeof inputA !== 'undefined';
+    case 'is NOT null':
+      return inputA !== null;
     default:
       return false;
   }

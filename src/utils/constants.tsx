@@ -288,6 +288,15 @@ export const CONDITION_OPTIONS: EnumStructure = [
   {
     text: 'is null',
   },
+  {
+    text: 'is NOT null OR undefined',
+  },
+  {
+    text: 'is NOT undefined',
+  },
+  {
+    text: 'is NOT null',
+  },
 ];
 
 export const GRID_SHADER = `
