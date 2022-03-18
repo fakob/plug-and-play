@@ -304,6 +304,48 @@ export class Trigger extends PPNode {
   }
 }
 
+export class DateAndTime extends TriggerNode {
+  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
+    super(name, graph, {
+      ...customArgs,
+      color: TRgba.fromString(NODE_TYPE_COLOR.INPUT),
+    });
+
+    const dateMethodsArray = getMethods(new Date());
+    const dateMethodsArrayOptions = dateMethodsArray
+      .filter((methodName) => {
+        // do not expose constructor and setters
+        const shouldExposeMethod = !(
+          methodName === 'constructor' || methodName.startsWith('set')
+        );
+        return shouldExposeMethod;
+      })
+      .sort()
+      .map((methodName) => {
+        return {
+          text: methodName,
+          value: methodName,
+        };
+      });
+
+    this.addInput(
+      'Date method',
+      new EnumType(dateMethodsArrayOptions),
+      'toUTCString',
+      false
+    );
+    this.addOutput('date and time', new StringType());
+
+    this.name = 'Date and time';
+    this.description = 'Outputs current time in different formats';
+
+    this.onExecute = async function (input, output) {
+      const dateMethod = input['Date method'];
+      output['date and time'] = new Date()[dateMethod]();
+    };
+  }
+}
+
 export class TriggerOnUpFlank extends PPNode {
   _rectRef: PIXI.Graphics;
   previousValue: any = false;
@@ -347,50 +389,6 @@ export class TriggerOnUpFlank extends PPNode {
   }
 }
 
-export class TriggerOnChange extends PPNode {
-  _rectRef: PIXI.Graphics;
-  previousValue: any = false;
-  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, {
-      ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.INPUT),
-    });
-
-    this.addOutput('Trigger', new TriggerType());
-    this.addOutput('Output', new AnyType());
-    this.addInput('Input', new AnyType());
-
-    this.name = 'Trigger on change';
-    this.description = 'Creates a trigger event when changing the input value';
-
-    this.onExecute = async function (input, output) {
-      const newValue = input['Input'];
-      if (this.previousValue !== newValue) {
-        output['Output'] = newValue;
-        this.trigger();
-        this.previousValue = newValue;
-      }
-    };
-  }
-
-  protected getUpdateBehaviour(): UpdateBehaviour {
-    return new UpdateBehaviour(false, false, 1000);
-  }
-
-  trigger(): void {
-    this.outputSocketArray[0].links.forEach((link) => {
-      // trigger both a normal trigger as well as a node update
-      if ((link.target.parent as any).triggerUpdate) {
-        (link.target.parent as any).triggerUpdate();
-      }
-      if ((link.target.parent as any).trigger) {
-        (link.target.parent as any).trigger();
-      }
-    });
-    this.executeChildren();
-  }
-}
-
 export class PassThrough extends TriggerNode {
   _rectRef: PIXI.Graphics;
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
@@ -408,74 +406,6 @@ export class PassThrough extends TriggerNode {
     this.onTriggerUpdate = () => {
       this.setOutputData('Output', this.getInputData('Input'));
       this.executeChildren();
-    };
-  }
-}
-
-export class Delay extends PPNode {
-  _rectRef: PIXI.Graphics;
-  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, {
-      ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.INPUT),
-    });
-
-    this.addOutput('Output', new AnyType());
-    this.addInput('Input', new AnyType());
-    this.addInput('Delay (ms)', new NumberType(true, 0, 10000), 100);
-
-    this.name = 'Delay';
-    this.description = 'Delay the input (setTimeout)';
-
-    this.onExecute = async function (input, output) {
-      const newValue = input['Input'];
-      const delay = input['Delay (ms)'];
-      setTimeout(() => {
-        output['Output'] = newValue;
-        this.executeChildren();
-      }, delay);
-    };
-  }
-}
-
-export class DateAndTime extends TriggerNode {
-  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, {
-      ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.INPUT),
-    });
-
-    const dateMethodsArray = getMethods(new Date());
-    const dateMethodsArrayOptions = dateMethodsArray
-      .filter((methodName) => {
-        // do not expose constructor and setters
-        const shouldExposeMethod = !(
-          methodName === 'constructor' || methodName.startsWith('set')
-        );
-        return shouldExposeMethod;
-      })
-      .sort()
-      .map((methodName) => {
-        return {
-          text: methodName,
-          value: methodName,
-        };
-      });
-
-    this.addInput(
-      'Date method',
-      new EnumType(dateMethodsArrayOptions),
-      'toUTCString',
-      false
-    );
-    this.addOutput('date and time', new StringType());
-
-    this.name = 'Date and time';
-    this.description = 'Outputs current time in different formats';
-
-    this.onExecute = async function (input, output) {
-      const dateMethod = input['Date method'];
-      output['date and time'] = new Date()[dateMethod]();
     };
   }
 }
