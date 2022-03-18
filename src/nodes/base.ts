@@ -315,6 +315,7 @@ export class TriggerOnUpFlank extends PPNode {
 
     this.addOutput('Trigger', new TriggerType());
     this.addInput('Input', new AnyType());
+    this.addInput('Delay (ms)', new NumberType(true, 0, 10000), 0);
 
     this.name = 'Trigger on up flank';
     this.description =
@@ -323,7 +324,10 @@ export class TriggerOnUpFlank extends PPNode {
     this.onExecute = async function (input) {
       const newValue = input['Input'];
       if (!isInputTrue(this.previousValue) && isInputTrue(newValue)) {
-        this.trigger();
+        const delay = input['Delay (ms)'];
+        setTimeout(() => {
+          this.trigger();
+        }, delay);
       }
       this.previousValue = newValue;
     };
