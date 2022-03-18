@@ -52,8 +52,7 @@ const outputPixiName = 'Graphics';
 
 const inputCombine1Name = 'Foreground';
 const inputCombine2Name = 'Background';
-const outputMultiplierLatestIndex = 'LatestPressedIndex';
-const outputMultiplierIndex = 'PressedIndex';
+const outputMultiplierIndex = 'LatestPressedIndex';
 const outputMultiplierInjected = 'LastPressedInjected';
 const outputMultiplierPointerDown = 'PointerDown';
 
@@ -437,11 +436,6 @@ export class DRAW_Multiplier extends DRAW_Base {
         300
       ),
       new Socket(SOCKET_TYPE.IN, injectedDataName, new ArrayType(), []),
-      new Socket(
-        SOCKET_TYPE.OUT,
-        outputMultiplierLatestIndex,
-        new NumberType(true)
-      ),
       new Socket(SOCKET_TYPE.OUT, outputMultiplierIndex, new NumberType(true)),
       new Socket(SOCKET_TYPE.OUT, outputMultiplierInjected, new ArrayType()),
       new Socket(
@@ -478,7 +472,6 @@ export class DRAW_Multiplier extends DRAW_Base {
         const scalePreX = shallowContainer.scale.x;
         const scalePreY = shallowContainer.scale.y;
         shallowContainer.on('pointerdown', (e) => {
-          this.setOutputData(outputMultiplierLatestIndex, currentIndex);
           this.setOutputData(outputMultiplierIndex, currentIndex);
           this.setOutputData(outputMultiplierInjected, executions);
           this.setOutputData(outputMultiplierPointerDown, true);
@@ -492,7 +485,6 @@ export class DRAW_Multiplier extends DRAW_Base {
 
         shallowContainer.on('pointerup', (e) => {
           this.setOutputData(outputMultiplierPointerDown, false);
-          this.setOutputData(outputMultiplierIndex, undefined);
           this.executeChildren();
           shallowContainer.alpha = alphaPre;
           shallowContainer.scale.x = scalePreX;
