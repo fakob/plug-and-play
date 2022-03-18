@@ -505,7 +505,6 @@ export const isVariable = (inputA: unknown, chosenCondition: string) => {
   const condition = CONDITION_OPTIONS.find(
     (item) => item.text === chosenCondition
   );
-  console.log(inputA, chosenCondition, typeof inputA);
   switch (condition.text) {
     case 'is null OR undefined':
       return typeof inputA === 'undefined' || inputA === null;
