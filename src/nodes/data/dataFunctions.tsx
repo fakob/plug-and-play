@@ -335,7 +335,7 @@ export class ConsolePrint extends NodeClass {
   }
 
   protected async onExecute(inputObject: any): Promise<void> {
-    console.log(inputObject?.[constantInName]);
+    console.log(`${this.id}:`, inputObject?.[constantInName]);
   }
 }
 
