@@ -576,16 +576,24 @@ export default class PPGraph {
     const mappingOfOldAndNewNodes: { [key: string]: PPNode } = {};
 
     //create nodes
+    const offset = new PIXI.Point();
     try {
-      data.nodes.forEach((node) => {
+      data.nodes.forEach((node, index) => {
+        if (index === 0) {
+          // calculate offset from first node to viewport center
+          offset.set(
+            this.viewport.center.x - node.x,
+            this.viewport.center.y - node.y
+          );
+        }
         const nodeType = node.type;
-        // add node and carry over its configuration
+        // add node and carry over its con,figuration
         const newNode = this.createAndAddNode(nodeType);
         newNode.configure(node);
         newNode.executeOptimizedChain();
 
-        // offset duplicated node
-        newNode.setPosition(newNode.width + 32, 0, true);
+        // offset pasted node
+        newNode.setPosition(offset.x, offset.y, true);
 
         mappingOfOldAndNewNodes[node.id] = newNode;
         newNodes.push(newNode);

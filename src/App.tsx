@@ -586,11 +586,11 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         const textFromClipboard = await navigator.clipboard.readText();
         try {
           const json = JSON.parse(textFromClipboard) as SerializedSelection;
-          if (json.version === PP_VERSION) {
+          if (json.version) {
             const pastedNodes = await currentGraph.current.pasteNodes(json);
             console.log(pastedNodes);
           } else {
-            console.error('Not valid for this version of Plug and Playground');
+            console.error('Not valid');
           }
         } catch (e) {
           console.error('There was an issue pasting');
