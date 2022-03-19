@@ -605,6 +605,16 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     };
   }, []);
 
+  // addEventListener to graphSearchInput
+  useEffect(() => {
+    if (!graphSearchInput?.current) {
+      return;
+    }
+    console.log('add eventlistener to graphSearchInput');
+    graphSearchInput.current.addEventListener('focus', updateGraphSearchItems);
+    // }
+  }, [graphSearchInput?.current]);
+
   useEffect(() => {
     if (graphSearchInput.current != null) {
       if (isGraphSearchOpen) {
