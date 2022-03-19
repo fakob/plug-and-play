@@ -484,15 +484,15 @@ export class Comparison extends PPNode {
   }
 }
 
-export class Check extends PPNode {
+export class IsValid extends PPNode {
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
     super(name, graph, {
       ...customArgs,
       color: TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM),
     });
 
-    this.name = 'Check';
-    this.description = 'Check if an input is undefined, null, etc';
+    this.name = 'IsValid';
+    this.description = 'Check if an input is valid (undefined, null)';
   }
 
   protected getDefaultIO(): Socket[] {
