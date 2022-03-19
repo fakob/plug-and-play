@@ -4,6 +4,7 @@ import PPGraph from '../classes/GraphClass';
 import PPNode, { PureNode } from '../classes/NodeClass';
 import Socket from '../classes/SocketClass';
 import {
+  COLOR_WHITE,
   NODE_TYPE_COLOR,
   NOTE_LINEHEIGHT_FACTOR,
   PIXI_PIVOT_OPTIONS,
@@ -66,6 +67,8 @@ const spacingYName = 'Spacing Y';
 const injectedDataName = 'Injected Data';
 
 const inputImageName = 'Image';
+
+const inputPointsName = 'Points';
 
 // a PIXI draw node is a pure node that also draws its graphics if graphics at the end
 abstract class DRAW_Base extends PPNode {
@@ -520,5 +523,53 @@ export class DRAW_Image extends DRAW_Base {
     this.positionAndScale(sprite, inputObject);
 
     container.addChild(sprite);
+  }
+}
+
+export class DRAW_Line extends DRAW_Base {
+  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
+    super(name, graph, {
+      ...customArgs,
+      color: TRgba.fromString(NODE_TYPE_COLOR.DRAW),
+    });
+
+    this.name = 'Draw line';
+    this.description = 'Draws a line specified by the input points';
+  }
+
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(SOCKET_TYPE.IN, inputPointsName, new ArrayType(), [[0, 0]]),
+      new Socket(SOCKET_TYPE.IN, inputColorName, new ColorType()),
+      new Socket(
+        SOCKET_TYPE.IN,
+        inputWidthName,
+        new NumberType(false, 1, 10),
+        3
+      ),
+    ].concat(super.getDefaultIO());
+  }
+
+  protected drawOnContainer(
+    inputObject: any,
+    container: PIXI.Container,
+    executions: { string: number }
+  ): void {
+    inputObject = {
+      ...inputObject,
+      ...inputObject[injectedDataName][
+        this.getAndIncrementExecutions(executions)
+      ],
+    };
+    const graphics: PIXI.Graphics = new PIXI.Graphics();
+    const selectedColor: TRgba = inputObject[inputColorName];
+    graphics.endFill();
+    graphics.lineStyle(inputObject[inputWidthName], selectedColor.hexNumber());
+    const points: number[][] = inputObject[inputPointsName];
+    graphics.moveTo(points[0][0], points[0][1]);
+    points.forEach((point, index) => graphics.lineTo(point[0], point[1]));
+
+    this.positionAndScale(graphics, inputObject);
+    container.addChild(graphics);
   }
 }
