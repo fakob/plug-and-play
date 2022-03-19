@@ -15,6 +15,7 @@ import {
   PPNodeConstructor,
   RegisteredNodeTypes,
   SerializedGraph,
+  SerializedSelection,
 } from '../utils/interfaces';
 import { getInfoFromRegisteredNode } from '../utils/utils';
 import PPNode from './NodeClass';
@@ -609,6 +610,42 @@ export default class PPGraph {
         viewportCenterPosition: this.viewport.center,
         viewportScale: this.viewport.scale.x,
       },
+      nodes: nodesSerialized,
+      links: linksSerialized,
+      customNodeTypes: this.customNodeTypes,
+    };
+
+    return data;
+  }
+
+  serializeSelection(): SerializedSelection {
+    const linksContainedInSelection: PPLink[] = [];
+
+    this.selection.selectedNodes.forEach((node) => {
+      // get links which are completely contained in selection
+      node.inputSocketArray.forEach((socket) => {
+        if (socket.hasLink()) {
+          const connectedNode = socket.links[0].source.parent as PPNode;
+          if (this.selection.selectedNodes.includes(connectedNode)) {
+            linksContainedInSelection.push(socket.links[0]);
+          }
+        }
+      });
+      console.log(linksContainedInSelection);
+    });
+
+    // get serialized nodes
+    const nodesSerialized = this.selection.selectedNodes.map((node) =>
+      node.serialize()
+    );
+
+    // get serialized links
+    const linksSerialized = linksContainedInSelection.map((link) =>
+      link.serialize()
+    );
+
+    const data = {
+      version: PP_VERSION,
       nodes: nodesSerialized,
       links: linksSerialized,
       customNodeTypes: this.customNodeTypes,

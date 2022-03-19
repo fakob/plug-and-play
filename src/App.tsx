@@ -52,6 +52,7 @@ import {
   GRID_SHADER,
   NODE_WIDTH,
   PLUGANDPLAY_ICON,
+  PP_VERSION,
   RANDOMMAINCOLOR,
 } from './utils/constants';
 import { IGraphSearch, INodeSearch } from './utils/interfaces';
@@ -64,9 +65,11 @@ import {
   getRemoteGraphsList,
   getSelectionBounds,
   isEventComingFromWithinTextInput,
+  readTextFromClipboard,
   removeExtension,
   roundNumber,
   useStateRef,
+  writeDataToClipboard,
 } from './utils/utils';
 import { registerAllNodeTypes } from './nodes/allNodes';
 import PPSelection from './classes/SelectionClass';
@@ -519,6 +522,28 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'd') {
           e.preventDefault();
           currentGraph.current.duplicateSelection();
+        }
+        if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'c') {
+          e.preventDefault();
+          const serializeSelection = currentGraph.current.serializeSelection();
+          writeDataToClipboard(serializeSelection);
+          console.log(serializeSelection);
+        }
+        if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'v') {
+          e.preventDefault();
+          (async function () {
+            const textFromClipboard = await readTextFromClipboard();
+            try {
+              const json = JSON.parse(textFromClipboard);
+              if (json.version === PP_VERSION) {
+                console.log('correct version', json);
+              }
+            } catch (e) {
+              console.error(
+                'Not valid for this version of Plug and Playground'
+              );
+            }
+          })();
         }
       }
       if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'o') {
