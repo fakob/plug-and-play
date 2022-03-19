@@ -336,14 +336,6 @@ export const getMethods = (o): string[] => {
   );
 };
 
-export const readTextFromClipboard = async (): Promise<string> => {
-  try {
-    return await navigator.clipboard.readText();
-  } catch (err) {
-    console.error('Failed to read clipboard contents: ', err);
-  }
-};
-
 export const writeTextToClipboard = (newClip: string): void => {
   navigator.clipboard.writeText(newClip).then(
     () => {

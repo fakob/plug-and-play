@@ -52,7 +52,6 @@ import {
   GRID_SHADER,
   NODE_WIDTH,
   PLUGANDPLAY_ICON,
-  PP_VERSION,
   RANDOMMAINCOLOR,
 } from './utils/constants';
 import {
@@ -69,7 +68,6 @@ import {
   getRemoteGraphsList,
   getSelectionBounds,
   isEventComingFromWithinTextInput,
-  readTextFromClipboard,
   removeExtension,
   roundNumber,
   useStateRef,
