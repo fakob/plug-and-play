@@ -55,7 +55,11 @@ import {
   PP_VERSION,
   RANDOMMAINCOLOR,
 } from './utils/constants';
-import { IGraphSearch, INodeSearch } from './utils/interfaces';
+import {
+  IGraphSearch,
+  INodeSearch,
+  SerializedSelection,
+} from './utils/interfaces';
 import {
   convertBlobToBase64,
   downloadFile,
@@ -580,14 +584,16 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       if (!isEventComingFromWithinTextInput(e)) {
         e.preventDefault();
         const textFromClipboard = await navigator.clipboard.readText();
-        console.log('Pasted text: ', textFromClipboard);
         try {
-          const json = JSON.parse(textFromClipboard);
+          const json = JSON.parse(textFromClipboard) as SerializedSelection;
           if (json.version === PP_VERSION) {
-            console.log('correct version', json);
+            const pastedNodes = await currentGraph.current.pasteNodes(json);
+            console.log(pastedNodes);
+          } else {
+            console.error('Not valid for this version of Plug and Playground');
           }
         } catch (e) {
-          console.error('Not valid for this version of Plug and Playground');
+          console.error('There was an issue pasting');
         }
       }
     });

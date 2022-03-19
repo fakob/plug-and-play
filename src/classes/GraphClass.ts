@@ -4,7 +4,6 @@ import strip from 'strip-comments';
 import { Viewport } from 'pixi-viewport';
 
 import {
-  CONNECTION_COLOR_HEX,
   DEFAULT_EDITOR_DATA,
   NODE_WIDTH,
   PP_VERSION,
@@ -564,6 +563,51 @@ export default class PPGraph {
       console.log(newSource, newTarget);
       await this.connect(newSource, newTarget, false);
     });
+
+    // select newNode
+    this.selection.selectNodes(newNodes);
+    this.selection.drawRectanglesFromSelection();
+
+    return newNodes;
+  }
+
+  async pasteNodes(data: SerializedSelection): Promise<PPNode[]> {
+    const newNodes: PPNode[] = [];
+    const mappingOfOldAndNewNodes: { [key: string]: PPNode } = {};
+
+    //create nodes
+    try {
+      data.nodes.forEach((node) => {
+        const nodeType = node.type;
+        // add node and carry over its configuration
+        const newNode = this.createAndAddNode(nodeType);
+        newNode.configure(node);
+        newNode.executeOptimizedChain();
+
+        // offset duplicated node
+        newNode.setPosition(newNode.width + 32, 0, true);
+
+        mappingOfOldAndNewNodes[node.id] = newNode;
+        newNodes.push(newNode);
+      });
+
+      await Promise.all(
+        data.links.map(async (link) => {
+          const newSource =
+            mappingOfOldAndNewNodes[link.sourceNodeId].outputSocketArray[
+              link.sourceSocketIndex
+            ];
+          const newTarget =
+            mappingOfOldAndNewNodes[link.targetNodeId].inputSocketArray[
+              link.targetSocketIndex
+            ];
+          console.log(newSource, newTarget);
+          await this.connect(newSource, newTarget, false);
+        })
+      );
+    } catch (error) {
+      console.error(error);
+    }
 
     // select newNode
     this.selection.selectNodes(newNodes);
