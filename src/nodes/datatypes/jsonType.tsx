@@ -35,4 +35,15 @@ export class JSONType extends AbstractType {
     }
     return 'null';
   }
+
+  parse(data: any): any {
+    if (typeof data === 'string') {
+      try {
+        return JSON.parse(data);
+      } catch (error) {
+        console.log('failed parsing data: ' + data);
+      }
+    }
+    return data;
+  }
 }
