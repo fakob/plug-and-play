@@ -522,7 +522,7 @@ export default class PPGraph {
     const linksContainedInSelection: PPLink[] = [];
     const mappingOfOldAndNewNodes: { [key: string]: PPNode } = {};
 
-    this.selection.selectedNodes.forEach(async (node) => {
+    this.selection.selectedNodes.forEach((node) => {
       const nodeType = node.type;
 
       // get links which are completely contained in selection
@@ -537,7 +537,7 @@ export default class PPGraph {
       console.log(linksContainedInSelection);
 
       // add node and carry over its configuration
-      const newNode = await this.createAndAddNode(nodeType);
+      const newNode = this.createAndAddNode(nodeType);
       newNode.configure(node.serialize());
       newNode.executeOptimizedChain();
 
