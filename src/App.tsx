@@ -523,28 +523,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           e.preventDefault();
           currentGraph.current.duplicateSelection();
         }
-        if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'c') {
-          e.preventDefault();
-          const serializeSelection = currentGraph.current.serializeSelection();
-          writeDataToClipboard(serializeSelection);
-          console.log(serializeSelection);
-        }
-        if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'v') {
-          e.preventDefault();
-          (async function () {
-            const textFromClipboard = await readTextFromClipboard();
-            try {
-              const json = JSON.parse(textFromClipboard);
-              if (json.version === PP_VERSION) {
-                console.log('correct version', json);
-              }
-            } catch (e) {
-              console.error(
-                'Not valid for this version of Plug and Playground'
-              );
-            }
-          })();
-        }
       }
       if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'o') {
         e.preventDefault();
@@ -589,6 +567,31 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       InputParser.parseKeyUp(e)
     );
 
+    window.addEventListener('copy', async (e) => {
+      if (!isEventComingFromWithinTextInput(e)) {
+        e.preventDefault();
+        const serializeSelection = currentGraph.current.serializeSelection();
+        writeDataToClipboard(serializeSelection);
+        console.log(serializeSelection);
+      }
+    });
+
+    window.addEventListener('paste', async (e) => {
+      if (!isEventComingFromWithinTextInput(e)) {
+        e.preventDefault();
+        const textFromClipboard = await navigator.clipboard.readText();
+        console.log('Pasted text: ', textFromClipboard);
+        try {
+          const json = JSON.parse(textFromClipboard);
+          if (json.version === PP_VERSION) {
+            console.log('correct version', json);
+          }
+        } catch (e) {
+          console.error('Not valid for this version of Plug and Playground');
+        }
+      }
+    });
+
     return () => {
       // Passing the same reference
       graphSearchInput.current.removeEventListener(
@@ -597,16 +600,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       );
     };
   }, []);
-
-  // addEventListener to graphSearchInput
-  useEffect(() => {
-    if (!graphSearchInput?.current) {
-      return;
-    }
-    console.log('add eventlistener to graphSearchInput');
-    graphSearchInput.current.addEventListener('focus', updateGraphSearchItems);
-    // }
-  }, [graphSearchInput?.current]);
 
   useEffect(() => {
     if (graphSearchInput.current != null) {
