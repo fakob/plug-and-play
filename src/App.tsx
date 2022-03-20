@@ -585,7 +585,10 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         try {
           const json = JSON.parse(textFromClipboard) as SerializedSelection;
           if (json.version) {
-            const pastedNodes = await currentGraph.current.pasteNodes(json);
+            const pastedNodes = await currentGraph.current.pasteNodes(
+              json,
+              true
+            );
             console.log(pastedNodes);
           } else {
             console.error('Not valid');

@@ -517,61 +517,16 @@ export default class PPGraph {
     this.customNodeTypes = {};
   }
 
-  duplicateSelection(): PPNode[] {
-    const newNodes: PPNode[] = [];
-    const linksContainedInSelection: PPLink[] = [];
-    const mappingOfOldAndNewNodes: { [key: string]: PPNode } = {};
-
-    this.selection.selectedNodes.forEach((node) => {
-      const nodeType = node.type;
-
-      // get links which are completely contained in selection
-      node.inputSocketArray.forEach((socket) => {
-        if (socket.hasLink()) {
-          const connectedNode = socket.links[0].source.parent as PPNode;
-          if (this.selection.selectedNodes.includes(connectedNode)) {
-            linksContainedInSelection.push(socket.links[0]);
-          }
-        }
-      });
-      console.log(linksContainedInSelection);
-
-      // add node and carry over its configuration
-      const newNode = this.createAndAddNode(nodeType);
-      newNode.configure(node.serialize());
-      newNode.executeOptimizedChain();
-
-      // offset duplicated node
-      newNode.setPosition(newNode.width + 32, 0, true);
-
-      mappingOfOldAndNewNodes[node.id] = newNode;
-      newNodes.push(newNode);
-    });
-
-    // create new links
-    linksContainedInSelection.forEach(async (link: PPLink) => {
-      const oldSourceNode = link.source.parent as PPNode;
-      const sourceSocketName = link.source.name;
-      const oldTargetNode = link.target.parent as PPNode;
-      const targetSocketName = link.target.name;
-      const newSource = mappingOfOldAndNewNodes[
-        oldSourceNode.id
-      ].outputSocketArray.find((socket) => socket.name === sourceSocketName);
-      const newTarget = mappingOfOldAndNewNodes[
-        oldTargetNode.id
-      ].inputSocketArray.find((socket) => socket.name === targetSocketName);
-      console.log(newSource, newTarget);
-      await this.connect(newSource, newTarget, false);
-    });
-
-    // select newNode
-    this.selection.selectNodes(newNodes);
-    this.selection.drawRectanglesFromSelection();
-
-    return newNodes;
+  async duplicateSelection(): Promise<PPNode[]> {
+    const serializeSelection = this.serializeSelection();
+    const pastedNodes = await this.pasteNodes(serializeSelection);
+    return pastedNodes;
   }
 
-  async pasteNodes(data: SerializedSelection): Promise<PPNode[]> {
+  async pasteNodes(
+    data: SerializedSelection,
+    pasteToCenter = false
+  ): Promise<PPNode[]> {
     const newNodes: PPNode[] = [];
     const mappingOfOldAndNewNodes: { [key: string]: PPNode } = {};
 
@@ -580,11 +535,15 @@ export default class PPGraph {
     try {
       data.nodes.forEach((node, index) => {
         if (index === 0) {
-          // calculate offset from first node to viewport center
-          offset.set(
-            this.viewport.center.x - node.x,
-            this.viewport.center.y - node.y
-          );
+          if (pasteToCenter) {
+            // calculate offset from first node to viewport center
+            offset.set(
+              this.viewport.center.x - node.x,
+              this.viewport.center.y - node.y
+            );
+          } else {
+            offset.set(node.width + 40, 0);
+          }
         }
         const nodeType = node.type;
         // add node and carry over its con,figuration
