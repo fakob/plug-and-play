@@ -60,9 +60,8 @@ export class UpdateBehaviour {
 
 export default class PPNode extends PIXI.Container {
   _NodeNameRef: PIXI.Text;
-  _NodeDebugRef: PIXI.Text;
-  _NodeCommentRef: PIXI.Text;
   _BackgroundRef: PIXI.Graphics;
+  _CommentRef: PIXI.Graphics;
   clickedSocketRef: Socket;
 
   graph: PPGraph;
@@ -104,10 +103,8 @@ export default class PPNode extends PIXI.Container {
   onNodeDoubleClick: (event: PIXI.InteractionEvent) => void = () => {};
   onMoveHandler: (event?: PIXI.InteractionEvent) => void = () => {};
   onViewportMoveHandler: (event?: PIXI.InteractionEvent) => void = () => {};
-  onDrawNodeShape: () => void = () => {}; // called when the node is drawn
   onNodeAdded: () => void = () => {}; // called when the node is added to the graph
   onNodeRemoved: () => void = () => {}; // called when the node is removed from the graph
-  onNodeSelected: () => void = () => {}; // called when the node is selected/unselected
   onNodeDragging: (isDraggingNode: boolean) => void = () => {}; // called when the node is being dragged
   onNodeResize: (width: number, height: number) => void = () => {}; // called when the node is resized
   onNodeResized: () => void = () => {}; // called when the node resize ended
@@ -154,23 +151,15 @@ export default class PPNode extends PIXI.Container {
     const background = new PIXI.Graphics();
     background.filters = [
       new DropShadowFilter({
-        distance: 0,
+        distance: 2,
         alpha: 0.2,
         blur: 1,
       }),
     ];
-    const debugText = new PIXI.Text('', COMMENT_TEXTSTYLE);
-    debugText.resolution = 1;
-    const nodeComment = new PIXI.Text('', COMMENT_TEXTSTYLE);
-    nodeComment.resolution = 1;
 
     this._BackgroundRef = this.addChild(background);
     this._NodeNameRef = this.addChild(inputNameText);
-    const commentContainer = this.graph.viewport.getChildByName(
-      'commentContainer'
-    ) as PIXI.Container;
-    this._NodeDebugRef = commentContainer.addChild(debugText);
-    this._NodeCommentRef = commentContainer.addChild(nodeComment);
+    this._CommentRef = this.addChild(new PIXI.Graphics());
 
     // do not show the node name
     if (this.showLabels === false) {
@@ -254,10 +243,6 @@ export default class PPNode extends PIXI.Container {
   // METHODS
   getSourceCode(): string {
     return this.constructor.toString();
-  }
-
-  select(): void {
-    this.onNodeSelected();
   }
 
   addSocket(socket: Socket): void {
@@ -393,8 +378,6 @@ export default class PPNode extends PIXI.Container {
         this.resizeNode(nodeConfig.width, nodeConfig.height);
         this.resizedNode();
       }
-      // update position of comment
-      this.updateCommentPosition();
 
       this.deSerializeSocketArray(
         nodeConfig.inputSocketArray,
@@ -539,7 +522,6 @@ export default class PPNode extends PIXI.Container {
     this.x = isRelative ? this.x + x : x;
     this.y = isRelative ? this.y + y : y;
 
-    this.updateCommentPosition();
     this.updateConnectionPosition();
 
     if (this.shouldExecuteOnMove()) {
@@ -584,7 +566,6 @@ export default class PPNode extends PIXI.Container {
     // update node shape
     this.drawNodeShape();
 
-    this.updateCommentPosition();
     this.updateConnectionPosition();
 
     if (this.isHybrid) {
@@ -666,10 +647,7 @@ export default class PPNode extends PIXI.Container {
         }
       });
 
-    this.onDrawNodeShape();
-
-    // update position of comment
-    this.updateCommentPosition();
+    this.drawComment();
 
     // update selection
     if (this.graph.selection.isNodeSelected(this)) {
@@ -719,13 +697,6 @@ export default class PPNode extends PIXI.Container {
     );
   }
 
-  updateCommentPosition(): void {
-    this._NodeDebugRef.x = getNodeCommentPosX(this.x, this.width);
-    this._NodeDebugRef.y = getNodeCommentPosY(this.y - 32);
-    this._NodeCommentRef.x = getNodeCommentPosX(this.x, this.width);
-    this._NodeCommentRef.y = getNodeCommentPosY(this.y);
-  }
-
   updateConnectionPosition(): void {
     // check for connections and move them too
     this.getAllSockets().forEach((socket) => {
@@ -736,19 +707,36 @@ export default class PPNode extends PIXI.Container {
   }
 
   drawComment(): void {
+    this._CommentRef.removeChildren();
     let commentData = this.outputSocketArray[0]?.dataType?.getComment(
       this.outputSocketArray[0]?.data
     );
     if (commentData && commentData.length > 10000) {
       commentData = 'Too long to display';
     }
-    this._NodeDebugRef.text = `${Math.round(
-      this.transform.position.x
-    )}, ${Math.round(this.transform.position.y)}
-${Math.round(this._bounds.minX)}, ${Math.round(
-      this._bounds.minY
-    )}, ${Math.round(this._bounds.maxX)}, ${Math.round(this._bounds.maxY)}`;
-    this._NodeCommentRef.text = commentData;
+    if (this.graph._showComments) {
+      console.log('drawing comments');
+      const debugText = new PIXI.Text(
+        `${Math.round(this.transform.position.x)}, ${Math.round(
+          this.transform.position.y
+        )}
+  ${Math.round(this._bounds.minX)}, ${Math.round(
+          this._bounds.minY
+        )}, ${Math.round(this._bounds.maxX)}, ${Math.round(this._bounds.maxY)}`,
+        COMMENT_TEXTSTYLE
+      );
+      debugText.resolution = 1;
+      const nodeComment = new PIXI.Text(commentData, COMMENT_TEXTSTYLE);
+      nodeComment.resolution = 1;
+
+      debugText.x = getNodeCommentPosX(this.width);
+      debugText.y = getNodeCommentPosY() - 32;
+      nodeComment.x = debugText.x;
+      nodeComment.y = getNodeCommentPosY();
+
+      this._CommentRef.addChild(debugText);
+      this._CommentRef.addChild(nodeComment);
+    }
   }
 
   screenPoint(): PIXI.Point {
@@ -1175,13 +1163,6 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
 
   _onRemoved(): void {
     // console.log('_onRemoved');
-
-    // remove node comment
-    const commentContainer = this.graph.viewport.getChildByName(
-      'commentContainer'
-    ) as PIXI.Container;
-    commentContainer.removeChild(this._NodeCommentRef);
-    commentContainer.removeChild(this._NodeDebugRef);
 
     // remove added listener from graph.viewport
     this.graph.viewport.removeListener('moved', this.onViewportMoveHandler);

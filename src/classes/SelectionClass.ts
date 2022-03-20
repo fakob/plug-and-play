@@ -88,9 +88,6 @@ export default class PPSelection extends PIXI.Container {
 
   set selectedNodes(newNodes: PPNode[]) {
     this._selectedNodes = newNodes;
-    this._selectedNodes.forEach((node) => {
-      node.select();
-    });
   }
 
   onScaling = (pointerPosition: PIXI.Point, shiftKeyPressed: boolean): void => {

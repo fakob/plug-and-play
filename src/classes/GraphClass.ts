@@ -43,14 +43,15 @@ export default class PPGraph {
   connectionContainer: PIXI.Container;
   nodeContainer: PIXI.Container;
   nodes: { [key: string]: PPNode }; //<string, PPNode>;
-  commentContainer: PIXI.Container;
   foregroundCanvas: PIXI.Container;
-  foregroundTempContainer: PIXI.Container;
 
   tempConnection: PIXI.Graphics;
   selection: PPSelection;
 
   ticking: boolean;
+
+  stateData: { string: any }; // states
+  stateSubscriptionNodes: { string: Set<string> }; // every specific string has specific nodes subscribing to it
 
   onRightClick: (
     event: PIXI.InteractionEvent,
@@ -79,10 +80,6 @@ export default class PPGraph {
     this.nodeContainer.name = 'nodeContainer';
     this.foregroundCanvas = new PIXI.Container();
     this.foregroundCanvas.name = 'foregroundCanvas';
-    this.commentContainer = new PIXI.Container();
-    this.commentContainer.name = 'commentContainer';
-    this.foregroundTempContainer = new PIXI.Container();
-    this.foregroundTempContainer.name = 'foregroundTempContainer';
     this.nodes = {};
     this.ticking = false;
 
@@ -91,9 +88,7 @@ export default class PPGraph {
       this.backgroundTempContainer,
       this.connectionContainer,
       this.nodeContainer,
-      this.foregroundCanvas,
-      this.foregroundTempContainer,
-      this.commentContainer
+      this.foregroundCanvas
     );
 
     this.tempConnection = new PIXI.Graphics();
@@ -338,7 +333,8 @@ export default class PPGraph {
   }
 
   set showComments(value: boolean) {
-    this.commentContainer.visible = value;
+    this._showComments = value;
+    Object.values(this.nodes).forEach((node) => node.drawNodeShape());
   }
 
   // METHODS
@@ -436,7 +432,6 @@ export default class PPGraph {
         this.clearTempConnection();
       }
     }
-    node.onAdded();
 
     return node;
     // }
@@ -506,9 +501,6 @@ export default class PPGraph {
     // clearn back and foreground canvas
     this.backgroundCanvas.removeChildren();
     this.foregroundCanvas.removeChildren();
-
-    // clearn comment canvas
-    this.commentContainer.removeChildren();
 
     // remove selected nodes
     this.selection.deselectAllNodesAndResetSelection();
@@ -868,5 +860,36 @@ export default class PPGraph {
     console.log(storedSelection);
     this.selection.deselectAllNodesAndResetSelection();
     storedSelection.forEach((node) => this.removeNode(node));
+  }
+
+  setState(key: string, data: any): void {
+    this.stateData[key] = data;
+    const subscribers = this.stateSubscriptionNodes[key];
+    if (subscribers) {
+      subscribers.forEach((subID: string) =>
+        this.nodes[subID].executeOptimizedChain()
+      );
+    }
+  }
+
+  getState(key: string, data: any): void {
+    return this.stateData[key];
+  }
+
+  subscribeToState(key: string, nodeID: string): void {
+    if (this.stateSubscriptionNodes[key] === undefined) {
+      this.stateSubscriptionNodes[key] = new Set();
+    }
+    this.stateSubscriptionNodes[key].push(nodeID);
+  }
+  unsubscribeToState(key: string, nodeID: string): void {
+    this.stateSubscriptionNodes[key] = this.stateSubscriptionNodes[key].filter(
+      (id: string) => id !== nodeID
+    );
+  }
+  unsubscribeToAll(nodeID: string): void {
+    Object.values(this.stateSubscriptionNodes).forEach((value) =>
+      value.delete(nodeID)
+    );
   }
 }

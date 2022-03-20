@@ -72,12 +72,12 @@ export function getElement(value: number | number[], index: number): number {
   return index < array.length ? array[index] : array[array.length - 1];
 }
 
-export function getNodeCommentPosX(x: number, width: number): number {
-  return x + width + SOCKET_WIDTH;
+export function getNodeCommentPosX(width: number): number {
+  return width + SOCKET_WIDTH;
 }
 
-export function getNodeCommentPosY(y: number): number {
-  return y + NODE_PADDING_TOP + NODE_HEADER_HEIGHT + SOCKET_TEXTMARGIN_TOP;
+export function getNodeCommentPosY(): number {
+  return NODE_PADDING_TOP + NODE_HEADER_HEIGHT + SOCKET_TEXTMARGIN_TOP - 32;
 }
 
 export function highlightText(text: string, query: string): any {
