@@ -347,9 +347,13 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
 
     // configure viewport
     viewport.current
-      .drag()
+      .drag({
+        clampWheel: false,
+        // keyToPress: ['Space'],
+        mouseButtons: 'middle',
+      })
       .pinch()
-      .wheel()
+      .wheel({ smooth: 3, trackpadPinch: true, wheelZoom: false })
       .decelerate({
         friction: 0.8,
       })
