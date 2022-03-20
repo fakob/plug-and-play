@@ -30,6 +30,8 @@ const constantOutName = 'Out';
 const input1Name = 'Input 1';
 const input2Name = 'Input 2';
 
+const inputMultiplierName = 'Multiplier';
+
 export class Code extends PureNode {
   protected getDefaultIO(): Socket[] {
     return [
@@ -133,7 +135,7 @@ export class MergeDataArrays extends PureNode {
     return [
       new Socket(SOCKET_TYPE.IN, input1Name, new ArrayType(), []),
       new Socket(SOCKET_TYPE.IN, input2Name, new ArrayType(), []),
-      new Socket(SOCKET_TYPE.OUT, constantOutName, new JSONType()),
+      new Socket(SOCKET_TYPE.OUT, constantOutName, new ArrayType()),
     ];
   }
   protected async onExecute(
@@ -142,6 +144,104 @@ export class MergeDataArrays extends PureNode {
   ): Promise<void> {
     outputObject[constantOutName] = merge(
       inputObject[input1Name],
+      inputObject[input2Name]
+    );
+  }
+}
+
+export class MergeJSONs extends PureNode {
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(SOCKET_TYPE.IN, input1Name, new JSONType(), {}),
+      new Socket(SOCKET_TYPE.IN, input2Name, new JSONType(), {}),
+      new Socket(SOCKET_TYPE.OUT, constantOutName, new JSONType()),
+    ];
+  }
+  protected async onExecute(
+    inputObject: any,
+    outputObject: Record<string, unknown>
+  ): Promise<void> {
+    outputObject[constantOutName] = {
+      ...inputObject[input1Name],
+      ...inputObject[input2Name],
+    };
+  }
+}
+
+export class MergeJSONArrays extends PureNode {
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(SOCKET_TYPE.IN, input1Name, new ArrayType(), []),
+      new Socket(SOCKET_TYPE.IN, input2Name, new ArrayType(), []),
+      new Socket(SOCKET_TYPE.OUT, constantOutName, new ArrayType()),
+    ];
+  }
+  protected async onExecute(
+    inputObject: any,
+    outputObject: Record<string, unknown>
+  ): Promise<void> {
+    outputObject[constantOutName] = inputObject[input1Name].map(
+      (item, index) => {
+        return { ...item, ...inputObject[input2Name][index] };
+      }
+    );
+  }
+}
+
+export class PadArray extends PureNode {
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(SOCKET_TYPE.IN, input1Name, new ArrayType(), ['hello']),
+      new Socket(SOCKET_TYPE.IN, inputMultiplierName, new NumberType(true), 2),
+      new Socket(SOCKET_TYPE.OUT, constantOutName, new ArrayType()),
+    ];
+  }
+  protected async onExecute(
+    inputObject: any,
+    outputObject: Record<string, unknown>
+  ): Promise<void> {
+    const newArray = inputObject[input1Name].map((item, index) =>
+      Array(inputObject[inputMultiplierName]).fill(
+        item,
+        0,
+        inputObject[inputMultiplierName]
+      )
+    );
+    const copiedArray = newArray.map((entry) =>
+      JSON.parse(JSON.stringify(entry))
+    );
+    outputObject[constantOutName] = copiedArray.flat();
+  }
+}
+
+export class FlattenArray extends PureNode {
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(SOCKET_TYPE.IN, input1Name, new ArrayType(), ['hello']),
+      new Socket(SOCKET_TYPE.OUT, constantOutName, new ArrayType()),
+    ];
+  }
+  protected async onExecute(
+    inputObject: any,
+    outputObject: Record<string, unknown>
+  ): Promise<void> {
+    outputObject[constantOutName] = inputObject[input1Name].flat();
+  }
+}
+
+export class ConcatenateArrays extends PureNode {
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(SOCKET_TYPE.IN, input1Name, new ArrayType(), ['hello']),
+      new Socket(SOCKET_TYPE.IN, input2Name, new ArrayType(), ['hello again']),
+      new Socket(SOCKET_TYPE.OUT, constantOutName, new ArrayType()),
+    ];
+  }
+  protected async onExecute(
+    inputObject: any,
+    outputObject: Record<string, unknown>
+  ): Promise<void> {
+    outputObject[constantOutName] = inputObject[input1Name].concat(
       inputObject[input2Name]
     );
   }
