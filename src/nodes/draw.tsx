@@ -243,7 +243,9 @@ export class DRAW_Shape extends DRAW_Base {
       ],
     };
     const graphics: PIXI.Graphics = new PIXI.Graphics();
-    const selectedColor: TRgba = inputObject[inputColorName];
+    const selectedColor: TRgba = new ColorType().parse(
+      inputObject[inputColorName]
+    );
     const drawBorder = inputObject[inputBorderName];
     graphics.beginFill(selectedColor.hexNumber());
     graphics.lineStyle(
@@ -344,7 +346,9 @@ export class DRAW_Text extends DRAW_Base {
       lineJoin: 'round',
     });
     const basicText = new PIXI.Text(inputObject[inputTextName], textStyle);
-    basicText.style.fill = inputObject[inputColorName].hex();
+    basicText.style.fill = new ColorType()
+      .parse(inputObject[inputColorName])
+      .hex();
 
     this.positionAndScale(basicText, inputObject);
     container.addChild(basicText);
@@ -562,7 +566,9 @@ export class DRAW_Line extends DRAW_Base {
       ],
     };
     const graphics: PIXI.Graphics = new PIXI.Graphics();
-    const selectedColor: TRgba = inputObject[inputColorName];
+    const selectedColor: TRgba = new ColorType().parse(
+      inputObject[inputColorName]
+    );
     graphics.endFill();
     graphics.lineStyle(inputObject[inputWidthName], selectedColor.hexNumber());
     const points: number[][] = inputObject[inputPointsName];
