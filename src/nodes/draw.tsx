@@ -54,6 +54,7 @@ const inputCombine1Name = 'Foreground';
 const inputCombine2Name = 'Background';
 const outputMultiplierIndex = 'LatestPressedIndex';
 const outputMultiplierInjected = 'LastPressedInjected';
+const outputMultiplierPointerDown = 'PointerDown';
 
 const inputTextName = 'Text';
 const inputLineHeightName = 'Line Height';
@@ -436,6 +437,11 @@ export class DRAW_Multiplier extends DRAW_Base {
       ),
       new Socket(SOCKET_TYPE.OUT, outputMultiplierIndex, new NumberType(true)),
       new Socket(SOCKET_TYPE.OUT, outputMultiplierInjected, new ArrayType()),
+      new Socket(
+        SOCKET_TYPE.OUT,
+        outputMultiplierPointerDown,
+        new BooleanType()
+      ),
     ].concat(super.getDefaultIO());
   }
   protected drawOnContainer(
@@ -467,6 +473,7 @@ export class DRAW_Multiplier extends DRAW_Base {
         shallowContainer.on('pointerdown', (e) => {
           this.setOutputData(outputMultiplierIndex, currentIndex);
           this.setOutputData(outputMultiplierInjected, executions);
+          this.setOutputData(outputMultiplierPointerDown, true);
           // tell all children when something is pressed
           this.executeChildren();
           console.log('pressed: ' + x + ' y: ' + y);
@@ -476,6 +483,8 @@ export class DRAW_Multiplier extends DRAW_Base {
         });
 
         shallowContainer.on('pointerup', (e) => {
+          this.setOutputData(outputMultiplierPointerDown, false);
+          this.executeChildren();
           shallowContainer.alpha = alphaPre;
           shallowContainer.scale.x = scalePreX;
           shallowContainer.scale.y = scalePreY;

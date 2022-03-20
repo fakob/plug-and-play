@@ -87,7 +87,7 @@ export class Keyboard extends PPNode {
     this.setOutputData('altKey', event.altKey);
     this.setOutputData('metaKey', event.metaKey);
     this.setOutputData('repeat', event.repeat);
-    this.executeOptimizedChain();
+    this.executeChildren();
   };
   _onKeyUp = (event: KeyboardEvent): void => {
     if (!this.getInputData('keep last')) {
@@ -98,7 +98,7 @@ export class Keyboard extends PPNode {
       this.setOutputData('altKey', false);
       this.setOutputData('metaKey', false);
       this.setOutputData('repeat', false);
-      this.executeOptimizedChain();
+      this.executeChildren();
     }
   };
 
