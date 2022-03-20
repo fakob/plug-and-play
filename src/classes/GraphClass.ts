@@ -4,7 +4,6 @@ import strip from 'strip-comments';
 import { Viewport } from 'pixi-viewport';
 
 import {
-  CONNECTION_COLOR_HEX,
   DEFAULT_EDITOR_DATA,
   NODE_WIDTH,
   PP_VERSION,
@@ -15,6 +14,7 @@ import {
   PPNodeConstructor,
   RegisteredNodeTypes,
   SerializedGraph,
+  SerializedSelection,
 } from '../utils/interfaces';
 import { getInfoFromRegisteredNode } from '../utils/utils';
 import PPNode from './NodeClass';
@@ -517,52 +517,64 @@ export default class PPGraph {
     this.customNodeTypes = {};
   }
 
-  duplicateSelection(): PPNode[] {
+  async duplicateSelection(): Promise<PPNode[]> {
+    const serializeSelection = this.serializeSelection();
+    const pastedNodes = await this.pasteNodes(serializeSelection);
+    return pastedNodes;
+  }
+
+  async pasteNodes(
+    data: SerializedSelection,
+    pasteToCenter = false
+  ): Promise<PPNode[]> {
     const newNodes: PPNode[] = [];
-    const linksContainedInSelection: PPLink[] = [];
     const mappingOfOldAndNewNodes: { [key: string]: PPNode } = {};
 
-    this.selection.selectedNodes.forEach(async (node) => {
-      const nodeType = node.type;
-
-      // get links which are completely contained in selection
-      node.inputSocketArray.forEach((socket) => {
-        if (socket.hasLink()) {
-          const connectedNode = socket.links[0].source.parent as PPNode;
-          if (this.selection.selectedNodes.includes(connectedNode)) {
-            linksContainedInSelection.push(socket.links[0]);
+    //create nodes
+    const offset = new PIXI.Point();
+    try {
+      data.nodes.forEach((node, index) => {
+        if (index === 0) {
+          if (pasteToCenter) {
+            // calculate offset from first node to viewport center
+            offset.set(
+              this.viewport.center.x - node.x,
+              this.viewport.center.y - node.y
+            );
+          } else {
+            offset.set(node.width + 40, 0);
           }
         }
+        const nodeType = node.type;
+        // add node and carry over its con,figuration
+        const newNode = this.createAndAddNode(nodeType);
+        newNode.configure(node);
+        newNode.executeOptimizedChain();
+
+        // offset pasted node
+        newNode.setPosition(offset.x, offset.y, true);
+
+        mappingOfOldAndNewNodes[node.id] = newNode;
+        newNodes.push(newNode);
       });
-      console.log(linksContainedInSelection);
 
-      // add node and carry over its configuration
-      const newNode = await this.createAndAddNode(nodeType);
-      newNode.configure(node.serialize());
-      newNode.executeOptimizedChain();
-
-      // offset duplicated node
-      newNode.setPosition(newNode.width + 32, 0, true);
-
-      mappingOfOldAndNewNodes[node.id] = newNode;
-      newNodes.push(newNode);
-    });
-
-    // create new links
-    linksContainedInSelection.forEach(async (link: PPLink) => {
-      const oldSourceNode = link.source.parent as PPNode;
-      const sourceSocketName = link.source.name;
-      const oldTargetNode = link.target.parent as PPNode;
-      const targetSocketName = link.target.name;
-      const newSource = mappingOfOldAndNewNodes[
-        oldSourceNode.id
-      ].outputSocketArray.find((socket) => socket.name === sourceSocketName);
-      const newTarget = mappingOfOldAndNewNodes[
-        oldTargetNode.id
-      ].inputSocketArray.find((socket) => socket.name === targetSocketName);
-      console.log(newSource, newTarget);
-      await this.connect(newSource, newTarget, false);
-    });
+      await Promise.all(
+        data.links.map(async (link) => {
+          const newSource =
+            mappingOfOldAndNewNodes[link.sourceNodeId].outputSocketArray[
+              link.sourceSocketIndex
+            ];
+          const newTarget =
+            mappingOfOldAndNewNodes[link.targetNodeId].inputSocketArray[
+              link.targetSocketIndex
+            ];
+          console.log(newSource, newTarget);
+          await this.connect(newSource, newTarget, false);
+        })
+      );
+    } catch (error) {
+      console.error(error);
+    }
 
     // select newNode
     this.selection.selectNodes(newNodes);
@@ -609,6 +621,42 @@ export default class PPGraph {
         viewportCenterPosition: this.viewport.center,
         viewportScale: this.viewport.scale.x,
       },
+      nodes: nodesSerialized,
+      links: linksSerialized,
+      customNodeTypes: this.customNodeTypes,
+    };
+
+    return data;
+  }
+
+  serializeSelection(): SerializedSelection {
+    const linksContainedInSelection: PPLink[] = [];
+
+    this.selection.selectedNodes.forEach((node) => {
+      // get links which are completely contained in selection
+      node.inputSocketArray.forEach((socket) => {
+        if (socket.hasLink()) {
+          const connectedNode = socket.links[0].source.parent as PPNode;
+          if (this.selection.selectedNodes.includes(connectedNode)) {
+            linksContainedInSelection.push(socket.links[0]);
+          }
+        }
+      });
+      console.log(linksContainedInSelection);
+    });
+
+    // get serialized nodes
+    const nodesSerialized = this.selection.selectedNodes.map((node) =>
+      node.serialize()
+    );
+
+    // get serialized links
+    const linksSerialized = linksContainedInSelection.map((link) =>
+      link.serialize()
+    );
+
+    const data = {
+      version: PP_VERSION,
       nodes: nodesSerialized,
       links: linksSerialized,
       customNodeTypes: this.customNodeTypes,

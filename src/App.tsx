@@ -54,7 +54,11 @@ import {
   PLUGANDPLAY_ICON,
   RANDOMMAINCOLOR,
 } from './utils/constants';
-import { IGraphSearch, INodeSearch } from './utils/interfaces';
+import {
+  IGraphSearch,
+  INodeSearch,
+  SerializedSelection,
+} from './utils/interfaces';
 import {
   convertBlobToBase64,
   downloadFile,
@@ -67,6 +71,7 @@ import {
   removeExtension,
   roundNumber,
   useStateRef,
+  writeDataToClipboard,
 } from './utils/utils';
 import { registerAllNodeTypes } from './nodes/allNodes';
 import PPSelection from './classes/SelectionClass';
@@ -563,6 +568,36 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     window.addEventListener('keyup', (e: KeyboardEvent) =>
       InputParser.parseKeyUp(e)
     );
+
+    window.addEventListener('copy', async (e) => {
+      if (!isEventComingFromWithinTextInput(e)) {
+        e.preventDefault();
+        const serializeSelection = currentGraph.current.serializeSelection();
+        writeDataToClipboard(serializeSelection);
+        console.log(serializeSelection);
+      }
+    });
+
+    window.addEventListener('paste', async (e) => {
+      if (!isEventComingFromWithinTextInput(e)) {
+        e.preventDefault();
+        const textFromClipboard = await navigator.clipboard.readText();
+        try {
+          const json = JSON.parse(textFromClipboard) as SerializedSelection;
+          if (json.version) {
+            const pastedNodes = await currentGraph.current.pasteNodes(
+              json,
+              true
+            );
+            console.log(pastedNodes);
+          } else {
+            console.error('Not valid');
+          }
+        } catch (e) {
+          console.error('There was an issue pasting');
+        }
+      }
+    });
 
     return () => {
       // Passing the same reference

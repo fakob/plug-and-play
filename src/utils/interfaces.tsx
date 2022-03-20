@@ -32,6 +32,13 @@ export type SerializedGraph = {
   customNodeTypes: Record<string, string>;
 };
 
+export type SerializedSelection = {
+  version: number;
+  nodes: SerializedNode[];
+  links: SerializedLink[];
+  customNodeTypes: Record<string, string>;
+};
+
 export type CustomArgs = {
   customId?: string;
   color?: TRgba;
