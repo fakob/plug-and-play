@@ -24,8 +24,12 @@ export class ColorType extends AbstractType {
   }
 
   parse(data: any): any {
-    const color = Object.assign(new TRgba(), data);
-    return color;
+    if (typeof data === 'string') {
+      return TRgba.fromString(data);
+    } else {
+      const color = Object.assign(new TRgba(), data);
+      return color;
+    }
   }
 
   getInputWidget = (data: any): any => {

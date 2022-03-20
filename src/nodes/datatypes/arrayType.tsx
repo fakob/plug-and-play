@@ -16,4 +16,15 @@ export class ArrayType extends AbstractType {
   getColor(): TRgba {
     return new TRgba(204, 153, 255);
   }
+
+  parse(data: any): any {
+    if (typeof data === 'string') {
+      try {
+        return JSON.parse(data);
+      } catch (error) {
+        console.log('failed parsing data: ' + data);
+      }
+    }
+    return data;
+  }
 }

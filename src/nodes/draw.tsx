@@ -4,6 +4,7 @@ import PPGraph from '../classes/GraphClass';
 import PPNode, { PureNode } from '../classes/NodeClass';
 import Socket from '../classes/SocketClass';
 import {
+  COLOR_WHITE,
   NODE_TYPE_COLOR,
   NOTE_LINEHEIGHT_FACTOR,
   PIXI_PIVOT_OPTIONS,
@@ -19,6 +20,7 @@ import { ArrayType } from './datatypes/arrayType';
 import { StringType } from './datatypes/stringType';
 import { ImageType } from './datatypes/imageType';
 import { CustomArgs, TRgba } from '../utils/interfaces';
+import { JSONType } from './datatypes/jsonType';
 
 const availableShapes: EnumStructure = [
   {
@@ -65,6 +67,8 @@ const spacingYName = 'Spacing Y';
 const injectedDataName = 'Injected Data';
 
 const inputImageName = 'Image';
+
+const inputPointsName = 'Points';
 
 // a PIXI draw node is a pure node that also draws its graphics if graphics at the end
 abstract class DRAW_Base extends PPNode {
@@ -123,6 +127,7 @@ abstract class DRAW_Base extends PPNode {
         PIXI_PIVOT_OPTIONS[0].text,
         false
       ),
+      new Socket(SOCKET_TYPE.IN, injectedDataName, new ArrayType(), {}, true),
       new Socket(SOCKET_TYPE.OUT, outputPixiName, new DeferredPixiType()),
     ];
   }
@@ -131,15 +136,21 @@ abstract class DRAW_Base extends PPNode {
   protected drawOnContainer(
     inputObject: any,
     container: PIXI.Container,
-    injectedData: any
+    executions: { string: number }
   ): void {}
 
+  getAndIncrementExecutions(executions: { string: number }): number {
+    if (executions[this.id] === undefined) {
+      executions[this.id] = 0;
+    }
+    return executions[this.id]++;
+  }
   protected async onExecute(
     inputObject: any,
     outputObject: Record<string, unknown>
   ): Promise<void> {
-    const drawingFunction = (container, injectedData) =>
-      this.drawOnContainer(inputObject, container, injectedData);
+    const drawingFunction = (container, executions) =>
+      this.drawOnContainer(inputObject, container, executions);
     outputObject[outputPixiName] = drawingFunction;
     this.handleDrawing(drawingFunction);
   }
@@ -148,7 +159,7 @@ abstract class DRAW_Base extends PPNode {
     return !this.getOutputSocketByName(outputPixiName).hasLink();
   }
 
-  handleDrawing(data: any): void {
+  handleDrawing(drawingFunction: any): void {
     const canvas = this.graph.viewport.getChildByName(
       'backgroundCanvas'
     ) as PIXI.Container;
@@ -158,7 +169,7 @@ abstract class DRAW_Base extends PPNode {
       this.deferredGraphics = new PIXI.Container();
       this.deferredGraphics.x = this.x + 400;
       this.deferredGraphics.y = this.y;
-      data(this.deferredGraphics);
+      drawingFunction(this.deferredGraphics, {});
       canvas.addChild(this.deferredGraphics);
     }
   }
@@ -223,11 +234,18 @@ export class DRAW_Shape extends DRAW_Base {
   protected drawOnContainer(
     inputObject: any,
     container: PIXI.Container,
-    injectedData
+    executions: { string: number }
   ): void {
-    inputObject = { ...inputObject, ...injectedData };
+    inputObject = {
+      ...inputObject,
+      ...inputObject[injectedDataName][
+        this.getAndIncrementExecutions(executions)
+      ],
+    };
     const graphics: PIXI.Graphics = new PIXI.Graphics();
-    const selectedColor: TRgba = inputObject[inputColorName];
+    const selectedColor: TRgba = new ColorType().parse(
+      inputObject[inputColorName]
+    );
     const drawBorder = inputObject[inputBorderName];
     graphics.beginFill(selectedColor.hexNumber());
     graphics.lineStyle(
@@ -310,9 +328,14 @@ export class DRAW_Text extends DRAW_Base {
   protected drawOnContainer(
     inputObject: any,
     container: PIXI.Container,
-    injectedData
+    executions: { string: number }
   ): void {
-    inputObject = { ...inputObject, ...injectedData };
+    inputObject = {
+      ...inputObject,
+      ...inputObject[injectedDataName][
+        this.getAndIncrementExecutions(executions)
+      ],
+    };
     const textStyle = new PIXI.TextStyle({
       fontFamily: 'Arial',
       fontSize: inputObject[inputSizeName],
@@ -323,7 +346,9 @@ export class DRAW_Text extends DRAW_Base {
       lineJoin: 'round',
     });
     const basicText = new PIXI.Text(inputObject[inputTextName], textStyle);
-    basicText.style.fill = inputObject[inputColorName].hex();
+    basicText.style.fill = new ColorType()
+      .parse(inputObject[inputColorName])
+      .hex();
 
     this.positionAndScale(basicText, inputObject);
     container.addChild(basicText);
@@ -350,16 +375,18 @@ export class DRAW_Combine extends DRAW_Base {
   protected drawOnContainer(
     inputObject: any,
     container: PIXI.Container,
-    injectedData
+    executions: { string: number }
   ): void {
+    inputObject = {
+      ...inputObject,
+      ...inputObject[injectedDataName][
+        this.getAndIncrementExecutions(executions)
+      ],
+    };
     const myContainer = new PIXI.Container();
-    const array1Data =
-      injectedData && injectedData.length > 0 ? injectedData[0] : {};
-    const array2Data =
-      injectedData && injectedData.length > 1 ? injectedData[1] : {};
 
-    inputObject[inputCombine2Name](myContainer, array2Data);
-    inputObject[inputCombine1Name](myContainer, array1Data);
+    inputObject[inputCombine2Name](myContainer, executions);
+    inputObject[inputCombine1Name](myContainer, executions);
 
     this.positionAndScale(myContainer, inputObject);
 
@@ -407,7 +434,6 @@ export class DRAW_Multiplier extends DRAW_Base {
         new NumberType(true, 0, 1000),
         300
       ),
-      new Socket(SOCKET_TYPE.IN, injectedDataName, new ArrayType(), []),
       new Socket(SOCKET_TYPE.OUT, outputMultiplierIndex, new NumberType(true)),
       new Socket(SOCKET_TYPE.OUT, outputMultiplierInjected, new ArrayType()),
     ].concat(super.getDefaultIO());
@@ -415,30 +441,22 @@ export class DRAW_Multiplier extends DRAW_Base {
   protected drawOnContainer(
     inputObject: any,
     container: PIXI.Container,
-    injectedData: any
+    executions: { string: number }
   ): void {
-    inputObject = { ...inputObject, ...injectedData };
+    inputObject = {
+      ...inputObject,
+      ...inputObject[injectedDataName][
+        this.getAndIncrementExecutions(executions)
+      ],
+    };
     const myContainer = new PIXI.Container();
-    let injected = [];
-    try {
-      if (typeof inputObject[injectedDataName] == 'object') {
-        injected = inputObject[injectedDataName];
-      } else {
-        injected = JSON.parse(inputObject[injectedDataName]);
-      }
-    } catch (e) {
-      this.successfullyExecuted = false;
-      console.log('failed to parse injected data');
-    }
     for (let x = 0; x < inputObject[multiplyXName]; x++) {
       for (let y = 0; y < inputObject[multiplyYName]; y++) {
         const currentIndex = x + inputObject[multiplyXName] * y;
-        const currentInjectedData =
-          injected.length > currentIndex ? injected[currentIndex] : [];
 
         const shallowContainer = new PIXI.Container();
         if (inputObject[inputGraphicsName])
-          inputObject[inputGraphicsName](shallowContainer, currentInjectedData);
+          inputObject[inputGraphicsName](shallowContainer, executions);
         shallowContainer.x = x * inputObject[spacingXName];
         shallowContainer.y = y * inputObject[spacingYName];
 
@@ -448,7 +466,7 @@ export class DRAW_Multiplier extends DRAW_Base {
         const scalePreY = shallowContainer.scale.y;
         shallowContainer.on('pointerdown', (e) => {
           this.setOutputData(outputMultiplierIndex, currentIndex);
-          this.setOutputData(outputMultiplierInjected, currentInjectedData);
+          this.setOutputData(outputMultiplierInjected, executions);
           // tell all children when something is pressed
           this.executeChildren();
           console.log('pressed: ' + x + ' y: ' + y);
@@ -495,16 +513,69 @@ export class DRAW_Image extends DRAW_Base {
   protected drawOnContainer(
     inputObject: any,
     container: PIXI.Container,
-    injectedData: any
+    executions: { string: number }
   ): void {
-    inputObject = { ...inputObject, ...injectedData };
+    inputObject = {
+      ...inputObject,
+      ...inputObject[injectedDataName][
+        this.getAndIncrementExecutions(executions)
+      ],
+    };
 
     const image = PIXI.Texture.from(inputObject[inputImageName]);
     const sprite = new PIXI.Sprite(image);
-    //sprite.width = 200;
-    //sprite.height = 200;
     this.positionAndScale(sprite, inputObject);
 
     container.addChild(sprite);
+  }
+}
+
+export class DRAW_Line extends DRAW_Base {
+  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
+    super(name, graph, {
+      ...customArgs,
+      color: TRgba.fromString(NODE_TYPE_COLOR.DRAW),
+    });
+
+    this.name = 'Draw line';
+    this.description = 'Draws a line specified by the input points';
+  }
+
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(SOCKET_TYPE.IN, inputPointsName, new ArrayType(), [[0, 0]]),
+      new Socket(SOCKET_TYPE.IN, inputColorName, new ColorType()),
+      new Socket(
+        SOCKET_TYPE.IN,
+        inputWidthName,
+        new NumberType(false, 1, 10),
+        3
+      ),
+    ].concat(super.getDefaultIO());
+  }
+
+  protected drawOnContainer(
+    inputObject: any,
+    container: PIXI.Container,
+    executions: { string: number }
+  ): void {
+    inputObject = {
+      ...inputObject,
+      ...inputObject[injectedDataName][
+        this.getAndIncrementExecutions(executions)
+      ],
+    };
+    const graphics: PIXI.Graphics = new PIXI.Graphics();
+    const selectedColor: TRgba = new ColorType().parse(
+      inputObject[inputColorName]
+    );
+    graphics.endFill();
+    graphics.lineStyle(inputObject[inputWidthName], selectedColor.hexNumber());
+    const points: number[][] = inputObject[inputPointsName];
+    graphics.moveTo(points[0][0], points[0][1]);
+    points.forEach((point, index) => graphics.lineTo(point[0], point[1]));
+
+    this.positionAndScale(graphics, inputObject);
+    container.addChild(graphics);
   }
 }
