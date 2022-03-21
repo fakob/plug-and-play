@@ -1160,13 +1160,6 @@ export default class PPNode extends PIXI.Container {
     }
   }
 
-  onAdded(): void {
-    this.onNodeAdded();
-    if (this.graph.ticking) {
-      this.initialExecute();
-    }
-  }
-
   _onRemoved(): void {
     // console.log('_onRemoved');
 

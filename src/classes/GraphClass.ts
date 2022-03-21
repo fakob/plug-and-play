@@ -432,6 +432,7 @@ export default class PPGraph {
         this.clearTempConnection();
       }
     }
+    node.onNodeAdded();
 
     return node;
     // }
