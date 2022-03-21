@@ -86,6 +86,7 @@ export default class PPNode extends PIXI.Container {
   lastTimeTicked = 0;
 
   successfullyExecuted = true;
+  lastError = '';
 
   inputSocketArray: Socket[];
   outputSocketArray: Socket[];
@@ -708,13 +709,13 @@ export default class PPNode extends PIXI.Container {
 
   drawComment(): void {
     this._CommentRef.removeChildren();
-    let commentData = this.outputSocketArray[0]?.dataType?.getComment(
-      this.outputSocketArray[0]?.data
-    );
-    if (commentData && commentData.length > 10000) {
-      commentData = 'Too long to display';
-    }
     if (this.graph._showComments) {
+      let commentData = this.outputSocketArray[0]?.dataType?.getComment(
+        this.outputSocketArray[0]?.data
+      );
+      if (commentData && commentData.length > 10000) {
+        commentData = 'Too long to display';
+      }
       console.log('drawing comments');
       const debugText = new PIXI.Text(
         `${Math.round(this.transform.position.x)}, ${Math.round(
@@ -736,6 +737,14 @@ export default class PPNode extends PIXI.Container {
 
       this._CommentRef.addChild(debugText);
       this._CommentRef.addChild(nodeComment);
+    }
+    if (!this.successfullyExecuted) {
+      const errorText = new PIXI.Text(this.lastError);
+      errorText.x = -50;
+      errorText.y = -50;
+      errorText.style.fill = new TRgba(255, 128, 128).hexNumber();
+      errorText.style.fontSize = 18;
+      this._CommentRef.addChild(errorText);
     }
   }
 
@@ -1038,7 +1047,6 @@ export default class PPNode extends PIXI.Container {
   protected async execute(): Promise<boolean> {
     const executedSuccessOld = this.successfullyExecuted;
     let foundChange = false;
-    let foundError = '';
     try {
       this.successfullyExecuted = true;
       if (this.shouldDrawExecution()) {
@@ -1047,10 +1055,8 @@ export default class PPNode extends PIXI.Container {
       foundChange = await this.rawExecute();
       this.drawComment();
     } catch (error) {
-      foundError = error;
-      console.log(
-        'node ' + this.id + ' execution error: ' + JSON.stringify(error)
-      );
+      this.lastError = error;
+      console.log('node ' + this.id + ' execution error: ' + error);
       this.successfullyExecuted = false;
     }
     if (executedSuccessOld !== this.successfullyExecuted) {
