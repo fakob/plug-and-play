@@ -336,6 +336,40 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       { passive: false }
     );
 
+    document.addEventListener('copy', async (e) => {
+      console.dir(e.target);
+      e.preventDefault();
+      // e.stopPropagation();
+      if (!isEventComingFromWithinTextInput(e)) {
+        const serializeSelection = currentGraph.current.serializeSelection();
+        writeDataToClipboard(serializeSelection);
+        console.log(serializeSelection);
+      }
+    });
+
+    document.addEventListener('paste', async (e) => {
+      console.dir(e.target);
+      if (!isEventComingFromWithinTextInput(e)) {
+        e.preventDefault();
+        // e.stopPropagation();
+        const textFromClipboard = await navigator.clipboard.readText();
+        try {
+          const json = JSON.parse(textFromClipboard) as SerializedSelection;
+          if (json.version) {
+            const pastedNodes = await currentGraph.current.pasteNodes(
+              json,
+              true
+            );
+            console.log(pastedNodes);
+          } else {
+            console.error('Not valid');
+          }
+        } catch (e) {
+          console.error('There was an issue pasting');
+        }
+      }
+    });
+
     window.addEventListener('mousemove', setMousePosition, false);
 
     // create viewport
@@ -568,36 +602,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     window.addEventListener('keyup', (e: KeyboardEvent) =>
       InputParser.parseKeyUp(e)
     );
-
-    window.addEventListener('copy', async (e) => {
-      if (!isEventComingFromWithinTextInput(e)) {
-        e.preventDefault();
-        const serializeSelection = currentGraph.current.serializeSelection();
-        writeDataToClipboard(serializeSelection);
-        console.log(serializeSelection);
-      }
-    });
-
-    window.addEventListener('paste', async (e) => {
-      if (!isEventComingFromWithinTextInput(e)) {
-        e.preventDefault();
-        const textFromClipboard = await navigator.clipboard.readText();
-        try {
-          const json = JSON.parse(textFromClipboard) as SerializedSelection;
-          if (json.version) {
-            const pastedNodes = await currentGraph.current.pasteNodes(
-              json,
-              true
-            );
-            console.log(pastedNodes);
-          } else {
-            console.error('Not valid');
-          }
-        } catch (e) {
-          console.error('There was an issue pasting');
-        }
-      }
-    });
 
     return () => {
       // Passing the same reference
