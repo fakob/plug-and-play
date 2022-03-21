@@ -105,7 +105,7 @@ export default class PPGraph {
     );
     this.app.stage.addChild(this.selection);
 
-    this.viewport.cursor = 'grab';
+    this.viewport.cursor = 'default';
 
     // add event listeners
     // listen to window resize event and resize app
@@ -141,8 +141,14 @@ export default class PPGraph {
     event.stopPropagation();
     const target = event.target;
     console.log(target, event.data.originalEvent);
-
-    this.onRightClick(event, target);
+    if (
+      // only trigger right click if viewport was not dragged
+      this.dragSourcePoint === null ||
+      (this.dragSourcePoint.x === this.viewport.x &&
+        this.dragSourcePoint.y === this.viewport.y)
+    ) {
+      this.onRightClick(event, target);
+    }
   }
 
   _onPointerDoubleClicked(event: PIXI.InteractionEvent): void {
@@ -160,7 +166,7 @@ export default class PPGraph {
 
     this.onCloseSocketInspector();
 
-    if (event.data.originalEvent.shiftKey) {
+    if ((event.data.originalEvent as PointerEvent).button === 0) {
       this.selection.drawSelectionStart(
         event,
         event.data.originalEvent.shiftKey
@@ -198,10 +204,10 @@ export default class PPGraph {
       }
     }
     if (this.selection.isDrawingSelection) {
-      this.selection.drawSelectionFinish();
+      this.selection.drawSelectionFinish(event);
     }
 
-    this.viewport.cursor = 'grab';
+    this.viewport.cursor = 'default';
     this.viewport.plugins.resume('drag');
     this.dragSourcePoint = null;
     this.onViewportDragging(false);

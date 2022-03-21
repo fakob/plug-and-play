@@ -287,7 +287,7 @@ export default class PPSelection extends PIXI.Container {
     this.on('pointermove', this.onMoveHandler);
   }
 
-  drawSelectionFinish(): void {
+  drawSelectionFinish(event: PIXI.InteractionEvent): void {
     this.isDrawingSelection = false;
     this.selectionIntendGraphics.clear();
 
@@ -303,6 +303,21 @@ export default class PPSelection extends PIXI.Container {
       this.resetAllGraphics();
     }
     this.onSelectionChange(this.selectedNodes);
+
+    // only trigger deselect if the mouse was not moved and onMove was not called
+    const targetPoint = new PIXI.Point(
+      (event.data.originalEvent as MouseEvent).clientX,
+      (event.data.originalEvent as MouseEvent).clientY
+    );
+    if (this.sourcePoint !== null) {
+      if (
+        this.sourcePoint.x === targetPoint.x &&
+        this.sourcePoint.y === targetPoint.y
+      ) {
+        console.log('deselectAllNodesAndResetSelection');
+        this.deselectAllNodesAndResetSelection();
+      }
+    }
   }
 
   drawSingleSelections(): void {
