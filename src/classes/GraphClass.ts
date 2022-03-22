@@ -36,7 +36,7 @@ export default class PPGraph {
   selectedSourceSocket: null | Socket;
   lastSelectedSocketWasInput = false;
   overInputRef: null | Socket;
-  dragSourcePoint: null | PIXI.Point;
+  dragSourcePoint: PIXI.Point;
 
   backgroundTempContainer: PIXI.Container;
   backgroundCanvas: PIXI.Container;
@@ -100,7 +100,7 @@ export default class PPGraph {
     );
     this.app.stage.addChild(this.selection);
 
-    this.viewport.cursor = 'grab';
+    this.viewport.cursor = 'default';
 
     // add event listeners
     // listen to window resize event and resize app
@@ -136,8 +136,14 @@ export default class PPGraph {
     event.stopPropagation();
     const target = event.target;
     console.log(target, event.data.originalEvent);
-
-    this.onRightClick(event, target);
+    if (
+      // only trigger right click if viewport was not dragged
+      this.dragSourcePoint === undefined ||
+      (this.dragSourcePoint.x === this.viewport.x &&
+        this.dragSourcePoint.y === this.viewport.y)
+    ) {
+      this.onRightClick(event, target);
+    }
   }
 
   _onPointerDoubleClicked(event: PIXI.InteractionEvent): void {
@@ -155,7 +161,7 @@ export default class PPGraph {
 
     this.onCloseSocketInspector();
 
-    if (event.data.originalEvent.shiftKey) {
+    if ((event.data.originalEvent as PointerEvent).button === 0) {
       this.selection.drawSelectionStart(
         event,
         event.data.originalEvent.shiftKey
@@ -181,7 +187,7 @@ export default class PPGraph {
     console.log('_onPointerUpAndUpOutside');
     // check if viewport has been dragged,
     // if not, this is a deselect all nodes action
-    if (this.dragSourcePoint !== null) {
+    if (this.dragSourcePoint !== undefined) {
       if (
         this.dragSourcePoint.x === this.viewport.x &&
         this.dragSourcePoint.y === this.viewport.y
@@ -193,12 +199,12 @@ export default class PPGraph {
       }
     }
     if (this.selection.isDrawingSelection) {
-      this.selection.drawSelectionFinish();
+      this.selection.drawSelectionFinish(event);
     }
 
-    this.viewport.cursor = 'grab';
+    this.viewport.cursor = 'default';
     this.viewport.plugins.resume('drag');
-    this.dragSourcePoint = null;
+    this.dragSourcePoint = undefined;
     this.onViewportDragging(false);
   }
 
@@ -341,7 +347,7 @@ export default class PPGraph {
 
   clearTempConnection(): void {
     this.tempConnection.clear();
-    this.dragSourcePoint = null;
+    this.dragSourcePoint = undefined;
   }
 
   getNodeById(id: string): PPNode {

@@ -319,10 +319,14 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     pixiApp.current.stage.buttonMode = true;
 
     // disable browser window zoom on trackpad pinch
-    pixiApp.current.view.addEventListener(
-      'mousewheel',
-      (e: Event) => {
-        e.preventDefault();
+    document.addEventListener(
+      'wheel',
+      (event) => {
+        const { ctrlKey } = event;
+        if (ctrlKey) {
+          event.preventDefault();
+          return;
+        }
       },
       { passive: false }
     );
@@ -352,9 +356,12 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
 
     // configure viewport
     viewport.current
-      .drag()
+      .drag({
+        clampWheel: false,
+        mouseButtons: 'middle-right',
+      })
       .pinch()
-      .wheel()
+      .wheel({ smooth: 3, trackpadPinch: true, wheelZoom: false })
       .decelerate({
         friction: 0.8,
       })
@@ -503,9 +510,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     // register key events
     const keysDown = (e: KeyboardEvent): void => {
       // console.log(e.key);
-      if (e.shiftKey) {
-        viewport.current.cursor = 'default';
-      }
       if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'u') {
         // added ctrl+u shortcut for trying to debug the issue where drag would stop working
         // I want to see if the plugin was just paused
@@ -565,9 +569,9 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       InputParser.parseKeyDown(e, currentGraph.current)
     );
 
-    window.addEventListener('keyup', (e: KeyboardEvent) =>
-      InputParser.parseKeyUp(e)
-    );
+    window.addEventListener('keyup', (e: KeyboardEvent) => {
+      InputParser.parseKeyUp(e);
+    });
 
     window.addEventListener('copy', async (e) => {
       if (!isEventComingFromWithinTextInput(e)) {
