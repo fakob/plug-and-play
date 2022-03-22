@@ -314,10 +314,14 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     pixiApp.current.stage.buttonMode = true;
 
     // disable browser window zoom on trackpad pinch
-    pixiApp.current.view.addEventListener(
-      'mousewheel',
-      (e: Event) => {
-        e.preventDefault();
+    document.addEventListener(
+      'wheel',
+      (event) => {
+        const { ctrlKey } = event;
+        if (ctrlKey) {
+          event.preventDefault();
+          return;
+        }
       },
       { passive: false }
     );
