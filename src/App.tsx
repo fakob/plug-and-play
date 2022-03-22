@@ -336,11 +336,12 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       { passive: false }
     );
 
-    document.addEventListener('copy', async (e) => {
-      console.dir(e.target);
-      e.preventDefault();
-      // e.stopPropagation();
-      if (!isEventComingFromWithinTextInput(e)) {
+    document.addEventListener('copy', async (e: ClipboardEvent) => {
+      const selection = document.getSelection();
+      // if text selection is empty
+      // prevent default and copy selected nodes
+      if (selection.toString() === '') {
+        e.preventDefault();
         const serializeSelection = currentGraph.current.serializeSelection();
         writeDataToClipboard(serializeSelection);
         console.log(serializeSelection);
@@ -348,25 +349,19 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     });
 
     document.addEventListener('paste', async (e) => {
-      console.dir(e.target);
-      if (!isEventComingFromWithinTextInput(e)) {
-        e.preventDefault();
-        // e.stopPropagation();
-        const textFromClipboard = await navigator.clipboard.readText();
-        try {
-          const json = JSON.parse(textFromClipboard) as SerializedSelection;
-          if (json.version) {
-            const pastedNodes = await currentGraph.current.pasteNodes(
-              json,
-              true
-            );
-            console.log(pastedNodes);
-          } else {
-            console.error('Not valid');
-          }
-        } catch (e) {
-          console.error('There was an issue pasting');
+      // get text from clipboard and try to parse it
+      const textFromClipboard = await navigator.clipboard.readText();
+      try {
+        const json = JSON.parse(textFromClipboard) as SerializedSelection;
+        if (json.version) {
+          e.preventDefault();
+          const pastedNodes = await currentGraph.current.pasteNodes(json, true);
+          console.log(pastedNodes);
+        } else {
+          console.error('Clipboard does not contain valid node data');
         }
+      } catch (e) {
+        console.log('Clipboard does not contain node data');
       }
     });
 
