@@ -36,7 +36,7 @@ export default class PPGraph {
   selectedSourceSocket: null | Socket;
   lastSelectedSocketWasInput = false;
   overInputRef: null | Socket;
-  dragSourcePoint: null | PIXI.Point;
+  dragSourcePoint: PIXI.Point;
 
   backgroundTempContainer: PIXI.Container;
   backgroundCanvas: PIXI.Container;
@@ -143,7 +143,7 @@ export default class PPGraph {
     console.log(target, event.data.originalEvent);
     if (
       // only trigger right click if viewport was not dragged
-      this.dragSourcePoint === null ||
+      this.dragSourcePoint === undefined ||
       (this.dragSourcePoint.x === this.viewport.x &&
         this.dragSourcePoint.y === this.viewport.y)
     ) {
@@ -192,7 +192,7 @@ export default class PPGraph {
     console.log('_onPointerUpAndUpOutside');
     // check if viewport has been dragged,
     // if not, this is a deselect all nodes action
-    if (this.dragSourcePoint !== null) {
+    if (this.dragSourcePoint !== undefined) {
       if (
         this.dragSourcePoint.x === this.viewport.x &&
         this.dragSourcePoint.y === this.viewport.y
@@ -209,7 +209,7 @@ export default class PPGraph {
 
     this.viewport.cursor = 'default';
     this.viewport.plugins.resume('drag');
-    this.dragSourcePoint = null;
+    this.dragSourcePoint = undefined;
     this.onViewportDragging(false);
   }
 
@@ -351,7 +351,7 @@ export default class PPGraph {
 
   clearTempConnection(): void {
     this.tempConnection.clear();
-    this.dragSourcePoint = null;
+    this.dragSourcePoint = undefined;
   }
 
   getNodeById(id: string): PPNode {
