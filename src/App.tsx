@@ -806,7 +806,9 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
 
         // check if graph exists and load last saved graph if it does not
         if (loadedGraph === undefined) {
-          loadedGraph = graphs.reduce((a, b) => (a.date > b.date ? a : b));
+          loadedGraph = graphs.reduce((a, b) => {
+            return new Date(a.date) > new Date(b.date) ? a : b;
+          });
         }
 
         const graphData = loadedGraph.graphData;
