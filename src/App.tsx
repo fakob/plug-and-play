@@ -726,17 +726,16 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     console.log(graphId);
     db.transaction('rw', db.graphs, db.settings, async () => {
       const loadedGraphId = await getLoadedGraphId(db);
-      if (loadedGraphId === graphId) {
-        // save loadedGraphId
-        await db.settings.put({
-          name: 'loadedGraphId',
-          value: undefined,
-        });
-      }
+
       const id = await db.graphs.where('id').equals(graphId).delete();
       updateGraphSearchItems();
       console.log(`Deleted graph: ${id}`);
       enqueueSnackbar('Playground was deleted');
+
+      // if the current graph was deleted load last saved graph
+      if (loadedGraphId === graphId) {
+        loadGraph();
+      }
     }).catch((e) => {
       console.log(e.stack || e);
     });
@@ -800,14 +799,14 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       const graphs = await db.graphs.toArray();
       const loadedGraphId = await getLoadedGraphId(db);
 
-      if (loadedGraphId !== undefined && graphs.length > 0) {
+      if (graphs.length > 0) {
         let loadedGraph = graphs.find(
           (graph) => graph.id === (id || loadedGraphId)
         );
 
-        // check if graph exists and load last graph if it does not
+        // check if graph exists and load last saved graph if it does not
         if (loadedGraph === undefined) {
-          loadedGraph = graphs[graphs.length - 1];
+          loadedGraph = graphs.reduce((a, b) => (a.date > b.date ? a : b));
         }
 
         const graphData = loadedGraph.graphData;
