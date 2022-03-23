@@ -21,10 +21,7 @@
   "author": "jkanchelov",
   "license": "MIT",
   "dependencies": {
-    "@blueprintjs/core": "^3.49.1",
-    "@blueprintjs/popover2": "^0.11.4",
-    "@blueprintjs/select": "^3.18.10",
-    "@blueprintjs/table": "^3.9.12",
+    "@blueprintjs/table": "^4.0.0",
     "@codemirror/lang-javascript": "^0.19.4",
     "@codemirror/theme-one-dark": "^0.19.1",
     "@emotion/react": "^11.6.0",
