@@ -323,7 +323,7 @@ export default class PPSelection extends PIXI.Container {
 
     // draw single selections
     this.selectedNodes.map((node) => {
-      const nodeBounds = node.getBounds();
+      const nodeBounds = node._BackgroundRef.getBounds();
       this.singleSelectionsGraphics.drawRect(
         nodeBounds.x,
         nodeBounds.y,
