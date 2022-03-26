@@ -1,16 +1,11 @@
 import * as PIXI from 'pixi.js';
-import React from 'react';
-import {
-  IRegion,
-  Table as BPTable,
-  Column as BPColumn,
-  Cell as BPCell,
-} from '@blueprintjs/table';
-import * as XLSX from 'xlsx/xlsx.mjs';
-import * as csvParser from 'papaparse';
+import React, { useEffect, useState } from 'react';
+import * as XLSX from 'xlsx';
+import Spreadsheet, { Options } from '@bergfreunde/x-data-spreadsheet';
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
 import { CustomArgs } from '../utils/interfaces';
+import { stox, xtos } from '../utils/xlsxspread';
 import { StringType } from './datatypes/stringType';
 import { TriggerType } from './datatypes/triggerType';
 import { AnyType } from './datatypes/anyType';
@@ -20,6 +15,8 @@ export class Table extends PPNode {
   _imageRefClone: PIXI.Sprite;
   defaultProps;
   createElement;
+  spreadsheetId: string;
+  workbook: XLSX.WorkBook;
   parsedData: any;
   update: () => void;
 
@@ -44,19 +41,22 @@ export class Table extends PPNode {
     this.name = 'Table';
     this.description = 'Adds a table';
 
+    this.spreadsheetId = `x-spreadsheet-${this.id}`;
+    this.workbook = XLSX.utils.book_new();
+
     // when the Node is added, add the container and react component
     this.onNodeAdded = () => {
-      const workbook = XLSX.read(this.getInputData('data'));
+      this.workbook = XLSX.read(this.getInputData('data'));
       /* use sheet_to_json with header: 1 to generate an array of arrays */
-      const data = XLSX.utils.sheet_to_json(
-        workbook.Sheets[workbook.SheetNames[0]],
-        {
-          header: 1,
-        }
-      );
+      const sheet = this.workbook.Sheets[this.workbook.SheetNames[0]];
+      const data = XLSX.utils.sheet_to_json(sheet, {
+        header: 1,
+      });
+      console.log(sheet);
       console.log(data);
+      console.log(this.workbook);
 
-      this.parsedData = this.parseData(data);
+      this.parsedData = stox(this.workbook);
       this.createContainerComponent(document, TableParent, {
         dataArray: this.parsedData,
       });
@@ -69,81 +69,72 @@ export class Table extends PPNode {
 
     // when the Node is loaded, update the react component
     this.update = (): void => {
-      const data = this.getInputData('data') ?? '';
-      this.parsedData = this.parseData(data);
+      console.log(this.workbook);
+      this.parsedData = stox(this.workbook);
       this.renderReactComponent(TableParent, {
         dataArray: this.parsedData,
       });
       this.setOutputData('selectedData', this.parsedData);
     };
 
-    const getCellRenderer = (key: number) => {
-      return (row: number) => <BPCell>{`${this.parsedData[row][key]}`}</BPCell>;
-    };
-
-    const onSelection = (selectedRegions: IRegion[]): void => {
-      const selectedData = selectedRegions.map((region) => {
-        const regionData = [];
-        const rowIndexStart = region.rows === undefined ? 0 : region.rows[0];
-        const rowIndexEnd =
-          region.rows === undefined
-            ? this.parsedData.length - 1
-            : region.rows[1];
-        for (
-          let rowIndex = rowIndexStart;
-          rowIndex <= rowIndexEnd;
-          rowIndex++
-        ) {
-          const rowData = [];
-          const colIndexStart = region.cols === undefined ? 0 : region.cols[0];
-          const colIndexEnd =
-            region.cols === undefined
-              ? this.parsedData[rowIndex].length - 1
-              : region.cols[1];
-          for (
-            let colIndex = colIndexStart;
-            colIndex <= colIndexEnd;
-            colIndex++
-          ) {
-            rowData.push(this.parsedData[rowIndex][colIndex]);
-          }
-          regionData.push(rowData);
-        }
-        return regionData;
-      });
-      if (selectedRegions.length === 1) {
-        this.setOutputData('selectedData', selectedData[0]);
-      } else {
-        this.setOutputData('selectedData', selectedData);
-      }
-      this.executeOptimizedChain();
-    };
-
     // small presentational component
     const TableParent = (props) => {
-      return props.dataArray.length > 0 ? (
-        <BPTable numRows={props.dataArray.length} onSelection={onSelection}>
-          {props.dataArray[0].map((col, index) => {
-            return (
-              <BPColumn name={col} cellRenderer={getCellRenderer(index)} />
-            );
-          })}
-        </BPTable>
-      ) : (
-        <BPTable numRows={20}>
-          <BPColumn />
-          <BPColumn />
-          <BPColumn />
-        </BPTable>
-      );
+      const [dataArray, setDataArray] = useState<any>(props.dataArray);
+
+      const options: Options = {
+        mode: 'edit', // edit | read
+        showToolbar: true,
+        showGrid: true,
+        showContextmenu: true,
+        view: {
+          height: () => this.nodeWidth,
+          width: () => this.nodeHeight,
+        },
+        row: {
+          len: 100,
+          height: 25,
+        },
+        col: {
+          len: 26,
+          width: 100,
+          indexWidth: 60,
+          minWidth: 60,
+        },
+        style: {
+          bgcolor: '#ffffff',
+          align: 'left',
+          valign: 'middle',
+          textwrap: false,
+          strike: false,
+          underline: false,
+          color: '#0a0a0a',
+          font: {
+            name: 'Helvetica',
+            size: 10,
+            bold: false,
+            italic: false,
+          },
+        },
+      };
+
+      useEffect(() => {
+        console.log(dataArray);
+        new Spreadsheet(document.getElementById(this.spreadsheetId), options)
+          .loadData(dataArray)
+          .change((data) => {
+            console.log(data);
+            setDataArray(data);
+          });
+      }, []);
+      return <div id={this.spreadsheetId} />;
     };
   }
 
-  parseData(data: string): any {
-    const results = csvParser.parse(data, {});
-    console.log(results);
-    return results?.data;
-  }
+  // parseData(data: string): any {
+  //   const results = csvParser.parse(data, {});
+  //   console.log(results);
+  //   return results?.data;
+  // }
 
   trigger(): void {
     this.update();

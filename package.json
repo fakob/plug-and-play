@@ -21,7 +21,7 @@
   "author": "jkanchelov",
   "license": "MIT",
   "dependencies": {
-    "@blueprintjs/table": "^4.0.0",
+    "@bergfreunde/x-data-spreadsheet": "^2.0.55",
     "@codemirror/lang-javascript": "^0.19.4",
     "@codemirror/theme-one-dark": "^0.19.1",
     "@emotion/react": "^11.6.0",
