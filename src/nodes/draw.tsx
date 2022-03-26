@@ -20,7 +20,6 @@ import { ArrayType } from './datatypes/arrayType';
 import { StringType } from './datatypes/stringType';
 import { ImageType } from './datatypes/imageType';
 import { CustomArgs, TRgba } from '../utils/interfaces';
-import { JSONType } from './datatypes/jsonType';
 
 const availableShapes: EnumStructure = [
   {
@@ -200,13 +199,13 @@ abstract class DRAW_Base extends PPNode {
   shouldExecuteOnMove(): boolean {
     return this.shouldDraw();
   }
+  protected getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.DRAW);
+  }
 }
 export class DRAW_Shape extends DRAW_Base {
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, {
-      ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.DRAW),
-    });
+    super(name, graph, customArgs);
 
     this.name = 'Draw shape object';
     this.description = 'Draws a circle, rectangle or rounded rectangle';
@@ -286,10 +285,7 @@ export class DRAW_Shape extends DRAW_Base {
 
 export class DRAW_Text extends DRAW_Base {
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, {
-      ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.DRAW),
-    });
+    super(name, graph, customArgs);
 
     this.name = 'Draw text object';
     this.description = 'Draws a text';
@@ -357,10 +353,7 @@ export class DRAW_Text extends DRAW_Base {
 
 export class DRAW_Combine extends DRAW_Base {
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, {
-      ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.DRAW),
-    });
+    super(name, graph, customArgs);
 
     this.name = 'Combine objects';
     this.description = 'Combines two drawn objects';
@@ -398,10 +391,7 @@ export class DRAW_Combine extends DRAW_Base {
 
 export class DRAW_Multiplier extends DRAW_Base {
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, {
-      ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.DRAW),
-    });
+    super(name, graph, customArgs);
 
     this.name = 'Multiply object';
     this.description = 'Multiplies an object into a grid';
@@ -495,10 +485,7 @@ export class DRAW_Multiplier extends DRAW_Base {
 
 export class DRAW_Image extends DRAW_Base {
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, {
-      ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.DRAW),
-    });
+    super(name, graph, customArgs);
 
     this.name = 'Draw image object';
     this.description = 'Draws an image object (jpg, png)';
@@ -532,10 +519,7 @@ export class DRAW_Image extends DRAW_Base {
 
 export class DRAW_Line extends DRAW_Base {
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, {
-      ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.DRAW),
-    });
+    super(name, graph, customArgs);
 
     this.name = 'Draw line';
     this.description = 'Draws a line specified by the input points';

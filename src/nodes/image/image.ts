@@ -69,12 +69,13 @@ export class Image extends PPNode {
     ];
   }
 
+  protected getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
+  }
+
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, {
-      ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.INPUT),
-      colorTransparency: 0.2,
-    });
+    super(name, graph, customArgs);
+    this.alpha = 0.2;
     this.name = 'Draw Image';
     this.description = 'Draws an Image (base64)';
 
@@ -202,6 +203,10 @@ export class Image extends PPNode {
     this.onNodeRemoved = (): void => {
       this.texture.baseTexture.removeAllListeners('loaded');
     };
+  }
+
+  protected getIsHybrid() : boolean{
+    return true;
   }
 
   trigger(): void {

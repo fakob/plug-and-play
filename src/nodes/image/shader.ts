@@ -126,11 +126,12 @@ export class Shader extends PPNode {
 
   prevWidth = defaultWidth;
   prevHeight = defaultWidth;
+
+  protected getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.SHADER);
+  }
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, {
-      ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.SHADER),
-    });
+    super(name, graph, customArgs);
 
     this.name = 'Draw shader';
     this.description = 'Draws a shader';

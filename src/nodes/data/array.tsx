@@ -93,12 +93,12 @@ export class ArrayPush extends PureNode {
 }
 
 export class ArrayMethod extends PureNode {
+  protected getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
+  }
   onOptionChange?: (value: string) => void;
   constructor(name: string, graph: Graph, customArgs: CustomArgs) {
-    super(name, graph, {
-      ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM),
-    });
+    super(name, graph, customArgs);
 
     const arrayMethodsArray = getMethods(new Array(1));
     const arrayMethodsArrayOptions = arrayMethodsArray

@@ -28,8 +28,7 @@ export class Mouse extends PPNode {
 
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
     super(name, graph, {
-      ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.INPUT),
+      customArgs,
     });
 
     this.addOutput('screen-x', new NumberType());
@@ -63,14 +62,14 @@ export class Mouse extends PPNode {
     this.onViewportZoomedHandler = this.onViewportZoomed.bind(this);
     this.graph.viewport.on('zoomed', (this as any).onViewportZoomedHandler);
   }
+  protected getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
+  }
 }
 
 export class GridCoordinates extends PPNode {
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, {
-      ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.INPUT),
-    });
+    super(name, graph, customArgs);
 
     this.addOutput('x-array', new AnyType());
     this.addOutput('y-array', new AnyType());
@@ -101,6 +100,9 @@ export class GridCoordinates extends PPNode {
       output['y-array'] = yArray;
     };
   }
+  protected getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
+  }
 }
 
 export class ColorArray extends PPNode {
@@ -108,10 +110,7 @@ export class ColorArray extends PPNode {
     const colorA: TRgba = TRgba.fromString(COLOR[5]);
     const colorB: TRgba = TRgba.fromString(COLOR[15]);
 
-    super(name, graph, {
-      ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.INPUT),
-    });
+    super(name, graph, customArgs);
 
     this.addOutput('color-array', new AnyType());
     this.addInput('count', new NumberType(true), 9, false);
@@ -133,14 +132,14 @@ export class ColorArray extends PPNode {
       output['color-array'] = colorArray;
     };
   }
+  protected getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
+  }
 }
 
 export class RangeArray extends PPNode {
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, {
-      ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.INPUT),
-    });
+    super(name, graph, customArgs);
 
     this.addOutput('output array', new AnyType());
     this.addInput('start', new NumberType());
@@ -160,14 +159,14 @@ export class RangeArray extends PPNode {
       );
     };
   }
+  protected getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
+  }
 }
 
 export class RandomArray extends PPNode {
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, {
-      ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.INPUT),
-    });
+    super(name, graph, customArgs);
 
     this.addOutput('output array', new AnyType());
     this.addInput('trigger', new TriggerType());
@@ -188,15 +187,15 @@ export class RandomArray extends PPNode {
     });
     this.setOutputData('output array', randomArray);
   }
+  protected getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
+  }
 }
 
 export class Trigger extends PPNode {
   _rectRef: PIXI.Graphics;
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, {
-      ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.INPUT),
-    });
+    super(name, graph, customArgs);
 
     this.addOutput('trigger', new TriggerType());
 
@@ -231,14 +230,15 @@ export class Trigger extends PPNode {
   onButtonOver(): void {
     this._rectRef.cursor = 'hover';
   }
+
+  protected getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
+  }
 }
 
 export class DateAndTime extends PPNode {
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, {
-      ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.INPUT),
-    });
+    super(name, graph, customArgs);
 
     const dateMethodsArray = getMethods(new Date());
     const dateMethodsArrayOptions = dateMethodsArray
@@ -272,5 +272,8 @@ export class DateAndTime extends PPNode {
       const dateMethod = input['Date method'];
       this.setOutputData('date and time', new Date()[dateMethod]());
     };
+  }
+  protected getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
   }
 }

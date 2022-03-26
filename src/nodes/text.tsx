@@ -34,12 +34,9 @@ export class Label extends PureNode {
     super(name, graph, {
       ...customArgs,
       nodeWidth,
-      color: TRgba.fromString(fillColor),
-      colorTransparency: 1.0,
-      roundedCorners: false,
-      showLabels: false,
     });
-
+    this.alpha = 1.0;
+    this.color = TRgba.fromString(fillColor);
     const canvas = this.graph.viewport.getChildByName(
       'foregroundCanvas'
     ) as PIXI.Container;
@@ -236,6 +233,10 @@ export class Label extends PureNode {
   shouldExecuteOnMove(): boolean {
     return true;
   }
+
+  protected getIsHybrid(): boolean {
+    return true;
+  }
 }
 
 export class Note extends PureNode {
@@ -262,10 +263,8 @@ export class Note extends PureNode {
       nodeWidth: baseWidth,
       nodeHeight: baseHeight,
       minNodeHeight: baseHeight,
-      colorTransparency: 0,
-      roundedCorners: false,
-      showLabels: false,
     });
+    this.alpha = 0;
 
     this.addOutput('Output', new StringType(), false);
     this.addInput(
@@ -503,5 +502,8 @@ export class Note extends PureNode {
         }
       }
     };
+  }
+  protected getIsHybrid(): boolean {
+    return true;
   }
 }

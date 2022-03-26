@@ -77,9 +77,6 @@ export default class PPNode extends PIXI.Container {
   minNodeWidth: number;
   minNodeHeight: number;
   nodeHeight: number;
-  isHybrid: boolean; // true if it is a hybrid node (html and webgl)
-  roundedCorners: boolean;
-  showLabels: boolean;
 
   // default to update on update, 1 sec time update interval
   updateBehaviour: UpdateBehaviour;
@@ -113,6 +110,9 @@ export default class PPNode extends PIXI.Container {
   (positions: { screenX: number; screenY: number; scale: number }) => void =
     () => {};
 
+  roundedCorners = !this.getIsHybrid();
+  showLabels = !this.getIsHybrid();
+
   constructor(type: string, graph: PPGraph, customArgs?: CustomArgs) {
     super();
     this.graph = graph;
@@ -132,18 +132,10 @@ export default class PPNode extends PIXI.Container {
     this.minNodeWidth = customArgs?.minNodeWidth ?? this.nodeWidth;
     this.nodeHeight = customArgs?.nodeHeight; // if not set height is defined by in/out sockets
     this.minNodeHeight = customArgs?.minNodeHeight;
-    this.isHybrid = Boolean(customArgs?.isHybrid ?? false);
 
-    if (this.isHybrid) {
-      this.roundedCorners = Boolean(customArgs?.roundedCorners ?? false);
-      this.showLabels = Boolean(customArgs?.showLabels ?? false);
-    } else {
-      this.roundedCorners = Boolean(customArgs?.roundedCorners ?? true);
-      this.showLabels = Boolean(customArgs?.showLabels ?? true);
-    }
-    this.color = customArgs?.color ?? TRgba.fromString(NODE_TYPE_COLOR.DEFAULT);
+    this.color = TRgba.fromString(NODE_TYPE_COLOR.DEFAULT);
 
-    this.color.a = customArgs?.colorTransparency ?? (this.isHybrid ? 0.01 : 1); // so it does not show when dragging the node fast
+    this.color.a = this.getIsHybrid() ? 0.01 : 1; // so it does not show when dragging the node fast
     const inputNameText = new PIXI.Text(this.name, NODE_TEXTSTYLE);
     inputNameText.x = NODE_HEADER_TEXTMARGIN_LEFT;
     inputNameText.y = NODE_PADDING_TOP + NODE_HEADER_TEXTMARGIN_TOP;
@@ -188,6 +180,14 @@ export default class PPNode extends PIXI.Container {
 
     // define callbacks
     this.onNodeDragging = (isDraggingNode: boolean) => {};
+  }
+
+  protected getIsHybrid(): boolean {
+    return false;
+  }
+
+  protected getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.DEFAULT);
   }
 
   // GETTERS & SETTERS
@@ -399,7 +399,7 @@ export default class PPNode extends PIXI.Container {
       this.onConfigure(nodeConfig);
     }
 
-    if (this.isHybrid) {
+    if (this.getIsHybrid()) {
       this._onViewportMove(); // trigger this once, so the react components get positioned properly
     }
 
@@ -536,7 +536,7 @@ export default class PPNode extends PIXI.Container {
       scale: this.graph.viewport.scale.x,
     });
 
-    if (this.isHybrid) {
+    if (this.getIsHybrid()) {
       this._onViewportMove(); // trigger this once, so the react components get positioned properly
     }
   }
@@ -569,7 +569,7 @@ export default class PPNode extends PIXI.Container {
 
     this.updateConnectionPosition();
 
-    if (this.isHybrid) {
+    if (this.getIsHybrid()) {
       this.container.style.width = `${this.nodeWidth}px`;
       this.container.style.height = `${this.nodeHeight}px`;
     }
@@ -671,6 +671,9 @@ export default class PPNode extends PIXI.Container {
   public getCanAddInput(): boolean {
     return false;
   }
+  public getCanAddOutput(): boolean {
+    return false;
+  }
 
   constructSocketName(prefix: string, existing: Socket[]): string {
     let count = 1;
@@ -688,9 +691,6 @@ export default class PPNode extends PIXI.Container {
     );
   }
 
-  public getCanAddOutput(): boolean {
-    return false;
-  }
   public addDefaultOutput(): void {
     this.addOutput(
       this.constructSocketName('Custom Output', this.outputSocketArray),
@@ -885,9 +885,6 @@ export default class PPNode extends PIXI.Container {
 
   getInputDataBySlot(slot: number): any {
     // to easily loop through it
-    if (!this.inputSocketArray) {
-      return undefined;
-    }
 
     // if no link, then return data
     if (
@@ -1188,7 +1185,7 @@ export default class PPNode extends PIXI.Container {
     this.doubleClicked = true;
 
     // turn on pointer events for hybrid nodes so the react components become reactive
-    if (this.isHybrid) {
+    if (this.getIsHybrid()) {
       this.container.style.pointerEvents = 'auto';
     }
 

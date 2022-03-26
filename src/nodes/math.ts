@@ -7,11 +7,11 @@ import { NumberType } from './datatypes/numberType';
 import { EnumType } from './datatypes/enumType';
 
 export class MathFunction extends PureNode {
+  protected getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
+  }
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, {
-      ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM),
-    });
+    super(name, graph, customArgs);
 
     this.name = 'Math function';
     this.description = 'Mathematical constants and functions';
@@ -89,11 +89,11 @@ export class MathFunction extends PureNode {
 }
 
 class SimpleMathOperation extends PureNode {
+  protected getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
+  }
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, {
-      ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM),
-    });
+    super(name, graph, customArgs);
 
     this.name = this.getName();
     this.description = this.getDescription();

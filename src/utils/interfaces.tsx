@@ -41,15 +41,10 @@ export type SerializedSelection = {
 
 export type CustomArgs = {
   customId?: string;
-  color?: TRgba;
-  colorTransparency?: number;
   nodePosX?: number;
   nodePosY?: number;
   nodeWidth?: number;
   nodeHeight?: number;
-  isHybrid?: boolean;
-  roundedCorners?: boolean;
-  showLabels?: boolean;
   defaultArguments?: Record<string, any>;
   [key: string]: any; //  lets try to deprecate this
 };
