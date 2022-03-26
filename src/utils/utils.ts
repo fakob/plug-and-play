@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
 import JSON5 from 'json5';
-import { Node } from 'slate';
 import * as PIXI from 'pixi.js';
 
 import PPGraph from '../classes/GraphClass';
@@ -173,25 +172,6 @@ export const convertBlobToBase64 = (blob) => {
   });
 };
 
-export const convertStringToSlateNodes = (text: string): any => {
-  if (text === undefined) {
-    return [
-      {
-        children: [{ text: '' }],
-      },
-    ];
-  }
-  return text.split('\n').map((line) => {
-    return {
-      children: [{ text: line }],
-    };
-  });
-};
-
-export const convertSlateNodesToString = (value: any): string => {
-  return value.map((n) => Node.string(n)).join('\n');
-};
-
 export const getCircularReplacer = () => {
   const seen = new WeakSet();
   return (key, value) => {
@@ -353,7 +333,6 @@ export const writeDataToClipboard = (data: unknown): void => {
 
 export const isEventComingFromWithinTextInput = (event: any): boolean => {
   return (
-    event.target.dataset.slateEditor !== undefined ||
     event.target.id === 'Input' ||
     event.target.localName === 'input' ||
     event.target.localName === 'textarea' ||
