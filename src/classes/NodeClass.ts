@@ -716,7 +716,7 @@ export default class PPNode extends PIXI.Container {
       if (commentData && commentData.length > 10000) {
         commentData = 'Too long to display';
       }
-      console.log('drawing comments');
+      // console.log('drawing comments');
       const debugText = new PIXI.Text(
         `${Math.round(this.transform.position.x)}, ${Math.round(
           this.transform.position.y

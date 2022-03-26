@@ -6,12 +6,14 @@ import {
   Column as BPColumn,
   Cell as BPCell,
 } from '@blueprintjs/table';
+import * as XLSX from 'xlsx/xlsx.mjs';
 import * as csvParser from 'papaparse';
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
 import { CustomArgs } from '../utils/interfaces';
 import { StringType } from './datatypes/stringType';
 import { TriggerType } from './datatypes/triggerType';
+import { AnyType } from './datatypes/anyType';
 
 export class Table extends PPNode {
   _imageRef: PIXI.Sprite;
@@ -37,14 +39,23 @@ export class Table extends PPNode {
 
     this.addOutput('selectedData', new StringType());
     this.addInput('reload', new TriggerType());
-    this.addInput('data', new StringType(), customArgs?.data ?? '');
+    this.addInput('data', new AnyType(), customArgs?.data);
 
     this.name = 'Table';
     this.description = 'Adds a table';
 
     // when the Node is added, add the container and react component
     this.onNodeAdded = () => {
-      const data = this.getInputData('data') ?? '';
+      const workbook = XLSX.read(this.getInputData('data'));
+      /* use sheet_to_json with header: 1 to generate an array of arrays */
+      const data = XLSX.utils.sheet_to_json(
+        workbook.Sheets[workbook.SheetNames[0]],
+        {
+          header: 1,
+        }
+      );
+      console.log(data);
+
       this.parsedData = this.parseData(data);
       this.createContainerComponent(document, TableParent, {
         dataArray: this.parsedData,
