@@ -7,9 +7,13 @@ import PPNode from '../classes/NodeClass';
 import { CustomArgs } from '../utils/interfaces';
 import { stox, xtos } from '../utils/xlsxspread';
 import { StringType } from './datatypes/stringType';
-import { TriggerType } from './datatypes/triggerType';
 import { AnyType } from './datatypes/anyType';
 import { JSONType } from './datatypes/jsonType';
+import { NumberType } from './datatypes/numberType';
+
+const selectedDataSocketName = 'selectedData';
+const workBookInputSocketName = 'workBook';
+const sheetIndexInputSocketName = 'currentSheet';
 
 export class Table extends PPNode {
   _imageRef: PIXI.Sprite;
@@ -17,7 +21,7 @@ export class Table extends PPNode {
   defaultProps;
   createElement;
   spreadsheetId: string;
-  workbook: XLSX.WorkBook;
+  workBook: XLSX.WorkBook;
   initialData: any;
   xSpreadSheet: Spreadsheet;
   parsedData: any;
@@ -40,29 +44,32 @@ export class Table extends PPNode {
     // get initialData if available else create an empty workbook
     this.initialData = customArgs?.initialData;
 
-    this.addOutput('selectedData', new JSONType());
-    this.addInput('reload', new TriggerType());
-    this.addInput('workbook', new AnyType());
+    this.addOutput(selectedDataSocketName, new JSONType());
+    this.addInput(workBookInputSocketName, new AnyType());
+    this.addInput(sheetIndexInputSocketName, new NumberType(true), 0);
 
     this.name = 'Table';
     this.description = 'Adds a table';
 
     this.spreadsheetId = `x-spreadsheet-${this.id}`;
-    this.workbook = XLSX.utils.book_new();
+    this.workBook = XLSX.utils.book_new();
 
     // when the Node is added, add the container and react component
     this.onNodeAdded = () => {
-      // console.log(this.initialData);
+      console.log(this.initialData);
       if (this.initialData) {
-        this.workbook = XLSX.read(this.initialData);
-        this.setInputData('workbook', this.workbook);
-        this.setOutputData('selectedData', this.getJSONData(this.workbook));
+        this.workBook = XLSX.read(this.initialData);
+        this.setInputData(workBookInputSocketName, this.workBook);
+        this.setJSONData(this.workBook);
+      } else {
+        // create workbook with an empty worksheet
+        this.workBook = XLSX.utils.book_new();
+        const ws_data = [[''], ['']];
+        const worksheet = XLSX.utils.aoa_to_sheet(ws_data);
+        XLSX.utils.book_append_sheet(this.workBook, worksheet, 'Sheet1');
       }
-      //  else {
-      //   this.workbook = XLSX.utils.book_new();
-      // }
 
-      this.parsedData = this.parseData(this.workbook);
+      this.parsedData = this.parseData(this.workBook);
       this.createContainerComponent(document, TableParent, {
         dataArray: this.parsedData,
         nodeWidth: this.nodeWidth,
@@ -72,15 +79,11 @@ export class Table extends PPNode {
 
     // when the Node is loaded, update the react component
     this.onConfigure = (): void => {
-      const dataFromInput = this.getInputData('workbook');
-      // console.log(dataFromInput);
-      // console.log(this.workbook);
-
+      const dataFromInput = this.getInputData(workBookInputSocketName);
       if (dataFromInput) {
-        this.workbook = this.createWorkBookFromJSON(dataFromInput);
-        this.setOutputData('selectedData', this.getJSONData(this.workbook));
+        this.workBook = this.createWorkBookFromJSON(dataFromInput);
+        this.setJSONData(this.workBook);
       }
-      // console.log(this.workbook);
       this.update();
     };
 
@@ -90,14 +93,14 @@ export class Table extends PPNode {
 
     // when the Node is loaded, update the react component
     this.update = (): void => {
-      console.log(this.workbook);
-      this.parsedData = this.parseData(this.workbook);
+      // console.log(this.workBook);
+      this.parsedData = this.parseData(this.workBook);
       this.renderReactComponent(TableParent, {
         dataArray: this.parsedData,
         nodeWidth: this.nodeWidth,
         nodeHeight: this.nodeHeight,
       });
-      this.setOutputData('selectedData', this.getJSONData(this.workbook));
+      this.setJSONData(this.workBook);
     };
 
     // small presentational component
@@ -145,21 +148,27 @@ export class Table extends PPNode {
         console.log(cell);
       };
 
-      const handleOnChange = (data) => {
-        console.log(data);
+      const handleOnClick = (e) => {
         const xSpreadSheet = this.xSpreadSheet.getData();
-        console.log(xSpreadSheet);
-        this.setInputData('workbook', xtos(xSpreadSheet));
-        this.setOutputData(
-          'selectedData',
-          this.getJSONData(xtos(xSpreadSheet))
-        );
+        // console.log(xSpreadSheet);
+        // console.dir(e.target);
+        // console.log(e.target.parentNode.className === 'x-spreadsheet-menu');
+        if (e.target.parentNode.className === 'x-spreadsheet-menu') {
+          const newSheetIndex = xSpreadSheet.findIndex(
+            (item) => item.name === e.target.innerText
+          );
+          this.setInputData(sheetIndexInputSocketName, newSheetIndex);
+        }
+      };
+
+      const handleOnChange = (data) => {
+        // console.log(data);
+        // console.log(this.xSpreadSheet);
+        const xSpreadSheet = this.xSpreadSheet.getData();
+        // console.log(xSpreadSheet);
+        this.setInputData(workBookInputSocketName, xtos(xSpreadSheet));
+        this.setJSONData(xtos(xSpreadSheet));
         setDataArray(data);
-        // this.workbook =
-        // this.setOutputData(
-        //   'selectedData',
-        //   this.getJSONData(this.workbook)
-        // );
       };
 
       useEffect(() => {
@@ -184,7 +193,7 @@ export class Table extends PPNode {
         this.xSpreadSheet.reRender();
       }, [props.nodeWidth, props.nodeHeight]);
 
-      return <div id={this.spreadsheetId} />;
+      return <div onClick={handleOnClick} id={this.spreadsheetId} />;
     };
   }
 
@@ -206,9 +215,15 @@ export class Table extends PPNode {
     return workBook;
   }
 
+  setJSONData(workBook: XLSX.WorkBook): any {
+    this.setOutputData(selectedDataSocketName, this.getJSONData(workBook));
+  }
+
   getJSONData(workBook: XLSX.WorkBook): any {
     /* use sheet_to_json with header: 1 to generate an array of arrays */
-    const sheet = workBook.Sheets[workBook.SheetNames[0]];
+    const currentSheetIndex = this.getInputData(sheetIndexInputSocketName);
+    // console.log(currentSheetIndex);
+    const sheet = workBook.Sheets[workBook.SheetNames[currentSheetIndex]];
     const data = XLSX.utils.sheet_to_json(sheet, {
       header: 1,
     });
