@@ -21,11 +21,12 @@ export class JSONGet extends PureNode {
   protected getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
   }
-  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, customArgs);
 
-    this.name = 'Get a JSON value';
-    this.description = 'Get the value of a JSON at the defined path';
+  public getName(): string {
+    return 'Get a JSON value';
+  }
+  public getDescription(): string {
+    return 'Get the value of a JSON at the defined path';
   }
 
   protected getDefaultIO(): Socket[] {
@@ -74,9 +75,13 @@ export class JSONSet extends PureNode {
     super(name, graph, 
       customArgs,
     );
+  }
 
-    this.name = 'Set a JSON value';
-    this.description = 'Set a value on a JSON at the defined path';
+  public getName(): string {
+    return 'Set a JSON value';
+  }
+  public getDescription(): string {
+    return 'Set a value on a JSON at the defined path';
   }
 
   protected getDefaultIO(): Socket[] {
@@ -122,11 +127,11 @@ export class JSONKeys extends PureNode {
   protected getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
   }
-  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, customArgs);
-
-    this.name = 'Get all JSON properties';
-    this.description = "Returns an array of the given object's property names";
+  public getName(): string {
+    return 'Get all JSON properties';
+  }
+  public getDescription(): string {
+    return "Returns an array of the given object's property names";
   }
 
   protected getDefaultIO(): Socket[] {
@@ -150,11 +155,12 @@ export class JSONValues extends PureNode {
   protected getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
   }
-  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, customArgs);
 
-    this.name = 'Get all JSON values';
-    this.description = 'Returns an array of the given objects values';
+  public getName(): string {
+    return 'Get all JSON values';
+  }
+  public getDescription(): string {
+    return 'Returns an array of the given objects values';
   }
 
   protected getDefaultIO(): Socket[] {

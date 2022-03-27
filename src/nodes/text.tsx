@@ -26,6 +26,13 @@ export class Label extends PureNode {
   currentInput: HTMLDivElement;
   createInputElement: () => void;
 
+  public getName(): string {
+    return 'Label';
+  }
+  public getDescription(): string {
+    return 'Adds a text label';
+  }
+
   constructor(name: string, graph: PPGraph, customArgs?: CustomArgs) {
     const nodeWidth = 128;
     const fontSize = 32;
@@ -65,9 +72,6 @@ export class Label extends PureNode {
       customArgs?.width ?? nodeWidth,
       false
     );
-
-    this.name = 'Label';
-    this.description = 'Adds a text label';
 
     // when the Node is added, focus it so one can start writing
     this.onNodeAdded = () => {
@@ -248,6 +252,13 @@ export class Note extends PureNode {
   createInputElement: (temporary?: boolean) => void;
   setCleanAndDisplayText: (input: HTMLDivElement) => void;
 
+  public getName(): string {
+    return 'Note';
+  }
+  public getDescription(): string {
+    return 'Adds a note';
+  }
+
   constructor(name: string, graph: PPGraph, customArgs?: CustomArgs) {
     const baseWidth = 160;
     const baseHeight = 160;
@@ -273,9 +284,6 @@ export class Note extends PureNode {
       customArgs?.data ?? 'Write away...',
       false
     );
-
-    this.name = 'Note';
-    this.description = 'Adds a note';
 
     this.currentInput = null;
     this.fontSize = baseFontSize;

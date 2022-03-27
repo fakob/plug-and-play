@@ -204,11 +204,11 @@ abstract class DRAW_Base extends PPNode {
   }
 }
 export class DRAW_Shape extends DRAW_Base {
-  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, customArgs);
-
-    this.name = 'Draw shape object';
-    this.description = 'Draws a circle, rectangle or rounded rectangle';
+  public getName(): string {
+    return 'Draw shape object';
+  }
+  public getDescription(): string {
+    return 'Draws a circle, rectangle or rounded rectangle';
   }
 
   protected getDefaultIO(): Socket[] {
@@ -284,11 +284,11 @@ export class DRAW_Shape extends DRAW_Base {
 }
 
 export class DRAW_Text extends DRAW_Base {
-  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, customArgs);
-
-    this.name = 'Draw text object';
-    this.description = 'Draws a text';
+  public getName(): string {
+    return 'Draw text object';
+  }
+  public getDescription(): string {
+    return 'Draws text';
   }
 
   protected getDefaultIO(): Socket[] {
@@ -352,11 +352,11 @@ export class DRAW_Text extends DRAW_Base {
 }
 
 export class DRAW_Combine extends DRAW_Base {
-  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, customArgs);
-
-    this.name = 'Combine objects';
-    this.description = 'Combines two drawn objects';
+  public getName(): string {
+    return 'Combine objects';
+  }
+  public getDescription(): string {
+    return 'Combines two drawn objects';
   }
 
   protected getDefaultIO(): Socket[] {
@@ -390,11 +390,11 @@ export class DRAW_Combine extends DRAW_Base {
 }
 
 export class DRAW_Multiplier extends DRAW_Base {
-  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, customArgs);
-
-    this.name = 'Multiply object';
-    this.description = 'Multiplies an object into a grid';
+  public getName(): string {
+    return 'Multiply object';
+  }
+  public getDescription(): string {
+    return 'Multiplies an object into a grid';
   }
 
   protected getDefaultIO(): Socket[] {
@@ -484,11 +484,11 @@ export class DRAW_Multiplier extends DRAW_Base {
 }
 
 export class DRAW_Image extends DRAW_Base {
-  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, customArgs);
-
-    this.name = 'Draw image object';
-    this.description = 'Draws an image object (jpg, png)';
+  public getName(): string {
+    return 'Draw image object';
+  }
+  public getDescription(): string {
+    return 'Draws an image object (jpg, png)';
   }
 
   protected getDefaultIO(): Socket[] {
@@ -518,16 +518,19 @@ export class DRAW_Image extends DRAW_Base {
 }
 
 export class DRAW_Line extends DRAW_Base {
-  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, customArgs);
-
-    this.name = 'Draw line';
-    this.description = 'Draws a line specified by the input points';
+  public getName(): string {
+    return 'Draw line';
+  }
+  public getDescription(): string {
+    return 'Draws a line specified by the input points';
   }
 
   protected getDefaultIO(): Socket[] {
     return [
-      new Socket(SOCKET_TYPE.IN, inputPointsName, new ArrayType(), [[0, 0]]),
+      new Socket(SOCKET_TYPE.IN, inputPointsName, new ArrayType(), [
+        [0, 0],
+        [100, 100],
+      ]),
       new Socket(SOCKET_TYPE.IN, inputColorName, new ColorType()),
       new Socket(
         SOCKET_TYPE.IN,

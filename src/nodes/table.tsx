@@ -21,6 +21,13 @@ export class Table extends PPNode {
   parsedData: any;
   update: () => void;
 
+  public getName(): string {
+    return 'Table';
+  }
+  public getDescription(): string {
+    return 'Adds a table';
+  }
+
   constructor(name: string, graph: PPGraph, customArgs?: CustomArgs) {
     const nodeWidth = 400;
     const nodeHeight = 400;
@@ -38,9 +45,6 @@ export class Table extends PPNode {
     this.addOutput('selectedData', new StringType());
     this.addInput('reload', new TriggerType());
     this.addInput('data', new StringType(), customArgs?.data ?? '');
-
-    this.name = 'Table';
-    this.description = 'Adds a table';
 
     // when the Node is added, add the container and react component
     this.onNodeAdded = () => {

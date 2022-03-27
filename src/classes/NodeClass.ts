@@ -13,6 +13,7 @@ import {
   SerializedNode,
   SerializedSocket,
   TRgba,
+  TSocketType,
 } from '../utils/interfaces';
 import {
   COMMENT_TEXTSTYLE,
@@ -66,10 +67,10 @@ export default class PPNode extends PIXI.Container {
 
   graph: PPGraph;
   id: string;
+  overrideName: string = undefined;
   // name: string; // Display name - at first it is the type with spaces - defined on PIXI.Container
   type: string; // Type
   category: string; // Category - derived from type
-  description: string;
   color: TRgba;
   nodePosX: number;
   nodePosY: number;
@@ -113,13 +114,18 @@ export default class PPNode extends PIXI.Container {
   roundedCorners = !this.getIsHybrid();
   showLabels = !this.getIsHybrid();
 
+  public getDescription(): string {
+    return this.constructor.name;
+  }
+  public getName(): string {
+    return this.constructor.name;
+  }
+
   constructor(type: string, graph: PPGraph, customArgs?: CustomArgs) {
     super();
     this.graph = graph;
     this.id = customArgs?.customId ?? hri.random();
-    this.name = type;
     this.type = type;
-    this.description = '';
     this.inputSocketArray = [];
     this.outputSocketArray = [];
     this.clickedSocketRef = null;
@@ -136,7 +142,7 @@ export default class PPNode extends PIXI.Container {
     this.color = TRgba.fromString(NODE_TYPE_COLOR.DEFAULT);
 
     this.color.a = this.getIsHybrid() ? 0.01 : 1; // so it does not show when dragging the node fast
-    const inputNameText = new PIXI.Text(this.name, NODE_TEXTSTYLE);
+    const inputNameText = new PIXI.Text(this.nodeName, NODE_TEXTSTYLE);
     inputNameText.x = NODE_HEADER_TEXTMARGIN_LEFT;
     inputNameText.y = NODE_PADDING_TOP + NODE_HEADER_TEXTMARGIN_TOP;
     inputNameText.resolution = 8;
@@ -233,14 +239,16 @@ export default class PPNode extends PIXI.Container {
   }
 
   get nodeName(): string {
-    return this.name;
+    return this.overrideName || this.getName();
   }
 
-  set nodeName(text: string) {
-    this.name = text;
-    this._NodeNameRef.text = text;
+  set nodeName(newName: string) {
+    this.overrideName = newName;
   }
 
+  get description(): string {
+    return this.getDescription();
+  }
   // METHODS
   getSourceCode(): string {
     return this.constructor.toString();
@@ -314,8 +322,8 @@ export default class PPNode extends PIXI.Container {
     //create serialization object
     const node: SerializedNode = {
       id: this.id,
-      name: this.name,
       type: this.type,
+      overrideName: this.overrideName,
       x: this.x,
       y: this.y,
       width: this.nodeWidth,
@@ -327,46 +335,10 @@ export default class PPNode extends PIXI.Container {
         interval: this.updateBehaviour.interval,
         intervalFrequency: this.updateBehaviour.intervalFrequency,
       },
+      socketArray: this.getAllSockets().map((socket) => socket.serialize()),
     };
 
-    node.inputSocketArray = [];
-    this.inputSocketArray.forEach((item) => {
-      node.inputSocketArray.push(item.serialize());
-    });
-
-    node.outputSocketArray = [];
-    this.outputSocketArray.forEach((item) => {
-      node.outputSocketArray.push(item.serialize());
-    });
-
     return node;
-  }
-
-  deSerializeSocketArray(
-    serialized: SerializedSocket[],
-    array: Socket[]
-  ): void {
-    serialized.forEach((item: SerializedSocket, index) => {
-      if (array[index] !== undefined) {
-        array[index].setName(item.name);
-        array[index].dataType = deSerializeType(item.dataType);
-        array[index].data = item.data;
-        array[index].defaultData = item.defaultData;
-        array[index].setVisible(item.visible);
-      } else {
-        // add socket if it does not exist yet
-        this.addSocket(
-          new Socket(
-            item.socketType,
-            item.name,
-            deSerializeType(item.dataType),
-            item.data,
-            item.visible
-          )
-        );
-      }
-    });
-    this.drawNodeShape();
   }
 
   configure(nodeConfig: SerializedNode): void {
@@ -380,17 +352,33 @@ export default class PPNode extends PIXI.Container {
         this.resizedNode();
       }
 
-      this.deSerializeSocketArray(
-        nodeConfig.inputSocketArray,
-        this.inputSocketArray
-      );
-      this.deSerializeSocketArray(
-        nodeConfig.outputSocketArray,
-        this.outputSocketArray
-      );
+      nodeConfig.socketArray.forEach((item: SerializedSocket) => {
+        const matchingSocket =
+          item.socketType === SOCKET_TYPE.IN
+            ? this.getInputSocketByName(item.name)
+            : this.getOutputSocketByName(item.name);
+        if (matchingSocket !== undefined) {
+          matchingSocket.setName(item.name);
+          matchingSocket.dataType = deSerializeType(item.dataType);
+          matchingSocket.data = item.data;
+          matchingSocket.defaultData = item.defaultData;
+          matchingSocket.setVisible(item.visible);
+        } else if (item.isCustom) {
+          // add socket if it does not exist yet and it was a custom node, if not, ignore it, it belonged to an old socket that was removed
+          this.addSocket(
+            new Socket(
+              item.socketType,
+              item.name,
+              deSerializeType(item.dataType),
+              item.data,
+              item.visible
+            )
+          );
+        }
+      });
     } catch (error) {
       console.error(
-        `Could not configure node: ${this.name}, id: ${this.id}`,
+        `Could not configure node: ${this.nodeName}, id: ${this.id}`,
         error
       );
     }
@@ -668,6 +656,14 @@ export default class PPNode extends PIXI.Container {
     return [];
   }
 
+  public hasSocketNameInDefaultIO(name: string, type: TSocketType): boolean {
+    return (
+      this.getDefaultIO().find(
+        (socket) => socket.name == name && socket.socketType == type
+      ) !== undefined
+    );
+  }
+
   public getCanAddInput(): boolean {
     return false;
   }
@@ -716,7 +712,6 @@ export default class PPNode extends PIXI.Container {
       if (commentData && commentData.length > 10000) {
         commentData = 'Too long to display';
       }
-      console.log('drawing comments');
       const debugText = new PIXI.Text(
         `${Math.round(this.transform.position.x)}, ${Math.round(
           this.transform.position.y
@@ -872,30 +867,11 @@ export default class PPNode extends PIXI.Container {
   }
 
   getInputSocketByName(slotName: string): Socket {
-    return this.inputSocketArray[
-      this.inputSocketArray.findIndex((el) => el.name === slotName)
-    ];
+    return this.inputSocketArray.find((socket) => (socket.name = slotName));
   }
 
   getOutputSocketByName(slotName: string): Socket {
-    return this.outputSocketArray[
-      this.outputSocketArray.findIndex((el) => el.name === slotName)
-    ];
-  }
-
-  getInputDataBySlot(slot: number): any {
-    // to easily loop through it
-
-    // if no link, then return data
-    if (
-      slot >= this.inputSocketArray.length ||
-      this.inputSocketArray[slot].links.length === 0
-    ) {
-      return this.inputSocketArray[slot].data;
-    }
-
-    const link = this.inputSocketArray[slot].links[0];
-    return link.source.data;
+    return this.outputSocketArray.find((socket) => (socket.name = slotName));
   }
 
   // avoid calling this directly
@@ -1002,7 +978,7 @@ export default class PPNode extends PIXI.Container {
   }
 
   public renderOutlineThrottled = throttle(this.renderOutline, 500, {
-    trailing: true,
+    trailing: false,
     leading: true,
   });
 

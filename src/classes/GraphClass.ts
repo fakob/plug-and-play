@@ -15,6 +15,7 @@ import {
   RegisteredNodeTypes,
   SerializedGraph,
   SerializedSelection,
+  TSocketType,
 } from '../utils/interfaces';
 import { getInfoFromRegisteredNode } from '../utils/utils';
 import PPNode from './NodeClass';
@@ -350,10 +351,6 @@ export default class PPGraph {
     this.dragSourcePoint = undefined;
   }
 
-  getNodeById(id: string): PPNode {
-    return this.nodes[id];
-  }
-
   registerNodeType(type: string, nodeConstructor: PPNodeConstructor): void {
     nodeConstructor.type = type;
     // console.log('Node registered: ' + type);
@@ -559,14 +556,12 @@ export default class PPGraph {
 
       await Promise.all(
         data.links.map(async (link) => {
-          const newSource =
-            mappingOfOldAndNewNodes[link.sourceNodeId].outputSocketArray[
-              link.sourceSocketIndex
-            ];
-          const newTarget =
-            mappingOfOldAndNewNodes[link.targetNodeId].inputSocketArray[
-              link.targetSocketIndex
-            ];
+          const newSource = mappingOfOldAndNewNodes[
+            link.sourceNodeId
+          ].getOutputSocketByName(link.sourceSocketName);
+          const newTarget = mappingOfOldAndNewNodes[
+            link.targetNodeId
+          ].getInputSocketByName(link.targetSocketName);
           console.log(newSource, newTarget);
           await this.connect(newSource, newTarget, false);
         })
@@ -710,13 +705,15 @@ export default class PPGraph {
 
       await Promise.all(
         data.links.map(async (link) => {
-          const outputRef = this.getOutputRef(
+          const outputRef = this.getSocket(
             link.sourceNodeId,
-            link.sourceSocketIndex
+            link.sourceSocketName,
+            SOCKET_TYPE.OUT
           );
-          const inputRef = this.getInputRef(
+          const inputRef = this.getSocket(
             link.targetNodeId,
-            link.targetSocketIndex
+            link.targetSocketName,
+            SOCKET_TYPE.IN
           );
           await this.connect(outputRef, inputRef, false);
         })
@@ -734,26 +731,18 @@ export default class PPGraph {
     return configureError;
   }
 
-  getOutputRef(
-    sourceNodeId: string,
-    sourceSocketIndex: number
-  ): Socket | undefined {
-    const sourceNode = this.getNodeById(sourceNodeId);
-    if (sourceNode !== undefined) {
-      const sourceSocket = sourceNode.outputSocketArray[sourceSocketIndex];
-      return sourceSocket;
-    }
+  getNodeById(id: string): PPNode {
+    return this.nodes[id];
   }
 
-  getInputRef(
-    targetNodeId: string,
-    targetSocketIndex: number
-  ): Socket | undefined {
-    const targetNode = this.getNodeById(targetNodeId);
-    if (targetNode !== undefined) {
-      const targetSocket = targetNode.inputSocketArray[targetSocketIndex];
-      return targetSocket;
+  getSocket(nodeID: string, socketName: string, type: TSocketType): Socket {
+    const node = this.getNodeById(nodeID);
+    if (node) {
+      return type === SOCKET_TYPE.IN
+        ? node.getInputSocketByName(socketName)
+        : node.getOutputSocketByName(socketName);
     }
+    return undefined;
   }
 
   tick(currentTime: number, deltaTime: number): void {
@@ -866,7 +855,7 @@ export default class PPGraph {
     (classobj as any).description = 'Generated from ' + func.name;
     (classobj as any).prototype.onExecute = function onExecute() {
       for (let i = 0; i < params.length; ++i) {
-        params[i] = this.getInputDataBySlot(i);
+        params[i] = this.getInputData(names[i]);
       }
       const r = func.apply(this, params);
       this.setOutputData('out', r);

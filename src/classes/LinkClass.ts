@@ -1,9 +1,6 @@
 import * as PIXI from 'pixi.js';
-import { Viewport } from 'pixi-viewport';
 import { SerializedLink } from '../utils/interfaces';
-import { CONNECTION_COLOR_HEX } from '../utils/constants';
 import Socket from './SocketClass';
-import PPNode from './NodeClass';
 
 export default class PPLink extends PIXI.Container {
   id: number;
@@ -27,11 +24,10 @@ export default class PPLink extends PIXI.Container {
   serialize(): SerializedLink {
     //create serialization object
     return {
-      id: this.id,
-      sourceNodeId: (this.source.parent as PPNode).id,
-      sourceSocketIndex: this.source.index,
-      targetNodeId: (this.target.parent as PPNode).id,
-      targetSocketIndex: this.target.index,
+      sourceNodeId: this.source.getNode().id,
+      sourceSocketName: this.source.name,
+      targetNodeId: this.target.getNode().id,
+      targetSocketName: this.target.name,
     };
   }
 

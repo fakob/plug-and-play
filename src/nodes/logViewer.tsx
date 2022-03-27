@@ -11,6 +11,13 @@ export class LogViewer extends PPNode {
   protected getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
   }
+
+  public getName(): string {
+    return 'LogViewer';
+  }
+  public getDescription(): string {
+    return 'View your logs';
+  }
   constructor(name: string, graph: PPGraph, customArgs?: CustomArgs) {
     const nodeWidth = 640;
     const nodeHeight = 240;
@@ -25,9 +32,6 @@ export class LogViewer extends PPNode {
 
     this.addInput('input', new CodeType(), customArgs?.data, true);
     this.addInput('rowLimit', new NumberType(true, 1, 1000), 100, false);
-
-    this.name = 'LogViewer';
-    this.description = 'View your logs';
 
     // when the Node is added, add the container and react component
     this.onNodeAdded = () => {

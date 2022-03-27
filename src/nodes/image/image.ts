@@ -69,6 +69,13 @@ export class Image extends PPNode {
     ];
   }
 
+  public getName(): string {
+    return 'Draw Image';
+  }
+  public getDescription(): string {
+    return 'Draws an Image (base64)';
+  }
+
   protected getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
   }
@@ -76,8 +83,6 @@ export class Image extends PPNode {
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
     super(name, graph, customArgs);
     this.alpha = 0.2;
-    this.name = 'Draw Image';
-    this.description = 'Draws an Image (base64)';
 
     this.setMinNodeHeight = (nodeWidth: number) => {
       const aspectRatio = this.texture.width / this.texture.height;

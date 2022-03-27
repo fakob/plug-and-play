@@ -130,11 +130,9 @@ export class Shader extends PPNode {
   protected getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.SHADER);
   }
+
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
     super(name, graph, customArgs);
-
-    this.name = 'Draw shader';
-    this.description = 'Draws a shader';
 
     this.onNodeAdded = () => {
       this.canvas = this.graph.viewport.getChildByName(
@@ -256,8 +254,15 @@ export class Shader extends PPNode {
       this.removeChild(prevGraphics);
       return;
     };
-    return;
   }
+
+  public getName(): string {
+    return 'Draw shader';
+  }
+  public getDescription(): string {
+    return 'Draws a shader';
+  }
+  
 
   protected getUpdateBehaviour(): UpdateBehaviour {
     return new UpdateBehaviour(true, false, 16);

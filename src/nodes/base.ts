@@ -38,9 +38,6 @@ export class Mouse extends PPNode {
     this.addOutput('scale', new NumberType());
     this.addOutput('buttons', new NumberType());
 
-    this.name = 'Mouse';
-    this.description = 'Get mouse coordinates';
-
     // add event listener
     this.onViewportMove = (event: PIXI.InteractionEvent): void => {
       const screen = event.data.global;
@@ -62,6 +59,12 @@ export class Mouse extends PPNode {
     this.onViewportZoomedHandler = this.onViewportZoomed.bind(this);
     this.graph.viewport.on('zoomed', (this as any).onViewportZoomedHandler);
   }
+  public getName(): string {
+    return 'Mouse';
+  }
+  public getDescription(): string {
+    return 'Get mouse coordinates';
+  }
   protected getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
   }
@@ -79,9 +82,6 @@ export class GridCoordinates extends PPNode {
     this.addInput('column', new NumberType(true), 3, false);
     this.addInput('distanceWidth', new NumberType(), 110.0, false);
     this.addInput('distanceHeight', new NumberType(), 110.0, false);
-
-    this.name = 'Grid coordinates';
-    this.description = 'Create grid coordinates';
 
     this.onExecute = async function (input, output) {
       const x = input['x'];
@@ -103,6 +103,13 @@ export class GridCoordinates extends PPNode {
   protected getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
   }
+
+  public getName(): string {
+    return 'Grid coordinates';
+  }
+  public getDescription(): string {
+    return 'Create grid coordinates';
+  }
 }
 
 export class ColorArray extends PPNode {
@@ -116,9 +123,6 @@ export class ColorArray extends PPNode {
     this.addInput('count', new NumberType(true), 9, false);
     this.addInput('colorA', new ColorType(), colorA, false);
     this.addInput('colorB', new ColorType(), colorB, false);
-
-    this.name = 'Color array';
-    this.description = 'Create color array';
 
     this.onExecute = async function (input, output) {
       const count = input['count'];
@@ -135,6 +139,12 @@ export class ColorArray extends PPNode {
   protected getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
   }
+  public getName(): string {
+    return 'Color array';
+  }
+  public getDescription(): string {
+    return 'Create color array';
+  }
 }
 
 export class RangeArray extends PPNode {
@@ -146,9 +156,6 @@ export class RangeArray extends PPNode {
     this.addInput('stop', new NumberType());
     this.addInput('step', new NumberType());
 
-    this.name = 'Range array';
-    this.description = 'Create range array';
-
     this.onExecute = async function (input, output) {
       const start = input['start'] || 0;
       const stop = input['stop'] || 100;
@@ -159,6 +166,14 @@ export class RangeArray extends PPNode {
       );
     };
   }
+
+  public getName(): string {
+    return 'Range array';
+  }
+  public getDescription(): string {
+    return 'Create range array';
+  }
+
   protected getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
   }
@@ -173,9 +188,6 @@ export class RandomArray extends PPNode {
     this.addInput('length', new NumberType(true, 1), 20, undefined);
     this.addInput('min', new NumberType(), 0);
     this.addInput('max', new NumberType(), 1);
-
-    this.name = 'Random array';
-    this.description = 'Create random array';
   }
 
   trigger(): void {
@@ -190,6 +202,13 @@ export class RandomArray extends PPNode {
   protected getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
   }
+
+  public getName(): string {
+    return 'Random array';
+  }
+  public getDescription(): string {
+    return 'Create random array';
+  }
 }
 
 export class Trigger extends PPNode {
@@ -198,9 +217,6 @@ export class Trigger extends PPNode {
     super(name, graph, customArgs);
 
     this.addOutput('trigger', new TriggerType());
-
-    this.name = 'Trigger';
-    this.description = 'Creates a trigger event';
 
     this.onNodeAdded = () => {
       const button = new PIXI.Graphics();
@@ -234,6 +250,14 @@ export class Trigger extends PPNode {
   protected getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
   }
+
+  public getName(): string {
+    return 'Trigger';
+  }
+
+  public getDescription(): string {
+    return 'Creates a trigger event';
+  }
 }
 
 export class DateAndTime extends PPNode {
@@ -265,9 +289,6 @@ export class DateAndTime extends PPNode {
     );
     this.addOutput('date and time', new StringType());
 
-    this.name = 'Date and time';
-    this.description = 'Outputs current time in different formats';
-
     this.onExecute = async function (input) {
       const dateMethod = input['Date method'];
       this.setOutputData('date and time', new Date()[dateMethod]());
@@ -275,5 +296,12 @@ export class DateAndTime extends PPNode {
   }
   protected getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
+  }
+  public getName(): string {
+    return 'Date and time';
+  }
+
+  public getDescription(): string {
+    return 'Outputs current time in different formats';
   }
 }

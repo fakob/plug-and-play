@@ -121,7 +121,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
             sx={{ flexGrow: 1, display: 'inline-flex', alignItems: 'center' }}
           >
             <Box sx={{ pl: 1, color: 'text.primary' }}>
-              {props.selectedNode.name}:{props.selectedNode.type}
+              {props.selectedNode.nodeName}:{props.selectedNode.type}
             </Box>
             {!props.isCustomNode && (
               <LockIcon sx={{ pl: '2px', fontSize: '16px', opacity: 0.5 }} />

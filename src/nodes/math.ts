@@ -13,9 +13,6 @@ export class MathFunction extends PureNode {
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
     super(name, graph, customArgs);
 
-    this.name = 'Math function';
-    this.description = 'Mathematical constants and functions';
-
     const staticProperties = [
       'E',
       'LN10',
@@ -47,6 +44,13 @@ export class MathFunction extends PureNode {
         this.setOutputData('Output', Math[mathOption](input['Input']));
       }
     };
+  }
+
+  public getName(): string {
+    return 'Math function';
+  }
+  public getDescription(): string {
+    return 'Mathematical constants and functions';
   }
 
   protected getDefaultIO(): Socket[] {
@@ -92,12 +96,6 @@ class SimpleMathOperation extends PureNode {
   protected getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
   }
-  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, customArgs);
-
-    this.name = this.getName();
-    this.description = this.getDescription();
-  }
   protected async onExecute(
     inputObject: any,
     outputObject: Record<string, unknown>
@@ -134,10 +132,10 @@ class SimpleMathOperation extends PureNode {
       true
     );
   }
-  protected getName(): string {
+  public getName(): string {
     return 'MathOperation';
   }
-  protected getDescription(): string {
+  public getDescription(): string {
     return 'Does a math operation to two numbers or strings';
   }
 
@@ -145,12 +143,11 @@ class SimpleMathOperation extends PureNode {
     return a;
   }
 }
-
 export class Add extends SimpleMathOperation {
-  protected getName(): string {
+  public getName(): string {
     return 'Add';
   }
-  protected getDescription(): string {
+  public getDescription(): string {
     return 'Adds 2 numbers or strings';
   }
   protected getOperation(a: any, b: any): any {
@@ -159,10 +156,10 @@ export class Add extends SimpleMathOperation {
 }
 
 export class Subtract extends SimpleMathOperation {
-  protected getName(): string {
+  public getName(): string {
     return 'Subtract';
   }
-  protected getDescription(): string {
+  public getDescription(): string {
     return 'Subtracts 2 numbers';
   }
   protected getOperation(a: any, b: any): any {
@@ -171,10 +168,10 @@ export class Subtract extends SimpleMathOperation {
 }
 
 export class Multiply extends SimpleMathOperation {
-  protected getName(): string {
+  public getName(): string {
     return 'Multiply';
   }
-  protected getDescription(): string {
+  public getDescription(): string {
     return 'Multiplies 2 numbers';
   }
   protected getOperation(a: any, b: any): any {
@@ -191,10 +188,10 @@ export class Multiply extends SimpleMathOperation {
   }
 }
 export class Divide extends SimpleMathOperation {
-  protected getName(): string {
+  public getName(): string {
     return 'Divide';
   }
-  protected getDescription(): string {
+  public getDescription(): string {
     return 'Divides 2 numbers';
   }
   protected getOperation(a: any, b: any): any {

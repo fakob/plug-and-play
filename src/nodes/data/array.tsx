@@ -97,6 +97,13 @@ export class ArrayMethod extends PureNode {
     return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
   }
   onOptionChange?: (value: string) => void;
+
+  public getName(): string {
+    return 'Array method';
+  }
+  public getDescription(): string {
+    return 'Perform common array operations';
+  }
   constructor(name: string, graph: Graph, customArgs: CustomArgs) {
     super(name, graph, customArgs);
 
@@ -128,9 +135,6 @@ export class ArrayMethod extends PureNode {
       false
     );
     this.addOutput('Output', new AnyType());
-
-    this.name = 'Array method';
-    this.description = 'Perform common array operations';
 
     this.onExecute = async function (
       inputObject: any,
