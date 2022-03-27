@@ -160,6 +160,7 @@ export class Table extends PPNode {
           );
           this.setInputData(sheetIndexInputSocketName, newSheetIndex);
         }
+        this.changeRowLength(24);
       };
 
       const handleOnChange = (data) => {
@@ -186,6 +187,12 @@ export class Table extends PPNode {
       useEffect(() => {
         console.log(props.dataArray);
         setDataArray(props.dataArray);
+        const currentSheetIndex = this.getInputData(sheetIndexInputSocketName);
+        (this.xSpreadSheet as any).options.row.len = Object.keys(
+          props.dataArray[
+            Math.min(props.dataArray.length - 1, currentSheetIndex)
+          ].rows
+        ).length;
         this.xSpreadSheet.loadData(props.dataArray);
       }, [props.dataArray]);
 
@@ -196,6 +203,14 @@ export class Table extends PPNode {
 
       return <div onClick={handleOnClick} id={this.spreadsheetId} />;
     };
+  }
+
+  changeRowLength(length: number): void {
+    // (this.xSpreadSheet as any).options.row.len =
+    //   length ?? this.xSpreadSheet.getData().rows.len;
+    console.log('changeRowLength');
+    (this.xSpreadSheet as any).options.row.len = 9;
+    this.xSpreadSheet.reRender();
   }
 
   parseData(workBook: XLSX.WorkBook): any {
