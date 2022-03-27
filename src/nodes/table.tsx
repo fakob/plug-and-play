@@ -6,12 +6,12 @@ import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
 import { CustomArgs } from '../utils/interfaces';
 import { stox, xtos } from '../utils/xlsxspread';
-import { StringType } from './datatypes/stringType';
 import { AnyType } from './datatypes/anyType';
 import { JSONType } from './datatypes/jsonType';
 import { NumberType } from './datatypes/numberType';
 
-const selectedDataSocketName = 'selectedData';
+const arrayOfArraysSocketName = 'arrayOfArrays';
+const JSONSocketName = 'JSON';
 const workBookInputSocketName = 'workBook';
 const sheetIndexInputSocketName = 'currentSheet';
 
@@ -44,7 +44,8 @@ export class Table extends PPNode {
     // get initialData if available else create an empty workbook
     this.initialData = customArgs?.initialData;
 
-    this.addOutput(selectedDataSocketName, new JSONType());
+    this.addOutput(JSONSocketName, new JSONType());
+    this.addOutput(arrayOfArraysSocketName, new JSONType());
     this.addInput(workBookInputSocketName, new AnyType());
     this.addInput(sheetIndexInputSocketName, new NumberType(true), 0);
 
@@ -60,7 +61,7 @@ export class Table extends PPNode {
       if (this.initialData) {
         this.workBook = XLSX.read(this.initialData);
         this.setInputData(workBookInputSocketName, this.workBook);
-        this.setJSONData(this.workBook);
+        this.setAllOutputData(this.workBook);
       } else {
         // create workbook with an empty worksheet
         this.workBook = XLSX.utils.book_new();
@@ -82,7 +83,7 @@ export class Table extends PPNode {
       const dataFromInput = this.getInputData(workBookInputSocketName);
       if (dataFromInput) {
         this.workBook = this.createWorkBookFromJSON(dataFromInput);
-        this.setJSONData(this.workBook);
+        this.setAllOutputData(this.workBook);
       }
       this.update();
     };
@@ -100,7 +101,7 @@ export class Table extends PPNode {
         nodeWidth: this.nodeWidth,
         nodeHeight: this.nodeHeight,
       });
-      this.setJSONData(this.workBook);
+      this.setAllOutputData(this.workBook);
     };
 
     // small presentational component
@@ -167,7 +168,7 @@ export class Table extends PPNode {
         const xSpreadSheet = this.xSpreadSheet.getData();
         // console.log(xSpreadSheet);
         this.setInputData(workBookInputSocketName, xtos(xSpreadSheet));
-        this.setJSONData(xtos(xSpreadSheet));
+        this.setAllOutputData(xtos(xSpreadSheet));
         setDataArray(data);
       };
 
@@ -215,14 +216,27 @@ export class Table extends PPNode {
     return workBook;
   }
 
-  setJSONData(workBook: XLSX.WorkBook): any {
-    this.setOutputData(selectedDataSocketName, this.getJSONData(workBook));
+  setAllOutputData(workBook: XLSX.WorkBook): any {
+    this.setOutputData(
+      arrayOfArraysSocketName,
+      this.getArrayOfArrays(workBook)
+    );
+    this.setOutputData(JSONSocketName, this.getJSON(workBook));
   }
 
-  getJSONData(workBook: XLSX.WorkBook): any {
+  getJSON(workBook: XLSX.WorkBook): any {
+    const currentSheetIndex = this.getInputData(sheetIndexInputSocketName);
+    const sheet = workBook.Sheets[workBook.SheetNames[currentSheetIndex]];
+    const data = XLSX.utils.sheet_to_json(sheet);
+    // console.log(workBook);
+    // console.log(sheet);
+    // console.log(data);
+    return data;
+  }
+
+  getArrayOfArrays(workBook: XLSX.WorkBook): any {
     /* use sheet_to_json with header: 1 to generate an array of arrays */
     const currentSheetIndex = this.getInputData(sheetIndexInputSocketName);
-    // console.log(currentSheetIndex);
     const sheet = workBook.Sheets[workBook.SheetNames[currentSheetIndex]];
     const data = XLSX.utils.sheet_to_json(sheet, {
       header: 1,
