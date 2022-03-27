@@ -827,10 +827,16 @@ export default class PPNode extends PIXI.Container {
     };
 
     this.container.addEventListener('focusout', (e) => {
-      this.doubleClicked = false;
+      console.log('focusout');
+      // focusout is triggered when any child element has focusout
+      // therefore check if the node was unselected
+      if (!this.selected) {
+        console.log('unselected');
+        this.doubleClicked = false;
 
-      // this allows to zoom and drag when the hybrid node is not selected
-      this.container.style.pointerEvents = 'none';
+        // this allows to zoom and drag when the hybrid node is not selected
+        this.container.style.pointerEvents = 'none';
+      }
     });
 
     // when the Node is removed also remove the react component and its container

@@ -17,6 +17,7 @@ export class Table extends PPNode {
   createElement;
   spreadsheetId: string;
   workbook: XLSX.WorkBook;
+  initialData: any;
   spreadSheet: Spreadsheet;
   parsedData: any;
   update: () => void;
@@ -35,9 +36,12 @@ export class Table extends PPNode {
       isHybrid,
     });
 
+    // get initialData if available else create an empty workbook
+    this.initialData = customArgs?.initialData;
+
     this.addOutput('selectedData', new StringType());
     this.addInput('reload', new TriggerType());
-    this.addInput('data', new AnyType(), customArgs?.data);
+    // this.addInput('data', new AnyType(), customArgs?.data);
 
     this.name = 'Table';
     this.description = 'Adds a table';
@@ -47,15 +51,20 @@ export class Table extends PPNode {
 
     // when the Node is added, add the container and react component
     this.onNodeAdded = () => {
-      this.workbook = XLSX.read(this.getInputData('data'));
+      console.log(this.initialData);
+      if (this.initialData) {
+        this.workbook = XLSX.read(this.initialData);
+      } else {
+        this.workbook = XLSX.utils.book_new();
+      }
       /* use sheet_to_json with header: 1 to generate an array of arrays */
-      const sheet = this.workbook.Sheets[this.workbook.SheetNames[0]];
-      const data = XLSX.utils.sheet_to_json(sheet, {
-        header: 1,
-      });
-      console.log(sheet);
-      console.log(data);
-      console.log(this.workbook);
+      // const sheet = this.workbook.Sheets[this.workbook.SheetNames[0]];
+      // const data = XLSX.utils.sheet_to_json(sheet, {
+      //   header: 1,
+      // });
+      // console.log(sheet);
+      // console.log(data);
+      // console.log(this.workbook);
 
       this.parsedData = stox(this.workbook);
       this.createContainerComponent(document, TableParent, {

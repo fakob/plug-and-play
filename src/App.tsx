@@ -204,7 +204,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
             newNode = currentGraph.current.createAndAddNode('Table', {
               nodePosX,
               nodePosY,
-              data,
+              initialData: data,
             });
             break;
           case 'txt':
