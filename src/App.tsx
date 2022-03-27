@@ -199,6 +199,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
             break;
           case 'csv':
           case 'xlsx':
+          case 'numbers':
             /* data is an ArrayBuffer */
             data = await response.arrayBuffer();
             newNode = currentGraph.current.createAndAddNode('Table', {

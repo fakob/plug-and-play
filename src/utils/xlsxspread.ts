@@ -7,7 +7,7 @@ import * as XLSX from 'xlsx/xlsx.mjs';
  *
  * @returns {Object[]} An x-spreadsheet data
  */
-export function stox(wb: any): unknown {
+export function stox(wb: XLSX.workbook): unknown {
   const out = [];
   wb.SheetNames.forEach(function (name) {
     const o = { name: name, rows: {}, merges: [] };
@@ -66,7 +66,7 @@ export function stox(wb: any): unknown {
  *
  * @returns {Object} A SheetJS workbook object
  */
-export function xtos(sdata: any): unknown {
+export function xtos(sdata: any): XLSX.WorkBook {
   const out = XLSX.utils.book_new();
   sdata.forEach(function (xws) {
     const ws = {};
