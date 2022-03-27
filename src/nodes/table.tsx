@@ -152,22 +152,17 @@ export class Table extends PPNode {
       const handleOnClick = (e) => {
         const xSpreadSheet = this.xSpreadSheet.getData();
         // console.log(xSpreadSheet);
-        // console.dir(e.target);
-        // console.log(e.target.parentNode.className === 'x-spreadsheet-menu');
         if (e.target.parentNode.className === 'x-spreadsheet-menu') {
           const newSheetIndex = xSpreadSheet.findIndex(
             (item) => item.name === e.target.innerText
           );
           this.setInputData(sheetIndexInputSocketName, newSheetIndex);
         }
-        this.changeRowLengthAndReload(props.dataArray);
+        this.changeRowLength(props.dataArray);
       };
 
       const handleOnChange = (data) => {
-        // console.log(data);
-        // console.log(this.xSpreadSheet);
         const xSpreadSheet = this.xSpreadSheet.getData();
-        // console.log(xSpreadSheet);
         this.setInputData(workBookInputSocketName, xtos(xSpreadSheet));
         this.setAllOutputData(xtos(xSpreadSheet));
         setDataArray(data);
@@ -187,7 +182,7 @@ export class Table extends PPNode {
       useEffect(() => {
         console.log(props.dataArray);
         setDataArray(props.dataArray);
-        this.changeRowLengthAndReload(props.dataArray);
+        this.changeRowLength(props.dataArray);
         this.xSpreadSheet.loadData(props.dataArray);
       }, [props.dataArray]);
 
@@ -200,14 +195,11 @@ export class Table extends PPNode {
     };
   }
 
-  changeRowLengthAndReload(dataArray): void {
+  changeRowLength(dataArray): void {
     const currentSheetIndex = this.getInputData(sheetIndexInputSocketName);
     (this.xSpreadSheet as any).options.row.len = Object.keys(
       dataArray[Math.min(dataArray.length - 1, currentSheetIndex)].rows
     ).length;
-    // (this.xSpreadSheet as any).options.row.len =
-    //   length ?? this.xSpreadSheet.getData().rows.len;
-    console.log('changeRowLengthAndReload');
     this.xSpreadSheet.reRender();
   }
 
