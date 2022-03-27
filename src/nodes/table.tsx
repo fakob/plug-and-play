@@ -17,11 +17,12 @@ export class Table extends PPNode {
   createElement;
   spreadsheetId: string;
   workbook: XLSX.WorkBook;
+  spreadSheet: Spreadsheet;
   parsedData: any;
   update: () => void;
 
   constructor(name: string, graph: PPGraph, customArgs?: CustomArgs) {
-    const nodeWidth = 400;
+    const nodeWidth = 600;
     const nodeHeight = 400;
     const isHybrid = true;
 
@@ -59,11 +60,17 @@ export class Table extends PPNode {
       this.parsedData = stox(this.workbook);
       this.createContainerComponent(document, TableParent, {
         dataArray: this.parsedData,
+        nodeWidth: this.nodeWidth,
+        nodeHeight: this.nodeHeight,
       });
     };
 
     // when the Node is loaded, update the react component
     this.onConfigure = (): void => {
+      this.update();
+    };
+
+    this.onNodeResize = () => {
       this.update();
     };
 
@@ -73,6 +80,8 @@ export class Table extends PPNode {
       this.parsedData = stox(this.workbook);
       this.renderReactComponent(TableParent, {
         dataArray: this.parsedData,
+        nodeWidth: this.nodeWidth,
+        nodeHeight: this.nodeHeight,
       });
       this.setOutputData('selectedData', this.parsedData);
     };
@@ -87,17 +96,17 @@ export class Table extends PPNode {
         showGrid: true,
         showContextmenu: true,
         view: {
-          height: () => this.nodeWidth,
-          width: () => this.nodeHeight,
+          width: () => this.nodeWidth,
+          height: () => this.nodeHeight,
         },
         row: {
           len: 100,
-          height: 25,
+          height: 24,
         },
         col: {
           len: 26,
-          width: 100,
-          indexWidth: 60,
+          width: 104,
+          indexWidth: 56,
           minWidth: 60,
         },
         style: {
@@ -117,15 +126,30 @@ export class Table extends PPNode {
         },
       };
 
+      const handleOnSelect = (cell, { sri, sci, eri, eci }) => {
+        console.log(sri, sci, eri, eci);
+        console.log(cell);
+      };
+
       useEffect(() => {
         console.log(dataArray);
-        new Spreadsheet(document.getElementById(this.spreadsheetId), options)
+        this.spreadSheet = new Spreadsheet(
+          document.getElementById(this.spreadsheetId),
+          options
+        )
           .loadData(dataArray)
           .change((data) => {
             console.log(data);
             setDataArray(data);
           });
+        this.spreadSheet.on('cells-selected', handleOnSelect);
       }, []);
+
+      useEffect(() => {
+        console.log(props.nodeWidth, props.nodeHeight);
+        this.spreadSheet.reRender();
+      }, [props.nodeWidth, props.nodeHeight]);
+
       return <div id={this.spreadsheetId} />;
     };
   }
