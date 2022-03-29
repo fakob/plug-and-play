@@ -57,7 +57,6 @@ export class Table extends PPNode {
 
     // when the Node is added, add the container and react component
     this.onNodeAdded = () => {
-      console.log(this.initialData);
       if (this.initialData) {
         this.workBook = XLSX.read(this.initialData);
         this.setInputData(workBookInputSocketName, this.workBook);
@@ -73,6 +72,7 @@ export class Table extends PPNode {
       this.parsedData = this.parseData(this.workBook);
       this.createContainerComponent(document, TableParent, {
         dataArray: this.parsedData,
+        sheetIndex: 0,
         nodeWidth: this.nodeWidth,
         nodeHeight: this.nodeHeight,
       });
@@ -96,12 +96,19 @@ export class Table extends PPNode {
     this.update = (): void => {
       // console.log(this.workBook);
       this.parsedData = this.parseData(this.workBook);
+      const sheetIndex = this.getInputData(sheetIndexInputSocketName);
+      console.log(this.id, sheetIndex);
       this.renderReactComponent(TableParent, {
         dataArray: this.parsedData,
+        sheetIndex,
         nodeWidth: this.nodeWidth,
         nodeHeight: this.nodeHeight,
       });
       this.setAllOutputData(this.workBook);
+    };
+
+    this.onExecute = async function (input) {
+      this.update();
     };
 
     // small presentational component
@@ -151,14 +158,13 @@ export class Table extends PPNode {
 
       const handleOnClick = (e) => {
         const xSpreadSheet = this.xSpreadSheet.getData();
-        // console.log(xSpreadSheet);
+        // check if it is a click on the sheet menu to change sheet
         if (e.target.parentNode.className === 'x-spreadsheet-menu') {
           const newSheetIndex = xSpreadSheet.findIndex(
             (item) => item.name === e.target.innerText
           );
           this.setInputData(sheetIndexInputSocketName, newSheetIndex);
         }
-        this.changeRowLength(props.dataArray);
       };
 
       const handleOnChange = (data) => {
@@ -169,7 +175,6 @@ export class Table extends PPNode {
       };
 
       useEffect(() => {
-        console.log(dataArray);
         this.xSpreadSheet = new Spreadsheet(
           document.getElementById(this.spreadsheetId),
           options
@@ -182,12 +187,27 @@ export class Table extends PPNode {
       useEffect(() => {
         console.log(props.dataArray);
         setDataArray(props.dataArray);
-        this.changeRowLength(props.dataArray);
+        this.changeTableDimensions(props.dataArray, props.sheetIndex ?? 0);
         this.xSpreadSheet.loadData(props.dataArray);
-      }, [props.dataArray]);
+
+        const newSheetIndex = Math.min(
+          props.dataArray.length - 1,
+          props.sheetIndex ?? 0
+        );
+        // console.log(props.dataArray.length - 1, newSheetIndex);
+        const element: HTMLElement = document.querySelector(
+          `#Container-${this.id} .x-spreadsheet-menu li:nth-child(${
+            newSheetIndex + 2
+          })`
+        );
+        // console.log(element);
+        if (element) {
+          element.click();
+        }
+      }, [props.dataArray, props.sheetIndex]);
 
       useEffect(() => {
-        console.log(props.nodeWidth, props.nodeHeight);
+        // console.log(props.nodeWidth, props.nodeHeight);
         this.xSpreadSheet.reRender();
       }, [props.nodeWidth, props.nodeHeight]);
 
@@ -195,11 +215,31 @@ export class Table extends PPNode {
     };
   }
 
-  changeRowLength(dataArray): void {
-    const currentSheetIndex = this.getInputData(sheetIndexInputSocketName);
-    (this.xSpreadSheet as any).options.row.len = Object.keys(
-      dataArray[Math.min(dataArray.length - 1, currentSheetIndex)].rows
-    ).length;
+  changeTableDimensions(newDataArray, currentSheetIndex: number): void {
+    // console.log(newDataArray.length - 1, currentSheetIndex);
+    const newSheetIndex = Math.min(newDataArray.length - 1, currentSheetIndex);
+    // console.log(
+    //   newDataArray,
+    //   newDataArray[newSheetIndex],
+    //   newDataArray[newSheetIndex]?.merges,
+    //   newDataArray[newSheetIndex]?.merges.length
+    // );
+
+    const newRowCount = Object.keys(newDataArray[newSheetIndex].rows).length;
+    (this.xSpreadSheet as any).options.row.len = newRowCount;
+
+    // check if cell is not merged and only then try to set column count
+    // otherwise ignore changin the column count
+    if (newDataArray[newSheetIndex].merges?.length === 0) {
+      const newColumnCount = Object.keys(
+        newDataArray[newSheetIndex].rows?.[0].cells
+      ).length;
+      // console.log(newDataArray, currentSheetIndex, newRowCount, newColumnCount);
+      (this.xSpreadSheet as any).options.col.len = newColumnCount;
+    } else {
+      (this.xSpreadSheet as any).options.col.len = 26; // reset column count
+    }
+
     this.xSpreadSheet.reRender();
   }
 
