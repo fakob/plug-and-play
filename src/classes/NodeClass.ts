@@ -104,6 +104,8 @@ export default class PPNode extends PIXI.Container {
   onNodeDoubleClick: (event: PIXI.InteractionEvent) => void = () => {};
   onMoveHandler: (event?: PIXI.InteractionEvent) => void = () => {};
   onViewportMoveHandler: (event?: PIXI.InteractionEvent) => void = () => {};
+  onViewportPointerUpHandler: (event?: PIXI.InteractionEvent) => void =
+    () => {};
   onNodeAdded: () => void = () => {}; // called when the node is added to the graph
   onNodeRemoved: () => void = () => {}; // called when the node is removed from the graph
   onNodeDragging: (isDraggingNode: boolean) => void = () => {}; // called when the node is being dragged
@@ -826,20 +828,7 @@ export default class PPNode extends PIXI.Container {
       this.container.style.top = `${screenY}px`;
     };
 
-    this.container.addEventListener('focusout', (e) => {
-      console.log('focusout');
-      // focusout is triggered when any child element has focusout
-      // therefore check if the node was unselected
-      setTimeout(() => {
-        if (!this.selected) {
-          console.log('unselected');
-          this.doubleClicked = false;
-          // this allows to zoom and drag when the hybrid node is not selected
-          this.container.style.pointerEvents = 'none';
-          this.container.classList.remove(styles.hybridContainerFocused);
-        }
-      }, 100);
-    });
+    this.onViewportPointerUpHandler = this._onViewportPointerUp.bind(this);
 
     // when the Node is removed also remove the react component and its container
     this.onNodeRemoved = () => {
@@ -1197,6 +1186,11 @@ export default class PPNode extends PIXI.Container {
 
     // turn on pointer events for hybrid nodes so the react components become reactive
     if (this.isHybrid) {
+      // register listening to outside clicks
+      this.graph.viewport.on(
+        'pointerup',
+        (this as any).onViewportPointerUpHandler
+      );
       this.container.style.pointerEvents = 'auto';
       this.container.classList.add(styles.hybridContainerFocused);
     }
@@ -1204,6 +1198,18 @@ export default class PPNode extends PIXI.Container {
     if (this.onNodeDoubleClick) {
       this.onNodeDoubleClick(event);
     }
+  }
+
+  _onViewportPointerUp(): void {
+    // unregister listening to outside clicks
+    this.graph.viewport.removeListener(
+      'pointerup',
+      (this as any).onViewportPointerUpHandler
+    );
+    this.doubleClicked = false;
+    // this allows to zoom and drag when the hybrid node is not selected
+    this.container.style.pointerEvents = 'none';
+    this.container.classList.remove(styles.hybridContainerFocused);
   }
 
   public outputPlugged(): void {}
