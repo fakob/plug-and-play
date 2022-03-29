@@ -576,9 +576,6 @@ export default class PPNode extends PIXI.Container {
   getAllSockets(): Socket[] {
     return this.inputSocketArray.concat(this.outputSocketArray);
   }
-  getSocketByName(name: string): Socket {
-    return this.getAllSockets().find((socket) => socket.name === name);
-  }
 
   getNodeHeight(): number {
     return this.nodeHeight === undefined
