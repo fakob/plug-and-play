@@ -1,5 +1,5 @@
 import * as PIXI from 'pixi.js';
-import React, { useEffect, useState } from 'react';
+import React, { MouseEventHandler, useEffect, useState } from 'react';
 import * as XLSX from 'xlsx';
 import Spreadsheet, { Options } from '@bergfreunde/x-data-spreadsheet';
 import PPGraph from '../classes/GraphClass';
@@ -86,6 +86,18 @@ export class Table extends PPNode {
       });
     };
 
+    this.update = (): void => {
+      this.parsedData = this.parseData(this.workBook);
+      const sheetIndex = this.getInputData(sheetIndexInputSocketName);
+      this.renderReactComponent(TableParent, {
+        dataArray: this.parsedData,
+        sheetIndex,
+        nodeWidth: this.nodeWidth,
+        nodeHeight: this.nodeHeight,
+      });
+      this.setAllOutputData(this.workBook);
+    };
+
     // when the Node is loaded, update the react component
     this.onConfigure = (): void => {
       const dataFromInput = this.getInputData(workBookInputSocketName);
@@ -93,11 +105,10 @@ export class Table extends PPNode {
         this.workBook = this.createWorkBookFromJSON(dataFromInput);
         this.setAllOutputData(this.workBook);
       }
-      this.update(true);
+      this.update();
     };
 
     this.onHybridNodeExit = () => {
-      console.log('onHybridNodeExit');
       this.executeOptimizedChain();
     };
 
@@ -105,30 +116,11 @@ export class Table extends PPNode {
       this.update();
     };
 
-    // when the Node is loaded, update the react component
-    this.update = (switchToSheet = false): void => {
-      console.log(this.workBook);
-      this.parsedData = this.parseData(this.workBook);
-      const sheetIndex = this.getInputData(sheetIndexInputSocketName);
-      console.log(this.id, sheetIndex);
-      this.renderReactComponent(TableParent, {
-        dataArray: this.parsedData,
-        sheetIndex,
-        switchToSheet,
-        nodeWidth: this.nodeWidth,
-        nodeHeight: this.nodeHeight,
-      });
-      this.setAllOutputData(this.workBook);
-    };
-
-    this.onExecute = async function (input) {
+    this.onExecute = async function () {
       this.update();
     };
 
-    // small presentational component
     const TableParent = (props) => {
-      // const [dataArray, setDataArray] = useState<any>(props.dataArray);
-
       const options: Options = {
         mode: 'edit', // edit | read
         showToolbar: true,
@@ -180,41 +172,22 @@ export class Table extends PPNode {
         console.log(cell);
       };
 
-      const handleOnClick = (e) => {
-        const xSpreadSheet = this.xSpreadSheet.getData();
-        // check if it is a click on the sheet menu to change sheet
-        if (e.target.parentNode.className === 'x-spreadsheet-menu') {
+      const handleOnClick = (event) => {
+        // check if this is a click on the sheet menu to change the sheet
+        // if so, get the newSheetIndex
+        if (event.target.parentNode.className === 'x-spreadsheet-menu') {
+          const xSpreadSheet = this.xSpreadSheet.getData();
           const newSheetIndex = xSpreadSheet.findIndex(
-            (item) => item.name === e.target.innerText
-          );
-          console.log(
-            'click on the sheet menu',
-            newSheetIndex,
-            xSpreadSheet,
-            this.workBook,
-            xtos(xSpreadSheet)
+            (item) => item.name === event.target.innerText
           );
           this.setInputData(sheetIndexInputSocketName, newSheetIndex);
-          // this.setAllOutputData(xtos(xSpreadSheet));
-          // this.setAllOutputData(this.workBook);
-          // this.executeChildren();
         }
       };
 
-      const handleOnChange = (data) => {
+      const handleOnChange = () => {
         const xSpreadSheet = this.xSpreadSheet.getData();
-        console.log('changed content', data);
-        console.log(xSpreadSheet);
-        // console.log(this.workBook);
-        console.log(xtos(xSpreadSheet));
         this.workBook = xtos(xSpreadSheet);
         this.setInputData(workBookInputSocketName, xtos(xSpreadSheet));
-        // this.setAllOutputData(xtos(xSpreadSheet));
-        // this.setAllOutputData(this.workBook);
-        // this.executeChildren();
-        // this.executeOptimizedChain();
-        // this.update();
-        // setDataArray(data);
       };
 
       useEffect(() => {
@@ -228,32 +201,10 @@ export class Table extends PPNode {
       }, []);
 
       useEffect(() => {
-        console.log(props.dataArray);
-        // setDataArray(props.dataArray);
-        // this.changeTableDimensions(props.dataArray, props.sheetIndex ?? 0);
         this.xSpreadSheet.loadData(props.dataArray);
-
-        // if table is loading simulate a click to the correct sheet
-        if (props.switchToSheet) {
-          const newSheetIndex = Math.min(
-            props.dataArray.length - 1,
-            props.sheetIndex ?? 0
-          );
-          // console.log(props.dataArray.length - 1, newSheetIndex);
-          const element: HTMLElement = document.querySelector(
-            `#Container-${this.id} .x-spreadsheet-menu li:nth-child(${
-              newSheetIndex + 2
-            })`
-          );
-          // console.log(element);
-          if (element) {
-            element.click();
-          }
-        }
-      }, [props.dataArray, props.sheetIndex]);
+      }, [props.dataArray]);
 
       useEffect(() => {
-        // console.log(props.nodeWidth, props.nodeHeight);
         this.xSpreadSheet.reRender();
       }, [props.nodeWidth, props.nodeHeight]);
 
@@ -261,107 +212,43 @@ export class Table extends PPNode {
     };
   }
 
-  changeTableDimensions(newDataArray, currentSheetIndex: number): void {
-    // console.log(newDataArray.length - 1, currentSheetIndex);
-    const newSheetIndex = Math.min(newDataArray.length - 1, currentSheetIndex);
-    // console.log(
-    //   newDataArray,
-    //   newDataArray[newSheetIndex],
-    //   newDataArray[newSheetIndex]?.merges,
-    //   newDataArray[newSheetIndex]?.merges.length
-    // );
-
-    const newRowCount = Object.keys(newDataArray[newSheetIndex].rows).length;
-    (this.xSpreadSheet as any).options.row.len = newRowCount;
-
-    // check if cell is not merged and only then try to set column count
-    // otherwise ignore changin the column count
-    if (newDataArray[newSheetIndex].merges?.length === 0) {
-      const newColumnCount = Object.keys(
-        newDataArray[newSheetIndex].rows?.[0].cells
-      ).length;
-      // console.log(newDataArray, currentSheetIndex, newRowCount, newColumnCount);
-      (this.xSpreadSheet as any).options.col.len = newColumnCount;
-    } else {
-      (this.xSpreadSheet as any).options.col.len = 26; // reset column count
-    }
-
-    this.xSpreadSheet.reRender();
-  }
-
   parseData(workBook: XLSX.WorkBook): any {
     const parsedData = stox(workBook);
-    // console.log(parsedData);
     return parsedData;
   }
 
   createWorkBookFromJSON(json): any {
-    // console.log(json);
     const workBook = XLSX.utils.book_new();
-    // console.log(workBook);
     json.SheetNames.forEach(function (name) {
-      // console.log(name, json.Sheets[name]);
       XLSX.utils.book_append_sheet(workBook, json.Sheets[name], name);
     });
-    // console.log(workBook);
     return workBook;
   }
 
-  setAllOutputData(workBook: XLSX.WorkBook): any {
-    this.setOutputData(workBookSocketName, workBook);
-    const currentSheetIndex = this.getInputData(sheetIndexInputSocketName);
-    const sheet = workBook.Sheets[workBook.SheetNames[currentSheetIndex]];
-    this.setOutputData(workSheetSocketName, sheet);
-    this.setOutputData(JSONSocketName, this.getJSON(workBook));
-    this.setOutputData(CSVSocketName, this.getCSV(workBook));
-    this.setOutputData(
-      arrayOfArraysSocketName,
-      this.getArrayOfArrays(workBook)
-    );
-  }
-
-  getCSV(workBook: XLSX.WorkBook): any {
-    const currentSheetIndex = this.getInputData(sheetIndexInputSocketName);
-    const sheet = workBook.Sheets[workBook.SheetNames[currentSheetIndex]];
-    // sheet['!ref'] = 'A1:Z100'; // manually set range
-    const data = XLSX.utils.sheet_to_csv(sheet);
-    // console.log(workBook);
-    // console.log(currentSheetIndex);
-    console.log(sheet['!ref'], sheet['A1']);
-    console.log(data);
+  getJSON(sheet: XLSX.WorkSheet): any {
+    const data = XLSX.utils.sheet_to_json(sheet);
     return data;
   }
 
-  getJSON(workBook: XLSX.WorkBook): any {
-    const currentSheetIndex = this.getInputData(sheetIndexInputSocketName);
-    const sheet = workBook.Sheets[workBook.SheetNames[currentSheetIndex]];
-    // sheet['!ref'] = 'A1:Z100'; // manually set range
-    const data = XLSX.utils.sheet_to_json(sheet, {
-      // range: 'A1:ZZ100',
-    });
-    // console.log(workBook);
-    // console.log(currentSheetIndex);
-    console.log(sheet['!ref'], sheet['A1']);
-    console.log(data);
-    return data;
-  }
-
-  getArrayOfArrays(workBook: XLSX.WorkBook): any {
-    /* use sheet_to_json with header: 1 to generate an array of arrays */
-    const currentSheetIndex = this.getInputData(sheetIndexInputSocketName);
-    const sheet = workBook.Sheets[workBook.SheetNames[currentSheetIndex]];
-    // sheet['!ref'] = 'A1:Z100'; // manually set range
+  getArrayOfArrays(sheet: XLSX.WorkSheet): any {
     const data = XLSX.utils.sheet_to_json(sheet, {
       header: 1,
-      // range: 'A1:ZZ100',
     });
-    // console.log(workBook);
-    console.log(sheet['!ref'], sheet['A1']);
-    console.log(data);
     return data;
   }
 
-  trigger(): void {
-    this.update();
+  getCSV(sheet: XLSX.WorkSheet): any {
+    const data = XLSX.utils.sheet_to_csv(sheet);
+    return data;
+  }
+
+  setAllOutputData(workBook: XLSX.WorkBook): any {
+    const currentSheetIndex = this.getInputData(sheetIndexInputSocketName);
+    const sheet = workBook.Sheets[workBook.SheetNames[currentSheetIndex]];
+    this.setOutputData(workBookSocketName, workBook);
+    this.setOutputData(workSheetSocketName, sheet);
+    this.setOutputData(JSONSocketName, this.getJSON(sheet));
+    this.setOutputData(CSVSocketName, this.getCSV(sheet));
+    this.setOutputData(arrayOfArraysSocketName, this.getArrayOfArrays(sheet));
   }
 }
