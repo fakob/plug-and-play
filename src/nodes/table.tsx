@@ -7,10 +7,15 @@ import PPNode from '../classes/NodeClass';
 import { CustomArgs } from '../utils/interfaces';
 import { stox, xtos } from '../utils/xlsxspread';
 import { AnyType } from './datatypes/anyType';
+import { CodeType } from './datatypes/codeType';
 import { JSONType } from './datatypes/jsonType';
 import { NumberType } from './datatypes/numberType';
+import { StringType } from './datatypes/stringType';
 
+const workBookSocketName = 'workBook';
+const workSheetSocketName = 'workSheet';
 const arrayOfArraysSocketName = 'arrayOfArrays';
+const CSVSocketName = 'CSV';
 const JSONSocketName = 'JSON';
 const workBookInputSocketName = 'workBook';
 const sheetIndexInputSocketName = 'currentSheet';
@@ -25,7 +30,7 @@ export class Table extends PPNode {
   initialData: any;
   xSpreadSheet: Spreadsheet;
   parsedData: any;
-  update: () => void;
+  update: (switchToSheet?: boolean) => void;
 
   constructor(name: string, graph: PPGraph, customArgs?: CustomArgs) {
     const nodeWidth = 600;
@@ -44,9 +49,12 @@ export class Table extends PPNode {
     // get initialData if available else create an empty workbook
     this.initialData = customArgs?.initialData;
 
+    this.addOutput(workBookSocketName, new CodeType());
+    this.addOutput(workSheetSocketName, new CodeType());
     this.addOutput(JSONSocketName, new JSONType());
     this.addOutput(arrayOfArraysSocketName, new JSONType());
-    this.addInput(workBookInputSocketName, new AnyType());
+    this.addOutput(CSVSocketName, new StringType());
+    this.addInput(workBookInputSocketName, new AnyType(), undefined, false);
     this.addInput(sheetIndexInputSocketName, new NumberType(true), 0);
 
     this.name = 'Table';
@@ -85,7 +93,12 @@ export class Table extends PPNode {
         this.workBook = this.createWorkBookFromJSON(dataFromInput);
         this.setAllOutputData(this.workBook);
       }
-      this.update();
+      this.update(true);
+    };
+
+    this.onHybridNodeExit = () => {
+      console.log('onHybridNodeExit');
+      this.executeOptimizedChain();
     };
 
     this.onNodeResize = () => {
@@ -93,14 +106,15 @@ export class Table extends PPNode {
     };
 
     // when the Node is loaded, update the react component
-    this.update = (): void => {
-      // console.log(this.workBook);
+    this.update = (switchToSheet = false): void => {
+      console.log(this.workBook);
       this.parsedData = this.parseData(this.workBook);
       const sheetIndex = this.getInputData(sheetIndexInputSocketName);
       console.log(this.id, sheetIndex);
       this.renderReactComponent(TableParent, {
         dataArray: this.parsedData,
         sheetIndex,
+        switchToSheet,
         nodeWidth: this.nodeWidth,
         nodeHeight: this.nodeHeight,
       });
@@ -113,7 +127,7 @@ export class Table extends PPNode {
 
     // small presentational component
     const TableParent = (props) => {
-      const [dataArray, setDataArray] = useState<any>(props.dataArray);
+      // const [dataArray, setDataArray] = useState<any>(props.dataArray);
 
       const options: Options = {
         mode: 'edit', // edit | read
@@ -153,6 +167,16 @@ export class Table extends PPNode {
 
       const handleOnSelect = (cell, { sri, sci, eri, eci }) => {
         console.log(sri, sci, eri, eci);
+        console.log(
+          XLSX.utils.encode_row(sri),
+          XLSX.utils.encode_col(sci),
+          XLSX.utils.encode_row(eri),
+          XLSX.utils.encode_col(eci)
+        );
+        const xSpreadSheet = this.xSpreadSheet.getData();
+        console.log(xSpreadSheet);
+        console.log(this.xSpreadSheet);
+        console.log((this.xSpreadSheet as any).data.rows.maxCell());
         console.log(cell);
       };
 
@@ -163,15 +187,34 @@ export class Table extends PPNode {
           const newSheetIndex = xSpreadSheet.findIndex(
             (item) => item.name === e.target.innerText
           );
+          console.log(
+            'click on the sheet menu',
+            newSheetIndex,
+            xSpreadSheet,
+            this.workBook,
+            xtos(xSpreadSheet)
+          );
           this.setInputData(sheetIndexInputSocketName, newSheetIndex);
+          // this.setAllOutputData(xtos(xSpreadSheet));
+          // this.setAllOutputData(this.workBook);
+          // this.executeChildren();
         }
       };
 
       const handleOnChange = (data) => {
         const xSpreadSheet = this.xSpreadSheet.getData();
+        console.log('changed content', data);
+        console.log(xSpreadSheet);
+        // console.log(this.workBook);
+        console.log(xtos(xSpreadSheet));
+        this.workBook = xtos(xSpreadSheet);
         this.setInputData(workBookInputSocketName, xtos(xSpreadSheet));
-        this.setAllOutputData(xtos(xSpreadSheet));
-        setDataArray(data);
+        // this.setAllOutputData(xtos(xSpreadSheet));
+        // this.setAllOutputData(this.workBook);
+        // this.executeChildren();
+        // this.executeOptimizedChain();
+        // this.update();
+        // setDataArray(data);
       };
 
       useEffect(() => {
@@ -179,30 +222,33 @@ export class Table extends PPNode {
           document.getElementById(this.spreadsheetId),
           options
         )
-          .loadData(dataArray)
+          .loadData(props.dataArray)
           .change(handleOnChange);
         this.xSpreadSheet.on('cells-selected', handleOnSelect);
       }, []);
 
       useEffect(() => {
         console.log(props.dataArray);
-        setDataArray(props.dataArray);
-        this.changeTableDimensions(props.dataArray, props.sheetIndex ?? 0);
+        // setDataArray(props.dataArray);
+        // this.changeTableDimensions(props.dataArray, props.sheetIndex ?? 0);
         this.xSpreadSheet.loadData(props.dataArray);
 
-        const newSheetIndex = Math.min(
-          props.dataArray.length - 1,
-          props.sheetIndex ?? 0
-        );
-        // console.log(props.dataArray.length - 1, newSheetIndex);
-        const element: HTMLElement = document.querySelector(
-          `#Container-${this.id} .x-spreadsheet-menu li:nth-child(${
-            newSheetIndex + 2
-          })`
-        );
-        // console.log(element);
-        if (element) {
-          element.click();
+        // if table is loading simulate a click to the correct sheet
+        if (props.switchToSheet) {
+          const newSheetIndex = Math.min(
+            props.dataArray.length - 1,
+            props.sheetIndex ?? 0
+          );
+          // console.log(props.dataArray.length - 1, newSheetIndex);
+          const element: HTMLElement = document.querySelector(
+            `#Container-${this.id} .x-spreadsheet-menu li:nth-child(${
+              newSheetIndex + 2
+            })`
+          );
+          // console.log(element);
+          if (element) {
+            element.click();
+          }
         }
       }, [props.dataArray, props.sheetIndex]);
 
@@ -262,20 +308,41 @@ export class Table extends PPNode {
   }
 
   setAllOutputData(workBook: XLSX.WorkBook): any {
+    this.setOutputData(workBookSocketName, workBook);
+    const currentSheetIndex = this.getInputData(sheetIndexInputSocketName);
+    const sheet = workBook.Sheets[workBook.SheetNames[currentSheetIndex]];
+    this.setOutputData(workSheetSocketName, sheet);
+    this.setOutputData(JSONSocketName, this.getJSON(workBook));
+    this.setOutputData(CSVSocketName, this.getCSV(workBook));
     this.setOutputData(
       arrayOfArraysSocketName,
       this.getArrayOfArrays(workBook)
     );
-    this.setOutputData(JSONSocketName, this.getJSON(workBook));
+  }
+
+  getCSV(workBook: XLSX.WorkBook): any {
+    const currentSheetIndex = this.getInputData(sheetIndexInputSocketName);
+    const sheet = workBook.Sheets[workBook.SheetNames[currentSheetIndex]];
+    // sheet['!ref'] = 'A1:Z100'; // manually set range
+    const data = XLSX.utils.sheet_to_csv(sheet);
+    // console.log(workBook);
+    // console.log(currentSheetIndex);
+    console.log(sheet['!ref'], sheet['A1']);
+    console.log(data);
+    return data;
   }
 
   getJSON(workBook: XLSX.WorkBook): any {
     const currentSheetIndex = this.getInputData(sheetIndexInputSocketName);
     const sheet = workBook.Sheets[workBook.SheetNames[currentSheetIndex]];
-    const data = XLSX.utils.sheet_to_json(sheet);
+    // sheet['!ref'] = 'A1:Z100'; // manually set range
+    const data = XLSX.utils.sheet_to_json(sheet, {
+      // range: 'A1:ZZ100',
+    });
     // console.log(workBook);
-    // console.log(sheet);
-    // console.log(data);
+    // console.log(currentSheetIndex);
+    console.log(sheet['!ref'], sheet['A1']);
+    console.log(data);
     return data;
   }
 
@@ -283,12 +350,14 @@ export class Table extends PPNode {
     /* use sheet_to_json with header: 1 to generate an array of arrays */
     const currentSheetIndex = this.getInputData(sheetIndexInputSocketName);
     const sheet = workBook.Sheets[workBook.SheetNames[currentSheetIndex]];
+    // sheet['!ref'] = 'A1:Z100'; // manually set range
     const data = XLSX.utils.sheet_to_json(sheet, {
       header: 1,
+      // range: 'A1:ZZ100',
     });
     // console.log(workBook);
-    // console.log(sheet);
-    // console.log(data);
+    console.log(sheet['!ref'], sheet['A1']);
+    console.log(data);
     return data;
   }
 
