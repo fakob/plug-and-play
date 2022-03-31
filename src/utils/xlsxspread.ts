@@ -71,11 +71,11 @@ export function xtos(sdata: any): XLSX.WorkBook {
   sdata.forEach(function (xws) {
     const ws = {};
     const rowobj = xws.rows;
+    let minCoord, maxCoord;
     for (let ri = 0; ri < rowobj.len; ++ri) {
       const row = rowobj[ri];
       if (!row) continue;
 
-      let minCoord, maxCoord;
       Object.keys(row.cells).forEach(function (k) {
         const idx = +k;
         if (isNaN(idx)) return;
@@ -128,7 +128,8 @@ export function xtos(sdata: any): XLSX.WorkBook {
           });
         }
       });
-
+    }
+    if (minCoord) {
       ws['!ref'] = XLSX.utils.encode_range({
         s: { r: minCoord.r, c: minCoord.c },
         e: { r: maxCoord.r, c: maxCoord.c },
