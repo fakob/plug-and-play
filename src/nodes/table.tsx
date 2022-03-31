@@ -1,9 +1,10 @@
 import * as PIXI from 'pixi.js';
-import React, { MouseEventHandler, useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import * as XLSX from 'xlsx';
 import Spreadsheet, { Options } from '@bergfreunde/x-data-spreadsheet';
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
+import { getXLSXSelectionRange } from '../utils/utils';
 import { CustomArgs } from '../utils/interfaces';
 import { stox, xtos } from '../utils/xlsxspread';
 import { AnyType } from './datatypes/anyType';
@@ -157,20 +158,13 @@ export class Table extends PPNode {
         },
       };
 
-      const handleOnSelect = (cell, { sri, sci, eri, eci }) => {
-        console.log(sri, sci, eri, eci);
-        console.log(
-          XLSX.utils.encode_row(sri),
-          XLSX.utils.encode_col(sci),
-          XLSX.utils.encode_row(eri),
-          XLSX.utils.encode_col(eci)
-        );
-        const xSpreadSheet = this.xSpreadSheet.getData();
-        console.log(xSpreadSheet);
-        console.log(this.xSpreadSheet);
-        console.log((this.xSpreadSheet as any).data.rows.maxCell());
-        console.log(cell);
-      };
+      // const handleOnSelect = (cell, { sri, sci, eri, eci }) => {
+      //   const selectionRange = getXLSXSelectionRange(sri, sci, eri, eci);
+      //   const currentSheetIndex = this.getInputData(sheetIndexInputSocketName);
+      //   const sheet =
+      //     this.workBook.Sheets[this.workBook.SheetNames[currentSheetIndex]];
+      //   sheet['!ref'] = selectionRange; // manually set range
+      // };
 
       const handleOnClick = (event) => {
         // check if this is a click on the sheet menu to change the sheet

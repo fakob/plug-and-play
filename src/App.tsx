@@ -546,12 +546,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     // register key events
     const keysDown = (e: KeyboardEvent): void => {
       // console.log(e.key);
-      if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'u') {
-        // added ctrl+u shortcut for trying to debug the issue where drag would stop working
-        // I want to see if the plugin was just paused
-        console.log(viewport);
-        viewport.current.plugins.resume('drag');
-      }
       if (!isEventComingFromWithinTextInput(e)) {
         if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'a') {
           e.preventDefault();

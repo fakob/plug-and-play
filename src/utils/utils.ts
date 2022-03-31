@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import JSON5 from 'json5';
 import * as PIXI from 'pixi.js';
+import * as XLSX from 'xlsx';
 
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
@@ -423,4 +424,17 @@ export const parseJSON = (jsonToParse: any): { [key: string]: any } => {
       break;
   }
   return jsonObj;
+};
+
+export const getXLSXSelectionRange = (
+  sri: number,
+  sci: number,
+  eri: number,
+  eci: number
+): string => {
+  const selectionRange = `${XLSX.utils.encode_col(sci)}${XLSX.utils.encode_row(
+    sri
+  )}:${XLSX.utils.encode_col(eci)}${XLSX.utils.encode_row(eri)}`;
+  console.log(selectionRange);
+  return selectionRange;
 };
