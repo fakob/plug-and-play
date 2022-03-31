@@ -158,13 +158,13 @@ export class Table extends PPNode {
         },
       };
 
-      // const handleOnSelect = (cell, { sri, sci, eri, eci }) => {
-      //   const selectionRange = getXLSXSelectionRange(sri, sci, eri, eci);
-      //   const currentSheetIndex = this.getInputData(sheetIndexInputSocketName);
-      //   const sheet =
-      //     this.workBook.Sheets[this.workBook.SheetNames[currentSheetIndex]];
-      //   sheet['!ref'] = selectionRange; // manually set range
-      // };
+      const handleOnSelect = (cell, { sri, sci, eri, eci }) => {
+        const selectionRange = getXLSXSelectionRange(sri, sci, eri, eci);
+        // const currentSheetIndex = this.getInputData(sheetIndexInputSocketName);
+        // const sheet =
+        //   this.workBook.Sheets[this.workBook.SheetNames[currentSheetIndex]];
+        // sheet['!ref'] = selectionRange; // manually set range
+      };
 
       const handleOnClick = (event) => {
         // check if this is a click on the sheet menu to change the sheet
