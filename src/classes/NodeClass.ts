@@ -106,6 +106,7 @@ export default class PPNode extends PIXI.Container {
   onViewportMoveHandler: (event?: PIXI.InteractionEvent) => void = () => {};
   onViewportPointerUpHandler: (event?: PIXI.InteractionEvent) => void =
     () => {};
+  onHybridNodeExit: () => void = () => {}; // called when a hybrid node is exited after double click
   onNodeAdded: () => void = () => {}; // called when the node is added to the graph
   onNodeRemoved: () => void = () => {}; // called when the node is removed from the graph
   onNodeDragging: (isDraggingNode: boolean) => void = () => {}; // called when the node is being dragged
@@ -1186,7 +1187,7 @@ export default class PPNode extends PIXI.Container {
 
     // turn on pointer events for hybrid nodes so the react components become reactive
     if (this.isHybrid) {
-      // register listening to outside clicks
+      // register hybrid nodes to listen to outside clicks
       this.graph.viewport.on(
         'pointerup',
         (this as any).onViewportPointerUpHandler
@@ -1201,11 +1202,12 @@ export default class PPNode extends PIXI.Container {
   }
 
   _onViewportPointerUp(): void {
-    // unregister listening to outside clicks
+    // unregister hybrid nodes from listening to outside clicks
     this.graph.viewport.removeListener(
       'pointerup',
       (this as any).onViewportPointerUpHandler
     );
+    this.onHybridNodeExit();
     this.doubleClicked = false;
     // this allows to zoom and drag when the hybrid node is not selected
     this.container.style.pointerEvents = 'none';
