@@ -198,8 +198,12 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
             saveNewGraph(removeExtension(file.name));
             break;
           case 'csv':
-          case 'xlsx':
+          case 'ods':
           case 'numbers':
+          case 'xls':
+          case 'xlsm':
+          case 'xlsb':
+          case 'xlsx':
             /* data is an ArrayBuffer */
             data = await response.arrayBuffer();
             newNode = currentGraph.current.createAndAddNode('Table', {
