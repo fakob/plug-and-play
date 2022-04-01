@@ -148,8 +148,8 @@ const App = (): JSX.Element => {
 
   // get/set mouse position and also update debug text
   const setMousePosition = (mouseMoveEvent) => {
-    mousePosition.x = mouseMoveEvent.pageX;
-    mousePosition.y = mouseMoveEvent.pageY;
+    mousePosition.x = mouseMoveEvent?.pageX ?? 0;
+    mousePosition.y = mouseMoveEvent?.pageY ?? 0;
     const mouseWorld = viewport.current.toWorld(mousePosition);
     const mouseWorldX = Math.round(mouseWorld.x);
     const mouseWorldY = Math.round(mouseWorld.y);
@@ -686,6 +686,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     viewport.current.fit(true, boundsToZoomTo.width, boundsToZoomTo.height);
     viewport.current.zoomPercent(zoomOutFactor, true); // zoom out a bit more
     currentGraph.current.selection.drawRectanglesFromSelection();
+    viewport.current.emit('moved');
   };
 
   function downloadGraph() {
