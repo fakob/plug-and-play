@@ -124,7 +124,7 @@ export class Table extends PPNode {
     const TableParent = (props) => {
       const options: Options = {
         mode: 'edit', // edit | read
-        showToolbar: true,
+        showToolbar: false,
         showGrid: true,
         showContextmenu: true,
         view: {
