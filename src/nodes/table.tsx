@@ -34,7 +34,7 @@ export class Table extends PPNode {
   update: (switchToSheet?: boolean) => void;
 
   constructor(name: string, graph: PPGraph, customArgs?: CustomArgs) {
-    const nodeWidth = 600;
+    const nodeWidth = 800;
     const nodeHeight = 400;
     const isHybrid = true;
 
