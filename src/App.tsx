@@ -259,7 +259,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       if (newNodeSelection.length > 0) {
         // currentGraph.current.selection.selectedNodes = newNodeSelection;
         currentGraph.current.selection.selectNodes(newNodeSelection);
-        zoomToFitSelection();
+        ensureVisible();
         enqueueSnackbar(
           `${newNodeSelection.length} new ${
             newNodeSelection.length === 1 ? 'node was' : 'nodes were'
@@ -686,6 +686,34 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     viewport.current.fit(true, boundsToZoomTo.width, boundsToZoomTo.height);
     viewport.current.zoomPercent(zoomOutFactor, true); // zoom out a bit more
     currentGraph.current.selection.drawRectanglesFromSelection();
+    viewport.current.emit('moved');
+  };
+
+  const ensureVisible = () => {
+    let boundsToZoomTo: PIXI.Rectangle;
+
+    if (currentGraph.current.selection.selectedNodes.length < 1) {
+      boundsToZoomTo = currentGraph.current.nodeContainer.getLocalBounds(); // get bounds of the whole nodeContainer
+    } else {
+      boundsToZoomTo = getSelectionBounds(
+        currentGraph.current.selection.selectedNodes // get bounds of the selectedNodes
+      );
+    }
+    const fitScale = viewport.current.findFit(
+      boundsToZoomTo.width,
+      boundsToZoomTo.height
+    );
+    const fitScaleWithViewport = fitScale / viewport.current.scale.x;
+
+    viewport.current.animate({
+      position: new PIXI.Point(
+        boundsToZoomTo.x + boundsToZoomTo.width / 2,
+        boundsToZoomTo.y + boundsToZoomTo.height / 2
+      ),
+      scale: fitScaleWithViewport < 1 ? fitScale / 2 : undefined, // only zoom out if necessary
+      ease: 'easeOutExpo',
+      time: 750,
+    });
     viewport.current.emit('moved');
   };
 
