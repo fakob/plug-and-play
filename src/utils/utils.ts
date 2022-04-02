@@ -435,7 +435,6 @@ export const getXLSXSelectionRange = (
   const selectionRange = `${XLSX.utils.encode_col(sci)}${XLSX.utils.encode_row(
     sri
   )}:${XLSX.utils.encode_col(eci)}${XLSX.utils.encode_row(eri)}`;
-  console.log(selectionRange);
   return selectionRange;
 };
 
