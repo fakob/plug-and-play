@@ -438,3 +438,58 @@ export const getXLSXSelectionRange = (
   console.log(selectionRange);
   return selectionRange;
 };
+
+export const zoomToFitSelection = (
+  currentGraph: PPGraph,
+  fitAll = false
+): void => {
+  let boundsToZoomTo: PIXI.Rectangle;
+  let zoomOutFactor: number;
+
+  if (fitAll || currentGraph.selection.selectedNodes.length < 1) {
+    boundsToZoomTo = currentGraph.nodeContainer.getLocalBounds(); // get bounds of the whole nodeContainer
+    zoomOutFactor = -0.2;
+  } else {
+    boundsToZoomTo = getSelectionBounds(
+      currentGraph.selection.selectedNodes // get bounds of the selectedNodes
+    );
+    zoomOutFactor = -0.3;
+  }
+
+  currentGraph.viewport.moveCenter(
+    boundsToZoomTo.x + boundsToZoomTo.width / 2,
+    boundsToZoomTo.y + boundsToZoomTo.height / 2
+  );
+  currentGraph.viewport.fit(true, boundsToZoomTo.width, boundsToZoomTo.height);
+  currentGraph.viewport.zoomPercent(zoomOutFactor, true); // zoom out a bit more
+  currentGraph.selection.drawRectanglesFromSelection();
+  currentGraph.viewport.emit('moved');
+};
+
+export const ensureVisible = (currentGraph: PPGraph): void => {
+  let boundsToZoomTo: PIXI.Rectangle;
+
+  if (currentGraph.selection.selectedNodes.length < 1) {
+    boundsToZoomTo = currentGraph.nodeContainer.getLocalBounds(); // get bounds of the whole nodeContainer
+  } else {
+    boundsToZoomTo = getSelectionBounds(
+      currentGraph.selection.selectedNodes // get bounds of the selectedNodes
+    );
+  }
+  const fitScale = currentGraph.viewport.findFit(
+    boundsToZoomTo.width,
+    boundsToZoomTo.height
+  );
+  const fitScaleWithViewport = fitScale / currentGraph.viewport.scale.x;
+
+  currentGraph.viewport.animate({
+    position: new PIXI.Point(
+      boundsToZoomTo.x + boundsToZoomTo.width / 2,
+      boundsToZoomTo.y + boundsToZoomTo.height / 2
+    ),
+    scale: fitScaleWithViewport < 1 ? fitScale / 2 : undefined, // only zoom out if necessary
+    ease: 'easeOutExpo',
+    time: 750,
+  });
+  currentGraph.viewport.emit('moved');
+};
