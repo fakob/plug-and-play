@@ -234,7 +234,13 @@ export const BooleanWidget: React.FunctionComponent<BooleanWidgetProps> = (
   return (
     <FormGroup>
       <FormControlLabel
-        control={<Checkbox checked={data} onChange={onChange} />}
+        control={
+          <Checkbox
+            checked={data}
+            onChange={onChange}
+            disabled={props.hasLink}
+          />
+        }
         label={props.property.custom?.label ?? ''}
       />
     </FormGroup>
