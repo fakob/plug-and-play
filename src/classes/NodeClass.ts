@@ -375,6 +375,7 @@ export default class PPNode extends PIXI.Container {
   configure(nodeConfig: SerializedNode): void {
     this.x = nodeConfig.x;
     this.y = nodeConfig.y;
+    this.nodeName = nodeConfig.name;
     this.minNodeWidth = nodeConfig.minWidth ?? NODE_WIDTH;
     this.minNodeHeight = nodeConfig.minHeight;
     try {
