@@ -62,16 +62,17 @@ import {
 import {
   convertBlobToBase64,
   downloadFile,
+  ensureVisible,
   formatDate,
   getLoadedGraphId,
   getRemoteGraph,
   getRemoteGraphsList,
-  getSelectionBounds,
   isEventComingFromWithinTextInput,
   removeExtension,
   roundNumber,
   useStateRef,
   writeDataToClipboard,
+  zoomToFitSelection,
 } from './utils/utils';
 import { registerAllNodeTypes } from './nodes/allNodes';
 import PPSelection from './classes/SelectionClass';
@@ -148,8 +149,8 @@ const App = (): JSX.Element => {
 
   // get/set mouse position and also update debug text
   const setMousePosition = (mouseMoveEvent) => {
-    mousePosition.x = mouseMoveEvent.pageX;
-    mousePosition.y = mouseMoveEvent.pageY;
+    mousePosition.x = mouseMoveEvent?.pageX ?? 0;
+    mousePosition.y = mouseMoveEvent?.pageY ?? 0;
     const mouseWorld = viewport.current.toWorld(mousePosition);
     const mouseWorldX = Math.round(mouseWorld.x);
     const mouseWorldY = Math.round(mouseWorld.y);
@@ -198,11 +199,18 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
             saveNewGraph(removeExtension(file.name));
             break;
           case 'csv':
-            data = await response.text();
+          case 'ods':
+          case 'numbers':
+          case 'xls':
+          case 'xlsm':
+          case 'xlsb':
+          case 'xlsx':
+            /* data is an ArrayBuffer */
+            data = await response.arrayBuffer();
             newNode = currentGraph.current.createAndAddNode('Table', {
               nodePosX,
               nodePosY,
-              data,
+              initialData: data,
             });
             break;
           case 'txt':
@@ -252,7 +260,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       if (newNodeSelection.length > 0) {
         // currentGraph.current.selection.selectedNodes = newNodeSelection;
         currentGraph.current.selection.selectNodes(newNodeSelection);
-        zoomToFitSelection();
+        ensureVisible(currentGraph.current);
         enqueueSnackbar(
           `${newNodeSelection.length} new ${
             newNodeSelection.length === 1 ? 'node was' : 'nodes were'
@@ -539,12 +547,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     // register key events
     const keysDown = (e: KeyboardEvent): void => {
       // console.log(e.key);
-      if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'u') {
-        // added ctrl+u shortcut for trying to debug the issue where drag would stop working
-        // I want to see if the plugin was just paused
-        console.log(viewport);
-        viewport.current.plugins.resume('drag');
-      }
       if (!isEventComingFromWithinTextInput(e)) {
         if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'a') {
           e.preventDefault();
@@ -576,10 +578,10 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         }
       }
       if (e.shiftKey && e.code === 'Digit1') {
-        zoomToFitSelection(true);
+        zoomToFitSelection(currentGraph.current, true);
       }
       if (e.shiftKey && e.code === 'Digit2') {
-        zoomToFitSelection();
+        zoomToFitSelection(currentGraph.current);
       }
       if ((isMac ? e.metaKey : e.ctrlKey) && e.shiftKey && e.key === 'y') {
         e.preventDefault();
@@ -659,33 +661,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     (viewport.current.getChildByName('debugGrid') as PIXI.Mesh).visible =
       showComments;
   }, [showComments]);
-
-  const moveToCenter = (bounds: PIXI.Rectangle) => {
-    viewport.current.moveCenter(
-      bounds.x + bounds.width / 2,
-      bounds.y + bounds.height / 2
-    );
-  };
-
-  const zoomToFitSelection = (fitAll = false) => {
-    let boundsToZoomTo: PIXI.Rectangle;
-    let zoomOutFactor: number;
-
-    if (fitAll || currentGraph.current.selection.selectedNodes.length < 1) {
-      boundsToZoomTo = currentGraph.current.nodeContainer.getLocalBounds(); // get bounds of the whole nodeContainer
-      zoomOutFactor = -0.2;
-    } else {
-      boundsToZoomTo = getSelectionBounds(
-        currentGraph.current.selection.selectedNodes // get bounds of the selectedNodes
-      );
-      zoomOutFactor = -0.3;
-    }
-
-    moveToCenter(boundsToZoomTo);
-    viewport.current.fit(true, boundsToZoomTo.width, boundsToZoomTo.height);
-    viewport.current.zoomPercent(zoomOutFactor, true); // zoom out a bit more
-    currentGraph.current.selection.drawRectanglesFromSelection();
-  };
 
   function downloadGraph() {
     db.transaction('rw', db.graphs, db.settings, async () => {
@@ -806,7 +781,9 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
 
         // check if graph exists and load last saved graph if it does not
         if (loadedGraph === undefined) {
-          loadedGraph = graphs.reduce((a, b) => (a.date > b.date ? a : b));
+          loadedGraph = graphs.reduce((a, b) => {
+            return new Date(a.date) > new Date(b.date) ? a : b;
+          });
         }
 
         const graphData = loadedGraph.graphData;

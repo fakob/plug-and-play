@@ -16,7 +16,7 @@ import {
   SerializedGraph,
   SerializedSelection,
 } from '../utils/interfaces';
-import { getInfoFromRegisteredNode } from '../utils/utils';
+import { ensureVisible, getInfoFromRegisteredNode } from '../utils/utils';
 import PPNode from './NodeClass';
 import Socket from './SocketClass';
 import PPLink from './LinkClass';
@@ -578,6 +578,8 @@ export default class PPGraph {
     // select newNode
     this.selection.selectNodes(newNodes);
     this.selection.drawRectanglesFromSelection();
+
+    ensureVisible(this);
 
     return newNodes;
   }

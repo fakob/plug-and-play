@@ -79,6 +79,9 @@ export class Image extends PPNode {
     this.description = 'Draws an Image (base64)';
 
     this.setMinNodeHeight = (nodeWidth: number) => {
+      if (this.texture === undefined) {
+        this.execute();
+      }
       const aspectRatio = this.texture.width / this.texture.height;
       const newNodeHeight = nodeWidth / aspectRatio;
       this.minNodeHeight = newNodeHeight;

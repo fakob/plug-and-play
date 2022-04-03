@@ -88,7 +88,16 @@ export default class PPSelection extends PIXI.Container {
 
   set selectedNodes(newNodes: PPNode[]) {
     this._selectedNodes = newNodes;
+    console.log('set selectedNodes');
+    this.selectedNodesListener(newNodes);
   }
+
+  selectedNodesListener = (newNodes: PPNode[]): void => {};
+
+  registerNewSelectedNodesListener = (externalListenerFunction): void => {
+    console.log('subscribe');
+    this.selectedNodesListener = externalListenerFunction;
+  };
 
   onScaling = (pointerPosition: PIXI.Point, shiftKeyPressed: boolean): void => {
     const worldPosition = this.viewport.toWorld(

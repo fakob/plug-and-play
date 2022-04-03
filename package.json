@@ -21,10 +21,7 @@
   "author": "jkanchelov",
   "license": "MIT",
   "dependencies": {
-    "@blueprintjs/core": "^3.49.1",
-    "@blueprintjs/popover2": "^0.11.4",
-    "@blueprintjs/select": "^3.18.10",
-    "@blueprintjs/table": "^3.9.12",
+    "@bergfreunde/x-data-spreadsheet": "^2.0.55",
     "@codemirror/lang-javascript": "^0.19.4",
     "@codemirror/theme-one-dark": "^0.19.1",
     "@emotion/react": "^11.6.0",
@@ -64,12 +61,10 @@
     "react-dropzone": "^11.4.2",
     "react-error-boundary": "^3.1.4",
     "react-lazylog": "^4.5.3",
-    "slate": "^0.70.0",
-    "slate-history": "^0.65.3",
-    "slate-react": "^0.65.3",
     "strip-comments": "^2.0.1",
     "to-json-schema": "^0.2.5",
-    "util": "^0.12.4"
+    "util": "^0.12.4",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@babel/core": "^7.15.5",
