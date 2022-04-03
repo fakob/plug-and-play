@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
 import * as PIXI from 'pixi.js';
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
@@ -19,6 +20,7 @@ import { TriggerType } from './datatypes/triggerType';
 import { ColorType } from './datatypes/colorType';
 import { StringType } from './datatypes/stringType';
 import { EnumType } from './datatypes/enumType';
+import { BooleanType } from './datatypes/booleanType';
 
 export class Mouse extends PPNode {
   onViewportMove: (event: PIXI.InteractionEvent) => void;
@@ -63,6 +65,63 @@ export class Mouse extends PPNode {
     this.onViewportZoomedHandler = this.onViewportZoomed.bind(this);
     this.graph.viewport.on('zoomed', (this as any).onViewportZoomedHandler);
   }
+}
+
+export class Keyboard extends PPNode {
+  onKeyDownHandler: (event?: KeyboardEvent) => void = () => {};
+  onKeyUpHandler: (event?: KeyboardEvent) => void = () => {};
+  _onKeyDown = (event: KeyboardEvent): void => {
+    this.setOutputData('key', event.key);
+    this.setOutputData('code', event.code);
+    this.setOutputData('shiftKey', event.shiftKey);
+    this.setOutputData('ctrlKey', event.ctrlKey);
+    this.setOutputData('altKey', event.altKey);
+    this.setOutputData('metaKey', event.metaKey);
+    this.setOutputData('repeat', event.repeat);
+    this.executeChildren();
+  };
+  _onKeyUp = (): void => {
+    if (!this.getInputData('keep last')) {
+      this.setOutputData('key', '');
+      this.setOutputData('code', '');
+      this.setOutputData('shiftKey', false);
+      this.setOutputData('ctrlKey', false);
+      this.setOutputData('altKey', false);
+      this.setOutputData('metaKey', false);
+      this.setOutputData('repeat', false);
+      this.executeChildren();
+    }
+  };
+
+  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
+    super(name, graph, {
+      ...customArgs,
+      color: TRgba.fromString(NODE_TYPE_COLOR.INPUT),
+    });
+
+    this.addOutput('key', new StringType());
+    this.addOutput('code', new StringType());
+    this.addOutput('shiftKey', new BooleanType());
+    this.addOutput('ctrlKey', new BooleanType());
+    this.addOutput('altKey', new BooleanType());
+    this.addOutput('metaKey', new BooleanType());
+    this.addOutput('repeat', new BooleanType());
+    this.addInput('keep last', new BooleanType(), false, false);
+
+    this.name = 'Keyboard';
+    this.description = 'Get keyboard input';
+
+    // add event listener
+    this.onKeyDownHandler = this._onKeyDown.bind(this);
+    window.addEventListener('keydown', (this as any).onKeyDownHandler);
+    this.onKeyUpHandler = this._onKeyUp.bind(this);
+    window.addEventListener('keyup', (this as any).onKeyUpHandler);
+  }
+
+  onNodeRemoved = (): void => {
+    window.removeEventListener('keydown', this.onKeyDownHandler);
+    window.removeEventListener('keyup', this.onKeyUpHandler);
+  };
 }
 
 export class GridCoordinates extends PPNode {

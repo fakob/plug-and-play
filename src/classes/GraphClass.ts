@@ -286,7 +286,7 @@ export default class PPGraph {
       this.selectedSourceSocket = socket;
       this.lastSelectedSocketWasInput = false;
     } else {
-      // if output socket selected, either make a new link from here backwards or re-link old existing link
+      // if input socket selected, either make a new link from here backwards or re-link old existing link
       this.lastSelectedSocketWasInput = true;
       const hasLink = socket.links.length > 0;
       if (hasLink) {
