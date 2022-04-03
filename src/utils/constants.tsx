@@ -231,6 +231,74 @@ export const OBJECT_FIT_OPTIONS: EnumStructure = [
   },
 ];
 
+export const COMPARISON_OPTIONS: EnumStructure = [
+  {
+    text: 'Greater than (>)',
+    value: '>',
+  },
+  {
+    text: 'Greater than or equal (>=)',
+    value: '>=',
+  },
+  {
+    text: 'Less than (<)',
+    value: '<',
+  },
+  {
+    text: 'Less than or equal (<=)',
+    value: '<=',
+  },
+  {
+    text: 'Equal (==)',
+    value: '==',
+  },
+  {
+    text: 'Not equal (!=)',
+    value: '!=',
+  },
+  {
+    text: 'Strict equal (===)',
+    value: '===',
+  },
+  {
+    text: 'Strict not equal (!==)',
+    value: '!==',
+  },
+  {
+    text: 'Logical AND (&&)',
+    value: '&&',
+  },
+  {
+    text: 'Logical OR (||)',
+    value: '||',
+  },
+  {
+    text: 'Logical NOT (!)',
+    value: '!',
+  },
+];
+
+export const CONDITION_OPTIONS: EnumStructure = [
+  {
+    text: 'is null OR undefined',
+  },
+  {
+    text: 'is undefined',
+  },
+  {
+    text: 'is null',
+  },
+  {
+    text: 'is NOT null OR undefined',
+  },
+  {
+    text: 'is NOT undefined',
+  },
+  {
+    text: 'is NOT null',
+  },
+];
+
 export const GRID_SHADER = `
   precision mediump float;
   varying vec2 vUvs;
