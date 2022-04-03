@@ -119,7 +119,6 @@ const App = (): JSX.Element => {
   const overlayCommentContainer = useRef<PIXI.Container | null>(null);
   const graphSearchInput = useRef<HTMLInputElement | null>(null);
   const nodeSearchInput = useRef<HTMLInputElement | null>(null);
-  const [isTrackpad, setIsTrackpad] = useState(isMac);
   const [isGraphSearchOpen, setIsGraphSearchOpen] = useState(false);
   const [isNodeSearchVisible, setIsNodeSearchVisible] = useState(false);
   const [isGraphContextMenuOpen, setIsGraphContextMenuOpen] = useState(false);
@@ -380,10 +379,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     });
 
     window.addEventListener('mousemove', setMousePosition, false);
-
-    // subscribe to mousewheel event only until detected
-    window.addEventListener('mousewheel', detectTrackPad, false);
-    window.addEventListener('DOMMouseScroll', detectTrackPad, false);
 
     // create viewport
     viewport.current = new Viewport({
@@ -671,17 +666,32 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       showComments;
   }, [showComments]);
 
+  function setGestureModeOnViewport(
+    viewport: Viewport,
+    gestureMode = undefined
+  ) {
+    viewport.wheel({
+      smooth: 3,
+      trackpadPinch: true,
+      wheelZoom: gestureMode === GESTUREMODE.TRACKPAD ? false : true,
+    });
+  }
+
   function detectTrackPad(event) {
-    let trackpadDetected = false;
+    let isTrackpad = false;
     if (event.wheelDeltaY) {
       if (event.wheelDeltaY === event.deltaY * -3) {
-        trackpadDetected = true;
+        isTrackpad = true;
       }
     } else if (event.deltaMode === 0) {
-      trackpadDetected = true;
+      isTrackpad = true;
     }
-    setIsTrackpad(trackpadDetected);
-    console.log(trackpadDetected ? 'Trackpad detected' : 'Mousewheel detected');
+
+    const gestureMode = isTrackpad ? GESTUREMODE.TRACKPAD : GESTUREMODE.MOUSE;
+    setGestureModeOnViewport(viewport.current, gestureMode);
+    enqueueSnackbar(`${gestureMode} detected`);
+
+    // unsubscribe from mousewheel again
     window.removeEventListener('mousewheel', detectTrackPad);
     window.removeEventListener('DOMMouseScroll', detectTrackPad);
   }
@@ -699,19 +709,19 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         // get saved gestureMode
         gestureMode = await getSetting(db, 'gestureMode');
         console.log(gestureMode);
-
-        // if there is no gestureMode saved or auto then try to detect
-        if (gestureMode === undefined || gestureMode === GESTUREMODE.AUTO) {
-          gestureMode = isTrackpad ? GESTUREMODE.TRACKPAD : GESTUREMODE.MOUSE;
-        }
       }
 
-      viewport.wheel({
-        smooth: 3,
-        trackpadPinch: true,
-        wheelZoom: gestureMode === GESTUREMODE.TRACKPAD ? false : true,
-      });
-      enqueueSnackbar(`GestureMode is set to: ${gestureMode}`);
+      if (
+        gestureMode === GESTUREMODE.MOUSE ||
+        gestureMode === GESTUREMODE.TRACKPAD
+      ) {
+        setGestureModeOnViewport(viewport, gestureMode);
+        enqueueSnackbar(`GestureMode is set to: ${gestureMode}`);
+      } else {
+        // subscribe to mousewheel event to detect pointer device
+        window.addEventListener('mousewheel', detectTrackPad, false);
+        window.addEventListener('DOMMouseScroll', detectTrackPad, false);
+      }
     }).catch((e) => {
       console.log(e.stack || e);
     });
