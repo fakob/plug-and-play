@@ -16,6 +16,7 @@ import {
   TSocketType,
 } from '../utils/interfaces';
 import {
+  COLOR_WHITE_TEXT,
   COMMENT_TEXTSTYLE,
   RANDOMMAINCOLOR,
   NODE_TYPE_COLOR,
@@ -29,6 +30,7 @@ import {
   NODE_TEXTSTYLE,
   NODE_WIDTH,
   SOCKET_HEIGHT,
+  SOCKET_WIDTH,
   SOCKET_TYPE,
 } from '../utils/constants';
 import PPGraph from './GraphClass';
@@ -61,6 +63,7 @@ export class UpdateBehaviour {
 
 export default class PPNode extends PIXI.Container {
   _NodeNameRef: PIXI.Text;
+  _NodeUpdateRef: PIXI.Graphics;
   _BackgroundRef: PIXI.Graphics;
   _CommentRef: PIXI.Graphics;
   clickedSocketRef: Socket;
@@ -172,8 +175,10 @@ export default class PPNode extends PIXI.Container {
         blur: 1,
       }),
     ];
+    const updateHeader = new PIXI.Graphics();
 
     this._BackgroundRef = this.addChild(background);
+    this._NodeUpdateRef = this.addChild(updateHeader);
     this._NodeNameRef = this.addChild(inputNameText);
     this._CommentRef = this.addChild(new PIXI.Graphics());
 
@@ -629,6 +634,14 @@ export default class PPNode extends PIXI.Container {
     );
 
     this._BackgroundRef.endFill();
+
+    // redraw update behaviour header
+    this._NodeUpdateRef.clear();
+    const whiteColor = TRgba.fromString(COLOR_WHITE_TEXT);
+    this._NodeUpdateRef.beginFill(whiteColor.hexNumber(), whiteColor.a);
+    this._NodeUpdateRef.drawCircle(NODE_MARGIN + 8, 8, 4);
+
+    this._NodeUpdateRef.endFill();
 
     // redraw outputs
     this.outputSocketArray
