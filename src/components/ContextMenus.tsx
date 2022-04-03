@@ -1,13 +1,17 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Divider,
   ListItemIcon,
   ListItemText,
   MenuItem,
+  MenuItemProps,
   MenuList,
   Paper,
+  Popper,
+  PopperProps,
   Typography,
 } from '@mui/material';
+import { createStyles, makeStyles } from '@mui/styles';
 import SearchIcon from '@mui/icons-material/Search';
 import UploadIcon from '@mui/icons-material/Upload';
 import EditIcon from '@mui/icons-material/Edit';
@@ -21,6 +25,80 @@ import AdbIcon from '@mui/icons-material/Adb';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import SensorsIcon from '@mui/icons-material/Sensors';
+import MouseIcon from '@mui/icons-material/Mouse';
+import SwipeIcon from '@mui/icons-material/Swipe';
+import { GESTUREMODE } from '../utils/constants';
+
+const useStyles = makeStyles((theme) =>
+  createStyles({
+    active: {
+      backgroundColor: 'rgba(255, 255, 255, 0.04)',
+    },
+  })
+);
+
+type SubMenuItemProps = MenuItemProps & {
+  button?: true;
+  label: string;
+} & Pick<PopperProps, 'placement'>;
+const SubMenuItem = (props: SubMenuItemProps) => {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  const classes = useStyles();
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLLIElement | null>(null);
+
+  return (
+    <MenuItem
+      {...props}
+      ref={ref}
+      className={open ? classes.active : ''}
+      onMouseEnter={() => setOpen(true)}
+      // onFocus={() => setOpen(true)}
+      // onBlur={() => setOpen(false)}
+      onMouseLeave={() => setOpen(false)}
+    >
+      {/* <ListItemIcon>
+        <SettingsIcon fontSize="small" />
+      </ListItemIcon> */}
+      <ListItemText>{props.label}</ListItemText>
+      <Typography variant="body2" color="text.secondary">
+        <ChevronRightIcon fontSize="medium" />
+      </Typography>
+      <Popper
+        anchorEl={ref.current}
+        open={open}
+        placement={props.placement ?? 'right'}
+        modifiers={[
+          {
+            name: 'flip',
+            enabled: true,
+          },
+          {
+            name: 'preventOverflow',
+            enabled: true,
+            options: {
+              boundariesElement: 'viewport',
+            },
+          },
+        ]}
+      >
+        <Paper
+          elevation={3}
+          sx={{
+            width: 240,
+            maxWidth: '100%',
+            zIndex: 500,
+          }}
+        >
+          <MenuList dense>{props.children}</MenuList>
+        </Paper>
+      </Popper>
+    </MenuItem>
+  );
+};
 
 export const GraphContextMenu = (props) => {
   useEffect(() => {
@@ -168,6 +246,48 @@ export const GraphContextMenu = (props) => {
           </Typography>
         </MenuItem>
         <Divider />
+        <MenuItem disabled>Settings</MenuItem>
+        <SubMenuItem autoFocus={false} label="Gesture mode">
+          <MenuItem
+            onClick={() => {
+              props.applyGestureMode(
+                props.currentGraph.current.viewport,
+                GESTUREMODE.MOUSE
+              );
+            }}
+          >
+            <ListItemIcon>
+              <MouseIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>{GESTUREMODE.MOUSE}</ListItemText>
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              props.applyGestureMode(
+                props.currentGraph.current.viewport,
+                GESTUREMODE.TRACKPAD
+              );
+            }}
+          >
+            <ListItemIcon>
+              <SwipeIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>{GESTUREMODE.TRACKPAD}</ListItemText>
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              props.applyGestureMode(
+                props.currentGraph.current.viewport,
+                GESTUREMODE.AUTO
+              );
+            }}
+          >
+            <ListItemIcon>
+              <SensorsIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>{GESTUREMODE.AUTO}</ListItemText>
+          </MenuItem>
+        </SubMenuItem>
         <MenuItem disabled>Debug</MenuItem>
         <MenuItem
           onClick={() => {

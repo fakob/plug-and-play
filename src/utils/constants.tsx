@@ -7,6 +7,12 @@ import { darkThemeOverride } from './customTheme';
 
 export const PP_VERSION = 0.1;
 
+export const GESTUREMODE = {
+  MOUSE: 'Mouse',
+  TRACKPAD: 'Trackpad',
+  AUTO: 'Auto detect',
+} as const;
+
 // old node color #C1CADF
 export const COLOR = [
   '#E1547D',

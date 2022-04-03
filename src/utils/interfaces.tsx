@@ -1,8 +1,7 @@
 import * as PIXI from 'pixi.js';
 import PPGraph from '../classes/GraphClass';
 import PPNode, { UpdateBehaviour } from '../classes/NodeClass';
-import { AbstractType } from '../nodes/datatypes/abstractType';
-import { COLOR, COLOR_DARK, COLOR_WHITE, SOCKET_TYPE } from './constants';
+import { COLOR_DARK, COLOR_WHITE, SOCKET_TYPE } from './constants';
 import Color from 'color';
 
 export type RegisteredNodeTypes = Record<
