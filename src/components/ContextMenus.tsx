@@ -56,13 +56,8 @@ const SubMenuItem = (props: SubMenuItemProps) => {
       ref={ref}
       className={open ? classes.active : ''}
       onMouseEnter={() => setOpen(true)}
-      // onFocus={() => setOpen(true)}
-      // onBlur={() => setOpen(false)}
       onMouseLeave={() => setOpen(false)}
     >
-      {/* <ListItemIcon>
-        <SettingsIcon fontSize="small" />
-      </ListItemIcon> */}
       <ListItemText>{props.label}</ListItemText>
       <Typography variant="body2" color="text.secondary">
         <ChevronRightIcon fontSize="medium" />
@@ -288,17 +283,13 @@ export const GraphContextMenu = (props) => {
             <ListItemText>{GESTUREMODE.AUTO}</ListItemText>
           </MenuItem>
         </SubMenuItem>
-        <MenuItem disabled>Debug</MenuItem>
         <MenuItem
           onClick={() => {
             props.setShowComments((prevState) => !prevState);
           }}
         >
-          <ListItemIcon>
-            <AdbIcon fontSize="small" />
-          </ListItemIcon>
           <ListItemText>
-            {props.showComments ? 'Hide output' : 'Show output'}
+            {props.showComments ? 'Hide debug output' : 'Show debug output'}
           </ListItemText>
           <Typography variant="body2" color="text.secondary">
             {`${props.controlOrMetaKey}+Shift+Y`}
