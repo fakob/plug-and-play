@@ -366,9 +366,9 @@ export class If_Else extends PPNode {
   ): Promise<void> {
     const condition = _.truthy(inputObject['Condition']);
     if (condition) {
-      outputObject['Output'] = inputObject?.['A'];
+      outputObject['Output'] = inputObject['A'];
     } else {
-      outputObject['Output'] = inputObject?.['B'];
+      outputObject['Output'] = inputObject['B'];
     }
   }
 }
