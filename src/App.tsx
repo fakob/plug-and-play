@@ -49,6 +49,7 @@ import {
   CANVAS_BACKGROUND_TEXTURE,
   COMMENT_TEXTSTYLE,
   DRAGANDDROP_GRID_MARGIN,
+  GESTUREMODE,
   GRID_SHADER,
   NODE_WIDTH,
   PLUGANDPLAY_ICON,
@@ -64,7 +65,7 @@ import {
   downloadFile,
   ensureVisible,
   formatDate,
-  getLoadedGraphId,
+  getSetting,
   getRemoteGraph,
   getRemoteGraphsList,
   isEventComingFromWithinTextInput,
@@ -483,6 +484,9 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       currentGraph.current.tick(currentTime, delta);
     });
 
+    // load plug and playground settings
+    applyGestureMode(viewport.current);
+
     loadGraph();
     setIsCurrentGraphLoaded(true);
     console.log('currentGraph.current:', currentGraph.current);
@@ -506,7 +510,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       setIsNodeContextMenuOpen(false);
       setContextMenuPosition([
         Math.min(window.innerWidth - 248, event.data.global.x),
-        Math.min(window.innerHeight - 530, event.data.global.y),
+        Math.min(window.innerHeight - 600, event.data.global.y),
       ]);
       console.log(event, target, event.data.global);
       switch (true) {
@@ -662,9 +666,70 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       showComments;
   }, [showComments]);
 
+  function setGestureModeOnViewport(
+    viewport: Viewport,
+    gestureMode = undefined
+  ) {
+    viewport.wheel({
+      smooth: 3,
+      trackpadPinch: true,
+      wheelZoom: gestureMode === GESTUREMODE.TRACKPAD ? false : true,
+    });
+  }
+
+  function detectTrackPad(event) {
+    let isTrackpad = false;
+    if (event.wheelDeltaY) {
+      if (event.wheelDeltaY === event.deltaY * -3) {
+        isTrackpad = true;
+      }
+    } else if (event.deltaMode === 0) {
+      isTrackpad = true;
+    }
+
+    const gestureMode = isTrackpad ? GESTUREMODE.TRACKPAD : GESTUREMODE.MOUSE;
+    setGestureModeOnViewport(viewport.current, gestureMode);
+    enqueueSnackbar(`${gestureMode} detected`);
+
+    // unsubscribe from mousewheel again
+    window.removeEventListener('mousewheel', detectTrackPad);
+    window.removeEventListener('DOMMouseScroll', detectTrackPad);
+  }
+
+  function applyGestureMode(viewport: Viewport, newGestureMode = undefined) {
+    db.transaction('rw', db.settings, async () => {
+      let gestureMode = newGestureMode;
+      if (gestureMode) {
+        // save newGestureMode
+        await db.settings.put({
+          name: 'gestureMode',
+          value: gestureMode,
+        });
+      } else {
+        // get saved gestureMode
+        gestureMode = await getSetting(db, 'gestureMode');
+        console.log(gestureMode);
+      }
+
+      if (
+        gestureMode === GESTUREMODE.MOUSE ||
+        gestureMode === GESTUREMODE.TRACKPAD
+      ) {
+        setGestureModeOnViewport(viewport, gestureMode);
+        enqueueSnackbar(`GestureMode is set to: ${gestureMode}`);
+      } else {
+        // subscribe to mousewheel event to detect pointer device
+        window.addEventListener('mousewheel', detectTrackPad, false);
+        window.addEventListener('DOMMouseScroll', detectTrackPad, false);
+      }
+    }).catch((e) => {
+      console.log(e.stack || e);
+    });
+  }
+
   function downloadGraph() {
     db.transaction('rw', db.graphs, db.settings, async () => {
-      const loadedGraphId = await getLoadedGraphId(db);
+      const loadedGraphId = await getSetting(db, 'loadedGraphId');
       const graph = await db.graphs.where('id').equals(loadedGraphId).first();
 
       const serializedGraph = currentGraph.current.serialize();
@@ -700,7 +765,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
   function deleteGraph(graphId: string) {
     console.log(graphId);
     db.transaction('rw', db.graphs, db.settings, async () => {
-      const loadedGraphId = await getLoadedGraphId(db);
+      const loadedGraphId = await getSetting(db, 'loadedGraphId');
 
       const id = await db.graphs.where('id').equals(graphId).delete();
       updateGraphSearchItems();
@@ -722,7 +787,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     console.info(serializedGraph.customNodeTypes);
     db.transaction('rw', db.graphs, db.settings, async () => {
       const graphs = await db.graphs.toArray();
-      const loadedGraphId = await getLoadedGraphId(db);
+      const loadedGraphId = await getSetting(db, 'loadedGraphId');
 
       const id = hri.random();
       const tempName = id.substring(0, id.lastIndexOf('-')).replace('-', ' ');
@@ -772,7 +837,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
   function loadGraph(id = undefined) {
     db.transaction('rw', db.graphs, db.settings, async () => {
       const graphs = await db.graphs.toArray();
-      const loadedGraphId = await getLoadedGraphId(db);
+      const loadedGraphId = await getSetting(db, 'loadedGraphId');
 
       if (graphs.length > 0) {
         let loadedGraph = graphs.find(
@@ -964,7 +1029,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       console.log(allGraphSearchItems);
       setGraphSearchItems(allGraphSearchItems);
 
-      const loadedGraphId = await getLoadedGraphId(db);
+      const loadedGraphId = await getSetting(db, 'loadedGraphId');
       const loadedGraphIndex = allGraphSearchItems.findIndex(
         (graph) => graph.id === loadedGraphId
       );
@@ -1261,6 +1326,7 @@ NOTE: save the playground after loading, if you want to make changes to it`
               uploadGraph={uploadGraph}
               showComments={showComments}
               setShowComments={setShowComments}
+              applyGestureMode={applyGestureMode}
               zoomToFitSelection={zoomToFitSelection}
             />
           )}

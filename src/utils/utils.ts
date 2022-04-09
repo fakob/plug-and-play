@@ -299,16 +299,17 @@ export const removeExtension = (fileName: string): string => {
   return fileName.replace(/\.[^/.]+$/, '');
 };
 
-export const getLoadedGraphId = async (
-  db: GraphDatabase
+export const getSetting = async (
+  db: GraphDatabase,
+  settingsName: string
 ): Promise<string | undefined> => {
-  const loadedGraphIdObject = await db.settings
+  const settingsObject = await db.settings
     .where({
-      name: 'loadedGraphId',
+      name: settingsName,
     })
     .first();
-  const loadedGraphId = loadedGraphIdObject?.value;
-  return loadedGraphId;
+  const setting = settingsObject?.value;
+  return setting;
 };
 
 export const getMethods = (o): string[] => {
