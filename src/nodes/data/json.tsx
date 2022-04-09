@@ -23,7 +23,7 @@ export class JSONGet extends PureNode {
       color: TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM),
     });
 
-    this.name = 'Get a JSON value';
+    this.name = 'Get JSON value';
     this.description = 'Get the value of a JSON at the defined path';
   }
 
@@ -71,7 +71,7 @@ export class JSONSet extends PureNode {
       color: TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM),
     });
 
-    this.name = 'Set a JSON value';
+    this.name = 'Set JSON value';
     this.description = 'Set a value on a JSON at the defined path';
   }
 

@@ -6,6 +6,8 @@ import * as XLSX from 'xlsx';
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
 import {
+  COMPARISON_OPTIONS,
+  CONDITION_OPTIONS,
   NODE_PADDING_TOP,
   NODE_HEADER_HEIGHT,
   SOCKET_TEXTMARGIN_TOP,
@@ -492,4 +494,63 @@ export const ensureVisible = (currentGraph: PPGraph): void => {
     time: 750,
   });
   currentGraph.viewport.emit('moved');
+};
+
+export const compare = (
+  inputA: unknown,
+  chosenOperator: string,
+  inputB: unknown
+): unknown => {
+  const operator = COMPARISON_OPTIONS.find(
+    (item) => item.text === chosenOperator
+  );
+  switch (operator.value) {
+    case '>':
+      return inputA > inputB;
+    case '<':
+      return inputA < inputB;
+    case '>=':
+      return inputA >= inputB;
+    case '<=':
+      return inputA <= inputB;
+    case '==':
+      return inputA == inputB;
+    case '!=':
+      return inputA != inputB;
+    case '===':
+      return inputA === inputB;
+    case '!==':
+      return inputA !== inputB;
+    case '&&':
+      return inputA && inputB;
+    case '||':
+      return inputA || inputB;
+    case '!':
+      return !inputA;
+  }
+};
+
+export const isVariable = (
+  inputA: unknown,
+  chosenCondition: string
+): unknown => {
+  const condition = CONDITION_OPTIONS.find(
+    (item) => item.text === chosenCondition
+  );
+  switch (condition.text) {
+    case 'is null OR undefined':
+      return typeof inputA === 'undefined' || inputA === null;
+    case 'is undefined':
+      return typeof inputA === 'undefined';
+    case 'is null':
+      return inputA === null;
+    case 'is NOT null OR undefined':
+      return typeof inputA !== 'undefined' && inputA !== null;
+    case 'is NOT undefined':
+      return typeof inputA !== 'undefined';
+    case 'is NOT null':
+      return inputA !== null;
+    default:
+      return false;
+  }
 };

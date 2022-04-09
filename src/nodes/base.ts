@@ -1,24 +1,32 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
 import * as PIXI from 'pixi.js';
+import _ from 'lodash-contrib';
+
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
+import Socket from '../classes/SocketClass';
 import {
   COLOR,
-  NODE_TYPE_COLOR,
-  SOCKET_WIDTH,
+  COMPARISON_OPTIONS,
+  CONDITION_OPTIONS,
   NODE_CORNERRADIUS,
-  NODE_PADDING_TOP,
   NODE_HEADER_HEIGHT,
+  NODE_PADDING_TOP,
+  NODE_TYPE_COLOR,
   NODE_WIDTH,
   SOCKET_HEIGHT,
+  SOCKET_TYPE,
+  SOCKET_WIDTH,
 } from '../utils/constants';
 import { CustomArgs, TRgba } from '../utils/interfaces';
-import { getMethods } from '../utils/utils';
+import { compare, getMethods, isVariable } from '../utils/utils';
 import { NumberType } from './datatypes/numberType';
 import { AnyType } from './datatypes/anyType';
 import { TriggerType } from './datatypes/triggerType';
 import { ColorType } from './datatypes/colorType';
 import { StringType } from './datatypes/stringType';
 import { EnumType } from './datatypes/enumType';
+import { BooleanType } from './datatypes/booleanType';
 
 export class Mouse extends PPNode {
   onViewportMove: (event: PIXI.InteractionEvent) => void;
@@ -63,6 +71,63 @@ export class Mouse extends PPNode {
     this.onViewportZoomedHandler = this.onViewportZoomed.bind(this);
     this.graph.viewport.on('zoomed', (this as any).onViewportZoomedHandler);
   }
+}
+
+export class Keyboard extends PPNode {
+  onKeyDownHandler: (event?: KeyboardEvent) => void = () => {};
+  onKeyUpHandler: (event?: KeyboardEvent) => void = () => {};
+  _onKeyDown = (event: KeyboardEvent): void => {
+    this.setOutputData('key', event.key);
+    this.setOutputData('code', event.code);
+    this.setOutputData('shiftKey', event.shiftKey);
+    this.setOutputData('ctrlKey', event.ctrlKey);
+    this.setOutputData('altKey', event.altKey);
+    this.setOutputData('metaKey', event.metaKey);
+    this.setOutputData('repeat', event.repeat);
+    this.executeChildren();
+  };
+  _onKeyUp = (): void => {
+    if (!this.getInputData('keep last')) {
+      this.setOutputData('key', '');
+      this.setOutputData('code', '');
+      this.setOutputData('shiftKey', false);
+      this.setOutputData('ctrlKey', false);
+      this.setOutputData('altKey', false);
+      this.setOutputData('metaKey', false);
+      this.setOutputData('repeat', false);
+      this.executeChildren();
+    }
+  };
+
+  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
+    super(name, graph, {
+      ...customArgs,
+      color: TRgba.fromString(NODE_TYPE_COLOR.INPUT),
+    });
+
+    this.addOutput('key', new StringType());
+    this.addOutput('code', new StringType());
+    this.addOutput('shiftKey', new BooleanType());
+    this.addOutput('ctrlKey', new BooleanType());
+    this.addOutput('altKey', new BooleanType());
+    this.addOutput('metaKey', new BooleanType());
+    this.addOutput('repeat', new BooleanType());
+    this.addInput('keep last', new BooleanType(), false, false);
+
+    this.name = 'Keyboard';
+    this.description = 'Get keyboard input';
+
+    // add event listener
+    this.onKeyDownHandler = this._onKeyDown.bind(this);
+    window.addEventListener('keydown', (this as any).onKeyDownHandler);
+    this.onKeyUpHandler = this._onKeyUp.bind(this);
+    window.addEventListener('keyup', (this as any).onKeyUpHandler);
+  }
+
+  onNodeRemoved = (): void => {
+    window.removeEventListener('keydown', this.onKeyDownHandler);
+    window.removeEventListener('keyup', this.onKeyUpHandler);
+  };
 }
 
 export class GridCoordinates extends PPNode {
@@ -268,9 +333,122 @@ export class DateAndTime extends PPNode {
     this.name = 'Date and time';
     this.description = 'Outputs current time in different formats';
 
-    this.onExecute = async function (input) {
+    this.onExecute = async function (input, output) {
       const dateMethod = input['Date method'];
-      this.setOutputData('date and time', new Date()[dateMethod]());
+      output['date and time'] = new Date()[dateMethod]();
     };
+  }
+}
+
+export class If_Else extends PPNode {
+  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
+    super(name, graph, {
+      ...customArgs,
+      color: TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM),
+    });
+
+    this.name = 'If else condition';
+    this.description = 'Passes through input A or B based on a condition';
+  }
+
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(SOCKET_TYPE.IN, 'Condition', new AnyType(), 0),
+      new Socket(SOCKET_TYPE.IN, 'A', new AnyType(), 'A'),
+      new Socket(SOCKET_TYPE.IN, 'B', new AnyType(), 'B'),
+      new Socket(SOCKET_TYPE.OUT, 'Output', new AnyType()),
+    ];
+  }
+
+  protected async onExecute(
+    inputObject: any,
+    outputObject: Record<string, unknown>
+  ): Promise<void> {
+    const condition = _.truthy(inputObject['Condition']);
+    if (condition) {
+      outputObject['Output'] = inputObject['A'];
+    } else {
+      outputObject['Output'] = inputObject['B'];
+    }
+  }
+}
+
+export class Comparison extends PPNode {
+  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
+    super(name, graph, {
+      ...customArgs,
+      color: TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM),
+    });
+
+    this.name = 'Compare';
+    this.description = 'Compares two values (greater, less, equal, logical)';
+  }
+
+  protected getDefaultIO(): Socket[] {
+    const onOptionChange = (value) => {
+      this.nodeName = value;
+    };
+
+    return [
+      new Socket(SOCKET_TYPE.IN, 'A', new AnyType(), 0),
+      new Socket(SOCKET_TYPE.IN, 'B', new AnyType(), 1),
+      new Socket(
+        SOCKET_TYPE.IN,
+        'Operator',
+        new EnumType(COMPARISON_OPTIONS, onOptionChange),
+        COMPARISON_OPTIONS[0].text,
+        false
+      ),
+      new Socket(SOCKET_TYPE.OUT, 'Output', new BooleanType()),
+    ];
+  }
+
+  protected async onExecute(
+    inputObject: any,
+    outputObject: Record<string, unknown>
+  ): Promise<void> {
+    const inputA = inputObject['A'];
+    const inputB = inputObject['B'];
+    const operator = inputObject['Operator'];
+    outputObject['Output'] = compare(inputA, operator, inputB);
+  }
+}
+
+export class IsValid extends PPNode {
+  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
+    super(name, graph, {
+      ...customArgs,
+      color: TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM),
+    });
+
+    this.name = 'IsValid';
+    this.description = 'Check if an input is valid (undefined, null)';
+  }
+
+  protected getDefaultIO(): Socket[] {
+    const onOptionChange = (value) => {
+      this.nodeName = value;
+    };
+
+    return [
+      new Socket(SOCKET_TYPE.IN, 'A', new AnyType(), 0),
+      new Socket(
+        SOCKET_TYPE.IN,
+        'Condition',
+        new EnumType(CONDITION_OPTIONS, onOptionChange),
+        CONDITION_OPTIONS[0].text,
+        false
+      ),
+      new Socket(SOCKET_TYPE.OUT, 'Output', new BooleanType()),
+    ];
+  }
+
+  protected async onExecute(
+    inputObject: any,
+    outputObject: Record<string, unknown>
+  ): Promise<void> {
+    const inputA = inputObject['A'];
+    const condition = inputObject['Condition'];
+    outputObject['Output'] = isVariable(inputA, condition);
   }
 }
