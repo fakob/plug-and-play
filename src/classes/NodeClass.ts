@@ -358,12 +358,12 @@ export default class PPNode extends PIXI.Container {
       }
 
       nodeConfig.socketArray.forEach((item: SerializedSocket) => {
+        console.log('serialized socket name: ' + item.name);
         const matchingSocket =
           item.socketType === SOCKET_TYPE.IN
-            ? this.getInputSocketByName(item.id)
-            : this.getOutputSocketByName(item.id);
+            ? this.getInputSocketByName(item.name)
+            : this.getOutputSocketByName(item.name);
         if (matchingSocket !== undefined) {
-          matchingSocket.setName(item.id);
           matchingSocket.dataType = deSerializeType(item.dataType);
           matchingSocket.data = item.data;
           matchingSocket.defaultData = item.defaultData;
@@ -373,7 +373,7 @@ export default class PPNode extends PIXI.Container {
           this.addSocket(
             new Socket(
               item.socketType,
-              item.id,
+              item.name,
               deSerializeType(item.dataType),
               item.data,
               item.visible
@@ -387,7 +387,6 @@ export default class PPNode extends PIXI.Container {
         error
       );
     }
-    this.drawNodeShape();
 
     if (this.onConfigure) {
       this.onConfigure(nodeConfig);
@@ -396,6 +395,7 @@ export default class PPNode extends PIXI.Container {
     if (this.getIsHybrid()) {
       this._onViewportMove(); // trigger this once, so the react components get positioned properly
     }
+    this.drawNodeShape();
 
     this.updateBehaviour = nodeConfig.updateBehaviour;
   }
