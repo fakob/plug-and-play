@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import { DisplayObject } from 'pixi.js';
 import PPGraph from '../classes/GraphClass';
-import PPNode, { PureNode } from '../classes/NodeClass';
+import PPNode from '../classes/NodeClass';
 import Socket from '../classes/SocketClass';
 import {
   COLOR_WHITE,
@@ -161,17 +161,13 @@ abstract class DRAW_Base extends PPNode {
   }
 
   handleDrawing(drawingFunction: any): void {
-    const canvas = this.graph.viewport.getChildByName(
-      'backgroundCanvas'
-    ) as PIXI.Container;
-
-    canvas.removeChild(this.deferredGraphics);
+    this.removeChild(this.deferredGraphics);
     if (this.shouldDraw()) {
       this.deferredGraphics = new PIXI.Container();
-      this.deferredGraphics.x = this.x + 400;
-      this.deferredGraphics.y = this.y;
+      this.deferredGraphics.x = 400;
+      this.deferredGraphics.y = 0;
       drawingFunction(this.deferredGraphics, {});
-      canvas.addChild(this.deferredGraphics);
+      this.addChild(this.deferredGraphics);
     }
   }
 
@@ -196,10 +192,6 @@ abstract class DRAW_Base extends PPNode {
   }
   public outputUnplugged(): void {
     this.executeOptimizedChain();
-  }
-
-  shouldExecuteOnMove(): boolean {
-    return this.shouldDraw();
   }
 }
 export class DRAW_Shape extends DRAW_Base {

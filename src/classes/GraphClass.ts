@@ -439,6 +439,7 @@ export default class PPGraph {
       }
     }
     node.onNodeAdded();
+    node.executeOptimizedChain();
 
     return node;
     // }
@@ -548,13 +549,13 @@ export default class PPGraph {
         // add node and carry over its con,figuration
         const newNode = this.createAndAddNode(nodeType);
         newNode.configure(node);
-        newNode.executeOptimizedChain();
 
         // offset pasted node
         newNode.setPosition(offset.x, offset.y, true);
 
         mappingOfOldAndNewNodes[node.id] = newNode;
         newNodes.push(newNode);
+        newNode.executeOptimizedChain();
       });
 
       await Promise.all(
