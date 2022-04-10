@@ -299,6 +299,7 @@ const PropertyHeader: React.FunctionComponent<PropertyHeaderProps> = (
         size="small"
         selected={!visible}
         onChange={() => {
+          props.property.setVisible(!visible);
           setVisible((value) => !value);
         }}
         sx={{

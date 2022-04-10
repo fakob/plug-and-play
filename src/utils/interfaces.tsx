@@ -83,8 +83,7 @@ export type SerializedNode = {
   height: number;
   minWidth: number;
   minHeight?: number;
-  inputSocketArray?: SerializedSocket[];
-  outputSocketArray?: SerializedSocket[];
+  socketArray: SerializedSocket[];
   updateBehaviour: UpdateBehaviour;
 };
 
@@ -105,6 +104,7 @@ export type SerializedSocket = {
   data: any;
   defaultData?: any;
   visible: boolean;
+  isCustom: boolean;
 };
 export class TRgba {
   r = 0;

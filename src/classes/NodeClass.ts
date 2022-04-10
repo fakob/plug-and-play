@@ -13,6 +13,7 @@ import {
   SerializedNode,
   SerializedSocket,
   TRgba,
+  TSocketType,
 } from '../utils/interfaces';
 import {
   COMMENT_TEXTSTYLE,
@@ -325,6 +326,7 @@ export default class PPNode extends PIXI.Container {
       height: this.nodeHeight,
       minWidth: this.minNodeWidth,
       minHeight: this.minNodeHeight,
+      socketArray: this.getAllSockets().map((socket) => socket.serialize()),
       updateBehaviour: {
         update: this.updateBehaviour.update,
         interval: this.updateBehaviour.interval,
@@ -332,44 +334,7 @@ export default class PPNode extends PIXI.Container {
       },
     };
 
-    node.inputSocketArray = [];
-    this.inputSocketArray.forEach((item) => {
-      node.inputSocketArray.push(item.serialize());
-    });
-
-    node.outputSocketArray = [];
-    this.outputSocketArray.forEach((item) => {
-      node.outputSocketArray.push(item.serialize());
-    });
-
     return node;
-  }
-
-  deSerializeSocketArray(
-    serialized: SerializedSocket[],
-    array: Socket[]
-  ): void {
-    serialized.forEach((item: SerializedSocket, index) => {
-      if (array[index] !== undefined) {
-        array[index].setName(item.name);
-        array[index].dataType = deSerializeType(item.dataType);
-        array[index].data = item.data;
-        array[index].defaultData = item.defaultData;
-        array[index].setVisible(item.visible);
-      } else {
-        // add socket if it does not exist yet
-        this.addSocket(
-          new Socket(
-            item.socketType,
-            item.name,
-            deSerializeType(item.dataType),
-            item.data,
-            item.visible
-          )
-        );
-      }
-    });
-    this.drawNodeShape();
   }
 
   configure(nodeConfig: SerializedNode): void {
@@ -384,14 +349,32 @@ export default class PPNode extends PIXI.Container {
         this.resizedNode();
       }
 
-      this.deSerializeSocketArray(
-        nodeConfig.inputSocketArray,
-        this.inputSocketArray
-      );
-      this.deSerializeSocketArray(
-        nodeConfig.outputSocketArray,
-        this.outputSocketArray
-      );
+      const sockets = nodeConfig.socketArray;
+
+      sockets.forEach((item: SerializedSocket) => {
+        const matchingSocket =
+          item.socketType === SOCKET_TYPE.IN
+            ? this.getInputSocketByName(item.name)
+            : this.getOutputSocketByName(item.name);
+        if (matchingSocket !== undefined) {
+          matchingSocket.dataType = deSerializeType(item.dataType);
+          matchingSocket.data = item.data;
+          matchingSocket.defaultData = item.defaultData;
+          matchingSocket.setVisible(item.visible);
+        } else if (item.isCustom) {
+          // add socket if it does not exist yet AND it is indeed a custom socket, otherwise it is likely an old socket that has since been removed
+          this.addSocket(
+            new Socket(
+              item.socketType,
+              item.name,
+              deSerializeType(item.dataType),
+              item.data,
+              item.visible
+            )
+          );
+        }
+      });
+      this.drawNodeShape();
     } catch (error) {
       console.error(
         `Could not configure node: ${this.name}, id: ${this.id}`,
@@ -1216,6 +1199,14 @@ export default class PPNode extends PIXI.Container {
 
   public outputPlugged(): void {}
   public outputUnplugged(): void {}
+
+  public hasSocketNameInDefaultIO(name: string, type: TSocketType): boolean {
+    return (
+      this.getDefaultIO().find(
+        (socket) => socket.name == name && socket.socketType == type
+      ) !== undefined
+    );
+  }
 }
 
 export class PureNode extends PPNode {
