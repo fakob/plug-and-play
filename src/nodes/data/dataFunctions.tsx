@@ -71,7 +71,12 @@ export class Filter extends PureNode {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, arrayName, new ArrayType(), []),
-      new Socket(SOCKET_TYPE.IN, filterCodeName, new CodeType(), '(a) => true'),
+      new Socket(
+        SOCKET_TYPE.IN,
+        filterCodeName,
+        new CodeType(),
+        '(a) => {return true}'
+      ),
       new Socket(SOCKET_TYPE.OUT, arrayOutName, new ArrayType()),
     ];
   }
@@ -89,7 +94,12 @@ export class Map extends PureNode {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, arrayName, new ArrayType(), []),
-      new Socket(SOCKET_TYPE.IN, mapCodeName, new CodeType(), '(a) => a'),
+      new Socket(
+        SOCKET_TYPE.IN,
+        mapCodeName,
+        new CodeType(),
+        '(a) => {return a}'
+      ),
       new Socket(SOCKET_TYPE.OUT, mapOutName, new ArrayType()),
     ];
   }
