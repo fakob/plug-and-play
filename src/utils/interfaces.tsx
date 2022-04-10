@@ -91,9 +91,9 @@ export type SerializedNode = {
 export type SerializedLink = {
   id: number;
   sourceNodeId: string;
-  sourceSocketIndex: number;
+  sourceSocketName: string;
   targetNodeId: string;
-  targetSocketIndex: number;
+  targetSocketName: string;
 };
 
 export type TSocketType = typeof SOCKET_TYPE[keyof typeof SOCKET_TYPE];

@@ -1003,7 +1003,7 @@ export default class PPNode extends PIXI.Container {
   }
 
   public renderOutlineThrottled = throttle(this.renderOutline, 500, {
-    trailing: true,
+    trailing: false,
     leading: true,
   });
 
