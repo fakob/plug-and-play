@@ -75,7 +75,7 @@ export class Filter extends PureNode {
         SOCKET_TYPE.IN,
         filterCodeName,
         new CodeType(),
-        '(a) => {return true}'
+        '(a) => {return true;}'
       ),
       new Socket(SOCKET_TYPE.OUT, arrayOutName, new ArrayType()),
     ];
@@ -98,7 +98,7 @@ export class Map extends PureNode {
         SOCKET_TYPE.IN,
         mapCodeName,
         new CodeType(),
-        '(a) => {return a}'
+        '(a) => {return a;}'
       ),
       new Socket(SOCKET_TYPE.OUT, mapOutName, new ArrayType()),
     ];
