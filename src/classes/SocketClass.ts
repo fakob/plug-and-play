@@ -33,13 +33,14 @@ export default class Socket extends PIXI.Container {
   _defaultData: any; // for inputs: data backup while unplugged, restores data when unplugged again
   _custom: Record<string, any>;
   _links: PPLink[];
+  id: string;
 
   interactionData: PIXI.InteractionData | null;
   linkDragPos: null | PIXI.Point;
 
   constructor(
     socketType: TSocketType,
-    name: string,
+    id: string,
     dataType: AbstractType,
     data = null,
     visible = true,
@@ -56,7 +57,8 @@ export default class Socket extends PIXI.Container {
     }
 
     this._socketType = socketType;
-    this.name = name;
+    this.name = id;
+    this.id = id;
     this._dataType = dataType;
     this._data = data;
     this._defaultData = defaultData;
@@ -75,7 +77,7 @@ export default class Socket extends PIXI.Container {
     );
     socket.endFill();
 
-    const socketNameText = new PIXI.Text(name, SOCKET_TEXTSTYLE);
+    const socketNameText = new PIXI.Text(this.name, SOCKET_TEXTSTYLE);
     if (socketType === SOCKET_TYPE.OUT) {
       socketNameText.anchor.set(1, 0);
     }
@@ -204,6 +206,7 @@ export default class Socket extends PIXI.Container {
 
   setName(newName: string): void {
     this.name = newName;
+    this.id = newName;
     (this._SocketNameRef as PIXI.Text).text = newName;
   }
 
@@ -253,7 +256,7 @@ export default class Socket extends PIXI.Container {
     }
     return {
       socketType: this.socketType,
-      name: this.name,
+      id: this.id,
       dataType: serializeType(this.dataType),
       ...{ data: data },
       ...{ defaultData: defaultData },

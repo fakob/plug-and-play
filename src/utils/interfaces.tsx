@@ -71,7 +71,7 @@ export interface INodeSearch {
 
 export type SerializedNode = {
   type: string;
-  overrideName: string | undefined;
+  name: string;
   id: string;
   x: number;
   y: number;
@@ -84,6 +84,7 @@ export type SerializedNode = {
 };
 
 export type SerializedLink = {
+  id: number;
   sourceNodeId: string;
   sourceSocketName: string;
   targetNodeId: string;
@@ -94,7 +95,7 @@ export type TSocketType = typeof SOCKET_TYPE[keyof typeof SOCKET_TYPE];
 
 export type SerializedSocket = {
   socketType: TSocketType;
-  name: string;
+  id: string;
   dataType: string;
   data: any;
   defaultData?: any;

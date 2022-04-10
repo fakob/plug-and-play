@@ -67,7 +67,7 @@ const InspectorContainer: React.FunctionComponent<MyProps> = (props) => {
               alignItems: 'center',
             }}
           >
-            {props.selectedNode?.nodeName}
+            {props.selectedNode?.name}
           </Box>
           <ToggleButtonGroup
             value={props.widthPercentage}

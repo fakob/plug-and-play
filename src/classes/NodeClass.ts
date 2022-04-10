@@ -67,7 +67,7 @@ export default class PPNode extends PIXI.Container {
 
   graph: PPGraph;
   id: string;
-  overrideName: string = undefined;
+  name: string;
   // name: string; // Display name - at first it is the type with spaces - defined on PIXI.Container
   type: string; // Type
   category: string; // Category - derived from type
@@ -126,6 +126,7 @@ export default class PPNode extends PIXI.Container {
     this.graph = graph;
     this.id = customArgs?.customId ?? hri.random();
     this.type = type;
+    this.name = this.getName();
     this.inputSocketArray = [];
     this.outputSocketArray = [];
     this.clickedSocketRef = null;
@@ -188,6 +189,10 @@ export default class PPNode extends PIXI.Container {
     this.onNodeDragging = (isDraggingNode: boolean) => {};
   }
 
+  get isHybrid(): boolean {
+    return this.getIsHybrid();
+  }
+
   protected getIsHybrid(): boolean {
     return false;
   }
@@ -239,11 +244,11 @@ export default class PPNode extends PIXI.Container {
   }
 
   get nodeName(): string {
-    return this.overrideName || this.getName();
+    return this.name;
   }
 
   set nodeName(newName: string) {
-    this.overrideName = newName;
+    this.name = newName;
   }
 
   get description(): string {
@@ -323,7 +328,7 @@ export default class PPNode extends PIXI.Container {
     const node: SerializedNode = {
       id: this.id,
       type: this.type,
-      overrideName: this.overrideName,
+      name: this.name,
       x: this.x,
       y: this.y,
       width: this.nodeWidth,
@@ -355,10 +360,10 @@ export default class PPNode extends PIXI.Container {
       nodeConfig.socketArray.forEach((item: SerializedSocket) => {
         const matchingSocket =
           item.socketType === SOCKET_TYPE.IN
-            ? this.getInputSocketByName(item.name)
-            : this.getOutputSocketByName(item.name);
+            ? this.getInputSocketByName(item.id)
+            : this.getOutputSocketByName(item.id);
         if (matchingSocket !== undefined) {
-          matchingSocket.setName(item.name);
+          matchingSocket.setName(item.id);
           matchingSocket.dataType = deSerializeType(item.dataType);
           matchingSocket.data = item.data;
           matchingSocket.defaultData = item.defaultData;
@@ -368,7 +373,7 @@ export default class PPNode extends PIXI.Container {
           this.addSocket(
             new Socket(
               item.socketType,
-              item.name,
+              item.id,
               deSerializeType(item.dataType),
               item.data,
               item.visible
@@ -378,10 +383,11 @@ export default class PPNode extends PIXI.Container {
       });
     } catch (error) {
       console.error(
-        `Could not configure node: ${this.nodeName}, id: ${this.id}`,
+        `Could not configure node: ${this.name}, id: ${this.id}`,
         error
       );
     }
+    this.drawNodeShape();
 
     if (this.onConfigure) {
       this.onConfigure(nodeConfig);
