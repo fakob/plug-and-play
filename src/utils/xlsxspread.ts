@@ -94,13 +94,13 @@ export function xtos(sdata: any): XLSX.WorkBook {
           if (idx > maxCoord.c) maxCoord.c = idx;
         }
 
-        let cellText = row.cells[k].text,
-          type = 's';
+        let cellText = row.cells[k].text;
+        let type = 's';
         if (!cellText) {
           cellText = '';
           type = 'z';
-        } else if (!isNaN(parseFloat(cellText))) {
-          cellText = parseFloat(cellText);
+        } else if (!isNaN(Number(cellText))) {
+          cellText = Number(cellText);
           type = 'n';
         } else if (
           cellText.toLowerCase() === 'true' ||
