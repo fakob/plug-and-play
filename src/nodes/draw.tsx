@@ -20,7 +20,6 @@ import { ArrayType } from './datatypes/arrayType';
 import { StringType } from './datatypes/stringType';
 import { ImageType } from './datatypes/imageType';
 import { CustomArgs, TRgba } from '../utils/interfaces';
-import { JSONType } from './datatypes/jsonType';
 
 const availableShapes: EnumStructure = [
   {
@@ -34,6 +33,10 @@ const availableShapes: EnumStructure = [
   {
     text: 'Rounded Rectangle',
     value: 'Rounded Rectangle',
+  },
+  {
+    text: 'Ellipse',
+    value: 'Ellipse',
   },
 ];
 
@@ -59,6 +62,7 @@ const outputMultiplierPointerDown = 'PointerDown';
 const inputTextName = 'Text';
 const inputLineHeightName = 'Line Height';
 const inputWidthName = 'Width';
+const inputHeightName = 'Height';
 
 const inputGraphicsName = 'Graphics';
 const multiplyXName = 'Num X';
@@ -216,7 +220,13 @@ export class DRAW_Shape extends DRAW_Base {
       new Socket(SOCKET_TYPE.IN, inputColorName, new ColorType()),
       new Socket(
         SOCKET_TYPE.IN,
-        inputSizeName,
+        inputWidthName,
+        new NumberType(false, 1, 1000),
+        200
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        inputHeightName,
         new NumberType(false, 1, 1000),
         200
       ),
@@ -249,15 +259,19 @@ export class DRAW_Shape extends DRAW_Base {
     const shapeEnum = inputObject[inputShapeName];
     switch (shapeEnum) {
       case 'Circle': {
-        graphics.drawCircle(0, 0, inputObject[inputSizeName] / 2);
+        graphics.drawCircle(
+          inputObject[inputWidthName] / 2,
+          inputObject[inputWidthName] / 2,
+          inputObject[inputWidthName] / 2
+        );
         break;
       }
       case 'Rectangle': {
         graphics.drawRect(
           0,
           0,
-          inputObject[inputSizeName] * 1.618,
-          inputObject[inputSizeName]
+          inputObject[inputWidthName],
+          inputObject[inputHeightName]
         );
         break;
       }
@@ -265,11 +279,19 @@ export class DRAW_Shape extends DRAW_Base {
         graphics.drawRoundedRect(
           0,
           0,
-          inputObject[inputSizeName] * 1.618,
-          inputObject[inputSizeName],
-          inputObject[inputSizeName] * 0.1
+          inputObject[inputWidthName],
+          inputObject[inputHeightName],
+          inputObject[inputWidthName] * 0.1
         );
         break;
+      }
+      case 'Ellipse': {
+        graphics.drawEllipse(
+          inputObject[inputWidthName] / 2,
+          inputObject[inputHeightName] / 2,
+          inputObject[inputWidthName] / 2,
+          inputObject[inputHeightName] / 2
+        );
       }
     }
     this.positionAndScale(graphics, inputObject);
