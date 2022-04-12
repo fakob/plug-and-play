@@ -29,9 +29,9 @@ export default class PPLink extends PIXI.Container {
     return {
       id: this.id,
       sourceNodeId: (this.source.parent as PPNode).id,
-      sourceSocketIndex: this.source.index,
+      sourceSocketName: this.source.name,
       targetNodeId: (this.target.parent as PPNode).id,
-      targetSocketIndex: this.target.index,
+      targetSocketName: this.target.name,
     };
   }
 

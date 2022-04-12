@@ -14,7 +14,9 @@ import {
   PPNodeConstructor,
   RegisteredNodeTypes,
   SerializedGraph,
+  SerializedLink,
   SerializedSelection,
+  TSocketType,
 } from '../utils/interfaces';
 import { ensureVisible, getInfoFromRegisteredNode } from '../utils/utils';
 import PPNode from './NodeClass';
@@ -559,16 +561,13 @@ export default class PPGraph {
       });
 
       await Promise.all(
-        data.links.map(async (link) => {
-          const newSource =
-            mappingOfOldAndNewNodes[link.sourceNodeId].outputSocketArray[
-              link.sourceSocketIndex
-            ];
-          const newTarget =
-            mappingOfOldAndNewNodes[link.targetNodeId].inputSocketArray[
-              link.targetSocketIndex
-            ];
-          console.log(newSource, newTarget);
+        data.links.map(async (link: SerializedLink) => {
+          const newSource = mappingOfOldAndNewNodes[
+            link.sourceNodeId
+          ].getOutputSocketByName(link.sourceSocketName);
+          const newTarget = mappingOfOldAndNewNodes[
+            link.targetNodeId
+          ].getInputSocketByName(link.targetSocketName);
           await this.connect(newSource, newTarget, false);
         })
       );
@@ -713,13 +712,15 @@ export default class PPGraph {
 
       await Promise.all(
         data.links.map(async (link) => {
-          const outputRef = this.getOutputRef(
+          const outputRef = this.getSocket(
             link.sourceNodeId,
-            link.sourceSocketIndex
+            link.sourceSocketName,
+            SOCKET_TYPE.OUT
           );
-          const inputRef = this.getInputRef(
+          const inputRef = this.getSocket(
             link.targetNodeId,
-            link.targetSocketIndex
+            link.targetSocketName,
+            SOCKET_TYPE.IN
           );
           await this.connect(outputRef, inputRef, false);
         })
@@ -737,26 +738,14 @@ export default class PPGraph {
     return configureError;
   }
 
-  getOutputRef(
-    sourceNodeId: string,
-    sourceSocketIndex: number
-  ): Socket | undefined {
-    const sourceNode = this.getNodeById(sourceNodeId);
-    if (sourceNode !== undefined) {
-      const sourceSocket = sourceNode.outputSocketArray[sourceSocketIndex];
-      return sourceSocket;
+  getSocket(nodeID: string, socketName: string, type: TSocketType): Socket {
+    const node = this.getNodeById(nodeID);
+    if (node) {
+      return type === SOCKET_TYPE.IN
+        ? node.getInputSocketByName(socketName)
+        : node.getOutputSocketByName(socketName);
     }
-  }
-
-  getInputRef(
-    targetNodeId: string,
-    targetSocketIndex: number
-  ): Socket | undefined {
-    const targetNode = this.getNodeById(targetNodeId);
-    if (targetNode !== undefined) {
-      const targetSocket = targetNode.inputSocketArray[targetSocketIndex];
-      return targetSocket;
-    }
+    return undefined;
   }
 
   tick(currentTime: number, deltaTime: number): void {

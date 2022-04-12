@@ -276,7 +276,6 @@ const PropertyHeader: React.FunctionComponent<PropertyHeaderProps> = (
   props
 ) => {
   const [visible, setVisible] = useState(props.property.visible);
-  const [name, setName] = useState(props.property.name);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -285,14 +284,6 @@ const PropertyHeader: React.FunctionComponent<PropertyHeaderProps> = (
   const handleClose = () => {
     setAnchorEl(null);
   };
-
-  useEffect(() => {
-    props.property.setVisible(visible);
-  }, [visible]);
-
-  useEffect(() => {
-    props.property.setName(name);
-  }, [name]);
 
   return (
     <Box
@@ -308,6 +299,7 @@ const PropertyHeader: React.FunctionComponent<PropertyHeaderProps> = (
         size="small"
         selected={!visible}
         onChange={() => {
+          props.property.setVisible(!visible);
           setVisible((value) => !value);
         }}
         sx={{

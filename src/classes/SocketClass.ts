@@ -258,6 +258,10 @@ export default class Socket extends PIXI.Container {
       ...{ data: data },
       ...{ defaultData: defaultData },
       visible: this.visible,
+      isCustom: !this.getNode().hasSocketNameInDefaultIO(
+        this.name,
+        this.socketType
+      ),
     };
   }
 
