@@ -292,6 +292,7 @@ export class DRAW_Shape extends DRAW_Base {
           inputObject[inputWidthName] / 2,
           inputObject[inputHeightName] / 2
         );
+        break;
       }
     }
     this.positionAndScale(graphics, inputObject);
