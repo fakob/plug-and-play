@@ -39,6 +39,7 @@ import {
 } from '../utils/utils';
 import { AbstractType } from '../nodes/datatypes/abstractType';
 import { AnyType } from '../nodes/datatypes/anyType';
+import { TriggerType } from '../nodes/datatypes/triggerType';
 import { deSerializeType } from '../nodes/datatypes/typehelper';
 import { throttle } from 'lodash';
 
@@ -683,6 +684,13 @@ export default class PPNode extends PIXI.Container {
       newName = prefix + ' ' + count++;
     }
     return newName;
+  }
+
+  public addTriggerInput(): void {
+    this.addInput(
+      this.constructSocketName('Trigger', this.inputSocketArray),
+      new TriggerType()
+    );
   }
 
   public addDefaultInput(): void {

@@ -337,11 +337,28 @@ export const JSONWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
 export type TriggerWidgetProps = {
   property: Socket;
   index: number;
+  hasLink: boolean;
+  data: number;
+  options: EnumStructure;
+  randomMainColor: string;
+  onChange: (value: string) => void;
 };
 
 export const TriggerWidget: React.FunctionComponent<TriggerWidgetProps> = (
   props
 ) => {
+  const [data, setData] = useState(props.data);
+  const [options] = useState(props.options);
+
+  const onChange = (event) => {
+    const value = event.target.value;
+    potentiallyNotify(props.property, value);
+    setData(value);
+    if (props.onChange) {
+      props.onChange(value);
+    }
+  };
+
   return (
     <>
       <Button
@@ -354,6 +371,30 @@ export const TriggerWidget: React.FunctionComponent<TriggerWidgetProps> = (
       >
         Execute
       </Button>
+      <FormGroup>
+        <Select
+          variant="filled"
+          value={data}
+          onChange={onChange}
+          disabled={props.hasLink}
+        >
+          {options?.map(({ text }, index) => {
+            return (
+              <MenuItem
+                key={index}
+                value={text}
+                sx={{
+                  '&.Mui-selected': {
+                    backgroundColor: `${Color(props.randomMainColor).negate()}`,
+                  },
+                }}
+              >
+                {text}
+              </MenuItem>
+            );
+          })}
+        </Select>
+      </FormGroup>
     </>
   );
 };

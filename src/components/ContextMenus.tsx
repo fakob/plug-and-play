@@ -369,6 +369,16 @@ export const NodeContextMenu = (props) => {
             Delete
           </Typography>
         </MenuItem>
+        <MenuItem
+          onClick={() => {
+            props.currentGraph.current.addTriggerInput();
+          }}
+        >
+          <ListItemIcon>
+            <AddIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Add Trigger Input</ListItemText>
+        </MenuItem>
         {canAddInput && (
           <MenuItem
             onClick={() => {
