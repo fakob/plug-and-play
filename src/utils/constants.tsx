@@ -305,6 +305,36 @@ export const CONDITION_OPTIONS: EnumStructure = [
   },
 ];
 
+export const TRIGGER_TYPE_OPTIONS: EnumStructure = [
+  {
+    text: 'change',
+    value: 'change',
+  },
+  {
+    text: 'positiveFlank',
+    value: 'positiveFlank',
+  },
+  {
+    text: 'negativeFlank',
+    value: 'negativeFlank',
+  },
+];
+
+export const TRIGGER_FUNCTION_OPTIONS: EnumStructure = [
+  {
+    text: 'ExecuteOptimizedChain',
+    value: 'executeOptimizedChain',
+  },
+  {
+    text: 'ExecuteChildren',
+    value: 'executeChildren',
+  },
+  {
+    text: 'Custom',
+    value: 'custom',
+  },
+];
+
 export const GRID_SHADER = `
   precision mediump float;
   varying vec2 vUvs;

@@ -369,6 +369,7 @@ export const NodeContextMenu = (props) => {
             Delete
           </Typography>
         </MenuItem>
+        <Divider />
         <MenuItem
           onClick={() => {
             props.currentGraph.current.addTriggerInput();

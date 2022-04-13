@@ -17,6 +17,10 @@ import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import { SketchPicker } from 'react-color';
 import { CodeEditor } from './components/Editor';
 import Socket from './classes/SocketClass';
+import {
+  TRIGGER_FUNCTION_OPTIONS,
+  TRIGGER_TYPE_OPTIONS,
+} from './utils/constants';
 import { parseJSON, roundNumber } from './utils/utils';
 import styles from './utils/style.module.css';
 import { TRgba } from './utils/interfaces';
@@ -338,51 +342,83 @@ export type TriggerWidgetProps = {
   property: Socket;
   index: number;
   hasLink: boolean;
-  data: number;
+  data: { type: string; function: string };
   options: EnumStructure;
   randomMainColor: string;
-  onChange: (value: string) => void;
 };
 
 export const TriggerWidget: React.FunctionComponent<TriggerWidgetProps> = (
   props
 ) => {
   const [data, setData] = useState(props.data);
-  const [options] = useState(props.options);
 
-  const onChange = (event) => {
+  const onChangeType = (event) => {
     const value = event.target.value;
-    potentiallyNotify(props.property, value);
-    setData(value);
-    if (props.onChange) {
-      props.onChange(value);
-    }
+    console.log(value);
+    setData((prevState) => ({
+      ...prevState,
+      type: value,
+    }));
   };
+
+  const onChangeFunction = (event) => {
+    const value = event.target.value;
+    console.log(value);
+    setData((prevState) => ({
+      ...prevState,
+      function: value,
+    }));
+  };
+
+  console.log(
+    // props.property.parent,
+    // Object.getOwnPropertyNames(props.property.parent),
+    // Object.getPrototypeOf(props.property.parent),
+    // Object.getPrototypeOf(Object.getPrototypeOf(props.property.parent)),
+    // getMethods(props.property.parent),
+    props,
+    props.data,
+    data
+  );
 
   return (
     <>
-      <Button
-        startIcon={<PlayArrowIcon />}
-        onClick={() => {
-          // nodes with trigger input need a trigger function
-          (props.property.parent as any).trigger();
-        }}
-        variant="contained"
-      >
-        Execute
-      </Button>
       <FormGroup>
         <Select
+          label="Trigger method"
           variant="filled"
-          value={data}
-          onChange={onChange}
+          value={data.type}
+          onChange={onChangeType}
           disabled={props.hasLink}
         >
-          {options?.map(({ text }, index) => {
+          {TRIGGER_TYPE_OPTIONS?.map(({ text, value }, index) => {
             return (
               <MenuItem
                 key={index}
-                value={text}
+                value={value}
+                sx={{
+                  '&.Mui-selected': {
+                    backgroundColor: `${Color(props.randomMainColor).negate()}`,
+                  },
+                }}
+              >
+                {text}
+              </MenuItem>
+            );
+          })}
+        </Select>
+        <Select
+          label="Function to call"
+          variant="filled"
+          value={data.function}
+          onChange={onChangeFunction}
+          disabled={props.hasLink}
+        >
+          {TRIGGER_FUNCTION_OPTIONS?.map(({ text, value }, index) => {
+            return (
+              <MenuItem
+                key={index}
+                value={value}
                 sx={{
                   '&.Mui-selected': {
                     backgroundColor: `${Color(props.randomMainColor).negate()}`,
@@ -395,6 +431,16 @@ export const TriggerWidget: React.FunctionComponent<TriggerWidgetProps> = (
           })}
         </Select>
       </FormGroup>
+      <Button
+        startIcon={<PlayArrowIcon />}
+        onClick={() => {
+          // nodes with trigger input need a trigger function
+          (props.property.parent as any)[data.function]();
+        }}
+        variant="contained"
+      >
+        {data.function}
+      </Button>
     </>
   );
 };
