@@ -1,25 +1,25 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import { DisplayObject } from 'pixi.js';
-import PPGraph from '../classes/GraphClass';
-import PPNode from '../classes/NodeClass';
-import Socket from '../classes/SocketClass';
+import PPGraph from '../../classes/GraphClass';
+import PPNode from '../../classes/NodeClass';
+import Socket from '../../classes/SocketClass';
 import {
   COLOR_WHITE,
   NODE_TYPE_COLOR,
   NOTE_LINEHEIGHT_FACTOR,
   PIXI_PIVOT_OPTIONS,
   SOCKET_TYPE,
-} from '../utils/constants';
-import { DeferredPixiType } from './datatypes/deferredPixiType';
-import { EnumStructure, EnumType } from './datatypes/enumType';
+} from '../../utils/constants';
+import { DeferredPixiType } from '../datatypes/deferredPixiType';
+import { EnumStructure, EnumType } from '../datatypes/enumType';
 import * as PIXI from 'pixi.js';
-import { ColorType } from './datatypes/colorType';
-import { NumberType } from './datatypes/numberType';
-import { BooleanType } from './datatypes/booleanType';
-import { ArrayType } from './datatypes/arrayType';
-import { StringType } from './datatypes/stringType';
-import { ImageType } from './datatypes/imageType';
-import { CustomArgs, TRgba } from '../utils/interfaces';
+import { ColorType } from '../datatypes/colorType';
+import { NumberType } from '../datatypes/numberType';
+import { BooleanType } from '../datatypes/booleanType';
+import { ArrayType } from '../datatypes/arrayType';
+import { StringType } from '../datatypes/stringType';
+import { ImageType } from '../datatypes/imageType';
+import { CustomArgs, TRgba } from '../../utils/interfaces';
 
 const availableShapes: EnumStructure = [
   {
@@ -76,8 +76,25 @@ const inputImageName = 'Image';
 const inputPointsName = 'Points';
 
 // a PIXI draw node is a pure node that also draws its graphics if graphics at the end
-abstract class DRAW_Base extends PPNode {
+export abstract class DRAW_Base extends PPNode {
   deferredGraphics: PIXI.Container;
+
+  public getDescription(): string {
+    return "Draw Base";
+  }
+  public getName(): string {
+    return "Draw";
+  }
+
+  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
+    super(name, graph, {
+      ...customArgs,
+      color: TRgba.fromString(NODE_TYPE_COLOR.DRAW),
+    });
+
+    this.name = this.getName();
+    this.description = this.getDescription();
+  }
 
   onNodeRemoved = (): void => {
     const canvas = this.graph.viewport.getChildByName(
@@ -142,7 +159,7 @@ abstract class DRAW_Base extends PPNode {
     inputObject: any,
     container: PIXI.Container,
     executions: { string: number }
-  ): void {}
+  ): void { }
 
   getAndIncrementExecutions(executions: { string: number }): number {
     if (executions[this.id] === undefined) {
@@ -199,14 +216,12 @@ abstract class DRAW_Base extends PPNode {
   }
 }
 export class DRAW_Shape extends DRAW_Base {
-  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, {
-      ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.DRAW),
-    });
 
-    this.name = 'Draw shape object';
-    this.description = 'Draws a circle, rectangle or rounded rectangle';
+  public getDescription(): string {
+    return "Draws a shape";
+  }
+  public getName(): string {
+    return "Draw shape";
   }
 
   protected getDefaultIO(): Socket[] {
@@ -242,7 +257,7 @@ export class DRAW_Shape extends DRAW_Base {
     inputObject = {
       ...inputObject,
       ...inputObject[injectedDataName][
-        this.getAndIncrementExecutions(executions)
+      this.getAndIncrementExecutions(executions)
       ],
     };
     const graphics: PIXI.Graphics = new PIXI.Graphics();
@@ -301,14 +316,11 @@ export class DRAW_Shape extends DRAW_Base {
 }
 
 export class DRAW_Text extends DRAW_Base {
-  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, {
-      ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.DRAW),
-    });
-
-    this.name = 'Draw text object';
-    this.description = 'Draws a text';
+  public getDescription(): string {
+    return "Draws text object";
+  }
+  public getName(): string {
+    return "Draw text";
   }
 
   protected getDefaultIO(): Socket[] {
@@ -349,7 +361,7 @@ export class DRAW_Text extends DRAW_Base {
     inputObject = {
       ...inputObject,
       ...inputObject[injectedDataName][
-        this.getAndIncrementExecutions(executions)
+      this.getAndIncrementExecutions(executions)
       ],
     };
     const textStyle = new PIXI.TextStyle({
@@ -372,14 +384,11 @@ export class DRAW_Text extends DRAW_Base {
 }
 
 export class DRAW_Combine extends DRAW_Base {
-  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, {
-      ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.DRAW),
-    });
-
-    this.name = 'Combine objects';
-    this.description = 'Combines two drawn objects';
+  public getDescription(): string {
+    return "Combines two drawn objects";
+  }
+  public getName(): string {
+    return "Combine objects";
   }
 
   protected getDefaultIO(): Socket[] {
@@ -396,7 +405,7 @@ export class DRAW_Combine extends DRAW_Base {
     inputObject = {
       ...inputObject,
       ...inputObject[injectedDataName][
-        this.getAndIncrementExecutions(executions)
+      this.getAndIncrementExecutions(executions)
       ],
     };
     const myContainer = new PIXI.Container();
@@ -413,14 +422,12 @@ export class DRAW_Combine extends DRAW_Base {
 }
 
 export class DRAW_Multiplier extends DRAW_Base {
-  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, {
-      ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.DRAW),
-    });
 
-    this.name = 'Multiply object';
-    this.description = 'Multiplies an object into a grid';
+  public getDescription(): string {
+    return "Multiples a drawing objects onto a grid";
+  }
+  public getName(): string {
+    return "Multiply object";
   }
 
   protected getDefaultIO(): Socket[] {
@@ -467,7 +474,7 @@ export class DRAW_Multiplier extends DRAW_Base {
     inputObject = {
       ...inputObject,
       ...inputObject[injectedDataName][
-        this.getAndIncrementExecutions(executions)
+      this.getAndIncrementExecutions(executions)
       ],
     };
     const myContainer = new PIXI.Container();
@@ -518,14 +525,11 @@ export class DRAW_Multiplier extends DRAW_Base {
 }
 
 export class DRAW_Image extends DRAW_Base {
-  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, {
-      ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.DRAW),
-    });
-
-    this.name = 'Draw image object';
-    this.description = 'Draws an image object (jpg, png)';
+  public getDescription(): string {
+    return "Drawss an image object (jpg,png)";
+  }
+  public getName(): string {
+    return "Draw image";
   }
 
   protected getDefaultIO(): Socket[] {
@@ -542,7 +546,7 @@ export class DRAW_Image extends DRAW_Base {
     inputObject = {
       ...inputObject,
       ...inputObject[injectedDataName][
-        this.getAndIncrementExecutions(executions)
+      this.getAndIncrementExecutions(executions)
       ],
     };
 
@@ -555,14 +559,13 @@ export class DRAW_Image extends DRAW_Base {
 }
 
 export class DRAW_Line extends DRAW_Base {
-  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, {
-      ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.DRAW),
-    });
 
-    this.name = 'Draw line';
-    this.description = 'Draws a line specified by the input points';
+  public getDescription(): string {
+    return "Draws a line specified by input points";
+  }
+
+  public getName(): string {
+    return "Draw line";
   }
 
   protected getDefaultIO(): Socket[] {
@@ -586,7 +589,7 @@ export class DRAW_Line extends DRAW_Base {
     inputObject = {
       ...inputObject,
       ...inputObject[injectedDataName][
-        this.getAndIncrementExecutions(executions)
+      this.getAndIncrementExecutions(executions)
       ],
     };
     const graphics: PIXI.Graphics = new PIXI.Graphics();
