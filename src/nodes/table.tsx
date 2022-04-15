@@ -33,10 +33,13 @@ export class Table extends PPNode {
   parsedData: any;
   update: (switchToSheet?: boolean) => void;
 
+  protected getIsHybrid(): boolean {
+    return true;
+  }
+
   constructor(name: string, graph: PPGraph, customArgs?: CustomArgs) {
     const nodeWidth = 800;
     const nodeHeight = 400;
-    const isHybrid = true;
 
     super(name, graph, {
       ...customArgs,
@@ -44,7 +47,6 @@ export class Table extends PPNode {
       nodeHeight,
       minNodeWidth: nodeWidth / 2,
       minNodeHeight: nodeHeight / 2,
-      isHybrid,
     });
 
     // get initialData if available else create an empty workbook

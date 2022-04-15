@@ -8,17 +8,18 @@ import { NumberType } from './datatypes/numberType';
 import { NODE_TYPE_COLOR } from '../utils/constants';
 
 export class LogViewer extends PPNode {
+  protected getIsHybrid(): boolean {
+    return true;
+  }
   constructor(name: string, graph: PPGraph, customArgs?: CustomArgs) {
     const nodeWidth = 640;
     const nodeHeight = 240;
-    const isHybrid = true;
 
     super(name, graph, {
       ...customArgs,
       color: TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM),
       nodeWidth,
       nodeHeight,
-      isHybrid,
     });
 
     this.addInput('input', new CodeType(), customArgs?.data, true);
