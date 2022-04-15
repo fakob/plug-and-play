@@ -1,7 +1,7 @@
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
 import * as base from './base';
-import * as draw from './draw';
+import * as draw from './draw/draw';
 import * as table from './table';
 import * as math from './math';
 import * as text from './text';
@@ -14,7 +14,7 @@ import * as json from './data/json';
 import * as pixotopegateway from './api/pixotopeGateway';
 import * as dataFunctions from './data/dataFunctions';
 import * as stateNodes from './state/stateNodes';
-import * as charts from './charts/charts'
+import * as charts from './draw/charts'
 
 export const registerAllNodeTypes = (graph: PPGraph): void => {
   const categories = {
