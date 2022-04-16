@@ -179,7 +179,7 @@ export class GRAPH_LINE extends DRAW_Base {
       if (inputObject[inputLabelsName][i]) {
         const basicText = new PIXI.Text(inputObject[inputLabelsName][i], textStyle);
         basicText.x = scaledX - fontSize * 0.5;
-        basicText.y = 10;
+        basicText.y = 30;
         graphics.addChild(basicText);
 
       }

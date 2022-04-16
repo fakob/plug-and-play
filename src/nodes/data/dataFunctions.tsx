@@ -10,6 +10,7 @@ import { NumberType } from '../datatypes/numberType';
 
 const filterCodeName = 'Filter';
 const arrayName = 'Array';
+const typeName = 'Type';
 const outElementName = 'Element';
 const arrayOutName = 'FilteredArray';
 const forStartIndexName = 'StartIndex';
@@ -41,14 +42,14 @@ export class Code extends PureNode {
         anyCodeName,
         new CodeType(),
         '// in here you are provided with two objects; "inputObject" and "outputObject", they each have named parameters based on the input and output sockets, so by default there will be an inputObject["' +
-          inDataName +
-          '"] and an outputObject["' +
-          outDataName +
-          '"]\n\noutputObject["' +
-          outDataName +
-          '"] = inputObject["' +
-          inDataName +
-          '"]'
+        inDataName +
+        '"] and an outputObject["' +
+        outDataName +
+        '"]\n\noutputObject["' +
+        outDataName +
+        '"] = inputObject["' +
+        inDataName +
+        '"]'
       ),
       new Socket(SOCKET_TYPE.OUT, outDataName, new ArrayType()),
     ];
@@ -110,6 +111,10 @@ export class Map extends PureNode {
     const mapCode = inputObject[mapCodeName];
     const inputArray = inputObject[arrayName];
     outputObject[mapOutName] = inputArray?.map(eval(mapCode));
+  }
+
+  public getCanAddInput(): boolean {
+    return true;
   }
 }
 
@@ -288,6 +293,25 @@ export class Uniques extends PureNode {
   }
 }
 
+
+export class ParseArray extends PureNode {
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(SOCKET_TYPE.IN, arrayName, new ArrayType(), []),
+      new Socket(SOCKET_TYPE.IN, typeName, new NumberType(), []),
+      new Socket(SOCKET_TYPE.OUT, arrayOutName, new ArrayType()),
+    ];
+  }
+  protected async onExecute(
+    inputObject: any,
+    outputObject: Record<string, unknown>
+  ): Promise<void> {
+    const inputArray = inputObject[arrayName];
+    outputObject[arrayOutName] = inputArray.map(element => this.getSocketByName(typeName).dataType.parse(element));
+  }
+}
+
+
 // the purpose of for loops in our context is for actions that have sideeffects outside of plug and playground, if you are not looking for external side effects you are likely not looking for a loop
 export class ForLoop extends NodeClass {
   protected getDefaultIO(): Socket[] {
@@ -376,6 +400,8 @@ export class ForEachLoop extends ForLoop {
       inputObject?.[arrayName]?.[this.currentIndex];
   }
 }
+
+
 
 // TODO implement
 // Not quite sure how we want this one to look... CodeType? or based on input?
