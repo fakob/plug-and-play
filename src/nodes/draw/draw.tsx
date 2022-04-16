@@ -69,7 +69,7 @@ const multiplyXName = 'Num X';
 const multiplyYName = 'Num Y';
 const spacingXName = 'Spacing X';
 const spacingYName = 'Spacing Y';
-const injectedDataName = 'Injected Data';
+export const injectedDataName = 'Injected Data';
 
 const inputImageName = 'Image';
 
@@ -570,7 +570,7 @@ export class DRAW_Line extends DRAW_Base {
 
   protected getDefaultIO(): Socket[] {
     return [
-      new Socket(SOCKET_TYPE.IN, inputPointsName, new ArrayType(), [[0, 0]]),
+      new Socket(SOCKET_TYPE.IN, inputPointsName, new ArrayType(), [[0, 0], [100, 100], [100, 200]]),
       new Socket(SOCKET_TYPE.IN, inputColorName, new ColorType()),
       new Socket(
         SOCKET_TYPE.IN,
