@@ -52,6 +52,15 @@ export class NumberType extends AbstractType {
     return 0;
   }
 
+
+  parse(data: any): any {
+    if (typeof data === 'string') {
+      return parseFloat(data.replace(/\D/g, '').replace(",", "."));
+    } else {
+      return data;
+    }
+  }
+
   getColor(): TRgba {
     return new TRgba(128, 229, 229);
   }

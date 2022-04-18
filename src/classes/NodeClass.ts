@@ -100,21 +100,21 @@ export default class PPNode extends PIXI.Container {
   static: HTMLElement;
 
   // supported callbacks
-  onConfigure: (nodeConfig: SerializedNode) => void = () => { }; // called after the node has been configured
-  onNodeDoubleClick: (event: PIXI.InteractionEvent) => void = () => { };
-  onMoveHandler: (event?: PIXI.InteractionEvent) => void = () => { };
-  onViewportMoveHandler: (event?: PIXI.InteractionEvent) => void = () => { };
+  onConfigure: (nodeConfig: SerializedNode) => void = () => {}; // called after the node has been configured
+  onNodeDoubleClick: (event: PIXI.InteractionEvent) => void = () => {};
+  onMoveHandler: (event?: PIXI.InteractionEvent) => void = () => {};
+  onViewportMoveHandler: (event?: PIXI.InteractionEvent) => void = () => {};
   onViewportPointerUpHandler: (event?: PIXI.InteractionEvent) => void =
-    () => { };
-  onHybridNodeExit: () => void = () => { }; // called when a hybrid node is exited after double click
-  onNodeAdded: () => void = () => { }; // called when the node is added to the graph
-  onNodeRemoved: () => void = () => { }; // called when the node is removed from the graph
-  onNodeDragging: (isDraggingNode: boolean) => void = () => { }; // called when the node is being dragged
-  onNodeResize: (width: number, height: number) => void = () => { }; // called when the node is resized
-  onNodeResized: () => void = () => { }; // called when the node resize ended
+    () => {};
+  onHybridNodeExit: () => void = () => {}; // called when a hybrid node is exited after double click
+  onNodeAdded: () => void = () => {}; // called when the node is added to the graph
+  onNodeRemoved: () => void = () => {}; // called when the node is removed from the graph
+  onNodeDragging: (isDraggingNode: boolean) => void = () => {}; // called when the node is being dragged
+  onNodeResize: (width: number, height: number) => void = () => {}; // called when the node is resized
+  onNodeResized: () => void = () => {}; // called when the node resize ended
   onNodeDragOrViewportMove: // called when the node or or the viewport with the node is moved or scaled
-    (positions: { screenX: number; screenY: number; scale: number }) => void =
-    () => { };
+  (positions: { screenX: number; screenY: number; scale: number }) => void =
+    () => {};
 
   protected getIsHybrid(): boolean {
     return false;
@@ -140,12 +140,14 @@ export default class PPNode extends PIXI.Container {
     this.nodeHeight = customArgs?.nodeHeight; // if not set height is defined by in/out sockets
     this.minNodeHeight = customArgs?.minNodeHeight;
 
-
-    this.roundedCorners = Boolean(customArgs?.roundedCorners ?? !this.getIsHybrid());
+    this.roundedCorners = Boolean(
+      customArgs?.roundedCorners ?? !this.getIsHybrid()
+    );
     this.showLabels = Boolean(customArgs?.showLabels ?? !this.getIsHybrid());
     this.color = customArgs?.color ?? TRgba.fromString(NODE_TYPE_COLOR.DEFAULT);
 
-    this.color.a = customArgs?.colorTransparency ?? (this.getIsHybrid() ? 0.01 : 1); // so it does not show when dragging the node fast
+    this.color.a =
+      customArgs?.colorTransparency ?? (this.getIsHybrid() ? 0.01 : 1); // so it does not show when dragging the node fast
     const inputNameText = new PIXI.Text(this.name, NODE_TEXTSTYLE);
     inputNameText.x = NODE_HEADER_TEXTMARGIN_LEFT;
     inputNameText.y = NODE_PADDING_TOP + NODE_HEADER_TEXTMARGIN_TOP;
@@ -189,7 +191,7 @@ export default class PPNode extends PIXI.Container {
     this._addListeners();
 
     // define callbacks
-    this.onNodeDragging = (isDraggingNode: boolean) => { };
+    this.onNodeDragging = (isDraggingNode: boolean) => {};
   }
 
   // GETTERS & SETTERS
@@ -934,7 +936,7 @@ export default class PPNode extends PIXI.Container {
     if (
       this.updateBehaviour.interval &&
       currentTime - this.lastTimeTicked >=
-      this.updateBehaviour.intervalFrequency
+        this.updateBehaviour.intervalFrequency
     ) {
       this.lastTimeTicked = currentTime;
       this.executeOptimizedChain();
@@ -1105,7 +1107,7 @@ export default class PPNode extends PIXI.Container {
     this.nodeHandlePressed(event);
   }
 
-  nodeHandlePressed(event: PIXI.InteractionEvent): void { }
+  nodeHandlePressed(event: PIXI.InteractionEvent): void {}
 
   _onPointerUpAndUpOutside(): void {
     // unsubscribe from pointermove
@@ -1195,8 +1197,8 @@ export default class PPNode extends PIXI.Container {
     this.container.classList.remove(styles.hybridContainerFocused);
   }
 
-  public outputPlugged(): void { }
-  public outputUnplugged(): void { }
+  public outputPlugged(): void {}
+  public outputUnplugged(): void {}
 
   public hasSocketNameInDefaultIO(name: string, type: TSocketType): boolean {
     return (
