@@ -120,6 +120,14 @@ export default class PPNode extends PIXI.Container {
     return false;
   }
 
+  // we should migrate all nodes to use these functions instead of specifying the field themselves in constructor
+  public getName(): string {
+    return this.name;
+  }
+  public getDescription(): string {
+    return this.description;
+  }
+
   constructor(type: string, graph: PPGraph, customArgs?: CustomArgs) {
     super();
     this.graph = graph;
@@ -148,7 +156,10 @@ export default class PPNode extends PIXI.Container {
 
     this.color.a =
       customArgs?.colorTransparency ?? (this.getIsHybrid() ? 0.01 : 1); // so it does not show when dragging the node fast
-    const inputNameText = new PIXI.Text(this.name, NODE_TEXTSTYLE);
+    const inputNameText = new PIXI.Text(
+      this.getNodeTextString(),
+      NODE_TEXTSTYLE
+    );
     inputNameText.x = NODE_HEADER_TEXTMARGIN_LEFT;
     inputNameText.y = NODE_PADDING_TOP + NODE_HEADER_TEXTMARGIN_TOP;
     inputNameText.resolution = 8;
@@ -242,7 +253,7 @@ export default class PPNode extends PIXI.Container {
 
   set nodeName(text: string) {
     this.name = text;
-    this._NodeNameRef.text = text;
+    this._NodeNameRef.text = this.getNodeTextString();
   }
 
   // METHODS
@@ -583,6 +594,13 @@ export default class PPNode extends PIXI.Container {
     return this.nodeHeight === undefined
       ? this.calculatedMinNodeHeight
       : Math.max(this.nodeHeight, this.calculatedMinNodeHeight);
+  }
+
+  public getNodeTextString(): string {
+    if (this.name !== this.type) {
+      return this.name + '\n(' + this.type + ')';
+    }
+    return this.name;
   }
 
   drawNodeShape(): void {

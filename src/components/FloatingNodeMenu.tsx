@@ -120,6 +120,8 @@ const FloatingNodeMenu = (props) => {
     });
   };
 
+  const [nodeName, setNodeName] = React.useState(selectedNodes[0].name);
+
   return (
     <ThemeProvider theme={theme}>
       <Paper
@@ -131,11 +133,22 @@ const FloatingNodeMenu = (props) => {
         }}
       >
         <Stack direction="row" spacing={1}>
-          <Box sx={{ p: 1 }}>
-            {selectedNodes.length === 1
-              ? selectedNodes[0].name
-              : `${selectedNodes.length} nodes`}
-          </Box>
+          <TextField
+            hiddenLabel
+            // label={props.property.name}
+            disabled={selectedNodes.length !== 1}
+            onChange={(event) => {
+              const value = event.target.value;
+              selectedNodes[0].nodeName = value;
+              setNodeName(value);
+            }}
+            value={
+              selectedNodes.length === 1
+                ? nodeName
+                : `${selectedNodes.length} nodes`
+            }
+          />
+
           {selectedNodes?.length === 1 && (
             <>
               <IconButton onClick={handleClickCode} title="Show code">
