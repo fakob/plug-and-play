@@ -78,7 +78,6 @@ export default class PPNode extends PIXI.Container {
   minNodeWidth: number;
   minNodeHeight: number;
   nodeHeight: number;
-  isHybrid: boolean; // true if it is a hybrid node (html and webgl)
   roundedCorners: boolean;
   showLabels: boolean;
 
@@ -101,21 +100,25 @@ export default class PPNode extends PIXI.Container {
   static: HTMLElement;
 
   // supported callbacks
-  onConfigure: (nodeConfig: SerializedNode) => void = () => { }; // called after the node has been configured
-  onNodeDoubleClick: (event: PIXI.InteractionEvent) => void = () => { };
-  onMoveHandler: (event?: PIXI.InteractionEvent) => void = () => { };
-  onViewportMoveHandler: (event?: PIXI.InteractionEvent) => void = () => { };
+  onConfigure: (nodeConfig: SerializedNode) => void = () => {}; // called after the node has been configured
+  onNodeDoubleClick: (event: PIXI.InteractionEvent) => void = () => {};
+  onMoveHandler: (event?: PIXI.InteractionEvent) => void = () => {};
+  onViewportMoveHandler: (event?: PIXI.InteractionEvent) => void = () => {};
   onViewportPointerUpHandler: (event?: PIXI.InteractionEvent) => void =
-    () => { };
-  onHybridNodeExit: () => void = () => { }; // called when a hybrid node is exited after double click
-  onNodeAdded: () => void = () => { }; // called when the node is added to the graph
-  onNodeRemoved: () => void = () => { }; // called when the node is removed from the graph
-  onNodeDragging: (isDraggingNode: boolean) => void = () => { }; // called when the node is being dragged
-  onNodeResize: (width: number, height: number) => void = () => { }; // called when the node is resized
-  onNodeResized: () => void = () => { }; // called when the node resize ended
+    () => {};
+  onHybridNodeExit: () => void = () => {}; // called when a hybrid node is exited after double click
+  onNodeAdded: () => void = () => {}; // called when the node is added to the graph
+  onNodeRemoved: () => void = () => {}; // called when the node is removed from the graph
+  onNodeDragging: (isDraggingNode: boolean) => void = () => {}; // called when the node is being dragged
+  onNodeResize: (width: number, height: number) => void = () => {}; // called when the node is resized
+  onNodeResized: () => void = () => {}; // called when the node resize ended
   onNodeDragOrViewportMove: // called when the node or or the viewport with the node is moved or scaled
-    (positions: { screenX: number; screenY: number; scale: number }) => void =
-    () => { };
+  (positions: { screenX: number; screenY: number; scale: number }) => void =
+    () => {};
+
+  protected getIsHybrid(): boolean {
+    return false;
+  }
 
   constructor(type: string, graph: PPGraph, customArgs?: CustomArgs) {
     super();
@@ -136,18 +139,15 @@ export default class PPNode extends PIXI.Container {
     this.minNodeWidth = customArgs?.minNodeWidth ?? this.nodeWidth;
     this.nodeHeight = customArgs?.nodeHeight; // if not set height is defined by in/out sockets
     this.minNodeHeight = customArgs?.minNodeHeight;
-    this.isHybrid = Boolean(customArgs?.isHybrid ?? false);
 
-    if (this.isHybrid) {
-      this.roundedCorners = Boolean(customArgs?.roundedCorners ?? false);
-      this.showLabels = Boolean(customArgs?.showLabels ?? false);
-    } else {
-      this.roundedCorners = Boolean(customArgs?.roundedCorners ?? true);
-      this.showLabels = Boolean(customArgs?.showLabels ?? true);
-    }
+    this.roundedCorners = Boolean(
+      customArgs?.roundedCorners ?? !this.getIsHybrid()
+    );
+    this.showLabels = Boolean(customArgs?.showLabels ?? !this.getIsHybrid());
     this.color = customArgs?.color ?? TRgba.fromString(NODE_TYPE_COLOR.DEFAULT);
 
-    this.color.a = customArgs?.colorTransparency ?? (this.isHybrid ? 0.01 : 1); // so it does not show when dragging the node fast
+    this.color.a =
+      customArgs?.colorTransparency ?? (this.getIsHybrid() ? 0.01 : 1); // so it does not show when dragging the node fast
     const inputNameText = new PIXI.Text(this.name, NODE_TEXTSTYLE);
     inputNameText.x = NODE_HEADER_TEXTMARGIN_LEFT;
     inputNameText.y = NODE_PADDING_TOP + NODE_HEADER_TEXTMARGIN_TOP;
@@ -191,7 +191,7 @@ export default class PPNode extends PIXI.Container {
     this._addListeners();
 
     // define callbacks
-    this.onNodeDragging = (isDraggingNode: boolean) => { };
+    this.onNodeDragging = (isDraggingNode: boolean) => {};
   }
 
   // GETTERS & SETTERS
@@ -386,7 +386,7 @@ export default class PPNode extends PIXI.Container {
       this.onConfigure(nodeConfig);
     }
 
-    if (this.isHybrid) {
+    if (this.getIsHybrid()) {
       this._onViewportMove(); // trigger this once, so the react components get positioned properly
     }
 
@@ -523,7 +523,7 @@ export default class PPNode extends PIXI.Container {
       scale: this.graph.viewport.scale.x,
     });
 
-    if (this.isHybrid) {
+    if (this.getIsHybrid()) {
       this._onViewportMove(); // trigger this once, so the react components get positioned properly
     }
   }
@@ -556,7 +556,7 @@ export default class PPNode extends PIXI.Container {
 
     this.updateConnectionPosition();
 
-    if (this.isHybrid) {
+    if (this.getIsHybrid()) {
       this.container.style.width = `${this.nodeWidth}px`;
       this.container.style.height = `${this.nodeHeight}px`;
     }
@@ -936,7 +936,7 @@ export default class PPNode extends PIXI.Container {
     if (
       this.updateBehaviour.interval &&
       currentTime - this.lastTimeTicked >=
-      this.updateBehaviour.intervalFrequency
+        this.updateBehaviour.intervalFrequency
     ) {
       this.lastTimeTicked = currentTime;
       this.executeOptimizedChain();
@@ -1107,7 +1107,7 @@ export default class PPNode extends PIXI.Container {
     this.nodeHandlePressed(event);
   }
 
-  nodeHandlePressed(event: PIXI.InteractionEvent): void { }
+  nodeHandlePressed(event: PIXI.InteractionEvent): void {}
 
   _onPointerUpAndUpOutside(): void {
     // unsubscribe from pointermove
@@ -1169,7 +1169,7 @@ export default class PPNode extends PIXI.Container {
     this.doubleClicked = true;
 
     // turn on pointer events for hybrid nodes so the react components become reactive
-    if (this.isHybrid) {
+    if (this.getIsHybrid()) {
       // register hybrid nodes to listen to outside clicks
       this.graph.viewport.on(
         'pointerup',
@@ -1197,8 +1197,8 @@ export default class PPNode extends PIXI.Container {
     this.container.classList.remove(styles.hybridContainerFocused);
   }
 
-  public outputPlugged(): void { }
-  public outputUnplugged(): void { }
+  public outputPlugged(): void {}
+  public outputUnplugged(): void {}
 
   public hasSocketNameInDefaultIO(name: string, type: TSocketType): boolean {
     return (
