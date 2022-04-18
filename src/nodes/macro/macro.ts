@@ -89,6 +89,13 @@ export class DefineMacroOut extends MacroNode {
 }
 
 export class InvokeMacro extends MacroNode {
+  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
+    super(name, graph, {
+      ...customArgs,
+      color: TRgba.fromString(NODE_TYPE_COLOR.MACRO),
+    });
+  }
+
   public getName(): string {
     return 'Invoke Macro';
   }
