@@ -925,15 +925,15 @@ export default class PPGraph {
 
     await macroStartNode.executeOptimizedChain();
     const macroEndNode = this.findMacroOutput(inputObject['Name']);
-    /*const macroEndNode = Object.values(this.macrosOut).find(
-      (node) => node.name === inputObject['Name']
-    );*/
 
     const outputObject = {};
     macroEndNode
       .getAllSockets()
       .filter((socket) => socket.socketType === SOCKET_TYPE.IN)
-      .forEach((socket) => (outputObject[socket.name] = socket.data));
+      .forEach(
+        (socket) =>
+          (outputObject[socket.name] = JSON.parse(JSON.stringify(socket.data)))
+      );
     return outputObject;
   }
 

@@ -471,7 +471,7 @@ export default class PPNode extends PIXI.Container {
 
   async executeChildren(): Promise<void> {
     this.drawComment();
-    PPNode.executeOptimizedChainBatch(
+    await PPNode.executeOptimizedChainBatch(
       Object.values(this.getDirectDependents())
     );
   }

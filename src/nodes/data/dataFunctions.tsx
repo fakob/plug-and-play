@@ -34,7 +34,7 @@ const input2Name = 'Input 2';
 const inputMultiplierName = 'Multiplier';
 
 function asyncWrapCode(code: string): string {
-  return '(async () => {' + code + '})()';
+  return '(async () => ' + code + ')()';
 }
 export class Code extends PureNode {
   protected getDefaultIO(): Socket[] {
@@ -90,8 +90,12 @@ export class Filter extends PureNode {
   ): Promise<void> {
     const filterCode = inputObject[filterCodeName];
     const inputArray = inputObject[arrayName];
+    const results = await Promise.all(
+      inputArray.map(eval(asyncWrapCode(filterCode)))
+    );
+    console.log('results: ' + results);
     outputObject[arrayOutName] = inputArray.filter(
-      eval(asyncWrapCode(filterCode))
+      (item, index) => results[index]
     );
   }
 }
@@ -115,7 +119,9 @@ export class Map extends PureNode {
   ): Promise<void> {
     const mapCode = inputObject[mapCodeName];
     const inputArray = inputObject[arrayName];
-    outputObject[mapOutName] = inputArray?.map(eval(asyncWrapCode(mapCode)));
+    outputObject[mapOutName] = inputArray.map(
+      await eval(asyncWrapCode(mapCode))
+    );
   }
 
   public getCanAddInput(): boolean {
