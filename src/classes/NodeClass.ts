@@ -1221,6 +1221,10 @@ export default class PPNode extends PIXI.Container {
       ) !== undefined
     );
   }
+
+  public async invokeMacro(inputObject: any): Promise<any> {
+    return await this.graph.invokeMacro(inputObject);
+  }
 }
 
 export class PureNode extends PPNode {

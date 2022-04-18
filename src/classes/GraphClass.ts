@@ -910,6 +910,27 @@ export default class PPGraph {
     storedSelection.forEach((node) => this.removeNode(node));
   }
 
+  async invokeMacro(inputObject: any): Promise<any> {
+    const macroStartNode = Object.values(this.macrosIn).find(
+      (node) => node.name === inputObject['name']
+    );
+    Object.keys(inputObject).forEach((key) => {
+      macroStartNode.setOutputData(key, inputObject[key]);
+    });
+
+    await macroStartNode.executeOptimizedChain();
+    const macroEndNode = Object.values(this.macrosOut).find(
+      (node) => node.name === inputObject['name']
+    );
+
+    const outputObject = {};
+    macroEndNode
+      .getAllSockets()
+      .filter((socket) => socket.socketType === SOCKET_TYPE.IN)
+      .forEach((socket) => (outputObject[socket.name] = socket.data));
+    return outputObject;
+  }
+
   setState(key: string, data: any): void {
     this.stateData[key] = data;
     const subscribers = this.stateSubscriptionNodes[key];

@@ -102,37 +102,16 @@ export class InvokeMacro extends MacroNode {
     return true;
   }
   protected getDefaultIO(): Socket[] {
-    return [
-      new Socket(SOCKET_TYPE.IN, 'Macro Name', new StringType(), 'MacroName'),
-    ];
+    return [new Socket(SOCKET_TYPE.IN, 'name', new StringType(), 'MacroName')];
   }
 
   protected async onExecute(
     inputObject: unknown,
     outputObject: Record<string, unknown>
   ): Promise<void> {
-    const macroStartNode = Object.values(this.graph.macrosIn).find(
-      (node) => node.name === inputObject['Macro Name']
-    );
-    if (!macroStartNode) {
-      throw (
-        'No macro name with the name "' +
-        inputObject['Macro Name'] +
-        '" was found'
-      );
-    }
-
-    Object.keys(inputObject).forEach((key) => {
-      macroStartNode.setOutputData(key, inputObject[key]);
+    const newOutputs = await this.invokeMacro(inputObject);
+    Object.keys(newOutputs).forEach((key) => {
+      outputObject[key] = newOutputs[key];
     });
-
-    await macroStartNode.executeOptimizedChain();
-    const macroEndNode = Object.values(this.graph.macrosOut).find(
-      (node) => node.name === inputObject['Macro Name']
-    );
-    macroEndNode
-      .getAllSockets()
-      .filter((socket) => socket.socketType === SOCKET_TYPE.IN)
-      .forEach((socket) => (outputObject[socket.name] = socket.data));
   }
 }
