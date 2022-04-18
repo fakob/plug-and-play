@@ -526,7 +526,7 @@ export class DRAW_Multiplier extends DRAW_Base {
 
 export class DRAW_Image extends DRAW_Base {
   public getDescription(): string {
-    return "Drawss an image object (jpg,png)";
+    return "Draws an image object (jpg,png)";
   }
   public getName(): string {
     return "Draw image";
