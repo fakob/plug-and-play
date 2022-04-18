@@ -293,4 +293,15 @@ export default class Socket extends PIXI.Container {
   _onPointerUp(event: PIXI.InteractionEvent): void {
     this.getGraph().socketMouseUp(this, event);
   }
+  destroy(): void {
+    this.getNode().inputSocketArray = this.getNode().inputSocketArray.filter(
+      (socket) =>
+        !(socket.name === this.name && socket.socketType === this.socketType)
+    );
+    this.getNode().outputSocketArray = this.getNode().outputSocketArray.filter(
+      (socket) =>
+        !(socket.name === this.name && socket.socketType === this.socketType)
+    );
+    super.destroy();
+  }
 }

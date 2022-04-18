@@ -910,18 +910,24 @@ export default class PPGraph {
     storedSelection.forEach((node) => this.removeNode(node));
   }
 
+  public findMacroInput(name: string): PPNode {
+    return Object.values(this.macrosIn).find((node) => node.name === name);
+  }
+  public findMacroOutput(name: string): PPNode {
+    return Object.values(this.macrosOut).find((node) => node.name === name);
+  }
+
   async invokeMacro(inputObject: any): Promise<any> {
-    const macroStartNode = Object.values(this.macrosIn).find(
-      (node) => node.name === inputObject['Name']
-    );
+    const macroStartNode = this.findMacroInput(inputObject['Name']);
     Object.keys(inputObject).forEach((key) => {
       macroStartNode.setOutputData(key, inputObject[key]);
     });
 
     await macroStartNode.executeOptimizedChain();
-    const macroEndNode = Object.values(this.macrosOut).find(
+    const macroEndNode = this.findMacroOutput(inputObject['Name']);
+    /*const macroEndNode = Object.values(this.macrosOut).find(
       (node) => node.name === inputObject['Name']
-    );
+    );*/
 
     const outputObject = {};
     macroEndNode

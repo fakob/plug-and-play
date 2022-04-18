@@ -4,9 +4,6 @@ import Socket from '../../classes/SocketClass';
 import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../../utils/constants';
 import { CustomArgs, TRgba } from '../../utils/interfaces';
 import { AnyType } from '../datatypes/anyType';
-import { EnumType } from '../datatypes/enumType';
-import { StringType } from '../datatypes/stringType';
-import { EnumStructure } from '../datatypes/enumType';
 import { MacroType } from '../datatypes/macroType';
 
 export class MacroNode extends PPNode {
@@ -105,6 +102,35 @@ export class InvokeMacro extends MacroNode {
 
   protected getDefaultIO(): Socket[] {
     return [new Socket(SOCKET_TYPE.IN, 'Name', new MacroType())];
+  }
+
+  public metaInfoChanged(): void {
+    // we want to refresh the input/output sockets when the user selects a different macro
+    this.inputSocketArray
+      .filter((socket) => socket.name !== 'Name')
+      .forEach((socket) => socket.destroy());
+    this.outputSocketArray.forEach((socket) => socket.destroy());
+    const macroInputNode = this.graph.findMacroInput(
+      this.getInputSocketByName('Name').data
+    );
+    if (macroInputNode) {
+      macroInputNode.outputSocketArray.forEach((socket) => {
+        this.addSocket(
+          new Socket(SOCKET_TYPE.IN, socket.name, socket.dataType)
+        );
+      });
+    }
+    const macroOutputNode = this.graph.findMacroOutput(
+      this.getInputSocketByName('Name').data
+    );
+    if (macroOutputNode) {
+      macroOutputNode.inputSocketArray.forEach((socket) => {
+        this.addSocket(
+          new Socket(SOCKET_TYPE.OUT, socket.name, socket.dataType)
+        );
+      });
+    }
+    super.metaInfoChanged();
   }
 
   protected async onExecute(

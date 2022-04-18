@@ -183,6 +183,7 @@ export const SelectWidget: React.FunctionComponent<SelectWidgetProps> = (
     if (props.onChange) {
       props.onChange(value);
     }
+    props.property.getNode().metaInfoChanged();
   };
 
   return (
