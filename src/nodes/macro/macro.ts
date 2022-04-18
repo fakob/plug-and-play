@@ -4,7 +4,9 @@ import Socket from '../../classes/SocketClass';
 import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../../utils/constants';
 import { CustomArgs, TRgba } from '../../utils/interfaces';
 import { AnyType } from '../datatypes/anyType';
+import { EnumType } from '../datatypes/enumType';
 import { StringType } from '../datatypes/stringType';
+import { EnumStructure } from '../datatypes/enumType';
 
 export class MacroNode extends PPNode {
   public addDefaultInput(): void {
@@ -44,10 +46,6 @@ export class DefineMacroIn extends MacroNode {
   protected getDefaultIO(): Socket[] {
     return [];
   }
-  protected async onExecute(
-    inputObject: unknown,
-    outputObject: Record<string, unknown>
-  ): Promise<void> {}
 
   _onRemoved(): void {
     super._onRemoved();
@@ -77,11 +75,6 @@ export class DefineMacroOut extends MacroNode {
   protected getDefaultIO(): Socket[] {
     return [];
   }
-  protected async onExecute(
-    inputObject: unknown,
-    outputObject: Record<string, unknown>
-  ): Promise<void> {}
-
   _onRemoved(): void {
     super._onRemoved();
     delete this.graph.macrosOut[this.id];
@@ -108,8 +101,21 @@ export class InvokeMacro extends MacroNode {
   public getCanAddOutput(): boolean {
     return true;
   }
+
+  private getMacroEnumOptions(): EnumStructure {
+    return Object.values(this.graph.macrosIn).map((macroNode) => {
+      return { text: macroNode.name, value: macroNode.name };
+    });
+  }
+
   protected getDefaultIO(): Socket[] {
-    return [new Socket(SOCKET_TYPE.IN, 'name', new StringType(), 'MacroName')];
+    return [
+      new Socket(
+        SOCKET_TYPE.IN,
+        'Name',
+        new EnumType(this.getMacroEnumOptions())
+      ),
+    ];
   }
 
   protected async onExecute(

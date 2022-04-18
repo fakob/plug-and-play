@@ -598,7 +598,7 @@ export default class PPNode extends PIXI.Container {
 
   public getNodeTextString(): string {
     if (this.name !== this.type) {
-      return this.name + '\n(' + this.type + ')';
+      return this.name + '\t(' + this.type + ')';
     }
     return this.name;
   }
@@ -1224,6 +1224,10 @@ export default class PPNode extends PIXI.Container {
 
   public async invokeMacro(inputObject: any): Promise<any> {
     return await this.graph.invokeMacro(inputObject);
+  }
+
+  public metaInfoChanged(): void {
+    this.drawNodeShape();
   }
 }
 

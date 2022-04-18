@@ -912,7 +912,7 @@ export default class PPGraph {
 
   async invokeMacro(inputObject: any): Promise<any> {
     const macroStartNode = Object.values(this.macrosIn).find(
-      (node) => node.name === inputObject['name']
+      (node) => node.name === inputObject['Name']
     );
     Object.keys(inputObject).forEach((key) => {
       macroStartNode.setOutputData(key, inputObject[key]);
@@ -920,7 +920,7 @@ export default class PPGraph {
 
     await macroStartNode.executeOptimizedChain();
     const macroEndNode = Object.values(this.macrosOut).find(
-      (node) => node.name === inputObject['name']
+      (node) => node.name === inputObject['Name']
     );
 
     const outputObject = {};
