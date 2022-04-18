@@ -184,6 +184,8 @@ export class Table extends PPNode {
         const xSpreadSheet = this.xSpreadSheet.getData();
         this.workBook = xtos(xSpreadSheet);
         this.setInputData(workBookInputSocketName, xtos(xSpreadSheet));
+        this.setAllOutputData(this.workBook);
+        this.executeChildren();
       };
 
       useEffect(() => {
