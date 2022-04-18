@@ -920,7 +920,7 @@ export default class PPNode extends PIXI.Container {
     return link.source.data;
   }
 
-  // avoid calling this directly, instead use the input/output objects in onExecute
+  // avoid calling this directly when possible, instead use the input/output objects in onExecute and keep it encapsulated in that flow (not always possible but most of the time is)
   setInputData(name: string, data: any): void {
     const inputSocket = this.inputSocketArray.find((input: Socket) => {
       return name === input.name;
@@ -941,13 +941,9 @@ export default class PPNode extends PIXI.Container {
       .find((output: Socket) => {
         return name === output.name;
       });
-
-    if (!outputSocket) {
-      console.error('No output socket found with the name: ', name);
-      return undefined;
+    if (outputSocket) {
+      outputSocket.data = data;
     }
-
-    outputSocket.data = data;
   }
 
   async tick(currentTime: number, deltaTime: number): Promise<void> {
