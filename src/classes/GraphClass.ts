@@ -44,7 +44,8 @@ export default class PPGraph {
   backgroundCanvas: PIXI.Container;
   connectionContainer: PIXI.Container;
   nodeContainer: PIXI.Container;
-  nodes: { [key: string]: PPNode }; //<string, PPNode>;
+  nodes: { [key: string]: PPNode };
+  macros: { [key: string]: PPNode };
   foregroundCanvas: PIXI.Container;
 
   tempConnection: PIXI.Graphics;
@@ -55,14 +56,16 @@ export default class PPGraph {
   stateData: { string: any }; // states
   stateSubscriptionNodes: { string: Set<string> }; // every specific string has specific nodes subscribing to it
 
+
+
   onRightClick: (
     event: PIXI.InteractionEvent,
     target: PIXI.DisplayObject
-  ) => void = () => {}; // called when the graph is right clicked
-  onOpenNodeSearch: (pos: PIXI.Point) => void = () => {}; // called node search should be openend
-  onOpenSocketInspector: (pos: PIXI.Point, data: Socket) => void = () => {}; // called when socket inspector should be opened
+  ) => void = () => { }; // called when the graph is right clicked
+  onOpenNodeSearch: (pos: PIXI.Point) => void = () => { }; // called node search should be openend
+  onOpenSocketInspector: (pos: PIXI.Point, data: Socket) => void = () => { }; // called when socket inspector should be opened
   onCloseSocketInspector: () => void; // called when socket inspector should be closed
-  onViewportDragging: (isDraggingViewport: boolean) => void = () => {}; // called when the viewport is being dragged
+  onViewportDragging: (isDraggingViewport: boolean) => void = () => { }; // called when the viewport is being dragged
 
   constructor(app: PIXI.Application, viewport: Viewport) {
     this.app = app;
@@ -129,7 +132,7 @@ export default class PPGraph {
     this._registeredNodeTypes = {};
 
     // define callbacks
-    this.onViewportDragging = (isDraggingViewport: boolean) => {};
+    this.onViewportDragging = (isDraggingViewport: boolean) => { };
   }
 
   // SETUP
@@ -837,9 +840,8 @@ export default class PPGraph {
 
     for (let i = 0; i < names.length; ++i) {
       code += `
-      this.addInput('${names[i]}', '${
-        param_types && param_types[i] ? param_types[i] : 0
-      }');`;
+      this.addInput('${names[i]}', '${param_types && param_types[i] ? param_types[i] : 0
+        }');`;
     }
     // console.log(code);
     // console.log(this);
