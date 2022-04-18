@@ -7,6 +7,7 @@ import { DeferredPixiType } from './deferredPixiType';
 import { EnumType } from './enumType';
 import { ImageType } from './imageType';
 import { JSONType } from './jsonType';
+import { MacroType } from './macroType';
 import { NumberType } from './numberType';
 import { PixiType } from './pixiType';
 import { StringType } from './stringType';
@@ -27,4 +28,5 @@ export const allDataTypes = {
   ImageType: ImageType,
   CodeType: CodeType,
   EnumType: EnumType,
+  MacroType: MacroType,
 };

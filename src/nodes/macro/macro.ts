@@ -7,6 +7,7 @@ import { AnyType } from '../datatypes/anyType';
 import { EnumType } from '../datatypes/enumType';
 import { StringType } from '../datatypes/stringType';
 import { EnumStructure } from '../datatypes/enumType';
+import { MacroType } from '../datatypes/macroType';
 
 export class MacroNode extends PPNode {
   public addDefaultInput(): void {
@@ -102,20 +103,8 @@ export class InvokeMacro extends MacroNode {
     return true;
   }
 
-  private getMacroEnumOptions(): EnumStructure {
-    return Object.values(this.graph.macrosIn).map((macroNode) => {
-      return { text: macroNode.name, value: macroNode.name };
-    });
-  }
-
   protected getDefaultIO(): Socket[] {
-    return [
-      new Socket(
-        SOCKET_TYPE.IN,
-        'Name',
-        new EnumType(this.getMacroEnumOptions())
-      ),
-    ];
+    return [new Socket(SOCKET_TYPE.IN, 'Name', new MacroType())];
   }
 
   protected async onExecute(
