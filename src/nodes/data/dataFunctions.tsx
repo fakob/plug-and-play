@@ -33,8 +33,8 @@ const input2Name = 'Input 2';
 
 const inputMultiplierName = 'Multiplier';
 
-function asyncWrapCode(code: string): string {
-  return '(async () => ' + code + ')()';
+function asyncWrapCode(code: string, execute = true): string {
+  return '(' + code + ')' + (execute ? '()' : '');
 }
 export class Code extends PureNode {
   protected getDefaultIO(): Socket[] {
@@ -71,6 +71,7 @@ export class Code extends PureNode {
   }
 }
 
+// make filter and map ourselves to be able to deal with async (need sequental ordering)
 export class Filter extends PureNode {
   protected getDefaultIO(): Socket[] {
     return [
@@ -90,13 +91,17 @@ export class Filter extends PureNode {
   ): Promise<void> {
     const filterCode = inputObject[filterCodeName];
     const inputArray = inputObject[arrayName];
-    const results = await Promise.all(
-      inputArray.map(eval(asyncWrapCode(filterCode)))
-    );
-    console.log('results: ' + results);
-    outputObject[arrayOutName] = inputArray.filter(
-      (item, index) => results[index]
-    );
+    const outputs = [];
+    for (let i = 0; i < inputArray.length; i++) {
+      const passed = await eval(
+        asyncWrapCode(filterCode, false) + '(inputArray[i],i)'
+      );
+      if (passed) {
+        outputs.push(inputArray[i]);
+      }
+    }
+
+    outputObject[arrayOutName] = outputs;
   }
 }
 
@@ -119,9 +124,13 @@ export class Map extends PureNode {
   ): Promise<void> {
     const mapCode = inputObject[mapCodeName];
     const inputArray = inputObject[arrayName];
-    outputObject[mapOutName] = inputArray.map(
-      await eval(asyncWrapCode(mapCode))
-    );
+    const outputs = [];
+    for (let i = 0; i < inputArray.length; i++) {
+      outputs.push(
+        await eval(asyncWrapCode(mapCode, false) + '(inputArray[i],i)')
+      );
+    }
+    outputObject[mapOutName] = outputs;
   }
 
   public getCanAddInput(): boolean {
