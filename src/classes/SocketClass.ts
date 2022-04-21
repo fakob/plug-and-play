@@ -15,6 +15,7 @@ import {
 } from '../utils/constants';
 import { AbstractType } from '../nodes/datatypes/abstractType';
 import { serializeType } from '../nodes/datatypes/typehelper';
+import { TriggerType } from '../nodes/datatypes/triggerType';
 
 export default class Socket extends PIXI.Container {
   // Input sockets
@@ -29,6 +30,7 @@ export default class Socket extends PIXI.Container {
 
   _socketType: TSocketType;
   _dataType: AbstractType;
+  _previousData: any;
   _data: any;
   _defaultData: any; // for inputs: data backup while unplugged, restores data when unplugged again
   _custom: Record<string, any>;
@@ -58,6 +60,7 @@ export default class Socket extends PIXI.Container {
     this._socketType = socketType;
     this.name = name;
     this._dataType = dataType;
+    this._previousData = data;
     this._data = data;
     this._defaultData = defaultData;
     this.visible = visible;
@@ -143,6 +146,18 @@ export default class Socket extends PIXI.Container {
     this._links = newLink;
   }
 
+  get previousData(): any {
+    // just point to previousData from last node if there to avoid copying it
+    let dataToReturn;
+    if (this.isInput() && this.hasLink()) {
+      dataToReturn = this.links[0].getSource().previousData;
+    } else {
+      dataToReturn = this._previousData;
+    }
+    // allow the type to potentially sanitize the data before passing it on
+    return this.dataType.parse(dataToReturn);
+  }
+
   get data(): any {
     // just point to data from last node if there to avoid copying it
     let dataToReturn;
@@ -156,11 +171,23 @@ export default class Socket extends PIXI.Container {
   }
 
   set data(newData: any) {
+    this._previousData = this._data;
     this._data = newData;
-    // update defaultData only if socket is input
-    // and does not have a link
+
     if (this.isInput() && !this.hasLink()) {
+      // update defaultData only if socket is input
+      // and does not have a link
       this._defaultData = newData;
+    }
+    if (this.isInput()) {
+      console.log(
+        this.parent.name,
+        this.name,
+        this._previousData,
+        this._data,
+        this.dataType.getName()
+      );
+      this.dataType.onSetData(this, this._previousData, this._data);
     }
   }
 

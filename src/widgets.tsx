@@ -26,6 +26,14 @@ import styles from './utils/style.module.css';
 import { TRgba } from './utils/interfaces';
 import { EnumStructure } from './nodes/datatypes/enumType';
 import { NumberType } from './nodes/datatypes/numberType';
+import { TriggerType } from './nodes/datatypes/triggerType';
+
+async function potentiallyNotify(property: Socket, newValue) {
+  if (property.data !== newValue) {
+    property.data = newValue;
+    await property.getNode().executeOptimizedChain();
+  }
+}
 
 export type SliderWidgetProps = {
   property: Socket;
@@ -35,13 +43,6 @@ export type SliderWidgetProps = {
   data: number;
   type: NumberType;
 };
-
-async function potentiallyNotify(property: Socket, newValue) {
-  if (property.data !== newValue) {
-    property.data = newValue;
-    await property.getNode().executeOptimizedChain();
-  }
-}
 
 export const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (
   props
@@ -340,10 +341,11 @@ export const JSONWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
 
 export type TriggerWidgetProps = {
   property: Socket;
+  isInput: boolean;
   index: number;
   hasLink: boolean;
-  data: { type: string; function: string };
-  options: EnumStructure;
+  data: unknown;
+  type: TriggerType;
   randomMainColor: string;
 };
 
@@ -351,23 +353,24 @@ export const TriggerWidget: React.FunctionComponent<TriggerWidgetProps> = (
   props
 ) => {
   const [data, setData] = useState(props.data);
+  console.log(props);
+  const [changeFunctionString, setChangeFunctionString] = useState(
+    props.type.changeFunctionString
+  );
+  const [triggerFunctionString, setTriggerFunctionString] = useState(
+    props.type.triggerFunctionString
+  );
 
   const onChangeType = (event) => {
     const value = event.target.value;
     console.log(value);
-    setData((prevState) => ({
-      ...prevState,
-      type: value,
-    }));
+    setChangeFunctionString(value);
   };
 
   const onChangeFunction = (event) => {
     const value = event.target.value;
     console.log(value);
-    setData((prevState) => ({
-      ...prevState,
-      function: value,
-    }));
+    setTriggerFunctionString(value);
   };
 
   console.log(
@@ -383,13 +386,22 @@ export const TriggerWidget: React.FunctionComponent<TriggerWidgetProps> = (
 
   return (
     <>
+      <CodeEditor
+        value={String(data) || ''}
+        randomMainColor={props.randomMainColor}
+        editable={!props.hasLink}
+        onChange={(value) => {
+          potentiallyNotify(props.property, value);
+          setData(value);
+        }}
+      />
       <FormGroup>
         <Select
           label="Trigger method"
           variant="filled"
-          value={data.type}
+          value={changeFunctionString}
           onChange={onChangeType}
-          disabled={props.hasLink}
+          // disabled={props.hasLink}
         >
           {TRIGGER_TYPE_OPTIONS?.map(({ text, value }, index) => {
             return (
@@ -410,9 +422,9 @@ export const TriggerWidget: React.FunctionComponent<TriggerWidgetProps> = (
         <Select
           label="Function to call"
           variant="filled"
-          value={data.function}
+          value={triggerFunctionString}
           onChange={onChangeFunction}
-          disabled={props.hasLink}
+          // disabled={props.hasLink}
         >
           {TRIGGER_FUNCTION_OPTIONS?.map(({ text, value }, index) => {
             return (
@@ -435,11 +447,11 @@ export const TriggerWidget: React.FunctionComponent<TriggerWidgetProps> = (
         startIcon={<PlayArrowIcon />}
         onClick={() => {
           // nodes with trigger input need a trigger function
-          (props.property.parent as any)[data.function]();
+          (props.property.parent as any)[triggerFunctionString]();
         }}
         variant="contained"
       >
-        {data.function}
+        {triggerFunctionString}
       </Button>
     </>
   );

@@ -691,11 +691,10 @@ export default class PPNode extends PIXI.Container {
   public addTriggerInput(): void {
     this.addInput(
       this.constructSocketName('Trigger', this.inputSocketArray),
-      new TriggerType(),
-      {
-        type: TRIGGER_TYPE_OPTIONS[0].value,
-        function: TRIGGER_FUNCTION_OPTIONS[0].value,
-      }
+      new TriggerType(
+        TRIGGER_TYPE_OPTIONS[0].value,
+        TRIGGER_FUNCTION_OPTIONS[0].value
+      )
     );
   }
 
