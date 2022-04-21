@@ -65,8 +65,8 @@ const inputWidthName = 'Width';
 const inputHeightName = 'Height';
 
 const inputGraphicsName = 'Graphics';
-const multiplyXName = 'Num X';
-const multiplyYName = 'Num Y';
+const totalNumberName = 'Total Number';
+const multiplyYName = 'Number Per Column';
 const spacingXName = 'Spacing X';
 const spacingYName = 'Spacing Y';
 export const injectedDataName = 'Injected Data';
@@ -80,10 +80,10 @@ export abstract class DRAW_Base extends PPNode {
   deferredGraphics: PIXI.Container;
 
   public getDescription(): string {
-    return "Draw Base";
+    return 'Draw Base';
   }
   public getName(): string {
-    return "Draw";
+    return 'Draw';
   }
 
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
@@ -159,7 +159,7 @@ export abstract class DRAW_Base extends PPNode {
     inputObject: any,
     container: PIXI.Container,
     executions: { string: number }
-  ): void { }
+  ): void {}
 
   getAndIncrementExecutions(executions: { string: number }): number {
     if (executions[this.id] === undefined) {
@@ -216,12 +216,11 @@ export abstract class DRAW_Base extends PPNode {
   }
 }
 export class DRAW_Shape extends DRAW_Base {
-
   public getDescription(): string {
-    return "Draws a shape";
+    return 'Draws a shape';
   }
   public getName(): string {
-    return "Draw shape";
+    return 'Draw shape';
   }
 
   protected getDefaultIO(): Socket[] {
@@ -257,7 +256,7 @@ export class DRAW_Shape extends DRAW_Base {
     inputObject = {
       ...inputObject,
       ...inputObject[injectedDataName][
-      this.getAndIncrementExecutions(executions)
+        this.getAndIncrementExecutions(executions)
       ],
     };
     const graphics: PIXI.Graphics = new PIXI.Graphics();
@@ -317,10 +316,10 @@ export class DRAW_Shape extends DRAW_Base {
 
 export class DRAW_Text extends DRAW_Base {
   public getDescription(): string {
-    return "Draws text object";
+    return 'Draws text object';
   }
   public getName(): string {
-    return "Draw text";
+    return 'Draw text';
   }
 
   protected getDefaultIO(): Socket[] {
@@ -361,7 +360,7 @@ export class DRAW_Text extends DRAW_Base {
     inputObject = {
       ...inputObject,
       ...inputObject[injectedDataName][
-      this.getAndIncrementExecutions(executions)
+        this.getAndIncrementExecutions(executions)
       ],
     };
     const textStyle = new PIXI.TextStyle({
@@ -385,10 +384,10 @@ export class DRAW_Text extends DRAW_Base {
 
 export class DRAW_Combine extends DRAW_Base {
   public getDescription(): string {
-    return "Combines two drawn objects";
+    return 'Combines two drawn objects';
   }
   public getName(): string {
-    return "Combine objects";
+    return 'Combine objects';
   }
 
   protected getDefaultIO(): Socket[] {
@@ -405,7 +404,7 @@ export class DRAW_Combine extends DRAW_Base {
     inputObject = {
       ...inputObject,
       ...inputObject[injectedDataName][
-      this.getAndIncrementExecutions(executions)
+        this.getAndIncrementExecutions(executions)
       ],
     };
     const myContainer = new PIXI.Container();
@@ -422,12 +421,11 @@ export class DRAW_Combine extends DRAW_Base {
 }
 
 export class DRAW_Multiplier extends DRAW_Base {
-
   public getDescription(): string {
-    return "Multiples a drawing objects onto a grid";
+    return 'Multiples a drawing objects onto a grid';
   }
   public getName(): string {
-    return "Multiply object";
+    return 'Multiply object';
   }
 
   protected getDefaultIO(): Socket[] {
@@ -435,7 +433,7 @@ export class DRAW_Multiplier extends DRAW_Base {
       new Socket(SOCKET_TYPE.IN, inputGraphicsName, new DeferredPixiType()),
       new Socket(
         SOCKET_TYPE.IN,
-        multiplyXName,
+        totalNumberName,
         new NumberType(true, 0, 100),
         2
       ),
@@ -474,13 +472,17 @@ export class DRAW_Multiplier extends DRAW_Base {
     inputObject = {
       ...inputObject,
       ...inputObject[injectedDataName][
-      this.getAndIncrementExecutions(executions)
+        this.getAndIncrementExecutions(executions)
       ],
     };
     const myContainer = new PIXI.Container();
-    for (let x = 0; x < inputObject[multiplyXName]; x++) {
-      for (let y = 0; y < inputObject[multiplyYName]; y++) {
-        const currentIndex = x + inputObject[multiplyXName] * y;
+    const total = inputObject[totalNumberName];
+    const numY = inputObject[multiplyYName];
+    const numX = Math.ceil(total / numY);
+    let numPlaced = 0;
+    for (let x = 0; x < numX; x++) {
+      for (let y = 0; y < numY && numPlaced < total; y++, numPlaced++) {
+        const currentIndex = x + inputObject[totalNumberName] * y;
 
         const shallowContainer = new PIXI.Container();
         if (inputObject[inputGraphicsName])
@@ -526,10 +528,10 @@ export class DRAW_Multiplier extends DRAW_Base {
 
 export class DRAW_Image extends DRAW_Base {
   public getDescription(): string {
-    return "Draws an image object (jpg,png)";
+    return 'Draws an image object (jpg,png)';
   }
   public getName(): string {
-    return "Draw image";
+    return 'Draw image';
   }
 
   protected getDefaultIO(): Socket[] {
@@ -546,7 +548,7 @@ export class DRAW_Image extends DRAW_Base {
     inputObject = {
       ...inputObject,
       ...inputObject[injectedDataName][
-      this.getAndIncrementExecutions(executions)
+        this.getAndIncrementExecutions(executions)
       ],
     };
 
@@ -559,18 +561,21 @@ export class DRAW_Image extends DRAW_Base {
 }
 
 export class DRAW_Line extends DRAW_Base {
-
   public getDescription(): string {
-    return "Draws a line specified by input points";
+    return 'Draws a line specified by input points';
   }
 
   public getName(): string {
-    return "Draw line";
+    return 'Draw line';
   }
 
   protected getDefaultIO(): Socket[] {
     return [
-      new Socket(SOCKET_TYPE.IN, inputPointsName, new ArrayType(), [[0, 0], [100, 100], [100, 200]]),
+      new Socket(SOCKET_TYPE.IN, inputPointsName, new ArrayType(), [
+        [0, 0],
+        [100, 100],
+        [100, 200],
+      ]),
       new Socket(SOCKET_TYPE.IN, inputColorName, new ColorType()),
       new Socket(
         SOCKET_TYPE.IN,
@@ -589,7 +594,7 @@ export class DRAW_Line extends DRAW_Base {
     inputObject = {
       ...inputObject,
       ...inputObject[injectedDataName][
-      this.getAndIncrementExecutions(executions)
+        this.getAndIncrementExecutions(executions)
       ],
     };
     const graphics: PIXI.Graphics = new PIXI.Graphics();
