@@ -639,6 +639,7 @@ export default class PPNode extends PIXI.Container {
         if (this.showLabels === false) {
           item._SocketNameRef.alpha = 0;
         }
+        item.redrawAnythingChanging();
       });
 
     // redraw inputs
@@ -651,6 +652,8 @@ export default class PPNode extends PIXI.Container {
           index * SOCKET_HEIGHT;
         if (this.showLabels === false) {
         }
+
+        item.redrawAnythingChanging();
       });
 
     this.drawComment();

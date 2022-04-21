@@ -215,6 +215,7 @@ export const PropertyContainer: React.FunctionComponent<
     console.log(myValue, entry);
     props.property.dataType = entry;
     setDataTypeValue(entry);
+    props.property.getNode().metaInfoChanged();
   };
 
   const CustomSocketInjection = ({ InjectionContent, props }) => {

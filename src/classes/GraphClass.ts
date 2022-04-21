@@ -211,8 +211,8 @@ export default class PPGraph {
     this.onViewportDragging(false);
   }
 
-  getObjectCenter(object: any): PIXI.Point {
-    const dragSourceRect = object.children[0].getBounds();
+  getSocketCenter(object: Socket): PIXI.Point {
+    const dragSourceRect = object.socketRef.getBounds();
     const dragSourcePoint = new PIXI.Point(
       dragSourceRect.x + dragSourceRect.width / 2,
       dragSourceRect.y + dragSourceRect.height / 2
@@ -232,13 +232,13 @@ export default class PPGraph {
     // draw connection
     if (this.selectedSourceSocket) {
       // draw connection while dragging
-      let socketCenter = this.getObjectCenter(this.selectedSourceSocket);
+      let socketCenter = this.getSocketCenter(this.selectedSourceSocket);
 
       // change mouse coordinates from screen to world space
       let targetPoint = new PIXI.Point();
       if (this.overInputRef) {
         // get target position
-        targetPoint = this.getObjectCenter(this.overInputRef);
+        targetPoint = this.getSocketCenter(this.overInputRef);
       } else {
         targetPoint = this.viewport.toWorld(event.data.global);
       }

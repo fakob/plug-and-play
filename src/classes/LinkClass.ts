@@ -74,8 +74,8 @@ export default class PPLink extends PIXI.Container {
     source: Socket,
     target: Socket
   ): void {
-    const sourcePoint = source.getNode().graph.getObjectCenter(source);
-    const targetPoint = source.getNode().graph.getObjectCenter(target);
+    const sourcePoint = source.getNode().graph.getSocketCenter(source);
+    const targetPoint = source.getNode().graph.getSocketCenter(target);
 
     // draw curve from 0,0 as PIXI.Graphics sourceates from 0,0
     const toX = targetPoint.x - sourcePoint.x;

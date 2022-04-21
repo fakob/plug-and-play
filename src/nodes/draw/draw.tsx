@@ -53,6 +53,7 @@ const inputSizeName = 'Size';
 const inputBorderName = 'Border';
 const outputPixiName = 'Graphics';
 
+const inputCombineArray = 'GraphicsArray';
 const inputCombine1Name = 'Foreground';
 const inputCombine2Name = 'Background';
 const outputMultiplierIndex = 'LatestPressedIndex';
@@ -411,6 +412,44 @@ export class DRAW_Combine extends DRAW_Base {
 
     inputObject[inputCombine2Name](myContainer, executions);
     inputObject[inputCombine1Name](myContainer, executions);
+
+    this.positionAndScale(myContainer, inputObject);
+
+    myContainer.interactive = true;
+
+    container.addChild(myContainer);
+  }
+}
+export class DRAW_COMBINE_ARRAY extends DRAW_Base {
+  public getDescription(): string {
+    return 'Combines an array of draw objects';
+  }
+  public getName(): string {
+    return 'Combine draw array';
+  }
+
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(SOCKET_TYPE.IN, inputCombineArray, new ArrayType()),
+    ].concat(super.getDefaultIO());
+  }
+
+  protected drawOnContainer(
+    inputObject: any,
+    container: PIXI.Container,
+    executions: { string: number }
+  ): void {
+    inputObject = {
+      ...inputObject,
+      ...inputObject[injectedDataName][
+        this.getAndIncrementExecutions(executions)
+      ],
+    };
+    const myContainer = new PIXI.Container();
+    const graphicsArray = inputObject[inputCombineArray];
+    for (let i = graphicsArray.length - 1; i >= 0; i--) {
+      graphicsArray[i](myContainer, executions);
+    }
 
     this.positionAndScale(myContainer, inputObject);
 
