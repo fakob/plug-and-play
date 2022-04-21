@@ -431,6 +431,24 @@ export class DRAW_COMBINE_ARRAY extends DRAW_Base {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, inputCombineArray, new ArrayType()),
+      new Socket(
+        SOCKET_TYPE.IN,
+        multiplyYName,
+        new NumberType(true, 0, 100),
+        2
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        spacingXName,
+        new NumberType(true, 0, 1000),
+        400
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        spacingYName,
+        new NumberType(true, 0, 1000),
+        300
+      ),
     ].concat(super.getDefaultIO());
   }
 
@@ -448,7 +466,13 @@ export class DRAW_COMBINE_ARRAY extends DRAW_Base {
     const myContainer = new PIXI.Container();
     const graphicsArray = inputObject[inputCombineArray];
     for (let i = graphicsArray.length - 1; i >= 0; i--) {
-      graphicsArray[i](myContainer, executions);
+      const x = Math.floor(i / inputObject[multiplyYName]);
+      const y = i % inputObject[multiplyYName];
+      const shallowContainer = new PIXI.Container();
+      graphicsArray[i](shallowContainer, executions);
+      shallowContainer.x = x * inputObject[spacingXName];
+      shallowContainer.y = y * inputObject[spacingYName];
+      myContainer.addChild(shallowContainer);
     }
 
     this.positionAndScale(myContainer, inputObject);

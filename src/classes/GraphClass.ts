@@ -930,10 +930,7 @@ export default class PPGraph {
     macroEndNode
       .getAllSockets()
       .filter((socket) => socket.socketType === SOCKET_TYPE.IN)
-      .forEach(
-        (socket) =>
-          (outputObject[socket.name] = JSON.parse(JSON.stringify(socket.data)))
-      );
+      .forEach((socket) => (outputObject[socket.name] = socket.data));
     return outputObject;
   }
 
