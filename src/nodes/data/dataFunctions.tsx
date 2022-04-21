@@ -67,7 +67,7 @@ export class Code extends PureNode {
     inputObject: any,
     outputObject: Record<string, unknown>
   ): Promise<void> {
-    await eval(asyncWrapCode(inputObject[anyCodeName]));
+    await eval('async () => {' + inputObject[anyCodeName] + '}')();
   }
 }
 
