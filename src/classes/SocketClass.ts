@@ -147,7 +147,7 @@ export default class Socket extends PIXI.Container {
   }
 
   get previousData(): any {
-    // just point to previousData from last node if there to avoid copying it
+    // just point to data from last node if there to avoid copying it
     let dataToReturn;
     if (this.isInput() && this.hasLink()) {
       dataToReturn = this.links[0].getSource().previousData;
@@ -155,7 +155,8 @@ export default class Socket extends PIXI.Container {
       dataToReturn = this._previousData;
     }
     // allow the type to potentially sanitize the data before passing it on
-    return this.dataType.parse(dataToReturn);
+    const parsedData = this.dataType.parse(dataToReturn);
+    return parsedData;
   }
 
   get data(): any {
@@ -167,7 +168,12 @@ export default class Socket extends PIXI.Container {
       dataToReturn = this._data;
     }
     // allow the type to potentially sanitize the data before passing it on
-    return this.dataType.parse(dataToReturn);
+    const parsedData = this.dataType.parse(dataToReturn);
+
+    if (this.isInput() && this.hasLink()) {
+      this.dataType.onSetData(this, this.previousData, parsedData);
+    }
+    return parsedData;
   }
 
   set data(newData: any) {
@@ -178,15 +184,7 @@ export default class Socket extends PIXI.Container {
       // update defaultData only if socket is input
       // and does not have a link
       this._defaultData = newData;
-    }
-    if (this.isInput()) {
-      console.log(
-        this.parent.name,
-        this.name,
-        this._previousData,
-        this._data,
-        this.dataType.getName()
-      );
+
       this.dataType.onSetData(this, this._previousData, this._data);
     }
   }
@@ -201,7 +199,11 @@ export default class Socket extends PIXI.Container {
 
   get dataType(): AbstractType {
     // just point to data from last node if there to avoid copying it
-    if (this.isInput() && this.hasLink()) {
+    if (
+      this.isInput() &&
+      this.hasLink() &&
+      !(this._dataType instanceof TriggerType)
+    ) {
       return this.links[0].getSource().dataType;
     }
     return this._dataType;
@@ -281,7 +283,7 @@ export default class Socket extends PIXI.Container {
     return {
       socketType: this.socketType,
       name: this.name,
-      dataType: serializeType(this.dataType),
+      dataType: serializeType(this._dataType), // do not use this.dataType as, for linked inputs, it would save the linked output type
       ...{ data: data },
       ...{ defaultData: defaultData },
       visible: this.visible,

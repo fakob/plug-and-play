@@ -363,26 +363,15 @@ export const TriggerWidget: React.FunctionComponent<TriggerWidgetProps> = (
 
   const onChangeType = (event) => {
     const value = event.target.value;
-    console.log(value);
+    (props.type as TriggerType).changeFunctionString = value;
     setChangeFunctionString(value);
   };
 
   const onChangeFunction = (event) => {
     const value = event.target.value;
-    console.log(value);
+    (props.type as TriggerType).triggerFunctionString = value;
     setTriggerFunctionString(value);
   };
-
-  console.log(
-    // props.property.parent,
-    // Object.getOwnPropertyNames(props.property.parent),
-    // Object.getPrototypeOf(props.property.parent),
-    // Object.getPrototypeOf(Object.getPrototypeOf(props.property.parent)),
-    // getMethods(props.property.parent),
-    props,
-    props.data,
-    data
-  );
 
   return (
     <>
