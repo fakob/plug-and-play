@@ -52,10 +52,9 @@ export class NumberType extends AbstractType {
     return 0;
   }
 
-
   parse(data: any): any {
     if (typeof data === 'string') {
-      return parseFloat(data.replace(/\D/g, '').replace(",", "."));
+      return parseFloat(data.replace(',', '.').replace(/[^\d.-]/g, ''));
     } else {
       return data;
     }

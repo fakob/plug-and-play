@@ -721,7 +721,7 @@ export default class PPNode extends PIXI.Container {
       let commentData = this.outputSocketArray[0]?.dataType?.getComment(
         this.outputSocketArray[0]?.data
       );
-      if (commentData && commentData.length > 10000) {
+      if (commentData !== undefined && commentData.length > 10000) {
         commentData = 'Too long to display';
       }
       const debugText = new PIXI.Text(

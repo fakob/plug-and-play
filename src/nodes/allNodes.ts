@@ -16,6 +16,7 @@ import * as dataFunctions from './data/dataFunctions';
 import * as stateNodes from './state/stateNodes';
 import * as charts from './draw/charts';
 import * as macro from './macro/macro';
+import * as booleanlogic from './logic/boolean';
 
 export const registerAllNodeTypes = (graph: PPGraph): void => {
   const categories = {
@@ -35,6 +36,7 @@ export const registerAllNodeTypes = (graph: PPGraph): void => {
     stateNodes,
     charts,
     macro,
+    booleanlogic,
   };
   for (const [categoryKey, categoryValue] of Object.entries(categories)) {
     console.log(categoryKey, categoryValue);
