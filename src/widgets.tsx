@@ -17,10 +17,7 @@ import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import { SketchPicker } from 'react-color';
 import { CodeEditor } from './components/Editor';
 import Socket from './classes/SocketClass';
-import {
-  TRIGGER_FUNCTION_OPTIONS,
-  TRIGGER_TYPE_OPTIONS,
-} from './utils/constants';
+import { TRIGGER_TYPE_OPTIONS } from './utils/constants';
 import { parseJSON, roundNumber } from './utils/utils';
 import styles from './utils/style.module.css';
 import { TRgba } from './utils/interfaces';
@@ -354,23 +351,23 @@ export const TriggerWidget: React.FunctionComponent<TriggerWidgetProps> = (
 ) => {
   const [data, setData] = useState(props.data);
   console.log(props);
-  const [changeFunctionString, setChangeFunctionString] = useState(
-    props.type.changeFunctionString
+  const [triggerType, setChangeFunctionString] = useState(
+    props.type.triggerType
   );
-  const [triggerFunctionString, setTriggerFunctionString] = useState(
-    props.type.triggerFunctionString
+  const [customFunctionString, setCustomFunctionString] = useState(
+    props.type.customFunctionString
   );
 
-  const onChangeType = (event) => {
+  const onChangeTriggerType = (event) => {
     const value = event.target.value;
-    (props.type as TriggerType).changeFunctionString = value;
+    (props.type as TriggerType).triggerType = value;
     setChangeFunctionString(value);
   };
 
   const onChangeFunction = (event) => {
     const value = event.target.value;
-    (props.type as TriggerType).triggerFunctionString = value;
-    setTriggerFunctionString(value);
+    (props.type as TriggerType).customFunctionString = value;
+    setCustomFunctionString(value);
   };
 
   return (
@@ -388,9 +385,8 @@ export const TriggerWidget: React.FunctionComponent<TriggerWidgetProps> = (
         <Select
           label="Trigger method"
           variant="filled"
-          value={changeFunctionString}
-          onChange={onChangeType}
-          // disabled={props.hasLink}
+          value={triggerType}
+          onChange={onChangeTriggerType}
         >
           {TRIGGER_TYPE_OPTIONS?.map(({ text, value }, index) => {
             return (
@@ -408,39 +404,29 @@ export const TriggerWidget: React.FunctionComponent<TriggerWidgetProps> = (
             );
           })}
         </Select>
-        <Select
-          label="Function to call"
+        <TextField
+          hiddenLabel
           variant="filled"
-          value={triggerFunctionString}
+          label="Name of custom function"
           onChange={onChangeFunction}
-          // disabled={props.hasLink}
-        >
-          {TRIGGER_FUNCTION_OPTIONS?.map(({ text, value }, index) => {
-            return (
-              <MenuItem
-                key={index}
-                value={value}
-                sx={{
-                  '&.Mui-selected': {
-                    backgroundColor: `${Color(props.randomMainColor).negate()}`,
-                  },
-                }}
-              >
-                {text}
-              </MenuItem>
-            );
-          })}
-        </Select>
+          value={customFunctionString}
+        />
       </FormGroup>
       <Button
         startIcon={<PlayArrowIcon />}
         onClick={() => {
           // nodes with trigger input need a trigger function
-          (props.property.parent as any)[triggerFunctionString]();
+          (props.property.parent as any)[
+            customFunctionString === ''
+              ? 'executeOptimizedChain'
+              : customFunctionString
+          ]();
         }}
         variant="contained"
       >
-        {triggerFunctionString}
+        {customFunctionString === ''
+          ? 'executeOptimizedChain'
+          : customFunctionString}
       </Button>
     </>
   );

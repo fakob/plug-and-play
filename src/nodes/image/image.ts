@@ -9,6 +9,7 @@ import {
   DEFAULT_IMAGE,
   NODE_MARGIN,
   OBJECT_FIT_OPTIONS,
+  TRIGGER_TYPE_OPTIONS,
 } from '../../utils/constants';
 import Socket from '../../classes/SocketClass';
 import { ImageType } from '../datatypes/imageType';
@@ -49,8 +50,8 @@ export class Image extends PPNode {
       new Socket(
         SOCKET_TYPE.IN,
         imageResetSize,
-        new TriggerType(),
-        undefined,
+        new TriggerType(TRIGGER_TYPE_OPTIONS[0].value, 'resetNodeSize'),
+        0,
         false
       ),
       new Socket(
@@ -205,9 +206,5 @@ export class Image extends PPNode {
     this.onNodeRemoved = (): void => {
       this.texture.baseTexture.removeAllListeners('loaded');
     };
-  }
-
-  trigger(): void {
-    this.resetNodeSize();
   }
 }

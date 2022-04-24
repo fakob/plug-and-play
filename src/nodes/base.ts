@@ -17,6 +17,7 @@ import {
   SOCKET_HEIGHT,
   SOCKET_TYPE,
   SOCKET_WIDTH,
+  TRIGGER_TYPE_OPTIONS,
 } from '../utils/constants';
 import { CustomArgs, TRgba } from '../utils/interfaces';
 import { compare, getMethods, isVariable } from '../utils/utils';
@@ -248,7 +249,11 @@ export class RandomArray extends PPNode {
     });
 
     this.addOutput('output array', new AnyType());
-    this.addInput('trigger', new TriggerType());
+    this.addInput(
+      'trigger',
+      new TriggerType(TRIGGER_TYPE_OPTIONS[0].value, 'trigger'),
+      0
+    );
     this.addInput('length', new NumberType(true, 1), 20, undefined);
     this.addInput('min', new NumberType(), 0);
     this.addInput('max', new NumberType(), 1);
@@ -265,49 +270,6 @@ export class RandomArray extends PPNode {
       return Math.floor(Math.random() * (max - min) + min);
     });
     this.setOutputData('output array', randomArray);
-  }
-}
-
-export class Trigger extends PPNode {
-  _rectRef: PIXI.Graphics;
-  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, {
-      ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.INPUT),
-    });
-
-    this.addOutput('trigger', new TriggerType());
-
-    this.name = 'Trigger';
-    this.description = 'Creates a trigger event';
-
-    this.onNodeAdded = () => {
-      const button = new PIXI.Graphics();
-      this._rectRef = (this as PIXI.Container).addChild(button);
-      this._rectRef.beginFill(PIXI.utils.string2hex('#00FF00'));
-      this._rectRef.drawRoundedRect(
-        SOCKET_WIDTH,
-        NODE_PADDING_TOP + NODE_HEADER_HEIGHT,
-        NODE_WIDTH / 2,
-        SOCKET_HEIGHT,
-        NODE_CORNERRADIUS
-      );
-      this._rectRef.endFill();
-
-      this._rectRef.buttonMode = true;
-      this._rectRef.interactive = true;
-
-      this._rectRef.on('pointerdown', this.trigger.bind(this));
-    };
-  }
-  trigger(): void {
-    console.log('Triggered node: ', this.name);
-    this.outputSocketArray[0].links.forEach((link) => {
-      (link.target.parent as any).trigger();
-    });
-  }
-  onButtonOver(): void {
-    this._rectRef.cursor = 'hover';
   }
 }
 

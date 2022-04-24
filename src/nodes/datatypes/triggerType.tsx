@@ -2,21 +2,18 @@ import React from 'react';
 import Socket from '../../classes/SocketClass';
 import { TriggerWidget, TriggerWidgetProps } from '../../widgets';
 import { AbstractType } from './abstractType';
-import {
-  TRIGGER_FUNCTION_OPTIONS,
-  TRIGGER_TYPE_OPTIONS,
-} from '../../utils/constants';
+import { TRIGGER_TYPE_OPTIONS } from '../../utils/constants';
 
 export class TriggerType extends AbstractType {
-  changeFunctionString: string;
-  triggerFunctionString: string;
+  triggerType: string;
+  customFunctionString: string;
   constructor(
-    changeFunctionString = TRIGGER_TYPE_OPTIONS[0].value,
-    triggerFunctionString = TRIGGER_FUNCTION_OPTIONS[0].value
+    triggerType = TRIGGER_TYPE_OPTIONS[0].value,
+    customFunctionString = ''
   ) {
     super();
-    this.changeFunctionString = changeFunctionString;
-    this.triggerFunctionString = triggerFunctionString;
+    this.triggerType = triggerType;
+    this.customFunctionString = customFunctionString;
   }
 
   getName(): string {
@@ -46,13 +43,18 @@ export class TriggerType extends AbstractType {
     newData: any
   ): boolean {
     if (
-      (this.changeFunctionString === TRIGGER_TYPE_OPTIONS[0].value &&
+      (this.triggerType === TRIGGER_TYPE_OPTIONS[0].value &&
         previousData !== newData) ||
-      (this.changeFunctionString === TRIGGER_TYPE_OPTIONS[1].value &&
+      (this.triggerType === TRIGGER_TYPE_OPTIONS[1].value &&
         previousData < newData) ||
-      (this.changeFunctionString === TRIGGER_TYPE_OPTIONS[2].value &&
+      (this.triggerType === TRIGGER_TYPE_OPTIONS[2].value &&
         previousData > newData)
     ) {
+      // return false if a custom function is executed
+      if (this.customFunctionString !== '') {
+        socket.getNode()[this.customFunctionString]();
+        return false;
+      }
       return true;
     }
     return false;

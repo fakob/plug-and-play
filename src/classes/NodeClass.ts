@@ -29,7 +29,6 @@ import {
   NODE_WIDTH,
   SOCKET_HEIGHT,
   SOCKET_TYPE,
-  TRIGGER_FUNCTION_OPTIONS,
   TRIGGER_TYPE_OPTIONS,
 } from '../utils/constants';
 import PPGraph from './GraphClass';
@@ -718,10 +717,8 @@ export default class PPNode extends PIXI.Container {
   public addTriggerInput(): void {
     this.addInput(
       this.constructSocketName('Trigger', this.inputSocketArray),
-      new TriggerType(
-        TRIGGER_TYPE_OPTIONS[0].value,
-        TRIGGER_FUNCTION_OPTIONS[0].value
-      )
+      new TriggerType(TRIGGER_TYPE_OPTIONS[0].value),
+      0
     );
   }
 
