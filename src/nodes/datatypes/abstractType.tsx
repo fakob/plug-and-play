@@ -53,5 +53,5 @@ export class AbstractType {
     return data;
   }
 
-  onSetData(socket: Socket, previousData: any, newData: any): void {}
+  onChangeData(socket: Socket, previousData: any, newData: any): void {}
 }

@@ -40,7 +40,7 @@ export class TriggerType extends AbstractType {
     return <TriggerWidget {...data} />;
   };
 
-  onSetData(socket: Socket, previousData: any, newData: any): void {
+  onChangeData(socket: Socket, previousData: any, newData: any): void {
     console.log(socket, previousData, newData);
     if (
       (this.changeFunctionString === TRIGGER_TYPE_OPTIONS[0].value &&

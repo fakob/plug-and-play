@@ -171,11 +171,13 @@ export default class Socket extends PIXI.Container {
     const parsedData = this.dataType.parse(dataToReturn);
 
     if (this.isInput() && this.hasLink()) {
-      this.dataType.onSetData(this, this.previousData, parsedData);
+      console.log('get', this.getNode().name, this.name, this._dataType);
+      this._dataType.onChangeData(this, this.previousData, parsedData);
     }
     return parsedData;
   }
 
+  // for inputs: set data is called only on the socket where the change is being made
   set data(newData: any) {
     this._previousData = this._data;
     this._data = newData;
@@ -184,8 +186,11 @@ export default class Socket extends PIXI.Container {
       // update defaultData only if socket is input
       // and does not have a link
       this._defaultData = newData;
+    }
 
-      this.dataType.onSetData(this, this._previousData, this._data);
+    if (this.isInput()) {
+      console.log('set', this.getNode().name, this.name, this._dataType);
+      this._dataType.onChangeData(this, this._previousData, this._data);
     }
   }
 
