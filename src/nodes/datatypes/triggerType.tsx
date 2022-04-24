@@ -40,7 +40,7 @@ export class TriggerType extends AbstractType {
     return <TriggerWidget {...data} />;
   };
 
-  shouldSocketTriggerExecution(
+  shouldTriggerExecution(
     socket: Socket,
     previousData: any,
     newData: any
