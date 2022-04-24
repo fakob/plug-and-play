@@ -155,8 +155,7 @@ export default class Socket extends PIXI.Container {
       dataToReturn = this._previousData;
     }
     // allow the type to potentially sanitize the data before passing it on
-    const parsedData = this.dataType.parse(dataToReturn);
-    return parsedData;
+    return this.dataType.parse(dataToReturn);
   }
 
   get data(): any {
