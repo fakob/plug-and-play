@@ -6,7 +6,7 @@ import { CustomArgs, TRgba } from '../../utils/interfaces';
 import { AnyType } from '../datatypes/anyType';
 import { MacroType } from '../datatypes/macroType';
 
-export class MacroNode extends PPNode {
+class MacroNode extends PPNode {
   public addDefaultInput(): void {
     this.addInput(
       this.constructSocketName('Parameter', this.inputSocketArray),
