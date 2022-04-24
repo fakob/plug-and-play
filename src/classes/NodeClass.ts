@@ -592,9 +592,36 @@ export default class PPNode extends PIXI.Container {
     this.resizeNode(this.minNodeWidth, this.calculatedMinNodeHeight);
   }
 
+  hasOnlyTriggerLink(): boolean {
+    const countedTypes = this.inputSocketArray.reduce(
+      (previous, current) => {
+        let returnValue;
+        if (current.hasLink()) {
+          if (current._dataType instanceof TriggerType) {
+            returnValue = {
+              triggerTypes: previous.triggerTypes + 1,
+              others: previous.others,
+            };
+          } else {
+            returnValue = {
+              triggerTypes: previous.triggerTypes,
+              others: previous.others + 1,
+            };
+          }
+        } else {
+          returnValue = previous;
+        }
+        return returnValue;
+      },
+      { triggerTypes: 0, others: 0 }
+    );
+    return countedTypes.triggerTypes > 0 ? countedTypes.others === 0 : false;
+  }
+
   getAllSockets(): Socket[] {
     return this.inputSocketArray.concat(this.outputSocketArray);
   }
+
   getSocketByName(name: string): Socket {
     return this.getAllSockets().find((socket) => socket.name === name);
   }
