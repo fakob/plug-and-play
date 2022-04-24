@@ -168,13 +168,7 @@ export default class Socket extends PIXI.Container {
       dataToReturn = this._data;
     }
     // allow the type to potentially sanitize the data before passing it on
-    const parsedData = this.dataType.parse(dataToReturn);
-
-    if (this.isInput() && this.hasLink()) {
-      console.log('get', this.getNode().name, this.name, this._dataType);
-      this._dataType.onChangeData(this, this.previousData, parsedData);
-    }
-    return parsedData;
+    return this.dataType.parse(dataToReturn);
   }
 
   // for inputs: set data is called only on the socket where the change is being made
@@ -186,11 +180,6 @@ export default class Socket extends PIXI.Container {
       // update defaultData only if socket is input
       // and does not have a link
       this._defaultData = newData;
-    }
-
-    if (this.isInput()) {
-      console.log('set', this.getNode().name, this.name, this._dataType);
-      this._dataType.onChangeData(this, this._previousData, this._data);
     }
   }
 

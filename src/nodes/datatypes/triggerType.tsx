@@ -40,8 +40,11 @@ export class TriggerType extends AbstractType {
     return <TriggerWidget {...data} />;
   };
 
-  onChangeData(socket: Socket, previousData: any, newData: any): void {
-    console.log(socket, previousData, newData);
+  shouldSocketTriggerExecution(
+    socket: Socket,
+    previousData: any,
+    newData: any
+  ): boolean {
     if (
       (this.changeFunctionString === TRIGGER_TYPE_OPTIONS[0].value &&
         previousData !== newData) ||
@@ -50,7 +53,8 @@ export class TriggerType extends AbstractType {
       (this.changeFunctionString === TRIGGER_TYPE_OPTIONS[2].value &&
         previousData > newData)
     ) {
-      socket.getNode()[this.triggerFunctionString];
+      return true;
     }
+    return false;
   }
 }

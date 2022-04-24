@@ -53,5 +53,11 @@ export class AbstractType {
     return data;
   }
 
-  onChangeData(socket: Socket, previousData: any, newData: any): void {}
+  shouldSocketTriggerExecution(
+    socket: Socket,
+    previousData: any,
+    newData: any
+  ): boolean {
+    return true;
+  }
 }

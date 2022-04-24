@@ -1012,6 +1012,18 @@ export default class PPNode extends PIXI.Container {
     return inputObject;
   }
 
+  shouldNodeExecute(): boolean {
+    return this.inputSocketArray.every((input) => {
+      const executeNode =
+        input._dataType.shouldSocketTriggerExecution(
+          input,
+          input.previousData,
+          input.data
+        ) === true;
+      return executeNode;
+    });
+  }
+
   // if you want to optimize the mapping, override this function instead of execute()
   protected async rawExecute(): Promise<boolean> {
     // remap input
@@ -1090,7 +1102,9 @@ export default class PPNode extends PIXI.Container {
       if (this.shouldDrawExecution()) {
         this.renderOutlineThrottled();
       }
-      foundChange = await this.rawExecute();
+      if (!this.hasOnlyTriggerLink() || this.shouldNodeExecute()) {
+        foundChange = await this.rawExecute();
+      }
       this.drawComment();
     } catch (error) {
       this.lastError = error;
