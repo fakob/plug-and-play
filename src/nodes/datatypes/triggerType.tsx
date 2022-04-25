@@ -37,7 +37,11 @@ export class TriggerType extends AbstractType {
     return <TriggerWidget {...data} />;
   };
 
-  shouldTriggerExecution(
+  manualTrigger(): boolean {
+    return true;
+  }
+
+  shouldTriggerExecute(
     socket: Socket,
     previousData: any,
     newData: any

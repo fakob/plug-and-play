@@ -1053,42 +1053,33 @@ export default class PPNode extends PIXI.Container {
     }
   }
 
-  hasOnlyTriggerLink(): boolean {
-    const countedTypes = this.inputSocketArray.reduce(
-      (previous, current) => {
-        let returnValue;
-        if (current.hasLink()) {
-          if (current._dataType instanceof TriggerType) {
-            returnValue = {
-              triggerTypes: previous.triggerTypes + 1,
-              others: previous.others,
-            };
-          } else {
-            returnValue = {
-              triggerTypes: previous.triggerTypes,
-              others: previous.others + 1,
-            };
-          }
-        } else {
-          returnValue = previous;
-        }
-        return returnValue;
-      },
-      { triggerTypes: 0, others: 0 }
+  hasLinkedManualTrigger(): boolean {
+    const hasTrigger = this.inputSocketArray.some(
+      (socket) => socket.hasLink() && socket._dataType.manualTrigger()
     );
-    return countedTypes.triggerTypes > 0 ? countedTypes.others === 0 : false;
+    console.log(this.name, hasTrigger);
+    return hasTrigger;
   }
 
   shouldNodeExecute(): boolean {
-    return this.inputSocketArray.every((input) => {
+    const shouldExecute = this.inputSocketArray.every((input) => {
       const executeNode =
-        input._dataType.shouldTriggerExecution(
+        input._dataType.shouldTriggerExecute(
           input,
           input.previousData,
           input.data
         ) === true;
+      console.log(
+        input.name,
+        'shouldTriggerExecute:',
+        input.previousData,
+        input.data,
+        executeNode
+      );
       return executeNode;
     });
+    console.log(this.name, 'shouldExecute:', shouldExecute);
+    return shouldExecute;
   }
 
   protected async execute(): Promise<boolean> {
@@ -1096,15 +1087,16 @@ export default class PPNode extends PIXI.Container {
     let foundChange = false;
     try {
       this.successfullyExecuted = true;
-      if (this.shouldDrawExecution()) {
-        this.renderOutlineThrottled();
-      }
-      // if all linked sockets of a node are only of trigger type
+      // if one or more sockets are a linked and set to manual trigger
       // ask trigger type if node should execute
-      if (!this.hasOnlyTriggerLink() || this.shouldNodeExecute()) {
+      if (!this.hasLinkedManualTrigger() || this.shouldNodeExecute()) {
+        if (this.shouldDrawExecution()) {
+          this.renderOutlineThrottled();
+        }
+        console.log('rawExecute', this.name);
         foundChange = await this.rawExecute();
+        this.drawComment();
       }
-      this.drawComment();
     } catch (error) {
       this.lastError = error;
       console.log('node ' + this.id + ' execution error: ' + error);
