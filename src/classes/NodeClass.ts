@@ -688,11 +688,14 @@ export default class PPNode extends PIXI.Container {
   }
 
   public addTriggerInput(): void {
-    this.addInput(
-      this.constructSocketName('Trigger', this.inputSocketArray),
-      new TriggerType(TRIGGER_TYPE_OPTIONS[0].value),
-      0
-    );
+    // allow only one trigger input
+    if (!this.hasManualTrigger()) {
+      this.addInput(
+        this.constructSocketName('Trigger', this.inputSocketArray),
+        new TriggerType(TRIGGER_TYPE_OPTIONS[0].value),
+        0
+      );
+    }
   }
 
   public addDefaultInput(): void {
@@ -1052,11 +1055,17 @@ export default class PPNode extends PIXI.Container {
     }
   }
 
+  hasManualTrigger(): boolean {
+    const hasTrigger = this.inputSocketArray.some((socket) =>
+      socket._dataType.manualTrigger()
+    );
+    return hasTrigger;
+  }
+
   hasLinkedManualTrigger(): boolean {
     const hasTrigger = this.inputSocketArray.some(
       (socket) => socket.hasLink() && socket._dataType.manualTrigger()
     );
-    console.log(this.name, hasTrigger);
     return hasTrigger;
   }
 
