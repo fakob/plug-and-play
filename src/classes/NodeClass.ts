@@ -473,7 +473,6 @@ export default class PPNode extends PIXI.Container {
   }
 
   async executeOptimizedChain(): Promise<void> {
-    //console.log('executing: ' + this.id);
     await PPNode.executeOptimizedChainBatch([this]);
   }
 
@@ -1087,7 +1086,7 @@ export default class PPNode extends PIXI.Container {
     let foundChange = false;
     try {
       this.successfullyExecuted = true;
-      // if one or more sockets are a linked and set to manual trigger
+      // if a sockets is a linked and set to manual trigger
       // ask trigger type if node should execute
       if (!this.hasLinkedManualTrigger() || this.shouldNodeExecute()) {
         if (this.shouldDrawExecution()) {

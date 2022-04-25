@@ -307,16 +307,16 @@ export const CONDITION_OPTIONS: EnumStructure = [
 
 export const TRIGGER_TYPE_OPTIONS: EnumStructure = [
   {
-    text: 'change',
-    value: 'change',
-  },
-  {
     text: 'positiveFlank',
     value: 'positiveFlank',
   },
   {
     text: 'negativeFlank',
     value: 'negativeFlank',
+  },
+  {
+    text: 'change',
+    value: 'change',
   },
 ];
 

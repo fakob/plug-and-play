@@ -372,15 +372,16 @@ export const TriggerWidget: React.FunctionComponent<TriggerWidgetProps> = (
 
   return (
     <>
-      <CodeEditor
-        value={String(data) || ''}
-        randomMainColor={props.randomMainColor}
-        editable={!props.hasLink}
-        onChange={(value) => {
-          potentiallyNotify(props.property, value);
-          setData(value);
-        }}
-      />
+      {props.hasLink && (
+        <CodeEditor
+          value={String(data) || ''}
+          randomMainColor={props.randomMainColor}
+          onChange={(value) => {
+            potentiallyNotify(props.property, value);
+            setData(value);
+          }}
+        />
+      )}
       <FormGroup>
         <Select
           label="Trigger method"
@@ -412,22 +413,25 @@ export const TriggerWidget: React.FunctionComponent<TriggerWidgetProps> = (
           value={customFunctionString}
         />
       </FormGroup>
-      <Button
-        startIcon={<PlayArrowIcon />}
-        onClick={() => {
-          // nodes with trigger input need a trigger function
-          (props.property.parent as any)[
-            customFunctionString === ''
-              ? 'executeOptimizedChain'
-              : customFunctionString
-          ]();
-        }}
-        variant="contained"
-      >
-        {customFunctionString === ''
-          ? 'executeOptimizedChain'
-          : customFunctionString}
-      </Button>
+      {!props.hasLink && (
+        <Button
+          startIcon={<PlayArrowIcon />}
+          onClick={() => {
+            // nodes with trigger input need a trigger function
+            (props.property.parent as any)[
+              customFunctionString === ''
+                ? 'executeOptimizedChain'
+                : customFunctionString
+            ]();
+          }}
+          variant="contained"
+          fullWidth
+        >
+          {customFunctionString === ''
+            ? 'executeOptimizedChain'
+            : customFunctionString}
+        </Button>
+      )}
     </>
   );
 };
