@@ -33,6 +33,9 @@ const input2Name = 'Input 2';
 
 const inputMultiplierName = 'Multiplier';
 
+function asyncWrapCode(code: string, execute = true): string {
+  return '(' + code + ')' + (execute ? '()' : '');
+}
 export class Code extends PureNode {
   protected getDefaultIO(): Socket[] {
     return [
@@ -42,14 +45,14 @@ export class Code extends PureNode {
         anyCodeName,
         new CodeType(),
         '// in here you are provided with two objects; "inputObject" and "outputObject", they each have named parameters based on the input and output sockets, so by default there will be an inputObject["' +
-        inDataName +
-        '"] and an outputObject["' +
-        outDataName +
-        '"]\n\noutputObject["' +
-        outDataName +
-        '"] = inputObject["' +
-        inDataName +
-        '"]'
+          inDataName +
+          '"] and an outputObject["' +
+          outDataName +
+          '"]\n\noutputObject["' +
+          outDataName +
+          '"] = inputObject["' +
+          inDataName +
+          '"]'
       ),
       new Socket(SOCKET_TYPE.OUT, outDataName, new ArrayType()),
     ];
@@ -64,10 +67,11 @@ export class Code extends PureNode {
     inputObject: any,
     outputObject: Record<string, unknown>
   ): Promise<void> {
-    eval(inputObject?.[anyCodeName]);
+    await eval('async () => {' + inputObject[anyCodeName] + '}')();
   }
 }
 
+// make filter and map ourselves to be able to deal with async (need sequental ordering)
 export class Filter extends PureNode {
   protected getDefaultIO(): Socket[] {
     return [
@@ -87,7 +91,17 @@ export class Filter extends PureNode {
   ): Promise<void> {
     const filterCode = inputObject[filterCodeName];
     const inputArray = inputObject[arrayName];
-    outputObject[arrayOutName] = inputArray?.filter(eval(filterCode));
+    const outputs = [];
+    for (let i = 0; i < inputArray.length; i++) {
+      const passed = await eval(
+        asyncWrapCode(filterCode, false) + '(inputArray[i],i)'
+      );
+      if (passed) {
+        outputs.push(inputArray[i]);
+      }
+    }
+
+    outputObject[arrayOutName] = outputs;
   }
 }
 
@@ -110,7 +124,13 @@ export class Map extends PureNode {
   ): Promise<void> {
     const mapCode = inputObject[mapCodeName];
     const inputArray = inputObject[arrayName];
-    outputObject[mapOutName] = inputArray?.map(eval(mapCode));
+    const outputs = [];
+    for (let i = 0; i < inputArray.length; i++) {
+      outputs.push(
+        await eval(asyncWrapCode(mapCode, false) + '(inputArray[i],i)')
+      );
+    }
+    outputObject[mapOutName] = outputs;
   }
 
   public getCanAddInput(): boolean {
@@ -293,7 +313,6 @@ export class Uniques extends PureNode {
   }
 }
 
-
 export class ParseArray extends PureNode {
   protected getDefaultIO(): Socket[] {
     return [
@@ -307,10 +326,11 @@ export class ParseArray extends PureNode {
     outputObject: Record<string, unknown>
   ): Promise<void> {
     const inputArray = inputObject[arrayName];
-    outputObject[arrayOutName] = inputArray.map(element => this.getSocketByName(typeName).dataType.parse(element));
+    outputObject[arrayOutName] = inputArray.map((element) =>
+      this.getSocketByName(typeName).dataType.parse(element)
+    );
   }
 }
-
 
 // the purpose of for loops in our context is for actions that have sideeffects outside of plug and playground, if you are not looking for external side effects you are likely not looking for a loop
 export class ForLoop extends NodeClass {
@@ -400,8 +420,6 @@ export class ForEachLoop extends ForLoop {
       inputObject?.[arrayName]?.[this.currentIndex];
   }
 }
-
-
 
 // TODO implement
 // Not quite sure how we want this one to look... CodeType? or based on input?

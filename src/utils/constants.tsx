@@ -125,6 +125,7 @@ export const NODE_TYPE_COLOR = {
   OUTPUT: COLOR[2],
   DRAW: COLOR[3],
   SHADER: COLOR[4],
+  MACRO: COLOR[5],
 };
 
 export const COMMENT_TEXTSTYLE = new TextStyle({

@@ -10,11 +10,15 @@ import { EnumType } from '../datatypes/enumType';
 import { CustomArgs, TRgba } from '../../utils/interfaces';
 import { NODE_TYPE_COLOR } from '../../utils/constants';
 import { getMethods } from '../../utils/utils';
+import { BooleanType } from '../datatypes/booleanType';
 
 const elementName = 'Element';
 const arrayName = 'Array';
 const arrayLength = 'ArrayLength';
 const indexName = 'Index';
+const beginIndexName = 'Begin';
+const endIndexName = 'End';
+const shouldUseEnd = 'Slice End';
 
 export class ArrayCreate extends PureNode {
   protected getDefaultIO(): Socket[] {
@@ -54,8 +58,42 @@ export class ArrayGet extends PureNode {
     inputObject: unknown,
     outputObject: Record<string, unknown>
   ): Promise<void> {
-    outputObject[elementName] =
-      inputObject?.[arrayName]?.[inputObject[indexName]];
+    outputObject[elementName] = inputObject[arrayName][inputObject[indexName]];
+  }
+}
+export class ArraySlice extends PureNode {
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(SOCKET_TYPE.IN, arrayName, new ArrayType()),
+      new Socket(
+        SOCKET_TYPE.IN,
+        beginIndexName,
+        new NumberType(true, 0, 10),
+        0,
+        true
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        endIndexName,
+        new NumberType(true, 0, 10),
+        0,
+        true
+      ),
+      new Socket(SOCKET_TYPE.IN, shouldUseEnd, new BooleanType(), false),
+      new Socket(SOCKET_TYPE.OUT, arrayName, new ArrayType()),
+    ];
+  }
+  protected async onExecute(
+    inputObject: unknown,
+    outputObject: Record<string, unknown>
+  ): Promise<void> {
+    const res = inputObject[shouldUseEnd]
+      ? inputObject[arrayName].slice(
+          inputObject[beginIndexName],
+          inputObject[endIndexName]
+        )
+      : inputObject[arrayName].slice(inputObject[beginIndexName]);
+    outputObject[arrayName] = res;
   }
 }
 

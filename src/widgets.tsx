@@ -183,6 +183,7 @@ export const SelectWidget: React.FunctionComponent<SelectWidgetProps> = (
     if (props.onChange) {
       props.onChange(value);
     }
+    props.property.getNode().metaInfoChanged();
   };
 
   return (
@@ -369,7 +370,7 @@ export type ColorWidgetProps = {
 export const ColorWidget: React.FunctionComponent<ColorWidgetProps> = (
   props
 ) => {
-  const defaultColor: TRgba = props.data ?? new TRgba();
+  const defaultColor: TRgba = Object.assign(new TRgba(), props.data);
 
   const [colorPicker, showColorPicker] = useState(false);
   const [finalColor, changeColor] = useState(defaultColor);

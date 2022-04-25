@@ -39,7 +39,11 @@ export function getInfoFromRegisteredNode(
 ): { hasInputs: boolean; name: string; description: string } {
   const node = new constructor(key, graph);
   const hasInputs = node.inputSocketArray.length > 0;
-  return { hasInputs, name: node.name, description: node.description };
+  return {
+    hasInputs,
+    name: node.getName(),
+    description: node.getDescription(),
+  };
 }
 
 export function convertToArray<T>(value: T | T[]): T[] {

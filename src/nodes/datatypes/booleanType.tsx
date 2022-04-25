@@ -14,6 +14,9 @@ export class BooleanType extends AbstractType {
   getDefaultValue(): any {
     return false;
   }
+  parse(data: any): any {
+    return data ? true : false;
+  }
 
   getInputWidget = (data: any): any => {
     return <BooleanWidget {...data} />;

@@ -120,6 +120,14 @@ export default class PPNode extends PIXI.Container {
     return false;
   }
 
+  // we should migrate all nodes to use these functions instead of specifying the field themselves in constructor
+  public getName(): string {
+    return this.name;
+  }
+  public getDescription(): string {
+    return this.description;
+  }
+
   constructor(type: string, graph: PPGraph, customArgs?: CustomArgs) {
     super();
     this.graph = graph;
@@ -148,7 +156,10 @@ export default class PPNode extends PIXI.Container {
 
     this.color.a =
       customArgs?.colorTransparency ?? (this.getIsHybrid() ? 0.01 : 1); // so it does not show when dragging the node fast
-    const inputNameText = new PIXI.Text(this.name, NODE_TEXTSTYLE);
+    const inputNameText = new PIXI.Text(
+      this.getNodeTextString(),
+      NODE_TEXTSTYLE
+    );
     inputNameText.x = NODE_HEADER_TEXTMARGIN_LEFT;
     inputNameText.y = NODE_PADDING_TOP + NODE_HEADER_TEXTMARGIN_TOP;
     inputNameText.resolution = 8;
@@ -242,7 +253,7 @@ export default class PPNode extends PIXI.Container {
 
   set nodeName(text: string) {
     this.name = text;
-    this._NodeNameRef.text = text;
+    this._NodeNameRef.text = this.getNodeTextString();
   }
 
   // METHODS
@@ -460,7 +471,7 @@ export default class PPNode extends PIXI.Container {
 
   async executeChildren(): Promise<void> {
     this.drawComment();
-    PPNode.executeOptimizedChainBatch(
+    await PPNode.executeOptimizedChainBatch(
       Object.values(this.getDirectDependents())
     );
   }
@@ -585,6 +596,13 @@ export default class PPNode extends PIXI.Container {
       : Math.max(this.nodeHeight, this.calculatedMinNodeHeight);
   }
 
+  public getNodeTextString(): string {
+    if (this.name !== this.type) {
+      return this.name + '\t(' + this.type + ')';
+    }
+    return this.name;
+  }
+
   drawNodeShape(): void {
     // redraw background due to size change
     this._BackgroundRef.clear();
@@ -621,6 +639,7 @@ export default class PPNode extends PIXI.Container {
         if (this.showLabels === false) {
           item._SocketNameRef.alpha = 0;
         }
+        item.redrawAnythingChanging();
       });
 
     // redraw inputs
@@ -633,6 +652,8 @@ export default class PPNode extends PIXI.Container {
           index * SOCKET_HEIGHT;
         if (this.showLabels === false) {
         }
+
+        item.redrawAnythingChanging();
       });
 
     this.drawComment();
@@ -700,7 +721,7 @@ export default class PPNode extends PIXI.Container {
       let commentData = this.outputSocketArray[0]?.dataType?.getComment(
         this.outputSocketArray[0]?.data
       );
-      if (commentData && commentData.length > 10000) {
+      if (commentData !== undefined && commentData.length > 10000) {
         commentData = 'Too long to display';
       }
       const debugText = new PIXI.Text(
@@ -902,7 +923,7 @@ export default class PPNode extends PIXI.Container {
     return link.source.data;
   }
 
-  // avoid calling this directly, instead use the input/output objects in onExecute
+  // avoid calling this directly when possible, instead use the input/output objects in onExecute and keep it encapsulated in that flow (not always possible but most of the time is)
   setInputData(name: string, data: any): void {
     const inputSocket = this.inputSocketArray.find((input: Socket) => {
       return name === input.name;
@@ -923,13 +944,9 @@ export default class PPNode extends PIXI.Container {
       .find((output: Socket) => {
         return name === output.name;
       });
-
-    if (!outputSocket) {
-      console.error('No output socket found with the name: ', name);
-      return undefined;
+    if (outputSocket) {
+      outputSocket.data = data;
     }
-
-    outputSocket.data = data;
   }
 
   async tick(currentTime: number, deltaTime: number): Promise<void> {
@@ -1206,6 +1223,14 @@ export default class PPNode extends PIXI.Container {
         (socket) => socket.name == name && socket.socketType == type
       ) !== undefined
     );
+  }
+
+  public async invokeMacro(inputObject: any): Promise<any> {
+    return await this.graph.invokeMacro(inputObject);
+  }
+
+  public metaInfoChanged(): void {
+    this.drawNodeShape();
   }
 }
 

@@ -25,7 +25,7 @@ export default class Socket extends PIXI.Container {
   // data is derived from execute function
 
   _SocketNameRef: PIXI.DisplayObject;
-  _SocketRef: PIXI.DisplayObject;
+  _SocketRef: PIXI.Graphics;
 
   _socketType: TSocketType;
   _dataType: AbstractType;
@@ -64,45 +64,49 @@ export default class Socket extends PIXI.Container {
     this._custom = custom;
     this._links = [];
 
-    const socket = new PIXI.Graphics();
-    socket.beginFill(dataType.getColor().hexNumber());
-    socket.drawRoundedRect(
-      socketType === SOCKET_TYPE.IN ? 0 : NODE_WIDTH,
-      SOCKET_WIDTH / 2,
-      SOCKET_WIDTH,
-      SOCKET_WIDTH,
-      SOCKET_CORNERRADIUS
-    );
-    socket.endFill();
-
     const socketNameText = new PIXI.Text(name, SOCKET_TEXTSTYLE);
     if (socketType === SOCKET_TYPE.OUT) {
       socketNameText.anchor.set(1, 0);
     }
     socketNameText.x =
       socketType === SOCKET_TYPE.IN
-        ? socket.width + SOCKET_TEXTMARGIN
+        ? SOCKET_WIDTH + SOCKET_TEXTMARGIN
         : NODE_WIDTH - SOCKET_TEXTMARGIN;
     socketNameText.y = SOCKET_TEXTMARGIN_TOP;
     socketNameText.resolution = TEXT_RESOLUTION;
 
-    this._SocketRef = this.addChild(socket);
     this._SocketNameRef = this.addChild(socketNameText);
 
     this.interactionData = null;
     this.interactive = true;
-    this._SocketRef.name = 'SocketRef';
-    this._SocketRef.interactive = true;
-    this._SocketRef.on('pointerover', this._onPointerOver.bind(this));
-    this._SocketRef.on('pointerout', this._onPointerOut.bind(this));
-    this._SocketRef.on('pointerdown', (event) => this._onPointerDown(event));
-    this._SocketRef.on('pointerup', (event) => this._onPointerUp(event));
     this._SocketNameRef.interactive = true;
     this._SocketNameRef.on('pointerover', this._onPointerOver.bind(this));
     this._SocketNameRef.on('pointerout', this._onPointerOut.bind(this));
     this._SocketNameRef.on('pointerdown', (event) => {
       this.getGraph().socketNameRefMouseDown(this, event);
     });
+    this.redrawAnythingChanging();
+  }
+
+  redrawAnythingChanging(): void {
+    this.removeChild(this._SocketRef);
+    this._SocketRef = new PIXI.Graphics();
+    this._SocketRef.beginFill(this.dataType.getColor().hexNumber());
+    this._SocketRef.drawRoundedRect(
+      this.socketType === SOCKET_TYPE.IN ? 0 : NODE_WIDTH,
+      SOCKET_WIDTH / 2,
+      SOCKET_WIDTH,
+      SOCKET_WIDTH,
+      SOCKET_CORNERRADIUS
+    );
+    this._SocketRef.endFill();
+    this._SocketRef.name = 'SocketRef';
+    this._SocketRef.interactive = true;
+    this._SocketRef.on('pointerover', this._onPointerOver.bind(this));
+    this._SocketRef.on('pointerout', this._onPointerOut.bind(this));
+    this._SocketRef.on('pointerdown', (event) => this._onPointerDown(event));
+    this._SocketRef.on('pointerup', (event) => this._onPointerUp(event));
+    this.addChild(this._SocketRef);
   }
 
   // GETTERS & SETTERS
@@ -292,5 +296,16 @@ export default class Socket extends PIXI.Container {
   }
   _onPointerUp(event: PIXI.InteractionEvent): void {
     this.getGraph().socketMouseUp(this, event);
+  }
+  destroy(): void {
+    this.getNode().inputSocketArray = this.getNode().inputSocketArray.filter(
+      (socket) =>
+        !(socket.name === this.name && socket.socketType === this.socketType)
+    );
+    this.getNode().outputSocketArray = this.getNode().outputSocketArray.filter(
+      (socket) =>
+        !(socket.name === this.name && socket.socketType === this.socketType)
+    );
+    super.destroy();
   }
 }

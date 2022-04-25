@@ -44,7 +44,9 @@ export default class PPGraph {
   backgroundCanvas: PIXI.Container;
   connectionContainer: PIXI.Container;
   nodeContainer: PIXI.Container;
-  nodes: { [key: string]: PPNode }; //<string, PPNode>;
+  nodes: { [key: string]: PPNode } = {};
+  macrosIn: { [key: string]: PPNode } = {};
+  macrosOut: { [key: string]: PPNode } = {};
   foregroundCanvas: PIXI.Container;
 
   tempConnection: PIXI.Graphics;
@@ -82,7 +84,6 @@ export default class PPGraph {
     this.nodeContainer.name = 'nodeContainer';
     this.foregroundCanvas = new PIXI.Container();
     this.foregroundCanvas.name = 'foregroundCanvas';
-    this.nodes = {};
     this.ticking = false;
 
     this.viewport.addChild(
@@ -210,8 +211,8 @@ export default class PPGraph {
     this.onViewportDragging(false);
   }
 
-  getObjectCenter(object: any): PIXI.Point {
-    const dragSourceRect = object.children[0].getBounds();
+  getSocketCenter(object: Socket): PIXI.Point {
+    const dragSourceRect = object.socketRef.getBounds();
     const dragSourcePoint = new PIXI.Point(
       dragSourceRect.x + dragSourceRect.width / 2,
       dragSourceRect.y + dragSourceRect.height / 2
@@ -231,13 +232,13 @@ export default class PPGraph {
     // draw connection
     if (this.selectedSourceSocket) {
       // draw connection while dragging
-      let socketCenter = this.getObjectCenter(this.selectedSourceSocket);
+      let socketCenter = this.getSocketCenter(this.selectedSourceSocket);
 
       // change mouse coordinates from screen to world space
       let targetPoint = new PIXI.Point();
       if (this.overInputRef) {
         // get target position
-        targetPoint = this.getObjectCenter(this.overInputRef);
+        targetPoint = this.getSocketCenter(this.overInputRef);
       } else {
         targetPoint = this.viewport.toWorld(event.data.global);
       }
@@ -907,6 +908,30 @@ export default class PPGraph {
     console.log(storedSelection);
     this.selection.deselectAllNodesAndResetSelection();
     storedSelection.forEach((node) => this.removeNode(node));
+  }
+
+  public findMacroInput(name: string): PPNode {
+    return Object.values(this.macrosIn).find((node) => node.name === name);
+  }
+  public findMacroOutput(name: string): PPNode {
+    return Object.values(this.macrosOut).find((node) => node.name === name);
+  }
+
+  async invokeMacro(inputObject: any): Promise<any> {
+    const macroStartNode = this.findMacroInput(inputObject['Name']);
+    Object.keys(inputObject).forEach((key) => {
+      macroStartNode.setOutputData(key, inputObject[key]);
+    });
+
+    await macroStartNode.executeOptimizedChain();
+    const macroEndNode = this.findMacroOutput(inputObject['Name']);
+
+    const outputObject = {};
+    macroEndNode
+      .getAllSockets()
+      .filter((socket) => socket.socketType === SOCKET_TYPE.IN)
+      .forEach((socket) => (outputObject[socket.name] = socket.data));
+    return outputObject;
   }
 
   setState(key: string, data: any): void {

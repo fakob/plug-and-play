@@ -14,7 +14,7 @@ export class AbstractType {
     return this.getComment(data);
   }
   getComment(data: any): string {
-    if (data) {
+    if (data !== undefined) {
       return inspect(data, null, 1);
     }
     return 'null';

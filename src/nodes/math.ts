@@ -94,9 +94,6 @@ class SimpleMathOperation extends PureNode {
       ...customArgs,
       color: TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM),
     });
-
-    this.name = this.getName();
-    this.description = this.getDescription();
   }
   protected async onExecute(
     inputObject: any,
@@ -134,10 +131,10 @@ class SimpleMathOperation extends PureNode {
       true
     );
   }
-  protected getName(): string {
+  public getName(): string {
     return 'MathOperation';
   }
-  protected getDescription(): string {
+  public getDescription(): string {
     return 'Does a math operation to two numbers or strings';
   }
 
@@ -147,10 +144,10 @@ class SimpleMathOperation extends PureNode {
 }
 
 export class Add extends SimpleMathOperation {
-  protected getName(): string {
+  public getName(): string {
     return 'Add';
   }
-  protected getDescription(): string {
+  public getDescription(): string {
     return 'Adds 2 numbers or strings';
   }
   protected getOperation(a: any, b: any): any {
@@ -159,10 +156,10 @@ export class Add extends SimpleMathOperation {
 }
 
 export class Subtract extends SimpleMathOperation {
-  protected getName(): string {
+  public getName(): string {
     return 'Subtract';
   }
-  protected getDescription(): string {
+  public getDescription(): string {
     return 'Subtracts 2 numbers';
   }
   protected getOperation(a: any, b: any): any {
@@ -171,10 +168,10 @@ export class Subtract extends SimpleMathOperation {
 }
 
 export class Multiply extends SimpleMathOperation {
-  protected getName(): string {
+  public getName(): string {
     return 'Multiply';
   }
-  protected getDescription(): string {
+  public getDescription(): string {
     return 'Multiplies 2 numbers';
   }
   protected getOperation(a: any, b: any): any {
@@ -191,10 +188,10 @@ export class Multiply extends SimpleMathOperation {
   }
 }
 export class Divide extends SimpleMathOperation {
-  protected getName(): string {
+  public getName(): string {
     return 'Divide';
   }
-  protected getDescription(): string {
+  public getDescription(): string {
     return 'Divides 2 numbers';
   }
   protected getOperation(a: any, b: any): any {
