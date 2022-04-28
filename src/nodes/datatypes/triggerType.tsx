@@ -37,11 +37,11 @@ export class TriggerType extends AbstractType {
     return <TriggerWidget {...data} />;
   };
 
-  manualTrigger(): boolean {
+  controlledTrigger(): boolean {
     return true;
   }
 
-  shouldTriggerExecute(
+  onControlledTrigger(
     socket: Socket,
     previousData: any,
     newData: any

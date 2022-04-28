@@ -167,7 +167,23 @@ export default class Socket extends PIXI.Container {
       dataToReturn = this._data;
     }
     // allow the type to potentially sanitize the data before passing it on
-    return this.dataType.parse(dataToReturn);
+    const parsedData = this.dataType.parse(dataToReturn);
+
+    if (
+      this.isInput() &&
+      this.hasLink() &&
+      !this.getNode().updateBehaviour.update
+    ) {
+      console.log(
+        'get',
+        this.getNode().name,
+        this.name,
+        this.previousData,
+        parsedData
+      );
+      this._dataType.onControlledTrigger(this, this.previousData, parsedData);
+    }
+    return parsedData;
   }
 
   // for inputs: set data is called only on the socket where the change is being made
@@ -283,11 +299,28 @@ export default class Socket extends PIXI.Container {
     };
   }
 
+  // getDirectDependents(): { node: PPNode; controlledTrigger: boolean }[] {
+  //   // only continue with nodes that execute on update
+  //   const nodes: { node: PPNode; controlledTrigger: boolean }[] = [];
+  //   this.links.map((link) => {
+  //     const inputSocket = link.getTarget();
+  //     const node = inputSocket.getNode();
+  //     nodes.push({
+  //       node: node,
+  //       controlledTrigger: node.updateBehaviour.update
+  //         ? false
+  //         : inputSocket._dataType.controlledTrigger(),
+  //     });
+  //   });
+  //   return nodes;
+  // }
+
   getDirectDependents(): PPNode[] {
     // only continue with nodes that execute on update
     const nodes = this.links.map((link) => link.getTarget().getNode());
-    const filteredNodes = nodes.filter((node) => node.updateBehaviour.update);
-    return filteredNodes;
+    // const filteredNodes = nodes.filter((node) => node.updateBehaviour.update);
+    // return filteredNodes;
+    return nodes;
   }
 
   // SETUP

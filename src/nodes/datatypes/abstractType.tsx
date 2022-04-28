@@ -53,11 +53,11 @@ export class AbstractType {
     return data;
   }
 
-  manualTrigger(): boolean {
+  controlledTrigger(): boolean {
     return false;
   }
 
-  shouldTriggerExecute(
+  onControlledTrigger(
     socket: Socket,
     previousData: any,
     newData: any

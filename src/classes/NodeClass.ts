@@ -688,14 +688,11 @@ export default class PPNode extends PIXI.Container {
   }
 
   public addTriggerInput(): void {
-    // allow only one trigger input
-    if (!this.hasManualTrigger()) {
-      this.addInput(
-        this.constructSocketName('Trigger', this.inputSocketArray),
-        new TriggerType(TRIGGER_TYPE_OPTIONS[0].value),
-        0
-      );
-    }
+    this.addInput(
+      this.constructSocketName('Trigger', this.inputSocketArray),
+      new TriggerType(TRIGGER_TYPE_OPTIONS[0].value),
+      0
+    );
   }
 
   public addDefaultInput(): void {
@@ -991,23 +988,28 @@ export default class PPNode extends PIXI.Container {
     const inputObject = this.remapInput(this.inputSocketArray);
     const outputObject = {};
 
-    await this.onExecute(inputObject, outputObject);
-    this.onAfterExecute();
+    if (this.updateBehaviour.update) {
+      console.log('update yes: ', this.name);
+      await this.onExecute(inputObject, outputObject);
+      this.onAfterExecute();
 
-    let foundChange = !this.isPure();
-    // output whatever the user has put in
-    this.outputSocketArray.forEach((output: Socket) => {
-      if (outputObject[output.name] !== undefined) {
-        if (!foundChange) {
-          // see if anything has changed, but only need to do this if no previous has been found
-          foundChange =
-            JSON.stringify(outputObject[output.name]) !==
-            JSON.stringify(output.data);
+      let foundChange = !this.isPure();
+      // output whatever the user has put in
+      this.outputSocketArray.forEach((output: Socket) => {
+        if (outputObject[output.name] !== undefined) {
+          if (!foundChange) {
+            // see if anything has changed, but only need to do this if no previous has been found
+            foundChange =
+              JSON.stringify(outputObject[output.name]) !==
+              JSON.stringify(output.data);
+          }
+          output.data = outputObject[output.name];
         }
-        output.data = outputObject[output.name];
-      }
-    });
-    return foundChange;
+      });
+      return foundChange;
+    }
+    console.log('update no: ', this.name);
+    return false;
   }
 
   // override if you don't want your node to show outline for some reason
@@ -1055,56 +1057,16 @@ export default class PPNode extends PIXI.Container {
     }
   }
 
-  hasManualTrigger(): boolean {
-    const hasTrigger = this.inputSocketArray.some((socket) =>
-      socket._dataType.manualTrigger()
-    );
-    return hasTrigger;
-  }
-
-  hasLinkedManualTrigger(): boolean {
-    const hasTrigger = this.inputSocketArray.some(
-      (socket) => socket.hasLink() && socket._dataType.manualTrigger()
-    );
-    return hasTrigger;
-  }
-
-  shouldNodeExecute(): boolean {
-    const shouldExecute = this.inputSocketArray.every((input) => {
-      const executeNode =
-        input._dataType.shouldTriggerExecute(
-          input,
-          input.previousData,
-          input.data
-        ) === true;
-      console.log(
-        input.name,
-        'shouldTriggerExecute:',
-        input.previousData,
-        input.data,
-        executeNode
-      );
-      return executeNode;
-    });
-    console.log(this.name, 'shouldExecute:', shouldExecute);
-    return shouldExecute;
-  }
-
   protected async execute(): Promise<boolean> {
     const executedSuccessOld = this.successfullyExecuted;
     let foundChange = false;
     try {
       this.successfullyExecuted = true;
-      // if a sockets is a linked and set to manual trigger
-      // ask trigger type if node should execute
-      if (!this.hasLinkedManualTrigger() || this.shouldNodeExecute()) {
-        if (this.shouldDrawExecution()) {
-          this.renderOutlineThrottled();
-        }
-        console.log('rawExecute', this.name);
-        foundChange = await this.rawExecute();
-        this.drawComment();
+      if (this.shouldDrawExecution()) {
+        this.renderOutlineThrottled();
       }
+      foundChange = await this.rawExecute();
+      this.drawComment();
     } catch (error) {
       this.lastError = error;
       console.log('node ' + this.id + ' execution error: ' + error);
