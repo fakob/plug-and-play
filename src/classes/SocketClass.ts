@@ -299,27 +299,8 @@ export default class Socket extends PIXI.Container {
     };
   }
 
-  // getDirectDependents(): { node: PPNode; controlledTrigger: boolean }[] {
-  //   // only continue with nodes that execute on update
-  //   const nodes: { node: PPNode; controlledTrigger: boolean }[] = [];
-  //   this.links.map((link) => {
-  //     const inputSocket = link.getTarget();
-  //     const node = inputSocket.getNode();
-  //     nodes.push({
-  //       node: node,
-  //       controlledTrigger: node.updateBehaviour.update
-  //         ? false
-  //         : inputSocket._dataType.controlledTrigger(),
-  //     });
-  //   });
-  //   return nodes;
-  // }
-
   getDirectDependents(): PPNode[] {
-    // only continue with nodes that execute on update
     const nodes = this.links.map((link) => link.getTarget().getNode());
-    // const filteredNodes = nodes.filter((node) => node.updateBehaviour.update);
-    // return filteredNodes;
     return nodes;
   }
 
