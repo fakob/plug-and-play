@@ -1,12 +1,12 @@
 /* eslint-disable prettier/prettier */
 import * as PIXI from 'pixi.js';
 import PPGraph from '../../classes/GraphClass';
-import PPNode, { UpdateBehaviour } from '../../classes/NodeClass';
+import PPNode from '../../classes/NodeClass';
+import UpdateBehaviourClass from '../../classes/UpdateBehaviourClass';
 import { CustomArgs, TRgba } from '../../utils/interfaces';
 import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../../utils/constants';
 import Socket from '../../classes/SocketClass';
 import { AnyType } from '../datatypes/anyType';
-import { StringType } from '../datatypes/stringType';
 import { ArrayType } from '../datatypes/arrayType';
 import { ImageType } from '../datatypes/imageType';
 import { CodeType } from '../datatypes/codeType';
@@ -211,10 +211,10 @@ export class Shader extends PPNode {
       const startY = scaledBorderDistanceY;
       const endY = scaledBorderDistanceY + this.prevHeight;
 
-        this.resizeNode(
-          defaultWidth + 2 * borderDistanceX,
-          defaultWidth * aspRatio + 2 * borderDistanceY
-        );
+      this.resizeNode(
+        defaultWidth + 2 * borderDistanceX,
+        defaultWidth * aspRatio + 2 * borderDistanceY
+      );
 
       const geometry = new PIXI.Geometry()
         .addAttribute(
@@ -258,8 +258,8 @@ export class Shader extends PPNode {
     return;
   }
 
-  protected getUpdateBehaviour(): UpdateBehaviour {
-    return new UpdateBehaviour(true, false, 16);
+  protected init(): void {
+    this.updateBehaviour.setUpdateBehaviour(true, false, 16);
   }
 }
 

@@ -101,6 +101,10 @@ export const SOCKET_TEXTSTYLE = new TextStyle({
   fontSize: 12,
   fill: COLOR_MAIN,
 });
+export const UPDATEBEHAVIOURHEADER_TEXTSTYLE = new TextStyle({
+  fontSize: 8,
+  fill: COLOR_DARK,
+});
 
 export const NODE_TEXTSTYLE = new TextStyle({
   fontSize: 13,

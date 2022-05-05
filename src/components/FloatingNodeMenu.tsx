@@ -107,6 +107,7 @@ const FloatingNodeMenu = (props) => {
     const value = (event.target as HTMLInputElement).value;
     selectedNodes.forEach((selectedNode) => {
       selectedNode.updateBehaviour.intervalFrequency = parseInt(value);
+      console.log(selectedNode.id, selectedNode, selectedNode.updateBehaviour);
     });
     setUpdatebehaviour((prevState) => ({
       ...prevState,

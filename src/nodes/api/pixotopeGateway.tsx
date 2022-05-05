@@ -1,6 +1,7 @@
-import PPNode, { PureNode, UpdateBehaviour } from '../../classes/NodeClass';
+import PPNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
-import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../../utils/constants';
+import UpdateBehaviourClass from '../../classes/UpdateBehaviourClass';
+import { SOCKET_TYPE } from '../../utils/constants';
 import { ImageType } from '../datatypes/imageType';
 import { JSONType } from '../datatypes/jsonType';
 import { NumberType } from '../datatypes/numberType';
@@ -20,9 +21,10 @@ const gatewayAddressDefault = 'http://localhost:16208/gateway/2.0.0/publish';
 
 export class PixotopeGatewayGet extends PPNode {
   // default to poll on interval X seconds
-  protected getUpdateBehaviour(): UpdateBehaviour {
-    return new UpdateBehaviour(true, false, 1000);
+  protected init(): void {
+    this.updateBehaviour.setUpdateBehaviour(true, false, 1000);
   }
+
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(
@@ -62,8 +64,8 @@ export class PixotopeGatewayGet extends PPNode {
 }
 
 export class PixotopeGatewaySet extends PPNode {
-  protected getUpdateBehaviour(): UpdateBehaviour {
-    return new UpdateBehaviour(false, false, 1000);
+  protected init(): void {
+    this.updateBehaviour.setUpdateBehaviour(false, false, 1000);
   }
 
   protected getDefaultIO(): Socket[] {

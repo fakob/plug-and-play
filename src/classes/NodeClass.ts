@@ -16,7 +16,6 @@ import {
   TSocketType,
 } from '../utils/interfaces';
 import {
-  COLOR_WHITE_TEXT,
   COMMENT_TEXTSTYLE,
   RANDOMMAINCOLOR,
   NODE_TYPE_COLOR,
@@ -30,9 +29,9 @@ import {
   NODE_TEXTSTYLE,
   NODE_WIDTH,
   SOCKET_HEIGHT,
-  SOCKET_WIDTH,
   SOCKET_TYPE,
 } from '../utils/constants';
+import UpdateBehaviourClass from './UpdateBehaviourClass';
 import PPGraph from './GraphClass';
 import Socket from './SocketClass';
 import {
@@ -45,26 +44,10 @@ import { AnyType } from '../nodes/datatypes/anyType';
 import { deSerializeType } from '../nodes/datatypes/typehelper';
 import { throttle } from 'lodash';
 
-export class UpdateBehaviour {
-  update: boolean;
-  interval: boolean;
-  intervalFrequency: number;
-
-  constructor(
-    inUpdate: boolean,
-    inInterval: boolean,
-    inIntervalFrequency: number
-  ) {
-    this.update = inUpdate;
-    this.interval = inInterval;
-    this.intervalFrequency = inIntervalFrequency;
-  }
-}
-
 export default class PPNode extends PIXI.Container {
   _NodeNameRef: PIXI.Text;
-  _NodeUpdateRef: PIXI.Graphics;
   _BackgroundRef: PIXI.Graphics;
+  _UpdateBehaviourRef: UpdateBehaviourClass;
   _CommentRef: PIXI.Graphics;
   clickedSocketRef: Socket;
 
@@ -85,7 +68,7 @@ export default class PPNode extends PIXI.Container {
   showLabels: boolean;
 
   // default to update on update, 1 sec time update interval
-  updateBehaviour: UpdateBehaviour;
+  updateBehaviour: UpdateBehaviourClass;
   lastTimeTicked = 0;
 
   successfullyExecuted = true;
@@ -141,7 +124,6 @@ export default class PPNode extends PIXI.Container {
     this.inputSocketArray = [];
     this.outputSocketArray = [];
     this.clickedSocketRef = null;
-    this.updateBehaviour = this.getUpdateBehaviour();
 
     // customArgs
     this.x = customArgs?.nodePosX ?? 0;
@@ -175,12 +157,13 @@ export default class PPNode extends PIXI.Container {
         blur: 1,
       }),
     ];
-    const updateHeader = new PIXI.Graphics();
 
     this._BackgroundRef = this.addChild(background);
-    this._NodeUpdateRef = this.addChild(updateHeader);
     this._NodeNameRef = this.addChild(inputNameText);
     this._CommentRef = this.addChild(new PIXI.Graphics());
+
+    this.updateBehaviour = new UpdateBehaviourClass(true, false, 1000);
+    this._UpdateBehaviourRef = this.addChild(this.updateBehaviour);
 
     // do not show the node name
     if (this.showLabels === false) {
@@ -208,6 +191,8 @@ export default class PPNode extends PIXI.Container {
 
     // define callbacks
     this.onNodeDragging = (isDraggingNode: boolean) => {};
+
+    this.init();
   }
 
   // GETTERS & SETTERS
@@ -359,6 +344,11 @@ export default class PPNode extends PIXI.Container {
     this.nodeName = nodeConfig.name;
     this.minNodeWidth = nodeConfig.minWidth ?? NODE_WIDTH;
     this.minNodeHeight = nodeConfig.minHeight;
+    this.updateBehaviour.setUpdateBehaviour(
+      nodeConfig.updateBehaviour.update,
+      nodeConfig.updateBehaviour.interval,
+      nodeConfig.updateBehaviour.intervalFrequency
+    );
     try {
       if (nodeConfig.width && nodeConfig.height) {
         this.resizeNode(nodeConfig.width, nodeConfig.height);
@@ -405,8 +395,6 @@ export default class PPNode extends PIXI.Container {
     if (this.getIsHybrid()) {
       this._onViewportMove(); // trigger this once, so the react components get positioned properly
     }
-
-    this.updateBehaviour = nodeConfig.updateBehaviour;
   }
 
   getDirectDependents(): { [key: string]: PPNode } {
@@ -635,14 +623,6 @@ export default class PPNode extends PIXI.Container {
 
     this._BackgroundRef.endFill();
 
-    // redraw update behaviour header
-    this._NodeUpdateRef.clear();
-    const whiteColor = TRgba.fromString(COLOR_WHITE_TEXT);
-    this._NodeUpdateRef.beginFill(whiteColor.hexNumber(), whiteColor.a);
-    this._NodeUpdateRef.drawCircle(NODE_MARGIN + 8, 8, 4);
-
-    this._NodeUpdateRef.endFill();
-
     // redraw outputs
     this.outputSocketArray
       .filter((item) => item.visible)
@@ -681,9 +661,7 @@ export default class PPNode extends PIXI.Container {
     return false;
   }
 
-  protected getUpdateBehaviour(): UpdateBehaviour {
-    return new UpdateBehaviour(true, false, 1000);
-  }
+  protected init(): void {}
 
   protected getDefaultIO(): Socket[] {
     return [];

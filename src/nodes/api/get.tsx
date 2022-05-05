@@ -1,6 +1,6 @@
 import PPNode from '../../classes/NodeClass';
-import PureNode, { UpdateBehaviour } from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
+import UpdateBehaviourClass from '../../classes/UpdateBehaviourClass';
 import { SOCKET_TYPE } from '../../utils/constants';
 import { JSONType } from '../datatypes/jsonType';
 import { StringType } from '../datatypes/stringType';
@@ -12,9 +12,10 @@ const outputContentName = 'Content';
 
 export class Get extends PPNode {
   // default to poll on interval X seconds
-  protected getUpdateBehaviour(): UpdateBehaviour {
-    return new UpdateBehaviour(false, true, 10000);
+  protected init(): void {
+    this.updateBehaviour.setUpdateBehaviour(false, true, 1000);
   }
+
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(
@@ -44,9 +45,10 @@ export class Get extends PPNode {
 
 export class Post extends PPNode {
   // default to only manual
-  protected getUpdateBehaviour(): UpdateBehaviour {
-    return new UpdateBehaviour(false, false, 10000);
+  protected init(): void {
+    this.updateBehaviour.setUpdateBehaviour(false, false, 1000);
   }
+
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(
