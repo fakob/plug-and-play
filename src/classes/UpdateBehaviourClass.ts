@@ -4,7 +4,7 @@ import PPGraph from './GraphClass';
 import PPNode from './NodeClass';
 import PPLink from './LinkClass';
 import {
-  COLOR_WHITE_TEXT,
+  COLOR_WHITE,
   NODE_MARGIN,
   SOCKET_TEXTMARGIN_TOP,
   SOCKET_TEXTMARGIN,
@@ -29,6 +29,7 @@ export default class UpdateBehaviourClass extends PIXI.Container {
   private _intervalFrequency: number;
   private anchorX: number;
   private anchorY: number;
+  private _hover: boolean;
 
   constructor(
     inUpdate: boolean,
@@ -43,23 +44,6 @@ export default class UpdateBehaviourClass extends PIXI.Container {
     this.anchorX = NODE_MARGIN + 16;
     this.anchorY = -6;
 
-    //   let defaultData;
-    //   if (socketType === SOCKET_TYPE.IN) {
-    //     // define defaultData for different types
-    //     if (data === null && dataType) {
-    //       data = dataType.getDefaultValue();
-    //     }
-    //   }
-
-    //   this._socketType = socketType;
-    //   this.name = name;
-    //   this._dataType = dataType;
-    //   this._data = data;
-    //   this._defaultData = defaultData;
-    //   this.visible = visible;
-    //   this._custom = custom;
-    //   this._links = [];
-
     const FrequencyText = new PIXI.Text(
       this._intervalFrequency.toString(),
       UPDATEBEHAVIOURHEADER_TEXTSTYLE
@@ -72,14 +56,10 @@ export default class UpdateBehaviourClass extends PIXI.Container {
     const updateHeader = new PIXI.Graphics();
     this._UpdateBehaviourRef = this.addChild(updateHeader);
 
-    //   this.interactionData = null;
-    //   this.interactive = true;
-    //   this._UpdateBehaviourNameRef.interactive = true;
-    //   this._UpdateBehaviourNameRef.on('pointerover', this._onPointerOver.bind(this));
-    //   this._UpdateBehaviourNameRef.on('pointerout', this._onPointerOut.bind(this));
-    //   this._UpdateBehaviourNameRef.on('pointerdown', (event) => {
-    //     this.getGraph().socketNameRefMouseDown(this, event);
-    //   });
+    this._UpdateBehaviourRef.interactive = true;
+    this._UpdateBehaviourRef.on('pointerover', this._onPointerOver.bind(this));
+    this._UpdateBehaviourRef.on('pointerout', this._onPointerOut.bind(this));
+    this._UpdateBehaviourRef.on('pointerdown', this._onPointerDown.bind(this));
 
     this.redrawAnythingChanging();
   }
@@ -89,44 +69,36 @@ export default class UpdateBehaviourClass extends PIXI.Container {
     // redraw update behaviour header
     this._UpdateBehaviourRef = new PIXI.Graphics();
     this._UpdateBehaviourNameRef.text = '';
-    let newX = 0;
-    if (this.update) {
-      const whiteColor = TRgba.fromString(COLOR_DARK);
-      this._UpdateBehaviourRef.beginFill(whiteColor.hexNumber(), whiteColor.a);
-      this._UpdateBehaviourRef.drawCircle(this.anchorX, this.anchorY, 4);
-      this._UpdateBehaviourRef.endFill();
-      newX = 10;
-    }
+    let newX = 10;
+    // if (this.update) {
+    const color = TRgba.fromString(COLOR_DARK);
+    this._UpdateBehaviourRef.beginFill(
+      color.hexNumber(),
+      this.hover || !this.update ? color.a : 0.001
+    );
+    this._UpdateBehaviourRef.drawCircle(this.anchorX, this.anchorY, 4);
+    this._UpdateBehaviourRef.endFill();
+    newX = 10;
+    // }
     if (this.interval) {
-      const whiteColor = TRgba.fromString(COLOR_DARK);
-      this._UpdateBehaviourRef.beginFill(whiteColor.hexNumber(), whiteColor.a);
-      this._UpdateBehaviourRef.drawRect(
-        newX + this.anchorX - 4,
-        this.anchorY - 4,
-        8,
-        8
-      );
-      this._UpdateBehaviourRef.endFill();
-      this._UpdateBehaviourNameRef.x = newX + this.anchorX + 6;
+      // const color = TRgba.fromString(COLOR_DARK);
+      // this._UpdateBehaviourRef.beginFill(color.hexNumber(), color.a);
+      // this._UpdateBehaviourRef.drawRect(
+      //   newX + this.anchorX - 4,
+      //   this.anchorY - 4,
+      //   8,
+      //   8
+      // );
+      // this._UpdateBehaviourRef.endFill();
+      this._UpdateBehaviourNameRef.x = newX + this.anchorX - 4;
       this._UpdateBehaviourNameRef.text = this.intervalFrequency.toString();
     }
     this.addChild(this._UpdateBehaviourRef);
 
-    // this._UpdateBehaviourRef.beginFill(this.dataType.getColor().hexNumber());
-    // this._UpdateBehaviourRef.drawRoundedRect(
-    //   this.socketType === SOCKET_TYPE.IN ? 0 : NODE_WIDTH,
-    //   SOCKET_WIDTH / 2,
-    //   SOCKET_WIDTH,
-    //   SOCKET_WIDTH,
-    //   SOCKET_CORNERRADIUS
-    // );
-    // this._UpdateBehaviourRef.endFill();
-    // this._UpdateBehaviourRef.name = 'SocketRef';
-    // this._UpdateBehaviourRef.interactive = true;
-    // this._UpdateBehaviourRef.on('pointerover', this._onPointerOver.bind(this));
-    // this._UpdateBehaviourRef.on('pointerout', this._onPointerOut.bind(this));
-    // this._UpdateBehaviourRef.on('pointerdown', (event) => this._onPointerDown(event));
-    // this._UpdateBehaviourRef.on('pointerup', (event) => this._onPointerUp(event));
+    this._UpdateBehaviourRef.interactive = true;
+    this._UpdateBehaviourRef.on('pointerover', this._onPointerOver.bind(this));
+    this._UpdateBehaviourRef.on('pointerout', this._onPointerOut.bind(this));
+    this._UpdateBehaviourRef.on('pointerdown', this._onPointerDown.bind(this));
   }
 
   setUpdateBehaviour(
@@ -170,57 +142,40 @@ export default class UpdateBehaviourClass extends PIXI.Container {
     this.redrawAnythingChanging();
   }
 
-  // // METHODS
+  get hover(): boolean {
+    return this._hover;
+  }
 
-  // isInput(): boolean {
-  //   return this.socketType === SOCKET_TYPE.IN;
-  // }
+  set hover(isHovering: boolean) {
+    this._hover = isHovering;
+    this.redrawAnythingChanging();
+  }
 
-  // hasLink(): boolean {
-  //   return this.links.length > 0;
-  // }
+  // METHODS
 
-  // setName(newName: string): void {
-  //   this.name = newName;
-  //   (this._UpdateBehaviourNameRef as PIXI.Text).text = newName;
-  // }
+  getNode(): PPNode {
+    return this.parent as PPNode;
+  }
 
-  // setVisible(value: boolean): void {
-  //   this.visible = value;
+  getGraph(): PPGraph {
+    return (this.parent as PPNode).graph;
+  }
 
-  //   // visibility change can result in position change
-  //   // therefore redraw Node and connected Links
-  //   this.getNode().drawNodeShape();
-  //   this.getNode().updateConnectionPosition();
-  // }
+  // SETUP
 
-  // getNode(): PPNode {
-  //   return this.parent as PPNode;
-  // }
+  _onPointerOver(): void {
+    console.log('_onPointerOver');
+    this.cursor = 'pointer';
+  }
 
-  // getGraph(): PPGraph {
-  //   return (this.parent as PPNode).graph;
-  // }
+  _onPointerOut(): void {
+    console.log('_onPointerOut');
+    this.alpha = 1.0;
+    this.cursor = 'default';
+  }
 
-  // // SETUP
-
-  // _onPointerOver(): void {
-  //   this.cursor = 'pointer';
-  //   (this._SocketRef as PIXI.Graphics).tint = TRgba.white().hexNumber();
-  //   this.getGraph().socketHoverOver(this);
-  // }
-
-  // _onPointerOut(): void {
-  //   this.alpha = 1.0;
-  //   this.cursor = 'default';
-  //   (this._SocketRef as PIXI.Graphics).tint = 0xffffff;
-  //   this.getGraph().socketHoverOut(this);
-  // }
-
-  // _onPointerDown(event: PIXI.InteractionEvent): void {
-  //   this.getGraph().socketMouseDown(this, event);
-  // }
-  // _onPointerUp(event: PIXI.InteractionEvent): void {
-  //   this.getGraph().socketMouseUp(this, event);
-  // }
+  _onPointerDown(): void {
+    console.log('_onPointerDown');
+    this.getNode().executeOptimizedChain();
+  }
 }
