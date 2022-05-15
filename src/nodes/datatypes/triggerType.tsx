@@ -7,6 +7,7 @@ import { TRIGGER_TYPE_OPTIONS } from '../../utils/constants';
 export class TriggerType extends AbstractType {
   triggerType: string;
   customFunctionString: string;
+  previousData: any = null;
   constructor(
     triggerType = TRIGGER_TYPE_OPTIONS[0].value,
     customFunctionString = ''
@@ -37,30 +38,23 @@ export class TriggerType extends AbstractType {
     return <TriggerWidget {...data} />;
   };
 
-  controlledTrigger(): boolean {
-    return true;
-  }
-
-  onControlledTrigger(
-    socket: Socket,
-    previousData: any,
-    newData: any
-  ): boolean {
+  onDataSet(data: any, socket: Socket): void {
     if (
-      (this.triggerType === TRIGGER_TYPE_OPTIONS[0].value &&
-        previousData !== newData) ||
-      (this.triggerType === TRIGGER_TYPE_OPTIONS[1].value &&
-        previousData < newData) ||
-      (this.triggerType === TRIGGER_TYPE_OPTIONS[2].value &&
-        previousData > newData)
+      socket.isInput() &&
+      ((this.triggerType === TRIGGER_TYPE_OPTIONS[0].value &&
+        this.previousData < data) ||
+        (this.triggerType === TRIGGER_TYPE_OPTIONS[1].value &&
+          this.previousData > data) ||
+        (this.triggerType === TRIGGER_TYPE_OPTIONS[2].value &&
+          this.previousData !== data))
     ) {
-      // return false if a custom function is executed
+      // if im an input and condition is fullfilled, execute either custom function or start new chain with this as origin
       if (this.customFunctionString !== '') {
         socket.getNode()[this.customFunctionString]();
-        return false;
+      } else {
+        socket.getNode().executeOptimizedChain();
       }
-      return true;
     }
-    return false;
+    this.previousData = data;
   }
 }

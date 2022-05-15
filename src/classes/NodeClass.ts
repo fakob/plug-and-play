@@ -988,28 +988,23 @@ export default class PPNode extends PIXI.Container {
     const inputObject = this.remapInput(this.inputSocketArray);
     const outputObject = {};
 
-    if (this.updateBehaviour.update) {
-      console.log('update yes: ', this.name);
-      await this.onExecute(inputObject, outputObject);
-      this.onAfterExecute();
+    await this.onExecute(inputObject, outputObject);
+    this.onAfterExecute();
 
-      let foundChange = !this.isPure();
-      // output whatever the user has put in
-      this.outputSocketArray.forEach((output: Socket) => {
-        if (outputObject[output.name] !== undefined) {
-          if (!foundChange) {
-            // see if anything has changed, but only need to do this if no previous has been found
-            foundChange =
-              JSON.stringify(outputObject[output.name]) !==
-              JSON.stringify(output.data);
-          }
-          output.data = outputObject[output.name];
+    let foundChange = !this.isPure();
+    // output whatever the user has put in
+    this.outputSocketArray.forEach((output: Socket) => {
+      if (outputObject[output.name] !== undefined) {
+        if (!foundChange) {
+          // see if anything has changed, but only need to do this if no previous has been found
+          foundChange =
+            JSON.stringify(outputObject[output.name]) !==
+            JSON.stringify(output.data);
         }
-      });
-      return foundChange;
-    }
-    console.log('update no: ', this.name);
-    return false;
+        output.data = outputObject[output.name];
+      }
+    });
+    return foundChange;
   }
 
   // override if you don't want your node to show outline for some reason
