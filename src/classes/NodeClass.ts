@@ -30,6 +30,7 @@ import {
   NODE_WIDTH,
   SOCKET_HEIGHT,
   SOCKET_TYPE,
+  TRIGGER_TYPE_OPTIONS,
 } from '../utils/constants';
 import PPGraph from './GraphClass';
 import Socket from './SocketClass';
@@ -40,6 +41,7 @@ import {
 } from '../utils/utils';
 import { AbstractType } from '../nodes/datatypes/abstractType';
 import { AnyType } from '../nodes/datatypes/anyType';
+import { TriggerType } from '../nodes/datatypes/triggerType';
 import { deSerializeType } from '../nodes/datatypes/typehelper';
 import { throttle } from 'lodash';
 
@@ -465,7 +467,6 @@ export default class PPNode extends PIXI.Container {
   }
 
   async executeOptimizedChain(): Promise<void> {
-    //console.log('executing: ' + this.id);
     await PPNode.executeOptimizedChainBatch([this]);
   }
 
@@ -586,6 +587,7 @@ export default class PPNode extends PIXI.Container {
   getAllSockets(): Socket[] {
     return this.inputSocketArray.concat(this.outputSocketArray);
   }
+
   getSocketByName(name: string): Socket {
     return this.getAllSockets().find((socket) => socket.name === name);
   }
@@ -687,6 +689,14 @@ export default class PPNode extends PIXI.Container {
       newName = prefix + ' ' + count++;
     }
     return newName;
+  }
+
+  public addTriggerInput(): void {
+    this.addInput(
+      this.constructSocketName('Trigger', this.inputSocketArray),
+      new TriggerType(TRIGGER_TYPE_OPTIONS[0].value),
+      0
+    );
   }
 
   public addDefaultInput(): void {

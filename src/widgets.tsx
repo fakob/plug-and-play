@@ -17,11 +17,20 @@ import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import { SketchPicker } from 'react-color';
 import { CodeEditor } from './components/Editor';
 import Socket from './classes/SocketClass';
+import { TRIGGER_TYPE_OPTIONS } from './utils/constants';
 import { parseJSON, roundNumber } from './utils/utils';
 import styles from './utils/style.module.css';
 import { TRgba } from './utils/interfaces';
 import { EnumStructure } from './nodes/datatypes/enumType';
 import { NumberType } from './nodes/datatypes/numberType';
+import { TriggerType } from './nodes/datatypes/triggerType';
+
+async function potentiallyNotify(property: Socket, newValue) {
+  if (property.data !== newValue) {
+    property.data = newValue;
+    await property.getNode().executeOptimizedChain();
+  }
+}
 
 export type SliderWidgetProps = {
   property: Socket;
@@ -31,13 +40,6 @@ export type SliderWidgetProps = {
   data: number;
   type: NumberType;
 };
-
-async function potentiallyNotify(property: Socket, newValue) {
-  if (property.data !== newValue) {
-    property.data = newValue;
-    await property.getNode().executeOptimizedChain();
-  }
-}
 
 export const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (
   props
@@ -337,24 +339,100 @@ export const JSONWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
 
 export type TriggerWidgetProps = {
   property: Socket;
+  isInput: boolean;
   index: number;
+  hasLink: boolean;
+  data: unknown;
+  type: TriggerType;
+  randomMainColor: string;
 };
 
 export const TriggerWidget: React.FunctionComponent<TriggerWidgetProps> = (
   props
 ) => {
+  const [data, setData] = useState(props.data);
+  console.log(props);
+  const [triggerType, setChangeFunctionString] = useState(
+    props.type.triggerType
+  );
+  const [customFunctionString, setCustomFunctionString] = useState(
+    props.type.customFunctionString
+  );
+
+  const onChangeTriggerType = (event) => {
+    const value = event.target.value;
+    (props.type as TriggerType).triggerType = value;
+    setChangeFunctionString(value);
+  };
+
+  const onChangeFunction = (event) => {
+    const value = event.target.value;
+    (props.type as TriggerType).customFunctionString = value;
+    setCustomFunctionString(value);
+  };
+
   return (
     <>
-      <Button
-        startIcon={<PlayArrowIcon />}
-        onClick={() => {
-          // nodes with trigger input need a trigger function
-          (props.property.parent as any).trigger();
-        }}
-        variant="contained"
-      >
-        Execute
-      </Button>
+      {props.hasLink && (
+        <CodeEditor
+          value={String(data) || ''}
+          randomMainColor={props.randomMainColor}
+          onChange={(value) => {
+            potentiallyNotify(props.property, value);
+            setData(value);
+          }}
+        />
+      )}
+      <FormGroup>
+        <Select
+          label="Trigger method"
+          variant="filled"
+          value={triggerType}
+          onChange={onChangeTriggerType}
+        >
+          {TRIGGER_TYPE_OPTIONS?.map(({ text, value }, index) => {
+            return (
+              <MenuItem
+                key={index}
+                value={value}
+                sx={{
+                  '&.Mui-selected': {
+                    backgroundColor: `${Color(props.randomMainColor).negate()}`,
+                  },
+                }}
+              >
+                {text}
+              </MenuItem>
+            );
+          })}
+        </Select>
+        <TextField
+          hiddenLabel
+          variant="filled"
+          label="Name of custom function"
+          onChange={onChangeFunction}
+          value={customFunctionString}
+        />
+      </FormGroup>
+      {!props.hasLink && (
+        <Button
+          startIcon={<PlayArrowIcon />}
+          onClick={() => {
+            // nodes with trigger input need a trigger function
+            (props.property.parent as any)[
+              customFunctionString === ''
+                ? 'executeOptimizedChain'
+                : customFunctionString
+            ]();
+          }}
+          variant="contained"
+          fullWidth
+        >
+          {customFunctionString === ''
+            ? 'executeOptimizedChain'
+            : customFunctionString}
+        </Button>
+      )}
     </>
   );
 };

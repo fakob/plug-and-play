@@ -1,21 +1,60 @@
 import React from 'react';
-import { TriggerWidget } from '../../widgets';
+import Socket from '../../classes/SocketClass';
+import { TriggerWidget, TriggerWidgetProps } from '../../widgets';
 import { AbstractType } from './abstractType';
+import { TRIGGER_TYPE_OPTIONS } from '../../utils/constants';
 
 export class TriggerType extends AbstractType {
-  constructor() {
+  triggerType: string;
+  customFunctionString: string;
+  previousData: any = null;
+  constructor(
+    triggerType = TRIGGER_TYPE_OPTIONS[0].value,
+    customFunctionString = ''
+  ) {
     super();
+    this.triggerType = triggerType;
+    this.customFunctionString = customFunctionString;
   }
 
   getName(): string {
     return 'Trigger';
   }
 
-  getInputWidget = (data: any): any => {
-    return <TriggerWidget {...data} />;
+  getInputWidget = (props: any): any => {
+    const triggerProps: TriggerWidgetProps = {
+      property: props.property,
+      isInput: props.isInput,
+      index: props.index,
+      hasLink: props.hasLink,
+      data: props.data,
+      type: this,
+      randomMainColor: props.randomMainColor,
+    };
+    return <TriggerWidget {...triggerProps} />;
   };
 
   getOutputWidget = (data: any): any => {
     return <TriggerWidget {...data} />;
   };
+
+  onDataSet(data: any, socket: Socket): void {
+    if (
+      socket.isInput() &&
+      ((this.triggerType === TRIGGER_TYPE_OPTIONS[0].value &&
+        this.previousData < data) ||
+        (this.triggerType === TRIGGER_TYPE_OPTIONS[1].value &&
+          this.previousData > data) ||
+        (this.triggerType === TRIGGER_TYPE_OPTIONS[2].value &&
+          this.previousData !== data))
+    ) {
+      // if im an input and condition is fullfilled, execute either custom function or start new chain with this as origin
+      if (this.customFunctionString !== '') {
+        socket.getNode()[this.customFunctionString]();
+      } else {
+        socket.getNode().executeOptimizedChain();
+      }
+    }
+    this.previousData = data;
+  }
 }

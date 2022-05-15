@@ -1,6 +1,8 @@
 /* eslint-disable prettier/prettier */
+/* eslint-disable @typescript-eslint/no-empty-function */
 import React from 'react';
 import { inspect } from 'util';
+import Socket from '../../classes/SocketClass';
 import { DefaultOutputWidget, CodeWidget } from '../../widgets';
 import { convertToString } from '../../utils/utils';
 import { TRgba } from '../../utils/interfaces';
@@ -38,7 +40,7 @@ export class AbstractType {
     return {};
   }
 
-  getColor(): TRgba{
+  getColor(): TRgba {
     return TRgba.fromString(SOCKET_COLOR_HEX);
   }
 
@@ -50,4 +52,9 @@ export class AbstractType {
   parse(data: any): any {
     return data;
   }
+
+  onDataSet(data : any, socket: Socket) : void {
+    return;
+  }
+
 }

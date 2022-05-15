@@ -9,7 +9,6 @@ import { ImageType } from './imageType';
 import { JSONType } from './jsonType';
 import { MacroType } from './macroType';
 import { NumberType } from './numberType';
-import { PixiType } from './pixiType';
 import { StringType } from './stringType';
 import { TriggerType } from './triggerType';
 
@@ -20,7 +19,6 @@ export const allDataTypes = {
   BooleanType: BooleanType,
   ColorType: ColorType,
   NumberType: NumberType,
-  PixiType: PixiType,
   DeferredPixiType: DeferredPixiType,
   StringType: StringType,
   TriggerType: TriggerType,

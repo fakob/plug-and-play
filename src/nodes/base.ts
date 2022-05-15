@@ -17,6 +17,7 @@ import {
   SOCKET_HEIGHT,
   SOCKET_TYPE,
   SOCKET_WIDTH,
+  TRIGGER_TYPE_OPTIONS,
 } from '../utils/constants';
 import { CustomArgs, TRgba } from '../utils/interfaces';
 import { compare, getMethods, isVariable } from '../utils/utils';
@@ -29,10 +30,22 @@ import { EnumType } from './datatypes/enumType';
 import { BooleanType } from './datatypes/booleanType';
 
 export class Mouse extends PPNode {
-  onViewportMove: (event: PIXI.InteractionEvent) => void;
   onViewportMoveHandler: (event?: PIXI.InteractionEvent) => void;
-  onViewportZoomed: (event: PIXI.InteractionEvent) => void;
   onViewportZoomedHandler: (event?: PIXI.InteractionEvent) => void;
+  onViewportZoomed = (event: PIXI.InteractionEvent): void => {
+    const scale = (event as any).viewport.scale.x;
+    this.setOutputData('scale', scale);
+  };
+  onViewportMove = (event: PIXI.InteractionEvent): void => {
+    const screen = event.data.global;
+    const world = this.graph.viewport.toWorld(screen.x, screen.y);
+    const buttons = event.data.buttons;
+    this.setOutputData('screen-x', screen.x);
+    this.setOutputData('screen-y', screen.y);
+    this.setOutputData('world-x', world.x);
+    this.setOutputData('world-y', world.y);
+    this.setOutputData('buttons', buttons);
+  };
 
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
     super(name, graph, {
@@ -49,28 +62,27 @@ export class Mouse extends PPNode {
 
     this.name = 'Mouse';
     this.description = 'Get mouse coordinates';
+  }
 
+  onNodeAdded = (): void => {
     // add event listener
-    this.onViewportMove = (event: PIXI.InteractionEvent): void => {
-      const screen = event.data.global;
-      const world = this.graph.viewport.toWorld(screen.x, screen.y);
-      const buttons = event.data.buttons;
-      this.setOutputData('screen-x', screen.x);
-      this.setOutputData('screen-y', screen.y);
-      this.setOutputData('world-x', world.x);
-      this.setOutputData('world-y', world.y);
-      this.setOutputData('buttons', buttons);
-    };
     this.onViewportMoveHandler = this.onViewportMove.bind(this);
     this.graph.viewport.on('pointermove', (this as any).onViewportMoveHandler);
 
-    this.onViewportZoomed = (event: PIXI.InteractionEvent): void => {
-      const scale = (event as any).viewport.scale.x;
-      this.setOutputData('scale', scale);
-    };
     this.onViewportZoomedHandler = this.onViewportZoomed.bind(this);
     this.graph.viewport.on('zoomed', (this as any).onViewportZoomedHandler);
-  }
+  };
+
+  onNodeRemoved = (): void => {
+    this.graph.viewport.removeListener(
+      'pointermove',
+      (this as any).onViewportMoveHandler
+    );
+    this.graph.viewport.removeListener(
+      'zoomed',
+      (this as any).onViewportZoomedHandler
+    );
+  };
 }
 
 export class Keyboard extends PPNode {
@@ -116,13 +128,15 @@ export class Keyboard extends PPNode {
 
     this.name = 'Keyboard';
     this.description = 'Get keyboard input';
+  }
 
+  onNodeAdded = (): void => {
     // add event listener
     this.onKeyDownHandler = this._onKeyDown.bind(this);
     window.addEventListener('keydown', (this as any).onKeyDownHandler);
     this.onKeyUpHandler = this._onKeyUp.bind(this);
     window.addEventListener('keyup', (this as any).onKeyUpHandler);
-  }
+  };
 
   onNodeRemoved = (): void => {
     window.removeEventListener('keydown', this.onKeyDownHandler);
@@ -235,7 +249,11 @@ export class RandomArray extends PPNode {
     });
 
     this.addOutput('output array', new AnyType());
-    this.addInput('trigger', new TriggerType());
+    this.addInput(
+      'trigger',
+      new TriggerType(TRIGGER_TYPE_OPTIONS[0].value, 'trigger'),
+      0
+    );
     this.addInput('length', new NumberType(true, 1), 20, undefined);
     this.addInput('min', new NumberType(), 0);
     this.addInput('max', new NumberType(), 1);
@@ -252,49 +270,6 @@ export class RandomArray extends PPNode {
       return Math.floor(Math.random() * (max - min) + min);
     });
     this.setOutputData('output array', randomArray);
-  }
-}
-
-export class Trigger extends PPNode {
-  _rectRef: PIXI.Graphics;
-  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, {
-      ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.INPUT),
-    });
-
-    this.addOutput('trigger', new TriggerType());
-
-    this.name = 'Trigger';
-    this.description = 'Creates a trigger event';
-
-    this.onNodeAdded = () => {
-      const button = new PIXI.Graphics();
-      this._rectRef = (this as PIXI.Container).addChild(button);
-      this._rectRef.beginFill(PIXI.utils.string2hex('#00FF00'));
-      this._rectRef.drawRoundedRect(
-        SOCKET_WIDTH,
-        NODE_PADDING_TOP + NODE_HEADER_HEIGHT,
-        NODE_WIDTH / 2,
-        SOCKET_HEIGHT,
-        NODE_CORNERRADIUS
-      );
-      this._rectRef.endFill();
-
-      this._rectRef.buttonMode = true;
-      this._rectRef.interactive = true;
-
-      this._rectRef.on('pointerdown', this.trigger.bind(this));
-    };
-  }
-  trigger(): void {
-    console.log('Triggered node: ', this.name);
-    this.outputSocketArray[0].links.forEach((link) => {
-      (link.target.parent as any).trigger();
-    });
-  }
-  onButtonOver(): void {
-    this._rectRef.cursor = 'hover';
   }
 }
 

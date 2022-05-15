@@ -148,24 +148,27 @@ export default class Socket extends PIXI.Container {
   }
 
   get data(): any {
-    // just point to data from last node if there to avoid copying it
-    let dataToReturn;
-    if (this.isInput() && this.hasLink()) {
-      dataToReturn = this.links[0].getSource().data;
-    } else {
-      dataToReturn = this._data;
-    }
+    const dataToReturn = this._data;
     // allow the type to potentially sanitize the data before passing it on
     return this.dataType.parse(dataToReturn);
   }
 
+  // for inputs: set data is called only on the socket where the change is being made
   set data(newData: any) {
     this._data = newData;
-    // update defaultData only if socket is input
-    // and does not have a link
-    if (this.isInput() && !this.hasLink()) {
-      this._defaultData = newData;
+    if (this.isInput()) {
+      if (!this.hasLink()) {
+        this._defaultData = newData;
+      }
+      // update defaultData only if socket is input
+      // and does not have a link
+    } else {
+      // if output, set all inputs im linking to
+      this.links.forEach((link) => {
+        link.target.data = newData;
+      });
     }
+    this.dataType.onDataSet(newData, this);
   }
 
   get defaultData(): any {
@@ -177,10 +180,6 @@ export default class Socket extends PIXI.Container {
   }
 
   get dataType(): AbstractType {
-    // just point to data from last node if there to avoid copying it
-    if (this.isInput() && this.hasLink()) {
-      return this.links[0].getSource().dataType;
-    }
     return this._dataType;
   }
 
@@ -258,7 +257,7 @@ export default class Socket extends PIXI.Container {
     return {
       socketType: this.socketType,
       name: this.name,
-      dataType: serializeType(this.dataType),
+      dataType: serializeType(this._dataType), // do not use this.dataType as, for linked inputs, it would save the linked output type
       ...{ data: data },
       ...{ defaultData: defaultData },
       visible: this.visible,
@@ -270,12 +269,12 @@ export default class Socket extends PIXI.Container {
   }
 
   getDirectDependents(): PPNode[] {
-    // only continue with nodes that execute on update
+    // ask the socket whether their children are dependent
+
     const nodes = this.links.map((link) => link.getTarget().getNode());
     const filteredNodes = nodes.filter((node) => node.updateBehaviour.update);
     return filteredNodes;
   }
-
   // SETUP
 
   _onPointerOver(): void {

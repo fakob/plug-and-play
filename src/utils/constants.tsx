@@ -306,6 +306,21 @@ export const CONDITION_OPTIONS: EnumStructure = [
   },
 ];
 
+export const TRIGGER_TYPE_OPTIONS: EnumStructure = [
+  {
+    text: 'positiveFlank',
+    value: 'positiveFlank',
+  },
+  {
+    text: 'negativeFlank',
+    value: 'negativeFlank',
+  },
+  {
+    text: 'change',
+    value: 'change',
+  },
+];
+
 export const GRID_SHADER = `
   precision mediump float;
   varying vec2 vUvs;
