@@ -15,7 +15,6 @@ import {
 } from '../utils/constants';
 import { AbstractType } from '../nodes/datatypes/abstractType';
 import { serializeType } from '../nodes/datatypes/typehelper';
-import { TriggerType } from '../nodes/datatypes/triggerType';
 
 export default class Socket extends PIXI.Container {
   // Input sockets
@@ -30,7 +29,6 @@ export default class Socket extends PIXI.Container {
 
   _socketType: TSocketType;
   _dataType: AbstractType;
-  _previousData: any;
   _data: any;
   _defaultData: any; // for inputs: data backup while unplugged, restores data when unplugged again
   _custom: Record<string, any>;
@@ -60,7 +58,6 @@ export default class Socket extends PIXI.Container {
     this._socketType = socketType;
     this.name = name;
     this._dataType = dataType;
-    this._previousData = data;
     this._data = data;
     this._defaultData = defaultData;
     this.visible = visible;
@@ -146,56 +143,28 @@ export default class Socket extends PIXI.Container {
     this._links = newLink;
   }
 
-  get previousData(): any {
-    // just point to data from last node if there to avoid copying it
-    let dataToReturn;
-    if (this.isInput() && this.hasLink()) {
-      dataToReturn = this.links[0].getSource().previousData;
-    } else {
-      dataToReturn = this._previousData;
-    }
+  get data(): any {
+    const dataToReturn = this._data;
     // allow the type to potentially sanitize the data before passing it on
     return this.dataType.parse(dataToReturn);
   }
 
-  get data(): any {
-    // just point to data from last node if there to avoid copying it
-    let dataToReturn;
-    if (this.isInput() && this.hasLink()) {
-      dataToReturn = this.links[0].getSource().data;
-    } else {
-      dataToReturn = this._data;
-    }
-    // allow the type to potentially sanitize the data before passing it on
-    const parsedData = this.dataType.parse(dataToReturn);
-
-    if (
-      this.isInput() &&
-      this.hasLink() &&
-      !this.getNode().updateBehaviour.update
-    ) {
-      console.log(
-        'get',
-        this.getNode().name,
-        this.name,
-        this.previousData,
-        parsedData
-      );
-      this._dataType.onControlledTrigger(this, this.previousData, parsedData);
-    }
-    return parsedData;
-  }
-
   // for inputs: set data is called only on the socket where the change is being made
   set data(newData: any) {
-    this._previousData = this._data;
     this._data = newData;
-
-    if (this.isInput() && !this.hasLink()) {
+    if (this.isInput()) {
+      if (!this.hasLink()) {
+        this._defaultData = newData;
+      }
       // update defaultData only if socket is input
       // and does not have a link
-      this._defaultData = newData;
+    } else {
+      // if output, set all inputs im linking to
+      this.links.forEach((link) => {
+        link.target.data = newData;
+      });
     }
+    this.dataType.onDataSet(newData, this);
   }
 
   get defaultData(): any {
@@ -207,14 +176,6 @@ export default class Socket extends PIXI.Container {
   }
 
   get dataType(): AbstractType {
-    // just point to data from last node if there to avoid copying it
-    if (
-      this.isInput() &&
-      this.hasLink() &&
-      !(this._dataType instanceof TriggerType)
-    ) {
-      return this.links[0].getSource().dataType;
-    }
     return this._dataType;
   }
 
@@ -300,10 +261,12 @@ export default class Socket extends PIXI.Container {
   }
 
   getDirectDependents(): PPNode[] {
-    const nodes = this.links.map((link) => link.getTarget().getNode());
-    return nodes;
-  }
+    // ask the socket whether their children are dependent
 
+    const nodes = this.links.map((link) => link.getTarget().getNode());
+    const filteredNodes = nodes.filter((node) => node.updateBehaviour.update);
+    return filteredNodes;
+  }
   // SETUP
 
   _onPointerOver(): void {

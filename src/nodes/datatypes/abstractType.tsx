@@ -53,15 +53,8 @@ export class AbstractType {
     return data;
   }
 
-  controlledTrigger(): boolean {
-    return false;
+  onDataSet(data : any, socket: Socket) : void {
+    return;
   }
 
-  onControlledTrigger(
-    socket: Socket,
-    previousData: any,
-    newData: any
-  ): boolean {
-    return true;
-  }
 }
