@@ -464,6 +464,8 @@ export default class PPGraph {
     //add link to input
     input.links = [link];
 
+    input.data = output.data;
+
     this.connectionContainer.addChild(link);
 
     // send notification pulse
