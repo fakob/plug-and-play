@@ -17,7 +17,7 @@ export type RegisteredNodeTypes = Record<
 export type PPNodeConstructor<T extends PPNode = PPNode> = {
   type?: string;
   category?: string;
-  new(name: string, graph: PPGraph, ...args: any[]): T;
+  new (name: string, graph: PPGraph, ...args: any[]): T;
 };
 
 export type SerializedGraph = {
