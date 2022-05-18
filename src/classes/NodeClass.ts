@@ -1164,14 +1164,14 @@ export default class PPNode extends PIXI.Container {
 
   _onPointerOver(): void {
     this.cursor = 'move';
-    this.updateBehaviour.hover = true;
+    this.updateBehaviour.hoverNode = true;
   }
 
   _onPointerOut(): void {
     if (!this.isDraggingNode) {
       this.alpha = 1.0;
       this.cursor = 'default';
-      this.updateBehaviour.hover = false;
+      this.updateBehaviour.hoverNode = false;
     }
   }
 

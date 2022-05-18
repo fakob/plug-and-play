@@ -2,17 +2,11 @@ import * as PIXI from 'pixi.js';
 import { TRgba } from '../utils/interfaces';
 import PPGraph from './GraphClass';
 import PPNode from './NodeClass';
-import PPLink from './LinkClass';
 import {
-  COLOR_WHITE,
-  NODE_MARGIN,
-  SOCKET_TEXTMARGIN_TOP,
-  SOCKET_TEXTMARGIN,
-  UPDATEBEHAVIOURHEADER_TEXTSTYLE,
-  SOCKET_TYPE,
-  SOCKET_WIDTH,
-  TEXT_RESOLUTION,
   COLOR_DARK,
+  NODE_MARGIN,
+  TEXT_RESOLUTION,
+  UPDATEBEHAVIOURHEADER_TEXTSTYLE,
 } from '../utils/constants';
 
 export interface IUpdateBehaviour {
@@ -22,13 +16,15 @@ export interface IUpdateBehaviour {
 }
 
 export default class UpdateBehaviourClass extends PIXI.Container {
-  _UpdateBehaviourNameRef: PIXI.Text;
-  _UpdateBehaviourRef: PIXI.Graphics;
+  _frequencyRef: PIXI.Text;
+  _updateRef: PIXI.Graphics;
+  _noUpdateRef: PIXI.Graphics;
   private _update: boolean;
   private _interval: boolean;
   private _intervalFrequency: number;
   private anchorX: number;
   private anchorY: number;
+  private _hoverNode: boolean;
   private _hover: boolean;
 
   constructor(
@@ -48,57 +44,69 @@ export default class UpdateBehaviourClass extends PIXI.Container {
       this._intervalFrequency.toString(),
       UPDATEBEHAVIOURHEADER_TEXTSTYLE
     );
-    // FrequencyText.x = this.anchorX + 16;
+    FrequencyText.x = this.anchorX - 4;
     FrequencyText.y = this.anchorY - 5;
     FrequencyText.resolution = TEXT_RESOLUTION;
+    FrequencyText.alpha = 0.5;
 
-    this._UpdateBehaviourNameRef = this.addChild(FrequencyText);
-    const updateHeader = new PIXI.Graphics();
-    this._UpdateBehaviourRef = this.addChild(updateHeader);
+    this._frequencyRef = this.addChild(FrequencyText);
+    this._updateRef = this.addChild(new PIXI.Graphics());
+    this._noUpdateRef = this.addChild(new PIXI.Graphics());
 
-    this._UpdateBehaviourRef.interactive = true;
-    this._UpdateBehaviourRef.on('pointerover', this._onPointerOver.bind(this));
-    this._UpdateBehaviourRef.on('pointerout', this._onPointerOut.bind(this));
-    this._UpdateBehaviourRef.on('pointerdown', this._onPointerDown.bind(this));
+    this.addChild(this._updateRef);
+    this.addChild(this._noUpdateRef);
+
+    this._updateRef.interactive = true;
+    this._updateRef.buttonMode = true;
+    this._updateRef.on('pointerover', this._onPointerOver.bind(this));
+    this._updateRef.on('pointerout', this._onPointerOut.bind(this));
+    this._updateRef.on('pointerdown', this._onPointerDown.bind(this));
 
     this.redrawAnythingChanging();
   }
 
   redrawAnythingChanging(): void {
-    this.removeChild(this._UpdateBehaviourRef);
-    // redraw update behaviour header
-    this._UpdateBehaviourRef = new PIXI.Graphics();
-    this._UpdateBehaviourNameRef.text = '';
-    let newX = 10;
-    // if (this.update) {
-    const color = TRgba.fromString(COLOR_DARK);
-    this._UpdateBehaviourRef.beginFill(
-      color.hexNumber(),
-      this.hover || !this.update ? color.a : 0.001
-    );
-    this._UpdateBehaviourRef.drawCircle(this.anchorX, this.anchorY, 4);
-    this._UpdateBehaviourRef.endFill();
-    newX = 10;
-    // }
-    if (this.interval) {
-      // const color = TRgba.fromString(COLOR_DARK);
-      // this._UpdateBehaviourRef.beginFill(color.hexNumber(), color.a);
-      // this._UpdateBehaviourRef.drawRect(
-      //   newX + this.anchorX - 4,
-      //   this.anchorY - 4,
-      //   8,
-      //   8
-      // );
-      // this._UpdateBehaviourRef.endFill();
-      this._UpdateBehaviourNameRef.x = newX + this.anchorX - 4;
-      this._UpdateBehaviourNameRef.text = this.intervalFrequency.toString();
-    }
-    this.addChild(this._UpdateBehaviourRef);
+    // reset
+    this._updateRef.clear();
+    this._noUpdateRef.clear();
+    this._frequencyRef.text = '';
 
-    this._UpdateBehaviourRef.interactive = true;
-    this._UpdateBehaviourRef.on('pointerover', this._onPointerOver.bind(this));
-    this._UpdateBehaviourRef.on('pointerout', this._onPointerOut.bind(this));
-    this._UpdateBehaviourRef.on('pointerdown', this._onPointerDown.bind(this));
+    // update now button
+    let offsetX = 0;
+    const color = TRgba.fromString(COLOR_DARK);
+    this._updateRef.beginFill(color.hexNumber(), 0.01);
+    this._updateRef.drawCircle(this.anchorX, this.anchorY, 6);
+    this._updateRef.endFill();
+    this._updateRef.beginFill(color.hexNumber(), color.a);
+    if (this.hover) {
+      this._updateRef.lineStyle(2, color.hexNumber(), 0.5, 1);
+      this._updateRef.drawCircle(this.anchorX, this.anchorY, 4);
+    } else if (this.hoverNode) {
+      this._updateRef.lineStyle(1, color.hexNumber(), 0.1, 1);
+      this._updateRef.drawCircle(this.anchorX, this.anchorY, 4);
+    }
+    this._updateRef.lineStyle(0);
+    this._updateRef.endFill();
+
+    // no update shape
+    offsetX += 12;
+    if (!this.update) {
+      this._noUpdateRef.beginFill(color.hexNumber(), 0.5);
+      this._noUpdateRef.drawRect(
+        offsetX + this.anchorX - 4,
+        this.anchorY - 4,
+        8,
+        8
+      );
+      this._noUpdateRef.endFill();
+    }
+
+    // frequency text
+    offsetX += 10;
+    if (this.interval) {
+      this._frequencyRef.x = offsetX + this.anchorX - 4;
+      this._frequencyRef.text = this.intervalFrequency.toString();
+    }
   }
 
   setUpdateBehaviour(
@@ -137,7 +145,6 @@ export default class UpdateBehaviourClass extends PIXI.Container {
   }
 
   set intervalFrequency(frequency: number) {
-    console.log(frequency);
     this._intervalFrequency = frequency;
     this.redrawAnythingChanging();
   }
@@ -151,6 +158,15 @@ export default class UpdateBehaviourClass extends PIXI.Container {
     this.redrawAnythingChanging();
   }
 
+  get hoverNode(): boolean {
+    return this._hoverNode;
+  }
+
+  set hoverNode(isHovering: boolean) {
+    this._hoverNode = isHovering;
+    this.redrawAnythingChanging();
+  }
+
   // METHODS
 
   getNode(): PPNode {
@@ -158,24 +174,21 @@ export default class UpdateBehaviourClass extends PIXI.Container {
   }
 
   getGraph(): PPGraph {
-    return (this.parent as PPNode).graph;
+    return (this.parent as PPNode)?.graph;
   }
 
   // SETUP
 
   _onPointerOver(): void {
-    console.log('_onPointerOver');
-    this.cursor = 'pointer';
+    this.hover = true;
   }
 
   _onPointerOut(): void {
-    console.log('_onPointerOut');
-    this.alpha = 1.0;
     this.cursor = 'default';
+    this.hover = false;
   }
 
   _onPointerDown(): void {
-    console.log('_onPointerDown');
     this.getNode().executeOptimizedChain();
   }
 }
