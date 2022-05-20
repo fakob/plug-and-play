@@ -258,8 +258,8 @@ export class Shader extends PPNode {
     return;
   }
 
-  protected init(): void {
-    this.updateBehaviour.setUpdateBehaviour(true, false, 16);
+  protected getUpdateBehaviour(): UpdateBehaviourClass {
+    return new UpdateBehaviourClass(true, false, 16);
   }
 }
 

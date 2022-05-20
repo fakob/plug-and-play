@@ -12,8 +12,8 @@ const outputContentName = 'Content';
 
 export class Get extends PPNode {
   // default to poll on interval X seconds
-  protected init(): void {
-    this.updateBehaviour.setUpdateBehaviour(false, true, 1000);
+  protected getUpdateBehaviour(): UpdateBehaviourClass {
+    return new UpdateBehaviourClass(false, true, 1000);
   }
 
   protected getDefaultIO(): Socket[] {
@@ -45,8 +45,8 @@ export class Get extends PPNode {
 
 export class Post extends PPNode {
   // default to only manual
-  protected init(): void {
-    this.updateBehaviour.setUpdateBehaviour(false, false, 1000);
+  protected getUpdateBehaviour(): UpdateBehaviourClass {
+    return new UpdateBehaviourClass(false, false, 1000);
   }
 
   protected getDefaultIO(): Socket[] {

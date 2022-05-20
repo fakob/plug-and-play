@@ -162,7 +162,7 @@ export default class PPNode extends PIXI.Container {
     this._NodeNameRef = this.addChild(inputNameText);
     this._CommentRef = this.addChild(new PIXI.Graphics());
 
-    this.updateBehaviour = new UpdateBehaviourClass(true, false, 1000);
+    this.updateBehaviour = this.getUpdateBehaviour();
     this._UpdateBehaviourRef = this.addChild(this.updateBehaviour);
 
     // do not show the node name
@@ -191,8 +191,6 @@ export default class PPNode extends PIXI.Container {
 
     // define callbacks
     this.onNodeDragging = (isDraggingNode: boolean) => {};
-
-    this.init();
   }
 
   // GETTERS & SETTERS
@@ -661,7 +659,9 @@ export default class PPNode extends PIXI.Container {
     return false;
   }
 
-  protected init(): void {}
+  protected getUpdateBehaviour(): UpdateBehaviourClass {
+    return new UpdateBehaviourClass(true, false, 1000);
+  }
 
   protected getDefaultIO(): Socket[] {
     return [];

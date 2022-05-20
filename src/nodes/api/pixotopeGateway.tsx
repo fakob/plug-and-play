@@ -20,11 +20,6 @@ const addressName = 'Address';
 const gatewayAddressDefault = 'http://localhost:16208/gateway/2.0.0/publish';
 
 export class PixotopeGatewayGet extends PPNode {
-  // default to poll on interval X seconds
-  protected init(): void {
-    this.updateBehaviour.setUpdateBehaviour(true, false, 1000);
-  }
-
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(
@@ -64,8 +59,8 @@ export class PixotopeGatewayGet extends PPNode {
 }
 
 export class PixotopeGatewaySet extends PPNode {
-  protected init(): void {
-    this.updateBehaviour.setUpdateBehaviour(false, false, 1000);
+  protected getUpdateBehaviour(): UpdateBehaviourClass {
+    return new UpdateBehaviourClass(false, false, 1000);
   }
 
   protected getDefaultIO(): Socket[] {
