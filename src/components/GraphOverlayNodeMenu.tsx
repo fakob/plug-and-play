@@ -40,6 +40,7 @@ const GraphOverlayNodeMenu: React.FunctionComponent<
           }
           y={Math.max(0, selectionPos.y - 40)}
           selectedNodes={props.selectedNodes}
+          randomMainColor={props.randomMainColor}
         />
       )}
     </Box>

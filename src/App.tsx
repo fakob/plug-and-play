@@ -1380,7 +1380,7 @@ NOTE: save the playground after loading, if you want to make changes to it`
                   <GraphSearchInput
                     {...props}
                     inputRef={graphSearchInput}
-                    randommaincolor={RANDOMMAINCOLOR}
+                    randomMainColor={RANDOMMAINCOLOR}
                   />
                 )}
               />
@@ -1417,7 +1417,7 @@ NOTE: save the playground after loading, if you want to make changes to it`
                     <NodeSearchInput
                       {...props}
                       inputRef={nodeSearchInput}
-                      randommaincolor={RANDOMMAINCOLOR}
+                      randomMainColor={RANDOMMAINCOLOR}
                     />
                   )}
                 />

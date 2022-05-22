@@ -1,5 +1,4 @@
 import {
-  Box,
   ButtonGroup,
   Checkbox,
   FormControlLabel,
@@ -18,6 +17,8 @@ import CodeIcon from '@mui/icons-material/Code';
 import UpdateIcon from '@mui/icons-material/Update';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import React, { useEffect, useState } from 'react';
+import Color from 'color';
+import { COLOR_DARK } from './../utils/constants';
 import { getCircularReplacer } from './../utils/utils';
 import PPNode from '../classes/NodeClass';
 import styles from './../utils/style.module.css';
@@ -135,7 +136,6 @@ const FloatingNodeMenu = (props) => {
         <Stack direction="row" spacing={1}>
           <TextField
             hiddenLabel
-            // label={props.property.name}
             disabled={selectedNodes.length !== 1}
             onChange={(event) => {
               const value = event.target.value;
@@ -147,6 +147,26 @@ const FloatingNodeMenu = (props) => {
                 ? nodeName
                 : `${selectedNodes.length} nodes`
             }
+            sx={{
+              '&& .MuiOutlinedInput-root': {
+                marginLeft: '8px',
+                marginBottom: '4px',
+                '& fieldset': {
+                  border: 0,
+                },
+                '& input:hover': {
+                  backgroundColor: Color(props.randomMainColor)
+                    .alpha(0.1)
+                    .hexa(),
+                },
+                '& input:focus': {
+                  boxShadow: `0 0 0 1px ${props.randomMainColor}`,
+                  backgroundColor: Color(props.randomMainColor)
+                    .alpha(0.1)
+                    .hexa(),
+                },
+              },
+            }}
           />
 
           {selectedNodes?.length === 1 && (
