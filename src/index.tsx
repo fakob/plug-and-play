@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { ThemeProvider } from '@mui/material';
 import { SnackbarProvider } from 'notistack';
 import { customTheme } from './utils/constants';
@@ -7,12 +7,13 @@ import App from './App';
 import styles from './utils/style.module.css';
 import './utils/global.css';
 
-const reactRoot = document.createElement('div');
-const child = document.body.appendChild(reactRoot);
-child.className = 'rootClass';
-child.id = 'container';
+const reactElement = document.createElement('div');
+const container = document.body.appendChild(reactElement);
+const root = createRoot(container!);
+container.className = 'rootClass';
+container.id = 'container';
 
-ReactDOM.render(
+root.render(
   <ThemeProvider theme={customTheme}>
     <SnackbarProvider
       maxSnack={3}
@@ -23,6 +24,5 @@ ReactDOM.render(
     >
       <App />
     </SnackbarProvider>
-  </ThemeProvider>,
-  reactRoot
+  </ThemeProvider>
 );
