@@ -4,7 +4,7 @@ import * as PIXI from 'pixi.js';
 import { DropShadowFilter } from '@pixi/filter-drop-shadow';
 import { hri } from 'human-readable-ids';
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot, Root } from 'react-dom/client';
 import '../pixi/dbclick.js';
 
 import styles from '../utils/style.module.css';
@@ -85,7 +85,9 @@ export default class PPNode extends PIXI.Container {
   interactionData: PIXI.InteractionData;
 
   container: HTMLElement; // for hybrid nodes
+  root: Root;
   static: HTMLElement;
+  staticRoot: Root;
 
   // supported callbacks
   onConfigure: (nodeConfig: SerializedNode) => void = () => {}; // called after the node has been configured
@@ -771,15 +773,14 @@ export default class PPNode extends PIXI.Container {
     // create html container
     const staticId = `Static-${this.id}`;
     if (this.static?.id !== staticId) {
-      this.static = parentDocument.createElement('div');
+      const reactElement = parentDocument.createElement('div');
+      this.static = parentDocument.body.appendChild(reactElement);
+      this.staticRoot = createRoot(this.static!);
       this.static.id = staticId;
-
-      // add it to the DOM
-      parentDocument.body.appendChild(this.static);
 
       // when the Node is removed also remove the react component and its static
       this.onNodeRemoved = () => {
-        this.removeContainerComponent(this.static);
+        this.removeContainerComponent(this.static, this.staticRoot);
       };
     } else {
       console.log('Modal already exists', this.static);
@@ -792,7 +793,7 @@ export default class PPNode extends PIXI.Container {
         ...reactProps,
         randomMainColor: RANDOMMAINCOLOR,
       },
-      this.static
+      this.staticRoot
     );
 
     return this.static;
@@ -808,12 +809,10 @@ export default class PPNode extends PIXI.Container {
     reactProps,
     customStyles = {}
   ): HTMLElement {
-    // create html container
-    this.container = parentDocument.createElement('div');
+    const reactElement = parentDocument.createElement('div');
+    this.container = parentDocument.body.appendChild(reactElement);
+    this.root = createRoot(this.container!);
     this.container.id = `Container-${this.id}`;
-
-    // add it to the DOM
-    parentDocument.body.appendChild(this.container);
 
     const screenPoint = this.screenPoint();
     this.container.classList.add(styles.hybridContainer);
@@ -838,14 +837,18 @@ export default class PPNode extends PIXI.Container {
 
     // when the Node is removed also remove the react component and its container
     this.onNodeRemoved = () => {
-      this.removeContainerComponent(this.container);
+      this.removeContainerComponent(this.container, this.root);
     };
 
     // render react component
-    this.renderReactComponent(reactParent, {
-      ...reactProps,
-      randomMainColor: RANDOMMAINCOLOR,
-    });
+    this.renderReactComponent(
+      reactParent,
+      {
+        ...reactProps,
+        randomMainColor: RANDOMMAINCOLOR,
+      },
+      this.root
+    );
 
     return this.container;
   }
@@ -856,21 +859,20 @@ export default class PPNode extends PIXI.Container {
     props: {
       [key: string]: any;
     },
-    container = this.container
+    root = this.root
   ): void => {
-    ReactDOM.render(
+    root.render(
       React.createElement(component, {
         ...props,
         id: this.id,
         selected: this.selected,
         doubleClicked: this.doubleClicked,
-      }),
-      container
+      })
     );
   };
 
-  removeContainerComponent(container: HTMLElement): void {
-    ReactDOM.unmountComponentAtNode(container);
+  removeContainerComponent(container: HTMLElement, root: Root): void {
+    root.unmount();
     document.body.removeChild(container);
   }
 
