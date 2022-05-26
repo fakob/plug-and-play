@@ -26,6 +26,7 @@ import {
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import SaveIcon from '@mui/icons-material/Save';
 import { useSnackbar } from 'notistack';
 import Color from 'color';
 import { hri } from 'human-readable-ids';
@@ -41,7 +42,7 @@ import ErrorFallback from './components/ErrorFallback';
 import PixiContainer from './PixiContainer';
 import { Image as ImageNode } from './nodes/image/image';
 import { GraphContextMenu, NodeContextMenu } from './components/ContextMenus';
-import { GraphDatabase } from './utils/indexedDB';
+import { GraphDatabase, Graph } from './utils/indexedDB';
 import PPGraph from './classes/GraphClass';
 import {
   BASIC_VERTEX_SHADER,
@@ -126,7 +127,6 @@ const App = (): JSX.Element => {
   const [contextMenuPosition, setContextMenuPosition] = useState([0, 0]);
   const [isCurrentGraphLoaded, setIsCurrentGraphLoaded] = useState(false);
   const [actionObject, setActionObject] = useState(null); // id and name of graph to edit/delete
-  const [unsavedGraph, setUnsavedGraph, unsavedGraphRef] = useStateRef(null); // id and name of unsaved remote graph
   const [showComments, setShowComments] = useState(false);
   const [remoteGraphs, setRemoteGraphs, remoteGraphsRef] = useStateRef([]);
   const [graphSearchItems, setGraphSearchItems] = useState<
@@ -135,7 +135,7 @@ const App = (): JSX.Element => {
   const [nodeSearchActiveItem, setNodeSearchActiveItem] =
     useState<INodeSearch | null>(null);
   const [graphSearchActiveItem, setGraphSearchActiveItem] =
-    useState<IGraphSearch | null>(null);
+    useState<IGraphSearch>({ id: '', name: '' });
 
   const filterOptionGraph = createFilterOptions<IGraphSearch>();
   const filterOptionNode = createFilterOptions<INodeSearch>({
@@ -810,7 +810,12 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           value: id,
         });
 
-        setUnsavedGraph(null);
+        // delete tempGraph
+        await db.settings.put({
+          name: 'tempGraph',
+          value: undefined,
+        });
+
         setActionObject({ id, name });
         setGraphSearchActiveItem({ id, name });
 
@@ -827,6 +832,38 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         console.log(`Updated currentGraph: ${indexId}`);
         enqueueSnackbar('Playground was saved');
       }
+    }).catch((e) => {
+      console.log(e.stack || e);
+    });
+  }
+
+  function temporarilySaveGraph(name: string) {
+    const serializedGraph = currentGraph.current.serialize();
+    console.log(serializedGraph);
+    console.info(serializedGraph.customNodeTypes);
+    db.transaction('rw', db.settings, async () => {
+      const id = 'tempGraph';
+
+      const indexId = await db.settings.put({
+        name: 'tempGraph',
+        value: JSON.stringify({
+          id,
+          date: new Date(),
+          name,
+          graphData: serializedGraph,
+        }),
+      });
+
+      // // save loadedGraphId
+      // await db.settings.put({
+      //   name: 'loadedGraphId',
+      //   value: id,
+      // });
+
+      setActionObject({ id, name });
+      setGraphSearchActiveItem({ id, name });
+
+      console.log(`Saved remote graph temporarily: ${indexId}`);
     }).catch((e) => {
       console.log(e.stack || e);
     });
@@ -862,7 +899,12 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           value: loadedGraph.id,
         });
 
-        setUnsavedGraph(null);
+        // delete tempGraph
+        await db.settings.put({
+          name: 'tempGraph',
+          value: undefined,
+        });
+
         setActionObject({
           id: loadedGraph.id,
           name: loadedGraph.name,
@@ -883,7 +925,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
   async function cloneRemoteGraph(id = undefined) {
     const nameOfFileToClone = remoteGraphsRef.current[id];
     const newName = `${removeExtension(remoteGraphsRef.current[id])} - copy`; // remove .ppgraph extension and add copy
-    const newId = hri.random();
 
     const fileData = await getRemoteGraph(
       githubBaseURL,
@@ -893,18 +934,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     console.log(fileData);
     currentGraph.current.configure(fileData);
 
-    setUnsavedGraph({
-      id: newId,
-      name: newName,
-    });
-    setActionObject({
-      id: newId,
-      name: newName,
-    });
-    setGraphSearchActiveItem({
-      id: newId,
-      name: newName,
-    });
+    temporarilySaveGraph(newName);
 
     enqueueSnackbar('Remote playground was loaded', {
       variant: 'default',
@@ -939,8 +969,8 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       } else {
         loadGraph(selected.id);
       }
-      setGraphSearchActiveItem(selected);
     }
+    setGraphSearchActiveItem(selected);
   };
 
   const handleNodeItemSelect = (event, selected: INodeSearch) => {
@@ -1002,7 +1032,12 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
   };
 
   const updateGraphSearchItems = () => {
-    console.log('updateGraphSearchItems');
+    console.log(
+      'updateGraphSearchItems',
+      graphSearchActiveItem
+      // graphSearchItems,
+      // actionObject
+    );
     load();
 
     async function load() {
@@ -1043,9 +1078,12 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         });
       }
 
+      const tempGraph = await getSetting(db, 'tempGraph');
       const unsavedGraphSearchItem: IGraphSearch[] = [];
-      console.log(unsavedGraphRef.current);
-      if (unsavedGraphRef.current !== null) {
+      // console.log(tempGraph);
+      if (tempGraph !== undefined) {
+        const tempGraphObj = JSON.parse(tempGraph) as Graph;
+        console.log(tempGraphObj);
         // add unsaved header entry
         unsavedGraphSearchItem.push({
           id: `unsaved-header`,
@@ -1053,8 +1091,8 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           isDisabled: true,
         });
         unsavedGraphSearchItem.push({
-          id: unsavedGraphRef.current.id,
-          name: unsavedGraphRef.current.name,
+          id: tempGraphObj.id,
+          name: tempGraphObj.name,
           label: 'unsaved',
           isUnsaved: true,
         } as IGraphSearch);
@@ -1105,6 +1143,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
 
   const renderGraphItem = (props, option, state) => {
     const isRemote = option.isRemote;
+    const isUnsaved = option.isUnsaved;
     const text = option.name;
     const title = isRemote // hover title tag
       ? `${option.name}
@@ -1166,7 +1205,35 @@ NOTE: save the playground after loading, if you want to make changes to it`
             Load remote playground
           </Box>
         )}
-        {!isRemote && (
+        {isUnsaved && (
+          <ButtonGroup
+            size="small"
+            sx={{
+              position: 'absolute',
+              right: '0px',
+              visibility: 'hidden',
+              '.Mui-focused &': {
+                visibility: 'visible',
+              },
+            }}
+          >
+            <IconButton
+              size="small"
+              onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+                event.stopPropagation();
+                console.log(option.name);
+                setIsGraphSearchOpen(false);
+                setActionObject(option);
+                saveNewGraph(option.name);
+              }}
+              title="Save playground"
+              className="menuItemButton"
+            >
+              <SaveIcon />
+            </IconButton>
+          </ButtonGroup>
+        )}
+        {!isRemote && !isUnsaved && (
           <ButtonGroup
             size="small"
             sx={{

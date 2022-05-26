@@ -1,7 +1,7 @@
 import Dexie from 'dexie';
 import { SerializedGraph } from './interfaces';
 
-interface Graph {
+export interface Graph {
   id: string;
   date: Date;
   graphData: SerializedGraph;
