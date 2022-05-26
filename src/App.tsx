@@ -126,6 +126,7 @@ const App = (): JSX.Element => {
   const [contextMenuPosition, setContextMenuPosition] = useState([0, 0]);
   const [isCurrentGraphLoaded, setIsCurrentGraphLoaded] = useState(false);
   const [actionObject, setActionObject] = useState(null); // id and name of graph to edit/delete
+  const [unsavedGraph, setUnsavedGraph, unsavedGraphRef] = useStateRef(null); // id and name of unsaved remote graph
   const [showComments, setShowComments] = useState(false);
   const [remoteGraphs, setRemoteGraphs, remoteGraphsRef] = useStateRef([]);
   const [graphSearchItems, setGraphSearchItems] = useState<
@@ -809,6 +810,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           value: id,
         });
 
+        setUnsavedGraph(null);
         setActionObject({ id, name });
         setGraphSearchActiveItem({ id, name });
 
@@ -860,6 +862,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           value: loadedGraph.id,
         });
 
+        setUnsavedGraph(null);
         setActionObject({
           id: loadedGraph.id,
           name: loadedGraph.name,
@@ -879,6 +882,9 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
 
   async function cloneRemoteGraph(id = undefined) {
     const nameOfFileToClone = remoteGraphsRef.current[id];
+    const newName = `${removeExtension(remoteGraphsRef.current[id])} - copy`; // remove .ppgraph extension and add copy
+    const newId = hri.random();
+
     const fileData = await getRemoteGraph(
       githubBaseURL,
       githubBranchName,
@@ -886,7 +892,20 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     );
     console.log(fileData);
     currentGraph.current.configure(fileData);
-    const newName = `${removeExtension(remoteGraphsRef.current[id])} - copy`; // remove .ppgraph extension and add copy
+
+    setUnsavedGraph({
+      id: newId,
+      name: newName,
+    });
+    setActionObject({
+      id: newId,
+      name: newName,
+    });
+    setGraphSearchActiveItem({
+      id: newId,
+      name: newName,
+    });
+
     enqueueSnackbar('Remote playground was loaded', {
       variant: 'default',
       autoHideDuration: 20000,
@@ -909,6 +928,8 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
 
     if (selected.isRemote) {
       cloneRemoteGraph(selected.id);
+    } else if (selected.isUnsaved) {
+      console.log('unsaved - do nothing');
     } else {
       if (selected.isNew) {
         currentGraph.current.clear();
@@ -1022,7 +1043,25 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         });
       }
 
+      const unsavedGraphSearchItem: IGraphSearch[] = [];
+      console.log(unsavedGraphRef.current);
+      if (unsavedGraphRef.current !== null) {
+        // add unsaved header entry
+        unsavedGraphSearchItem.push({
+          id: `unsaved-header`,
+          name: 'Unsaved playground',
+          isDisabled: true,
+        });
+        unsavedGraphSearchItem.push({
+          id: unsavedGraphRef.current.id,
+          name: unsavedGraphRef.current.name,
+          label: 'unsaved',
+          isUnsaved: true,
+        } as IGraphSearch);
+      }
+
       const allGraphSearchItems = [
+        ...unsavedGraphSearchItem,
         ...newGraphSearchItems,
         ...remoteGraphSearchItems,
       ];

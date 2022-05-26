@@ -61,6 +61,7 @@ export interface IGraphSearch {
   isRemote?: boolean;
   isDisabled?: boolean;
   isNew?: boolean;
+  isUnsaved?: boolean;
 }
 
 export interface INodeSearch {
