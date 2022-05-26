@@ -841,6 +841,12 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     db.transaction('rw', db.settings, async () => {
       const id = 'unsavedEntry';
 
+      // save loadedGraphId
+      await db.settings.put({
+        name: 'loadedGraphId',
+        value: undefined,
+      });
+
       const indexId = await db.settings.put({
         name: 'unsavedEntry',
         value: JSON.stringify({
@@ -944,18 +950,18 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     console.log(selected);
     setIsGraphSearchOpen(false);
 
-    if (selected.isRemote) {
-      cloneRemoteGraph(selected.id);
-    } else if (selected.isUnsaved) {
-      console.log('unsaved - do nothing');
-    } else {
-      if (selected.isNew) {
-        currentGraph.current.clear();
-        saveNewGraph(selected.name);
-        // remove selection flag
-        selected.isNew = undefined;
+    if (!selected.isUnsaved) {
+      if (selected.isRemote) {
+        cloneRemoteGraph(selected.id);
       } else {
-        loadGraph(selected.id);
+        if (selected.isNew) {
+          currentGraph.current.clear();
+          saveNewGraph(selected.name);
+          // remove selection flag
+          selected.isNew = undefined;
+        } else {
+          loadGraph(selected.id);
+        }
       }
     }
     setGraphSearchActiveItem(selected);
@@ -1020,12 +1026,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
   };
 
   const updateGraphSearchItems = () => {
-    console.log(
-      'updateGraphSearchItems',
-      graphSearchActiveItem
-      // graphSearchItems,
-      // actionObject
-    );
+    console.log('updateGraphSearchItems');
     load();
 
     async function load() {
