@@ -42,7 +42,7 @@ import ErrorFallback from './components/ErrorFallback';
 import PixiContainer from './PixiContainer';
 import { Image as ImageNode } from './nodes/image/image';
 import { GraphContextMenu, NodeContextMenu } from './components/ContextMenus';
-import { GraphDatabase, Graph } from './utils/indexedDB';
+import { GraphDatabase } from './utils/indexedDB';
 import PPGraph from './classes/GraphClass';
 import {
   BASIC_VERTEX_SHADER,
@@ -810,9 +810,9 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           value: id,
         });
 
-        // delete tempGraph
+        // delete unsavedEntry
         await db.settings.put({
-          name: 'tempGraph',
+          name: 'unsavedEntry',
           value: undefined,
         });
 
@@ -837,12 +837,12 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     });
   }
 
-  function temporarilySaveGraph(name: string) {
+  function storeUnsavedEntry(name: string) {
     db.transaction('rw', db.settings, async () => {
-      const id = 'tempGraph';
+      const id = 'unsavedEntry';
 
       const indexId = await db.settings.put({
-        name: 'tempGraph',
+        name: 'unsavedEntry',
         value: JSON.stringify({
           id,
           name,
@@ -852,7 +852,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       setActionObject({ id, name });
       setGraphSearchActiveItem({ id, name });
 
-      console.log(`Saved remote graph temporarily: ${indexId}`);
+      console.log(`Stored unsaved entry temporarily: ${indexId}`);
     }).catch((e) => {
       console.log(e.stack || e);
     });
@@ -888,9 +888,9 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           value: loadedGraph.id,
         });
 
-        // delete tempGraph
+        // delete unsavedEntry
         await db.settings.put({
-          name: 'tempGraph',
+          name: 'unsavedEntry',
           value: undefined,
         });
 
@@ -922,7 +922,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     );
     currentGraph.current.configure(fileData);
 
-    temporarilySaveGraph(newName);
+    storeUnsavedEntry(newName);
 
     enqueueSnackbar('Remote playground was loaded', {
       variant: 'default',
@@ -1066,11 +1066,11 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         });
       }
 
-      const tempGraph = await getSetting(db, 'tempGraph');
+      const unsavedEntry = await getSetting(db, 'unsavedEntry');
       const unsavedGraphSearchItem: IGraphSearch[] = [];
-      if (tempGraph !== undefined) {
-        const tempGraphObj = JSON.parse(tempGraph) as Graph;
-        console.log(tempGraphObj);
+      if (unsavedEntry !== undefined) {
+        const unsavedEntryObj = JSON.parse(unsavedEntry) as any;
+        console.log(unsavedEntryObj);
         // add unsaved header entry
         unsavedGraphSearchItem.push({
           id: `unsaved-header`,
@@ -1078,8 +1078,8 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           isDisabled: true,
         });
         unsavedGraphSearchItem.push({
-          id: tempGraphObj.id,
-          name: tempGraphObj.name,
+          id: unsavedEntryObj.id,
+          name: unsavedEntryObj.name,
           label: 'unsaved',
           isUnsaved: true,
         } as IGraphSearch);
