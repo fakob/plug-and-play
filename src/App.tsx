@@ -886,6 +886,13 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     );
     console.log(fileData);
     currentGraph.current.configure(fileData);
+
+    // unset loadedGraphId
+    await db.settings.put({
+      name: 'loadedGraphId',
+      value: undefined,
+    });
+
     const newName = `${removeExtension(remoteGraphsRef.current[id])} - copy`; // remove .ppgraph extension and add copy
     enqueueSnackbar('Remote playground was loaded', {
       variant: 'default',
