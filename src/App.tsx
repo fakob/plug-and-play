@@ -838,9 +838,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
   }
 
   function temporarilySaveGraph(name: string) {
-    const serializedGraph = currentGraph.current.serialize();
-    console.log(serializedGraph);
-    console.info(serializedGraph.customNodeTypes);
     db.transaction('rw', db.settings, async () => {
       const id = 'tempGraph';
 
@@ -848,17 +845,9 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         name: 'tempGraph',
         value: JSON.stringify({
           id,
-          date: new Date(),
           name,
-          graphData: serializedGraph,
         }),
       });
-
-      // // save loadedGraphId
-      // await db.settings.put({
-      //   name: 'loadedGraphId',
-      //   value: id,
-      // });
 
       setActionObject({ id, name });
       setGraphSearchActiveItem({ id, name });
@@ -931,7 +920,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       githubBranchName,
       nameOfFileToClone
     );
-    console.log(fileData);
     currentGraph.current.configure(fileData);
 
     temporarilySaveGraph(newName);
@@ -1055,7 +1043,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       if (remoteGraphSearchItems.length > 0) {
         remoteGraphSearchItems.unshift({
           id: `remote-header`,
-          name: 'Remote playgrounds', // opening a remote playground creates a local copy
+          name: 'Remote', // opening a remote playground creates a local copy
           isDisabled: true,
         });
       }
@@ -1073,21 +1061,20 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       if (graphs.length > 0) {
         newGraphSearchItems.unshift({
           id: `local-header`,
-          name: 'Local playgrounds',
+          name: 'Local',
           isDisabled: true,
         });
       }
 
       const tempGraph = await getSetting(db, 'tempGraph');
       const unsavedGraphSearchItem: IGraphSearch[] = [];
-      // console.log(tempGraph);
       if (tempGraph !== undefined) {
         const tempGraphObj = JSON.parse(tempGraph) as Graph;
         console.log(tempGraphObj);
         // add unsaved header entry
         unsavedGraphSearchItem.push({
           id: `unsaved-header`,
-          name: 'Unsaved playground',
+          name: 'Unsaved',
           isDisabled: true,
         });
         unsavedGraphSearchItem.push({
@@ -1147,7 +1134,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     const text = option.name;
     const title = isRemote // hover title tag
       ? `${option.name}
-NOTE: save the playground after loading, if you want to make changes to it`
+NOTE: save the playground after loading, if you want to keep it`
       : option.name;
     const optionLabel = option.label;
     const itemToReturn = option.isDisabled ? (
