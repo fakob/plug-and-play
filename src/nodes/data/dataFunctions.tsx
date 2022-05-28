@@ -1,17 +1,5 @@
 import React from 'react';
-import {
-  // Accordion,
-  // AccordionProps,
-  // AccordionDetails,
-  // AccordionSummary,
-  // AccordionSummaryProps,
-  // Box,
-  // IconButton,
-  // Menu,
-  // MenuItem,
-  // Stack,
-  Button,
-} from '@mui/material';
+import { Button } from '@mui/material';
 import NodeClass from '../../classes/NodeClass';
 import PureNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
@@ -315,6 +303,7 @@ export class Constant extends PureNode {
 
 export class CConstant extends PureNode {
   update: () => void;
+  onWidgetTrigger: () => void;
 
   protected getIsHybrid(): boolean {
     return true;
@@ -327,6 +316,7 @@ export class CConstant extends PureNode {
   constructor(name: string, graph: PPGraph, customArgs?: CustomArgs) {
     const nodeWidth = 400;
     const nodeHeight = 400;
+    const margin = 4;
 
     super(name, graph, {
       ...customArgs,
@@ -339,16 +329,27 @@ export class CConstant extends PureNode {
 
     // when the Node is added, add the container and react component
     this.onNodeAdded = () => {
-      this.createContainerComponent(document, TableParent, {
-        nodeWidth: this.nodeWidth,
-        nodeHeight: this.nodeHeight,
-      });
+      this.createContainerComponent(
+        document,
+        TableParent,
+        {
+          nodeWidth: this.nodeWidth,
+          nodeHeight: this.nodeHeight,
+          margin,
+        },
+        {
+          overflow: 'visible',
+          borderRadius: `${this.nodeWidth / 6}px`,
+        }
+      );
+      this.container.style.pointerEvents = 'auto';
     };
 
     this.update = (): void => {
       this.renderReactComponent(TableParent, {
         nodeWidth: this.nodeWidth,
         nodeHeight: this.nodeHeight,
+        margin,
       });
     };
 
@@ -357,16 +358,17 @@ export class CConstant extends PureNode {
       this.update();
     };
 
-    this.onHybridNodeExit = () => {
+    this.onWidgetTrigger = () => {
+      console.log('onWidgetTrigger');
       this.executeOptimizedChain();
     };
 
     this.onNodeResize = () => {
       this.container.style.width = `${
-        this.nodeWidth - (2 * 4) / this.graph.viewport.scale.x
+        this.nodeWidth - (2 * margin) / this.graph.viewport.scale.x
       }px`;
       this.container.style.height = `${
-        this.nodeHeight - (2 * 4) / this.graph.viewport.scale.x
+        this.nodeHeight - (2 * margin) / this.graph.viewport.scale.x
       }px`;
       this.update();
     };
@@ -376,33 +378,42 @@ export class CConstant extends PureNode {
     };
 
     const TableParent = (props) => {
-      const handleOnChange = () => {
+      const handleOnPointerDown = () => {
+        const inputData = this.getInputData(constantInName);
+        this.setOutputData(constantOutName, inputData);
         this.executeChildren();
       };
 
-      // useEffect(() => {}, []);
+      const handleOnPointerUp = () => {
+        this.setOutputData(constantOutName, 0);
+        this.executeChildren();
+      };
 
-      // useEffect(() => {}, [props.dataArray]);
-
-      // dataTypeValue.getInputWidget(baseProps);
-
-      // return <div onClick={handleOnClick} id={this.spreadsheetId} />;
       return (
         <Button
-          value="check"
-          // size="small"
           variant="contained"
-          onChange={handleOnChange}
+          onPointerDown={handleOnPointerDown}
+          onPointerUp={handleOnPointerUp}
           sx={{
             fontSize: '16px',
             border: 0,
-            // width: '100%',
-            // height: '100%',
-            width: `${this.nodeWidth - 2 * 4}px`,
-            height: `${this.nodeHeight - 2 * 4}px`,
+            width: `${
+              this.nodeWidth - (2 * margin) / this.graph.viewport.scale.x
+            }px`,
+            height: `${
+              this.nodeHeight - (2 * margin) / this.graph.viewport.scale.x
+            }px`,
+            borderRadius: `${this.nodeWidth / 6}px`,
+            boxShadow: 16,
+            '&:hover': {
+              boxShadow: 12,
+            },
+            '&:active': {
+              boxShadow: 4,
+            },
           }}
         >
-          Test
+          {this.name}
         </Button>
       );
     };
@@ -418,6 +429,7 @@ export class CConstant extends PureNode {
     inputObject: any,
     outputObject: Record<string, unknown>
   ): Promise<void> {
+    console.log(inputObject, inputObject?.[constantInName]);
     outputObject[constantOutName] = inputObject?.[constantInName];
   }
 }

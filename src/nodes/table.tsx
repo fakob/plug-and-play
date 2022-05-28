@@ -37,6 +37,10 @@ export class Table extends PPNode {
     return true;
   }
 
+  protected getActivateByDoubleClick(): boolean {
+    return true;
+  }
+
   constructor(name: string, graph: PPGraph, customArgs?: CustomArgs) {
     const nodeWidth = 800;
     const nodeHeight = 400;
