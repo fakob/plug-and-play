@@ -147,7 +147,7 @@
 }
 
 .hybridContainer {
-  pointer-events: none;
+  /* pointer-events: none; */
   position: absolute;
   z-index: 0;
   transform-origin: top left;

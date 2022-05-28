@@ -1,7 +1,23 @@
+import React from 'react';
+import {
+  // Accordion,
+  // AccordionProps,
+  // AccordionDetails,
+  // AccordionSummary,
+  // AccordionSummaryProps,
+  // Box,
+  // IconButton,
+  // Menu,
+  // MenuItem,
+  // Stack,
+  Button,
+} from '@mui/material';
 import NodeClass from '../../classes/NodeClass';
 import PureNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
-import { SOCKET_TYPE } from '../../utils/constants';
+import PPGraph from '../../classes/GraphClass';
+import { CustomArgs, TRgba } from '../../utils/interfaces';
+import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../../utils/constants';
 import { AnyType } from '../datatypes/anyType';
 import { ArrayType } from '../datatypes/arrayType';
 import { CodeType } from '../datatypes/codeType';
@@ -283,6 +299,115 @@ export class ConcatenateArrays extends PureNode {
 }
 
 export class Constant extends PureNode {
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(SOCKET_TYPE.IN, constantInName, new AnyType(), 0),
+      new Socket(SOCKET_TYPE.OUT, constantOutName, new AnyType()),
+    ];
+  }
+  protected async onExecute(
+    inputObject: any,
+    outputObject: Record<string, unknown>
+  ): Promise<void> {
+    outputObject[constantOutName] = inputObject?.[constantInName];
+  }
+}
+
+export class CConstant extends PureNode {
+  update: () => void;
+
+  protected getIsHybrid(): boolean {
+    return true;
+  }
+
+  protected getActivateByDoubleClick(): boolean {
+    return false;
+  }
+
+  constructor(name: string, graph: PPGraph, customArgs?: CustomArgs) {
+    const nodeWidth = 400;
+    const nodeHeight = 400;
+
+    super(name, graph, {
+      ...customArgs,
+      nodeWidth,
+      nodeHeight,
+    });
+
+    this.name = 'CConstant';
+    this.description = 'Adds a CConstant';
+
+    // when the Node is added, add the container and react component
+    this.onNodeAdded = () => {
+      this.createContainerComponent(document, TableParent, {
+        nodeWidth: this.nodeWidth,
+        nodeHeight: this.nodeHeight,
+      });
+    };
+
+    this.update = (): void => {
+      this.renderReactComponent(TableParent, {
+        nodeWidth: this.nodeWidth,
+        nodeHeight: this.nodeHeight,
+      });
+    };
+
+    // when the Node is loaded, update the react component
+    this.onConfigure = (): void => {
+      this.update();
+    };
+
+    this.onHybridNodeExit = () => {
+      this.executeOptimizedChain();
+    };
+
+    this.onNodeResize = () => {
+      this.container.style.width = `${
+        this.nodeWidth - (2 * 4) / this.graph.viewport.scale.x
+      }px`;
+      this.container.style.height = `${
+        this.nodeHeight - (2 * 4) / this.graph.viewport.scale.x
+      }px`;
+      this.update();
+    };
+
+    this.onExecute = async function () {
+      this.update();
+    };
+
+    const TableParent = (props) => {
+      const handleOnChange = () => {
+        this.executeChildren();
+      };
+
+      // useEffect(() => {}, []);
+
+      // useEffect(() => {}, [props.dataArray]);
+
+      // dataTypeValue.getInputWidget(baseProps);
+
+      // return <div onClick={handleOnClick} id={this.spreadsheetId} />;
+      return (
+        <Button
+          value="check"
+          // size="small"
+          variant="contained"
+          onChange={handleOnChange}
+          sx={{
+            fontSize: '16px',
+            border: 0,
+            // width: '100%',
+            // height: '100%',
+            width: `${this.nodeWidth - 2 * 4}px`,
+            height: `${this.nodeHeight - 2 * 4}px`,
+          }}
+        >
+          Test
+        </Button>
+      );
+    };
+  }
+
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, constantInName, new AnyType(), 0),
