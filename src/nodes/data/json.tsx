@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 import { JSONPath } from 'jsonpath-plus';
 import PPGraph from '../../classes/GraphClass';
-import PureNode from '../../classes/NodeClass';
+import PPNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
 import FloatingJsonPathPicker from '../../components/FloatingJsonPathPicker';
 import { parseJSON, replacePartOfObject } from '../../utils/utils';
@@ -16,7 +16,7 @@ const JSONParamName = 'Path';
 const JSONInsert = 'New value';
 const outValueName = 'Value';
 
-export class JSONGet extends PureNode {
+export class JSONGet extends PPNode {
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
     super(name, graph, {
       ...customArgs,
@@ -64,7 +64,7 @@ export class JSONGet extends PureNode {
   }
 }
 
-export class JSONSet extends PureNode {
+export class JSONSet extends PPNode {
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
     super(name, graph, {
       ...customArgs,
@@ -113,7 +113,7 @@ export class JSONSet extends PureNode {
   }
 }
 
-export class JSONKeys extends PureNode {
+export class JSONKeys extends PPNode {
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
     super(name, graph, {
       ...customArgs,
@@ -141,7 +141,7 @@ export class JSONKeys extends PureNode {
   }
 }
 
-export class JSONValues extends PureNode {
+export class JSONValues extends PPNode {
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
     super(name, graph, {
       ...customArgs,

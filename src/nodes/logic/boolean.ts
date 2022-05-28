@@ -1,5 +1,5 @@
 import PPGraph from '../../classes/GraphClass';
-import { PureNode } from '../../classes/NodeClass';
+import PPNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
 import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../../utils/constants';
 import { CustomArgs, TRgba } from '../../utils/interfaces';
@@ -11,7 +11,7 @@ const input1Name = 'Input 1';
 const input2Name = 'Input 2';
 const outputName = 'Output';
 
-export class NOT extends PureNode {
+export class NOT extends PPNode {
   protected async onExecute(
     inputObject: any,
     outputObject: Record<string, unknown>
@@ -33,7 +33,7 @@ export class NOT extends PureNode {
   }
 }
 
-export class OR extends PureNode {
+export class OR extends PPNode {
   protected async onExecute(
     inputObject: any,
     outputObject: Record<string, unknown>
@@ -63,7 +63,7 @@ export class OR extends PureNode {
   }
 }
 
-export class AND extends PureNode {
+export class AND extends PPNode {
   protected async onExecute(
     inputObject: any,
     outputObject: Record<string, unknown>

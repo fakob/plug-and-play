@@ -475,7 +475,6 @@ export default class PPNode extends PIXI.Container {
   ): Promise<void> {
     const dependents: { [key: string]: PPNode } = {};
     const numDepending: { [key: string]: Set<string> } = {};
-    const dirtyState: Set<string> = new Set();
     foundational.forEach((node: PPNode) => {
       Object.keys(node.getDirectDependents()).forEach((dependentKey) => {
         numDepending[dependentKey] = new Set();
@@ -489,20 +488,17 @@ export default class PPNode extends PIXI.Container {
     // now that we have the complete chain, execute them in order that makes sure all dependents are waiting on their parents, there should always be a node with no more lingering dependents (unless there is an infinite loop)
     let currentExecuting: PPNode = foundational.shift();
     while (currentExecuting) {
-      const changeDetected: boolean = await currentExecuting.execute();
+      await currentExecuting.execute();
       // uncomment if you want to see the execution in more detail by slowing it down (to make sure order is correct)
       //await new Promise((resolve) => setTimeout(resolve, 500));
       Object.keys(currentExecuting.getDirectDependents()).forEach(
         (dependentKey) => {
-          if (changeDetected) {
-            dirtyState.add(dependentKey);
-          }
-          numDepending[dependentKey].delete(currentExecuting.id);
-          if (
-            numDepending[dependentKey].size == 0 &&
-            dirtyState.has(dependentKey)
-          ) {
-            foundational.push(dependents[dependentKey]);
+          if (numDepending[dependentKey]) {
+            numDepending[dependentKey].delete(currentExecuting.id);
+            // if this child has no other nodes it is waiting on, and one of its parents did change its output, add it to the queue of nodes to be executed
+            if (numDepending[dependentKey].size == 0) {
+              foundational.push(dependents[dependentKey]);
+            }
           }
         }
       );
@@ -975,29 +971,21 @@ export default class PPNode extends PIXI.Container {
     return inputObject;
   }
 
-  // if you want to optimize the mapping, override this function instead of execute()
-  protected async rawExecute(): Promise<boolean> {
+  // if you want to optimize the mapping of arguments, override this function instead of execute(), but most of the time just override onExecute()
+  protected async rawExecute(): Promise<void> {
     // remap input
     const inputObject = this.remapInput(this.inputSocketArray);
     const outputObject = {};
 
     await this.onExecute(inputObject, outputObject);
-    this.onAfterExecute();
 
-    let foundChange = !this.isPure();
     // output whatever the user has put in
     this.outputSocketArray.forEach((output: Socket) => {
       if (outputObject[output.name] !== undefined) {
-        if (!foundChange) {
-          // see if anything has changed, but only need to do this if no previous has been found
-          foundChange =
-            JSON.stringify(outputObject[output.name]) !==
-            JSON.stringify(output.data);
-        }
         output.data = outputObject[output.name];
       }
     });
-    return foundChange;
+    this.onAfterExecute();
   }
 
   // override if you don't want your node to show outline for some reason
@@ -1045,15 +1033,14 @@ export default class PPNode extends PIXI.Container {
     }
   }
 
-  protected async execute(): Promise<boolean> {
+  protected async execute(): Promise<void> {
     const executedSuccessOld = this.successfullyExecuted;
-    let foundChange = false;
     try {
       this.successfullyExecuted = true;
       if (this.shouldDrawExecution()) {
         this.renderOutlineThrottled();
       }
-      foundChange = await this.rawExecute();
+      await this.rawExecute();
       this.drawComment();
     } catch (error) {
       this.lastError = error;
@@ -1063,7 +1050,6 @@ export default class PPNode extends PIXI.Container {
     if (executedSuccessOld !== this.successfullyExecuted) {
       this.drawNodeShape();
     }
-    return foundChange;
   }
 
   // dont call this from outside, only from child class
@@ -1076,7 +1062,7 @@ export default class PPNode extends PIXI.Container {
   }
 
   // return true if this node has no effects on the graph apart from what it returns and does within itself, if this is indeed the case then there are a ton of optimizations and improvements that can be done, so mark all nodes that can be made pure as pure
-  protected isPure(): boolean {
+  public isPure(): boolean {
     return false;
   }
 
@@ -1236,11 +1222,5 @@ export default class PPNode extends PIXI.Container {
 
   public metaInfoChanged(): void {
     this.drawNodeShape();
-  }
-}
-
-export class PureNode extends PPNode {
-  protected isPure(): boolean {
-    return true;
   }
 }
