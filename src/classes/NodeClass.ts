@@ -809,7 +809,7 @@ export default class PPNode extends PIXI.Container {
     reactProps,
     customStyles = {}
   ): HTMLElement {
-    const { margin = 4 } = reactProps;
+    const { margin = 0 } = reactProps;
     const reactElement = parentDocument.createElement('div');
     this.container = parentDocument.body.appendChild(reactElement);
     this.root = createRoot(this.container!);
@@ -821,7 +821,6 @@ export default class PPNode extends PIXI.Container {
     Object.assign(this.container.style, customStyles);
 
     // set initial position
-    this.container.style.backgroundColor = 'red';
     this.container.style.transform = `translate(50%, 50%)`;
     this.container.style.transform = `scale(${scaleX}`;
     this.container.style.left = `${screenPoint.x + margin}px`;
