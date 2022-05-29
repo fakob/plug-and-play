@@ -389,7 +389,6 @@ export default class PPGraph {
   ): T {
     // console.log(this._registeredNodeTypes);
     const newArgs: any = {};
-    let title = type;
     let nodeConstructor = this._registeredNodeTypes[type]?.constructor;
 
     if (!nodeConstructor) {
@@ -397,19 +396,18 @@ export default class PPGraph {
         'GraphNode type "' + type + '" not registered. Will create new one.'
       );
 
-      const newName = `Missing_${type}`;
-      const code = DEFAULT_EMPTY_DATA.replace('MissingNode', newName);
+      const code = DEFAULT_EMPTY_DATA.replace('MissingNode', type);
       const functionName = this.registerCustomNodeType(code);
       const isNodeTypeRegistered =
         this.checkIfFunctionIsRegistered(functionName);
       console.log('isNodeTypeRegistered: ', isNodeTypeRegistered);
 
       newArgs.color = TRgba.fromString(NODE_TYPE_COLOR.MISSING);
-      title = newName;
       nodeConstructor = this._registeredNodeTypes[functionName].constructor;
     }
 
-    console.log(nodeConstructor);
+    const title = type;
+    // console.log(nodeConstructor);
     const node = new nodeConstructor(title, this, {
       ...customArgs,
       ...newArgs,
