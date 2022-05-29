@@ -1,11 +1,7 @@
-import React from 'react';
-import { Button } from '@mui/material';
 import NodeClass from '../../classes/NodeClass';
 import PureNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
-import PPGraph from '../../classes/GraphClass';
-import { CustomArgs, TRgba } from '../../utils/interfaces';
-import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../../utils/constants';
+import { SOCKET_TYPE } from '../../utils/constants';
 import { AnyType } from '../datatypes/anyType';
 import { ArrayType } from '../datatypes/arrayType';
 import { CodeType } from '../datatypes/codeType';
