@@ -40,6 +40,7 @@ export const COLOR_WHITE = '#F5F5F5';
 export const COLOR_DARK = '#0C0C0C';
 export const COLOR_WHITE_TEXT = '#F4FAF9';
 export const WHITE_HEX = 0xffffff;
+export const COLOR_ERROR = '#FF0000';
 
 export const RANDOMMAINCOLOR = COLOR[Math.floor(Math.random() * COLOR.length)];
 
@@ -130,6 +131,7 @@ export const NODE_TYPE_COLOR = {
   DRAW: COLOR[3],
   SHADER: COLOR[4],
   MACRO: COLOR[5],
+  MISSING: COLOR_ERROR,
 };
 
 export const COMMENT_TEXTSTYLE = new TextStyle({
@@ -160,6 +162,10 @@ export const DEFAULT_EDITOR_DATA = `// Ctrl-Enter to update node
 // Change function name to create new node
 function customFunctionNode(a, b) {
   return a * b;
+}`;
+
+export const DEFAULT_EMPTY_DATA = `function MissingNode(a) {
+  return a;
 }`;
 
 export const PIXI_TEXT_ALIGN_OPTIONS: EnumStructure = [
