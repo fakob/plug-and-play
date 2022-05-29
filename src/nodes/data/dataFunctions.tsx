@@ -416,6 +416,63 @@ export class ForEachLoop extends ForLoop {
   }
 }
 
+export class CustomFunction extends PPNode {
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(
+        SOCKET_TYPE.IN,
+        anyCodeName,
+        new CodeType(),
+        '// define your function here, node will adapt to inputs automatically\n(a) => {\nreturn a;\n}'
+      ),
+      new Socket(SOCKET_TYPE.OUT, outDataName, new AnyType()),
+    ];
+  }
+  protected async onExecute(
+    inputObject: any,
+    outputObject: Record<string, unknown>
+  ): Promise<void> {
+    // before every execute, re-evaluate inputs
+    this.adaptInputs(inputObject[anyCodeName]);
+    await eval('async () => {' + inputObject[anyCodeName] + '}')();
+  }
+
+  adaptInputs(code: string): void {
+    const regex = /(\(.*\))/;
+    const res = code.match(regex)[0];
+    const cleaned = res.replace('(', '').replace(')', '').replace(' ', '');
+    console.log('res:  ' + res);
+    console.log('cleaned:  ' + cleaned);
+
+    // remove all non existing arguments and add all missing (based on the definition we just got)
+    const currentInputSockets = this.getAllSockets().filter(
+      (socket) => socket.socketType === SOCKET_TYPE.IN
+    );
+    const codeArguments = cleaned.split(',');
+    console.log('arguments: ' + codeArguments);
+    const socketsToBeRemoved = currentInputSockets.filter(
+      (socket) =>
+        !codeArguments.some((argument) => socket.name === argument) &&
+        socket.name !== anyCodeName
+    );
+    const argumentsToBeAdded = codeArguments.filter(
+      (argument) =>
+        !currentInputSockets.some((socket) => socket.name === argument)
+    );
+    socketsToBeRemoved.forEach((socket) => {
+      console.log('removed socket');
+      socket.destroy();
+    });
+    argumentsToBeAdded.forEach((argument) => {
+      console.log('added input');
+      this.addInput(argument, new AnyType());
+    });
+    if (socketsToBeRemoved.length > 0 || argumentsToBeAdded.length > 0) {
+      this.metaInfoChanged();
+    }
+  }
+}
+
 // TODO implement
-// Not quite sure how we want this one to look... CodeType? or based on input?
+// Not quite sure how we want this one to look... CodeType? or based on input? THIS ONE IS DANGEROUS AS IT CAN HANG THE ENTIRE APPLICATION, needs max loop limit. Is this even needed?
 //export class WhileLoop extends NodeClass {}

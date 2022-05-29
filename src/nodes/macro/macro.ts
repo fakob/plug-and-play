@@ -71,10 +71,7 @@ export class DefineMacroOut extends MacroNode {
   }
 
   protected getDefaultIO(): Socket[] {
-    return [
-      new Socket(SOCKET_TYPE.IN, 'Macro', new MacroType()),
-      new Socket(SOCKET_TYPE.IN, 'Parameter 1', new AnyType()),
-    ];
+    return [new Socket(SOCKET_TYPE.IN, 'Parameter 1', new AnyType())];
   }
   _onRemoved(): void {
     super._onRemoved();
