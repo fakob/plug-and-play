@@ -171,7 +171,7 @@ export class WidgetButton extends PPNode {
   }
 }
 
-export class WidgetToggle extends PPNode {
+export class WidgetSwitch extends PPNode {
   update: () => void;
   onWidgetTrigger: () => void;
 
@@ -203,8 +203,8 @@ export class WidgetToggle extends PPNode {
       nodeHeight,
     });
 
-    this.name = 'Toggle';
-    this.description = 'Adds a toggle to switch between values';
+    this.name = 'Switch';
+    this.description = 'Adds a switch to toggle between values';
 
     // when the Node is added, add the container and react component
     this.onNodeAdded = () => {
