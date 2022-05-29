@@ -1047,7 +1047,10 @@ export default class PPNode extends PIXI.Container {
       console.log('node ' + this.id + ' execution error: ' + error);
       this.successfullyExecuted = false;
     }
-    if (executedSuccessOld !== this.successfullyExecuted) {
+    if (
+      executedSuccessOld !== this.successfullyExecuted ||
+      !this.successfullyExecuted
+    ) {
       this.drawNodeShape();
     }
   }
