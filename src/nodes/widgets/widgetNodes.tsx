@@ -70,7 +70,6 @@ export class WidgetButton extends PPNode {
           overflow: 'visible',
         }
       );
-      this.container.style.pointerEvents = 'auto';
     };
 
     this.update = (): void => {
@@ -106,7 +105,6 @@ export class WidgetButton extends PPNode {
     };
 
     const WidgetParent = (props) => {
-      console.log(props, props.nodeWidth);
       const handleOnPointerDown = () => {
         const inputData = this.getInputData(onValueName);
         this.setOutputData(outName, inputData);
@@ -144,6 +142,7 @@ export class WidgetButton extends PPNode {
               onPointerDown={handleOnPointerDown}
               onPointerUp={handleOnPointerUp}
               sx={{
+                pointerEvents: 'auto',
                 margin: 'auto',
                 fontSize: '16px',
                 border: 0,
@@ -221,7 +220,6 @@ export class WidgetToggle extends PPNode {
           overflow: 'visible',
         }
       );
-      this.container.style.pointerEvents = 'auto';
     };
 
     this.update = (): void => {
@@ -291,7 +289,10 @@ export class WidgetToggle extends PPNode {
               },
             }}
           >
-            <FormControl component="fieldset" sx={{ margin: 'auto' }}>
+            <FormControl
+              component="fieldset"
+              sx={{ margin: 'auto', pointerEvents: 'auto' }}
+            >
               <FormGroup aria-label="position" row>
                 <FormControlLabel
                   value={this.name}
