@@ -1,12 +1,12 @@
 import PPGraph from '../classes/GraphClass';
-import { PureNode } from '../classes/NodeClass';
+import PPNode from '../classes/NodeClass';
 import Socket from '../classes/SocketClass';
 import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../utils/constants';
 import { CustomArgs, TRgba } from '../utils/interfaces';
 import { NumberType } from './datatypes/numberType';
 import { EnumType } from './datatypes/enumType';
 
-export class MathFunction extends PureNode {
+export class MathFunction extends PPNode {
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
     super(name, graph, {
       ...customArgs,
@@ -88,7 +88,7 @@ export class MathFunction extends PureNode {
   }
 }
 
-class SimpleMathOperation extends PureNode {
+class SimpleMathOperation extends PPNode {
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
     super(name, graph, {
       ...customArgs,

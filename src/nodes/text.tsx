@@ -1,7 +1,7 @@
 import * as PIXI from 'pixi.js';
 import Color from 'color';
 import PPGraph from '../classes/GraphClass';
-import { PureNode } from '../classes/NodeClass';
+import PPNode from '../classes/NodeClass';
 import { CustomArgs, TRgba } from '../utils/interfaces';
 import {
   COLOR,
@@ -20,7 +20,7 @@ import { StringType } from './datatypes/stringType';
 import { NumberType } from './datatypes/numberType';
 import { ColorType } from './datatypes/colorType';
 
-export class Label extends PureNode {
+export class Label extends PPNode {
   _refText: PIXI.Text;
   _refTextStyle: PIXI.TextStyle;
   currentInput: HTMLDivElement;
@@ -238,7 +238,7 @@ export class Label extends PureNode {
   }
 }
 
-export class Note extends PureNode {
+export class Note extends PPNode {
   _spriteRef: PIXI.Sprite;
   _bitmapTextRef: PIXI.BitmapText;
   _maskRef: PIXI.Graphics;

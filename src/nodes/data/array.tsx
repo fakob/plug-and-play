@@ -1,4 +1,4 @@
-import PureNode from '../../classes/NodeClass';
+import PPNode from '../../classes/NodeClass';
 import Graph from '../../classes/GraphClass';
 import Socket from '../../classes/SocketClass';
 import { SOCKET_TYPE } from '../../utils/constants';
@@ -20,7 +20,7 @@ const beginIndexName = 'Begin';
 const endIndexName = 'End';
 const shouldUseEnd = 'Slice End';
 
-export class ArrayCreate extends PureNode {
+export class ArrayCreate extends PPNode {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, elementName, new AnyType()),
@@ -40,7 +40,7 @@ export class ArrayCreate extends PureNode {
   }
 }
 
-export class ArrayGet extends PureNode {
+export class ArrayGet extends PPNode {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, arrayName, new ArrayType()),
@@ -61,8 +61,9 @@ export class ArrayGet extends PureNode {
     outputObject[elementName] = inputObject[arrayName][inputObject[indexName]];
   }
 }
-export class ArraySlice extends PureNode {
+export class ArraySlice extends PPNode {
   protected getDefaultIO(): Socket[] {
+    console.log('GETTIN IT');
     return [
       new Socket(SOCKET_TYPE.IN, arrayName, new ArrayType()),
       new Socket(
@@ -95,9 +96,13 @@ export class ArraySlice extends PureNode {
       : inputObject[arrayName].slice(inputObject[beginIndexName]);
     outputObject[arrayName] = res;
   }
+
+  public getName(): string {
+    return 'Slice Array';
+  }
 }
 
-export class ArrayLength extends PureNode {
+export class ArrayLength extends PPNode {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, arrayName, new ArrayType()),
@@ -112,7 +117,7 @@ export class ArrayLength extends PureNode {
   }
 }
 
-export class ArrayPush extends PureNode {
+export class ArrayPush extends PPNode {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, arrayName, new ArrayType()),
@@ -130,7 +135,7 @@ export class ArrayPush extends PureNode {
   }
 }
 
-export class ArrayMethod extends PureNode {
+export class ArrayMethod extends PPNode {
   onOptionChange?: (value: string) => void;
   constructor(name: string, graph: Graph, customArgs: CustomArgs) {
     super(name, graph, {

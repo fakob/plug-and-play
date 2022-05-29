@@ -1,5 +1,5 @@
 import NodeClass from '../../classes/NodeClass';
-import PureNode from '../../classes/NodeClass';
+import PPNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
 import { SOCKET_TYPE } from '../../utils/constants';
 import { AnyType } from '../datatypes/anyType';
@@ -36,7 +36,7 @@ const inputMultiplierName = 'Multiplier';
 function asyncWrapCode(code: string, execute = true): string {
   return '(' + code + ')' + (execute ? '()' : '');
 }
-export class Code extends PureNode {
+export class Code extends PPNode {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, inDataName, new AnyType(), 'bruh'),
@@ -72,7 +72,7 @@ export class Code extends PureNode {
 }
 
 // make filter and map ourselves to be able to deal with async (need sequental ordering)
-export class Filter extends PureNode {
+export class Filter extends PPNode {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, arrayName, new ArrayType(), []),
@@ -105,7 +105,7 @@ export class Filter extends PureNode {
   }
 }
 
-export class Map extends PureNode {
+export class Map extends PPNode {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, arrayName, new ArrayType(), []),
@@ -165,7 +165,7 @@ function merge(array1, array2) {
 }
 
 // mostly useful for draw nodes
-export class MergeDataArrays extends PureNode {
+export class MergeDataArrays extends PPNode {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, input1Name, new ArrayType(), []),
@@ -184,7 +184,7 @@ export class MergeDataArrays extends PureNode {
   }
 }
 
-export class MergeJSONs extends PureNode {
+export class MergeJSONs extends PPNode {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, input1Name, new JSONType(), {}),
@@ -203,7 +203,7 @@ export class MergeJSONs extends PureNode {
   }
 }
 
-export class MergeJSONArrays extends PureNode {
+export class MergeJSONArrays extends PPNode {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, input1Name, new ArrayType(), []),
@@ -223,7 +223,7 @@ export class MergeJSONArrays extends PureNode {
   }
 }
 
-export class PadArray extends PureNode {
+export class PadArray extends PPNode {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, input1Name, new ArrayType(), ['hello']),
@@ -249,7 +249,7 @@ export class PadArray extends PureNode {
   }
 }
 
-export class FlattenArray extends PureNode {
+export class FlattenArray extends PPNode {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, input1Name, new ArrayType(), ['hello']),
@@ -264,7 +264,7 @@ export class FlattenArray extends PureNode {
   }
 }
 
-export class ConcatenateArrays extends PureNode {
+export class ConcatenateArrays extends PPNode {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, input1Name, new ArrayType(), ['hello']),
@@ -282,7 +282,7 @@ export class ConcatenateArrays extends PureNode {
   }
 }
 
-export class Constant extends PureNode {
+export class Constant extends PPNode {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, constantInName, new AnyType(), 0),
@@ -297,7 +297,7 @@ export class Constant extends PureNode {
   }
 }
 
-export class Uniques extends PureNode {
+export class Uniques extends PPNode {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, arrayName, new ArrayType(), []),
@@ -313,7 +313,7 @@ export class Uniques extends PureNode {
   }
 }
 
-export class ParseArray extends PureNode {
+export class ParseArray extends PPNode {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, arrayName, new ArrayType(), []),
@@ -358,7 +358,7 @@ export class ForLoop extends NodeClass {
   }
 
   // we actually override the base execute function here as we are modifying the flow
-  public async execute(): Promise<boolean> {
+  public async execute(): Promise<void> {
     const inputObject = this.remapInput(this.inputSocketArray);
     for (
       this.currentIndex = this.getMinIndex(inputObject);
@@ -366,14 +366,9 @@ export class ForLoop extends NodeClass {
       this.currentIndex += this.getIncrement(inputObject)
     ) {
       await this.rawExecute();
-
-      /*for (const outputSocket of this.outputSocketArray) {
-        await outputSocket.notifyChange(new Set());
-      }*/
     }
     // comment here is just gonna show the last output but eh
     this.drawComment();
-    return true;
   }
   protected async onExecute(
     inputObject: any,

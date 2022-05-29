@@ -1,5 +1,5 @@
 import PPGraph from '../../classes/GraphClass';
-import PPNode, { PureNode } from '../../classes/NodeClass';
+import PPNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
 import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../../utils/constants';
 import { CustomArgs, TRgba } from '../../utils/interfaces';
@@ -71,7 +71,10 @@ export class DefineMacroOut extends MacroNode {
   }
 
   protected getDefaultIO(): Socket[] {
-    return [new Socket(SOCKET_TYPE.IN, 'Parameter 1', new AnyType())];
+    return [
+      new Socket(SOCKET_TYPE.IN, 'Macro', new MacroType()),
+      new Socket(SOCKET_TYPE.IN, 'Parameter 1', new AnyType()),
+    ];
   }
   _onRemoved(): void {
     super._onRemoved();
