@@ -937,13 +937,23 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       contextMenuPosition[0],
       contextMenuPosition[1]
     );
-    currentGraph.current.createAndAddNode(selected.title, {
-      nodePosX: nodePos.x,
-      nodePosY: nodePos.y,
-      addLink,
-    });
     if (selected.isNew) {
+      currentGraph.current.createOrUpdateNodeFromCode(
+        undefined,
+        selected.title,
+        {
+          nodePosX: nodePos.x,
+          nodePosY: nodePos.y,
+          addLink,
+        }
+      );
       selected.isNew = undefined;
+    } else {
+      currentGraph.current.createAndAddNode(selected.title, {
+        nodePosX: nodePos.x,
+        nodePosY: nodePos.y,
+        addLink,
+      });
     }
     setNodeSearchActiveItem(selected);
     setIsNodeSearchVisible(false);

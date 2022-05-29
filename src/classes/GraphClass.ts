@@ -5,6 +5,8 @@ import { Viewport } from 'pixi-viewport';
 
 import {
   DEFAULT_EDITOR_DATA,
+  DEFAULT_EMPTY_DATA,
+  NODE_TYPE_COLOR,
   NODE_WIDTH,
   PP_VERSION,
   SOCKET_TYPE,
@@ -16,6 +18,7 @@ import {
   SerializedGraph,
   SerializedLink,
   SerializedSelection,
+  TRgba,
   TSocketType,
 } from '../utils/interfaces';
 import { ensureVisible, getInfoFromRegisteredNode } from '../utils/utils';
@@ -385,19 +388,31 @@ export default class PPGraph {
     customArgs?: CustomArgs
   ): T {
     // console.log(this._registeredNodeTypes);
-    const nodeConstructor = this._registeredNodeTypes[type]?.constructor;
+    const newArgs: any = {};
+    let title = type;
+    let nodeConstructor = this._registeredNodeTypes[type]?.constructor;
+
     if (!nodeConstructor) {
       console.log(
         'GraphNode type "' + type + '" not registered. Will create new one.'
       );
-      this.createOrUpdateNodeFromCode(DEFAULT_EDITOR_DATA, type, customArgs);
-      return null;
+
+      const newName = `Missing_${type}`;
+      const code = DEFAULT_EMPTY_DATA.replace('MissingNode', newName);
+      const functionName = this.registerCustomNodeType(code);
+      const isNodeTypeRegistered =
+        this.checkIfFunctionIsRegistered(functionName);
+      console.log('isNodeTypeRegistered: ', isNodeTypeRegistered);
+
+      newArgs.color = TRgba.fromString(NODE_TYPE_COLOR.MISSING);
+      title = newName;
+      nodeConstructor = this._registeredNodeTypes[functionName].constructor;
     }
 
-    const title = type;
-    // console.log(nodeConstructor);
+    console.log(nodeConstructor);
     const node = new nodeConstructor(title, this, {
       ...customArgs,
+      ...newArgs,
       nodePosX: customArgs?.nodePosX ?? this.viewport.center.x - NODE_WIDTH / 2,
       nodePosY: customArgs?.nodePosY ?? this.viewport.center.y,
     }) as T;
@@ -422,7 +437,6 @@ export default class PPGraph {
     notify = true
   ): T {
     const node = this.createNode(type, customArgs) as T;
-    // if (node) {
     this.addNode(node);
 
     if (customArgs?.addLink) {
@@ -445,7 +459,6 @@ export default class PPGraph {
     node.executeOptimizedChain();
 
     return node;
-    // }
   }
 
   async connect(output: Socket, input: Socket, notify = true): Promise<PPLink> {
@@ -764,7 +777,7 @@ export default class PPGraph {
   }
 
   createOrUpdateNodeFromCode(
-    code: string,
+    code = DEFAULT_EDITOR_DATA,
     newDefaultFunctionName?: string,
     customArgs?: CustomArgs
   ): void {
@@ -785,17 +798,17 @@ export default class PPGraph {
 
     // do nodes of the same type exist on the graph
     if (nodesWithTheSameType.length > 0) {
-      nodesWithTheSameType.forEach(async (node) => {
+      nodesWithTheSameType.forEach((node) => {
         console.log('I am of the same type', node);
 
-        const newNode = await this.createAndAddNode(functionName);
+        const newNode = this.createAndAddNode(functionName);
 
         newNode.configure(node.serialize());
         this.reconnectLinksToNewNode(node, newNode);
 
         // if the old node was selected, select the new one instead
         if (this.selection.selectedNodes.includes(node)) {
-          this.selection.selectNodes([newNode]);
+          this.selection.selectNodes([newNode], undefined, true);
         }
 
         // remove previous node
