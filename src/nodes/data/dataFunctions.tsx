@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-this-alias */
 import React from 'react';
 import { Button } from '@mui/material';
+import PPGraph from '../../classes/GraphClass';
 import NodeClass from '../../classes/NodeClass';
 import PPNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
-import PPGraph from '../../classes/GraphClass';
-import { CustomArgs, TRgba } from '../../utils/interfaces';
-import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../../utils/constants';
+import { CustomArgs } from '../../utils/interfaces';
+import { SOCKET_TYPE } from '../../utils/constants';
 import { AnyType } from '../datatypes/anyType';
 import { ArrayType } from '../datatypes/arrayType';
 import { CodeType } from '../datatypes/codeType';

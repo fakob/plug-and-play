@@ -791,7 +791,6 @@ export default class PPNode extends PIXI.Container {
       reactParent,
       {
         ...reactProps,
-        randomMainColor: RANDOMMAINCOLOR,
       },
       this.staticRoot
     );
@@ -821,6 +820,10 @@ export default class PPNode extends PIXI.Container {
     Object.assign(this.container.style, customStyles);
 
     // set initial position
+    this.container.style.width = `${this.nodeWidth - (2 * margin) / scaleX}px`;
+    this.container.style.height = `${
+      this.nodeHeight - (2 * margin) / scaleX
+    }px`;
     this.container.style.transform = `translate(50%, 50%)`;
     this.container.style.transform = `scale(${scaleX}`;
     this.container.style.left = `${screenPoint.x + margin}px`;
@@ -849,7 +852,6 @@ export default class PPNode extends PIXI.Container {
       reactParent,
       {
         ...reactProps,
-        randomMainColor: RANDOMMAINCOLOR,
       },
       this.root
     );
@@ -871,6 +873,7 @@ export default class PPNode extends PIXI.Container {
         id: this.id,
         selected: this.selected,
         doubleClicked: this.doubleClicked,
+        randomMainColor: RANDOMMAINCOLOR,
       })
     );
   };
