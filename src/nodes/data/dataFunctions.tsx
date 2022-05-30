@@ -37,41 +37,9 @@ const inputMultiplierName = 'Multiplier';
 function asyncWrapCode(code: string, execute = true): string {
   return '(' + code + ')' + (execute ? '()' : '');
 }
-export class Code extends PPNode {
-  protected getDefaultIO(): Socket[] {
-    return [
-      new Socket(SOCKET_TYPE.IN, inDataName, new AnyType(), 'bruh'),
-      new Socket(
-        SOCKET_TYPE.IN,
-        anyCodeName,
-        new CodeType(),
-        '// in here you are provided with two objects; "inputObject" and "outputObject", they each have named parameters based on the input and output sockets, so by default there will be an inputObject["' +
-          inDataName +
-          '"] and an outputObject["' +
-          outDataName +
-          '"]\n\noutputObject["' +
-          outDataName +
-          '"] = inputObject["' +
-          inDataName +
-          '"]'
-      ),
-      new Socket(SOCKET_TYPE.OUT, outDataName, new ArrayType()),
-    ];
-  }
-  public getCanAddInput(): boolean {
-    return true;
-  }
-  public getCanAddOutput(): boolean {
-    return true;
-  }
-  protected async onExecute(
-    inputObject: any,
-    outputObject: Record<string, unknown>
-  ): Promise<void> {
-    const node = this;
-    await eval('async () => {' + inputObject[anyCodeName] + '}')();
-  }
-}
+
+// TODO switch to this instead of eval
+//const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
 
 // make filter and map ourselves to be able to deal with async (need sequental ordering)
 export class Filter extends PPNode {
@@ -421,6 +389,19 @@ export class ForEachLoop extends ForLoop {
   }
 }
 
+function getArgumentsFromFunction(inputFunction: string): string[] {
+  const argumentsRegex = /(\(.*\))/;
+  const res = inputFunction.match(argumentsRegex)[0];
+  const cleaned = res.replace('(', '').replace(')', '').replace(' ', '');
+  const codeArguments = cleaned.split(',');
+  return codeArguments;
+}
+
+function getFunctionFromFunction(inputFunction: string): string {
+  const functionRegex = /({(.|\s)*})/;
+  const res = inputFunction.match(functionRegex)[0];
+  return res;
+}
 export class CustomFunction extends PPNode {
   protected getDefaultIO(): Socket[] {
     return [
@@ -439,22 +420,29 @@ export class CustomFunction extends PPNode {
   ): Promise<void> {
     // before every execute, re-evaluate inputs
     this.adaptInputs(inputObject[anyCodeName]);
-    await eval('async () => {' + inputObject[anyCodeName] + '}')();
+    const functionToCall = getFunctionFromFunction(inputObject[anyCodeName]);
+    // eslint-disable-next-line prefer-const
+    const defineAllVariables = Object.keys(inputObject)
+      .map(
+        (argument) =>
+          'const ' + argument + ' = inputObject["' + argument + '"];'
+      )
+      .join(';');
+    const functionToExecute = functionToCall.replace(
+      '{',
+      '{' + defineAllVariables
+    );
+    const node = this;
+    const res = await eval('async () => ' + functionToExecute)();
+    outputObject[outDataName] = res;
   }
 
   adaptInputs(code: string): void {
-    const regex = /(\(.*\))/;
-    const res = code.match(regex)[0];
-    const cleaned = res.replace('(', '').replace(')', '').replace(' ', '');
-    console.log('res:  ' + res);
-    console.log('cleaned:  ' + cleaned);
-
+    const codeArguments = getArgumentsFromFunction(code);
     // remove all non existing arguments and add all missing (based on the definition we just got)
     const currentInputSockets = this.getAllSockets().filter(
       (socket) => socket.socketType === SOCKET_TYPE.IN
     );
-    const codeArguments = cleaned.split(',');
-    console.log('arguments: ' + codeArguments);
     const socketsToBeRemoved = currentInputSockets.filter(
       (socket) =>
         !codeArguments.some((argument) => socket.name === argument) &&
@@ -465,11 +453,9 @@ export class CustomFunction extends PPNode {
         !currentInputSockets.some((socket) => socket.name === argument)
     );
     socketsToBeRemoved.forEach((socket) => {
-      console.log('removed socket');
       socket.destroy();
     });
     argumentsToBeAdded.forEach((argument) => {
-      console.log('added input');
       this.addInput(argument, new AnyType());
     });
     if (socketsToBeRemoved.length > 0 || argumentsToBeAdded.length > 0) {
