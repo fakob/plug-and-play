@@ -2,11 +2,9 @@
 import * as PIXI from 'pixi.js';
 import strip from 'strip-comments';
 import { Viewport } from 'pixi-viewport';
-
+import { OptionsObject, SnackbarMessage } from 'notistack';
 import {
   DEFAULT_EDITOR_DATA,
-  DEFAULT_EMPTY_DATA,
-  NODE_TYPE_COLOR,
   NODE_WIDTH,
   PP_VERSION,
   SOCKET_TYPE,
@@ -18,7 +16,6 @@ import {
   SerializedGraph,
   SerializedLink,
   SerializedSelection,
-  TRgba,
   TSocketType,
 } from '../utils/interfaces';
 import { ensureVisible, getInfoFromRegisteredNode } from '../utils/utils';
@@ -68,6 +65,7 @@ export default class PPGraph {
   onOpenSocketInspector: (pos: PIXI.Point, data: Socket) => void = () => {}; // called when socket inspector should be opened
   onCloseSocketInspector: () => void; // called when socket inspector should be closed
   onViewportDragging: (isDraggingViewport: boolean) => void = () => {}; // called when the viewport is being dragged
+  onShowSnackbar: (message: SnackbarMessage, options?: OptionsObject) => void;
 
   constructor(app: PIXI.Application, viewport: Viewport) {
     this.app = app;
@@ -388,27 +386,49 @@ export default class PPGraph {
     customArgs?: CustomArgs
   ): T {
     // console.log(this._registeredNodeTypes);
+    console.log(customArgs);
     const newArgs: any = {};
-    let nodeConstructor = this._registeredNodeTypes[type]?.constructor;
+    const placeholderNode = 'Placeholder';
+    let nodeConstructor;
+    let name;
 
-    if (!nodeConstructor) {
-      console.log(
-        'GraphNode type "' + type + '" not registered. Will create new one.'
-      );
-
-      const code = DEFAULT_EMPTY_DATA.replace('MissingNode', type);
-      const functionName = this.registerCustomNodeType(code);
-      const isNodeTypeRegistered =
-        this.checkIfFunctionIsRegistered(functionName);
-      console.log('isNodeTypeRegistered: ', isNodeTypeRegistered);
-
-      newArgs.color = TRgba.fromString(NODE_TYPE_COLOR.MISSING);
-      nodeConstructor = this._registeredNodeTypes[functionName].constructor;
+    if (type === placeholderNode) {
+      // placeholder nodes use the name field to indicate which node they are a placeholder for
+      // check if the replaced node exists now
+      name = customArgs.name;
+      nodeConstructor = this._registeredNodeTypes[customArgs.name]?.constructor;
+      if (nodeConstructor) {
+        this.onShowSnackbar(
+          `A replacement for the placeholder node ${customArgs.customId} was found. It will be replaced with ${name}.`,
+          {
+            variant: 'success',
+          }
+        );
+      } else {
+        this.onShowSnackbar(
+          `No replacement for the placeholder node ${customArgs.customId} was found.`
+        );
+      }
+    } else {
+      name = type;
+      nodeConstructor = this._registeredNodeTypes[type]?.constructor;
     }
 
-    const title = type;
-    // console.log(nodeConstructor);
-    const node = new nodeConstructor(title, this, {
+    if (!nodeConstructor) {
+      // if there is no node of this type, create a placeholder node instead
+      // and "save" the original node type in the placeholders name
+      this.onShowSnackbar(
+        `Node ${customArgs.customId} of type ${type} is missing. A placeholder node will be created instead.`,
+        {
+          variant: 'warning',
+        }
+      );
+      name = type;
+      nodeConstructor = this._registeredNodeTypes['Placeholder']?.constructor;
+      newArgs.name = type;
+    }
+
+    const node = new nodeConstructor(name, this, {
       ...customArgs,
       ...newArgs,
       nodePosX: customArgs?.nodePosX ?? this.viewport.center.x - NODE_WIDTH / 2,
@@ -723,6 +743,7 @@ export default class PPGraph {
           node.type,
           {
             customId: node.id,
+            name: node.name, // placeholder nodes use the name field to indicate which node they are a placeholder for
           },
           false
         ).configure(node);

@@ -164,10 +164,6 @@ function customFunctionNode(a, b) {
   return a * b;
 }`;
 
-export const DEFAULT_EMPTY_DATA = `function MissingNode(a) {
-  return a;
-}`;
-
 export const PIXI_TEXT_ALIGN_OPTIONS: EnumStructure = [
   {
     text: 'left',

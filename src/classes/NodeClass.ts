@@ -373,8 +373,8 @@ export default class PPNode extends PIXI.Container {
           matchingSocket.data = item.data;
           matchingSocket.defaultData = item.defaultData;
           matchingSocket.setVisible(item.visible);
-        } else if (item.isCustom) {
-          // add socket if it does not exist yet AND it is indeed a custom socket, otherwise it is likely an old socket that has since been removed
+        } else {
+          // add socket if it does not exist yet
           this.addSocket(
             new Socket(
               item.socketType,
