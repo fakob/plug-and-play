@@ -395,18 +395,18 @@ export default class PPGraph {
     if (type === placeholderNode) {
       // placeholder nodes use the name field to indicate which node they are a placeholder for
       // check if the replaced node exists now
-      name = customArgs.name;
-      nodeConstructor = this._registeredNodeTypes[customArgs.name]?.constructor;
-      if (nodeConstructor) {
+      name = customArgs?.name ?? type;
+      nodeConstructor = this._registeredNodeTypes[name]?.constructor;
+      if (customArgs?.name !== undefined && nodeConstructor) {
         this.onShowSnackbar(
-          `A replacement for the placeholder node ${customArgs.customId} was found. It will be replaced with ${name}.`,
+          `A replacement for the placeholder node ${customArgs?.customId} was found. It will be replaced with ${name}.`,
           {
             variant: 'success',
           }
         );
       } else {
         this.onShowSnackbar(
-          `No replacement for the placeholder node ${customArgs.customId} was found.`
+          `No replacement for the placeholder node ${customArgs?.customId} was found.`
         );
       }
     } else {
@@ -418,7 +418,7 @@ export default class PPGraph {
       // if there is no node of this type, create a placeholder node instead
       // and "save" the original node type in the placeholders name
       this.onShowSnackbar(
-        `Node ${customArgs.customId} of type ${type} is missing. A placeholder node will be created instead.`,
+        `Node ${customArgs?.customId} of type ${type} is missing. A placeholder node will be created instead.`,
         {
           variant: 'warning',
         }
