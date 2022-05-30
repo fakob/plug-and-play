@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-this-alias */
 import NodeClass from '../../classes/NodeClass';
 import PPNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
@@ -67,6 +68,7 @@ export class Code extends PPNode {
     inputObject: any,
     outputObject: Record<string, unknown>
   ): Promise<void> {
+    const node = this;
     await eval('async () => {' + inputObject[anyCodeName] + '}')();
   }
 }
@@ -92,6 +94,7 @@ export class Filter extends PPNode {
     const filterCode = inputObject[filterCodeName];
     const inputArray = inputObject[arrayName];
     const outputs = [];
+    const node = this;
     for (let i = 0; i < inputArray.length; i++) {
       const passed = await eval(
         asyncWrapCode(filterCode, false) + '(inputArray[i],i)'
@@ -125,6 +128,8 @@ export class Map extends PPNode {
     const mapCode = inputObject[mapCodeName];
     const inputArray = inputObject[arrayName];
     const outputs = [];
+
+    const node = this;
     for (let i = 0; i < inputArray.length; i++) {
       outputs.push(
         await eval(asyncWrapCode(mapCode, false) + '(inputArray[i],i)')
