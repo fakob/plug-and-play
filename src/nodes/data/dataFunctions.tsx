@@ -37,41 +37,9 @@ const inputMultiplierName = 'Multiplier';
 function asyncWrapCode(code: string, execute = true): string {
   return '(' + code + ')' + (execute ? '()' : '');
 }
-export class Code extends PPNode {
-  protected getDefaultIO(): Socket[] {
-    return [
-      new Socket(SOCKET_TYPE.IN, inDataName, new AnyType(), 'bruh'),
-      new Socket(
-        SOCKET_TYPE.IN,
-        anyCodeName,
-        new CodeType(),
-        '// in here you are provided with two objects; "inputObject" and "outputObject", they each have named parameters based on the input and output sockets, so by default there will be an inputObject["' +
-          inDataName +
-          '"] and an outputObject["' +
-          outDataName +
-          '"]\n\noutputObject["' +
-          outDataName +
-          '"] = inputObject["' +
-          inDataName +
-          '"]'
-      ),
-      new Socket(SOCKET_TYPE.OUT, outDataName, new ArrayType()),
-    ];
-  }
-  public getCanAddInput(): boolean {
-    return true;
-  }
-  public getCanAddOutput(): boolean {
-    return true;
-  }
-  protected async onExecute(
-    inputObject: any,
-    outputObject: Record<string, unknown>
-  ): Promise<void> {
-    const node = this;
-    await eval('async () => {' + inputObject[anyCodeName] + '}')();
-  }
-}
+
+// TODO switch to this instead of eval
+//const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
 
 // make filter and map ourselves to be able to deal with async (need sequental ordering)
 export class Filter extends PPNode {
@@ -421,6 +389,81 @@ export class ForEachLoop extends ForLoop {
   }
 }
 
+function getArgumentsFromFunction(inputFunction: string): string[] {
+  const argumentsRegex = /(\(.*\))/;
+  const res = inputFunction.match(argumentsRegex)[0];
+  const cleaned = res.replace('(', '').replace(')', '').replace(' ', '');
+  const codeArguments = cleaned.split(',');
+  return codeArguments;
+}
+
+function getFunctionFromFunction(inputFunction: string): string {
+  const functionRegex = /({(.|\s)*})/;
+  const res = inputFunction.match(functionRegex)[0];
+  return res;
+}
+export class CustomFunction extends PPNode {
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(
+        SOCKET_TYPE.IN,
+        anyCodeName,
+        new CodeType(),
+        '// define your function here, node will adapt to inputs automatically\n(a) => {\nreturn a;\n}'
+      ),
+      new Socket(SOCKET_TYPE.OUT, outDataName, new AnyType()),
+    ];
+  }
+  protected async onExecute(
+    inputObject: any,
+    outputObject: Record<string, unknown>
+  ): Promise<void> {
+    // before every execute, re-evaluate inputs
+    this.adaptInputs(inputObject[anyCodeName]);
+    const functionToCall = getFunctionFromFunction(inputObject[anyCodeName]);
+    // eslint-disable-next-line prefer-const
+    const defineAllVariables = Object.keys(inputObject)
+      .map(
+        (argument) =>
+          'const ' + argument + ' = inputObject["' + argument + '"];'
+      )
+      .join(';');
+    const functionToExecute = functionToCall.replace(
+      '{',
+      '{' + defineAllVariables
+    );
+    const node = this;
+    const res = await eval('async () => ' + functionToExecute)();
+    outputObject[outDataName] = res;
+  }
+
+  adaptInputs(code: string): void {
+    const codeArguments = getArgumentsFromFunction(code);
+    // remove all non existing arguments and add all missing (based on the definition we just got)
+    const currentInputSockets = this.getAllSockets().filter(
+      (socket) => socket.socketType === SOCKET_TYPE.IN
+    );
+    const socketsToBeRemoved = currentInputSockets.filter(
+      (socket) =>
+        !codeArguments.some((argument) => socket.name === argument) &&
+        socket.name !== anyCodeName
+    );
+    const argumentsToBeAdded = codeArguments.filter(
+      (argument) =>
+        !currentInputSockets.some((socket) => socket.name === argument)
+    );
+    socketsToBeRemoved.forEach((socket) => {
+      socket.destroy();
+    });
+    argumentsToBeAdded.forEach((argument) => {
+      this.addInput(argument, new AnyType());
+    });
+    if (socketsToBeRemoved.length > 0 || argumentsToBeAdded.length > 0) {
+      this.metaInfoChanged();
+    }
+  }
+}
+
 // TODO implement
-// Not quite sure how we want this one to look... CodeType? or based on input?
+// Not quite sure how we want this one to look... CodeType? or based on input? THIS ONE IS DANGEROUS AS IT CAN HANG THE ENTIRE APPLICATION, needs max loop limit. Is this even needed?
 //export class WhileLoop extends NodeClass {}
