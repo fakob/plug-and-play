@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Button,
   FormControl,
   FormControlLabel,
   FormGroup,
   Paper,
+  Slider,
   Stack,
   Switch,
   ThemeProvider,
@@ -14,12 +15,19 @@ import Socket from '../../classes/SocketClass';
 import PPGraph from '../../classes/GraphClass';
 import { CustomArgs } from '../../utils/interfaces';
 import { SOCKET_TYPE, customTheme } from '../../utils/constants';
+import { roundNumber } from '../../utils/utils';
 import { AnyType } from '../datatypes/anyType';
 import { BooleanType } from '../datatypes/booleanType';
+import { NumberType } from '../datatypes/numberType';
 
 const selectedName = 'Initial selection';
-const onValueName = 'On';
+const initialValueName = 'Initial value';
+const minValueName = 'Min';
+const roundName = 'Round';
+const stepSizeName = 'Step size';
+const maxValueName = 'Max';
 const offValueName = 'Off';
+const onValueName = 'On';
 const outName = 'Out';
 
 export class WidgetButton extends PPNode {
@@ -36,8 +44,8 @@ export class WidgetButton extends PPNode {
 
   protected getDefaultIO(): Socket[] {
     return [
-      new Socket(SOCKET_TYPE.IN, onValueName, new AnyType(), 1, false),
       new Socket(SOCKET_TYPE.IN, offValueName, new AnyType(), 0, false),
+      new Socket(SOCKET_TYPE.IN, onValueName, new AnyType(), 1, false),
       new Socket(SOCKET_TYPE.OUT, outName, new AnyType()),
     ];
   }
@@ -186,8 +194,8 @@ export class WidgetSwitch extends PPNode {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, selectedName, new BooleanType(), false, false),
-      new Socket(SOCKET_TYPE.IN, onValueName, new AnyType(), 1, false),
       new Socket(SOCKET_TYPE.IN, offValueName, new AnyType(), 0, false),
+      new Socket(SOCKET_TYPE.IN, onValueName, new AnyType(), 1, false),
       new Socket(SOCKET_TYPE.OUT, outName, new AnyType()),
     ];
   }
@@ -255,9 +263,7 @@ export class WidgetSwitch extends PPNode {
     };
 
     const WidgetParent = (props) => {
-      const [selected, setSelected] = React.useState(
-        this.getInputData(selectedName)
-      );
+      const [selected, setSelected] = useState(this.getInputData(selectedName));
 
       const handleOnChange = () => {
         const newValue = !selected;
@@ -313,6 +319,200 @@ export class WidgetSwitch extends PPNode {
                 />
               </FormGroup>
             </FormControl>
+          </Paper>
+        </ThemeProvider>
+      );
+    };
+  }
+}
+
+export class WidgetSlider extends PPNode {
+  update: () => void;
+  onWidgetTrigger: () => void;
+
+  protected getIsHybrid(): boolean {
+    return true;
+  }
+
+  protected getActivateByDoubleClick(): boolean {
+    return false;
+  }
+
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(SOCKET_TYPE.IN, initialValueName, new NumberType(), 0, false),
+      new Socket(SOCKET_TYPE.IN, minValueName, new NumberType(), 0, false),
+      new Socket(SOCKET_TYPE.IN, maxValueName, new NumberType(), 100, false),
+      new Socket(SOCKET_TYPE.IN, roundName, new BooleanType(), 100, false),
+      new Socket(SOCKET_TYPE.IN, stepSizeName, new NumberType(), 0.01, false),
+      new Socket(SOCKET_TYPE.OUT, outName, new NumberType()),
+    ];
+  }
+
+  constructor(name: string, graph: PPGraph, customArgs?: CustomArgs) {
+    const nodeWidth = 200;
+    const nodeHeight = 104;
+    const margin = 4;
+
+    super(name, graph, {
+      ...customArgs,
+      nodeWidth,
+      nodeHeight,
+    });
+
+    this.name = 'Slider';
+    this.description = 'Adds a number slider';
+
+    // when the Node is added, add the container and react component
+    this.onNodeAdded = () => {
+      this.createContainerComponent(
+        document,
+        WidgetParent,
+        {
+          nodeWidth: this.nodeWidth,
+          nodeHeight: this.nodeHeight,
+          margin,
+          initialValue: this.getInputData(initialValueName),
+          minValue: this.getInputData(minValueName),
+          maxValue: this.getInputData(maxValueName),
+          round: this.getInputData(roundName),
+          stepSize: this.getInputData(stepSizeName),
+        },
+        {
+          overflow: 'visible',
+        }
+      );
+    };
+
+    this.update = (): void => {
+      console.log('update');
+      this.renderReactComponent(WidgetParent, {
+        nodeWidth: this.nodeWidth,
+        nodeHeight: this.nodeHeight,
+        margin,
+        initialValue: this.getInputData(initialValueName),
+        minValue: this.getInputData(minValueName),
+        maxValue: this.getInputData(maxValueName),
+        round: this.getInputData(roundName),
+        stepSize: this.getInputData(stepSizeName),
+      });
+    };
+
+    // when the Node is loaded, update the react component
+    this.onConfigure = (): void => {
+      this.update();
+    };
+
+    this.onWidgetTrigger = () => {
+      console.log('onWidgetTrigger');
+      this.executeOptimizedChain();
+    };
+
+    this.onNodeResize = () => {
+      this.container.style.width = `${
+        this.nodeWidth - (2 * margin) / this.graph.viewport.scale.x
+      }px`;
+      this.container.style.height = `${
+        this.nodeHeight - (2 * margin) / this.graph.viewport.scale.x
+      }px`;
+      this.update();
+    };
+
+    this.onExecute = async function () {
+      this.update();
+    };
+
+    const WidgetParent = (props) => {
+      console.log(props);
+      const [data, setData] = useState(Number(props.initialValue));
+      const [minValue, setMinValue] = useState(
+        Math.min(props.minValue ?? 0, data)
+      );
+      const [maxValue, setMaxValue] = useState(
+        Math.max(props.maxValue ?? 100, data)
+      );
+      const [round, setRound] = useState(props.round ?? false);
+      const [stepSizeValue, setStepSizeValue] = useState(
+        props.stepSize ?? 0.01
+      );
+
+      useEffect(() => {
+        setData(Number(props.initialValue));
+        setMinValue(Math.min(props.minValue ?? 0, data));
+        setMaxValue(Math.max(props.maxValue ?? 100, data));
+        setRound(props.round ?? false);
+        setStepSizeValue(props.stepSize ?? 0.01);
+      }, [
+        props.initialValue,
+        props.minValue,
+        props.maxValue,
+        props.round,
+        props.stepSize,
+      ]);
+
+      const handleOnChange = (event, value) => {
+        console.log(value);
+        if (!Array.isArray(value)) {
+          setData(roundNumber(value, 4));
+          this.setOutputData(outName, value);
+          this.executeChildren();
+        }
+      };
+
+      return (
+        <ThemeProvider theme={customTheme}>
+          <Paper
+            component={Stack}
+            direction="column"
+            justifyContent="center"
+            sx={{
+              bgcolor: 'background.default',
+              fontSize: '16px',
+              border: 0,
+              height: `${
+                this.nodeHeight - (2 * margin) / this.graph.viewport.scale.x
+              }px`,
+              boxShadow: 16,
+              '&:hover': {
+                boxShadow: 12,
+              },
+            }}
+          >
+            <Slider
+              size="small"
+              color="secondary"
+              valueLabelDisplay="auto"
+              min={minValue}
+              max={maxValue}
+              step={round ? 1 : stepSizeValue}
+              // marks={[{ value: minValue }, { value: maxValue }]}
+              onChange={handleOnChange}
+              value={data || 0}
+              sx={{
+                margin: `${8 * margin}px`,
+                height: '8px',
+                pointerEvents: 'auto',
+                '&.MuiSlider-root': {
+                  // background: 'red',
+                  width: 'unset',
+                },
+                '& .MuiSlider-track': {
+                  border: 'none',
+                },
+                '& .MuiSlider-thumb': {
+                  height: 24,
+                  width: 24,
+                  backgroundColor: '#fff',
+                  border: '2px solid currentColor',
+                  '&:focus, &:hover, &.Mui-active, &.Mui-focusVisible': {
+                    boxShadow: 'inherit',
+                  },
+                  '&:before': {
+                    display: 'none',
+                  },
+                },
+              }}
+            />
           </Paper>
         </ThemeProvider>
       );
