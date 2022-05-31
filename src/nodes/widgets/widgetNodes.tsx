@@ -481,11 +481,10 @@ export class WidgetSlider extends PPNode {
             <Slider
               size="small"
               color="secondary"
-              valueLabelDisplay="auto"
+              valueLabelDisplay="on"
               min={minValue}
               max={maxValue}
               step={round ? 1 : stepSizeValue}
-              // marks={[{ value: minValue }, { value: maxValue }]}
               onChange={handleOnChange}
               value={data || 0}
               sx={{
@@ -493,17 +492,36 @@ export class WidgetSlider extends PPNode {
                 height: '8px',
                 pointerEvents: 'auto',
                 '&.MuiSlider-root': {
-                  // background: 'red',
                   width: 'unset',
+                },
+                '& .MuiSlider-rail': {
+                  backgroundColor: 'primary.dark',
                 },
                 '& .MuiSlider-track': {
                   border: 'none',
+                  backgroundColor: 'primary.main',
+                },
+                '& .MuiSlider-valueLabel': {
+                  fontSize: '1rem',
+                  fontWeight: 'normal',
+                  top: -4,
+                  backgroundColor: 'unset',
+                  color: 'text.primary',
+                  '&:before': {
+                    display: 'none',
+                  },
+                  '& *': {
+                    background: 'transparent',
+                    color: 'text.primary',
+                  },
                 },
                 '& .MuiSlider-thumb': {
-                  height: 24,
-                  width: 24,
-                  backgroundColor: '#fff',
-                  border: '2px solid currentColor',
+                  height: 32,
+                  width: 32,
+                  backgroundColor: 'text.primary',
+                  borderColor: 'primary.main',
+                  borderWidth: '4px',
+                  borderStyle: 'solid',
                   '&:focus, &:hover, &.Mui-active, &.Mui-focusVisible': {
                     boxShadow: 'inherit',
                   },
