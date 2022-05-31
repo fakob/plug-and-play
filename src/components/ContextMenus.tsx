@@ -408,3 +408,56 @@ export const NodeContextMenu = (props) => {
     </Paper>
   );
 };
+
+export const SocketContextMenu = (props) => {
+  useEffect(() => {
+    window.addEventListener('contextmenu', handleContextMenu);
+  });
+
+  useEffect(() => {
+    return () => {
+      window.removeEventListener('contextmenu', handleContextMenu);
+    };
+  }, []);
+
+  function handleContextMenu(e: Event) {
+    e.preventDefault();
+  }
+
+  return (
+    <Paper
+      sx={{
+        width: 240,
+        maxWidth: '100%',
+        position: 'absolute',
+        zIndex: 400,
+        left: props.contextMenuPosition[0],
+        top: props.contextMenuPosition[1],
+      }}
+    >
+      <MenuList dense>
+        <MenuItem
+          onClick={() => {
+            props.currentGraph.current.deleteSelectedNodes();
+          }}
+        >
+          <ListItemIcon>
+            <DeleteIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Delete Socket</ListItemText>
+        </MenuItem>
+        <Divider />
+        <MenuItem
+          onClick={() => {
+            props.currentGraph.current.addTriggerInput();
+          }}
+        >
+          <ListItemIcon>
+            <AddIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Delete Socket</ListItemText>
+        </MenuItem>
+      </MenuList>
+    </Paper>
+  );
+};
