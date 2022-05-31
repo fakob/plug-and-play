@@ -386,7 +386,6 @@ export default class PPGraph {
     customArgs?: CustomArgs
   ): T {
     // console.log(this._registeredNodeTypes);
-    console.log(customArgs);
     const newArgs: any = {};
     const placeholderNode = 'Placeholder';
     let nodeConstructor;
@@ -743,7 +742,7 @@ export default class PPGraph {
           node.type,
           {
             customId: node.id,
-            name: node.name, // placeholder nodes use the name field to indicate which node they are a placeholder for
+            name: node.name, // placeholder node uses the name field to indicate which node they are a placeholder for
           },
           false
         ).configure(node);
