@@ -551,6 +551,16 @@ export default class PPGraph {
     });
   }
 
+  addLabelNode(socket: PPSocket): void {
+    const node = socket.getNode();
+    const nodeType = 'Label';
+    this.createAndAddNode(nodeType, {
+      nodePosX: node.x + (node.width + 40),
+      nodePosY: node.y + socket.y,
+      addLink: socket,
+    });
+  }
+
   checkOldSocketAndUpdateIt<T extends PPSocket>(
     oldSocket: T,
     newSocket: T,

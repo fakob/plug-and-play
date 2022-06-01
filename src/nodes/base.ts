@@ -4,19 +4,13 @@ import _ from 'lodash-contrib';
 
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
-import Socket from '../classes/SocketClass';
+import PPSocket from '../classes/SocketClass';
 import {
   COLOR,
   COMPARISON_OPTIONS,
   CONDITION_OPTIONS,
-  NODE_CORNERRADIUS,
-  NODE_HEADER_HEIGHT,
-  NODE_PADDING_TOP,
   NODE_TYPE_COLOR,
-  NODE_WIDTH,
-  SOCKET_HEIGHT,
   SOCKET_TYPE,
-  SOCKET_WIDTH,
   TRIGGER_TYPE_OPTIONS,
 } from '../utils/constants';
 import { CustomArgs, TRgba } from '../utils/interfaces';
@@ -69,16 +63,25 @@ export class Mouse extends PPNode {
       ...customArgs,
       color: TRgba.fromString(NODE_TYPE_COLOR.INPUT),
     });
+  }
 
-    this.addOutput('screen-x', new NumberType());
-    this.addOutput('screen-y', new NumberType());
-    this.addOutput('world-x', new NumberType());
-    this.addOutput('world-y', new NumberType());
-    this.addOutput('scale', new NumberType());
-    this.addOutput('buttons', new NumberType());
+  public getName(): string {
+    return 'Mouse';
+  }
 
-    this.name = 'Mouse';
-    this.description = 'Get mouse coordinates';
+  public getDescription(): string {
+    return 'Get mouse coordinates';
+  }
+
+  protected getDefaultIO(): PPSocket[] {
+    return [
+      new PPSocket(SOCKET_TYPE.OUT, 'screen-x', new NumberType()),
+      new PPSocket(SOCKET_TYPE.OUT, 'screen-y', new NumberType()),
+      new PPSocket(SOCKET_TYPE.OUT, 'world-x', new NumberType()),
+      new PPSocket(SOCKET_TYPE.OUT, 'world-y', new NumberType()),
+      new PPSocket(SOCKET_TYPE.OUT, 'scale', new NumberType()),
+      new PPSocket(SOCKET_TYPE.OUT, 'buttons', new NumberType()),
+    ].concat(super.getDefaultIO());
   }
 
   onNodeAdded = (): void => {
@@ -133,18 +136,33 @@ export class Keyboard extends PPNode {
       ...customArgs,
       color: TRgba.fromString(NODE_TYPE_COLOR.INPUT),
     });
+  }
 
-    this.addOutput('key', new StringType());
-    this.addOutput('code', new StringType());
-    this.addOutput('shiftKey', new BooleanType());
-    this.addOutput('ctrlKey', new BooleanType());
-    this.addOutput('altKey', new BooleanType());
-    this.addOutput('metaKey', new BooleanType());
-    this.addOutput('repeat', new BooleanType());
-    this.addInput('keep last', new BooleanType(), false, false);
+  public getName(): string {
+    return 'Keyboard';
+  }
 
-    this.name = 'Keyboard';
-    this.description = 'Get keyboard input';
+  public getDescription(): string {
+    return 'Get keyboard input';
+  }
+
+  protected getDefaultIO(): PPSocket[] {
+    return [
+      new PPSocket(SOCKET_TYPE.OUT, 'key', new StringType()),
+      new PPSocket(SOCKET_TYPE.OUT, 'code', new StringType()),
+      new PPSocket(SOCKET_TYPE.OUT, 'shiftKey', new BooleanType()),
+      new PPSocket(SOCKET_TYPE.OUT, 'ctrlKey', new BooleanType()),
+      new PPSocket(SOCKET_TYPE.OUT, 'altKey', new BooleanType()),
+      new PPSocket(SOCKET_TYPE.OUT, 'metaKey', new BooleanType()),
+      new PPSocket(SOCKET_TYPE.OUT, 'repeat', new BooleanType()),
+      new PPSocket(
+        SOCKET_TYPE.IN,
+        'keep last',
+        new BooleanType(),
+        false,
+        false
+      ),
+    ].concat(super.getDefaultIO());
   }
 
   onNodeAdded = (): void => {
@@ -168,18 +186,6 @@ export class GridCoordinates extends PPNode {
       color: TRgba.fromString(NODE_TYPE_COLOR.INPUT),
     });
 
-    this.addOutput('x-array', new AnyType());
-    this.addOutput('y-array', new AnyType());
-    this.addInput('x', new NumberType(), 0, false);
-    this.addInput('y', new NumberType(), 0, false);
-    this.addInput('count', new NumberType(true), 9, false);
-    this.addInput('column', new NumberType(true), 3, false);
-    this.addInput('distanceWidth', new NumberType(), 110.0, false);
-    this.addInput('distanceHeight', new NumberType(), 110.0, false);
-
-    this.name = 'Grid coordinates';
-    this.description = 'Create grid coordinates';
-
     this.onExecute = async function (input, output) {
       const x = input['x'];
       const y = input['y'];
@@ -197,25 +203,47 @@ export class GridCoordinates extends PPNode {
       output['y-array'] = yArray;
     };
   }
+
+  public getName(): string {
+    return 'Grid coordinates';
+  }
+
+  public getDescription(): string {
+    return 'Create grid coordinates';
+  }
+
+  protected getDefaultIO(): PPSocket[] {
+    return [
+      new PPSocket(SOCKET_TYPE.OUT, 'x-array', new AnyType()),
+      new PPSocket(SOCKET_TYPE.OUT, 'y-array', new AnyType()),
+      new PPSocket(SOCKET_TYPE.IN, 'x', new NumberType(), 0, false),
+      new PPSocket(SOCKET_TYPE.IN, 'y', new NumberType(), 0, false),
+      new PPSocket(SOCKET_TYPE.IN, 'count', new NumberType(true), 9, false),
+      new PPSocket(SOCKET_TYPE.IN, 'column', new NumberType(true), 3, false),
+      new PPSocket(
+        SOCKET_TYPE.IN,
+        'distanceWidth',
+        new NumberType(),
+        110.0,
+        false
+      ),
+      new PPSocket(
+        SOCKET_TYPE.IN,
+        'distanceHeight',
+        new NumberType(),
+        110.0,
+        false
+      ),
+    ].concat(super.getDefaultIO());
+  }
 }
 
 export class ColorArray extends PPNode {
   constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    const colorA: TRgba = TRgba.fromString(COLOR[5]);
-    const colorB: TRgba = TRgba.fromString(COLOR[15]);
-
     super(name, graph, {
       ...customArgs,
       color: TRgba.fromString(NODE_TYPE_COLOR.INPUT),
     });
-
-    this.addOutput('color-array', new AnyType());
-    this.addInput('count', new NumberType(true), 9, false);
-    this.addInput('colorA', new ColorType(), colorA, false);
-    this.addInput('colorB', new ColorType(), colorB, false);
-
-    this.name = 'Color array';
-    this.description = 'Create color array';
 
     this.onExecute = async function (input, output) {
       const count = input['count'];
@@ -229,6 +257,25 @@ export class ColorArray extends PPNode {
       output['color-array'] = colorArray;
     };
   }
+
+  public getName(): string {
+    return 'Color array';
+  }
+
+  public getDescription(): string {
+    return 'Create color array';
+  }
+
+  protected getDefaultIO(): PPSocket[] {
+    const colorA: TRgba = TRgba.fromString(COLOR[5]);
+    const colorB: TRgba = TRgba.fromString(COLOR[15]);
+    return [
+      new PPSocket(SOCKET_TYPE.OUT, 'color-array', new AnyType()),
+      new PPSocket(SOCKET_TYPE.IN, 'count', new NumberType(true), 9, false),
+      new PPSocket(SOCKET_TYPE.IN, 'colorA', new ColorType(), colorA, false),
+      new PPSocket(SOCKET_TYPE.IN, 'colorB', new ColorType(), colorB, false),
+    ].concat(super.getDefaultIO());
+  }
 }
 
 export class RangeArray extends PPNode {
@@ -237,14 +284,6 @@ export class RangeArray extends PPNode {
       ...customArgs,
       color: TRgba.fromString(NODE_TYPE_COLOR.INPUT),
     });
-
-    this.addOutput('output array', new AnyType());
-    this.addInput('start', new NumberType());
-    this.addInput('stop', new NumberType());
-    this.addInput('step', new NumberType());
-
-    this.name = 'Range array';
-    this.description = 'Create range array';
 
     this.onExecute = async function (input, output) {
       const start = input['start'] || 0;
@@ -256,6 +295,23 @@ export class RangeArray extends PPNode {
       );
     };
   }
+
+  public getName(): string {
+    return 'Range array';
+  }
+
+  public getDescription(): string {
+    return 'Create range array';
+  }
+
+  protected getDefaultIO(): PPSocket[] {
+    return [
+      new PPSocket(SOCKET_TYPE.OUT, 'output array', new AnyType()),
+      new PPSocket(SOCKET_TYPE.IN, 'start', new NumberType()),
+      new PPSocket(SOCKET_TYPE.IN, 'stop', new NumberType()),
+      new PPSocket(SOCKET_TYPE.IN, 'step', new NumberType()),
+    ].concat(super.getDefaultIO());
+  }
 }
 
 export class RandomArray extends PPNode {
@@ -264,19 +320,35 @@ export class RandomArray extends PPNode {
       ...customArgs,
       color: TRgba.fromString(NODE_TYPE_COLOR.INPUT),
     });
+  }
 
-    this.addOutput('output array', new AnyType());
-    this.addInput(
-      'trigger',
-      new TriggerType(TRIGGER_TYPE_OPTIONS[0].value, 'trigger'),
-      0
-    );
-    this.addInput('length', new NumberType(true, 1), 20, undefined);
-    this.addInput('min', new NumberType(), 0);
-    this.addInput('max', new NumberType(), 1);
+  public getName(): string {
+    return 'Random array';
+  }
 
-    this.name = 'Random array';
-    this.description = 'Create random array';
+  public getDescription(): string {
+    return 'Create random array';
+  }
+
+  protected getDefaultIO(): PPSocket[] {
+    return [
+      new PPSocket(SOCKET_TYPE.OUT, 'output array', new AnyType()),
+      new PPSocket(
+        SOCKET_TYPE.IN,
+        'trigger',
+        new TriggerType(TRIGGER_TYPE_OPTIONS[0].value, 'trigger'),
+        0
+      ),
+      new PPSocket(
+        SOCKET_TYPE.IN,
+        'length',
+        new NumberType(true, 1),
+        20,
+        undefined
+      ),
+      new PPSocket(SOCKET_TYPE.IN, 'min', new NumberType(), 0),
+      new PPSocket(SOCKET_TYPE.IN, 'max', new NumberType(), 1),
+    ].concat(super.getDefaultIO());
   }
 
   trigger(): void {
@@ -297,6 +369,21 @@ export class DateAndTime extends PPNode {
       color: TRgba.fromString(NODE_TYPE_COLOR.INPUT),
     });
 
+    this.onExecute = async function (input, output) {
+      const dateMethod = input['Date method'];
+      output['date and time'] = new Date()[dateMethod]();
+    };
+  }
+
+  public getName(): string {
+    return 'Date and time';
+  }
+
+  public getDescription(): string {
+    return 'Outputs current time in different formats';
+  }
+
+  protected getDefaultIO(): PPSocket[] {
     const dateMethodsArray = getMethods(new Date());
     const dateMethodsArrayOptions = dateMethodsArray
       .filter((methodName) => {
@@ -314,21 +401,16 @@ export class DateAndTime extends PPNode {
         };
       });
 
-    this.addInput(
-      'Date method',
-      new EnumType(dateMethodsArrayOptions),
-      'toUTCString',
-      false
-    );
-    this.addOutput('date and time', new StringType());
-
-    this.name = 'Date and time';
-    this.description = 'Outputs current time in different formats';
-
-    this.onExecute = async function (input, output) {
-      const dateMethod = input['Date method'];
-      output['date and time'] = new Date()[dateMethod]();
-    };
+    return [
+      new PPSocket(SOCKET_TYPE.OUT, 'date and time', new StringType()),
+      new PPSocket(
+        SOCKET_TYPE.IN,
+        'Date method',
+        new EnumType(dateMethodsArrayOptions),
+        'toUTCString',
+        false
+      ),
+    ].concat(super.getDefaultIO());
   }
 }
 
@@ -338,17 +420,22 @@ export class If_Else extends PPNode {
       ...customArgs,
       color: TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM),
     });
-
-    this.name = 'If else condition';
-    this.description = 'Passes through input A or B based on a condition';
   }
 
-  protected getDefaultIO(): Socket[] {
+  public getName(): string {
+    return 'If else condition';
+  }
+
+  public getDescription(): string {
+    return 'Passes through input A or B based on a condition';
+  }
+
+  protected getDefaultIO(): PPSocket[] {
     return [
-      new Socket(SOCKET_TYPE.IN, 'Condition', new AnyType(), 0),
-      new Socket(SOCKET_TYPE.IN, 'A', new AnyType(), 'A'),
-      new Socket(SOCKET_TYPE.IN, 'B', new AnyType(), 'B'),
-      new Socket(SOCKET_TYPE.OUT, 'Output', new AnyType()),
+      new PPSocket(SOCKET_TYPE.IN, 'Condition', new AnyType(), 0),
+      new PPSocket(SOCKET_TYPE.IN, 'A', new AnyType(), 'A'),
+      new PPSocket(SOCKET_TYPE.IN, 'B', new AnyType(), 'B'),
+      new PPSocket(SOCKET_TYPE.OUT, 'Output', new AnyType()),
     ];
   }
 
@@ -371,27 +458,32 @@ export class Comparison extends PPNode {
       ...customArgs,
       color: TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM),
     });
-
-    this.name = 'Compare';
-    this.description = 'Compares two values (greater, less, equal, logical)';
   }
 
-  protected getDefaultIO(): Socket[] {
+  public getName(): string {
+    return 'Compare';
+  }
+
+  public getDescription(): string {
+    return 'Compares two values (greater, less, equal, logical)';
+  }
+
+  protected getDefaultIO(): PPSocket[] {
     const onOptionChange = (value) => {
       this.nodeName = value;
     };
 
     return [
-      new Socket(SOCKET_TYPE.IN, 'A', new AnyType(), 0),
-      new Socket(SOCKET_TYPE.IN, 'B', new AnyType(), 1),
-      new Socket(
+      new PPSocket(SOCKET_TYPE.IN, 'A', new AnyType(), 0),
+      new PPSocket(SOCKET_TYPE.IN, 'B', new AnyType(), 1),
+      new PPSocket(
         SOCKET_TYPE.IN,
         'Operator',
         new EnumType(COMPARISON_OPTIONS, onOptionChange),
         COMPARISON_OPTIONS[0].text,
         false
       ),
-      new Socket(SOCKET_TYPE.OUT, 'Output', new BooleanType()),
+      new PPSocket(SOCKET_TYPE.OUT, 'Output', new BooleanType()),
     ];
   }
 
@@ -412,26 +504,30 @@ export class IsValid extends PPNode {
       ...customArgs,
       color: TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM),
     });
-
-    this.name = 'IsValid';
-    this.description = 'Check if an input is valid (undefined, null)';
+  }
+  public getName(): string {
+    return 'IsValid';
   }
 
-  protected getDefaultIO(): Socket[] {
+  public getDescription(): string {
+    return 'Check if an input is valid (undefined, null)';
+  }
+
+  protected getDefaultIO(): PPSocket[] {
     const onOptionChange = (value) => {
       this.nodeName = value;
     };
 
     return [
-      new Socket(SOCKET_TYPE.IN, 'A', new AnyType(), 0),
-      new Socket(
+      new PPSocket(SOCKET_TYPE.IN, 'A', new AnyType(), 0),
+      new PPSocket(
         SOCKET_TYPE.IN,
         'Condition',
         new EnumType(CONDITION_OPTIONS, onOptionChange),
         CONDITION_OPTIONS[0].text,
         false
       ),
-      new Socket(SOCKET_TYPE.OUT, 'Output', new BooleanType()),
+      new PPSocket(SOCKET_TYPE.OUT, 'Output', new BooleanType()),
     ];
   }
 

@@ -4,7 +4,9 @@ import * as XLSX from 'xlsx';
 import Spreadsheet, { Options } from '@bergfreunde/x-data-spreadsheet';
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
+import PPSocket from '../classes/SocketClass';
 import { getXLSXSelectionRange } from '../utils/utils';
+import { SOCKET_TYPE } from '../utils/constants';
 import { CustomArgs } from '../utils/interfaces';
 import { stox, xtos } from '../utils/xlsxspread';
 import { AnyType } from './datatypes/anyType';
@@ -40,6 +42,36 @@ export class Table extends PPNode {
   protected getActivateByDoubleClick(): boolean {
     return true;
   }
+  public getName(): string {
+    return 'Table';
+  }
+
+  public getDescription(): string {
+    return 'Adds a table';
+  }
+
+  protected getDefaultIO(): PPSocket[] {
+    return [
+      new PPSocket(SOCKET_TYPE.OUT, workBookSocketName, new CodeType()),
+      new PPSocket(SOCKET_TYPE.OUT, workSheetSocketName, new CodeType()),
+      new PPSocket(SOCKET_TYPE.OUT, JSONSocketName, new JSONType()),
+      new PPSocket(SOCKET_TYPE.OUT, arrayOfArraysSocketName, new JSONType()),
+      new PPSocket(SOCKET_TYPE.OUT, CSVSocketName, new StringType()),
+      new PPSocket(
+        SOCKET_TYPE.IN,
+        workBookInputSocketName,
+        new AnyType(),
+        undefined,
+        false
+      ),
+      new PPSocket(
+        SOCKET_TYPE.IN,
+        sheetIndexInputSocketName,
+        new NumberType(true),
+        0
+      ),
+    ];
+  }
 
   constructor(name: string, graph: PPGraph, customArgs?: CustomArgs) {
     const nodeWidth = 800;
@@ -55,17 +87,6 @@ export class Table extends PPNode {
 
     // get initialData if available else create an empty workbook
     this.initialData = customArgs?.initialData;
-
-    this.addOutput(workBookSocketName, new CodeType());
-    this.addOutput(workSheetSocketName, new CodeType());
-    this.addOutput(JSONSocketName, new JSONType());
-    this.addOutput(arrayOfArraysSocketName, new JSONType());
-    this.addOutput(CSVSocketName, new StringType());
-    this.addInput(workBookInputSocketName, new AnyType(), undefined, false);
-    this.addInput(sheetIndexInputSocketName, new NumberType(true), 0);
-
-    this.name = 'Table';
-    this.description = 'Adds a table';
 
     this.spreadsheetId = `x-spreadsheet-${this.id}`;
     this.workBook = XLSX.utils.book_new();

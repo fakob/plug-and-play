@@ -453,16 +453,30 @@ export const SocketContextMenu = (props) => {
             </MenuItem>
           )} */}
         {/* <Divider /> */}
-        <MenuItem
-          onClick={() => {
-            props.currentGraph.current.addWidgetNode(selectedSocket);
-          }}
-        >
-          <ListItemIcon>
-            <AddIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Connect widget node</ListItemText>
-        </MenuItem>
+        {selectedSocket.isInput() && (
+          <MenuItem
+            onClick={() => {
+              props.currentGraph.current.addWidgetNode(selectedSocket);
+            }}
+          >
+            <ListItemIcon>
+              <AddIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Connect widget node</ListItemText>
+          </MenuItem>
+        )}
+        {!selectedSocket.isInput() && (
+          <MenuItem
+            onClick={() => {
+              props.currentGraph.current.addLabelNode(selectedSocket);
+            }}
+          >
+            <ListItemIcon>
+              <AddIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Connect label node</ListItemText>
+          </MenuItem>
+        )}
       </MenuList>
     </Paper>
   );
