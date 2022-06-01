@@ -122,6 +122,21 @@ const FloatingNodeMenu = (props) => {
   };
 
   const [nodeName, setNodeName] = React.useState(selectedNodes[0].name);
+  const [code, setCode] = React.useState('');
+
+  useEffect(() => {
+    if (openCode) {
+      setCode(
+        JSON.stringify(
+          props?.selectedNodes[0]?.serialize(),
+          getCircularReplacer(),
+          2
+        )
+      );
+    } else {
+      setCode('');
+    }
+  }, [openCode]);
 
   return (
     <ThemeProvider theme={theme}>
@@ -189,11 +204,7 @@ const FloatingNodeMenu = (props) => {
                   sx={{ p: 2, bgcolor: 'background.paper' }}
                   className={`${styles.serializedNode} ${styles.scrollablePortal}`}
                 >
-                  {JSON.stringify(
-                    props?.selectedNodes[0]?.serialize(),
-                    getCircularReplacer(),
-                    2
-                  )}
+                  {code}
                 </Typography>
               </Popover>
             </>

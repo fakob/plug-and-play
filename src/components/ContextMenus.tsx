@@ -371,16 +371,6 @@ export const NodeContextMenu = (props) => {
           </Typography>
         </MenuItem>
         <Divider />
-        <MenuItem
-          onClick={() => {
-            props.currentGraph.current.addTriggerInput();
-          }}
-        >
-          <ListItemIcon>
-            <AddIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Add Trigger Input</ListItemText>
-        </MenuItem>
         {canAddInput && (
           <MenuItem
             onClick={() => {
@@ -405,6 +395,16 @@ export const NodeContextMenu = (props) => {
             <ListItemText>Add Output</ListItemText>
           </MenuItem>
         )}
+        <MenuItem
+          onClick={() => {
+            props.currentGraph.current.addTriggerInput();
+          }}
+        >
+          <ListItemIcon>
+            <AddIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Add Trigger Input</ListItemText>
+        </MenuItem>
       </MenuList>
     </Paper>
   );
@@ -426,6 +426,9 @@ export const SocketContextMenu = (props) => {
   }
 
   const selectedSocket: PPSocket = props.selectedSocket;
+  const isDeletable = !selectedSocket
+    .getNode()
+    .hasSocketNameInDefaultIO(selectedSocket.name, selectedSocket.socketType);
 
   return (
     <Paper
@@ -439,20 +442,6 @@ export const SocketContextMenu = (props) => {
       }}
     >
       <MenuList dense>
-        {/* {selectedSocket &&
-          selectedSocket.dataType.constructor.name === 'TriggerType' && (
-            <MenuItem
-              onClick={() => {
-                selectedSocket.destroy();
-              }}
-            >
-              <ListItemIcon>
-                <DeleteIcon fontSize="small" />
-              </ListItemIcon>
-              <ListItemText>Delete Socket</ListItemText>
-            </MenuItem>
-          )} */}
-        {/* <Divider /> */}
         {selectedSocket.isInput() && (
           <MenuItem
             onClick={() => {
@@ -475,6 +464,19 @@ export const SocketContextMenu = (props) => {
               <AddIcon fontSize="small" />
             </ListItemIcon>
             <ListItemText>Connect label node</ListItemText>
+          </MenuItem>
+        )}
+        <Divider />
+        {isDeletable && (
+          <MenuItem
+            onClick={() => {
+              selectedSocket.destroy();
+            }}
+          >
+            <ListItemIcon>
+              <DeleteIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Delete Socket</ListItemText>
           </MenuItem>
         )}
       </MenuList>
