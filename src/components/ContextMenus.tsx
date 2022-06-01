@@ -29,6 +29,7 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import SensorsIcon from '@mui/icons-material/Sensors';
 import MouseIcon from '@mui/icons-material/Mouse';
 import SwipeIcon from '@mui/icons-material/Swipe';
+import PPSocket from './../classes/SocketClass';
 import { GESTUREMODE } from '../utils/constants';
 
 const useStyles = makeStyles((theme) =>
@@ -424,6 +425,8 @@ export const SocketContextMenu = (props) => {
     e.preventDefault();
   }
 
+  const selectedSocket: PPSocket = props.selectedSocket;
+
   return (
     <Paper
       sx={{
@@ -436,26 +439,29 @@ export const SocketContextMenu = (props) => {
       }}
     >
       <MenuList dense>
+        {/* {selectedSocket &&
+          selectedSocket.dataType.constructor.name === 'TriggerType' && (
+            <MenuItem
+              onClick={() => {
+                selectedSocket.destroy();
+              }}
+            >
+              <ListItemIcon>
+                <DeleteIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Delete Socket</ListItemText>
+            </MenuItem>
+          )} */}
+        {/* <Divider /> */}
         <MenuItem
           onClick={() => {
-            props.currentGraph.current.deleteSelectedNodes();
-          }}
-        >
-          <ListItemIcon>
-            <DeleteIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Delete Socket</ListItemText>
-        </MenuItem>
-        <Divider />
-        <MenuItem
-          onClick={() => {
-            props.currentGraph.current.addTriggerInput();
+            props.currentGraph.current.addWidgetNode(selectedSocket);
           }}
         >
           <ListItemIcon>
             <AddIcon fontSize="small" />
           </ListItemIcon>
-          <ListItemText>Delete Socket</ListItemText>
+          <ListItemText>Connect widget node</ListItemText>
         </MenuItem>
       </MenuList>
     </Paper>

@@ -301,14 +301,7 @@ export default class Socket extends PIXI.Container {
   }
 
   destroy(): void {
-    this.getNode().inputSocketArray = this.getNode().inputSocketArray.filter(
-      (socket) =>
-        !(socket.name === this.name && socket.socketType === this.socketType)
-    );
-    this.getNode().outputSocketArray = this.getNode().outputSocketArray.filter(
-      (socket) =>
-        !(socket.name === this.name && socket.socketType === this.socketType)
-    );
+    this.removeLink();
     super.destroy();
   }
 }

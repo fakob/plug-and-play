@@ -20,7 +20,7 @@ import {
 } from '../utils/interfaces';
 import { ensureVisible, getInfoFromRegisteredNode } from '../utils/utils';
 import PPNode from './NodeClass';
-import Socket from './SocketClass';
+import PPSocket from './SocketClass';
 import PPLink from './LinkClass';
 import PPSelection from './SelectionClass';
 
@@ -35,9 +35,9 @@ export default class PPGraph {
   customNodeTypes: Record<string, string>;
 
   _showComments: boolean;
-  selectedSourceSocket: null | Socket;
+  selectedSourceSocket: null | PPSocket;
   lastSelectedSocketWasInput = false;
-  overInputRef: null | Socket;
+  overInputRef: null | PPSocket;
   dragSourcePoint: PIXI.Point;
 
   backgroundTempContainer: PIXI.Container;
@@ -62,7 +62,7 @@ export default class PPGraph {
     target: PIXI.DisplayObject
   ) => void = () => {}; // called when the graph is right clicked
   onOpenNodeSearch: (pos: PIXI.Point) => void = () => {}; // called node search should be openend
-  onOpenSocketInspector: (pos: PIXI.Point, data: Socket) => void = () => {}; // called when socket inspector should be opened
+  onOpenSocketInspector: (pos: PIXI.Point, data: PPSocket) => void = () => {}; // called when socket inspector should be opened
   onCloseSocketInspector: () => void; // called when socket inspector should be closed
   onViewportDragging: (isDraggingViewport: boolean) => void = () => {}; // called when the viewport is being dragged
   onShowSnackbar: (message: SnackbarMessage, options?: OptionsObject) => void;
@@ -212,7 +212,7 @@ export default class PPGraph {
     this.onViewportDragging(false);
   }
 
-  getSocketCenter(object: Socket): PIXI.Point {
+  getSocketCenter(object: PPSocket): PIXI.Point {
     const dragSourceRect = object.socketRef.getBounds();
     const dragSourcePoint = new PIXI.Point(
       dragSourceRect.x + dragSourceRect.width / 2,
@@ -275,15 +275,15 @@ export default class PPGraph {
     }
   }
 
-  socketHoverOver(socket: Socket): void {
+  socketHoverOver(socket: PPSocket): void {
     this.overInputRef = socket;
   }
 
-  socketHoverOut(socket: Socket): void {
+  socketHoverOut(socket: PPSocket): void {
     this.overInputRef = null;
   }
 
-  socketMouseDown(socket: Socket, event: PIXI.InteractionEvent): void {
+  socketMouseDown(socket: PPSocket, event: PIXI.InteractionEvent): void {
     if (event.data.button === 2) {
       socket.links.forEach((link) => link.delete());
     } else if (socket.socketType === SOCKET_TYPE.OUT) {
@@ -305,7 +305,7 @@ export default class PPGraph {
   }
 
   async socketMouseUp(
-    socket: Socket,
+    socket: PPSocket,
     event: PIXI.InteractionEvent
   ): Promise<void> {
     const source = this.selectedSourceSocket;
@@ -326,7 +326,7 @@ export default class PPGraph {
   }
 
   async socketNameRefMouseDown(
-    socket: Socket,
+    socket: PPSocket,
     event: PIXI.InteractionEvent
   ): Promise<void> {
     const clickedSourcePoint = new PIXI.Point(
@@ -457,7 +457,7 @@ export default class PPGraph {
     this.addNode(node);
 
     if (customArgs?.addLink) {
-      if (node.inputSocketArray.length > 0 && !customArgs.addLink.isInput()) {
+      if (!customArgs.addLink.isInput() && node.inputSocketArray.length > 0) {
         console.log(
           'connecting Output:',
           customArgs.addLink.name,
@@ -470,6 +470,21 @@ export default class PPGraph {
         );
         this.connect(customArgs.addLink, node.inputSocketArray[0], notify);
         this.clearTempConnection();
+      } else if (
+        customArgs.addLink.isInput() &&
+        node.outputSocketArray.length > 0
+      ) {
+        console.log(
+          'connecting Input:',
+          customArgs.addLink.name,
+          'of',
+          customArgs.addLink.parent.name,
+          'with Output:',
+          node.outputSocketArray[0].name,
+          'of',
+          node.outputSocketArray[0].parent.name
+        );
+        this.connect(node.outputSocketArray[0], customArgs.addLink, notify);
       }
     }
     node.onNodeAdded();
@@ -478,7 +493,11 @@ export default class PPGraph {
     return node;
   }
 
-  async connect(output: Socket, input: Socket, notify = true): Promise<PPLink> {
+  async connect(
+    output: PPSocket,
+    input: PPSocket,
+    notify = true
+  ): Promise<PPLink> {
     // remove all input links from before on this socket
     input.links.forEach((link) => link.delete());
 
@@ -507,7 +526,32 @@ export default class PPGraph {
     return link;
   }
 
-  checkOldSocketAndUpdateIt<T extends Socket>(
+  addWidgetNode(socket: PPSocket): void {
+    const socketDataType = socket.dataType.constructor.name;
+    const node = socket.getNode();
+    let nodeType: string;
+    switch (socketDataType) {
+      case 'TriggerType':
+        nodeType = 'WidgetButton';
+        break;
+      case 'BooleanType':
+        nodeType = 'WidgetSwitch';
+        break;
+      case 'NumberType':
+        nodeType = 'WidgetSlider';
+        break;
+      default:
+        nodeType = 'WidgetSlider';
+        break;
+    }
+    this.createAndAddNode(nodeType, {
+      nodePosX: node.x - (200 + 40),
+      nodePosY: node.y + socket.y,
+      addLink: socket,
+    });
+  }
+
+  checkOldSocketAndUpdateIt<T extends PPSocket>(
     oldSocket: T,
     newSocket: T,
     isInput: boolean
@@ -776,7 +820,7 @@ export default class PPGraph {
     return configureError;
   }
 
-  getSocket(nodeID: string, socketName: string, type: TSocketType): Socket {
+  getSocket(nodeID: string, socketName: string, type: TSocketType): PPSocket {
     const node = this.getNodeById(nodeID);
     if (node) {
       return type === SOCKET_TYPE.IN
