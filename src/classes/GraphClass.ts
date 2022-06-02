@@ -2,7 +2,7 @@
 import * as PIXI from 'pixi.js';
 import strip from 'strip-comments';
 import { Viewport } from 'pixi-viewport';
-
+import { OptionsObject, SnackbarMessage } from 'notistack';
 import {
   DEFAULT_EDITOR_DATA,
   NODE_WIDTH,
@@ -65,6 +65,7 @@ export default class PPGraph {
   onOpenSocketInspector: (pos: PIXI.Point, data: Socket) => void = () => {}; // called when socket inspector should be opened
   onCloseSocketInspector: () => void; // called when socket inspector should be closed
   onViewportDragging: (isDraggingViewport: boolean) => void = () => {}; // called when the viewport is being dragged
+  onShowSnackbar: (message: SnackbarMessage, options?: OptionsObject) => void;
 
   constructor(app: PIXI.Application, viewport: Viewport) {
     this.app = app;
@@ -385,19 +386,50 @@ export default class PPGraph {
     customArgs?: CustomArgs
   ): T {
     // console.log(this._registeredNodeTypes);
-    const nodeConstructor = this._registeredNodeTypes[type]?.constructor;
-    if (!nodeConstructor) {
-      console.log(
-        'GraphNode type "' + type + '" not registered. Will create new one.'
-      );
-      this.createOrUpdateNodeFromCode(DEFAULT_EDITOR_DATA, type, customArgs);
-      return null;
+    const newArgs: any = {};
+    const placeholderNode = 'Placeholder';
+    let nodeConstructor;
+    let name;
+
+    if (type === placeholderNode) {
+      // placeholder nodes use the name field to indicate which node they are a placeholder for
+      // check if the replaced node exists now
+      name = customArgs?.name ?? type;
+      nodeConstructor = this._registeredNodeTypes[name]?.constructor;
+      if (customArgs?.name !== undefined && nodeConstructor) {
+        this.onShowSnackbar(
+          `A replacement for the placeholder node ${customArgs?.customId} was found. It will be replaced with ${name}.`,
+          {
+            variant: 'success',
+          }
+        );
+      } else {
+        this.onShowSnackbar(
+          `No replacement for the placeholder node ${customArgs?.customId} was found.`
+        );
+      }
+    } else {
+      name = type;
+      nodeConstructor = this._registeredNodeTypes[type]?.constructor;
     }
 
-    const title = type;
-    // console.log(nodeConstructor);
-    const node = new nodeConstructor(title, this, {
+    if (!nodeConstructor) {
+      // if there is no node of this type, create a placeholder node instead
+      // and "save" the original node type in the placeholders name
+      this.onShowSnackbar(
+        `Node ${customArgs?.customId} of type ${type} is missing. A placeholder node will be created instead.`,
+        {
+          variant: 'warning',
+        }
+      );
+      name = type;
+      nodeConstructor = this._registeredNodeTypes['Placeholder']?.constructor;
+      newArgs.name = type;
+    }
+
+    const node = new nodeConstructor(name, this, {
       ...customArgs,
+      ...newArgs,
       nodePosX: customArgs?.nodePosX ?? this.viewport.center.x - NODE_WIDTH / 2,
       nodePosY: customArgs?.nodePosY ?? this.viewport.center.y,
     }) as T;
@@ -422,7 +454,6 @@ export default class PPGraph {
     notify = true
   ): T {
     const node = this.createNode(type, customArgs) as T;
-    // if (node) {
     this.addNode(node);
 
     if (customArgs?.addLink) {
@@ -445,7 +476,6 @@ export default class PPGraph {
     node.executeOptimizedChain();
 
     return node;
-    // }
   }
 
   async connect(output: Socket, input: Socket, notify = true): Promise<PPLink> {
@@ -712,6 +742,7 @@ export default class PPGraph {
           node.type,
           {
             customId: node.id,
+            name: node.name, // placeholder node uses the name field to indicate which node they are a placeholder for
           },
           false
         ).configure(node);
@@ -764,7 +795,7 @@ export default class PPGraph {
   }
 
   createOrUpdateNodeFromCode(
-    code: string,
+    code = DEFAULT_EDITOR_DATA,
     newDefaultFunctionName?: string,
     customArgs?: CustomArgs
   ): void {
@@ -785,17 +816,17 @@ export default class PPGraph {
 
     // do nodes of the same type exist on the graph
     if (nodesWithTheSameType.length > 0) {
-      nodesWithTheSameType.forEach(async (node) => {
+      nodesWithTheSameType.forEach((node) => {
         console.log('I am of the same type', node);
 
-        const newNode = await this.createAndAddNode(functionName);
+        const newNode = this.createAndAddNode(functionName);
 
         newNode.configure(node.serialize());
         this.reconnectLinksToNewNode(node, newNode);
 
         // if the old node was selected, select the new one instead
         if (this.selection.selectedNodes.includes(node)) {
-          this.selection.selectNodes([newNode]);
+          this.selection.selectNodes([newNode], undefined, true);
         }
 
         // remove previous node
