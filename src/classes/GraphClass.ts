@@ -718,12 +718,14 @@ export default class PPGraph {
     // register custom node types only
     // standard nodes types are already registered on load
     console.log('standard node types: ', this._registeredNodeTypes);
-    Object.values(data.customNodeTypes).forEach((value) => {
-      this.registerCustomNodeType(value);
-    });
+    if (data.customNodeTypes !== undefined) {
+      Object.values(data?.customNodeTypes).forEach((value) => {
+        this.registerCustomNodeType(value);
+      });
 
-    // store customNodeTypes
-    this.customNodeTypes = data.customNodeTypes;
+      // store customNodeTypes
+      this.customNodeTypes = data.customNodeTypes;
+    }
 
     // position and scale viewport
     const newX = data.graphSettings.viewportCenterPosition.x ?? 0;
