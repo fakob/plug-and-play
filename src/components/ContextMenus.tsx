@@ -466,18 +466,20 @@ export const SocketContextMenu = (props) => {
             <ListItemText>Connect label node</ListItemText>
           </MenuItem>
         )}
-        <Divider />
         {isDeletable && (
-          <MenuItem
-            onClick={() => {
-              selectedSocket.destroy();
-            }}
-          >
-            <ListItemIcon>
-              <DeleteIcon fontSize="small" />
-            </ListItemIcon>
-            <ListItemText>Delete Socket</ListItemText>
-          </MenuItem>
+          <>
+            <Divider />
+            <MenuItem
+              onClick={() => {
+                selectedSocket.destroy();
+              }}
+            >
+              <ListItemIcon>
+                <DeleteIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Delete Socket</ListItemText>
+            </MenuItem>
+          </>
         )}
       </MenuList>
     </Paper>
