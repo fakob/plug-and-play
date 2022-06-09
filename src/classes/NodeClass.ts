@@ -273,17 +273,15 @@ export default class PPNode extends PIXI.Container {
 
   addInput(
     name: string,
-    type: any, // but really its AbstractType
+    type: AbstractType, // but really its AbstractType
     data?: unknown,
     visible?: boolean,
     custom?: Record<string, any> // lets get rid of this ASAP
   ): void {
-    // horrible hack to solve custom nodes
-    const toUseType = type instanceof AbstractType ? type : new AnyType();
     const inputSocket = new Socket(
       SOCKET_TYPE.IN,
       name,
-      toUseType,
+      type,
       data,
       visible,
       custom
@@ -297,16 +295,14 @@ export default class PPNode extends PIXI.Container {
 
   addOutput(
     name: string,
-    type: any, // but really its abstracttype
+    type: AbstractType, // but really its AbstractTypeabstracttype
     visible?: boolean,
     custom?: Record<string, any>
   ): void {
-    // horrible hack to solve custom nodes
-    const toUseType = type instanceof AbstractType ? type : new AnyType();
     const outputSocket = new Socket(
       SOCKET_TYPE.OUT,
       name,
-      toUseType,
+      type,
       null, // need to get rid of this
       visible
     );

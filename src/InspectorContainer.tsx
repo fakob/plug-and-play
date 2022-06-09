@@ -22,7 +22,6 @@ import {
 type MyProps = {
   currentGraph: PPGraph;
   selectedNode: PPNode;
-  isCustomNode: boolean;
   onSave?: (code: string) => void;
   randomMainColor: string;
   widthPercentage: number;
@@ -100,7 +99,6 @@ const InspectorContainer: React.FunctionComponent<MyProps> = (props) => {
         <PropertyArrayContainer
           currentGraph={props.currentGraph}
           selectedNode={props.selectedNode}
-          isCustomNode={props.isCustomNode}
           onSave={props.onSave}
           randomMainColor={props.randomMainColor}
         />

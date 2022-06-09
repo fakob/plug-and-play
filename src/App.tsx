@@ -784,7 +784,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
   function saveGraph(saveNew = false, newName = undefined) {
     const serializedGraph = currentGraph.current.serialize();
     console.log(serializedGraph);
-    console.info(serializedGraph.customNodeTypes);
     db.transaction('rw', db.graphs, db.settings, async () => {
       const graphs = await db.graphs.toArray();
       const loadedGraphId = await getSetting(db, 'loadedGraphId');

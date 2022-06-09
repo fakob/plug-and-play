@@ -41,31 +41,9 @@ export const registerAllNodeTypes = (graph: PPGraph): void => {
   for (const [categoryKey, categoryValue] of Object.entries(categories)) {
     console.log(categoryKey, categoryValue);
     for (const key of Object.keys(categoryValue)) {
-      // check if it is a class inheriting from PPNode
-      // if not we consider it a function
-      // functions which are imported like this can not define input and output parameter types
       if (categoryValue[key].prototype instanceof PPNode) {
         graph.registerNodeType(key, categoryValue[key]);
-      } else {
-        const nodeConstructor = graph.convertFunctionToNodeConstructor(
-          categoryValue[key]
-        );
-        graph.registerNodeType(key, nodeConstructor);
       }
     }
   }
-
-  function getElementFromArray(array: any[], index: number) {
-    if (Array.isArray(array) && !Number.isNaN(index)) {
-      if (index >= 0 && index < array.length) {
-        return array[index];
-      }
-    }
-    return undefined;
-  }
-  const nodeConstructor = graph.convertFunctionToNodeConstructor(
-    getElementFromArray
-    // OUTPUTTYPE.NUMBER
-  );
-  graph.registerNodeType(getElementFromArray.name, nodeConstructor);
 };
