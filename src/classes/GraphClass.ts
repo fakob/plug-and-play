@@ -527,38 +527,26 @@ export default class PPGraph {
   }
 
   addWidgetNode(socket: PPSocket): void {
-    const socketDataType = socket.dataType.constructor.name;
     const node = socket.getNode();
-    let nodeType: string;
-    switch (socketDataType) {
-      case 'TriggerType':
-        nodeType = 'WidgetButton';
-        break;
-      case 'BooleanType':
-        nodeType = 'WidgetSwitch';
-        break;
-      case 'NumberType':
-        nodeType = 'WidgetSlider';
-        break;
-      default:
-        nodeType = 'WidgetSlider';
-        break;
+    if (socket.isInput()) {
+      const nodeType = socket.dataType.defaultInputNodeWidget();
+      if (nodeType !== undefined) {
+        this.createAndAddNode(nodeType, {
+          nodePosX: node.x - (200 + 40),
+          nodePosY: node.y + socket.y,
+          addLink: socket,
+        });
+      } else {
+        const nodeType = socket.dataType.defaultOutputNodeWidget();
+        if (nodeType !== undefined) {
+          this.createAndAddNode(nodeType, {
+            nodePosX: node.x + (node.width + 40),
+            nodePosY: node.y + socket.y,
+            addLink: socket,
+          });
+        }
+      }
     }
-    this.createAndAddNode(nodeType, {
-      nodePosX: node.x - (200 + 40),
-      nodePosY: node.y + socket.y,
-      addLink: socket,
-    });
-  }
-
-  addLabelNode(socket: PPSocket): void {
-    const node = socket.getNode();
-    const nodeType = 'Label';
-    this.createAndAddNode(nodeType, {
-      nodePosX: node.x + (node.width + 40),
-      nodePosY: node.y + socket.y,
-      addLink: socket,
-    });
   }
 
   checkOldSocketAndUpdateIt<T extends PPSocket>(

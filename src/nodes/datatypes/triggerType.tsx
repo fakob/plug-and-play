@@ -57,4 +57,8 @@ export class TriggerType extends AbstractType {
     }
     this.previousData = data;
   }
+
+  defaultInputNodeWidget(): string {
+    return 'WidgetButton';
+  }
 }
