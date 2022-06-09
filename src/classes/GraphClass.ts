@@ -536,15 +536,15 @@ export default class PPGraph {
           nodePosY: node.y + socket.y,
           addLink: socket,
         });
-      } else {
-        const nodeType = socket.dataType.defaultOutputNodeWidget();
-        if (nodeType !== undefined) {
-          this.createAndAddNode(nodeType, {
-            nodePosX: node.x + (node.width + 40),
-            nodePosY: node.y + socket.y,
-            addLink: socket,
-          });
-        }
+      }
+    } else {
+      const nodeType = socket.dataType.defaultOutputNodeWidget();
+      if (nodeType !== undefined) {
+        this.createAndAddNode(nodeType, {
+          nodePosX: node.x + (node.width + 40),
+          nodePosY: node.y + socket.y,
+          addLink: socket,
+        });
       }
     }
   }
