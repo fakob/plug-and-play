@@ -457,7 +457,7 @@ export const SocketContextMenu = (props) => {
         {!selectedSocket.isInput() && (
           <MenuItem
             onClick={() => {
-              props.currentGraph.current.addLabelNode(selectedSocket);
+              props.currentGraph.current.addWidgetNode(selectedSocket);
             }}
           >
             <ListItemIcon>
