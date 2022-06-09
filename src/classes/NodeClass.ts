@@ -110,6 +110,10 @@ export default class PPNode extends PIXI.Container {
     return false;
   }
 
+  protected getActivateByDoubleClick(): boolean {
+    return false;
+  }
+
   // we should migrate all nodes to use these functions instead of specifying the field themselves in constructor
   public getName(): string {
     return this.name;
@@ -365,8 +369,8 @@ export default class PPNode extends PIXI.Container {
           matchingSocket.data = item.data;
           matchingSocket.defaultData = item.defaultData;
           matchingSocket.setVisible(item.visible);
-        } else if (item.isCustom) {
-          // add socket if it does not exist yet AND it is indeed a custom socket, otherwise it is likely an old socket that has since been removed
+        } else {
+          // add socket if it does not exist yet
           this.addSocket(
             new Socket(
               item.socketType,
@@ -783,7 +787,6 @@ export default class PPNode extends PIXI.Container {
       reactParent,
       {
         ...reactProps,
-        randomMainColor: RANDOMMAINCOLOR,
       },
       this.staticRoot
     );
@@ -801,28 +804,36 @@ export default class PPNode extends PIXI.Container {
     reactProps,
     customStyles = {}
   ): HTMLElement {
+    const { margin = 0 } = reactProps;
     const reactElement = parentDocument.createElement('div');
     this.container = parentDocument.body.appendChild(reactElement);
     this.root = createRoot(this.container!);
     this.container.id = `Container-${this.id}`;
 
     const screenPoint = this.screenPoint();
+    const scaleX = this.graph.viewport.scale.x;
     this.container.classList.add(styles.hybridContainer);
-    this.container.style.width = `${this.nodeWidth}px`;
-    this.container.style.height = `${this.nodeHeight}px`;
     Object.assign(this.container.style, customStyles);
 
     // set initial position
+    this.container.style.width = `${this.nodeWidth - (2 * margin) / scaleX}px`;
+    this.container.style.height = `${
+      this.nodeHeight - (2 * margin) / scaleX
+    }px`;
     this.container.style.transform = `translate(50%, 50%)`;
-    this.container.style.transform = `scale(${this.graph.viewport.scale.x}`;
-    this.container.style.left = `${screenPoint.x}px`;
-    this.container.style.top = `${screenPoint.y}px`;
+    this.container.style.transform = `scale(${scaleX}`;
+    this.container.style.left = `${screenPoint.x + margin}px`;
+    this.container.style.top = `${screenPoint.y + margin}px`;
 
     this.onNodeDragOrViewportMove = ({ screenX, screenY, scale }) => {
-      this.container.style.transform = `translate(50%, 50%)`;
+      this.container.style.width = `${this.nodeWidth - (2 * margin) / scale}px`;
+      this.container.style.height = `${
+        this.nodeHeight - (2 * margin) / scale
+      }px`;
+      // this.container.style.transform = `translate(50%, 50%)`;
       this.container.style.transform = `scale(${scale}`;
-      this.container.style.left = `${screenX}px`;
-      this.container.style.top = `${screenY}px`;
+      this.container.style.left = `${screenX + margin}px`;
+      this.container.style.top = `${screenY + margin}px`;
     };
 
     this.onViewportPointerUpHandler = this._onViewportPointerUp.bind(this);
@@ -837,7 +848,6 @@ export default class PPNode extends PIXI.Container {
       reactParent,
       {
         ...reactProps,
-        randomMainColor: RANDOMMAINCOLOR,
       },
       this.root
     );
@@ -859,6 +869,7 @@ export default class PPNode extends PIXI.Container {
         id: this.id,
         selected: this.selected,
         doubleClicked: this.doubleClicked,
+        randomMainColor: RANDOMMAINCOLOR,
       })
     );
   };
@@ -1176,7 +1187,7 @@ export default class PPNode extends PIXI.Container {
     this.doubleClicked = true;
 
     // turn on pointer events for hybrid nodes so the react components become reactive
-    if (this.getIsHybrid()) {
+    if (this.getActivateByDoubleClick()) {
       // register hybrid nodes to listen to outside clicks
       this.graph.viewport.on(
         'pointerup',

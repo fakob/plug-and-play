@@ -41,6 +41,7 @@ export type CustomArgs = {
   customId?: string;
   color?: TRgba;
   colorTransparency?: number;
+  name?: string;
   nodePosX?: number;
   nodePosY?: number;
   nodeWidth?: number;

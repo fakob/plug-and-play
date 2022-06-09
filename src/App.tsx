@@ -26,7 +26,7 @@ import {
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { useSnackbar } from 'notistack';
+import { OptionsObject, SnackbarMessage, useSnackbar } from 'notistack';
 import Color from 'color';
 import { hri } from 'human-readable-ids';
 import TimeAgo from 'javascript-time-ago';
@@ -617,6 +617,15 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     };
   }, []);
 
+  useEffect(() => {
+    currentGraph.current.onShowSnackbar = (
+      message: SnackbarMessage,
+      options?: OptionsObject
+    ) => {
+      enqueueSnackbar(message, options);
+    };
+  }, [currentGraph.current]);
+
   // addEventListener to graphSearchInput
   useEffect(() => {
     if (!graphSearchInput?.current) {
@@ -936,14 +945,12 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       contextMenuPosition[0],
       contextMenuPosition[1]
     );
+
     currentGraph.current.createAndAddNode(selected.title, {
       nodePosX: nodePos.x,
       nodePosY: nodePos.y,
       addLink,
     });
-    if (selected.isNew) {
-      selected.isNew = undefined;
-    }
     setNodeSearchActiveItem(selected);
     setIsNodeSearchVisible(false);
   };

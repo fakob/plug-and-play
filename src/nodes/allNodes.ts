@@ -14,6 +14,7 @@ import * as json from './data/json';
 import * as pixotopegateway from './api/pixotopeGateway';
 import * as dataFunctions from './data/dataFunctions';
 import * as stateNodes from './state/stateNodes';
+import * as widgetNodes from './widgets/widgetNodes';
 import * as charts from './draw/charts';
 import * as macro from './macro/macro';
 import * as booleanlogic from './logic/boolean';
@@ -34,6 +35,7 @@ export const registerAllNodeTypes = (graph: PPGraph): void => {
     pixotopegateway,
     dataFunctions,
     stateNodes,
+    widgetNodes,
     charts,
     macro,
     booleanlogic,

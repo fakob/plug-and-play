@@ -29,6 +29,23 @@ import { StringType } from './datatypes/stringType';
 import { EnumType } from './datatypes/enumType';
 import { BooleanType } from './datatypes/booleanType';
 
+export class Placeholder extends PPNode {
+  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
+    super(name, graph, {
+      ...customArgs,
+      color: TRgba.fromString(NODE_TYPE_COLOR.MISSING),
+    });
+  }
+
+  getCanAddInput(): boolean {
+    return true;
+  }
+
+  getCanAddOutput(): boolean {
+    return true;
+  }
+}
+
 export class Mouse extends PPNode {
   onViewportMoveHandler: (event?: PIXI.InteractionEvent) => void;
   onViewportZoomedHandler: (event?: PIXI.InteractionEvent) => void;

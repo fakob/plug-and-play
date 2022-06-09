@@ -23,7 +23,6 @@ const mapCodeName = 'Function';
 const mapOutName = 'OutArray';
 
 const anyCodeName = 'Code';
-const inDataName = 'InData';
 const outDataName = 'OutData';
 
 const constantInName = 'In';
