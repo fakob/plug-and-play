@@ -260,6 +260,8 @@ export class DRAW_Shape extends DRAW_Base {
         this.getAndIncrementExecutions(executions)
       ],
     };
+    const width = inputObject[inputWidthName] ?? 0;
+    const height = inputObject[inputHeightName] ?? 0;
     const graphics: PIXI.Graphics = new PIXI.Graphics();
     const selectedColor: TRgba = new ColorType().parse(
       inputObject[inputColorName]
@@ -274,39 +276,19 @@ export class DRAW_Shape extends DRAW_Base {
     const shapeEnum = inputObject[inputShapeName];
     switch (shapeEnum) {
       case 'Circle': {
-        graphics.drawCircle(
-          inputObject[inputWidthName] / 2,
-          inputObject[inputWidthName] / 2,
-          inputObject[inputWidthName] / 2
-        );
+        graphics.drawCircle(width / 2, width / 2, width / 2);
         break;
       }
       case 'Rectangle': {
-        graphics.drawRect(
-          0,
-          0,
-          inputObject[inputWidthName],
-          inputObject[inputHeightName]
-        );
+        graphics.drawRect(0, 0, width, height);
         break;
       }
       case 'Rounded Rectangle': {
-        graphics.drawRoundedRect(
-          0,
-          0,
-          inputObject[inputWidthName],
-          inputObject[inputHeightName],
-          inputObject[inputWidthName] * 0.1
-        );
+        graphics.drawRoundedRect(0, 0, width, height, width * 0.1);
         break;
       }
       case 'Ellipse': {
-        graphics.drawEllipse(
-          inputObject[inputWidthName] / 2,
-          inputObject[inputHeightName] / 2,
-          inputObject[inputWidthName] / 2,
-          inputObject[inputHeightName] / 2
-        );
+        graphics.drawEllipse(width / 2, height / 2, width / 2, height / 2);
         break;
       }
     }
