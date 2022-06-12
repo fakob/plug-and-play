@@ -33,6 +33,7 @@ import {
   TRIGGER_TYPE_OPTIONS,
 } from '../utils/constants';
 import UpdateBehaviourClass from './UpdateBehaviourClass';
+import NodeSelectionHeaderClass from './NodeSelectionHeaderClass';
 import PPGraph from './GraphClass';
 import Socket from './SocketClass';
 import {
@@ -50,6 +51,7 @@ export default class PPNode extends PIXI.Container {
   _NodeNameRef: PIXI.Text;
   _BackgroundRef: PIXI.Graphics;
   _UpdateBehaviourRef: UpdateBehaviourClass;
+  _NodeSelectionHeaderRef: NodeSelectionHeaderClass;
   _CommentRef: PIXI.Graphics;
   clickedSocketRef: Socket;
 
@@ -172,6 +174,9 @@ export default class PPNode extends PIXI.Container {
 
     this.updateBehaviour = this.getUpdateBehaviour();
     this._UpdateBehaviourRef = this.addChild(this.updateBehaviour);
+    this._NodeSelectionHeaderRef = this.addChild(
+      new NodeSelectionHeaderClass()
+    );
 
     // do not show the node name
     if (this.showLabels === false) {
