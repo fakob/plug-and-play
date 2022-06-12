@@ -6,7 +6,7 @@ import { COLOR_DARK, COLOR_WHITE_TEXT } from '../utils/constants';
 import styles from '../utils/style.module.css';
 
 export const GraphSearchInput = (props) => {
-  const backgroundColor = Color(props.randomMainColor).alpha(0.8);
+  const backgroundColor = Color(props.randommaincolor).alpha(0.8);
   return (
     <TextField
       {...props}
@@ -34,7 +34,7 @@ export const GraphSearchInput = (props) => {
           paddingBottom: '8px',
           paddingTop: '0px',
           // color: COLOR_WHITE_TEXT,
-          color: Color(props.randomMainColor).isDark()
+          color: Color(props.randommaincolor).isDark()
             ? COLOR_WHITE_TEXT
             : COLOR_DARK,
         },
@@ -48,7 +48,7 @@ export const GraphSearchPopper = (props) => {
 };
 
 export const NodeSearchInput = (props) => {
-  const backgroundColor = Color(props.randomMainColor).alpha(0.9);
+  const backgroundColor = Color(props.randommaincolor).alpha(0.9);
   return (
     <TextField
       {...props}
@@ -71,7 +71,7 @@ export const NodeSearchInput = (props) => {
         '&&&& input': {
           paddingBottom: '8px',
           paddingTop: '0px',
-          color: Color(props.randomMainColor).isDark()
+          color: Color(props.randommaincolor).isDark()
             ? COLOR_WHITE_TEXT
             : COLOR_DARK,
         },
