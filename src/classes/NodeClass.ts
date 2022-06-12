@@ -404,12 +404,30 @@ export default class PPNode extends PIXI.Container {
     }
   }
 
-  getDirectDependents(): { [key: string]: PPNode } {
+  getDirectDependents(
+    includeInputs = false,
+    ignoreUpdateBehaviour = false
+  ): { [key: string]: PPNode } {
     const currDependents: { [key: string]: PPNode } = {};
-    this.outputSocketArray.forEach((socket) => {
-      Object.values(socket.getDirectDependents()).forEach((dependent) => {
-        currDependents[dependent.id] = dependent;
+    if (includeInputs) {
+      this.inputSocketArray.forEach((socket) => {
+        console.log(socket.name, socket.getNode().id, socket.getNode());
+        Object.values(
+          socket.getDirectDependents(ignoreUpdateBehaviour)
+        ).forEach((dependent) => {
+          // exclude origin
+          if (this !== dependent) {
+            currDependents[dependent.id] = dependent;
+          }
+        });
       });
+    }
+    this.outputSocketArray.forEach((socket) => {
+      Object.values(socket.getDirectDependents(ignoreUpdateBehaviour)).forEach(
+        (dependent) => {
+          currDependents[dependent.id] = dependent;
+        }
+      );
     });
     return currDependents;
   }
@@ -470,7 +488,7 @@ export default class PPNode extends PIXI.Container {
     }): void => {
       Object.values(dependents).forEach((node) => {
         const newDependents: { [key: string]: PPNode } =
-          node.getDirectDependents();
+          node.getDirectDependents(true);
         console.log(node.id, node.name, newDependents);
         combinedDependents[node.id] = node;
         if (Object.values(newDependents).length > 0) {
@@ -751,10 +769,11 @@ export default class PPNode extends PIXI.Container {
         commentData = 'Too long to display';
       }
       const debugText = new PIXI.Text(
-        `${Math.round(this.transform.position.x)}, ${Math.round(
+        `${this.id}
+${Math.round(this.transform.position.x)}, ${Math.round(
           this.transform.position.y
         )}
-  ${Math.round(this._bounds.minX)}, ${Math.round(
+${Math.round(this._bounds.minX)}, ${Math.round(
           this._bounds.minY
         )}, ${Math.round(this._bounds.maxX)}, ${Math.round(this._bounds.maxY)}`,
         COMMENT_TEXTSTYLE
