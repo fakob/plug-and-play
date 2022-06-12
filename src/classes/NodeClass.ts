@@ -73,6 +73,7 @@ export default class PPNode extends PIXI.Container {
 
   // default to update on update, 1 sec time update interval
   updateBehaviour: UpdateBehaviourClass;
+  nodeSelectionHeader: NodeSelectionHeaderClass;
   lastTimeTicked = 0;
 
   successfullyExecuted = true;
@@ -174,9 +175,8 @@ export default class PPNode extends PIXI.Container {
 
     this.updateBehaviour = this.getUpdateBehaviour();
     this._UpdateBehaviourRef = this.addChild(this.updateBehaviour);
-    this._NodeSelectionHeaderRef = this.addChild(
-      new NodeSelectionHeaderClass()
-    );
+    this.nodeSelectionHeader = new NodeSelectionHeaderClass();
+    this._NodeSelectionHeaderRef = this.addChild(this.nodeSelectionHeader);
 
     // do not show the node name
     if (this.showLabels === false) {
@@ -462,6 +462,28 @@ export default class PPNode extends PIXI.Container {
     });
 
     return numDepending;
+  }
+
+  getDownstreamNodes(): PPNode[] {
+    const getDirectDependentsAndAccumulateThem = (dependents: {
+      [key: string]: PPNode;
+    }): void => {
+      Object.values(dependents).forEach((node) => {
+        const newDependents: { [key: string]: PPNode } =
+          node.getDirectDependents();
+        console.log(node.id, node.name, newDependents);
+        combinedDependents[node.id] = node;
+        if (Object.values(newDependents).length > 0) {
+          getDirectDependentsAndAccumulateThem(newDependents);
+        }
+      });
+    };
+
+    const combinedDependents: { [key: string]: PPNode } = {};
+    combinedDependents[this.id] = this;
+    getDirectDependentsAndAccumulateThem(combinedDependents);
+    console.log(combinedDependents);
+    return Object.values(combinedDependents);
   }
 
   async executeOptimizedChain(): Promise<void> {
@@ -1178,6 +1200,7 @@ export default class PPNode extends PIXI.Container {
   _onPointerOver(): void {
     this.cursor = 'move';
     this.updateBehaviour.hoverNode = true;
+    this.nodeSelectionHeader.hoverNode = true;
   }
 
   _onPointerOut(): void {
@@ -1185,6 +1208,7 @@ export default class PPNode extends PIXI.Container {
       this.alpha = 1.0;
       this.cursor = 'default';
       this.updateBehaviour.hoverNode = false;
+      this.nodeSelectionHeader.hoverNode = false;
     }
   }
 

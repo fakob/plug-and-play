@@ -2,20 +2,10 @@ import * as PIXI from 'pixi.js';
 import { TRgba } from '../utils/interfaces';
 import PPGraph from './GraphClass';
 import PPNode from './NodeClass';
-import {
-  COLOR_DARK,
-  NODE_MARGIN,
-  TEXT_RESOLUTION,
-  UPDATEBEHAVIOURHEADER_TEXTSTYLE,
-} from '../utils/constants';
+import { COLOR_DARK, NODE_MARGIN } from '../utils/constants';
 
 export default class NodeSelectionHeaderClass extends PIXI.Container {
-  _frequencyRef: PIXI.Text;
-  _updateRef: PIXI.Graphics;
-  _noUpdateRef: PIXI.Graphics;
-  private _update: boolean;
-  private _interval: boolean;
-  private _intervalFrequency: number;
+  _selectBranch: PIXI.Graphics;
   private anchorX: number;
   private anchorY: number;
   private _hoverNode: boolean;
@@ -24,67 +14,42 @@ export default class NodeSelectionHeaderClass extends PIXI.Container {
   constructor() {
     super();
 
-    this.anchorX = NODE_MARGIN + 16;
-    this.anchorY = -6;
+    // this.anchorX = NODE_MARGIN + (this.parent as PPNode)?.nodeWidth - 16;
+    this.anchorX = NODE_MARGIN + 100 - 16;
+    this.anchorY = -10;
 
-    const FrequencyText = new PIXI.Text(
-      this._intervalFrequency.toString(),
-      UPDATEBEHAVIOURHEADER_TEXTSTYLE
-    );
-    FrequencyText.x = this.anchorX - 4;
-    FrequencyText.y = this.anchorY - 5;
-    FrequencyText.resolution = TEXT_RESOLUTION;
-    FrequencyText.alpha = 0.5;
+    this._selectBranch = this.addChild(new PIXI.Graphics());
 
-    this._frequencyRef = this.addChild(FrequencyText);
-    this._updateRef = this.addChild(new PIXI.Graphics());
-    this._noUpdateRef = this.addChild(new PIXI.Graphics());
+    this.addChild(this._selectBranch);
 
-    this.addChild(this._updateRef);
-    this.addChild(this._noUpdateRef);
-
-    this._updateRef.interactive = true;
-    this._updateRef.buttonMode = true;
-    this._updateRef.on('pointerover', this._onPointerOver.bind(this));
-    this._updateRef.on('pointerout', this._onPointerOut.bind(this));
-    this._updateRef.on('pointerdown', this._onPointerDown.bind(this));
+    this._selectBranch.interactive = true;
+    this._selectBranch.buttonMode = true;
+    this._selectBranch.on('pointerover', this._onPointerOver.bind(this));
+    this._selectBranch.on('pointerout', this._onPointerOut.bind(this));
+    this._selectBranch.on('pointerdown', this._onPointerDown.bind(this));
 
     this.redrawAnythingChanging();
   }
 
   redrawAnythingChanging(): void {
     // reset
-    this._updateRef.clear();
-    this._noUpdateRef.clear();
-    this._frequencyRef.text = '';
+    this._selectBranch.clear();
 
     // update now button
-    let offsetX = 0;
     const color = TRgba.fromString(COLOR_DARK);
-    this._updateRef.beginFill(color.hexNumber(), 0.01);
-    this._updateRef.drawCircle(this.anchorX, this.anchorY, 6);
-    this._updateRef.endFill();
-    this._updateRef.beginFill(color.hexNumber(), color.a);
+    this._selectBranch.beginFill(color.hexNumber(), 0.01);
+    this._selectBranch.drawRoundedRect(this.anchorX, this.anchorY, 10, 10, 2);
+    this._selectBranch.endFill();
+    this._selectBranch.beginFill(color.hexNumber(), color.a);
     if (this.hover) {
-      this._updateRef.lineStyle(2, color.hexNumber(), 0.5, 1);
-      this._updateRef.drawCircle(this.anchorX, this.anchorY, 4);
+      this._selectBranch.lineStyle(2, color.hexNumber(), 0.5, 1);
+      this._selectBranch.drawRoundedRect(this.anchorX, this.anchorY, 8, 8, 2);
     } else if (this.hoverNode) {
-      this._updateRef.lineStyle(1, color.hexNumber(), 0.1, 1);
-      this._updateRef.drawCircle(this.anchorX, this.anchorY, 4);
+      this._selectBranch.lineStyle(1, color.hexNumber(), 0.1, 1);
+      this._selectBranch.drawRoundedRect(this.anchorX, this.anchorY, 8, 8, 2);
     }
-    this._updateRef.lineStyle(0);
-    this._updateRef.endFill();
-
-    // no update shape
-    offsetX += 12;
-    this._noUpdateRef.beginFill(color.hexNumber(), 0.5);
-    this._noUpdateRef.drawRect(
-      offsetX + this.anchorX - 4,
-      this.anchorY - 4,
-      8,
-      8
-    );
-    this._noUpdateRef.endFill();
+    this._selectBranch.lineStyle(0);
+    this._selectBranch.endFill();
   }
 
   get hover(): boolean {
@@ -127,6 +92,8 @@ export default class NodeSelectionHeaderClass extends PIXI.Container {
   }
 
   _onPointerDown(): void {
-    this.getNode().executeOptimizedChain();
+    this.getGraph().selection.selectNodes(
+      Object.values(this.getNode().getDownstreamNodes())
+    );
   }
 }
