@@ -21,4 +21,8 @@ export class BooleanType extends AbstractType {
   getInputWidget = (data: any): any => {
     return <BooleanWidget {...data} />;
   };
+
+  defaultInputNodeWidget(): string {
+    return 'WidgetSwitch';
+  }
 }

@@ -2,6 +2,7 @@ import * as PIXI from 'pixi.js';
 import Color from 'color';
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
+import PPSocket from '../classes/SocketClass';
 import { CustomArgs, TRgba } from '../utils/interfaces';
 import {
   COLOR,
@@ -13,6 +14,7 @@ import {
   NOTE_MARGIN_STRING,
   NOTE_PADDING,
   NOTE_TEXTURE,
+  SOCKET_TYPE,
   SOCKET_WIDTH,
 } from '../utils/constants';
 import textFit from '../pixi/textFit';
@@ -26,9 +28,48 @@ export class Label extends PPNode {
   currentInput: HTMLDivElement;
   createInputElement: () => void;
 
-  constructor(name: string, graph: PPGraph, customArgs?: CustomArgs) {
+  public getName(): string {
+    return 'Label';
+  }
+
+  public getDescription(): string {
+    return 'Adds a text label';
+  }
+
+  protected getDefaultIO(): PPSocket[] {
     const nodeWidth = 128;
     const fontSize = 32;
+    const fillColor = COLOR[5];
+
+    return [
+      new PPSocket(SOCKET_TYPE.OUT, 'Output', new StringType(), false),
+      new PPSocket(SOCKET_TYPE.IN, 'Input', new StringType(), '', false),
+      new PPSocket(
+        SOCKET_TYPE.IN,
+        'fontSize',
+        new NumberType(true, 1),
+        fontSize,
+        false
+      ),
+      new PPSocket(
+        SOCKET_TYPE.IN,
+        'backgroundColor',
+        new ColorType(),
+        TRgba.fromString(fillColor),
+        false
+      ),
+      new PPSocket(
+        SOCKET_TYPE.IN,
+        'min-width',
+        new NumberType(true, 1),
+        nodeWidth,
+        false
+      ),
+    ].concat(super.getDefaultIO());
+  }
+
+  constructor(name: string, graph: PPGraph, customArgs?: CustomArgs) {
+    const nodeWidth = 128;
     const fillColor = COLOR[5];
 
     super(name, graph, {
@@ -47,30 +88,6 @@ export class Label extends PPNode {
     const basicText = new PIXI.Text('', this._refTextStyle);
     this._refText = canvas.addChild(basicText);
     this._refText.visible = false;
-
-    this.addOutput('Output', new StringType(), false);
-    this.addInput('Input', new StringType(), customArgs?.data ?? '', false);
-    this.addInput(
-      'fontSize',
-      new NumberType(true, 1),
-      customArgs?.fontSize ?? fontSize,
-      false
-    );
-    this.addInput(
-      'backgroundColor',
-      new ColorType(),
-      TRgba.fromString(fillColor),
-      false
-    );
-    this.addInput(
-      'min-width',
-      new NumberType(true, 1),
-      customArgs?.width ?? nodeWidth,
-      false
-    );
-
-    this.name = 'Label';
-    this.description = 'Adds a text label';
 
     // when the Node is added, focus it so one can start writing
     this.onNodeAdded = () => {
@@ -266,17 +283,6 @@ export class Note extends PPNode {
       roundedCorners: false,
       showLabels: false,
     });
-
-    this.addOutput('Output', new StringType(), false);
-    this.addInput(
-      'Input',
-      new StringType(),
-      customArgs?.data ?? 'Write away...',
-      false
-    );
-
-    this.name = 'Note';
-    this.description = 'Adds a note';
 
     this.currentInput = null;
     this.fontSize = baseFontSize;
@@ -503,5 +509,26 @@ export class Note extends PPNode {
         }
       }
     };
+  }
+
+  public getName(): string {
+    return 'Note';
+  }
+
+  public getDescription(): string {
+    return 'Adds a note';
+  }
+
+  protected getDefaultIO(): PPSocket[] {
+    return [
+      new PPSocket(SOCKET_TYPE.OUT, 'Output', new StringType(), false),
+      new PPSocket(
+        SOCKET_TYPE.IN,
+        'Input',
+        new StringType(),
+        'Write away...',
+        false
+      ),
+    ].concat(super.getDefaultIO());
   }
 }

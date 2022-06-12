@@ -2,15 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { LazyLog, ScrollFollow } from 'react-lazylog';
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
+import PPSocket from '../classes/SocketClass';
 import { CustomArgs, TRgba } from '../utils/interfaces';
 import { CodeType } from './datatypes/codeType';
 import { NumberType } from './datatypes/numberType';
-import { NODE_TYPE_COLOR } from '../utils/constants';
+import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../utils/constants';
 
 export class LogViewer extends PPNode {
-  protected getIsHybrid(): boolean {
-    return true;
-  }
   constructor(name: string, graph: PPGraph, customArgs?: CustomArgs) {
     const nodeWidth = 640;
     const nodeHeight = 240;
@@ -21,12 +19,6 @@ export class LogViewer extends PPNode {
       nodeWidth,
       nodeHeight,
     });
-
-    this.addInput('input', new CodeType(), customArgs?.data, true);
-    this.addInput('rowLimit', new NumberType(true, 1, 1000), 100, false);
-
-    this.name = 'LogViewer';
-    this.description = 'View your logs';
 
     // when the Node is added, add the container and react component
     this.onNodeAdded = () => {
@@ -79,5 +71,34 @@ export class LogViewer extends PPNode {
         />
       );
     };
+  }
+
+  public getName(): string {
+    return 'LogViewer';
+  }
+
+  public getDescription(): string {
+    return 'View your logs';
+  }
+
+  protected getDefaultIO(): PPSocket[] {
+    return [
+      new PPSocket(SOCKET_TYPE.IN, 'input', new CodeType(), '', true),
+      new PPSocket(
+        SOCKET_TYPE.IN,
+        'rowLimit',
+        new NumberType(true, 1, 1000),
+        100,
+        false
+      ),
+    ];
+  }
+
+  protected getIsHybrid(): boolean {
+    return true;
+  }
+
+  protected getActivateByDoubleClick(): boolean {
+    return true;
   }
 }

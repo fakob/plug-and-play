@@ -40,7 +40,11 @@ import GraphOverlay from './components/GraphOverlay';
 import ErrorFallback from './components/ErrorFallback';
 import PixiContainer from './PixiContainer';
 import { Image as ImageNode } from './nodes/image/image';
-import { GraphContextMenu, NodeContextMenu } from './components/ContextMenus';
+import {
+  GraphContextMenu,
+  NodeContextMenu,
+  SocketContextMenu,
+} from './components/ContextMenus';
 import { GraphDatabase } from './utils/indexedDB';
 import PPGraph from './classes/GraphClass';
 import {
@@ -123,6 +127,8 @@ const App = (): JSX.Element => {
   const [isNodeSearchVisible, setIsNodeSearchVisible] = useState(false);
   const [isGraphContextMenuOpen, setIsGraphContextMenuOpen] = useState(false);
   const [isNodeContextMenuOpen, setIsNodeContextMenuOpen] = useState(false);
+  const [isSocketContextMenuOpen, setIsSocketContextMenuOpen] = useState(false);
+  const [selectedSocket, setSelectedSocket] = useState<PPSocket | null>(null);
   const [contextMenuPosition, setContextMenuPosition] = useState([0, 0]);
   const [isCurrentGraphLoaded, setIsCurrentGraphLoaded] = useState(false);
   const [actionObject, setActionObject] = useState(null); // id and name of graph to edit/delete
@@ -508,21 +514,30 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     ) => {
       setIsGraphContextMenuOpen(false);
       setIsNodeContextMenuOpen(false);
-      setContextMenuPosition([
-        Math.min(window.innerWidth - 248, event.data.global.x),
-        Math.min(window.innerHeight - 600, event.data.global.y),
-      ]);
+      setIsSocketContextMenuOpen(false);
       console.log(event, target, event.data.global);
+      const contextMenuPosX = Math.min(
+        window.innerWidth - 248,
+        event.data.global.x
+      );
+      const contextMenuPosY = (offset: number) => {
+        return Math.min(window.innerHeight - offset, event.data.global.y);
+      };
       switch (true) {
-        case target instanceof PPSocket:
+        case target.parent instanceof PPSocket && target instanceof PIXI.Text:
           console.log('app right click, socket');
+          setContextMenuPosition([contextMenuPosX, contextMenuPosY(80)]);
+          setSelectedSocket(target.parent as PPSocket);
+          setIsSocketContextMenuOpen(true);
           break;
         case target instanceof PPNode:
           console.log('app right click, node');
+          setContextMenuPosition([contextMenuPosX, contextMenuPosY(220)]);
           setIsNodeContextMenuOpen(true);
           break;
         case target instanceof Viewport:
           console.log('app right click, viewport');
+          setContextMenuPosition([contextMenuPosX, contextMenuPosY(80)]);
           setIsGraphContextMenuOpen(true);
           break;
         default:
@@ -539,6 +554,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     ) => {
       setIsGraphContextMenuOpen(false);
       setIsNodeContextMenuOpen(false);
+      setIsSocketContextMenuOpen(false);
       setContextMenuPosition([
         Math.min(window.innerWidth - 248, event.data.global.x),
         Math.min(window.innerHeight - 432, event.data.global.y),
@@ -596,6 +612,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         setIsNodeSearchVisible(false);
         setIsGraphContextMenuOpen(false);
         setIsNodeContextMenuOpen(false);
+        setIsSocketContextMenuOpen(false);
       }
     };
     window.addEventListener('keydown', keysDown.bind(this));
@@ -1265,6 +1282,7 @@ NOTE: save the playground after loading, if you want to make changes to it`
         onClick={() => {
           isGraphContextMenuOpen && setIsGraphContextMenuOpen(false);
           isNodeContextMenuOpen && setIsNodeContextMenuOpen(false);
+          isSocketContextMenuOpen && setIsSocketContextMenuOpen(false);
           isGraphSearchOpen && setIsGraphSearchOpen(false);
         }}
       >
@@ -1362,6 +1380,14 @@ NOTE: save the playground after loading, if you want to make changes to it`
               contextMenuPosition={contextMenuPosition}
               currentGraph={currentGraph}
               zoomToFitSelection={zoomToFitSelection}
+            />
+          )}
+          {isSocketContextMenuOpen && (
+            <SocketContextMenu
+              controlOrMetaKey={controlOrMetaKey}
+              contextMenuPosition={contextMenuPosition}
+              currentGraph={currentGraph}
+              selectedSocket={selectedSocket}
             />
           )}
           <PixiContainer ref={pixiContext} />

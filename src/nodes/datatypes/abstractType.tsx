@@ -53,8 +53,15 @@ export class AbstractType {
     return data;
   }
 
-  onDataSet(data : any, socket: Socket) : void {
+  onDataSet(data: any, socket: Socket): void {
     return;
   }
 
+  defaultInputNodeWidget(): undefined | string {
+    return undefined;
+  }
+
+  defaultOutputNodeWidget(): string {
+    return 'Label';
+  }
 }

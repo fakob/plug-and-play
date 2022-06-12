@@ -83,7 +83,9 @@ export default class Socket extends PIXI.Container {
     this._SocketNameRef.on('pointerover', this._onPointerOver.bind(this));
     this._SocketNameRef.on('pointerout', this._onPointerOut.bind(this));
     this._SocketNameRef.on('pointerdown', (event) => {
-      this.getGraph().socketNameRefMouseDown(this, event);
+      if (event.data.button !== 2) {
+        this.getGraph().socketNameRefMouseDown(this, event);
+      }
     });
     this.redrawAnythingChanging();
   }
@@ -293,10 +295,13 @@ export default class Socket extends PIXI.Container {
   _onPointerDown(event: PIXI.InteractionEvent): void {
     this.getGraph().socketMouseDown(this, event);
   }
+
   _onPointerUp(event: PIXI.InteractionEvent): void {
     this.getGraph().socketMouseUp(this, event);
   }
+
   destroy(): void {
+    this.removeLink();
     this.getNode().inputSocketArray = this.getNode().inputSocketArray.filter(
       (socket) =>
         !(socket.name === this.name && socket.socketType === this.socketType)

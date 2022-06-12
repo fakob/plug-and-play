@@ -1,6 +1,6 @@
 import PPNode from '../../classes/NodeClass';
-import Graph from '../../classes/GraphClass';
-import Socket from '../../classes/SocketClass';
+import PPGraph from '../../classes/GraphClass';
+import PPSocket from '../../classes/SocketClass';
 import { SOCKET_TYPE } from '../../utils/constants';
 import { AnyType } from '../datatypes/anyType';
 import { ArrayType } from '../datatypes/arrayType';
@@ -21,10 +21,10 @@ const endIndexName = 'End';
 const shouldUseEnd = 'Slice End';
 
 export class ArrayCreate extends PPNode {
-  protected getDefaultIO(): Socket[] {
+  protected getDefaultIO(): PPSocket[] {
     return [
-      new Socket(SOCKET_TYPE.IN, elementName, new AnyType()),
-      new Socket(SOCKET_TYPE.OUT, arrayName, new ArrayType()),
+      new PPSocket(SOCKET_TYPE.IN, elementName, new AnyType()),
+      new PPSocket(SOCKET_TYPE.OUT, arrayName, new ArrayType()),
     ];
   }
   protected async onExecute(
@@ -41,17 +41,17 @@ export class ArrayCreate extends PPNode {
 }
 
 export class ArrayGet extends PPNode {
-  protected getDefaultIO(): Socket[] {
+  protected getDefaultIO(): PPSocket[] {
     return [
-      new Socket(SOCKET_TYPE.IN, arrayName, new ArrayType()),
-      new Socket(
+      new PPSocket(SOCKET_TYPE.IN, arrayName, new ArrayType()),
+      new PPSocket(
         SOCKET_TYPE.IN,
         indexName,
         new NumberType(true, 0, 10),
         0,
         true
       ),
-      new Socket(SOCKET_TYPE.OUT, elementName, new AnyType()),
+      new PPSocket(SOCKET_TYPE.OUT, elementName, new AnyType()),
     ];
   }
   protected async onExecute(
@@ -62,26 +62,26 @@ export class ArrayGet extends PPNode {
   }
 }
 export class ArraySlice extends PPNode {
-  protected getDefaultIO(): Socket[] {
+  protected getDefaultIO(): PPSocket[] {
     console.log('GETTIN IT');
     return [
-      new Socket(SOCKET_TYPE.IN, arrayName, new ArrayType()),
-      new Socket(
+      new PPSocket(SOCKET_TYPE.IN, arrayName, new ArrayType()),
+      new PPSocket(
         SOCKET_TYPE.IN,
         beginIndexName,
         new NumberType(true, 0, 10),
         0,
         true
       ),
-      new Socket(
+      new PPSocket(
         SOCKET_TYPE.IN,
         endIndexName,
         new NumberType(true, 0, 10),
         0,
         true
       ),
-      new Socket(SOCKET_TYPE.IN, shouldUseEnd, new BooleanType(), false),
-      new Socket(SOCKET_TYPE.OUT, arrayName, new ArrayType()),
+      new PPSocket(SOCKET_TYPE.IN, shouldUseEnd, new BooleanType(), false),
+      new PPSocket(SOCKET_TYPE.OUT, arrayName, new ArrayType()),
     ];
   }
   protected async onExecute(
@@ -103,10 +103,10 @@ export class ArraySlice extends PPNode {
 }
 
 export class ArrayLength extends PPNode {
-  protected getDefaultIO(): Socket[] {
+  protected getDefaultIO(): PPSocket[] {
     return [
-      new Socket(SOCKET_TYPE.IN, arrayName, new ArrayType()),
-      new Socket(SOCKET_TYPE.OUT, arrayLength, new NumberType()),
+      new PPSocket(SOCKET_TYPE.IN, arrayName, new ArrayType()),
+      new PPSocket(SOCKET_TYPE.OUT, arrayLength, new NumberType()),
     ];
   }
   protected async onExecute(
@@ -118,11 +118,11 @@ export class ArrayLength extends PPNode {
 }
 
 export class ArrayPush extends PPNode {
-  protected getDefaultIO(): Socket[] {
+  protected getDefaultIO(): PPSocket[] {
     return [
-      new Socket(SOCKET_TYPE.IN, arrayName, new ArrayType()),
-      new Socket(SOCKET_TYPE.IN, elementName, new AnyType()),
-      new Socket(SOCKET_TYPE.OUT, arrayName, new ArrayType()),
+      new PPSocket(SOCKET_TYPE.IN, arrayName, new ArrayType()),
+      new PPSocket(SOCKET_TYPE.IN, elementName, new AnyType()),
+      new PPSocket(SOCKET_TYPE.OUT, arrayName, new ArrayType()),
     ];
   }
   protected async onExecute(
@@ -137,43 +137,15 @@ export class ArrayPush extends PPNode {
 
 export class ArrayMethod extends PPNode {
   onOptionChange?: (value: string) => void;
-  constructor(name: string, graph: Graph, customArgs: CustomArgs) {
+  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
     super(name, graph, {
       ...customArgs,
       color: TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM),
     });
 
-    const arrayMethodsArray = getMethods(new Array(1));
-    const arrayMethodsArrayOptions = arrayMethodsArray
-      .sort()
-      .map((methodName) => {
-        return {
-          text: methodName,
-          value: methodName,
-        };
-      });
-
     this.onOptionChange = (value) => {
       this.nodeName = 'Array.' + value;
     };
-
-    this.addInput('Array', new ArrayType());
-    this.addInput(
-      'Method',
-      new EnumType(arrayMethodsArrayOptions, this.onOptionChange),
-      'map',
-      false
-    );
-    this.addInput(
-      'Callback',
-      new CodeType(),
-      '(item, index) => `${index}: ${item}`',
-      false
-    );
-    this.addOutput('Output', new AnyType());
-
-    this.name = 'Array method';
-    this.description = 'Perform common array operations';
 
     this.onExecute = async function (
       inputObject: any,
@@ -185,5 +157,44 @@ export class ArrayMethod extends PPNode {
       const output = array[arrayMethod](eval(callback));
       outputObject['Output'] = output;
     };
+  }
+
+  public getName(): string {
+    return 'Array method';
+  }
+
+  public getDescription(): string {
+    return 'Perform common array operations';
+  }
+
+  protected getDefaultIO(): PPSocket[] {
+    const arrayMethodsArray = getMethods(new Array(1));
+    const arrayMethodsArrayOptions = arrayMethodsArray
+      .sort()
+      .map((methodName) => {
+        return {
+          text: methodName,
+          value: methodName,
+        };
+      });
+
+    return [
+      new PPSocket(SOCKET_TYPE.IN, 'Array', new ArrayType()),
+      new PPSocket(
+        SOCKET_TYPE.IN,
+        'Method',
+        new EnumType(arrayMethodsArrayOptions, this.onOptionChange),
+        'map',
+        false
+      ),
+      new PPSocket(
+        SOCKET_TYPE.IN,
+        'Callback',
+        new CodeType(),
+        '(item, index) => `${index}: ${item}`',
+        false
+      ),
+      new PPSocket(SOCKET_TYPE.OUT, 'Output', new AnyType()),
+    ].concat(super.getDefaultIO());
   }
 }

@@ -29,6 +29,7 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import SensorsIcon from '@mui/icons-material/Sensors';
 import MouseIcon from '@mui/icons-material/Mouse';
 import SwipeIcon from '@mui/icons-material/Swipe';
+import PPSocket from './../classes/SocketClass';
 import { GESTUREMODE } from '../utils/constants';
 
 const useStyles = makeStyles((theme) =>
@@ -370,16 +371,6 @@ export const NodeContextMenu = (props) => {
           </Typography>
         </MenuItem>
         <Divider />
-        <MenuItem
-          onClick={() => {
-            props.currentGraph.current.addTriggerInput();
-          }}
-        >
-          <ListItemIcon>
-            <AddIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Add Trigger Input</ListItemText>
-        </MenuItem>
         {canAddInput && (
           <MenuItem
             onClick={() => {
@@ -403,6 +394,92 @@ export const NodeContextMenu = (props) => {
             </ListItemIcon>
             <ListItemText>Add Output</ListItemText>
           </MenuItem>
+        )}
+        <MenuItem
+          onClick={() => {
+            props.currentGraph.current.addTriggerInput();
+          }}
+        >
+          <ListItemIcon>
+            <AddIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Add Trigger Input</ListItemText>
+        </MenuItem>
+      </MenuList>
+    </Paper>
+  );
+};
+
+export const SocketContextMenu = (props) => {
+  useEffect(() => {
+    window.addEventListener('contextmenu', handleContextMenu);
+  });
+
+  useEffect(() => {
+    return () => {
+      window.removeEventListener('contextmenu', handleContextMenu);
+    };
+  }, []);
+
+  function handleContextMenu(e: Event) {
+    e.preventDefault();
+  }
+
+  const selectedSocket: PPSocket = props.selectedSocket;
+  const isDeletable = !selectedSocket
+    .getNode()
+    .hasSocketNameInDefaultIO(selectedSocket.name, selectedSocket.socketType);
+
+  return (
+    <Paper
+      sx={{
+        width: 240,
+        maxWidth: '100%',
+        position: 'absolute',
+        zIndex: 400,
+        left: props.contextMenuPosition[0],
+        top: props.contextMenuPosition[1],
+      }}
+    >
+      <MenuList dense>
+        {selectedSocket.isInput() && (
+          <MenuItem
+            onClick={() => {
+              props.currentGraph.current.addWidgetNode(selectedSocket);
+            }}
+          >
+            <ListItemIcon>
+              <AddIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Connect widget node</ListItemText>
+          </MenuItem>
+        )}
+        {!selectedSocket.isInput() && (
+          <MenuItem
+            onClick={() => {
+              props.currentGraph.current.addWidgetNode(selectedSocket);
+            }}
+          >
+            <ListItemIcon>
+              <AddIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Connect label node</ListItemText>
+          </MenuItem>
+        )}
+        {isDeletable && (
+          <>
+            <Divider />
+            <MenuItem
+              onClick={() => {
+                selectedSocket.destroy();
+              }}
+            >
+              <ListItemIcon>
+                <DeleteIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Delete Socket</ListItemText>
+            </MenuItem>
+          </>
         )}
       </MenuList>
     </Paper>

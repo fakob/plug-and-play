@@ -63,4 +63,8 @@ export class NumberType extends AbstractType {
   getColor(): TRgba {
     return new TRgba(128, 229, 229);
   }
+
+  defaultInputNodeWidget(): string {
+    return 'WidgetSlider';
+  }
 }
