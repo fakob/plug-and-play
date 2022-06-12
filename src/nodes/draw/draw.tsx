@@ -260,40 +260,44 @@ export class DRAW_Shape extends DRAW_Base {
         this.getAndIncrementExecutions(executions)
       ],
     };
-    const width = inputObject[inputWidthName] ?? 0;
-    const height = inputObject[inputHeightName] ?? 0;
-    const graphics: PIXI.Graphics = new PIXI.Graphics();
-    const selectedColor: TRgba = new ColorType().parse(
-      inputObject[inputColorName]
-    );
-    const drawBorder = inputObject[inputBorderName];
-    graphics.beginFill(selectedColor.hexNumber());
-    graphics.lineStyle(
-      drawBorder ? 3 : 0,
-      selectedColor.multiply(0.7).hexNumber()
-    );
+    const width = inputObject[inputWidthName];
+    const height = inputObject[inputHeightName];
+    if (Number.isFinite(width) && Number.isFinite(height)) {
+      const graphics: PIXI.Graphics = new PIXI.Graphics();
+      const selectedColor: TRgba = new ColorType().parse(
+        inputObject[inputColorName]
+      );
+      const drawBorder = inputObject[inputBorderName];
+      graphics.beginFill(selectedColor.hexNumber());
+      graphics.lineStyle(
+        drawBorder ? 3 : 0,
+        selectedColor.multiply(0.7).hexNumber()
+      );
 
-    const shapeEnum = inputObject[inputShapeName];
-    switch (shapeEnum) {
-      case 'Circle': {
-        graphics.drawCircle(width / 2, width / 2, width / 2);
-        break;
+      const shapeEnum = inputObject[inputShapeName];
+      switch (shapeEnum) {
+        case 'Circle': {
+          graphics.drawCircle(width / 2, width / 2, width / 2);
+          break;
+        }
+        case 'Rectangle': {
+          graphics.drawRect(0, 0, width, height);
+          break;
+        }
+        case 'Rounded Rectangle': {
+          graphics.drawRoundedRect(0, 0, width, height, width * 0.1);
+          break;
+        }
+        case 'Ellipse': {
+          graphics.drawEllipse(width / 2, height / 2, width / 2, height / 2);
+          break;
+        }
       }
-      case 'Rectangle': {
-        graphics.drawRect(0, 0, width, height);
-        break;
-      }
-      case 'Rounded Rectangle': {
-        graphics.drawRoundedRect(0, 0, width, height, width * 0.1);
-        break;
-      }
-      case 'Ellipse': {
-        graphics.drawEllipse(width / 2, height / 2, width / 2, height / 2);
-        break;
-      }
+      this.positionAndScale(graphics, inputObject);
+      container.addChild(graphics);
+    } else {
+      throw new Error('The value for width or height is invalid.');
     }
-    this.positionAndScale(graphics, inputObject);
-    container.addChild(graphics);
   }
 }
 
