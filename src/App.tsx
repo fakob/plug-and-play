@@ -810,7 +810,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
   function saveGraph(saveNew = false, newName = undefined) {
     const serializedGraph = currentGraph.current.serialize();
     console.log(serializedGraph);
-    console.info(serializedGraph.customNodeTypes);
     db.transaction('rw', db.graphs, db.settings, async () => {
       const graphs = await db.graphs.toArray();
       const loadedGraphId = await getSetting(db, 'loadedGraphId');
@@ -963,24 +962,27 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       contextMenuPosition[0],
       contextMenuPosition[1]
     );
-    if (selected.isNew) {
-      currentGraph.current.createOrUpdateNodeFromCode(
-        undefined,
-        selected.title,
+
+    const nodeExists =
+      currentGraph.current.registeredNodeTypes[selected.title] !== undefined;
+    if (nodeExists) {
+      currentGraph.current.createAndAddNode(selected.title, {
+        nodePosX: nodePos.x,
+        nodePosY: nodePos.y,
+        addLink,
+      });
+    } else {
+      const addedNode = currentGraph.current.createAndAddNode(
+        'CustomFunction',
         {
           nodePosX: nodePos.x,
           nodePosY: nodePos.y,
           addLink,
         }
       );
-      selected.isNew = undefined;
-    } else {
-      currentGraph.current.createAndAddNode(selected.title, {
-        nodePosX: nodePos.x,
-        nodePosY: nodePos.y,
-        addLink,
-      });
+      addedNode.nodeName = selected.title;
     }
+
     setNodeSearchActiveItem(selected);
     setIsNodeSearchVisible(false);
   };

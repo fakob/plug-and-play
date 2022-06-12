@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import * as PIXI from 'pixi.js';
-import strip from 'strip-comments';
 import { Viewport } from 'pixi-viewport';
+
 import { OptionsObject, SnackbarMessage } from 'notistack';
 import {
   DEFAULT_EDITOR_DATA,
@@ -32,7 +32,6 @@ export default class PPGraph {
 
   _links: { [key: number]: PPLink };
   _registeredNodeTypes: RegisteredNodeTypes;
-  customNodeTypes: Record<string, string>;
 
   _showComments: boolean;
   selectedSourceSocket: null | PPSocket;
@@ -373,14 +372,6 @@ export default class PPGraph {
     };
   }
 
-  registerCustomNodeType(code: string): string {
-    const func = this.convertStringToFunction(code);
-    const nodeConstructor = this.convertFunctionToNodeConstructor(func);
-    // register or update node type
-    this.registerNodeType(func.name, nodeConstructor);
-    return func.name;
-  }
-
   createNode<T extends PPNode = PPNode>(
     type: string,
     customArgs?: CustomArgs
@@ -589,9 +580,6 @@ export default class PPGraph {
 
     // remove selected nodes
     this.selection.deselectAllNodesAndResetSelection();
-
-    // remove custom node types
-    this.customNodeTypes = {};
   }
 
   async duplicateSelection(): Promise<PPNode[]> {
@@ -703,7 +691,6 @@ export default class PPGraph {
       },
       nodes: nodesSerialized,
       links: linksSerialized,
-      customNodeTypes: this.customNodeTypes,
     };
 
     return data;
@@ -739,7 +726,6 @@ export default class PPGraph {
       version: PP_VERSION,
       nodes: nodesSerialized,
       links: linksSerialized,
-      customNodeTypes: this.customNodeTypes,
     };
 
     return data;
@@ -756,18 +742,6 @@ export default class PPGraph {
     }
 
     let configureError = false;
-
-    // register custom node types only
-    // standard nodes types are already registered on load
-    console.log('standard node types: ', this._registeredNodeTypes);
-    if (data.customNodeTypes !== undefined) {
-      Object.values(data?.customNodeTypes).forEach((value) => {
-        this.registerCustomNodeType(value);
-      });
-
-      // store customNodeTypes
-      this.customNodeTypes = data.customNodeTypes;
-    }
 
     // position and scale viewport
     const newX = data.graphSettings.viewportCenterPosition.x ?? 0;
@@ -836,131 +810,6 @@ export default class PPGraph {
         node.tick(currentTime, deltaTime)
       );
     }
-  }
-
-  createOrUpdateNodeFromCode(
-    code = DEFAULT_EDITOR_DATA,
-    newDefaultFunctionName?: string,
-    customArgs?: CustomArgs
-  ): void {
-    let newCode = code;
-    if (newDefaultFunctionName) {
-      newCode = code.replace('customFunctionNode', newDefaultFunctionName);
-    }
-    const functionName = this.registerCustomNodeType(newCode);
-    const isNodeTypeRegistered = this.checkIfFunctionIsRegistered(functionName);
-    console.log('isNodeTypeRegistered: ', isNodeTypeRegistered);
-
-    const nodesWithTheSameType = Object.values(this.nodes).filter(
-      (node) => node.type === functionName
-    );
-
-    // store function code string on graph
-    this.customNodeTypes[functionName] = newCode;
-
-    // do nodes of the same type exist on the graph
-    if (nodesWithTheSameType.length > 0) {
-      nodesWithTheSameType.forEach((node) => {
-        console.log('I am of the same type', node);
-
-        const newNode = this.createAndAddNode(functionName);
-
-        newNode.configure(node.serialize());
-        this.reconnectLinksToNewNode(node, newNode);
-
-        // if the old node was selected, select the new one instead
-        if (this.selection.selectedNodes.includes(node)) {
-          this.selection.selectNodes([newNode], undefined, true);
-        }
-
-        // remove previous node
-        this.removeNode(node);
-      });
-    } else {
-      // canvas is empty and node does not yet exist on graph
-      this.createAndAddNode(functionName, customArgs);
-    }
-  }
-
-  isCustomNode(node: PPNode): boolean {
-    if (node) {
-      return this.customNodeTypes[node.type] !== undefined;
-    }
-  }
-
-  convertStringToFunction(code: string): (...args: any[]) => any {
-    // remove comments and possible empty line from start
-    const cleanCode = strip(code).replaceAll(/^\s*\n/gm, '');
-    // console.log(cleanCode);
-    return new Function('return ' + cleanCode)();
-  }
-
-  checkIfFunctionIsRegistered(functionName: string): boolean {
-    if (this._registeredNodeTypes[functionName] === undefined) {
-      return false;
-    }
-    return true;
-  }
-
-  convertFunctionToNodeConstructor(
-    // type: string, // node name with namespace (e.g.: 'math/sum')
-    func: (...args: any[]) => any,
-    param_types?: string[],
-    return_type?: string
-  ): PPNodeConstructor {
-    const functionName = func.name;
-    const params = Array(func.length);
-    let code = '';
-
-    const names = this.getParameterNames(func);
-    // console.log(names);
-    code += `
-    this.addOutput('out', '${return_type ? return_type : 0}');\n`;
-
-    for (let i = 0; i < names.length; ++i) {
-      code += `
-      this.addInput('${names[i]}', '${
-        param_types && param_types[i] ? param_types[i] : 0
-      }');`;
-    }
-    // console.log(code);
-    // console.log(this);
-    // https://stackoverflow.com/a/46519949
-    const classobj = new Function(
-      'PPNode',
-      `return class ${functionName} extends PPNode {
-    constructor(type, graph, customId) {
-      super(type, graph, customId);
-      ${code}
-    }
-        }
-    `
-    )(PPNode) as PPNodeConstructor;
-    // console.log(classobj);
-    (classobj as any).description = 'Generated from ' + func.name;
-    (classobj as any).prototype.onExecute = function onExecute() {
-      for (let i = 0; i < params.length; ++i) {
-        params[i] = this.getInputDataBySlot(i);
-      }
-      const r = func.apply(this, params);
-      this.setOutputData('out', r);
-    };
-    return classobj;
-  }
-
-  //used to create nodes from wrapping functions
-  getParameterNames(func: any): Array<string> {
-    const parameterArray = (func + '')
-      .replace(/[/][/].*$/gm, '') // strip single-line comments
-      .replace(/\s+/g, '') // strip white space
-      .replace(/[/][*][^/*]*[*][/]/g, '') // strip multi-line comments  /**/
-      .split('){', 1)[0]
-      .replace(/^[^(]*[(]/, '') // extract the parameters
-      .replace(/=[^,]+/g, '') // strip any ES6 defaults
-      .split(',')
-      .filter(Boolean); // split & filter [""]
-    // console.log(parameterArray);
-    return parameterArray;
   }
 
   reconnectLinksToNewNode(oldNode: PPNode, newNode: PPNode): void {

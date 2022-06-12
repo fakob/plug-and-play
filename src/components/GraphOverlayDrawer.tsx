@@ -17,10 +17,6 @@ const GraphOverlayDrawer: React.FunctionComponent<GraphOverlayDrawerProps> = (
   const defaultDrawerWidth = 320;
   const [drawerWidth, setDrawerWidth] = useState(defaultDrawerWidth);
 
-  function createOrUpdateNodeFromCode(code) {
-    props.currentGraph.createOrUpdateNodeFromCode(code);
-  }
-
   return (
     <Box sx={{ position: 'relative' }}>
       <ResponsiveDrawer
@@ -30,12 +26,6 @@ const GraphOverlayDrawer: React.FunctionComponent<GraphOverlayDrawerProps> = (
         selectedNode={
           props.selectedNodes.length > 0 ? props.selectedNodes[0] : null
         }
-        isCustomNode={
-          props.selectedNodes.length > 0
-            ? props.currentGraph.isCustomNode(props.selectedNodes[0])
-            : false
-        }
-        onSave={createOrUpdateNodeFromCode}
         randomMainColor={props.randomMainColor}
       />
     </Box>

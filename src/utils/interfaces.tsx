@@ -29,14 +29,12 @@ export type SerializedGraph = {
   };
   nodes: SerializedNode[];
   links: SerializedLink[];
-  customNodeTypes: Record<string, string>;
 };
 
 export type SerializedSelection = {
   version: number;
   nodes: SerializedNode[];
   links: SerializedLink[];
-  customNodeTypes: Record<string, string>;
 };
 
 export type CustomArgs = {

@@ -22,19 +22,17 @@ import {
   ContentCopy as ContentCopyIcon,
 } from '@mui/icons-material';
 import { styled } from '@mui/styles';
-import { writeDataToClipboard, writeTextToClipboard } from './utils/utils';
+import { writeDataToClipboard } from './utils/utils';
 import styles from './utils/style.module.css';
 import PPGraph from './classes/GraphClass';
 import PPNode from './classes/NodeClass';
 import Socket from './classes/SocketClass';
-import { CodeEditor } from './components/Editor';
 import { AbstractType } from './nodes/datatypes/abstractType';
 import { allDataTypes } from './nodes/datatypes/dataTypesMap';
 
 type PropertyArrayContainerProps = {
   currentGraph: PPGraph;
   selectedNode: PPNode;
-  isCustomNode: boolean;
   onSave?: (code: string) => void;
   randomMainColor: string;
 };
@@ -65,23 +63,6 @@ const StyledAccordionDetails = styled(AccordionDetails)(({ theme }) => ({
 export const PropertyArrayContainer: React.FunctionComponent<
   PropertyArrayContainerProps
 > = (props) => {
-  // const editorRef = useRef<any>();
-  const [codeString, setCodeString] = useState<string | undefined>(
-    props.currentGraph.customNodeTypes[props.selectedNode.type]
-  );
-
-  // leaving this commented here for potential future testing
-  //console.log('recreated propertycontainer');
-
-  useEffect(() => {
-    // update codeString when the type changes
-    const selectedNodeType = props.selectedNode.type;
-    const value = props.currentGraph.customNodeTypes[selectedNodeType];
-    setCodeString(value);
-  }, [props.selectedNode.type]);
-
-  console.log('rendering property array yada');
-
   return (
     <Stack spacing={1}>
       {props.selectedNode.inputSocketArray?.length > 0 && (
@@ -110,44 +91,6 @@ export const PropertyArrayContainer: React.FunctionComponent<
           </StyledAccordionDetails>
         </StyledAccordion>
       )}
-      <StyledAccordion defaultExpanded={props.isCustomNode}>
-        <StyledAccordionSummary>
-          <Box textAlign="center" sx={{ color: 'text.primary' }}>
-            CODE
-          </Box>
-        </StyledAccordionSummary>
-        <StyledAccordionDetails>
-          <Box
-            sx={{ flexGrow: 1, display: 'inline-flex', alignItems: 'center' }}
-          >
-            <Box sx={{ pl: 1, color: 'text.primary' }}>
-              {props.selectedNode.name}:{props.selectedNode.type}
-            </Box>
-            {!props.isCustomNode && (
-              <LockIcon sx={{ pl: '2px', fontSize: '16px', opacity: 0.5 }} />
-            )}
-            <IconButton
-              size="small"
-              onClick={() =>
-                writeTextToClipboard(
-                  codeString ?? props.selectedNode.getSourceCode()
-                )
-              }
-            >
-              <ContentCopyIcon sx={{ pl: 1, fontSize: '16px' }} />
-            </IconButton>
-          </Box>
-          <CodeEditor
-            value={codeString ?? props.selectedNode.getSourceCode()}
-            randomMainColor={props.randomMainColor}
-            onSave={props.onSave}
-            onChange={(value) => {
-              setCodeString(value);
-            }}
-            editable={props.isCustomNode}
-          />
-        </StyledAccordionDetails>
-      </StyledAccordion>
       {props.selectedNode.outputSocketArray?.length > 0 && (
         <StyledAccordion defaultExpanded>
           <StyledAccordionSummary>
