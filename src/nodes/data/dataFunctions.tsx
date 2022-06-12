@@ -1,8 +1,10 @@
 /* eslint-disable @typescript-eslint/no-this-alias */
+import PPGraph from '../../classes/GraphClass';
 import NodeClass from '../../classes/NodeClass';
 import PPNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
-import { SOCKET_TYPE } from '../../utils/constants';
+import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../../utils/constants';
+import { CustomArgs, TRgba } from '../../utils/interfaces';
 import { AnyType } from '../datatypes/anyType';
 import { ArrayType } from '../datatypes/arrayType';
 import { CodeType } from '../datatypes/codeType';
@@ -393,7 +395,7 @@ function getArgumentsFromFunction(inputFunction: string): string[] {
   const res = inputFunction.match(argumentsRegex)[0];
   const cleaned = res.replace('(', '').replace(')', '').replace(' ', '');
   const codeArguments = cleaned.split(',');
-  return codeArguments;
+  return codeArguments.filter((argument) => argument !== '');
 }
 
 function getFunctionFromFunction(inputFunction: string): string {
@@ -413,6 +415,16 @@ export class CustomFunction extends PPNode {
       new Socket(SOCKET_TYPE.OUT, outDataName, new AnyType()),
     ];
   }
+
+  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
+    super(name, graph, {
+      ...customArgs,
+      color: TRgba.fromString(NODE_TYPE_COLOR.DEFAULT),
+    });
+    // added this to make sure all sockets are in place before anything happens (caused visual issues on load before)
+    this.adaptInputs(this.getInputData(anyCodeName));
+  }
+
   protected async onExecute(
     inputObject: any,
     outputObject: Record<string, unknown>
@@ -432,6 +444,7 @@ export class CustomFunction extends PPNode {
       '{' + defineAllVariables
     );
     const node = this;
+
     const res = await eval('async () => ' + functionToExecute)();
     outputObject[outDataName] = res;
   }

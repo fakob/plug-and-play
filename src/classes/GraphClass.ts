@@ -770,13 +770,6 @@ export default class PPGraph {
     }
   }
 
-  checkIfFunctionIsRegistered(functionName: string): boolean {
-    if (this._registeredNodeTypes[functionName] === undefined) {
-      return false;
-    }
-    return true;
-  }
-
   reconnectLinksToNewNode(oldNode: PPNode, newNode: PPNode): void {
     //disconnect inputs
     for (let i = 0; i < oldNode.inputSocketArray.length; i++) {

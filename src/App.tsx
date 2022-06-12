@@ -946,11 +946,26 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       contextMenuPosition[1]
     );
 
-    currentGraph.current.createAndAddNode(selected.title, {
-      nodePosX: nodePos.x,
-      nodePosY: nodePos.y,
-      addLink,
-    });
+    const nodeExists =
+      currentGraph.current.registeredNodeTypes[selected.title] !== undefined;
+    if (nodeExists) {
+      currentGraph.current.createAndAddNode(selected.title, {
+        nodePosX: nodePos.x,
+        nodePosY: nodePos.y,
+        addLink,
+      });
+    } else {
+      const addedNode = currentGraph.current.createAndAddNode(
+        'CustomFunction',
+        {
+          nodePosX: nodePos.x,
+          nodePosY: nodePos.y,
+          addLink,
+        }
+      );
+      addedNode.nodeName = selected.title;
+    }
+
     setNodeSearchActiveItem(selected);
     setIsNodeSearchVisible(false);
   };
