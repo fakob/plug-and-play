@@ -73,11 +73,11 @@ export class Table extends PPNode {
     ];
   }
 
-  constructor(name: string, graph: PPGraph, customArgs?: CustomArgs) {
+  constructor(name: string, customArgs?: CustomArgs) {
     const nodeWidth = 800;
     const nodeHeight = 400;
 
-    super(name, graph, {
+    super(name, {
       ...customArgs,
       nodeWidth,
       nodeHeight,

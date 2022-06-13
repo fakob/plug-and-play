@@ -24,8 +24,8 @@ import { EnumType } from './datatypes/enumType';
 import { BooleanType } from './datatypes/booleanType';
 
 export class Placeholder extends PPNode {
-  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, {
+  constructor(name: string, customArgs: CustomArgs) {
+    super(name, {
       ...customArgs,
       color: TRgba.fromString(NODE_TYPE_COLOR.MISSING),
     });
@@ -49,7 +49,7 @@ export class Mouse extends PPNode {
   };
   onViewportMove = (event: PIXI.InteractionEvent): void => {
     const screen = event.data.global;
-    const world = this.graph.viewport.toWorld(screen.x, screen.y);
+    const world = PPGraph.currentGraph.viewport.toWorld(screen.x, screen.y);
     const buttons = event.data.buttons;
     this.setOutputData('screen-x', screen.x);
     this.setOutputData('screen-y', screen.y);
@@ -58,8 +58,8 @@ export class Mouse extends PPNode {
     this.setOutputData('buttons', buttons);
   };
 
-  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, {
+  constructor(name: string, customArgs: CustomArgs) {
+    super(name, {
       ...customArgs,
       color: TRgba.fromString(NODE_TYPE_COLOR.INPUT),
     });
@@ -87,18 +87,24 @@ export class Mouse extends PPNode {
   onNodeAdded = (): void => {
     // add event listener
     this.onViewportMoveHandler = this.onViewportMove.bind(this);
-    this.graph.viewport.on('pointermove', (this as any).onViewportMoveHandler);
-
-    this.onViewportZoomedHandler = this.onViewportZoomed.bind(this);
-    this.graph.viewport.on('zoomed', (this as any).onViewportZoomedHandler);
-  };
-
-  onNodeRemoved = (): void => {
-    this.graph.viewport.removeListener(
+    PPGraph.currentGraph.viewport.on(
       'pointermove',
       (this as any).onViewportMoveHandler
     );
-    this.graph.viewport.removeListener(
+
+    this.onViewportZoomedHandler = this.onViewportZoomed.bind(this);
+    PPGraph.currentGraph.viewport.on(
+      'zoomed',
+      (this as any).onViewportZoomedHandler
+    );
+  };
+
+  onNodeRemoved = (): void => {
+    PPGraph.currentGraph.viewport.removeListener(
+      'pointermove',
+      (this as any).onViewportMoveHandler
+    );
+    PPGraph.currentGraph.viewport.removeListener(
       'zoomed',
       (this as any).onViewportZoomedHandler
     );
@@ -131,8 +137,8 @@ export class Keyboard extends PPNode {
     }
   };
 
-  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, {
+  constructor(name: string, customArgs: CustomArgs) {
+    super(name, {
       ...customArgs,
       color: TRgba.fromString(NODE_TYPE_COLOR.INPUT),
     });
@@ -180,8 +186,8 @@ export class Keyboard extends PPNode {
 }
 
 export class GridCoordinates extends PPNode {
-  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, {
+  constructor(name: string, customArgs: CustomArgs) {
+    super(name, {
       ...customArgs,
       color: TRgba.fromString(NODE_TYPE_COLOR.INPUT),
     });
@@ -239,8 +245,8 @@ export class GridCoordinates extends PPNode {
 }
 
 export class ColorArray extends PPNode {
-  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, {
+  constructor(name: string, customArgs: CustomArgs) {
+    super(name, {
       ...customArgs,
       color: TRgba.fromString(NODE_TYPE_COLOR.INPUT),
     });
@@ -279,8 +285,8 @@ export class ColorArray extends PPNode {
 }
 
 export class RangeArray extends PPNode {
-  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, {
+  constructor(name: string, customArgs: CustomArgs) {
+    super(name, {
       ...customArgs,
       color: TRgba.fromString(NODE_TYPE_COLOR.INPUT),
     });
@@ -315,8 +321,8 @@ export class RangeArray extends PPNode {
 }
 
 export class RandomArray extends PPNode {
-  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, {
+  constructor(name: string, customArgs: CustomArgs) {
+    super(name, {
       ...customArgs,
       color: TRgba.fromString(NODE_TYPE_COLOR.INPUT),
     });
@@ -363,8 +369,8 @@ export class RandomArray extends PPNode {
 }
 
 export class DateAndTime extends PPNode {
-  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, {
+  constructor(name: string, customArgs: CustomArgs) {
+    super(name, {
       ...customArgs,
       color: TRgba.fromString(NODE_TYPE_COLOR.INPUT),
     });
@@ -415,8 +421,8 @@ export class DateAndTime extends PPNode {
 }
 
 export class If_Else extends PPNode {
-  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, {
+  constructor(name: string, customArgs: CustomArgs) {
+    super(name, {
       ...customArgs,
       color: TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM),
     });
@@ -453,8 +459,8 @@ export class If_Else extends PPNode {
 }
 
 export class Comparison extends PPNode {
-  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, {
+  constructor(name: string, customArgs: CustomArgs) {
+    super(name, {
       ...customArgs,
       color: TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM),
     });
@@ -499,8 +505,8 @@ export class Comparison extends PPNode {
 }
 
 export class IsValid extends PPNode {
-  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, {
+  constructor(name: string, customArgs: CustomArgs) {
+    super(name, {
       ...customArgs,
       color: TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM),
     });

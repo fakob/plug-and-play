@@ -50,12 +50,12 @@ export class WidgetButton extends PPNode {
     ];
   }
 
-  constructor(name: string, graph: PPGraph, customArgs?: CustomArgs) {
+  constructor(name: string, customArgs?: CustomArgs) {
     const nodeWidth = 200;
     const nodeHeight = 104;
     const margin = 4;
 
-    super(name, graph, {
+    super(name, {
       ...customArgs,
       nodeWidth,
       nodeHeight,
@@ -100,10 +100,10 @@ export class WidgetButton extends PPNode {
 
     this.onNodeResize = () => {
       this.container.style.width = `${
-        this.nodeWidth - (2 * margin) / this.graph.viewport.scale.x
+        this.nodeWidth - (2 * margin) / PPGraph.currentGraph.viewport.scale.x
       }px`;
       this.container.style.height = `${
-        this.nodeHeight - (2 * margin) / this.graph.viewport.scale.x
+        this.nodeHeight - (2 * margin) / PPGraph.currentGraph.viewport.scale.x
       }px`;
       this.update();
     };
@@ -137,7 +137,8 @@ export class WidgetButton extends PPNode {
               fontSize: '16px',
               border: 0,
               height: `${
-                this.nodeHeight - (2 * margin) / this.graph.viewport.scale.x
+                this.nodeHeight -
+                (2 * margin) / PPGraph.currentGraph.viewport.scale.x
               }px`,
               boxShadow: 16,
               '&:hover': {
@@ -155,10 +156,12 @@ export class WidgetButton extends PPNode {
                 fontSize: '16px',
                 border: 0,
                 width: `${
-                  this.nodeWidth - (8 * margin) / this.graph.viewport.scale.x
+                  this.nodeWidth -
+                  (8 * margin) / PPGraph.currentGraph.viewport.scale.x
                 }px`,
                 height: `${
-                  this.nodeHeight - (8 * margin) / this.graph.viewport.scale.x
+                  this.nodeHeight -
+                  (8 * margin) / PPGraph.currentGraph.viewport.scale.x
                 }px`,
                 borderRadius: `${this.nodeWidth / 16}px`,
                 boxShadow: 16,
@@ -200,12 +203,12 @@ export class WidgetSwitch extends PPNode {
     ];
   }
 
-  constructor(name: string, graph: PPGraph, customArgs?: CustomArgs) {
+  constructor(name: string, customArgs?: CustomArgs) {
     const nodeWidth = 200;
     const nodeHeight = 104;
     const margin = 4;
 
-    super(name, graph, {
+    super(name, {
       ...customArgs,
       nodeWidth,
       nodeHeight,
@@ -250,10 +253,10 @@ export class WidgetSwitch extends PPNode {
 
     this.onNodeResize = () => {
       this.container.style.width = `${
-        this.nodeWidth - (2 * margin) / this.graph.viewport.scale.x
+        this.nodeWidth - (2 * margin) / PPGraph.currentGraph.viewport.scale.x
       }px`;
       this.container.style.height = `${
-        this.nodeHeight - (2 * margin) / this.graph.viewport.scale.x
+        this.nodeHeight - (2 * margin) / PPGraph.currentGraph.viewport.scale.x
       }px`;
       this.update();
     };
@@ -287,7 +290,8 @@ export class WidgetSwitch extends PPNode {
               fontSize: '16px',
               border: 0,
               height: `${
-                this.nodeHeight - (2 * margin) / this.graph.viewport.scale.x
+                this.nodeHeight -
+                (2 * margin) / PPGraph.currentGraph.viewport.scale.x
               }px`,
               boxShadow: 16,
               '&:hover': {
@@ -349,12 +353,12 @@ export class WidgetSlider extends PPNode {
     ];
   }
 
-  constructor(name: string, graph: PPGraph, customArgs?: CustomArgs) {
+  constructor(name: string, customArgs?: CustomArgs) {
     const nodeWidth = 200;
     const nodeHeight = 104;
     const margin = 4;
 
-    super(name, graph, {
+    super(name, {
       ...customArgs,
       nodeWidth,
       nodeHeight,
@@ -410,10 +414,10 @@ export class WidgetSlider extends PPNode {
 
     this.onNodeResize = () => {
       this.container.style.width = `${
-        this.nodeWidth - (2 * margin) / this.graph.viewport.scale.x
+        this.nodeWidth - (2 * margin) / PPGraph.currentGraph.viewport.scale.x
       }px`;
       this.container.style.height = `${
-        this.nodeHeight - (2 * margin) / this.graph.viewport.scale.x
+        this.nodeHeight - (2 * margin) / PPGraph.currentGraph.viewport.scale.x
       }px`;
       this.update();
     };
@@ -470,7 +474,8 @@ export class WidgetSlider extends PPNode {
               fontSize: '16px',
               border: 0,
               height: `${
-                this.nodeHeight - (2 * margin) / this.graph.viewport.scale.x
+                this.nodeHeight -
+                (2 * margin) / PPGraph.currentGraph.viewport.scale.x
               }px`,
               boxShadow: 16,
               '&:hover': {

@@ -126,8 +126,8 @@ export class Shader extends PPNode {
 
   prevWidth = defaultWidth;
   prevHeight = defaultWidth;
-  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, {
+  constructor(name: string, customArgs: CustomArgs) {
+    super(name, {
       ...customArgs,
       color: TRgba.fromString(NODE_TYPE_COLOR.SHADER),
     });
@@ -136,7 +136,7 @@ export class Shader extends PPNode {
     this.description = 'Draws a shader';
 
     this.onNodeAdded = () => {
-      this.canvas = this.graph.viewport.getChildByName(
+      this.canvas = PPGraph.currentGraph.viewport.getChildByName(
         'backgroundCanvas'
       ) as PIXI.Container;
 
@@ -148,7 +148,7 @@ export class Shader extends PPNode {
 
     this.onExecute = async function (input, output): Promise<void> {
       const prevGraphics = this.graphics;
-      //this.removeChild(this.graphics);
+      //this.removeChild(PPGraph.currentGraphics);
 
       const currentTime = new Date().getTime();
 
@@ -245,9 +245,9 @@ export class Shader extends PPNode {
       this.graphics.scale.x = scaleRatio;
       this.graphics.scale.y = scaleRatio;
 
-      //this.graphics.position.set(this.x, this.y);
+      //PPGraph.currentGraphics.position.set(this.x, this.y);
       this.addChild(this.graphics);
-      const base64out = this.graph.app.renderer.plugins.extract.image(
+      const base64out = PPGraph.currentGraph.app.renderer.plugins.extract.image(
         this.graphics
       );
       //await new Promise(resolve => setTimeout(resolve, 100));

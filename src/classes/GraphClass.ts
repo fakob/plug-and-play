@@ -3,35 +3,29 @@ import * as PIXI from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
 
 import { OptionsObject, SnackbarMessage } from 'notistack';
-import {
-  DEFAULT_EDITOR_DATA,
-  NODE_WIDTH,
-  PP_VERSION,
-  SOCKET_TYPE,
-} from '../utils/constants';
+import { NODE_WIDTH, PP_VERSION, SOCKET_TYPE } from '../utils/constants';
 import {
   CustomArgs,
-  PPNodeConstructor,
-  RegisteredNodeTypes,
   SerializedGraph,
   SerializedLink,
   SerializedSelection,
   TSocketType,
 } from '../utils/interfaces';
-import { ensureVisible, getInfoFromRegisteredNode } from '../utils/utils';
+import { ensureVisible } from '../utils/utils';
 import PPNode from './NodeClass';
 import PPSocket from './SocketClass';
 import PPLink from './LinkClass';
 import PPSelection from './SelectionClass';
+import { getAllNodeTypes } from '../nodes/allNodes';
 
 export default class PPGraph {
+  static currentGraph: PPGraph;
   app: PIXI.Application;
   viewport: Viewport;
 
   lastLinkId: number;
 
   _links: { [key: number]: PPLink };
-  _registeredNodeTypes: RegisteredNodeTypes;
 
   _showComments: boolean;
   selectedSourceSocket: null | PPSocket;
@@ -127,10 +121,10 @@ export default class PPGraph {
 
     // clear the stage
     this.clear();
-    this._registeredNodeTypes = {};
 
     // define callbacks
     this.onViewportDragging = (isDraggingViewport: boolean) => {};
+    PPGraph.currentGraph = this;
   }
 
   // SETUP
@@ -337,10 +331,6 @@ export default class PPGraph {
 
   // GETTERS & SETTERS
 
-  get registeredNodeTypes(): RegisteredNodeTypes {
-    return this._registeredNodeTypes;
-  }
-
   set showComments(value: boolean) {
     this._showComments = value;
     Object.values(this.nodes).forEach((node) => node.drawNodeShape());
@@ -357,21 +347,6 @@ export default class PPGraph {
     return this.nodes[id];
   }
 
-  registerNodeType(type: string, nodeConstructor: PPNodeConstructor): void {
-    nodeConstructor.type = type;
-    // console.log('Node registered: ' + type);
-    // console.log(this._registeredNodeTypes);
-
-    // create/update node type
-    const nodeInfo = getInfoFromRegisteredNode(this, type, nodeConstructor);
-    this._registeredNodeTypes[type] = {
-      constructor: nodeConstructor,
-      name: nodeInfo.name,
-      description: nodeInfo.description,
-      hasInputs: nodeInfo.hasInputs,
-    };
-  }
-
   createNode<T extends PPNode = PPNode>(
     type: string,
     customArgs?: CustomArgs
@@ -386,7 +361,7 @@ export default class PPGraph {
       // placeholder nodes use the name field to indicate which node they are a placeholder for
       // check if the replaced node exists now
       name = customArgs?.name ?? type;
-      nodeConstructor = this._registeredNodeTypes[name]?.constructor;
+      nodeConstructor = getAllNodeTypes()[name]?.constructor;
       if (customArgs?.name !== undefined && nodeConstructor) {
         this.onShowSnackbar(
           `A replacement for the placeholder node ${customArgs?.customId} was found. It will be replaced with ${name}.`,
@@ -401,7 +376,7 @@ export default class PPGraph {
       }
     } else {
       name = type;
-      nodeConstructor = this._registeredNodeTypes[type]?.constructor;
+      nodeConstructor = getAllNodeTypes()[type]?.constructor;
     }
 
     if (!nodeConstructor) {
@@ -414,11 +389,11 @@ export default class PPGraph {
         }
       );
       name = type;
-      nodeConstructor = this._registeredNodeTypes['Placeholder']?.constructor;
+      nodeConstructor = getAllNodeTypes()['Placeholder']?.constructor;
       newArgs.name = type;
     }
 
-    const node = new nodeConstructor(name, this, {
+    const node = new nodeConstructor(name, {
       ...customArgs,
       ...newArgs,
       nodePosX: customArgs?.nodePosX ?? this.viewport.center.x - NODE_WIDTH / 2,
@@ -893,5 +868,9 @@ export default class PPGraph {
     Object.values(this.stateSubscriptionNodes).forEach((value) =>
       value.delete(nodeID)
     );
+  }
+
+  static getCurrentGraph(): PPGraph {
+    return PPGraph.currentGraph;
   }
 }

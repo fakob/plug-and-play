@@ -7,8 +7,8 @@ import { NumberType } from './datatypes/numberType';
 import { EnumType } from './datatypes/enumType';
 
 export class MathFunction extends PPNode {
-  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, {
+  constructor(name: string, customArgs: CustomArgs) {
+    super(name, {
       ...customArgs,
       color: TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM),
     });
@@ -89,8 +89,8 @@ export class MathFunction extends PPNode {
 }
 
 class SimpleMathOperation extends PPNode {
-  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, {
+  constructor(name: string, customArgs: CustomArgs) {
+    super(name, {
       ...customArgs,
       color: TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM),
     });

@@ -18,34 +18,50 @@ import * as widgetNodes from './widgets/widgetNodes';
 import * as charts from './draw/charts';
 import * as macro from './macro/macro';
 import * as booleanlogic from './logic/boolean';
+import { getInfoFromRegisteredNode } from '../utils/utils';
+import { RegisteredNodeTypes } from '../utils/interfaces';
 
-export const registerAllNodeTypes = (graph: PPGraph): void => {
-  const categories = {
-    base,
-    math,
-    draw,
-    table,
-    text,
-    logViewer,
-    shader,
-    image,
-    get,
-    array,
-    json,
-    pixotopegateway,
-    dataFunctions,
-    stateNodes,
-    widgetNodes,
-    charts,
-    macro,
-    booleanlogic,
-  };
-  for (const [categoryKey, categoryValue] of Object.entries(categories)) {
-    console.log(categoryKey, categoryValue);
-    for (const key of Object.keys(categoryValue)) {
-      if (categoryValue[key].prototype instanceof PPNode) {
-        graph.registerNodeType(key, categoryValue[key]);
+let allNodesCached = undefined;
+
+export const getAllNodeTypes = (): RegisteredNodeTypes => {
+  if (!allNodesCached) {
+    const categories = {
+      base,
+      math,
+      draw,
+      table,
+      text,
+      logViewer,
+      shader,
+      image,
+      get,
+      array,
+      json,
+      pixotopegateway,
+      dataFunctions,
+      stateNodes,
+      widgetNodes,
+      charts,
+      macro,
+      booleanlogic,
+    };
+    const toReturn = {};
+    for (const [categoryKey, categoryValue] of Object.entries(categories)) {
+      console.log(categoryKey, categoryValue);
+      for (const key of Object.keys(categoryValue)) {
+        const nodeConstructor = categoryValue[key];
+        if (nodeConstructor.prototype instanceof PPNode) {
+          const nodeInfo = getInfoFromRegisteredNode(key, nodeConstructor);
+          toReturn[key] = {
+            constructor: nodeConstructor,
+            name: nodeInfo.name,
+            description: nodeInfo.description,
+            hasInputs: nodeInfo.hasInputs,
+          };
+        }
       }
     }
+    allNodesCached = toReturn;
   }
+  return allNodesCached;
 };

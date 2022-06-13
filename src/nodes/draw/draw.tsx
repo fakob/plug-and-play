@@ -87,8 +87,8 @@ export abstract class DRAW_Base extends PPNode {
     return 'Draw';
   }
 
-  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, {
+  constructor(name: string, customArgs: CustomArgs) {
+    super(name, {
       ...customArgs,
       color: TRgba.fromString(NODE_TYPE_COLOR.DRAW),
     });
@@ -98,7 +98,7 @@ export abstract class DRAW_Base extends PPNode {
   }
 
   onNodeRemoved = (): void => {
-    const canvas = this.graph.viewport.getChildByName(
+    const canvas = PPGraph.currentGraph.viewport.getChildByName(
       'backgroundCanvas'
     ) as PIXI.Container;
 

@@ -53,7 +53,6 @@ export default class PPNode extends PIXI.Container {
   _CommentRef: PIXI.Graphics;
   clickedSocketRef: Socket;
 
-  graph: PPGraph;
   id: string;
   // name: string; // Display name - at first it is the type with spaces - defined on PIXI.Container
   type: string; // Type
@@ -122,9 +121,8 @@ export default class PPNode extends PIXI.Container {
     return this.description;
   }
 
-  constructor(type: string, graph: PPGraph, customArgs?: CustomArgs) {
+  constructor(type: string, customArgs?: CustomArgs) {
     super();
-    this.graph = graph;
     this.id = customArgs?.customId ?? hri.random();
     this.name = type;
     this.type = type;
@@ -208,7 +206,7 @@ export default class PPNode extends PIXI.Container {
   }
 
   get selected(): boolean {
-    return this.graph.selection.isNodeSelected(this);
+    return PPGraph.currentGraph.selection.isNodeSelected(this);
   }
 
   get doubleClicked(): boolean {
@@ -521,7 +519,7 @@ export default class PPNode extends PIXI.Container {
     this.onNodeDragOrViewportMove({
       screenX: screenPoint.x,
       screenY: screenPoint.y,
-      scale: this.graph.viewport.scale.x,
+      scale: PPGraph.currentGraph.viewport.scale.x,
     });
 
     if (this.getIsHybrid()) {
@@ -650,8 +648,8 @@ export default class PPNode extends PIXI.Container {
     this.drawComment();
 
     // update selection
-    if (this.graph.selection.isNodeSelected(this)) {
-      this.graph.selection.drawRectanglesFromSelection();
+    if (PPGraph.currentGraph.selection.isNodeSelected(this)) {
+      PPGraph.currentGraph.selection.drawRectanglesFromSelection();
     }
   }
 
@@ -716,7 +714,7 @@ export default class PPNode extends PIXI.Container {
 
   drawComment(): void {
     this._CommentRef.removeChildren();
-    if (this.graph._showComments) {
+    if (PPGraph.currentGraph._showComments) {
       let commentData = this.outputSocketArray[0]?.dataType?.getComment(
         this.outputSocketArray[0]?.data
       );
@@ -755,7 +753,7 @@ export default class PPNode extends PIXI.Container {
   }
 
   screenPoint(): PIXI.Point {
-    return this.graph.viewport.toScreen(this.x + NODE_MARGIN, this.y);
+    return PPGraph.currentGraph.viewport.toScreen(this.x + NODE_MARGIN, this.y);
   }
 
   // this function
@@ -811,7 +809,7 @@ export default class PPNode extends PIXI.Container {
     this.container.id = `Container-${this.id}`;
 
     const screenPoint = this.screenPoint();
-    const scaleX = this.graph.viewport.scale.x;
+    const scaleX = PPGraph.currentGraph.viewport.scale.x;
     this.container.classList.add(styles.hybridContainer);
     Object.assign(this.container.style, customStyles);
 
@@ -1092,7 +1090,10 @@ export default class PPNode extends PIXI.Container {
     // first assign the bound function to a handler then add this handler as a listener
     // otherwise removeListener won't work (bind creates a new function)
     this.onViewportMoveHandler = this._onViewportMove.bind(this);
-    this.graph.viewport.on('moved', (this as any).onViewportMoveHandler);
+    PPGraph.currentGraph.viewport.on(
+      'moved',
+      (this as any).onViewportMoveHandler
+    );
   }
 
   _onPointerDown(event: PIXI.InteractionEvent): void {
@@ -1107,7 +1108,7 @@ export default class PPNode extends PIXI.Container {
       // select node if the shiftKey is pressed
       // or the node is not yet selected
       if (shiftKey || !this.selected) {
-        this.graph.selection.selectNodes([this], shiftKey, true);
+        PPGraph.currentGraph.selection.selectNodes([this], shiftKey, true);
       }
 
       this.interactionData = event.data;
@@ -1142,7 +1143,7 @@ export default class PPNode extends PIXI.Container {
       const deltaY = targetPoint.y - this.sourcePoint.y;
 
       // move selection
-      this.graph.selection.moveSelection(deltaX, deltaY);
+      PPGraph.currentGraph.selection.moveSelection(deltaX, deltaY);
     }
   }
 
@@ -1152,7 +1153,7 @@ export default class PPNode extends PIXI.Container {
       this.onNodeDragOrViewportMove({
         screenX: screenPoint.x,
         screenY: screenPoint.y,
-        scale: this.graph.viewport.scale.x,
+        scale: PPGraph.currentGraph.viewport.scale.x,
       });
     }
   }
@@ -1161,7 +1162,10 @@ export default class PPNode extends PIXI.Container {
     // console.log('_onRemoved');
 
     // remove added listener from graph.viewport
-    this.graph.viewport.removeListener('moved', this.onViewportMoveHandler);
+    PPGraph.currentGraph.viewport.removeListener(
+      'moved',
+      this.onViewportMoveHandler
+    );
 
     this.getAllSockets().forEach((socket) => {
       socket.links.forEach((link) => link.delete());
@@ -1189,7 +1193,7 @@ export default class PPNode extends PIXI.Container {
     // turn on pointer events for hybrid nodes so the react components become reactive
     if (this.getActivateByDoubleClick()) {
       // register hybrid nodes to listen to outside clicks
-      this.graph.viewport.on(
+      PPGraph.currentGraph.viewport.on(
         'pointerup',
         (this as any).onViewportPointerUpHandler
       );
@@ -1204,7 +1208,7 @@ export default class PPNode extends PIXI.Container {
 
   _onViewportPointerUp(): void {
     // unregister hybrid nodes from listening to outside clicks
-    this.graph.viewport.removeListener(
+    PPGraph.currentGraph.viewport.removeListener(
       'pointerup',
       (this as any).onViewportPointerUpHandler
     );
@@ -1227,7 +1231,7 @@ export default class PPNode extends PIXI.Container {
   }
 
   public async invokeMacro(inputObject: any): Promise<any> {
-    return await this.graph.invokeMacro(inputObject);
+    return await PPGraph.currentGraph.invokeMacro(inputObject);
   }
 
   public metaInfoChanged(): void {

@@ -4,6 +4,7 @@ import { SerializedLink } from '../utils/interfaces';
 import { CONNECTION_COLOR_HEX } from '../utils/constants';
 import Socket from './SocketClass';
 import PPNode from './NodeClass';
+import PPGraph from './GraphClass';
 
 export default class PPLink extends PIXI.Container {
   id: number;
@@ -74,8 +75,8 @@ export default class PPLink extends PIXI.Container {
     source: Socket,
     target: Socket
   ): void {
-    const sourcePoint = source.getNode().graph.getSocketCenter(source);
-    const targetPoint = source.getNode().graph.getSocketCenter(target);
+    const sourcePoint = PPGraph.currentGraph.getSocketCenter(source);
+    const targetPoint = PPGraph.currentGraph.getSocketCenter(target);
 
     // draw curve from 0,0 as PIXI.Graphics sourceates from 0,0
     const toX = targetPoint.x - sourcePoint.x;

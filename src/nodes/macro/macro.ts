@@ -29,12 +29,12 @@ export class DefineMacroIn extends MacroNode {
   public getDescription(): string {
     return 'Define arguments and node connections';
   }
-  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, {
+  constructor(name: string, customArgs: CustomArgs) {
+    super(name, {
       ...customArgs,
       color: TRgba.fromString(NODE_TYPE_COLOR.MACRO),
     });
-    this.graph.macrosIn[this.id] = this;
+    PPGraph.currentGraph.macrosIn[this.id] = this;
   }
 
   public getCanAddOutput(): boolean {
@@ -47,7 +47,7 @@ export class DefineMacroIn extends MacroNode {
 
   _onRemoved(): void {
     super._onRemoved();
-    delete this.graph.macrosIn[this.id];
+    delete PPGraph.currentGraph.macrosIn[this.id];
   }
 }
 
@@ -58,12 +58,12 @@ export class DefineMacroOut extends MacroNode {
   public getDescription(): string {
     return 'Define macro output';
   }
-  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, {
+  constructor(name: string, customArgs: CustomArgs) {
+    super(name, {
       ...customArgs,
       color: TRgba.fromString(NODE_TYPE_COLOR.MACRO),
     });
-    this.graph.macrosOut[this.id] = this;
+    PPGraph.currentGraph.macrosOut[this.id] = this;
   }
 
   public getCanAddInput(): boolean {
@@ -75,13 +75,13 @@ export class DefineMacroOut extends MacroNode {
   }
   _onRemoved(): void {
     super._onRemoved();
-    delete this.graph.macrosOut[this.id];
+    delete PPGraph.currentGraph.macrosOut[this.id];
   }
 }
 
 export class InvokeMacro extends MacroNode {
-  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, {
+  constructor(name: string, customArgs: CustomArgs) {
+    super(name, {
       ...customArgs,
       color: TRgba.fromString(NODE_TYPE_COLOR.MACRO),
     });
@@ -110,7 +110,7 @@ export class InvokeMacro extends MacroNode {
       .filter((socket) => socket.name !== 'Name')
       .forEach((socket) => socket.destroy());
     this.outputSocketArray.forEach((socket) => socket.destroy());
-    const macroInputNode = this.graph.findMacroInput(
+    const macroInputNode = PPGraph.currentGraph.findMacroInput(
       this.getInputSocketByName('Name').data
     );
     if (macroInputNode) {
@@ -120,7 +120,7 @@ export class InvokeMacro extends MacroNode {
         );
       });
     }
-    const macroOutputNode = this.graph.findMacroOutput(
+    const macroOutputNode = PPGraph.currentGraph.findMacroOutput(
       this.getInputSocketByName('Name').data
     );
     if (macroOutputNode) {

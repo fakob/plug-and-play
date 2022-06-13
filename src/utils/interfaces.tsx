@@ -1,5 +1,4 @@
 import * as PIXI from 'pixi.js';
-import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
 import { IUpdateBehaviour } from '../classes/UpdateBehaviourClass';
 import { COLOR_DARK, COLOR_WHITE, SOCKET_TYPE } from './constants';
@@ -18,7 +17,7 @@ export type RegisteredNodeTypes = Record<
 export type PPNodeConstructor<T extends PPNode = PPNode> = {
   type?: string;
   category?: string;
-  new (name: string, graph: PPGraph, ...args: any[]): T;
+  new (name: string, ...args: any[]): T;
 };
 
 export type SerializedGraph = {
