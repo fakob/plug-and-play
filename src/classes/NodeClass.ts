@@ -406,10 +406,11 @@ export default class PPNode extends PIXI.Container {
 
   getDirectDependents(
     ignoreUpdateBehaviour = false,
-    includeInputs = false
+    includeUpstream = false,
+    includeDownstream = true
   ): { [key: string]: PPNode } {
     const currDependents: { [key: string]: PPNode } = {};
-    if (includeInputs) {
+    if (includeUpstream) {
       this.inputSocketArray.forEach((socket) => {
         Object.values(
           socket.getDirectDependents(ignoreUpdateBehaviour, true)
@@ -418,13 +419,15 @@ export default class PPNode extends PIXI.Container {
         });
       });
     }
-    this.outputSocketArray.forEach((socket) => {
-      Object.values(socket.getDirectDependents(ignoreUpdateBehaviour)).forEach(
-        (dependent) => {
+    if (includeDownstream) {
+      this.outputSocketArray.forEach((socket) => {
+        Object.values(
+          socket.getDirectDependents(ignoreUpdateBehaviour)
+        ).forEach((dependent) => {
           currDependents[dependent.id] = dependent;
-        }
-      );
-    });
+        });
+      });
+    }
     return currDependents;
   }
 
@@ -478,14 +481,16 @@ export default class PPNode extends PIXI.Container {
     return numDepending;
   }
 
-  getAllDownstreamNodes(): PPNode[] {
+  getAllUpDownstreamNodes(
+    includeUpstream: boolean,
+    includeDownstream: boolean
+  ): PPNode[] {
     const getDirectDependentsAndAccumulateThem = (dependents: {
       [key: string]: PPNode;
     }): void => {
       Object.values(dependents).forEach((node) => {
         const newDependents: { [key: string]: PPNode } =
-          node.getDirectDependents(true, true);
-        console.log(combinedDependents, newDependents);
+          node.getDirectDependents(true, true, true);
 
         combinedDependents[node.id] = node;
 
@@ -504,8 +509,14 @@ export default class PPNode extends PIXI.Container {
 
     const combinedDependents: { [key: string]: PPNode } = {};
     combinedDependents[this.id] = this;
-    getDirectDependentsAndAccumulateThem(this.getDirectDependents(true));
-    console.log(combinedDependents);
+
+    if (includeUpstream && includeDownstream) {
+      getDirectDependentsAndAccumulateThem(combinedDependents);
+    } else {
+      getDirectDependentsAndAccumulateThem(
+        this.getDirectDependents(true, includeUpstream, includeDownstream)
+      );
+    }
     return Object.values(combinedDependents);
   }
 

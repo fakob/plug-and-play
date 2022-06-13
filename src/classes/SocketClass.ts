@@ -277,7 +277,6 @@ export default class Socket extends PIXI.Container {
     if (upstream) {
       // get upstream node
       const nodes = this.links.map((link) => link.getSource().getNode());
-      console.log(this.name, nodes);
       return nodes;
     } else {
       // get downstream nodes
@@ -287,7 +286,6 @@ export default class Socket extends PIXI.Container {
         // check whether their children are dependent
         filteredNodes = nodes.filter((node) => node.updateBehaviour.update);
       }
-      console.log(this.name, filteredNodes);
       return filteredNodes;
     }
   }
