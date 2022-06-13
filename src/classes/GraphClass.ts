@@ -3,16 +3,10 @@ import * as PIXI from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
 
 import { OptionsObject, SnackbarMessage } from 'notistack';
-import {
-  DEFAULT_EDITOR_DATA,
-  NODE_WIDTH,
-  PP_VERSION,
-  SOCKET_TYPE,
-} from '../utils/constants';
+import { NODE_WIDTH, PP_VERSION, SOCKET_TYPE } from '../utils/constants';
 import {
   CustomArgs,
   PPNodeConstructor,
-  RegisteredNodeTypes,
   SerializedGraph,
   SerializedLink,
   SerializedSelection,
@@ -23,15 +17,13 @@ import PPNode from './NodeClass';
 import PPSocket from './SocketClass';
 import PPLink from './LinkClass';
 import PPSelection from './SelectionClass';
+import { getAllNodeTypes } from '../nodes/allNodes';
 
 export default class PPGraph {
   app: PIXI.Application;
   viewport: Viewport;
 
-  lastLinkId: number;
-
   _links: { [key: number]: PPLink };
-  _registeredNodeTypes: RegisteredNodeTypes;
 
   _showComments: boolean;
   selectedSourceSocket: null | PPSocket;
@@ -127,7 +119,6 @@ export default class PPGraph {
 
     // clear the stage
     this.clear();
-    this._registeredNodeTypes = {};
 
     // define callbacks
     this.onViewportDragging = (isDraggingViewport: boolean) => {};
@@ -337,10 +328,6 @@ export default class PPGraph {
 
   // GETTERS & SETTERS
 
-  get registeredNodeTypes(): RegisteredNodeTypes {
-    return this._registeredNodeTypes;
-  }
-
   set showComments(value: boolean) {
     this._showComments = value;
     Object.values(this.nodes).forEach((node) => node.drawNodeShape());
@@ -357,21 +344,6 @@ export default class PPGraph {
     return this.nodes[id];
   }
 
-  registerNodeType(type: string, nodeConstructor: PPNodeConstructor): void {
-    nodeConstructor.type = type;
-    // console.log('Node registered: ' + type);
-    // console.log(this._registeredNodeTypes);
-
-    // create/update node type
-    const nodeInfo = getInfoFromRegisteredNode(this, type, nodeConstructor);
-    this._registeredNodeTypes[type] = {
-      constructor: nodeConstructor,
-      name: nodeInfo.name,
-      description: nodeInfo.description,
-      hasInputs: nodeInfo.hasInputs,
-    };
-  }
-
   createNode<T extends PPNode = PPNode>(
     type: string,
     customArgs?: CustomArgs
@@ -386,7 +358,7 @@ export default class PPGraph {
       // placeholder nodes use the name field to indicate which node they are a placeholder for
       // check if the replaced node exists now
       name = customArgs?.name ?? type;
-      nodeConstructor = this._registeredNodeTypes[name]?.constructor;
+      nodeConstructor = getAllNodeTypes(this)[name]?.constructor;
       if (customArgs?.name !== undefined && nodeConstructor) {
         this.onShowSnackbar(
           `A replacement for the placeholder node ${customArgs?.customId} was found. It will be replaced with ${name}.`,
@@ -401,7 +373,7 @@ export default class PPGraph {
       }
     } else {
       name = type;
-      nodeConstructor = this._registeredNodeTypes[type]?.constructor;
+      nodeConstructor = getAllNodeTypes(this)[type]?.constructor;
     }
 
     if (!nodeConstructor) {
@@ -414,7 +386,7 @@ export default class PPGraph {
         }
       );
       name = type;
-      nodeConstructor = this._registeredNodeTypes['Placeholder']?.constructor;
+      nodeConstructor = getAllNodeTypes(this)['Placeholder']?.constructor;
       newArgs.name = type;
     }
 
@@ -484,6 +456,13 @@ export default class PPGraph {
     return node;
   }
 
+  getNextLinkID = (): number => {
+    return Object.values(this._links).reduce(
+      (prev, link) => (link.id > prev ? link.id : prev),
+      0
+    );
+  };
+
   async connect(
     output: PPSocket,
     input: PPSocket,
@@ -493,7 +472,7 @@ export default class PPGraph {
     input.links.forEach((link) => link.delete());
 
     //create link class
-    const link: PPLink = new PPLink(++this.lastLinkId, output, input);
+    const link: PPLink = new PPLink(this.getNextLinkID(), output, input);
 
     //add to graph links list
     this._links[link.id] = link;
@@ -564,8 +543,6 @@ export default class PPGraph {
   }
 
   clear(): void {
-    this.lastLinkId = 0;
-
     // remove all links
     this.connectionContainer.removeChildren();
     this._links = {};

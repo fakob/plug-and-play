@@ -18,8 +18,10 @@ import * as widgetNodes from './widgets/widgetNodes';
 import * as charts from './draw/charts';
 import * as macro from './macro/macro';
 import * as booleanlogic from './logic/boolean';
+import { RegisteredNodeTypes } from '../utils/interfaces';
+import { getInfoFromRegisteredNode } from '../utils/utils';
 
-export const registerAllNodeTypes = (graph: PPGraph): void => {
+export const getAllNodeTypes = (graph: PPGraph): RegisteredNodeTypes => {
   const categories = {
     base,
     math,
@@ -40,12 +42,23 @@ export const registerAllNodeTypes = (graph: PPGraph): void => {
     macro,
     booleanlogic,
   };
+  const toReturn: RegisteredNodeTypes = {};
   for (const [categoryKey, categoryValue] of Object.entries(categories)) {
-    console.log(categoryKey, categoryValue);
-    for (const key of Object.keys(categoryValue)) {
-      if (categoryValue[key].prototype instanceof PPNode) {
-        graph.registerNodeType(key, categoryValue[key]);
-      }
-    }
+    Object.keys(categoryValue)
+      .filter((key) => categoryValue[key].prototype instanceof PPNode)
+      .forEach((key) => {
+        const nodeInfo = getInfoFromRegisteredNode(
+          graph,
+          key,
+          categoryValue[key]
+        );
+        toReturn[key] = {
+          constructor: categoryValue[key].constructor,
+          name: nodeInfo.name,
+          description: nodeInfo.description,
+          hasInputs: nodeInfo.hasInputs,
+        };
+      });
   }
+  return toReturn;
 };

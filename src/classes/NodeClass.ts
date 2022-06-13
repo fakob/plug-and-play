@@ -758,42 +758,6 @@ export default class PPNode extends PIXI.Container {
     return this.graph.viewport.toScreen(this.x + NODE_MARGIN, this.y);
   }
 
-  // this function
-  // • creates a static component
-  createStaticContainerComponent(
-    parentDocument: Document,
-    reactParent: any,
-    reactProps: any,
-    customStyles = {}
-  ): HTMLElement {
-    // create html container
-    const staticId = `Static-${this.id}`;
-    if (this.static?.id !== staticId) {
-      const reactElement = parentDocument.createElement('div');
-      this.static = parentDocument.body.appendChild(reactElement);
-      this.staticRoot = createRoot(this.static!);
-      this.static.id = staticId;
-
-      // when the Node is removed also remove the react component and its static
-      this.onNodeRemoved = () => {
-        this.removeContainerComponent(this.static, this.staticRoot);
-      };
-    } else {
-      console.log('Modal already exists', this.static);
-    }
-    console.dir(this.static, this.static.childNodes);
-    // render react component
-    this.renderReactComponent(
-      reactParent,
-      {
-        ...reactProps,
-      },
-      this.staticRoot
-    );
-
-    return this.static;
-  }
-
   // this function can be called for hybrid nodes, it
   // • creates a container component
   // • adds the onNodeDragOrViewportMove listener to it
