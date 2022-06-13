@@ -93,7 +93,7 @@ export default class NodeSelectionHeaderClass extends PIXI.Container {
 
   _onPointerDown(): void {
     this.getGraph().selection.selectNodes(
-      Object.values(this.getNode().getDownstreamNodes())
+      Object.values(this.getNode().getAllDownstreamNodes())
     );
   }
 }

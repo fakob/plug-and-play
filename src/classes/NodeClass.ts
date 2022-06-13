@@ -404,30 +404,12 @@ export default class PPNode extends PIXI.Container {
     }
   }
 
-  getDirectDependents(
-    includeInputs = false,
-    ignoreUpdateBehaviour = false
-  ): { [key: string]: PPNode } {
+  getDirectDependents(): { [key: string]: PPNode } {
     const currDependents: { [key: string]: PPNode } = {};
-    if (includeInputs) {
-      this.inputSocketArray.forEach((socket) => {
-        console.log(socket.name, socket.getNode().id, socket.getNode());
-        Object.values(
-          socket.getDirectDependents(ignoreUpdateBehaviour)
-        ).forEach((dependent) => {
-          // exclude origin
-          if (this !== dependent) {
-            currDependents[dependent.id] = dependent;
-          }
-        });
-      });
-    }
     this.outputSocketArray.forEach((socket) => {
-      Object.values(socket.getDirectDependents(ignoreUpdateBehaviour)).forEach(
-        (dependent) => {
-          currDependents[dependent.id] = dependent;
-        }
-      );
+      Object.values(socket.getDirectDependents()).forEach((dependent) => {
+        currDependents[dependent.id] = dependent;
+      });
     });
     return currDependents;
   }
@@ -482,15 +464,24 @@ export default class PPNode extends PIXI.Container {
     return numDepending;
   }
 
-  getDownstreamNodes(): PPNode[] {
+  getAllDownstreamNodes(): PPNode[] {
     const getDirectDependentsAndAccumulateThem = (dependents: {
       [key: string]: PPNode;
     }): void => {
       Object.values(dependents).forEach((node) => {
         const newDependents: { [key: string]: PPNode } =
-          node.getDirectDependents(true);
-        console.log(node.id, node.name, newDependents);
+          node.getConnectedNodes(true);
+        console.log(combinedDependents, newDependents);
+
         combinedDependents[node.id] = node;
+
+        // remove already checked dependents
+        for (const key in newDependents) {
+          if (combinedDependents[key] !== undefined) {
+            delete newDependents[key];
+          }
+        }
+
         if (Object.values(newDependents).length > 0) {
           getDirectDependentsAndAccumulateThem(newDependents);
         }
@@ -499,9 +490,29 @@ export default class PPNode extends PIXI.Container {
 
     const combinedDependents: { [key: string]: PPNode } = {};
     combinedDependents[this.id] = this;
-    getDirectDependentsAndAccumulateThem(combinedDependents);
+    getDirectDependentsAndAccumulateThem(this.getConnectedNodes());
     console.log(combinedDependents);
     return Object.values(combinedDependents);
+  }
+
+  getConnectedNodes(includeUpstream = false): { [key: string]: PPNode } {
+    const connectedNodes: { [key: string]: PPNode } = {};
+    if (includeUpstream) {
+      this.inputSocketArray.forEach((socket) => {
+        // console.log(socket.name, socket.getNode().id, socket.getNode());
+        Object.values(socket.getDirectDependents(true, true)).forEach(
+          (dependent) => {
+            connectedNodes[dependent.id] = dependent;
+          }
+        );
+      });
+    }
+    this.outputSocketArray.forEach((socket) => {
+      Object.values(socket.getDirectDependents(true)).forEach((dependent) => {
+        connectedNodes[dependent.id] = dependent;
+      });
+    });
+    return connectedNodes;
   }
 
   async executeOptimizedChain(): Promise<void> {

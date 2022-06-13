@@ -270,15 +270,26 @@ export default class Socket extends PIXI.Container {
     };
   }
 
-  getDirectDependents(ignoreUpdateBehaviour = false): PPNode[] {
-    // ask the socket whether their children are dependent
-
-    const nodes = this.links.map((link) => link.getTarget().getNode());
-    let filteredNodes = nodes;
-    if (!ignoreUpdateBehaviour) {
-      filteredNodes = nodes.filter((node) => node.updateBehaviour.update);
+  getDirectDependents(
+    ignoreUpdateBehaviour = false,
+    upstream = false
+  ): PPNode[] {
+    if (upstream) {
+      // get upstream node
+      const nodes = this.links.map((link) => link.getSource().getNode());
+      console.log(this.name, nodes);
+      return nodes;
+    } else {
+      // get downstream nodes
+      const nodes = this.links.map((link) => link.getTarget().getNode());
+      let filteredNodes = nodes;
+      if (!ignoreUpdateBehaviour) {
+        // check whether their children are dependent
+        filteredNodes = nodes.filter((node) => node.updateBehaviour.update);
+      }
+      console.log(this.name, filteredNodes);
+      return filteredNodes;
     }
-    return filteredNodes;
   }
 
   // SETUP
