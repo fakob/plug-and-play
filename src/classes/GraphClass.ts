@@ -23,8 +23,6 @@ export default class PPGraph {
   app: PIXI.Application;
   viewport: Viewport;
 
-  lastLinkId: number;
-
   _links: { [key: number]: PPLink };
 
   _showComments: boolean;
@@ -459,6 +457,13 @@ export default class PPGraph {
     return node;
   }
 
+  getNextID = (): number => {
+    return Object.values(this._links).reduce(
+      (prevMax, link) => (link.id > prevMax ? link.id : prevMax),
+      0
+    );
+  };
+
   async connect(
     output: PPSocket,
     input: PPSocket,
@@ -468,7 +473,7 @@ export default class PPGraph {
     input.links.forEach((link) => link.delete());
 
     //create link class
-    const link: PPLink = new PPLink(++this.lastLinkId, output, input);
+    const link: PPLink = new PPLink(this.getNextID(), output, input);
 
     //add to graph links list
     this._links[link.id] = link;
@@ -539,8 +544,6 @@ export default class PPGraph {
   }
 
   clear(): void {
-    this.lastLinkId = 0;
-
     // remove all links
     this.connectionContainer.removeChildren();
     this._links = {};
