@@ -5,7 +5,9 @@ import PPNode from './NodeClass';
 import { COLOR_DARK, NODE_MARGIN } from '../utils/constants';
 
 export default class NodeSelectionHeaderClass extends PIXI.Container {
-  _selectBranch: PIXI.Graphics;
+  _selectDownstreamBranch: PIXI.Graphics;
+  _selectUpstreamBranch: PIXI.Graphics;
+  _selectWholeBranch: PIXI.Graphics;
   private anchorX: number;
   private anchorY: number;
   private _hoverNode: boolean;
@@ -18,38 +20,79 @@ export default class NodeSelectionHeaderClass extends PIXI.Container {
     this.anchorX = NODE_MARGIN + 100 - 16;
     this.anchorY = -10;
 
-    this._selectBranch = this.addChild(new PIXI.Graphics());
+    this._selectDownstreamBranch = this.addChild(new PIXI.Graphics());
+    this._selectUpstreamBranch = this.addChild(new PIXI.Graphics());
+    this._selectWholeBranch = this.addChild(new PIXI.Graphics());
 
-    this.addChild(this._selectBranch);
+    this.addChild(this._selectDownstreamBranch);
+    this.addChild(this._selectUpstreamBranch);
+    this.addChild(this._selectWholeBranch);
 
-    this._selectBranch.interactive = true;
-    this._selectBranch.buttonMode = true;
-    this._selectBranch.on('pointerover', this._onPointerOver.bind(this));
-    this._selectBranch.on('pointerout', this._onPointerOut.bind(this));
-    this._selectBranch.on('pointerdown', this._onPointerDown.bind(this));
+    this._selectDownstreamBranch.interactive = true;
+    this._selectDownstreamBranch.buttonMode = true;
+    this._selectDownstreamBranch.on(
+      'pointerover',
+      this._onPointerOver.bind(this)
+    );
+    this._selectDownstreamBranch.on(
+      'pointerout',
+      this._onPointerOut.bind(this)
+    );
+    this._selectDownstreamBranch.on(
+      'pointerdown',
+      this._onPointerDownDownstream.bind(this)
+    );
+
+    this._selectUpstreamBranch.interactive = true;
+    this._selectUpstreamBranch.buttonMode = true;
+    this._selectUpstreamBranch.on(
+      'pointerover',
+      this._onPointerOver.bind(this)
+    );
+    this._selectUpstreamBranch.on('pointerout', this._onPointerOut.bind(this));
+    this._selectUpstreamBranch.on(
+      'pointerdown',
+      this._onPointerDownUpstream.bind(this)
+    );
+
+    this._selectWholeBranch.interactive = true;
+    this._selectWholeBranch.buttonMode = true;
+    this._selectWholeBranch.on('pointerover', this._onPointerOver.bind(this));
+    this._selectWholeBranch.on('pointerout', this._onPointerOut.bind(this));
+    this._selectWholeBranch.on(
+      'pointerdown',
+      this._onPointerDownWhole.bind(this)
+    );
 
     this.redrawAnythingChanging();
   }
 
-  redrawAnythingChanging(): void {
+  redrawOne(button: PIXI.Graphics, offsetX: number): void {
     // reset
-    this._selectBranch.clear();
+    button.clear();
 
     // update now button
     const color = TRgba.fromString(COLOR_DARK);
-    this._selectBranch.beginFill(color.hexNumber(), 0.01);
-    this._selectBranch.drawRoundedRect(this.anchorX, this.anchorY, 10, 10, 2);
-    this._selectBranch.endFill();
-    this._selectBranch.beginFill(color.hexNumber(), color.a);
+    button.beginFill(color.hexNumber(), 0.01);
+    button.drawRoundedRect(this.anchorX + offsetX, this.anchorY, 10, 10, 2);
+    button.endFill();
+    button.beginFill(color.hexNumber(), color.a);
     if (this.hover) {
-      this._selectBranch.lineStyle(2, color.hexNumber(), 0.5, 1);
-      this._selectBranch.drawRoundedRect(this.anchorX, this.anchorY, 8, 8, 2);
+      button.lineStyle(2, color.hexNumber(), 0.5, 1);
+      button.drawRoundedRect(this.anchorX + offsetX, this.anchorY, 8, 8, 2);
     } else if (this.hoverNode) {
-      this._selectBranch.lineStyle(1, color.hexNumber(), 0.1, 1);
-      this._selectBranch.drawRoundedRect(this.anchorX, this.anchorY, 8, 8, 2);
+      button.lineStyle(1, color.hexNumber(), 0.1, 1);
+      button.drawRoundedRect(this.anchorX + offsetX, this.anchorY, 8, 8, 2);
     }
-    this._selectBranch.lineStyle(0);
-    this._selectBranch.endFill();
+    button.lineStyle(0);
+    button.endFill();
+  }
+
+  redrawAnythingChanging(): void {
+    // reset
+    this.redrawOne(this._selectUpstreamBranch, 0);
+    this.redrawOne(this._selectWholeBranch, 16);
+    this.redrawOne(this._selectDownstreamBranch, 32);
   }
 
   get hover(): boolean {
@@ -91,7 +134,19 @@ export default class NodeSelectionHeaderClass extends PIXI.Container {
     this.hover = false;
   }
 
-  _onPointerDown(): void {
+  _onPointerDownDownstream(): void {
+    this.getGraph().selection.selectNodes(
+      Object.values(this.getNode().getAllUpDownstreamNodes(false, true))
+    );
+  }
+
+  _onPointerDownUpstream(): void {
+    this.getGraph().selection.selectNodes(
+      Object.values(this.getNode().getAllUpDownstreamNodes(true, false))
+    );
+  }
+
+  _onPointerDownWhole(): void {
     this.getGraph().selection.selectNodes(
       Object.values(this.getNode().getAllUpDownstreamNodes(true, true))
     );
