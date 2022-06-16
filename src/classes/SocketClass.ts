@@ -240,7 +240,7 @@ export default class Socket extends PIXI.Container {
   }
 
   getGraph(): PPGraph {
-    return (this.parent as PPNode).graph;
+    return PPGraph.currentGraph;
   }
 
   //create serialization object

@@ -70,8 +70,8 @@ export class Image extends PPNode {
     ];
   }
 
-  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, {
+  constructor(name: string, customArgs: CustomArgs) {
+    super(name, {
       ...customArgs,
       color: TRgba.fromString(NODE_TYPE_COLOR.INPUT),
       colorTransparency: 0.2,
@@ -91,7 +91,7 @@ export class Image extends PPNode {
     this.resetNodeSize = () => {
       this.setMinNodeHeight(this.minNodeWidth);
       this.resizeNode(this.minNodeWidth, this.minNodeHeight);
-      graph.selection.drawRectanglesFromSelection();
+      PPGraph.currentGraph.selection.drawRectanglesFromSelection();
     };
 
     this.updateTexture = (base64: string): void => {

@@ -174,7 +174,7 @@ export default class UpdateBehaviourClass extends PIXI.Container {
   }
 
   getGraph(): PPGraph {
-    return (this.parent as PPNode)?.graph;
+    return PPGraph.currentGraph;
   }
 
   // SETUP

@@ -416,8 +416,8 @@ export class CustomFunction extends PPNode {
     ];
   }
 
-  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, {
+  constructor(name: string, customArgs: CustomArgs) {
+    super(name, {
       ...customArgs,
       color: TRgba.fromString(NODE_TYPE_COLOR.DEFAULT),
     });

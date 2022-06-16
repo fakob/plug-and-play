@@ -79,7 +79,7 @@ import {
   writeDataToClipboard,
   zoomToFitSelection,
 } from './utils/utils';
-import { registerAllNodeTypes } from './nodes/allNodes';
+import { getAllNodeTypes } from './nodes/allNodes';
 import PPSelection from './classes/SelectionClass';
 import PPSocket from './classes/SocketClass';
 import PPNode from './classes/NodeClass';
@@ -469,19 +469,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
 
     // add graph to pixiApp
     currentGraph.current = new PPGraph(pixiApp.current, viewport.current);
-
-    // register all available node types
-    registerAllNodeTypes(currentGraph.current);
-    const allRegisteredNodeTypeNames = Object.keys(
-      currentGraph.current.registeredNodeTypes
-    );
-
-    console.log(
-      'currentGraph.current.registeredNodeTypes:',
-      currentGraph.current.registeredNodeTypes
-    );
-    console.log('allRegisteredNodeTypeNames:', allRegisteredNodeTypeNames);
-    console.log('currentGraph.current:', currentGraph.current);
 
     pixiApp.current.ticker.add(() => {
       const currentTime: number = new Date().getTime();
@@ -963,8 +950,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       contextMenuPosition[1]
     );
 
-    const nodeExists =
-      currentGraph.current.registeredNodeTypes[selected.title] !== undefined;
+    const nodeExists = getAllNodeTypes()[selected.title] !== undefined;
     if (nodeExists) {
       currentGraph.current.createAndAddNode(selected.title, {
         nodePosX: nodePos.x,
@@ -989,7 +975,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
 
   const getNodes = (): INodeSearch[] => {
     const addLink = currentGraph.current.selectedSourceSocket;
-    const tempItems = Object.entries(currentGraph.current.registeredNodeTypes)
+    const tempItems = Object.entries(getAllNodeTypes())
       .map(([title, obj]) => {
         return {
           title,

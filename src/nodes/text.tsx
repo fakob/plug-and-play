@@ -68,11 +68,11 @@ export class Label extends PPNode {
     ].concat(super.getDefaultIO());
   }
 
-  constructor(name: string, graph: PPGraph, customArgs?: CustomArgs) {
+  constructor(name: string, customArgs?: CustomArgs) {
     const nodeWidth = 128;
     const fillColor = COLOR[5];
 
-    super(name, graph, {
+    super(name, {
       ...customArgs,
       nodeWidth,
       color: TRgba.fromString(fillColor),
@@ -81,7 +81,7 @@ export class Label extends PPNode {
       showLabels: false,
     });
 
-    const canvas = this.graph.viewport.getChildByName(
+    const canvas = PPGraph.currentGraph.viewport.getChildByName(
       'foregroundCanvas'
     ) as PIXI.Container;
     this._refTextStyle = new PIXI.TextStyle();
@@ -103,7 +103,10 @@ export class Label extends PPNode {
 
     this.createInputElement = () => {
       // create html input element
-      const screenPoint = this.graph.viewport.toScreen(this.x, this.y);
+      const screenPoint = PPGraph.currentGraph.viewport.toScreen(
+        this.x,
+        this.y
+      );
       const text = this.getInputData('Input');
       const fontSize = this.getInputData('fontSize');
       const color = this.getInputData('backgroundColor');
@@ -127,7 +130,7 @@ export class Label extends PPNode {
         background: 'transparent',
         border: '0 none',
         transformOrigin: 'top left',
-        transform: `scale(${this.graph.viewport.scale.x}`,
+        transform: `scale(${PPGraph.currentGraph.viewport.scale.x}`,
         outline: '0px dashed black',
         left: `${screenPoint.x}px`,
         top: `${screenPoint.y}px`,
@@ -238,8 +241,11 @@ export class Label extends PPNode {
     // scale input if node is scaled
     this.onNodeDragOrViewportMove = () => {
       if (this.currentInput != null) {
-        const screenPoint = this.graph.viewport.toScreen(this.x, this.y);
-        this.currentInput.style.transform = `scale(${this.graph.viewport.scale.x}`;
+        const screenPoint = PPGraph.currentGraph.viewport.toScreen(
+          this.x,
+          this.y
+        );
+        this.currentInput.style.transform = `scale(${PPGraph.currentGraph.viewport.scale.x}`;
         this.currentInput.style.left = `${screenPoint.x}px`;
         this.currentInput.style.top = `${screenPoint.y}px`;
       }
@@ -264,7 +270,7 @@ export class Note extends PPNode {
   createInputElement: (temporary?: boolean) => void;
   setCleanAndDisplayText: (input: HTMLDivElement) => void;
 
-  constructor(name: string, graph: PPGraph, customArgs?: CustomArgs) {
+  constructor(name: string, customArgs?: CustomArgs) {
     const baseWidth = 160;
     const baseHeight = 160;
     const defaultColor = COLOR_WHITE_TEXT;
@@ -274,7 +280,7 @@ export class Note extends PPNode {
     // to compensate for that the note texture includes a drop shadow at the bottom
     const verticalTextureOffset = 0.92;
 
-    super(name, graph, {
+    super(name, {
       ...customArgs,
       nodeWidth: baseWidth,
       nodeHeight: baseHeight,
@@ -346,7 +352,10 @@ export class Note extends PPNode {
       const nodeHeight = this.nodeHeight ?? baseHeight;
       // create html input element
       this._bitmapTextRef.visible = false;
-      const screenPoint = this.graph.viewport.toScreen(this.x, this.y);
+      const screenPoint = PPGraph.currentGraph.viewport.toScreen(
+        this.x,
+        this.y
+      );
 
       this.currentInput = document.createElement('div');
       this.currentInput.id = 'Input';
@@ -364,7 +373,7 @@ export class Note extends PPNode {
         background: 'transparent',
         border: '0 none',
         transformOrigin: 'top left',
-        transform: `scale(${this.graph.viewport.scale.x}`,
+        transform: `scale(${PPGraph.currentGraph.viewport.scale.x}`,
         outline: '0px dashed black',
         left: `${screenPoint.x}px`,
         top: `${screenPoint.y}px`,
@@ -482,8 +491,11 @@ export class Note extends PPNode {
     // scale input if node is scaled
     this.onNodeDragOrViewportMove = () => {
       if (this.currentInput !== null) {
-        const screenPoint = this.graph.viewport.toScreen(this.x, this.y);
-        this.currentInput.style.transform = `scale(${this.graph.viewport.scale.x}`;
+        const screenPoint = PPGraph.currentGraph.viewport.toScreen(
+          this.x,
+          this.y
+        );
+        this.currentInput.style.transform = `scale(${PPGraph.currentGraph.viewport.scale.x}`;
         this.currentInput.style.left = `${screenPoint.x}px`;
         this.currentInput.style.top = `${screenPoint.y}px`;
       }

@@ -17,8 +17,8 @@ const JSONInsert = 'New value';
 const outValueName = 'Value';
 
 export class JSONGet extends PPNode {
-  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, {
+  constructor(name: string, customArgs: CustomArgs) {
+    super(name,  {
       ...customArgs,
       color: TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM),
     });
@@ -65,8 +65,8 @@ export class JSONGet extends PPNode {
 }
 
 export class JSONSet extends PPNode {
-  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, {
+  constructor(name: string, customArgs: CustomArgs) {
+    super(name,  {
       ...customArgs,
       color: TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM),
     });
@@ -114,8 +114,8 @@ export class JSONSet extends PPNode {
 }
 
 export class JSONKeys extends PPNode {
-  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, {
+  constructor(name: string, customArgs: CustomArgs) {
+    super(name, {
       ...customArgs,
       color: TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM),
     });
@@ -142,8 +142,8 @@ export class JSONKeys extends PPNode {
 }
 
 export class JSONValues extends PPNode {
-  constructor(name: string, graph: PPGraph, customArgs: CustomArgs) {
-    super(name, graph, {
+  constructor(name: string,  customArgs: CustomArgs) {
+    super(name, {
       ...customArgs,
       color: TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM),
     });

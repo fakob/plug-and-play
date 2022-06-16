@@ -33,11 +33,10 @@ export function isClass(item: any): boolean {
 }
 
 export function getInfoFromRegisteredNode(
-  graph: PPGraph,
   key: string,
   constructor: PPNodeConstructor
 ): { hasInputs: boolean; name: string; description: string } {
-  const node = new constructor(key, graph);
+  const node = new constructor(key);
   const hasInputs = node.inputSocketArray.length > 0;
   return {
     hasInputs,
