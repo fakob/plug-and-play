@@ -151,6 +151,10 @@ export const SELECTION_COLOR_HEX = PIXI.utils.string2hex(
 
 export const EMPTY_TEXTURE = '../assets/Empty.png';
 
+export const SELECTION_DOWNSTREAM_TEXTURE = '../assets/SelectDownstream.png';
+export const SELECTION_UPSTREAM_TEXTURE = '../assets/SelectUpstream.png';
+export const SELECTION_WHOLE_TEXTURE = '../assets/SelectWhole.png';
+
 export const NOTE_TEXTURE = '../assets/Note-white.png';
 export const NOTE_FONT = '../assets/Arial-normal-black.fnt';
 export const NOTE_MARGIN_STRING = '3px 0px 0px 5px';
