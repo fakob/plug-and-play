@@ -1,4 +1,3 @@
-import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
 import * as base from './base';
 import * as draw from './draw/draw';
@@ -18,6 +17,7 @@ import * as widgetNodes from './widgets/widgetNodes';
 import * as charts from './draw/charts';
 import * as macro from './macro/macro';
 import * as booleanlogic from './logic/boolean';
+import * as utility from './utility/utility';
 import { getInfoFromRegisteredNode } from '../utils/utils';
 import { RegisteredNodeTypes } from '../utils/interfaces';
 
@@ -44,6 +44,7 @@ export const getAllNodeTypes = (): RegisteredNodeTypes => {
       charts,
       macro,
       booleanlogic,
+      utility,
     };
     const toReturn = {};
     for (const [categoryKey, categoryValue] of Object.entries(categories)) {

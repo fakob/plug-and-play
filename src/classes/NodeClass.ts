@@ -121,6 +121,10 @@ export default class PPNode extends PIXI.Container {
     return this.description;
   }
 
+  public getNodeWidth(): number {
+    return NODE_WIDTH;
+  }
+
   constructor(type: string, customArgs?: CustomArgs) {
     super();
     this.id = customArgs?.customId ?? hri.random();
@@ -134,7 +138,7 @@ export default class PPNode extends PIXI.Container {
     // customArgs
     this.x = customArgs?.nodePosX ?? 0;
     this.y = customArgs?.nodePosY ?? 0;
-    this.nodeWidth = customArgs?.nodeWidth ?? NODE_WIDTH;
+    this.nodeWidth = customArgs?.nodeWidth ?? this.getNodeWidth();
     this.minNodeWidth = customArgs?.minNodeWidth ?? this.nodeWidth;
     this.nodeHeight = customArgs?.nodeHeight; // if not set height is defined by in/out sockets
     this.minNodeHeight = customArgs?.minNodeHeight;
@@ -342,7 +346,7 @@ export default class PPNode extends PIXI.Container {
     this.x = nodeConfig.x;
     this.y = nodeConfig.y;
     this.nodeName = nodeConfig.name;
-    this.minNodeWidth = nodeConfig.minWidth ?? NODE_WIDTH;
+    this.minNodeWidth = nodeConfig.minWidth ?? this.getNodeWidth();
     this.minNodeHeight = nodeConfig.minHeight;
     this.updateBehaviour.setUpdateBehaviour(
       nodeConfig.updateBehaviour.update,
@@ -624,7 +628,7 @@ export default class PPNode extends PIXI.Container {
       .filter((item) => item.visible)
       .forEach((item, index) => {
         item.y = this.headerHeight + index * SOCKET_HEIGHT;
-        item.x = this.nodeWidth - NODE_WIDTH;
+        item.x = this.nodeWidth - this.getNodeWidth();
         if (this.showLabels === false) {
           item._SocketNameRef.alpha = 0;
         }
