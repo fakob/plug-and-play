@@ -459,7 +459,7 @@ export default class PPGraph {
 
   getNextID = (): number => {
     return Object.values(this._links).reduce(
-      (prevMax, link) => (link.id > prevMax ? link.id : prevMax),
+      (prevMax, link) => (link.id >= prevMax ? link.id + 1 : prevMax),
       0
     );
   };
