@@ -65,8 +65,6 @@ export default class PPNode extends PIXI.Container {
   minNodeWidth: number;
   minNodeHeight: number;
   nodeHeight: number;
-  roundedCorners: boolean;
-  showLabels: boolean;
 
   // default to update on update, 1 sec time update interval
   updateBehaviour: UpdateBehaviourClass;
@@ -109,6 +107,10 @@ export default class PPNode extends PIXI.Container {
     return false;
   }
 
+  protected getShowLabels(): boolean {
+    return true;
+  }
+
   protected getActivateByDoubleClick(): boolean {
     return false;
   }
@@ -143,10 +145,6 @@ export default class PPNode extends PIXI.Container {
     this.nodeHeight = customArgs?.nodeHeight; // if not set height is defined by in/out sockets
     this.minNodeHeight = customArgs?.minNodeHeight;
 
-    this.roundedCorners = Boolean(
-      customArgs?.roundedCorners ?? !this.getIsHybrid()
-    );
-    this.showLabels = Boolean(customArgs?.showLabels ?? !this.getIsHybrid());
     this.color = customArgs?.color ?? TRgba.fromString(NODE_TYPE_COLOR.DEFAULT);
 
     this.color.a =
@@ -176,7 +174,7 @@ export default class PPNode extends PIXI.Container {
     this._UpdateBehaviourRef = this.addChild(this.updateBehaviour);
 
     // do not show the node name
-    if (this.showLabels === false) {
+    if (!this.getShowLabels()) {
       this._NodeNameRef.alpha = 0;
     }
 
@@ -231,7 +229,7 @@ export default class PPNode extends PIXI.Container {
 
   get headerHeight(): number {
     // hide header if showLabels === false
-    return this.showLabels ? NODE_PADDING_TOP + NODE_HEADER_HEIGHT : 0;
+    return this.getShowLabels() ? NODE_PADDING_TOP + NODE_HEADER_HEIGHT : 0;
   }
 
   get calculatedMinNodeHeight(): number {
@@ -596,8 +594,15 @@ export default class PPNode extends PIXI.Container {
     return this.name;
   }
 
+  public getParallelInputsOutputs(): boolean {
+    return false;
+  }
+
+  public getRoundedCorners(): boolean {
+    return true;
+  }
+
   drawNodeShape(): void {
-    // redraw background due to size change
     this._BackgroundRef.clear();
     if (!this.successfullyExecuted) {
       this._BackgroundRef.beginFill(
@@ -609,7 +614,7 @@ export default class PPNode extends PIXI.Container {
         -3,
         this.nodeWidth + 6,
         this.getNodeHeight() + 6,
-        this.roundedCorners ? NODE_CORNERRADIUS : 0
+        this.getRoundedCorners() ? NODE_CORNERRADIUS : 0
       );
     }
     this._BackgroundRef.beginFill(this.color.hexNumber(), this.color.a);
@@ -618,7 +623,7 @@ export default class PPNode extends PIXI.Container {
       0,
       this.nodeWidth,
       this.getNodeHeight(),
-      this.roundedCorners ? NODE_CORNERRADIUS : 0
+      this.getRoundedCorners() ? NODE_CORNERRADIUS : 0
     );
 
     this._BackgroundRef.endFill();
@@ -629,7 +634,7 @@ export default class PPNode extends PIXI.Container {
       .forEach((item, index) => {
         item.y = this.headerHeight + index * SOCKET_HEIGHT;
         item.x = this.nodeWidth - this.getNodeWidth();
-        if (this.showLabels === false) {
+        if (!this.getShowLabels()) {
           item._SocketNameRef.alpha = 0;
         }
         item.redrawAnythingChanging();
@@ -641,10 +646,10 @@ export default class PPNode extends PIXI.Container {
       .forEach((item, index) => {
         item.y =
           this.headerHeight +
-          this.countOfVisibleOutputSockets * SOCKET_HEIGHT +
+          (!this.getParallelInputsOutputs()
+            ? this.countOfVisibleOutputSockets * SOCKET_HEIGHT
+            : 0) +
           index * SOCKET_HEIGHT;
-        if (this.showLabels === false) {
-        }
 
         item.redrawAnythingChanging();
       });
@@ -996,7 +1001,7 @@ export default class PPNode extends PIXI.Container {
           0,
           this.nodeWidth,
           this.getNodeHeight(),
-          this.roundedCorners ? NODE_CORNERRADIUS : 0
+          this.getRoundedCorners() ? NODE_CORNERRADIUS : 0
         );
         activeExecution.endFill();
         if (i == iterations) {

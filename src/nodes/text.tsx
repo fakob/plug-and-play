@@ -78,7 +78,6 @@ export class Label extends PPNode {
       color: TRgba.fromString(fillColor),
       colorTransparency: 1.0,
       roundedCorners: false,
-      showLabels: false,
     });
 
     const canvas = PPGraph.currentGraph.viewport.getChildByName(
@@ -256,6 +255,10 @@ export class Label extends PPNode {
     };
   }
 
+  getShowLabels(): boolean {
+    return false;
+  }
+
   shouldExecuteOnMove(): boolean {
     return true;
   }
@@ -269,6 +272,10 @@ export class Note extends PPNode {
   fontSize: number;
   createInputElement: (temporary?: boolean) => void;
   setCleanAndDisplayText: (input: HTMLDivElement) => void;
+
+  getShowLabels(): boolean {
+    return false;
+  }
 
   constructor(name: string, customArgs?: CustomArgs) {
     const baseWidth = 160;
@@ -287,7 +294,6 @@ export class Note extends PPNode {
       minNodeHeight: baseHeight,
       colorTransparency: 0,
       roundedCorners: false,
-      showLabels: false,
     });
 
     this.currentInput = null;

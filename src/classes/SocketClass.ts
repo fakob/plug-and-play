@@ -11,6 +11,7 @@ import {
   SOCKET_TYPE,
   SOCKET_WIDTH,
   TEXT_RESOLUTION,
+  NODE_WIDTH,
 } from '../utils/constants';
 import { AbstractType } from '../nodes/datatypes/abstractType';
 import { serializeType } from '../nodes/datatypes/typehelper';
@@ -70,7 +71,8 @@ export default class Socket extends PIXI.Container {
     socketNameText.x =
       socketType === SOCKET_TYPE.IN
         ? SOCKET_WIDTH + SOCKET_TEXTMARGIN
-        : this.getNode().getNodeWidth() - SOCKET_TEXTMARGIN;
+        : (this.getNode() ? this.getNode().getNodeWidth() : NODE_WIDTH) -
+          SOCKET_TEXTMARGIN;
     socketNameText.y = SOCKET_TEXTMARGIN_TOP;
     socketNameText.resolution = TEXT_RESOLUTION;
 
@@ -94,7 +96,11 @@ export default class Socket extends PIXI.Container {
     this._SocketRef = new PIXI.Graphics();
     this._SocketRef.beginFill(this.dataType.getColor().hexNumber());
     this._SocketRef.drawRoundedRect(
-      this.socketType === SOCKET_TYPE.IN ? 0 : this.getNode().getNodeWidth(),
+      this.socketType === SOCKET_TYPE.IN
+        ? 0
+        : this.getNode()
+        ? this.getNode().getNodeWidth()
+        : NODE_WIDTH,
       SOCKET_WIDTH / 2,
       SOCKET_WIDTH,
       SOCKET_WIDTH,

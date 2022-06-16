@@ -45,8 +45,6 @@ export type CustomArgs = {
   nodePosY?: number;
   nodeWidth?: number;
   nodeHeight?: number;
-  roundedCorners?: boolean;
-  showLabels?: boolean;
   defaultArguments?: Record<string, any>;
   [key: string]: any; //  lets try to deprecate this
 };
