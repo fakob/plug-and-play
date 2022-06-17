@@ -1,12 +1,13 @@
 import * as PIXI from 'pixi.js';
-import { TRgba } from '../utils/interfaces';
+import Color from 'color';
 import PPGraph from './GraphClass';
 import PPNode from './NodeClass';
 import {
-  COLOR_DARK,
-  NODE_MARGIN,
+  RANDOMMAINCOLOR,
   TEXT_RESOLUTION,
   UPDATEBEHAVIOURHEADER_TEXTSTYLE,
+  UPDATEBEHAVIOURHEADER_NOUPDATE,
+  UPDATEBEHAVIOURHEADER_UPDATE,
 } from '../utils/constants';
 
 export interface IUpdateBehaviour {
@@ -17,13 +18,11 @@ export interface IUpdateBehaviour {
 
 export default class UpdateBehaviourClass extends PIXI.Container {
   _frequencyRef: PIXI.Text;
-  _updateRef: PIXI.Graphics;
-  _noUpdateRef: PIXI.Graphics;
+  _updateRef: PIXI.Sprite;
+  _noUpdateRef: PIXI.Sprite;
   private _update: boolean;
   private _interval: boolean;
   private _intervalFrequency: number;
-  private anchorX: number;
-  private anchorY: number;
   private _hoverNode: boolean;
   private _hover: boolean;
 
@@ -37,74 +36,74 @@ export default class UpdateBehaviourClass extends PIXI.Container {
     this._update = inUpdate;
     this._interval = inInterval;
     this._intervalFrequency = inIntervalFrequency;
-    this.anchorX = NODE_MARGIN + 16;
-    this.anchorY = -6;
 
     const FrequencyText = new PIXI.Text(
       this._intervalFrequency.toString(),
       UPDATEBEHAVIOURHEADER_TEXTSTYLE
     );
-    FrequencyText.x = this.anchorX - 4;
-    FrequencyText.y = this.anchorY - 5;
+    FrequencyText.x = 40;
+    FrequencyText.y = 2;
     FrequencyText.resolution = TEXT_RESOLUTION;
     FrequencyText.alpha = 0.5;
 
     this._frequencyRef = this.addChild(FrequencyText);
-    this._updateRef = this.addChild(new PIXI.Graphics());
-    this._noUpdateRef = this.addChild(new PIXI.Graphics());
+    this._frequencyRef.tint = PIXI.utils.string2hex(
+      Color(RANDOMMAINCOLOR).hex()
+    );
+
+    this._updateRef = this.addChild(
+      PIXI.Sprite.from(UPDATEBEHAVIOURHEADER_UPDATE)
+    );
+    this._updateRef.tint = PIXI.utils.string2hex(Color(RANDOMMAINCOLOR).hex());
+
+    this._noUpdateRef = this.addChild(
+      PIXI.Sprite.from(UPDATEBEHAVIOURHEADER_NOUPDATE)
+    );
+    this._noUpdateRef.visible = false;
+    this._noUpdateRef.tint = PIXI.utils.string2hex(
+      Color(RANDOMMAINCOLOR).hex()
+    );
 
     this.addChild(this._updateRef);
     this.addChild(this._noUpdateRef);
 
     this._updateRef.interactive = true;
     this._updateRef.buttonMode = true;
+    this._updateRef.alpha = 0.05;
+    this._updateRef.x = 0;
+    this._updateRef.width = 16;
+    this._updateRef.height = 16;
+
     this._updateRef.on('pointerover', this._onPointerOver.bind(this));
     this._updateRef.on('pointerout', this._onPointerOut.bind(this));
     this._updateRef.on('pointerdown', this._onPointerDown.bind(this));
+
+    this._noUpdateRef.x = 20;
+    this._noUpdateRef.width = 16;
+    this._noUpdateRef.height = 16;
 
     this.redrawAnythingChanging();
   }
 
   redrawAnythingChanging(): void {
     // reset
-    this._updateRef.clear();
-    this._noUpdateRef.clear();
+    this._updateRef.alpha = 0.05;
     this._frequencyRef.text = '';
 
     // update now button
-    let offsetX = 0;
-    const color = TRgba.fromString(COLOR_DARK);
-    this._updateRef.beginFill(color.hexNumber(), 0.01);
-    this._updateRef.drawCircle(this.anchorX, this.anchorY, 6);
-    this._updateRef.endFill();
-    this._updateRef.beginFill(color.hexNumber(), color.a);
     if (this.hover) {
-      this._updateRef.lineStyle(2, color.hexNumber(), 0.5, 1);
-      this._updateRef.drawCircle(this.anchorX, this.anchorY, 4);
+      this._updateRef.alpha = 1.0;
     } else if (this.hoverNode) {
-      this._updateRef.lineStyle(1, color.hexNumber(), 0.1, 1);
-      this._updateRef.drawCircle(this.anchorX, this.anchorY, 4);
+      this._updateRef.alpha = 0.5;
     }
-    this._updateRef.lineStyle(0);
-    this._updateRef.endFill();
 
     // no update shape
-    offsetX += 12;
     if (!this.update) {
-      this._noUpdateRef.beginFill(color.hexNumber(), 0.5);
-      this._noUpdateRef.drawRect(
-        offsetX + this.anchorX - 4,
-        this.anchorY - 4,
-        8,
-        8
-      );
-      this._noUpdateRef.endFill();
+      this._noUpdateRef.visible = true;
     }
 
     // frequency text
-    offsetX += 10;
     if (this.interval) {
-      this._frequencyRef.x = offsetX + this.anchorX - 4;
       this._frequencyRef.text = this.intervalFrequency.toString();
     }
   }

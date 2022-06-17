@@ -175,6 +175,9 @@ export default class PPNode extends PIXI.Container {
 
     this.updateBehaviour = this.getUpdateBehaviour();
     this._UpdateBehaviourRef = this.addChild(this.updateBehaviour);
+    this._UpdateBehaviourRef.x = NODE_MARGIN;
+    this._UpdateBehaviourRef.y = -20;
+
     this.nodeSelectionHeader = new NodeSelectionHeaderClass();
     this._NodeSelectionHeaderRef = this.addChild(this.nodeSelectionHeader);
     this._NodeSelectionHeaderRef.x = NODE_MARGIN + this.nodeWidth - 56;

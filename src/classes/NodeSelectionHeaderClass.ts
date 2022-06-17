@@ -1,7 +1,9 @@
 import * as PIXI from 'pixi.js';
+import Color from 'color';
 import PPGraph from './GraphClass';
 import PPNode from './NodeClass';
 import {
+  RANDOMMAINCOLOR,
   SELECTION_DOWNSTREAM_TEXTURE,
   SELECTION_UPSTREAM_TEXTURE,
   SELECTION_WHOLE_TEXTURE,
@@ -23,6 +25,7 @@ class Button extends PIXI.Sprite {
     this.alpha = 0.5;
     this.width = 16;
     this.height = 16;
+    this.tint = PIXI.utils.string2hex(Color(RANDOMMAINCOLOR).hex());
     this.on('pointerover', this._onPointerOver.bind(this));
     this.on('pointerout', this._onPointerOut.bind(this));
     this.on('pointerdown', this._onPointerDown.bind(this));
