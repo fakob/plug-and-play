@@ -1,93 +1,91 @@
 import * as PIXI from 'pixi.js';
-import { TRgba } from '../utils/interfaces';
 import PPGraph from './GraphClass';
 import PPNode from './NodeClass';
 import {
-  NODE_MARGIN,
   SELECTION_DOWNSTREAM_TEXTURE,
   SELECTION_UPSTREAM_TEXTURE,
   SELECTION_WHOLE_TEXTURE,
 } from '../utils/constants';
 
+class Button extends PIXI.Sprite {
+  graph: PPGraph;
+  node: PPNode;
+  up: boolean;
+  down: boolean;
+
+  constructor(up: boolean, down: boolean, imageURL: string) {
+    super(PIXI.Texture.from(imageURL));
+
+    this.up = up;
+    this.down = down;
+    this.interactive = true;
+    this.buttonMode = true;
+    this.alpha = 0.5;
+    this.width = 16;
+    this.height = 16;
+    this.on('pointerover', this._onPointerOver.bind(this));
+    this.on('pointerout', this._onPointerOut.bind(this));
+    this.on('pointerdown', this._onPointerDown.bind(this));
+  }
+
+  // SETUP
+
+  _onPointerOver(): void {
+    this.alpha = 1.0;
+    this.cursor = 'pointer';
+  }
+
+  _onPointerOut(): void {
+    this.alpha = 0.5;
+    this.cursor = 'default';
+  }
+
+  _onPointerDown(): void {
+    const node = this.parent?.parent as PPNode;
+    const graph = node?.graph;
+    graph.selection.selectNodes(
+      Object.values(node.getAllUpDownstreamNodes(this.up, this.down))
+    );
+  }
+}
+
 export default class NodeSelectionHeaderClass extends PIXI.Container {
-  _selectDownstreamBranch: PIXI.Sprite;
-  _selectUpstreamBranch: PIXI.Sprite;
-  _selectWholeBranch: PIXI.Sprite;
-  private anchorX: number;
-  private anchorY: number;
+  _selectDownstreamBranch: Button;
+  _selectUpstreamBranch: Button;
+  _selectWholeBranch: Button;
   private _hoverNode: boolean;
-  private _hover: boolean;
 
   constructor() {
     super();
 
-    // this.anchorX = NODE_MARGIN + (this.parent as PPNode)?.nodeWidth - 16;
-    this.anchorX = NODE_MARGIN + 100 - 16;
-    this.anchorY = -20;
-
-    this._selectDownstreamBranch = PIXI.Sprite.from(
+    this._selectUpstreamBranch = new Button(
+      true,
+      false,
+      SELECTION_UPSTREAM_TEXTURE
+    );
+    this._selectWholeBranch = new Button(true, true, SELECTION_WHOLE_TEXTURE);
+    this._selectDownstreamBranch = new Button(
+      false,
+      true,
       SELECTION_DOWNSTREAM_TEXTURE
     );
-    this._selectUpstreamBranch = PIXI.Sprite.from(SELECTION_UPSTREAM_TEXTURE);
-    this._selectWholeBranch = PIXI.Sprite.from(SELECTION_WHOLE_TEXTURE);
 
     this.addChild(this._selectDownstreamBranch);
     this.addChild(this._selectUpstreamBranch);
     this.addChild(this._selectWholeBranch);
 
-    this.configure(this._selectUpstreamBranch, 0, true, false);
-    this.configure(this._selectWholeBranch, 20, true, true);
-    this.configure(this._selectDownstreamBranch, 40, false, true);
+    this._selectUpstreamBranch.x = 0;
+    this._selectWholeBranch.x = 20;
+    this._selectDownstreamBranch.x = 40;
 
     this.redrawAnythingChanging();
-  }
-
-  configure(
-    button: PIXI.Sprite,
-    offsetX: number,
-    up: boolean,
-    down: boolean
-  ): void {
-    button.interactive = true;
-    button.buttonMode = true;
-    button.width = 16;
-    button.height = 16;
-    button.x = this.anchorX + offsetX;
-    button.y = this.anchorY;
-    button.on('pointerover', this._onPointerOver.bind(this, up, down));
-    button.on('pointerout', this._onPointerOut.bind(this));
-    button.on('pointerdown', this._onPointerDown.bind(this, up, down));
-  }
-
-  redrawOne(button: PIXI.Sprite): void {
-    // reset
-    // button.visible = false;
-    button.alpha = 0.01;
-
-    // update now button
-    if (this.hover) {
-      // button.visible = true;
-      button.alpha = 1;
-    } else if (this.hoverNode) {
-      // button.visible = true;
-      button.alpha = 0.5;
-    }
   }
 
   redrawAnythingChanging(): void {
-    // reset
-    this.redrawOne(this._selectUpstreamBranch);
-    this.redrawOne(this._selectWholeBranch);
-    this.redrawOne(this._selectDownstreamBranch);
-  }
-
-  get hover(): boolean {
-    return this._hover;
-  }
-
-  set hover(isHovering: boolean) {
-    this._hover = isHovering;
-    this.redrawAnythingChanging();
+    this.alpha = 0.01;
+    if (this.hoverNode) {
+      this.alpha = 1.0;
+    }
   }
 
   get hoverNode(): boolean {
@@ -97,32 +95,5 @@ export default class NodeSelectionHeaderClass extends PIXI.Container {
   set hoverNode(isHovering: boolean) {
     this._hoverNode = isHovering;
     this.redrawAnythingChanging();
-  }
-
-  // METHODS
-
-  getNode(): PPNode {
-    return this.parent as PPNode;
-  }
-
-  getGraph(): PPGraph {
-    return (this.parent as PPNode)?.graph;
-  }
-
-  // SETUP
-
-  _onPointerOver(): void {
-    this.hover = true;
-  }
-
-  _onPointerOut(): void {
-    this.cursor = 'default';
-    this.hover = false;
-  }
-
-  _onPointerDown(up: boolean, down: boolean): void {
-    this.getGraph().selection.selectNodes(
-      Object.values(this.getNode().getAllUpDownstreamNodes(up, down))
-    );
   }
 }
