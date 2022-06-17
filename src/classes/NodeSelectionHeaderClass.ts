@@ -23,8 +23,8 @@ class Button extends PIXI.Sprite {
     this.interactive = true;
     this.buttonMode = true;
     this.alpha = 0.5;
-    this.width = 16;
-    this.height = 16;
+    this.width = 24;
+    this.height = 24;
     this.tint = PIXI.utils.string2hex(Color(RANDOMMAINCOLOR).darken(0.7).hex());
     this.on('pointerover', this._onPointerOver.bind(this));
     this.on('pointerout', this._onPointerOut.bind(this));
@@ -78,8 +78,8 @@ export default class NodeSelectionHeaderClass extends PIXI.Container {
     this.addChild(this._selectWholeBranch);
 
     this._selectUpstreamBranch.x = 0;
-    this._selectWholeBranch.x = 16;
-    this._selectDownstreamBranch.x = 32;
+    this._selectWholeBranch.x = 24;
+    this._selectDownstreamBranch.x = 48;
 
     this.redrawAnythingChanging();
   }

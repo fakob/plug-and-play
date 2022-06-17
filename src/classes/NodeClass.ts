@@ -176,12 +176,12 @@ export default class PPNode extends PIXI.Container {
     this.updateBehaviour = this.getUpdateBehaviour();
     this._UpdateBehaviourRef = this.addChild(this.updateBehaviour);
     this._UpdateBehaviourRef.x = NODE_MARGIN;
-    this._UpdateBehaviourRef.y = -16;
+    this._UpdateBehaviourRef.y = -24;
 
     this.nodeSelectionHeader = new NodeSelectionHeaderClass();
     this._NodeSelectionHeaderRef = this.addChild(this.nodeSelectionHeader);
-    this._NodeSelectionHeaderRef.x = NODE_MARGIN + this.nodeWidth - 48;
-    this._NodeSelectionHeaderRef.y = -16;
+    this._NodeSelectionHeaderRef.x = NODE_MARGIN + this.nodeWidth - 72;
+    this._NodeSelectionHeaderRef.y = -24;
 
     // do not show the node name
     if (this.showLabels === false) {
@@ -628,7 +628,7 @@ export default class PPNode extends PIXI.Container {
       this.container.style.height = `${this.nodeHeight}px`;
     }
 
-    this._NodeSelectionHeaderRef.x = NODE_MARGIN + this.nodeWidth - 56;
+    this._NodeSelectionHeaderRef.x = NODE_MARGIN + this.nodeWidth - 72;
 
     this.onNodeResize(this.nodeWidth, this.nodeHeight);
   }

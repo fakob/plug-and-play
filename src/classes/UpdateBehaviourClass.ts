@@ -41,8 +41,8 @@ export default class UpdateBehaviourClass extends PIXI.Container {
       this._intervalFrequency.toString(),
       UPDATEBEHAVIOURHEADER_TEXTSTYLE
     );
-    FrequencyText.x = 20;
-    FrequencyText.y = 2;
+    FrequencyText.x = 26;
+    FrequencyText.y = 6;
     FrequencyText.resolution = TEXT_RESOLUTION;
     FrequencyText.alpha = 0.5;
 
@@ -73,15 +73,15 @@ export default class UpdateBehaviourClass extends PIXI.Container {
     this._updateRef.buttonMode = true;
     this._updateRef.alpha = 0.05;
     this._updateRef.x = 0;
-    this._updateRef.width = 16;
-    this._updateRef.height = 16;
+    this._updateRef.width = 24;
+    this._updateRef.height = 24;
 
     this._updateRef.on('pointerover', this._onPointerOver.bind(this));
     this._updateRef.on('pointerout', this._onPointerOut.bind(this));
     this._updateRef.on('pointerdown', this._onPointerDown.bind(this));
 
-    this._noUpdateRef.width = 16;
-    this._noUpdateRef.height = 16;
+    this._noUpdateRef.width = 24;
+    this._noUpdateRef.height = 24;
 
     this.redrawAnythingChanging();
   }
