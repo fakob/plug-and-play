@@ -41,27 +41,29 @@ export default class UpdateBehaviourClass extends PIXI.Container {
       this._intervalFrequency.toString(),
       UPDATEBEHAVIOURHEADER_TEXTSTYLE
     );
-    FrequencyText.x = 40;
+    FrequencyText.x = 20;
     FrequencyText.y = 2;
     FrequencyText.resolution = TEXT_RESOLUTION;
     FrequencyText.alpha = 0.5;
 
     this._frequencyRef = this.addChild(FrequencyText);
     this._frequencyRef.tint = PIXI.utils.string2hex(
-      Color(RANDOMMAINCOLOR).hex()
+      Color(RANDOMMAINCOLOR).darken(0.7).hex()
     );
 
     this._updateRef = this.addChild(
       PIXI.Sprite.from(UPDATEBEHAVIOURHEADER_UPDATE)
     );
-    this._updateRef.tint = PIXI.utils.string2hex(Color(RANDOMMAINCOLOR).hex());
+    this._updateRef.tint = PIXI.utils.string2hex(
+      Color(RANDOMMAINCOLOR).darken(0.7).hex()
+    );
 
     this._noUpdateRef = this.addChild(
       PIXI.Sprite.from(UPDATEBEHAVIOURHEADER_NOUPDATE)
     );
     this._noUpdateRef.visible = false;
     this._noUpdateRef.tint = PIXI.utils.string2hex(
-      Color(RANDOMMAINCOLOR).hex()
+      Color(RANDOMMAINCOLOR).darken(0.7).hex()
     );
 
     this.addChild(this._updateRef);
@@ -78,7 +80,6 @@ export default class UpdateBehaviourClass extends PIXI.Container {
     this._updateRef.on('pointerout', this._onPointerOut.bind(this));
     this._updateRef.on('pointerdown', this._onPointerDown.bind(this));
 
-    this._noUpdateRef.x = 20;
     this._noUpdateRef.width = 16;
     this._noUpdateRef.height = 16;
 
@@ -88,17 +89,15 @@ export default class UpdateBehaviourClass extends PIXI.Container {
   redrawAnythingChanging(): void {
     // reset
     this._updateRef.alpha = 0.05;
+    this._noUpdateRef.visible = false;
     this._frequencyRef.text = '';
 
-    // update now button
+    // update and noupdate
     if (this.hover) {
       this._updateRef.alpha = 1.0;
     } else if (this.hoverNode) {
       this._updateRef.alpha = 0.5;
-    }
-
-    // no update shape
-    if (!this.update) {
+    } else if (!this.update) {
       this._noUpdateRef.visible = true;
     }
 
