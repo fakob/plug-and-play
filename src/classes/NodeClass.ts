@@ -605,6 +605,16 @@ export default class PPNode extends PIXI.Container {
     return true;
   }
 
+  public drawBackground(): void {
+    this._BackgroundRef.drawRoundedRect(
+      NODE_MARGIN,
+      0,
+      this.nodeWidth,
+      this.getNodeHeight(),
+      this.getRoundedCorners() ? NODE_CORNERRADIUS : 0
+    );
+  }
+
   drawNodeShape(): void {
     this._BackgroundRef.clear();
     if (!this.successfullyExecuted) {
@@ -624,13 +634,7 @@ export default class PPNode extends PIXI.Container {
       this.getColor().hexNumber(),
       this.getOpacity()
     );
-    this._BackgroundRef.drawRoundedRect(
-      NODE_MARGIN,
-      0,
-      this.nodeWidth,
-      this.getNodeHeight(),
-      this.getRoundedCorners() ? NODE_CORNERRADIUS : 0
-    );
+    this.drawBackground();
 
     this._BackgroundRef.endFill();
 

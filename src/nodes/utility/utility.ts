@@ -1,6 +1,11 @@
 import PPNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
-import { SOCKET_TYPE } from '../../utils/constants';
+import {
+  NODE_CORNERRADIUS,
+  NODE_MARGIN,
+  SOCKET_TYPE,
+} from '../../utils/constants';
+import { TRgba } from '../../utils/interfaces';
 import { AnyType } from '../datatypes/anyType';
 
 export class Reroute extends PPNode {
@@ -42,6 +47,14 @@ export class Reroute extends PPNode {
   }
   public getRoundedCorners(): boolean {
     return false;
+  }
+
+  public getColor(): TRgba {
+    return TRgba.white();
+  }
+
+  public drawBackground(): void {
+    this._BackgroundRef.drawCircle(16, 0, 14.5);
   }
 
   protected async onExecute(
