@@ -19,7 +19,7 @@ export class MacroType extends AbstractType {
   getInputWidget = (data: any): any => {
     const widgetProps: SelectWidgetProps = data;
     widgetProps.options = this.getMacroEnumOptions(
-      data.property.getNode().graph
+      PPGraph.getCurrentGraph()
     );
     return <SelectWidget {...widgetProps} />;
   };
