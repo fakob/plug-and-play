@@ -321,12 +321,6 @@ export class RandomArray extends PPNode {
   getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
   }
-  constructor(name: string, customArgs: CustomArgs) {
-    super(name, {
-      ...customArgs,
-    });
-  }
-
   public getName(): string {
     return 'Random array';
   }
@@ -459,11 +453,6 @@ export class If_Else extends PPNode {
 export class Comparison extends PPNode {
   getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
-  }
-  constructor(name: string, customArgs: CustomArgs) {
-    super(name, {
-      ...customArgs,
-    });
   }
 
   public getName(): string {
