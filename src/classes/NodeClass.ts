@@ -424,19 +424,22 @@ export default class PPNode extends PIXI.Container {
     includeDownstream = true
   ): { [key: string]: PPNode } {
     const currDependents: { [key: string]: PPNode } = {};
-    if (includeUpstream) {
-      this.inputSocketArray.forEach((socket) => {
-        Object.values(socket.getLinkedNodes(true)).forEach((dependent) => {
+    const goThroughSockets = (
+      socketArray: Socket[],
+      upstream = false
+    ): void => {
+      socketArray.forEach((socket) => {
+        Object.values(socket.getLinkedNodes(upstream)).forEach((dependent) => {
           currDependents[dependent.id] = dependent;
         });
       });
+    };
+
+    if (includeUpstream) {
+      goThroughSockets(this.inputSocketArray, true);
     }
     if (includeDownstream) {
-      this.outputSocketArray.forEach((socket) => {
-        Object.values(socket.getLinkedNodes()).forEach((dependent) => {
-          currDependents[dependent.id] = dependent;
-        });
-      });
+      goThroughSockets(this.outputSocketArray);
     }
     return currDependents;
   }

@@ -279,15 +279,9 @@ export default class Socket extends PIXI.Container {
   }
 
   getLinkedNodes(upstream = false): PPNode[] {
-    if (upstream) {
-      // get upstream node
-      const nodes = this.links.map((link) => link.getSource().getNode());
-      return nodes;
-    } else {
-      // get downstream nodes
-      const nodes = this.links.map((link) => link.getTarget().getNode());
-      return nodes;
-    }
+    return this.links.map((link) => {
+      return upstream ? link.getSource().getNode() : link.getTarget().getNode();
+    });
   }
 
   // SETUP
