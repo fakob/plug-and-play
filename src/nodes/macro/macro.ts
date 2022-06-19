@@ -29,10 +29,12 @@ export class DefineMacroIn extends MacroNode {
   public getDescription(): string {
     return 'Define arguments and node connections';
   }
+  getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.MACRO);
+  }
   constructor(name: string, customArgs: CustomArgs) {
     super(name, {
       ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.MACRO),
     });
     PPGraph.currentGraph.macrosIn[this.id] = this;
   }
@@ -58,10 +60,12 @@ export class DefineMacroOut extends MacroNode {
   public getDescription(): string {
     return 'Define macro output';
   }
+  getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.MACRO);
+  }
   constructor(name: string, customArgs: CustomArgs) {
     super(name, {
       ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.MACRO),
     });
     PPGraph.currentGraph.macrosOut[this.id] = this;
   }
@@ -80,11 +84,8 @@ export class DefineMacroOut extends MacroNode {
 }
 
 export class InvokeMacro extends MacroNode {
-  constructor(name: string, customArgs: CustomArgs) {
-    super(name, {
-      ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.MACRO),
-    });
+  getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.MACRO);
   }
 
   public getName(): string {

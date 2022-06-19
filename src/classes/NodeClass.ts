@@ -58,7 +58,6 @@ export default class PPNode extends PIXI.Container {
   type: string; // Type
   category: string; // Category - derived from type
   description: string;
-  color: TRgba;
   nodePosX: number;
   nodePosY: number;
   nodeWidth: number;
@@ -127,6 +126,14 @@ export default class PPNode extends PIXI.Container {
     return NODE_WIDTH;
   }
 
+  public getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.DEFAULT);
+  }
+
+  public getOpacity(): number {
+    return 1;
+  }
+
   constructor(type: string, customArgs?: CustomArgs) {
     super();
     this.id = customArgs?.customId ?? hri.random();
@@ -145,10 +152,6 @@ export default class PPNode extends PIXI.Container {
     this.nodeHeight = customArgs?.nodeHeight; // if not set height is defined by in/out sockets
     this.minNodeHeight = customArgs?.minNodeHeight;
 
-    this.color = customArgs?.color ?? TRgba.fromString(NODE_TYPE_COLOR.DEFAULT);
-
-    this.color.a =
-      customArgs?.colorTransparency ?? (this.getIsHybrid() ? 0.01 : 1); // so it does not show when dragging the node fast
     const inputNameText = new PIXI.Text(
       this.getNodeTextString(),
       NODE_TEXTSTYLE
@@ -607,7 +610,7 @@ export default class PPNode extends PIXI.Container {
     if (!this.successfullyExecuted) {
       this._BackgroundRef.beginFill(
         new TRgba(255, 0, 0).hexNumber(),
-        this.color.a
+        this.getOpacity()
       );
       this._BackgroundRef.drawRoundedRect(
         NODE_MARGIN - 3,
@@ -617,7 +620,10 @@ export default class PPNode extends PIXI.Container {
         this.getRoundedCorners() ? NODE_CORNERRADIUS : 0
       );
     }
-    this._BackgroundRef.beginFill(this.color.hexNumber(), this.color.a);
+    this._BackgroundRef.beginFill(
+      this.getColor().hexNumber(),
+      this.getOpacity()
+    );
     this._BackgroundRef.drawRoundedRect(
       NODE_MARGIN,
       0,

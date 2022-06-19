@@ -73,6 +73,10 @@ export class Table extends PPNode {
     ];
   }
 
+  getOpacity(): number {
+    return 0;
+  }
+
   constructor(name: string, customArgs?: CustomArgs) {
     const nodeWidth = 800;
     const nodeHeight = 400;

@@ -416,10 +416,12 @@ export class CustomFunction extends PPNode {
     ];
   }
 
+  getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.DEFAULT);
+  }
   constructor(name: string, customArgs: CustomArgs) {
     super(name, {
       ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.DEFAULT),
     });
     // added this to make sure all sockets are in place before anything happens (caused visual issues on load before)
     this.adaptInputs(this.getInputData(anyCodeName));

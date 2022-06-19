@@ -24,11 +24,8 @@ import { EnumType } from './datatypes/enumType';
 import { BooleanType } from './datatypes/booleanType';
 
 export class Placeholder extends PPNode {
-  constructor(name: string, customArgs: CustomArgs) {
-    super(name, {
-      ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.MISSING),
-    });
+  getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.MISSING);
   }
 
   getCanAddInput(): boolean {
@@ -58,11 +55,8 @@ export class Mouse extends PPNode {
     this.setOutputData('buttons', buttons);
   };
 
-  constructor(name: string, customArgs: CustomArgs) {
-    super(name, {
-      ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.INPUT),
-    });
+  getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
   }
 
   public getName(): string {
@@ -137,11 +131,8 @@ export class Keyboard extends PPNode {
     }
   };
 
-  constructor(name: string, customArgs: CustomArgs) {
-    super(name, {
-      ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.INPUT),
-    });
+  getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
   }
 
   public getName(): string {
@@ -186,10 +177,12 @@ export class Keyboard extends PPNode {
 }
 
 export class GridCoordinates extends PPNode {
+  getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
+  }
   constructor(name: string, customArgs: CustomArgs) {
     super(name, {
       ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.INPUT),
     });
 
     this.onExecute = async function (input, output) {
@@ -245,10 +238,12 @@ export class GridCoordinates extends PPNode {
 }
 
 export class ColorArray extends PPNode {
+  getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
+  }
   constructor(name: string, customArgs: CustomArgs) {
     super(name, {
       ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.INPUT),
     });
 
     this.onExecute = async function (input, output) {
@@ -285,10 +280,12 @@ export class ColorArray extends PPNode {
 }
 
 export class RangeArray extends PPNode {
+  getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
+  }
   constructor(name: string, customArgs: CustomArgs) {
     super(name, {
       ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.INPUT),
     });
 
     this.onExecute = async function (input, output) {
@@ -321,10 +318,12 @@ export class RangeArray extends PPNode {
 }
 
 export class RandomArray extends PPNode {
+  getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
+  }
   constructor(name: string, customArgs: CustomArgs) {
     super(name, {
       ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.INPUT),
     });
   }
 
@@ -369,10 +368,12 @@ export class RandomArray extends PPNode {
 }
 
 export class DateAndTime extends PPNode {
+  getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
+  }
   constructor(name: string, customArgs: CustomArgs) {
     super(name, {
       ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.INPUT),
     });
 
     this.onExecute = async function (input, output) {
@@ -421,11 +422,8 @@ export class DateAndTime extends PPNode {
 }
 
 export class If_Else extends PPNode {
-  constructor(name: string, customArgs: CustomArgs) {
-    super(name, {
-      ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM),
-    });
+  getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
   }
 
   public getName(): string {
@@ -459,10 +457,12 @@ export class If_Else extends PPNode {
 }
 
 export class Comparison extends PPNode {
+  getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
+  }
   constructor(name: string, customArgs: CustomArgs) {
     super(name, {
       ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM),
     });
   }
 
@@ -505,11 +505,8 @@ export class Comparison extends PPNode {
 }
 
 export class IsValid extends PPNode {
-  constructor(name: string, customArgs: CustomArgs) {
-    super(name, {
-      ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM),
-    });
+  getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
   }
   public getName(): string {
     return 'IsValid';
