@@ -22,13 +22,14 @@ import {
   ContentCopy as ContentCopyIcon,
 } from '@mui/icons-material';
 import { styled } from '@mui/styles';
-import { writeDataToClipboard } from './utils/utils';
+import { writeDataToClipboard, writeTextToClipboard } from './utils/utils';
 import styles from './utils/style.module.css';
 import PPGraph from './classes/GraphClass';
 import PPNode from './classes/NodeClass';
 import Socket from './classes/SocketClass';
 import { AbstractType } from './nodes/datatypes/abstractType';
 import { allDataTypes } from './nodes/datatypes/dataTypesMap';
+import { CodeEditor } from './components/Editor';
 
 type PropertyArrayContainerProps = {
   currentGraph: PPGraph;
@@ -91,6 +92,37 @@ export const PropertyArrayContainer: React.FunctionComponent<
           </StyledAccordionDetails>
         </StyledAccordion>
       )}
+      <StyledAccordion defaultExpanded={false}>
+        <StyledAccordionSummary>
+          <Box textAlign="center" sx={{ color: 'text.primary' }}>
+            CODE
+          </Box>
+        </StyledAccordionSummary>
+        <StyledAccordionDetails>
+          <Box
+            sx={{ flexGrow: 1, display: 'inline-flex', alignItems: 'center' }}
+          >
+            <Box sx={{ pl: 1, color: 'text.primary' }}>
+              {props.selectedNode.name}:{props.selectedNode.type}
+            </Box>
+            {<LockIcon sx={{ pl: '2px', fontSize: '16px', opacity: 0.5 }} />}
+            <IconButton
+              size="small"
+              onClick={() =>
+                writeTextToClipboard(props.selectedNode.getSourceCode())
+              }
+            >
+              <ContentCopyIcon sx={{ pl: 1, fontSize: '16px' }} />
+            </IconButton>
+          </Box>
+          <CodeEditor
+            value={props.selectedNode.getSourceCode()}
+            randomMainColor={props.randomMainColor}
+            onSave={props.onSave}
+            editable={false}
+          />
+        </StyledAccordionDetails>
+      </StyledAccordion>
       {props.selectedNode.outputSocketArray?.length > 0 && (
         <StyledAccordion defaultExpanded>
           <StyledAccordionSummary>
