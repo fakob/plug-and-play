@@ -507,7 +507,7 @@ export default class PPNode extends PIXI.Container {
         combinedDependents[node.id] = node;
 
         const filtered = Object.keys(newDependents)
-          .filter((key) => combinedDependents[key] !== undefined)
+          .filter((key) => combinedDependents[key] === undefined)
           .reduce((obj, key) => {
             obj[key] = newDependents[key];
             return obj;
