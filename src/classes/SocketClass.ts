@@ -4,7 +4,6 @@ import PPGraph from './GraphClass';
 import PPNode from './NodeClass';
 import PPLink from './LinkClass';
 import {
-  NODE_WIDTH,
   SOCKET_CORNERRADIUS,
   SOCKET_TEXTMARGIN_TOP,
   SOCKET_TEXTMARGIN,
@@ -12,6 +11,7 @@ import {
   SOCKET_TYPE,
   SOCKET_WIDTH,
   TEXT_RESOLUTION,
+  NODE_WIDTH,
 } from '../utils/constants';
 import { AbstractType } from '../nodes/datatypes/abstractType';
 import { serializeType } from '../nodes/datatypes/typehelper';
@@ -71,7 +71,8 @@ export default class Socket extends PIXI.Container {
     socketNameText.x =
       socketType === SOCKET_TYPE.IN
         ? SOCKET_WIDTH + SOCKET_TEXTMARGIN
-        : NODE_WIDTH - SOCKET_TEXTMARGIN;
+        : (this.getNode() ? this.getNode().getNodeWidth() : NODE_WIDTH) -
+          SOCKET_TEXTMARGIN;
     socketNameText.y = SOCKET_TEXTMARGIN_TOP;
     socketNameText.resolution = TEXT_RESOLUTION;
 
@@ -95,7 +96,11 @@ export default class Socket extends PIXI.Container {
     this._SocketRef = new PIXI.Graphics();
     this._SocketRef.beginFill(this.dataType.getColor().hexNumber());
     this._SocketRef.drawRoundedRect(
-      this.socketType === SOCKET_TYPE.IN ? 0 : NODE_WIDTH,
+      this.socketType === SOCKET_TYPE.IN
+        ? 0
+        : this.getNode()
+        ? this.getNode().getNodeWidth()
+        : NODE_WIDTH,
       SOCKET_WIDTH / 2,
       SOCKET_WIDTH,
       SOCKET_WIDTH,
@@ -131,11 +136,11 @@ export default class Socket extends PIXI.Container {
 
   get index(): number {
     if (this.socketType === SOCKET_TYPE.IN) {
-      return (this.parent as PPNode).inputSocketArray.findIndex((item) => {
+      return this.getNode().inputSocketArray.findIndex((item) => {
         return this === item;
       });
     } else {
-      return (this.parent as PPNode).outputSocketArray.findIndex((item) => {
+      return this.getNode().outputSocketArray.findIndex((item) => {
         return this === item;
       });
     }

@@ -3,7 +3,7 @@ import * as PIXI from 'pixi.js';
 import PPGraph from '../../classes/GraphClass';
 import PPNode from '../../classes/NodeClass';
 import UpdateBehaviourClass from '../../classes/UpdateBehaviourClass';
-import { CustomArgs, TRgba } from '../../utils/interfaces';
+import { CustomArgs, TRgba} from '../../utils/interfaces';
 import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../../utils/constants';
 import Socket from '../../classes/SocketClass';
 import { AnyType } from '../datatypes/anyType';
@@ -126,10 +126,14 @@ export class Shader extends PPNode {
 
   prevWidth = defaultWidth;
   prevHeight = defaultWidth;
+
+
+  getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.SHADER);
+  }
   constructor(name: string, customArgs: CustomArgs) {
     super(name, {
       ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.SHADER),
     });
 
     this.name = 'Draw shader';

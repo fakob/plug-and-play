@@ -87,14 +87,8 @@ export abstract class DRAW_Base extends PPNode {
     return 'Draw';
   }
 
-  constructor(name: string, customArgs: CustomArgs) {
-    super(name, {
-      ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.DRAW),
-    });
-
-    this.name = this.getName();
-    this.description = this.getDescription();
+  getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.DRAW);
   }
 
   onNodeRemoved = (): void => {

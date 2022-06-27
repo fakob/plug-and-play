@@ -9,13 +9,15 @@ import { NumberType } from './datatypes/numberType';
 import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../utils/constants';
 
 export class LogViewer extends PPNode {
+  getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
+  }
   constructor(name: string, customArgs?: CustomArgs) {
     const nodeWidth = 640;
     const nodeHeight = 240;
 
     super(name, {
       ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM),
       nodeWidth,
       nodeHeight,
     });

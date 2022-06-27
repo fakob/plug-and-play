@@ -17,10 +17,12 @@ const JSONInsert = 'New value';
 const outValueName = 'Value';
 
 export class JSONGet extends PPNode {
+  getColor(): TRgba{
+    return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
+  }
   constructor(name: string, customArgs: CustomArgs) {
     super(name,  {
       ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM),
     });
 
     this.name = 'Get JSON value';
@@ -65,10 +67,13 @@ export class JSONGet extends PPNode {
 }
 
 export class JSONSet extends PPNode {
+  getColor(): TRgba{
+    return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
+  }
   constructor(name: string, customArgs: CustomArgs) {
+
     super(name,  {
       ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM),
     });
 
     this.name = 'Set JSON value';
@@ -114,10 +119,12 @@ export class JSONSet extends PPNode {
 }
 
 export class JSONKeys extends PPNode {
+  getColor(): TRgba{
+    return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
+  }
   constructor(name: string, customArgs: CustomArgs) {
     super(name, {
       ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM),
     });
 
     this.name = 'Get all JSON properties';
@@ -142,10 +149,14 @@ export class JSONKeys extends PPNode {
 }
 
 export class JSONValues extends PPNode {
+
+  getColor(): TRgba{
+    return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
+  }
+
   constructor(name: string,  customArgs: CustomArgs) {
     super(name, {
       ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM),
     });
 
     this.name = 'Get all JSON values';

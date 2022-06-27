@@ -69,12 +69,16 @@ export class Image extends PPNode {
       ),
     ];
   }
+  getColor(): TRgba{
+    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
+  }
+  getOpacity(): number{
+    return 0.2;
+  }
 
   constructor(name: string, customArgs: CustomArgs) {
     super(name, {
       ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.INPUT),
-      colorTransparency: 0.2,
     });
     this.name = 'Draw Image';
     this.description = 'Draws an Image (base64)';

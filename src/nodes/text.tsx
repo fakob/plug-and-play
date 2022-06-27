@@ -68,17 +68,17 @@ export class Label extends PPNode {
     ].concat(super.getDefaultIO());
   }
 
+  getColor(): TRgba {
+    return this.getInputData('backgroundColor');
+  }
+
   constructor(name: string, customArgs?: CustomArgs) {
     const nodeWidth = 128;
-    const fillColor = COLOR[5];
 
     super(name, {
       ...customArgs,
       nodeWidth,
-      color: TRgba.fromString(fillColor),
-      colorTransparency: 1.0,
       roundedCorners: false,
-      showLabels: false,
     });
 
     const canvas = PPGraph.currentGraph.viewport.getChildByName(
@@ -225,8 +225,6 @@ export class Label extends PPNode {
         this._refTextStyle
       );
 
-      this.color = color;
-
       this.resizeNode(
         Math.max(minWidth, textMetrics.width + marginLeftRight * 2),
         textMetrics.height + marginTopBottom * 2
@@ -256,6 +254,10 @@ export class Label extends PPNode {
     };
   }
 
+  getShowLabels(): boolean {
+    return false;
+  }
+
   shouldExecuteOnMove(): boolean {
     return true;
   }
@@ -269,6 +271,14 @@ export class Note extends PPNode {
   fontSize: number;
   createInputElement: (temporary?: boolean) => void;
   setCleanAndDisplayText: (input: HTMLDivElement) => void;
+
+  getShowLabels(): boolean {
+    return false;
+  }
+
+  getOpacity(): number {
+    return 0;
+  }
 
   constructor(name: string, customArgs?: CustomArgs) {
     const baseWidth = 160;
@@ -285,9 +295,7 @@ export class Note extends PPNode {
       nodeWidth: baseWidth,
       nodeHeight: baseHeight,
       minNodeHeight: baseHeight,
-      colorTransparency: 0,
       roundedCorners: false,
-      showLabels: false,
     });
 
     this.currentInput = null;
@@ -327,15 +335,12 @@ export class Note extends PPNode {
         (this as PIXI.Container).addChild(this._maskRef);
 
         // create and position PIXI.Text
-        this._bitmapTextRef = new PIXI.BitmapText(
-          customArgs?.data ?? 'Write away...',
-          {
-            fontName: 'Arial',
-            fontSize: NOTE_FONTSIZE,
-            align: 'center',
-            maxWidth: nodeWidth - NOTE_PADDING * 2,
-          }
-        );
+        this._bitmapTextRef = new PIXI.BitmapText(this.getInputData('Input'), {
+          fontName: 'Arial',
+          fontSize: NOTE_FONTSIZE,
+          align: 'center',
+          maxWidth: nodeWidth - NOTE_PADDING * 2,
+        });
         (this._bitmapTextRef.anchor as PIXI.Point) = new PIXI.Point(0.5, 0.5);
         this._bitmapTextRef.x = (SOCKET_WIDTH + nodeWidth) / 2;
         this._bitmapTextRef.y = (nodeHeight * verticalTextureOffset) / 2;

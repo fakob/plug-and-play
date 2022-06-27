@@ -137,10 +137,12 @@ export class ArrayPush extends PPNode {
 
 export class ArrayMethod extends PPNode {
   onOptionChange?: (value: string) => void;
+  getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
+  }
   constructor(name: string, customArgs: CustomArgs) {
     super(name, {
       ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM),
     });
 
     this.onOptionChange = (value) => {

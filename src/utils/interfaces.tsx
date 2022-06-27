@@ -3,6 +3,7 @@ import PPNode from '../classes/NodeClass';
 import { IUpdateBehaviour } from '../classes/UpdateBehaviourClass';
 import { COLOR_DARK, COLOR_WHITE, SOCKET_TYPE } from './constants';
 import Color from 'color';
+import Socket from '../classes/SocketClass';
 
 export type RegisteredNodeTypes = Record<
   string,
@@ -38,17 +39,17 @@ export type SerializedSelection = {
 
 export type CustomArgs = {
   customId?: string;
-  color?: TRgba;
-  colorTransparency?: number;
   name?: string;
   nodePosX?: number;
   nodePosY?: number;
   nodeWidth?: number;
   nodeHeight?: number;
+  minNodeHeight?: number;
+  minNodeWidth?: number;
+  addLink?: Socket;
+  initialData?: any;
   roundedCorners?: boolean;
-  showLabels?: boolean;
   defaultArguments?: Record<string, any>;
-  [key: string]: any; //  lets try to deprecate this
 };
 
 export interface IGraphSearch {

@@ -7,10 +7,12 @@ import { NumberType } from './datatypes/numberType';
 import { EnumType } from './datatypes/enumType';
 
 export class MathFunction extends PPNode {
+  getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
+  }
   constructor(name: string, customArgs: CustomArgs) {
     super(name, {
       ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM),
     });
 
     this.name = 'Math function';
@@ -89,10 +91,12 @@ export class MathFunction extends PPNode {
 }
 
 class SimpleMathOperation extends PPNode {
+  getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
+  }
   constructor(name: string, customArgs: CustomArgs) {
     super(name, {
       ...customArgs,
-      color: TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM),
     });
   }
   protected async onExecute(
