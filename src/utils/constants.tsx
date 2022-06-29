@@ -103,9 +103,13 @@ export const SOCKET_TEXTSTYLE = new TextStyle({
   fill: COLOR_MAIN,
 });
 export const UPDATEBEHAVIOURHEADER_TEXTSTYLE = new TextStyle({
-  fontSize: 8,
-  fill: COLOR_DARK,
+  fontSize: 10,
+  fill: '#FFFFFF',
 });
+export const UPDATEBEHAVIOURHEADER_UPDATE =
+  '../assets/UpdateBehaviour_Update.png';
+export const UPDATEBEHAVIOURHEADER_NOUPDATE =
+  '../assets/UpdateBehaviour_NoUpdate.png';
 
 export const NODE_TEXTSTYLE = new TextStyle({
   fontSize: 13,
@@ -150,6 +154,10 @@ export const SELECTION_COLOR_HEX = PIXI.utils.string2hex(
 );
 
 export const EMPTY_TEXTURE = '../assets/Empty.png';
+
+export const SELECTION_DOWNSTREAM_TEXTURE = '../assets/SelectDownstream.png';
+export const SELECTION_UPSTREAM_TEXTURE = '../assets/SelectUpstream.png';
+export const SELECTION_WHOLE_TEXTURE = '../assets/SelectWhole.png';
 
 export const NOTE_TEXTURE = '../assets/Note-white.png';
 export const NOTE_FONT = '../assets/Arial-normal-black.fnt';
