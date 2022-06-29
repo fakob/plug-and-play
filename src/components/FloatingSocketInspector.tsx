@@ -28,7 +28,7 @@ function PaperComponent(props) {
     <Draggable
       handle="#draggable-title"
       cancel={'[id=draggable-content]'}
-      key={`${props.socketinfo?.parent.id}.${props.socketinfo?.name}`}
+      key={`${props.socketinfo.parent.id}.${props.socketinfo.name}`}
     >
       <Paper {...props} />
     </Draggable>
