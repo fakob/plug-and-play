@@ -498,15 +498,21 @@ export default class PPNode extends PIXI.Container {
 
   getAllUpDownstreamNodes(
     includeUpstream: boolean,
-    includeDownstream: boolean
+    includeDownstream: boolean,
+    wholeBranch: boolean // includes the whole up/downstream branch
   ): PPNode[] {
-    const getDirectDependentsAndAccumulateThem = (dependents: {
-      [key: string]: PPNode;
-    }): void => {
+    const getDirectDependentsAndAccumulateThem = (
+      dependents: {
+        [key: string]: PPNode;
+      },
+      includeUpstream: boolean,
+      includeDownstream: boolean,
+      wholeBranch: boolean
+    ): void => {
       Object.values(dependents).forEach((node) => {
         const newDependents: { [key: string]: PPNode } = node.getLinkedNodes(
-          true,
-          true
+          wholeBranch || includeUpstream,
+          wholeBranch || includeDownstream
         );
 
         combinedDependents[node.id] = node;
@@ -518,7 +524,12 @@ export default class PPNode extends PIXI.Container {
             return obj;
           }, {});
 
-        getDirectDependentsAndAccumulateThem(filtered);
+        getDirectDependentsAndAccumulateThem(
+          filtered,
+          includeUpstream,
+          includeDownstream,
+          wholeBranch
+        );
       });
     };
 
@@ -526,10 +537,18 @@ export default class PPNode extends PIXI.Container {
     combinedDependents[this.id] = this;
 
     if (includeUpstream && includeDownstream) {
-      getDirectDependentsAndAccumulateThem(combinedDependents);
+      getDirectDependentsAndAccumulateThem(
+        combinedDependents,
+        includeUpstream,
+        includeDownstream,
+        wholeBranch
+      );
     } else {
       getDirectDependentsAndAccumulateThem(
-        this.getLinkedNodes(includeUpstream, includeDownstream)
+        this.getLinkedNodes(includeUpstream, includeDownstream),
+        includeUpstream,
+        includeDownstream,
+        wholeBranch
       );
     }
     return Object.values(combinedDependents);
