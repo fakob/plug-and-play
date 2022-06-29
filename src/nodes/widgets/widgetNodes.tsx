@@ -34,6 +34,10 @@ export class WidgetButton extends PPNode {
   update: () => void;
   onWidgetTrigger: () => void;
 
+  getOpacity(): number {
+    return 0;
+  }
+
   protected getIsHybrid(): boolean {
     return true;
   }
@@ -186,6 +190,10 @@ export class WidgetSwitch extends PPNode {
   update: () => void;
   onWidgetTrigger: () => void;
 
+  getOpacity(): number {
+    return 0;
+  }
+
   protected getIsHybrid(): boolean {
     return true;
   }
@@ -333,6 +341,10 @@ export class WidgetSwitch extends PPNode {
 export class WidgetSlider extends PPNode {
   update: () => void;
   onWidgetTrigger: () => void;
+
+  getOpacity(): number {
+    return 0;
+  }
 
   protected getIsHybrid(): boolean {
     return true;
