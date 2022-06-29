@@ -282,13 +282,6 @@ export default class Socket extends PIXI.Container {
     const filteredNodes = nodes.filter((node) => node.updateBehaviour.update);
     return filteredNodes;
   }
-
-  getLinkedNodes(upstream = false): PPNode[] {
-    return this.links.map((link) => {
-      return upstream ? link.getSource().getNode() : link.getTarget().getNode();
-    });
-  }
-
   // SETUP
 
   _onPointerOver(): void {

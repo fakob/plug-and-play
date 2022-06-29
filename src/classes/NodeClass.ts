@@ -33,7 +33,6 @@ import {
   TRIGGER_TYPE_OPTIONS,
 } from '../utils/constants';
 import UpdateBehaviourClass from './UpdateBehaviourClass';
-import NodeSelectionHeaderClass from './NodeSelectionHeaderClass';
 import PPGraph from './GraphClass';
 import Socket from './SocketClass';
 import {
@@ -51,7 +50,6 @@ export default class PPNode extends PIXI.Container {
   _NodeNameRef: PIXI.Text;
   _BackgroundRef: PIXI.Graphics;
   _UpdateBehaviourRef: UpdateBehaviourClass;
-  _NodeSelectionHeaderRef: NodeSelectionHeaderClass;
   _CommentRef: PIXI.Graphics;
   clickedSocketRef: Socket;
 
@@ -69,7 +67,6 @@ export default class PPNode extends PIXI.Container {
 
   // default to update on update, 1 sec time update interval
   updateBehaviour: UpdateBehaviourClass;
-  nodeSelectionHeader: NodeSelectionHeaderClass;
   lastTimeTicked = 0;
 
   successfullyExecuted = true;
@@ -178,13 +175,6 @@ export default class PPNode extends PIXI.Container {
 
     this.updateBehaviour = this.getUpdateBehaviour();
     this._UpdateBehaviourRef = this.addChild(this.updateBehaviour);
-    this._UpdateBehaviourRef.x = NODE_MARGIN;
-    this._UpdateBehaviourRef.y = -24;
-
-    this.nodeSelectionHeader = new NodeSelectionHeaderClass();
-    this._NodeSelectionHeaderRef = this.addChild(this.nodeSelectionHeader);
-    this._NodeSelectionHeaderRef.x = NODE_MARGIN + this.nodeWidth - 72;
-    this._NodeSelectionHeaderRef.y = -24;
 
     // do not show the node name
     if (!this.getShowLabels()) {
@@ -422,33 +412,6 @@ export default class PPNode extends PIXI.Container {
     return currDependents;
   }
 
-  goThroughSockets(
-    currDependents: { [key: string]: PPNode },
-    socketArray: Socket[],
-    upstream = false
-  ): void {
-    socketArray.forEach((socket) => {
-      Object.values(socket.getLinkedNodes(upstream)).forEach((dependent) => {
-        currDependents[dependent.id] = dependent;
-      });
-    });
-  }
-
-  getLinkedNodes(
-    includeUpstream = false,
-    includeDownstream = true
-  ): { [key: string]: PPNode } {
-    const currDependents: { [key: string]: PPNode } = {};
-
-    if (includeUpstream) {
-      this.goThroughSockets(currDependents, this.inputSocketArray, true);
-    }
-    if (includeDownstream) {
-      this.goThroughSockets(currDependents, this.outputSocketArray);
-    }
-    return currDependents;
-  }
-
   getHasDependencies(): boolean {
     return (
       this.inputSocketArray.find((socket) => socket.hasLink()) !== undefined
@@ -497,64 +460,6 @@ export default class PPNode extends PIXI.Container {
     });
 
     return numDepending;
-  }
-
-  getAllUpDownstreamNodes(
-    includeUpstream: boolean,
-    includeDownstream: boolean,
-    wholeBranch: boolean // includes the whole up/downstream branch
-  ): PPNode[] {
-    const getDirectDependentsAndAccumulateThem = (
-      dependents: {
-        [key: string]: PPNode;
-      },
-      includeUpstream: boolean,
-      includeDownstream: boolean,
-      wholeBranch: boolean
-    ): void => {
-      Object.values(dependents).forEach((node) => {
-        const newDependents: { [key: string]: PPNode } = node.getLinkedNodes(
-          wholeBranch || includeUpstream,
-          wholeBranch || includeDownstream
-        );
-
-        combinedDependents[node.id] = node;
-
-        const filtered = Object.keys(newDependents)
-          .filter((key) => combinedDependents[key] === undefined)
-          .reduce((obj, key) => {
-            obj[key] = newDependents[key];
-            return obj;
-          }, {});
-
-        getDirectDependentsAndAccumulateThem(
-          filtered,
-          includeUpstream,
-          includeDownstream,
-          wholeBranch
-        );
-      });
-    };
-
-    const combinedDependents: { [key: string]: PPNode } = {};
-    combinedDependents[this.id] = this;
-
-    if (includeUpstream && includeDownstream) {
-      getDirectDependentsAndAccumulateThem(
-        combinedDependents,
-        includeUpstream,
-        includeDownstream,
-        wholeBranch
-      );
-    } else {
-      getDirectDependentsAndAccumulateThem(
-        this.getLinkedNodes(includeUpstream, includeDownstream),
-        includeUpstream,
-        includeDownstream,
-        wholeBranch
-      );
-    }
-    return Object.values(combinedDependents);
   }
 
   async executeOptimizedChain(): Promise<void> {
@@ -659,8 +564,6 @@ export default class PPNode extends PIXI.Container {
       this.container.style.width = `${this.nodeWidth}px`;
       this.container.style.height = `${this.nodeHeight}px`;
     }
-
-    this._NodeSelectionHeaderRef.x = NODE_MARGIN + this.nodeWidth - 72;
 
     this.onNodeResize(this.nodeWidth, this.nodeHeight);
   }
@@ -838,11 +741,10 @@ export default class PPNode extends PIXI.Container {
         commentData = 'Too long to display';
       }
       const debugText = new PIXI.Text(
-        `${this.id}
-${Math.round(this.transform.position.x)}, ${Math.round(
+        `${Math.round(this.transform.position.x)}, ${Math.round(
           this.transform.position.y
         )}
-${Math.round(this._bounds.minX)}, ${Math.round(
+  ${Math.round(this._bounds.minX)}, ${Math.round(
           this._bounds.minY
         )}, ${Math.round(this._bounds.maxX)}, ${Math.round(this._bounds.maxY)}`,
         COMMENT_TEXTSTYLE
@@ -1258,7 +1160,6 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   _onPointerOver(): void {
     this.cursor = 'move';
     this.updateBehaviour.hoverNode = true;
-    this.nodeSelectionHeader.hoverNode = true;
   }
 
   _onPointerOut(): void {
@@ -1266,7 +1167,6 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
       this.alpha = 1.0;
       this.cursor = 'default';
       this.updateBehaviour.hoverNode = false;
-      this.nodeSelectionHeader.hoverNode = false;
     }
   }
 

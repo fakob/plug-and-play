@@ -63,7 +63,7 @@ class deleteNodeAction extends Hotkey {
 
 // remember to add your hotkey to the list
 const activeHotkeys: Hotkey[] = [
-  // new createAddNodeAction(),
+  new createAddNodeAction(),
   new deleteNodeAction(),
 ];
 
