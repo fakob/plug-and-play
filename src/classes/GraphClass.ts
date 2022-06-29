@@ -176,6 +176,7 @@ export default class PPGraph {
       if (this.lastSelectedSocketWasInput) {
         this.selectedSourceSocket = null;
       } else {
+        console.log(event.data.global);
         this.onOpenNodeSearch(event.data.global);
       }
     }
