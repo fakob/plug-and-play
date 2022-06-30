@@ -669,6 +669,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       // so handleNodeItemSelect has access
       setTimeout(() => {
         currentGraph.current.clearTempConnection();
+        currentGraph.current.overrideNodeCursorPosition = null;
       }, 100);
     }
   }, [isNodeSearchVisible]);
@@ -945,11 +946,11 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
   const handleNodeItemSelect = (event, selected: INodeSearch) => {
     console.log(selected);
     // store link before search gets hidden and temp connection gets reset
+    const pos =
+      currentGraph.current.overrideNodeCursorPosition ??
+      new PIXI.Point(contextMenuPosition[0], contextMenuPosition[1]);
+    const nodePos = viewport.current.toWorld(pos.x, pos.y);
     const addLink = currentGraph.current.selectedSourceSocket;
-    const nodePos = viewport.current.toWorld(
-      contextMenuPosition[0],
-      contextMenuPosition[1]
-    );
 
     const nodeExists = getAllNodeTypes()[selected.title] !== undefined;
     if (nodeExists) {
