@@ -252,6 +252,10 @@ export class WidgetSwitch extends PPNode {
     // when the Node is loaded, update the react component
     this.onConfigure = (): void => {
       this.update();
+
+      // set initial value and execute
+      this.setOutputData(outName, this.getInputData(selectedName));
+      this.executeChildren();
     };
 
     this.onWidgetTrigger = () => {
@@ -417,6 +421,10 @@ export class WidgetSlider extends PPNode {
     // when the Node is loaded, update the react component
     this.onConfigure = (): void => {
       this.update();
+
+      // set initial value and execute
+      this.setOutputData(outName, this.getInputData(initialValueName));
+      this.executeChildren();
     };
 
     this.onWidgetTrigger = () => {
