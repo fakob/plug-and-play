@@ -28,6 +28,7 @@ export default class PPGraph {
   _showComments: boolean;
   selectedSourceSocket: null | PPSocket;
   lastSelectedSocketWasInput = false;
+  overrideNodeCursorPosition: null | PIXI.Point = null;
   overInputRef: null | PPSocket;
   dragSourcePoint: PIXI.Point;
 
@@ -176,7 +177,11 @@ export default class PPGraph {
       if (this.lastSelectedSocketWasInput) {
         this.selectedSourceSocket = null;
       } else {
-        console.log(event.data.global);
+        if (!this.overrideNodeCursorPosition) {
+          this.overrideNodeCursorPosition = this.viewport.toWorld(
+            event.data.global
+          );
+        }
         this.onOpenNodeSearch(event.data.global);
       }
     }
@@ -232,6 +237,8 @@ export default class PPGraph {
       if (this.overInputRef) {
         // get target position
         targetPoint = this.getSocketCenter(this.overInputRef);
+      } else if (this.overrideNodeCursorPosition) {
+        targetPoint = this.overrideNodeCursorPosition;
       } else {
         targetPoint = this.viewport.toWorld(event.data.global);
       }

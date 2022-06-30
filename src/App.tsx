@@ -129,9 +129,6 @@ const App = (): JSX.Element => {
   const [isNodeContextMenuOpen, setIsNodeContextMenuOpen] = useState(false);
   const [isSocketContextMenuOpen, setIsSocketContextMenuOpen] = useState(false);
   const [selectedSocket, setSelectedSocket] = useState<PPSocket | null>(null);
-  const [nodeInsertPosition, setNodeInsertPosition] = useState<
-    PIXI.Point | undefined
-  >(undefined);
   const [contextMenuPosition, setContextMenuPosition] = useState([0, 0]);
   const [isCurrentGraphLoaded, setIsCurrentGraphLoaded] = useState(false);
   const [actionObject, setActionObject] = useState(null); // id and name of graph to edit/delete
@@ -601,7 +598,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       if (e.key === 'Escape') {
         setIsGraphSearchOpen(false);
         setIsNodeSearchVisible(false);
-        setNodeInsertPosition(undefined);
         setIsGraphContextMenuOpen(false);
         setIsNodeContextMenuOpen(false);
         setIsSocketContextMenuOpen(false);
@@ -673,6 +669,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       // so handleNodeItemSelect has access
       setTimeout(() => {
         currentGraph.current.clearTempConnection();
+        currentGraph.current.overrideNodeCursorPosition = null;
       }, 100);
     }
   }, [isNodeSearchVisible]);
@@ -947,14 +944,13 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
   };
 
   const handleNodeItemSelect = (event, selected: INodeSearch) => {
-    console.log(contextMenuPosition[0], contextMenuPosition[1]);
-    console.log(nodeInsertPosition);
+    console.log(selected);
     // store link before search gets hidden and temp connection gets reset
     const pos =
-      nodeInsertPosition ??
+      currentGraph.current.overrideNodeCursorPosition ??
       new PIXI.Point(contextMenuPosition[0], contextMenuPosition[1]);
-    const addLink = currentGraph.current.selectedSourceSocket;
     const nodePos = viewport.current.toWorld(pos.x, pos.y);
+    const addLink = currentGraph.current.selectedSourceSocket;
 
     const nodeExists = getAllNodeTypes()[selected.title] !== undefined;
     if (nodeExists) {
@@ -977,7 +973,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
 
     setNodeSearchActiveItem(selected);
     setIsNodeSearchVisible(false);
-    setNodeInsertPosition(undefined);
   };
 
   const getNodes = (): INodeSearch[] => {
@@ -1004,10 +999,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
   const openNodeSearch = (pos = undefined) => {
     console.log('openNodeSearch');
     if (pos !== undefined) {
-      if (nodeInsertPosition === undefined) {
-        console.log('if (nodeInsertPosition === undefined) {');
-        setNodeInsertPosition(pos);
-      }
       setContextMenuPosition([
         Math.min(window.innerWidth - 408, pos.x),
         Math.min(window.innerHeight - 56, pos.y),
@@ -1019,7 +1010,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
   const nodeSearchInputBlurred = () => {
     console.log('nodeSearchInputBlurred');
     setIsNodeSearchVisible(false);
-    setNodeInsertPosition(undefined);
     currentGraph.current.selectedSourceSocket = null;
   };
 
