@@ -757,7 +757,9 @@ export default class PPNode extends PIXI.Container {
             ? this.countOfVisibleOutputSockets * SOCKET_HEIGHT
             : 0) +
           index * SOCKET_HEIGHT;
-
+        if (!this.getShowLabels()) {
+          item._SocketNameRef.alpha = 0;
+        }
         item.redrawAnythingChanging();
       });
 

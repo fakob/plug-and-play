@@ -74,7 +74,7 @@ export class Table extends PPNode {
   }
 
   getOpacity(): number {
-    return 0;
+    return 0.01;
   }
 
   constructor(name: string, customArgs?: CustomArgs) {
