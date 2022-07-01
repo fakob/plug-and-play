@@ -525,7 +525,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           break;
         case target instanceof Viewport:
           console.log('app right click, viewport');
-          setContextMenuPosition([contextMenuPosX, contextMenuPosY(80)]);
+          setContextMenuPosition([contextMenuPosX, contextMenuPosY(600)]);
           setIsGraphContextMenuOpen(true);
           break;
         default:
