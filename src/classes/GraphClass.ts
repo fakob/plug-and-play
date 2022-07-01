@@ -158,10 +158,12 @@ export default class PPGraph {
     this.onCloseSocketInspector();
 
     if ((event.data.originalEvent as PointerEvent).button === 0) {
-      this.selection.drawSelectionStart(
-        event,
-        event.data.originalEvent.shiftKey
-      );
+      if (!this.overInputRef) {
+        this.selection.drawSelectionStart(
+          event,
+          event.data.originalEvent.shiftKey
+        );
+      }
 
       // pause viewport drag
       this.viewport.plugins.pause('drag');

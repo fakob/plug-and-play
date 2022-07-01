@@ -946,10 +946,11 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
   const handleNodeItemSelect = (event, selected: INodeSearch) => {
     console.log(selected);
     // store link before search gets hidden and temp connection gets reset
-    const pos =
+    const nodePos =
       currentGraph.current.overrideNodeCursorPosition ??
-      new PIXI.Point(contextMenuPosition[0], contextMenuPosition[1]);
-    const nodePos = viewport.current.toWorld(pos.x, pos.y);
+      viewport.current.toWorld(
+        new PIXI.Point(contextMenuPosition[0], contextMenuPosition[1])
+      );
     const addLink = currentGraph.current.selectedSourceSocket;
 
     const nodeExists = getAllNodeTypes()[selected.title] !== undefined;
