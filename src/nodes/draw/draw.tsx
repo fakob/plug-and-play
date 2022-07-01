@@ -523,6 +523,7 @@ export class DRAW_Multiplier extends DRAW_Base {
     const numY = inputObject[multiplyYName];
     const numX = Math.ceil(total / numY);
     let numPlaced = 0;
+    // [numX, numY] = [numY, numX];
     for (let x = 0; x < numX; x++) {
       for (let y = 0; y < numY && numPlaced < total; y++, numPlaced++) {
         const currentIndex = x + inputObject[totalNumberName] * y;

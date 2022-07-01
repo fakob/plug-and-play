@@ -286,6 +286,20 @@ export const GraphContextMenu = (props) => {
         </SubMenuItem>
         <MenuItem
           onClick={() => {
+            props.setShowExecutionVisualisation((prevState) => !prevState);
+          }}
+        >
+          <ListItemText>
+            {props.showExecutionVisualisation
+              ? 'Hide execution visualisation'
+              : 'Show execution visualisation'}
+          </ListItemText>
+          {/* <Typography variant="body2" color="text.secondary">
+            {`${props.controlOrMetaKey}+Shift+X`}
+          </Typography> */}
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
             props.setShowComments((prevState) => !prevState);
           }}
         >

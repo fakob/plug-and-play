@@ -26,6 +26,7 @@ export default class PPGraph {
   _links: { [key: number]: PPLink };
 
   _showComments: boolean;
+  _showExecutionVisualisation: boolean;
   selectedSourceSocket: null | PPSocket;
   lastSelectedSocketWasInput = false;
   overrideNodeCursorPosition: null | PIXI.Point = null;
@@ -65,6 +66,7 @@ export default class PPGraph {
     console.log('Graph created');
 
     this._showComments = true;
+    this._showExecutionVisualisation = true;
     this.selectedSourceSocket = null;
 
     this.backgroundTempContainer = new PIXI.Container();
@@ -342,6 +344,14 @@ export default class PPGraph {
   set showComments(value: boolean) {
     this._showComments = value;
     Object.values(this.nodes).forEach((node) => node.drawNodeShape());
+  }
+
+  get showExecutionVisualisation(): boolean {
+    return this._showExecutionVisualisation;
+  }
+
+  set showExecutionVisualisation(value: boolean) {
+    this._showExecutionVisualisation = value;
   }
 
   // METHODS
