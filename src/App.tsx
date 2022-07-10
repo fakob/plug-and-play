@@ -525,7 +525,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           break;
         case target instanceof Viewport:
           console.log('app right click, viewport');
-          setContextMenuPosition([contextMenuPosX, contextMenuPosY(80)]);
+          setContextMenuPosition([contextMenuPosX, contextMenuPosY(600)]);
           setIsGraphContextMenuOpen(true);
           break;
         default:
@@ -946,10 +946,11 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
   const handleNodeItemSelect = (event, selected: INodeSearch) => {
     console.log(selected);
     // store link before search gets hidden and temp connection gets reset
-    const pos =
+    const nodePos =
       currentGraph.current.overrideNodeCursorPosition ??
-      new PIXI.Point(contextMenuPosition[0], contextMenuPosition[1]);
-    const nodePos = viewport.current.toWorld(pos.x, pos.y);
+      viewport.current.toWorld(
+        new PIXI.Point(contextMenuPosition[0], contextMenuPosition[1])
+      );
     const addLink = currentGraph.current.selectedSourceSocket;
 
     const nodeExists = getAllNodeTypes()[selected.title] !== undefined;
