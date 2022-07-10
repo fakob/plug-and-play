@@ -133,6 +133,7 @@ export default class PPNode extends PIXI.Container {
     return TRgba.fromString(NODE_TYPE_COLOR.DEFAULT);
   }
 
+  // for hybrid/transparent nodes, set this value to 0.01, if set to 0, the node is not clickable/selectable anymore
   public getOpacity(): number {
     return 1;
   }
