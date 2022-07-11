@@ -524,12 +524,10 @@ export class DRAW_Multiplier extends DRAW_Base {
     const myContainer = new PIXI.Container();
     const total = inputObject[totalNumberName];
     const changeDrawingOrder = inputObject[drawingOrder];
-    let numJ = Math.max(1, inputObject[numberPerColumnRow]);
-    let numI = Math.ceil(total / numJ);
+    const numJ = Math.max(1, inputObject[numberPerColumnRow]);
+    const numI = Math.ceil(total / numJ);
     let numPlaced = 0;
-    if (changeDrawingOrder) {
-      [numI, numJ] = [numJ, numI];
-    }
+
     for (let i = 0; i < numI; i++) {
       for (let j = 0; j < numJ && numPlaced < total; j++, numPlaced++) {
         const currentIndex = numPlaced;
