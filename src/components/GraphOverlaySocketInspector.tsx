@@ -48,7 +48,7 @@ const GraphOverlaySocketInspector: React.FunctionComponent<
 
   return (
     <Box sx={{ position: 'relative' }}>
-      {socketToInspect && (
+      {socketToInspect && socketToInspect.parent && (
         <FloatingSocketInspector
           socketInspectorPosition={socketInspectorPosition}
           socketToInspect={socketToInspect}
