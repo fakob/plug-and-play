@@ -52,10 +52,10 @@ import {
   CANVAS_BACKGROUND_ALPHA,
   CANVAS_BACKGROUND_TEXTURE,
   COMMENT_TEXTSTYLE,
+  CONTEXTMENU_WIDTH,
   DRAGANDDROP_GRID_MARGIN,
   GESTUREMODE,
   GRID_SHADER,
-  NODE_WIDTH,
   PLUGANDPLAY_ICON,
   RANDOMMAINCOLOR,
 } from './utils/constants';
@@ -507,7 +507,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       setIsSocketContextMenuOpen(false);
       console.log(event, target, event.data.global);
       const contextMenuPosX = Math.min(
-        window.innerWidth - 248,
+        window.innerWidth - (CONTEXTMENU_WIDTH + 8),
         event.data.global.x
       );
       const contextMenuPosY = (offset: number) => {
@@ -546,7 +546,10 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       setIsNodeContextMenuOpen(false);
       setIsSocketContextMenuOpen(false);
       setContextMenuPosition([
-        Math.min(window.innerWidth - 248, event.data.global.x),
+        Math.min(
+          window.innerWidth - (CONTEXTMENU_WIDTH + 8),
+          event.data.global.x
+        ),
         Math.min(window.innerHeight - 432, event.data.global.y),
       ]);
       console.log(event, target, event.data.global);
@@ -597,10 +600,10 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         e.preventDefault();
         setShowComments((prevState) => !prevState);
       }
-      // if ((isMac ? e.metaKey : e.ctrlKey) && e.shiftKey && e.key === 'x') {
-      //   e.preventDefault();
-      //   setShowExecutionVisualisation((prevState) => !prevState);
-      // }
+      if ((isMac ? e.metaKey : e.ctrlKey) && e.shiftKey && e.key === 'x') {
+        e.preventDefault();
+        setShowExecutionVisualisation((prevState) => !prevState);
+      }
       if (e.key === 'Escape') {
         setIsGraphSearchOpen(false);
         setIsNodeSearchVisible(false);

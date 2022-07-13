@@ -21,7 +21,6 @@ import DownloadIcon from '@mui/icons-material/Download';
 import ClearIcon from '@mui/icons-material/Clear';
 import FitScreenIcon from '@mui/icons-material/FitScreen';
 import ZoomOutMapIcon from '@mui/icons-material/ZoomOutMap';
-import AdbIcon from '@mui/icons-material/Adb';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
@@ -30,7 +29,7 @@ import SensorsIcon from '@mui/icons-material/Sensors';
 import MouseIcon from '@mui/icons-material/Mouse';
 import SwipeIcon from '@mui/icons-material/Swipe';
 import PPSocket from './../classes/SocketClass';
-import { GESTUREMODE } from '../utils/constants';
+import { GESTUREMODE, CONTEXTMENU_WIDTH } from '../utils/constants';
 
 const useStyles = makeStyles((theme) =>
   createStyles({
@@ -114,7 +113,7 @@ export const GraphContextMenu = (props) => {
   return (
     <Paper
       sx={{
-        width: 240,
+        width: CONTEXTMENU_WIDTH,
         maxWidth: '100%',
         position: 'absolute',
         zIndex: 400,
@@ -294,9 +293,9 @@ export const GraphContextMenu = (props) => {
               ? 'Hide execution visualisation'
               : 'Show execution visualisation'}
           </ListItemText>
-          {/* <Typography variant="body2" color="text.secondary">
+          <Typography variant="body2" color="text.secondary">
             {`${props.controlOrMetaKey}+Shift+X`}
-          </Typography> */}
+          </Typography>
         </MenuItem>
         <MenuItem
           onClick={() => {
@@ -335,7 +334,7 @@ export const NodeContextMenu = (props) => {
   return (
     <Paper
       sx={{
-        width: 240,
+        width: CONTEXTMENU_WIDTH,
         maxWidth: '100%',
         position: 'absolute',
         zIndex: 400,
