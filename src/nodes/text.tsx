@@ -258,6 +258,10 @@ export class Label extends PPNode {
     return false;
   }
 
+  getRoundedCorners(): boolean {
+    return false;
+  }
+
   shouldExecuteOnMove(): boolean {
     return true;
   }
