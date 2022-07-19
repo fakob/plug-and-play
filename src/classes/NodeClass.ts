@@ -381,7 +381,7 @@ export default class PPNode extends PIXI.Container {
         if (matchingSocket !== undefined) {
           matchingSocket.dataType = deSerializeType(item.dataType);
           matchingSocket.data = item.data;
-          matchingSocket.defaultData = item.defaultData;
+          matchingSocket.defaultData = item.defaultData ?? item.data;
           matchingSocket.setVisible(item.visible);
         } else {
           // add socket if it does not exist yet
