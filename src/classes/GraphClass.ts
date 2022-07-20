@@ -684,6 +684,7 @@ export default class PPGraph {
     const data = {
       version: PP_VERSION,
       graphSettings: {
+        showExecutionVisualisation: this.showExecutionVisualisation,
         viewportCenterPosition: this.viewport.center,
         viewportScale: this.viewport.scale.x,
       },
@@ -750,6 +751,10 @@ export default class PPGraph {
       ease: 'easeOutExpo',
       time: 750,
     });
+
+    // other settings
+    this.showExecutionVisualisation =
+      data.graphSettings.showExecutionVisualisation ?? true;
 
     //create nodes
     try {

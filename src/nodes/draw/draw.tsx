@@ -531,16 +531,14 @@ export class DRAW_Multiplier extends DRAW_Base {
     for (let i = 0; i < numI; i++) {
       for (let j = 0; j < numJ && numPlaced < total; j++, numPlaced++) {
         const currentIndex = numPlaced;
-
-        if (changeDrawingOrder) {
-          [i, j] = [j, i];
-        }
+        const x = changeDrawingOrder ? j : i;
+        const y = changeDrawingOrder ? i : j;
 
         const shallowContainer = new PIXI.Container();
         if (inputObject[inputGraphicsName])
           inputObject[inputGraphicsName](shallowContainer, executions);
-        shallowContainer.x = i * inputObject[spacingXName];
-        shallowContainer.y = j * inputObject[spacingYName];
+        shallowContainer.x = x * inputObject[spacingXName];
+        shallowContainer.y = y * inputObject[spacingYName];
 
         shallowContainer.interactive = true;
         const alphaPre = shallowContainer.alpha;
@@ -552,7 +550,7 @@ export class DRAW_Multiplier extends DRAW_Base {
           this.setOutputData(outputMultiplierPointerDown, true);
           // tell all children when something is pressed
           this.executeChildren();
-          console.log('pressed: ' + i + ' j: ' + j);
+          console.log('pressed: ' + x + ' : ' + y);
           shallowContainer.scale.x *= 0.97;
           shallowContainer.scale.y *= 0.97;
           shallowContainer.alpha = alphaPre * 0.8;
@@ -567,10 +565,6 @@ export class DRAW_Multiplier extends DRAW_Base {
         });
 
         myContainer.addChild(shallowContainer);
-
-        if (changeDrawingOrder) {
-          [i, j] = [j, i];
-        }
       }
     }
     this.positionAndScale(myContainer, inputObject);

@@ -133,8 +133,6 @@ const App = (): JSX.Element => {
   const [isCurrentGraphLoaded, setIsCurrentGraphLoaded] = useState(false);
   const [actionObject, setActionObject] = useState(null); // id and name of graph to edit/delete
   const [showComments, setShowComments] = useState(false);
-  const [showExecutionVisualisation, setShowExecutionVisualisation] =
-    useState(true);
   const [remoteGraphs, setRemoteGraphs, remoteGraphsRef] = useStateRef([]);
   const [graphSearchItems, setGraphSearchItems] = useState<
     IGraphSearch[] | null
@@ -602,7 +600,8 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       }
       if ((isMac ? e.metaKey : e.ctrlKey) && e.shiftKey && e.key === 'x') {
         e.preventDefault();
-        setShowExecutionVisualisation((prevState) => !prevState);
+        currentGraph.current.showExecutionVisualisation =
+          !currentGraph.current.showExecutionVisualisation;
       }
       if (e.key === 'Escape') {
         setIsGraphSearchOpen(false);
@@ -689,11 +688,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     (viewport.current.getChildByName('debugGrid') as PIXI.Mesh).visible =
       showComments;
   }, [showComments]);
-
-  useEffect(() => {
-    currentGraph.current.showExecutionVisualisation =
-      showExecutionVisualisation;
-  }, [showExecutionVisualisation]);
 
   function setGestureModeOnViewport(
     viewport: Viewport,
@@ -1375,8 +1369,6 @@ NOTE: save the playground after loading, if you want to make changes to it`
               uploadGraph={uploadGraph}
               showComments={showComments}
               setShowComments={setShowComments}
-              showExecutionVisualisation={showExecutionVisualisation}
-              setShowExecutionVisualisation={setShowExecutionVisualisation}
               applyGestureMode={applyGestureMode}
               zoomToFitSelection={zoomToFitSelection}
             />

@@ -285,11 +285,12 @@ export const GraphContextMenu = (props) => {
         </SubMenuItem>
         <MenuItem
           onClick={() => {
-            props.setShowExecutionVisualisation((prevState) => !prevState);
+            props.currentGraph.current.showExecutionVisualisation =
+              !props.currentGraph.current.showExecutionVisualisation;
           }}
         >
           <ListItemText>
-            {props.showExecutionVisualisation
+            {props.currentGraph.current.showExecutionVisualisation
               ? 'Hide execution visualisation'
               : 'Show execution visualisation'}
           </ListItemText>
