@@ -321,6 +321,9 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
   useEffect(() => {
     console.log(pixiContext.current);
 
+    const urlParams = new URLSearchParams(window.location.search);
+    console.log(urlParams.getAll('url'));
+
     // create pixiApp
     pixiApp.current = new PIXI.Application({
       backgroundColor: randomMainColorLightHex,
