@@ -68,6 +68,8 @@ const inputHeightName = 'Height';
 const inputGraphicsName = 'Graphics';
 const totalNumberName = 'Total Number';
 const multiplyYName = 'Number Per Column';
+const numberPerColumnRow = 'Number Per Column/Row';
+const drawingOrder = 'Change Column/Row drawing order';
 const spacingXName = 'Spacing X';
 const spacingYName = 'Spacing Y';
 export const injectedDataName = 'Injected Data';
@@ -482,10 +484,11 @@ export class DRAW_Multiplier extends DRAW_Base {
       ),
       new Socket(
         SOCKET_TYPE.IN,
-        multiplyYName,
-        new NumberType(true, 0, 100),
+        numberPerColumnRow,
+        new NumberType(true, 1, 100),
         2
       ),
+      new Socket(SOCKET_TYPE.IN, drawingOrder, new BooleanType(), 2),
       new Socket(
         SOCKET_TYPE.IN,
         spacingXName,
@@ -520,12 +523,16 @@ export class DRAW_Multiplier extends DRAW_Base {
     };
     const myContainer = new PIXI.Container();
     const total = inputObject[totalNumberName];
-    const numY = inputObject[multiplyYName];
-    const numX = Math.ceil(total / numY);
+    const changeDrawingOrder = inputObject[drawingOrder];
+    const numJ = Math.max(1, inputObject[numberPerColumnRow]);
+    const numI = Math.ceil(total / numJ);
     let numPlaced = 0;
-    for (let x = 0; x < numX; x++) {
-      for (let y = 0; y < numY && numPlaced < total; y++, numPlaced++) {
-        const currentIndex = x + inputObject[totalNumberName] * y;
+
+    for (let i = 0; i < numI; i++) {
+      for (let j = 0; j < numJ && numPlaced < total; j++, numPlaced++) {
+        const currentIndex = numPlaced;
+        const x = changeDrawingOrder ? j : i;
+        const y = changeDrawingOrder ? i : j;
 
         const shallowContainer = new PIXI.Container();
         if (inputObject[inputGraphicsName])
@@ -543,7 +550,7 @@ export class DRAW_Multiplier extends DRAW_Base {
           this.setOutputData(outputMultiplierPointerDown, true);
           // tell all children when something is pressed
           this.executeChildren();
-          console.log('pressed: ' + x + ' y: ' + y);
+          console.log('pressed: ' + x + ' : ' + y);
           shallowContainer.scale.x *= 0.97;
           shallowContainer.scale.y *= 0.97;
           shallowContainer.alpha = alphaPre * 0.8;

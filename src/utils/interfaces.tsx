@@ -24,6 +24,7 @@ export type PPNodeConstructor<T extends PPNode = PPNode> = {
 export type SerializedGraph = {
   version: number;
   graphSettings: {
+    showExecutionVisualisation: boolean;
     viewportCenterPosition: PIXI.Point;
     viewportScale: number;
   };

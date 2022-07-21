@@ -1126,7 +1126,10 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     const executedSuccessOld = this.successfullyExecuted;
     try {
       this.successfullyExecuted = true;
-      if (this.shouldDrawExecution()) {
+      if (
+        PPGraph.currentGraph.showExecutionVisualisation &&
+        this.shouldDrawExecution()
+      ) {
         this.renderOutlineThrottled();
       }
       await this.rawExecute();
