@@ -481,7 +481,15 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     // load plug and playground settings
     applyGestureMode(viewport.current);
 
-    loadGraph();
+    const urlParams = new URLSearchParams(window.location.search);
+    const loadURL = urlParams.get('loadURL');
+    console.log('loadURL: ', loadURL);
+    if (loadURL) {
+      loadGraphFromURL(loadURL);
+    } else {
+      loadGraph();
+    }
+
     setIsCurrentGraphLoaded(true);
     console.log('currentGraph.current:', currentGraph.current);
 
@@ -897,6 +905,47 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     }).catch((e) => {
       console.log(e.stack || e);
     });
+  }
+
+  async function loadGraphFromURL(loadURL: string) {
+    try {
+      const file = await fetch(loadURL, {});
+      const fileData = await file.json();
+      console.log(fileData);
+      currentGraph.current.configure(fileData);
+
+      // unset loadedGraphId
+      await db.settings.put({
+        name: 'loadedGraphId',
+        value: undefined,
+      });
+
+      const newName = hri.random();
+      enqueueSnackbar('Playground from link in URL was loaded', {
+        variant: 'default',
+        autoHideDuration: 20000,
+        action: (key) => (
+          <>
+            <Button size="small" onClick={() => saveNewGraph(newName)}>
+              Save
+            </Button>
+            <Button size="small" onClick={() => closeSnackbar(key)}>
+              Dismiss
+            </Button>
+          </>
+        ),
+      });
+      return fileData;
+    } catch (error) {
+      enqueueSnackbar(
+        `Loading playground from link in URL failed: ${loadURL}`,
+        {
+          variant: 'error',
+          autoHideDuration: 20000,
+        }
+      );
+      return undefined;
+    }
   }
 
   async function cloneRemoteGraph(id = undefined) {
