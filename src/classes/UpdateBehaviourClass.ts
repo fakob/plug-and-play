@@ -95,7 +95,7 @@ export default class UpdateBehaviourClass extends PIXI.Container {
     // update and noupdate
     if (this.hover) {
       this._updateRef.alpha = 1.0;
-    } else if (this.hoverNode) {
+    } else if (this.getNode()?.isHovering) {
       this._updateRef.alpha = 0.5;
     } else if (!this.update) {
       this._noUpdateRef.visible = true;
@@ -153,15 +153,6 @@ export default class UpdateBehaviourClass extends PIXI.Container {
 
   set hover(isHovering: boolean) {
     this._hover = isHovering;
-    this.redrawAnythingChanging();
-  }
-
-  get hoverNode(): boolean {
-    return this._hoverNode;
-  }
-
-  set hoverNode(isHovering: boolean) {
-    this._hoverNode = isHovering;
     this.redrawAnythingChanging();
   }
 

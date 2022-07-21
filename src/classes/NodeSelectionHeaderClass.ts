@@ -57,7 +57,6 @@ export default class NodeSelectionHeaderClass extends PIXI.Container {
   _selectDownstreamBranch: Button;
   _selectUpstreamBranch: Button;
   _selectWholeBranch: Button;
-  private _hoverNode: boolean;
 
   constructor() {
     super();
@@ -85,19 +84,10 @@ export default class NodeSelectionHeaderClass extends PIXI.Container {
     this.redrawAnythingChanging();
   }
 
-  redrawAnythingChanging(): void {
+  public redrawAnythingChanging(hoverNode = false): void {
     this.alpha = 0.01;
-    if (this.hoverNode) {
+    if (hoverNode) {
       this.alpha = 1.0;
     }
-  }
-
-  get hoverNode(): boolean {
-    return this._hoverNode;
-  }
-
-  set hoverNode(isHovering: boolean) {
-    this._hoverNode = isHovering;
-    this.redrawAnythingChanging();
   }
 }

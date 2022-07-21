@@ -1,10 +1,6 @@
 import PPNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
-import {
-  NODE_CORNERRADIUS,
-  NODE_MARGIN,
-  SOCKET_TYPE,
-} from '../../utils/constants';
+import { SOCKET_TYPE } from '../../utils/constants';
 import { TRgba } from '../../utils/interfaces';
 import { AnyType } from '../datatypes/anyType';
 
@@ -46,6 +42,9 @@ export class Reroute extends PPNode {
     return true;
   }
   public getRoundedCorners(): boolean {
+    return false;
+  }
+  protected getShouldShowHoverActions(): boolean {
     return false;
   }
 
