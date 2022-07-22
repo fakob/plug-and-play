@@ -104,7 +104,9 @@ const randomMainColorLightHex = PIXI.utils.string2hex(
 const App = (): JSX.Element => {
   document.title = 'Your Plug and Playground';
 
-  console.log(process.env.HEROKU_RELEASE_VERSION);
+  fetch('https://plugandplayground.dev/buildInfo').then((response) => {
+    console.log(response);
+  });
 
   // remote playground database
   const githubBaseURL =
