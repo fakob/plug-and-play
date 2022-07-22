@@ -1330,5 +1330,6 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
 
   public metaInfoChanged(): void {
     this.drawNodeShape();
+    this.updateConnectionPosition();
   }
 }
