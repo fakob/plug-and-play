@@ -6,7 +6,7 @@ import styles from '../utils/style.module.css';
 
 const ResponsiveDrawer = (props) => {
   // leaving this commented here for potential future testing
-  //console.log('redrawing responsivedrawer');
+  console.log('redrawing responsivedrawer');
   const [widthPercentage, setWidthPercentage] = useState(
     props.drawerWidth / window.innerWidth
   );
@@ -73,8 +73,6 @@ const ResponsiveDrawer = (props) => {
 };
 
 // not neccessary to memoize this for the moment, but can be relevant later so leaving this uncommented
-//export default React.memo(ResponsiveDrawer, (prevProps, newProps) => {
-//  return prevProps.selectedNode?.id === newProps.selectedNode?.id;
-//});
-
-export default ResponsiveDrawer;
+export default React.memo(ResponsiveDrawer, (prevProps, newProps) => {
+  return prevProps.selectedNode?.id === newProps.selectedNode?.id;
+});
