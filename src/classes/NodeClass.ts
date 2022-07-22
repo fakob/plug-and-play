@@ -50,10 +50,9 @@ import { throttle } from 'lodash';
 export default class PPNode extends PIXI.Container {
   _NodeNameRef: PIXI.Text;
   _BackgroundRef: PIXI.Graphics;
-  _UpdateBehaviourRef: UpdateBehaviourClass;
-  _NodeSelectionHeaderRef: NodeSelectionHeaderClass;
   _CommentRef: PIXI.Graphics;
   clickedSocketRef: Socket;
+  isHovering: boolean;
 
   id: string;
   // name: string; // Display name - at first it is the type with spaces - defined on PIXI.Container
@@ -155,6 +154,7 @@ export default class PPNode extends PIXI.Container {
     this.minNodeWidth = customArgs?.minNodeWidth ?? this.nodeWidth;
     this.nodeHeight = customArgs?.nodeHeight; // if not set height is defined by in/out sockets
     this.minNodeHeight = customArgs?.minNodeHeight;
+    this.isHovering = false;
 
     const inputNameText = new PIXI.Text(
       this.getNodeTextString(),
@@ -178,14 +178,18 @@ export default class PPNode extends PIXI.Container {
     this._CommentRef = this.addChild(new PIXI.Graphics());
 
     this.updateBehaviour = this.getUpdateBehaviour();
-    this._UpdateBehaviourRef = this.addChild(this.updateBehaviour);
-    this._UpdateBehaviourRef.x = NODE_MARGIN;
-    this._UpdateBehaviourRef.y = -24;
+    if (this.getShouldShowHoverActions()) {
+      this.addChild(this.updateBehaviour);
+    }
+    this.updateBehaviour.x = NODE_MARGIN;
+    this.updateBehaviour.y = -24;
 
     this.nodeSelectionHeader = new NodeSelectionHeaderClass();
-    this._NodeSelectionHeaderRef = this.addChild(this.nodeSelectionHeader);
-    this._NodeSelectionHeaderRef.x = NODE_MARGIN + this.nodeWidth - 72;
-    this._NodeSelectionHeaderRef.y = -24;
+    if (this.getShouldShowHoverActions()) {
+      this.addChild(this.nodeSelectionHeader);
+    }
+    this.nodeSelectionHeader.x = NODE_MARGIN + this.nodeWidth - 72;
+    this.nodeSelectionHeader.y = -24;
 
     // do not show the node name
     if (!this.getShowLabels()) {
@@ -661,7 +665,7 @@ export default class PPNode extends PIXI.Container {
       this.container.style.height = `${this.nodeHeight}px`;
     }
 
-    this._NodeSelectionHeaderRef.x = NODE_MARGIN + this.nodeWidth - 72;
+    this.nodeSelectionHeader.x = NODE_MARGIN + this.nodeWidth - 72;
 
     this.onNodeResize(this.nodeWidth, this.nodeHeight);
   }
@@ -786,6 +790,10 @@ export default class PPNode extends PIXI.Container {
 
   public getCanAddInput(): boolean {
     return false;
+  }
+
+  protected getShouldShowHoverActions(): boolean {
+    return true;
   }
 
   constructSocketName(prefix: string, existing: Socket[]): string {
@@ -1156,11 +1164,6 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     // just define function
   }
 
-  // return true if this node has no effects on the graph apart from what it returns and does within itself, if this is indeed the case then there are a ton of optimizations and improvements that can be done, so mark all nodes that can be made pure as pure
-  public isPure(): boolean {
-    return false;
-  }
-
   // SETUP
 
   _addListeners(): void {
@@ -1263,17 +1266,19 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
 
   _onPointerOver(): void {
     this.cursor = 'move';
-    this.updateBehaviour.hoverNode = true;
-    this.nodeSelectionHeader.hoverNode = true;
+    this.isHovering = true;
+    this.updateBehaviour.redrawAnythingChanging();
+    this.nodeSelectionHeader.redrawAnythingChanging(true);
   }
 
   _onPointerOut(): void {
     if (!this.isDraggingNode) {
+      this.isHovering = false;
       this.alpha = 1.0;
       this.cursor = 'default';
-      this.updateBehaviour.hoverNode = false;
-      this.nodeSelectionHeader.hoverNode = false;
     }
+    this.updateBehaviour.redrawAnythingChanging();
+    this.nodeSelectionHeader.redrawAnythingChanging(false);
   }
 
   _onDoubleClick(event: PIXI.InteractionEvent): void {
