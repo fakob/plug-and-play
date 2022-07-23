@@ -74,5 +74,8 @@ const ResponsiveDrawer = (props) => {
 
 // not neccessary to memoize this for the moment, but can be relevant later so leaving this uncommented
 export default React.memo(ResponsiveDrawer, (prevProps, newProps) => {
-  return prevProps.selectedNode?.id === newProps.selectedNode?.id;
+  return (
+    prevProps.selectedNode?.id === newProps.selectedNode?.id &&
+    prevProps.drawerWidth === newProps.drawerWidth
+  );
 });
