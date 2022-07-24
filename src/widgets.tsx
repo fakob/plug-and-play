@@ -28,7 +28,9 @@ import { TriggerType } from './nodes/datatypes/triggerType';
 async function potentiallyNotify(property: Socket, newValue) {
   if (property.data !== newValue) {
     property.data = newValue;
-    await property.getNode().executeOptimizedChain();
+    if (property.getNode().updateBehaviour.update) {
+      await property.getNode().executeOptimizedChain();
+    }
   }
 }
 
