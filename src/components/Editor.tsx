@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
-import CodeMirror, {
-  EditorView,
-  KeyBinding,
-  keymap,
-} from '@uiw/react-codemirror';
-import { oneDark } from '@codemirror/theme-one-dark';
-import { javascript } from '@codemirror/lang-javascript';
+import MonacoEditor from 'react-monaco-editor';
+// import CodeMirror, {
+//   EditorView,
+//   KeyBinding,
+//   keymap,
+// } from '@uiw/react-codemirror';
+// import { oneDark } from '@codemirror/theme-one-dark';
+// import { javascript } from '@codemirror/lang-javascript';
 import { Box, Button } from '@mui/material';
 import ErrorFallback from './ErrorFallback';
 import Color from 'color';
@@ -20,26 +21,26 @@ type CodeEditorProps = {
 };
 
 export const CodeEditor: React.FunctionComponent<CodeEditorProps> = (props) => {
-  const theme = EditorView.theme({
-    '&.cm-editor': {
-      fontFamily: 'Roboto Mono, sans-serif',
-      backgroundColor: `${Color(props.randomMainColor).darken(0.85)}`,
-    },
-    '& .cm-gutters': {
-      backgroundColor: `${Color(props.randomMainColor).darken(
-        0.85
-      )} !important`,
-    },
-    '& .cm-activeLineGutter, & .cm-activeLine': {
-      backgroundColor: `${Color(props.randomMainColor).darken(
-        0.75
-      )} !important`,
-    },
-    // /* Disable CodeMirror's focused editor outline. */
-    // '&.cm-editor.cm-focused': {
-    //   outline: 'none',
-    // },
-  });
+  // const theme = EditorView.theme({
+  //   '&.cm-editor': {
+  //     fontFamily: 'Roboto Mono, sans-serif',
+  //     backgroundColor: `${Color(props.randomMainColor).darken(0.85)}`,
+  //   },
+  //   '& .cm-gutters': {
+  //     backgroundColor: `${Color(props.randomMainColor).darken(
+  //       0.85
+  //     )} !important`,
+  //   },
+  //   '& .cm-activeLineGutter, & .cm-activeLine': {
+  //     backgroundColor: `${Color(props.randomMainColor).darken(
+  //       0.75
+  //     )} !important`,
+  //   },
+  //   // /* Disable CodeMirror's focused editor outline. */
+  //   // '&.cm-editor.cm-focused': {
+  //   //   outline: 'none',
+  //   // },
+  // });
 
   const maxStringLength = 10000;
   const valueLength = props.value?.length;
@@ -47,6 +48,11 @@ export const CodeEditor: React.FunctionComponent<CodeEditorProps> = (props) => {
   const [loadedValue, setLoadedValue] = useState(
     loadAll ? props.value : props.value?.slice(0, maxStringLength) + '...'
   );
+
+  useEffect(() => {
+    console.log(props.value);
+    console.log(loadedValue);
+  }, [props.value]);
 
   const onLoadAll = () => {
     setLoadedValue(props.value);
@@ -60,28 +66,52 @@ export const CodeEditor: React.FunctionComponent<CodeEditorProps> = (props) => {
     }
   };
 
-  /*
-   * Create a KeyMap extension
-   */
-  function getKeymap() {
-    // Save command
-    const save = (editor) => {
-      saveCode();
-      // console.log(editor.toString());
-      return true;
-    };
+  // /*
+  //  * Create a KeyMap extension
+  //  */
+  // function getKeymap() {
+  //   // Save command
+  //   const save = (editor) => {
+  //     saveCode();
+  //     // console.log(editor.toString());
+  //     return true;
+  //   };
 
-    const conf: readonly KeyBinding[] = [
-      {
-        key: 'Ctrl-Enter',
-        // mac: 'Cmd-Enter', // seems to not work in chrome
-        run: save,
-        preventDefault: true,
+  //   const conf: readonly KeyBinding[] = [
+  //     {
+  //       key: 'Ctrl-Enter',
+  //       // mac: 'Cmd-Enter', // seems to not work in chrome
+  //       run: save,
+  //       preventDefault: true,
+  //     },
+  //   ];
+
+  //   return keymap.of(conf);
+  // }
+
+  const editorDidMount = (editor, monaco) => {
+    // editorRef.current = editor;
+
+    editor.addAction({
+      id: 'my-unique-id',
+      label: 'Create/Update node',
+      keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter],
+      contextMenuGroupId: 'Test',
+      contextMenuOrder: 1,
+      run: function (ed) {
+        console.log(ed);
+        saveCode();
       },
-    ];
+    });
 
-    return keymap.of(conf);
-  }
+    console.log('editorDidMount', editor);
+    editor.focus();
+  };
+
+  const onChange = (value, e) => {
+    console.log(value);
+    props.onChange(value);
+  };
 
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
@@ -97,7 +127,23 @@ export const CodeEditor: React.FunctionComponent<CodeEditorProps> = (props) => {
             Load all{props.editable && ' (to edit)'}
           </Button>
         )}
-        <CodeMirror
+        <MonacoEditor
+          width="100%"
+          height="600"
+          // minHeight="40px"
+          // maxHeight="60vh"
+          language="javascript"
+          theme="vs-dark"
+          value={props.value}
+          options={{
+            selectOnLineNumbers: true,
+            scrollBeyondLastLine: false,
+            wordWrap: 'on',
+          }}
+          onChange={onChange}
+          editorDidMount={editorDidMount}
+        />
+        {/* <CodeMirror
           value={loadedValue}
           width="100%"
           minHeight="40px"
@@ -111,7 +157,7 @@ export const CodeEditor: React.FunctionComponent<CodeEditorProps> = (props) => {
             theme,
           ]}
           onChange={props.onChange}
-        />
+        /> */}
       </Box>
     </ErrorBoundary>
   );
