@@ -104,9 +104,11 @@ const randomMainColorLightHex = PIXI.utils.string2hex(
 const App = (): JSX.Element => {
   document.title = 'Your Plug and Playground';
 
-  fetch('https://plugandplayground.dev/buildInfo')
-    .then((response) => response.json())
-    .then((data) => console.log(data));
+  if (location.hostname !== 'localhost') {
+    fetch('https://plugandplayground.dev/buildInfo')
+      .then((response) => response.json())
+      .then((data) => console.log(data));
+  }
 
   // remote playground database
   const githubBaseURL =
