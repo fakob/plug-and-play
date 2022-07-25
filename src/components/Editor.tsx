@@ -1,13 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import MonacoEditor from 'react-monaco-editor';
-// import CodeMirror, {
-//   EditorView,
-//   KeyBinding,
-//   keymap,
-// } from '@uiw/react-codemirror';
-// import { oneDark } from '@codemirror/theme-one-dark';
-// import { javascript } from '@codemirror/lang-javascript';
 import { Box, Button } from '@mui/material';
 import ErrorFallback from './ErrorFallback';
 import Color from 'color';
@@ -49,10 +42,10 @@ export const CodeEditor: React.FunctionComponent<CodeEditorProps> = (props) => {
     loadAll ? props.value : props.value?.slice(0, maxStringLength) + '...'
   );
 
-  useEffect(() => {
-    console.log(props.value);
-    console.log(loadedValue);
-  }, [props.value]);
+  // useEffect(() => {
+  //   console.log(props.value);
+  //   console.log(loadedValue);
+  // }, [props.value]);
 
   const onLoadAll = () => {
     setLoadedValue(props.value);
@@ -65,29 +58,6 @@ export const CodeEditor: React.FunctionComponent<CodeEditorProps> = (props) => {
       props.onSave(props.value);
     }
   };
-
-  // /*
-  //  * Create a KeyMap extension
-  //  */
-  // function getKeymap() {
-  //   // Save command
-  //   const save = (editor) => {
-  //     saveCode();
-  //     // console.log(editor.toString());
-  //     return true;
-  //   };
-
-  //   const conf: readonly KeyBinding[] = [
-  //     {
-  //       key: 'Ctrl-Enter',
-  //       // mac: 'Cmd-Enter', // seems to not work in chrome
-  //       run: save,
-  //       preventDefault: true,
-  //     },
-  //   ];
-
-  //   return keymap.of(conf);
-  // }
 
   const editorDidMount = (editor, monaco) => {
     // editorRef.current = editor;
@@ -130,34 +100,22 @@ export const CodeEditor: React.FunctionComponent<CodeEditorProps> = (props) => {
         <MonacoEditor
           width="100%"
           height="600"
-          // minHeight="40px"
-          // maxHeight="60vh"
           language="javascript"
           theme="vs-dark"
           value={props.value}
           options={{
-            selectOnLineNumbers: true,
+            automaticLayout: true,
+            lineNumbersMinChars: 4,
+            minimap: { enabled: !loadAll },
+            readOnly: !props.editable,
             scrollBeyondLastLine: false,
+            selectOnLineNumbers: true,
+            tabSize: 2,
             wordWrap: 'on',
           }}
           onChange={onChange}
           editorDidMount={editorDidMount}
         />
-        {/* <CodeMirror
-          value={loadedValue}
-          width="100%"
-          minHeight="40px"
-          maxHeight="60vh"
-          theme={oneDark}
-          editable={props.editable}
-          extensions={[
-            javascript({ jsx: true }),
-            EditorView.lineWrapping,
-            getKeymap(),
-            theme,
-          ]}
-          onChange={props.onChange}
-        /> */}
       </Box>
     </ErrorBoundary>
   );
