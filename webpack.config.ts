@@ -41,7 +41,7 @@ module.exports = (env, argv) => {
         },
         {
           test: /\.ttf$/,
-          use: ['file-loader'],
+          type: 'asset/resource',
         },
       ],
     },
@@ -54,16 +54,7 @@ module.exports = (env, argv) => {
       }),
       new MonacoWebpackPlugin({
         // available options are documented at https://github.com/Microsoft/monaco-editor-webpack-plugin#options
-        languages: [
-          'javascript',
-          'typescript',
-          'json',
-          'html',
-          'css',
-          'scss',
-          'less',
-          'xml',
-        ],
+        languages: ['javascript'],
       }),
       new CopyPlugin({
         patterns: [

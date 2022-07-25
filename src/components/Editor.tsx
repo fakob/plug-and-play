@@ -3,7 +3,6 @@ import { ErrorBoundary } from 'react-error-boundary';
 import MonacoEditor from 'react-monaco-editor';
 import { Box, Button } from '@mui/material';
 import ErrorFallback from './ErrorFallback';
-import Color from 'color';
 
 type CodeEditorProps = {
   value: string;
@@ -14,38 +13,12 @@ type CodeEditorProps = {
 };
 
 export const CodeEditor: React.FunctionComponent<CodeEditorProps> = (props) => {
-  // const theme = EditorView.theme({
-  //   '&.cm-editor': {
-  //     fontFamily: 'Roboto Mono, sans-serif',
-  //     backgroundColor: `${Color(props.randomMainColor).darken(0.85)}`,
-  //   },
-  //   '& .cm-gutters': {
-  //     backgroundColor: `${Color(props.randomMainColor).darken(
-  //       0.85
-  //     )} !important`,
-  //   },
-  //   '& .cm-activeLineGutter, & .cm-activeLine': {
-  //     backgroundColor: `${Color(props.randomMainColor).darken(
-  //       0.75
-  //     )} !important`,
-  //   },
-  //   // /* Disable CodeMirror's focused editor outline. */
-  //   // '&.cm-editor.cm-focused': {
-  //   //   outline: 'none',
-  //   // },
-  // });
-
   const maxStringLength = 10000;
   const valueLength = props.value?.length;
   const [loadAll, setLoadAll] = useState(valueLength < maxStringLength);
   const [loadedValue, setLoadedValue] = useState(
     loadAll ? props.value : props.value?.slice(0, maxStringLength) + '...'
   );
-
-  // useEffect(() => {
-  //   console.log(props.value);
-  //   console.log(loadedValue);
-  // }, [props.value]);
 
   const onLoadAll = () => {
     setLoadedValue(props.value);
@@ -79,7 +52,8 @@ export const CodeEditor: React.FunctionComponent<CodeEditorProps> = (props) => {
   };
 
   const onChange = (value, e) => {
-    console.log(value);
+    // console.log(value);
+    setLoadedValue(value);
     props.onChange(value);
   };
 
@@ -102,12 +76,12 @@ export const CodeEditor: React.FunctionComponent<CodeEditorProps> = (props) => {
           height="600"
           language="javascript"
           theme="vs-dark"
-          value={props.value}
+          value={loadedValue}
           options={{
             automaticLayout: true,
             lineNumbersMinChars: 4,
             minimap: { enabled: !loadAll },
-            readOnly: !props.editable,
+            readOnly: !loadAll || !props.editable,
             scrollBeyondLastLine: false,
             selectOnLineNumbers: true,
             tabSize: 2,
