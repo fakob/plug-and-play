@@ -228,6 +228,7 @@ export default class Socket extends PIXI.Container {
 
   removeLink(link?: PPLink): void {
     if (link === undefined) {
+      this.links.forEach((link) => link.destroy());
       this.links = [];
     } else {
       this.links = this.links.filter((item) => item.id !== link.id);
