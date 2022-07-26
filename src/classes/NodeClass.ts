@@ -1090,7 +1090,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     return true;
   }
 
-  public renderOutlineThrottled = throttle(this.renderOutline, 500, {
+  public renderOutlineThrottled = throttle(this.renderOutline, 2000, {
     trailing: false,
     leading: true,
   });
