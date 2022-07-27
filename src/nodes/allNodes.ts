@@ -2,6 +2,7 @@ import PPNode from '../classes/NodeClass';
 import * as base from './base';
 import * as draw from './draw/draw';
 import * as table from './table';
+import * as codeEditor from './codeEditor';
 import * as math from './math';
 import * as text from './text';
 import * as logViewer from './logViewer';
@@ -30,6 +31,7 @@ export const getAllNodeTypes = (): RegisteredNodeTypes => {
       math,
       draw,
       table,
+      codeEditor,
       text,
       logViewer,
       shader,
