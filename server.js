@@ -1,5 +1,6 @@
 const path = require('path');
 const express = require('express');
+const cors = require('cors');
 
 const buildInfo = {
   buildVersion: process.env.HEROKU_RELEASE_VERSION,
@@ -8,6 +9,7 @@ const buildInfo = {
 
 const app = express();
 
+app.use(cors());
 app.use(express.static(path.join(__dirname, 'dist')));
 app.set('port', process.env.PORT || 8080);
 
