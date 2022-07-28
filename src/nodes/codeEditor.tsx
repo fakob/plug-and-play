@@ -22,7 +22,7 @@ export class CodeEditor extends PPNode {
   defaultProps;
   createElement;
   parsedData: any;
-  update: () => void;
+  update: (newHeight?) => void;
   getChange: (value: string) => void;
   previousPosition: PIXI.Point;
   previousScale: number;
@@ -115,13 +115,23 @@ export class CodeEditor extends PPNode {
     // when the Node is added, add the container and react component
     this.onNodeAdded = () => {
       const data = this.getInputData(inputSocketName);
-      const hasLink = this.getInputSocketByName(inputSocketName).hasLink();
       this.readOnly = this.getInputSocketByName(inputSocketName).hasLink();
       this.createContainerComponent(document, ParentComponent, {
         ...defaultProps,
         nodeHeight: this.nodeHeight,
         data,
-        hasLink,
+        readOnly: this.readOnly,
+      });
+    };
+
+    this.update = (newHeight): void => {
+      const newData = this.getInputData(inputSocketName);
+      this.readOnly = this.getInputSocketByName(inputSocketName).hasLink();
+
+      this.renderReactComponent(ParentComponent, {
+        ...defaultProps,
+        nodeHeight: newHeight ?? this.nodeHeight,
+        data: newData,
         readOnly: this.readOnly,
       });
     };
@@ -159,48 +169,25 @@ export class CodeEditor extends PPNode {
       // });
       PPGraph.currentGraph.selection.drawRectanglesFromSelection();
 
-      this.readOnly = this.getInputSocketByName(inputSocketName).hasLink();
-      const newData = this.getInputData(inputSocketName);
-      this.renderReactComponent(ParentComponent, {
-        ...defaultProps,
-        nodeHeight: this.nodeHeight,
-        data: newData,
-        readOnly: this.readOnly,
-      });
+      this.update();
     };
 
     this.onHybridNodeExit = () => {
-      // this.setInputData(inputSocketName, value);
-      console.log('onHybridNodeExit');
+      this.update();
     };
 
     this.onNodeResize = (newWidth, newHeight) => {
-      this.readOnly = this.getInputSocketByName(inputSocketName).hasLink();
-
-      this.renderReactComponent(ParentComponent, {
-        ...defaultProps,
-        nodeHeight: newHeight,
-        data: editedData,
-        readOnly: this.readOnly,
-      });
+      this.update(newHeight);
     };
 
-    this.onExecute = async function (input) {
-      const newData = input[inputSocketName];
-      this.readOnly = this.getInputSocketByName(inputSocketName).hasLink();
-
-      this.renderReactComponent(ParentComponent, {
-        ...defaultProps,
-        nodeHeight: this.nodeHeight,
-        data: newData,
-        readOnly: this.readOnly,
-      });
+    this.onExecute = async function () {
+      this.update();
     };
 
     type MyProps = {
+      doubleClicked: boolean; // is injected by the NodeClass
       data: string;
       randomMainColor: string;
-      hasLink: boolean;
       nodeHeight: number;
       graph: PPGraph;
       readOnly: boolean;
@@ -238,6 +225,13 @@ export class CodeEditor extends PPNode {
         this.executeOptimizedChain();
       }, [props.data]);
 
+      useEffect(() => {
+        console.log('doubleClicked: ', props.doubleClicked);
+        if (editorRef && editorRef.current && props.doubleClicked) {
+          (editorRef.current as any).focus();
+        }
+      }, [props.doubleClicked]);
+
       const editorDidMount = (editor, monaco) => {
         editorRef.current = editor;
         console.log('editorDidMount', editorRef);
@@ -247,20 +241,22 @@ export class CodeEditor extends PPNode {
         <ErrorBoundary FallbackComponent={ErrorFallback}>
           <ThemeProvider theme={customTheme}>
             <Box sx={{ position: 'relative' }}>
-              <Button
-                sx={{
-                  position: 'absolute',
-                  top: '8px',
-                  right: '8px',
-                  zIndex: 10,
-                }}
-                color="secondary"
-                variant="contained"
-                size="small"
-                onClick={nodeFocusOut}
-              >
-                Zoom 100%
-              </Button>
+              {props.doubleClicked && (
+                <Button
+                  sx={{
+                    position: 'absolute',
+                    top: '8px',
+                    right: '8px',
+                    zIndex: 10,
+                  }}
+                  color="secondary"
+                  variant="contained"
+                  size="small"
+                  onClick={nodeFocusOut}
+                >
+                  Zoom 100%
+                </Button>
+              )}
               <MonacoEditor
                 width="100%"
                 height={`${props.nodeHeight}px`}
