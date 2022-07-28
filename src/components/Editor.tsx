@@ -82,7 +82,7 @@ export const CodeEditor: React.FunctionComponent<CodeEditorProps> = (props) => {
             lineNumbersMinChars: 4,
             minimap: { enabled: !loadAll },
             readOnly: !loadAll || !props.editable,
-            scrollBeyondLastLine: false,
+            // scrollBeyondLastLine: false,
             selectOnLineNumbers: true,
             tabSize: 2,
             wordWrap: 'on',

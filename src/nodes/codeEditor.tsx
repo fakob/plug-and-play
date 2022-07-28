@@ -94,7 +94,7 @@ export class CodeEditor extends PPNode {
     };
 
     const nodeFocusOut = () => {
-      // console.log('nodeFocusOut', editedData);
+      console.log('nodeFocusOut', editedData);
       this.readOnly = this.getInputSocketByName(inputSocketName).hasLink();
       // this.setInputData(inputSocketName, editedData);
       this.renderReactComponent(ParentComponent, {
@@ -136,39 +136,8 @@ export class CodeEditor extends PPNode {
       });
     };
 
-    // // when the Node is loaded, update the react component
-    // this.onConfigure = (): void => {
-    //   const dataFromInput = this.getInputData(workBookInputSocketName);
-    //   if (dataFromInput) {
-    //     this.workBook = this.createWorkBookFromJSON(dataFromInput);
-    //     this.setAllOutputData(this.workBook);
-    //   }
-    //   this.update();
-    // };
-
     this.onNodeDoubleClick = () => {
-      console.log('onNodeDoubleClick');
-
-      // // center the editor and set zoom to 100%
-      // // as a scaled editor has issues with selection and cursor placement
-      // const boundsToZoomTo = getSelectionBounds(
-      //   PPGraph.currentGraph.selection.selectedNodes // get bounds of the selectedNodes
-      // );
-      // this.previousPosition = PPGraph.currentGraph.viewport.center;
-      // this.previousScale = PPGraph.currentGraph.viewport.scale.x;
-      // const newPosition = new PIXI.Point(
-      //   boundsToZoomTo.x + (window.innerWidth / 2 - 56), // move 56 from left
-      //   boundsToZoomTo.y + (window.innerHeight / 2 - 128) // move 120px from top
-      // );
-
-      // PPGraph.currentGraph.viewport.animate({
-      //   position: newPosition,
-      //   time: 250,
-      //   scale: 1,
-      //   ease: 'easeInOutSine',
-      // });
-      PPGraph.currentGraph.selection.drawRectanglesFromSelection();
-
+      // PPGraph.currentGraph.selection.drawRectanglesFromSelection();
       this.update();
     };
 
@@ -225,12 +194,12 @@ export class CodeEditor extends PPNode {
         this.executeOptimizedChain();
       }, [props.data]);
 
-      useEffect(() => {
-        console.log('doubleClicked: ', props.doubleClicked);
-        if (editorRef && editorRef.current && props.doubleClicked) {
-          (editorRef.current as any).focus();
-        }
-      }, [props.doubleClicked]);
+      // useEffect(() => {
+      //   console.log('doubleClicked: ', props.doubleClicked);
+      //   if (editorRef && editorRef.current && props.doubleClicked) {
+      //     (editorRef.current as any).focus();
+      //   }
+      // }, [props.doubleClicked]);
 
       const editorDidMount = (editor, monaco) => {
         editorRef.current = editor;
@@ -241,22 +210,6 @@ export class CodeEditor extends PPNode {
         <ErrorBoundary FallbackComponent={ErrorFallback}>
           <ThemeProvider theme={customTheme}>
             <Box sx={{ position: 'relative' }}>
-              {props.doubleClicked && (
-                <Button
-                  sx={{
-                    position: 'absolute',
-                    top: '8px',
-                    right: '8px',
-                    zIndex: 10,
-                  }}
-                  color="secondary"
-                  variant="contained"
-                  size="small"
-                  onClick={nodeFocusOut}
-                >
-                  Zoom 100%
-                </Button>
-              )}
               <MonacoEditor
                 width="100%"
                 height={`${props.nodeHeight}px`}
@@ -267,7 +220,7 @@ export class CodeEditor extends PPNode {
                   automaticLayout: true,
                   lineNumbersMinChars: 4,
                   readOnly: props.readOnly,
-                  scrollBeyondLastLine: false,
+                  // scrollBeyondLastLine: false,
                   selectOnLineNumbers: true,
                   tabSize: 2,
                   wordWrap: 'on',
