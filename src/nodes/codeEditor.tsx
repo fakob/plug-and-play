@@ -57,7 +57,7 @@ export class CodeEditor extends PPNode {
         SOCKET_TYPE.IN,
         inputSocketName,
         new CodeType(),
-        '', // customArgs?.data,
+        undefined, // customArgs?.data,
         false
       ),
     ];
@@ -94,8 +94,9 @@ export class CodeEditor extends PPNode {
     };
 
     const nodeFocusOut = () => {
+      // console.log('nodeFocusOut', editedData);
       this.editable = false;
-      this.setInputData('input', editedData);
+      // this.setInputData(inputSocketName, editedData);
       this.renderReactComponent(ParentComponent, {
         ...defaultProps,
         nodeHeight: this.nodeHeight,
@@ -111,18 +112,10 @@ export class CodeEditor extends PPNode {
       PPGraph.currentGraph.selection.drawRectanglesFromSelection();
     };
 
-    const keysDown = (e: KeyboardEvent): void => {
-      if (e.key === 'Escape') {
-        e.stopPropagation();
-        e.preventDefault();
-        nodeFocusOut();
-      }
-    };
-
     // when the Node is added, add the container and react component
     this.onNodeAdded = () => {
-      const data = this.getInputData('input');
-      const hasLink = this.getInputSocketByName('input').hasLink();
+      const data = this.getInputData(inputSocketName);
+      const hasLink = this.getInputSocketByName(inputSocketName).hasLink();
       this.createContainerComponent(document, ParentComponent, {
         ...defaultProps,
         nodeHeight: this.nodeHeight,
@@ -130,43 +123,55 @@ export class CodeEditor extends PPNode {
         hasLink,
         editable: this.editable,
       });
-
-      // add event listeners
-      window.addEventListener('keydown', keysDown.bind(this));
     };
 
-    this.onNodeDoubleClick = () => {
-      // center the editor and set zoom to 100%
-      // as a scaled editor has issues with selection and cursor placement
-      const boundsToZoomTo = getSelectionBounds(
-        PPGraph.currentGraph.selection.selectedNodes // get bounds of the selectedNodes
-      );
-      this.previousPosition = PPGraph.currentGraph.viewport.center;
-      this.previousScale = PPGraph.currentGraph.viewport.scale.x;
-      const newPosition = new PIXI.Point(
-        boundsToZoomTo.x + (window.innerWidth / 2 - 56), // move 56 from left
-        boundsToZoomTo.y + (window.innerHeight / 2 - 128) // move 120px from top
-      );
+    // // when the Node is loaded, update the react component
+    // this.onConfigure = (): void => {
+    //   const dataFromInput = this.getInputData(workBookInputSocketName);
+    //   if (dataFromInput) {
+    //     this.workBook = this.createWorkBookFromJSON(dataFromInput);
+    //     this.setAllOutputData(this.workBook);
+    //   }
+    //   this.update();
+    // };
 
-      PPGraph.currentGraph.viewport.animate({
-        position: newPosition,
-        time: 250,
-        scale: 1,
-        ease: 'easeInOutSine',
-      });
+    this.onNodeDoubleClick = () => {
+      console.log('onNodeDoubleClick');
+
+      // // center the editor and set zoom to 100%
+      // // as a scaled editor has issues with selection and cursor placement
+      // const boundsToZoomTo = getSelectionBounds(
+      //   PPGraph.currentGraph.selection.selectedNodes // get bounds of the selectedNodes
+      // );
+      // this.previousPosition = PPGraph.currentGraph.viewport.center;
+      // this.previousScale = PPGraph.currentGraph.viewport.scale.x;
+      // const newPosition = new PIXI.Point(
+      //   boundsToZoomTo.x + (window.innerWidth / 2 - 56), // move 56 from left
+      //   boundsToZoomTo.y + (window.innerHeight / 2 - 128) // move 120px from top
+      // );
+
+      // PPGraph.currentGraph.viewport.animate({
+      //   position: newPosition,
+      //   time: 250,
+      //   scale: 1,
+      //   ease: 'easeInOutSine',
+      // });
       PPGraph.currentGraph.selection.drawRectanglesFromSelection();
 
       this.editable = true;
+      const newData = this.getInputData(inputSocketName);
       this.renderReactComponent(ParentComponent, {
         ...defaultProps,
         nodeHeight: this.nodeHeight,
+        data: newData,
         editable: this.editable,
       });
     };
 
-    // this.onNodeFocusOut = () => {
-    //   nodeFocusOut();
-    // };
+    this.onHybridNodeExit = () => {
+      // this.setInputData(inputSocketName, value);
+      console.log('onHybridNodeExit');
+    };
 
     this.onNodeResize = (newWidth, newHeight) => {
       this.renderReactComponent(ParentComponent, {
@@ -178,7 +183,7 @@ export class CodeEditor extends PPNode {
     };
 
     this.onExecute = async function (input) {
-      const newData = input['input'];
+      const newData = input[inputSocketName];
       this.renderReactComponent(ParentComponent, {
         ...defaultProps,
         nodeHeight: this.nodeHeight,
@@ -199,45 +204,38 @@ export class CodeEditor extends PPNode {
 
     // small presentational component
     const ParentComponent: React.FunctionComponent<MyProps> = (props) => {
-      let dataAsString;
-      if (typeof props.data !== 'string') {
-        dataAsString = convertToString(props.data);
-      } else {
-        dataAsString = props.data;
-      }
-      const editor = useRef();
-      const [codeString, setCodeString] = useState<string | undefined>(
-        dataAsString
-      );
-
-      const onChange = (value) => {
-        props.getChange(value);
-        setCodeString(value);
-        this.setOutputData('output', value);
-        this.executeOptimizedChain();
-      };
-
-      useEffect(() => {
+      const parseData = (value: any) => {
         let dataAsString;
         if (typeof props.data !== 'string') {
           dataAsString = convertToString(props.data);
         } else {
           dataAsString = props.data;
         }
-        setCodeString(dataAsString);
-      }, [props.data]);
+        return dataAsString;
+      };
+
+      const onChange = (value) => {
+        props.getChange(value);
+        setCodeString(value);
+        this.setInputData(inputSocketName, value);
+        this.setOutputData(outputSocketName, value);
+        this.executeOptimizedChain();
+      };
+
+      const editorRef = useRef();
+      const [codeString, setCodeString] = useState<string | undefined>(
+        parseData(props.data)
+      );
 
       useEffect(() => {
-        if (editor.current) {
-          // CodeMirror ref if needed
-          // console.log(editor.current);
-        }
-      }, [editor.current]);
-      console.log(props.editable);
+        setCodeString(parseData(props.data));
+        this.setOutputData(outputSocketName, props.data);
+        this.executeOptimizedChain();
+      }, [props.data]);
 
-      const editorDidMount = (editorRef, monaco) => {
-        editor.current = editorRef;
-        // editor.focus();
+      const editorDidMount = (editor, monaco) => {
+        editorRef.current = editor;
+        console.log('editorDidMount', editorRef);
       };
 
       return (
