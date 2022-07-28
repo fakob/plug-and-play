@@ -26,7 +26,7 @@ export class CodeEditor extends PPNode {
   getChange: (value: string) => void;
   previousPosition: PIXI.Point;
   previousScale: number;
-  editable: boolean;
+  readOnly: boolean;
 
   protected getIsHybrid(): boolean {
     return true;
@@ -82,7 +82,7 @@ export class CodeEditor extends PPNode {
 
     // this.initialData = customArgs?.data;
 
-    this.editable = false;
+    this.readOnly = false;
 
     this.getChange = (value) => {
       editedData = value;
@@ -95,12 +95,12 @@ export class CodeEditor extends PPNode {
 
     const nodeFocusOut = () => {
       // console.log('nodeFocusOut', editedData);
-      this.editable = false;
+      this.readOnly = this.getInputSocketByName(inputSocketName).hasLink();
       // this.setInputData(inputSocketName, editedData);
       this.renderReactComponent(ParentComponent, {
         ...defaultProps,
         nodeHeight: this.nodeHeight,
-        editable: this.editable,
+        readOnly: this.readOnly,
       });
 
       PPGraph.currentGraph.viewport.animate({
@@ -116,12 +116,13 @@ export class CodeEditor extends PPNode {
     this.onNodeAdded = () => {
       const data = this.getInputData(inputSocketName);
       const hasLink = this.getInputSocketByName(inputSocketName).hasLink();
+      this.readOnly = this.getInputSocketByName(inputSocketName).hasLink();
       this.createContainerComponent(document, ParentComponent, {
         ...defaultProps,
         nodeHeight: this.nodeHeight,
         data,
         hasLink,
-        editable: this.editable,
+        readOnly: this.readOnly,
       });
     };
 
@@ -158,13 +159,13 @@ export class CodeEditor extends PPNode {
       // });
       PPGraph.currentGraph.selection.drawRectanglesFromSelection();
 
-      this.editable = true;
+      this.readOnly = this.getInputSocketByName(inputSocketName).hasLink();
       const newData = this.getInputData(inputSocketName);
       this.renderReactComponent(ParentComponent, {
         ...defaultProps,
         nodeHeight: this.nodeHeight,
         data: newData,
-        editable: this.editable,
+        readOnly: this.readOnly,
       });
     };
 
@@ -174,21 +175,25 @@ export class CodeEditor extends PPNode {
     };
 
     this.onNodeResize = (newWidth, newHeight) => {
+      this.readOnly = this.getInputSocketByName(inputSocketName).hasLink();
+
       this.renderReactComponent(ParentComponent, {
         ...defaultProps,
         nodeHeight: newHeight,
         data: editedData,
-        editable: this.editable,
+        readOnly: this.readOnly,
       });
     };
 
     this.onExecute = async function (input) {
       const newData = input[inputSocketName];
+      this.readOnly = this.getInputSocketByName(inputSocketName).hasLink();
+
       this.renderReactComponent(ParentComponent, {
         ...defaultProps,
         nodeHeight: this.nodeHeight,
         data: newData,
-        editable: this.editable,
+        readOnly: this.readOnly,
       });
     };
 
@@ -198,7 +203,7 @@ export class CodeEditor extends PPNode {
       hasLink: boolean;
       nodeHeight: number;
       graph: PPGraph;
-      editable: boolean;
+      readOnly: boolean;
       getChange: (value: string) => void;
     };
 
@@ -265,8 +270,7 @@ export class CodeEditor extends PPNode {
                 options={{
                   automaticLayout: true,
                   lineNumbersMinChars: 4,
-                  // minimap: { enabled: !loadAll },
-                  readOnly: props.hasLink,
+                  readOnly: props.readOnly,
                   scrollBeyondLastLine: false,
                   selectOnLineNumbers: true,
                   tabSize: 2,
