@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import MonacoEditor from 'react-monaco-editor';
 import { Box, Button } from '@mui/material';
@@ -7,7 +7,6 @@ import ErrorFallback from './ErrorFallback';
 type CodeEditorProps = {
   value: string;
   onChange?: (code: string) => void;
-  onSave?: (code: string) => void;
   randomMainColor: string;
   editable?: boolean;
 };
@@ -25,28 +24,7 @@ export const CodeEditor: React.FunctionComponent<CodeEditorProps> = (props) => {
     setLoadAll(true);
   };
 
-  const saveCode = () => {
-    console.log('Create/Update node command from Editor');
-    if (props.onSave) {
-      props.onSave(props.value);
-    }
-  };
-
-  const editorDidMount = (editor, monaco) => {
-    // editorRef.current = editor;
-
-    editor.addAction({
-      id: 'my-unique-id',
-      label: 'Create/Update node',
-      keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter],
-      contextMenuGroupId: 'Test',
-      contextMenuOrder: 1,
-      run: function (ed) {
-        console.log(ed);
-        saveCode();
-      },
-    });
-
+  const editorDidMount = (editor) => {
     console.log('editorDidMount', editor);
     editor.focus();
   };
