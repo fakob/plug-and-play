@@ -1,4 +1,3 @@
-import * as PIXI from 'pixi.js';
 import React, { useEffect, useState } from 'react';
 import { Box, ThemeProvider } from '@mui/material';
 import { ErrorBoundary } from 'react-error-boundary';
@@ -17,13 +16,7 @@ const outputSocketName = 'output';
 const inputSocketName = 'input';
 
 export class CodeEditor extends PPNode {
-  _imageRef: PIXI.Sprite;
-  _imageRefClone: PIXI.Sprite;
-  createElement;
-  parsedData: any;
   update: (newHeight?) => void;
-  previousPosition: PIXI.Point;
-  previousScale: number;
   readOnly: boolean;
 
   protected getIsHybrid(): boolean {
@@ -55,7 +48,7 @@ export class CodeEditor extends PPNode {
         SOCKET_TYPE.IN,
         inputSocketName,
         new CodeType(),
-        undefined,
+        '// javascript code editor\n// to run this code, plug it into a CustomFunction node\n(a) => {\nreturn a;\n}',
         false
       ),
     ];
@@ -66,8 +59,8 @@ export class CodeEditor extends PPNode {
   }
 
   constructor(name: string, customArgs?: CustomArgs) {
-    const nodeWidth = 800;
-    const nodeHeight = 400;
+    const nodeWidth = 400;
+    const nodeHeight = 300;
 
     super(name, {
       ...customArgs,
@@ -77,7 +70,9 @@ export class CodeEditor extends PPNode {
       minNodeHeight: nodeHeight / 2,
     });
 
-    this.setInputData(inputSocketName, customArgs?.initialData);
+    if (customArgs?.initialData) {
+      this.setInputData(inputSocketName, customArgs?.initialData);
+    }
 
     this.readOnly = false;
 
@@ -126,7 +121,6 @@ export class CodeEditor extends PPNode {
       data: string;
       randomMainColor: string;
       nodeHeight: number;
-      graph: PPGraph;
       readOnly: boolean;
     };
 
