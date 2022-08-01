@@ -22,7 +22,7 @@ export class ArrayType extends AbstractType {
       try {
         return JSON.parse(data);
       } catch (error) {
-        console.log('failed parsing data: ' + data);
+        return data;
       }
     }
     return data;

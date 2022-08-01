@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
-import { DisplayObject } from 'pixi.js';
 import PPGraph from '../../classes/GraphClass';
 import PPNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
@@ -20,6 +19,7 @@ import { ArrayType } from '../datatypes/arrayType';
 import { StringType } from '../datatypes/stringType';
 import { ImageType } from '../datatypes/imageType';
 import { TRgba } from '../../utils/interfaces';
+import { DisplayObject } from 'pixi.js';
 
 const availableShapes: EnumStructure = [
   {
@@ -52,6 +52,8 @@ const inputColorName = 'Color';
 const inputSizeName = 'Size';
 const inputBorderName = 'Border';
 const outputPixiName = 'Graphics';
+const outputImageName = 'Image';
+const outputQualityName = 'Quality';
 
 const inputCombineArray = 'GraphicsArray';
 const inputCombine1Name = 'Foreground';
@@ -664,20 +666,31 @@ export class DRAW_Line extends DRAW_Base {
 
 export class Export_Image_From_Graphics extends PPNode {
   protected getDefaultIO(): Socket[] {
-    return [new Socket(SOCKET_TYPE.IN, outputPixiName, new DeferredPixiType())];
+    return [
+      new Socket(SOCKET_TYPE.IN, outputPixiName, new DeferredPixiType()),
+      new Socket(
+        SOCKET_TYPE.IN,
+        outputQualityName,
+        new NumberType(false, 0, 1),
+        0.92
+      ),
+      new Socket(SOCKET_TYPE.OUT, outputImageName, new ImageType()),
+    ];
   }
 
   protected async onExecute(
-    inputObject: unknown,
+    inputObject: any,
     outputObject: Record<string, unknown>
   ): Promise<void> {
-    /*const parsedJSON = parseJSON(inputObject[JSONName]);
-    if (parsedJSON) {
-      outputObject[outValueName] = JSONPath({
-        path: inputObject[JSONParamName],
-        json: parsedJSON,
-        wrap: false,
-      });
-    }*/
+    const newContainer = new PIXI.Container();
+    inputObject[outputPixiName](newContainer, {});
+    this.addChild(newContainer);
+    const base64out = PPGraph.currentGraph.app.renderer.plugins.extract.image(
+      newContainer,
+      'image/jpeg',
+      inputObject[outputQualityName]
+    );
+    outputObject[outputImageName] = base64out;
+    this.removeChild(newContainer);
   }
 }
