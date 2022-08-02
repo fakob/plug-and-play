@@ -10,6 +10,7 @@ import HtmlWebpackPlugin from 'html-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import CopyPlugin from 'copy-webpack-plugin';
 import { CleanWebpackPlugin } from 'clean-webpack-plugin';
+import MonacoWebpackPlugin from 'monaco-editor-webpack-plugin';
 
 const webpack = require('webpack');
 
@@ -40,7 +41,7 @@ module.exports = (env, argv) => {
         },
         {
           test: /\.ttf$/,
-          use: ['file-loader'],
+          type: 'asset/resource',
         },
       ],
     },
@@ -50,6 +51,10 @@ module.exports = (env, argv) => {
       new CleanWebpackPlugin(),
       new webpack.ProvidePlugin({
         PIXI: 'pixi.js',
+      }),
+      new MonacoWebpackPlugin({
+        // available options are documented at https://github.com/Microsoft/monaco-editor-webpack-plugin#options
+        languages: ['javascript'],
       }),
       new CopyPlugin({
         patterns: [

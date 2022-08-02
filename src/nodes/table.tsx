@@ -2,7 +2,6 @@ import * as PIXI from 'pixi.js';
 import React, { useEffect } from 'react';
 import * as XLSX from 'xlsx';
 import Spreadsheet, { Options } from '@bergfreunde/x-data-spreadsheet';
-import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
 import PPSocket from '../classes/SocketClass';
 import { getXLSXSelectionRange } from '../utils/utils';

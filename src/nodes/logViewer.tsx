@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { LazyLog, ScrollFollow } from 'react-lazylog';
-import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
 import PPSocket from '../classes/SocketClass';
 import { CustomArgs, TRgba } from '../utils/interfaces';
