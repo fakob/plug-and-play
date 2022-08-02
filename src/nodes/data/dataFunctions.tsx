@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-this-alias */
-import PPGraph from '../../classes/GraphClass';
 import NodeClass from '../../classes/NodeClass';
 import PPNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
@@ -11,7 +10,6 @@ import { CodeType } from '../datatypes/codeType';
 import { JSONType } from '../datatypes/jsonType';
 import { NumberType } from '../datatypes/numberType';
 
-const filterCodeName = 'Filter';
 const arrayName = 'Array';
 const typeName = 'Type';
 const outElementName = 'Element';
@@ -35,82 +33,10 @@ const input2Name = 'Input 2';
 
 const inputMultiplierName = 'Multiplier';
 
-function asyncWrapCode(code: string, execute = true): string {
-  return '(' + code + ')' + (execute ? '()' : '');
-}
-
 // TODO switch to this instead of eval
 //const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
 
 // make filter and map ourselves to be able to deal with async (need sequental ordering)
-export class Filter extends PPNode {
-  protected getDefaultIO(): Socket[] {
-    return [
-      new Socket(SOCKET_TYPE.IN, arrayName, new ArrayType(), []),
-      new Socket(
-        SOCKET_TYPE.IN,
-        filterCodeName,
-        new CodeType(),
-        '(a) => {return true;}'
-      ),
-      new Socket(SOCKET_TYPE.OUT, arrayOutName, new ArrayType()),
-    ];
-  }
-  protected async onExecute(
-    inputObject: any,
-    outputObject: Record<string, unknown>
-  ): Promise<void> {
-    const filterCode = inputObject[filterCodeName];
-    const inputArray = inputObject[arrayName];
-    const outputs = [];
-    const node = this;
-    for (let i = 0; i < inputArray.length; i++) {
-      const passed = await eval(
-        asyncWrapCode(filterCode, false) + '(inputArray[i],i)'
-      );
-      if (passed) {
-        outputs.push(inputArray[i]);
-      }
-    }
-
-    outputObject[arrayOutName] = outputs;
-  }
-}
-
-export class Map extends PPNode {
-  protected getDefaultIO(): Socket[] {
-    return [
-      new Socket(SOCKET_TYPE.IN, arrayName, new ArrayType(), []),
-      new Socket(
-        SOCKET_TYPE.IN,
-        mapCodeName,
-        new CodeType(),
-        '(a) => {return a;}'
-      ),
-      new Socket(SOCKET_TYPE.OUT, mapOutName, new ArrayType()),
-    ];
-  }
-  protected async onExecute(
-    inputObject: any,
-    outputObject: Record<string, unknown>
-  ): Promise<void> {
-    const mapCode = inputObject[mapCodeName];
-    const inputArray = inputObject[arrayName];
-    const outputs = [];
-
-    const node = this;
-    for (let i = 0; i < inputArray.length; i++) {
-      outputs.push(
-        await eval(asyncWrapCode(mapCode, false) + '(inputArray[i],i)')
-      );
-    }
-    outputObject[mapOutName] = outputs;
-  }
-
-  public getCanAddInput(): boolean {
-    return true;
-  }
-}
 
 function merge(array1, array2) {
   const validEntry1: boolean =
@@ -410,10 +336,21 @@ export class CustomFunction extends PPNode {
         SOCKET_TYPE.IN,
         anyCodeName,
         new CodeType(),
-        '// define your function here, node will adapt to inputs automatically\n(a) => {\nreturn a;\n}'
+        this.getDefaultFunction()
       ),
       new Socket(SOCKET_TYPE.OUT, outDataName, new AnyType()),
     ];
+  }
+
+  protected getDefaultParameterValues(): Record<string, any> {
+    return {};
+  }
+  protected getDefaultParameterTypes(): Record<string, any> {
+    return {};
+  }
+
+  protected getDefaultFunction(): string {
+    return '//define your function here, node will adapt to inputs automatically\n(a) => {\n\treturn a;\n}';
   }
 
   getColor(): TRgba {
@@ -470,11 +407,36 @@ export class CustomFunction extends PPNode {
       socket.destroy();
     });
     argumentsToBeAdded.forEach((argument) => {
-      this.addInput(argument, new AnyType());
+      this.addInput(
+        argument,
+        this.getDefaultParameterTypes()[argument] || new AnyType(),
+        this.getDefaultParameterValues()[argument] || 0
+      );
     });
     if (socketsToBeRemoved.length > 0 || argumentsToBeAdded.length > 0) {
       this.metaInfoChanged();
     }
+  }
+}
+
+export class ArrayFunction extends CustomFunction {
+  protected getDefaultParameterValues(): Record<string, any> {
+    return { ArrayIn: [] };
+  }
+  protected getDefaultParameterTypes(): Record<string, any> {
+    return { ArrayIn: new ArrayType() };
+  }
+}
+
+export class Map extends ArrayFunction {
+  protected getDefaultFunction(): string {
+    return '(ArrayIn) => {\n\treturn ArrayIn.map(a=>a);\n}';
+  }
+}
+
+export class Filter extends ArrayFunction {
+  protected getDefaultFunction(): string {
+    return '(ArrayIn) => {\n\treturn ArrayIn.filter(a=>true);\n}';
   }
 }
 

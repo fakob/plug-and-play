@@ -1,10 +1,7 @@
-import PPGraph from '../../classes/GraphClass';
 import PPNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
-import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../../utils/constants';
-import { CustomArgs, TRgba } from '../../utils/interfaces';
+import { SOCKET_TYPE } from '../../utils/constants';
 import { BooleanType } from '../datatypes/booleanType';
-import { NumberType } from './../datatypes/numberType';
 
 const inputName = 'Input';
 const input1Name = 'Input 1';
