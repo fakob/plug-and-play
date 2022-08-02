@@ -2,6 +2,7 @@ import React from 'react';
 import { TRgba } from '../../utils/interfaces';
 import { AbstractType } from './abstractType';
 
+// its a function that will draw onto a container
 export class DeferredPixiType extends AbstractType {
   constructor() {
     super();
