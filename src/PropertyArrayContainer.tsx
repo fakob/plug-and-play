@@ -34,7 +34,6 @@ import { CodeEditor } from './components/Editor';
 type PropertyArrayContainerProps = {
   currentGraph: PPGraph;
   selectedNode: PPNode;
-  onSave?: (code: string) => void;
   randomMainColor: string;
 };
 
@@ -118,7 +117,6 @@ export const PropertyArrayContainer: React.FunctionComponent<
           <CodeEditor
             value={props.selectedNode.getSourceCode()}
             randomMainColor={props.randomMainColor}
-            onSave={props.onSave}
             editable={false}
           />
         </StyledAccordionDetails>

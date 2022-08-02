@@ -1,5 +1,4 @@
 import React from 'react';
-import Color from 'color';
 import {
   Box,
   Icon,
@@ -22,7 +21,6 @@ import {
 type MyProps = {
   currentGraph: PPGraph;
   selectedNode: PPNode;
-  onSave?: (code: string) => void;
   randomMainColor: string;
   widthPercentage: number;
   setWidthPercentage: (value: number | ((prevVar: number) => number)) => void;
@@ -99,7 +97,6 @@ const InspectorContainer: React.FunctionComponent<MyProps> = (props) => {
         <PropertyArrayContainer
           currentGraph={props.currentGraph}
           selectedNode={props.selectedNode}
-          onSave={props.onSave}
           randomMainColor={props.randomMainColor}
         />
       </Stack>
