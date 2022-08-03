@@ -6,6 +6,7 @@ import { CustomArgs, TRgba } from '../../utils/interfaces';
 import { AnyType } from '../datatypes/anyType';
 import { MacroType } from '../datatypes/macroType';
 
+export const macroOutputName = 'Output';
 class MacroNode extends PPNode {
   public addDefaultInput(): void {
     this.addInput(
@@ -21,6 +22,9 @@ class MacroNode extends PPNode {
     );
   }
 }
+
+//export class DefineMacro extends PPNode {
+//}
 
 export class DefineMacroIn extends MacroNode {
   public getName(): string {
@@ -70,12 +74,8 @@ export class DefineMacroOut extends MacroNode {
     PPGraph.currentGraph.macrosOut[this.id] = this;
   }
 
-  public getCanAddInput(): boolean {
-    return true;
-  }
-
   protected getDefaultIO(): Socket[] {
-    return [new Socket(SOCKET_TYPE.IN, 'Parameter 1', new AnyType())];
+    return [new Socket(SOCKET_TYPE.IN, macroOutputName, new AnyType())];
   }
   _onRemoved(): void {
     super._onRemoved();
