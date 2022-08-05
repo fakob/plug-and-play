@@ -17,6 +17,7 @@ import PPSocket from './SocketClass';
 import PPLink from './LinkClass';
 import PPSelection from './SelectionClass';
 import { getAllNodeTypes } from '../nodes/allNodes';
+import { macroOutputName } from '../nodes/macro/macro';
 
 export default class PPGraph {
   static currentGraph: PPGraph;
@@ -859,12 +860,7 @@ export default class PPGraph {
     await macroStartNode.executeOptimizedChain();
     const macroEndNode = this.findMacroOutput(inputObject['Name']);
 
-    const outputObject = {};
-    macroEndNode
-      .getAllSockets()
-      .filter((socket) => socket.socketType === SOCKET_TYPE.IN)
-      .forEach((socket) => (outputObject[socket.name] = socket.data));
-    return outputObject;
+    return macroEndNode.getInputSocketByName(macroOutputName).data;
   }
 
   setState(key: string, data: any): void {

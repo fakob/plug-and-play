@@ -382,9 +382,37 @@ export class CustomFunction extends PPNode {
       '{',
       '{' + defineAllVariables
     );
+
+    // we fix the macros for the user so that they are more pleasant to type
+    const foundMacroCalls = [...functionToExecute.matchAll(/macro\(.*?\)/g)];
+
+    //console.log('found macro calls: ' + foundMacroCalls.toString());
+    const reduced = foundMacroCalls.reduce((formatted, macroCall) => {
+      const macroContents = macroCall
+        .toString()
+        .replace('macro(', '')
+        .replace(')', '');
+      const parameters = macroContents.trim().split(',');
+      let formattedParamsString = '{"Name": ' + parameters[0];
+      for (let i = 1; i < parameters.length; i++) {
+        formattedParamsString =
+          formattedParamsString +
+          ',"Parameter ' +
+          i.toString() +
+          '":' +
+          parameters[i];
+      }
+      formattedParamsString = formattedParamsString + '}';
+      const finalMacroDefinition =
+        'this.invokeMacro(' + formattedParamsString + ')';
+
+      return formatted.replace(macroCall.toString(), finalMacroDefinition);
+    }, functionToExecute);
+
+    //console.log('replaced: ' + reduced);
     const node = this;
 
-    const res = await eval('async () => ' + functionToExecute)();
+    const res = await eval('async () => ' + reduced)();
     outputObject[outDataName] = res;
   }
 
