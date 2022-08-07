@@ -85,6 +85,7 @@ import PPSocket from './classes/SocketClass';
 import PPNode from './classes/NodeClass';
 import { InputParser } from './utils/inputParser';
 import styles from './utils/style.module.css';
+import Base from './base';
 
 (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__ &&
   (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__.register({ PIXI: PIXI });
@@ -118,7 +119,7 @@ const App = (): JSX.Element => {
   pixiDebugRef.resolution = 1;
   pixiDebugRef.x = 4;
 
-  const db = new GraphDatabase();
+  const db: GraphDatabase = Base.getDatabase();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const pixiApp = useRef<PIXI.Application | null>(null);
   const currentGraph = useRef<PPGraph | null>(null);
@@ -177,110 +178,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
   };
 
   // react-dropzone
-  const onDrop = useCallback((acceptedFiles, fileRejections, event) => {
-    console.log(acceptedFiles, fileRejections);
-
-    const dropPoint = viewport.current.toWorld(
-      new PIXI.Point(event.clientX, event.clientY)
-    );
-    let nodePosX = dropPoint.x;
-    const nodePosY = dropPoint.y;
-    const newNodeSelection: PPNode[] = [];
-
-    (async function () {
-      for (let index = 0; index < acceptedFiles.length; index++) {
-        const file = acceptedFiles[index];
-
-        // const reader = new FileReader();
-        const objectURL = URL.createObjectURL(file);
-
-        const extension = file.name
-          .slice(((file.name.lastIndexOf('.') - 1) >>> 0) + 2)
-          .toLowerCase();
-
-        // select what node to create
-        const response = await fetch(objectURL);
-        let data;
-        let newNode;
-
-        switch (extension) {
-          case 'ppgraph':
-            data = await response.text();
-            await currentGraph.current.configure(JSON.parse(data), false);
-            saveNewGraph(removeExtension(file.name));
-            break;
-          case 'csv':
-          case 'ods':
-          case 'numbers':
-          case 'xls':
-          case 'xlsm':
-          case 'xlsb':
-          case 'xlsx':
-            /* data is an ArrayBuffer */
-            data = await response.arrayBuffer();
-            newNode = currentGraph.current.createAndAddNode('Table', {
-              nodePosX,
-              nodePosY,
-              initialData: data,
-            });
-            break;
-          case 'txt':
-            data = await response.text();
-            newNode = currentGraph.current.createAndAddNode('Text', {
-              nodePosX,
-              nodePosY,
-              initialData: data,
-            });
-            break;
-          case 'jpg':
-          case 'png':
-            data = await response.blob();
-            const base64 = await convertBlobToBase64(data).catch((err) => {
-              console.error(err);
-            });
-            if (base64) {
-              if (
-                currentGraph.current.selection.selectedNodes?.[index]?.type ===
-                'Image'
-              ) {
-                const existingNode = currentGraph.current.selection
-                  .selectedNodes[index] as ImageNode;
-                existingNode.updateTexture(base64 as string);
-                existingNode.setMinNodeHeight(existingNode.nodeWidth);
-              } else {
-                newNode = currentGraph.current.createAndAddNode('Image', {
-                  nodePosX,
-                  nodePosY,
-                  defaultArguments: { Image: base64 },
-                });
-                newNode.resetNodeSize();
-              }
-            }
-            break;
-          default:
-            break;
-        }
-
-        // update postion if there are more than one
-        if (newNode) {
-          newNodeSelection.push(newNode);
-          nodePosX =
-            nodePosX + newNode.getNodeWidth() + DRAGANDDROP_GRID_MARGIN;
-        }
-      }
-      // select the newly added nodes
-      if (newNodeSelection.length > 0) {
-        // currentGraph.current.selection.selectedNodes = newNodeSelection;
-        currentGraph.current.selection.selectNodes(newNodeSelection);
-        ensureVisible(currentGraph.current);
-        enqueueSnackbar(
-          `${newNodeSelection.length} new ${
-            newNodeSelection.length === 1 ? 'node was' : 'nodes were'
-          } added`
-        );
-      }
-    })();
-  }, []);
 
   const {
     getRootProps,
@@ -508,43 +405,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       openNodeSearch(pos);
     };
 
-    currentGraph.current.onRightClick = (
-      event: PIXI.InteractionEvent,
-      target: PIXI.DisplayObject
-    ) => {
-      setIsGraphContextMenuOpen(false);
-      setIsNodeContextMenuOpen(false);
-      setIsSocketContextMenuOpen(false);
-      console.log(event, target, event.data.global);
-      const contextMenuPosX = Math.min(
-        window.innerWidth - (CONTEXTMENU_WIDTH + 8),
-        event.data.global.x
-      );
-      const contextMenuPosY = (offset: number) => {
-        return Math.min(window.innerHeight - offset, event.data.global.y);
-      };
-      switch (true) {
-        case target.parent instanceof PPSocket && target instanceof PIXI.Text:
-          console.log('app right click, socket');
-          setContextMenuPosition([contextMenuPosX, contextMenuPosY(80)]);
-          setSelectedSocket(target.parent as PPSocket);
-          setIsSocketContextMenuOpen(true);
-          break;
-        case target instanceof PPNode:
-          console.log('app right click, node');
-          setContextMenuPosition([contextMenuPosX, contextMenuPosY(220)]);
-          setIsNodeContextMenuOpen(true);
-          break;
-        case target instanceof Viewport:
-          console.log('app right click, viewport');
-          setContextMenuPosition([contextMenuPosX, contextMenuPosY(600)]);
-          setIsGraphContextMenuOpen(true);
-          break;
-        default:
-          console.log('app right click, something else');
-          break;
-      }
-    };
+    currentGraph.current.onRightClick = onGraphRightClick;
 
     (
       pixiApp.current.stage.getChildByName('selectionContainer') as PPSelection
@@ -700,6 +561,149 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     (viewport.current.getChildByName('debugGrid') as PIXI.Mesh).visible =
       showComments;
   }, [showComments]);
+
+  function onGraphRightClick(
+    event: PIXI.InteractionEvent,
+    target: PIXI.DisplayObject
+  ) {
+    setIsGraphContextMenuOpen(false);
+    setIsNodeContextMenuOpen(false);
+    setIsSocketContextMenuOpen(false);
+    console.log(event, target, event.data.global);
+    const contextMenuPosX = Math.min(
+      window.innerWidth - (CONTEXTMENU_WIDTH + 8),
+      event.data.global.x
+    );
+    const contextMenuPosY = (offset: number) => {
+      return Math.min(window.innerHeight - offset, event.data.global.y);
+    };
+    switch (true) {
+      case target.parent instanceof PPSocket && target instanceof PIXI.Text:
+        console.log('app right click, socket');
+        setContextMenuPosition([contextMenuPosX, contextMenuPosY(80)]);
+        setSelectedSocket(target.parent as PPSocket);
+        setIsSocketContextMenuOpen(true);
+        break;
+      case target instanceof PPNode:
+        console.log('app right click, node');
+        setContextMenuPosition([contextMenuPosX, contextMenuPosY(220)]);
+        setIsNodeContextMenuOpen(true);
+        break;
+      case target instanceof Viewport:
+        console.log('app right click, viewport');
+        setContextMenuPosition([contextMenuPosX, contextMenuPosY(600)]);
+        setIsGraphContextMenuOpen(true);
+        break;
+      default:
+        console.log('app right click, something else');
+        break;
+    }
+  }
+
+  function onDrop(acceptedFiles, fileRejections, event) {
+    console.log(acceptedFiles, fileRejections);
+
+    const dropPoint = viewport.current.toWorld(
+      new PIXI.Point(event.clientX, event.clientY)
+    );
+    let nodePosX = dropPoint.x;
+    const nodePosY = dropPoint.y;
+    const newNodeSelection: PPNode[] = [];
+
+    (async function () {
+      for (let index = 0; index < acceptedFiles.length; index++) {
+        const file = acceptedFiles[index];
+
+        // const reader = new FileReader();
+        const objectURL = URL.createObjectURL(file);
+
+        const extension = file.name
+          .slice(((file.name.lastIndexOf('.') - 1) >>> 0) + 2)
+          .toLowerCase();
+
+        // select what node to create
+        const response = await fetch(objectURL);
+        let data;
+        let newNode;
+
+        switch (extension) {
+          case 'ppgraph':
+            data = await response.text();
+            await currentGraph.current.configure(JSON.parse(data), false);
+            saveNewGraph(removeExtension(file.name));
+            break;
+          case 'csv':
+          case 'ods':
+          case 'numbers':
+          case 'xls':
+          case 'xlsm':
+          case 'xlsb':
+          case 'xlsx':
+            /* data is an ArrayBuffer */
+            data = await response.arrayBuffer();
+            newNode = currentGraph.current.createAndAddNode('Table', {
+              nodePosX,
+              nodePosY,
+              initialData: data,
+            });
+            break;
+          case 'txt':
+            data = await response.text();
+            newNode = currentGraph.current.createAndAddNode('Text', {
+              nodePosX,
+              nodePosY,
+              initialData: data,
+            });
+            break;
+          case 'jpg':
+          case 'png':
+            data = await response.blob();
+            const base64 = await convertBlobToBase64(data).catch((err) => {
+              console.error(err);
+            });
+            if (base64) {
+              if (
+                currentGraph.current.selection.selectedNodes?.[index]?.type ===
+                'Image'
+              ) {
+                const existingNode = currentGraph.current.selection
+                  .selectedNodes[index] as ImageNode;
+                existingNode.updateTexture(base64 as string);
+                existingNode.setMinNodeHeight(existingNode.nodeWidth);
+              } else {
+                newNode = currentGraph.current.createAndAddNode('Image', {
+                  nodePosX,
+                  nodePosY,
+                  defaultArguments: { Image: base64 },
+                });
+                newNode.resetNodeSize();
+              }
+            }
+            break;
+          default:
+            break;
+        }
+
+        // update postion if there are more than one
+        if (newNode) {
+          newNodeSelection.push(newNode);
+          nodePosX =
+            nodePosX + newNode.getNodeWidth() + DRAGANDDROP_GRID_MARGIN;
+        }
+      }
+      // select the newly added nodes
+      if (newNodeSelection.length > 0) {
+        // currentGraph.current.selection.selectedNodes = newNodeSelection;
+        currentGraph.current.selection.selectNodes(newNodeSelection);
+        ensureVisible(currentGraph.current);
+        enqueueSnackbar(
+          `${newNodeSelection.length} new ${
+            newNodeSelection.length === 1 ? 'node was' : 'nodes were'
+          } added`
+        );
+      }
+    })();
+  }
 
   function setGestureModeOnViewport(
     viewport: Viewport,

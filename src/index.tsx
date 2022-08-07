@@ -6,6 +6,7 @@ import { customTheme } from './utils/constants';
 import App from './App';
 import styles from './utils/style.module.css';
 import './utils/global.css';
+import { GraphDatabase } from './utils/indexedDB';
 
 const reactElement = document.createElement('div');
 const container = document.body.appendChild(reactElement);
@@ -13,16 +14,30 @@ const root = createRoot(container!);
 container.className = 'rootClass';
 container.id = 'container';
 
-root.render(
-  <ThemeProvider theme={customTheme}>
-    <SnackbarProvider
-      maxSnack={3}
-      anchorOrigin={{ horizontal: 'right', vertical: 'top' }}
-      classes={{
-        containerRoot: styles.snackbarContainerRoot,
-      }}
-    >
-      <App />
-    </SnackbarProvider>
-  </ThemeProvider>
-);
+main();
+
+function main() {
+  fetch('https://plugandplayground.dev/buildInfo')
+    .then((response) => response.json())
+    .then((data) => console.log('buildinfo: ' + data));
+
+  // remote playground database
+  const githubBaseURL =
+    'https://api.github.com/repos/fakob/plug-and-play-examples';
+  const githubBranchName = 'dev';
+
+  const db = new GraphDatabase();
+  root.render(
+    <ThemeProvider theme={customTheme}>
+      <SnackbarProvider
+        maxSnack={3}
+        anchorOrigin={{ horizontal: 'right', vertical: 'top' }}
+        classes={{
+          containerRoot: styles.snackbarContainerRoot,
+        }}
+      >
+        <App />
+      </SnackbarProvider>
+    </ThemeProvider>
+  );
+}
