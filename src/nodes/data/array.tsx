@@ -63,7 +63,6 @@ export class ArrayGet extends PPNode {
 }
 export class ArraySlice extends PPNode {
   protected getDefaultIO(): PPSocket[] {
-    console.log('GETTIN IT');
     return [
       new PPSocket(SOCKET_TYPE.IN, arrayName, new ArrayType()),
       new PPSocket(

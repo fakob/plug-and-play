@@ -7,6 +7,7 @@ import App from './App';
 import styles from './utils/style.module.css';
 import './utils/global.css';
 import { GraphDatabase } from './utils/indexedDB';
+import Base from './base';
 
 const reactElement = document.createElement('div');
 const container = document.body.appendChild(reactElement);
@@ -16,7 +17,7 @@ container.id = 'container';
 
 main();
 
-function main() {
+async function main() {
   fetch('https://plugandplayground.dev/buildInfo')
     .then((response) => response.json())
     .then((data) => console.log('buildinfo: ' + data));
@@ -26,7 +27,8 @@ function main() {
     'https://api.github.com/repos/fakob/plug-and-play-examples';
   const githubBranchName = 'dev';
 
-  const db = new GraphDatabase();
+  await Base.fetchRemoteGraphs();
+
   root.render(
     <ThemeProvider theme={customTheme}>
       <SnackbarProvider

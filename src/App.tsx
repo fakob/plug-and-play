@@ -71,7 +71,6 @@ import {
   formatDate,
   getSetting,
   getRemoteGraph,
-  getRemoteGraphsList,
   isEventComingFromWithinTextInput,
   removeExtension,
   roundNumber,
@@ -85,7 +84,7 @@ import PPSocket from './classes/SocketClass';
 import PPNode from './classes/NodeClass';
 import { InputParser } from './utils/inputParser';
 import styles from './utils/style.module.css';
-import Base from './base';
+import Base, { githubBaseURL, githubBranchName } from './base';
 
 (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__ &&
   (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__.register({ PIXI: PIXI });
@@ -108,11 +107,6 @@ const App = (): JSX.Element => {
   fetch('https://plugandplayground.dev/buildInfo')
     .then((response) => response.json())
     .then((data) => console.log(data));
-
-  // remote playground database
-  const githubBaseURL =
-    'https://api.github.com/repos/fakob/plug-and-play-examples';
-  const githubBranchName = 'dev';
 
   const mousePosition = { x: 0, y: 0 };
   const pixiDebugRef = new PIXI.Text('', COMMENT_TEXTSTYLE);
@@ -138,7 +132,9 @@ const App = (): JSX.Element => {
   const [isCurrentGraphLoaded, setIsCurrentGraphLoaded] = useState(false);
   const [actionObject, setActionObject] = useState(null); // id and name of graph to edit/delete
   const [showComments, setShowComments] = useState(false);
-  const [remoteGraphs, setRemoteGraphs, remoteGraphsRef] = useStateRef([]);
+  const [remoteGraphs, setRemoteGraphs, remoteGraphsRef] = useStateRef(
+    Base.remoteGraphs
+  );
   const [graphSearchItems, setGraphSearchItems] = useState<
     IGraphSearch[] | null
   >([{ id: '', name: '' }]);
@@ -393,13 +389,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
 
     setIsCurrentGraphLoaded(true);
     console.log('currentGraph.current:', currentGraph.current);
-
-    getRemoteGraphsList(githubBaseURL, githubBranchName).then(
-      (arrayOfFileNames) => {
-        console.log(arrayOfFileNames);
-        setRemoteGraphs(arrayOfFileNames);
-      }
-    );
 
     currentGraph.current.onOpenNodeSearch = (pos: PIXI.Point) => {
       openNodeSearch(pos);
