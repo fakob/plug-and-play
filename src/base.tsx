@@ -6,7 +6,7 @@ export const githubBaseURL =
 export const githubBranchName = 'dev';
 export default class Base {
   static db: GraphDatabase = undefined;
-  static remoteGraphs: string[] = [];
+  static remoteGraphs: string[] = undefined;
   static getDatabase(): GraphDatabase {
     if (!this.db) {
       this.db = new GraphDatabase();
@@ -35,9 +35,12 @@ export default class Base {
     }
   };
 
-  static async fetchRemoteGraphs(): Promise<void> {
+  static async fetchRemoteGraphs(): Promise<string[]> {
     // remote playground database
-    const graphs = await getRemoteGraphsList(githubBaseURL, githubBranchName);
-    this.remoteGraphs = graphs;
+    if (!this.remoteGraphs) {
+      const graphs = await getRemoteGraphsList(githubBaseURL, githubBranchName);
+      this.remoteGraphs = graphs;
+    }
+    return this.remoteGraphs;
   }
 }

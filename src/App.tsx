@@ -132,9 +132,8 @@ const App = (): JSX.Element => {
   const [isCurrentGraphLoaded, setIsCurrentGraphLoaded] = useState(false);
   const [actionObject, setActionObject] = useState(null); // id and name of graph to edit/delete
   const [showComments, setShowComments] = useState(false);
-  const [remoteGraphs, setRemoteGraphs, remoteGraphsRef] = useStateRef(
-    Base.remoteGraphs
-  );
+  const [remoteGraphs, setRemoteGraphs, remoteGraphsRef] = useStateRef([]);
+
   const [graphSearchItems, setGraphSearchItems] = useState<
     IGraphSearch[] | null
   >([{ id: '', name: '' }]);
@@ -388,7 +387,10 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     }
 
     setIsCurrentGraphLoaded(true);
-    console.log('currentGraph.current:', currentGraph.current);
+
+    Base.fetchRemoteGraphs().then((remoteGraphs) => {
+      setRemoteGraphs(remoteGraphs);
+    });
 
     currentGraph.current.onOpenNodeSearch = (pos: PIXI.Point) => {
       openNodeSearch(pos);
