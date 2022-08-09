@@ -717,7 +717,7 @@ export default class PPNode extends PIXI.Container {
     );
   }
 
-  drawNodeShape(): void {
+  public drawNodeShape(): void {
     this._BackgroundRef.clear();
     if (!this.successfullyExecuted) {
       this._BackgroundRef.beginFill(
@@ -1223,7 +1223,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     this.cursor = 'move';
   }
 
-  _onPointerMove(): void {
+  public _onPointerMove(): void {
     if (this.isDraggingNode) {
       const targetPoint = this.interactionData.getLocalPosition(this);
       const deltaX = targetPoint.x - this.sourcePoint.x;
