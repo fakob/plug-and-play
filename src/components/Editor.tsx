@@ -34,7 +34,7 @@ export const CodeEditor: React.FunctionComponent<CodeEditorProps> = (props) => {
   };
 
   const editorDidMount = (editor) => {
-    console.log('editorDidMount', editor);
+    // console.log('editorDidMount', editor);
     editorRef.current = editor;
     changeEditorHeight();
     editorRef.current.focus();
