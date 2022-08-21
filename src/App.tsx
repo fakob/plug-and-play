@@ -470,6 +470,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     );
     const gridQuad = new PIXI.Mesh(geometry, gridShader);
     gridQuad.name = 'debugGrid';
+    gridQuad.visible = showComments;
     viewport.current.addChild(gridQuad);
 
     // add graph to pixiApp
@@ -546,9 +547,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       }
     };
 
-    (
-      pixiApp.current.stage.getChildByName('selectionContainer') as PPSelection
-    ).onRightClick = (
+    PPGraph.currentGraph.selection.onRightClick = (
       event: PIXI.InteractionEvent,
       target: PIXI.DisplayObject
     ) => {
@@ -697,8 +696,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
   useEffect(() => {
     currentGraph.current.showComments = showComments;
     overlayCommentContainer.current.visible = showComments;
-    (viewport.current.getChildByName('debugGrid') as PIXI.Mesh).visible =
-      showComments;
   }, [showComments]);
 
   function setGestureModeOnViewport(
