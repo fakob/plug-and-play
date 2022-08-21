@@ -5,6 +5,7 @@ import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../../utils/constants';
 import { CustomArgs, TRgba } from '../../utils/interfaces';
 import { AnyType } from '../datatypes/anyType';
 import { MacroType } from '../datatypes/macroType';
+import * as PIXI from 'pixi.js';
 
 export const macroOutputName = 'Output';
 class MacroNode extends PPNode {
@@ -27,6 +28,8 @@ class MacroNode extends PPNode {
 //}
 
 export class DefineMacroIn extends MacroNode {
+  graphicsLink: PIXI.Graphics = undefined;
+  connectionSphere: PIXI.Graphics = undefined;
   public getName(): string {
     return 'Define Macro In';
   }
@@ -55,6 +58,58 @@ export class DefineMacroIn extends MacroNode {
     super._onRemoved();
     delete PPGraph.currentGraph.macrosIn[this.id];
   }
+
+  private drawDottedLine(
+    graphics: PIXI.Graphics,
+    startX: number,
+    startY: number,
+    endX: number,
+    endY: number,
+    interval: number
+  ) {
+    const deltaX: number = endX - startX;
+    const deltaY: number = endY - startY;
+    const totalDist = Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
+    const segments = totalDist / interval;
+    const segmentLengthX = deltaX / segments;
+    const segmentLengthY = deltaY / segments;
+    for (let i = 0; i < segments; i += 2) {
+      graphics.moveTo(startX + i * segmentLengthX, startY + i * segmentLengthY);
+      graphics.lineTo(
+        startX + (i + 1) * segmentLengthX,
+        startY + (i + 1) * segmentLengthY
+      );
+    }
+  }
+
+  public drawNodeShape(): void {
+    this.removeChild(this.graphicsLink);
+
+    this.graphicsLink = new PIXI.Graphics();
+    const selectedColor: TRgba = TRgba.black();
+    const correspondingOutput = PPGraph.currentGraph.findMacroOutput(this.name);
+    this.graphicsLink.lineStyle(1, selectedColor.hexNumber());
+
+    if (correspondingOutput) {
+      this.drawDottedLine(
+        this.graphicsLink,
+        this.width,
+        this.height / 2,
+        correspondingOutput.x - this.x,
+        correspondingOutput.y - this.y + correspondingOutput.height / 2,
+        5
+      );
+    }
+    this.addChild(this.graphicsLink);
+    super.drawNodeShape();
+  }
+
+  public _onPointerMove(): void {
+    super._onPointerMove();
+    if (this.isDraggingNode) {
+      this.drawNodeShape();
+    }
+  }
 }
 
 export class DefineMacroOut extends MacroNode {
@@ -72,6 +127,24 @@ export class DefineMacroOut extends MacroNode {
       ...customArgs,
     });
     PPGraph.currentGraph.macrosOut[this.id] = this;
+  }
+
+  private tellMacroInToRedraw(): void {
+    const correspondingInput = PPGraph.currentGraph.findMacroInput(this.name);
+    if (correspondingInput) {
+      correspondingInput.drawNodeShape();
+    }
+  }
+
+  public drawNodeShape(): void {
+    this.tellMacroInToRedraw();
+    super.drawNodeShape();
+  }
+  public _onPointerMove(): void {
+    super._onPointerMove();
+    if (this.isDraggingNode) {
+      this.tellMacroInToRedraw();
+    }
   }
 
   protected getDefaultIO(): Socket[] {
