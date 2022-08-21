@@ -71,6 +71,9 @@ export const CodeEditor: React.FunctionComponent<CodeEditorProps> = (props) => {
             lineNumbersMinChars: 4,
             minimap: { enabled: !loadAll },
             readOnly: !loadAll || !props.editable,
+            scrollbar: {
+              alwaysConsumeMouseWheel: false,
+            },
             scrollBeyondLastLine: false,
             selectOnLineNumbers: true,
             tabSize: 2,
