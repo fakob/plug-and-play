@@ -12,6 +12,8 @@ import CopyPlugin from 'copy-webpack-plugin';
 import { CleanWebpackPlugin } from 'clean-webpack-plugin';
 import MonacoWebpackPlugin from 'monaco-editor-webpack-plugin';
 
+const BundleAnalyzerPlugin =
+  require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const webpack = require('webpack');
 
 module.exports = (env, argv) => {
@@ -76,6 +78,7 @@ module.exports = (env, argv) => {
           },
         ],
       }),
+      // new BundleAnalyzerPlugin(),
     ],
   };
 
