@@ -81,9 +81,7 @@ export class Label extends PPNode {
       roundedCorners: false,
     });
 
-    const canvas = PPGraph.currentGraph.viewport.getChildByName(
-      'foregroundCanvas'
-    ) as PIXI.Container;
+    const canvas = PPGraph.currentGraph.foregroundCanvas;
     this._refTextStyle = new PIXI.TextStyle();
     const basicText = new PIXI.Text('', this._refTextStyle);
     this._refText = canvas.addChild(basicText);
