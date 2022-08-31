@@ -13,14 +13,12 @@ import {
   Stack,
   ToggleButton,
 } from '@mui/material';
-import {
-  MoreVert as MoreVertIcon,
-  Lock as LockIcon,
-  Visibility as VisibilityIcon,
-  VisibilityOff as VisibilityOffIcon,
-  ExpandMore as ExpandMoreIcon,
-  ContentCopy as ContentCopyIcon,
-} from '@mui/icons-material';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import LockIcon from '@mui/icons-material/Lock';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { styled } from '@mui/styles';
 import { writeDataToClipboard, writeTextToClipboard } from './utils/utils';
 import styles from './utils/style.module.css';
