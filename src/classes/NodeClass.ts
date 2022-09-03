@@ -276,7 +276,7 @@ export default class PPNode extends PIXI.Container {
     return this.constructor.toString();
   }
 
-  addSocket(socket: Socket): void {
+  addSocket(socket: Socket): Socket {
     const socketRef = this.addChild(socket);
     switch (socket.socketType) {
       case SOCKET_TYPE.IN: {
@@ -288,6 +288,7 @@ export default class PPNode extends PIXI.Container {
         break;
       }
     }
+    return socketRef;
   }
 
   getDefaultType(): AbstractType {
@@ -390,9 +391,15 @@ export default class PPNode extends PIXI.Container {
           matchingSocket.setVisible(item.visible);
         } else {
           // add socket if it does not exist yet
-          console.error(
-            'Socket does not exist on this node. Will create a MissingType one: ',
-            item
+          console.warn(
+            `Socket does not exist ${this.name}(${this.id})/${item.name}`
+          );
+          PPGraph.currentGraph.onShowSnackbar(
+            'Socket does not exist. Check console for more info',
+            {
+              variant: 'warning',
+              preventDuplicate: true,
+            }
           );
           this.addSocket(
             new Socket(
@@ -408,7 +415,7 @@ export default class PPNode extends PIXI.Container {
       this.drawNodeShape();
     } catch (error) {
       console.error(
-        `Could not configure node: ${this.name}, id: ${this.id}`,
+        `Could not configure node: ${this.name}(${this.id})`,
         error
       );
     }
@@ -420,12 +427,6 @@ export default class PPNode extends PIXI.Container {
     if (this.getIsHybrid()) {
       this._onViewportMove(); // trigger this once, so the react components get positioned properly
     }
-    console.log(
-      'after configure node',
-      this.inputSocketArray.length,
-      this.inputSocketArray,
-      this.inputSocketArray[2]?.parent?.name
-    );
   }
 
   getDirectDependents(): { [key: string]: PPNode } {

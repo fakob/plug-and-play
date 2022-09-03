@@ -16,7 +16,7 @@ container.id = 'container';
 root.render(
   <ThemeProvider theme={customTheme}>
     <SnackbarProvider
-      maxSnack={3}
+      maxSnack={9}
       anchorOrigin={{ horizontal: 'right', vertical: 'top' }}
       classes={{
         containerRoot: styles.snackbarContainerRoot,

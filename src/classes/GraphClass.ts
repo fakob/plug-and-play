@@ -401,12 +401,11 @@ export default class PPGraph {
     if (!nodeConstructor) {
       // if there is no node of this type, create a placeholder node instead
       // and "save" the original node type in the placeholders name
-      this.onShowSnackbar(
-        `Node ${customArgs?.customId} of type ${type} is missing. A placeholder node will be created instead.`,
-        {
-          variant: 'warning',
-        }
-      );
+      const errorMessage = `Node of type ${type}(${customArgs?.customId}) is missing. A placeholder node will be created instead`;
+      console.warn(errorMessage);
+      this.onShowSnackbar(errorMessage, {
+        variant: 'warning',
+      });
       name = type;
       nodeConstructor = getAllNodeTypes()['Placeholder']?.constructor;
       newArgs.name = type;
@@ -782,7 +781,26 @@ export default class PPGraph {
             link.targetSocketName,
             SOCKET_TYPE.IN
           );
-          await this.connect(outputRef, inputRef, false);
+          if (outputRef && inputRef) {
+            await this.connect(outputRef, inputRef, false);
+          } else {
+            console.warn(
+              `Link can not be created between ${link.sourceNodeId}/${
+                link.sourceSocketName
+              }${outputRef === undefined ? '-MISSING' : ''} and ${
+                link.targetNodeId
+              }/${link.targetSocketName}${
+                inputRef === undefined ? '-MISSING' : ''
+              }`
+            );
+            this.onShowSnackbar(
+              'Link can not be created. Check console for more info',
+              {
+                variant: 'warning',
+                preventDuplicate: true,
+              }
+            );
+          }
         })
       );
     } catch (error) {
