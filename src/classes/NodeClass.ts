@@ -389,6 +389,9 @@ export default class PPNode extends PIXI.Container {
           matchingSocket.setVisible(item.visible);
         } else {
           // add socket if it does not exist yet
+          console.info(
+            `Socket does not exist (yet) and will be created: ${this.name}(${this.id})/${item.name}`
+          );
           this.addSocket(
             new Socket(
               item.socketType,
@@ -403,7 +406,7 @@ export default class PPNode extends PIXI.Container {
       this.drawNodeShape();
     } catch (error) {
       console.error(
-        `Could not configure node: ${this.name}, id: ${this.id}`,
+        `Could not configure node: ${this.name}(${this.id})`,
         error
       );
     }

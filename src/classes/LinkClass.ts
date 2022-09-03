@@ -1,7 +1,5 @@
 import * as PIXI from 'pixi.js';
-import { Viewport } from 'pixi-viewport';
 import { SerializedLink } from '../utils/interfaces';
-import { CONNECTION_COLOR_HEX } from '../utils/constants';
 import Socket from './SocketClass';
 import PPNode from './NodeClass';
 import PPGraph from './GraphClass';
@@ -26,14 +24,17 @@ export default class PPLink extends PIXI.Container {
   }
 
   serialize(): SerializedLink {
-    //create serialization object
-    return {
-      id: this.id,
-      sourceNodeId: (this.source.parent as PPNode).id,
-      sourceSocketName: this.source.name,
-      targetNodeId: (this.target.parent as PPNode).id,
-      targetSocketName: this.target.name,
-    };
+    // create serialization object
+    // this prevents being blocked from saving when having orphaned links
+    if (this.source.parent && this.target.parent) {
+      return {
+        id: this.id,
+        sourceNodeId: (this.source.parent as PPNode).id,
+        sourceSocketName: this.source.name,
+        targetNodeId: (this.target.parent as PPNode).id,
+        targetSocketName: this.target.name,
+      };
+    }
   }
 
   updateConnection(): void {
