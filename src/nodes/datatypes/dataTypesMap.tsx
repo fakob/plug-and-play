@@ -8,7 +8,6 @@ import { EnumType } from './enumType';
 import { ImageType } from './imageType';
 import { JSONType } from './jsonType';
 import { MacroType } from './macroType';
-import { MissingType } from './missingType';
 import { NumberType } from './numberType';
 import { StringType } from './stringType';
 import { TriggerType } from './triggerType';
@@ -25,7 +24,6 @@ export const allDataTypes = {
   ImageType: ImageType,
   JSONType: JSONType,
   MacroType: MacroType,
-  MissingType: MissingType,
   NumberType: NumberType,
   StringType: StringType,
   TriggerType: TriggerType,

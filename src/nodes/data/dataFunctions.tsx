@@ -426,7 +426,6 @@ export class CustomFunction extends PPNode {
       (socket) =>
         !codeArguments.some((argument) => socket.name === argument) &&
         socket.name !== anyCodeName
-      // && socket.dataType.constructor.name !== 'MissingType'
     );
     const argumentsToBeAdded = codeArguments.filter(
       (argument) =>

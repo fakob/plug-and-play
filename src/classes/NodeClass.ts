@@ -43,7 +43,6 @@ import {
 } from '../utils/utils';
 import { AbstractType } from '../nodes/datatypes/abstractType';
 import { AnyType } from '../nodes/datatypes/anyType';
-import { MissingType } from '../nodes/datatypes/missingType';
 import { TriggerType } from '../nodes/datatypes/triggerType';
 import { deSerializeType } from '../nodes/datatypes/typehelper';
 import { throttle } from 'lodash';
@@ -391,21 +390,14 @@ export default class PPNode extends PIXI.Container {
           matchingSocket.setVisible(item.visible);
         } else {
           // add socket if it does not exist yet
-          console.warn(
-            `Socket does not exist ${this.name}(${this.id})/${item.name}`
-          );
-          PPGraph.currentGraph.onShowSnackbar(
-            'Socket does not exist. Check console for more info',
-            {
-              variant: 'warning',
-              preventDuplicate: true,
-            }
+          console.info(
+            `Socket does not exist (yet) and will be created: ${this.name}(${this.id})/${item.name}`
           );
           this.addSocket(
             new Socket(
               item.socketType,
               item.name,
-              new MissingType(),
+              deSerializeType(item.dataType),
               item.data,
               item.visible
             )
