@@ -1,7 +1,5 @@
 import * as PIXI from 'pixi.js';
-import { Viewport } from 'pixi-viewport';
 import { SerializedLink } from '../utils/interfaces';
-import { CONNECTION_COLOR_HEX } from '../utils/constants';
 import Socket from './SocketClass';
 import PPNode from './NodeClass';
 import PPGraph from './GraphClass';

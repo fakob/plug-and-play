@@ -43,6 +43,7 @@ import {
 } from '../utils/utils';
 import { AbstractType } from '../nodes/datatypes/abstractType';
 import { AnyType } from '../nodes/datatypes/anyType';
+import { MissingType } from '../nodes/datatypes/missingType';
 import { TriggerType } from '../nodes/datatypes/triggerType';
 import { deSerializeType } from '../nodes/datatypes/typehelper';
 import { throttle } from 'lodash';
@@ -389,11 +390,15 @@ export default class PPNode extends PIXI.Container {
           matchingSocket.setVisible(item.visible);
         } else {
           // add socket if it does not exist yet
+          console.error(
+            'Socket does not exist on this node. Will create a MissingType one: ',
+            item
+          );
           this.addSocket(
             new Socket(
               item.socketType,
               item.name,
-              deSerializeType(item.dataType),
+              new MissingType(),
               item.data,
               item.visible
             )
@@ -415,6 +420,12 @@ export default class PPNode extends PIXI.Container {
     if (this.getIsHybrid()) {
       this._onViewportMove(); // trigger this once, so the react components get positioned properly
     }
+    console.log(
+      'after configure node',
+      this.inputSocketArray.length,
+      this.inputSocketArray,
+      this.inputSocketArray[2]?.parent?.name
+    );
   }
 
   getDirectDependents(): { [key: string]: PPNode } {
