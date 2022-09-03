@@ -785,7 +785,7 @@ export default class PPGraph {
             await this.connect(outputRef, inputRef, false);
           } else {
             console.warn(
-              `Link can not be created between ${link.sourceNodeId}/${
+              `Link could not be created between ${link.sourceNodeId}/${
                 link.sourceSocketName
               }${outputRef === undefined ? '-MISSING' : ''} and ${
                 link.targetNodeId
@@ -794,7 +794,7 @@ export default class PPGraph {
               }`
             );
             this.onShowSnackbar(
-              'Link can not be created. Check console for more info',
+              'Some links could not be created. Check console for more info',
               {
                 variant: 'warning',
                 preventDuplicate: true,

@@ -275,7 +275,7 @@ export default class PPNode extends PIXI.Container {
     return this.constructor.toString();
   }
 
-  addSocket(socket: Socket): Socket {
+  addSocket(socket: Socket): void {
     const socketRef = this.addChild(socket);
     switch (socket.socketType) {
       case SOCKET_TYPE.IN: {
@@ -287,7 +287,6 @@ export default class PPNode extends PIXI.Container {
         break;
       }
     }
-    return socketRef;
   }
 
   getDefaultType(): AbstractType {
