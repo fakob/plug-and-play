@@ -4,6 +4,7 @@ import * as PIXI from 'pixi.js';
 import * as XLSX from 'xlsx';
 
 import PPGraph from '../classes/GraphClass';
+import PPSocket from '../classes/SocketClass';
 import PPNode from '../classes/NodeClass';
 import {
   COMPARISON_OPTIONS,
@@ -556,4 +557,25 @@ export const isVariable = (
     default:
       return false;
   }
+};
+
+export const getMatchingSocketIndex = (
+  socket: PPSocket,
+  socketArray: PPSocket[]
+): number => {
+  const socketDataTypeName = socket.dataType.getName();
+
+  const indexExactMatch = socketArray.findIndex((socketInArray) => {
+    return socketInArray.dataType.getName() === socketDataTypeName;
+  });
+
+  if (indexExactMatch > -1) {
+    return indexExactMatch;
+  }
+
+  const index = socketArray.findIndex((socketInArray) => {
+    return socketInArray.dataType.getName() === 'AnyType';
+  });
+
+  return index > -1 ? index : 0; // take the first index (0) if none was found
 };
