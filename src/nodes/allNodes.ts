@@ -14,6 +14,7 @@ import * as json from './data/json';
 import * as logViewer from './logViewer';
 import * as macro from './macro/macro';
 import * as math from './math';
+import * as playground from './utility/playground';
 import * as pixotopegateway from './api/pixotopeGateway';
 import * as shader from './image/shader';
 import * as stateNodes from './state/stateNodes';
@@ -45,6 +46,7 @@ export const getAllNodeTypes = (): RegisteredNodeTypes => {
       logViewer,
       macro,
       math,
+      playground,
       pixotopegateway,
       shader,
       stateNodes,
