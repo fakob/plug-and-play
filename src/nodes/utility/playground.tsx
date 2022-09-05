@@ -44,14 +44,14 @@ export class Playground extends PPNode {
     const allNodeTypes = getAllNodeTypes();
     const allNodeTypeNames = Object.keys(allNodeTypes);
     console.log(allNodeTypeNames);
-    let lastNodePosX = this.x;
+    let lastNodePosX = this.x + this.width + 40;
     const lastNodePosY = this.y;
     allNodeTypeNames.forEach((nodeName) => {
       console.log(this.x, lastNodePosX);
       const newNode = PPGraph.currentGraph.createAndAddNode(nodeName);
-      newNode.setPosition(lastNodePosX, lastNodePosY, true);
-      lastNodePosX += 40;
-      // lastNodePosX += newNode.width + 40;
+      newNode.setPosition(lastNodePosX, lastNodePosY, false);
+      // lastNodePosX += 40;
+      lastNodePosX += newNode.width + 40;
     });
     this.setOutputData('output', allNodeTypes);
     this.executeChildren();
