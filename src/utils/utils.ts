@@ -4,6 +4,7 @@ import * as PIXI from 'pixi.js';
 import * as XLSX from 'xlsx';
 
 import PPGraph from '../classes/GraphClass';
+import PPSocket from '../classes/SocketClass';
 import PPNode from '../classes/NodeClass';
 import {
   COMPARISON_OPTIONS,
@@ -14,8 +15,8 @@ import {
   SOCKET_WIDTH,
 } from './constants';
 import { GraphDatabase } from './indexedDB';
-
 import { PPNodeConstructor } from './interfaces';
+import { AnyType } from '../nodes/datatypes/anyType';
 
 export function isFunction(funcOrClass: any): boolean {
   const propertyNames = Object.getOwnPropertyNames(funcOrClass);
@@ -556,4 +557,23 @@ export const isVariable = (
     default:
       return false;
   }
+};
+
+export const getMatchingSocketIndex = (
+  socket: PPSocket,
+  socketArray: PPSocket[]
+): number => {
+  const indexExactMatch = socketArray.findIndex((socketInArray) => {
+    return socketInArray.dataType.constructor === socket.dataType.constructor;
+  });
+
+  if (indexExactMatch > -1) {
+    return indexExactMatch;
+  }
+
+  const index = socketArray.findIndex((socketInArray) => {
+    return socketInArray.dataType.constructor === AnyType.constructor;
+  });
+
+  return index > -1 ? index : 0; // take the first index (0) if none was found
 };

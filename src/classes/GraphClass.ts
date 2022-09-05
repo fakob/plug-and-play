@@ -11,7 +11,7 @@ import {
   SerializedSelection,
   TSocketType,
 } from '../utils/interfaces';
-import { ensureVisible } from '../utils/utils';
+import { ensureVisible, getMatchingSocketIndex } from '../utils/utils';
 import PPNode from './NodeClass';
 import PPSocket from './SocketClass';
 import PPLink from './LinkClass';
@@ -452,7 +452,11 @@ export default class PPGraph {
           'of',
           node.inputSocketArray[0].parent.name
         );
-        this.connect(customArgs.addLink, node.inputSocketArray[0], notify);
+        const index = getMatchingSocketIndex(
+          customArgs.addLink,
+          node.inputSocketArray
+        );
+        this.connect(customArgs.addLink, node.inputSocketArray[index], notify);
         this.clearTempConnection();
       } else if (
         customArgs.addLink.isInput() &&
@@ -468,7 +472,11 @@ export default class PPGraph {
           'of',
           node.outputSocketArray[0].parent.name
         );
-        this.connect(node.outputSocketArray[0], customArgs.addLink, notify);
+        const index = getMatchingSocketIndex(
+          customArgs.addLink,
+          node.outputSocketArray
+        );
+        this.connect(node.outputSocketArray[index], customArgs.addLink, notify);
       }
     }
     node.onNodeAdded();
