@@ -83,7 +83,7 @@ export function getNodeCommentPosX(width: number): number {
 }
 
 export function getNodeCommentPosY(): number {
-  return NODE_PADDING_TOP + NODE_HEADER_HEIGHT + SOCKET_TEXTMARGIN_TOP - 32;
+  return NODE_PADDING_TOP + NODE_HEADER_HEIGHT + SOCKET_TEXTMARGIN_TOP - 8;
 }
 
 export function highlightText(text: string, query: string): any {

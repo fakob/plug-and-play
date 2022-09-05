@@ -17,6 +17,7 @@ import { CustomArgs, TRgba } from '../utils/interfaces';
 import { compare, getMethods, isVariable } from '../utils/utils';
 import { NumberType } from './datatypes/numberType';
 import { AnyType } from './datatypes/anyType';
+import { ArrayType } from './datatypes/arrayType';
 import { TriggerType } from './datatypes/triggerType';
 import { ColorType } from './datatypes/colorType';
 import { StringType } from './datatypes/stringType';
@@ -213,8 +214,8 @@ export class GridCoordinates extends PPNode {
 
   protected getDefaultIO(): PPSocket[] {
     return [
-      new PPSocket(SOCKET_TYPE.OUT, 'x-array', new AnyType()),
-      new PPSocket(SOCKET_TYPE.OUT, 'y-array', new AnyType()),
+      new PPSocket(SOCKET_TYPE.OUT, 'x-array', new ArrayType()),
+      new PPSocket(SOCKET_TYPE.OUT, 'y-array', new ArrayType()),
       new PPSocket(SOCKET_TYPE.IN, 'x', new NumberType(), 0, false),
       new PPSocket(SOCKET_TYPE.IN, 'y', new NumberType(), 0, false),
       new PPSocket(SOCKET_TYPE.IN, 'count', new NumberType(true), 9, false),
@@ -271,7 +272,7 @@ export class ColorArray extends PPNode {
     const colorA: TRgba = TRgba.fromString(COLOR[5]);
     const colorB: TRgba = TRgba.fromString(COLOR[15]);
     return [
-      new PPSocket(SOCKET_TYPE.OUT, 'color-array', new AnyType()),
+      new PPSocket(SOCKET_TYPE.OUT, 'color-array', new ArrayType()),
       new PPSocket(SOCKET_TYPE.IN, 'count', new NumberType(true), 9, false),
       new PPSocket(SOCKET_TYPE.IN, 'colorA', new ColorType(), colorA, false),
       new PPSocket(SOCKET_TYPE.IN, 'colorB', new ColorType(), colorB, false),
@@ -309,7 +310,7 @@ export class RangeArray extends PPNode {
 
   protected getDefaultIO(): PPSocket[] {
     return [
-      new PPSocket(SOCKET_TYPE.OUT, 'output array', new AnyType()),
+      new PPSocket(SOCKET_TYPE.OUT, 'output array', new ArrayType()),
       new PPSocket(SOCKET_TYPE.IN, 'start', new NumberType()),
       new PPSocket(SOCKET_TYPE.IN, 'stop', new NumberType()),
       new PPSocket(SOCKET_TYPE.IN, 'step', new NumberType()),
@@ -331,7 +332,7 @@ export class RandomArray extends PPNode {
 
   protected getDefaultIO(): PPSocket[] {
     return [
-      new PPSocket(SOCKET_TYPE.OUT, 'output array', new AnyType()),
+      new PPSocket(SOCKET_TYPE.OUT, 'output array', new ArrayType()),
       new PPSocket(
         SOCKET_TYPE.IN,
         'trigger',

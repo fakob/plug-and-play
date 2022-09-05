@@ -3,7 +3,7 @@ import { LazyLog, ScrollFollow } from 'react-lazylog';
 import PPNode from '../classes/NodeClass';
 import PPSocket from '../classes/SocketClass';
 import { CustomArgs, TRgba } from '../utils/interfaces';
-import { CodeType } from './datatypes/codeType';
+import { AnyType } from './datatypes/anyType';
 import { NumberType } from './datatypes/numberType';
 import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../utils/constants';
 
@@ -84,7 +84,7 @@ export class LogViewer extends PPNode {
 
   protected getDefaultIO(): PPSocket[] {
     return [
-      new PPSocket(SOCKET_TYPE.IN, 'input', new CodeType(), '', true),
+      new PPSocket(SOCKET_TYPE.IN, 'input', new AnyType(), '', true),
       new PPSocket(
         SOCKET_TYPE.IN,
         'rowLimit',

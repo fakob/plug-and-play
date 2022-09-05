@@ -8,8 +8,7 @@ import { getXLSXSelectionRange } from '../utils/utils';
 import { SOCKET_TYPE } from '../utils/constants';
 import { CustomArgs } from '../utils/interfaces';
 import { stox, xtos } from '../utils/xlsxspread';
-import { AnyType } from './datatypes/anyType';
-import { CodeType } from './datatypes/codeType';
+import { ArrayType } from './datatypes/arrayType';
 import { JSONType } from './datatypes/jsonType';
 import { NumberType } from './datatypes/numberType';
 import { StringType } from './datatypes/stringType';
@@ -51,15 +50,15 @@ export class Table extends PPNode {
 
   protected getDefaultIO(): PPSocket[] {
     return [
-      new PPSocket(SOCKET_TYPE.OUT, workBookSocketName, new CodeType()),
-      new PPSocket(SOCKET_TYPE.OUT, workSheetSocketName, new CodeType()),
+      new PPSocket(SOCKET_TYPE.OUT, workBookSocketName, new JSONType()),
+      new PPSocket(SOCKET_TYPE.OUT, workSheetSocketName, new JSONType()),
       new PPSocket(SOCKET_TYPE.OUT, JSONSocketName, new JSONType()),
-      new PPSocket(SOCKET_TYPE.OUT, arrayOfArraysSocketName, new JSONType()),
+      new PPSocket(SOCKET_TYPE.OUT, arrayOfArraysSocketName, new ArrayType()),
       new PPSocket(SOCKET_TYPE.OUT, CSVSocketName, new StringType()),
       new PPSocket(
         SOCKET_TYPE.IN,
         workBookInputSocketName,
-        new AnyType(),
+        new JSONType(),
         undefined,
         false
       ),

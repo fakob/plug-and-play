@@ -866,7 +866,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
       nodeComment.resolution = 1;
 
       debugText.x = getNodeCommentPosX(this.width);
-      debugText.y = getNodeCommentPosY() - 32;
+      debugText.y = getNodeCommentPosY() - 48;
       nodeComment.x = debugText.x;
       nodeComment.y = getNodeCommentPosY();
 
