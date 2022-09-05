@@ -15,8 +15,8 @@ import {
   SOCKET_WIDTH,
 } from './constants';
 import { GraphDatabase } from './indexedDB';
-
 import { PPNodeConstructor } from './interfaces';
+import { AnyType } from '../nodes/datatypes/anyType';
 
 export function isFunction(funcOrClass: any): boolean {
   const propertyNames = Object.getOwnPropertyNames(funcOrClass);
@@ -563,10 +563,8 @@ export const getMatchingSocketIndex = (
   socket: PPSocket,
   socketArray: PPSocket[]
 ): number => {
-  const socketDataTypeName = socket.dataType.getName();
-
   const indexExactMatch = socketArray.findIndex((socketInArray) => {
-    return socketInArray.dataType.getName() === socketDataTypeName;
+    return socketInArray.dataType.constructor === socket.dataType.constructor;
   });
 
   if (indexExactMatch > -1) {
@@ -574,7 +572,7 @@ export const getMatchingSocketIndex = (
   }
 
   const index = socketArray.findIndex((socketInArray) => {
-    return socketInArray.dataType.getName() === 'AnyType';
+    return socketInArray.dataType.constructor === AnyType.constructor;
   });
 
   return index > -1 ? index : 0; // take the first index (0) if none was found
