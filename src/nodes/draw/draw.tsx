@@ -146,7 +146,7 @@ export abstract class DRAW_Base extends PPNode {
         PIXI_PIVOT_OPTIONS[0].text,
         false
       ),
-      new Socket(SOCKET_TYPE.IN, injectedDataName, new ArrayType(), {}, true),
+      new Socket(SOCKET_TYPE.IN, injectedDataName, new ArrayType(), [], true),
       new Socket(SOCKET_TYPE.OUT, outputPixiName, new DeferredPixiType()),
     ];
   }

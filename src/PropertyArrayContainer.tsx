@@ -335,25 +335,37 @@ const PropertyHeader: React.FunctionComponent<PropertyHeaderProps> = (
           open={open}
           onClose={handleClose}
         >
-          {Object.keys(allDataTypes).map((name) => {
-            const entry = new allDataTypes[name]().getName();
-            return (
-              <MenuItem
-                key={name}
-                value={name}
-                data-my-value={name}
-                selected={props.property.dataType.constructor.name === name}
-                onClick={props.onChangeDropdown}
-                sx={{
-                  '&.Mui-selected': {
-                    backgroundColor: `${Color(props.randomMainColor).negate()}`,
-                  },
-                }}
-              >
-                {entry}
-              </MenuItem>
-            );
-          })}
+          {Object.keys(allDataTypes)
+            .filter((name) => {
+              const dataTypeItem = new allDataTypes[name]();
+              if (props.isInput) {
+                return dataTypeItem.allowedAsInput();
+              } else {
+                return dataTypeItem.allowedAsOutput();
+              }
+            })
+            .sort()
+            .map((name) => {
+              const entry = new allDataTypes[name]().getName();
+              return (
+                <MenuItem
+                  key={name}
+                  value={name}
+                  data-my-value={name}
+                  selected={props.property.dataType.constructor.name === name}
+                  onClick={props.onChangeDropdown}
+                  sx={{
+                    '&.Mui-selected': {
+                      backgroundColor: `${Color(
+                        props.randomMainColor
+                      ).negate()}`,
+                    },
+                  }}
+                >
+                  {entry}
+                </MenuItem>
+              );
+            })}
         </Menu>
       </Box>
     </Box>

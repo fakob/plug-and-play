@@ -61,4 +61,8 @@ export class TriggerType extends AbstractType {
   defaultInputNodeWidget(): string {
     return 'WidgetButton';
   }
+
+  allowedAsOutput(): boolean {
+    return false;
+  }
 }

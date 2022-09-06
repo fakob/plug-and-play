@@ -178,19 +178,15 @@ export default class PPGraph {
   }
 
   _onPointerUpAndUpOutside(event: PIXI.InteractionEvent): void {
-    if (!this.overInputRef && this.selectedSourceSocket) {
-      if (this.lastSelectedSocketWasInput) {
-        this.selectedSourceSocket = null;
-      } else {
-        if (!this.overrideNodeCursorPosition) {
-          this.overrideNodeCursorPosition = this.viewport.toWorld(
-            event.data.global
-          );
-        }
-        this.onOpenNodeSearch(event.data.global);
-      }
-    }
     console.log('_onPointerUpAndUpOutside');
+    if (!this.overInputRef && this.selectedSourceSocket) {
+      if (!this.overrideNodeCursorPosition) {
+        this.overrideNodeCursorPosition = this.viewport.toWorld(
+          event.data.global
+        );
+      }
+      this.onOpenNodeSearch(event.data.global);
+    }
     // check if viewport has been dragged,
     // if not, this is a deselect all nodes action
     if (this.dragSourcePoint !== undefined) {
@@ -530,11 +526,12 @@ export default class PPGraph {
     if (socket.isInput()) {
       const nodeType = socket.dataType.defaultInputNodeWidget();
       if (nodeType !== undefined) {
-        this.createAndAddNode(nodeType, {
-          nodePosX: node.x - (200 + 40),
+        const newNode = this.createAndAddNode(nodeType, {
+          nodePosX: node.x,
           nodePosY: node.y + socket.y,
           addLink: socket,
         });
+        newNode.setPosition(-(newNode.width + 40), 0, true);
       }
     } else {
       const nodeType = socket.dataType.defaultOutputNodeWidget();
