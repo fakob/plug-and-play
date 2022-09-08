@@ -126,9 +126,18 @@ export class TRgba {
     return new TRgba(r, g, b);
   }
 
+  object(): string {
+    return this.toColor().object();
+  }
+
+  rgb(): string {
+    return this.toColor().rgb().string();
+  }
+
   hex(): string {
     return this.toColor().hex();
   }
+
   hexNumber(): number {
     return parseInt(this.hex().replace(/^#/, ''), 16);
   }

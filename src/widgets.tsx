@@ -471,7 +471,7 @@ export const ColorWidget: React.FunctionComponent<ColorWidgetProps> = (
       <div
         className={styles.colorPickerSwatch}
         style={{
-          backgroundColor: finalColor.hex(),
+          backgroundColor: finalColor.rgb(),
         }}
         onClick={
           props.hasLink
@@ -486,7 +486,7 @@ export const ColorWidget: React.FunctionComponent<ColorWidgetProps> = (
       {props.isInput && colorPicker && (
         <span className="chrome-picker">
           <SketchPicker
-            color={finalColor.hex()}
+            color={finalColor.object()}
             onChangeComplete={(color) => {
               const pickedrgb = color.rgb;
               changeColor(
