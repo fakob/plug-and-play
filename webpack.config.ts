@@ -13,8 +13,6 @@ import { CleanWebpackPlugin } from 'clean-webpack-plugin';
 import MonacoWebpackPlugin from 'monaco-editor-webpack-plugin';
 
 const webpack = require('webpack');
-const BundleAnalyzerPlugin =
-  require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 module.exports = (env, argv) => {
   const config: Configuration = {
@@ -78,7 +76,6 @@ module.exports = (env, argv) => {
           },
         ],
       }),
-      new BundleAnalyzerPlugin(),
     ],
   };
 
