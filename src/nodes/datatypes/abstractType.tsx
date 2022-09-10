@@ -64,4 +64,12 @@ export class AbstractType {
   defaultOutputNodeWidget(): string {
     return 'Label';
   }
+
+  allowedAsInput(): boolean {
+    return true;
+  }
+
+  allowedAsOutput(): boolean {
+    return true;
+  }
 }
