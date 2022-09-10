@@ -30,7 +30,7 @@ module.exports = () => {
 
     output: {
       path: path.resolve(__dirname, 'dist'),
-      filename: 'main.[hash].js',
+      filename: 'main.[fullhash].js',
       chunkFilename: 'main-library.[contenthash].js',
     },
 
@@ -43,7 +43,7 @@ module.exports = () => {
         // failOnWarning: true,
       }),
       new MiniCssExtractPlugin({
-        filename: '[name].[hash].css',
+        filename: '[name].[fullhash].css',
       }),
       new webpack.DefinePlugin({
         'process.env': '{}',

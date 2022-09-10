@@ -43,7 +43,7 @@ export class Label extends PPNode {
 
     return [
       new PPSocket(SOCKET_TYPE.OUT, 'Output', new StringType(), false),
-      new PPSocket(SOCKET_TYPE.IN, 'Input', new StringType(), '', false),
+      new PPSocket(SOCKET_TYPE.IN, 'Input', new StringType(), '', true),
       new PPSocket(
         SOCKET_TYPE.IN,
         'fontSize',
@@ -205,8 +205,8 @@ export class Label extends PPNode {
 
     this.onExecute = async (input, output) => {
       const text = String(input['Input']);
-      const fontSize = input['fontSize'];
-      const minWidth = input['min-width'];
+      const fontSize = Math.max(1, input['fontSize']);
+      const minWidth = Math.max(1, input['min-width']);
       const color: TRgba = input['backgroundColor'];
 
       const marginTopBottom = fontSize / 2;
