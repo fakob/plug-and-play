@@ -1,8 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { Box, ThemeProvider } from '@mui/material';
 import { ErrorBoundary } from 'react-error-boundary';
-import { Slate, Editable, ReactEditor, withReact } from 'slate-react';
 import { createEditor, BaseEditor, Descendant } from 'slate';
+import {
+  Editable,
+  ReactEditor,
+  Slate,
+  Value,
+  withReact,
+  setEventTransfer,
+} from 'slate-react';
+import Plain from 'slate-plain-serializer';
 import ErrorFallback from '../components/ErrorFallback';
 import PPSocket from '../classes/SocketClass';
 import PPGraph from '../classes/GraphClass';
@@ -169,29 +177,28 @@ export class TextEditor extends PPNode {
         this.executeChildren();
       };
 
-      // const handleCopy = (event, editor) => {
-      //   const { getAsset, resolveWidget } = this.props;
-      //   const markdown = Plain.serialize(
-      //     Value.create({ document: editor.value.fragment })
-      //   );
-      //   const html = markdownToHtml(markdown, { getAsset, resolveWidget });
-      //   setEventTransfer(event, 'text', markdown);
-      //   setEventTransfer(event, 'html', html);
-      //   event.preventDefault();
-      // };
+      const handleCopy = (event, editor) => {
+        const markdown = Plain.serialize(
+          Value.create({ document: editor.value.fragment })
+        );
+        // const html = markdownToHtml(markdown, { getAsset, resolveWidget });
+        setEventTransfer(event, 'text', markdown);
+        // setEventTransfer(event, 'html', html);
+        event.preventDefault();
+      };
 
       // const handleCut = (event, editor) => {
       //   handleCopy(event, editor);
       //   editor.delete();
       // };
 
-      // const handlePaste = (event, editor) => {
-      //   event.preventDefault();
-      //   const data = event.clipboardData;
+      const handlePaste = (event, editor) => {
+        event.preventDefault();
+        const data = event.clipboardData;
 
-      //   const value = Plain.deserialize(data.getData('text/plain'));
-      //   return editor.insertFragment(value.document);
-      // };
+        const value = Plain.deserialize(data.getData('text/plain'));
+        return editor.insertFragment(value.document);
+      };
 
       useEffect(() => {
         console.log(props.color);
@@ -212,10 +219,11 @@ export class TextEditor extends PPNode {
               <Slate
                 editor={editor}
                 value={data}
+                // readOnly={props.readOnly}
                 onChange={onChange}
-                // onPaste={handlePaste}
+                onCopy={handleCopy}
                 // onCut={handleCut}
-                // onCopy={handleCopy}
+                onPaste={handlePaste}
               >
                 <Editable />
               </Slate>
