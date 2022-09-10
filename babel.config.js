@@ -24,7 +24,7 @@ module.exports = function (api) {
     ['@babel/plugin-proposal-decorators', { decoratorsBeforeExport: true }],
     ['@babel/plugin-proposal-class-properties'],
     ['@babel/transform-runtime'],
-    ['@babel/plugin-transform-modules-commonjs'],
+    // ['@babel/plugin-transform-modules-commonjs'],
   ];
   return {
     presets,
