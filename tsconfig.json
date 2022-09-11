@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "ES2019",
+    "target": "ES2022",
     "module": "CommonJS" /* Specify module code generation: 'none', 'commonjs', 'amd', 'system', 'umd', 'es2015', or 'ESNext'. */,
     // "strict": true,
     "jsx": "react",
@@ -13,5 +13,8 @@
       }
     ]
   },
-  "include": ["./src/**/*", "./src/custom.d.ts"]
+  "include": [
+    "./src/**/*",
+    "./src/custom.d.ts"
+  ]
 }
