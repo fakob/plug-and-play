@@ -21,7 +21,7 @@
   "author": "jkanchelov",
   "license": "MIT",
   "dependencies": {
-    "@bergfreunde/x-data-spreadsheet": "^2.0.55",
+    "@bergfreunde/x-data-spreadsheet": "2.0.62",
     "@emotion/react": "^11.6.0",
     "@emotion/styled": "^11.6.0",
     "@fontsource/roboto": "^4.5.1",
@@ -49,7 +49,7 @@
     "notistack": "^2.0.3",
     "object-fit-math": "^1.0.0",
     "pixi-viewport": "^4.35.0",
-    "pixi.js": "6.3.2",
+    "pixi.js": "^6.5.3",
     "react": "^18.1.0",
     "react-color": "^2.19.3",
     "react-dom": "^18.1.0",
