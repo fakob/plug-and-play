@@ -1,6 +1,9 @@
 import React from 'react';
-import { Editor, Transforms, Element as SlateElement } from 'slate';
+import { Editor, Range, Transforms, Element as SlateElement } from 'slate';
+import { Editable, withReact, useSlate, useSelected } from 'slate-react';
 import { Typography, styled } from '@mui/material';
+import isUrl from 'is-url';
+import { LinkElement } from './custom-types';
 import { COLOR_DARK } from '../../utils/constants';
 
 const MyBlockquote = styled('blockquote')(({ theme }) => ({
@@ -31,8 +34,7 @@ export const toggleBlock = (editor, format) => {
       !TEXT_ALIGN_TYPES.includes(format),
     split: true,
   });
-  // let newProperties: Partial<SlateElement>;
-  let newProperties: any;
+  let newProperties: Partial<SlateElement>;
   if (TEXT_ALIGN_TYPES.includes(format)) {
     newProperties = {
       align: isActive ? undefined : format,
@@ -82,7 +84,8 @@ export const isMarkActive = (editor, format) => {
   return marks ? marks[format] === true : false;
 };
 
-export const Element = ({ attributes, children, element }) => {
+export const Element = (props) => {
+  const { attributes, children, element } = props;
   const style = { textAlign: element.align };
   switch (element.type) {
     case 'block-quote':
@@ -145,6 +148,8 @@ export const Element = ({ attributes, children, element }) => {
           {children}
         </ol>
       );
+    case 'link':
+      return <LinkComponent {...props} />;
     default:
       return (
         <p style={style} {...attributes}>
@@ -171,5 +176,152 @@ export const Leaf = ({ attributes, children, leaf }) => {
     children = <u>{children}</u>;
   }
 
-  return <span {...attributes}>{children}</span>;
+  return (
+    <span
+      // The following is a workaround for a Chromium bug where,
+      // if you have an inline at the end of a block,
+      // clicking the end of a block puts the cursor inside the inline
+      // instead of inside the final {text: ''} node
+      // https://github.com/ianstormtaylor/slate/issues/4704#issuecomment-1006696364
+      style={{
+        paddingLeft: leaf.text === '' ? '0.1px' : '0',
+      }}
+      {...attributes}
+    >
+      {children}
+    </span>
+  );
 };
+
+export const withInlines = (editor) => {
+  const { insertData, insertText, isInline } = editor;
+
+  editor.isInline = (element) =>
+    ['link', 'button'].includes(element.type) || isInline(element);
+
+  editor.insertText = (text) => {
+    if (text && isUrl(text)) {
+      wrapLink(editor, text);
+    } else {
+      insertText(text);
+    }
+  };
+
+  editor.insertData = (data) => {
+    const text = data.getData('text/plain');
+
+    if (text && isUrl(text)) {
+      wrapLink(editor, text);
+    } else {
+      insertData(data);
+    }
+  };
+
+  return editor;
+};
+
+const insertLink = (editor, url) => {
+  if (editor.selection) {
+    wrapLink(editor, url);
+  }
+};
+
+const isLinkActive = (editor) => {
+  const [link] = Editor.nodes(editor, {
+    match: (n) =>
+      !Editor.isEditor(n) && SlateElement.isElement(n) && n.type === 'link',
+  });
+  return !!link;
+};
+
+const unwrapLink = (editor) => {
+  Transforms.unwrapNodes(editor, {
+    match: (n) =>
+      !Editor.isEditor(n) && SlateElement.isElement(n) && n.type === 'link',
+  });
+};
+
+const wrapLink = (editor, url: string) => {
+  if (isLinkActive(editor)) {
+    unwrapLink(editor);
+  }
+
+  const { selection } = editor;
+  const isCollapsed = selection && Range.isCollapsed(selection);
+  const link: LinkElement = {
+    type: 'link',
+    url,
+    children: isCollapsed ? [{ text: url }] : [],
+  };
+
+  if (isCollapsed) {
+    Transforms.insertNodes(editor, link);
+  } else {
+    Transforms.wrapNodes(editor, link, { split: true });
+    Transforms.collapse(editor, { edge: 'end' });
+  }
+};
+
+// Put this at the start and end of an inline component to work around this Chromium bug:
+// https://bugs.chromium.org/p/chromium/issues/detail?id=1249405
+const InlineChromiumBugfix = () => (
+  <span
+    contentEditable={false}
+    style={{
+      fontSize: 0,
+    }}
+  >
+    ${String.fromCodePoint(160) /* Non-breaking space */}
+  </span>
+);
+
+const LinkComponent = ({ attributes, children, element }) => {
+  const selected = useSelected();
+  return (
+    <a
+      {...attributes}
+      href={element.url}
+      style={{
+        boxShadow: selected ? '0 0 0 3px #ddd' : 'none',
+      }}
+    >
+      <InlineChromiumBugfix />
+      {children}
+      <InlineChromiumBugfix />
+    </a>
+  );
+};
+
+// const AddLinkButton = () => {
+//   const editor = useSlate();
+//   return (
+//     <Button
+//       active={isLinkActive(editor)}
+//       onMouseDown={(event) => {
+//         event.preventDefault();
+//         const url = window.prompt('Enter the URL of the link:');
+//         if (!url) return;
+//         insertLink(editor, url);
+//       }}
+//     >
+//       <Icon>link</Icon>
+//     </Button>
+//   );
+// };
+
+// const RemoveLinkButton = () => {
+//   const editor = useSlate();
+
+//   return (
+//     <Button
+//       active={isLinkActive(editor)}
+//       onMouseDown={(event) => {
+//         if (isLinkActive(editor)) {
+//           unwrapLink(editor);
+//         }
+//       }}
+//     >
+//       <Icon>link_off</Icon>
+//     </Button>
+//   );
+// };

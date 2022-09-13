@@ -1,15 +1,9 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Box, ThemeProvider } from '@mui/material';
 import { ErrorBoundary } from 'react-error-boundary';
-import { BaseEditor, createEditor, Descendant } from 'slate';
+import { createEditor, Descendant } from 'slate';
 import { withHistory } from 'slate-history';
-import {
-  Slate,
-  Editable,
-  ReactEditor,
-  withReact,
-  useFocused,
-} from 'slate-react';
+import { Slate, Editable, withReact, useFocused } from 'slate-react';
 import ErrorFallback from '../../components/ErrorFallback';
 import PPSocket from '../../classes/SocketClass';
 import PPGraph from '../../classes/GraphClass';
@@ -21,22 +15,12 @@ import {
   Element,
   toggleBlock,
   toggleMark,
+  withInlines,
 } from './slate-editor-components';
 import { ColorType } from '../datatypes/colorType';
 import { JSONType } from '../datatypes/jsonType';
 
 const isMac = navigator.platform.indexOf('Mac') != -1;
-
-type CustomElement = { type: 'paragraph'; children: CustomText[] };
-type CustomText = { text: string };
-
-declare module 'slate' {
-  interface CustomTypes {
-    Editor: BaseEditor & ReactEditor;
-    Element: CustomElement;
-    Text: CustomText;
-  }
-}
 
 const initialValue: Descendant[] = [
   {
@@ -174,7 +158,10 @@ export class TextEditor extends PPNode {
 
     const ParentComponent: React.FunctionComponent<MyProps> = (props) => {
       // const [editor] = useState(() => withReact(createEditor()));
-      const editor = useMemo(() => withHistory(withReact(createEditor())), []);
+      const editor = useMemo(
+        () => withInlines(withHistory(withReact(createEditor()))),
+        []
+      );
       const inFocus = useFocused();
       const [data, setData] = useState<Descendant[] | undefined>(props.data);
       const [showHooveringToolbar, setShowHooveringToolbar] = useState(false);
@@ -215,7 +202,7 @@ export class TextEditor extends PPNode {
                   renderElement={renderElement}
                   renderLeaf={renderLeaf}
                   placeholder="Enter some rich text…"
-                  spellCheck
+                  spellCheck={!props.readOnly}
                   onKeyDown={(event) => {
                     const modKey = isMac ? event.metaKey : event.ctrlKey;
                     console.log(event.key, event.code);
