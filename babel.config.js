@@ -22,7 +22,6 @@ module.exports = function (api) {
   ];
   const plugins = [
     ['@babel/transform-runtime'],
-    ['@babel/plugin-transform-modules-commonjs'],
   ];
   return {
     presets,

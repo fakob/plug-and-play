@@ -45,7 +45,7 @@ import { AbstractType } from '../nodes/datatypes/abstractType';
 import { AnyType } from '../nodes/datatypes/anyType';
 import { TriggerType } from '../nodes/datatypes/triggerType';
 import { deSerializeType } from '../nodes/datatypes/typehelper';
-import { throttle } from 'lodash';
+import throttle from 'lodash/throttle';
 
 export default class PPNode extends PIXI.Container {
   _NodeNameRef: PIXI.Text;
