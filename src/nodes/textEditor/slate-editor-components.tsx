@@ -1,9 +1,15 @@
 import React from 'react';
 import { Editor, Range, Transforms, Element as SlateElement } from 'slate';
-import { Editable, withReact, useSlate, useSelected } from 'slate-react';
+import {
+  Editable,
+  withReact,
+  useFocused,
+  useSlate,
+  useSelected,
+} from 'slate-react';
 import { Typography, styled } from '@mui/material';
 import isUrl from 'is-url';
-import { LinkElement } from './custom-types';
+import { LinkElement, MentionElement } from './custom-types';
 import { COLOR_DARK } from '../../utils/constants';
 
 const MyBlockquote = styled('blockquote')(({ theme }) => ({
@@ -150,6 +156,8 @@ export const Element = (props) => {
       );
     case 'link':
       return <LinkComponent {...props} />;
+    case 'mention':
+      return <Mention {...props} />;
     default:
       return (
         <p style={style} {...attributes}>
@@ -193,7 +201,7 @@ export const Leaf = ({ attributes, children, leaf }) => {
   );
 };
 
-export const withInlines = (editor) => {
+export const withLinks = (editor) => {
   const { insertData, insertText, isInline } = editor;
 
   editor.isInline = (element) =>
@@ -292,36 +300,50 @@ const LinkComponent = ({ attributes, children, element }) => {
   );
 };
 
-// const AddLinkButton = () => {
-//   const editor = useSlate();
-//   return (
-//     <Button
-//       active={isLinkActive(editor)}
-//       onMouseDown={(event) => {
-//         event.preventDefault();
-//         const url = window.prompt('Enter the URL of the link:');
-//         if (!url) return;
-//         insertLink(editor, url);
-//       }}
-//     >
-//       <Icon>link</Icon>
-//     </Button>
-//   );
-// };
+export const withMentions = (editor) => {
+  const { isInline, isVoid } = editor;
 
-// const RemoveLinkButton = () => {
-//   const editor = useSlate();
+  editor.isInline = (element) => {
+    return element.type === 'mention' ? true : isInline(element);
+  };
 
-//   return (
-//     <Button
-//       active={isLinkActive(editor)}
-//       onMouseDown={(event) => {
-//         if (isLinkActive(editor)) {
-//           unwrapLink(editor);
-//         }
-//       }}
-//     >
-//       <Icon>link_off</Icon>
-//     </Button>
-//   );
-// };
+  editor.isVoid = (element) => {
+    return element.type === 'mention' ? true : isVoid(element);
+  };
+
+  return editor;
+};
+
+export const insertMention = (editor, character) => {
+  const mention: MentionElement = {
+    type: 'mention',
+    character,
+    children: [{ text: '' }],
+  };
+  Transforms.insertNodes(editor, mention);
+  Transforms.move(editor);
+};
+
+const Mention = ({ attributes, children, element }) => {
+  const selected = useSelected();
+  const focused = useFocused();
+  return (
+    <span
+      {...attributes}
+      contentEditable={false}
+      data-cy={`mention-${element.character.replace(' ', '-')}`}
+      style={{
+        padding: '3px 3px 2px',
+        margin: '0 1px',
+        verticalAlign: 'baseline',
+        display: 'inline-block',
+        borderRadius: '4px',
+        backgroundColor: '#eee',
+        fontSize: '0.9em',
+        boxShadow: selected && focused ? '0 0 0 2px #B4D5FF' : 'none',
+      }}
+    >
+      {children}@{element.character}
+    </span>
+  );
+};
