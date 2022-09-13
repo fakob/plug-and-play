@@ -229,97 +229,96 @@ export class TextEditor extends PPNode {
 
       const onKeyDown = useCallback(
         (event) => {
+          const modKey = isMac ? event.metaKey : event.ctrlKey;
+          console.log(event.key, event.code);
           if (target) {
-            const modKey = isMac ? event.metaKey : event.ctrlKey;
-            console.log(event.key, event.code);
-
-            // switch (event.key) {
-            //   case 'ArrowDown':
-            //     event.preventDefault();
-            //     const prevIndex = index >= chars.length - 1 ? 0 : index + 1;
-            //     setIndex(prevIndex);
-            //     break;
-            //   case 'ArrowUp':
-            //     event.preventDefault();
-            //     const nextIndex = index <= 0 ? chars.length - 1 : index - 1;
-            //     setIndex(nextIndex);
-            //     break;
-            //   case 'Tab':
-            //   case 'Enter':
-            //     event.preventDefault();
-            //     Transforms.select(editor, target);
-            //     insertMention(editor, chars[index]);
-            //     setTarget(null);
-            //     break;
-            //   case 'Escape':
-            //     event.preventDefault();
-            //     setTarget(null);
-            //     break;
-            // }
-            if (modKey && !event.shiftKey) {
-              switch (event.key) {
-                case 'b':
-                  event.preventDefault();
-                  return toggleMark(editor, 'bold');
-                case 'i':
-                  event.preventDefault();
-                  return toggleMark(editor, 'italic');
-                case 'u':
-                  event.preventDefault();
-                  return toggleMark(editor, 'underlined');
-              }
+            switch (event.key) {
+              case 'ArrowDown':
+                event.preventDefault();
+                const prevIndex = index >= chars.length - 1 ? 0 : index + 1;
+                setIndex(prevIndex);
+                break;
+              case 'ArrowUp':
+                event.preventDefault();
+                const nextIndex = index <= 0 ? chars.length - 1 : index - 1;
+                setIndex(nextIndex);
+                break;
+              case 'Tab':
+              case 'Enter':
+                event.preventDefault();
+                Transforms.select(editor, target);
+                insertMention(editor, chars[index]);
+                setTarget(null);
+                break;
+              case 'Escape':
+                event.preventDefault();
+                setTarget(null);
+                break;
             }
-            if (modKey && event.altKey) {
-              switch (event.code) {
-                case 'Digit1':
-                  event.preventDefault();
-                  return toggleBlock(editor, 'heading-one');
-                case 'Digit2':
-                  event.preventDefault();
-                  return toggleBlock(editor, 'heading-two');
-                case 'Digit3':
-                  event.preventDefault();
-                  return toggleBlock(editor, 'heading-three');
-                case 'Digit4':
-                  event.preventDefault();
-                  return toggleBlock(editor, 'heading-four');
-                case 'Digit5':
-                  event.preventDefault();
-                  return toggleBlock(editor, 'heading-five');
-                case 'Digit6':
-                  event.preventDefault();
-                  return toggleBlock(editor, 'heading-six');
-              }
+          }
+          if (modKey && !event.shiftKey) {
+            switch (event.key) {
+              case 'b':
+                event.preventDefault();
+                return toggleMark(editor, 'bold');
+              case 'i':
+                event.preventDefault();
+                return toggleMark(editor, 'italic');
+              case 'u':
+                event.preventDefault();
+                return toggleMark(editor, 'underlined');
             }
-            if (modKey && event.shiftKey) {
-              switch (event.code) {
-                case 'Digit7':
-                  event.preventDefault();
-                  return toggleBlock(editor, 'numbered-list');
-                case 'Digit8':
-                  event.preventDefault();
-                  return toggleBlock(editor, 'bulleted-list');
-                case 'Digit9':
-                  event.preventDefault();
-                  return toggleBlock(editor, 'block-quote');
-              }
-              switch (event.key) {
-                case 'c':
-                  event.preventDefault();
-                  return toggleMark(editor, 'code');
-                case 'l':
-                  event.preventDefault();
-                  return toggleBlock(editor, 'left');
-                case 'e':
-                  event.preventDefault();
-                  return toggleBlock(editor, 'center');
-                case 'r':
-                  event.preventDefault();
-                  return toggleBlock(editor, 'right');
-                case 'j':
-                  event.preventDefault();
-                  return toggleBlock(editor, 'justify');
-              }
+          }
+          if (modKey && event.altKey) {
+            switch (event.code) {
+              case 'Digit1':
+                event.preventDefault();
+                return toggleBlock(editor, 'heading-one');
+              case 'Digit2':
+                event.preventDefault();
+                return toggleBlock(editor, 'heading-two');
+              case 'Digit3':
+                event.preventDefault();
+                return toggleBlock(editor, 'heading-three');
+              case 'Digit4':
+                event.preventDefault();
+                return toggleBlock(editor, 'heading-four');
+              case 'Digit5':
+                event.preventDefault();
+                return toggleBlock(editor, 'heading-five');
+              case 'Digit6':
+                event.preventDefault();
+                return toggleBlock(editor, 'heading-six');
+            }
+          }
+          if (modKey && event.shiftKey) {
+            switch (event.code) {
+              case 'Digit7':
+                event.preventDefault();
+                return toggleBlock(editor, 'numbered-list');
+              case 'Digit8':
+                event.preventDefault();
+                return toggleBlock(editor, 'bulleted-list');
+              case 'Digit9':
+                event.preventDefault();
+                return toggleBlock(editor, 'block-quote');
+            }
+            switch (event.key) {
+              case 'c':
+                event.preventDefault();
+                return toggleMark(editor, 'code');
+              case 'l':
+                event.preventDefault();
+                return toggleBlock(editor, 'left');
+              case 'e':
+                event.preventDefault();
+                return toggleBlock(editor, 'center');
+              case 'r':
+                event.preventDefault();
+                return toggleBlock(editor, 'right');
+              case 'j':
+                event.preventDefault();
+                return toggleBlock(editor, 'justify');
             }
           }
         },
