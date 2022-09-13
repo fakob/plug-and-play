@@ -17,7 +17,7 @@ import * as shader from './image/shader';
 import * as stateNodes from './state/stateNodes';
 import * as table from './table';
 import * as text from './text';
-import * as textEditor from './textEditor';
+import * as textEditor from './textEditor/textEditor';
 import * as utility from './utility/utility';
 import * as widgetNodes from './widgets/widgetNodes';
 import { getInfoFromRegisteredNode } from '../utils/utils';

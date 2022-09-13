@@ -344,8 +344,7 @@ export const isEventComingFromWithinTextInput = (event: any): boolean => {
     event.target.id === 'Input' ||
     event.target.localName === 'input' ||
     event.target.localName === 'textarea' ||
-    event.target.className.includes('cm-content') ||
-    event.target.className.includes('cm-scroller')
+    event.target?.attributes?.['data-slate-editor'] !== undefined
   );
 };
 
