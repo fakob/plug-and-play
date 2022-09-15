@@ -6,6 +6,7 @@ import {
   useFocused,
   useSlate,
   useSelected,
+  useReadOnly,
 } from 'slate-react';
 import { Typography, styled } from '@mui/material';
 import isUrl from 'is-url';
@@ -324,9 +325,14 @@ export const insertMention = (editor, character) => {
   Transforms.move(editor);
 };
 
-const Mention = ({ attributes, children, element }) => {
+const Mention = (props) => {
+  const { attributes, children, element } = props;
   const selected = useSelected();
   const focused = useFocused();
+  const readOnly = useReadOnly();
+  const textToDisplay = readOnly
+    ? element?.reactiveText
+    : `@${element.character}`;
   return (
     <span
       {...attributes}
@@ -343,7 +349,8 @@ const Mention = ({ attributes, children, element }) => {
         boxShadow: selected && focused ? '0 0 0 2px #B4D5FF' : 'none',
       }}
     >
-      {children}@{element.character}
+      {children}
+      {textToDisplay}
     </span>
   );
 };

@@ -52,6 +52,7 @@ export type ListItemElement = { type: 'list-item'; children: Descendant[] };
 export type MentionElement = {
   type: 'mention';
   character: string;
+  reactiveText?: string;
   children: CustomText[];
 };
 
