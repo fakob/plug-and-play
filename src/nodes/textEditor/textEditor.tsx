@@ -63,9 +63,7 @@ const Editable2: React.FunctionComponent<EditableProps2> = ({
 const outputSocketName = 'output';
 const inputSocketName = 'input';
 const backgroundColorSocketName = 'background Color';
-const inputName1 = 'variable1';
-const inputName2 = 'variable2';
-const inputName3 = 'variable3';
+const inputName1 = 'Parameter 1';
 
 const Portal = ({ children }) => {
   return typeof document === 'object'
@@ -74,6 +72,7 @@ const Portal = ({ children }) => {
 };
 
 export class TextEditor extends PPNode {
+  getAllParameters: () => void;
   update: (newHeight?) => void;
   readOnly: boolean;
 
@@ -91,6 +90,17 @@ export class TextEditor extends PPNode {
 
   public getDescription(): string {
     return 'Edit your text';
+  }
+
+  public getCanAddInput(): boolean {
+    return true;
+  }
+
+  public addDefaultInput(): void {
+    this.addInput(
+      this.constructSocketName('Parameter', this.inputSocketArray),
+      new AnyType()
+    );
   }
 
   protected getDefaultIO(): PPSocket[] {
@@ -119,8 +129,6 @@ export class TextEditor extends PPNode {
         false
       ),
       new PPSocket(SOCKET_TYPE.IN, inputName1, new AnyType(), undefined, true),
-      new PPSocket(SOCKET_TYPE.IN, inputName2, new AnyType(), undefined, true),
-      new PPSocket(SOCKET_TYPE.IN, inputName3, new AnyType(), undefined, true),
     ];
   }
 
@@ -146,21 +154,42 @@ export class TextEditor extends PPNode {
 
     this.readOnly = false;
 
+    this.getAllParameters = (): Record<string, any> => {
+      const allParameters = this.inputSocketArray.filter((input: PPSocket) => {
+        return input.name.startsWith('Parameter');
+      });
+
+      if (allParameters.length === 0) {
+        console.error('No parameter sockets found.');
+        return undefined;
+      }
+
+      const dataObject: Record<string, any> = {};
+      allParameters.map((parameter) => {
+        // if no link, then return data
+        if (parameter.links.length === 0) {
+          dataObject[parameter.name] = parameter.data;
+          return;
+        }
+
+        const link = parameter.links[0];
+        dataObject[parameter.name] = link.source.data;
+      });
+
+      return dataObject;
+    };
+
     // when the Node is added, create the container and react component
     this.onNodeAdded = () => {
       const data = this.getInputData(inputSocketName);
-      const variable1 = this.getInputData(inputName1);
-      const variable2 = this.getInputData(inputName2);
-      const variable3 = this.getInputData(inputName3);
+      const allParameters = this.getAllParameters();
       const color: TRgba = this.getInputData(backgroundColorSocketName);
       this.readOnly = this.getInputSocketByName(inputSocketName).hasLink();
 
       this.createContainerComponent(document, ParentComponent, {
         nodeHeight: this.nodeHeight,
         data,
-        variable1,
-        variable2,
-        variable3,
+        allParameters,
         color,
         readOnly: this.readOnly,
       });
@@ -168,18 +197,14 @@ export class TextEditor extends PPNode {
 
     this.update = (newHeight): void => {
       const newData = this.getInputData(inputSocketName);
-      const variable1 = this.getInputData(inputName1);
-      const variable2 = this.getInputData(inputName2);
-      const variable3 = this.getInputData(inputName3);
+      const allParameters = this.getAllParameters();
       const color: TRgba = this.getInputData(backgroundColorSocketName);
       this.readOnly = this.getInputSocketByName(inputSocketName).hasLink();
 
       this.renderReactComponent(ParentComponent, {
         nodeHeight: newHeight ?? this.nodeHeight,
         data: newData,
-        variable1,
-        variable2,
-        variable3,
+        allParameters,
         color,
         readOnly: this.readOnly,
       });
@@ -205,9 +230,7 @@ export class TextEditor extends PPNode {
     type MyProps = {
       doubleClicked: boolean; // is injected by the NodeClass
       data: Descendant[];
-      variable1: any;
-      variable2: any;
-      variable3: any;
+      allParameters: Record<string, any>;
       color: TRgba;
       randomMainColor: string;
       nodeHeight: number;
@@ -226,14 +249,11 @@ export class TextEditor extends PPNode {
       const [search, setSearch] = useState('');
       const [data, setData] = useState<Descendant[] | undefined>(props.data);
       const [showHooveringToolbar, setShowHooveringToolbar] = useState(false);
-      const renderElement = useCallback(
-        (props) => <Element variable1={props.variable1} {...props} />,
-        [props.variable1]
-      );
+      const renderElement = useCallback((props) => <Element {...props} />, []);
       const renderLeaf = useCallback((props) => <Leaf {...props} />, []);
 
       const chars = this.inputSocketArray
-        .filter((item) => item.name.startsWith('variable'))
+        .filter((item) => item.name.startsWith('Parameter'))
         .map((item) => item.name);
 
       const onChange = (value) => {
@@ -377,29 +397,36 @@ export class TextEditor extends PPNode {
       }, [chars.length, editor, index, search, target]);
 
       useEffect(() => {
-        Transforms.setNodes(
-          editor,
-          { reactiveText: props.variable1 },
-          {
-            at: [],
-            match: (node) => (node as MentionElement).type === 'mention',
-            mode: 'all', // also the Editor's children
-          }
-        );
-        // console.log(
-        //   Array.from(
-        //     Editor.nodes(editor, {
-        //       at: [],
-        //       // match: (n) => Editor.isInline(editor, n),
-        //       match: (node) => {
-        //         console.log(node);
-        //         return (node as MentionElement).type === 'mention';
-        //       },
-        //       mode: 'all',
-        //     })
-        //   )
-        // );
-      }, [props.variable1]);
+        Object.keys(props.allParameters).map((parameterName) => {
+          Transforms.setNodes(
+            editor,
+            { reactiveText: props.allParameters[parameterName] },
+            {
+              at: [],
+              match: (node: MentionElement) => {
+                console.log(node);
+                return (
+                  node.type === 'mention' && node.character === parameterName
+                );
+              },
+              mode: 'all', // also the Editor's children
+            }
+          );
+          // console.log(
+          //   Array.from(
+          //     Editor.nodes(editor, {
+          //       at: [],
+          //       // match: (n) => Editor.isInline(editor, n),
+          //       match: (node) => {
+          //         console.log(node);
+          //         return (node as MentionElement).type === 'mention';
+          //       },
+          //       mode: 'all',
+          //     })
+          //   )
+          // );
+        });
+      }, [...Object.values(props.allParameters)]);
 
       useEffect(() => {
         console.log(props.doubleClicked);

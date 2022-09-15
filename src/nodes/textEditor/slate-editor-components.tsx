@@ -330,10 +330,16 @@ const Mention = (props) => {
   const selected = useSelected();
   const focused = useFocused();
   const readOnly = useReadOnly();
-  const textToDisplay = readOnly
-    ? element?.reactiveText
-    : `@${element.character}`;
-  return (
+  return readOnly ? (
+    <span
+      {...attributes}
+      contentEditable={false}
+      data-cy={`mention-${element.character.replace(' ', '-')}`}
+    >
+      {children}
+      {element?.reactiveText}
+    </span>
+  ) : (
     <span
       {...attributes}
       contentEditable={false}
@@ -349,8 +355,7 @@ const Mention = (props) => {
         boxShadow: selected && focused ? '0 0 0 2px #B4D5FF' : 'none',
       }}
     >
-      {children}
-      {textToDisplay}
+      {children}@{element.character}
     </span>
   );
 };
