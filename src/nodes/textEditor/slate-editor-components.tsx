@@ -4,7 +4,8 @@ import { useFocused, useSelected, useReadOnly } from 'slate-react';
 import { Typography, styled } from '@mui/material';
 import isUrl from 'is-url';
 import { LinkElement, MentionElement } from './custom-types';
-import { COLOR_DARK } from '../../utils/constants';
+import { COLOR_DARK, RANDOMMAINCOLOR } from '../../utils/constants';
+import { TRgba } from '../../utils/interfaces';
 
 const MyBlockquote = styled('blockquote')(({ theme }) => ({
   fontStyle: 'italic',
@@ -383,13 +384,16 @@ const Mention = (props) => {
   const selected = useSelected();
   const focused = useFocused();
   const readOnly = useReadOnly();
+  const randomColor = TRgba.fromString(RANDOMMAINCOLOR);
+  randomColor.a = 0.2;
+
   return readOnly ? (
     <span
       {...attributes}
       contentEditable={false}
       data-cy={`mention-${element.character.replace(' ', '-')}`}
       style={{
-        backgroundColor: 'rgba(0,0,0,0.05)',
+        backgroundColor: `${randomColor.rgb()}`,
       }}
     >
       {children}
@@ -406,10 +410,10 @@ const Mention = (props) => {
         verticalAlign: 'baseline',
         display: 'inline-block',
         borderRadius: '4px',
-        backgroundColor: 'rgba(0,0,0,0.05)',
+        backgroundColor: `${randomColor.rgb()}`,
         fontSize: '0.9em',
         boxShadow:
-          selected && focused ? '0 0 0 0.25px rgba(0,0,0,0.25)' : 'none',
+          selected && focused ? '0 0 0 0.5px rgba(0,0,0,0.25)' : 'none',
       }}
     >
       {children}@{element.character}

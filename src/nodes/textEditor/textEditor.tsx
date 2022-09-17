@@ -24,7 +24,13 @@ import PPSocket from '../../classes/SocketClass';
 import PPGraph from '../../classes/GraphClass';
 import PPNode from '../../classes/NodeClass';
 import { CustomArgs, TRgba } from '../../utils/interfaces';
-import { COLOR, SOCKET_TYPE, customTheme } from '../../utils/constants';
+import {
+  COLOR,
+  COLOR_DARK,
+  COLOR_WHITE_TEXT,
+  SOCKET_TYPE,
+  customTheme,
+} from '../../utils/constants';
 import {
   Leaf,
   Element,
@@ -104,7 +110,7 @@ export class TextEditor extends PPNode {
   }
 
   protected getDefaultIO(): PPSocket[] {
-    const backgroundColor = COLOR[5];
+    const backgroundColor = COLOR[8];
 
     return [
       new PPSocket(
@@ -182,12 +188,14 @@ export class TextEditor extends PPNode {
     // when the Node is added, create the container and react component
     this.onNodeAdded = () => {
       const data = this.getInputData(inputSocketName);
+      const color: TRgba = this.getInputData(backgroundColorSocketName);
       const allParameters = this.getAllParameters();
       this.readOnly = this.getInputSocketByName(inputSocketName).hasLink();
 
       this.createContainerComponent(document, ParentComponent, {
         nodeHeight: this.nodeHeight,
         data,
+        color,
         allParameters,
         readOnly: this.readOnly,
       });
@@ -203,6 +211,7 @@ export class TextEditor extends PPNode {
       this.renderReactComponent(ParentComponent, {
         nodeHeight: newHeight ?? this.nodeHeight,
         data,
+        color,
         allParameters,
         readOnly: this.readOnly,
       });
@@ -228,6 +237,7 @@ export class TextEditor extends PPNode {
     type MyProps = {
       doubleClicked: boolean; // is injected by the NodeClass
       data: Descendant[];
+      color: TRgba;
       allParameters: Record<string, any>;
       randomMainColor: string;
       nodeHeight: number;
@@ -409,7 +419,7 @@ export class TextEditor extends PPNode {
             {
               at: [],
               match: (node: MentionElement) => {
-                console.log(node);
+                // console.log(node);
                 return (
                   node.type === 'mention' && node.character === parameterName
                 );
@@ -450,6 +460,9 @@ export class TextEditor extends PPNode {
                 position: 'relative',
                 padding: '16px 24px',
                 boxSizing: 'border-box',
+                color: `${
+                  props.color.isDark() ? COLOR_WHITE_TEXT : COLOR_DARK
+                }`,
               }}
             >
               <Slate editor={editor} value={data} onChange={onChange}>
