@@ -332,7 +332,7 @@ export class TextEditor extends PPNode {
                 return toggleMark(editor, 'italic');
               case 'u':
                 event.preventDefault();
-                return toggleMark(editor, 'underlined');
+                return toggleMark(editor, 'underline');
             }
           }
           if (modKey && event.altKey) {

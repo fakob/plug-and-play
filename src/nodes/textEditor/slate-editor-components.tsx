@@ -18,6 +18,37 @@ const MyBlockquote = styled('blockquote')(({ theme }) => ({
 const LIST_TYPES = ['numbered-list', 'bulleted-list'];
 const TEXT_ALIGN_TYPES = ['left', 'center', 'right', 'justify'];
 
+export const isBlockActive = (editor, format, blockType = 'type') => {
+  const { selection } = editor;
+  if (!selection) return false;
+
+  const [match] = Array.from(
+    Editor.nodes(editor, {
+      at: Editor.unhangRange(editor, selection),
+      match: (n) =>
+        !Editor.isEditor(n) &&
+        SlateElement.isElement(n) &&
+        n[blockType] === format,
+    })
+  );
+
+  return !!match;
+};
+
+export const getBlockType = (editor, blockType = 'type') => {
+  const { selection } = editor;
+  if (!selection) return false;
+
+  const [match] = Array.from(
+    Editor.nodes(editor, {
+      at: Editor.unhangRange(editor, selection),
+      match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n),
+    })
+  );
+  const type = match[0][blockType];
+  return type;
+};
+
 export const toggleBlock = (editor, format) => {
   const isActive = isBlockActive(
     editor,
@@ -52,6 +83,22 @@ export const toggleBlock = (editor, format) => {
   }
 };
 
+export const isMarkActive = (editor, format) => {
+  const marks = Editor.marks(editor);
+  return marks ? marks[format] === true : false;
+};
+
+export const getMarks = (editor) => {
+  const marks = Editor.marks(editor);
+  const marksArray: string[] = [];
+  Object.keys(marks).forEach((key, index) => {
+    if (marks[key] === true) {
+      marksArray.push(key);
+    }
+  });
+  return marksArray;
+};
+
 export const toggleMark = (editor, format) => {
   const isActive = isMarkActive(editor, format);
 
@@ -60,28 +107,6 @@ export const toggleMark = (editor, format) => {
   } else {
     Editor.addMark(editor, format, true);
   }
-};
-
-export const isBlockActive = (editor, format, blockType = 'type') => {
-  const { selection } = editor;
-  if (!selection) return false;
-
-  const [match] = Array.from(
-    Editor.nodes(editor, {
-      at: Editor.unhangRange(editor, selection),
-      match: (n) =>
-        !Editor.isEditor(n) &&
-        SlateElement.isElement(n) &&
-        n[blockType] === format,
-    })
-  );
-
-  return !!match;
-};
-
-export const isMarkActive = (editor, format) => {
-  const marks = Editor.marks(editor);
-  return marks ? marks[format] === true : false;
 };
 
 export const Element = (props) => {
