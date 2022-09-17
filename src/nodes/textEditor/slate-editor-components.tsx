@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Editor, Range, Transforms, Element as SlateElement } from 'slate';
 import { useFocused, useSelected, useReadOnly } from 'slate-react';
 import { Typography, styled } from '@mui/material';
@@ -18,7 +18,11 @@ const MyBlockquote = styled('blockquote')(({ theme }) => ({
 const LIST_TYPES = ['numbered-list', 'bulleted-list'];
 const TEXT_ALIGN_TYPES = ['left', 'center', 'right', 'justify'];
 
-export const isBlockActive = (editor, format, blockType = 'type') => {
+export const isBlockActive = (
+  editor: Editor,
+  format,
+  blockType = 'type'
+): boolean => {
   const { selection } = editor;
   if (!selection) return false;
 
@@ -35,9 +39,9 @@ export const isBlockActive = (editor, format, blockType = 'type') => {
   return !!match;
 };
 
-export const getBlockType = (editor, blockType = 'type') => {
+export const getBlockType = (editor: Editor, blockType = 'type'): string => {
   const { selection } = editor;
-  if (!selection) return false;
+  if (!selection) return '';
 
   const [match] = Array.from(
     Editor.nodes(editor, {
@@ -49,7 +53,7 @@ export const getBlockType = (editor, blockType = 'type') => {
   return type;
 };
 
-export const toggleBlock = (editor, format) => {
+export const toggleBlock = (editor: Editor, format): void => {
   const isActive = isBlockActive(
     editor,
     format,
@@ -83,12 +87,12 @@ export const toggleBlock = (editor, format) => {
   }
 };
 
-export const isMarkActive = (editor, format) => {
+export const isMarkActive = (editor: Editor, format): boolean => {
   const marks = Editor.marks(editor);
   return marks ? marks[format] === true : false;
 };
 
-export const getMarks = (editor) => {
+export const getMarks = (editor: Editor) => {
   const marks = Editor.marks(editor);
   const marksArray: string[] = [];
   Object.keys(marks).forEach((key, index) => {
@@ -99,7 +103,7 @@ export const getMarks = (editor) => {
   return marksArray;
 };
 
-export const toggleMark = (editor, format) => {
+export const toggleMark = (editor: Editor, format): void => {
   const isActive = isMarkActive(editor, format);
 
   if (isActive) {
@@ -220,7 +224,7 @@ export const Leaf = ({ attributes, children, leaf }) => {
   );
 };
 
-export const withLinks = (editor) => {
+export const withLinks = (editor: Editor): Editor => {
   const { insertData, insertText, isInline } = editor;
 
   editor.isInline = (element) =>
@@ -247,13 +251,13 @@ export const withLinks = (editor) => {
   return editor;
 };
 
-const insertLink = (editor, url) => {
+export const insertLink = (editor: Editor, url): void => {
   if (editor.selection) {
     wrapLink(editor, url);
   }
 };
 
-export const isLinkActive = (editor) => {
+export const isLinkActive = (editor: Editor): boolean => {
   const [link] = Editor.nodes(editor, {
     match: (n) =>
       !Editor.isEditor(n) && SlateElement.isElement(n) && n.type === 'link',
@@ -261,14 +265,26 @@ export const isLinkActive = (editor) => {
   return !!link;
 };
 
-const unwrapLink = (editor) => {
+export const getLink = (editor: Editor): SlateElement | undefined => {
+  const linkEntries = Array.from(
+    Editor.nodes(editor, { match: (n: any) => n.type === 'link' })
+  );
+  if (linkEntries.length === 0) {
+    return undefined;
+  }
+
+  const node = linkEntries[0][0];
+  return SlateElement.isElement(node) ? node : undefined;
+};
+
+export const unwrapLink = (editor: Editor): void => {
   Transforms.unwrapNodes(editor, {
     match: (n) =>
       !Editor.isEditor(n) && SlateElement.isElement(n) && n.type === 'link',
   });
 };
 
-const wrapLink = (editor, url: string) => {
+const wrapLink = (editor: Editor, url: string) => {
   if (isLinkActive(editor)) {
     unwrapLink(editor);
   }
@@ -303,13 +319,32 @@ const InlineChromiumBugfix = () => (
 );
 
 const LinkComponent = ({ attributes, children, element }) => {
+  const [isMouseOver, setIsMouseOver] = useState(false);
   const selected = useSelected();
+  const focused = useFocused();
+
   return (
     <a
       {...attributes}
       href={element.url}
       style={{
-        boxShadow: selected ? '0 0 0 3px #ddd' : 'none',
+        display: 'inline-block',
+        background: selected && focused ? 'rgba(0,0,0,0.05)' : 'none',
+        cursor: isMouseOver ? 'pointer' : 'default',
+      }}
+      title="Alt+Click to open"
+      onClick={(e) => {
+        if (e.altKey) {
+          window.open(element.url, '_blank');
+        }
+      }}
+      onPointerEnter={(e) => {
+        if (e.altKey) {
+          setIsMouseOver(true);
+        }
+      }}
+      onPointerLeave={() => {
+        setIsMouseOver(false);
       }}
     >
       <InlineChromiumBugfix />
@@ -319,7 +354,7 @@ const LinkComponent = ({ attributes, children, element }) => {
   );
 };
 
-export const withMentions = (editor) => {
+export const withMentions = (editor: Editor) => {
   const { isInline, isVoid } = editor;
 
   editor.isInline = (element) => {
@@ -333,7 +368,7 @@ export const withMentions = (editor) => {
   return editor;
 };
 
-export const insertMention = (editor, character) => {
+export const insertMention = (editor: Editor, character) => {
   const mention: MentionElement = {
     type: 'mention',
     character,
@@ -353,6 +388,9 @@ const Mention = (props) => {
       {...attributes}
       contentEditable={false}
       data-cy={`mention-${element.character.replace(' ', '-')}`}
+      style={{
+        backgroundColor: 'rgba(0,0,0,0.05)',
+      }}
     >
       {children}
       {element?.reactiveText}
@@ -368,9 +406,10 @@ const Mention = (props) => {
         verticalAlign: 'baseline',
         display: 'inline-block',
         borderRadius: '4px',
-        backgroundColor: '#eee',
+        backgroundColor: 'rgba(0,0,0,0.05)',
         fontSize: '0.9em',
-        boxShadow: selected && focused ? '0 0 0 2px #B4D5FF' : 'none',
+        boxShadow:
+          selected && focused ? '0 0 0 0.25px rgba(0,0,0,0.25)' : 'none',
       }}
     >
       {children}@{element.character}

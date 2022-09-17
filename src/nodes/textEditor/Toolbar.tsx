@@ -19,7 +19,7 @@ import { Heading1Icon } from './Heading1Icon';
 import { Heading2Icon } from './Heading2Icon';
 import { LinkButton } from './LinkButton';
 import { MarkButton } from './MarkButton';
-import { getMarks, getBlockType, toggleMark } from './slate-editor-components';
+import { getMarks, getBlockType } from './slate-editor-components';
 
 const isMac = navigator.platform.indexOf('Mac') != -1;
 const controlOrMetaKey = isMac ? '⌘' : 'Ctrl';
@@ -36,7 +36,6 @@ export const Toolbar = ({ onEditModeChange }: ToolbarProps) => {
     <Box sx={{ display: 'inline-flex' }}>
       <ToggleButtonGroup
         value={getMarks(editor)}
-        // exclusive
         size="small"
         sx={{
           '& .MuiToggleButtonGroup-grouped': {
@@ -79,9 +78,18 @@ export const Toolbar = ({ onEditModeChange }: ToolbarProps) => {
         flexItem
         sx={{ margin: 1 }}
       />
-      {/* <LinkButton aria-label="link" onEditModeChange={onEditModeChange}>
-                <LinkIcon />
-            </LinkButton> */}
+      <LinkButton
+        sx={{
+          '& .MuiToggleButtonGroup-grouped': {
+            border: 0,
+          },
+        }}
+        value={getBlockType(editor, 'type')}
+        aria-label="link"
+        onEditModeChange={onEditModeChange}
+      >
+        <LinkIcon />
+      </LinkButton>
       <ToggleButtonGroup
         value={getBlockType(editor, 'align') ?? 'left'}
         exclusive

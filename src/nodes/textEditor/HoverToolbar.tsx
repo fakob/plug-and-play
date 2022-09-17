@@ -12,9 +12,8 @@ import React, { Fragment, useEffect, useState } from 'react';
 import { Editor, Range, Transforms } from 'slate';
 import { ReactEditor, useSlate } from 'slate-react';
 import { EditMode, LinkState } from './custom-types';
-// import { getLink } from '../queries';
-// import { insertLink, unwrapLink } from '../transforms';
-// import { LinkEditor } from './LinkEditor';
+import { getLink, insertLink, unwrapLink } from './slate-editor-components';
+import { LinkEditor } from './LinkEditor';
 import { Toolbar } from './Toolbar';
 
 /**
@@ -95,50 +94,49 @@ export const HoverToolbar = () => {
 
   const handleEditModeChanged = (editMode: EditMode) => {
     setEditMode(editMode);
-    // if (editMode === 'link' && selection !== null) {
-    //   const link = getLink(editor);
-    //   const isNew = link === undefined;
-    //   setLinkState({
-    //     isNew,
-    //     selection,
-    //     url: isNew ? '' : (link?.url as string),
-    //     openInNewTab: isNew ? true : (link?.openInNewTab as boolean),
-    //   });
-    // }
+    if (editMode === 'link' && selection !== null) {
+      const link = getLink(editor);
+      const isNew = link === undefined;
+      setLinkState({
+        isNew,
+        selection,
+        url: isNew ? '' : ((link as any)?.url as string),
+      });
+    }
   };
 
-  // const handleLinkCancel = () => {
-  //   if (linkState !== undefined) {
-  //     // reselect in editor because dialog takes away focus
-  //     ReactEditor.focus(editor);
-  //     Transforms.select(editor, linkState.selection);
-  //   }
-  //   setEditMode('toolbar');
-  // };
+  const handleLinkCancel = () => {
+    if (linkState !== undefined) {
+      // reselect in editor because dialog takes away focus
+      ReactEditor.focus(editor);
+      Transforms.select(editor, linkState.selection);
+    }
+    setEditMode('toolbar');
+  };
 
-  // const handleLinkRemove = () => {
-  //   if (linkState !== undefined) {
-  //     // reselect in editor because dialog takes away focus
-  //     ReactEditor.focus(editor);
-  //     Transforms.select(editor, linkState.selection);
+  const handleLinkRemove = () => {
+    if (linkState !== undefined) {
+      // reselect in editor because dialog takes away focus
+      ReactEditor.focus(editor);
+      Transforms.select(editor, linkState.selection);
 
-  //     // remove link
-  //     unwrapLink(editor);
-  //   }
-  //   setEditMode('toolbar');
-  // };
+      // remove link
+      unwrapLink(editor);
+    }
+    setEditMode('toolbar');
+  };
 
-  // const handleLinkSave = (url: string, openInNewTab: boolean) => {
-  //   if (linkState !== undefined) {
-  //     // reselect in editor because dialog takes away focus
-  //     ReactEditor.focus(editor);
-  //     Transforms.select(editor, linkState.selection);
+  const handleLinkSave = (url: string) => {
+    if (linkState !== undefined) {
+      // reselect in editor because dialog takes away focus
+      ReactEditor.focus(editor);
+      Transforms.select(editor, linkState.selection);
 
-  //     // insert link
-  //     insertLink(editor, url, openInNewTab);
-  //   }
-  //   setEditMode('toolbar');
-  // };
+      // insert link
+      insertLink(editor, url);
+    }
+    setEditMode('toolbar');
+  };
 
   return (
     <Fragment>
@@ -160,14 +158,14 @@ export const HoverToolbar = () => {
         </Popper>
       </ThemeProvider>
 
-      {/* {editMode === 'link' && linkState !== undefined ? (
+      {editMode === 'link' && linkState !== undefined ? (
         <LinkEditor
           linkState={linkState}
           onCancel={handleLinkCancel}
           onRemove={handleLinkRemove}
           onSave={handleLinkSave}
         />
-      ) : null} */}
+      ) : null}
     </Fragment>
   );
 };
