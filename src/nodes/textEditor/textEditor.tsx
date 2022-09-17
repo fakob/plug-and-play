@@ -183,29 +183,27 @@ export class TextEditor extends PPNode {
     this.onNodeAdded = () => {
       const data = this.getInputData(inputSocketName);
       const allParameters = this.getAllParameters();
-      const color: TRgba = this.getInputData(backgroundColorSocketName);
       this.readOnly = this.getInputSocketByName(inputSocketName).hasLink();
 
       this.createContainerComponent(document, ParentComponent, {
         nodeHeight: this.nodeHeight,
         data,
         allParameters,
-        color,
         readOnly: this.readOnly,
       });
     };
 
     this.update = (newHeight): void => {
-      const newData = this.getInputData(inputSocketName);
+      const data = this.getInputData(inputSocketName);
       const allParameters = this.getAllParameters();
       const color: TRgba = this.getInputData(backgroundColorSocketName);
+      this.container.style.background = color.rgb();
       this.readOnly = this.getInputSocketByName(inputSocketName).hasLink();
 
       this.renderReactComponent(ParentComponent, {
         nodeHeight: newHeight ?? this.nodeHeight,
-        data: newData,
+        data,
         allParameters,
-        color,
         readOnly: this.readOnly,
       });
     };
@@ -231,7 +229,6 @@ export class TextEditor extends PPNode {
       doubleClicked: boolean; // is injected by the NodeClass
       data: Descendant[];
       allParameters: Record<string, any>;
-      color: TRgba;
       randomMainColor: string;
       nodeHeight: number;
       readOnly: boolean;
@@ -452,9 +449,7 @@ export class TextEditor extends PPNode {
               sx={{
                 position: 'relative',
                 padding: '16px 24px',
-                background: props.color.rgb(),
                 boxSizing: 'border-box',
-                height: '100%',
               }}
             >
               <Slate editor={editor} value={data} onChange={onChange}>
