@@ -1,13 +1,6 @@
 import React from 'react';
 import { Editor, Range, Transforms, Element as SlateElement } from 'slate';
-import {
-  Editable,
-  withReact,
-  useFocused,
-  useSlate,
-  useSelected,
-  useReadOnly,
-} from 'slate-react';
+import { useFocused, useSelected, useReadOnly } from 'slate-react';
 import { Typography, styled } from '@mui/material';
 import isUrl from 'is-url';
 import { LinkElement, MentionElement } from './custom-types';
@@ -235,7 +228,7 @@ const insertLink = (editor, url) => {
   }
 };
 
-const isLinkActive = (editor) => {
+export const isLinkActive = (editor) => {
   const [link] = Editor.nodes(editor, {
     match: (n) =>
       !Editor.isEditor(n) && SlateElement.isElement(n) && n.type === 'link',
@@ -345,7 +338,7 @@ const Mention = (props) => {
       contentEditable={false}
       data-cy={`mention-${element.character.replace(' ', '-')}`}
       style={{
-        padding: '3px 3px 2px',
+        padding: '2px 3px 1px',
         margin: '0 1px',
         verticalAlign: 'baseline',
         display: 'inline-block',

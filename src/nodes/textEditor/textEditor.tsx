@@ -6,7 +6,7 @@ import React, {
   useState,
 } from 'react';
 import ReactDOM from 'react-dom';
-import { Box, ThemeProvider } from '@mui/material';
+import { Box, Menu, MenuItem, ThemeProvider } from '@mui/material';
 import { ErrorBoundary } from 'react-error-boundary';
 import { Editor, Descendant, Range, Transforms, createEditor } from 'slate';
 import { withHistory } from 'slate-history';
@@ -17,7 +17,8 @@ import {
   withReact,
   useFocused,
 } from 'slate-react';
-import { MentionElement, ParagraphElement } from './custom-types';
+import { HoverToolbar } from './HoverToolbar';
+import { MentionElement } from './custom-types';
 import ErrorFallback from '../../components/ErrorFallback';
 import PPSocket from '../../classes/SocketClass';
 import PPGraph from '../../classes/GraphClass';
@@ -70,7 +71,6 @@ const Portal = ({ children }) => {
     ? ReactDOM.createPortal(children, document.body)
     : null;
 };
-
 export class TextEditor extends PPNode {
   getAllParameters: () => void;
   update: (newHeight?) => void;
@@ -251,6 +251,14 @@ export class TextEditor extends PPNode {
       const [showHooveringToolbar, setShowHooveringToolbar] = useState(false);
       const renderElement = useCallback((props) => <Element {...props} />, []);
       const renderLeaf = useCallback((props) => <Leaf {...props} />, []);
+      const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+      const open = Boolean(anchorEl);
+      const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+        setAnchorEl(event.currentTarget);
+      };
+      const handleClose = () => {
+        setAnchorEl(null);
+      };
 
       const chars = this.inputSocketArray
         .filter((item) => item.name.startsWith('Parameter'))
@@ -443,13 +451,14 @@ export class TextEditor extends PPNode {
             <Box
               sx={{
                 position: 'relative',
-                padding: 4,
+                padding: '16px 24px',
                 background: props.color.rgb(),
                 boxSizing: 'border-box',
                 height: '100%',
               }}
             >
               <Slate editor={editor} value={data} onChange={onChange}>
+                <HoverToolbar />
                 <Editable2
                   readOnly={!props.doubleClicked}
                   renderElement={renderElement}
@@ -459,6 +468,31 @@ export class TextEditor extends PPNode {
                   onKeyDown={onKeyDown}
                 />
                 {target && chars.length > 0 && (
+                  // <Menu
+                  //   ref={ref}
+                  //   id="basic-menu"
+                  //   anchorEl={anchorEl}
+                  //   open={open}
+                  //   onClose={handleClose}
+                  //   data-cy="mentions-portal"
+                  //   MenuListProps={{
+                  //     'aria-labelledby': 'basic-button',
+                  //   }}
+                  // >
+                  //   {chars.map((char, i) => (
+                  //     <MenuItem
+                  //       onClick={handleClose}
+                  //       key={char}
+                  //       style={{
+                  //         padding: '1px 3px',
+                  //         borderRadius: '3px',
+                  //         background: i === index ? '#B4D5FF' : 'transparent',
+                  //       }}
+                  //     >
+                  //       {char}
+                  //     </MenuItem>
+                  //   ))}
+                  // </Menu>
                   <Portal>
                     <div
                       ref={ref}

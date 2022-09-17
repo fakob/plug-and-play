@@ -115,3 +115,19 @@ declare module 'slate' {
     Text: CustomText | EmptyText;
   }
 }
+
+export type EditMode = 'toolbar' | 'link';
+
+export interface ImageState {
+  isNew: boolean;
+  selection: Range;
+  url: string;
+  alt: string;
+}
+
+export interface LinkState {
+  isNew: boolean;
+  selection: Range;
+  url: string;
+  openInNewTab: boolean;
+}
