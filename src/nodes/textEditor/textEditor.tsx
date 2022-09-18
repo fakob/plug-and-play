@@ -250,12 +250,9 @@ export class TextEditor extends PPNode {
         () => withMentions(withLinks(withHistory(withReact(createEditor())))),
         []
       );
-      const inFocus = useFocused();
       const [target, setTarget] = useState<Range | undefined>();
       const [index, setIndex] = useState(0);
-      const [search, setSearch] = useState('');
       const [data, setData] = useState<Descendant[] | undefined>(props.data);
-      const [showHooveringToolbar, setShowHooveringToolbar] = useState(false);
       const renderElement = useCallback((props) => <Element {...props} />, []);
       const renderLeaf = useCallback((props) => <Leaf {...props} />, []);
 
@@ -275,28 +272,26 @@ export class TextEditor extends PPNode {
 
         if (selection && Range.isCollapsed(selection)) {
           const [start] = Range.edges(selection);
-          const wordBefore = Editor.before(editor, start, { unit: 'word' });
+          const wordBefore = Editor.before(editor, start, {
+            unit: 'character',
+          });
           const before = wordBefore && Editor.before(editor, wordBefore);
           const beforeRange = before && Editor.range(editor, before, start);
           const beforeText = beforeRange && Editor.string(editor, beforeRange);
-          const beforeMatch = beforeText && beforeText.match(/^@(\w*)$/);
+          const beforeMatch = beforeText && beforeText.match(/^(\s*@\w*)$/);
           const after = Editor.after(editor, start);
           const afterRange = Editor.range(editor, start, after);
           const afterText = Editor.string(editor, afterRange);
           const afterMatch = afterText.match(/^(\s|$)/);
-          console.log(beforeText, beforeMatch, afterText, afterMatch);
 
           if (beforeMatch && afterMatch) {
             setTarget(beforeRange);
-            setSearch(beforeMatch[1]);
             setIndex(0);
             return;
           }
         }
-
         setTarget(null);
 
-        // console.log(value);
         this.setInputData(inputSocketName, value);
         this.setOutputData(outputSocketName, value);
         this.executeChildren();
@@ -305,9 +300,7 @@ export class TextEditor extends PPNode {
       const onKeyDown = useCallback(
         (event) => {
           const modKey = isMac ? event.metaKey : event.ctrlKey;
-          console.log(event.key, event.code, target);
           if (target) {
-            console.log(event);
             switch (event.key) {
               case 'ArrowDown':
                 event.preventDefault();
@@ -402,18 +395,8 @@ export class TextEditor extends PPNode {
             }
           }
         },
-        [index, search, target]
+        [index, target]
       );
-
-      // useEffect(() => {
-      //   if (target && parameterNameArray.length > 0) {
-      //     const el = ref.current;
-      //     const domRange = ReactEditor.toDOMRange(editor, target as any);
-      //     const rect = domRange.getBoundingClientRect();
-      //     el.style.top = `${rect.top + window.pageYOffset + 24}px`;
-      //     el.style.left = `${rect.left + window.pageXOffset}px`;
-      //   }
-      // }, [parameterNameArray.length, editor, index, search, target]);
 
       useEffect(() => {
         Object.keys(props.allParameters).map((parameterName) => {
@@ -423,7 +406,6 @@ export class TextEditor extends PPNode {
             {
               at: [],
               match: (node: MentionElement) => {
-                // console.log(node);
                 return (
                   node.type === 'mention' && node.character === parameterName
                 );
@@ -431,30 +413,8 @@ export class TextEditor extends PPNode {
               mode: 'all', // also the Editor's children
             }
           );
-          // console.log(
-          //   Array.from(
-          //     Editor.nodes(editor, {
-          //       at: [],
-          //       // match: (n) => Editor.isInline(editor, n),
-          //       match: (node) => {
-          //         console.log(node);
-          //         return (node as MentionElement).type === 'mention';
-          //       },
-          //       mode: 'all',
-          //     })
-          //   )
-          // );
         });
       }, [...Object.values(props.allParameters)]);
-
-      useEffect(() => {
-        console.log(props.doubleClicked);
-      }, [props.doubleClicked]);
-
-      useEffect(() => {
-        console.log(editor.selection, inFocus);
-        setShowHooveringToolbar(editor.selection && inFocus);
-      }, [editor.selection, inFocus]);
 
       return (
         <ErrorBoundary FallbackComponent={ErrorFallback}>

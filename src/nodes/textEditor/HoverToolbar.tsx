@@ -1,12 +1,4 @@
-import {
-  Fade,
-  MenuList,
-  Paper,
-  Popper,
-  PopperProps,
-  ThemeProvider,
-} from '@mui/material';
-import { createStyles, makeStyles } from '@mui/styles';
+import { Fade, Paper, Popper, ThemeProvider } from '@mui/material';
 import { customTheme } from '../../utils/constants';
 import React, { Fragment, useEffect, useState } from 'react';
 import { Editor, Range, Transforms } from 'slate';
@@ -28,18 +20,10 @@ const getDomSelectionRange = () => {
   return domSelection.getRangeAt(0);
 };
 
-const useStyles = makeStyles(() => ({
-  paper: {
-    margin: '4px',
-  },
-}));
-
-export const HoverToolbar = () => {
-  const classes = useStyles();
+export const HoverToolbar: React.FunctionComponent = () => {
   const [editMode, setEditMode] = useState<EditMode>('toolbar');
   const [isToolbarOpen, setToolbarOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<any>(null);
-  // const [anchorEl, setAnchorEl] = useState<PopperProps['anchorEl']>(null);
   const [linkState, setLinkState] = useState<LinkState | undefined>();
 
   const editor = useSlate();
@@ -150,14 +134,17 @@ export const HoverToolbar = () => {
         >
           {({ TransitionProps }) => (
             <Fade {...TransitionProps} timeout={350}>
-              <Paper className={classes.paper}>
+              <Paper
+                sx={{
+                  margin: '4px',
+                }}
+              >
                 <Toolbar onEditModeChange={handleEditModeChanged} />
               </Paper>
             </Fade>
           )}
         </Popper>
       </ThemeProvider>
-
       {editMode === 'link' && linkState !== undefined ? (
         <LinkEditor
           linkState={linkState}

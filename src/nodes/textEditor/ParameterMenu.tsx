@@ -1,22 +1,15 @@
 import {
   Fade,
-  Menu,
   MenuItem,
   MenuList,
   Paper,
   Popper,
-  PopperProps,
   ThemeProvider,
 } from '@mui/material';
-import { createStyles, makeStyles } from '@mui/styles';
 import { customTheme } from '../../utils/constants';
 import React, { Fragment, useEffect, useState } from 'react';
-import { Editor, Range, Transforms } from 'slate';
+import { Editor, Range } from 'slate';
 import { ReactEditor, useSlate } from 'slate-react';
-import { EditMode, LinkState } from './custom-types';
-import { getLink, insertLink, unwrapLink } from './slate-editor-components';
-import { LinkEditor } from './LinkEditor';
-import { Toolbar } from './Toolbar';
 
 /**
  * Returns the range of the DOM selection.
@@ -32,12 +25,6 @@ const getDomSelectionRange = () => {
   return domSelection.getRangeAt(0);
 };
 
-const useStyles = makeStyles(() => ({
-  paper: {
-    margin: '4px',
-  },
-}));
-
 type MyProps = {
   parameterNameArray: string[];
   onHandleParameterSelect: (event, index) => void;
@@ -46,12 +33,8 @@ type MyProps = {
 };
 
 export const ParameterMenu: React.FunctionComponent<MyProps> = (props) => {
-  const classes = useStyles();
-  const [editMode, setEditMode] = useState<EditMode>('toolbar');
   const [isToolbarOpen, setToolbarOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<any>(null);
-  // const [anchorEl, setAnchorEl] = useState<PopperProps['anchorEl']>(null);
-  const [linkState, setLinkState] = useState<LinkState | undefined>();
 
   const editor = useSlate();
 
@@ -70,34 +53,30 @@ export const ParameterMenu: React.FunctionComponent<MyProps> = (props) => {
     Editor.string(editor, selection) !== '';
 
   useEffect(() => {
-    if (editMode === 'toolbar') {
-      const domRange = getDomSelectionRange();
-      if (domRange === null) {
-        return;
-      }
-      const rect = domRange.getBoundingClientRect();
-      setAnchorEl({
-        clientWidth: rect.width,
-        clientHeight: rect.height,
-        /**
-         * This function will be called by the popper to get the
-         * bounding rectangle for the selection. Since the selection
-         * can change when a toolbar button is clicked, we need to
-         * get a fresh selection range before computing the bounding
-         * rect. (see https://stackoverflow.com/questions/63747451)
-         */
-        getBoundingClientRect: () => {
-          const innerDomRange = getDomSelectionRange();
-          return innerDomRange === null
-            ? new DOMRect()
-            : innerDomRange.getBoundingClientRect();
-        },
-      });
-      setToolbarOpen(true);
-    } else {
-      setToolbarOpen(false);
+    const domRange = getDomSelectionRange();
+    if (domRange === null) {
+      return;
     }
-  }, [editMode, isTextSelected, selection, selectionStr]);
+    const rect = domRange.getBoundingClientRect();
+    setAnchorEl({
+      clientWidth: rect.width,
+      clientHeight: rect.height,
+      /**
+       * This function will be called by the popper to get the
+       * bounding rectangle for the selection. Since the selection
+       * can change when a toolbar button is clicked, we need to
+       * get a fresh selection range before computing the bounding
+       * rect. (see https://stackoverflow.com/questions/63747451)
+       */
+      getBoundingClientRect: () => {
+        const innerDomRange = getDomSelectionRange();
+        return innerDomRange === null
+          ? new DOMRect()
+          : innerDomRange.getBoundingClientRect();
+      },
+    });
+    setToolbarOpen(true);
+  }, [isTextSelected, selection, selectionStr]);
 
   return (
     <Fragment>
@@ -111,7 +90,11 @@ export const ParameterMenu: React.FunctionComponent<MyProps> = (props) => {
         >
           {({ TransitionProps }) => (
             <Fade {...TransitionProps} timeout={350}>
-              <Paper className={classes.paper}>
+              <Paper
+                sx={{
+                  margin: '4px',
+                }}
+              >
                 <MenuList variant="menu">
                   {props.parameterNameArray.map((char, i) => (
                     <MenuItem
