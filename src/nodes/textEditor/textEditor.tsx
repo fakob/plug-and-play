@@ -18,6 +18,7 @@ import {
   useFocused,
 } from 'slate-react';
 import { HoverToolbar } from './HoverToolbar';
+import { ParameterMenu } from './ParameterMenu';
 import { MentionElement } from './custom-types';
 import ErrorFallback from '../../components/ErrorFallback';
 import PPSocket from '../../classes/SocketClass';
@@ -250,7 +251,6 @@ export class TextEditor extends PPNode {
         []
       );
       const inFocus = useFocused();
-      const ref = useRef<HTMLDivElement | null>();
       const [target, setTarget] = useState<Range | undefined>();
       const [index, setIndex] = useState(0);
       const [search, setSearch] = useState('');
@@ -258,16 +258,15 @@ export class TextEditor extends PPNode {
       const [showHooveringToolbar, setShowHooveringToolbar] = useState(false);
       const renderElement = useCallback((props) => <Element {...props} />, []);
       const renderLeaf = useCallback((props) => <Leaf {...props} />, []);
-      const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-      const open = Boolean(anchorEl);
-      const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        setAnchorEl(event.currentTarget);
-      };
-      const handleClose = () => {
-        setAnchorEl(null);
+
+      const onHandleParameterSelect = (event, index) => {
+        event.preventDefault();
+        Transforms.select(editor, target);
+        insertMention(editor, parameterNameArray[index]);
+        setTarget(null);
       };
 
-      const chars = this.inputSocketArray
+      const parameterNameArray = this.inputSocketArray
         .filter((item) => item.name.startsWith('Parameter'))
         .map((item) => item.name);
 
@@ -280,7 +279,7 @@ export class TextEditor extends PPNode {
           const before = wordBefore && Editor.before(editor, wordBefore);
           const beforeRange = before && Editor.range(editor, before, start);
           const beforeText = beforeRange && Editor.string(editor, beforeRange);
-          const beforeMatch = beforeText && beforeText.match(/^@(\w+)$/);
+          const beforeMatch = beforeText && beforeText.match(/^@(\w*)$/);
           const after = Editor.after(editor, start);
           const afterRange = Editor.range(editor, start, after);
           const afterText = Editor.string(editor, afterRange);
@@ -306,27 +305,32 @@ export class TextEditor extends PPNode {
       const onKeyDown = useCallback(
         (event) => {
           const modKey = isMac ? event.metaKey : event.ctrlKey;
-          console.log(event.key, event.code);
+          console.log(event.key, event.code, target);
           if (target) {
+            console.log(event);
             switch (event.key) {
               case 'ArrowDown':
                 event.preventDefault();
-                const prevIndex = index >= chars.length - 1 ? 0 : index + 1;
+                const prevIndex =
+                  index >= parameterNameArray.length - 1 ? 0 : index + 1;
                 setIndex(prevIndex);
                 break;
               case 'ArrowUp':
                 event.preventDefault();
-                const nextIndex = index <= 0 ? chars.length - 1 : index - 1;
+                const nextIndex =
+                  index <= 0 ? parameterNameArray.length - 1 : index - 1;
                 setIndex(nextIndex);
                 break;
               case 'Tab':
               case 'Enter':
+                console.log('Enter');
                 event.preventDefault();
                 Transforms.select(editor, target);
-                insertMention(editor, chars[index]);
+                insertMention(editor, parameterNameArray[index]);
                 setTarget(null);
                 break;
               case 'Escape':
+                console.log('Escape');
                 event.preventDefault();
                 setTarget(null);
                 break;
@@ -401,15 +405,15 @@ export class TextEditor extends PPNode {
         [index, search, target]
       );
 
-      useEffect(() => {
-        if (target && chars.length > 0) {
-          const el = ref.current;
-          const domRange = ReactEditor.toDOMRange(editor, target as any);
-          const rect = domRange.getBoundingClientRect();
-          el.style.top = `${rect.top + window.pageYOffset + 24}px`;
-          el.style.left = `${rect.left + window.pageXOffset}px`;
-        }
-      }, [chars.length, editor, index, search, target]);
+      // useEffect(() => {
+      //   if (target && parameterNameArray.length > 0) {
+      //     const el = ref.current;
+      //     const domRange = ReactEditor.toDOMRange(editor, target as any);
+      //     const rect = domRange.getBoundingClientRect();
+      //     el.style.top = `${rect.top + window.pageYOffset + 24}px`;
+      //     el.style.left = `${rect.left + window.pageXOffset}px`;
+      //   }
+      // }, [parameterNameArray.length, editor, index, search, target]);
 
       useEffect(() => {
         Object.keys(props.allParameters).map((parameterName) => {
@@ -467,6 +471,14 @@ export class TextEditor extends PPNode {
             >
               <Slate editor={editor} value={data} onChange={onChange}>
                 <HoverToolbar />
+                {target && parameterNameArray.length > 0 && (
+                  <ParameterMenu
+                    parameterNameArray={parameterNameArray}
+                    onHandleParameterSelect={onHandleParameterSelect}
+                    setTarget={setTarget}
+                    index={index}
+                  />
+                )}
                 <Editable2
                   readOnly={!props.doubleClicked}
                   renderElement={renderElement}
@@ -475,62 +487,6 @@ export class TextEditor extends PPNode {
                   spellCheck={props.doubleClicked}
                   onKeyDown={onKeyDown}
                 />
-                {target && chars.length > 0 && (
-                  // <Menu
-                  //   ref={ref}
-                  //   id="basic-menu"
-                  //   anchorEl={anchorEl}
-                  //   open={open}
-                  //   onClose={handleClose}
-                  //   data-cy="mentions-portal"
-                  //   MenuListProps={{
-                  //     'aria-labelledby': 'basic-button',
-                  //   }}
-                  // >
-                  //   {chars.map((char, i) => (
-                  //     <MenuItem
-                  //       onClick={handleClose}
-                  //       key={char}
-                  //       style={{
-                  //         padding: '1px 3px',
-                  //         borderRadius: '3px',
-                  //         background: i === index ? '#B4D5FF' : 'transparent',
-                  //       }}
-                  //     >
-                  //       {char}
-                  //     </MenuItem>
-                  //   ))}
-                  // </Menu>
-                  <Portal>
-                    <div
-                      ref={ref}
-                      style={{
-                        top: '-9999px',
-                        left: '-9999px',
-                        position: 'absolute',
-                        zIndex: 1,
-                        padding: '3px',
-                        background: 'white',
-                        borderRadius: '4px',
-                        boxShadow: '0 1px 5px rgba(0,0,0,.2)',
-                      }}
-                      data-cy="mentions-portal"
-                    >
-                      {chars.map((char, i) => (
-                        <div
-                          key={char}
-                          style={{
-                            padding: '1px 3px',
-                            borderRadius: '3px',
-                            background: i === index ? '#B4D5FF' : 'transparent',
-                          }}
-                        >
-                          {char}
-                        </div>
-                      ))}
-                    </div>
-                  </Portal>
-                )}
               </Slate>
             </Box>
           </ThemeProvider>
