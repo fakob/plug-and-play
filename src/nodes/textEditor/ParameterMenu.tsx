@@ -1,3 +1,6 @@
+import React, { Fragment, useEffect, useState } from 'react';
+import { Editor, Range } from 'slate';
+import { ReactEditor, useSlate } from 'slate-react';
 import {
   Fade,
   ListItemIcon,
@@ -10,9 +13,6 @@ import {
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { customTheme } from '../../utils/constants';
-import React, { Fragment, useEffect, useState } from 'react';
-import { Editor, Range } from 'slate';
-import { ReactEditor, useSlate } from 'slate-react';
 
 /**
  * Returns the range of the DOM selection.

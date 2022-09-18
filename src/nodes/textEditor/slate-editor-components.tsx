@@ -55,6 +55,15 @@ export const getBlockType = (editor: Editor, blockType = 'type'): string => {
   return type;
 };
 
+export const moveBlock = (editor: Editor, moveUp = false): void => {
+  // work in progress
+  // console.log(editor.selection.anchor.path);
+  // Transforms.moveNodes(editor, {
+  //   match: (n) => Editor.isBlock(editor, n),
+  //   to: [1],
+  // });
+};
+
 export const toggleBlock = (editor: Editor, format): void => {
   const isActive = isBlockActive(
     editor,

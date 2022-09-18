@@ -12,7 +12,7 @@ import isUrl from 'is-url';
 import { LinkState } from './custom-types';
 
 const invalidUrlMessage =
-  'Please enter a valid URL, e.g., "http://google.com".';
+  'Please enter a valid URL, e.g., "http://plugandplayground.dev".';
 
 export interface LinkEditorProps {
   linkState: LinkState;
@@ -21,12 +21,12 @@ export interface LinkEditorProps {
   onCancel: () => void;
 }
 
-export function LinkEditor({
+export const LinkEditor = ({
   linkState,
   onSave,
   onRemove,
   onCancel,
-}: LinkEditorProps) {
+}: LinkEditorProps) => {
   const [url, setUrl] = useState(linkState.url);
   const [isUrlTouched, setUrlTouched] = useState(false);
   const [isUrlValid, setUrlValid] = useState(true);
@@ -67,7 +67,6 @@ export function LinkEditor({
   return (
     <Dialog open={true} fullWidth={true} maxWidth="sm" onClose={onCancel}>
       <DialogTitle>{linkState.isNew ? 'Insert Link' : 'Edit Link'}</DialogTitle>
-
       <DialogContent>
         <TextField
           id="url"
@@ -86,7 +85,6 @@ export function LinkEditor({
           onKeyDown={handleKeyDown}
         />
       </DialogContent>
-
       <DialogActions>
         {!linkState.isNew ? (
           <Box flex={1}>
@@ -108,4 +106,4 @@ export function LinkEditor({
       </DialogActions>
     </Dialog>
   );
-}
+};

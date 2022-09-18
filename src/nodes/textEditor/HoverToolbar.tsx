@@ -1,12 +1,12 @@
-import { Fade, Paper, Popper, ThemeProvider } from '@mui/material';
-import { customTheme } from '../../utils/constants';
 import React, { Fragment, useEffect, useState } from 'react';
+import { Fade, Paper, Popper, ThemeProvider } from '@mui/material';
 import { Editor, Range, Transforms } from 'slate';
 import { ReactEditor, useSlate } from 'slate-react';
 import { EditMode, LinkState } from './custom-types';
 import { getLink, insertLink, unwrapLink } from './slate-editor-components';
 import { LinkEditor } from './LinkEditor';
 import { Toolbar } from './Toolbar';
+import { customTheme } from '../../utils/constants';
 
 /**
  * Returns the range of the DOM selection.

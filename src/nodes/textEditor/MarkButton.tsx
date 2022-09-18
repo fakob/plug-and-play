@@ -1,5 +1,5 @@
-import { ToggleButton, ToggleButtonProps } from '@mui/material';
 import React, { FormEvent } from 'react';
+import { ToggleButton, ToggleButtonProps } from '@mui/material';
 import { useSlate } from 'slate-react';
 import { isMarkActive, toggleMark } from './slate-editor-components';
 

@@ -23,6 +23,7 @@ import {
   Leaf,
   Element,
   insertMention,
+  moveBlock,
   toggleBlock,
   toggleMark,
   withHtml,
@@ -390,6 +391,19 @@ export class TextEditor extends PPNode {
                 event.preventDefault();
                 return toggleBlock(editor, 'justify');
             }
+          }
+          if (event.shiftKey && event.ctrlKey) {
+            switch (event.key) {
+              case 'ArrowUp':
+                event.preventDefault();
+                return moveBlock(editor, true);
+              case 'ArrowDown':
+                event.preventDefault();
+                return moveBlock(editor, false);
+            }
+          }
+          if (event.shiftKey && event.key === 'Enter') {
+            return editor.insertText('\n');
           }
         },
         [index, target]
