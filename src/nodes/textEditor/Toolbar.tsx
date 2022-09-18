@@ -4,6 +4,7 @@ import { Box, Divider, ToggleButtonGroup } from '@mui/material';
 import CodeIcon from '@mui/icons-material/Code';
 import FormatBoldIcon from '@mui/icons-material/FormatBold';
 import FormatItalicIcon from '@mui/icons-material/FormatItalic';
+import FormatStrikethroughIcon from '@mui/icons-material/FormatStrikethrough';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
 import FormatQuoteIcon from '@mui/icons-material/FormatQuote';
@@ -63,6 +64,13 @@ export const Toolbar = ({ onEditModeChange }: ToolbarProps) => {
           title={`${controlOrMetaKey}+U`}
         >
           <FormatUnderlinedIcon />
+        </MarkButton>
+        <MarkButton
+          value="strikethrough"
+          aria-label="strikethrough"
+          title={`${controlOrMetaKey}+Shift+X`}
+        >
+          <FormatStrikethroughIcon />
         </MarkButton>
         <MarkButton
           value="code"

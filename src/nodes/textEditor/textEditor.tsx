@@ -25,6 +25,7 @@ import {
   insertMention,
   toggleBlock,
   toggleMark,
+  withHtml,
   withLinks,
   withMentions,
 } from './slate-editor-components';
@@ -177,7 +178,6 @@ export class TextEditor extends PPNode {
       const color: TRgba = this.getInputData(backgroundColorSocketName);
       this.container.style.background = color.rgb();
       this.readOnly = this.getInputSocketByName(textJSONSocketName).hasLink();
-      console.log('this.update');
       this.renderReactComponent(ParentComponent, {
         nodeHeight: newHeight ?? this.nodeHeight,
         data,
@@ -216,7 +216,10 @@ export class TextEditor extends PPNode {
 
     const ParentComponent: React.FunctionComponent<MyProps> = (props) => {
       const editor = useMemo(
-        () => withMentions(withLinks(withHistory(withReact(createEditor())))),
+        () =>
+          withHtml(
+            withMentions(withLinks(withHistory(withReact(createEditor()))))
+          ),
         []
       );
       const [target, setTarget] = useState<Range | undefined>();
@@ -371,6 +374,9 @@ export class TextEditor extends PPNode {
               case 'c':
                 event.preventDefault();
                 return toggleMark(editor, 'code');
+              case 'x':
+                event.preventDefault();
+                return toggleMark(editor, 'strikethrough');
               case 'l':
                 event.preventDefault();
                 return toggleBlock(editor, 'left');
