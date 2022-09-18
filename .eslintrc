@@ -1,6 +1,8 @@
 {
   "parser": "@typescript-eslint/parser",
-  "plugins": ["@typescript-eslint"],
+  "plugins": [
+    "@typescript-eslint"
+  ],
   "extends": [
     "prettier",
     "plugin:@typescript-eslint/recommended",
@@ -14,7 +16,7 @@
     "react/jsx-props-no-spreading": "off"
   },
   "parserOptions": {
-    "ecmaVersion": 2020,
+    "ecmaVersion": 2022,
     "sourceType": "module",
     "project": "./tsconfig.json",
     // "tsconfigRootDir": __dirname,
@@ -22,7 +24,10 @@
   },
   "settings": {
     "import/parsers": {
-      "@typescript-eslint/parser": [".ts", ".tsx"]
+      "@typescript-eslint/parser": [
+        ".ts",
+        ".tsx"
+      ]
     }
   }
 }

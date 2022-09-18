@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-empty-function */
+/* eslint-disable */
 import * as PIXI from 'pixi.js';
 import _ from 'lodash-contrib';
 
@@ -39,7 +39,6 @@ export class Placeholder extends PPNode {
 }
 
 export class Mouse extends PPNode {
-  onViewportMoveHandler: (event?: PIXI.InteractionEvent) => void;
   onViewportZoomedHandler: (event?: PIXI.InteractionEvent) => void;
   onViewportZoomed = (event: PIXI.InteractionEvent): void => {
     const scale = (event as any).viewport.scale.x;
@@ -107,8 +106,8 @@ export class Mouse extends PPNode {
 }
 
 export class Keyboard extends PPNode {
-  onKeyDownHandler: (event?: KeyboardEvent) => void = () => {};
-  onKeyUpHandler: (event?: KeyboardEvent) => void = () => {};
+  onKeyDownHandler: (event?: KeyboardEvent) => void = () => { };
+  onKeyUpHandler: (event?: KeyboardEvent) => void = () => { };
   _onKeyDown = (event: KeyboardEvent): void => {
     this.setOutputData('key', event.key);
     this.setOutputData('code', event.code);
