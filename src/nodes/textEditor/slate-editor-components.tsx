@@ -391,7 +391,7 @@ const Mention = (props) => {
     <span
       {...attributes}
       contentEditable={false}
-      data-cy={`mention-${element.character.replace(' ', '-')}`}
+      // data-cy={`mention-${element.character.replace(' ', '-')}`}
       style={{
         backgroundColor: `${randomColor.rgb()}`,
       }}
@@ -403,7 +403,7 @@ const Mention = (props) => {
     <span
       {...attributes}
       contentEditable={false}
-      data-cy={`mention-${element.character.replace(' ', '-')}`}
+      // data-cy={`mention-${element.character.replace(' ', '-')}`}
       style={{
         padding: '2px 3px 1px',
         margin: '0 1px',

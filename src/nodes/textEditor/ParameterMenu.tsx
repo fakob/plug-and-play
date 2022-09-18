@@ -1,11 +1,14 @@
 import {
   Fade,
+  ListItemIcon,
+  ListItemText,
   MenuItem,
   MenuList,
   Paper,
   Popper,
   ThemeProvider,
 } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
 import { customTheme } from '../../utils/constants';
 import React, { Fragment, useEffect, useState } from 'react';
 import { Editor, Range } from 'slate';
@@ -107,6 +110,21 @@ export const ParameterMenu: React.FunctionComponent<MyProps> = (props) => {
                       {char}
                     </MenuItem>
                   ))}
+                  <MenuItem
+                    selected={props.index === props.parameterNameArray.length}
+                    onClick={(event) => {
+                      props.onHandleParameterSelect(
+                        event,
+                        props.parameterNameArray.length
+                      );
+                    }}
+                    key="Add new property/input"
+                  >
+                    <ListItemIcon>
+                      <AddIcon fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText>Add Input</ListItemText>
+                  </MenuItem>
                 </MenuList>
               </Paper>
             </Fade>

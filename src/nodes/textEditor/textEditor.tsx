@@ -1,22 +1,9 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
-import ReactDOM from 'react-dom';
-import { Box, Menu, MenuItem, ThemeProvider } from '@mui/material';
+import React, { useCallback, useMemo, useState } from 'react';
+import { Box, ThemeProvider } from '@mui/material';
 import { ErrorBoundary } from 'react-error-boundary';
 import { Editor, Descendant, Range, Transforms, createEditor } from 'slate';
 import { withHistory } from 'slate-history';
-import {
-  Slate,
-  Editable,
-  ReactEditor,
-  withReact,
-  useFocused,
-} from 'slate-react';
+import { Slate, Editable, withReact } from 'slate-react';
 import { HoverToolbar } from './HoverToolbar';
 import { ParameterMenu } from './ParameterMenu';
 import { MentionElement } from './custom-types';
@@ -44,7 +31,6 @@ import {
 import { AnyType } from '../datatypes/anyType';
 import { ColorType } from '../datatypes/colorType';
 import { JSONType } from '../datatypes/jsonType';
-import { EditableProps } from 'slate-react/dist/components/editable';
 
 const isMac = navigator.platform.indexOf('Mac') != -1;
 
@@ -55,29 +41,12 @@ const initialValue: Descendant[] = [
   },
 ];
 
-interface EditableProps2 extends EditableProps {
-  variable1?: any;
-  variable2?: any;
-  variable3?: any;
-}
-
-const Editable2: React.FunctionComponent<EditableProps2> = ({
-  children,
-  ...rest
-}) => {
-  return <Editable {...rest}>{children}</Editable>;
-};
-
 const outputSocketName = 'output';
-const inputSocketName = 'input';
+const textJSONSocketName = 'textJSON';
 const backgroundColorSocketName = 'background Color';
-const inputName1 = 'Parameter 1';
+const inputPrefix = 'Input';
+const inputName1 = `${inputPrefix} 1`;
 
-const Portal = ({ children }) => {
-  return typeof document === 'object'
-    ? ReactDOM.createPortal(children, document.body)
-    : null;
-};
 export class TextEditor extends PPNode {
   getAllParameters: () => void;
   update: (newHeight?) => void;
@@ -105,7 +74,7 @@ export class TextEditor extends PPNode {
 
   public addDefaultInput(): void {
     this.addInput(
-      this.constructSocketName('Parameter', this.inputSocketArray),
+      this.constructSocketName(inputPrefix, this.inputSocketArray),
       new AnyType()
     );
   }
@@ -123,7 +92,7 @@ export class TextEditor extends PPNode {
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
-        inputSocketName,
+        textJSONSocketName,
         new JSONType(),
         initialValue,
         false
@@ -156,14 +125,14 @@ export class TextEditor extends PPNode {
     });
 
     if (customArgs?.initialData) {
-      this.setInputData(inputSocketName, customArgs?.initialData);
+      this.setInputData(textJSONSocketName, customArgs?.initialData);
     }
 
     this.readOnly = false;
 
     this.getAllParameters = (): Record<string, any> => {
       const allParameters = this.inputSocketArray.filter((input: PPSocket) => {
-        return input.name.startsWith('Parameter');
+        return input.name.startsWith(inputPrefix);
       });
 
       if (allParameters.length === 0) {
@@ -188,10 +157,10 @@ export class TextEditor extends PPNode {
 
     // when the Node is added, create the container and react component
     this.onNodeAdded = () => {
-      const data = this.getInputData(inputSocketName);
+      const data = this.getInputData(textJSONSocketName);
       const color: TRgba = this.getInputData(backgroundColorSocketName);
       const allParameters = this.getAllParameters();
-      this.readOnly = this.getInputSocketByName(inputSocketName).hasLink();
+      this.readOnly = this.getInputSocketByName(textJSONSocketName).hasLink();
 
       this.createContainerComponent(document, ParentComponent, {
         nodeHeight: this.nodeHeight,
@@ -203,12 +172,12 @@ export class TextEditor extends PPNode {
     };
 
     this.update = (newHeight): void => {
-      const data = this.getInputData(inputSocketName);
+      const data = this.getInputData(textJSONSocketName);
       const allParameters = this.getAllParameters();
       const color: TRgba = this.getInputData(backgroundColorSocketName);
       this.container.style.background = color.rgb();
-      this.readOnly = this.getInputSocketByName(inputSocketName).hasLink();
-
+      this.readOnly = this.getInputSocketByName(textJSONSocketName).hasLink();
+      console.log('this.update');
       this.renderReactComponent(ParentComponent, {
         nodeHeight: newHeight ?? this.nodeHeight,
         data,
@@ -256,16 +225,41 @@ export class TextEditor extends PPNode {
       const renderElement = useCallback((props) => <Element {...props} />, []);
       const renderLeaf = useCallback((props) => <Leaf {...props} />, []);
 
+      const parameterNameArray = this.inputSocketArray
+        .filter((item) => item.name.startsWith(inputPrefix))
+        .map((item) => item.name);
+
       const onHandleParameterSelect = (event, index) => {
         event.preventDefault();
+        let parameterName = parameterNameArray[index];
+        if (index >= parameterNameArray.length) {
+          parameterName = `Input ${index + 1}`;
+          this.addDefaultInput();
+        }
         Transforms.select(editor, target);
-        insertMention(editor, parameterNameArray[index]);
+        insertMention(editor, parameterName);
         setTarget(null);
       };
 
-      const parameterNameArray = this.inputSocketArray
-        .filter((item) => item.name.startsWith('Parameter'))
-        .map((item) => item.name);
+      const onPropsChange = () => {
+        Object.keys(props.allParameters).map((parameterName) => {
+          Transforms.setNodes(
+            editor,
+            { reactiveText: String(props.allParameters[parameterName]) },
+            {
+              at: [],
+              match: (node: MentionElement) => {
+                return (
+                  node.type === 'mention' && node.character === parameterName
+                );
+              },
+              mode: 'all', // also the Editor's children
+            }
+          );
+        });
+      };
+
+      onPropsChange();
 
       const onChange = (value) => {
         const { selection } = editor;
@@ -286,13 +280,12 @@ export class TextEditor extends PPNode {
 
           if (beforeMatch && afterMatch) {
             setTarget(beforeRange);
-            setIndex(0);
             return;
           }
         }
         setTarget(null);
 
-        this.setInputData(inputSocketName, value);
+        this.setInputData(textJSONSocketName, value);
         this.setOutputData(outputSocketName, value);
         this.executeChildren();
       };
@@ -305,22 +298,20 @@ export class TextEditor extends PPNode {
               case 'ArrowDown':
                 event.preventDefault();
                 const prevIndex =
-                  index >= parameterNameArray.length - 1 ? 0 : index + 1;
+                  index >= parameterNameArray.length ? 0 : index + 1;
                 setIndex(prevIndex);
                 break;
               case 'ArrowUp':
                 event.preventDefault();
                 const nextIndex =
-                  index <= 0 ? parameterNameArray.length - 1 : index - 1;
+                  index <= 0 ? parameterNameArray.length : index - 1;
                 setIndex(nextIndex);
                 break;
               case 'Tab':
               case 'Enter':
                 console.log('Enter');
                 event.preventDefault();
-                Transforms.select(editor, target);
-                insertMention(editor, parameterNameArray[index]);
-                setTarget(null);
+                onHandleParameterSelect(event, index);
                 break;
               case 'Escape':
                 console.log('Escape');
@@ -398,24 +389,6 @@ export class TextEditor extends PPNode {
         [index, target]
       );
 
-      useEffect(() => {
-        Object.keys(props.allParameters).map((parameterName) => {
-          Transforms.setNodes(
-            editor,
-            { reactiveText: props.allParameters[parameterName] },
-            {
-              at: [],
-              match: (node: MentionElement) => {
-                return (
-                  node.type === 'mention' && node.character === parameterName
-                );
-              },
-              mode: 'all', // also the Editor's children
-            }
-          );
-        });
-      }, [...Object.values(props.allParameters)]);
-
       return (
         <ErrorBoundary FallbackComponent={ErrorFallback}>
           <ThemeProvider theme={customTheme}>
@@ -439,7 +412,7 @@ export class TextEditor extends PPNode {
                     index={index}
                   />
                 )}
-                <Editable2
+                <Editable
                   readOnly={!props.doubleClicked}
                   renderElement={renderElement}
                   renderLeaf={renderLeaf}
