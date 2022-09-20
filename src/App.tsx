@@ -865,47 +865,52 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     saveGraph(true, newName);
   }
 
-  function loadGraph(id = undefined) {
-    db.transaction('rw', db.graphs, db.settings, async () => {
-      const graphs = await db.graphs.toArray();
-      const loadedGraphId = await getSetting(db, 'loadedGraphId');
+  async function loadGraph(id = undefined) {
+    let loadedGraph;
+    await db
+      .transaction('rw', db.graphs, db.settings, async () => {
+        const graphs = await db.graphs.toArray();
+        const loadedGraphId = await getSetting(db, 'loadedGraphId');
 
-      if (graphs.length > 0) {
-        let loadedGraph = graphs.find(
-          (graph) => graph.id === (id || loadedGraphId)
-        );
+        if (graphs.length > 0) {
+          loadedGraph = graphs.find(
+            (graph) => graph.id === (id || loadedGraphId)
+          );
 
-        // check if graph exists and load last saved graph if it does not
-        if (loadedGraph === undefined) {
-          loadedGraph = graphs.reduce((a, b) => {
-            return new Date(a.date) > new Date(b.date) ? a : b;
+          // check if graph exists and load last saved graph if it does not
+          if (loadedGraph === undefined) {
+            loadedGraph = graphs.reduce((a, b) => {
+              return new Date(a.date) > new Date(b.date) ? a : b;
+            });
+          }
+
+          // update loadedGraphId
+          await db.settings.put({
+            name: 'loadedGraphId',
+            value: loadedGraph.id,
           });
+        } else {
+          console.log('No saved graphData');
         }
+      })
+      .catch((e) => {
+        console.log(e.stack || e);
+      });
 
-        const graphData = loadedGraph.graphData;
-        await currentGraph.current.configure(graphData, false);
+    if (loadedGraph) {
+      const graphData = loadedGraph.graphData;
+      await currentGraph.current.configure(graphData, false);
 
-        // update loadedGraphId
-        await db.settings.put({
-          name: 'loadedGraphId',
-          value: loadedGraph.id,
-        });
-
-        setActionObject({
-          id: loadedGraph.id,
-          name: loadedGraph.name,
-        });
-        setGraphSearchActiveItem({
-          id: loadedGraph.id,
-          name: loadedGraph.name,
-        });
-        enqueueSnackbar(`${loadedGraph.name} was loaded`);
-      } else {
-        console.log('No saved graphData');
-      }
-    }).catch((e) => {
-      console.log(e.stack || e);
-    });
+      setActionObject({
+        id: loadedGraph.id,
+        name: loadedGraph.name,
+      });
+      setGraphSearchActiveItem({
+        id: loadedGraph.id,
+        name: loadedGraph.name,
+      });
+      enqueueSnackbar(`${loadedGraph.name} was loaded`);
+    }
   }
 
   async function loadGraphFromURL(loadURL: string) {

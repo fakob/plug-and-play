@@ -225,7 +225,6 @@ export class TextEditor extends PPNode {
       );
       const [target, setTarget] = useState<Range | undefined>();
       const [index, setIndex] = useState(0);
-      const [data, setData] = useState<Descendant[] | undefined>(props.data);
       const renderElement = useCallback((props) => <Element {...props} />, []);
       const renderLeaf = useCallback((props) => <Leaf {...props} />, []);
 
@@ -245,7 +244,9 @@ export class TextEditor extends PPNode {
         setTarget(null);
       };
 
+      // run on every props change
       const onPropsChange = () => {
+        editor.children = props.data;
         Object.keys(props.allParameters).map((parameterName) => {
           Transforms.setNodes(
             editor,
@@ -313,12 +314,10 @@ export class TextEditor extends PPNode {
                 break;
               case 'Tab':
               case 'Enter':
-                console.log('Enter');
                 event.preventDefault();
                 onHandleParameterSelect(event, index);
                 break;
               case 'Escape':
-                console.log('Escape');
                 event.preventDefault();
                 setTarget(null);
                 break;
@@ -422,7 +421,7 @@ export class TextEditor extends PPNode {
                 }`,
               }}
             >
-              <Slate editor={editor} value={data} onChange={onChange}>
+              <Slate editor={editor} value={props.data} onChange={onChange}>
                 <HoverToolbar />
                 {target && parameterNameArray.length > 0 && (
                   <ParameterMenu
