@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Box, ThemeProvider } from '@mui/material';
 import { ErrorBoundary } from 'react-error-boundary';
 import { Editor, Descendant, Range, Transforms, createEditor } from 'slate';
@@ -39,7 +39,7 @@ const isMac = navigator.platform.indexOf('Mac') != -1;
 const initialValue: Descendant[] = [
   {
     type: 'paragraph',
-    children: [{ text: 'Enter some rich text…' }],
+    children: [{ text: '' }],
   },
 ];
 
@@ -132,7 +132,7 @@ export class TextEditor extends PPNode {
 
     this.readOnly = false;
 
-    this.getAllParameters = (): Record<string, any> => {
+    this.getAllParameters = (): string => {
       const allParameters = this.inputSocketArray.filter((input: PPSocket) => {
         return input.name.startsWith(inputPrefix);
       });
@@ -151,10 +151,10 @@ export class TextEditor extends PPNode {
         }
 
         const link = parameter.links[0];
-        dataObject[parameter.name] = link.source.data;
+        dataObject[parameter.name] = String(link.source.data);
       });
 
-      return dataObject;
+      return JSON.stringify(dataObject);
     };
 
     // when the Node is added, create the container and react component
@@ -209,7 +209,7 @@ export class TextEditor extends PPNode {
       doubleClicked: boolean; // is injected by the NodeClass
       data: Descendant[];
       color: TRgba;
-      allParameters: Record<string, any>;
+      allParameters: string;
       randomMainColor: string;
       nodeHeight: number;
       readOnly: boolean;
@@ -244,13 +244,16 @@ export class TextEditor extends PPNode {
         setTarget(null);
       };
 
-      // run on every props change
-      const onPropsChange = () => {
+      useEffect(() => {
+        // update editor data
         editor.children = props.data;
-        Object.keys(props.allParameters).map((parameterName) => {
+
+        // substitute @inputs with input parameters
+        const allParametersObject = JSON.parse(props.allParameters);
+        Object.keys(allParametersObject).map((parameterName) => {
           Transforms.setNodes(
             editor,
-            { reactiveText: String(props.allParameters[parameterName]) },
+            { reactiveText: allParametersObject[parameterName] },
             {
               at: [],
               match: (node: MentionElement) => {
@@ -262,11 +265,15 @@ export class TextEditor extends PPNode {
             }
           );
         });
-      };
 
-      onPropsChange();
+        // update outputs
+        this.setOutputData(outputSocketName, props.data);
+        this.executeChildren();
+      }, [props.allParameters, props.data]);
 
       const onChange = (value) => {
+        console.log('onChange');
+        console.log(value);
         const { selection } = editor;
 
         if (selection && Range.isCollapsed(selection)) {
@@ -290,6 +297,7 @@ export class TextEditor extends PPNode {
         }
         setTarget(null);
 
+        // update in and outputs
         this.setInputData(textJSONSocketName, value);
         this.setOutputData(outputSocketName, value);
         this.executeChildren();
@@ -298,6 +306,7 @@ export class TextEditor extends PPNode {
       const onKeyDown = useCallback(
         (event) => {
           const modKey = isMac ? event.metaKey : event.ctrlKey;
+          console.log(event.key, event.code, modKey, event.altKey);
           if (target) {
             switch (event.key) {
               case 'ArrowDown':
