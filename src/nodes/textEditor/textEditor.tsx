@@ -278,10 +278,9 @@ export class TextEditor extends PPNode {
 
         if (selection && Range.isCollapsed(selection)) {
           const [start] = Range.edges(selection);
-          const wordBefore = Editor.before(editor, start, {
-            unit: 'character',
+          const before = Editor.before(editor, start, {
+            unit: 'word',
           });
-          const before = wordBefore && Editor.before(editor, wordBefore);
           const beforeRange = before && Editor.range(editor, before, start);
           const beforeText = beforeRange && Editor.string(editor, beforeRange);
           const beforeMatch = beforeText && beforeText.match(/^(\s*@\w*)$/);
@@ -306,7 +305,6 @@ export class TextEditor extends PPNode {
       const onKeyDown = useCallback(
         (event) => {
           const modKey = isMac ? event.metaKey : event.ctrlKey;
-          console.log(event.key, event.code, modKey, event.altKey);
           if (target) {
             switch (event.key) {
               case 'ArrowDown':
