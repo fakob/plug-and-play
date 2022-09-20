@@ -245,15 +245,15 @@ export class Label extends PPNode {
     };
   }
 
-  getShowLabels(): boolean {
+  protected getShowLabels(): boolean {
     return false;
   }
 
-  getRoundedCorners(): boolean {
+  protected getRoundedCorners(): boolean {
     return false;
   }
 
-  shouldExecuteOnMove(): boolean {
+  protected shouldExecuteOnMove(): boolean {
     return true;
   }
 }

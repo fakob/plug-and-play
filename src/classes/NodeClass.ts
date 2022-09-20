@@ -58,7 +58,7 @@ export default class PPNode extends PIXI.Container {
   // name: string; // Display name - at first it is the type with spaces - defined on PIXI.Container
   type: string; // Type
   category: string; // Category - derived from type
-  description: string;
+  description: string; // TODO make this not a member variable, just ask function
   nodePosX: number;
   nodePosY: number;
   nodeWidth: number;
@@ -84,10 +84,9 @@ export default class PPNode extends PIXI.Container {
 
   container: HTMLElement; // for hybrid nodes
   root: Root;
-  static: HTMLElement;
-  staticRoot: Root;
 
   // supported callbacks
+  // TODO make these proper protected functions
   onConfigure: (nodeConfig: SerializedNode) => void = () => {}; // called after the node has been configured
   onNodeDoubleClick: (event: PIXI.InteractionEvent) => void = () => {};
   onMoveHandler: (event?: PIXI.InteractionEvent) => void = () => {};
@@ -411,9 +410,7 @@ export default class PPNode extends PIXI.Container {
       );
     }
 
-    if (this.onConfigure) {
-      this.onConfigure(nodeConfig);
-    }
+    this.onConfigure(nodeConfig);
 
     if (this.getIsHybrid()) {
       this._onViewportMove(); // trigger this once, so the react components get positioned properly
@@ -706,7 +703,7 @@ export default class PPNode extends PIXI.Container {
     return false;
   }
 
-  public getRoundedCorners(): boolean {
+  protected getRoundedCorners(): boolean {
     return true;
   }
 
@@ -779,7 +776,7 @@ export default class PPNode extends PIXI.Container {
     }
   }
 
-  shouldExecuteOnMove(): boolean {
+  protected shouldExecuteOnMove(): boolean {
     return false;
   }
 
@@ -1085,7 +1082,6 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
         output.data = outputObject[output.name];
       }
     });
-    this.onAfterExecute();
   }
 
   // override if you don't want your node to show outline for some reason
@@ -1163,10 +1159,6 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     // just define function
   }
 
-  protected onAfterExecute(): void {
-    // just define function
-  }
-
   // SETUP
 
   _addListeners(): void {
@@ -1237,6 +1229,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     }
   }
 
+  // TODO remove this
   _onViewportMove(): void {
     if (this.onNodeDragOrViewportMove) {
       const screenPoint = this.screenPoint();

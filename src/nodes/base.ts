@@ -78,6 +78,8 @@ export class Mouse extends PPNode {
     ].concat(super.getDefaultIO());
   }
 
+
+  // TODO remove these (replace with the nodes just asking graph for this info)
   onNodeAdded = (): void => {
     // add event listener
     this.onViewportMoveHandler = this.onViewportMove.bind(this);
