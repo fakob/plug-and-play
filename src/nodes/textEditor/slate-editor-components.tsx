@@ -522,8 +522,8 @@ const Mention = (props) => {
   const selected = useSelected();
   const focused = useFocused();
   const readOnly = useReadOnly();
-  const randomColor = TRgba.fromString(RANDOMMAINCOLOR);
-  randomColor.a = 0.2;
+  const color: TRgba = props.color;
+  const backgroundColor = color.isDark() ? TRgba.white() : TRgba.black();
 
   return readOnly ? (
     <span
@@ -531,7 +531,7 @@ const Mention = (props) => {
       contentEditable={false}
       // data-cy={`mention-${element.inputName.replace(' ', '-')}`}
       style={{
-        backgroundColor: `${randomColor.rgb()}`,
+        backgroundColor: `${backgroundColor.setAlpha(0.05).rgb()}`,
       }}
     >
       {children}
@@ -548,10 +548,12 @@ const Mention = (props) => {
         verticalAlign: 'baseline',
         display: 'inline-block',
         borderRadius: '4px',
-        backgroundColor: `${randomColor.rgb()}`,
+        backgroundColor: `${backgroundColor.setAlpha(0.1).rgb()}`,
         fontSize: '0.9em',
         boxShadow:
-          selected && focused ? '0 0 0 0.5px rgba(0,0,0,0.25)' : 'none',
+          selected && focused
+            ? `0 0 0 0.5px ${backgroundColor.setAlpha(0.4).rgb()}`
+            : 'none',
       }}
     >
       {children}@{element.inputName}

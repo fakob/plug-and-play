@@ -225,7 +225,11 @@ export class TextEditor extends PPNode {
       );
       const [target, setTarget] = useState<Range | undefined>();
       const [index, setIndex] = useState(0);
-      const renderElement = useCallback((props) => <Element {...props} />, []);
+      const [color, setColor] = useState(props.color);
+      const renderElement = useCallback(
+        (props) => <Element color={color} {...props} />,
+        [color]
+      );
       const renderLeaf = useCallback((props) => <Leaf {...props} />, []);
 
       const parameterNameArray = this.inputSocketArray
@@ -243,6 +247,10 @@ export class TextEditor extends PPNode {
         insertMention(editor, parameterName);
         setTarget(null);
       };
+
+      useEffect(() => {
+        setColor(props.color);
+      }, [props.color.r, props.color.g, props.color.b, props.color.a]);
 
       useEffect(() => {
         // update editor data
@@ -272,8 +280,6 @@ export class TextEditor extends PPNode {
       }, [props.allParameters, props.data]);
 
       const onChange = (value) => {
-        console.log('onChange');
-        console.log(value);
         const { selection } = editor;
 
         if (selection && Range.isCollapsed(selection)) {
@@ -423,9 +429,7 @@ export class TextEditor extends PPNode {
                 position: 'relative',
                 padding: '16px 24px',
                 boxSizing: 'border-box',
-                color: `${
-                  props.color.isDark() ? COLOR_WHITE_TEXT : COLOR_DARK
-                }`,
+                color: `${color.isDark() ? COLOR_WHITE_TEXT : COLOR_DARK}`,
               }}
             >
               <Slate editor={editor} value={props.data} onChange={onChange}>
