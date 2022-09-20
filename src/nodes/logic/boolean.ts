@@ -1,27 +1,14 @@
-import PPNode from '../../classes/NodeClass';
-import Socket from '../../classes/SocketClass';
-import { SOCKET_TYPE } from '../../utils/constants';
-import { BooleanType } from '../datatypes/booleanType';
+import { CustomFunction } from '../data/dataFunctions';
 
-const inputName = 'Input';
-const input1Name = 'Input 1';
-const input2Name = 'Input 2';
-const outputName = 'Output';
+class BooleanOperationNode extends CustomFunction {
+  // doesn't really have anything special now, but feels like it makes sense
+}
 
-export class NOT extends PPNode {
-  protected async onExecute(
-    inputObject: any,
-    outputObject: Record<string, unknown>
-  ): Promise<void> {
-    outputObject[outputName] = !inputObject[inputName];
+export class NOT extends BooleanOperationNode {
+  protected getDefaultFunction(): string {
+    return '(a) => {\n\treturn !a;\n}';
   }
 
-  protected getDefaultIO(): Socket[] {
-    return [
-      new Socket(SOCKET_TYPE.IN, inputName, new BooleanType()),
-      new Socket(SOCKET_TYPE.OUT, outputName, new BooleanType()),
-    ];
-  }
   public getName(): string {
     return 'NOT';
   }
@@ -30,28 +17,11 @@ export class NOT extends PPNode {
   }
 }
 
-export class OR extends PPNode {
-  protected async onExecute(
-    inputObject: any,
-    outputObject: Record<string, unknown>
-  ): Promise<void> {
-    outputObject[outputName] =
-      this.getAllSockets()
-        .filter((socket) => socket.socketType === SOCKET_TYPE.IN)
-        .find((socket) => socket.data) !== undefined;
+export class OR extends BooleanOperationNode {
+  protected getDefaultFunction(): string {
+    return '(a,b) => {\n\treturn a || b ? true : false;\n}';
   }
 
-  public getCanAddInput(): boolean {
-    return true;
-  }
-
-  protected getDefaultIO(): Socket[] {
-    return [
-      new Socket(SOCKET_TYPE.IN, input1Name, new BooleanType()),
-      new Socket(SOCKET_TYPE.IN, input2Name, new BooleanType()),
-      new Socket(SOCKET_TYPE.OUT, outputName, new BooleanType()),
-    ];
-  }
   public getName(): string {
     return 'OR';
   }
@@ -60,28 +30,9 @@ export class OR extends PPNode {
   }
 }
 
-export class AND extends PPNode {
-  protected async onExecute(
-    inputObject: any,
-    outputObject: Record<string, unknown>
-  ): Promise<void> {
-    const inputSockets = this.getAllSockets().filter(
-      (socket) => socket.socketType === SOCKET_TYPE.IN
-    );
-    outputObject[outputName] =
-      inputSockets.find((socket) => !socket.data) === undefined;
-  }
-
-  public getCanAddInput(): boolean {
-    return true;
-  }
-
-  protected getDefaultIO(): Socket[] {
-    return [
-      new Socket(SOCKET_TYPE.IN, input1Name, new BooleanType()),
-      new Socket(SOCKET_TYPE.IN, input2Name, new BooleanType()),
-      new Socket(SOCKET_TYPE.OUT, outputName, new BooleanType()),
-    ];
+export class AND extends BooleanOperationNode {
+  protected getDefaultFunction(): string {
+    return '(a,b) => {\n\treturn a && b ? true : false;\n}';
   }
   public getName(): string {
     return 'AND';
