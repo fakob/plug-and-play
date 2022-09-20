@@ -258,7 +258,7 @@ export class TextEditor extends PPNode {
               at: [],
               match: (node: MentionElement) => {
                 return (
-                  node.type === 'mention' && node.character === parameterName
+                  node.type === 'mention' && node.inputName === parameterName
                 );
               },
               mode: 'all', // also the Editor's children
@@ -283,7 +283,7 @@ export class TextEditor extends PPNode {
           });
           const beforeRange = before && Editor.range(editor, before, start);
           const beforeText = beforeRange && Editor.string(editor, beforeRange);
-          const beforeMatch = beforeText && beforeText.match(/^(\s*@\w*)$/);
+          const beforeMatch = beforeText && beforeText.match(/(\s*@\w*)$/);
           const after = Editor.after(editor, start);
           const afterRange = Editor.range(editor, start, after);
           const afterText = Editor.string(editor, afterRange);

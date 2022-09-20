@@ -507,10 +507,10 @@ export const withMentions = (editor: Editor) => {
   return editor;
 };
 
-export const insertMention = (editor: Editor, character) => {
+export const insertMention = (editor: Editor, inputName) => {
   const mention: MentionElement = {
     type: 'mention',
-    character,
+    inputName,
     children: [{ text: '' }],
   };
   Transforms.insertNodes(editor, mention);
@@ -529,7 +529,7 @@ const Mention = (props) => {
     <span
       {...attributes}
       contentEditable={false}
-      // data-cy={`mention-${element.character.replace(' ', '-')}`}
+      // data-cy={`mention-${element.inputName.replace(' ', '-')}`}
       style={{
         backgroundColor: `${randomColor.rgb()}`,
       }}
@@ -541,7 +541,7 @@ const Mention = (props) => {
     <span
       {...attributes}
       contentEditable={false}
-      // data-cy={`mention-${element.character.replace(' ', '-')}`}
+      // data-cy={`mention-${element.inputName.replace(' ', '-')}`}
       style={{
         padding: '2px 3px 1px',
         margin: '0 1px',
@@ -554,7 +554,7 @@ const Mention = (props) => {
           selected && focused ? '0 0 0 0.5px rgba(0,0,0,0.25)' : 'none',
       }}
     >
-      {children}@{element.character}
+      {children}@{element.inputName}
     </span>
   );
 };
