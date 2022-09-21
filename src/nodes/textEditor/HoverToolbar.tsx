@@ -43,34 +43,30 @@ export const HoverToolbar: React.FunctionComponent = () => {
     Editor.string(editor, selection) !== '';
 
   useEffect(() => {
-    if (editMode === 'toolbar') {
-      if (isTextSelected) {
-        const domRange = getDomSelectionRange();
-        if (domRange === null) {
-          return;
-        }
-        const rect = domRange.getBoundingClientRect();
-        setAnchorEl({
-          clientWidth: rect.width,
-          clientHeight: rect.height,
-          /**
-           * This function will be called by the popper to get the
-           * bounding rectangle for the selection. Since the selection
-           * can change when a toolbar button is clicked, we need to
-           * get a fresh selection range before computing the bounding
-           * rect. (see https://stackoverflow.com/questions/63747451)
-           */
-          getBoundingClientRect: () => {
-            const innerDomRange = getDomSelectionRange();
-            return innerDomRange === null
-              ? new DOMRect()
-              : innerDomRange.getBoundingClientRect();
-          },
-        });
-        setToolbarOpen(true);
-      } else {
-        setToolbarOpen(false);
+    if (editMode === 'toolbar' && isTextSelected) {
+      const domRange = getDomSelectionRange();
+      if (domRange === null) {
+        return;
       }
+      const rect = domRange.getBoundingClientRect();
+      setAnchorEl({
+        clientWidth: rect.width,
+        clientHeight: rect.height,
+        /**
+         * This function will be called by the popper to get the
+         * bounding rectangle for the selection. Since the selection
+         * can change when a toolbar button is clicked, we need to
+         * get a fresh selection range before computing the bounding
+         * rect. (see https://stackoverflow.com/questions/63747451)
+         */
+        getBoundingClientRect: () => {
+          const innerDomRange = getDomSelectionRange();
+          return innerDomRange === null
+            ? new DOMRect()
+            : innerDomRange.getBoundingClientRect();
+        },
+      });
+      setToolbarOpen(true);
     } else {
       setToolbarOpen(false);
     }

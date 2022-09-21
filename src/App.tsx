@@ -570,40 +570,52 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       const modKey = isMac ? e.metaKey : e.ctrlKey;
       // console.log(e.key);
       if (!isEventComingFromWithinTextInput(e)) {
-        if (modKey && e.key === 'a') {
-          e.preventDefault();
-          currentGraph.current.selection.selectAllNodes();
-        }
-        if (modKey && e.key === 'f') {
-          e.preventDefault();
-          openNodeSearch(mousePosition);
-        }
-        if (modKey && e.key === 'd') {
-          e.preventDefault();
-          currentGraph.current.duplicateSelection();
-        }
-        if (modKey && e.key === 'o') {
-          e.preventDefault();
-          setIsGraphSearchOpen((prevState) => !prevState);
-        }
-        if (modKey && e.key === 'e') {
-          e.preventDefault();
-          setShowEdit((prevState) => !prevState);
-        }
-        if (e.shiftKey && e.code === 'Digit1') {
-          zoomToFitSelection(currentGraph.current, true);
-        }
-        if (e.shiftKey && e.code === 'Digit2') {
-          zoomToFitSelection(currentGraph.current);
-        }
-        if (modKey && e.shiftKey && e.key === 'y') {
-          e.preventDefault();
-          setShowComments((prevState) => !prevState);
-        }
-        if (modKey && e.shiftKey && e.key === 'x') {
-          e.preventDefault();
-          currentGraph.current.showExecutionVisualisation =
-            !currentGraph.current.showExecutionVisualisation;
+        if (modKey && !e.shiftKey) {
+          switch (e.key) {
+            case 'a':
+              e.preventDefault();
+              currentGraph.current.selection.selectAllNodes();
+              break;
+            case 'f':
+              e.preventDefault();
+              openNodeSearch(mousePosition);
+              break;
+            case 'd':
+              e.preventDefault();
+              currentGraph.current.duplicateSelection();
+              break;
+            case 'o':
+              e.preventDefault();
+              setIsGraphSearchOpen((prevState) => !prevState);
+              break;
+            case 'e':
+              e.preventDefault();
+              setShowEdit((prevState) => !prevState);
+              break;
+          }
+        } else if (modKey && e.shiftKey) {
+          switch (e.key) {
+            case 'y':
+              e.preventDefault();
+              setShowComments((prevState) => !prevState);
+              break;
+            case 'x':
+              e.preventDefault();
+              currentGraph.current.showExecutionVisualisation =
+                !currentGraph.current.showExecutionVisualisation;
+              break;
+          }
+        } else if (e.shiftKey) {
+          switch (e.code) {
+            case 'Digit1':
+              e.preventDefault();
+              zoomToFitSelection(currentGraph.current, true);
+              break;
+            case 'Digit2':
+              e.preventDefault();
+              zoomToFitSelection(currentGraph.current);
+              break;
+          }
         }
       }
       if (modKey && e.key === 's') {
@@ -613,8 +625,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         } else {
           saveGraph();
         }
-      }
-      if (e.key === 'Escape') {
+      } else if (e.key === 'Escape') {
         setIsGraphSearchOpen(false);
         setIsNodeSearchVisible(false);
         setIsGraphContextMenuOpen(false);
