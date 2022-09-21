@@ -80,7 +80,6 @@ import {
   zoomToFitSelection,
 } from './utils/utils';
 import { getAllNodeTypes } from './nodes/allNodes';
-import PPSelection from './classes/SelectionClass';
 import PPSocket from './classes/SocketClass';
 import PPNode from './classes/NodeClass';
 import { InputParser } from './utils/inputParser';
@@ -568,53 +567,65 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
 
     // register key events
     const keysDown = (e: KeyboardEvent): void => {
+      const modKey = isMac ? e.metaKey : e.ctrlKey;
       // console.log(e.key);
       if (!isEventComingFromWithinTextInput(e)) {
-        if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'a') {
-          e.preventDefault();
-          currentGraph.current.selection.selectAllNodes();
-        }
-        if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'f') {
-          e.preventDefault();
-          openNodeSearch(mousePosition);
-        }
-        if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'd') {
-          e.preventDefault();
-          currentGraph.current.duplicateSelection();
+        if (modKey && !e.shiftKey) {
+          switch (e.key) {
+            case 'a':
+              e.preventDefault();
+              currentGraph.current.selection.selectAllNodes();
+              break;
+            case 'f':
+              e.preventDefault();
+              openNodeSearch(mousePosition);
+              break;
+            case 'd':
+              e.preventDefault();
+              currentGraph.current.duplicateSelection();
+              break;
+            case 'o':
+              e.preventDefault();
+              setIsGraphSearchOpen((prevState) => !prevState);
+              break;
+            case 'e':
+              e.preventDefault();
+              setShowEdit((prevState) => !prevState);
+              break;
+          }
+        } else if (modKey && e.shiftKey) {
+          switch (e.key) {
+            case 'y':
+              e.preventDefault();
+              setShowComments((prevState) => !prevState);
+              break;
+            case 'x':
+              e.preventDefault();
+              currentGraph.current.showExecutionVisualisation =
+                !currentGraph.current.showExecutionVisualisation;
+              break;
+          }
+        } else if (e.shiftKey) {
+          switch (e.code) {
+            case 'Digit1':
+              e.preventDefault();
+              zoomToFitSelection(currentGraph.current, true);
+              break;
+            case 'Digit2':
+              e.preventDefault();
+              zoomToFitSelection(currentGraph.current);
+              break;
+          }
         }
       }
-      if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'o') {
-        e.preventDefault();
-        setIsGraphSearchOpen((prevState) => !prevState);
-      }
-      if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'e') {
-        e.preventDefault();
-        setShowEdit((prevState) => !prevState);
-      }
-      if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 's') {
+      if (modKey && e.key === 's') {
         e.preventDefault();
         if (e.shiftKey) {
           saveNewGraph();
         } else {
           saveGraph();
         }
-      }
-      if (e.shiftKey && e.code === 'Digit1') {
-        zoomToFitSelection(currentGraph.current, true);
-      }
-      if (e.shiftKey && e.code === 'Digit2') {
-        zoomToFitSelection(currentGraph.current);
-      }
-      if ((isMac ? e.metaKey : e.ctrlKey) && e.shiftKey && e.key === 'y') {
-        e.preventDefault();
-        setShowComments((prevState) => !prevState);
-      }
-      if ((isMac ? e.metaKey : e.ctrlKey) && e.shiftKey && e.key === 'x') {
-        e.preventDefault();
-        currentGraph.current.showExecutionVisualisation =
-          !currentGraph.current.showExecutionVisualisation;
-      }
-      if (e.key === 'Escape') {
+      } else if (e.key === 'Escape') {
         setIsGraphSearchOpen(false);
         setIsNodeSearchVisible(false);
         setIsGraphContextMenuOpen(false);

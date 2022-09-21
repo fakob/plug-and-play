@@ -405,7 +405,6 @@ export class WidgetSlider extends PPNode {
     };
 
     this.update = (): void => {
-      console.log('update');
       this.renderReactComponent(WidgetParent, {
         nodeWidth: this.nodeWidth,
         nodeHeight: this.nodeHeight,
@@ -447,7 +446,6 @@ export class WidgetSlider extends PPNode {
     };
 
     const WidgetParent = (props) => {
-      console.log(props);
       const [data, setData] = useState(Number(props.initialValue));
       const [minValue, setMinValue] = useState(
         Math.min(props.minValue ?? 0, data)
@@ -475,7 +473,6 @@ export class WidgetSlider extends PPNode {
       ]);
 
       const handleOnChange = (event, value) => {
-        console.log(value);
         if (!Array.isArray(value)) {
           setData(roundNumber(value, 4));
           this.setOutputData(outName, value);

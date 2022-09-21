@@ -106,6 +106,7 @@ export type SerializedSocket = {
   visible: boolean;
   isCustom: boolean;
 };
+
 export class TRgba {
   r = 0;
   g = 0;
@@ -126,15 +127,28 @@ export class TRgba {
     return new TRgba(r, g, b);
   }
 
+  object(): string {
+    return this.toColor().object();
+  }
+
+  rgb(): string {
+    return this.toColor().rgb().string();
+  }
+
   hex(): string {
     return this.toColor().hex();
   }
+
   hexNumber(): number {
     return parseInt(this.hex().replace(/^#/, ''), 16);
   }
 
   isDark(): boolean {
     return this.toColor().isDark();
+  }
+
+  setAlpha(value: number): TRgba {
+    return TRgba.fromColor(this.toColor().alpha(value));
   }
 
   mix(otherColor: TRgba, blendFactor: number): TRgba {
