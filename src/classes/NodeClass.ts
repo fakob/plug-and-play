@@ -293,6 +293,10 @@ export default class PPNode extends PIXI.Container {
     return new AnyType();
   }
 
+  getPreferredInputSocketIndex(): number | undefined {
+    return undefined;
+  }
+
   addInput(
     name: string,
     type: AbstractType, // but really its AbstractType

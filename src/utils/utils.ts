@@ -560,18 +560,37 @@ export const isVariable = (
 
 export const getMatchingSocketIndex = (
   socket: PPSocket,
-  socketArray: PPSocket[]
+  node: PPNode
 ): number => {
-  const indexExactMatch = socketArray.findIndex((socketInArray) => {
-    return socketInArray.dataType.constructor === socket.dataType.constructor;
+  const preferredIndex = node.getPreferredInputSocketIndex();
+  if (preferredIndex !== undefined) {
+    const hasLink = node.inputSocketArray[preferredIndex].hasLink();
+
+    // if socket does not have a link return index
+    // else look for another match below
+    if (!hasLink) {
+      return preferredIndex;
+    }
+  }
+
+  const indexExactMatch = node.inputSocketArray.findIndex((socketInArray) => {
+    // if socket has link, check next one
+    return (
+      !socketInArray.hasLink() &&
+      socketInArray.dataType.constructor === socket.dataType.constructor
+    );
   });
 
   if (indexExactMatch > -1) {
     return indexExactMatch;
   }
 
-  const index = socketArray.findIndex((socketInArray) => {
-    return socketInArray.dataType.constructor === new AnyType().constructor;
+  const index = node.inputSocketArray.findIndex((socketInArray) => {
+    // if socket has link, check next one
+    return (
+      !socketInArray.hasLink() &&
+      socketInArray.dataType.constructor === new AnyType().constructor
+    );
   });
 
   return index > -1 ? index : 0; // take the first index (0) if none was found

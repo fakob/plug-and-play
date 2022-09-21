@@ -102,4 +102,8 @@ export class LogViewer extends PPNode {
   protected getActivateByDoubleClick(): boolean {
     return true;
   }
+
+  getPreferredInputSocketIndex(): number {
+    return 0;
+  }
 }
