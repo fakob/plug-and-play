@@ -38,6 +38,7 @@ import PPGraph from './GraphClass';
 import Socket from './SocketClass';
 import {
   calculateAspectRatioFit,
+  getMatchingSocketIndex,
   getNodeCommentPosX,
   getNodeCommentPosY,
 } from '../utils/utils';
@@ -1177,8 +1178,8 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     this.onMoveHandler = this._onPointerMove.bind(this);
 
     this.on('pointerdown', this._onPointerDown.bind(this));
-    this.on('pointerup', this._onPointerUpAndUpOutside.bind(this));
-    this.on('pointerupoutside', this._onPointerUpAndUpOutside.bind(this));
+    this.on('pointerup', this._onPointerUp.bind(this));
+    this.on('pointerupoutside', this._onPointerUpOutside.bind(this));
     this.on('pointerover', this._onPointerOver.bind(this));
     this.on('pointerout', this._onPointerOut.bind(this));
     this.on('dblclick', this._onDoubleClick.bind(this));
@@ -1220,7 +1221,30 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     }
   }
 
-  _onPointerUpAndUpOutside(): void {
+  _onPointerUp(): void {
+    const source = PPGraph.currentGraph.selectedSourceSocket;
+    if (source) {
+      PPGraph.currentGraph.selectedSourceSocket = null;
+      if (this !== source.getNode()) {
+        if (source.socketType === SOCKET_TYPE.IN) {
+          // await PPGraph.currentGraph.connect(socket, source);
+        } else {
+          const index = getMatchingSocketIndex(source, this);
+          PPGraph.currentGraph.connect(source, this.inputSocketArray[index]);
+        }
+      }
+    }
+
+    // unsubscribe from pointermove
+    this.removeListener('pointermove', this.onMoveHandler);
+
+    this.alpha = 1;
+    this.isDraggingNode = false;
+    this.onNodeDragging(this.isDraggingNode);
+    this.cursor = 'move';
+  }
+
+  _onPointerUpOutside(): void {
     // unsubscribe from pointermove
     this.removeListener('pointermove', this.onMoveHandler);
 
