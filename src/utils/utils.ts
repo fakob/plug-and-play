@@ -571,7 +571,7 @@ export const getMatchingSocketIndex = (
   }
 
   const index = socketArray.findIndex((socketInArray) => {
-    return socketInArray.dataType.constructor === AnyType.constructor;
+    return socketInArray.dataType.constructor === new AnyType().constructor;
   });
 
   return index > -1 ? index : 0; // take the first index (0) if none was found
