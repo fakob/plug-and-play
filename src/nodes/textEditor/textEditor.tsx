@@ -2,8 +2,8 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Box, ThemeProvider } from '@mui/material';
 import { ErrorBoundary } from 'react-error-boundary';
 import { Editor, Descendant, Range, Transforms, createEditor } from 'slate';
+import { Editable, ReactEditor, Slate, withReact } from 'slate-react';
 import { withHistory } from 'slate-history';
-import { Slate, Editable, withReact } from 'slate-react';
 import { HoverToolbar } from './HoverToolbar';
 import { ParameterMenu } from './ParameterMenu';
 import { MentionElement } from './custom-types';
@@ -247,6 +247,12 @@ export class TextEditor extends PPNode {
         insertMention(editor, parameterName);
         setTarget(null);
       };
+
+      useEffect(() => {
+        if (props.doubleClicked) {
+          ReactEditor.focus(editor);
+        }
+      }, [props.doubleClicked]);
 
       useEffect(() => {
         setColor(props.color);

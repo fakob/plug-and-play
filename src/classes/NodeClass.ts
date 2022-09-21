@@ -1306,8 +1306,8 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
       'pointerup',
       (this as any).onViewportPointerUpHandler
     );
-    this.onHybridNodeExit();
     this.doubleClicked = false;
+    this.onHybridNodeExit();
     // this allows to zoom and drag when the hybrid node is not selected
     this.container.style.pointerEvents = 'none';
     this.container.classList.remove(styles.hybridContainerFocused);
