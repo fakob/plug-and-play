@@ -21,6 +21,22 @@ export class Label extends PPNode {
   currentInput: HTMLDivElement;
   createInputElement: () => void;
 
+  getShowLabels(): boolean {
+    return false;
+  }
+
+  getRoundedCorners(): boolean {
+    return false;
+  }
+
+  shouldExecuteOnMove(): boolean {
+    return true;
+  }
+
+  getPreferredInputSocketIndex(): number {
+    return 0;
+  }
+
   public getName(): string {
     return 'Label';
   }
@@ -243,17 +259,5 @@ export class Label extends PPNode {
     this.onNodeRemoved = () => {
       this._refText.destroy();
     };
-  }
-
-  getShowLabels(): boolean {
-    return false;
-  }
-
-  getRoundedCorners(): boolean {
-    return false;
-  }
-
-  shouldExecuteOnMove(): boolean {
-    return true;
   }
 }

@@ -41,8 +41,12 @@ export class Table extends PPNode {
     return true;
   }
 
+  getPreferredInputSocketIndex(): number {
+    return 1;
+  }
+
   getPreferredOutputSocketIndex(): number {
-    return 3;
+    return 2;
   }
 
   public getName(): string {
