@@ -562,19 +562,17 @@ export const getMatchingSocketIndex = (
   socket: PPSocket,
   node: PPNode
 ): number => {
+  // if the node has a preferredInputSocket (with no connection), use it
   const preferredIndex = node.getPreferredInputSocketIndex();
   if (preferredIndex !== undefined) {
     const hasLink = node.inputSocketArray[preferredIndex].hasLink();
-
-    // if socket does not have a link return index
-    // else look for another match below
     if (!hasLink) {
       return preferredIndex;
     }
   }
 
+  // if the node has a socket with the same type (with no connection), use it
   const indexExactMatch = node.inputSocketArray.findIndex((socketInArray) => {
-    // if socket has link, check next one
     return (
       !socketInArray.hasLink() &&
       socketInArray.dataType.constructor === socket.dataType.constructor
@@ -585,13 +583,23 @@ export const getMatchingSocketIndex = (
     return indexExactMatch;
   }
 
-  const index = node.inputSocketArray.findIndex((socketInArray) => {
-    // if socket has link, check next one
+  // if the node has a socket with the AnyType (with no connection), use it
+  const indexAnyType = node.inputSocketArray.findIndex((socketInArray) => {
     return (
       !socketInArray.hasLink() &&
       socketInArray.dataType.constructor === new AnyType().constructor
     );
   });
 
-  return index > -1 ? index : 0; // take the first index (0) if none was found
+  if (indexAnyType > -1) {
+    return indexAnyType;
+  }
+
+  // if the node has a socket (with no connection), use it
+  const index = node.inputSocketArray.findIndex((socketInArray) => {
+    return !socketInArray.hasLink();
+  });
+
+  // if the node is full, use preferredInputSocket or first index
+  return index > -1 ? index : preferredIndex ?? 0;
 };

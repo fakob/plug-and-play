@@ -1221,7 +1221,19 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     }
   }
 
+  commonPointerUp(): void {
+    // unsubscribe from pointermove
+    this.removeListener('pointermove', this.onMoveHandler);
+
+    this.alpha = 1;
+    this.isDraggingNode = false;
+    this.onNodeDragging(this.isDraggingNode);
+    this.cursor = 'move';
+  }
+
   _onPointerUp(): void {
+    this.commonPointerUp();
+
     const source = PPGraph.currentGraph.selectedSourceSocket;
     if (source) {
       PPGraph.currentGraph.selectedSourceSocket = null;
@@ -1234,24 +1246,10 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
         }
       }
     }
-
-    // unsubscribe from pointermove
-    this.removeListener('pointermove', this.onMoveHandler);
-
-    this.alpha = 1;
-    this.isDraggingNode = false;
-    this.onNodeDragging(this.isDraggingNode);
-    this.cursor = 'move';
   }
 
   _onPointerUpOutside(): void {
-    // unsubscribe from pointermove
-    this.removeListener('pointermove', this.onMoveHandler);
-
-    this.alpha = 1;
-    this.isDraggingNode = false;
-    this.onNodeDragging(this.isDraggingNode);
-    this.cursor = 'move';
+    this.commonPointerUp();
   }
 
   public _onPointerMove(): void {
