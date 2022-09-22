@@ -40,6 +40,11 @@ export class Table extends PPNode {
   protected getActivateByDoubleClick(): boolean {
     return true;
   }
+
+  getPreferredOutputSocketIndex(): number {
+    return 3;
+  }
+
   public getName(): string {
     return 'Table';
   }

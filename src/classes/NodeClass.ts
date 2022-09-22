@@ -298,6 +298,10 @@ export default class PPNode extends PIXI.Container {
     return undefined;
   }
 
+  getPreferredOutputSocketIndex(): number | undefined {
+    return undefined;
+  }
+
   addInput(
     name: string,
     type: AbstractType, // but really its AbstractType
@@ -1239,10 +1243,15 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
       PPGraph.currentGraph.selectedSourceSocket = null;
       if (this !== source.getNode()) {
         if (source.socketType === SOCKET_TYPE.IN) {
-          // await PPGraph.currentGraph.connect(socket, source);
+          const index = getMatchingSocketIndex(source, this, true);
+          if (index !== undefined) {
+            PPGraph.currentGraph.connect(this.outputSocketArray[index], source);
+          }
         } else {
           const index = getMatchingSocketIndex(source, this);
-          PPGraph.currentGraph.connect(source, this.inputSocketArray[index]);
+          if (index !== undefined) {
+            PPGraph.currentGraph.connect(source, this.inputSocketArray[index]);
+          }
         }
       }
     }
