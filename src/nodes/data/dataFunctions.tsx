@@ -4,6 +4,7 @@ import PPNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
 import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../../utils/constants';
 import { CustomArgs, TRgba } from '../../utils/interfaces';
+import { AbstractType } from '../datatypes/abstractType';
 import { AnyType } from '../datatypes/anyType';
 import { ArrayType } from '../datatypes/arrayType';
 import { CodeType } from '../datatypes/codeType';
@@ -19,9 +20,6 @@ const forEndIndexName = 'EndIndex';
 const incrementName = 'Increment';
 const forOutIndexName = 'Index';
 
-const mapCodeName = 'Function';
-const mapOutName = 'OutArray';
-
 const anyCodeName = 'Code';
 const outDataName = 'OutData';
 
@@ -31,58 +29,8 @@ const constantOutName = 'Out';
 const input1Name = 'Input 1';
 const input2Name = 'Input 2';
 
-const inputMultiplierName = 'Multiplier';
-
 // TODO switch to this instead of eval
 //const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
-
-// make filter and map ourselves to be able to deal with async (need sequental ordering)
-
-function merge(array1, array2) {
-  const validEntry1: boolean =
-    (Array.isArray(array1) && array1.length > 0) ||
-    Object.keys(array1).length > 0;
-  const validEntry2: boolean =
-    (Array.isArray(array2) && array2.length > 0) ||
-    Object.keys(array2).length > 0;
-  if (!validEntry1) {
-    return array2;
-  } else if (!validEntry2) {
-    return array1;
-  } else {
-    const newArray = [];
-    for (let i = 0; i < array1.length && i < array2.length; i++) {
-      newArray.push(merge(array1[i], array2[i]));
-    }
-    for (let i = array1.length; i < array2.length; i++) {
-      newArray.push(array2[i]);
-    }
-    for (let i = array2.length; i < array1.length; i++) {
-      newArray.push(array1[i]);
-    }
-    return newArray;
-  }
-}
-
-// mostly useful for draw nodes
-export class MergeDataArrays extends PPNode {
-  protected getDefaultIO(): Socket[] {
-    return [
-      new Socket(SOCKET_TYPE.IN, input1Name, new ArrayType(), []),
-      new Socket(SOCKET_TYPE.IN, input2Name, new ArrayType(), []),
-      new Socket(SOCKET_TYPE.OUT, constantOutName, new ArrayType()),
-    ];
-  }
-  protected async onExecute(
-    inputObject: any,
-    outputObject: Record<string, unknown>
-  ): Promise<void> {
-    outputObject[constantOutName] = merge(
-      inputObject[input1Name],
-      inputObject[input2Name]
-    );
-  }
-}
 
 export class MergeJSONs extends PPNode {
   protected getDefaultIO(): Socket[] {
@@ -123,47 +71,6 @@ export class MergeJSONArrays extends PPNode {
   }
 }
 
-export class PadArray extends PPNode {
-  protected getDefaultIO(): Socket[] {
-    return [
-      new Socket(SOCKET_TYPE.IN, input1Name, new ArrayType(), ['hello']),
-      new Socket(SOCKET_TYPE.IN, inputMultiplierName, new NumberType(true), 2),
-      new Socket(SOCKET_TYPE.OUT, constantOutName, new ArrayType()),
-    ];
-  }
-  protected async onExecute(
-    inputObject: any,
-    outputObject: Record<string, unknown>
-  ): Promise<void> {
-    const newArray = inputObject[input1Name].map((item, index) =>
-      Array(inputObject[inputMultiplierName]).fill(
-        item,
-        0,
-        inputObject[inputMultiplierName]
-      )
-    );
-    const copiedArray = newArray.map((entry) =>
-      JSON.parse(JSON.stringify(entry))
-    );
-    outputObject[constantOutName] = copiedArray.flat();
-  }
-}
-
-export class FlattenArray extends PPNode {
-  protected getDefaultIO(): Socket[] {
-    return [
-      new Socket(SOCKET_TYPE.IN, input1Name, new ArrayType(), ['hello']),
-      new Socket(SOCKET_TYPE.OUT, constantOutName, new ArrayType()),
-    ];
-  }
-  protected async onExecute(
-    inputObject: any,
-    outputObject: Record<string, unknown>
-  ): Promise<void> {
-    outputObject[constantOutName] = inputObject[input1Name].flat();
-  }
-}
-
 export class ConcatenateArrays extends PPNode {
   protected getDefaultIO(): Socket[] {
     return [
@@ -194,22 +101,6 @@ export class Constant extends PPNode {
     outputObject: Record<string, unknown>
   ): Promise<void> {
     outputObject[constantOutName] = inputObject?.[constantInName];
-  }
-}
-
-export class Uniques extends PPNode {
-  protected getDefaultIO(): Socket[] {
-    return [
-      new Socket(SOCKET_TYPE.IN, arrayName, new ArrayType(), []),
-      new Socket(SOCKET_TYPE.OUT, arrayOutName, new ArrayType()),
-    ];
-  }
-  protected async onExecute(
-    inputObject: any,
-    outputObject: Record<string, unknown>
-  ): Promise<void> {
-    const inputArray = inputObject?.[arrayName];
-    outputObject[arrayOutName] = [...new Set(inputArray)];
   }
 }
 
@@ -329,6 +220,8 @@ function getFunctionFromFunction(inputFunction: string): string {
   const res = inputFunction.match(functionRegex)[0];
   return res;
 }
+
+// customfunction does any number of inputs but only one output for simplicity
 export class CustomFunction extends PPNode {
   protected getDefaultIO(): Socket[] {
     return [
@@ -338,7 +231,11 @@ export class CustomFunction extends PPNode {
         new CodeType(),
         this.getDefaultFunction()
       ),
-      new Socket(SOCKET_TYPE.OUT, outDataName, new AnyType()),
+      new Socket(
+        SOCKET_TYPE.OUT,
+        this.getOutputParameterName(),
+        this.getOutputParameterType()
+      ),
     ];
   }
 
@@ -347,6 +244,12 @@ export class CustomFunction extends PPNode {
   }
   protected getDefaultParameterTypes(): Record<string, any> {
     return {};
+  }
+  protected getOutputParameterType(): AbstractType {
+    return new AnyType();
+  }
+  protected getOutputParameterName(): string {
+    return outDataName;
   }
 
   protected getDefaultFunction(): string {
@@ -409,11 +312,11 @@ export class CustomFunction extends PPNode {
       return formatted.replace(macroCall.toString(), finalMacroDefinition);
     }, functionToExecute);
 
-    //console.log('replaced: ' + reduced);
+    // this might seem unused but it actually isn't, its used inside the eval potentially
     const node = this;
 
     const res = await eval('async () => ' + reduced)();
-    outputObject[outDataName] = res;
+    outputObject[this.getOutputParameterName()] = res;
   }
 
   adaptInputs(code: string): void {
@@ -447,12 +350,18 @@ export class CustomFunction extends PPNode {
   }
 }
 
-export class ArrayFunction extends CustomFunction {
+class ArrayFunction extends CustomFunction {
   protected getDefaultParameterValues(): Record<string, any> {
     return { ArrayIn: [] };
   }
   protected getDefaultParameterTypes(): Record<string, any> {
     return { ArrayIn: new ArrayType() };
+  }
+  protected getOutputParameterName(): string {
+    return 'ArrayOut';
+  }
+  protected getOutputParameterType(): AbstractType {
+    return new ArrayType();
   }
 }
 
@@ -468,6 +377,14 @@ export class Filter extends ArrayFunction {
   }
 }
 
-// TODO implement
-// Not quite sure how we want this one to look... CodeType? or based on input? THIS ONE IS DANGEROUS AS IT CAN HANG THE ENTIRE APPLICATION, needs max loop limit. Is this even needed?
-//export class WhileLoop extends NodeClass {}
+export class Uniques extends ArrayFunction {
+  protected getDefaultFunction(): string {
+    return '(ArrayIn) => {\n\treturn [...new Set(inputArray)];\n}';
+  }
+}
+
+export class Flatten extends PPNode {
+  protected getDefaultFunction(): string {
+    return '(ArrayIn) => {\n\treturn ArrayIn.flat();\n}';
+  }
+}
