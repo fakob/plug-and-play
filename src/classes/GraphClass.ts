@@ -18,6 +18,7 @@ import PPLink from './LinkClass';
 import PPSelection from './SelectionClass';
 import { getAllNodeTypes } from '../nodes/allNodes';
 import { macroOutputName } from '../nodes/macro/macro';
+import { Action, ActionHandler } from '../utils/actionHandler';
 
 export default class PPGraph {
   static currentGraph: PPGraph;
@@ -285,7 +286,7 @@ export default class PPGraph {
 
   socketMouseDown(socket: PPSocket, event: PIXI.InteractionEvent): void {
     if (event.data.button === 2) {
-      socket.links.forEach((link) => link.delete());
+      socket.links.forEach((link) => this.userDisconnect(link));
     } else if (socket.socketType === SOCKET_TYPE.OUT) {
       this.selectedSourceSocket = socket;
       this.lastSelectedSocketWasInput = false;
@@ -315,12 +316,12 @@ export default class PPGraph {
         source.socketType === SOCKET_TYPE.IN &&
         socket.socketType === SOCKET_TYPE.OUT
       ) {
-        await this.connect(socket, source);
+        await this.userConnect(socket, source); //this.connect(socket, source);
       } else if (
         source.socketType === SOCKET_TYPE.OUT &&
         socket.socketType === SOCKET_TYPE.IN
       ) {
-        await this.connect(source, socket);
+        await this.userConnect(source, socket); //this.connect(source, socket);
       }
     }
   }
@@ -487,6 +488,36 @@ export default class PPGraph {
       0
     );
   };
+
+  async userDisconnect(link: PPLink) {
+    const preSource = link.getSource();
+    const preTarget = link.getTarget();
+    const ref = ActionHandler.getNewReferencePoint();
+    ActionHandler.references[ref] = link;
+    const action: Action = async () => {
+      // cant use "link" directly, as the link could come from undo
+      ActionHandler.references[ref].delete();
+    };
+    const undoAction: Action = async () => {
+      ActionHandler.references[ref] = await this.connect(preSource, preTarget);
+    };
+    ActionHandler.performAction(action, undoAction);
+  }
+
+  async userConnect(output: PPSocket, input: PPSocket, notify = true) {
+    const ref = ActionHandler.getNewReferencePoint();
+    const action: Action = async () => {
+      ActionHandler.references[ref] = await PPGraph.currentGraph.connect(
+        output,
+        input,
+        notify
+      );
+    };
+    const undoAction: Action = async () => {
+      (ActionHandler.references[ref] as PPLink).delete();
+    };
+    ActionHandler.performAction(action, undoAction);
+  }
 
   async connect(
     output: PPSocket,
@@ -856,8 +887,10 @@ export default class PPGraph {
   }
 
   removeNode(node: PPNode): void {
+    //const action: Action = async () => {
     node.destroy();
     delete this.nodes[node.id];
+    //};
   }
 
   deleteSelectedNodes(): void {

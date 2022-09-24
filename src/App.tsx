@@ -84,6 +84,7 @@ import PPSocket from './classes/SocketClass';
 import PPNode from './classes/NodeClass';
 import { InputParser } from './utils/inputParser';
 import styles from './utils/style.module.css';
+import { ActionHandler } from './utils/actionHandler';
 
 (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__ &&
   (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__.register({ PIXI: PIXI });
@@ -570,37 +571,37 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       const modKey = isMac ? e.metaKey : e.ctrlKey;
       // console.log(e.key);
       if (!isEventComingFromWithinTextInput(e)) {
+        e.preventDefault();
         if (modKey && !e.shiftKey) {
           switch (e.key) {
             case 'a':
-              e.preventDefault();
               currentGraph.current.selection.selectAllNodes();
               break;
             case 'f':
-              e.preventDefault();
               openNodeSearch(mousePosition);
               break;
             case 'd':
-              e.preventDefault();
               currentGraph.current.duplicateSelection();
               break;
             case 'o':
-              e.preventDefault();
               setIsGraphSearchOpen((prevState) => !prevState);
               break;
             case 'e':
-              e.preventDefault();
               setShowEdit((prevState) => !prevState);
+              break;
+            case 'z':
+              ActionHandler.undo();
+              break;
+            case 'r':
+              ActionHandler.redo();
               break;
           }
         } else if (modKey && e.shiftKey) {
           switch (e.key) {
             case 'y':
-              e.preventDefault();
               setShowComments((prevState) => !prevState);
               break;
             case 'x':
-              e.preventDefault();
               currentGraph.current.showExecutionVisualisation =
                 !currentGraph.current.showExecutionVisualisation;
               break;
@@ -608,11 +609,9 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         } else if (e.shiftKey) {
           switch (e.code) {
             case 'Digit1':
-              e.preventDefault();
               zoomToFitSelection(currentGraph.current, true);
               break;
             case 'Digit2':
-              e.preventDefault();
               zoomToFitSelection(currentGraph.current);
               break;
           }
@@ -1017,7 +1016,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     }
   };
 
-  const handleNodeItemSelect = (event, selected: INodeSearch) => {
+  const userAddNode = (event, selected: INodeSearch) => {
     console.log(selected);
     // store link before search gets hidden and temp connection gets reset
     const nodePos =
@@ -1027,27 +1026,33 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       );
     const addLink = currentGraph.current.selectedSourceSocket;
 
-    const nodeExists = getAllNodeTypes()[selected.title] !== undefined;
-    if (nodeExists) {
-      currentGraph.current.createAndAddNode(selected.title, {
-        nodePosX: nodePos.x,
-        nodePosY: nodePos.y,
-        addLink,
-      });
-    } else {
-      const addedNode = currentGraph.current.createAndAddNode(
-        'CustomFunction',
-        {
+    const referenceID = ActionHandler.getNewReferencePoint();
+    const action = async () => {
+      let addedNode;
+      const nodeExists = getAllNodeTypes()[selected.title] !== undefined;
+      if (nodeExists) {
+        addedNode = currentGraph.current.createAndAddNode(selected.title, {
           nodePosX: nodePos.x,
           nodePosY: nodePos.y,
           addLink,
-        }
-      );
-      addedNode.nodeName = selected.title;
-    }
+        });
+      } else {
+        addedNode = currentGraph.current.createAndAddNode('CustomFunction', {
+          nodePosX: nodePos.x,
+          nodePosY: nodePos.y,
+          addLink,
+        });
+        addedNode.nodeName = selected.title;
+      }
+      ActionHandler.references[referenceID] = addedNode;
 
-    setNodeSearchActiveItem(selected);
-    setIsNodeSearchVisible(false);
+      setNodeSearchActiveItem(selected);
+      setIsNodeSearchVisible(false);
+    };
+    const undoAction = async () => {
+      PPGraph.currentGraph.removeNode(ActionHandler.references[referenceID]);
+    };
+    ActionHandler.performAction(action, undoAction);
   };
 
   const getNodes = (): INodeSearch[] => {
@@ -1527,7 +1532,7 @@ NOTE: save the playground after loading, if you want to make changes to it`
                     width: '400px',
                     minWidth: '200px',
                   }}
-                  onChange={handleNodeItemSelect}
+                  onChange={userAddNode}
                   filterOptions={filterNode}
                   renderOption={renderNodeItem}
                   renderInput={(props) => (
