@@ -14,8 +14,9 @@ export class ActionHandler {
   static undoList : UndoAction[] = [];
   static redoList : UndoAction[] =  [];
   static references: Record<number,any> = {};
-  static referenceCounterIndex = 0;
+  private static referenceCounterIndex = 0;
 
+  // if you make an action through this and pass the inverse in as undo, it becomes part of the undo/redo stylehacks
   static performAction(action : Action, undo:Action){
     action();
     this.undoList.push({action:action, undo:undo});

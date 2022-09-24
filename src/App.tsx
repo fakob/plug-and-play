@@ -1016,7 +1016,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     }
   };
 
-  const userAddNode = (event, selected: INodeSearch) => {
+  const action_AddNode = (event, selected: INodeSearch) => {
     console.log(selected);
     // store link before search gets hidden and temp connection gets reset
     const nodePos =
@@ -1532,7 +1532,7 @@ NOTE: save the playground after loading, if you want to make changes to it`
                     width: '400px',
                     minWidth: '200px',
                   }}
-                  onChange={userAddNode}
+                  onChange={action_AddNode}
                   filterOptions={filterNode}
                   renderOption={renderNodeItem}
                   renderInput={(props) => (

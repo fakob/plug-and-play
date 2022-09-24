@@ -8,6 +8,7 @@ import {
   CustomArgs,
   SerializedGraph,
   SerializedLink,
+  SerializedNode,
   SerializedSelection,
   TSocketType,
 } from '../utils/interfaces';
@@ -286,7 +287,7 @@ export default class PPGraph {
 
   socketMouseDown(socket: PPSocket, event: PIXI.InteractionEvent): void {
     if (event.data.button === 2) {
-      socket.links.forEach((link) => this.userDisconnect(link));
+      socket.links.forEach((link) => this.action_Disconnect(link));
     } else if (socket.socketType === SOCKET_TYPE.OUT) {
       this.selectedSourceSocket = socket;
       this.lastSelectedSocketWasInput = false;
@@ -316,12 +317,12 @@ export default class PPGraph {
         source.socketType === SOCKET_TYPE.IN &&
         socket.socketType === SOCKET_TYPE.OUT
       ) {
-        await this.userConnect(socket, source); //this.connect(socket, source);
+        await this.action_Connect(socket, source); //this.connect(socket, source);
       } else if (
         source.socketType === SOCKET_TYPE.OUT &&
         socket.socketType === SOCKET_TYPE.IN
       ) {
-        await this.userConnect(source, socket); //this.connect(source, socket);
+        await this.action_Connect(source, socket); //this.connect(source, socket);
       }
     }
   }
@@ -489,7 +490,7 @@ export default class PPGraph {
     );
   };
 
-  async userDisconnect(link: PPLink) {
+  async action_Disconnect(link: PPLink) {
     const preSource = link.getSource();
     const preTarget = link.getTarget();
     const ref = ActionHandler.getNewReferencePoint();
@@ -504,7 +505,7 @@ export default class PPGraph {
     ActionHandler.performAction(action, undoAction);
   }
 
-  async userConnect(output: PPSocket, input: PPSocket, notify = true) {
+  async action_Connect(output: PPSocket, input: PPSocket, notify = true) {
     const ref = ActionHandler.getNewReferencePoint();
     const action: Action = async () => {
       ActionHandler.references[ref] = await PPGraph.currentGraph.connect(
@@ -893,11 +894,31 @@ export default class PPGraph {
     //};
   }
 
-  deleteSelectedNodes(): void {
-    const storedSelection = this.selection.selectedNodes;
-    console.log(storedSelection);
-    this.selection.deselectAllNodesAndResetSelection();
-    storedSelection.forEach((node) => this.removeNode(node));
+  action_DeleteSelectedNodes(): void {
+    const refRaw = ActionHandler.getNewReferencePoint();
+    const refSerialized = ActionHandler.getNewReferencePoint();
+    ActionHandler.references[refSerialized] = this.serializeSelection();
+    ActionHandler.references[refRaw] = this.selection.selectedNodes;
+    const action = async () => {
+      const storedSelection = ActionHandler.references[refRaw];
+      this.selection.deselectAllNodesAndResetSelection();
+      storedSelection.forEach((node) => this.removeNode(node));
+    };
+    const undoAction = async () => {
+      const addedNodes: PPNode[] = [];
+      ActionHandler.references[refSerialized].nodes.forEach(
+        (node: SerializedNode) => {
+          const addedNode = PPGraph.currentGraph.createAndAddNode(node.type);
+          addedNode.configure(node);
+          addedNodes.push(addedNode);
+        }
+      );
+
+      this.selection.selectNodes(addedNodes);
+      this.selection.drawRectanglesFromSelection();
+      ActionHandler.references[refRaw] = addedNodes;
+    };
+    ActionHandler.performAction(action, undoAction);
   }
 
   public findMacroInput(name: string): PPNode {

@@ -53,7 +53,7 @@ class deleteNodeAction extends Hotkey {
   potentiallyExecute(currPressed, allPressed, graph): boolean {
     if (currPressed.key === 'Backspace' || currPressed.key === 'Delete') {
       if (!isEventComingFromWithinTextInput(currPressed)) {
-        graph.deleteSelectedNodes();
+        graph.action_DeleteSelectedNodes();
       }
       return true;
     }
