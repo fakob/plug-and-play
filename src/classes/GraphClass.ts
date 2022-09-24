@@ -297,7 +297,7 @@ export default class PPGraph {
       const hasLink = socket.links.length > 0;
       if (hasLink) {
         this.selectedSourceSocket = socket.links[0].getSource();
-        socket.links.forEach((link) => link.delete());
+        socket.links.forEach((link) => this.action_Disconnect(link));
         this.onViewportMove(event);
         this.selectedSourceSocket.getNode().outputUnplugged();
       } else {
