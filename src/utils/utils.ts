@@ -565,62 +565,46 @@ export const getMatchingSocketIndex = (
 ): number | undefined => {
   const socketArray = isOutput ? node.outputSocketArray : node.inputSocketArray;
   if (socketArray.length > 0) {
-    const preferredSocketName = isOutput
-      ? node.getPreferredOutputSocketName()
-      : node.getPreferredInputSocketName();
-
-    // if the node has a preferredInputSocket (with no connection), use it
-    const getPreferredIndexWithoutLink = (): number | undefined => {
-      const index = socketArray.findIndex((socketInArray) => {
+    const getIndex = (
+      condition,
+      onlyFreeSocket = false
+    ): number | undefined => {
+      const index = socketArray.findIndex((socket) => {
         return (
-          !socketInArray.hasLink() && socketInArray.name === preferredSocketName
+          socket.visible &&
+          condition(socket) &&
+          (!onlyFreeSocket || !socket.hasLink())
         );
       });
       return index > -1 ? index : undefined;
     };
 
-    // if the node has a socket with the same type (with no connection), use it
-    const getExactMatchIndexWithoutLink = (): number | undefined => {
-      const index = socketArray.findIndex((socketInArray) => {
-        return (
-          !socketInArray.hasLink() &&
-          socketInArray.dataType.constructor === socket.dataType.constructor
-        );
-      });
-      return index > -1 ? index : undefined;
+    const preferredCondition = (socket): boolean => {
+      const preferredSocketName = isOutput
+        ? node.getPreferredOutputSocketName()
+        : node.getPreferredInputSocketName();
+      return socket.name === preferredSocketName;
     };
 
-    // if the node has a socket with the AnyType (with no connection), use it
-    const getAnyTypeIndexWithoutLink = (): number | undefined => {
-      const index = socketArray.findIndex((socketInArray) => {
-        return (
-          !socketInArray.hasLink() &&
-          socketInArray.dataType.constructor === new AnyType().constructor
-        );
-      });
-      return index > -1 ? index : undefined;
-    };
-    // if the node has a preferredInputSocket (with no connection), use it
-    const getPreferredIndex = (): number | undefined => {
-      const index = socketArray.findIndex((socketInArray) => {
-        return socketInArray.name === preferredSocketName;
-      });
-      return index > -1 ? index : undefined;
+    const exactMatchCondition = (socket): boolean => {
+      return socket.dataType.constructor === socket.dataType.constructor;
     };
 
-    const getAnyFreeIndex = (): number => {
-      // if the node has a socket (with no connection), use it
-      return socketArray.findIndex((socketInArray) => {
-        return !socketInArray.hasLink();
-      });
+    const anyTypeCondition = (socket): boolean => {
+      return socket.dataType.constructor === new AnyType().constructor;
+    };
+
+    const anyCondition = (socket): boolean => {
+      return true;
     };
 
     return (
-      getPreferredIndexWithoutLink() ||
-      getExactMatchIndexWithoutLink() ||
-      getAnyTypeIndexWithoutLink() ||
-      getPreferredIndex() ||
-      getAnyFreeIndex()
+      getIndex(preferredCondition, true) ?? // get preferred with no link
+      getIndex(exactMatchCondition, true) ?? // get exact match with no link
+      getIndex(anyTypeCondition, true) ?? // get anyType with no link
+      getIndex(anyCondition, true) ?? // get any with no link
+      getIndex(preferredCondition) ?? // get preferred
+      getIndex(anyCondition) // get first
     );
   }
   // node does not have an in/output socket
