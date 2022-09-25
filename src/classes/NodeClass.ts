@@ -294,12 +294,12 @@ export default class PPNode extends PIXI.Container {
     return new AnyType();
   }
 
-  getPreferredInputSocketIndex(): number | undefined {
-    return undefined;
+  getPreferredInputSocketName(): string {
+    return 'MyPreferredInputSocket';
   }
 
-  getPreferredOutputSocketIndex(): number | undefined {
-    return undefined;
+  getPreferredOutputSocketName(): string {
+    return 'MyPreferredOutputSocket';
   }
 
   addInput(

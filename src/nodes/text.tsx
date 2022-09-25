@@ -33,8 +33,8 @@ export class Label extends PPNode {
     return true;
   }
 
-  getPreferredInputSocketIndex(): number {
-    return 0;
+  getPreferredInputSocketName(): string {
+    return 'Input';
   }
 
   public getName(): string {
