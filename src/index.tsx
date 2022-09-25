@@ -12,6 +12,7 @@ const container = document.body.appendChild(reactElement);
 const root = createRoot(container!);
 container.className = 'rootClass';
 container.id = 'container';
+container.style.position = 'fixed';
 
 root.render(
   <ThemeProvider theme={customTheme}>
