@@ -569,11 +569,10 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     // register key events
     const keysDown = (e: KeyboardEvent): void => {
       const modKey = isMac ? e.metaKey : e.ctrlKey;
-      // console.log(e.key);
       if (!isEventComingFromWithinTextInput(e)) {
-        e.preventDefault();
         if (modKey && !e.shiftKey) {
-          switch (e.key) {
+          e.preventDefault();
+          switch (e.key.toLowerCase()) {
             case 'a':
               currentGraph.current.selection.selectAllNodes();
               break;
@@ -594,7 +593,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               break;
           }
         } else if (modKey && e.shiftKey) {
-          switch (e.key) {
+          switch (e.key.toLowerCase()) {
             case 'y':
               setShowComments((prevState) => !prevState);
               break;
@@ -617,7 +616,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           }
         }
       }
-      if (modKey && e.key === 's') {
+      if (modKey && e.key.toLowerCase() === 's') {
         e.preventDefault();
         if (e.shiftKey) {
           saveNewGraph();
