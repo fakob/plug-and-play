@@ -592,9 +592,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
             case 'z':
               ActionHandler.undo();
               break;
-            case 'r':
-              ActionHandler.redo();
-              break;
           }
         } else if (modKey && e.shiftKey) {
           switch (e.key) {
@@ -604,6 +601,9 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
             case 'x':
               currentGraph.current.showExecutionVisualisation =
                 !currentGraph.current.showExecutionVisualisation;
+              break;
+            case 'z':
+              ActionHandler.redo();
               break;
           }
         } else if (e.shiftKey) {

@@ -158,7 +158,7 @@ export default class PPGraph {
 
   _onPointerDown(event: PIXI.InteractionEvent): void {
     console.log('_onPointerDown');
-    event.stopPropagation();
+    //event.stopPropagation();
 
     this.onCloseSocketInspector();
 
@@ -171,7 +171,7 @@ export default class PPGraph {
       }
 
       // pause viewport drag
-      this.viewport.plugins.pause('drag');
+      //this.viewport.plugins.pause('drag');
     } else {
       this.viewport.cursor = 'grabbing';
       this.dragSourcePoint = new PIXI.Point(this.viewport.x, this.viewport.y);

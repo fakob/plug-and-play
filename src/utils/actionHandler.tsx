@@ -16,9 +16,11 @@ export class ActionHandler {
   static references: Record<number,any> = {};
   private static referenceCounterIndex = 0;
 
-  // if you make an action through this and pass the inverse in as undo, it becomes part of the undo/redo stylehacks
-  static performAction(action : Action, undo:Action){
-    action();
+  // if you make an action through this and pass the inverse in as undo, it becomes part of the undo/redo stack, if your code is messy and you cant describe the main action as one thing, feel free to skip inital action
+  static performAction(action : Action, undo:Action, doPerformAction = true){
+    if (doPerformAction){
+      action();
+    }
     this.undoList.push({action:action, undo:undo});
   }
   static undo() {
