@@ -75,6 +75,7 @@ export default class PPNode extends PIXI.Container {
   lastError = '';
 
   inputSocketArray: Socket[];
+  nodeTriggerSocketArray: Socket[];
   outputSocketArray: Socket[];
 
   _doubleClicked: boolean;
@@ -143,6 +144,7 @@ export default class PPNode extends PIXI.Container {
     this.name = type;
     this.type = type;
     this.description = '';
+    this.nodeTriggerSocketArray = [];
     this.inputSocketArray = [];
     this.outputSocketArray = [];
     this.clickedSocketRef = null;
@@ -237,6 +239,10 @@ export default class PPNode extends PIXI.Container {
     this._doubleClicked = state;
   }
 
+  get countOfVisibleNodeTriggerSockets(): number {
+    return this.nodeTriggerSocketArray.filter((item) => item.visible).length;
+  }
+
   get countOfVisibleInputSockets(): number {
     return this.inputSocketArray.filter((item) => item.visible).length;
   }
@@ -253,6 +259,7 @@ export default class PPNode extends PIXI.Container {
   get calculatedMinNodeHeight(): number {
     const minHeight =
       this.headerHeight +
+      this.countOfVisibleNodeTriggerSockets * SOCKET_HEIGHT +
       this.countOfVisibleInputSockets * SOCKET_HEIGHT +
       this.countOfVisibleOutputSockets * SOCKET_HEIGHT +
       NODE_PADDING_BOTTOM;
@@ -298,7 +305,8 @@ export default class PPNode extends PIXI.Container {
     type: AbstractType, // but really its AbstractType
     data?: unknown,
     visible?: boolean,
-    custom?: Record<string, any> // lets get rid of this ASAP
+    custom?: Record<string, any>, // lets get rid of this ASAP
+    isNodeTrigger = false
   ): void {
     const inputSocket = new Socket(
       SOCKET_TYPE.IN,
@@ -309,7 +317,9 @@ export default class PPNode extends PIXI.Container {
       custom
     );
     const inputSocketRef = this.addChild(inputSocket);
-    this.inputSocketArray.push(inputSocketRef);
+    isNodeTrigger
+      ? this.nodeTriggerSocketArray.push(inputSocketRef)
+      : this.inputSocketArray.push(inputSocketRef);
 
     // redraw background due to size change
     this.drawNodeShape();
@@ -449,7 +459,7 @@ export default class PPNode extends PIXI.Container {
     const currDependents: { [key: string]: PPNode } = {};
 
     if (includeUpstream) {
-      this.goThroughSockets(currDependents, this.inputSocketArray, true);
+      this.goThroughSockets(currDependents, this.getAllInputSockets(), true);
     }
     if (includeDownstream) {
       this.goThroughSockets(currDependents, this.outputSocketArray);
@@ -459,7 +469,7 @@ export default class PPNode extends PIXI.Container {
 
   getHasDependencies(): boolean {
     return (
-      this.inputSocketArray.find((socket) => socket.hasLink()) !== undefined
+      this.getAllInputSockets().find((socket) => socket.hasLink()) !== undefined
     );
   }
 
@@ -681,8 +691,15 @@ export default class PPNode extends PIXI.Container {
     this.resizeNode(this.minNodeWidth, this.calculatedMinNodeHeight);
   }
 
-  getAllSockets(): Socket[] {
-    return this.inputSocketArray.concat(this.outputSocketArray);
+  getAllInputSockets(): Socket[] {
+    return this.inputSocketArray.concat(this.nodeTriggerSocketArray);
+  }
+
+  getAllSockets(includeNodeTriggerSocketArray = true): Socket[] {
+    const arrayToAdd = includeNodeTriggerSocketArray
+      ? this.nodeTriggerSocketArray
+      : [];
+    return this.inputSocketArray.concat(this.outputSocketArray, arrayToAdd);
   }
 
   getSocketByName(name: string): Socket {
@@ -743,11 +760,28 @@ export default class PPNode extends PIXI.Container {
 
     this._BackgroundRef.endFill();
 
+    // redraw node triggers
+    this.nodeTriggerSocketArray
+      .filter((item) => item.visible)
+      .forEach((item, index) => {
+        item.y = this.headerHeight + index * SOCKET_HEIGHT;
+        if (!this.getShowLabels()) {
+          item._SocketNameRef.alpha = 0;
+        }
+        item.redrawAnythingChanging();
+      });
+
     // redraw outputs
     this.outputSocketArray
       .filter((item) => item.visible)
       .forEach((item, index) => {
         item.y = this.headerHeight + index * SOCKET_HEIGHT;
+        item.y =
+          this.headerHeight +
+          (!this.getParallelInputsOutputs()
+            ? this.countOfVisibleNodeTriggerSockets * SOCKET_HEIGHT
+            : 0) +
+          index * SOCKET_HEIGHT;
         item.x = this.nodeWidth - this.getNodeWidth();
         if (!this.getShowLabels()) {
           item._SocketNameRef.alpha = 0;
@@ -762,7 +796,8 @@ export default class PPNode extends PIXI.Container {
         item.y =
           this.headerHeight +
           (!this.getParallelInputsOutputs()
-            ? this.countOfVisibleOutputSockets * SOCKET_HEIGHT
+            ? this.countOfVisibleNodeTriggerSockets * SOCKET_HEIGHT +
+              this.countOfVisibleOutputSockets * SOCKET_HEIGHT
             : 0) +
           index * SOCKET_HEIGHT;
         if (!this.getShowLabels()) {
@@ -810,9 +845,12 @@ export default class PPNode extends PIXI.Container {
 
   public addTriggerInput(): void {
     this.addInput(
-      this.constructSocketName('Trigger', this.inputSocketArray),
+      this.constructSocketName('Trigger', this.nodeTriggerSocketArray),
       new TriggerType(TRIGGER_TYPE_OPTIONS[0].value),
-      0
+      0,
+      true,
+      undefined,
+      true
     );
   }
 
@@ -973,7 +1011,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   }
 
   getInputSocketByName(slotName: string): Socket {
-    return this.inputSocketArray[
+    return this.getAllInputSockets()[
       this.inputSocketArray.findIndex((el) => el.name === slotName)
     ];
   }
@@ -982,24 +1020,6 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     return this.outputSocketArray[
       this.outputSocketArray.findIndex((el) => el.name === slotName)
     ];
-  }
-
-  getInputDataBySlot(slot: number): any {
-    // to easily loop through it
-    if (!this.inputSocketArray) {
-      return undefined;
-    }
-
-    // if no link, then return data
-    if (
-      slot >= this.inputSocketArray.length ||
-      this.inputSocketArray[slot].links.length === 0
-    ) {
-      return this.inputSocketArray[slot].data;
-    }
-
-    const link = this.inputSocketArray[slot].links[0];
-    return link.source.data;
   }
 
   // avoid calling this directly

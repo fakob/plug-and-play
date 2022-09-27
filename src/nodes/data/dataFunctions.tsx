@@ -322,7 +322,7 @@ export class CustomFunction extends PPNode {
   adaptInputs(code: string): void {
     const codeArguments = getArgumentsFromFunction(code);
     // remove all non existing arguments and add all missing (based on the definition we just got)
-    const currentInputSockets = this.getAllSockets().filter(
+    const currentInputSockets = this.getAllSockets(false).filter(
       (socket) => socket.socketType === SOCKET_TYPE.IN
     );
     const socketsToBeRemoved = currentInputSockets.filter(

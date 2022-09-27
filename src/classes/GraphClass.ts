@@ -658,12 +658,6 @@ export default class PPGraph {
     this.selection.selectedNodes.forEach((node) => node.addTriggerInput());
   }
 
-  addInput(): void {
-    this.selection.selectedNodes
-      .filter((node) => node.getCanAddInput())
-      .forEach((node) => node.addDefaultInput());
-  }
-
   getCanAddOutput(): boolean {
     return !this.selection.selectedNodes.find(
       (node) => !node.getCanAddOutput()

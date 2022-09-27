@@ -63,6 +63,34 @@ export const PropertyArrayContainer: React.FunctionComponent<
 > = (props) => {
   return (
     <Stack spacing={1}>
+      {props.selectedNode.nodeTriggerSocketArray?.length > 0 && (
+        <StyledAccordion defaultExpanded>
+          <StyledAccordionSummary>
+            <Box textAlign="left" sx={{ color: 'text.primary' }}>
+              NODE TRIGGER
+            </Box>
+          </StyledAccordionSummary>
+          <StyledAccordionDetails>
+            {props.selectedNode.nodeTriggerSocketArray?.map(
+              (property, index) => {
+                return (
+                  <PropertyContainer
+                    key={index}
+                    property={property}
+                    index={index}
+                    dataType={property.dataType}
+                    isInput={true}
+                    hasLink={property.hasLink()}
+                    data={property.data}
+                    randomMainColor={props.randomMainColor}
+                    selectedNode={props.selectedNode}
+                  />
+                );
+              }
+            )}
+          </StyledAccordionDetails>
+        </StyledAccordion>
+      )}
       {props.selectedNode.inputSocketArray?.length > 0 && (
         <StyledAccordion defaultExpanded>
           <StyledAccordionSummary>
