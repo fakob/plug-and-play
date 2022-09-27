@@ -14,6 +14,7 @@ import {
   NODE_WIDTH,
 } from '../utils/constants';
 import { AbstractType } from '../nodes/datatypes/abstractType';
+import { TriggerType } from '../nodes/datatypes/triggerType';
 import { serializeType } from '../nodes/datatypes/typehelper';
 
 export default class Socket extends PIXI.Container {
@@ -104,7 +105,9 @@ export default class Socket extends PIXI.Container {
       SOCKET_WIDTH / 2,
       SOCKET_WIDTH,
       SOCKET_WIDTH,
-      SOCKET_CORNERRADIUS
+      this.dataType.constructor === new TriggerType().constructor
+        ? 0
+        : SOCKET_CORNERRADIUS
     );
     this._SocketRef.endFill();
     this._SocketRef.name = 'SocketRef';
