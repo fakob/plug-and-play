@@ -282,10 +282,14 @@ export default class PPNode extends PIXI.Container {
     return this.constructor.toString();
   }
 
-  addSocket(socket: Socket): void {
+  addSocket(socket: Socket, isNodeTrigger = false): void {
     const socketRef = this.addChild(socket);
     switch (socket.socketType) {
       case SOCKET_TYPE.IN: {
+        if (isNodeTrigger) {
+          this.nodeTriggerSocketArray.push(socketRef);
+          return;
+        }
         this.inputSocketArray.push(socketRef);
         break;
       }
@@ -308,19 +312,10 @@ export default class PPNode extends PIXI.Container {
     custom?: Record<string, any>, // lets get rid of this ASAP
     isNodeTrigger = false
   ): void {
-    const inputSocket = new Socket(
-      SOCKET_TYPE.IN,
-      name,
-      type,
-      data,
-      visible,
-      custom
+    this.addSocket(
+      new Socket(SOCKET_TYPE.IN, name, type, data, visible, custom),
+      isNodeTrigger
     );
-    const inputSocketRef = this.addChild(inputSocket);
-    isNodeTrigger
-      ? this.nodeTriggerSocketArray.push(inputSocketRef)
-      : this.inputSocketArray.push(inputSocketRef);
-
     // redraw background due to size change
     this.drawNodeShape();
   }
@@ -331,16 +326,15 @@ export default class PPNode extends PIXI.Container {
     visible?: boolean,
     custom?: Record<string, any>
   ): void {
-    const outputSocket = new Socket(
-      SOCKET_TYPE.OUT,
-      name,
-      type,
-      null, // need to get rid of this
-      visible
+    this.addSocket(
+      new Socket(
+        SOCKET_TYPE.OUT,
+        name,
+        type,
+        null, // need to get rid of this
+        visible
+      )
     );
-    const outputSocketRef = this.addChild(outputSocket);
-    this.outputSocketArray.push(outputSocketRef);
-
     // redraw background due to size change
     this.drawNodeShape();
   }
@@ -357,7 +351,12 @@ export default class PPNode extends PIXI.Container {
       height: this.nodeHeight,
       minWidth: this.minNodeWidth,
       minHeight: this.minNodeHeight,
-      socketArray: this.getAllSockets().map((socket) => socket.serialize()),
+      triggerArray: this.nodeTriggerSocketArray.map((socket) =>
+        socket.serialize()
+      ),
+      socketArray: this.getAllSockets(false).map((socket) =>
+        socket.serialize()
+      ),
       updateBehaviour: {
         update: this.updateBehaviour.update,
         interval: this.updateBehaviour.interval,
@@ -385,9 +384,7 @@ export default class PPNode extends PIXI.Container {
         this.resizedNode();
       }
 
-      const sockets = nodeConfig.socketArray;
-
-      sockets.forEach((item: SerializedSocket) => {
+      const mapSocket = (item: SerializedSocket, isNodeTrigger = false) => {
         const matchingSocket =
           item.socketType === SOCKET_TYPE.IN
             ? this.getInputSocketByName(item.name)
@@ -409,10 +406,18 @@ export default class PPNode extends PIXI.Container {
               deSerializeType(item.dataType),
               item.data,
               item.visible
-            )
+            ),
+            isNodeTrigger
           );
         }
-      });
+      };
+
+      const nodeTriggerSockets = nodeConfig.triggerArray;
+      nodeTriggerSockets.forEach((item) => mapSocket(item, true));
+
+      const sockets = nodeConfig.socketArray;
+      sockets.forEach((item) => mapSocket(item));
+
       this.drawNodeShape();
     } catch (error) {
       console.error(
@@ -852,6 +857,7 @@ export default class PPNode extends PIXI.Container {
       undefined,
       true
     );
+    this.updateBehaviour.update = false; // turn off "Update on change"
   }
 
   public addDefaultInput(): void {
@@ -1012,7 +1018,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
 
   getInputSocketByName(slotName: string): Socket {
     return this.getAllInputSockets()[
-      this.inputSocketArray.findIndex((el) => el.name === slotName)
+      this.getAllInputSockets().findIndex((el) => el.name === slotName)
     ];
   }
 

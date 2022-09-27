@@ -83,6 +83,7 @@ export type SerializedNode = {
   height: number;
   minWidth: number;
   minHeight?: number;
+  triggerArray: SerializedSocket[];
   socketArray: SerializedSocket[];
   updateBehaviour: IUpdateBehaviour;
 };

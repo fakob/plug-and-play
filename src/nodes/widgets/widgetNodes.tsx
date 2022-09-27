@@ -127,7 +127,6 @@ export class WidgetButton extends PPNode {
         const inputData = this.getInputData(offValueName);
         this.setOutputData(outName, inputData);
         this.executeChildren();
-        console.log(props.randomMainColor);
       };
 
       return (
