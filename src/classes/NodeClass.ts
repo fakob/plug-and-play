@@ -282,14 +282,10 @@ export default class PPNode extends PIXI.Container {
     return this.constructor.toString();
   }
 
-  addSocket(socket: Socket, isNodeTrigger = false): void {
+  addSocket(socket: Socket): void {
     const socketRef = this.addChild(socket);
     switch (socket.socketType) {
       case SOCKET_TYPE.IN: {
-        if (isNodeTrigger) {
-          this.nodeTriggerSocketArray.push(socketRef);
-          return;
-        }
         this.inputSocketArray.push(socketRef);
         break;
       }
@@ -298,6 +294,12 @@ export default class PPNode extends PIXI.Container {
         break;
       }
     }
+  }
+
+  addTriggerSocket(socket: Socket): void {
+    const socketRef = this.addChild(socket);
+    this.nodeTriggerSocketArray.push(socketRef);
+    return;
   }
 
   getDefaultType(): AbstractType {
@@ -312,10 +314,15 @@ export default class PPNode extends PIXI.Container {
     custom?: Record<string, any>, // lets get rid of this ASAP
     isNodeTrigger = false
   ): void {
-    this.addSocket(
-      new Socket(SOCKET_TYPE.IN, name, type, data, visible, custom),
-      isNodeTrigger
-    );
+    if (isNodeTrigger) {
+      this.addTriggerSocket(
+        new Socket(SOCKET_TYPE.IN, name, type, data, visible, custom)
+      );
+    } else {
+      this.addSocket(
+        new Socket(SOCKET_TYPE.IN, name, type, data, visible, custom)
+      );
+    }
     // redraw background due to size change
     this.drawNodeShape();
   }
@@ -354,9 +361,7 @@ export default class PPNode extends PIXI.Container {
       triggerArray: this.nodeTriggerSocketArray.map((socket) =>
         socket.serialize()
       ),
-      socketArray: this.getAllSockets(false).map((socket) =>
-        socket.serialize()
-      ),
+      socketArray: this.getDataSockets().map((socket) => socket.serialize()),
       updateBehaviour: {
         update: this.updateBehaviour.update,
         interval: this.updateBehaviour.interval,
@@ -399,16 +404,27 @@ export default class PPNode extends PIXI.Container {
           console.info(
             `Socket does not exist (yet) and will be created: ${this.name}(${this.id})/${item.name}`
           );
-          this.addSocket(
-            new Socket(
-              item.socketType,
-              item.name,
-              deSerializeType(item.dataType),
-              item.data,
-              item.visible
-            ),
-            isNodeTrigger
-          );
+          if (isNodeTrigger) {
+            this.addTriggerSocket(
+              new Socket(
+                item.socketType,
+                item.name,
+                deSerializeType(item.dataType),
+                item.data,
+                item.visible
+              )
+            );
+          } else {
+            this.addSocket(
+              new Socket(
+                item.socketType,
+                item.name,
+                deSerializeType(item.dataType),
+                item.data,
+                item.visible
+              )
+            );
+          }
         }
       };
 
@@ -700,11 +716,15 @@ export default class PPNode extends PIXI.Container {
     return this.inputSocketArray.concat(this.nodeTriggerSocketArray);
   }
 
-  getAllSockets(includeNodeTriggerSocketArray = true): Socket[] {
-    const arrayToAdd = includeNodeTriggerSocketArray
-      ? this.nodeTriggerSocketArray
-      : [];
-    return this.inputSocketArray.concat(this.outputSocketArray, arrayToAdd);
+  getDataSockets(): Socket[] {
+    return this.inputSocketArray.concat(this.outputSocketArray);
+  }
+
+  getAllSockets(): Socket[] {
+    return this.inputSocketArray.concat(
+      this.outputSocketArray,
+      this.nodeTriggerSocketArray
+    );
   }
 
   getSocketByName(name: string): Socket {
