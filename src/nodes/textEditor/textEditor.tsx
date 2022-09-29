@@ -31,6 +31,7 @@ import {
   withMentions,
 } from './slate-editor-components';
 import { AnyType } from '../datatypes/anyType';
+import { BooleanType } from '../datatypes/booleanType';
 import { ColorType } from '../datatypes/colorType';
 import { JSONType } from '../datatypes/jsonType';
 import HybridNode from '../../classes/HybridNode';
@@ -47,6 +48,7 @@ const initialValue: Descendant[] = [
 const outputSocketName = 'output';
 const textJSONSocketName = 'textJSON';
 const backgroundColorSocketName = 'background Color';
+const autoHeightName = 'Auto height';
 const inputPrefix = 'Input';
 const inputName1 = `${inputPrefix} 1`;
 
@@ -101,6 +103,13 @@ export class TextEditor extends HybridNode {
         backgroundColorSocketName,
         new ColorType(),
         TRgba.fromString(backgroundColor),
+        false
+      ),
+      new PPSocket(
+        SOCKET_TYPE.IN,
+        autoHeightName,
+        new BooleanType(),
+        true,
         false
       ),
       new PPSocket(SOCKET_TYPE.IN, inputName1, new AnyType(), undefined, true),
@@ -161,6 +170,7 @@ export class TextEditor extends HybridNode {
     // when the Node is added, create the container and react component
     this.onNodeAdded = () => {
       const data = this.getInputData(textJSONSocketName);
+      const autoHeight = this.getInputData(autoHeightName);
       const color: TRgba = this.getInputData(backgroundColorSocketName);
       const allParameters = this.getAllParameters();
       this.readOnly = this.getInputSocketByName(textJSONSocketName).hasLink();
@@ -168,6 +178,7 @@ export class TextEditor extends HybridNode {
       this.createContainerComponent(ParentComponent, {
         nodeHeight: this.nodeHeight,
         data,
+        autoHeight,
         color,
         allParameters,
         readOnly: this.readOnly,
@@ -176,6 +187,7 @@ export class TextEditor extends HybridNode {
 
     this.update = (newHeight): void => {
       const data = this.getInputData(textJSONSocketName);
+      const autoHeight = this.getInputData(autoHeightName);
       const allParameters = this.getAllParameters();
       const color: TRgba = this.getInputData(backgroundColorSocketName);
       this.container.style.background = color.rgb();
@@ -183,6 +195,7 @@ export class TextEditor extends HybridNode {
       this.renderReactComponent(ParentComponent, {
         nodeHeight: newHeight ?? this.nodeHeight,
         data,
+        autoHeight,
         color,
         allParameters,
         readOnly: this.readOnly,
@@ -205,6 +218,7 @@ export class TextEditor extends HybridNode {
     type MyProps = {
       doubleClicked: boolean; // is injected by the NodeClass
       data: Descendant[];
+      autoHeight: boolean;
       color: TRgba;
       allParameters: string;
       randomMainColor: string;
@@ -245,6 +259,19 @@ export class TextEditor extends HybridNode {
         setTarget(null);
       };
 
+      const setNewHeight = () => {
+        const editorHeight =
+          document.getElementById(this.id).getBoundingClientRect().height /
+          PPGraph.currentGraph.viewport.scale.x;
+        this.resizeNode(this.nodeWidth, editorHeight);
+      };
+
+      useEffect(() => {
+        if (props.autoHeight) {
+          setNewHeight();
+        }
+      }, [props.autoHeight]);
+
       useEffect(() => {
         if (props.doubleClicked) {
           ReactEditor.focus(editor);
@@ -278,10 +305,6 @@ export class TextEditor extends HybridNode {
             );
           });
         }
-
-        // update outputs
-        this.setOutputData(outputSocketName, props.data);
-        this.executeChildren();
       }, [props.allParameters, props.data]);
 
       const onChange = (value) => {
@@ -306,6 +329,10 @@ export class TextEditor extends HybridNode {
           }
         }
         setTarget(null);
+
+        if (props.autoHeight) {
+          setNewHeight();
+        }
 
         // update in and outputs
         this.setInputData(textJSONSocketName, value);
@@ -430,6 +457,7 @@ export class TextEditor extends HybridNode {
         <ErrorBoundary FallbackComponent={ErrorFallback}>
           <ThemeProvider theme={customTheme}>
             <Box
+              id={this.id}
               sx={{
                 position: 'relative',
                 padding: '16px 24px',
