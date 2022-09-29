@@ -82,7 +82,7 @@ export class CodeEditor extends HybridNode {
       const data = this.getInputData(inputSocketName);
       this.readOnly = this.getInputSocketByName(inputSocketName).hasLink();
 
-      this.createContainerComponent(document, ParentComponent, {
+      this.createContainerComponent(ParentComponent, {
         nodeHeight: this.nodeHeight,
         data,
         readOnly: this.readOnly,

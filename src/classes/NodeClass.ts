@@ -934,6 +934,68 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     return PPGraph.currentGraph.viewport.toScreen(this.x + NODE_MARGIN, this.y);
   }
 
+  // this function can be called for hybrid nodes, it
+  // • creates a container component
+  // • adds the onNodeDragOrViewportMove listener to it
+  // • adds a react parent component with props
+  createContainerComponent(
+    reactParent,
+    reactProps,
+    customStyles = {}
+  ): HTMLElement {
+    const { margin = 0 } = reactProps;
+    const reactElement = document.createElement('div');
+    this.container = document
+      .getElementById('container')
+      .appendChild(reactElement);
+    this.root = createRoot(this.container!);
+    this.container.id = `Container-${this.id}`;
+
+    const screenPoint = this.screenPoint();
+    const scaleX = PPGraph.currentGraph.viewport.scale.x;
+    this.container.classList.add(styles.hybridContainer);
+    Object.assign(this.container.style, customStyles);
+
+    // set initial position
+    this.container.style.width = `${this.nodeWidth - (2 * margin) / scaleX}px`;
+    this.container.style.height = `${
+      this.nodeHeight - (2 * margin) / scaleX
+    }px`;
+    this.container.style.transform = `translate(50%, 50%)`;
+    this.container.style.transform = `scale(${scaleX}`;
+    this.container.style.left = `${screenPoint.x + margin}px`;
+    this.container.style.top = `${screenPoint.y + margin}px`;
+
+    this.onNodeDragOrViewportMove = ({ screenX, screenY, scale }) => {
+      this.container.style.width = `${this.nodeWidth - (2 * margin) / scale}px`;
+      this.container.style.height = `${
+        this.nodeHeight - (2 * margin) / scale
+      }px`;
+      // this.container.style.transform = `translate(50%, 50%)`;
+      this.container.style.transform = `scale(${scale}`;
+      this.container.style.left = `${screenX + margin}px`;
+      this.container.style.top = `${screenY + margin}px`;
+    };
+
+    this.onViewportPointerUpHandler = this._onViewportPointerUp.bind(this);
+
+    // when the Node is removed also remove the react component and its container
+    this.onNodeRemoved = () => {
+      this.removeContainerComponent(this.container, this.root);
+    };
+
+    // render react component
+    this.renderReactComponent(
+      reactParent,
+      {
+        ...reactProps,
+      },
+      this.root
+    );
+
+    return this.container;
+  }
+
   // the render method, takes a component and props, and renders it to the page
   renderReactComponent = (
     component: any,

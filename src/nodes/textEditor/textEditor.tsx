@@ -165,7 +165,7 @@ export class TextEditor extends HybridNode {
       const allParameters = this.getAllParameters();
       this.readOnly = this.getInputSocketByName(textJSONSocketName).hasLink();
 
-      this.createContainerComponent(document, ParentComponent, {
+      this.createContainerComponent(ParentComponent, {
         nodeHeight: this.nodeHeight,
         data,
         color,

@@ -24,7 +24,7 @@ export class LogViewer extends HybridNode {
 
     // when the Node is added, add the container and react component
     this.onNodeAdded = () => {
-      this.createContainerComponent(document, ParentComponent, {
+      this.createContainerComponent(ParentComponent, {
         nodeHeight,
       });
     };
