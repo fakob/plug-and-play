@@ -123,8 +123,8 @@ export class TextEditor extends HybridNode {
       ...customArgs,
       nodeWidth,
       nodeHeight,
-      minNodeWidth: nodeWidth / 2,
-      minNodeHeight: nodeHeight / 2,
+      minNodeWidth: 100,
+      minNodeHeight: 100,
     });
 
     if (customArgs?.initialData) {
@@ -256,26 +256,28 @@ export class TextEditor extends HybridNode {
       }, [props.color.r, props.color.g, props.color.b, props.color.a]);
 
       useEffect(() => {
-        // update editor data
-        editor.children = props.data;
+        if (!props.doubleClicked) {
+          // update editor data
+          editor.children = props.data;
 
-        // substitute @inputs with input parameters
-        const allParametersObject = JSON.parse(props.allParameters);
-        Object.keys(allParametersObject).map((parameterName) => {
-          Transforms.setNodes(
-            editor,
-            { reactiveText: allParametersObject[parameterName] },
-            {
-              at: [],
-              match: (node: MentionElement) => {
-                return (
-                  node.type === 'mention' && node.inputName === parameterName
-                );
-              },
-              mode: 'all', // also the Editor's children
-            }
-          );
-        });
+          // substitute @inputs with input parameters
+          const allParametersObject = JSON.parse(props.allParameters);
+          Object.keys(allParametersObject).map((parameterName) => {
+            Transforms.setNodes(
+              editor,
+              { reactiveText: allParametersObject[parameterName] },
+              {
+                at: [],
+                match: (node: MentionElement) => {
+                  return (
+                    node.type === 'mention' && node.inputName === parameterName
+                  );
+                },
+                mode: 'all', // also the Editor's children
+              }
+            );
+          });
+        }
 
         // update outputs
         this.setOutputData(outputSocketName, props.data);

@@ -1017,7 +1017,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
 
   removeContainerComponent(container: HTMLElement, root: Root): void {
     root.unmount();
-    document.body.removeChild(container);
+    document.getElementById('container').removeChild(container);
   }
 
   getInputSocketByName(slotName: string): Socket {
