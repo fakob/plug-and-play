@@ -290,7 +290,7 @@ export class TextEditor extends HybridNode {
         if (selection && Range.isCollapsed(selection)) {
           const [start] = Range.edges(selection);
           const before = Editor.before(editor, start, {
-            unit: 'word',
+            unit: 'character',
           });
           const beforeRange = before && Editor.range(editor, before, start);
           const beforeText = beforeRange && Editor.string(editor, beforeRange);

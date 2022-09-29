@@ -163,6 +163,7 @@ const FloatingNodeMenu = (props) => {
                 : `${selectedNodes.length} nodes`
             }
             sx={{
+              position: 'fixed',
               '&& .MuiOutlinedInput-root': {
                 marginLeft: '8px',
                 marginBottom: '4px',
