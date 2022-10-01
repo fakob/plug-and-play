@@ -1026,17 +1026,20 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       );
     const addLink = currentGraph.current.selectedSourceSocket;
 
-    const referenceID = ActionHandler.getNewReferencePoint();
+    const referenceID = hri.random();
+
     const action = async () => {
-      let addedNode;
+      let addedNode: PPNode;
       const nodeExists = getAllNodeTypes()[selected.title] !== undefined;
       if (nodeExists) {
-        addedNode = currentGraph.current.addNewNode(selected.title, {
+        addedNode = await currentGraph.current.addNewNode(selected.title, {
+          overrideId: referenceID,
           nodePosX: nodePos.x,
           nodePosY: nodePos.y,
         });
       } else {
-        addedNode = currentGraph.current.addNewNode('CustomFunction', {
+        addedNode = await currentGraph.current.addNewNode('CustomFunction', {
+          overrideId: referenceID,
           nodePosX: nodePos.x,
           nodePosY: nodePos.y,
         });
@@ -1045,13 +1048,12 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       if (addLink) {
         connectNodeToSocket(addLink, addedNode);
       }
-      ActionHandler.references[referenceID] = addedNode;
 
       setNodeSearchActiveItem(selected);
       setIsNodeSearchVisible(false);
     };
     const undoAction = async () => {
-      PPGraph.currentGraph.removeNode(ActionHandler.references[referenceID]);
+      PPGraph.currentGraph.removeNode(PPGraph.currentGraph.nodes[referenceID]);
     };
     ActionHandler.performAction(action, undoAction);
   };

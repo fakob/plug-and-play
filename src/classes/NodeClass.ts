@@ -142,7 +142,7 @@ export default class PPNode extends PIXI.Container {
 
   constructor(type: string, customArgs?: CustomArgs) {
     super();
-    this.id = hri.random();
+    this.id = customArgs?.overrideId || hri.random();
     this.name = type;
     this.type = type;
     this.description = '';

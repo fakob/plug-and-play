@@ -570,8 +570,8 @@ export async function connectNodeToSocket(
   if (!input || !output) {
     return;
   }
-
-  await PPGraph.currentGraph.connect(output, input, false);
+  // this is an action, feel free to chance
+  await PPGraph.currentGraph.action_Connect(output, input);
 }
 
 export const getMatchingSocket = (socket: PPSocket, node: PPNode): PPSocket => {
