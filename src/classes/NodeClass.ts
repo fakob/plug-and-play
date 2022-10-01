@@ -78,6 +78,7 @@ export default class PPNode extends PIXI.Container {
   outputSocketArray: Socket[];
 
   _doubleClicked: boolean;
+  isDraggingNode: boolean;
   sourcePoint: PIXI.Point;
   interactionData: PIXI.InteractionData;
 
@@ -209,9 +210,13 @@ export default class PPNode extends PIXI.Container {
     this.drawNodeShape();
 
     this.interactive = true;
+    this.isDraggingNode = false;
     this._doubleClicked = false;
 
     this._addListeners();
+
+    // define callbacks
+    this.onNodeDragging = (isDraggingNode: boolean) => {};
   }
 
   // GETTERS & SETTERS
@@ -1165,7 +1170,11 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   // SETUP
 
   _addListeners(): void {
+    this.onMoveHandler = this._onPointerMove.bind(this);
+
     this.on('pointerdown', this._onPointerDown.bind(this));
+    this.on('pointerup', this._onPointerUpAndUpOutside.bind(this));
+    this.on('pointerupoutside', this._onPointerUpAndUpOutside.bind(this));
     this.on('pointerover', this._onPointerOver.bind(this));
     this.on('pointerout', this._onPointerOut.bind(this));
     this.on('dblclick', this._onDoubleClick.bind(this));
@@ -1183,16 +1192,48 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   _onPointerDown(event: PIXI.InteractionEvent): void {
     event.stopPropagation();
     const node = event.target as PPNode;
-    if (!node.clickedSocketRef) {
+
+    if (node.clickedSocketRef === null) {
+      // start dragging the node
+
       const shiftKey = event.data.originalEvent.shiftKey;
+
       // select node if the shiftKey is pressed
       // or the node is not yet selected
       if (shiftKey || !this.selected) {
         PPGraph.currentGraph.selection.selectNodes([this], shiftKey, true);
-        PPGraph.currentGraph.selection.startDragAction(event);
       }
 
       this.interactionData = event.data;
+      this.cursor = 'grabbing';
+      this.alpha = 0.5;
+      this.isDraggingNode = true;
+      this.onNodeDragging(this.isDraggingNode);
+      this.sourcePoint = this.interactionData.getLocalPosition(this);
+
+      // subscribe to pointermove
+      this.on('pointermove', this.onMoveHandler);
+    }
+  }
+
+  _onPointerUpAndUpOutside(): void {
+    // unsubscribe from pointermove
+    this.removeListener('pointermove', this.onMoveHandler);
+
+    this.alpha = 1;
+    this.isDraggingNode = false;
+    this.onNodeDragging(this.isDraggingNode);
+    this.cursor = 'move';
+  }
+
+  public _onPointerMove(): void {
+    if (this.isDraggingNode) {
+      const targetPoint = this.interactionData.getLocalPosition(this);
+      const deltaX = targetPoint.x - this.sourcePoint.x;
+      const deltaY = targetPoint.y - this.sourcePoint.y;
+
+      // move selection
+      PPGraph.currentGraph.selection.moveSelection(deltaX, deltaY);
     }
   }
 
@@ -1208,6 +1249,8 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   }
 
   _onRemoved(): void {
+    // console.log('_onRemoved');
+
     // remove added listener from graph.viewport
     PPGraph.currentGraph.viewport.removeListener(
       'moved',
@@ -1229,6 +1272,11 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   }
 
   _onPointerOut(): void {
+    if (!this.isDraggingNode) {
+      this.isHovering = false;
+      this.alpha = 1.0;
+      this.cursor = 'default';
+    }
     this.updateBehaviour.redrawAnythingChanging();
     this.nodeSelectionHeader.redrawAnythingChanging(false);
   }
