@@ -938,28 +938,46 @@ export default class PPGraph {
   }
 
   action_DeleteSelectedNodes(): void {
-    const refRaw = ActionHandler.getNewReferencePoint();
-    const refSerialized = ActionHandler.getNewReferencePoint();
-    ActionHandler.references[refSerialized] = this.serializeSelection();
-    ActionHandler.references[refRaw] = this.selection.selectedNodes;
+    const nodesSerialized = this.selection.selectedNodes.map((node) =>
+      node.serialize()
+    );
+    const linksSerialized = this.selection.selectedNodes
+      .map((node) =>
+        node
+          .getAllSockets()
+          .map((socket) => socket.links.map((link) => link.serialize()))
+      )
+      .flat()
+      .flat();
+    const nodesToDelete = this.selection.selectedNodes;
     const action = async () => {
-      const storedSelection = ActionHandler.references[refRaw];
       this.selection.deselectAllNodesAndResetSelection();
-      storedSelection.forEach((node) => this.removeNode(node));
+      nodesToDelete.forEach((node) => this.removeNode(node));
     };
     const undoAction = async () => {
       const addedNodes: PPNode[] = [];
-      ActionHandler.references[refSerialized].nodes.forEach(
-        (node: SerializedNode) => {
-          const addedNode = PPGraph.currentGraph.createAndAddNode(node.type);
-          addedNode.configure(node);
-          addedNodes.push(addedNode);
-        }
-      );
+      nodesSerialized.forEach((node: SerializedNode) => {
+        const addedNode = PPGraph.currentGraph.createAndAddNode(node.type, {
+          customId: node.id,
+        }); // hate customargs but need it here
+        addedNode.configure(node);
+        addedNodes.push(addedNode);
+      });
+
+      linksSerialized.forEach((link) => {
+        this.connect(
+          this.nodes[link.sourceNodeId].getOutputSocketByName(
+            link.sourceSocketName
+          ),
+          this.nodes[link.targetNodeId].getInputSocketByName(
+            link.targetSocketName
+          ),
+          false
+        );
+      });
 
       this.selection.selectNodes(addedNodes);
       this.selection.drawRectanglesFromSelection();
-      ActionHandler.references[refRaw] = addedNodes;
     };
     ActionHandler.performAction(action, undoAction);
   }
