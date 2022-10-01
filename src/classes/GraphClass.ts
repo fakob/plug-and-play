@@ -12,7 +12,7 @@ import {
   SerializedSelection,
   TSocketType,
 } from '../utils/interfaces';
-import { ensureVisible } from '../utils/utils';
+import { connectNodeToSocket, ensureVisible } from '../utils/utils';
 import PPNode from './NodeClass';
 import PPSocket from './SocketClass';
 import PPLink from './LinkClass';
@@ -563,22 +563,22 @@ export default class PPGraph {
 
   addWidgetNode(socket: PPSocket): void {
     const node = socket.getNode();
+    let newNode;
     if (socket.isInput()) {
       const nodeType = socket.dataType.defaultInputNodeWidget();
-      const newNode = this.addNewNode(nodeType, {
+      newNode = this.addNewNode(nodeType, {
         nodePosX: node.x,
         nodePosY: node.y + socket.y,
       });
       newNode.setPosition(-(newNode.width + 40), 0, true);
-      this.connect(newNode.outputSocketArray[0], socket);
     } else {
       const nodeType = socket.dataType.defaultOutputNodeWidget();
-      const newNode = this.addNewNode(nodeType, {
+      newNode = this.addNewNode(nodeType, {
         nodePosX: node.x + (node.width + 40),
         nodePosY: node.y + socket.y,
       });
-      this.connect(socket, newNode.inputSocketArray[0]);
     }
+    connectNodeToSocket(socket, newNode);
   }
 
   checkOldSocketAndUpdateIt<T extends PPSocket>(

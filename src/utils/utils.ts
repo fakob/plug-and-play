@@ -558,11 +558,20 @@ export const isVariable = (
   }
 };
 
-export const getMatchingSocket = (
+export async function connectNodeToSocket(
   socket: PPSocket,
-  node: PPNode,
-  isOutput = false
-): PPSocket => {
+  node: PPNode
+): Promise<void> {
+  if (!node) {
+    return;
+  }
+  const input = socket.isInput() ? socket : getMatchingSocket(socket, node);
+  const output = !socket.isInput() ? socket : getMatchingSocket(socket, node);
+  await PPGraph.currentGraph.connect(input, output);
+}
+
+export const getMatchingSocket = (socket: PPSocket, node: PPNode): PPSocket => {
+  const isOutput = !socket.isInput();
   const socketArray = isOutput ? node.outputSocketArray : node.inputSocketArray;
   if (socketArray.length > 0) {
     const getSocket = (condition, onlyFreeSocket = false): PPSocket => {

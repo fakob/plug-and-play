@@ -78,6 +78,7 @@ import {
   useStateRef,
   writeDataToClipboard,
   zoomToFitSelection,
+  connectNodeToSocket,
 } from './utils/utils';
 import { getAllNodeTypes } from './nodes/allNodes';
 import PPSocket from './classes/SocketClass';
@@ -1033,18 +1034,17 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         addedNode = currentGraph.current.addNewNode(selected.title, {
           nodePosX: nodePos.x,
           nodePosY: nodePos.y,
-          //addLink,
         });
       } else {
         addedNode = currentGraph.current.addNewNode('CustomFunction', {
           nodePosX: nodePos.x,
           nodePosY: nodePos.y,
-          //addLink,
         });
         addedNode.nodeName = selected.title;
       }
-      //const inputSocket = ad
-      //currentGraph.current.connect(addLink.isInput() ? )
+      if (addLink) {
+        connectNodeToSocket(addLink, addedNode);
+      }
       ActionHandler.references[referenceID] = addedNode;
 
       setNodeSearchActiveItem(selected);
