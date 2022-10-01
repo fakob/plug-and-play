@@ -885,10 +885,8 @@ export default class PPGraph {
   }
 
   removeNode(node: PPNode): void {
-    //const action: Action = async () => {
     node.destroy();
     delete this.nodes[node.id];
-    //};
   }
 
   action_DeleteSelectedNodes(): void {
@@ -903,10 +901,9 @@ export default class PPGraph {
       )
       .flat()
       .flat();
-    const nodesToDelete = this.selection.selectedNodes;
     const action = async () => {
       this.selection.deselectAllNodesAndResetSelection();
-      nodesToDelete.forEach((node) => this.removeNode(node));
+      nodesSerialized.forEach((node) => this.removeNode(this.nodes[node.id])); // notice no direct references to make it work with redo
     };
     const undoAction = async () => {
       const addedNodes: PPNode[] = [];
