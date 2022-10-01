@@ -89,7 +89,6 @@ export default class PPNode extends PIXI.Container {
   // supported callbacks
   onConfigure: (nodeConfig: SerializedNode) => void = () => {}; // called after the node has been configured
   onNodeDoubleClick: (event: PIXI.InteractionEvent) => void = () => {};
-  onMoveHandler: (event?: PIXI.InteractionEvent) => void = () => {};
   onViewportMoveHandler: (event?: PIXI.InteractionEvent) => void = () => {};
   onViewportPointerUpHandler: (event?: PIXI.InteractionEvent) => void =
     () => {};
@@ -769,9 +768,9 @@ export default class PPNode extends PIXI.Container {
     this.drawComment();
 
     // update selection
-    if (PPGraph.currentGraph.selection.isNodeSelected(this)) {
+    /*if (PPGraph.currentGraph.selection.isNodeSelected(this)) {
       PPGraph.currentGraph.selection.drawRectanglesFromSelection();
-    }
+    }*/
   }
 
   shouldExecuteOnMove(): boolean {
@@ -1080,7 +1079,6 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
         output.data = outputObject[output.name];
       }
     });
-    this.onAfterExecute();
   }
 
   // override if you don't want your node to show outline for some reason
@@ -1158,14 +1156,11 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     // just define function
   }
 
-  protected onAfterExecute(): void {
-    // just define function
-  }
-
   // SETUP
 
   _addListeners(): void {
     this.on('pointerdown', this._onPointerDown.bind(this));
+    this.on('pointerup', this._onPointerUp.bind(this));
     this.on('pointerover', this._onPointerOver.bind(this));
     this.on('pointerout', this._onPointerOut.bind(this));
     this.on('dblclick', this._onDoubleClick.bind(this));
@@ -1182,18 +1177,15 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
 
   _onPointerDown(event: PIXI.InteractionEvent): void {
     event.stopPropagation();
-    const node = event.target as PPNode;
-    if (!node.clickedSocketRef) {
-      const shiftKey = event.data.originalEvent.shiftKey;
-      // select node if the shiftKey is pressed
-      // or the node is not yet selected
-      if (shiftKey || !this.selected) {
-        PPGraph.currentGraph.selection.selectNodes([this], shiftKey, true);
-        PPGraph.currentGraph.selection.startDragAction(event);
-      }
+    if (!this.clickedSocketRef) {
+      console.log('pressed node');
+      PPGraph.currentGraph.selection.nodeMousePressed(this, event);
 
       this.interactionData = event.data;
     }
+  }
+  _onPointerUp(event: PIXI.InteractionEvent): void {
+    PPGraph.currentGraph.selection.nodeMouseReleased(this, event);
   }
 
   _onViewportMove(): void {

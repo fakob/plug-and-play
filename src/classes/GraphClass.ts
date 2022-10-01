@@ -96,9 +96,7 @@ export default class PPGraph {
     this.tempConnection.name = 'tempConnection';
     this.backgroundTempContainer.addChild(this.tempConnection);
 
-    this.selection = new PPSelection(this.viewport, () =>
-      Object.values(this.nodes)
-    );
+    this.selection = new PPSelection(this.viewport);
     this.app.stage.addChild(this.selection);
 
     this.viewport.cursor = 'default';
@@ -164,10 +162,7 @@ export default class PPGraph {
 
     if ((event.data.originalEvent as PointerEvent).button === 0) {
       if (!this.overInputRef) {
-        this.selection.drawSelectionStart(
-          event,
-          event.data.originalEvent.shiftKey
-        );
+        this.selection.drawSelectionStart(event);
       }
 
       // pause viewport drag
