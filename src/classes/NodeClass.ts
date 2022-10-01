@@ -1289,7 +1289,8 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     this.commonPointerUp();
 
     const source = PPGraph.currentGraph.selectedSourceSocket;
-    if (source) {
+    if (source && this !== source.getNode()) {
+      PPGraph.currentGraph.selectedSourceSocket = null; // hack
       connectNodeToSocket(source, this);
     }
   }

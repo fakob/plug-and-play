@@ -418,33 +418,34 @@ export default class PPGraph {
     return node;
   }
 
-  addNode<T extends PPNode = PPNode>(node: T): T {
+  async addNode<T extends PPNode = PPNode>(node: T): Promise<T> {
     if (!node) {
       return;
     }
+    node.onNodeAdded();
 
     // add the node to the canvas
     this.nodes[node.id] = node;
     this.nodeContainer.addChild(node);
 
-    return node; //to chain actions
-  }
-
-  // does not add any links, youll have do do that yourself
-  addSerializedNode(
-    serialized: SerializedNode,
-    customArgs: CustomArgs = {}
-  ): PPNode {
-    const node = this.createNode(serialized.type, customArgs);
-    node.configure(serialized);
-    this.addNode(node);
+    //await node.executeOptimizedChain();
     return node;
   }
 
-  addNewNode(type: string, customArgs: CustomArgs = {}): PPNode {
+  // does not add any links, youll have do do that yourself
+  async addSerializedNode(
+    serialized: SerializedNode,
+    customArgs: CustomArgs = {}
+  ): Promise<PPNode> {
+    const node = this.createNode(serialized.type, customArgs);
+    node.configure(serialized);
+    await this.addNode(node);
+    return node;
+  }
+
+  async addNewNode(type: string, customArgs: CustomArgs = {}): Promise<PPNode> {
     const node = this.createNode(type, customArgs);
-    this.addNode(node);
-    node.onNodeAdded();
+    await this.addNode(node);
     return node;
   }
 
@@ -561,19 +562,19 @@ export default class PPGraph {
     return link;
   }
 
-  addWidgetNode(socket: PPSocket): void {
+  async addWidgetNode(socket: PPSocket): Promise<void> {
     const node = socket.getNode();
     let newNode;
     if (socket.isInput()) {
       const nodeType = socket.dataType.defaultInputNodeWidget();
-      newNode = this.addNewNode(nodeType, {
+      newNode = await this.addNewNode(nodeType, {
         nodePosX: node.x,
         nodePosY: node.y + socket.y,
       });
       newNode.setPosition(-(newNode.width + 40), 0, true);
     } else {
       const nodeType = socket.dataType.defaultOutputNodeWidget();
-      newNode = this.addNewNode(nodeType, {
+      newNode = await this.addNewNode(nodeType, {
         nodePosX: node.x + (node.width + 40),
         nodePosY: node.y + socket.y,
       });
@@ -637,7 +638,7 @@ export default class PPGraph {
     //create nodes
     const offset = new PIXI.Point();
     try {
-      data.nodes.forEach((node, index) => {
+      data.nodes.forEach(async (node, index) => {
         if (index === 0) {
           if (pasteToCenter) {
             // calculate offset from first node to viewport center
@@ -650,14 +651,13 @@ export default class PPGraph {
           }
         }
         // add node and carry over its con,figuration
-        const newNode = this.addSerializedNode(node);
+        const newNode = await this.addSerializedNode(node);
 
         // offset pasted node
         newNode.setPosition(offset.x, offset.y, true);
 
         mappingOfOldAndNewNodes[node.id] = newNode;
         newNodes.push(newNode);
-        newNode.executeOptimizedChain();
       });
 
       await Promise.all(
@@ -792,7 +792,7 @@ export default class PPGraph {
     //create nodes
     try {
       data.nodes.forEach(
-        (node) => this.addSerializedNode(node)
+        async (node) => await this.addSerializedNode(node)
         /*this.createAndAddNode(
           node.type,
           {
@@ -910,9 +910,8 @@ export default class PPGraph {
     };
     const undoAction = async () => {
       const addedNodes: PPNode[] = [];
-      nodesSerialized.forEach((node: SerializedNode) => {
-        const addedNode = PPGraph.currentGraph.addSerializedNode(node);
-        addedNode.configure(node);
+      nodesSerialized.forEach(async (node: SerializedNode) => {
+        const addedNode = await PPGraph.currentGraph.addSerializedNode(node);
         addedNodes.push(addedNode);
       });
 

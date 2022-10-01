@@ -567,26 +567,30 @@ export async function connectNodeToSocket(
   }
   const input = socket.isInput() ? socket : getMatchingSocket(socket, node);
   const output = !socket.isInput() ? socket : getMatchingSocket(socket, node);
-  await PPGraph.currentGraph.connect(input, output);
+  if (!input || !output) {
+    return;
+  }
+
+  await PPGraph.currentGraph.connect(output, input, false);
 }
 
 export const getMatchingSocket = (socket: PPSocket, node: PPNode): PPSocket => {
-  const isOutput = !socket.isInput();
-  const socketArray = isOutput ? node.outputSocketArray : node.inputSocketArray;
+  const socketArray = socket.isInput()
+    ? node.outputSocketArray
+    : node.inputSocketArray;
   if (socketArray.length > 0) {
     const getSocket = (condition, onlyFreeSocket = false): PPSocket => {
-      const socket = socketArray.find((socket) => {
+      return socketArray.find((socketInArray) => {
         return (
-          socket.visible &&
-          condition(socket) &&
-          (!onlyFreeSocket || !socket.hasLink())
+          socketInArray.visible &&
+          condition(socketInArray) &&
+          (!onlyFreeSocket || !socketInArray.hasLink())
         );
       });
-      return socket;
     };
 
     const preferredCondition = (socket): boolean => {
-      const preferredSocketName = isOutput
+      const preferredSocketName = socket.isInput()
         ? node.getPreferredOutputSocketName()
         : node.getPreferredInputSocketName();
       return socket.name === preferredSocketName;
