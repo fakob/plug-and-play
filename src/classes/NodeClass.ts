@@ -139,7 +139,7 @@ export default class PPNode extends PIXI.Container {
 
   constructor(type: string, customArgs?: CustomArgs) {
     super();
-    this.id = customArgs?.customId ?? hri.random();
+    this.id = hri.random();
     this.name = type;
     this.type = type;
     this.description = '';
@@ -358,7 +358,9 @@ export default class PPNode extends PIXI.Container {
     return node;
   }
 
+  // IMPORTANT, call this before its added to graph (because it uses ID)
   configure(nodeConfig: SerializedNode): void {
+    this.id = nodeConfig.id;
     this.x = nodeConfig.x;
     this.y = nodeConfig.y;
     this.nodeName = nodeConfig.name;

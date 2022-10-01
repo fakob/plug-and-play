@@ -36,18 +36,6 @@ abstract class Hotkey {
   }
 }
 
-// you can create new hotkeys like this by extending hotkey
-// and providing which keys are needed and then the function,
-// this is the ideal and smallest case
-class createAddNodeAction extends Hotkey {
-  protected getKeys(): string[] {
-    return ['m', controlOrMetaKey];
-  }
-  protected execute(graph: PPGraph): void {
-    graph.createAndAddNode('MathAdd');
-  }
-}
-
 // delete behaviour is a little more specialized so overriding "potentiallyexecute"
 class deleteNodeAction extends Hotkey {
   potentiallyExecute(currPressed, allPressed, graph): boolean {

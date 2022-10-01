@@ -57,7 +57,7 @@ export class AbstractType {
     return;
   }
 
-  defaultInputNodeWidget(): undefined | string {
+  defaultInputNodeWidget(): string {
     return 'Constant';
   }
 

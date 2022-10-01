@@ -218,7 +218,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           case 'xlsx':
             /* data is an ArrayBuffer */
             data = await response.arrayBuffer();
-            newNode = currentGraph.current.createAndAddNode('Table', {
+            newNode = currentGraph.current.addNewNode('Table', {
               nodePosX,
               nodePosY,
               initialData: data,
@@ -226,7 +226,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
             break;
           case 'txt':
             data = await response.text();
-            newNode = currentGraph.current.createAndAddNode('Text', {
+            newNode = currentGraph.current.addNewNode('Text', {
               nodePosX,
               nodePosY,
               initialData: data,
@@ -248,7 +248,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
                 existingNode.updateTexture(base64 as string);
                 existingNode.setMinNodeHeight(existingNode.nodeWidth);
               } else {
-                newNode = currentGraph.current.createAndAddNode('Image', {
+                newNode = currentGraph.current.addNewNode('Image', {
                   nodePosX,
                   nodePosY,
                   defaultArguments: { Image: base64 },
@@ -1030,16 +1030,16 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       let addedNode;
       const nodeExists = getAllNodeTypes()[selected.title] !== undefined;
       if (nodeExists) {
-        addedNode = currentGraph.current.createAndAddNode(selected.title, {
+        addedNode = currentGraph.current.addNewNode(selected.title, {
           nodePosX: nodePos.x,
           nodePosY: nodePos.y,
-          addLink,
+          //addLink,
         });
       } else {
-        addedNode = currentGraph.current.createAndAddNode('CustomFunction', {
+        addedNode = currentGraph.current.addNewNode('CustomFunction', {
           nodePosX: nodePos.x,
           nodePosY: nodePos.y,
-          addLink,
+          //addLink,
         });
         addedNode.nodeName = selected.title;
       }

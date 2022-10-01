@@ -12,7 +12,7 @@ import {
   SerializedSelection,
   TSocketType,
 } from '../utils/interfaces';
-import { ensureVisible, getMatchingSocketIndex } from '../utils/utils';
+import { ensureVisible } from '../utils/utils';
 import PPNode from './NodeClass';
 import PPSocket from './SocketClass';
 import PPLink from './LinkClass';
@@ -20,6 +20,7 @@ import PPSelection from './SelectionClass';
 import { getAllNodeTypes } from '../nodes/allNodes';
 import { macroOutputName } from '../nodes/macro/macro';
 import { Action, ActionHandler } from '../utils/actionHandler';
+import { link } from 'fs/promises';
 
 export default class PPGraph {
   static currentGraph: PPGraph;
@@ -381,14 +382,14 @@ export default class PPGraph {
       nodeConstructor = getAllNodeTypes()[name]?.constructor;
       if (customArgs?.name !== undefined && nodeConstructor) {
         this.onShowSnackbar(
-          `A replacement for the placeholder node ${customArgs?.customId} was found. It will be replaced with ${name}.`,
+          `A replacement for the placeholder node ${customArgs?.name} was found. It will be replaced with ${name}.`,
           {
             variant: 'success',
           }
         );
       } else {
         this.onShowSnackbar(
-          `No replacement for the placeholder node ${customArgs?.customId} was found.`
+          `No replacement for the placeholder node ${customArgs?.name} was found.`
         );
       }
     } else {
@@ -399,7 +400,7 @@ export default class PPGraph {
     if (!nodeConstructor) {
       // if there is no node of this type, create a placeholder node instead
       // and "save" the original node type in the placeholders name
-      const errorMessage = `Node of type ${type}(${customArgs?.customId}) is missing. A placeholder node will be created instead`;
+      const errorMessage = `Node of type ${type}(${customArgs?.name}) is missing. A placeholder node will be created instead`;
       console.warn(errorMessage);
       this.onShowSnackbar(errorMessage, {
         variant: 'warning',
@@ -430,56 +431,21 @@ export default class PPGraph {
     return node; //to chain actions
   }
 
-  createAndAddNode<T extends PPNode = PPNode>(
-    type: string,
-    customArgs?: CustomArgs,
-    notify = true
-  ): T {
-    const node = this.createNode(type, customArgs) as T;
+  // does not add any links, youll have do do that yourself
+  addSerializedNode(
+    serialized: SerializedNode,
+    customArgs: CustomArgs = {}
+  ): PPNode {
+    const node = this.createNode(serialized.type, customArgs);
+    node.configure(serialized);
     this.addNode(node);
+    return node;
+  }
 
-    if (customArgs?.addLink) {
-      if (!customArgs.addLink.isInput() && node.inputSocketArray.length > 0) {
-        console.log(
-          'connecting Output:',
-          customArgs.addLink.name,
-          'of',
-          customArgs.addLink.parent.name,
-          'with Input:',
-          node.inputSocketArray[0].name,
-          'of',
-          node.inputSocketArray[0].parent.name
-        );
-        const index = getMatchingSocketIndex(
-          customArgs.addLink,
-          node.inputSocketArray
-        );
-        this.connect(customArgs.addLink, node.inputSocketArray[index], notify);
-        this.clearTempConnection();
-      } else if (
-        customArgs.addLink.isInput() &&
-        node.outputSocketArray.length > 0
-      ) {
-        console.log(
-          'connecting Input:',
-          customArgs.addLink.name,
-          'of',
-          customArgs.addLink.parent.name,
-          'with Output:',
-          node.outputSocketArray[0].name,
-          'of',
-          node.outputSocketArray[0].parent.name
-        );
-        const index = getMatchingSocketIndex(
-          customArgs.addLink,
-          node.outputSocketArray
-        );
-        this.connect(node.outputSocketArray[index], customArgs.addLink, notify);
-      }
-    }
+  addNewNode(type: string, customArgs: CustomArgs = {}): PPNode {
+    const node = this.createNode(type, customArgs);
+    this.addNode(node);
     node.onNodeAdded();
-    node.executeOptimizedChain();
-
     return node;
   }
 
@@ -600,23 +566,19 @@ export default class PPGraph {
     const node = socket.getNode();
     if (socket.isInput()) {
       const nodeType = socket.dataType.defaultInputNodeWidget();
-      if (nodeType !== undefined) {
-        const newNode = this.createAndAddNode(nodeType, {
-          nodePosX: node.x,
-          nodePosY: node.y + socket.y,
-          addLink: socket,
-        });
-        newNode.setPosition(-(newNode.width + 40), 0, true);
-      }
+      const newNode = this.addNewNode(nodeType, {
+        nodePosX: node.x,
+        nodePosY: node.y + socket.y,
+      });
+      newNode.setPosition(-(newNode.width + 40), 0, true);
+      this.connect(newNode.outputSocketArray[0], socket);
     } else {
       const nodeType = socket.dataType.defaultOutputNodeWidget();
-      if (nodeType !== undefined) {
-        this.createAndAddNode(nodeType, {
-          nodePosX: node.x + (node.width + 40),
-          nodePosY: node.y + socket.y,
-          addLink: socket,
-        });
-      }
+      const newNode = this.addNewNode(nodeType, {
+        nodePosX: node.x + (node.width + 40),
+        nodePosY: node.y + socket.y,
+      });
+      this.connect(socket, newNode.inputSocketArray[0]);
     }
   }
 
@@ -688,10 +650,8 @@ export default class PPGraph {
             offset.set(node.width + 40, 0);
           }
         }
-        const nodeType = node.type;
         // add node and carry over its con,figuration
-        const newNode = this.createAndAddNode(nodeType);
-        newNode.configure(node);
+        const newNode = this.addSerializedNode(node);
 
         // offset pasted node
         newNode.setPosition(offset.x, offset.y, true);
@@ -838,16 +798,17 @@ export default class PPGraph {
 
     //create nodes
     try {
-      data.nodes.forEach((node) => {
-        this.createAndAddNode(
+      data.nodes.forEach(
+        (node) => this.addSerializedNode(node)
+        /*this.createAndAddNode(
           node.type,
           {
             customId: node.id,
             name: node.name, // placeholder node uses the name field to indicate which node they are a placeholder for
           },
           false
-        ).configure(node);
-      });
+        ).configure(node);*/
+      );
 
       await Promise.all(
         data.links.map(async (link) => {
@@ -957,9 +918,7 @@ export default class PPGraph {
     const undoAction = async () => {
       const addedNodes: PPNode[] = [];
       nodesSerialized.forEach((node: SerializedNode) => {
-        const addedNode = PPGraph.currentGraph.createAndAddNode(node.type, {
-          customId: node.id,
-        }); // hate customargs but need it here
+        const addedNode = PPGraph.currentGraph.addSerializedNode(node);
         addedNode.configure(node);
         addedNodes.push(addedNode);
       });
