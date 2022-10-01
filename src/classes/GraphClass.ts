@@ -490,34 +490,77 @@ export default class PPGraph {
     );
   };
 
-  async action_Disconnect(link: PPLink) {
-    const preSource = link.getSource();
-    const preTarget = link.getTarget();
-    const ref = ActionHandler.getNewReferencePoint();
-    ActionHandler.references[ref] = link;
-    const action: Action = async () => {
-      // cant use "link" directly, as the link could come from undo
-      ActionHandler.references[ref].delete();
-    };
-    const undoAction: Action = async () => {
-      ActionHandler.references[ref] = await this.connect(preSource, preTarget);
-    };
-    ActionHandler.performAction(action, undoAction);
+  async linkConnect(
+    sourceNodeID: string,
+    outputSocketName: string,
+    targetNodeID: string,
+    inputSocketName: string,
+    notify = false
+  ) {
+    await this.connect(
+      this.nodes[sourceNodeID].getOutputSocketByName(outputSocketName),
+      this.nodes[targetNodeID].getInputSocketByName(inputSocketName),
+      notify
+    );
   }
 
-  async action_Connect(output: PPSocket, input: PPSocket, notify = true) {
-    const ref = ActionHandler.getNewReferencePoint();
+  async linkDisconnect(targetNodeID, inputSocketName) {
+    this.nodes[targetNodeID]
+      .getInputSocketByName(inputSocketName)
+      .links[0].delete();
+  }
+
+  // gets connect and unconnect actions for specified hypothetic link, based on node ID and socket name in order to be generic actions not reference-based
+  getConnectActions(
+    preSourceName: string,
+    preSourceNodeID: string,
+    preTargetName: string,
+    preTargetNodeID: string,
+    notify = false
+  ): any {
     const action: Action = async () => {
-      ActionHandler.references[ref] = await PPGraph.currentGraph.connect(
-        output,
-        input,
-        notify
+      await this.linkConnect(
+        preSourceNodeID,
+        preSourceName,
+        preTargetNodeID,
+        preTargetName
       );
     };
     const undoAction: Action = async () => {
-      (ActionHandler.references[ref] as PPLink).delete();
+      await this.linkDisconnect(preTargetNodeID, preTargetName);
     };
-    ActionHandler.performAction(action, undoAction);
+    return [action, undoAction];
+  }
+
+  async action_Disconnect(link: PPLink) {
+    const preSourceName = link.getSource().name;
+    const preSourceNodeID = link.getSource().getNode().id;
+    const preTargetName = link.getTarget().name;
+    const preTargetNodeID = link.getTarget().getNode().id;
+    const actions = this.getConnectActions(
+      preSourceName,
+      preSourceNodeID,
+      preTargetName,
+      preTargetNodeID
+    );
+    ActionHandler.performAction(actions[1], actions[0]);
+  }
+
+  async action_Connect(output: PPSocket, input: PPSocket, notify = true) {
+    const preSourceName = output.name;
+    const preSourceNodeID = output.getNode().id;
+    const preTargetName = input.name;
+    const preTargetNodeID = input.getNode().id;
+
+    const actions = this.getConnectActions(
+      preSourceName,
+      preSourceNodeID,
+      preTargetName,
+      preTargetNodeID,
+      notify
+    );
+
+    ActionHandler.performAction(actions[0], actions[1]);
   }
 
   async connect(
