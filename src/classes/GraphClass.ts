@@ -448,10 +448,7 @@ export default class PPGraph {
           'of',
           node.inputSocketArray[0].parent.name
         );
-        const index = getMatchingSocketIndex(
-          customArgs.addLink,
-          node.inputSocketArray
-        );
+        const index = getMatchingSocketIndex(customArgs.addLink, node);
         this.connect(customArgs.addLink, node.inputSocketArray[index], notify);
         this.clearTempConnection();
       } else if (
@@ -468,10 +465,7 @@ export default class PPGraph {
           'of',
           node.outputSocketArray[0].parent.name
         );
-        const index = getMatchingSocketIndex(
-          customArgs.addLink,
-          node.outputSocketArray
-        );
+        const index = getMatchingSocketIndex(customArgs.addLink, node);
         this.connect(node.outputSocketArray[index], customArgs.addLink, notify);
       }
     }

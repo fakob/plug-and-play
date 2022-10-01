@@ -560,19 +560,53 @@ export const isVariable = (
 
 export const getMatchingSocketIndex = (
   socket: PPSocket,
-  socketArray: PPSocket[]
-): number => {
-  const indexExactMatch = socketArray.findIndex((socketInArray) => {
-    return socketInArray.dataType.constructor === socket.dataType.constructor;
-  });
+  node: PPNode,
+  isOutput = false
+): number | undefined => {
+  const socketArray = isOutput ? node.outputSocketArray : node.inputSocketArray;
+  if (socketArray.length > 0) {
+    const getIndex = (
+      condition,
+      onlyFreeSocket = false
+    ): number | undefined => {
+      const index = socketArray.findIndex((socket) => {
+        return (
+          socket.visible &&
+          condition(socket) &&
+          (!onlyFreeSocket || !socket.hasLink())
+        );
+      });
+      return index > -1 ? index : undefined;
+    };
 
-  if (indexExactMatch > -1) {
-    return indexExactMatch;
+    const preferredCondition = (socket): boolean => {
+      const preferredSocketName = isOutput
+        ? node.getPreferredOutputSocketName()
+        : node.getPreferredInputSocketName();
+      return socket.name === preferredSocketName;
+    };
+
+    const exactMatchCondition = (socket): boolean => {
+      return socket.dataType.constructor === socket.dataType.constructor;
+    };
+
+    const anyTypeCondition = (socket): boolean => {
+      return socket.dataType.constructor === new AnyType().constructor;
+    };
+
+    const anyCondition = (socket): boolean => {
+      return true;
+    };
+
+    return (
+      getIndex(preferredCondition, true) ?? // get preferred with no link
+      getIndex(exactMatchCondition, true) ?? // get exact match with no link
+      getIndex(anyTypeCondition, true) ?? // get anyType with no link
+      getIndex(anyCondition, true) ?? // get any with no link
+      getIndex(preferredCondition) ?? // get preferred
+      getIndex(anyCondition) // get first
+    );
   }
-
-  const index = socketArray.findIndex((socketInArray) => {
-    return socketInArray.dataType.constructor === new AnyType().constructor;
-  });
-
-  return index > -1 ? index : 0; // take the first index (0) if none was found
+  // node does not have an in/output socket
+  return undefined;
 };
