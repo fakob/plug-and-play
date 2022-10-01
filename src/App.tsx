@@ -1043,6 +1043,8 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         });
         addedNode.nodeName = selected.title;
       }
+      //const inputSocket = ad
+      //currentGraph.current.connect(addLink.isInput() ? )
       ActionHandler.references[referenceID] = addedNode;
 
       setNodeSearchActiveItem(selected);

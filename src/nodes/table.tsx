@@ -40,6 +40,15 @@ export class Table extends PPNode {
   protected getActivateByDoubleClick(): boolean {
     return true;
   }
+
+  getPreferredInputSocketName(): string {
+    return sheetIndexInputSocketName;
+  }
+
+  getPreferredOutputSocketName(): string {
+    return JSONSocketName;
+  }
+
   public getName(): string {
     return 'Table';
   }

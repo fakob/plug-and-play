@@ -20,7 +20,6 @@ import PPSelection from './SelectionClass';
 import { getAllNodeTypes } from '../nodes/allNodes';
 import { macroOutputName } from '../nodes/macro/macro';
 import { Action, ActionHandler } from '../utils/actionHandler';
-import { link } from 'fs/promises';
 
 export default class PPGraph {
   static currentGraph: PPGraph;
@@ -691,12 +690,6 @@ export default class PPGraph {
 
   addTriggerInput(): void {
     this.selection.selectedNodes.forEach((node) => node.addTriggerInput());
-  }
-
-  addInput(): void {
-    this.selection.selectedNodes
-      .filter((node) => node.getCanAddInput())
-      .forEach((node) => node.addDefaultInput());
   }
 
   getCanAddOutput(): boolean {

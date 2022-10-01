@@ -106,8 +106,8 @@ export class Mouse extends PPNode {
 }
 
 export class Keyboard extends PPNode {
-  onKeyDownHandler: (event?: KeyboardEvent) => void = () => { };
-  onKeyUpHandler: (event?: KeyboardEvent) => void = () => { };
+  onKeyDownHandler: (event?: KeyboardEvent) => void = () => {};
+  onKeyUpHandler: (event?: KeyboardEvent) => void = () => {};
   _onKeyDown = (event: KeyboardEvent): void => {
     this.setOutputData('key', event.key);
     this.setOutputData('code', event.code);
@@ -430,7 +430,7 @@ export class If_Else extends PPNode {
 
   protected getDefaultIO(): PPSocket[] {
     return [
-      new PPSocket(SOCKET_TYPE.IN, 'Condition', new AnyType(), 0),
+      new PPSocket(SOCKET_TYPE.IN, 'Condition', new BooleanType(), false),
       new PPSocket(SOCKET_TYPE.IN, 'A', new AnyType(), 'A'),
       new PPSocket(SOCKET_TYPE.IN, 'B', new AnyType(), 'B'),
       new PPSocket(SOCKET_TYPE.OUT, 'Output', new AnyType()),
