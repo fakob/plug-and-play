@@ -8,16 +8,18 @@ import {
   CustomArgs,
   SerializedGraph,
   SerializedLink,
+  SerializedNode,
   SerializedSelection,
   TSocketType,
 } from '../utils/interfaces';
-import { ensureVisible, getMatchingSocketIndex } from '../utils/utils';
+import { connectNodeToSocket, ensureVisible } from '../utils/utils';
 import PPNode from './NodeClass';
 import PPSocket from './SocketClass';
 import PPLink from './LinkClass';
 import PPSelection from './SelectionClass';
 import { getAllNodeTypes } from '../nodes/allNodes';
 import { macroOutputName } from '../nodes/macro/macro';
+import { Action, ActionHandler } from '../utils/actionHandler';
 
 export default class PPGraph {
   static currentGraph: PPGraph;
@@ -156,7 +158,7 @@ export default class PPGraph {
 
   _onPointerDown(event: PIXI.InteractionEvent): void {
     console.log('_onPointerDown');
-    event.stopPropagation();
+    //event.stopPropagation();
 
     this.onCloseSocketInspector();
 
@@ -169,7 +171,7 @@ export default class PPGraph {
       }
 
       // pause viewport drag
-      this.viewport.plugins.pause('drag');
+      //this.viewport.plugins.pause('drag');
     } else {
       this.viewport.cursor = 'grabbing';
       this.dragSourcePoint = new PIXI.Point(this.viewport.x, this.viewport.y);
@@ -285,7 +287,7 @@ export default class PPGraph {
 
   socketMouseDown(socket: PPSocket, event: PIXI.InteractionEvent): void {
     if (event.data.button === 2) {
-      socket.links.forEach((link) => link.delete());
+      socket.links.forEach((link) => this.action_Disconnect(link));
     } else if (socket.socketType === SOCKET_TYPE.OUT) {
       this.selectedSourceSocket = socket;
       this.lastSelectedSocketWasInput = false;
@@ -295,7 +297,7 @@ export default class PPGraph {
       const hasLink = socket.links.length > 0;
       if (hasLink) {
         this.selectedSourceSocket = socket.links[0].getSource();
-        socket.links.forEach((link) => link.delete());
+        socket.links.forEach((link) => this.action_Disconnect(link));
         this.onViewportMove(event);
         this.selectedSourceSocket.getNode().outputUnplugged();
       } else {
@@ -315,12 +317,12 @@ export default class PPGraph {
         source.socketType === SOCKET_TYPE.IN &&
         socket.socketType === SOCKET_TYPE.OUT
       ) {
-        await this.connect(socket, source);
+        await this.action_Connect(socket, source); //this.connect(socket, source);
       } else if (
         source.socketType === SOCKET_TYPE.OUT &&
         socket.socketType === SOCKET_TYPE.IN
       ) {
-        await this.connect(source, socket);
+        await this.action_Connect(source, socket); //this.connect(source, socket);
       }
     }
   }
@@ -379,14 +381,14 @@ export default class PPGraph {
       nodeConstructor = getAllNodeTypes()[name]?.constructor;
       if (customArgs?.name !== undefined && nodeConstructor) {
         this.onShowSnackbar(
-          `A replacement for the placeholder node ${customArgs?.customId} was found. It will be replaced with ${name}.`,
+          `A replacement for the placeholder node ${customArgs?.name} was found. It will be replaced with ${name}.`,
           {
             variant: 'success',
           }
         );
       } else {
         this.onShowSnackbar(
-          `No replacement for the placeholder node ${customArgs?.customId} was found.`
+          `No replacement for the placeholder node ${customArgs?.name} was found.`
         );
       }
     } else {
@@ -397,7 +399,7 @@ export default class PPGraph {
     if (!nodeConstructor) {
       // if there is no node of this type, create a placeholder node instead
       // and "save" the original node type in the placeholders name
-      const errorMessage = `Node of type ${type}(${customArgs?.customId}) is missing. A placeholder node will be created instead`;
+      const errorMessage = `Node of type ${type}(${customArgs?.name}) is missing. A placeholder node will be created instead`;
       console.warn(errorMessage);
       this.onShowSnackbar(errorMessage, {
         variant: 'warning',
@@ -416,62 +418,34 @@ export default class PPGraph {
     return node;
   }
 
-  addNode<T extends PPNode = PPNode>(node: T): T {
+  async addNode<T extends PPNode = PPNode>(node: T): Promise<T> {
     if (!node) {
       return;
     }
+    node.onNodeAdded();
 
     // add the node to the canvas
     this.nodes[node.id] = node;
     this.nodeContainer.addChild(node);
 
-    return node; //to chain actions
+    //await node.executeOptimizedChain();
+    return node;
   }
 
-  createAndAddNode<T extends PPNode = PPNode>(
-    type: string,
-    customArgs?: CustomArgs,
-    notify = true
-  ): T {
-    const node = this.createNode(type, customArgs) as T;
-    this.addNode(node);
+  // does not add any links, youll have do do that yourself
+  async addSerializedNode(
+    serialized: SerializedNode,
+    customArgs: CustomArgs = {}
+  ): Promise<PPNode> {
+    const node = this.createNode(serialized.type, customArgs);
+    node.configure(serialized);
+    await this.addNode(node);
+    return node;
+  }
 
-    if (customArgs?.addLink) {
-      if (!customArgs.addLink.isInput() && node.inputSocketArray.length > 0) {
-        console.log(
-          'connecting Output:',
-          customArgs.addLink.name,
-          'of',
-          customArgs.addLink.parent.name,
-          'with Input:',
-          node.inputSocketArray[0].name,
-          'of',
-          node.inputSocketArray[0].parent.name
-        );
-        const index = getMatchingSocketIndex(customArgs.addLink, node);
-        this.connect(customArgs.addLink, node.inputSocketArray[index], notify);
-        this.clearTempConnection();
-      } else if (
-        customArgs.addLink.isInput() &&
-        node.outputSocketArray.length > 0
-      ) {
-        console.log(
-          'connecting Input:',
-          customArgs.addLink.name,
-          'of',
-          customArgs.addLink.parent.name,
-          'with Output:',
-          node.outputSocketArray[0].name,
-          'of',
-          node.outputSocketArray[0].parent.name
-        );
-        const index = getMatchingSocketIndex(customArgs.addLink, node);
-        this.connect(node.outputSocketArray[index], customArgs.addLink, notify);
-      }
-    }
-    node.onNodeAdded();
-    node.executeOptimizedChain();
-
+  async addNewNode(type: string, customArgs: CustomArgs = {}): Promise<PPNode> {
+    const node = this.createNode(type, customArgs);
+    await this.addNode(node);
     return node;
   }
 
@@ -481,6 +455,79 @@ export default class PPGraph {
       0
     );
   };
+
+  async linkConnect(
+    sourceNodeID: string,
+    outputSocketName: string,
+    targetNodeID: string,
+    inputSocketName: string,
+    notify = false
+  ) {
+    await this.connect(
+      this.nodes[sourceNodeID].getOutputSocketByName(outputSocketName),
+      this.nodes[targetNodeID].getInputSocketByName(inputSocketName),
+      notify
+    );
+  }
+
+  async linkDisconnect(targetNodeID, inputSocketName) {
+    this.nodes[targetNodeID]
+      .getInputSocketByName(inputSocketName)
+      .links[0].delete();
+  }
+
+  // gets connect and unconnect actions for specified hypothetic link, based on node ID and socket name in order to be generic actions not reference-based
+  getConnectActions(
+    preSourceName: string,
+    preSourceNodeID: string,
+    preTargetName: string,
+    preTargetNodeID: string,
+    notify = false
+  ): any {
+    const action: Action = async () => {
+      await this.linkConnect(
+        preSourceNodeID,
+        preSourceName,
+        preTargetNodeID,
+        preTargetName
+      );
+    };
+    const undoAction: Action = async () => {
+      await this.linkDisconnect(preTargetNodeID, preTargetName);
+    };
+    return [action, undoAction];
+  }
+
+  async action_Disconnect(link: PPLink) {
+    const preSourceName = link.getSource().name;
+    const preSourceNodeID = link.getSource().getNode().id;
+    const preTargetName = link.getTarget().name;
+    const preTargetNodeID = link.getTarget().getNode().id;
+    const actions = this.getConnectActions(
+      preSourceName,
+      preSourceNodeID,
+      preTargetName,
+      preTargetNodeID
+    );
+    ActionHandler.performAction(actions[1], actions[0]);
+  }
+
+  async action_Connect(output: PPSocket, input: PPSocket, notify = true) {
+    const preSourceName = output.name;
+    const preSourceNodeID = output.getNode().id;
+    const preTargetName = input.name;
+    const preTargetNodeID = input.getNode().id;
+
+    const actions = this.getConnectActions(
+      preSourceName,
+      preSourceNodeID,
+      preTargetName,
+      preTargetNodeID,
+      notify
+    );
+
+    ActionHandler.performAction(actions[0], actions[1]);
+  }
 
   async connect(
     output: PPSocket,
@@ -515,28 +562,24 @@ export default class PPGraph {
     return link;
   }
 
-  addWidgetNode(socket: PPSocket): void {
+  async addWidgetNode(socket: PPSocket): Promise<void> {
     const node = socket.getNode();
+    let newNode;
     if (socket.isInput()) {
       const nodeType = socket.dataType.defaultInputNodeWidget();
-      if (nodeType !== undefined) {
-        const newNode = this.createAndAddNode(nodeType, {
-          nodePosX: node.x,
-          nodePosY: node.y + socket.y,
-          addLink: socket,
-        });
-        newNode.setPosition(-(newNode.width + 40), 0, true);
-      }
+      newNode = await this.addNewNode(nodeType, {
+        nodePosX: node.x,
+        nodePosY: node.y + socket.y,
+      });
+      newNode.setPosition(-(newNode.width + 40), 0, true);
     } else {
       const nodeType = socket.dataType.defaultOutputNodeWidget();
-      if (nodeType !== undefined) {
-        this.createAndAddNode(nodeType, {
-          nodePosX: node.x + (node.width + 40),
-          nodePosY: node.y + socket.y,
-          addLink: socket,
-        });
-      }
+      newNode = await this.addNewNode(nodeType, {
+        nodePosX: node.x + (node.width + 40),
+        nodePosY: node.y + socket.y,
+      });
     }
+    connectNodeToSocket(socket, newNode);
   }
 
   checkOldSocketAndUpdateIt<T extends PPSocket>(
@@ -595,7 +638,7 @@ export default class PPGraph {
     //create nodes
     const offset = new PIXI.Point();
     try {
-      data.nodes.forEach((node, index) => {
+      data.nodes.forEach(async (node, index) => {
         if (index === 0) {
           if (pasteToCenter) {
             // calculate offset from first node to viewport center
@@ -607,17 +650,14 @@ export default class PPGraph {
             offset.set(node.width + 40, 0);
           }
         }
-        const nodeType = node.type;
         // add node and carry over its con,figuration
-        const newNode = this.createAndAddNode(nodeType);
-        newNode.configure(node);
+        const newNode = await this.addSerializedNode(node);
 
         // offset pasted node
         newNode.setPosition(offset.x, offset.y, true);
 
         mappingOfOldAndNewNodes[node.id] = newNode;
         newNodes.push(newNode);
-        newNode.executeOptimizedChain();
       });
 
       await Promise.all(
@@ -751,16 +791,17 @@ export default class PPGraph {
 
     //create nodes
     try {
-      data.nodes.forEach((node) => {
-        this.createAndAddNode(
+      data.nodes.forEach(
+        async (node) => await this.addSerializedNode(node)
+        /*this.createAndAddNode(
           node.type,
           {
             customId: node.id,
             name: node.name, // placeholder node uses the name field to indicate which node they are a placeholder for
           },
           false
-        ).configure(node);
-      });
+        ).configure(node);*/
+      );
 
       await Promise.all(
         data.links.map(async (link) => {
@@ -848,11 +889,45 @@ export default class PPGraph {
     delete this.nodes[node.id];
   }
 
-  deleteSelectedNodes(): void {
-    const storedSelection = this.selection.selectedNodes;
-    console.log(storedSelection);
-    this.selection.deselectAllNodesAndResetSelection();
-    storedSelection.forEach((node) => this.removeNode(node));
+  action_DeleteSelectedNodes(): void {
+    const nodesSerialized = this.selection.selectedNodes.map((node) =>
+      node.serialize()
+    );
+    const linksSerialized = this.selection.selectedNodes
+      .map((node) =>
+        node
+          .getAllSockets()
+          .map((socket) => socket.links.map((link) => link.serialize()))
+      )
+      .flat()
+      .flat();
+    const action = async () => {
+      this.selection.deselectAllNodesAndResetSelection();
+      nodesSerialized.forEach((node) => this.removeNode(this.nodes[node.id])); // notice no direct references to make it work with redo
+    };
+    const undoAction = async () => {
+      const addedNodes: PPNode[] = [];
+      nodesSerialized.forEach(async (node: SerializedNode) => {
+        const addedNode = await PPGraph.currentGraph.addSerializedNode(node);
+        addedNodes.push(addedNode);
+      });
+
+      linksSerialized.forEach((link) => {
+        this.connect(
+          this.nodes[link.sourceNodeId].getOutputSocketByName(
+            link.sourceSocketName
+          ),
+          this.nodes[link.targetNodeId].getInputSocketByName(
+            link.targetSocketName
+          ),
+          false
+        );
+      });
+
+      this.selection.selectNodes(addedNodes);
+      this.selection.drawRectanglesFromSelection();
+    };
+    ActionHandler.performAction(action, undoAction);
   }
 
   public findMacroInput(name: string): PPNode {

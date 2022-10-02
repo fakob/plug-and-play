@@ -39,7 +39,7 @@ export type SerializedSelection = {
 };
 
 export type CustomArgs = {
-  customId?: string;
+  overrideId?: string;
   name?: string;
   nodePosX?: number;
   nodePosY?: number;
@@ -47,9 +47,7 @@ export type CustomArgs = {
   nodeHeight?: number;
   minNodeHeight?: number;
   minNodeWidth?: number;
-  addLink?: Socket;
   initialData?: any;
-  roundedCorners?: boolean;
   defaultArguments?: Record<string, any>;
 };
 

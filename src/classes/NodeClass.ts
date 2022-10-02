@@ -38,7 +38,7 @@ import PPGraph from './GraphClass';
 import Socket from './SocketClass';
 import {
   calculateAspectRatioFit,
-  getMatchingSocketIndex,
+  connectNodeToSocket,
   getNodeCommentPosX,
   getNodeCommentPosY,
 } from '../utils/utils';
@@ -106,6 +106,7 @@ export default class PPNode extends PIXI.Container {
   (positions: { screenX: number; screenY: number; scale: number }) => void =
     () => {};
 
+  // TODO, hybrid should be a child class, not an alternate mode
   protected getIsHybrid(): boolean {
     return false;
   }
@@ -141,7 +142,7 @@ export default class PPNode extends PIXI.Container {
 
   constructor(type: string, customArgs?: CustomArgs) {
     super();
-    this.id = customArgs?.customId ?? hri.random();
+    this.id = customArgs?.overrideId || hri.random();
     this.name = type;
     this.type = type;
     this.description = '';
@@ -317,7 +318,7 @@ export default class PPNode extends PIXI.Container {
 
   addInput(
     name: string,
-    type: AbstractType, // but really its AbstractType
+    type: AbstractType,
     data?: unknown,
     visible?: boolean,
     custom?: Record<string, any>, // lets get rid of this ASAP
@@ -381,7 +382,9 @@ export default class PPNode extends PIXI.Container {
     return node;
   }
 
+  // IMPORTANT, call this before its added to graph (because it uses ID)
   configure(nodeConfig: SerializedNode): void {
+    this.id = nodeConfig.id;
     this.x = nodeConfig.x;
     this.y = nodeConfig.y;
     this.nodeName = nodeConfig.name;
@@ -1281,25 +1284,14 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     this.cursor = 'move';
   }
 
+  // TODO why is both nodeclass, selectionclass and graphclass involved in this stuff? not good
   _onPointerUp(): void {
     this.commonPointerUp();
 
     const source = PPGraph.currentGraph.selectedSourceSocket;
-    if (source) {
-      PPGraph.currentGraph.selectedSourceSocket = null;
-      if (this !== source.getNode()) {
-        if (source.socketType === SOCKET_TYPE.IN) {
-          const index = getMatchingSocketIndex(source, this, true);
-          if (index !== undefined) {
-            PPGraph.currentGraph.connect(this.outputSocketArray[index], source);
-          }
-        } else {
-          const index = getMatchingSocketIndex(source, this);
-          if (index !== undefined) {
-            PPGraph.currentGraph.connect(source, this.inputSocketArray[index]);
-          }
-        }
-      }
+    if (source && this !== source.getNode()) {
+      PPGraph.currentGraph.selectedSourceSocket = null; // hack
+      connectNodeToSocket(source, this);
     }
   }
 

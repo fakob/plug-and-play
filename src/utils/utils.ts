@@ -558,29 +558,39 @@ export const isVariable = (
   }
 };
 
-export const getMatchingSocketIndex = (
+export async function connectNodeToSocket(
   socket: PPSocket,
-  node: PPNode,
-  isOutput = false
-): number | undefined => {
-  const socketArray = isOutput ? node.outputSocketArray : node.inputSocketArray;
+  node: PPNode
+): Promise<void> {
+  if (!node) {
+    return;
+  }
+  const input = socket.isInput() ? socket : getMatchingSocket(socket, node);
+  const output = !socket.isInput() ? socket : getMatchingSocket(socket, node);
+  if (!input || !output) {
+    return;
+  }
+  // this is an action, feel free to chance
+  await PPGraph.currentGraph.action_Connect(output, input);
+}
+
+export const getMatchingSocket = (socket: PPSocket, node: PPNode): PPSocket => {
+  const socketArray = socket.isInput()
+    ? node.outputSocketArray
+    : node.inputSocketArray;
   if (socketArray.length > 0) {
-    const getIndex = (
-      condition,
-      onlyFreeSocket = false
-    ): number | undefined => {
-      const index = socketArray.findIndex((socket) => {
+    const getSocket = (condition, onlyFreeSocket = false): PPSocket => {
+      return socketArray.find((socketInArray) => {
         return (
-          socket.visible &&
-          condition(socket) &&
-          (!onlyFreeSocket || !socket.hasLink())
+          socketInArray.visible &&
+          condition(socketInArray) &&
+          (!onlyFreeSocket || !socketInArray.hasLink())
         );
       });
-      return index > -1 ? index : undefined;
     };
 
     const preferredCondition = (socket): boolean => {
-      const preferredSocketName = isOutput
+      const preferredSocketName = socket.isInput()
         ? node.getPreferredOutputSocketName()
         : node.getPreferredInputSocketName();
       return socket.name === preferredSocketName;
@@ -599,12 +609,12 @@ export const getMatchingSocketIndex = (
     };
 
     return (
-      getIndex(preferredCondition, true) ?? // get preferred with no link
-      getIndex(exactMatchCondition, true) ?? // get exact match with no link
-      getIndex(anyTypeCondition, true) ?? // get anyType with no link
-      getIndex(anyCondition, true) ?? // get any with no link
-      getIndex(preferredCondition) ?? // get preferred
-      getIndex(anyCondition) // get first
+      getSocket(preferredCondition, true) ?? // get preferred with no link
+      getSocket(exactMatchCondition, true) ?? // get exact match with no link
+      getSocket(anyTypeCondition, true) ?? // get anyType with no link
+      getSocket(anyCondition, true) ?? // get any with no link
+      getSocket(preferredCondition) ?? // get preferred
+      getSocket(anyCondition) // get first
     );
   }
   // node does not have an in/output socket

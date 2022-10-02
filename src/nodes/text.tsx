@@ -87,7 +87,6 @@ export class Label extends PPNode {
     super(name, {
       ...customArgs,
       nodeWidth,
-      roundedCorners: false,
     });
 
     const canvas = PPGraph.currentGraph.foregroundCanvas;
