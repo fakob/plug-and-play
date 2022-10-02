@@ -101,6 +101,12 @@ export class Label extends PPNode {
       this.createInputElement();
     };
 
+    // when the Node has been configured, remove focus
+    this.onConfigure = () => {
+      this.currentInput.remove();
+      this._refText.visible = true;
+    };
+
     this.createInputElement = () => {
       // create html input element
       const screenPoint = PPGraph.currentGraph.viewport.toScreen(

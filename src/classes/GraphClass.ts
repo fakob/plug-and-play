@@ -430,7 +430,7 @@ export default class PPGraph {
     this.nodes[node.id] = node;
     this.nodeContainer.addChild(node);
 
-    await node.executeOptimizedChain();
+    //await node.executeOptimizedChain();
     return node;
   }
 
@@ -440,8 +440,8 @@ export default class PPGraph {
     customArgs: CustomArgs = {}
   ): Promise<PPNode> {
     const node = this.createNode(serialized.type, customArgs);
-    node.configure(serialized);
     await this.addNode(node);
+    node.configure(serialized);
     return node;
   }
 
