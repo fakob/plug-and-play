@@ -84,6 +84,10 @@ export class Table extends PPNode {
     return 0.01;
   }
 
+  protected onNodeExit(): void {
+    this.executeOptimizedChain();
+  }
+
   constructor(name: string, customArgs?: CustomArgs) {
     const nodeWidth = 800;
     const nodeHeight = 400;
@@ -145,10 +149,6 @@ export class Table extends PPNode {
         this.setAllOutputData(this.workBook);
       }
       this.update();
-    };
-
-    this.onHybridNodeExit = () => {
-      this.executeOptimizedChain();
     };
 
     this.onNodeResize = () => {

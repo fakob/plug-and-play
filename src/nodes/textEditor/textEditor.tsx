@@ -114,6 +114,10 @@ export class TextEditor extends PPNode {
     return 0.01;
   }
 
+  protected onNodeExit(): void {
+    this.update();
+  }
+
   constructor(name: string, customArgs?: CustomArgs) {
     const nodeWidth = 400;
     const nodeHeight = 300;
@@ -190,10 +194,6 @@ export class TextEditor extends PPNode {
 
     this.onNodeDoubleClick = () => {
       PPGraph.currentGraph.selection.drawRectanglesFromSelection();
-      this.update();
-    };
-
-    this.onHybridNodeExit = () => {
       this.update();
     };
 

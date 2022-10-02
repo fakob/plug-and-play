@@ -92,7 +92,6 @@ export default class PPNode extends PIXI.Container {
   onViewportMoveHandler: (event?: PIXI.InteractionEvent) => void = () => {};
   onViewportPointerUpHandler: (event?: PIXI.InteractionEvent) => void =
     () => {};
-  onHybridNodeExit: () => void = () => {}; // called when a hybrid node is exited after double click
   onNodeAdded: () => void = () => {}; // called when the node is added to the graph
   onNodeRemoved: () => void = () => {}; // called when the node is removed from the graph
   onNodeDragging: (isDraggingNode: boolean) => void = () => {}; // called when the node is being dragged
@@ -101,6 +100,8 @@ export default class PPNode extends PIXI.Container {
   onNodeDragOrViewportMove: // called when the node or or the viewport with the node is moved or scaled
   (positions: { screenX: number; screenY: number; scale: number }) => void =
     () => {};
+
+  protected onNodeExit(): void {}
 
   // TODO, hybrid should be a child class, not an alternate mode
   protected getIsHybrid(): boolean {
@@ -1364,7 +1365,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
       (this as any).onViewportPointerUpHandler
     );
     this.doubleClicked = false;
-    this.onHybridNodeExit();
+    this.onNodeExit();
     // this allows to zoom and drag when the hybrid node is not selected
     this.container.style.pointerEvents = 'none';
     this.container.classList.remove(styles.hybridContainerFocused);
