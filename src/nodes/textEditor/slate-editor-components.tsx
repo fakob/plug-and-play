@@ -347,7 +347,7 @@ export const withHtml = (editor) => {
     return element.type === 'image' ? true : isVoid(element);
   };
 
-  editor.insertData = (data) => {
+  editor.insertData = (data: DataTransfer) => {
     const html = data.getData('text/html');
 
     if (html) {
@@ -377,7 +377,7 @@ export const withLinks = (editor: Editor): Editor => {
     }
   };
 
-  editor.insertData = (data) => {
+  editor.insertData = (data: DataTransfer) => {
     const text = data.getData('text/plain');
 
     if (text && isUrl(text)) {
