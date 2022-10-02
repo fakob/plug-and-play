@@ -430,7 +430,7 @@ export default class PPGraph {
     this.nodes[node.id] = node;
     this.nodeContainer.addChild(node);
 
-    //await node.executeOptimizedChain();
+    await node.executeOptimizedChain();
     return node;
   }
 
