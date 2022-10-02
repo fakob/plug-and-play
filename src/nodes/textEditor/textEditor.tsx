@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { Box, ThemeProvider } from '@mui/material';
 import { ErrorBoundary } from 'react-error-boundary';
 import { Editor, Descendant, Range, Transforms, createEditor } from 'slate';
@@ -54,7 +60,6 @@ const inputName1 = `${inputPrefix} 1`;
 
 export class TextEditor extends HybridNode {
   getAllParameters: () => void;
-  importText: (text: string) => void;
   update: (newHeight?: number, textToImport?: string) => void;
   readOnly: boolean;
   textToImport: string;
@@ -167,10 +172,6 @@ export class TextEditor extends HybridNode {
       return JSON.stringify(dataObject);
     };
 
-    this.importText = (text: string): void => {
-      this.update(undefined, text);
-    };
-
     // when the Node is added, create the container and react component
     this.onNodeAdded = () => {
       const data = this.getInputData(textJSONSocketName);
@@ -190,7 +191,7 @@ export class TextEditor extends HybridNode {
       });
     };
 
-    this.update = (newHeight, textToImport): void => {
+    this.update = (newHeight): void => {
       const data = this.getInputData(textJSONSocketName);
       const autoHeight = this.getInputData(autoHeightName);
       const allParameters = this.getAllParameters();
@@ -241,6 +242,7 @@ export class TextEditor extends HybridNode {
           ),
         []
       );
+      const editorRef = useRef(null);
       const [target, setTarget] = useState<Range | undefined>();
       const [index, setIndex] = useState(0);
       const [color, setColor] = useState(props.color);
@@ -276,31 +278,27 @@ export class TextEditor extends HybridNode {
         this.resizeNode(this.nodeWidth, editorHeight);
       };
 
-      // console.log('textToImport: ', props.textToImport);
-      // if (props.textToImport) {
-      //   Transforms.select(editor, {
-      //     anchor: Editor.start(editor, []),
-      //     focus: Editor.end(editor, []),
-      //   });
-      //   // Editor.insertText(editor, props.textToImport);
-      //   editor.insertText(props.textToImport);
-      //   // ReactEditor.focus(editor);
-      //   setNewHeight();
-      // }
-
+      // workaround to get ref of editor
       useEffect(() => {
-        if (props.textToImport) {
-          console.log('textToImport: ', props.textToImport);
-          Transforms.select(editor, {
-            anchor: Editor.start(editor, []),
-            focus: Editor.end(editor, []),
-          });
-          // Editor.insertText(editor, props.textToImport);
-          editor.insertText(props.textToImport);
-          // ReactEditor.focus(editor);
-          setNewHeight();
-        }
+        editorRef.current = ReactEditor.toDOMNode(editor, editor);
       }, []);
+
+      // waith for editor to be ready before importing text
+      useEffect(() => {
+        if (editorRef.current) {
+          if (props.textToImport) {
+            console.log('textToImport: ', props.textToImport);
+            Transforms.select(editor, {
+              anchor: Editor.start(editor, []),
+              focus: Editor.end(editor, []),
+            });
+            editor.insertText(props.textToImport);
+            setTimeout(() => {
+              setNewHeight();
+            }, 100);
+          }
+        }
+      }, [editorRef.current]);
 
       useEffect(() => {
         if (props.autoHeight) {

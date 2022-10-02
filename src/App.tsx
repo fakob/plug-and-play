@@ -400,15 +400,11 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         console.log('Clipboard does not contain node data');
         if (currentGraph.current.selection.selectedNodes.length < 1) {
           const mouseWorld = viewport.current.toWorld(mousePosition);
-          const newNode = currentGraph.current.createAndAddNode('TextEditor', {
+          currentGraph.current.createAndAddNode('TextEditor', {
             nodePosX: mouseWorld.x,
             nodePosY: mouseWorld.y,
             initialData: textFromClipboard,
           });
-          // console.log(newNode);
-          // setTimeout(() => {
-          //   (newNode as TextEditor).importText(textFromClipboard);
-          // }, 1000);
         }
       }
     });
