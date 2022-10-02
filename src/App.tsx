@@ -572,25 +572,30 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       const modKey = isMac ? e.metaKey : e.ctrlKey;
       if (!isEventComingFromWithinTextInput(e)) {
         if (modKey && !e.shiftKey) {
-          e.preventDefault();
           switch (e.key.toLowerCase()) {
             case 'a':
               currentGraph.current.selection.selectAllNodes();
+              e.preventDefault();
               break;
             case 'f':
               openNodeSearch(mousePosition);
+              e.preventDefault();
               break;
             case 'd':
               currentGraph.current.duplicateSelection();
+              e.preventDefault();
               break;
             case 'o':
               setIsGraphSearchOpen((prevState) => !prevState);
+              e.preventDefault();
               break;
             case 'e':
               setShowEdit((prevState) => !prevState);
+              e.preventDefault();
               break;
             case 'z':
               ActionHandler.undo();
+              e.preventDefault();
               break;
           }
         } else if (modKey && e.shiftKey) {
