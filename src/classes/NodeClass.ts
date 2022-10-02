@@ -56,9 +56,7 @@ export default class PPNode extends PIXI.Container {
   isHovering: boolean;
 
   id: string;
-  // name: string; // Display name - at first it is the type with spaces - defined on PIXI.Container
   type: string; // Type
-  category: string; // Category - derived from type
   nodePosX: number;
   nodePosY: number;
   nodeWidth: number;
@@ -66,7 +64,6 @@ export default class PPNode extends PIXI.Container {
   minNodeHeight: number;
   nodeHeight: number;
 
-  // default to update on update, 1 sec time update interval
   updateBehaviour: UpdateBehaviourClass;
   nodeSelectionHeader: NodeSelectionHeaderClass;
   lastTimeTicked = 0;
