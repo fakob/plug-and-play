@@ -382,9 +382,7 @@ export default class PPNode extends PIXI.Container {
     return node;
   }
 
-  // IMPORTANT, call this before its added to graph (because it uses ID)
   configure(nodeConfig: SerializedNode): void {
-    this.id = nodeConfig.id;
     this.x = nodeConfig.x;
     this.y = nodeConfig.y;
     this.nodeName = nodeConfig.name;
@@ -454,9 +452,7 @@ export default class PPNode extends PIXI.Container {
       );
     }
 
-    if (this.onConfigure) {
-      this.onConfigure(nodeConfig);
-    }
+    this.onConfigure(nodeConfig);
 
     if (this.getIsHybrid()) {
       this._onViewportMove(); // trigger this once, so the react components get positioned properly

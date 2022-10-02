@@ -20,6 +20,7 @@ import PPSelection from './SelectionClass';
 import { getAllNodeTypes } from '../nodes/allNodes';
 import { macroOutputName } from '../nodes/macro/macro';
 import { Action, ActionHandler } from '../utils/actionHandler';
+import { hri } from 'human-readable-ids';
 
 export default class PPGraph {
   static currentGraph: PPGraph;
@@ -651,7 +652,9 @@ export default class PPGraph {
           }
         }
         // add node and carry over its con,figuration
-        const newNode = await this.addSerializedNode(node);
+        const newNode = await this.addSerializedNode(node, {
+          overrideId: hri.random(),
+        });
 
         // offset pasted node
         newNode.setPosition(offset.x, offset.y, true);
