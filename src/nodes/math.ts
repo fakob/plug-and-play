@@ -10,13 +10,16 @@ export class MathFunction extends PPNode {
   getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
   }
+
+  public getDescription(): string {
+    return 'Mathematical constants and functions';
+  }
   constructor(name: string, customArgs: CustomArgs) {
     super(name, {
       ...customArgs,
     });
 
     this.name = 'Math function';
-    this.description = 'Mathematical constants and functions';
 
     const staticProperties = [
       'E',

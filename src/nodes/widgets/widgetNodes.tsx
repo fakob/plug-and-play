@@ -54,6 +54,9 @@ export class WidgetButton extends PPNode {
     ];
   }
 
+  public getDescription(): string {
+    return 'Adds a button to trigger values';
+  }
   constructor(name: string, customArgs?: CustomArgs) {
     const nodeWidth = 200;
     const nodeHeight = 104;
@@ -66,7 +69,6 @@ export class WidgetButton extends PPNode {
     });
 
     this.name = 'Button';
-    this.description = 'Adds a button to trigger values';
 
     // when the Node is added, add the container and react component
     this.onNodeAdded = () => {
@@ -210,6 +212,10 @@ export class WidgetSwitch extends PPNode {
     ];
   }
 
+  public getDescription(): string {
+    return 'Adds a switch to toggle between values';
+  }
+
   constructor(name: string, customArgs?: CustomArgs) {
     const nodeWidth = 200;
     const nodeHeight = 104;
@@ -222,7 +228,6 @@ export class WidgetSwitch extends PPNode {
     });
 
     this.name = 'Switch';
-    this.description = 'Adds a switch to toggle between values';
 
     // when the Node is added, add the container and react component
     this.onNodeAdded = () => {
@@ -368,6 +373,10 @@ export class WidgetSlider extends PPNode {
     ];
   }
 
+  public getDescription(): string {
+    return 'Adds a number slider';
+  }
+
   constructor(name: string, customArgs?: CustomArgs) {
     const nodeWidth = 200;
     const nodeHeight = 104;
@@ -380,7 +389,6 @@ export class WidgetSlider extends PPNode {
     });
 
     this.name = 'Slider';
-    this.description = 'Adds a number slider';
 
     // when the Node is added, add the container and react component
     this.onNodeAdded = () => {

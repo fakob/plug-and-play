@@ -20,13 +20,16 @@ export class JSONGet extends PPNode {
   getColor(): TRgba{
     return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
   }
+
+  public getDescription(): string {
+    return 'Get the value of a JSON at the defined path';
+  }
   constructor(name: string, customArgs: CustomArgs) {
     super(name,  {
       ...customArgs,
     });
 
     this.name = 'Get JSON value';
-    this.description = 'Get the value of a JSON at the defined path';
   }
 
   protected getDefaultIO(): Socket[] {
@@ -77,7 +80,10 @@ export class JSONSet extends PPNode {
     });
 
     this.name = 'Set JSON value';
-    this.description = 'Set a value on a JSON at the defined path';
+  }
+
+  public getDescription(): string {
+    return 'Set a value on a JSON at the defined path';
   }
 
   protected getDefaultIO(): Socket[] {
@@ -128,7 +134,10 @@ export class JSONKeys extends PPNode {
     });
 
     this.name = 'Get all JSON properties';
-    this.description = "Returns an array of the given object's property names";
+  }
+
+  public getDescription(): string {
+    return "Returns an array of the given object's property names";
   }
 
   protected getDefaultIO(): Socket[] {
@@ -154,13 +163,17 @@ export class JSONValues extends PPNode {
     return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
   }
 
+
+  public getDescription(): string {
+    return 'Returns an array of the given objects values';
+  }
+
   constructor(name: string,  customArgs: CustomArgs) {
     super(name, {
       ...customArgs,
     });
 
     this.name = 'Get all JSON values';
-    this.description = 'Returns an array of the given objects values';
   }
 
   protected getDefaultIO(): Socket[] {

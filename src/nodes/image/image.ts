@@ -76,12 +76,15 @@ export class Image extends PPNode {
     return 0.2;
   }
 
+  public getDescription(): string {
+    return 'Draws an Image (base64)';
+  }
+
   constructor(name: string, customArgs: CustomArgs) {
     super(name, {
       ...customArgs,
     });
     this.name = 'Draw Image';
-    this.description = 'Draws an Image (base64)';
 
     this.setMinNodeHeight = (nodeWidth: number) => {
       if (this.texture === undefined) {

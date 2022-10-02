@@ -59,7 +59,6 @@ export default class PPNode extends PIXI.Container {
   // name: string; // Display name - at first it is the type with spaces - defined on PIXI.Container
   type: string; // Type
   category: string; // Category - derived from type
-  description: string;
   nodePosX: number;
   nodePosY: number;
   nodeWidth: number;
@@ -124,7 +123,7 @@ export default class PPNode extends PIXI.Container {
     return this.name;
   }
   public getDescription(): string {
-    return this.description;
+    return '';
   }
 
   public getNodeWidth(): number {
@@ -139,13 +138,61 @@ export default class PPNode extends PIXI.Container {
   public getOpacity(): number {
     return 1;
   }
+  protected shouldExecuteOnMove(): boolean {
+    return false;
+  }
+
+  protected getUpdateBehaviour(): UpdateBehaviourClass {
+    return new UpdateBehaviourClass(true, false, 1000);
+  }
+
+  protected getDefaultIO(): Socket[] {
+    return [];
+  }
+
+  public getCanAddInput(): boolean {
+    return false;
+  }
+
+  protected getShouldShowHoverActions(): boolean {
+    return true;
+  }
+
+  getNodeHeight(): number {
+    return this.nodeHeight === undefined
+      ? this.calculatedMinNodeHeight
+      : Math.max(this.nodeHeight, this.calculatedMinNodeHeight);
+  }
+
+  public getNodeTextString(): string {
+    if (this.name !== this.type) {
+      return this.name + '\t(' + this.type + ')';
+    }
+    return this.name;
+  }
+
+  public getParallelInputsOutputs(): boolean {
+    return false;
+  }
+
+  public getRoundedCorners(): boolean {
+    return true;
+  }
+
+  get nodeName(): string {
+    return this.name;
+  }
+
+  set nodeName(text: string) {
+    this.name = text;
+    this._NodeNameRef.text = this.getNodeTextString();
+  }
 
   constructor(type: string, customArgs?: CustomArgs) {
     super();
     this.id = customArgs?.overrideId || hri.random();
     this.name = type;
     this.type = type;
-    this.description = '';
     this.nodeTriggerSocketArray = [];
     this.inputSocketArray = [];
     this.outputSocketArray = [];
@@ -270,16 +317,6 @@ export default class PPNode extends PIXI.Container {
       : Math.max(minHeight, this.minNodeHeight);
   }
 
-  get nodeName(): string {
-    return this.name;
-  }
-
-  set nodeName(text: string) {
-    this.name = text;
-    this._NodeNameRef.text = this.getNodeTextString();
-  }
-
-  // METHODS
   getSourceCode(): string {
     return this.constructor.toString();
   }
@@ -739,27 +776,6 @@ export default class PPNode extends PIXI.Container {
     return this.getAllSockets().find((socket) => socket.name === name);
   }
 
-  getNodeHeight(): number {
-    return this.nodeHeight === undefined
-      ? this.calculatedMinNodeHeight
-      : Math.max(this.nodeHeight, this.calculatedMinNodeHeight);
-  }
-
-  public getNodeTextString(): string {
-    if (this.name !== this.type) {
-      return this.name + '\t(' + this.type + ')';
-    }
-    return this.name;
-  }
-
-  public getParallelInputsOutputs(): boolean {
-    return false;
-  }
-
-  public getRoundedCorners(): boolean {
-    return true;
-  }
-
   public drawBackground(): void {
     this._BackgroundRef.drawRoundedRect(
       NODE_MARGIN,
@@ -845,26 +861,6 @@ export default class PPNode extends PIXI.Container {
     if (PPGraph.currentGraph.selection.isNodeSelected(this)) {
       PPGraph.currentGraph.selection.drawRectanglesFromSelection();
     }
-  }
-
-  shouldExecuteOnMove(): boolean {
-    return false;
-  }
-
-  protected getUpdateBehaviour(): UpdateBehaviourClass {
-    return new UpdateBehaviourClass(true, false, 1000);
-  }
-
-  protected getDefaultIO(): Socket[] {
-    return [];
-  }
-
-  public getCanAddInput(): boolean {
-    return false;
-  }
-
-  protected getShouldShowHoverActions(): boolean {
-    return true;
   }
 
   constructSocketName(prefix: string, existing: Socket[]): string {
@@ -1139,7 +1135,6 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
         output.data = outputObject[output.name];
       }
     });
-    this.onAfterExecute();
   }
 
   // override if you don't want your node to show outline for some reason
@@ -1214,10 +1209,6 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
 
   // dont call this from outside, only from child class
   protected async onExecute(input, output): Promise<void> {
-    // just define function
-  }
-
-  protected onAfterExecute(): void {
     // just define function
   }
 
