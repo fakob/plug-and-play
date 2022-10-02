@@ -21,6 +21,7 @@ import { getAllNodeTypes } from '../nodes/allNodes';
 import { macroOutputName } from '../nodes/macro/macro';
 import { Action, ActionHandler } from '../utils/actionHandler';
 import { hri } from 'human-readable-ids';
+import { notDeepEqual } from 'assert';
 
 export default class PPGraph {
   static currentGraph: PPGraph;
@@ -795,7 +796,8 @@ export default class PPGraph {
     //create nodes
     try {
       data.nodes.forEach(
-        async (node) => await this.addSerializedNode(node)
+        async (node) =>
+          await this.addSerializedNode(node, { overrideId: node.id })
         /*this.createAndAddNode(
           node.type,
           {
