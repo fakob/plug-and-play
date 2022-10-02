@@ -179,7 +179,6 @@ export class TextEditor extends HybridNode {
       const color: TRgba = this.getInputData(backgroundColorSocketName);
       const allParameters = this.getAllParameters();
       this.readOnly = this.getInputSocketByName(textJSONSocketName).hasLink();
-      console.log(this.textToImport);
       this.createContainerComponent(ParentComponent, {
         nodeHeight: this.nodeHeight,
         data,
@@ -256,6 +255,29 @@ export class TextEditor extends HybridNode {
         .filter((item) => item.name.startsWith(inputPrefix))
         .map((item) => item.name);
 
+      const updateEditorData = () => {
+        // update editor data
+        editor.children = props.data;
+
+        // substitute @inputs with input parameters
+        const allParametersObject = JSON.parse(props.allParameters);
+        Object.keys(allParametersObject).map((parameterName) => {
+          Transforms.setNodes(
+            editor,
+            { reactiveText: allParametersObject[parameterName] },
+            {
+              at: [],
+              match: (node: MentionElement) => {
+                return (
+                  node.type === 'mention' && node.inputName === parameterName
+                );
+              },
+              mode: 'all', // also the Editor's children
+            }
+          );
+        });
+      };
+
       const onHandleParameterSelect = (event, index) => {
         event.preventDefault();
         let parameterName = parameterNameArray[index];
@@ -269,21 +291,21 @@ export class TextEditor extends HybridNode {
       };
 
       const setNewHeight = () => {
-        const editorHeight =
-          document.getElementById(this.id).getBoundingClientRect().height /
-          PPGraph.currentGraph.viewport.scale.x;
-        console.log(
-          document.getElementById(this.id).getBoundingClientRect().height
-        );
-        this.resizeNode(this.nodeWidth, editorHeight);
+        if (props.autoHeight) {
+          const editorHeight = Math.ceil(
+            document.getElementById(this.id).getBoundingClientRect().height /
+              PPGraph.currentGraph.viewport.scale.x
+          );
+          this.resizeNode(this.nodeWidth, editorHeight);
+        }
       };
 
-      // workaround to get ref of editor
+      // workaround to get ref of editor to be used as mounted/ready check
       useEffect(() => {
         editorRef.current = ReactEditor.toDOMNode(editor, editor);
       }, []);
 
-      // waith for editor to be ready before importing text
+      // wait for editor to be ready before importing/displaying text
       useEffect(() => {
         if (editorRef.current) {
           if (props.textToImport) {
@@ -293,10 +315,15 @@ export class TextEditor extends HybridNode {
               focus: Editor.end(editor, []),
             });
             editor.insertText(props.textToImport);
-            setTimeout(() => {
-              setNewHeight();
-            }, 100);
+          } else {
+            updateEditorData();
           }
+
+          // delay getting div size as
+          // the css takes a little before it is applied
+          setTimeout(() => {
+            setNewHeight();
+          }, 200);
         }
       }, [editorRef.current]);
 
@@ -318,26 +345,7 @@ export class TextEditor extends HybridNode {
 
       useEffect(() => {
         if (!props.doubleClicked) {
-          // update editor data
-          editor.children = props.data;
-
-          // substitute @inputs with input parameters
-          const allParametersObject = JSON.parse(props.allParameters);
-          Object.keys(allParametersObject).map((parameterName) => {
-            Transforms.setNodes(
-              editor,
-              { reactiveText: allParametersObject[parameterName] },
-              {
-                at: [],
-                match: (node: MentionElement) => {
-                  return (
-                    node.type === 'mention' && node.inputName === parameterName
-                  );
-                },
-                mode: 'all', // also the Editor's children
-              }
-            );
-          });
+          updateEditorData();
         }
       }, [props.allParameters, props.data]);
 
@@ -363,10 +371,7 @@ export class TextEditor extends HybridNode {
           }
         }
         setTarget(null);
-
-        if (props.autoHeight) {
-          setNewHeight();
-        }
+        setNewHeight();
 
         // update in and outputs
         this.setInputData(textJSONSocketName, value);
