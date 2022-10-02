@@ -911,7 +911,9 @@ export default class PPGraph {
     const undoAction = async () => {
       const addedNodes: PPNode[] = [];
       nodesSerialized.forEach(async (node: SerializedNode) => {
-        const addedNode = await PPGraph.currentGraph.addSerializedNode(node);
+        const addedNode = await PPGraph.currentGraph.addSerializedNode(node, {
+          overrideId: node.id,
+        });
         addedNodes.push(addedNode);
       });
 
