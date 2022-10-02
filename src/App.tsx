@@ -47,6 +47,7 @@ import {
 } from './components/ContextMenus';
 import { GraphDatabase } from './utils/indexedDB';
 import PPGraph from './classes/GraphClass';
+import { TextEditor } from './nodes/textEditor/TextEditor';
 import {
   BASIC_VERTEX_SHADER,
   CANVAS_BACKGROUND_ALPHA,
@@ -375,7 +376,17 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
 
     document.addEventListener('paste', async (e) => {
       // get text from clipboard and try to parse it
+      const clipboardItems = await navigator.clipboard.read();
+
+      for (const clipboardItem of clipboardItems) {
+        for (const type of clipboardItem.types) {
+          const blob = await clipboardItem.getType(type);
+          console.log(await blob.text());
+        }
+      }
+
       const textFromClipboard = await navigator.clipboard.readText();
+      // console.log(textFromClipboard);
       try {
         const json = JSON.parse(textFromClipboard) as SerializedSelection;
         if (json.version) {
@@ -387,6 +398,18 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         }
       } catch (e) {
         console.log('Clipboard does not contain node data');
+        if (currentGraph.current.selection.selectedNodes.length < 1) {
+          const mouseWorld = viewport.current.toWorld(mousePosition);
+          const newNode = currentGraph.current.createAndAddNode('TextEditor', {
+            nodePosX: mouseWorld.x,
+            nodePosY: mouseWorld.y,
+            initialData: textFromClipboard,
+          });
+          // console.log(newNode);
+          // setTimeout(() => {
+          //   (newNode as TextEditor).importText(textFromClipboard);
+          // }, 1000);
+        }
       }
     });
 

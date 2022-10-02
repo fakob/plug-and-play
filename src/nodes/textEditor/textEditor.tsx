@@ -54,8 +54,10 @@ const inputName1 = `${inputPrefix} 1`;
 
 export class TextEditor extends HybridNode {
   getAllParameters: () => void;
-  update: (newHeight?) => void;
+  importText: (text: string) => void;
+  update: (newHeight?: number, textToImport?: string) => void;
   readOnly: boolean;
+  textToImport: string;
 
   protected getActivateByDoubleClick(): boolean {
     return true;
@@ -136,9 +138,7 @@ export class TextEditor extends HybridNode {
       minNodeHeight: 100,
     });
 
-    if (customArgs?.initialData) {
-      this.setInputData(textJSONSocketName, customArgs?.initialData);
-    }
+    this.textToImport = customArgs?.initialData;
 
     this.readOnly = false;
 
@@ -167,6 +167,10 @@ export class TextEditor extends HybridNode {
       return JSON.stringify(dataObject);
     };
 
+    this.importText = (text: string): void => {
+      this.update(undefined, text);
+    };
+
     // when the Node is added, create the container and react component
     this.onNodeAdded = () => {
       const data = this.getInputData(textJSONSocketName);
@@ -174,7 +178,7 @@ export class TextEditor extends HybridNode {
       const color: TRgba = this.getInputData(backgroundColorSocketName);
       const allParameters = this.getAllParameters();
       this.readOnly = this.getInputSocketByName(textJSONSocketName).hasLink();
-
+      console.log(this.textToImport);
       this.createContainerComponent(ParentComponent, {
         nodeHeight: this.nodeHeight,
         data,
@@ -182,10 +186,11 @@ export class TextEditor extends HybridNode {
         color,
         allParameters,
         readOnly: this.readOnly,
+        textToImport: this.textToImport,
       });
     };
 
-    this.update = (newHeight): void => {
+    this.update = (newHeight, textToImport): void => {
       const data = this.getInputData(textJSONSocketName);
       const autoHeight = this.getInputData(autoHeightName);
       const allParameters = this.getAllParameters();
@@ -199,6 +204,7 @@ export class TextEditor extends HybridNode {
         color,
         allParameters,
         readOnly: this.readOnly,
+        textToImport: this.textToImport,
       });
     };
 
@@ -224,6 +230,7 @@ export class TextEditor extends HybridNode {
       randomMainColor: string;
       nodeHeight: number;
       readOnly: boolean;
+      textToImport?: string;
     };
 
     const ParentComponent: React.FunctionComponent<MyProps> = (props) => {
@@ -263,8 +270,37 @@ export class TextEditor extends HybridNode {
         const editorHeight =
           document.getElementById(this.id).getBoundingClientRect().height /
           PPGraph.currentGraph.viewport.scale.x;
+        console.log(
+          document.getElementById(this.id).getBoundingClientRect().height
+        );
         this.resizeNode(this.nodeWidth, editorHeight);
       };
+
+      // console.log('textToImport: ', props.textToImport);
+      // if (props.textToImport) {
+      //   Transforms.select(editor, {
+      //     anchor: Editor.start(editor, []),
+      //     focus: Editor.end(editor, []),
+      //   });
+      //   // Editor.insertText(editor, props.textToImport);
+      //   editor.insertText(props.textToImport);
+      //   // ReactEditor.focus(editor);
+      //   setNewHeight();
+      // }
+
+      useEffect(() => {
+        if (props.textToImport) {
+          console.log('textToImport: ', props.textToImport);
+          Transforms.select(editor, {
+            anchor: Editor.start(editor, []),
+            focus: Editor.end(editor, []),
+          });
+          // Editor.insertText(editor, props.textToImport);
+          editor.insertText(props.textToImport);
+          // ReactEditor.focus(editor);
+          setNewHeight();
+        }
+      }, []);
 
       useEffect(() => {
         if (props.autoHeight) {
