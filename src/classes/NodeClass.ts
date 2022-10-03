@@ -80,7 +80,6 @@ export default class PPNode extends PIXI.Container {
   sourcePoint: PIXI.Point;
   interactionData: PIXI.InteractionData;
 
-  container: HTMLElement; // for hybrid nodes
   root: Root;
   static: HTMLElement;
   staticRoot: Root;
@@ -102,11 +101,6 @@ export default class PPNode extends PIXI.Container {
     () => {};
 
   protected onNodeExit(): void {}
-
-  // TODO, hybrid should be a child class, not an alternate mode
-  protected getIsHybrid(): boolean {
-    return false;
-  }
 
   protected getShowLabels(): boolean {
     return true;
@@ -488,10 +482,6 @@ export default class PPNode extends PIXI.Container {
     }
 
     this.onConfigure(nodeConfig);
-
-    if (this.getIsHybrid()) {
-      this._onViewportMove(); // trigger this once, so the react components get positioned properly
-    }
   }
 
   getDirectDependents(): { [key: string]: PPNode } {
@@ -703,10 +693,6 @@ export default class PPNode extends PIXI.Container {
       screenY: screenPoint.y,
       scale: PPGraph.currentGraph.viewport.scale.x,
     });
-
-    if (this.getIsHybrid()) {
-      this._onViewportMove(); // trigger this once, so the react components get positioned properly
-    }
   }
 
   resizeNode(width: number, height: number, maintainAspectRatio = false): void {
@@ -736,11 +722,6 @@ export default class PPNode extends PIXI.Container {
     this.drawNodeShape();
 
     this.updateConnectionPosition();
-
-    if (this.getIsHybrid()) {
-      this.container.style.width = `${this.nodeWidth}px`;
-      this.container.style.height = `${this.nodeHeight}px`;
-    }
 
     this.nodeSelectionHeader.x = NODE_MARGIN + this.nodeWidth - 72;
 
@@ -951,67 +932,6 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
 
   screenPoint(): PIXI.Point {
     return PPGraph.currentGraph.viewport.toScreen(this.x + NODE_MARGIN, this.y);
-  }
-
-  // this function can be called for hybrid nodes, it
-  // • creates a container component
-  // • adds the onNodeDragOrViewportMove listener to it
-  // • adds a react parent component with props
-  createContainerComponent(
-    parentDocument: Document,
-    reactParent,
-    reactProps,
-    customStyles = {}
-  ): HTMLElement {
-    const { margin = 0 } = reactProps;
-    const reactElement = parentDocument.createElement('div');
-    this.container = parentDocument.body.appendChild(reactElement);
-    this.root = createRoot(this.container!);
-    this.container.id = `Container-${this.id}`;
-
-    const screenPoint = this.screenPoint();
-    const scaleX = PPGraph.currentGraph.viewport.scale.x;
-    this.container.classList.add(styles.hybridContainer);
-    Object.assign(this.container.style, customStyles);
-
-    // set initial position
-    this.container.style.width = `${this.nodeWidth - (2 * margin) / scaleX}px`;
-    this.container.style.height = `${
-      this.nodeHeight - (2 * margin) / scaleX
-    }px`;
-    this.container.style.transform = `translate(50%, 50%)`;
-    this.container.style.transform = `scale(${scaleX}`;
-    this.container.style.left = `${screenPoint.x + margin}px`;
-    this.container.style.top = `${screenPoint.y + margin}px`;
-
-    this.onNodeDragOrViewportMove = ({ screenX, screenY, scale }) => {
-      this.container.style.width = `${this.nodeWidth - (2 * margin) / scale}px`;
-      this.container.style.height = `${
-        this.nodeHeight - (2 * margin) / scale
-      }px`;
-      // this.container.style.transform = `translate(50%, 50%)`;
-      this.container.style.transform = `scale(${scale}`;
-      this.container.style.left = `${screenX + margin}px`;
-      this.container.style.top = `${screenY + margin}px`;
-    };
-
-    this.onViewportPointerUpHandler = this._onViewportPointerUp.bind(this);
-
-    // when the Node is removed also remove the react component and its container
-    this.onNodeRemoved = () => {
-      this.removeContainerComponent(this.container, this.root);
-    };
-
-    // render react component
-    this.renderReactComponent(
-      reactParent,
-      {
-        ...reactProps,
-      },
-      this.root
-    );
-
-    return this.container;
   }
 
   // the render method, takes a component and props, and renders it to the page
@@ -1295,7 +1215,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     }
   }
 
-  _onViewportMove(): void {
+  protected _onViewportMove(): void {
     if (this.onNodeDragOrViewportMove) {
       const screenPoint = this.screenPoint();
       this.onNodeDragOrViewportMove({
@@ -1342,34 +1262,12 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   _onDoubleClick(event: PIXI.InteractionEvent): void {
     this.doubleClicked = true;
 
-    // turn on pointer events for hybrid nodes so the react components become reactive
-    if (this.getActivateByDoubleClick()) {
-      // register hybrid nodes to listen to outside clicks
-      PPGraph.currentGraph.viewport.on(
-        'pointerup',
-        (this as any).onViewportPointerUpHandler
-      );
-      this.container.style.pointerEvents = 'auto';
-      this.container.classList.add(styles.hybridContainerFocused);
-    }
-
     if (this.onNodeDoubleClick) {
       this.onNodeDoubleClick(event);
     }
   }
 
-  _onViewportPointerUp(): void {
-    // unregister hybrid nodes from listening to outside clicks
-    PPGraph.currentGraph.viewport.removeListener(
-      'pointerup',
-      (this as any).onViewportPointerUpHandler
-    );
-    this.doubleClicked = false;
-    this.onNodeExit();
-    // this allows to zoom and drag when the hybrid node is not selected
-    this.container.style.pointerEvents = 'none';
-    this.container.classList.remove(styles.hybridContainerFocused);
-  }
+  _onViewportPointerUp(): void {}
 
   public outputPlugged(): void {}
   public outputUnplugged(): void {}

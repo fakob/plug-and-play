@@ -19,6 +19,7 @@ import { roundNumber } from '../../utils/utils';
 import { AnyType } from '../datatypes/anyType';
 import { BooleanType } from '../datatypes/booleanType';
 import { NumberType } from '../datatypes/numberType';
+import HybridNode from '../../classes/HybridNode';
 
 const selectedName = 'Initial selection';
 const initialValueName = 'Initial value';
@@ -30,16 +31,12 @@ const offValueName = 'Off';
 const onValueName = 'On';
 const outName = 'Out';
 
-export class WidgetButton extends PPNode {
+export class WidgetButton extends HybridNode {
   update: () => void;
   onWidgetTrigger: () => void;
 
   getOpacity(): number {
     return 0.01;
-  }
-
-  protected getIsHybrid(): boolean {
-    return true;
   }
 
   protected getActivateByDoubleClick(): boolean {
@@ -187,16 +184,12 @@ export class WidgetButton extends PPNode {
   }
 }
 
-export class WidgetSwitch extends PPNode {
+export class WidgetSwitch extends HybridNode {
   update: () => void;
   onWidgetTrigger: () => void;
 
   getOpacity(): number {
     return 0.01;
-  }
-
-  protected getIsHybrid(): boolean {
-    return true;
   }
 
   protected getActivateByDoubleClick(): boolean {
@@ -346,16 +339,12 @@ export class WidgetSwitch extends PPNode {
   }
 }
 
-export class WidgetSlider extends PPNode {
+export class WidgetSlider extends HybridNode {
   update: () => void;
   onWidgetTrigger: () => void;
 
   getOpacity(): number {
     return 0.01;
-  }
-
-  protected getIsHybrid(): boolean {
-    return true;
   }
 
   protected getActivateByDoubleClick(): boolean {

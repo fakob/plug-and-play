@@ -12,6 +12,7 @@ import { ArrayType } from './datatypes/arrayType';
 import { JSONType } from './datatypes/jsonType';
 import { NumberType } from './datatypes/numberType';
 import { StringType } from './datatypes/stringType';
+import HybridNode from '../classes/HybridNode';
 
 const workBookSocketName = 'workBook';
 const workSheetSocketName = 'workSheet';
@@ -21,7 +22,7 @@ const JSONSocketName = 'JSON';
 const workBookInputSocketName = 'workBook';
 const sheetIndexInputSocketName = 'currentSheet';
 
-export class Table extends PPNode {
+export class Table extends HybridNode {
   _imageRef: PIXI.Sprite;
   _imageRefClone: PIXI.Sprite;
   defaultProps;
@@ -32,10 +33,6 @@ export class Table extends PPNode {
   xSpreadSheet: Spreadsheet;
   parsedData: any;
   update: (switchToSheet?: boolean) => void;
-
-  protected getIsHybrid(): boolean {
-    return true;
-  }
 
   protected getActivateByDoubleClick(): boolean {
     return true;
