@@ -4,7 +4,7 @@ import * as PIXI from 'pixi.js';
 import { DropShadowFilter } from '@pixi/filter-drop-shadow';
 import { hri } from 'human-readable-ids';
 import React from 'react';
-import { createRoot, Root } from 'react-dom/client';
+import { Root } from 'react-dom/client';
 import '../pixi/dbclick.js';
 
 import styles from '../utils/style.module.css';
