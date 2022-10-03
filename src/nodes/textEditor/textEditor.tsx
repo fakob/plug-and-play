@@ -33,6 +33,7 @@ import {
 import { AnyType } from '../datatypes/anyType';
 import { ColorType } from '../datatypes/colorType';
 import { JSONType } from '../datatypes/jsonType';
+import HybridNode from '../../classes/HybridNode';
 
 const isMac = navigator.platform.indexOf('Mac') != -1;
 
@@ -49,14 +50,10 @@ const backgroundColorSocketName = 'background Color';
 const inputPrefix = 'Input';
 const inputName1 = `${inputPrefix} 1`;
 
-export class TextEditor extends PPNode {
+export class TextEditor extends HybridNode {
   getAllParameters: () => void;
   update: (newHeight?) => void;
   readOnly: boolean;
-
-  protected getIsHybrid(): boolean {
-    return true;
-  }
 
   protected getActivateByDoubleClick(): boolean {
     return true;

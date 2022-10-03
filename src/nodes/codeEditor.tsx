@@ -11,17 +11,14 @@ import { CodeType } from './datatypes/codeType';
 import { convertToString } from '../utils/utils';
 import { CustomArgs } from '../utils/interfaces';
 import { SOCKET_TYPE, customTheme } from '../utils/constants';
+import HybridNode from '../classes/HybridNode';
 
 const outputSocketName = 'output';
 const inputSocketName = 'input';
 
-export class CodeEditor extends PPNode {
+export class CodeEditor extends HybridNode {
   update: (newHeight?) => void;
   readOnly: boolean;
-
-  protected getIsHybrid(): boolean {
-    return true;
-  }
 
   protected getActivateByDoubleClick(): boolean {
     return true;

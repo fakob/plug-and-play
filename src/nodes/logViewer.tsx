@@ -6,8 +6,9 @@ import { CustomArgs, TRgba } from '../utils/interfaces';
 import { AnyType } from './datatypes/anyType';
 import { NumberType } from './datatypes/numberType';
 import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../utils/constants';
+import HybridNode from '../classes/HybridNode';
 
-export class LogViewer extends PPNode {
+export class LogViewer extends HybridNode {
   getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
   }
@@ -93,10 +94,6 @@ export class LogViewer extends PPNode {
         false
       ),
     ];
-  }
-
-  protected getIsHybrid(): boolean {
-    return true;
   }
 
   protected getActivateByDoubleClick(): boolean {
