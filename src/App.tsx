@@ -47,7 +47,6 @@ import {
 } from './components/ContextMenus';
 import { GraphDatabase } from './utils/indexedDB';
 import PPGraph from './classes/GraphClass';
-import { TextEditor } from './nodes/textEditor/TextEditor';
 import {
   BASIC_VERTEX_SHADER,
   CANVAS_BACKGROUND_ALPHA,
@@ -60,16 +59,15 @@ import {
   PLUGANDPLAY_ICON,
   RANDOMMAINCOLOR,
 } from './utils/constants';
-import {
-  IGraphSearch,
-  INodeSearch,
-  SerializedSelection,
-} from './utils/interfaces';
+import { IGraphSearch, INodeSearch } from './utils/interfaces';
 import {
   convertBlobToBase64,
   downloadFile,
   ensureVisible,
   formatDate,
+  getDataFromClipboard,
+  getNodeDataFromHtml,
+  getNodeDataFromText,
   getSetting,
   getRemoteGraph,
   getRemoteGraphsList,
@@ -375,36 +373,62 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     });
 
     document.addEventListener('paste', async (e) => {
-      // get text from clipboard and try to parse it
-      const clipboardItems = await navigator.clipboard.read();
-
-      for (const clipboardItem of clipboardItems) {
-        for (const type of clipboardItem.types) {
-          const blob = await clipboardItem.getType(type);
-          console.log(await blob.text());
+      if (!isEventComingFromWithinTextInput(e)) {
+        const clipboardBlobs = await getDataFromClipboard();
+        if (clipboardBlobs['text/html']) {
+          try {
+            // check if it is node data
+            const json = getNodeDataFromHtml(clipboardBlobs['text/html']);
+            e.preventDefault();
+            await currentGraph.current.pasteNodes(json, true);
+            return;
+          } catch (e) {
+            console.log('No node data in html', e);
+          }
+          try {
+            // check if it is html text data
+            const text = clipboardBlobs['text/html'];
+            e.preventDefault();
+            if (currentGraph.current.selection.selectedNodes.length < 1) {
+              const mouseWorld = viewport.current.toWorld(mousePosition);
+              currentGraph.current.createAndAddNode('TextEditor', {
+                nodePosX: mouseWorld.x,
+                nodePosY: mouseWorld.y,
+                initialData: { html: text },
+              });
+            }
+            return;
+          } catch (e) {
+            console.log('No html text data in html', e);
+          }
         }
-      }
 
-      const textFromClipboard = await navigator.clipboard.readText();
-      // console.log(textFromClipboard);
-      try {
-        const json = JSON.parse(textFromClipboard) as SerializedSelection;
-        if (json.version) {
-          e.preventDefault();
-          const pastedNodes = await currentGraph.current.pasteNodes(json, true);
-          console.log(pastedNodes);
-        } else {
-          console.error('Clipboard does not contain valid node data');
-        }
-      } catch (e) {
-        console.log('Clipboard does not contain node data');
-        if (currentGraph.current.selection.selectedNodes.length < 1) {
-          const mouseWorld = viewport.current.toWorld(mousePosition);
-          currentGraph.current.createAndAddNode('TextEditor', {
-            nodePosX: mouseWorld.x,
-            nodePosY: mouseWorld.y,
-            initialData: textFromClipboard,
-          });
+        if (clipboardBlobs['text/plain']) {
+          try {
+            // check if it is node data
+            const json = getNodeDataFromText(clipboardBlobs['text/plain']);
+            e.preventDefault();
+            await currentGraph.current.pasteNodes(json, true);
+            return;
+          } catch (e) {
+            console.log('No node data in text', e);
+          }
+          try {
+            // check if it is html text data
+            const text = clipboardBlobs['text/plain'];
+            e.preventDefault();
+            if (currentGraph.current.selection.selectedNodes.length < 1) {
+              const mouseWorld = viewport.current.toWorld(mousePosition);
+              currentGraph.current.createAndAddNode('TextEditor', {
+                nodePosX: mouseWorld.x,
+                nodePosY: mouseWorld.y,
+                initialData: { plain: text },
+              });
+            }
+            return;
+          } catch (e) {
+            console.log('No text data in text', e);
+          }
         }
       }
     });

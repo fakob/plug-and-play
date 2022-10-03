@@ -328,9 +328,19 @@ export const deserialize = (el) => {
     return jsx('element', attrs, children);
   }
 
+  // if (TEXT_TAGS[nodeName]) {
+  //   const attrs = TEXT_TAGS[nodeName](el);
+  //   return children.map((child) => jsx('text', attrs, child));
+  // }
+
   if (TEXT_TAGS[nodeName]) {
     const attrs = TEXT_TAGS[nodeName](el);
-    return children.map((child) => jsx('text', attrs, child));
+    return children.map((child) => {
+      if (SlateElement.isElement(child)) {
+        return jsx('element', child);
+      }
+      return jsx('text', attrs, child);
+    });
   }
 
   return children;

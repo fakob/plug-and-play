@@ -26,8 +26,9 @@ import {
   customTheme,
 } from '../../utils/constants';
 import {
-  Leaf,
   Element,
+  Leaf,
+  deserialize,
   insertMention,
   moveBlock,
   toggleBlock,
@@ -62,7 +63,7 @@ export class TextEditor extends HybridNode {
   getAllParameters: () => void;
   update: (newHeight?: number, textToImport?: string) => void;
   readOnly: boolean;
-  textToImport: string;
+  textToImport: { html: string } | { plain: string };
 
   protected getActivateByDoubleClick(): boolean {
     return true;
@@ -230,7 +231,7 @@ export class TextEditor extends HybridNode {
       randomMainColor: string;
       nodeHeight: number;
       readOnly: boolean;
-      textToImport?: string;
+      textToImport?: { html: string } | { plain: string };
     };
 
     const ParentComponent: React.FunctionComponent<MyProps> = (props) => {
@@ -308,13 +309,25 @@ export class TextEditor extends HybridNode {
       // wait for editor to be ready before importing/displaying text
       useEffect(() => {
         if (editorRef.current) {
-          if (props.textToImport) {
-            console.log('textToImport: ', props.textToImport);
+          console.log('textToImport: ', props.textToImport);
+          if (props.textToImport?.['html']) {
+            const parsed = new DOMParser().parseFromString(
+              props.textToImport?.['html'],
+              'text/html'
+            );
+            const fragment = deserialize(parsed.body);
             Transforms.select(editor, {
               anchor: Editor.start(editor, []),
               focus: Editor.end(editor, []),
             });
-            editor.insertText(props.textToImport);
+            console.log(fragment);
+            Transforms.insertFragment(editor, fragment);
+          } else if (props.textToImport?.['plain']) {
+            Transforms.select(editor, {
+              anchor: Editor.start(editor, []),
+              focus: Editor.end(editor, []),
+            });
+            editor.insertText(props.textToImport['plain']);
           } else {
             updateEditorData();
           }

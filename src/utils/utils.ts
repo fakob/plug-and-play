@@ -15,7 +15,7 @@ import {
   SOCKET_WIDTH,
 } from './constants';
 import { GraphDatabase } from './indexedDB';
-import { PPNodeConstructor } from './interfaces';
+import { PPNodeConstructor, SerializedSelection } from './interfaces';
 import { AnyType } from '../nodes/datatypes/anyType';
 
 export function isFunction(funcOrClass: any): boolean {
@@ -330,13 +330,79 @@ export const writeTextToClipboard = (newClip: string): void => {
       /* clipboard successfully set */
     },
     function () {
-      console.error('Write to clipboard of this text failed:', newClip);
+      console.error('Writing to clipboard of this text failed:', newClip);
     }
   );
 };
 
+export const writeNodeDataToClipboard = (stringifiedData: string): void => {
+  // const dataObject = {
+  //   type: 'plug-and-playground/clipboard',
+  //   data: stringifiedData,
+  // };
+
+  const htmlString = `<plugandplayground>${stringifiedData}</plugandplayground>`;
+
+  if (navigator.clipboard && window.ClipboardItem) {
+    navigator.clipboard
+      .write([
+        new ClipboardItem({
+          'text/plain': new Blob([stringifiedData], {
+            type: 'text/plain',
+          }),
+          'text/html': new Blob([htmlString], { type: 'text/html' }),
+        }),
+      ])
+      .then(
+        function () {
+          /* clipboard successfully set */
+        },
+        function () {
+          console.error(
+            'Writing to clipboard of this text failed:',
+            stringifiedData
+          );
+        }
+      );
+  }
+};
+
 export const writeDataToClipboard = (data: unknown): void => {
-  writeTextToClipboard(JSON.stringify(data, getCircularReplacer(), 2) || '');
+  writeNodeDataToClipboard(
+    JSON.stringify(data, getCircularReplacer(), 2) || ''
+  );
+};
+
+export const getDataFromClipboard = async (): Promise<
+  Record<string, string>
+> => {
+  // get text from clipboard and try to parse it
+  try {
+    const clipboardItems = await navigator.clipboard.read();
+    const clipboardBlobs = {};
+    for (const clipboardItem of clipboardItems) {
+      for (const type of clipboardItem.types) {
+        const blob = await clipboardItem.getType(type);
+        clipboardBlobs[type] = await blob.text();
+      }
+    }
+    console.log(clipboardBlobs);
+    return clipboardBlobs;
+  } catch (err) {
+    console.error(err.name, err.message);
+  }
+};
+
+export const getNodeDataFromHtml = (html: string): SerializedSelection => {
+  const maybeJson = html.match(
+    /<plugandplayground>([\s\S]*)<\/plugandplayground>/
+  )?.[1];
+  console.log(maybeJson);
+  return JSON.parse(maybeJson) as SerializedSelection;
+};
+
+export const getNodeDataFromText = (text: string): SerializedSelection => {
+  return JSON.parse(text) as SerializedSelection;
 };
 
 export const isEventComingFromWithinTextInput = (event: any): boolean => {
@@ -344,7 +410,11 @@ export const isEventComingFromWithinTextInput = (event: any): boolean => {
     event.target.id === 'Input' ||
     event.target.localName === 'input' ||
     event.target.localName === 'textarea' ||
-    event.target?.attributes?.['data-slate-editor'] !== undefined
+    event.target?.attributes?.['data-slate-editor'] !== undefined ||
+    event.target?.attributes?.['data-slate-node'] !== undefined ||
+    event.target?.attributes?.['data-slate-string'] !== undefined ||
+    event.target?.attributes?.['data-slate-zero-width'] !== undefined ||
+    event.target?.attributes?.['data-slate-length'] !== undefined
   );
 };
 
