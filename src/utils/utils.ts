@@ -386,7 +386,6 @@ export const getDataFromClipboard = async (): Promise<
         clipboardBlobs[type] = await blob.text();
       }
     }
-    console.log(clipboardBlobs);
     return clipboardBlobs;
   } catch (err) {
     console.error(err.name, err.message);
@@ -397,7 +396,6 @@ export const getNodeDataFromHtml = (html: string): SerializedSelection => {
   const maybeJson = html.match(
     /<plugandplayground>([\s\S]*)<\/plugandplayground>/
   )?.[1];
-  console.log(maybeJson);
   return JSON.parse(maybeJson) as SerializedSelection;
 };
 
