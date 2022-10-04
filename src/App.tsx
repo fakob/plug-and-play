@@ -391,7 +391,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
             e.preventDefault();
             if (currentGraph.current.selection.selectedNodes.length < 1) {
               const mouseWorld = viewport.current.toWorld(mousePosition);
-              currentGraph.current.createAndAddNode('TextEditor', {
+              currentGraph.current.addNewNode('TextEditor', {
                 nodePosX: mouseWorld.x,
                 nodePosY: mouseWorld.y,
                 initialData: { html: text },
@@ -419,7 +419,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
             e.preventDefault();
             if (currentGraph.current.selection.selectedNodes.length < 1) {
               const mouseWorld = viewport.current.toWorld(mousePosition);
-              currentGraph.current.createAndAddNode('TextEditor', {
+              currentGraph.current.addNewNode('TextEditor', {
                 nodePosX: mouseWorld.x,
                 nodePosY: mouseWorld.y,
                 initialData: { plain: text },

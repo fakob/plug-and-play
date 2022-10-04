@@ -3,11 +3,7 @@
 import * as PIXI from 'pixi.js';
 import { DropShadowFilter } from '@pixi/filter-drop-shadow';
 import { hri } from 'human-readable-ids';
-import React from 'react';
-import { createRoot, Root } from 'react-dom/client';
 import '../pixi/dbclick.js';
-
-import styles from '../utils/style.module.css';
 import {
   CustomArgs,
   SerializedNode,
@@ -17,7 +13,6 @@ import {
 } from '../utils/interfaces';
 import {
   COMMENT_TEXTSTYLE,
-  RANDOMMAINCOLOR,
   NODE_TYPE_COLOR,
   NODE_CORNERRADIUS,
   NODE_HEADER_HEIGHT,
@@ -79,10 +74,6 @@ export default class PPNode extends PIXI.Container {
   isDraggingNode: boolean;
   sourcePoint: PIXI.Point;
   interactionData: PIXI.InteractionData;
-
-  root: Root;
-  static: HTMLElement;
-  staticRoot: Root;
 
   // supported callbacks
   onConfigure: (nodeConfig: SerializedNode) => void = () => {}; // called after the node has been configured
@@ -932,92 +923,6 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
 
   screenPoint(): PIXI.Point {
     return PPGraph.currentGraph.viewport.toScreen(this.x + NODE_MARGIN, this.y);
-  }
-
-  // this function can be called for hybrid nodes, it
-  // • creates a container component
-  // • adds the onNodeDragOrViewportMove listener to it
-  // • adds a react parent component with props
-  createContainerComponent(
-    reactParent,
-    reactProps,
-    customStyles = {}
-  ): HTMLElement {
-    const { margin = 0 } = reactProps;
-    const reactElement = document.createElement('div');
-    this.container = document
-      .getElementById('container')
-      .appendChild(reactElement);
-    this.root = createRoot(this.container!);
-    this.container.id = `Container-${this.id}`;
-
-    const screenPoint = this.screenPoint();
-    const scaleX = PPGraph.currentGraph.viewport.scale.x;
-    this.container.classList.add(styles.hybridContainer);
-    Object.assign(this.container.style, customStyles);
-
-    // set initial position
-    this.container.style.width = `${this.nodeWidth - (2 * margin) / scaleX}px`;
-    this.container.style.height = `${
-      this.nodeHeight - (2 * margin) / scaleX
-    }px`;
-    this.container.style.transform = `translate(50%, 50%)`;
-    this.container.style.transform = `scale(${scaleX}`;
-    this.container.style.left = `${screenPoint.x + margin}px`;
-    this.container.style.top = `${screenPoint.y + margin}px`;
-
-    this.onNodeDragOrViewportMove = ({ screenX, screenY, scale }) => {
-      this.container.style.width = `${this.nodeWidth - (2 * margin) / scale}px`;
-      this.container.style.height = `${
-        this.nodeHeight - (2 * margin) / scale
-      }px`;
-      // this.container.style.transform = `translate(50%, 50%)`;
-      this.container.style.transform = `scale(${scale}`;
-      this.container.style.left = `${screenX + margin}px`;
-      this.container.style.top = `${screenY + margin}px`;
-    };
-
-    this.onViewportPointerUpHandler = this._onViewportPointerUp.bind(this);
-
-    // when the Node is removed also remove the react component and its container
-    this.onNodeRemoved = () => {
-      this.removeContainerComponent(this.container, this.root);
-    };
-
-    // render react component
-    this.renderReactComponent(
-      reactParent,
-      {
-        ...reactProps,
-      },
-      this.root
-    );
-
-    return this.container;
-  }
-
-  // the render method, takes a component and props, and renders it to the page
-  renderReactComponent = (
-    component: any,
-    props: {
-      [key: string]: any;
-    },
-    root = this.root
-  ): void => {
-    root.render(
-      React.createElement(component, {
-        ...props,
-        id: this.id,
-        selected: this.selected,
-        doubleClicked: this.doubleClicked,
-        randomMainColor: RANDOMMAINCOLOR,
-      })
-    );
-  };
-
-  removeContainerComponent(container: HTMLElement, root: Root): void {
-    root.unmount();
-    document.getElementById('container').removeChild(container);
   }
 
   getInputSocketByName(slotName: string): Socket {
