@@ -1,7 +1,12 @@
 import * as PIXI from 'pixi.js';
-import React, { useEffect } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import * as XLSX from 'xlsx';
-import Spreadsheet, { Options } from '@bergfreunde/x-data-spreadsheet';
+import DataEditor, {
+  DataEditorProps,
+  GridCellKind,
+  GridColumn,
+} from '@glideapps/glide-data-grid';
+import '@glideapps/glide-data-grid/dist/index.css';
 import PPNode from '../classes/NodeClass';
 import PPSocket from '../classes/SocketClass';
 import { getXLSXSelectionRange } from '../utils/utils';
@@ -30,7 +35,7 @@ export class Table extends HybridNode {
   spreadsheetId: string;
   workBook: XLSX.WorkBook;
   initialData: any;
-  xSpreadSheet: Spreadsheet;
+  // xSpreadSheet: Spreadsheet;
   parsedData: any;
   update: (switchToSheet?: boolean) => void;
 
@@ -157,89 +162,126 @@ export class Table extends HybridNode {
     };
 
     const TableParent = (props) => {
-      const options: Options = {
-        mode: 'edit', // edit | read
-        showToolbar: false,
-        showGrid: true,
-        showContextmenu: true,
-        view: {
-          width: () => this.nodeWidth,
-          height: () => this.nodeHeight,
-        },
-        row: {
-          len: 100,
-          height: 24,
-        },
-        col: {
-          len: 26,
-          width: 104,
-          indexWidth: 56,
-          minWidth: 60,
-        },
-        style: {
-          bgcolor: '#ffffff',
-          align: 'left',
-          valign: 'middle',
-          textwrap: false,
-          strike: false,
-          underline: false,
-          color: '#0a0a0a',
-          font: {
-            name: 'Helvetica',
-            size: 10,
-            bold: false,
-            italic: false,
+      // const options: Options = {
+      //   mode: 'edit', // edit | read
+      //   showToolbar: false,
+      //   showGrid: true,
+      //   showContextmenu: true,
+      //   view: {
+      //     width: () => this.nodeWidth,
+      //     height: () => this.nodeHeight,
+      //   },
+      //   row: {
+      //     len: 100,
+      //     height: 24,
+      //   },
+      //   col: {
+      //     len: 26,
+      //     width: 104,
+      //     indexWidth: 56,
+      //     minWidth: 60,
+      //   },
+      //   style: {
+      //     bgcolor: '#ffffff',
+      //     align: 'left',
+      //     valign: 'middle',
+      //     textwrap: false,
+      //     strike: false,
+      //     underline: false,
+      //     color: '#0a0a0a',
+      //     font: {
+      //       name: 'Helvetica',
+      //       size: 10,
+      //       bold: false,
+      //       italic: false,
+      //     },
+      //   },
+      // };
+
+      // const handleOnSelect = (cell, { sri, sci, eri, eci }) => {
+      //   const selectionRange = getXLSXSelectionRange(sri, sci, eri, eci);
+      //   // const currentSheetIndex = this.getInputData(sheetIndexInputSocketName);
+      //   // const sheet =
+      //   //   this.workBook.Sheets[this.workBook.SheetNames[currentSheetIndex]];
+      //   // sheet['!ref'] = selectionRange; // manually set range
+      // };
+
+      // const handleOnClick = (event) => {
+      //   // check if this is a click on the sheet menu to change the sheet
+      //   // if so, get the newSheetIndex
+      //   if (event.target.parentNode.className === 'x-spreadsheet-menu') {
+      //     const xSpreadSheet = this.xSpreadSheet.getData();
+      //     const newSheetIndex = xSpreadSheet.findIndex(
+      //       (item) => item.name === event.target.innerText
+      //     );
+      //     this.setInputData(sheetIndexInputSocketName, newSheetIndex);
+      //   }
+      // };
+
+      // const handleOnChange = () => {
+      //   const xSpreadSheet = this.xSpreadSheet.getData();
+      //   this.workBook = xtos(xSpreadSheet);
+      //   this.setInputData(workBookInputSocketName, xtos(xSpreadSheet));
+      //   this.setAllOutputData(this.workBook);
+      //   this.executeChildren();
+      // };
+
+      // useEffect(() => {
+      //   this.xSpreadSheet = new Spreadsheet(
+      //     document.getElementById(this.spreadsheetId),
+      //     options
+      //   )
+      //     .loadData(props.dataArray)
+      //     .change(handleOnChange);
+      //   this.xSpreadSheet.on('cells-selected', handleOnSelect);
+      // }, []);
+
+      // useEffect(() => {
+      //   this.xSpreadSheet.loadData(props.dataArray);
+      // }, [props.dataArray]);
+
+      // useEffect(() => {
+      //   this.xSpreadSheet.reRender();
+      // }, [props.nodeWidth, props.nodeHeight]);
+
+      const getData = useCallback<DataEditorProps['getCellContent']>(
+        (cell) => ({
+          kind: GridCellKind.Text,
+          allowOverlay: true,
+          readonly: true,
+          data: `${cell[0]},${cell[1]}`,
+          displayData: `${cell[0]},${cell[1]}`,
+        }),
+        []
+      );
+
+      const cols = useMemo<GridColumn[]>(
+        () => [
+          {
+            width: 100,
+            title: 'A',
           },
-        },
-      };
+          {
+            width: 100,
+            title: 'B',
+          },
+          {
+            width: 100,
+            title: 'C',
+          },
+        ],
+        []
+      );
 
-      const handleOnSelect = (cell, { sri, sci, eri, eci }) => {
-        const selectionRange = getXLSXSelectionRange(sri, sci, eri, eci);
-        // const currentSheetIndex = this.getInputData(sheetIndexInputSocketName);
-        // const sheet =
-        //   this.workBook.Sheets[this.workBook.SheetNames[currentSheetIndex]];
-        // sheet['!ref'] = selectionRange; // manually set range
-      };
-
-      const handleOnClick = (event) => {
-        // check if this is a click on the sheet menu to change the sheet
-        // if so, get the newSheetIndex
-        if (event.target.parentNode.className === 'x-spreadsheet-menu') {
-          const xSpreadSheet = this.xSpreadSheet.getData();
-          const newSheetIndex = xSpreadSheet.findIndex(
-            (item) => item.name === event.target.innerText
-          );
-          this.setInputData(sheetIndexInputSocketName, newSheetIndex);
-        }
-      };
-
-      const handleOnChange = () => {
-        const xSpreadSheet = this.xSpreadSheet.getData();
-        this.workBook = xtos(xSpreadSheet);
-        this.setInputData(workBookInputSocketName, xtos(xSpreadSheet));
-        this.setAllOutputData(this.workBook);
-        this.executeChildren();
-      };
-
-      useEffect(() => {
-        this.xSpreadSheet = new Spreadsheet(
-          document.getElementById(this.spreadsheetId),
-          options
-        )
-          .loadData(props.dataArray)
-          .change(handleOnChange);
-        this.xSpreadSheet.on('cells-selected', handleOnSelect);
-      }, []);
-
-      useEffect(() => {
-        this.xSpreadSheet.loadData(props.dataArray);
-      }, [props.dataArray]);
-
-      useEffect(() => {
-        this.xSpreadSheet.reRender();
-      }, [props.nodeWidth, props.nodeHeight]);
-
-      return <div onClick={handleOnClick} id={this.spreadsheetId} />;
+      return (
+        <DataEditor
+          getCellContent={getData}
+          columns={cols}
+          rows={100}
+          // onClick={handleOnClick}
+          // id={this.spreadsheetId}
+        />
+      );
     };
   }
 

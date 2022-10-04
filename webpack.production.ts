@@ -30,8 +30,9 @@ module.exports = () => {
 
     output: {
       path: path.resolve(__dirname, 'dist'),
-      filename: 'main.[fullhash].js',
-      chunkFilename: 'main-library.[contenthash].js',
+      filename: '[name].[chunkhash].js',
+      chunkFilename: '[name].[chunkhash].chunk.js',
+      clean: true,
     },
 
     plugins: [
