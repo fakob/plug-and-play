@@ -420,7 +420,7 @@ export default class PPGraph {
     return node;
   }
 
-  async addNode<T extends PPNode = PPNode>(node: T): Promise<T> {
+  addNode<T extends PPNode = PPNode>(node: T): T {
     if (!node) {
       return;
     }
@@ -435,19 +435,19 @@ export default class PPGraph {
   }
 
   // does not add any links, youll have do do that yourself
-  async addSerializedNode(
+  addSerializedNode(
     serialized: SerializedNode,
     customArgs: CustomArgs = {}
-  ): Promise<PPNode> {
+  ): PPNode {
     const node = this.createNode(serialized.type, customArgs);
-    await this.addNode(node);
+    this.addNode(node);
     node.configure(serialized);
     return node;
   }
 
-  async addNewNode(type: string, customArgs: CustomArgs = {}): Promise<PPNode> {
+  addNewNode(type: string, customArgs: CustomArgs = {}): PPNode {
     const node = this.createNode(type, customArgs);
-    await this.addNode(node);
+    this.addNode(node);
     return node;
   }
 
