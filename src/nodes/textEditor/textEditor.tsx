@@ -309,7 +309,6 @@ export class TextEditor extends HybridNode {
       // wait for editor to be ready before importing/displaying text
       useEffect(() => {
         if (editorRef.current) {
-          console.log('textToImport: ', props.textToImport);
           if (props.textToImport?.['html']) {
             const parsed = new DOMParser().parseFromString(
               props.textToImport?.['html'],
@@ -320,7 +319,6 @@ export class TextEditor extends HybridNode {
               anchor: Editor.start(editor, []),
               focus: Editor.end(editor, []),
             });
-            console.log(fragment);
             Transforms.insertFragment(editor, fragment);
           } else if (props.textToImport?.['plain']) {
             Transforms.select(editor, {
