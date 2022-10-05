@@ -171,6 +171,8 @@ export default class PPNode extends PIXI.Container {
     return true;
   }
 
+  public nodeKeyEvent(e: KeyboardEvent): void {}
+
   get nodeName(): string {
     return this.name;
   }

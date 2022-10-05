@@ -570,6 +570,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     // register key events
     const keysDown = (e: KeyboardEvent): void => {
       const modKey = isMac ? e.metaKey : e.ctrlKey;
+      console.log('alt? ' + e.altKey);
       if (!isEventComingFromWithinTextInput(e)) {
         if (modKey && !e.shiftKey) {
           switch (e.key.toLowerCase()) {
@@ -618,6 +619,14 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               break;
             case 'Digit2':
               zoomToFitSelection(currentGraph.current);
+              break;
+          }
+        } else if (e.altKey) {
+          switch (e.key.toLowerCase()) {
+            case 'a':
+              console.log('alt a');
+              e.preventDefault();
+              currentGraph.current.sendKeyEvent(e);
               break;
           }
         }

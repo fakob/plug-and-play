@@ -990,4 +990,8 @@ export default class PPGraph {
   static getCurrentGraph(): PPGraph {
     return PPGraph.currentGraph;
   }
+
+  public sendKeyEvent(e: KeyboardEvent): void {
+    Object.values(this.nodes).forEach((node) => node.nodeKeyEvent(e));
+  }
 }
