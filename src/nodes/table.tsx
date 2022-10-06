@@ -1,10 +1,12 @@
 import * as PIXI from 'pixi.js';
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import * as XLSX from 'xlsx';
 import DataEditor, {
   DataEditorProps,
+  GridCell,
   GridCellKind,
   GridColumn,
+  Item,
 } from '@glideapps/glide-data-grid';
 import '@glideapps/glide-data-grid/dist/index.css';
 import PPNode from '../classes/NodeClass';
@@ -12,7 +14,6 @@ import PPSocket from '../classes/SocketClass';
 import { getXLSXSelectionRange } from '../utils/utils';
 import { SOCKET_TYPE } from '../utils/constants';
 import { CustomArgs } from '../utils/interfaces';
-import { stox, xtos } from '../utils/xlsxspread';
 import { ArrayType } from './datatypes/arrayType';
 import { JSONType } from './datatypes/jsonType';
 import { NumberType } from './datatypes/numberType';
@@ -32,7 +33,6 @@ export class Table extends HybridNode {
   _imageRefClone: PIXI.Sprite;
   defaultProps;
   createElement;
-  spreadsheetId: string;
   workBook: XLSX.WorkBook;
   initialData: any;
   // xSpreadSheet: Spreadsheet;
@@ -105,7 +105,6 @@ export class Table extends HybridNode {
     // get initialData if available else create an empty workbook
     this.initialData = customArgs?.initialData;
 
-    this.spreadsheetId = `x-spreadsheet-${this.id}`;
     this.workBook = XLSX.utils.book_new();
 
     // when the Node is added, add the container and react component
@@ -122,9 +121,8 @@ export class Table extends HybridNode {
         XLSX.utils.book_append_sheet(this.workBook, worksheet, 'Sheet1');
       }
 
-      this.parsedData = this.parseData(this.workBook);
       this.createContainerComponent(document, TableParent, {
-        dataArray: this.parsedData,
+        workBook: this.workBook,
         sheetIndex: 0,
         nodeWidth: this.nodeWidth,
         nodeHeight: this.nodeHeight,
@@ -132,10 +130,9 @@ export class Table extends HybridNode {
     };
 
     this.update = (): void => {
-      this.parsedData = this.parseData(this.workBook);
       const sheetIndex = this.getInputData(sheetIndexInputSocketName);
       this.renderReactComponent(TableParent, {
-        dataArray: this.parsedData,
+        workBook: this.workBook,
         sheetIndex,
         nodeWidth: this.nodeWidth,
         nodeHeight: this.nodeHeight,
@@ -162,6 +159,9 @@ export class Table extends HybridNode {
     };
 
     const TableParent = (props) => {
+      const [jsonData, setJsonData] = useState(
+        XLSX.utils.aoa_to_sheet([[''], ['']])
+      );
       // const options: Options = {
       //   mode: 'edit', // edit | read
       //   showToolbar: false,
@@ -226,68 +226,78 @@ export class Table extends HybridNode {
       //   this.executeChildren();
       // };
 
-      // useEffect(() => {
-      //   this.xSpreadSheet = new Spreadsheet(
-      //     document.getElementById(this.spreadsheetId),
-      //     options
-      //   )
-      //     .loadData(props.dataArray)
-      //     .change(handleOnChange);
-      //   this.xSpreadSheet.on('cells-selected', handleOnSelect);
-      // }, []);
+      useEffect(() => {
+        console.log(props.workBook);
+        const ws = props.workBook.Sheets[props.workBook.SheetNames[0]];
+
+        const range = XLSX.utils.decode_range(ws['!ref']);
+        // sheet_to_json will lost empty row and col at begin as default
+        range.s = { r: 0, c: 0 };
+        const toJson = XLSX.utils.sheet_to_json(ws, {
+          raw: false,
+          header: 1,
+          range: range,
+        });
+        console.log(toJson);
+        setJsonData(toJson);
+      }, []);
 
       // useEffect(() => {
-      //   this.xSpreadSheet.loadData(props.dataArray);
-      // }, [props.dataArray]);
+      //   this.xSpreadSheet.loadData(props.workBook);
+      // }, [props.workBook]);
 
-      // useEffect(() => {
-      //   this.xSpreadSheet.reRender();
-      // }, [props.nodeWidth, props.nodeHeight]);
-
-      const getData = useCallback<DataEditorProps['getCellContent']>(
-        (cell) => ({
-          kind: GridCellKind.Text,
-          allowOverlay: true,
-          readonly: true,
-          data: `${cell[0]},${cell[1]}`,
-          displayData: `${cell[0]},${cell[1]}`,
-        }),
-        []
+      const getContent = React.useCallback(
+        (cell: Item): GridCell => {
+          const [col, row] = cell;
+          const dataRow = jsonData[row];
+          const d = String(dataRow[col]);
+          return {
+            kind: GridCellKind.Text,
+            allowOverlay: true,
+            readonly: false,
+            displayData: d,
+            data: d,
+          };
+        },
+        [jsonData.length]
       );
 
-      const cols = useMemo<GridColumn[]>(
-        () => [
-          {
-            width: 100,
-            title: 'A',
-          },
-          {
-            width: 100,
-            title: 'B',
-          },
-          {
-            width: 100,
-            title: 'C',
-          },
-        ],
-        []
-      );
+      // const cols = useMemo<GridColumn[]>(() => {
+      const cols = useMemo(() => {
+        const firstRow: [] = jsonData[0];
+        console.log(jsonData, firstRow);
+        if (!firstRow) {
+          return [
+            {
+              title: 'Name',
+              id: 'name',
+            },
+          ];
+        }
+        const gridColumn = [];
+        for (let index = 0; index < firstRow.length; index++) {
+          const col = firstRow[index];
+          console.log(col);
+          gridColumn.push({
+            title: String(col ?? 'x'),
+            id: String(col ?? 'x').toLowerCase(),
+          });
+        }
+        console.log(gridColumn);
+        return gridColumn;
+      }, [jsonData.length]);
 
       return (
         <DataEditor
-          getCellContent={getData}
+          getCellContent={getContent}
           columns={cols}
-          rows={100}
+          rows={jsonData.length}
+          width={props.nodeWidth}
+          height={props.nodeHeight}
           // onClick={handleOnClick}
-          // id={this.spreadsheetId}
         />
       );
     };
-  }
-
-  parseData(workBook: XLSX.WorkBook): any {
-    const parsedData = stox(workBook);
-    return parsedData;
   }
 
   createWorkBookFromJSON(json): any {
