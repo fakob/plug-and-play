@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import * as XLSX from 'xlsx';
 import DataEditor, {
   DataEditorProps,
+  EditableGridCell,
   GridCell,
   GridCellKind,
   GridColumn,
@@ -246,6 +247,28 @@ export class Table extends HybridNode {
       //   this.xSpreadSheet.loadData(props.workBook);
       // }, [props.workBook]);
 
+      const onCellEdited = React.useCallback(
+        (cell: Item, newValue: EditableGridCell) => {
+          if (newValue.kind !== GridCellKind.Text) {
+            // we only have text cells, might as well just die here.
+            return;
+          }
+
+          // const indexes: (keyof DummyItem)[] = [
+          //   'name',
+          //   'company',
+          //   'email',
+          //   'phone',
+          // ];
+          // const key = indexes[col];
+          const [col, row] = cell;
+          console.log(col, row, newValue, jsonData);
+          jsonData[row][col] = newValue.data;
+          // jsonData[row][key] = newValue.data;
+        },
+        [jsonData.length]
+      );
+
       const getContent = React.useCallback(
         (cell: Item): GridCell => {
           const [col, row] = cell;
@@ -294,6 +317,7 @@ export class Table extends HybridNode {
           rows={jsonData.length}
           width={props.nodeWidth}
           height={props.nodeHeight}
+          onCellEdited={onCellEdited}
           // onClick={handleOnClick}
         />
       );
