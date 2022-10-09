@@ -138,7 +138,10 @@ export const limitRange = (
   upperLimit: number
 ): number => {
   // value || 0 makes sure that NaN s are turned into a number to work with
-  return Math.min(Math.max(value || 0, lowerLimit || 0), upperLimit || 0);
+  if (lowerLimit < upperLimit) {
+    return Math.min(Math.max(value || 0, lowerLimit || 0), upperLimit || 0);
+  }
+  return Math.max(Math.min(value || 0, lowerLimit || 0), upperLimit || 0);
 };
 
 export const mapRange = (
@@ -622,5 +625,26 @@ export const getMatchingSocket = (socket: PPSocket, node: PPNode): PPSocket => {
     );
   }
   // node does not have an in/output socket
+  return undefined;
+};
+
+export const appendArrayWithDefaultValues = (
+  arr: any[],
+  newSize: number,
+  defaultValue: any
+): any[] => {
+  return [
+    ...arr,
+    ...Array(Math.max(newSize - arr.length, 0)).fill(defaultValue),
+  ];
+};
+
+export const getLongestArrayInArray = (arrayOfArrays): number => {
+  if (arrayOfArrays.length > 0) {
+    const longestArray = arrayOfArrays.reduce(function (a, b) {
+      return a.length > b.length ? a : b;
+    });
+    return longestArray.length;
+  }
   return undefined;
 };

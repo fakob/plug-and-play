@@ -2,18 +2,23 @@ import * as PIXI from 'pixi.js';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import * as XLSX from 'xlsx';
 import DataEditor, {
-  DataEditorProps,
+  CompactSelection,
   DataEditorRef,
   EditableGridCell,
   GridCell,
   GridCellKind,
   GridColumn,
+  GridSelection,
   Item,
 } from '@glideapps/glide-data-grid';
 import '@glideapps/glide-data-grid/dist/index.css';
-import PPNode from '../classes/NodeClass';
 import PPSocket from '../classes/SocketClass';
-import { getXLSXSelectionRange, limitRange } from '../utils/utils';
+import {
+  appendArrayWithDefaultValues,
+  getLongestArrayInArray,
+  getXLSXSelectionRange,
+  limitRange,
+} from '../utils/utils';
 import { SOCKET_TYPE } from '../utils/constants';
 import { CustomArgs } from '../utils/interfaces';
 import { ArrayType } from './datatypes/arrayType';
@@ -173,49 +178,11 @@ export class Table extends HybridNode {
     const TableParent: React.FunctionComponent<MyProps> = (props) => {
       const ref = React.useRef<DataEditorRef | null>(null);
       const [arrayOfArrays, setArrayOfArrays] = useState([]);
-      // const options: Options = {
-      //   mode: 'edit', // edit | read
-      //   showToolbar: false,
-      //   showGrid: true,
-      //   showContextmenu: true,
-      //   view: {
-      //     width: () => this.nodeWidth,
-      //     height: () => this.nodeHeight,
-      //   },
-      //   row: {
-      //     len: 100,
-      //     height: 24,
-      //   },
-      //   col: {
-      //     len: 26,
-      //     width: 104,
-      //     indexWidth: 56,
-      //     minWidth: 60,
-      //   },
-      //   style: {
-      //     bgcolor: '#ffffff',
-      //     align: 'left',
-      //     valign: 'middle',
-      //     textwrap: false,
-      //     strike: false,
-      //     underline: false,
-      //     color: '#0a0a0a',
-      //     font: {
-      //       name: 'Helvetica',
-      //       size: 10,
-      //       bold: false,
-      //       italic: false,
-      //     },
-      //   },
-      // };
-
-      // const handleOnSelect = (cell, { sri, sci, eri, eci }) => {
-      //   const selectionRange = getXLSXSelectionRange(sri, sci, eri, eci);
-      //   // const currentSheetIndex = this.getInputData(sheetIndexInputSocketName);
-      //   // const sheet =
-      //   //   this.workBook.Sheets[this.workBook.SheetNames[currentSheetIndex]];
-      //   // sheet['!ref'] = selectionRange; // manually set range
-      // };
+      const [gridSelection, setGridSelection] = useState<GridSelection>({
+        current: undefined,
+        rows: CompactSelection.empty(),
+        columns: CompactSelection.empty(),
+      });
 
       const loadSheet = () => {
         const workSheet =
@@ -223,7 +190,7 @@ export class Table extends HybridNode {
 
         const range = XLSX.utils.decode_range(workSheet['!ref']);
         // sheet_to_json will lost empty row and col at begin as default
-        range.s = { r: 0, c: 0 };
+        range.s = { c: 0, r: 0 };
         const toJson = XLSX.utils.sheet_to_json(workSheet, {
           raw: false,
           header: 1,
@@ -237,10 +204,46 @@ export class Table extends HybridNode {
       }, []);
 
       useEffect(() => {
+        if (props.doubleClicked) {
+          ref.current.focus();
+        }
+      }, [props.doubleClicked]);
+
+      useEffect(() => {
         loadSheet();
       }, [props.workBook, props.sheetIndex]);
 
-      const onCellEdited = React.useCallback(
+      const onGridSelectionChange = useCallback(
+        (newSelection: GridSelection): void => {
+          // plan to store the selection and give option to output selection only
+          // console.log(
+          //   newSelection.columns.toArray(),
+          //   newSelection.rows.toArray(),
+          //   newSelection.current?.cell,
+          //   newSelection.current?.range
+          // );
+          setGridSelection(newSelection);
+        },
+        []
+      );
+
+      const onPaste = useCallback(
+        (target: Item, values: readonly (readonly string[])[]) => {
+          const rowDifference =
+            target[1] + values.length - arrayOfArrays.length;
+          if (rowDifference > 0) {
+            // extending the dataset when the pasted in data is larger is not working yet
+            setArrayOfArrays(
+              appendArrayWithDefaultValues(arrayOfArrays, rowDifference, [])
+            );
+            // return false;
+          }
+          return true;
+        },
+        [arrayOfArrays.length]
+      );
+
+      const onCellEdited = useCallback(
         (cell: Item, newValue: EditableGridCell) => {
           if (newValue.kind !== GridCellKind.Text) {
             // we only have text cells, might as well just die here.
@@ -260,26 +263,35 @@ export class Table extends HybridNode {
         [arrayOfArrays.length]
       );
 
-      const getContent = React.useCallback(
+      const getContent = useCallback(
         (cell: Item): GridCell => {
           const [col, row] = cell;
           const dataRow = arrayOfArrays[row];
-          const d = String(dataRow[col]);
-          return {
-            kind: GridCellKind.Text,
-            allowOverlay: true,
-            readonly: false,
-            displayData: d,
-            data: d,
-          };
+          if (dataRow) {
+            const d = String(dataRow[col] ?? '');
+            return {
+              kind: GridCellKind.Text,
+              allowOverlay: true,
+              readonly: false,
+              displayData: d,
+              data: d,
+            };
+          } else {
+            return {
+              kind: GridCellKind.Text,
+              allowOverlay: true,
+              readonly: false,
+              displayData: 'x',
+              data: 'x',
+            };
+          }
         },
         [arrayOfArrays.length]
       );
 
-      // const cols = useMemo<GridColumn[]>(() => {
-      const cols = useMemo(() => {
+      const cols = useMemo<GridColumn[]>(() => {
         const firstRow: [] = arrayOfArrays[0];
-        // console.log(arrayOfArrays, firstRow);
+        const longestArrayInArray = getLongestArrayInArray(arrayOfArrays);
         if (!firstRow) {
           return [
             {
@@ -289,12 +301,12 @@ export class Table extends HybridNode {
           ];
         }
         const gridColumn = [];
-        for (let index = 0; index < firstRow.length; index++) {
+        for (let index = 0; index < longestArrayInArray; index++) {
           const col = firstRow[index];
           console.log(col);
           gridColumn.push({
-            title: String(col ?? 'x'),
-            id: String(col ?? 'x').toLowerCase(),
+            title: String(col ?? index),
+            id: String(col ?? index).toLowerCase(),
           });
         }
         console.log(gridColumn);
@@ -310,14 +322,22 @@ export class Table extends HybridNode {
           width={props.nodeWidth}
           height={props.nodeHeight}
           onCellEdited={onCellEdited}
-          onPaste={true}
+          gridSelection={gridSelection}
+          onGridSelectionChange={onGridSelectionChange}
+          onPaste={onPaste}
           rowSelect="multi"
-          rowMarkers="both"
-          smoothScrollY={true}
+          rowMarkers="clickable-number"
           smoothScrollX={true}
+          smoothScrollY={true}
           // theme={getTheme(theme)}
           rowSelectionMode="multi"
           getCellsForSelection={true}
+          keybindings={{ search: true }}
+          trailingRowOptions={{
+            sticky: true,
+            tint: true,
+            hint: 'New row...',
+          }}
         />
       );
     };
