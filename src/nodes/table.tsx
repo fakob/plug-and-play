@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import * as XLSX from 'xlsx';
 import DataEditor, {
   DataEditorProps,
+  DataEditorRef,
   EditableGridCell,
   GridCell,
   GridCellKind,
@@ -12,7 +13,7 @@ import DataEditor, {
 import '@glideapps/glide-data-grid/dist/index.css';
 import PPNode from '../classes/NodeClass';
 import PPSocket from '../classes/SocketClass';
-import { getXLSXSelectionRange } from '../utils/utils';
+import { getXLSXSelectionRange, limitRange } from '../utils/utils';
 import { SOCKET_TYPE } from '../utils/constants';
 import { CustomArgs } from '../utils/interfaces';
 import { ArrayType } from './datatypes/arrayType';
@@ -103,14 +104,16 @@ export class Table extends HybridNode {
       minNodeHeight: nodeHeight / 2,
     });
 
-    // get initialData if available else create an empty workbook
+    // get initialData if available else create an empty workbooB
     this.initialData = customArgs?.initialData;
 
     this.workBook = XLSX.utils.book_new();
 
     // when the Node is added, add the container and react component
     this.onNodeAdded = () => {
+      let sheetIndex = 0;
       if (this.initialData) {
+        sheetIndex = this.getPossibleIndex();
         this.workBook = XLSX.read(this.initialData);
         this.setInputData(workBookInputSocketName, this.workBook);
         this.setAllOutputData(this.workBook);
@@ -124,14 +127,14 @@ export class Table extends HybridNode {
 
       this.createContainerComponent(document, TableParent, {
         workBook: this.workBook,
-        sheetIndex: 0,
+        sheetIndex,
         nodeWidth: this.nodeWidth,
         nodeHeight: this.nodeHeight,
       });
     };
 
     this.update = (): void => {
-      const sheetIndex = this.getInputData(sheetIndexInputSocketName);
+      const sheetIndex = this.getPossibleIndex();
       this.renderReactComponent(TableParent, {
         workBook: this.workBook,
         sheetIndex,
@@ -159,10 +162,17 @@ export class Table extends HybridNode {
       this.update();
     };
 
-    const TableParent = (props) => {
-      const [jsonData, setJsonData] = useState(
-        XLSX.utils.aoa_to_sheet([[''], ['']])
-      );
+    type MyProps = {
+      doubleClicked: boolean; // is injected by the NodeClass
+      workBook: XLSX.WorkBook;
+      sheetIndex: number;
+      nodeWidth: number;
+      nodeHeight: number;
+    };
+
+    const TableParent: React.FunctionComponent<MyProps> = (props) => {
+      const ref = React.useRef<DataEditorRef | null>(null);
+      const [arrayOfArrays, setArrayOfArrays] = useState([]);
       // const options: Options = {
       //   mode: 'edit', // edit | read
       //   showToolbar: false,
@@ -207,45 +217,28 @@ export class Table extends HybridNode {
       //   // sheet['!ref'] = selectionRange; // manually set range
       // };
 
-      // const handleOnClick = (event) => {
-      //   // check if this is a click on the sheet menu to change the sheet
-      //   // if so, get the newSheetIndex
-      //   if (event.target.parentNode.className === 'x-spreadsheet-menu') {
-      //     const xSpreadSheet = this.xSpreadSheet.getData();
-      //     const newSheetIndex = xSpreadSheet.findIndex(
-      //       (item) => item.name === event.target.innerText
-      //     );
-      //     this.setInputData(sheetIndexInputSocketName, newSheetIndex);
-      //   }
-      // };
+      const loadSheet = () => {
+        const workSheet =
+          this.workBook.Sheets[this.workBook.SheetNames[props.sheetIndex]];
 
-      // const handleOnChange = () => {
-      //   const xSpreadSheet = this.xSpreadSheet.getData();
-      //   this.workBook = xtos(xSpreadSheet);
-      //   this.setInputData(workBookInputSocketName, xtos(xSpreadSheet));
-      //   this.setAllOutputData(this.workBook);
-      //   this.executeChildren();
-      // };
-
-      useEffect(() => {
-        console.log(props.workBook);
-        const ws = props.workBook.Sheets[props.workBook.SheetNames[0]];
-
-        const range = XLSX.utils.decode_range(ws['!ref']);
+        const range = XLSX.utils.decode_range(workSheet['!ref']);
         // sheet_to_json will lost empty row and col at begin as default
         range.s = { r: 0, c: 0 };
-        const toJson = XLSX.utils.sheet_to_json(ws, {
+        const toJson = XLSX.utils.sheet_to_json(workSheet, {
           raw: false,
           header: 1,
           range: range,
         });
-        console.log(toJson);
-        setJsonData(toJson);
+        setArrayOfArrays(toJson);
+      };
+
+      useEffect(() => {
+        loadSheet();
       }, []);
 
-      // useEffect(() => {
-      //   this.xSpreadSheet.loadData(props.workBook);
-      // }, [props.workBook]);
+      useEffect(() => {
+        loadSheet();
+      }, [props.workBook, props.sheetIndex]);
 
       const onCellEdited = React.useCallback(
         (cell: Item, newValue: EditableGridCell) => {
@@ -253,26 +246,24 @@ export class Table extends HybridNode {
             // we only have text cells, might as well just die here.
             return;
           }
-
-          // const indexes: (keyof DummyItem)[] = [
-          //   'name',
-          //   'company',
-          //   'email',
-          //   'phone',
-          // ];
-          // const key = indexes[col];
           const [col, row] = cell;
-          console.log(col, row, newValue, jsonData);
-          jsonData[row][col] = newValue.data;
-          // jsonData[row][key] = newValue.data;
+          arrayOfArrays[row][col] = newValue.data;
+
+          const worksheet = XLSX.utils.aoa_to_sheet(arrayOfArrays);
+          this.workBook.Sheets[this.workBook.SheetNames[props.sheetIndex]] =
+            worksheet;
+
+          this.setInputData(workBookInputSocketName, this.workBook);
+          this.setAllOutputData(this.workBook);
+          this.executeChildren();
         },
-        [jsonData.length]
+        [arrayOfArrays.length]
       );
 
       const getContent = React.useCallback(
         (cell: Item): GridCell => {
           const [col, row] = cell;
-          const dataRow = jsonData[row];
+          const dataRow = arrayOfArrays[row];
           const d = String(dataRow[col]);
           return {
             kind: GridCellKind.Text,
@@ -282,13 +273,13 @@ export class Table extends HybridNode {
             data: d,
           };
         },
-        [jsonData.length]
+        [arrayOfArrays.length]
       );
 
       // const cols = useMemo<GridColumn[]>(() => {
       const cols = useMemo(() => {
-        const firstRow: [] = jsonData[0];
-        console.log(jsonData, firstRow);
+        const firstRow: [] = arrayOfArrays[0];
+        // console.log(arrayOfArrays, firstRow);
         if (!firstRow) {
           return [
             {
@@ -308,17 +299,25 @@ export class Table extends HybridNode {
         }
         console.log(gridColumn);
         return gridColumn;
-      }, [jsonData.length]);
+      }, [arrayOfArrays.length]);
 
       return (
         <DataEditor
+          ref={ref}
           getCellContent={getContent}
           columns={cols}
-          rows={jsonData.length}
+          rows={arrayOfArrays.length}
           width={props.nodeWidth}
           height={props.nodeHeight}
           onCellEdited={onCellEdited}
-          // onClick={handleOnClick}
+          onPaste={true}
+          rowSelect="multi"
+          rowMarkers="both"
+          smoothScrollY={true}
+          smoothScrollX={true}
+          // theme={getTheme(theme)}
+          rowSelectionMode="multi"
+          getCellsForSelection={true}
         />
       );
     };
@@ -330,6 +329,14 @@ export class Table extends HybridNode {
       XLSX.utils.book_append_sheet(workBook, json.Sheets[name], name);
     });
     return workBook;
+  }
+
+  getPossibleIndex(): number {
+    return limitRange(
+      this.getInputData(sheetIndexInputSocketName),
+      0,
+      this.workBook.SheetNames.length - 1
+    );
   }
 
   getJSON(sheet: XLSX.WorkSheet): any {
@@ -350,7 +357,7 @@ export class Table extends HybridNode {
   }
 
   setAllOutputData(workBook: XLSX.WorkBook): any {
-    const currentSheetIndex = this.getInputData(sheetIndexInputSocketName);
+    const currentSheetIndex = this.getPossibleIndex();
     const sheet = workBook.Sheets[workBook.SheetNames[currentSheetIndex]];
     this.setOutputData(workBookSocketName, workBook);
     this.setOutputData(workSheetSocketName, sheet);
