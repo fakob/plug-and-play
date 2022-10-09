@@ -24,16 +24,13 @@ import { CustomArgs } from '../utils/interfaces';
 import { ArrayType } from './datatypes/arrayType';
 import { JSONType } from './datatypes/jsonType';
 import { NumberType } from './datatypes/numberType';
-import { StringType } from './datatypes/stringType';
 import HybridNode from '../classes/HybridNode';
 
 const workBookSocketName = 'workBook';
-const workSheetSocketName = 'workSheet';
-const arrayOfArraysSocketName = 'arrayOfArrays';
-const CSVSocketName = 'CSV';
+const arrayOfArraysSocketName = 'Array of arrays';
 const JSONSocketName = 'JSON';
-const workBookInputSocketName = 'workBook';
-const sheetIndexInputSocketName = 'currentSheet';
+const workBookInputSocketName = 'Initial data';
+const sheetIndexInputSocketName = 'Sheet index';
 
 export class Table extends HybridNode {
   _imageRef: PIXI.Sprite;
@@ -69,10 +66,8 @@ export class Table extends HybridNode {
   protected getDefaultIO(): PPSocket[] {
     return [
       new PPSocket(SOCKET_TYPE.OUT, workBookSocketName, new JSONType()),
-      new PPSocket(SOCKET_TYPE.OUT, workSheetSocketName, new JSONType()),
       new PPSocket(SOCKET_TYPE.OUT, JSONSocketName, new JSONType()),
       new PPSocket(SOCKET_TYPE.OUT, arrayOfArraysSocketName, new ArrayType()),
-      new PPSocket(SOCKET_TYPE.OUT, CSVSocketName, new StringType()),
       new PPSocket(
         SOCKET_TYPE.IN,
         workBookInputSocketName,
@@ -118,7 +113,7 @@ export class Table extends HybridNode {
     this.onNodeAdded = () => {
       let sheetIndex = 0;
       if (this.initialData) {
-        sheetIndex = this.getPossibleIndex();
+        sheetIndex = this.getIndex();
         this.workBook = XLSX.read(this.initialData);
         this.setInputData(workBookInputSocketName, this.workBook);
         this.setAllOutputData(this.workBook);
@@ -139,7 +134,7 @@ export class Table extends HybridNode {
     };
 
     this.update = (): void => {
-      const sheetIndex = this.getPossibleIndex();
+      const sheetIndex = this.getIndex();
       this.renderReactComponent(TableParent, {
         workBook: this.workBook,
         sheetIndex,
@@ -240,7 +235,7 @@ export class Table extends HybridNode {
           }
           return true;
         },
-        [arrayOfArrays.length]
+        [arrayOfArrays.length, props.sheetIndex]
       );
 
       const onCellEdited = useCallback(
@@ -260,7 +255,7 @@ export class Table extends HybridNode {
           this.setAllOutputData(this.workBook);
           this.executeChildren();
         },
-        [arrayOfArrays.length]
+        [arrayOfArrays.length, props.sheetIndex]
       );
 
       const getContent = useCallback(
@@ -272,6 +267,7 @@ export class Table extends HybridNode {
             return {
               kind: GridCellKind.Text,
               allowOverlay: true,
+              allowWrapping: true,
               readonly: false,
               displayData: d,
               data: d,
@@ -280,13 +276,14 @@ export class Table extends HybridNode {
             return {
               kind: GridCellKind.Text,
               allowOverlay: true,
+              allowWrapping: true,
               readonly: false,
-              displayData: 'x',
-              data: 'x',
+              displayData: '',
+              data: '',
             };
           }
         },
-        [arrayOfArrays.length]
+        [arrayOfArrays.length, props.sheetIndex]
       );
 
       const cols = useMemo<GridColumn[]>(() => {
@@ -303,15 +300,13 @@ export class Table extends HybridNode {
         const gridColumn = [];
         for (let index = 0; index < longestArrayInArray; index++) {
           const col = firstRow[index];
-          console.log(col);
           gridColumn.push({
             title: String(col ?? index),
             id: String(col ?? index).toLowerCase(),
           });
         }
-        console.log(gridColumn);
         return gridColumn;
-      }, [arrayOfArrays.length]);
+      }, [arrayOfArrays.length, props.sheetIndex]);
 
       return (
         <DataEditor
@@ -321,15 +316,15 @@ export class Table extends HybridNode {
           rows={arrayOfArrays.length}
           width={props.nodeWidth}
           height={props.nodeHeight}
-          onCellEdited={onCellEdited}
           gridSelection={gridSelection}
+          onCellEdited={onCellEdited}
           onGridSelectionChange={onGridSelectionChange}
           onPaste={onPaste}
+          fillHandle={true}
           rowSelect="multi"
           rowMarkers="clickable-number"
           smoothScrollX={true}
           smoothScrollY={true}
-          // theme={getTheme(theme)}
           rowSelectionMode="multi"
           getCellsForSelection={true}
           keybindings={{ search: true }}
@@ -338,6 +333,13 @@ export class Table extends HybridNode {
             tint: true,
             hint: 'New row...',
           }}
+          getRowThemeOverride={(i) =>
+            i % 2 === 0
+              ? undefined
+              : {
+                  bgCell: '#F4FAF9',
+                }
+          }
         />
       );
     };
@@ -351,7 +353,7 @@ export class Table extends HybridNode {
     return workBook;
   }
 
-  getPossibleIndex(): number {
+  getIndex(): number {
     return limitRange(
       this.getInputData(sheetIndexInputSocketName),
       0,
@@ -377,12 +379,10 @@ export class Table extends HybridNode {
   }
 
   setAllOutputData(workBook: XLSX.WorkBook): any {
-    const currentSheetIndex = this.getPossibleIndex();
+    const currentSheetIndex = this.getIndex();
     const sheet = workBook.Sheets[workBook.SheetNames[currentSheetIndex]];
     this.setOutputData(workBookSocketName, workBook);
-    this.setOutputData(workSheetSocketName, sheet);
     this.setOutputData(JSONSocketName, this.getJSON(sheet));
-    this.setOutputData(CSVSocketName, this.getCSV(sheet));
     this.setOutputData(arrayOfArraysSocketName, this.getArrayOfArrays(sheet));
   }
 }
