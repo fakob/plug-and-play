@@ -14,7 +14,6 @@ import DataEditor, {
 import '@glideapps/glide-data-grid/dist/index.css';
 import PPSocket from '../classes/SocketClass';
 import {
-  appendArrayWithDefaultValues,
   getLongestArrayInArray,
   getXLSXSelectionRange,
   limitRange,
@@ -227,11 +226,12 @@ export class Table extends HybridNode {
           const rowDifference =
             target[1] + values.length - arrayOfArrays.length;
           if (rowDifference > 0) {
-            // extending the dataset when the pasted in data is larger is not working yet
-            setArrayOfArrays(
-              appendArrayWithDefaultValues(arrayOfArrays, rowDifference, [])
+            // extending the dataset when the pasted data is larger is not working directly
+            // one has to paste twice. first pasting extends the data set, second one pastes the data
+            const arrayToAppend = Array.from({ length: rowDifference }, () =>
+              Array(1).fill('')
             );
-            // return false;
+            setArrayOfArrays(arrayOfArrays.concat(arrayToAppend));
           }
           return true;
         },

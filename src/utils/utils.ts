@@ -628,17 +628,6 @@ export const getMatchingSocket = (socket: PPSocket, node: PPNode): PPSocket => {
   return undefined;
 };
 
-export const appendArrayWithDefaultValues = (
-  arr: any[],
-  newSize: number,
-  defaultValue: any
-): any[] => {
-  return [
-    ...arr,
-    ...Array(Math.max(newSize - arr.length, 0)).fill(defaultValue),
-  ];
-};
-
 export const getLongestArrayInArray = (arrayOfArrays): number => {
   if (arrayOfArrays.length > 0) {
     const longestArray = arrayOfArrays.reduce(function (a, b) {
