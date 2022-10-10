@@ -3,11 +3,7 @@
 import * as PIXI from 'pixi.js';
 import { DropShadowFilter } from '@pixi/filter-drop-shadow';
 import { hri } from 'human-readable-ids';
-import React from 'react';
-import { Root } from 'react-dom/client';
 import '../pixi/dbclick.js';
-
-import styles from '../utils/style.module.css';
 import {
   CustomArgs,
   SerializedNode,
@@ -17,7 +13,6 @@ import {
 } from '../utils/interfaces';
 import {
   COMMENT_TEXTSTYLE,
-  RANDOMMAINCOLOR,
   NODE_TYPE_COLOR,
   NODE_CORNERRADIUS,
   NODE_HEADER_HEIGHT,
@@ -79,10 +74,6 @@ export default class PPNode extends PIXI.Container {
   isDraggingNode: boolean;
   sourcePoint: PIXI.Point;
   interactionData: PIXI.InteractionData;
-
-  root: Root;
-  static: HTMLElement;
-  staticRoot: Root;
 
   // supported callbacks
   onConfigure: (nodeConfig: SerializedNode) => void = () => {}; // called after the node has been configured
@@ -934,30 +925,6 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
 
   screenPoint(): PIXI.Point {
     return PPGraph.currentGraph.viewport.toScreen(this.x + NODE_MARGIN, this.y);
-  }
-
-  // the render method, takes a component and props, and renders it to the page
-  renderReactComponent = (
-    component: any,
-    props: {
-      [key: string]: any;
-    },
-    root = this.root
-  ): void => {
-    root.render(
-      React.createElement(component, {
-        ...props,
-        id: this.id,
-        selected: this.selected,
-        doubleClicked: this.doubleClicked,
-        randomMainColor: RANDOMMAINCOLOR,
-      })
-    );
-  };
-
-  removeContainerComponent(container: HTMLElement, root: Root): void {
-    root.unmount();
-    document.body.removeChild(container);
   }
 
   getInputSocketByName(slotName: string): Socket {

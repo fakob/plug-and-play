@@ -632,7 +632,10 @@ export default class PPGraph {
 
   async pasteNodes(
     data: SerializedSelection,
-    pasteToCenter = false
+    pasteTo?: {
+      x: number;
+      y: number;
+    }
   ): Promise<PPNode[]> {
     const newNodes: PPNode[] = [];
     const mappingOfOldAndNewNodes: { [key: string]: PPNode } = {};
@@ -642,12 +645,8 @@ export default class PPGraph {
     try {
       data.nodes.forEach(async (node, index) => {
         if (index === 0) {
-          if (pasteToCenter) {
-            // calculate offset from first node to viewport center
-            offset.set(
-              this.viewport.center.x - node.x,
-              this.viewport.center.y - node.y
-            );
+          if (pasteTo) {
+            offset.set(pasteTo.x - node.x, pasteTo.y - node.y);
           } else {
             offset.set(node.width + 40, 0);
           }
@@ -682,8 +681,6 @@ export default class PPGraph {
     // select newNode
     this.selection.selectNodes(newNodes);
     this.selection.drawRectanglesFromSelection();
-
-    ensureVisible(this);
 
     return newNodes;
   }

@@ -70,7 +70,6 @@ export class WidgetButton extends HybridNode {
     // when the Node is added, add the container and react component
     this.onNodeAdded = () => {
       this.createContainerComponent(
-        document,
         WidgetParent,
         {
           nodeWidth: this.nodeWidth,
@@ -225,7 +224,6 @@ export class WidgetSwitch extends HybridNode {
     // when the Node is added, add the container and react component
     this.onNodeAdded = () => {
       this.createContainerComponent(
-        document,
         WidgetParent,
         {
           nodeWidth: this.nodeWidth,
@@ -382,7 +380,6 @@ export class WidgetSlider extends HybridNode {
     // when the Node is added, add the container and react component
     this.onNodeAdded = () => {
       this.createContainerComponent(
-        document,
         WidgetParent,
         {
           nodeWidth: this.nodeWidth,

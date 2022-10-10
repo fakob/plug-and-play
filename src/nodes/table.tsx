@@ -118,7 +118,7 @@ export class Table extends HybridNode {
       }
 
       this.parsedData = this.parseData(this.workBook);
-      this.createContainerComponent(document, TableParent, {
+      this.createContainerComponent(TableParent, {
         dataArray: this.parsedData,
         sheetIndex: 0,
         nodeWidth: this.nodeWidth,
