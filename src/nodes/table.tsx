@@ -120,7 +120,7 @@ export class Table extends HybridNode {
       } else {
         // create workbook with an empty worksheet
         this.workBook = XLSX.utils.book_new();
-        const ws_data = [[''], ['']];
+        const ws_data = new Array(100).fill(Array(30).fill(''));
         const worksheet = XLSX.utils.aoa_to_sheet(ws_data);
         XLSX.utils.book_append_sheet(this.workBook, worksheet, 'Sheet1');
       }
