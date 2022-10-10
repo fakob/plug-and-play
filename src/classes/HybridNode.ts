@@ -1,28 +1,35 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 /* eslint-disable @typescript-eslint/no-this-alias */
 
-import PPNode from './NodeClass';
-
+import React from 'react';
 import { createRoot, Root } from 'react-dom/client';
+import * as PIXI from 'pixi.js';
 import PPGraph from './GraphClass';
+import PPNode from './NodeClass';
 import styles from '../utils/style.module.css';
 import { SerializedNode } from '../utils/interfaces';
-import * as PIXI from 'pixi.js';
+import { RANDOMMAINCOLOR } from '../utils/constants';
+
 export default class HybridNode extends PPNode {
+  root: Root;
+  static: HTMLElement;
+  staticRoot: Root;
   container: HTMLElement;
 
+  // this function can be called for hybrid nodes, it
   // • creates a container component
   // • adds the onNodeDragOrViewportMove listener to it
   // • adds a react parent component with props
   createContainerComponent(
-    parentDocument: Document,
     reactParent,
     reactProps,
     customStyles = {}
   ): HTMLElement {
     const { margin = 0 } = reactProps;
-    const reactElement = parentDocument.createElement('div');
-    this.container = parentDocument.body.appendChild(reactElement);
+    const reactElement = document.createElement('div');
+    this.container = document
+      .getElementById('container')
+      .appendChild(reactElement);
     this.root = createRoot(this.container!);
     this.container.id = `Container-${this.id}`;
 
@@ -69,6 +76,30 @@ export default class HybridNode extends PPNode {
     );
 
     return this.container;
+  }
+
+  // the render method, takes a component and props, and renders it to the page
+  renderReactComponent = (
+    component: any,
+    props: {
+      [key: string]: any;
+    },
+    root = this.root
+  ): void => {
+    root.render(
+      React.createElement(component, {
+        ...props,
+        id: this.id,
+        selected: this.selected,
+        doubleClicked: this.doubleClicked,
+        randomMainColor: RANDOMMAINCOLOR,
+      })
+    );
+  };
+
+  removeContainerComponent(container: HTMLElement, root: Root): void {
+    root.unmount();
+    document.getElementById('container').removeChild(container);
   }
 
   configure(nodeConfig: SerializedNode): void {

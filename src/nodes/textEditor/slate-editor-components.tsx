@@ -330,7 +330,12 @@ export const deserialize = (el) => {
 
   if (TEXT_TAGS[nodeName]) {
     const attrs = TEXT_TAGS[nodeName](el);
-    return children.map((child) => jsx('text', attrs, child));
+    return children.map((child) => {
+      if (SlateElement.isElement(child)) {
+        return jsx('element', child);
+      }
+      return jsx('text', attrs, child);
+    });
   }
 
   return children;
@@ -347,7 +352,7 @@ export const withHtml = (editor) => {
     return element.type === 'image' ? true : isVoid(element);
   };
 
-  editor.insertData = (data) => {
+  editor.insertData = (data: DataTransfer) => {
     const html = data.getData('text/html');
 
     if (html) {
@@ -377,7 +382,7 @@ export const withLinks = (editor: Editor): Editor => {
     }
   };
 
-  editor.insertData = (data) => {
+  editor.insertData = (data: DataTransfer) => {
     const text = data.getData('text/plain');
 
     if (text && isUrl(text)) {

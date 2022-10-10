@@ -59,16 +59,15 @@ import {
   PLUGANDPLAY_ICON,
   RANDOMMAINCOLOR,
 } from './utils/constants';
-import {
-  IGraphSearch,
-  INodeSearch,
-  SerializedSelection,
-} from './utils/interfaces';
+import { IGraphSearch, INodeSearch } from './utils/interfaces';
 import {
   convertBlobToBase64,
   downloadFile,
   ensureVisible,
   formatDate,
+  getDataFromClipboard,
+  getNodeDataFromHtml,
+  getNodeDataFromText,
   getSetting,
   getRemoteGraph,
   getRemoteGraphsList,
@@ -374,19 +373,55 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     });
 
     document.addEventListener('paste', async (e) => {
-      // get text from clipboard and try to parse it
-      const textFromClipboard = await navigator.clipboard.readText();
-      try {
-        const json = JSON.parse(textFromClipboard) as SerializedSelection;
-        if (json.version) {
-          e.preventDefault();
-          const pastedNodes = await currentGraph.current.pasteNodes(json, true);
-          console.log(pastedNodes);
-        } else {
-          console.error('Clipboard does not contain valid node data');
+      if (!isEventComingFromWithinTextInput(e)) {
+        const clipboardBlobs = await getDataFromClipboard();
+
+        const tryGettingDataAndAdd = async (mimeType) => {
+          const mouseWorld = viewport.current.toWorld(mousePosition);
+          let data;
+          try {
+            // check if it is node data
+            if (mimeType === 'text/html') {
+              data = getNodeDataFromHtml(clipboardBlobs[mimeType]);
+            } else {
+              data = getNodeDataFromText(clipboardBlobs[mimeType]);
+            }
+            e.preventDefault();
+            await currentGraph.current.pasteNodes(data, {
+              x: mouseWorld.x,
+              y: mouseWorld.y,
+            });
+            return true;
+          } catch (e) {
+            console.log(`No node data in ${mimeType}`, e);
+          }
+          try {
+            data = clipboardBlobs[mimeType];
+            e.preventDefault();
+            if (currentGraph.current.selection.selectedNodes.length < 1) {
+              currentGraph.current.addNewNode('TextEditor', {
+                nodePosX: mouseWorld.x,
+                nodePosY: mouseWorld.y,
+                initialData: {
+                  ...(mimeType === 'text/html'
+                    ? { html: data }
+                    : { plain: data }),
+                },
+              });
+            }
+            return true;
+          } catch (e) {
+            console.log(`No text data in ${mimeType}`, e);
+          }
+        };
+
+        let result = false;
+        if (clipboardBlobs['text/html']) {
+          result = await tryGettingDataAndAdd('text/html');
         }
-      } catch (e) {
-        console.log('Clipboard does not contain node data');
+        if (!result && clipboardBlobs['text/plain']) {
+          await tryGettingDataAndAdd('text/plain');
+        }
       }
     });
 
