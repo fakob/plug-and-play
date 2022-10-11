@@ -12,18 +12,25 @@ import { CustomArgs } from '../../utils/interfaces';
 import { SOCKET_TYPE, customTheme } from '../../utils/constants';
 import HybridNode from '../../classes/HybridNode';
 
-const outputSocketName = 'output';
-const inputSocketName = 'input';
+const inputSocketName = 'Html';
 
 export class HtmlRenderer extends HybridNode {
   update: (newHeight?) => void;
 
-  protected getUpdateBehaviour(): UpdateBehaviourClass {
-    return new UpdateBehaviourClass(false, false, 10000);
-  }
-
   protected getIsHybrid(): boolean {
     return true;
+  }
+
+  getShowLabels(): boolean {
+    return false;
+  }
+
+  getOpacity(): number {
+    return 0.05;
+  }
+
+  getPreferredInputSocketName(): string {
+    return inputSocketName;
   }
 
   protected getActivateByDoubleClick(): boolean {
@@ -40,13 +47,6 @@ export class HtmlRenderer extends HybridNode {
 
   protected getDefaultIO(): PPSocket[] {
     return [
-      // new PPSocket(
-      //   SOCKET_TYPE.OUT,
-      //   outputSocketName,
-      //   new CodeType(),
-      //   undefined,
-      //   true
-      // ),
       new PPSocket(
         SOCKET_TYPE.IN,
         inputSocketName,
@@ -55,7 +55,6 @@ export class HtmlRenderer extends HybridNode {
   style="
     width: 100%;
     height: 100%;
-    background: #4092a4;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -64,30 +63,27 @@ export class HtmlRenderer extends HybridNode {
 >
   <a
     style="
-      width: 140px;
-      height: 100px;
       background: #E154BB;
       display: inline-flex;
       align-items: center;
       border-radius: 8px;
       border-width: 0px;
-      border-radius: 4px;
-      border-width: 0px;
       color: #F5F5F5;
+      margin: 16px;
+      padding: 16px;
+      text-decoration: none;
+      background: #000;
+      font-family: cursive;
     "
     target="_parent"
     href="https://github.com/fakob/plug-and-play/"
-    >Plug and Playground on Github</a
+    >Click to open<br />Plug and Playground on Github</a
   >
 </div>
 `,
         false
       ),
     ];
-  }
-
-  getOpacity(): number {
-    return 0.1;
   }
 
   constructor(name: string, customArgs?: CustomArgs) {
