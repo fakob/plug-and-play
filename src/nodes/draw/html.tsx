@@ -1,13 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Box, ThemeProvider } from '@mui/material';
 import { ErrorBoundary } from 'react-error-boundary';
+import Frame from 'react-frame-component';
 import ErrorFallback from '../../components/ErrorFallback';
 import PPSocket from '../../classes/SocketClass';
 import PPGraph from '../../classes/GraphClass';
-import PPNode from '../../classes/NodeClass';
 import { CodeType } from '../datatypes/codeType';
 
-import { convertToString } from '../../utils/utils';
 import { CustomArgs } from '../../utils/interfaces';
 import { SOCKET_TYPE, customTheme } from '../../utils/constants';
 import HybridNode from '../../classes/HybridNode';
@@ -71,6 +70,7 @@ export class HtmlRenderer extends HybridNode {
       border-width: 0px;
       color: #F5F5F5;
     "
+    target="_parent"
     href="https://github.com/fakob/plug-and-play/"
     >Plug and Playground on Github</a
   >
@@ -105,10 +105,17 @@ export class HtmlRenderer extends HybridNode {
     this.onNodeAdded = () => {
       const data = this.getInputData(inputSocketName);
 
-      this.createContainerComponent(document, ParentComponent, {
-        nodeHeight: this.nodeHeight,
-        data,
-      });
+      this.createContainerComponent(
+        document,
+        ParentComponent,
+        {
+          nodeHeight: this.nodeHeight,
+          data,
+        },
+        {
+          overflow: 'visible',
+        }
+      );
     };
 
     this.update = (newHeight): void => {
@@ -147,23 +154,41 @@ export class HtmlRenderer extends HybridNode {
 
     // small presentational component
     const ParentComponent: React.FunctionComponent<MyProps> = (props) => {
+      const iframeRef = useRef();
+
+      useEffect(() => {
+        if (iframeRef.current) {
+          (iframeRef.current as any).focus();
+        }
+      }, []);
+
       function MyComponent() {
         return (
-          <Box
-            sx={{
-              position: 'relative',
-              height: '100%',
-            }}
-            dangerouslySetInnerHTML={{ __html: props.data }}
-          />
+          <ThemeProvider theme={customTheme}>
+            <Box
+              style={{
+                position: 'relative',
+                height: '100vh',
+              }}
+              dangerouslySetInnerHTML={{ __html: props.data }}
+            />
+          </ThemeProvider>
         );
       }
 
       return (
         <ErrorBoundary FallbackComponent={ErrorFallback}>
-          <ThemeProvider theme={customTheme}>
+          <Frame
+            ref={iframeRef}
+            style={{
+              width: '100%',
+              height: 'calc(100% - 8px)',
+              borderWidth: 0,
+            }}
+            initialContent="<!DOCTYPE html><html><head></head><body><div></div></body></html>"
+          >
             <MyComponent />
-          </ThemeProvider>
+          </Frame>
         </ErrorBoundary>
       );
     };
