@@ -51,35 +51,12 @@ export class HtmlRenderer extends HybridNode {
         SOCKET_TYPE.IN,
         inputSocketName,
         new CodeType(),
-        `<div
-  style="
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-  "
->
-  <a
-    style="
-      background: #E154BB;
-      display: inline-flex;
-      align-items: center;
-      border-radius: 8px;
-      border-width: 0px;
-      color: #F5F5F5;
-      margin: 16px;
-      padding: 16px;
-      text-decoration: none;
-      background: #000;
-      font-family: cursive;
-    "
-    target="_parent"
-    href="https://github.com/fakob/plug-and-play/"
-    >Click to open<br />Plug and Playground on Github</a
-  >
-</div>
+        `<h2>HTML Node</h2>
+<p>Embed an iframe or write your own HTML</p>
+<form>
+  <button
+  formtarget="_parent" formaction="https://github.com/fakob/plug-and-play/">Click me!</button>
+</form>
 `,
         false
       ),
