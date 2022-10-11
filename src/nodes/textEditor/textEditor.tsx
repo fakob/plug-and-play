@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { Box, ThemeProvider } from '@mui/material';
 import { ErrorBoundary } from 'react-error-boundary';
 import { Editor, Descendant, Range, Transforms, createEditor } from 'slate';
@@ -20,8 +26,9 @@ import {
   customTheme,
 } from '../../utils/constants';
 import {
-  Leaf,
   Element,
+  Leaf,
+  deserialize,
   insertMention,
   moveBlock,
   toggleBlock,
@@ -31,6 +38,7 @@ import {
   withMentions,
 } from './slate-editor-components';
 import { AnyType } from '../datatypes/anyType';
+import { BooleanType } from '../datatypes/booleanType';
 import { ColorType } from '../datatypes/colorType';
 import { JSONType } from '../datatypes/jsonType';
 import HybridNode from '../../classes/HybridNode';
@@ -47,13 +55,15 @@ const initialValue: Descendant[] = [
 const outputSocketName = 'output';
 const textJSONSocketName = 'textJSON';
 const backgroundColorSocketName = 'background Color';
+const autoHeightName = 'Auto height';
 const inputPrefix = 'Input';
 const inputName1 = `${inputPrefix} 1`;
 
 export class TextEditor extends HybridNode {
   getAllParameters: () => void;
-  update: (newHeight?) => void;
+  update: (newHeight?: number, textToImport?: string) => void;
   readOnly: boolean;
+  textToImport: { html: string } | { plain: string };
 
   protected getActivateByDoubleClick(): boolean {
     return true;
@@ -103,6 +113,13 @@ export class TextEditor extends HybridNode {
         TRgba.fromString(backgroundColor),
         false
       ),
+      new PPSocket(
+        SOCKET_TYPE.IN,
+        autoHeightName,
+        new BooleanType(),
+        true,
+        false
+      ),
       new PPSocket(SOCKET_TYPE.IN, inputName1, new AnyType(), undefined, true),
     ];
   }
@@ -123,13 +140,11 @@ export class TextEditor extends HybridNode {
       ...customArgs,
       nodeWidth,
       nodeHeight,
-      minNodeWidth: nodeWidth / 2,
-      minNodeHeight: nodeHeight / 2,
+      minNodeWidth: 100,
+      minNodeHeight: 100,
     });
 
-    if (customArgs?.initialData) {
-      this.setInputData(textJSONSocketName, customArgs?.initialData);
-    }
+    this.textToImport = customArgs?.initialData;
 
     this.readOnly = false;
 
@@ -161,21 +176,24 @@ export class TextEditor extends HybridNode {
     // when the Node is added, create the container and react component
     this.onNodeAdded = () => {
       const data = this.getInputData(textJSONSocketName);
+      const autoHeight = this.getInputData(autoHeightName);
       const color: TRgba = this.getInputData(backgroundColorSocketName);
       const allParameters = this.getAllParameters();
       this.readOnly = this.getInputSocketByName(textJSONSocketName).hasLink();
-
-      this.createContainerComponent(document, ParentComponent, {
+      this.createContainerComponent(ParentComponent, {
         nodeHeight: this.nodeHeight,
         data,
+        autoHeight,
         color,
         allParameters,
         readOnly: this.readOnly,
+        textToImport: this.textToImport,
       });
     };
 
     this.update = (newHeight): void => {
       const data = this.getInputData(textJSONSocketName);
+      const autoHeight = this.getInputData(autoHeightName);
       const allParameters = this.getAllParameters();
       const color: TRgba = this.getInputData(backgroundColorSocketName);
       this.container.style.background = color.rgb();
@@ -183,9 +201,11 @@ export class TextEditor extends HybridNode {
       this.renderReactComponent(ParentComponent, {
         nodeHeight: newHeight ?? this.nodeHeight,
         data,
+        autoHeight,
         color,
         allParameters,
         readOnly: this.readOnly,
+        textToImport: this.textToImport,
       });
     };
 
@@ -205,11 +225,13 @@ export class TextEditor extends HybridNode {
     type MyProps = {
       doubleClicked: boolean; // is injected by the NodeClass
       data: Descendant[];
+      autoHeight: boolean;
       color: TRgba;
       allParameters: string;
       randomMainColor: string;
       nodeHeight: number;
       readOnly: boolean;
+      textToImport?: { html: string } | { plain: string };
     };
 
     const ParentComponent: React.FunctionComponent<MyProps> = (props) => {
@@ -220,6 +242,7 @@ export class TextEditor extends HybridNode {
           ),
         []
       );
+      const editorRef = useRef(null);
       const [target, setTarget] = useState<Range | undefined>();
       const [index, setIndex] = useState(0);
       const [color, setColor] = useState(props.color);
@@ -233,29 +256,7 @@ export class TextEditor extends HybridNode {
         .filter((item) => item.name.startsWith(inputPrefix))
         .map((item) => item.name);
 
-      const onHandleParameterSelect = (event, index) => {
-        event.preventDefault();
-        let parameterName = parameterNameArray[index];
-        if (index >= parameterNameArray.length) {
-          parameterName = `Input ${index + 1}`;
-          this.addDefaultInput();
-        }
-        Transforms.select(editor, target);
-        insertMention(editor, parameterName);
-        setTarget(null);
-      };
-
-      useEffect(() => {
-        if (props.doubleClicked) {
-          ReactEditor.focus(editor);
-        }
-      }, [props.doubleClicked]);
-
-      useEffect(() => {
-        setColor(props.color);
-      }, [props.color.r, props.color.g, props.color.b, props.color.a]);
-
-      useEffect(() => {
+      const updateEditorData = () => {
         // update editor data
         editor.children = props.data;
 
@@ -276,10 +277,87 @@ export class TextEditor extends HybridNode {
             }
           );
         });
+      };
 
-        // update outputs
-        this.setOutputData(outputSocketName, props.data);
-        this.executeChildren();
+      const onHandleParameterSelect = (event, index) => {
+        event.preventDefault();
+        let parameterName = parameterNameArray[index];
+        if (index >= parameterNameArray.length) {
+          parameterName = `Input ${index + 1}`;
+          this.addDefaultInput();
+        }
+        Transforms.select(editor, target);
+        insertMention(editor, parameterName);
+        setTarget(null);
+      };
+
+      const setNewHeight = () => {
+        if (props.autoHeight) {
+          const editorHeight = Math.ceil(
+            document.getElementById(this.id).getBoundingClientRect().height /
+              PPGraph.currentGraph.viewport.scale.x
+          );
+          this.resizeNode(this.nodeWidth, editorHeight);
+        }
+      };
+
+      // workaround to get ref of editor to be used as mounted/ready check
+      useEffect(() => {
+        editorRef.current = ReactEditor.toDOMNode(editor, editor);
+      }, []);
+
+      // wait for editor to be ready before importing/displaying text
+      useEffect(() => {
+        if (editorRef.current) {
+          if (props.textToImport?.['html']) {
+            const parsed = new DOMParser().parseFromString(
+              props.textToImport?.['html'],
+              'text/html'
+            );
+            const fragment = deserialize(parsed.body);
+            Transforms.select(editor, {
+              anchor: Editor.start(editor, []),
+              focus: Editor.end(editor, []),
+            });
+            Transforms.insertFragment(editor, fragment);
+          } else if (props.textToImport?.['plain']) {
+            Transforms.select(editor, {
+              anchor: Editor.start(editor, []),
+              focus: Editor.end(editor, []),
+            });
+            editor.insertText(props.textToImport['plain']);
+          } else {
+            updateEditorData();
+          }
+
+          // delay getting div size as
+          // the css takes a little before it is applied
+          setTimeout(() => {
+            setNewHeight();
+          }, 200);
+        }
+      }, [editorRef.current]);
+
+      useEffect(() => {
+        if (props.autoHeight) {
+          setNewHeight();
+        }
+      }, [props.autoHeight]);
+
+      useEffect(() => {
+        if (props.doubleClicked) {
+          ReactEditor.focus(editor);
+        }
+      }, [props.doubleClicked]);
+
+      useEffect(() => {
+        setColor(props.color);
+      }, [props.color.r, props.color.g, props.color.b, props.color.a]);
+
+      useEffect(() => {
+        if (!props.doubleClicked) {
+          updateEditorData();
+        }
       }, [props.allParameters, props.data]);
 
       const onChange = (value) => {
@@ -288,7 +366,7 @@ export class TextEditor extends HybridNode {
         if (selection && Range.isCollapsed(selection)) {
           const [start] = Range.edges(selection);
           const before = Editor.before(editor, start, {
-            unit: 'word',
+            unit: 'character',
           });
           const beforeRange = before && Editor.range(editor, before, start);
           const beforeText = beforeRange && Editor.string(editor, beforeRange);
@@ -304,6 +382,7 @@ export class TextEditor extends HybridNode {
           }
         }
         setTarget(null);
+        setNewHeight();
 
         // update in and outputs
         this.setInputData(textJSONSocketName, value);
@@ -428,6 +507,7 @@ export class TextEditor extends HybridNode {
         <ErrorBoundary FallbackComponent={ErrorFallback}>
           <ThemeProvider theme={customTheme}>
             <Box
+              id={this.id}
               sx={{
                 position: 'relative',
                 padding: '16px 24px',
