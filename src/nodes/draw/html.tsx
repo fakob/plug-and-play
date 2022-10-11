@@ -10,11 +10,12 @@ import { CodeType } from '../datatypes/codeType';
 import { convertToString } from '../../utils/utils';
 import { CustomArgs } from '../../utils/interfaces';
 import { SOCKET_TYPE, customTheme } from '../../utils/constants';
+import HybridNode from '../../classes/HybridNode';
 
 const outputSocketName = 'output';
 const inputSocketName = 'input';
 
-export class HtmlRenderer extends PPNode {
+export class HtmlRenderer extends HybridNode {
   update: (newHeight?) => void;
 
   protected getIsHybrid(): boolean {

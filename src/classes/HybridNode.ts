@@ -102,6 +102,8 @@ export default class HybridNode extends PPNode {
     document.getElementById('container').removeChild(container);
   }
 
+  protected onHybridNodeExit(): void {}
+
   configure(nodeConfig: SerializedNode): void {
     super.configure(nodeConfig);
     this._onViewportMove(); // trigger this once, so the react components get positioned properly
@@ -140,7 +142,7 @@ export default class HybridNode extends PPNode {
       (this as any).onViewportPointerUpHandler
     );
     this.doubleClicked = false;
-    this.onNodeExit();
+    this.onHybridNodeExit();
     // this allows to zoom and drag when the hybrid node is not selected
     this.container.style.pointerEvents = 'none';
     this.container.classList.remove(styles.hybridContainerFocused);
