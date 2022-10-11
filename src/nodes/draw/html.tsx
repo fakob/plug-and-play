@@ -1,10 +1,11 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Box, ThemeProvider } from '@mui/material';
 import { ErrorBoundary } from 'react-error-boundary';
 import Frame from 'react-frame-component';
 import ErrorFallback from '../../components/ErrorFallback';
 import PPSocket from '../../classes/SocketClass';
 import PPGraph from '../../classes/GraphClass';
+import UpdateBehaviourClass from '../../classes/UpdateBehaviourClass';
 import { CodeType } from '../datatypes/codeType';
 
 import { CustomArgs } from '../../utils/interfaces';
@@ -16,6 +17,10 @@ const inputSocketName = 'input';
 
 export class HtmlRenderer extends HybridNode {
   update: (newHeight?) => void;
+
+  protected getUpdateBehaviour(): UpdateBehaviourClass {
+    return new UpdateBehaviourClass(false, false, 10000);
+  }
 
   protected getIsHybrid(): boolean {
     return true;
@@ -155,6 +160,7 @@ export class HtmlRenderer extends HybridNode {
     // small presentational component
     const ParentComponent: React.FunctionComponent<MyProps> = (props) => {
       const iframeRef = useRef();
+      const [htmlData, setHtmlData] = useState(props.data);
 
       useEffect(() => {
         if (iframeRef.current) {
@@ -170,7 +176,7 @@ export class HtmlRenderer extends HybridNode {
                 position: 'relative',
                 height: '100vh',
               }}
-              dangerouslySetInnerHTML={{ __html: props.data }}
+              dangerouslySetInnerHTML={{ __html: htmlData }}
             />
           </ThemeProvider>
         );
