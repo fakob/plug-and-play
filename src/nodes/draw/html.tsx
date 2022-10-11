@@ -87,7 +87,7 @@ export class HtmlRenderer extends HybridNode {
   }
 
   getOpacity(): number {
-    return 0.01;
+    return 0.1;
   }
 
   constructor(name: string, customArgs?: CustomArgs) {
@@ -111,7 +111,6 @@ export class HtmlRenderer extends HybridNode {
       const data = this.getInputData(inputSocketName);
 
       this.createContainerComponent(
-        document,
         ParentComponent,
         {
           nodeHeight: this.nodeHeight,
@@ -134,15 +133,6 @@ export class HtmlRenderer extends HybridNode {
 
     this.onNodeDoubleClick = () => {
       PPGraph.currentGraph.selection.drawRectanglesFromSelection();
-      this.update();
-    };
-
-    this.onHybridNodeExit = () => {
-      this.update();
-    };
-
-    this.onNodeResize = (newWidth, newHeight) => {
-      this.update(newHeight);
     };
 
     this.onExecute = async function () {
@@ -167,6 +157,11 @@ export class HtmlRenderer extends HybridNode {
           (iframeRef.current as any).focus();
         }
       }, []);
+
+      useEffect(() => {
+        console.log('htmlData has changed');
+        setHtmlData(props.data);
+      }, [props.data]);
 
       function MyComponent() {
         return (
