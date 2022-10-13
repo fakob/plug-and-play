@@ -437,9 +437,10 @@ export default class PPGraph {
   // does not add any links, youll have do do that yourself
   addSerializedNode(
     serialized: SerializedNode,
-    customArgs: CustomArgs = {}
+    customArgs: CustomArgs = {},
+    newNodeType?: string
   ): PPNode {
-    const node = this.createNode(serialized.type, customArgs);
+    const node = this.createNode(newNodeType ?? serialized.type, customArgs);
     this.addNode(node);
     node.configure(serialized);
     return node;
@@ -590,15 +591,17 @@ export default class PPGraph {
     isInput: boolean
   ): boolean {
     // check if this socket already has a connection
-    Object.entries(this._links).forEach(([key, link]) => {
+    Object.values(this._links).forEach((link) => {
       if (isInput ? link.target === oldSocket : link.source === oldSocket) {
         console.log('updating link:', isInput ? link.target : link.source);
 
         if (isInput) {
           link.updateTarget(newSocket);
+          oldSocket.links = [];
           newSocket.links = [link];
         } else {
           link.updateSource(newSocket);
+          oldSocket.links = oldSocket.links.filter((item) => item !== link);
           newSocket.links.push(link);
         }
         return true;
@@ -727,6 +730,32 @@ export default class PPGraph {
     };
 
     return data;
+  }
+
+  // swap selected node with new node type
+  swapSelectedNode(newNodeType): PPNode {
+    if (this.selection.selectNodes.length === 1) {
+      const oldNode = this.selection.selectedNodes[0];
+      this.onOpenNodeSearch(
+        PPGraph.currentGraph.viewport.toScreen(oldNode.position)
+      );
+      const serializedNode = oldNode.serialize();
+
+      const newNode = this.addSerializedNode(
+        serializedNode,
+        undefined,
+        newNodeType
+      );
+      this.reconnectLinksToNewNode(oldNode, newNode);
+
+      this.selection.selectNodes([newNode]);
+      this.selection.drawRectanglesFromSelection();
+
+      this.removeNode(oldNode);
+
+      return newNode;
+    }
+    return undefined;
   }
 
   serializeSelection(): SerializedSelection {

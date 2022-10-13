@@ -22,6 +22,7 @@ import ClearIcon from '@mui/icons-material/Clear';
 import FitScreenIcon from '@mui/icons-material/FitScreen';
 import ZoomOutMapIcon from '@mui/icons-material/ZoomOutMap';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import CachedIcon from '@mui/icons-material/Cached';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
@@ -373,7 +374,17 @@ export const NodeContextMenu = (props) => {
         </MenuItem>
         <MenuItem
           onClick={() => {
-            props.currentGraph.current.deleteSelectedNodes();
+            props.currentGraph.current.swapSelectedNode('Placeholder');
+          }}
+        >
+          <ListItemIcon>
+            <CachedIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Swap</ListItemText>
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            props.currentGraph.current.action_DeleteSelectedNodes();
           }}
         >
           <ListItemIcon>
