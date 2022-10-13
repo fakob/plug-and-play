@@ -37,6 +37,12 @@ export class Playground extends PPNode {
         new TriggerType(TRIGGER_TYPE_OPTIONS[0].value, 'showGraphJSON'),
         0
       ),
+      new PPSocket(
+        SOCKET_TYPE.IN,
+        'Get all added nodes',
+        new TriggerType(TRIGGER_TYPE_OPTIONS[0].value, 'getAllAddedNodes'),
+        0
+      ),
     ].concat(super.getDefaultIO());
   }
 
@@ -48,7 +54,7 @@ export class Playground extends PPNode {
     const lastNodePosY = this.y;
     allNodeTypeNames.forEach((nodeName) => {
       console.log(this.x, lastNodePosX);
-      const newNode = PPGraph.currentGraph.createAndAddNode(nodeName);
+      const newNode = PPGraph.currentGraph.addNewNode(nodeName);
       newNode.setPosition(lastNodePosX, lastNodePosY, false);
       // lastNodePosX += 40;
       lastNodePosX += newNode.width + 40;
@@ -61,6 +67,13 @@ export class Playground extends PPNode {
     const serializedGraph = PPGraph.currentGraph.serialize();
     // const max = this.getInputData('max');
     this.setOutputData('output', serializedGraph);
+    this.executeChildren();
+  }
+
+  getAllAddedNodes(): void {
+    const serializedGraph = PPGraph.currentGraph.serialize();
+    // const max = this.getInputData('max');
+    this.setOutputData('output', serializedGraph.nodes);
     this.executeChildren();
   }
 }

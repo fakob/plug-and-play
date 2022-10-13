@@ -317,14 +317,6 @@ const PropertyHeader: React.FunctionComponent<PropertyHeaderProps> = (
             <ContentCopyIcon sx={{ pl: 1, fontSize: '16px' }} />
           </IconButton>
         </Box>
-        <Box
-          sx={{
-            color: 'text.secondary',
-            fontSize: '10px',
-          }}
-        >
-          {props.property.dataType.getName()}
-        </Box>
         <IconButton
           title={`Property type: ${props.property.dataType.constructor.name}`}
           aria-label="more"
@@ -334,6 +326,14 @@ const PropertyHeader: React.FunctionComponent<PropertyHeaderProps> = (
           aria-haspopup="true"
           onClick={handleClick}
         >
+          <Box
+            sx={{
+              color: 'text.secondary',
+              fontSize: '10px',
+            }}
+          >
+            {props.property.dataType.getName()}
+          </Box>
           <MoreVertIcon />
         </IconButton>
         <Menu
