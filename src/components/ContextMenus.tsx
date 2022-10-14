@@ -361,6 +361,16 @@ export const NodeContextMenu = (props) => {
         <Divider />
         <MenuItem
           onClick={() => {
+            props.openNodeSearch();
+          }}
+        >
+          <ListItemIcon>
+            <CachedIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Replace with ...</ListItemText>
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
             props.currentGraph.current.duplicateSelection();
           }}
         >
@@ -371,16 +381,6 @@ export const NodeContextMenu = (props) => {
           <Typography variant="body2" color="text.secondary">
             {`${props.controlOrMetaKey}+D`}
           </Typography>
-        </MenuItem>
-        <MenuItem
-          onClick={() => {
-            props.openNodeSearch();
-          }}
-        >
-          <ListItemIcon>
-            <CachedIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Replace with ...</ListItemText>
         </MenuItem>
         <MenuItem
           onClick={() => {

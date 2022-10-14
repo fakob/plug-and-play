@@ -599,6 +599,7 @@ export default class PPGraph {
           link.updateTarget(newSocket);
           oldSocket.links = [];
           newSocket.links = [link];
+          newSocket.data = link.source.data;
         } else {
           link.updateSource(newSocket);
           oldSocket.links = oldSocket.links.filter((item) => item !== link);

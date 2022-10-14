@@ -1086,6 +1086,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           PPGraph.currentGraph.nodes[oldId],
           newNode
         );
+        newNode.executeOptimizedChain();
         PPGraph.currentGraph.selection.selectNodes([newNode]);
         PPGraph.currentGraph.selection.drawRectanglesFromSelection();
         PPGraph.currentGraph.removeNode(PPGraph.currentGraph.nodes[oldId]);
