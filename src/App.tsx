@@ -59,7 +59,7 @@ import {
   PLUGANDPLAY_ICON,
   RANDOMMAINCOLOR,
 } from './utils/constants';
-import { IGraphSearch, INodeSearch } from './utils/interfaces';
+import { IGraphSearch, INodeSearch, SerializedNode } from './utils/interfaces';
 import {
   convertBlobToBase64,
   downloadFile,
@@ -1058,12 +1058,55 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
 
   const action_AddOrReplaceNode = (event, selected: INodeSearch) => {
     console.log(selected);
-    if (currentGraph.current.selection.selectedNodes.length === 1) {
-      currentGraph.current.replaceSelectedNode(selected.title);
+    const referenceID = hri.random();
 
-      setNodeSearchActiveItem(selected);
-      setIsNodeSearchVisible(false);
+    if (currentGraph.current.selection.selectedNodes.length === 1) {
+      // replace node if there is exactly one node selected
+      const newNodeType = selected.title;
+      const oldNode = PPGraph.currentGraph.selection.selectedNodes[0];
+      const serializedNode = oldNode.serialize();
+
+      const replaceNode = (
+        oldSerializedNode: SerializedNode,
+        oldId: string,
+        newId: string,
+        newType?: string
+      ) => {
+        const newNode = PPGraph.currentGraph.addSerializedNode(
+          oldSerializedNode,
+          {
+            overrideId: newId,
+          },
+          newType
+        );
+        if (newType) {
+          newNode.nodeName = newType;
+        }
+        PPGraph.currentGraph.reconnectLinksToNewNode(
+          PPGraph.currentGraph.nodes[oldId],
+          newNode
+        );
+        PPGraph.currentGraph.selection.selectNodes([newNode]);
+        PPGraph.currentGraph.selection.drawRectanglesFromSelection();
+        PPGraph.currentGraph.removeNode(PPGraph.currentGraph.nodes[oldId]);
+      };
+
+      const action = async () => {
+        replaceNode(
+          serializedNode,
+          serializedNode.id,
+          referenceID,
+          newNodeType
+        );
+        setNodeSearchActiveItem(selected);
+        setIsNodeSearchVisible(false);
+      };
+      const undoAction = async () => {
+        replaceNode(serializedNode, referenceID, serializedNode.id);
+      };
+      ActionHandler.performAction(action, undoAction);
     } else {
+      // add node
       // store link before search gets hidden and temp connection gets reset
       const nodePos =
         currentGraph.current.overrideNodeCursorPosition ??
@@ -1071,8 +1114,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           new PIXI.Point(contextMenuPosition[0], contextMenuPosition[1])
         );
       const addLink = currentGraph.current.selectedSourceSocket;
-
-      const referenceID = hri.random();
 
       const action = async () => {
         let addedNode: PPNode;

@@ -732,29 +732,6 @@ export default class PPGraph {
     return data;
   }
 
-  // replace selected node with new node type
-  replaceSelectedNode(newNodeType): PPNode {
-    if (this.selection.selectedNodes.length === 1) {
-      const oldNode = this.selection.selectedNodes[0];
-      const serializedNode = oldNode.serialize();
-      const newNode = this.addSerializedNode(
-        serializedNode,
-        undefined,
-        newNodeType
-      );
-      newNode.nodeName = newNodeType;
-      this.reconnectLinksToNewNode(oldNode, newNode);
-
-      this.selection.selectNodes([newNode]);
-      this.selection.drawRectanglesFromSelection();
-
-      this.removeNode(oldNode);
-
-      return newNode;
-    }
-    return undefined;
-  }
-
   serializeSelection(): SerializedSelection {
     const linksContainedInSelection: PPLink[] = [];
 
