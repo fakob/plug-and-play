@@ -374,13 +374,14 @@ export const NodeContextMenu = (props) => {
         </MenuItem>
         <MenuItem
           onClick={() => {
-            props.currentGraph.current.swapSelectedNode('Placeholder');
+            // props.currentGraph.current.replaceSelectedNode('Placeholder');
+            props.openNodeSearch();
           }}
         >
           <ListItemIcon>
             <CachedIcon fontSize="small" />
           </ListItemIcon>
-          <ListItemText>Swap</ListItemText>
+          <ListItemText>Replace with ...</ListItemText>
         </MenuItem>
         <MenuItem
           onClick={() => {

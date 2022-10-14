@@ -732,20 +732,17 @@ export default class PPGraph {
     return data;
   }
 
-  // swap selected node with new node type
-  swapSelectedNode(newNodeType): PPNode {
-    if (this.selection.selectNodes.length === 1) {
+  // replace selected node with new node type
+  replaceSelectedNode(newNodeType): PPNode {
+    if (this.selection.selectedNodes.length === 1) {
       const oldNode = this.selection.selectedNodes[0];
-      this.onOpenNodeSearch(
-        PPGraph.currentGraph.viewport.toScreen(oldNode.position)
-      );
       const serializedNode = oldNode.serialize();
-
       const newNode = this.addSerializedNode(
         serializedNode,
         undefined,
         newNodeType
       );
+      newNode.nodeName = newNodeType;
       this.reconnectLinksToNewNode(oldNode, newNode);
 
       this.selection.selectNodes([newNode]);
