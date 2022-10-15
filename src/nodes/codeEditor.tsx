@@ -24,6 +24,10 @@ export class CodeEditor extends HybridNode {
     return true;
   }
 
+  getPreferredInputSocketName(): string {
+    return inputSocketName;
+  }
+
   public getName(): string {
     return 'CodeEditor';
   }

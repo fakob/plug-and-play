@@ -1590,6 +1590,10 @@ NOTE: save the playground after loading, if you want to make changes to it`
             </>
           )}
         </div>
+        <div
+          id="portal"
+          style={{ position: 'fixed', left: 0, top: 0, zIndex: 9999 }}
+        />
       </div>
     </ErrorBoundary>
   );
