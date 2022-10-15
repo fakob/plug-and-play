@@ -652,7 +652,7 @@ export default class PPGraph {
           }
         }
         // add node and carry over its con,figuration
-        const newNode = await this.addSerializedNode(node, {
+        const newNode = this.addSerializedNode(node, {
           overrideId: hri.random(),
         });
 
@@ -793,8 +793,7 @@ export default class PPGraph {
     //create nodes
     try {
       data.nodes.forEach(
-        async (node) =>
-          await this.addSerializedNode(node, { overrideId: node.id })
+        async (node) => this.addSerializedNode(node, { overrideId: node.id })
         /*this.createAndAddNode(
           node.type,
           {
@@ -909,8 +908,8 @@ export default class PPGraph {
     };
     const undoAction = async () => {
       const addedNodes: PPNode[] = [];
-      nodesSerialized.forEach(async (node: SerializedNode) => {
-        const addedNode = await PPGraph.currentGraph.addSerializedNode(node, {
+      nodesSerialized.forEach((node: SerializedNode) => {
+        const addedNode = PPGraph.currentGraph.addSerializedNode(node, {
           overrideId: node.id,
         });
         addedNodes.push(addedNode);
