@@ -670,7 +670,7 @@ export default class PPGraph {
     //create nodes
     const offset = new PIXI.Point();
     try {
-      data.nodes.forEach(async (node, index) => {
+      data.nodes.forEach((node, index) => {
         if (index === 0) {
           if (pasteTo) {
             offset.set(pasteTo.x - node.x, pasteTo.y - node.y);
