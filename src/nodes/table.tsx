@@ -38,7 +38,6 @@ export class Table extends HybridNode {
   createElement;
   workBook: XLSX.WorkBook;
   initialData: any;
-  // xSpreadSheet: Spreadsheet;
   parsedData: any;
   update: (switchToSheet?: boolean) => void;
 
@@ -124,7 +123,7 @@ export class Table extends HybridNode {
         XLSX.utils.book_append_sheet(this.workBook, worksheet, 'Sheet1');
       }
 
-      this.createContainerComponent(document, TableParent, {
+      this.createContainerComponent(TableParent, {
         workBook: this.workBook,
         sheetIndex,
         nodeWidth: this.nodeWidth,
