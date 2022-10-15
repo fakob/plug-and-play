@@ -452,6 +452,29 @@ export default class PPGraph {
     return node;
   }
 
+  replaceNode = (
+    oldSerializedNode: SerializedNode,
+    oldId: string,
+    newId: string,
+    newType?: string
+  ) => {
+    const newNode = this.addSerializedNode(
+      oldSerializedNode,
+      {
+        overrideId: newId,
+      },
+      newType
+    );
+    if (newType) {
+      newNode.nodeName = newType;
+    }
+    this.reconnectLinksToNewNode(this.nodes[oldId], newNode);
+    newNode.executeOptimizedChain();
+    this.selection.selectNodes([newNode]);
+    this.selection.drawRectanglesFromSelection();
+    this.removeNode(this.nodes[oldId]);
+  };
+
   getNextID = (): number => {
     return Object.values(this._links).reduce(
       (prevMax, link) => (link.id >= prevMax ? link.id + 1 : prevMax),

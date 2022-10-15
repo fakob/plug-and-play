@@ -59,8 +59,9 @@ import {
   PLUGANDPLAY_ICON,
   RANDOMMAINCOLOR,
 } from './utils/constants';
-import { IGraphSearch, INodeSearch, SerializedNode } from './utils/interfaces';
+import { IGraphSearch, INodeSearch } from './utils/interfaces';
 import {
+  connectNodeToSocket,
   convertBlobToBase64,
   downloadFile,
   ensureVisible,
@@ -68,16 +69,15 @@ import {
   getDataFromClipboard,
   getNodeDataFromHtml,
   getNodeDataFromText,
-  getSetting,
   getRemoteGraph,
   getRemoteGraphsList,
+  getSetting,
   isEventComingFromWithinTextInput,
   removeExtension,
   roundNumber,
   useStateRef,
   writeDataToClipboard,
   zoomToFitSelection,
-  connectNodeToSocket,
 } from './utils/utils';
 import { getAllNodeTypes } from './nodes/allNodes';
 import PPSocket from './classes/SocketClass';
@@ -1066,34 +1066,8 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       const oldNode = PPGraph.currentGraph.selection.selectedNodes[0];
       const serializedNode = oldNode.serialize();
 
-      const replaceNode = (
-        oldSerializedNode: SerializedNode,
-        oldId: string,
-        newId: string,
-        newType?: string
-      ) => {
-        const newNode = PPGraph.currentGraph.addSerializedNode(
-          oldSerializedNode,
-          {
-            overrideId: newId,
-          },
-          newType
-        );
-        if (newType) {
-          newNode.nodeName = newType;
-        }
-        PPGraph.currentGraph.reconnectLinksToNewNode(
-          PPGraph.currentGraph.nodes[oldId],
-          newNode
-        );
-        newNode.executeOptimizedChain();
-        PPGraph.currentGraph.selection.selectNodes([newNode]);
-        PPGraph.currentGraph.selection.drawRectanglesFromSelection();
-        PPGraph.currentGraph.removeNode(PPGraph.currentGraph.nodes[oldId]);
-      };
-
       const action = async () => {
-        replaceNode(
+        PPGraph.currentGraph.replaceNode(
           serializedNode,
           serializedNode.id,
           referenceID,
@@ -1103,7 +1077,11 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         setIsNodeSearchVisible(false);
       };
       const undoAction = async () => {
-        replaceNode(serializedNode, referenceID, serializedNode.id);
+        PPGraph.currentGraph.replaceNode(
+          serializedNode,
+          referenceID,
+          serializedNode.id
+        );
       };
       ActionHandler.performAction(action, undoAction);
     } else {
