@@ -5,7 +5,6 @@ import Frame from 'react-frame-component';
 import ErrorFallback from '../../components/ErrorFallback';
 import PPSocket from '../../classes/SocketClass';
 import PPGraph from '../../classes/GraphClass';
-import UpdateBehaviourClass from '../../classes/UpdateBehaviourClass';
 import { CodeType } from '../datatypes/codeType';
 
 import { CustomArgs } from '../../utils/interfaces';
@@ -16,10 +15,6 @@ const inputSocketName = 'Html';
 
 export class HtmlRenderer extends HybridNode {
   update: (newHeight?) => void;
-
-  protected getIsHybrid(): boolean {
-    return true;
-  }
 
   getShowLabels(): boolean {
     return false;
@@ -55,7 +50,7 @@ export class HtmlRenderer extends HybridNode {
 <p>Embed an iframe or write your own HTML</p>
 <form>
   <button
-  formtarget="_parent" formaction="https://github.com/fakob/plug-and-play/">Click me!</button>
+  formtarget="_blank" formaction="https://github.com/fakob/plug-and-play/">Click me!</button>
 </form>
 `,
         false
