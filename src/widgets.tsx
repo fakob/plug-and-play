@@ -171,7 +171,8 @@ export type SelectWidgetProps = {
   data: number;
   options: EnumStructure;
   randomMainColor: string;
-  onChange: (value: string) => void;
+  onChange?: (value: string) => void;
+  onOpen?: () => void;
 };
 
 export const SelectWidget: React.FunctionComponent<SelectWidgetProps> = (
@@ -179,6 +180,13 @@ export const SelectWidget: React.FunctionComponent<SelectWidgetProps> = (
 ) => {
   const [data, setData] = useState(props.data);
   const [options] = useState(props.options);
+
+  const onOpen = (event) => {
+    console.log(event, props);
+    if (props.onOpen) {
+      props.onOpen();
+    }
+  };
 
   const onChange = (event) => {
     const value = event.target.value;
@@ -195,6 +203,7 @@ export const SelectWidget: React.FunctionComponent<SelectWidgetProps> = (
       <Select
         variant="filled"
         value={data}
+        onOpen={onOpen}
         onChange={onChange}
         disabled={props.hasLink}
       >

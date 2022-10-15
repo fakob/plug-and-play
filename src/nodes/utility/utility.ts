@@ -1,8 +1,11 @@
+import PPGraph from '../../classes/GraphClass';
 import PPNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
+import { WidgetButton } from '../widgets/widgetNodes';
 import { SOCKET_TYPE } from '../../utils/constants';
-import { TRgba } from '../../utils/interfaces';
+import { CustomArgs, TRgba } from '../../utils/interfaces';
 import { AnyType } from '../datatypes/anyType';
+import { EnumType } from '../datatypes/enumType';
 
 export class Reroute extends PPNode {
   public getName(): string {
@@ -61,5 +64,51 @@ export class Reroute extends PPNode {
     outputObject: Record<string, unknown>
   ): Promise<void> {
     outputObject['Out'] = inputObject['In'];
+  }
+}
+
+const selectNodeName = 'Select Node';
+
+export class JumpToNode extends WidgetButton {
+  onOpenSelect: () => void;
+
+  public getName(): string {
+    return 'Jump to node';
+  }
+  public getDescription(): string {
+    return 'Jump to a specific node in your playground';
+  }
+
+  constructor(name: string, customArgs: CustomArgs) {
+    super(name, {
+      ...customArgs,
+    });
+
+    const onOpenSelect = () => {
+      const nodeArray = Object.values(PPGraph.currentGraph.nodes);
+      const nodeArrayOptions = nodeArray.map((node) => {
+        return {
+          text: node.name,
+          value: node.id,
+        };
+      });
+      console.log(nodeArray);
+      console.log(nodeArrayOptions);
+    };
+  }
+
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(
+        SOCKET_TYPE.IN,
+        selectNodeName,
+        new EnumType(
+          [{ text: 'text', value: undefined }],
+          undefined,
+          this.onOpenSelect
+        ),
+        'text'
+      ),
+    ].concat(super.getDefaultIO());
   }
 }
