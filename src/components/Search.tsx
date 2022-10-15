@@ -1,7 +1,15 @@
 import * as React from 'react';
 import Color from 'color';
-import { Popper, TextField } from '@mui/material';
-
+import {
+  Box,
+  Popper,
+  Stack,
+  TextField,
+  createFilterOptions,
+} from '@mui/material';
+import PPGraph from '../classes/GraphClass';
+import { getAllNodeTypes } from '../nodes/allNodes';
+import { IGraphSearch, INodeSearch } from '../utils/interfaces';
 import { COLOR_DARK, COLOR_WHITE_TEXT } from '../utils/constants';
 import styles from '../utils/style.module.css';
 
@@ -77,5 +85,94 @@ export const NodeSearchInput = (props) => {
         },
       }}
     />
+  );
+};
+
+export const getNodes = (): INodeSearch[] => {
+  const addLink = PPGraph.currentGraph.selectedSourceSocket;
+  const tempItems = Object.entries(getAllNodeTypes())
+    .map(([title, obj]) => {
+      return {
+        title,
+        name: obj.name,
+        key: title,
+        description: obj.description,
+        hasInputs: obj.hasInputs.toString(),
+      };
+    })
+    .sort(
+      (a, b) => a.name.localeCompare(b.name, 'en', { sensitivity: 'base' }) // case insensitive sorting
+    )
+    .filter((node) =>
+      addLink ? node.hasInputs === 'true' : 'true'
+    ) as INodeSearch[];
+  return tempItems;
+};
+
+const filterOptionNode = createFilterOptions<INodeSearch>({
+  stringify: (option) => `${option.title} ${option.name} ${option.description}`,
+});
+
+export const filterNode = (options, params) => {
+  const filtered = filterOptionNode(options, params);
+  if (params.inputValue !== '') {
+    filtered.push({
+      title: params.inputValue,
+      key: params.inputValue,
+      name: params.inputValue,
+      description: '',
+      hasInputs: '',
+      isNew: true,
+    });
+  }
+  return filtered;
+};
+
+export const renderNodeItem = (props, option, { selected }) => {
+  return (
+    <li {...props} key={option.title}>
+      <Stack
+        sx={{
+          width: '100%',
+        }}
+      >
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <Box
+            title={option.description}
+            sx={{
+              flexGrow: 1,
+            }}
+          >
+            <Box component="div" sx={{ display: 'inline', opacity: '0.5' }}>
+              {option.isNew && 'Create custom node: '}
+            </Box>
+            {option.name}
+          </Box>
+          <Box
+            sx={{
+              fontSize: '12px',
+              opacity: '0.75',
+            }}
+          >
+            {option.title}
+          </Box>
+        </Box>
+        <Box
+          sx={{
+            fontSize: '12px',
+            opacity: '0.75',
+            textOverflow: 'ellipsis',
+          }}
+        >
+          {option.description}
+        </Box>
+      </Stack>
+    </li>
   );
 };

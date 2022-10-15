@@ -20,7 +20,6 @@ import {
   DialogContentText,
   DialogTitle,
   IconButton,
-  Stack,
   TextField,
   createFilterOptions,
 } from '@mui/material';
@@ -35,6 +34,9 @@ import {
   GraphSearchInput,
   GraphSearchPopper,
   NodeSearchInput,
+  filterNode,
+  getNodes,
+  renderNodeItem,
 } from './components/Search';
 import GraphOverlay from './components/GraphOverlay';
 import ErrorFallback from './components/ErrorFallback';
@@ -147,10 +149,6 @@ const App = (): JSX.Element => {
     useState<IGraphSearch | null>(null);
 
   const filterOptionGraph = createFilterOptions<IGraphSearch>();
-  const filterOptionNode = createFilterOptions<INodeSearch>({
-    stringify: (option) =>
-      `${option.title} ${option.name} ${option.description}`,
-  });
 
   // dialogs
   const [showEdit, setShowEdit] = useState(false);
@@ -1127,27 +1125,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     }
   };
 
-  const getNodes = (): INodeSearch[] => {
-    const addLink = currentGraph.current.selectedSourceSocket;
-    const tempItems = Object.entries(getAllNodeTypes())
-      .map(([title, obj]) => {
-        return {
-          title,
-          name: obj.name,
-          key: title,
-          description: obj.description,
-          hasInputs: obj.hasInputs.toString(),
-        };
-      })
-      .sort(
-        (a, b) => a.title.localeCompare(b.title, 'en', { sensitivity: 'base' }) // case insensitive sorting
-      )
-      .filter((node) =>
-        addLink ? node.hasInputs === 'true' : 'true'
-      ) as INodeSearch[];
-    return tempItems;
-  };
-
   const openNodeSearch = (pos = undefined) => {
     console.log('openNodeSearch');
     if (pos !== undefined) {
@@ -1228,21 +1205,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       filtered.push({
         id: hri.random(),
         name: params.inputValue,
-        isNew: true,
-      });
-    }
-    return filtered;
-  };
-
-  const filterNode = (options, params) => {
-    const filtered = filterOptionNode(options, params);
-    if (params.inputValue !== '') {
-      filtered.push({
-        title: params.inputValue,
-        key: params.inputValue,
-        name: params.inputValue,
-        description: '',
-        hasInputs: '',
         isNew: true,
       });
     }
@@ -1358,55 +1320,6 @@ NOTE: save the playground after loading, if you want to make changes to it`
     );
 
     return itemToReturn;
-  };
-
-  const renderNodeItem = (props, option, { selected }) => {
-    return (
-      <li {...props} key={option.title}>
-        <Stack
-          sx={{
-            width: '100%',
-          }}
-        >
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-            }}
-          >
-            <Box
-              title={option.description}
-              sx={{
-                flexGrow: 1,
-              }}
-            >
-              <Box component="div" sx={{ display: 'inline', opacity: '0.5' }}>
-                {option.isNew && 'Create custom node: '}
-              </Box>
-              {option.name}
-            </Box>
-            <Box
-              sx={{
-                fontSize: '12px',
-                opacity: '0.75',
-              }}
-            >
-              {option.title}
-            </Box>
-          </Box>
-          <Box
-            sx={{
-              fontSize: '12px',
-              opacity: '0.75',
-              textOverflow: 'ellipsis',
-            }}
-          >
-            {option.description}
-          </Box>
-        </Stack>
-      </li>
-    );
   };
 
   const submitEditDialog = (): void => {
