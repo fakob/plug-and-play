@@ -61,6 +61,7 @@ import {
 } from './utils/constants';
 import { IGraphSearch, INodeSearch } from './utils/interfaces';
 import {
+  connectNodeToSocket,
   convertBlobToBase64,
   downloadFile,
   ensureVisible,
@@ -68,16 +69,15 @@ import {
   getDataFromClipboard,
   getNodeDataFromHtml,
   getNodeDataFromText,
-  getSetting,
   getRemoteGraph,
   getRemoteGraphsList,
+  getSetting,
   isEventComingFromWithinTextInput,
   removeExtension,
   roundNumber,
   useStateRef,
   writeDataToClipboard,
   zoomToFitSelection,
-  connectNodeToSocket,
 } from './utils/utils';
 import { getAllNodeTypes } from './nodes/allNodes';
 import PPSocket from './classes/SocketClass';
@@ -1056,46 +1056,75 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     }
   };
 
-  const action_AddNode = (event, selected: INodeSearch) => {
+  const action_AddOrReplaceNode = (event, selected: INodeSearch) => {
     console.log(selected);
-    // store link before search gets hidden and temp connection gets reset
-    const nodePos =
-      currentGraph.current.overrideNodeCursorPosition ??
-      viewport.current.toWorld(
-        new PIXI.Point(contextMenuPosition[0], contextMenuPosition[1])
-      );
-    const addLink = currentGraph.current.selectedSourceSocket;
-
     const referenceID = hri.random();
 
-    const action = async () => {
-      let addedNode: PPNode;
-      const nodeExists = getAllNodeTypes()[selected.title] !== undefined;
-      if (nodeExists) {
-        addedNode = await currentGraph.current.addNewNode(selected.title, {
-          overrideId: referenceID,
-          nodePosX: nodePos.x,
-          nodePosY: nodePos.y,
-        });
-      } else {
-        addedNode = await currentGraph.current.addNewNode('CustomFunction', {
-          overrideId: referenceID,
-          nodePosX: nodePos.x,
-          nodePosY: nodePos.y,
-        });
-        addedNode.nodeName = selected.title;
-      }
-      if (addLink) {
-        connectNodeToSocket(addLink, addedNode);
-      }
+    if (currentGraph.current.selection.selectedNodes.length === 1) {
+      // replace node if there is exactly one node selected
+      const newNodeType = selected.title;
+      const oldNode = PPGraph.currentGraph.selection.selectedNodes[0];
+      const serializedNode = oldNode.serialize();
 
-      setNodeSearchActiveItem(selected);
-      setIsNodeSearchVisible(false);
-    };
-    const undoAction = async () => {
-      PPGraph.currentGraph.removeNode(PPGraph.currentGraph.nodes[referenceID]);
-    };
-    ActionHandler.performAction(action, undoAction);
+      const action = async () => {
+        PPGraph.currentGraph.replaceNode(
+          serializedNode,
+          serializedNode.id,
+          referenceID,
+          newNodeType
+        );
+        setNodeSearchActiveItem(selected);
+        setIsNodeSearchVisible(false);
+      };
+      const undoAction = async () => {
+        PPGraph.currentGraph.replaceNode(
+          serializedNode,
+          referenceID,
+          serializedNode.id
+        );
+      };
+      ActionHandler.performAction(action, undoAction);
+    } else {
+      // add node
+      // store link before search gets hidden and temp connection gets reset
+      const nodePos =
+        currentGraph.current.overrideNodeCursorPosition ??
+        viewport.current.toWorld(
+          new PIXI.Point(contextMenuPosition[0], contextMenuPosition[1])
+        );
+      const addLink = currentGraph.current.selectedSourceSocket;
+
+      const action = async () => {
+        let addedNode: PPNode;
+        const nodeExists = getAllNodeTypes()[selected.title] !== undefined;
+        if (nodeExists) {
+          addedNode = await currentGraph.current.addNewNode(selected.title, {
+            overrideId: referenceID,
+            nodePosX: nodePos.x,
+            nodePosY: nodePos.y,
+          });
+        } else {
+          addedNode = await currentGraph.current.addNewNode('CustomFunction', {
+            overrideId: referenceID,
+            nodePosX: nodePos.x,
+            nodePosY: nodePos.y,
+          });
+          addedNode.nodeName = selected.title;
+        }
+        if (addLink) {
+          connectNodeToSocket(addLink, addedNode);
+        }
+
+        setNodeSearchActiveItem(selected);
+        setIsNodeSearchVisible(false);
+      };
+      const undoAction = async () => {
+        PPGraph.currentGraph.removeNode(
+          PPGraph.currentGraph.nodes[referenceID]
+        );
+      };
+      ActionHandler.performAction(action, undoAction);
+    }
   };
 
   const getNodes = (): INodeSearch[] => {
@@ -1492,6 +1521,7 @@ NOTE: save the playground after loading, if you want to make changes to it`
               controlOrMetaKey={controlOrMetaKey}
               contextMenuPosition={contextMenuPosition}
               currentGraph={currentGraph}
+              openNodeSearch={openNodeSearch}
               zoomToFitSelection={zoomToFitSelection}
             />
           )}
@@ -1575,7 +1605,7 @@ NOTE: save the playground after loading, if you want to make changes to it`
                     width: '400px',
                     minWidth: '200px',
                   }}
-                  onChange={action_AddNode}
+                  onChange={action_AddOrReplaceNode}
                   filterOptions={filterNode}
                   renderOption={renderNodeItem}
                   renderInput={(props) => (

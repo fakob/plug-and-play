@@ -437,9 +437,10 @@ export default class PPGraph {
   // does not add any links, youll have do do that yourself
   addSerializedNode(
     serialized: SerializedNode,
-    customArgs: CustomArgs = {}
+    customArgs: CustomArgs = {},
+    newNodeType?: string
   ): PPNode {
-    const node = this.createNode(serialized.type, customArgs);
+    const node = this.createNode(newNodeType ?? serialized.type, customArgs);
     this.addNode(node);
     node.configure(serialized);
     return node;
@@ -450,6 +451,29 @@ export default class PPGraph {
     this.addNode(node);
     return node;
   }
+
+  replaceNode = (
+    oldSerializedNode: SerializedNode,
+    oldId: string,
+    newId: string,
+    newType?: string
+  ) => {
+    const newNode = this.addSerializedNode(
+      oldSerializedNode,
+      {
+        overrideId: newId,
+      },
+      newType
+    );
+    if (newType) {
+      newNode.nodeName = newType;
+    }
+    this.reconnectLinksToNewNode(this.nodes[oldId], newNode);
+    newNode.executeOptimizedChain();
+    this.selection.selectNodes([newNode]);
+    this.selection.drawRectanglesFromSelection();
+    this.removeNode(this.nodes[oldId]);
+  };
 
   getNextID = (): number => {
     return Object.values(this._links).reduce(
@@ -590,15 +614,18 @@ export default class PPGraph {
     isInput: boolean
   ): boolean {
     // check if this socket already has a connection
-    Object.entries(this._links).forEach(([key, link]) => {
+    Object.values(this._links).forEach((link) => {
       if (isInput ? link.target === oldSocket : link.source === oldSocket) {
         console.log('updating link:', isInput ? link.target : link.source);
 
         if (isInput) {
           link.updateTarget(newSocket);
+          oldSocket.links = [];
           newSocket.links = [link];
+          newSocket.data = link.source.data;
         } else {
           link.updateSource(newSocket);
+          oldSocket.links = oldSocket.links.filter((item) => item !== link);
           newSocket.links.push(link);
         }
         return true;
