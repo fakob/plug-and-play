@@ -19,7 +19,7 @@ export class Reroute extends PPNode {
     ];
   }
 
-  public getNodeWidth(): number {
+  public getDefaultNodeWidth(): number {
     return 20;
   }
   public getNodeHeight(): number {

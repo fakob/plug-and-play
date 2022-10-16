@@ -55,8 +55,8 @@ export default class PPNode extends PIXI.Container {
   nodePosX: number;
   nodePosY: number;
   nodeWidth: number;
-  minNodeWidth: number;
-  minNodeHeight: number;
+  minNodeWidth: number; // TODO don't save this down, avoid statefullness, this should be defined by the node itself at runtime
+  minNodeHeight: number; // TODO don't save this down, avoid statefullness, this should be defined by the node itself at runtime
   nodeHeight: number;
 
   updateBehaviour: UpdateBehaviourClass;
@@ -109,8 +109,25 @@ export default class PPNode extends PIXI.Container {
     return '';
   }
 
-  public getNodeWidth(): number {
+  public getDefaultNodeWidth(): number {
     return NODE_WIDTH;
+  }
+  public getDefaultNodeHeight(): number {
+    const minHeight =
+      this.headerHeight +
+      this.countOfVisibleNodeTriggerSockets * SOCKET_HEIGHT +
+      this.countOfVisibleInputSockets * SOCKET_HEIGHT +
+      this.countOfVisibleOutputSockets * SOCKET_HEIGHT +
+      NODE_PADDING_BOTTOM;
+    return this.minNodeHeight === undefined
+      ? minHeight
+      : Math.max(minHeight, this.minNodeHeight);
+  }
+
+  public getNodeHeight(): number {
+    return this.nodeHeight === undefined
+      ? this.getDefaultNodeHeight()
+      : Math.max(this.nodeHeight, this.getDefaultNodeHeight());
   }
 
   public getColor(): TRgba {
@@ -139,12 +156,6 @@ export default class PPNode extends PIXI.Container {
 
   protected getShouldShowHoverActions(): boolean {
     return true;
-  }
-
-  getNodeHeight(): number {
-    return this.nodeHeight === undefined
-      ? this.calculatedMinNodeHeight
-      : Math.max(this.nodeHeight, this.calculatedMinNodeHeight);
   }
 
   public getNodeTextString(): string {
@@ -186,7 +197,7 @@ export default class PPNode extends PIXI.Container {
     // customArgs
     this.x = customArgs?.nodePosX ?? 0;
     this.y = customArgs?.nodePosY ?? 0;
-    this.nodeWidth = customArgs?.nodeWidth ?? this.getNodeWidth();
+    this.nodeWidth = customArgs?.nodeWidth ?? this.getDefaultNodeWidth();
     this.minNodeWidth = customArgs?.minNodeWidth ?? this.nodeWidth;
     this.nodeHeight = customArgs?.nodeHeight; // if not set height is defined by in/out sockets
     this.minNodeHeight = customArgs?.minNodeHeight;
@@ -288,18 +299,6 @@ export default class PPNode extends PIXI.Container {
   get headerHeight(): number {
     // hide header if showLabels === false
     return this.getShowLabels() ? NODE_PADDING_TOP + NODE_HEADER_HEIGHT : 0;
-  }
-
-  get calculatedMinNodeHeight(): number {
-    const minHeight =
-      this.headerHeight +
-      this.countOfVisibleNodeTriggerSockets * SOCKET_HEIGHT +
-      this.countOfVisibleInputSockets * SOCKET_HEIGHT +
-      this.countOfVisibleOutputSockets * SOCKET_HEIGHT +
-      NODE_PADDING_BOTTOM;
-    return this.minNodeHeight === undefined
-      ? minHeight
-      : Math.max(minHeight, this.minNodeHeight);
   }
 
   getSourceCode(): string {
@@ -408,8 +407,8 @@ export default class PPNode extends PIXI.Container {
     this.x = nodeConfig.x;
     this.y = nodeConfig.y;
     this.nodeName = nodeConfig.name;
-    this.minNodeWidth = nodeConfig.minWidth ?? this.getNodeWidth();
-    this.minNodeHeight = nodeConfig.minHeight;
+    this.minNodeWidth = nodeConfig.minWidth ?? this.getDefaultNodeWidth();
+    this.minNodeHeight = nodeConfig.minHeight ?? this.getDefaultNodeHeight();
     this.updateBehaviour.setUpdateBehaviour(
       nodeConfig.updateBehaviour.update,
       nodeConfig.updateBehaviour.interval,
@@ -691,7 +690,7 @@ export default class PPNode extends PIXI.Container {
   resizeNode(width: number, height: number, maintainAspectRatio = false): void {
     // set new size
     const newNodeWidth = Math.max(width, this.minNodeWidth);
-    const newNodeHeight = Math.max(height, this.calculatedMinNodeHeight);
+    const newNodeHeight = Math.max(height, this.getDefaultNodeHeight());
 
     if (maintainAspectRatio) {
       const oldWidth = this.nodeWidth;
@@ -702,7 +701,7 @@ export default class PPNode extends PIXI.Container {
         newNodeWidth,
         newNodeHeight,
         this.minNodeWidth,
-        this.calculatedMinNodeHeight
+        this.getDefaultNodeHeight()
       );
       this.nodeWidth = newRect.width;
       this.nodeHeight = newRect.height;
@@ -726,7 +725,7 @@ export default class PPNode extends PIXI.Container {
   }
 
   resetSize(): void {
-    this.resizeNode(this.minNodeWidth, this.calculatedMinNodeHeight);
+    this.resizeNode(this.minNodeWidth, this.getDefaultNodeHeight());
   }
 
   getAllInputSockets(): Socket[] {
@@ -803,7 +802,7 @@ export default class PPNode extends PIXI.Container {
             ? this.countOfVisibleNodeTriggerSockets * SOCKET_HEIGHT
             : 0) +
           index * SOCKET_HEIGHT;
-        item.x = this.nodeWidth - this.getNodeWidth();
+        item.x = this.nodeWidth - this.getDefaultNodeWidth();
         if (!this.getShowLabels()) {
           item._SocketNameRef.alpha = 0;
         }

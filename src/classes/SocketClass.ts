@@ -72,7 +72,7 @@ export default class Socket extends PIXI.Container {
     socketNameText.x =
       socketType === SOCKET_TYPE.IN
         ? SOCKET_WIDTH + SOCKET_TEXTMARGIN
-        : (this.getNode() ? this.getNode().getNodeWidth() : NODE_WIDTH) -
+        : (this.getNode() ? this.getNode().getDefaultNodeWidth() : NODE_WIDTH) -
           SOCKET_TEXTMARGIN;
     socketNameText.y = SOCKET_TEXTMARGIN_TOP;
     socketNameText.resolution = TEXT_RESOLUTION;
@@ -100,7 +100,7 @@ export default class Socket extends PIXI.Container {
       this.socketType === SOCKET_TYPE.IN
         ? 0
         : this.getNode()
-        ? this.getNode().getNodeWidth()
+        ? this.getNode().getDefaultNodeWidth()
         : NODE_WIDTH,
       SOCKET_WIDTH / 2,
       SOCKET_WIDTH,
