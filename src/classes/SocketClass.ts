@@ -25,7 +25,6 @@ export default class Socket extends PIXI.Container {
   // Output sockets
   // data is derived from execute function
 
-  _SocketNameRef: PIXI.DisplayObject;
   _SocketRef: PIXI.Graphics;
 
   _socketType: TSocketType;
@@ -37,6 +36,8 @@ export default class Socket extends PIXI.Container {
 
   interactionData: PIXI.InteractionData | null;
   linkDragPos: null | PIXI.Point;
+
+  showLabel = false;
 
   constructor(
     socketType: TSocketType,
@@ -65,30 +66,9 @@ export default class Socket extends PIXI.Container {
     this._custom = custom;
     this._links = [];
 
-    const socketNameText = new PIXI.Text(name, SOCKET_TEXTSTYLE);
-    if (socketType === SOCKET_TYPE.OUT) {
-      socketNameText.anchor.set(1, 0);
-    }
-    socketNameText.x =
-      socketType === SOCKET_TYPE.IN
-        ? SOCKET_WIDTH + SOCKET_TEXTMARGIN
-        : (this.getNode() ? this.getNode().getDefaultNodeWidth() : NODE_WIDTH) -
-          SOCKET_TEXTMARGIN;
-    socketNameText.y = SOCKET_TEXTMARGIN_TOP;
-    socketNameText.resolution = TEXT_RESOLUTION;
-
-    this._SocketNameRef = this.addChild(socketNameText);
-
     this.interactionData = null;
     this.interactive = true;
-    this._SocketNameRef.interactive = true;
-    this._SocketNameRef.on('pointerover', this._onPointerOver.bind(this));
-    this._SocketNameRef.on('pointerout', this._onPointerOut.bind(this));
-    this._SocketNameRef.on('pointerdown', (event) => {
-      if (event.data.button !== 2) {
-        this.getGraph().socketNameRefMouseDown(this, event);
-      }
-    });
+
     this.redrawAnythingChanging();
   }
 
@@ -97,11 +77,7 @@ export default class Socket extends PIXI.Container {
     this._SocketRef = new PIXI.Graphics();
     this._SocketRef.beginFill(this.dataType.getColor().hexNumber());
     this._SocketRef.drawRoundedRect(
-      this.socketType === SOCKET_TYPE.IN
-        ? 0
-        : this.getNode()
-        ? this.getNode().getDefaultNodeWidth()
-        : NODE_WIDTH,
+      this.socketType === SOCKET_TYPE.IN ? 0 : this.getNode()?.nodeWidth,
       SOCKET_WIDTH / 2,
       SOCKET_WIDTH,
       SOCKET_WIDTH,
@@ -109,6 +85,31 @@ export default class Socket extends PIXI.Container {
         ? 0
         : SOCKET_CORNERRADIUS
     );
+
+    if (this.showLabel) {
+      const socketNameText = new PIXI.Text(this.name, SOCKET_TEXTSTYLE);
+      if (this.socketType === SOCKET_TYPE.OUT) {
+        socketNameText.anchor.set(1, 0);
+      }
+      socketNameText.x =
+        this.socketType === SOCKET_TYPE.IN
+          ? SOCKET_WIDTH + SOCKET_TEXTMARGIN
+          : this.getNode()?.nodeWidth - SOCKET_TEXTMARGIN;
+      socketNameText.y = SOCKET_TEXTMARGIN_TOP;
+      socketNameText.resolution = TEXT_RESOLUTION;
+
+      socketNameText.interactive = true;
+      socketNameText.on('pointerover', this._onPointerOver.bind(this));
+      socketNameText.on('pointerout', this._onPointerOut.bind(this));
+      socketNameText.on('pointerdown', (event) => {
+        if (event.data.button !== 2) {
+          this.getGraph().socketNameRefMouseDown(this, event);
+        }
+      });
+
+      this._SocketRef.addChild(socketNameText);
+    }
+
     this._SocketRef.endFill();
     this._SocketRef.name = 'SocketRef';
     this._SocketRef.interactive = true;
@@ -131,22 +132,6 @@ export default class Socket extends PIXI.Container {
 
   get socketRef(): PIXI.DisplayObject {
     return this._SocketRef;
-  }
-
-  get socketNameRef(): PIXI.DisplayObject {
-    return this._SocketNameRef;
-  }
-
-  get index(): number {
-    if (this.socketType === SOCKET_TYPE.IN) {
-      return this.getNode().inputSocketArray.findIndex((item) => {
-        return this === item;
-      });
-    } else {
-      return this.getNode().outputSocketArray.findIndex((item) => {
-        return this === item;
-      });
-    }
   }
 
   get links(): PPLink[] {
@@ -213,11 +198,6 @@ export default class Socket extends PIXI.Container {
 
   hasLink(): boolean {
     return this.links.length > 0;
-  }
-
-  setName(newName: string): void {
-    this.name = newName;
-    (this._SocketNameRef as PIXI.Text).text = newName;
   }
 
   setVisible(value: boolean): void {

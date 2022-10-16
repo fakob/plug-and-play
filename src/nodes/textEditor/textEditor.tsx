@@ -16,7 +16,6 @@ import { MentionElement } from './custom-types';
 import ErrorFallback from '../../components/ErrorFallback';
 import PPSocket from '../../classes/SocketClass';
 import PPGraph from '../../classes/GraphClass';
-import PPNode from '../../classes/NodeClass';
 import { CustomArgs, TRgba } from '../../utils/interfaces';
 import {
   COLOR,
@@ -132,6 +131,14 @@ export class TextEditor extends HybridNode {
     this.update();
   }
 
+  public getDefaultNodeHeight(): number {
+    return 100;
+  }
+
+  public getDefaultNodeWidth(): number {
+    return 100;
+  }
+
   constructor(name: string, customArgs?: CustomArgs) {
     const nodeWidth = 400;
     const nodeHeight = 300;
@@ -140,8 +147,6 @@ export class TextEditor extends HybridNode {
       ...customArgs,
       nodeWidth,
       nodeHeight,
-      minNodeWidth: 100,
-      minNodeHeight: 100,
     });
 
     this.textToImport = customArgs?.initialData;

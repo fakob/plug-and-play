@@ -9,17 +9,17 @@ import PPGraph from '../../classes/GraphClass';
 const recordButtonColor = new TRgba(255, 50, 50);
 const recordIconSize = 40;
 const clickName = 'Locations';
-export class RecordClicks extends PPNode {
+export class RecordLocations extends PPNode {
   isRecording = false;
   recordButton: PIXI.Graphics = undefined; // kinda ugly with undefined but whatever
 
-  public getDefaultNodeWidth(): number {
+  /*public getDefaultNodeWidth(): number {
     return 100;
   }
 
   public getDefaultNodeHeight(): number {
     return 100;
-  }
+  }*/
 
   protected getDefaultIO(): Socket[] {
     return [
@@ -53,6 +53,7 @@ export class RecordClicks extends PPNode {
       });
 
       this.addChild(this.recordButton);
+      this.recordButton.interactive = true;
     }
     this.recordButton.clear();
     this.recordButton.beginFill(
@@ -61,7 +62,6 @@ export class RecordClicks extends PPNode {
     );
 
     this.recordButton.lineStyle(3, recordButtonColor.multiply(0.7).hexNumber());
-    this.recordButton.interactive = true;
     if (!this.isRecording) {
       this.recordButton.drawCircle(
         this.nodeWidth / 2,

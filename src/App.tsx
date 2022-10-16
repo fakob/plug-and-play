@@ -246,7 +246,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
                 const existingNode = currentGraph.current.selection
                   .selectedNodes[index] as ImageNode;
                 existingNode.updateTexture(base64 as string);
-                existingNode.setMinNodeHeight(existingNode.nodeWidth);
               } else {
                 newNode = await currentGraph.current.addNewNode('Image', {
                   nodePosX,

@@ -29,7 +29,6 @@ export class Image extends PPNode {
   texture: PIXI.Texture;
   maskRef: PIXI.Graphics;
   updateTexture: (base64: string) => void;
-  setMinNodeHeight: (nodeWidth: number) => void;
   resetNodeSize: () => void;
 
   protected getDefaultIO(): Socket[] {
@@ -86,18 +85,18 @@ export class Image extends PPNode {
     });
     this.name = 'Draw Image';
 
-    this.setMinNodeHeight = (nodeWidth: number) => {
+    /*this.setMinNodeHeight = (nodeWidth: number) => {
       if (this.texture === undefined) {
         this.execute();
       }
       const aspectRatio = this.texture.width / this.texture.height;
       const newNodeHeight = nodeWidth / aspectRatio;
-      this.minNodeHeight = newNodeHeight;
-    };
+      //this.minNodeHeight = newNodeHeight;
+    };*/ // TODO REIMPLEMENT
 
     this.resetNodeSize = () => {
-      this.setMinNodeHeight(this.minNodeWidth);
-      this.resizeNode(this.minNodeWidth, this.minNodeHeight);
+      //this.setMinNodeHeight(this.minNodeWidth);
+      //this.resizeNode(this.minNodeWidth, this.minNodeHeight);
       PPGraph.currentGraph.selection.drawRectanglesFromSelection();
     };
 
@@ -112,8 +111,8 @@ export class Image extends PPNode {
 
     const hasBaseTextureLoaded = (): void => {
       if (this.texture.valid) {
-        this.setMinNodeHeight(this.minNodeWidth);
-        this.resizeNode(this.minNodeWidth, this.minNodeHeight);
+        //this.setMinNodeHeight(this.minNodeWidth); // TODO reimplement
+        //this.resizeNode(this.minNodeWidth, this.minNodeHeight);
       }
     };
 

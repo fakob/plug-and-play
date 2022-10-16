@@ -98,8 +98,6 @@ export class Table extends HybridNode {
       ...customArgs,
       nodeWidth,
       nodeHeight,
-      minNodeWidth: nodeWidth / 2,
-      minNodeHeight: nodeHeight / 2,
     });
 
     // get initialData if available else create an empty workbooB
