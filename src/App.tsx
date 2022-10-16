@@ -26,7 +26,6 @@ import {
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { matchSorter } from 'match-sorter';
 import { OptionsObject, SnackbarMessage, useSnackbar } from 'notistack';
 import Color from 'color';
 import { hri } from 'human-readable-ids';
@@ -36,6 +35,7 @@ import {
   GraphSearchInput,
   GraphSearchPopper,
   NodeSearchInput,
+  filterOptionsNode,
   getNodes,
   renderNodeItem,
 } from './components/Search';
@@ -1144,18 +1144,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     currentGraph.current.selectedSourceSocket = null;
   };
 
-  const filterOptionsNode = (options: INodeSearch[], { inputValue }) => {
-    let sorted = options;
-    // use the above sort order if no search term has been entered yet
-    if (inputValue !== '') {
-      sorted = matchSorter(options, inputValue, {
-        keys: ['name', 'title', 'description'],
-      });
-    }
-    setNodeSearchCount(sorted.length);
-    return sorted;
-  };
-
   const ResultsWithHeader = ({ children, ...other }) => {
     return (
       <Paper
@@ -1546,8 +1534,6 @@ NOTE: save the playground after loading, if you want to make changes to it`
                   selectOnFocus
                   autoHighlight
                   clearOnBlur
-                  autoComplete
-                  includeInputInList
                   // open
                   isOptionEqualToValue={(option, value) =>
                     option.title === value.title
@@ -1561,7 +1547,9 @@ NOTE: save the playground after loading, if you want to make changes to it`
                     minWidth: '200px',
                   }}
                   onChange={action_AddOrReplaceNode}
-                  filterOptions={filterOptionsNode}
+                  filterOptions={(options, state) =>
+                    filterOptionsNode(options, state, setNodeSearchCount)
+                  }
                   PaperComponent={ResultsWithHeader}
                   renderOption={renderNodeItem}
                   renderInput={(props) => (

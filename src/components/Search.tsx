@@ -1,6 +1,7 @@
 import * as React from 'react';
 import Color from 'color';
 import { Box, Chip, Popper, Stack, TextField } from '@mui/material';
+import { matchSorter } from 'match-sorter';
 import parse from 'autosuggest-highlight/parse';
 import match from 'autosuggest-highlight/match';
 import PPGraph from '../classes/GraphClass';
@@ -103,6 +104,23 @@ export const getNodes = (): INodeSearch[] => {
       addLink ? node.hasInputs === 'true' : 'true'
     ) as INodeSearch[];
   return tempItems;
+};
+
+export const filterOptionsNode = (
+  options: INodeSearch[],
+  { inputValue },
+  setNodeSearchCount
+) => {
+  let sorted = options;
+  // use the above sort order if no search term has been entered yet
+  if (inputValue !== '') {
+    sorted = matchSorter(options, inputValue, {
+      keys: ['name', 'title', 'description'],
+      threshold: matchSorter.rankings.ACRONYM,
+    });
+  }
+  setNodeSearchCount(sorted.length);
+  return sorted;
 };
 
 export const renderNodeItem = (props, option, { inputValue, selected }) => {
