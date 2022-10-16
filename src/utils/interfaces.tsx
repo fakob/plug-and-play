@@ -3,7 +3,6 @@ import PPNode from '../classes/NodeClass';
 import { IUpdateBehaviour } from '../classes/UpdateBehaviourClass';
 import { COLOR_DARK, COLOR_WHITE, SOCKET_TYPE } from './constants';
 import Color from 'color';
-import Socket from '../classes/SocketClass';
 
 export type RegisteredNodeTypes = Record<
   string,
@@ -67,7 +66,7 @@ export interface INodeSearch {
   key: string;
   name: string;
   description: string;
-  hasInputs: string;
+  hasInputs: boolean;
   isNew?: boolean;
 }
 

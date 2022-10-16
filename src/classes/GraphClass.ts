@@ -437,9 +437,10 @@ export default class PPGraph {
   // does not add any links, youll have do do that yourself
   addSerializedNode(
     serialized: SerializedNode,
-    customArgs: CustomArgs = {}
+    customArgs: CustomArgs = {},
+    newNodeType?: string
   ): PPNode {
-    const node = this.createNode(serialized.type, customArgs);
+    const node = this.createNode(newNodeType ?? serialized.type, customArgs);
     this.addNode(node);
     node.configure(serialized);
     return node;
@@ -450,6 +451,29 @@ export default class PPGraph {
     this.addNode(node);
     return node;
   }
+
+  replaceNode = (
+    oldSerializedNode: SerializedNode,
+    oldId: string,
+    newId: string,
+    newType?: string
+  ) => {
+    const newNode = this.addSerializedNode(
+      oldSerializedNode,
+      {
+        overrideId: newId,
+      },
+      newType
+    );
+    if (newType) {
+      newNode.nodeName = newType;
+    }
+    this.reconnectLinksToNewNode(this.nodes[oldId], newNode);
+    newNode.executeOptimizedChain();
+    this.selection.selectNodes([newNode]);
+    this.selection.drawRectanglesFromSelection();
+    this.removeNode(this.nodes[oldId]);
+  };
 
   getNextID = (): number => {
     return Object.values(this._links).reduce(
@@ -590,15 +614,18 @@ export default class PPGraph {
     isInput: boolean
   ): boolean {
     // check if this socket already has a connection
-    Object.entries(this._links).forEach(([key, link]) => {
+    Object.values(this._links).forEach((link) => {
       if (isInput ? link.target === oldSocket : link.source === oldSocket) {
         console.log('updating link:', isInput ? link.target : link.source);
 
         if (isInput) {
           link.updateTarget(newSocket);
+          oldSocket.links = [];
           newSocket.links = [link];
+          newSocket.data = link.source.data;
         } else {
           link.updateSource(newSocket);
+          oldSocket.links = oldSocket.links.filter((item) => item !== link);
           newSocket.links.push(link);
         }
         return true;
@@ -643,7 +670,7 @@ export default class PPGraph {
     //create nodes
     const offset = new PIXI.Point();
     try {
-      data.nodes.forEach(async (node, index) => {
+      data.nodes.forEach((node, index) => {
         if (index === 0) {
           if (pasteTo) {
             offset.set(pasteTo.x - node.x, pasteTo.y - node.y);
@@ -652,7 +679,7 @@ export default class PPGraph {
           }
         }
         // add node and carry over its con,figuration
-        const newNode = await this.addSerializedNode(node, {
+        const newNode = this.addSerializedNode(node, {
           overrideId: hri.random(),
         });
 
@@ -793,8 +820,7 @@ export default class PPGraph {
     //create nodes
     try {
       data.nodes.forEach(
-        async (node) =>
-          await this.addSerializedNode(node, { overrideId: node.id })
+        async (node) => this.addSerializedNode(node, { overrideId: node.id })
         /*this.createAndAddNode(
           node.type,
           {
@@ -909,8 +935,8 @@ export default class PPGraph {
     };
     const undoAction = async () => {
       const addedNodes: PPNode[] = [];
-      nodesSerialized.forEach(async (node: SerializedNode) => {
-        const addedNode = await PPGraph.currentGraph.addSerializedNode(node, {
+      nodesSerialized.forEach((node: SerializedNode) => {
+        const addedNode = PPGraph.currentGraph.addSerializedNode(node, {
           overrideId: node.id,
         });
         addedNodes.push(addedNode);

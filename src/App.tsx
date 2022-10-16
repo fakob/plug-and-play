@@ -61,6 +61,7 @@ import {
 } from './utils/constants';
 import { IGraphSearch, INodeSearch } from './utils/interfaces';
 import {
+  connectNodeToSocket,
   convertBlobToBase64,
   downloadFile,
   ensureVisible,
@@ -68,16 +69,15 @@ import {
   getDataFromClipboard,
   getNodeDataFromHtml,
   getNodeDataFromText,
-  getSetting,
   getRemoteGraph,
   getRemoteGraphsList,
+  getSetting,
   isEventComingFromWithinTextInput,
   removeExtension,
   roundNumber,
   useStateRef,
   writeDataToClipboard,
   zoomToFitSelection,
-  connectNodeToSocket,
 } from './utils/utils';
 import { getAllNodeTypes } from './nodes/allNodes';
 import PPSocket from './classes/SocketClass';
@@ -101,12 +101,12 @@ const randomMainColorLightHex = PIXI.utils.string2hex(
   Color(RANDOMMAINCOLOR).mix(Color('white'), 0.9).hex()
 );
 
+fetch('https://plugandplayground.dev/buildInfo')
+  .then((response) => response.json())
+  .then((data) => console.log(data));
+
 const App = (): JSX.Element => {
   document.title = 'Your Plug and Playground';
-
-  fetch('https://plugandplayground.dev/buildInfo')
-    .then((response) => response.json())
-    .then((data) => console.log(data));
 
   // remote playground database
   const githubBaseURL =
@@ -1064,46 +1064,75 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     }
   };
 
-  const action_AddNode = (event, selected: INodeSearch) => {
+  const action_AddOrReplaceNode = (event, selected: INodeSearch) => {
     console.log(selected);
-    // store link before search gets hidden and temp connection gets reset
-    const nodePos =
-      currentGraph.current.overrideNodeCursorPosition ??
-      viewport.current.toWorld(
-        new PIXI.Point(contextMenuPosition[0], contextMenuPosition[1])
-      );
+    const referenceID = hri.random();
     const addLink = currentGraph.current.selectedSourceSocket;
 
-    const referenceID = hri.random();
+    if (currentGraph.current.selection.selectedNodes.length === 1 && !addLink) {
+      // replace node if there is exactly one node selected
+      const newNodeType = selected.title;
+      const oldNode = PPGraph.currentGraph.selection.selectedNodes[0];
+      const serializedNode = oldNode.serialize();
 
-    const action = async () => {
-      let addedNode: PPNode;
-      const nodeExists = getAllNodeTypes()[selected.title] !== undefined;
-      if (nodeExists) {
-        addedNode = await currentGraph.current.addNewNode(selected.title, {
-          overrideId: referenceID,
-          nodePosX: nodePos.x,
-          nodePosY: nodePos.y,
-        });
-      } else {
-        addedNode = await currentGraph.current.addNewNode('CustomFunction', {
-          overrideId: referenceID,
-          nodePosX: nodePos.x,
-          nodePosY: nodePos.y,
-        });
-        addedNode.nodeName = selected.title;
-      }
-      if (addLink) {
-        connectNodeToSocket(addLink, addedNode);
-      }
+      const action = async () => {
+        PPGraph.currentGraph.replaceNode(
+          serializedNode,
+          serializedNode.id,
+          referenceID,
+          newNodeType
+        );
+        setNodeSearchActiveItem(selected);
+        setIsNodeSearchVisible(false);
+      };
+      const undoAction = async () => {
+        PPGraph.currentGraph.replaceNode(
+          serializedNode,
+          referenceID,
+          serializedNode.id
+        );
+      };
+      ActionHandler.performAction(action, undoAction);
+    } else {
+      // add node
+      // store link before search gets hidden and temp connection gets reset
+      const nodePos =
+        currentGraph.current.overrideNodeCursorPosition ??
+        viewport.current.toWorld(
+          new PIXI.Point(contextMenuPosition[0], contextMenuPosition[1])
+        );
 
-      setNodeSearchActiveItem(selected);
-      setIsNodeSearchVisible(false);
-    };
-    const undoAction = async () => {
-      PPGraph.currentGraph.removeNode(PPGraph.currentGraph.nodes[referenceID]);
-    };
-    ActionHandler.performAction(action, undoAction);
+      const action = async () => {
+        let addedNode: PPNode;
+        const nodeExists = getAllNodeTypes()[selected.title] !== undefined;
+        if (nodeExists) {
+          addedNode = await currentGraph.current.addNewNode(selected.title, {
+            overrideId: referenceID,
+            nodePosX: nodePos.x,
+            nodePosY: nodePos.y,
+          });
+        } else {
+          addedNode = await currentGraph.current.addNewNode('CustomFunction', {
+            overrideId: referenceID,
+            nodePosX: nodePos.x,
+            nodePosY: nodePos.y,
+          });
+          addedNode.nodeName = selected.title;
+        }
+        if (addLink) {
+          connectNodeToSocket(addLink, addedNode);
+        }
+
+        setNodeSearchActiveItem(selected);
+        setIsNodeSearchVisible(false);
+      };
+      const undoAction = async () => {
+        PPGraph.currentGraph.removeNode(
+          PPGraph.currentGraph.nodes[referenceID]
+        );
+      };
+      ActionHandler.performAction(action, undoAction);
+    }
   };
 
   const getNodes = (): INodeSearch[] => {
@@ -1115,14 +1144,14 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           name: obj.name,
           key: title,
           description: obj.description,
-          hasInputs: obj.hasInputs.toString(),
+          hasInputs: obj.hasInputs,
         };
       })
       .sort(
         (a, b) => a.title.localeCompare(b.title, 'en', { sensitivity: 'base' }) // case insensitive sorting
       )
       .filter((node) =>
-        addLink ? node.hasInputs === 'true' : 'true'
+        addLink ? node.hasInputs === true : true
       ) as INodeSearch[];
     return tempItems;
   };
@@ -1221,7 +1250,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         key: params.inputValue,
         name: params.inputValue,
         description: '',
-        hasInputs: '',
+        hasInputs: true,
         isNew: true,
       });
     }
@@ -1500,6 +1529,7 @@ NOTE: save the playground after loading, if you want to make changes to it`
               controlOrMetaKey={controlOrMetaKey}
               contextMenuPosition={contextMenuPosition}
               currentGraph={currentGraph}
+              openNodeSearch={openNodeSearch}
               zoomToFitSelection={zoomToFitSelection}
             />
           )}
@@ -1583,7 +1613,7 @@ NOTE: save the playground after loading, if you want to make changes to it`
                     width: '400px',
                     minWidth: '200px',
                   }}
-                  onChange={action_AddNode}
+                  onChange={action_AddOrReplaceNode}
                   filterOptions={filterNode}
                   renderOption={renderNodeItem}
                   renderInput={(props) => (
@@ -1598,6 +1628,10 @@ NOTE: save the playground after loading, if you want to make changes to it`
             </>
           )}
         </div>
+        <div
+          id="portal"
+          style={{ position: 'fixed', left: 0, top: 0, zIndex: 9999 }}
+        />
       </div>
     </ErrorBoundary>
   );
