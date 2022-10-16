@@ -101,12 +101,12 @@ const randomMainColorLightHex = PIXI.utils.string2hex(
   Color(RANDOMMAINCOLOR).mix(Color('white'), 0.9).hex()
 );
 
+fetch('https://plugandplayground.dev/buildInfo')
+  .then((response) => response.json())
+  .then((data) => console.log(data));
+
 const App = (): JSX.Element => {
   document.title = 'Your Plug and Playground';
-
-  fetch('https://plugandplayground.dev/buildInfo')
-    .then((response) => response.json())
-    .then((data) => console.log(data));
 
   // remote playground database
   const githubBaseURL =
@@ -1059,8 +1059,9 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
   const action_AddOrReplaceNode = (event, selected: INodeSearch) => {
     console.log(selected);
     const referenceID = hri.random();
+    const addLink = currentGraph.current.selectedSourceSocket;
 
-    if (currentGraph.current.selection.selectedNodes.length === 1) {
+    if (currentGraph.current.selection.selectedNodes.length === 1 && !addLink) {
       // replace node if there is exactly one node selected
       const newNodeType = selected.title;
       const oldNode = PPGraph.currentGraph.selection.selectedNodes[0];
@@ -1092,7 +1093,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         viewport.current.toWorld(
           new PIXI.Point(contextMenuPosition[0], contextMenuPosition[1])
         );
-      const addLink = currentGraph.current.selectedSourceSocket;
 
       const action = async () => {
         let addedNode: PPNode;
@@ -1136,14 +1136,14 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           name: obj.name,
           key: title,
           description: obj.description,
-          hasInputs: obj.hasInputs.toString(),
+          hasInputs: obj.hasInputs,
         };
       })
       .sort(
         (a, b) => a.title.localeCompare(b.title, 'en', { sensitivity: 'base' }) // case insensitive sorting
       )
       .filter((node) =>
-        addLink ? node.hasInputs === 'true' : 'true'
+        addLink ? node.hasInputs === true : true
       ) as INodeSearch[];
     return tempItems;
   };
@@ -1242,7 +1242,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         key: params.inputValue,
         name: params.inputValue,
         description: '',
-        hasInputs: '',
+        hasInputs: true,
         isNew: true,
       });
     }
