@@ -67,7 +67,7 @@ export interface INodeSearch {
   key: string;
   name: string;
   description: string;
-  hasInputs: boolean;
+  hasInputs: string;
   isNew?: boolean;
 }
 
