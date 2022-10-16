@@ -7,6 +7,9 @@ import {
   TextField,
   createFilterOptions,
 } from '@mui/material';
+import parse from 'autosuggest-highlight/parse';
+import match from 'autosuggest-highlight/match';
+import { matchSorter } from 'match-sorter';
 import PPGraph from '../classes/GraphClass';
 import { getAllNodeTypes } from '../nodes/allNodes';
 import { IGraphSearch, INodeSearch } from '../utils/interfaces';
@@ -109,26 +112,25 @@ export const getNodes = (): INodeSearch[] => {
   return tempItems;
 };
 
-const filterOptionNode = createFilterOptions<INodeSearch>({
-  stringify: (option) => `${option.title} ${option.name} ${option.description}`,
-});
-
-export const filterNode = (options, params) => {
-  const filtered = filterOptionNode(options, params);
-  if (params.inputValue !== '') {
-    filtered.push({
-      title: params.inputValue,
-      key: params.inputValue,
-      name: params.inputValue,
-      description: '',
-      hasInputs: '',
-      isNew: true,
+export const filterNode = (options, { inputValue }) => {
+  let sorted = options;
+  // use the above sort order if no search term has been entered yet
+  if (inputValue !== '') {
+    sorted = matchSorter(options, inputValue, {
+      keys: ['name', 'title', 'description'],
     });
   }
-  return filtered;
+  return sorted;
 };
 
-export const renderNodeItem = (props, option, { selected }) => {
+export const renderNodeItem = (props, option, { inputValue, selected }) => {
+  const matchesOfName = match(option.name, inputValue, { insideWords: true });
+  const partsOfName = parse(option.name, matchesOfName);
+  const matchesOfDescription = match(option.description, inputValue, {
+    insideWords: true,
+  });
+  const partsOfDescription = parse(option.description, matchesOfDescription);
+
   return (
     <li {...props} key={option.title}>
       <Stack
@@ -152,12 +154,25 @@ export const renderNodeItem = (props, option, { selected }) => {
             <Box component="div" sx={{ display: 'inline', opacity: '0.5' }}>
               {option.isNew && 'Create custom node: '}
             </Box>
-            {option.name}
+            <Box>
+              {partsOfName.map((part, index) => (
+                <Box
+                  key={index}
+                  sx={{
+                    display: 'inline',
+                    opacity: part.highlight ? 1 : 0.75,
+                    fontWeight: part.highlight ? 500 : 400,
+                  }}
+                >
+                  {part.text}
+                </Box>
+              ))}
+            </Box>
           </Box>
           <Box
             sx={{
               fontSize: '12px',
-              opacity: '0.75',
+              opacity: '0.5',
             }}
           >
             {option.title}
@@ -170,7 +185,20 @@ export const renderNodeItem = (props, option, { selected }) => {
             textOverflow: 'ellipsis',
           }}
         >
-          {option.description}
+          <Box>
+            {partsOfDescription.map((part, index) => (
+              <Box
+                key={index}
+                sx={{
+                  display: 'inline',
+                  opacity: part.highlight ? 1 : 0.75,
+                  fontWeight: part.highlight ? 500 : 400,
+                }}
+              >
+                {part.text}
+              </Box>
+            ))}
+          </Box>
         </Box>
       </Stack>
     </li>

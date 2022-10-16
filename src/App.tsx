@@ -1506,6 +1506,8 @@ NOTE: save the playground after loading, if you want to make changes to it`
                   selectOnFocus
                   autoHighlight
                   clearOnBlur
+                  autoComplete
+                  includeInputInList
                   // open
                   isOptionEqualToValue={(option, value) =>
                     option.title === value.title
