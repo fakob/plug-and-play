@@ -1,7 +1,23 @@
 import * as React from 'react';
 import Color from 'color';
-import { Popper, TextField } from '@mui/material';
-
+import { hri } from 'human-readable-ids';
+import {
+  Box,
+  ButtonGroup,
+  IconButton,
+  Popper,
+  Stack,
+  TextField,
+  createFilterOptions,
+} from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { matchSorter } from 'match-sorter';
+import parse from 'autosuggest-highlight/parse';
+import match from 'autosuggest-highlight/match';
+import PPGraph from '../classes/GraphClass';
+import { getAllNodeTypes } from '../nodes/allNodes';
+import { IGraphSearch, INodeSearch } from '../utils/interfaces';
 import { COLOR_DARK, COLOR_WHITE_TEXT } from '../utils/constants';
 import styles from '../utils/style.module.css';
 
@@ -47,6 +63,139 @@ export const GraphSearchPopper = (props) => {
   return <Popper {...props} placement="bottom" />;
 };
 
+const filterOptionGraph = createFilterOptions<IGraphSearch>();
+
+export const filterOptionsGraph = (options, params) => {
+  const filtered = filterOptionGraph(options, params);
+  if (params.inputValue !== '') {
+    filtered.push({
+      id: hri.random(),
+      name: params.inputValue,
+      isNew: true,
+    });
+  }
+  return filtered;
+};
+
+export const renderGraphItem = (
+  props,
+  option,
+  state,
+  setIsGraphSearchOpen,
+  setActionObject,
+  setShowEdit,
+  setShowDeleteGraph
+) => {
+  const isRemote = option.isRemote;
+  const text = option.name;
+  const title = isRemote // hover title tag
+    ? `${option.name}
+NOTE: save the playground after loading, if you want to make changes to it`
+    : option.name;
+  const optionLabel = option.label;
+  const itemToReturn = option.isDisabled ? (
+    <Box {...props} key={option.id} component="li">
+      {text}
+    </Box>
+  ) : (
+    <Box
+      {...props}
+      component="li"
+      key={option.id}
+      title={title}
+      sx={{
+        position: 'relative',
+      }}
+    >
+      <Box
+        sx={{
+          flexGrow: 1,
+        }}
+      >
+        <Box component="div" sx={{ display: 'inline', opacity: '0.5' }}>
+          {option.isNew && 'Create empty playground: '}
+        </Box>
+        {text}
+      </Box>
+      <Box
+        sx={{
+          fontSize: '12px',
+          opacity: '0.75',
+          visibility: 'visible',
+          '.Mui-focused &': {
+            visibility: 'hidden',
+          },
+        }}
+      >
+        {optionLabel}
+      </Box>
+      {isRemote && (
+        <Box
+          sx={{
+            py: 1,
+            px: 2,
+            fontSize: '12px',
+            fontStyle: 'italic',
+            opacity: '0.75',
+            position: 'absolute',
+            right: '0px',
+            visibility: 'hidden',
+            '.Mui-focused &': {
+              visibility: 'visible',
+            },
+          }}
+        >
+          Load remote playground
+        </Box>
+      )}
+      {!isRemote && (
+        <ButtonGroup
+          size="small"
+          sx={{
+            position: 'absolute',
+            right: '0px',
+            visibility: 'hidden',
+            '.Mui-focused &': {
+              visibility: 'visible',
+            },
+          }}
+        >
+          <IconButton
+            size="small"
+            onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+              event.stopPropagation();
+              console.log(option.name);
+              setIsGraphSearchOpen(false);
+              setActionObject(option);
+              setShowEdit(true);
+            }}
+            title="Rename playground"
+            className="menuItemButton"
+          >
+            <EditIcon />
+          </IconButton>
+          <IconButton
+            size="small"
+            title="Delete playground"
+            className="menuItemButton"
+            onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+              event.stopPropagation();
+              console.log(option.name);
+              setIsGraphSearchOpen(false);
+              setActionObject(option);
+              setShowDeleteGraph(true);
+            }}
+          >
+            <DeleteIcon />
+          </IconButton>
+        </ButtonGroup>
+      )}
+    </Box>
+  );
+
+  return itemToReturn;
+};
+
 export const NodeSearchInput = (props) => {
   const backgroundColor = Color(props.randommaincolor).alpha(0.9);
   return (
@@ -77,5 +226,128 @@ export const NodeSearchInput = (props) => {
         },
       }}
     />
+  );
+};
+
+export const getNodes = (): INodeSearch[] => {
+  const addLink = PPGraph.currentGraph.selectedSourceSocket;
+  const tempItems = Object.entries(getAllNodeTypes())
+    .map(([title, obj]) => {
+      return {
+        title,
+        name: obj.name,
+        key: title,
+        description: obj.description,
+        hasInputs: obj.hasInputs,
+      };
+    })
+    .sort(
+      (a, b) => a.name.localeCompare(b.name, 'en', { sensitivity: 'base' }) // case insensitive sorting
+    )
+    .filter((node) =>
+      addLink ? node.hasInputs === true : true
+    ) as INodeSearch[];
+  return tempItems;
+};
+
+export const filterOptionsNode = (
+  options: INodeSearch[],
+  { inputValue },
+  setNodeSearchCount
+) => {
+  let sorted = options;
+  // use the above sort order if no search term has been entered yet
+  if (inputValue !== '') {
+    sorted = matchSorter(options, inputValue, {
+      keys: ['name', 'title', 'description'],
+      threshold: matchSorter.rankings.ACRONYM,
+    });
+  }
+  setNodeSearchCount(sorted.length);
+  return sorted;
+};
+
+export const renderNodeItem = (props, option, { inputValue, selected }) => {
+  const matchesOfName = match(option.name, inputValue, { insideWords: true });
+  const partsOfName = parse(option.name, matchesOfName);
+  const matchesOfDescription = match(option.description, inputValue, {
+    insideWords: true,
+  });
+  const partsOfDescription = parse(option.description, matchesOfDescription);
+
+  return (
+    <li {...props} key={option.title}>
+      <Stack
+        sx={{
+          width: '100%',
+        }}
+      >
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <Box
+            title={option.description}
+            sx={{
+              flexGrow: 1,
+            }}
+          >
+            <Box component="div" sx={{ display: 'inline', opacity: '0.5' }}>
+              {option.isNew && 'Create custom node: '}
+            </Box>
+            <Box>
+              {partsOfName.map((part, index) => (
+                <Box
+                  key={index}
+                  sx={{
+                    display: 'inline',
+                    opacity: part.highlight ? 1 : 0.75,
+                    fontWeight: part.highlight ? 500 : 400,
+                  }}
+                >
+                  {part.text}
+                </Box>
+              ))}
+            </Box>
+          </Box>
+          <Box
+            sx={{
+              fontSize: '12px',
+              opacity: '0.5',
+              background: 'rgba(255,255,255,0.2)',
+              cornerRadius: '4px',
+              px: 0.5,
+            }}
+          >
+            {option.title}
+          </Box>
+        </Box>
+        <Box
+          sx={{
+            fontSize: '12px',
+            opacity: '0.75',
+            textOverflow: 'ellipsis',
+          }}
+        >
+          <Box>
+            {partsOfDescription.map((part, index) => (
+              <Box
+                key={index}
+                sx={{
+                  display: 'inline',
+                  opacity: part.highlight ? 1 : 0.75,
+                  fontWeight: part.highlight ? 500 : 400,
+                }}
+              >
+                {part.text}
+              </Box>
+            ))}
+          </Box>
+        </Box>
+      </Stack>
+    </li>
   );
 };
