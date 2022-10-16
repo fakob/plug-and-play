@@ -1,12 +1,23 @@
 import * as React from 'react';
 import Color from 'color';
-import { Box, Chip, Popper, Stack, TextField } from '@mui/material';
+import { hri } from 'human-readable-ids';
+import {
+  Box,
+  ButtonGroup,
+  IconButton,
+  Popper,
+  Stack,
+  TextField,
+  createFilterOptions,
+} from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { matchSorter } from 'match-sorter';
 import parse from 'autosuggest-highlight/parse';
 import match from 'autosuggest-highlight/match';
 import PPGraph from '../classes/GraphClass';
 import { getAllNodeTypes } from '../nodes/allNodes';
-import { INodeSearch } from '../utils/interfaces';
+import { IGraphSearch, INodeSearch } from '../utils/interfaces';
 import { COLOR_DARK, COLOR_WHITE_TEXT } from '../utils/constants';
 import styles from '../utils/style.module.css';
 
@@ -50,6 +61,139 @@ export const GraphSearchInput = (props) => {
 
 export const GraphSearchPopper = (props) => {
   return <Popper {...props} placement="bottom" />;
+};
+
+const filterOptionGraph = createFilterOptions<IGraphSearch>();
+
+export const filterOptionsGraph = (options, params) => {
+  const filtered = filterOptionGraph(options, params);
+  if (params.inputValue !== '') {
+    filtered.push({
+      id: hri.random(),
+      name: params.inputValue,
+      isNew: true,
+    });
+  }
+  return filtered;
+};
+
+export const renderGraphItem = (
+  props,
+  option,
+  state,
+  setIsGraphSearchOpen,
+  setActionObject,
+  setShowEdit,
+  setShowDeleteGraph
+) => {
+  const isRemote = option.isRemote;
+  const text = option.name;
+  const title = isRemote // hover title tag
+    ? `${option.name}
+NOTE: save the playground after loading, if you want to make changes to it`
+    : option.name;
+  const optionLabel = option.label;
+  const itemToReturn = option.isDisabled ? (
+    <Box {...props} key={option.id} component="li">
+      {text}
+    </Box>
+  ) : (
+    <Box
+      {...props}
+      component="li"
+      key={option.id}
+      title={title}
+      sx={{
+        position: 'relative',
+      }}
+    >
+      <Box
+        sx={{
+          flexGrow: 1,
+        }}
+      >
+        <Box component="div" sx={{ display: 'inline', opacity: '0.5' }}>
+          {option.isNew && 'Create empty playground: '}
+        </Box>
+        {text}
+      </Box>
+      <Box
+        sx={{
+          fontSize: '12px',
+          opacity: '0.75',
+          visibility: 'visible',
+          '.Mui-focused &': {
+            visibility: 'hidden',
+          },
+        }}
+      >
+        {optionLabel}
+      </Box>
+      {isRemote && (
+        <Box
+          sx={{
+            py: 1,
+            px: 2,
+            fontSize: '12px',
+            fontStyle: 'italic',
+            opacity: '0.75',
+            position: 'absolute',
+            right: '0px',
+            visibility: 'hidden',
+            '.Mui-focused &': {
+              visibility: 'visible',
+            },
+          }}
+        >
+          Load remote playground
+        </Box>
+      )}
+      {!isRemote && (
+        <ButtonGroup
+          size="small"
+          sx={{
+            position: 'absolute',
+            right: '0px',
+            visibility: 'hidden',
+            '.Mui-focused &': {
+              visibility: 'visible',
+            },
+          }}
+        >
+          <IconButton
+            size="small"
+            onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+              event.stopPropagation();
+              console.log(option.name);
+              setIsGraphSearchOpen(false);
+              setActionObject(option);
+              setShowEdit(true);
+            }}
+            title="Rename playground"
+            className="menuItemButton"
+          >
+            <EditIcon />
+          </IconButton>
+          <IconButton
+            size="small"
+            title="Delete playground"
+            className="menuItemButton"
+            onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+              event.stopPropagation();
+              console.log(option.name);
+              setIsGraphSearchOpen(false);
+              setActionObject(option);
+              setShowDeleteGraph(true);
+            }}
+          >
+            <DeleteIcon />
+          </IconButton>
+        </ButtonGroup>
+      )}
+    </Box>
+  );
+
+  return itemToReturn;
 };
 
 export const NodeSearchInput = (props) => {

@@ -13,19 +13,14 @@ import {
   Autocomplete,
   Box,
   Button,
-  ButtonGroup,
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
-  IconButton,
   Paper,
   TextField,
-  createFilterOptions,
 } from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
 import { OptionsObject, SnackbarMessage, useSnackbar } from 'notistack';
 import Color from 'color';
 import { hri } from 'human-readable-ids';
@@ -35,8 +30,10 @@ import {
   GraphSearchInput,
   GraphSearchPopper,
   NodeSearchInput,
+  filterOptionsGraph,
   filterOptionsNode,
   getNodes,
+  renderGraphItem,
   renderNodeItem,
 } from './components/Search';
 import GraphOverlay from './components/GraphOverlay';
@@ -149,8 +146,6 @@ const App = (): JSX.Element => {
     useState<INodeSearch | null>(null);
   const [graphSearchActiveItem, setGraphSearchActiveItem] =
     useState<IGraphSearch | null>(null);
-
-  const filterOptionGraph = createFilterOptions<IGraphSearch>();
 
   // dialogs
   const [showEdit, setShowEdit] = useState(false);
@@ -1227,129 +1222,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     }
   };
 
-  const filterGraph = (options, params) => {
-    const filtered = filterOptionGraph(options, params);
-    if (params.inputValue !== '') {
-      filtered.push({
-        id: hri.random(),
-        name: params.inputValue,
-        isNew: true,
-      });
-    }
-    return filtered;
-  };
-
-  const renderGraphItem = (props, option, state) => {
-    const isRemote = option.isRemote;
-    const text = option.name;
-    const title = isRemote // hover title tag
-      ? `${option.name}
-NOTE: save the playground after loading, if you want to make changes to it`
-      : option.name;
-    const optionLabel = option.label;
-    const itemToReturn = option.isDisabled ? (
-      <Box {...props} key={option.id} component="li">
-        {text}
-      </Box>
-    ) : (
-      <Box
-        {...props}
-        component="li"
-        key={option.id}
-        title={title}
-        sx={{
-          position: 'relative',
-        }}
-      >
-        <Box
-          sx={{
-            flexGrow: 1,
-          }}
-        >
-          <Box component="div" sx={{ display: 'inline', opacity: '0.5' }}>
-            {option.isNew && 'Create empty playground: '}
-          </Box>
-          {text}
-        </Box>
-        <Box
-          sx={{
-            fontSize: '12px',
-            opacity: '0.75',
-            visibility: 'visible',
-            '.Mui-focused &': {
-              visibility: 'hidden',
-            },
-          }}
-        >
-          {optionLabel}
-        </Box>
-        {isRemote && (
-          <Box
-            sx={{
-              py: 1,
-              px: 2,
-              fontSize: '12px',
-              fontStyle: 'italic',
-              opacity: '0.75',
-              position: 'absolute',
-              right: '0px',
-              visibility: 'hidden',
-              '.Mui-focused &': {
-                visibility: 'visible',
-              },
-            }}
-          >
-            Load remote playground
-          </Box>
-        )}
-        {!isRemote && (
-          <ButtonGroup
-            size="small"
-            sx={{
-              position: 'absolute',
-              right: '0px',
-              visibility: 'hidden',
-              '.Mui-focused &': {
-                visibility: 'visible',
-              },
-            }}
-          >
-            <IconButton
-              size="small"
-              onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
-                event.stopPropagation();
-                console.log(option.name);
-                setIsGraphSearchOpen(false);
-                setActionObject(option);
-                setShowEdit(true);
-              }}
-              title="Rename playground"
-              className="menuItemButton"
-            >
-              <EditIcon />
-            </IconButton>
-            <IconButton
-              size="small"
-              title="Delete playground"
-              className="menuItemButton"
-              onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
-                event.stopPropagation();
-                console.log(option.name);
-                setIsGraphSearchOpen(false);
-                setActionObject(option);
-                setShowDeleteGraph(true);
-              }}
-            >
-              <DeleteIcon />
-            </IconButton>
-          </ButtonGroup>
-        )}
-      </Box>
-    );
-
-    return itemToReturn;
-  };
-
   const submitEditDialog = (): void => {
     const name = (
       document.getElementById('playground-name-input') as HTMLInputElement
@@ -1500,18 +1372,28 @@ NOTE: save the playground after loading, if you want to make changes to it`
                 autoHighlight
                 clearOnBlur
                 isOptionEqualToValue={(option, value) =>
-                  option.title === value.title
+                  option.name === value.name
                 }
                 // open
                 PopperComponent={(props) => <GraphSearchPopper {...props} />}
                 value={graphSearchActiveItem}
                 getOptionDisabled={(option) => option.isDisabled}
-                getOptionLabel={(option) => option.name}
+                getOptionLabel={(option) => (option as any).name}
                 options={graphSearchItems}
                 sx={{ width: 'calc(65vw - 120px)' }}
                 onChange={handleGraphItemSelect}
-                filterOptions={filterGraph}
-                renderOption={renderGraphItem}
+                filterOptions={filterOptionsGraph}
+                renderOption={(props, option, state) =>
+                  renderGraphItem(
+                    props,
+                    option,
+                    state,
+                    setIsGraphSearchOpen,
+                    setActionObject,
+                    setShowEdit,
+                    setShowDeleteGraph
+                  )
+                }
                 renderInput={(props) => (
                   <GraphSearchInput
                     {...props}
