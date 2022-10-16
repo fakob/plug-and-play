@@ -1,18 +1,11 @@
 import * as React from 'react';
 import Color from 'color';
-import {
-  Box,
-  Popper,
-  Stack,
-  TextField,
-  createFilterOptions,
-} from '@mui/material';
+import { Box, Chip, Popper, Stack, TextField } from '@mui/material';
 import parse from 'autosuggest-highlight/parse';
 import match from 'autosuggest-highlight/match';
-import { matchSorter } from 'match-sorter';
 import PPGraph from '../classes/GraphClass';
 import { getAllNodeTypes } from '../nodes/allNodes';
-import { IGraphSearch, INodeSearch } from '../utils/interfaces';
+import { INodeSearch } from '../utils/interfaces';
 import { COLOR_DARK, COLOR_WHITE_TEXT } from '../utils/constants';
 import styles from '../utils/style.module.css';
 
@@ -112,17 +105,6 @@ export const getNodes = (): INodeSearch[] => {
   return tempItems;
 };
 
-export const filterNode = (options, { inputValue }) => {
-  let sorted = options;
-  // use the above sort order if no search term has been entered yet
-  if (inputValue !== '') {
-    sorted = matchSorter(options, inputValue, {
-      keys: ['name', 'title', 'description'],
-    });
-  }
-  return sorted;
-};
-
 export const renderNodeItem = (props, option, { inputValue, selected }) => {
   const matchesOfName = match(option.name, inputValue, { insideWords: true });
   const partsOfName = parse(option.name, matchesOfName);
@@ -173,6 +155,9 @@ export const renderNodeItem = (props, option, { inputValue, selected }) => {
             sx={{
               fontSize: '12px',
               opacity: '0.5',
+              background: 'rgba(255,255,255,0.2)',
+              cornerRadius: '4px',
+              px: 0.5,
             }}
           >
             {option.title}

@@ -20,11 +20,13 @@ import {
   DialogContentText,
   DialogTitle,
   IconButton,
+  Paper,
   TextField,
   createFilterOptions,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { matchSorter } from 'match-sorter';
 import { OptionsObject, SnackbarMessage, useSnackbar } from 'notistack';
 import Color from 'color';
 import { hri } from 'human-readable-ids';
@@ -34,7 +36,6 @@ import {
   GraphSearchInput,
   GraphSearchPopper,
   NodeSearchInput,
-  filterNode,
   getNodes,
   renderNodeItem,
 } from './components/Search';
@@ -131,6 +132,7 @@ const App = (): JSX.Element => {
   const nodeSearchInput = useRef<HTMLInputElement | null>(null);
   const [isGraphSearchOpen, setIsGraphSearchOpen] = useState(false);
   const [isNodeSearchVisible, setIsNodeSearchVisible] = useState(false);
+  const [nodeSearchCount, setNodeSearchCount] = useState(0);
   const [isGraphContextMenuOpen, setIsGraphContextMenuOpen] = useState(false);
   const [isNodeContextMenuOpen, setIsNodeContextMenuOpen] = useState(false);
   const [isSocketContextMenuOpen, setIsSocketContextMenuOpen] = useState(false);
@@ -1142,6 +1144,44 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     currentGraph.current.selectedSourceSocket = null;
   };
 
+  const filterOptionsNode = (options: INodeSearch[], { inputValue }) => {
+    let sorted = options;
+    // use the above sort order if no search term has been entered yet
+    if (inputValue !== '') {
+      sorted = matchSorter(options, inputValue, {
+        keys: ['name', 'title', 'description'],
+      });
+    }
+    setNodeSearchCount(sorted.length);
+    return sorted;
+  };
+
+  const ResultsWithHeader = ({ children, ...other }) => {
+    return (
+      <Paper
+        {...other}
+        sx={{
+          '.MuiAutocomplete-listbox': {
+            padding: '0 0 8px',
+          },
+        }}
+      >
+        <Box
+          sx={{
+            px: 2,
+            pt: 0.5,
+            pb: 0.25,
+            fontSize: '10px',
+            opacity: '0.5',
+          }}
+        >
+          {`${nodeSearchCount} of ${Object.keys(getAllNodeTypes()).length}`}
+        </Box>
+        {children}
+      </Paper>
+    );
+  };
+
   const updateGraphSearchItems = () => {
     console.log('updateGraphSearchItems');
     load();
@@ -1521,7 +1561,8 @@ NOTE: save the playground after loading, if you want to make changes to it`
                     minWidth: '200px',
                   }}
                   onChange={action_AddOrReplaceNode}
-                  filterOptions={filterNode}
+                  filterOptions={filterOptionsNode}
+                  PaperComponent={ResultsWithHeader}
                   renderOption={renderNodeItem}
                   renderInput={(props) => (
                     <NodeSearchInput
