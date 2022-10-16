@@ -84,7 +84,6 @@ export default class PPNode extends PIXI.Container {
   onNodeRemoved: () => void = () => {}; // called when the node is removed from the graph
   onNodeDragging: (isDraggingNode: boolean) => void = () => {}; // called when the node is being dragged
   onNodeResize: (width: number, height: number) => void = () => {}; // called when the node is resized
-  onNodeResized: () => void = () => {}; // called when the node resize ended
   onNodeDragOrViewportMove: // called when the node or or the viewport with the node is moved or scaled
   (positions: { screenX: number; screenY: number; scale: number }) => void =
     () => {};
@@ -118,12 +117,6 @@ export default class PPNode extends PIXI.Container {
       this.countOfVisibleOutputSockets * SOCKET_HEIGHT +
       NODE_PADDING_BOTTOM;
     return minHeight;
-  }
-
-  public getNodeHeight(): number {
-    return this.nodeHeight === undefined
-      ? this.getDefaultNodeHeight()
-      : Math.max(this.nodeHeight, this.getDefaultNodeHeight());
   }
 
   public getColor(): TRgba {
@@ -194,7 +187,7 @@ export default class PPNode extends PIXI.Container {
     this.x = customArgs?.nodePosX ?? 0;
     this.y = customArgs?.nodePosY ?? 0;
     this.nodeWidth = customArgs?.nodeWidth ?? this.getDefaultNodeWidth();
-    this.nodeHeight = customArgs?.nodeHeight; // if not set height is defined by in/out sockets
+    this.nodeHeight = customArgs?.nodeHeight ?? this.getDefaultNodeHeight(); // if not set height is defined by in/out sockets
     this.isHovering = false;
 
     const inputNameText = new PIXI.Text(
@@ -398,6 +391,8 @@ export default class PPNode extends PIXI.Container {
   configure(nodeConfig: SerializedNode): void {
     this.x = nodeConfig.x;
     this.y = nodeConfig.y;
+    this.nodeWidth = nodeConfig.width | this.getDefaultNodeWidth();
+    this.nodeHeight = nodeConfig.height | this.getDefaultNodeHeight();
     this.nodeName = nodeConfig.name;
     this.updateBehaviour.setUpdateBehaviour(
       nodeConfig.updateBehaviour.update,
@@ -405,11 +400,6 @@ export default class PPNode extends PIXI.Container {
       nodeConfig.updateBehaviour.intervalFrequency
     );
     try {
-      if (nodeConfig.width && nodeConfig.height) {
-        this.resizeNode(nodeConfig.width, nodeConfig.height);
-        this.resizedNode();
-      }
-
       const mapSocket = (item: SerializedSocket, isNodeTrigger = false) => {
         const matchingSocket =
           item.socketType === SOCKET_TYPE.IN
@@ -710,10 +700,6 @@ export default class PPNode extends PIXI.Container {
     this.onNodeResize(this.nodeWidth, this.nodeHeight);
   }
 
-  resizedNode(): void {
-    this.onNodeResized();
-  }
-
   resetSize(): void {
     this.resizeNode(this.getDefaultNodeWidth(), this.getDefaultNodeHeight());
   }
@@ -746,7 +732,7 @@ export default class PPNode extends PIXI.Container {
       NODE_MARGIN - 3,
       -3,
       this.nodeWidth + 6,
-      this.getNodeHeight() + 6,
+      this.nodeHeight + 6,
       this.getRoundedCorners() ? NODE_CORNERRADIUS : 0
     );
   }
@@ -760,7 +746,7 @@ export default class PPNode extends PIXI.Container {
       NODE_MARGIN,
       0,
       this.nodeWidth,
-      this.getNodeHeight(),
+      this.nodeHeight,
       this.getRoundedCorners() ? NODE_CORNERRADIUS : 0
     );
     this._BackgroundRef.endFill();
@@ -813,8 +799,8 @@ export default class PPNode extends PIXI.Container {
     if (!this.successfullyExecuted) {
       this.drawErrorBoundary();
     }
-
     this.drawBackground();
+
     this.drawTriggers();
     this.drawSockets();
     this.drawComment();
@@ -1048,7 +1034,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
           NODE_MARGIN,
           0,
           this.nodeWidth,
-          this.getNodeHeight(),
+          this.nodeHeight,
           this.getRoundedCorners() ? NODE_CORNERRADIUS : 0
         );
         activeExecution.endFill();

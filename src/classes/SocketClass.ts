@@ -11,7 +11,6 @@ import {
   SOCKET_TYPE,
   SOCKET_WIDTH,
   TEXT_RESOLUTION,
-  NODE_WIDTH,
 } from '../utils/constants';
 import { AbstractType } from '../nodes/datatypes/abstractType';
 import { TriggerType } from '../nodes/datatypes/triggerType';
@@ -72,13 +71,20 @@ export default class Socket extends PIXI.Container {
     this.redrawAnythingChanging();
   }
 
+  getSocketLocation(): PIXI.Point {
+    return new PIXI.Point(
+      this.socketType === SOCKET_TYPE.IN ? 0 : this.getNode()?.nodeWidth,
+      SOCKET_WIDTH / 2
+    );
+  }
+
   redrawAnythingChanging(): void {
     this.removeChild(this._SocketRef);
     this._SocketRef = new PIXI.Graphics();
     this._SocketRef.beginFill(this.dataType.getColor().hexNumber());
     this._SocketRef.drawRoundedRect(
-      this.socketType === SOCKET_TYPE.IN ? 0 : this.getNode()?.nodeWidth,
-      SOCKET_WIDTH / 2,
+      this.getSocketLocation().x,
+      this.getSocketLocation().y,
       SOCKET_WIDTH,
       SOCKET_WIDTH,
       this.dataType.constructor === new TriggerType().constructor

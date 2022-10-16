@@ -21,7 +21,6 @@ import { getAllNodeTypes } from '../nodes/allNodes';
 import { macroOutputName } from '../nodes/macro/macro';
 import { Action, ActionHandler } from '../utils/actionHandler';
 import { hri } from 'human-readable-ids';
-import { notDeepEqual } from 'assert';
 
 export default class PPGraph {
   static currentGraph: PPGraph;
@@ -222,6 +221,12 @@ export default class PPGraph {
     );
     // change dragSourcePoint coordinates from screen to world space
     return this.viewport.toWorld(dragSourcePoint);
+    /*return this.viewport.toWorld(
+      new PIXI.Point(
+        object.getSocketLocation().x + object.x,
+        object.getSocketLocation().y + object.y
+      )
+    );*/
   }
 
   _onNodePointerDown(event: PIXI.InteractionEvent): void {
@@ -819,16 +824,8 @@ export default class PPGraph {
 
     //create nodes
     try {
-      data.nodes.forEach(
-        async (node) => this.addSerializedNode(node, { overrideId: node.id })
-        /*this.createAndAddNode(
-          node.type,
-          {
-            customId: node.id,
-            name: node.name, // placeholder node uses the name field to indicate which node they are a placeholder for
-          },
-          false
-        ).configure(node);*/
+      data.nodes.forEach((node) =>
+        this.addSerializedNode(node, { overrideId: node.id })
       );
 
       await Promise.all(

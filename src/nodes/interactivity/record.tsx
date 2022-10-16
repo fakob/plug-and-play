@@ -13,13 +13,13 @@ export class RecordLocations extends PPNode {
   isRecording = false;
   recordButton: PIXI.Graphics = undefined; // kinda ugly with undefined but whatever
 
-  /*public getDefaultNodeWidth(): number {
-    return 100;
+  public getDefaultNodeWidth(): number {
+    return 150;
   }
 
   public getDefaultNodeHeight(): number {
-    return 100;
-  }*/
+    return 150;
+  }
 
   protected getDefaultIO(): Socket[] {
     return [
@@ -44,7 +44,7 @@ export class RecordLocations extends PPNode {
   public drawNodeShape(): void {
     super.drawNodeShape();
 
-    if (!this.recordButton) {
+    if (this.recordButton == undefined) {
       this.recordButton = new PIXI.Graphics();
       this.recordButton.on('pointerdown', (event: PIXI.InteractionEvent) => {
         event.stopPropagation();
@@ -65,13 +65,13 @@ export class RecordLocations extends PPNode {
     if (!this.isRecording) {
       this.recordButton.drawCircle(
         this.nodeWidth / 2,
-        this.nodeHeight / 2,
+        (this.nodeHeight / 3) * 2,
         recordIconSize
       );
     } else {
       this.recordButton.drawRect(
         this.nodeWidth / 2 - recordIconSize,
-        this.nodeHeight / 2 - recordIconSize,
+        (this.nodeHeight / 3) * 2 - recordIconSize,
         recordIconSize * 2,
         recordIconSize * 2
       );
