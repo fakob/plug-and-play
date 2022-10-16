@@ -10,6 +10,7 @@ export class EnumType extends AbstractType {
   options: EnumStructure;
   onChange?: (value: string) => void;
   onOpen?: () => void;
+
   constructor(
     inOptions: EnumStructure,
     onChange?: (value: string) => void,
@@ -23,6 +24,14 @@ export class EnumType extends AbstractType {
 
   getName(): string {
     return 'Enum';
+  }
+
+  setOnOpen(newOnOpen?: () => void): void {
+    this.onOpen = newOnOpen;
+  }
+
+  setOptions(newOptions: EnumStructure): void {
+    this.options = newOptions;
   }
 
   getInputWidget = (data: any): any => {

@@ -12,7 +12,7 @@ import {
   SerializedSelection,
   TSocketType,
 } from '../utils/interfaces';
-import { connectNodeToSocket, ensureVisible } from '../utils/utils';
+import { connectNodeToSocket } from '../utils/utils';
 import PPNode from './NodeClass';
 import PPSocket from './SocketClass';
 import PPLink from './LinkClass';

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
+
 import React, { useEffect, useState } from 'react';
 import {
   Button,
@@ -34,6 +36,8 @@ const outName = 'Out';
 export class WidgetButton extends HybridNode {
   update: () => void;
   onWidgetTrigger: () => void;
+  nodeIsAdded: () => void = () => {};
+  executeOnTrigger: () => void = () => {};
 
   getOpacity(): number {
     return 0.01;
@@ -80,6 +84,7 @@ export class WidgetButton extends HybridNode {
           overflow: 'visible',
         }
       );
+      this.nodeIsAdded();
     };
 
     this.update = (): void => {
@@ -97,7 +102,6 @@ export class WidgetButton extends HybridNode {
 
     this.onWidgetTrigger = () => {
       console.log('onWidgetTrigger');
-      this.executeOptimizedChain();
     };
 
     this.onNodeResize = () => {
@@ -116,6 +120,7 @@ export class WidgetButton extends HybridNode {
 
     const WidgetParent = (props) => {
       const handleOnPointerDown = () => {
+        this.onWidgetTrigger();
         const inputData = this.getInputData(onValueName);
         this.setOutputData(outName, inputData);
         this.executeChildren();
@@ -255,7 +260,6 @@ export class WidgetSwitch extends HybridNode {
 
     this.onWidgetTrigger = () => {
       console.log('onWidgetTrigger');
-      this.executeOptimizedChain();
     };
 
     this.onNodeResize = () => {
@@ -276,6 +280,7 @@ export class WidgetSwitch extends HybridNode {
       const [selected, setSelected] = useState(this.getInputData(selectedName));
 
       const handleOnChange = () => {
+        this.onWidgetTrigger();
         const newValue = !selected;
         setSelected(newValue);
         // const selectedValue = this.getInputData(selectedName);
@@ -421,7 +426,6 @@ export class WidgetSlider extends HybridNode {
 
     this.onWidgetTrigger = () => {
       console.log('onWidgetTrigger');
-      this.executeOptimizedChain();
     };
 
     this.onNodeResize = () => {
@@ -467,6 +471,7 @@ export class WidgetSlider extends HybridNode {
 
       const handleOnChange = (event, value) => {
         if (!Array.isArray(value)) {
+          this.onWidgetTrigger();
           setData(roundNumber(value, 4));
           this.setOutputData(outName, value);
           this.executeChildren();

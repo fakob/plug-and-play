@@ -435,19 +435,19 @@ export const calculateAspectRatioFit = (
   return { width: oldWidth * ratio, height: oldHeight * ratio };
 };
 
-export const getSelectionBounds = (selectedNodes: PPNode[]): PIXI.Rectangle => {
-  let selectionBounds = new PIXI.Rectangle();
-  selectedNodes.forEach((node: PIXI.DisplayObject, index: number) => {
+export const getNodesBounds = (nodes: PPNode[]): PIXI.Rectangle => {
+  let bounds = new PIXI.Rectangle();
+  nodes.forEach((node: PIXI.DisplayObject, index: number) => {
     const tempRect = node.getLocalBounds();
     // move rect to get bounds local to nodeContainer
     tempRect.x += node.transform.position.x;
     tempRect.y += node.transform.position.y;
     if (index === 0) {
-      selectionBounds = tempRect;
+      bounds = tempRect;
     }
-    selectionBounds.enlarge(tempRect);
+    bounds.enlarge(tempRect);
   });
-  return selectionBounds;
+  return bounds;
 };
 
 export const replacePartOfObject = (
@@ -514,20 +514,16 @@ export const getXLSXSelectionRange = (
   return selectionRange;
 };
 
-export const zoomToFitSelection = (
-  currentGraph: PPGraph,
-  fitAll = false
-): void => {
+export const zoomToFitNodes = (nodes?: PPNode[]): void => {
+  const currentGraph = PPGraph.currentGraph;
   let boundsToZoomTo: PIXI.Rectangle;
   let zoomOutFactor: number;
 
-  if (fitAll || currentGraph.selection.selectedNodes.length < 1) {
+  if (nodes === undefined || nodes.length < 1) {
     boundsToZoomTo = currentGraph.nodeContainer.getLocalBounds(); // get bounds of the whole nodeContainer
     zoomOutFactor = -0.2;
   } else {
-    boundsToZoomTo = getSelectionBounds(
-      currentGraph.selection.selectedNodes // get bounds of the selectedNodes
-    );
+    boundsToZoomTo = getNodesBounds(nodes);
     zoomOutFactor = -0.3;
   }
 
@@ -541,15 +537,14 @@ export const zoomToFitSelection = (
   currentGraph.viewport.emit('moved');
 };
 
-export const ensureVisible = (currentGraph: PPGraph): void => {
+export const ensureVisible = (nodes: PPNode[]): void => {
   let boundsToZoomTo: PIXI.Rectangle;
+  const currentGraph = PPGraph.currentGraph;
 
-  if (currentGraph.selection.selectedNodes.length < 1) {
+  if (nodes.length < 1) {
     boundsToZoomTo = currentGraph.nodeContainer.getLocalBounds(); // get bounds of the whole nodeContainer
   } else {
-    boundsToZoomTo = getSelectionBounds(
-      currentGraph.selection.selectedNodes // get bounds of the selectedNodes
-    );
+    boundsToZoomTo = getNodesBounds(nodes);
   }
   const fitScale = currentGraph.viewport.findFit(
     boundsToZoomTo.width,

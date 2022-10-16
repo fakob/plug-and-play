@@ -186,6 +186,7 @@ export const SelectWidget: React.FunctionComponent<SelectWidgetProps> = (
     if (props.onOpen) {
       props.onOpen();
     }
+    // setOptions(props.options);
   };
 
   const onChange = (event) => {

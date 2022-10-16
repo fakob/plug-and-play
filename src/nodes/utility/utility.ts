@@ -2,6 +2,7 @@ import PPGraph from '../../classes/GraphClass';
 import PPNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
 import { WidgetButton } from '../widgets/widgetNodes';
+import { zoomToFitNodes } from '../../utils/utils';
 import { SOCKET_TYPE } from '../../utils/constants';
 import { CustomArgs, TRgba } from '../../utils/interfaces';
 import { AnyType } from '../datatypes/anyType';
@@ -88,12 +89,35 @@ export class JumpToNode extends WidgetButton {
       const nodeArray = Object.values(PPGraph.currentGraph.nodes);
       const nodeArrayOptions = nodeArray.map((node) => {
         return {
-          text: node.name,
+          text: `${node.name} - ${node.id}`,
           value: node.id,
         };
       });
       console.log(nodeArray);
       console.log(nodeArrayOptions);
+      (this.getSocketByName(selectNodeName).dataType as EnumType).setOptions(
+        nodeArrayOptions
+      );
+    };
+
+    this.nodeIsAdded = () => {
+      (this.getSocketByName(selectNodeName).dataType as EnumType).setOnOpen(
+        onOpenSelect
+      );
+    };
+
+    this.onWidgetTrigger = () => {
+      const nodeToJumpTo =
+        PPGraph.currentGraph.nodes[this.getInputData(selectNodeName)];
+      console.log(
+        'onWidgetTrigger',
+        this.getInputData(selectNodeName),
+        nodeToJumpTo
+      );
+      if (nodeToJumpTo) {
+        zoomToFitNodes([nodeToJumpTo]);
+      }
+      this.executeOptimizedChain();
     };
   }
 
@@ -102,11 +126,7 @@ export class JumpToNode extends WidgetButton {
       new Socket(
         SOCKET_TYPE.IN,
         selectNodeName,
-        new EnumType(
-          [{ text: 'text', value: undefined }],
-          undefined,
-          this.onOpenSelect
-        ),
+        new EnumType([{ text: 'text', value: undefined }]),
         'text'
       ),
     ].concat(super.getDefaultIO());
