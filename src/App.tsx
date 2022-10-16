@@ -726,7 +726,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     if (isNodeSearchVisible) {
       nodeSearchInput.current.focus();
       nodeSearchInput.current.select();
-      console.dir(nodeSearchInput.current);
+      // console.dir(nodeSearchInput.current);
     } else {
       // TODO remove timeout here
       // wait before clearing clickedSocketRef
@@ -1052,7 +1052,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
   };
 
   const action_AddOrReplaceNode = (event, selected: INodeSearch) => {
-    console.log(selected);
     const referenceID = hri.random();
     const addLink = currentGraph.current.selectedSourceSocket;
 
