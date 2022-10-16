@@ -4,6 +4,7 @@ import { TRgba } from '../../utils/interfaces';
 
 const recordButtonColor = new TRgba(255, 0, 0);
 export class RecordClicks extends PPNode {
+  isRecording = false;
   recordButton: PIXI.Graphics = undefined; // kinda ugly with undefined but whatever
   public drawNodeShape(): void {
     super.drawNodeShape();
@@ -19,8 +20,22 @@ export class RecordClicks extends PPNode {
       this.getOpacity()
     );
     this.recordButton.lineStyle(3, recordButtonColor.multiply(0.7).hexNumber());
-    this.recordButton.drawCircle(this.nodeWidth / 2, this.nodeHeight / 2, 40);
     this.recordButton.interactive = true;
+    if (this.isRecording) {
+      this.recordButton.drawCircle(this.nodeWidth / 2, this.nodeHeight / 2, 40);
+    } else {
+      this.recordButton.drawRect(
+        this.nodeWidth / 2,
+        this.nodeHeight / 2,
+        40,
+        40
+      );
+    }
+
+    this.on('pointerdown', (event: PIXI.InteractionEvent) => {
+      console.log('clicked record');
+    });
+    //this.on("click")
     /*this._BackgroundRef.drawRoundedRect(
       NODE_MARGIN,
       0,
