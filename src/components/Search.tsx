@@ -238,14 +238,14 @@ export const getNodes = (): INodeSearch[] => {
         name: obj.name,
         key: title,
         description: obj.description,
-        hasInputs: obj.hasInputs.toString(),
+        hasInputs: obj.hasInputs,
       };
     })
     .sort(
       (a, b) => a.name.localeCompare(b.name, 'en', { sensitivity: 'base' }) // case insensitive sorting
     )
     .filter((node) =>
-      addLink ? node.hasInputs === 'true' : 'true'
+      addLink ? node.hasInputs === true : true
     ) as INodeSearch[];
   return tempItems;
 };

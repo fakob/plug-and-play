@@ -1378,7 +1378,9 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
                 PopperComponent={(props) => <GraphSearchPopper {...props} />}
                 value={graphSearchActiveItem}
                 getOptionDisabled={(option) => option.isDisabled}
-                getOptionLabel={(option) => (option as any).name}
+                getOptionLabel={(option) =>
+                  typeof option === 'string' ? option : option.name
+                }
                 options={graphSearchItems}
                 sx={{ width: 'calc(65vw - 120px)' }}
                 onChange={handleGraphItemSelect}
@@ -1421,7 +1423,9 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
                     option.title === value.title
                   }
                   value={nodeSearchActiveItem} // does not seem to work. why?
-                  getOptionLabel={(option) => option.name}
+                  getOptionLabel={(option) =>
+                    typeof option === 'string' ? option : option.name
+                  }
                   options={getNodes()}
                   sx={{
                     maxWidth: '50vw',
