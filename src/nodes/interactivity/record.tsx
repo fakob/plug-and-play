@@ -5,6 +5,7 @@ import Socket from '../../classes/SocketClass';
 import { ArrayType } from '../datatypes/arrayType';
 import { SOCKET_TYPE } from '../../utils/constants';
 import PPGraph from '../../classes/GraphClass';
+import { isArray } from 'lodash';
 
 const recordButtonColor = new TRgba(255, 50, 50);
 const recordIconSize = 40;
@@ -22,22 +23,24 @@ export class RecordLocations extends PPNode {
   }
 
   protected getDefaultIO(): Socket[] {
-    return [
-      new Socket(SOCKET_TYPE.IN, clickName, new ArrayType(), [], false),
-      new Socket(SOCKET_TYPE.OUT, clickName, new ArrayType(), [], true),
-    ];
+    return [new Socket(SOCKET_TYPE.OUT, clickName, new ArrayType(), [], true)];
   }
 
   public nodeKeyEvent(e: KeyboardEvent): void {
     super.nodeKeyEvent(e);
     if (this.isRecording) {
-      const mousePosition =
-        PPGraph.currentGraph.app.renderer.plugins.interaction.mouse.global;
-      this.setInputData(
-        clickName,
-        this.getInputData(clickName).concat([mousePosition])
+      const mousePosition = JSON.parse(
+        JSON.stringify(
+          PPGraph.currentGraph.app.renderer.plugins.interaction.mouse.global
+        )
       );
-      this.setOutputData(clickName, this.getInputData(clickName));
+      let prev = this.getInputData(clickName);
+      if (!isArray(prev)) {
+        prev = [];
+      }
+      prev.push(mousePosition);
+      this.setInputData(clickName, prev);
+      this.setOutputData(clickName, prev);
     }
   }
 

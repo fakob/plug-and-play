@@ -448,6 +448,7 @@ export default class PPNode extends PIXI.Container {
       );
     }
 
+    this.drawNodeShape(); // TODO remove this
     this.onConfigure(nodeConfig);
   }
 
