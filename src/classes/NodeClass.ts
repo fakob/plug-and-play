@@ -1030,9 +1030,9 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     leading: true,
   });
 
-  public renderOutline(): void {
-    const iterations = 30;
-    const interval = 16.67;
+  public renderOutline(iterations = 30, interval = 16.67): void {
+    // const iterations = 30;
+    // const interval = 16.67;
     const activeExecution = new PIXI.Graphics();
     this.addChild(activeExecution);
     for (let i = 1; i <= iterations; i++) {
