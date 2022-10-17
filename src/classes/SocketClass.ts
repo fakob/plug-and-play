@@ -25,6 +25,7 @@ export default class Socket extends PIXI.Container {
   // data is derived from execute function
 
   _SocketRef: PIXI.Graphics;
+  _TextRef: PIXI.Graphics;
 
   _socketType: TSocketType;
   _dataType: AbstractType;
@@ -80,7 +81,9 @@ export default class Socket extends PIXI.Container {
 
   redrawAnythingChanging(): void {
     this.removeChild(this._SocketRef);
+    this.removeChild(this._TextRef);
     this._SocketRef = new PIXI.Graphics();
+    this._TextRef = new PIXI.Graphics();
     this._SocketRef.beginFill(this.dataType.getColor().hexNumber());
     this._SocketRef.drawRoundedRect(
       this.getSocketLocation().x,
@@ -113,7 +116,7 @@ export default class Socket extends PIXI.Container {
         }
       });
 
-      this._SocketRef.addChild(socketNameText);
+      this._TextRef.addChild(socketNameText);
     }
 
     this._SocketRef.endFill();
@@ -124,6 +127,7 @@ export default class Socket extends PIXI.Container {
     this._SocketRef.on('pointerdown', (event) => this._onPointerDown(event));
     this._SocketRef.on('pointerup', (event) => this._onPointerUp(event));
     this.addChild(this._SocketRef);
+    this.addChild(this._TextRef);
   }
 
   // GETTERS & SETTERS
@@ -134,10 +138,6 @@ export default class Socket extends PIXI.Container {
 
   set socketType(newLink: TSocketType) {
     this._socketType = newLink;
-  }
-
-  get socketRef(): PIXI.DisplayObject {
-    return this._SocketRef;
   }
 
   get links(): PPLink[] {

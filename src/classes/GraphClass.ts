@@ -12,7 +12,7 @@ import {
   SerializedSelection,
   TSocketType,
 } from '../utils/interfaces';
-import { connectNodeToSocket, ensureVisible } from '../utils/utils';
+import { connectNodeToSocket } from '../utils/utils';
 import PPNode from './NodeClass';
 import PPSocket from './SocketClass';
 import PPLink from './LinkClass';
@@ -214,19 +214,13 @@ export default class PPGraph {
   }
 
   getSocketCenter(object: PPSocket): PIXI.Point {
-    const dragSourceRect = object.socketRef.getBounds();
+    const dragSourceRect = object._SocketRef.getBounds();
     const dragSourcePoint = new PIXI.Point(
       dragSourceRect.x + dragSourceRect.width / 2,
       dragSourceRect.y + dragSourceRect.height / 2
     );
     // change dragSourcePoint coordinates from screen to world space
     return this.viewport.toWorld(dragSourcePoint);
-    /*return this.viewport.toWorld(
-      new PIXI.Point(
-        object.getSocketLocation().x + object.x,
-        object.getSocketLocation().y + object.y
-      )
-    );*/
   }
 
   _onNodePointerDown(event: PIXI.InteractionEvent): void {
@@ -610,7 +604,7 @@ export default class PPGraph {
         nodePosY: node.y + socket.y,
       });
     }
-    connectNodeToSocket(socket, newNode);
+    await connectNodeToSocket(socket, newNode);
   }
 
   checkOldSocketAndUpdateIt<T extends PPSocket>(
