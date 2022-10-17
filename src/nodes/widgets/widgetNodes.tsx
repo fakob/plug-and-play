@@ -21,6 +21,7 @@ import { roundNumber } from '../../utils/utils';
 import { AnyType } from '../datatypes/anyType';
 import { BooleanType } from '../datatypes/booleanType';
 import { NumberType } from '../datatypes/numberType';
+import { StringType } from '../datatypes/stringType';
 import HybridNode from '../../classes/HybridNode';
 
 const selectedName = 'Initial selection';
@@ -31,6 +32,7 @@ const stepSizeName = 'Step size';
 const maxValueName = 'Max';
 const offValueName = 'Off';
 const onValueName = 'On';
+const buttonTextName = 'Button text';
 const outName = 'Out';
 
 export class WidgetButton extends HybridNode {
@@ -51,6 +53,13 @@ export class WidgetButton extends HybridNode {
     return [
       new Socket(SOCKET_TYPE.IN, offValueName, new AnyType(), 0, false),
       new Socket(SOCKET_TYPE.IN, onValueName, new AnyType(), 1, false),
+      new Socket(
+        SOCKET_TYPE.IN,
+        buttonTextName,
+        new StringType(),
+        'Button',
+        false
+      ),
       new Socket(SOCKET_TYPE.OUT, outName, new AnyType()),
     ];
   }
@@ -73,12 +82,14 @@ export class WidgetButton extends HybridNode {
 
     // when the Node is added, add the container and react component
     this.onNodeAdded = () => {
+      const buttonText = this.getInputData(buttonTextName);
       this.createContainerComponent(
         WidgetParent,
         {
           nodeWidth: this.nodeWidth,
           nodeHeight: this.nodeHeight,
           margin,
+          buttonText,
         },
         {
           overflow: 'visible',
@@ -88,10 +99,12 @@ export class WidgetButton extends HybridNode {
     };
 
     this.update = (): void => {
+      const buttonText = this.getInputData(buttonTextName);
       this.renderReactComponent(WidgetParent, {
         nodeWidth: this.nodeWidth,
         nodeHeight: this.nodeHeight,
         margin,
+        buttonText,
       });
     };
 
@@ -118,7 +131,15 @@ export class WidgetButton extends HybridNode {
       this.update();
     };
 
-    const WidgetParent = (props) => {
+    type MyProps = {
+      doubleClicked: boolean; // is injected by the NodeClass
+      nodeWidth: number;
+      nodeHeight: number;
+      margin: number;
+      buttonText: number;
+    };
+
+    const WidgetParent: React.FunctionComponent<MyProps> = (props) => {
       const handleOnPointerDown = () => {
         this.onWidgetTrigger();
         const inputData = this.getInputData(onValueName);
@@ -179,7 +200,7 @@ export class WidgetButton extends HybridNode {
                 },
               }}
             >
-              {this.name}
+              {props.buttonText}
             </Button>
           </Paper>
         </ThemeProvider>

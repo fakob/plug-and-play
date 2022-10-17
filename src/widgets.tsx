@@ -208,11 +208,11 @@ export const SelectWidget: React.FunctionComponent<SelectWidgetProps> = (
         onChange={onChange}
         disabled={props.hasLink}
       >
-        {options?.map(({ text }, index) => {
+        {options?.map(({ text, value }, index) => {
           return (
             <MenuItem
               key={index}
-              value={text}
+              value={value ?? text}
               sx={{
                 '&.Mui-selected': {
                   backgroundColor: `${Color(props.randomMainColor).negate()}`,

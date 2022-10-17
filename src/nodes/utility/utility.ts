@@ -2,7 +2,7 @@ import PPGraph from '../../classes/GraphClass';
 import PPNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
 import { WidgetButton } from '../widgets/widgetNodes';
-import { zoomToFitNodes } from '../../utils/utils';
+import { ensureVisible } from '../../utils/utils';
 import { SOCKET_TYPE } from '../../utils/constants';
 import { CustomArgs, TRgba } from '../../utils/interfaces';
 import { AnyType } from '../datatypes/anyType';
@@ -71,7 +71,8 @@ export class Reroute extends PPNode {
 const selectNodeName = 'Select Node';
 
 export class JumpToNode extends WidgetButton {
-  onOpenSelect: () => void;
+  setOptions: () => void;
+  setOnOpen: () => void;
 
   public getName(): string {
     return 'Jump to node';
@@ -80,30 +81,50 @@ export class JumpToNode extends WidgetButton {
     return 'Jump to a specific node in your playground';
   }
 
+  get nodeArrayOptions(): any[] {
+    const nodeArray = Object.values(PPGraph.currentGraph.nodes);
+    const nodeArrayOptions = nodeArray.map((node) => {
+      return {
+        text: `${node.name} - ${node.id}`,
+        value: node.id,
+      };
+    });
+    console.log(nodeArray);
+    console.log(nodeArrayOptions);
+    return nodeArrayOptions;
+  }
+
   constructor(name: string, customArgs: CustomArgs) {
     super(name, {
       ...customArgs,
     });
 
-    const onOpenSelect = () => {
-      const nodeArray = Object.values(PPGraph.currentGraph.nodes);
-      const nodeArrayOptions = nodeArray.map((node) => {
-        return {
-          text: `${node.name} - ${node.id}`,
-          value: node.id,
-        };
-      });
-      console.log(nodeArray);
-      console.log(nodeArrayOptions);
+    this.setOptions = () => {
+      console.log('setOptions');
       (this.getSocketByName(selectNodeName).dataType as EnumType).setOptions(
-        nodeArrayOptions
+        this.nodeArrayOptions
       );
     };
 
-    this.nodeIsAdded = () => {
+    this.setOnOpen = () => {
+      console.log('setOnOpen');
       (this.getSocketByName(selectNodeName).dataType as EnumType).setOnOpen(
-        onOpenSelect
+        this.setOptions
       );
+    };
+
+    // set options and add onOpen function on nodeAdded
+    this.nodeIsAdded = () => {
+      console.log('onConfigure');
+      this.setOptions();
+      this.setOnOpen();
+    };
+
+    // add onOpen function after node configure
+    this.onConfigure = () => {
+      console.log('onConfigure');
+      this.setOptions();
+      this.setOnOpen();
     };
 
     this.onWidgetTrigger = () => {
@@ -115,7 +136,7 @@ export class JumpToNode extends WidgetButton {
         nodeToJumpTo
       );
       if (nodeToJumpTo) {
-        zoomToFitNodes([nodeToJumpTo]);
+        ensureVisible([nodeToJumpTo]);
       }
       this.executeOptimizedChain();
     };
