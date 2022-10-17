@@ -138,6 +138,9 @@ export class JumpToNode extends WidgetButton {
       if (nodeToJumpTo) {
         ensureVisible([nodeToJumpTo]);
       }
+      setTimeout(() => {
+        nodeToJumpTo.renderOutline();
+      }, 500);
       this.executeOptimizedChain();
     };
   }
