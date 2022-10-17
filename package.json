@@ -57,6 +57,7 @@
     "react-draggable": "^4.4.4",
     "react-dropzone": "^14.2.2",
     "react-error-boundary": "^3.1.4",
+    "react-frame-component": "^5.2.3",
     "react-lazylog": "^4.5.3",
     "react-monaco-editor": "^0.50.1",
     "react-responsive-carousel": "^3.2.23",

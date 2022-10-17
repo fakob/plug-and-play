@@ -7,6 +7,7 @@ import * as codeEditor from './codeEditor';
 import * as dataFunctions from './data/dataFunctions';
 import * as draw from './draw/draw';
 import * as get from './api/get';
+import * as html from './draw/html';
 import * as image from './image/image';
 import * as json from './data/json';
 import * as logViewer from './logViewer';
@@ -36,6 +37,7 @@ export const getAllNodeTypes = (): RegisteredNodeTypes => {
       dataFunctions,
       draw,
       get,
+      html,
       image,
       json,
       logViewer,

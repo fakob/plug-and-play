@@ -91,8 +91,6 @@ export default class PPNode extends PIXI.Container {
   (positions: { screenX: number; screenY: number; scale: number }) => void =
     () => {};
 
-  protected onNodeExit(): void {}
-
   protected getShowLabels(): boolean {
     return true;
   }
