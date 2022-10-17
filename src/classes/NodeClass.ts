@@ -80,13 +80,17 @@ export default class PPNode extends PIXI.Container {
   onViewportMoveHandler: (event?: PIXI.InteractionEvent) => void = () => {};
   onViewportPointerUpHandler: (event?: PIXI.InteractionEvent) => void =
     () => {};
-  onNodeAdded: () => void = () => {}; // called when the node is added to the graph
   onNodeRemoved: () => void = () => {}; // called when the node is removed from the graph
   onNodeDragging: (isDraggingNode: boolean) => void = () => {}; // called when the node is being dragged
   onNodeResize: (width: number, height: number) => void = () => {}; // called when the node is resized
   onNodeDragOrViewportMove: // called when the node or or the viewport with the node is moved or scaled
   (positions: { screenX: number; screenY: number; scale: number }) => void =
     () => {};
+
+  // called when the node is added to the graph
+  public onNodeAdded(): void {
+    this.drawNodeShape();
+  }
 
   protected onNodeExit(): void {}
 
@@ -240,9 +244,6 @@ export default class PPNode extends PIXI.Container {
       this.addSocket(IO);
     });
 
-    // draw shape
-    this.drawNodeShape();
-
     this.interactive = true;
     this.isDraggingNode = false;
     this._doubleClicked = false;
@@ -254,10 +255,6 @@ export default class PPNode extends PIXI.Container {
   }
 
   // GETTERS & SETTERS
-
-  get nodeNameRef(): PIXI.DisplayObject {
-    return this._NodeNameRef;
-  }
 
   get selected(): boolean {
     return PPGraph.currentGraph.selection.isNodeSelected(this);
@@ -444,8 +441,6 @@ export default class PPNode extends PIXI.Container {
 
       const sockets = nodeConfig.socketArray;
       sockets.forEach((item) => mapSocket(item));
-
-      this.drawNodeShape();
     } catch (error) {
       console.error(
         `Could not configure node: ${this.name}(${this.id})`,
