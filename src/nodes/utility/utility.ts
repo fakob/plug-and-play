@@ -99,6 +99,12 @@ export class JumpToNode extends WidgetButton {
       ...customArgs,
     });
 
+    PPGraph.currentGraph.target.addEventListener('graphLoaded', () => {
+      console.log('graph loaded');
+      this.setOptions();
+      this.setOnOpen();
+    });
+
     this.setOptions = () => {
       console.log('setOptions');
       (this.getSocketByName(selectNodeName).dataType as EnumType).setOptions(
@@ -115,14 +121,7 @@ export class JumpToNode extends WidgetButton {
 
     // set options and add onOpen function on nodeAdded
     this.nodeIsAdded = () => {
-      console.log('onConfigure');
-      this.setOptions();
-      this.setOnOpen();
-    };
-
-    // add onOpen function after node configure
-    this.onConfigure = () => {
-      console.log('onConfigure');
+      console.log('nodeIsAdded');
       this.setOptions();
       this.setOnOpen();
     };
@@ -137,10 +136,10 @@ export class JumpToNode extends WidgetButton {
       );
       if (nodeToJumpTo) {
         ensureVisible([nodeToJumpTo]);
+        setTimeout(() => {
+          nodeToJumpTo.renderOutline(100);
+        }, 500);
       }
-      setTimeout(() => {
-        nodeToJumpTo.renderOutline(100);
-      }, 500);
       this.executeOptimizedChain();
     };
   }

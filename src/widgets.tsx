@@ -199,6 +199,10 @@ export const SelectWidget: React.FunctionComponent<SelectWidgetProps> = (
     props.property.getNode().metaInfoChanged();
   };
 
+  useEffect(() => {
+    console.log(props.options);
+  }, [props.options]);
+
   return (
     <FormGroup>
       <Select
