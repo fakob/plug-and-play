@@ -663,22 +663,22 @@ export const getMatchingSocket = (socket: PPSocket, node: PPNode): PPSocket => {
       });
     };
 
-    const preferredCondition = (socket): boolean => {
-      const preferredSocketName = socket.isInput()
+    const preferredCondition = (socketInArray): boolean => {
+      const preferredSocketName = socketInArray.isInput()
         ? node.getPreferredInputSocketName()
         : node.getPreferredOutputSocketName();
-      return socket.name === preferredSocketName;
+      return socketInArray.name === preferredSocketName;
     };
 
-    const exactMatchCondition = (socket): boolean => {
-      return socket.dataType.constructor === socket.dataType.constructor;
+    const exactMatchCondition = (socketInArray): boolean => {
+      return socketInArray.dataType.constructor === socket.dataType.constructor;
     };
 
-    const anyTypeCondition = (socket): boolean => {
-      return socket.dataType.constructor === new AnyType().constructor;
+    const anyTypeCondition = (socketInArray): boolean => {
+      return socketInArray.dataType.constructor === new AnyType().constructor;
     };
 
-    const anyCondition = (socket): boolean => {
+    const anyCondition = (): boolean => {
       return true;
     };
 
