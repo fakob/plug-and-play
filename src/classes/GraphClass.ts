@@ -21,7 +21,6 @@ import { getAllNodeTypes } from '../nodes/allNodes';
 import { macroOutputName } from '../nodes/macro/macro';
 import { Action, ActionHandler } from '../utils/actionHandler';
 import { hri } from 'human-readable-ids';
-import { notDeepEqual } from 'assert';
 
 export default class PPGraph {
   static currentGraph: PPGraph;
@@ -430,6 +429,7 @@ export default class PPGraph {
     this.nodeContainer.addChild(node);
 
     node.onNodeAdded();
+    this.target.dispatchEvent(new Event('nodeAdded'));
     //await node.executeOptimizedChain();
     return node;
   }
@@ -917,6 +917,7 @@ export default class PPGraph {
   removeNode(node: PPNode): void {
     node.destroy();
     delete this.nodes[node.id];
+    this.target.dispatchEvent(new Event('nodeRemoved'));
   }
 
   action_DeleteSelectedNodes(): void {

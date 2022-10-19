@@ -38,7 +38,6 @@ const outName = 'Out';
 export class WidgetButton extends HybridNode {
   update: () => void;
   onWidgetTrigger: () => void;
-  nodeIsAdded: () => void = () => {};
   executeOnTrigger: () => void = () => {};
 
   getOpacity(): number {
@@ -95,7 +94,6 @@ export class WidgetButton extends HybridNode {
           overflow: 'visible',
         }
       );
-      this.nodeIsAdded();
     };
 
     this.update = (): void => {

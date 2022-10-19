@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
 import PPGraph from '../../classes/GraphClass';
 import PPNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
@@ -71,8 +72,8 @@ export class Reroute extends PPNode {
 const selectNodeName = 'Select Node';
 
 export class JumpToNode extends WidgetButton {
-  setOptions: () => void;
-  setOnOpen: () => void;
+  updateNodesDropdown: () => void;
+  onUpdateNodesDropdownHandler: () => void;
 
   public getName(): string {
     return 'Jump to node';
@@ -99,50 +100,59 @@ export class JumpToNode extends WidgetButton {
       ...customArgs,
     });
 
-    PPGraph.currentGraph.target.addEventListener('graphLoaded', () => {
-      console.log('graph loaded');
-      this.setOptions();
-      this.setOnOpen();
-    });
-
-    this.setOptions = () => {
-      console.log('setOptions');
-      (this.getSocketByName(selectNodeName).dataType as EnumType).setOptions(
-        this.nodeArrayOptions
-      );
+    this.updateNodesDropdown = function () {
+      const nodeNameDropdown = this.getSocketByName(selectNodeName)
+        .dataType as EnumType;
+      nodeNameDropdown.setOptions(this.nodeArrayOptions);
     };
 
-    this.setOnOpen = () => {
-      console.log('setOnOpen');
-      (this.getSocketByName(selectNodeName).dataType as EnumType).setOnOpen(
-        this.setOptions
-      );
-    };
-
-    // set options and add onOpen function on nodeAdded
-    this.nodeIsAdded = () => {
-      console.log('nodeIsAdded');
-      this.setOptions();
-      this.setOnOpen();
-    };
-
-    this.onWidgetTrigger = () => {
-      const nodeToJumpTo =
-        PPGraph.currentGraph.nodes[this.getInputData(selectNodeName)];
-      console.log(
-        'onWidgetTrigger',
-        this.getInputData(selectNodeName),
-        nodeToJumpTo
-      );
-      if (nodeToJumpTo) {
-        ensureVisible([nodeToJumpTo]);
-        setTimeout(() => {
-          nodeToJumpTo.renderOutline(100);
-        }, 500);
-      }
-      this.executeOptimizedChain();
-    };
+    this.onUpdateNodesDropdownHandler = this.updateNodesDropdown.bind(this);
+    PPGraph.currentGraph.target.addEventListener(
+      'graphLoaded',
+      this.onUpdateNodesDropdownHandler
+    );
+    PPGraph.currentGraph.target.addEventListener(
+      'nodeAdded',
+      this.onUpdateNodesDropdownHandler
+    );
+    PPGraph.currentGraph.target.addEventListener(
+      'nodeRemoved',
+      this.onUpdateNodesDropdownHandler
+    );
   }
+
+  onNodeRemoved = () => {
+    PPGraph.currentGraph.target.removeEventListener(
+      'graphLoaded',
+      this.onUpdateNodesDropdownHandler
+    );
+    PPGraph.currentGraph.target.removeEventListener(
+      'nodeAdded',
+      this.onUpdateNodesDropdownHandler
+    );
+    PPGraph.currentGraph.target.removeEventListener(
+      'nodeRemoved',
+      this.onUpdateNodesDropdownHandler
+    );
+    super.onNodeRemoved();
+  };
+
+  onWidgetTrigger = () => {
+    const nodeToJumpTo =
+      PPGraph.currentGraph.nodes[this.getInputData(selectNodeName)];
+    console.log(
+      'onWidgetTrigger',
+      this.getInputData(selectNodeName),
+      nodeToJumpTo
+    );
+    if (nodeToJumpTo) {
+      ensureVisible([nodeToJumpTo]);
+      setTimeout(() => {
+        nodeToJumpTo.renderOutline(100);
+      }, 500);
+    }
+    this.executeOptimizedChain();
+  };
 
   protected getDefaultIO(): Socket[] {
     return [
