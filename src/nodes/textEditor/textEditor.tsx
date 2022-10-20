@@ -127,7 +127,7 @@ export class TextEditor extends HybridNode {
     return 0.01;
   }
 
-  protected onNodeExit(): void {
+  protected onHybridNodeExit(): void {
     this.update();
   }
 

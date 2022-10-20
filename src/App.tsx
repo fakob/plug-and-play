@@ -13,19 +13,14 @@ import {
   Autocomplete,
   Box,
   Button,
-  ButtonGroup,
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
-  IconButton,
-  Stack,
+  Paper,
   TextField,
-  createFilterOptions,
 } from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
 import { OptionsObject, SnackbarMessage, useSnackbar } from 'notistack';
 import Color from 'color';
 import { hri } from 'human-readable-ids';
@@ -35,6 +30,11 @@ import {
   GraphSearchInput,
   GraphSearchPopper,
   NodeSearchInput,
+  filterOptionsGraph,
+  filterOptionsNode,
+  getNodes,
+  renderGraphItem,
+  renderNodeItem,
 } from './components/Search';
 import GraphOverlay from './components/GraphOverlay';
 import ErrorFallback from './components/ErrorFallback';
@@ -129,6 +129,7 @@ const App = (): JSX.Element => {
   const nodeSearchInput = useRef<HTMLInputElement | null>(null);
   const [isGraphSearchOpen, setIsGraphSearchOpen] = useState(false);
   const [isNodeSearchVisible, setIsNodeSearchVisible] = useState(false);
+  const [nodeSearchCount, setNodeSearchCount] = useState(0);
   const [isGraphContextMenuOpen, setIsGraphContextMenuOpen] = useState(false);
   const [isNodeContextMenuOpen, setIsNodeContextMenuOpen] = useState(false);
   const [isSocketContextMenuOpen, setIsSocketContextMenuOpen] = useState(false);
@@ -145,12 +146,6 @@ const App = (): JSX.Element => {
     useState<INodeSearch | null>(null);
   const [graphSearchActiveItem, setGraphSearchActiveItem] =
     useState<IGraphSearch | null>(null);
-
-  const filterOptionGraph = createFilterOptions<IGraphSearch>();
-  const filterOptionNode = createFilterOptions<INodeSearch>({
-    stringify: (option) =>
-      `${option.title} ${option.name} ${option.description}`,
-  });
 
   // dialogs
   const [showEdit, setShowEdit] = useState(false);
@@ -738,7 +733,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     if (isNodeSearchVisible) {
       nodeSearchInput.current.focus();
       nodeSearchInput.current.select();
-      console.dir(nodeSearchInput.current);
+      // console.dir(nodeSearchInput.current);
     } else {
       // TODO remove timeout here
       // wait before clearing clickedSocketRef
@@ -1064,7 +1059,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
   };
 
   const action_AddOrReplaceNode = (event, selected: INodeSearch) => {
-    console.log(selected);
     const referenceID = hri.random();
     const addLink = currentGraph.current.selectedSourceSocket;
 
@@ -1134,27 +1128,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     }
   };
 
-  const getNodes = (): INodeSearch[] => {
-    const addLink = currentGraph.current.selectedSourceSocket;
-    const tempItems = Object.entries(getAllNodeTypes())
-      .map(([title, obj]) => {
-        return {
-          title,
-          name: obj.name,
-          key: title,
-          description: obj.description,
-          hasInputs: obj.hasInputs,
-        };
-      })
-      .sort(
-        (a, b) => a.title.localeCompare(b.title, 'en', { sensitivity: 'base' }) // case insensitive sorting
-      )
-      .filter((node) =>
-        addLink ? node.hasInputs === true : true
-      ) as INodeSearch[];
-    return tempItems;
-  };
-
   const openNodeSearch = (pos = undefined) => {
     console.log('openNodeSearch');
     if (pos !== undefined) {
@@ -1170,6 +1143,32 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     console.log('nodeSearchInputBlurred');
     setIsNodeSearchVisible(false);
     currentGraph.current.selectedSourceSocket = null;
+  };
+
+  const ResultsWithHeader = ({ children, ...other }) => {
+    return (
+      <Paper
+        {...other}
+        sx={{
+          '.MuiAutocomplete-listbox': {
+            padding: '0 0 8px',
+          },
+        }}
+      >
+        <Box
+          sx={{
+            px: 2,
+            pt: 0.5,
+            pb: 0.25,
+            fontSize: '10px',
+            opacity: '0.5',
+          }}
+        >
+          {`${nodeSearchCount} of ${Object.keys(getAllNodeTypes()).length}`}
+        </Box>
+        {children}
+      </Paper>
+    );
   };
 
   const updateGraphSearchItems = () => {
@@ -1227,193 +1226,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       );
       setGraphSearchActiveItem(newGraphSearchItems[loadedGraphIndex]);
     }
-  };
-
-  const filterGraph = (options, params) => {
-    const filtered = filterOptionGraph(options, params);
-    if (params.inputValue !== '') {
-      filtered.push({
-        id: hri.random(),
-        name: params.inputValue,
-        isNew: true,
-      });
-    }
-    return filtered;
-  };
-
-  const filterNode = (options, params) => {
-    const filtered = filterOptionNode(options, params);
-    if (params.inputValue !== '') {
-      filtered.push({
-        title: params.inputValue,
-        key: params.inputValue,
-        name: params.inputValue,
-        description: '',
-        hasInputs: true,
-        isNew: true,
-      });
-    }
-    return filtered;
-  };
-
-  const renderGraphItem = (props, option, state) => {
-    const isRemote = option.isRemote;
-    const text = option.name;
-    const title = isRemote // hover title tag
-      ? `${option.name}
-NOTE: save the playground after loading, if you want to make changes to it`
-      : option.name;
-    const optionLabel = option.label;
-    const itemToReturn = option.isDisabled ? (
-      <Box {...props} key={option.id} component="li">
-        {text}
-      </Box>
-    ) : (
-      <Box
-        {...props}
-        component="li"
-        key={option.id}
-        title={title}
-        sx={{
-          position: 'relative',
-        }}
-      >
-        <Box
-          sx={{
-            flexGrow: 1,
-          }}
-        >
-          <Box component="div" sx={{ display: 'inline', opacity: '0.5' }}>
-            {option.isNew && 'Create empty playground: '}
-          </Box>
-          {text}
-        </Box>
-        <Box
-          sx={{
-            fontSize: '12px',
-            opacity: '0.75',
-            visibility: 'visible',
-            '.Mui-focused &': {
-              visibility: 'hidden',
-            },
-          }}
-        >
-          {optionLabel}
-        </Box>
-        {isRemote && (
-          <Box
-            sx={{
-              py: 1,
-              px: 2,
-              fontSize: '12px',
-              fontStyle: 'italic',
-              opacity: '0.75',
-              position: 'absolute',
-              right: '0px',
-              visibility: 'hidden',
-              '.Mui-focused &': {
-                visibility: 'visible',
-              },
-            }}
-          >
-            Load remote playground
-          </Box>
-        )}
-        {!isRemote && (
-          <ButtonGroup
-            size="small"
-            sx={{
-              position: 'absolute',
-              right: '0px',
-              visibility: 'hidden',
-              '.Mui-focused &': {
-                visibility: 'visible',
-              },
-            }}
-          >
-            <IconButton
-              size="small"
-              onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
-                event.stopPropagation();
-                console.log(option.name);
-                setIsGraphSearchOpen(false);
-                setActionObject(option);
-                setShowEdit(true);
-              }}
-              title="Rename playground"
-              className="menuItemButton"
-            >
-              <EditIcon />
-            </IconButton>
-            <IconButton
-              size="small"
-              title="Delete playground"
-              className="menuItemButton"
-              onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
-                event.stopPropagation();
-                console.log(option.name);
-                setIsGraphSearchOpen(false);
-                setActionObject(option);
-                setShowDeleteGraph(true);
-              }}
-            >
-              <DeleteIcon />
-            </IconButton>
-          </ButtonGroup>
-        )}
-      </Box>
-    );
-
-    return itemToReturn;
-  };
-
-  const renderNodeItem = (props, option, { selected }) => {
-    return (
-      <li {...props} key={option.title}>
-        <Stack
-          sx={{
-            width: '100%',
-          }}
-        >
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-            }}
-          >
-            <Box
-              title={option.description}
-              sx={{
-                flexGrow: 1,
-              }}
-            >
-              <Box component="div" sx={{ display: 'inline', opacity: '0.5' }}>
-                {option.isNew && 'Create custom node: '}
-              </Box>
-              {option.name}
-            </Box>
-            <Box
-              sx={{
-                fontSize: '12px',
-                opacity: '0.75',
-              }}
-            >
-              {option.title}
-            </Box>
-          </Box>
-          <Box
-            sx={{
-              fontSize: '12px',
-              opacity: '0.75',
-              textOverflow: 'ellipsis',
-            }}
-          >
-            {option.description}
-          </Box>
-        </Stack>
-      </li>
-    );
   };
 
   const submitEditDialog = (): void => {
@@ -1566,18 +1378,30 @@ NOTE: save the playground after loading, if you want to make changes to it`
                 autoHighlight
                 clearOnBlur
                 isOptionEqualToValue={(option, value) =>
-                  option.title === value.title
+                  option.name === value.name
                 }
                 // open
                 PopperComponent={(props) => <GraphSearchPopper {...props} />}
                 value={graphSearchActiveItem}
                 getOptionDisabled={(option) => option.isDisabled}
-                getOptionLabel={(option) => option.name}
+                getOptionLabel={(option) =>
+                  typeof option === 'string' ? option : option.name
+                }
                 options={graphSearchItems}
                 sx={{ width: 'calc(65vw - 120px)' }}
                 onChange={handleGraphItemSelect}
-                filterOptions={filterGraph}
-                renderOption={renderGraphItem}
+                filterOptions={filterOptionsGraph}
+                renderOption={(props, option, state) =>
+                  renderGraphItem(
+                    props,
+                    option,
+                    state,
+                    setIsGraphSearchOpen,
+                    setActionObject,
+                    setShowEdit,
+                    setShowDeleteGraph
+                  )
+                }
                 renderInput={(props) => (
                   <GraphSearchInput
                     {...props}
@@ -1605,7 +1429,9 @@ NOTE: save the playground after loading, if you want to make changes to it`
                     option.title === value.title
                   }
                   value={nodeSearchActiveItem} // does not seem to work. why?
-                  getOptionLabel={(option) => option.name}
+                  getOptionLabel={(option) =>
+                    typeof option === 'string' ? option : option.name
+                  }
                   options={getNodes()}
                   sx={{
                     maxWidth: '50vw',
@@ -1613,7 +1439,10 @@ NOTE: save the playground after loading, if you want to make changes to it`
                     minWidth: '200px',
                   }}
                   onChange={action_AddOrReplaceNode}
-                  filterOptions={filterNode}
+                  filterOptions={(options, state) =>
+                    filterOptionsNode(options, state, setNodeSearchCount)
+                  }
+                  PaperComponent={ResultsWithHeader}
                   renderOption={renderNodeItem}
                   renderInput={(props) => (
                     <NodeSearchInput
