@@ -173,18 +173,19 @@ export type SelectWidgetProps = {
   randomMainColor: string;
   onChange?: (value: string) => void;
   onOpen?: () => void;
+  setOptions?: () => EnumStructure;
 };
 
 export const SelectWidget: React.FunctionComponent<SelectWidgetProps> = (
   props
 ) => {
   const [data, setData] = useState(props.data);
-  const [options] = useState(props.options);
+  const [options, setOptions] = useState(props.options);
 
   const onOpen = (event) => {
     console.log(event, props);
-    if (props.onOpen) {
-      props.onOpen();
+    if (props.setOptions) {
+      setOptions(props.setOptions());
     }
     // setOptions(props.options);
   };

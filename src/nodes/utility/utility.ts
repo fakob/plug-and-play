@@ -7,7 +7,7 @@ import { ensureVisible } from '../../utils/utils';
 import { SOCKET_TYPE } from '../../utils/constants';
 import { CustomArgs, TRgba } from '../../utils/interfaces';
 import { AnyType } from '../datatypes/anyType';
-import { EnumType } from '../datatypes/enumType';
+import { EnumStructure, EnumType } from '../datatypes/enumType';
 
 export class Reroute extends PPNode {
   public getName(): string {
@@ -72,9 +72,6 @@ export class Reroute extends PPNode {
 const selectNodeName = 'Select Node';
 
 export class JumpToNode extends WidgetButton {
-  updateNodesDropdown: () => void;
-  onUpdateNodesDropdownHandler: () => void;
-
   public getName(): string {
     return 'Jump to node';
   }
@@ -82,7 +79,7 @@ export class JumpToNode extends WidgetButton {
     return 'Jump to a specific node in your playground';
   }
 
-  get nodeArrayOptions(): any[] {
+  nodeArrayOptions(): EnumStructure {
     const nodeArray = Object.values(PPGraph.currentGraph.nodes);
     const nodeArrayOptions = nodeArray.map((node) => {
       return {
@@ -100,42 +97,14 @@ export class JumpToNode extends WidgetButton {
       ...customArgs,
     });
 
-    this.updateNodesDropdown = function () {
+    this.onConfigure = (): void => {
       const nodeNameDropdown = this.getSocketByName(selectNodeName)
         .dataType as EnumType;
-      nodeNameDropdown.setOptions(this.nodeArrayOptions);
+      console.log('setOnOpen');
+      nodeNameDropdown.setSetOptions(this.nodeArrayOptions);
+      this.update();
     };
-
-    this.onUpdateNodesDropdownHandler = this.updateNodesDropdown.bind(this);
-    PPGraph.currentGraph.target.addEventListener(
-      'graphLoaded',
-      this.onUpdateNodesDropdownHandler
-    );
-    PPGraph.currentGraph.target.addEventListener(
-      'nodeAdded',
-      this.onUpdateNodesDropdownHandler
-    );
-    PPGraph.currentGraph.target.addEventListener(
-      'nodeRemoved',
-      this.onUpdateNodesDropdownHandler
-    );
   }
-
-  onNodeRemoved = () => {
-    PPGraph.currentGraph.target.removeEventListener(
-      'graphLoaded',
-      this.onUpdateNodesDropdownHandler
-    );
-    PPGraph.currentGraph.target.removeEventListener(
-      'nodeAdded',
-      this.onUpdateNodesDropdownHandler
-    );
-    PPGraph.currentGraph.target.removeEventListener(
-      'nodeRemoved',
-      this.onUpdateNodesDropdownHandler
-    );
-    super.onNodeRemoved();
-  };
 
   onWidgetTrigger = () => {
     const nodeToJumpTo =

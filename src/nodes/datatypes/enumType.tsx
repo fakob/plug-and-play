@@ -10,33 +10,29 @@ export class EnumType extends AbstractType {
   options: EnumStructure;
   onChange?: (value: string) => void;
   onOpen?: () => void;
+  setOptions?: () => EnumStructure;
 
-  constructor(
-    inOptions: EnumStructure,
-    onChange?: (value: string) => void,
-    onOpen?: () => void
-  ) {
+  constructor(inOptions: EnumStructure, onChange?: (value: string) => void) {
     super();
     this.options = inOptions;
     this.onChange = onChange;
-    this.onOpen = onOpen;
   }
 
   getName(): string {
     return 'Enum';
   }
 
-  setOnOpen(newOnOpen?: () => void): void {
+  setOnOpen(newOnOpen: () => void): void {
     this.onOpen = newOnOpen;
   }
 
-  setOptions(newOptions: EnumStructure): void {
-    this.options = newOptions;
+  setSetOptions(newSetOptions: () => EnumStructure): void {
+    this.setOptions = newSetOptions;
   }
 
   getInputWidget = (data: any): any => {
     const widgetProps: SelectWidgetProps = data;
-    widgetProps.options = this.options;
+    widgetProps.setOptions = this.setOptions;
     widgetProps.onChange = this.onChange;
     widgetProps.onOpen = this.onOpen;
     return <SelectWidget {...widgetProps} />;

@@ -26,7 +26,6 @@ export default class PPGraph {
   static currentGraph: PPGraph;
   app: PIXI.Application;
   viewport: Viewport;
-  target = new EventTarget();
 
   _links: { [key: number]: PPLink };
 
@@ -429,7 +428,6 @@ export default class PPGraph {
     this.nodeContainer.addChild(node);
 
     node.onNodeAdded();
-    this.target.dispatchEvent(new Event('nodeAdded'));
     //await node.executeOptimizedChain();
     return node;
   }
@@ -865,8 +863,6 @@ export default class PPGraph {
           }
         })
       );
-
-      this.target.dispatchEvent(new Event('graphLoaded'));
     } catch (error) {
       configureError = error;
     }
@@ -917,7 +913,6 @@ export default class PPGraph {
   removeNode(node: PPNode): void {
     node.destroy();
     delete this.nodes[node.id];
-    this.target.dispatchEvent(new Event('nodeRemoved'));
   }
 
   action_DeleteSelectedNodes(): void {
