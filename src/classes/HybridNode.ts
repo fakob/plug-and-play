@@ -10,7 +10,7 @@ import styles from '../utils/style.module.css';
 import { SerializedNode } from '../utils/interfaces';
 import { RANDOMMAINCOLOR } from '../utils/constants';
 
-export default class HybridNode extends PPNode {
+export default abstract class HybridNode extends PPNode {
   root: Root;
   static: HTMLElement;
   staticRoot: Root;
@@ -144,5 +144,12 @@ export default class HybridNode extends PPNode {
     // this allows to zoom and drag when the hybrid node is not selected
     this.container.style.pointerEvents = 'none';
     this.container.classList.remove(styles.hybridContainerFocused);
+  }
+
+  public getContainerComponent(): React.FunctionComponent {
+    return undefined;
+  }
+  public onNodeAdded(): void {
+    super.onNodeAdded();
   }
 }

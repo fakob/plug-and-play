@@ -41,7 +41,15 @@ export class RecordLocations extends PPNode {
       prev.push(mousePosition);
       this.setInputData(clickName, prev);
       this.setOutputData(clickName, prev);
+      this.executeChildren();
     }
+  }
+
+  protected async onExecute(
+    inputObject: unknown,
+    outputObject: Record<string, unknown>
+  ): Promise<void> {
+    outputObject[clickName] = inputObject[clickName];
   }
 
   public drawNodeShape(): void {

@@ -448,7 +448,6 @@ export default class PPNode extends PIXI.Container {
       );
     }
 
-    this.drawNodeShape(); // TODO remove this
     this.onConfigure(nodeConfig);
   }
 
@@ -663,7 +662,11 @@ export default class PPNode extends PIXI.Container {
     });
   }
 
-  resizeNode(width: number, height: number, maintainAspectRatio = false): void {
+  resizeNode(
+    width: number = this.width,
+    height: number = this.height,
+    maintainAspectRatio = false
+  ): void {
     // set new size
     const newNodeWidth = Math.max(width, this.getDefaultNodeWidth());
     const newNodeHeight = Math.max(height, this.getDefaultNodeHeight());
@@ -1224,6 +1227,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   }
 
   public metaInfoChanged(): void {
+    this.resizeNode();
     this.drawNodeShape();
     this.updateConnectionPosition();
   }
