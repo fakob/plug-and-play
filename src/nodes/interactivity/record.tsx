@@ -6,12 +6,10 @@ import { ArrayType } from '../datatypes/arrayType';
 import { SOCKET_TYPE } from '../../utils/constants';
 import PPGraph from '../../classes/GraphClass';
 import { isArray } from 'lodash';
-import { BooleanType } from '../datatypes/booleanType';
 
 const recordButtonColor = new TRgba(255, 50, 50);
 const recordIconSize = 40;
 const clickName = 'Locations';
-const considerZoomName = 'Adjust for zoom';
 export class RecordLocations extends PPNode {
   isRecording = false;
   recordButton: PIXI.Graphics = undefined; // kinda ugly with undefined but whatever
@@ -26,19 +24,23 @@ export class RecordLocations extends PPNode {
 
   protected getDefaultIO(): Socket[] {
     return [
-      new Socket(SOCKET_TYPE.IN, considerZoomName, new BooleanType(), true),
-      new Socket(SOCKET_TYPE.OUT, clickName, new ArrayType(), [], true),
+      new Socket(SOCKET_TYPE.IN, clickName, new ArrayType(), [], false),
+      new Socket(SOCKET_TYPE.OUT, clickName, new ArrayType(), []),
     ];
   }
 
   public nodeKeyEvent(e: KeyboardEvent): void {
     super.nodeKeyEvent(e);
     if (this.isRecording) {
-      const mousePosition = JSON.parse(
+      let mousePosition = JSON.parse(
         JSON.stringify(
           PPGraph.currentGraph.app.renderer.plugins.interaction.mouse.global
         )
       );
+      const viewport = PPGraph.currentGraph.viewport;
+      mousePosition = viewport.toWorld(mousePosition);
+      mousePosition.y += 1336; // TODO why are these constants needed?
+      mousePosition.x += 323; // TODO why are these constants needed?
       let prev = this.getInputData(clickName);
       if (!isArray(prev)) {
         prev = [];
@@ -46,7 +48,7 @@ export class RecordLocations extends PPNode {
       console.log(
         'recorded mouseclick position: ' + JSON.stringify(mousePosition)
       );
-      prev.push(mousePosition);
+      prev.push([mousePosition.x, mousePosition.y]);
       this.setInputData(clickName, prev);
       this.setOutputData(clickName, prev);
       this.executeChildren();
