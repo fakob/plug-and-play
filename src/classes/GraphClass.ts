@@ -423,11 +423,11 @@ export default class PPGraph {
     if (!node) {
       return;
     }
-    node.onNodeAdded();
 
     // add the node to the canvas
     this.nodes[node.id] = node;
     this.nodeContainer.addChild(node);
+    node.onNodeAdded();
 
     //await node.executeOptimizedChain();
     return node;

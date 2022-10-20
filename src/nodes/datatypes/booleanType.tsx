@@ -1,12 +1,9 @@
 import React from 'react';
+import { TRgba } from '../../utils/interfaces';
 import { BooleanWidget } from '../../widgets';
 import { AbstractType } from './abstractType';
 
 export class BooleanType extends AbstractType {
-  constructor() {
-    super();
-  }
-
   getName(): string {
     return 'Boolean';
   }
@@ -24,5 +21,9 @@ export class BooleanType extends AbstractType {
 
   defaultInputNodeWidget(): string {
     return 'WidgetSwitch';
+  }
+
+  getColor(): TRgba {
+    return new TRgba(90, 90, 90);
   }
 }

@@ -6,10 +6,12 @@ import { ArrayType } from '../datatypes/arrayType';
 import { SOCKET_TYPE } from '../../utils/constants';
 import PPGraph from '../../classes/GraphClass';
 import { isArray } from 'lodash';
+import { BooleanType } from '../datatypes/booleanType';
 
 const recordButtonColor = new TRgba(255, 50, 50);
 const recordIconSize = 40;
 const clickName = 'Locations';
+const considerZoomName = 'Adjust for zoom';
 export class RecordLocations extends PPNode {
   isRecording = false;
   recordButton: PIXI.Graphics = undefined; // kinda ugly with undefined but whatever
@@ -23,7 +25,10 @@ export class RecordLocations extends PPNode {
   }
 
   protected getDefaultIO(): Socket[] {
-    return [new Socket(SOCKET_TYPE.OUT, clickName, new ArrayType(), [], true)];
+    return [
+      new Socket(SOCKET_TYPE.IN, considerZoomName, new BooleanType(), true),
+      new Socket(SOCKET_TYPE.OUT, clickName, new ArrayType(), [], true),
+    ];
   }
 
   public nodeKeyEvent(e: KeyboardEvent): void {
@@ -38,6 +43,9 @@ export class RecordLocations extends PPNode {
       if (!isArray(prev)) {
         prev = [];
       }
+      console.log(
+        'recorded mouseclick position: ' + JSON.stringify(mousePosition)
+      );
       prev.push(mousePosition);
       this.setInputData(clickName, prev);
       this.setOutputData(clickName, prev);
