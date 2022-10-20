@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-empty-function */
 import PPGraph from '../../classes/GraphClass';
 import PPNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
@@ -83,12 +82,10 @@ export class JumpToNode extends WidgetButton {
     const nodeArray = Object.values(PPGraph.currentGraph.nodes);
     const nodeArrayOptions = nodeArray.map((node) => {
       return {
-        text: `${node.name} - ${node.id}`,
+        text: `${node.name} (${node.id})`,
         value: node.id,
       };
     });
-    console.log(nodeArray);
-    console.log(nodeArrayOptions);
     return nodeArrayOptions;
   }
 
@@ -100,7 +97,9 @@ export class JumpToNode extends WidgetButton {
     this.onConfigure = (): void => {
       const nodeNameDropdown = this.getSocketByName(selectNodeName)
         .dataType as EnumType;
-      console.log('setOnOpen');
+      // set the options on Configure
+      nodeNameDropdown.options = this.nodeArrayOptions();
+      // pass in a callback to renew options when dropdown is openend
       nodeNameDropdown.setSetOptions(this.nodeArrayOptions);
       this.update();
     };
@@ -109,11 +108,6 @@ export class JumpToNode extends WidgetButton {
   onWidgetTrigger = () => {
     const nodeToJumpTo =
       PPGraph.currentGraph.nodes[this.getInputData(selectNodeName)];
-    console.log(
-      'onWidgetTrigger',
-      this.getInputData(selectNodeName),
-      nodeToJumpTo
-    );
     if (nodeToJumpTo) {
       ensureVisible([nodeToJumpTo]);
       setTimeout(() => {
@@ -128,8 +122,13 @@ export class JumpToNode extends WidgetButton {
       new Socket(
         SOCKET_TYPE.IN,
         selectNodeName,
-        new EnumType([{ text: 'text', value: undefined }]),
-        'text'
+        new EnumType(
+          [{ text: '', value: '' }],
+          undefined,
+          this.nodeArrayOptions
+        ),
+        '',
+        false
       ),
     ].concat(super.getDefaultIO());
   }

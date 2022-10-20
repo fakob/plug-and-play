@@ -172,7 +172,6 @@ export type SelectWidgetProps = {
   options: EnumStructure;
   randomMainColor: string;
   onChange?: (value: string) => void;
-  onOpen?: () => void;
   setOptions?: () => EnumStructure;
 };
 
@@ -187,7 +186,6 @@ export const SelectWidget: React.FunctionComponent<SelectWidgetProps> = (
     if (props.setOptions) {
       setOptions(props.setOptions());
     }
-    // setOptions(props.options);
   };
 
   const onChange = (event) => {
@@ -199,10 +197,6 @@ export const SelectWidget: React.FunctionComponent<SelectWidgetProps> = (
     }
     props.property.getNode().metaInfoChanged();
   };
-
-  useEffect(() => {
-    console.log(props.options);
-  }, [props.options]);
 
   return (
     <FormGroup>

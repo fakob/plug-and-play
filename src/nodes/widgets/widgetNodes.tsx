@@ -38,7 +38,6 @@ const outName = 'Out';
 export class WidgetButton extends HybridNode {
   update: () => void;
   onWidgetTrigger: () => void;
-  executeOnTrigger: () => void = () => {};
 
   getOpacity(): number {
     return 0.01;
@@ -113,6 +112,7 @@ export class WidgetButton extends HybridNode {
 
     this.onWidgetTrigger = () => {
       console.log('onWidgetTrigger');
+      this.executeOptimizedChain();
     };
 
     this.onNodeResize = () => {
