@@ -514,7 +514,8 @@ export default class PPGraph {
         preSourceNodeID,
         preSourceName,
         preTargetNodeID,
-        preTargetName
+        preTargetName,
+        notify
       );
     };
     const undoAction: Action = async () => {
