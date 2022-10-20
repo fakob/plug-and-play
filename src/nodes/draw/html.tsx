@@ -66,8 +66,6 @@ export class HtmlRenderer extends HybridNode {
       ...customArgs,
       nodeWidth,
       nodeHeight,
-      minNodeWidth: nodeWidth / 2,
-      minNodeHeight: nodeHeight / 2,
     });
 
     if (customArgs?.initialData) {
