@@ -12,7 +12,7 @@ import {
   SerializedSelection,
   TSocketType,
 } from '../utils/interfaces';
-import { connectNodeToSocket, ensureVisible } from '../utils/utils';
+import { connectNodeToSocket } from '../utils/utils';
 import PPNode from './NodeClass';
 import PPSocket from './SocketClass';
 import PPLink from './LinkClass';
@@ -21,7 +21,6 @@ import { getAllNodeTypes } from '../nodes/allNodes';
 import { macroOutputName } from '../nodes/macro/macro';
 import { Action, ActionHandler } from '../utils/actionHandler';
 import { hri } from 'human-readable-ids';
-import { notDeepEqual } from 'assert';
 
 export default class PPGraph {
   static currentGraph: PPGraph;
@@ -215,7 +214,7 @@ export default class PPGraph {
   }
 
   getSocketCenter(object: PPSocket): PIXI.Point {
-    const dragSourceRect = object.socketRef.getBounds();
+    const dragSourceRect = object._SocketRef.getBounds();
     const dragSourcePoint = new PIXI.Point(
       dragSourceRect.x + dragSourceRect.width / 2,
       dragSourceRect.y + dragSourceRect.height / 2
@@ -424,11 +423,11 @@ export default class PPGraph {
     if (!node) {
       return;
     }
-    node.onNodeAdded();
 
     // add the node to the canvas
     this.nodes[node.id] = node;
     this.nodeContainer.addChild(node);
+    node.onNodeAdded();
 
     //await node.executeOptimizedChain();
     return node;
@@ -515,7 +514,8 @@ export default class PPGraph {
         preSourceNodeID,
         preSourceName,
         preTargetNodeID,
-        preTargetName
+        preTargetName,
+        notify
       );
     };
     const undoAction: Action = async () => {
@@ -605,7 +605,7 @@ export default class PPGraph {
         nodePosY: node.y + socket.y,
       });
     }
-    connectNodeToSocket(socket, newNode);
+    await connectNodeToSocket(socket, newNode);
   }
 
   checkOldSocketAndUpdateIt<T extends PPSocket>(
@@ -819,16 +819,8 @@ export default class PPGraph {
 
     //create nodes
     try {
-      data.nodes.forEach(
-        async (node) => this.addSerializedNode(node, { overrideId: node.id })
-        /*this.createAndAddNode(
-          node.type,
-          {
-            customId: node.id,
-            name: node.name, // placeholder node uses the name field to indicate which node they are a placeholder for
-          },
-          false
-        ).configure(node);*/
+      data.nodes.forEach((node) =>
+        this.addSerializedNode(node, { overrideId: node.id })
       );
 
       await Promise.all(
@@ -1012,5 +1004,9 @@ export default class PPGraph {
 
   static getCurrentGraph(): PPGraph {
     return PPGraph.currentGraph;
+  }
+
+  public sendKeyEvent(e: KeyboardEvent): void {
+    Object.values(this.nodes).forEach((node) => node.nodeKeyEvent(e));
   }
 }

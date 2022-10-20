@@ -21,6 +21,7 @@ import * as text from './text';
 import * as textEditor from './textEditor/textEditor';
 import * as utility from './utility/utility';
 import * as widgetNodes from './widgets/widgetNodes';
+import * as recordNodes from './interactivity/record';
 import { getInfoFromRegisteredNode } from '../utils/utils';
 import { RegisteredNodeTypes } from '../utils/interfaces';
 
@@ -51,6 +52,7 @@ export const getAllNodeTypes = (): RegisteredNodeTypes => {
       textEditor,
       utility,
       widgetNodes,
+      recordNodes,
     };
     const toReturn = {};
     for (const [categoryKey, categoryValue] of Object.entries(categories)) {

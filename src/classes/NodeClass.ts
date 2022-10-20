@@ -55,8 +55,6 @@ export default class PPNode extends PIXI.Container {
   nodePosX: number;
   nodePosY: number;
   nodeWidth: number;
-  minNodeWidth: number;
-  minNodeHeight: number;
   nodeHeight: number;
 
   updateBehaviour: UpdateBehaviourClass;
@@ -82,14 +80,20 @@ export default class PPNode extends PIXI.Container {
   onViewportMoveHandler: (event?: PIXI.InteractionEvent) => void = () => {};
   onViewportPointerUpHandler: (event?: PIXI.InteractionEvent) => void =
     () => {};
-  onNodeAdded: () => void = () => {}; // called when the node is added to the graph
   onNodeRemoved: () => void = () => {}; // called when the node is removed from the graph
   onNodeDragging: (isDraggingNode: boolean) => void = () => {}; // called when the node is being dragged
   onNodeResize: (width: number, height: number) => void = () => {}; // called when the node is resized
-  onNodeResized: () => void = () => {}; // called when the node resize ended
   onNodeDragOrViewportMove: // called when the node or or the viewport with the node is moved or scaled
   (positions: { screenX: number; screenY: number; scale: number }) => void =
     () => {};
+
+  // called when the node is added to the graph
+  public onNodeAdded(): void {
+    this.resizeNode();
+    this.drawNodeShape();
+  }
+
+  protected onNodeExit(): void {}
 
   protected getShowLabels(): boolean {
     return true;
@@ -107,8 +111,17 @@ export default class PPNode extends PIXI.Container {
     return '';
   }
 
-  public getNodeWidth(): number {
+  public getDefaultNodeWidth(): number {
     return NODE_WIDTH;
+  }
+  public getDefaultNodeHeight(): number {
+    const minHeight =
+      this.headerHeight +
+      this.countOfVisibleNodeTriggerSockets * SOCKET_HEIGHT +
+      this.countOfVisibleInputSockets * SOCKET_HEIGHT +
+      this.countOfVisibleOutputSockets * SOCKET_HEIGHT +
+      NODE_PADDING_BOTTOM;
+    return minHeight;
   }
 
   public getColor(): TRgba {
@@ -139,12 +152,6 @@ export default class PPNode extends PIXI.Container {
     return true;
   }
 
-  getNodeHeight(): number {
-    return this.nodeHeight === undefined
-      ? this.calculatedMinNodeHeight
-      : Math.max(this.nodeHeight, this.calculatedMinNodeHeight);
-  }
-
   public getNodeTextString(): string {
     if (this.name !== this.type) {
       return this.name + '\t(' + this.type + ')';
@@ -159,6 +166,8 @@ export default class PPNode extends PIXI.Container {
   public getRoundedCorners(): boolean {
     return true;
   }
+
+  public nodeKeyEvent(e: KeyboardEvent): void {}
 
   get nodeName(): string {
     return this.name;
@@ -182,10 +191,8 @@ export default class PPNode extends PIXI.Container {
     // customArgs
     this.x = customArgs?.nodePosX ?? 0;
     this.y = customArgs?.nodePosY ?? 0;
-    this.nodeWidth = customArgs?.nodeWidth ?? this.getNodeWidth();
-    this.minNodeWidth = customArgs?.minNodeWidth ?? this.nodeWidth;
-    this.nodeHeight = customArgs?.nodeHeight; // if not set height is defined by in/out sockets
-    this.minNodeHeight = customArgs?.minNodeHeight;
+    this.nodeWidth = customArgs?.nodeWidth ?? this.getDefaultNodeWidth();
+    this.nodeHeight = customArgs?.nodeHeight ?? this.getDefaultNodeHeight(); // if not set height is defined by in/out sockets
     this.isHovering = false;
 
     const inputNameText = new PIXI.Text(
@@ -238,9 +245,6 @@ export default class PPNode extends PIXI.Container {
       this.addSocket(IO);
     });
 
-    // draw shape
-    this.drawNodeShape();
-
     this.interactive = true;
     this.isDraggingNode = false;
     this._doubleClicked = false;
@@ -252,10 +256,6 @@ export default class PPNode extends PIXI.Container {
   }
 
   // GETTERS & SETTERS
-
-  get nodeNameRef(): PIXI.DisplayObject {
-    return this._NodeNameRef;
-  }
 
   get selected(): boolean {
     return PPGraph.currentGraph.selection.isNodeSelected(this);
@@ -284,18 +284,6 @@ export default class PPNode extends PIXI.Container {
   get headerHeight(): number {
     // hide header if showLabels === false
     return this.getShowLabels() ? NODE_PADDING_TOP + NODE_HEADER_HEIGHT : 0;
-  }
-
-  get calculatedMinNodeHeight(): number {
-    const minHeight =
-      this.headerHeight +
-      this.countOfVisibleNodeTriggerSockets * SOCKET_HEIGHT +
-      this.countOfVisibleInputSockets * SOCKET_HEIGHT +
-      this.countOfVisibleOutputSockets * SOCKET_HEIGHT +
-      NODE_PADDING_BOTTOM;
-    return this.minNodeHeight === undefined
-      ? minHeight
-      : Math.max(minHeight, this.minNodeHeight);
   }
 
   getSourceCode(): string {
@@ -357,7 +345,7 @@ export default class PPNode extends PIXI.Container {
 
   addOutput(
     name: string,
-    type: AbstractType, // but really its AbstractTypeabstracttype
+    type: AbstractType,
     visible?: boolean,
     custom?: Record<string, any>
   ): void {
@@ -384,8 +372,6 @@ export default class PPNode extends PIXI.Container {
       y: this.y,
       width: this.nodeWidth,
       height: this.nodeHeight,
-      minWidth: this.minNodeWidth,
-      minHeight: this.minNodeHeight,
       triggerArray: this.nodeTriggerSocketArray.map((socket) =>
         socket.serialize()
       ),
@@ -403,20 +389,15 @@ export default class PPNode extends PIXI.Container {
   configure(nodeConfig: SerializedNode): void {
     this.x = nodeConfig.x;
     this.y = nodeConfig.y;
+    this.nodeWidth = nodeConfig.width | this.getDefaultNodeWidth();
+    this.nodeHeight = nodeConfig.height | this.getDefaultNodeHeight();
     this.nodeName = nodeConfig.name;
-    this.minNodeWidth = nodeConfig.minWidth ?? this.getNodeWidth();
-    this.minNodeHeight = nodeConfig.minHeight;
     this.updateBehaviour.setUpdateBehaviour(
       nodeConfig.updateBehaviour.update,
       nodeConfig.updateBehaviour.interval,
       nodeConfig.updateBehaviour.intervalFrequency
     );
     try {
-      if (nodeConfig.width && nodeConfig.height) {
-        this.resizeNode(nodeConfig.width, nodeConfig.height);
-        this.resizedNode();
-      }
-
       const mapSocket = (item: SerializedSocket, isNodeTrigger = false) => {
         const matchingSocket =
           item.socketType === SOCKET_TYPE.IN
@@ -461,8 +442,6 @@ export default class PPNode extends PIXI.Container {
 
       const sockets = nodeConfig.socketArray;
       sockets.forEach((item) => mapSocket(item));
-
-      this.drawNodeShape();
     } catch (error) {
       console.error(
         `Could not configure node: ${this.name}(${this.id})`,
@@ -684,10 +663,14 @@ export default class PPNode extends PIXI.Container {
     });
   }
 
-  resizeNode(width: number, height: number, maintainAspectRatio = false): void {
+  resizeNode(
+    width: number = this.width,
+    height: number = this.height,
+    maintainAspectRatio = false
+  ): void {
     // set new size
-    const newNodeWidth = Math.max(width, this.minNodeWidth);
-    const newNodeHeight = Math.max(height, this.calculatedMinNodeHeight);
+    const newNodeWidth = Math.max(width, this.getDefaultNodeWidth());
+    const newNodeHeight = Math.max(height, this.getDefaultNodeHeight());
 
     if (maintainAspectRatio) {
       const oldWidth = this.nodeWidth;
@@ -697,8 +680,8 @@ export default class PPNode extends PIXI.Container {
         oldHeight,
         newNodeWidth,
         newNodeHeight,
-        this.minNodeWidth,
-        this.calculatedMinNodeHeight
+        this.getDefaultNodeWidth(),
+        this.getDefaultNodeHeight()
       );
       this.nodeWidth = newRect.width;
       this.nodeHeight = newRect.height;
@@ -717,12 +700,8 @@ export default class PPNode extends PIXI.Container {
     this.onNodeResize(this.nodeWidth, this.nodeHeight);
   }
 
-  resizedNode(): void {
-    this.onNodeResized();
-  }
-
   resetSize(): void {
-    this.resizeNode(this.minNodeWidth, this.calculatedMinNodeHeight);
+    this.resizeNode(this.getDefaultNodeWidth(), this.getDefaultNodeHeight());
   }
 
   getAllInputSockets(): Socket[] {
@@ -744,50 +723,46 @@ export default class PPNode extends PIXI.Container {
     return this.getAllSockets().find((socket) => socket.name === name);
   }
 
-  public drawBackground(): void {
+  public drawErrorBoundary(): void {
+    this._BackgroundRef.beginFill(
+      new TRgba(255, 0, 0).hexNumber(),
+      this.getOpacity()
+    );
     this._BackgroundRef.drawRoundedRect(
-      NODE_MARGIN,
-      0,
-      this.nodeWidth,
-      this.getNodeHeight(),
+      NODE_MARGIN - 3,
+      -3,
+      this.nodeWidth + 6,
+      this.nodeHeight + 6,
       this.getRoundedCorners() ? NODE_CORNERRADIUS : 0
     );
   }
 
-  public drawNodeShape(): void {
-    this._BackgroundRef.clear();
-    if (!this.successfullyExecuted) {
-      this._BackgroundRef.beginFill(
-        new TRgba(255, 0, 0).hexNumber(),
-        this.getOpacity()
-      );
-      this._BackgroundRef.drawRoundedRect(
-        NODE_MARGIN - 3,
-        -3,
-        this.nodeWidth + 6,
-        this.getNodeHeight() + 6,
-        this.getRoundedCorners() ? NODE_CORNERRADIUS : 0
-      );
-    }
+  public drawBackground(): void {
     this._BackgroundRef.beginFill(
       this.getColor().hexNumber(),
       this.getOpacity()
     );
-    this.drawBackground();
-
+    this._BackgroundRef.drawRoundedRect(
+      NODE_MARGIN,
+      0,
+      this.nodeWidth,
+      this.nodeHeight,
+      this.getRoundedCorners() ? NODE_CORNERRADIUS : 0
+    );
     this._BackgroundRef.endFill();
+  }
 
-    // redraw node triggers
+  public drawTriggers(): void {
     this.nodeTriggerSocketArray
       .filter((item) => item.visible)
       .forEach((item, index) => {
         item.y = this.headerHeight + index * SOCKET_HEIGHT;
-        if (!this.getShowLabels()) {
-          item._SocketNameRef.alpha = 0;
-        }
+        item.showLabel = this.getShowLabels();
         item.redrawAnythingChanging();
       });
+  }
 
+  public drawSockets(): void {
     // redraw outputs
     this.outputSocketArray
       .filter((item) => item.visible)
@@ -799,10 +774,7 @@ export default class PPNode extends PIXI.Container {
             ? this.countOfVisibleNodeTriggerSockets * SOCKET_HEIGHT
             : 0) +
           index * SOCKET_HEIGHT;
-        item.x = this.nodeWidth - this.getNodeWidth();
-        if (!this.getShowLabels()) {
-          item._SocketNameRef.alpha = 0;
-        }
+        item.showLabel = this.getShowLabels();
         item.redrawAnythingChanging();
       });
 
@@ -817,12 +789,20 @@ export default class PPNode extends PIXI.Container {
               this.countOfVisibleOutputSockets * SOCKET_HEIGHT
             : 0) +
           index * SOCKET_HEIGHT;
-        if (!this.getShowLabels()) {
-          item._SocketNameRef.alpha = 0;
-        }
+        item.showLabel = this.getShowLabels();
         item.redrawAnythingChanging();
       });
+  }
 
+  public drawNodeShape(): void {
+    this._BackgroundRef.clear();
+    if (!this.successfullyExecuted) {
+      this.drawErrorBoundary();
+    }
+    this.drawBackground();
+
+    this.drawTriggers();
+    this.drawSockets();
     this.drawComment();
 
     // update selection
@@ -1054,7 +1034,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
           NODE_MARGIN,
           0,
           this.nodeWidth,
-          this.getNodeHeight(),
+          this.nodeHeight,
           this.getRoundedCorners() ? NODE_CORNERRADIUS : 0
         );
         activeExecution.endFill();
@@ -1192,8 +1172,6 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   }
 
   _onRemoved(): void {
-    // console.log('_onRemoved');
-
     // remove added listener from graph.viewport
     PPGraph.currentGraph.viewport.removeListener(
       'moved',
@@ -1250,6 +1228,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   }
 
   public metaInfoChanged(): void {
+    this.resizeNode();
     this.drawNodeShape();
     this.updateConnectionPosition();
   }

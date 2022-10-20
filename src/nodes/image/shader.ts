@@ -139,6 +139,16 @@ export class Shader extends DRAW_Base {
   getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.SHADER);
   }
+
+  public onNodeAdded () :void {
+    super.onNodeAdded();
+      this.canvas = PPGraph.currentGraph.viewport.getChildByName(
+        'backgroundCanvas'
+      ) as PIXI.Container;
+
+      this.shader = PIXI.Shader.from(this.prevVertex, this.prevFragment);
+  }
+
   constructor(name: string, customArgs: CustomArgs) {
     super(name, {
       ...customArgs,
@@ -146,15 +156,6 @@ export class Shader extends DRAW_Base {
 
     this.prevVertex = this.getInitialVertex();
     this.prevFragment = this.getInitialFragment();
-
-    this.onNodeAdded = () => {
-      this.canvas = PPGraph.currentGraph.viewport.getChildByName(
-        'backgroundCanvas'
-      ) as PIXI.Container;
-      
-
-      this.shader = PIXI.Shader.from(this.prevVertex, this.prevFragment);
-    };
   }
 
   protected drawOnContainer(
@@ -251,7 +252,7 @@ export class Shader extends DRAW_Base {
     };
 
 
-  
+
 
   protected getUpdateBehaviour(): UpdateBehaviourClass {
     return new UpdateBehaviourClass(true, false, 16);
