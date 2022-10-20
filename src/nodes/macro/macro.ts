@@ -6,6 +6,7 @@ import { CustomArgs, TRgba } from '../../utils/interfaces';
 import { AnyType } from '../datatypes/anyType';
 import { MacroType } from '../datatypes/macroType';
 import * as PIXI from 'pixi.js';
+import { drawDottedLine } from '../../utils/utils';
 
 export const macroOutputName = 'Output';
 class MacroNode extends PPNode {
@@ -59,29 +60,6 @@ export class DefineMacroIn extends MacroNode {
     delete PPGraph.currentGraph.macrosIn[this.id];
   }
 
-  private drawDottedLine(
-    graphics: PIXI.Graphics,
-    startX: number,
-    startY: number,
-    endX: number,
-    endY: number,
-    interval: number
-  ) {
-    const deltaX: number = endX - startX;
-    const deltaY: number = endY - startY;
-    const totalDist = Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
-    const segments = totalDist / interval;
-    const segmentLengthX = deltaX / segments;
-    const segmentLengthY = deltaY / segments;
-    for (let i = 0; i < segments; i += 2) {
-      graphics.moveTo(startX + i * segmentLengthX, startY + i * segmentLengthY);
-      graphics.lineTo(
-        startX + (i + 1) * segmentLengthX,
-        startY + (i + 1) * segmentLengthY
-      );
-    }
-  }
-
   public drawNodeShape(): void {
     this.removeChild(this.graphicsLink);
 
@@ -91,7 +69,7 @@ export class DefineMacroIn extends MacroNode {
     this.graphicsLink.lineStyle(1, selectedColor.hexNumber());
 
     if (correspondingOutput) {
-      this.drawDottedLine(
+      drawDottedLine(
         this.graphicsLink,
         this.width,
         this.height / 2,
