@@ -49,7 +49,6 @@ export default class Socket extends PIXI.Container {
   ) {
     super();
 
-    let defaultData;
     if (socketType === SOCKET_TYPE.IN) {
       // define defaultData for different types
       if (data === null && dataType) {
@@ -61,7 +60,7 @@ export default class Socket extends PIXI.Container {
     this.name = name;
     this._dataType = dataType;
     this._data = data;
-    this._defaultData = defaultData;
+    this._defaultData = data;
     this.visible = visible;
     this._custom = custom;
     this._links = [];
