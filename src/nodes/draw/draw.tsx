@@ -47,6 +47,7 @@ export const scaleXName = 'Scale X';
 export const scaleYName = 'Scale Y';
 export const inputRotationName = 'Rotation';
 export const inputPivotName = 'Pivot';
+export const inputAbsolutePositions = 'Absolute Positions';
 
 const inputShapeName = 'Shape';
 const inputColorName = 'Color';
@@ -150,6 +151,13 @@ export abstract class DRAW_Base extends PPNode {
         PIXI_PIVOT_OPTIONS[0].text,
         false
       ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        inputAbsolutePositions,
+        new BooleanType(),
+        false,
+        false
+      ),
       new Socket(SOCKET_TYPE.IN, injectedDataName, new ArrayType(), [], true),
       new Socket(SOCKET_TYPE.OUT, outputPixiName, new DeferredPixiType()),
     ];
@@ -175,18 +183,22 @@ export abstract class DRAW_Base extends PPNode {
     const drawingFunction = (container, executions) =>
       this.drawOnContainer(inputObject, container, executions);
     outputObject[outputPixiName] = drawingFunction;
-    this.handleDrawing(drawingFunction);
+    this.handleDrawing(drawingFunction, inputObject[inputAbsolutePositions]);
   }
 
   protected shouldDraw(): boolean {
     return !this.getOutputSocketByName(outputPixiName).hasLink();
   }
 
-  handleDrawing(drawingFunction: any): void {
+  handleDrawing(drawingFunction: any, absolutePosition: boolean): void {
     this.removeChild(this.deferredGraphics);
     if (this.shouldDraw()) {
       this.deferredGraphics = new PIXI.Container();
       drawingFunction(this.deferredGraphics, {});
+      if (absolutePosition) {
+        this.deferredGraphics.x -= this.x;
+        this.deferredGraphics.y -= this.y;
+      }
       this.addChild(this.deferredGraphics);
     }
   }

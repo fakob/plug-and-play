@@ -38,9 +38,8 @@ export class RecordLocations extends PPNode {
         )
       );
       const viewport = PPGraph.currentGraph.viewport;
+
       mousePosition = viewport.toWorld(mousePosition);
-      mousePosition.y += 1336; // TODO why are these constants needed?
-      mousePosition.x += 323; // TODO why are these constants needed?
       let prev = this.getInputData(clickName);
       if (!isArray(prev)) {
         prev = [];
