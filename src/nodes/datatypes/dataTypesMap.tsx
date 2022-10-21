@@ -4,6 +4,7 @@ import { BooleanType } from './booleanType';
 import { CodeType } from './codeType';
 import { ColorType } from './colorType';
 import { DeferredPixiType } from './deferredPixiType';
+import { DynamicEnumType } from './dynamicEnumType';
 import { EnumType } from './enumType';
 import { ImageType } from './imageType';
 import { JSONType } from './jsonType';
@@ -27,4 +28,5 @@ export const allDataTypes = {
   CodeType: CodeType,
   EnumType: EnumType,
   MacroType: MacroType,
+  DynamicEnumType: DynamicEnumType,
 };

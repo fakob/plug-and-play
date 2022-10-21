@@ -6,7 +6,8 @@ import { ensureVisible } from '../../utils/utils';
 import { SOCKET_TYPE } from '../../utils/constants';
 import { CustomArgs, TRgba } from '../../utils/interfaces';
 import { AnyType } from '../datatypes/anyType';
-import { EnumStructure, EnumType } from '../datatypes/enumType';
+import { DynamicEnumType } from '../datatypes/dynamicEnumType';
+import { AbstractType } from '../datatypes/abstractType';
 
 export class Reroute extends PPNode {
   public getName(): string {
@@ -70,15 +71,8 @@ export class Reroute extends PPNode {
 
 const selectNodeName = 'Select Node';
 
-export class JumpToNode extends WidgetButton {
-  public getName(): string {
-    return 'Jump to node';
-  }
-  public getDescription(): string {
-    return 'Jump to a specific node in your playground';
-  }
-
-  nodeArrayOptions(): EnumStructure {
+const getNodeArrayOptions = () => {
+  return () => {
     const nodeArray = Object.values(PPGraph.currentGraph.nodes);
     const nodeArrayOptions = nodeArray.map((node) => {
       return {
@@ -87,20 +81,14 @@ export class JumpToNode extends WidgetButton {
       };
     });
     return nodeArrayOptions;
+  };
+};
+export class JumpToNode extends WidgetButton {
+  public getName(): string {
+    return 'Jump to node';
   }
-
-  constructor(name: string, customArgs: CustomArgs) {
-    super(name, {
-      ...customArgs,
-    });
-
-    this.onConfigure = (): void => {
-      const nodeNameDropdown = this.getSocketByName(selectNodeName)
-        .dataType as EnumType;
-      // pass in a callback to renew options on mount and when dropdown is openend
-      nodeNameDropdown.setSetOptions(this.nodeArrayOptions);
-      this.update();
-    };
+  public getDescription(): string {
+    return 'Jump to a specific node in your playground';
   }
 
   onWidgetTrigger = () => {
@@ -120,14 +108,15 @@ export class JumpToNode extends WidgetButton {
       new Socket(
         SOCKET_TYPE.IN,
         selectNodeName,
-        new EnumType(
-          [{ text: '', value: '' }],
-          undefined,
-          this.nodeArrayOptions
-        ),
-        '',
-        false
+        new DynamicEnumType(getNodeArrayOptions)
       ),
     ].concat(super.getDefaultIO());
+  }
+
+  protected initializeType(socketName: string, datatype: any) {
+    switch (socketName) {
+      case selectNodeName:
+        datatype.getOptions = getNodeArrayOptions;
+    }
   }
 }
