@@ -78,7 +78,8 @@ export class Mouse extends PPNode {
     ].concat(super.getDefaultIO());
   }
 
-  onNodeAdded = (): void => {
+  public onNodeAdded () :void {
+    super.onNodeAdded();
     // add event listener
     this.onViewportMoveHandler = this.onViewportMove.bind(this);
     PPGraph.currentGraph.viewport.on(
@@ -161,8 +162,8 @@ export class Keyboard extends PPNode {
       ),
     ].concat(super.getDefaultIO());
   }
-
-  onNodeAdded = (): void => {
+  public onNodeAdded () :void {
+    super.onNodeAdded();
     // add event listener
     this.onKeyDownHandler = this._onKeyDown.bind(this);
     window.addEventListener('keydown', (this as any).onKeyDownHandler);

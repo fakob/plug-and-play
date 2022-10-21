@@ -241,9 +241,8 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
                 const existingNode = currentGraph.current.selection
                   .selectedNodes[index] as ImageNode;
                 existingNode.updateTexture(base64 as string);
-                existingNode.setMinNodeHeight(existingNode.nodeWidth);
               } else {
-                newNode = currentGraph.current.addNewNode('Image', {
+                newNode = await currentGraph.current.addNewNode('Image', {
                   nodePosX,
                   nodePosY,
                   defaultArguments: { Image: base64 },
@@ -647,6 +646,14 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               break;
             case 'Digit2':
               zoomToFitNodes(currentGraph.current.selection.selectedNodes);
+              break;
+          }
+        } else if (e.altKey) {
+          switch (e.code) {
+            case 'KeyA':
+              console.log('alt a');
+              e.preventDefault();
+              currentGraph.current.sendKeyEvent(e);
               break;
           }
         }

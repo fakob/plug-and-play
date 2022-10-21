@@ -696,3 +696,25 @@ export const getLongestArrayInArray = (arrayOfArrays): number => {
   }, []);
   return longestArray.length;
 };
+export function drawDottedLine(
+  graphics: PIXI.Graphics,
+  startX: number,
+  startY: number,
+  endX: number,
+  endY: number,
+  interval: number
+) {
+  const deltaX: number = endX - startX;
+  const deltaY: number = endY - startY;
+  const totalDist = Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
+  const segments = totalDist / interval;
+  const segmentLengthX = deltaX / segments;
+  const segmentLengthY = deltaY / segments;
+  for (let i = 0; i < segments - 1; i += 2) {
+    graphics.moveTo(startX + i * segmentLengthX, startY + i * segmentLengthY);
+    graphics.lineTo(
+      startX + (i + 1) * segmentLengthX,
+      startY + (i + 1) * segmentLengthY
+    );
+  }
+}

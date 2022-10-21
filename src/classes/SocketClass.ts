@@ -11,7 +11,6 @@ import {
   SOCKET_TYPE,
   SOCKET_WIDTH,
   TEXT_RESOLUTION,
-  NODE_WIDTH,
 } from '../utils/constants';
 import { AbstractType } from '../nodes/datatypes/abstractType';
 import { TriggerType } from '../nodes/datatypes/triggerType';
@@ -25,8 +24,8 @@ export default class Socket extends PIXI.Container {
   // Output sockets
   // data is derived from execute function
 
-  _SocketNameRef: PIXI.DisplayObject;
   _SocketRef: PIXI.Graphics;
+  _TextRef: PIXI.Graphics;
 
   _socketType: TSocketType;
   _dataType: AbstractType;
@@ -38,6 +37,8 @@ export default class Socket extends PIXI.Container {
   interactionData: PIXI.InteractionData | null;
   linkDragPos: null | PIXI.Point;
 
+  showLabel = false;
+
   constructor(
     socketType: TSocketType,
     name: string,
@@ -48,7 +49,6 @@ export default class Socket extends PIXI.Container {
   ) {
     super();
 
-    let defaultData;
     if (socketType === SOCKET_TYPE.IN) {
       // define defaultData for different types
       if (data === null && dataType) {
@@ -60,55 +60,64 @@ export default class Socket extends PIXI.Container {
     this.name = name;
     this._dataType = dataType;
     this._data = data;
-    this._defaultData = defaultData;
+    this._defaultData = data;
     this.visible = visible;
     this._custom = custom;
     this._links = [];
 
-    const socketNameText = new PIXI.Text(name, SOCKET_TEXTSTYLE);
-    if (socketType === SOCKET_TYPE.OUT) {
-      socketNameText.anchor.set(1, 0);
-    }
-    socketNameText.x =
-      socketType === SOCKET_TYPE.IN
-        ? SOCKET_WIDTH + SOCKET_TEXTMARGIN
-        : (this.getNode() ? this.getNode().getNodeWidth() : NODE_WIDTH) -
-          SOCKET_TEXTMARGIN;
-    socketNameText.y = SOCKET_TEXTMARGIN_TOP;
-    socketNameText.resolution = TEXT_RESOLUTION;
-
-    this._SocketNameRef = this.addChild(socketNameText);
-
     this.interactionData = null;
     this.interactive = true;
-    this._SocketNameRef.interactive = true;
-    this._SocketNameRef.on('pointerover', this._onPointerOver.bind(this));
-    this._SocketNameRef.on('pointerout', this._onPointerOut.bind(this));
-    this._SocketNameRef.on('pointerdown', (event) => {
-      if (event.data.button !== 2) {
-        this.getGraph().socketNameRefMouseDown(this, event);
-      }
-    });
+
     this.redrawAnythingChanging();
+  }
+
+  getSocketLocation(): PIXI.Point {
+    return new PIXI.Point(
+      this.socketType === SOCKET_TYPE.IN ? 0 : this.getNode()?.nodeWidth,
+      SOCKET_WIDTH / 2
+    );
   }
 
   redrawAnythingChanging(): void {
     this.removeChild(this._SocketRef);
+    this.removeChild(this._TextRef);
     this._SocketRef = new PIXI.Graphics();
+    this._TextRef = new PIXI.Graphics();
     this._SocketRef.beginFill(this.dataType.getColor().hexNumber());
     this._SocketRef.drawRoundedRect(
-      this.socketType === SOCKET_TYPE.IN
-        ? 0
-        : this.getNode()
-        ? this.getNode().getNodeWidth()
-        : NODE_WIDTH,
-      SOCKET_WIDTH / 2,
+      this.getSocketLocation().x,
+      this.getSocketLocation().y,
       SOCKET_WIDTH,
       SOCKET_WIDTH,
       this.dataType.constructor === new TriggerType().constructor
         ? 0
         : SOCKET_CORNERRADIUS
     );
+
+    if (this.showLabel) {
+      const socketNameText = new PIXI.Text(this.name, SOCKET_TEXTSTYLE);
+      if (this.socketType === SOCKET_TYPE.OUT) {
+        socketNameText.anchor.set(1, 0);
+      }
+      socketNameText.x =
+        this.socketType === SOCKET_TYPE.IN
+          ? SOCKET_WIDTH + SOCKET_TEXTMARGIN
+          : this.getNode()?.nodeWidth - SOCKET_TEXTMARGIN;
+      socketNameText.y = SOCKET_TEXTMARGIN_TOP;
+      socketNameText.resolution = TEXT_RESOLUTION;
+
+      socketNameText.interactive = true;
+      socketNameText.on('pointerover', this._onPointerOver.bind(this));
+      socketNameText.on('pointerout', this._onPointerOut.bind(this));
+      socketNameText.on('pointerdown', (event) => {
+        if (event.data.button !== 2) {
+          this.getGraph().socketNameRefMouseDown(this, event);
+        }
+      });
+
+      this._TextRef.addChild(socketNameText);
+    }
+
     this._SocketRef.endFill();
     this._SocketRef.name = 'SocketRef';
     this._SocketRef.interactive = true;
@@ -117,6 +126,7 @@ export default class Socket extends PIXI.Container {
     this._SocketRef.on('pointerdown', (event) => this._onPointerDown(event));
     this._SocketRef.on('pointerup', (event) => this._onPointerUp(event));
     this.addChild(this._SocketRef);
+    this.addChild(this._TextRef);
   }
 
   // GETTERS & SETTERS
@@ -127,26 +137,6 @@ export default class Socket extends PIXI.Container {
 
   set socketType(newLink: TSocketType) {
     this._socketType = newLink;
-  }
-
-  get socketRef(): PIXI.DisplayObject {
-    return this._SocketRef;
-  }
-
-  get socketNameRef(): PIXI.DisplayObject {
-    return this._SocketNameRef;
-  }
-
-  get index(): number {
-    if (this.socketType === SOCKET_TYPE.IN) {
-      return this.getNode().inputSocketArray.findIndex((item) => {
-        return this === item;
-      });
-    } else {
-      return this.getNode().outputSocketArray.findIndex((item) => {
-        return this === item;
-      });
-    }
   }
 
   get links(): PPLink[] {
@@ -213,11 +203,6 @@ export default class Socket extends PIXI.Container {
 
   hasLink(): boolean {
     return this.links.length > 0;
-  }
-
-  setName(newName: string): void {
-    this.name = newName;
-    (this._SocketNameRef as PIXI.Text).text = newName;
   }
 
   setVisible(value: boolean): void {

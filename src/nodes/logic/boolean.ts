@@ -1,6 +1,6 @@
 import { CustomFunction } from '../data/dataFunctions';
 
-class BooleanOperationNode extends CustomFunction {
+abstract class BooleanOperationNode extends CustomFunction {
   // doesn't really have anything special now, but feels like it makes sense
 }
 

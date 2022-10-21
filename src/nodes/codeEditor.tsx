@@ -71,8 +71,6 @@ export class CodeEditor extends HybridNode {
       ...customArgs,
       nodeWidth,
       nodeHeight,
-      minNodeWidth: nodeWidth / 2,
-      minNodeHeight: nodeHeight / 2,
     });
 
     if (customArgs?.initialData) {

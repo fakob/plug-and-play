@@ -44,8 +44,6 @@ export type CustomArgs = {
   nodePosY?: number;
   nodeWidth?: number;
   nodeHeight?: number;
-  minNodeHeight?: number;
-  minNodeWidth?: number;
   initialData?: any;
   defaultArguments?: Record<string, any>;
 };
@@ -78,8 +76,6 @@ export type SerializedNode = {
   y: number;
   width: number;
   height: number;
-  minWidth: number;
-  minHeight?: number;
   triggerArray: SerializedSocket[];
   socketArray: SerializedSocket[];
   updateBehaviour: IUpdateBehaviour;

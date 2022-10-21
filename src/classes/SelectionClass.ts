@@ -113,10 +113,6 @@ export default class PPSelection extends PIXI.Container {
     this.drawRectanglesFromSelection();
   };
 
-  onScaled = (): void => {
-    this.selectedNodes[0].resizedNode();
-  };
-
   onScaleReset = (): void => {
     this.selectedNodes[0].resetSize();
     this.drawRectanglesFromSelection();
@@ -512,7 +508,6 @@ class ScaleHandle extends PIXI.Graphics {
 
   protected _onDoubleClick(event: PIXI.InteractionEvent): void {
     event.stopPropagation();
-    this.selection.onScaled();
     this.selection.onScaleReset();
   }
 
@@ -533,6 +528,5 @@ class ScaleHandle extends PIXI.Graphics {
 
   protected onDragEnd(_: PIXI.InteractionEvent): void {
     this._pointerDragging = false;
-    this.selection.onScaled();
   }
 }

@@ -20,6 +20,7 @@ import { StringType } from '../datatypes/stringType';
 import { ImageType } from '../datatypes/imageType';
 import { TRgba } from '../../utils/interfaces';
 import { DisplayObject } from 'pixi.js';
+import { drawDottedLine } from '../../utils/utils';
 
 const availableShapes: EnumStructure = [
   {
@@ -40,8 +41,8 @@ const availableShapes: EnumStructure = [
   },
 ];
 
-export const inputXName = 'Offset X';
-export const inputYName = 'Offset Y';
+export const offseXName = 'Offset X';
+export const offsetYName = 'Offset Y';
 export const scaleXName = 'Scale X';
 export const scaleYName = 'Scale Y';
 export const inputRotationName = 'Rotation';
@@ -54,6 +55,9 @@ const inputBorderName = 'Border';
 const outputPixiName = 'Graphics';
 const outputImageName = 'Image';
 const outputQualityName = 'Quality';
+
+const inputDottedName = 'Dotted';
+const inputDottedIntervalName = 'Dot Interval';
 
 const inputCombineArray = 'GraphicsArray';
 const inputCombine1Name = 'Foreground';
@@ -106,14 +110,14 @@ export abstract class DRAW_Base extends PPNode {
     return [
       new Socket(
         SOCKET_TYPE.IN,
-        inputXName,
+        offseXName,
         new NumberType(false, -500, 500),
-        0,
+        400,
         false
       ),
       new Socket(
         SOCKET_TYPE.IN,
-        inputYName,
+        offsetYName,
         new NumberType(false, -500, 500),
         0,
         false
@@ -182,8 +186,6 @@ export abstract class DRAW_Base extends PPNode {
     this.removeChild(this.deferredGraphics);
     if (this.shouldDraw()) {
       this.deferredGraphics = new PIXI.Container();
-      this.deferredGraphics.x = 400;
-      this.deferredGraphics.y = 0;
       drawingFunction(this.deferredGraphics, {});
       this.addChild(this.deferredGraphics);
     }
@@ -195,8 +197,8 @@ export abstract class DRAW_Base extends PPNode {
     ).value;
 
     toModify.setTransform(
-      inputObject[inputXName],
-      inputObject[inputYName],
+      inputObject[offseXName],
+      inputObject[offsetYName],
       inputObject[scaleXName],
       inputObject[scaleYName],
       inputObject[inputRotationName]
@@ -633,6 +635,13 @@ export class DRAW_Line extends DRAW_Base {
         new NumberType(false, 1, 10),
         3
       ),
+      new Socket(SOCKET_TYPE.IN, inputDottedName, new BooleanType(), true),
+      new Socket(
+        SOCKET_TYPE.IN,
+        inputDottedIntervalName,
+        new NumberType(true, 2, 100),
+        10
+      ),
     ].concat(super.getDefaultIO());
   }
 
@@ -654,8 +663,29 @@ export class DRAW_Line extends DRAW_Base {
     graphics.endFill();
     graphics.lineStyle(inputObject[inputWidthName], selectedColor.hexNumber());
     const points: number[][] = inputObject[inputPointsName];
+    if (points.length < 2) {
+      return;
+    }
     graphics.moveTo(points[0][0], points[0][1]);
-    points.forEach((point, index) => graphics.lineTo(point[0], point[1]));
+    let lastX = points[0][0];
+    let lastY = points[0][1];
+    points.forEach((point, index) => {
+      if (inputObject[inputDottedName]) {
+        const nextX = point[0];
+        const nextY = point[1];
+        drawDottedLine(
+          graphics,
+          lastX,
+          lastY,
+          nextX,
+          nextY,
+          inputObject[inputDottedIntervalName]
+        );
+        lastX = nextX;
+        lastY = nextY;
+      }
+      graphics.lineTo(point[0], point[1]);
+    });
 
     this.positionAndScale(graphics, inputObject);
     container.addChild(graphics);
