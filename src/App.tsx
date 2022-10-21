@@ -77,7 +77,7 @@ import {
   roundNumber,
   useStateRef,
   writeDataToClipboard,
-  zoomToFitSelection,
+  zoomToFitNodes,
 } from './utils/utils';
 import { getAllNodeTypes } from './nodes/allNodes';
 import PPSocket from './classes/SocketClass';
@@ -264,9 +264,8 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       }
       // select the newly added nodes
       if (newNodeSelection.length > 0) {
-        // currentGraph.current.selection.selectedNodes = newNodeSelection;
         currentGraph.current.selection.selectNodes(newNodeSelection);
-        ensureVisible(currentGraph.current);
+        ensureVisible(currentGraph.current.selection.selectedNodes);
         enqueueSnackbar(
           `${newNodeSelection.length} new ${
             newNodeSelection.length === 1 ? 'node was' : 'nodes were'
@@ -643,10 +642,10 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         } else if (e.shiftKey) {
           switch (e.code) {
             case 'Digit1':
-              zoomToFitSelection(currentGraph.current, true);
+              zoomToFitNodes();
               break;
             case 'Digit2':
-              zoomToFitSelection(currentGraph.current);
+              zoomToFitNodes(currentGraph.current.selection.selectedNodes);
               break;
           }
         } else if (e.altKey) {
@@ -1332,7 +1331,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               showComments={showComments}
               setShowComments={setShowComments}
               applyGestureMode={applyGestureMode}
-              zoomToFitSelection={zoomToFitSelection}
+              zoomToFitNodes={zoomToFitNodes}
             />
           )}
           {isNodeContextMenuOpen && (
@@ -1341,7 +1340,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               contextMenuPosition={contextMenuPosition}
               currentGraph={currentGraph}
               openNodeSearch={openNodeSearch}
-              zoomToFitSelection={zoomToFitSelection}
+              zoomToFitSelection={zoomToFitNodes}
             />
           )}
           {isSocketContextMenuOpen && (

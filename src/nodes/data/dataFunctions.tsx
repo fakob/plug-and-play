@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-this-alias */
-import NodeClass from '../../classes/NodeClass';
 import PPNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
 import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../../utils/constants';
@@ -124,7 +123,7 @@ export class ParseArray extends PPNode {
 }
 
 // the purpose of for loops in our context is for actions that have sideeffects outside of plug and playground, if you are not looking for external side effects you are likely not looking for a loop
-export class ForLoop extends NodeClass {
+export class ForLoop extends PPNode {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, forStartIndexName, new NumberType(true), 0),
@@ -169,7 +168,7 @@ export class ForLoop extends NodeClass {
   }
 }
 
-export class ConsolePrint extends NodeClass {
+export class ConsolePrint extends PPNode {
   protected getDefaultIO(): Socket[] {
     return [new Socket(SOCKET_TYPE.IN, constantInName, new ArrayType(), 0)];
   }
