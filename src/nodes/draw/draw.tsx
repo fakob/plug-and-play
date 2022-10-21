@@ -41,8 +41,8 @@ const availableShapes: EnumStructure = [
   },
 ];
 
-export const inputXName = 'Offset X';
-export const inputYName = 'Offset Y';
+export const offseXName = 'Offset X';
+export const offsetYName = 'Offset Y';
 export const scaleXName = 'Scale X';
 export const scaleYName = 'Scale Y';
 export const inputRotationName = 'Rotation';
@@ -110,14 +110,14 @@ export abstract class DRAW_Base extends PPNode {
     return [
       new Socket(
         SOCKET_TYPE.IN,
-        inputXName,
+        offseXName,
         new NumberType(false, -500, 500),
-        0,
+        400,
         false
       ),
       new Socket(
         SOCKET_TYPE.IN,
-        inputYName,
+        offsetYName,
         new NumberType(false, -500, 500),
         0,
         false
@@ -186,8 +186,6 @@ export abstract class DRAW_Base extends PPNode {
     this.removeChild(this.deferredGraphics);
     if (this.shouldDraw()) {
       this.deferredGraphics = new PIXI.Container();
-      this.deferredGraphics.x = 400;
-      this.deferredGraphics.y = 0;
       drawingFunction(this.deferredGraphics, {});
       this.addChild(this.deferredGraphics);
     }
@@ -199,8 +197,8 @@ export abstract class DRAW_Base extends PPNode {
     ).value;
 
     toModify.setTransform(
-      inputObject[inputXName],
-      inputObject[inputYName],
+      inputObject[offseXName],
+      inputObject[offsetYName],
       inputObject[scaleXName],
       inputObject[scaleYName],
       inputObject[inputRotationName]
@@ -665,6 +663,9 @@ export class DRAW_Line extends DRAW_Base {
     graphics.endFill();
     graphics.lineStyle(inputObject[inputWidthName], selectedColor.hexNumber());
     const points: number[][] = inputObject[inputPointsName];
+    if (points.length < 2) {
+      return;
+    }
     graphics.moveTo(points[0][0], points[0][1]);
     let lastX = points[0][0];
     let lastY = points[0][1];
