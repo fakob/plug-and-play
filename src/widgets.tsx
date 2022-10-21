@@ -171,14 +171,21 @@ export type SelectWidgetProps = {
   data: number;
   options: EnumStructure;
   randomMainColor: string;
-  onChange: (value: string) => void;
+  onChange?: (value: string) => void;
+  setOptions?: () => EnumStructure;
 };
 
 export const SelectWidget: React.FunctionComponent<SelectWidgetProps> = (
   props
 ) => {
   const [data, setData] = useState(props.data);
-  const [options] = useState(props.options);
+  const [options, setOptions] = useState(props.options);
+
+  const onOpen = () => {
+    if (props.setOptions) {
+      setOptions(props.setOptions());
+    }
+  };
 
   const onChange = (event) => {
     const value = event.target.value;
@@ -190,19 +197,26 @@ export const SelectWidget: React.FunctionComponent<SelectWidgetProps> = (
     props.property.getNode().metaInfoChanged();
   };
 
+  useEffect(() => {
+    if (props.setOptions) {
+      setOptions(props.setOptions());
+    }
+  }, []);
+
   return (
     <FormGroup>
       <Select
         variant="filled"
         value={data}
+        onOpen={onOpen}
         onChange={onChange}
         disabled={props.hasLink}
       >
-        {options?.map(({ text }, index) => {
+        {options?.map(({ text, value }, index) => {
           return (
             <MenuItem
               key={index}
-              value={text}
+              value={value ?? text}
               sx={{
                 '&.Mui-selected': {
                   backgroundColor: `${Color(props.randomMainColor).negate()}`,
