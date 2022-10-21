@@ -181,8 +181,7 @@ export const SelectWidget: React.FunctionComponent<SelectWidgetProps> = (
   const [data, setData] = useState(props.data);
   const [options, setOptions] = useState(props.options);
 
-  const onOpen = (event) => {
-    console.log(event, props);
+  const onOpen = () => {
     if (props.setOptions) {
       setOptions(props.setOptions());
     }
@@ -197,6 +196,12 @@ export const SelectWidget: React.FunctionComponent<SelectWidgetProps> = (
     }
     props.property.getNode().metaInfoChanged();
   };
+
+  useEffect(() => {
+    if (props.setOptions) {
+      setOptions(props.setOptions());
+    }
+  }, []);
 
   return (
     <FormGroup>

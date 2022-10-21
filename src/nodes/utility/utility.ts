@@ -97,9 +97,7 @@ export class JumpToNode extends WidgetButton {
     this.onConfigure = (): void => {
       const nodeNameDropdown = this.getSocketByName(selectNodeName)
         .dataType as EnumType;
-      // set the options on Configure
-      nodeNameDropdown.options = this.nodeArrayOptions();
-      // pass in a callback to renew options when dropdown is openend
+      // pass in a callback to renew options on mount and when dropdown is openend
       nodeNameDropdown.setSetOptions(this.nodeArrayOptions);
       this.update();
     };
