@@ -6,7 +6,7 @@ import { ensureVisible } from '../../utils/utils';
 import { SOCKET_TYPE } from '../../utils/constants';
 import { CustomArgs, TRgba } from '../../utils/interfaces';
 import { AnyType } from '../datatypes/anyType';
-import { EnumStructure, EnumType } from '../datatypes/enumType';
+import { DynamicEnumType } from '../datatypes/dynamicEnumType';
 
 export class Reroute extends PPNode {
   public getName(): string {
@@ -78,29 +78,23 @@ export class JumpToNode extends WidgetButton {
     return 'Jump to a specific node in your playground';
   }
 
-  nodeArrayOptions(): EnumStructure {
-    const nodeArray = Object.values(PPGraph.currentGraph.nodes);
-    const nodeArrayOptions = nodeArray.map((node) => {
-      return {
-        text: `${node.name} (${node.id})`,
-        value: node.id,
-      };
-    });
-    return nodeArrayOptions;
+  getNodeArrayOptions(): () => any[] {
+    return () => {
+      const nodeArray = Object.values(PPGraph.currentGraph.nodes);
+      const nodeArrayOptions = nodeArray.map((node) => {
+        return {
+          text: `${node.name} (${node.id})`,
+          value: node.id,
+        };
+      });
+      return nodeArrayOptions;
+    };
   }
 
   constructor(name: string, customArgs: CustomArgs) {
     super(name, {
       ...customArgs,
     });
-
-    this.onConfigure = (): void => {
-      const nodeNameDropdown = this.getSocketByName(selectNodeName)
-        .dataType as EnumType;
-      // pass in a callback to renew options on mount and when dropdown is openend
-      nodeNameDropdown.setSetOptions(this.nodeArrayOptions);
-      this.update();
-    };
   }
 
   onWidgetTrigger = () => {
@@ -120,13 +114,7 @@ export class JumpToNode extends WidgetButton {
       new Socket(
         SOCKET_TYPE.IN,
         selectNodeName,
-        new EnumType(
-          [{ text: '', value: '' }],
-          undefined,
-          this.nodeArrayOptions
-        ),
-        '',
-        false
+        new DynamicEnumType(this.getNodeArrayOptions)
       ),
     ].concat(super.getDefaultIO());
   }
