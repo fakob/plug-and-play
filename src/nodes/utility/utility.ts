@@ -91,12 +91,6 @@ export class JumpToNode extends WidgetButton {
     };
   }
 
-  constructor(name: string, customArgs: CustomArgs) {
-    super(name, {
-      ...customArgs,
-    });
-  }
-
   onWidgetTrigger = () => {
     const nodeToJumpTo =
       PPGraph.currentGraph.nodes[this.getInputData(selectNodeName)];
