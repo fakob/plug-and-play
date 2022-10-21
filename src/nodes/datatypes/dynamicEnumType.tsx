@@ -9,7 +9,7 @@ export class DynamicEnumType extends AbstractType {
     this.getOptions = getOptions;
   }
   getName(): string {
-    return 'Dynamic Array';
+    return 'Dynamic Enum';
   }
 
   getDefaultValue(): any {

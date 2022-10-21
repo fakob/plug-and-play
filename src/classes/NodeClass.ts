@@ -424,6 +424,7 @@ export default class PPNode extends PIXI.Container {
             : this.getOutputSocketByName(item.name);
         if (matchingSocket !== undefined) {
           matchingSocket.dataType = deSerializeType(item.dataType);
+          this.initializeType(item.name, matchingSocket.dataType);
           matchingSocket.data = item.data;
           matchingSocket.defaultData = item.defaultData ?? item.data;
           matchingSocket.setVisible(item.visible);
@@ -1253,4 +1254,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     this.drawNodeShape();
     this.updateConnectionPosition();
   }
+
+  // kinda hacky but some cant easily serialize functions in JS
+  protected initializeType(socketName: string, datatype: any) {}
 }

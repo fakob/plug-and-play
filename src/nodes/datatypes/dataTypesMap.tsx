@@ -28,5 +28,5 @@ export const allDataTypes = {
   CodeType: CodeType,
   EnumType: EnumType,
   MacroType: MacroType,
-  DynamicArrayType: DynamicEnumType,
+  DynamicEnumType: DynamicEnumType,
 };
