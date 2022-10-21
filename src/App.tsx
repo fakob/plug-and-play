@@ -650,8 +650,8 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               break;
           }
         } else if (e.altKey) {
-          switch (e.key.toLowerCase()) {
-            case 'a':
+          switch (e.code) {
+            case 'KeyA':
               console.log('alt a');
               e.preventDefault();
               currentGraph.current.sendKeyEvent(e);
