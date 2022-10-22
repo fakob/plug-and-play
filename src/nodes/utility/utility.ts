@@ -4,10 +4,9 @@ import Socket from '../../classes/SocketClass';
 import { WidgetButton } from '../widgets/widgetNodes';
 import { ensureVisible } from '../../utils/utils';
 import { SOCKET_TYPE } from '../../utils/constants';
-import { CustomArgs, TRgba } from '../../utils/interfaces';
+import { TRgba } from '../../utils/interfaces';
 import { AnyType } from '../datatypes/anyType';
 import { DynamicEnumType } from '../datatypes/dynamicEnumType';
-import { AbstractType } from '../datatypes/abstractType';
 
 export class Reroute extends PPNode {
   public getName(): string {
@@ -24,10 +23,10 @@ export class Reroute extends PPNode {
     ];
   }
 
-  public getDefaultNodeWidth(): number {
+  public getMinNodeWidth(): number {
     return 20;
   }
-  public getDefaultNodeHeight(): number {
+  public getMinNodeHeight(): number {
     return 3;
   }
 

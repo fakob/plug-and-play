@@ -90,14 +90,25 @@ export class Table extends HybridNode {
     this.executeOptimizedChain();
   }
 
-  constructor(name: string, customArgs?: CustomArgs) {
-    const nodeWidth = 800;
-    const nodeHeight = 400;
+  public getMinNodeWidth(): number {
+    return 200;
+  }
 
+  public getMinNodeHeight(): number {
+    return 150;
+  }
+
+  public getDefaultNodeWidth(): number {
+    return 800;
+  }
+
+  public getDefaultNodeHeight(): number {
+    return 400;
+  }
+
+  constructor(name: string, customArgs?: CustomArgs) {
     super(name, {
       ...customArgs,
-      nodeWidth,
-      nodeHeight,
     });
 
     // get initialData if available else create an empty workbooB
@@ -127,6 +138,7 @@ export class Table extends HybridNode {
         nodeWidth: this.nodeWidth,
         nodeHeight: this.nodeHeight,
       });
+      super.onNodeAdded();
     };
 
     this.update = (): void => {

@@ -131,22 +131,25 @@ export class TextEditor extends HybridNode {
     this.update();
   }
 
-  public getDefaultNodeHeight(): number {
+  public getMinNodeWidth(): number {
+    return 100;
+  }
+
+  public getMinNodeHeight(): number {
     return 100;
   }
 
   public getDefaultNodeWidth(): number {
-    return 100;
+    return 400;
+  }
+
+  public getDefaultNodeHeight(): number {
+    return 300;
   }
 
   constructor(name: string, customArgs?: CustomArgs) {
-    const nodeWidth = 400;
-    const nodeHeight = 300;
-
     super(name, {
       ...customArgs,
-      nodeWidth,
-      nodeHeight,
     });
 
     this.textToImport = customArgs?.initialData;

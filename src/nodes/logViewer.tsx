@@ -12,21 +12,34 @@ export class LogViewer extends HybridNode {
   getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
   }
-  constructor(name: string, customArgs?: CustomArgs) {
-    const nodeWidth = 640;
-    const nodeHeight = 240;
 
+  public getMinNodeWidth(): number {
+    return 360;
+  }
+
+  public getMinNodeHeight(): number {
+    return 100;
+  }
+
+  public getDefaultNodeWidth(): number {
+    return 640;
+  }
+
+  public getDefaultNodeHeight(): number {
+    return 240;
+  }
+
+  constructor(name: string, customArgs?: CustomArgs) {
     super(name, {
       ...customArgs,
-      nodeWidth,
-      nodeHeight,
     });
 
     // when the Node is added, add the container and react component
     this.onNodeAdded = () => {
       this.createContainerComponent(ParentComponent, {
-        nodeHeight,
+        nodeHeight: this.nodeHeight,
       });
+      super.onNodeAdded();
     };
 
     this.onExecute = async function (input) {

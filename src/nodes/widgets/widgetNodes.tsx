@@ -35,6 +35,8 @@ const onValueName = 'On';
 const buttonTextName = 'Button text';
 const outName = 'Out';
 
+const margin = 4;
+
 export class WidgetButton extends HybridNode {
   update: () => void;
   onWidgetTrigger: () => void;
@@ -65,15 +67,18 @@ export class WidgetButton extends HybridNode {
   public getDescription(): string {
     return 'Adds a button to trigger values';
   }
-  constructor(name: string, customArgs?: CustomArgs) {
-    const nodeWidth = 200;
-    const nodeHeight = 104;
-    const margin = 4;
 
+  public getDefaultNodeWidth(): number {
+    return 200;
+  }
+
+  public getDefaultNodeHeight(): number {
+    return 104;
+  }
+
+  constructor(name: string, customArgs?: CustomArgs) {
     super(name, {
       ...customArgs,
-      nodeWidth,
-      nodeHeight,
     });
 
     this.name = 'Button';
@@ -93,6 +98,7 @@ export class WidgetButton extends HybridNode {
           overflow: 'visible',
         }
       );
+      super.onNodeAdded();
     };
 
     this.update = (): void => {
@@ -232,15 +238,17 @@ export class WidgetSwitch extends HybridNode {
     return 'Adds a switch to toggle between values';
   }
 
-  constructor(name: string, customArgs?: CustomArgs) {
-    const nodeWidth = 200;
-    const nodeHeight = 104;
-    const margin = 4;
+  public getDefaultNodeWidth(): number {
+    return 200;
+  }
 
+  public getDefaultNodeHeight(): number {
+    return 104;
+  }
+
+  constructor(name: string, customArgs?: CustomArgs) {
     super(name, {
       ...customArgs,
-      nodeWidth,
-      nodeHeight,
     });
 
     this.name = 'Switch';
@@ -258,6 +266,7 @@ export class WidgetSwitch extends HybridNode {
           overflow: 'visible',
         }
       );
+      super.onNodeAdded();
     };
 
     this.update = (): void => {
@@ -388,15 +397,17 @@ export class WidgetSlider extends HybridNode {
     return 'Adds a number slider';
   }
 
-  constructor(name: string, customArgs?: CustomArgs) {
-    const nodeWidth = 200;
-    const nodeHeight = 104;
-    const margin = 4;
+  public getDefaultNodeWidth(): number {
+    return 200;
+  }
 
+  public getDefaultNodeHeight(): number {
+    return 104;
+  }
+
+  constructor(name: string, customArgs?: CustomArgs) {
     super(name, {
       ...customArgs,
-      nodeWidth,
-      nodeHeight,
     });
 
     this.name = 'Slider';
@@ -419,6 +430,7 @@ export class WidgetSlider extends HybridNode {
           overflow: 'visible',
         }
       );
+      super.onNodeAdded();
     };
 
     this.update = (): void => {

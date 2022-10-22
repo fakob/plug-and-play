@@ -5,7 +5,6 @@ import ErrorFallback from '../components/ErrorFallback';
 import MonacoEditor from 'react-monaco-editor';
 import PPSocket from '../classes/SocketClass';
 import PPGraph from '../classes/GraphClass';
-import PPNode from '../classes/NodeClass';
 import { CodeType } from './datatypes/codeType';
 
 import { convertToString } from '../utils/utils';
@@ -63,14 +62,25 @@ export class CodeEditor extends HybridNode {
     this.update;
   }
 
-  constructor(name: string, customArgs?: CustomArgs) {
-    const nodeWidth = 400;
-    const nodeHeight = 300;
+  public getMinNodeWidth(): number {
+    return 200;
+  }
 
+  public getMinNodeHeight(): number {
+    return 150;
+  }
+
+  public getDefaultNodeWidth(): number {
+    return 400;
+  }
+
+  public getDefaultNodeHeight(): number {
+    return 300;
+  }
+
+  constructor(name: string, customArgs?: CustomArgs) {
     super(name, {
       ...customArgs,
-      nodeWidth,
-      nodeHeight,
     });
 
     if (customArgs?.initialData) {
@@ -89,6 +99,7 @@ export class CodeEditor extends HybridNode {
         data,
         readOnly: this.readOnly,
       });
+      super.onNodeAdded();
     };
 
     this.update = (newHeight): void => {
