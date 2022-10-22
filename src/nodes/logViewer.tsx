@@ -9,8 +9,37 @@ import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../utils/constants';
 import HybridNode from '../classes/HybridNode';
 
 export class LogViewer extends HybridNode {
-  getColor(): TRgba {
+  public getName(): string {
+    return 'LogViewer';
+  }
+
+  public getDescription(): string {
+    return 'View your logs';
+  }
+
+  protected getDefaultIO(): PPSocket[] {
+    return [
+      new PPSocket(SOCKET_TYPE.IN, 'input', new AnyType(), '', true),
+      new PPSocket(
+        SOCKET_TYPE.IN,
+        'rowLimit',
+        new NumberType(true, 1, 1000),
+        100,
+        false
+      ),
+    ];
+  }
+
+  protected getActivateByDoubleClick(): boolean {
+    return true;
+  }
+
+  public getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
+  }
+
+  public getOpacity(): number {
+    return 0.01;
   }
 
   public getMinNodeWidth(): number {
@@ -86,30 +115,5 @@ export class LogViewer extends HybridNode {
         />
       );
     };
-  }
-
-  public getName(): string {
-    return 'LogViewer';
-  }
-
-  public getDescription(): string {
-    return 'View your logs';
-  }
-
-  protected getDefaultIO(): PPSocket[] {
-    return [
-      new PPSocket(SOCKET_TYPE.IN, 'input', new AnyType(), '', true),
-      new PPSocket(
-        SOCKET_TYPE.IN,
-        'rowLimit',
-        new NumberType(true, 1, 1000),
-        100,
-        false
-      ),
-    ];
-  }
-
-  protected getActivateByDoubleClick(): boolean {
-    return true;
   }
 }

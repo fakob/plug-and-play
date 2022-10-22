@@ -258,8 +258,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         // update postion if there are more than one
         if (newNode) {
           newNodeSelection.push(newNode);
-          nodePosX =
-            nodePosX + newNode.getNodeWidth() + DRAGANDDROP_GRID_MARGIN;
+          nodePosX = nodePosX + newNode.nodeWidth + DRAGANDDROP_GRID_MARGIN;
         }
       }
       // select the newly added nodes

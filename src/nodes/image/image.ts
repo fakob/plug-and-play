@@ -3,12 +3,13 @@ import * as PIXI from 'pixi.js';
 import { fitAndPosition } from 'object-fit-math';
 import type { FitMode } from 'object-fit-math/dist/types';
 import PPGraph from '../../classes/GraphClass';
-import { CustomArgs, TRgba } from '../../utils/interfaces';
-import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../../utils/constants';
+import { CustomArgs, SerializedNode, TRgba } from '../../utils/interfaces';
 import {
   DEFAULT_IMAGE,
+  NODE_TYPE_COLOR,
   NODE_MARGIN,
   OBJECT_FIT_OPTIONS,
+  SOCKET_TYPE,
   TRIGGER_TYPE_OPTIONS,
 } from '../../utils/constants';
 import Socket from '../../classes/SocketClass';
@@ -30,6 +31,14 @@ export class Image extends PPNode {
   maskRef: PIXI.Graphics;
   updateTexture: (base64: string) => void;
   resetNodeSize: () => void;
+
+  public getName(): string {
+    return 'Image';
+  }
+
+  public getDescription(): string {
+    return 'Draws an Image (base64)';
+  }
 
   protected getDefaultIO(): Socket[] {
     return [
@@ -68,15 +77,13 @@ export class Image extends PPNode {
       ),
     ];
   }
-  getColor(): TRgba{
+
+  public getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
   }
-  getOpacity(): number{
-    return 0.2;
-  }
 
-  public getDescription(): string {
-    return 'Draws an Image (base64)';
+  public getOpacity(): number {
+    return 0.2;
   }
 
   constructor(name: string, customArgs: CustomArgs) {
@@ -85,18 +92,29 @@ export class Image extends PPNode {
     });
     this.name = 'Draw Image';
 
-    /*this.setMinNodeHeight = (nodeWidth: number) => {
+    this.onConfigure = (nodeConfig: SerializedNode) => {
+      this.getDefaultNodeWidth = () => {
+        return nodeConfig.width;
+      };
+      this.getDefaultNodeHeight = () => {
+        return nodeConfig.height;
+      };
+      this.executeOptimizedChain();
+    };
+
+    const setNodeSizes = () => {
       if (this.texture === undefined) {
-        this.execute();
+        this.executeOptimizedChain();
       }
       const aspectRatio = this.texture.width / this.texture.height;
-      const newNodeHeight = nodeWidth / aspectRatio;
-      //this.minNodeHeight = newNodeHeight;
-    };*/ // TODO REIMPLEMENT
+      this.getMinNodeHeight = () => {
+        return this.getMinNodeWidth() / aspectRatio;
+      };
+    };
 
     this.resetNodeSize = () => {
-      //this.setMinNodeHeight(this.minNodeWidth);
-      //this.resizeNode(this.minNodeWidth, this.minNodeHeight);
+      setNodeSizes();
+      this.resizeNode(this.texture.width, this.texture.height);
       PPGraph.currentGraph.selection.drawRectanglesFromSelection();
     };
 
@@ -106,13 +124,16 @@ export class Image extends PPNode {
       this.texture = PIXI.Texture.from(base64);
       this.sprite.texture = this.texture;
       this.sprite.texture.update();
-      this.execute();
+      this.executeOptimizedChain();
     };
 
     const hasBaseTextureLoaded = (): void => {
       if (this.texture.valid) {
-        //this.setMinNodeHeight(this.minNodeWidth); // TODO reimplement
-        //this.resizeNode(this.minNodeWidth, this.minNodeHeight);
+        setNodeSizes();
+        this.resizeNode(
+          this.getDefaultNodeWidth(),
+          this.getDefaultNodeHeight()
+        );
       }
     };
 

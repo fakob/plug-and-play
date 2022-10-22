@@ -126,11 +126,11 @@ export default class PPNode extends PIXI.Container {
   }
 
   public getDefaultNodeWidth(): number {
-    return;
+    return this.getMinNodeWidth();
   }
 
   public getDefaultNodeHeight(): number {
-    return;
+    return this.getMinNodeHeight();
   }
 
   public getColor(): TRgba {
@@ -200,8 +200,8 @@ export default class PPNode extends PIXI.Container {
     // customArgs
     this.x = customArgs?.nodePosX ?? 0;
     this.y = customArgs?.nodePosY ?? 0;
-    this.nodeWidth = this.getDefaultNodeWidth() ?? this.getMinNodeWidth();
-    this.nodeHeight = this.getDefaultNodeHeight() ?? this.getMinNodeHeight(); // if not set height is defined by in/out sockets
+    this.nodeWidth = this.getDefaultNodeWidth();
+    this.nodeHeight = this.getDefaultNodeHeight(); // if not set height is defined by in/out sockets
     this.isHovering = false;
 
     const inputNameText = new PIXI.Text(
@@ -711,10 +711,7 @@ export default class PPNode extends PIXI.Container {
   }
 
   resetSize(): void {
-    this.resizeNode(
-      this.getDefaultNodeWidth() ?? this.getMinNodeWidth(),
-      this.getDefaultNodeHeight() ?? this.getMinNodeHeight()
-    );
+    this.resizeNode(this.getDefaultNodeWidth(), this.getDefaultNodeHeight());
   }
 
   getAllInputSockets(): Socket[] {
