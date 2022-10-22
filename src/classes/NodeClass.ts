@@ -111,10 +111,11 @@ export default class PPNode extends PIXI.Container {
     return '';
   }
 
-  public getDefaultNodeWidth(): number {
+  public getMinNodeWidth(): number {
     return NODE_WIDTH;
   }
-  public getDefaultNodeHeight(): number {
+
+  public getMinNodeHeight(): number {
     const minHeight =
       this.headerHeight +
       this.countOfVisibleNodeTriggerSockets * SOCKET_HEIGHT +
@@ -122,6 +123,14 @@ export default class PPNode extends PIXI.Container {
       this.countOfVisibleOutputSockets * SOCKET_HEIGHT +
       NODE_PADDING_BOTTOM;
     return minHeight;
+  }
+
+  public getDefaultNodeWidth(): number {
+    return this.getMinNodeWidth();
+  }
+
+  public getDefaultNodeHeight(): number {
+    return this.getMinNodeHeight();
   }
 
   public getColor(): TRgba {
@@ -191,8 +200,8 @@ export default class PPNode extends PIXI.Container {
     // customArgs
     this.x = customArgs?.nodePosX ?? 0;
     this.y = customArgs?.nodePosY ?? 0;
-    this.nodeWidth = customArgs?.nodeWidth ?? this.getDefaultNodeWidth();
-    this.nodeHeight = customArgs?.nodeHeight ?? this.getDefaultNodeHeight(); // if not set height is defined by in/out sockets
+    this.nodeWidth = this.getDefaultNodeWidth();
+    this.nodeHeight = this.getDefaultNodeHeight(); // if not set height is defined by in/out sockets
     this.isHovering = false;
 
     const inputNameText = new PIXI.Text(
@@ -389,8 +398,8 @@ export default class PPNode extends PIXI.Container {
   configure(nodeConfig: SerializedNode): void {
     this.x = nodeConfig.x;
     this.y = nodeConfig.y;
-    this.nodeWidth = nodeConfig.width | this.getDefaultNodeWidth();
-    this.nodeHeight = nodeConfig.height | this.getDefaultNodeHeight();
+    this.nodeWidth = nodeConfig.width | this.getMinNodeWidth();
+    this.nodeHeight = nodeConfig.height | this.getMinNodeHeight();
     this.nodeName = nodeConfig.name;
     this.updateBehaviour.setUpdateBehaviour(
       nodeConfig.updateBehaviour.update,
@@ -665,13 +674,13 @@ export default class PPNode extends PIXI.Container {
   }
 
   resizeNode(
-    width: number = this.width,
-    height: number = this.height,
+    width: number = this.getDefaultNodeWidth() ?? this.width,
+    height: number = this.getDefaultNodeHeight() ?? this.height,
     maintainAspectRatio = false
   ): void {
     // set new size
-    const newNodeWidth = Math.max(width, this.getDefaultNodeWidth());
-    const newNodeHeight = Math.max(height, this.getDefaultNodeHeight());
+    const newNodeWidth = Math.max(width, this.getMinNodeWidth());
+    const newNodeHeight = Math.max(height, this.getMinNodeHeight());
 
     if (maintainAspectRatio) {
       const oldWidth = this.nodeWidth;
@@ -681,8 +690,8 @@ export default class PPNode extends PIXI.Container {
         oldHeight,
         newNodeWidth,
         newNodeHeight,
-        this.getDefaultNodeWidth(),
-        this.getDefaultNodeHeight()
+        this.getMinNodeWidth(),
+        this.getMinNodeHeight()
       );
       this.nodeWidth = newRect.width;
       this.nodeHeight = newRect.height;

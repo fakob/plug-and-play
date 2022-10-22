@@ -14,11 +14,11 @@ export class RecordLocations extends PPNode {
   isRecording = false;
   recordButton: PIXI.Graphics = undefined; // kinda ugly with undefined but whatever
 
-  public getDefaultNodeWidth(): number {
+  public getMinNodeWidth(): number {
     return 150;
   }
 
-  public getDefaultNodeHeight(): number {
+  public getMinNodeHeight(): number {
     return 150;
   }
 

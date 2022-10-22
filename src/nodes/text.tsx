@@ -99,6 +99,7 @@ export class Label extends PPNode {
     this.onNodeAdded = () => {
       this.currentInput = null;
       this.createInputElement();
+      super.onNodeAdded();
     };
 
     // when the Node has been configured, remove focus

@@ -58,14 +58,21 @@ export class HtmlRenderer extends HybridNode {
     ];
   }
 
-  constructor(name: string, customArgs?: CustomArgs) {
-    const nodeWidth = 200;
-    const nodeHeight = 150;
+  public getMinNodeHeight(): number {
+    return 30;
+  }
 
+  public getDefaultNodeWidth(): number {
+    return 200;
+  }
+
+  public getDefaultNodeHeight(): number {
+    return 150;
+  }
+
+  constructor(name: string, customArgs?: CustomArgs) {
     super(name, {
       ...customArgs,
-      nodeWidth,
-      nodeHeight,
     });
 
     if (customArgs?.initialData) {
@@ -86,6 +93,7 @@ export class HtmlRenderer extends HybridNode {
           overflow: 'visible',
         }
       );
+      super.onNodeAdded();
     };
 
     this.update = (newHeight): void => {
