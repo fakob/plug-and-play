@@ -1076,6 +1076,13 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     // just define function
   }
 
+  // helper function for nodes who want execution
+  protected async passThrough(input, output): Promise<void> {
+    Object.keys(input).forEach((key) => {
+      output[key] = input[key];
+    });
+  }
+
   // SETUP
 
   _addListeners(): void {

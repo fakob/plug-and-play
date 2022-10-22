@@ -16,7 +16,17 @@ export class ArrayState extends PPNode {
     ];
   }
 
+  protected onExecute = this.passThrough;
+
   append(): void {
-    this.getInputData('Input');
+    const state: any[] = this.getInputData('Input');
+    state.push(this.getInputData('Input'));
+    this.setInputData('Input', state);
+  }
+
+  remove(): void {
+    const state: any[] = this.getInputData('Input');
+    state.pop();
+    this.setInputData('Input', state);
   }
 }

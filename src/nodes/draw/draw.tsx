@@ -112,14 +112,14 @@ export abstract class DRAW_Base extends PPNode {
       new Socket(
         SOCKET_TYPE.IN,
         offseXName,
-        new NumberType(false, -500, 500),
+        new NumberType(false, -2000, 2000),
         400,
         false
       ),
       new Socket(
         SOCKET_TYPE.IN,
         offsetYName,
-        new NumberType(false, -500, 500),
+        new NumberType(false, -2000, 2000),
         0,
         false
       ),
