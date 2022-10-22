@@ -8,6 +8,9 @@ import { convertToString } from '../../utils/utils';
 import { TRgba } from '../../utils/interfaces';
 import { SOCKET_COLOR_HEX } from '../../utils/constants';
 export class AbstractType {
+
+  valueChangedListeners = []; // list of functions from data any to void
+
   // override any and all of these in child classes
   getName(): string {
     return this.constructor.name;
@@ -22,10 +25,13 @@ export class AbstractType {
     return 'null';
   }
 
+  listenerAttacher = (setData) => {this.valueChangedListeners.push(setData)}
+
   getInputWidget = (props: any): any => {
     if (typeof props.data !== 'string') {
       props.data = convertToString(props.data);
     }
+    props.listenerAttacher = this.listenerAttacher;
     return <CodeWidget {...props} />;
   };
 
@@ -33,6 +39,8 @@ export class AbstractType {
     if (typeof props.data !== 'string') {
       props.data = convertToString(props.data);
     }
+
+    props.listenerAttacher = this.listenerAttacher;
     return <DefaultOutputWidget {...props} />;
   };
 
@@ -54,6 +62,10 @@ export class AbstractType {
   }
 
   onDataSet(data: any, socket: Socket): void {
+    //console.log("listeners: " + this.valueChangedListeners.length)
+    this.valueChangedListeners = this.valueChangedListeners.filter(a => a); // filter out undefineds
+    this.valueChangedListeners = this.valueChangedListeners.slice(0,100); // max x listeners
+    this.valueChangedListeners.forEach(listener => listener(data));
     return;
   }
 
@@ -72,4 +84,5 @@ export class AbstractType {
   allowedAsOutput(): boolean {
     return true;
   }
+
 }

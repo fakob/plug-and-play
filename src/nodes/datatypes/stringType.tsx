@@ -13,7 +13,9 @@ export class StringType extends AbstractType {
   }
 
   getInputWidget = (data: any): any => {
-    return <TextWidget {...data} />;
+    const props = { ...data };
+    props.listenerAttacher = this.listenerAttacher;
+    return <TextWidget {...props} />;
   };
 
   getDefaultValue(): any {
