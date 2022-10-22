@@ -24,8 +24,6 @@ import { TRgba } from './utils/interfaces';
 import { EnumStructure } from './nodes/datatypes/enumType';
 import { NumberType } from './nodes/datatypes/numberType';
 import { TriggerType } from './nodes/datatypes/triggerType';
-import { AbstractType } from './nodes/datatypes/abstractType';
-import { property } from 'lodash';
 
 async function potentiallyNotify(property: Socket, newValue) {
   if (property.data !== newValue) {
@@ -42,7 +40,7 @@ export type SliderWidgetProps = {
   hasLink: boolean;
   index: number;
   data: number;
-  dataType: AbstractType;
+  listenerAttacher: any;
   type: NumberType;
 };
 
@@ -50,7 +48,7 @@ export const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (
   props
 ) => {
   const [data, setData] = useState(Number(props.data));
-  props.dataType.valueChangedListeners.push(setData);
+  props.listenerAttacher(setData);
   const [minValue, setMinValue] = useState(
     Math.min(props.type.minValue ?? 0, data)
   );
@@ -275,13 +273,13 @@ export type TextWidgetProps = {
   index: number;
   hasLink: boolean;
   data: string;
-  dataType: AbstractType;
+  listenerAttacher: (any) => void;
   randomMainColor: string;
 };
 
 export const TextWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
   const [data, setData] = useState(props.data);
-  props.dataType.valueChangedListeners.push(setData);
+  props.listenerAttacher(setData);
 
   return (
     <FormGroup>
@@ -307,15 +305,17 @@ export type CodeWidgetProps = {
   index: number;
   hasLink: boolean;
   data: string;
+  listenerAttacher: (any) => void;
   randomMainColor: string;
 };
 
 export const CodeWidget: React.FunctionComponent<CodeWidgetProps> = (props) => {
   const [data, setData] = useState(props.data);
+  props.listenerAttacher(setData);
 
   return (
     <CodeEditor
-      value={data || ''}
+      value={data}
       randomMainColor={props.randomMainColor}
       editable={!props.hasLink}
       onChange={(value) => {
@@ -550,7 +550,7 @@ export type DefaultOutputWidgetProps = {
   isInput: boolean;
   hasLink: boolean;
   data: any;
-  dataType: AbstractType;
+  listenerAttacher: (any) => void;
   randomMainColor?: string;
 };
 
@@ -558,12 +558,11 @@ export const DefaultOutputWidget: React.FunctionComponent<
   DefaultOutputWidgetProps
 > = (props) => {
   const [data, setData] = useState(props.data);
-  props.dataType.valueChangedListeners.push(setData);
+  props.listenerAttacher(setData);
 
   return (
     <CodeEditor
-      key={JSON.stringify(data)}
-      value={data || ''}
+      value={data}
       randomMainColor={props.randomMainColor}
       editable={false}
     />
@@ -576,7 +575,7 @@ export type NumberOutputWidgetProps = {
   isInput: boolean;
   hasLink: boolean;
   data: any;
-  dataType: AbstractType;
+  listenerAttacher: (any) => void;
   randomMainColor?: string;
 };
 
@@ -584,7 +583,8 @@ export const NumberOutputWidget: React.FunctionComponent<
   NumberOutputWidgetProps
 > = (props) => {
   const [data, setData] = useState(props.data);
-  props.dataType.valueChangedListeners.push(setData);
+  props.listenerAttacher(setData);
+
   return (
     <>
       <FormGroup

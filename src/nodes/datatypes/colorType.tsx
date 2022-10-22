@@ -33,6 +33,8 @@ export class ColorType extends AbstractType {
   }
 
   getInputWidget = (data: any): any => {
-    return <ColorWidget {...data} />;
+    const props = { ...data };
+    props.listenerAttacher = this.listenerAttacher;
+    return <ColorWidget {...props} />;
   };
 }

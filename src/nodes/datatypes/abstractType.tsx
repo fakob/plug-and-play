@@ -25,10 +25,13 @@ export class AbstractType {
     return 'null';
   }
 
+  listenerAttacher = (setData) => {this.valueChangedListeners.push(setData)}
+
   getInputWidget = (props: any): any => {
     if (typeof props.data !== 'string') {
       props.data = convertToString(props.data);
     }
+    props.listenerAttacher = this.listenerAttacher;
     return <CodeWidget {...props} />;
   };
 
@@ -36,7 +39,8 @@ export class AbstractType {
     if (typeof props.data !== 'string') {
       props.data = convertToString(props.data);
     }
-    props.dataType = this;
+
+    props.listenerAttacher = this.listenerAttacher;
     return <DefaultOutputWidget {...props} />;
   };
 
@@ -60,7 +64,7 @@ export class AbstractType {
   onDataSet(data: any, socket: Socket): void {
     //console.log("listeners: " + this.valueChangedListeners.length)
     this.valueChangedListeners = this.valueChangedListeners.filter(a => a); // filter out undefineds
-    this.valueChangedListeners = this.valueChangedListeners.slice(0,10); // max 10 listeners
+    this.valueChangedListeners = this.valueChangedListeners.slice(0,100); // max x listeners
     this.valueChangedListeners.forEach(listener => listener(data));
     return;
   }

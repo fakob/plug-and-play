@@ -16,6 +16,7 @@ export class CodeType extends AbstractType {
     if (typeof props.data !== 'string') {
       props.data = convertToString(props.data);
     }
+    props.listenerAttacher = this.listenerAttacher;
     return <CodeWidget {...props} />;
   };
 

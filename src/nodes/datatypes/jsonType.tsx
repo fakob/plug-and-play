@@ -18,6 +18,7 @@ export class JSONType extends AbstractType {
     if (typeof props.data !== 'string') {
       props.data = convertToString(props.data);
     }
+    props.listenerAttacher = this.listenerAttacher;
     return <JSONWidget {...props} />;
   };
 
