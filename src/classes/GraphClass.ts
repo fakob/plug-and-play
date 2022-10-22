@@ -51,9 +51,6 @@ export default class PPGraph {
 
   ticking: boolean;
 
-  stateData: { string: any }; // states
-  stateSubscriptionNodes: { string: Set<string> }; // every specific string has specific nodes subscribing to it
-
   onRightClick: (
     event: PIXI.InteractionEvent,
     target: PIXI.DisplayObject
@@ -969,37 +966,6 @@ export default class PPGraph {
     const macroEndNode = this.findMacroOutput(inputObject['Name']);
 
     return macroEndNode.getInputSocketByName(macroOutputName).data;
-  }
-
-  setState(key: string, data: any): void {
-    this.stateData[key] = data;
-    const subscribers = this.stateSubscriptionNodes[key];
-    if (subscribers) {
-      subscribers.forEach((subID: string) =>
-        this.nodes[subID].executeOptimizedChain()
-      );
-    }
-  }
-
-  getState(key: string, data: any): void {
-    return this.stateData[key];
-  }
-
-  subscribeToState(key: string, nodeID: string): void {
-    if (this.stateSubscriptionNodes[key] === undefined) {
-      this.stateSubscriptionNodes[key] = new Set();
-    }
-    this.stateSubscriptionNodes[key].push(nodeID);
-  }
-  unsubscribeToState(key: string, nodeID: string): void {
-    this.stateSubscriptionNodes[key] = this.stateSubscriptionNodes[key].filter(
-      (id: string) => id !== nodeID
-    );
-  }
-  unsubscribeToAll(nodeID: string): void {
-    Object.values(this.stateSubscriptionNodes).forEach((value) =>
-      value.delete(nodeID)
-    );
   }
 
   static getCurrentGraph(): PPGraph {
