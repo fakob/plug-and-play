@@ -51,6 +51,7 @@ abstract class StateNode extends PPNode {
   protected onExecute = this.passThrough;
   protected clear(): void {
     this.setInputData('State', this.getStateType().getDefaultValue());
+    this.executeOptimizedChain();
   }
 
   protected abstract getStateType(): AbstractType;
