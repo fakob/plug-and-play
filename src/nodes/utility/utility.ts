@@ -4,10 +4,9 @@ import Socket from '../../classes/SocketClass';
 import { WidgetButton } from '../widgets/widgetNodes';
 import { ensureVisible } from '../../utils/utils';
 import { SOCKET_TYPE } from '../../utils/constants';
-import { CustomArgs, TRgba } from '../../utils/interfaces';
+import { TRgba } from '../../utils/interfaces';
 import { AnyType } from '../datatypes/anyType';
 import { DynamicEnumType } from '../datatypes/dynamicEnumType';
-import { AbstractType } from '../datatypes/abstractType';
 
 export class Reroute extends PPNode {
   public getName(): string {
@@ -58,7 +57,12 @@ export class Reroute extends PPNode {
   }
 
   public drawBackground(): void {
+    this._BackgroundRef.beginFill(
+      this.getColor().hexNumber(),
+      this.getOpacity()
+    );
     this._BackgroundRef.drawCircle(16, 0, 14.5);
+    this._BackgroundRef.endFill();
   }
 
   protected async onExecute(
