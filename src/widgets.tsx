@@ -24,6 +24,8 @@ import { TRgba } from './utils/interfaces';
 import { EnumStructure } from './nodes/datatypes/enumType';
 import { NumberType } from './nodes/datatypes/numberType';
 import { TriggerType } from './nodes/datatypes/triggerType';
+import { AbstractType } from './nodes/datatypes/abstractType';
+import { property } from 'lodash';
 
 async function potentiallyNotify(property: Socket, newValue) {
   if (property.data !== newValue) {
@@ -544,13 +546,16 @@ export type DefaultOutputWidgetProps = {
   isInput: boolean;
   hasLink: boolean;
   data: any;
+  dataType: AbstractType;
   randomMainColor?: string;
 };
 
 export const DefaultOutputWidget: React.FunctionComponent<
   DefaultOutputWidgetProps
 > = (props) => {
-  const [data] = useState(props.data);
+  const [data, setData] = useState(props.data);
+  props.dataType.valueChangedListener = setData;
+  console.log('rerendering with: ' + JSON.stringify(data));
 
   return (
     <CodeEditor
@@ -567,12 +572,15 @@ export type NumberOutputWidgetProps = {
   isInput: boolean;
   hasLink: boolean;
   data: any;
+  dataType: AbstractType;
   randomMainColor?: string;
 };
 
 export const NumberOutputWidget: React.FunctionComponent<
   NumberOutputWidgetProps
 > = (props) => {
+  const [data, setData] = useState(props.data);
+  props.dataType.valueChangedListener = setData;
   return (
     <>
       <FormGroup
@@ -592,7 +600,7 @@ export const NumberOutputWidget: React.FunctionComponent<
           inputProps={{
             type: 'number',
           }}
-          value={Number(props.data)}
+          value={Number(data)}
         />
       </FormGroup>
     </>

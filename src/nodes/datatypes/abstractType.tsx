@@ -8,6 +8,9 @@ import { convertToString } from '../../utils/utils';
 import { TRgba } from '../../utils/interfaces';
 import { SOCKET_COLOR_HEX } from '../../utils/constants';
 export class AbstractType {
+
+  valueChangedListener = (newValue) => {};
+
   // override any and all of these in child classes
   getName(): string {
     return this.constructor.name;
@@ -33,6 +36,7 @@ export class AbstractType {
     if (typeof props.data !== 'string') {
       props.data = convertToString(props.data);
     }
+    props.dataType = this;
     return <DefaultOutputWidget {...props} />;
   };
 
@@ -54,6 +58,7 @@ export class AbstractType {
   }
 
   onDataSet(data: any, socket: Socket): void {
+    this.valueChangedListener(data);
     return;
   }
 

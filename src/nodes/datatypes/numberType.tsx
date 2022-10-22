@@ -41,6 +41,7 @@ export class NumberType extends AbstractType {
     if (typeof props.data !== 'number') {
       props.data = Number(props.data);
     }
+    props.dataType = this;
     return <NumberOutputWidget {...props} />;
   };
 
