@@ -32,6 +32,7 @@ export class NumberType extends AbstractType {
       hasLink: props.hasLink,
       index: props.index,
       data: props.data,
+      dataType: this,
       type: this,
     };
     return <SliderWidget {...sliderProps} />;

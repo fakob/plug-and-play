@@ -42,6 +42,7 @@ export type SliderWidgetProps = {
   hasLink: boolean;
   index: number;
   data: number;
+  dataType: AbstractType;
   type: NumberType;
 };
 
@@ -49,6 +50,7 @@ export const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (
   props
 ) => {
   const [data, setData] = useState(Number(props.data));
+  props.dataType.valueChangedListeners.push(setData);
   const [minValue, setMinValue] = useState(
     Math.min(props.type.minValue ?? 0, data)
   );
@@ -273,11 +275,13 @@ export type TextWidgetProps = {
   index: number;
   hasLink: boolean;
   data: string;
+  dataType: AbstractType;
   randomMainColor: string;
 };
 
 export const TextWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
   const [data, setData] = useState(props.data);
+  props.dataType.valueChangedListeners.push(setData);
 
   return (
     <FormGroup>
@@ -290,7 +294,7 @@ export const TextWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
         onChange={(event) => {
           const value = event.target.value;
           potentiallyNotify(props.property, value);
-          setData(value);
+          //setData(value);
         }}
         value={data || ''}
       />
@@ -554,11 +558,11 @@ export const DefaultOutputWidget: React.FunctionComponent<
   DefaultOutputWidgetProps
 > = (props) => {
   const [data, setData] = useState(props.data);
-  props.dataType.valueChangedListener = setData;
-  console.log('rerendering with: ' + JSON.stringify(data));
+  props.dataType.valueChangedListeners.push(setData);
 
   return (
     <CodeEditor
+      key={JSON.stringify(data)}
       value={data || ''}
       randomMainColor={props.randomMainColor}
       editable={false}
@@ -580,7 +584,7 @@ export const NumberOutputWidget: React.FunctionComponent<
   NumberOutputWidgetProps
 > = (props) => {
   const [data, setData] = useState(props.data);
-  props.dataType.valueChangedListener = setData;
+  props.dataType.valueChangedListeners.push(setData);
   return (
     <>
       <FormGroup

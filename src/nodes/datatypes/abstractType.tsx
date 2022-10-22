@@ -9,7 +9,7 @@ import { TRgba } from '../../utils/interfaces';
 import { SOCKET_COLOR_HEX } from '../../utils/constants';
 export class AbstractType {
 
-  valueChangedListener = (newValue) => {};
+  valueChangedListeners = []; // list of functions from data any to void
 
   // override any and all of these in child classes
   getName(): string {
@@ -58,7 +58,10 @@ export class AbstractType {
   }
 
   onDataSet(data: any, socket: Socket): void {
-    this.valueChangedListener(data);
+    //console.log("listeners: " + this.valueChangedListeners.length)
+    this.valueChangedListeners = this.valueChangedListeners.filter(a => a); // filter out undefineds
+    this.valueChangedListeners = this.valueChangedListeners.slice(0,10); // max 10 listeners
+    this.valueChangedListeners.forEach(listener => listener(data));
     return;
   }
 
@@ -77,4 +80,5 @@ export class AbstractType {
   allowedAsOutput(): boolean {
     return true;
   }
+
 }
