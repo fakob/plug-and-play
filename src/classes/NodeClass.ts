@@ -89,7 +89,7 @@ export default class PPNode extends PIXI.Container {
 
   // called when the node is added to the graph
   public onNodeAdded(): void {
-    this.resizeNode();
+    this.resizeNode(this.getDefaultNodeWidth(), this.getDefaultNodeHeight());
     this.drawNodeShape();
   }
 
