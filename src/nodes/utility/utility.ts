@@ -87,6 +87,7 @@ const getNodeArrayOptions = () => {
     return nodeArrayOptions;
   };
 };
+
 export class JumpToNode extends WidgetButton {
   public getName(): string {
     return 'Jump to node';
@@ -112,7 +113,9 @@ export class JumpToNode extends WidgetButton {
       new Socket(
         SOCKET_TYPE.IN,
         selectNodeName,
-        new DynamicEnumType(getNodeArrayOptions)
+        new DynamicEnumType(getNodeArrayOptions),
+        undefined,
+        false
       ),
     ].concat(super.getDefaultIO());
   }

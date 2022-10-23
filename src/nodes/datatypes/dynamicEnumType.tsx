@@ -13,7 +13,7 @@ export class DynamicEnumType extends AbstractType {
   }
 
   getDefaultValue(): any {
-    return () => [];
+    return '';
   }
 
   getInputWidget = (data: any): any => {
