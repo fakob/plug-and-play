@@ -39,7 +39,7 @@ export type SliderWidgetProps = {
   isInput: boolean;
   hasLink: boolean;
   index: number;
-  data: number;
+  data: unknown;
   listenerAttacher: any;
   type: NumberType;
 };
@@ -47,7 +47,7 @@ export type SliderWidgetProps = {
 export const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (
   props
 ) => {
-  const [data, setData] = useState(Number(props.data));
+  const [data, setData] = useState(Number(props.data || 0));
   props.listenerAttacher(setData);
   const [minValue, setMinValue] = useState(
     Math.min(props.type.minValue ?? 0, data)
@@ -76,7 +76,7 @@ export const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (
             setData(roundNumber(value, 4));
           }
         }}
-        value={data || 0}
+        value={data}
       />
       <FormGroup
         row={true}
@@ -170,7 +170,7 @@ export type SelectWidgetProps = {
   property: Socket;
   index: number;
   hasLink: boolean;
-  data: number;
+  data: unknown;
   options: EnumStructure;
   randomMainColor: string;
   onChange?: (value: string) => void;
@@ -180,7 +180,7 @@ export type SelectWidgetProps = {
 export const SelectWidget: React.FunctionComponent<SelectWidgetProps> = (
   props
 ) => {
-  const [data, setData] = useState(props.data);
+  const [data, setData] = useState(props.data ?? '');
   const [options, setOptions] = useState(props.options);
 
   const onOpen = () => {
@@ -238,13 +238,13 @@ export type BooleanWidgetProps = {
   property: Socket;
   index: number;
   hasLink: boolean;
-  data: boolean;
+  data: unknown;
 };
 
 export const BooleanWidget: React.FunctionComponent<BooleanWidgetProps> = (
   props
 ) => {
-  const [data, setData] = useState(props.data);
+  const [data, setData] = useState(Boolean(props.data));
 
   const onChange = (event) => {
     const value = event.target.checked;
@@ -272,13 +272,13 @@ export type TextWidgetProps = {
   property: Socket;
   index: number;
   hasLink: boolean;
-  data: string;
+  data: unknown;
   listenerAttacher: (any) => void;
   randomMainColor: string;
 };
 
 export const TextWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
-  const [data, setData] = useState(props.data);
+  const [data, setData] = useState(String(props.data));
   props.listenerAttacher(setData);
 
   return (
@@ -294,7 +294,7 @@ export const TextWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
           potentiallyNotify(props.property, value);
           //setData(value);
         }}
-        value={data || ''}
+        value={data}
       />
     </FormGroup>
   );
@@ -304,7 +304,7 @@ export type CodeWidgetProps = {
   property: Socket;
   index: number;
   hasLink: boolean;
-  data: string;
+  data: unknown;
   listenerAttacher: (any) => void;
   randomMainColor: string;
 };
@@ -397,7 +397,7 @@ export const TriggerWidget: React.FunctionComponent<TriggerWidgetProps> = (
     <>
       {props.hasLink && (
         <CodeEditor
-          value={String(data) || ''}
+          value={data || ''}
           randomMainColor={props.randomMainColor}
           onChange={(value) => {
             potentiallyNotify(props.property, value);
@@ -549,7 +549,7 @@ export type DefaultOutputWidgetProps = {
   index: number;
   isInput: boolean;
   hasLink: boolean;
-  data: any;
+  data: unknown;
   listenerAttacher: (any) => void;
   randomMainColor?: string;
 };
@@ -574,7 +574,7 @@ export type NumberOutputWidgetProps = {
   index: number;
   isInput: boolean;
   hasLink: boolean;
-  data: any;
+  data: unknown;
   listenerAttacher: (any) => void;
   randomMainColor?: string;
 };
@@ -582,7 +582,7 @@ export type NumberOutputWidgetProps = {
 export const NumberOutputWidget: React.FunctionComponent<
   NumberOutputWidgetProps
 > = (props) => {
-  const [data, setData] = useState(props.data);
+  const [data, setData] = useState(Number(props.data));
   props.listenerAttacher(setData);
 
   return (
@@ -604,7 +604,7 @@ export const NumberOutputWidget: React.FunctionComponent<
           inputProps={{
             type: 'number',
           }}
-          value={Number(data)}
+          value={data}
         />
       </FormGroup>
     </>

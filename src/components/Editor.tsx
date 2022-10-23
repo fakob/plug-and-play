@@ -5,7 +5,7 @@ import { Box, Button } from '@mui/material';
 import ErrorFallback from './ErrorFallback';
 
 type CodeEditorProps = {
-  value: string;
+  value: unknown;
   onChange?: (code: string) => void;
   randomMainColor: string;
   editable?: boolean;
@@ -13,16 +13,18 @@ type CodeEditorProps = {
 
 export const CodeEditor: React.FunctionComponent<CodeEditorProps> = (props) => {
   const maxStringLength = 10000;
-  const valueLength = props.value?.length;
+  const valueLength = String(props.value)?.length;
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor>();
   const [loadAll, setLoadAll] = useState(valueLength < maxStringLength);
   const [loadedValue, setLoadedValue] = useState(
-    loadAll ? props.value : props.value?.slice(0, maxStringLength) + '...'
+    loadAll
+      ? String(props.value)
+      : String(props.value)?.slice(0, maxStringLength) + '...'
   );
   const [editorHeight, setEditorHeight] = useState(48);
 
   const onLoadAll = () => {
-    setLoadedValue(props.value);
+    setLoadedValue(String(props.value));
     setLoadAll(true);
   };
 
