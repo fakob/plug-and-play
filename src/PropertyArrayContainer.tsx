@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import Color from 'color';
 import {
   Accordion,
@@ -7,20 +7,30 @@ import {
   AccordionSummary,
   AccordionSummaryProps,
   Box,
+  Button,
+  Checkbox,
+  FormGroup,
+  FormControlLabel,
   IconButton,
   Menu,
   MenuItem,
   Stack,
+  TextField,
   ToggleButton,
 } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import LockIcon from '@mui/icons-material/Lock';
+import UpdateIcon from '@mui/icons-material/Update';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { styled } from '@mui/styles';
-import { writeDataToClipboard, writeTextToClipboard } from './utils/utils';
+import {
+  getCircularReplacer,
+  writeDataToClipboard,
+  writeTextToClipboard,
+} from './utils/utils';
 import styles from './utils/style.module.css';
 import PPGraph from './classes/GraphClass';
 import PPNode from './classes/NodeClass';
@@ -51,24 +61,155 @@ const StyledAccordionSummary = styled((props: AccordionSummaryProps) => (
 ))(({ theme }) => ({
   paddingLeft: '8px',
   bgcolor: 'background.paper',
+  minHeight: '14px',
+  '& .MuiAccordionSummary-content': {
+    margin: '8px 0',
+    color: 'text.secondary',
+    fontSize: '14px',
+  },
 }));
 
 const StyledAccordionDetails = styled(AccordionDetails)(({ theme }) => ({
-  padding: '8px',
+  padding: '0 8px 8px',
   bgcolor: 'background.paper',
 }));
 
 export const PropertyArrayContainer: React.FunctionComponent<
   PropertyArrayContainerProps
 > = (props) => {
+  const [updateBehaviourUpdate, setUpdatebehaviourUpdate] = useState(
+    props.selectedNode.updateBehaviour.update
+  );
+  const [updateBehaviourInterval, setUpdatebehaviourInterval] = useState(
+    props.selectedNode.updateBehaviour.interval
+  );
+  const [
+    updateBehaviourIntervalFrequency,
+    setUpdatebehaviourIntervalFrequency,
+  ] = useState(props.selectedNode.updateBehaviour.intervalFrequency);
+
+  const onFrequencyChange = (event) => {
+    const value = parseInt((event.target as HTMLInputElement).value);
+    props.selectedNode.updateBehaviour.intervalFrequency = value;
+    setUpdatebehaviourIntervalFrequency(value);
+  };
+
   return (
-    <Stack spacing={1}>
+    <Stack spacing={0.25}>
+      <StyledAccordion
+        defaultExpanded={false}
+        TransitionProps={{ unmountOnExit: true }}
+      >
+        <StyledAccordionSummary>
+          <Box textAlign="center">DETAILS</Box>
+        </StyledAccordionSummary>
+        <StyledAccordionDetails>
+          <Box
+            sx={{ flexGrow: 1, display: 'inline-flex', alignItems: 'center' }}
+          >
+            <Box sx={{ pl: 1, fontSize: '14px' }}>
+              {props.selectedNode.name} - {props.selectedNode.id}
+            </Box>
+            {<LockIcon sx={{ pl: '2px', fontSize: '14px', opacity: 0.5 }} />}
+            <IconButton
+              size="small"
+              onClick={() =>
+                writeTextToClipboard(
+                  JSON.stringify(
+                    props.selectedNode.serialize(),
+                    getCircularReplacer(),
+                    2
+                  )
+                )
+              }
+            >
+              <ContentCopyIcon sx={{ fontSize: '14px' }} />
+            </IconButton>
+          </Box>
+          <CodeEditor
+            value={JSON.stringify(
+              props.selectedNode.serialize(),
+              getCircularReplacer(),
+              2
+            )}
+            randomMainColor={props.randomMainColor}
+            editable={false}
+          />
+        </StyledAccordionDetails>
+      </StyledAccordion>
+      <StyledAccordion
+        defaultExpanded={false}
+        TransitionProps={{ unmountOnExit: true }}
+      >
+        <StyledAccordionSummary>
+          <Box textAlign="center">UPDATE BEHAVIOUR</Box>
+        </StyledAccordionSummary>
+        <StyledAccordionDetails>
+          <Box
+            sx={{ flexGrow: 1, display: 'inline-flex', alignItems: 'center' }}
+          >
+            <FormGroup row={true}>
+              <IconButton
+                onClick={() => {
+                  props.selectedNode.executeOptimizedChain();
+                }}
+                title="Update now"
+              >
+                <UpdateIcon />
+              </IconButton>
+              <FormControlLabel
+                sx={{
+                  pl: 1,
+                }}
+                control={
+                  <Checkbox
+                    name="update"
+                    checked={updateBehaviourUpdate}
+                    onChange={(event) => {
+                      const checked = (event.target as HTMLInputElement)
+                        .checked;
+                      props.selectedNode.updateBehaviour.update = checked;
+                      setUpdatebehaviourUpdate(checked);
+                    }}
+                  />
+                }
+                label="On change"
+              />
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    name="interval"
+                    checked={updateBehaviourInterval}
+                    onChange={(event) => {
+                      const checked = (event.target as HTMLInputElement)
+                        .checked;
+                      props.selectedNode.updateBehaviour.interval = checked;
+                      setUpdatebehaviourInterval(checked);
+                    }}
+                  />
+                }
+                label="On interval"
+              />
+              <TextField
+                fullWidth
+                variant="filled"
+                label="Interval frequency (in ms)"
+                disabled={!updateBehaviourInterval}
+                inputProps={{
+                  type: 'number',
+                  inputMode: 'numeric',
+                }}
+                onChange={onFrequencyChange}
+                value={updateBehaviourIntervalFrequency.toString()}
+              />
+            </FormGroup>
+          </Box>
+        </StyledAccordionDetails>
+      </StyledAccordion>
       {props.selectedNode.nodeTriggerSocketArray?.length > 0 && (
         <StyledAccordion defaultExpanded>
           <StyledAccordionSummary>
-            <Box textAlign="left" sx={{ color: 'text.primary' }}>
-              NODE TRIGGER
-            </Box>
+            <Box textAlign="left">NODE TRIGGER</Box>
           </StyledAccordionSummary>
           <StyledAccordionDetails>
             {props.selectedNode.nodeTriggerSocketArray?.map(
@@ -94,9 +235,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
       {props.selectedNode.inputSocketArray?.length > 0 && (
         <StyledAccordion defaultExpanded>
           <StyledAccordionSummary>
-            <Box textAlign="left" sx={{ color: 'text.primary' }}>
-              IN
-            </Box>
+            <Box textAlign="left">IN</Box>
           </StyledAccordionSummary>
           <StyledAccordionDetails>
             {props.selectedNode.inputSocketArray?.map((property, index) => {
@@ -117,27 +256,28 @@ export const PropertyArrayContainer: React.FunctionComponent<
           </StyledAccordionDetails>
         </StyledAccordion>
       )}
-      <StyledAccordion defaultExpanded={false}>
+      <StyledAccordion
+        defaultExpanded={false}
+        TransitionProps={{ unmountOnExit: true }}
+      >
         <StyledAccordionSummary>
-          <Box textAlign="center" sx={{ color: 'text.primary' }}>
-            CODE
-          </Box>
+          <Box textAlign="center">CODE</Box>
         </StyledAccordionSummary>
         <StyledAccordionDetails>
           <Box
             sx={{ flexGrow: 1, display: 'inline-flex', alignItems: 'center' }}
           >
-            <Box sx={{ pl: 1, color: 'text.primary' }}>
-              {props.selectedNode.name}:{props.selectedNode.type}
+            <Box sx={{ pl: 1, fontSize: '14px' }}>
+              {props.selectedNode.name} - {props.selectedNode.id}
             </Box>
-            {<LockIcon sx={{ pl: '2px', fontSize: '16px', opacity: 0.5 }} />}
+            {<LockIcon sx={{ pl: '2px', fontSize: '14px', opacity: 0.5 }} />}
             <IconButton
               size="small"
               onClick={() =>
                 writeTextToClipboard(props.selectedNode.getSourceCode())
               }
             >
-              <ContentCopyIcon sx={{ pl: 1, fontSize: '16px' }} />
+              <ContentCopyIcon sx={{ fontSize: '14px' }} />
             </IconButton>
           </Box>
           <CodeEditor
@@ -150,9 +290,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
       {props.selectedNode.outputSocketArray?.length > 0 && (
         <StyledAccordion defaultExpanded>
           <StyledAccordionSummary>
-            <Box textAlign="right" sx={{ color: 'text.primary' }}>
-              OUT
-            </Box>
+            <Box textAlign="right">OUT</Box>
           </StyledAccordionSummary>
           <StyledAccordionDetails>
             {props.selectedNode.outputSocketArray.map((property, index) => {
@@ -322,7 +460,15 @@ const PropertyHeader: React.FunctionComponent<PropertyHeaderProps> = (
         }}
       >
         <Box sx={{ flexGrow: 1, display: 'inline-flex', alignItems: 'center' }}>
-          <Box sx={{ pl: 1, color: 'text.primary' }}>{props.property.name}</Box>
+          <Box
+            sx={{
+              pl: 1,
+              color: 'text.primary',
+              fontSize: '14px',
+            }}
+          >
+            {props.property.name}
+          </Box>
           {props.hasLink && (
             <LockIcon sx={{ pl: '2px', fontSize: '16px', opacity: 0.5 }} />
           )}
@@ -333,15 +479,7 @@ const PropertyHeader: React.FunctionComponent<PropertyHeaderProps> = (
             <ContentCopyIcon sx={{ pl: 1, fontSize: '16px' }} />
           </IconButton>
         </Box>
-        <Box
-          sx={{
-            color: 'text.secondary',
-            fontSize: '10px',
-          }}
-        >
-          {props.property.dataType.getName()}
-        </Box>
-        <IconButton
+        <Button
           title={`Property type: ${props.property.dataType.constructor.name}`}
           aria-label="more"
           id="select-type"
@@ -349,9 +487,15 @@ const PropertyHeader: React.FunctionComponent<PropertyHeaderProps> = (
           aria-expanded={open ? 'true' : undefined}
           aria-haspopup="true"
           onClick={handleClick}
+          endIcon={<MoreVertIcon />}
+          size="small"
+          sx={{
+            color: 'text.secondary',
+            fontSize: '10px',
+          }}
         >
-          <MoreVertIcon />
-        </IconButton>
+          {props.property.dataType.getName()}
+        </Button>
         <Menu
           sx={{
             fontSize: '12px',
