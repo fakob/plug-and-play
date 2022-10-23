@@ -315,7 +315,7 @@ export const CodeWidget: React.FunctionComponent<CodeWidgetProps> = (props) => {
 
   return (
     <CodeEditor
-      value={data}
+      value={String(data)}
       randomMainColor={props.randomMainColor}
       editable={!props.hasLink}
       onChange={(value) => {
@@ -334,7 +334,7 @@ export const JSONWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
   return (
     <Box>
       <CodeEditor
-        value={displayedString || ''}
+        value={String(displayedString)}
         randomMainColor={props.randomMainColor}
         editable={!props.hasLink}
         onChange={(value) => {
@@ -397,7 +397,7 @@ export const TriggerWidget: React.FunctionComponent<TriggerWidgetProps> = (
     <>
       {props.hasLink && (
         <CodeEditor
-          value={String(data) || ''}
+          value={String(data)}
           randomMainColor={props.randomMainColor}
           onChange={(value) => {
             potentiallyNotify(props.property, value);
@@ -562,7 +562,7 @@ export const DefaultOutputWidget: React.FunctionComponent<
 
   return (
     <CodeEditor
-      value={data}
+      value={String(data)}
       randomMainColor={props.randomMainColor}
       editable={false}
     />
