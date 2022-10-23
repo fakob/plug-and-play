@@ -47,7 +47,7 @@ export type SliderWidgetProps = {
 export const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (
   props
 ) => {
-  const [data, setData] = useState(Number(props.data));
+  const [data, setData] = useState(Number(props.data || 0));
   props.listenerAttacher(setData);
   const [minValue, setMinValue] = useState(
     Math.min(props.type.minValue ?? 0, data)
@@ -76,7 +76,7 @@ export const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (
             setData(roundNumber(value, 4));
           }
         }}
-        value={data || 0}
+        value={data}
       />
       <FormGroup
         row={true}
@@ -170,7 +170,7 @@ export type SelectWidgetProps = {
   property: Socket;
   index: number;
   hasLink: boolean;
-  data: number;
+  data: unknown;
   options: EnumStructure;
   randomMainColor: string;
   onChange?: (value: string) => void;
@@ -180,7 +180,7 @@ export type SelectWidgetProps = {
 export const SelectWidget: React.FunctionComponent<SelectWidgetProps> = (
   props
 ) => {
-  const [data, setData] = useState(props.data);
+  const [data, setData] = useState(props.data ?? '');
   const [options, setOptions] = useState(props.options);
 
   const onOpen = () => {
