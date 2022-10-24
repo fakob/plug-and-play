@@ -703,7 +703,7 @@ export default class PPGraph {
     }
 
     // select newNode
-    this.selection.selectNodes(newNodes);
+    this.selection.selectNodes(newNodes, false, true);
     this.selection.drawRectanglesFromSelection();
 
     return newNodes;
