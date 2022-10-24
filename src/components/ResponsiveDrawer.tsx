@@ -6,7 +6,6 @@ import styles from '../utils/style.module.css';
 
 const ResponsiveDrawer = (props) => {
   // leaving this commented here for potential future testing
-  console.log('redrawing responsivedrawer');
   const [widthPercentage, setWidthPercentage] = useState(
     props.drawerWidth / window.innerWidth
   );
