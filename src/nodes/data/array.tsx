@@ -61,46 +61,6 @@ export class ArrayGet extends PPNode {
     outputObject[elementName] = inputObject[arrayName][inputObject[indexName]];
   }
 }
-export class ArraySlice extends PPNode {
-  protected getDefaultIO(): PPSocket[] {
-    console.log('GETTIN IT');
-    return [
-      new PPSocket(SOCKET_TYPE.IN, arrayName, new ArrayType()),
-      new PPSocket(
-        SOCKET_TYPE.IN,
-        beginIndexName,
-        new NumberType(true, 0, 10),
-        0,
-        true
-      ),
-      new PPSocket(
-        SOCKET_TYPE.IN,
-        endIndexName,
-        new NumberType(true, 0, 10),
-        0,
-        true
-      ),
-      new PPSocket(SOCKET_TYPE.IN, shouldUseEnd, new BooleanType(), false),
-      new PPSocket(SOCKET_TYPE.OUT, arrayName, new ArrayType()),
-    ];
-  }
-  protected async onExecute(
-    inputObject: unknown,
-    outputObject: Record<string, unknown>
-  ): Promise<void> {
-    const res = inputObject[shouldUseEnd]
-      ? inputObject[arrayName].slice(
-          inputObject[beginIndexName],
-          inputObject[endIndexName]
-        )
-      : inputObject[arrayName].slice(inputObject[beginIndexName]);
-    outputObject[arrayName] = res;
-  }
-
-  public getName(): string {
-    return 'Slice Array';
-  }
-}
 
 export class ArrayLength extends PPNode {
   protected getDefaultIO(): PPSocket[] {

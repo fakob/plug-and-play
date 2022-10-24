@@ -557,16 +557,20 @@ export type DefaultOutputWidgetProps = {
 export const DefaultOutputWidget: React.FunctionComponent<
   DefaultOutputWidgetProps
 > = (props) => {
-  const [data, setData] = useState(props.data);
-  props.listenerAttacher(setData);
+  try {
+    const [data, setData] = useState(props.data);
+    props.listenerAttacher(setData);
 
-  return (
-    <CodeEditor
-      value={data}
-      randomMainColor={props.randomMainColor}
-      editable={false}
-    />
-  );
+    return (
+      <CodeEditor
+        value={data}
+        randomMainColor={props.randomMainColor}
+        editable={false}
+      />
+    );
+  } catch (error) {
+    return <div></div>;
+  }
 };
 
 export type NumberOutputWidgetProps = {

@@ -228,7 +228,8 @@ export class CustomFunction extends PPNode {
         SOCKET_TYPE.IN,
         anyCodeName,
         new CodeType(),
-        this.getDefaultFunction()
+        this.getDefaultFunction(),
+        false
       ),
       new Socket(
         SOCKET_TYPE.OUT,
@@ -385,5 +386,14 @@ export class Uniques extends ArrayFunction {
 export class Flatten extends PPNode {
   protected getDefaultFunction(): string {
     return '(ArrayIn) => {\n\treturn ArrayIn.flat();\n}';
+  }
+}
+
+export class ArraySlice extends PPNode {
+  public getName(): string {
+    return 'Slice Array';
+  }
+  protected getDefaultFunction(): string {
+    return '(ArrayIn) => {\n\treturn ArrayIn.slice(0,10);\n}';
   }
 }
