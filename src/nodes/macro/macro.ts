@@ -192,9 +192,6 @@ export class InvokeMacro extends MacroNode {
     inputObject: unknown,
     outputObject: Record<string, unknown>
   ): Promise<void> {
-    const newOutputs = await this.invokeMacro(inputObject);
-    Object.keys(newOutputs).forEach((key) => {
-      outputObject[key] = newOutputs[key];
-    });
+    outputObject[macroOutputName] = await this.invokeMacro(inputObject);
   }
 }
