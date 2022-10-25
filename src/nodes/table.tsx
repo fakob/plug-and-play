@@ -247,6 +247,29 @@ export class Table extends HybridNode {
         [arrayOfArrays.length, props.sheetIndex]
       );
 
+      const [colsMap, setColsMap] = React.useState(() => {
+        console.log(arrayOfArrays);
+        const firstRow: [] = arrayOfArrays[0];
+        const longestArrayInArray = getLongestArrayInArray(arrayOfArrays);
+        if (!firstRow) {
+          return [
+            {
+              title: 'Name',
+              id: 'name',
+            },
+          ];
+        }
+        const gridColumn = [];
+        for (let index = 0; index < longestArrayInArray; index++) {
+          const col = firstRow[index];
+          gridColumn.push({
+            title: String(col ?? index),
+            id: String(col ?? index).toLowerCase(),
+          });
+        }
+        return gridColumn;
+      });
+
       const onCellEdited = useCallback(
         (cell: Item, newValue: EditableGridCell) => {
           if (newValue.kind !== GridCellKind.Text) {
@@ -257,6 +280,8 @@ export class Table extends HybridNode {
           arrayOfArrays[row][col] = newValue.data;
 
           const worksheet = XLSX.utils.aoa_to_sheet(arrayOfArrays);
+          worksheet['!cols'] = colsMap.map((column) => ({ wpx: column.width }));
+          console.log(colsMap, worksheet);
           this.workBook.Sheets[this.workBook.SheetNames[props.sheetIndex]] =
             worksheet;
 
@@ -264,7 +289,7 @@ export class Table extends HybridNode {
           this.setAllOutputData(this.workBook);
           this.executeChildren();
         },
-        [arrayOfArrays.length, props.sheetIndex]
+        [colsMap, arrayOfArrays.length, props.sheetIndex]
       );
 
       const getContent = useCallback(
@@ -295,27 +320,53 @@ export class Table extends HybridNode {
         [arrayOfArrays.length, props.sheetIndex]
       );
 
-      const cols = useMemo<GridColumn[]>(() => {
-        const firstRow: [] = arrayOfArrays[0];
-        const longestArrayInArray = getLongestArrayInArray(arrayOfArrays);
-        if (!firstRow) {
-          return [
-            {
-              title: 'Name',
-              id: 'name',
-            },
-          ];
-        }
-        const gridColumn = [];
-        for (let index = 0; index < longestArrayInArray; index++) {
-          const col = firstRow[index];
-          gridColumn.push({
-            title: String(col ?? index),
-            id: String(col ?? index).toLowerCase(),
-          });
-        }
-        return gridColumn;
+      React.useEffect(() => {
+        setColsMap(() => {
+          const firstRow: [] = arrayOfArrays[0];
+          const longestArrayInArray = getLongestArrayInArray(arrayOfArrays);
+          if (!firstRow) {
+            return [
+              {
+                title: 'Name',
+                id: 'name',
+              },
+            ];
+          }
+          const gridColumn = [];
+          for (let index = 0; index < longestArrayInArray; index++) {
+            const col = firstRow[index];
+            gridColumn.push({
+              title: String(col ?? index),
+              id: String(col ?? index).toLowerCase(),
+            });
+          }
+          return gridColumn;
+        });
       }, [arrayOfArrays.length, props.sheetIndex]);
+
+      const cols = React.useMemo(() => {
+        console.log(arrayOfArrays);
+        console.log(colsMap);
+        return colsMap;
+      }, [colsMap, arrayOfArrays.length, props.sheetIndex]);
+
+      const onColumnResize = React.useCallback(
+        (column: GridColumn, newSize: number) => {
+          // console.log(column, newSize);
+          setColsMap((prevColsMap) => {
+            const index = prevColsMap.findIndex(
+              (ci) => ci.title === column.title
+            );
+            const newArray = [...prevColsMap];
+            newArray.splice(index, 1, {
+              ...prevColsMap[index],
+              width: newSize,
+            });
+            return newArray;
+          });
+        },
+        []
+      );
 
       return (
         <DataEditor
@@ -323,6 +374,11 @@ export class Table extends HybridNode {
           getCellContent={getContent}
           columns={cols}
           rows={arrayOfArrays.length}
+          overscrollX={200}
+          overscrollY={200}
+          maxColumnAutoWidth={500}
+          maxColumnWidth={2000}
+          onColumnResize={onColumnResize}
           width={props.nodeWidth}
           height={props.nodeHeight}
           gridSelection={gridSelection}
