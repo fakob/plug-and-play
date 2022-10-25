@@ -171,7 +171,9 @@ export abstract class DRAW_Base extends PPNode {
   ): void {}
 
   getAndIncrementExecutions(executions: { string: number }): number {
-    if (executions[this.id] === undefined) {
+    if (executions === undefined) {
+      return 0;
+    } else if (executions[this.id] === undefined) {
       executions[this.id] = 0;
     }
     return executions[this.id]++;
