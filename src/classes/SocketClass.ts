@@ -159,7 +159,10 @@ export default class Socket extends PIXI.Container {
     if (this.isInput()) {
       if (!this.hasLink()) {
         this._defaultData = newData;
+      } else if (PPGraph.currentGraph.showExecutionVisualisation) {
+        this.links[0].renderOutlineThrottled();
       }
+
       // update defaultData only if socket is input
       // and does not have a link
     } else {
