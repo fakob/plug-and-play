@@ -592,6 +592,48 @@ export class DRAW_Multiplier extends DRAW_Base {
   }
 }
 
+export class DRAW_Multipy_Along extends DRAW_Base {
+  public getDescription(): string {
+    return 'Multiples a drawing onto points';
+  }
+  public getName(): string {
+    return 'Multiply onto points';
+  }
+
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(SOCKET_TYPE.IN, inputGraphicsName, new DeferredPixiType()),
+      new Socket(SOCKET_TYPE.IN, inputPointsName, new ArrayType()),
+    ].concat(super.getDefaultIO());
+  }
+  protected drawOnContainer(
+    inputObject: any,
+    container: PIXI.Container,
+    executions: { string: number }
+  ): void {
+    inputObject = {
+      ...inputObject,
+      ...inputObject[injectedDataName][
+        this.getAndIncrementExecutions(executions)
+      ],
+    };
+    const myContainer = new PIXI.Container();
+    inputObject[inputPointsName].forEach((points) => {
+      const x = points[0];
+      const y = points[1];
+      const shallowContainer = new PIXI.Container();
+      if (inputObject[inputGraphicsName])
+        inputObject[inputGraphicsName](shallowContainer, executions);
+      shallowContainer.x = x;
+      shallowContainer.y = y;
+
+      myContainer.addChild(shallowContainer);
+    });
+
+    container.addChild(myContainer);
+  }
+}
+
 export class DRAW_Image extends DRAW_Base {
   public getDescription(): string {
     return 'Draws an image object (jpg,png)';
