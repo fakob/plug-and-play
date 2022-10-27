@@ -184,8 +184,8 @@ export default class PPGraph {
         this.overrideNodeCursorPosition = this.viewport.toWorld(
           event.data.global
         );
+        this.onOpenNodeSearch(event.data.global);
       }
-      this.onOpenNodeSearch(event.data.global);
     }
     // check if viewport has been dragged,
     // if not, this is a deselect all nodes action
