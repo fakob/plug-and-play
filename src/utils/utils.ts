@@ -646,7 +646,7 @@ export const getMatchingSocket = (socket: PPSocket, node: PPNode): PPSocket => {
   if (socketArray.length > 0) {
     const getSocket = (
       condition,
-      onlyFreeSocket = false,
+      onlyFreeSocket,
       onlyVisibleSocket = true
     ): PPSocket => {
       return socketArray.find((socketInArray) => {
@@ -682,8 +682,15 @@ export const getMatchingSocket = (socket: PPSocket, node: PPNode): PPSocket => {
       getSocket(exactMatchCondition, true) ?? // get exact match with no link
       getSocket(anyTypeCondition, true) ?? // get anyType with no link
       getSocket(anyCondition, true) ?? // get any with no link
-      getSocket(preferredCondition) ?? // get preferred
-      getSocket(anyCondition) // get first
+      // no match free and visible
+      getSocket(preferredCondition, false, false) ??
+      getSocket(exactMatchCondition, false) ??
+      getSocket(anyTypeCondition, false) ??
+      getSocket(anyCondition, false) ??
+      // no match linked and visible
+      getSocket(exactMatchCondition, false, false) ??
+      getSocket(anyTypeCondition, false, false) ??
+      getSocket(anyCondition, false, false)
     );
   }
   // node does not have an in/output socket
