@@ -23,6 +23,10 @@ class MacroNode extends PPNode {
       new AnyType()
     );
   }
+  public setPosition(x: number, y: number, isRelative = false): void {
+    super.setPosition(x, y, isRelative);
+    this.drawNodeShape();
+  }
 }
 
 //export class DefineMacro extends PPNode {
@@ -81,14 +85,6 @@ export class DefineMacroIn extends MacroNode {
     this.addChild(this.graphicsLink);
     super.drawNodeShape();
   }
-
-  // TODO reimplement
-  /*public _onPointerMove(): void {
-    super._onPointerMove();
-    if (this.isDraggingNode) {
-      this.drawNodeShape();
-    }
-  }*/
 }
 
 export class DefineMacroOut extends MacroNode {
@@ -119,14 +115,6 @@ export class DefineMacroOut extends MacroNode {
     this.tellMacroInToRedraw();
     super.drawNodeShape();
   }
-  // TODO reimplement
-  /*
-  public _onPointerMove(): void {
-    super._onPointerMove();
-    if (this.isDraggingNode) {
-      this.tellMacroInToRedraw();
-    }
-  }*/
 
   protected getDefaultIO(): Socket[] {
     return [new Socket(SOCKET_TYPE.IN, macroOutputName, new AnyType())];
