@@ -1,8 +1,9 @@
 import * as PIXI from 'pixi.js';
-import { SerializedLink } from '../utils/interfaces';
+import { SerializedLink, TRgba } from '../utils/interfaces';
 import Socket from './SocketClass';
 import PPNode from './NodeClass';
 import PPGraph from './GraphClass';
+import { throttle } from 'lodash';
 
 export default class PPLink extends PIXI.Container {
   id: number;
@@ -10,6 +11,8 @@ export default class PPLink extends PIXI.Container {
   target: Socket;
   _connectionRef: PIXI.Graphics;
   // _data: any;
+
+  lineThickness = 2;
 
   constructor(id: number, source: Socket, target: Socket) {
     super();
@@ -19,7 +22,7 @@ export default class PPLink extends PIXI.Container {
     // this._data = null;
 
     const connection = new PIXI.Graphics();
-    this._drawConnection(connection, source, target);
+    this._drawConnection(connection);
     this._connectionRef = this.addChild(connection);
   }
 
@@ -37,10 +40,23 @@ export default class PPLink extends PIXI.Container {
     }
   }
 
+  public nodeHoveredOver() {
+    this.setLineThickness(4);
+  }
+
+  public nodeHoveredOut() {
+    this.setLineThickness(2);
+  }
+
+  private setLineThickness(thickness: number): void {
+    this.lineThickness = thickness;
+    this.updateConnection();
+  }
+
   updateConnection(): void {
     // redraw background due to node movement
     this._connectionRef.clear();
-    this._drawConnection(this._connectionRef, this.source, this.target);
+    this._drawConnection(this._connectionRef);
   }
 
   getSource(): Socket {
@@ -71,13 +87,38 @@ export default class PPLink extends PIXI.Container {
     delete this.getSource().getGraph()._links[this.id];
   }
 
+  public renderOutlineThrottled = throttle(this.renderOutline, 2000, {
+    trailing: false,
+    leading: true,
+  });
+
+  private renderOutline(iterations = 30, interval = 16.67): void {
+    const activeExecution = new PIXI.Graphics();
+    this.addChild(activeExecution);
+    for (let i = 1; i <= iterations; i++) {
+      setTimeout(() => {
+        activeExecution.clear();
+        this._drawConnection(
+          activeExecution,
+          TRgba.white(),
+          0.4 - i * (0.4 / iterations)
+        );
+
+        activeExecution.endFill();
+        if (i == iterations) {
+          this.removeChild(activeExecution);
+        }
+      }, i * interval);
+    }
+  }
+
   _drawConnection(
     connection: PIXI.Graphics,
-    source: Socket,
-    target: Socket
+    color = this.source.dataType.getColor().multiply(0.9),
+    alpha = 1
   ): void {
-    const sourcePoint = PPGraph.currentGraph.getSocketCenter(source);
-    const targetPoint = PPGraph.currentGraph.getSocketCenter(target);
+    const sourcePoint = PPGraph.currentGraph.getSocketCenter(this.source);
+    const targetPoint = PPGraph.currentGraph.getSocketCenter(this.target);
 
     // draw curve from 0,0 as PIXI.Graphics sourceates from 0,0
     const toX = targetPoint.x - sourcePoint.x;
@@ -87,11 +128,7 @@ export default class PPLink extends PIXI.Container {
     const cpX2 = toX - cpX;
     const cpY2 = toY;
 
-    connection.lineStyle(
-      2,
-      source.dataType.getColor().multiply(0.9).hexNumber(),
-      1
-    );
+    connection.lineStyle(this.lineThickness, color.hexNumber(), alpha);
     connection.bezierCurveTo(cpX, cpY, cpX2, cpY2, toX, toY);
 
     // offset curve to start from source

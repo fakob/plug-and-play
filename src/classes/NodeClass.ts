@@ -1020,7 +1020,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     leading: true,
   });
 
-  public renderOutline(iterations = 30, interval = 16.67): void {
+  private renderOutline(iterations = 30, interval = 16.67): void {
     // const iterations = 30;
     // const interval = 16.67;
     const activeExecution = new PIXI.Graphics();
@@ -1207,6 +1207,10 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     this.isHovering = true;
     this.updateBehaviour.redrawAnythingChanging();
     this.nodeSelectionHeader.redrawAnythingChanging(true);
+
+    this.getAllSockets().forEach((socket) =>
+      socket.links.forEach((link) => link.nodeHoveredOver())
+    );
   }
 
   _onPointerOut(): void {
@@ -1217,6 +1221,9 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     }
     this.updateBehaviour.redrawAnythingChanging();
     this.nodeSelectionHeader.redrawAnythingChanging(false);
+    this.getAllSockets().forEach((socket) =>
+      socket.links.forEach((link) => link.nodeHoveredOut())
+    );
   }
 
   _onDoubleClick(event: PIXI.InteractionEvent): void {
