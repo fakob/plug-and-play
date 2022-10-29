@@ -176,8 +176,10 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     console.log(acceptedFiles, fileRejections);
 
     const dropPoint = viewport.current.toWorld(
-      new PIXI.Point(event.clientX, event.clientY)
+      // no event exists in case graph gets loaded from file
+      new PIXI.Point(event?.clientX ?? 0, event?.clientY ?? 0)
     );
+
     let nodePosX = dropPoint.x;
     const nodePosY = dropPoint.y;
     const newNodeSelection: PPNode[] = [];
@@ -221,10 +223,10 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
             break;
           case 'txt':
             data = await response.text();
-            newNode = currentGraph.current.addNewNode('Text', {
+            newNode = currentGraph.current.addNewNode('TextEditor', {
               nodePosX,
               nodePosY,
-              initialData: data,
+              initialData: { plain: data },
             });
             break;
           case 'jpg':
@@ -553,6 +555,8 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         return Math.min(window.innerHeight - offset, event.data.global.y);
       };
       switch (true) {
+        case target.parent instanceof PPSocket &&
+          target instanceof PIXI.Graphics:
         case target.parent instanceof PPSocket && target instanceof PIXI.Text:
           console.log('app right click, socket');
           setContextMenuPosition([contextMenuPosX, contextMenuPosY(80)]);

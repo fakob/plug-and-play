@@ -134,7 +134,6 @@ export default class PPGraph {
     console.log('GraphClass - _onPointerRightClicked');
     event.stopPropagation();
     const target = event.target;
-    console.log(target, event.data.originalEvent);
     if (
       // only trigger right click if viewport was not dragged
       this.dragSourcePoint === undefined ||
@@ -284,9 +283,7 @@ export default class PPGraph {
   }
 
   socketMouseDown(socket: PPSocket, event: PIXI.InteractionEvent): void {
-    if (event.data.button === 2) {
-      socket.links.forEach((link) => this.action_Disconnect(link));
-    } else if (socket.socketType === SOCKET_TYPE.OUT) {
+    if (socket.socketType === SOCKET_TYPE.OUT) {
       this.selectedSourceSocket = socket;
       this.lastSelectedSocketWasInput = false;
     } else {
@@ -310,7 +307,7 @@ export default class PPGraph {
   ): Promise<void> {
     const source = this.selectedSourceSocket;
     this.selectedSourceSocket = null;
-    if (socket !== this.selectedSourceSocket) {
+    if (source && socket !== this.selectedSourceSocket) {
       if (
         source.socketType === SOCKET_TYPE.IN &&
         socket.socketType === SOCKET_TYPE.OUT
@@ -593,6 +590,7 @@ export default class PPGraph {
       newNode = await this.addNewNode(nodeType, {
         nodePosX: node.x,
         nodePosY: node.y + socket.y,
+        initialData: socket.data,
       });
       newNode.setPosition(-(newNode.width + 40), 0, true);
     } else {

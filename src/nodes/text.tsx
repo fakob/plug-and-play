@@ -19,6 +19,7 @@ export class Label extends PPNode {
   _refText: PIXI.Text;
   _refTextStyle: PIXI.TextStyle;
   currentInput: HTMLDivElement;
+  initialData: any;
   createInputElement: () => void;
 
   getShowLabels(): boolean {
@@ -89,6 +90,8 @@ export class Label extends PPNode {
       nodeWidth,
     });
 
+    this.initialData = customArgs?.initialData;
+
     const canvas = PPGraph.currentGraph.foregroundCanvas;
     this._refTextStyle = new PIXI.TextStyle();
     const basicText = new PIXI.Text('', this._refTextStyle);
@@ -97,6 +100,9 @@ export class Label extends PPNode {
 
     // when the Node is added, focus it so one can start writing
     this.onNodeAdded = () => {
+      if (this.initialData) {
+        this.setInputData('Input', this.initialData);
+      }
       this.currentInput = null;
       this.createInputElement();
       super.onNodeAdded();

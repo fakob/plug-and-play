@@ -89,6 +89,8 @@ export class ConcatenateArrays extends PPNode {
 }
 
 export class Constant extends PPNode {
+  initialData: any;
+
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, constantInName, new AnyType(), 0),
@@ -100,6 +102,21 @@ export class Constant extends PPNode {
     outputObject: Record<string, unknown>
   ): Promise<void> {
     outputObject[constantOutName] = inputObject?.[constantInName];
+  }
+
+  constructor(name: string, customArgs?: CustomArgs) {
+    super(name, {
+      ...customArgs,
+    });
+
+    this.initialData = customArgs?.initialData;
+
+    this.onNodeAdded = () => {
+      if (this.initialData) {
+        this.setInputData(constantInName, this.initialData);
+      }
+      super.onNodeAdded();
+    };
   }
 }
 
