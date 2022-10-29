@@ -3,7 +3,6 @@ import PPGraph from '../../classes/GraphClass';
 import PPNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
 import {
-  COLOR_WHITE,
   NODE_TYPE_COLOR,
   NOTE_LINEHEIGHT_FACTOR,
   PIXI_PIVOT_OPTIONS,
@@ -148,7 +147,7 @@ export abstract class DRAW_Base extends PPNode {
         SOCKET_TYPE.IN,
         inputPivotName,
         new EnumType(PIXI_PIVOT_OPTIONS),
-        PIXI_PIVOT_OPTIONS[0].text,
+        PIXI_PIVOT_OPTIONS[0].value,
         false
       ),
       new Socket(
@@ -206,9 +205,7 @@ export abstract class DRAW_Base extends PPNode {
   }
 
   protected positionAndScale(toModify: DisplayObject, inputObject: any): void {
-    const pivotPoint = PIXI_PIVOT_OPTIONS.find(
-      (item) => item.text === inputObject[inputPivotName]
-    ).value;
+    const pivotPoint = inputObject[inputPivotName];
 
     toModify.setTransform(
       inputObject[offseXName],
