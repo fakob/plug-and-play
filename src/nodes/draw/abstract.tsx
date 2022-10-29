@@ -103,13 +103,13 @@ export abstract class DRAW_Base extends PPNode {
   }
 
   // if you are a child you likely want to use this instead of normal execute
-  protected drawOnContainer(
+  protected abstract drawOnContainer(
     inputObject: any,
     container: PIXI.Container,
     executions: { string: number }
-  ): void {}
+  ): void;
 
-  getAndIncrementExecutions(executions: { string: number }): number {
+  protected getAndIncrementExecutions(executions: { string: number }): number {
     if (executions === undefined) {
       return 0;
     } else if (executions[this.id] === undefined) {
@@ -131,7 +131,7 @@ export abstract class DRAW_Base extends PPNode {
     return !this.getOutputSocketByName(outputPixiName).hasLink();
   }
 
-  handleDrawing(drawingFunction: any, absolutePosition: boolean): void {
+  private handleDrawing(drawingFunction: any, absolutePosition: boolean): void {
     this.removeChild(this.deferredGraphics);
     if (this.shouldDraw()) {
       this.deferredGraphics = new PIXI.Container();

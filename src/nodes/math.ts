@@ -93,8 +93,8 @@ export class MathFunction extends PPNode {
   }
 }
 
-class SimpleMathOperation extends PPNode {
-  getColor(): TRgba {
+abstract class SimpleMathOperation extends PPNode {
+  public getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
   }
   constructor(name: string, customArgs: CustomArgs) {
