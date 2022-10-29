@@ -10,6 +10,7 @@ import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../../utils/constants';
 import { AnyType } from '../datatypes/anyType';
 import { JSONType } from '../datatypes/jsonType';
 import { StringType } from '../datatypes/stringType';
+import { dataToType } from '../datatypes/typehelper';
 
 const JSONName = 'JSON';
 const JSONParamName = 'Path';
@@ -237,7 +238,7 @@ export class Break extends PPNode {
     argumentsToBeAdded.forEach((argument) => {
       this.addOutput(
         argument,
-        new AnyType()
+        dataToType(json[argument])
       );
     });
     if (socketsToBeRemoved.length > 0 || argumentsToBeAdded.length > 0) {
