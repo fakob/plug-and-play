@@ -90,6 +90,10 @@ export class TextEditor extends HybridNode {
     );
   }
 
+  getPreferredOutputSocketName(): string {
+    return textOutputSocketName;
+  }
+
   protected getDefaultIO(): PPSocket[] {
     const backgroundColor = COLOR[8];
 
