@@ -17,9 +17,17 @@ import DataEditor, {
   GridColumn,
   GridSelection,
   Item,
-  SizedGridColumn,
+  Rectangle,
 } from '@glideapps/glide-data-grid';
 import '@glideapps/glide-data-grid/dist/index.css';
+import {
+  Divider,
+  ListItemText,
+  MenuItem,
+  MenuList,
+  Paper,
+} from '@mui/material';
+import PPGraph from '../classes/GraphClass';
 import PPSocket from '../classes/SocketClass';
 import {
   getLongestArrayInArray,
@@ -225,6 +233,7 @@ export class Table extends HybridNode {
           gridColumn.push({
             title: String(col ?? index),
             id: String(col ?? index).toLowerCase(),
+            hasMenu: true,
           });
         }
         return gridColumn;
@@ -235,10 +244,20 @@ export class Table extends HybridNode {
       const [colsMap, setColsMap] = useState(() => getCols());
       const [gridSelection, setGridSelection] =
         useState<GridSelection>(unselected);
+      const [menu, setMenu] = React.useState<{
+        col: number;
+        pos: PIXI.Point;
+      }>();
+
+      const isOpen = menu !== undefined;
 
       useEffect(() => {
         loadSheet();
       }, []);
+
+      useEffect(() => {
+        console.log(menu?.pos?.x, menu?.pos?.y);
+      }, [menu]);
 
       useEffect(() => {
         if (props.doubleClicked) {
@@ -392,47 +411,109 @@ export class Table extends HybridNode {
         });
       }, []);
 
+      const onHeaderMenuClick = React.useCallback(
+        (col: number, bounds: Rectangle) => {
+          console.log('Header menu clicked', col, bounds);
+          const nodeScreenPos = PPGraph.currentGraph.viewport.toScreen(
+            bounds.x,
+            bounds.y
+          );
+          console.log(
+            col,
+            bounds,
+            this.x,
+            this.y,
+            nodeScreenPos,
+            bounds.x,
+            bounds.y
+          );
+          setMenu({
+            col,
+            pos: new PIXI.Point(
+              // bounds.x +
+              // bounds.width * (1 / PPGraph.currentGraph.viewport.scale.x) -
+              nodeScreenPos.x,
+              0
+            ),
+          });
+        },
+        []
+      );
+
+      const onHeaderClicked = React.useCallback(() => {
+        // eslint-disable-next-line no-console
+        console.log('Header clicked');
+      }, []);
+
       return (
-        <DataEditor
-          ref={ref}
-          getCellContent={getContent}
-          columns={cols}
-          rows={arrayOfArrays.length}
-          overscrollX={200}
-          overscrollY={200}
-          maxColumnAutoWidth={500}
-          maxColumnWidth={2000}
-          onColumnResize={onColumnResize}
-          width={props.nodeWidth}
-          height={props.nodeHeight}
-          gridSelection={gridSelection}
-          onCellEdited={onCellEdited}
-          onColumnMoved={onColumnMoved}
-          onGridSelectionChange={onGridSelectionChange}
-          onPaste={onPaste}
-          onRowMoved={onRowMoved}
-          fillHandle={true}
-          rowSelect="multi"
-          // rowMarkers="clickable-number"
-          rowMarkers={'both'}
-          smoothScrollX={true}
-          smoothScrollY={true}
-          rowSelectionMode="multi"
-          getCellsForSelection={true}
-          keybindings={{ search: true }}
-          trailingRowOptions={{
-            sticky: true,
-            tint: true,
-            hint: 'New row...',
-          }}
-          getRowThemeOverride={(i) =>
-            i % 2 === 0
-              ? undefined
-              : {
-                  bgCell: '#F4FAF9',
-                }
-          }
-        />
+        <>
+          <DataEditor
+            ref={ref}
+            getCellContent={getContent}
+            columns={cols}
+            rows={arrayOfArrays.length}
+            overscrollX={200}
+            overscrollY={200}
+            maxColumnAutoWidth={500}
+            maxColumnWidth={2000}
+            onColumnResize={onColumnResize}
+            width={props.nodeWidth}
+            height={props.nodeHeight}
+            gridSelection={gridSelection}
+            onCellEdited={onCellEdited}
+            onCellContextMenu={(_, e) => e.preventDefault()}
+            onColumnMoved={onColumnMoved}
+            onGridSelectionChange={onGridSelectionChange}
+            onHeaderMenuClick={onHeaderMenuClick}
+            onHeaderClicked={onHeaderClicked}
+            onPaste={onPaste}
+            onRowMoved={onRowMoved}
+            fillHandle={true}
+            rowSelect="multi"
+            rowMarkers={'both'}
+            smoothScrollX={true}
+            smoothScrollY={true}
+            rowSelectionMode="multi"
+            getCellsForSelection={true}
+            keybindings={{ search: true }}
+            trailingRowOptions={{
+              sticky: true,
+              tint: true,
+              hint: 'New row...',
+            }}
+            getRowThemeOverride={(i) =>
+              i % 2 === 0
+                ? undefined
+                : {
+                    bgCell: '#F4FAF9',
+                  }
+            }
+          />
+          {isOpen && (
+            <TableRowContextMenu
+              // contextMenuPosition={() => {
+              //   const nodeScreenPos = PPGraph.currentGraph.viewport.toScreen(
+              //     this.x,
+              //     this.y
+              //   );
+              //   console.log(
+              //     this.x,
+              //     this.y,
+              //     nodeScreenPos,
+              //     menu.pos.x,
+              //     menu.pos.y
+              //   );
+              //   return [menu.pos.x, menu.pos.y];
+              // }}
+              contextMenuPosition={[menu.pos.x, menu.pos.y]}
+              // contextMenuPosition={PPGraph.currentGraph.viewport.toScreen(
+              //   menu.bounds.x,
+              //   menu.bounds.y
+              // )}
+              setMenu={setMenu}
+            />
+          )}
+        </>
       );
     };
   }
@@ -478,3 +559,67 @@ export class Table extends HybridNode {
     this.setOutputData(arrayOfArraysSocketName, this.getArrayOfArrays(sheet));
   }
 }
+
+export const TableRowContextMenu = (props) => {
+  useEffect(() => {
+    window.addEventListener('contextmenu', handleContextMenu);
+  });
+
+  useEffect(() => {
+    return () => {
+      window.removeEventListener('contextmenu', handleContextMenu);
+    };
+  }, []);
+
+  function handleContextMenu(e: Event) {
+    e.preventDefault();
+  }
+
+  return (
+    <Paper
+      id="TableRowContextMenu"
+      sx={{
+        width: 240,
+        maxWidth: '100%',
+        position: 'absolute',
+        zIndex: 400,
+        left: props.contextMenuPosition[0],
+        top: props.contextMenuPosition[1],
+      }}
+    >
+      <MenuList dense>
+        <MenuItem
+          onClick={() => {
+            props.setMenu(undefined);
+          }}
+        >
+          {/* <ListItemIcon>
+            <AddIcon fontSize="small" />
+          </ListItemIcon> */}
+          <ListItemText>Add column right</ListItemText>
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            props.setMenu(undefined);
+          }}
+        >
+          {/* <ListItemIcon>
+            <AddIcon fontSize="small" />
+          </ListItemIcon> */}
+          <ListItemText>Add column left</ListItemText>
+        </MenuItem>
+        <Divider />
+        <MenuItem
+          onClick={() => {
+            props.setMenu(undefined);
+          }}
+        >
+          {/* <ListItemIcon>
+            <DeleteIcon fontSize="small" />
+          </ListItemIcon> */}
+          <ListItemText>Delete column</ListItemText>
+        </MenuItem>
+      </MenuList>
+    </Paper>
+  );
+};
