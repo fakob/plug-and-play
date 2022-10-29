@@ -22,7 +22,6 @@ import * as textEditor from './textEditor/textEditor';
 import * as utility from './utility/utility';
 import * as widgetNodes from './widgets/widgetNodes';
 import * as recordNodes from './interactivity/record';
-import { getInfoFromRegisteredNode } from '../utils/utils';
 import { RegisteredNodeTypes } from '../utils/interfaces';
 
 let allNodesCached = undefined;
@@ -60,12 +59,14 @@ export const getAllNodeTypes = (): RegisteredNodeTypes => {
       for (const key of Object.keys(categoryValue)) {
         const nodeConstructor = categoryValue[key];
         if (nodeConstructor.prototype instanceof PPNode) {
-          const nodeInfo = getInfoFromRegisteredNode(key, nodeConstructor);
+          const node: PPNode = new nodeConstructor(key);
+          const hasInputs = node.inputSocketArray.length > 0;
+
           toReturn[key] = {
             constructor: nodeConstructor,
-            name: nodeInfo.name,
-            description: nodeInfo.description,
-            hasInputs: nodeInfo.hasInputs,
+            name: node.getName(),
+            description: node.getDescription(),
+            hasInputs: hasInputs,
           };
         }
       }

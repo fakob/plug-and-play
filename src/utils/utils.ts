@@ -33,19 +33,6 @@ export function isClass(item: any): boolean {
   );
 }
 
-export function getInfoFromRegisteredNode(
-  key: string,
-  constructor: PPNodeConstructor
-): { hasInputs: boolean; name: string; description: string } {
-  const node = new constructor(key);
-  const hasInputs = node.inputSocketArray.length > 0;
-  return {
-    hasInputs,
-    name: node.getName(),
-    description: node.getDescription(),
-  };
-}
-
 export function convertToArray<T>(value: T | T[]): T[] {
   let array: T[] = [];
   if (Array.isArray(value)) {

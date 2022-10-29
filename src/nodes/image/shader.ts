@@ -1,17 +1,16 @@
 /* eslint-disable prettier/prettier */
 import * as PIXI from 'pixi.js';
 import PPGraph from '../../classes/GraphClass';
-import PPNode from '../../classes/NodeClass';
 import UpdateBehaviourClass from '../../classes/UpdateBehaviourClass';
 import { CustomArgs, TRgba} from '../../utils/interfaces';
 import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../../utils/constants';
 import Socket from '../../classes/SocketClass';
 import { AnyType } from '../datatypes/anyType';
 import { ArrayType } from '../datatypes/arrayType';
-import { ImageType } from '../datatypes/imageType';
 import { CodeType } from '../datatypes/codeType';
-import { DRAW_Base, injectedDataName, inputHeightName, inputWidthName } from '../draw/draw';
+import {  inputHeightName, inputWidthName } from '../draw/draw';
 import { NumberType } from '../datatypes/numberType';
+import { DRAW_Base, injectedDataName } from '../draw/abstract';
 
 const defaultVertex = `
 precision mediump float;
