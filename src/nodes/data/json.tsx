@@ -194,7 +194,8 @@ export class JSONValues extends PPNode {
 }
 
 
-export class JSONBreak extends PPNode {
+// actually works for arrays as well
+export class Break extends PPNode {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(
