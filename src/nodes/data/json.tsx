@@ -11,6 +11,8 @@ import { AnyType } from '../datatypes/anyType';
 import { JSONType } from '../datatypes/jsonType';
 import { StringType } from '../datatypes/stringType';
 import { dataToType } from '../datatypes/typehelper';
+import { CustomFunction } from './dataFunctions';
+import { AbstractType } from '../datatypes/abstractType';
 
 const JSONName = 'JSON';
 const JSONParamName = 'Path';
@@ -125,72 +127,41 @@ export class JSONSet extends PPNode {
   }
 }
 
-export class JSONKeys extends PPNode {
+class JSONCustomFunction extends CustomFunction{
   getColor(): TRgba{
     return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
   }
-  constructor(name: string, customArgs: CustomArgs) {
-    super(name, {
-      ...customArgs,
-    });
-
-    this.name = 'Get all JSON properties';
+  protected getDefaultParameterValues(): Record<string, any> {
+    return { JSONName: {} };
   }
-
-  public getDescription(): string {
-    return "Returns an array of the given object's property names";
-  }
-
-  protected getDefaultIO(): Socket[] {
-    return [
-      new Socket(SOCKET_TYPE.IN, JSONName, new JSONType()),
-      new Socket(SOCKET_TYPE.OUT, outValueName, new JSONType()),
-    ];
-  }
-  protected async onExecute(
-    inputObject: unknown,
-    outputObject: Record<string, unknown>
-  ): Promise<void> {
-    const parsedJSON = parseJSON(inputObject[JSONName]);
-    if (parsedJSON) {
-      outputObject[outValueName] = Object.keys(parsedJSON);
-    }
+  protected getOutputParameterName(): string {
+    return outValueName;
   }
 }
 
-export class JSONValues extends PPNode {
+export class JSONKeys extends JSONCustomFunction {
+  protected getDefaultFunction(): string {
+    return '(a) => {\n\treturn Object.keys(a);\n}';
+  }
+  public getName(): string {
+    return 'Keys';
+  }
+  public getDescription(): string {
+    return 'Gets keys from JSON (or array)';
+  }
+}
 
-  getColor(): TRgba{
-    return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
+export class JSONValues extends JSONCustomFunction {
+  protected getDefaultFunction(): string {
+    return '(a) => {\n\treturn Object.values(a);\n}';
   }
 
+  public getName(): string {
+    return 'Values';
+  }
 
   public getDescription(): string {
-    return 'Returns an array of the given objects values';
-  }
-
-  constructor(name: string,  customArgs: CustomArgs) {
-    super(name, {
-      ...customArgs,
-    });
-
-    this.name = 'Get all JSON values';
-  }
-
-  protected getDefaultIO(): Socket[] {
-    return [
-      new Socket(SOCKET_TYPE.IN, JSONName, new JSONType()),
-      new Socket(SOCKET_TYPE.OUT, outValueName, new JSONType()),
-    ];
-  }
-  protected async onExecute(
-    inputObject: unknown,
-    outputObject: Record<string, unknown>
-  ): Promise<void> {
-    const parsedJSON = parseJSON(inputObject[JSONName]);
-    if (parsedJSON) {
-      outputObject[outValueName] = Object.values(parsedJSON);
-    }
+    return 'Gets values from JSON (or array)';
   }
 }
 

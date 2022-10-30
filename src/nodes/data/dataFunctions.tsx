@@ -313,14 +313,14 @@ export class CustomFunction extends PPNode {
       return formatted.replace(macroCall.toString(), finalMacroDefinition);
     }, functionToExecute);
 
-    // this might seem unused but it actually isn't, its used inside the eval potentially
+    // this might seem unused but it actually isn't, its used inside the eval in many cases but we can't see what's inside it from here
     const node = this;
 
     const res = await eval('async () => ' + reduced)();
     outputObject[this.getOutputParameterName()] = res;
   }
 
-  adaptInputs(code: string): void {
+  private adaptInputs(code: string): void {
     const codeArguments = getArgumentsFromFunction(code);
     // remove all non existing arguments and add all missing (based on the definition we just got)
     const currentInputSockets = this.getDataSockets().filter(
