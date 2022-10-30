@@ -114,7 +114,7 @@ export class Image extends PPNode {
 
     this.resetNodeSize = () => {
       setNodeSizes();
-      this.resizeNode(this.texture.width, this.texture.height);
+      this.resizeAndDraw(this.texture.width, this.texture.height);
       PPGraph.currentGraph.selection.drawRectanglesFromSelection();
     };
 
@@ -130,7 +130,7 @@ export class Image extends PPNode {
     const hasBaseTextureLoaded = (): void => {
       if (this.texture.valid) {
         setNodeSizes();
-        this.resizeNode(
+        this.resizeAndDraw(
           this.getDefaultNodeWidth(),
           this.getDefaultNodeHeight()
         );

@@ -89,8 +89,7 @@ export default class PPNode extends PIXI.Container {
 
   // called when the node is added to the graph
   public onNodeAdded(): void {
-    this.resizeNode(this.getDefaultNodeWidth(), this.getDefaultNodeHeight());
-    this.drawNodeShape();
+    this.resizeAndDraw(this.getDefaultNodeWidth(), this.getDefaultNodeHeight());
   }
 
   protected onNodeExit(): void {}
@@ -349,7 +348,7 @@ export default class PPNode extends PIXI.Container {
       );
     }
     // redraw background due to size change
-    this.drawNodeShape();
+    this.resizeAndDraw();
   }
 
   addOutput(
@@ -368,7 +367,7 @@ export default class PPNode extends PIXI.Container {
       )
     );
     // redraw background due to size change
-    this.drawNodeShape();
+    this.resizeAndDraw();
   }
 
   serialize(): SerializedNode {
@@ -459,6 +458,7 @@ export default class PPNode extends PIXI.Container {
       );
     }
 
+    this.executeOptimizedChain();
     this.onConfigure(nodeConfig);
   }
 
@@ -673,7 +673,7 @@ export default class PPNode extends PIXI.Container {
     });
   }
 
-  resizeNode(
+  resizeAndDraw(
     width: number = this.getDefaultNodeWidth() ?? this.width,
     height: number = this.getDefaultNodeHeight() ?? this.height,
     maintainAspectRatio = false
@@ -711,7 +711,7 @@ export default class PPNode extends PIXI.Container {
   }
 
   resetSize(): void {
-    this.resizeNode(this.getDefaultNodeWidth(), this.getDefaultNodeHeight());
+    this.resizeAndDraw(this.getDefaultNodeWidth(), this.getDefaultNodeHeight());
   }
 
   getAllInputSockets(): Socket[] {
@@ -1072,7 +1072,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
       executedSuccessOld !== this.successfullyExecuted ||
       !this.successfullyExecuted
     ) {
-      this.drawNodeShape();
+      this.resizeAndDraw();
     }
   }
 
@@ -1248,8 +1248,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   }
 
   public metaInfoChanged(): void {
-    this.resizeNode();
-    this.drawNodeShape();
+    this.resizeAndDraw();
     this.updateConnectionPosition();
   }
 

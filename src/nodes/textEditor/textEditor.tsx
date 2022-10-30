@@ -316,7 +316,7 @@ export class TextEditor extends HybridNode {
             document.getElementById(this.id).getBoundingClientRect().height /
               PPGraph.currentGraph.viewport.scale.x
           );
-          this.resizeNode(this.nodeWidth, editorHeight);
+          this.resizeAndDraw(this.nodeWidth, editorHeight);
         }
       };
 

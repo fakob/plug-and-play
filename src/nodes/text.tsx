@@ -201,7 +201,7 @@ export class Label extends PPNode {
         this.currentInput.style.width = `${newWidth}px`;
         this.currentInput.style.height = `${newHeight + marginTopBottom * 2}px`;
 
-        this.resizeNode(
+        this.resizeAndDraw(
           Math.max(minWidth, newWidth),
           newHeight + marginTopBottom
         );
@@ -238,7 +238,7 @@ export class Label extends PPNode {
         this._refTextStyle
       );
 
-      this.resizeNode(
+      this.resizeAndDraw(
         Math.max(minWidth, textMetrics.width + marginLeftRight * 2),
         textMetrics.height + marginTopBottom * 2
       );
