@@ -36,10 +36,10 @@ export function dataToType(data: any) {
     return new NumberType();
   } else if (typeof data == 'boolean') {
     return new BooleanType();
-  } else if (typeof data == 'object') {
-    return new JSONType();
   } else if (Array.isArray(data)) {
     return new ArrayType();
+  } else if (typeof data == 'object') {
+    return new JSONType();
   } else {
     return new AnyType();
   }
