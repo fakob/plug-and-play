@@ -1253,10 +1253,6 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     this.updateConnectionPosition();
   }
 
-  public outputsAutomaticallyAdaptType(): boolean {
-    return false;
-  }
-
   // kinda hacky but some cant easily serialize functions in JS
   protected initializeType(socketName: string, datatype: any) {}
 }

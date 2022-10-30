@@ -84,10 +84,6 @@ export class Constant extends PPNode {
     outputObject[constantOutName] = inputObject?.[constantInName];
   }
 
-  public outputsAutomaticallyAdaptType(): boolean {
-    return true;
-  }
-
   constructor(name: string, customArgs?: CustomArgs) {
     super(name, {
       ...customArgs,
@@ -348,9 +344,6 @@ export class CustomFunction extends PPNode {
     if (socketsToBeRemoved.length > 0 || argumentsToBeAdded.length > 0) {
       this.metaInfoChanged();
     }
-  }
-  public outputsAutomaticallyAdaptType(): boolean {
-    return true;
   }
 }
 

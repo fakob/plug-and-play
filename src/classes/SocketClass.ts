@@ -37,6 +37,8 @@ export default class Socket extends PIXI.Container {
   interactionData: PIXI.InteractionData | null;
   linkDragPos: null | PIXI.Point;
 
+  autoAdaptType = false;
+
   showLabel = false;
 
   constructor(
@@ -45,7 +47,8 @@ export default class Socket extends PIXI.Container {
     dataType: AbstractType,
     data = null,
     visible = true,
-    custom?: Record<string, any>
+    custom?: Record<string, any>,
+    autoAdaptType = false
   ) {
     super();
 
@@ -64,6 +67,7 @@ export default class Socket extends PIXI.Container {
     this.visible = visible;
     this._custom = custom;
     this._links = [];
+    this.autoAdaptType = autoAdaptType;
 
     this.interactionData = null;
     this.interactive = true;
@@ -155,30 +159,26 @@ export default class Socket extends PIXI.Container {
   // for inputs: set data is called only on the socket where the change is being made
   set data(newData: any) {
     this._data = newData;
+    if (this.autoAdaptType) {
+      const proposedType = dataToType(newData);
+      if (this.dataType.getName() !== proposedType.getName()) {
+        this.dataType = proposedType;
+        this.redrawAnythingChanging();
+      }
+    }
     if (this.isInput()) {
       if (!this.hasLink()) {
         this._defaultData = newData;
       } else if (PPGraph.currentGraph.showExecutionVisualisation) {
         this.links[0].renderOutlineThrottled();
       }
-
-      // update defaultData only if socket is input
-      // and does not have a link
     } else {
-      // potentially change type of output if desirable
-      const proposedType = dataToType(newData);
-      if (
-        this.getNode().outputsAutomaticallyAdaptType() &&
-        this.dataType.getName() !== proposedType.getName()
-      ) {
-        this.dataType = proposedType;
-        this.redrawAnythingChanging();
-      }
       // if output, set all inputs im linking to
       this.links.forEach((link) => {
         link.target.data = newData;
       });
     }
+
     this.dataType.onDataSet(newData, this);
   }
 
@@ -269,10 +269,7 @@ export default class Socket extends PIXI.Container {
       ...{ data: data },
       ...{ defaultData: defaultData },
       visible: this.visible,
-      isCustom: !this.getNode().hasSocketNameInDefaultIO(
-        this.name,
-        this.socketType
-      ),
+      autoAdaptType: this.autoAdaptType,
     };
   }
 
