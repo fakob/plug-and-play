@@ -25,7 +25,7 @@ export default class Socket extends PIXI.Container {
   // data is derived from execute function
 
   _SocketRef: PIXI.Graphics;
-  _TextRef: PIXI.Graphics;
+  _TextRef: PIXI.Text;
 
   _socketType: TSocketType;
   _dataType: AbstractType;
@@ -82,7 +82,7 @@ export default class Socket extends PIXI.Container {
     this.removeChild(this._SocketRef);
     this.removeChild(this._TextRef);
     this._SocketRef = new PIXI.Graphics();
-    this._TextRef = new PIXI.Graphics();
+    this._TextRef = new PIXI.Text();
     this._SocketRef.beginFill(this.dataType.getColor().hexNumber());
     this._SocketRef.drawRoundedRect(
       this.getSocketLocation().x,
@@ -95,27 +95,26 @@ export default class Socket extends PIXI.Container {
     );
 
     if (this.showLabel) {
-      const socketNameText = new PIXI.Text(this.name, SOCKET_TEXTSTYLE);
+      this._TextRef = new PIXI.Text(this.name, SOCKET_TEXTSTYLE);
       if (this.socketType === SOCKET_TYPE.OUT) {
-        socketNameText.anchor.set(1, 0);
+        this._TextRef.anchor.set(1, 0);
+        this._TextRef.name = 'TextRef';
       }
-      socketNameText.x =
+      this._TextRef.x =
         this.socketType === SOCKET_TYPE.IN
           ? SOCKET_WIDTH + SOCKET_TEXTMARGIN
           : this.getNode()?.nodeWidth - SOCKET_TEXTMARGIN;
-      socketNameText.y = SOCKET_TEXTMARGIN_TOP;
-      socketNameText.resolution = TEXT_RESOLUTION;
+      this._TextRef.y = SOCKET_TEXTMARGIN_TOP;
+      this._TextRef.resolution = TEXT_RESOLUTION;
 
-      socketNameText.interactive = true;
-      socketNameText.on('pointerover', this._onPointerOver.bind(this));
-      socketNameText.on('pointerout', this._onPointerOut.bind(this));
-      socketNameText.on('pointerdown', (event) => {
+      this._TextRef.interactive = true;
+      this._TextRef.on('pointerover', this._onPointerOver.bind(this));
+      this._TextRef.on('pointerout', this._onPointerOut.bind(this));
+      this._TextRef.on('pointerdown', (event) => {
         if (event.data.button !== 2) {
           this.getGraph().socketNameRefMouseDown(this, event);
         }
       });
-
-      this._TextRef.addChild(socketNameText);
     }
 
     this._SocketRef.endFill();

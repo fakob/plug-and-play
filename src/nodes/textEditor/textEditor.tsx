@@ -28,6 +28,7 @@ import {
   Element,
   Leaf,
   deserialize,
+  getPlainText,
   insertMention,
   moveBlock,
   toggleBlock,
@@ -41,6 +42,7 @@ import { BooleanType } from '../datatypes/booleanType';
 import { ColorType } from '../datatypes/colorType';
 import { JSONType } from '../datatypes/jsonType';
 import HybridNode from '../../classes/HybridNode';
+import { StringType } from '../datatypes/stringType';
 
 const isMac = navigator.platform.indexOf('Mac') != -1;
 
@@ -51,9 +53,10 @@ const initialValue: Descendant[] = [
   },
 ];
 
-const outputSocketName = 'output';
+const outputSocketName = 'Output';
+const textOutputSocketName = 'Plain text';
 const textJSONSocketName = 'textJSON';
-const backgroundColorSocketName = 'background Color';
+const backgroundColorSocketName = 'Background Color';
 const autoHeightName = 'Auto height';
 const inputPrefix = 'Input';
 const inputName1 = `${inputPrefix} 1`;
@@ -69,7 +72,7 @@ export class TextEditor extends HybridNode {
   }
 
   public getName(): string {
-    return 'Rich text editor';
+    return 'Text editor';
   }
 
   public getDescription(): string {
@@ -87,6 +90,10 @@ export class TextEditor extends HybridNode {
     );
   }
 
+  getPreferredOutputSocketName(): string {
+    return textOutputSocketName;
+  }
+
   protected getDefaultIO(): PPSocket[] {
     const backgroundColor = COLOR[8];
 
@@ -95,6 +102,13 @@ export class TextEditor extends HybridNode {
         SOCKET_TYPE.OUT,
         outputSocketName,
         new JSONType(),
+        undefined,
+        false
+      ),
+      new PPSocket(
+        SOCKET_TYPE.OUT,
+        textOutputSocketName,
+        new StringType(),
         undefined,
         true
       ),
@@ -141,10 +155,6 @@ export class TextEditor extends HybridNode {
 
   public getDefaultNodeWidth(): number {
     return 400;
-  }
-
-  public getDefaultNodeHeight(): number {
-    return 300;
   }
 
   constructor(name: string, customArgs?: CustomArgs) {
@@ -197,6 +207,7 @@ export class TextEditor extends HybridNode {
         readOnly: this.readOnly,
         textToImport: this.textToImport,
       });
+      super.onNodeAdded();
     };
 
     this.update = (newHeight): void => {
@@ -395,6 +406,7 @@ export class TextEditor extends HybridNode {
         // update in and outputs
         this.setInputData(textJSONSocketName, value);
         this.setOutputData(outputSocketName, value);
+        this.setOutputData(textOutputSocketName, getPlainText(value));
         this.executeChildren();
       };
 

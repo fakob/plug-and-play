@@ -469,6 +469,23 @@ export const SocketContextMenu = (props) => {
       }}
     >
       <MenuList dense>
+        {selectedSocket.hasLink() && (
+          <>
+            <MenuItem
+              onClick={() => {
+                selectedSocket.links.forEach((link) =>
+                  props.currentGraph.current.action_Disconnect(link)
+                );
+              }}
+            >
+              <ListItemIcon>
+                <DeleteIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Remove connection</ListItemText>
+            </MenuItem>
+            <Divider />
+          </>
+        )}
         {selectedSocket.isInput() && (
           <MenuItem
             onClick={() => {
@@ -478,7 +495,9 @@ export const SocketContextMenu = (props) => {
             <ListItemIcon>
               <AddIcon fontSize="small" />
             </ListItemIcon>
-            <ListItemText>Connect widget node</ListItemText>
+            <ListItemText>
+              Connect {selectedSocket.dataType.defaultInputNodeWidget()}
+            </ListItemText>
           </MenuItem>
         )}
         {!selectedSocket.isInput() && (
@@ -490,7 +509,9 @@ export const SocketContextMenu = (props) => {
             <ListItemIcon>
               <AddIcon fontSize="small" />
             </ListItemIcon>
-            <ListItemText>Connect label node</ListItemText>
+            <ListItemText>
+              Connect {selectedSocket.dataType.defaultOutputNodeWidget()}
+            </ListItemText>
           </MenuItem>
         )}
         {isDeletable && (

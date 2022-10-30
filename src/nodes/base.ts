@@ -78,7 +78,7 @@ export class Mouse extends PPNode {
     ].concat(super.getDefaultIO());
   }
 
-  public onNodeAdded () :void {
+  public onNodeAdded(): void {
     super.onNodeAdded();
     // add event listener
     this.onViewportMoveHandler = this.onViewportMove.bind(this);
@@ -92,7 +92,7 @@ export class Mouse extends PPNode {
       'zoomed',
       (this as any).onViewportZoomedHandler
     );
-  };
+  }
 
   onNodeRemoved = (): void => {
     PPGraph.currentGraph.viewport.removeListener(
@@ -162,14 +162,14 @@ export class Keyboard extends PPNode {
       ),
     ].concat(super.getDefaultIO());
   }
-  public onNodeAdded () :void {
+  public onNodeAdded(): void {
     super.onNodeAdded();
     // add event listener
     this.onKeyDownHandler = this._onKeyDown.bind(this);
     window.addEventListener('keydown', (this as any).onKeyDownHandler);
     this.onKeyUpHandler = this._onKeyUp.bind(this);
     window.addEventListener('keyup', (this as any).onKeyUpHandler);
-  };
+  }
 
   onNodeRemoved = (): void => {
     window.removeEventListener('keydown', this.onKeyDownHandler);
@@ -363,26 +363,16 @@ export class RandomArray extends PPNode {
 }
 
 export class DateAndTime extends PPNode {
-  getColor(): TRgba {
-    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
-  }
-  constructor(name: string, customArgs: CustomArgs) {
-    super(name, {
-      ...customArgs,
-    });
-
-    this.onExecute = async function (input, output) {
-      const dateMethod = input['Date method'];
-      output['date and time'] = new Date()[dateMethod]();
-    };
-  }
-
   public getName(): string {
     return 'Date and time';
   }
 
   public getDescription(): string {
-    return 'Outputs current time in different formats';
+    return 'Outputs time in different formats';
+  }
+
+  getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
   }
 
   protected getDefaultIO(): PPSocket[] {
@@ -404,7 +394,8 @@ export class DateAndTime extends PPNode {
       });
 
     return [
-      new PPSocket(SOCKET_TYPE.OUT, 'date and time', new StringType()),
+      new PPSocket(SOCKET_TYPE.OUT, 'Date and time', new StringType()),
+      new PPSocket(SOCKET_TYPE.IN, 'Date string', new StringType(), '', false),
       new PPSocket(
         SOCKET_TYPE.IN,
         'Date method',
@@ -413,6 +404,16 @@ export class DateAndTime extends PPNode {
         false
       ),
     ].concat(super.getDefaultIO());
+  }
+
+  protected async onExecute(
+    inputObject: any,
+    outputObject: Record<string, unknown>
+  ): Promise<void> {
+    const dateString = inputObject['Date string'];
+    const dateMethod = inputObject['Date method'];
+    const dateObject = dateString === '' ? new Date() : new Date(dateString);
+    outputObject['Date and time'] = dateObject[dateMethod]();
   }
 }
 

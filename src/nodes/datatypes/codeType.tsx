@@ -27,4 +27,8 @@ export class CodeType extends AbstractType {
   defaultInputNodeWidget(): undefined | string {
     return 'CodeEditor';
   }
+
+  defaultOutputNodeWidget(): string {
+    return 'CodeEditor';
+  }
 }
