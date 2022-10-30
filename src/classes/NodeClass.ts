@@ -982,10 +982,6 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     }
   }
 
-  initialExecute(): void {
-    this.executeOptimizedChain();
-  }
-
   remapInput(sockets: Socket[]): any {
     const inputObject = {};
     sockets.forEach((input: Socket) => {
@@ -1255,6 +1251,10 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     this.resizeNode();
     this.drawNodeShape();
     this.updateConnectionPosition();
+  }
+
+  public outputsAutomaticallyAdaptType(): boolean {
+    return false;
   }
 
   // kinda hacky but some cant easily serialize functions in JS

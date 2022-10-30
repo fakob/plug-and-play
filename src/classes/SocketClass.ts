@@ -14,7 +14,7 @@ import {
 } from '../utils/constants';
 import { AbstractType } from '../nodes/datatypes/abstractType';
 import { TriggerType } from '../nodes/datatypes/triggerType';
-import { serializeType } from '../nodes/datatypes/typehelper';
+import { dataToType, serializeType } from '../nodes/datatypes/typehelper';
 
 export default class Socket extends PIXI.Container {
   // Input sockets
@@ -165,6 +165,15 @@ export default class Socket extends PIXI.Container {
       // update defaultData only if socket is input
       // and does not have a link
     } else {
+      // potentially change type of output if desirable
+      const proposedType = dataToType(newData);
+      if (
+        this.getNode().outputsAutomaticallyAdaptType() &&
+        this.dataType.getName() !== proposedType.getName()
+      ) {
+        this.dataType = proposedType;
+        this.redrawAnythingChanging();
+      }
       // if output, set all inputs im linking to
       this.links.forEach((link) => {
         link.target.data = newData;
@@ -212,6 +221,7 @@ export default class Socket extends PIXI.Container {
 
     // visibility change can result in position change
     // therefore redraw Node and connected Links
+    this.getNode().resizeNode();
     this.getNode().drawNodeShape();
     this.getNode().updateConnectionPosition();
   }

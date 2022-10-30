@@ -1,5 +1,11 @@
 import { AbstractType } from './abstractType';
+import { AnyType } from './anyType';
+import { ArrayType } from './arrayType';
+import { BooleanType } from './booleanType';
 import { allDataTypes } from './dataTypesMap';
+import { JSONType } from './jsonType';
+import { NumberType } from './numberType';
+import { StringType } from './stringType';
 
 type SerializedType = {
   class: any;
@@ -21,4 +27,20 @@ export function deSerializeType(serialized: string): AbstractType {
     new allDataTypes[unSerialized.class](),
     unSerialized.type
   );
+}
+
+export function dataToType(data: any) {
+  if (typeof data == 'string') {
+    return new StringType();
+  } else if (typeof data == 'number') {
+    return new NumberType();
+  } else if (typeof data == 'boolean') {
+    return new BooleanType();
+  } else if (Array.isArray(data)) {
+    return new ArrayType();
+  } else if (typeof data == 'object') {
+    return new JSONType();
+  } else {
+    return new AnyType();
+  }
 }

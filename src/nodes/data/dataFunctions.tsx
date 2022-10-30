@@ -50,26 +50,6 @@ export class MergeJSONs extends PPNode {
   }
 }
 
-export class MergeJSONArrays extends PPNode {
-  protected getDefaultIO(): Socket[] {
-    return [
-      new Socket(SOCKET_TYPE.IN, input1Name, new ArrayType(), []),
-      new Socket(SOCKET_TYPE.IN, input2Name, new ArrayType(), []),
-      new Socket(SOCKET_TYPE.OUT, constantOutName, new ArrayType()),
-    ];
-  }
-  protected async onExecute(
-    inputObject: any,
-    outputObject: Record<string, unknown>
-  ): Promise<void> {
-    outputObject[constantOutName] = inputObject[input1Name].map(
-      (item, index) => {
-        return { ...item, ...inputObject[input2Name][index] };
-      }
-    );
-  }
-}
-
 export class ConcatenateArrays extends PPNode {
   protected getDefaultIO(): Socket[] {
     return [
@@ -102,6 +82,10 @@ export class Constant extends PPNode {
     outputObject: Record<string, unknown>
   ): Promise<void> {
     outputObject[constantOutName] = inputObject?.[constantInName];
+  }
+
+  public outputsAutomaticallyAdaptType(): boolean {
+    return true;
   }
 
   constructor(name: string, customArgs?: CustomArgs) {
@@ -365,6 +349,9 @@ export class CustomFunction extends PPNode {
       this.metaInfoChanged();
     }
   }
+  public outputsAutomaticallyAdaptType(): boolean {
+    return true;
+  }
 }
 
 class ArrayFunction extends CustomFunction {
@@ -400,17 +387,59 @@ export class Uniques extends ArrayFunction {
   }
 }
 
-export class Flatten extends PPNode {
+export class Flatten extends ArrayFunction {
   protected getDefaultFunction(): string {
     return '(ArrayIn) => {\n\treturn ArrayIn.flat();\n}';
   }
 }
 
-export class ArraySlice extends PPNode {
+export class ArraySlice extends ArrayFunction {
   public getName(): string {
-    return 'Slice Array';
+    return 'Slice array';
   }
   protected getDefaultFunction(): string {
     return '(ArrayIn) => {\n\treturn ArrayIn.slice(0,10);\n}';
+  }
+}
+
+export class ArrayCreate extends ArrayFunction {
+  public getName(): string {
+    return 'Create array';
+  }
+  protected getDefaultFunction(): string {
+    return '(Element) => {\n\treturn [Element];\n}';
+  }
+}
+
+export class ArrayGet extends ArrayFunction {
+  public getName(): string {
+    return 'Get from array';
+  }
+  protected getDefaultFunction(): string {
+    return '(ArrayIn, Index) => {\n\treturn ArrayIn[Index];\n}';
+  }
+  protected getOutputParameterName(): string {
+    return 'Element';
+  }
+}
+
+export class ArrayLength extends ArrayFunction {
+  public getName(): string {
+    return 'Get length of array';
+  }
+  protected getDefaultFunction(): string {
+    return '(ArrayIn) => {\n\treturn ArrayIn.length();\n}';
+  }
+  protected getOutputParameterName(): string {
+    return 'Length';
+  }
+}
+
+export class ArrayPush extends ArrayFunction {
+  public getName(): string {
+    return 'Add element to array';
+  }
+  protected getDefaultFunction(): string {
+    return '(ArrayIn, Element) => {\n\tArrayIn.push(Element);\nreturn ArrayIn;\n}';
   }
 }
