@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
-import { Editor, Range, Transforms, Element as SlateElement } from 'slate';
+import {
+  Editor,
+  Node,
+  Range,
+  Transforms,
+  Element as SlateElement,
+} from 'slate';
 import { useFocused, useSelected, useReadOnly } from 'slate-react';
 import { jsx } from 'slate-hyperscript';
 import { Typography, styled } from '@mui/material';
@@ -564,4 +570,8 @@ const Mention = (props) => {
       {children}@{element.inputName}
     </span>
   );
+};
+
+export const getPlainText = (nodes) => {
+  return nodes.map((n) => Node.string(n)).join('\n');
 };

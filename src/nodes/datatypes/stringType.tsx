@@ -25,4 +25,8 @@ export class StringType extends AbstractType {
   getColor(): TRgba {
     return new TRgba(128, 250, 128);
   }
+
+  defaultInputNodeWidget(): string {
+    return 'Label';
+  }
 }

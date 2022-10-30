@@ -63,6 +63,7 @@ const InspectorContainer: React.FunctionComponent<MyProps> = (props) => {
               display: 'inline-flex',
               alignItems: 'center',
             }}
+            title={props.selectedNode?.id}
           >
             {props.selectedNode?.name}
           </Box>

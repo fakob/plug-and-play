@@ -47,4 +47,12 @@ export class JSONType extends AbstractType {
     }
     return data;
   }
+
+  defaultInputNodeWidget(): string {
+    return 'CodeEditor';
+  }
+
+  defaultOutputNodeWidget(): string {
+    return 'CodeEditor';
+  }
 }
