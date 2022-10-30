@@ -29,4 +29,10 @@ export class StringType extends AbstractType {
   defaultInputNodeWidget(): string {
     return 'Label';
   }
+  parse(data: any): any {
+    if (typeof data == 'object') {
+      return JSON.stringify(data);
+    }
+    return data;
+  }
 }
