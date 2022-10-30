@@ -7,7 +7,6 @@ import PPGraph from '../classes/GraphClass';
 import PPSocket from '../classes/SocketClass';
 import PPNode from '../classes/NodeClass';
 import {
-  COMPARISON_OPTIONS,
   CONDITION_OPTIONS,
   NODE_PADDING_TOP,
   NODE_HEADER_HEIGHT,
@@ -15,7 +14,7 @@ import {
   SOCKET_WIDTH,
 } from './constants';
 import { GraphDatabase } from './indexedDB';
-import { PPNodeConstructor, SerializedSelection } from './interfaces';
+import { SerializedSelection } from './interfaces';
 import { AnyType } from '../nodes/datatypes/anyType';
 
 export function isFunction(funcOrClass: any): boolean {
@@ -556,10 +555,7 @@ export const compare = (
   chosenOperator: string,
   inputB: unknown
 ): unknown => {
-  const operator = COMPARISON_OPTIONS.find(
-    (item) => item.text === chosenOperator
-  );
-  switch (operator.value) {
+  switch (chosenOperator) {
     case '>':
       return inputA > inputB;
     case '<':
@@ -589,21 +585,18 @@ export const isVariable = (
   inputA: unknown,
   chosenCondition: string
 ): unknown => {
-  const condition = CONDITION_OPTIONS.find(
-    (item) => item.text === chosenCondition
-  );
-  switch (condition.text) {
-    case 'is null OR undefined':
+  switch (chosenCondition) {
+    case CONDITION_OPTIONS[0].text:
       return typeof inputA === 'undefined' || inputA === null;
-    case 'is undefined':
+    case CONDITION_OPTIONS[1].text:
       return typeof inputA === 'undefined';
-    case 'is null':
+    case CONDITION_OPTIONS[2].text:
       return inputA === null;
-    case 'is NOT null OR undefined':
+    case CONDITION_OPTIONS[3].text:
       return typeof inputA !== 'undefined' && inputA !== null;
-    case 'is NOT undefined':
+    case CONDITION_OPTIONS[4].text:
       return typeof inputA !== 'undefined';
-    case 'is NOT null':
+    case CONDITION_OPTIONS[5].text:
       return inputA !== null;
     default:
       return false;

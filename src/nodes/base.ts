@@ -477,7 +477,7 @@ export class Comparison extends PPNode {
         SOCKET_TYPE.IN,
         'Operator',
         new EnumType(COMPARISON_OPTIONS, onOptionChange),
-        COMPARISON_OPTIONS[0].text,
+        COMPARISON_OPTIONS[0].value,
         false
       ),
       new PPSocket(SOCKET_TYPE.OUT, 'Output', new BooleanType()),
