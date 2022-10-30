@@ -155,6 +155,13 @@ export default class Socket extends PIXI.Container {
   // for inputs: set data is called only on the socket where the change is being made
   set data(newData: any) {
     this._data = newData;
+    if (this.getNode()?.socketShouldAutomaticallyAdapt(this)) {
+      const proposedType = dataToType(newData);
+      if (this.dataType.getName() !== proposedType.getName()) {
+        this.dataType = proposedType;
+        this.redrawAnythingChanging();
+      }
+    }
     if (this.isInput()) {
       if (!this.hasLink()) {
         this._defaultData = newData;
@@ -165,15 +172,6 @@ export default class Socket extends PIXI.Container {
       // update defaultData only if socket is input
       // and does not have a link
     } else {
-      // potentially change type of output if desirable
-      const proposedType = dataToType(newData);
-      if (
-        this.getNode().outputsAutomaticallyAdaptType() &&
-        this.dataType.getName() !== proposedType.getName()
-      ) {
-        this.dataType = proposedType;
-        this.redrawAnythingChanging();
-      }
       // if output, set all inputs im linking to
       this.links.forEach((link) => {
         link.target.data = newData;

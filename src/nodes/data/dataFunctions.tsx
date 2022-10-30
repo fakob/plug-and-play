@@ -84,7 +84,7 @@ export class Constant extends PPNode {
     outputObject[constantOutName] = inputObject?.[constantInName];
   }
 
-  public outputsAutomaticallyAdaptType(): boolean {
+  public socketShouldAutomaticallyAdapt(socket: Socket): boolean {
     return true;
   }
 
@@ -349,8 +349,9 @@ export class CustomFunction extends PPNode {
       this.metaInfoChanged();
     }
   }
-  public outputsAutomaticallyAdaptType(): boolean {
-    return true;
+  // adapt all nodes apart from the code one
+  public socketShouldAutomaticallyAdapt(socket: Socket): boolean {
+    return socket.name !== anyCodeName;
   }
 }
 

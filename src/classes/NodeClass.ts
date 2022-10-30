@@ -1252,7 +1252,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     this.updateConnectionPosition();
   }
 
-  public outputsAutomaticallyAdaptType(): boolean {
+  public socketShouldAutomaticallyAdapt(socket: Socket): boolean {
     return false;
   }
 
