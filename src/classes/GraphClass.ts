@@ -558,7 +558,7 @@ export default class PPGraph {
     notify = true
   ): Promise<PPLink> {
     // remove all input links from before on this socket
-    input.links.forEach((link) => link.delete());
+    input.links.forEach((link) => link.delete(true));
 
     //create link class
     const link: PPLink = new PPLink(this.getNextID(), output, input);

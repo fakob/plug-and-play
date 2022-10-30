@@ -77,10 +77,13 @@ export default class PPLink extends PIXI.Container {
     this.updateConnection();
   }
 
-  delete(): void {
+  // if there is a new connection pending, don't execute inbetween, wait until new connection to execute
+  delete(newConnectionPending = false): void {
     if (this.getTarget()) {
       this.getTarget().removeLink(this);
-      this.getTarget().getNode().executeOptimizedChain();
+      if (!newConnectionPending) {
+        this.getTarget().getNode().executeOptimizedChain();
+      }
     }
     this.getSource().removeLink(this);
     this.getSource().getGraph().connectionContainer.removeChild(this);

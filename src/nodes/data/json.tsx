@@ -10,6 +10,7 @@ import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../../utils/constants';
 import { AnyType } from '../datatypes/anyType';
 import { JSONType } from '../datatypes/jsonType';
 import { StringType } from '../datatypes/stringType';
+import { dataToType } from '../datatypes/typehelper';
 
 const JSONName = 'JSON';
 const JSONParamName = 'Path';
@@ -192,3 +193,57 @@ export class JSONValues extends PPNode {
     }
   }
 }
+
+
+// actually works for arrays as well
+export class Break extends PPNode {
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(
+        SOCKET_TYPE.IN,
+        JSONName,
+        new JSONType(),
+      )
+    ];
+  }
+
+  protected async onExecute(
+    inputObject: any,
+    outputObject: Record<string, unknown>
+  ): Promise<void> {
+    // before every execute, re-evaluate inputs
+    const currentJSON = inputObject[JSONName];
+    this.adaptOutputs(currentJSON);
+    // eslint-disable-next-line prefer-const
+    Object.keys(currentJSON).forEach(key => outputObject[key] = currentJSON[key]);
+
+  }
+
+  private adaptOutputs(json: any): void {
+    // remove all non existing arguments and add all missing (based on the definition we just got)
+    const currentOutputSockets = this.getDataSockets().filter(
+      (socket) => socket.socketType === SOCKET_TYPE.OUT
+    );
+    const socketsToBeRemoved = currentOutputSockets.filter(
+      (socket) =>
+        json[socket.name] == undefined
+    );
+    const argumentsToBeAdded = Object.keys(json).filter(
+      (key) =>
+        !currentOutputSockets.some((socket) => socket.name === key)
+    );
+    socketsToBeRemoved.forEach((socket) => {
+      socket.destroy();
+    });
+    argumentsToBeAdded.forEach((argument) => {
+      this.addOutput(
+        argument,
+        dataToType(json[argument])
+      );
+    });
+    if (socketsToBeRemoved.length > 0 || argumentsToBeAdded.length > 0) {
+      this.metaInfoChanged();
+    }
+  }
+}
+

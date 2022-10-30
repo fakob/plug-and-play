@@ -982,10 +982,6 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     }
   }
 
-  initialExecute(): void {
-    this.executeOptimizedChain();
-  }
-
   remapInput(sockets: Socket[]): any {
     const inputObject = {};
     sockets.forEach((input: Socket) => {
