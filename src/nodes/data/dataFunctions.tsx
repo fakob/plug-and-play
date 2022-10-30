@@ -428,7 +428,7 @@ export class ArrayLength extends ArrayFunction {
     return 'Get length of array';
   }
   protected getDefaultFunction(): string {
-    return '(ArrayIn) => {\n\treturn ArrayIn.length();\n}';
+    return '(ArrayIn) => {\n\treturn ArrayIn.length;\n}';
   }
   protected getOutputParameterName(): string {
     return 'Length';
