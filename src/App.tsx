@@ -55,6 +55,8 @@ import {
   CONTEXTMENU_WIDTH,
   DRAGANDDROP_GRID_MARGIN,
   GESTUREMODE,
+  GITHUB_API_URL,
+  GITHUB_BRANCH_NAME,
   GRID_SHADER,
   PLUGANDPLAY_ICON,
   RANDOMMAINCOLOR,
@@ -107,11 +109,6 @@ fetch('https://plugandplayground.dev/buildInfo')
 
 const App = (): JSX.Element => {
   document.title = 'Your Plug and Playground';
-
-  // remote playground database
-  const githubBaseURL =
-    'https://api.github.com/repos/fakob/plug-and-play-examples';
-  const githubBranchName = 'dev';
 
   const mousePosition = { x: 0, y: 0 };
   const pixiDebugRef = new PIXI.Text('', COMMENT_TEXTSTYLE);
@@ -528,7 +525,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     setIsCurrentGraphLoaded(true);
     console.log('currentGraph.current:', currentGraph.current);
 
-    getRemoteGraphsList(githubBaseURL, githubBranchName).then(
+    getRemoteGraphsList(GITHUB_API_URL, GITHUB_BRANCH_NAME).then(
       (arrayOfFileNames) => {
         console.log(arrayOfFileNames);
         setRemoteGraphs(arrayOfFileNames);
@@ -1011,8 +1008,8 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
   async function cloneRemoteGraph(id = undefined) {
     const nameOfFileToClone = remoteGraphsRef.current[id];
     const fileData = await getRemoteGraph(
-      githubBaseURL,
-      githubBranchName,
+      GITHUB_API_URL,
+      GITHUB_BRANCH_NAME,
       nameOfFileToClone
     );
     console.log(fileData);

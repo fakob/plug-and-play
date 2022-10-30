@@ -12,6 +12,7 @@ import {
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { matchSorter } from 'match-sorter';
 import parse from 'autosuggest-highlight/parse';
 import match from 'autosuggest-highlight/match';
@@ -19,6 +20,7 @@ import PPGraph from '../classes/GraphClass';
 import { getAllNodeTypes } from '../nodes/allNodes';
 import { IGraphSearch, INodeSearch } from '../utils/interfaces';
 import { COLOR_DARK, COLOR_WHITE_TEXT } from '../utils/constants';
+import { getNodeExampleURL } from '../utils/utils';
 import styles from '../utils/style.module.css';
 
 export const GraphSearchInput = (props) => {
@@ -313,6 +315,28 @@ export const renderNodeItem = (props, option, { inputValue, selected }) => {
               ))}
             </Box>
           </Box>
+          <IconButton
+            // size="small"
+            sx={{
+              // position: 'absolute',
+              right: '8px',
+              fontSize: '16px',
+              padding: 0,
+              height: '24px',
+              display: 'none',
+              '.Mui-focused &': {
+                display: 'inline',
+              },
+            }}
+            onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+              event.stopPropagation();
+              window.open(getNodeExampleURL(option.title), '_blank');
+            }}
+            title="Open node example"
+            className="menuItemButton"
+          >
+            <OpenInNewIcon sx={{ fontSize: '16px' }} />
+          </IconButton>
           <Box
             sx={{
               fontSize: '12px',
@@ -320,6 +344,10 @@ export const renderNodeItem = (props, option, { inputValue, selected }) => {
               background: 'rgba(255,255,255,0.2)',
               cornerRadius: '4px',
               px: 0.5,
+              display: 'inline',
+              '.Mui-focused &': {
+                display: 'none',
+              },
             }}
           >
             {option.title}

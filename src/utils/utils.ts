@@ -8,6 +8,7 @@ import PPSocket from '../classes/SocketClass';
 import PPNode from '../classes/NodeClass';
 import {
   CONDITION_OPTIONS,
+  GITHUB_RAW_URL_NODES,
   NODE_PADDING_TOP,
   NODE_HEADER_HEIGHT,
   SOCKET_TEXTMARGIN_TOP,
@@ -683,6 +684,7 @@ export const getLongestArrayInArray = (arrayOfArrays): number => {
   }, []);
   return longestArray.length;
 };
+
 export function drawDottedLine(
   graphics: PIXI.Graphics,
   startX: number,
@@ -705,3 +707,7 @@ export function drawDottedLine(
     );
   }
 }
+
+export const getNodeExampleURL = (nodeName: string): string => {
+  return `${window.location.origin}${window.location.pathname}?loadURL=${GITHUB_RAW_URL_NODES}/${nodeName}.ppgraph`;
+};
