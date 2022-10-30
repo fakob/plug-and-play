@@ -8,6 +8,7 @@ import {
   SELECTION_UPSTREAM_TEXTURE,
   SELECTION_WHOLE_TEXTURE,
 } from '../utils/constants';
+import FlowLogic from './FlowLogic';
 
 class Button extends PIXI.Sprite {
   graph: PPGraph;
@@ -48,7 +49,9 @@ class Button extends PIXI.Sprite {
     const node = this.parent?.parent as PPNode;
     const graph = PPGraph.currentGraph;
     graph.selection.selectNodes(
-      Object.values(node.getAllUpDownstreamNodes(this.up, this.down, altKey))
+      Object.values(
+        FlowLogic.getAllUpDownstreamNodes(node, this.up, this.down, altKey)
+      )
     );
   }
 }

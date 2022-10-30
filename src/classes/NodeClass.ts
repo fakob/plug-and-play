@@ -42,6 +42,7 @@ import { AnyType } from '../nodes/datatypes/anyType';
 import { TriggerType } from '../nodes/datatypes/triggerType';
 import { deSerializeType } from '../nodes/datatypes/typehelper';
 import throttle from 'lodash/throttle';
+import FlowLogic from './FlowLogic';
 
 export default class PPNode extends PIXI.Container {
   _NodeNameRef: PIXI.Text;
@@ -472,187 +473,21 @@ export default class PPNode extends PIXI.Container {
     return currDependents;
   }
 
-  goThroughSockets(
-    currDependents: { [key: string]: PPNode },
-    socketArray: Socket[],
-    upstream = false
-  ): void {
-    socketArray.forEach((socket) => {
-      Object.values(socket.getLinkedNodes(upstream)).forEach((dependent) => {
-        currDependents[dependent.id] = dependent;
-      });
-    });
-  }
-
-  getLinkedNodes(
-    includeUpstream = false,
-    includeDownstream = true
-  ): { [key: string]: PPNode } {
-    const currDependents: { [key: string]: PPNode } = {};
-
-    if (includeUpstream) {
-      this.goThroughSockets(currDependents, this.getAllInputSockets(), true);
-    }
-    if (includeDownstream) {
-      this.goThroughSockets(currDependents, this.outputSocketArray);
-    }
-    return currDependents;
-  }
-
   getHasDependencies(): boolean {
     return (
       this.getAllInputSockets().find((socket) => socket.hasLink()) !== undefined
     );
   }
 
-  static combineNumDependings(
-    numDepending1: { [key: string]: Set<string> },
-    numDepending2: { [key: string]: Set<string> }
-  ): void {
-    Object.keys(numDepending2).forEach((childDependent) => {
-      if (numDepending1[childDependent] === undefined) {
-        numDepending1[childDependent] = numDepending2[childDependent];
-      } else {
-        numDepending2[childDependent].forEach((childDependentKey) => {
-          numDepending1[childDependent].add(childDependentKey);
-        });
-      }
-    });
-  }
-
-  aggregateDependents(dependents: { [key: string]: PPNode }): {
-    [key: string]: Set<string>;
-  } {
-    // don't add from same node several times
-    if (dependents[this.id] !== undefined) {
-      return {};
-    }
-    const currDependents: { [key: string]: PPNode } =
-      this.getDirectDependents();
-
-    dependents[this.id] = this;
-
-    // populate dependents
-
-    const numDepending: { [key: string]: Set<string> } = {};
-    Object.keys(currDependents).forEach((dependentKey) => {
-      numDepending[dependentKey] = new Set();
-      numDepending[dependentKey].add(this.id);
-    });
-
-    // accumulate results from children and merge with mine
-    Object.values(currDependents).forEach((dependent) => {
-      const result = dependent.aggregateDependents(dependents);
-      PPNode.combineNumDependings(numDepending, result);
-    });
-
-    return numDepending;
-  }
-
-  getAllUpDownstreamNodes(
-    includeUpstream: boolean,
-    includeDownstream: boolean,
-    wholeBranch: boolean // includes the whole up/downstream branch
-  ): PPNode[] {
-    const getDirectDependentsAndAccumulateThem = (
-      dependents: {
-        [key: string]: PPNode;
-      },
-      includeUpstream: boolean,
-      includeDownstream: boolean,
-      wholeBranch: boolean
-    ): void => {
-      Object.values(dependents).forEach((node) => {
-        const newDependents: { [key: string]: PPNode } = node.getLinkedNodes(
-          wholeBranch || includeUpstream,
-          wholeBranch || includeDownstream
-        );
-
-        combinedDependents[node.id] = node;
-
-        const filtered = Object.keys(newDependents)
-          .filter((key) => combinedDependents[key] === undefined)
-          .reduce((obj, key) => {
-            obj[key] = newDependents[key];
-            return obj;
-          }, {});
-
-        getDirectDependentsAndAccumulateThem(
-          filtered,
-          includeUpstream,
-          includeDownstream,
-          wholeBranch
-        );
-      });
-    };
-
-    const combinedDependents: { [key: string]: PPNode } = {};
-    combinedDependents[this.id] = this;
-
-    if (includeUpstream && includeDownstream) {
-      getDirectDependentsAndAccumulateThem(
-        combinedDependents,
-        includeUpstream,
-        includeDownstream,
-        wholeBranch
-      );
-    } else {
-      getDirectDependentsAndAccumulateThem(
-        this.getLinkedNodes(includeUpstream, includeDownstream),
-        includeUpstream,
-        includeDownstream,
-        wholeBranch
-      );
-    }
-    return Object.values(combinedDependents);
-  }
-
   async executeOptimizedChain(): Promise<void> {
-    await PPNode.executeOptimizedChainBatch([this]);
+    await FlowLogic.executeOptimizedChainBatch([this]);
   }
 
   async executeChildren(): Promise<void> {
     this.drawComment();
-    await PPNode.executeOptimizedChainBatch(
+    await FlowLogic.executeOptimizedChainBatch(
       Object.values(this.getDirectDependents())
     );
-  }
-
-  static async executeOptimizedChainBatch(
-    foundational: PPNode[]
-  ): Promise<void> {
-    const dependents: { [key: string]: PPNode } = {};
-    const numDepending: { [key: string]: Set<string> } = {};
-    foundational.forEach((node: PPNode) => {
-      Object.keys(node.getDirectDependents()).forEach((dependentKey) => {
-        numDepending[dependentKey] = new Set();
-        numDepending[dependentKey].add(node.id);
-      });
-      PPNode.combineNumDependings(
-        numDepending,
-        node.aggregateDependents(dependents)
-      );
-    });
-    // now that we have the complete chain, execute them in order that makes sure all dependents are waiting on their parents, there should always be a node with no more lingering dependents (unless there is an infinite loop)
-    let currentExecuting: PPNode = foundational.shift();
-    while (currentExecuting) {
-      await currentExecuting.execute();
-      // uncomment if you want to see the execution in more detail by slowing it down (to make sure order is correct)
-      //await new Promise((resolve) => setTimeout(resolve, 500));
-      Object.keys(currentExecuting.getDirectDependents()).forEach(
-        (dependentKey) => {
-          if (numDepending[dependentKey]) {
-            numDepending[dependentKey].delete(currentExecuting.id);
-            // if this child has no other nodes it is waiting on, and one of its parents did change its output, add it to the queue of nodes to be executed
-            if (numDepending[dependentKey].size == 0) {
-              foundational.push(dependents[dependentKey]);
-            }
-          }
-        }
-      );
-      currentExecuting = foundational.shift();
-    }
-    return;
   }
 
   public setPosition(x: number, y: number, isRelative = false): void {
@@ -946,7 +781,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   }
 
   // avoid calling this directly when possible, instead use the input/output objects in onExecute and keep it encapsulated in that flow (not always possible but most of the time is)
-  setInputData(name: string, data: any): void {
+  public setInputData(name: string, data: any): void {
     const inputSocket = this.inputSocketArray.find((input: Socket) => {
       return name === input.name;
     });
@@ -960,7 +795,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   }
 
   // avoid calling this directly, instead use the input/output objects in onExecute
-  setOutputData(name: string, data: any): void {
+  public setOutputData(name: string, data: any): void {
     const outputSocket = this.outputSocketArray
       .filter((socket) => socket.socketType === SOCKET_TYPE.OUT)
       .find((output: Socket) => {
@@ -982,7 +817,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     }
   }
 
-  remapInput(sockets: Socket[]): any {
+  static remapInput(sockets: Socket[]): any {
     const inputObject = {};
     sockets.forEach((input: Socket) => {
       inputObject[input.name] = input.data;
@@ -993,7 +828,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   // if you want to optimize the mapping of arguments, override this function instead of execute(), but most of the time just override onExecute()
   protected async rawExecute(): Promise<void> {
     // remap input
-    const inputObject = this.remapInput(this.inputSocketArray);
+    const inputObject = PPNode.remapInput(this.inputSocketArray);
     const outputObject = {};
 
     await this.onExecute(inputObject, outputObject);
@@ -1051,7 +886,8 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     }
   }
 
-  protected async execute(): Promise<void> {
+  // Don't call this from outside unless you know very well what you are doing, you are probably looking for executeOptimizedChain()
+  public async execute(): Promise<void> {
     const executedSuccessOld = this.successfullyExecuted;
     try {
       this.successfullyExecuted = true;
@@ -1076,12 +912,12 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     }
   }
 
-  // dont call this from outside, only from child class
+  // dont call this from outside, just override it in child class
   protected async onExecute(input, output): Promise<void> {
     // just define function
   }
 
-  // helper function for nodes who want execution
+  // helper function for nodes who want execution to just be a passthrough
   protected async passThrough(input, output): Promise<void> {
     Object.keys(input).forEach((key) => {
       output[key] = input[key];

@@ -150,7 +150,7 @@ export class ForLoop extends PPNode {
 
   // we actually override the base execute function here as we are modifying the flow
   public async execute(): Promise<void> {
-    const inputObject = this.remapInput(this.inputSocketArray);
+    const inputObject = PPNode.remapInput(this.inputSocketArray);
     for (
       this.currentIndex = this.getMinIndex(inputObject);
       this.currentIndex < this.getMaxIndex(inputObject);
