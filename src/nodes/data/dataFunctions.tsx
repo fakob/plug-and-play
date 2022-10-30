@@ -348,6 +348,9 @@ export class CustomFunction extends PPNode {
       this.metaInfoChanged();
     }
   }
+  public outputsAutomaticallyAdaptType(): boolean {
+    return true;
+  }
 }
 
 class ArrayFunction extends CustomFunction {
