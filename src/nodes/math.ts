@@ -56,7 +56,7 @@ export class MathFunction extends PPNode {
 
   protected getDefaultIO(): Socket[] {
     const onOptionChange = (value) => {
-      this.nodeName = 'Math.' + value;
+      this.setName('Math.' + value);
     };
     const math = Object.getOwnPropertyNames(Math);
     const mathOptions = math.map((methodName) => {

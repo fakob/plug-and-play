@@ -51,7 +51,8 @@ export default class PPNode extends PIXI.Container {
   isHovering: boolean;
 
   id: string;
-  type: string; // Type
+  type: string;
+  overrideName = '';
   nodePosX: number;
   nodePosY: number;
   nodeWidth: number;
@@ -102,9 +103,18 @@ export default class PPNode extends PIXI.Container {
     return false;
   }
 
-  // we should migrate all nodes to use these functions instead of specifying the field themselves in constructor
+  public getDisplayName(): string {
+    return this.overrideName !== ''
+      ? this.overrideName + '\t(' + this.getName() + ')'
+      : this.getName();
+  }
+
   public getName(): string {
-    return this.name;
+    return this.type;
+  }
+  public setName(newName: string): void {
+    this.overrideName = newName || '';
+    this._NodeNameRef.text = this.getDisplayName();
   }
   public getDescription(): string {
     return '';
@@ -160,13 +170,6 @@ export default class PPNode extends PIXI.Container {
     return true;
   }
 
-  public getNodeTextString(): string {
-    if (this.name !== this.type) {
-      return this.name + '\t(' + this.type + ')';
-    }
-    return this.name;
-  }
-
   public getParallelInputsOutputs(): boolean {
     return false;
   }
@@ -177,19 +180,9 @@ export default class PPNode extends PIXI.Container {
 
   public nodeKeyEvent(e: KeyboardEvent): void {}
 
-  get nodeName(): string {
-    return this.name;
-  }
-
-  set nodeName(text: string) {
-    this.name = text;
-    this._NodeNameRef.text = this.getNodeTextString();
-  }
-
   constructor(type: string, customArgs?: CustomArgs) {
     super();
     this.id = customArgs?.overrideId || hri.random();
-    this.name = type;
     this.type = type;
     this.nodeTriggerSocketArray = [];
     this.inputSocketArray = [];
@@ -203,10 +196,7 @@ export default class PPNode extends PIXI.Container {
     this.nodeHeight = this.getDefaultNodeHeight(); // if not set height is defined by in/out sockets
     this.isHovering = false;
 
-    const inputNameText = new PIXI.Text(
-      this.getNodeTextString(),
-      NODE_TEXTSTYLE
-    );
+    const inputNameText = new PIXI.Text(this.getDisplayName(), NODE_TEXTSTYLE);
     inputNameText.x = NODE_HEADER_TEXTMARGIN_LEFT;
     inputNameText.y = NODE_PADDING_TOP + NODE_HEADER_TEXTMARGIN_TOP;
     inputNameText.resolution = 8;
@@ -351,12 +341,7 @@ export default class PPNode extends PIXI.Container {
     this.resizeAndDraw();
   }
 
-  addOutput(
-    name: string,
-    type: AbstractType,
-    visible?: boolean,
-    custom?: Record<string, any>
-  ): void {
+  addOutput(name: string, type: AbstractType, visible?: boolean): void {
     this.addSocket(
       new Socket(
         SOCKET_TYPE.OUT,
@@ -374,7 +359,7 @@ export default class PPNode extends PIXI.Container {
     //create serialization object
     const node: SerializedNode = {
       id: this.id,
-      name: this.name,
+      overrideName: this.overrideName,
       type: this.type,
       x: this.x,
       y: this.y,
@@ -399,7 +384,7 @@ export default class PPNode extends PIXI.Container {
     this.y = nodeConfig.y;
     this.nodeWidth = nodeConfig.width | this.getMinNodeWidth();
     this.nodeHeight = nodeConfig.height | this.getMinNodeHeight();
-    this.nodeName = nodeConfig.name;
+    this.overrideName = nodeConfig.overrideName || '';
     this.updateBehaviour.setUpdateBehaviour(
       nodeConfig.updateBehaviour.update,
       nodeConfig.updateBehaviour.interval,

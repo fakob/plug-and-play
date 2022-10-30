@@ -20,7 +20,7 @@ export class ArrayMethod extends PPNode {
     });
 
     this.onOptionChange = (value) => {
-      this.nodeName = 'Array.' + value;
+      this.setName('Array.' + value);
     };
 
     this.onExecute = async function (

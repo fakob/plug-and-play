@@ -458,9 +458,7 @@ export default class PPGraph {
       },
       newType
     );
-    if (newType) {
-      newNode.nodeName = newType;
-    }
+
     this.reconnectLinksToNewNode(this.nodes[oldId], newNode);
     newNode.executeOptimizedChain();
     this.selection.selectNodes([newNode]);

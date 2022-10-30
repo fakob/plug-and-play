@@ -71,7 +71,7 @@ export interface INodeSearch {
 export type SerializedNode = {
   type: string;
   id: string;
-  name: string;
+  overrideName: string;
   x: number;
   y: number;
   width: number;

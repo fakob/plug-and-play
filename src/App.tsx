@@ -1112,7 +1112,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
             nodePosX: nodePos.x,
             nodePosY: nodePos.y,
           });
-          addedNode.nodeName = selected.title;
+          addedNode.setName(selected.title);
         }
         if (addLink) {
           connectNodeToSocket(addLink, addedNode);

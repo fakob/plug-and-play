@@ -2,12 +2,7 @@
 import PPGraph from '../../classes/GraphClass';
 import PPNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
-import {
-  NODE_TYPE_COLOR,
-  NOTE_LINEHEIGHT_FACTOR,
-  PIXI_PIVOT_OPTIONS,
-  SOCKET_TYPE,
-} from '../../utils/constants';
+import { NOTE_LINEHEIGHT_FACTOR, SOCKET_TYPE } from '../../utils/constants';
 import { DeferredPixiType } from '../datatypes/deferredPixiType';
 import { EnumStructure, EnumType } from '../datatypes/enumType';
 import * as PIXI from 'pixi.js';
@@ -18,7 +13,6 @@ import { ArrayType } from '../datatypes/arrayType';
 import { StringType } from '../datatypes/stringType';
 import { ImageType } from '../datatypes/imageType';
 import { TRgba } from '../../utils/interfaces';
-import { DisplayObject } from 'pixi.js';
 import { drawDottedLine } from '../../utils/utils';
 import { DRAW_Base, injectedDataName, outputPixiName } from './abstract';
 
@@ -593,6 +587,16 @@ export class DRAW_Line extends DRAW_Base {
 
     this.positionAndScale(graphics, inputObject);
     container.addChild(graphics);
+  }
+}
+
+export class DRAW_Bounds extends DRAW_Base {
+  protected drawOnContainer(
+    inputObject: any,
+    container: PIXI.Container<PIXI.DisplayObject>,
+    executions: { string: number }
+  ): void {
+    throw new Error('Method not implemented.');
   }
 }
 

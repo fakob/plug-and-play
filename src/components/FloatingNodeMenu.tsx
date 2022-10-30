@@ -121,7 +121,11 @@ const FloatingNodeMenu = (props) => {
     });
   };
 
-  const [nodeName, setNodeName] = React.useState(selectedNodes[0].name);
+  const [nodeName, setNodeName] = React.useState(
+    selectedNodes[0].overrideName != ''
+      ? selectedNodes[0].overrideName
+      : selectedNodes[0].getName()
+  );
   const [code, setCode] = React.useState('');
 
   useEffect(() => {
@@ -154,7 +158,7 @@ const FloatingNodeMenu = (props) => {
             disabled={selectedNodes.length !== 1}
             onChange={(event) => {
               const value = event.target.value;
-              selectedNodes[0].nodeName = value;
+              selectedNodes[0].setName(value);
               setNodeName(value);
             }}
             value={
