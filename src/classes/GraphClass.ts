@@ -856,10 +856,6 @@ export default class PPGraph {
       configureError = error;
     }
 
-    // execute all seed nodes to make sure there are values everywhere
-    await PPNode.executeOptimizedChainBatch(
-      Object.values(this.nodes).filter((node) => !node.getHasDependencies())
-    );
     this.ticking = true;
 
     return configureError;
