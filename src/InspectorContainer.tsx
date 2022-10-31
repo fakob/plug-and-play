@@ -65,7 +65,7 @@ const InspectorContainer: React.FunctionComponent<MyProps> = (props) => {
             }}
             title={props.selectedNode?.id}
           >
-            {props.selectedNode?.name}
+            {props.selectedNode?.getName()}
           </Box>
           <ToggleButtonGroup
             value={props.widthPercentage}

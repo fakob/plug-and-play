@@ -405,7 +405,9 @@ export default class PPNode extends PIXI.Container {
         } else {
           // add socket if it does not exist yet
           console.info(
-            `Socket does not exist (yet) and will be created: ${this.name}(${this.id})/${item.name}`
+            `Socket does not exist (yet) and will be created: ${this.getName()}(${
+              this.id
+            })/${item.name}`
           );
           if (isNodeTrigger) {
             this.addTriggerSocket(
