@@ -9,7 +9,7 @@ import { TRgba } from '../../utils/interfaces';
 import { SOCKET_COLOR_HEX } from '../../utils/constants';
 export class AbstractType {
 
-  valueChangedListeners = []; // list of functions from data any to void
+  valueChangedListeners : Record<string,(data:any) => void> = {} // dict of functions from data any to void
 
   // override any and all of these in child classes
   getName(): string {
@@ -25,13 +25,12 @@ export class AbstractType {
     return 'null';
   }
 
-  listenerAttacher = (setData) => {this.valueChangedListeners.push(setData)}
-
   getInputWidget = (props: any): any => {
     if (typeof props.data !== 'string') {
       props.data = convertToString(props.data);
     }
-    props.listenerAttacher = this.listenerAttacher;
+    props.dataType = this;
+
     return <CodeWidget {...props} />;
   };
 
@@ -40,7 +39,7 @@ export class AbstractType {
       props.data = convertToString(props.data);
     }
 
-    props.listenerAttacher = this.listenerAttacher;
+    props.dataType = this;
     return <DefaultOutputWidget {...props} />;
   };
 
@@ -63,9 +62,13 @@ export class AbstractType {
 
   onDataSet(data: any, socket: Socket): void {
     //console.log("listeners: " + this.valueChangedListeners.length)
-    this.valueChangedListeners = this.valueChangedListeners.filter(a => a); // filter out undefineds
-    this.valueChangedListeners = this.valueChangedListeners.slice(0,100); // max x listeners
-    this.valueChangedListeners.forEach(listener => listener(data));
+    Object.keys(this.valueChangedListeners).forEach(key => {
+      if (!this.valueChangedListeners[key]){
+        delete this.valueChangedListeners[key]
+      }
+    });
+
+    Object.keys(this.valueChangedListeners).forEach(key => this.valueChangedListeners[key](data));
     return;
   }
 

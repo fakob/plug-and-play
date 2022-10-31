@@ -32,7 +32,7 @@ export class NumberType extends AbstractType {
       hasLink: props.hasLink,
       index: props.index,
       data: props.data,
-      listenerAttacher: this.listenerAttacher,
+      dataType: this,
       type: this,
     };
     return <SliderWidget {...sliderProps} />;
@@ -42,7 +42,7 @@ export class NumberType extends AbstractType {
     if (typeof props.data !== 'number') {
       props.data = Number(props.data);
     }
-    props.listenerAttacher = this.listenerAttacher;
+    props.dataType = this;
     return <NumberOutputWidget {...props} />;
   };
 

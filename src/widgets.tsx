@@ -24,6 +24,8 @@ import { TRgba } from './utils/interfaces';
 import { EnumStructure } from './nodes/datatypes/enumType';
 import { NumberType } from './nodes/datatypes/numberType';
 import { TriggerType } from './nodes/datatypes/triggerType';
+import { v4 as uuid } from 'uuid';
+import { AbstractType } from './nodes/datatypes/abstractType';
 
 async function potentiallyNotify(property: Socket, newValue) {
   if (property.data !== newValue) {
@@ -34,13 +36,26 @@ async function potentiallyNotify(property: Socket, newValue) {
   }
 }
 
+function addAsObserverToDataType(
+  dataType: AbstractType,
+  setData: (any) => void
+): () => void {
+  const id = uuid();
+  if (dataType) {
+    dataType.valueChangedListeners[id] = setData;
+    return () => {
+      delete dataType.valueChangedListeners[id];
+    };
+  }
+}
+
 export type SliderWidgetProps = {
   property: Socket;
   isInput: boolean;
   hasLink: boolean;
   index: number;
   data: unknown;
-  listenerAttacher: any;
+  dataType: AbstractType;
   type: NumberType;
 };
 
@@ -48,7 +63,9 @@ export const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (
   props
 ) => {
   const [data, setData] = useState(Number(props.data || 0));
-  props.listenerAttacher(setData);
+  useEffect(() => {
+    return addAsObserverToDataType(props.dataType, setData);
+  });
   const [minValue, setMinValue] = useState(
     Math.min(props.type.minValue ?? 0, data)
   );
@@ -273,13 +290,15 @@ export type TextWidgetProps = {
   index: number;
   hasLink: boolean;
   data: unknown;
-  listenerAttacher: (any) => void;
+  dataType: AbstractType;
   randomMainColor: string;
 };
 
 export const TextWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
   const [data, setData] = useState(String(props.data));
-  props.listenerAttacher(setData);
+  useEffect(() => {
+    return addAsObserverToDataType(props.dataType, setData);
+  });
 
   return (
     <FormGroup>
@@ -305,13 +324,12 @@ export type CodeWidgetProps = {
   index: number;
   hasLink: boolean;
   data: unknown;
-  listenerAttacher: (any) => void;
+  //dataType: AbstractType; // didnt seem to work
   randomMainColor: string;
 };
 
 export const CodeWidget: React.FunctionComponent<CodeWidgetProps> = (props) => {
   const [data, setData] = useState(props.data);
-  props.listenerAttacher(setData);
 
   return (
     <CodeEditor
@@ -550,7 +568,7 @@ export type DefaultOutputWidgetProps = {
   isInput: boolean;
   hasLink: boolean;
   data: unknown;
-  listenerAttacher: (any) => void;
+  //dataType: AbstractType; didnt seem to work
   randomMainColor?: string;
 };
 
@@ -559,8 +577,6 @@ export const DefaultOutputWidget: React.FunctionComponent<
 > = (props) => {
   try {
     const [data, setData] = useState(props.data);
-    props.listenerAttacher(setData);
-
     return (
       <CodeEditor
         value={data}
@@ -579,7 +595,8 @@ export type NumberOutputWidgetProps = {
   isInput: boolean;
   hasLink: boolean;
   data: unknown;
-  listenerAttacher: (any) => void;
+  dataType: AbstractType;
+
   randomMainColor?: string;
 };
 
@@ -587,7 +604,9 @@ export const NumberOutputWidget: React.FunctionComponent<
   NumberOutputWidgetProps
 > = (props) => {
   const [data, setData] = useState(Number(props.data));
-  props.listenerAttacher(setData);
+  useEffect(() => {
+    return addAsObserverToDataType(props.dataType, setData);
+  });
 
   return (
     <>
