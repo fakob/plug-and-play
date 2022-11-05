@@ -16,6 +16,7 @@ import DataEditor, {
   GridCellKind,
   GridColumn,
   GridSelection,
+  GridMouseEventArgs,
   Item,
   Rectangle,
 } from '@glideapps/glide-data-grid';
@@ -248,6 +249,23 @@ export class Table extends HybridNode {
         col: number;
         pos: PIXI.Point;
       }>();
+      const [hoverRow, setHoverRow] = useState<number | undefined>(undefined);
+
+      const onItemHovered = useCallback((args: GridMouseEventArgs) => {
+        const [_, row] = args.location;
+        setHoverRow(args.kind !== 'cell' ? undefined : row);
+      }, []);
+
+      const getRowThemeOverride = useCallback(
+        (row) => {
+          if (row !== hoverRow) return undefined;
+          return {
+            bgCell: '#f7f7f7',
+            bgCellMedium: '#f0f0f0',
+          };
+        },
+        [hoverRow]
+      );
 
       const isOpen = menu !== undefined;
 
@@ -346,6 +364,8 @@ export class Table extends HybridNode {
             );
             setArrayOfArrays(arrayOfArrays.concat(arrayToAppend));
           }
+          // update column names and width if needed
+          setColsMap(() => getCols());
           return true;
         },
         [arrayOfArrays.length, props.sheetIndex]
@@ -361,6 +381,8 @@ export class Table extends HybridNode {
           arrayOfArrays[row][col] = newValue.data;
 
           saveAndOutput();
+          // update column names and width if needed
+          setColsMap(() => getCols());
         },
         [colsMap, arrayOfArrays.length, props.sheetIndex]
       );
@@ -414,26 +436,13 @@ export class Table extends HybridNode {
       const onHeaderMenuClick = React.useCallback(
         (col: number, bounds: Rectangle) => {
           console.log('Header menu clicked', col, bounds);
-          const nodeScreenPos = PPGraph.currentGraph.viewport.toScreen(
-            bounds.x,
-            bounds.y
-          );
-          console.log(
-            col,
-            bounds,
-            this.x,
-            this.y,
-            nodeScreenPos,
-            bounds.x,
-            bounds.y
-          );
+          const nodeScreenPos = this.screenPoint();
           setMenu({
             col,
             pos: new PIXI.Point(
-              // bounds.x +
-              // bounds.width * (1 / PPGraph.currentGraph.viewport.scale.x) -
-              nodeScreenPos.x,
-              0
+              (bounds.x - nodeScreenPos.x + bounds.width) *
+                (1 / PPGraph.currentGraph.viewport.scale.x),
+              bounds.y - nodeScreenPos.y
             ),
           });
         },
@@ -459,6 +468,7 @@ export class Table extends HybridNode {
             onColumnResize={onColumnResize}
             width={props.nodeWidth}
             height={props.nodeHeight}
+            getRowThemeOverride={getRowThemeOverride}
             gridSelection={gridSelection}
             onCellEdited={onCellEdited}
             onCellContextMenu={(_, e) => e.preventDefault()}
@@ -466,6 +476,7 @@ export class Table extends HybridNode {
             onGridSelectionChange={onGridSelectionChange}
             onHeaderMenuClick={onHeaderMenuClick}
             onHeaderClicked={onHeaderClicked}
+            onItemHovered={onItemHovered}
             onPaste={onPaste}
             onRowMoved={onRowMoved}
             fillHandle={true}
@@ -481,35 +492,19 @@ export class Table extends HybridNode {
               tint: true,
               hint: 'New row...',
             }}
-            getRowThemeOverride={(i) =>
-              i % 2 === 0
-                ? undefined
-                : {
-                    bgCell: '#F4FAF9',
-                  }
+            rightElement={
+              <div>
+                <button onClick={() => window.alert('Add a column!')}>+</button>
+              </div>
             }
+            rightElementProps={{
+              fill: false,
+              sticky: false,
+            }}
           />
           {isOpen && (
             <TableRowContextMenu
-              // contextMenuPosition={() => {
-              //   const nodeScreenPos = PPGraph.currentGraph.viewport.toScreen(
-              //     this.x,
-              //     this.y
-              //   );
-              //   console.log(
-              //     this.x,
-              //     this.y,
-              //     nodeScreenPos,
-              //     menu.pos.x,
-              //     menu.pos.y
-              //   );
-              //   return [menu.pos.x, menu.pos.y];
-              // }}
               contextMenuPosition={[menu.pos.x, menu.pos.y]}
-              // contextMenuPosition={PPGraph.currentGraph.viewport.toScreen(
-              //   menu.bounds.x,
-              //   menu.bounds.y
-              // )}
               setMenu={setMenu}
             />
           )}

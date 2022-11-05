@@ -683,6 +683,7 @@ export const getLongestArrayInArray = (arrayOfArrays): number => {
   }, []);
   return longestArray.length;
 };
+
 export function drawDottedLine(
   graphics: PIXI.Graphics,
   startX: number,
