@@ -21,14 +21,7 @@ import DataEditor, {
   Rectangle,
 } from '@glideapps/glide-data-grid';
 import '@glideapps/glide-data-grid/dist/index.css';
-import {
-  Divider,
-  ListItemText,
-  MenuItem,
-  MenuList,
-  Paper,
-} from '@mui/material';
-import PPGraph from '../classes/GraphClass';
+import { Divider, ListItemText, MenuItem, Menu } from '@mui/material';
 import PPSocket from '../classes/SocketClass';
 import {
   getLongestArrayInArray,
@@ -436,14 +429,9 @@ export class Table extends HybridNode {
       const onHeaderMenuClick = React.useCallback(
         (col: number, bounds: Rectangle) => {
           console.log('Header menu clicked', col, bounds);
-          const nodeScreenPos = this.screenPoint();
           setMenu({
             col,
-            pos: new PIXI.Point(
-              (bounds.x - nodeScreenPos.x + bounds.width) *
-                (1 / PPGraph.currentGraph.viewport.scale.x),
-              bounds.y - nodeScreenPos.y
-            ),
+            pos: new PIXI.Point(bounds.x + bounds.width, bounds.y),
           });
         },
         []
@@ -502,12 +490,57 @@ export class Table extends HybridNode {
               sticky: false,
             }}
           />
-          {isOpen && (
-            <TableRowContextMenu
-              contextMenuPosition={[menu.pos.x, menu.pos.y]}
-              setMenu={setMenu}
-            />
-          )}
+          <Menu
+            open={isOpen}
+            onClose={() => {
+              setMenu(undefined);
+            }}
+            anchorReference="anchorPosition"
+            anchorPosition={{
+              top: menu?.pos.y ?? 0,
+              left: menu?.pos.x ?? 0,
+            }}
+            anchorOrigin={{
+              vertical: 'top',
+              horizontal: 'left',
+            }}
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'left',
+            }}
+          >
+            <MenuItem
+              onClick={() => {
+                setMenu(undefined);
+              }}
+            >
+              {/* <ListItemIcon>
+            <AddIcon fontSize="small" />
+          </ListItemIcon> */}
+              <ListItemText>Add column right</ListItemText>
+            </MenuItem>
+            <MenuItem
+              onClick={() => {
+                setMenu(undefined);
+              }}
+            >
+              {/* <ListItemIcon>
+            <AddIcon fontSize="small" />
+          </ListItemIcon> */}
+              <ListItemText>Add column left</ListItemText>
+            </MenuItem>
+            <Divider />
+            <MenuItem
+              onClick={() => {
+                setMenu(undefined);
+              }}
+            >
+              {/* <ListItemIcon>
+            <DeleteIcon fontSize="small" />
+          </ListItemIcon> */}
+              <ListItemText>Delete column</ListItemText>
+            </MenuItem>
+          </Menu>
         </>
       );
     };
@@ -554,67 +587,3 @@ export class Table extends HybridNode {
     this.setOutputData(arrayOfArraysSocketName, this.getArrayOfArrays(sheet));
   }
 }
-
-export const TableRowContextMenu = (props) => {
-  useEffect(() => {
-    window.addEventListener('contextmenu', handleContextMenu);
-  });
-
-  useEffect(() => {
-    return () => {
-      window.removeEventListener('contextmenu', handleContextMenu);
-    };
-  }, []);
-
-  function handleContextMenu(e: Event) {
-    e.preventDefault();
-  }
-
-  return (
-    <Paper
-      id="TableRowContextMenu"
-      sx={{
-        width: 240,
-        maxWidth: '100%',
-        position: 'absolute',
-        zIndex: 400,
-        left: props.contextMenuPosition[0],
-        top: props.contextMenuPosition[1],
-      }}
-    >
-      <MenuList dense>
-        <MenuItem
-          onClick={() => {
-            props.setMenu(undefined);
-          }}
-        >
-          {/* <ListItemIcon>
-            <AddIcon fontSize="small" />
-          </ListItemIcon> */}
-          <ListItemText>Add column right</ListItemText>
-        </MenuItem>
-        <MenuItem
-          onClick={() => {
-            props.setMenu(undefined);
-          }}
-        >
-          {/* <ListItemIcon>
-            <AddIcon fontSize="small" />
-          </ListItemIcon> */}
-          <ListItemText>Add column left</ListItemText>
-        </MenuItem>
-        <Divider />
-        <MenuItem
-          onClick={() => {
-            props.setMenu(undefined);
-          }}
-        >
-          {/* <ListItemIcon>
-            <DeleteIcon fontSize="small" />
-          </ListItemIcon> */}
-          <ListItemText>Delete column</ListItemText>
-        </MenuItem>
-      </MenuList>
-    </Paper>
-  );
-};
