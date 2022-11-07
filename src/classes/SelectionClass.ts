@@ -88,7 +88,7 @@ export default class PPSelection extends PIXI.Container {
 
   set selectedNodes(newNodes: PPNode[]) {
     this._selectedNodes = newNodes;
-    // console.log('set selectedNodes');
+    console.log('set selectedNodes');
     this.selectedNodesListener(newNodes);
   }
 
@@ -298,7 +298,7 @@ export default class PPSelection extends PIXI.Container {
 
     // unsubscribe from pointermove
     this.removeListener('pointermove', this.onMoveHandler);
-    // console.log(this.selectedNodes);
+    console.log(this.selectedNodes);
     if (this.selectedNodes.length > 0) {
       this.drawRectanglesFromSelection();
     } else {
@@ -315,7 +315,7 @@ export default class PPSelection extends PIXI.Container {
       this.sourcePoint.x === targetPoint.x &&
       this.sourcePoint.y === targetPoint.y
     ) {
-      // console.log('deselectAllNodesAndResetSelection');
+      console.log('deselectAllNodesAndResetSelection');
       this.deselectAllNodesAndResetSelection();
     }
   }

@@ -60,9 +60,16 @@ module.exports = (env, argv) => {
         patterns: [
           {
             from: 'assets/**',
-            to({ context, absoluteFilename }) {
+
+            // if there are nested subdirectories , keep the hierarchy
+
+            // after upgrading packages transformPath throws a typescript error
+            // have not found another solution than to ignore it
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            transformPath(targetPath, absolutePath) {
               const assetsPath = path.resolve(__dirname, 'assets');
-              const endpPath = absoluteFilename?.slice(assetsPath.length);
+              const endpPath = absolutePath.slice(assetsPath.length);
 
               return Promise.resolve(`assets/${endpPath}`);
             },
