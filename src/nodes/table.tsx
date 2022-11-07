@@ -281,10 +281,6 @@ export class Table extends HybridNode {
       }, []);
 
       useEffect(() => {
-        console.log(menu?.pos?.x, menu?.pos?.y);
-      }, [menu]);
-
-      useEffect(() => {
         if (props.doubleClicked) {
           ref.current.focus();
         }
@@ -451,11 +447,6 @@ export class Table extends HybridNode {
         []
       );
 
-      const onHeaderClicked = React.useCallback(() => {
-        // eslint-disable-next-line no-console
-        console.log('Header clicked');
-      }, []);
-
       return (
         <>
           <DataEditor
@@ -476,7 +467,6 @@ export class Table extends HybridNode {
             onColumnMoved={onColumnMoved}
             onGridSelectionChange={onGridSelectionChange}
             onHeaderMenuClick={onHeaderMenuClick}
-            onHeaderClicked={onHeaderClicked}
             onItemHovered={onItemHovered}
             onPaste={onPaste}
             onRowAppended={() => {
