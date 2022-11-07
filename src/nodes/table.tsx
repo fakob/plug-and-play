@@ -21,12 +21,26 @@ import DataEditor, {
   Rectangle,
 } from '@glideapps/glide-data-grid';
 import '@glideapps/glide-data-grid/dist/index.css';
-import { Divider, ListItemText, MenuItem, Menu } from '@mui/material';
+import {
+  Box,
+  Divider,
+  IconButton,
+  ListItemIcon,
+  ListItemText,
+  MenuItem,
+  Menu,
+} from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete';
 import PPSocket from '../classes/SocketClass';
 import {
+  addColumnToArrayOfArrays,
+  addRowToArrayOfArrays,
   getLongestArrayInArray,
   getXLSXSelectionRange,
+  indexToAlphaNumName,
   limitRange,
+  removeColumnFromArrayOfArrays,
 } from '../utils/utils';
 import { SOCKET_TYPE } from '../utils/constants';
 import { CustomArgs } from '../utils/interfaces';
@@ -137,7 +151,7 @@ export class Table extends HybridNode {
       } else {
         // create workbook with an empty worksheet
         this.workBook = XLSX.utils.book_new();
-        const ws_data = new Array(100).fill(Array(30).fill(''));
+        const ws_data = new Array(24).fill(Array(24).fill(''));
         const worksheet = XLSX.utils.aoa_to_sheet(ws_data);
         XLSX.utils.book_append_sheet(this.workBook, worksheet, 'Sheet1');
       }
@@ -225,8 +239,8 @@ export class Table extends HybridNode {
         for (let index = 0; index < longestArrayInArray; index++) {
           const col = firstRow[index];
           gridColumn.push({
-            title: String(col ?? index),
-            id: String(col ?? index).toLowerCase(),
+            title: String(col || indexToAlphaNumName(index)),
+            id: String(col || indexToAlphaNumName(index)).toLowerCase(),
             hasMenu: true,
           });
         }
@@ -449,8 +463,7 @@ export class Table extends HybridNode {
             getCellContent={getContent}
             columns={cols}
             rows={arrayOfArrays.length}
-            overscrollX={200}
-            overscrollY={200}
+            overscrollX={40}
             maxColumnAutoWidth={500}
             maxColumnWidth={2000}
             onColumnResize={onColumnResize}
@@ -466,6 +479,9 @@ export class Table extends HybridNode {
             onHeaderClicked={onHeaderClicked}
             onItemHovered={onItemHovered}
             onPaste={onPaste}
+            onRowAppended={() => {
+              addRowToArrayOfArrays(arrayOfArrays, arrayOfArrays.length);
+            }}
             onRowMoved={onRowMoved}
             fillHandle={true}
             rowSelect="multi"
@@ -481,9 +497,29 @@ export class Table extends HybridNode {
               hint: 'New row...',
             }}
             rightElement={
-              <div>
-                <button onClick={() => window.alert('Add a column!')}>+</button>
-              </div>
+              <Box
+                sx={{
+                  width: '40px',
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  backgroundColor: '#f1f1f1',
+                }}
+              >
+                <IconButton
+                  sx={{ pt: '4px' }}
+                  size="small"
+                  onClick={() => {
+                    addColumnToArrayOfArrays(
+                      arrayOfArrays,
+                      getLongestArrayInArray(arrayOfArrays)
+                    );
+                    setColsMap(() => getCols());
+                  }}
+                >
+                  <AddIcon sx={{ fontSize: '16px' }} />
+                </IconButton>
+              </Box>
             }
             rightElementProps={{
               fill: false,
@@ -511,33 +547,39 @@ export class Table extends HybridNode {
           >
             <MenuItem
               onClick={() => {
+                addColumnToArrayOfArrays(arrayOfArrays, menu.col);
+                setColsMap(() => getCols());
                 setMenu(undefined);
               }}
             >
-              {/* <ListItemIcon>
-            <AddIcon fontSize="small" />
-          </ListItemIcon> */}
-              <ListItemText>Add column right</ListItemText>
+              <ListItemIcon>
+                <AddIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Add column left</ListItemText>
             </MenuItem>
             <MenuItem
               onClick={() => {
+                addColumnToArrayOfArrays(arrayOfArrays, menu.col + 1);
+                setColsMap(() => getCols());
                 setMenu(undefined);
               }}
             >
-              {/* <ListItemIcon>
-            <AddIcon fontSize="small" />
-          </ListItemIcon> */}
-              <ListItemText>Add column left</ListItemText>
+              <ListItemIcon>
+                <AddIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Add column right</ListItemText>
             </MenuItem>
             <Divider />
             <MenuItem
               onClick={() => {
+                removeColumnFromArrayOfArrays(arrayOfArrays, menu.col);
+                setColsMap(() => getCols());
                 setMenu(undefined);
               }}
             >
-              {/* <ListItemIcon>
-            <DeleteIcon fontSize="small" />
-          </ListItemIcon> */}
+              <ListItemIcon>
+                <DeleteIcon fontSize="small" />
+              </ListItemIcon>
               <ListItemText>Delete column</ListItemText>
             </MenuItem>
           </Menu>

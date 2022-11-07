@@ -677,11 +677,55 @@ export const getMatchingSocket = (socket: PPSocket, node: PPNode): PPSocket => {
   return undefined;
 };
 
+export const indexToAlphaNumName = (num: number) => {
+  let alpha = '';
+
+  for (; num >= 0; num = parseInt(String(num / 26), 10) - 1) {
+    alpha = String.fromCharCode((num % 26) + 0x41) + alpha;
+  }
+
+  return alpha;
+};
+
 export const getLongestArrayInArray = (arrayOfArrays): number => {
   const longestArray = arrayOfArrays.reduce((a, b) => {
     return a.length > b.length ? a : b;
   }, []);
   return longestArray.length;
+};
+
+export const addRowToArrayOfArrays = (
+  arrayOfArrays: any[],
+  insertIndex
+): any[] => {
+  arrayOfArrays.splice(
+    insertIndex,
+    0,
+    Array(getLongestArrayInArray(arrayOfArrays)).fill('')
+  );
+  return arrayOfArrays;
+};
+
+export const addColumnToArrayOfArrays = (
+  arrayOfArrays: any[],
+  insertIndex
+): any[] => {
+  const newArrayOfArrays = arrayOfArrays.map((row) => {
+    row.splice(insertIndex, 0, '');
+    return row;
+  });
+  return newArrayOfArrays;
+};
+
+export const removeColumnFromArrayOfArrays = (
+  arrayOfArrays: any[],
+  insertIndex
+): any[] => {
+  const newArrayOfArrays = arrayOfArrays.map((row) => {
+    row.splice(insertIndex, 1);
+    return row;
+  });
+  return newArrayOfArrays;
 };
 
 export function drawDottedLine(
