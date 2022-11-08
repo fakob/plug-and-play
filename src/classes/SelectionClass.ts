@@ -11,10 +11,10 @@ import {
 } from '../utils/constants';
 import { getObjectsInsideBounds } from '../pixi/utils-pixi';
 import { getDifferenceSelection } from '../utils/utils';
+import PPGraph from './GraphClass';
 
 export default class PPSelection extends PIXI.Container {
   protected viewport: Viewport;
-  protected getNodes: () => PPNode[];
   protected previousSelectedNodes: PPNode[];
   _selectedNodes: PPNode[];
 
@@ -37,10 +37,9 @@ export default class PPSelection extends PIXI.Container {
     | ((event: PIXI.InteractionEvent, target: PIXI.DisplayObject) => void)
     | null; // called when the selection is right clicked
 
-  constructor(viewport: Viewport, getNodes: () => PPNode[]) {
+  constructor(viewport: Viewport) {
     super();
     this.viewport = viewport;
-    this.getNodes = getNodes;
     this.sourcePoint = new PIXI.Point(0, 0);
     this.isDrawingSelection = false;
     this.isDraggingSelection = false;
@@ -129,6 +128,20 @@ export default class PPSelection extends PIXI.Container {
     }
   }
 
+  public startDragAction(event: PIXI.InteractionEvent) {
+    console.log('startDragAction');
+    this.cursor = 'move';
+    this.isDraggingSelection = true;
+    this.onSelectionDragging(this.isDraggingSelection);
+    this.interactionData = event.data;
+    this.sourcePoint = this.interactionData.getLocalPosition(
+      this.selectedNodes[0]
+    );
+
+    // subscribe to pointermove
+    this.on('pointermove', this.onMoveHandler);
+  }
+
   onPointerDown(event: PIXI.InteractionEvent): void {
     console.log('Selection: onPointerDown');
     if (this.selectedNodes.length > 0) {
@@ -144,7 +157,7 @@ export default class PPSelection extends PIXI.Container {
           1
         );
         const newlySelectedNodes = getObjectsInsideBounds(
-          this.getNodes(),
+          Object.values(PPGraph.currentGraph.nodes),
           selectionRect
         );
         const differenceSelection = getDifferenceSelection(
@@ -155,17 +168,7 @@ export default class PPSelection extends PIXI.Container {
         this.selectNodes(differenceSelection, false, true);
         this.drawRectanglesFromSelection();
       } else {
-        console.log('startDragAction');
-        this.cursor = 'move';
-        this.isDraggingSelection = true;
-        this.onSelectionDragging(this.isDraggingSelection);
-        this.interactionData = event.data;
-        this.sourcePoint = this.interactionData.getLocalPosition(
-          this.selectedNodes[0]
-        );
-
-        // subscribe to pointermove
-        this.on('pointermove', this.onMoveHandler);
+        this.startDragAction(event);
       }
     }
   }
@@ -187,6 +190,9 @@ export default class PPSelection extends PIXI.Container {
       this.interactionData = null;
       // unsubscribe from pointermove
       this.removeListener('pointermove', this.onMoveHandler);
+    }
+    if (this.selectedNodes.length == 1) {
+      this.drawRectanglesFromSelection(false);
     }
   }
 
@@ -216,7 +222,7 @@ export default class PPSelection extends PIXI.Container {
       // get differenceSelection of newlySelectedNodes and
       // previousSelectedNodes (is empty if not addToOrToggleSelection)
       const newlySelectedNodes = getObjectsInsideBounds(
-        this.getNodes(),
+        Object.values(PPGraph.currentGraph.nodes),
         selectionRect
       );
       const differenceSelection = getDifferenceSelection(
@@ -338,7 +344,7 @@ export default class PPSelection extends PIXI.Container {
     });
   }
 
-  drawRectanglesFromSelection(): void {
+  drawRectanglesFromSelection(fill = true): void {
     this.drawSingleSelections();
 
     const selectionBounds = this.singleSelectionsGraphics.getBounds();
@@ -349,8 +355,10 @@ export default class PPSelection extends PIXI.Container {
     // if only one node is selected, do not add fill
     // the fill blocks mouse events on the node
     // like doubleclick and clicks on sockets
-    this.selectedNodes.length > 1 &&
+    //this.selectedNodes.length > 1 &&
+    if (fill) {
       this.selectionGraphics.beginFill(SELECTION_COLOR_HEX, 0.01);
+    }
 
     this.selectionGraphics.lineStyle(1, SELECTION_COLOR_HEX, 1);
     this.selectionGraphics.drawRect(
@@ -406,15 +414,11 @@ export default class PPSelection extends PIXI.Container {
   }
 
   selectAllNodes(): void {
-    this.selectedNodes = this.getNodes();
-    // show scaleHandle only if there is only 1 node selected
-    this.scaleHandle.visible = this.selectedNodes.length === 1;
-    this.selectNodes(this.selectedNodes, false, true);
+    this.selectNodes(Object.values(PPGraph.currentGraph.nodes), false, true);
   }
 
   deselectAllNodes(): void {
-    this.selectedNodes = [];
-    this.selectNodes(this.selectedNodes, false, true);
+    this.selectNodes([], false, true);
   }
 
   deselectAllNodesAndResetSelection(): void {
