@@ -24,6 +24,7 @@ export default class PPSelection extends PIXI.Container {
   protected scaleHandle: ScaleHandle;
 
   protected sourcePoint: PIXI.Point;
+  protected positionsBeforeMove: Record<string, PIXI.Point> = {};
   isDrawingSelection: boolean;
   isDraggingSelection: boolean;
   interactionData: PIXI.InteractionData | null;
@@ -88,15 +89,7 @@ export default class PPSelection extends PIXI.Container {
   set selectedNodes(newNodes: PPNode[]) {
     this._selectedNodes = newNodes;
     console.log('set selectedNodes');
-    this.selectedNodesListener(newNodes);
   }
-
-  selectedNodesListener = (newNodes: PPNode[]): void => {};
-
-  registerNewSelectedNodesListener = (externalListenerFunction): void => {
-    console.log('subscribe');
-    this.selectedNodesListener = externalListenerFunction;
-  };
 
   onScaling = (pointerPosition: PIXI.Point, shiftKeyPressed: boolean): void => {
     const worldPosition = this.viewport.toWorld(
@@ -129,7 +122,6 @@ export default class PPSelection extends PIXI.Container {
   }
 
   public startDragAction(event: PIXI.InteractionEvent) {
-    console.log('startDragAction');
     this.cursor = 'move';
     this.isDraggingSelection = true;
     this.onSelectionDragging(this.isDraggingSelection);
@@ -137,9 +129,25 @@ export default class PPSelection extends PIXI.Container {
     this.sourcePoint = this.interactionData.getLocalPosition(
       this.selectedNodes[0]
     );
+    this.positionsBeforeMove = this.selectedNodes.reduce(
+      (allPositions, node) => {
+        allPositions[node.id] = node.position;
+        return allPositions;
+      },
+      {}
+    );
 
     // subscribe to pointermove
     this.on('pointermove', this.onMoveHandler);
+  }
+
+  private stopDragAction() {
+    this.cursor = 'default';
+    this.isDraggingSelection = false;
+    this.onSelectionDragging(this.isDraggingSelection);
+    this.interactionData = null;
+    // unsubscribe from pointermove
+    this.removeListener('pointermove', this.onMoveHandler);
   }
 
   onPointerDown(event: PIXI.InteractionEvent): void {
@@ -184,13 +192,9 @@ export default class PPSelection extends PIXI.Container {
   onPointerUpAndUpOutside(): void {
     console.log('Selection: onPointerUpAndUpOutside');
     if (this.isDraggingSelection) {
-      this.cursor = 'default';
-      this.isDraggingSelection = false;
-      this.onSelectionDragging(this.isDraggingSelection);
-      this.interactionData = null;
-      // unsubscribe from pointermove
-      this.removeListener('pointermove', this.onMoveHandler);
+      this.stopDragAction();
     }
+    // we remove the fill of the selection on the nodes if its just one, so that sockets etc on it can be pressed
     if (this.selectedNodes.length == 1) {
       this.drawRectanglesFromSelection(false);
     }
