@@ -1,5 +1,12 @@
 import * as PIXI from 'pixi.js';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  FunctionComponent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import * as XLSX from 'xlsx';
 import DataEditor, {
   CompactSelection,
@@ -9,14 +16,31 @@ import DataEditor, {
   GridCellKind,
   GridColumn,
   GridSelection,
+  GridMouseEventArgs,
   Item,
+  Rectangle,
 } from '@glideapps/glide-data-grid';
 import '@glideapps/glide-data-grid/dist/index.css';
+import {
+  Box,
+  Divider,
+  IconButton,
+  ListItemIcon,
+  ListItemText,
+  MenuItem,
+  Menu,
+} from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete';
 import PPSocket from '../classes/SocketClass';
 import {
+  addColumnToArrayOfArrays,
+  addRowToArrayOfArrays,
   getLongestArrayInArray,
   getXLSXSelectionRange,
+  indexToAlphaNumName,
   limitRange,
+  removeColumnFromArrayOfArrays,
 } from '../utils/utils';
 import { SOCKET_TYPE } from '../utils/constants';
 import { CustomArgs } from '../utils/interfaces';
@@ -127,7 +151,7 @@ export class Table extends HybridNode {
       } else {
         // create workbook with an empty worksheet
         this.workBook = XLSX.utils.book_new();
-        const ws_data = new Array(100).fill(Array(30).fill(''));
+        const ws_data = new Array(24).fill(Array(24).fill(''));
         const worksheet = XLSX.utils.aoa_to_sheet(ws_data);
         XLSX.utils.book_append_sheet(this.workBook, worksheet, 'Sheet1');
       }
@@ -178,15 +202,7 @@ export class Table extends HybridNode {
       nodeHeight: number;
     };
 
-    const TableParent: React.FunctionComponent<MyProps> = (props) => {
-      const ref = React.useRef<DataEditorRef | null>(null);
-      const [arrayOfArrays, setArrayOfArrays] = useState([]);
-      const [gridSelection, setGridSelection] = useState<GridSelection>({
-        current: undefined,
-        rows: CompactSelection.empty(),
-        columns: CompactSelection.empty(),
-      });
-
+    const TableParent: FunctionComponent<MyProps> = (props) => {
       const loadSheet = () => {
         const workSheet =
           this.workBook.Sheets[this.workBook.SheetNames[props.sheetIndex]];
@@ -202,6 +218,64 @@ export class Table extends HybridNode {
         setArrayOfArrays(toJson);
       };
 
+      const unselected = {
+        current: undefined,
+        rows: CompactSelection.empty(),
+        columns: CompactSelection.empty(),
+      };
+
+      const getCols = (): GridColumn[] => {
+        const firstRow: [] = arrayOfArrays[0];
+        const longestArrayInArray = getLongestArrayInArray(arrayOfArrays);
+        if (!firstRow) {
+          return [
+            {
+              title: 'Name',
+              id: 'name',
+            },
+          ];
+        }
+        const gridColumn = [];
+        for (let index = 0; index < longestArrayInArray; index++) {
+          const col = firstRow[index];
+          gridColumn.push({
+            title: String(col || indexToAlphaNumName(index)),
+            id: String(col || indexToAlphaNumName(index)).toLowerCase(),
+            hasMenu: true,
+          });
+        }
+        return gridColumn;
+      };
+
+      const ref = useRef<DataEditorRef | null>(null);
+      const [arrayOfArrays, setArrayOfArrays] = useState([]);
+      const [colsMap, setColsMap] = useState(() => getCols());
+      const [gridSelection, setGridSelection] =
+        useState<GridSelection>(unselected);
+      const [menu, setMenu] = React.useState<{
+        col: number;
+        pos: PIXI.Point;
+      }>();
+      const [hoverRow, setHoverRow] = useState<number | undefined>(undefined);
+
+      const onItemHovered = useCallback((args: GridMouseEventArgs) => {
+        const [_, row] = args.location;
+        setHoverRow(args.kind !== 'cell' ? undefined : row);
+      }, []);
+
+      const getRowThemeOverride = useCallback(
+        (row) => {
+          if (row !== hoverRow) return undefined;
+          return {
+            bgCell: '#f7f7f7',
+            bgCellMedium: '#f0f0f0',
+          };
+        },
+        [hoverRow]
+      );
+
+      const isOpen = menu !== undefined;
+
       useEffect(() => {
         loadSheet();
       }, []);
@@ -215,6 +289,57 @@ export class Table extends HybridNode {
       useEffect(() => {
         loadSheet();
       }, [props.workBook, props.sheetIndex]);
+
+      useEffect(() => {
+        setColsMap(() => getCols());
+      }, [arrayOfArrays.length, props.sheetIndex]);
+
+      useEffect(() => {
+        saveAndOutput();
+      }, [arrayOfArrays, colsMap]);
+
+      const saveAndOutput = useCallback((): void => {
+        const worksheet = XLSX.utils.aoa_to_sheet(arrayOfArrays);
+        this.workBook.Sheets[this.workBook.SheetNames[props.sheetIndex]] =
+          worksheet;
+
+        this.setInputData(workBookInputSocketName, this.workBook);
+        this.setAllOutputData(this.workBook);
+        this.executeChildren();
+      }, [arrayOfArrays, colsMap, arrayOfArrays.length, props.sheetIndex]);
+
+      const getContent = useCallback(
+        (cell: Item): GridCell => {
+          const [col, row] = cell;
+          const dataRow = arrayOfArrays[row];
+          if (dataRow) {
+            const d = String(dataRow[col] ?? '');
+            return {
+              kind: GridCellKind.Text,
+              allowOverlay: true,
+              allowWrapping: true,
+              readonly: false,
+              displayData: d,
+              data: d,
+            };
+          } else {
+            return {
+              kind: GridCellKind.Text,
+              allowOverlay: true,
+              allowWrapping: true,
+              readonly: false,
+              displayData: '',
+              data: '',
+            };
+          }
+        },
+        [arrayOfArrays, colsMap, arrayOfArrays.length, props.sheetIndex]
+      );
+
+      const cols = useMemo(
+        () => colsMap,
+        [colsMap, arrayOfArrays.length, props.sheetIndex]
+      );
 
       const onGridSelectionChange = useCallback(
         (newSelection: GridSelection): void => {
@@ -242,6 +367,8 @@ export class Table extends HybridNode {
             );
             setArrayOfArrays(arrayOfArrays.concat(arrayToAppend));
           }
+          // update column names and width if needed
+          setColsMap(() => getCols());
           return true;
         },
         [arrayOfArrays.length, props.sheetIndex]
@@ -256,100 +383,197 @@ export class Table extends HybridNode {
           const [col, row] = cell;
           arrayOfArrays[row][col] = newValue.data;
 
-          const worksheet = XLSX.utils.aoa_to_sheet(arrayOfArrays);
-          this.workBook.Sheets[this.workBook.SheetNames[props.sheetIndex]] =
-            worksheet;
-
-          this.setInputData(workBookInputSocketName, this.workBook);
-          this.setAllOutputData(this.workBook);
-          this.executeChildren();
+          saveAndOutput();
+          // update column names and width if needed
+          setColsMap(() => getCols());
         },
-        [arrayOfArrays.length, props.sheetIndex]
+        [colsMap, arrayOfArrays.length, props.sheetIndex]
       );
 
-      const getContent = useCallback(
-        (cell: Item): GridCell => {
-          const [col, row] = cell;
-          const dataRow = arrayOfArrays[row];
-          if (dataRow) {
-            const d = String(dataRow[col] ?? '');
-            return {
-              kind: GridCellKind.Text,
-              allowOverlay: true,
-              allowWrapping: true,
-              readonly: false,
-              displayData: d,
-              data: d,
-            };
-          } else {
-            return {
-              kind: GridCellKind.Text,
-              allowOverlay: true,
-              allowWrapping: true,
-              readonly: false,
-              displayData: '',
-              data: '',
-            };
-          }
-        },
-        [arrayOfArrays.length, props.sheetIndex]
-      );
-
-      const cols = useMemo<GridColumn[]>(() => {
-        const firstRow: [] = arrayOfArrays[0];
-        const longestArrayInArray = getLongestArrayInArray(arrayOfArrays);
-        if (!firstRow) {
-          return [
-            {
-              title: 'Name',
-              id: 'name',
-            },
-          ];
-        }
-        const gridColumn = [];
-        for (let index = 0; index < longestArrayInArray; index++) {
-          const col = firstRow[index];
-          gridColumn.push({
-            title: String(col ?? index),
-            id: String(col ?? index).toLowerCase(),
+      const onColumnResize = useCallback(
+        (column: GridColumn, newSize: number) => {
+          setColsMap((prevColsMap) => {
+            const index = prevColsMap.findIndex(
+              (ci) => ci.title === column.title
+            );
+            const newArray = [...prevColsMap];
+            newArray.splice(index, 1, {
+              ...prevColsMap[index],
+              width: newSize,
+            });
+            return newArray;
           });
-        }
-        return gridColumn;
-      }, [arrayOfArrays.length, props.sheetIndex]);
+        },
+        []
+      );
+
+      const onColumnMoved = useCallback(
+        (startIndex: number, endIndex: number): void => {
+          setColsMap((old) => {
+            const newCols = [...old];
+            const [toMove] = newCols.splice(startIndex, 1);
+            newCols.splice(endIndex, 0, toMove);
+            return newCols;
+          });
+          setArrayOfArrays((old) => {
+            const newArrayOfArrays = old.map((row) => {
+              const [toMove] = row.splice(startIndex, 1);
+              row.splice(endIndex, 0, toMove);
+              return row;
+            });
+            return newArrayOfArrays;
+          });
+        },
+        []
+      );
+
+      const onRowMoved = useCallback((from: number, to: number) => {
+        setArrayOfArrays((old) => {
+          const d = [...old];
+          const removed = d.splice(from, 1);
+          d.splice(to, 0, ...removed);
+          return d;
+        });
+      }, []);
+
+      const onHeaderMenuClick = React.useCallback(
+        (col: number, bounds: Rectangle) => {
+          console.log('Header menu clicked', col, bounds);
+          setMenu({
+            col,
+            pos: new PIXI.Point(bounds.x + bounds.width, bounds.y),
+          });
+        },
+        []
+      );
 
       return (
-        <DataEditor
-          ref={ref}
-          getCellContent={getContent}
-          columns={cols}
-          rows={arrayOfArrays.length}
-          width={props.nodeWidth}
-          height={props.nodeHeight}
-          gridSelection={gridSelection}
-          onCellEdited={onCellEdited}
-          onGridSelectionChange={onGridSelectionChange}
-          onPaste={onPaste}
-          fillHandle={true}
-          rowSelect="multi"
-          rowMarkers="clickable-number"
-          smoothScrollX={true}
-          smoothScrollY={true}
-          rowSelectionMode="multi"
-          getCellsForSelection={true}
-          keybindings={{ search: true }}
-          trailingRowOptions={{
-            sticky: true,
-            tint: true,
-            hint: 'New row...',
-          }}
-          getRowThemeOverride={(i) =>
-            i % 2 === 0
-              ? undefined
-              : {
-                  bgCell: '#F4FAF9',
-                }
-          }
-        />
+        <>
+          <DataEditor
+            ref={ref}
+            getCellContent={getContent}
+            columns={cols}
+            rows={arrayOfArrays.length}
+            overscrollX={40}
+            maxColumnAutoWidth={500}
+            maxColumnWidth={2000}
+            onColumnResize={onColumnResize}
+            width={props.nodeWidth}
+            height={props.nodeHeight}
+            getRowThemeOverride={getRowThemeOverride}
+            gridSelection={gridSelection}
+            onCellEdited={onCellEdited}
+            onCellContextMenu={(_, e) => e.preventDefault()}
+            onColumnMoved={onColumnMoved}
+            onGridSelectionChange={onGridSelectionChange}
+            onHeaderMenuClick={onHeaderMenuClick}
+            onItemHovered={onItemHovered}
+            onPaste={onPaste}
+            onRowAppended={() => {
+              addRowToArrayOfArrays(arrayOfArrays, arrayOfArrays.length);
+            }}
+            onRowMoved={onRowMoved}
+            fillHandle={true}
+            rowSelect="multi"
+            rowMarkers={'both'}
+            smoothScrollX={true}
+            smoothScrollY={true}
+            rowSelectionMode="multi"
+            getCellsForSelection={true}
+            keybindings={{ search: true }}
+            trailingRowOptions={{
+              sticky: true,
+              tint: true,
+              hint: 'New row...',
+            }}
+            rightElement={
+              <Box
+                sx={{
+                  width: '40px',
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  backgroundColor: '#f1f1f1',
+                }}
+              >
+                <IconButton
+                  sx={{ pt: '4px' }}
+                  size="small"
+                  onClick={() => {
+                    addColumnToArrayOfArrays(
+                      arrayOfArrays,
+                      getLongestArrayInArray(arrayOfArrays)
+                    );
+                    setColsMap(() => getCols());
+                  }}
+                >
+                  <AddIcon sx={{ fontSize: '16px' }} />
+                </IconButton>
+              </Box>
+            }
+            rightElementProps={{
+              fill: false,
+              sticky: false,
+            }}
+          />
+          <Menu
+            open={isOpen}
+            onClose={() => {
+              setMenu(undefined);
+            }}
+            anchorReference="anchorPosition"
+            anchorPosition={{
+              top: menu?.pos.y ?? 0,
+              left: menu?.pos.x ?? 0,
+            }}
+            anchorOrigin={{
+              vertical: 'top',
+              horizontal: 'left',
+            }}
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'left',
+            }}
+          >
+            <MenuItem
+              onClick={() => {
+                addColumnToArrayOfArrays(arrayOfArrays, menu.col);
+                setColsMap(() => getCols());
+                setMenu(undefined);
+              }}
+            >
+              <ListItemIcon>
+                <AddIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Add column left</ListItemText>
+            </MenuItem>
+            <MenuItem
+              onClick={() => {
+                addColumnToArrayOfArrays(arrayOfArrays, menu.col + 1);
+                setColsMap(() => getCols());
+                setMenu(undefined);
+              }}
+            >
+              <ListItemIcon>
+                <AddIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Add column right</ListItemText>
+            </MenuItem>
+            <Divider />
+            <MenuItem
+              onClick={() => {
+                removeColumnFromArrayOfArrays(arrayOfArrays, menu.col);
+                setColsMap(() => getCols());
+                setMenu(undefined);
+              }}
+            >
+              <ListItemIcon>
+                <DeleteIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Delete column</ListItemText>
+            </MenuItem>
+          </Menu>
+        </>
       );
     };
   }
