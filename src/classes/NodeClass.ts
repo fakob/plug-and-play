@@ -960,7 +960,6 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     }
   }
 
-  // TODO why is both nodeclass, selectionclass and graphclass involved in this stuff? not good
   _onPointerUp(): void {
     const source = PPGraph.currentGraph.selectedSourceSocket;
     if (source && this !== source.getNode()) {
