@@ -10,8 +10,12 @@ import {
   WHITE_HEX,
 } from '../utils/constants';
 import { getObjectsInsideBounds } from '../pixi/utils-pixi';
-import { getDifferenceSelection } from '../utils/utils';
+import {
+  getCurrentCursorPosition,
+  getDifferenceSelection,
+} from '../utils/utils';
 import PPGraph from './GraphClass';
+import { ActionHandler } from '../utils/actionHandler';
 
 export default class PPSelection extends PIXI.Container {
   protected viewport: Viewport;
@@ -24,7 +28,7 @@ export default class PPSelection extends PIXI.Container {
   protected scaleHandle: ScaleHandle;
 
   protected sourcePoint: PIXI.Point;
-  protected positionsBeforeMove: Record<string, PIXI.Point> = {};
+  private nodePosBeforeMovement: PIXI.Point;
   isDrawingSelection: boolean;
   isDraggingSelection: boolean;
   interactionData: PIXI.InteractionData | null;
@@ -88,7 +92,6 @@ export default class PPSelection extends PIXI.Container {
 
   set selectedNodes(newNodes: PPNode[]) {
     this._selectedNodes = newNodes;
-    console.log('set selectedNodes');
   }
 
   onScaling = (pointerPosition: PIXI.Point, shiftKeyPressed: boolean): void => {
@@ -129,16 +132,19 @@ export default class PPSelection extends PIXI.Container {
     this.sourcePoint = this.interactionData.getLocalPosition(
       this.selectedNodes[0]
     );
-    this.positionsBeforeMove = this.selectedNodes.reduce(
-      (allPositions, node) => {
-        allPositions[node.id] = node.position;
-        return allPositions;
-      },
-      {}
-    );
+
+    this.nodePosBeforeMovement = getCurrentCursorPosition();
 
     // subscribe to pointermove
     this.on('pointermove', this.onMoveHandler);
+  }
+
+  moveNodesByID(nodeIDs: string[], deltaX: number, deltaY: number) {
+    const instantiated = nodeIDs
+      .map((id) => PPGraph.currentGraph.nodes[id])
+      .filter(Boolean);
+    this.selectedNodes = instantiated;
+    this.moveSelection(deltaX, deltaY);
   }
 
   private stopDragAction() {
@@ -148,6 +154,18 @@ export default class PPSelection extends PIXI.Container {
     this.interactionData = null;
     // unsubscribe from pointermove
     this.removeListener('pointermove', this.onMoveHandler);
+    const endPoint = getCurrentCursorPosition();
+    const deltaX = endPoint.x - this.nodePosBeforeMovement.x;
+    const deltaY = endPoint.y - this.nodePosBeforeMovement.y;
+
+    const nodeIDs = this.selectedNodes.map((node) => node.id);
+    const doMove = async () => {
+      this.moveNodesByID(nodeIDs, deltaX, deltaY);
+    };
+    const undoMove = async () => {
+      this.moveNodesByID(nodeIDs, -deltaX, -deltaY);
+    };
+    ActionHandler.performAction(doMove, undoMove, false);
   }
 
   onPointerDown(event: PIXI.InteractionEvent): void {
