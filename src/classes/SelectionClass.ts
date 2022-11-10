@@ -374,10 +374,6 @@ export default class PPSelection extends PIXI.Container {
     this.selectionGraphics.x = 0;
     this.selectionGraphics.y = 0;
 
-    // if only one node is selected, do not add fill
-    // the fill blocks mouse events on the node
-    // like doubleclick and clicks on sockets
-    //this.selectedNodes.length > 1 &&
     if (fill) {
       this.selectionGraphics.beginFill(SELECTION_COLOR_HEX, 0.01);
     }
