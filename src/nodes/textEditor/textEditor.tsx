@@ -262,7 +262,7 @@ export class TextEditor extends HybridNode {
         []
       );
       const editorRef = useRef(null);
-      const observer = useRef(null);
+      const resizeObserver = useRef(null);
       const [target, setTarget] = useState<Range | undefined>();
       const [index, setIndex] = useState(0);
       const [contentHeight, setContentHeight] = useState(0);
@@ -315,16 +315,16 @@ export class TextEditor extends HybridNode {
       // workaround to get ref of editor to be used as mounted/ready check
       useEffect(() => {
         editorRef.current = ReactEditor.toDOMNode(editor, editor);
-        observer.current = new ResizeObserver((entries) => {
+
+        resizeObserver.current = new ResizeObserver((entries) => {
           for (const entry of entries) {
-            setContentHeight(entry.contentRect.height);
+            setContentHeight(entry.borderBoxSize[0].blockSize);
           }
         });
-
         const target = document.getElementById(this.id);
-        observer.current.observe(target);
+        resizeObserver.current.observe(target);
 
-        return () => observer.current.unobserve(target);
+        return () => resizeObserver.current.unobserve(target);
       }, []);
 
       // wait for editor to be ready before importing/displaying text
@@ -350,26 +350,12 @@ export class TextEditor extends HybridNode {
           } else {
             updateEditorData();
           }
-          setContentHeight(
-            document.getElementById(this.id).getBoundingClientRect().height
-          );
         }
       }, [editorRef.current]);
 
       useEffect(() => {
         if (props.autoHeight) {
-          const editorHeight = Math.ceil(
-            contentHeight * PPGraph.currentGraph.viewportScaleX
-          );
-          console.log(
-            contentHeight,
-            PPGraph.currentGraph.viewportScaleX,
-            editorHeight,
-            props.autoHeight
-          );
-          if (props.autoHeight) {
-            this.resizeAndDraw(this.nodeWidth, contentHeight + 16 * 2);
-          }
+          this.resizeAndDraw(this.nodeWidth, contentHeight);
         }
       }, [contentHeight, props.autoHeight]);
 
