@@ -928,6 +928,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
 
   _addListeners(): void {
     this.on('pointerdown', this._onPointerDown.bind(this));
+    this.on('pointerup', this._onPointerUp.bind(this));
     this.on('pointerover', this._onPointerOver.bind(this));
     this.on('pointerout', this._onPointerOut.bind(this));
     this.on('dblclick', this._onDoubleClick.bind(this));
@@ -965,6 +966,9 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     if (source && this !== source.getNode()) {
       PPGraph.currentGraph.selectedSourceSocket = null; // hack
       connectNodeToSocket(source, this);
+    }
+    if (PPGraph.currentGraph.selection.isDraggingSelection) {
+      PPGraph.currentGraph.selection.stopDragAction();
     }
   }
 

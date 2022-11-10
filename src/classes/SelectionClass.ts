@@ -147,7 +147,7 @@ export default class PPSelection extends PIXI.Container {
     this.moveSelection(deltaX, deltaY);
   }
 
-  private stopDragAction() {
+  public stopDragAction() {
     this.cursor = 'default';
     this.isDraggingSelection = false;
     this.onSelectionDragging(this.isDraggingSelection);
