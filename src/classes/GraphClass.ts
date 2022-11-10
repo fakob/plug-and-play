@@ -340,6 +340,10 @@ export default class PPGraph {
     Object.values(this.nodes).forEach((node) => node.drawNodeShape());
   }
 
+  get viewportScaleX(): number {
+    return this.viewport.scale.x;
+  }
+
   get showExecutionVisualisation(): boolean {
     return this._showExecutionVisualisation;
   }
@@ -742,7 +746,7 @@ export default class PPGraph {
       graphSettings: {
         showExecutionVisualisation: this.showExecutionVisualisation,
         viewportCenterPosition: this.viewport.center,
-        viewportScale: this.viewport.scale.x,
+        viewportScale: this.viewportScaleX,
       },
       nodes: nodesSerialized,
       links: linksSerialized,

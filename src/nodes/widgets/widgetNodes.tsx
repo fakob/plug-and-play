@@ -123,10 +123,10 @@ export class WidgetButton extends HybridNode {
 
     this.onNodeResize = () => {
       this.container.style.width = `${
-        this.nodeWidth - (2 * margin) / PPGraph.currentGraph.viewport.scale.x
+        this.nodeWidth - (2 * margin) / PPGraph.currentGraph.viewportScaleX
       }px`;
       this.container.style.height = `${
-        this.nodeHeight - (2 * margin) / PPGraph.currentGraph.viewport.scale.x
+        this.nodeHeight - (2 * margin) / PPGraph.currentGraph.viewportScaleX
       }px`;
       this.update();
     };
@@ -169,7 +169,7 @@ export class WidgetButton extends HybridNode {
               border: 0,
               height: `${
                 this.nodeHeight -
-                (2 * margin) / PPGraph.currentGraph.viewport.scale.x
+                (2 * margin) / PPGraph.currentGraph.viewportScaleX
               }px`,
               boxShadow: 16,
               '&:hover': {
@@ -188,11 +188,11 @@ export class WidgetButton extends HybridNode {
                 border: 0,
                 width: `${
                   this.nodeWidth -
-                  (8 * margin) / PPGraph.currentGraph.viewport.scale.x
+                  (8 * margin) / PPGraph.currentGraph.viewportScaleX
                 }px`,
                 height: `${
                   this.nodeHeight -
-                  (8 * margin) / PPGraph.currentGraph.viewport.scale.x
+                  (8 * margin) / PPGraph.currentGraph.viewportScaleX
                 }px`,
                 borderRadius: `${this.nodeWidth / 16}px`,
                 boxShadow: 16,
@@ -292,10 +292,10 @@ export class WidgetSwitch extends HybridNode {
 
     this.onNodeResize = () => {
       this.container.style.width = `${
-        this.nodeWidth - (2 * margin) / PPGraph.currentGraph.viewport.scale.x
+        this.nodeWidth - (2 * margin) / PPGraph.currentGraph.viewportScaleX
       }px`;
       this.container.style.height = `${
-        this.nodeHeight - (2 * margin) / PPGraph.currentGraph.viewport.scale.x
+        this.nodeHeight - (2 * margin) / PPGraph.currentGraph.viewportScaleX
       }px`;
       this.update();
     };
@@ -331,7 +331,7 @@ export class WidgetSwitch extends HybridNode {
               border: 0,
               height: `${
                 this.nodeHeight -
-                (2 * margin) / PPGraph.currentGraph.viewport.scale.x
+                (2 * margin) / PPGraph.currentGraph.viewportScaleX
               }px`,
               boxShadow: 16,
               '&:hover': {
@@ -461,10 +461,10 @@ export class WidgetSlider extends HybridNode {
 
     this.onNodeResize = () => {
       this.container.style.width = `${
-        this.nodeWidth - (2 * margin) / PPGraph.currentGraph.viewport.scale.x
+        this.nodeWidth - (2 * margin) / PPGraph.currentGraph.viewportScaleX
       }px`;
       this.container.style.height = `${
-        this.nodeHeight - (2 * margin) / PPGraph.currentGraph.viewport.scale.x
+        this.nodeHeight - (2 * margin) / PPGraph.currentGraph.viewportScaleX
       }px`;
       this.update();
     };
@@ -521,7 +521,7 @@ export class WidgetSlider extends HybridNode {
               border: 0,
               height: `${
                 this.nodeHeight -
-                (2 * margin) / PPGraph.currentGraph.viewport.scale.x
+                (2 * margin) / PPGraph.currentGraph.viewportScaleX
               }px`,
               boxShadow: 16,
               '&:hover': {

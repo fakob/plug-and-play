@@ -41,7 +41,7 @@ export class Placeholder extends PPNode {
 export class Mouse extends PPNode {
   onViewportZoomedHandler: (event?: PIXI.InteractionEvent) => void;
   onViewportZoomed = (event: PIXI.InteractionEvent): void => {
-    const scale = (event as any).viewport.scale.x;
+    const scale = (event as any).viewportScaleX;
     this.setOutputData('scale', scale);
   };
   onViewportMove = (event: PIXI.InteractionEvent): void => {

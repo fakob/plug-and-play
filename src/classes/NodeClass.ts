@@ -504,7 +504,7 @@ export default class PPNode extends PIXI.Container {
     this.onNodeDragOrViewportMove({
       screenX: screenPoint.x,
       screenY: screenPoint.y,
-      scale: PPGraph.currentGraph.viewport.scale.x,
+      scale: PPGraph.currentGraph.viewportScaleX,
     });
   }
 
@@ -1015,7 +1015,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
       this.onNodeDragOrViewportMove({
         screenX: screenPoint.x,
         screenY: screenPoint.y,
-        scale: PPGraph.currentGraph.viewport.scale.x,
+        scale: PPGraph.currentGraph.viewportScaleX,
       });
     }
   }

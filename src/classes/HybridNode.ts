@@ -34,7 +34,7 @@ export default abstract class HybridNode extends PPNode {
     this.container.id = `Container-${this.id}`;
 
     const screenPoint = this.screenPoint();
-    const scaleX = PPGraph.currentGraph.viewport.scale.x;
+    const scaleX = PPGraph.currentGraph.viewportScaleX;
     this.container.classList.add(styles.hybridContainer);
     Object.assign(this.container.style, customStyles);
 
