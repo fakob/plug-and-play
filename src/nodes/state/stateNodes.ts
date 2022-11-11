@@ -60,9 +60,19 @@ abstract class StateNode extends PPNode {
   protected abstract remove(): void;
 }
 export class ArrayState extends StateNode {
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(SOCKET_TYPE.IN, 'MaxSize', new NumberType(true), 0),
+    ].concat(super.getDefaultIO());
+  }
+
   protected add(): void {
     const state: any[] = this.getInputData('State');
     state.push(this.getInputData('Input'));
+    const maxSize = this.getInputData('MaxSize');
+    if (maxSize > 0 && maxSize < state.length) {
+      state.splice(0, state.length - maxSize);
+    }
     this.setInputData('State', state);
     this.executeOptimizedChain();
   }
