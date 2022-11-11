@@ -927,11 +927,8 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   // SETUP
 
   _addListeners(): void {
-    this.onMoveHandler = this._onPointerMove.bind(this);
-
     this.on('pointerdown', this._onPointerDown.bind(this));
     this.on('pointerup', this._onPointerUp.bind(this));
-    this.on('pointerupoutside', this._onPointerUpOutside.bind(this));
     this.on('pointerover', this._onPointerOver.bind(this));
     this.on('pointerout', this._onPointerOut.bind(this));
     this.on('dblclick', this._onDoubleClick.bind(this));
@@ -960,52 +957,18 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
       if (shiftKey || !this.selected) {
         PPGraph.currentGraph.selection.selectNodes([this], shiftKey, true);
       }
-
-      this.interactionData = event.data;
-      this.cursor = 'grabbing';
-      this.alpha = 0.5;
-      this.isDraggingNode = true;
-      this.onNodeDragging(this.isDraggingNode);
-      this.sourcePoint = this.interactionData.getLocalPosition(this);
-
-      // subscribe to pointermove
-      this.on('pointermove', this.onMoveHandler);
+      PPGraph.currentGraph.selection.startDragAction(event);
     }
   }
 
-  commonPointerUp(): void {
-    // unsubscribe from pointermove
-    this.removeListener('pointermove', this.onMoveHandler);
-
-    this.alpha = 1;
-    this.isDraggingNode = false;
-    this.onNodeDragging(this.isDraggingNode);
-    this.cursor = 'move';
-  }
-
-  // TODO why is both nodeclass, selectionclass and graphclass involved in this stuff? not good
   _onPointerUp(): void {
-    this.commonPointerUp();
-
     const source = PPGraph.currentGraph.selectedSourceSocket;
     if (source && this !== source.getNode()) {
       PPGraph.currentGraph.selectedSourceSocket = null; // hack
       connectNodeToSocket(source, this);
     }
-  }
-
-  _onPointerUpOutside(): void {
-    this.commonPointerUp();
-  }
-
-  public _onPointerMove(): void {
-    if (this.isDraggingNode) {
-      const targetPoint = this.interactionData.getLocalPosition(this);
-      const deltaX = targetPoint.x - this.sourcePoint.x;
-      const deltaY = targetPoint.y - this.sourcePoint.y;
-
-      // move selection
-      PPGraph.currentGraph.selection.moveSelection(deltaX, deltaY);
+    if (PPGraph.currentGraph.selection.isDraggingSelection) {
+      PPGraph.currentGraph.selection.stopDragAction();
     }
   }
 
@@ -1035,7 +998,6 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   }
 
   _onPointerOver(): void {
-    this.cursor = 'move';
     this.isHovering = true;
     this.updateBehaviour.redrawAnythingChanging();
     this.nodeSelectionHeader.redrawAnythingChanging(true);
@@ -1049,7 +1011,6 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     if (!this.isDraggingNode) {
       this.isHovering = false;
       this.alpha = 1.0;
-      this.cursor = 'default';
     }
     this.updateBehaviour.redrawAnythingChanging();
     this.nodeSelectionHeader.redrawAnythingChanging(false);

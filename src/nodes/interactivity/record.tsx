@@ -6,6 +6,7 @@ import { ArrayType } from '../datatypes/arrayType';
 import { SOCKET_TYPE } from '../../utils/constants';
 import PPGraph from '../../classes/GraphClass';
 import { isArray } from 'lodash';
+import { getCurrentCursorPosition } from '../../utils/utils';
 
 const recordButtonColor = new TRgba(255, 50, 50);
 const recordIconSize = 40;
@@ -32,14 +33,8 @@ export class RecordLocations extends PPNode {
   public nodeKeyEvent(e: KeyboardEvent): void {
     super.nodeKeyEvent(e);
     if (this.isRecording) {
-      let mousePosition = JSON.parse(
-        JSON.stringify(
-          PPGraph.currentGraph.app.renderer.plugins.interaction.mouse.global
-        )
-      );
-      const viewport = PPGraph.currentGraph.viewport;
+      const mousePosition = getCurrentCursorPosition();
 
-      mousePosition = viewport.toWorld(mousePosition);
       let prev = this.getInputData(clickName);
       if (!isArray(prev)) {
         prev = [];

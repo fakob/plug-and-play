@@ -750,3 +750,15 @@ export function drawDottedLine(
     );
   }
 }
+
+export function getCurrentCursorPosition(): PIXI.Point {
+  let mousePosition: PIXI.Point = JSON.parse(
+    JSON.stringify(
+      PPGraph.currentGraph.app.renderer.plugins.interaction.mouse.global
+    )
+  );
+  const viewport = PPGraph.currentGraph.viewport;
+
+  mousePosition = viewport.toWorld(mousePosition);
+  return mousePosition;
+}
