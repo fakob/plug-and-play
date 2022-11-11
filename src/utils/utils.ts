@@ -536,7 +536,7 @@ export const ensureVisible = (nodes: PPNode[]): void => {
     boundsToZoomTo.width,
     boundsToZoomTo.height
   );
-  const fitScaleWithViewport = fitScale / currentGraph.viewport.scale.x;
+  const fitScaleWithViewport = fitScale / currentGraph.viewportScaleX;
 
   currentGraph.viewport.animate({
     position: new PIXI.Point(

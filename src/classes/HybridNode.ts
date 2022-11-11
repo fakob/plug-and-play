@@ -34,7 +34,7 @@ export default abstract class HybridNode extends PPNode {
     this.container.id = `Container-${this.id}`;
 
     const screenPoint = this.screenPoint();
-    const scaleX = PPGraph.currentGraph.viewport.scale.x;
+    const scaleX = PPGraph.currentGraph.viewportScaleX;
     this.container.classList.add(styles.hybridContainer);
     Object.assign(this.container.style, customStyles);
 
@@ -115,13 +115,13 @@ export default abstract class HybridNode extends PPNode {
   }
 
   resizeAndDraw(
-    width: number,
-    height: number,
+    width = this.nodeWidth,
+    height = this.nodeHeight,
     maintainAspectRatio = false
   ): void {
     super.resizeAndDraw(width, height, maintainAspectRatio);
-    this.container.style.width = `${this.nodeWidth}px`;
-    this.container.style.height = `${this.nodeHeight}px`;
+    this.container.style.width = `${width}px`;
+    this.container.style.height = `${height}px`;
   }
 
   _onDoubleClick(event: PIXI.InteractionEvent): void {

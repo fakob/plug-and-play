@@ -262,8 +262,10 @@ export class TextEditor extends HybridNode {
         []
       );
       const editorRef = useRef(null);
+      const resizeObserver = useRef(null);
       const [target, setTarget] = useState<Range | undefined>();
       const [index, setIndex] = useState(0);
+      const [contentHeight, setContentHeight] = useState(0);
       const [color, setColor] = useState(props.color);
       const renderElement = useCallback(
         (props) => <Element color={color} {...props} />,
@@ -310,19 +312,19 @@ export class TextEditor extends HybridNode {
         setTarget(null);
       };
 
-      const setNewHeight = () => {
-        if (props.autoHeight) {
-          const editorHeight = Math.ceil(
-            document.getElementById(this.id).getBoundingClientRect().height /
-              PPGraph.currentGraph.viewport.scale.x
-          );
-          this.resizeAndDraw(this.nodeWidth, editorHeight);
-        }
-      };
-
       // workaround to get ref of editor to be used as mounted/ready check
       useEffect(() => {
         editorRef.current = ReactEditor.toDOMNode(editor, editor);
+
+        resizeObserver.current = new ResizeObserver((entries) => {
+          for (const entry of entries) {
+            setContentHeight(entry.borderBoxSize[0].blockSize);
+          }
+        });
+        const target = document.getElementById(this.id);
+        resizeObserver.current.observe(target);
+
+        return () => resizeObserver.current.unobserve(target);
       }, []);
 
       // wait for editor to be ready before importing/displaying text
@@ -348,20 +350,14 @@ export class TextEditor extends HybridNode {
           } else {
             updateEditorData();
           }
-
-          // delay getting div size as
-          // the css takes a little before it is applied
-          setTimeout(() => {
-            setNewHeight();
-          }, 200);
         }
       }, [editorRef.current]);
 
       useEffect(() => {
         if (props.autoHeight) {
-          setNewHeight();
+          this.resizeAndDraw(this.nodeWidth, contentHeight);
         }
-      }, [props.autoHeight]);
+      }, [contentHeight, props.autoHeight]);
 
       useEffect(() => {
         if (props.doubleClicked) {
@@ -401,7 +397,6 @@ export class TextEditor extends HybridNode {
           }
         }
         setTarget(null);
-        setNewHeight();
 
         // update in and outputs
         this.setInputData(textJSONSocketName, value);

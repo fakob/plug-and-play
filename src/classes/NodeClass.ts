@@ -398,8 +398,8 @@ export default class PPNode extends PIXI.Container {
   configure(nodeConfig: SerializedNode): void {
     this.x = nodeConfig.x;
     this.y = nodeConfig.y;
-    this.nodeWidth = nodeConfig.width | this.getMinNodeWidth();
-    this.nodeHeight = nodeConfig.height | this.getMinNodeHeight();
+    this.nodeWidth = nodeConfig.width || this.getMinNodeWidth();
+    this.nodeHeight = nodeConfig.height || this.getMinNodeHeight();
     this.nodeName = nodeConfig.name;
     this.updateBehaviour.setUpdateBehaviour(
       nodeConfig.updateBehaviour.update,
@@ -504,7 +504,7 @@ export default class PPNode extends PIXI.Container {
     this.onNodeDragOrViewportMove({
       screenX: screenPoint.x,
       screenY: screenPoint.y,
-      scale: PPGraph.currentGraph.viewport.scale.x,
+      scale: PPGraph.currentGraph.viewportScaleX,
     });
   }
 
@@ -978,7 +978,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
       this.onNodeDragOrViewportMove({
         screenX: screenPoint.x,
         screenY: screenPoint.y,
-        scale: PPGraph.currentGraph.viewport.scale.x,
+        scale: PPGraph.currentGraph.viewportScaleX,
       });
     }
   }

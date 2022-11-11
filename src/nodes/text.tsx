@@ -143,7 +143,7 @@ export class Label extends PPNode {
         background: 'transparent',
         border: '0 none',
         transformOrigin: 'top left',
-        transform: `scale(${PPGraph.currentGraph.viewport.scale.x}`,
+        transform: `scale(${PPGraph.currentGraph.viewportScaleX}`,
         outline: '0px dashed black',
         left: `${screenPoint.x}px`,
         top: `${screenPoint.y}px`,
@@ -256,7 +256,7 @@ export class Label extends PPNode {
           this.x,
           this.y
         );
-        this.currentInput.style.transform = `scale(${PPGraph.currentGraph.viewport.scale.x}`;
+        this.currentInput.style.transform = `scale(${PPGraph.currentGraph.viewportScaleX}`;
         this.currentInput.style.left = `${screenPoint.x}px`;
         this.currentInput.style.top = `${screenPoint.y}px`;
       }
