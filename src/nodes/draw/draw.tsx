@@ -70,6 +70,7 @@ const numberPerColumnRow = 'Number Per Column/Row';
 const drawingOrder = 'Change Column/Row drawing order';
 const spacingXName = 'Spacing X';
 const spacingYName = 'Spacing Y';
+const inputConcavityName = 'Concavity';
 
 const inputImageName = 'Image';
 
@@ -129,6 +130,7 @@ export class DRAW_Shape extends DRAW_Base {
       );
       const drawBorder = inputObject[inputBorderName];
       graphics.beginFill(selectedColor.hexNumber());
+      graphics.alpha = selectedColor.a;
       graphics.lineStyle(
         drawBorder ? 3 : 0,
         selectedColor.multiply(0.7).hexNumber()
@@ -596,6 +598,97 @@ export class DRAW_Line extends DRAW_Base {
   }
 }
 
+export class DRAW_Polygon extends DRAW_Base {
+  public getDescription(): string {
+    return 'Draws a polygon based on input points';
+  }
+
+  public getName(): string {
+    return 'Draw Polygon';
+  }
+
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(SOCKET_TYPE.IN, inputPointsName, new ArrayType(), [
+        [0, 0],
+        [100, 100],
+        [100, 200],
+      ]),
+      new Socket(SOCKET_TYPE.IN, inputColorName, new ColorType()),
+    ].concat(super.getDefaultIO());
+  }
+
+  protected drawOnContainer(
+    inputObject: any,
+    container: PIXI.Container,
+    executions: { string: number }
+  ): void {
+    inputObject = {
+      ...inputObject,
+      ...inputObject[injectedDataName][
+        this.getAndIncrementExecutions(executions)
+      ],
+    };
+    const graphics: PIXI.Graphics = new PIXI.Graphics();
+    const selectedColor: TRgba = new ColorType().parse(
+      inputObject[inputColorName]
+    );
+    graphics.beginFill(selectedColor.hexNumber());
+    graphics.alpha = selectedColor.a;
+
+    const points: [number, number][] = inputObject[inputPointsName];
+    graphics.drawPolygon(points.map((p) => new PIXI.Point(p[0], p[1])));
+    this.positionAndScale(graphics, inputObject);
+    container.addChild(graphics);
+  }
+}
+
+// TODO implement using hull.js
+/*export class DRAW_Hull extends DRAW_Base {
+  public getDescription(): string {
+    return 'Draws a hull around input points';
+  }
+
+  public getName(): string {
+    return 'Draw hull';
+  }
+
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(SOCKET_TYPE.IN, inputPointsName, new ArrayType(), [
+        [0, 0],
+        [100, 100],
+        [100, 200],
+      ]),
+      new Socket(SOCKET_TYPE.IN, inputColorName, new ColorType()),
+      new Socket(
+        SOCKET_TYPE.IN,
+        inputConcavityName,
+        new NumberType(true, 1, 100),
+        20
+      ),
+    ].concat(super.getDefaultIO());
+  }
+
+  protected drawOnContainer(
+    inputObject: any,
+    container: PIXI.Container,
+    executions: { string: number }
+  ): void {
+    inputObject = {
+      ...inputObject,
+      ...inputObject[injectedDataName][
+        this.getAndIncrementExecutions(executions)
+      ],
+    };
+    const graphics: PIXI.Graphics = new PIXI.Graphics();
+    const selectedColor: TRgba = new ColorType().parse(
+      inputObject[inputColorName]
+    );
+    const points = inputObject[inputPointsName];
+  }
+}
+*/
 export class Export_Image_From_Graphics extends PPNode {
   protected getDefaultIO(): Socket[] {
     return [
