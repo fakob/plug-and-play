@@ -421,6 +421,9 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     });
 
     window.addEventListener('mousemove', setMousePosition, false);
+    window.onbeforeunload = function () {
+      return 'You have unsaved changes!';
+    };
 
     // create viewport
     viewport.current = new Viewport({
