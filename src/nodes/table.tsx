@@ -48,6 +48,9 @@ import { ArrayType } from './datatypes/arrayType';
 import { JSONType } from './datatypes/jsonType';
 import { NumberType } from './datatypes/numberType';
 import HybridNode from '../classes/HybridNode';
+import { CustomFunction } from './data/dataFunctions';
+import { StringType } from './datatypes/stringType';
+import { AbstractType } from './datatypes/abstractType';
 
 const workBookSocketName = 'workBook';
 const arrayOfArraysSocketName = 'Array of arrays';
@@ -615,7 +618,41 @@ export class Table extends HybridNode {
     const currentSheetIndex = this.getIndex();
     const sheet = workBook.Sheets[workBook.SheetNames[currentSheetIndex]];
     this.setOutputData(workBookSocketName, workBook);
-    this.setOutputData(JSONSocketName, this.getJSON(sheet));
+    this.setOutputData(JSONSocketName, sheet);
     this.setOutputData(arrayOfArraysSocketName, this.getArrayOfArrays(sheet));
+  }
+}
+
+export class Table_GetColumnByName extends CustomFunction {
+  public getName(): string {
+    return 'Get column by name';
+  }
+  public getDescription(): string {
+    return 'Get column of data from table by name';
+  }
+  protected getDefaultFunction(): string {
+    return '(ColumnName, JSONIn) => {\n\
+      const matchingKey = Object.keys(JSONIn).find(key => JSONIn[key]["v"] == ColumnName);\n\
+      const column = matchingKey.replace(/[0-9]/g, "");\n\
+      const num = parseInt(matchingKey.replace(/\\D/g,"")); \n\
+      const toReturn = [];\n\
+      // keep going as long as we find something \n\
+      let currField = JSONIn[column + (num+1).toString()]; \n\
+      let index = num+1; \n\
+      while (currField !== undefined) { \n\
+        toReturn.push(currField);\n\
+        currField = JSONIn[column + (++index).toString()];\n\
+      }\n\
+      return toReturn.map(entry => entry["v"]);\n \
+      }';
+  }
+  protected getDefaultParameterValues(): Record<string, any> {
+    return { ColumnName: 'ExampleColumn' };
+  }
+  protected getDefaultParameterTypes(): Record<string, any> {
+    return { ColumnName: new StringType() };
+  }
+  protected getOutputParameterType(): AbstractType {
+    return new ArrayType();
   }
 }
