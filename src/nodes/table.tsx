@@ -625,10 +625,10 @@ export class Table extends HybridNode {
 
 export class Table_GetColumnByName extends CustomFunction {
   public getName(): string {
-    return 'Get column by name';
+    return 'Get table column by name';
   }
   public getDescription(): string {
-    return 'Get column of data from table by name';
+    return 'Get table column of data from table by name';
   }
   protected getDefaultFunction(): string {
     return '(ColumnName, JSONIn) => {\n\
@@ -651,6 +651,34 @@ export class Table_GetColumnByName extends CustomFunction {
   }
   protected getDefaultParameterTypes(): Record<string, any> {
     return { ColumnName: new StringType() };
+  }
+  protected getOutputParameterType(): AbstractType {
+    return new ArrayType();
+  }
+}
+
+export class Table_GetRange extends CustomFunction {
+  public getName(): string {
+    return 'Get table range';
+  }
+  public getDescription(): string {
+    return 'Get table range by specifying start and end in X and Y';
+  }
+  protected getDefaultFunction(): string {
+    return '(StartX,EndX,StartY,EndY,JSONIn) => {\n\
+      return JSONIn;\n\
+      }';
+  }
+  protected getDefaultParameterValues(): Record<string, any> {
+    return { StartX: 'A', EndX: 'A', StartY: 0, EndY: 0 };
+  }
+  protected getDefaultParameterTypes(): Record<string, any> {
+    return {
+      StartX: new StringType(),
+      EndX: new StringType(),
+      StartY: new NumberType(),
+      EndY: new NumberType(),
+    };
   }
   protected getOutputParameterType(): AbstractType {
     return new ArrayType();

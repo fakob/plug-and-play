@@ -210,9 +210,11 @@ export class ForEachLoop extends ForLoop {
 function getArgumentsFromFunction(inputFunction: string): string[] {
   const argumentsRegex = /(\(.*\))/;
   const res = inputFunction.match(argumentsRegex)[0];
-  const cleaned = res.replace('(', '').replace(')', '').replace(' ', '');
+  const cleaned = res.replace('(', '').replace(')', '');
   const codeArguments = cleaned.split(',');
-  return codeArguments.filter((argument) => argument !== '');
+  return codeArguments
+    .filter((argument) => argument !== '')
+    .map((argument) => argument.trim());
 }
 
 function getFunctionFromFunction(inputFunction: string): string {
