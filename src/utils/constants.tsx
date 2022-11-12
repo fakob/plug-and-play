@@ -50,13 +50,21 @@ export const customTheme = createTheme(darkThemeOverride, {
       light: `${Color(RANDOMMAINCOLOR).lighten(0.1)}`,
       main: `${RANDOMMAINCOLOR}`,
       dark: `${Color(RANDOMMAINCOLOR).darken(0.1)}`,
-      contrastText: `${Color(RANDOMMAINCOLOR).lighten(0.9)}`,
+      contrastText: `${
+        Color(RANDOMMAINCOLOR).isDark()
+          ? Color(RANDOMMAINCOLOR).lighten(0.9)
+          : Color(RANDOMMAINCOLOR).darken(0.9)
+      }`,
     },
     secondary: {
       light: `${Color(RANDOMMAINCOLOR).negate().lighten(0.1)}`,
       main: `${Color(RANDOMMAINCOLOR).negate()}`,
       dark: `${Color(RANDOMMAINCOLOR).negate().darken(0.1)}`,
-      contrastText: `${Color(RANDOMMAINCOLOR).negate().lighten(0.9)}`,
+      contrastText: `${
+        Color(RANDOMMAINCOLOR).negate().isDark()
+          ? Color(RANDOMMAINCOLOR).negate().lighten(0.9)
+          : Color(RANDOMMAINCOLOR).negate().darken(0.9)
+      }`,
     },
     background: {
       default: `${Color(RANDOMMAINCOLOR).darken(0.85)}`,
