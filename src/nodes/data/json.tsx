@@ -166,6 +166,7 @@ export class JSONValues extends JSONCustomFunction {
 }
 
 
+const BREAK_MAX_SOCKETS = 50;
 // actually works for arrays as well
 export class Break extends PPNode {
   protected getDefaultIO(): Socket[] {
@@ -207,11 +208,14 @@ export class Break extends PPNode {
       socket.destroy();
     });
     argumentsToBeAdded.forEach((argument) => {
-      this.addOutput(
-        argument,
-        dataToType(json[argument])
-      );
-    });
+      // block creation of new sockets after a while to not freeze the whole editor
+      if (this.outputSocketArray.length < BREAK_MAX_SOCKETS){
+        this.addOutput(
+          argument,
+          dataToType(json[argument])
+        );
+      }
+      });
     if (socketsToBeRemoved.length > 0 || argumentsToBeAdded.length > 0) {
       this.metaInfoChanged();
     }
