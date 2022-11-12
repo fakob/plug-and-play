@@ -8,7 +8,6 @@ import { DynamicEnumType } from './dynamicEnumType';
 import { EnumType } from './enumType';
 import { ImageType } from './imageType';
 import { JSONType } from './jsonType';
-import { MacroType } from './macroType';
 import { NumberType } from './numberType';
 import { StringType } from './stringType';
 import { TriggerType } from './triggerType';
@@ -27,6 +26,5 @@ export const allDataTypes = {
   ImageType: ImageType,
   CodeType: CodeType,
   EnumType: EnumType,
-  MacroType: MacroType,
   DynamicEnumType: DynamicEnumType,
 };

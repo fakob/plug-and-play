@@ -182,4 +182,15 @@ export class TRgba {
       color.valpha
     );
   };
+
+  public static isTRgba(data: any): boolean {
+    return (
+      typeof data == 'object' &&
+      Object.keys(data).length == 4 &&
+      data['r'] &&
+      data['g'] &&
+      data['b'] &&
+      data['a']
+    );
+  }
 }

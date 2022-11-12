@@ -37,7 +37,6 @@ import {
   addColumnToArrayOfArrays,
   addRowToArrayOfArrays,
   getLongestArrayInArray,
-  getXLSXSelectionRange,
   indexToAlphaNumName,
   limitRange,
   removeColumnFromArrayOfArrays,
@@ -665,17 +664,17 @@ export class Table_GetRange extends CustomFunction {
     return 'Get table range by specifying start and end in X and Y';
   }
   protected getDefaultFunction(): string {
-    return '(StartX,EndX,StartY,EndY,JSONIn) => {\n\
+    return '(StartX, EndX, StartY, EndY, JSONIn) => {\n\
       return JSONIn;\n\
       }';
   }
   protected getDefaultParameterValues(): Record<string, any> {
-    return { StartX: 'A', EndX: 'A', StartY: 0, EndY: 0 };
+    return { StartX: 0, EndX: 0, StartY: 0, EndY: 0 };
   }
   protected getDefaultParameterTypes(): Record<string, any> {
     return {
-      StartX: new StringType(),
-      EndX: new StringType(),
+      StartX: new NumberType(),
+      EndX: new NumberType(),
       StartY: new NumberType(),
       EndY: new NumberType(),
     };
