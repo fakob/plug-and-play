@@ -12,7 +12,6 @@ import {
   Switch,
   ThemeProvider,
 } from '@mui/material';
-import PPNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
 import PPGraph from '../../classes/GraphClass';
 import { CustomArgs } from '../../utils/interfaces';
@@ -122,12 +121,6 @@ export class WidgetButton extends HybridNode {
     };
 
     this.onNodeResize = () => {
-      this.container.style.width = `${
-        this.nodeWidth - (2 * margin) / PPGraph.currentGraph.viewportScaleX
-      }px`;
-      this.container.style.height = `${
-        this.nodeHeight - (2 * margin) / PPGraph.currentGraph.viewportScaleX
-      }px`;
       this.update();
     };
 
@@ -167,10 +160,8 @@ export class WidgetButton extends HybridNode {
               bgcolor: 'background.default',
               fontSize: '16px',
               border: 0,
-              height: `${
-                this.nodeHeight -
-                (2 * margin) / PPGraph.currentGraph.viewportScaleX
-              }px`,
+              width: `${this.nodeWidth}px`,
+              height: `${this.nodeHeight}px`,
               boxShadow: 16,
               '&:hover': {
                 boxShadow: 12,
@@ -185,15 +176,10 @@ export class WidgetButton extends HybridNode {
                 pointerEvents: 'auto',
                 margin: 'auto',
                 fontSize: '16px',
+                lineHeight: '20px',
                 border: 0,
-                width: `${
-                  this.nodeWidth -
-                  (8 * margin) / PPGraph.currentGraph.viewportScaleX
-                }px`,
-                height: `${
-                  this.nodeHeight -
-                  (8 * margin) / PPGraph.currentGraph.viewportScaleX
-                }px`,
+                width: `${this.nodeWidth - 8 * margin}px`,
+                height: `${this.nodeHeight - 8 * margin}px`,
                 borderRadius: `${this.nodeWidth / 16}px`,
                 boxShadow: 16,
                 '&:hover': {
@@ -291,12 +277,6 @@ export class WidgetSwitch extends HybridNode {
     };
 
     this.onNodeResize = () => {
-      this.container.style.width = `${
-        this.nodeWidth - (2 * margin) / PPGraph.currentGraph.viewportScaleX
-      }px`;
-      this.container.style.height = `${
-        this.nodeHeight - (2 * margin) / PPGraph.currentGraph.viewportScaleX
-      }px`;
       this.update();
     };
 
@@ -329,10 +309,9 @@ export class WidgetSwitch extends HybridNode {
               bgcolor: 'background.default',
               fontSize: '16px',
               border: 0,
-              height: `${
-                this.nodeHeight -
-                (2 * margin) / PPGraph.currentGraph.viewportScaleX
-              }px`,
+              width: `${this.nodeWidth}px`,
+              height: `${this.nodeHeight}px`,
+
               boxShadow: 16,
               '&:hover': {
                 boxShadow: 12,
@@ -460,12 +439,6 @@ export class WidgetSlider extends HybridNode {
     };
 
     this.onNodeResize = () => {
-      this.container.style.width = `${
-        this.nodeWidth - (2 * margin) / PPGraph.currentGraph.viewportScaleX
-      }px`;
-      this.container.style.height = `${
-        this.nodeHeight - (2 * margin) / PPGraph.currentGraph.viewportScaleX
-      }px`;
       this.update();
     };
 
@@ -519,10 +492,8 @@ export class WidgetSlider extends HybridNode {
               bgcolor: 'background.default',
               fontSize: '16px',
               border: 0,
-              height: `${
-                this.nodeHeight -
-                (2 * margin) / PPGraph.currentGraph.viewportScaleX
-              }px`,
+              width: `${this.nodeWidth}px`,
+              height: `${this.nodeHeight}px`,
               boxShadow: 16,
               '&:hover': {
                 boxShadow: 12,

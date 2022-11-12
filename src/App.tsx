@@ -231,6 +231,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
             break;
           case 'jpg':
           case 'png':
+          case 'gif':
             data = await response.blob();
             const base64 = await convertBlobToBase64(data).catch((err) => {
               console.error(err);
