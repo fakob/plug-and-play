@@ -212,7 +212,10 @@ export class Break extends PPNode {
       if (this.outputSocketArray.length < BREAK_MAX_SOCKETS){
         this.addOutput(
           argument,
-          dataToType(json[argument])
+          dataToType(json[argument]),
+          true,
+          {},
+          false
         );
       }
       });

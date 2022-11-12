@@ -337,7 +337,8 @@ export default class PPNode extends PIXI.Container {
     data?: unknown,
     visible?: boolean,
     custom?: Record<string, any>, // lets get rid of this ASAP
-    isNodeTrigger = false
+    isNodeTrigger = false,
+    redraw = true
   ): void {
     if (isNodeTrigger) {
       this.addTriggerSocket(
@@ -349,14 +350,17 @@ export default class PPNode extends PIXI.Container {
       );
     }
     // redraw background due to size change
-    this.resizeAndDraw();
+    if (redraw) {
+      this.resizeAndDraw();
+    }
   }
 
   addOutput(
     name: string,
     type: AbstractType,
     visible?: boolean,
-    custom?: Record<string, any>
+    custom?: Record<string, any>,
+    redraw = true
   ): void {
     this.addSocket(
       new Socket(
@@ -368,7 +372,9 @@ export default class PPNode extends PIXI.Container {
       )
     );
     // redraw background due to size change
-    this.resizeAndDraw();
+    if (redraw) {
+      this.resizeAndDraw();
+    }
   }
 
   serialize(): SerializedNode {

@@ -342,7 +342,11 @@ export class CustomFunction extends PPNode {
       this.addInput(
         argument,
         this.getDefaultParameterTypes()[argument] || new AnyType(),
-        this.getDefaultParameterValues()[argument] || 0
+        this.getDefaultParameterValues()[argument] || 0,
+        true,
+        {},
+        false,
+        false
       );
     });
     if (socketsToBeRemoved.length > 0 || argumentsToBeAdded.length > 0) {
