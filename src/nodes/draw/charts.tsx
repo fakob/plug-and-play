@@ -8,7 +8,7 @@ import { TRgba } from '../../utils/interfaces';
 import { ColorType } from '../datatypes/colorType';
 import { DRAW_Base, injectedDataName } from './abstract';
 
-const inputPointsName = 'Points';
+const inputPointsName = 'Points X';
 const inputLabelsName = 'Labels';
 const inputHeightName = 'Height';
 const inputWidthName = 'Width';
@@ -18,6 +18,7 @@ const inputCustomMaxHeight = 'Custom max height';
 const inputShouldUseBezierCurve = 'Bezier curve';
 const inputShouldShowAxis = 'Show axis';
 const inputShouldShowAxisLines = 'Show axis lines';
+const inputFillGraph = 'Fill Graph';
 const inputAxisGranularity = 'Axis granularity';
 const inputShouldShowValues = 'Show values';
 const inputShowValuesFontSize = 'Font size';
@@ -107,6 +108,13 @@ export class GRAPH_LINE extends DRAW_Base {
       ),
       new Socket(
         SOCKET_TYPE.IN,
+        inputFillGraph,
+        new BooleanType(),
+        false,
+        false
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
         inputAxisGranularity,
         new NumberType(true, 1, 10),
         3,
@@ -156,8 +164,7 @@ export class GRAPH_LINE extends DRAW_Base {
     const selectedColor: TRgba = new ColorType().parse(
       inputObject[inputColorName]
     );
-    graphics.beginFill(selectedColor.hexNumber());
-    graphics.endFill();
+    graphics.alpha = selectedColor.a;
 
     const fontSize = inputObject[inputShowValuesFontSize];
     const textStyle = new PIXI.TextStyle({
@@ -196,10 +203,12 @@ export class GRAPH_LINE extends DRAW_Base {
 
     graphics.lineStyle(
       inputObject[inputLineWidthName],
-      selectedColor.hexNumber()
+      selectedColor.hexNumber(),
+      selectedColor.a
     );
 
     graphics.moveTo(0, (points[0] - minValue) * -scaleY);
+    const placedPoints: PIXI.Point[] = [];
     for (let i = 0; i < points.length; i++) {
       const point = points[i];
       const scaledX = scaleX * i;
@@ -207,6 +216,7 @@ export class GRAPH_LINE extends DRAW_Base {
       const prevPoint = points[Math.max(0, i - 1)];
       const prevPrevPoint = points[Math.max(i - 2, 0)];
       const nextPoint = points[Math.min(i + 1, points.length - 1)];
+      placedPoints.push(new PIXI.Point(scaledX, scaledY));
       if (inputObject[inputShouldUseBezierCurve] && i > 0) {
         const scaledPrevX = scaleX * (i - 1);
         const scaledPrevY = (prevPoint - minValue) * -scaleY;
@@ -228,7 +238,7 @@ export class GRAPH_LINE extends DRAW_Base {
           scaledY
         );
       } else {
-        graphics.lineTo(scaleX * i, (point - minValue) * -scaleY);
+        graphics.lineTo(scaledX, scaledY);
       }
       if (inputObject[inputShouldShowValues]) {
         const basicText = new PIXI.Text(point.toPrecision(2), textStyle);
@@ -250,6 +260,13 @@ export class GRAPH_LINE extends DRAW_Base {
         basicText.y = 30;
         graphics.addChild(basicText);
       }
+    }
+    if (inputObject[inputFillGraph]) {
+      placedPoints.push(new PIXI.Point(inputObject[inputWidthName], 0));
+      placedPoints.push(new PIXI.Point(0, 0));
+      graphics.beginFill(selectedColor.hexNumber());
+      graphics.drawPolygon(placedPoints);
+      graphics.endFill();
     }
 
     this.positionAndScale(graphics, inputObject);
