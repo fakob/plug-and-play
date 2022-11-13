@@ -759,7 +759,9 @@ export default class PPGraph {
 
     this.selection.selectedNodes.forEach((node) => {
       // get links which are completely contained in selection
-      node.inputSocketArray.forEach((socket) => {
+      node.inputSocketArray
+        .concat(node.nodeTriggerSocketArray)
+        .forEach((socket) => {
         if (socket.hasLink()) {
           const connectedNode = socket.links[0].source.parent as PPNode;
           if (this.selection.selectedNodes.includes(connectedNode)) {
