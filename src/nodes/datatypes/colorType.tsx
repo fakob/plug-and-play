@@ -37,4 +37,8 @@ export class ColorType extends AbstractType {
     props.dataType = this;
     return <ColorWidget {...props} />;
   };
+
+  defaultInputNodeWidget(): string {
+    return 'WidgetColorPicker';
+  }
 }

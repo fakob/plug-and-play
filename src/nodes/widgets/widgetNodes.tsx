@@ -255,6 +255,10 @@ export class WidgetColorPicker extends HybridNode {
       ...customArgs,
     });
 
+    if (customArgs?.initialData) {
+      this.setInputData(initialValueName, customArgs?.initialData);
+    }
+
     // when the Node is added, add the container and react component
     this.onNodeAdded = () => {
       this.createContainerComponent(
@@ -263,7 +267,7 @@ export class WidgetColorPicker extends HybridNode {
           nodeWidth: this.nodeWidth,
           nodeHeight: this.nodeHeight,
           margin,
-          color: this.getInputData(initialValueName),
+          initialData: this.getInputData(initialValueName),
         },
         {
           overflow: 'visible',
@@ -278,7 +282,7 @@ export class WidgetColorPicker extends HybridNode {
         nodeWidth: this.nodeWidth,
         nodeHeight: this.nodeHeight,
         margin,
-        color: this.getInputData(initialValueName),
+        initialData: this.getInputData(initialValueName),
       });
     };
 
@@ -303,12 +307,12 @@ export class WidgetColorPicker extends HybridNode {
       nodeWidth: number;
       nodeHeight: number;
       margin: number;
-      color: TRgba;
+      initialData: TRgba;
     };
 
     const WidgetParent: React.FunctionComponent<MyProps> = (props) => {
       const ref = useRef<HTMLLIElement | null>(null);
-      const [finalColor, setFinalColor] = useState(props.color);
+      const [finalColor, setFinalColor] = useState(props.initialData);
       const [colorPicker, showColorPicker] = useState(false);
 
       const handleOnChange = (color) => {
