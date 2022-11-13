@@ -211,7 +211,6 @@ export class WidgetButton extends HybridNode {
 
 export class WidgetColorPicker extends HybridNode {
   update: () => void;
-  onWidgetTrigger: () => void;
 
   getOpacity(): number {
     return 0.01;
