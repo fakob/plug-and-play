@@ -310,6 +310,11 @@ export default class Socket extends PIXI.Container {
 
   destroy(): void {
     this.removeLink();
+    this.getNode().nodeTriggerSocketArray =
+      this.getNode().nodeTriggerSocketArray.filter(
+        (socket) =>
+          !(socket.name === this.name && socket.socketType === this.socketType)
+      );
     this.getNode().inputSocketArray = this.getNode().inputSocketArray.filter(
       (socket) =>
         !(socket.name === this.name && socket.socketType === this.socketType)
@@ -318,6 +323,7 @@ export default class Socket extends PIXI.Container {
       (socket) =>
         !(socket.name === this.name && socket.socketType === this.socketType)
     );
+    this.getNode().resizeAndDraw();
     super.destroy();
   }
 }
