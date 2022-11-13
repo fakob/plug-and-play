@@ -136,8 +136,16 @@ export class TRgba {
     return parseInt(this.hex().replace(/^#/, ''), 16);
   }
 
+  darken(value: number): TRgba {
+    return this.toColor().darken(value);
+  }
+
   isDark(): boolean {
     return this.toColor().isDark();
+  }
+
+  getContrastTextColor(): TRgba {
+    return this.toColor().isDark() ? TRgba.white() : TRgba.black();
   }
 
   setAlpha(value: number): TRgba {

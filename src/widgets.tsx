@@ -17,7 +17,7 @@ import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import { SketchPicker } from 'react-color';
 import { CodeEditor } from './components/Editor';
 import Socket from './classes/SocketClass';
-import { TRIGGER_TYPE_OPTIONS } from './utils/constants';
+import { PRESET_COLORS, TRIGGER_TYPE_OPTIONS } from './utils/constants';
 import { parseJSON, roundNumber } from './utils/utils';
 import styles from './utils/style.module.css';
 import { TRgba } from './utils/interfaces';
@@ -531,30 +531,7 @@ export const ColorWidget: React.FunctionComponent<ColorWidgetProps> = (
                 new TRgba(pickedrgb.r, pickedrgb.g, pickedrgb.b, pickedrgb.a)
               );
             }}
-            presetColors={[
-              '#F4FAF9',
-              '#F5F5F5',
-              '#0C0C0C',
-              '#E1547D',
-              '#E154BB',
-              '#AB53DE',
-              '#5952DF',
-              '#549BE0',
-              '#56E1CC',
-              '#55E179',
-              '#7FE158',
-              '#D4E25A',
-              '#E19757',
-              '#A43F6C',
-              '#5F3EA3',
-              '#3E54A3',
-              '#4092A4',
-              '#40A577',
-              '#42A541',
-              '#7BA442',
-              '#A58E43',
-              '#A45140',
-            ]}
+            presetColors={PRESET_COLORS}
           />
         </span>
       )}

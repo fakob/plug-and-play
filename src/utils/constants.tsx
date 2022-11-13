@@ -73,6 +73,31 @@ export const customTheme = createTheme(darkThemeOverride, {
   },
 });
 
+export const PRESET_COLORS = [
+  '#F4FAF9',
+  '#F5F5F5',
+  '#0C0C0C',
+  '#E1547D',
+  '#E154BB',
+  '#AB53DE',
+  '#5952DF',
+  '#549BE0',
+  '#56E1CC',
+  '#55E179',
+  '#7FE158',
+  '#D4E25A',
+  '#E19757',
+  '#A43F6C',
+  '#5F3EA3',
+  '#3E54A3',
+  '#4092A4',
+  '#40A577',
+  '#42A541',
+  '#7BA442',
+  '#A58E43',
+  '#A45140',
+];
+
 export const PLUGANDPLAY_ICON = '../assets/PlugAndPlayIcon-transparent.svg';
 export const DRAWER30_ICON = '../assets/Drawer30_Icon.svg';
 export const DRAWER50_ICON = '../assets/Drawer50_Icon.svg';
