@@ -456,6 +456,7 @@ export default class PPNode extends PIXI.Container {
               )
             );
           }
+          this.resizeAndDraw();
         }
       };
 
