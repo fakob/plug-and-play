@@ -1,28 +1,37 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Button,
+  ClickAwayListener,
+  Fade,
   FormControl,
   FormControlLabel,
   FormGroup,
   Paper,
+  Popper,
   Slider,
   Stack,
   Switch,
   ThemeProvider,
 } from '@mui/material';
-import PPNode from '../../classes/NodeClass';
+import ColorizeIcon from '@mui/icons-material/Colorize';
+import { SketchPicker } from 'react-color';
 import Socket from '../../classes/SocketClass';
-import PPGraph from '../../classes/GraphClass';
-import { CustomArgs } from '../../utils/interfaces';
-import { SOCKET_TYPE, customTheme } from '../../utils/constants';
+import { CustomArgs, TRgba } from '../../utils/interfaces';
+import {
+  PRESET_COLORS,
+  SOCKET_TYPE,
+  customTheme,
+  RANDOMMAINCOLOR,
+} from '../../utils/constants';
 import { roundNumber } from '../../utils/utils';
 import { AnyType } from '../datatypes/anyType';
 import { BooleanType } from '../datatypes/booleanType';
 import { NumberType } from '../datatypes/numberType';
 import { StringType } from '../datatypes/stringType';
 import HybridNode from '../../classes/HybridNode';
+import { ColorType } from '../datatypes/colorType';
 
 const selectedName = 'Initial selection';
 const initialValueName = 'Initial value';
@@ -122,12 +131,6 @@ export class WidgetButton extends HybridNode {
     };
 
     this.onNodeResize = () => {
-      this.container.style.width = `${
-        this.nodeWidth - (2 * margin) / PPGraph.currentGraph.viewportScaleX
-      }px`;
-      this.container.style.height = `${
-        this.nodeHeight - (2 * margin) / PPGraph.currentGraph.viewportScaleX
-      }px`;
       this.update();
     };
 
@@ -167,10 +170,8 @@ export class WidgetButton extends HybridNode {
               bgcolor: 'background.default',
               fontSize: '16px',
               border: 0,
-              height: `${
-                this.nodeHeight -
-                (2 * margin) / PPGraph.currentGraph.viewportScaleX
-              }px`,
+              width: `${this.nodeWidth}px`,
+              height: `${this.nodeHeight}px`,
               boxShadow: 16,
               '&:hover': {
                 boxShadow: 12,
@@ -185,15 +186,10 @@ export class WidgetButton extends HybridNode {
                 pointerEvents: 'auto',
                 margin: 'auto',
                 fontSize: '16px',
+                lineHeight: '20px',
                 border: 0,
-                width: `${
-                  this.nodeWidth -
-                  (8 * margin) / PPGraph.currentGraph.viewportScaleX
-                }px`,
-                height: `${
-                  this.nodeHeight -
-                  (8 * margin) / PPGraph.currentGraph.viewportScaleX
-                }px`,
+                width: `${this.nodeWidth - 8 * margin}px`,
+                height: `${this.nodeHeight - 8 * margin}px`,
                 borderRadius: `${this.nodeWidth / 16}px`,
                 boxShadow: 16,
                 '&:hover': {
@@ -206,6 +202,210 @@ export class WidgetButton extends HybridNode {
             >
               {props.buttonText}
             </Button>
+          </Paper>
+        </ThemeProvider>
+      );
+    };
+  }
+}
+
+export class WidgetColorPicker extends HybridNode {
+  update: () => void;
+
+  getOpacity(): number {
+    return 0.01;
+  }
+
+  protected getActivateByDoubleClick(): boolean {
+    return false;
+  }
+
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(
+        SOCKET_TYPE.IN,
+        initialValueName,
+        new ColorType(),
+        RANDOMMAINCOLOR,
+        false
+      ),
+      new Socket(SOCKET_TYPE.OUT, outName, new ColorType()),
+    ];
+  }
+
+  public getName(): string {
+    return 'Color picker';
+  }
+
+  public getDescription(): string {
+    return 'Adds a color picker';
+  }
+
+  public getDefaultNodeWidth(): number {
+    return 200;
+  }
+
+  public getDefaultNodeHeight(): number {
+    return 104;
+  }
+
+  constructor(name: string, customArgs?: CustomArgs) {
+    super(name, {
+      ...customArgs,
+    });
+
+    if (customArgs?.initialData) {
+      this.setInputData(initialValueName, customArgs?.initialData);
+    }
+
+    // when the Node is added, add the container and react component
+    this.onNodeAdded = () => {
+      this.createContainerComponent(
+        WidgetParent,
+        {
+          nodeWidth: this.nodeWidth,
+          nodeHeight: this.nodeHeight,
+          margin,
+          initialData: this.getInputData(initialValueName),
+        },
+        {
+          overflow: 'visible',
+        }
+      );
+      this.setOutputData(outName, this.getInputData(initialValueName));
+      super.onNodeAdded();
+    };
+
+    this.update = (): void => {
+      this.renderReactComponent(WidgetParent, {
+        nodeWidth: this.nodeWidth,
+        nodeHeight: this.nodeHeight,
+        margin,
+        initialData: this.getInputData(initialValueName),
+      });
+    };
+
+    // when the Node is loaded, update the react component
+    this.onConfigure = (): void => {
+      this.update();
+      this.setOutputData(outName, this.getInputData(initialValueName));
+      this.executeOptimizedChain();
+    };
+
+    this.onNodeResize = () => {
+      this.update();
+    };
+
+    this.onExecute = async function (input, output) {
+      output[outName] = input[initialValueName];
+      this.update();
+    };
+
+    type MyProps = {
+      doubleClicked: boolean; // is injected by the NodeClass
+      nodeWidth: number;
+      nodeHeight: number;
+      margin: number;
+      initialData: TRgba;
+    };
+
+    const WidgetParent: React.FunctionComponent<MyProps> = (props) => {
+      const ref = useRef<HTMLLIElement | null>(null);
+      const [finalColor, setFinalColor] = useState(props.initialData);
+      const [colorPicker, showColorPicker] = useState(false);
+
+      const handleOnChange = (color) => {
+        const pickedrgb = color.rgb;
+        const newColor = new TRgba(
+          pickedrgb.r,
+          pickedrgb.g,
+          pickedrgb.b,
+          pickedrgb.a
+        );
+        setFinalColor(newColor);
+        this.setInputData(initialValueName, newColor);
+        this.setOutputData(outName, newColor);
+        this.executeChildren();
+      };
+
+      return (
+        <ThemeProvider theme={customTheme}>
+          <Paper
+            component={Stack}
+            direction="column"
+            justifyContent="center"
+            ref={ref}
+            sx={{
+              bgcolor: 'background.default',
+              fontSize: '16px',
+              border: 0,
+              width: `${this.nodeWidth}px`,
+              height: `${this.nodeHeight}px`,
+              boxShadow: 16,
+              '&:hover': {
+                boxShadow: 12,
+              },
+            }}
+          >
+            <Button
+              variant="contained"
+              onClick={() => {
+                showColorPicker(!colorPicker);
+              }}
+              sx={{
+                pointerEvents: 'auto',
+                margin: 'auto',
+                fontSize: '16px',
+                lineHeight: '20px',
+                border: 0,
+                bgcolor: finalColor.hex(),
+                color: finalColor.getContrastTextColor().hex(),
+                width: `${this.nodeWidth - 8 * margin}px`,
+                height: `${this.nodeHeight - 8 * margin}px`,
+                borderRadius: `${this.nodeWidth / 4}px`,
+                boxShadow: 16,
+                '&:hover': {
+                  bgcolor: finalColor.darken(0.1).hex(),
+                  boxShadow: 12,
+                },
+                '&:active': {
+                  boxShadow: 4,
+                },
+              }}
+            >
+              Pick a color
+              <ColorizeIcon sx={{ pl: 1 }} />
+            </Button>
+            <Popper
+              id="toolbar-popper"
+              open={colorPicker}
+              anchorEl={ref.current}
+              placement="top"
+              transition
+            >
+              {({ TransitionProps }) => (
+                <Fade {...TransitionProps} timeout={350}>
+                  <Paper
+                    sx={{
+                      margin: '4px',
+                    }}
+                  >
+                    <ClickAwayListener
+                      onClickAway={() => showColorPicker(false)}
+                    >
+                      <span className="chrome-picker">
+                        <SketchPicker
+                          color={finalColor.object()}
+                          onChangeComplete={handleOnChange}
+                          onChange={handleOnChange}
+                          presetColors={PRESET_COLORS}
+                        />
+                      </span>
+                    </ClickAwayListener>
+                  </Paper>
+                </Fade>
+              )}
+            </Popper>
           </Paper>
         </ThemeProvider>
       );
@@ -291,12 +491,6 @@ export class WidgetSwitch extends HybridNode {
     };
 
     this.onNodeResize = () => {
-      this.container.style.width = `${
-        this.nodeWidth - (2 * margin) / PPGraph.currentGraph.viewportScaleX
-      }px`;
-      this.container.style.height = `${
-        this.nodeHeight - (2 * margin) / PPGraph.currentGraph.viewportScaleX
-      }px`;
       this.update();
     };
 
@@ -329,10 +523,9 @@ export class WidgetSwitch extends HybridNode {
               bgcolor: 'background.default',
               fontSize: '16px',
               border: 0,
-              height: `${
-                this.nodeHeight -
-                (2 * margin) / PPGraph.currentGraph.viewportScaleX
-              }px`,
+              width: `${this.nodeWidth}px`,
+              height: `${this.nodeHeight}px`,
+
               boxShadow: 16,
               '&:hover': {
                 boxShadow: 12,
@@ -460,12 +653,6 @@ export class WidgetSlider extends HybridNode {
     };
 
     this.onNodeResize = () => {
-      this.container.style.width = `${
-        this.nodeWidth - (2 * margin) / PPGraph.currentGraph.viewportScaleX
-      }px`;
-      this.container.style.height = `${
-        this.nodeHeight - (2 * margin) / PPGraph.currentGraph.viewportScaleX
-      }px`;
       this.update();
     };
 
@@ -519,10 +706,8 @@ export class WidgetSlider extends HybridNode {
               bgcolor: 'background.default',
               fontSize: '16px',
               border: 0,
-              height: `${
-                this.nodeHeight -
-                (2 * margin) / PPGraph.currentGraph.viewportScaleX
-              }px`,
+              width: `${this.nodeWidth}px`,
+              height: `${this.nodeHeight}px`,
               boxShadow: 16,
               '&:hover': {
                 boxShadow: 12,
