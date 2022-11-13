@@ -262,14 +262,6 @@ export const filterOptionsNode = (
       keys: ['name', 'title', 'description'],
       threshold: matchSorter.rankings.ACRONYM,
     });
-    sorted.push({
-      title: inputValue,
-      key: inputValue,
-      name: inputValue,
-      description: '',
-      hasInputs: true,
-      isNew: true,
-    });
   }
   setNodeSearchCount(sorted.length);
   return sorted;

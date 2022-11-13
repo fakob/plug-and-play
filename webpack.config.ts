@@ -84,11 +84,7 @@ module.exports = (env, argv) => {
     `./webpack.${argv.mode}.ts`
   ))(env);
 
-  const mergedConfig = merge(config, envConfig, {
-    devServer: {
-      allowedHosts: ['localhost', '.csb.app'],
-    },
-  });
+  const mergedConfig = merge(config, envConfig);
 
   return mergedConfig;
 };
