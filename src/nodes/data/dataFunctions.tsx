@@ -382,6 +382,18 @@ export class Map extends ArrayFunction {
   }
 }
 
+export class MapSequential extends ArrayFunction {
+  protected getDefaultFunction(): string {
+    return '(ArrayIn) => {\n\
+	const toReturn = [];\n\
+	for (let i = 0; i < ArrayIn.length; i++){\n\
+		toReturn.push(await new Promise(r => setTimeout(r,1)));\n\
+	}\n\
+	return toReturn;\n\
+}';
+  }
+}
+
 export class Filter extends ArrayFunction {
   protected getDefaultFunction(): string {
     return '(ArrayIn) => {\n\treturn ArrayIn.filter(a=>true);\n}';
