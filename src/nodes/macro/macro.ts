@@ -27,6 +27,10 @@ class MacroNode extends PPNode {
     super.setPosition(x, y, isRelative);
     this.drawNodeShape();
   }
+  // adapt all nodes apart from the code one
+  public socketShouldAutomaticallyAdapt(socket: Socket): boolean {
+    return true;
+  }
 }
 
 export class DefineMacroIn extends MacroNode {
