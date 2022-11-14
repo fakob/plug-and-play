@@ -7,6 +7,7 @@ import { AnyType } from '../datatypes/anyType';
 import * as PIXI from 'pixi.js';
 import { drawDottedLine } from '../../utils/utils';
 import { CustomFunction } from '../data/dataFunctions';
+import { StringType } from '../datatypes/stringType';
 
 export const macroOutputName = 'Output';
 class MacroNode extends PPNode {
@@ -137,9 +138,16 @@ export class InvokeMacro extends CustomFunction {
     return 'Invokes a macro that is defined in the graph';
   }
 
+  protected getDefaultParameterTypes(): Record<string, any> {
+    return { MacroName: new StringType() };
+  }
+  protected getDefaultParameterValues(): Record<string, any> {
+    return { MacroName: 'ExampleMacro' };
+  }
+
   protected getDefaultFunction(): string {
-    return 'async (Parameter) => {\n\
-    \treturn await macro("ExampleMacro",Parameter);\
+    return 'async (MacroName, Parameter) => {\n\
+    \treturn await macro(MacroName,Parameter);\
     \n}';
   }
 }
