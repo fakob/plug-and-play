@@ -85,6 +85,10 @@ export class DRAW_Shape extends DRAW_Base {
     return 'Draw shape';
   }
 
+  protected executeOnPlace(): boolean {
+    return true;
+  }
+
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(

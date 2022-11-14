@@ -29,9 +29,6 @@ class MacroNode extends PPNode {
   }
 }
 
-//export class DefineMacro extends PPNode {
-//}
-
 export class DefineMacroIn extends MacroNode {
   graphicsLink: PIXI.Graphics = undefined;
   connectionSphere: PIXI.Graphics = undefined;
@@ -65,6 +62,7 @@ export class DefineMacroIn extends MacroNode {
   }
 
   public drawNodeShape(): void {
+    super.drawNodeShape();
     this.removeChild(this.graphicsLink);
 
     this.graphicsLink = new PIXI.Graphics();
@@ -83,7 +81,6 @@ export class DefineMacroIn extends MacroNode {
       );
     }
     this.addChild(this.graphicsLink);
-    super.drawNodeShape();
   }
 }
 
@@ -112,8 +109,8 @@ export class DefineMacroOut extends MacroNode {
   }
 
   public drawNodeShape(): void {
-    this.tellMacroInToRedraw();
     super.drawNodeShape();
+    this.tellMacroInToRedraw();
   }
 
   protected getDefaultIO(): Socket[] {

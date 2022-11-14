@@ -41,4 +41,8 @@ export class ColorType extends AbstractType {
   defaultInputNodeWidget(): string {
     return 'WidgetColorPicker';
   }
+
+  getColor(): TRgba {
+    return new TRgba(255, 170, 60);
+  }
 }
