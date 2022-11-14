@@ -656,6 +656,7 @@ export class Table_GetColumnByName extends CustomFunction {
   }
 }
 
+// TODO implement
 export class Table_GetRange extends CustomFunction {
   public getName(): string {
     return 'Get table range';
@@ -673,8 +674,8 @@ export class Table_GetRange extends CustomFunction {
   }
   protected getDefaultParameterTypes(): Record<string, any> {
     return {
-      StartX: new NumberType(),
-      EndX: new NumberType(),
+      StartX: new StringType(),
+      EndX: new StringType(),
       StartY: new NumberType(),
       EndY: new NumberType(),
     };
