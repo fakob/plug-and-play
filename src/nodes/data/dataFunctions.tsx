@@ -390,7 +390,7 @@ export class Filter extends ArrayFunction {
 
 export class Uniques extends ArrayFunction {
   protected getDefaultFunction(): string {
-    return '(ArrayIn) => {\n\treturn [...new Set(inputArray)];\n}';
+    return '(ArrayIn) => {\n\treturn [...new Set(ArrayIn)];\n}';
   }
 }
 
