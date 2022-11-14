@@ -60,6 +60,7 @@ const backgroundColorSocketName = 'Background Color';
 const autoHeightName = 'Auto height';
 const inputPrefix = 'Input';
 const inputName1 = `${inputPrefix} 1`;
+const backgroundColor = TRgba.fromString(COLOR[8]);
 
 export class TextEditor extends HybridNode {
   getAllParameters: () => void;
@@ -95,8 +96,6 @@ export class TextEditor extends HybridNode {
   }
 
   protected getDefaultIO(): PPSocket[] {
-    const backgroundColor = COLOR[8];
-
     return [
       new PPSocket(
         SOCKET_TYPE.OUT,
@@ -123,7 +122,7 @@ export class TextEditor extends HybridNode {
         SOCKET_TYPE.IN,
         backgroundColorSocketName,
         new ColorType(),
-        TRgba.fromString(backgroundColor),
+        backgroundColor,
         false
       ),
       new PPSocket(
@@ -195,7 +194,8 @@ export class TextEditor extends HybridNode {
     this.onNodeAdded = () => {
       const data = this.getInputData(textJSONSocketName);
       const autoHeight = this.getInputData(autoHeightName);
-      const color: TRgba = this.getInputData(backgroundColorSocketName);
+      const color: TRgba =
+        this.getInputData(backgroundColorSocketName) || backgroundColor;
       const allParameters = this.getAllParameters();
       this.readOnly = this.getInputSocketByName(textJSONSocketName).hasLink();
       this.createContainerComponent(ParentComponent, {
@@ -210,11 +210,25 @@ export class TextEditor extends HybridNode {
       super.onNodeAdded();
     };
 
+    // when the Node is loaded, update the react component
+    this.onConfigure = (): void => {
+      this.setOutputData(
+        outputSocketName,
+        this.getInputData(textJSONSocketName)
+      );
+      this.setOutputData(
+        textOutputSocketName,
+        getPlainText(this.getInputData(textJSONSocketName))
+      );
+      this.update();
+    };
+
     this.update = (newHeight): void => {
       const data = this.getInputData(textJSONSocketName);
       const autoHeight = this.getInputData(autoHeightName);
       const allParameters = this.getAllParameters();
-      const color: TRgba = this.getInputData(backgroundColorSocketName);
+      const color: TRgba =
+        this.getInputData(backgroundColorSocketName) || backgroundColor;
       this.container.style.background = color.rgb();
       this.readOnly = this.getInputSocketByName(textJSONSocketName).hasLink();
       this.renderReactComponent(ParentComponent, {

@@ -25,7 +25,6 @@ export default abstract class HybridNode extends PPNode {
     reactProps,
     customStyles = {}
   ): HTMLElement {
-    const { margin = 0 } = reactProps;
     const reactElement = document.createElement('div');
     this.container = document
       .getElementById('container')
@@ -34,29 +33,24 @@ export default abstract class HybridNode extends PPNode {
     this.container.id = `Container-${this.id}`;
 
     const screenPoint = this.screenPoint();
-    const scaleX = PPGraph.currentGraph.viewportScaleX;
+    const scale = PPGraph.currentGraph.viewportScaleX;
     this.container.classList.add(styles.hybridContainer);
     Object.assign(this.container.style, customStyles);
 
     // set initial position
-    this.container.style.width = `${this.nodeWidth - (2 * margin) / scaleX}px`;
-    this.container.style.height = `${
-      this.nodeHeight - (2 * margin) / scaleX
-    }px`;
+    this.container.style.width = `${this.nodeWidth}px`;
+    this.container.style.height = `${this.nodeHeight}px`;
     this.container.style.transform = `translate(50%, 50%)`;
-    this.container.style.transform = `scale(${scaleX}`;
-    this.container.style.left = `${screenPoint.x + margin}px`;
-    this.container.style.top = `${screenPoint.y + margin}px`;
+    this.container.style.transform = `scale(${scale}`;
+    this.container.style.left = `${screenPoint.x}px`;
+    this.container.style.top = `${screenPoint.y}px`;
 
     this.onNodeDragOrViewportMove = ({ screenX, screenY, scale }) => {
-      this.container.style.width = `${this.nodeWidth - (2 * margin) / scale}px`;
-      this.container.style.height = `${
-        this.nodeHeight - (2 * margin) / scale
-      }px`;
-      // this.container.style.transform = `translate(50%, 50%)`;
+      this.container.style.width = `${this.nodeWidth}px`;
+      this.container.style.height = `${this.nodeHeight}px`;
       this.container.style.transform = `scale(${scale}`;
-      this.container.style.left = `${screenX + margin}px`;
-      this.container.style.top = `${screenY + margin}px`;
+      this.container.style.left = `${screenX}px`;
+      this.container.style.top = `${screenY}px`;
     };
 
     this.onViewportPointerUpHandler = this._onViewportPointerUp.bind(this);
