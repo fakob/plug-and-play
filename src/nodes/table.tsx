@@ -656,7 +656,6 @@ export class Table_GetColumnByName extends CustomFunction {
   }
 }
 
-// TODO implement
 export class Table_GetRange extends CustomFunction {
   public getName(): string {
     return 'Get table range';
