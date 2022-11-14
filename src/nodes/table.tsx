@@ -666,18 +666,43 @@ export class Table_GetRange extends CustomFunction {
   }
   protected getDefaultFunction(): string {
     return '(StartX, EndX, StartY, EndY, JSONIn) => {\n\
-      return JSONIn;\n\
-      }';
+      // assume they are sorted\n\
+      // HACK ALERT \n\
+      const allKeys = Object.keys(JSONIn);\n\
+      const letters = [...new Set(allKeys.map(key => key.replace(/[0-9]/g, "")))];\n\
+      let hasStarted = false;\n\
+      const arrays = []\n\
+      \n\
+      letters.forEach(letter => {\n\
+        if (letter == StartX){\n\
+          hasStarted = true;\n\
+        }\n\
+        if (hasStarted){\n\
+          const newArray = []\n\
+          let currY = StartY;\n\
+          let current = JSONIn[letter + currY.toString()];\n\
+          while (current && currY <= EndY){\n\
+            newArray.push(current["v"]);\n\
+            current = JSONIn[letter + (++currY).toString()];\n\
+          }\n\
+          arrays.push(newArray);\n\
+          if (letter == EndX){\n\
+            hasStarted = false;\n\
+          }  \n\
+        }\n\
+      })\n\
+      return arrays;\n\
+}';
   }
   protected getDefaultParameterValues(): Record<string, any> {
-    return { StartX: 0, EndX: 0, StartY: 0, EndY: 0 };
+    return { StartX: 'A', EndX: 'A', StartY: 1, EndY: 1 };
   }
   protected getDefaultParameterTypes(): Record<string, any> {
     return {
       StartX: new StringType(),
       EndX: new StringType(),
-      StartY: new NumberType(),
-      EndY: new NumberType(),
+      StartY: new NumberType(true),
+      EndY: new NumberType(true),
     };
   }
   protected getOutputParameterType(): AbstractType {
