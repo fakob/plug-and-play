@@ -21,6 +21,7 @@ import { getAllNodeTypes } from '../nodes/allNodes';
 import { macroOutputName } from '../nodes/macro/macro';
 import { Action, ActionHandler } from '../utils/actionHandler';
 import { hri } from 'human-readable-ids';
+import FlowLogic from './FlowLogic';
 
 export default class PPGraph {
   static currentGraph: PPGraph;
@@ -857,7 +858,10 @@ export default class PPGraph {
     } catch (error) {
       configureError = error;
     }
-
+    // execute all seed nodes to make sure there are values everywhere
+    await FlowLogic.executeOptimizedChainBatch(
+      Object.values(this.nodes).filter((node) => !node.getHasDependencies())
+    );
     this.ticking = true;
 
     return configureError;

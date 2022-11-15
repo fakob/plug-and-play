@@ -1,13 +1,9 @@
 import React from 'react';
 import { TRgba } from '../../utils/interfaces';
-import { AbstractType } from './abstractType';
+import { FunctionType } from './functionType';
 
 // its a function that will draw onto a container
-export class DeferredPixiType extends AbstractType {
-  constructor() {
-    super();
-  }
-
+export class DeferredPixiType extends FunctionType {
   getInputWidget = (props: any): any => {
     return <></>;
   };
@@ -22,9 +18,5 @@ export class DeferredPixiType extends AbstractType {
 
   getComment(commentData: any): string {
     return commentData ? 'Graphics' : 'null';
-  }
-
-  getColor(): TRgba {
-    return new TRgba(229, 229, 128);
   }
 }

@@ -4,9 +4,10 @@ import Socket from '../../classes/SocketClass';
 import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../../utils/constants';
 import { CustomArgs, TRgba } from '../../utils/interfaces';
 import { AnyType } from '../datatypes/anyType';
-import { MacroType } from '../datatypes/macroType';
 import * as PIXI from 'pixi.js';
 import { drawDottedLine } from '../../utils/utils';
+import { CustomFunction } from '../data/dataFunctions';
+import { StringType } from '../datatypes/stringType';
 
 export const macroOutputName = 'Output';
 class MacroNode extends PPNode {
@@ -27,10 +28,11 @@ class MacroNode extends PPNode {
     super.setPosition(x, y, isRelative);
     this.drawNodeShape();
   }
+  // adapt all nodes apart from the code one
+  public socketShouldAutomaticallyAdapt(socket: Socket): boolean {
+    return true;
+  }
 }
-
-//export class DefineMacro extends PPNode {
-//}
 
 export class DefineMacroIn extends MacroNode {
   graphicsLink: PIXI.Graphics = undefined;
@@ -65,6 +67,7 @@ export class DefineMacroIn extends MacroNode {
   }
 
   public drawNodeShape(): void {
+    super.drawNodeShape();
     this.removeChild(this.graphicsLink);
 
     this.graphicsLink = new PIXI.Graphics();
@@ -83,7 +86,6 @@ export class DefineMacroIn extends MacroNode {
       );
     }
     this.addChild(this.graphicsLink);
-    super.drawNodeShape();
   }
 }
 
@@ -112,8 +114,8 @@ export class DefineMacroOut extends MacroNode {
   }
 
   public drawNodeShape(): void {
-    this.tellMacroInToRedraw();
     super.drawNodeShape();
+    this.tellMacroInToRedraw();
   }
 
   protected getDefaultIO(): Socket[] {
@@ -125,61 +127,27 @@ export class DefineMacroOut extends MacroNode {
   }
 }
 
-export class InvokeMacro extends MacroNode {
+export class InvokeMacro extends CustomFunction {
   getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.MACRO);
   }
-
   public getName(): string {
     return 'Invoke Macro';
   }
   public getDescription(): string {
     return 'Invokes a macro that is defined in the graph';
   }
-  public getCanAddInput(): boolean {
-    return true;
+
+  protected getDefaultParameterTypes(): Record<string, any> {
+    return { MacroName: new StringType() };
   }
-  public getCanAddOutput(): boolean {
-    return true;
+  protected getDefaultParameterValues(): Record<string, any> {
+    return { MacroName: 'ExampleMacro' };
   }
 
-  protected getDefaultIO(): Socket[] {
-    return [new Socket(SOCKET_TYPE.IN, 'Name', new MacroType())];
-  }
-
-  public metaInfoChanged(): void {
-    // we want to refresh the input/output sockets when the user selects a different macro
-    this.inputSocketArray
-      .filter((socket) => socket.name !== 'Name')
-      .forEach((socket) => socket.destroy());
-    this.outputSocketArray.forEach((socket) => socket.destroy());
-    const macroInputNode = PPGraph.currentGraph.findMacroInput(
-      this.getInputSocketByName('Name').data
-    );
-    if (macroInputNode) {
-      macroInputNode.outputSocketArray.forEach((socket) => {
-        this.addSocket(
-          new Socket(SOCKET_TYPE.IN, socket.name, socket.dataType)
-        );
-      });
-    }
-    const macroOutputNode = PPGraph.currentGraph.findMacroOutput(
-      this.getInputSocketByName('Name').data
-    );
-    if (macroOutputNode) {
-      macroOutputNode.inputSocketArray.forEach((socket) => {
-        this.addSocket(
-          new Socket(SOCKET_TYPE.OUT, socket.name, socket.dataType)
-        );
-      });
-    }
-    super.metaInfoChanged();
-  }
-
-  protected async onExecute(
-    inputObject: unknown,
-    outputObject: Record<string, unknown>
-  ): Promise<void> {
-    outputObject[macroOutputName] = await this.invokeMacro(inputObject);
+  protected getDefaultFunction(): string {
+    return 'async (MacroName, Parameter) => {\n\
+    \treturn await macro(MacroName,Parameter);\
+    \n}';
   }
 }

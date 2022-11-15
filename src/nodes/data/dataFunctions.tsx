@@ -210,9 +210,11 @@ export class ForEachLoop extends ForLoop {
 function getArgumentsFromFunction(inputFunction: string): string[] {
   const argumentsRegex = /(\(.*\))/;
   const res = inputFunction.match(argumentsRegex)[0];
-  const cleaned = res.replace('(', '').replace(')', '').replace(' ', '');
+  const cleaned = res.replace('(', '').replace(')', '');
   const codeArguments = cleaned.split(',');
-  return codeArguments.filter((argument) => argument !== '');
+  return codeArguments
+    .filter((argument) => argument !== '')
+    .map((argument) => argument.trim());
 }
 
 function getFunctionFromFunction(inputFunction: string): string {
@@ -380,6 +382,18 @@ export class Map extends ArrayFunction {
   }
 }
 
+export class MapSequential extends ArrayFunction {
+  protected getDefaultFunction(): string {
+    return '(ArrayIn) => {\n\
+	const toReturn = [];\n\
+	for (let i = 0; i < ArrayIn.length; i++){\n\
+		toReturn.push(await new Promise(r => setTimeout(r,1)));\n\
+	}\n\
+	return toReturn;\n\
+}';
+  }
+}
+
 export class Filter extends ArrayFunction {
   protected getDefaultFunction(): string {
     return '(ArrayIn) => {\n\treturn ArrayIn.filter(a=>true);\n}';
@@ -388,7 +402,7 @@ export class Filter extends ArrayFunction {
 
 export class Uniques extends ArrayFunction {
   protected getDefaultFunction(): string {
-    return '(ArrayIn) => {\n\treturn [...new Set(inputArray)];\n}';
+    return '(ArrayIn) => {\n\treturn [...new Set(ArrayIn)];\n}';
   }
 }
 

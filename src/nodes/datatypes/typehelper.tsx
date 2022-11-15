@@ -1,8 +1,11 @@
+import { TRgba } from '../../utils/interfaces';
 import { AbstractType } from './abstractType';
 import { AnyType } from './anyType';
 import { ArrayType } from './arrayType';
 import { BooleanType } from './booleanType';
+import { ColorType } from './colorType';
 import { allDataTypes } from './dataTypesMap';
+import { FunctionType } from './functionType';
 import { JSONType } from './jsonType';
 import { NumberType } from './numberType';
 import { StringType } from './stringType';
@@ -38,8 +41,12 @@ export function dataToType(data: any) {
     return new BooleanType();
   } else if (Array.isArray(data)) {
     return new ArrayType();
+  } else if (TRgba.isTRgba(data)) {
+    return new ColorType();
   } else if (typeof data == 'object') {
     return new JSONType();
+  } else if (typeof data == 'function') {
+    return new FunctionType();
   } else {
     return new AnyType();
   }
