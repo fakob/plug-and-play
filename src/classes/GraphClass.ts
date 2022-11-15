@@ -886,26 +886,21 @@ export default class PPGraph {
   }
 
   reconnectLinksToNewNode(oldNode: PPNode, newNode: PPNode): void {
-    //check nodeTriggers
-    for (let i = 0; i < oldNode.nodeTriggerSocketArray.length; i++) {
-      const oldInputSocket = oldNode.nodeTriggerSocketArray[i];
-      const newInputSocket = newNode.nodeTriggerSocketArray[i];
-      this.checkOldSocketAndUpdateIt(oldInputSocket, newInputSocket, true);
-    }
+    const checkArrayForOldSocketAndUpdateIt = (
+      nameOfArrayToCheck: string,
+      isInput = true
+    ): void => {
+      for (let i = 0; i < oldNode[nameOfArrayToCheck].length; i++) {
+        const oldInputSocket = oldNode[nameOfArrayToCheck][i];
+        const newInputSocket = newNode[nameOfArrayToCheck][i];
+        this.checkOldSocketAndUpdateIt(oldInputSocket, newInputSocket, isInput);
+      }
+    };
 
-    //check inputs
-    for (let i = 0; i < oldNode.inputSocketArray.length; i++) {
-      const oldInputSocket = oldNode.inputSocketArray[i];
-      const newInputSocket = newNode.inputSocketArray[i];
-      this.checkOldSocketAndUpdateIt(oldInputSocket, newInputSocket, true);
-    }
-
-    //check outputs
-    for (let i = 0; i < oldNode.outputSocketArray.length; i++) {
-      const oldOutputSocket = oldNode.outputSocketArray[i];
-      const newOutputSocket = newNode.outputSocketArray[i];
-      this.checkOldSocketAndUpdateIt(oldOutputSocket, newOutputSocket, false);
-    }
+    //check arrays
+    checkArrayForOldSocketAndUpdateIt('nodeTriggerSocketArray');
+    checkArrayForOldSocketAndUpdateIt('inputSocketArray');
+    checkArrayForOldSocketAndUpdateIt('outputSocketArray', false);
   }
 
   removeNode(node: PPNode): void {
