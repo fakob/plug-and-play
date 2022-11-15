@@ -50,6 +50,7 @@ import HybridNode from '../classes/HybridNode';
 import { CustomFunction } from './data/dataFunctions';
 import { StringType } from './datatypes/stringType';
 import { AbstractType } from './datatypes/abstractType';
+import { BooleanType } from './datatypes/booleanType';
 
 const workBookSocketName = 'workBook';
 const arrayOfArraysSocketName = 'Array of arrays';
@@ -697,7 +698,7 @@ export class Table_GetRange extends CustomFunction {
     return 'Get table range by specifying start and end in X and Y';
   }
   protected getDefaultFunction(): string {
-    return '(StartX, EndX, StartY, EndY, JSONIn) => {\n\
+    return '(StartX, EndX, StartY, EndY, JSONIn, FlipAxis) => {\n\
       // assume they are sorted\n\
       // HACK ALERT \n\
       const allKeys = Object.keys(JSONIn);\n\
@@ -723,11 +724,23 @@ export class Table_GetRange extends CustomFunction {
           }  \n\
         }\n\
       })\n\
-      return arrays;\n\
+      if (FlipAxis && arrays.length > 0){\n\
+        const newArrays = []\n\
+        for (let i = 0; i < arrays[0].length; i++){\n\
+          const newArray = []\n\
+          for (let j = 0; j < arrays.length; j++){\n\
+            newArray.push(arrays[j][i])\n\
+          }\n\
+          newArrays.push(newArray);\n\
+        }\n\
+        return newArrays;\n\
+      } else {\n\
+        return arrays;\n\
+      }\n\
 }';
   }
   protected getDefaultParameterValues(): Record<string, any> {
-    return { StartX: 'A', EndX: 'A', StartY: 1, EndY: 1 };
+    return { StartX: 'A', EndX: 'A', StartY: 1, EndY: 1, FlipAxis: false };
   }
   protected getDefaultParameterTypes(): Record<string, any> {
     return {
@@ -735,6 +748,7 @@ export class Table_GetRange extends CustomFunction {
       EndX: new StringType(),
       StartY: new NumberType(true),
       EndY: new NumberType(true),
+      FlipAxis: new BooleanType(),
     };
   }
   protected getOutputParameterType(): AbstractType {
