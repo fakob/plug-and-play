@@ -631,7 +631,7 @@ export class Table_GetColumnByName extends CustomFunction {
   }
   protected getDefaultFunction(): string {
     return '(ColumnName, JSONIn) => {\n\
-      const matchingKey = Object.keys(JSONIn).find(key => JSONIn[key]["v"] == ColumnName);\n\
+      const matchingKey = Object.keys(JSONIn).find(key => JSONIn[key]["v"].toLowerCase() == ColumnName.toLowerCase());\n\
       const column = matchingKey.replace(/[0-9]/g, "");\n\
       const num = parseInt(matchingKey.replace(/\\D/g,"")); \n\
       const toReturn = [];\n\
@@ -647,6 +647,39 @@ export class Table_GetColumnByName extends CustomFunction {
   }
   protected getDefaultParameterValues(): Record<string, any> {
     return { ColumnName: 'ExampleColumn' };
+  }
+  protected getDefaultParameterTypes(): Record<string, any> {
+    return { ColumnName: new StringType() };
+  }
+  protected getOutputParameterType(): AbstractType {
+    return new ArrayType();
+  }
+}
+
+export class Table_GetRowByName extends CustomFunction {
+  public getName(): string {
+    return 'Get table row by name';
+  }
+  public getDescription(): string {
+    return 'Get table row of data from table by name';
+  }
+  protected getDefaultFunction(): string {
+    return '(ColumnName, JSONIn) => {\n\
+      const allKeys = Object.keys(JSONIn);\n\
+      const matchingKey = allKeys.find(key => JSONIn[key]["v"].toLowerCase() == ColumnName.toLowerCase());\n\
+      const column = matchingKey.replace(/[0-9]/g, "");\n\
+      const num = parseInt(matchingKey.replace(/\\D/g,""));\n\
+      // use all keys that are same num but larger column (yes n^2 complexity, improve if you are able to) \n\
+      const toReturn = allKeys.filter(key => {\n\
+        const keyColumn = key.replace(/[0-9]/g, "");\n\
+        const keyNum = parseInt(key.replace(/\\D/g,"")); \n\
+        return column.localeCompare(keyColumn) < 0 && num == keyNum;\n\
+      }).map(key => JSONIn[key]["v"]);\n\
+      return toReturn;\n\
+      }';
+  }
+  protected getDefaultParameterValues(): Record<string, any> {
+    return { ColumnName: 'ExampleRow' };
   }
   protected getDefaultParameterTypes(): Record<string, any> {
     return { ColumnName: new StringType() };
