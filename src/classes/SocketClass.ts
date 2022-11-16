@@ -73,7 +73,9 @@ export default class Socket extends PIXI.Container {
 
   getSocketLocation(): PIXI.Point {
     return new PIXI.Point(
-      this.socketType === SOCKET_TYPE.IN ? 0 : this.getNode()?.nodeWidth,
+      this.socketType === SOCKET_TYPE.IN
+        ? this.getNode()?.getInputSocketXPos()
+        : this.getNode()?.getOutputSocketXPos(),
       SOCKET_WIDTH / 2
     );
   }
@@ -102,8 +104,8 @@ export default class Socket extends PIXI.Container {
       }
       this._TextRef.x =
         this.socketType === SOCKET_TYPE.IN
-          ? SOCKET_WIDTH + SOCKET_TEXTMARGIN
-          : this.getNode()?.nodeWidth - SOCKET_TEXTMARGIN;
+          ? this.getSocketLocation().x + SOCKET_WIDTH + SOCKET_TEXTMARGIN
+          : this.getSocketLocation().x - SOCKET_TEXTMARGIN;
       this._TextRef.y = SOCKET_TEXTMARGIN_TOP;
       this._TextRef.resolution = TEXT_RESOLUTION;
 

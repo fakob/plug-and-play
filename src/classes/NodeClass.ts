@@ -522,8 +522,8 @@ export default class PPNode extends PIXI.Container {
   }
 
   resizeAndDraw(
-    width: number = this.getDefaultNodeWidth() ?? this.width,
-    height: number = this.getDefaultNodeHeight() ?? this.height,
+    width: number = this.nodeWidth,
+    height: number = this.nodeHeight,
     maintainAspectRatio = false
   ): void {
     // set new size
@@ -620,12 +620,18 @@ export default class PPNode extends PIXI.Container {
       });
   }
 
+  public getInputSocketXPos(): number {
+    return 0;
+  }
+  public getOutputSocketXPos(): number {
+    return this.nodeWidth;
+  }
+
   public drawSockets(): void {
     // redraw outputs
     this.outputSocketArray
       .filter((item) => item.visible)
       .forEach((item, index) => {
-        item.y = this.headerHeight + index * SOCKET_HEIGHT;
         item.y =
           this.headerHeight +
           (!this.getParallelInputsOutputs()
