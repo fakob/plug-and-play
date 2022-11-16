@@ -33,7 +33,9 @@ export function deSerializeType(serialized: string): AbstractType {
 }
 
 export function dataToType(data: any) {
-  if (typeof data == 'string') {
+  if (data == undefined) {
+    return new AnyType();
+  } else if (typeof data == 'string') {
     return new StringType();
   } else if (typeof data == 'number') {
     return new NumberType();

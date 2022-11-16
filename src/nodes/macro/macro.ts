@@ -13,31 +13,41 @@ import * as PIXI from 'pixi.js';
 import { drawDottedLine } from '../../utils/utils';
 import { CustomFunction } from '../data/dataFunctions';
 import { StringType } from '../datatypes/stringType';
+import UpdateBehaviourClass from '../../classes/UpdateBehaviourClass';
 
 export const macroOutputName = 'Output';
-class MacroNode extends PPNode {
-  public addDefaultInput(): void {
-    this.addInput(
-      this.constructSocketName('Parameter', this.inputSocketArray),
-      new AnyType()
-    );
-  }
 
-  public addDefaultOutput(): void {
-    this.addOutput(
-      this.constructSocketName('Parameter', this.outputSocketArray),
-      new AnyType()
-    );
-  }
-  public setPosition(x: number, y: number, isRelative = false): void {
-    super.setPosition(x, y, isRelative);
-    this.drawNodeShape();
-  }
-}
-
-const macroBlockSize = 100;
+const macroBlockSize = 150;
 
 export class Macro extends PPNode {
+  public getMinNodeWidth(): number {
+    return macroBlockSize * 3;
+  }
+
+  public getDefaultNodeWidth(): number {
+    return 1000;
+  }
+
+  public getDefaultNodeHeight(): number {
+    return 300;
+  }
+
+  constructor(name: string, customArgs: CustomArgs) {
+    super(name, {
+      ...customArgs,
+    });
+    PPGraph.currentGraph.macros[this.id] = this;
+  }
+
+  protected getUpdateBehaviour(): UpdateBehaviourClass {
+    return new UpdateBehaviourClass(false, false, 1000);
+  }
+
+  _onRemoved(): void {
+    super._onRemoved();
+    delete PPGraph.currentGraph.macros[this.id];
+  }
+
   getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.MACRO);
   }
@@ -109,105 +119,18 @@ export class Macro extends PPNode {
     );
   }
 
-  // adapt all nodes apart from the code one
   public socketShouldAutomaticallyAdapt(socket: Socket): boolean {
     return true;
   }
-}
 
-export class DefineMacroIn extends MacroNode {
-  graphicsLink: PIXI.Graphics = undefined;
-  connectionSphere: PIXI.Graphics = undefined;
-  public getName(): string {
-    return 'Define Macro In';
-  }
-  public getDescription(): string {
-    return 'Define arguments and node connections';
-  }
-  getColor(): TRgba {
-    return TRgba.fromString(NODE_TYPE_COLOR.MACRO);
-  }
-  constructor(name: string, customArgs: CustomArgs) {
-    super(name, {
-      ...customArgs,
-    });
-    PPGraph.currentGraph.macrosIn[this.id] = this;
-  }
-
-  public getCanAddOutput(): boolean {
-    return true;
-  }
-
-  protected getDefaultIO(): Socket[] {
-    return [new Socket(SOCKET_TYPE.OUT, 'Parameter 1', new AnyType())];
-  }
-
-  _onRemoved(): void {
-    super._onRemoved();
-    delete PPGraph.currentGraph.macrosIn[this.id];
-  }
-
-  public drawNodeShape(): void {
-    super.drawNodeShape();
-    this.removeChild(this.graphicsLink);
-
-    this.graphicsLink = new PIXI.Graphics();
-    const selectedColor: TRgba = TRgba.black();
-    const correspondingOutput = PPGraph.currentGraph.findMacroOutput(this.name);
-    this.graphicsLink.lineStyle(1, selectedColor.hexNumber());
-
-    if (correspondingOutput) {
-      drawDottedLine(
-        this.graphicsLink,
-        this.width,
-        this.height / 2,
-        correspondingOutput.x - this.x,
-        correspondingOutput.y - this.y + correspondingOutput.height / 2,
-        5
-      );
-    }
-    this.addChild(this.graphicsLink);
+  public async executeMacro(inputObject: any): Promise<any> {
+    Object.keys(inputObject).forEach((key) =>
+      this.setOutputData(key, inputObject[key])
+    );
+    await this.executeChildren();
+    return this.getInputData('Output');
   }
 }
-
-export class DefineMacroOut extends MacroNode {
-  public getName(): string {
-    return 'Define Macro Out';
-  }
-  public getDescription(): string {
-    return 'Define macro output';
-  }
-  getColor(): TRgba {
-    return TRgba.fromString(NODE_TYPE_COLOR.MACRO);
-  }
-  constructor(name: string, customArgs: CustomArgs) {
-    super(name, {
-      ...customArgs,
-    });
-    PPGraph.currentGraph.macrosOut[this.id] = this;
-  }
-
-  private tellMacroInToRedraw(): void {
-    const correspondingInput = PPGraph.currentGraph.findMacroInput(this.name);
-    if (correspondingInput) {
-      correspondingInput.drawNodeShape();
-    }
-  }
-
-  public drawNodeShape(): void {
-    super.drawNodeShape();
-    this.tellMacroInToRedraw();
-  }
-
-  protected getDefaultIO(): Socket[] {
-    return [new Socket(SOCKET_TYPE.IN, macroOutputName, new AnyType())];
-  }
-  _onRemoved(): void {
-    super._onRemoved();
-    delete PPGraph.currentGraph.macrosOut[this.id];
-  }
-}
-
 export class InvokeMacro extends CustomFunction {
   getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.MACRO);
