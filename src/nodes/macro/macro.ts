@@ -1,7 +1,12 @@
 import PPGraph from '../../classes/GraphClass';
 import PPNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
-import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../../utils/constants';
+import {
+  NODE_CORNERRADIUS,
+  NODE_MARGIN,
+  NODE_TYPE_COLOR,
+  SOCKET_TYPE,
+} from '../../utils/constants';
 import { CustomArgs, TRgba } from '../../utils/interfaces';
 import { AnyType } from '../datatypes/anyType';
 import * as PIXI from 'pixi.js';
@@ -28,6 +33,82 @@ class MacroNode extends PPNode {
     super.setPosition(x, y, isRelative);
     this.drawNodeShape();
   }
+}
+
+const macroBlockSize = 100;
+
+export class Macro extends PPNode {
+  getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.MACRO);
+  }
+
+  public drawBackground(): void {
+    this._BackgroundRef.beginFill(
+      this.getColor().hexNumber(),
+      this.getOpacity()
+    );
+    this._BackgroundRef.drawRoundedRect(
+      NODE_MARGIN,
+      0,
+      macroBlockSize,
+      this.nodeHeight,
+      this.getRoundedCorners() ? NODE_CORNERRADIUS : 0
+    );
+
+    this._BackgroundRef.drawRoundedRect(
+      NODE_MARGIN + this.nodeWidth - macroBlockSize,
+      0,
+      macroBlockSize,
+      this.nodeHeight,
+      this.getRoundedCorners() ? NODE_CORNERRADIUS : 0
+    );
+
+    this._BackgroundRef.lineStyle(3, this.getColor().multiply(0.8).hexNumber());
+    drawDottedLine(
+      this._BackgroundRef,
+      macroBlockSize + 5,
+      5,
+      this.nodeWidth - macroBlockSize + 10,
+      5,
+      5
+    );
+    drawDottedLine(
+      this._BackgroundRef,
+      macroBlockSize + 5,
+      this.nodeHeight,
+      this.nodeWidth - macroBlockSize + 10,
+      this.nodeHeight,
+      5
+    );
+
+    this._BackgroundRef.endFill();
+  }
+
+  public getInputSocketXPos(): number {
+    return this.nodeWidth - macroBlockSize;
+  }
+  public getOutputSocketXPos(): number {
+    return macroBlockSize;
+  }
+
+  public getCanAddOutput(): boolean {
+    return true;
+  }
+
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(SOCKET_TYPE.OUT, 'Parameter 1', new AnyType()),
+      new Socket(SOCKET_TYPE.IN, 'Output', new AnyType()),
+    ];
+  }
+
+  public addDefaultOutput(): void {
+    this.addOutput(
+      this.constructSocketName('Parameter', this.outputSocketArray),
+      new AnyType()
+    );
+  }
+
   // adapt all nodes apart from the code one
   public socketShouldAutomaticallyAdapt(socket: Socket): boolean {
     return true;
