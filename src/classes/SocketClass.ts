@@ -309,23 +309,6 @@ export default class Socket extends PIXI.Container {
   }
 
   destroy(): void {
-    const checkAndDelete = (nameOfArrayToCheck: string): void => {
-      this.getNode()[nameOfArrayToCheck] = this.getNode()[
-        nameOfArrayToCheck
-      ].filter(
-        (socket) =>
-          !(socket.name === this.name && socket.socketType === this.socketType)
-      );
-    };
-
-    this.removeLink();
-
-    //check arrays
-    checkAndDelete('nodeTriggerSocketArray');
-    checkAndDelete('inputSocketArray');
-    checkAndDelete('outputSocketArray');
-
-    this.getNode().resizeAndDraw();
     super.destroy();
   }
 }
