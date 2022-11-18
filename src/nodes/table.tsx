@@ -31,6 +31,7 @@ import {
   Menu,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import SortIcon from '@mui/icons-material/Sort';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PPSocket from '../classes/SocketClass';
 import {
@@ -138,7 +139,7 @@ export class Table extends HybridNode {
       ...customArgs,
     });
 
-    // get initialData if available else create an empty workbooB
+    // get initialData if available else create an empty workBook
     this.initialData = customArgs?.initialData;
 
     this.workBook = XLSX.utils.book_new();
@@ -439,6 +440,31 @@ export class Table extends HybridNode {
         });
       }, []);
 
+      function compare(a: string, b: string, desc: boolean): number {
+        // make sure that empty lines are always on the bottom
+        if (a == '' || a == null) return 1;
+        if (b == '' || b == null) return -1;
+
+        if (desc) {
+          [b, a] = [a, b];
+        }
+
+        return a.localeCompare(b, undefined, {
+          numeric: true,
+          sensitivity: 'base',
+        });
+      }
+
+      const onSort = (columnIndex: number, desc: boolean) => {
+        setArrayOfArrays((old) => {
+          const shallowCopy = [...old];
+          shallowCopy.sort((a, b) =>
+            compare(a[columnIndex], b[columnIndex], desc)
+          );
+          return shallowCopy;
+        });
+      };
+
       const onHeaderMenuClick = React.useCallback(
         (col: number, bounds: Rectangle) => {
           console.log('Header menu clicked', col, bounds);
@@ -538,6 +564,29 @@ export class Table extends HybridNode {
               horizontal: 'left',
             }}
           >
+            <MenuItem
+              onClick={() => {
+                onSort(menu.col, false);
+                setMenu(undefined);
+              }}
+            >
+              <ListItemIcon>
+                <SortIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Sort A-Z (no undo!)</ListItemText>
+            </MenuItem>
+            <MenuItem
+              onClick={() => {
+                onSort(menu.col, true);
+                setMenu(undefined);
+              }}
+            >
+              <ListItemIcon>
+                <SortIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Sort Z-A (no undo!)</ListItemText>
+            </MenuItem>
+            <Divider />
             <MenuItem
               onClick={() => {
                 addColumnToArrayOfArrays(arrayOfArrays, menu.col);
