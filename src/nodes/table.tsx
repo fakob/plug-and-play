@@ -457,7 +457,6 @@ export class Table extends HybridNode {
 
       const onSort = (columnIndex: number, desc: boolean) => {
         setArrayOfArrays((old) => {
-          console.log(old);
           const shallowCopy = [...old];
           shallowCopy.sort((a, b) =>
             compare(a[columnIndex], b[columnIndex], desc)
