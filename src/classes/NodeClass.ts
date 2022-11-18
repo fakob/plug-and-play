@@ -319,6 +319,28 @@ export default class PPNode extends PIXI.Container {
     }
   }
 
+  removeSocket(socket: Socket): void {
+    const checkAndRemoveFrom = (nameOfArrayToCheck: string): void => {
+      this[nameOfArrayToCheck] = this[nameOfArrayToCheck].filter(
+        (socketRef: Socket) =>
+          !(
+            socketRef.name === socket.name &&
+            socketRef.socketType === socket.socketType
+          )
+      );
+    };
+
+    socket.removeLink();
+
+    //remove from arrays
+    checkAndRemoveFrom('nodeTriggerSocketArray');
+    checkAndRemoveFrom('inputSocketArray');
+    checkAndRemoveFrom('outputSocketArray');
+    this.resizeAndDraw();
+
+    socket.destroy();
+  }
+
   addTriggerSocket(socket: Socket): void {
     const socketRef = this.addChild(socket);
     this.nodeTriggerSocketArray.push(socketRef);
@@ -456,6 +478,7 @@ export default class PPNode extends PIXI.Container {
               )
             );
           }
+          this.resizeAndDraw();
         }
       };
 

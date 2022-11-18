@@ -338,7 +338,7 @@ export class CustomFunction extends PPNode {
         !currentInputSockets.some((socket) => socket.name === argument)
     );
     socketsToBeRemoved.forEach((socket) => {
-      socket.destroy();
+      this.removeSocket(socket);
     });
     argumentsToBeAdded.forEach((argument) => {
       this.addInput(

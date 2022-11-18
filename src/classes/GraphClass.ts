@@ -759,7 +759,7 @@ export default class PPGraph {
 
     this.selection.selectedNodes.forEach((node) => {
       // get links which are completely contained in selection
-      node.inputSocketArray.forEach((socket) => {
+      node.getAllInputSockets().forEach((socket) => {
         if (socket.hasLink()) {
           const connectedNode = socket.links[0].source.parent as PPNode;
           if (this.selection.selectedNodes.includes(connectedNode)) {
@@ -886,19 +886,30 @@ export default class PPGraph {
   }
 
   reconnectLinksToNewNode(oldNode: PPNode, newNode: PPNode): void {
-    //disconnect inputs
-    for (let i = 0; i < oldNode.inputSocketArray.length; i++) {
-      const oldInputSocket = oldNode.inputSocketArray[i];
-      const newInputSocket = newNode.inputSocketArray[i];
-      this.checkOldSocketAndUpdateIt(oldInputSocket, newInputSocket, true);
-    }
+    const checkAndUpdateSocketArray = (
+      oldArray: PPSocket[],
+      newArray: PPSocket[],
+      isInput = true
+    ): void => {
+      oldArray.forEach((socket, index) =>
+        this.checkOldSocketAndUpdateIt(socket, newArray[index], isInput)
+      );
+    };
 
-    //disconnect outputs
-    for (let i = 0; i < oldNode.outputSocketArray.length; i++) {
-      const oldOutputSocket = oldNode.outputSocketArray[i];
-      const newOutputSocket = newNode.outputSocketArray[i];
-      this.checkOldSocketAndUpdateIt(oldOutputSocket, newOutputSocket, false);
-    }
+    //check arrays
+    checkAndUpdateSocketArray(
+      oldNode.nodeTriggerSocketArray,
+      newNode.nodeTriggerSocketArray
+    );
+    checkAndUpdateSocketArray(
+      oldNode.inputSocketArray,
+      newNode.inputSocketArray
+    );
+    checkAndUpdateSocketArray(
+      oldNode.outputSocketArray,
+      newNode.outputSocketArray,
+      false
+    );
   }
 
   removeNode(node: PPNode): void {

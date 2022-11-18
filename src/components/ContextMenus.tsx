@@ -519,7 +519,7 @@ export const SocketContextMenu = (props) => {
             <Divider />
             <MenuItem
               onClick={() => {
-                selectedSocket.destroy();
+                selectedSocket.getNode().removeSocket(selectedSocket);
               }}
             >
               <ListItemIcon>

@@ -20,7 +20,7 @@ const JSONInsert = 'New value';
 const outValueName = 'Value';
 
 export class JSONGet extends PPNode {
-  getColor(): TRgba{
+  getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
   }
 
@@ -28,7 +28,7 @@ export class JSONGet extends PPNode {
     return 'Get the value of a JSON at the defined path';
   }
   constructor(name: string, customArgs: CustomArgs) {
-    super(name,  {
+    super(name, {
       ...customArgs,
     });
 
@@ -73,12 +73,11 @@ export class JSONGet extends PPNode {
 }
 
 export class JSONSet extends PPNode {
-  getColor(): TRgba{
+  getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
   }
   constructor(name: string, customArgs: CustomArgs) {
-
-    super(name,  {
+    super(name, {
       ...customArgs,
     });
 
@@ -127,8 +126,8 @@ export class JSONSet extends PPNode {
   }
 }
 
-class JSONCustomFunction extends CustomFunction{
-  getColor(): TRgba{
+class JSONCustomFunction extends CustomFunction {
+  getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
   }
   protected getDefaultParameterValues(): Record<string, any> {
@@ -165,18 +164,11 @@ export class JSONValues extends JSONCustomFunction {
   }
 }
 
-
 const BREAK_MAX_SOCKETS = 50;
 // actually works for arrays as well
 export class Break extends PPNode {
   protected getDefaultIO(): Socket[] {
-    return [
-      new Socket(
-        SOCKET_TYPE.IN,
-        JSONName,
-        new JSONType(),
-      )
-    ];
+    return [new Socket(SOCKET_TYPE.IN, JSONName, new JSONType())];
   }
 
   protected async onExecute(
@@ -187,8 +179,9 @@ export class Break extends PPNode {
     const currentJSON = inputObject[JSONName];
     this.adaptOutputs(currentJSON);
     // eslint-disable-next-line prefer-const
-    Object.keys(currentJSON).forEach(key => outputObject[key] = currentJSON[key]);
-
+    Object.keys(currentJSON).forEach(
+      (key) => (outputObject[key] = currentJSON[key])
+    );
   }
 
   private adaptOutputs(json: any): void {
@@ -197,31 +190,22 @@ export class Break extends PPNode {
       (socket) => socket.socketType === SOCKET_TYPE.OUT
     );
     const socketsToBeRemoved = currentOutputSockets.filter(
-      (socket) =>
-        json[socket.name] == undefined
+      (socket) => json[socket.name] == undefined
     );
     const argumentsToBeAdded = Object.keys(json).filter(
-      (key) =>
-        !currentOutputSockets.some((socket) => socket.name === key)
+      (key) => !currentOutputSockets.some((socket) => socket.name === key)
     );
     socketsToBeRemoved.forEach((socket) => {
-      socket.destroy();
+      this.removeSocket(socket);
     });
     argumentsToBeAdded.forEach((argument) => {
       // block creation of new sockets after a while to not freeze the whole editor
-      if (this.outputSocketArray.length < BREAK_MAX_SOCKETS){
-        this.addOutput(
-          argument,
-          dataToType(json[argument]),
-          true,
-          {},
-          false
-        );
+      if (this.outputSocketArray.length < BREAK_MAX_SOCKETS) {
+        this.addOutput(argument, dataToType(json[argument]), true, {}, false);
       }
-      });
+    });
     if (socketsToBeRemoved.length > 0 || argumentsToBeAdded.length > 0) {
       this.metaInfoChanged();
     }
   }
 }
-
