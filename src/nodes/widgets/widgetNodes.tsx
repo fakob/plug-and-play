@@ -3,15 +3,22 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Button,
+  Checkbox,
   ClickAwayListener,
   Fade,
   FormControl,
   FormControlLabel,
   FormGroup,
+  InputLabel,
+  ListItemText,
+  MenuItem,
+  OutlinedInput,
   Paper,
   Popper,
   Slider,
   Stack,
+  Select,
+  SelectChangeEvent,
   Switch,
   ThemeProvider,
 } from '@mui/material';
@@ -27,6 +34,7 @@ import {
 } from '../../utils/constants';
 import { roundNumber } from '../../utils/utils';
 import { AnyType } from '../datatypes/anyType';
+import { ArrayType } from '../datatypes/arrayType';
 import { BooleanType } from '../datatypes/booleanType';
 import { NumberType } from '../datatypes/numberType';
 import { StringType } from '../datatypes/stringType';
@@ -45,6 +53,22 @@ const buttonTextName = 'Button text';
 const outName = 'Out';
 
 const margin = 4;
+
+const defaultOptions = ['Demo left', 'Demo center', 'Demo right'];
+// const defaultOptions = [
+//   {
+//     text: 'Demo left',
+//     value: 'left',
+//   },
+//   {
+//     text: 'Demo center',
+//     value: 'center',
+//   },
+//   {
+//     text: 'Demo right',
+//     value: 'right',
+//   },
+// ];
 
 export class WidgetButton extends HybridNode {
   update: () => void;
@@ -73,6 +97,10 @@ export class WidgetButton extends HybridNode {
     ];
   }
 
+  public getName(): string {
+    return 'Button';
+  }
+
   public getDescription(): string {
     return 'Adds a button to trigger values';
   }
@@ -89,8 +117,6 @@ export class WidgetButton extends HybridNode {
     super(name, {
       ...customArgs,
     });
-
-    this.name = 'Button';
 
     // when the Node is added, add the container and react component
     this.onNodeAdded = () => {
@@ -434,6 +460,10 @@ export class WidgetSwitch extends HybridNode {
     ];
   }
 
+  public getName(): string {
+    return 'Switch';
+  }
+
   public getDescription(): string {
     return 'Adds a switch to toggle between values';
   }
@@ -450,8 +480,6 @@ export class WidgetSwitch extends HybridNode {
     super(name, {
       ...customArgs,
     });
-
-    this.name = 'Switch';
 
     // when the Node is added, add the container and react component
     this.onNodeAdded = () => {
@@ -538,7 +566,7 @@ export class WidgetSwitch extends HybridNode {
             >
               <FormGroup aria-label="position" row>
                 <FormControlLabel
-                  value={this.name}
+                  value={this.getName()}
                   control={
                     <Switch
                       size="medium"
@@ -551,7 +579,7 @@ export class WidgetSwitch extends HybridNode {
                       }}
                     />
                   }
-                  label={this.name}
+                  label={this.getName()}
                   labelPlacement="end"
                 />
               </FormGroup>
@@ -586,6 +614,10 @@ export class WidgetSlider extends HybridNode {
     ];
   }
 
+  public getName(): string {
+    return 'Slider';
+  }
+
   public getDescription(): string {
     return 'Adds a number slider';
   }
@@ -602,8 +634,6 @@ export class WidgetSlider extends HybridNode {
     super(name, {
       ...customArgs,
     });
-
-    this.name = 'Slider';
 
     // when the Node is added, add the container and react component
     this.onNodeAdded = () => {
@@ -767,6 +797,191 @@ export class WidgetSlider extends HybridNode {
                 },
               }}
             />
+          </Paper>
+        </ThemeProvider>
+      );
+    };
+  }
+}
+
+export class WidgetDropdown extends HybridNode {
+  update: () => void;
+
+  getOpacity(): number {
+    return 0.01;
+  }
+
+  protected getActivateByDoubleClick(): boolean {
+    return false;
+  }
+
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(
+        SOCKET_TYPE.IN,
+        initialValueName,
+        new ArrayType(),
+        defaultOptions,
+        false
+      ),
+      new Socket(SOCKET_TYPE.OUT, outName, new AnyType()),
+    ];
+  }
+
+  public getName(): string {
+    return 'Dropdown';
+  }
+
+  public getDescription(): string {
+    return 'Adds a dropdown to select values';
+  }
+
+  public getDefaultNodeWidth(): number {
+    return 200;
+  }
+
+  public getDefaultNodeHeight(): number {
+    return 104;
+  }
+
+  constructor(name: string, customArgs?: CustomArgs) {
+    super(name, {
+      ...customArgs,
+    });
+
+    if (customArgs?.initialData) {
+      console.log(customArgs?.initialData);
+      this.setInputData(initialValueName, customArgs?.initialData);
+    }
+
+    // when the Node is added, add the container and react component
+    this.onNodeAdded = () => {
+      const initialData = this.getInputData(initialValueName) || defaultOptions;
+
+      this.createContainerComponent(
+        WidgetParent,
+        {
+          nodeWidth: this.nodeWidth,
+          nodeHeight: this.nodeHeight,
+          margin,
+          initialData,
+        },
+        {
+          overflow: 'visible',
+        }
+      );
+      this.setOutputData(outName, initialData);
+      super.onNodeAdded();
+    };
+
+    this.update = (): void => {
+      const initialData = this.getInputData(initialValueName) || defaultOptions;
+
+      this.renderReactComponent(WidgetParent, {
+        nodeWidth: this.nodeWidth,
+        nodeHeight: this.nodeHeight,
+        margin,
+        initialData,
+      });
+    };
+
+    // when the Node is loaded, update the react component
+    this.onConfigure = (): void => {
+      const initialData = this.getInputData(initialValueName) || defaultOptions;
+
+      this.update();
+      this.setOutputData(outName, initialData);
+      this.executeOptimizedChain();
+    };
+
+    this.onNodeResize = () => {
+      this.update();
+    };
+
+    this.onExecute = async function (input, output) {
+      output[outName] = input[initialValueName];
+      this.update();
+    };
+
+    type MyProps = {
+      doubleClicked: boolean; // is injected by the NodeClass
+      nodeWidth: number;
+      nodeHeight: number;
+      margin: number;
+      initialData: any[];
+    };
+
+    const WidgetParent: React.FunctionComponent<MyProps> = (props) => {
+      // const [options, setOptions] = React.useState<any[]>(props.initialData);
+      const [chosenOption, setChosenOption] = React.useState<any[]>([]);
+
+      const ITEM_HEIGHT = 48;
+      const ITEM_PADDING_TOP = 8;
+      const MenuProps = {
+        PaperProps: {
+          style: {
+            maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+            width: 250,
+          },
+        },
+      };
+
+      const handleChange = (event: SelectChangeEvent<typeof chosenOption>) => {
+        const {
+          target: { value },
+        } = event;
+        setChosenOption(
+          // On autofill we get a stringified value.
+          typeof value === 'string' ? value.split(',') : value
+        );
+        this.setInputData(initialValueName, value);
+        this.setOutputData(outName, value);
+        this.executeChildren();
+      };
+
+      useEffect(() => {
+        console.log(props.initialData);
+      }, [props.initialData]);
+
+      return (
+        <ThemeProvider theme={customTheme}>
+          <Paper
+            component={Stack}
+            direction="column"
+            justifyContent="center"
+            sx={{
+              bgcolor: 'background.default',
+              fontSize: '16px',
+              border: 0,
+              width: `${this.nodeWidth}px`,
+              height: `${this.nodeHeight}px`,
+              boxShadow: 16,
+              '&:hover': {
+                boxShadow: 12,
+              },
+            }}
+          >
+            <FormControl sx={{ m: 1, width: 300 }}>
+              <InputLabel id="demo-multiple-checkbox-label">Tag</InputLabel>
+              <Select
+                labelId="demo-multiple-checkbox-label"
+                id="demo-multiple-checkbox"
+                multiple
+                value={chosenOption}
+                onChange={handleChange}
+                input={<OutlinedInput label="Tag" />}
+                renderValue={(selected) => selected.join(', ')}
+                // MenuProps={MenuProps}
+              >
+                {Array.isArray(props.initialData) &&
+                  props.initialData.map((name) => (
+                    <MenuItem key={name} value={name}>
+                      <Checkbox checked={chosenOption.indexOf(name) > -1} />
+                      <ListItemText primary={name} />
+                    </MenuItem>
+                  ))}
+              </Select>
+            </FormControl>
           </Paper>
         </ThemeProvider>
       );
