@@ -49,26 +49,14 @@ const maxValueName = 'Max';
 const offValueName = 'Off';
 const onValueName = 'On';
 const buttonTextName = 'Button text';
+const optionsName = 'Options';
+const selectedOptionName = 'Selected option';
 const multiSelectName = 'Select multiple';
 const outName = 'Out';
 
 const margin = 4;
 
-const defaultOptions = ['Demo left', 'Demo center', 'Demo right'];
-// const defaultOptions = [
-//   {
-//     text: 'Demo left',
-//     value: 'left',
-//   },
-//   {
-//     text: 'Demo center',
-//     value: 'center',
-//   },
-//   {
-//     text: 'Demo right',
-//     value: 'right',
-//   },
-// ];
+const defaultOptions = ['Option1', 'Option2', 'Option3'];
 
 export class WidgetButton extends HybridNode {
   update: () => void;
@@ -819,9 +807,16 @@ export class WidgetDropdown extends HybridNode {
     return [
       new Socket(
         SOCKET_TYPE.IN,
-        initialValueName,
+        optionsName,
         new ArrayType(),
         defaultOptions,
+        false
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        selectedOptionName,
+        new ArrayType(),
+        undefined,
         false
       ),
       new Socket(
@@ -858,12 +853,13 @@ export class WidgetDropdown extends HybridNode {
 
     if (customArgs?.initialData) {
       console.log(customArgs?.initialData);
-      this.setInputData(initialValueName, customArgs?.initialData);
+      this.setInputData(optionsName, customArgs?.initialData);
     }
 
     // when the Node is added, add the container and react component
     this.onNodeAdded = () => {
-      const initialData = this.getInputData(initialValueName) || defaultOptions;
+      const options = this.getInputData(optionsName) || defaultOptions;
+      const selectedOption = this.getInputData(selectedOptionName);
       const multiSelect = this.getInputData(multiSelectName);
 
       this.createContainerComponent(
@@ -872,36 +868,39 @@ export class WidgetDropdown extends HybridNode {
           nodeWidth: this.nodeWidth,
           nodeHeight: this.nodeHeight,
           margin,
-          initialData,
+          name: this.getName(),
+          options,
+          selectedOption,
           multiSelect,
         },
         {
           overflow: 'visible',
         }
       );
-      this.setOutputData(outName, initialData);
+      this.setOutputData(outName, options);
       super.onNodeAdded();
     };
 
     this.update = (): void => {
-      const initialData = this.getInputData(initialValueName) || defaultOptions;
+      const options = this.getInputData(optionsName) || defaultOptions;
+      const selectedOption = this.getInputData(selectedOptionName);
       const multiSelect = this.getInputData(multiSelectName);
 
       this.renderReactComponent(WidgetParent, {
         nodeWidth: this.nodeWidth,
         nodeHeight: this.nodeHeight,
         margin,
-        initialData,
+        name: this.getName(),
+        options,
+        selectedOption,
         multiSelect,
       });
     };
 
     // when the Node is loaded, update the react component
     this.onConfigure = (): void => {
-      const initialData = this.getInputData(initialValueName) || defaultOptions;
-
       this.update();
-      this.setOutputData(outName, initialData);
+      this.setOutputData(outName, this.getInputData(selectedOptionName));
       this.executeOptimizedChain();
     };
 
@@ -910,7 +909,7 @@ export class WidgetDropdown extends HybridNode {
     };
 
     this.onExecute = async function (input, output) {
-      output[outName] = input[initialValueName];
+      output[outName] = input[optionsName];
       this.update();
     };
 
@@ -919,51 +918,65 @@ export class WidgetDropdown extends HybridNode {
       nodeWidth: number;
       nodeHeight: number;
       margin: number;
-      initialData: any[];
+      name: string;
+      options: any[];
+      selectedOption: string | string[];
       multiSelect: boolean;
     };
 
     const WidgetParent: FunctionComponent<MyProps> = (props) => {
-      // const [options, setOptions] = useState<any[]>(props.initialData);
-      const [chosenOption, setChosenOption] = useState<any[]>(['Demo right']);
+      const [options, setOptions] = useState<any[]>(props.options);
+      const [selectedOption, setSelectedOption] = useState<string | string[]>(
+        props.selectedOption
+      );
 
       const ITEM_HEIGHT = 48;
       const ITEM_PADDING_TOP = 8;
       const MenuProps = {
         PaperProps: {
           style: {
-            maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-            width: 250,
+            maxHeight: ITEM_HEIGHT * 9.5 + ITEM_PADDING_TOP,
           },
         },
       };
 
-      const handleChange = (event: SelectChangeEvent<typeof chosenOption>) => {
+      const handleChange = (
+        event: SelectChangeEvent<typeof selectedOption>
+      ) => {
         const {
           target: { value },
         } = event;
-        setChosenOption(
-          // On autofill we get a stringified value.
-          typeof value === 'string' ? value.split(',') : value
-        );
+        // single select: value is string
+        // multi select: value is array of strings
+        const newValue = typeof value === 'string' ? value.split(',') : value;
+        setSelectedOption(newValue);
+        this.setInputData(selectedOptionName, value);
         this.setOutputData(outName, value);
         this.executeChildren();
       };
 
       useEffect(() => {
-        console.log(
-          props.initialData,
-          Array.isArray(props.initialData),
-          typeof props.initialData
-        );
-      }, [props.initialData]);
+        this.setOutputData(outName, selectedOption);
+        this.executeChildren();
+      }, []);
 
-      const onOpen = () => {
-        // if (props.setOptions) {
-        //   setOptions(props.setOptions());
-        // }
-        console.log(props.initialData);
-      };
+      useEffect(() => {
+        setOptions(props.options);
+      }, [props.options]);
+
+      useEffect(() => {
+        setOptions(props.options);
+        let formattedSelectedOption = props.selectedOption;
+        if (props.multiSelect && !Array.isArray(props.selectedOption)) {
+          formattedSelectedOption = props.selectedOption.split(',');
+        } else if (!props.multiSelect && Array.isArray(props.selectedOption)) {
+          formattedSelectedOption = props.selectedOption.join(', ');
+        }
+        setSelectedOption(formattedSelectedOption);
+        this.setInputData(selectedOptionName, formattedSelectedOption);
+        this.setOutputData(outName, formattedSelectedOption);
+        this.executeChildren();
+      }, [props.multiSelect, props.selectedOption]);
 
       return (
         <ThemeProvider theme={customTheme}>
@@ -984,21 +997,26 @@ export class WidgetDropdown extends HybridNode {
             }}
           >
             <FormControl variant="filled" sx={{ m: 2, pointerEvents: 'auto' }}>
-              <InputLabel id="demo-multiple-checkbox-label">Tag</InputLabel>
+              <InputLabel>{props.name}</InputLabel>
               <Select
                 variant="filled"
                 multiple={props.multiSelect}
-                onOpen={onOpen}
-                value={chosenOption}
+                value={
+                  props.multiSelect && !Array.isArray(selectedOption)
+                    ? selectedOption.split(',')
+                    : selectedOption
+                }
                 onChange={handleChange}
-                renderValue={(selected) => selected.join(', ')}
+                renderValue={(selected) =>
+                  typeof selected === 'string' ? selected : selected.join(', ')
+                }
                 MenuProps={MenuProps}
               >
-                {Array.isArray(props.initialData) &&
-                  props.initialData.map((name) => (
+                {Array.isArray(options) &&
+                  options.map((name) => (
                     <MenuItem key={name} value={name}>
                       {props.multiSelect && (
-                        <Checkbox checked={chosenOption.indexOf(name) > -1} />
+                        <Checkbox checked={selectedOption.indexOf(name) > -1} />
                       )}
                       <ListItemText primary={name} />
                     </MenuItem>
