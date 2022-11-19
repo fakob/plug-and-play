@@ -101,13 +101,13 @@ export class DRAW_Shape extends DRAW_Base {
       new Socket(
         SOCKET_TYPE.IN,
         inputWidthName,
-        new NumberType(false, 1, 1000),
+        new NumberType(true, 1, 1000),
         200
       ),
       new Socket(
         SOCKET_TYPE.IN,
         inputHeightName,
-        new NumberType(false, 1, 1000),
+        new NumberType(true, 1, 1000),
         200
       ),
       new Socket(SOCKET_TYPE.IN, inputBorderName, new BooleanType(), false),

@@ -19,7 +19,7 @@ export const offseXName = 'Offset X';
 export const offsetYName = 'Offset Y';
 export const scaleXName = 'Scale X';
 export const scaleYName = 'Scale Y';
-export const inputRotationName = 'Rotation';
+export const inputRotationName = 'Angle';
 export const inputPivotName = 'Pivot';
 export const inputAbsolutePositions = 'Absolute Positions';
 export const injectedDataName = 'Injected Data';
@@ -51,14 +51,14 @@ export abstract class DRAW_Base extends PPNode {
       new Socket(
         SOCKET_TYPE.IN,
         offseXName,
-        new NumberType(false, -2000, 2000),
+        new NumberType(true, -2000, 2000),
         400,
         false
       ),
       new Socket(
         SOCKET_TYPE.IN,
         offsetYName,
-        new NumberType(false, -2000, 2000),
+        new NumberType(true, -2000, 2000),
         0,
         false
       ),
@@ -79,7 +79,7 @@ export abstract class DRAW_Base extends PPNode {
       new Socket(
         SOCKET_TYPE.IN,
         inputRotationName,
-        new NumberType(false, -3.14159, 3.14159),
+        new NumberType(true, -180, 180),
         0,
         false
       ),
@@ -152,7 +152,7 @@ export abstract class DRAW_Base extends PPNode {
       inputObject[offsetYName],
       inputObject[scaleXName],
       inputObject[scaleYName],
-      inputObject[inputRotationName]
+      (inputObject[inputRotationName] * Math.PI) / 180
     );
     toModify.pivot.x = pivotPoint.x * toModify.getBounds().width;
     toModify.pivot.y = pivotPoint.y * toModify.getBounds().height;
