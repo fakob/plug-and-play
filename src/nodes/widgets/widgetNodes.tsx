@@ -20,6 +20,7 @@ import {
   SelectChangeEvent,
   Switch,
   ThemeProvider,
+  Typography,
 } from '@mui/material';
 import ColorizeIcon from '@mui/icons-material/Colorize';
 import { SketchPicker } from 'react-color';
@@ -48,7 +49,7 @@ const stepSizeName = 'Step size';
 const maxValueName = 'Max';
 const offValueName = 'Off';
 const onValueName = 'On';
-const buttonTextName = 'Button text';
+const labelName = 'Label';
 const optionsName = 'Options';
 const selectedOptionName = 'Selected option';
 const multiSelectName = 'Select multiple';
@@ -74,13 +75,7 @@ export class WidgetButton extends HybridNode {
     return [
       new Socket(SOCKET_TYPE.IN, offValueName, new AnyType(), 0, false),
       new Socket(SOCKET_TYPE.IN, onValueName, new AnyType(), 1, false),
-      new Socket(
-        SOCKET_TYPE.IN,
-        buttonTextName,
-        new StringType(),
-        'Button',
-        false
-      ),
+      new Socket(SOCKET_TYPE.IN, labelName, new StringType(), 'Button', false),
       new Socket(SOCKET_TYPE.OUT, outName, new AnyType()),
     ];
   }
@@ -108,7 +103,7 @@ export class WidgetButton extends HybridNode {
 
     // when the Node is added, add the container and react component
     this.onNodeAdded = () => {
-      const buttonText = this.getInputData(buttonTextName);
+      const buttonText = this.getInputData(labelName);
       this.createContainerComponent(
         WidgetParent,
         {
@@ -125,7 +120,7 @@ export class WidgetButton extends HybridNode {
     };
 
     this.update = (): void => {
-      const buttonText = this.getInputData(buttonTextName);
+      const buttonText = this.getInputData(labelName);
       this.renderReactComponent(WidgetParent, {
         nodeWidth: this.nodeWidth,
         nodeHeight: this.nodeHeight,
@@ -243,6 +238,13 @@ export class WidgetColorPicker extends HybridNode {
         RANDOMMAINCOLOR,
         false
       ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        labelName,
+        new StringType(),
+        'Pick a color',
+        false
+      ),
       new Socket(SOCKET_TYPE.OUT, outName, new ColorType()),
     ];
   }
@@ -281,6 +283,7 @@ export class WidgetColorPicker extends HybridNode {
           nodeHeight: this.nodeHeight,
           margin,
           initialData: this.getInputData(initialValueName),
+          label: this.getInputData(labelName),
         },
         {
           overflow: 'visible',
@@ -296,6 +299,7 @@ export class WidgetColorPicker extends HybridNode {
         nodeHeight: this.nodeHeight,
         margin,
         initialData: this.getInputData(initialValueName),
+        label: this.getInputData(labelName),
       });
     };
 
@@ -321,6 +325,7 @@ export class WidgetColorPicker extends HybridNode {
       nodeHeight: number;
       margin: number;
       initialData: TRgba;
+      label: string;
     };
 
     const WidgetParent: FunctionComponent<MyProps> = (props) => {
@@ -387,7 +392,7 @@ export class WidgetColorPicker extends HybridNode {
                 },
               }}
             >
-              Pick a color
+              {props.label}
               <ColorizeIcon sx={{ pl: 1 }} />
             </Button>
             <Popper
@@ -444,6 +449,7 @@ export class WidgetSwitch extends HybridNode {
       new Socket(SOCKET_TYPE.IN, selectedName, new BooleanType(), false, false),
       new Socket(SOCKET_TYPE.IN, offValueName, new AnyType(), 0, false),
       new Socket(SOCKET_TYPE.IN, onValueName, new AnyType(), 1, false),
+      new Socket(SOCKET_TYPE.IN, labelName, new StringType(), 'Switch', false),
       new Socket(SOCKET_TYPE.OUT, outName, new AnyType()),
     ];
   }
@@ -477,6 +483,7 @@ export class WidgetSwitch extends HybridNode {
           nodeWidth: this.nodeWidth,
           nodeHeight: this.nodeHeight,
           margin,
+          label: this.getInputData(labelName),
         },
         {
           overflow: 'visible',
@@ -490,6 +497,7 @@ export class WidgetSwitch extends HybridNode {
         nodeWidth: this.nodeWidth,
         nodeHeight: this.nodeHeight,
         margin,
+        label: this.getInputData(labelName),
       });
     };
 
@@ -554,7 +562,7 @@ export class WidgetSwitch extends HybridNode {
             >
               <FormGroup aria-label="position" row>
                 <FormControlLabel
-                  value={this.getName()}
+                  value={props.label}
                   control={
                     <Switch
                       size="medium"
@@ -563,11 +571,12 @@ export class WidgetSwitch extends HybridNode {
                       onChange={handleOnChange}
                       sx={{
                         transform: 'scale(1.5)',
+                        marginLeft: '24px',
                         marginRight: '8px',
                       }}
                     />
                   }
-                  label={this.getName()}
+                  label={props.label}
                   labelPlacement="end"
                 />
               </FormGroup>
@@ -598,6 +607,7 @@ export class WidgetSlider extends HybridNode {
       new Socket(SOCKET_TYPE.IN, maxValueName, new NumberType(), 100, false),
       new Socket(SOCKET_TYPE.IN, roundName, new BooleanType(), 100, false),
       new Socket(SOCKET_TYPE.IN, stepSizeName, new NumberType(), 0.01, false),
+      new Socket(SOCKET_TYPE.IN, labelName, new StringType(), 'Slider', false),
       new Socket(SOCKET_TYPE.OUT, outName, new NumberType()),
     ];
   }
@@ -636,6 +646,7 @@ export class WidgetSlider extends HybridNode {
           maxValue: this.getInputData(maxValueName),
           round: this.getInputData(roundName),
           stepSize: this.getInputData(stepSizeName),
+          label: this.getInputData(labelName),
         },
         {
           overflow: 'visible',
@@ -654,6 +665,7 @@ export class WidgetSlider extends HybridNode {
         maxValue: this.getInputData(maxValueName),
         round: this.getInputData(roundName),
         stepSize: this.getInputData(stepSizeName),
+        label: this.getInputData(labelName),
       });
     };
 
@@ -742,7 +754,7 @@ export class WidgetSlider extends HybridNode {
               onChange={handleOnChange}
               value={data || 0}
               sx={{
-                margin: `${8 * margin}px`,
+                margin: `${6 * margin}px ${8 * margin}px ${margin}px`,
                 height: '8px',
                 pointerEvents: 'auto',
                 '&.MuiSlider-root': {
@@ -785,6 +797,15 @@ export class WidgetSlider extends HybridNode {
                 },
               }}
             />
+            <Typography
+              sx={{
+                textAlign: 'center',
+                textOverflow: 'ellipsis',
+                px: 2,
+              }}
+            >
+              {props.label}
+            </Typography>
           </Paper>
         </ThemeProvider>
       );
@@ -826,6 +847,13 @@ export class WidgetDropdown extends HybridNode {
         false,
         false
       ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        labelName,
+        new StringType(),
+        'Dropdown',
+        false
+      ),
       new Socket(SOCKET_TYPE.OUT, outName, new AnyType()),
     ];
   }
@@ -851,8 +879,6 @@ export class WidgetDropdown extends HybridNode {
       ...customArgs,
     });
 
-    this.nodeName = 'Dropdown';
-
     if (customArgs?.initialData) {
       console.log(customArgs?.initialData);
       this.setInputData(optionsName, customArgs?.initialData);
@@ -863,6 +889,7 @@ export class WidgetDropdown extends HybridNode {
       const options = this.getInputData(optionsName) || defaultOptions;
       const selectedOptionRaw = this.getInputData(selectedOptionName);
       const multiSelect = this.getInputData(multiSelectName);
+      const label = this.getInputData(labelName);
       const selectedOption = formatSelected(selectedOptionRaw, multiSelect);
 
       this.createContainerComponent(
@@ -871,7 +898,7 @@ export class WidgetDropdown extends HybridNode {
           nodeWidth: this.nodeWidth,
           nodeHeight: this.nodeHeight,
           margin,
-          name: this.nodeName,
+          label,
           options,
           selectedOption,
           multiSelect,
@@ -888,13 +915,14 @@ export class WidgetDropdown extends HybridNode {
       const options = this.getInputData(optionsName) || defaultOptions;
       const selectedOptionRaw = this.getInputData(selectedOptionName);
       const multiSelect = this.getInputData(multiSelectName);
+      const label = this.getInputData(labelName);
       const selectedOption = formatSelected(selectedOptionRaw, multiSelect);
 
       this.renderReactComponent(WidgetParent, {
         nodeWidth: this.nodeWidth,
         nodeHeight: this.nodeHeight,
         margin,
-        name: this.nodeName,
+        label,
         options,
         selectedOption,
         multiSelect,
@@ -921,7 +949,7 @@ export class WidgetDropdown extends HybridNode {
       nodeWidth: number;
       nodeHeight: number;
       margin: number;
-      name: string;
+      label: string;
       options: any[];
       selectedOption: string | string[];
       multiSelect: boolean;
@@ -951,7 +979,6 @@ export class WidgetDropdown extends HybridNode {
         } = event;
         // single select: value is string
         // multi select: value is array of strings
-        console.log(typeof value, value, props.name);
         const formattedValue = formatSelected(value, props.multiSelect);
         setSelectedOption(formattedValue);
         this.setInputData(selectedOptionName, formattedValue);
@@ -995,7 +1022,7 @@ export class WidgetDropdown extends HybridNode {
             }}
           >
             <FormControl variant="filled" sx={{ m: 2, pointerEvents: 'auto' }}>
-              <InputLabel>{props.name}</InputLabel>
+              <InputLabel>{props.label}</InputLabel>
               <Select
                 variant="filled"
                 multiple={props.multiSelect}
