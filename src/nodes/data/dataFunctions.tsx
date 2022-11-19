@@ -19,7 +19,7 @@ const forEndIndexName = 'EndIndex';
 const incrementName = 'Increment';
 const forOutIndexName = 'Index';
 
-const anyCodeName = 'Code';
+export const anyCodeName = 'Code';
 const outDataName = 'OutData';
 
 const constantInName = 'In';

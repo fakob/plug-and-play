@@ -727,6 +727,9 @@ export default class PPGraph {
       .filter((node) => node.getCanAddOutput())
       .forEach((node) => node.addDefaultOutput());
   }
+  getAddOutputName(): string {
+    return this.selection.selectedNodes?.[0].getAddOutputDescription();
+  }
 
   serialize(): SerializedGraph {
     // get serialized nodes

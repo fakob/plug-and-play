@@ -9,15 +9,14 @@ import {
 } from '../../utils/constants';
 import { CustomArgs, TRgba } from '../../utils/interfaces';
 import { AnyType } from '../datatypes/anyType';
-import * as PIXI from 'pixi.js';
 import { drawDottedLine } from '../../utils/utils';
-import { CustomFunction } from '../data/dataFunctions';
-import { StringType } from '../datatypes/stringType';
+import { anyCodeName, CustomFunction } from '../data/dataFunctions';
 import UpdateBehaviourClass from '../../classes/UpdateBehaviourClass';
+import { DynamicEnumType } from '../datatypes/dynamicEnumType';
 
 export const macroOutputName = 'Output';
 
-const macroBlockSize = 150;
+const macroBlockSize = 120;
 
 export class Macro extends PPNode {
   public getMinNodeWidth(): number {
@@ -100,9 +99,13 @@ export class Macro extends PPNode {
   public getOutputSocketXPos(): number {
     return macroBlockSize;
   }
-
-  public getCanAddOutput(): boolean {
-    return true;
+  public outputPlugged(): void {
+    super.outputPlugged();
+    const last = this.outputSocketArray[this.outputSocketArray.length - 1];
+    // if furthest down parameter is plugged in, add a new one
+    if (last.hasLink()) {
+      this.addDefaultOutput();
+    }
   }
 
   protected getDefaultIO(): Socket[] {
@@ -131,27 +134,84 @@ export class Macro extends PPNode {
     return this.getInputData('Output');
   }
 }
-export class InvokeMacro extends CustomFunction {
+export class ExecuteMacro extends CustomFunction {
+  static getOptions = () =>
+    Object.values(PPGraph.currentGraph.nodes)
+      .filter((node) => node instanceof Macro)
+      .map((node) => {
+        return { text: node.nodeName, value: node.nodeName };
+      });
+
   getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.MACRO);
   }
   public getName(): string {
-    return 'Invoke Macro';
+    return 'Execute Macro';
   }
   public getDescription(): string {
-    return 'Invokes a macro that is defined in the graph';
+    return 'Executes a macro that is defined in the graph';
   }
 
   protected getDefaultParameterTypes(): Record<string, any> {
-    return { MacroName: new StringType() };
+    return {
+      MacroName: new DynamicEnumType(
+        ExecuteMacro.getOptions,
+        this.generateUseNewCode
+      ),
+    };
   }
   protected getDefaultParameterValues(): Record<string, any> {
     return { MacroName: 'ExampleMacro' };
+  }
+
+  public metaInfoChanged(): void {
+    super.metaInfoChanged();
+    // set function to call the macro with the number of parameters it expects
   }
 
   protected getDefaultFunction(): string {
     return 'async (MacroName, Parameter) => {\n\
     \treturn await macro(MacroName,Parameter);\
     \n}';
+  }
+  buildDefaultFunction = () => {
+    const targetMacro = Object.values(PPGraph.currentGraph.macros).find(
+      (macro) => macro.nodeName == this.getInputData('MacroName')
+    );
+    const paramLength = targetMacro ? targetMacro.outputSocketArray.length : 0;
+    let paramLine = '';
+    for (let i = 0; i < paramLength; i++) {
+      paramLine += ', Parameter' + i.toString();
+    }
+    return (
+      'async (MacroName' +
+      paramLine +
+      ') => {\n\
+      \treturn await macro(MacroName' +
+      paramLine +
+      ');\n\
+      }'
+    );
+  };
+
+  generateUseNewCode = async () => {
+    this.setInputData(anyCodeName, this.buildDefaultFunction());
+    await this.executeOptimizedChain();
+  };
+
+  // adapt all nodes apart from the code one
+  public socketShouldAutomaticallyAdapt(socket: Socket): boolean {
+    return (
+      super.socketShouldAutomaticallyAdapt(socket) &&
+      socket.name !== 'MacroName'
+    );
+  }
+
+  protected initializeType(socketName: string, datatype: any) {
+    switch (socketName) {
+      case 'MacroName':
+        datatype.getOptions = ExecuteMacro.getOptions;
+        datatype.onChange = this.generateUseNewCode;
+    }
   }
 }

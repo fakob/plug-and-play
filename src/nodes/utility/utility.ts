@@ -124,6 +124,7 @@ export class JumpToNode extends WidgetButton {
     switch (socketName) {
       case selectNodeName:
         datatype.getOptions = getNodeArrayOptions;
+        datatype.widgetTrigger = this.onWidgetTrigger;
     }
   }
 }

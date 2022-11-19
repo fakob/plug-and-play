@@ -96,7 +96,7 @@ export default class PPNode extends PIXI.Container {
     }
   }
   protected executeOnPlace(): boolean {
-    return false;
+    return true;
   }
 
   protected onNodeExit(): void {}
@@ -701,6 +701,10 @@ export default class PPNode extends PIXI.Container {
       this.constructSocketName('Custom Input', this.inputSocketArray),
       new AnyType()
     );
+  }
+
+  public getAddOutputDescription(): string {
+    return 'Add Output';
   }
 
   public getCanAddOutput(): boolean {
