@@ -851,6 +851,8 @@ export class WidgetDropdown extends HybridNode {
       ...customArgs,
     });
 
+    this.nodeName = 'Dropdown';
+
     if (customArgs?.initialData) {
       console.log(customArgs?.initialData);
       this.setInputData(optionsName, customArgs?.initialData);
@@ -859,8 +861,9 @@ export class WidgetDropdown extends HybridNode {
     // when the Node is added, add the container and react component
     this.onNodeAdded = () => {
       const options = this.getInputData(optionsName) || defaultOptions;
-      const selectedOption = this.getInputData(selectedOptionName);
+      const selectedOptionRaw = this.getInputData(selectedOptionName);
       const multiSelect = this.getInputData(multiSelectName);
+      const selectedOption = formatSelected(selectedOptionRaw, multiSelect);
 
       this.createContainerComponent(
         WidgetParent,
@@ -868,7 +871,7 @@ export class WidgetDropdown extends HybridNode {
           nodeWidth: this.nodeWidth,
           nodeHeight: this.nodeHeight,
           margin,
-          name: this.getName(),
+          name: this.nodeName,
           options,
           selectedOption,
           multiSelect,
@@ -883,14 +886,15 @@ export class WidgetDropdown extends HybridNode {
 
     this.update = (): void => {
       const options = this.getInputData(optionsName) || defaultOptions;
-      const selectedOption = this.getInputData(selectedOptionName);
+      const selectedOptionRaw = this.getInputData(selectedOptionName);
       const multiSelect = this.getInputData(multiSelectName);
+      const selectedOption = formatSelected(selectedOptionRaw, multiSelect);
 
       this.renderReactComponent(WidgetParent, {
         nodeWidth: this.nodeWidth,
         nodeHeight: this.nodeHeight,
         margin,
-        name: this.getName(),
+        name: this.nodeName,
         options,
         selectedOption,
         multiSelect,
@@ -908,8 +912,7 @@ export class WidgetDropdown extends HybridNode {
       this.update();
     };
 
-    this.onExecute = async function (input, output) {
-      output[outName] = input[optionsName];
+    this.onExecute = async function () {
       this.update();
     };
 
@@ -948,10 +951,11 @@ export class WidgetDropdown extends HybridNode {
         } = event;
         // single select: value is string
         // multi select: value is array of strings
-        const newValue = typeof value === 'string' ? value.split(',') : value;
-        setSelectedOption(newValue);
-        this.setInputData(selectedOptionName, value);
-        this.setOutputData(outName, value);
+        console.log(typeof value, value, props.name);
+        const formattedValue = formatSelected(value, props.multiSelect);
+        setSelectedOption(formattedValue);
+        this.setInputData(selectedOptionName, formattedValue);
+        this.setOutputData(outName, formattedValue);
         this.executeChildren();
       };
 
@@ -966,15 +970,9 @@ export class WidgetDropdown extends HybridNode {
 
       useEffect(() => {
         setOptions(props.options);
-        let formattedSelectedOption = props.selectedOption;
-        if (props.multiSelect && !Array.isArray(props.selectedOption)) {
-          formattedSelectedOption = props.selectedOption.split(',');
-        } else if (!props.multiSelect && Array.isArray(props.selectedOption)) {
-          formattedSelectedOption = props.selectedOption.join(', ');
-        }
-        setSelectedOption(formattedSelectedOption);
-        this.setInputData(selectedOptionName, formattedSelectedOption);
-        this.setOutputData(outName, formattedSelectedOption);
+        setSelectedOption(props.selectedOption);
+        this.setInputData(selectedOptionName, props.selectedOption);
+        this.setOutputData(outName, props.selectedOption);
         this.executeChildren();
       }, [props.multiSelect, props.selectedOption]);
 
@@ -1003,7 +1001,7 @@ export class WidgetDropdown extends HybridNode {
                 multiple={props.multiSelect}
                 value={
                   props.multiSelect && !Array.isArray(selectedOption)
-                    ? selectedOption.split(',')
+                    ? String(selectedOption).split(',')
                     : selectedOption
                 }
                 onChange={handleChange}
@@ -1029,3 +1027,18 @@ export class WidgetDropdown extends HybridNode {
     };
   }
 }
+
+const formatSelected = (
+  selected: unknown,
+  multiSelect: boolean
+): string | string[] => {
+  if (multiSelect && !Array.isArray(selected)) {
+    return String(selected).split(',');
+  } else if (!multiSelect && Array.isArray(selected)) {
+    return selected.join(', ');
+  } else if (!Array.isArray(selected)) {
+    return String(selected);
+  } else {
+    return selected;
+  }
+};
