@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { FunctionComponent, useEffect, useRef, useState } from 'react';
 import {
   Button,
   Checkbox,
@@ -12,7 +12,6 @@ import {
   InputLabel,
   ListItemText,
   MenuItem,
-  OutlinedInput,
   Paper,
   Popper,
   Slider,
@@ -50,6 +49,7 @@ const maxValueName = 'Max';
 const offValueName = 'Off';
 const onValueName = 'On';
 const buttonTextName = 'Button text';
+const multiSelectName = 'Select multiple';
 const outName = 'Out';
 
 const margin = 4;
@@ -172,7 +172,7 @@ export class WidgetButton extends HybridNode {
       buttonText: number;
     };
 
-    const WidgetParent: React.FunctionComponent<MyProps> = (props) => {
+    const WidgetParent: FunctionComponent<MyProps> = (props) => {
       const handleOnPointerDown = () => {
         this.onWidgetTrigger();
         const inputData = this.getInputData(onValueName);
@@ -335,7 +335,7 @@ export class WidgetColorPicker extends HybridNode {
       initialData: TRgba;
     };
 
-    const WidgetParent: React.FunctionComponent<MyProps> = (props) => {
+    const WidgetParent: FunctionComponent<MyProps> = (props) => {
       const ref = useRef<HTMLLIElement | null>(null);
       const [finalColor, setFinalColor] = useState(props.initialData);
       const [colorPicker, showColorPicker] = useState(false);
@@ -824,6 +824,13 @@ export class WidgetDropdown extends HybridNode {
         defaultOptions,
         false
       ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        multiSelectName,
+        new BooleanType(),
+        false,
+        false
+      ),
       new Socket(SOCKET_TYPE.OUT, outName, new AnyType()),
     ];
   }
@@ -857,6 +864,7 @@ export class WidgetDropdown extends HybridNode {
     // when the Node is added, add the container and react component
     this.onNodeAdded = () => {
       const initialData = this.getInputData(initialValueName) || defaultOptions;
+      const multiSelect = this.getInputData(multiSelectName);
 
       this.createContainerComponent(
         WidgetParent,
@@ -865,6 +873,7 @@ export class WidgetDropdown extends HybridNode {
           nodeHeight: this.nodeHeight,
           margin,
           initialData,
+          multiSelect,
         },
         {
           overflow: 'visible',
@@ -876,12 +885,14 @@ export class WidgetDropdown extends HybridNode {
 
     this.update = (): void => {
       const initialData = this.getInputData(initialValueName) || defaultOptions;
+      const multiSelect = this.getInputData(multiSelectName);
 
       this.renderReactComponent(WidgetParent, {
         nodeWidth: this.nodeWidth,
         nodeHeight: this.nodeHeight,
         margin,
         initialData,
+        multiSelect,
       });
     };
 
@@ -909,11 +920,12 @@ export class WidgetDropdown extends HybridNode {
       nodeHeight: number;
       margin: number;
       initialData: any[];
+      multiSelect: boolean;
     };
 
-    const WidgetParent: React.FunctionComponent<MyProps> = (props) => {
-      // const [options, setOptions] = React.useState<any[]>(props.initialData);
-      const [chosenOption, setChosenOption] = React.useState<any[]>([]);
+    const WidgetParent: FunctionComponent<MyProps> = (props) => {
+      // const [options, setOptions] = useState<any[]>(props.initialData);
+      const [chosenOption, setChosenOption] = useState<any[]>(['Demo right']);
 
       const ITEM_HEIGHT = 48;
       const ITEM_PADDING_TOP = 8;
@@ -934,14 +946,24 @@ export class WidgetDropdown extends HybridNode {
           // On autofill we get a stringified value.
           typeof value === 'string' ? value.split(',') : value
         );
-        this.setInputData(initialValueName, value);
         this.setOutputData(outName, value);
         this.executeChildren();
       };
 
       useEffect(() => {
-        console.log(props.initialData);
+        console.log(
+          props.initialData,
+          Array.isArray(props.initialData),
+          typeof props.initialData
+        );
       }, [props.initialData]);
+
+      const onOpen = () => {
+        // if (props.setOptions) {
+        //   setOptions(props.setOptions());
+        // }
+        console.log(props.initialData);
+      };
 
       return (
         <ThemeProvider theme={customTheme}>
@@ -961,22 +983,23 @@ export class WidgetDropdown extends HybridNode {
               },
             }}
           >
-            <FormControl sx={{ m: 1, width: 300 }}>
+            <FormControl variant="filled" sx={{ m: 2, pointerEvents: 'auto' }}>
               <InputLabel id="demo-multiple-checkbox-label">Tag</InputLabel>
               <Select
-                labelId="demo-multiple-checkbox-label"
-                id="demo-multiple-checkbox"
-                multiple
+                variant="filled"
+                multiple={props.multiSelect}
+                onOpen={onOpen}
                 value={chosenOption}
                 onChange={handleChange}
-                input={<OutlinedInput label="Tag" />}
                 renderValue={(selected) => selected.join(', ')}
-                // MenuProps={MenuProps}
+                MenuProps={MenuProps}
               >
                 {Array.isArray(props.initialData) &&
                   props.initialData.map((name) => (
                     <MenuItem key={name} value={name}>
-                      <Checkbox checked={chosenOption.indexOf(name) > -1} />
+                      {props.multiSelect && (
+                        <Checkbox checked={chosenOption.indexOf(name) > -1} />
+                      )}
                       <ListItemText primary={name} />
                     </MenuItem>
                   ))}
