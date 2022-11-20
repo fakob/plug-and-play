@@ -71,6 +71,10 @@ export class Reroute extends PPNode {
   ): Promise<void> {
     outputObject['Out'] = inputObject['In'];
   }
+
+  public socketShouldAutomaticallyAdapt(socket: Socket): boolean {
+    return true;
+  }
 }
 
 const selectNodeName = 'Select Node';
