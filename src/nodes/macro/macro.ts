@@ -175,8 +175,8 @@ export class ExecuteMacro extends CustomFunction {
     );
     const paramLength = targetMacro ? targetMacro.outputSocketArray.length : 0;
     let paramLine = '';
-    for (let i = 0; i < paramLength; i++) {
-      paramLine += ', Parameter' + i.toString();
+    for (let i = 1; i < paramLength + 1; i++) {
+      paramLine += ', Parameter_' + i.toString();
     }
     return (
       'async (MacroName' +
