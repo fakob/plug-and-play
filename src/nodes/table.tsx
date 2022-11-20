@@ -739,6 +739,40 @@ export class Table_GetRowByName extends CustomFunction {
   }
 }
 
+export class Table_GetRowObjects extends CustomFunction {
+  public getName(): string {
+    return 'Get table rows';
+  }
+  public getDescription(): string {
+    return 'Get table rows as JSON coupled with categories';
+  }
+  protected getDefaultFunction(): string {
+    return '(JSONIn) => {\n\
+      const allKeys = Object.keys(JSONIn);\n\
+      const letters = [...new Set(allKeys.map(key => key.replace(/[0-9]/g, "")))];\n\
+      const length = letters.length\n\
+      const arrays = []\n\
+      for (let i = 2; i < length; i++){\n\
+            const toReturn = {}\n\
+            letters.forEach(letter => {\n\
+                  const category = JSONIn[letter+"1"];\n\
+                  const current = JSONIn[letter+i.toString()];\n\
+                  if (category && current){\n\
+                        const value = current["v"];\n\
+                        toReturn[category["v"]] = value;\n\
+                  }\n\
+            })\n\
+            arrays.push(toReturn);\n\
+      }\n\
+      return arrays;\n\
+  }';
+  }
+
+  protected getOutputParameterType(): AbstractType {
+    return new ArrayType();
+  }
+}
+
 export class Table_GetRange extends CustomFunction {
   public getName(): string {
     return 'Get table range';
