@@ -154,9 +154,8 @@ export class ExecuteMacro extends CustomFunction {
 
   protected getDefaultParameterTypes(): Record<string, any> {
     return {
-      MacroName: new DynamicEnumType(
-        ExecuteMacro.getOptions,
-        this.generateUseNewCode
+      MacroName: new DynamicEnumType(ExecuteMacro.getOptions, () =>
+        this.generateUseNewCode()
       ),
     };
   }
