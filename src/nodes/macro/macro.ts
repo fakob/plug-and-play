@@ -164,11 +164,6 @@ export class ExecuteMacro extends CustomFunction {
     return { MacroName: 'ExampleMacro' };
   }
 
-  public metaInfoChanged(): void {
-    super.metaInfoChanged();
-    // set function to call the macro with the number of parameters it expects
-  }
-
   protected getDefaultFunction(): string {
     return 'async (MacroName, Parameter) => {\n\
     \treturn await macro(MacroName,Parameter);\

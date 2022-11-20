@@ -70,7 +70,6 @@ const numberPerColumnRow = 'Number Per Column/Row';
 const drawingOrder = 'Change Column/Row drawing order';
 const spacingXName = 'Spacing X';
 const spacingYName = 'Spacing Y';
-const inputConcavityName = 'Concavity';
 
 const inputImageName = 'Image';
 
@@ -83,10 +82,6 @@ export class DRAW_Shape extends DRAW_Base {
   }
   public getName(): string {
     return 'Draw shape';
-  }
-
-  protected executeOnPlace(): boolean {
-    return true;
   }
 
   protected getDefaultIO(): Socket[] {

@@ -415,7 +415,7 @@ export default class PPGraph {
     return node;
   }
 
-  addNode<T extends PPNode = PPNode>(node: T): T {
+  addNode<T extends PPNode = PPNode>(node: T, isGoingToBeConfigured = true): T {
     if (!node) {
       return;
     }
@@ -425,7 +425,9 @@ export default class PPGraph {
     this.nodeContainer.addChild(node);
 
     node.onNodeAdded();
-    //await node.executeOptimizedChain();
+    if (node.executeOnPlace() && !isGoingToBeConfigured) {
+      node.executeOptimizedChain();
+    }
     return node;
   }
 
