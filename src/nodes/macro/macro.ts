@@ -192,6 +192,7 @@ export class ExecuteMacro extends CustomFunction {
   generateUseNewCode = async () => {
     this.setInputData(anyCodeName, this.buildDefaultFunction());
     await this.executeOptimizedChain();
+    this.resizeAndDraw(0, 0);
   };
 
   // adapt all nodes apart from the code one
