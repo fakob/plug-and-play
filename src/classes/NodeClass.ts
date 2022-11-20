@@ -91,12 +91,9 @@ export default class PPNode extends PIXI.Container {
   // called when the node is added to the graph
   public onNodeAdded(): void {
     this.resizeAndDraw(this.getDefaultNodeWidth(), this.getDefaultNodeHeight());
-    if (this.executeOnPlace()) {
-      this.executeOptimizedChain();
-    }
   }
-  protected executeOnPlace(): boolean {
-    return false;
+  public executeOnPlace(): boolean {
+    return true;
   }
 
   protected onNodeExit(): void {}
@@ -726,6 +723,10 @@ export default class PPNode extends PIXI.Container {
     );
   }
 
+  public getAddOutputDescription(): string {
+    return 'Add Output';
+  }
+
   public getCanAddOutput(): boolean {
     return false;
   }
@@ -830,7 +831,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
 
     if (!inputSocket) {
       console.error('No input socket found with the name: ', name);
-      return undefined;
+      return;
     }
 
     inputSocket.data = data;

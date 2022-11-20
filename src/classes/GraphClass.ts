@@ -18,7 +18,7 @@ import PPSocket from './SocketClass';
 import PPLink from './LinkClass';
 import PPSelection from './SelectionClass';
 import { getAllNodeTypes } from '../nodes/allNodes';
-import { macroOutputName } from '../nodes/macro/macro';
+import { Macro } from '../nodes/macro/macro';
 import { Action, ActionHandler } from '../utils/actionHandler';
 import { hri } from 'human-readable-ids';
 import FlowLogic from './FlowLogic';
@@ -43,8 +43,7 @@ export default class PPGraph {
   connectionContainer: PIXI.Container;
   nodeContainer: PIXI.Container;
   nodes: { [key: string]: PPNode } = {};
-  macrosIn: { [key: string]: PPNode } = {};
-  macrosOut: { [key: string]: PPNode } = {};
+  macros: { [key: string]: Macro } = {};
   foregroundCanvas: PIXI.Container;
 
   tempConnection: PIXI.Graphics;
@@ -416,7 +415,7 @@ export default class PPGraph {
     return node;
   }
 
-  addNode<T extends PPNode = PPNode>(node: T): T {
+  addNode<T extends PPNode = PPNode>(node: T, isGoingToBeConfigured = true): T {
     if (!node) {
       return;
     }
@@ -426,7 +425,9 @@ export default class PPGraph {
     this.nodeContainer.addChild(node);
 
     node.onNodeAdded();
-    //await node.executeOptimizedChain();
+    if (node.executeOnPlace() && !isGoingToBeConfigured) {
+      node.executeOptimizedChain();
+    }
     return node;
   }
 
@@ -728,6 +729,9 @@ export default class PPGraph {
       .filter((node) => node.getCanAddOutput())
       .forEach((node) => node.addDefaultOutput());
   }
+  getAddOutputName(): string {
+    return this.selection.selectedNodes?.[0].getAddOutputDescription();
+  }
 
   serialize(): SerializedGraph {
     // get serialized nodes
@@ -960,23 +964,11 @@ export default class PPGraph {
     ActionHandler.performAction(action, undoAction);
   }
 
-  public findMacroInput(name: string): PPNode {
-    return Object.values(this.macrosIn).find((node) => node.name === name);
-  }
-  public findMacroOutput(name: string): PPNode {
-    return Object.values(this.macrosOut).find((node) => node.name === name);
-  }
-
   async invokeMacro(inputObject: any): Promise<any> {
-    const macroStartNode = this.findMacroInput(inputObject['Name']);
-    Object.keys(inputObject).forEach((key) => {
-      macroStartNode.setOutputData(key, inputObject[key]);
-    });
-
-    await macroStartNode.executeOptimizedChain();
-    const macroEndNode = this.findMacroOutput(inputObject['Name']);
-
-    return macroEndNode.getInputSocketByName(macroOutputName).data;
+    const macro = Object.values(this.macros).find(
+      (node) => node.name === inputObject['Name']
+    );
+    return await macro.executeMacro(inputObject);
   }
 
   static getCurrentGraph(): PPGraph {

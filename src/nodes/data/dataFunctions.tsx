@@ -19,7 +19,7 @@ const forEndIndexName = 'EndIndex';
 const incrementName = 'Increment';
 const forOutIndexName = 'Index';
 
-const anyCodeName = 'Code';
+export const anyCodeName = 'Code';
 const outDataName = 'OutData';
 
 const constantInName = 'In';
@@ -275,7 +275,11 @@ export class CustomFunction extends PPNode {
     outputObject: Record<string, unknown>
   ): Promise<void> {
     // before every execute, re-evaluate inputs
-    this.adaptInputs(inputObject[anyCodeName]);
+    const changeFound = this.adaptInputs(inputObject[anyCodeName]);
+    if (changeFound) {
+      // there might be new inputs, so re-run rawexecute
+      return await this.rawExecute();
+    }
     const functionToCall = getFunctionFromFunction(inputObject[anyCodeName]);
     // eslint-disable-next-line prefer-const
     const defineAllVariables = Object.keys(inputObject)
@@ -292,7 +296,6 @@ export class CustomFunction extends PPNode {
     // we fix the macros for the user so that they are more pleasant to type
     const foundMacroCalls = [...functionToExecute.matchAll(/macro\(.*?\)/g)];
 
-    //console.log('found macro calls: ' + foundMacroCalls.toString());
     const reduced = foundMacroCalls.reduce((formatted, macroCall) => {
       const macroContents = macroCall
         .toString()
@@ -318,11 +321,12 @@ export class CustomFunction extends PPNode {
     // this might seem unused but it actually isn't, its used inside the eval in many cases but we can't see what's inside it from here
     const node = this;
 
-    const res = await eval('async () => ' + reduced)();
-    outputObject[this.getOutputParameterName()] = res;
+    const res = eval('async () => ' + reduced);
+    outputObject[this.getOutputParameterName()] = await res();
   }
 
-  private adaptInputs(code: string): void {
+  // returns true if there was a change
+  private adaptInputs(code: string): boolean {
     const codeArguments = getArgumentsFromFunction(code);
     // remove all non existing arguments and add all missing (based on the definition we just got)
     const currentInputSockets = this.getDataSockets().filter(
@@ -353,7 +357,9 @@ export class CustomFunction extends PPNode {
     });
     if (socketsToBeRemoved.length > 0 || argumentsToBeAdded.length > 0) {
       this.metaInfoChanged();
+      return true;
     }
+    return false;
   }
   // adapt all nodes apart from the code one
   public socketShouldAutomaticallyAdapt(socket: Socket): boolean {

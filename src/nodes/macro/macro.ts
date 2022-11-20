@@ -1,21 +1,118 @@
 import PPGraph from '../../classes/GraphClass';
 import PPNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
-import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../../utils/constants';
+import {
+  NODE_CORNERRADIUS,
+  NODE_MARGIN,
+  NODE_TYPE_COLOR,
+  SOCKET_TYPE,
+} from '../../utils/constants';
 import { CustomArgs, TRgba } from '../../utils/interfaces';
 import { AnyType } from '../datatypes/anyType';
-import * as PIXI from 'pixi.js';
 import { drawDottedLine } from '../../utils/utils';
-import { CustomFunction } from '../data/dataFunctions';
-import { StringType } from '../datatypes/stringType';
+import { anyCodeName, CustomFunction } from '../data/dataFunctions';
+import UpdateBehaviourClass from '../../classes/UpdateBehaviourClass';
+import { DynamicEnumType } from '../datatypes/dynamicEnumType';
 
 export const macroOutputName = 'Output';
-class MacroNode extends PPNode {
-  public addDefaultInput(): void {
-    this.addInput(
-      this.constructSocketName('Parameter', this.inputSocketArray),
-      new AnyType()
+
+const macroBlockSize = 120;
+
+export class Macro extends PPNode {
+  public getMinNodeWidth(): number {
+    return macroBlockSize * 3;
+  }
+
+  public getDefaultNodeWidth(): number {
+    return 1000;
+  }
+
+  public getDefaultNodeHeight(): number {
+    return 300;
+  }
+
+  constructor(name: string, customArgs: CustomArgs) {
+    super(name, {
+      ...customArgs,
+    });
+    PPGraph.currentGraph.macros[this.id] = this;
+  }
+
+  protected getUpdateBehaviour(): UpdateBehaviourClass {
+    return new UpdateBehaviourClass(false, false, 1000);
+  }
+
+  _onRemoved(): void {
+    super._onRemoved();
+    delete PPGraph.currentGraph.macros[this.id];
+  }
+
+  getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.MACRO);
+  }
+
+  public drawBackground(): void {
+    this._BackgroundRef.beginFill(
+      this.getColor().hexNumber(),
+      this.getOpacity()
     );
+    this._BackgroundRef.drawRoundedRect(
+      NODE_MARGIN,
+      0,
+      macroBlockSize,
+      this.nodeHeight,
+      this.getRoundedCorners() ? NODE_CORNERRADIUS : 0
+    );
+
+    this._BackgroundRef.drawRoundedRect(
+      NODE_MARGIN + this.nodeWidth - macroBlockSize,
+      0,
+      macroBlockSize,
+      this.nodeHeight,
+      this.getRoundedCorners() ? NODE_CORNERRADIUS : 0
+    );
+
+    this._BackgroundRef.lineStyle(3, this.getColor().multiply(0.8).hexNumber());
+    drawDottedLine(
+      this._BackgroundRef,
+      macroBlockSize + 5,
+      5,
+      this.nodeWidth - macroBlockSize + 10,
+      5,
+      5
+    );
+    drawDottedLine(
+      this._BackgroundRef,
+      macroBlockSize + 5,
+      this.nodeHeight,
+      this.nodeWidth - macroBlockSize + 10,
+      this.nodeHeight,
+      5
+    );
+
+    this._BackgroundRef.endFill();
+  }
+
+  public getInputSocketXPos(): number {
+    return this.nodeWidth - macroBlockSize;
+  }
+  public getOutputSocketXPos(): number {
+    return macroBlockSize;
+  }
+  public outputPlugged(): void {
+    super.outputPlugged();
+    const last = this.outputSocketArray[this.outputSocketArray.length - 1];
+    // if furthest down parameter is plugged in, add a new one
+    if (last.hasLink()) {
+      this.addDefaultOutput();
+    }
+  }
+
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(SOCKET_TYPE.OUT, 'Parameter 1', new AnyType()),
+      new Socket(SOCKET_TYPE.IN, 'Output', new AnyType()),
+    ];
   }
 
   public addDefaultOutput(): void {
@@ -24,122 +121,43 @@ class MacroNode extends PPNode {
       new AnyType()
     );
   }
-  public setPosition(x: number, y: number, isRelative = false): void {
-    super.setPosition(x, y, isRelative);
-    this.drawNodeShape();
-  }
-  // adapt all nodes apart from the code one
+
   public socketShouldAutomaticallyAdapt(socket: Socket): boolean {
     return true;
   }
-}
 
-export class DefineMacroIn extends MacroNode {
-  graphicsLink: PIXI.Graphics = undefined;
-  connectionSphere: PIXI.Graphics = undefined;
-  public getName(): string {
-    return 'Define Macro In';
-  }
-  public getDescription(): string {
-    return 'Define arguments and node connections';
-  }
-  getColor(): TRgba {
-    return TRgba.fromString(NODE_TYPE_COLOR.MACRO);
-  }
-  constructor(name: string, customArgs: CustomArgs) {
-    super(name, {
-      ...customArgs,
-    });
-    PPGraph.currentGraph.macrosIn[this.id] = this;
-  }
-
-  public getCanAddOutput(): boolean {
-    return true;
-  }
-
-  protected getDefaultIO(): Socket[] {
-    return [new Socket(SOCKET_TYPE.OUT, 'Parameter 1', new AnyType())];
-  }
-
-  _onRemoved(): void {
-    super._onRemoved();
-    delete PPGraph.currentGraph.macrosIn[this.id];
-  }
-
-  public drawNodeShape(): void {
-    super.drawNodeShape();
-    this.removeChild(this.graphicsLink);
-
-    this.graphicsLink = new PIXI.Graphics();
-    const selectedColor: TRgba = TRgba.black();
-    const correspondingOutput = PPGraph.currentGraph.findMacroOutput(this.name);
-    this.graphicsLink.lineStyle(1, selectedColor.hexNumber());
-
-    if (correspondingOutput) {
-      drawDottedLine(
-        this.graphicsLink,
-        this.width,
-        this.height / 2,
-        correspondingOutput.x - this.x,
-        correspondingOutput.y - this.y + correspondingOutput.height / 2,
-        5
-      );
-    }
-    this.addChild(this.graphicsLink);
+  public async executeMacro(inputObject: any): Promise<any> {
+    Object.keys(inputObject).forEach((key) =>
+      this.setOutputData(key, inputObject[key])
+    );
+    await this.executeChildren();
+    return this.getInputData('Output');
   }
 }
+export class ExecuteMacro extends CustomFunction {
+  static getOptions = () =>
+    Object.values(PPGraph.currentGraph.nodes)
+      .filter((node) => node instanceof Macro)
+      .map((node) => {
+        return { text: node.nodeName, value: node.nodeName };
+      });
 
-export class DefineMacroOut extends MacroNode {
-  public getName(): string {
-    return 'Define Macro Out';
-  }
-  public getDescription(): string {
-    return 'Define macro output';
-  }
-  getColor(): TRgba {
-    return TRgba.fromString(NODE_TYPE_COLOR.MACRO);
-  }
-  constructor(name: string, customArgs: CustomArgs) {
-    super(name, {
-      ...customArgs,
-    });
-    PPGraph.currentGraph.macrosOut[this.id] = this;
-  }
-
-  private tellMacroInToRedraw(): void {
-    const correspondingInput = PPGraph.currentGraph.findMacroInput(this.name);
-    if (correspondingInput) {
-      correspondingInput.drawNodeShape();
-    }
-  }
-
-  public drawNodeShape(): void {
-    super.drawNodeShape();
-    this.tellMacroInToRedraw();
-  }
-
-  protected getDefaultIO(): Socket[] {
-    return [new Socket(SOCKET_TYPE.IN, macroOutputName, new AnyType())];
-  }
-  _onRemoved(): void {
-    super._onRemoved();
-    delete PPGraph.currentGraph.macrosOut[this.id];
-  }
-}
-
-export class InvokeMacro extends CustomFunction {
   getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.MACRO);
   }
   public getName(): string {
-    return 'Invoke Macro';
+    return 'Execute Macro';
   }
   public getDescription(): string {
-    return 'Invokes a macro that is defined in the graph';
+    return 'Executes a macro that is defined in the graph';
   }
 
   protected getDefaultParameterTypes(): Record<string, any> {
-    return { MacroName: new StringType() };
+    return {
+      MacroName: new DynamicEnumType(ExecuteMacro.getOptions, () =>
+        this.generateUseNewCode()
+      ),
+    };
   }
   protected getDefaultParameterValues(): Record<string, any> {
     return { MacroName: 'ExampleMacro' };
@@ -149,5 +167,46 @@ export class InvokeMacro extends CustomFunction {
     return 'async (MacroName, Parameter) => {\n\
     \treturn await macro(MacroName,Parameter);\
     \n}';
+  }
+  buildDefaultFunction = () => {
+    const targetMacro = Object.values(PPGraph.currentGraph.macros).find(
+      (macro) => macro.nodeName == this.getInputData('MacroName')
+    );
+    const paramLength = targetMacro ? targetMacro.outputSocketArray.length : 0;
+    let paramLine = '';
+    for (let i = 1; i < paramLength + 1; i++) {
+      paramLine += ', Parameter_' + i.toString();
+    }
+    return (
+      'async (MacroName' +
+      paramLine +
+      ') => {\n\
+      \treturn await macro(MacroName' +
+      paramLine +
+      ');\n\
+      }'
+    );
+  };
+
+  generateUseNewCode = async () => {
+    this.setInputData(anyCodeName, this.buildDefaultFunction());
+    await this.executeOptimizedChain();
+    this.resizeAndDraw(0, 0);
+  };
+
+  // adapt all nodes apart from the code one
+  public socketShouldAutomaticallyAdapt(socket: Socket): boolean {
+    return (
+      super.socketShouldAutomaticallyAdapt(socket) &&
+      socket.name !== 'MacroName'
+    );
+  }
+
+  protected initializeType(socketName: string, datatype: any) {
+    switch (socketName) {
+      case 'MacroName':
+        datatype.getOptions = ExecuteMacro.getOptions;
+        datatype.onChange = this.generateUseNewCode;
+    }
   }
 }
