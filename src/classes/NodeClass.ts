@@ -57,6 +57,7 @@ export default class PPNode extends PIXI.Container {
   nodePosY: number;
   nodeWidth: number;
   nodeHeight: number;
+  initialData: any;
 
   updateBehaviour: UpdateBehaviourClass;
   nodeSelectionHeader: NodeSelectionHeaderClass;
@@ -207,6 +208,7 @@ export default class PPNode extends PIXI.Container {
     this.y = customArgs?.nodePosY ?? 0;
     this.nodeWidth = this.getDefaultNodeWidth();
     this.nodeHeight = this.getDefaultNodeHeight(); // if not set height is defined by in/out sockets
+    this.initialData = customArgs?.initialData;
     this.isHovering = false;
 
     const inputNameText = new PIXI.Text(

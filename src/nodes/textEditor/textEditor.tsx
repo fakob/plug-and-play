@@ -161,8 +161,6 @@ export class TextEditor extends HybridNode {
       ...customArgs,
     });
 
-    this.textToImport = customArgs?.initialData;
-
     this.readOnly = false;
 
     this.getAllParameters = (): string => {
@@ -205,7 +203,7 @@ export class TextEditor extends HybridNode {
         color,
         allParameters,
         readOnly: this.readOnly,
-        textToImport: this.textToImport,
+        textToImport: this.initialData,
       });
       super.onNodeAdded();
     };
@@ -238,7 +236,7 @@ export class TextEditor extends HybridNode {
         color,
         allParameters,
         readOnly: this.readOnly,
-        textToImport: this.textToImport,
+        textToImport: this.initialData,
       });
     };
 

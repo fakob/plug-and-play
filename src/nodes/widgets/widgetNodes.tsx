@@ -59,10 +59,15 @@ const margin = 4;
 
 const defaultOptions = ['Option1', 'Option2', 'Option3'];
 
-export class WidgetButton extends HybridNode {
-  update: () => void;
-  onWidgetTrigger: () => void;
+type WidgetButtonProps = {
+  doubleClicked: boolean; // is injected by the NodeClass
+  nodeWidth: number;
+  nodeHeight: number;
+  margin: number;
+  buttonText: number;
+};
 
+export class WidgetButton extends HybridNode {
   getOpacity(): number {
     return 0.01;
   }
@@ -96,130 +101,133 @@ export class WidgetButton extends HybridNode {
     return 104;
   }
 
+  // when the Node is added, add the container and react component
+  public onNodeAdded = () => {
+    const buttonText = this.getInputData(labelName);
+    this.createContainerComponent(
+      this.WidgetParent,
+      {
+        nodeWidth: this.nodeWidth,
+        nodeHeight: this.nodeHeight,
+        margin,
+        buttonText,
+      },
+      {
+        overflow: 'visible',
+      }
+    );
+    super.onNodeAdded();
+  };
+
+  public update = (): void => {
+    const buttonText = this.getInputData(labelName);
+    this.renderReactComponent(this.WidgetParent, {
+      nodeWidth: this.nodeWidth,
+      nodeHeight: this.nodeHeight,
+      margin,
+      buttonText,
+    });
+  };
+
+  // when the Node is loaded, update the react component
+  public onConfigure = (): void => {
+    this.update();
+  };
+
+  public onWidgetTrigger = () => {
+    console.log('onWidgetTrigger');
+    this.executeOptimizedChain();
+  };
+
+  public onNodeResize = () => {
+    this.update();
+  };
+
+  public onExecute = async function () {
+    this.update();
+  };
+
+  public WidgetParent: FunctionComponent<WidgetButtonProps> = (props) => {
+    const handleOnPointerDown = () => {
+      this.onWidgetTrigger();
+      const inputData = this.getInputData(onValueName);
+      this.setOutputData(outName, inputData);
+      this.executeChildren();
+    };
+
+    const handleOnPointerUp = () => {
+      const inputData = this.getInputData(offValueName);
+      this.setOutputData(outName, inputData);
+      this.executeChildren();
+    };
+
+    return (
+      <ThemeProvider theme={customTheme}>
+        <Paper
+          component={Stack}
+          direction="column"
+          justifyContent="center"
+          sx={{
+            bgcolor: 'background.default',
+            fontSize: '16px',
+            border: 0,
+            width: `${this.nodeWidth}px`,
+            height: `${this.nodeHeight}px`,
+            boxShadow: 16,
+            '&:hover': {
+              boxShadow: 12,
+            },
+          }}
+        >
+          <Button
+            variant="contained"
+            onPointerDown={handleOnPointerDown}
+            onPointerUp={handleOnPointerUp}
+            sx={{
+              pointerEvents: 'auto',
+              margin: 'auto',
+              fontSize: '16px',
+              lineHeight: '20px',
+              border: 0,
+              width: `${this.nodeWidth - 8 * margin}px`,
+              height: `${this.nodeHeight - 8 * margin}px`,
+              borderRadius: `${this.nodeWidth / 16}px`,
+              boxShadow: 16,
+              '&:hover': {
+                boxShadow: 12,
+              },
+              '&:active': {
+                boxShadow: 4,
+              },
+            }}
+          >
+            {props.buttonText}
+          </Button>
+        </Paper>
+      </ThemeProvider>
+    );
+  };
+}
+
+type WidgetColorPickerProps = {
+  doubleClicked: boolean; // is injected by the NodeClass
+  nodeWidth: number;
+  nodeHeight: number;
+  margin: number;
+  initialData: TRgba;
+  label: string;
+};
+
+export class WidgetColorPicker extends HybridNode {
   constructor(name: string, customArgs?: CustomArgs) {
     super(name, {
       ...customArgs,
     });
 
-    // when the Node is added, add the container and react component
-    this.onNodeAdded = () => {
-      const buttonText = this.getInputData(labelName);
-      this.createContainerComponent(
-        WidgetParent,
-        {
-          nodeWidth: this.nodeWidth,
-          nodeHeight: this.nodeHeight,
-          margin,
-          buttonText,
-        },
-        {
-          overflow: 'visible',
-        }
-      );
-      super.onNodeAdded();
-    };
-
-    this.update = (): void => {
-      const buttonText = this.getInputData(labelName);
-      this.renderReactComponent(WidgetParent, {
-        nodeWidth: this.nodeWidth,
-        nodeHeight: this.nodeHeight,
-        margin,
-        buttonText,
-      });
-    };
-
-    // when the Node is loaded, update the react component
-    this.onConfigure = (): void => {
-      this.update();
-    };
-
-    this.onWidgetTrigger = () => {
-      console.log('onWidgetTrigger');
-      this.executeOptimizedChain();
-    };
-
-    this.onNodeResize = () => {
-      this.update();
-    };
-
-    this.onExecute = async function () {
-      this.update();
-    };
-
-    type MyProps = {
-      doubleClicked: boolean; // is injected by the NodeClass
-      nodeWidth: number;
-      nodeHeight: number;
-      margin: number;
-      buttonText: number;
-    };
-
-    const WidgetParent: FunctionComponent<MyProps> = (props) => {
-      const handleOnPointerDown = () => {
-        this.onWidgetTrigger();
-        const inputData = this.getInputData(onValueName);
-        this.setOutputData(outName, inputData);
-        this.executeChildren();
-      };
-
-      const handleOnPointerUp = () => {
-        const inputData = this.getInputData(offValueName);
-        this.setOutputData(outName, inputData);
-        this.executeChildren();
-      };
-
-      return (
-        <ThemeProvider theme={customTheme}>
-          <Paper
-            component={Stack}
-            direction="column"
-            justifyContent="center"
-            sx={{
-              bgcolor: 'background.default',
-              fontSize: '16px',
-              border: 0,
-              width: `${this.nodeWidth}px`,
-              height: `${this.nodeHeight}px`,
-              boxShadow: 16,
-              '&:hover': {
-                boxShadow: 12,
-              },
-            }}
-          >
-            <Button
-              variant="contained"
-              onPointerDown={handleOnPointerDown}
-              onPointerUp={handleOnPointerUp}
-              sx={{
-                pointerEvents: 'auto',
-                margin: 'auto',
-                fontSize: '16px',
-                lineHeight: '20px',
-                border: 0,
-                width: `${this.nodeWidth - 8 * margin}px`,
-                height: `${this.nodeHeight - 8 * margin}px`,
-                borderRadius: `${this.nodeWidth / 16}px`,
-                boxShadow: 16,
-                '&:hover': {
-                  boxShadow: 12,
-                },
-                '&:active': {
-                  boxShadow: 4,
-                },
-              }}
-            >
-              {props.buttonText}
-            </Button>
-          </Paper>
-        </ThemeProvider>
-      );
-    };
+    if (this.initialData) {
+      this.setInputData(initialValueName, this.initialData);
+    }
   }
-}
-
-export class WidgetColorPicker extends HybridNode {
-  update: () => void;
 
   getOpacity(): number {
     return 0.01;
@@ -265,177 +273,155 @@ export class WidgetColorPicker extends HybridNode {
     return 104;
   }
 
-  constructor(name: string, customArgs?: CustomArgs) {
-    super(name, {
-      ...customArgs,
-    });
-
-    if (customArgs?.initialData) {
-      this.setInputData(initialValueName, customArgs?.initialData);
-    }
-
-    // when the Node is added, add the container and react component
-    this.onNodeAdded = () => {
-      this.createContainerComponent(
-        WidgetParent,
-        {
-          nodeWidth: this.nodeWidth,
-          nodeHeight: this.nodeHeight,
-          margin,
-          initialData: this.getInputData(initialValueName),
-          label: this.getInputData(labelName),
-        },
-        {
-          overflow: 'visible',
-        }
-      );
-      this.setOutputData(outName, this.getInputData(initialValueName));
-      super.onNodeAdded();
-    };
-
-    this.update = (): void => {
-      this.renderReactComponent(WidgetParent, {
+  // when the Node is added, add the container and react component
+  public onNodeAdded = () => {
+    this.createContainerComponent(
+      this.WidgetParent,
+      {
         nodeWidth: this.nodeWidth,
         nodeHeight: this.nodeHeight,
         margin,
         initialData: this.getInputData(initialValueName),
         label: this.getInputData(labelName),
-      });
+      },
+      {
+        overflow: 'visible',
+      }
+    );
+    this.setOutputData(outName, this.getInputData(initialValueName));
+    super.onNodeAdded();
+  };
+
+  public update = (): void => {
+    this.renderReactComponent(this.WidgetParent, {
+      nodeWidth: this.nodeWidth,
+      nodeHeight: this.nodeHeight,
+      margin,
+      initialData: this.getInputData(initialValueName),
+      label: this.getInputData(labelName),
+    });
+  };
+
+  // when the Node is loaded, update the react component
+  public onConfigure = (): void => {
+    this.update();
+    this.setOutputData(outName, this.getInputData(initialValueName));
+    this.executeOptimizedChain();
+  };
+
+  public onNodeResize = () => {
+    this.update();
+  };
+
+  public onExecute = async function (input, output) {
+    output[outName] = input[initialValueName];
+    this.update();
+  };
+
+  public WidgetParent: FunctionComponent<WidgetColorPickerProps> = (props) => {
+    const ref = useRef<HTMLLIElement | null>(null);
+    const [finalColor, setFinalColor] = useState(
+      props.initialData || TRgba.white()
+    );
+    const [colorPicker, showColorPicker] = useState(false);
+
+    const handleOnChange = (color) => {
+      const pickedrgb = color.rgb;
+      const newColor = new TRgba(
+        pickedrgb.r,
+        pickedrgb.g,
+        pickedrgb.b,
+        pickedrgb.a
+      );
+      setFinalColor(newColor);
+      this.setInputData(initialValueName, newColor);
+      this.setOutputData(outName, newColor);
+      this.executeChildren();
     };
 
-    // when the Node is loaded, update the react component
-    this.onConfigure = (): void => {
-      this.update();
-      this.setOutputData(outName, this.getInputData(initialValueName));
-      this.executeOptimizedChain();
-    };
-
-    this.onNodeResize = () => {
-      this.update();
-    };
-
-    this.onExecute = async function (input, output) {
-      output[outName] = input[initialValueName];
-      this.update();
-    };
-
-    type MyProps = {
-      doubleClicked: boolean; // is injected by the NodeClass
-      nodeWidth: number;
-      nodeHeight: number;
-      margin: number;
-      initialData: TRgba;
-      label: string;
-    };
-
-    const WidgetParent: FunctionComponent<MyProps> = (props) => {
-      const ref = useRef<HTMLLIElement | null>(null);
-      const [finalColor, setFinalColor] = useState(props.initialData);
-      const [colorPicker, showColorPicker] = useState(false);
-
-      const handleOnChange = (color) => {
-        const pickedrgb = color.rgb;
-        const newColor = new TRgba(
-          pickedrgb.r,
-          pickedrgb.g,
-          pickedrgb.b,
-          pickedrgb.a
-        );
-        setFinalColor(newColor);
-        this.setInputData(initialValueName, newColor);
-        this.setOutputData(outName, newColor);
-        this.executeChildren();
-      };
-
-      return (
-        <ThemeProvider theme={customTheme}>
-          <Paper
-            component={Stack}
-            direction="column"
-            justifyContent="center"
-            ref={ref}
+    return (
+      <ThemeProvider theme={customTheme}>
+        <Paper
+          component={Stack}
+          direction="column"
+          justifyContent="center"
+          ref={ref}
+          sx={{
+            bgcolor: 'background.default',
+            fontSize: '16px',
+            border: 0,
+            width: `${this.nodeWidth}px`,
+            height: `${this.nodeHeight}px`,
+            boxShadow: 16,
+            '&:hover': {
+              boxShadow: 12,
+            },
+          }}
+        >
+          <Button
+            variant="contained"
+            onClick={() => {
+              showColorPicker(!colorPicker);
+            }}
             sx={{
-              bgcolor: 'background.default',
+              pointerEvents: 'auto',
+              margin: 'auto',
               fontSize: '16px',
+              lineHeight: '20px',
               border: 0,
-              width: `${this.nodeWidth}px`,
-              height: `${this.nodeHeight}px`,
+              bgcolor: finalColor.hex(),
+              color: finalColor.getContrastTextColor().hex(),
+              width: `${this.nodeWidth - 8 * margin}px`,
+              height: `${this.nodeHeight - 8 * margin}px`,
+              borderRadius: `${this.nodeWidth / 4}px`,
               boxShadow: 16,
               '&:hover': {
+                bgcolor: finalColor.darken(0.1).hex(),
                 boxShadow: 12,
+              },
+              '&:active': {
+                boxShadow: 4,
               },
             }}
           >
-            <Button
-              variant="contained"
-              onClick={() => {
-                showColorPicker(!colorPicker);
-              }}
-              sx={{
-                pointerEvents: 'auto',
-                margin: 'auto',
-                fontSize: '16px',
-                lineHeight: '20px',
-                border: 0,
-                bgcolor: finalColor.hex(),
-                color: finalColor.getContrastTextColor().hex(),
-                width: `${this.nodeWidth - 8 * margin}px`,
-                height: `${this.nodeHeight - 8 * margin}px`,
-                borderRadius: `${this.nodeWidth / 4}px`,
-                boxShadow: 16,
-                '&:hover': {
-                  bgcolor: finalColor.darken(0.1).hex(),
-                  boxShadow: 12,
-                },
-                '&:active': {
-                  boxShadow: 4,
-                },
-              }}
-            >
-              {props.label}
-              <ColorizeIcon sx={{ pl: 1 }} />
-            </Button>
-            <Popper
-              id="toolbar-popper"
-              open={colorPicker}
-              anchorEl={ref.current}
-              placement="top"
-              transition
-            >
-              {({ TransitionProps }) => (
-                <Fade {...TransitionProps} timeout={350}>
-                  <Paper
-                    sx={{
-                      margin: '4px',
-                    }}
-                  >
-                    <ClickAwayListener
-                      onClickAway={() => showColorPicker(false)}
-                    >
-                      <span className="chrome-picker">
-                        <SketchPicker
-                          color={finalColor.object()}
-                          onChangeComplete={handleOnChange}
-                          onChange={handleOnChange}
-                          presetColors={PRESET_COLORS}
-                        />
-                      </span>
-                    </ClickAwayListener>
-                  </Paper>
-                </Fade>
-              )}
-            </Popper>
-          </Paper>
-        </ThemeProvider>
-      );
-    };
-  }
+            {props.label}
+            <ColorizeIcon sx={{ pl: 1 }} />
+          </Button>
+          <Popper
+            id="toolbar-popper"
+            open={colorPicker}
+            anchorEl={ref.current}
+            placement="top"
+            transition
+          >
+            {({ TransitionProps }) => (
+              <Fade {...TransitionProps} timeout={350}>
+                <Paper
+                  sx={{
+                    margin: '4px',
+                  }}
+                >
+                  <ClickAwayListener onClickAway={() => showColorPicker(false)}>
+                    <span className="chrome-picker">
+                      <SketchPicker
+                        color={finalColor.object()}
+                        onChangeComplete={handleOnChange}
+                        onChange={handleOnChange}
+                        presetColors={PRESET_COLORS}
+                      />
+                    </span>
+                  </ClickAwayListener>
+                </Paper>
+              </Fade>
+            )}
+          </Popper>
+        </Paper>
+      </ThemeProvider>
+    );
+  };
 }
 
 export class WidgetSwitch extends HybridNode {
-  update: () => void;
-  onWidgetTrigger: () => void;
-
   getOpacity(): number {
     return 0.01;
   }
@@ -470,128 +456,119 @@ export class WidgetSwitch extends HybridNode {
     return 104;
   }
 
-  constructor(name: string, customArgs?: CustomArgs) {
-    super(name, {
-      ...customArgs,
-    });
-
-    // when the Node is added, add the container and react component
-    this.onNodeAdded = () => {
-      this.createContainerComponent(
-        WidgetParent,
-        {
-          nodeWidth: this.nodeWidth,
-          nodeHeight: this.nodeHeight,
-          margin,
-          label: this.getInputData(labelName),
-        },
-        {
-          overflow: 'visible',
-        }
-      );
-      super.onNodeAdded();
-    };
-
-    this.update = (): void => {
-      this.renderReactComponent(WidgetParent, {
+  // when the Node is added, add the container and react component
+  public onNodeAdded = () => {
+    this.createContainerComponent(
+      this.WidgetParent,
+      {
         nodeWidth: this.nodeWidth,
         nodeHeight: this.nodeHeight,
         margin,
         label: this.getInputData(labelName),
-      });
-    };
+      },
+      {
+        overflow: 'visible',
+      }
+    );
+    super.onNodeAdded();
+  };
 
-    // when the Node is loaded, update the react component
-    this.onConfigure = (): void => {
-      this.update();
+  public update = (): void => {
+    this.renderReactComponent(this.WidgetParent, {
+      nodeWidth: this.nodeWidth,
+      nodeHeight: this.nodeHeight,
+      margin,
+      label: this.getInputData(labelName),
+    });
+  };
 
-      // set initial value and execute
-      this.setOutputData(outName, this.getInputData(selectedName));
+  // when the Node is loaded, update the react component
+  public onConfigure = (): void => {
+    this.update();
+
+    // set initial value and execute
+    this.setOutputData(outName, this.getInputData(selectedName));
+    this.executeChildren();
+  };
+
+  public onWidgetTrigger = () => {
+    console.log('onWidgetTrigger');
+  };
+
+  public onNodeResize = () => {
+    this.update();
+  };
+
+  public onExecute = async function () {
+    this.update();
+  };
+
+  public WidgetParent = (props) => {
+    const [selected, setSelected] = useState(this.getInputData(selectedName));
+
+    const handleOnChange = () => {
+      this.onWidgetTrigger();
+      const newValue = !selected;
+      setSelected(newValue);
+      // const selectedValue = this.getInputData(selectedName);
+      const onValue = this.getInputData(onValueName);
+      const offValue = this.getInputData(offValueName);
+      this.setInputData(selectedName, newValue ? onValue : offValue);
+      this.setOutputData(outName, newValue ? onValue : offValue);
       this.executeChildren();
     };
 
-    this.onWidgetTrigger = () => {
-      console.log('onWidgetTrigger');
-    };
+    return (
+      <ThemeProvider theme={customTheme}>
+        <Paper
+          component={Stack}
+          direction="column"
+          justifyContent="center"
+          sx={{
+            bgcolor: 'background.default',
+            fontSize: '16px',
+            border: 0,
+            width: `${this.nodeWidth}px`,
+            height: `${this.nodeHeight}px`,
 
-    this.onNodeResize = () => {
-      this.update();
-    };
-
-    this.onExecute = async function () {
-      this.update();
-    };
-
-    const WidgetParent = (props) => {
-      const [selected, setSelected] = useState(this.getInputData(selectedName));
-
-      const handleOnChange = () => {
-        this.onWidgetTrigger();
-        const newValue = !selected;
-        setSelected(newValue);
-        // const selectedValue = this.getInputData(selectedName);
-        const onValue = this.getInputData(onValueName);
-        const offValue = this.getInputData(offValueName);
-        this.setInputData(selectedName, newValue ? onValue : offValue);
-        this.setOutputData(outName, newValue ? onValue : offValue);
-        this.executeChildren();
-      };
-
-      return (
-        <ThemeProvider theme={customTheme}>
-          <Paper
-            component={Stack}
-            direction="column"
-            justifyContent="center"
-            sx={{
-              bgcolor: 'background.default',
-              fontSize: '16px',
-              border: 0,
-              width: `${this.nodeWidth}px`,
-              height: `${this.nodeHeight}px`,
-
-              boxShadow: 16,
-              '&:hover': {
-                boxShadow: 12,
-              },
-            }}
+            boxShadow: 16,
+            '&:hover': {
+              boxShadow: 12,
+            },
+          }}
+        >
+          <FormControl
+            component="fieldset"
+            sx={{ margin: 'auto', pointerEvents: 'auto' }}
           >
-            <FormControl
-              component="fieldset"
-              sx={{ margin: 'auto', pointerEvents: 'auto' }}
-            >
-              <FormGroup aria-label="position" row>
-                <FormControlLabel
-                  value={props.label}
-                  control={
-                    <Switch
-                      size="medium"
-                      checked={selected}
-                      color="primary"
-                      onChange={handleOnChange}
-                      sx={{
-                        transform: 'scale(1.5)',
-                        marginLeft: '24px',
-                        marginRight: '8px',
-                      }}
-                    />
-                  }
-                  label={props.label}
-                  labelPlacement="end"
-                />
-              </FormGroup>
-            </FormControl>
-          </Paper>
-        </ThemeProvider>
-      );
-    };
-  }
+            <FormGroup aria-label="position" row>
+              <FormControlLabel
+                value={props.label}
+                control={
+                  <Switch
+                    size="medium"
+                    checked={selected}
+                    color="primary"
+                    onChange={handleOnChange}
+                    sx={{
+                      transform: 'scale(1.5)',
+                      marginLeft: '24px',
+                      marginRight: '8px',
+                    }}
+                  />
+                }
+                label={props.label}
+                labelPlacement="end"
+              />
+            </FormGroup>
+          </FormControl>
+        </Paper>
+      </ThemeProvider>
+    );
+  };
 }
 
 export class WidgetSlider extends HybridNode {
-  update: () => void;
-  onWidgetTrigger: () => void;
-
   getOpacity(): number {
     return 0.01;
   }
@@ -628,35 +605,11 @@ export class WidgetSlider extends HybridNode {
     return 104;
   }
 
-  constructor(name: string, customArgs?: CustomArgs) {
-    super(name, {
-      ...customArgs,
-    });
-
-    // when the Node is added, add the container and react component
-    this.onNodeAdded = () => {
-      this.createContainerComponent(
-        WidgetParent,
-        {
-          nodeWidth: this.nodeWidth,
-          nodeHeight: this.nodeHeight,
-          margin,
-          initialValue: this.getInputData(initialValueName),
-          minValue: this.getInputData(minValueName),
-          maxValue: this.getInputData(maxValueName),
-          round: this.getInputData(roundName),
-          stepSize: this.getInputData(stepSizeName),
-          label: this.getInputData(labelName),
-        },
-        {
-          overflow: 'visible',
-        }
-      );
-      super.onNodeAdded();
-    };
-
-    this.update = (): void => {
-      this.renderReactComponent(WidgetParent, {
+  // when the Node is added, add the container and react component
+  public onNodeAdded = () => {
+    this.createContainerComponent(
+      this.WidgetParent,
+      {
         nodeWidth: this.nodeWidth,
         nodeHeight: this.nodeHeight,
         margin,
@@ -666,155 +619,190 @@ export class WidgetSlider extends HybridNode {
         round: this.getInputData(roundName),
         stepSize: this.getInputData(stepSizeName),
         label: this.getInputData(labelName),
-      });
+      },
+      {
+        overflow: 'visible',
+      }
+    );
+    super.onNodeAdded();
+  };
+
+  public update = (): void => {
+    this.renderReactComponent(this.WidgetParent, {
+      nodeWidth: this.nodeWidth,
+      nodeHeight: this.nodeHeight,
+      margin,
+      initialValue: this.getInputData(initialValueName),
+      minValue: this.getInputData(minValueName),
+      maxValue: this.getInputData(maxValueName),
+      round: this.getInputData(roundName),
+      stepSize: this.getInputData(stepSizeName),
+      label: this.getInputData(labelName),
+    });
+  };
+
+  // when the Node is loaded, update the react component
+  public onConfigure = (): void => {
+    this.update();
+
+    // set initial value and execute
+    this.setOutputData(outName, this.getInputData(initialValueName));
+    this.executeChildren();
+  };
+
+  public onWidgetTrigger = () => {
+    console.log('onWidgetTrigger');
+  };
+
+  public onNodeResize = () => {
+    this.update();
+  };
+
+  public onExecute = async function () {
+    this.update();
+  };
+
+  public WidgetParent = (props) => {
+    const [data, setData] = useState(Number(props.initialValue));
+    const [minValue, setMinValue] = useState(
+      Math.min(props.minValue ?? 0, data)
+    );
+    const [maxValue, setMaxValue] = useState(
+      Math.max(props.maxValue ?? 100, data)
+    );
+    const [round, setRound] = useState(props.round ?? false);
+    const [stepSizeValue, setStepSizeValue] = useState(props.stepSize ?? 0.01);
+
+    useEffect(() => {
+      setData(Number(props.initialValue));
+      setMinValue(Math.min(props.minValue ?? 0, data));
+      setMaxValue(Math.max(props.maxValue ?? 100, data));
+      setRound(props.round ?? false);
+      setStepSizeValue(props.stepSize ?? 0.01);
+    }, [
+      props.initialValue,
+      props.minValue,
+      props.maxValue,
+      props.round,
+      props.stepSize,
+    ]);
+
+    const handleOnChange = (event, value) => {
+      if (!Array.isArray(value)) {
+        this.onWidgetTrigger();
+        setData(roundNumber(value, 4));
+        this.setOutputData(outName, value);
+        this.executeChildren();
+      }
     };
 
-    // when the Node is loaded, update the react component
-    this.onConfigure = (): void => {
-      this.update();
-
-      // set initial value and execute
-      this.setOutputData(outName, this.getInputData(initialValueName));
-      this.executeChildren();
-    };
-
-    this.onWidgetTrigger = () => {
-      console.log('onWidgetTrigger');
-    };
-
-    this.onNodeResize = () => {
-      this.update();
-    };
-
-    this.onExecute = async function () {
-      this.update();
-    };
-
-    const WidgetParent = (props) => {
-      const [data, setData] = useState(Number(props.initialValue));
-      const [minValue, setMinValue] = useState(
-        Math.min(props.minValue ?? 0, data)
-      );
-      const [maxValue, setMaxValue] = useState(
-        Math.max(props.maxValue ?? 100, data)
-      );
-      const [round, setRound] = useState(props.round ?? false);
-      const [stepSizeValue, setStepSizeValue] = useState(
-        props.stepSize ?? 0.01
-      );
-
-      useEffect(() => {
-        setData(Number(props.initialValue));
-        setMinValue(Math.min(props.minValue ?? 0, data));
-        setMaxValue(Math.max(props.maxValue ?? 100, data));
-        setRound(props.round ?? false);
-        setStepSizeValue(props.stepSize ?? 0.01);
-      }, [
-        props.initialValue,
-        props.minValue,
-        props.maxValue,
-        props.round,
-        props.stepSize,
-      ]);
-
-      const handleOnChange = (event, value) => {
-        if (!Array.isArray(value)) {
-          this.onWidgetTrigger();
-          setData(roundNumber(value, 4));
-          this.setOutputData(outName, value);
-          this.executeChildren();
-        }
-      };
-
-      return (
-        <ThemeProvider theme={customTheme}>
-          <Paper
-            component={Stack}
-            direction="column"
-            justifyContent="center"
+    return (
+      <ThemeProvider theme={customTheme}>
+        <Paper
+          component={Stack}
+          direction="column"
+          justifyContent="center"
+          sx={{
+            bgcolor: 'background.default',
+            fontSize: '16px',
+            border: 0,
+            width: `${this.nodeWidth}px`,
+            height: `${this.nodeHeight}px`,
+            boxShadow: 16,
+            '&:hover': {
+              boxShadow: 12,
+            },
+          }}
+        >
+          <Slider
+            size="small"
+            color="secondary"
+            valueLabelDisplay="on"
+            min={minValue}
+            max={maxValue}
+            step={round ? 1 : stepSizeValue}
+            onChange={handleOnChange}
+            value={data || 0}
             sx={{
-              bgcolor: 'background.default',
-              fontSize: '16px',
-              border: 0,
-              width: `${this.nodeWidth}px`,
-              height: `${this.nodeHeight}px`,
-              boxShadow: 16,
-              '&:hover': {
-                boxShadow: 12,
+              margin: `${6 * margin}px ${8 * margin}px ${margin}px`,
+              height: '8px',
+              pointerEvents: 'auto',
+              '&.MuiSlider-root': {
+                width: 'unset',
+              },
+              '& .MuiSlider-rail': {
+                backgroundColor: 'primary.dark',
+              },
+              '& .MuiSlider-track': {
+                border: 'none',
+                backgroundColor: 'primary.main',
+              },
+              '& .MuiSlider-valueLabel': {
+                fontSize: '1rem',
+                fontWeight: 'normal',
+                top: -4,
+                backgroundColor: 'unset',
+                color: 'text.primary',
+                '&:before': {
+                  display: 'none',
+                },
+                '& *': {
+                  background: 'transparent',
+                  color: 'text.primary',
+                },
+              },
+              '& .MuiSlider-thumb': {
+                height: 32,
+                width: 32,
+                backgroundColor: 'text.primary',
+                borderColor: 'primary.main',
+                borderWidth: '4px',
+                borderStyle: 'solid',
+                '&:focus, &:hover, &.Mui-active, &.Mui-focusVisible': {
+                  boxShadow: 'inherit',
+                },
+                '&:before': {
+                  display: 'none',
+                },
               },
             }}
+          />
+          <Typography
+            sx={{
+              textAlign: 'center',
+              textOverflow: 'ellipsis',
+              px: 2,
+            }}
           >
-            <Slider
-              size="small"
-              color="secondary"
-              valueLabelDisplay="on"
-              min={minValue}
-              max={maxValue}
-              step={round ? 1 : stepSizeValue}
-              onChange={handleOnChange}
-              value={data || 0}
-              sx={{
-                margin: `${6 * margin}px ${8 * margin}px ${margin}px`,
-                height: '8px',
-                pointerEvents: 'auto',
-                '&.MuiSlider-root': {
-                  width: 'unset',
-                },
-                '& .MuiSlider-rail': {
-                  backgroundColor: 'primary.dark',
-                },
-                '& .MuiSlider-track': {
-                  border: 'none',
-                  backgroundColor: 'primary.main',
-                },
-                '& .MuiSlider-valueLabel': {
-                  fontSize: '1rem',
-                  fontWeight: 'normal',
-                  top: -4,
-                  backgroundColor: 'unset',
-                  color: 'text.primary',
-                  '&:before': {
-                    display: 'none',
-                  },
-                  '& *': {
-                    background: 'transparent',
-                    color: 'text.primary',
-                  },
-                },
-                '& .MuiSlider-thumb': {
-                  height: 32,
-                  width: 32,
-                  backgroundColor: 'text.primary',
-                  borderColor: 'primary.main',
-                  borderWidth: '4px',
-                  borderStyle: 'solid',
-                  '&:focus, &:hover, &.Mui-active, &.Mui-focusVisible': {
-                    boxShadow: 'inherit',
-                  },
-                  '&:before': {
-                    display: 'none',
-                  },
-                },
-              }}
-            />
-            <Typography
-              sx={{
-                textAlign: 'center',
-                textOverflow: 'ellipsis',
-                px: 2,
-              }}
-            >
-              {props.label}
-            </Typography>
-          </Paper>
-        </ThemeProvider>
-      );
-    };
-  }
+            {props.label}
+          </Typography>
+        </Paper>
+      </ThemeProvider>
+    );
+  };
 }
 
+type WidgetDropdownProps = {
+  doubleClicked: boolean; // is injected by the NodeClass
+  nodeWidth: number;
+  nodeHeight: number;
+  margin: number;
+  label: string;
+  options: any[];
+  selectedOption: string | string[];
+  multiSelect: boolean;
+};
+
 export class WidgetDropdown extends HybridNode {
-  update: () => void;
+  constructor(name: string, customArgs?: CustomArgs) {
+    super(name, {
+      ...customArgs,
+    });
+
+    if (this.initialData) {
+      this.setInputData(optionsName, this.initialData);
+    }
+  }
 
   getOpacity(): number {
     return 0.01;
@@ -874,51 +862,17 @@ export class WidgetDropdown extends HybridNode {
     return 104;
   }
 
-  constructor(name: string, customArgs?: CustomArgs) {
-    super(name, {
-      ...customArgs,
-    });
+  // when the Node is added, add the container and react component
+  public onNodeAdded(): void {
+    const options = this.getInputData(optionsName) || defaultOptions;
+    const selectedOptionRaw = this.getInputData(selectedOptionName);
+    const multiSelect = this.getInputData(multiSelectName);
+    const label = this.getInputData(labelName);
+    const selectedOption = formatSelected(selectedOptionRaw, multiSelect);
 
-    if (customArgs?.initialData) {
-      console.log(customArgs?.initialData);
-      this.setInputData(optionsName, customArgs?.initialData);
-    }
-
-    // when the Node is added, add the container and react component
-    this.onNodeAdded = () => {
-      const options = this.getInputData(optionsName) || defaultOptions;
-      const selectedOptionRaw = this.getInputData(selectedOptionName);
-      const multiSelect = this.getInputData(multiSelectName);
-      const label = this.getInputData(labelName);
-      const selectedOption = formatSelected(selectedOptionRaw, multiSelect);
-
-      this.createContainerComponent(
-        WidgetParent,
-        {
-          nodeWidth: this.nodeWidth,
-          nodeHeight: this.nodeHeight,
-          margin,
-          label,
-          options,
-          selectedOption,
-          multiSelect,
-        },
-        {
-          overflow: 'visible',
-        }
-      );
-      this.setOutputData(outName, options);
-      super.onNodeAdded();
-    };
-
-    this.update = (): void => {
-      const options = this.getInputData(optionsName) || defaultOptions;
-      const selectedOptionRaw = this.getInputData(selectedOptionName);
-      const multiSelect = this.getInputData(multiSelectName);
-      const label = this.getInputData(labelName);
-      const selectedOption = formatSelected(selectedOptionRaw, multiSelect);
-
-      this.renderReactComponent(WidgetParent, {
+    this.createContainerComponent(
+      this.WidgetParent,
+      {
         nodeWidth: this.nodeWidth,
         nodeHeight: this.nodeHeight,
         margin,
@@ -926,133 +880,143 @@ export class WidgetDropdown extends HybridNode {
         options,
         selectedOption,
         multiSelect,
-      });
-    };
-
-    // when the Node is loaded, update the react component
-    this.onConfigure = (): void => {
-      this.update();
-      this.setOutputData(outName, this.getInputData(selectedOptionName));
-      this.executeOptimizedChain();
-    };
-
-    this.onNodeResize = () => {
-      this.update();
-    };
-
-    this.onExecute = async function () {
-      this.update();
-    };
-
-    type MyProps = {
-      doubleClicked: boolean; // is injected by the NodeClass
-      nodeWidth: number;
-      nodeHeight: number;
-      margin: number;
-      label: string;
-      options: any[];
-      selectedOption: string | string[];
-      multiSelect: boolean;
-    };
-
-    const WidgetParent: FunctionComponent<MyProps> = (props) => {
-      const [options, setOptions] = useState<any[]>(props.options);
-      const [selectedOption, setSelectedOption] = useState<string | string[]>(
-        props.selectedOption
-      );
-
-      const ITEM_HEIGHT = 48;
-      const ITEM_PADDING_TOP = 8;
-      const MenuProps = {
-        PaperProps: {
-          style: {
-            maxHeight: ITEM_HEIGHT * 9.5 + ITEM_PADDING_TOP,
-          },
-        },
-      };
-
-      const handleChange = (
-        event: SelectChangeEvent<typeof selectedOption>
-      ) => {
-        const {
-          target: { value },
-        } = event;
-        // single select: value is string
-        // multi select: value is array of strings
-        const formattedValue = formatSelected(value, props.multiSelect);
-        setSelectedOption(formattedValue);
-        this.setInputData(selectedOptionName, formattedValue);
-        this.setOutputData(outName, formattedValue);
-        this.executeChildren();
-      };
-
-      useEffect(() => {
-        this.setOutputData(outName, selectedOption);
-        this.executeChildren();
-      }, []);
-
-      useEffect(() => {
-        setOptions(props.options);
-      }, [props.options]);
-
-      useEffect(() => {
-        setOptions(props.options);
-        setSelectedOption(props.selectedOption);
-        this.setInputData(selectedOptionName, props.selectedOption);
-        this.setOutputData(outName, props.selectedOption);
-        this.executeChildren();
-      }, [props.multiSelect, props.selectedOption]);
-
-      return (
-        <ThemeProvider theme={customTheme}>
-          <Paper
-            component={Stack}
-            direction="column"
-            justifyContent="center"
-            sx={{
-              bgcolor: 'background.default',
-              fontSize: '16px',
-              border: 0,
-              width: `${this.nodeWidth}px`,
-              height: `${this.nodeHeight}px`,
-              boxShadow: 16,
-              '&:hover': {
-                boxShadow: 12,
-              },
-            }}
-          >
-            <FormControl variant="filled" sx={{ m: 2, pointerEvents: 'auto' }}>
-              <InputLabel>{props.label}</InputLabel>
-              <Select
-                variant="filled"
-                multiple={props.multiSelect}
-                value={
-                  props.multiSelect && !Array.isArray(selectedOption)
-                    ? String(selectedOption).split(',')
-                    : selectedOption
-                }
-                onChange={handleChange}
-                renderValue={(selected) =>
-                  typeof selected === 'string' ? selected : selected.join(', ')
-                }
-                MenuProps={MenuProps}
-              >
-                {Array.isArray(options) &&
-                  options.map((name) => (
-                    <MenuItem key={name} value={name}>
-                      {props.multiSelect && (
-                        <Checkbox checked={selectedOption.indexOf(name) > -1} />
-                      )}
-                      <ListItemText primary={name} />
-                    </MenuItem>
-                  ))}
-              </Select>
-            </FormControl>
-          </Paper>
-        </ThemeProvider>
-      );
-    };
+      },
+      {
+        overflow: 'visible',
+      }
+    );
+    this.setOutputData(outName, options);
+    super.onNodeAdded();
   }
+
+  public WidgetParent: FunctionComponent<WidgetDropdownProps> = (props) => {
+    const [options, setOptions] = useState<any[]>(props.options);
+    const [selectedOption, setSelectedOption] = useState<string | string[]>(
+      props.selectedOption
+    );
+
+    const ITEM_HEIGHT = 48;
+    const ITEM_PADDING_TOP = 8;
+    const MenuProps = {
+      PaperProps: {
+        style: {
+          maxHeight: ITEM_HEIGHT * 9.5 + ITEM_PADDING_TOP,
+        },
+      },
+    };
+
+    const handleChange = (event: SelectChangeEvent<typeof selectedOption>) => {
+      const {
+        target: { value },
+      } = event;
+      // single select: value is string
+      // multi select: value is array of strings
+      const formattedValue = formatSelected(value, props.multiSelect);
+      setSelectedOption(formattedValue);
+      this.setInputData(selectedOptionName, formattedValue);
+      this.setOutputData(outName, formattedValue);
+      this.executeChildren();
+    };
+
+    useEffect(() => {
+      this.setOutputData(outName, selectedOption);
+      this.executeChildren();
+    }, []);
+
+    useEffect(() => {
+      setOptions(props.options);
+    }, [props.options]);
+
+    useEffect(() => {
+      setOptions(props.options);
+      setSelectedOption(props.selectedOption);
+      this.setInputData(selectedOptionName, props.selectedOption);
+      this.setOutputData(outName, props.selectedOption);
+      this.executeChildren();
+    }, [props.multiSelect, props.selectedOption]);
+
+    return (
+      <ThemeProvider theme={customTheme}>
+        <Paper
+          component={Stack}
+          direction="column"
+          justifyContent="center"
+          sx={{
+            bgcolor: 'background.default',
+            fontSize: '16px',
+            border: 0,
+            width: `${this.nodeWidth}px`,
+            height: `${this.nodeHeight}px`,
+            boxShadow: 16,
+            '&:hover': {
+              boxShadow: 12,
+            },
+          }}
+        >
+          <FormControl variant="filled" sx={{ m: 2, pointerEvents: 'auto' }}>
+            <InputLabel>{props.label}</InputLabel>
+            <Select
+              variant="filled"
+              multiple={props.multiSelect}
+              value={
+                props.multiSelect && !Array.isArray(selectedOption)
+                  ? String(selectedOption).split(',')
+                  : selectedOption
+              }
+              onChange={handleChange}
+              renderValue={(selected) =>
+                typeof selected === 'string' ? selected : selected.join(', ')
+              }
+              MenuProps={MenuProps}
+            >
+              {Array.isArray(options) &&
+                options.map((name) => (
+                  <MenuItem key={name} value={name}>
+                    {props.multiSelect && (
+                      <Checkbox checked={selectedOption.indexOf(name) > -1} />
+                    )}
+                    <ListItemText primary={name} />
+                  </MenuItem>
+                ))}
+            </Select>
+          </FormControl>
+        </Paper>
+      </ThemeProvider>
+    );
+  };
+
+  public update = (): void => {
+    const options = this.getInputData(optionsName) || defaultOptions;
+    const selectedOptionRaw = this.getInputData(selectedOptionName);
+    const multiSelect = this.getInputData(multiSelectName);
+    const label = this.getInputData(labelName);
+    const selectedOption = formatSelected(selectedOptionRaw, multiSelect);
+
+    this.renderReactComponent(this.WidgetParent, {
+      nodeWidth: this.nodeWidth,
+      nodeHeight: this.nodeHeight,
+      margin,
+      label,
+      options,
+      selectedOption,
+      multiSelect,
+    });
+  };
+
+  // when the Node is loaded, update the react component
+  public onConfigure = (): void => {
+    this.update();
+    this.setOutputData(outName, this.getInputData(selectedOptionName));
+    this.executeOptimizedChain();
+  };
+
+  public onNodeResize = () => {
+    this.update();
+  };
+
+  public onExecute = async function () {
+    this.update();
+  };
 }
 
 const formatSelected = (

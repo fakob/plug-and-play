@@ -82,6 +82,7 @@ export default abstract class HybridNode extends PPNode {
   ): void => {
     root.render(
       React.createElement(component, {
+        initialData: this.initialData, // positioned here so it can if needed by overwritten by the props
         ...props,
         id: this.id,
         selected: this.selected,

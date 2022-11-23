@@ -15,8 +15,27 @@ import HybridNode from '../classes/HybridNode';
 const outputSocketName = 'output';
 const inputSocketName = 'input';
 
+type MyProps = {
+  doubleClicked: boolean; // is injected by the NodeClass
+  data: string;
+  randomMainColor: string;
+  nodeHeight: number;
+  readOnly: boolean;
+};
+
 export class CodeEditor extends HybridNode {
-  update: (newHeight?) => void;
+  constructor(name: string, customArgs?: CustomArgs) {
+    super(name, {
+      ...customArgs,
+    });
+
+    if (this.initialData) {
+      this.setInputData(inputSocketName, this.initialData);
+    }
+
+    this.readOnly = false;
+  }
+
   readOnly: boolean;
 
   protected getActivateByDoubleClick(): boolean {
@@ -78,115 +97,95 @@ export class CodeEditor extends HybridNode {
     return 300;
   }
 
-  constructor(name: string, customArgs?: CustomArgs) {
-    super(name, {
-      ...customArgs,
+  // when the Node is added, create the container and react component
+  public onNodeAdded = () => {
+    const data = this.getInputData(inputSocketName);
+    this.readOnly = this.getInputSocketByName(inputSocketName).hasLink();
+
+    this.createContainerComponent(this.ParentComponent, {
+      nodeHeight: this.nodeHeight,
+      data,
+      readOnly: this.readOnly,
     });
+    super.onNodeAdded();
+  };
 
-    if (customArgs?.initialData) {
-      this.setInputData(inputSocketName, customArgs?.initialData);
-    }
+  public update = (newHeight): void => {
+    const newData = this.getInputData(inputSocketName);
+    this.readOnly = this.getInputSocketByName(inputSocketName).hasLink();
 
-    this.readOnly = false;
+    this.renderReactComponent(this.ParentComponent, {
+      nodeHeight: newHeight ?? this.nodeHeight,
+      data: newData,
+      readOnly: this.readOnly,
+    });
+  };
 
-    // when the Node is added, create the container and react component
-    this.onNodeAdded = () => {
-      const data = this.getInputData(inputSocketName);
-      this.readOnly = this.getInputSocketByName(inputSocketName).hasLink();
+  public onNodeDoubleClick = () => {
+    PPGraph.currentGraph.selection.drawRectanglesFromSelection();
+    this.update(this.nodeHeight);
+  };
 
-      this.createContainerComponent(ParentComponent, {
-        nodeHeight: this.nodeHeight,
-        data,
-        readOnly: this.readOnly,
-      });
-      super.onNodeAdded();
+  public onNodeResize = (newWidth, newHeight) => {
+    this.update(newHeight);
+  };
+
+  public onExecute = async function () {
+    this.update();
+  };
+
+  // small presentational component
+  public ParentComponent: React.FunctionComponent<MyProps> = (props) => {
+    const parseData = (value: any) => {
+      let dataAsString;
+      if (typeof value !== 'string') {
+        dataAsString = convertToString(value);
+      } else {
+        dataAsString = value;
+      }
+      return dataAsString;
     };
 
-    this.update = (newHeight): void => {
-      const newData = this.getInputData(inputSocketName);
-      this.readOnly = this.getInputSocketByName(inputSocketName).hasLink();
-
-      this.renderReactComponent(ParentComponent, {
-        nodeHeight: newHeight ?? this.nodeHeight,
-        data: newData,
-        readOnly: this.readOnly,
-      });
+    const onChange = (value) => {
+      setCodeString(value);
+      this.setInputData(inputSocketName, value);
+      this.setOutputData(outputSocketName, value);
+      this.executeChildren();
     };
 
-    this.onNodeDoubleClick = () => {
-      PPGraph.currentGraph.selection.drawRectanglesFromSelection();
-      this.update();
-    };
+    const [codeString, setCodeString] = useState<string | undefined>(
+      parseData(props.data)
+    );
 
-    this.onNodeResize = (newWidth, newHeight) => {
-      this.update(newHeight);
-    };
+    useEffect(() => {
+      setCodeString(parseData(props.data));
+      this.setOutputData(outputSocketName, props.data);
+      this.executeChildren();
+    }, [props.data]);
 
-    this.onExecute = async function () {
-      this.update();
-    };
-
-    type MyProps = {
-      doubleClicked: boolean; // is injected by the NodeClass
-      data: string;
-      randomMainColor: string;
-      nodeHeight: number;
-      readOnly: boolean;
-    };
-
-    // small presentational component
-    const ParentComponent: React.FunctionComponent<MyProps> = (props) => {
-      const parseData = (value: any) => {
-        let dataAsString;
-        if (typeof value !== 'string') {
-          dataAsString = convertToString(value);
-        } else {
-          dataAsString = value;
-        }
-        return dataAsString;
-      };
-
-      const onChange = (value) => {
-        setCodeString(value);
-        this.setInputData(inputSocketName, value);
-        this.setOutputData(outputSocketName, value);
-        this.executeChildren();
-      };
-
-      const [codeString, setCodeString] = useState<string | undefined>(
-        parseData(props.data)
-      );
-
-      useEffect(() => {
-        setCodeString(parseData(props.data));
-        this.setOutputData(outputSocketName, props.data);
-        this.executeChildren();
-      }, [props.data]);
-
-      return (
-        <ErrorBoundary FallbackComponent={ErrorFallback}>
-          <ThemeProvider theme={customTheme}>
-            <Box sx={{ position: 'relative' }}>
-              <MonacoEditor
-                width="100%"
-                height={`${props.nodeHeight}px`}
-                language="javascript"
-                theme="vs-dark"
-                value={codeString || ''}
-                options={{
-                  automaticLayout: true,
-                  lineNumbersMinChars: 4,
-                  readOnly: props.readOnly,
-                  selectOnLineNumbers: true,
-                  tabSize: 2,
-                  wordWrap: 'on',
-                }}
-                onChange={onChange}
-              />
-            </Box>
-          </ThemeProvider>
-        </ErrorBoundary>
-      );
-    };
-  }
+    return (
+      <ErrorBoundary FallbackComponent={ErrorFallback}>
+        <ThemeProvider theme={customTheme}>
+          <Box sx={{ position: 'relative' }}>
+            <MonacoEditor
+              width="100%"
+              height={`${props.nodeHeight}px`}
+              language="javascript"
+              theme="vs-dark"
+              value={codeString || ''}
+              options={{
+                automaticLayout: true,
+                lineNumbersMinChars: 4,
+                readOnly: props.readOnly,
+                selectOnLineNumbers: true,
+                tabSize: 2,
+                wordWrap: 'on',
+              }}
+              onChange={onChange}
+            />
+          </Box>
+        </ThemeProvider>
+      </ErrorBoundary>
+    );
+  };
 }

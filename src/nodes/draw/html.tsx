@@ -13,8 +13,24 @@ import HybridNode from '../../classes/HybridNode';
 
 const inputSocketName = 'Html';
 
+type MyProps = {
+  doubleClicked: boolean; // is injected by the NodeClass
+  data: string;
+  randomMainColor: string;
+  nodeHeight: number;
+  readOnly: boolean;
+};
+
 export class HtmlRenderer extends HybridNode {
-  update: (newHeight?) => void;
+  constructor(name: string, customArgs?: CustomArgs) {
+    super(name, {
+      ...customArgs,
+    });
+
+    if (this.initialData) {
+      this.setInputData(inputSocketName, this.initialData);
+    }
+  }
 
   getShowLabels(): boolean {
     return false;
@@ -70,102 +86,84 @@ export class HtmlRenderer extends HybridNode {
     return 150;
   }
 
-  constructor(name: string, customArgs?: CustomArgs) {
-    super(name, {
-      ...customArgs,
-    });
+  // when the Node is added, create the container and react component
+  public onNodeAdded = () => {
+    const data = this.getInputData(inputSocketName);
 
-    if (customArgs?.initialData) {
-      this.setInputData(inputSocketName, customArgs?.initialData);
+    this.createContainerComponent(
+      this.ParentComponent,
+      {
+        nodeHeight: this.nodeHeight,
+        data,
+      },
+      {
+        overflow: 'visible',
+      }
+    );
+    super.onNodeAdded();
+  };
+
+  public update = (newHeight): void => {
+    const newData = this.getInputData(inputSocketName);
+
+    this.renderReactComponent(this.ParentComponent, {
+      nodeHeight: newHeight ?? this.nodeHeight,
+      data: newData,
+    });
+  };
+
+  public onNodeDoubleClick = () => {
+    PPGraph.currentGraph.selection.drawRectanglesFromSelection();
+  };
+
+  public onExecute = async function () {
+    this.update();
+  };
+
+  // small presentational component
+  public ParentComponent: React.FunctionComponent<MyProps> = (props) => {
+    const iframeRef = useRef();
+    const [htmlData, setHtmlData] = useState(props.data);
+
+    useEffect(() => {
+      if (iframeRef.current) {
+        (iframeRef.current as any).focus();
+      }
+    }, []);
+
+    useEffect(() => {
+      console.log('htmlData has changed');
+      setHtmlData(props.data);
+    }, [props.data]);
+
+    function MyComponent() {
+      return (
+        <ThemeProvider theme={customTheme}>
+          <Box
+            style={{
+              position: 'relative',
+              height: '100vh',
+            }}
+            dangerouslySetInnerHTML={{ __html: htmlData }}
+          />
+        </ThemeProvider>
+      );
     }
 
-    // when the Node is added, create the container and react component
-    this.onNodeAdded = () => {
-      const data = this.getInputData(inputSocketName);
-
-      this.createContainerComponent(
-        ParentComponent,
-        {
-          nodeHeight: this.nodeHeight,
-          data,
-        },
-        {
-          overflow: 'visible',
-        }
-      );
-      super.onNodeAdded();
-    };
-
-    this.update = (newHeight): void => {
-      const newData = this.getInputData(inputSocketName);
-
-      this.renderReactComponent(ParentComponent, {
-        nodeHeight: newHeight ?? this.nodeHeight,
-        data: newData,
-      });
-    };
-
-    this.onNodeDoubleClick = () => {
-      PPGraph.currentGraph.selection.drawRectanglesFromSelection();
-    };
-
-    this.onExecute = async function () {
-      this.update();
-    };
-
-    type MyProps = {
-      doubleClicked: boolean; // is injected by the NodeClass
-      data: string;
-      randomMainColor: string;
-      nodeHeight: number;
-      readOnly: boolean;
-    };
-
-    // small presentational component
-    const ParentComponent: React.FunctionComponent<MyProps> = (props) => {
-      const iframeRef = useRef();
-      const [htmlData, setHtmlData] = useState(props.data);
-
-      useEffect(() => {
-        if (iframeRef.current) {
-          (iframeRef.current as any).focus();
-        }
-      }, []);
-
-      useEffect(() => {
-        console.log('htmlData has changed');
-        setHtmlData(props.data);
-      }, [props.data]);
-
-      function MyComponent() {
-        return (
-          <ThemeProvider theme={customTheme}>
-            <Box
-              style={{
-                position: 'relative',
-                height: '100vh',
-              }}
-              dangerouslySetInnerHTML={{ __html: htmlData }}
-            />
-          </ThemeProvider>
-        );
-      }
-
-      return (
-        <ErrorBoundary FallbackComponent={ErrorFallback}>
-          <Frame
-            ref={iframeRef}
-            style={{
-              width: '100%',
-              height: 'calc(100% - 8px)',
-              borderWidth: 0,
-            }}
-            initialContent="<!DOCTYPE html><html><head></head><body><div></div></body></html>"
-          >
-            <MyComponent />
-          </Frame>
-        </ErrorBoundary>
-      );
-    };
-  }
+    return (
+      <ErrorBoundary FallbackComponent={ErrorFallback}>
+        <Frame
+          ref={iframeRef}
+          style={{
+            width: '100%',
+            height: 'calc(100% - 8px)',
+            borderWidth: 0,
+          }}
+          initialContent="<!DOCTYPE html><html><head></head><body><div></div></body></html>"
+        >
+          <MyComponent />
+        </Frame>
+      </ErrorBoundary>
+    );
+  };
 }
