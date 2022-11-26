@@ -13,12 +13,14 @@ import { drawDottedLine } from '../../utils/utils';
 import { anyCodeName, CustomFunction } from '../data/dataFunctions';
 import UpdateBehaviourClass from '../../classes/UpdateBehaviourClass';
 import { DynamicEnumType } from '../datatypes/dynamicEnumType';
+import * as PIXI from 'pixi.js';
 
 export const macroOutputName = 'Output';
 
 const macroBlockSize = 120;
 
 export class Macro extends PPNode {
+  textRef: PIXI.Text = undefined;
   public getMinNodeWidth(): number {
     return macroBlockSize * 3;
   }
@@ -51,11 +53,29 @@ export class Macro extends PPNode {
     return TRgba.fromString(NODE_TYPE_COLOR.MACRO);
   }
 
+  private getMacroText(): string {
+    let toReturn = '(';
+    this.outputSocketArray.forEach((outputSocket) => {
+      toReturn += outputSocket.dataType.getName() + ',';
+    });
+    toReturn = toReturn.slice(0, -1) + ')';
+    toReturn += ' => ' + this.inputSocketArray[0].dataType.getName();
+    return toReturn;
+  }
+
   public drawBackground(): void {
     this._BackgroundRef.beginFill(
       this.getColor().hexNumber(),
       this.getOpacity()
     );
+    this._BackgroundRef.removeChild(this.textRef);
+    this.textRef = new PIXI.Text(this.getMacroText());
+    this.textRef.x = macroBlockSize;
+    this.textRef.y = -50;
+    this.textRef.style.fill = new TRgba(128, 128, 128).hexNumber();
+    this.textRef.style.fontSize = 36;
+    this._BackgroundRef.addChild(this.textRef);
+
     this._BackgroundRef.drawRoundedRect(
       NODE_MARGIN,
       0,
@@ -132,6 +152,11 @@ export class Macro extends PPNode {
     );
     await this.executeChildren();
     return this.getInputData('Output');
+  }
+
+  public socketTypeChanged(): void {
+    super.socketTypeChanged();
+    this.drawNodeShape();
   }
 }
 export class ExecuteMacro extends CustomFunction {

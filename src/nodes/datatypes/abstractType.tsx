@@ -61,7 +61,6 @@ export class AbstractType {
   }
 
   onDataSet(data: any, socket: Socket): void {
-    //console.log("listeners: " + this.valueChangedListeners.length)
     Object.keys(this.valueChangedListeners).forEach(key => {
       if (!this.valueChangedListeners[key]){
         delete this.valueChangedListeners[key]

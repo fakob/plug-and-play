@@ -719,6 +719,8 @@ export default class PPGraph {
     this.selection.selectedNodes.forEach((node) => node.addTriggerInput());
   }
 
+  extractToMacro(): void {}
+
   getCanAddOutput(): boolean {
     return !this.selection.selectedNodes.find(
       (node) => !node.getCanAddOutput()

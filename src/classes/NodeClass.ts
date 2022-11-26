@@ -1096,6 +1096,8 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     return false;
   }
 
+  public socketTypeChanged(): void {}
+
   // kinda hacky but some cant easily serialize functions in JS
   protected initializeType(socketName: string, datatype: any) {}
 }
