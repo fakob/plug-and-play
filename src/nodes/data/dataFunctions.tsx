@@ -12,12 +12,7 @@ import { NumberType } from '../datatypes/numberType';
 
 const arrayName = 'Array';
 const typeName = 'Type';
-const outElementName = 'Element';
 const arrayOutName = 'FilteredArray';
-const forStartIndexName = 'StartIndex';
-const forEndIndexName = 'EndIndex';
-const incrementName = 'Increment';
-const forOutIndexName = 'Index';
 
 export const anyCodeName = 'Code';
 const outDataName = 'OutData';
