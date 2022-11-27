@@ -123,52 +123,6 @@ export class ParseArray extends PPNode {
   }
 }
 
-// the purpose of for loops in our context is for actions that have sideeffects outside of plug and playground, if you are not looking for external side effects you are likely not looking for a loop
-export class ForLoop extends PPNode {
-  protected getDefaultIO(): Socket[] {
-    return [
-      new Socket(SOCKET_TYPE.IN, forStartIndexName, new NumberType(true), 0),
-      new Socket(SOCKET_TYPE.IN, forEndIndexName, new NumberType(true), 1),
-      new Socket(SOCKET_TYPE.IN, incrementName, new NumberType(true, 1), 1),
-      new Socket(SOCKET_TYPE.OUT, forOutIndexName, new NumberType(true), 0),
-    ];
-  }
-
-  currentIndex = 0;
-
-  protected getMinIndex(inputObject: unknown): number {
-    return inputObject[forStartIndexName];
-  }
-
-  protected getMaxIndex(inputObject: unknown): number {
-    return inputObject[forEndIndexName];
-  }
-
-  protected getIncrement(inputObject: unknown): number {
-    return inputObject[incrementName];
-  }
-
-  // we actually override the base execute function here as we are modifying the flow
-  public async execute(): Promise<void> {
-    const inputObject = PPNode.remapInput(this.inputSocketArray);
-    for (
-      this.currentIndex = this.getMinIndex(inputObject);
-      this.currentIndex < this.getMaxIndex(inputObject);
-      this.currentIndex += this.getIncrement(inputObject)
-    ) {
-      await this.rawExecute();
-    }
-    // comment here is just gonna show the last output but eh
-    this.drawComment();
-  }
-  protected async onExecute(
-    inputObject: any,
-    outputObject: Record<string, unknown>
-  ): Promise<void> {
-    outputObject[forOutIndexName] = this.currentIndex;
-  }
-}
-
 export class ConsolePrint extends PPNode {
   protected getDefaultIO(): Socket[] {
     return [new Socket(SOCKET_TYPE.IN, constantInName, new ArrayType(), 0)];
@@ -176,34 +130,6 @@ export class ConsolePrint extends PPNode {
 
   protected async onExecute(inputObject: any): Promise<void> {
     console.log(inputObject?.[constantInName]);
-  }
-}
-
-export class ForEachLoop extends ForLoop {
-  protected getDefaultIO(): Socket[] {
-    return [
-      new Socket(SOCKET_TYPE.IN, arrayName, new ArrayType(), 0),
-      new Socket(SOCKET_TYPE.OUT, outElementName, new AnyType(), 0),
-    ];
-  }
-  protected getMinIndex(inputObject: unknown): number {
-    return 0;
-  }
-
-  protected getMaxIndex(inputObject: unknown): number {
-    return inputObject[arrayName].length;
-  }
-
-  protected getIncrement(inputObject: unknown): number {
-    return 1;
-  }
-
-  protected async onExecute(
-    inputObject: any,
-    outputObject: Record<string, unknown>
-  ): Promise<void> {
-    outputObject[outElementName] =
-      inputObject?.[arrayName]?.[this.currentIndex];
   }
 }
 

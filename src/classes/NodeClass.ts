@@ -579,11 +579,11 @@ export default class PPNode extends PIXI.Container {
     this.onNodeResize(this.nodeWidth, this.nodeHeight);
   }
 
-  resetSize(): void {
+  public resetSize(): void {
     this.resizeAndDraw(this.getDefaultNodeWidth(), this.getDefaultNodeHeight());
   }
 
-  getAllInputSockets(): Socket[] {
+  public getAllInputSockets(): Socket[] {
     return this.inputSocketArray.concat(this.nodeTriggerSocketArray);
   }
 
@@ -598,7 +598,7 @@ export default class PPNode extends PIXI.Container {
     );
   }
 
-  getSocketByName(name: string): Socket {
+  public getSocketByName(name: string): Socket {
     return this.getAllSockets().find((socket) => socket.name === name);
   }
 
@@ -804,8 +804,8 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     ];
   }
 
-  // avoid calling this directly
-  getInputData(name: string): any {
+  // avoid calling this directly when possible
+  public getInputData(name: string): any {
     const inputSocket = this.inputSocketArray.find((input: Socket) => {
       return name === input.name;
     });
@@ -861,7 +861,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     }
   }
 
-  static remapInput(sockets: Socket[]): any {
+  private static remapInput(sockets: Socket[]): any {
     const inputObject = {};
     sockets.forEach((input: Socket) => {
       inputObject[input.name] = input.data;
@@ -1073,9 +1073,6 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
 
   _onViewportPointerUp(): void {}
 
-  public outputPlugged(): void {}
-  public outputUnplugged(): void {}
-
   public hasSocketNameInDefaultIO(name: string, type: TSocketType): boolean {
     return (
       this.getDefaultIO().find(
@@ -1097,8 +1094,11 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     return false;
   }
 
+  // observers
   public socketTypeChanged(): void {}
   public nameChanged(newName: string): void {}
+  public outputPlugged(): void {}
+  public outputUnplugged(): void {}
 
   // kinda hacky but some cant easily serialize functions in JS
   protected initializeType(socketName: string, datatype: any) {}
