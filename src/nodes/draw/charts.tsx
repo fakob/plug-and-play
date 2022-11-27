@@ -41,11 +41,7 @@ export class GRAPH_LINE extends DRAW_Base {
         new ArrayType(),
         [0, 1, 5, 10, 7]
       ),
-      new Socket(SOCKET_TYPE.IN, inputLabelsName, new ArrayType(), [
-        'First',
-        'Second',
-        'Another',
-      ]),
+      new Socket(SOCKET_TYPE.IN, inputLabelsName, new ArrayType(), []),
       new Socket(
         SOCKET_TYPE.IN,
         inputWidthName,
