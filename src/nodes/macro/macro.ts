@@ -56,7 +56,9 @@ export class Macro extends PPNode {
   private getMacroText(): string {
     let toReturn = '(';
     this.outputSocketArray.forEach((outputSocket) => {
-      toReturn += outputSocket.dataType.getName() + ',';
+      if (outputSocket.links.length) {
+        toReturn += outputSocket.dataType.getName() + ',';
+      }
     });
     toReturn = toReturn.slice(0, -1) + ')';
     toReturn += ' => ' + this.inputSocketArray[0].dataType.getName();
@@ -213,7 +215,7 @@ export class ExecuteMacro extends CustomFunction {
     );
   };
 
-  generateUseNewCode = async () => {
+  public generateUseNewCode = async () => {
     this.setInputData(anyCodeName, this.buildDefaultFunction());
     await this.executeOptimizedChain();
     this.resizeAndDraw(0, 0);
