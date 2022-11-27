@@ -188,6 +188,7 @@ export default class PPNode extends PIXI.Container {
   set nodeName(text: string) {
     this.name = text;
     this._NodeNameRef.text = this.getNodeTextString();
+    this.nameChanged(text);
   }
 
   constructor(type: string, customArgs?: CustomArgs) {
@@ -1097,6 +1098,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   }
 
   public socketTypeChanged(): void {}
+  public nameChanged(newName: string): void {}
 
   // kinda hacky but some cant easily serialize functions in JS
   protected initializeType(socketName: string, datatype: any) {}

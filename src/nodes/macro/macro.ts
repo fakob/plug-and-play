@@ -54,7 +54,7 @@ export class Macro extends PPNode {
   }
 
   private getMacroText(): string {
-    let toReturn = '(';
+    let toReturn = this.nodeName + ': (';
     this.outputSocketArray.forEach((outputSocket) => {
       if (outputSocket.links.length) {
         toReturn += outputSocket.dataType.getName() + ',';
@@ -72,8 +72,8 @@ export class Macro extends PPNode {
     );
     this._BackgroundRef.removeChild(this.textRef);
     this.textRef = new PIXI.Text(this.getMacroText());
-    this.textRef.x = macroBlockSize;
     this.textRef.y = -50;
+    this.textRef.x = 50;
     this.textRef.style.fill = new TRgba(128, 128, 128).hexNumber();
     this.textRef.style.fontSize = 36;
     this._BackgroundRef.addChild(this.textRef);
@@ -158,6 +158,10 @@ export class Macro extends PPNode {
 
   public socketTypeChanged(): void {
     super.socketTypeChanged();
+    this.drawNodeShape();
+  }
+
+  public nameChanged(newName: string): void {
     this.drawNodeShape();
   }
 }
