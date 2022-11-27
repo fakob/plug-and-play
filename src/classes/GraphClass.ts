@@ -903,7 +903,7 @@ export default class PPGraph {
     return this.serializeNodes(this.selection.selectedNodes);
   }
 
-  async configure(data: SerializedGraph, keep_old?: boolean): Promise<boolean> {
+  async configure(data: SerializedGraph, keep_old = false): Promise<boolean> {
     this.ticking = false;
     if (!data) {
       return;
