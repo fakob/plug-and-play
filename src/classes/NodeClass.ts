@@ -165,10 +165,14 @@ export default class PPNode extends PIXI.Container {
   }
 
   public getNodeTextString(): string {
-    if (this.name !== this.type) {
-      return this.name + '\t(' + this.type + ')';
+    if (
+      this.name !== this.type &&
+      this.getName() !== this.name &&
+      this.name.length > 0
+    ) {
+      return this.name + '\t(' + this.getName() + ')';
     }
-    return this.name;
+    return this.getName();
   }
 
   public getParallelInputsOutputs(): boolean {
