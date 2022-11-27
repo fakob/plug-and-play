@@ -9,8 +9,6 @@ import { TRgba } from '../../utils/interfaces';
 import { SOCKET_COLOR_HEX } from '../../utils/constants';
 export class AbstractType {
 
-  valueChangedListeners : Record<string,(data:any) => void> = {} // dict of functions from data any to void
-
   // override any and all of these in child classes
   getName(): string {
     return this.constructor.name;
@@ -58,17 +56,6 @@ export class AbstractType {
 
   parse(data: any): any {
     return data;
-  }
-
-  onDataSet(data: any, socket: Socket): void {
-    Object.keys(this.valueChangedListeners).forEach(key => {
-      if (!this.valueChangedListeners[key]){
-        delete this.valueChangedListeners[key]
-      }
-    });
-
-    Object.keys(this.valueChangedListeners).forEach(key => this.valueChangedListeners[key](data));
-    return;
   }
 
   defaultInputNodeWidget(): string {

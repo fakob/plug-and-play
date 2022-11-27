@@ -39,7 +39,6 @@ export class TriggerType extends AbstractType {
   };
 
   onDataSet(data: any, socket: Socket): void {
-    super.onDataSet(data, socket);
     if (
       socket.isInput() &&
       ((this.triggerType === TRIGGER_TYPE_OPTIONS[0].value &&
