@@ -77,7 +77,6 @@ export default class PPNode extends PIXI.Container {
   // supported callbacks
   onConfigure: (nodeConfig: SerializedNode) => void = () => {}; // called after the node has been configured
   onNodeDoubleClick: (event: PIXI.InteractionEvent) => void = () => {};
-  onMoveHandler: (event?: PIXI.InteractionEvent) => void = () => {};
   onViewportMoveHandler: (event?: PIXI.InteractionEvent) => void = () => {};
   onViewportPointerUpHandler: (event?: PIXI.InteractionEvent) => void =
     () => {};
