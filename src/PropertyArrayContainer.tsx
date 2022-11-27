@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import useInterval from 'use-interval';
 import Color from 'color';
 import {
   Accordion,
@@ -98,50 +99,60 @@ const socketArrayToComponent = (
 export const PropertyArrayContainer: React.FunctionComponent<
   PropertyArrayContainerProps
 > = (props) => {
+  const [dragging, setIsDragging] = useState(true);
+  useInterval(async () => {
+    setIsDragging(PPGraph.currentGraph.selection.isDraggingSelection);
+  }, 32);
   return (
-    <Stack spacing={1}>
-      {socketArrayToComponent(
-        props.selectedNode.nodeTriggerSocketArray,
-        props,
-        'Node Trigger'
-      )}
-      {socketArrayToComponent(props.selectedNode.inputSocketArray, props, 'In')}
-      <StyledAccordion defaultExpanded={false}>
-        <StyledAccordionSummary>
-          <Box textAlign="center" sx={{ color: 'text.primary' }}>
-            CODE
-          </Box>
-        </StyledAccordionSummary>
-        <StyledAccordionDetails>
-          <Box
-            sx={{ flexGrow: 1, display: 'inline-flex', alignItems: 'center' }}
-          >
-            <Box sx={{ pl: 1, color: 'text.primary' }}>
-              {props.selectedNode.name}:{props.selectedNode.type}
+    !dragging && (
+      <Stack spacing={1}>
+        {socketArrayToComponent(
+          props.selectedNode.nodeTriggerSocketArray,
+          props,
+          'Node Trigger'
+        )}
+        {socketArrayToComponent(
+          props.selectedNode.inputSocketArray,
+          props,
+          'In'
+        )}
+        <StyledAccordion defaultExpanded={false}>
+          <StyledAccordionSummary>
+            <Box textAlign="center" sx={{ color: 'text.primary' }}>
+              Code
             </Box>
-            {<LockIcon sx={{ pl: '2px', fontSize: '16px', opacity: 0.5 }} />}
-            <IconButton
-              size="small"
-              onClick={() =>
-                writeTextToClipboard(props.selectedNode.getSourceCode())
-              }
+          </StyledAccordionSummary>
+          <StyledAccordionDetails>
+            <Box
+              sx={{ flexGrow: 1, display: 'inline-flex', alignItems: 'center' }}
             >
-              <ContentCopyIcon sx={{ pl: 1, fontSize: '16px' }} />
-            </IconButton>
-          </Box>
-          <CodeEditor
-            value={props.selectedNode.getSourceCode()}
-            randomMainColor={props.randomMainColor}
-            editable={false}
-          />
-        </StyledAccordionDetails>
-      </StyledAccordion>
-      {socketArrayToComponent(
-        props.selectedNode.outputSocketArray,
-        props,
-        'Out'
-      )}
-    </Stack>
+              <Box sx={{ pl: 1, color: 'text.primary' }}>
+                {props.selectedNode.name}:{props.selectedNode.type}
+              </Box>
+              {<LockIcon sx={{ pl: '2px', fontSize: '16px', opacity: 0.5 }} />}
+              <IconButton
+                size="small"
+                onClick={() =>
+                  writeTextToClipboard(props.selectedNode.getSourceCode())
+                }
+              >
+                <ContentCopyIcon sx={{ pl: 1, fontSize: '16px' }} />
+              </IconButton>
+            </Box>
+            <CodeEditor
+              value={props.selectedNode.getSourceCode()}
+              randomMainColor={props.randomMainColor}
+              editable={false}
+            />
+          </StyledAccordionDetails>
+        </StyledAccordion>
+        {socketArrayToComponent(
+          props.selectedNode.outputSocketArray,
+          props,
+          'Out'
+        )}
+      </Stack>
+    )
   );
 };
 
