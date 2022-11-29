@@ -24,8 +24,7 @@ import { TRgba } from './utils/interfaces';
 import { EnumStructure } from './nodes/datatypes/enumType';
 import { NumberType } from './nodes/datatypes/numberType';
 import { TriggerType } from './nodes/datatypes/triggerType';
-import { v4 as uuid } from 'uuid';
-import { AbstractType } from './nodes/datatypes/abstractType';
+import useInterval from 'use-interval';
 
 async function potentiallyNotify(property: Socket, newValue) {
   if (property.data !== newValue) {
@@ -36,26 +35,12 @@ async function potentiallyNotify(property: Socket, newValue) {
   }
 }
 
-function addAsObserverToDataType(
-  dataType: AbstractType,
-  setData: (any) => void
-): () => void {
-  const id = uuid();
-  if (dataType) {
-    dataType.valueChangedListeners[id] = setData;
-    return () => {
-      delete dataType.valueChangedListeners[id];
-    };
-  }
-}
-
 export type SliderWidgetProps = {
   property: Socket;
   isInput: boolean;
   hasLink: boolean;
   index: number;
   data: unknown;
-  dataType: AbstractType;
   type: NumberType;
 };
 
@@ -63,9 +48,10 @@ export const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (
   props
 ) => {
   const [data, setData] = useState(Number(props.data || 0));
-  useEffect(() => {
-    return addAsObserverToDataType(props.dataType, setData);
-  });
+  useInterval(() => {
+    setData(props.property.data);
+  }, 100);
+
   const [minValue, setMinValue] = useState(
     Math.min(props.type.minValue ?? 0, data)
   );
@@ -199,6 +185,9 @@ export const SelectWidget: React.FunctionComponent<SelectWidgetProps> = (
 ) => {
   const [data, setData] = useState(props.data ?? '');
   const [options, setOptions] = useState(props.options);
+  useInterval(() => {
+    setData(props.property.data);
+  }, 100);
 
   const onOpen = () => {
     if (props.setOptions) {
@@ -262,6 +251,9 @@ export const BooleanWidget: React.FunctionComponent<BooleanWidgetProps> = (
   props
 ) => {
   const [data, setData] = useState(Boolean(props.data));
+  useInterval(() => {
+    setData(props.property.data);
+  }, 100);
 
   const onChange = (event) => {
     const value = event.target.checked;
@@ -290,15 +282,14 @@ export type TextWidgetProps = {
   index: number;
   hasLink: boolean;
   data: unknown;
-  dataType: AbstractType;
   randomMainColor: string;
 };
 
 export const TextWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
   const [data, setData] = useState(String(props.data));
-  useEffect(() => {
-    return addAsObserverToDataType(props.dataType, setData);
-  });
+  useInterval(() => {
+    setData(props.property.data);
+  }, 100);
 
   return (
     <FormGroup>
@@ -311,7 +302,7 @@ export const TextWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
         onChange={(event) => {
           const value = event.target.value;
           potentiallyNotify(props.property, value);
-          //setData(value);
+          setData(value);
         }}
         value={data}
       />
@@ -324,12 +315,14 @@ export type CodeWidgetProps = {
   index: number;
   hasLink: boolean;
   data: unknown;
-  //dataType: AbstractType; // didnt seem to work
   randomMainColor: string;
 };
 
 export const CodeWidget: React.FunctionComponent<CodeWidgetProps> = (props) => {
   const [data, setData] = useState(props.data);
+  useInterval(() => {
+    setData(props.property.data);
+  }, 100);
 
   return (
     <CodeEditor
@@ -545,25 +538,23 @@ export type DefaultOutputWidgetProps = {
   isInput: boolean;
   hasLink: boolean;
   data: unknown;
-  //dataType: AbstractType; didnt seem to work
   randomMainColor?: string;
 };
 
 export const DefaultOutputWidget: React.FunctionComponent<
   DefaultOutputWidgetProps
 > = (props) => {
-  try {
-    const [data, setData] = useState(props.data);
-    return (
-      <CodeEditor
-        value={data}
-        randomMainColor={props.randomMainColor}
-        editable={false}
-      />
-    );
-  } catch (error) {
-    return <div></div>;
-  }
+  const [data, setData] = useState(props.property.data);
+  useInterval(async () => {
+    setData(props.property.data);
+  }, 100);
+  return (
+    <CodeEditor
+      value={data}
+      randomMainColor={props.randomMainColor}
+      editable={false}
+    />
+  );
 };
 
 export type NumberOutputWidgetProps = {
@@ -572,8 +563,6 @@ export type NumberOutputWidgetProps = {
   isInput: boolean;
   hasLink: boolean;
   data: unknown;
-  dataType: AbstractType;
-
   randomMainColor?: string;
 };
 
@@ -581,9 +570,9 @@ export const NumberOutputWidget: React.FunctionComponent<
   NumberOutputWidgetProps
 > = (props) => {
   const [data, setData] = useState(Number(props.data));
-  useEffect(() => {
-    return addAsObserverToDataType(props.dataType, setData);
-  });
+  useInterval(() => {
+    setData(props.property.data);
+  }, 100);
 
   return (
     <>

@@ -12,13 +12,13 @@ import {
   SerializedSelection,
   TSocketType,
 } from '../utils/interfaces';
-import { connectNodeToSocket } from '../utils/utils';
+import { connectNodeToSocket, getNodesBounds } from '../utils/utils';
 import PPNode from './NodeClass';
 import PPSocket from './SocketClass';
 import PPLink from './LinkClass';
 import PPSelection from './SelectionClass';
 import { getAllNodeTypes } from '../nodes/allNodes';
-import { Macro } from '../nodes/macro/macro';
+import { ExecuteMacro, Macro } from '../nodes/macro/macro';
 import { Action, ActionHandler } from '../utils/actionHandler';
 import { hri } from 'human-readable-ids';
 import FlowLogic from './FlowLogic';
@@ -579,7 +579,7 @@ export default class PPGraph {
 
     // send notification pulse
     if (notify) {
-      await link.getSource().getNode().outputPlugged();
+      link.getSource().getNode().outputPlugged();
       await link.getTarget().getNode().executeOptimizedChain();
     }
 
@@ -677,7 +677,7 @@ export default class PPGraph {
             offset.set(node.width + 40, 0);
           }
         }
-        // add node and carry over its con,figuration
+        // add node and carry over its configuration
         const newNode = this.addSerializedNode(node, {
           overrideId: hri.random(),
         });
@@ -719,6 +719,114 @@ export default class PPGraph {
     this.selection.selectedNodes.forEach((node) => node.addTriggerInput());
   }
 
+  async extractToMacro(): Promise<void> {
+    const graphPre = this.serialize();
+    // we copy all selected nodes, and all inputs to these that are not found inside the macro are turned into parameters, combined outputs are turned into the output
+    const sourceNodes = this.selection.selectedNodes;
+    const newNodes = await this.pasteNodes(this.serializeNodes(sourceNodes));
+
+    const forwardMapping: Record<string, PPNode> = {};
+    const backwardMapping: Record<string, PPNode> = {};
+    for (let i = 0; i < newNodes.length; i++) {
+      forwardMapping[sourceNodes[i].id] = newNodes[i];
+      backwardMapping[newNodes[i].id] = sourceNodes[i];
+    }
+    const macroNode: PPNode = this.addNewNode('Macro');
+    macroNode.nodeName = hri.random();
+    // add extending inputs
+    const inputs: PPSocket[] = sourceNodes.reduce((list, node) => {
+      return list.concat(
+        node.inputSocketArray.filter(
+          (socket) =>
+            socket.hasLink() &&
+            !sourceNodes.find(
+              (node) => node.id == socket.links[0].getSource().getNode().id
+            )
+        )
+      );
+    }, []);
+    for (let i = 0; i < inputs.length - 1; i++) {
+      macroNode.addDefaultOutput();
+    }
+    // connect macro outputs to new nodes
+    inputs.forEach(async (socket, i) => {
+      const newSocket = forwardMapping[
+        socket.getNode().id
+      ].getInputSocketByName(socket.name);
+      await this.connect(macroNode.outputSocketArray[i], newSocket);
+    });
+
+    // link up the first output to macro input
+    const outputs: PPSocket[] = sourceNodes.reduce((list, node) => {
+      return list.concat(
+        node.outputSocketArray.filter(
+          (socket) =>
+            socket.hasLink() &&
+            !sourceNodes.find(
+              (node) => node.id == socket.links[0].getTarget().getNode().id
+            )
+        )
+      );
+    }, []);
+    if (outputs.length) {
+      const newSocket = forwardMapping[
+        outputs[0].getNode().id
+      ].getOutputSocketByName(outputs[0].name);
+      await this.connect(newSocket, macroNode.inputSocketArray[0]);
+    }
+
+    //
+
+    const bounds = getNodesBounds(sourceNodes);
+    macroNode.setPosition(bounds.left, bounds.top - 100);
+    macroNode.resizeAndDraw(bounds.width + 400, bounds.height + 200);
+
+    // create new executemacro node calling us, and link the old inputs to it
+    const invokeMacroNode = this.addNewNode('ExecuteMacro');
+    invokeMacroNode.setPosition(sourceNodes[0].x, sourceNodes[0].y);
+    invokeMacroNode.setInputData('MacroName', macroNode.nodeName);
+    (invokeMacroNode as ExecuteMacro).generateUseNewCode();
+
+    if (outputs.length) {
+      await this.connect(
+        invokeMacroNode.outputSocketArray[0],
+        outputs[0].links[0].getTarget()
+      );
+    }
+    const validInputSockets = invokeMacroNode.inputSocketArray.filter(
+      (socket) => socket.name.includes('Parameter')
+    );
+    inputs.forEach(async (inputSocket, index) => {
+      await this.connect(
+        inputSocket.links[0].getSource(),
+        validInputSockets[index]
+      );
+    });
+
+    // now that replacement is done, kill the old nodes
+    sourceNodes.forEach((node) => this.removeNode(node));
+
+    // move the macro a bit out of the way
+    newNodes
+      .concat([macroNode])
+      .forEach((node) => node.setPosition(0, -500, true));
+
+    this.selection.selectNodes([macroNode], true);
+
+    const graphAfter = this.serialize();
+
+    // this is a heavy-handed way of making this undoable, save the complete graph before and after operation
+    ActionHandler.performAction(
+      async () => {
+        PPGraph.currentGraph.configure(graphAfter, false);
+      },
+      async () => {
+        PPGraph.currentGraph.configure(graphPre, false);
+      },
+      false
+    );
+  }
+
   getCanAddOutput(): boolean {
     return !this.selection.selectedNodes.find(
       (node) => !node.getCanAddOutput()
@@ -758,15 +866,15 @@ export default class PPGraph {
     return data;
   }
 
-  serializeSelection(): SerializedSelection {
+  serializeNodes(nodes: PPNode[]): SerializedSelection {
     const linksContainedInSelection: PPLink[] = [];
 
-    this.selection.selectedNodes.forEach((node) => {
+    nodes.forEach((node) => {
       // get links which are completely contained in selection
       node.getAllInputSockets().forEach((socket) => {
         if (socket.hasLink()) {
           const connectedNode = socket.links[0].source.parent as PPNode;
-          if (this.selection.selectedNodes.includes(connectedNode)) {
+          if (nodes.includes(connectedNode)) {
             linksContainedInSelection.push(socket.links[0]);
           }
         }
@@ -775,9 +883,7 @@ export default class PPGraph {
     });
 
     // get serialized nodes
-    const nodesSerialized = this.selection.selectedNodes.map((node) =>
-      node.serialize()
-    );
+    const nodesSerialized = nodes.map((node) => node.serialize());
 
     // get serialized links
     const linksSerialized = linksContainedInSelection.map((link) =>
@@ -793,7 +899,11 @@ export default class PPGraph {
     return data;
   }
 
-  async configure(data: SerializedGraph, keep_old?: boolean): Promise<boolean> {
+  serializeSelection(): SerializedSelection {
+    return this.serializeNodes(this.selection.selectedNodes);
+  }
+
+  async configure(data: SerializedGraph, keep_old = false): Promise<boolean> {
     this.ticking = false;
     if (!data) {
       return;

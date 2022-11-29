@@ -162,6 +162,7 @@ export default class Socket extends PIXI.Container {
       if (this.dataType.getName() !== proposedType.getName()) {
         this.dataType = proposedType;
         this.redrawAnythingChanging();
+        this.getNode().socketTypeChanged();
       }
     }
     if (this.isInput()) {
@@ -179,7 +180,6 @@ export default class Socket extends PIXI.Container {
         link.target.data = newData;
       });
     }
-    this.dataType.onDataSet(newData, this);
   }
 
   get defaultData(): any {

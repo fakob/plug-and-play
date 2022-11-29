@@ -1,5 +1,4 @@
 import React from 'react';
-import { TRgba } from '../../utils/interfaces';
 import { FunctionType } from './functionType';
 
 // its a function that will draw onto a container

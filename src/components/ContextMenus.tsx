@@ -432,6 +432,16 @@ export const NodeContextMenu = (props) => {
           </ListItemIcon>
           <ListItemText>Add Trigger Input</ListItemText>
         </MenuItem>
+        <MenuItem
+          onClick={() => {
+            props.currentGraph.current.extractToMacro();
+          }}
+        >
+          <ListItemIcon>
+            <AddIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Extract to Macro</ListItemText>
+        </MenuItem>
       </MenuList>
     </Paper>
   );

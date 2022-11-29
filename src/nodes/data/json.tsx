@@ -12,9 +12,10 @@ import { JSONType } from '../datatypes/jsonType';
 import { StringType } from '../datatypes/stringType';
 import { dataToType } from '../datatypes/typehelper';
 import { CustomFunction } from './dataFunctions';
-import { AbstractType } from '../datatypes/abstractType';
+import { BooleanType } from '../datatypes/booleanType';
 
 const JSONName = 'JSON';
+const lockOutputsName = "Lock Outputs";
 const JSONParamName = 'Path';
 const JSONInsert = 'New value';
 const outValueName = 'Value';
@@ -167,8 +168,14 @@ export class JSONValues extends JSONCustomFunction {
 const BREAK_MAX_SOCKETS = 50;
 // actually works for arrays as well
 export class Break extends PPNode {
+
+
+  public getDescription(): string {
+    return 'Breaks out all properties of a JSON object';
+  }
+
   protected getDefaultIO(): Socket[] {
-    return [new Socket(SOCKET_TYPE.IN, JSONName, new JSONType())];
+    return [new Socket(SOCKET_TYPE.IN, JSONName, new JSONType()), new Socket(SOCKET_TYPE.IN, lockOutputsName, new BooleanType(),false,false)];
   }
 
   protected async onExecute(
@@ -177,7 +184,9 @@ export class Break extends PPNode {
   ): Promise<void> {
     // before every execute, re-evaluate inputs
     const currentJSON = inputObject[JSONName];
-    this.adaptOutputs(currentJSON);
+    if (!inputObject[lockOutputsName]){
+      this.adaptOutputs(currentJSON);
+    }
     // eslint-disable-next-line prefer-const
     Object.keys(currentJSON).forEach(
       (key) => (outputObject[key] = currentJSON[key])

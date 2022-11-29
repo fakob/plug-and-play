@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
+import useInterval from 'use-interval';
 import Color from 'color';
 import {
   Accordion,
@@ -58,48 +59,22 @@ const StyledAccordionDetails = styled(AccordionDetails)(({ theme }) => ({
   bgcolor: 'background.paper',
 }));
 
-export const PropertyArrayContainer: React.FunctionComponent<
-  PropertyArrayContainerProps
-> = (props) => {
-  return (
-    <Stack spacing={1}>
-      {props.selectedNode.nodeTriggerSocketArray?.length > 0 && (
+const socketArrayToComponent = (
+  sockets: Socket[],
+  props: PropertyArrayContainerProps,
+  text: string
+) => {
+  {
+    return (
+      sockets?.length > 0 && (
         <StyledAccordion defaultExpanded>
           <StyledAccordionSummary>
             <Box textAlign="left" sx={{ color: 'text.primary' }}>
-              NODE TRIGGER
+              {text}
             </Box>
           </StyledAccordionSummary>
           <StyledAccordionDetails>
-            {props.selectedNode.nodeTriggerSocketArray?.map(
-              (property, index) => {
-                return (
-                  <PropertyContainer
-                    key={index}
-                    property={property}
-                    index={index}
-                    dataType={property.dataType}
-                    isInput={true}
-                    hasLink={property.hasLink()}
-                    data={property.data}
-                    randomMainColor={props.randomMainColor}
-                    selectedNode={props.selectedNode}
-                  />
-                );
-              }
-            )}
-          </StyledAccordionDetails>
-        </StyledAccordion>
-      )}
-      {props.selectedNode.inputSocketArray?.length > 0 && (
-        <StyledAccordion defaultExpanded>
-          <StyledAccordionSummary>
-            <Box textAlign="left" sx={{ color: 'text.primary' }}>
-              IN
-            </Box>
-          </StyledAccordionSummary>
-          <StyledAccordionDetails>
-            {props.selectedNode.inputSocketArray?.map((property, index) => {
+            {sockets.map((property, index) => {
               return (
                 <PropertyContainer
                   key={index}
@@ -116,64 +91,68 @@ export const PropertyArrayContainer: React.FunctionComponent<
             })}
           </StyledAccordionDetails>
         </StyledAccordion>
-      )}
-      <StyledAccordion defaultExpanded={false}>
-        <StyledAccordionSummary>
-          <Box textAlign="center" sx={{ color: 'text.primary' }}>
-            CODE
-          </Box>
-        </StyledAccordionSummary>
-        <StyledAccordionDetails>
-          <Box
-            sx={{ flexGrow: 1, display: 'inline-flex', alignItems: 'center' }}
-          >
-            <Box sx={{ pl: 1, color: 'text.primary' }}>
-              {props.selectedNode.name}:{props.selectedNode.type}
-            </Box>
-            {<LockIcon sx={{ pl: '2px', fontSize: '16px', opacity: 0.5 }} />}
-            <IconButton
-              size="small"
-              onClick={() =>
-                writeTextToClipboard(props.selectedNode.getSourceCode())
-              }
-            >
-              <ContentCopyIcon sx={{ pl: 1, fontSize: '16px' }} />
-            </IconButton>
-          </Box>
-          <CodeEditor
-            value={props.selectedNode.getSourceCode()}
-            randomMainColor={props.randomMainColor}
-            editable={false}
-          />
-        </StyledAccordionDetails>
-      </StyledAccordion>
-      {props.selectedNode.outputSocketArray?.length > 0 && (
-        <StyledAccordion defaultExpanded>
+      )
+    );
+  }
+};
+
+export const PropertyArrayContainer: React.FunctionComponent<
+  PropertyArrayContainerProps
+> = (props) => {
+  const [dragging, setIsDragging] = useState(true);
+  useInterval(async () => {
+    setIsDragging(PPGraph.currentGraph.selection.isDraggingSelection);
+  }, 32);
+  return (
+    !dragging && (
+      <Stack spacing={1}>
+        {socketArrayToComponent(
+          props.selectedNode.nodeTriggerSocketArray,
+          props,
+          'Node Trigger'
+        )}
+        {socketArrayToComponent(
+          props.selectedNode.inputSocketArray,
+          props,
+          'In'
+        )}
+        <StyledAccordion defaultExpanded={false}>
           <StyledAccordionSummary>
-            <Box textAlign="right" sx={{ color: 'text.primary' }}>
-              OUT
+            <Box textAlign="center" sx={{ color: 'text.primary' }}>
+              Code
             </Box>
           </StyledAccordionSummary>
           <StyledAccordionDetails>
-            {props.selectedNode.outputSocketArray.map((property, index) => {
-              return (
-                <PropertyContainer
-                  key={index}
-                  property={property}
-                  index={index}
-                  dataType={property.dataType}
-                  isInput={false}
-                  hasLink={property.hasLink()}
-                  data={property.data}
-                  randomMainColor={props.randomMainColor}
-                  selectedNode={props.selectedNode}
-                />
-              );
-            })}
+            <Box
+              sx={{ flexGrow: 1, display: 'inline-flex', alignItems: 'center' }}
+            >
+              <Box sx={{ pl: 1, color: 'text.primary' }}>
+                {props.selectedNode.name}:{props.selectedNode.type}
+              </Box>
+              {<LockIcon sx={{ pl: '2px', fontSize: '16px', opacity: 0.5 }} />}
+              <IconButton
+                size="small"
+                onClick={() =>
+                  writeTextToClipboard(props.selectedNode.getSourceCode())
+                }
+              >
+                <ContentCopyIcon sx={{ pl: 1, fontSize: '16px' }} />
+              </IconButton>
+            </Box>
+            <CodeEditor
+              value={props.selectedNode.getSourceCode()}
+              randomMainColor={props.randomMainColor}
+              editable={false}
+            />
           </StyledAccordionDetails>
         </StyledAccordion>
-      )}
-    </Stack>
+        {socketArrayToComponent(
+          props.selectedNode.outputSocketArray,
+          props,
+          'Out'
+        )}
+      </Stack>
+    )
   );
 };
 
