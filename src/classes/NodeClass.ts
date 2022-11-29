@@ -182,8 +182,6 @@ export default class PPNode extends PIXI.Container {
     return true;
   }
 
-  public nodeKeyEvent(e: KeyboardEvent): void {}
-
   get nodeName(): string {
     return this.name;
   }
@@ -1102,6 +1100,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   public nameChanged(newName: string): void {}
   public outputPlugged(): void {}
   public outputUnplugged(): void {}
+  public nodeKeyEvent(e: KeyboardEvent): void {}
 
   // kinda hacky but some cant easily serialize functions in JS
   protected initializeType(socketName: string, datatype: any) {}
