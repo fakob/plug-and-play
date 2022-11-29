@@ -7,7 +7,7 @@ import * as PIXI from 'pixi.js';
 import PPGraph from './GraphClass';
 import PPNode from './NodeClass';
 import styles from '../utils/style.module.css';
-import { SerializedNode } from '../utils/interfaces';
+import { CustomArgs, SerializedNode } from '../utils/interfaces';
 import { RANDOMMAINCOLOR } from '../utils/constants';
 
 export default abstract class HybridNode extends PPNode {
@@ -15,6 +15,15 @@ export default abstract class HybridNode extends PPNode {
   static: HTMLElement;
   staticRoot: Root;
   container: HTMLElement;
+  initialData: any;
+
+  constructor(name: string, customArgs?: CustomArgs) {
+    super(name, {
+      ...customArgs,
+    });
+
+    this.initialData = customArgs?.initialData;
+  }
 
   // this function can be called for hybrid nodes, it
   // • creates a container component

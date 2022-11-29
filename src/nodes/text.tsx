@@ -18,6 +18,7 @@ export class Label extends PPNode {
   _refText: PIXI.Text;
   _refTextStyle: PIXI.TextStyle;
   currentInput: HTMLDivElement;
+  initialData: any;
 
   constructor(name: string, customArgs?: CustomArgs) {
     const nodeWidth = 128;
@@ -26,6 +27,8 @@ export class Label extends PPNode {
       ...customArgs,
       nodeWidth,
     });
+
+    this.initialData = customArgs?.initialData;
 
     const canvas = PPGraph.currentGraph.foregroundCanvas;
     this._refTextStyle = new PIXI.TextStyle();

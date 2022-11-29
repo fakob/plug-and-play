@@ -64,12 +64,23 @@ export class ConcatenateArrays extends PPNode {
 }
 
 export class Constant extends PPNode {
+  initialData: any;
+
+  constructor(name: string, customArgs?: CustomArgs) {
+    super(name, {
+      ...customArgs,
+    });
+
+    this.initialData = customArgs?.initialData;
+  }
+
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, constantInName, new AnyType(), 0),
       new Socket(SOCKET_TYPE.OUT, constantOutName, new AnyType()),
     ];
   }
+
   protected async onExecute(
     inputObject: any,
     outputObject: Record<string, unknown>
