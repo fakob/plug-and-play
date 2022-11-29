@@ -4,7 +4,6 @@ import Socket from '../../classes/SocketClass';
 import {
   NODE_CORNERRADIUS,
   NODE_MARGIN,
-  NODE_TYPE_COLOR,
   SOCKET_TYPE,
 } from '../../utils/constants';
 import { CustomArgs, TRgba } from '../../utils/interfaces';
@@ -18,6 +17,8 @@ import * as PIXI from 'pixi.js';
 export const macroOutputName = 'Output';
 
 const macroBlockSize = 120;
+
+const macroColor = new TRgba(178, 178, 178);
 
 export class Macro extends PPNode {
   textRef: PIXI.Text = undefined;
@@ -50,7 +51,7 @@ export class Macro extends PPNode {
   }
 
   getColor(): TRgba {
-    return TRgba.fromString(NODE_TYPE_COLOR.MACRO);
+    return macroColor;
   }
 
   private getMacroText(): string {
@@ -174,7 +175,7 @@ export class ExecuteMacro extends CustomFunction {
       });
 
   getColor(): TRgba {
-    return TRgba.fromString(NODE_TYPE_COLOR.MACRO);
+    return macroColor;
   }
   public getName(): string {
     return 'Execute Macro';

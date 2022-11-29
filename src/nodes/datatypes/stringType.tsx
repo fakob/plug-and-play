@@ -22,7 +22,7 @@ export class StringType extends AbstractType {
   }
 
   getColor(): TRgba {
-    return new TRgba(128, 250, 128);
+    return new TRgba(148, 250, 148);
   }
 
   defaultInputNodeWidget(): string {
