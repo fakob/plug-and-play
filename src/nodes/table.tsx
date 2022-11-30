@@ -725,7 +725,7 @@ export class Table_GetRange extends CustomFunction {
     return 'Get table range';
   }
   public getDescription(): string {
-    return 'Get table range by specifying start and end in X and Y';
+    return 'Get table range using start and end index of rows and columns';
   }
   protected getDefaultFunction(): string {
     return `(ArrayOfArraysIn, StartRow, EndRow, StartColumn, EndColumn, FlipAxis) => {
