@@ -81,7 +81,6 @@ export default class PPNode extends PIXI.Container {
   onViewportPointerUpHandler: (event?: PIXI.InteractionEvent) => void =
     () => {};
   onNodeRemoved: () => void = () => {}; // called when the node is removed from the graph
-  onNodeDragging: (isDraggingNode: boolean) => void = () => {}; // called when the node is being dragged
   onNodeResize: (width: number, height: number) => void = () => {}; // called when the node is resized
   onNodeDragOrViewportMove: // called when the node or or the viewport with the node is moved or scaled
   (positions: { screenX: number; screenY: number; scale: number }) => void =
@@ -264,9 +263,6 @@ export default class PPNode extends PIXI.Container {
     this._doubleClicked = false;
 
     this._addListeners();
-
-    // define callbacks
-    this.onNodeDragging = (isDraggingNode: boolean) => {};
   }
 
   // GETTERS & SETTERS
@@ -344,10 +340,6 @@ export default class PPNode extends PIXI.Container {
     const socketRef = this.addChild(socket);
     this.nodeTriggerSocketArray.push(socketRef);
     return;
-  }
-
-  getDefaultType(): AbstractType {
-    return new AnyType();
   }
 
   getPreferredInputSocketName(): string {
@@ -498,7 +490,7 @@ export default class PPNode extends PIXI.Container {
     this.onConfigure(nodeConfig);
   }
 
-  getDirectDependents(): { [key: string]: PPNode } {
+  public getDirectDependents(): { [key: string]: PPNode } {
     const currDependents: { [key: string]: PPNode } = {};
     this.outputSocketArray.forEach((socket) => {
       Object.values(socket.getDirectDependents()).forEach((dependent) => {
@@ -508,7 +500,7 @@ export default class PPNode extends PIXI.Container {
     return currDependents;
   }
 
-  getHasDependencies(): boolean {
+  public getHasDependencies(): boolean {
     return (
       this.getAllInputSockets().find((socket) => socket.hasLink()) !== undefined
     );
@@ -839,7 +831,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     inputSocket.data = data;
   }
 
-  // avoid calling this directly, instead use the input/output objects in onExecute
+  // avoid calling this directly if possible, instead use the input/output objects in onExecute
   public setOutputData(name: string, data: any): void {
     const outputSocket = this.outputSocketArray
       .filter((socket) => socket.socketType === SOCKET_TYPE.OUT)

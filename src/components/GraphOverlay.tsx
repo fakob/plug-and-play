@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
+import useInterval from 'use-interval';
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
+import InterfaceController from '../InterfaceController';
 import GraphOverlayDrawer from './GraphOverlayDrawer';
 import GraphOverlayNodeMenu from './GraphOverlayNodeMenu';
 import GraphOverlaySocketInspector from './GraphOverlaySocketInspector';
@@ -20,9 +22,9 @@ const GraphOverlay: React.FunctionComponent<GraphOverlayProps> = (props) => {
   useEffect(() => {
     if (props.currentGraph) {
       // register callbacks when currentGraph mounted
-      props.currentGraph.selection.onSelectionChange = setSelectedNodes;
-      props.currentGraph.selection.onSelectionDragging = setIsDraggingSelection;
-      props.currentGraph.onViewportDragging = setIsDraggingViewport;
+      InterfaceController.onSelectionChanged = setSelectedNodes;
+      InterfaceController.onSelectionDragging = setIsDraggingSelection;
+      InterfaceController.onViewportDragging = setIsDraggingViewport;
       props.currentGraph.viewport.on('zoomed', () => {
         setIsZoomingViewport(true);
       });
@@ -30,13 +32,11 @@ const GraphOverlay: React.FunctionComponent<GraphOverlayProps> = (props) => {
         setIsZoomingViewport(false);
       });
     }
-  }, [props.currentGraph]);
+  });
 
-  useEffect(() => {
-    if (selectedNodes.length === 1) {
-      selectedNodes[0].onNodeDragging = setIsDraggingNode;
-    }
-  }, [selectedNodes]);
+  useInterval(() => {
+    setIsDraggingNode(selectedNodes.length === 1 && isDraggingSelection);
+  }, 16);
 
   return (
     <>
@@ -56,10 +56,7 @@ const GraphOverlay: React.FunctionComponent<GraphOverlayProps> = (props) => {
           isDraggingSelection
         }
       />
-      <GraphOverlaySocketInspector
-        currentGraph={props.currentGraph}
-        randomMainColor={props.randomMainColor}
-      />
+      <GraphOverlaySocketInspector randomMainColor={props.randomMainColor} />
     </>
   );
 };

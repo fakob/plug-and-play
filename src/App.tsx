@@ -85,6 +85,7 @@ import PPNode from './classes/NodeClass';
 import { InputParser } from './utils/inputParser';
 import styles from './utils/style.module.css';
 import { ActionHandler } from './utils/actionHandler';
+import InterfaceController from './InterfaceController';
 
 (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__ &&
   (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__.register({ PIXI: PIXI });
@@ -535,7 +536,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       }
     );
 
-    currentGraph.current.onOpenNodeSearch = (pos: PIXI.Point) => {
+    InterfaceController.onOpenNodeSearch = (pos: PIXI.Point) => {
       openNodeSearch(pos);
     };
 
@@ -696,13 +697,8 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
   }, []);
 
   useEffect(() => {
-    currentGraph.current.onShowSnackbar = (
-      message: SnackbarMessage,
-      options?: OptionsObject
-    ) => {
-      enqueueSnackbar(message, options);
-    };
-  }, [currentGraph.current]);
+    InterfaceController.showSnackBar = enqueueSnackbar;
+  });
 
   // addEventListener to graphSearchInput
   useEffect(() => {
