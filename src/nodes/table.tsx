@@ -671,18 +671,22 @@ export class Table_GetColumnByName extends CustomFunction {
     return 'Get table column by name';
   }
   public getDescription(): string {
-    return 'Get table column of data from table by name';
+    return 'Get column data by column name';
   }
   protected getDefaultFunction(): string {
-    return `(JSONIn, ColumnName) => {
-  return JSONIn.map(row => row[ColumnName]);
+    return `(ArrayOfArraysIn, ColumnName) => {
+  const index = ArrayOfArraysIn[0].findIndex(col => col == ColumnName);
+  if (index > -1) {
+    return ArrayOfArraysIn.map(row => row[index]).slice(1);
+  }
+  return [];
 }`;
   }
   protected getDefaultParameterValues(): Record<string, any> {
     return { ColumnName: 'ExampleColumn' };
   }
   protected getDefaultParameterTypes(): Record<string, any> {
-    return { JSONIn: new JSONType(), ColumnName: new StringType() };
+    return { ArrayOfArraysIn: new ArrayType(), ColumnName: new StringType() };
   }
   protected getOutputParameterType(): AbstractType {
     return new ArrayType();
@@ -694,15 +698,13 @@ export class Table_GetRowByName extends CustomFunction {
     return 'Get table row by name';
   }
   public getDescription(): string {
-    return 'Get table row of data from table by name';
+    return 'Get row data by row name';
   }
   protected getDefaultFunction(): string {
-    return `(JSONIn, ColumnName) => {
-  const found = JSONIn.find(row => row[Object.keys(row)[0]] == ColumnName);
+    return `(ArrayOfArraysIn, ColumnName) => {
+  const found = ArrayOfArraysIn.find(row => row[0] == ColumnName);
   if (found !== undefined) {
-    return Object.values(found).slice(1);
-  } else if (Object.keys(JSONIn[0])[0] == ColumnName) {
-    return Object.keys(JSONIn[0]).slice(1);
+    return found.slice(1);
   };
   return [];
 }`;
@@ -711,7 +713,7 @@ export class Table_GetRowByName extends CustomFunction {
     return { ColumnName: 'ExampleRow' };
   }
   protected getDefaultParameterTypes(): Record<string, any> {
-    return { JSONIn: new JSONType(), ColumnName: new StringType() };
+    return { ArrayOfArraysIn: new ArrayType(), ColumnName: new StringType() };
   }
   protected getOutputParameterType(): AbstractType {
     return new ArrayType();
@@ -758,17 +760,16 @@ export class Table_GetRange extends CustomFunction {
       EndRow: 2,
       StartColumn: 0,
       EndColumn: 2,
-      ArrayOfArraysIn: undefined,
       FlipAxis: false,
     };
   }
   protected getDefaultParameterTypes(): Record<string, any> {
     return {
+      ArrayOfArraysIn: new ArrayType(),
       StartRow: new NumberType(true),
       EndRow: new NumberType(true),
       StartColumn: new NumberType(true),
       EndColumn: new NumberType(true),
-      ArrayOfArraysIn: new ArrayType(),
       FlipAxis: new BooleanType(),
     };
   }
