@@ -536,9 +536,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       }
     );
 
-    InterfaceController.onOpenNodeSearch = (pos: PIXI.Point) => {
-      openNodeSearch(pos);
-    };
+    InterfaceController.onOpenNodeSearch = openNodeSearch;
 
     currentGraph.current.onRightClick = (
       event: PIXI.InteractionEvent,
