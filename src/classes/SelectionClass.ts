@@ -16,6 +16,7 @@ import {
 } from '../utils/utils';
 import PPGraph from './GraphClass';
 import { ActionHandler } from '../utils/actionHandler';
+import InterfaceController from '../InterfaceController';
 
 export default class PPSelection extends PIXI.Container {
   protected viewport: Viewport;
@@ -34,8 +35,6 @@ export default class PPSelection extends PIXI.Container {
   interactionData: PIXI.InteractionData | null;
 
   protected onMoveHandler: (event?: PIXI.InteractionEvent) => void;
-  onSelectionChange: ((selectedNodes: PPNode[]) => void) | null; // called when the selection has changed
-  onSelectionDragging: ((isDraggingSelection: boolean) => void) | null; // called when the selection is being dragged
   onSelectionRedrawn: ((screenPoint: PIXI.Point) => void) | null; // called when the selection is redrawn becaused its boundaries changed, were moved
 
   onRightClick:
@@ -81,8 +80,6 @@ export default class PPSelection extends PIXI.Container {
     this.onMoveHandler = this.onMove.bind(this);
 
     // define callbacks
-    this.onSelectionChange = (nodes: PPNode[]) => {};
-    this.onSelectionDragging = (isDraggingSelection: boolean) => {};
     this.onSelectionRedrawn = () => {};
   }
 
@@ -127,7 +124,7 @@ export default class PPSelection extends PIXI.Container {
   public startDragAction(event: PIXI.InteractionEvent) {
     this.cursor = 'move';
     this.isDraggingSelection = true;
-    this.onSelectionDragging(this.isDraggingSelection);
+    InterfaceController.onSelectionDragging(true);
     this.interactionData = event.data;
     this.sourcePoint = this.interactionData.getLocalPosition(
       this.selectedNodes[0]
@@ -150,8 +147,9 @@ export default class PPSelection extends PIXI.Container {
   public stopDragAction() {
     this.cursor = 'default';
     this.isDraggingSelection = false;
-    this.onSelectionDragging(this.isDraggingSelection);
     this.interactionData = null;
+    InterfaceController.onSelectionDragging(false);
+
     // unsubscribe from pointermove
     this.removeListener('pointermove', this.onMoveHandler);
     const endPoint = getCurrentCursorPosition();
@@ -332,7 +330,7 @@ export default class PPSelection extends PIXI.Container {
     } else {
       this.resetAllGraphics();
     }
-    this.onSelectionChange(this.selectedNodes);
+    InterfaceController.onSelectionChanged(this.selectedNodes);
 
     // only trigger deselect if the mouse was not moved and onMove was not called
     const targetPoint = new PIXI.Point(
@@ -427,7 +425,7 @@ export default class PPSelection extends PIXI.Container {
     }
     this.drawRectanglesFromSelection();
     if (notify) {
-      this.onSelectionChange(this.selectedNodes);
+      InterfaceController.onSelectionChanged(this.selectedNodes);
     }
   }
 

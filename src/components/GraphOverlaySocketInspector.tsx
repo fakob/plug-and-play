@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Box } from '@mui/material';
 import * as PIXI from 'pixi.js';
-import PPGraph from '../classes/GraphClass';
 import PPSocket from '../classes/SocketClass';
 import FloatingSocketInspector from './FloatingSocketInspector';
+import InterfaceController from '../InterfaceController';
 
 type GraphOverlaySocketInspectorProps = {
-  currentGraph: PPGraph;
   randomMainColor: string;
 };
 
@@ -20,20 +19,9 @@ const GraphOverlaySocketInspector: React.FunctionComponent<
   );
 
   useEffect(() => {
-    if (props.currentGraph) {
-      // register callbacks when currentGraph mounted
-      props.currentGraph.onOpenSocketInspector = (
-        pos: PIXI.Point,
-        socket: PPSocket
-      ) => {
-        openSocketInspector(pos, socket);
-      };
-
-      props.currentGraph.onCloseSocketInspector = () => {
-        closeSocketInspector();
-      };
-    }
-  }, [props.currentGraph]);
+    InterfaceController.onOpenSocketInspector = openSocketInspector;
+    InterfaceController.onCloseSocketInspector = closeSocketInspector;
+  });
 
   const openSocketInspector = (pos = null, socket = null) => {
     console.log('openSocketInspector');

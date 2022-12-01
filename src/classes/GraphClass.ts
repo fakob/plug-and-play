@@ -2,7 +2,6 @@
 import * as PIXI from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
 
-import { OptionsObject, SnackbarMessage } from 'notistack';
 import { NODE_WIDTH, PP_VERSION, SOCKET_TYPE } from '../utils/constants';
 import {
   CustomArgs,
@@ -22,6 +21,7 @@ import { ExecuteMacro, Macro } from '../nodes/macro/macro';
 import { Action, ActionHandler } from '../utils/actionHandler';
 import { hri } from 'human-readable-ids';
 import FlowLogic from './FlowLogic';
+import InterfaceController from '../InterfaceController';
 
 export default class PPGraph {
   static currentGraph: PPGraph;
@@ -55,11 +55,6 @@ export default class PPGraph {
     event: PIXI.InteractionEvent,
     target: PIXI.DisplayObject
   ) => void = () => {}; // called when the graph is right clicked
-  onOpenNodeSearch: (pos: PIXI.Point) => void = () => {}; // called node search should be openend
-  onOpenSocketInspector: (pos: PIXI.Point, data: PPSocket) => void = () => {}; // called when socket inspector should be opened
-  onCloseSocketInspector: () => void; // called when socket inspector should be closed
-  onViewportDragging: (isDraggingViewport: boolean) => void = () => {}; // called when the viewport is being dragged
-  onShowSnackbar: (message: SnackbarMessage, options?: OptionsObject) => void;
 
   constructor(app: PIXI.Application, viewport: Viewport) {
     this.app = app;
@@ -123,7 +118,6 @@ export default class PPGraph {
     this.clear();
 
     // define callbacks
-    this.onViewportDragging = (isDraggingViewport: boolean) => {};
     PPGraph.currentGraph = this;
   }
 
@@ -147,7 +141,7 @@ export default class PPGraph {
     event.stopPropagation();
     const target = event.target;
     if (target instanceof Viewport) {
-      this.onOpenNodeSearch(event.data.global);
+      InterfaceController.onOpenNodeSearch(event.data.global);
     }
   }
 
@@ -155,7 +149,7 @@ export default class PPGraph {
     console.log('_onPointerDown');
     //event.stopPropagation();
 
-    this.onCloseSocketInspector();
+    InterfaceController.onCloseSocketInspector();
 
     if ((event.data.originalEvent as PointerEvent).button === 0) {
       if (!this.overInputRef) {
@@ -170,7 +164,7 @@ export default class PPGraph {
     } else {
       this.viewport.cursor = 'grabbing';
       this.dragSourcePoint = new PIXI.Point(this.viewport.x, this.viewport.y);
-      this.onViewportDragging(true);
+      InterfaceController.onViewportDragging(true);
     }
   }
 
@@ -181,7 +175,7 @@ export default class PPGraph {
         this.overrideNodeCursorPosition = this.viewport.toWorld(
           event.data.global
         );
-        this.onOpenNodeSearch(event.data.global);
+        InterfaceController.onOpenNodeSearch(event.data.global);
       }
     }
     // check if viewport has been dragged,
@@ -194,7 +188,7 @@ export default class PPGraph {
         console.log('deselectAllNodesAndResetSelection');
         this.selection.deselectAllNodesAndResetSelection();
 
-        this.onCloseSocketInspector();
+        InterfaceController.onCloseSocketInspector();
       }
     }
     if (this.selection.isDrawingSelection) {
@@ -204,7 +198,7 @@ export default class PPGraph {
     this.viewport.cursor = 'default';
     this.viewport.plugins.resume('drag');
     this.dragSourcePoint = undefined;
-    this.onViewportDragging(false);
+    InterfaceController.onViewportDragging(false);
   }
 
   getSocketCenter(object: PPSocket): PIXI.Point {
@@ -328,7 +322,7 @@ export default class PPGraph {
       event.data.global.x,
       event.data.global.y
     );
-    this.onOpenSocketInspector(clickedSourcePoint, socket);
+    InterfaceController.onOpenSocketInspector(clickedSourcePoint, socket);
   }
 
   // GETTERS & SETTERS
@@ -377,14 +371,14 @@ export default class PPGraph {
       name = customArgs?.name ?? type;
       nodeConstructor = getAllNodeTypes()[name]?.constructor;
       if (customArgs?.name !== undefined && nodeConstructor) {
-        this.onShowSnackbar(
+        InterfaceController.showSnackBar(
           `A replacement for the placeholder node ${customArgs?.name} was found. It will be replaced with ${name}.`,
           {
             variant: 'success',
           }
         );
       } else {
-        this.onShowSnackbar(
+        InterfaceController.showSnackBar(
           `No replacement for the placeholder node ${customArgs?.name} was found.`
         );
       }
@@ -398,7 +392,7 @@ export default class PPGraph {
       // and "save" the original node type in the placeholders name
       const errorMessage = `Node of type ${type}(${customArgs?.name}) is missing. A placeholder node will be created instead`;
       console.warn(errorMessage);
-      this.onShowSnackbar(errorMessage, {
+      InterfaceController.showSnackBar(errorMessage, {
         variant: 'warning',
       });
       name = type;
@@ -959,7 +953,7 @@ export default class PPGraph {
                 inputRef === undefined ? '-MISSING' : ''
               }`
             );
-            this.onShowSnackbar(
+            InterfaceController.showSnackBar(
               'Some links could not be created. Check console for more info',
               {
                 variant: 'warning',
