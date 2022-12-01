@@ -661,7 +661,7 @@ export class Table extends HybridNode {
     const currentSheetIndex = this.getIndex();
     const sheet = workBook.Sheets[workBook.SheetNames[currentSheetIndex]];
     this.setOutputData(workBookSocketName, workBook);
-    this.setOutputData(JSONSocketName, sheet);
+    this.setOutputData(JSONSocketName, this.getJSON(sheet));
     this.setOutputData(arrayOfArraysSocketName, this.getArrayOfArrays(sheet));
   }
 }
@@ -671,29 +671,22 @@ export class Table_GetColumnByName extends CustomFunction {
     return 'Get table column by name';
   }
   public getDescription(): string {
-    return 'Get table column of data from table by name';
+    return 'Get column data by column name';
   }
   protected getDefaultFunction(): string {
-    return '(ColumnName, JSONIn) => {\n\
-      const matchingKey = Object.keys(JSONIn).find(key => JSONIn[key]["v"].toLowerCase() == ColumnName.toLowerCase());\n\
-      const column = matchingKey.replace(/[0-9]/g, "");\n\
-      const num = parseInt(matchingKey.replace(/\\D/g,"")); \n\
-      const toReturn = [];\n\
-      // keep going as long as we find something \n\
-      let currField = JSONIn[column + (num+1).toString()]; \n\
-      let index = num+1; \n\
-      while (currField !== undefined) { \n\
-        toReturn.push(currField);\n\
-        currField = JSONIn[column + (++index).toString()];\n\
-      }\n\
-      return toReturn.map(entry => entry["v"]);\n \
-      }';
+    return `(ArrayOfArraysIn, ColumnName) => {
+  const index = ArrayOfArraysIn[0].findIndex(col => col == ColumnName);
+  if (index > -1) {
+    return ArrayOfArraysIn.map(row => row[index]).slice(1);
+  }
+  return [];
+}`;
   }
   protected getDefaultParameterValues(): Record<string, any> {
     return { ColumnName: 'ExampleColumn' };
   }
   protected getDefaultParameterTypes(): Record<string, any> {
-    return { ColumnName: new StringType() };
+    return { ArrayOfArraysIn: new ArrayType(), ColumnName: new StringType() };
   }
   protected getOutputParameterType(): AbstractType {
     return new ArrayType();
@@ -705,63 +698,23 @@ export class Table_GetRowByName extends CustomFunction {
     return 'Get table row by name';
   }
   public getDescription(): string {
-    return 'Get table row of data from table by name';
+    return 'Get row data by row name';
   }
   protected getDefaultFunction(): string {
-    return '(ColumnName, JSONIn) => {\n\
-      const allKeys = Object.keys(JSONIn);\n\
-      const matchingKey = allKeys.find(key => JSONIn[key]["v"].toLowerCase() == ColumnName.toLowerCase());\n\
-      const column = matchingKey.replace(/[0-9]/g, "");\n\
-      const num = parseInt(matchingKey.replace(/\\D/g,""));\n\
-      // use all keys that are same num but larger column (yes n^2 complexity, improve if you are able to) \n\
-      const toReturn = allKeys.filter(key => {\n\
-        const keyColumn = key.replace(/[0-9]/g, "");\n\
-        const keyNum = parseInt(key.replace(/\\D/g,"")); \n\
-        return column.localeCompare(keyColumn) < 0 && num == keyNum;\n\
-      }).map(key => JSONIn[key]["v"]);\n\
-      return toReturn;\n\
-      }';
+    return `(ArrayOfArraysIn, ColumnName) => {
+  const found = ArrayOfArraysIn.find(row => row[0] == ColumnName);
+  if (found !== undefined) {
+    return found.slice(1);
+  };
+  return [];
+}`;
   }
   protected getDefaultParameterValues(): Record<string, any> {
     return { ColumnName: 'ExampleRow' };
   }
   protected getDefaultParameterTypes(): Record<string, any> {
-    return { ColumnName: new StringType() };
+    return { ArrayOfArraysIn: new ArrayType(), ColumnName: new StringType() };
   }
-  protected getOutputParameterType(): AbstractType {
-    return new ArrayType();
-  }
-}
-
-export class Table_GetRowObjects extends CustomFunction {
-  public getName(): string {
-    return 'Get table rows';
-  }
-  public getDescription(): string {
-    return 'Get table rows as JSON coupled with categories';
-  }
-  protected getDefaultFunction(): string {
-    return '(JSONIn) => {\n\
-      const allKeys = Object.keys(JSONIn);\n\
-      const letters = [...new Set(allKeys.map(key => key.replace(/[0-9]/g, "")))];\n\
-      const length = letters.length\n\
-      const arrays = []\n\
-      for (let i = 2; i < length; i++){\n\
-            const toReturn = {}\n\
-            letters.forEach(letter => {\n\
-                  const category = JSONIn[letter+"1"];\n\
-                  const current = JSONIn[letter+i.toString()];\n\
-                  if (category && current){\n\
-                        const value = current["v"];\n\
-                        toReturn[category["v"]] = value;\n\
-                  }\n\
-            })\n\
-            arrays.push(toReturn);\n\
-      }\n\
-      return arrays;\n\
-  }';
-  }
-
   protected getOutputParameterType(): AbstractType {
     return new ArrayType();
   }
@@ -772,59 +725,51 @@ export class Table_GetRange extends CustomFunction {
     return 'Get table range';
   }
   public getDescription(): string {
-    return 'Get table range by specifying start and end in X and Y';
+    return 'Get table range using start and end index of rows and columns';
   }
   protected getDefaultFunction(): string {
-    return '(StartX, EndX, StartY, EndY, JSONIn, FlipAxis) => {\n\
-      // assume they are sorted\n\
-      // HACK ALERT \n\
-      const allKeys = Object.keys(JSONIn);\n\
-      const letters = [...new Set(allKeys.map(key => key.replace(/[0-9]/g, "")))];\n\
-      let hasStarted = false;\n\
-      const arrays = []\n\
-      \n\
-      letters.forEach(letter => {\n\
-        if (letter == StartX){\n\
-          hasStarted = true;\n\
-        }\n\
-        if (hasStarted){\n\
-          const newArray = []\n\
-          let currY = StartY;\n\
-          let current = JSONIn[letter + currY.toString()];\n\
-          while (current && currY <= EndY){\n\
-            newArray.push(current["v"]);\n\
-            current = JSONIn[letter + (++currY).toString()];\n\
-          }\n\
-          arrays.push(newArray);\n\
-          if (letter == EndX){\n\
-            hasStarted = false;\n\
-          }  \n\
-        }\n\
-      })\n\
-      if (FlipAxis && arrays.length > 0){\n\
-        const newArrays = []\n\
-        for (let i = 0; i < arrays[0].length; i++){\n\
-          const newArray = []\n\
-          for (let j = 0; j < arrays.length; j++){\n\
-            newArray.push(arrays[j][i])\n\
-          }\n\
-          newArrays.push(newArray);\n\
-        }\n\
-        return newArrays;\n\
-      } else {\n\
-        return arrays;\n\
-      }\n\
-}';
+    return `(ArrayOfArraysIn, StartRow, EndRow, StartColumn, EndColumn, FlipAxis) => {
+  const sliced = ArrayOfArraysIn.slice(StartRow, EndRow);
+  const arrays = sliced.map(row => {
+      const newArray = []
+      row.forEach((col, index) => {
+        if (index >= StartColumn && index <= EndColumn) {
+          newArray.push(col);
+        }
+      })
+      return newArray
+    });
+    if (FlipAxis && arrays.length > 0){
+    const newArrays = []
+    for (let i = 0; i < arrays[0].length; i++){
+      const newArray = []
+      for (let j = 0; j < arrays.length; j++){
+        newArray.push(arrays[j][i])
+      }
+      newArrays.push(newArray);
+    }
+    return newArrays;
+  } else {
+    return arrays;
+  }
+}`;
   }
   protected getDefaultParameterValues(): Record<string, any> {
-    return { StartX: 'A', EndX: 'A', StartY: 1, EndY: 1, FlipAxis: false };
+    return {
+      StartRow: 0,
+      EndRow: 2,
+      StartColumn: 0,
+      EndColumn: 2,
+      FlipAxis: false,
+    };
   }
   protected getDefaultParameterTypes(): Record<string, any> {
     return {
-      StartX: new StringType(),
-      EndX: new StringType(),
-      StartY: new NumberType(true),
-      EndY: new NumberType(true),
+      ArrayOfArraysIn: new ArrayType(),
+      StartRow: new NumberType(true),
+      EndRow: new NumberType(true),
+      StartColumn: new NumberType(true),
+      EndColumn: new NumberType(true),
       FlipAxis: new BooleanType(),
     };
   }
