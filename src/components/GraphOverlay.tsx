@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import useInterval from 'use-interval';
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
-import InterfaceController from '../InterfaceController';
+import InterfaceController, { ListenEvent } from '../InterfaceController';
 import GraphOverlayDrawer from './GraphOverlayDrawer';
 import GraphOverlayNodeMenu from './GraphOverlayNodeMenu';
 import GraphOverlaySocketInspector from './GraphOverlaySocketInspector';
@@ -22,15 +22,34 @@ const GraphOverlay: React.FunctionComponent<GraphOverlayProps> = (props) => {
   useEffect(() => {
     if (props.currentGraph) {
       // register callbacks when currentGraph mounted
-      InterfaceController.onSelectionChanged = setSelectedNodes;
-      InterfaceController.onSelectionDragging = setIsDraggingSelection;
-      InterfaceController.onViewportDragging = setIsDraggingViewport;
+      const ids = [];
+      ids.push(
+        InterfaceController.addListener(
+          ListenEvent.SelectionChanged,
+          setSelectedNodes
+        )
+      );
+      ids.push(
+        InterfaceController.addListener(
+          ListenEvent.SelectionDragging,
+          setIsDraggingSelection
+        )
+      );
+      ids.push(
+        InterfaceController.addListener(
+          ListenEvent.ViewportDragging,
+          setIsDraggingViewport
+        )
+      );
       props.currentGraph.viewport.on('zoomed', () => {
         setIsZoomingViewport(true);
       });
       props.currentGraph.viewport.on('zoomed-end', () => {
         setIsZoomingViewport(false);
       });
+      return () => {
+        ids.forEach((id) => InterfaceController.removeListener(id));
+      };
     }
   });
 
