@@ -21,7 +21,7 @@ import { ExecuteMacro, Macro } from '../nodes/macro/macro';
 import { Action, ActionHandler } from '../utils/actionHandler';
 import { hri } from 'human-readable-ids';
 import FlowLogic from './FlowLogic';
-import InterfaceController from '../InterfaceController';
+import InterfaceController, { ListenEvent } from '../InterfaceController';
 
 export default class PPGraph {
   static currentGraph: PPGraph;
@@ -164,7 +164,7 @@ export default class PPGraph {
     } else {
       this.viewport.cursor = 'grabbing';
       this.dragSourcePoint = new PIXI.Point(this.viewport.x, this.viewport.y);
-      InterfaceController.onViewportDragging(true);
+      InterfaceController.notifyListeners(ListenEvent.ViewportDragging, true);
     }
   }
 
@@ -198,7 +198,7 @@ export default class PPGraph {
     this.viewport.cursor = 'default';
     this.viewport.plugins.resume('drag');
     this.dragSourcePoint = undefined;
-    InterfaceController.onViewportDragging(false);
+    InterfaceController.notifyListeners(ListenEvent.ViewportDragging, false);
   }
 
   getSocketCenter(object: PPSocket): PIXI.Point {

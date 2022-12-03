@@ -273,7 +273,6 @@ export class CustomFunction extends PPNode {
         this.getDefaultParameterValues()[argument] || 0,
         true,
         {},
-        false,
         false
       );
     });

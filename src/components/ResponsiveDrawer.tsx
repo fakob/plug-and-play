@@ -60,7 +60,6 @@ const ResponsiveDrawer = (props) => {
       ></div>
       {props.selectedNode && (
         <InspectorContainer
-          currentGraph={props.currentGraph}
           selectedNode={props.selectedNode}
           randomMainColor={props.randomMainColor}
           widthPercentage={widthPercentage}

@@ -8,7 +8,6 @@ import {
   ToggleButtonGroup,
 } from '@mui/material';
 import styles from './utils/style.module.css';
-import PPGraph from './classes/GraphClass';
 import PPNode from './classes/NodeClass';
 import { PropertyArrayContainer } from './PropertyArrayContainer';
 import {
@@ -19,7 +18,6 @@ import {
 } from './utils/constants';
 
 type MyProps = {
-  currentGraph: PPGraph;
   selectedNode: PPNode;
   randomMainColor: string;
   widthPercentage: number;
@@ -96,7 +94,6 @@ const InspectorContainer: React.FunctionComponent<MyProps> = (props) => {
           </ToggleButtonGroup>
         </Box>
         <PropertyArrayContainer
-          currentGraph={props.currentGraph}
           selectedNode={props.selectedNode}
           randomMainColor={props.randomMainColor}
         />

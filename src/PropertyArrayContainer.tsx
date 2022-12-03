@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import useInterval from 'use-interval';
+import React, { useEffect, useState } from 'react';
 import Color from 'color';
 import {
   Accordion,
@@ -23,15 +22,14 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { styled } from '@mui/styles';
 import { writeDataToClipboard, writeTextToClipboard } from './utils/utils';
 import styles from './utils/style.module.css';
-import PPGraph from './classes/GraphClass';
 import PPNode from './classes/NodeClass';
 import Socket from './classes/SocketClass';
 import { AbstractType } from './nodes/datatypes/abstractType';
 import { allDataTypes } from './nodes/datatypes/dataTypesMap';
 import { CodeEditor } from './components/Editor';
+import InterfaceController, { ListenEvent } from './InterfaceController';
 
 type PropertyArrayContainerProps = {
-  currentGraph: PPGraph;
   selectedNode: PPNode;
   randomMainColor: string;
 };
@@ -100,9 +98,16 @@ export const PropertyArrayContainer: React.FunctionComponent<
   PropertyArrayContainerProps
 > = (props) => {
   const [dragging, setIsDragging] = useState(true);
-  useInterval(async () => {
-    setIsDragging(PPGraph.currentGraph.selection.isDraggingSelection);
-  }, 32);
+  useEffect(() => {
+    const id = InterfaceController.addListener(
+      ListenEvent.SelectionDragging,
+      setIsDragging
+    );
+    return () => {
+      InterfaceController.removeListener(id);
+    };
+  });
+
   return (
     !dragging && (
       <Stack spacing={1}>

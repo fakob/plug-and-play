@@ -356,18 +356,11 @@ export default class PPNode extends PIXI.Container {
     data?: unknown,
     visible?: boolean,
     custom?: Record<string, any>, // lets get rid of this ASAP
-    isNodeTrigger = false,
     redraw = true
   ): void {
-    if (isNodeTrigger) {
-      this.addTriggerSocket(
-        new Socket(SOCKET_TYPE.IN, name, type, data, visible, custom)
-      );
-    } else {
-      this.addSocket(
-        new Socket(SOCKET_TYPE.IN, name, type, data, visible, custom)
-      );
-    }
+    this.addSocket(
+      new Socket(SOCKET_TYPE.IN, name, type, data, visible, custom)
+    );
     // redraw background due to size change
     if (redraw) {
       this.resizeAndDraw();
@@ -699,14 +692,16 @@ export default class PPNode extends PIXI.Container {
   }
 
   public addTriggerInput(): void {
-    this.addInput(
-      this.constructSocketName('Trigger', this.nodeTriggerSocketArray),
-      new TriggerType(TRIGGER_TYPE_OPTIONS[0].value),
-      0,
-      true,
-      undefined,
-      true
+    this.addTriggerSocket(
+      new Socket(
+        SOCKET_TYPE.IN,
+        this.constructSocketName('Trigger', this.nodeTriggerSocketArray),
+        new TriggerType(TRIGGER_TYPE_OPTIONS[0].value),
+        0,
+        true
+      )
     );
+
     this.updateBehaviour.update = false; // turn off "Update on change"
   }
 
