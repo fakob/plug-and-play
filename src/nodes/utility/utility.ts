@@ -150,7 +150,7 @@ export class ThrottleDebounce extends PPNode {
   }
 
   public getName(): string {
-    return 'Limit updating the value';
+    return 'Throttle';
   }
 
   public getDescription(): string {
