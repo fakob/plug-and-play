@@ -6,9 +6,10 @@ import Socket from './classes/SocketClass';
 import { v4 as uuid } from 'uuid';
 
 export enum ListenEvent {
-  SelectionChanged,
-  SelectionDragging,
-  ViewportDragging,
+  SelectionChanged, // data = PPNode[]
+  SelectionDragging, // data = Boolean
+  ViewportDragging, // data = Boolean
+  ViewportZoom, // data = Boolean
 }
 
 export default class InterfaceController {
@@ -16,6 +17,7 @@ export default class InterfaceController {
     0: {},
     1: {},
     2: {},
+    3: {},
   }; // not sure why this one is so messed up
 
   // we use this listener structure here as there can be multiple listeners, not needed for everything (sometimes there is just one listener)

@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
 import { Box } from '@mui/material';
-import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
 import ResponsiveDrawer from './ResponsiveDrawer';
 
 type GraphOverlayDrawerProps = {
-  currentGraph: PPGraph;
   randomMainColor: string;
   selectedNodes: PPNode[];
 };
@@ -22,7 +20,6 @@ const GraphOverlayDrawer: React.FunctionComponent<GraphOverlayDrawerProps> = (
       <ResponsiveDrawer
         drawerWidth={drawerWidth}
         setDrawerWidth={setDrawerWidth}
-        currentGraph={props.currentGraph}
         selectedNode={
           props.selectedNodes.length > 0 ? props.selectedNodes[0] : null
         }

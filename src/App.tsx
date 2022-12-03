@@ -85,7 +85,7 @@ import PPNode from './classes/NodeClass';
 import { InputParser } from './utils/inputParser';
 import styles from './utils/style.module.css';
 import { ActionHandler } from './utils/actionHandler';
-import InterfaceController from './InterfaceController';
+import InterfaceController, { ListenEvent } from './InterfaceController';
 
 (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__ &&
   (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__.register({ PIXI: PIXI });
@@ -433,6 +433,14 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
 
     // add the viewport to the stage
     pixiApp.current.stage.addChild(viewport.current);
+
+    // add global listen events to zoom
+    viewport.current.on('zoomed', () =>
+      InterfaceController.notifyListeners(ListenEvent.ViewportZoom, true)
+    );
+    viewport.current.on('zoomed-end', () =>
+      InterfaceController.notifyListeners(ListenEvent.ViewportZoom, false)
+    );
 
     // configure viewport
     viewport.current
