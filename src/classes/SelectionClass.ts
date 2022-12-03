@@ -35,7 +35,6 @@ export default class PPSelection extends PIXI.Container {
   interactionData: PIXI.InteractionData | null;
 
   protected onMoveHandler: (event?: PIXI.InteractionEvent) => void;
-  onSelectionRedrawn: ((screenPoint: PIXI.Point) => void) | null; // called when the selection is redrawn becaused its boundaries changed, were moved
 
   onRightClick:
     | ((event: PIXI.InteractionEvent, target: PIXI.DisplayObject) => void)
@@ -78,9 +77,6 @@ export default class PPSelection extends PIXI.Container {
     this.viewport.on('moved', (this as any).onViewportMoved.bind(this));
 
     this.onMoveHandler = this.onMove.bind(this);
-
-    // define callbacks
-    this.onSelectionRedrawn = () => {};
   }
 
   get selectedNodes(): PPNode[] {
@@ -393,7 +389,7 @@ export default class PPSelection extends PIXI.Container {
     this.scaleHandle.y =
       selectionBounds.y + selectionBounds.height - SCALEHANDLE_SIZE / 2;
 
-    this.onSelectionRedrawn(this.screenPoint());
+    InterfaceController.selectionRedrawn(this.screenPoint());
   }
 
   isNodeSelected(node: PPNode): boolean {

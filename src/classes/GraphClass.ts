@@ -51,11 +51,6 @@ export default class PPGraph {
 
   ticking: boolean;
 
-  onRightClick: (
-    event: PIXI.InteractionEvent,
-    target: PIXI.DisplayObject
-  ) => void = () => {}; // called when the graph is right clicked
-
   constructor(app: PIXI.Application, viewport: Viewport) {
     this.app = app;
     this.viewport = viewport;
@@ -132,7 +127,7 @@ export default class PPGraph {
       (this.dragSourcePoint.x === this.viewport.x &&
         this.dragSourcePoint.y === this.viewport.y)
     ) {
-      this.onRightClick(event, target);
+      InterfaceController.onRightClick(event, target);
     }
   }
 
