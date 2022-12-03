@@ -2,6 +2,7 @@ import PPNode from '../classes/NodeClass';
 import * as array from './data/array';
 import * as base from './base';
 import * as booleanlogic from './logic/boolean';
+import * as browser from './utility/browser';
 import * as charts from './draw/charts';
 import * as codeEditor from './codeEditor';
 import * as dataFunctions from './data/dataFunctions';
@@ -32,6 +33,7 @@ export const getAllNodeTypes = (): RegisteredNodeTypes => {
       array,
       base,
       booleanlogic,
+      browser,
       charts,
       codeEditor,
       dataFunctions,

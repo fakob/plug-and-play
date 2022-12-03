@@ -532,7 +532,9 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     getRemoteGraphsList(githubBaseURL, githubBranchName).then(
       (arrayOfFileNames) => {
         console.log(arrayOfFileNames);
-        setRemoteGraphs(arrayOfFileNames);
+        setRemoteGraphs(
+          arrayOfFileNames.filter((file) => file.endsWith('.ppgraph'))
+        );
       }
     );
 
