@@ -14,6 +14,7 @@ import { BooleanType } from '../datatypes/booleanType';
 import { ArrayType } from '../datatypes/arrayType';
 import { TRgba } from '../../utils/interfaces';
 import { DisplayObject } from 'pixi.js';
+import { getCurrentCursorPosition } from '../../utils/utils';
 
 export const offseXName = 'Offset X';
 export const offsetYName = 'Offset Y';
@@ -127,10 +128,6 @@ export abstract class DRAW_Base extends PPNode {
     this.handleDrawing(drawingFunction, inputObject[inputAbsolutePositions]);
   }
 
-  protected shouldDraw(): boolean {
-    return !this.getOutputSocketByName(outputPixiName).hasLink();
-  }
-
   private handleDrawing(drawingFunction: any, absolutePosition: boolean): void {
     this.removeChild(this.deferredGraphics);
     if (this.shouldDraw()) {
@@ -141,6 +138,36 @@ export abstract class DRAW_Base extends PPNode {
         this.deferredGraphics.y -= this.y;
       }
       this.addChild(this.deferredGraphics);
+
+      if (this.allowMovingDirectly()) {
+        /*this.on('pointerdown', this._onPointerDown.bind(this));
+        this.on('pointerup', this._onPointerUp.bind(this));
+        this.on('pointerover', this._onPointerOver.bind(this));
+        this.on('pointerout', this._onPointerOut.bind(this));
+        this.on('dblclick', this._onDoubleClick.bind(this));
+        this.on('removed', this._onRemoved.bind(this));*/
+        /*this.deferredGraphics.on('pointerdown', () => {
+          console.log('triggerd');
+          const originalPos = getCurrentCursorPosition();
+          this.deferredGraphics.on('pointermove', () => {
+            const currPos = getCurrentCursorPosition();
+            const diffX = currPos.x - originalPos.x;
+            const diffY = currPos.y - originalPos.y;
+            this.setInputData(
+              offseXName,
+              this.getInputData(offseXName) + diffX
+            );
+            this.setInputData(
+              offsetYName,
+              this.getInputData(offsetYName) + diffY
+            );
+            this.executeOptimizedChain();
+          });
+          this.deferredGraphics.on('pointerup', () => {
+            this.deferredGraphics.removeListener('pointermove');
+          });
+        });*/
+      }
     }
   }
 
@@ -163,5 +190,13 @@ export abstract class DRAW_Base extends PPNode {
   }
   public outputUnplugged(): void {
     this.executeOptimizedChain();
+  }
+
+  protected shouldDraw(): boolean {
+    return !this.getOutputSocketByName(outputPixiName).hasLink();
+  }
+
+  protected allowMovingDirectly(): boolean {
+    return true;
   }
 }
