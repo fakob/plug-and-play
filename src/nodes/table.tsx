@@ -9,6 +9,7 @@ import React, {
 } from 'react';
 import * as XLSX from 'xlsx';
 import DataEditor, {
+  CellClickedEventArgs,
   CompactSelection,
   DataEditorRef,
   EditableGridCell,
@@ -41,6 +42,7 @@ import {
   indexToAlphaNumName,
   limitRange,
   removeColumnFromArrayOfArrays,
+  removeRowFromArrayOfArrays,
 } from '../utils/utils';
 import { SOCKET_TYPE } from '../utils/constants';
 import { CustomArgs } from '../utils/interfaces';
@@ -252,8 +254,12 @@ export class Table extends HybridNode {
     const [colsMap, setColsMap] = useState(() => getCols());
     const [gridSelection, setGridSelection] =
       useState<GridSelection>(unselected);
-    const [menu, setMenu] = React.useState<{
+    const [colMenu, setColMenu] = useState<{
       col: number;
+      pos: PIXI.Point;
+    }>();
+    const [rowMenu, setRowMenu] = useState<{
+      row: number;
       pos: PIXI.Point;
     }>();
     const [hoverRow, setHoverRow] = useState<number | undefined>(undefined);
@@ -274,7 +280,8 @@ export class Table extends HybridNode {
       [hoverRow]
     );
 
-    const isOpen = menu !== undefined;
+    const isColOpen = colMenu !== undefined;
+    const isRowOpen = rowMenu !== undefined;
 
     useEffect(() => {
       loadSheet();
@@ -460,12 +467,24 @@ export class Table extends HybridNode {
       });
     };
 
-    const onHeaderMenuClick = React.useCallback(
-      (col: number, bounds: Rectangle) => {
-        console.log('Header menu clicked', col, bounds);
-        setMenu({
-          col,
-          pos: new PIXI.Point(bounds.x + bounds.width, bounds.y),
+    const onHeaderMenuClick = useCallback((col: number, bounds: Rectangle) => {
+      console.log('Header menu clicked', col, bounds);
+      setColMenu({
+        col,
+        pos: new PIXI.Point(bounds.x + bounds.width, bounds.y),
+      });
+    }, []);
+
+    const onContextMenuClick = useCallback(
+      (cell: Item, event: CellClickedEventArgs) => {
+        event.preventDefault();
+        console.log('Row clicked:', cell[1]);
+        setRowMenu({
+          row: cell[1],
+          pos: new PIXI.Point(
+            event.bounds.x + event.localEventX,
+            event.bounds.y + event.localEventY
+          ),
         });
       },
       []
@@ -487,7 +506,7 @@ export class Table extends HybridNode {
           getRowThemeOverride={getRowThemeOverride}
           gridSelection={gridSelection}
           onCellEdited={onCellEdited}
-          onCellContextMenu={(_, e) => e.preventDefault()}
+          onCellContextMenu={onContextMenuClick}
           onColumnMoved={onColumnMoved}
           onGridSelectionChange={onGridSelectionChange}
           onHeaderMenuClick={onHeaderMenuClick}
@@ -541,14 +560,14 @@ export class Table extends HybridNode {
           }}
         />
         <Menu
-          open={isOpen}
+          open={isColOpen}
           onClose={() => {
-            setMenu(undefined);
+            setColMenu(undefined);
           }}
           anchorReference="anchorPosition"
           anchorPosition={{
-            top: menu?.pos.y ?? 0,
-            left: menu?.pos.x ?? 0,
+            top: colMenu?.pos.y ?? 0,
+            left: colMenu?.pos.x ?? 0,
           }}
           anchorOrigin={{
             vertical: 'top',
@@ -561,8 +580,8 @@ export class Table extends HybridNode {
         >
           <MenuItem
             onClick={() => {
-              onSort(menu.col, false);
-              setMenu(undefined);
+              onSort(colMenu.col, false);
+              setColMenu(undefined);
             }}
           >
             <ListItemIcon>
@@ -572,8 +591,8 @@ export class Table extends HybridNode {
           </MenuItem>
           <MenuItem
             onClick={() => {
-              onSort(menu.col, true);
-              setMenu(undefined);
+              onSort(colMenu.col, true);
+              setColMenu(undefined);
             }}
           >
             <ListItemIcon>
@@ -584,9 +603,9 @@ export class Table extends HybridNode {
           <Divider />
           <MenuItem
             onClick={() => {
-              addColumnToArrayOfArrays(arrayOfArrays, menu.col);
+              addColumnToArrayOfArrays(arrayOfArrays, colMenu.col);
               setColsMap(() => getCols());
-              setMenu(undefined);
+              setColMenu(undefined);
             }}
           >
             <ListItemIcon>
@@ -596,9 +615,9 @@ export class Table extends HybridNode {
           </MenuItem>
           <MenuItem
             onClick={() => {
-              addColumnToArrayOfArrays(arrayOfArrays, menu.col + 1);
+              addColumnToArrayOfArrays(arrayOfArrays, colMenu.col + 1);
               setColsMap(() => getCols());
-              setMenu(undefined);
+              setColMenu(undefined);
             }}
           >
             <ListItemIcon>
@@ -609,15 +628,69 @@ export class Table extends HybridNode {
           <Divider />
           <MenuItem
             onClick={() => {
-              removeColumnFromArrayOfArrays(arrayOfArrays, menu.col);
+              removeColumnFromArrayOfArrays(arrayOfArrays, colMenu.col);
               setColsMap(() => getCols());
-              setMenu(undefined);
+              setColMenu(undefined);
             }}
           >
             <ListItemIcon>
               <DeleteIcon fontSize="small" />
             </ListItemIcon>
             <ListItemText>Delete column</ListItemText>
+          </MenuItem>
+        </Menu>
+        <Menu
+          open={isRowOpen}
+          onClose={() => {
+            setRowMenu(undefined);
+          }}
+          anchorReference="anchorPosition"
+          anchorPosition={{
+            top: rowMenu?.pos.y ?? 0,
+            left: rowMenu?.pos.x ?? 0,
+          }}
+          anchorOrigin={{
+            vertical: 'top',
+            horizontal: 'left',
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'left',
+          }}
+        >
+          <MenuItem
+            onClick={() => {
+              addRowToArrayOfArrays(arrayOfArrays, rowMenu.row);
+              setRowMenu(undefined);
+            }}
+          >
+            <ListItemIcon>
+              <AddIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Add row above</ListItemText>
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              addRowToArrayOfArrays(arrayOfArrays, rowMenu.row + 1);
+              setRowMenu(undefined);
+            }}
+          >
+            <ListItemIcon>
+              <AddIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Add row below</ListItemText>
+          </MenuItem>
+          <Divider />
+          <MenuItem
+            onClick={() => {
+              removeRowFromArrayOfArrays(arrayOfArrays, rowMenu.row);
+              setRowMenu(undefined);
+            }}
+          >
+            <ListItemIcon>
+              <DeleteIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Delete row</ListItemText>
           </MenuItem>
         </Menu>
       </>

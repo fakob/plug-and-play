@@ -706,6 +706,14 @@ export const addRowToArrayOfArrays = (
   return arrayOfArrays;
 };
 
+export const removeRowFromArrayOfArrays = (
+  arrayOfArrays: any[],
+  insertIndex
+): any[] => {
+  arrayOfArrays.splice(insertIndex, 1);
+  return arrayOfArrays;
+};
+
 export const addColumnToArrayOfArrays = (
   arrayOfArrays: any[],
   insertIndex
