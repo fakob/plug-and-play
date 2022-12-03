@@ -184,9 +184,14 @@ export class ThrottleDebounce extends PPNode {
     ];
   }
 
-  // when the Node is added, define debounced function
+  // when the Node is added (new node), define debounced function
   public onNodeAdded = () => {
     super.onNodeAdded();
+    this.updateDebounceFunction();
+  };
+
+  // after the Node is configured (loaded node), update debounced function
+  public onConfigure = () => {
     this.updateDebounceFunction();
   };
 
