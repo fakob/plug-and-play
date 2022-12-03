@@ -150,7 +150,7 @@ export class ThrottleDebounce extends PPNode {
   }
 
   public getName(): string {
-    return 'Throttle';
+    return 'Throttle/Debounce';
   }
 
   public getDescription(): string {
@@ -170,7 +170,7 @@ export class ThrottleDebounce extends PPNode {
         undefined,
         false
       ),
-      new Socket(SOCKET_TYPE.IN, 'Wait', new NumberType(), 3000, false),
+      new Socket(SOCKET_TYPE.IN, 'Wait', new NumberType(), 1000, false),
       new Socket(
         SOCKET_TYPE.IN,
         'Max Wait',
