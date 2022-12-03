@@ -128,6 +128,23 @@ export abstract class DRAW_Base extends PPNode {
     this.handleDrawing(drawingFunction, inputObject[inputAbsolutePositions]);
   }
 
+  protected pointerDown() {
+    console.log('triggerd');
+    const originalPos = getCurrentCursorPosition();
+    this.deferredGraphics.on('pointermove', () => {
+      const currPos = getCurrentCursorPosition();
+      const diffX = currPos.x - originalPos.x;
+      const diffY = currPos.y - originalPos.y;
+      this.setInputData(offseXName, this.getInputData(offseXName) + diffX);
+      this.setInputData(offsetYName, this.getInputData(offsetYName) + diffY);
+      this.executeOptimizedChain();
+      this.pointerDown();
+    });
+    this.deferredGraphics.on('pointerup', () => {
+      this.deferredGraphics.removeListener('pointermove');
+    });
+  }
+
   private handleDrawing(drawingFunction: any, absolutePosition: boolean): void {
     this.removeChild(this.deferredGraphics);
     if (this.shouldDraw()) {
@@ -140,33 +157,11 @@ export abstract class DRAW_Base extends PPNode {
       this.addChild(this.deferredGraphics);
 
       if (this.allowMovingDirectly()) {
-        /*this.on('pointerdown', this._onPointerDown.bind(this));
-        this.on('pointerup', this._onPointerUp.bind(this));
-        this.on('pointerover', this._onPointerOver.bind(this));
-        this.on('pointerout', this._onPointerOut.bind(this));
-        this.on('dblclick', this._onDoubleClick.bind(this));
-        this.on('removed', this._onRemoved.bind(this));*/
-        /*this.deferredGraphics.on('pointerdown', () => {
-          console.log('triggerd');
-          const originalPos = getCurrentCursorPosition();
-          this.deferredGraphics.on('pointermove', () => {
-            const currPos = getCurrentCursorPosition();
-            const diffX = currPos.x - originalPos.x;
-            const diffY = currPos.y - originalPos.y;
-            this.setInputData(
-              offseXName,
-              this.getInputData(offseXName) + diffX
-            );
-            this.setInputData(
-              offsetYName,
-              this.getInputData(offsetYName) + diffY
-            );
-            this.executeOptimizedChain();
-          });
-          this.deferredGraphics.on('pointerup', () => {
-            this.deferredGraphics.removeListener('pointermove');
-          });
-        });*/
+        this.deferredGraphics.interactive = true;
+
+        this.deferredGraphics.on('pointerdown', () => {
+          this.pointerDown();
+        });
       }
     }
   }
