@@ -4,6 +4,7 @@ import * as PIXI from 'pixi.js';
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
 import FloatingNodeMenu from './FloatingNodeMenu';
+import InterfaceController from '../InterfaceController';
 
 type GraphOverlayNodeMenuProps = {
   currentGraph: PPGraph;
@@ -16,19 +17,12 @@ const GraphOverlayNodeMenu: React.FunctionComponent<
   GraphOverlayNodeMenuProps
 > = (props) => {
   const [selectionPos, setSelectionPos] = useState<PIXI.Point>(
-    new PIXI.Point(0, 0)
+    PPGraph?.currentGraph?.selection?.screenPoint()
   );
 
   useEffect(() => {
-    if (props.currentGraph) {
-      // register callbacks when currentGraph mounted
-      props.currentGraph.selection.onSelectionRedrawn = (
-        screenPoint: PIXI.Point
-      ) => {
-        setSelectionPos(screenPoint);
-      };
-    }
-  }, [props.currentGraph]);
+    InterfaceController.selectionRedrawn = setSelectionPos;
+  });
 
   return (
     <Box sx={{ position: 'relative' }}>
