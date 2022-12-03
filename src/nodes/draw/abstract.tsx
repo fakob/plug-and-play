@@ -15,6 +15,7 @@ import { ArrayType } from '../datatypes/arrayType';
 import { TRgba } from '../../utils/interfaces';
 import { DisplayObject } from 'pixi.js';
 import { getCurrentCursorPosition } from '../../utils/utils';
+import { ActionHandler } from '../../utils/actionHandler';
 
 export const offseXName = 'Offset X';
 export const offsetYName = 'Offset Y';
@@ -136,17 +137,24 @@ export abstract class DRAW_Base extends PPNode {
     this.handleDrawing(drawingFunction, inputObject[inputAbsolutePositions]);
   }
 
+  protected setOffsets(offsets: PIXI.Point) {
+    this.setInputData(offseXName, offsets.x);
+    this.setInputData(offsetYName, offsets.y);
+    this.executeOptimizedChain();
+  }
+
   protected pointerDown(
     originalCursorPos: PIXI.Point,
     originalOffsets: PIXI.Point
   ) {
+    let currPos = getCurrentCursorPosition();
     this.deferredGraphics.on('pointermove', () => {
-      const currPos = getCurrentCursorPosition();
+      currPos = getCurrentCursorPosition();
       const diffX = currPos.x - originalCursorPos.x;
       const diffY = currPos.y - originalCursorPos.y;
-      this.setInputData(offseXName, originalOffsets.x + diffX);
-      this.setInputData(offsetYName, originalOffsets.y + diffY);
-      this.executeOptimizedChain();
+      this.setOffsets(
+        new PIXI.Point(originalOffsets.x + diffX, originalOffsets.y + diffY)
+      );
       // we dont re-trigger immediately, to save perfomance
       setTimeout(
         () => this.pointerDown(originalCursorPos, originalOffsets),
@@ -155,6 +163,19 @@ export abstract class DRAW_Base extends PPNode {
     });
     this.deferredGraphics.on('pointerup', () => {
       this.deferredGraphics.removeListener('pointermove');
+
+      // allow undoing
+      ActionHandler.performAction(
+        async () =>
+          this.setOffsets(
+            new PIXI.Point(
+              currPos.x - originalCursorPos.x,
+              currPos.y - originalCursorPos.y
+            )
+          ),
+        async () => this.setOffsets(originalOffsets),
+        false
+      );
     });
   }
 
