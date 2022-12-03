@@ -129,7 +129,6 @@ export abstract class DRAW_Base extends PPNode {
   }
 
   protected pointerDown() {
-    console.log('triggerd');
     const originalPos = getCurrentCursorPosition();
     this.deferredGraphics.on('pointermove', () => {
       const currPos = getCurrentCursorPosition();
