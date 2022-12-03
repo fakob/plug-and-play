@@ -6,9 +6,10 @@ import Socket from './classes/SocketClass';
 import { v4 as uuid } from 'uuid';
 
 export enum ListenEvent {
-  SelectionChanged,
-  SelectionDragging,
-  ViewportDragging,
+  SelectionChanged, // data = PPNode[]
+  SelectionDragging, // data = Boolean
+  ViewportDragging, // data = Boolean
+  ViewportZoom, // data = Boolean
 }
 
 export default class InterfaceController {
@@ -16,7 +17,8 @@ export default class InterfaceController {
     0: {},
     1: {},
     2: {},
-  }; // not sure why this one is so messed up
+    3: {},
+  }; // not sure why this one is so messed up and needs these defined by default, very annoying
 
   // we use this listener structure here as there can be multiple listeners, not needed for everything (sometimes there is just one listener)
   static addListener(event: ListenEvent, func: (data: any) => void) {
@@ -39,7 +41,7 @@ export default class InterfaceController {
     }
   }
 
-  // these are single target
+  // these are single target, move them up to be multi listener if multiple places needs to use them
   static showSnackBar: (
     message: SnackbarMessage,
     options?: OptionsObject
@@ -53,4 +55,5 @@ export default class InterfaceController {
   static onOpenSocketInspector: (pos: PIXI.Point, data: Socket) => void =
     () => {}; // called when socket inspector should be opened
   static onCloseSocketInspector: () => void; // called when socket inspector should be closed
+  static selectionRedrawn: (pos: PIXI.Point) => void = () => {};
 }
