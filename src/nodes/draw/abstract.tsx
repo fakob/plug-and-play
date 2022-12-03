@@ -23,6 +23,7 @@ export const scaleYName = 'Scale Y';
 export const inputRotationName = 'Angle';
 export const inputPivotName = 'Pivot';
 export const inputAbsolutePositions = 'Absolute Positions';
+export const inputAlwaysDraw = 'Always Draw';
 export const injectedDataName = 'Injected Data';
 export const outputPixiName = 'Graphics';
 
@@ -93,6 +94,13 @@ export abstract class DRAW_Base extends PPNode {
       ),
       new Socket(
         SOCKET_TYPE.IN,
+        inputAlwaysDraw,
+        new BooleanType(),
+        true,
+        false
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
         inputAbsolutePositions,
         new BooleanType(),
         false,
@@ -128,16 +136,22 @@ export abstract class DRAW_Base extends PPNode {
     this.handleDrawing(drawingFunction, inputObject[inputAbsolutePositions]);
   }
 
-  protected pointerDown() {
-    const originalPos = getCurrentCursorPosition();
+  protected pointerDown(
+    originalCursorPos: PIXI.Point,
+    originalOffsets: PIXI.Point
+  ) {
     this.deferredGraphics.on('pointermove', () => {
       const currPos = getCurrentCursorPosition();
-      const diffX = currPos.x - originalPos.x;
-      const diffY = currPos.y - originalPos.y;
-      this.setInputData(offseXName, this.getInputData(offseXName) + diffX);
-      this.setInputData(offsetYName, this.getInputData(offsetYName) + diffY);
+      const diffX = currPos.x - originalCursorPos.x;
+      const diffY = currPos.y - originalCursorPos.y;
+      this.setInputData(offseXName, originalOffsets.x + diffX);
+      this.setInputData(offsetYName, originalOffsets.y + diffY);
       this.executeOptimizedChain();
-      this.pointerDown();
+      // we dont re-trigger immediately, to save perfomance
+      setTimeout(
+        () => this.pointerDown(originalCursorPos, originalOffsets),
+        16
+      );
     });
     this.deferredGraphics.on('pointerup', () => {
       this.deferredGraphics.removeListener('pointermove');
@@ -159,7 +173,13 @@ export abstract class DRAW_Base extends PPNode {
         this.deferredGraphics.interactive = true;
 
         this.deferredGraphics.on('pointerdown', () => {
-          this.pointerDown();
+          this.pointerDown(
+            getCurrentCursorPosition(),
+            new PIXI.Point(
+              this.getInputData(offseXName),
+              this.getInputData(offsetYName)
+            )
+          );
         });
       }
     }
@@ -187,7 +207,10 @@ export abstract class DRAW_Base extends PPNode {
   }
 
   protected shouldDraw(): boolean {
-    return !this.getOutputSocketByName(outputPixiName).hasLink();
+    return (
+      this.getInputData(inputAlwaysDraw) ||
+      !this.getOutputSocketByName(outputPixiName).hasLink()
+    );
   }
 
   protected allowMovingDirectly(): boolean {
