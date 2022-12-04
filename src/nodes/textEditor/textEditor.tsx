@@ -18,9 +18,9 @@ import PPSocket from '../../classes/SocketClass';
 import PPGraph from '../../classes/GraphClass';
 import { CustomArgs, TRgba } from '../../utils/interfaces';
 import {
-  COLOR,
   COLOR_DARK,
   COLOR_WHITE_TEXT,
+  NODE_TYPE_COLOR,
   SOCKET_TYPE,
   customTheme,
 } from '../../utils/constants';
@@ -60,7 +60,7 @@ const backgroundColorSocketName = 'Background Color';
 const autoHeightName = 'Auto height';
 const inputPrefix = 'Input';
 const inputName1 = `${inputPrefix} 1`;
-const backgroundColor = TRgba.fromString(COLOR[8]);
+const backgroundColor = TRgba.fromString(NODE_TYPE_COLOR.OUTPUT);
 
 export class TextEditor extends HybridNode {
   getAllParameters: () => void;
@@ -78,6 +78,10 @@ export class TextEditor extends HybridNode {
 
   public getDescription(): string {
     return 'Edit your text';
+  }
+
+  getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.OUTPUT);
   }
 
   public getCanAddInput(): boolean {

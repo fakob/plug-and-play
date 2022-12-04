@@ -27,10 +27,11 @@ import { SketchPicker } from 'react-color';
 import Socket from '../../classes/SocketClass';
 import { CustomArgs, TRgba } from '../../utils/interfaces';
 import {
+  NODE_TYPE_COLOR,
   PRESET_COLORS,
+  RANDOMMAINCOLOR,
   SOCKET_TYPE,
   customTheme,
-  RANDOMMAINCOLOR,
 } from '../../utils/constants';
 import { roundNumber } from '../../utils/utils';
 import { AnyType } from '../datatypes/anyType';
@@ -70,6 +71,10 @@ type WidgetButtonProps = {
 export class WidgetButton extends HybridNode {
   getOpacity(): number {
     return 0.01;
+  }
+
+  getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
   }
 
   protected getActivateByDoubleClick(): boolean {
@@ -231,6 +236,10 @@ export class WidgetColorPicker extends HybridNode {
 
   getOpacity(): number {
     return 0.01;
+  }
+
+  getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
   }
 
   protected getActivateByDoubleClick(): boolean {
@@ -426,6 +435,10 @@ export class WidgetSwitch extends HybridNode {
     return 0.01;
   }
 
+  getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
+  }
+
   protected getActivateByDoubleClick(): boolean {
     return false;
   }
@@ -571,6 +584,10 @@ export class WidgetSwitch extends HybridNode {
 export class WidgetSlider extends HybridNode {
   getOpacity(): number {
     return 0.01;
+  }
+
+  getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
   }
 
   protected getActivateByDoubleClick(): boolean {
@@ -806,6 +823,10 @@ export class WidgetDropdown extends HybridNode {
 
   getOpacity(): number {
     return 0.01;
+  }
+
+  getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
   }
 
   protected getActivateByDoubleClick(): boolean {

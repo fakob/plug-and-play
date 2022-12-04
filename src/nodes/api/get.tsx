@@ -1,7 +1,8 @@
 import PPNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
 import UpdateBehaviourClass from '../../classes/UpdateBehaviourClass';
-import { SOCKET_TYPE } from '../../utils/constants';
+import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../../utils/constants';
+import { TRgba } from '../../utils/interfaces';
 import { JSONType } from '../datatypes/jsonType';
 import { StringType } from '../datatypes/stringType';
 
@@ -41,6 +42,10 @@ export class Get extends PPNode {
     });
     outputObject[outputContentName] = await res.json();
   }
+
+  getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
+  }
 }
 
 export class Post extends PPNode {
@@ -74,5 +79,8 @@ export class Post extends PPNode {
       body: inputObject[bodyInputName], // body data type must match "Content-Type" header
     });
     outputObject[outputContentName] = await response.json();
+  }
+  getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.OUTPUT);
   }
 }

@@ -74,6 +74,10 @@ export class Constant extends PPNode {
     this.initialData = customArgs?.initialData;
   }
 
+  getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
+  }
+
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, constantInName, new AnyType(), 0),
@@ -120,6 +124,10 @@ export class ParseArray extends PPNode {
 }
 
 export class ConsolePrint extends PPNode {
+  getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.OUTPUT);
+  }
+
   protected getDefaultIO(): Socket[] {
     return [new Socket(SOCKET_TYPE.IN, constantInName, new ArrayType(), 0)];
   }

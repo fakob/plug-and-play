@@ -3,8 +3,7 @@ import * as PIXI from 'pixi.js';
 import { TRgba } from '../../utils/interfaces';
 import Socket from '../../classes/SocketClass';
 import { ArrayType } from '../datatypes/arrayType';
-import { SOCKET_TYPE } from '../../utils/constants';
-import PPGraph from '../../classes/GraphClass';
+import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../../utils/constants';
 import { isArray } from 'lodash';
 import { getCurrentCursorPosition } from '../../utils/utils';
 
@@ -14,6 +13,10 @@ const clickName = 'Locations';
 export class RecordLocations extends PPNode {
   isRecording = false;
   recordButton: PIXI.Graphics = undefined; // kinda ugly with undefined but whatever
+
+  getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
+  }
 
   public getMinNodeWidth(): number {
     return 150;

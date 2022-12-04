@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { LazyLog, ScrollFollow } from 'react-lazylog';
-import PPNode from '../classes/NodeClass';
 import PPSocket from '../classes/SocketClass';
 import { CustomArgs, TRgba } from '../utils/interfaces';
 import { AnyType } from './datatypes/anyType';
@@ -35,7 +34,7 @@ export class LogViewer extends HybridNode {
   }
 
   public getColor(): TRgba {
-    return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
+    return TRgba.fromString(NODE_TYPE_COLOR.OUTPUT);
   }
 
   public getOpacity(): number {

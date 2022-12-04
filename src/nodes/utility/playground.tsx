@@ -16,7 +16,7 @@ import { getAllNodeTypes } from '../../nodes/allNodes';
 
 export class Playground extends PPNode {
   getColor(): TRgba {
-    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
+    return TRgba.fromString(NODE_TYPE_COLOR.SYSTEM);
   }
 
   public getName(): string {
