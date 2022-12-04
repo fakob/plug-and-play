@@ -157,7 +157,10 @@ export default class Socket extends PIXI.Container {
   // for inputs: set data is called only on the socket where the change is being made
   set data(newData: any) {
     this._data = newData;
-    if (this.getNode()?.socketShouldAutomaticallyAdapt(this)) {
+    if (
+      this.getNode()?.socketShouldAutomaticallyAdapt(this) &&
+      this.dataType.allowedToAutomaticallyAdapt()
+    ) {
       const proposedType = dataToType(newData);
       if (this.dataType.getName() !== proposedType.getName()) {
         this.dataType = proposedType;

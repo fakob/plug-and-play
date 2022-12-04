@@ -76,4 +76,7 @@ export class AbstractType {
     return true;
   }
 
+  allowedToAutomaticallyAdapt(): boolean {
+    return true;
+  }
 }

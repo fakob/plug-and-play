@@ -6,7 +6,9 @@ import {
   Button,
   Checkbox,
   FormControlLabel,
+  FormControl,
   FormGroup,
+  InputLabel,
   MenuItem,
   Select,
   Slider,
@@ -416,9 +418,9 @@ export const TriggerWidget: React.FunctionComponent<TriggerWidgetProps> = (
           }}
         />
       )}
-      <FormGroup>
+      <FormControl variant="filled" fullWidth>
+        <InputLabel>Trigger method</InputLabel>
         <Select
-          label="Trigger method"
           variant="filled"
           value={triggerType}
           onChange={onChangeTriggerType}
@@ -442,30 +444,35 @@ export const TriggerWidget: React.FunctionComponent<TriggerWidgetProps> = (
         <TextField
           hiddenLabel
           variant="filled"
-          label="Name of custom function"
+          placeholder="Name of function to trigger"
+          label={
+            customFunctionString === ''
+              ? 'executeOptimizedChain'
+              : 'Name of function to trigger'
+          }
           onChange={onChangeFunction}
           value={customFunctionString}
         />
-      </FormGroup>
-      {!props.hasLink && (
-        <Button
-          startIcon={<PlayArrowIcon />}
-          onClick={() => {
-            // nodes with trigger input need a trigger function
-            (props.property.parent as any)[
-              customFunctionString === ''
-                ? 'executeOptimizedChain'
-                : customFunctionString
-            ]();
-          }}
-          variant="contained"
-          fullWidth
-        >
-          {customFunctionString === ''
-            ? 'executeOptimizedChain'
-            : customFunctionString}
-        </Button>
-      )}
+        {!props.hasLink && (
+          <Button
+            startIcon={<PlayArrowIcon />}
+            onClick={() => {
+              // nodes with trigger input need a trigger function
+              (props.property.parent as any)[
+                customFunctionString === ''
+                  ? 'executeOptimizedChain'
+                  : customFunctionString
+              ]();
+            }}
+            variant="contained"
+            fullWidth
+          >
+            {customFunctionString === ''
+              ? 'executeOptimizedChain'
+              : customFunctionString}
+          </Button>
+        )}
+      </FormControl>
     </>
   );
 };
