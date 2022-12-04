@@ -21,7 +21,7 @@ import {
   Paper,
   TextField,
 } from '@mui/material';
-import { OptionsObject, SnackbarMessage, useSnackbar } from 'notistack';
+import { useSnackbar } from 'notistack';
 import Color from 'color';
 import { hri } from 'human-readable-ids';
 import TimeAgo from 'javascript-time-ago';
@@ -441,6 +441,13 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     viewport.current.on('zoomed-end', () =>
       InterfaceController.notifyListeners(ListenEvent.ViewportZoom, false)
     );
+
+    viewport.current.on('pointerupoutside', (event: PIXI.InteractionEvent) =>
+      InterfaceController.notifyListeners(ListenEvent.GlobalPointerUp, event)
+    );
+    viewport.current.on('pointerup', (event: PIXI.InteractionEvent) => {
+      InterfaceController.notifyListeners(ListenEvent.GlobalPointerUp, event);
+    });
 
     // configure viewport
     viewport.current

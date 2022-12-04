@@ -16,6 +16,7 @@ import { TRgba } from '../../utils/interfaces';
 import { DisplayObject } from 'pixi.js';
 import { getCurrentCursorPosition } from '../../utils/utils';
 import { ActionHandler } from '../../utils/actionHandler';
+import InterfaceController, { ListenEvent } from '../../InterfaceController';
 
 export const offseXName = 'Offset X';
 export const offsetYName = 'Offset Y';
@@ -30,6 +31,8 @@ export const outputPixiName = 'Graphics';
 
 export abstract class DRAW_Base extends PPNode {
   deferredGraphics: PIXI.Container;
+  listenID = '';
+  isDragging = false;
 
   public getDescription(): string {
     return 'Draw Base';
@@ -143,40 +146,64 @@ export abstract class DRAW_Base extends PPNode {
     this.executeOptimizedChain();
   }
 
+  protected setOffsetsToCurrentCursor(
+    originalCursorPos: PIXI.Point,
+    originalOffsets: PIXI.Point
+  ) {
+    const currPos = getCurrentCursorPosition();
+    this.setOffsetsToCurrentCursor;
+    const diffX = currPos.x - originalCursorPos.x;
+    const diffY = currPos.y - originalCursorPos.y;
+    this.setOffsets(
+      new PIXI.Point(originalOffsets.x + diffX, originalOffsets.y + diffY)
+    );
+  }
+
   protected pointerDown(
     originalCursorPos: PIXI.Point,
     originalOffsets: PIXI.Point
   ) {
-    let currPos = getCurrentCursorPosition();
+    this.isDragging = true;
     this.deferredGraphics.on('pointermove', () => {
-      currPos = getCurrentCursorPosition();
-      const diffX = currPos.x - originalCursorPos.x;
-      const diffY = currPos.y - originalCursorPos.y;
-      this.setOffsets(
-        new PIXI.Point(originalOffsets.x + diffX, originalOffsets.y + diffY)
-      );
-      // we dont re-trigger immediately, to save perfomance
-      setTimeout(
-        () => this.pointerDown(originalCursorPos, originalOffsets),
-        16
-      );
+      this.setOffsetsToCurrentCursor(originalCursorPos, originalOffsets);
+      // re-trigger if still holding
+      setTimeout(() => {
+        this.removeListener('pointermove');
+        if (this.isDragging) {
+          this.pointerDown(originalCursorPos, originalOffsets);
+        }
+      }, 16);
     });
-    this.deferredGraphics.on('pointerup', () => {
-      this.deferredGraphics.removeListener('pointermove');
 
-      // allow undoing
-      ActionHandler.performAction(
-        async () =>
-          this.setOffsets(
-            new PIXI.Point(
-              currPos.x - originalCursorPos.x,
-              currPos.y - originalCursorPos.y
-            )
-          ),
-        async () => this.setOffsets(originalOffsets),
-        false
-      );
-    });
+    InterfaceController.removeListener(this.listenID);
+    this.listenID = InterfaceController.addListener(
+      ListenEvent.GlobalPointerUp,
+      () => this.pointerUp(originalCursorPos, originalOffsets)
+    );
+  }
+
+  protected pointerUp(
+    originalCursorPos: PIXI.Point,
+    originalOffsets: PIXI.Point
+  ) {
+    const currPos = getCurrentCursorPosition();
+    //this.setOffsetsToCurrentCursor(originalCursorPos, originalOffsets);
+    this.isDragging = false;
+    this.deferredGraphics.removeListener('pointermove');
+    InterfaceController.removeListener(this.listenID);
+
+    // allow undoing
+    ActionHandler.performAction(
+      async () =>
+        this.setOffsets(
+          new PIXI.Point(
+            currPos.x - originalCursorPos.x,
+            currPos.y - originalCursorPos.y
+          )
+        ),
+      async () => this.setOffsets(originalOffsets),
+      false
+    );
   }
 
   private handleDrawing(drawingFunction: any, absolutePosition: boolean): void {
