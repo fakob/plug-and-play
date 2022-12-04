@@ -287,7 +287,9 @@ export default class Socket extends PIXI.Container {
     // ask the socket whether their children are dependent
 
     const nodes = this.links.map((link) => link.getTarget().getNode());
-    const filteredNodes = nodes.filter((node) => node.updateBehaviour.update);
+    const filteredNodes = nodes.filter(
+      (node) => node && node.updateBehaviour.update
+    );
     return filteredNodes;
   }
 
