@@ -3,7 +3,7 @@ import { SerializedLink, TRgba } from '../utils/interfaces';
 import Socket from './SocketClass';
 import PPNode from './NodeClass';
 import PPGraph from './GraphClass';
-import { throttle } from 'lodash';
+import throttle from 'lodash/throttle';
 
 export default class PPLink extends PIXI.Container {
   id: number;
