@@ -18,6 +18,7 @@ import DataEditor, {
   GridColumn,
   GridSelection,
   GridMouseEventArgs,
+  HeaderClickedEventArgs,
   Item,
   Rectangle,
 } from '@glideapps/glide-data-grid';
@@ -468,17 +469,29 @@ export class Table extends HybridNode {
     };
 
     const onHeaderMenuClick = useCallback((col: number, bounds: Rectangle) => {
-      console.log('Header menu clicked', col, bounds);
       setColMenu({
         col,
         pos: new PIXI.Point(bounds.x + bounds.width, bounds.y),
       });
     }, []);
 
+    const onHeaderContextMenu = useCallback(
+      (col: number, event: HeaderClickedEventArgs) => {
+        event.preventDefault();
+        setColMenu({
+          col,
+          pos: new PIXI.Point(
+            event.bounds.x + event.localEventX,
+            event.bounds.y + event.localEventY
+          ),
+        });
+      },
+      []
+    );
+
     const onContextMenuClick = useCallback(
       (cell: Item, event: CellClickedEventArgs) => {
         event.preventDefault();
-        console.log('Row clicked:', cell[1]);
         setRowMenu({
           row: cell[1],
           pos: new PIXI.Point(
@@ -509,6 +522,7 @@ export class Table extends HybridNode {
           onCellContextMenu={onContextMenuClick}
           onColumnMoved={onColumnMoved}
           onGridSelectionChange={onGridSelectionChange}
+          onHeaderContextMenu={onHeaderContextMenu}
           onHeaderMenuClick={onHeaderMenuClick}
           onItemHovered={onItemHovered}
           onPaste={onPaste}
