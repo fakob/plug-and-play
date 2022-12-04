@@ -1034,9 +1034,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     this.updateBehaviour.redrawAnythingChanging();
     this.nodeSelectionHeader.redrawAnythingChanging(true);
 
-    this.getAllSockets().forEach((socket) =>
-      socket.links.forEach((link) => link.nodeHoveredOver())
-    );
+    this.getAllSockets().forEach((socket) => socket.nodeHoveredOver());
   }
 
   _onPointerOut(): void {
@@ -1046,9 +1044,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     }
     this.updateBehaviour.redrawAnythingChanging();
     this.nodeSelectionHeader.redrawAnythingChanging(false);
-    this.getAllSockets().forEach((socket) =>
-      socket.links.forEach((link) => link.nodeHoveredOut())
-    );
+    this.getAllSockets().forEach((socket) => socket.nodeHoveredOut());
   }
 
   _onDoubleClick(event: PIXI.InteractionEvent): void {

@@ -15,6 +15,7 @@ import {
 import { AbstractType } from '../nodes/datatypes/abstractType';
 import { TriggerType } from '../nodes/datatypes/triggerType';
 import { dataToType, serializeType } from '../nodes/datatypes/typehelper';
+import { getMatchingSocket } from '../utils/utils';
 
 export default class Socket extends PIXI.Container {
   // Input sockets
@@ -38,6 +39,8 @@ export default class Socket extends PIXI.Container {
   linkDragPos: null | PIXI.Point;
 
   showLabel = false;
+
+  socketScale = 1;
 
   constructor(
     socketType: TSocketType,
@@ -71,13 +74,18 @@ export default class Socket extends PIXI.Container {
     this.redrawAnythingChanging();
   }
 
-  getSocketLocation(): PIXI.Point {
-    return new PIXI.Point(
+  getSocketLocation(scaled = false): PIXI.Point {
+    const toReturn = new PIXI.Point(
       this.socketType === SOCKET_TYPE.IN
         ? this.getNode()?.getInputSocketXPos()
         : this.getNode()?.getOutputSocketXPos(),
       SOCKET_WIDTH / 2
     );
+    if (scaled) {
+      toReturn.x -= ((this.socketScale - 1) * SOCKET_WIDTH) / 2;
+      toReturn.y -= ((this.socketScale - 1) * SOCKET_WIDTH) / 2;
+    }
+    return toReturn;
   }
 
   redrawAnythingChanging(): void {
@@ -87,10 +95,10 @@ export default class Socket extends PIXI.Container {
     this._TextRef = new PIXI.Text();
     this._SocketRef.beginFill(this.dataType.getColor().hexNumber());
     this._SocketRef.drawRoundedRect(
-      this.getSocketLocation().x,
-      this.getSocketLocation().y,
-      SOCKET_WIDTH,
-      SOCKET_WIDTH,
+      this.getSocketLocation(true).x,
+      this.getSocketLocation(true).y,
+      SOCKET_WIDTH * this.socketScale,
+      SOCKET_WIDTH * this.socketScale,
       this.dataType.constructor === new TriggerType().constructor
         ? 0
         : SOCKET_CORNERRADIUS
@@ -310,6 +318,21 @@ export default class Socket extends PIXI.Container {
 
   _onPointerUp(event: PIXI.InteractionEvent): void {
     this.getGraph().socketMouseUp(this, event);
+  }
+
+  public nodeHoveredOver() {
+    const graphSource = PPGraph.currentGraph.selectedSourceSocket;
+    if (graphSource && getMatchingSocket(graphSource, this.getNode()) == this) {
+      this.socketScale = 1.5;
+      this.redrawAnythingChanging();
+    }
+    this.links.forEach((link) => link.nodeHoveredOver());
+  }
+
+  public nodeHoveredOut() {
+    this.socketScale = 1;
+    this.redrawAnythingChanging();
+    this.links.forEach((link) => link.nodeHoveredOut());
   }
 
   destroy(): void {
