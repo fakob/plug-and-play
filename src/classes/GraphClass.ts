@@ -165,13 +165,19 @@ export default class PPGraph {
   }
 
   _onPointerUpAndUpOutside(event: PIXI.InteractionEvent): void {
-    console.log('_onPointerUpAndUpOutside');
     if (!this.overInputRef && this.selectedSourceSocket) {
       if (!this.overrideNodeCursorPosition) {
         this.overrideNodeCursorPosition = this.viewport.toWorld(
           event.data.global
         );
-        InterfaceController.onOpenNodeSearch(event.data.global);
+        if (
+          this.lastSelectedSocketWasInput ||
+          this.selectedSourceSocket.isInput()
+        ) {
+          InterfaceController.onOpenNodeSearch(event.data.global);
+        } else {
+          this.stopConnecting();
+        }
       }
     }
     // check if viewport has been dragged,
@@ -181,7 +187,6 @@ export default class PPGraph {
         this.dragSourcePoint.x === this.viewport.x &&
         this.dragSourcePoint.y === this.viewport.y
       ) {
-        console.log('deselectAllNodesAndResetSelection');
         this.selection.deselectAllNodesAndResetSelection();
 
         InterfaceController.onCloseSocketInspector();
@@ -271,12 +276,12 @@ export default class PPGraph {
   }
 
   socketMouseDown(socket: PPSocket, event: PIXI.InteractionEvent): void {
-    if (socket.socketType === SOCKET_TYPE.OUT) {
+    const overOutput = socket.socketType == SOCKET_TYPE.OUT;
+    this.lastSelectedSocketWasInput = overOutput;
+    if (overOutput) {
       this.selectedSourceSocket = socket;
-      this.lastSelectedSocketWasInput = false;
     } else {
       // if input socket selected, either make a new link from here backwards or re-link old existing link
-      this.lastSelectedSocketWasInput = true;
       const hasLink = socket.links.length > 0;
       if (hasLink) {
         this.selectedSourceSocket = socket.links[0].getSource();
@@ -294,7 +299,7 @@ export default class PPGraph {
     event: PIXI.InteractionEvent
   ): Promise<void> {
     const source = this.selectedSourceSocket;
-    this.selectedSourceSocket = null;
+    this.stopConnecting();
     if (source && socket !== this.selectedSourceSocket) {
       if (
         source.socketType === SOCKET_TYPE.IN &&
@@ -574,6 +579,12 @@ export default class PPGraph {
     }
 
     return link;
+  }
+
+  stopConnecting() {
+    this.clearTempConnection();
+    this.overrideNodeCursorPosition = null;
+    this.selectedSourceSocket = null;
   }
 
   async addWidgetNode(socket: PPSocket): Promise<void> {

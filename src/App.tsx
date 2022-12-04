@@ -752,8 +752,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       // wait before clearing clickedSocketRef
       // so handleNodeItemSelect has access
       setTimeout(() => {
-        currentGraph.current.clearTempConnection();
-        currentGraph.current.overrideNodeCursorPosition = null;
+        currentGraph.current.stopConnecting();
       }, 100);
     }
   }, [isNodeSearchVisible]);
