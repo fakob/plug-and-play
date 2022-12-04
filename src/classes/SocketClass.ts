@@ -183,6 +183,7 @@ export default class Socket extends PIXI.Container {
         link.target.data = newData;
       });
     }
+    this.dataType.onDataSet(newData, this);
   }
 
   get defaultData(): any {
