@@ -8,6 +8,8 @@ import { convertToString } from '../../utils/utils';
 import { TRgba } from '../../utils/interfaces';
 import { SOCKET_COLOR_HEX } from '../../utils/constants';
 export class AbstractType {
+  onDataSet(data: any, socket: Socket) {
+  }
 
   // override any and all of these in child classes
   getName(): string {
