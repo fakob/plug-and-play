@@ -183,18 +183,6 @@ export class ThrottleDebounce extends PPNode {
       new Socket(SOCKET_TYPE.OUT, 'Out', new AnyType()),
     ];
   }
-
-  // when the Node is added (new node), define debounced function
-  public onNodeAdded = () => {
-    super.onNodeAdded();
-    this.updateDebounceFunction();
-  };
-
-  // after the Node is configured (loaded node), update debounced function
-  public onConfigure = () => {
-    this.updateDebounceFunction();
-  };
-
   public updateDebounceFunction(): void {
     const passThrough = (input: unknown) => {
       return input;
@@ -216,6 +204,9 @@ export class ThrottleDebounce extends PPNode {
     inputObject: any,
     outputObject: any
   ): Promise<void> {
+    if (this.passThroughDebounced === undefined) {
+      this.updateDebounceFunction();
+    }
     const input = inputObject['In'];
     outputObject['Out'] = this.passThroughDebounced(input);
   }
