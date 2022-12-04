@@ -15,7 +15,7 @@ import {
 import { AbstractType } from '../nodes/datatypes/abstractType';
 import { TriggerType } from '../nodes/datatypes/triggerType';
 import { dataToType, serializeType } from '../nodes/datatypes/typehelper';
-import { getMatchingSocket } from '../utils/utils';
+import { getCurrentCursorPosition, getMatchingSocket } from '../utils/utils';
 
 export default class Socket extends PIXI.Container {
   // Input sockets
@@ -39,8 +39,6 @@ export default class Socket extends PIXI.Container {
   linkDragPos: null | PIXI.Point;
 
   showLabel = false;
-
-  socketScale = 1;
 
   constructor(
     socketType: TSocketType,
@@ -74,18 +72,13 @@ export default class Socket extends PIXI.Container {
     this.redrawAnythingChanging();
   }
 
-  getSocketLocation(scaled = false): PIXI.Point {
-    const toReturn = new PIXI.Point(
+  getSocketLocation(): PIXI.Point {
+    return new PIXI.Point(
       this.socketType === SOCKET_TYPE.IN
-        ? this.getNode()?.getInputSocketXPos()
-        : this.getNode()?.getOutputSocketXPos(),
+        ? this.getNode()?.getInputSocketXPos() + SOCKET_WIDTH / 2
+        : this.getNode()?.getOutputSocketXPos() + SOCKET_WIDTH / 2,
       SOCKET_WIDTH / 2
     );
-    if (scaled) {
-      toReturn.x -= ((this.socketScale - 1) * SOCKET_WIDTH) / 2;
-      toReturn.y -= ((this.socketScale - 1) * SOCKET_WIDTH) / 2;
-    }
-    return toReturn;
   }
 
   redrawAnythingChanging(): void {
@@ -94,11 +87,14 @@ export default class Socket extends PIXI.Container {
     this._SocketRef = new PIXI.Graphics();
     this._TextRef = new PIXI.Text();
     this._SocketRef.beginFill(this.dataType.getColor().hexNumber());
+    this._SocketRef.x = this.getSocketLocation().x;
+    this._SocketRef.y = this.getSocketLocation().y;
+    this._SocketRef.pivot = new PIXI.Point(SOCKET_WIDTH / 2, SOCKET_WIDTH / 2);
     this._SocketRef.drawRoundedRect(
-      this.getSocketLocation(true).x,
-      this.getSocketLocation(true).y,
-      SOCKET_WIDTH * this.socketScale,
-      SOCKET_WIDTH * this.socketScale,
+      0,
+      0,
+      SOCKET_WIDTH,
+      SOCKET_WIDTH,
       this.dataType.constructor === new TriggerType().constructor
         ? 0
         : SOCKET_CORNERRADIUS
@@ -112,10 +108,12 @@ export default class Socket extends PIXI.Container {
       }
       this._TextRef.x =
         this.socketType === SOCKET_TYPE.IN
-          ? this.getSocketLocation().x + SOCKET_WIDTH + SOCKET_TEXTMARGIN
-          : this.getSocketLocation().x - SOCKET_TEXTMARGIN;
+          ? this.getSocketLocation().x + SOCKET_WIDTH / 2 + SOCKET_TEXTMARGIN
+          : this.getSocketLocation().x - SOCKET_TEXTMARGIN - SOCKET_WIDTH / 2;
       this._TextRef.y = SOCKET_TEXTMARGIN_TOP;
       this._TextRef.resolution = TEXT_RESOLUTION;
+
+      this._TextRef.pivot = new PIXI.Point(0, SOCKET_WIDTH / 2);
 
       this._TextRef.interactive = true;
       this._TextRef.on('pointerover', this._onPointerOver.bind(this));
@@ -301,6 +299,19 @@ export default class Socket extends PIXI.Container {
 
   // SETUP
 
+  pointerOverSocketMoving() {
+    const currPos = getCurrentCursorPosition();
+    const center = PPGraph.currentGraph.getSocketCenter(this);
+    const dist = Math.sqrt(
+      Math.pow(currPos.x - center.x, 2) + Math.pow(currPos.y - center.y, 2)
+    );
+    const maxDist = 100;
+    const scale =
+      Math.pow(Math.max(0, (maxDist - dist) / maxDist), 1.5) * 1.8 + 1;
+    this._SocketRef.scale = new PIXI.Point(scale, scale);
+    this._TextRef.scale = new PIXI.Point(scale, scale);
+  }
+
   _onPointerOver(): void {
     this.cursor = 'pointer';
     (this._SocketRef as PIXI.Graphics).tint = TRgba.white().hexNumber();
@@ -320,21 +331,19 @@ export default class Socket extends PIXI.Container {
 
   _onPointerUp(event: PIXI.InteractionEvent): void {
     this.getGraph().socketMouseUp(this, event);
+    this.nodeHoveredOut();
   }
 
   public nodeHoveredOver() {
-    const graphSource = PPGraph.currentGraph.selectedSourceSocket;
-    if (graphSource && getMatchingSocket(graphSource, this.getNode()) == this) {
-      this.socketScale = 1.5;
-      this.redrawAnythingChanging();
-    }
     this.links.forEach((link) => link.nodeHoveredOver());
   }
 
   public nodeHoveredOut() {
-    this.socketScale = 1;
-    this.redrawAnythingChanging();
     this.links.forEach((link) => link.nodeHoveredOut());
+
+    // scale might have been touched by us in pointeroversocketmoving
+    this._SocketRef.scale = new PIXI.Point(1, 1);
+    this._TextRef.scale = new PIXI.Point(1, 1);
   }
 
   destroy(): void {

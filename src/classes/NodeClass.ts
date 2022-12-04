@@ -1029,10 +1029,15 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     this.onNodeRemoved();
   }
 
+  pointerOverMoving(): void {
+    this.getAllSockets().forEach((socket) => socket.pointerOverSocketMoving());
+  }
+
   _onPointerOver(): void {
     this.isHovering = true;
     this.updateBehaviour.redrawAnythingChanging();
     this.nodeSelectionHeader.redrawAnythingChanging(true);
+    this.on('pointermove', this.pointerOverMoving);
 
     this.getAllSockets().forEach((socket) => socket.nodeHoveredOver());
   }
@@ -1042,6 +1047,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
       this.isHovering = false;
       this.alpha = 1.0;
     }
+    this.removeListener('pointermove');
     this.updateBehaviour.redrawAnythingChanging();
     this.nodeSelectionHeader.redrawAnythingChanging(false);
     this.getAllSockets().forEach((socket) => socket.nodeHoveredOut());
