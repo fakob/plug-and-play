@@ -65,4 +65,8 @@ export class TriggerType extends AbstractType {
   allowedAsOutput(): boolean {
     return false;
   }
+
+  allowedToAutomaticallyAdapt(): boolean {
+    return false;
+  }
 }

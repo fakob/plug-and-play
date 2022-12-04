@@ -159,7 +159,7 @@ export default class Socket extends PIXI.Container {
     this._data = newData;
     if (
       this.getNode()?.socketShouldAutomaticallyAdapt(this) &&
-      this.dataType.constructor !== new TriggerType().constructor
+      this.dataType.allowedToAutomaticallyAdapt()
     ) {
       const proposedType = dataToType(newData);
       if (this.dataType.getName() !== proposedType.getName()) {

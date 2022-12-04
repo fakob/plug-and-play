@@ -8,7 +8,6 @@ import { convertToString } from '../../utils/utils';
 import { TRgba } from '../../utils/interfaces';
 import { SOCKET_COLOR_HEX } from '../../utils/constants';
 export class AbstractType {
-
   // override any and all of these in child classes
   getName(): string {
     return this.constructor.name;
@@ -74,4 +73,7 @@ export class AbstractType {
     return true;
   }
 
+  allowedToAutomaticallyAdapt(): boolean {
+    return true;
+  }
 }
