@@ -8,17 +8,14 @@ import {
   TRIGGER_TYPE_OPTIONS,
 } from '../../utils/constants';
 import { sortCompare } from '../../utils/utils';
-import { getNodesBounds } from '../../pixi/utils-pixi';
+import { getNodesBounds, zoomToFitNodes } from '../../pixi/utils-pixi';
 import { TRgba } from '../../utils/interfaces';
 import { JSONType } from '../datatypes/jsonType';
 import { TriggerType } from './../datatypes/triggerType';
 import { getAllNodeTypes } from '../../nodes/allNodes';
+import { EnumType } from '../datatypes/enumType';
 
 export class Playground extends PPNode {
-  getColor(): TRgba {
-    return TRgba.fromString(NODE_TYPE_COLOR.SYSTEM);
-  }
-
   public getName(): string {
     return 'Playground';
   }
@@ -27,7 +24,56 @@ export class Playground extends PPNode {
     return 'Playground functions';
   }
 
+  getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.SYSTEM);
+  }
+
   protected getDefaultIO(): PPSocket[] {
+    const STRIP_COMMENTS =
+      /(\/\/.*$)|(\/\*[\s\S]*?\*\/)|(\s*=[^,\)]*(('(?:\\'|[^'\r\n])*')|("(?:\\"|[^"\r\n])*"))|(\s*=[^,\)]*))/gm;
+    const ARGUMENT_NAMES = /([^\s,]+)/g;
+    function getParamNames(func) {
+      let result;
+      console.log(func);
+      if (typeof func === 'function') {
+        const fnStr = func.toString().replace(STRIP_COMMENTS, '');
+        result = fnStr
+          .slice(fnStr.indexOf('(') + 1, fnStr.indexOf(')'))
+          .match(ARGUMENT_NAMES);
+      }
+      if (result === null) result = [];
+      return result;
+    }
+    const graphMethods = Object.getOwnPropertyNames(PPGraph.currentGraph);
+    const prototype = Object.getPrototypeOf(PPGraph.currentGraph);
+    const inheritedMethods = Object.getOwnPropertyNames(prototype);
+    const graphOptions = graphMethods
+      .concat(inheritedMethods)
+      .filter((methodName: string) => {
+        return getParamNames(PPGraph.currentGraph[methodName])?.length === 0;
+      })
+      .map((methodName) => {
+        return {
+          text: methodName,
+          value: methodName,
+        };
+      });
+
+    const nodeMethods = Object.getOwnPropertyNames(this);
+    const nodePrototype = Object.getPrototypeOf(this);
+    const inheritedNodeMethods = Object.getOwnPropertyNames(nodePrototype);
+    const nodeOptions = nodeMethods
+      .concat(inheritedNodeMethods)
+      // .filter((methodName: string) => {
+      //   return getParamNames(this[methodName])?.length === 0;
+      // })
+      .map((methodName) => {
+        return {
+          text: methodName,
+          value: methodName,
+        };
+      });
+
     return [
       new PPSocket(SOCKET_TYPE.OUT, 'output', new JSONType()),
       new PPSocket(
@@ -38,23 +84,41 @@ export class Playground extends PPNode {
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
-        'Arrange selected nodes by type',
-        new TriggerType(
-          TRIGGER_TYPE_OPTIONS[0].value,
-          'arrangeSelectedNodesByType'
-        ),
+        'Output graph JSON',
+        new TriggerType(TRIGGER_TYPE_OPTIONS[0].value, 'outputGraphJSON'),
         0
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
-        'Show graph JSON',
-        new TriggerType(TRIGGER_TYPE_OPTIONS[0].value, 'showGraphJSON'),
+        'Output all added nodes',
+        new TriggerType(TRIGGER_TYPE_OPTIONS[0].value, 'outputAllAddedNodes'),
         0
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
-        'Get all added nodes',
-        new TriggerType(TRIGGER_TYPE_OPTIONS[0].value, 'getAllAddedNodes'),
+        'Zoom to fit selected nodes',
+        new TriggerType(TRIGGER_TYPE_OPTIONS[0].value, 'zoomToFitNodes'),
+        0
+      ),
+      new PPSocket(
+        SOCKET_TYPE.IN,
+        'Select graph method',
+        new EnumType(graphOptions, () => {
+          const methodName = this.getInputData('Select graph method');
+          this.setOutputData('output', PPGraph.currentGraph[methodName]());
+        }),
+        0
+      ),
+      new PPSocket(
+        SOCKET_TYPE.IN,
+        'Select node method',
+        new EnumType(nodeOptions, () => {
+          const methodName = this.getInputData('Select node method');
+          this.setOutputData(
+            'output',
+            PPGraph.currentGraph.selection.selectedNodes?.[0]?.[methodName]()
+          );
+        }),
         0
       ),
     ].concat(super.getDefaultIO());
@@ -107,17 +171,24 @@ export class Playground extends PPNode {
     }
   }
 
-  showGraphJSON(): void {
+  outputGraphJSON(): void {
     const serializedGraph = PPGraph.currentGraph.serialize();
     // const max = this.getInputData('max');
     this.setOutputData('output', serializedGraph);
     this.executeChildren();
   }
 
-  getAllAddedNodes(): void {
+  outputAllAddedNodes(): void {
     const serializedGraph = PPGraph.currentGraph.serialize();
     // const max = this.getInputData('max');
     this.setOutputData('output', serializedGraph.nodes);
+    this.executeChildren();
+    console.log(PPGraph.currentGraph);
+  }
+
+  zoomToFitNodes(): void {
+    const selectedNodes = PPGraph.currentGraph.selection.selectedNodes;
+    zoomToFitNodes(selectedNodes);
     this.executeChildren();
   }
 }
