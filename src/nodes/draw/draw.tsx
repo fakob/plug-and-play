@@ -13,7 +13,7 @@ import { ArrayType } from '../datatypes/arrayType';
 import { StringType } from '../datatypes/stringType';
 import { ImageType } from '../datatypes/imageType';
 import { TRgba } from '../../utils/interfaces';
-import { drawDottedLine } from '../../utils/utils';
+import { drawDottedLine } from '../../pixi/utils-pixi';
 import { DRAW_Base, injectedDataName, outputPixiName } from './abstract';
 
 const availableShapes: EnumStructure = [

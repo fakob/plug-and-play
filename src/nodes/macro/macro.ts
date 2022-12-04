@@ -8,7 +8,7 @@ import {
 } from '../../utils/constants';
 import { CustomArgs, TRgba } from '../../utils/interfaces';
 import { AnyType } from '../datatypes/anyType';
-import { drawDottedLine } from '../../utils/utils';
+import { drawDottedLine } from '../../pixi/utils-pixi';
 import { anyCodeName, CustomFunction } from '../data/dataFunctions';
 import UpdateBehaviourClass from '../../classes/UpdateBehaviourClass';
 import { DynamicEnumType } from '../datatypes/dynamicEnumType';

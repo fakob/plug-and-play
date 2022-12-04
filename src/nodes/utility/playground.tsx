@@ -2,8 +2,13 @@ import * as PIXI from 'pixi.js';
 import PPGraph from '../../classes/GraphClass';
 import PPNode from '../../classes/NodeClass';
 import PPSocket from '../../classes/SocketClass';
-import { NODE_TYPE_COLOR, TRIGGER_TYPE_OPTIONS } from '../../utils/constants';
-import { SOCKET_TYPE } from '../../utils/constants';
+import {
+  NODE_TYPE_COLOR,
+  SOCKET_TYPE,
+  TRIGGER_TYPE_OPTIONS,
+} from '../../utils/constants';
+import { sortCompare } from '../../utils/utils';
+import { getNodesBounds } from '../../pixi/utils-pixi';
 import { TRgba } from '../../utils/interfaces';
 import { JSONType } from '../datatypes/jsonType';
 import { TriggerType } from './../datatypes/triggerType';
@@ -29,6 +34,15 @@ export class Playground extends PPNode {
         SOCKET_TYPE.IN,
         'Add all nodes',
         new TriggerType(TRIGGER_TYPE_OPTIONS[0].value, 'addAllNodes'),
+        0
+      ),
+      new PPSocket(
+        SOCKET_TYPE.IN,
+        'Arrange selected nodes by type',
+        new TriggerType(
+          TRIGGER_TYPE_OPTIONS[0].value,
+          'arrangeSelectedNodesByType'
+        ),
         0
       ),
       new PPSocket(
@@ -61,8 +75,36 @@ export class Playground extends PPNode {
       addedNodes.push(newNode);
     });
     PPGraph.currentGraph.selection.selectedNodes = addedNodes;
+    this.arrangeSelectedNodesByType();
     this.setOutputData('output', allNodeTypes);
     this.executeChildren();
+  }
+
+  arrangeSelectedNodesByType(): void {
+    const selectedNodes = PPGraph.currentGraph.selection.selectedNodes;
+    selectedNodes.sort((a, b) =>
+      sortCompare(a.getColor().hex(), b.getColor().hex(), true)
+    );
+    console.log(selectedNodes);
+    if (selectedNodes.length > 0) {
+      const boundsOfSelection = getNodesBounds(selectedNodes);
+      const origNodePosX = boundsOfSelection.x;
+      let lastNodePosX = origNodePosX;
+      let lastNodePosY = boundsOfSelection.y;
+      const nodesFromLastRow: PPNode[] = [];
+      selectedNodes.forEach((node, index) => {
+        if (index % 10 === 0 && index !== 0) {
+          console.log(index);
+          lastNodePosX = origNodePosX;
+          const boundsOfSelection = getNodesBounds(nodesFromLastRow);
+          lastNodePosY = boundsOfSelection.y + boundsOfSelection.height + 40;
+          nodesFromLastRow.length = 0;
+        }
+        node.setPosition(lastNodePosX, lastNodePosY, false);
+        lastNodePosX += node.width + 40;
+        nodesFromLastRow.push(node);
+      });
+    }
   }
 
   showGraphJSON(): void {

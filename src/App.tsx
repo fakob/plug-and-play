@@ -64,7 +64,6 @@ import {
   connectNodeToSocket,
   convertBlobToBase64,
   downloadFile,
-  ensureVisible,
   formatDate,
   getDataFromClipboard,
   getNodeDataFromHtml,
@@ -77,8 +76,8 @@ import {
   roundNumber,
   useStateRef,
   writeDataToClipboard,
-  zoomToFitNodes,
 } from './utils/utils';
+import { ensureVisible, zoomToFitNodes } from './pixi/utils-pixi';
 import { getAllNodeTypes } from './nodes/allNodes';
 import PPSocket from './classes/SocketClass';
 import PPNode from './classes/NodeClass';

@@ -44,6 +44,7 @@ import {
   limitRange,
   removeColumnFromArrayOfArrays,
   removeRowFromArrayOfArrays,
+  sortCompare,
 } from '../utils/utils';
 import { SOCKET_TYPE } from '../utils/constants';
 import { CustomArgs } from '../utils/interfaces';
@@ -443,26 +444,11 @@ export class Table extends HybridNode {
       });
     }, []);
 
-    function compare(a: string, b: string, desc: boolean): number {
-      // make sure that empty lines are always on the bottom
-      if (a == '' || a == null) return 1;
-      if (b == '' || b == null) return -1;
-
-      if (desc) {
-        [b, a] = [a, b];
-      }
-
-      return a.localeCompare(b, undefined, {
-        numeric: true,
-        sensitivity: 'base',
-      });
-    }
-
     const onSort = (columnIndex: number, desc: boolean) => {
       setArrayOfArrays((old) => {
         const shallowCopy = [...old];
         shallowCopy.sort((a, b) =>
-          compare(a[columnIndex], b[columnIndex], desc)
+          sortCompare(a[columnIndex], b[columnIndex], desc)
         );
         return shallowCopy;
       });
