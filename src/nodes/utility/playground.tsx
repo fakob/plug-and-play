@@ -102,18 +102,18 @@ export class Playground extends PPNode {
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
-        'Select graph method',
+        'Trigger graph method',
         new EnumType(graphOptions, () => {
-          const methodName = this.getInputData('Select graph method');
+          const methodName = this.getInputData('Trigger graph method');
           this.setOutputData('output', PPGraph.currentGraph[methodName]());
         }),
         0
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
-        'Select node method',
+        'Trigger node method',
         new EnumType(nodeOptions, () => {
-          const methodName = this.getInputData('Select node method');
+          const methodName = this.getInputData('Trigger node method');
           this.setOutputData(
             'output',
             PPGraph.currentGraph.selection.selectedNodes?.[0]?.[methodName]()
