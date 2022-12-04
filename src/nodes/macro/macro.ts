@@ -16,14 +16,15 @@ import * as PIXI from 'pixi.js';
 
 export const macroOutputName = 'Output';
 
-const macroBlockSize = 120;
+const macroInputBlockSize = 120;
+const macroOutputBlockSize = 60;
 
 const macroColor = new TRgba(178, 178, 178);
 
 export class Macro extends PPNode {
   textRef: PIXI.Text = undefined;
   public getMinNodeWidth(): number {
-    return macroBlockSize * 3;
+    return macroInputBlockSize * 3;
   }
 
   public getDefaultNodeWidth(): number {
@@ -82,15 +83,15 @@ export class Macro extends PPNode {
     this._BackgroundRef.drawRoundedRect(
       NODE_MARGIN,
       0,
-      macroBlockSize,
+      macroInputBlockSize,
       this.nodeHeight,
       this.getRoundedCorners() ? NODE_CORNERRADIUS : 0
     );
 
     this._BackgroundRef.drawRoundedRect(
-      NODE_MARGIN + this.nodeWidth - macroBlockSize,
+      NODE_MARGIN + this.nodeWidth - macroOutputBlockSize,
       0,
-      macroBlockSize,
+      macroOutputBlockSize,
       this.nodeHeight,
       this.getRoundedCorners() ? NODE_CORNERRADIUS : 0
     );
@@ -98,17 +99,17 @@ export class Macro extends PPNode {
     this._BackgroundRef.lineStyle(3, this.getColor().multiply(0.8).hexNumber());
     drawDottedLine(
       this._BackgroundRef,
-      macroBlockSize + 5,
+      macroInputBlockSize + 5,
       5,
-      this.nodeWidth - macroBlockSize + 10,
+      this.nodeWidth - macroOutputBlockSize + 10,
       5,
       5
     );
     drawDottedLine(
       this._BackgroundRef,
-      macroBlockSize + 5,
+      macroInputBlockSize + 5,
       this.nodeHeight,
-      this.nodeWidth - macroBlockSize + 10,
+      this.nodeWidth - macroOutputBlockSize + 10,
       this.nodeHeight,
       5
     );
@@ -117,10 +118,10 @@ export class Macro extends PPNode {
   }
 
   public getInputSocketXPos(): number {
-    return this.nodeWidth - macroBlockSize;
+    return this.nodeWidth - macroOutputBlockSize;
   }
   public getOutputSocketXPos(): number {
-    return macroBlockSize;
+    return macroInputBlockSize;
   }
   public outputPlugged(): void {
     super.outputPlugged();

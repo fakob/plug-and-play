@@ -14,6 +14,9 @@ import { BooleanType } from '../datatypes/booleanType';
 import { ArrayType } from '../datatypes/arrayType';
 import { TRgba } from '../../utils/interfaces';
 import { DisplayObject } from 'pixi.js';
+import { getCurrentCursorPosition } from '../../utils/utils';
+import { ActionHandler } from '../../utils/actionHandler';
+import InterfaceController, { ListenEvent } from '../../InterfaceController';
 
 export const offseXName = 'Offset X';
 export const offsetYName = 'Offset Y';
@@ -22,11 +25,14 @@ export const scaleYName = 'Scale Y';
 export const inputRotationName = 'Angle';
 export const inputPivotName = 'Pivot';
 export const inputAbsolutePositions = 'Absolute Positions';
+export const inputAlwaysDraw = 'Always Draw';
 export const injectedDataName = 'Injected Data';
 export const outputPixiName = 'Graphics';
 
 export abstract class DRAW_Base extends PPNode {
   deferredGraphics: PIXI.Container;
+  listenID = '';
+  isDragging = false;
 
   public getDescription(): string {
     return 'Draw Base';
@@ -92,6 +98,13 @@ export abstract class DRAW_Base extends PPNode {
       ),
       new Socket(
         SOCKET_TYPE.IN,
+        inputAlwaysDraw,
+        new BooleanType(),
+        true,
+        false
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
         inputAbsolutePositions,
         new BooleanType(),
         false,
@@ -127,8 +140,70 @@ export abstract class DRAW_Base extends PPNode {
     this.handleDrawing(drawingFunction, inputObject[inputAbsolutePositions]);
   }
 
-  protected shouldDraw(): boolean {
-    return !this.getOutputSocketByName(outputPixiName).hasLink();
+  protected setOffsets(offsets: PIXI.Point) {
+    this.setInputData(offseXName, offsets.x);
+    this.setInputData(offsetYName, offsets.y);
+    this.executeOptimizedChain();
+  }
+
+  protected setOffsetsToCurrentCursor(
+    originalCursorPos: PIXI.Point,
+    originalOffsets: PIXI.Point
+  ) {
+    const currPos = getCurrentCursorPosition();
+    this.setOffsetsToCurrentCursor;
+    const diffX = currPos.x - originalCursorPos.x;
+    const diffY = currPos.y - originalCursorPos.y;
+    this.setOffsets(
+      new PIXI.Point(originalOffsets.x + diffX, originalOffsets.y + diffY)
+    );
+  }
+
+  protected pointerDown(
+    originalCursorPos: PIXI.Point,
+    originalOffsets: PIXI.Point
+  ) {
+    this.isDragging = true;
+    this.deferredGraphics.on('pointermove', () => {
+      this.setOffsetsToCurrentCursor(originalCursorPos, originalOffsets);
+      // re-trigger if still holding
+      setTimeout(() => {
+        this.removeListener('pointermove');
+        if (this.isDragging) {
+          this.pointerDown(originalCursorPos, originalOffsets);
+        }
+      }, 16);
+    });
+
+    InterfaceController.removeListener(this.listenID);
+    this.listenID = InterfaceController.addListener(
+      ListenEvent.GlobalPointerUp,
+      () => this.pointerUp(originalCursorPos, originalOffsets)
+    );
+  }
+
+  protected pointerUp(
+    originalCursorPos: PIXI.Point,
+    originalOffsets: PIXI.Point
+  ) {
+    const currPos = getCurrentCursorPosition();
+    //this.setOffsetsToCurrentCursor(originalCursorPos, originalOffsets);
+    this.isDragging = false;
+    this.deferredGraphics.removeListener('pointermove');
+    InterfaceController.removeListener(this.listenID);
+
+    // allow undoing
+    ActionHandler.performAction(
+      async () =>
+        this.setOffsets(
+          new PIXI.Point(
+            currPos.x - originalCursorPos.x,
+            currPos.y - originalCursorPos.y
+          )
+        ),
+      async () => this.setOffsets(originalOffsets),
+      false
+    );
   }
 
   private handleDrawing(drawingFunction: any, absolutePosition: boolean): void {
@@ -141,6 +216,20 @@ export abstract class DRAW_Base extends PPNode {
         this.deferredGraphics.y -= this.y;
       }
       this.addChild(this.deferredGraphics);
+
+      if (this.allowMovingDirectly()) {
+        this.deferredGraphics.interactive = true;
+
+        this.deferredGraphics.on('pointerdown', () => {
+          this.pointerDown(
+            getCurrentCursorPosition(),
+            new PIXI.Point(
+              this.getInputData(offseXName),
+              this.getInputData(offsetYName)
+            )
+          );
+        });
+      }
     }
   }
 
@@ -163,5 +252,16 @@ export abstract class DRAW_Base extends PPNode {
   }
   public outputUnplugged(): void {
     this.executeOptimizedChain();
+  }
+
+  protected shouldDraw(): boolean {
+    return (
+      this.getInputData(inputAlwaysDraw) ||
+      !this.getOutputSocketByName(outputPixiName).hasLink()
+    );
+  }
+
+  protected allowMovingDirectly(): boolean {
+    return true;
   }
 }

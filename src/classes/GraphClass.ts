@@ -100,14 +100,15 @@ export default class PPGraph {
 
     // register pointer events
     this.viewport.on('pointerdown', this._onPointerDown.bind(this));
-    this.viewport.on(
-      'pointerupoutside',
-      this._onPointerUpAndUpOutside.bind(this)
-    );
-    this.viewport.on('pointerup', this._onPointerUpAndUpOutside.bind(this));
+
     this.viewport.on('rightclick', this._onPointerRightClicked.bind(this));
     this.viewport.on('dblclick', this._onPointerDoubleClicked.bind(this));
     this.viewport.on('pointermove', (event) => this.onViewportMove(event));
+
+    InterfaceController.addListener(
+      ListenEvent.GlobalPointerUp,
+      this._onPointerUpAndUpOutside.bind(this)
+    );
 
     // clear the stage
     this.clear();
