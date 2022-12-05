@@ -322,9 +322,6 @@ export type CodeWidgetProps = {
 
 export const CodeWidget: React.FunctionComponent<CodeWidgetProps> = (props) => {
   const [data, setData] = useState(props.data);
-  useInterval(() => {
-    setData(props.property.data);
-  }, 100);
 
   return (
     <CodeEditor
