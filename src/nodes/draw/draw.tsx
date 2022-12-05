@@ -2,12 +2,7 @@
 import PPGraph from '../../classes/GraphClass';
 import PPNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
-import {
-  NODE_TYPE_COLOR,
-  NOTE_LINEHEIGHT_FACTOR,
-  PIXI_PIVOT_OPTIONS,
-  SOCKET_TYPE,
-} from '../../utils/constants';
+import { NOTE_LINEHEIGHT_FACTOR, SOCKET_TYPE } from '../../utils/constants';
 import { DeferredPixiType } from '../datatypes/deferredPixiType';
 import { EnumStructure, EnumType } from '../datatypes/enumType';
 import * as PIXI from 'pixi.js';
@@ -18,7 +13,6 @@ import { ArrayType } from '../datatypes/arrayType';
 import { StringType } from '../datatypes/stringType';
 import { ImageType } from '../datatypes/imageType';
 import { TRgba } from '../../utils/interfaces';
-import { DisplayObject } from 'pixi.js';
 import { drawDottedLine } from '../../utils/utils';
 import { DRAW_Base, injectedDataName, outputPixiName } from './abstract';
 
@@ -159,6 +153,38 @@ export class DRAW_Shape extends DRAW_Base {
     } else {
       throw new Error('The value for width or height is invalid.');
     }
+  }
+}
+
+export class DRAW_Passthrough extends DRAW_Base {
+  public getDescription(): string {
+    return 'Draws input draw object';
+  }
+  public getName(): string {
+    return 'Draw Passthrough';
+  }
+
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(SOCKET_TYPE.IN, inputGraphicsName, new DeferredPixiType()),
+    ].concat(super.getDefaultIO());
+  }
+
+  protected drawOnContainer(
+    inputObject: any,
+    container: PIXI.Container,
+    executions: { string: number }
+  ): void {
+    inputObject = {
+      ...inputObject,
+      ...inputObject[injectedDataName][
+        this.getAndIncrementExecutions(executions)
+      ],
+    };
+    const myContainer = new PIXI.Container();
+    inputObject[inputGraphicsName](myContainer, executions);
+    this.positionAndScale(myContainer, inputObject);
+    container.addChild(myContainer);
   }
 }
 
