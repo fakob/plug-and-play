@@ -31,6 +31,8 @@ export class StringType extends AbstractType {
   parse(data: any): any {
     if (typeof data == 'object') {
       return JSON.stringify(data);
+    } else if (typeof data == 'function') {
+      return data.toString();
     }
     return data;
   }

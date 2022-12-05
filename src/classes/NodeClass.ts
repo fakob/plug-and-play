@@ -666,6 +666,8 @@ export default class PPNode extends PIXI.Container {
   }
 
   public drawNodeShape(): void {
+    // update selection
+
     this._BackgroundRef.clear();
     if (!this.successfullyExecuted) {
       this.drawErrorBoundary();
@@ -675,11 +677,6 @@ export default class PPNode extends PIXI.Container {
     this.drawTriggers();
     this.drawSockets();
     this.drawComment();
-
-    // update selection
-    if (PPGraph.currentGraph.selection.isNodeSelected(this)) {
-      PPGraph.currentGraph.selection.drawRectanglesFromSelection();
-    }
   }
 
   constructSocketName(prefix: string, existing: Socket[]): string {
@@ -1029,14 +1026,17 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     this.onNodeRemoved();
   }
 
+  pointerOverMoving(): void {
+    this.getAllSockets().forEach((socket) => socket.pointerOverSocketMoving());
+  }
+
   _onPointerOver(): void {
     this.isHovering = true;
     this.updateBehaviour.redrawAnythingChanging();
     this.nodeSelectionHeader.redrawAnythingChanging(true);
+    this.on('pointermove', this.pointerOverMoving);
 
-    this.getAllSockets().forEach((socket) =>
-      socket.links.forEach((link) => link.nodeHoveredOver())
-    );
+    this.getAllSockets().forEach((socket) => socket.nodeHoveredOver());
   }
 
   _onPointerOut(): void {
@@ -1044,11 +1044,10 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
       this.isHovering = false;
       this.alpha = 1.0;
     }
+    this.removeListener('pointermove');
     this.updateBehaviour.redrawAnythingChanging();
     this.nodeSelectionHeader.redrawAnythingChanging(false);
-    this.getAllSockets().forEach((socket) =>
-      socket.links.forEach((link) => link.nodeHoveredOut())
-    );
+    this.getAllSockets().forEach((socket) => socket.nodeHoveredOut());
   }
 
   _onDoubleClick(event: PIXI.InteractionEvent): void {
