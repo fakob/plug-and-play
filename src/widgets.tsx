@@ -548,13 +548,9 @@ export type DefaultOutputWidgetProps = {
 export const DefaultOutputWidget: React.FunctionComponent<
   DefaultOutputWidgetProps
 > = (props) => {
-  const [data, setData] = useState(props.property.data);
-  useInterval(async () => {
-    setData(props.property.data);
-  }, 100);
   return (
     <CodeEditor
-      value={data}
+      value={props.data}
       randomMainColor={props.randomMainColor}
       editable={false}
     />
