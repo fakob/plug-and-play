@@ -326,7 +326,7 @@ export default class Socket extends PIXI.Container {
     );
     const maxDist = 40;
     const scale =
-      Math.pow(Math.max(0, (maxDist - dist) / maxDist), 1) * 1.5 + 1;
+      Math.pow(Math.max(0, (maxDist - dist) / maxDist), 1) * 1.2 + 1;
 
     this._SocketRef.scale = new PIXI.Point(scale, scale);
     this._TextRef.scale = new PIXI.Point(scale, scale);
