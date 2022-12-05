@@ -15,7 +15,7 @@ import {
 import { AbstractType } from '../nodes/datatypes/abstractType';
 import { TriggerType } from '../nodes/datatypes/triggerType';
 import { dataToType, serializeType } from '../nodes/datatypes/typehelper';
-import { getCurrentCursorPosition, getMatchingSocket } from '../utils/utils';
+import { getCurrentCursorPosition } from '../utils/utils';
 
 export default class Socket extends PIXI.Container {
   // Input sockets
@@ -27,6 +27,7 @@ export default class Socket extends PIXI.Container {
 
   _SocketRef: PIXI.Graphics;
   _TextRef: PIXI.Text;
+  _SelectionBox: PIXI.Graphics;
 
   _socketType: TSocketType;
   _dataType: AbstractType;
@@ -81,24 +82,41 @@ export default class Socket extends PIXI.Container {
     );
   }
 
+  drawSocket(graphics: PIXI.Graphics, rounded = true) {
+    graphics.drawRoundedRect(
+      0,
+      0,
+      SOCKET_WIDTH,
+      SOCKET_WIDTH,
+      this.dataType.constructor === new TriggerType().constructor || !rounded
+        ? 0
+        : SOCKET_CORNERRADIUS
+    );
+  }
+
   redrawAnythingChanging(): void {
     this.removeChild(this._SocketRef);
     this.removeChild(this._TextRef);
+    this.removeChild(this._SelectionBox);
     this._SocketRef = new PIXI.Graphics();
     this._TextRef = new PIXI.Text();
+    this._SelectionBox = new PIXI.Graphics();
     this._SocketRef.beginFill(this.dataType.getColor().hexNumber());
     this._SocketRef.x = this.getSocketLocation().x;
     this._SocketRef.y = this.getSocketLocation().y;
     this._SocketRef.pivot = new PIXI.Point(SOCKET_WIDTH / 2, SOCKET_WIDTH / 2);
-    this._SocketRef.drawRoundedRect(
-      0,
-      0,
-      SOCKET_WIDTH,
-      SOCKET_WIDTH,
-      this.dataType.constructor === new TriggerType().constructor
-        ? 0
-        : SOCKET_CORNERRADIUS
+    this.drawSocket(this._SocketRef);
+    // add bigger invisible box under hood
+    this._SelectionBox.beginFill(this.dataType.getColor().hexNumber());
+    this._SelectionBox.alpha = 0.01;
+    this._SelectionBox.x = this.getSocketLocation().x;
+    this._SelectionBox.y = this.getSocketLocation().y;
+    this._SelectionBox.scale = new PIXI.Point(6, 2);
+    this._SelectionBox.pivot = new PIXI.Point(
+      SOCKET_WIDTH / 2,
+      SOCKET_WIDTH / 2
     );
+    this.drawSocket(this._SelectionBox, false);
 
     if (this.showLabel) {
       this._TextRef = new PIXI.Text(this.name, SOCKET_TEXTSTYLE);
@@ -132,6 +150,7 @@ export default class Socket extends PIXI.Container {
     this._SocketRef.on('pointerout', this._onPointerOut.bind(this));
     this._SocketRef.on('pointerdown', (event) => this._onPointerDown(event));
     this._SocketRef.on('pointerup', (event) => this._onPointerUp(event));
+    this.addChild(this._SelectionBox);
     this.addChild(this._SocketRef);
     this.addChild(this._TextRef);
   }
@@ -305,9 +324,10 @@ export default class Socket extends PIXI.Container {
     const dist = Math.sqrt(
       Math.pow(currPos.x - center.x, 2) + Math.pow(currPos.y - center.y, 2)
     );
-    const maxDist = 100;
+    const maxDist = 40;
     const scale =
       Math.pow(Math.max(0, (maxDist - dist) / maxDist), 1.5) * 1.8 + 1;
+
     this._SocketRef.scale = new PIXI.Point(scale, scale);
     this._TextRef.scale = new PIXI.Point(scale, scale);
   }
