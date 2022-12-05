@@ -666,6 +666,8 @@ export default class PPNode extends PIXI.Container {
   }
 
   public drawNodeShape(): void {
+    // update selection
+
     this._BackgroundRef.clear();
     if (!this.successfullyExecuted) {
       this.drawErrorBoundary();
@@ -675,11 +677,6 @@ export default class PPNode extends PIXI.Container {
     this.drawTriggers();
     this.drawSockets();
     this.drawComment();
-
-    // update selection
-    if (PPGraph.currentGraph.selection.isNodeSelected(this)) {
-      PPGraph.currentGraph.selection.drawRectanglesFromSelection();
-    }
   }
 
   constructSocketName(prefix: string, existing: Socket[]): string {
