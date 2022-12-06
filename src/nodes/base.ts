@@ -39,6 +39,7 @@ export class Placeholder extends PPNode {
 }
 
 export class Mouse extends PPNode {
+  onViewportMoveHandlerMouseNode: (event?: PIXI.InteractionEvent) => void;
   onViewportZoomedHandler: (event?: PIXI.InteractionEvent) => void;
   onViewportZoomed = (event: PIXI.InteractionEvent): void => {
     const scale = (event as any).viewportScaleX;
@@ -81,10 +82,10 @@ export class Mouse extends PPNode {
   public onNodeAdded(): void {
     super.onNodeAdded();
     // add event listener
-    this.onViewportMoveHandler = this.onViewportMove.bind(this);
+    this.onViewportMoveHandlerMouseNode = this.onViewportMove.bind(this);
     PPGraph.currentGraph.viewport.on(
       'pointermove',
-      (this as any).onViewportMoveHandler
+      (this as any).onViewportMoveHandlerMouseNode
     );
 
     this.onViewportZoomedHandler = this.onViewportZoomed.bind(this);
@@ -95,9 +96,10 @@ export class Mouse extends PPNode {
   }
 
   onNodeRemoved = (): void => {
+    console.log('onNodeRemoved');
     PPGraph.currentGraph.viewport.removeListener(
       'pointermove',
-      (this as any).onViewportMoveHandler
+      (this as any).onViewportMoveHandlerMouseNode
     );
     PPGraph.currentGraph.viewport.removeListener(
       'zoomed',
