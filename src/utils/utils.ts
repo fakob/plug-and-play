@@ -770,3 +770,7 @@ export function getCurrentCursorPosition(): PIXI.Point {
   mousePosition = viewport.toWorld(mousePosition);
   return mousePosition;
 }
+
+export function getCurrentButtons(): number {
+  return PPGraph.currentGraph.app.renderer.plugins.interaction.mouse.buttons;
+}
