@@ -14,7 +14,13 @@ import {
   TRIGGER_TYPE_OPTIONS,
 } from '../utils/constants';
 import { CustomArgs, TRgba } from '../utils/interfaces';
-import { compare, getMethods, isVariable } from '../utils/utils';
+import {
+  compare,
+  getCurrentButtons,
+  getCurrentCursorPosition,
+  getMethods,
+  isVariable,
+} from '../utils/utils';
 import { NumberType } from './datatypes/numberType';
 import { AnyType } from './datatypes/anyType';
 import { ArrayType } from './datatypes/arrayType';
@@ -39,23 +45,6 @@ export class Placeholder extends PPNode {
 }
 
 export class Mouse extends PPNode {
-  onViewportMoveHandlerMouseNode: (event?: PIXI.InteractionEvent) => void;
-  onViewportZoomedHandler: (event?: PIXI.InteractionEvent) => void;
-  onViewportZoomed = (event: PIXI.InteractionEvent): void => {
-    const scale = (event as any).viewportScaleX;
-    this.setOutputData('scale', scale);
-  };
-  onViewportMove = (event: PIXI.InteractionEvent): void => {
-    const screen = event.data.global;
-    const world = PPGraph.currentGraph.viewport.toWorld(screen.x, screen.y);
-    const buttons = event.data.buttons;
-    this.setOutputData('screen-x', screen.x);
-    this.setOutputData('screen-y', screen.y);
-    this.setOutputData('world-x', world.x);
-    this.setOutputData('world-y', world.y);
-    this.setOutputData('buttons', buttons);
-  };
-
   getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
   }
@@ -79,32 +68,18 @@ export class Mouse extends PPNode {
     ].concat(super.getDefaultIO());
   }
 
-  public onNodeAdded(): void {
-    super.onNodeAdded();
-    // add event listener
-    this.onViewportMoveHandlerMouseNode = this.onViewportMove.bind(this);
-    PPGraph.currentGraph.viewport.on(
-      'pointermove',
-      (this as any).onViewportMoveHandlerMouseNode
+  public onExecute = async function () {
+    this.setOutputData('scale', PPGraph.currentGraph.viewportScaleX);
+    const worldPosition = getCurrentCursorPosition();
+    const screenPosition = PPGraph.currentGraph.viewport.toScreen(
+      worldPosition.x,
+      worldPosition.y
     );
-
-    this.onViewportZoomedHandler = this.onViewportZoomed.bind(this);
-    PPGraph.currentGraph.viewport.on(
-      'zoomed',
-      (this as any).onViewportZoomedHandler
-    );
-  }
-
-  onNodeRemoved = (): void => {
-    console.log('onNodeRemoved');
-    PPGraph.currentGraph.viewport.removeListener(
-      'pointermove',
-      (this as any).onViewportMoveHandlerMouseNode
-    );
-    PPGraph.currentGraph.viewport.removeListener(
-      'zoomed',
-      (this as any).onViewportZoomedHandler
-    );
+    this.setOutputData('screen-x', screenPosition.x);
+    this.setOutputData('screen-y', screenPosition.y);
+    this.setOutputData('world-x', worldPosition.x);
+    this.setOutputData('world-y', worldPosition.y);
+    this.setOutputData('buttons', getCurrentButtons());
   };
 }
 
