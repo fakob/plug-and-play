@@ -25,9 +25,9 @@ import {
 import ColorizeIcon from '@mui/icons-material/Colorize';
 import { SketchPicker } from 'react-color';
 import Socket from '../../classes/SocketClass';
+import { Widget_Base } from './abstract';
 import { CustomArgs, TRgba } from '../../utils/interfaces';
 import {
-  NODE_TYPE_COLOR,
   PRESET_COLORS,
   RANDOMMAINCOLOR,
   SOCKET_TYPE,
@@ -39,7 +39,6 @@ import { ArrayType } from '../datatypes/arrayType';
 import { BooleanType } from '../datatypes/booleanType';
 import { NumberType } from '../datatypes/numberType';
 import { StringType } from '../datatypes/stringType';
-import HybridNode from '../../classes/HybridNode';
 import { ColorType } from '../datatypes/colorType';
 
 const selectedName = 'Initial selection';
@@ -59,20 +58,6 @@ const outName = 'Out';
 const margin = 4;
 
 const defaultOptions = ['Option1', 'Option2', 'Option3'];
-
-export abstract class Widget_Base extends HybridNode {
-  getColor(): TRgba {
-    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
-  }
-
-  getOpacity(): number {
-    return 0.01;
-  }
-
-  protected getActivateByDoubleClick(): boolean {
-    return false;
-  }
-}
 
 type WidgetButtonProps = {
   doubleClicked: boolean; // is injected by the NodeClass

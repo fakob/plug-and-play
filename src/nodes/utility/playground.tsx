@@ -34,7 +34,6 @@ export class Playground extends PPNode {
     const ARGUMENT_NAMES = /([^\s,]+)/g;
     function getParamNames(func) {
       let result;
-      console.log(func);
       if (typeof func === 'function') {
         const fnStr = func.toString().replace(STRIP_COMMENTS, '');
         result = fnStr
@@ -132,7 +131,6 @@ export class Playground extends PPNode {
     const lastNodePosY = this.y;
     const addedNodes: PPNode[] = [];
     allNodeTypeNames.forEach((nodeName) => {
-      console.log(this.x, lastNodePosX);
       const newNode = PPGraph.currentGraph.addNewNode(nodeName);
       newNode.setPosition(lastNodePosX, lastNodePosY, false);
       lastNodePosX += newNode.width + 40;
@@ -158,7 +156,6 @@ export class Playground extends PPNode {
       const nodesFromLastRow: PPNode[] = [];
       selectedNodes.forEach((node, index) => {
         if (index % 10 === 0 && index !== 0) {
-          console.log(index);
           lastNodePosX = origNodePosX;
           const boundsOfSelection = getNodesBounds(nodesFromLastRow);
           lastNodePosY = boundsOfSelection.y + boundsOfSelection.height + 40;
