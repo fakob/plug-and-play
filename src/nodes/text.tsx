@@ -4,8 +4,8 @@ import PPNode from '../classes/NodeClass';
 import PPSocket from '../classes/SocketClass';
 import { CustomArgs, TRgba } from '../utils/interfaces';
 import {
-  COLOR,
   NODE_MARGIN,
+  NODE_TYPE_COLOR,
   NOTE_LINEHEIGHT_FACTOR,
   NOTE_MARGIN_STRING,
   SOCKET_TYPE,
@@ -64,7 +64,7 @@ export class Label extends PPNode {
   protected getDefaultIO(): PPSocket[] {
     const nodeWidth = 128;
     const fontSize = 32;
-    const fillColor = COLOR[5];
+    const fillColor = NODE_TYPE_COLOR.OUTPUT;
 
     return [
       new PPSocket(SOCKET_TYPE.OUT, 'Output', new StringType(), false),

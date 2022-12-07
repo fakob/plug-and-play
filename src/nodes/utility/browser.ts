@@ -1,4 +1,6 @@
 import { CustomFunction } from '../data/dataFunctions';
+import { NODE_TYPE_COLOR } from '../../utils/constants';
+import { TRgba } from '../../utils/interfaces';
 
 export class OpenURL extends CustomFunction {
   protected getDefaultFunction(): string {
@@ -15,7 +17,12 @@ export class OpenURL extends CustomFunction {
   public getName(): string {
     return 'Open URL';
   }
+
   public getDescription(): string {
     return 'Opens a URL in a new tab';
+  }
+
+  getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.SYSTEM);
   }
 }

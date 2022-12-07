@@ -25,12 +25,13 @@ import {
 import ColorizeIcon from '@mui/icons-material/Colorize';
 import { SketchPicker } from 'react-color';
 import Socket from '../../classes/SocketClass';
+import { Widget_Base } from './abstract';
 import { CustomArgs, TRgba } from '../../utils/interfaces';
 import {
   PRESET_COLORS,
+  RANDOMMAINCOLOR,
   SOCKET_TYPE,
   customTheme,
-  RANDOMMAINCOLOR,
 } from '../../utils/constants';
 import { roundNumber } from '../../utils/utils';
 import { AnyType } from '../datatypes/anyType';
@@ -38,7 +39,6 @@ import { ArrayType } from '../datatypes/arrayType';
 import { BooleanType } from '../datatypes/booleanType';
 import { NumberType } from '../datatypes/numberType';
 import { StringType } from '../datatypes/stringType';
-import HybridNode from '../../classes/HybridNode';
 import { ColorType } from '../datatypes/colorType';
 
 const selectedName = 'Initial selection';
@@ -67,15 +67,7 @@ type WidgetButtonProps = {
   buttonText: number;
 };
 
-export class WidgetButton extends HybridNode {
-  getOpacity(): number {
-    return 0.01;
-  }
-
-  protected getActivateByDoubleClick(): boolean {
-    return false;
-  }
-
+export class WidgetButton extends Widget_Base {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, offValueName, new AnyType(), 0, false),
@@ -218,7 +210,7 @@ type WidgetColorPickerProps = {
   label: string;
 };
 
-export class WidgetColorPicker extends HybridNode {
+export class WidgetColorPicker extends Widget_Base {
   constructor(name: string, customArgs?: CustomArgs) {
     super(name, {
       ...customArgs,
@@ -227,14 +219,6 @@ export class WidgetColorPicker extends HybridNode {
     if (this.initialData) {
       this.setInputData(initialValueName, this.initialData);
     }
-  }
-
-  getOpacity(): number {
-    return 0.01;
-  }
-
-  protected getActivateByDoubleClick(): boolean {
-    return false;
   }
 
   protected getDefaultIO(): Socket[] {
@@ -421,15 +405,7 @@ export class WidgetColorPicker extends HybridNode {
   };
 }
 
-export class WidgetSwitch extends HybridNode {
-  getOpacity(): number {
-    return 0.01;
-  }
-
-  protected getActivateByDoubleClick(): boolean {
-    return false;
-  }
-
+export class WidgetSwitch extends Widget_Base {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, selectedName, new BooleanType(), false, false),
@@ -568,15 +544,7 @@ export class WidgetSwitch extends HybridNode {
   };
 }
 
-export class WidgetSlider extends HybridNode {
-  getOpacity(): number {
-    return 0.01;
-  }
-
-  protected getActivateByDoubleClick(): boolean {
-    return false;
-  }
-
+export class WidgetSlider extends Widget_Base {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, initialValueName, new NumberType(), 0, false),
@@ -793,7 +761,7 @@ type WidgetDropdownProps = {
   multiSelect: boolean;
 };
 
-export class WidgetDropdown extends HybridNode {
+export class WidgetDropdown extends Widget_Base {
   constructor(name: string, customArgs?: CustomArgs) {
     super(name, {
       ...customArgs,
@@ -802,14 +770,6 @@ export class WidgetDropdown extends HybridNode {
     if (this.initialData) {
       this.setInputData(optionsName, this.initialData);
     }
-  }
-
-  getOpacity(): number {
-    return 0.01;
-  }
-
-  protected getActivateByDoubleClick(): boolean {
-    return false;
   }
 
   protected getDefaultIO(): Socket[] {

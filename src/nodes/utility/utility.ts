@@ -4,13 +4,13 @@ import PPGraph from '../../classes/GraphClass';
 import PPNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
 import { WidgetButton } from '../widgets/widgetNodes';
-import { ensureVisible } from '../../utils/utils';
 import {
   NODE_TYPE_COLOR,
   SOCKET_TYPE,
   TRIGGER_TYPE_OPTIONS,
 } from '../../utils/constants';
 import { TRgba } from '../../utils/interfaces';
+import { ensureVisible } from '../../pixi/utils-pixi';
 import { AnyType } from '../datatypes/anyType';
 import { DynamicEnumType } from '../datatypes/dynamicEnumType';
 import { NumberType } from '../datatypes/numberType';

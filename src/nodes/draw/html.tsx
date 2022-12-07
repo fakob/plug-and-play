@@ -7,8 +7,12 @@ import PPSocket from '../../classes/SocketClass';
 import PPGraph from '../../classes/GraphClass';
 import { CodeType } from '../datatypes/codeType';
 
-import { CustomArgs } from '../../utils/interfaces';
-import { SOCKET_TYPE, customTheme } from '../../utils/constants';
+import { CustomArgs, TRgba } from '../../utils/interfaces';
+import {
+  NODE_TYPE_COLOR,
+  SOCKET_TYPE,
+  customTheme,
+} from '../../utils/constants';
 import HybridNode from '../../classes/HybridNode';
 
 const inputSocketName = 'Html';
@@ -54,6 +58,10 @@ export class HtmlRenderer extends HybridNode {
 
   public getDescription(): string {
     return 'Renders html';
+  }
+
+  getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.OUTPUT);
   }
 
   protected getDefaultIO(): PPSocket[] {

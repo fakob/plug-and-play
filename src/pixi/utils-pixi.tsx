@@ -1,4 +1,5 @@
 import * as PIXI from 'pixi.js';
+import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
 
 export const getTextWithLineBreaks = (node: any): string => {
@@ -61,4 +62,92 @@ export const doRectsIntersect = (
     Math.max(firstRect.y, secondRect.y) <
       Math.min(firstRect.y + firstRect.height, secondRect.y + secondRect.height)
   );
+};
+
+export function drawDottedLine(
+  graphics: PIXI.Graphics,
+  startX: number,
+  startY: number,
+  endX: number,
+  endY: number,
+  interval: number
+) {
+  const deltaX: number = endX - startX;
+  const deltaY: number = endY - startY;
+  const totalDist = Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
+  const segments = totalDist / interval;
+  const segmentLengthX = deltaX / segments;
+  const segmentLengthY = deltaY / segments;
+  for (let i = 0; i < segments - 1; i += 2) {
+    graphics.moveTo(startX + i * segmentLengthX, startY + i * segmentLengthY);
+    graphics.lineTo(
+      startX + (i + 1) * segmentLengthX,
+      startY + (i + 1) * segmentLengthY
+    );
+  }
+}
+
+export const getNodesBounds = (nodes: PPNode[]): PIXI.Rectangle => {
+  let bounds = new PIXI.Rectangle();
+  nodes.forEach((node: PIXI.DisplayObject, index: number) => {
+    const tempRect = node.getLocalBounds();
+    // move rect to get bounds local to nodeContainer
+    tempRect.x += node.transform.position.x;
+    tempRect.y += node.transform.position.y;
+    if (index === 0) {
+      bounds = tempRect;
+    }
+    bounds.enlarge(tempRect);
+  });
+  return bounds;
+};
+
+export const zoomToFitNodes = (nodes?: PPNode[]): void => {
+  const currentGraph = PPGraph.currentGraph;
+  let boundsToZoomTo: PIXI.Rectangle;
+  let zoomOutFactor: number;
+
+  if (nodes === undefined || nodes.length < 1) {
+    boundsToZoomTo = currentGraph.nodeContainer.getLocalBounds(); // get bounds of the whole nodeContainer
+    zoomOutFactor = -0.2;
+  } else {
+    boundsToZoomTo = getNodesBounds(nodes);
+    zoomOutFactor = -0.3;
+  }
+
+  currentGraph.viewport.moveCenter(
+    boundsToZoomTo.x + boundsToZoomTo.width / 2,
+    boundsToZoomTo.y + boundsToZoomTo.height / 2
+  );
+  currentGraph.viewport.fit(true, boundsToZoomTo.width, boundsToZoomTo.height);
+  currentGraph.viewport.zoomPercent(zoomOutFactor, true); // zoom out a bit more
+  currentGraph.selection.drawRectanglesFromSelection();
+  currentGraph.viewport.emit('moved');
+};
+
+export const ensureVisible = (nodes: PPNode[]): void => {
+  let boundsToZoomTo: PIXI.Rectangle;
+  const currentGraph = PPGraph.currentGraph;
+
+  if (nodes.length < 1) {
+    boundsToZoomTo = currentGraph.nodeContainer.getLocalBounds(); // get bounds of the whole nodeContainer
+  } else {
+    boundsToZoomTo = getNodesBounds(nodes);
+  }
+  const fitScale = currentGraph.viewport.findFit(
+    boundsToZoomTo.width,
+    boundsToZoomTo.height
+  );
+  const fitScaleWithViewport = fitScale / currentGraph.viewportScaleX;
+
+  currentGraph.viewport.animate({
+    position: new PIXI.Point(
+      boundsToZoomTo.x + boundsToZoomTo.width / 2,
+      boundsToZoomTo.y + boundsToZoomTo.height / 2
+    ),
+    scale: fitScaleWithViewport < 1 ? fitScale / 2 : undefined, // only zoom out if necessary
+    ease: 'easeOutExpo',
+    time: 750,
+  });
+  currentGraph.viewport.emit('moved');
 };

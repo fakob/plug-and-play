@@ -11,7 +11,8 @@ import {
   SerializedSelection,
   TSocketType,
 } from '../utils/interfaces';
-import { connectNodeToSocket, getNodesBounds } from '../utils/utils';
+import { connectNodeToSocket } from '../utils/utils';
+import { getNodesBounds } from '../pixi/utils-pixi';
 import PPNode from './NodeClass';
 import PPSocket from './SocketClass';
 import PPLink from './LinkClass';

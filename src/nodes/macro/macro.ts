@@ -4,11 +4,12 @@ import Socket from '../../classes/SocketClass';
 import {
   NODE_CORNERRADIUS,
   NODE_MARGIN,
+  NODE_TYPE_COLOR,
   SOCKET_TYPE,
 } from '../../utils/constants';
 import { CustomArgs, TRgba } from '../../utils/interfaces';
 import { AnyType } from '../datatypes/anyType';
-import { drawDottedLine } from '../../utils/utils';
+import { drawDottedLine } from '../../pixi/utils-pixi';
 import { anyCodeName, CustomFunction } from '../data/dataFunctions';
 import UpdateBehaviourClass from '../../classes/UpdateBehaviourClass';
 import { DynamicEnumType } from '../datatypes/dynamicEnumType';
@@ -19,7 +20,7 @@ export const macroOutputName = 'Output';
 const macroInputBlockSize = 120;
 const macroOutputBlockSize = 60;
 
-const macroColor = new TRgba(178, 178, 178);
+const macroColor = TRgba.fromString(NODE_TYPE_COLOR.MACRO);
 
 export class Macro extends PPNode {
   textRef: PIXI.Text = undefined;
