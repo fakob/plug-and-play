@@ -60,6 +60,20 @@ const margin = 4;
 
 const defaultOptions = ['Option1', 'Option2', 'Option3'];
 
+export abstract class Widget_Base extends HybridNode {
+  getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
+  }
+
+  getOpacity(): number {
+    return 0.01;
+  }
+
+  protected getActivateByDoubleClick(): boolean {
+    return false;
+  }
+}
+
 type WidgetButtonProps = {
   doubleClicked: boolean; // is injected by the NodeClass
   nodeWidth: number;
@@ -68,19 +82,7 @@ type WidgetButtonProps = {
   buttonText: number;
 };
 
-export class WidgetButton extends HybridNode {
-  getOpacity(): number {
-    return 0.01;
-  }
-
-  getColor(): TRgba {
-    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
-  }
-
-  protected getActivateByDoubleClick(): boolean {
-    return false;
-  }
-
+export class WidgetButton extends Widget_Base {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, offValueName, new AnyType(), 0, false),
@@ -223,7 +225,7 @@ type WidgetColorPickerProps = {
   label: string;
 };
 
-export class WidgetColorPicker extends HybridNode {
+export class WidgetColorPicker extends Widget_Base {
   constructor(name: string, customArgs?: CustomArgs) {
     super(name, {
       ...customArgs,
@@ -232,18 +234,6 @@ export class WidgetColorPicker extends HybridNode {
     if (this.initialData) {
       this.setInputData(initialValueName, this.initialData);
     }
-  }
-
-  getOpacity(): number {
-    return 0.01;
-  }
-
-  getColor(): TRgba {
-    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
-  }
-
-  protected getActivateByDoubleClick(): boolean {
-    return false;
   }
 
   protected getDefaultIO(): Socket[] {
@@ -430,19 +420,7 @@ export class WidgetColorPicker extends HybridNode {
   };
 }
 
-export class WidgetSwitch extends HybridNode {
-  getOpacity(): number {
-    return 0.01;
-  }
-
-  getColor(): TRgba {
-    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
-  }
-
-  protected getActivateByDoubleClick(): boolean {
-    return false;
-  }
-
+export class WidgetSwitch extends Widget_Base {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, selectedName, new BooleanType(), false, false),
@@ -581,19 +559,7 @@ export class WidgetSwitch extends HybridNode {
   };
 }
 
-export class WidgetSlider extends HybridNode {
-  getOpacity(): number {
-    return 0.01;
-  }
-
-  getColor(): TRgba {
-    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
-  }
-
-  protected getActivateByDoubleClick(): boolean {
-    return false;
-  }
-
+export class WidgetSlider extends Widget_Base {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, initialValueName, new NumberType(), 0, false),
@@ -810,7 +776,7 @@ type WidgetDropdownProps = {
   multiSelect: boolean;
 };
 
-export class WidgetDropdown extends HybridNode {
+export class WidgetDropdown extends Widget_Base {
   constructor(name: string, customArgs?: CustomArgs) {
     super(name, {
       ...customArgs,
@@ -819,18 +785,6 @@ export class WidgetDropdown extends HybridNode {
     if (this.initialData) {
       this.setInputData(optionsName, this.initialData);
     }
-  }
-
-  getOpacity(): number {
-    return 0.01;
-  }
-
-  getColor(): TRgba {
-    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
-  }
-
-  protected getActivateByDoubleClick(): boolean {
-    return false;
   }
 
   protected getDefaultIO(): Socket[] {
