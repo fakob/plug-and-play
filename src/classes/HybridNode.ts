@@ -118,12 +118,8 @@ export default abstract class HybridNode extends PPNode {
     this._onViewportMove(); // trigger this once, so the react components get positioned properly
   }
 
-  resizeAndDraw(
-    width = this.nodeWidth,
-    height = this.nodeHeight,
-    maintainAspectRatio = false
-  ): void {
-    super.resizeAndDraw(width, height, maintainAspectRatio);
+  resizeAndDraw(width = this.nodeWidth, height = this.nodeHeight): void {
+    super.resizeAndDraw(width, height);
     this.container.style.width = `${width}px`;
     this.container.style.height = `${height}px`;
   }

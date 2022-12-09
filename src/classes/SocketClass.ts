@@ -324,7 +324,7 @@ export default class Socket extends PIXI.Container {
     const dist = Math.sqrt(
       Math.pow(currPos.x - center.x, 2) + Math.pow(currPos.y - center.y, 2)
     );
-    const maxDist = 40;
+    const maxDist = 40 * this.getNode().scale.x;
     const scale =
       Math.pow(Math.max(0, (maxDist - dist) / maxDist), 1) * 1.2 + 1;
 

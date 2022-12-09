@@ -530,30 +530,18 @@ export default class PPNode extends PIXI.Container {
 
   resizeAndDraw(
     width: number = this.nodeWidth,
-    height: number = this.nodeHeight,
-    maintainAspectRatio = false
+    height: number = this.nodeHeight
   ): void {
     // set new size
     const newNodeWidth = Math.max(width, this.getMinNodeWidth());
     const newNodeHeight = Math.max(height, this.getMinNodeHeight());
 
-    if (maintainAspectRatio) {
-      const oldWidth = this.nodeWidth;
-      const oldHeight = this.nodeHeight;
-      const newRect = calculateAspectRatioFit(
-        oldWidth,
-        oldHeight,
-        newNodeWidth,
-        newNodeHeight,
-        this.getMinNodeWidth(),
-        this.getMinNodeHeight()
-      );
-      this.nodeWidth = newRect.width;
-      this.nodeHeight = newRect.height;
-    } else {
-      this.nodeWidth = newNodeWidth;
-      this.nodeHeight = newNodeHeight;
-    }
+    const scale = Math.min(
+      newNodeWidth / this.getDefaultNodeWidth(),
+      newNodeHeight / this.getDefaultNodeHeight()
+    );
+    this.scale.x = scale;
+    this.scale.y = scale;
 
     // update node shape
     this.drawNodeShape();
