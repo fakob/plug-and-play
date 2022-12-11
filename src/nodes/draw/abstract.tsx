@@ -165,6 +165,7 @@ export abstract class DRAW_Base extends PPNode {
     originalOffsets: PIXI.Point
   ) {
     this.isDragging = true;
+    PPGraph.currentGraph.selection.selectNodes([this], false, true);
     this.deferredGraphics.on('pointermove', () => {
       this.setOffsetsToCurrentCursor(originalCursorPos, originalOffsets);
       // re-trigger if still holding
@@ -188,7 +189,6 @@ export abstract class DRAW_Base extends PPNode {
     originalOffsets: PIXI.Point
   ) {
     const currPos = getCurrentCursorPosition();
-    //this.setOffsetsToCurrentCursor(originalCursorPos, originalOffsets);
     this.isDragging = false;
     this.deferredGraphics.removeListener('pointermove');
     InterfaceController.removeListener(this.listenID);

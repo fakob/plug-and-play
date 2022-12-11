@@ -996,9 +996,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
       PPGraph.currentGraph.selectedSourceSocket = null; // hack
       connectNodeToSocket(source, this);
     }
-    if (PPGraph.currentGraph.selection.isDraggingSelection) {
-      PPGraph.currentGraph.selection.stopDragAction();
-    }
+    PPGraph.currentGraph.selection.stopDragAction();
   }
 
   protected _onViewportMove(): void {

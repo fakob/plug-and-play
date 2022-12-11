@@ -141,6 +141,9 @@ export default class PPSelection extends PIXI.Container {
   }
 
   public stopDragAction() {
+    if (!this.isDraggingSelection) {
+      return;
+    }
     this.cursor = 'default';
     this.isDraggingSelection = false;
     this.interactionData = null;
@@ -203,9 +206,7 @@ export default class PPSelection extends PIXI.Container {
 
   onPointerUpAndUpOutside(): void {
     console.log('Selection: onPointerUpAndUpOutside');
-    if (this.isDraggingSelection) {
-      this.stopDragAction();
-    }
+    this.stopDragAction();
     // we remove the fill of the selection on the nodes if its just one, so that sockets etc on it can be pressed
     if (this.selectedNodes.length == 1) {
       this.drawRectanglesFromSelection(false);

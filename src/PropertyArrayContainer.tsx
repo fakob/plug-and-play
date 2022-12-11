@@ -28,6 +28,7 @@ import { AbstractType } from './nodes/datatypes/abstractType';
 import { allDataTypes } from './nodes/datatypes/dataTypesMap';
 import { CodeEditor } from './components/Editor';
 import InterfaceController, { ListenEvent } from './InterfaceController';
+import PPGraph from './classes/GraphClass';
 
 type PropertyArrayContainerProps = {
   selectedNode: PPNode;
@@ -97,7 +98,9 @@ const socketArrayToComponent = (
 export const PropertyArrayContainer: React.FunctionComponent<
   PropertyArrayContainerProps
 > = (props) => {
-  const [dragging, setIsDragging] = useState(true);
+  const [dragging, setIsDragging] = useState(
+    PPGraph.currentGraph.selection.isDraggingSelection
+  );
   useEffect(() => {
     const id = InterfaceController.addListener(
       ListenEvent.SelectionDragging,
