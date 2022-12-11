@@ -1,12 +1,12 @@
-import Socket from '../../classes/SocketClass';
-import { SOCKET_TYPE } from '../../utils/constants';
-import { ArrayType } from '../datatypes/arrayType';
-import { NumberType } from '../datatypes/numberType';
+import Socket from '../../../classes/SocketClass';
+import { SOCKET_TYPE } from '../../../utils/constants';
+import { ArrayType } from '../../datatypes/arrayType';
+import { NumberType } from '../../datatypes/numberType';
 import * as PIXI from 'pixi.js';
-import { BooleanType } from '../datatypes/booleanType';
-import { TRgba } from '../../utils/interfaces';
-import { ColorType } from '../datatypes/colorType';
-import { DRAW_Base, injectedDataName } from './abstract';
+import { BooleanType } from '../../datatypes/booleanType';
+import { TRgba } from '../../../utils/interfaces';
+import { ColorType } from '../../datatypes/colorType';
+import { DRAW_Base, injectedDataName } from '../abstract';
 
 const inputPointsName = 'Points X';
 const inputLabelsName = 'Labels';

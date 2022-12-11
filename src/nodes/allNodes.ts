@@ -3,7 +3,7 @@ import * as array from './data/array';
 import * as base from './base';
 import * as booleanlogic from './logic/boolean';
 import * as browser from './utility/browser';
-import * as charts from './draw/charts';
+import * as charts from './draw/graph/lineGraph';
 import * as codeEditor from './codeEditor';
 import * as dataFunctions from './data/dataFunctions';
 import * as draw from './draw/draw';

@@ -58,13 +58,13 @@ export class Macro extends PPNode {
 
   private getMacroText(): string {
     let toReturn = this.nodeName + ': (';
-    this.outputSocketArray.forEach((outputSocket) => {
-      if (outputSocket.links.length) {
-        toReturn += outputSocket.dataType.getName() + ',';
-      }
-    });
-    toReturn = toReturn.slice(0, -1) + ')';
-    toReturn += ' => ' + this.inputSocketArray[0].dataType.getName();
+    const linkedOutputs = this.outputSocketArray.filter((socket) =>
+      socket.hasLink()
+    );
+    toReturn += linkedOutputs
+      .map((socket) => socket.dataType.getName())
+      .join(',');
+    toReturn += ') => ' + this.inputSocketArray[0].dataType.getName();
     return toReturn;
   }
 
