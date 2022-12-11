@@ -136,11 +136,11 @@ export class DRAW_Shape extends DRAW_Base {
           break;
         }
         case 'Rectangle': {
-          graphics.drawRect(0, 0, width, height);
+          graphics.drawRect(0, -height, width, height);
           break;
         }
         case 'Rounded Rectangle': {
-          graphics.drawRoundedRect(0, 0, width, height, width * 0.1);
+          graphics.drawRoundedRect(0, -height, width, height, width * 0.1);
           break;
         }
         case 'Ellipse': {
