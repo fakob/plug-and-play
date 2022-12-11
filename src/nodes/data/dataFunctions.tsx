@@ -322,7 +322,7 @@ export class MapSequential extends ArrayFunction {
     return '(ArrayIn) => {\n\
 	const toReturn = [];\n\
 	for (let i = 0; i < ArrayIn.length; i++){\n\
-		toReturn.push(await new Promise(r => setTimeout(r,1)));\n\
+		toReturn.push(await 1);\n\
 	}\n\
 	return toReturn;\n\
 }';
