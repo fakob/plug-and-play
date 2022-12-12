@@ -15,6 +15,7 @@ const typeName = 'Type';
 const arrayOutName = 'FilteredArray';
 
 export const anyCodeName = 'Code';
+const executeOnce = 'Execute once';
 const outDataName = 'OutData';
 
 const constantInName = 'In';
@@ -155,8 +156,17 @@ function getFunctionFromFunction(inputFunction: string): string {
 
 // customfunction does any number of inputs but only one output for simplicity
 export class CustomFunction extends PPNode {
+  exports;
+
   protected getDefaultIO(): Socket[] {
     return [
+      new Socket(
+        SOCKET_TYPE.IN,
+        executeOnce,
+        new CodeType(),
+        this.getDefaultFunction(),
+        false
+      ),
       new Socket(
         SOCKET_TYPE.IN,
         anyCodeName,
@@ -199,6 +209,28 @@ export class CustomFunction extends PPNode {
     // added this to make sure all sockets are in place before anything happens (caused visual issues on load before)
     this.adaptInputs(this.getInputData(anyCodeName));
   }
+
+  // public executeOnce() {
+  //   // const functionToCall = getFunctionFromFunction(
+  //   //   this.getInputData(executeOnce)
+  //   // );
+  //   // this.exports = eval('async () => ' + functionToCall);
+  // }
+
+  // // when the Node is added, add the container and react component
+  // public onNodeAdded = () => {
+  //   if (this.exports === undefined) {
+  //     this.executeOnce();
+  //   }
+  //   super.onNodeAdded();
+  // };
+
+  // // when the Node is loaded, update the react component
+  // public onConfigure = (): void => {
+  //   if (this.exports === undefined) {
+  //     this.executeOnce();
+  //   }
+  // };
 
   protected async onExecute(
     inputObject: any,
@@ -265,7 +297,8 @@ export class CustomFunction extends PPNode {
     const socketsToBeRemoved = currentInputSockets.filter(
       (socket) =>
         !codeArguments.some((argument) => socket.name === argument) &&
-        socket.name !== anyCodeName
+        socket.name !== anyCodeName &&
+        socket.name !== executeOnce
     );
     const argumentsToBeAdded = codeArguments.filter(
       (argument) =>
@@ -292,7 +325,7 @@ export class CustomFunction extends PPNode {
   }
   // adapt all nodes apart from the code one
   public socketShouldAutomaticallyAdapt(socket: Socket): boolean {
-    return socket.name !== anyCodeName;
+    return socket.name !== anyCodeName && socket.name !== executeOnce;
   }
 }
 
