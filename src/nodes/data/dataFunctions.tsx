@@ -15,7 +15,7 @@ const typeName = 'Type';
 const arrayOutName = 'FilteredArray';
 
 export const anyCodeName = 'Code';
-const executeOnce = 'Execute once';
+const executeOnce = 'ExecuteOnce';
 const outDataName = 'OutData';
 
 const constantInName = 'In';
@@ -245,6 +245,7 @@ export class CustomFunction extends PPNode {
     const functionToCall = getFunctionFromFunction(inputObject[anyCodeName]);
     // eslint-disable-next-line prefer-const
     const defineAllVariables = Object.keys(inputObject)
+      .filter((key) => key !== executeOnce)
       .map(
         (argument) =>
           'const ' + argument + ' = inputObject["' + argument + '"];'
