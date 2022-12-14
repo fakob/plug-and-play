@@ -221,6 +221,9 @@ export class LoadNPM extends CustomFunction {
   public getName(): string {
     return 'Load NPM package';
   }
+  public getDescription(): string {
+    return 'Lazy loads an NPM package';
+  }
   protected getDefaultParameterValues(): Record<string, any> {
     return { packageName: 'uuid' };
   }
