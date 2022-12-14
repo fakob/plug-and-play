@@ -3,6 +3,8 @@ import debounce from 'lodash/debounce';
 import PPGraph from '../../classes/GraphClass';
 import PPNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
+import { CustomFunction } from '../data/dataFunctions';
+import UpdateBehaviourClass from '../../classes/UpdateBehaviourClass';
 import { WidgetButton } from '../widgets/widgetNodes';
 import {
   NODE_TYPE_COLOR,
@@ -11,10 +13,13 @@ import {
 } from '../../utils/constants';
 import { TRgba } from '../../utils/interfaces';
 import { ensureVisible } from '../../pixi/utils-pixi';
+import { AbstractType } from '../datatypes/abstractType';
 import { AnyType } from '../datatypes/anyType';
-import { DynamicEnumType } from '../datatypes/dynamicEnumType';
-import { NumberType } from '../datatypes/numberType';
 import { BooleanType } from '../datatypes/booleanType';
+import { DynamicEnumType } from '../datatypes/dynamicEnumType';
+import { FunctionType } from '../datatypes/functionType';
+import { NumberType } from '../datatypes/numberType';
+import { StringType } from '../datatypes/stringType';
 import { TriggerType } from '../datatypes/triggerType';
 
 export class Reroute extends PPNode {
@@ -209,5 +214,34 @@ export class ThrottleDebounce extends PPNode {
     }
     const input = inputObject['In'];
     outputObject['Out'] = this.passThroughDebounced(input);
+  }
+}
+
+export class LoadNPM extends CustomFunction {
+  public getName(): string {
+    return 'Load NPM package';
+  }
+  protected getDefaultParameterValues(): Record<string, any> {
+    return { packageName: 'uuid' };
+  }
+  protected getDefaultParameterTypes(): Record<string, any> {
+    return { packageName: new StringType() };
+  }
+  protected getOutputParameterName(): string {
+    return 'NpmPackage';
+  }
+  protected getOutputParameterType(): AbstractType {
+    return new FunctionType();
+  }
+  protected getUpdateBehaviour(): UpdateBehaviourClass {
+    return new UpdateBehaviourClass(false, false, 1000);
+  }
+  protected getDefaultFunction(): string {
+    return `(packageName) => {
+  const url = 'https://esm.sh/' + packageName;
+  const npmPackage = await import(url);
+  console.log(npmPackage);
+	return npmPackage;
+}`;
   }
 }
