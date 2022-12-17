@@ -572,6 +572,8 @@ export default class PPGraph {
     input.data = output.data;
 
     this.connectionContainer.addChild(link);
+    // input not allowed to be hidden
+    input.setVisible(true);
 
     // send notification pulse
     if (notify) {
