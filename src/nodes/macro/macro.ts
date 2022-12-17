@@ -167,6 +167,10 @@ export class Macro extends PPNode {
   public nameChanged(newName: string): void {
     this.drawNodeShape();
   }
+
+  public getShrinkOnSocketRemove(): boolean {
+    return false;
+  }
 }
 export class ExecuteMacro extends CustomFunction {
   static getOptions = () =>

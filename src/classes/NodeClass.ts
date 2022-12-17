@@ -96,34 +96,14 @@ export default class PPNode extends PIXI.Container {
 
   protected onNodeExit(): void {}
 
+  ////////////////////////////// Meant to be overriden for visual needs
+
   protected getShowLabels(): boolean {
     return true;
   }
 
   protected getActivateByDoubleClick(): boolean {
     return false;
-  }
-
-  // we should migrate all nodes to use these functions instead of specifying the field themselves in constructor
-  public getName(): string {
-    return this.name;
-  }
-  public getDescription(): string {
-    return '';
-  }
-
-  public getMinNodeWidth(): number {
-    return NODE_WIDTH;
-  }
-
-  public getMinNodeHeight(): number {
-    const minHeight =
-      this.headerHeight +
-      this.countOfVisibleNodeTriggerSockets * SOCKET_HEIGHT +
-      this.countOfVisibleInputSockets * SOCKET_HEIGHT +
-      this.countOfVisibleOutputSockets * SOCKET_HEIGHT +
-      NODE_PADDING_BOTTOM;
-    return minHeight;
   }
 
   public getDefaultNodeWidth(): number {
@@ -146,20 +126,78 @@ export default class PPNode extends PIXI.Container {
     return false;
   }
 
-  protected getUpdateBehaviour(): UpdateBehaviourClass {
-    return new UpdateBehaviourClass(true, false, 1000);
-  }
-
-  protected getDefaultIO(): Socket[] {
-    return [];
-  }
-
   public getCanAddInput(): boolean {
     return false;
   }
 
   protected getShouldShowHoverActions(): boolean {
     return true;
+  }
+
+  public getParallelInputsOutputs(): boolean {
+    return false;
+  }
+
+  public getRoundedCorners(): boolean {
+    return true;
+  }
+
+  getPreferredInputSocketName(): string {
+    return 'MyPreferredInputSocket';
+  }
+
+  getPreferredOutputSocketName(): string {
+    return 'MyPreferredOutputSocket';
+  }
+
+  public getInputSocketXPos(): number {
+    return 0;
+  }
+  public getOutputSocketXPos(): number {
+    return this.nodeWidth;
+  }
+
+  public getAddOutputDescription(): string {
+    return 'Add Output';
+  }
+
+  public getCanAddOutput(): boolean {
+    return false;
+  }
+
+  public getShrinkOnSocketRemove(): boolean {
+    return true;
+  }
+
+  //////////////////////////////
+
+  // we should migrate all nodes to use these functions instead of specifying the field themselves in constructor
+  public getName(): string {
+    return this.name;
+  }
+  public getDescription(): string {
+    return '';
+  }
+
+  public getMinNodeWidth(): number {
+    return NODE_WIDTH;
+  }
+
+  public getMinNodeHeight(): number {
+    const minHeight =
+      this.headerHeight +
+      this.countOfVisibleNodeTriggerSockets * SOCKET_HEIGHT +
+      this.countOfVisibleInputSockets * SOCKET_HEIGHT +
+      this.countOfVisibleOutputSockets * SOCKET_HEIGHT +
+      NODE_PADDING_BOTTOM;
+    return minHeight;
+  }
+  protected getUpdateBehaviour(): UpdateBehaviourClass {
+    return new UpdateBehaviourClass(true, false, 1000);
+  }
+
+  protected getDefaultIO(): Socket[] {
+    return [];
   }
 
   public getNodeTextString(): string {
@@ -173,12 +211,13 @@ export default class PPNode extends PIXI.Container {
     return this.getName();
   }
 
-  public getParallelInputsOutputs(): boolean {
-    return false;
+  // override if you don't want your node to show outline for some reason
+  public shouldDrawExecution(): boolean {
+    return true;
   }
 
-  public getRoundedCorners(): boolean {
-    return true;
+  public socketShouldAutomaticallyAdapt(socket: Socket): boolean {
+    return false;
   }
 
   get nodeName(): string {
@@ -331,7 +370,9 @@ export default class PPNode extends PIXI.Container {
     checkAndRemoveFrom('nodeTriggerSocketArray');
     checkAndRemoveFrom('inputSocketArray');
     checkAndRemoveFrom('outputSocketArray');
-    this.resizeAndDraw();
+    if (this.getShrinkOnSocketRemove()) {
+      this.resizeAndDraw(0, 0);
+    }
 
     socket.destroy();
   }
@@ -340,14 +381,6 @@ export default class PPNode extends PIXI.Container {
     const socketRef = this.addChild(socket);
     this.nodeTriggerSocketArray.push(socketRef);
     return;
-  }
-
-  getPreferredInputSocketName(): string {
-    return 'MyPreferredInputSocket';
-  }
-
-  getPreferredOutputSocketName(): string {
-    return 'MyPreferredOutputSocket';
   }
 
   addInput(
@@ -627,13 +660,6 @@ export default class PPNode extends PIXI.Container {
       });
   }
 
-  public getInputSocketXPos(): number {
-    return 0;
-  }
-  public getOutputSocketXPos(): number {
-    return this.nodeWidth;
-  }
-
   public drawSockets(): void {
     // redraw outputs
     this.outputSocketArray
@@ -709,13 +735,6 @@ export default class PPNode extends PIXI.Container {
     );
   }
 
-  public getAddOutputDescription(): string {
-    return 'Add Output';
-  }
-
-  public getCanAddOutput(): boolean {
-    return false;
-  }
   public addDefaultOutput(): void {
     this.addOutput(
       this.constructSocketName('Custom Output', this.outputSocketArray),
@@ -868,11 +887,6 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
         output.data = outputObject[output.name];
       }
     });
-  }
-
-  // override if you don't want your node to show outline for some reason
-  public shouldDrawExecution(): boolean {
-    return true;
   }
 
   public renderOutlineThrottled = throttle(this.renderOutline, 2000, {
@@ -1073,10 +1087,6 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   public metaInfoChanged(): void {
     this.resizeAndDraw();
     this.updateConnectionPosition();
-  }
-
-  public socketShouldAutomaticallyAdapt(socket: Socket): boolean {
-    return false;
   }
 
   // observers
