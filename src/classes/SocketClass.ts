@@ -335,6 +335,8 @@ export default class Socket extends PIXI.Container {
   _onPointerOver(): void {
     this.cursor = 'pointer';
     (this._SocketRef as PIXI.Graphics).tint = TRgba.white().hexNumber();
+    //this._SocketRef.scale = new PIXI.Point(2, 2);
+    //this._TextRef.scale = new PIXI.Point(2, 2);
     this.getGraph().socketHoverOver(this);
   }
 
@@ -343,6 +345,8 @@ export default class Socket extends PIXI.Container {
     this.cursor = 'default';
     (this._SocketRef as PIXI.Graphics).tint = 0xffffff;
     this.getGraph().socketHoverOut(this);
+    //this._SocketRef.scale = new PIXI.Point(1, 1);
+    //this._TextRef.scale = new PIXI.Point(1, 1);
   }
 
   _onPointerDown(event: PIXI.InteractionEvent): void {
@@ -368,5 +372,6 @@ export default class Socket extends PIXI.Container {
 
   destroy(): void {
     super.destroy();
+    this.getNode().resizeAndDraw();
   }
 }

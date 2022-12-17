@@ -1,6 +1,6 @@
 import PPGraph from '../../classes/GraphClass';
 import PPNode from '../../classes/NodeClass';
-import { getNodeDataFromHtml } from '../../utils/utils';
+import { getNodeDataFromText } from '../../utils/utils';
 import { Segment } from './segment';
 
 export abstract class SegmentNode extends PPNode {
@@ -15,7 +15,7 @@ export abstract class SegmentNode extends PPNode {
   }
   public onNodeAdded() {
     PPGraph.currentGraph.pasteNodes(
-      getNodeDataFromHtml(this.getSegment().getData())
+      getNodeDataFromText(this.getSegment().getData())
     );
     // paste my segment and remove self
     this.destroy();
