@@ -68,7 +68,7 @@ export class CodeEditor extends HybridNode {
         inputSocketName,
         new CodeType(),
         '// javascript code editor\n// to run this code, plug it into a CustomFunction node\n(a) => {\nreturn a;\n}',
-        false
+        true
       ),
     ];
   }
