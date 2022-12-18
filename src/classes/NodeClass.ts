@@ -596,6 +596,10 @@ export default class PPNode extends PIXI.Container {
     this.nodeSelectionHeader.x = NODE_MARGIN + this.nodeWidth - 72;
 
     this.onNodeResize(this.nodeWidth, this.nodeHeight);
+
+    if (this.selected) {
+      PPGraph.currentGraph.selection.drawRectanglesFromSelection();
+    }
   }
 
   public resetSize(): void {
