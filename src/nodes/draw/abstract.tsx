@@ -1,7 +1,6 @@
 import PPNode from '../../classes/NodeClass';
 import PPGraph from '../../classes/GraphClass';
 import Socket from '../../classes/SocketClass';
-import HybridNode from '../../classes/HybridNode';
 import {
   NODE_TYPE_COLOR,
   PIXI_PIVOT_OPTIONS,
