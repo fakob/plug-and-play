@@ -150,7 +150,7 @@ export class HtmlRenderer extends HybridNode {
           <Box
             style={{
               position: 'relative',
-              height: '100vh',
+              height: 'calc(100vh - 16px)',
             }}
             dangerouslySetInnerHTML={{ __html: htmlData }}
           />
@@ -164,14 +164,44 @@ export class HtmlRenderer extends HybridNode {
           ref={iframeRef}
           style={{
             width: '100%',
-            height: 'calc(100% - 8px)',
+            height: '100%',
             borderWidth: 0,
           }}
-          initialContent="<!DOCTYPE html><html><head></head><body><div></div></body></html>"
+          initialContent="<!DOCTYPE html><html><head></head><body style='overflow:hidden;'><div></div></body></html>"
         >
           <MyComponent />
         </Frame>
       </ErrorBoundary>
     );
   };
+}
+
+export class EmbedWebsite extends HtmlRenderer {
+  public getName(): string {
+    return 'Embed a website';
+  }
+
+  public getDescription(): string {
+    return 'Embed a website using an iframe';
+  }
+
+  public getDefaultNodeWidth(): number {
+    return 800;
+  }
+
+  public getDefaultNodeHeight(): number {
+    return 400;
+  }
+
+  protected getDefaultIO(): PPSocket[] {
+    return [
+      new PPSocket(
+        SOCKET_TYPE.IN,
+        inputSocketName,
+        new CodeType(),
+        `<iframe src="https://www.tldraw.com/"  width="100%" height="100%" style="width: 100%; height: 100%; border-width: 0px;"></iframe>`,
+        false
+      ),
+    ];
+  }
 }
