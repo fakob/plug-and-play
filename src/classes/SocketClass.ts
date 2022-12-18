@@ -246,12 +246,16 @@ export default class Socket extends PIXI.Container {
   }
 
   setVisible(value: boolean): void {
-    if (!value == this.visible) {
+    if (!value == this.visible && !this.hasLink()) {
       this.visible = value;
 
       // visibility change can result in position change
       // therefore redraw Node and connected Links
-      this.getNode().resizeAndDraw();
+      if (this.getNode().getShrinkOnSocketRemove()) {
+        this.getNode().resizeAndDraw(0, 0);
+      } else {
+        this.getNode().resizeAndDraw();
+      }
       this.getNode().updateConnectionPosition();
     }
   }
