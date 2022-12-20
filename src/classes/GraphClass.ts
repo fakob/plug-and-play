@@ -306,12 +306,12 @@ export default class PPGraph {
         source.socketType === SOCKET_TYPE.IN &&
         socket.socketType === SOCKET_TYPE.OUT
       ) {
-        await this.action_Connect(socket, source); //this.connect(socket, source);
+        await this.action_Connect(socket, source);
       } else if (
         source.socketType === SOCKET_TYPE.OUT &&
         socket.socketType === SOCKET_TYPE.IN
       ) {
-        await this.action_Connect(source, socket); //this.connect(source, socket);
+        await this.action_Connect(source, socket);
       }
     }
   }

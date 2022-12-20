@@ -327,9 +327,7 @@ export default class Socket extends PIXI.Container {
   pointerOverSocketMoving() {
     const currPos = getCurrentCursorPosition();
     const center = PPGraph.currentGraph.getSocketCenter(this);
-    const dist = Math.sqrt(
-      Math.pow(currPos.x - center.x, 2) + Math.pow(currPos.y - center.y, 2)
-    );
+    const dist = Math.abs(currPos.y - center.y);
     const maxDist = 40;
     const scale =
       Math.pow(Math.max(0, (maxDist - dist) / maxDist), 1) * 1.2 + 1;
@@ -361,7 +359,7 @@ export default class Socket extends PIXI.Container {
 
   _onPointerUp(event: PIXI.InteractionEvent): void {
     this.getGraph().socketMouseUp(this, event);
-    this.nodeHoveredOut();
+    //this.nodeHoveredOut(); // i removed this, is it needed?
   }
 
   public nodeHoveredOver() {
