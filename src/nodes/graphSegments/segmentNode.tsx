@@ -1,3 +1,4 @@
+import FlowLogic from '../../classes/FlowLogic';
 import PPGraph from '../../classes/GraphClass';
 import PPNode from '../../classes/NodeClass';
 import { getNodeDataFromText } from '../../utils/utils';
@@ -13,12 +14,20 @@ export abstract class SegmentNode extends PPNode {
   getDescription() {
     return this.getSegment().getDescription();
   }
-  public onNodeAdded() {
-    PPGraph.currentGraph.pasteNodes(
+
+  // paste my segment and remove self
+  public async addAndDestroy() {
+    const addedNodes = await PPGraph.currentGraph.pasteNodes(
       getNodeDataFromText(this.getSegment().getData()),
       { x: this.x, y: this.y }
     );
-    // paste my segment and remove self
+    await FlowLogic.executeOptimizedChainBatch(
+      addedNodes.filter((node) => !node.getHasDependencies())
+    );
     PPGraph.currentGraph.removeNode(this);
+  }
+
+  public onNodeAdded() {
+    this.addAndDestroy();
   }
 }

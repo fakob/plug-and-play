@@ -2,11 +2,11 @@
   "version": 0.1,
   "nodes": [
     {
-      "id": "tender-falcon-21",
+      "id": "moody-penguin-9",
       "name": "DrawBar",
       "type": "Macro",
-      "x": 2556.7939366594737,
-      "y": -1566.4632210344232,
+      "x": 2222.006685219916,
+      "y": -1256.053620608642,
       "width": 1345.739462207936,
       "height": 650.9531654238663,
       "triggerArray": [],
@@ -41,6 +41,12 @@
           "name": "Parameter 4",
           "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
           "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "Parameter 5",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
+          "visible": true
         }
       ],
       "updateBehaviour": {
@@ -50,11 +56,11 @@
       }
     },
     {
-      "id": "silent-octopus-17",
+      "id": "quick-earwig-71",
       "name": "DRAW_Shape",
       "type": "DRAW_Shape",
-      "x": 3167.9166576363878,
-      "y": -1514.3157776432922,
+      "x": 2866.5329229739664,
+      "y": -1197.2254738620838,
       "width": 160,
       "height": 208,
       "triggerArray": [],
@@ -179,11 +185,11 @@
       }
     },
     {
-      "id": "pink-pug-87",
+      "id": "slippery-frog-26",
       "name": "DrawBars",
       "type": "Macro",
-      "x": 2553.2923787625477,
-      "y": -838.4741013000009,
+      "x": 2227.285755833227,
+      "y": -526.3083751721722,
       "width": 936.8223619033648,
       "height": 504.6823897346794,
       "triggerArray": [],
@@ -227,11 +233,11 @@
       }
     },
     {
-      "id": "perfect-panther-29",
+      "id": "curvy-parrot-87",
       "name": "MapSequential",
       "type": "MapSequential",
-      "x": 2836.4284085154286,
-      "y": -790.0482989491509,
+      "x": 2505.6968767818717,
+      "y": -475.34233688423456,
       "width": 160,
       "height": 160,
       "triggerArray": [],
@@ -278,12 +284,12 @@
       }
     },
     {
-      "id": "angry-fish-7",
+      "id": "wet-pug-89",
       "name": "Execute Draw Rectangles",
       "type": "ExecuteMacro",
-      "x": 3619.560986818661,
-      "y": -296.58743385013145,
-      "width": 285.0137349390118,
+      "x": 2232.1195774425214,
+      "y": 60.77739226595904,
+      "width": 279.48129909884483,
       "height": 184,
       "triggerArray": [],
       "socketArray": [
@@ -332,7 +338,62 @@
           "socketType": "in",
           "name": "Colors",
           "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
-          "defaultData": [],
+          "data": [
+            {
+              "r": 86,
+              "g": 225,
+              "b": 204,
+              "a": 1
+            },
+            {
+              "r": 83.5,
+              "g": 217.5,
+              "b": 186.625,
+              "a": 1
+            },
+            {
+              "r": 81,
+              "g": 210,
+              "b": 169.25,
+              "a": 1
+            },
+            {
+              "r": 78.5,
+              "g": 202.5,
+              "b": 151.875,
+              "a": 1
+            },
+            {
+              "r": 76,
+              "g": 195,
+              "b": 134.5,
+              "a": 1
+            },
+            {
+              "r": 73.5,
+              "g": 187.5,
+              "b": 117.125,
+              "a": 1
+            },
+            {
+              "r": 71,
+              "g": 180,
+              "b": 99.75,
+              "a": 1
+            },
+            {
+              "r": 68.5,
+              "g": 172.5,
+              "b": 82.375,
+              "a": 1
+            },
+            {
+              "r": 66,
+              "g": 165,
+              "b": 65,
+              "a": 1
+            }
+          ],
           "visible": true
         },
         {
@@ -349,11 +410,11 @@
       }
     },
     {
-      "id": "nervous-sloth-72",
+      "id": "stupid-ape-52",
       "name": "Multiply",
       "type": "Multiply",
-      "x": 2812.5597910055662,
-      "y": -1351.5923381626553,
+      "x": 2511.1760563431444,
+      "y": -1034.5020343814465,
       "width": 160,
       "height": 112,
       "triggerArray": [],
@@ -386,65 +447,11 @@
       }
     },
     {
-      "id": "itchy-mayfly-31",
-      "name": "ColorArray",
-      "type": "ColorArray",
-      "x": 3358.1701949867047,
-      "y": -207.82192177467255,
-      "width": 160,
-      "height": 64,
-      "triggerArray": [],
-      "socketArray": [
-        {
-          "socketType": "in",
-          "name": "count",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
-          "data": 9,
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "colorA",
-          "dataType": "{\"class\":\"ColorType\",\"type\":{}}",
-          "data": {
-            "r": 86,
-            "g": 225,
-            "b": 204,
-            "a": 1
-          },
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "colorB",
-          "dataType": "{\"class\":\"ColorType\",\"type\":{}}",
-          "data": {
-            "r": 66,
-            "g": 165,
-            "b": 65,
-            "a": 1
-          },
-          "visible": false
-        },
-        {
-          "socketType": "out",
-          "name": "color-array",
-          "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
-          "visible": true
-        }
-      ],
-      "updateBehaviour": {
-        "update": true,
-        "interval": false,
-        "intervalFrequency": 1000
-      }
-    },
-    {
-      "id": "splendid-newt-52",
+      "id": "loud-skunk-19",
       "name": "DRAW_COMBINE_ARRAY",
       "type": "DRAW_COMBINE_ARRAY",
-      "x": 3173.3643601553968,
-      "y": -658.4247141165131,
+      "x": 2847.357737226076,
+      "y": -346.25898798868434,
       "width": 160,
       "height": 184,
       "triggerArray": [],
@@ -481,14 +488,110 @@
           "socketType": "in",
           "name": "Offset X",
           "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":-2000,\"maxValue\":2000,\"stepSize\":0.01}}",
-          "data": 182.8715349807776,
+          "data": 452.8382883705531,
           "visible": false
         },
         {
           "socketType": "in",
           "name": "Offset Y",
           "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":-2000,\"maxValue\":2000,\"stepSize\":0.01}}",
-          "data": -122.77093224677992,
+          "data": -7.0708950797333046,
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Scale X",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0.01,\"maxValue\":10,\"stepSize\":0.01}}",
+          "data": 1,
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Scale Y",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0.01,\"maxValue\":10,\"stepSize\":0.01}}",
+          "data": 1,
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Angle",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":-180,\"maxValue\":180,\"stepSize\":0.01}}",
+          "data": 0,
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Pivot",
+          "dataType": "{\"class\":\"EnumType\",\"type\":{\"options\":[{\"text\":\"top left\",\"value\":{\"x\":0,\"y\":0}},{\"text\":\"top center\",\"value\":{\"x\":0.5,\"y\":0}},{\"text\":\"top right\",\"value\":{\"x\":1,\"y\":0}},{\"text\":\"center left\",\"value\":{\"x\":0,\"y\":0.5}},{\"text\":\"center center\",\"value\":{\"x\":0.5,\"y\":0.5}},{\"text\":\"center right\",\"value\":{\"x\":1,\"y\":0.5}},{\"text\":\"bottom left\",\"value\":{\"x\":0,\"y\":1}},{\"text\":\"bottom center\",\"value\":{\"x\":0.5,\"y\":1}},{\"text\":\"bottom right\",\"value\":{\"x\":1,\"y\":1}}]}}",
+          "data": {
+            "x": 0,
+            "y": 0
+          },
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Always Draw",
+          "dataType": "{\"class\":\"BooleanType\",\"type\":{}}",
+          "data": false,
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Absolute Positions",
+          "dataType": "{\"class\":\"BooleanType\",\"type\":{}}",
+          "data": false,
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Injected Data",
+          "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
+          "data": [],
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "Graphics",
+          "dataType": "{\"class\":\"DeferredPixiType\",\"type\":{}}",
+          "visible": true
+        }
+      ],
+      "updateBehaviour": {
+        "update": true,
+        "interval": false,
+        "intervalFrequency": 1000
+      }
+    },
+    {
+      "id": "soft-lizard-69",
+      "name": "DRAW_Passthrough",
+      "type": "DRAW_Passthrough",
+      "x": 3408.0300628940045,
+      "y": 41.63195318284281,
+      "width": 160,
+      "height": 136,
+      "triggerArray": [],
+      "socketArray": [
+        {
+          "socketType": "in",
+          "name": "Graphics",
+          "dataType": "{\"class\":\"DeferredPixiType\",\"type\":{}}",
+          "defaultData": {},
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Offset X",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":-2000,\"maxValue\":2000,\"stepSize\":0.01}}",
+          "data": -241.57805726543847,
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Offset Y",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":-2000,\"maxValue\":2000,\"stepSize\":0.01}}",
+          "data": -192.7781558286747,
           "visible": false
         },
         {
@@ -557,104 +660,11 @@
       }
     },
     {
-      "id": "serious-catfish-16",
-      "name": "DRAW_Passthrough",
-      "type": "DRAW_Passthrough",
-      "x": 4039.701151400302,
-      "y": -319.8100849791716,
-      "width": 160,
-      "height": 112,
-      "triggerArray": [],
-      "socketArray": [
-        {
-          "socketType": "in",
-          "name": "Graphics",
-          "dataType": "{\"class\":\"DeferredPixiType\",\"type\":{}}",
-          "defaultData": {},
-          "visible": true
-        },
-        {
-          "socketType": "in",
-          "name": "Offset X",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":-2000,\"maxValue\":2000,\"stepSize\":0.01}}",
-          "data": -480.1332699957766,
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Offset Y",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":-2000,\"maxValue\":2000,\"stepSize\":0.01}}",
-          "data": -130.5282391942883,
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Scale X",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0.01,\"maxValue\":10,\"stepSize\":0.01}}",
-          "data": 1,
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Scale Y",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0.01,\"maxValue\":10,\"stepSize\":0.01}}",
-          "data": 1,
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Angle",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":-180,\"maxValue\":180,\"stepSize\":0.01}}",
-          "data": 0,
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Pivot",
-          "dataType": "{\"class\":\"EnumType\",\"type\":{\"options\":[{\"text\":\"top left\",\"value\":{\"x\":0,\"y\":0}},{\"text\":\"top center\",\"value\":{\"x\":0.5,\"y\":0}},{\"text\":\"top right\",\"value\":{\"x\":1,\"y\":0}},{\"text\":\"center left\",\"value\":{\"x\":0,\"y\":0.5}},{\"text\":\"center center\",\"value\":{\"x\":0.5,\"y\":0.5}},{\"text\":\"center right\",\"value\":{\"x\":1,\"y\":0.5}},{\"text\":\"bottom left\",\"value\":{\"x\":0,\"y\":1}},{\"text\":\"bottom center\",\"value\":{\"x\":0.5,\"y\":1}},{\"text\":\"bottom right\",\"value\":{\"x\":1,\"y\":1}}]}}",
-          "data": "[Circular]",
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Always Draw",
-          "dataType": "{\"class\":\"BooleanType\",\"type\":{}}",
-          "data": true,
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Absolute Positions",
-          "dataType": "{\"class\":\"BooleanType\",\"type\":{}}",
-          "data": false,
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Injected Data",
-          "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
-          "data": [],
-          "visible": true
-        },
-        {
-          "socketType": "out",
-          "name": "Graphics",
-          "dataType": "{\"class\":\"DeferredPixiType\",\"type\":{}}",
-          "visible": true
-        }
-      ],
-      "updateBehaviour": {
-        "update": true,
-        "interval": false,
-        "intervalFrequency": 1000
-      }
-    },
-    {
-      "id": "mean-ladybug-68",
+      "id": "good-dog-7",
       "name": "DRAW_Text",
       "type": "DRAW_Text",
-      "x": 3188.3857392257037,
-      "y": -1245.1014221432886,
+      "x": 2858.813659175903,
+      "y": -906.8701078317405,
       "width": 160,
       "height": 208,
       "triggerArray": [],
@@ -684,7 +694,7 @@
           "socketType": "in",
           "name": "Width",
           "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":0,\"maxValue\":1000,\"stepSize\":0.01}}",
-          "data": 199,
+          "data": 0,
           "visible": true
         },
         {
@@ -703,14 +713,14 @@
           "socketType": "in",
           "name": "Offset X",
           "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":-2000,\"maxValue\":2000,\"stepSize\":0.01}}",
-          "data": 272.87764334506574,
+          "data": 274.6728600142337,
           "visible": false
         },
         {
           "socketType": "in",
           "name": "Offset Y",
           "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":-2000,\"maxValue\":2000,\"stepSize\":0.01}}",
-          "data": 107.20120269004974,
+          "data": 108.99507786630636,
           "visible": false
         },
         {
@@ -748,7 +758,7 @@
           "socketType": "in",
           "name": "Always Draw",
           "dataType": "{\"class\":\"BooleanType\",\"type\":{}}",
-          "data": true,
+          "data": false,
           "visible": false
         },
         {
@@ -779,11 +789,11 @@
       }
     },
     {
-      "id": "popular-bird-42",
+      "id": "warm-panda-14",
       "name": "DRAW_Combine",
       "type": "DRAW_Combine",
-      "x": 3544.308974052637,
-      "y": -1406.2124854715637,
+      "x": 3216.482644798214,
+      "y": -1110.09991437031,
       "width": 160,
       "height": 136,
       "triggerArray": [],
@@ -806,14 +816,14 @@
           "socketType": "in",
           "name": "Offset X",
           "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":-2000,\"maxValue\":2000,\"stepSize\":0.01}}",
-          "data": 366.8748379241779,
+          "data": 400,
           "visible": false
         },
         {
           "socketType": "in",
           "name": "Offset Y",
           "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":-2000,\"maxValue\":2000,\"stepSize\":0.01}}",
-          "data": 3.4868591658760124,
+          "data": 0,
           "visible": false
         },
         {
@@ -841,14 +851,17 @@
           "socketType": "in",
           "name": "Pivot",
           "dataType": "{\"class\":\"EnumType\",\"type\":{\"options\":[{\"text\":\"top left\",\"value\":{\"x\":0,\"y\":0}},{\"text\":\"top center\",\"value\":{\"x\":0.5,\"y\":0}},{\"text\":\"top right\",\"value\":{\"x\":1,\"y\":0}},{\"text\":\"center left\",\"value\":{\"x\":0,\"y\":0.5}},{\"text\":\"center center\",\"value\":{\"x\":0.5,\"y\":0.5}},{\"text\":\"center right\",\"value\":{\"x\":1,\"y\":0.5}},{\"text\":\"bottom left\",\"value\":{\"x\":0,\"y\":1}},{\"text\":\"bottom center\",\"value\":{\"x\":0.5,\"y\":1}},{\"text\":\"bottom right\",\"value\":{\"x\":1,\"y\":1}}]}}",
-          "data": "[Circular]",
+          "data": {
+            "x": 0,
+            "y": 0
+          },
           "visible": false
         },
         {
           "socketType": "in",
           "name": "Always Draw",
           "dataType": "{\"class\":\"BooleanType\",\"type\":{}}",
-          "data": true,
+          "data": false,
           "visible": false
         },
         {
@@ -881,101 +894,94 @@
   ],
   "links": [
     {
-      "id": 15,
-      "sourceNodeId": "silent-octopus-17",
+      "id": 26,
+      "sourceNodeId": "warm-panda-14",
       "sourceSocketName": "Graphics",
-      "targetNodeId": "tender-falcon-21",
+      "targetNodeId": "moody-penguin-9",
       "targetSocketName": "Output"
     },
     {
-      "id": 1,
-      "sourceNodeId": "tender-falcon-21",
+      "id": 0,
+      "sourceNodeId": "moody-penguin-9",
       "sourceSocketName": "Parameter 3",
-      "targetNodeId": "silent-octopus-17",
+      "targetNodeId": "quick-earwig-71",
       "targetSocketName": "Color"
     },
     {
-      "id": 2,
-      "sourceNodeId": "nervous-sloth-72",
+      "id": 1,
+      "sourceNodeId": "stupid-ape-52",
       "sourceSocketName": "Output",
-      "targetNodeId": "silent-octopus-17",
+      "targetNodeId": "quick-earwig-71",
       "targetSocketName": "Height"
     },
     {
-      "id": 3,
-      "sourceNodeId": "splendid-newt-52",
+      "id": 2,
+      "sourceNodeId": "loud-skunk-19",
       "sourceSocketName": "Graphics",
-      "targetNodeId": "pink-pug-87",
+      "targetNodeId": "slippery-frog-26",
       "targetSocketName": "Output"
     },
     {
-      "id": 4,
-      "sourceNodeId": "pink-pug-87",
+      "id": 3,
+      "sourceNodeId": "slippery-frog-26",
       "sourceSocketName": "Parameter 1",
-      "targetNodeId": "perfect-panther-29",
+      "targetNodeId": "curvy-parrot-87",
       "targetSocketName": "Values"
     },
     {
-      "id": 5,
-      "sourceNodeId": "pink-pug-87",
+      "id": 4,
+      "sourceNodeId": "slippery-frog-26",
       "sourceSocketName": "Parameter 2",
-      "targetNodeId": "perfect-panther-29",
+      "targetNodeId": "curvy-parrot-87",
       "targetSocketName": "Names"
     },
     {
-      "id": 6,
-      "sourceNodeId": "pink-pug-87",
+      "id": 5,
+      "sourceNodeId": "slippery-frog-26",
       "sourceSocketName": "Parameter 3",
-      "targetNodeId": "perfect-panther-29",
+      "targetNodeId": "curvy-parrot-87",
       "targetSocketName": "Colors"
     },
     {
       "id": 7,
-      "sourceNodeId": "itchy-mayfly-31",
-      "sourceSocketName": "color-array",
-      "targetNodeId": "angry-fish-7",
-      "targetSocketName": "Colors"
-    },
-    {
-      "id": 8,
-      "sourceNodeId": "tender-falcon-21",
+      "sourceNodeId": "moody-penguin-9",
       "sourceSocketName": "Parameter 1",
-      "targetNodeId": "nervous-sloth-72",
+      "targetNodeId": "stupid-ape-52",
       "targetSocketName": "Input"
     },
     {
-      "id": 9,
-      "sourceNodeId": "perfect-panther-29",
+      "id": 8,
+      "sourceNodeId": "curvy-parrot-87",
       "sourceSocketName": "ArrayOut",
-      "targetNodeId": "splendid-newt-52",
+      "targetNodeId": "loud-skunk-19",
       "targetSocketName": "GraphicsArray"
     },
     {
-      "id": 14,
-      "sourceNodeId": "angry-fish-7",
+      "id": 9,
+      "sourceNodeId": "wet-pug-89",
       "sourceSocketName": "OutData",
-      "targetNodeId": "serious-catfish-16",
+      "targetNodeId": "soft-lizard-69",
       "targetSocketName": "Graphics"
     },
     {
-      "id": 11,
-      "sourceNodeId": "tender-falcon-21",
+      "id": 29,
+      "sourceNodeId": "moody-penguin-9",
       "sourceSocketName": "Parameter 2",
-      "targetNodeId": "mean-ladybug-68",
+      "targetNodeId": "good-dog-7",
       "targetSocketName": "Text"
     },
     {
-      "id": 12,
-      "sourceNodeId": "silent-octopus-17",
+      "id": 24,
+      "sourceNodeId": "quick-earwig-71",
       "sourceSocketName": "Graphics",
-      "targetNodeId": "popular-bird-42",
+      "targetNodeId": "warm-panda-14",
       "targetSocketName": "Foreground"
     },
     {
-      "id": 13,
-      "sourceNodeId": "mean-ladybug-68",
+      "id": 28,
+      "sourceNodeId": "good-dog-7",
       "sourceSocketName": "Graphics",
-      "targetNodeId": "popular-bird-42",
+      "targetNodeId": "warm-panda-14",
       "targetSocketName": "Background"
     }
   ]
