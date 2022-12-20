@@ -167,7 +167,7 @@ export class HtmlRenderer extends HybridNode {
             height: '100%',
             borderWidth: 0,
           }}
-          initialContent="<!DOCTYPE html><html><head></head><body style='overflow:hidden;'><div></div></body></html>"
+          initialContent="<!DOCTYPE html><html><head><style>* {border: none;}</style></head><body style='overflow:hidden; border-width: 0px;'><div></div></body></html>"
         >
           <MyComponent />
         </Frame>
@@ -182,7 +182,7 @@ export class EmbedWebsite extends HtmlRenderer {
   }
 
   public getDescription(): string {
-    return 'Embed a website using an iframe';
+    return 'Embed a website using an iframe (based on HtmlRenderer)';
   }
 
   public getDefaultNodeWidth(): number {
@@ -199,7 +199,7 @@ export class EmbedWebsite extends HtmlRenderer {
         SOCKET_TYPE.IN,
         inputSocketName,
         new CodeType(),
-        `<iframe src="https://www.tldraw.com/"  width="100%" height="100%" style="width: 100%; height: 100%; border-width: 0px;"></iframe>`,
+        `<iframe src="https://en.wikipedia.org/wiki/Special:Random" style="width: 100%; height: 100%;"></iframe>`,
         false
       ),
     ];
