@@ -140,7 +140,7 @@ export default class PPSelection extends PIXI.Container {
     this.moveSelection(deltaX, deltaY);
   }
 
-  public stopDragAction() {
+  public async stopDragAction() {
     if (!this.isDraggingSelection) {
       return;
     }
@@ -162,7 +162,7 @@ export default class PPSelection extends PIXI.Container {
     const undoMove = async () => {
       this.moveNodesByID(nodeIDs, -deltaX, -deltaY);
     };
-    ActionHandler.performAction(doMove, undoMove, false);
+    await ActionHandler.performAction(doMove, undoMove, false);
   }
 
   onPointerDown(event: PIXI.InteractionEvent): void {

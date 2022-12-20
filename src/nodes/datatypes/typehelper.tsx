@@ -36,6 +36,15 @@ export function dataToType(data: any) {
   if (data == undefined) {
     return new AnyType();
   } else if (typeof data == 'string') {
+    // first see if we can parse it into something else, otherwise return as string
+    try {
+      const parsed = JSON.parse(data);
+      if (Array.isArray(parsed)) {
+        return new ArrayType();
+      } else if (TRgba.isTRgba(parsed)) {
+        return new ColorType();
+      }
+    } catch (e) {}
     return new StringType();
   } else if (typeof data == 'number') {
     return new NumberType();

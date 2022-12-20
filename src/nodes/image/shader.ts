@@ -271,14 +271,12 @@ void main() {
   float deathPoint = 0.;
 
   for (int i = 0; i < 200; i++){
-    current = vec2(pow(current.x,2.) - pow(current.y,2.), current.x*current.y*2.) + (uv - vec2(0.5,0.5))*3.;
+    current = vec2(pow(current.x,2.) - pow(current.y,2.), current.x*current.y*2.) + (uv - vec2(0.7,0.5))*3.;
     if (length(current) > 2.){
         deathPoint = float(i);
         }
-
   }
-
-  gl_FragColor = vec4(deathPoint/100.0,pow(length(current),2.0),length(current-uv),1);
+  gl_FragColor = vec4(deathPoint/100.0,0,0,1);
 }
 `;
 

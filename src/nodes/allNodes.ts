@@ -25,6 +25,7 @@ import * as utility from './utility/utility';
 import * as widgetNodes from './widgets/widgetNodes';
 import * as recordNodes from './interactivity/record';
 import { RegisteredNodeTypes } from '../utils/interfaces';
+import * as simpleBarChart from './graphSegments/simpleBarGraph';
 
 let allNodesCached = undefined;
 
@@ -56,6 +57,7 @@ export const getAllNodeTypes = (): RegisteredNodeTypes => {
       utility,
       widgetNodes,
       recordNodes,
+      simpleBarChart,
     };
     const toReturn = {};
     for (const [categoryKey, categoryValue] of Object.entries(categories)) {

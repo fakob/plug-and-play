@@ -529,7 +529,7 @@ export default class PPGraph {
       preTargetName,
       preTargetNodeID
     );
-    ActionHandler.performAction(actions[1], actions[0]);
+    await ActionHandler.performAction(actions[1], actions[0]);
   }
 
   async action_Connect(output: PPSocket, input: PPSocket, notify = true) {
@@ -546,7 +546,7 @@ export default class PPGraph {
       notify
     );
 
-    ActionHandler.performAction(actions[0], actions[1]);
+    await ActionHandler.performAction(actions[0], actions[1]);
   }
 
   async connect(
@@ -980,6 +980,7 @@ export default class PPGraph {
     await FlowLogic.executeOptimizedChainBatch(
       Object.values(this.nodes).filter((node) => !node.getHasDependencies())
     );
+
     this.ticking = true;
 
     return configureError;

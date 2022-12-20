@@ -1069,7 +1069,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     }
   };
 
-  const action_AddOrReplaceNode = (event, selected: INodeSearch) => {
+  const action_AddOrReplaceNode = async (event, selected: INodeSearch) => {
     const referenceID = hri.random();
     const addLink = currentGraph.current.selectedSourceSocket;
 
@@ -1096,7 +1096,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           serializedNode.id
         );
       };
-      ActionHandler.performAction(action, undoAction);
+      await ActionHandler.performAction(action, undoAction);
     } else {
       // add node
       // store link before search gets hidden and temp connection gets reset
@@ -1135,7 +1135,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           PPGraph.currentGraph.nodes[referenceID]
         );
       };
-      ActionHandler.performAction(action, undoAction);
+      await ActionHandler.performAction(action, undoAction);
     }
   };
 
