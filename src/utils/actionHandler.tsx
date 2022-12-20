@@ -15,17 +15,17 @@ export class ActionHandler {
   static redoList : UndoAction[] =  [];
 
   // if you make an action through this and pass the inverse in as undo, it becomes part of the undo/redo stack, if your code is messy and you cant describe the main action as one thing, feel free to skip inital action
-  static performAction(action : Action, undo:Action, doPerformAction = true){
+  static async performAction(action : Action, undo:Action, doPerformAction = true){
     if (doPerformAction){
-      action();
+      await action();
     }
     this.undoList.push({action:action, undo:undo});
   }
-  static undo() {
+  static async undo() {
     // move top of undo stack to top of redo stack
     const lastAction = this.undoList.pop();
     if (lastAction){
-      lastAction.undo();
+      await lastAction.undo();
       this.redoList.push(lastAction);
       console.log("undo");
     } else{
@@ -33,10 +33,10 @@ export class ActionHandler {
     }
 
   }
-  static redo(){
+  static async redo(){
     const lastUndo = this.redoList.pop();
     if (lastUndo){
-      lastUndo.action();
+      await lastUndo.action();
       this.undoList.push(lastUndo);
       console.log("redo");
     } else{

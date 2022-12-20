@@ -372,6 +372,6 @@ export default class Socket extends PIXI.Container {
 
   destroy(): void {
     super.destroy();
-    this.getNode().resizeAndDraw();
+    this.getNode()?.resizeAndDraw();
   }
 }
