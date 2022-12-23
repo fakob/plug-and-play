@@ -75,16 +75,16 @@ export default class PPNode extends PIXI.Container {
   interactionData: PIXI.InteractionData;
 
   // supported callbacks
-  onConfigure: (nodeConfig: SerializedNode) => void = () => {}; // called after the node has been configured
-  onNodeDoubleClick: (event: PIXI.InteractionEvent) => void = () => {};
-  onViewportMoveHandler: (event?: PIXI.InteractionEvent) => void = () => {};
+  onConfigure: (nodeConfig: SerializedNode) => void = () => { }; // called after the node has been configured
+  onNodeDoubleClick: (event: PIXI.InteractionEvent) => void = () => { };
+  onViewportMoveHandler: (event?: PIXI.InteractionEvent) => void = () => { };
   onViewportPointerUpHandler: (event?: PIXI.InteractionEvent) => void =
-    () => {};
-  onNodeRemoved: () => void = () => {}; // called when the node is removed from the graph
-  onNodeResize: (width: number, height: number) => void = () => {}; // called when the node is resized
+    () => { };
+  onNodeRemoved: () => void = () => { }; // called when the node is removed from the graph
+  onNodeResize: (width: number, height: number) => void = () => { }; // called when the node is resized
   onNodeDragOrViewportMove: // called when the node or or the viewport with the node is moved or scaled
-  (positions: { screenX: number; screenY: number; scale: number }) => void =
-    () => {};
+    (positions: { screenX: number; screenY: number; scale: number }) => void =
+    () => { };
 
   // called when the node is added to the graph
   public onNodeAdded(): void {
@@ -94,7 +94,7 @@ export default class PPNode extends PIXI.Container {
     return true;
   }
 
-  protected onNodeExit(): void {}
+  protected onNodeExit(): void { }
 
   ////////////////////////////// Meant to be overriden for visual needs
 
@@ -256,13 +256,6 @@ export default class PPNode extends PIXI.Container {
     inputNameText.resolution = 8;
 
     const background = new PIXI.Graphics();
-    background.filters = [
-      new DropShadowFilter({
-        distance: 2,
-        alpha: 0.2,
-        blur: 1,
-      }),
-    ];
 
     this._BackgroundRef = this.addChild(background);
     this._NodeNameRef = this.addChild(inputNameText);
@@ -687,7 +680,7 @@ export default class PPNode extends PIXI.Container {
           this.headerHeight +
           (!this.getParallelInputsOutputs()
             ? this.countOfVisibleNodeTriggerSockets * SOCKET_HEIGHT +
-              this.countOfVisibleOutputSockets * SOCKET_HEIGHT
+            this.countOfVisibleOutputSockets * SOCKET_HEIGHT
             : 0) +
           index * SOCKET_HEIGHT;
         item.showLabel = this.getShowLabels();
@@ -862,7 +855,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     if (
       this.updateBehaviour.interval &&
       currentTime - this.lastTimeTicked >=
-        this.updateBehaviour.intervalFrequency
+      this.updateBehaviour.intervalFrequency
     ) {
       this.lastTimeTicked = currentTime;
       this.executeOptimizedChain();
@@ -1074,7 +1067,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     }
   }
 
-  _onViewportPointerUp(): void {}
+  _onViewportPointerUp(): void { }
 
   public hasSocketNameInDefaultIO(name: string, type: TSocketType): boolean {
     return (
@@ -1094,12 +1087,12 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   }
 
   // observers
-  public socketTypeChanged(): void {}
-  public nameChanged(newName: string): void {}
-  public outputPlugged(): void {}
-  public outputUnplugged(): void {}
-  public nodeKeyEvent(e: KeyboardEvent): void {}
+  public socketTypeChanged(): void { }
+  public nameChanged(newName: string): void { }
+  public outputPlugged(): void { }
+  public outputUnplugged(): void { }
+  public nodeKeyEvent(e: KeyboardEvent): void { }
 
   // kinda hacky but some cant easily serialize functions in JS
-  protected initializeType(socketName: string, datatype: any) {}
+  protected initializeType(socketName: string, datatype: any) { }
 }
