@@ -95,7 +95,7 @@ export default class PPNode extends PIXI.Container {
 
   protected onNodeExit(): void { }
 
-  ////////////////////////////// Meant to be overriden for visual needs
+  ////////////////////////////// Meant to be overriden for visual/behavioral needs
 
   protected getShowLabels(): boolean {
     return true;
@@ -166,6 +166,10 @@ export default class PPNode extends PIXI.Container {
 
   public getShrinkOnSocketRemove(): boolean {
     return true;
+  }
+
+  public getAdditionalRightClickOptions(): any {
+    return {};
   }
 
   //////////////////////////////

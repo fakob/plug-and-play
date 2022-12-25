@@ -39,6 +39,7 @@ import PPSocket from '../../classes/SocketClass';
 import {
   addColumnToArrayOfArrays,
   addRowToArrayOfArrays,
+  connectNodeToSocket,
   getLongestArrayInArray,
   indexToAlphaNumName,
   limitRange,
@@ -52,6 +53,8 @@ import { ArrayType } from '../datatypes/arrayType';
 import { JSONType } from '../datatypes/jsonType';
 import { NumberType } from '../datatypes/numberType';
 import HybridNode from '../../classes/HybridNode';
+import PPGraph from '../../classes/GraphClass';
+import PPNode from '../../classes/NodeClass';
 
 const arrayOfArraysSocketName = 'Array of arrays';
 const workBookInputSocketName = 'Initial data';
@@ -95,6 +98,11 @@ export class Table extends HybridNode {
 
   public getDescription(): string {
     return 'Adds a table';
+  }
+
+
+  public getAdditionalRightClickOptions(): any {
+    return { "Get row objects": () => { const added: PPNode = PPGraph.currentGraph.addNewNode("Table_GetRowObjects"); connectNodeToSocket(this.getOutputSocketByName(arrayOfArraysSocketName), added); } };
   }
 
   protected getDefaultIO(): PPSocket[] {
