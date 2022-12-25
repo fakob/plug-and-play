@@ -17,6 +17,10 @@ export class ArrayType extends AbstractType {
     return new TRgba(204, 153, 255);
   }
 
+  getMetaText(data: any): string {
+    return "(" + (Array.isArray(data) ? data.length.toString() : "Invalid") + ")";
+  }
+
   parse(data: any): any {
     if (typeof data === 'string') {
       try {

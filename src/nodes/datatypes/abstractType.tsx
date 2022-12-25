@@ -18,6 +18,12 @@ export class AbstractType {
   toString(data: any): string {
     return this.getComment(data);
   }
+
+  // optional, used to give extra information that should be written at all times next to the sockets, keep it short
+  getMetaText(data: any): string {
+    return "";
+  }
+
   getComment(data: any): string {
     if (data !== undefined) {
       return inspect(data, null, 1);
@@ -49,11 +55,6 @@ export class AbstractType {
 
   getColor(): TRgba {
     return TRgba.fromString(SOCKET_COLOR_HEX);
-  }
-
-  // override this in children to check whether data is valid, can be used to give user information
-  isDataValidForType(data: any): boolean {
-    return true;
   }
 
   parse(data: any): any {
