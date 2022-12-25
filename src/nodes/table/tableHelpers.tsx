@@ -119,7 +119,7 @@ export class ObjectFilter extends PPNode {
                 // give unique name for socket
                 let current = 1;
                 const name = "Filter " + category;
-                let total = category;
+                let total = name;
                 while (this.inputSocketArray.find(socket => socket.name == total)) {
                     total = name + " " + ++current;
                 }
