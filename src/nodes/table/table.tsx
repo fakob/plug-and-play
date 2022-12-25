@@ -35,7 +35,7 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import SortIcon from '@mui/icons-material/Sort';
 import DeleteIcon from '@mui/icons-material/Delete';
-import PPSocket from '../classes/SocketClass';
+import PPSocket from '../../classes/SocketClass';
 import {
   addColumnToArrayOfArrays,
   addRowToArrayOfArrays,
@@ -45,21 +45,15 @@ import {
   removeColumnFromArrayOfArrays,
   removeRowFromArrayOfArrays,
   sortCompare,
-} from '../utils/utils';
-import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../utils/constants';
-import { CustomArgs, TRgba } from '../utils/interfaces';
-import { ArrayType } from './datatypes/arrayType';
-import { JSONType } from './datatypes/jsonType';
-import { NumberType } from './datatypes/numberType';
-import HybridNode from '../classes/HybridNode';
-import { CustomFunction } from './data/dataFunctions';
-import { StringType } from './datatypes/stringType';
-import { AbstractType } from './datatypes/abstractType';
-import { BooleanType } from './datatypes/booleanType';
+} from '../../utils/utils';
+import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../../utils/constants';
+import { CustomArgs, TRgba } from '../../utils/interfaces';
+import { ArrayType } from '../datatypes/arrayType';
+import { JSONType } from '../datatypes/jsonType';
+import { NumberType } from '../datatypes/numberType';
+import HybridNode from '../../classes/HybridNode';
 
-const workBookSocketName = 'workBook';
 const arrayOfArraysSocketName = 'Array of arrays';
-const JSONSocketName = 'JSON';
 const workBookInputSocketName = 'Initial data';
 const sheetIndexInputSocketName = 'Sheet index';
 
@@ -95,10 +89,6 @@ export class Table extends HybridNode {
     return sheetIndexInputSocketName;
   }
 
-  getPreferredOutputSocketName(): string {
-    return JSONSocketName;
-  }
-
   public getName(): string {
     return 'Table';
   }
@@ -109,8 +99,6 @@ export class Table extends HybridNode {
 
   protected getDefaultIO(): PPSocket[] {
     return [
-      new PPSocket(SOCKET_TYPE.OUT, workBookSocketName, new JSONType()),
-      new PPSocket(SOCKET_TYPE.OUT, JSONSocketName, new JSONType()),
       new PPSocket(SOCKET_TYPE.OUT, arrayOfArraysSocketName, new ArrayType()),
       new PPSocket(
         SOCKET_TYPE.IN,
@@ -737,120 +725,6 @@ export class Table extends HybridNode {
   setAllOutputData(workBook: XLSX.WorkBook): any {
     const currentSheetIndex = this.getIndex();
     const sheet = workBook.Sheets[workBook.SheetNames[currentSheetIndex]];
-    this.setOutputData(workBookSocketName, workBook);
-    this.setOutputData(JSONSocketName, this.getJSON(sheet));
     this.setOutputData(arrayOfArraysSocketName, this.getArrayOfArrays(sheet));
-  }
-}
-
-export class Table_GetColumnByName extends CustomFunction {
-  public getName(): string {
-    return 'Get table column by name';
-  }
-  public getDescription(): string {
-    return 'Get column data by column name';
-  }
-  protected getDefaultFunction(): string {
-    return `(ArrayOfArraysIn, ColumnName) => {
-  const index = ArrayOfArraysIn[0].findIndex(col => col == ColumnName);
-  if (index > -1) {
-    return ArrayOfArraysIn.map(row => row[index]).slice(1);
-  }
-  return [];
-}`;
-  }
-  protected getDefaultParameterValues(): Record<string, any> {
-    return { ColumnName: 'ExampleColumn' };
-  }
-  protected getDefaultParameterTypes(): Record<string, any> {
-    return { ArrayOfArraysIn: new ArrayType(), ColumnName: new StringType() };
-  }
-  protected getOutputParameterType(): AbstractType {
-    return new ArrayType();
-  }
-}
-
-export class Table_GetRowByName extends CustomFunction {
-  public getName(): string {
-    return 'Get table row by name';
-  }
-  public getDescription(): string {
-    return 'Get row data by row name';
-  }
-  protected getDefaultFunction(): string {
-    return `(ArrayOfArraysIn, ColumnName) => {
-  const found = ArrayOfArraysIn.find(row => row[0] == ColumnName);
-  if (found !== undefined) {
-    return found.slice(1);
-  };
-  return [];
-}`;
-  }
-  protected getDefaultParameterValues(): Record<string, any> {
-    return { ColumnName: 'ExampleRow' };
-  }
-  protected getDefaultParameterTypes(): Record<string, any> {
-    return { ArrayOfArraysIn: new ArrayType(), ColumnName: new StringType() };
-  }
-  protected getOutputParameterType(): AbstractType {
-    return new ArrayType();
-  }
-}
-
-export class Table_GetRange extends CustomFunction {
-  public getName(): string {
-    return 'Get table range';
-  }
-  public getDescription(): string {
-    return 'Get table range using start and end index of rows and columns';
-  }
-  protected getDefaultFunction(): string {
-    return `(ArrayOfArraysIn, StartRow, EndRow, StartColumn, EndColumn, FlipAxis) => {
-  const sliced = ArrayOfArraysIn.slice(StartRow, EndRow);
-  const arrays = sliced.map(row => {
-      const newArray = []
-      row.forEach((col, index) => {
-        if (index >= StartColumn && index <= EndColumn) {
-          newArray.push(col);
-        }
-      })
-      return newArray
-    });
-    if (FlipAxis && arrays.length > 0){
-    const newArrays = []
-    for (let i = 0; i < arrays[0].length; i++){
-      const newArray = []
-      for (let j = 0; j < arrays.length; j++){
-        newArray.push(arrays[j][i])
-      }
-      newArrays.push(newArray);
-    }
-    return newArrays;
-  } else {
-    return arrays;
-  }
-}`;
-  }
-  protected getDefaultParameterValues(): Record<string, any> {
-    return {
-      StartRow: 0,
-      EndRow: 2,
-      StartColumn: 0,
-      EndColumn: 2,
-      FlipAxis: false,
-    };
-  }
-  protected getDefaultParameterTypes(): Record<string, any> {
-    return {
-      ArrayOfArraysIn: new ArrayType(),
-      StartRow: new NumberType(true),
-      EndRow: new NumberType(true),
-      StartColumn: new NumberType(true),
-      EndColumn: new NumberType(true),
-      FlipAxis: new BooleanType(),
-    };
-  }
-  protected getOutputParameterType(): AbstractType {
-    return new ArrayType();
   }
 }

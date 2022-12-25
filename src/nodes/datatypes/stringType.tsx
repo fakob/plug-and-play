@@ -29,10 +29,8 @@ export class StringType extends AbstractType {
     return 'Label';
   }
   parse(data: any): any {
-    if (typeof data == 'object') {
+    if (typeof data == 'object' || Array.isArray(data)) {
       return JSON.stringify(data);
-    } else if (typeof data == 'function') {
-      return data.toString();
     }
     return data;
   }
