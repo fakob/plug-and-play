@@ -55,9 +55,14 @@ export class Table_GetRowObjects extends ExcelHelper {
             for (let i = 1; i < sliced.length; i++){
               const newObject = {};
               for (let j = 0; j < categories.length; j++){
-                newObject[categories[j]] = sliced[i][j];
+                if (sliced[i][j] !== ""){
+                  newObject[categories[j]] = sliced[i][j];
+                }
               }
-              objects.push(newObject);
+              newObject["RowIndex"] = i;
+              if (Object.keys(newObject).length > 1){
+                objects.push(newObject);
+              }
           
             }
             return objects;
