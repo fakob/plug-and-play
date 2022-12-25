@@ -102,7 +102,18 @@ export class Table extends HybridNode {
 
 
   public getAdditionalRightClickOptions(): any {
-    return { "Get row objects": () => { const added: PPNode = PPGraph.currentGraph.addNewNode("Table_GetRowObjects"); connectNodeToSocket(this.getOutputSocketByName(arrayOfArraysSocketName), added); } };
+    return {
+      "Get row objects": () => {
+        const added: PPNode = PPGraph.currentGraph.addNewNode("Table_GetRowObjects");
+        connectNodeToSocket(this.getOutputSocketByName(arrayOfArraysSocketName), added);
+      }, "Create row filter": () => {
+
+        const rowObjects: PPNode = PPGraph.currentGraph.addNewNode("Table_GetRowObjects");
+        connectNodeToSocket(this.getOutputSocketByName(arrayOfArraysSocketName), rowObjects);
+        const filterObject = PPGraph.currentGraph.addNewNode("ObjectFilter");
+        connectNodeToSocket(rowObjects.outputSocketArray.find(socket => socket.name == "OutData"), filterObject);
+      }
+    };
   }
 
   protected getDefaultIO(): PPSocket[] {

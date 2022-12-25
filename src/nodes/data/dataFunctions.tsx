@@ -336,20 +336,19 @@ export class Filter extends ArrayFunction {
   }
 }
 
-export class FilterObject extends CustomFunction {
-
-  protected getDefaultFunction(): string {
-    return '(ArrayIn) => {\n\treturn ArrayIn.filter(a=>true);\n}';
-  }
-  protected getOutputParameterType(): AbstractType {
-    return new BooleanType();
-  }
-}
-
 export class Uniques extends ArrayFunction {
   protected getDefaultFunction(): string {
     return '(ArrayIn) => {\n\treturn [...new Set(ArrayIn)];\n}';
   }
+}
+
+export class Counts extends ArrayFunction {
+  protected getDefaultFunction(): string {
+    return `(ArrayIn, Uniques) => {
+      return Uniques.map(unique => [unique,ArrayIn.filter(entry => entry == unique).length])
+    }`;
+  }
+
 }
 
 export class Flatten extends ArrayFunction {
