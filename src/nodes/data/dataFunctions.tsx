@@ -6,6 +6,7 @@ import { CustomArgs, TRgba } from '../../utils/interfaces';
 import { AbstractType } from '../datatypes/abstractType';
 import { AnyType } from '../datatypes/anyType';
 import { ArrayType } from '../datatypes/arrayType';
+import { BooleanType } from '../datatypes/booleanType';
 import { CodeType } from '../datatypes/codeType';
 import { JSONType } from '../datatypes/jsonType';
 import { NumberType } from '../datatypes/numberType';
@@ -332,6 +333,16 @@ export class MapSequential extends ArrayFunction {
 export class Filter extends ArrayFunction {
   protected getDefaultFunction(): string {
     return '(ArrayIn) => {\n\treturn ArrayIn.filter(a=>true);\n}';
+  }
+}
+
+export class FilterObject extends CustomFunction {
+
+  protected getDefaultFunction(): string {
+    return '(ArrayIn) => {\n\treturn ArrayIn.filter(a=>true);\n}';
+  }
+  protected getOutputParameterType(): AbstractType {
+    return new BooleanType();
   }
 }
 

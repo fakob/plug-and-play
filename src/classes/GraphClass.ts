@@ -411,7 +411,7 @@ export default class PPGraph {
     return node;
   }
 
-  addNode<T extends PPNode = PPNode>(node: T, isGoingToBeConfigured = true): T {
+  addNode<T extends PPNode = PPNode>(node: T): T {
     if (!node) {
       return;
     }
@@ -421,9 +421,7 @@ export default class PPGraph {
     this.nodeContainer.addChild(node);
 
     node.onNodeAdded();
-    if (node.executeOnPlace() && !isGoingToBeConfigured) {
-      node.executeOptimizedChain();
-    }
+
     return node;
   }
 
@@ -955,12 +953,9 @@ export default class PPGraph {
             await this.connect(outputRef, inputRef, false);
           } else {
             console.warn(
-              `Link could not be created between ${link.sourceNodeId}/${
-                link.sourceSocketName
-              }${outputRef === undefined ? '-MISSING' : ''} and ${
-                link.targetNodeId
-              }/${link.targetSocketName}${
-                inputRef === undefined ? '-MISSING' : ''
+              `Link could not be created between ${link.sourceNodeId}/${link.sourceSocketName
+              }${outputRef === undefined ? '-MISSING' : ''} and ${link.targetNodeId
+              }/${link.targetSocketName}${inputRef === undefined ? '-MISSING' : ''
               }`
             );
             InterfaceController.showSnackBar(
