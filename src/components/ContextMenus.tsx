@@ -446,7 +446,7 @@ export const NodeContextMenu = (props) => {
           </ListItemIcon>
           <ListItemText>Extract to Macro</ListItemText>
         </MenuItem>
-        {constructListOptions(PPGraph.currentGraph.selection.selectedNodes[0].getAdditionalRightClickOptions())}
+        {constructListOptions(PPGraph.currentGraph.selection?.selectedNodes[0]?.getAdditionalRightClickOptions())}
       </MenuList>
     </Paper>
   );
