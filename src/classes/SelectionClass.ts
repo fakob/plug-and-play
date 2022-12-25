@@ -111,10 +111,7 @@ export default class PPSelection extends PIXI.Container {
     event.stopPropagation();
     const target = event.target;
     console.log(target, event.data.originalEvent);
-
-    if (this.onRightClick) {
-      this.onRightClick(event, target);
-    }
+    this.onRightClick(event, target);
   }
 
   public startDragAction(event: PIXI.InteractionEvent) {

@@ -163,12 +163,11 @@ const App = (): JSX.Element => {
     const viewportScreenX = Math.round(viewport.current.x);
     const viewportScreenY = Math.round(viewport.current.y);
     const viewportScale = roundNumber(viewport.current.scale.x);
-    pixiDebugRef.text = `Mouse position (world): ${mousePosition.x}, ${
-      mousePosition.y
-    } (${mouseWorldX}, ${mouseWorldY})
+    pixiDebugRef.text = `Mouse position (world): ${mousePosition.x}, ${mousePosition.y
+      } (${mouseWorldX}, ${mouseWorldY})
 Viewport position (scale): ${viewportScreenX}, ${Math.round(
-      viewportScreenY
-    )} (${viewportScale})`;
+        viewportScreenY
+      )} (${viewportScale})`;
   };
 
   // react-dropzone
@@ -268,8 +267,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         currentGraph.current.selection.selectNodes(newNodeSelection);
         ensureVisible(currentGraph.current.selection.selectedNodes);
         enqueueSnackbar(
-          `${newNodeSelection.length} new ${
-            newNodeSelection.length === 1 ? 'node was' : 'nodes were'
+          `${newNodeSelection.length} new ${newNodeSelection.length === 1 ? 'node was' : 'nodes were'
           } added`
         );
       }
@@ -293,19 +291,19 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     () => ({
       ...(isDragActive
         ? {
-            opacity: 0.5,
-          }
+          opacity: 0.5,
+        }
         : {}),
       ...(isDragAccept
         ? {
-            backgroundColor: RANDOMMAINCOLOR,
-            opacity: 0.5,
-          }
+          backgroundColor: RANDOMMAINCOLOR,
+          opacity: 0.5,
+        }
         : {}),
       ...(isDragReject
         ? {
-            backgroundColor: '#FF0000',
-          }
+          backgroundColor: '#FF0000',
+        }
         : {}),
     }),
     [isDragActive, isDragReject, isDragAccept]

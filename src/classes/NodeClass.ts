@@ -1,6 +1,5 @@
 /* eslint-disable */
 import * as PIXI from 'pixi.js';
-import { DropShadowFilter } from '@pixi/filter-drop-shadow';
 import { hri } from 'human-readable-ids';
 import '../pixi/dbclick.js';
 import {
@@ -42,6 +41,7 @@ import { TriggerType } from '../nodes/datatypes/triggerType';
 import { deSerializeType } from '../nodes/datatypes/typehelper';
 import throttle from 'lodash/throttle';
 import FlowLogic from './FlowLogic';
+import InterfaceController from '../InterfaceController';
 
 export default class PPNode extends PIXI.Container {
   _NodeNameRef: PIXI.Text;
@@ -1005,9 +1005,13 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
       }
       PPGraph.currentGraph.selection.startDragAction(event);
     }
+    if (event.data.button == 2) {
+      InterfaceController.onRightClick(event, this);
+      PPGraph.currentGraph.selection.stopDragAction();
+    }
   }
 
-  _onPointerUp(): void {
+  _onPointerUp(event: PIXI.InteractionEvent): void {
     const source = PPGraph.currentGraph.selectedSourceSocket;
     if (source && this !== source.getNode()) {
       PPGraph.currentGraph.selectedSourceSocket = null; // hack
