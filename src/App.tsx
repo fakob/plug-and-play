@@ -85,6 +85,7 @@ import { InputParser } from './utils/inputParser';
 import styles from './utils/style.module.css';
 import { ActionHandler } from './utils/actionHandler';
 import InterfaceController, { ListenEvent } from './InterfaceController';
+import PPSelection from './classes/SelectionClass';
 
 (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__ &&
   (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__.register({ PIXI: PIXI });
@@ -586,30 +587,21 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           setContextMenuPosition([contextMenuPosX, contextMenuPosY(600)]);
           setIsGraphContextMenuOpen(true);
           break;
+        case target instanceof PPSelection:
+          setContextMenuPosition([
+            Math.min(
+              window.innerWidth - (CONTEXTMENU_WIDTH + 8),
+              event.data.global.x
+            ),
+            Math.min(window.innerHeight - 432, event.data.global.y),
+          ]);
+          setIsNodeContextMenuOpen(true);
         default:
           console.log('app right click, something else');
           break;
       }
     };
 
-    PPGraph.currentGraph.selection.onRightClick = (
-      event: PIXI.InteractionEvent,
-      target: PIXI.DisplayObject
-    ) => {
-      setIsGraphContextMenuOpen(false);
-      setIsNodeContextMenuOpen(false);
-      setIsSocketContextMenuOpen(false);
-      setContextMenuPosition([
-        Math.min(
-          window.innerWidth - (CONTEXTMENU_WIDTH + 8),
-          event.data.global.x
-        ),
-        Math.min(window.innerHeight - 432, event.data.global.y),
-      ]);
-      console.log(event, target, event.data.global);
-      console.log('app right click, selection');
-      setIsNodeContextMenuOpen(true);
-    };
 
     // register key events
     const keysDown = (e: KeyboardEvent): void => {
@@ -1250,10 +1242,10 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       <div
         // close open context menu again on click
         onClick={() => {
-          isGraphContextMenuOpen && setIsGraphContextMenuOpen(false);
-          isNodeContextMenuOpen && setIsNodeContextMenuOpen(false);
-          isSocketContextMenuOpen && setIsSocketContextMenuOpen(false);
-          isGraphSearchOpen && setIsGraphSearchOpen(false);
+          setIsGraphContextMenuOpen(false);
+          setIsNodeContextMenuOpen(false);
+          setIsSocketContextMenuOpen(false);
+          setIsGraphSearchOpen(false);
         }}
       >
         <div {...getRootProps({ style })}>
