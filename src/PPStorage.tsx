@@ -4,6 +4,7 @@ import { GESTUREMODE } from "./utils/constants";
 import { GraphDatabase } from "./utils/indexedDB";
 import { getSetting, setGestureModeOnViewport } from "./utils/utils";
 import * as PIXI from 'pixi.js';
+import PPGraph from "./classes/GraphClass";
 
 (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__ &&
     (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__.register({ PIXI: PIXI });
@@ -79,7 +80,38 @@ export default class PPStorage {
     }
 
 
-    getRemoteGraph = async (
+    public async cloneRemoteGraph(id = undefined) {
+        const nameOfFileToClone = remoteGraphsRef.current[id];
+        const fileData = await PPStorage.getInstance().getRemoteGraph(
+            nameOfFileToClone
+        );
+        console.log(fileData);
+        PPGraph.currentGraph.configure(fileData);
+
+        // unset loadedGraphId
+        await PPStorage.getInstance().db.settings.put({
+            name: 'loadedGraphId',
+            value: undefined,
+        });
+
+        const newName = `${removeExtension(remoteGraphsRef.current[id])} - copy`; // remove .ppgraph extension and add copy
+        enqueueSnackbar('Remote playground was loaded', {
+            variant: 'default',
+            autoHideDuration: 20000,
+            action: (key) => (
+                <>
+                    <Button size="small" onClick={() => saveNewGraph(newName)}>
+                        Save
+                    </Button>
+                    <Button size="small" onClick={() => closeSnackbar(key)}>
+                        Dismiss
+                    </Button>
+                </>
+            ),
+        });
+    }
+
+    public getRemoteGraph = async (
         fileName: string
     ): Promise<any> => {
         try {
@@ -98,7 +130,7 @@ export default class PPStorage {
         }
     };
 
-    getRemoteGraphsList = async (
+    public getRemoteGraphsList = async (
     ): Promise<string[]> => {
         try {
             const branches = await fetch(
@@ -129,7 +161,7 @@ export default class PPStorage {
 
 
 
-    static viewport: Viewport; // WARNING, HACK, this should not be saved, TODO improve
-    db: GraphDatabase; // should be private, but lets remove all references to it elsewhere first
+    static viewport: Viewport; // TODO WARNING, HACK, this should not be persisted
+    db: GraphDatabase; // TODO should be private, but lets remove all references to it elsewhere first
     private static instance: PPStorage;
 }
