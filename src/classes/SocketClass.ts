@@ -11,11 +11,13 @@ import {
   SOCKET_TYPE,
   SOCKET_WIDTH,
   TEXT_RESOLUTION,
+  COLOR_MAIN,
 } from '../utils/constants';
 import { AbstractType } from '../nodes/datatypes/abstractType';
 import { TriggerType } from '../nodes/datatypes/triggerType';
 import { dataToType, serializeType } from '../nodes/datatypes/typehelper';
 import { getCurrentCursorPosition } from '../utils/utils';
+import { TextStyle } from 'pixi.js';
 
 export default class Socket extends PIXI.Container {
   // Input sockets
@@ -28,6 +30,7 @@ export default class Socket extends PIXI.Container {
   _SocketRef: PIXI.Graphics;
   _TextRef: PIXI.Text;
   _SelectionBox: PIXI.Graphics;
+  _MetaText: PIXI.Text;
 
   _socketType: TSocketType;
   _dataType: AbstractType;
@@ -70,6 +73,8 @@ export default class Socket extends PIXI.Container {
     this.interactionData = null;
     this.interactive = true;
 
+
+
     this.redrawAnythingChanging();
   }
 
@@ -94,10 +99,25 @@ export default class Socket extends PIXI.Container {
     );
   }
 
+
+  redrawMetaText() {
+    this.removeChild(this._MetaText);
+    this._MetaText.text = this.dataType.getMetaText(this.data);
+    this._MetaText.x = this.getSocketLocation().x + (this.isInput() ? 14 : -14);
+    this._MetaText.y = this.getSocketLocation().y + 5;
+    this.addChild(this._MetaText);
+  }
+
+
   redrawAnythingChanging(): void {
-    this.removeChild(this._SocketRef);
-    this.removeChild(this._TextRef);
-    this.removeChild(this._SelectionBox);
+    this.removeChildren();
+    this._MetaText = new PIXI.Text("", new TextStyle({
+      fontSize: 8,
+      fill: COLOR_MAIN,
+    }));
+    if (!this.isInput()) {
+      this._MetaText.anchor.set(1, 0);
+    }
     this._SocketRef = new PIXI.Graphics();
     this._TextRef = new PIXI.Text();
     this._SelectionBox = new PIXI.Graphics();
@@ -118,6 +138,9 @@ export default class Socket extends PIXI.Container {
     );
     this.drawSocket(this._SelectionBox, false);
 
+
+    this.redrawMetaText();
+
     if (this.showLabel) {
       this._TextRef = new PIXI.Text(this.name, SOCKET_TEXTSTYLE);
       if (this.socketType === SOCKET_TYPE.OUT) {
@@ -132,6 +155,7 @@ export default class Socket extends PIXI.Container {
       this._TextRef.resolution = TEXT_RESOLUTION;
 
       this._TextRef.pivot = new PIXI.Point(0, SOCKET_WIDTH / 2);
+
 
       this._TextRef.interactive = true;
       this._TextRef.on('pointerover', this._onPointerOver.bind(this));
@@ -182,6 +206,7 @@ export default class Socket extends PIXI.Container {
   // for inputs: set data is called only on the socket where the change is being made
   set data(newData: any) {
     this._data = newData;
+    this.redrawMetaText();
     if (
       this.getNode()?.socketShouldAutomaticallyAdapt(this) &&
       this.dataType.allowedToAutomaticallyAdapt()
@@ -330,7 +355,7 @@ export default class Socket extends PIXI.Container {
     const dist = Math.abs(currPos.y - center.y);
     const maxDist = 30;
     const scale =
-      Math.pow(Math.max(0, (maxDist - dist) / maxDist), 1) * 1.2 + 1;
+      Math.pow(Math.max(0, (maxDist - dist) / maxDist), 1) * 0.8 + 1;
 
     this._SocketRef.scale = new PIXI.Point(scale, scale);
     this._TextRef.scale = new PIXI.Point(scale, scale);
@@ -339,8 +364,6 @@ export default class Socket extends PIXI.Container {
   _onPointerOver(): void {
     this.cursor = 'pointer';
     (this._SocketRef as PIXI.Graphics).tint = TRgba.white().hexNumber();
-    //this._SocketRef.scale = new PIXI.Point(2, 2);
-    //this._TextRef.scale = new PIXI.Point(2, 2);
     this.getGraph().socketHoverOver(this);
   }
 

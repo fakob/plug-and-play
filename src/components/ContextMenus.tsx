@@ -31,6 +31,7 @@ import MouseIcon from '@mui/icons-material/Mouse';
 import SwipeIcon from '@mui/icons-material/Swipe';
 import PPSocket from './../classes/SocketClass';
 import { GESTUREMODE, CONTEXTMENU_WIDTH } from '../utils/constants';
+import PPGraph from '../classes/GraphClass';
 
 const useStyles = makeStyles((theme) =>
   createStyles({
@@ -316,6 +317,21 @@ export const GraphContextMenu = (props) => {
   );
 };
 
+
+function constructListOptions(options: any): any {
+  return Object.keys(options).map(key => {
+    return < div key={key}> <MenuItem
+      onClick={options[key]}
+    >
+      <ListItemIcon>
+        <AddIcon fontSize="small" />
+      </ListItemIcon>
+      <ListItemText>{key}</ListItemText>
+    </MenuItem></div >
+  }
+  );
+}
+
 export const NodeContextMenu = (props) => {
   useEffect(() => {
     window.addEventListener('contextmenu', handleContextMenu);
@@ -331,7 +347,6 @@ export const NodeContextMenu = (props) => {
     e.preventDefault();
   }
 
-  const canAddInput: boolean = props.currentGraph.current.getCanAddInput();
   const canAddOutput: boolean = props.currentGraph.current.getCanAddOutput();
   return (
     <Paper
@@ -348,7 +363,7 @@ export const NodeContextMenu = (props) => {
         <MenuItem
           onClick={() => {
             props.zoomToFitNodes(
-              props.currentGraph.current.selection.selectedNodes
+              PPGraph.currentGraph.selection.selectedNodes
             );
           }}
         >
@@ -373,7 +388,7 @@ export const NodeContextMenu = (props) => {
         </MenuItem>
         <MenuItem
           onClick={() => {
-            props.currentGraph.current.duplicateSelection();
+            PPGraph.currentGraph.duplicateSelection();
           }}
         >
           <ListItemIcon>
@@ -386,7 +401,7 @@ export const NodeContextMenu = (props) => {
         </MenuItem>
         <MenuItem
           onClick={() => {
-            props.currentGraph.current.action_DeleteSelectedNodes();
+            PPGraph.currentGraph.action_DeleteSelectedNodes();
           }}
         >
           <ListItemIcon>
@@ -398,22 +413,10 @@ export const NodeContextMenu = (props) => {
           </Typography>
         </MenuItem>
         <Divider />
-        {canAddInput && (
-          <MenuItem
-            onClick={() => {
-              props.currentGraph.current.addInput();
-            }}
-          >
-            <ListItemIcon>
-              <AddIcon fontSize="small" />
-            </ListItemIcon>
-            <ListItemText>Add Input</ListItemText>
-          </MenuItem>
-        )}
         {canAddOutput && (
           <MenuItem
             onClick={() => {
-              props.currentGraph.current.addOutput();
+              PPGraph.currentGraph.addOutput();
             }}
           >
             <ListItemIcon>
@@ -424,7 +427,7 @@ export const NodeContextMenu = (props) => {
         )}
         <MenuItem
           onClick={() => {
-            props.currentGraph.current.addTriggerInput();
+            PPGraph.currentGraph.addTriggerInput();
           }}
         >
           <ListItemIcon>
@@ -434,7 +437,7 @@ export const NodeContextMenu = (props) => {
         </MenuItem>
         <MenuItem
           onClick={() => {
-            props.currentGraph.current.extractToMacro();
+            PPGraph.currentGraph.extractToMacro();
           }}
         >
           <ListItemIcon>
@@ -442,6 +445,7 @@ export const NodeContextMenu = (props) => {
           </ListItemIcon>
           <ListItemText>Extract to Macro</ListItemText>
         </MenuItem>
+        {PPGraph.currentGraph && PPGraph.currentGraph.selection.selectedNodes.length > 0 ? constructListOptions(PPGraph.currentGraph.selection.selectedNodes[0].getAdditionalRightClickOptions()) : ""}
       </MenuList>
     </Paper>
   );

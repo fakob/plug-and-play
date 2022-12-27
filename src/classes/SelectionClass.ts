@@ -36,10 +36,6 @@ export default class PPSelection extends PIXI.Container {
 
   protected onMoveHandler: (event?: PIXI.InteractionEvent) => void;
 
-  onRightClick:
-    | ((event: PIXI.InteractionEvent, target: PIXI.DisplayObject) => void)
-    | null; // called when the selection is right clicked
-
   constructor(viewport: Viewport) {
     super();
     this.viewport = viewport;
@@ -73,7 +69,7 @@ export default class PPSelection extends PIXI.Container {
     this.on('pointerupoutside', this.onPointerUpAndUpOutside.bind(this));
     this.on('pointerup', this.onPointerUpAndUpOutside.bind(this));
     this.on('pointerover', this.onPointerOver.bind(this));
-    this.on('rightclick', this.onPointerRightClicked.bind(this));
+    this.on('rightclick', event => InterfaceController.onRightClick(event, event.target));
     this.viewport.on('moved', (this as any).onViewportMoved.bind(this));
 
     this.onMoveHandler = this.onMove.bind(this);
@@ -106,16 +102,6 @@ export default class PPSelection extends PIXI.Container {
     this.drawRectanglesFromSelection();
   };
 
-  onPointerRightClicked(event: PIXI.InteractionEvent): void {
-    console.log('Selection - onPointerRightClicked');
-    event.stopPropagation();
-    const target = event.target;
-    console.log(target, event.data.originalEvent);
-
-    if (this.onRightClick) {
-      this.onRightClick(event, target);
-    }
-  }
 
   public startDragAction(event: PIXI.InteractionEvent) {
     this.cursor = 'move';

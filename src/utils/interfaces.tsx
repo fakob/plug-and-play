@@ -17,7 +17,7 @@ export type RegisteredNodeTypes = Record<
 export type PPNodeConstructor<T extends PPNode = PPNode> = {
   type?: string;
   category?: string;
-  new (name: string, ...args: any[]): T;
+  new(name: string, ...args: any[]): T;
 };
 
 export type SerializedGraph = {
@@ -200,5 +200,9 @@ export class TRgba {
       data['b'] &&
       data['a']
     );
+  }
+
+  public static randomColor(): TRgba {
+    return new TRgba(Math.random() * 255, Math.random() * 255, Math.random() * 255, 1);
   }
 }

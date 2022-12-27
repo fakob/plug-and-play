@@ -6,6 +6,7 @@ import { CustomArgs, TRgba } from '../../utils/interfaces';
 import { AbstractType } from '../datatypes/abstractType';
 import { AnyType } from '../datatypes/anyType';
 import { ArrayType } from '../datatypes/arrayType';
+import { BooleanType } from '../datatypes/booleanType';
 import { CodeType } from '../datatypes/codeType';
 import { JSONType } from '../datatypes/jsonType';
 import { NumberType } from '../datatypes/numberType';
@@ -339,6 +340,15 @@ export class Uniques extends ArrayFunction {
   protected getDefaultFunction(): string {
     return '(ArrayIn) => {\n\treturn [...new Set(ArrayIn)];\n}';
   }
+}
+
+export class Counts extends ArrayFunction {
+  protected getDefaultFunction(): string {
+    return `(ArrayIn, Uniques) => {
+      return Uniques.map(unique => [unique,ArrayIn.filter(entry => entry == unique).length])
+    }`;
+  }
+
 }
 
 export class Flatten extends ArrayFunction {
