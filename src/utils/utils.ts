@@ -12,10 +12,12 @@ import {
   NODE_HEADER_HEIGHT,
   SOCKET_TEXTMARGIN_TOP,
   SOCKET_WIDTH,
+  GESTUREMODE,
 } from './constants';
 import { GraphDatabase } from './indexedDB';
 import { SerializedSelection } from './interfaces';
 import { AnyType } from '../nodes/datatypes/anyType';
+import { Viewport } from 'pixi-viewport';
 
 export function isFunction(funcOrClass: any): boolean {
   const propertyNames = Object.getOwnPropertyNames(funcOrClass);
@@ -305,6 +307,17 @@ export const getSetting = async (
   const setting = settingsObject?.value;
   return setting;
 };
+
+export function setGestureModeOnViewport(
+  viewport: Viewport,
+  gestureMode = undefined
+) {
+  viewport.wheel({
+    smooth: 3,
+    trackpadPinch: true,
+    wheelZoom: gestureMode === GESTUREMODE.TRACKPAD ? false : true,
+  });
+}
 
 export const getMethods = (o): string[] => {
   return Object.getOwnPropertyNames(Object.getPrototypeOf(o)).filter(

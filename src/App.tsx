@@ -73,6 +73,7 @@ import {
   isEventComingFromWithinTextInput,
   removeExtension,
   roundNumber,
+  setGestureModeOnViewport,
   useStateRef,
   writeDataToClipboard,
 } from './utils/utils';
@@ -525,7 +526,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     });
 
     // load plug and playground settings
-    applyGestureMode(viewport.current);
+    PPStorage.getInstance().applyGestureMode(viewport.current);
 
     const urlParams = new URLSearchParams(window.location.search);
     const loadURL = urlParams.get('loadURL');
@@ -756,67 +757,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     PPGraph.currentGraph.showComments = showComments;
     overlayCommentContainer.current.visible = showComments;
   }, [showComments]);
-
-  function setGestureModeOnViewport(
-    viewport: Viewport,
-    gestureMode = undefined
-  ) {
-    viewport.wheel({
-      smooth: 3,
-      trackpadPinch: true,
-      wheelZoom: gestureMode === GESTUREMODE.TRACKPAD ? false : true,
-    });
-  }
-
-  function detectTrackPad(event) {
-    let isTrackpad = false;
-    if (event.wheelDeltaY) {
-      if (event.wheelDeltaY === event.deltaY * -3) {
-        isTrackpad = true;
-      }
-    } else if (event.deltaMode === 0) {
-      isTrackpad = true;
-    }
-
-    const gestureMode = isTrackpad ? GESTUREMODE.TRACKPAD : GESTUREMODE.MOUSE;
-    setGestureModeOnViewport(viewport.current, gestureMode);
-    enqueueSnackbar(`${gestureMode} detected`);
-
-    // unsubscribe from mousewheel again
-    window.removeEventListener('mousewheel', detectTrackPad);
-    window.removeEventListener('DOMMouseScroll', detectTrackPad);
-  }
-
-  function applyGestureMode(viewport: Viewport, newGestureMode = undefined) {
-    PPStorage.getInstance().db.transaction('rw', PPStorage.getInstance().db.settings, async () => {
-      let gestureMode = newGestureMode;
-      if (gestureMode) {
-        // save newGestureMode
-        await PPStorage.getInstance().db.settings.put({
-          name: 'gestureMode',
-          value: gestureMode,
-        });
-      } else {
-        // get saved gestureMode
-        gestureMode = await getSetting(PPStorage.getInstance().db, 'gestureMode');
-        console.log(gestureMode);
-      }
-
-      if (
-        gestureMode === GESTUREMODE.MOUSE ||
-        gestureMode === GESTUREMODE.TRACKPAD
-      ) {
-        setGestureModeOnViewport(viewport, gestureMode);
-        enqueueSnackbar(`GestureMode is set to: ${gestureMode}`);
-      } else {
-        // subscribe to mousewheel event to detect pointer device
-        window.addEventListener('mousewheel', detectTrackPad, false);
-        window.addEventListener('DOMMouseScroll', detectTrackPad, false);
-      }
-    }).catch((e) => {
-      console.log(e.stack || e);
-    });
-  }
 
   function downloadGraph() {
     PPStorage.getInstance().db.transaction('rw', PPStorage.getInstance().db.graphs, PPStorage.getInstance().db.settings, async () => {
@@ -1338,7 +1278,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               uploadGraph={uploadGraph}
               showComments={showComments}
               setShowComments={setShowComments}
-              applyGestureMode={applyGestureMode}
+              applyGestureMode={() => { }/*PPStorage.getInstance().applyGestureMode*/}
               zoomToFitNodes={zoomToFitNodes}
             />
           )}
