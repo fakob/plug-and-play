@@ -111,7 +111,6 @@ const App = (): JSX.Element => {
 
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const pixiApp = useRef<PIXI.Application | null>(null);
-  const currentGraph = useRef<PPGraph | null>(null);
   const pixiContext = useRef<HTMLDivElement | null>(null);
   const viewport = useRef<Viewport | null>(null);
   const overlayCommentContainer = useRef<PIXI.Container | null>(null);
@@ -192,7 +191,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         switch (extension) {
           case 'ppgraph':
             data = await response.text();
-            await currentGraph.current.configure(JSON.parse(data), false);
+            await PPGraph.currentGraph.configure(JSON.parse(data), false);
             GraphStorageManager.getInstance().saveNewGraph(removeExtension(file.name));
             break;
           case 'csv':
@@ -204,7 +203,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           case 'xlsx':
             /* data is an ArrayBuffer */
             data = await response.arrayBuffer();
-            newNode = currentGraph.current.addNewNode('Table', {
+            newNode = PPGraph.currentGraph.addNewNode('Table', {
               nodePosX,
               nodePosY,
               initialData: data,
@@ -212,7 +211,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
             break;
           case 'txt':
             data = await response.text();
-            newNode = currentGraph.current.addNewNode('TextEditor', {
+            newNode = PPGraph.currentGraph.addNewNode('TextEditor', {
               nodePosX,
               nodePosY,
               initialData: { plain: data },
@@ -226,14 +225,14 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
             });
             if (base64) {
               if (
-                currentGraph.current.selection.selectedNodes?.[index]?.type ===
+                PPGraph.currentGraph.selection.selectedNodes?.[index]?.type ===
                 'Image'
               ) {
-                const existingNode = currentGraph.current.selection
+                const existingNode = PPGraph.currentGraph.selection
                   .selectedNodes[index] as ImageNode;
                 existingNode.updateTexture(base64 as string);
               } else {
-                newNode = await currentGraph.current.addNewNode('Image', {
+                newNode = await PPGraph.currentGraph.addNewNode('Image', {
                   nodePosX,
                   nodePosY,
                   defaultArguments: { Image: base64 },
@@ -254,8 +253,8 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       }
       // select the newly added nodes
       if (newNodeSelection.length > 0) {
-        currentGraph.current.selection.selectNodes(newNodeSelection);
-        ensureVisible(currentGraph.current.selection.selectedNodes);
+        PPGraph.currentGraph.selection.selectNodes(newNodeSelection);
+        ensureVisible(PPGraph.currentGraph.selection.selectedNodes);
         enqueueSnackbar(
           `${newNodeSelection.length} new ${newNodeSelection.length === 1 ? 'node was' : 'nodes were'
           } added`
@@ -348,7 +347,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       // prevent default and copy selected nodes
       if (selection.toString() === '') {
         e.preventDefault();
-        const serializeSelection = currentGraph.current.serializeSelection();
+        const serializeSelection = PPGraph.currentGraph.serializeSelection();
         writeDataToClipboard(serializeSelection);
         console.log(serializeSelection);
       }
@@ -369,7 +368,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               data = getNodeDataFromText(clipboardBlobs[mimeType]);
             }
             e.preventDefault();
-            await currentGraph.current.pasteNodes(data, {
+            await PPGraph.currentGraph.pasteNodes(data, {
               x: mouseWorld.x,
               y: mouseWorld.y,
             });
@@ -380,8 +379,8 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           try {
             data = clipboardBlobs[mimeType];
             e.preventDefault();
-            if (currentGraph.current.selection.selectedNodes.length < 1) {
-              currentGraph.current.addNewNode('TextEditor', {
+            if (PPGraph.currentGraph.selection.selectedNodes.length < 1) {
+              PPGraph.currentGraph.addNewNode('TextEditor', {
                 nodePosX: mouseWorld.x,
                 nodePosY: mouseWorld.y,
                 initialData: {
@@ -507,13 +506,13 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     viewport.current.addChild(gridQuad);
 
     // add graph to pixiApp
-    currentGraph.current = new PPGraph(pixiApp.current, viewport.current);
+    PPGraph.currentGraph = new PPGraph(pixiApp.current, viewport.current);
 
     pixiApp.current.ticker.add(() => {
       const currentTime: number = new Date().getTime();
       const delta = currentTime - lastTimeTicked;
       lastTimeTicked = currentTime;
-      currentGraph.current.tick(currentTime, delta);
+      PPGraph.currentGraph.tick(currentTime, delta);
     });
 
     // load plug and playground settings
@@ -529,7 +528,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     }
 
     setIsCurrentGraphLoaded(true);
-    console.log('currentGraph.current:', currentGraph.current);
+    console.log('PPGraph.currentGraph:', PPGraph.currentGraph);
 
     GraphStorageManager.getInstance().getRemoteGraphsList().then(
       (arrayOfFileNames) => {
@@ -608,7 +607,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         if (modKey && !e.shiftKey) {
           switch (e.key.toLowerCase()) {
             case 'a':
-              currentGraph.current.selection.selectAllNodes();
+              PPGraph.currentGraph.selection.selectAllNodes();
               e.preventDefault();
               break;
             case 'f':
@@ -616,7 +615,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               e.preventDefault();
               break;
             case 'd':
-              currentGraph.current.duplicateSelection();
+              PPGraph.currentGraph.duplicateSelection();
               e.preventDefault();
               break;
             case 'o':
@@ -638,8 +637,8 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               setShowComments((prevState) => !prevState);
               break;
             case 'x':
-              currentGraph.current.showExecutionVisualisation =
-                !currentGraph.current.showExecutionVisualisation;
+              PPGraph.currentGraph.showExecutionVisualisation =
+                !PPGraph.currentGraph.showExecutionVisualisation;
               break;
             case 'z':
               ActionHandler.redo();
@@ -651,7 +650,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               zoomToFitNodes();
               break;
             case 'Digit2':
-              zoomToFitNodes(currentGraph.current.selection.selectedNodes);
+              zoomToFitNodes(PPGraph.currentGraph.selection.selectedNodes);
               break;
           }
         } else if (e.altKey) {
@@ -659,7 +658,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
             case 'KeyA':
               console.log('alt a');
               e.preventDefault();
-              currentGraph.current.sendKeyEvent(e);
+              PPGraph.currentGraph.sendKeyEvent(e);
               break;
           }
         }
@@ -688,7 +687,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     window.addEventListener('keydown', keysDown.bind(this));
 
     window.addEventListener('keydown', (e: KeyboardEvent) =>
-      InputParser.parseKeyDown(e, currentGraph.current)
+      InputParser.parseKeyDown(e, PPGraph.currentGraph)
     );
 
     window.addEventListener('keyup', (e: KeyboardEvent) => {
@@ -744,13 +743,13 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       // wait before clearing clickedSocketRef
       // so handleNodeItemSelect has access
       setTimeout(() => {
-        currentGraph.current.stopConnecting();
+        PPGraph.currentGraph.stopConnecting();
       }, 100);
     }
   }, [isNodeSearchVisible]);
 
   useEffect(() => {
-    currentGraph.current.showComments = showComments;
+    PPGraph.currentGraph.showComments = showComments;
     overlayCommentContainer.current.visible = showComments;
   }, [showComments]);
 
@@ -827,7 +826,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       GraphStorageManager.getInstance().cloneRemoteGraph(selected.id);
     } else {
       if (selected.isNew) {
-        currentGraph.current.clear();
+        PPGraph.currentGraph.clear();
         GraphStorageManager.getInstance().saveNewGraph(selected.name);
         // remove selection flag
         selected.isNew = undefined;
@@ -840,9 +839,9 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
 
   const action_AddOrReplaceNode = async (event, selected: INodeSearch) => {
     const referenceID = hri.random();
-    const addLink = currentGraph.current.selectedSourceSocket;
+    const addLink = PPGraph.currentGraph.selectedSourceSocket;
 
-    if (currentGraph.current.selection.selectedNodes.length === 1 && !addLink) {
+    if (PPGraph.currentGraph.selection.selectedNodes.length === 1 && !addLink) {
       // replace node if there is exactly one node selected
       const newNodeType = selected.title;
       const oldNode = PPGraph.currentGraph.selection.selectedNodes[0];
@@ -870,7 +869,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       // add node
       // store link before search gets hidden and temp connection gets reset
       const nodePos =
-        currentGraph.current.overrideNodeCursorPosition ??
+        PPGraph.currentGraph.overrideNodeCursorPosition ??
         viewport.current.toWorld(
           new PIXI.Point(contextMenuPosition[0], contextMenuPosition[1])
         );
@@ -879,13 +878,13 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         let addedNode: PPNode;
         const nodeExists = getAllNodeTypes()[selected.title] !== undefined;
         if (nodeExists) {
-          addedNode = await currentGraph.current.addNewNode(selected.title, {
+          addedNode = await PPGraph.currentGraph.addNewNode(selected.title, {
             overrideId: referenceID,
             nodePosX: nodePos.x,
             nodePosY: nodePos.y,
           });
         } else {
-          addedNode = await currentGraph.current.addNewNode('CustomFunction', {
+          addedNode = await PPGraph.currentGraph.addNewNode('CustomFunction', {
             overrideId: referenceID,
             nodePosX: nodePos.x,
             nodePosY: nodePos.y,
@@ -922,7 +921,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
   const nodeSearchInputBlurred = () => {
     console.log('nodeSearchInputBlurred');
     setIsNodeSearchVisible(false);
-    currentGraph.current.selectedSourceSocket = null;
+    PPGraph.currentGraph.selectedSourceSocket = null;
   };
 
   const ResultsWithHeader = ({ children, ...other }) => {
@@ -1107,7 +1106,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
             <GraphContextMenu
               controlOrMetaKey={controlOrMetaKey}
               contextMenuPosition={contextMenuPosition}
-              currentGraph={currentGraph}
+              currentGraph={PPGraph.currentGraph}
               setIsGraphSearchOpen={setIsGraphSearchOpen}
               openNodeSearch={openNodeSearch}
               setShowEdit={setShowEdit}
@@ -1137,7 +1136,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
             <NodeContextMenu
               controlOrMetaKey={controlOrMetaKey}
               contextMenuPosition={contextMenuPosition}
-              currentGraph={currentGraph}
+              currentGraph={PPGraph.currentGraph}
               openNodeSearch={openNodeSearch}
               zoomToFitSelection={zoomToFitNodes}
             />
@@ -1146,13 +1145,13 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
             <SocketContextMenu
               controlOrMetaKey={controlOrMetaKey}
               contextMenuPosition={contextMenuPosition}
-              currentGraph={currentGraph}
+              currentGraph={PPGraph.currentGraph}
               selectedSocket={selectedSocket}
             />
           )}
           <PixiContainer ref={pixiContext} />
           <GraphOverlay
-            currentGraph={currentGraph.current}
+            currentGraph={PPGraph.currentGraph}
             randomMainColor={RANDOMMAINCOLOR}
           />
           <img

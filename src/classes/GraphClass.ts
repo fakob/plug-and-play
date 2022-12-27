@@ -55,7 +55,7 @@ export default class PPGraph {
   constructor(app: PIXI.Application, viewport: Viewport) {
     this.app = app;
     this.viewport = viewport;
-    console.log('Graph created');
+    PPGraph.currentGraph = this;
 
     this._showComments = true;
     this._showExecutionVisualisation = true;
@@ -114,8 +114,6 @@ export default class PPGraph {
     // clear the stage
     this.clear();
 
-    // define callbacks
-    PPGraph.currentGraph = this;
   }
 
   // SETUP
@@ -955,12 +953,9 @@ export default class PPGraph {
             await this.connect(outputRef, inputRef, false);
           } else {
             console.warn(
-              `Link could not be created between ${link.sourceNodeId}/${
-                link.sourceSocketName
-              }${outputRef === undefined ? '-MISSING' : ''} and ${
-                link.targetNodeId
-              }/${link.targetSocketName}${
-                inputRef === undefined ? '-MISSING' : ''
+              `Link could not be created between ${link.sourceNodeId}/${link.sourceSocketName
+              }${outputRef === undefined ? '-MISSING' : ''} and ${link.targetNodeId
+              }/${link.targetSocketName}${inputRef === undefined ? '-MISSING' : ''
               }`
             );
             InterfaceController.showSnackBar(
