@@ -45,7 +45,6 @@ import {
   NodeContextMenu,
   SocketContextMenu,
 } from './components/ContextMenus';
-import { GraphDatabase } from './utils/indexedDB';
 import PPGraph from './classes/GraphClass';
 import {
   BASIC_VERTEX_SHADER,
@@ -66,7 +65,6 @@ import {
   getDataFromClipboard,
   getNodeDataFromHtml,
   getNodeDataFromText,
-  getRemoteGraphsList,
   getSetting,
   isEventComingFromWithinTextInput,
   removeExtension,
@@ -82,7 +80,7 @@ import { InputParser } from './utils/inputParser';
 import styles from './utils/style.module.css';
 import { ActionHandler } from './utils/actionHandler';
 import InterfaceController, { ListenEvent } from './InterfaceController';
-import PPSelection from './classes/SelectionClass';
+import GraphStorageManager from './graphStorageManager';
 
 (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__ &&
   (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__.register({ PIXI: PIXI });
@@ -195,7 +193,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           case 'ppgraph':
             data = await response.text();
             await currentGraph.current.configure(JSON.parse(data), false);
-            StorageManager.getInstance().saveNewGraph(removeExtension(file.name));
+            GraphStorageManager.getInstance().saveNewGraph(removeExtension(file.name));
             break;
           case 'csv':
           case 'ods':
@@ -525,15 +523,15 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     const loadURL = urlParams.get('loadURL');
     console.log('loadURL: ', loadURL);
     if (loadURL) {
-      StorageManager.getInstance().loadGraphFromURL(loadURL);
+      GraphStorageManager.getInstance().loadGraphFromURL(loadURL);
     } else {
-      StorageManager.getInstance().loadGraph();
+      GraphStorageManager.getInstance().loadGraph();
     }
 
     setIsCurrentGraphLoaded(true);
     console.log('currentGraph.current:', currentGraph.current);
 
-    StorageManager.getInstance().getRemoteGraphsList().then(
+    GraphStorageManager.getInstance().getRemoteGraphsList().then(
       (arrayOfFileNames) => {
         console.log(arrayOfFileNames);
         setRemoteGraphs(
@@ -669,15 +667,16 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       if (modKey && e.key.toLowerCase() === 's') {
         e.preventDefault();
         if (e.shiftKey) {
-          StorageManager.getInstance().saveNewGraph();
+          GraphStorageManager.getInstance().saveNewGraph();
         } else {
-          StorageManager.getInstance().saveGraph();
+          GraphStorageManager.getInstance().saveGraph();
 
-          setActionObject({ id, name });
+          // TODO readd
+          /*setActionObject({ id, name });
           setGraphSearchActiveItem({ id, name });
 
           console.log(`Saved new graph: ${indexId}`);
-          enqueueSnackbar('New playground was saved');
+          enqueueSnackbar('New playground was saved');*/
         }
       } else if (e.key === 'Escape') {
         setIsGraphSearchOpen(false);
@@ -787,17 +786,17 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
   }
 
   function applyGestureMode(viewport: Viewport, newGestureMode = undefined) {
-    db.transaction('rw', db.settings, async () => {
+    GraphStorageManager.getInstance().db.transaction('rw', GraphStorageManager.getInstance().db.settings, async () => {
       let gestureMode = newGestureMode;
       if (gestureMode) {
         // save newGestureMode
-        await db.settings.put({
+        await GraphStorageManager.getInstance().db.settings.put({
           name: 'gestureMode',
           value: gestureMode,
         });
       } else {
         // get saved gestureMode
-        gestureMode = await getSetting(db, 'gestureMode');
+        gestureMode = await getSetting(GraphStorageManager.getInstance().db, 'gestureMode');
         console.log(gestureMode);
       }
 
@@ -826,15 +825,15 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     setIsGraphSearchOpen(false);
 
     if (selected.isRemote) {
-      StorageManager.getInstance().cloneRemoteGraph(selected.id);
+      GraphStorageManager.getInstance().cloneRemoteGraph(selected.id);
     } else {
       if (selected.isNew) {
         currentGraph.current.clear();
-        StorageManager.getInstance().saveNewGraph(selected.name);
+        GraphStorageManager.getInstance().saveNewGraph(selected.name);
         // remove selection flag
         selected.isNew = undefined;
       } else {
-        StorageManager.getInstance().loadGraph(selected.id);
+        GraphStorageManager.getInstance().loadGraph(selected.id);
       }
       setGraphSearchActiveItem(selected);
     }
@@ -1113,15 +1112,26 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               setIsGraphSearchOpen={setIsGraphSearchOpen}
               openNodeSearch={openNodeSearch}
               setShowEdit={setShowEdit}
-              loadGraph={StorageManager.getInstance().loadGraph}
-              saveGraph={StorageManager.getInstance().saveGraph}
-              saveNewGraph={StorageManager.getInstance().saveNewGraph}
-              downloadGraph={StorageManager.getInstance().downloadGraph}
-              uploadGraph={uploadGraph}
-              showComments={showComments}
-              setShowComments={setShowComments}
-              applyGestureMode={applyGestureMode}
-              zoomToFitNodes={zoomToFitNodes}
+              loadGraph={() => StorageManager.getInstance().loadGraph().then(res : bool => {
+                if (res){
+            setActionObject({
+              id: loadedGraph.id,
+              name: loadedGraph.name,
+            });
+          setGraphSearchActiveItem({
+            id: loadedGraph.id,
+          name: loadedGraph.name,
+                  });
+                }
+              })}
+          saveGraph={StorageManager.getInstance().saveGraph}
+          saveNewGraph={StorageManager.getInstance().saveNewGraph}
+          downloadGraph={StorageManager.getInstance().downloadGraph}
+          uploadGraph={uploadGraph}
+          showComments={showComments}
+          setShowComments={setShowComments}
+          applyGestureMode={applyGestureMode}
+          zoomToFitNodes={zoomToFitNodes}
             />
           )}
           {isNodeContextMenuOpen && (

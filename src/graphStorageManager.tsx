@@ -11,13 +11,11 @@ const githubBaseURL =
     'https://api.github.com/repos/fakob/plug-and-play-examples';
 const githubBranchName = 'dev';
 
-export default class StorageManager {
-
-
+export default class GraphStorageManager {
 
     static getInstance() {
         if (!this.instance) {
-            this.instance = new StorageManager();
+            this.instance = new GraphStorageManager();
         }
         return this.instance;
     }
@@ -25,7 +23,7 @@ export default class StorageManager {
     constructor() {
         this.db = new GraphDatabase();
     }
-    private static instance: StorageManager;
+    private static instance: GraphStorageManager;
     db: GraphDatabase;
 
     saveNewGraph(newName = undefined) {
@@ -137,14 +135,15 @@ export default class StorageManager {
             const graphData = loadedGraph.graphData;
             await PPGraph.currentGraph.configure(graphData, false);
 
-            setActionObject({
+            // TODO readd
+            /*setActionObject({
                 id: loadedGraph.id,
                 name: loadedGraph.name,
             });
             setGraphSearchActiveItem({
                 id: loadedGraph.id,
                 name: loadedGraph.name,
-            });
+            });*/
             InterfaceController.showSnackBar(`${loadedGraph.name} was loaded`);
             return true;
         }
@@ -193,7 +192,7 @@ export default class StorageManager {
     }
 
     async cloneRemoteGraph(id = undefined) {
-        const nameOfFileToClone = remoteGraphsRef.current[id];
+        const nameOfFileToClone = this.getRemoteGraphsList()[id];
         const fileData = await this.getRemoteGraph(
             githubBaseURL,
             githubBranchName,
@@ -208,7 +207,7 @@ export default class StorageManager {
             value: undefined,
         });
 
-        const newName = `${removeExtension(remoteGraphsRef.current[id])} - copy`; // remove .ppgraph extension and add copy
+        const newName = `${removeExtension(this.getRemoteGraphsList()[id])} - copy`; // remove .ppgraph extension and add copy
         InterfaceController.showSnackBar('Remote playground was loaded', {
             variant: 'default',
             autoHideDuration: 20000,
