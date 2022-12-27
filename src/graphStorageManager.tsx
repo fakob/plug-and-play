@@ -55,7 +55,7 @@ export default class GraphStorageManager {
         });
     }
 
-    saveGraph(saveNew = false, newName = undefined) {
+    saveGraph(saveNew = false, newName = undefined): [id: string, name: string] {
         const serializedGraph = PPGraph.currentGraph.serialize();
         console.log(serializedGraph);
         this.db.transaction('rw', this.db.graphs, this.db.settings, async () => {
@@ -81,6 +81,7 @@ export default class GraphStorageManager {
                     name: 'loadedGraphId',
                     value: id,
                 });
+                return [id, name];
 
             } else {
                 const indexId = await this.db.graphs
@@ -92,10 +93,12 @@ export default class GraphStorageManager {
                     });
                 console.log(`Updated currentGraph: ${indexId}`);
                 InterfaceController.showSnackBar('Playground was saved');
+                return [id, ""];
             }
         }).catch((e) => {
             console.log(e.stack || e);
         });
+        return ["", ""];
     }
 
     // returns true on success

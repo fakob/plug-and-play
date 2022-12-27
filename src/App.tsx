@@ -669,14 +669,13 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         if (e.shiftKey) {
           GraphStorageManager.getInstance().saveNewGraph();
         } else {
-          GraphStorageManager.getInstance().saveGraph();
+          const [id, name] = GraphStorageManager.getInstance().saveGraph();
 
-          // TODO readd
-          /*setActionObject({ id, name });
+          setActionObject({ id, name });
           setGraphSearchActiveItem({ id, name });
 
-          console.log(`Saved new graph: ${indexId}`);
-          enqueueSnackbar('New playground was saved');*/
+          console.log(`Saved new graph: ${name}`);
+          enqueueSnackbar('New playground was saved');
         }
       } else if (e.key === 'Escape') {
         setIsGraphSearchOpen(false);
