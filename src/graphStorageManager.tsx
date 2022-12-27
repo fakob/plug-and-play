@@ -99,7 +99,7 @@ export default class GraphStorageManager {
     }
 
     // returns true on success
-    async loadGraph(id = undefined): Promise<boolean> {
+    async loadGraph(id = undefined): Promise<any> {
         let loadedGraph;
         await this.db
             .transaction('rw', this.db.graphs, this.db.settings, async () => {
@@ -135,19 +135,10 @@ export default class GraphStorageManager {
             const graphData = loadedGraph.graphData;
             await PPGraph.currentGraph.configure(graphData, false);
 
-            // TODO readd
-            /*setActionObject({
-                id: loadedGraph.id,
-                name: loadedGraph.name,
-            });
-            setGraphSearchActiveItem({
-                id: loadedGraph.id,
-                name: loadedGraph.name,
-            });*/
             InterfaceController.showSnackBar(`${loadedGraph.name} was loaded`);
-            return true;
+            return loadedGraph;
         }
-        return false;
+        return undefined;
     }
 
     async loadGraphFromURL(loadURL: string) {

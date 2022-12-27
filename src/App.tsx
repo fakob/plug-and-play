@@ -976,7 +976,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         });
       }
 
-      const graphs = await db.graphs.toCollection().sortBy('date');
+      const graphs = await GraphStorageManager.getInstance().db.graphs.toCollection().sortBy('date');
       const newGraphSearchItems = graphs.map((graph) => {
         return {
           id: graph.id,
@@ -1001,7 +1001,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       console.log(allGraphSearchItems);
       setGraphSearchItems(allGraphSearchItems);
 
-      const loadedGraphId = await getSetting(db, 'loadedGraphId');
+      const loadedGraphId = await getSetting(GraphStorageManager.getInstance().db, 'loadedGraphId');
       const loadedGraphIndex = allGraphSearchItems.findIndex(
         (graph) => graph.id === loadedGraphId
       );
@@ -1014,7 +1014,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       document.getElementById('playground-name-input') as HTMLInputElement
     ).value;
     setShowEdit(false);
-    StorageManager.getInstance().renameGraph(actionObject.id, name);
+    GraphStorageManager.getInstance().renameGraph(actionObject.id, name);
     setActionObject({ id: actionObject.id, name: name });
     updateGraphSearchItems();
     console.log(`Renamed graph: ${actionObject.id} to ${name}`);
@@ -1057,7 +1057,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               <Button
                 onClick={() => {
                   setShowDeleteGraph(false);
-                  StorageManager.getInstance().deleteGraph(actionObject.id);
+                  GraphStorageManager.getInstance().deleteGraph(actionObject.id);
                   updateGraphSearchItems();
                   console.log(`Deleted graph: ${actionObject.id}`);
                   enqueueSnackbar('Playground was deleted');
@@ -1112,26 +1112,26 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               setIsGraphSearchOpen={setIsGraphSearchOpen}
               openNodeSearch={openNodeSearch}
               setShowEdit={setShowEdit}
-              loadGraph={() => StorageManager.getInstance().loadGraph().then(res : bool => {
-                if (res){
-            setActionObject({
-              id: loadedGraph.id,
-              name: loadedGraph.name,
-            });
-          setGraphSearchActiveItem({
-            id: loadedGraph.id,
-          name: loadedGraph.name,
+              loadGraph={() => GraphStorageManager.getInstance().loadGraph().then((loadedGraph: any) => {
+                if (loadedGraph) {
+                  setActionObject({
+                    id: loadedGraph.id,
+                    name: loadedGraph.name,
+                  });
+                  setGraphSearchActiveItem({
+                    id: loadedGraph.id,
+                    name: loadedGraph.name,
                   });
                 }
               })}
-          saveGraph={StorageManager.getInstance().saveGraph}
-          saveNewGraph={StorageManager.getInstance().saveNewGraph}
-          downloadGraph={StorageManager.getInstance().downloadGraph}
-          uploadGraph={uploadGraph}
-          showComments={showComments}
-          setShowComments={setShowComments}
-          applyGestureMode={applyGestureMode}
-          zoomToFitNodes={zoomToFitNodes}
+              saveGraph={GraphStorageManager.getInstance().saveGraph}
+              saveNewGraph={GraphStorageManager.getInstance().saveNewGraph}
+              downloadGraph={GraphStorageManager.getInstance().downloadGraph}
+              uploadGraph={uploadGraph}
+              showComments={showComments}
+              setShowComments={setShowComments}
+              applyGestureMode={applyGestureMode}
+              zoomToFitNodes={zoomToFitNodes}
             />
           )}
           {isNodeContextMenuOpen && (
