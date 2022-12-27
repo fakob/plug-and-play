@@ -38,10 +38,10 @@ module.exports = () => {
     plugins: [
       new ESLintPlugin({
         extensions: ['js', 'jsx', 'ts', 'tsx'],
-        // emitError: true,
-        // emitWarning: true,
-        // failOnError: true,
-        // failOnWarning: true,
+        emitError: false,
+        emitWarning: false,
+        failOnError: false,
+        failOnWarning: false,
       }),
       new MiniCssExtractPlugin({
         filename: '[name].[fullhash].css',
