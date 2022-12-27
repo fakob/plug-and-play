@@ -320,7 +320,7 @@ export const GraphContextMenu = (props) => {
 
 function constructListOptions(options: any): any {
   return Object.keys(options).map(key => {
-    return < div > <MenuItem
+    return < div key={key}> <MenuItem
       onClick={options[key]}
     >
       <ListItemIcon>
@@ -347,7 +347,6 @@ export const NodeContextMenu = (props) => {
     e.preventDefault();
   }
 
-  const canAddInput: boolean = props.currentGraph.current.getCanAddInput();
   const canAddOutput: boolean = props.currentGraph.current.getCanAddOutput();
   return (
     <Paper

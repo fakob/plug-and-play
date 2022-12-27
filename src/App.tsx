@@ -596,6 +596,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
             Math.min(window.innerHeight - 432, event.data.global.y),
           ]);
           setIsNodeContextMenuOpen(true);
+          break;
         default:
           console.log('app right click, something else');
           break;
