@@ -20,7 +20,7 @@ export class ColorType extends AbstractType {
   }
 
   getDefaultValue(): any {
-    return TRgba.fromString('#ff3700');
+    return TRgba.randomColor();//TRgba.fromString('#ff3700');
   }
 
   parse(data: any): any {
