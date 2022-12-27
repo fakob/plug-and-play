@@ -56,15 +56,16 @@ export default class InterfaceController {
   static showSnackBar: (
     message: SnackbarMessage,
     options?: OptionsObject
-  ) => void = () => {};
+  ) => void = () => { };
+  static hideSnackBar: (key: any) => void = () => { }
 
   static onRightClick: (
     event: PIXI.InteractionEvent,
     target: PIXI.DisplayObject
-  ) => void = () => {}; // called when the graph is right clicked
-  static onOpenNodeSearch: (pos: PIXI.Point) => void = () => {}; // called node search should be openend
+  ) => void = () => { }; // called when the graph is right clicked
+  static onOpenNodeSearch: (pos: PIXI.Point) => void = () => { }; // called node search should be openend
   static onOpenSocketInspector: (pos: PIXI.Point, data: Socket) => void =
-    () => {}; // called when socket inspector should be opened
+    () => { }; // called when socket inspector should be opened
   static onCloseSocketInspector: () => void; // called when socket inspector should be closed
-  static selectionRedrawn: (pos: PIXI.Point) => void = () => {};
+  static selectionRedrawn: (pos: PIXI.Point) => void = () => { };
 }

@@ -63,12 +63,9 @@ import { IGraphSearch, INodeSearch } from './utils/interfaces';
 import {
   connectNodeToSocket,
   convertBlobToBase64,
-  downloadFile,
-  formatDate,
   getDataFromClipboard,
   getNodeDataFromHtml,
   getNodeDataFromText,
-  getRemoteGraph,
   getRemoteGraphsList,
   getSetting,
   isEventComingFromWithinTextInput,
@@ -85,6 +82,7 @@ import { InputParser } from './utils/inputParser';
 import styles from './utils/style.module.css';
 import { ActionHandler } from './utils/actionHandler';
 import InterfaceController, { ListenEvent } from './InterfaceController';
+import PPSelection from './classes/SelectionClass';
 
 (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__ &&
   (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__.register({ PIXI: PIXI });
@@ -108,17 +106,11 @@ fetch('https://plugandplayground.dev/buildInfo')
 const App = (): JSX.Element => {
   document.title = 'Your Plug and Playground';
 
-  // remote playground database
-  const githubBaseURL =
-    'https://api.github.com/repos/fakob/plug-and-play-examples';
-  const githubBranchName = 'dev';
-
   const mousePosition = { x: 0, y: 0 };
   const pixiDebugRef = new PIXI.Text('', COMMENT_TEXTSTYLE);
   pixiDebugRef.resolution = 1;
   pixiDebugRef.x = 4;
 
-  const db = new GraphDatabase();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const pixiApp = useRef<PIXI.Application | null>(null);
   const currentGraph = useRef<PPGraph | null>(null);
@@ -163,12 +155,11 @@ const App = (): JSX.Element => {
     const viewportScreenX = Math.round(viewport.current.x);
     const viewportScreenY = Math.round(viewport.current.y);
     const viewportScale = roundNumber(viewport.current.scale.x);
-    pixiDebugRef.text = `Mouse position (world): ${mousePosition.x}, ${
-      mousePosition.y
-    } (${mouseWorldX}, ${mouseWorldY})
+    pixiDebugRef.text = `Mouse position (world): ${mousePosition.x}, ${mousePosition.y
+      } (${mouseWorldX}, ${mouseWorldY})
 Viewport position (scale): ${viewportScreenX}, ${Math.round(
-      viewportScreenY
-    )} (${viewportScale})`;
+        viewportScreenY
+      )} (${viewportScale})`;
   };
 
   // react-dropzone
@@ -204,7 +195,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           case 'ppgraph':
             data = await response.text();
             await currentGraph.current.configure(JSON.parse(data), false);
-            saveNewGraph(removeExtension(file.name));
+            StorageManager.getInstance().saveNewGraph(removeExtension(file.name));
             break;
           case 'csv':
           case 'ods':
@@ -268,8 +259,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         currentGraph.current.selection.selectNodes(newNodeSelection);
         ensureVisible(currentGraph.current.selection.selectedNodes);
         enqueueSnackbar(
-          `${newNodeSelection.length} new ${
-            newNodeSelection.length === 1 ? 'node was' : 'nodes were'
+          `${newNodeSelection.length} new ${newNodeSelection.length === 1 ? 'node was' : 'nodes were'
           } added`
         );
       }
@@ -293,19 +283,19 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     () => ({
       ...(isDragActive
         ? {
-            opacity: 0.5,
-          }
+          opacity: 0.5,
+        }
         : {}),
       ...(isDragAccept
         ? {
-            backgroundColor: RANDOMMAINCOLOR,
-            opacity: 0.5,
-          }
+          backgroundColor: RANDOMMAINCOLOR,
+          opacity: 0.5,
+        }
         : {}),
       ...(isDragReject
         ? {
-            backgroundColor: '#FF0000',
-          }
+          backgroundColor: '#FF0000',
+        }
         : {}),
     }),
     [isDragActive, isDragReject, isDragAccept]
@@ -535,15 +525,15 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     const loadURL = urlParams.get('loadURL');
     console.log('loadURL: ', loadURL);
     if (loadURL) {
-      loadGraphFromURL(loadURL);
+      StorageManager.getInstance().loadGraphFromURL(loadURL);
     } else {
-      loadGraph();
+      StorageManager.getInstance().loadGraph();
     }
 
     setIsCurrentGraphLoaded(true);
     console.log('currentGraph.current:', currentGraph.current);
 
-    getRemoteGraphsList(githubBaseURL, githubBranchName).then(
+    StorageManager.getInstance().getRemoteGraphsList().then(
       (arrayOfFileNames) => {
         console.log(arrayOfFileNames);
         setRemoteGraphs(
@@ -679,9 +669,15 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       if (modKey && e.key.toLowerCase() === 's') {
         e.preventDefault();
         if (e.shiftKey) {
-          saveNewGraph();
+          StorageManager.getInstance().saveNewGraph();
         } else {
-          saveGraph();
+          StorageManager.getInstance().saveGraph();
+
+          setActionObject({ id, name });
+          setGraphSearchActiveItem({ id, name });
+
+          console.log(`Saved new graph: ${indexId}`);
+          enqueueSnackbar('New playground was saved');
         }
       } else if (e.key === 'Escape') {
         setIsGraphSearchOpen(false);
@@ -712,6 +708,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
 
   useEffect(() => {
     InterfaceController.showSnackBar = enqueueSnackbar;
+    InterfaceController.hideSnackBar = closeSnackbar;
   });
 
   // addEventListener to graphSearchInput
@@ -725,10 +722,8 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
   }, [graphSearchInput?.current]);
 
   useEffect(() => {
-    if (graphSearchInput.current != null) {
-      if (isGraphSearchOpen) {
-        graphSearchInput.current.focus();
-      }
+    if (graphSearchInput.current && isGraphSearchOpen) {
+      graphSearchInput.current.focus();
     }
   }, [isGraphSearchOpen]);
 
@@ -822,232 +817,8 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     });
   }
 
-  function downloadGraph() {
-    db.transaction('rw', db.graphs, db.settings, async () => {
-      const loadedGraphId = await getSetting(db, 'loadedGraphId');
-      const graph = await db.graphs.where('id').equals(loadedGraphId).first();
-
-      const serializedGraph = currentGraph.current.serialize();
-      downloadFile(
-        JSON.stringify(serializedGraph, null, 2),
-        `${graph?.name} - ${formatDate()}.ppgraph`,
-        'text/plain'
-      );
-      enqueueSnackbar('Playground was saved to your Download folder');
-    }).catch((e) => {
-      console.log(e.stack || e);
-    });
-  }
-
   function uploadGraph() {
     open();
-  }
-
-  function renameGraph(graphId: number, newName = undefined) {
-    db.transaction('rw', db.graphs, db.settings, async () => {
-      const id = await db.graphs.where('id').equals(graphId).modify({
-        name: newName,
-      });
-      setActionObject({ id: graphId, name: newName });
-      updateGraphSearchItems();
-      console.log(`Renamed graph: ${id} to ${newName}`);
-      enqueueSnackbar(`Playground was renamed to ${newName}`);
-    }).catch((e) => {
-      console.log(e.stack || e);
-    });
-  }
-
-  function deleteGraph(graphId: string) {
-    console.log(graphId);
-    db.transaction('rw', db.graphs, db.settings, async () => {
-      const loadedGraphId = await getSetting(db, 'loadedGraphId');
-
-      const id = await db.graphs.where('id').equals(graphId).delete();
-      updateGraphSearchItems();
-      console.log(`Deleted graph: ${id}`);
-      enqueueSnackbar('Playground was deleted');
-
-      // if the current graph was deleted load last saved graph
-      if (loadedGraphId === graphId) {
-        loadGraph();
-      }
-    }).catch((e) => {
-      console.log(e.stack || e);
-    });
-  }
-
-  function saveGraph(saveNew = false, newName = undefined) {
-    const serializedGraph = currentGraph.current.serialize();
-    console.log(serializedGraph);
-    db.transaction('rw', db.graphs, db.settings, async () => {
-      const graphs = await db.graphs.toArray();
-      const loadedGraphId = await getSetting(db, 'loadedGraphId');
-
-      const id = hri.random();
-      const tempName = id.substring(0, id.lastIndexOf('-')).replace('-', ' ');
-
-      const loadedGraph = graphs.find((graph) => graph.id === loadedGraphId);
-
-      if (saveNew || graphs.length === 0 || loadedGraph === undefined) {
-        const name = newName ?? tempName;
-        const indexId = await db.graphs.put({
-          id,
-          date: new Date(),
-          name,
-          graphData: serializedGraph,
-        });
-
-        // save loadedGraphId
-        await db.settings.put({
-          name: 'loadedGraphId',
-          value: id,
-        });
-
-        setActionObject({ id, name });
-        setGraphSearchActiveItem({ id, name });
-
-        console.log(`Saved new graph: ${indexId}`);
-        enqueueSnackbar('New playground was saved');
-      } else {
-        const indexId = await db.graphs
-          .where('id')
-          .equals(loadedGraphId)
-          .modify({
-            date: new Date(),
-            graphData: serializedGraph,
-          });
-        console.log(`Updated currentGraph: ${indexId}`);
-        enqueueSnackbar('Playground was saved');
-      }
-    }).catch((e) => {
-      console.log(e.stack || e);
-    });
-  }
-
-  function saveNewGraph(newName = undefined) {
-    saveGraph(true, newName);
-  }
-
-  async function loadGraph(id = undefined) {
-    let loadedGraph;
-    await db
-      .transaction('rw', db.graphs, db.settings, async () => {
-        const graphs = await db.graphs.toArray();
-        const loadedGraphId = await getSetting(db, 'loadedGraphId');
-
-        if (graphs.length > 0) {
-          loadedGraph = graphs.find(
-            (graph) => graph.id === (id || loadedGraphId)
-          );
-
-          // check if graph exists and load last saved graph if it does not
-          if (loadedGraph === undefined) {
-            loadedGraph = graphs.reduce((a, b) => {
-              return new Date(a.date) > new Date(b.date) ? a : b;
-            });
-          }
-
-          // update loadedGraphId
-          await db.settings.put({
-            name: 'loadedGraphId',
-            value: loadedGraph.id,
-          });
-        } else {
-          console.log('No saved graphData');
-        }
-      })
-      .catch((e) => {
-        console.log(e.stack || e);
-      });
-
-    if (loadedGraph) {
-      const graphData = loadedGraph.graphData;
-      await currentGraph.current.configure(graphData, false);
-
-      setActionObject({
-        id: loadedGraph.id,
-        name: loadedGraph.name,
-      });
-      setGraphSearchActiveItem({
-        id: loadedGraph.id,
-        name: loadedGraph.name,
-      });
-      enqueueSnackbar(`${loadedGraph.name} was loaded`);
-    }
-  }
-
-  async function loadGraphFromURL(loadURL: string) {
-    try {
-      const file = await fetch(loadURL, {});
-      const fileData = await file.json();
-      console.log(fileData);
-      currentGraph.current.configure(fileData);
-
-      // unset loadedGraphId
-      await db.settings.put({
-        name: 'loadedGraphId',
-        value: undefined,
-      });
-
-      const newName = hri.random();
-      enqueueSnackbar('Playground from link in URL was loaded', {
-        variant: 'default',
-        autoHideDuration: 20000,
-        action: (key) => (
-          <>
-            <Button size="small" onClick={() => saveNewGraph(newName)}>
-              Save
-            </Button>
-            <Button size="small" onClick={() => closeSnackbar(key)}>
-              Dismiss
-            </Button>
-          </>
-        ),
-      });
-      return fileData;
-    } catch (error) {
-      enqueueSnackbar(
-        `Loading playground from link in URL failed: ${loadURL}`,
-        {
-          variant: 'error',
-          autoHideDuration: 20000,
-        }
-      );
-      return undefined;
-    }
-  }
-
-  async function cloneRemoteGraph(id = undefined) {
-    const nameOfFileToClone = remoteGraphsRef.current[id];
-    const fileData = await getRemoteGraph(
-      githubBaseURL,
-      githubBranchName,
-      nameOfFileToClone
-    );
-    console.log(fileData);
-    currentGraph.current.configure(fileData);
-
-    // unset loadedGraphId
-    await db.settings.put({
-      name: 'loadedGraphId',
-      value: undefined,
-    });
-
-    const newName = `${removeExtension(remoteGraphsRef.current[id])} - copy`; // remove .ppgraph extension and add copy
-    enqueueSnackbar('Remote playground was loaded', {
-      variant: 'default',
-      autoHideDuration: 20000,
-      action: (key) => (
-        <>
-          <Button size="small" onClick={() => saveNewGraph(newName)}>
-            Save
-          </Button>
-          <Button size="small" onClick={() => closeSnackbar(key)}>
-            Dismiss
-          </Button>
-        </>
-      ),
-    });
   }
 
   const handleGraphItemSelect = (event, selected: IGraphSearch) => {
@@ -1055,15 +826,15 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     setIsGraphSearchOpen(false);
 
     if (selected.isRemote) {
-      cloneRemoteGraph(selected.id);
+      StorageManager.getInstance().cloneRemoteGraph(selected.id);
     } else {
       if (selected.isNew) {
         currentGraph.current.clear();
-        saveNewGraph(selected.name);
+        StorageManager.getInstance().saveNewGraph(selected.name);
         // remove selection flag
         selected.isNew = undefined;
       } else {
-        loadGraph(selected.id);
+        StorageManager.getInstance().loadGraph(selected.id);
       }
       setGraphSearchActiveItem(selected);
     }
@@ -1244,7 +1015,11 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       document.getElementById('playground-name-input') as HTMLInputElement
     ).value;
     setShowEdit(false);
-    renameGraph(actionObject.id, name);
+    StorageManager.getInstance().renameGraph(actionObject.id, name);
+    setActionObject({ id: actionObject.id, name: name });
+    updateGraphSearchItems();
+    console.log(`Renamed graph: ${actionObject.id} to ${name}`);
+    enqueueSnackbar(`Playground was renamed to ${name}`);
   };
 
   return (
@@ -1283,7 +1058,10 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               <Button
                 onClick={() => {
                   setShowDeleteGraph(false);
-                  deleteGraph(actionObject.id);
+                  StorageManager.getInstance().deleteGraph(actionObject.id);
+                  updateGraphSearchItems();
+                  console.log(`Deleted graph: ${actionObject.id}`);
+                  enqueueSnackbar('Playground was deleted');
                 }}
               >
                 Delete
@@ -1335,10 +1113,10 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               setIsGraphSearchOpen={setIsGraphSearchOpen}
               openNodeSearch={openNodeSearch}
               setShowEdit={setShowEdit}
-              loadGraph={loadGraph}
-              saveGraph={saveGraph}
-              saveNewGraph={saveNewGraph}
-              downloadGraph={downloadGraph}
+              loadGraph={StorageManager.getInstance().loadGraph}
+              saveGraph={StorageManager.getInstance().saveGraph}
+              saveNewGraph={StorageManager.getInstance().saveNewGraph}
+              downloadGraph={StorageManager.getInstance().downloadGraph}
               uploadGraph={uploadGraph}
               showComments={showComments}
               setShowComments={setShowComments}
