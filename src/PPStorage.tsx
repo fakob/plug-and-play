@@ -63,17 +63,17 @@ export default class PPStorage {
 
     applyGestureMode(viewport: Viewport, newGestureMode = undefined) {
         PPStorage.viewport = viewport;
-        PPStorage.getInstance().db.transaction('rw', PPStorage.getInstance().db.settings, async () => {
+        this.db.transaction('rw', this.db.settings, async () => {
             let gestureMode = newGestureMode;
             if (gestureMode) {
                 // save newGestureMode
-                await PPStorage.getInstance().db.settings.put({
+                await this.db.settings.put({
                     name: 'gestureMode',
                     value: gestureMode,
                 });
             } else {
                 // get saved gestureMode
-                gestureMode = await getSetting(PPStorage.getInstance().db, 'gestureMode');
+                gestureMode = await getSetting(this.db, 'gestureMode');
                 console.log(gestureMode);
             }
 
@@ -164,7 +164,7 @@ export default class PPStorage {
         this.db.transaction('rw', this.db.graphs, this.db.settings, async () => {
             const loadedGraphId = await getSetting(this.db, 'loadedGraphId');
 
-            const id = await PPStorage.getInstance().db.graphs.where('id').equals(graphId).delete();
+            const id = await this.db.graphs.where('id').equals(graphId).delete();
             console.log(`Deleted graph: ${id}`);
             InterfaceController.showSnackBar('Playground was deleted');
 
@@ -178,6 +178,7 @@ export default class PPStorage {
 
 
 
+    // TODO get rid of saveNewGraph
     async loadGraphFromURL(loadURL: string, saveNewGraph: any) {
         try {
             const file = await fetch(loadURL, {});
@@ -186,7 +187,7 @@ export default class PPStorage {
             PPGraph.currentGraph.configure(fileData);
 
             // unset loadedGraphId
-            await PPStorage.getInstance().db.settings.put({
+            await this.db.settings.put({
                 name: 'loadedGraphId',
                 value: undefined,
             });
@@ -216,6 +217,57 @@ export default class PPStorage {
                 }
             );
             return undefined;
+        }
+    }
+
+
+    // TODO get rid of setActionObject and setGraphSearchActiveItem
+    async loadGraph(id = undefined, setActionObject: any, setGraphSearchActiveItem: any) {
+        let loadedGraph;
+        await this.db
+            .transaction('rw', this.db.graphs, this.db.settings, async () => {
+                const graphs = await this.db.graphs.toArray();
+                const loadedGraphId = await getSetting(this.db, 'loadedGraphId');
+
+                if (graphs.length > 0) {
+                    loadedGraph = graphs.find(
+                        (graph) => graph.id === (id || loadedGraphId)
+                    );
+
+                    // check if graph exists and load last saved graph if it does not
+                    if (loadedGraph === undefined) {
+                        loadedGraph = graphs.reduce((a, b) => {
+                            return new Date(a.date) > new Date(b.date) ? a : b;
+                        });
+                    }
+
+                    // update loadedGraphId
+                    await this.db.settings.put({
+                        name: 'loadedGraphId',
+                        value: loadedGraph.id,
+                    });
+                } else {
+                    console.log('No saved graphData');
+                }
+            })
+            .catch((e) => {
+                console.log(e.stack || e);
+            });
+
+        if (loadedGraph) {
+            const graphData = loadedGraph.graphData;
+            await PPGraph.currentGraph.configure(graphData, false);
+
+            // TODO what is this garbage, get rid of
+            setActionObject({
+                id: loadedGraph.id,
+                name: loadedGraph.name,
+            });
+            setGraphSearchActiveItem({
+                id: loadedGraph.id,
+                name: loadedGraph.name,
+            });
+            InterfaceController.showSnackBar(`${loadedGraph.name} was loaded`);
         }
     }
 

@@ -525,7 +525,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     if (loadURL) {
       PPStorage.getInstance().loadGraphFromURL(loadURL, saveNewGraph);
     } else {
-      loadGraph();
+      PPStorage.getInstance().loadGraph(undefined, setActionObject, setGraphSearchActiveItem);
     }
 
     setIsCurrentGraphLoaded(true);
@@ -814,55 +814,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     saveGraph(true, newName);
   }
 
-  async function loadGraph(id = undefined) {
-    let loadedGraph;
-    await PPStorage.getInstance().db
-      .transaction('rw', PPStorage.getInstance().db.graphs, PPStorage.getInstance().db.settings, async () => {
-        const graphs = await PPStorage.getInstance().db.graphs.toArray();
-        const loadedGraphId = await getSetting(PPStorage.getInstance().db, 'loadedGraphId');
-
-        if (graphs.length > 0) {
-          loadedGraph = graphs.find(
-            (graph) => graph.id === (id || loadedGraphId)
-          );
-
-          // check if graph exists and load last saved graph if it does not
-          if (loadedGraph === undefined) {
-            loadedGraph = graphs.reduce((a, b) => {
-              return new Date(a.date) > new Date(b.date) ? a : b;
-            });
-          }
-
-          // update loadedGraphId
-          await PPStorage.getInstance().db.settings.put({
-            name: 'loadedGraphId',
-            value: loadedGraph.id,
-          });
-        } else {
-          console.log('No saved graphData');
-        }
-      })
-      .catch((e) => {
-        console.log(e.stack || e);
-      });
-
-    if (loadedGraph) {
-      const graphData = loadedGraph.graphData;
-      await PPGraph.currentGraph.configure(graphData, false);
-
-      setActionObject({
-        id: loadedGraph.id,
-        name: loadedGraph.name,
-      });
-      setGraphSearchActiveItem({
-        id: loadedGraph.id,
-        name: loadedGraph.name,
-      });
-      enqueueSnackbar(`${loadedGraph.name} was loaded`);
-    }
-  }
-
-
   async function cloneRemoteGraph(id = undefined) {
     const nameOfFileToClone = remoteGraphsRef.current[id];
     const fileData = await PPStorage.getInstance().getRemoteGraph(
@@ -907,7 +858,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         // remove selection flag
         selected.isNew = undefined;
       } else {
-        loadGraph(selected.id);
+        PPStorage.getInstance().loadGraph(selected.id, setActionObject, setGraphSearchActiveItem);
       }
       setGraphSearchActiveItem(selected);
     }
@@ -1130,7 +1081,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
                   const deletedGraphID = PPStorage.getInstance().deleteGraph(actionObject.id);
                   updateGraphSearchItems();
                   if (actionObject.id == deletedGraphID) {
-                    loadGraph();
+                    PPStorage.getInstance().loadGraph(undefined, setActionObject, setGraphSearchActiveItem);
                   }
                 }}
               >
@@ -1183,7 +1134,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               setIsGraphSearchOpen={setIsGraphSearchOpen}
               openNodeSearch={openNodeSearch}
               setShowEdit={setShowEdit}
-              loadGraph={loadGraph}
+              loadGraph={(id: any) => PPStorage.getInstance().loadGraph(id, setActionObject, setGraphSearchActiveItem)}
               saveGraph={saveGraph}
               saveNewGraph={saveNewGraph}
               downloadGraph={PPStorage.getInstance().downloadGraph}
