@@ -146,6 +146,21 @@ export default class PPStorage {
     }
 
 
+    deleteGraph(graphId: string): string {
+        this.db.transaction('rw', this.db.graphs, this.db.settings, async () => {
+            const loadedGraphId = await getSetting(this.db, 'loadedGraphId');
+
+            const id = await PPStorage.getInstance().db.graphs.where('id').equals(graphId).delete();
+            console.log(`Deleted graph: ${id}`);
+            InterfaceController.showSnackBar('Playground was deleted');
+
+            return loadedGraphId;
+        }).catch((e) => {
+            console.log(e.stack || e);
+            return undefined;
+        });
+        return undefined;
+    }
 
     static viewport: Viewport; // WARNING, HACK, this should not be saved, TODO improve
     db: GraphDatabase; // should be private, but lets remove all references to it elsewhere first

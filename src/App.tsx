@@ -763,24 +763,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     });
   }
 
-  function deleteGraph(graphId: string) {
-    console.log(graphId);
-    PPStorage.getInstance().db.transaction('rw', PPStorage.getInstance().db.graphs, PPStorage.getInstance().db.settings, async () => {
-      const loadedGraphId = await getSetting(PPStorage.getInstance().db, 'loadedGraphId');
-
-      const id = await PPStorage.getInstance().db.graphs.where('id').equals(graphId).delete();
-      updateGraphSearchItems();
-      console.log(`Deleted graph: ${id}`);
-      enqueueSnackbar('Playground was deleted');
-
-      // if the current graph was deleted load last saved graph
-      if (loadedGraphId === graphId) {
-        loadGraph();
-      }
-    }).catch((e) => {
-      console.log(e.stack || e);
-    });
-  }
 
   function saveGraph(saveNew = false, newName = undefined) {
     const serializedGraph = PPGraph.currentGraph.serialize();
@@ -1187,7 +1169,11 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               <Button
                 onClick={() => {
                   setShowDeleteGraph(false);
-                  deleteGraph(actionObject.id);
+                  const deletedGraphID = PPStorage.getInstance().deleteGraph(actionObject.id);
+                  updateGraphSearchItems();
+                  if (actionObject.id == deletedGraphID) {
+                    loadGraph();
+                  }
                 }}
               >
                 Delete
