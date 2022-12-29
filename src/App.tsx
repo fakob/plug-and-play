@@ -903,7 +903,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         });
       }
 
-      const graphs = await PPStorage.getInstance().db.graphs.toCollection().sortBy('date');
+      const graphs: any[] = await PPStorage.getInstance().getGraphs();//PPStorage.getInstance().db.graphs.toCollection().sortBy('date');
       const newGraphSearchItems = graphs.map((graph) => {
         return {
           id: graph.id,
@@ -928,7 +928,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       console.log(allGraphSearchItems);
       setGraphSearchItems(allGraphSearchItems);
 
-      const loadedGraphId = await getSetting(PPStorage.getInstance().db, 'loadedGraphId');
+      const loadedGraphId = PPStorage.getInstance().getLoadedGraphID();
       const loadedGraphIndex = allGraphSearchItems.findIndex(
         (graph) => graph.id === loadedGraphId
       );

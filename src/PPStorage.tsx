@@ -367,8 +367,15 @@ export default class PPStorage {
         });
     }
 
+    async getGraphs(): Promise<any[]> {
+        return await PPStorage.getInstance().db.graphs.toCollection().sortBy('date');
+    }
+    async getLoadedGraphID(): Promise<string> {
+        return await getSetting(PPStorage.getInstance().db, 'loadedGraphId');
+    }
+
 
     static viewport: Viewport; // WARNING, HACK, this should not be saved, TODO improve
-    db: GraphDatabase; // should be private, but lets remove all references to it elsewhere first
+    private db: GraphDatabase; // spent a lot of effort making this private, if you want to do something with it, please go through this class
     private static instance: PPStorage;
 }
