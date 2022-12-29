@@ -193,7 +193,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           case 'ppgraph':
             data = await response.text();
             await PPGraph.currentGraph.configure(JSON.parse(data), false);
-            saveNewGraph(removeExtension(file.name));
+            PPStorage.getInstance().saveNewGraph(removeExtension(file.name), setActionObject, setGraphSearchActiveItem);
             break;
           case 'csv':
           case 'ods':
@@ -523,7 +523,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     const loadURL = urlParams.get('loadURL');
     console.log('loadURL: ', loadURL);
     if (loadURL) {
-      PPStorage.getInstance().loadGraphFromURL(loadURL, saveNewGraph);
+      PPStorage.getInstance().loadGraphFromURL(loadURL, setActionObject, setGraphSearchActiveItem);
     } else {
       PPStorage.getInstance().loadGraph(undefined, setActionObject, setGraphSearchActiveItem);
     }
@@ -659,9 +659,9 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       if (modKey && e.key.toLowerCase() === 's') {
         e.preventDefault();
         if (e.shiftKey) {
-          saveNewGraph();
+          PPStorage.getInstance().saveNewGraph(undefined, setActionObject, setGraphSearchActiveItem);
         } else {
-          saveGraph();
+          PPStorage.getInstance().saveGraph(false, undefined, setActionObject, setGraphSearchActiveItem);
         }
       } else if (e.key === 'Escape') {
         setIsGraphSearchOpen(false);
@@ -747,114 +747,16 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     open();
   }
 
-  function renameGraph(graphId: number, newName = undefined) {
-    PPStorage.getInstance().db.transaction('rw', PPStorage.getInstance().db.graphs, PPStorage.getInstance().db.settings, async () => {
-      const id = await PPStorage.getInstance().db.graphs.where('id').equals(graphId).modify({
-        name: newName,
-      });
-      setActionObject({ id: graphId, name: newName });
-      updateGraphSearchItems();
-      console.log(`Renamed graph: ${id} to ${newName}`);
-      enqueueSnackbar(`Playground was renamed to ${newName}`);
-    }).catch((e) => {
-      console.log(e.stack || e);
-    });
-  }
-
-
-  function saveGraph(saveNew = false, newName = undefined) {
-    const serializedGraph = PPGraph.currentGraph.serialize();
-    console.log(serializedGraph);
-    PPStorage.getInstance().db.transaction('rw', PPStorage.getInstance().db.graphs, PPStorage.getInstance().db.settings, async () => {
-      const graphs = await PPStorage.getInstance().db.graphs.toArray();
-      const loadedGraphId = await getSetting(PPStorage.getInstance().db, 'loadedGraphId');
-
-      const id = hri.random();
-      const tempName = id.substring(0, id.lastIndexOf('-')).replace('-', ' ');
-
-      const loadedGraph = graphs.find((graph) => graph.id === loadedGraphId);
-
-      if (saveNew || graphs.length === 0 || loadedGraph === undefined) {
-        const name = newName ?? tempName;
-        const indexId = await PPStorage.getInstance().db.graphs.put({
-          id,
-          date: new Date(),
-          name,
-          graphData: serializedGraph,
-        });
-
-        // save loadedGraphId
-        await PPStorage.getInstance().db.settings.put({
-          name: 'loadedGraphId',
-          value: id,
-        });
-
-        setActionObject({ id, name });
-        setGraphSearchActiveItem({ id, name });
-
-        console.log(`Saved new graph: ${indexId}`);
-        enqueueSnackbar('New playground was saved');
-      } else {
-        const indexId = await PPStorage.getInstance().db.graphs
-          .where('id')
-          .equals(loadedGraphId)
-          .modify({
-            date: new Date(),
-            graphData: serializedGraph,
-          });
-        console.log(`Updated currentGraph: ${indexId}`);
-        enqueueSnackbar('Playground was saved');
-      }
-    }).catch((e) => {
-      console.log(e.stack || e);
-    });
-  }
-
-  function saveNewGraph(newName = undefined) {
-    saveGraph(true, newName);
-  }
-
-  async function cloneRemoteGraph(id = undefined) {
-    const nameOfFileToClone = remoteGraphsRef.current[id];
-    const fileData = await PPStorage.getInstance().getRemoteGraph(
-      nameOfFileToClone
-    );
-    console.log(fileData);
-    PPGraph.currentGraph.configure(fileData);
-
-    // unset loadedGraphId
-    await PPStorage.getInstance().db.settings.put({
-      name: 'loadedGraphId',
-      value: undefined,
-    });
-
-    const newName = `${removeExtension(remoteGraphsRef.current[id])} - copy`; // remove .ppgraph extension and add copy
-    enqueueSnackbar('Remote playground was loaded', {
-      variant: 'default',
-      autoHideDuration: 20000,
-      action: (key) => (
-        <>
-          <Button size="small" onClick={() => saveNewGraph(newName)}>
-            Save
-          </Button>
-          <Button size="small" onClick={() => closeSnackbar(key)}>
-            Dismiss
-          </Button>
-        </>
-      ),
-    });
-  }
-
   const handleGraphItemSelect = (event, selected: IGraphSearch) => {
     console.log(selected);
     setIsGraphSearchOpen(false);
 
     if (selected.isRemote) {
-      cloneRemoteGraph(selected.id);
+      PPStorage.getInstance().cloneRemoteGraph(selected.id, remoteGraphsRef, setActionObject, setGraphSearchActiveItem);
     } else {
       if (selected.isNew) {
         PPGraph.currentGraph.clear();
-        saveNewGraph(selected.name);
+        PPStorage.getInstance().saveNewGraph(selected.name, setActionObject, setGraphSearchActiveItem);
         // remove selection flag
         selected.isNew = undefined;
       } else {
@@ -1039,7 +941,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       document.getElementById('playground-name-input') as HTMLInputElement
     ).value;
     setShowEdit(false);
-    renameGraph(actionObject.id, name);
+    PPStorage.getInstance().renameGraph(actionObject.id, name, setActionObject, updateGraphSearchItems);
   };
 
   return (
@@ -1135,8 +1037,8 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               openNodeSearch={openNodeSearch}
               setShowEdit={setShowEdit}
               loadGraph={(id: any) => PPStorage.getInstance().loadGraph(id, setActionObject, setGraphSearchActiveItem)}
-              saveGraph={saveGraph}
-              saveNewGraph={saveNewGraph}
+              saveGraph={() => PPStorage.getInstance().saveGraph(false, undefined, setActionObject, setGraphSearchActiveItem)}
+              saveNewGraph={() => PPStorage.getInstance().saveNewGraph(undefined, setActionObject, setGraphSearchActiveItem)}
               downloadGraph={PPStorage.getInstance().downloadGraph}
               uploadGraph={uploadGraph}
               showComments={showComments}

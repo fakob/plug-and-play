@@ -2,7 +2,7 @@ import { Viewport } from "pixi-viewport";
 import InterfaceController from "./InterfaceController";
 import { GESTUREMODE } from "./utils/constants";
 import { GraphDatabase } from "./utils/indexedDB";
-import { downloadFile, formatDate, getSetting, setGestureModeOnViewport } from "./utils/utils";
+import { downloadFile, formatDate, getSetting, removeExtension, setGestureModeOnViewport } from "./utils/utils";
 import * as PIXI from 'pixi.js';
 import PPGraph from "./classes/GraphClass";
 import { hri } from 'human-readable-ids';
@@ -60,6 +60,7 @@ export default class PPStorage {
     constructor() {
         this.db = new GraphDatabase();
     }
+
 
     applyGestureMode(viewport: Viewport, newGestureMode = undefined) {
         PPStorage.viewport = viewport;
@@ -176,10 +177,7 @@ export default class PPStorage {
         return undefined;
     }
 
-
-
-    // TODO get rid of saveNewGraph
-    async loadGraphFromURL(loadURL: string, saveNewGraph: any) {
+    async loadGraphFromURL(loadURL: string, setActionObject, setGraphSearchActiveItem) {
         try {
             const file = await fetch(loadURL, {});
             const fileData = await file.json();
@@ -198,7 +196,7 @@ export default class PPStorage {
                 autoHideDuration: 20000,
                 action: (key) => (
                     <>
-                        <Button size="small" onClick={() => saveNewGraph(newName)}>
+                        <Button size="small" onClick={() => this.saveNewGraph(newName, setActionObject, setGraphSearchActiveItem)}>
                             Save
                         </Button>
                         <Button size="small" onClick={() => InterfaceController.hideSnackBar(key)}>
@@ -269,6 +267,104 @@ export default class PPStorage {
             });
             InterfaceController.showSnackBar(`${loadedGraph.name} was loaded`);
         }
+    }
+
+    renameGraph(graphId: number, newName = undefined, setActionObject: any, updateGraphSearchItems: any) {
+        this.db.transaction('rw', this.db.graphs, this.db.settings, async () => {
+            const id = await this.db.graphs.where('id').equals(graphId).modify({
+                name: newName,
+            });
+            setActionObject({ id: graphId, name: newName });
+            updateGraphSearchItems();
+            console.log(`Renamed graph: ${id} to ${newName}`);
+            InterfaceController.showSnackBar(`Playground was renamed to ${newName}`);
+        }).catch((e) => {
+            console.log(e.stack || e);
+        });
+    }
+
+
+    saveGraph(saveNew = false, newName = undefined, setActionObject: any, setGraphSearchActiveItem: any) {
+        const serializedGraph = PPGraph.currentGraph.serialize();
+        console.log(serializedGraph);
+        this.db.transaction('rw', this.db.graphs, this.db.settings, async () => {
+            const graphs = await this.db.graphs.toArray();
+            const loadedGraphId = await getSetting(this.db, 'loadedGraphId');
+
+            const id = hri.random();
+            const tempName = id.substring(0, id.lastIndexOf('-')).replace('-', ' ');
+
+            const loadedGraph = graphs.find((graph) => graph.id === loadedGraphId);
+
+            if (saveNew || graphs.length === 0 || loadedGraph === undefined) {
+                const name = newName ?? tempName;
+                const indexId = await this.db.graphs.put({
+                    id,
+                    date: new Date(),
+                    name,
+                    graphData: serializedGraph,
+                });
+
+                // save loadedGraphId
+                await this.db.settings.put({
+                    name: 'loadedGraphId',
+                    value: id,
+                });
+
+                setActionObject({ id, name });
+                setGraphSearchActiveItem({ id, name });
+
+                console.log(`Saved new graph: ${indexId}`);
+                InterfaceController.showSnackBar('New playground was saved');
+            } else {
+                const indexId = await this.db.graphs
+                    .where('id')
+                    .equals(loadedGraphId)
+                    .modify({
+                        date: new Date(),
+                        graphData: serializedGraph,
+                    });
+                console.log(`Updated currentGraph: ${indexId}`);
+                InterfaceController.showSnackBar('Playground was saved');
+            }
+        }).catch((e) => {
+            console.log(e.stack || e);
+        });
+    }
+
+    saveNewGraph(newName = undefined, setActionObject, setGraphSearchActiveItem) {
+        this.saveGraph(true, newName, setActionObject, setGraphSearchActiveItem);
+    }
+
+    async cloneRemoteGraph(id = undefined, remoteGraphsRef: any, setActionObject, setGraphSearchActiveItem) {
+        const nameOfFileToClone = remoteGraphsRef.current[id];
+        const fileData = await this.getRemoteGraph(
+            nameOfFileToClone
+        );
+        console.log(fileData);
+        PPGraph.currentGraph.configure(fileData);
+
+        // unset loadedGraphId
+        await this.db.settings.put({
+            name: 'loadedGraphId',
+            value: undefined,
+        });
+
+        const newName = `${removeExtension(remoteGraphsRef.current[id])} - copy`; // remove .ppgraph extension and add copy
+        InterfaceController.showSnackBar('Remote playground was loaded', {
+            variant: 'default',
+            autoHideDuration: 20000,
+            action: (key) => (
+                <>
+                    <Button size="small" onClick={() => this.saveNewGraph(newName, setActionObject, setGraphSearchActiveItem)}>
+                        Save
+                    </Button>
+                    <Button size="small" onClick={() => InterfaceController.hideSnackBar(key)}>
+                        Dismiss
+                    </Button>
+                </>
+            ),
+        });
     }
 
 
