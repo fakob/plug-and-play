@@ -939,13 +939,43 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     }
   }
 
+  async function cloneRemoteGraph(id = undefined) {
+    const nameOfFileToClone = remoteGraphsRef.current[id];
+    const fileData = await PPStorage.getInstance().getRemoteGraph(
+      nameOfFileToClone
+    );
+    console.log(fileData);
+    PPGraph.currentGraph.configure(fileData);
+
+    // unset loadedGraphId
+    await PPStorage.getInstance().db.settings.put({
+      name: 'loadedGraphId',
+      value: undefined,
+    });
+
+    const newName = `${removeExtension(remoteGraphsRef.current[id])} - copy`; // remove .ppgraph extension and add copy
+    enqueueSnackbar('Remote playground was loaded', {
+      variant: 'default',
+      autoHideDuration: 20000,
+      action: (key) => (
+        <>
+          <Button size="small" onClick={() => saveNewGraph(newName)}>
+            Save
+          </Button>
+          <Button size="small" onClick={() => closeSnackbar(key)}>
+            Dismiss
+          </Button>
+        </>
+      ),
+    });
+  }
 
   const handleGraphItemSelect = (event, selected: IGraphSearch) => {
     console.log(selected);
     setIsGraphSearchOpen(false);
 
     if (selected.isRemote) {
-      PPStorage.getInstance().cloneRemoteGraph(selected.id);
+      cloneRemoteGraph(selected.id);
     } else {
       if (selected.isNew) {
         PPGraph.currentGraph.clear();
