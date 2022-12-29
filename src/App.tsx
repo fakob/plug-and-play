@@ -744,22 +744,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     overlayCommentContainer.current.visible = showComments;
   }, [showComments]);
 
-  function downloadGraph() {
-    PPStorage.getInstance().db.transaction('rw', PPStorage.getInstance().db.graphs, PPStorage.getInstance().db.settings, async () => {
-      const loadedGraphId = await getSetting(PPStorage.getInstance().db, 'loadedGraphId');
-      const graph = await PPStorage.getInstance().db.graphs.where('id').equals(loadedGraphId).first();
-
-      const serializedGraph = PPGraph.currentGraph.serialize();
-      downloadFile(
-        JSON.stringify(serializedGraph, null, 2),
-        `${graph?.name} - ${formatDate()}.ppgraph`,
-        'text/plain'
-      );
-      enqueueSnackbar('Playground was saved to your Download folder');
-    }).catch((e) => {
-      console.log(e.stack || e);
-    });
-  }
 
   function uploadGraph() {
     open();
@@ -1258,7 +1242,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               loadGraph={loadGraph}
               saveGraph={saveGraph}
               saveNewGraph={saveNewGraph}
-              downloadGraph={downloadGraph}
+              downloadGraph={PPStorage.getInstance().downloadGraph}
               uploadGraph={uploadGraph}
               showComments={showComments}
               setShowComments={setShowComments}

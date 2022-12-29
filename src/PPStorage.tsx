@@ -2,8 +2,9 @@ import { Viewport } from "pixi-viewport";
 import InterfaceController from "./InterfaceController";
 import { GESTUREMODE } from "./utils/constants";
 import { GraphDatabase } from "./utils/indexedDB";
-import { getSetting, setGestureModeOnViewport } from "./utils/utils";
+import { downloadFile, formatDate, getSetting, setGestureModeOnViewport } from "./utils/utils";
 import * as PIXI from 'pixi.js';
+import PPGraph from "./classes/GraphClass";
 
 (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__ &&
     (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__.register({ PIXI: PIXI });
@@ -126,6 +127,23 @@ export default class PPStorage {
             return [];
         }
     };
+
+    downloadGraph() {
+        this.db.transaction('rw', this.db.graphs, this.db.settings, async () => {
+            const loadedGraphId = await getSetting(this.db, 'loadedGraphId');
+            const graph = await this.db.graphs.where('id').equals(loadedGraphId).first();
+
+            const serializedGraph = PPGraph.currentGraph.serialize();
+            downloadFile(
+                JSON.stringify(serializedGraph, null, 2),
+                `${graph?.name} - ${formatDate()}.ppgraph`,
+                'text/plain'
+            );
+            InterfaceController.showSnackBar('Playground was saved to your Download folder');
+        }).catch((e) => {
+            console.log(e.stack || e);
+        });
+    }
 
 
 

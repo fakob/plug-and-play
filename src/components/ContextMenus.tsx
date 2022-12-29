@@ -204,7 +204,7 @@ export const GraphContextMenu = (props) => {
         <MenuItem
           sx={{ mt: 1 }}
           onClick={() => {
-            props.currentGraph.current.clear();
+            PPGraph.currentGraph.clear();
           }}
         >
           <ListItemIcon>
@@ -248,7 +248,7 @@ export const GraphContextMenu = (props) => {
           <MenuItem
             onClick={() => {
               props.applyGestureMode(
-                props.currentGraph.current.viewport,
+                PPGraph.currentGraph.viewport,
                 GESTUREMODE.MOUSE
               );
             }}
@@ -261,7 +261,7 @@ export const GraphContextMenu = (props) => {
           <MenuItem
             onClick={() => {
               props.applyGestureMode(
-                props.currentGraph.current.viewport,
+                PPGraph.currentGraph.viewport,
                 GESTUREMODE.TRACKPAD
               );
             }}
@@ -274,7 +274,7 @@ export const GraphContextMenu = (props) => {
           <MenuItem
             onClick={() => {
               props.applyGestureMode(
-                props.currentGraph.current.viewport,
+                PPGraph.currentGraph.viewport,
                 GESTUREMODE.AUTO
               );
             }}
@@ -287,12 +287,12 @@ export const GraphContextMenu = (props) => {
         </SubMenuItem>
         <MenuItem
           onClick={() => {
-            props.currentGraph.current.showExecutionVisualisation =
-              !props.currentGraph.current.showExecutionVisualisation;
+            PPGraph.currentGraph.showExecutionVisualisation =
+              !PPGraph.currentGraph.showExecutionVisualisation;
           }}
         >
           <ListItemText>
-            {props.currentGraph.current.showExecutionVisualisation
+            {PPGraph.currentGraph.showExecutionVisualisation
               ? 'Hide execution visualisation'
               : 'Show execution visualisation'}
           </ListItemText>
@@ -347,7 +347,7 @@ export const NodeContextMenu = (props) => {
     e.preventDefault();
   }
 
-  const canAddOutput: boolean = props.currentGraph.current.getCanAddOutput();
+  const canAddOutput: boolean = PPGraph.currentGraph?.getCanAddOutput();
   return (
     <Paper
       sx={{
@@ -488,7 +488,7 @@ export const SocketContextMenu = (props) => {
             <MenuItem
               onClick={() => {
                 selectedSocket.links.forEach((link) =>
-                  props.currentGraph.current.action_Disconnect(link)
+                  PPGraph.currentGraph.action_Disconnect(link)
                 );
               }}
             >
@@ -503,7 +503,7 @@ export const SocketContextMenu = (props) => {
         {selectedSocket.isInput() && (
           <MenuItem
             onClick={() => {
-              props.currentGraph.current.addWidgetNode(selectedSocket);
+              PPGraph.currentGraph.addWidgetNode(selectedSocket);
             }}
           >
             <ListItemIcon>
@@ -517,7 +517,7 @@ export const SocketContextMenu = (props) => {
         {!selectedSocket.isInput() && (
           <MenuItem
             onClick={() => {
-              props.currentGraph.current.addWidgetNode(selectedSocket);
+              PPGraph.currentGraph.addWidgetNode(selectedSocket);
             }}
           >
             <ListItemIcon>
