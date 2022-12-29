@@ -53,7 +53,6 @@ import {
   COMMENT_TEXTSTYLE,
   CONTEXTMENU_WIDTH,
   DRAGANDDROP_GRID_MARGIN,
-  GESTUREMODE,
   GRID_SHADER,
   PLUGANDPLAY_ICON,
   RANDOMMAINCOLOR,
@@ -62,8 +61,6 @@ import { IGraphSearch, INodeSearch } from './utils/interfaces';
 import {
   connectNodeToSocket,
   convertBlobToBase64,
-  downloadFile,
-  formatDate,
   getDataFromClipboard,
   getNodeDataFromHtml,
   getNodeDataFromText,
@@ -526,7 +523,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     const loadURL = urlParams.get('loadURL');
     console.log('loadURL: ', loadURL);
     if (loadURL) {
-      loadGraphFromURL(loadURL);
+      PPStorage.getInstance().loadGraphFromURL(loadURL, saveNewGraph);
     } else {
       loadGraph();
     }
@@ -695,6 +692,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
 
   useEffect(() => {
     InterfaceController.showSnackBar = enqueueSnackbar;
+    InterfaceController.hideSnackBar = closeSnackbar;
   });
 
   // addEventListener to graphSearchInput
@@ -864,46 +862,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     }
   }
 
-  async function loadGraphFromURL(loadURL: string) {
-    try {
-      const file = await fetch(loadURL, {});
-      const fileData = await file.json();
-      console.log(fileData);
-      PPGraph.currentGraph.configure(fileData);
-
-      // unset loadedGraphId
-      await PPStorage.getInstance().db.settings.put({
-        name: 'loadedGraphId',
-        value: undefined,
-      });
-
-      const newName = hri.random();
-      enqueueSnackbar('Playground from link in URL was loaded', {
-        variant: 'default',
-        autoHideDuration: 20000,
-        action: (key) => (
-          <>
-            <Button size="small" onClick={() => saveNewGraph(newName)}>
-              Save
-            </Button>
-            <Button size="small" onClick={() => closeSnackbar(key)}>
-              Dismiss
-            </Button>
-          </>
-        ),
-      });
-      return fileData;
-    } catch (error) {
-      enqueueSnackbar(
-        `Loading playground from link in URL failed: ${loadURL}`,
-        {
-          variant: 'error',
-          autoHideDuration: 20000,
-        }
-      );
-      return undefined;
-    }
-  }
 
   async function cloneRemoteGraph(id = undefined) {
     const nameOfFileToClone = remoteGraphsRef.current[id];

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
-import { OptionsObject, SnackbarMessage } from 'notistack';
+import { OptionsObject, SnackbarKey, SnackbarMessage } from 'notistack';
 
 import * as PIXI from 'pixi.js';
 import Socket from './classes/SocketClass';
@@ -57,7 +57,7 @@ export default class InterfaceController {
     message: SnackbarMessage,
     options?: OptionsObject
   ) => void = () => { };
-  static hideSnackBar = () => { };
+  static hideSnackBar = (key: SnackbarKey) => { };
 
   static onRightClick: (
     event: PIXI.InteractionEvent,

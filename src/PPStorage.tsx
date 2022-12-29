@@ -5,6 +5,20 @@ import { GraphDatabase } from "./utils/indexedDB";
 import { downloadFile, formatDate, getSetting, setGestureModeOnViewport } from "./utils/utils";
 import * as PIXI from 'pixi.js';
 import PPGraph from "./classes/GraphClass";
+import { hri } from 'human-readable-ids';
+import {
+    Autocomplete,
+    Box,
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    Paper,
+    TextField,
+} from '@mui/material';
+import React from "react";
 
 (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__ &&
     (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__.register({ PIXI: PIXI });
@@ -161,6 +175,50 @@ export default class PPStorage {
         });
         return undefined;
     }
+
+
+
+    async loadGraphFromURL(loadURL: string, saveNewGraph: any) {
+        try {
+            const file = await fetch(loadURL, {});
+            const fileData = await file.json();
+            console.log(fileData);
+            PPGraph.currentGraph.configure(fileData);
+
+            // unset loadedGraphId
+            await PPStorage.getInstance().db.settings.put({
+                name: 'loadedGraphId',
+                value: undefined,
+            });
+
+            const newName = hri.random();
+            InterfaceController.showSnackBar('Playground from link in URL was loaded', {
+                variant: 'default',
+                autoHideDuration: 20000,
+                action: (key) => (
+                    <>
+                        <Button size="small" onClick={() => saveNewGraph(newName)}>
+                            Save
+                        </Button>
+                        <Button size="small" onClick={() => InterfaceController.hideSnackBar(key)}>
+                            Dismiss
+                        </Button>
+                    </>
+                ),
+            });
+            return fileData;
+        } catch (error) {
+            InterfaceController.showSnackBar(
+                `Loading playground from link in URL failed: ${loadURL}`,
+                {
+                    variant: 'error',
+                    autoHideDuration: 20000,
+                }
+            );
+            return undefined;
+        }
+    }
+
 
     static viewport: Viewport; // WARNING, HACK, this should not be saved, TODO improve
     db: GraphDatabase; // should be private, but lets remove all references to it elsewhere first
