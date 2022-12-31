@@ -7,16 +7,7 @@ import * as PIXI from 'pixi.js';
 import PPGraph from "./classes/GraphClass";
 import { hri } from 'human-readable-ids';
 import {
-    Autocomplete,
-    Box,
     Button,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogContentText,
-    DialogTitle,
-    Paper,
-    TextField,
 } from '@mui/material';
 import React from "react";
 

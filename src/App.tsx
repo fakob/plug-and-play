@@ -64,7 +64,6 @@ import {
   getDataFromClipboard,
   getNodeDataFromHtml,
   getNodeDataFromText,
-  getSetting,
   isEventComingFromWithinTextInput,
   removeExtension,
   roundNumber,
