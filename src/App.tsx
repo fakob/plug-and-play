@@ -193,7 +193,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           case 'ppgraph':
             data = await response.text();
             await PPGraph.currentGraph.configure(JSON.parse(data), false);
-            PPStorage.getInstance().saveNewGraph(removeExtension(file.name), setActionObject, setGraphSearchActiveItem);
+            PPStorage.getInstance().saveNewGraph(removeExtension(file.name));
             break;
           case 'csv':
           case 'ods':
@@ -524,7 +524,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     const loadURL = urlParams.get('loadURL');
     console.log('loadURL: ', loadURL);
     if (loadURL) {
-      PPStorage.getInstance().loadGraphFromURL(loadURL, setActionObject, setGraphSearchActiveItem);
+      PPStorage.getInstance().loadGraphFromURL(loadURL);
     } else {
       PPStorage.getInstance().loadGraph();
     }
@@ -607,9 +607,9 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       if (modKey && e.key.toLowerCase() === 's') {
         e.preventDefault();
         if (e.shiftKey) {
-          PPStorage.getInstance().saveNewGraph(undefined, setActionObject, setGraphSearchActiveItem);
+          PPStorage.getInstance().saveNewGraph();
         } else {
-          PPStorage.getInstance().saveGraph(false, undefined, setActionObject, setGraphSearchActiveItem);
+          PPStorage.getInstance().saveGraph(false);
         }
       } else if (e.key === 'Escape') {
         setIsGraphSearchOpen(false);
@@ -762,11 +762,11 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     setIsGraphSearchOpen(false);
 
     if (selected.isRemote) {
-      PPStorage.getInstance().cloneRemoteGraph(selected.id, remoteGraphsRef, setActionObject, setGraphSearchActiveItem);
+      PPStorage.getInstance().cloneRemoteGraph(selected.id, remoteGraphsRef);
     } else {
       if (selected.isNew) {
         PPGraph.currentGraph.clear();
-        PPStorage.getInstance().saveNewGraph(selected.name, setActionObject, setGraphSearchActiveItem);
+        PPStorage.getInstance().saveNewGraph(selected.name);
         // remove selection flag
         selected.isNew = undefined;
       } else {
@@ -1047,8 +1047,8 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               openNodeSearch={openNodeSearch}
               setShowEdit={setShowEdit}
               loadGraph={(id: any) => PPStorage.getInstance().loadGraph(id)}
-              saveGraph={() => PPStorage.getInstance().saveGraph(false, undefined, setActionObject, setGraphSearchActiveItem)}
-              saveNewGraph={() => PPStorage.getInstance().saveNewGraph(undefined, setActionObject, setGraphSearchActiveItem)}
+              saveGraph={() => PPStorage.getInstance().saveGraph(false)}
+              saveNewGraph={() => PPStorage.getInstance().saveNewGraph()}
               downloadGraph={PPStorage.getInstance().downloadGraph}
               uploadGraph={uploadGraph}
               showComments={showComments}

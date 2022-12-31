@@ -177,7 +177,7 @@ export default class PPStorage {
         return undefined;
     }
 
-    async loadGraphFromURL(loadURL: string, setActionObject, setGraphSearchActiveItem) {
+    async loadGraphFromURL(loadURL: string) {
         try {
             const file = await fetch(loadURL, {});
             const fileData = await file.json();
@@ -196,7 +196,7 @@ export default class PPStorage {
                 autoHideDuration: 20000,
                 action: (key) => (
                     <>
-                        <Button size="small" onClick={() => this.saveNewGraph(newName, setActionObject, setGraphSearchActiveItem)}>
+                        <Button size="small" onClick={() => this.saveNewGraph(newName)}>
                             Save
                         </Button>
                         <Button size="small" onClick={() => InterfaceController.hideSnackBar(key)}>
@@ -276,7 +276,7 @@ export default class PPStorage {
     }
 
 
-    saveGraph(saveNew = false, newName = undefined, setActionObject: any, setGraphSearchActiveItem: any) {
+    saveGraph(saveNew = false, newName = undefined) {
         const serializedGraph = PPGraph.currentGraph.serialize();
         console.log(serializedGraph);
         this.db.transaction('rw', this.db.graphs, this.db.settings, async () => {
@@ -303,10 +303,8 @@ export default class PPStorage {
                     value: id,
                 });
 
-                setActionObject({ id, name });
-                setGraphSearchActiveItem({ id, name });
+                InterfaceController.notifyListeners(ListenEvent.GraphChanged, { id, name });
 
-                console.log(`Saved new graph: ${indexId}`);
                 InterfaceController.showSnackBar('New playground was saved');
             } else {
                 const indexId = await this.db.graphs
@@ -324,11 +322,11 @@ export default class PPStorage {
         });
     }
 
-    saveNewGraph(newName = undefined, setActionObject, setGraphSearchActiveItem) {
-        this.saveGraph(true, newName, setActionObject, setGraphSearchActiveItem);
+    saveNewGraph(newName = undefined) {
+        this.saveGraph(true, newName);
     }
 
-    async cloneRemoteGraph(id = undefined, remoteGraphsRef: any, setActionObject, setGraphSearchActiveItem) {
+    async cloneRemoteGraph(id = undefined, remoteGraphsRef: any) {
         const nameOfFileToClone = remoteGraphsRef.current[id];
         const fileData = await this.getRemoteGraph(
             nameOfFileToClone
@@ -348,7 +346,7 @@ export default class PPStorage {
             autoHideDuration: 20000,
             action: (key) => (
                 <>
-                    <Button size="small" onClick={() => this.saveNewGraph(newName, setActionObject, setGraphSearchActiveItem)}>
+                    <Button size="small" onClick={() => this.saveNewGraph(newName)}>
                         Save
                     </Button>
                     <Button size="small" onClick={() => InterfaceController.hideSnackBar(key)}>
