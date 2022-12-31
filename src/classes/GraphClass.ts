@@ -593,7 +593,7 @@ export default class PPGraph {
     let newNode;
     if (socket.isInput()) {
       const nodeType = socket.dataType.defaultInputNodeWidget();
-      newNode = await this.addNewNode(nodeType, {
+      newNode = this.addNewNode(nodeType, {
         nodePosX: node.x,
         nodePosY: node.y + socket.y,
         initialData: socket.data,
@@ -601,7 +601,7 @@ export default class PPGraph {
       newNode.setPosition(-(newNode.width + 40), 0, true);
     } else {
       const nodeType = socket.dataType.defaultOutputNodeWidget();
-      newNode = await this.addNewNode(nodeType, {
+      newNode = this.addNewNode(nodeType, {
         nodePosX: node.x + (node.width + 40),
         nodePosY: node.y + socket.y,
       });
