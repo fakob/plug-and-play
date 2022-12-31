@@ -912,7 +912,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         });
       }
 
-      const graphs: any[] = await PPStorage.getInstance().getGraphs();//PPStorage.getInstance().db.graphs.toCollection().sortBy('date');
+      const graphs: any[] = await PPStorage.getInstance().getGraphs();
       const newGraphSearchItems = graphs.map((graph) => {
         return {
           id: graph.id,
@@ -1045,14 +1045,14 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               setIsGraphSearchOpen={setIsGraphSearchOpen}
               openNodeSearch={openNodeSearch}
               setShowEdit={setShowEdit}
-              loadGraph={(id: any) => PPStorage.getInstance().loadGraph(id)}
-              saveGraph={() => PPStorage.getInstance().saveGraph(false)}
-              saveNewGraph={() => PPStorage.getInstance().saveNewGraph()}
+              loadGraph={PPStorage.getInstance().loadGraph}
+              saveGraph={PPStorage.getInstance().saveGraph}
+              saveNewGraph={PPStorage.getInstance().saveNewGraph}
               downloadGraph={PPStorage.getInstance().downloadGraph}
               uploadGraph={uploadGraph}
               showComments={showComments}
               setShowComments={setShowComments}
-              applyGestureMode={() => { }/*PPStorage.getInstance().applyGestureMode*/}
+              applyGestureMode={() => PPStorage.getInstance().applyGestureMode(viewport.current)}
               zoomToFitNodes={zoomToFitNodes}
             />
           )}
