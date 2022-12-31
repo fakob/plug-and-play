@@ -232,7 +232,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
                   .selectedNodes[index] as ImageNode;
                 existingNode.updateTexture(base64 as string);
               } else {
-                newNode = await PPGraph.currentGraph.addNewNode('Image', {
+                newNode = PPGraph.currentGraph.addNewNode('Image', {
                   nodePosX,
                   nodePosY,
                   defaultArguments: { Image: base64 },
@@ -816,13 +816,13 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         let addedNode: PPNode;
         const nodeExists = getAllNodeTypes()[selected.title] !== undefined;
         if (nodeExists) {
-          addedNode = await PPGraph.currentGraph.addNewNode(selected.title, {
+          addedNode = PPGraph.currentGraph.addNewNode(selected.title, {
             overrideId: referenceID,
             nodePosX: nodePos.x,
             nodePosY: nodePos.y,
           });
         } else {
-          addedNode = await PPGraph.currentGraph.addNewNode('CustomFunction', {
+          addedNode = PPGraph.currentGraph.addNewNode('CustomFunction', {
             overrideId: referenceID,
             nodePosX: nodePos.x,
             nodePosY: nodePos.y,
