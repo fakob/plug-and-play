@@ -436,6 +436,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       InterfaceController.notifyListeners(ListenEvent.GlobalPointerUp, event);
     });
 
+
     // configure viewport
     viewport.current
       .drag({
@@ -525,7 +526,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     if (loadURL) {
       PPStorage.getInstance().loadGraphFromURL(loadURL, setActionObject, setGraphSearchActiveItem);
     } else {
-      PPStorage.getInstance().loadGraph(undefined, setActionObject, setGraphSearchActiveItem);
+      PPStorage.getInstance().loadGraph();
     }
 
     setIsCurrentGraphLoaded(true);
@@ -539,59 +540,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         );
       }
     );
-
-    InterfaceController.onOpenNodeSearch = openNodeSearch;
-
-    InterfaceController.onRightClick = (
-      event: PIXI.InteractionEvent,
-      target: PIXI.DisplayObject
-    ) => {
-      setIsGraphContextMenuOpen(false);
-      setIsNodeContextMenuOpen(false);
-      setIsSocketContextMenuOpen(false);
-      console.log(event, target, event.data.global);
-      const contextMenuPosX = Math.min(
-        window.innerWidth - (CONTEXTMENU_WIDTH + 8),
-        event.data.global.x
-      );
-      const contextMenuPosY = (offset: number) => {
-        return Math.min(window.innerHeight - offset, event.data.global.y);
-      };
-      switch (true) {
-        case target.parent instanceof PPSocket &&
-          target instanceof PIXI.Graphics:
-        case target.parent instanceof PPSocket && target instanceof PIXI.Text:
-          console.log('app right click, socket');
-          setContextMenuPosition([contextMenuPosX, contextMenuPosY(80)]);
-          setSelectedSocket(target.parent as PPSocket);
-          setIsSocketContextMenuOpen(true);
-          break;
-        case target instanceof PPNode:
-          console.log('app right click, node');
-          setContextMenuPosition([contextMenuPosX, contextMenuPosY(220)]);
-          setIsNodeContextMenuOpen(true);
-          break;
-        case target instanceof Viewport:
-          console.log('app right click, viewport');
-          setContextMenuPosition([contextMenuPosX, contextMenuPosY(600)]);
-          setIsGraphContextMenuOpen(true);
-          break;
-        case target instanceof PPSelection:
-          setContextMenuPosition([
-            Math.min(
-              window.innerWidth - (CONTEXTMENU_WIDTH + 8),
-              event.data.global.x
-            ),
-            Math.min(window.innerHeight - 432, event.data.global.y),
-          ]);
-          setIsNodeContextMenuOpen(true);
-          break;
-        default:
-          console.log('app right click, something else');
-          break;
-      }
-    };
-
 
     // register key events
     const keysDown = (e: KeyboardEvent): void => {
@@ -693,6 +641,68 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
   useEffect(() => {
     InterfaceController.showSnackBar = enqueueSnackbar;
     InterfaceController.hideSnackBar = closeSnackbar;
+
+    // data has id and name
+    const ids = [];
+    ids.push(InterfaceController.addListener(ListenEvent.GraphChanged, (data: any) => {
+      setActionObject(data);
+      setGraphSearchActiveItem(data);
+    }));
+
+
+    InterfaceController.onOpenNodeSearch = openNodeSearch;
+
+    InterfaceController.onRightClick = (
+      event: PIXI.InteractionEvent,
+      target: PIXI.DisplayObject
+    ) => {
+      setIsGraphContextMenuOpen(false);
+      setIsNodeContextMenuOpen(false);
+      setIsSocketContextMenuOpen(false);
+      console.log(event, target, event.data.global);
+      const contextMenuPosX = Math.min(
+        window.innerWidth - (CONTEXTMENU_WIDTH + 8),
+        event.data.global.x
+      );
+      const contextMenuPosY = (offset: number) => {
+        return Math.min(window.innerHeight - offset, event.data.global.y);
+      };
+      switch (true) {
+        case target.parent instanceof PPSocket &&
+          target instanceof PIXI.Graphics:
+        case target.parent instanceof PPSocket && target instanceof PIXI.Text:
+          console.log('app right click, socket');
+          setContextMenuPosition([contextMenuPosX, contextMenuPosY(80)]);
+          setSelectedSocket(target.parent as PPSocket);
+          setIsSocketContextMenuOpen(true);
+          break;
+        case target instanceof PPNode:
+          console.log('app right click, node');
+          setContextMenuPosition([contextMenuPosX, contextMenuPosY(220)]);
+          setIsNodeContextMenuOpen(true);
+          break;
+        case target instanceof Viewport:
+          console.log('app right click, viewport');
+          setContextMenuPosition([contextMenuPosX, contextMenuPosY(600)]);
+          setIsGraphContextMenuOpen(true);
+          break;
+        case target instanceof PPSelection:
+          setContextMenuPosition([
+            Math.min(
+              window.innerWidth - (CONTEXTMENU_WIDTH + 8),
+              event.data.global.x
+            ),
+            Math.min(window.innerHeight - 432, event.data.global.y),
+          ]);
+          setIsNodeContextMenuOpen(true);
+          break;
+        default:
+          console.log('app right click, something else');
+          break;
+      }
+    };
+
+    return () => { ids.forEach(id => InterfaceController.removeListener(id)) }
   });
 
   // addEventListener to graphSearchInput
@@ -760,7 +770,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         // remove selection flag
         selected.isNew = undefined;
       } else {
-        PPStorage.getInstance().loadGraph(selected.id, setActionObject, setGraphSearchActiveItem);
+        PPStorage.getInstance().loadGraph(selected.id);
       }
       setGraphSearchActiveItem(selected);
     }
@@ -983,7 +993,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
                   const deletedGraphID = PPStorage.getInstance().deleteGraph(actionObject.id);
                   updateGraphSearchItems();
                   if (actionObject.id == deletedGraphID) {
-                    PPStorage.getInstance().loadGraph(undefined, setActionObject, setGraphSearchActiveItem);
+                    PPStorage.getInstance().loadGraph();
                   }
                 }}
               >
@@ -1036,7 +1046,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               setIsGraphSearchOpen={setIsGraphSearchOpen}
               openNodeSearch={openNodeSearch}
               setShowEdit={setShowEdit}
-              loadGraph={(id: any) => PPStorage.getInstance().loadGraph(id, setActionObject, setGraphSearchActiveItem)}
+              loadGraph={(id: any) => PPStorage.getInstance().loadGraph(id)}
               saveGraph={() => PPStorage.getInstance().saveGraph(false, undefined, setActionObject, setGraphSearchActiveItem)}
               saveNewGraph={() => PPStorage.getInstance().saveNewGraph(undefined, setActionObject, setGraphSearchActiveItem)}
               downloadGraph={PPStorage.getInstance().downloadGraph}

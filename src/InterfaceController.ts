@@ -12,6 +12,7 @@ export enum ListenEvent {
   ViewportZoom, // data = Boolean
   GlobalPointerDown, // data = void TODO implement
   GlobalPointerUp, // data = event: PIXI.InteractionEvent
+  GraphChanged, // data = {id,name}
 }
 
 export default class InterfaceController {
@@ -22,6 +23,7 @@ export default class InterfaceController {
     3: {},
     4: {},
     5: {},
+    6: {}
   }; // not sure why this one is so messed up and needs these defined by default, very annoying
 
   // we use this listener structure here as there can be multiple listeners, not needed for everything (sometimes there is just one listener)

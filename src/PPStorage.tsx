@@ -1,5 +1,5 @@
 import { Viewport } from "pixi-viewport";
-import InterfaceController from "./InterfaceController";
+import InterfaceController, { ListenEvent } from "./InterfaceController";
 import { GESTUREMODE } from "./utils/constants";
 import { GraphDatabase } from "./utils/indexedDB";
 import { downloadFile, formatDate, getSetting, removeExtension, setGestureModeOnViewport } from "./utils/utils";
@@ -218,9 +218,7 @@ export default class PPStorage {
         }
     }
 
-
-    // TODO get rid of setActionObject and setGraphSearchActiveItem
-    async loadGraph(id = undefined, setActionObject: any, setGraphSearchActiveItem: any) {
+    async loadGraph(id = undefined) {
         let loadedGraph;
         await this.db
             .transaction('rw', this.db.graphs, this.db.settings, async () => {
@@ -256,15 +254,9 @@ export default class PPStorage {
             const graphData = loadedGraph.graphData;
             await PPGraph.currentGraph.configure(graphData, false);
 
-            // TODO what is this garbage, get rid of
-            setActionObject({
-                id: loadedGraph.id,
-                name: loadedGraph.name,
-            });
-            setGraphSearchActiveItem({
-                id: loadedGraph.id,
-                name: loadedGraph.name,
-            });
+
+            InterfaceController.notifyListeners(ListenEvent.GraphChanged, { id: loadedGraph.id, name: loadedGraph.name });
+
             InterfaceController.showSnackBar(`${loadedGraph.name} was loaded`);
         }
     }
