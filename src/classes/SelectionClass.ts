@@ -339,7 +339,7 @@ export default class PPSelection extends PIXI.Container {
     this.singleSelectionsGraphics.lineStyle(1, SELECTION_COLOR_HEX, 0.8);
 
     // draw single selections
-    this.selectedNodes.map((node) => {
+    this.selectedNodes.forEach((node) => {
       const nodeBounds = node._BackgroundRef.getBounds();
       this.singleSelectionsGraphics.drawRect(
         nodeBounds.x,

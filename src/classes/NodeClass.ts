@@ -748,7 +748,7 @@ export default class PPNode extends PIXI.Container {
   updateConnectionPosition(): void {
     // check for connections and move them too
     this.getAllSockets().forEach((socket) => {
-      socket.links.map((link) => {
+      socket.links.forEach((link) => {
         link.updateConnection();
       });
     });
@@ -1077,7 +1077,9 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     }
   }
 
-  _onViewportPointerUp(): void { }
+  _onViewportPointerUp(): void {
+    // override if desired
+  }
 
   public hasSocketNameInDefaultIO(name: string, type: TSocketType): boolean {
     return (
@@ -1097,11 +1099,21 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   }
 
   // observers
-  public socketTypeChanged(): void { }
-  public nameChanged(newName: string): void { }
-  public outputPlugged(): void { }
-  public outputUnplugged(): void { }
-  public nodeKeyEvent(e: KeyboardEvent): void { }
+  public socketTypeChanged(): void {
+    // override if you care about this event
+  }
+  public nameChanged(newName: string): void {
+    // override if you care about this event
+  }
+  public outputPlugged(): void {
+    // override if you care about this event
+  }
+  public outputUnplugged(): void {
+    // override if you care about this event
+  }
+  public nodeKeyEvent(e: KeyboardEvent): void {
+    // override if you care about this event
+  }
 
   // kinda hacky but some cant easily serialize functions in JS
   protected initializeType(socketName: string, datatype: any) { }

@@ -45,7 +45,6 @@ import {
   NodeContextMenu,
   SocketContextMenu,
 } from './components/ContextMenus';
-import { GraphDatabase } from './utils/indexedDB';
 import PPGraph from './classes/GraphClass';
 import {
   BASIC_VERTEX_SHADER,
@@ -54,7 +53,6 @@ import {
   COMMENT_TEXTSTYLE,
   CONTEXTMENU_WIDTH,
   DRAGANDDROP_GRID_MARGIN,
-  GESTUREMODE,
   GRID_SHADER,
   PLUGANDPLAY_ICON,
   RANDOMMAINCOLOR,
@@ -63,14 +61,9 @@ import { IGraphSearch, INodeSearch } from './utils/interfaces';
 import {
   connectNodeToSocket,
   convertBlobToBase64,
-  downloadFile,
-  formatDate,
   getDataFromClipboard,
   getNodeDataFromHtml,
   getNodeDataFromText,
-  getRemoteGraph,
-  getRemoteGraphsList,
-  getSetting,
   isEventComingFromWithinTextInput,
   removeExtension,
   roundNumber,
@@ -85,6 +78,7 @@ import { InputParser } from './utils/inputParser';
 import styles from './utils/style.module.css';
 import { ActionHandler } from './utils/actionHandler';
 import InterfaceController, { ListenEvent } from './InterfaceController';
+import PPStorage from './PPStorage';
 import PPSelection from './classes/SelectionClass';
 
 (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__ &&
@@ -109,20 +103,14 @@ fetch('https://plugandplayground.dev/buildInfo')
 const App = (): JSX.Element => {
   document.title = 'Your Plug and Playground';
 
-  // remote playground database
-  const githubBaseURL =
-    'https://api.github.com/repos/fakob/plug-and-play-examples';
-  const githubBranchName = 'dev';
 
   const mousePosition = { x: 0, y: 0 };
   const pixiDebugRef = new PIXI.Text('', COMMENT_TEXTSTYLE);
   pixiDebugRef.resolution = 1;
   pixiDebugRef.x = 4;
 
-  const db = new GraphDatabase();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const pixiApp = useRef<PIXI.Application | null>(null);
-  const currentGraph = useRef<PPGraph | null>(null);
   const pixiContext = useRef<HTMLDivElement | null>(null);
   const viewport = useRef<Viewport | null>(null);
   const overlayCommentContainer = useRef<PIXI.Container | null>(null);
@@ -203,8 +191,8 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         switch (extension) {
           case 'ppgraph':
             data = await response.text();
-            await currentGraph.current.configure(JSON.parse(data), false);
-            saveNewGraph(removeExtension(file.name));
+            await PPGraph.currentGraph.configure(JSON.parse(data), false);
+            PPStorage.getInstance().saveNewGraph(removeExtension(file.name));
             break;
           case 'csv':
           case 'ods':
@@ -215,7 +203,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           case 'xlsx':
             /* data is an ArrayBuffer */
             data = await response.arrayBuffer();
-            newNode = currentGraph.current.addNewNode('Table', {
+            newNode = PPGraph.currentGraph.addNewNode('Table', {
               nodePosX,
               nodePosY,
               initialData: data,
@@ -223,7 +211,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
             break;
           case 'txt':
             data = await response.text();
-            newNode = currentGraph.current.addNewNode('TextEditor', {
+            newNode = PPGraph.currentGraph.addNewNode('TextEditor', {
               nodePosX,
               nodePosY,
               initialData: { plain: data },
@@ -237,14 +225,14 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
             });
             if (base64) {
               if (
-                currentGraph.current.selection.selectedNodes?.[index]?.type ===
+                PPGraph.currentGraph.selection.selectedNodes?.[index]?.type ===
                 'Image'
               ) {
-                const existingNode = currentGraph.current.selection
+                const existingNode = PPGraph.currentGraph.selection
                   .selectedNodes[index] as ImageNode;
                 existingNode.updateTexture(base64 as string);
               } else {
-                newNode = await currentGraph.current.addNewNode('Image', {
+                newNode = PPGraph.currentGraph.addNewNode('Image', {
                   nodePosX,
                   nodePosY,
                   defaultArguments: { Image: base64 },
@@ -265,8 +253,8 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       }
       // select the newly added nodes
       if (newNodeSelection.length > 0) {
-        currentGraph.current.selection.selectNodes(newNodeSelection);
-        ensureVisible(currentGraph.current.selection.selectedNodes);
+        PPGraph.currentGraph.selection.selectNodes(newNodeSelection);
+        ensureVisible(PPGraph.currentGraph.selection.selectedNodes);
         enqueueSnackbar(
           `${newNodeSelection.length} new ${newNodeSelection.length === 1 ? 'node was' : 'nodes were'
           } added`
@@ -359,7 +347,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       // prevent default and copy selected nodes
       if (selection.toString() === '') {
         e.preventDefault();
-        const serializeSelection = currentGraph.current.serializeSelection();
+        const serializeSelection = PPGraph.currentGraph.serializeSelection();
         writeDataToClipboard(serializeSelection);
         console.log(serializeSelection);
       }
@@ -380,7 +368,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               data = getNodeDataFromText(clipboardBlobs[mimeType]);
             }
             e.preventDefault();
-            await currentGraph.current.pasteNodes(data, {
+            await PPGraph.currentGraph.pasteNodes(data, {
               x: mouseWorld.x,
               y: mouseWorld.y,
             });
@@ -391,8 +379,8 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           try {
             data = clipboardBlobs[mimeType];
             e.preventDefault();
-            if (currentGraph.current.selection.selectedNodes.length < 1) {
-              currentGraph.current.addNewNode('TextEditor', {
+            if (PPGraph.currentGraph.selection.selectedNodes.length < 1) {
+              PPGraph.currentGraph.addNewNode('TextEditor', {
                 nodePosX: mouseWorld.x,
                 nodePosY: mouseWorld.y,
                 initialData: {
@@ -446,6 +434,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     viewport.current.on('pointerup', (event: PIXI.InteractionEvent) => {
       InterfaceController.notifyListeners(ListenEvent.GlobalPointerUp, event);
     });
+
 
     // configure viewport
     viewport.current
@@ -518,31 +507,31 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     viewport.current.addChild(gridQuad);
 
     // add graph to pixiApp
-    currentGraph.current = new PPGraph(pixiApp.current, viewport.current);
+    PPGraph.currentGraph = new PPGraph(pixiApp.current, viewport.current);
 
     pixiApp.current.ticker.add(() => {
       const currentTime: number = new Date().getTime();
       const delta = currentTime - lastTimeTicked;
       lastTimeTicked = currentTime;
-      currentGraph.current.tick(currentTime, delta);
+      PPGraph.currentGraph.tick(currentTime, delta);
     });
 
     // load plug and playground settings
-    applyGestureMode(viewport.current);
+    PPStorage.getInstance().applyGestureMode(viewport.current);
 
     const urlParams = new URLSearchParams(window.location.search);
     const loadURL = urlParams.get('loadURL');
     console.log('loadURL: ', loadURL);
     if (loadURL) {
-      loadGraphFromURL(loadURL);
+      PPStorage.getInstance().loadGraphFromURL(loadURL);
     } else {
-      loadGraph();
+      PPStorage.getInstance().loadGraph();
     }
 
     setIsCurrentGraphLoaded(true);
-    console.log('currentGraph.current:', currentGraph.current);
+    console.log('PPGraph.currentGraph:', PPGraph.currentGraph);
 
-    getRemoteGraphsList(githubBaseURL, githubBranchName).then(
+    PPStorage.getInstance().getRemoteGraphsList().then(
       (arrayOfFileNames) => {
         console.log(arrayOfFileNames);
         setRemoteGraphs(
@@ -550,6 +539,115 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         );
       }
     );
+
+    // register key events
+    const keysDown = (e: KeyboardEvent): void => {
+      const modKey = isMac ? e.metaKey : e.ctrlKey;
+      if (!isEventComingFromWithinTextInput(e)) {
+        if (modKey && !e.shiftKey) {
+          switch (e.key.toLowerCase()) {
+            case 'a':
+              PPGraph.currentGraph.selection.selectAllNodes();
+              e.preventDefault();
+              break;
+            case 'f':
+              openNodeSearch(mousePosition);
+              e.preventDefault();
+              break;
+            case 'd':
+              PPGraph.currentGraph.duplicateSelection();
+              e.preventDefault();
+              break;
+            case 'o':
+              setIsGraphSearchOpen((prevState) => !prevState);
+              e.preventDefault();
+              break;
+            case 'e':
+              setShowEdit((prevState) => !prevState);
+              e.preventDefault();
+              break;
+            case 'z':
+              ActionHandler.undo();
+              e.preventDefault();
+              break;
+          }
+        } else if (modKey && e.shiftKey) {
+          switch (e.key.toLowerCase()) {
+            case 'y':
+              setShowComments((prevState) => !prevState);
+              break;
+            case 'x':
+              PPGraph.currentGraph.showExecutionVisualisation =
+                !PPGraph.currentGraph.showExecutionVisualisation;
+              break;
+            case 'z':
+              ActionHandler.redo();
+              break;
+          }
+        } else if (e.shiftKey) {
+          switch (e.code) {
+            case 'Digit1':
+              zoomToFitNodes();
+              break;
+            case 'Digit2':
+              zoomToFitNodes(PPGraph.currentGraph.selection.selectedNodes);
+              break;
+          }
+        } else if (e.altKey) {
+          switch (e.code) {
+            case 'KeyA':
+              console.log('alt a');
+              e.preventDefault();
+              PPGraph.currentGraph.sendKeyEvent(e);
+              break;
+          }
+        }
+      }
+      if (modKey && e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        if (e.shiftKey) {
+          PPStorage.getInstance().saveNewGraph();
+        } else {
+          PPStorage.getInstance().saveGraph(false);
+        }
+      } else if (e.key === 'Escape') {
+        setIsGraphSearchOpen(false);
+        setIsNodeSearchVisible(false);
+        setIsGraphContextMenuOpen(false);
+        setIsNodeContextMenuOpen(false);
+        setIsSocketContextMenuOpen(false);
+      }
+    };
+    window.addEventListener('keydown', keysDown.bind(this));
+
+    window.addEventListener('keydown', (e: KeyboardEvent) =>
+      InputParser.parseKeyDown(e, PPGraph.currentGraph)
+    );
+
+    window.addEventListener('keyup', (e: KeyboardEvent) => {
+      InputParser.parseKeyUp(e);
+    });
+
+    return () => {
+      // Passing the same reference
+      graphSearchInput.current.removeEventListener(
+        'focus',
+        updateGraphSearchItems
+      );
+    };
+  }, []);
+
+  useEffect(() => {
+    InterfaceController.showSnackBar = enqueueSnackbar;
+    InterfaceController.hideSnackBar = closeSnackbar;
+
+    // data has id and name
+    const ids = [];
+    ids.push(InterfaceController.addListener(ListenEvent.GraphChanged, (data: any) => {
+      setActionObject(data);
+      setGraphSearchActiveItem(data);
+    }));
+
 
     InterfaceController.onOpenNodeSearch = openNodeSearch;
 
@@ -603,106 +701,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       }
     };
 
-
-    // register key events
-    const keysDown = (e: KeyboardEvent): void => {
-      const modKey = isMac ? e.metaKey : e.ctrlKey;
-      if (!isEventComingFromWithinTextInput(e)) {
-        if (modKey && !e.shiftKey) {
-          switch (e.key.toLowerCase()) {
-            case 'a':
-              currentGraph.current.selection.selectAllNodes();
-              e.preventDefault();
-              break;
-            case 'f':
-              openNodeSearch(mousePosition);
-              e.preventDefault();
-              break;
-            case 'd':
-              currentGraph.current.duplicateSelection();
-              e.preventDefault();
-              break;
-            case 'o':
-              setIsGraphSearchOpen((prevState) => !prevState);
-              e.preventDefault();
-              break;
-            case 'e':
-              setShowEdit((prevState) => !prevState);
-              e.preventDefault();
-              break;
-            case 'z':
-              ActionHandler.undo();
-              e.preventDefault();
-              break;
-          }
-        } else if (modKey && e.shiftKey) {
-          switch (e.key.toLowerCase()) {
-            case 'y':
-              setShowComments((prevState) => !prevState);
-              break;
-            case 'x':
-              currentGraph.current.showExecutionVisualisation =
-                !currentGraph.current.showExecutionVisualisation;
-              break;
-            case 'z':
-              ActionHandler.redo();
-              break;
-          }
-        } else if (e.shiftKey) {
-          switch (e.code) {
-            case 'Digit1':
-              zoomToFitNodes();
-              break;
-            case 'Digit2':
-              zoomToFitNodes(currentGraph.current.selection.selectedNodes);
-              break;
-          }
-        } else if (e.altKey) {
-          switch (e.code) {
-            case 'KeyA':
-              console.log('alt a');
-              e.preventDefault();
-              currentGraph.current.sendKeyEvent(e);
-              break;
-          }
-        }
-      }
-      if (modKey && e.key.toLowerCase() === 's') {
-        e.preventDefault();
-        if (e.shiftKey) {
-          saveNewGraph();
-        } else {
-          saveGraph();
-        }
-      } else if (e.key === 'Escape') {
-        setIsGraphSearchOpen(false);
-        setIsNodeSearchVisible(false);
-        setIsGraphContextMenuOpen(false);
-        setIsNodeContextMenuOpen(false);
-        setIsSocketContextMenuOpen(false);
-      }
-    };
-    window.addEventListener('keydown', keysDown.bind(this));
-
-    window.addEventListener('keydown', (e: KeyboardEvent) =>
-      InputParser.parseKeyDown(e, currentGraph.current)
-    );
-
-    window.addEventListener('keyup', (e: KeyboardEvent) => {
-      InputParser.parseKeyUp(e);
-    });
-
-    return () => {
-      // Passing the same reference
-      graphSearchInput.current.removeEventListener(
-        'focus',
-        updateGraphSearchItems
-      );
-    };
-  }, []);
-
-  useEffect(() => {
-    InterfaceController.showSnackBar = enqueueSnackbar;
+    return () => { ids.forEach(id => InterfaceController.removeListener(id)) }
   });
 
   // addEventListener to graphSearchInput
@@ -742,303 +741,19 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       // wait before clearing clickedSocketRef
       // so handleNodeItemSelect has access
       setTimeout(() => {
-        currentGraph.current.stopConnecting();
+        PPGraph.currentGraph.stopConnecting();
       }, 100);
     }
   }, [isNodeSearchVisible]);
 
   useEffect(() => {
-    currentGraph.current.showComments = showComments;
+    PPGraph.currentGraph.showComments = showComments;
     overlayCommentContainer.current.visible = showComments;
   }, [showComments]);
 
-  function setGestureModeOnViewport(
-    viewport: Viewport,
-    gestureMode = undefined
-  ) {
-    viewport.wheel({
-      smooth: 3,
-      trackpadPinch: true,
-      wheelZoom: gestureMode === GESTUREMODE.TRACKPAD ? false : true,
-    });
-  }
-
-  function detectTrackPad(event) {
-    let isTrackpad = false;
-    if (event.wheelDeltaY) {
-      if (event.wheelDeltaY === event.deltaY * -3) {
-        isTrackpad = true;
-      }
-    } else if (event.deltaMode === 0) {
-      isTrackpad = true;
-    }
-
-    const gestureMode = isTrackpad ? GESTUREMODE.TRACKPAD : GESTUREMODE.MOUSE;
-    setGestureModeOnViewport(viewport.current, gestureMode);
-    enqueueSnackbar(`${gestureMode} detected`);
-
-    // unsubscribe from mousewheel again
-    window.removeEventListener('mousewheel', detectTrackPad);
-    window.removeEventListener('DOMMouseScroll', detectTrackPad);
-  }
-
-  function applyGestureMode(viewport: Viewport, newGestureMode = undefined) {
-    db.transaction('rw', db.settings, async () => {
-      let gestureMode = newGestureMode;
-      if (gestureMode) {
-        // save newGestureMode
-        await db.settings.put({
-          name: 'gestureMode',
-          value: gestureMode,
-        });
-      } else {
-        // get saved gestureMode
-        gestureMode = await getSetting(db, 'gestureMode');
-        console.log(gestureMode);
-      }
-
-      if (
-        gestureMode === GESTUREMODE.MOUSE ||
-        gestureMode === GESTUREMODE.TRACKPAD
-      ) {
-        setGestureModeOnViewport(viewport, gestureMode);
-        enqueueSnackbar(`GestureMode is set to: ${gestureMode}`);
-      } else {
-        // subscribe to mousewheel event to detect pointer device
-        window.addEventListener('mousewheel', detectTrackPad, false);
-        window.addEventListener('DOMMouseScroll', detectTrackPad, false);
-      }
-    }).catch((e) => {
-      console.log(e.stack || e);
-    });
-  }
-
-  function downloadGraph() {
-    db.transaction('rw', db.graphs, db.settings, async () => {
-      const loadedGraphId = await getSetting(db, 'loadedGraphId');
-      const graph = await db.graphs.where('id').equals(loadedGraphId).first();
-
-      const serializedGraph = currentGraph.current.serialize();
-      downloadFile(
-        JSON.stringify(serializedGraph, null, 2),
-        `${graph?.name} - ${formatDate()}.ppgraph`,
-        'text/plain'
-      );
-      enqueueSnackbar('Playground was saved to your Download folder');
-    }).catch((e) => {
-      console.log(e.stack || e);
-    });
-  }
 
   function uploadGraph() {
     open();
-  }
-
-  function renameGraph(graphId: number, newName = undefined) {
-    db.transaction('rw', db.graphs, db.settings, async () => {
-      const id = await db.graphs.where('id').equals(graphId).modify({
-        name: newName,
-      });
-      setActionObject({ id: graphId, name: newName });
-      updateGraphSearchItems();
-      console.log(`Renamed graph: ${id} to ${newName}`);
-      enqueueSnackbar(`Playground was renamed to ${newName}`);
-    }).catch((e) => {
-      console.log(e.stack || e);
-    });
-  }
-
-  function deleteGraph(graphId: string) {
-    console.log(graphId);
-    db.transaction('rw', db.graphs, db.settings, async () => {
-      const loadedGraphId = await getSetting(db, 'loadedGraphId');
-
-      const id = await db.graphs.where('id').equals(graphId).delete();
-      updateGraphSearchItems();
-      console.log(`Deleted graph: ${id}`);
-      enqueueSnackbar('Playground was deleted');
-
-      // if the current graph was deleted load last saved graph
-      if (loadedGraphId === graphId) {
-        loadGraph();
-      }
-    }).catch((e) => {
-      console.log(e.stack || e);
-    });
-  }
-
-  function saveGraph(saveNew = false, newName = undefined) {
-    const serializedGraph = currentGraph.current.serialize();
-    console.log(serializedGraph);
-    db.transaction('rw', db.graphs, db.settings, async () => {
-      const graphs = await db.graphs.toArray();
-      const loadedGraphId = await getSetting(db, 'loadedGraphId');
-
-      const id = hri.random();
-      const tempName = id.substring(0, id.lastIndexOf('-')).replace('-', ' ');
-
-      const loadedGraph = graphs.find((graph) => graph.id === loadedGraphId);
-
-      if (saveNew || graphs.length === 0 || loadedGraph === undefined) {
-        const name = newName ?? tempName;
-        const indexId = await db.graphs.put({
-          id,
-          date: new Date(),
-          name,
-          graphData: serializedGraph,
-        });
-
-        // save loadedGraphId
-        await db.settings.put({
-          name: 'loadedGraphId',
-          value: id,
-        });
-
-        setActionObject({ id, name });
-        setGraphSearchActiveItem({ id, name });
-
-        console.log(`Saved new graph: ${indexId}`);
-        enqueueSnackbar('New playground was saved');
-      } else {
-        const indexId = await db.graphs
-          .where('id')
-          .equals(loadedGraphId)
-          .modify({
-            date: new Date(),
-            graphData: serializedGraph,
-          });
-        console.log(`Updated currentGraph: ${indexId}`);
-        enqueueSnackbar('Playground was saved');
-      }
-    }).catch((e) => {
-      console.log(e.stack || e);
-    });
-  }
-
-  function saveNewGraph(newName = undefined) {
-    saveGraph(true, newName);
-  }
-
-  async function loadGraph(id = undefined) {
-    let loadedGraph;
-    await db
-      .transaction('rw', db.graphs, db.settings, async () => {
-        const graphs = await db.graphs.toArray();
-        const loadedGraphId = await getSetting(db, 'loadedGraphId');
-
-        if (graphs.length > 0) {
-          loadedGraph = graphs.find(
-            (graph) => graph.id === (id || loadedGraphId)
-          );
-
-          // check if graph exists and load last saved graph if it does not
-          if (loadedGraph === undefined) {
-            loadedGraph = graphs.reduce((a, b) => {
-              return new Date(a.date) > new Date(b.date) ? a : b;
-            });
-          }
-
-          // update loadedGraphId
-          await db.settings.put({
-            name: 'loadedGraphId',
-            value: loadedGraph.id,
-          });
-        } else {
-          console.log('No saved graphData');
-        }
-      })
-      .catch((e) => {
-        console.log(e.stack || e);
-      });
-
-    if (loadedGraph) {
-      const graphData = loadedGraph.graphData;
-      await currentGraph.current.configure(graphData, false);
-
-      setActionObject({
-        id: loadedGraph.id,
-        name: loadedGraph.name,
-      });
-      setGraphSearchActiveItem({
-        id: loadedGraph.id,
-        name: loadedGraph.name,
-      });
-      enqueueSnackbar(`${loadedGraph.name} was loaded`);
-    }
-  }
-
-  async function loadGraphFromURL(loadURL: string) {
-    try {
-      const file = await fetch(loadURL, {});
-      const fileData = await file.json();
-      console.log(fileData);
-      currentGraph.current.configure(fileData);
-
-      // unset loadedGraphId
-      await db.settings.put({
-        name: 'loadedGraphId',
-        value: undefined,
-      });
-
-      const newName = hri.random();
-      enqueueSnackbar('Playground from link in URL was loaded', {
-        variant: 'default',
-        autoHideDuration: 20000,
-        action: (key) => (
-          <>
-            <Button size="small" onClick={() => saveNewGraph(newName)}>
-              Save
-            </Button>
-            <Button size="small" onClick={() => closeSnackbar(key)}>
-              Dismiss
-            </Button>
-          </>
-        ),
-      });
-      return fileData;
-    } catch (error) {
-      enqueueSnackbar(
-        `Loading playground from link in URL failed: ${loadURL}`,
-        {
-          variant: 'error',
-          autoHideDuration: 20000,
-        }
-      );
-      return undefined;
-    }
-  }
-
-  async function cloneRemoteGraph(id = undefined) {
-    const nameOfFileToClone = remoteGraphsRef.current[id];
-    const fileData = await getRemoteGraph(
-      githubBaseURL,
-      githubBranchName,
-      nameOfFileToClone
-    );
-    console.log(fileData);
-    currentGraph.current.configure(fileData);
-
-    // unset loadedGraphId
-    await db.settings.put({
-      name: 'loadedGraphId',
-      value: undefined,
-    });
-
-    const newName = `${removeExtension(remoteGraphsRef.current[id])} - copy`; // remove .ppgraph extension and add copy
-    enqueueSnackbar('Remote playground was loaded', {
-      variant: 'default',
-      autoHideDuration: 20000,
-      action: (key) => (
-        <>
-          <Button size="small" onClick={() => saveNewGraph(newName)}>
-            Save
-          </Button>
-          <Button size="small" onClick={() => closeSnackbar(key)}>
-            Dismiss
-          </Button>
-        </>
-      ),
-    });
   }
 
   const handleGraphItemSelect = (event, selected: IGraphSearch) => {
@@ -1046,15 +761,15 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     setIsGraphSearchOpen(false);
 
     if (selected.isRemote) {
-      cloneRemoteGraph(selected.id);
+      PPStorage.getInstance().cloneRemoteGraph(selected.id, remoteGraphsRef);
     } else {
       if (selected.isNew) {
-        currentGraph.current.clear();
-        saveNewGraph(selected.name);
+        PPGraph.currentGraph.clear();
+        PPStorage.getInstance().saveNewGraph(selected.name);
         // remove selection flag
         selected.isNew = undefined;
       } else {
-        loadGraph(selected.id);
+        PPStorage.getInstance().loadGraph(selected.id);
       }
       setGraphSearchActiveItem(selected);
     }
@@ -1062,9 +777,9 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
 
   const action_AddOrReplaceNode = async (event, selected: INodeSearch) => {
     const referenceID = hri.random();
-    const addLink = currentGraph.current.selectedSourceSocket;
+    const addLink = PPGraph.currentGraph.selectedSourceSocket;
 
-    if (currentGraph.current.selection.selectedNodes.length === 1 && !addLink) {
+    if (PPGraph.currentGraph.selection.selectedNodes.length === 1 && !addLink) {
       // replace node if there is exactly one node selected
       const newNodeType = selected.title;
       const oldNode = PPGraph.currentGraph.selection.selectedNodes[0];
@@ -1092,7 +807,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       // add node
       // store link before search gets hidden and temp connection gets reset
       const nodePos =
-        currentGraph.current.overrideNodeCursorPosition ??
+        PPGraph.currentGraph.overrideNodeCursorPosition ??
         viewport.current.toWorld(
           new PIXI.Point(contextMenuPosition[0], contextMenuPosition[1])
         );
@@ -1101,13 +816,13 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         let addedNode: PPNode;
         const nodeExists = getAllNodeTypes()[selected.title] !== undefined;
         if (nodeExists) {
-          addedNode = await currentGraph.current.addNewNode(selected.title, {
+          addedNode = PPGraph.currentGraph.addNewNode(selected.title, {
             overrideId: referenceID,
             nodePosX: nodePos.x,
             nodePosY: nodePos.y,
           });
         } else {
-          addedNode = await currentGraph.current.addNewNode('CustomFunction', {
+          addedNode = PPGraph.currentGraph.addNewNode('CustomFunction', {
             overrideId: referenceID,
             nodePosX: nodePos.x,
             nodePosY: nodePos.y,
@@ -1144,7 +859,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
   const nodeSearchInputBlurred = () => {
     console.log('nodeSearchInputBlurred');
     setIsNodeSearchVisible(false);
-    currentGraph.current.selectedSourceSocket = null;
+    PPGraph.currentGraph.selectedSourceSocket = null;
   };
 
   const ResultsWithHeader = ({ children, ...other }) => {
@@ -1197,7 +912,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         });
       }
 
-      const graphs = await db.graphs.toCollection().sortBy('date');
+      const graphs: any[] = await PPStorage.getInstance().getGraphs();
       const newGraphSearchItems = graphs.map((graph) => {
         return {
           id: graph.id,
@@ -1222,7 +937,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       console.log(allGraphSearchItems);
       setGraphSearchItems(allGraphSearchItems);
 
-      const loadedGraphId = await getSetting(db, 'loadedGraphId');
+      const loadedGraphId = PPStorage.getInstance().getLoadedGraphID();
       const loadedGraphIndex = allGraphSearchItems.findIndex(
         (graph) => graph.id === loadedGraphId
       );
@@ -1235,7 +950,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       document.getElementById('playground-name-input') as HTMLInputElement
     ).value;
     setShowEdit(false);
-    renameGraph(actionObject.id, name);
+    PPStorage.getInstance().renameGraph(actionObject.id, name, setActionObject, updateGraphSearchItems);
   };
 
   return (
@@ -1274,7 +989,11 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               <Button
                 onClick={() => {
                   setShowDeleteGraph(false);
-                  deleteGraph(actionObject.id);
+                  const deletedGraphID = PPStorage.getInstance().deleteGraph(actionObject.id);
+                  updateGraphSearchItems();
+                  if (actionObject.id == deletedGraphID) {
+                    PPStorage.getInstance().loadGraph();
+                  }
                 }}
               >
                 Delete
@@ -1322,18 +1041,18 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
             <GraphContextMenu
               controlOrMetaKey={controlOrMetaKey}
               contextMenuPosition={contextMenuPosition}
-              currentGraph={currentGraph}
+              currentGraph={PPGraph.currentGraph}
               setIsGraphSearchOpen={setIsGraphSearchOpen}
               openNodeSearch={openNodeSearch}
               setShowEdit={setShowEdit}
-              loadGraph={loadGraph}
-              saveGraph={saveGraph}
-              saveNewGraph={saveNewGraph}
-              downloadGraph={downloadGraph}
+              loadGraph={PPStorage.getInstance().loadGraph}
+              saveGraph={PPStorage.getInstance().saveGraph}
+              saveNewGraph={PPStorage.getInstance().saveNewGraph}
+              downloadGraph={PPStorage.getInstance().downloadGraph}
               uploadGraph={uploadGraph}
               showComments={showComments}
               setShowComments={setShowComments}
-              applyGestureMode={applyGestureMode}
+              applyGestureMode={() => PPStorage.getInstance().applyGestureMode(viewport.current)}
               zoomToFitNodes={zoomToFitNodes}
             />
           )}
@@ -1341,7 +1060,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
             <NodeContextMenu
               controlOrMetaKey={controlOrMetaKey}
               contextMenuPosition={contextMenuPosition}
-              currentGraph={currentGraph}
+              currentGraph={PPGraph.currentGraph}
               openNodeSearch={openNodeSearch}
               zoomToFitSelection={zoomToFitNodes}
             />
@@ -1350,13 +1069,13 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
             <SocketContextMenu
               controlOrMetaKey={controlOrMetaKey}
               contextMenuPosition={contextMenuPosition}
-              currentGraph={currentGraph}
+              currentGraph={PPGraph.currentGraph}
               selectedSocket={selectedSocket}
             />
           )}
           <PixiContainer ref={pixiContext} />
           <GraphOverlay
-            currentGraph={currentGraph.current}
+            currentGraph={PPGraph.currentGraph}
             randomMainColor={RANDOMMAINCOLOR}
           />
           <img
