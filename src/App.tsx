@@ -1049,20 +1049,12 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
             <GraphContextMenu
               controlOrMetaKey={controlOrMetaKey}
               contextMenuPosition={contextMenuPosition}
-              currentGraph={PPGraph.currentGraph}
               setIsGraphSearchOpen={setIsGraphSearchOpen}
               openNodeSearch={openNodeSearch}
               setShowEdit={setShowEdit}
-              loadGraph={PPStorage.getInstance().loadGraph}
-              saveGraph={PPStorage.getInstance().saveGraph}
-              saveNewGraph={PPStorage.getInstance().saveNewGraph}
-              downloadGraph={PPStorage.getInstance().downloadGraph}
               uploadGraph={uploadGraph}
               showComments={showComments}
               setShowComments={setShowComments}
-              applyGestureMode={() =>
-                PPStorage.getInstance().applyGestureMode(viewport.current)
-              }
               zoomToFitNodes={zoomToFitNodes}
             />
           )}

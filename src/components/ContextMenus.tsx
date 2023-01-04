@@ -32,6 +32,7 @@ import SwipeIcon from '@mui/icons-material/Swipe';
 import PPSocket from './../classes/SocketClass';
 import { GESTUREMODE, CONTEXTMENU_WIDTH } from '../utils/constants';
 import PPGraph from '../classes/GraphClass';
+import PPStorage from '../PPStorage';
 
 const useStyles = makeStyles((theme) =>
   createStyles({
@@ -162,11 +163,7 @@ export const GraphContextMenu = (props) => {
             {`${props.controlOrMetaKey}+E`}
           </Typography>
         </MenuItem>
-        <MenuItem
-          onClick={() => {
-            props.saveGraph();
-          }}
-        >
+        <MenuItem onClick={() => PPStorage.getInstance().saveGraph()}>
           <ListItemIcon>
             <SaveIcon fontSize="small" />
           </ListItemIcon>
@@ -175,11 +172,7 @@ export const GraphContextMenu = (props) => {
             {`${props.controlOrMetaKey}+S`}
           </Typography>
         </MenuItem>
-        <MenuItem
-          onClick={() => {
-            props.saveNewGraph();
-          }}
-        >
+        <MenuItem onClick={() => PPStorage.getInstance().saveNewGraph()}>
           <ListItemIcon>
             <SaveAsIcon fontSize="small" />
           </ListItemIcon>
@@ -188,11 +181,7 @@ export const GraphContextMenu = (props) => {
             {`${props.controlOrMetaKey}+Shift+S`}
           </Typography>
         </MenuItem>
-        <MenuItem
-          onClick={() => {
-            props.downloadGraph();
-          }}
-        >
+        <MenuItem onClick={() => PPStorage.getInstance().downloadGraph()}>
           <ListItemIcon>
             <DownloadIcon fontSize="small" />
           </ListItemIcon>
@@ -247,7 +236,7 @@ export const GraphContextMenu = (props) => {
         <SubMenuItem autoFocus={false} label="Gesture mode">
           <MenuItem
             onClick={() => {
-              props.applyGestureMode(
+              PPStorage.getInstance().applyGestureMode(
                 PPGraph.currentGraph.viewport,
                 GESTUREMODE.MOUSE
               );
@@ -260,7 +249,7 @@ export const GraphContextMenu = (props) => {
           </MenuItem>
           <MenuItem
             onClick={() => {
-              props.applyGestureMode(
+              PPStorage.getInstance().applyGestureMode(
                 PPGraph.currentGraph.viewport,
                 GESTUREMODE.TRACKPAD
               );
@@ -273,7 +262,7 @@ export const GraphContextMenu = (props) => {
           </MenuItem>
           <MenuItem
             onClick={() => {
-              props.applyGestureMode(
+              PPStorage.getInstance().applyGestureMode(
                 PPGraph.currentGraph.viewport,
                 GESTUREMODE.AUTO
               );
@@ -317,19 +306,20 @@ export const GraphContextMenu = (props) => {
   );
 };
 
-
 function constructListOptions(options: any): any {
-  return Object.keys(options).map(key => {
-    return < div key={key}> <MenuItem
-      onClick={options[key]}
-    >
-      <ListItemIcon>
-        <AddIcon fontSize="small" />
-      </ListItemIcon>
-      <ListItemText>{key}</ListItemText>
-    </MenuItem></div >
-  }
-  );
+  return Object.keys(options).map((key) => {
+    return (
+      <div key={key}>
+        {' '}
+        <MenuItem onClick={options[key]}>
+          <ListItemIcon>
+            <AddIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>{key}</ListItemText>
+        </MenuItem>
+      </div>
+    );
+  });
 }
 
 export const NodeContextMenu = (props) => {
@@ -362,9 +352,7 @@ export const NodeContextMenu = (props) => {
       <MenuList dense>
         <MenuItem
           onClick={() => {
-            props.zoomToFitNodes(
-              PPGraph.currentGraph.selection.selectedNodes
-            );
+            props.zoomToFitNodes(PPGraph.currentGraph.selection.selectedNodes);
           }}
         >
           <ListItemIcon>
@@ -445,7 +433,12 @@ export const NodeContextMenu = (props) => {
           </ListItemIcon>
           <ListItemText>Extract to Macro</ListItemText>
         </MenuItem>
-        {PPGraph.currentGraph && PPGraph.currentGraph.selection.selectedNodes.length > 0 ? constructListOptions(PPGraph.currentGraph.selection.selectedNodes[0].getAdditionalRightClickOptions()) : ""}
+        {PPGraph.currentGraph &&
+        PPGraph.currentGraph.selection.selectedNodes.length > 0
+          ? constructListOptions(
+              PPGraph.currentGraph.selection.selectedNodes[0].getAdditionalRightClickOptions()
+            )
+          : ''}
       </MenuList>
     </Paper>
   );
