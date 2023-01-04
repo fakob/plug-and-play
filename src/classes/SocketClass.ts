@@ -18,6 +18,7 @@ import { TriggerType } from '../nodes/datatypes/triggerType';
 import { dataToType, serializeType } from '../nodes/datatypes/typehelper';
 import { getCurrentCursorPosition } from '../utils/utils';
 import { TextStyle } from 'pixi.js';
+import InterfaceController from '../InterfaceController';
 
 export default class Socket extends PIXI.Container {
   // Input sockets
@@ -73,8 +74,6 @@ export default class Socket extends PIXI.Container {
     this.interactionData = null;
     this.interactive = true;
 
-
-
     this.redrawAnythingChanging();
   }
 
@@ -99,7 +98,6 @@ export default class Socket extends PIXI.Container {
     );
   }
 
-
   redrawMetaText() {
     this.removeChild(this._MetaText);
     this._MetaText.text = this.dataType.getMetaText(this.data);
@@ -108,13 +106,15 @@ export default class Socket extends PIXI.Container {
     this.addChild(this._MetaText);
   }
 
-
   redrawAnythingChanging(): void {
     this.removeChildren();
-    this._MetaText = new PIXI.Text("", new TextStyle({
-      fontSize: 8,
-      fill: COLOR_MAIN,
-    }));
+    this._MetaText = new PIXI.Text(
+      '',
+      new TextStyle({
+        fontSize: 8,
+        fill: COLOR_MAIN,
+      })
+    );
     if (!this.isInput()) {
       this._MetaText.anchor.set(1, 0);
     }
@@ -138,7 +138,6 @@ export default class Socket extends PIXI.Container {
     );
     this.drawSocket(this._SelectionBox, false);
 
-
     this.redrawMetaText();
 
     if (this.showLabel) {
@@ -156,7 +155,6 @@ export default class Socket extends PIXI.Container {
 
       this._TextRef.pivot = new PIXI.Point(0, SOCKET_WIDTH / 2);
 
-
       this._TextRef.interactive = true;
       this._TextRef.on('pointerover', this._onPointerOver.bind(this));
       this._TextRef.on('pointerout', this._onPointerOut.bind(this));
@@ -173,6 +171,10 @@ export default class Socket extends PIXI.Container {
     this._SocketRef.on('pointerover', this._onPointerOver.bind(this));
     this._SocketRef.on('pointerout', this._onPointerOut.bind(this));
     this._SocketRef.on('pointerdown', (event) => this._onPointerDown(event));
+    this._SocketRef.on('rightclick', (event) => {
+      event.stopPropagation();
+      InterfaceController.onSocketRightClick(event, this);
+    });
     this._SocketRef.on('pointerup', (event) => this._onPointerUp(event));
     this.addChild(this._SelectionBox);
     this.addChild(this._SocketRef);

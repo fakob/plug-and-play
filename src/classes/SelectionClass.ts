@@ -69,7 +69,9 @@ export default class PPSelection extends PIXI.Container {
     this.on('pointerupoutside', this.onPointerUpAndUpOutside.bind(this));
     this.on('pointerup', this.onPointerUpAndUpOutside.bind(this));
     this.on('pointerover', this.onPointerOver.bind(this));
-    this.on('rightclick', event => InterfaceController.onRightClick(event, event.target));
+    this.on('rightclick', (event) =>
+      InterfaceController.onRightClick(event, event.target)
+    );
     this.viewport.on('moved', (this as any).onViewportMoved.bind(this));
 
     this.onMoveHandler = this.onMove.bind(this);
@@ -101,7 +103,6 @@ export default class PPSelection extends PIXI.Container {
     this.selectedNodes[0].resetSize();
     this.drawRectanglesFromSelection();
   };
-
 
   public startDragAction(event: PIXI.InteractionEvent) {
     this.cursor = 'move';
