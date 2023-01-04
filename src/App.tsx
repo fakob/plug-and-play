@@ -103,7 +103,6 @@ fetch('https://plugandplayground.dev/buildInfo')
 const App = (): JSX.Element => {
   document.title = 'Your Plug and Playground';
 
-
   const mousePosition = { x: 0, y: 0 };
   const pixiDebugRef = new PIXI.Text('', COMMENT_TEXTSTYLE);
   pixiDebugRef.resolution = 1;
@@ -152,11 +151,12 @@ const App = (): JSX.Element => {
     const viewportScreenX = Math.round(viewport.current.x);
     const viewportScreenY = Math.round(viewport.current.y);
     const viewportScale = roundNumber(viewport.current.scale.x);
-    pixiDebugRef.text = `Mouse position (world): ${mousePosition.x}, ${mousePosition.y
-      } (${mouseWorldX}, ${mouseWorldY})
+    pixiDebugRef.text = `Mouse position (world): ${mousePosition.x}, ${
+      mousePosition.y
+    } (${mouseWorldX}, ${mouseWorldY})
 Viewport position (scale): ${viewportScreenX}, ${Math.round(
-        viewportScreenY
-      )} (${viewportScale})`;
+      viewportScreenY
+    )} (${viewportScale})`;
   };
 
   // react-dropzone
@@ -256,7 +256,8 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         PPGraph.currentGraph.selection.selectNodes(newNodeSelection);
         ensureVisible(PPGraph.currentGraph.selection.selectedNodes);
         enqueueSnackbar(
-          `${newNodeSelection.length} new ${newNodeSelection.length === 1 ? 'node was' : 'nodes were'
+          `${newNodeSelection.length} new ${
+            newNodeSelection.length === 1 ? 'node was' : 'nodes were'
           } added`
         );
       }
@@ -280,19 +281,19 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     () => ({
       ...(isDragActive
         ? {
-          opacity: 0.5,
-        }
+            opacity: 0.5,
+          }
         : {}),
       ...(isDragAccept
         ? {
-          backgroundColor: RANDOMMAINCOLOR,
-          opacity: 0.5,
-        }
+            backgroundColor: RANDOMMAINCOLOR,
+            opacity: 0.5,
+          }
         : {}),
       ...(isDragReject
         ? {
-          backgroundColor: '#FF0000',
-        }
+            backgroundColor: '#FF0000',
+          }
         : {}),
     }),
     [isDragActive, isDragReject, isDragAccept]
@@ -435,7 +436,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       InterfaceController.notifyListeners(ListenEvent.GlobalPointerUp, event);
     });
 
-
     // configure viewport
     viewport.current
       .drag({
@@ -531,14 +531,14 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     setIsCurrentGraphLoaded(true);
     console.log('PPGraph.currentGraph:', PPGraph.currentGraph);
 
-    PPStorage.getInstance().getRemoteGraphsList().then(
-      (arrayOfFileNames) => {
+    PPStorage.getInstance()
+      .getRemoteGraphsList()
+      .then((arrayOfFileNames) => {
         console.log(arrayOfFileNames);
         setRemoteGraphs(
           arrayOfFileNames.filter((file) => file.endsWith('.ppgraph'))
         );
-      }
-    );
+      });
 
     // register key events
     const keysDown = (e: KeyboardEvent): void => {
@@ -643,11 +643,12 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
 
     // data has id and name
     const ids = [];
-    ids.push(InterfaceController.addListener(ListenEvent.GraphChanged, (data: any) => {
-      setActionObject(data);
-      setGraphSearchActiveItem(data);
-    }));
-
+    ids.push(
+      InterfaceController.addListener(ListenEvent.GraphChanged, (data: any) => {
+        setActionObject(data);
+        setGraphSearchActiveItem(data);
+      })
+    );
 
     InterfaceController.onOpenNodeSearch = openNodeSearch;
 
@@ -667,8 +668,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         return Math.min(window.innerHeight - offset, event.data.global.y);
       };
       switch (true) {
-        case target.parent instanceof PPSocket &&
-          target instanceof PIXI.Graphics:
+        case target.parent instanceof PPSocket:
         case target.parent instanceof PPSocket && target instanceof PIXI.Text:
           console.log('app right click, socket');
           setContextMenuPosition([contextMenuPosX, contextMenuPosY(80)]);
@@ -701,7 +701,9 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       }
     };
 
-    return () => { ids.forEach(id => InterfaceController.removeListener(id)) }
+    return () => {
+      ids.forEach((id) => InterfaceController.removeListener(id));
+    };
   });
 
   // addEventListener to graphSearchInput
@@ -750,7 +752,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     PPGraph.currentGraph.showComments = showComments;
     overlayCommentContainer.current.visible = showComments;
   }, [showComments]);
-
 
   function uploadGraph() {
     open();
@@ -950,7 +951,12 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       document.getElementById('playground-name-input') as HTMLInputElement
     ).value;
     setShowEdit(false);
-    PPStorage.getInstance().renameGraph(actionObject.id, name, setActionObject, updateGraphSearchItems);
+    PPStorage.getInstance().renameGraph(
+      actionObject.id,
+      name,
+      setActionObject,
+      updateGraphSearchItems
+    );
   };
 
   return (
@@ -989,7 +995,9 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               <Button
                 onClick={() => {
                   setShowDeleteGraph(false);
-                  const deletedGraphID = PPStorage.getInstance().deleteGraph(actionObject.id);
+                  const deletedGraphID = PPStorage.getInstance().deleteGraph(
+                    actionObject.id
+                  );
                   updateGraphSearchItems();
                   if (actionObject.id == deletedGraphID) {
                     PPStorage.getInstance().loadGraph();
@@ -1052,7 +1060,9 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               uploadGraph={uploadGraph}
               showComments={showComments}
               setShowComments={setShowComments}
-              applyGestureMode={() => PPStorage.getInstance().applyGestureMode(viewport.current)}
+              applyGestureMode={() =>
+                PPStorage.getInstance().applyGestureMode(viewport.current)
+              }
               zoomToFitNodes={zoomToFitNodes}
             />
           )}

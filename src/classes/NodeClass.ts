@@ -1006,7 +1006,9 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
       PPGraph.currentGraph.selection.startDragAction(event);
     }
     if (event.data.button == 2) {
-      InterfaceController.onRightClick(event, this);
+      if (event.target == this){
+        InterfaceController.onRightClick(event, this);
+      }
       PPGraph.currentGraph.selection.stopDragAction();
     }
   }
