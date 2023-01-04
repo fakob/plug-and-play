@@ -159,7 +159,12 @@ export default abstract class HybridNode extends PPNode {
   public getContainerComponent(): React.FunctionComponent {
     return undefined;
   }
+
   public onNodeAdded(): void {
     super.onNodeAdded();
+  }
+
+  public getShrinkOnSocketRemove(): boolean {
+    return false;
   }
 }

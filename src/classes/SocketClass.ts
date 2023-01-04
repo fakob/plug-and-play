@@ -73,8 +73,6 @@ export default class Socket extends PIXI.Container {
     this.interactionData = null;
     this.interactive = true;
 
-
-
     this.redrawAnythingChanging();
   }
 
@@ -99,7 +97,6 @@ export default class Socket extends PIXI.Container {
     );
   }
 
-
   redrawMetaText() {
     this.removeChild(this._MetaText);
     this._MetaText.text = this.dataType.getMetaText(this.data);
@@ -108,13 +105,15 @@ export default class Socket extends PIXI.Container {
     this.addChild(this._MetaText);
   }
 
-
   redrawAnythingChanging(): void {
     this.removeChildren();
-    this._MetaText = new PIXI.Text("", new TextStyle({
-      fontSize: 8,
-      fill: COLOR_MAIN,
-    }));
+    this._MetaText = new PIXI.Text(
+      '',
+      new TextStyle({
+        fontSize: 8,
+        fill: COLOR_MAIN,
+      })
+    );
     if (!this.isInput()) {
       this._MetaText.anchor.set(1, 0);
     }
@@ -138,7 +137,6 @@ export default class Socket extends PIXI.Container {
     );
     this.drawSocket(this._SelectionBox, false);
 
-
     this.redrawMetaText();
 
     if (this.showLabel) {
@@ -155,7 +153,6 @@ export default class Socket extends PIXI.Container {
       this._TextRef.resolution = TEXT_RESOLUTION;
 
       this._TextRef.pivot = new PIXI.Point(0, SOCKET_WIDTH / 2);
-
 
       this._TextRef.interactive = true;
       this._TextRef.on('pointerover', this._onPointerOver.bind(this));
@@ -277,7 +274,7 @@ export default class Socket extends PIXI.Container {
       // visibility change can result in position change
       // therefore redraw Node and connected Links
       if (this.getNode().getShrinkOnSocketRemove()) {
-        this.getNode().resizeAndDraw(0, 0);
+        this.getNode().resizeAndDraw(this.getNode().nodeWidth, 0);
       } else {
         this.getNode().resizeAndDraw();
       }
