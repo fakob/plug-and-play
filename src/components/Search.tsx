@@ -12,6 +12,8 @@ import {
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import LinkIcon from '@mui/icons-material/Link';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { matchSorter } from 'match-sorter';
 import parse from 'autosuggest-highlight/parse';
 import match from 'autosuggest-highlight/match';
@@ -19,7 +21,7 @@ import PPGraph from '../classes/GraphClass';
 import { getAllNodeTypes } from '../nodes/allNodes';
 import { IGraphSearch, INodeSearch } from '../utils/interfaces';
 import { COLOR_DARK, COLOR_WHITE_TEXT } from '../utils/constants';
-import styles from '../utils/style.module.css';
+import { writeTextToClipboard } from '../utils/utils';
 
 export const GraphSearchInput = (props) => {
   const backgroundColor = Color(props.randommaincolor).alpha(0.8);
@@ -27,7 +29,6 @@ export const GraphSearchInput = (props) => {
     <TextField
       {...props}
       hiddenLabel
-      // className={styles.brightPlaceholder}
       inputRef={props.inputRef}
       variant="filled"
       placeholder="Search playgrounds"
@@ -93,6 +94,10 @@ export const renderGraphItem = (
 NOTE: save the playground after loading, if you want to make changes to it`
     : option.name;
   const optionLabel = option.label;
+  const url =
+    'https://plugandplayground.dev/?loadURL=https://raw.githubusercontent.com/fakob/plug-and-play-examples/dev/' +
+    option.name +
+    '.ppgraph';
   const itemToReturn = option.isDisabled ? (
     <Box {...props} key={option.id} component="li">
       {text}
@@ -130,30 +135,49 @@ NOTE: save the playground after loading, if you want to make changes to it`
         {optionLabel}
       </Box>
       {isRemote && (
-        <Box
+        <ButtonGroup
+          size="small"
           sx={{
-            py: 1,
-            px: 2,
-            fontSize: '12px',
-            fontStyle: 'italic',
-            opacity: '0.75',
             position: 'absolute',
-            right: '0px',
+            right: '8px',
             visibility: 'hidden',
             '.Mui-focused &': {
               visibility: 'visible',
             },
           }}
         >
-          Load remote playground
-        </Box>
+          <IconButton
+            size="small"
+            onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+              event.stopPropagation();
+              setIsGraphSearchOpen(false);
+              writeTextToClipboard(url);
+            }}
+            title="Copy URL"
+            className="menuItemButton"
+          >
+            <LinkIcon />
+          </IconButton>
+          <IconButton
+            size="small"
+            title="Open in new tab"
+            className="menuItemButton"
+            onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+              event.stopPropagation();
+              setIsGraphSearchOpen(false);
+              window.open(`${url}`, '_blank')?.focus();
+            }}
+          >
+            <OpenInNewIcon />
+          </IconButton>
+        </ButtonGroup>
       )}
       {!isRemote && (
         <ButtonGroup
           size="small"
           sx={{
             position: 'absolute',
-            right: '0px',
+            right: '8px',
             visibility: 'hidden',
             '.Mui-focused &': {
               visibility: 'visible',
