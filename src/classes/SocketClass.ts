@@ -274,7 +274,7 @@ export default class Socket extends PIXI.Container {
       // visibility change can result in position change
       // therefore redraw Node and connected Links
       if (this.getNode().getShrinkOnSocketRemove()) {
-        this.getNode().resizeAndDraw(0, 0);
+        this.getNode().resizeAndDraw(this.getNode().nodeWidth, 0);
       } else {
         this.getNode().resizeAndDraw();
       }
