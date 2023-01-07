@@ -258,4 +258,8 @@ export class Label extends PPNode {
   public onNodeRemoved = () => {
     this._refText.destroy();
   };
+
+  public getShrinkOnSocketRemove(): boolean {
+    return false;
+  }
 }
