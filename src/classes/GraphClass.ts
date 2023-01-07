@@ -437,6 +437,37 @@ export default class PPGraph {
     return node;
   }
 
+  async addSerializedLink(link: SerializedLink): Promise<void> {
+    const outputRef = this.getSocket(
+      link.sourceNodeId,
+      link.sourceSocketName,
+      SOCKET_TYPE.OUT
+    );
+    const inputRef = this.getSocket(
+      link.targetNodeId,
+      link.targetSocketName,
+      SOCKET_TYPE.IN
+    );
+    if (outputRef && inputRef) {
+      await this.connect(outputRef, inputRef, false);
+    } else {
+      console.warn(
+        `Link could not be created between ${link.sourceNodeId}/${
+          link.sourceSocketName
+        }${outputRef === undefined ? '-MISSING' : ''} and ${
+          link.targetNodeId
+        }/${link.targetSocketName}${inputRef === undefined ? '-MISSING' : ''}`
+      );
+      InterfaceController.showSnackBar(
+        'Some links could not be created. Check console for more info',
+        {
+          variant: 'warning',
+          preventDuplicate: true,
+        }
+      );
+    }
+  }
+
   addNewNode(type: string, customArgs: CustomArgs = {}): PPNode {
     const node = this.createNode(type, customArgs);
     this.addNode(node);
@@ -907,15 +938,10 @@ export default class PPGraph {
 
   async configure(data: SerializedGraph, keep_old = false): Promise<boolean> {
     this.ticking = false;
-    if (!data) {
-      return;
-    }
 
     if (!keep_old) {
       this.clear();
     }
-
-    let configureError = false;
 
     // position and scale viewport
     const newX = data.graphSettings.viewportCenterPosition.x ?? 0;
@@ -938,41 +964,11 @@ export default class PPGraph {
       );
 
       await Promise.all(
-        data.links.map(async (link) => {
-          const outputRef = this.getSocket(
-            link.sourceNodeId,
-            link.sourceSocketName,
-            SOCKET_TYPE.OUT
-          );
-          const inputRef = this.getSocket(
-            link.targetNodeId,
-            link.targetSocketName,
-            SOCKET_TYPE.IN
-          );
-          if (outputRef && inputRef) {
-            await this.connect(outputRef, inputRef, false);
-          } else {
-            console.warn(
-              `Link could not be created between ${link.sourceNodeId}/${
-                link.sourceSocketName
-              }${outputRef === undefined ? '-MISSING' : ''} and ${
-                link.targetNodeId
-              }/${link.targetSocketName}${
-                inputRef === undefined ? '-MISSING' : ''
-              }`
-            );
-            InterfaceController.showSnackBar(
-              'Some links could not be created. Check console for more info',
-              {
-                variant: 'warning',
-                preventDuplicate: true,
-              }
-            );
-          }
-        })
+        data.links.map(async (link) => await this.addSerializedLink(link))
       );
     } catch (error) {
-      configureError = error;
+      console.log(error);
+      return false;
     }
     // execute all seed nodes to make sure there are values everywhere
     await FlowLogic.executeOptimizedChainBatch(
@@ -981,7 +977,7 @@ export default class PPGraph {
 
     this.ticking = true;
 
-    return configureError;
+    return true;
   }
 
   getSocket(nodeID: string, socketName: string, type: TSocketType): PPSocket {
