@@ -521,11 +521,14 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
 
     const urlParams = new URLSearchParams(window.location.search);
     const loadURL = urlParams.get('loadURL');
-    console.log('loadURL: ', loadURL);
+    const createEmptyGraph = urlParams.get('new');
+    console.log('loadURL: ', loadURL, 'new', createEmptyGraph);
     if (loadURL) {
       PPStorage.getInstance().loadGraphFromURL(loadURL);
     } else {
-      PPStorage.getInstance().loadGraph();
+      if (!createEmptyGraph) {
+        PPStorage.getInstance().loadGraph();
+      }
     }
 
     setIsCurrentGraphLoaded(true);
