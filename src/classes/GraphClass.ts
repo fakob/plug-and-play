@@ -567,6 +567,13 @@ export default class PPGraph {
     const preTargetName = input.name;
     const preTargetNodeID = input.getNode().id;
 
+    // force socket to be visible
+    if (!input.visible) {
+      input.setVisible(true);
+    } else if (!output.visible) {
+      output.setVisible(true);
+    }
+
     const actions = this.getConnectActions(
       preSourceName,
       preSourceNodeID,
