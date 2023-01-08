@@ -7,6 +7,9 @@ import { darkThemeOverride } from './customTheme';
 
 export const PP_VERSION = 0.1;
 
+export const GET_STARTED_URL =
+  'https://raw.githubusercontent.com/fakob/plug-and-play-examples/dev/Get started - Welcome to Plug and Playground.ppgraph';
+
 export const GESTUREMODE = {
   MOUSE: 'Mouse',
   TRACKPAD: 'Trackpad',
