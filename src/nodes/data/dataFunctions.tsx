@@ -1,15 +1,22 @@
 /* eslint-disable @typescript-eslint/no-this-alias */
 import PPNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
-import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../../utils/constants';
+import {
+  COLOR_MAIN,
+  NODE_CORNERRADIUS,
+  NODE_MARGIN,
+  NODE_TYPE_COLOR,
+  SOCKET_TYPE,
+} from '../../utils/constants';
 import { CustomArgs, TRgba } from '../../utils/interfaces';
 import { AbstractType } from '../datatypes/abstractType';
 import { AnyType } from '../datatypes/anyType';
 import { ArrayType } from '../datatypes/arrayType';
-import { BooleanType } from '../datatypes/booleanType';
 import { CodeType } from '../datatypes/codeType';
 import { JSONType } from '../datatypes/jsonType';
 import { NumberType } from '../datatypes/numberType';
+import * as PIXI from 'pixi.js';
+import { TextStyle } from 'pixi.js';
 
 const arrayName = 'Array';
 const typeName = 'Type';
@@ -156,6 +163,7 @@ function getFunctionFromFunction(inputFunction: string): string {
 
 // customfunction does any number of inputs but only one output for simplicity
 export class CustomFunction extends PPNode {
+  modifiedBanner: PIXI.Graphics;
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(
@@ -197,6 +205,7 @@ export class CustomFunction extends PPNode {
     super(name, {
       ...customArgs,
     });
+    this.modifiedBanner = this.addChild(new PIXI.Graphics());
     // added this to make sure all sockets are in place before anything happens (caused visual issues on load before)
     this.adaptInputs(this.getInputData(anyCodeName));
   }
@@ -295,6 +304,37 @@ export class CustomFunction extends PPNode {
   public socketShouldAutomaticallyAdapt(socket: Socket): boolean {
     return socket.name !== anyCodeName;
   }
+
+  public drawNodeShape(): void {
+    this.modifiedBanner.clear();
+    this.modifiedBanner.removeChildren();
+
+    const width = 80;
+
+    if (this.getDefaultFunction() !== this.getInputData('Code')) {
+      //this.modifiedBanner.beginFill(TRgba.fromString('#FFD59E').hexNumber());
+      this.modifiedBanner.beginFill(this.getColor().multiply(0.8).hexNumber());
+      this.modifiedBanner.drawRoundedRect(
+        this.nodeWidth - width,
+        this.nodeHeight - 20,
+        width,
+        30,
+        NODE_CORNERRADIUS
+      );
+      const text = new PIXI.Text(
+        'Modified',
+        new TextStyle({
+          fontSize: 18,
+          fill: COLOR_MAIN,
+        })
+      );
+      text.x = this.nodeWidth - width + 5;
+      text.y = this.nodeHeight - 20 + 5;
+      this.modifiedBanner.addChild(text);
+    }
+
+    super.drawNodeShape();
+  }
 }
 
 class ArrayFunction extends CustomFunction {
@@ -348,7 +388,6 @@ export class Counts extends ArrayFunction {
       return Uniques.map(unique => [unique,ArrayIn.filter(entry => entry == unique).length])
     }`;
   }
-
 }
 
 export class Flatten extends ArrayFunction {

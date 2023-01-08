@@ -1,11 +1,19 @@
-import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
 import Socket from '../classes/SocketClass';
-import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../utils/constants';
+import {
+  COLOR_MAIN,
+  NODE_CORNERRADIUS,
+  NODE_MARGIN,
+  NODE_TYPE_COLOR,
+  SOCKET_TYPE,
+} from '../utils/constants';
 import { CustomArgs, TRgba } from '../utils/interfaces';
 import { NumberType } from './datatypes/numberType';
 import { EnumType } from './datatypes/enumType';
-
+import { CustomFunction } from './data/dataFunctions';
+import { AbstractType } from './datatypes/abstractType';
+import * as PIXI from 'pixi.js';
+import { TextStyle } from 'pixi.js';
 export class MathFunction extends PPNode {
   getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
@@ -93,60 +101,92 @@ export class MathFunction extends PPNode {
   }
 }
 
-abstract class SimpleMathOperation extends PPNode {
+abstract class SimpleMathOperation extends CustomFunction {
   public getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
   }
-  constructor(name: string, customArgs: CustomArgs) {
-    super(name, {
-      ...customArgs,
-    });
-  }
-  protected async onExecute(
-    inputObject: any,
-    outputObject: Record<string, unknown>
-  ): Promise<void> {
-    const a = inputObject['Input'];
-    const b = inputObject['Input 2'];
-    const result = this.getOperation(a, b);
-    outputObject['Output'] = result;
-  }
 
-  protected getDefaultIO(): Socket[] {
-    return [
-      this.getInput1(),
-      this.getInput2(),
-      new Socket(SOCKET_TYPE.OUT, 'Output', new NumberType()),
-    ];
-  }
-
-  protected getInput1(): Socket {
-    return new Socket(
-      SOCKET_TYPE.IN,
-      'Input',
-      new NumberType(false, -10, 10),
-      0,
-      true
-    );
-  }
-  protected getInput2(): Socket {
-    return new Socket(
-      SOCKET_TYPE.IN,
-      'Input 2',
-      new NumberType(false, -10, 10),
-      0,
-      true
-    );
-  }
   public getName(): string {
     return 'MathOperation';
   }
   public getDescription(): string {
-    return 'Does a math operation to two numbers or strings';
+    return 'Performs a math operation to two numbers or strings';
+  }
+  public getParallelInputsOutputs(): boolean {
+    return true;
   }
 
-  protected getOperation(a: any, b: any): any {
-    return a;
+  protected getDefaultParameterValues(): Record<string, any> {
+    return { Input1: 1, Input2: 1 };
+  }
+  protected getDefaultParameterTypes(): Record<string, any> {
+    return { Input1: new NumberType(), Input2: new NumberType() };
+  }
+  protected getOutputParameterType(): AbstractType {
+    return new NumberType();
+  }
+  protected getOutputParameterName(): string {
+    return 'Result';
+  }
+
+  protected getDefaultFunction(): string {
+    return (
+      '(Input1, Input2) => {\n\treturn Input1 ' +
+      this.getOperator() +
+      ' Input2;\n}'
+    );
+  }
+
+  public drawBackground(): void {
+    const centerX = this.nodeWidth / 2;
+    const centerY = this.nodeHeight / 2;
+    this._BackgroundRef.removeChildren();
+    this._BackgroundRef.beginFill(
+      this.getColor().hexNumber(),
+      this.getOpacity()
+    );
+    this._BackgroundRef.drawRoundedRect(
+      NODE_MARGIN,
+      0,
+      this.nodeWidth,
+      this.nodeHeight,
+      this.getRoundedCorners() ? NODE_CORNERRADIUS : 0
+    );
+
+    //this._BackgroundRef.drawCircle(NODE_MARGIN, 0, this.nodeWidth / 2);
+
+    const fontSize = 70;
+    const text = new PIXI.Text(
+      this.getOperatorSign(),
+      new TextStyle({
+        fontSize: fontSize,
+        fill: this.getSocketByName('Input1')
+          ? this.getSocketByName('Input1').dataType.getColor().hex()
+          : COLOR_MAIN,
+      })
+    );
+    text.x = centerX - fontSize / 4;
+    text.y = centerY - fontSize / 2;
+    this._BackgroundRef.addChild(text);
+  }
+
+  public socketTypeChanged(): void {
+    super.socketTypeChanged();
+    this.drawNodeShape();
+  }
+
+  public getNodeTextString(): string {
+    return '';
+  }
+
+  protected getOperator(): string {
+    return '';
+  }
+  protected getOperatorSign(): string {
+    return this.getOperator();
+  }
+  public getTags(): string {
+    return this.getOperator();
   }
 }
 
@@ -155,10 +195,10 @@ export class Add extends SimpleMathOperation {
     return 'Add';
   }
   public getDescription(): string {
-    return 'Adds 2 numbers or strings';
+    return 'Adds numbers or strings';
   }
-  protected getOperation(a: any, b: any): any {
-    return a + b;
+  protected getOperator(): string {
+    return '+';
   }
 }
 
@@ -167,10 +207,11 @@ export class Subtract extends SimpleMathOperation {
     return 'Subtract';
   }
   public getDescription(): string {
-    return 'Subtracts 2 numbers';
+    return 'Subtracts two numbers';
   }
-  protected getOperation(a: any, b: any): any {
-    return a - b;
+
+  protected getOperator(): string {
+    return '-';
   }
 }
 
@@ -179,19 +220,13 @@ export class Multiply extends SimpleMathOperation {
     return 'Multiply';
   }
   public getDescription(): string {
-    return 'Multiplies 2 numbers';
+    return 'Multiplies two numbers';
   }
-  protected getOperation(a: any, b: any): any {
-    return a * b;
+  protected getOperator(): string {
+    return '*';
   }
-  protected getInput2(): Socket {
-    return new Socket(
-      SOCKET_TYPE.IN,
-      'Input 2',
-      new NumberType(false, 0, 10),
-      1,
-      true
-    );
+  protected getOperatorSign(): string {
+    return '×';
   }
 }
 export class Divide extends SimpleMathOperation {
@@ -199,18 +234,29 @@ export class Divide extends SimpleMathOperation {
     return 'Divide';
   }
   public getDescription(): string {
-    return 'Divides 2 numbers';
+    return 'Divides two numbers';
   }
-  protected getOperation(a: any, b: any): any {
-    return a / b;
+  protected getOperator(): string {
+    return '/';
   }
-  protected getInput2(): Socket {
-    return new Socket(
-      SOCKET_TYPE.IN,
-      'Input 2',
-      new NumberType(false, 0.1, 10),
-      1,
-      true
-    );
+  protected getOperatorSign(): string {
+    return '÷';
+  }
+}
+
+export class Sqrt extends SimpleMathOperation {
+  protected getOperatorSign(): string {
+    return '√';
+  }
+
+  public getName(): string {
+    return 'Square root';
+  }
+  public getDescription(): string {
+    return 'Square root of number';
+  }
+
+  protected getDefaultFunction(): string {
+    return '(Input1) => {\n\treturn Math.sqrt(Input1);\n}';
   }
 }
