@@ -355,7 +355,7 @@ export default class Socket extends PIXI.Container {
       Math.pow(Math.max(0, (maxDist - dist) / maxDist), 1) * 0.8 + 1;
 
     this._SocketRef.scale = new PIXI.Point(scale, scale);
-    this._TextRef.scale = new PIXI.Point(scale, scale);
+    this._TextRef.scale = new PIXI.Point(Math.sqrt(scale), Math.sqrt(scale));
   }
 
   _onPointerOver(): void {
