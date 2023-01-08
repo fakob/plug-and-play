@@ -227,7 +227,6 @@ export const truncateText = (
   return inputString;
 };
 
-
 export const useStateRef = (initialValue: any) => {
   const [value, setValue] = useState(initialValue);
 
@@ -343,9 +342,10 @@ export const getDataFromClipboard = async (): Promise<
 };
 
 export const getNodeDataFromHtml = (html: string): SerializedSelection => {
-  const maybeJson = html.match(
-    /<plugandplayground>([\s\S]*)<\/plugandplayground>/
-  )?.[1];
+  const maybeJson = html
+    .match(/<plugandplayground>([\s\S]*)<\/plugandplayground>/)?.[1]
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>');
   return JSON.parse(maybeJson) as SerializedSelection;
 };
 
