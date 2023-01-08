@@ -373,11 +373,11 @@ export default class Socket extends PIXI.Container {
     //this._TextRef.scale = new PIXI.Point(1, 1);
   }
 
-  _onPointerDown(event: PIXI.InteractionEvent): void {
+  _onPointerDown(event: PIXI.FederatedPointerEvent): void {
     this.getGraph().socketMouseDown(this, event);
   }
 
-  _onPointerUp(event: PIXI.InteractionEvent): void {
+  _onPointerUp(event: PIXI.FederatedPointerEvent): void {
     this.getGraph().socketMouseUp(this, event);
     //this.nodeHoveredOut(); // i removed this, is it needed?
   }

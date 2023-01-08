@@ -1,7 +1,6 @@
 /* eslint-disable */
 import * as PIXI from 'pixi.js';
 import { hri } from 'human-readable-ids';
-import '../pixi/dbclick.js';
 import {
   CustomArgs,
   SerializedNode,
@@ -75,9 +74,9 @@ export default class PPNode extends PIXI.Container {
 
   // supported callbacks
   onConfigure: (nodeConfig: SerializedNode) => void = () => { }; // called after the node has been configured
-  onNodeDoubleClick: (event: PIXI.InteractionEvent) => void = () => { };
-  onViewportMoveHandler: (event?: PIXI.InteractionEvent) => void = () => { };
-  onViewportPointerUpHandler: (event?: PIXI.InteractionEvent) => void =
+  onNodeDoubleClick: (event: PIXI.FederatedPointerEvent) => void = () => { };
+  onViewportMoveHandler: (event?: PIXI.FederatedPointerEvent) => void = () => { };
+  onViewportPointerUpHandler: (event?: PIXI.FederatedPointerEvent) => void =
     () => { };
   onNodeRemoved: () => void = () => { }; // called when the node is removed from the graph
   onNodeResize: (width: number, height: number) => void = () => { }; // called when the node is resized
@@ -981,7 +980,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     this.on('pointerup', this._onPointerUp.bind(this));
     this.on('pointerover', this._onPointerOver.bind(this));
     this.on('pointerout', this._onPointerOut.bind(this));
-    this.on('dblclick', this._onDoubleClick.bind(this));
+    // this.on('dblclick', this._onDoubleClick.bind(this));
     this.on('removed', this._onRemoved.bind(this));
 
     // first assign the bound function to a handler then add this handler as a listener
@@ -993,7 +992,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     );
   }
 
-  _onPointerDown(event: PIXI.InteractionEvent): void {
+  _onPointerDown(event: PIXI.FederatedPointerEvent): void {
     event.stopPropagation();
     const node = event.target as PPNode;
 
@@ -1017,7 +1016,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     }
   }
 
-  _onPointerUp(event: PIXI.InteractionEvent): void {
+  _onPointerUp(event: PIXI.FederatedPointerEvent): void {
     const source = PPGraph.currentGraph.selectedSourceSocket;
     if (source && this !== source.getNode()) {
       PPGraph.currentGraph.selectedSourceSocket = null; // hack
@@ -1075,13 +1074,13 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     this.getAllSockets().forEach((socket) => socket.nodeHoveredOut());
   }
 
-  _onDoubleClick(event: PIXI.InteractionEvent): void {
-    this.doubleClicked = true;
+  // _onDoubleClick(event: PIXI.FederatedPointerEvent): void {
+  //   this.doubleClicked = true;
 
-    if (this.onNodeDoubleClick) {
-      this.onNodeDoubleClick(event);
-    }
-  }
+  //   if (this.onNodeDoubleClick) {
+  //     this.onNodeDoubleClick(event);
+  //   }
+  // }
 
   _onViewportPointerUp(): void {
     // override if desired

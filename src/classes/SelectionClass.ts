@@ -34,7 +34,7 @@ export default class PPSelection extends PIXI.Container {
   isDraggingSelection: boolean;
   interactionData: PIXI.InteractionData | null;
 
-  protected onMoveHandler: (event?: PIXI.InteractionEvent) => void;
+  protected onMoveHandler: (event?: PIXI.FederatedPointerEvent) => void;
 
   constructor(viewport: Viewport) {
     super();
@@ -69,7 +69,9 @@ export default class PPSelection extends PIXI.Container {
     this.on('pointerupoutside', this.onPointerUpAndUpOutside.bind(this));
     this.on('pointerup', this.onPointerUpAndUpOutside.bind(this));
     this.on('pointerover', this.onPointerOver.bind(this));
-    this.on('rightclick', event => InterfaceController.onRightClick(event, event.target));
+    this.on('rightclick', (event) =>
+      InterfaceController.onRightClick(event, event.target)
+    );
     this.viewport.on('moved', (this as any).onViewportMoved.bind(this));
 
     this.onMoveHandler = this.onMove.bind(this);
@@ -102,8 +104,7 @@ export default class PPSelection extends PIXI.Container {
     this.drawRectanglesFromSelection();
   };
 
-
-  public startDragAction(event: PIXI.InteractionEvent) {
+  public startDragAction(event: PIXI.FederatedPointerEvent) {
     this.cursor = 'move';
     this.isDraggingSelection = true;
     InterfaceController.notifyListeners(ListenEvent.SelectionDragging, true);
@@ -151,7 +152,7 @@ export default class PPSelection extends PIXI.Container {
     await ActionHandler.performAction(doMove, undoMove, false);
   }
 
-  onPointerDown(event: PIXI.InteractionEvent): void {
+  onPointerDown(event: PIXI.FederatedPointerEvent): void {
     console.log('Selection: onPointerDown');
     if (this.selectedNodes.length > 0) {
       if (event.data.originalEvent.shiftKey) {
@@ -199,7 +200,7 @@ export default class PPSelection extends PIXI.Container {
     }
   }
 
-  onMove(event: PIXI.InteractionEvent): void {
+  onMove(event: PIXI.FederatedPointerEvent): void {
     // console.log('onMove');
     if (this.isDrawingSelection) {
       // console.log('onMove: isDrawingSelection');
@@ -272,7 +273,7 @@ export default class PPSelection extends PIXI.Container {
   }
 
   drawSelectionStart(
-    event: PIXI.InteractionEvent,
+    event: PIXI.FederatedPointerEvent,
     addToOrToggleSelection: boolean
   ): void {
     console.log('startDrawAction');
@@ -298,7 +299,7 @@ export default class PPSelection extends PIXI.Container {
     this.on('pointermove', this.onMoveHandler);
   }
 
-  drawSelectionFinish(event: PIXI.InteractionEvent): void {
+  drawSelectionFinish(event: PIXI.FederatedPointerEvent): void {
     this.isDrawingSelection = false;
     this.selectionIntendGraphics.clear();
 
@@ -455,7 +456,7 @@ class ScaleHandle extends PIXI.Graphics {
     this.on('mousedown', this.onPointerDown, this);
     this.on('mouseup', this.onPointerUp, this);
     this.on('mouseupoutside', this.onPointerUp, this);
-    this.on('dblclick', this._onDoubleClick.bind(this));
+    // this.on('dblclick', this._onDoubleClick.bind(this));
   }
 
   render(renderer: PIXI.Renderer): void {
@@ -468,12 +469,12 @@ class ScaleHandle extends PIXI.Graphics {
     super.render(renderer);
   }
 
-  protected onPointerOver(event: PIXI.InteractionEvent): void {
+  protected onPointerOver(event: PIXI.FederatedPointerEvent): void {
     event.stopPropagation();
     this.cursor = 'nwse-resize';
   }
 
-  protected onPointerDown(event: PIXI.InteractionEvent): void {
+  protected onPointerDown(event: PIXI.FederatedPointerEvent): void {
     this._pointerDown = true;
     this._pointerDragging = false;
 
@@ -488,7 +489,7 @@ class ScaleHandle extends PIXI.Graphics {
     this._pointerMoveTarget.on('pointermove', this.onPointerMove, this);
   }
 
-  protected onPointerMove(event: PIXI.InteractionEvent): void {
+  protected onPointerMove(event: PIXI.FederatedPointerEvent): void {
     if (!this._pointerDown) {
       return;
     }
@@ -502,7 +503,7 @@ class ScaleHandle extends PIXI.Graphics {
     event.stopPropagation();
   }
 
-  protected onPointerUp(event: PIXI.InteractionEvent): void {
+  protected onPointerUp(event: PIXI.FederatedPointerEvent): void {
     if (this._pointerDragging) {
       this.onDragEnd(event);
     }
@@ -515,17 +516,17 @@ class ScaleHandle extends PIXI.Graphics {
     }
   }
 
-  protected _onDoubleClick(event: PIXI.InteractionEvent): void {
-    event.stopPropagation();
-    this.selection.onScaleReset();
-  }
+  // protected _onDoubleClick(event: PIXI.FederatedPointerEvent): void {
+  //   event.stopPropagation();
+  //   this.selection.onScaleReset();
+  // }
 
-  protected onDragStart(event: PIXI.InteractionEvent): void {
+  protected onDragStart(event: PIXI.FederatedPointerEvent): void {
     this._pointerPosition.copyFrom(event.data.global);
     this._pointerDragging = true;
   }
 
-  protected onDrag(event: PIXI.InteractionEvent): void {
+  protected onDrag(event: PIXI.FederatedPointerEvent): void {
     const currentPosition = event.data.global;
 
     // Callback handles the rest!
@@ -535,7 +536,7 @@ class ScaleHandle extends PIXI.Graphics {
     this._pointerPosition.copyFrom(currentPosition);
   }
 
-  protected onDragEnd(_: PIXI.InteractionEvent): void {
+  protected onDragEnd(_: PIXI.FederatedPointerEvent): void {
     this._pointerDragging = false;
   }
 }

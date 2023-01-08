@@ -64,11 +64,14 @@ export class RecordLocations extends PPNode {
 
     if (this.recordButton == undefined) {
       this.recordButton = new PIXI.Graphics();
-      this.recordButton.on('pointerdown', (event: PIXI.InteractionEvent) => {
-        event.stopPropagation();
-        this.isRecording = !this.isRecording;
-        this.drawNodeShape();
-      });
+      this.recordButton.on(
+        'pointerdown',
+        (event: PIXI.FederatedPointerEvent) => {
+          event.stopPropagation();
+          this.isRecording = !this.isRecording;
+          this.drawNodeShape();
+        }
+      );
 
       this.addChild(this.recordButton);
       this.recordButton.interactive = true;
