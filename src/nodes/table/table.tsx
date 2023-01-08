@@ -57,6 +57,7 @@ import PPGraph from '../../classes/GraphClass';
 import PPNode from '../../classes/NodeClass';
 
 const arrayOfArraysSocketName = 'Array of arrays';
+const rowObjectsNames = 'Row Objects';
 const workBookInputSocketName = 'Initial data';
 const sheetIndexInputSocketName = 'Sheet index';
 
@@ -100,25 +101,21 @@ export class Table extends HybridNode {
     return 'Adds a table';
   }
 
-
   public getAdditionalRightClickOptions(): any {
     return {
-      "Get row objects": () => {
-        const added: PPNode = PPGraph.currentGraph.addNewNode("Table_GetRowObjects");
-        connectNodeToSocket(this.getOutputSocketByName(arrayOfArraysSocketName), added);
-      }, "Create row filter": () => {
-
-        const rowObjects: PPNode = PPGraph.currentGraph.addNewNode("Table_GetRowObjects");
-        connectNodeToSocket(this.getOutputSocketByName(arrayOfArraysSocketName), rowObjects);
-        const filterObject = PPGraph.currentGraph.addNewNode("ObjectFilter");
-        connectNodeToSocket(rowObjects.outputSocketArray.find(socket => socket.name == "OutData"), filterObject);
-      }
+      'Create row filter': () => {
+        const filterObject = PPGraph.currentGraph.addNewNode('ObjectFilter');
+        connectNodeToSocket(
+          this.getOutputSocketByName(rowObjectsNames),
+          filterObject
+        );
+      },
     };
   }
 
   protected getDefaultIO(): PPSocket[] {
     return [
-      new PPSocket(SOCKET_TYPE.OUT, arrayOfArraysSocketName, new ArrayType()),
+      new PPSocket(SOCKET_TYPE.OUT, rowObjectsNames, new ArrayType()),
       new PPSocket(
         SOCKET_TYPE.IN,
         workBookInputSocketName,
@@ -744,6 +741,7 @@ export class Table extends HybridNode {
   setAllOutputData(workBook: XLSX.WorkBook): any {
     const currentSheetIndex = this.getIndex();
     const sheet = workBook.Sheets[workBook.SheetNames[currentSheetIndex]];
+    this.setOutputData(rowObjectsNames, this.getJSON(sheet));
     this.setOutputData(arrayOfArraysSocketName, this.getArrayOfArrays(sheet));
   }
 }
