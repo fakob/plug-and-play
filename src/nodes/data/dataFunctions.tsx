@@ -446,3 +446,21 @@ export class ArrayPush extends ArrayFunction {
     return '(ArrayIn, Element) => {\n\tArrayIn.push(Element);\nreturn ArrayIn;\n}';
   }
 }
+
+export class Max extends ArrayFunction {
+  public getName(): string {
+    return 'Get max element in array';
+  }
+  protected getDefaultFunction(): string {
+    return '(ArrayIn) => {\n\treturn Math.max(...ArrayIn);\n}';
+  }
+}
+
+export class Min extends ArrayFunction {
+  public getName(): string {
+    return 'Get minimum element in array';
+  }
+  protected getDefaultFunction(): string {
+    return '(ArrayIn) => {\n\treturn Math.min(...ArrayIn);\n}';
+  }
+}
