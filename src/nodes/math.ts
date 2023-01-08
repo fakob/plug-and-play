@@ -243,3 +243,20 @@ export class Divide extends SimpleMathOperation {
     return '÷';
   }
 }
+
+export class Sqrt extends SimpleMathOperation {
+  protected getOperatorSign(): string {
+    return '√';
+  }
+
+  public getName(): string {
+    return 'Square root';
+  }
+  public getDescription(): string {
+    return 'Square root of number';
+  }
+
+  protected getDefaultFunction(): string {
+    return '(Input1) => {\n\treturn Math.sqrt(Input1);\n}';
+  }
+}
