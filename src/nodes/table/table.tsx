@@ -659,7 +659,7 @@ export class Table extends HybridNode {
             <ListItemIcon>
               <EastIcon fontSize="small" />
             </ListItemIcon>
-            <ListItemText>Get column</ListItemText>
+            <ListItemText>Get column data</ListItemText>
           </MenuItem>
           <Divider />
           <MenuItem
@@ -751,7 +751,7 @@ export class Table extends HybridNode {
             <ListItemIcon>
               <EastIcon fontSize="small" />
             </ListItemIcon>
-            <ListItemText>Get row</ListItemText>
+            <ListItemText>Get row data</ListItemText>
           </MenuItem>
           <Divider />
           <MenuItem
