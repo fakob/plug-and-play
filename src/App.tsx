@@ -1096,6 +1096,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               <Autocomplete
                 className={styles.graphSearch}
                 freeSolo
+                multiple={false}
                 openOnFocus
                 selectOnFocus
                 autoHighlight
@@ -1143,6 +1144,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               >
                 <Autocomplete
                   freeSolo
+                  multiple={false}
                   openOnFocus
                   selectOnFocus
                   autoHighlight
