@@ -188,8 +188,9 @@ export class GRAPH_LINE extends DRAW_Base {
           (ratio * (maxValue - minValue) + minValue).toPrecision(2),
           textStyle
         );
-        basicText.x = -60 - fontSize * 0.5;
+        basicText.x = -40;
         basicText.y = -currPos - fontSize * 0.5 - 5;
+        basicText.anchor.set(1, 0);
         graphics.addChild(basicText);
         if (inputObject[inputShouldShowAxisLines]) {
           graphics.lineTo(inputObject[inputWidthName], -currPos);

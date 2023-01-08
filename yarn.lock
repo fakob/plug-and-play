@@ -2127,38 +2127,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pixi/filter-drop-shadow@npm:^4.1.5":
-  version: 4.2.0
-  resolution: "@pixi/filter-drop-shadow@npm:4.2.0"
-  dependencies:
-    "@pixi/filter-kawase-blur": 4.2.0
-  peerDependencies:
-    "@pixi/constants": ^6.0.0
-    "@pixi/core": ^6.0.0
-    "@pixi/math": ^6.0.0
-    "@pixi/settings": ^6.0.0
-    "@pixi/utils": ^6.0.0
-  checksum: c25eedc62d36b5232c40fbfc59c610dc731f76a34d8f10746ff03e3493094857bce2cb63bb07dc0117b31c50d4682b2cf10406da1db900522b2966cc3f703460
-  languageName: node
-  linkType: hard
-
 "@pixi/filter-fxaa@npm:6.5.3":
   version: 6.5.3
   resolution: "@pixi/filter-fxaa@npm:6.5.3"
   peerDependencies:
     "@pixi/core": 6.5.3
   checksum: 7088cd40bbeca95aaffffec525a82affeae00ee66d52f3cbd1c8ef64dda99b54c3dcb25db43d88eca503d58b7bfd5cfede51d0cfe90937160f5bab7b77970cde
-  languageName: node
-  linkType: hard
-
-"@pixi/filter-kawase-blur@npm:4.2.0":
-  version: 4.2.0
-  resolution: "@pixi/filter-kawase-blur@npm:4.2.0"
-  peerDependencies:
-    "@pixi/constants": ^6.0.0
-    "@pixi/core": ^6.0.0
-    "@pixi/math": ^6.0.0
-  checksum: e8a036ee00d97bfb91a68112a7ba75f86af000378c0da76f3a604b120de8d137172d0f9c496c8f097e44fad4c3127ea77deffc56fa423018a540037082aa78c0
   languageName: node
   linkType: hard
 
@@ -8370,7 +8344,6 @@ __metadata:
     "@mui/icons-material": ^5.2.0
     "@mui/material": ^5.2.1
     "@mui/styles": ^5.2.3
-    "@pixi/filter-drop-shadow": ^4.1.5
     "@pixi/text-html": ^2.0.0
     "@types/copy-webpack-plugin": ^8.0.1
     "@types/html-webpack-plugin": ^3.2.6
