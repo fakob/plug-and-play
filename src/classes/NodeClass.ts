@@ -184,6 +184,10 @@ export default class PPNode extends PIXI.Container {
   public getDescription(): string {
     return '';
   }
+  // used when searching for nodes
+  public getTags(): string{
+    return "";
+  }
 
   public getMinNodeWidth(): number {
     return NODE_WIDTH;

@@ -156,6 +156,7 @@ function getFunctionFromFunction(inputFunction: string): string {
 
 // customfunction does any number of inputs but only one output for simplicity
 export class CustomFunction extends PPNode {
+  //modifiedBanner: PIXI.Graphics;
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(
@@ -295,6 +296,10 @@ export class CustomFunction extends PPNode {
   public socketShouldAutomaticallyAdapt(socket: Socket): boolean {
     return socket.name !== anyCodeName;
   }
+
+  public drawNodeShape(): void {
+    super.drawNodeShape();
+  }
 }
 
 class ArrayFunction extends CustomFunction {
@@ -348,7 +353,6 @@ export class Counts extends ArrayFunction {
       return Uniques.map(unique => [unique,ArrayIn.filter(entry => entry == unique).length])
     }`;
   }
-
 }
 
 export class Flatten extends ArrayFunction {
