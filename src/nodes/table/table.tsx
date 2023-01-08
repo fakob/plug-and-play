@@ -33,8 +33,9 @@ import {
   Menu,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import SortIcon from '@mui/icons-material/Sort';
 import DeleteIcon from '@mui/icons-material/Delete';
+import EastIcon from '@mui/icons-material/East';
+import SortIcon from '@mui/icons-material/Sort';
 import PPSocket from '../../classes/SocketClass';
 import {
   addColumnToArrayOfArrays,
@@ -101,15 +102,78 @@ export class Table extends HybridNode {
     return 'Adds a table';
   }
 
+  getColumn = (nameOfColumn) => {
+    const added: PPNode = PPGraph.currentGraph.addNewNode(
+      'Table_GetColumnByName',
+      {
+        nodePosX: this.x + (this.width + 40),
+        nodePosY: this.y,
+      }
+    );
+
+    connectNodeToSocket(
+      this.getOutputSocketByName(arrayOfArraysSocketName),
+      added
+    );
+    added.getSocketByName('ColumnName').data = nameOfColumn;
+    added.executeOptimizedChain();
+  };
+
+  getRow = (nameOfRow) => {
+    const added: PPNode = PPGraph.currentGraph.addNewNode('ArrayGet', {
+      nodePosX: this.x + (this.width + 40),
+      nodePosY: this.y,
+    });
+
+    connectNodeToSocket(
+      this.getOutputSocketByName(arrayOfArraysSocketName),
+      added
+    );
+    added.getSocketByName('Index').data = nameOfRow;
+    added.executeOptimizedChain();
+  };
+
+  getRowObjects = () => {
+    const added: PPNode = PPGraph.currentGraph.addNewNode(
+      'Table_GetRowObjects',
+      {
+        nodePosX: this.x + (this.width + 40),
+        nodePosY: this.y,
+      }
+    );
+
+    connectNodeToSocket(
+      this.getOutputSocketByName(arrayOfArraysSocketName),
+      added
+    );
+  };
+
+  createRowFilter = () => {
+    const rowObjects: PPNode = PPGraph.currentGraph.addNewNode(
+      'Table_GetRowObjects',
+      {
+        nodePosX: this.x + (this.width + 40),
+        nodePosY: this.y,
+      }
+    );
+    connectNodeToSocket(
+      this.getOutputSocketByName(arrayOfArraysSocketName),
+      rowObjects
+    );
+    const filterObject = PPGraph.currentGraph.addNewNode('ObjectFilter', {
+      nodePosX: rowObjects.x + (rowObjects.width + 40),
+      nodePosY: this.y,
+    });
+    connectNodeToSocket(
+      rowObjects.outputSocketArray.find((socket) => socket.name == 'OutData'),
+      filterObject
+    );
+  };
+
   public getAdditionalRightClickOptions(): any {
     return {
-      'Create row filter': () => {
-        const filterObject = PPGraph.currentGraph.addNewNode('ObjectFilter');
-        connectNodeToSocket(
-          this.getOutputSocketByName(rowObjectsNames),
-          filterObject
-        );
-      },
+      'Get row objects': this.getRowObjects,
+      'Create row filter': this.createRowFilter,
     };
   }
 
@@ -588,6 +652,18 @@ export class Table extends HybridNode {
         >
           <MenuItem
             onClick={() => {
+              this.getColumn(arrayOfArrays[0][colMenu.col]);
+              setColMenu(undefined);
+            }}
+          >
+            <ListItemIcon>
+              <EastIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Get column</ListItemText>
+          </MenuItem>
+          <Divider />
+          <MenuItem
+            onClick={() => {
               onSort(colMenu.col, false);
               setColMenu(undefined);
             }}
@@ -666,6 +742,18 @@ export class Table extends HybridNode {
             horizontal: 'left',
           }}
         >
+          <MenuItem
+            onClick={() => {
+              this.getRow(rowMenu.row);
+              setColMenu(undefined);
+            }}
+          >
+            <ListItemIcon>
+              <EastIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Get row</ListItemText>
+          </MenuItem>
+          <Divider />
           <MenuItem
             onClick={() => {
               addRowToArrayOfArrays(arrayOfArrays, rowMenu.row);
