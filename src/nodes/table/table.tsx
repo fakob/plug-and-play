@@ -119,7 +119,7 @@ export class Table extends HybridNode {
     added.executeOptimizedChain();
   };
 
-  getRow = (nameOfRow) => {
+  getRowAsArray = (nameOfRow) => {
     const added: PPNode = PPGraph.currentGraph.addNewNode('ArrayGet', {
       nodePosX: this.x + (this.width + 40),
       nodePosY: this.y,
@@ -133,46 +133,53 @@ export class Table extends HybridNode {
     added.executeOptimizedChain();
   };
 
-  getRowObjects = () => {
-    const added: PPNode = PPGraph.currentGraph.addNewNode(
-      'Table_GetRowObjects',
-      {
-        nodePosX: this.x + (this.width + 40),
-        nodePosY: this.y,
-      }
-    );
+  getRowAsObject = (nameOfRow) => {
+    const added: PPNode = PPGraph.currentGraph.addNewNode('ArrayGet', {
+      nodePosX: this.x + (this.width + 40),
+      nodePosY: this.y,
+    });
 
+    connectNodeToSocket(this.getOutputSocketByName(rowObjectsNames), added);
+    added.getSocketByName('Index').data = nameOfRow;
+    added.executeOptimizedChain();
+  };
+
+  getCell = (cell: Item) => {
+    const added: PPNode = PPGraph.currentGraph.addNewNode('ArrayGet', {
+      nodePosX: this.x + (this.width + 40),
+      nodePosY: this.y,
+    });
+    added.getSocketByName('Index').data = cell[1];
     connectNodeToSocket(
       this.getOutputSocketByName(arrayOfArraysSocketName),
       added
     );
+    added.executeOptimizedChain();
+    const added2: PPNode = PPGraph.currentGraph.addNewNode('ArrayGet', {
+      nodePosX: added.x + (added.width + 40),
+      nodePosY: this.y,
+    });
+    added2.getSocketByName('Index').data = cell[0];
+    connectNodeToSocket(
+      added.outputSocketArray.find((socket) => socket.name == 'Element'),
+      added2
+    );
+    added.executeOptimizedChain();
   };
 
   createRowFilter = () => {
-    const rowObjects: PPNode = PPGraph.currentGraph.addNewNode(
-      'Table_GetRowObjects',
-      {
-        nodePosX: this.x + (this.width + 40),
-        nodePosY: this.y,
-      }
-    );
-    connectNodeToSocket(
-      this.getOutputSocketByName(arrayOfArraysSocketName),
-      rowObjects
-    );
     const filterObject = PPGraph.currentGraph.addNewNode('ObjectFilter', {
-      nodePosX: rowObjects.x + (rowObjects.width + 40),
+      nodePosX: this.x + (this.width + 40),
       nodePosY: this.y,
     });
     connectNodeToSocket(
-      rowObjects.outputSocketArray.find((socket) => socket.name == 'OutData'),
+      this.getOutputSocketByName(rowObjectsNames),
       filterObject
     );
   };
 
   public getAdditionalRightClickOptions(): any {
     return {
-      'Get row objects': this.getRowObjects,
       'Create row filter': this.createRowFilter,
     };
   }
@@ -333,7 +340,7 @@ export class Table extends HybridNode {
       pos: PIXI.Point;
     }>();
     const [rowMenu, setRowMenu] = useState<{
-      row: number;
+      cell: Item;
       pos: PIXI.Point;
     }>();
     const [hoverRow, setHoverRow] = useState<number | undefined>(undefined);
@@ -550,8 +557,9 @@ export class Table extends HybridNode {
     const onContextMenuClick = useCallback(
       (cell: Item, event: CellClickedEventArgs) => {
         event.preventDefault();
+        console.log(cell);
         setRowMenu({
-          row: cell[1],
+          cell,
           pos: new PIXI.Point(
             event.bounds.x + event.localEventX,
             event.bounds.y + event.localEventY
@@ -744,19 +752,41 @@ export class Table extends HybridNode {
         >
           <MenuItem
             onClick={() => {
-              this.getRow(rowMenu.row);
-              setColMenu(undefined);
+              this.getCell(rowMenu.cell);
+              setRowMenu(undefined);
             }}
           >
             <ListItemIcon>
               <EastIcon fontSize="small" />
             </ListItemIcon>
-            <ListItemText>Get row data</ListItemText>
+            <ListItemText>Get cell data</ListItemText>
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              this.getRowAsArray(rowMenu.cell[1]);
+              setRowMenu(undefined);
+            }}
+          >
+            <ListItemIcon>
+              <EastIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Get row data (as array)</ListItemText>
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              this.getRowAsObject(rowMenu.cell[1]);
+              setRowMenu(undefined);
+            }}
+          >
+            <ListItemIcon>
+              <EastIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Get row data (as object)</ListItemText>
           </MenuItem>
           <Divider />
           <MenuItem
             onClick={() => {
-              addRowToArrayOfArrays(arrayOfArrays, rowMenu.row);
+              addRowToArrayOfArrays(arrayOfArrays, rowMenu.cell[1]);
               setRowMenu(undefined);
             }}
           >
@@ -767,7 +797,7 @@ export class Table extends HybridNode {
           </MenuItem>
           <MenuItem
             onClick={() => {
-              addRowToArrayOfArrays(arrayOfArrays, rowMenu.row + 1);
+              addRowToArrayOfArrays(arrayOfArrays, rowMenu.cell[1] + 1);
               setRowMenu(undefined);
             }}
           >
@@ -779,7 +809,7 @@ export class Table extends HybridNode {
           <Divider />
           <MenuItem
             onClick={() => {
-              removeRowFromArrayOfArrays(arrayOfArrays, rowMenu.row);
+              removeRowFromArrayOfArrays(arrayOfArrays, rowMenu.cell[1]);
               setRowMenu(undefined);
             }}
           >
