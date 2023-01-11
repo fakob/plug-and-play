@@ -586,6 +586,13 @@ export default class PPGraph {
     // remove all input links from before on this socket
     input.links.forEach((link) => link.delete(true));
 
+    // force connected sockets to be visible
+    if (!input.visible) {
+      input.setVisible(true);
+    } else if (!output.visible) {
+      output.setVisible(true);
+    }
+
     //create link class
     const link: PPLink = new PPLink(this.getNextID(), output, input);
 
@@ -601,8 +608,6 @@ export default class PPGraph {
     input.data = output.data;
 
     this.connectionContainer.addChild(link);
-    // input not allowed to be hidden
-    input.setVisible(true);
 
     // send notification pulse
     if (notify) {
