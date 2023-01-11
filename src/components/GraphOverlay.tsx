@@ -9,6 +9,7 @@ import GraphOverlaySocketInspector from './GraphOverlaySocketInspector';
 type GraphOverlayProps = {
   currentGraph: PPGraph;
   randomMainColor: string;
+  toggle: boolean;
 };
 
 const GraphOverlay: React.FunctionComponent<GraphOverlayProps> = (props) => {
@@ -49,9 +50,11 @@ const GraphOverlay: React.FunctionComponent<GraphOverlayProps> = (props) => {
       ids.forEach((id) => InterfaceController.removeListener(id));
     };
   });
+
   return (
     <>
       <GraphOverlayDrawer
+        toggle={props.toggle}
         selectedNodes={selectedNodes}
         randomMainColor={props.randomMainColor}
       />

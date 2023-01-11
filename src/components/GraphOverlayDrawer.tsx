@@ -6,6 +6,7 @@ import ResponsiveDrawer from './ResponsiveDrawer';
 type GraphOverlayDrawerProps = {
   randomMainColor: string;
   selectedNodes: PPNode[];
+  toggle: boolean;
 };
 
 const GraphOverlayDrawer: React.FunctionComponent<GraphOverlayDrawerProps> = (
@@ -20,6 +21,7 @@ const GraphOverlayDrawer: React.FunctionComponent<GraphOverlayDrawerProps> = (
       <ResponsiveDrawer
         drawerWidth={drawerWidth}
         setDrawerWidth={setDrawerWidth}
+        toggle={props.toggle}
         selectedNode={
           props.selectedNodes.length > 0 ? props.selectedNodes[0] : null
         }
