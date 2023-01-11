@@ -117,6 +117,7 @@ const App = (): JSX.Element => {
   const nodeSearchInput = useRef<HTMLInputElement | null>(null);
   const [isGraphSearchOpen, setIsGraphSearchOpen] = useState(false);
   const [isNodeSearchVisible, setIsNodeSearchVisible] = useState(false);
+  const [showLeftSideDrawer, setShowLeftSideDrawer] = useState(false);
   const [nodeSearchCount, setNodeSearchCount] = useState(0);
   const [isGraphContextMenuOpen, setIsGraphContextMenuOpen] = useState(false);
   const [isNodeContextMenuOpen, setIsNodeContextMenuOpen] = useState(false);
@@ -567,6 +568,10 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               break;
             case 'e':
               setShowEdit((prevState) => !prevState);
+              e.preventDefault();
+              break;
+            case '\\':
+              setShowLeftSideDrawer((prevState) => !prevState);
               e.preventDefault();
               break;
             case 'z':
@@ -1054,6 +1059,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               contextMenuPosition={contextMenuPosition}
               setIsGraphSearchOpen={setIsGraphSearchOpen}
               openNodeSearch={openNodeSearch}
+              setShowLeftSideDrawer={setShowLeftSideDrawer}
               setShowEdit={setShowEdit}
               uploadGraph={uploadGraph}
               showComments={showComments}
@@ -1080,6 +1086,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           )}
           <PixiContainer ref={pixiContext} />
           <GraphOverlay
+            toggle={showLeftSideDrawer}
             currentGraph={PPGraph.currentGraph}
             randomMainColor={RANDOMMAINCOLOR}
           />

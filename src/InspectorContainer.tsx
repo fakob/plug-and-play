@@ -1,37 +1,16 @@
 import React from 'react';
-import {
-  Box,
-  Icon,
-  Stack,
-  ThemeProvider,
-  ToggleButton,
-  ToggleButtonGroup,
-} from '@mui/material';
+import { Box, Stack, ThemeProvider } from '@mui/material';
 import styles from './utils/style.module.css';
 import PPNode from './classes/NodeClass';
 import { PropertyArrayContainer } from './PropertyArrayContainer';
-import {
-  DRAWER30_ICON,
-  DRAWER60_ICON,
-  DRAWER90_ICON,
-  customTheme,
-} from './utils/constants';
+import { customTheme } from './utils/constants';
 
 type MyProps = {
   selectedNode: PPNode;
   randomMainColor: string;
-  widthPercentage: number;
-  setWidthPercentage: (value: number | ((prevVar: number) => number)) => void;
 };
 
 const InspectorContainer: React.FunctionComponent<MyProps> = (props) => {
-  const handleWidthPercentage = (
-    event: React.MouseEvent<HTMLElement>,
-    newPercentage: number | null
-  ) => {
-    props.setWidthPercentage(newPercentage);
-  };
-
   return (
     <ThemeProvider theme={customTheme}>
       <Stack
@@ -65,33 +44,6 @@ const InspectorContainer: React.FunctionComponent<MyProps> = (props) => {
           >
             {props.selectedNode?.name}
           </Box>
-          <ToggleButtonGroup
-            value={props.widthPercentage}
-            exclusive
-            onChange={handleWidthPercentage}
-            size="small"
-            sx={{
-              '& .MuiToggleButtonGroup-grouped': {
-                border: 0,
-              },
-            }}
-          >
-            <ToggleButton value="0.9">
-              <Icon classes={{ root: styles.iconRoot }}>
-                <img className={styles.imageIcon} src={DRAWER90_ICON} />
-              </Icon>
-            </ToggleButton>
-            <ToggleButton value="0.6">
-              <Icon classes={{ root: styles.iconRoot }}>
-                <img className={styles.imageIcon} src={DRAWER60_ICON} />
-              </Icon>
-            </ToggleButton>
-            <ToggleButton value="0.3">
-              <Icon classes={{ root: styles.iconRoot }}>
-                <img className={styles.imageIcon} src={DRAWER30_ICON} />
-              </Icon>
-            </ToggleButton>
-          </ToggleButtonGroup>
         </Box>
         <PropertyArrayContainer
           selectedNode={props.selectedNode}

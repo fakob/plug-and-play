@@ -13,6 +13,7 @@ import {
 } from '@mui/material';
 import { createStyles, makeStyles } from '@mui/styles';
 import SearchIcon from '@mui/icons-material/Search';
+import TuneIcon from '@mui/icons-material/Tune';
 import UploadIcon from '@mui/icons-material/Upload';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
@@ -214,6 +215,19 @@ export const GraphContextMenu = (props) => {
           <ListItemText>Find node</ListItemText>
           <Typography variant="body2" color="text.secondary">
             {`${props.controlOrMetaKey}+F`}
+          </Typography>
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            props.setShowLeftSideDrawer();
+          }}
+        >
+          <ListItemIcon>
+            <TuneIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Toggle node inspector</ListItemText>
+          <Typography variant="body2" color="text.secondary">
+            {`${props.controlOrMetaKey}+\\`}
           </Typography>
         </MenuItem>
         <Divider />
