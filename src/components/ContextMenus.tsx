@@ -377,6 +377,19 @@ export const NodeContextMenu = (props) => {
             Shift+2
           </Typography>
         </MenuItem>
+        <MenuItem
+          onClick={() => {
+            props.setShowLeftSideDrawer();
+          }}
+        >
+          <ListItemIcon>
+            <TuneIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Toggle node inspector</ListItemText>
+          <Typography variant="body2" color="text.secondary">
+            {`${props.controlOrMetaKey}+\\`}
+          </Typography>
+        </MenuItem>
         <Divider />
         <MenuItem
           onClick={() => {

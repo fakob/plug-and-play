@@ -45,7 +45,7 @@ const ResponsiveDrawer = (props) => {
     return (
       <Box>
         <Button
-          title="Toggle Inspector"
+          title={`${props.posLeft ? 'Close inspector' : 'Open inspector'}`}
           size="small"
           onClick={handleDrawerToggle}
           color="primary"
@@ -58,12 +58,16 @@ const ResponsiveDrawer = (props) => {
             minWidth: '32px',
             background: `${
               props.selectedNode
-                ? Color(props.randomMainColor).alpha(0.4)
+                ? Color(props.randomMainColor).alpha(0.2)
                 : 'unset'
             }`,
           }}
         >
-          {props.posLeft ? <ChevronRightIcon /> : <TuneIcon />}
+          {props.posLeft ? (
+            <ChevronRightIcon />
+          ) : (
+            props.selectedNode && <TuneIcon />
+          )}
         </Button>
       </Box>
     );

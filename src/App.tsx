@@ -1074,6 +1074,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               currentGraph={PPGraph.currentGraph}
               openNodeSearch={openNodeSearch}
               zoomToFitSelection={zoomToFitNodes}
+              setShowLeftSideDrawer={setShowLeftSideDrawer}
             />
           )}
           {isSocketContextMenuOpen && (
