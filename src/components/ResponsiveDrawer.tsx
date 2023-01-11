@@ -7,6 +7,38 @@ import InspectorContainer from '../InspectorContainer';
 import { COLOR_DARK, COLOR_WHITE_TEXT } from '../utils/constants';
 import styles from '../utils/style.module.css';
 
+function DrawerToggle(props) {
+  return (
+    <Box>
+      <Button
+        title={`${props.posLeft ? 'Close inspector' : 'Open inspector'}`}
+        size="small"
+        onClick={props.handleDrawerToggle}
+        color="primary"
+        sx={{
+          position: 'absolute',
+          top: '40px',
+          left: `${props.posLeft ? '-32px' : 'auto'}`,
+          right: `${props.posLeft ? 'auto' : '32px'}`,
+          width: '32px',
+          minWidth: '32px',
+          background: `${
+            props.selectedNode
+              ? Color(props.randomMainColor).alpha(0.2)
+              : 'unset'
+          }`,
+        }}
+      >
+        {props.posLeft ? (
+          <ChevronRightIcon />
+        ) : (
+          props.selectedNode && <TuneIcon />
+        )}
+      </Button>
+    </Box>
+  );
+}
+
 const ResponsiveDrawer = (props) => {
   // leaving this commented here for potential future testing
   const [open, setOpen] = useState(true);
@@ -40,44 +72,13 @@ const ResponsiveDrawer = (props) => {
     handleDrawerToggle();
   }, [props.toggle]);
 
-  function DrawerToggle(props) {
-    return (
-      <Box>
-        <Button
-          title={`${props.posLeft ? 'Close inspector' : 'Open inspector'}`}
-          size="small"
-          onClick={handleDrawerToggle}
-          color="primary"
-          sx={{
-            position: 'absolute',
-            top: '40px',
-            left: `${props.posLeft ? '-32px' : 'auto'}`,
-            right: `${props.posLeft ? 'auto' : '32px'}`,
-            width: '32px',
-            minWidth: '32px',
-            background: `${
-              props.selectedNode
-                ? Color(props.randomMainColor).alpha(0.2)
-                : 'unset'
-            }`,
-          }}
-        >
-          {props.posLeft ? (
-            <ChevronRightIcon />
-          ) : (
-            props.selectedNode && <TuneIcon />
-          )}
-        </Button>
-      </Box>
-    );
-  }
-
   return (
     <>
       {!open && (
         <DrawerToggle
           selectedNode={props.selectedNode}
           randomMainColor={props.randomMainColor}
+          handleDrawerToggle={handleDrawerToggle}
         />
       )}
       <Drawer
@@ -102,7 +103,11 @@ const ResponsiveDrawer = (props) => {
           onMouseDown={(e) => handleMouseDown(e)}
           className={styles.dragger}
         ></div>
-        <DrawerToggle posLeft={true} randomMainColor={props.randomMainColor} />
+        <DrawerToggle
+          posLeft={true}
+          randomMainColor={props.randomMainColor}
+          handleDrawerToggle={handleDrawerToggle}
+        />
         {props.selectedNode ? (
           <InspectorContainer
             selectedNode={props.selectedNode}
