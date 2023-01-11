@@ -9,7 +9,6 @@ import styles from '../utils/style.module.css';
 
 const ResponsiveDrawer = (props) => {
   // leaving this commented here for potential future testing
-  //console.log('redrawing responsivedrawer');
   const [open, setOpen] = useState(true);
 
   const handleDrawerToggle = () => {

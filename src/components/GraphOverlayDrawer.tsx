@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Box } from '@mui/material';
 import PPNode from '../classes/NodeClass';
 import ResponsiveDrawer from './ResponsiveDrawer';
@@ -14,11 +14,13 @@ const GraphOverlayDrawer: React.FunctionComponent<GraphOverlayDrawerProps> = (
 ) => {
   // drawer
   const defaultDrawerWidth = 320;
+  const [drawerWidth, setDrawerWidth] = useState(defaultDrawerWidth);
 
   return (
     <Box sx={{ position: 'relative' }}>
       <ResponsiveDrawer
-        drawerWidth={defaultDrawerWidth}
+        drawerWidth={drawerWidth}
+        setDrawerWidth={setDrawerWidth}
         toggle={props.toggle}
         selectedNode={
           props.selectedNodes.length > 0 ? props.selectedNodes[0] : null
