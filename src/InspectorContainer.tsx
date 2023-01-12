@@ -1,9 +1,10 @@
 import React from 'react';
 import { Box, Stack, ThemeProvider } from '@mui/material';
+import Color from 'color';
 import styles from './utils/style.module.css';
 import PPNode from './classes/NodeClass';
 import { PropertyArrayContainer } from './PropertyArrayContainer';
-import { customTheme } from './utils/constants';
+import { COLOR_WHITE_TEXT, COLOR_DARK, customTheme } from './utils/constants';
 
 type MyProps = {
   selectedNode: PPNode;
@@ -34,7 +35,11 @@ const InspectorContainer: React.FunctionComponent<MyProps> = (props) => {
             sx={{
               pt: '8px',
               px: '8px',
-              color: 'text.primary',
+              color: `${
+                Color(props.randomMainColor).isDark()
+                  ? COLOR_WHITE_TEXT
+                  : COLOR_DARK
+              }`,
               fontWeight: 'medium',
               flexGrow: 1,
               display: 'inline-flex',

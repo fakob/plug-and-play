@@ -1,25 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import Color from 'color';
 import {
-  Accordion,
-  AccordionProps,
-  AccordionDetails,
-  AccordionSummary,
-  AccordionSummaryProps,
   Box,
   IconButton,
   Menu,
   MenuItem,
   Stack,
   ToggleButton,
+  ToggleButtonGroup,
 } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import LockIcon from '@mui/icons-material/Lock';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import { styled } from '@mui/styles';
 import { writeDataToClipboard, writeTextToClipboard } from './utils/utils';
 import styles from './utils/style.module.css';
 import PPNode from './classes/NodeClass';
@@ -35,61 +29,34 @@ type PropertyArrayContainerProps = {
   randomMainColor: string;
 };
 
-const StyledAccordion = styled((props: AccordionProps) => (
-  <Accordion disableGutters elevation={0} square {...props} />
-))(() => ({
-  '&:not(:last-child)': {
-    borderBottom: 0,
-  },
-  '&:before': {
-    display: 'none',
-  },
-}));
-
-const StyledAccordionSummary = styled((props: AccordionSummaryProps) => (
-  <AccordionSummary expandIcon={<ExpandMoreIcon />} {...props} />
-))(({ theme }) => ({
-  paddingLeft: '8px',
-  bgcolor: 'background.paper',
-}));
-
-const StyledAccordionDetails = styled(AccordionDetails)(({ theme }) => ({
-  padding: '8px',
-  bgcolor: 'background.paper',
-}));
-
 const socketArrayToComponent = (
   sockets: Socket[],
   props: PropertyArrayContainerProps,
-  text: string
+  text: string,
+  filter: string,
+  value: string
 ) => {
   {
     return (
+      (filter === value || filter == null) &&
       sockets?.length > 0 && (
-        <StyledAccordion defaultExpanded>
-          <StyledAccordionSummary>
-            <Box textAlign="left" sx={{ color: 'text.primary' }}>
-              {text}
-            </Box>
-          </StyledAccordionSummary>
-          <StyledAccordionDetails>
-            {sockets.map((property, index) => {
-              return (
-                <PropertyContainer
-                  key={index}
-                  property={property}
-                  index={index}
-                  dataType={property.dataType}
-                  isInput={true}
-                  hasLink={property.hasLink()}
-                  data={property.data}
-                  randomMainColor={props.randomMainColor}
-                  selectedNode={props.selectedNode}
-                />
-              );
-            })}
-          </StyledAccordionDetails>
-        </StyledAccordion>
+        <Stack spacing={1}>
+          {sockets.map((property, index) => {
+            return (
+              <PropertyContainer
+                key={index}
+                property={property}
+                index={index}
+                dataType={property.dataType}
+                isInput={property.isInput()}
+                hasLink={property.hasLink()}
+                data={property.data}
+                randomMainColor={props.randomMainColor}
+                selectedNode={props.selectedNode}
+              />
+            );
+          })}
+        </Stack>
       )
     );
   }
@@ -111,55 +78,112 @@ export const PropertyArrayContainer: React.FunctionComponent<
     };
   });
 
+  const [filter, setFilter] = React.useState<string | null>('in');
+
+  const handleFilter = (
+    event: React.MouseEvent<HTMLElement>,
+    newFilter: string | null
+  ) => {
+    console.log(newFilter);
+    setFilter(newFilter);
+  };
+
   return (
     !dragging && (
-      <Stack spacing={1}>
-        {socketArrayToComponent(
-          props.selectedNode.nodeTriggerSocketArray,
-          props,
-          'Node Trigger'
-        )}
-        {socketArrayToComponent(
-          props.selectedNode.inputSocketArray,
-          props,
-          'In'
-        )}
-        <StyledAccordion defaultExpanded={false}>
-          <StyledAccordionSummary>
-            <Box textAlign="center" sx={{ color: 'text.primary' }}>
-              Code
-            </Box>
-          </StyledAccordionSummary>
-          <StyledAccordionDetails>
-            <Box
-              sx={{ flexGrow: 1, display: 'inline-flex', alignItems: 'center' }}
-            >
-              <Box sx={{ pl: 1, color: 'text.primary' }}>
-                {props.selectedNode.name}:{props.selectedNode.type}
-              </Box>
-              {<LockIcon sx={{ pl: '2px', fontSize: '16px', opacity: 0.5 }} />}
-              <IconButton
-                size="small"
-                onClick={() =>
-                  writeTextToClipboard(props.selectedNode.getSourceCode())
-                }
+      <Box sx={{ width: '100%', m: 1 }}>
+        <ToggleButtonGroup
+          value={filter}
+          exclusive
+          fullWidth
+          onChange={handleFilter}
+          aria-label="socket filter"
+          size="small"
+          sx={{ bgcolor: 'background.default' }}
+        >
+          <ToggleButton
+            value="trigger"
+            aria-label="trigger"
+            disabled={props.selectedNode.nodeTriggerSocketArray.length <= 0}
+          >
+            Trigger
+          </ToggleButton>
+          <ToggleButton
+            value="in"
+            aria-label="in"
+            disabled={props.selectedNode.inputSocketArray.length <= 0}
+          >
+            In
+          </ToggleButton>
+          <ToggleButton
+            value="out"
+            aria-label="out"
+            disabled={props.selectedNode.outputSocketArray.length <= 0}
+          >
+            Out
+          </ToggleButton>
+          <ToggleButton value="code" aria-label="code">
+            Code
+          </ToggleButton>
+        </ToggleButtonGroup>
+        <Stack spacing={4} mt={1}>
+          {socketArrayToComponent(
+            props.selectedNode.nodeTriggerSocketArray,
+            props,
+            'Node Trigger',
+            filter,
+            'trigger'
+          )}
+          {socketArrayToComponent(
+            props.selectedNode.inputSocketArray,
+            props,
+            'In',
+            filter,
+            'in'
+          )}
+          {socketArrayToComponent(
+            props.selectedNode.outputSocketArray,
+            props,
+            'Out',
+            filter,
+            'out'
+          )}
+          {(filter === 'code' || filter == null) && (
+            <Box sx={{ bgcolor: 'background.default' }}>
+              <Box
+                sx={{
+                  flexGrow: 1,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  py: 1,
+                }}
               >
-                <ContentCopyIcon sx={{ pl: 1, fontSize: '16px' }} />
-              </IconButton>
+                <Box sx={{ pl: 1, color: 'text.primary' }}>
+                  {props.selectedNode.type}
+                </Box>
+                {
+                  <LockIcon
+                    sx={{ pl: '2px', fontSize: '16px', opacity: 0.5 }}
+                  />
+                }
+                <IconButton
+                  size="small"
+                  onClick={() =>
+                    writeTextToClipboard(props.selectedNode.getSourceCode())
+                  }
+                >
+                  <ContentCopyIcon sx={{ pl: 1, fontSize: '16px' }} />
+                </IconButton>
+              </Box>
+              <CodeEditor
+                value={props.selectedNode.getSourceCode()}
+                randomMainColor={props.randomMainColor}
+                editable={false}
+                maxStringLength={1000}
+              />
             </Box>
-            <CodeEditor
-              value={props.selectedNode.getSourceCode()}
-              randomMainColor={props.randomMainColor}
-              editable={false}
-            />
-          </StyledAccordionDetails>
-        </StyledAccordion>
-        {socketArrayToComponent(
-          props.selectedNode.outputSocketArray,
-          props,
-          'Out'
-        )}
-      </Stack>
+          )}
+        </Stack>
+      </Box>
     )
   );
 };
@@ -227,7 +251,6 @@ export const PropertyContainer: React.FunctionComponent<
         sx={{
           px: 1,
           pb: 1,
-          ...(props.isInput ? { marginLeft: '30px' } : { marginRight: '30px' }),
           ...(!showHeader && { margin: '0px' }), // if no header, then override the margins
         }}
         className={styles.propertyContainerContent}
@@ -278,7 +301,6 @@ const PropertyHeader: React.FunctionComponent<PropertyHeaderProps> = (
         display: 'flex',
         flexWrap: 'nowrap',
         width: '100%',
-        ...(!props.isInput && { flexDirection: 'row-reverse' }),
       }}
     >
       <ToggleButton
@@ -292,6 +314,7 @@ const PropertyHeader: React.FunctionComponent<PropertyHeaderProps> = (
         sx={{
           fontSize: '16px',
           border: 0,
+          width: '40px',
         }}
       >
         {visible ? (

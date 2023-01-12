@@ -9,17 +9,19 @@ type CodeEditorProps = {
   onChange?: (code: string) => void;
   randomMainColor: string;
   editable?: boolean;
+  maxStringLength?: number;
 };
 
 export const CodeEditor: React.FunctionComponent<CodeEditorProps> = (props) => {
-  const maxStringLength = 10000;
   const valueLength = String(props.value)?.length;
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor>();
-  const [loadAll, setLoadAll] = useState(valueLength < maxStringLength);
+  const [loadAll, setLoadAll] = useState(
+    valueLength < props.maxStringLength ?? 10000
+  );
   const [loadedValue, setLoadedValue] = useState(
     loadAll
       ? String(props.value)
-      : String(props.value)?.slice(0, maxStringLength) + '...'
+      : String(props.value)?.slice(0, props.maxStringLength) + '...'
   );
   const [editorHeight, setEditorHeight] = useState(48);
 
