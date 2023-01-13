@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Color from 'color';
 import {
   Box,
+  Button,
   IconButton,
   Menu,
   MenuItem,
@@ -19,6 +20,7 @@ import {
   writeDataToClipboard,
   writeTextToClipboard,
 } from './utils/utils';
+import { PP_VERSION } from './utils/constants';
 import styles from './utils/style.module.css';
 import PPNode from './classes/NodeClass';
 import Socket from './classes/SocketClass';
@@ -31,6 +33,8 @@ import PPGraph from './classes/GraphClass';
 type PropertyArrayContainerProps = {
   selectedNode: PPNode;
   randomMainColor: string;
+  filter: string;
+  setFilter: React.Dispatch<React.SetStateAction<string>>;
 };
 
 function socketArrayToComponent(
@@ -78,10 +82,17 @@ function SourceContent(props) {
         }}
       >
         <Box sx={{ pl: 2, color: 'text.primary' }}>{props.header}</Box>
-        {<LockIcon sx={{ pl: '2px', fontSize: '16px', opacity: 0.5 }} />}
+        {!props.editable && (
+          <LockIcon sx={{ pl: '2px', fontSize: '16px', opacity: 0.5 }} />
+        )}
         <IconButton
           size="small"
-          onClick={() => writeTextToClipboard(props.sourceCode)}
+          // onClick={() => writeTextToClipboard(props.sourceCode)}
+          onClick={() =>
+            writeTextToClipboard(
+              `{"version": ${PP_VERSION},"nodes": [${props.sourceCode}],"links": []}`
+            )
+          }
         >
           <ContentCopyIcon sx={{ pl: 1, fontSize: '16px' }} />
         </IconButton>
@@ -89,9 +100,17 @@ function SourceContent(props) {
       <CodeEditor
         value={props.sourceCode}
         randomMainColor={props.randomMainColor}
-        editable={false}
+        editable={props.editable}
+        onChange={props.onChange}
         maxStringLength={1000}
       />
+      <Button
+        onClick={() => {
+          console.log('save and reload');
+        }}
+      >
+        Save and reload
+      </Button>
     </Box>
   );
 }
@@ -102,6 +121,10 @@ export const PropertyArrayContainer: React.FunctionComponent<
   const [dragging, setIsDragging] = useState(
     PPGraph.currentGraph.selection.isDraggingSelection
   );
+  const [configData, setConfigData] = useState(
+    JSON.stringify(props.selectedNode?.serialize(), getCircularReplacer(), 2)
+  );
+
   useEffect(() => {
     const id = InterfaceController.addListener(
       ListenEvent.SelectionDragging,
@@ -112,20 +135,22 @@ export const PropertyArrayContainer: React.FunctionComponent<
     };
   });
 
-  const [filter, setFilter] = React.useState<string | null>('in');
+  useEffect(() => {
+    console.log('configData changed');
+  }, [configData]);
 
   const handleFilter = (
     event: React.MouseEvent<HTMLElement>,
     newFilter: string | null
   ) => {
-    setFilter(newFilter);
+    props.setFilter(newFilter);
   };
 
   return (
     !dragging && (
       <Box sx={{ width: '100%', m: 1 }}>
         <ToggleButtonGroup
-          value={filter}
+          value={props.filter}
           exclusive
           fullWidth
           onChange={handleFilter}
@@ -163,37 +188,39 @@ export const PropertyArrayContainer: React.FunctionComponent<
             props.selectedNode.nodeTriggerSocketArray,
             props,
             'Node Trigger',
-            filter,
+            props.filter,
             'trigger'
           )}
           {socketArrayToComponent(
             props.selectedNode.inputSocketArray,
             props,
             'In',
-            filter,
+            props.filter,
             'in'
           )}
           {socketArrayToComponent(
             props.selectedNode.outputSocketArray,
             props,
             'Out',
-            filter,
+            props.filter,
             'out'
           )}
-          {(filter === 'source' || filter == null) && (
+          {(props.filter === 'source' || props.filter == null) && (
             <Stack spacing={1}>
               <SourceContent
                 header="Config"
+                editable={true}
                 selectedNode={props.selectedNode}
-                sourceCode={JSON.stringify(
-                  props.selectedNode?.serialize(),
-                  getCircularReplacer(),
-                  2
-                )}
+                sourceCode={configData}
                 randomMainColor={props.randomMainColor}
+                onChange={(value) => {
+                  setConfigData(value);
+                  console.log(value);
+                }}
               />
               <SourceContent
                 header="Class"
+                editable={false}
                 selectedNode={props.selectedNode}
                 sourceCode={props.selectedNode.getSourceCode()}
                 randomMainColor={props.randomMainColor}

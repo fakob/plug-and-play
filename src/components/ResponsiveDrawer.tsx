@@ -42,6 +42,7 @@ function DrawerToggle(props) {
 const ResponsiveDrawer = (props) => {
   // leaving this commented here for potential future testing
   const [open, setOpen] = useState(true);
+  const [filter, setFilter] = useState('in');
 
   const handleDrawerToggle = () => {
     setOpen((prevState) => !prevState);
@@ -112,6 +113,8 @@ const ResponsiveDrawer = (props) => {
           <InspectorContainer
             selectedNode={props.selectedNode}
             randomMainColor={props.randomMainColor}
+            filter={filter}
+            setFilter={setFilter}
           />
         ) : (
           <Paper
