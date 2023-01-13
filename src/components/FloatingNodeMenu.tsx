@@ -18,7 +18,6 @@ import UpdateIcon from '@mui/icons-material/Update';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import React, { useEffect, useState } from 'react';
 import Color from 'color';
-import { COLOR_DARK } from './../utils/constants';
 import { getCircularReplacer } from './../utils/utils';
 import PPNode from '../classes/NodeClass';
 import styles from './../utils/style.module.css';

@@ -14,7 +14,11 @@ import LockIcon from '@mui/icons-material/Lock';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import { writeDataToClipboard, writeTextToClipboard } from './utils/utils';
+import {
+  getCircularReplacer,
+  writeDataToClipboard,
+  writeTextToClipboard,
+} from './utils/utils';
 import styles from './utils/style.module.css';
 import PPNode from './classes/NodeClass';
 import Socket from './classes/SocketClass';
@@ -29,13 +33,13 @@ type PropertyArrayContainerProps = {
   randomMainColor: string;
 };
 
-const socketArrayToComponent = (
+function socketArrayToComponent(
   sockets: Socket[],
   props: PropertyArrayContainerProps,
   text: string,
   filter: string,
   value: string
-) => {
+) {
   {
     return (
       (filter === value || filter == null) &&
@@ -60,7 +64,37 @@ const socketArrayToComponent = (
       )
     );
   }
-};
+}
+
+function SourceContent(props) {
+  return (
+    <Box sx={{ bgcolor: 'background.default' }}>
+      <Box
+        sx={{
+          flexGrow: 1,
+          display: 'inline-flex',
+          alignItems: 'center',
+          py: 1,
+        }}
+      >
+        <Box sx={{ pl: 2, color: 'text.primary' }}>{props.header}</Box>
+        {<LockIcon sx={{ pl: '2px', fontSize: '16px', opacity: 0.5 }} />}
+        <IconButton
+          size="small"
+          onClick={() => writeTextToClipboard(props.sourceCode)}
+        >
+          <ContentCopyIcon sx={{ pl: 1, fontSize: '16px' }} />
+        </IconButton>
+      </Box>
+      <CodeEditor
+        value={props.sourceCode}
+        randomMainColor={props.randomMainColor}
+        editable={false}
+        maxStringLength={1000}
+      />
+    </Box>
+  );
+}
 
 export const PropertyArrayContainer: React.FunctionComponent<
   PropertyArrayContainerProps
@@ -84,7 +118,6 @@ export const PropertyArrayContainer: React.FunctionComponent<
     event: React.MouseEvent<HTMLElement>,
     newFilter: string | null
   ) => {
-    console.log(newFilter);
     setFilter(newFilter);
   };
 
@@ -121,8 +154,8 @@ export const PropertyArrayContainer: React.FunctionComponent<
           >
             Out
           </ToggleButton>
-          <ToggleButton value="code" aria-label="code">
-            Code
+          <ToggleButton value="source" aria-label="source">
+            Source
           </ToggleButton>
         </ToggleButtonGroup>
         <Stack spacing={4} mt={1}>
@@ -147,40 +180,25 @@ export const PropertyArrayContainer: React.FunctionComponent<
             filter,
             'out'
           )}
-          {(filter === 'code' || filter == null) && (
-            <Box sx={{ bgcolor: 'background.default' }}>
-              <Box
-                sx={{
-                  flexGrow: 1,
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  py: 1,
-                }}
-              >
-                <Box sx={{ pl: 1, color: 'text.primary' }}>
-                  {props.selectedNode.type}
-                </Box>
-                {
-                  <LockIcon
-                    sx={{ pl: '2px', fontSize: '16px', opacity: 0.5 }}
-                  />
-                }
-                <IconButton
-                  size="small"
-                  onClick={() =>
-                    writeTextToClipboard(props.selectedNode.getSourceCode())
-                  }
-                >
-                  <ContentCopyIcon sx={{ pl: 1, fontSize: '16px' }} />
-                </IconButton>
-              </Box>
-              <CodeEditor
-                value={props.selectedNode.getSourceCode()}
+          {(filter === 'source' || filter == null) && (
+            <Stack spacing={1}>
+              <SourceContent
+                header="Config"
+                selectedNode={props.selectedNode}
+                sourceCode={JSON.stringify(
+                  props.selectedNode?.serialize(),
+                  getCircularReplacer(),
+                  2
+                )}
                 randomMainColor={props.randomMainColor}
-                editable={false}
-                maxStringLength={1000}
               />
-            </Box>
+              <SourceContent
+                header="Class"
+                selectedNode={props.selectedNode}
+                sourceCode={props.selectedNode.getSourceCode()}
+                randomMainColor={props.randomMainColor}
+              />
+            </Stack>
           )}
         </Stack>
       </Box>
@@ -333,7 +351,7 @@ const PropertyHeader: React.FunctionComponent<PropertyHeaderProps> = (
       >
         <Box sx={{ flexGrow: 1, display: 'inline-flex', alignItems: 'center' }}>
           <Box sx={{ pl: 1, color: 'text.primary' }}>{props.property.name}</Box>
-          {props.hasLink && (
+          {(!props.isInput || props.hasLink) && (
             <LockIcon sx={{ pl: '2px', fontSize: '16px', opacity: 0.5 }} />
           )}
           <IconButton
