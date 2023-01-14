@@ -7,26 +7,20 @@ import {
   Menu,
   MenuItem,
   Paper,
-  Popover,
   Stack,
   TextField,
   ThemeProvider,
-  Typography,
 } from '@mui/material';
-import CodeIcon from '@mui/icons-material/Code';
 import UpdateIcon from '@mui/icons-material/Update';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import React, { useEffect, useState } from 'react';
 import Color from 'color';
-import { getCircularReplacer } from './../utils/utils';
 import PPNode from '../classes/NodeClass';
 import styles from './../utils/style.module.css';
 import { theme } from './../utils/customTheme';
 
 const FloatingNodeMenu = (props) => {
   const selectedNodes: PPNode[] = props.selectedNodes;
-  const [anchorElCode, setAnchorElCode] =
-    React.useState<HTMLButtonElement | null>(null);
   const [anchorElMore, setAnchorElMore] =
     React.useState<HTMLButtonElement | null>(null);
 
@@ -34,20 +28,14 @@ const FloatingNodeMenu = (props) => {
     return <div />;
   }
 
-  const handleClickCode = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorElCode(event.currentTarget);
-  };
-
   const handleClickMore = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorElMore(event.currentTarget);
   };
 
   const handleClose = () => {
-    setAnchorElCode(null);
     setAnchorElMore(null);
   };
 
-  const openCode = Boolean(anchorElCode);
   const openMore = Boolean(anchorElMore);
 
   // returns null for a specific property,
@@ -121,21 +109,6 @@ const FloatingNodeMenu = (props) => {
   };
 
   const [nodeName, setNodeName] = React.useState(selectedNodes[0].name);
-  const [code, setCode] = React.useState('');
-
-  useEffect(() => {
-    if (openCode) {
-      setCode(
-        JSON.stringify(
-          props?.selectedNodes[0]?.serialize(),
-          getCircularReplacer(),
-          2
-        )
-      );
-    } else {
-      setCode('');
-    }
-  }, [openCode]);
 
   return (
     <ThemeProvider theme={theme}>
@@ -182,32 +155,6 @@ const FloatingNodeMenu = (props) => {
               },
             }}
           />
-
-          {selectedNodes?.length === 1 && (
-            <>
-              <IconButton onClick={handleClickCode} title="Show code">
-                <CodeIcon />
-              </IconButton>
-              <Popover
-                open={openCode}
-                anchorEl={anchorElCode}
-                onClose={handleClose}
-                anchorOrigin={{
-                  vertical: 'bottom',
-                  horizontal: 'left',
-                }}
-              >
-                <Typography
-                  fontFamily="Roboto Mono"
-                  fontSize="12px"
-                  sx={{ p: 2, bgcolor: 'background.paper' }}
-                  className={`${styles.serializedNode} ${styles.scrollablePortal}`}
-                >
-                  {code}
-                </Typography>
-              </Popover>
-            </>
-          )}
           <ButtonGroup>
             <IconButton onClick={onUpdateNow} title="Update now">
               <UpdateIcon />

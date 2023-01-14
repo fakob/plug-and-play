@@ -3,10 +3,14 @@ import Color from 'color';
 import {
   Box,
   Button,
+  Checkbox,
+  FormControlLabel,
+  FormGroup,
   IconButton,
   Menu,
   MenuItem,
   Stack,
+  TextField,
   ToggleButton,
   ToggleButtonGroup,
 } from '@mui/material';
@@ -32,6 +36,7 @@ import PPGraph from './classes/GraphClass';
 
 type PropertyArrayContainerProps = {
   selectedNode: PPNode;
+  selectedNodes: PPNode[];
   randomMainColor: string;
   filter: string;
   setFilter: React.Dispatch<React.SetStateAction<string>>;
@@ -68,6 +73,53 @@ function socketArrayToComponent(
       )
     );
   }
+}
+
+function TriggerContent(props) {
+  return (
+    <Box sx={{ bgcolor: 'background.default' }}>
+      <Button onClick={props.onUpdateNow}>Update now</Button>
+      <FormControlLabel
+        control={
+          <Checkbox
+            name="update"
+            checked={props.updateBehaviour.update}
+            indeterminate={props.updateBehaviour.update === null}
+            onChange={props.onCheckboxChange}
+          />
+        }
+        label="Update on change"
+      />
+      <FormGroup>
+        <FormControlLabel
+          control={
+            <Checkbox
+              name="interval"
+              checked={props.updateBehaviour.interval}
+              indeterminate={props.updateBehaviour.interval === null}
+              onChange={props.onCheckboxChange}
+            />
+          }
+          label="Update on interval (in ms)"
+        />
+        <TextField
+          variant="filled"
+          label="Frequency"
+          disabled={!props.updateBehaviour.interval}
+          inputProps={{
+            type: 'number',
+            inputMode: 'numeric',
+          }}
+          onChange={props.onFrequencyChange}
+          value={
+            props.updateBehaviour.intervalFrequency === null
+              ? 'null'
+              : props.updateBehaviour.intervalFrequency.toString()
+          }
+        />
+      </FormGroup>
+    </Box>
+  );
 }
 
 function SourceContent(props) {
@@ -124,6 +176,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
   const [configData, setConfigData] = useState(
     JSON.stringify(props.selectedNode?.serialize(), getCircularReplacer(), 2)
   );
+  const selectedNodes: PPNode[] = props.selectedNodes;
 
   useEffect(() => {
     const id = InterfaceController.addListener(
@@ -144,6 +197,76 @@ export const PropertyArrayContainer: React.FunctionComponent<
     newFilter: string | null
   ) => {
     props.setFilter(newFilter);
+  };
+
+  // returns null for a specific property,
+  // if its value is not the same throughout the array
+  // else it returns the value
+  const getUpdateBehaviourStateForArray = () => {
+    const areAllIntervalsTheSame = selectedNodes.every(
+      (selectedNode) =>
+        selectedNode.updateBehaviour.interval ===
+        selectedNodes[0].updateBehaviour.interval
+    );
+    const areAllFrequenciesTheSame = selectedNodes.every(
+      (selectedNode) =>
+        selectedNode.updateBehaviour.intervalFrequency ===
+        selectedNodes[0].updateBehaviour.intervalFrequency
+    );
+    const areAllUpdatesTheSame = selectedNodes.every(
+      (selectedNode) =>
+        selectedNode.updateBehaviour.update ===
+        selectedNodes[0].updateBehaviour.update
+    );
+    const updateBehaviourObject = {
+      interval: areAllIntervalsTheSame
+        ? selectedNodes[0].updateBehaviour.interval
+        : null,
+      intervalFrequency: areAllFrequenciesTheSame
+        ? selectedNodes[0].updateBehaviour.intervalFrequency
+        : null,
+      update: areAllUpdatesTheSame
+        ? selectedNodes[0].updateBehaviour.update
+        : null,
+    };
+    return updateBehaviourObject;
+  };
+
+  const [updateBehaviour, setUpdatebehaviour] = useState(
+    getUpdateBehaviourStateForArray()
+  );
+
+  useEffect(() => {
+    setUpdatebehaviour(getUpdateBehaviourStateForArray());
+  }, [selectedNodes.length]);
+
+  const onCheckboxChange = (event) => {
+    const checked = (event.target as HTMLInputElement).checked;
+    const name = (event.target as HTMLInputElement).name;
+    selectedNodes.forEach((selectedNode) => {
+      selectedNode.updateBehaviour[event.target.name] = checked;
+    });
+    setUpdatebehaviour((prevState) => ({
+      ...prevState,
+      [name]: checked,
+    }));
+  };
+
+  const onFrequencyChange = (event) => {
+    const value = (event.target as HTMLInputElement).value;
+    selectedNodes.forEach((selectedNode) => {
+      selectedNode.updateBehaviour.intervalFrequency = parseInt(value);
+    });
+    setUpdatebehaviour((prevState) => ({
+      ...prevState,
+      intervalFrequency: parseInt(value),
+    }));
+  };
+
+  const onUpdateNow = (event) => {
+    selectedNodes.forEach((selectedNode) => {
+      selectedNode.executeOptimizedChain();
+    });
   };
 
   return (
@@ -184,12 +307,23 @@ export const PropertyArrayContainer: React.FunctionComponent<
           </ToggleButton>
         </ToggleButtonGroup>
         <Stack spacing={4} mt={1}>
-          {socketArrayToComponent(
-            props.selectedNode.nodeTriggerSocketArray,
-            props,
-            'Node Trigger',
-            props.filter,
-            'trigger'
+          {(props.filter === 'trigger' || props.filter == null) && (
+            <Stack spacing={1}>
+              <TriggerContent
+                selectedNode={props.selectedNode}
+                randomMainColor={props.randomMainColor}
+                updateBehaviour={updateBehaviour}
+                onCheckboxChange={onCheckboxChange}
+                onFrequencyChange={onFrequencyChange}
+              />
+              {socketArrayToComponent(
+                props.selectedNode.nodeTriggerSocketArray,
+                props,
+                'Node Trigger',
+                props.filter,
+                'trigger'
+              )}
+            </Stack>
           )}
           {socketArrayToComponent(
             props.selectedNode.inputSocketArray,

@@ -8,6 +8,7 @@ import { COLOR_WHITE_TEXT, COLOR_DARK, customTheme } from './utils/constants';
 
 type MyProps = {
   selectedNode: PPNode;
+  selectedNodes: PPNode[];
   randomMainColor: string;
   filter: string;
   setFilter: React.Dispatch<React.SetStateAction<string>>;
@@ -54,6 +55,7 @@ const InspectorContainer: React.FunctionComponent<MyProps> = (props) => {
         </Box>
         <PropertyArrayContainer
           selectedNode={props.selectedNode}
+          selectedNodes={props.selectedNodes}
           randomMainColor={props.randomMainColor}
           filter={props.filter}
           setFilter={props.setFilter}

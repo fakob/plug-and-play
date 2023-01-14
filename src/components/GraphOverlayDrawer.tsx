@@ -25,6 +25,7 @@ const GraphOverlayDrawer: React.FunctionComponent<GraphOverlayDrawerProps> = (
         selectedNode={
           props.selectedNodes.length > 0 ? props.selectedNodes[0] : null
         }
+        selectedNodes={props.selectedNodes}
         randomMainColor={props.randomMainColor}
       />
     </Box>
