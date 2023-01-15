@@ -143,7 +143,7 @@ function CommonContent(props) {
             <Checkbox
               name="update"
               checked={props.update}
-              indeterminate={props.update === ''}
+              indeterminate={props.update === null}
               onChange={props.onCheckboxChange}
             />
           }
@@ -155,7 +155,7 @@ function CommonContent(props) {
               <Checkbox
                 name="interval"
                 checked={props.interval}
-                indeterminate={props.interval === ''}
+                indeterminate={props.interval === null}
                 onChange={props.onCheckboxChange}
               />
             }
@@ -171,7 +171,11 @@ function CommonContent(props) {
               inputMode: 'numeric',
             }}
             onChange={props.onFrequencyChange}
-            value={props.intervalFrequency.toString()}
+            value={
+              props.intervalFrequency === null
+                ? ''
+                : props.intervalFrequency.toString()
+            }
           />
         </FormGroup>
         {props.hasTriggerSocket && (
@@ -311,13 +315,13 @@ export const PropertyArrayContainer: React.FunctionComponent<
     const updateBehaviourObject = {
       interval: areAllIntervalsTheSame
         ? props.selectedNodes[0].updateBehaviour.interval
-        : '',
+        : null,
       intervalFrequency: areAllFrequenciesTheSame
         ? props.selectedNodes[0].updateBehaviour.intervalFrequency
-        : '',
+        : null,
       update: areAllUpdatesTheSame
         ? props.selectedNodes[0].updateBehaviour.update
-        : '',
+        : null,
     };
     return updateBehaviourObject;
   };

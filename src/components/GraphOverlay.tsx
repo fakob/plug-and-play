@@ -3,7 +3,6 @@ import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
 import InterfaceController, { ListenEvent } from '../InterfaceController';
 import GraphOverlayDrawer from './GraphOverlayDrawer';
-import GraphOverlayNodeMenu from './GraphOverlayNodeMenu';
 import GraphOverlaySocketInspector from './GraphOverlaySocketInspector';
 
 type GraphOverlayProps = {
@@ -57,14 +56,6 @@ const GraphOverlay: React.FunctionComponent<GraphOverlayProps> = (props) => {
         toggle={props.toggle}
         selectedNodes={selectedNodes}
         randomMainColor={props.randomMainColor}
-      />
-      <GraphOverlayNodeMenu
-        selectedNodes={selectedNodes}
-        currentGraph={props.currentGraph}
-        randomMainColor={props.randomMainColor}
-        isDragging={
-          isZoomingViewport || isDraggingViewport || isDraggingSelection
-        }
       />
       <GraphOverlaySocketInspector randomMainColor={props.randomMainColor} />
     </>
