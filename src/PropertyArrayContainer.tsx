@@ -280,11 +280,8 @@ export const PropertyArrayContainer: React.FunctionComponent<
     setConfigData(
       JSON.stringify(newSelectedNode?.serialize(), getCircularReplacer(), 2)
     );
+    setUpdatebehaviour(getUpdateBehaviourStateForArray());
   }, [props.selectedNodes]);
-
-  useEffect(() => {
-    // console.log('configData changed', configData);
-  }, [configData]);
 
   const handleFilter = (
     event: React.MouseEvent<HTMLElement>,
@@ -330,10 +327,6 @@ export const PropertyArrayContainer: React.FunctionComponent<
     getUpdateBehaviourStateForArray()
   );
 
-  useEffect(() => {
-    setUpdatebehaviour(getUpdateBehaviourStateForArray());
-  }, [props.selectedNodes.length]);
-
   const onCheckboxChange = (event) => {
     const checked = (event.target as HTMLInputElement).checked;
     const name = (event.target as HTMLInputElement).name;
@@ -377,9 +370,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
             props.filter === 'common' ||
             props.filter == null) && (
             <CommonContent
-              selectedNode={selectedNode}
               hasTriggerSocket={selectedNode.nodeTriggerSocketArray.length > 0}
-              randomMainColor={props.randomMainColor}
               interval={updateBehaviour.interval}
               intervalFrequency={updateBehaviour.intervalFrequency}
               update={updateBehaviour.update}

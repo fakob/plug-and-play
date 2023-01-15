@@ -68,9 +68,6 @@ const InspectorContainer: React.FunctionComponent<InspectorContainerProps> = (
   const [nodeName, setNodeName] = React.useState(
     props.selectedNodes?.[0]?.name
   );
-  useEffect(() => {
-    console.log(props.selectedNodes);
-  }, [props.selectedNodes.length]);
 
   return (
     <ThemeProvider theme={customTheme}>
@@ -81,7 +78,6 @@ const InspectorContainer: React.FunctionComponent<InspectorContainerProps> = (
           fontFamily: "'Roboto', 'Helvetica', 'Arial', 'sans-serif'",
           height: '100%',
         }}
-        // key={props?.selectedNode?.id}
       >
         <InspectorHeader
           nodeName={nodeName}
