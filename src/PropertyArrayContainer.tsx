@@ -251,18 +251,28 @@ function SourceContent(props: SourceContentProps) {
         onChange={props.onChange}
       />
       {props.onChange && (
-        <Button
-          onClick={() => {
-            const sourceCode = props.sourceCode;
-            const newSerializedNode = JSON.parse(sourceCode) as SerializedNode;
-            PPGraph.currentGraph.action_ReplaceNode(
-              props.selectedNode.serialize(),
-              newSerializedNode
-            );
+        <Box
+          sx={{
+            m: 1,
           }}
         >
-          Save and replace
-        </Button>
+          <Button
+            variant="contained"
+            fullWidth
+            onClick={() => {
+              const sourceCode = props.sourceCode;
+              const newSerializedNode = JSON.parse(
+                sourceCode
+              ) as SerializedNode;
+              PPGraph.currentGraph.action_ReplaceNode(
+                props.selectedNode.serialize(),
+                newSerializedNode
+              );
+            }}
+          >
+            Save and replace
+          </Button>
+        </Box>
       )}
     </Box>
   );
