@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {
   Box,
   Button,
+  ButtonGroup,
   Checkbox,
   FormControlLabel,
   FormGroup,
@@ -14,7 +15,7 @@ import {
 import LockIcon from '@mui/icons-material/Lock';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { getCircularReplacer, writeTextToClipboard } from './utils/utils';
-import { SerializedNode } from './utils/interfaces';
+import { SerializedNode, SerializedSelection } from './utils/interfaces';
 import { PP_VERSION } from './utils/constants';
 import PPGraph from './classes/GraphClass';
 import PPNode from './classes/NodeClass';
@@ -235,11 +236,7 @@ function SourceContent(props: SourceContentProps) {
         )}
         <IconButton
           size="small"
-          onClick={() =>
-            writeTextToClipboard(
-              `{"version": ${PP_VERSION},"nodes": [${props.sourceCode}],"links": []}`
-            )
-          }
+          onClick={() => writeTextToClipboard(props.sourceCode)}
         >
           <ContentCopyIcon sx={{ pl: 1, fontSize: '16px' }} />
         </IconButton>
@@ -256,22 +253,33 @@ function SourceContent(props: SourceContentProps) {
             m: 1,
           }}
         >
-          <Button
-            variant="contained"
-            fullWidth
-            onClick={() => {
-              const sourceCode = props.sourceCode;
-              const newSerializedNode = JSON.parse(
-                sourceCode
-              ) as SerializedNode;
-              PPGraph.currentGraph.action_ReplaceNode(
-                props.selectedNode.serialize(),
-                newSerializedNode
-              );
-            }}
-          >
-            Save and replace
-          </Button>
+          <ButtonGroup variant="outlined" size="small" fullWidth>
+            <Button
+              onClick={() => {
+                const sourceCode = props.sourceCode;
+                const newSerializedNode = JSON.parse(
+                  sourceCode
+                ) as SerializedNode;
+                PPGraph.currentGraph.action_ReplaceNode(
+                  props.selectedNode.serialize(),
+                  newSerializedNode
+                );
+              }}
+            >
+              Replace
+            </Button>
+            <Button
+              onClick={() => {
+                const sourceCode = props.sourceCode;
+                const newSerializedSelection = JSON.parse(
+                  `{"version": ${PP_VERSION},"nodes": [${sourceCode}],"links": []}`
+                ) as SerializedSelection;
+                PPGraph.currentGraph.pasteNodes(newSerializedSelection);
+              }}
+            >
+              Create new
+            </Button>
+          </ButtonGroup>
         </Box>
       )}
     </Box>
