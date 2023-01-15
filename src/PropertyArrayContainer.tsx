@@ -13,8 +13,11 @@ import {
 } from '@mui/material';
 import LockIcon from '@mui/icons-material/Lock';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import { hri } from 'human-readable-ids';
 import { getCircularReplacer, writeTextToClipboard } from './utils/utils';
+import { SerializedNode } from './utils/interfaces';
 import { PP_VERSION } from './utils/constants';
+import PPGraph from './classes/GraphClass';
 import PPNode from './classes/NodeClass';
 import Socket from './classes/SocketClass';
 import { SocketContainer } from './SocketContainer';
@@ -213,6 +216,7 @@ type SourceContentProps = {
   sourceCode: string;
   randomMainColor: string;
   onChange?: (value) => void;
+  nodeId?: string;
 };
 
 function SourceContent(props: SourceContentProps) {
@@ -250,10 +254,18 @@ function SourceContent(props: SourceContentProps) {
       {props.onChange && (
         <Button
           onClick={() => {
-            console.log('save and reload');
+            const sourceCode = props.sourceCode;
+            const serialized = JSON.parse(sourceCode) as SerializedNode;
+            PPGraph.currentGraph.replaceNode(
+              serialized,
+              props.nodeId,
+              hri.random(),
+              undefined,
+              true
+            );
           }}
         >
-          Save and reload
+          Save and replace
         </Button>
       )}
     </Box>
@@ -274,11 +286,12 @@ export const PropertyArrayContainer: React.FunctionComponent<
     false
     // PPGraph.currentGraph.selection.isDraggingSelection
   );
-  const [selectedNode, setSelectedNode] = useState(
-    props.selectedNodes.length > 0 ? props.selectedNodes?.[0] : null
-  );
 
-  const [configData, setConfigData] = useState(getConfigData(selectedNode));
+  const singleNode =
+    props.selectedNodes.length > 0 ? props.selectedNodes?.[0] : null;
+  const [selectedNode, setSelectedNode] = useState(singleNode);
+
+  const [configData, setConfigData] = useState(getConfigData(singleNode));
 
   useEffect(() => {
     const id = InterfaceController.addListener(
@@ -434,8 +447,8 @@ export const PropertyArrayContainer: React.FunctionComponent<
                     randomMainColor={props.randomMainColor}
                     onChange={(value) => {
                       setConfigData(value);
-                      console.log(value);
                     }}
+                    nodeId={selectedNode.id}
                   />
                   <SourceContent
                     header="Class"
