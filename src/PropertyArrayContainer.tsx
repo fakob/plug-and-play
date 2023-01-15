@@ -4,10 +4,8 @@ import {
   Box,
   Button,
   Checkbox,
-  FormControl,
   FormControlLabel,
   FormGroup,
-  FormLabel,
   IconButton,
   Menu,
   MenuItem,
@@ -141,22 +139,11 @@ function CommonContent(props) {
           </Button>
         </FormGroup>
         <FormControlLabel
-          disabled
-          control={
-            <Checkbox
-              name="trigger"
-              checked={true}
-              onChange={props.onCheckboxChange}
-            />
-          }
-          label="Update on change"
-        />
-        <FormControlLabel
           control={
             <Checkbox
               name="update"
-              checked={props.updateBehaviour.update}
-              indeterminate={props.updateBehaviour.update === null}
+              checked={props.update}
+              indeterminate={props.update === ''}
               onChange={props.onCheckboxChange}
             />
           }
@@ -167,29 +154,39 @@ function CommonContent(props) {
             control={
               <Checkbox
                 name="interval"
-                checked={props.updateBehaviour.interval}
-                indeterminate={props.updateBehaviour.interval === null}
+                checked={props.interval}
+                indeterminate={props.interval === ''}
                 onChange={props.onCheckboxChange}
               />
             }
             label="Update on interval (in ms)"
           />
           <TextField
+            id="frequency"
             variant="filled"
             label="Frequency"
-            disabled={!props.updateBehaviour.interval}
+            disabled={!props.interval}
             inputProps={{
               type: 'number',
               inputMode: 'numeric',
             }}
             onChange={props.onFrequencyChange}
-            value={
-              props.updateBehaviour.intervalFrequency === null
-                ? 'null'
-                : props.updateBehaviour.intervalFrequency.toString()
-            }
+            value={props.intervalFrequency.toString()}
           />
         </FormGroup>
+        {props.hasTriggerSocket && (
+          <FormControlLabel
+            disabled
+            control={
+              <Checkbox
+                name="trigger"
+                checked={true}
+                onChange={props.onCheckboxChange}
+              />
+            }
+            label="Update on trigger"
+          />
+        )}
       </FormGroup>
     </Box>
   );
@@ -297,30 +294,30 @@ export const PropertyArrayContainer: React.FunctionComponent<
   // else it returns the value
   const getUpdateBehaviourStateForArray = () => {
     const areAllIntervalsTheSame = props.selectedNodes.every(
-      (selectedNode) =>
-        selectedNode.updateBehaviour.interval ===
+      (node) =>
+        node.updateBehaviour.interval ===
         props.selectedNodes[0].updateBehaviour.interval
     );
     const areAllFrequenciesTheSame = props.selectedNodes.every(
-      (selectedNode) =>
-        selectedNode.updateBehaviour.intervalFrequency ===
+      (node) =>
+        node.updateBehaviour.intervalFrequency ===
         props.selectedNodes[0].updateBehaviour.intervalFrequency
     );
     const areAllUpdatesTheSame = props.selectedNodes.every(
-      (selectedNode) =>
-        selectedNode.updateBehaviour.update ===
+      (node) =>
+        node.updateBehaviour.update ===
         props.selectedNodes[0].updateBehaviour.update
     );
     const updateBehaviourObject = {
       interval: areAllIntervalsTheSame
         ? props.selectedNodes[0].updateBehaviour.interval
-        : null,
+        : '',
       intervalFrequency: areAllFrequenciesTheSame
         ? props.selectedNodes[0].updateBehaviour.intervalFrequency
-        : null,
+        : '',
       update: areAllUpdatesTheSame
         ? props.selectedNodes[0].updateBehaviour.update
-        : null,
+        : '',
     };
     return updateBehaviourObject;
   };
@@ -372,58 +369,67 @@ export const PropertyArrayContainer: React.FunctionComponent<
           selectedNodes={props.selectedNodes}
         />
         <Stack spacing={1} mt={1}>
-          {(props.filter === 'common' || props.filter == null) && (
+          {(props.selectedNodes.length !== 1 ||
+            props.filter === 'common' ||
+            props.filter == null) && (
             <CommonContent
               selectedNode={selectedNode}
+              hasTriggerSocket={selectedNode.nodeTriggerSocketArray.length > 0}
               randomMainColor={props.randomMainColor}
-              updateBehaviour={updateBehaviour}
+              interval={updateBehaviour.interval}
+              intervalFrequency={updateBehaviour.intervalFrequency}
+              update={updateBehaviour.update}
               onCheckboxChange={onCheckboxChange}
               onFrequencyChange={onFrequencyChange}
               onUpdateNow={onUpdateNow}
             />
           )}
-          {socketArrayToComponent(
-            selectedNode.nodeTriggerSocketArray,
-            props,
-            'Triggers',
-            props.filter,
-            'trigger'
-          )}
-          {socketArrayToComponent(
-            selectedNode.inputSocketArray,
-            props,
-            'Inputs',
-            props.filter,
-            'in'
-          )}
-          {socketArrayToComponent(
-            selectedNode.outputSocketArray,
-            props,
-            'Outputs',
-            props.filter,
-            'out'
-          )}
-          {(props.filter === 'source' || props.filter == null) && (
-            <Stack spacing={1}>
-              <SourceContent
-                header="Config"
-                editable={true}
-                selectedNode={selectedNode}
-                sourceCode={configData}
-                randomMainColor={props.randomMainColor}
-                onChange={(value) => {
-                  setConfigData(value);
-                  console.log(value);
-                }}
-              />
-              <SourceContent
-                header="Class"
-                editable={false}
-                selectedNode={selectedNode}
-                sourceCode={selectedNode.getSourceCode()}
-                randomMainColor={props.randomMainColor}
-              />
-            </Stack>
+          {props.selectedNodes.length === 1 && (
+            <>
+              {socketArrayToComponent(
+                selectedNode.nodeTriggerSocketArray,
+                props,
+                'Triggers',
+                props.filter,
+                'trigger'
+              )}
+              {socketArrayToComponent(
+                selectedNode.inputSocketArray,
+                props,
+                'Inputs',
+                props.filter,
+                'in'
+              )}
+              {socketArrayToComponent(
+                selectedNode.outputSocketArray,
+                props,
+                'Outputs',
+                props.filter,
+                'out'
+              )}
+              {(props.filter === 'source' || props.filter == null) && (
+                <Stack spacing={1}>
+                  <SourceContent
+                    header="Config"
+                    editable={true}
+                    selectedNode={selectedNode}
+                    sourceCode={configData}
+                    randomMainColor={props.randomMainColor}
+                    onChange={(value) => {
+                      setConfigData(value);
+                      console.log(value);
+                    }}
+                  />
+                  <SourceContent
+                    header="Class"
+                    editable={false}
+                    selectedNode={selectedNode}
+                    sourceCode={selectedNode.getSourceCode()}
+                    randomMainColor={props.randomMainColor}
+                  />
+                </Stack>
+              )}
+            </>
           )}
         </Stack>
       </Box>
