@@ -20,7 +20,7 @@ import {
   customTheme,
 } from './../utils/constants';
 import { writeDataToClipboard } from './../utils/utils';
-import { SocketContainer } from '../PropertyArrayContainer';
+import { SocketContainer } from '../SocketContainer';
 import styles from './../utils/style.module.css';
 
 function PaperComponent(props) {
