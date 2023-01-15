@@ -13,7 +13,6 @@ import {
 } from '@mui/material';
 import LockIcon from '@mui/icons-material/Lock';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import { hri } from 'human-readable-ids';
 import { getCircularReplacer, writeTextToClipboard } from './utils/utils';
 import { SerializedNode } from './utils/interfaces';
 import { PP_VERSION } from './utils/constants';
@@ -216,7 +215,7 @@ type SourceContentProps = {
   sourceCode: string;
   randomMainColor: string;
   onChange?: (value) => void;
-  nodeId?: string;
+  selectedNode?: PPNode;
 };
 
 function SourceContent(props: SourceContentProps) {
@@ -255,13 +254,10 @@ function SourceContent(props: SourceContentProps) {
         <Button
           onClick={() => {
             const sourceCode = props.sourceCode;
-            const serialized = JSON.parse(sourceCode) as SerializedNode;
-            PPGraph.currentGraph.replaceNode(
-              serialized,
-              props.nodeId,
-              hri.random(),
-              undefined,
-              true
+            const newSerializedNode = JSON.parse(sourceCode) as SerializedNode;
+            PPGraph.currentGraph.action_ReplaceNode(
+              props.selectedNode.serialize(),
+              newSerializedNode
             );
           }}
         >
@@ -304,7 +300,6 @@ export const PropertyArrayContainer: React.FunctionComponent<
   });
 
   useEffect(() => {
-    console.log('node selection changed');
     const newSelectedNode =
       props.selectedNodes.length > 0 ? props.selectedNodes?.[0] : null;
     setSelectedNode(newSelectedNode);
@@ -448,7 +443,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
                     onChange={(value) => {
                       setConfigData(value);
                     }}
-                    nodeId={selectedNode.id}
+                    selectedNode={selectedNode}
                   />
                   <SourceContent
                     header="Class"

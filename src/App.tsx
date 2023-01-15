@@ -581,6 +581,10 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           }
         } else if (modKey && e.shiftKey) {
           switch (e.key.toLowerCase()) {
+            case 'a':
+              PPGraph.currentGraph.selection.deselectAllNodes();
+              e.preventDefault();
+              break;
             case 'y':
               setShowComments((prevState) => !prevState);
               break;
