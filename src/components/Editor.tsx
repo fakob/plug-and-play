@@ -4,10 +4,12 @@ import MonacoEditor, { monaco } from 'react-monaco-editor';
 import { Box, Button } from '@mui/material';
 import ErrorFallback from './ErrorFallback';
 
-function getLoadedValue(value, shouldLoadAll, maxStringLength) {
+const MAX_STRING_LENGTH = 1000;
+
+function getLoadedValue(value, shouldLoadAll) {
   return shouldLoadAll
     ? String(value)
-    : String(value)?.slice(0, maxStringLength) + '...';
+    : String(value)?.slice(0, MAX_STRING_LENGTH) + '...';
 }
 
 type CodeEditorProps = {
@@ -15,18 +17,15 @@ type CodeEditorProps = {
   onChange?: (code: string) => void;
   randomMainColor: string;
   editable?: boolean;
-  maxStringLength?: number;
 };
 
 export const CodeEditor: React.FunctionComponent<CodeEditorProps> = (props) => {
   const valueLength = String(props.value)?.length;
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor>();
-  const [loadAll, setLoadAll] = useState(
-    valueLength < props.maxStringLength ?? 10000
-  );
+  const [loadAll, setLoadAll] = useState(valueLength < MAX_STRING_LENGTH);
 
   const [loadedValue, setLoadedValue] = useState(
-    getLoadedValue(props.value, loadAll, props.maxStringLength)
+    getLoadedValue(props.value, loadAll)
   );
   const [editorHeight, setEditorHeight] = useState(48);
 
@@ -55,7 +54,7 @@ export const CodeEditor: React.FunctionComponent<CodeEditorProps> = (props) => {
   };
 
   useEffect(() => {
-    setLoadedValue(getLoadedValue(props.value, loadAll, props.maxStringLength));
+    setLoadedValue(getLoadedValue(props.value, loadAll));
   }, [props.value]);
 
   return (

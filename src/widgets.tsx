@@ -340,7 +340,6 @@ export const CodeWidget: React.FunctionComponent<CodeWidgetProps> = (props) => {
         potentiallyNotify(props.property, value);
         setData(value);
       }}
-      maxStringLength={1000}
     />
   );
 };
@@ -372,7 +371,6 @@ export const JSONWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
             setValidJSON(false);
           }
         }}
-        maxStringLength={1000}
       />
       {!validJSON && <Alert severity="error">Invalid JSON!</Alert>}
     </Box>
@@ -423,7 +421,6 @@ export const TriggerWidget: React.FunctionComponent<TriggerWidgetProps> = (
             potentiallyNotify(props.property, value);
             setData(value);
           }}
-          maxStringLength={1000}
         />
       )}
       <FormControl variant="filled" fullWidth>
@@ -565,7 +562,6 @@ export const DefaultOutputWidget: React.FunctionComponent<
       value={props.data}
       randomMainColor={props.randomMainColor}
       editable={false}
-      maxStringLength={1000}
     />
   );
 };

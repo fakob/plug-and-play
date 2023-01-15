@@ -230,7 +230,6 @@ function SourceContent(props) {
         randomMainColor={props.randomMainColor}
         editable={props.editable}
         onChange={props.onChange}
-        maxStringLength={1000}
       />
       <Button
         onClick={() => {
