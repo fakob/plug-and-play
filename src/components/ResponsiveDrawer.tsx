@@ -73,6 +73,10 @@ const ResponsiveDrawer = (props) => {
     handleDrawerToggle();
   }, [props.toggle]);
 
+  // useEffect(() => {
+  //   console.log(props.selectedNodes);
+  // }, [props.selectedNodes.length]);
+
   return (
     <>
       {!open && (
@@ -109,9 +113,8 @@ const ResponsiveDrawer = (props) => {
           randomMainColor={props.randomMainColor}
           handleDrawerToggle={handleDrawerToggle}
         />
-        {props.selectedNode ? (
+        {props.selectedNodes?.length > 0 ? (
           <InspectorContainer
-            selectedNode={props.selectedNode}
             selectedNodes={props.selectedNodes}
             randomMainColor={props.randomMainColor}
             filter={filter}
@@ -144,7 +147,7 @@ const ResponsiveDrawer = (props) => {
 // not neccessary to memoize this for the moment, but can be relevant later so leaving this uncommented
 export default React.memo(ResponsiveDrawer, (prevProps, newProps) => {
   return (
-    prevProps.selectedNode?.id === newProps.selectedNode?.id &&
+    prevProps.selectedNodes === newProps.selectedNodes &&
     prevProps.drawerWidth === newProps.drawerWidth &&
     prevProps.toggle === newProps.toggle
   );

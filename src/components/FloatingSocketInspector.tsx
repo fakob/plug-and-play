@@ -20,7 +20,7 @@ import {
   customTheme,
 } from './../utils/constants';
 import { writeDataToClipboard } from './../utils/utils';
-import { PropertyContainer } from '../PropertyArrayContainer';
+import { SocketContainer } from '../PropertyArrayContainer';
 import styles from './../utils/style.module.css';
 
 function PaperComponent(props) {
@@ -129,7 +129,7 @@ export const FloatingSocketInspector: React.FunctionComponent<MyProps> = (
           </IconButton>
         </Box>
         <Box id="draggable-content">
-          <PropertyContainer
+          <SocketContainer
             key={0}
             property={props.socketToInspect}
             index={0}

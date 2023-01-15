@@ -22,9 +22,6 @@ const GraphOverlayDrawer: React.FunctionComponent<GraphOverlayDrawerProps> = (
         drawerWidth={drawerWidth}
         setDrawerWidth={setDrawerWidth}
         toggle={props.toggle}
-        selectedNode={
-          props.selectedNodes.length > 0 ? props.selectedNodes[0] : null
-        }
         selectedNodes={props.selectedNodes}
         randomMainColor={props.randomMainColor}
       />

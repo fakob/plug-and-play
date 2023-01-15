@@ -4,8 +4,10 @@ import {
   Box,
   Button,
   Checkbox,
+  FormControl,
   FormControlLabel,
   FormGroup,
+  FormLabel,
   IconButton,
   Menu,
   MenuItem,
@@ -34,13 +36,52 @@ import { CodeEditor } from './components/Editor';
 import InterfaceController, { ListenEvent } from './InterfaceController';
 import PPGraph from './classes/GraphClass';
 
-type PropertyArrayContainerProps = {
-  selectedNode: PPNode;
-  selectedNodes: PPNode[];
-  randomMainColor: string;
-  filter: string;
-  setFilter: React.Dispatch<React.SetStateAction<string>>;
-};
+function FilterContainer(props) {
+  return (
+    <ToggleButtonGroup
+      value={props.filter}
+      exclusive
+      fullWidth
+      onChange={props.handleFilter}
+      aria-label="socket filter"
+      size="small"
+      sx={{ bgcolor: 'background.default' }}
+    >
+      <ToggleButton value="common" aria-label="common">
+        Common
+      </ToggleButton>
+      {props.selectedNodes.length === 1 &&
+        props.selectedNode.nodeTriggerSocketArray.length > 0 && (
+          <ToggleButton value="trigger" aria-label="trigger">
+            Trigger
+          </ToggleButton>
+        )}
+      {props.selectedNodes.length === 1 && (
+        <ToggleButton
+          value="in"
+          aria-label="in"
+          disabled={props.selectedNode.inputSocketArray.length <= 0}
+        >
+          In
+        </ToggleButton>
+      )}
+      {props.selectedNodes.length === 1 && (
+        <ToggleButton
+          value="out"
+          aria-label="out"
+          disabled={props.selectedNode.outputSocketArray.length <= 0}
+        >
+          Out
+        </ToggleButton>
+      )}
+      {props.selectedNodes.length === 1 && (
+        <ToggleButton value="source" aria-label="source">
+          Source
+        </ToggleButton>
+      )}
+    </ToggleButtonGroup>
+  );
+}
 
 function socketArrayToComponent(
   sockets: Socket[],
@@ -53,78 +94,111 @@ function socketArrayToComponent(
     return (
       (filter === value || filter == null) &&
       sockets?.length > 0 && (
-        <Stack spacing={1}>
-          {sockets.map((property, index) => {
-            return (
-              <PropertyContainer
-                key={index}
-                property={property}
-                index={index}
-                dataType={property.dataType}
-                isInput={property.isInput()}
-                hasLink={property.hasLink()}
-                data={property.data}
-                randomMainColor={props.randomMainColor}
-                selectedNode={props.selectedNode}
-              />
-            );
-          })}
-        </Stack>
+        <Box sx={{ bgcolor: 'background.paper' }}>
+          {filter == null && (
+            <Box sx={{ px: 2, py: 1.5, color: 'text.primary' }}>{text}</Box>
+          )}
+          <Stack spacing={1}>
+            {sockets.map((property, index) => {
+              return (
+                <SocketContainer
+                  key={index}
+                  property={property}
+                  index={index}
+                  dataType={property.dataType}
+                  isInput={property.isInput()}
+                  hasLink={property.hasLink()}
+                  data={property.data}
+                  randomMainColor={props.randomMainColor}
+                  selectedNode={
+                    props.selectedNodes.length > 0
+                      ? props.selectedNodes[0]
+                      : null
+                  }
+                />
+              );
+            })}
+          </Stack>
+        </Box>
       )
     );
   }
 }
 
-function TriggerContent(props) {
+function CommonContent(props) {
   return (
-    <Box sx={{ bgcolor: 'background.default' }}>
-      <Button onClick={props.onUpdateNow}>Update now</Button>
-      <FormControlLabel
-        control={
-          <Checkbox
-            name="update"
-            checked={props.updateBehaviour.update}
-            indeterminate={props.updateBehaviour.update === null}
-            onChange={props.onCheckboxChange}
-          />
-        }
-        label="Update on change"
-      />
-      <FormGroup>
+    <Box sx={{ bgcolor: 'background.paper' }}>
+      <Box sx={{ px: 2, py: 1.5, color: 'text.primary' }}>Update behaviour</Box>
+      <FormGroup
+        sx={{
+          p: 1,
+          bgcolor: 'background.default',
+        }}
+      >
+        <FormGroup>
+          <Button variant="contained" onClick={props.onUpdateNow}>
+            Update now
+          </Button>
+        </FormGroup>
         <FormControlLabel
+          disabled
           control={
             <Checkbox
-              name="interval"
-              checked={props.updateBehaviour.interval}
-              indeterminate={props.updateBehaviour.interval === null}
+              name="trigger"
+              checked={true}
               onChange={props.onCheckboxChange}
             />
           }
-          label="Update on interval (in ms)"
+          label="Update on change"
         />
-        <TextField
-          variant="filled"
-          label="Frequency"
-          disabled={!props.updateBehaviour.interval}
-          inputProps={{
-            type: 'number',
-            inputMode: 'numeric',
-          }}
-          onChange={props.onFrequencyChange}
-          value={
-            props.updateBehaviour.intervalFrequency === null
-              ? 'null'
-              : props.updateBehaviour.intervalFrequency.toString()
+        <FormControlLabel
+          control={
+            <Checkbox
+              name="update"
+              checked={props.updateBehaviour.update}
+              indeterminate={props.updateBehaviour.update === null}
+              onChange={props.onCheckboxChange}
+            />
           }
+          label="Update on change"
         />
+        <FormGroup>
+          <FormControlLabel
+            control={
+              <Checkbox
+                name="interval"
+                checked={props.updateBehaviour.interval}
+                indeterminate={props.updateBehaviour.interval === null}
+                onChange={props.onCheckboxChange}
+              />
+            }
+            label="Update on interval (in ms)"
+          />
+          <TextField
+            variant="filled"
+            label="Frequency"
+            disabled={!props.updateBehaviour.interval}
+            inputProps={{
+              type: 'number',
+              inputMode: 'numeric',
+            }}
+            onChange={props.onFrequencyChange}
+            value={
+              props.updateBehaviour.intervalFrequency === null
+                ? 'null'
+                : props.updateBehaviour.intervalFrequency.toString()
+            }
+          />
+        </FormGroup>
       </FormGroup>
     </Box>
   );
 }
 
 function SourceContent(props) {
+  console.log(props.sourceCode.slice(0, 50));
   return (
-    <Box sx={{ bgcolor: 'background.default' }}>
+    <Box sx={{ bgcolor: 'background.paper' }}>
       <Box
         sx={{
           flexGrow: 1,
@@ -139,7 +213,6 @@ function SourceContent(props) {
         )}
         <IconButton
           size="small"
-          // onClick={() => writeTextToClipboard(props.sourceCode)}
           onClick={() =>
             writeTextToClipboard(
               `{"version": ${PP_VERSION},"nodes": [${props.sourceCode}],"links": []}`
@@ -167,16 +240,26 @@ function SourceContent(props) {
   );
 }
 
+type PropertyArrayContainerProps = {
+  selectedNodes: PPNode[];
+  randomMainColor: string;
+  filter: string;
+  setFilter: React.Dispatch<React.SetStateAction<string>>;
+};
+
 export const PropertyArrayContainer: React.FunctionComponent<
   PropertyArrayContainerProps
 > = (props) => {
   const [dragging, setIsDragging] = useState(
     PPGraph.currentGraph.selection.isDraggingSelection
   );
-  const [configData, setConfigData] = useState(
-    JSON.stringify(props.selectedNode?.serialize(), getCircularReplacer(), 2)
+  const [selectedNode, setSelectedNode] = useState(
+    props.selectedNodes.length > 0 ? props.selectedNodes?.[0] : null
   );
-  const selectedNodes: PPNode[] = props.selectedNodes;
+
+  const [configData, setConfigData] = useState(
+    JSON.stringify(selectedNode?.serialize(), getCircularReplacer(), 2)
+  );
 
   useEffect(() => {
     const id = InterfaceController.addListener(
@@ -189,7 +272,17 @@ export const PropertyArrayContainer: React.FunctionComponent<
   });
 
   useEffect(() => {
-    console.log('configData changed');
+    console.log('node selection changed');
+    const newSelectedNode =
+      props.selectedNodes.length > 0 ? props.selectedNodes?.[0] : null;
+    setSelectedNode(newSelectedNode);
+    setConfigData(
+      JSON.stringify(newSelectedNode?.serialize(), getCircularReplacer(), 2)
+    );
+  }, [props.selectedNodes]);
+
+  useEffect(() => {
+    // console.log('configData changed', configData);
   }, [configData]);
 
   const handleFilter = (
@@ -203,30 +296,30 @@ export const PropertyArrayContainer: React.FunctionComponent<
   // if its value is not the same throughout the array
   // else it returns the value
   const getUpdateBehaviourStateForArray = () => {
-    const areAllIntervalsTheSame = selectedNodes.every(
+    const areAllIntervalsTheSame = props.selectedNodes.every(
       (selectedNode) =>
         selectedNode.updateBehaviour.interval ===
-        selectedNodes[0].updateBehaviour.interval
+        props.selectedNodes[0].updateBehaviour.interval
     );
-    const areAllFrequenciesTheSame = selectedNodes.every(
+    const areAllFrequenciesTheSame = props.selectedNodes.every(
       (selectedNode) =>
         selectedNode.updateBehaviour.intervalFrequency ===
-        selectedNodes[0].updateBehaviour.intervalFrequency
+        props.selectedNodes[0].updateBehaviour.intervalFrequency
     );
-    const areAllUpdatesTheSame = selectedNodes.every(
+    const areAllUpdatesTheSame = props.selectedNodes.every(
       (selectedNode) =>
         selectedNode.updateBehaviour.update ===
-        selectedNodes[0].updateBehaviour.update
+        props.selectedNodes[0].updateBehaviour.update
     );
     const updateBehaviourObject = {
       interval: areAllIntervalsTheSame
-        ? selectedNodes[0].updateBehaviour.interval
+        ? props.selectedNodes[0].updateBehaviour.interval
         : null,
       intervalFrequency: areAllFrequenciesTheSame
-        ? selectedNodes[0].updateBehaviour.intervalFrequency
+        ? props.selectedNodes[0].updateBehaviour.intervalFrequency
         : null,
       update: areAllUpdatesTheSame
-        ? selectedNodes[0].updateBehaviour.update
+        ? props.selectedNodes[0].updateBehaviour.update
         : null,
     };
     return updateBehaviourObject;
@@ -238,12 +331,12 @@ export const PropertyArrayContainer: React.FunctionComponent<
 
   useEffect(() => {
     setUpdatebehaviour(getUpdateBehaviourStateForArray());
-  }, [selectedNodes.length]);
+  }, [props.selectedNodes.length]);
 
   const onCheckboxChange = (event) => {
     const checked = (event.target as HTMLInputElement).checked;
     const name = (event.target as HTMLInputElement).name;
-    selectedNodes.forEach((selectedNode) => {
+    props.selectedNodes.forEach((selectedNode) => {
       selectedNode.updateBehaviour[event.target.name] = checked;
     });
     setUpdatebehaviour((prevState) => ({
@@ -254,7 +347,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
 
   const onFrequencyChange = (event) => {
     const value = (event.target as HTMLInputElement).value;
-    selectedNodes.forEach((selectedNode) => {
+    props.selectedNodes.forEach((selectedNode) => {
       selectedNode.updateBehaviour.intervalFrequency = parseInt(value);
     });
     setUpdatebehaviour((prevState) => ({
@@ -264,7 +357,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
   };
 
   const onUpdateNow = (event) => {
-    selectedNodes.forEach((selectedNode) => {
+    props.selectedNodes.forEach((selectedNode) => {
       selectedNode.executeOptimizedChain();
     });
   };
@@ -272,70 +365,41 @@ export const PropertyArrayContainer: React.FunctionComponent<
   return (
     !dragging && (
       <Box sx={{ width: '100%', m: 1 }}>
-        <ToggleButtonGroup
-          value={props.filter}
-          exclusive
-          fullWidth
-          onChange={handleFilter}
-          aria-label="socket filter"
-          size="small"
-          sx={{ bgcolor: 'background.default' }}
-        >
-          <ToggleButton
-            value="trigger"
-            aria-label="trigger"
-            disabled={props.selectedNode.nodeTriggerSocketArray.length <= 0}
-          >
-            Trigger
-          </ToggleButton>
-          <ToggleButton
-            value="in"
-            aria-label="in"
-            disabled={props.selectedNode.inputSocketArray.length <= 0}
-          >
-            In
-          </ToggleButton>
-          <ToggleButton
-            value="out"
-            aria-label="out"
-            disabled={props.selectedNode.outputSocketArray.length <= 0}
-          >
-            Out
-          </ToggleButton>
-          <ToggleButton value="source" aria-label="source">
-            Source
-          </ToggleButton>
-        </ToggleButtonGroup>
-        <Stack spacing={4} mt={1}>
-          {(props.filter === 'trigger' || props.filter == null) && (
-            <Stack spacing={1}>
-              <TriggerContent
-                selectedNode={props.selectedNode}
-                randomMainColor={props.randomMainColor}
-                updateBehaviour={updateBehaviour}
-                onCheckboxChange={onCheckboxChange}
-                onFrequencyChange={onFrequencyChange}
-              />
-              {socketArrayToComponent(
-                props.selectedNode.nodeTriggerSocketArray,
-                props,
-                'Node Trigger',
-                props.filter,
-                'trigger'
-              )}
-            </Stack>
+        <FilterContainer
+          handleFilter={handleFilter}
+          filter={props.filter}
+          selectedNode={selectedNode}
+          selectedNodes={props.selectedNodes}
+        />
+        <Stack spacing={1} mt={1}>
+          {(props.filter === 'common' || props.filter == null) && (
+            <CommonContent
+              selectedNode={selectedNode}
+              randomMainColor={props.randomMainColor}
+              updateBehaviour={updateBehaviour}
+              onCheckboxChange={onCheckboxChange}
+              onFrequencyChange={onFrequencyChange}
+              onUpdateNow={onUpdateNow}
+            />
           )}
           {socketArrayToComponent(
-            props.selectedNode.inputSocketArray,
+            selectedNode.nodeTriggerSocketArray,
             props,
-            'In',
+            'Triggers',
+            props.filter,
+            'trigger'
+          )}
+          {socketArrayToComponent(
+            selectedNode.inputSocketArray,
+            props,
+            'Inputs',
             props.filter,
             'in'
           )}
           {socketArrayToComponent(
-            props.selectedNode.outputSocketArray,
+            selectedNode.outputSocketArray,
             props,
-            'Out',
+            'Outputs',
             props.filter,
             'out'
           )}
@@ -344,7 +408,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
               <SourceContent
                 header="Config"
                 editable={true}
-                selectedNode={props.selectedNode}
+                selectedNode={selectedNode}
                 sourceCode={configData}
                 randomMainColor={props.randomMainColor}
                 onChange={(value) => {
@@ -355,8 +419,8 @@ export const PropertyArrayContainer: React.FunctionComponent<
               <SourceContent
                 header="Class"
                 editable={false}
-                selectedNode={props.selectedNode}
-                sourceCode={props.selectedNode.getSourceCode()}
+                selectedNode={selectedNode}
+                sourceCode={selectedNode.getSourceCode()}
                 randomMainColor={props.randomMainColor}
               />
             </Stack>
@@ -367,7 +431,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
   );
 };
 
-type PropertyContainerProps = {
+type SocketContainerProps = {
   property: Socket;
   index: number;
   dataType: AbstractType;
@@ -379,9 +443,9 @@ type PropertyContainerProps = {
   selectedNode: PPNode;
 };
 
-export const PropertyContainer: React.FunctionComponent<
-  PropertyContainerProps
-> = (props) => {
+export const SocketContainer: React.FunctionComponent<SocketContainerProps> = (
+  props
+) => {
   const { showHeader = true } = props;
   const [dataTypeValue, setDataTypeValue] = useState(props.dataType);
   const baseProps = {
@@ -416,8 +480,8 @@ export const PropertyContainer: React.FunctionComponent<
   return (
     <Box sx={{ bgcolor: 'background.default' }}>
       {showHeader && (
-        <PropertyHeader
-          key={`PropertyHeader-${props.dataType.getName()}`}
+        <SocketHeader
+          key={`SocketHeader-${props.dataType.getName()}`}
           property={props.property}
           index={props.index}
           isInput={props.isInput}
@@ -452,7 +516,7 @@ export const PropertyContainer: React.FunctionComponent<
   );
 };
 
-type PropertyHeaderProps = {
+type SocketHeaderProps = {
   property: Socket;
   index: number;
   isInput: boolean;
@@ -461,9 +525,7 @@ type PropertyHeaderProps = {
   randomMainColor: string;
 };
 
-const PropertyHeader: React.FunctionComponent<PropertyHeaderProps> = (
-  props
-) => {
+const SocketHeader: React.FunctionComponent<SocketHeaderProps> = (props) => {
   const [visible, setVisible] = useState(props.property.visible);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
