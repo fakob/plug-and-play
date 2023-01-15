@@ -32,7 +32,10 @@ import { AbstractType } from './nodes/datatypes/abstractType';
 import { allDataTypes } from './nodes/datatypes/dataTypesMap';
 import { CodeEditor } from './components/Editor';
 import InterfaceController, { ListenEvent } from './InterfaceController';
-import PPGraph from './classes/GraphClass';
+
+function getConfigData(selectedNode) {
+  return JSON.stringify(selectedNode?.serialize(), getCircularReplacer(), 2);
+}
 
 function FilterContainer(props) {
   return (
@@ -197,7 +200,6 @@ function CommonContent(props) {
 }
 
 function SourceContent(props) {
-  console.log(props.sourceCode.slice(0, 50));
   return (
     <Box sx={{ bgcolor: 'background.paper' }}>
       <Box
@@ -252,15 +254,14 @@ export const PropertyArrayContainer: React.FunctionComponent<
   PropertyArrayContainerProps
 > = (props) => {
   const [dragging, setIsDragging] = useState(
-    PPGraph.currentGraph.selection.isDraggingSelection
+    false
+    // PPGraph.currentGraph.selection.isDraggingSelection
   );
   const [selectedNode, setSelectedNode] = useState(
     props.selectedNodes.length > 0 ? props.selectedNodes?.[0] : null
   );
 
-  const [configData, setConfigData] = useState(
-    JSON.stringify(selectedNode?.serialize(), getCircularReplacer(), 2)
-  );
+  const [configData, setConfigData] = useState(getConfigData(selectedNode));
 
   useEffect(() => {
     const id = InterfaceController.addListener(
@@ -277,9 +278,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
     const newSelectedNode =
       props.selectedNodes.length > 0 ? props.selectedNodes?.[0] : null;
     setSelectedNode(newSelectedNode);
-    setConfigData(
-      JSON.stringify(newSelectedNode?.serialize(), getCircularReplacer(), 2)
-    );
+    setConfigData(getConfigData(newSelectedNode));
     setUpdatebehaviour(getUpdateBehaviourStateForArray());
   }, [props.selectedNodes]);
 
@@ -407,7 +406,6 @@ export const PropertyArrayContainer: React.FunctionComponent<
                   <SourceContent
                     header="Config"
                     editable={true}
-                    selectedNode={selectedNode}
                     sourceCode={configData}
                     randomMainColor={props.randomMainColor}
                     onChange={(value) => {
@@ -418,7 +416,6 @@ export const PropertyArrayContainer: React.FunctionComponent<
                   <SourceContent
                     header="Class"
                     editable={false}
-                    selectedNode={selectedNode}
                     sourceCode={selectedNode.getSourceCode()}
                     randomMainColor={props.randomMainColor}
                   />
