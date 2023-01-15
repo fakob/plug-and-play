@@ -5,7 +5,7 @@
   width: calc(100% - 16px);
   padding: 8px;
   max-height: 100vh;
-  overflow: auto;
+  overflow: hidden;
   user-select: none;
   z-index: 200;
 }

@@ -25,7 +25,17 @@ function getConfigData(selectedNode) {
   return JSON.stringify(selectedNode?.serialize(), getCircularReplacer(), 2);
 }
 
-function FilterContainer(props) {
+type FilterContentProps = {
+  handleFilter: (
+    event: React.MouseEvent<HTMLElement>,
+    newFilter: string | null
+  ) => void;
+  filter: string;
+  selectedNode: PPNode;
+  selectedNodes: PPNode[];
+};
+
+function FilterContainer(props: FilterContentProps) {
   return (
     <ToggleButtonGroup
       value={props.filter}
@@ -34,7 +44,7 @@ function FilterContainer(props) {
       onChange={props.handleFilter}
       aria-label="socket filter"
       size="small"
-      sx={{ bgcolor: 'background.default' }}
+      sx={{ bgcolor: 'background.paper', borderRadius: '0px' }}
     >
       <ToggleButton value="common" aria-label="common">
         Common
@@ -72,49 +82,17 @@ function FilterContainer(props) {
   );
 }
 
-function socketArrayToComponent(
-  sockets: Socket[],
-  props: PropertyArrayContainerProps,
-  text: string,
-  filter: string,
-  value: string
-) {
-  {
-    return (
-      (filter === value || filter == null) &&
-      sockets?.length > 0 && (
-        <Box sx={{ bgcolor: 'background.paper' }}>
-          {filter == null && (
-            <Box sx={{ px: 2, py: 1.5, color: 'text.primary' }}>{text}</Box>
-          )}
-          <Stack spacing={1}>
-            {sockets.map((property, index) => {
-              return (
-                <SocketContainer
-                  key={index}
-                  property={property}
-                  index={index}
-                  dataType={property.dataType}
-                  isInput={property.isInput()}
-                  hasLink={property.hasLink()}
-                  data={property.data}
-                  randomMainColor={props.randomMainColor}
-                  selectedNode={
-                    props.selectedNodes.length > 0
-                      ? props.selectedNodes[0]
-                      : null
-                  }
-                />
-              );
-            })}
-          </Stack>
-        </Box>
-      )
-    );
-  }
-}
+type CommonContentProps = {
+  hasTriggerSocket: boolean;
+  interval: boolean;
+  intervalFrequency: number;
+  update: boolean;
+  onCheckboxChange: (event) => void;
+  onFrequencyChange: (event) => void;
+  onUpdateNow: (event) => void;
+};
 
-function CommonContent(props) {
+function CommonContent(props: CommonContentProps) {
   return (
     <Box sx={{ bgcolor: 'background.paper' }}>
       <Box sx={{ px: 2, py: 1.5, color: 'text.primary' }}>Update behaviour</Box>
@@ -187,7 +165,57 @@ function CommonContent(props) {
   );
 }
 
-function SourceContent(props) {
+function socketArrayToComponent(
+  sockets: Socket[],
+  props: PropertyArrayContainerProps,
+  text: string,
+  filter: string,
+  value: string
+) {
+  {
+    return (
+      (filter === value || filter == null) &&
+      sockets?.length > 0 && (
+        <Box sx={{ bgcolor: 'background.paper' }}>
+          {filter == null && (
+            <Box sx={{ px: 2, py: 1.5, color: 'text.primary' }}>{text}</Box>
+          )}
+          <Stack spacing={1}>
+            {sockets.map((property, index) => {
+              return (
+                <SocketContainer
+                  key={index}
+                  property={property}
+                  index={index}
+                  dataType={property.dataType}
+                  isInput={property.isInput()}
+                  hasLink={property.hasLink()}
+                  data={property.data}
+                  randomMainColor={props.randomMainColor}
+                  selectedNode={
+                    props.selectedNodes.length > 0
+                      ? props.selectedNodes[0]
+                      : null
+                  }
+                />
+              );
+            })}
+          </Stack>
+        </Box>
+      )
+    );
+  }
+}
+
+type SourceContentProps = {
+  header: string;
+  editable: boolean;
+  sourceCode: string;
+  randomMainColor: string;
+  onChange?: (value) => void;
+};
+
+function SourceContent(props: SourceContentProps) {
   return (
     <Box sx={{ bgcolor: 'background.paper' }}>
       <Box
@@ -219,13 +247,15 @@ function SourceContent(props) {
         editable={props.editable}
         onChange={props.onChange}
       />
-      <Button
-        onClick={() => {
-          console.log('save and reload');
-        }}
-      >
-        Save and reload
-      </Button>
+      {props.onChange && (
+        <Button
+          onClick={() => {
+            console.log('save and reload');
+          }}
+        >
+          Save and reload
+        </Button>
+      )}
     </Box>
   );
 }
@@ -351,7 +381,14 @@ export const PropertyArrayContainer: React.FunctionComponent<
           selectedNode={selectedNode}
           selectedNodes={props.selectedNodes}
         />
-        <Stack spacing={1} mt={1}>
+        <Stack
+          spacing={1}
+          sx={{
+            mt: 1,
+            overflow: 'auto',
+            height: 'calc(100vh - 100px)',
+          }}
+        >
           {(props.selectedNodes.length !== 1 ||
             props.filter === 'common' ||
             props.filter == null) && (
@@ -408,6 +445,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
                   />
                 </Stack>
               )}
+              <Box sx={{ m: 1 }} />
             </>
           )}
         </Stack>

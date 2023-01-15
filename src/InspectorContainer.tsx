@@ -106,18 +106,19 @@ function InspectorHeader(props) {
           </IconButton>
         )}
       </Box>
-      {props.selectedNodes?.[0].type !== props.nodeName && (
-        <Typography
-          sx={{
-            opacity: 0.5,
-            fontSize: '10px',
-            wordBreak: 'break-all',
-            pl: 1,
-          }}
-        >
-          {props.selectedNodes?.[0].type}
-        </Typography>
-      )}
+      {props.selectedNodes.length === 1 &&
+        props.selectedNodes?.[0].type !== props.nodeName && (
+          <Typography
+            sx={{
+              opacity: 0.5,
+              fontSize: '10px',
+              wordBreak: 'break-all',
+              pl: 1,
+            }}
+          >
+            {props.selectedNodes?.[0].type}
+          </Typography>
+        )}
     </Box>
   );
 }
