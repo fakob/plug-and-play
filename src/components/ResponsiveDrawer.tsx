@@ -23,7 +23,7 @@ function DrawerToggle(props) {
           width: '32px',
           minWidth: '32px',
           background: `${
-            props.selectedNode
+            props.areNodesSelected
               ? Color(props.randomMainColor).alpha(0.2)
               : 'unset'
           }`,
@@ -32,7 +32,7 @@ function DrawerToggle(props) {
         {props.posLeft ? (
           <ChevronRightIcon />
         ) : (
-          props.selectedNode && <TuneIcon />
+          props.areNodesSelected && <TuneIcon />
         )}
       </Button>
     </Box>
@@ -73,15 +73,11 @@ const ResponsiveDrawer = (props) => {
     handleDrawerToggle();
   }, [props.toggle]);
 
-  // useEffect(() => {
-  //   console.log(props.selectedNodes);
-  // }, [props.selectedNodes.length]);
-
   return (
     <>
       {!open && (
         <DrawerToggle
-          selectedNode={props.selectedNode}
+          areNodesSelected={props.selectedNodes?.length > 0}
           randomMainColor={props.randomMainColor}
           handleDrawerToggle={handleDrawerToggle}
         />
