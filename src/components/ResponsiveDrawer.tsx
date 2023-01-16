@@ -110,7 +110,7 @@ const ResponsiveDrawer = (props) => {
           randomMainColor={props.randomMainColor}
           handleDrawerToggle={handleDrawerToggle}
         />
-        {props.selectedNodes?.length > 0 ? (
+        {props.selectedNodes.length ? (
           <InspectorContainer
             selectedNodes={props.selectedNodes}
             randomMainColor={props.randomMainColor}

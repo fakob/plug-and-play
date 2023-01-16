@@ -178,7 +178,7 @@ function socketArrayToComponent(
   {
     return (
       (filter === value || filter == null) &&
-      sockets?.length > 0 && (
+      sockets.length > 0 && (
         <Box sx={{ bgcolor: 'background.paper' }}>
           {filter == null && (
             <Box sx={{ px: 2, py: 1.5, color: 'text.primary' }}>{text}</Box>
@@ -301,8 +301,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
     // PPGraph.currentGraph.selection.isDraggingSelection
   );
 
-  const singleNode =
-    props.selectedNodes.length > 0 ? props.selectedNodes?.[0] : null;
+  const singleNode = props.selectedNodes.length ? props.selectedNodes[0] : null;
   const [selectedNode, setSelectedNode] = useState(singleNode);
 
   const [configData, setConfigData] = useState(getConfigData(singleNode));
