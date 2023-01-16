@@ -93,6 +93,11 @@ const isMac = navigator.platform.indexOf('Mac') != -1;
 const controlOrMetaKey = isMac ? '⌘' : 'Ctrl';
 console.log('isMac: ', isMac);
 
+console.log(process.env);
+const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID;
+const gitHubRedirectURL = 'http://localhost:8080/oauth/redirect';
+const path = '/';
+
 const randomMainColorLightHex = PIXI.utils.string2hex(
   Color(RANDOMMAINCOLOR).mix(Color('white'), 0.9).hex()
 );
@@ -109,6 +114,7 @@ const App = (): JSX.Element => {
   pixiDebugRef.resolution = 1;
   pixiDebugRef.x = 4;
 
+  const [user, setUser] = useState();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const pixiApp = useRef<PIXI.Application | null>(null);
   const pixiContext = useRef<HTMLDivElement | null>(null);
@@ -307,6 +313,16 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
 
   // on mount
   useEffect(() => {
+    // (async function () {
+    //   const usr = await axios
+    //     .get(`http://localhost:4000/api/me`, {
+    //       withCredentials: true,
+    //     })
+    //     .then((res) => res.data);
+
+    //   setUser(usr);
+    // })();
+
     console.log(pixiContext.current);
 
     // create pixiApp
@@ -1104,10 +1120,23 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
             }}
             src={PLUGANDPLAY_ICON}
             onClick={() => {
+              console.log('icon clicked');
               setContextMenuPosition([80, 40]);
               setIsGraphContextMenuOpen(true);
             }}
           />
+          {!user ? (
+            <Button
+              href={`https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&redirect_uri=${gitHubRedirectURL}?path=${path}&scope=user:email`}
+              // onClick={() => {
+              //   console.log('button clicked');
+              // }}
+            >
+              Login with Github
+            </Button>
+          ) : (
+            <h1>Welcome {user}</h1>
+          )}
           {isCurrentGraphLoaded && (
             <>
               <Autocomplete
