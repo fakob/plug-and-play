@@ -47,7 +47,7 @@ module.exports = () => {
       new MiniCssExtractPlugin({
         filename: '[name].[fullhash].css',
       }),
-      new Dotenv(),
+      new Dotenv({ systemvars: true }),
 
       new webpack.ProgressPlugin(),
     ],

@@ -313,15 +313,14 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
 
   // on mount
   useEffect(() => {
-    // (async function () {
-    //   const usr = await axios
-    //     .get(`http://localhost:4000/api/me`, {
-    //       withCredentials: true,
-    //     })
-    //     .then((res) => res.data);
-
-    //   setUser(usr);
-    // })();
+    (async function () {
+      const res = await fetch(`http://localhost:8080/api/me`, {
+        credentials: 'include',
+      });
+      const usr = await res.json();
+      console.log(usr);
+      setUser(usr);
+    })();
 
     console.log(pixiContext.current);
 
@@ -1127,15 +1126,17 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           />
           {!user ? (
             <Button
-              href={`https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&redirect_uri=${gitHubRedirectURL}?path=${path}&scope=user:email`}
-              // onClick={() => {
-              //   console.log('button clicked');
-              // }}
+              href={`https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&redirect_uri=${gitHubRedirectURL}?path=${path}&scope=gist`}
             >
               Login with Github
             </Button>
           ) : (
-            <h1>Welcome {user}</h1>
+            <Box
+              sx={{ background: 'black', color: 'white', position: 'absolute' }}
+            >
+              Welcome {(user as any).login}
+              <Button href={'http://localhost:8080/logout'}>Logout</Button>
+            </Box>
           )}
           {isCurrentGraphLoaded && (
             <>
