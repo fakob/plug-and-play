@@ -1,6 +1,19 @@
 const path = require('path');
 const express = require('express');
 const cors = require('cors');
+const axios = require('axios');
+const querystring = require('node:querystring');
+const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
+const session = require('express-session');
+const MemoryStore = require('memorystore')(session);
+
+const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID;
+const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET;
+const SESSION_SECRET = process.env.SESSION_SECRET;
+const COOKIE_SECRET = process.env.COOKIE_SECRET;
+const SESSION_COOKIE_NAME = 'pp-session-id';
+const COOKIE_NAME = 'pp-github-jwt';
 
 const buildInfo = {
   buildVersion: process.env.HEROKU_RELEASE_VERSION,
@@ -9,15 +22,142 @@ const buildInfo = {
 
 const app = express();
 
+app.use(express.json());
+
+app.use(cookieParser());
+
 app.use(cors());
+
+app.use(
+  session({
+    cookie: { maxAge: 86400000 },
+    name: SESSION_COOKIE_NAME,
+    store: new MemoryStore({
+      checkPeriod: 86400000, // prune expired entries every 24h
+    }),
+    resave: false,
+    saveUninitialized: false,
+    secret: SESSION_SECRET,
+  })
+);
+
 app.use(express.static(path.join(__dirname, 'dist')));
+
 app.set('port', process.env.PORT || 8080);
 
 app.get('/buildInfo', function (req, res) {
   res.send(buildInfo);
 });
 
+app.get('/oauth/redirect', async function (req, res) {
+  const code = req.query?.code;
+  const path = req.query?.path ?? '/';
+
+  if (!code) {
+    throw new Error('No code!');
+  }
+
+  const gitHubUser = await getGitHubUser({ req, code });
+
+  // console.log(gitHubUser);
+
+  const token = jwt.sign(gitHubUser, COOKIE_SECRET);
+
+  res.cookie(COOKIE_NAME, token, {
+    httpOnly: true,
+  });
+
+  res.redirect(`${path}`);
+});
+
+app.get('/api/me', (req, res) => {
+  const cookie = req.cookies[COOKIE_NAME];
+
+  try {
+    const decode = jwt.verify(cookie, COOKIE_SECRET);
+
+    return res.send(decode);
+  } catch (e) {
+    return res.send(null);
+  }
+});
+
+app.post('/create-gist', (req, res) => {
+  console.log(req.body);
+  const { description, fileName, fileContent, isPublic } = req.body;
+
+  const data = {
+    description: description,
+    public: isPublic,
+    files: {
+      [fileName]: {
+        content: fileContent,
+      },
+    },
+  };
+
+  if (!req.session.access_token) {
+    return res.status(401).send('Unauthorized');
+  }
+  const accessToken = req.session.access_token;
+
+  axios
+    .post('https://api.github.com/gists', data, {
+      headers: {
+        Authorization: `token ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    })
+    .then((response) => {
+      res.json(response.data);
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+});
+
+app.get('/logout', (req, res) => {
+  res.clearCookie(COOKIE_NAME, { path: '/' });
+  res.clearCookie(SESSION_COOKIE_NAME, { path: '/' });
+
+  const redirectUrl = req.query.redirectUrl;
+  req.session.destroy((err) => {
+    if (err) {
+      console.log(err);
+    } else {
+      res.redirect(redirectUrl);
+    }
+  });
+});
+
 const server = app.listen(app.get('port'), function () {
   console.log('listening on port ', server.address().port);
   console.log(buildInfo);
 });
+
+async function getGitHubUser({ req, code }) {
+  const githubToken = await axios
+    .post(
+      `https://github.com/login/oauth/access_token?client_id=${GITHUB_CLIENT_ID}&client_secret=${GITHUB_CLIENT_SECRET}&code=${code}`
+    )
+    .then((res) => res.data)
+
+    .catch((error) => {
+      throw error;
+    });
+
+  const decoded = querystring.parse(githubToken);
+
+  const accessToken = decoded.access_token;
+  req.session.access_token = accessToken;
+
+  return axios
+    .get('https://api.github.com/user', {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    })
+    .then((res) => res.data)
+    .catch((error) => {
+      console.error(`Error getting user from GitHub`);
+      throw error;
+    });
+}

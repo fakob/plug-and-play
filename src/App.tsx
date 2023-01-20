@@ -59,8 +59,10 @@ import {
 } from './utils/constants';
 import { IGraphSearch, INodeSearch } from './utils/interfaces';
 import {
+  createGist,
   connectNodeToSocket,
   convertBlobToBase64,
+  formatDate,
   getDataFromClipboard,
   getNodeDataFromHtml,
   getNodeDataFromText,
@@ -314,7 +316,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
   // on mount
   useEffect(() => {
     (async function () {
-      const res = await fetch(`http://localhost:8080/api/me`, {
+      const res = await fetch('/api/me', {
         credentials: 'include',
       });
       const usr = await res.json();
@@ -1135,7 +1137,37 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               sx={{ background: 'black', color: 'white', position: 'absolute' }}
             >
               Welcome {(user as any).login}
-              <Button href={'http://localhost:8080/logout'}>Logout</Button>
+              <Button
+                onClick={() => {
+                  const currentUrl = window.location.href;
+                  window.location.href = `/logout?redirectUrl=${currentUrl}`;
+                }}
+              >
+                Logout
+              </Button>
+              <Button
+                onClick={() => {
+                  const description = 'This is a first Gist test';
+                  const fileName = `Plug and Playground graph - ${formatDate()}.ppgraph`;
+                  const fileContent = JSON.stringify(
+                    PPGraph.currentGraph.serialize(),
+                    null,
+                    2
+                  );
+                  const isPublic = false;
+
+                  createGist(description, fileName, fileContent, isPublic)
+                    .then((res) => res.json())
+                    .then((data) => {
+                      console.log(data);
+                    })
+                    .catch((error) => {
+                      console.error(error);
+                    });
+                }}
+              >
+                Create gist
+              </Button>
             </Box>
           )}
           {isCurrentGraphLoaded && (

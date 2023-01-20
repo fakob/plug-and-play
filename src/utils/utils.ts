@@ -676,3 +676,20 @@ export function removeUrlParameter(parameter: string): void {
   currentUrl.search = searchParams.toString();
   window.history.pushState({}, '', currentUrl.href);
 }
+
+export function createGist(
+  description: string,
+  fileName: string,
+  fileContent: string,
+  isPublic: boolean
+) {
+  const data = { description, fileName, fileContent, isPublic };
+  console.log(data);
+  return fetch('/create-gist', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+}
