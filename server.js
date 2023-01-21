@@ -1,5 +1,6 @@
 const path = require('path');
 const express = require('express');
+const bodyParser = require('body-parser');
 const cors = require('cors');
 const axios = require('axios');
 const querystring = require('node:querystring');
@@ -22,7 +23,10 @@ const buildInfo = {
 
 const app = express();
 
-app.use(express.json());
+app.use(bodyParser.json({ limit: '10mb' }));
+app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
+
+app.use(express.json()); // needs to be after bodyParser
 
 app.use(cookieParser());
 
@@ -113,6 +117,45 @@ app.post('/create-gist', (req, res) => {
     })
     .catch((error) => {
       console.error(error);
+      res.status(500).send({ error });
+    });
+});
+
+app.patch('/update-gist', (req, res) => {
+  console.log(req.body);
+  const { gistId, description, fileName, fileContent } = req.body;
+
+  const data = {
+    gist_id: gistId,
+    description: description,
+    files: fileName
+      ? {
+          [fileName]: {
+            content: fileContent,
+          },
+        }
+      : undefined,
+  };
+  console.log(data);
+
+  if (!req.session.access_token) {
+    return res.status(401).send('Unauthorized');
+  }
+  const accessToken = req.session.access_token;
+
+  axios
+    .patch(`https://api.github.com/gists/${gistId}`, data, {
+      headers: {
+        Authorization: `token ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    })
+    .then((response) => {
+      res.json(response.data);
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).send({ error });
     });
 });
 

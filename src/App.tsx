@@ -60,6 +60,7 @@ import {
 import { IGraphSearch, INodeSearch } from './utils/interfaces';
 import {
   createGist,
+  updateGist,
   connectNodeToSocket,
   convertBlobToBase64,
   formatDate,
@@ -148,6 +149,7 @@ const App = (): JSX.Element => {
   // dialogs
   const [showEdit, setShowEdit] = useState(false);
   const [showDeleteGraph, setShowDeleteGraph] = useState(false);
+  const [showSharePlayground, setShowSharePlayground] = useState(false);
 
   let lastTimeTicked = 0;
 
@@ -990,6 +992,46 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     );
   };
 
+  const submitSharePlaygroundDialog = (): void => {
+    const description = (
+      document.getElementById(
+        'share-playground-description-input'
+      ) as HTMLInputElement
+    ).value;
+    const fileName =
+      (
+        document.getElementById(
+          'share-playground-fileName-input'
+        ) as HTMLInputElement
+      ).value + '.ppgraph';
+    setShowSharePlayground(false);
+
+    const fileContent = JSON.stringify(
+      PPGraph.currentGraph.serialize(),
+      null,
+      2
+    );
+    const isPublic = false;
+
+    createGist(description, fileName, fileContent, isPublic)
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+        const newDescription = `${description} - load this playground by clicking here: https://plugandplayground.dev/?loadURL=${data.files[fileName].raw_url}`;
+        return updateGist(data.id, newDescription, undefined, undefined);
+      })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+      })
+      .catch((error) => {
+        console.error(error);
+        enqueueSnackbar(error, {
+          variant: 'error',
+        });
+      });
+  };
+
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
       <div
@@ -1003,6 +1045,91 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       >
         <div {...getRootProps({ style })}>
           <input {...getInputProps()} />
+          <Dialog
+            open={showSharePlayground}
+            onClose={() => setShowSharePlayground(false)}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+            fullWidth
+            maxWidth="sm"
+          >
+            <DialogTitle id="alert-dialog-title">
+              {'Share Playground'}
+            </DialogTitle>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                submitSharePlaygroundDialog();
+              }}
+            >
+              <DialogContent>
+                <DialogContentText id="alert-dialog-description">
+                  {!user ? (
+                    <Box>
+                      To share a playground, please log in with Github
+                      <Button
+                        href={`https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&redirect_uri=${gitHubRedirectURL}?path=${path}&scope=gist`}
+                      >
+                        Login with Github
+                      </Button>
+                    </Box>
+                  ) : (
+                    <Box
+                      sx={{
+                        background: 'black',
+                        color: 'white',
+                        position: 'absolute',
+                      }}
+                    >
+                      Welcome {(user as any).login}!
+                      <Button
+                        onClick={() => {
+                          const currentUrl = window.location.href;
+                          window.location.href = `/logout?redirectUrl=${currentUrl}`;
+                        }}
+                      >
+                        Logout
+                      </Button>
+                      <TextField
+                        id="share-playground-description-input"
+                        autoFocus
+                        margin="dense"
+                        label="Description"
+                        fullWidth
+                        variant="standard"
+                        defaultValue="This is a second Gist test"
+                        placeholder="Description of playground"
+                      />
+                      <TextField
+                        id="share-playground-fileName-input"
+                        autoFocus
+                        margin="dense"
+                        label="Name of playground file"
+                        fullWidth
+                        variant="standard"
+                        defaultValue={`Plug and Playground graph - ${formatDate()}`}
+                        placeholder="Name of playground file"
+                      />
+                    </Box>
+                  )}
+                </DialogContentText>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={() => setShowSharePlayground(false)}>
+                  Cancel
+                </Button>
+                {user && (
+                  <Button
+                    onClick={() => {
+                      submitSharePlaygroundDialog();
+                    }}
+                  >
+                    Share playground
+                  </Button>
+                )}
+              </DialogActions>
+            </form>
+          </Dialog>
           <Dialog
             open={showDeleteGraph}
             onClose={() => setShowDeleteGraph(false)}
@@ -1126,50 +1253,17 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               setIsGraphContextMenuOpen(true);
             }}
           />
-          {!user ? (
+          <Box
+            sx={{ background: 'black', color: 'white', position: 'absolute' }}
+          >
             <Button
-              href={`https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&redirect_uri=${gitHubRedirectURL}?path=${path}&scope=gist`}
+              onClick={() => {
+                setShowSharePlayground(true);
+              }}
             >
-              Login with Github
+              Share Playground
             </Button>
-          ) : (
-            <Box
-              sx={{ background: 'black', color: 'white', position: 'absolute' }}
-            >
-              Welcome {(user as any).login}
-              <Button
-                onClick={() => {
-                  const currentUrl = window.location.href;
-                  window.location.href = `/logout?redirectUrl=${currentUrl}`;
-                }}
-              >
-                Logout
-              </Button>
-              <Button
-                onClick={() => {
-                  const description = 'This is a first Gist test';
-                  const fileName = `Plug and Playground graph - ${formatDate()}.ppgraph`;
-                  const fileContent = JSON.stringify(
-                    PPGraph.currentGraph.serialize(),
-                    null,
-                    2
-                  );
-                  const isPublic = false;
-
-                  createGist(description, fileName, fileContent, isPublic)
-                    .then((res) => res.json())
-                    .then((data) => {
-                      console.log(data);
-                    })
-                    .catch((error) => {
-                      console.error(error);
-                    });
-                }}
-              >
-                Create gist
-              </Button>
-            </Box>
-          )}
+          </Box>
           {isCurrentGraphLoaded && (
             <>
               <Autocomplete
