@@ -63,7 +63,7 @@ export const ShareDialog = (props) => {
           throw new Error(data.error);
         }
         const shareableLink = `https://plugandplayground.dev/?loadURL=${data.files[fileName].raw_url}`;
-        const newDescription = `${description} - load this playground by clicking here: ${shareableLink}`;
+        const newDescription = `${description} | load playground: ${shareableLink}`;
         InterfaceController.showSnackBar(
           <span>
             The{' '}
