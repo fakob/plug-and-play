@@ -1126,10 +1126,10 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               backgroundColor: RANDOMMAINCOLOR,
             }}
             src={PLUGANDPLAY_ICON}
-            onClick={() => {
-              console.log('icon clicked');
-              setContextMenuPosition([80, 40]);
-              setIsGraphContextMenuOpen(true);
+            onClick={(event) => {
+              event.stopPropagation();
+              setContextMenuPosition([16, 96]);
+              setIsGraphContextMenuOpen((isOpen) => !isOpen);
             }}
           />
           <Box className={styles.userMenu}>
