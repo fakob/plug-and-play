@@ -87,7 +87,7 @@ app.get('/api/me', (req, res) => {
 });
 
 app.post('/create-gist', (req, res) => {
-  console.log(req.body);
+  // console.log(req.body);
   const { description, fileName, fileContent, isPublic } = req.body;
 
   const data = {
@@ -100,8 +100,14 @@ app.post('/create-gist', (req, res) => {
     },
   };
 
+  console.log(req.session);
+
   if (!req.session.access_token) {
-    return res.status(401).send('Unauthorized');
+    // the session or its access token has probably expired
+    return res.status(401).send({
+      error: 'Session expired: Please log in again',
+      sessionExpired: true,
+    });
   }
   const accessToken = req.session.access_token;
 
@@ -122,7 +128,7 @@ app.post('/create-gist', (req, res) => {
 });
 
 app.patch('/update-gist', (req, res) => {
-  console.log(req.body);
+  // console.log(req.body);
   const { gistId, description, fileName, fileContent } = req.body;
 
   const data = {
@@ -136,10 +142,14 @@ app.patch('/update-gist', (req, res) => {
         }
       : undefined,
   };
-  console.log(data);
+  // console.log(data);
 
   if (!req.session.access_token) {
-    return res.status(401).send('Unauthorized');
+    // the session or its access token has probably expired
+    return res.status(401).send({
+      error: 'Session expired: Please log in again',
+      sessionExpired: true,
+    });
   }
   const accessToken = req.session.access_token;
 
@@ -155,7 +165,7 @@ app.patch('/update-gist', (req, res) => {
     })
     .catch((error) => {
       console.error(error);
-      res.status(500).send({ error });
+      res.status(500).send({ error: 'A 500 error occurred' });
     });
 });
 
@@ -163,9 +173,13 @@ app.get('/logout', (req, res) => {
   res.clearCookie(COOKIE_NAME, { path: '/' });
   res.clearCookie(SESSION_COOKIE_NAME, { path: '/' });
 
-  const redirectUrl = req.query.redirectUrl;
+  console.log('logout ----------------------------------');
+
+  const redirectUrl = req.query.redirectUrl ?? '/';
+  console.log(redirectUrl);
   req.session.destroy((err) => {
     if (err) {
+      console.log('session destroy error ----------------------------------');
       console.log(err);
     } else {
       res.redirect(redirectUrl);

@@ -200,7 +200,7 @@ export default class PPStorage {
           action: (key) => (
             <>
               <Button size="small" onClick={() => this.saveNewGraph(newName)}>
-                Save
+                Save locally
               </Button>
               <Button
                 size="small"

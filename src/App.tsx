@@ -21,7 +21,6 @@ import {
   Paper,
   TextField,
 } from '@mui/material';
-import Grid2 from '@mui/material/Unstable_Grid2';
 import { useSnackbar } from 'notistack';
 import Color from 'color';
 import { hri } from 'human-readable-ids';
@@ -46,6 +45,7 @@ import {
   NodeContextMenu,
   SocketContextMenu,
 } from './components/ContextMenus';
+import { ShareDialog } from './components/Dialogs';
 import PPGraph from './classes/GraphClass';
 import {
   BASIC_VERTEX_SHADER,
@@ -60,11 +60,8 @@ import {
 } from './utils/constants';
 import { IGraphSearch, INodeSearch } from './utils/interfaces';
 import {
-  createGist,
-  updateGist,
   connectNodeToSocket,
   convertBlobToBase64,
-  formatDate,
   getDataFromClipboard,
   getNodeDataFromHtml,
   getNodeDataFromText,
@@ -96,11 +93,6 @@ const timeAgo = new TimeAgo('en-US');
 const isMac = navigator.platform.indexOf('Mac') != -1;
 const controlOrMetaKey = isMac ? '⌘' : 'Ctrl';
 console.log('isMac: ', isMac);
-
-console.log(process.env);
-const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID;
-const gitHubRedirectURL = 'http://localhost:8080/oauth/redirect';
-const path = '/';
 
 const randomMainColorLightHex = PIXI.utils.string2hex(
   Color(RANDOMMAINCOLOR).mix(Color('white'), 0.9).hex()
@@ -993,46 +985,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     );
   };
 
-  const submitSharePlaygroundDialog = (): void => {
-    const description = (
-      document.getElementById(
-        'share-playground-description-input'
-      ) as HTMLInputElement
-    ).value;
-    const fileName =
-      (
-        document.getElementById(
-          'share-playground-fileName-input'
-        ) as HTMLInputElement
-      ).value + '.ppgraph';
-    setShowSharePlayground(false);
-
-    const fileContent = JSON.stringify(
-      PPGraph.currentGraph.serialize(),
-      null,
-      2
-    );
-    const isPublic = false;
-
-    createGist(description, fileName, fileContent, isPublic)
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(data);
-        const newDescription = `${description} - load this playground by clicking here: https://plugandplayground.dev/?loadURL=${data.files[fileName].raw_url}`;
-        return updateGist(data.id, newDescription, undefined, undefined);
-      })
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(data);
-      })
-      .catch((error) => {
-        console.error(error);
-        enqueueSnackbar(error, {
-          variant: 'error',
-        });
-      });
-  };
-
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
       <div
@@ -1046,113 +998,12 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       >
         <div {...getRootProps({ style })}>
           <input {...getInputProps()} />
-          <Dialog
-            open={showSharePlayground}
-            onClose={() => setShowSharePlayground(false)}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
-            fullWidth
-            maxWidth="md"
-          >
-            <DialogTitle id="alert-dialog-title">
-              {'Share Playground'}
-            </DialogTitle>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                submitSharePlaygroundDialog();
-              }}
-            >
-              <DialogContent>
-                {/* {!user ? ( */}
-                {true ? (
-                  <Box>
-                    <Grid2
-                      container
-                      justifyContent="center"
-                      spacing={2}
-                      columns={{ xs: 6, sm: 6, md: 12 }}
-                    >
-                      <Grid2 xs={6}>
-                        <Paper
-                          sx={{ mx: 1, px: 3, py: 6, textAlign: 'center' }}
-                        >
-                          Get a shareable link
-                          <Box sx={{ m: 3 }}>
-                            <Button
-                              variant="contained"
-                              href={`https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&redirect_uri=${gitHubRedirectURL}?path=${path}&scope=gist`}
-                            >
-                              Login with Github
-                            </Button>
-                          </Box>
-                          We store the playground as a gist.
-                        </Paper>
-                      </Grid2>
-                      <Grid2 xs={6}>
-                        <Paper
-                          sx={{ mx: 1, px: 3, py: 6, textAlign: 'center' }}
-                        >
-                          Or download it
-                          <Box sx={{ m: 3 }}>
-                            <Button
-                              variant="text"
-                              onClick={() => {
-                                PPStorage.getInstance().downloadGraph();
-                              }}
-                            >
-                              Download playground
-                            </Button>
-                          </Box>
-                          and share it the old school way :-)
-                        </Paper>
-                      </Grid2>
-                    </Grid2>
-                  </Box>
-                ) : (
-                  <Box>
-                    <DialogContentText id="alert-dialog-description">
-                      Welcome {(user as any)?.login}!
-                    </DialogContentText>
-                    <TextField
-                      id="share-playground-description-input"
-                      autoFocus
-                      margin="dense"
-                      label="Description"
-                      fullWidth
-                      variant="standard"
-                      defaultValue="This is a second Gist test"
-                      placeholder="Description of playground"
-                    />
-                    <TextField
-                      id="share-playground-fileName-input"
-                      autoFocus
-                      margin="dense"
-                      label="Name of playground file"
-                      fullWidth
-                      variant="standard"
-                      defaultValue={`Plug and Playground graph - ${formatDate()}`}
-                      placeholder="Name of playground file"
-                    />
-                  </Box>
-                )}
-              </DialogContent>
-              <DialogActions>
-                <Button onClick={() => setShowSharePlayground(false)}>
-                  Cancel
-                </Button>
-                {user && (
-                  <Button
-                    onClick={() => {
-                      submitSharePlaygroundDialog();
-                    }}
-                  >
-                    Share playground
-                  </Button>
-                )}
-              </DialogActions>
-            </form>
-          </Dialog>
+          <ShareDialog
+            showSharePlayground={showSharePlayground}
+            setShowSharePlayground={setShowSharePlayground}
+            user={user}
+            setUser={setUser}
+          />
           <Dialog
             open={showDeleteGraph}
             onClose={() => setShowDeleteGraph(false)}
