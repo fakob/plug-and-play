@@ -55,7 +55,7 @@ app.get('/buildInfo', function (req, res) {
 
 app.get('/oauth/redirect', async function (req, res) {
   const code = req.query?.code;
-  const path = req.query?.path ?? '/';
+  console.log(req.query?.code);
 
   if (!code) {
     throw new Error('No code!');
@@ -63,7 +63,7 @@ app.get('/oauth/redirect', async function (req, res) {
 
   const gitHubUser = await getGitHubUser({ req, code });
 
-  res.redirect(`${path}`);
+  res.redirect(`/`);
 });
 
 app.get('/api/me', (req, res) => {
