@@ -58,7 +58,7 @@ export const ShareDialog = (props) => {
       .then((data) => {
         if (data.error) {
           if (data.sessionExpired) {
-            props.setUser(false);
+            props.setIsLoggedIn(false);
           }
           throw new Error(data.error);
         }
@@ -102,7 +102,7 @@ export const ShareDialog = (props) => {
       .then((data) => {
         if (data.error) {
           if (data.sessionExpired) {
-            props.setUser(false);
+            props.setIsLoggedIn(false);
           }
           throw new Error(data.error);
         }
@@ -138,47 +138,7 @@ export const ShareDialog = (props) => {
         }}
       >
         <DialogContent>
-          {!props.user ? (
-            <Box>
-              <Grid2
-                container
-                justifyContent="center"
-                spacing={2}
-                columns={{ xs: 6, sm: 6, md: 12 }}
-              >
-                <Grid2 xs={6}>
-                  <Paper sx={{ mx: 1, px: 3, py: 6, textAlign: 'center' }}>
-                    Get a shareable link
-                    <Box sx={{ m: 3 }}>
-                      <Button
-                        variant="contained"
-                        href={`https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&redirect_uri=${gitHubRedirectURL}?path=${path}&scope=gist`}
-                      >
-                        Login with Github
-                      </Button>
-                    </Box>
-                    We store the playground as a gist.
-                  </Paper>
-                </Grid2>
-                <Grid2 xs={6}>
-                  <Paper sx={{ mx: 1, px: 3, py: 6, textAlign: 'center' }}>
-                    Or download it
-                    <Box sx={{ m: 3 }}>
-                      <Button
-                        variant="text"
-                        onClick={() => {
-                          PPStorage.getInstance().downloadGraph();
-                        }}
-                      >
-                        Download playground
-                      </Button>
-                    </Box>
-                    and share it the old school way :-)
-                  </Paper>
-                </Grid2>
-              </Grid2>
-            </Box>
-          ) : (
+          {props.isLoggedIn ? (
             <Box>
               <DialogContentText id="alert-dialog-description">
                 We store the playground as a gist and create a shareable link
@@ -223,6 +183,46 @@ Public gists are visible to everyone.`}
                 />
               </RadioGroup>
             </Box>
+          ) : (
+            <Box>
+              <Grid2
+                container
+                justifyContent="center"
+                spacing={2}
+                columns={{ xs: 6, sm: 6, md: 12 }}
+              >
+                <Grid2 xs={6}>
+                  <Paper sx={{ mx: 1, px: 3, py: 6, textAlign: 'center' }}>
+                    Get a shareable link
+                    <Box sx={{ m: 3 }}>
+                      <Button
+                        variant="contained"
+                        href={`https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&redirect_uri=${gitHubRedirectURL}?path=${path}&scope=gist`}
+                      >
+                        Login with Github
+                      </Button>
+                    </Box>
+                    We store the playground as a gist.
+                  </Paper>
+                </Grid2>
+                <Grid2 xs={6}>
+                  <Paper sx={{ mx: 1, px: 3, py: 6, textAlign: 'center' }}>
+                    Or download it
+                    <Box sx={{ m: 3 }}>
+                      <Button
+                        variant="text"
+                        onClick={() => {
+                          PPStorage.getInstance().downloadGraph();
+                        }}
+                      >
+                        Download playground
+                      </Button>
+                    </Box>
+                    and share it the old school way :-)
+                  </Paper>
+                </Grid2>
+              </Grid2>
+            </Box>
           )}
         </DialogContent>
         <DialogActions>
@@ -233,7 +233,7 @@ Public gists are visible to everyone.`}
           >
             Cancel
           </Button>
-          {props.user && <Button type="submit">Share playground</Button>}
+          {props.isLoggedIn && <Button type="submit">Share playground</Button>}
         </DialogActions>
       </form>
     </Dialog>

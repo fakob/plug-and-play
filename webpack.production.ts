@@ -4,6 +4,7 @@ import ESLintPlugin from 'eslint-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import CssMinimizerPlugin from 'css-minimizer-webpack-plugin';
 import TerserPlugin from 'terser-webpack-plugin';
+import Dotenv from 'dotenv-webpack';
 
 module.exports = () => {
   return {
@@ -46,6 +47,7 @@ module.exports = () => {
       new MiniCssExtractPlugin({
         filename: '[name].[fullhash].css',
       }),
+      new Dotenv({ systemvars: true }),
 
       new webpack.ProgressPlugin(),
     ],

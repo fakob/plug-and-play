@@ -4,7 +4,6 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const axios = require('axios');
 const querystring = require('node:querystring');
-const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const MemoryStore = require('memorystore')(session);
@@ -12,9 +11,7 @@ const MemoryStore = require('memorystore')(session);
 const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID;
 const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET;
 const SESSION_SECRET = process.env.SESSION_SECRET;
-const COOKIE_SECRET = process.env.COOKIE_SECRET;
 const SESSION_COOKIE_NAME = 'pp-session-id';
-const COOKIE_NAME = 'pp-github-jwt';
 
 const buildInfo = {
   buildVersion: process.env.HEROKU_RELEASE_VERSION,
@@ -62,24 +59,15 @@ app.get('/oauth/redirect', async function (req, res) {
   }
 
   const gitHubUser = await getGitHubUser({ req, code });
-  const token = jwt.sign(gitHubUser, COOKIE_SECRET);
-
-  res.cookie(COOKIE_NAME, token, {
-    httpOnly: true,
-  });
 
   res.redirect(`${path}`);
 });
 
 app.get('/api/me', (req, res) => {
-  const cookie = req.cookies[COOKIE_NAME];
-
-  try {
-    const decode = jwt.verify(cookie, COOKIE_SECRET);
-    return res.send(decode);
-  } catch (e) {
-    return res.send(null);
+  if (!req.session.access_token) {
+    return sessionExpired(res);
   }
+  return res.send({ sessionExpired: false });
 });
 
 app.post('/create-gist', (req, res) => {
@@ -95,7 +83,7 @@ app.post('/create-gist', (req, res) => {
   };
 
   if (!req.session.access_token) {
-    return sessionExpired();
+    return sessionExpired(res);
   }
   const accessToken = req.session.access_token;
 
@@ -130,7 +118,7 @@ app.patch('/update-gist', (req, res) => {
   };
 
   if (!req.session.access_token) {
-    return sessionExpired();
+    return sessionExpired(res);
   }
   const accessToken = req.session.access_token;
 
@@ -151,7 +139,6 @@ app.patch('/update-gist', (req, res) => {
 });
 
 app.get('/logout', (req, res) => {
-  res.clearCookie(COOKIE_NAME, { path: '/' });
   res.clearCookie(SESSION_COOKIE_NAME, { path: '/' });
 
   const redirectUrl = req.query.redirectUrl ?? '/';
@@ -197,7 +184,7 @@ async function getGitHubUser({ req, code }) {
     });
 }
 
-function sessionExpired() {
+function sessionExpired(res) {
   // the session or its access token has probably expired
   return res.status(401).send({
     error: 'Session expired: Please log in again',

@@ -110,7 +110,7 @@ const App = (): JSX.Element => {
   pixiDebugRef.resolution = 1;
   pixiDebugRef.x = 4;
 
-  const [user, setUser] = useState();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const pixiApp = useRef<PIXI.Application | null>(null);
   const pixiContext = useRef<HTMLDivElement | null>(null);
@@ -313,9 +313,15 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     (async function () {
       const res = await fetch('/api/me', {
         credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
       });
-      const usr = await res.json();
-      setUser(usr);
+      console.log(res);
+      const { sessionExpired } = await res.json();
+      if (!sessionExpired) {
+        setIsLoggedIn(true);
+      }
     })();
 
     console.log(pixiContext.current);
@@ -1000,8 +1006,8 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           <ShareDialog
             showSharePlayground={showSharePlayground}
             setShowSharePlayground={setShowSharePlayground}
-            user={user}
-            setUser={setUser}
+            isLoggedIn={isLoggedIn}
+            setIsLoggedIn={setIsLoggedIn}
           />
           <Dialog
             open={showDeleteGraph}
@@ -1134,7 +1140,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
             >
               Share
             </Button>
-            {user && (
+            {isLoggedIn && (
               <Button
                 onClick={() => {
                   const currentUrl = window.location.href;
