@@ -55,7 +55,6 @@ app.get('/buildInfo', function (req, res) {
 
 app.get('/oauth/redirect', async function (req, res) {
   const code = req.query?.code;
-  console.log(req.query?.code);
 
   if (!code) {
     throw new Error('No code!');
