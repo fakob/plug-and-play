@@ -684,7 +684,6 @@ export function createGist(
   isPublic: boolean
 ) {
   const data = { description, fileName, fileContent, isPublic };
-  console.log(data);
   return fetch('/create-gist', {
     method: 'POST',
     headers: {
@@ -706,7 +705,6 @@ export function updateGist(
     fileName: fileName ? fileName : undefined,
     fileContent: fileContent ? fileContent : undefined,
   };
-  console.log(data);
   return fetch('/update-gist', {
     method: 'PATCH',
     headers: {

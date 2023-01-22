@@ -62,9 +62,6 @@ app.get('/oauth/redirect', async function (req, res) {
   }
 
   const gitHubUser = await getGitHubUser({ req, code });
-
-  // console.log(gitHubUser);
-
   const token = jwt.sign(gitHubUser, COOKIE_SECRET);
 
   res.cookie(COOKIE_NAME, token, {
@@ -79,7 +76,6 @@ app.get('/api/me', (req, res) => {
 
   try {
     const decode = jwt.verify(cookie, COOKIE_SECRET);
-
     return res.send(decode);
   } catch (e) {
     return res.send(null);
@@ -87,9 +83,7 @@ app.get('/api/me', (req, res) => {
 });
 
 app.post('/create-gist', (req, res) => {
-  // console.log(req.body);
   const { description, fileName, fileContent, isPublic } = req.body;
-
   const data = {
     description: description,
     public: isPublic,
@@ -100,14 +94,8 @@ app.post('/create-gist', (req, res) => {
     },
   };
 
-  console.log(req.session);
-
   if (!req.session.access_token) {
-    // the session or its access token has probably expired
-    return res.status(401).send({
-      error: 'Session expired: Please log in again',
-      sessionExpired: true,
-    });
+    return sessionExpired();
   }
   const accessToken = req.session.access_token;
 
@@ -128,9 +116,7 @@ app.post('/create-gist', (req, res) => {
 });
 
 app.patch('/update-gist', (req, res) => {
-  // console.log(req.body);
   const { gistId, description, fileName, fileContent } = req.body;
-
   const data = {
     gist_id: gistId,
     description: description,
@@ -142,14 +128,9 @@ app.patch('/update-gist', (req, res) => {
         }
       : undefined,
   };
-  // console.log(data);
 
   if (!req.session.access_token) {
-    // the session or its access token has probably expired
-    return res.status(401).send({
-      error: 'Session expired: Please log in again',
-      sessionExpired: true,
-    });
+    return sessionExpired();
   }
   const accessToken = req.session.access_token;
 
@@ -173,13 +154,10 @@ app.get('/logout', (req, res) => {
   res.clearCookie(COOKIE_NAME, { path: '/' });
   res.clearCookie(SESSION_COOKIE_NAME, { path: '/' });
 
-  console.log('logout ----------------------------------');
-
   const redirectUrl = req.query.redirectUrl ?? '/';
   console.log(redirectUrl);
   req.session.destroy((err) => {
     if (err) {
-      console.log('session destroy error ----------------------------------');
       console.log(err);
     } else {
       res.redirect(redirectUrl);
@@ -217,4 +195,12 @@ async function getGitHubUser({ req, code }) {
       console.error(`Error getting user from GitHub`);
       throw error;
     });
+}
+
+function sessionExpired() {
+  // the session or its access token has probably expired
+  return res.status(401).send({
+    error: 'Session expired: Please log in again',
+    sessionExpired: true,
+  });
 }

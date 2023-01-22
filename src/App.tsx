@@ -315,7 +315,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         credentials: 'include',
       });
       const usr = await res.json();
-      console.log(usr);
       setUser(usr);
     })();
 

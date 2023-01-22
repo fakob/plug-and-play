@@ -8,6 +8,7 @@ import {
   DialogContentText,
   DialogTitle,
   FormControlLabel,
+  Link,
   Paper,
   Radio,
   RadioGroup,
@@ -23,26 +24,28 @@ import {
 } from '../utils/utils';
 import PPGraph from '../classes/GraphClass';
 import PPStorage from '../PPStorage';
+import { GITHUB_REDIRECT_URL } from '../utils/constants';
 
 const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID;
-const gitHubRedirectURL = 'http://localhost:8080/oauth/redirect';
+const gitHubRedirectURL = GITHUB_REDIRECT_URL;
 const path = '/';
 
 export const ShareDialog = (props) => {
   const submitSharePlaygroundDialog = (): void => {
+    props.setShowSharePlayground(false);
+
     const description = (
       document.getElementById(
         'share-playground-description-input'
       ) as HTMLInputElement
     ).value;
+
     const fileName =
       (
         document.getElementById(
           'share-playground-fileName-input'
         ) as HTMLInputElement
       ).value + '.ppgraph';
-
-    props.setShowSharePlayground(false);
 
     const fileContent = JSON.stringify(
       PPGraph.currentGraph.serialize(),
@@ -53,7 +56,6 @@ export const ShareDialog = (props) => {
     createGist(description, fileName, fileContent, isPublic)
       .then((res) => res.json())
       .then((data) => {
-        console.log(data);
         if (data.error) {
           if (data.sessionExpired) {
             props.setUser(false);
@@ -65,9 +67,9 @@ export const ShareDialog = (props) => {
         InterfaceController.showSnackBar(
           <span>
             The{' '}
-            <a target="_blank" href={data.html_url}>
+            <Link target="_blank" href={data.html_url}>
               gist
-            </a>{' '}
+            </Link>{' '}
             was successfully created.
           </span>,
           {
@@ -98,7 +100,6 @@ export const ShareDialog = (props) => {
       })
       .then((res) => res.json())
       .then((data) => {
-        console.log(data);
         if (data.error) {
           if (data.sessionExpired) {
             props.setUser(false);
@@ -138,7 +139,6 @@ export const ShareDialog = (props) => {
       >
         <DialogContent>
           {!props.user ? (
-            // {false ? (
             <Box>
               <Grid2
                 container
@@ -233,17 +233,7 @@ Public gists are visible to everyone.`}
           >
             Cancel
           </Button>
-          {props.user && (
-            // {true && (
-            <Button
-              type="submit"
-              // onClick={() => {
-              //   submitSharePlaygroundDialog();
-              // }}
-            >
-              Share playground
-            </Button>
-          )}
+          {props.user && <Button type="submit">Share playground</Button>}
         </DialogActions>
       </form>
     </Dialog>
