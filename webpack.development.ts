@@ -2,7 +2,6 @@ import * as webpack from 'webpack';
 import * as path from 'path';
 import ESLintPlugin from 'eslint-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
-import Dotenv from 'dotenv-webpack';
 
 module.exports = () => {
   /** @type {import('webpack').Configuration} */
@@ -35,7 +34,6 @@ module.exports = () => {
         filename: '[name].css',
       }),
       new webpack.HotModuleReplacementPlugin(),
-      new Dotenv(),
     ],
   };
 
