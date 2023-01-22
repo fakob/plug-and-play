@@ -21,6 +21,7 @@ import {
   Paper,
   TextField,
 } from '@mui/material';
+import Grid2 from '@mui/material/Unstable_Grid2';
 import { useSnackbar } from 'notistack';
 import Color from 'color';
 import { hri } from 'human-readable-ids';
@@ -1051,7 +1052,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
             aria-labelledby="alert-dialog-title"
             aria-describedby="alert-dialog-description"
             fullWidth
-            maxWidth="sm"
+            maxWidth="md"
           >
             <DialogTitle id="alert-dialog-title">
               {'Share Playground'}
@@ -1063,56 +1064,78 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               }}
             >
               <DialogContent>
-                <DialogContentText id="alert-dialog-description">
-                  {!user ? (
-                    <Box>
-                      To share a playground, please log in with Github
-                      <Button
-                        href={`https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&redirect_uri=${gitHubRedirectURL}?path=${path}&scope=gist`}
-                      >
-                        Login with Github
-                      </Button>
-                    </Box>
-                  ) : (
-                    <Box
-                      sx={{
-                        background: 'black',
-                        color: 'white',
-                        position: 'absolute',
-                      }}
+                {/* {!user ? ( */}
+                {true ? (
+                  <Box>
+                    <Grid2
+                      container
+                      justifyContent="center"
+                      spacing={2}
+                      columns={{ xs: 6, sm: 6, md: 12 }}
                     >
-                      Welcome {(user as any).login}!
-                      <Button
-                        onClick={() => {
-                          const currentUrl = window.location.href;
-                          window.location.href = `/logout?redirectUrl=${currentUrl}`;
-                        }}
-                      >
-                        Logout
-                      </Button>
-                      <TextField
-                        id="share-playground-description-input"
-                        autoFocus
-                        margin="dense"
-                        label="Description"
-                        fullWidth
-                        variant="standard"
-                        defaultValue="This is a second Gist test"
-                        placeholder="Description of playground"
-                      />
-                      <TextField
-                        id="share-playground-fileName-input"
-                        autoFocus
-                        margin="dense"
-                        label="Name of playground file"
-                        fullWidth
-                        variant="standard"
-                        defaultValue={`Plug and Playground graph - ${formatDate()}`}
-                        placeholder="Name of playground file"
-                      />
-                    </Box>
-                  )}
-                </DialogContentText>
+                      <Grid2 xs={6}>
+                        <Paper
+                          sx={{ mx: 1, px: 3, py: 6, textAlign: 'center' }}
+                        >
+                          Get a shareable link
+                          <Box sx={{ m: 3 }}>
+                            <Button
+                              variant="contained"
+                              href={`https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&redirect_uri=${gitHubRedirectURL}?path=${path}&scope=gist`}
+                            >
+                              Login with Github
+                            </Button>
+                          </Box>
+                          We store the playground as a gist.
+                        </Paper>
+                      </Grid2>
+                      <Grid2 xs={6}>
+                        <Paper
+                          sx={{ mx: 1, px: 3, py: 6, textAlign: 'center' }}
+                        >
+                          Or download it
+                          <Box sx={{ m: 3 }}>
+                            <Button
+                              variant="text"
+                              onClick={() => {
+                                PPStorage.getInstance().downloadGraph();
+                              }}
+                            >
+                              Download playground
+                            </Button>
+                          </Box>
+                          and share it the old school way :-)
+                        </Paper>
+                      </Grid2>
+                    </Grid2>
+                  </Box>
+                ) : (
+                  <Box>
+                    <DialogContentText id="alert-dialog-description">
+                      Welcome {(user as any)?.login}!
+                    </DialogContentText>
+                    <TextField
+                      id="share-playground-description-input"
+                      autoFocus
+                      margin="dense"
+                      label="Description"
+                      fullWidth
+                      variant="standard"
+                      defaultValue="This is a second Gist test"
+                      placeholder="Description of playground"
+                    />
+                    <TextField
+                      id="share-playground-fileName-input"
+                      autoFocus
+                      margin="dense"
+                      label="Name of playground file"
+                      fullWidth
+                      variant="standard"
+                      defaultValue={`Plug and Playground graph - ${formatDate()}`}
+                      placeholder="Name of playground file"
+                    />
+                  </Box>
+                )}
               </DialogContent>
               <DialogActions>
                 <Button onClick={() => setShowSharePlayground(false)}>
@@ -1253,16 +1276,24 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               setIsGraphContextMenuOpen(true);
             }}
           />
-          <Box
-            sx={{ background: 'black', color: 'white', position: 'absolute' }}
-          >
+          <Box className={styles.userMenu}>
             <Button
               onClick={() => {
                 setShowSharePlayground(true);
               }}
             >
-              Share Playground
+              Share
             </Button>
+            {user && (
+              <Button
+                onClick={() => {
+                  const currentUrl = window.location.href;
+                  window.location.href = `/logout?redirectUrl=${currentUrl}`;
+                }}
+              >
+                Logout
+              </Button>
+            )}
           </Box>
           {isCurrentGraphLoaded && (
             <>
