@@ -663,3 +663,16 @@ export function sortCompare(a: string, b: string, desc: boolean): number {
     sensitivity: 'base',
   });
 }
+
+export function removeUrlParameter(parameter: string): void {
+  // Get the current URL
+  const currentUrl = new URL(window.location.href);
+  const searchParams = new URLSearchParams(currentUrl.search);
+
+  // Remove the specified parameter
+  searchParams.delete(parameter);
+
+  // Update the URL
+  currentUrl.search = searchParams.toString();
+  window.history.pushState({}, '', currentUrl.href);
+}

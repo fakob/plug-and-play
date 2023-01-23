@@ -66,6 +66,7 @@ import {
   getNodeDataFromText,
   isEventComingFromWithinTextInput,
   removeExtension,
+  removeUrlParameter,
   roundNumber,
   useStateRef,
   writeDataToClipboard,
@@ -526,6 +527,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     console.log('loadURL: ', loadURL, 'new', createEmptyGraph);
     if (loadURL) {
       PPStorage.getInstance().loadGraphFromURL(loadURL);
+      removeUrlParameter('loadURL');
     } else {
       if (!createEmptyGraph) {
         PPStorage.getInstance().loadGraph();
