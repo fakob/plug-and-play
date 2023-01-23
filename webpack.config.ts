@@ -47,7 +47,9 @@ module.exports = (env, argv) => {
     },
 
     plugins: [
-      new HtmlWebpackPlugin(),
+      new HtmlWebpackPlugin({
+        title: 'Your Plug and Playground',
+      }),
       new CleanWebpackPlugin(),
       new webpack.ProvidePlugin({
         PIXI: 'pixi.js',
