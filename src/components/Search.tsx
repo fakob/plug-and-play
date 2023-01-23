@@ -96,7 +96,7 @@ NOTE: save the playground after loading, if you want to make changes to it`
   const optionLabel = option.label;
   const url =
     'https://plugandplayground.dev/?loadURL=https://raw.githubusercontent.com/fakob/plug-and-play-examples/dev/' +
-    option.name +
+    encodeURIComponent(option.name) +
     '.ppgraph';
   const itemToReturn = option.isDisabled ? (
     <Box {...props} key={option.id} component="li">
