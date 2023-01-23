@@ -187,6 +187,7 @@ export class Table extends HybridNode {
   protected getDefaultIO(): PPSocket[] {
     return [
       new PPSocket(SOCKET_TYPE.OUT, rowObjectsNames, new ArrayType()),
+      new PPSocket(SOCKET_TYPE.OUT, arrayOfArraysSocketName, new ArrayType()),
       new PPSocket(
         SOCKET_TYPE.IN,
         workBookInputSocketName,
@@ -774,9 +775,10 @@ export class Table extends HybridNode {
           </MenuItem>
           <MenuItem
             onClick={() => {
-              this.getRowAsObject(rowMenu.cell[1]);
+              this.getRowAsObject(rowMenu.cell[1] - 1);
               setRowMenu(undefined);
             }}
+            disabled={rowMenu?.cell?.[1] === 0}
           >
             <ListItemIcon>
               <EastIcon fontSize="small" />
