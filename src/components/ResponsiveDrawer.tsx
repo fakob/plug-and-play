@@ -23,7 +23,7 @@ function DrawerToggle(props) {
           width: '32px',
           minWidth: '32px',
           background: `${
-            props.selectedNode
+            props.areNodesSelected
               ? Color(props.randomMainColor).alpha(0.2)
               : 'unset'
           }`,
@@ -32,7 +32,7 @@ function DrawerToggle(props) {
         {props.posLeft ? (
           <ChevronRightIcon />
         ) : (
-          props.selectedNode && <TuneIcon />
+          props.areNodesSelected && <TuneIcon />
         )}
       </Button>
     </Box>
@@ -42,6 +42,7 @@ function DrawerToggle(props) {
 const ResponsiveDrawer = (props) => {
   // leaving this commented here for potential future testing
   const [open, setOpen] = useState(true);
+  const [filter, setFilter] = useState('in');
 
   const handleDrawerToggle = () => {
     setOpen((prevState) => !prevState);
@@ -76,7 +77,7 @@ const ResponsiveDrawer = (props) => {
     <>
       {!open && (
         <DrawerToggle
-          selectedNode={props.selectedNode}
+          areNodesSelected={props.selectedNodes?.length > 0}
           randomMainColor={props.randomMainColor}
           handleDrawerToggle={handleDrawerToggle}
         />
@@ -95,7 +96,8 @@ const ResponsiveDrawer = (props) => {
             width: props.drawerWidth,
             border: 0,
             background: `${Color(props.randomMainColor).alpha(0.8)}`,
-            overflowY: 'visible',
+            overflowY: 'hidden',
+            height: '100vh',
           },
         }}
       >
@@ -108,10 +110,12 @@ const ResponsiveDrawer = (props) => {
           randomMainColor={props.randomMainColor}
           handleDrawerToggle={handleDrawerToggle}
         />
-        {props.selectedNode ? (
+        {props.selectedNodes.length ? (
           <InspectorContainer
-            selectedNode={props.selectedNode}
+            selectedNodes={props.selectedNodes}
             randomMainColor={props.randomMainColor}
+            filter={filter}
+            setFilter={setFilter}
           />
         ) : (
           <Paper
@@ -140,7 +144,7 @@ const ResponsiveDrawer = (props) => {
 // not neccessary to memoize this for the moment, but can be relevant later so leaving this uncommented
 export default React.memo(ResponsiveDrawer, (prevProps, newProps) => {
   return (
-    prevProps.selectedNode?.id === newProps.selectedNode?.id &&
+    prevProps.selectedNodes === newProps.selectedNodes &&
     prevProps.drawerWidth === newProps.drawerWidth &&
     prevProps.toggle === newProps.toggle
   );

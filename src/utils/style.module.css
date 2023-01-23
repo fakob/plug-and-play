@@ -2,9 +2,10 @@
   position: absolute;
   left: 0;
   top: 0;
-  width: 100%;
+  width: calc(100% - 16px);
+  padding: 8px;
   max-height: 100vh;
-  overflow: auto;
+  overflow: hidden;
   user-select: none;
   z-index: 200;
 }

@@ -19,7 +19,12 @@ import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import { SketchPicker } from 'react-color';
 import { CodeEditor } from './components/Editor';
 import Socket from './classes/SocketClass';
-import { PRESET_COLORS, TRIGGER_TYPE_OPTIONS } from './utils/constants';
+import {
+  COLOR_DARK,
+  COLOR_WHITE_TEXT,
+  PRESET_COLORS,
+  TRIGGER_TYPE_OPTIONS,
+} from './utils/constants';
 import { parseJSON, roundNumber } from './utils/utils';
 import styles from './utils/style.module.css';
 import { TRgba } from './utils/interfaces';
@@ -82,6 +87,9 @@ export const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (
           }
         }}
         value={data}
+        sx={{
+          ml: 1,
+        }}
       />
       <FormGroup
         row={true}
@@ -507,6 +515,7 @@ export const ColorWidget: React.FunctionComponent<ColorWidgetProps> = (
         className={styles.colorPickerSwatch}
         style={{
           backgroundColor: finalColor.rgb(),
+          color: `${finalColor.isDark() ? COLOR_WHITE_TEXT : COLOR_DARK}`,
         }}
         onClick={
           props.hasLink

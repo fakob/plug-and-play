@@ -474,25 +474,55 @@ export default class PPGraph {
     return node;
   }
 
+  async action_ReplaceNode(
+    oldSerializedNode: SerializedNode,
+    newSerializedNode: SerializedNode
+  ) {
+    const referenceID = hri.random();
+    const action = async () => {
+      PPGraph.currentGraph.replaceNode(
+        oldSerializedNode,
+        oldSerializedNode.id,
+        referenceID,
+        newSerializedNode.type,
+        newSerializedNode,
+        true
+      );
+    };
+    const undoAction = async () => {
+      PPGraph.currentGraph.replaceNode(
+        newSerializedNode,
+        referenceID,
+        oldSerializedNode.id,
+        oldSerializedNode.type,
+        oldSerializedNode,
+        true
+      );
+    };
+    await ActionHandler.performAction(action, undoAction);
+  }
+
   replaceNode = (
     oldSerializedNode: SerializedNode,
     oldId: string,
     newId: string,
-    newType?: string
+    newType?: string,
+    newSerializedNode?: SerializedNode,
+    notify?: boolean
   ) => {
     const newNode = this.addSerializedNode(
-      oldSerializedNode,
+      newSerializedNode ?? oldSerializedNode,
       {
         overrideId: newId,
       },
       newType
     );
-    if (newType) {
+    if (newType && newSerializedNode === undefined) {
       newNode.nodeName = newType;
     }
     this.reconnectLinksToNewNode(this.nodes[oldId], newNode);
     newNode.executeOptimizedChain();
-    this.selection.selectNodes([newNode]);
+    this.selection.selectNodes([newNode], false, notify);
     this.selection.drawRectanglesFromSelection();
     this.removeNode(this.nodes[oldId]);
   };

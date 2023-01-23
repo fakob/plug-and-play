@@ -1,106 +1,311 @@
 import React, { useEffect, useState } from 'react';
-import Color from 'color';
 import {
-  Accordion,
-  AccordionProps,
-  AccordionDetails,
-  AccordionSummary,
-  AccordionSummaryProps,
   Box,
+  Button,
+  ButtonGroup,
+  Checkbox,
+  FormControlLabel,
+  FormGroup,
   IconButton,
-  Menu,
-  MenuItem,
   Stack,
+  TextField,
   ToggleButton,
+  ToggleButtonGroup,
 } from '@mui/material';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
 import LockIcon from '@mui/icons-material/Lock';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import { styled } from '@mui/styles';
-import { writeDataToClipboard, writeTextToClipboard } from './utils/utils';
-import styles from './utils/style.module.css';
+import { getCircularReplacer, writeTextToClipboard } from './utils/utils';
+import { SerializedNode, SerializedSelection } from './utils/interfaces';
+import { PP_VERSION } from './utils/constants';
+import PPGraph from './classes/GraphClass';
 import PPNode from './classes/NodeClass';
 import Socket from './classes/SocketClass';
-import { AbstractType } from './nodes/datatypes/abstractType';
-import { allDataTypes } from './nodes/datatypes/dataTypesMap';
+import { SocketContainer } from './SocketContainer';
 import { CodeEditor } from './components/Editor';
 import InterfaceController, { ListenEvent } from './InterfaceController';
-import PPGraph from './classes/GraphClass';
 
-type PropertyArrayContainerProps = {
+function getConfigData(selectedNode) {
+  return JSON.stringify(selectedNode?.serialize(), getCircularReplacer(), 2);
+}
+
+type FilterContentProps = {
+  handleFilter: (
+    event: React.MouseEvent<HTMLElement>,
+    newFilter: string | null
+  ) => void;
+  filter: string;
   selectedNode: PPNode;
-  randomMainColor: string;
+  selectedNodes: PPNode[];
 };
 
-const StyledAccordion = styled((props: AccordionProps) => (
-  <Accordion disableGutters elevation={0} square {...props} />
-))(() => ({
-  '&:not(:last-child)': {
-    borderBottom: 0,
-  },
-  '&:before': {
-    display: 'none',
-  },
-}));
+function FilterContainer(props: FilterContentProps) {
+  return (
+    <ToggleButtonGroup
+      value={props.filter}
+      exclusive
+      fullWidth
+      onChange={props.handleFilter}
+      aria-label="socket filter"
+      size="small"
+      sx={{ bgcolor: 'background.paper', borderRadius: '0px' }}
+    >
+      <ToggleButton value="common" aria-label="common">
+        Common
+      </ToggleButton>
+      {props.selectedNodes.length === 1 &&
+        props.selectedNode.nodeTriggerSocketArray.length > 0 && (
+          <ToggleButton value="trigger" aria-label="trigger">
+            Trigger
+          </ToggleButton>
+        )}
+      {props.selectedNodes.length === 1 && (
+        <ToggleButton
+          value="in"
+          aria-label="in"
+          disabled={props.selectedNode.inputSocketArray.length <= 0}
+        >
+          In
+        </ToggleButton>
+      )}
+      {props.selectedNodes.length === 1 && (
+        <ToggleButton
+          value="out"
+          aria-label="out"
+          disabled={props.selectedNode.outputSocketArray.length <= 0}
+        >
+          Out
+        </ToggleButton>
+      )}
+      {props.selectedNodes.length === 1 && (
+        <ToggleButton value="source" aria-label="source">
+          Source
+        </ToggleButton>
+      )}
+    </ToggleButtonGroup>
+  );
+}
 
-const StyledAccordionSummary = styled((props: AccordionSummaryProps) => (
-  <AccordionSummary expandIcon={<ExpandMoreIcon />} {...props} />
-))(({ theme }) => ({
-  paddingLeft: '8px',
-  bgcolor: 'background.paper',
-}));
+type CommonContentProps = {
+  hasTriggerSocket: boolean;
+  interval: boolean;
+  intervalFrequency: number;
+  update: boolean;
+  onCheckboxChange: (event) => void;
+  onFrequencyChange: (event) => void;
+  onUpdateNow: (event) => void;
+};
 
-const StyledAccordionDetails = styled(AccordionDetails)(({ theme }) => ({
-  padding: '8px',
-  bgcolor: 'background.paper',
-}));
+function CommonContent(props: CommonContentProps) {
+  return (
+    <Box sx={{ bgcolor: 'background.paper' }}>
+      <Box sx={{ px: 2, py: 1.5, color: 'text.primary' }}>Update behaviour</Box>
+      <FormGroup
+        sx={{
+          p: 1,
+          bgcolor: 'background.default',
+        }}
+      >
+        <FormGroup>
+          <Button variant="contained" onClick={props.onUpdateNow}>
+            Update now
+          </Button>
+        </FormGroup>
+        <FormControlLabel
+          control={
+            <Checkbox
+              name="update"
+              checked={props.update}
+              indeterminate={props.update === null}
+              onChange={props.onCheckboxChange}
+            />
+          }
+          label="Update on change"
+        />
+        <FormGroup>
+          <FormControlLabel
+            control={
+              <Checkbox
+                name="interval"
+                checked={props.interval}
+                indeterminate={props.interval === null}
+                onChange={props.onCheckboxChange}
+              />
+            }
+            label="Update on interval (in ms)"
+          />
+          <TextField
+            id="frequency"
+            variant="filled"
+            label="Frequency"
+            disabled={!props.interval}
+            inputProps={{
+              type: 'number',
+              inputMode: 'numeric',
+            }}
+            onChange={props.onFrequencyChange}
+            value={
+              props.intervalFrequency === null
+                ? ''
+                : props.intervalFrequency.toString()
+            }
+          />
+        </FormGroup>
+        {props.hasTriggerSocket && (
+          <FormControlLabel
+            disabled
+            control={
+              <Checkbox
+                name="trigger"
+                checked={true}
+                onChange={props.onCheckboxChange}
+              />
+            }
+            label="Update on trigger"
+          />
+        )}
+      </FormGroup>
+    </Box>
+  );
+}
 
-const socketArrayToComponent = (
+function socketArrayToComponent(
   sockets: Socket[],
   props: PropertyArrayContainerProps,
-  text: string
-) => {
+  text: string,
+  filter: string,
+  value: string
+) {
   {
     return (
-      sockets?.length > 0 && (
-        <StyledAccordion defaultExpanded>
-          <StyledAccordionSummary>
-            <Box textAlign="left" sx={{ color: 'text.primary' }}>
-              {text}
-            </Box>
-          </StyledAccordionSummary>
-          <StyledAccordionDetails>
+      (filter === value || filter == null) &&
+      sockets.length > 0 && (
+        <Box sx={{ bgcolor: 'background.paper' }}>
+          {filter == null && (
+            <Box sx={{ px: 2, py: 1.5, color: 'text.primary' }}>{text}</Box>
+          )}
+          <Stack spacing={1}>
             {sockets.map((property, index) => {
               return (
-                <PropertyContainer
+                <SocketContainer
                   key={index}
                   property={property}
                   index={index}
                   dataType={property.dataType}
-                  isInput={true}
+                  isInput={property.isInput()}
                   hasLink={property.hasLink()}
                   data={property.data}
                   randomMainColor={props.randomMainColor}
-                  selectedNode={props.selectedNode}
+                  selectedNode={
+                    props.selectedNodes.length > 0
+                      ? props.selectedNodes[0]
+                      : null
+                  }
                 />
               );
             })}
-          </StyledAccordionDetails>
-        </StyledAccordion>
+          </Stack>
+        </Box>
       )
     );
   }
+}
+
+type SourceContentProps = {
+  header: string;
+  editable: boolean;
+  sourceCode: string;
+  randomMainColor: string;
+  onChange?: (value) => void;
+  selectedNode?: PPNode;
+};
+
+function SourceContent(props: SourceContentProps) {
+  return (
+    <Box sx={{ bgcolor: 'background.paper' }}>
+      <Box
+        sx={{
+          flexGrow: 1,
+          display: 'inline-flex',
+          alignItems: 'center',
+          py: 1,
+        }}
+      >
+        <Box sx={{ pl: 2, color: 'text.primary' }}>{props.header}</Box>
+        {!props.editable && (
+          <LockIcon sx={{ pl: '2px', fontSize: '16px', opacity: 0.5 }} />
+        )}
+        <IconButton
+          size="small"
+          onClick={() => writeTextToClipboard(props.sourceCode)}
+        >
+          <ContentCopyIcon sx={{ pl: 1, fontSize: '16px' }} />
+        </IconButton>
+      </Box>
+      <CodeEditor
+        value={props.sourceCode}
+        randomMainColor={props.randomMainColor}
+        editable={props.editable}
+        onChange={props.onChange}
+      />
+      {props.onChange && (
+        <Box
+          sx={{
+            m: 1,
+          }}
+        >
+          <ButtonGroup variant="outlined" size="small" fullWidth>
+            <Button
+              onClick={() => {
+                const sourceCode = props.sourceCode;
+                const newSerializedNode = JSON.parse(
+                  sourceCode
+                ) as SerializedNode;
+                PPGraph.currentGraph.action_ReplaceNode(
+                  props.selectedNode.serialize(),
+                  newSerializedNode
+                );
+              }}
+            >
+              Replace
+            </Button>
+            <Button
+              onClick={() => {
+                const sourceCode = props.sourceCode;
+                const newSerializedSelection = JSON.parse(
+                  `{"version": ${PP_VERSION},"nodes": [${sourceCode}],"links": []}`
+                ) as SerializedSelection;
+                PPGraph.currentGraph.pasteNodes(newSerializedSelection);
+              }}
+            >
+              Create new
+            </Button>
+          </ButtonGroup>
+        </Box>
+      )}
+    </Box>
+  );
+}
+
+type PropertyArrayContainerProps = {
+  selectedNodes: PPNode[];
+  randomMainColor: string;
+  filter: string;
+  setFilter: React.Dispatch<React.SetStateAction<string>>;
 };
 
 export const PropertyArrayContainer: React.FunctionComponent<
   PropertyArrayContainerProps
 > = (props) => {
   const [dragging, setIsDragging] = useState(
-    PPGraph.currentGraph.selection.isDraggingSelection
+    false
+    // PPGraph.currentGraph.selection.isDraggingSelection
   );
+
+  const singleNode = props.selectedNodes.length ? props.selectedNodes[0] : null;
+  const [selectedNode, setSelectedNode] = useState(singleNode);
+
+  const [configData, setConfigData] = useState(getConfigData(singleNode));
+
   useEffect(() => {
     const id = InterfaceController.addListener(
       ListenEvent.SelectionDragging,
@@ -111,278 +316,165 @@ export const PropertyArrayContainer: React.FunctionComponent<
     };
   });
 
+  useEffect(() => {
+    const newSelectedNode =
+      props.selectedNodes.length > 0 ? props.selectedNodes?.[0] : null;
+    setSelectedNode(newSelectedNode);
+    setConfigData(getConfigData(newSelectedNode));
+    setUpdatebehaviour(getUpdateBehaviourStateForArray());
+  }, [props.selectedNodes]);
+
+  const handleFilter = (
+    event: React.MouseEvent<HTMLElement>,
+    newFilter: string | null
+  ) => {
+    props.setFilter(newFilter);
+  };
+
+  // returns null for a specific property,
+  // if its value is not the same throughout the array
+  // else it returns the value
+  const getUpdateBehaviourStateForArray = () => {
+    const areAllIntervalsTheSame = props.selectedNodes.every(
+      (node) =>
+        node.updateBehaviour.interval ===
+        props.selectedNodes[0].updateBehaviour.interval
+    );
+    const areAllFrequenciesTheSame = props.selectedNodes.every(
+      (node) =>
+        node.updateBehaviour.intervalFrequency ===
+        props.selectedNodes[0].updateBehaviour.intervalFrequency
+    );
+    const areAllUpdatesTheSame = props.selectedNodes.every(
+      (node) =>
+        node.updateBehaviour.update ===
+        props.selectedNodes[0].updateBehaviour.update
+    );
+    const updateBehaviourObject = {
+      interval: areAllIntervalsTheSame
+        ? props.selectedNodes[0].updateBehaviour.interval
+        : null,
+      intervalFrequency: areAllFrequenciesTheSame
+        ? props.selectedNodes[0].updateBehaviour.intervalFrequency
+        : null,
+      update: areAllUpdatesTheSame
+        ? props.selectedNodes[0].updateBehaviour.update
+        : null,
+    };
+    return updateBehaviourObject;
+  };
+
+  const [updateBehaviour, setUpdatebehaviour] = useState(
+    getUpdateBehaviourStateForArray()
+  );
+
+  const onCheckboxChange = (event) => {
+    const checked = (event.target as HTMLInputElement).checked;
+    const name = (event.target as HTMLInputElement).name;
+    props.selectedNodes.forEach((selectedNode) => {
+      selectedNode.updateBehaviour[event.target.name] = checked;
+    });
+    setUpdatebehaviour((prevState) => ({
+      ...prevState,
+      [name]: checked,
+    }));
+  };
+
+  const onFrequencyChange = (event) => {
+    const value = (event.target as HTMLInputElement).value;
+    props.selectedNodes.forEach((selectedNode) => {
+      selectedNode.updateBehaviour.intervalFrequency = parseInt(value);
+    });
+    setUpdatebehaviour((prevState) => ({
+      ...prevState,
+      intervalFrequency: parseInt(value),
+    }));
+  };
+
+  const onUpdateNow = (event) => {
+    props.selectedNodes.forEach((selectedNode) => {
+      selectedNode.executeOptimizedChain();
+    });
+  };
+
   return (
     !dragging && (
-      <Stack spacing={1}>
-        {socketArrayToComponent(
-          props.selectedNode.nodeTriggerSocketArray,
-          props,
-          'Node Trigger'
-        )}
-        {socketArrayToComponent(
-          props.selectedNode.inputSocketArray,
-          props,
-          'In'
-        )}
-        <StyledAccordion defaultExpanded={false}>
-          <StyledAccordionSummary>
-            <Box textAlign="center" sx={{ color: 'text.primary' }}>
-              Code
-            </Box>
-          </StyledAccordionSummary>
-          <StyledAccordionDetails>
-            <Box
-              sx={{ flexGrow: 1, display: 'inline-flex', alignItems: 'center' }}
-            >
-              <Box sx={{ pl: 1, color: 'text.primary' }}>
-                {props.selectedNode.name}:{props.selectedNode.type}
-              </Box>
-              {<LockIcon sx={{ pl: '2px', fontSize: '16px', opacity: 0.5 }} />}
-              <IconButton
-                size="small"
-                onClick={() =>
-                  writeTextToClipboard(props.selectedNode.getSourceCode())
-                }
-              >
-                <ContentCopyIcon sx={{ pl: 1, fontSize: '16px' }} />
-              </IconButton>
-            </Box>
-            <CodeEditor
-              value={props.selectedNode.getSourceCode()}
-              randomMainColor={props.randomMainColor}
-              editable={false}
-            />
-          </StyledAccordionDetails>
-        </StyledAccordion>
-        {socketArrayToComponent(
-          props.selectedNode.outputSocketArray,
-          props,
-          'Out'
-        )}
-      </Stack>
-    )
-  );
-};
-
-type PropertyContainerProps = {
-  property: Socket;
-  index: number;
-  dataType: AbstractType;
-  isInput: boolean;
-  hasLink: boolean;
-  data: any;
-  randomMainColor: string;
-  showHeader?: boolean;
-  selectedNode: PPNode;
-};
-
-export const PropertyContainer: React.FunctionComponent<
-  PropertyContainerProps
-> = (props) => {
-  const { showHeader = true } = props;
-  const [dataTypeValue, setDataTypeValue] = useState(props.dataType);
-  const baseProps = {
-    key: props.dataType.getName(),
-    property: props.property,
-    index: props.index,
-    isInput: props.isInput,
-    hasLink: props.hasLink,
-    data: props.data,
-    randomMainColor: props.randomMainColor,
-  };
-  // const widget = dataTypeValue.getInputWidget(baseProps);
-  const widget = props.isInput
-    ? dataTypeValue.getInputWidget(baseProps)
-    : dataTypeValue.getOutputWidget(baseProps);
-
-  const onChangeDropdown = (event) => {
-    const { myValue } = event.currentTarget.dataset;
-    const entry = new allDataTypes[myValue]();
-    console.log(myValue, entry);
-    props.property.dataType = entry;
-    setDataTypeValue(entry);
-    props.property.getNode().metaInfoChanged();
-  };
-
-  const CustomSocketInjection = ({ InjectionContent, props }) => {
-    console.log(props);
-
-    return <InjectionContent {...props} />;
-  };
-
-  return (
-    <Box sx={{ bgcolor: 'background.default' }}>
-      {showHeader && (
-        <PropertyHeader
-          key={`PropertyHeader-${props.dataType.getName()}`}
-          property={props.property}
-          index={props.index}
-          isInput={props.isInput}
-          hasLink={props.hasLink}
-          onChangeDropdown={onChangeDropdown}
-          randomMainColor={props.randomMainColor}
+      <Box sx={{ width: '100%', m: 1 }}>
+        <FilterContainer
+          handleFilter={handleFilter}
+          filter={props.filter}
+          selectedNode={selectedNode}
+          selectedNodes={props.selectedNodes}
         />
-      )}
-      <Box
-        sx={{
-          px: 1,
-          pb: 1,
-          ...(props.isInput ? { marginLeft: '30px' } : { marginRight: '30px' }),
-          ...(!showHeader && { margin: '0px' }), // if no header, then override the margins
-        }}
-        className={styles.propertyContainerContent}
-      >
-        {props.property.custom?.inspectorInjection && (
-          <CustomSocketInjection
-            InjectionContent={
-              props.property.custom?.inspectorInjection?.reactComponent
-            }
-            props={{
-              ...props.property.custom?.inspectorInjection?.props,
-              randomMainColor: props.randomMainColor,
-              selectedNode: props.selectedNode,
-            }}
-          />
-        )}
-        {widget}
-      </Box>
-    </Box>
-  );
-};
-
-type PropertyHeaderProps = {
-  property: Socket;
-  index: number;
-  isInput: boolean;
-  hasLink: boolean;
-  onChangeDropdown: (event) => void;
-  randomMainColor: string;
-};
-
-const PropertyHeader: React.FunctionComponent<PropertyHeaderProps> = (
-  props
-) => {
-  const [visible, setVisible] = useState(props.property.visible);
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
-  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexWrap: 'nowrap',
-        width: '100%',
-        ...(!props.isInput && { flexDirection: 'row-reverse' }),
-      }}
-    >
-      <ToggleButton
-        value="check"
-        size="small"
-        selected={!visible}
-        onChange={() => {
-          props.property.setVisible(!visible);
-          setVisible((value) => !value);
-        }}
-        sx={{
-          fontSize: '16px',
-          border: 0,
-        }}
-      >
-        {visible ? (
-          <VisibilityIcon fontSize="inherit" />
-        ) : (
-          <VisibilityOffIcon fontSize="inherit" />
-        )}
-      </ToggleButton>
-      <Box
-        sx={{
-          flexGrow: 1,
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}
-      >
-        <Box sx={{ flexGrow: 1, display: 'inline-flex', alignItems: 'center' }}>
-          <Box sx={{ pl: 1, color: 'text.primary' }}>{props.property.name}</Box>
-          {props.hasLink && (
-            <LockIcon sx={{ pl: '2px', fontSize: '16px', opacity: 0.5 }} />
-          )}
-          <IconButton
-            size="small"
-            onClick={() => writeDataToClipboard(props.property?.data)}
-          >
-            <ContentCopyIcon sx={{ pl: 1, fontSize: '16px' }} />
-          </IconButton>
-        </Box>
-        <IconButton
-          title={`Property type: ${props.property.dataType.constructor.name}`}
-          aria-label="more"
-          id="select-type"
-          aria-controls="long-menu"
-          aria-expanded={open ? 'true' : undefined}
-          aria-haspopup="true"
-          onClick={handleClick}
-        >
-          <Box
-            sx={{
-              color: 'text.secondary',
-              fontSize: '10px',
-            }}
-          >
-            {props.property.dataType.getName()}
-          </Box>
-          <MoreVertIcon />
-        </IconButton>
-        <Menu
+        <Stack
+          spacing={1}
           sx={{
-            fontSize: '12px',
+            mt: 1,
+            overflow: 'auto',
+            height: 'calc(100vh - 100px)',
           }}
-          MenuListProps={{
-            'aria-labelledby': 'long-button',
-          }}
-          anchorEl={anchorEl}
-          open={open}
-          onClose={handleClose}
         >
-          {Object.keys(allDataTypes)
-            .filter((name) => {
-              const dataTypeItem = new allDataTypes[name]();
-              if (props.isInput) {
-                return dataTypeItem.allowedAsInput();
-              } else {
-                return dataTypeItem.allowedAsOutput();
-              }
-            })
-            .sort()
-            .map((name) => {
-              const entry = new allDataTypes[name]().getName();
-              return (
-                <MenuItem
-                  key={name}
-                  value={name}
-                  data-my-value={name}
-                  selected={props.property.dataType.constructor.name === name}
-                  onClick={props.onChangeDropdown}
-                  sx={{
-                    '&.Mui-selected': {
-                      backgroundColor: `${Color(
-                        props.randomMainColor
-                      ).negate()}`,
-                    },
-                  }}
-                >
-                  {entry}
-                </MenuItem>
-              );
-            })}
-        </Menu>
+          {(props.selectedNodes.length !== 1 ||
+            props.filter === 'common' ||
+            props.filter == null) && (
+            <CommonContent
+              hasTriggerSocket={selectedNode.nodeTriggerSocketArray.length > 0}
+              interval={updateBehaviour.interval}
+              intervalFrequency={updateBehaviour.intervalFrequency}
+              update={updateBehaviour.update}
+              onCheckboxChange={onCheckboxChange}
+              onFrequencyChange={onFrequencyChange}
+              onUpdateNow={onUpdateNow}
+            />
+          )}
+          {props.selectedNodes.length === 1 && (
+            <>
+              {socketArrayToComponent(
+                selectedNode.nodeTriggerSocketArray,
+                props,
+                'Triggers',
+                props.filter,
+                'trigger'
+              )}
+              {socketArrayToComponent(
+                selectedNode.inputSocketArray,
+                props,
+                'Inputs',
+                props.filter,
+                'in'
+              )}
+              {socketArrayToComponent(
+                selectedNode.outputSocketArray,
+                props,
+                'Outputs',
+                props.filter,
+                'out'
+              )}
+              {(props.filter === 'source' || props.filter == null) && (
+                <Stack spacing={1}>
+                  <SourceContent
+                    header="Config"
+                    editable={true}
+                    sourceCode={configData}
+                    randomMainColor={props.randomMainColor}
+                    onChange={(value) => {
+                      setConfigData(value);
+                    }}
+                    selectedNode={selectedNode}
+                  />
+                  <SourceContent
+                    header="Class"
+                    editable={false}
+                    sourceCode={selectedNode.getSourceCode()}
+                    randomMainColor={props.randomMainColor}
+                  />
+                </Stack>
+              )}
+              <Box sx={{ m: 1 }} />
+            </>
+          )}
+        </Stack>
       </Box>
-    </Box>
+    )
   );
 };
