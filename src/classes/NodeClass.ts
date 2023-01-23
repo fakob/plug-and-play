@@ -674,9 +674,7 @@ export default class PPNode extends PIXI.Container {
       .forEach((item, index) => {
         item.y =
           this.headerHeight +
-          (!this.getParallelInputsOutputs()
-            ? this.countOfVisibleNodeTriggerSockets * SOCKET_HEIGHT
-            : 0) +
+          this.countOfVisibleNodeTriggerSockets * SOCKET_HEIGHT +
           index * SOCKET_HEIGHT;
         item.showLabel = this.getShowLabels();
         item.redrawAnythingChanging();
@@ -688,8 +686,9 @@ export default class PPNode extends PIXI.Container {
       .forEach((item, index) => {
         item.y =
           this.headerHeight +
+          this.countOfVisibleNodeTriggerSockets * SOCKET_HEIGHT +
           (!this.getParallelInputsOutputs()
-            ? this.countOfVisibleNodeTriggerSockets * SOCKET_HEIGHT +
+            ? 
             this.countOfVisibleOutputSockets * SOCKET_HEIGHT
             : 0) +
           index * SOCKET_HEIGHT;
@@ -731,8 +730,8 @@ export default class PPNode extends PIXI.Container {
         true
       )
     );
-
     this.updateBehaviour.update = false; // turn off "Update on change"
+    this.resizeAndDraw();
   }
 
   public addDefaultInput(): void {
