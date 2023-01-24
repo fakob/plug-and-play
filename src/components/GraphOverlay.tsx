@@ -50,6 +50,15 @@ const GraphOverlay: React.FunctionComponent<GraphOverlayProps> = (props) => {
     };
   });
 
+  useEffect(() => {
+    InterfaceController.onOpenInspectorFocusingOnSocket =
+      openInspectorFocusingOnSocket;
+  });
+
+  const openInspectorFocusingOnSocket = (socket = null) => {
+    setSelectedNodes([socket.getNode()]);
+  };
+
   return (
     <>
       <GraphOverlayDrawer

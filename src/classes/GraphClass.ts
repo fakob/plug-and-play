@@ -324,7 +324,11 @@ export default class PPGraph {
       event.data.global.x,
       event.data.global.y
     );
-    InterfaceController.onOpenSocketInspector(clickedSourcePoint, socket);
+    if (event.data.originalEvent.ctrlKey) {
+      InterfaceController.onOpenSocketInspector(clickedSourcePoint, socket);
+    } else {
+      InterfaceController.onOpenInspectorFocusingOnSocket(socket);
+    }
   }
 
   // GETTERS & SETTERS

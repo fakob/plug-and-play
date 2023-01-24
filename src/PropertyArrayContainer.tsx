@@ -169,6 +169,7 @@ function CommonContent(props: CommonContentProps) {
 }
 
 function socketArrayToComponent(
+  socketToInspect: Socket,
   sockets: Socket[],
   props: PropertyArrayContainerProps,
   text: string,
@@ -187,6 +188,7 @@ function socketArrayToComponent(
             {sockets.map((property, index) => {
               return (
                 <SocketContainer
+                  triggerScrollIntoView={socketToInspect === property}
                   key={index}
                   property={property}
                   index={index}
@@ -300,6 +302,9 @@ export const PropertyArrayContainer: React.FunctionComponent<
     false
     // PPGraph.currentGraph.selection.isDraggingSelection
   );
+  const [socketToInspect, setSocketToInspect] = useState<Socket | undefined>(
+    undefined
+  );
 
   const singleNode = props.selectedNodes.length ? props.selectedNodes[0] : null;
   const [selectedNode, setSelectedNode] = useState(singleNode);
@@ -311,6 +316,8 @@ export const PropertyArrayContainer: React.FunctionComponent<
       ListenEvent.SelectionDragging,
       setIsDragging
     );
+    InterfaceController.onOpenInspectorFocusingOnSocket =
+      openInspectorFocusingOnSocket;
     return () => {
       InterfaceController.removeListener(id);
     };
@@ -397,6 +404,10 @@ export const PropertyArrayContainer: React.FunctionComponent<
     });
   };
 
+  const openInspectorFocusingOnSocket = (socket: Socket = null) => {
+    setSocketToInspect(socket);
+  };
+
   return (
     !dragging && (
       <Box sx={{ width: '100%', m: 1 }}>
@@ -430,6 +441,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
           {props.selectedNodes.length === 1 && (
             <>
               {socketArrayToComponent(
+                socketToInspect,
                 selectedNode.nodeTriggerSocketArray,
                 props,
                 'Triggers',
@@ -437,6 +449,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
                 'trigger'
               )}
               {socketArrayToComponent(
+                socketToInspect,
                 selectedNode.inputSocketArray,
                 props,
                 'Inputs',
@@ -444,6 +457,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
                 'in'
               )}
               {socketArrayToComponent(
+                socketToInspect,
                 selectedNode.outputSocketArray,
                 props,
                 'Outputs',
