@@ -1,10 +1,13 @@
+import { stat } from 'fs';
 import PPNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
 import { SOCKET_TYPE, TRIGGER_TYPE_OPTIONS } from '../../utils/constants';
 import { AbstractType } from '../datatypes/abstractType';
 import { AnyType } from '../datatypes/anyType';
 import { ArrayType } from '../datatypes/arrayType';
+import { JSONType } from '../datatypes/jsonType';
 import { NumberType } from '../datatypes/numberType';
+import { StringType } from '../datatypes/stringType';
 import { TriggerType } from '../datatypes/triggerType';
 
 abstract class StateNode extends PPNode {
@@ -86,6 +89,48 @@ export class ArrayState extends StateNode {
 
   protected getStateType(): AbstractType {
     return new ArrayType();
+  }
+  protected getDefaultInput(): any {
+    return 'Example';
+  }
+}
+
+export class MapArrayState extends StateNode {
+  protected getDefaultIO(): Socket[] {
+    return [new Socket(SOCKET_TYPE.IN, 'MaxSize', new NumberType(true), 0)]
+      .concat(super.getDefaultIO())
+      .concat([
+        new Socket(SOCKET_TYPE.IN, 'Key', new StringType(), 'ExampleKey'),
+      ]);
+  }
+
+  protected add(): void {
+    const state = this.getInputData('State');
+    const key = this.getInputData('Key');
+    if (state[key] === undefined) {
+      state[key] = [];
+    }
+    state[key].push(this.getInputData('Input'));
+    const maxSize = this.getInputData('MaxSize');
+    if (maxSize > 0 && maxSize < state.length) {
+      state[key].splice(0, state.length - maxSize);
+    }
+    this.setInputData('State', state);
+    this.executeOptimizedChain();
+  }
+
+  protected remove(): void {
+    const state: any[] = this.getInputData('State');
+    const key = this.getInputData('Key');
+    if (state[key] !== undefined) {
+      state[key].pop();
+      this.setInputData('State', state);
+    }
+    this.executeOptimizedChain();
+  }
+
+  protected getStateType(): AbstractType {
+    return new JSONType();
   }
   protected getDefaultInput(): any {
     return 'Example';
