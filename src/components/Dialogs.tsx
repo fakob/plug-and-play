@@ -16,19 +16,9 @@ import {
 } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2';
 import InterfaceController from '../InterfaceController';
-import {
-  createGist,
-  updateGist,
-  formatDate,
-  writeTextToClipboard,
-} from '../utils/utils';
+import { createGist, formatDate, writeTextToClipboard } from '../utils/utils';
 import PPGraph from '../classes/GraphClass';
 import PPStorage from '../PPStorage';
-import { GITHUB_REDIRECT_URL } from '../utils/constants';
-
-const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID;
-const gitHubRedirectURL = GITHUB_REDIRECT_URL;
-const path = '/';
 
 export const ShareDialog = (props) => {
   const submitSharePlaygroundDialog = (): void => {
@@ -62,12 +52,10 @@ export const ShareDialog = (props) => {
           }
           throw new Error(data.error);
         }
-        const shareableLink = `https://plugandplayground.dev/?loadURL=${data.files[fileName].raw_url}`;
-        const newDescription = `${description} | load playground: ${shareableLink}`;
         InterfaceController.showSnackBar(
           <span>
             The{' '}
-            <Link target="_blank" href={data.html_url}>
+            <Link target="_blank" href={data.htmlUrl}>
               gist
             </Link>{' '}
             was successfully created.
@@ -80,7 +68,7 @@ export const ShareDialog = (props) => {
                   variant="contained"
                   size="small"
                   onClick={() => {
-                    writeTextToClipboard(shareableLink);
+                    writeTextToClipboard(data.shareableLink);
                     InterfaceController.hideSnackBar(key);
                   }}
                 >
@@ -96,16 +84,6 @@ export const ShareDialog = (props) => {
             ),
           }
         );
-        return updateGist(data.id, newDescription, undefined, undefined);
-      })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.error) {
-          if (data.sessionExpired) {
-            props.setIsLoggedIn(false);
-          }
-          throw new Error(data.error);
-        }
       })
       .catch((error) => {
         console.warn(error);
@@ -195,10 +173,7 @@ Public gists are visible to everyone.`}
                   <Paper sx={{ mx: 1, px: 3, py: 6, textAlign: 'center' }}>
                     Get a shareable link
                     <Box sx={{ m: 3 }}>
-                      <Button
-                        variant="contained"
-                        href={`https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&redirect_uri=${gitHubRedirectURL}?path=${path}&scope=gist`}
-                      >
+                      <Button variant="contained" href={'/auth-with-github'}>
                         Login with Github
                       </Button>
                     </Box>

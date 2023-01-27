@@ -44,7 +44,6 @@
     "javascript-time-ago": "^2.3.10",
     "json5": "^2.2.0",
     "jsonpath-plus": "^7.2.0",
-    "jsonwebtoken": "^9.0.0",
     "lodash": "^4.17.21",
     "lodash-contrib": "^4.1200.1",
     "marked": "^4.1.1",

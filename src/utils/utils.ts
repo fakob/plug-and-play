@@ -692,24 +692,3 @@ export function createGist(
     body: JSON.stringify(data),
   });
 }
-
-export function updateGist(
-  gistId: string,
-  description: string,
-  fileName: string,
-  fileContent: string
-) {
-  const data = {
-    gistId,
-    description,
-    fileName: fileName ? fileName : undefined,
-    fileContent: fileContent ? fileContent : undefined,
-  };
-  return fetch('/update-gist', {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-  });
-}

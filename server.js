@@ -10,6 +10,7 @@ const MemoryStore = require('memorystore')(session);
 
 const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID;
 const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET;
+const GITHUB_REDIRECT_URL = process.env.GITHUB_REDIRECT_URL;
 const SESSION_SECRET = process.env.SESSION_SECRET;
 const SESSION_COOKIE_NAME = 'pp-session-id';
 
@@ -53,6 +54,12 @@ app.get('/buildInfo', function (req, res) {
   res.send(buildInfo);
 });
 
+app.get('/auth-with-github', async function (req, res) {
+  res.redirect(
+    `https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&redirect_uri=${GITHUB_REDIRECT_URL}&scope=gist`
+  );
+});
+
 app.get('/oauth/redirect', async function (req, res) {
   const code = req.query?.code;
 
@@ -60,7 +67,7 @@ app.get('/oauth/redirect', async function (req, res) {
     throw new Error('No code!');
   }
 
-  const gitHubUser = await getGitHubUser({ req, code });
+  await getGitHubUser({ req, code });
 
   res.redirect(`/`);
 });
@@ -83,6 +90,7 @@ app.post('/create-gist', (req, res) => {
       },
     },
   };
+  const shareableLinkBase = 'https://plugandplayground.dev/?loadURL=';
 
   if (!req.session.access_token) {
     return sessionExpired(res);
@@ -97,46 +105,43 @@ app.post('/create-gist', (req, res) => {
       },
     })
     .then((response) => {
-      res.json(response.data);
+      if (response.data.error) {
+        if (data.sessionExpired) {
+          props.setIsLoggedIn(false);
+        }
+        throw new Error(data.error);
+      }
+      const shareableLink =
+        shareableLinkBase + response.data.files[fileName].raw_url;
+      const newDescription = `${description} | load playground: ${shareableLink}`;
+      const updateData = {
+        gist_id: response.data.id,
+        description: newDescription,
+      };
+
+      return axios.patch(
+        `https://api.github.com/gists/${response.data.id}`,
+        updateData,
+        {
+          headers: {
+            Authorization: `token ${accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+    })
+    .then((response) => {
+      const shareableLink =
+        shareableLinkBase + response.data.files[fileName].raw_url;
+      const dataBack = {
+        shareableLink,
+        htmlUrl: response.data.html_url,
+      };
+      res.json(dataBack);
     })
     .catch((error) => {
       console.error(error);
       res.status(500).send({ error });
-    });
-});
-
-app.patch('/update-gist', (req, res) => {
-  const { gistId, description, fileName, fileContent } = req.body;
-  const data = {
-    gist_id: gistId,
-    description: description,
-    files: fileName
-      ? {
-          [fileName]: {
-            content: fileContent,
-          },
-        }
-      : undefined,
-  };
-
-  if (!req.session.access_token) {
-    return sessionExpired(res);
-  }
-  const accessToken = req.session.access_token;
-
-  axios
-    .patch(`https://api.github.com/gists/${gistId}`, data, {
-      headers: {
-        Authorization: `token ${accessToken}`,
-        'Content-Type': 'application/json',
-      },
-    })
-    .then((response) => {
-      res.json(response.data);
-    })
-    .catch((error) => {
-      console.error(error);
-      res.status(500).send({ error: 'A 500 error occurred' });
     });
 });
 

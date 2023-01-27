@@ -10,8 +10,6 @@ export const PP_VERSION = 0.1;
 export const GET_STARTED_URL =
   'https://raw.githubusercontent.com/fakob/plug-and-play-examples/dev/Get started - Welcome to Plug and Playground.ppgraph';
 
-export const GITHUB_REDIRECT_URL = 'http://localhost:8080/oauth/redirect'; // will be updated before pushing to prod
-
 export const GESTUREMODE = {
   MOUSE: 'Mouse',
   TRACKPAD: 'Trackpad',
