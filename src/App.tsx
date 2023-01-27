@@ -317,14 +317,11 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           'Content-Type': 'application/json',
         },
       });
-      console.log(res);
       const { sessionExpired } = await res.json();
       if (!sessionExpired) {
         setIsLoggedIn(true);
       }
     })();
-
-    console.log(pixiContext.current);
 
     // create pixiApp
     pixiApp.current = new PIXI.Application({
