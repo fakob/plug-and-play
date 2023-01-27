@@ -33,12 +33,12 @@ app.use(cors());
 app.use(
   session({
     cookie: {
-      maxAge: 86400000,
-      // secure: true // will be uncommented before pushing to prod
+      maxAge: 172_800_000, // 48h
+      secure: true, // requires https, only for prod
     },
     name: SESSION_COOKIE_NAME,
     store: new MemoryStore({
-      checkPeriod: 86400000, // prune expired entries every 24h
+      checkPeriod: 172_800_000, // prune expired entries every 48h
     }),
     resave: false,
     saveUninitialized: false,
