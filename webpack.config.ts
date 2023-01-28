@@ -89,6 +89,9 @@ module.exports = (env, argv) => {
   const mergedConfig = merge(config, envConfig, {
     devServer: {
       allowedHosts: ['localhost', '.csb.app'],
+      client: {
+        logging: 'info',
+      },
     },
   });
 

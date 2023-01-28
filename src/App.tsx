@@ -45,6 +45,7 @@ import {
   NodeContextMenu,
   SocketContextMenu,
 } from './components/ContextMenus';
+import { ShareDialog } from './components/Dialogs';
 import PPGraph from './classes/GraphClass';
 import {
   BASIC_VERTEX_SHADER,
@@ -109,6 +110,7 @@ const App = (): JSX.Element => {
   pixiDebugRef.resolution = 1;
   pixiDebugRef.x = 4;
 
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const pixiApp = useRef<PIXI.Application | null>(null);
   const pixiContext = useRef<HTMLDivElement | null>(null);
@@ -140,6 +142,7 @@ const App = (): JSX.Element => {
   // dialogs
   const [showEdit, setShowEdit] = useState(false);
   const [showDeleteGraph, setShowDeleteGraph] = useState(false);
+  const [showSharePlayground, setShowSharePlayground] = useState(false);
 
   let lastTimeTicked = 0;
 
@@ -307,7 +310,18 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
 
   // on mount
   useEffect(() => {
-    console.log(pixiContext.current);
+    (async function () {
+      const res = await fetch('/api/me', {
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      const { sessionExpired } = await res.json();
+      if (!sessionExpired) {
+        setIsLoggedIn(true);
+      }
+    })();
 
     // create pixiApp
     pixiApp.current = new PIXI.Application({
@@ -986,6 +1000,12 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       >
         <div {...getRootProps({ style })}>
           <input {...getInputProps()} />
+          <ShareDialog
+            showSharePlayground={showSharePlayground}
+            setShowSharePlayground={setShowSharePlayground}
+            isLoggedIn={isLoggedIn}
+            setIsLoggedIn={setIsLoggedIn}
+          />
           <Dialog
             open={showDeleteGraph}
             onClose={() => setShowDeleteGraph(false)}
@@ -1103,11 +1123,31 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               backgroundColor: RANDOMMAINCOLOR,
             }}
             src={PLUGANDPLAY_ICON}
-            onClick={() => {
-              setContextMenuPosition([80, 40]);
-              setIsGraphContextMenuOpen(true);
+            onClick={(event) => {
+              event.stopPropagation();
+              setContextMenuPosition([16, 96]);
+              setIsGraphContextMenuOpen((isOpen) => !isOpen);
             }}
           />
+          <Box className={styles.userMenu}>
+            <Button
+              onClick={() => {
+                setShowSharePlayground(true);
+              }}
+            >
+              Share
+            </Button>
+            {isLoggedIn && (
+              <Button
+                onClick={() => {
+                  const currentUrl = window.location.href;
+                  window.location.href = `/logout?redirectUrl=${currentUrl}`;
+                }}
+              >
+                Logout
+              </Button>
+            )}
+          </Box>
           {isCurrentGraphLoaded && (
             <>
               <Autocomplete
