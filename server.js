@@ -34,7 +34,6 @@ app.use(
   session({
     cookie: {
       maxAge: 172_800_000, // 48h
-      secure: true, // requires https, only for prod
     },
     name: SESSION_COOKIE_NAME,
     store: new MemoryStore({
