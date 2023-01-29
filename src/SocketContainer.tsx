@@ -86,7 +86,7 @@ export const SocketContainer: React.FunctionComponent<SocketContainerProps> = (
       <Box
         sx={{
           px: 1,
-          pb: 1,
+          py: 1,
           ...(!showHeader && { margin: '0px' }), // if no header, then override the margins
         }}
         className={styles.propertyContainerContent}

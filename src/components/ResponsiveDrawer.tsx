@@ -96,7 +96,7 @@ const ResponsiveDrawer = (props) => {
             width: props.drawerWidth,
             border: 0,
             background: `${Color(props.randomMainColor).alpha(0.8)}`,
-            overflowY: 'hidden',
+            overflowY: 'unset',
             height: '100vh',
           },
         }}
