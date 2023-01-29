@@ -53,27 +53,23 @@ export class Get extends PPNode {
   ): Promise<void> {
     // TODO implement actual companion support
     const usingCompanion: boolean = inputObject[sendThroughCompanionName];
-    let res = {};
+    let res: Promise<Response> = undefined;
     if (usingCompanion) {
       const allHeaders = JSON.parse(
         JSON.stringify(inputObject[headersInputName])
       );
       allHeaders.finalURL = inputObject[urlInputName];
-      res = (
-        await fetch(inputObject[sendThroughCompanionAddress], {
-          method: 'Get',
-          headers: { forwardedHeaders: JSON.stringify(allHeaders) },
-        })
-      ).json();
+      res = fetch(inputObject[sendThroughCompanionAddress], {
+        method: 'Get',
+        headers: { forwardedHeaders: JSON.stringify(allHeaders) },
+      });
     } else {
-      res = (
-        await fetch(inputObject[urlInputName], {
-          method: 'Get',
-          headers: inputObject[headersInputName],
-        })
-      ).json();
+      res = fetch(inputObject[urlInputName], {
+        method: 'Get',
+        headers: inputObject[headersInputName],
+      });
     }
-    outputObject[outputContentName] = res;
+    outputObject[outputContentName] = await (await res).json();
   }
 
   getColor(): TRgba {
