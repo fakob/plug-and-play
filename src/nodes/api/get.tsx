@@ -41,7 +41,7 @@ export class Get extends PPNode {
         SOCKET_TYPE.IN,
         sendThroughCompanionAddress,
         new StringType(),
-        'https://localhost:6655',
+        'http://localhost:6655',
         () => this.getInputData(sendThroughCompanionName)
       ),
       new Socket(SOCKET_TYPE.OUT, outputContentName, new JSONType(), ''),
@@ -51,13 +51,29 @@ export class Get extends PPNode {
     inputObject: any,
     outputObject: Record<string, unknown>
   ): Promise<void> {
-    const res = await fetch(inputObject[urlInputName], {
-      method: 'Get',
-      headers: inputObject[headersInputName],
-    });
     // TODO implement actual companion support
-    //const usingCompanion: boolean = inputObject[sendThroughCompanionName];
-    outputObject[outputContentName] = await res.json();
+    const usingCompanion: boolean = inputObject[sendThroughCompanionName];
+    let res = {};
+    if (usingCompanion) {
+      const allHeaders = JSON.parse(
+        JSON.stringify(inputObject[headersInputName])
+      );
+      allHeaders.finalURL = inputObject[urlInputName];
+      res = (
+        await fetch(inputObject[sendThroughCompanionAddress], {
+          method: 'Get',
+          headers: { forwardedHeaders: JSON.stringify(allHeaders) },
+        })
+      ).json();
+    } else {
+      res = (
+        await fetch(inputObject[urlInputName], {
+          method: 'Get',
+          headers: inputObject[headersInputName],
+        })
+      ).json();
+    }
+    outputObject[outputContentName] = res;
   }
 
   getColor(): TRgba {

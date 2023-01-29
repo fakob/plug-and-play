@@ -673,52 +673,6 @@ export class DRAW_Polygon extends DRAW_Base {
   }
 }
 
-// TODO implement using hull.js
-/*export class DRAW_Hull extends DRAW_Base {
-  public getDescription(): string {
-    return 'Draws a hull around input points';
-  }
-
-  public getName(): string {
-    return 'Draw hull';
-  }
-
-  protected getDefaultIO(): Socket[] {
-    return [
-      new Socket(SOCKET_TYPE.IN, inputPointsName, new ArrayType(), [
-        [0, 0],
-        [100, 100],
-        [100, 200],
-      ]),
-      new Socket(SOCKET_TYPE.IN, inputColorName, new ColorType()),
-      new Socket(
-        SOCKET_TYPE.IN,
-        inputConcavityName,
-        new NumberType(true, 1, 100),
-        20
-      ),
-    ].concat(super.getDefaultIO());
-  }
-
-  protected drawOnContainer(
-    inputObject: any,
-    container: PIXI.Container,
-    executions: { string: number }
-  ): void {
-    inputObject = {
-      ...inputObject,
-      ...inputObject[injectedDataName][
-        this.getAndIncrementExecutions(executions)
-      ],
-    };
-    const graphics: PIXI.Graphics = new PIXI.Graphics();
-    const selectedColor: TRgba = new ColorType().parse(
-      inputObject[inputColorName]
-    );
-    const points = inputObject[inputPointsName];
-  }
-}
-*/
 export class Export_Image_From_Graphics extends PPNode {
   protected getDefaultIO(): Socket[] {
     return [
