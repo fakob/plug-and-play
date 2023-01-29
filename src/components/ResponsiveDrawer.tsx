@@ -42,7 +42,7 @@ function DrawerToggle(props) {
 const ResponsiveDrawer = (props) => {
   // leaving this commented here for potential future testing
   const [open, setOpen] = useState(true);
-  const [filter, setFilter] = useState('in');
+  const [filter, setFilter] = useState('inputSocketArray');
 
   const handleDrawerToggle = () => {
     setOpen((prevState) => !prevState);

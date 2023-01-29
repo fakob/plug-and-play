@@ -54,14 +54,17 @@ function FilterContainer(props: FilterContentProps) {
       </ToggleButton>
       {props.selectedNodes.length === 1 &&
         props.selectedNode.nodeTriggerSocketArray.length > 0 && (
-          <ToggleButton value="trigger" aria-label="trigger">
+          <ToggleButton
+            value="triggerSocketArray"
+            aria-label="triggerSocketArray"
+          >
             Trigger
           </ToggleButton>
         )}
       {props.selectedNodes.length === 1 && (
         <ToggleButton
-          value="in"
-          aria-label="in"
+          value="inputSocketArray"
+          aria-label="inputSocketArray"
           disabled={props.selectedNode.inputSocketArray.length <= 0}
         >
           In
@@ -69,8 +72,8 @@ function FilterContainer(props: FilterContentProps) {
       )}
       {props.selectedNodes.length === 1 && (
         <ToggleButton
-          value="out"
-          aria-label="out"
+          value="outputSocketArray"
+          aria-label="outputSocketArray"
           disabled={props.selectedNode.outputSocketArray.length <= 0}
         >
           Out
@@ -309,17 +312,9 @@ export const PropertyArrayContainer: React.FunctionComponent<
 
   const [configData, setConfigData] = useState(getConfigData(singleNode));
 
-  function switchFilterBasedOnSelectedSocket(node, socket) {
-    switch (true) {
-      case node.nodeTriggerSocketArray.includes(socket):
-        props.setFilter('trigger');
-        break;
-      case node.inputSocketArray.includes(socket):
-        props.setFilter('in');
-        break;
-      case node.outputSocketArray.includes(socket):
-        props.setFilter('out');
-        break;
+  function switchFilterBasedOnSelectedSocket(socket) {
+    if (socket) {
+      props.setFilter(socket.getSocketArrayName());
     }
   }
 
@@ -339,11 +334,11 @@ export const PropertyArrayContainer: React.FunctionComponent<
     setSelectedNode(newSelectedNode);
     setConfigData(getConfigData(newSelectedNode));
     setUpdatebehaviour(getUpdateBehaviourStateForArray());
-    switchFilterBasedOnSelectedSocket(newSelectedNode, props.socketToInspect);
+    switchFilterBasedOnSelectedSocket(props.socketToInspect);
   }, [props.selectedNodes]);
 
   useEffect(() => {
-    switchFilterBasedOnSelectedSocket(selectedNode, props.socketToInspect);
+    switchFilterBasedOnSelectedSocket(props.socketToInspect);
   }, [props.socketToInspect]);
 
   const handleFilter = (
@@ -457,7 +452,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
                 props,
                 'Triggers',
                 props.filter,
-                'trigger'
+                'triggerSocketArray'
               )}
               {socketArrayToComponent(
                 props.socketToInspect,
@@ -465,7 +460,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
                 props,
                 'Inputs',
                 props.filter,
-                'in'
+                'inputSocketArray'
               )}
               {socketArrayToComponent(
                 props.socketToInspect,
@@ -473,7 +468,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
                 props,
                 'Outputs',
                 props.filter,
-                'out'
+                'outputSocketArray'
               )}
               {(props.filter === 'source' || props.filter == null) && (
                 <Stack spacing={1}>

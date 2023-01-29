@@ -301,6 +301,17 @@ export default class Socket extends PIXI.Container {
     return this.parent as PPNode;
   }
 
+  getSocketArrayName(): string {
+    switch (true) {
+      case this.getNode().inputSocketArray.includes(this):
+        return 'inputSocketArray';
+      case this.getNode().outputSocketArray.includes(this):
+        return 'outputSocketArray';
+      case this.getNode().nodeTriggerSocketArray.includes(this):
+        return 'triggerSocketArray';
+    }
+  }
+
   getGraph(): PPGraph {
     return PPGraph.currentGraph;
   }
