@@ -184,25 +184,27 @@ function socketArrayToComponent(
             <Box sx={{ px: 2, py: 1.5, color: 'text.primary' }}>{text}</Box>
           )}
           <Stack spacing={1}>
-            {sockets.map((property, index) => {
-              return (
-                <SocketContainer
-                  key={index}
-                  property={property}
-                  index={index}
-                  dataType={property.dataType}
-                  isInput={property.isInput()}
-                  hasLink={property.hasLink()}
-                  data={property.data}
-                  randomMainColor={props.randomMainColor}
-                  selectedNode={
-                    props.selectedNodes.length > 0
-                      ? props.selectedNodes[0]
-                      : null
-                  }
-                />
-              );
-            })}
+            {sockets
+              .filter((socket) => socket.visibilityCondition())
+              .map((property, index) => {
+                return (
+                  <SocketContainer
+                    key={index}
+                    property={property}
+                    index={index}
+                    dataType={property.dataType}
+                    isInput={property.isInput()}
+                    hasLink={property.hasLink()}
+                    data={property.data}
+                    randomMainColor={props.randomMainColor}
+                    selectedNode={
+                      props.selectedNodes.length > 0
+                        ? props.selectedNodes[0]
+                        : null
+                    }
+                  />
+                );
+              })}
           </Stack>
         </Box>
       )
