@@ -55,6 +55,7 @@ export class Get extends PPNode {
       method: 'Get',
       headers: inputObject[headersInputName],
     });
+    // TODO implement actual companion support
     //const usingCompanion: boolean = inputObject[sendThroughCompanionName];
     outputObject[outputContentName] = await res.json();
   }

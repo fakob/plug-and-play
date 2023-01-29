@@ -87,7 +87,7 @@ export default class Socket extends PIXI.Container {
   ): Socket {
     const socket = new Socket(socketType, name, dataType, data);
     socket.visibilityCondition = visibilityCondition;
-    socket.visible = socket.visible && socket.visibilityCondition();
+    socket.visible = socket.visibilityCondition();
     return socket;
   }
 
