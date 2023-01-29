@@ -688,7 +688,7 @@ export default class PPNode extends PIXI.Container {
           this.headerHeight +
           this.countOfVisibleNodeTriggerSockets * SOCKET_HEIGHT +
           (!this.getParallelInputsOutputs()
-            ? 
+            ?
             this.countOfVisibleOutputSockets * SOCKET_HEIGHT
             : 0) +
           index * SOCKET_HEIGHT;
@@ -821,7 +821,6 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     });
 
     if (!inputSocket) {
-      console.error('No input socket found with the name: ', name);
       return undefined;
     }
 

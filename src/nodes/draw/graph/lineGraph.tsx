@@ -101,7 +101,7 @@ export class GRAPH_LINE extends DRAW_Base {
         inputShouldShowAxisLines,
         new BooleanType(),
         false,
-        () => true //this.getInputData(inputShouldShowAxis)
+        () => this.getInputData(inputShouldShowAxis)
       ),
       new Socket(
         SOCKET_TYPE.IN,
