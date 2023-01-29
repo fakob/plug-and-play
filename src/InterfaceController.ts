@@ -13,6 +13,7 @@ export enum ListenEvent {
   GlobalPointerDown, // data = void TODO implement
   GlobalPointerUp, // data = event: PIXI.InteractionEvent
   GraphChanged, // data = {id,name}
+  OpenInspectorFocusingOnSocket, // (data: Socket) => void: called when inspector should be opened to focus on a socket
 }
 
 export default class InterfaceController {
@@ -24,6 +25,7 @@ export default class InterfaceController {
     4: {},
     5: {},
     6: {},
+    7: {},
   }; // not sure why this one is so messed up and needs these defined by default, very annoying
 
   // we use this listener structure here as there can be multiple listeners, not needed for everything (sometimes there is just one listener)
@@ -69,6 +71,5 @@ export default class InterfaceController {
   static onOpenSocketInspector: (pos: PIXI.Point, data: Socket) => void =
     () => {}; // called when socket inspector should be opened
   static onCloseSocketInspector: () => void; // called when socket inspector should be closed
-  static onOpenInspectorFocusingOnSocket: (data: Socket) => void = () => {}; // called when inspector should be opened to focus on a socket
   static selectionRedrawn: (pos: PIXI.Point) => void = () => {};
 }

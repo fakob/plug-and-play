@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Box } from '@mui/material';
 import PPNode from '../classes/NodeClass';
+import Socket from '../classes/SocketClass';
 import ResponsiveDrawer from './ResponsiveDrawer';
 
 type GraphOverlayDrawerProps = {
   randomMainColor: string;
   selectedNodes: PPNode[];
+  socketToInspect: Socket;
   toggle: boolean;
 };
 
@@ -23,6 +25,7 @@ const GraphOverlayDrawer: React.FunctionComponent<GraphOverlayDrawerProps> = (
         setDrawerWidth={setDrawerWidth}
         toggle={props.toggle}
         selectedNodes={props.selectedNodes}
+        socketToInspect={props.socketToInspect}
         randomMainColor={props.randomMainColor}
       />
     </Box>

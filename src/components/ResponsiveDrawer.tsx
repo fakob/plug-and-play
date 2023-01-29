@@ -113,6 +113,7 @@ const ResponsiveDrawer = (props) => {
         {props.selectedNodes.length ? (
           <InspectorContainer
             selectedNodes={props.selectedNodes}
+            socketToInspect={props.socketToInspect}
             randomMainColor={props.randomMainColor}
             filter={filter}
             setFilter={setFilter}

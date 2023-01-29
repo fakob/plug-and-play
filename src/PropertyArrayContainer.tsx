@@ -290,6 +290,7 @@ function SourceContent(props: SourceContentProps) {
 
 type PropertyArrayContainerProps = {
   selectedNodes: PPNode[];
+  socketToInspect: Socket;
   randomMainColor: string;
   filter: string;
   setFilter: React.Dispatch<React.SetStateAction<string>>;
@@ -302,22 +303,31 @@ export const PropertyArrayContainer: React.FunctionComponent<
     false
     // PPGraph.currentGraph.selection.isDraggingSelection
   );
-  const [socketToInspect, setSocketToInspect] = useState<Socket | undefined>(
-    undefined
-  );
 
   const singleNode = props.selectedNodes.length ? props.selectedNodes[0] : null;
   const [selectedNode, setSelectedNode] = useState(singleNode);
 
   const [configData, setConfigData] = useState(getConfigData(singleNode));
 
+  function switchFilterBasedOnSelectedSocket(node, socket) {
+    switch (true) {
+      case node.nodeTriggerSocketArray.includes(socket):
+        props.setFilter('trigger');
+        break;
+      case node.inputSocketArray.includes(socket):
+        props.setFilter('in');
+        break;
+      case node.outputSocketArray.includes(socket):
+        props.setFilter('out');
+        break;
+    }
+  }
+
   useEffect(() => {
     const id = InterfaceController.addListener(
       ListenEvent.SelectionDragging,
       setIsDragging
     );
-    InterfaceController.onOpenInspectorFocusingOnSocket =
-      openInspectorFocusingOnSocket;
     return () => {
       InterfaceController.removeListener(id);
     };
@@ -329,7 +339,12 @@ export const PropertyArrayContainer: React.FunctionComponent<
     setSelectedNode(newSelectedNode);
     setConfigData(getConfigData(newSelectedNode));
     setUpdatebehaviour(getUpdateBehaviourStateForArray());
+    switchFilterBasedOnSelectedSocket(newSelectedNode, props.socketToInspect);
   }, [props.selectedNodes]);
+
+  useEffect(() => {
+    switchFilterBasedOnSelectedSocket(selectedNode, props.socketToInspect);
+  }, [props.socketToInspect]);
 
   const handleFilter = (
     event: React.MouseEvent<HTMLElement>,
@@ -404,10 +419,6 @@ export const PropertyArrayContainer: React.FunctionComponent<
     });
   };
 
-  const openInspectorFocusingOnSocket = (socket: Socket = null) => {
-    setSocketToInspect(socket);
-  };
-
   return (
     !dragging && (
       <Box sx={{ width: '100%', m: 1 }}>
@@ -441,7 +452,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
           {props.selectedNodes.length === 1 && (
             <>
               {socketArrayToComponent(
-                socketToInspect,
+                props.socketToInspect,
                 selectedNode.nodeTriggerSocketArray,
                 props,
                 'Triggers',
@@ -449,7 +460,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
                 'trigger'
               )}
               {socketArrayToComponent(
-                socketToInspect,
+                props.socketToInspect,
                 selectedNode.inputSocketArray,
                 props,
                 'Inputs',
@@ -457,7 +468,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
                 'in'
               )}
               {socketArrayToComponent(
-                socketToInspect,
+                props.socketToInspect,
                 selectedNode.outputSocketArray,
                 props,
                 'Outputs',

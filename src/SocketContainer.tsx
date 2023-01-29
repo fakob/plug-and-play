@@ -57,15 +57,12 @@ export const SocketContainer: React.FunctionComponent<SocketContainerProps> = (
   };
 
   const CustomSocketInjection = ({ InjectionContent, props }) => {
-    console.log(props);
-
     return <InjectionContent {...props} />;
   };
 
   useEffect(() => {
     if (props.triggerScrollIntoView) {
       myRef.current.scrollIntoView({
-        behavior: 'smooth',
         block: 'center',
         inline: 'nearest',
       });

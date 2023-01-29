@@ -327,7 +327,13 @@ export default class PPGraph {
     if (event.data.originalEvent.ctrlKey) {
       InterfaceController.onOpenSocketInspector(clickedSourcePoint, socket);
     } else {
-      InterfaceController.onOpenInspectorFocusingOnSocket(socket);
+      InterfaceController.notifyListeners(ListenEvent.SelectionChanged, [
+        socket.getNode(),
+      ]);
+      InterfaceController.notifyListeners(
+        ListenEvent.OpenInspectorFocusingOnSocket,
+        socket
+      );
     }
   }
 
