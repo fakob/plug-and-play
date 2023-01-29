@@ -283,7 +283,6 @@ export default class Socket extends PIXI.Container {
   }
 
   setVisible(value: boolean): void {
-    value = value && this.visibilityCondition();
     if (!value == this.visible && !this.hasLink()) {
       this.visible = value;
 
