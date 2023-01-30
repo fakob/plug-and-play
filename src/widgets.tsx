@@ -230,11 +230,11 @@ export const SelectWidget: React.FunctionComponent<SelectWidgetProps> = (
         onChange={onChange}
         disabled={props.hasLink}
       >
-        {options?.map(({ text, value }, index) => {
+        {options?.map(({ text }, index) => {
           return (
             <MenuItem
               key={index}
-              value={value ?? text}
+              value={text}
               sx={{
                 '&.Mui-selected': {
                   backgroundColor: `${Color(props.randomMainColor).negate()}`,
@@ -430,11 +430,11 @@ export const TriggerWidget: React.FunctionComponent<TriggerWidgetProps> = (
           value={triggerType}
           onChange={onChangeTriggerType}
         >
-          {TRIGGER_TYPE_OPTIONS?.map(({ text, value }, index) => {
+          {TRIGGER_TYPE_OPTIONS?.map(({ text }, index) => {
             return (
               <MenuItem
                 key={index}
-                value={value}
+                value={text}
                 sx={{
                   '&.Mui-selected': {
                     backgroundColor: `${Color(props.randomMainColor).negate()}`,

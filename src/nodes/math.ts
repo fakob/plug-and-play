@@ -14,6 +14,7 @@ import { CustomFunction } from './data/dataFunctions';
 import { AbstractType } from './datatypes/abstractType';
 import * as PIXI from 'pixi.js';
 import { TextStyle } from 'pixi.js';
+
 export class MathFunction extends PPNode {
   getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
@@ -70,7 +71,6 @@ export class MathFunction extends PPNode {
     const mathOptions = math.map((methodName) => {
       return {
         text: methodName,
-        value: methodName,
       };
     });
 

@@ -9,7 +9,7 @@ export class TriggerType extends AbstractType {
   customFunctionString: string;
   previousData: any = null;
   constructor(
-    triggerType = TRIGGER_TYPE_OPTIONS[0].value,
+    triggerType = TRIGGER_TYPE_OPTIONS[0].text,
     customFunctionString = ''
   ) {
     super();
@@ -42,11 +42,11 @@ export class TriggerType extends AbstractType {
     super.onDataSet(data, socket);
     if (
       socket.isInput() &&
-      ((this.triggerType === TRIGGER_TYPE_OPTIONS[0].value &&
+      ((this.triggerType === TRIGGER_TYPE_OPTIONS[0].text &&
         this.previousData < data) ||
-        (this.triggerType === TRIGGER_TYPE_OPTIONS[1].value &&
+        (this.triggerType === TRIGGER_TYPE_OPTIONS[1].text &&
           this.previousData > data) ||
-        (this.triggerType === TRIGGER_TYPE_OPTIONS[2].value &&
+        (this.triggerType === TRIGGER_TYPE_OPTIONS[2].text &&
           this.previousData !== data))
     ) {
       // if im an input and condition is fullfilled, execute either custom function or start new chain with this as origin

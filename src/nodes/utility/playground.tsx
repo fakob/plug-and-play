@@ -54,7 +54,6 @@ export class Playground extends PPNode {
       .map((methodName) => {
         return {
           text: methodName,
-          value: methodName,
         };
       });
 
@@ -69,7 +68,6 @@ export class Playground extends PPNode {
       .map((methodName) => {
         return {
           text: methodName,
-          value: methodName,
         };
       });
 
@@ -78,25 +76,25 @@ export class Playground extends PPNode {
       new PPSocket(
         SOCKET_TYPE.IN,
         'Add all nodes',
-        new TriggerType(TRIGGER_TYPE_OPTIONS[0].value, 'addAllNodes'),
+        new TriggerType(TRIGGER_TYPE_OPTIONS[0].text, 'addAllNodes'),
         0
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
         'Output graph JSON',
-        new TriggerType(TRIGGER_TYPE_OPTIONS[0].value, 'outputGraphJSON'),
+        new TriggerType(TRIGGER_TYPE_OPTIONS[0].text, 'outputGraphJSON'),
         0
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
         'Output all added nodes',
-        new TriggerType(TRIGGER_TYPE_OPTIONS[0].value, 'outputAllAddedNodes'),
+        new TriggerType(TRIGGER_TYPE_OPTIONS[0].text, 'outputAllAddedNodes'),
         0
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
         'Zoom to fit selected nodes',
-        new TriggerType(TRIGGER_TYPE_OPTIONS[0].value, 'zoomToFitNodes'),
+        new TriggerType(TRIGGER_TYPE_OPTIONS[0].text, 'zoomToFitNodes'),
         0
       ),
       new PPSocket(

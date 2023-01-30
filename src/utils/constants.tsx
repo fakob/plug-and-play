@@ -211,21 +211,6 @@ function customFunctionNode(a, b) {
   return a * b;
 }`;
 
-export const PIXI_TEXT_ALIGN_OPTIONS: EnumStructure = [
-  {
-    text: 'left',
-    value: 'left',
-  },
-  {
-    text: 'center',
-    value: 'center',
-  },
-  {
-    text: 'right',
-    value: 'right',
-  },
-];
-
 export const PIXI_PIVOT_OPTIONS: EnumStructure = [
   {
     text: 'top left',
@@ -362,15 +347,12 @@ export const CONDITION_OPTIONS: EnumStructure = [
 export const TRIGGER_TYPE_OPTIONS: EnumStructure = [
   {
     text: 'positiveFlank',
-    value: 'positiveFlank',
   },
   {
     text: 'negativeFlank',
-    value: 'negativeFlank',
   },
   {
     text: 'change',
-    value: 'change',
   },
 ];
 
