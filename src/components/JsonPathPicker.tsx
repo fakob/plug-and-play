@@ -7,6 +7,7 @@
 import * as React from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { Box, ThemeProvider, styled } from '@mui/material';
+import isUrl from 'is-url';
 import ErrorFallback from './ErrorFallback';
 import { customTheme } from '../utils/constants';
 import { parseJSON } from '../utils/utils';
@@ -91,16 +92,6 @@ export class JsonPathPicker extends React.PureComponent<P, unknown> {
       </ThemeProvider>
     );
   }
-}
-
-/**
- * Check if a string represents a valid url
- * @return boolean
- */
-function isUrl(str: string): boolean {
-  const regexp =
-    /^(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
-  return regexp.test(str);
 }
 
 function escape(str: string): string {

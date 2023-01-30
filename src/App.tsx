@@ -62,15 +62,13 @@ import { IGraphSearch, INodeSearch } from './utils/interfaces';
 import {
   connectNodeToSocket,
   convertBlobToBase64,
-  getDataFromClipboard,
-  getNodeDataFromHtml,
-  getNodeDataFromText,
+  copyClipboard,
   isEventComingFromWithinTextInput,
+  pasteClipboard,
   removeExtension,
   removeUrlParameter,
   roundNumber,
   useStateRef,
-  writeDataToClipboard,
 } from './utils/utils';
 import { ensureVisible, zoomToFitNodes } from './pixi/utils-pixi';
 import { getAllNodeTypes } from './nodes/allNodes';
@@ -358,70 +356,8 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       { passive: false }
     );
 
-    document.addEventListener('copy', async (e: ClipboardEvent) => {
-      const selection = document.getSelection();
-      // if text selection is empty
-      // prevent default and copy selected nodes
-      if (selection.toString() === '') {
-        e.preventDefault();
-        const serializeSelection = PPGraph.currentGraph.serializeSelection();
-        writeDataToClipboard(serializeSelection);
-        console.log(serializeSelection);
-      }
-    });
-
-    document.addEventListener('paste', async (e) => {
-      if (!isEventComingFromWithinTextInput(e)) {
-        const clipboardBlobs = await getDataFromClipboard();
-
-        const tryGettingDataAndAdd = async (mimeType) => {
-          const mouseWorld = viewport.current.toWorld(mousePosition);
-          let data;
-          try {
-            // check if it is node data
-            if (mimeType === 'text/html') {
-              data = getNodeDataFromHtml(clipboardBlobs[mimeType]);
-            } else {
-              data = getNodeDataFromText(clipboardBlobs[mimeType]);
-            }
-            e.preventDefault();
-            await PPGraph.currentGraph.pasteNodes(data, {
-              x: mouseWorld.x,
-              y: mouseWorld.y,
-            });
-            return true;
-          } catch (e) {
-            console.log(`No node data in ${mimeType}`, e);
-          }
-          try {
-            data = clipboardBlobs[mimeType];
-            e.preventDefault();
-            if (PPGraph.currentGraph.selection.selectedNodes.length < 1) {
-              PPGraph.currentGraph.addNewNode('TextEditor', {
-                nodePosX: mouseWorld.x,
-                nodePosY: mouseWorld.y,
-                initialData: {
-                  ...(mimeType === 'text/html'
-                    ? { html: data }
-                    : { plain: data }),
-                },
-              });
-            }
-            return true;
-          } catch (e) {
-            console.log(`No text data in ${mimeType}`, e);
-          }
-        };
-
-        let result = false;
-        if (clipboardBlobs['text/html']) {
-          result = await tryGettingDataAndAdd('text/html');
-        }
-        if (!result && clipboardBlobs['text/plain']) {
-          await tryGettingDataAndAdd('text/plain');
-        }
-      }
-    });
+    document.addEventListener('copy', copyClipboard);
+    document.addEventListener('paste', pasteClipboard);
 
     window.addEventListener('mousemove', setMousePosition, false);
 
