@@ -177,7 +177,7 @@ export class ExecuteMacro extends CustomFunction {
     Object.values(PPGraph.currentGraph.nodes)
       .filter((node) => node instanceof Macro)
       .map((node) => {
-        return { text: node.nodeName, value: node.nodeName };
+        return { text: node.nodeName };
       });
 
   getColor(): TRgba {

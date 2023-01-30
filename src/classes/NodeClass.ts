@@ -725,7 +725,7 @@ export default class PPNode extends PIXI.Container {
       new Socket(
         SOCKET_TYPE.IN,
         this.constructSocketName('Trigger', this.nodeTriggerSocketArray),
-        new TriggerType(TRIGGER_TYPE_OPTIONS[0].value),
+        new TriggerType(TRIGGER_TYPE_OPTIONS[0].text),
         0,
         true
       )

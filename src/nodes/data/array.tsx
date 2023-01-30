@@ -50,7 +50,6 @@ export class ArrayMethod extends PPNode {
       .map((methodName) => {
         return {
           text: methodName,
-          value: methodName,
         };
       });
 

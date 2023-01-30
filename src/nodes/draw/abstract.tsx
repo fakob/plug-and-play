@@ -93,7 +93,7 @@ export abstract class DRAW_Base extends PPNode {
         SOCKET_TYPE.IN,
         inputPivotName,
         new EnumType(PIXI_PIVOT_OPTIONS),
-        PIXI_PIVOT_OPTIONS[0].value,
+        PIXI_PIVOT_OPTIONS[0].text,
         false
       ),
       new Socket(
@@ -234,7 +234,10 @@ export abstract class DRAW_Base extends PPNode {
   }
 
   protected positionAndScale(toModify: DisplayObject, inputObject: any): void {
-    const pivotPoint = inputObject[inputPivotName];
+    const pivot = inputObject[inputPivotName];
+    const pivotPoint = PIXI_PIVOT_OPTIONS.find(
+      (option) => option.text === pivot
+    ).value;
 
     toModify.setTransform(
       inputObject[offseXName],

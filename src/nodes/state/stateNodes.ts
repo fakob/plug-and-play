@@ -22,17 +22,17 @@ abstract class StateNode extends PPNode {
       new Socket(
         SOCKET_TYPE.IN,
         'Add',
-        new TriggerType(TRIGGER_TYPE_OPTIONS[2].value, 'add')
+        new TriggerType(TRIGGER_TYPE_OPTIONS[2].text, 'add')
       ),
       new Socket(
         SOCKET_TYPE.IN,
         'Remove',
-        new TriggerType(TRIGGER_TYPE_OPTIONS[2].value, 'remove')
+        new TriggerType(TRIGGER_TYPE_OPTIONS[2].text, 'remove')
       ),
       new Socket(
         SOCKET_TYPE.IN,
         'Clear',
-        new TriggerType(TRIGGER_TYPE_OPTIONS[2].value, 'clear')
+        new TriggerType(TRIGGER_TYPE_OPTIONS[2].text, 'clear')
       ),
       new Socket(
         SOCKET_TYPE.IN,

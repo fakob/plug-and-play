@@ -19,19 +19,15 @@ import { DRAW_Base, injectedDataName, outputPixiName } from './abstract';
 const availableShapes: EnumStructure = [
   {
     text: 'Circle',
-    value: 'Circle',
   },
   {
     text: 'Rectangle',
-    value: 'Rectangle',
   },
   {
     text: 'Rounded Rectangle',
-    value: 'Rounded Rectangle',
   },
   {
     text: 'Ellipse',
-    value: 'Ellipse',
   },
 ];
 
@@ -86,7 +82,12 @@ export class DRAW_Shape extends DRAW_Base {
         new EnumType(availableShapes),
         'Circle'
       ),
-      new Socket(SOCKET_TYPE.IN, inputColorName, new ColorType(), TRgba.randomColor()),
+      new Socket(
+        SOCKET_TYPE.IN,
+        inputColorName,
+        new ColorType(),
+        TRgba.randomColor()
+      ),
       new Socket(
         SOCKET_TYPE.IN,
         inputWidthName,
@@ -111,7 +112,7 @@ export class DRAW_Shape extends DRAW_Base {
     inputObject = {
       ...inputObject,
       ...inputObject[injectedDataName][
-      this.getAndIncrementExecutions(executions)
+        this.getAndIncrementExecutions(executions)
       ],
     };
     const width = inputObject[inputWidthName];
@@ -178,7 +179,7 @@ export class DRAW_Passthrough extends DRAW_Base {
     inputObject = {
       ...inputObject,
       ...inputObject[injectedDataName][
-      this.getAndIncrementExecutions(executions)
+        this.getAndIncrementExecutions(executions)
       ],
     };
     const myContainer = new PIXI.Container();
@@ -234,7 +235,7 @@ export class DRAW_Text extends DRAW_Base {
     inputObject = {
       ...inputObject,
       ...inputObject[injectedDataName][
-      this.getAndIncrementExecutions(executions)
+        this.getAndIncrementExecutions(executions)
       ],
     };
     const textStyle = new PIXI.TextStyle({
@@ -278,7 +279,7 @@ export class DRAW_Combine extends DRAW_Base {
     inputObject = {
       ...inputObject,
       ...inputObject[injectedDataName][
-      this.getAndIncrementExecutions(executions)
+        this.getAndIncrementExecutions(executions)
       ],
     };
     const myContainer = new PIXI.Container();
@@ -333,7 +334,7 @@ export class DRAW_COMBINE_ARRAY extends DRAW_Base {
     inputObject = {
       ...inputObject,
       ...inputObject[injectedDataName][
-      this.getAndIncrementExecutions(executions)
+        this.getAndIncrementExecutions(executions)
       ],
     };
     const myContainer = new PIXI.Container();
@@ -409,7 +410,7 @@ export class DRAW_Multiplier extends DRAW_Base {
     inputObject = {
       ...inputObject,
       ...inputObject[injectedDataName][
-      this.getAndIncrementExecutions(executions)
+        this.getAndIncrementExecutions(executions)
       ],
     };
     const myContainer = new PIXI.Container();
@@ -489,7 +490,7 @@ export class DRAW_Multipy_Along extends DRAW_Base {
     inputObject = {
       ...inputObject,
       ...inputObject[injectedDataName][
-      this.getAndIncrementExecutions(executions)
+        this.getAndIncrementExecutions(executions)
       ],
     };
     const myContainer = new PIXI.Container();
@@ -531,7 +532,7 @@ export class DRAW_Image extends DRAW_Base {
     inputObject = {
       ...inputObject,
       ...inputObject[injectedDataName][
-      this.getAndIncrementExecutions(executions)
+        this.getAndIncrementExecutions(executions)
       ],
     };
 
@@ -584,7 +585,7 @@ export class DRAW_Line extends DRAW_Base {
     inputObject = {
       ...inputObject,
       ...inputObject[injectedDataName][
-      this.getAndIncrementExecutions(executions)
+        this.getAndIncrementExecutions(executions)
       ],
     };
     const graphics: PIXI.Graphics = new PIXI.Graphics();
@@ -651,7 +652,7 @@ export class DRAW_Polygon extends DRAW_Base {
     inputObject = {
       ...inputObject,
       ...inputObject[injectedDataName][
-      this.getAndIncrementExecutions(executions)
+        this.getAndIncrementExecutions(executions)
       ],
     };
     const graphics: PIXI.Graphics = new PIXI.Graphics();

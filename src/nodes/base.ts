@@ -5,6 +5,7 @@ import _ from 'lodash-contrib';
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
 import PPSocket from '../classes/SocketClass';
+import UpdateBehaviourClass from '../classes/UpdateBehaviourClass';
 import {
   COLOR,
   COMPARISON_OPTIONS,
@@ -307,15 +308,13 @@ export class RandomArray extends PPNode {
     return 'Create random array';
   }
 
+  protected getUpdateBehaviour(): UpdateBehaviourClass {
+    return new UpdateBehaviourClass(false, false, 10000);
+  }
+
   protected getDefaultIO(): PPSocket[] {
     return [
       new PPSocket(SOCKET_TYPE.OUT, 'output array', new ArrayType()),
-      new PPSocket(
-        SOCKET_TYPE.IN,
-        'trigger',
-        new TriggerType(TRIGGER_TYPE_OPTIONS[0].value, 'trigger'),
-        0
-      ),
       new PPSocket(
         SOCKET_TYPE.IN,
         'length',
@@ -323,19 +322,22 @@ export class RandomArray extends PPNode {
         20,
         undefined
       ),
-      new PPSocket(SOCKET_TYPE.IN, 'min', new NumberType(), 0),
-      new PPSocket(SOCKET_TYPE.IN, 'max', new NumberType(), 1),
+      new PPSocket(SOCKET_TYPE.IN, 'min', new NumberType(true), 0),
+      new PPSocket(SOCKET_TYPE.IN, 'max', new NumberType(true), 100),
     ].concat(super.getDefaultIO());
   }
 
-  trigger(): void {
-    const length = this.getInputData('length');
-    const min = this.getInputData('min');
-    const max = this.getInputData('max');
+  protected async onExecute(
+    inputObject: any,
+    outputObject: Record<string, unknown>
+  ): Promise<void> {
+    const length = inputObject['length'];
+    const min = inputObject['min'];
+    const max = inputObject['max'];
     const randomArray = Array.from({ length: length }, () => {
       return Math.floor(Math.random() * (max - min) + min);
     });
-    this.setOutputData('output array', randomArray);
+    outputObject['output array'] = randomArray;
   }
 }
 
@@ -366,7 +368,6 @@ export class DateAndTime extends PPNode {
       .map((methodName) => {
         return {
           text: methodName,
-          value: methodName,
         };
       });
 
