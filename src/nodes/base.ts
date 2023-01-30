@@ -25,7 +25,6 @@ import {
 import { NumberType } from './datatypes/numberType';
 import { AnyType } from './datatypes/anyType';
 import { ArrayType } from './datatypes/arrayType';
-import { TriggerType } from './datatypes/triggerType';
 import { ColorType } from './datatypes/colorType';
 import { StringType } from './datatypes/stringType';
 import { EnumType } from './datatypes/enumType';
