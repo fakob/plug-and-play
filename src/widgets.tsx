@@ -391,7 +391,6 @@ export const TriggerWidget: React.FunctionComponent<TriggerWidgetProps> = (
   props
 ) => {
   const [data, setData] = useState(props.data);
-  console.log(props);
   const [triggerType, setChangeFunctionString] = useState(
     props.type.triggerType
   );

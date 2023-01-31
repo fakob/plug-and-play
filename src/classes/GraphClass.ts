@@ -2,14 +2,13 @@
 import * as PIXI from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
 
-import { NODE_WIDTH, PP_VERSION, SOCKET_TYPE } from '../utils/constants';
+import { NODE_WIDTH, PP_VERSION } from '../utils/constants';
 import {
   CustomArgs,
   SerializedGraph,
   SerializedLink,
   SerializedNode,
   SerializedSelection,
-  TSocketType,
 } from '../utils/interfaces';
 import { connectNodeToSocket } from '../utils/utils';
 import { getNodesBounds } from '../pixi/utils-pixi';
@@ -33,6 +32,7 @@ export default class PPGraph {
 
   _showComments: boolean;
   _showExecutionVisualisation: boolean;
+  socketToInspect: null | PPSocket;
   selectedSourceSocket: null | PPSocket;
   lastSelectedSocketWasInput = false;
   overrideNodeCursorPosition: null | PIXI.Point = null;
@@ -238,7 +238,7 @@ export default class PPGraph {
       }
 
       // swap points if i grabbed an input, to make curve look nice
-      if (this.selectedSourceSocket.socketType === SOCKET_TYPE.IN) {
+      if (this.selectedSourceSocket.isInput()) {
         const temp: PIXI.Point = targetPoint;
         targetPoint = socketCenter;
         socketCenter = temp;
@@ -277,7 +277,7 @@ export default class PPGraph {
   }
 
   socketMouseDown(socket: PPSocket, event: PIXI.InteractionEvent): void {
-    const overOutput = socket.socketType == SOCKET_TYPE.OUT;
+    const overOutput = socket.isOutput();
     this.lastSelectedSocketWasInput = overOutput;
     if (overOutput) {
       this.selectedSourceSocket = socket;
@@ -302,15 +302,9 @@ export default class PPGraph {
     const source = this.selectedSourceSocket;
     this.stopConnecting();
     if (source && socket !== this.selectedSourceSocket) {
-      if (
-        source.socketType === SOCKET_TYPE.IN &&
-        socket.socketType === SOCKET_TYPE.OUT
-      ) {
+      if (source.isInput() && socket.isOutput()) {
         await this.action_Connect(socket, source);
-      } else if (
-        source.socketType === SOCKET_TYPE.OUT &&
-        socket.socketType === SOCKET_TYPE.IN
-      ) {
+      } else if (source.isOutput() && socket.isInput()) {
         await this.action_Connect(source, socket);
       }
     }
@@ -324,7 +318,22 @@ export default class PPGraph {
       event.data.global.x,
       event.data.global.y
     );
-    InterfaceController.onOpenSocketInspector(clickedSourcePoint, socket);
+    if (event.data.originalEvent.ctrlKey) {
+      InterfaceController.onOpenSocketInspector(clickedSourcePoint, socket);
+    } else {
+      InterfaceController.notifyListeners(ListenEvent.SelectionChanged, [
+        socket.getNode(),
+      ]);
+      if (this.socketToInspect !== socket) {
+        this.socketToInspect = socket;
+      } else {
+        this.socketToInspect = null;
+      }
+      InterfaceController.notifyListeners(
+        ListenEvent.OpenInspectorFocusingOnSocket,
+        this.socketToInspect
+      );
+    }
   }
 
   // GETTERS & SETTERS
@@ -438,15 +447,13 @@ export default class PPGraph {
   }
 
   async addSerializedLink(link: SerializedLink): Promise<void> {
-    const outputRef = this.getSocket(
+    const outputRef = this.getOutputSocket(
       link.sourceNodeId,
-      link.sourceSocketName,
-      SOCKET_TYPE.OUT
+      link.sourceSocketName
     );
-    const inputRef = this.getSocket(
+    const inputRef = this.getInputSocket(
       link.targetNodeId,
-      link.targetSocketName,
-      SOCKET_TYPE.IN
+      link.targetSocketName
     );
     if (outputRef && inputRef) {
       await this.connect(outputRef, inputRef, false);
@@ -543,14 +550,14 @@ export default class PPGraph {
   ) {
     await this.connect(
       this.nodes[sourceNodeID].getOutputSocketByName(outputSocketName),
-      this.nodes[targetNodeID].getInputSocketByName(inputSocketName),
+      this.nodes[targetNodeID].getInputOrTriggerSocketByName(inputSocketName),
       notify
     );
   }
 
   async linkDisconnect(targetNodeID, inputSocketName) {
     this.nodes[targetNodeID]
-      .getInputSocketByName(inputSocketName)
+      .getInputOrTriggerSocketByName(inputSocketName)
       .links[0].delete();
   }
 
@@ -764,7 +771,7 @@ export default class PPGraph {
           ].getOutputSocketByName(link.sourceSocketName);
           const newTarget = mappingOfOldAndNewNodes[
             link.targetNodeId
-          ].getInputSocketByName(link.targetSocketName);
+          ].getInputOrTriggerSocketByName(link.targetSocketName);
           await this.connect(newSource, newTarget, false);
         })
       );
@@ -784,7 +791,7 @@ export default class PPGraph {
   }
 
   addTriggerInput(): void {
-    this.selection.selectedNodes.forEach((node) => node.addTriggerInput());
+    this.selection.selectedNodes.forEach((node) => node.addDefaultTrigger());
   }
 
   async extractToMacro(): Promise<void> {
@@ -820,7 +827,7 @@ export default class PPGraph {
     inputs.forEach(async (socket, i) => {
       const newSocket = forwardMapping[
         socket.getNode().id
-      ].getInputSocketByName(socket.name);
+      ].getInputOrTriggerSocketByName(socket.name);
       await this.connect(macroNode.outputSocketArray[i], newSocket);
     });
 
@@ -1015,14 +1022,14 @@ export default class PPGraph {
     return true;
   }
 
-  getSocket(nodeID: string, socketName: string, type: TSocketType): PPSocket {
+  getInputSocket(nodeID: string, socketName: string): PPSocket {
     const node = this.getNodeById(nodeID);
-    if (node) {
-      return type === SOCKET_TYPE.IN
-        ? node.getInputSocketByName(socketName)
-        : node.getOutputSocketByName(socketName);
-    }
-    return undefined;
+    return node.getInputOrTriggerSocketByName(socketName);
+  }
+
+  getOutputSocket(nodeID: string, socketName: string): PPSocket {
+    const node = this.getNodeById(nodeID);
+    return node.getOutputSocketByName(socketName);
   }
 
   tick(currentTime: number, deltaTime: number): void {
@@ -1095,7 +1102,7 @@ export default class PPGraph {
           this.nodes[link.sourceNodeId].getOutputSocketByName(
             link.sourceSocketName
           ),
-          this.nodes[link.targetNodeId].getInputSocketByName(
+          this.nodes[link.targetNodeId].getInputOrTriggerSocketByName(
             link.targetSocketName
           ),
           false

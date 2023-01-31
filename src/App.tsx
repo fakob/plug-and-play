@@ -118,7 +118,7 @@ const App = (): JSX.Element => {
   const nodeSearchInput = useRef<HTMLInputElement | null>(null);
   const [isGraphSearchOpen, setIsGraphSearchOpen] = useState(false);
   const [isNodeSearchVisible, setIsNodeSearchVisible] = useState(false);
-  const [showLeftSideDrawer, setShowLeftSideDrawer] = useState(false);
+  const [showRightSideDrawer, setShowRightSideDrawer] = useState(false);
   const [nodeSearchCount, setNodeSearchCount] = useState(0);
   const [isGraphContextMenuOpen, setIsGraphContextMenuOpen] = useState(false);
   const [isNodeContextMenuOpen, setIsNodeContextMenuOpen] = useState(false);
@@ -523,7 +523,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               e.preventDefault();
               break;
             case '\\':
-              setShowLeftSideDrawer((prevState) => !prevState);
+              setShowRightSideDrawer((prevState) => !prevState);
               e.preventDefault();
               break;
             case 'z':
@@ -613,6 +613,14 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         setGraphSearchActiveItem(data);
       })
     );
+    ids.push(
+      InterfaceController.addListener(
+        ListenEvent.OpenInspectorFocusingOnSocket,
+        (socket: PPSocket) => {
+          setShowRightSideDrawer(socket !== null);
+        }
+      )
+    );
 
     InterfaceController.onOpenNodeSearch = openNodeSearch;
 
@@ -668,7 +676,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     return () => {
       ids.forEach((id) => InterfaceController.removeListener(id));
     };
-  });
+  }, []);
 
   // addEventListener to graphSearchInput
   useEffect(() => {
@@ -1021,7 +1029,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               contextMenuPosition={contextMenuPosition}
               setIsGraphSearchOpen={setIsGraphSearchOpen}
               openNodeSearch={openNodeSearch}
-              setShowLeftSideDrawer={setShowLeftSideDrawer}
+              setShowRightSideDrawer={setShowRightSideDrawer}
               setShowEdit={setShowEdit}
               uploadGraph={uploadGraph}
               showComments={showComments}
@@ -1036,7 +1044,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               currentGraph={PPGraph.currentGraph}
               openNodeSearch={openNodeSearch}
               zoomToFitSelection={zoomToFitNodes}
-              setShowLeftSideDrawer={setShowLeftSideDrawer}
+              setShowRightSideDrawer={setShowRightSideDrawer}
             />
           )}
           {isSocketContextMenuOpen && (
@@ -1049,7 +1057,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           )}
           <PixiContainer ref={pixiContext} />
           <GraphOverlay
-            toggle={showLeftSideDrawer}
+            toggle={showRightSideDrawer}
             currentGraph={PPGraph.currentGraph}
             randomMainColor={RANDOMMAINCOLOR}
           />

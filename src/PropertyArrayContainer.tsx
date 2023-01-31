@@ -169,6 +169,7 @@ function CommonContent(props: CommonContentProps) {
 }
 
 function socketArrayToComponent(
+  socketToInspect: Socket,
   sockets: Socket[],
   props: PropertyArrayContainerProps,
   text: string,
@@ -187,6 +188,7 @@ function socketArrayToComponent(
             {sockets.map((property, index) => {
               return (
                 <SocketContainer
+                  triggerScrollIntoView={socketToInspect === property}
                   key={index}
                   property={property}
                   index={index}
@@ -288,6 +290,7 @@ function SourceContent(props: SourceContentProps) {
 
 type PropertyArrayContainerProps = {
   selectedNodes: PPNode[];
+  socketToInspect: Socket;
   randomMainColor: string;
   filter: string;
   setFilter: React.Dispatch<React.SetStateAction<string>>;
@@ -306,6 +309,12 @@ export const PropertyArrayContainer: React.FunctionComponent<
 
   const [configData, setConfigData] = useState(getConfigData(singleNode));
 
+  function switchFilterBasedOnSelectedSocket(socket: Socket) {
+    if (socket) {
+      props.setFilter(socket.socketType);
+    }
+  }
+
   useEffect(() => {
     const id = InterfaceController.addListener(
       ListenEvent.SelectionDragging,
@@ -322,7 +331,12 @@ export const PropertyArrayContainer: React.FunctionComponent<
     setSelectedNode(newSelectedNode);
     setConfigData(getConfigData(newSelectedNode));
     setUpdatebehaviour(getUpdateBehaviourStateForArray());
+    switchFilterBasedOnSelectedSocket(props.socketToInspect);
   }, [props.selectedNodes]);
+
+  useEffect(() => {
+    switchFilterBasedOnSelectedSocket(props.socketToInspect);
+  }, [props.socketToInspect]);
 
   const handleFilter = (
     event: React.MouseEvent<HTMLElement>,
@@ -430,6 +444,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
           {props.selectedNodes.length === 1 && (
             <>
               {socketArrayToComponent(
+                props.socketToInspect,
                 selectedNode.nodeTriggerSocketArray,
                 props,
                 'Triggers',
@@ -437,6 +452,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
                 'trigger'
               )}
               {socketArrayToComponent(
+                props.socketToInspect,
                 selectedNode.inputSocketArray,
                 props,
                 'Inputs',
@@ -444,6 +460,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
                 'in'
               )}
               {socketArrayToComponent(
+                props.socketToInspect,
                 selectedNode.outputSocketArray,
                 props,
                 'Outputs',

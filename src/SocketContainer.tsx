@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Color from 'color';
 import { Box, IconButton, Menu, MenuItem, ToggleButton } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -14,6 +14,7 @@ import { AbstractType } from './nodes/datatypes/abstractType';
 import { allDataTypes } from './nodes/datatypes/dataTypesMap';
 
 type SocketContainerProps = {
+  triggerScrollIntoView: boolean;
   property: Socket;
   index: number;
   dataType: AbstractType;
@@ -28,6 +29,8 @@ type SocketContainerProps = {
 export const SocketContainer: React.FunctionComponent<SocketContainerProps> = (
   props
 ) => {
+  const myRef = useRef(null);
+
   const { showHeader = true } = props;
   const [dataTypeValue, setDataTypeValue] = useState(props.dataType);
   const baseProps = {
@@ -54,18 +57,26 @@ export const SocketContainer: React.FunctionComponent<SocketContainerProps> = (
   };
 
   const CustomSocketInjection = ({ InjectionContent, props }) => {
-    console.log(props);
-
     return <InjectionContent {...props} />;
   };
 
+  useEffect(() => {
+    if (props.triggerScrollIntoView) {
+      myRef.current.scrollIntoView({
+        block: 'center',
+        inline: 'nearest',
+      });
+    }
+  }, [props.triggerScrollIntoView]);
+
   return (
-    <Box sx={{ bgcolor: 'background.default' }}>
+    <Box ref={myRef} sx={{ bgcolor: 'background.default' }}>
       {showHeader && (
         <SocketHeader
           key={`SocketHeader-${props.dataType.getName()}`}
           property={props.property}
           index={props.index}
+          isSelected={props.triggerScrollIntoView}
           isInput={props.isInput}
           hasLink={props.hasLink}
           onChangeDropdown={onChangeDropdown}
@@ -75,7 +86,7 @@ export const SocketContainer: React.FunctionComponent<SocketContainerProps> = (
       <Box
         sx={{
           px: 1,
-          pb: 1,
+          py: 1,
           ...(!showHeader && { margin: '0px' }), // if no header, then override the margins
         }}
         className={styles.propertyContainerContent}
@@ -101,6 +112,7 @@ export const SocketContainer: React.FunctionComponent<SocketContainerProps> = (
 type SocketHeaderProps = {
   property: Socket;
   index: number;
+  isSelected: boolean;
   isInput: boolean;
   hasLink: boolean;
   onChangeDropdown: (event) => void;
@@ -124,6 +136,7 @@ const SocketHeader: React.FunctionComponent<SocketHeaderProps> = (props) => {
         display: 'flex',
         flexWrap: 'nowrap',
         width: '100%',
+        bgcolor: props.isSelected && 'secondary.dark',
       }}
     >
       <ToggleButton

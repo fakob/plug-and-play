@@ -11,6 +11,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import Color from 'color';
 import styles from './utils/style.module.css';
 import PPNode from './classes/NodeClass';
+import Socket from './classes/SocketClass';
 import { PropertyArrayContainer } from './PropertyArrayContainer';
 import { COLOR_WHITE_TEXT, COLOR_DARK, customTheme } from './utils/constants';
 
@@ -136,6 +137,7 @@ function InspectorHeader(props) {
 
 type InspectorContainerProps = {
   selectedNodes: PPNode[];
+  socketToInspect: Socket;
   randomMainColor: string;
   filter: string;
   setFilter: React.Dispatch<React.SetStateAction<string>>;
@@ -179,6 +181,7 @@ const InspectorContainer: React.FunctionComponent<InspectorContainerProps> = (
         )}
         <PropertyArrayContainer
           selectedNodes={props.selectedNodes}
+          socketToInspect={props.socketToInspect}
           randomMainColor={props.randomMainColor}
           filter={props.filter}
           setFilter={props.setFilter}

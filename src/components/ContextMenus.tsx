@@ -219,7 +219,7 @@ export const GraphContextMenu = (props) => {
         </MenuItem>
         <MenuItem
           onClick={() => {
-            props.setShowLeftSideDrawer();
+            props.setShowRightSideDrawer();
           }}
         >
           <ListItemIcon>
@@ -379,7 +379,7 @@ export const NodeContextMenu = (props) => {
         </MenuItem>
         <MenuItem
           onClick={() => {
-            props.setShowLeftSideDrawer();
+            props.setShowRightSideDrawer();
           }}
         >
           <ListItemIcon>
