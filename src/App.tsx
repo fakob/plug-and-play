@@ -616,8 +616,8 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     ids.push(
       InterfaceController.addListener(
         ListenEvent.OpenInspectorFocusingOnSocket,
-        () => {
-          setShowRightSideDrawer(true);
+        (socket: PPSocket) => {
+          setShowRightSideDrawer(socket !== null);
         }
       )
     );

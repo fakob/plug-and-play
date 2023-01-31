@@ -126,6 +126,7 @@ export const TEXT_RESOLUTION = 8; // so one can zoom in closer and it keeps a de
 export const SOCKET_TYPE = {
   IN: 'in',
   OUT: 'out',
+  TRIGGER: 'trigger',
 } as const;
 
 export const SOCKET_COLOR_HEX: string = Color(COLOR[0]).lighten(0.4).hex();

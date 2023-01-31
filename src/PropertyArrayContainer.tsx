@@ -54,17 +54,14 @@ function FilterContainer(props: FilterContentProps) {
       </ToggleButton>
       {props.selectedNodes.length === 1 &&
         props.selectedNode.nodeTriggerSocketArray.length > 0 && (
-          <ToggleButton
-            value="triggerSocketArray"
-            aria-label="triggerSocketArray"
-          >
+          <ToggleButton value="trigger" aria-label="trigger">
             Trigger
           </ToggleButton>
         )}
       {props.selectedNodes.length === 1 && (
         <ToggleButton
-          value="inputSocketArray"
-          aria-label="inputSocketArray"
+          value="in"
+          aria-label="in"
           disabled={props.selectedNode.inputSocketArray.length <= 0}
         >
           In
@@ -72,8 +69,8 @@ function FilterContainer(props: FilterContentProps) {
       )}
       {props.selectedNodes.length === 1 && (
         <ToggleButton
-          value="outputSocketArray"
-          aria-label="outputSocketArray"
+          value="out"
+          aria-label="out"
           disabled={props.selectedNode.outputSocketArray.length <= 0}
         >
           Out
@@ -312,9 +309,9 @@ export const PropertyArrayContainer: React.FunctionComponent<
 
   const [configData, setConfigData] = useState(getConfigData(singleNode));
 
-  function switchFilterBasedOnSelectedSocket(socket) {
+  function switchFilterBasedOnSelectedSocket(socket: Socket) {
     if (socket) {
-      props.setFilter(socket.getSocketArrayName());
+      props.setFilter(socket.socketType);
     }
   }
 
@@ -452,7 +449,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
                 props,
                 'Triggers',
                 props.filter,
-                'triggerSocketArray'
+                'trigger'
               )}
               {socketArrayToComponent(
                 props.socketToInspect,
@@ -460,7 +457,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
                 props,
                 'Inputs',
                 props.filter,
-                'inputSocketArray'
+                'in'
               )}
               {socketArrayToComponent(
                 props.socketToInspect,
@@ -468,7 +465,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
                 props,
                 'Outputs',
                 props.filter,
-                'outputSocketArray'
+                'out'
               )}
               {(props.filter === 'source' || props.filter == null) && (
                 <Stack spacing={1}>
