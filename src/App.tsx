@@ -360,6 +360,9 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     document.addEventListener('paste', pasteClipboard);
 
     window.addEventListener('mousemove', setMousePosition, false);
+    window.onbeforeunload = function () {
+      return 'You have unsaved changes!';
+    };
 
     // create viewport
     viewport.current = new Viewport({
