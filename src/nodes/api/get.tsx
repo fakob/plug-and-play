@@ -51,7 +51,6 @@ export class Get extends PPNode {
     inputObject: any,
     outputObject: Record<string, unknown>
   ): Promise<void> {
-    // TODO implement actual companion support
     const usingCompanion: boolean = inputObject[sendThroughCompanionName];
     let res: Promise<Response> = undefined;
     if (usingCompanion) {
