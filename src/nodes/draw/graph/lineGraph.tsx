@@ -148,6 +148,9 @@ export class GRAPH_LINE extends DRAW_Base {
     };
 
     const points: number[] = inputObject[inputPointsName];
+    if (!points.length) {
+      return;
+    }
     let maxValue = points.reduce((prevMax, point) => Math.max(prevMax, point));
     let minValue = points.reduce((prevMax, point) => Math.min(prevMax, point));
     if (!inputObject[inputAutoScaleHeight]) {
