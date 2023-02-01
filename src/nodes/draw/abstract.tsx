@@ -235,9 +235,12 @@ export abstract class DRAW_Base extends PPNode {
 
   protected positionAndScale(toModify: DisplayObject, inputObject: any): void {
     const pivot = inputObject[inputPivotName];
-    const pivotPoint = PIXI_PIVOT_OPTIONS.find(
+    const pivotPointFound = PIXI_PIVOT_OPTIONS.find(
       (option) => option.text === pivot
-    ).value;
+    );
+    const pivotPoint = pivotPointFound
+      ? pivotPointFound.value
+      : PIXI_PIVOT_OPTIONS[0].value;
 
     toModify.setTransform(
       inputObject[offseXName],
