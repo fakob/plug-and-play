@@ -430,7 +430,10 @@ export const PropertyArrayContainer: React.FunctionComponent<
   );
 
   useInterval(() => {
-    setSocketsCurrentlyRendered(getSocketsCurrentlyRendered(singleNode));
+    const newVal = getSocketsCurrentlyRendered(singleNode);
+    if (newVal != socketsCurrentlyRendered) {
+      setSocketsCurrentlyRendered(newVal);
+    }
   }, 100);
 
   return (

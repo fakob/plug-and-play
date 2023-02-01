@@ -56,7 +56,9 @@ export const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (
 ) => {
   const [data, setData] = useState(Number(props.data || 0));
   useInterval(() => {
-    setData(props.property.data);
+    if (data !== props.property.data) {
+      setData(props.property.data);
+    }
   }, 100);
 
   const [minValue, setMinValue] = useState(
@@ -196,7 +198,9 @@ export const SelectWidget: React.FunctionComponent<SelectWidgetProps> = (
   const [data, setData] = useState(props.data ?? '');
   const [options, setOptions] = useState(props.options);
   useInterval(() => {
-    setData(props.property.data);
+    if (data !== props.property.data) {
+      setData(props.property.data);
+    }
   }, 100);
 
   const onOpen = () => {
@@ -262,7 +266,9 @@ export const BooleanWidget: React.FunctionComponent<BooleanWidgetProps> = (
 ) => {
   const [data, setData] = useState(Boolean(props.data));
   useInterval(() => {
-    setData(props.property.data);
+    if (data !== props.property.data) {
+      setData(props.property.data);
+    }
   }, 100);
 
   const onChange = (event) => {
@@ -298,7 +304,9 @@ export type TextWidgetProps = {
 export const TextWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
   const [data, setData] = useState(String(props.data));
   useInterval(() => {
-    setData(props.property.data);
+    if (data !== props.property.data) {
+      setData(props.property.data);
+    }
   }, 100);
 
   return (
@@ -579,7 +587,9 @@ export const NumberOutputWidget: React.FunctionComponent<
 > = (props) => {
   const [data, setData] = useState(Number(props.data));
   useInterval(() => {
-    setData(props.property.data);
+    if (data !== props.property.data) {
+      setData(props.property.data);
+    }
   }, 100);
 
   return (
