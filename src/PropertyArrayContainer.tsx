@@ -23,6 +23,7 @@ import Socket from './classes/SocketClass';
 import { SocketContainer } from './SocketContainer';
 import { CodeEditor } from './components/Editor';
 import InterfaceController, { ListenEvent } from './InterfaceController';
+import useInterval from 'use-interval';
 
 function getConfigData(selectedNode) {
   return JSON.stringify(selectedNode?.serialize(), getCircularReplacer(), 2);
@@ -296,6 +297,19 @@ type PropertyArrayContainerProps = {
   setFilter: React.Dispatch<React.SetStateAction<string>>;
 };
 
+function getVisibleIDs(socketArray: Socket[]): string[] {
+  return socketArray
+    .filter((socket) => socket.visibilityCondition())
+    .map((socket) => socket.name);
+}
+
+function getSocketsCurrentlyRendered(node: PPNode): string[] {
+  const inputs = getVisibleIDs(node.inputSocketArray);
+  const outputs = getVisibleIDs(node.outputSocketArray);
+  const triggers = getVisibleIDs(node.nodeTriggerSocketArray);
+  return inputs.concat(outputs).concat(triggers);
+}
+
 export const PropertyArrayContainer: React.FunctionComponent<
   PropertyArrayContainerProps
 > = (props) => {
@@ -410,6 +424,17 @@ export const PropertyArrayContainer: React.FunctionComponent<
       selectedNode.executeOptimizedChain();
     });
   };
+
+  const [socketsCurrentlyRendered, setSocketsCurrentlyRendered] = useState(
+    getSocketsCurrentlyRendered(singleNode)
+  );
+
+  useInterval(() => {
+    const newVal = getSocketsCurrentlyRendered(singleNode);
+    if (newVal != socketsCurrentlyRendered) {
+      setSocketsCurrentlyRendered(newVal);
+    }
+  }, 100);
 
   return (
     !dragging && (

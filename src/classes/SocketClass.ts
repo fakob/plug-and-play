@@ -43,7 +43,9 @@ export default class Socket extends PIXI.Container {
   linkDragPos: null | PIXI.Point;
 
   showLabel = false;
+  visibilityCondition: () => boolean = () => true;
 
+  // TODO get rid of custom here it is very ugly
   constructor(
     socketType: TSocketType,
     name: string,
@@ -74,6 +76,19 @@ export default class Socket extends PIXI.Container {
     this.interactive = true;
 
     this.redrawAnythingChanging();
+  }
+
+  static getOptionalVisibilitySocket(
+    socketType: TSocketType,
+    name: string,
+    dataType: AbstractType,
+    data: any,
+    visibilityCondition: () => boolean
+  ): Socket {
+    const socket = new Socket(socketType, name, dataType, data);
+    socket.visibilityCondition = visibilityCondition;
+    socket.visible = socket.visibilityCondition();
+    return socket;
   }
 
   getSocketLocation(): PIXI.Point {
@@ -274,7 +289,7 @@ export default class Socket extends PIXI.Container {
   }
 
   setVisible(value: boolean): void {
-    if (!value == this.visible && !this.hasLink()) {
+    if (value != this.visible && !this.hasLink()) {
       this.visible = value;
 
       // visibility change can result in position change

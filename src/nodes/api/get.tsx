@@ -3,6 +3,7 @@ import Socket from '../../classes/SocketClass';
 import UpdateBehaviourClass from '../../classes/UpdateBehaviourClass';
 import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../../utils/constants';
 import { TRgba } from '../../utils/interfaces';
+import { BooleanType } from '../datatypes/booleanType';
 import { JSONType } from '../datatypes/jsonType';
 import { StringType } from '../datatypes/stringType';
 
@@ -10,6 +11,8 @@ const urlInputName = 'URL';
 const bodyInputName = 'Body';
 const headersInputName = 'Headers';
 const outputContentName = 'Content';
+const sendThroughCompanionName = 'Send Through Companion';
+const sendThroughCompanionAddress = 'Companion Location';
 
 export class Get extends PPNode {
   // default to poll on interval X seconds
@@ -28,7 +31,19 @@ export class Get extends PPNode {
       new Socket(SOCKET_TYPE.IN, headersInputName, new JSONType(), {
         'Content-Type': 'application/json',
       }),
-
+      new Socket(
+        SOCKET_TYPE.IN,
+        sendThroughCompanionName,
+        new BooleanType(),
+        false
+      ),
+      Socket.getOptionalVisibilitySocket(
+        SOCKET_TYPE.IN,
+        sendThroughCompanionAddress,
+        new StringType(),
+        'http://localhost:6655',
+        () => this.getInputData(sendThroughCompanionName)
+      ),
       new Socket(SOCKET_TYPE.OUT, outputContentName, new JSONType(), ''),
     ];
   }
@@ -36,11 +51,24 @@ export class Get extends PPNode {
     inputObject: any,
     outputObject: Record<string, unknown>
   ): Promise<void> {
-    const res = await fetch(inputObject[urlInputName], {
-      method: 'Get',
-      headers: inputObject[headersInputName],
-    });
-    outputObject[outputContentName] = await res.json();
+    const usingCompanion: boolean = inputObject[sendThroughCompanionName];
+    let res: Promise<Response> = undefined;
+    if (usingCompanion) {
+      const allHeaders = JSON.parse(
+        JSON.stringify(inputObject[headersInputName])
+      );
+      allHeaders.finalURL = inputObject[urlInputName];
+      res = fetch(inputObject[sendThroughCompanionAddress], {
+        method: 'Get',
+        headers: { forwardedHeaders: JSON.stringify(allHeaders) },
+      });
+    } else {
+      res = fetch(inputObject[urlInputName], {
+        method: 'Get',
+        headers: inputObject[headersInputName],
+      });
+    }
+    outputObject[outputContentName] = await (await res).json();
   }
 
   getColor(): TRgba {
@@ -65,6 +93,12 @@ export class Post extends PPNode {
       new Socket(SOCKET_TYPE.IN, headersInputName, new JSONType(), {
         'Content-Type': 'application/json',
       }),
+      new Socket(
+        SOCKET_TYPE.IN,
+        sendThroughCompanionName,
+        new BooleanType(),
+        false
+      ),
       new Socket(SOCKET_TYPE.IN, bodyInputName, new JSONType(), {}),
       new Socket(SOCKET_TYPE.OUT, outputContentName, new JSONType(), ''),
     ];

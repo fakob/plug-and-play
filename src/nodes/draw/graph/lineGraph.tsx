@@ -7,6 +7,7 @@ import { BooleanType } from '../../datatypes/booleanType';
 import { TRgba } from '../../../utils/interfaces';
 import { ColorType } from '../../datatypes/colorType';
 import { DRAW_Base, injectedDataName } from '../abstract';
+import PPGraph from '../../../classes/GraphClass';
 
 const inputPointsName = 'Points X';
 const inputLabelsName = 'Labels';
@@ -95,12 +96,12 @@ export class GRAPH_LINE extends DRAW_Base {
         true,
         false
       ),
-      new Socket(
+      Socket.getOptionalVisibilitySocket(
         SOCKET_TYPE.IN,
         inputShouldShowAxisLines,
         new BooleanType(),
         false,
-        false
+        () => this.getInputData(inputShouldShowAxis)
       ),
       new Socket(
         SOCKET_TYPE.IN,
@@ -109,12 +110,12 @@ export class GRAPH_LINE extends DRAW_Base {
         false,
         false
       ),
-      new Socket(
+      Socket.getOptionalVisibilitySocket(
         SOCKET_TYPE.IN,
         inputAxisGranularity,
         new NumberType(true, 1, 10),
         3,
-        false
+        () => this.getInputData(inputShouldShowAxis)
       ),
       new Socket(
         SOCKET_TYPE.IN,
@@ -123,12 +124,12 @@ export class GRAPH_LINE extends DRAW_Base {
         true,
         false
       ),
-      new Socket(
+      Socket.getOptionalVisibilitySocket(
         SOCKET_TYPE.IN,
         inputShowValuesFontSize,
         new NumberType(),
         12,
-        false
+        () => this.getInputData(inputShouldShowValues)
       ),
       new Socket(SOCKET_TYPE.IN, inputColorName, new ColorType()),
     ].concat(super.getDefaultIO());
@@ -147,6 +148,9 @@ export class GRAPH_LINE extends DRAW_Base {
     };
 
     const points: number[] = inputObject[inputPointsName];
+    if (!points.length) {
+      return;
+    }
     let maxValue = points.reduce((prevMax, point) => Math.max(prevMax, point));
     let minValue = points.reduce((prevMax, point) => Math.min(prevMax, point));
     if (!inputObject[inputAutoScaleHeight]) {
