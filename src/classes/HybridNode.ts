@@ -128,19 +128,19 @@ export default abstract class HybridNode extends PPNode {
     this.container.style.height = `${height}px`;
   }
 
-  _onDoubleClick(event: PIXI.InteractionEvent): void {
-    super._onDoubleClick(event);
-    // turn on pointer events for hybrid nodes so the react components become reactive
-    if (this.getActivateByDoubleClick()) {
-      // register hybrid nodes to listen to outside clicks
-      PPGraph.currentGraph.viewport.on(
-        'pointerup',
-        (this as any).onViewportPointerUpHandler
-      );
-      this.container.style.pointerEvents = 'auto';
-      this.container.classList.add(styles.hybridContainerFocused);
-    }
-  }
+  // _onDoubleClick(event: PIXI.FederatedPointerEvent): void {
+  //   super._onDoubleClick(event);
+  //   // turn on pointer events for hybrid nodes so the react components become reactive
+  //   if (this.getActivateByDoubleClick()) {
+  //     // register hybrid nodes to listen to outside clicks
+  //     PPGraph.currentGraph.viewport.on(
+  //       'pointerup',
+  //       (this as any).onViewportPointerUpHandler
+  //     );
+  //     this.container.style.pointerEvents = 'auto';
+  //     this.container.classList.add(styles.hybridContainerFocused);
+  //   }
+  // }
 
   _onViewportPointerUp(): void {
     super._onViewportPointerUp();

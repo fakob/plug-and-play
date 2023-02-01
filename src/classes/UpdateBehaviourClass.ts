@@ -70,7 +70,7 @@ export default class UpdateBehaviourClass extends PIXI.Container {
     this.addChild(this._noUpdateRef);
 
     this._updateRef.interactive = true;
-    this._updateRef.buttonMode = true;
+    this._updateRef.cursor = 'pointer';
     this._updateRef.alpha = 0.05;
     this._updateRef.x = 0;
     this._updateRef.width = 24;

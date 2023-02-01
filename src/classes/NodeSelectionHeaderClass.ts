@@ -22,7 +22,7 @@ class Button extends PIXI.Sprite {
     this.up = up;
     this.down = down;
     this.interactive = true;
-    this.buttonMode = true;
+    this.cursor = 'pointer';
     this.alpha = 0.5;
     this.width = 24;
     this.height = 24;
@@ -44,7 +44,7 @@ class Button extends PIXI.Sprite {
     this.cursor = 'default';
   }
 
-  _onPointerDown(event: PIXI.InteractionEvent): void {
+  _onPointerDown(event: PIXI.FederatedPointerEvent): void {
     const altKey = event.data.originalEvent.altKey;
     const node = this.parent?.parent as PPNode;
     const graph = PPGraph.currentGraph;
