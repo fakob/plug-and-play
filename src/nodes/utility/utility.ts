@@ -115,8 +115,10 @@ export class JumpToNode extends WidgetButton {
   }
 
   onWidgetTrigger = () => {
-    const nodeToJumpTo =
-      PPGraph.currentGraph.nodes[this.getInputData(selectNodeName)];
+    const nodeId = getNodeArrayOptions()().find(
+      (option) => option.text === this.getInputData(selectNodeName)
+    )?.value;
+    const nodeToJumpTo = PPGraph.currentGraph.nodes[nodeId];
     if (nodeToJumpTo) {
       ensureVisible([nodeToJumpTo]);
       setTimeout(() => {
@@ -168,10 +170,7 @@ export class ThrottleDebounce extends PPNode {
       new Socket(
         SOCKET_TYPE.IN,
         'Update',
-        new TriggerType(
-          TRIGGER_TYPE_OPTIONS[0].value,
-          'updateDebounceFunction'
-        ),
+        new TriggerType(TRIGGER_TYPE_OPTIONS[0].text, 'updateDebounceFunction'),
         undefined,
         false
       ),

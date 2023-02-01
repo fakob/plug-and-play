@@ -19,19 +19,15 @@ import { DRAW_Base, injectedDataName, outputPixiName } from './abstract';
 const availableShapes: EnumStructure = [
   {
     text: 'Circle',
-    value: 'Circle',
   },
   {
     text: 'Rectangle',
-    value: 'Rectangle',
   },
   {
     text: 'Rounded Rectangle',
-    value: 'Rounded Rectangle',
   },
   {
     text: 'Ellipse',
-    value: 'Ellipse',
   },
 ];
 

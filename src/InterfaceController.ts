@@ -13,6 +13,7 @@ export enum ListenEvent {
   GlobalPointerDown, // data = void TODO implement
   GlobalPointerUp, // data = event: PIXI.InteractionEvent
   GraphChanged, // data = {id,name}
+  OpenInspectorFocusingOnSocket, // (data: Socket) => void: called when inspector should be opened to focus on a socket
 }
 
 export default class InterfaceController {
@@ -23,7 +24,8 @@ export default class InterfaceController {
     3: {},
     4: {},
     5: {},
-    6: {}
+    6: {},
+    7: {},
   }; // not sure why this one is so messed up and needs these defined by default, very annoying
 
   // we use this listener structure here as there can be multiple listeners, not needed for everything (sometimes there is just one listener)
@@ -58,16 +60,16 @@ export default class InterfaceController {
   static showSnackBar: (
     message: SnackbarMessage,
     options?: OptionsObject
-  ) => void = () => { };
-  static hideSnackBar = (key: SnackbarKey) => { };
+  ) => void = () => {};
+  static hideSnackBar = (key: SnackbarKey) => {};
 
   static onRightClick: (
     event: PIXI.InteractionEvent,
     target: PIXI.DisplayObject
-  ) => void = () => { }; // called when the graph is right clicked
-  static onOpenNodeSearch: (pos: PIXI.Point) => void = () => { }; // called node search should be openend
+  ) => void = () => {}; // called when the graph is right clicked
+  static onOpenNodeSearch: (pos: PIXI.Point) => void = () => {}; // called node search should be openend
   static onOpenSocketInspector: (pos: PIXI.Point, data: Socket) => void =
-    () => { }; // called when socket inspector should be opened
+    () => {}; // called when socket inspector should be opened
   static onCloseSocketInspector: () => void; // called when socket inspector should be closed
-  static selectionRedrawn: (pos: PIXI.Point) => void = () => { };
+  static selectionRedrawn: (pos: PIXI.Point) => void = () => {};
 }

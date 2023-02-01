@@ -56,7 +56,7 @@ export default class Socket extends PIXI.Container {
   ) {
     super();
 
-    if (socketType === SOCKET_TYPE.IN) {
+    if (socketType !== SOCKET_TYPE.OUT) {
       // define defaultData for different types
       if (data === null && dataType) {
         data = dataType.getDefaultValue();
@@ -93,7 +93,7 @@ export default class Socket extends PIXI.Container {
 
   getSocketLocation(): PIXI.Point {
     return new PIXI.Point(
-      this.socketType === SOCKET_TYPE.IN
+      this.isInput()
         ? this.getNode()?.getInputSocketXPos() + SOCKET_WIDTH / 2
         : this.getNode()?.getOutputSocketXPos() + SOCKET_WIDTH / 2,
       SOCKET_WIDTH / 2
@@ -160,10 +160,9 @@ export default class Socket extends PIXI.Container {
         this._TextRef.anchor.set(1, 0);
         this._TextRef.name = 'TextRef';
       }
-      this._TextRef.x =
-        this.socketType === SOCKET_TYPE.IN
-          ? this.getSocketLocation().x + SOCKET_WIDTH / 2 + SOCKET_TEXTMARGIN
-          : this.getSocketLocation().x - SOCKET_TEXTMARGIN - SOCKET_WIDTH / 2;
+      this._TextRef.x = this.isInput()
+        ? this.getSocketLocation().x + SOCKET_WIDTH / 2 + SOCKET_TEXTMARGIN
+        : this.getSocketLocation().x - SOCKET_TEXTMARGIN - SOCKET_WIDTH / 2;
       this._TextRef.y = SOCKET_TEXTMARGIN_TOP;
       this._TextRef.resolution = TEXT_RESOLUTION;
 
@@ -275,7 +274,14 @@ export default class Socket extends PIXI.Container {
   // METHODS
 
   isInput(): boolean {
-    return this.socketType === SOCKET_TYPE.IN;
+    return (
+      this.socketType === SOCKET_TYPE.IN ||
+      this.socketType === SOCKET_TYPE.TRIGGER
+    );
+  }
+
+  isOutput(): boolean {
+    return this.socketType === SOCKET_TYPE.OUT;
   }
 
   hasLink(): boolean {

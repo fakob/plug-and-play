@@ -130,6 +130,7 @@ export const FloatingSocketInspector: React.FunctionComponent<MyProps> = (
         </Box>
         <Box id="draggable-content">
           <SocketContainer
+            triggerScrollIntoView={false}
             key={0}
             property={props.socketToInspect}
             index={0}

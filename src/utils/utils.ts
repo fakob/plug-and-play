@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import JSON5 from 'json5';
 import * as PIXI from 'pixi.js';
 import * as XLSX from 'xlsx';
+import isUrl from 'is-url';
 
 import PPGraph from '../classes/GraphClass';
 import PPSocket from '../classes/SocketClass';
@@ -692,3 +693,76 @@ export function createGist(
     body: JSON.stringify(data),
   });
 }
+
+export const copyClipboard = async (e: ClipboardEvent): Promise<void> => {
+  const selection = document.getSelection();
+  // if text selection is empty
+  // prevent default and copy selected nodes
+  if (selection.toString() === '') {
+    e.preventDefault();
+    const serializeSelection = PPGraph.currentGraph.serializeSelection();
+    writeDataToClipboard(serializeSelection);
+    console.log(serializeSelection);
+  }
+};
+
+export const pasteClipboard = async (e: ClipboardEvent): Promise<void> => {
+  if (!isEventComingFromWithinTextInput(e)) {
+    const clipboardBlobs = await getDataFromClipboard();
+
+    const tryGettingDataAndAdd = async (mimeType) => {
+      const mouseWorld = getCurrentCursorPosition();
+      let data;
+      try {
+        // check if it is node data
+        if (mimeType === 'text/html') {
+          data = getNodeDataFromHtml(clipboardBlobs[mimeType]);
+        } else {
+          data = getNodeDataFromText(clipboardBlobs[mimeType]);
+        }
+        e.preventDefault();
+        await PPGraph.currentGraph.pasteNodes(data, {
+          x: mouseWorld.x,
+          y: mouseWorld.y,
+        });
+        return true;
+      } catch (e) {
+        console.log(`No node data in ${mimeType}`, e);
+      }
+      try {
+        data = clipboardBlobs[mimeType];
+        e.preventDefault();
+        if (PPGraph.currentGraph.selection.selectedNodes.length < 1) {
+          if (isUrl(data)) {
+            PPGraph.currentGraph.addNewNode('EmbedWebsite', {
+              nodePosX: mouseWorld.x,
+              nodePosY: mouseWorld.y,
+              initialData: `<iframe src="${data}" style="width: 100%; height: 100%;"></iframe>`,
+            });
+          } else {
+            PPGraph.currentGraph.addNewNode('TextEditor', {
+              nodePosX: mouseWorld.x,
+              nodePosY: mouseWorld.y,
+              initialData: {
+                ...(mimeType === 'text/html'
+                  ? { html: data }
+                  : { plain: data }),
+              },
+            });
+          }
+        }
+        return true;
+      } catch (e) {
+        console.log(`No text data in ${mimeType}`, e);
+      }
+    };
+
+    let result = false;
+    if (clipboardBlobs['text/html']) {
+      result = await tryGettingDataAndAdd('text/html');
+    }
+    if (!result && clipboardBlobs['text/plain']) {
+      await tryGettingDataAndAdd('text/plain');
+    }
+  }
+};

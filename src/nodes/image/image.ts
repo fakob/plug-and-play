@@ -58,7 +58,7 @@ export class Image extends PPNode {
       new Socket(
         SOCKET_TYPE.IN,
         imageResetSize,
-        new TriggerType(TRIGGER_TYPE_OPTIONS[0].value, 'resetNodeSize'),
+        new TriggerType(TRIGGER_TYPE_OPTIONS[0].text, 'resetNodeSize'),
         0,
         false
       ),

@@ -126,6 +126,7 @@ export const TEXT_RESOLUTION = 8; // so one can zoom in closer and it keeps a de
 export const SOCKET_TYPE = {
   IN: 'in',
   OUT: 'out',
+  TRIGGER: 'trigger',
 } as const;
 
 export const SOCKET_COLOR_HEX: string = Color(COLOR[0]).lighten(0.4).hex();
@@ -210,21 +211,6 @@ export const DEFAULT_EDITOR_DATA = `// Ctrl-Enter to update node
 function customFunctionNode(a, b) {
   return a * b;
 }`;
-
-export const PIXI_TEXT_ALIGN_OPTIONS: EnumStructure = [
-  {
-    text: 'left',
-    value: 'left',
-  },
-  {
-    text: 'center',
-    value: 'center',
-  },
-  {
-    text: 'right',
-    value: 'right',
-  },
-];
 
 export const PIXI_PIVOT_OPTIONS: EnumStructure = [
   {
@@ -362,15 +348,12 @@ export const CONDITION_OPTIONS: EnumStructure = [
 export const TRIGGER_TYPE_OPTIONS: EnumStructure = [
   {
     text: 'positiveFlank',
-    value: 'positiveFlank',
   },
   {
     text: 'negativeFlank',
-    value: 'negativeFlank',
   },
   {
     text: 'change',
-    value: 'change',
   },
 ];
 

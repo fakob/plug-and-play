@@ -76,7 +76,6 @@ export type SerializedNode = {
   y: number;
   width: number;
   height: number;
-  triggerArray: SerializedSocket[];
   socketArray: SerializedSocket[];
   updateBehaviour: IUpdateBehaviour;
 };

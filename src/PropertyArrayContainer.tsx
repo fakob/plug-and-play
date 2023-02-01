@@ -170,6 +170,7 @@ function CommonContent(props: CommonContentProps) {
 }
 
 function socketArrayToComponent(
+  socketToInspect: Socket,
   sockets: Socket[],
   props: PropertyArrayContainerProps,
   text: string,
@@ -185,27 +186,26 @@ function socketArrayToComponent(
             <Box sx={{ px: 2, py: 1.5, color: 'text.primary' }}>{text}</Box>
           )}
           <Stack spacing={1}>
-            {sockets
-              .filter((socket) => socket.visibilityCondition())
-              .map((property, index) => {
-                return (
-                  <SocketContainer
-                    key={index}
-                    property={property}
-                    index={index}
-                    dataType={property.dataType}
-                    isInput={property.isInput()}
-                    hasLink={property.hasLink()}
-                    data={property.data}
-                    randomMainColor={props.randomMainColor}
-                    selectedNode={
-                      props.selectedNodes.length > 0
-                        ? props.selectedNodes[0]
-                        : null
-                    }
-                  />
-                );
-              })}
+            {sockets.map((property, index) => {
+              return (
+                <SocketContainer
+                  triggerScrollIntoView={socketToInspect === property}
+                  key={index}
+                  property={property}
+                  index={index}
+                  dataType={property.dataType}
+                  isInput={property.isInput()}
+                  hasLink={property.hasLink()}
+                  data={property.data}
+                  randomMainColor={props.randomMainColor}
+                  selectedNode={
+                    props.selectedNodes.length > 0
+                      ? props.selectedNodes[0]
+                      : null
+                  }
+                />
+              );
+            })}
           </Stack>
         </Box>
       )
@@ -291,6 +291,7 @@ function SourceContent(props: SourceContentProps) {
 
 type PropertyArrayContainerProps = {
   selectedNodes: PPNode[];
+  socketToInspect: Socket;
   randomMainColor: string;
   filter: string;
   setFilter: React.Dispatch<React.SetStateAction<string>>;
@@ -322,6 +323,12 @@ export const PropertyArrayContainer: React.FunctionComponent<
 
   const [configData, setConfigData] = useState(getConfigData(singleNode));
 
+  function switchFilterBasedOnSelectedSocket(socket: Socket) {
+    if (socket) {
+      props.setFilter(socket.socketType);
+    }
+  }
+
   useEffect(() => {
     const id = InterfaceController.addListener(
       ListenEvent.SelectionDragging,
@@ -338,7 +345,12 @@ export const PropertyArrayContainer: React.FunctionComponent<
     setSelectedNode(newSelectedNode);
     setConfigData(getConfigData(newSelectedNode));
     setUpdatebehaviour(getUpdateBehaviourStateForArray());
+    switchFilterBasedOnSelectedSocket(props.socketToInspect);
   }, [props.selectedNodes]);
+
+  useEffect(() => {
+    switchFilterBasedOnSelectedSocket(props.socketToInspect);
+  }, [props.socketToInspect]);
 
   const handleFilter = (
     event: React.MouseEvent<HTMLElement>,
@@ -454,6 +466,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
           {props.selectedNodes.length === 1 && (
             <>
               {socketArrayToComponent(
+                props.socketToInspect,
                 selectedNode.nodeTriggerSocketArray,
                 props,
                 'Triggers',
@@ -461,6 +474,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
                 'trigger'
               )}
               {socketArrayToComponent(
+                props.socketToInspect,
                 selectedNode.inputSocketArray,
                 props,
                 'Inputs',
@@ -468,6 +482,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
                 'in'
               )}
               {socketArrayToComponent(
+                props.socketToInspect,
                 selectedNode.outputSocketArray,
                 props,
                 'Outputs',
