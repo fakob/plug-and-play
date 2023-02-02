@@ -123,6 +123,7 @@ const App = (): JSX.Element => {
   const [isGraphContextMenuOpen, setIsGraphContextMenuOpen] = useState(false);
   const [isNodeContextMenuOpen, setIsNodeContextMenuOpen] = useState(false);
   const [isSocketContextMenuOpen, setIsSocketContextMenuOpen] = useState(false);
+  const [unsavedChanges, setUnsavedChanges] = useState(false);
   const [selectedSocket, setSelectedSocket] = useState<PPSocket | null>(null);
   const [contextMenuPosition, setContextMenuPosition] = useState([0, 0]);
   const [isCurrentGraphLoaded, setIsCurrentGraphLoaded] = useState(false);
@@ -360,9 +361,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     document.addEventListener('paste', pasteClipboard);
 
     window.addEventListener('mousemove', setMousePosition, false);
-    window.onbeforeunload = function () {
-      return 'You have unsaved changes!';
-    };
 
     // create viewport
     viewport.current = new Viewport({
@@ -603,6 +601,19 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       );
     };
   }, []);
+
+  useEffect(() => {
+    const handler = (e) => {
+      e.preventDefault();
+      if (!unsavedChanges) {
+        return;
+      }
+      e.returnValue = true;
+    };
+
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [unsavedChanges]);
 
   useEffect(() => {
     InterfaceController.showSnackBar = enqueueSnackbar;
