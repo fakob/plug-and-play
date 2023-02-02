@@ -355,6 +355,9 @@ export const TRIGGER_TYPE_OPTIONS: EnumStructure = [
   {
     text: 'change',
   },
+  {
+    text: "always"
+  }
 ];
 
 export const GRID_SHADER = `

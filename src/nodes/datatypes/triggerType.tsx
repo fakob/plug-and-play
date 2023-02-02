@@ -47,7 +47,7 @@ export class TriggerType extends AbstractType {
         (this.triggerType === TRIGGER_TYPE_OPTIONS[1].text &&
           this.previousData > data) ||
         (this.triggerType === TRIGGER_TYPE_OPTIONS[2].text &&
-          this.previousData !== data))
+          this.previousData !== data) || this.triggerType === TRIGGER_TYPE_OPTIONS[3].text)
     ) {
       // if im an input and condition is fullfilled, execute either custom function or start new chain with this as origin
       if (this.customFunctionString !== '') {
