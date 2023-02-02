@@ -23,8 +23,6 @@ import { SerializedGraph } from './utils/interfaces';
 const githubBaseURL =
   'https://api.github.com/repos/fakob/plug-and-play-examples';
 const githubBranchName = 'dev';
-const unsavedChangesDialogText =
-  'Changes that you made may not be saved. Do you want to continue?';
 
 // this function is a bit messed up TODO refactor
 function detectTrackPad(event) {
@@ -44,6 +42,15 @@ function detectTrackPad(event) {
   // unsubscribe from mousewheel again
   window.removeEventListener('mousewheel', detectTrackPad);
   window.removeEventListener('DOMMouseScroll', detectTrackPad);
+}
+
+function checkForUnsavedChanges(): boolean {
+  return (
+    !PPGraph.currentGraph.existsUnsavedChanges() ||
+    window.confirm(
+      'Changes that you made may not be saved. Do you want to continue?'
+    )
+  );
 }
 
 export default class PPStorage {
@@ -182,10 +189,7 @@ export default class PPStorage {
   }
 
   async loadGraphFromFile(fileData: SerializedGraph) {
-    if (
-      !PPGraph.currentGraph.existsUnsavedChanges() ||
-      window.confirm(unsavedChangesDialogText)
-    ) {
+    if (checkForUnsavedChanges()) {
       try {
         PPGraph.currentGraph.configure(fileData);
 
@@ -228,10 +232,7 @@ export default class PPStorage {
   }
 
   async loadGraphFromURL(loadURL: string) {
-    if (
-      !PPGraph.currentGraph.existsUnsavedChanges() ||
-      window.confirm(unsavedChangesDialogText)
-    ) {
+    if (checkForUnsavedChanges()) {
       try {
         const file = await fetch(loadURL, {});
         const fileData = await file.json();
@@ -281,10 +282,7 @@ export default class PPStorage {
 
   async loadGraph(id = undefined) {
     let loadedGraph;
-    if (
-      !PPGraph.currentGraph.existsUnsavedChanges() ||
-      window.confirm(unsavedChangesDialogText)
-    ) {
+    if (checkForUnsavedChanges()) {
       await this.db
         .transaction('rw', this.db.graphs, this.db.settings, async () => {
           const graphs = await this.db.graphs.toArray();
@@ -411,35 +409,37 @@ export default class PPStorage {
   }
 
   async cloneRemoteGraph(id = undefined, remoteGraphsRef: any) {
-    const nameOfFileToClone = remoteGraphsRef.current[id];
-    const fileData = await this.getRemoteGraph(nameOfFileToClone);
-    console.log(fileData);
-    PPGraph.currentGraph.configure(fileData);
+    if (checkForUnsavedChanges()) {
+      const nameOfFileToClone = remoteGraphsRef.current[id];
+      const fileData = await this.getRemoteGraph(nameOfFileToClone);
+      console.log(fileData);
+      PPGraph.currentGraph.configure(fileData);
 
-    // unset loadedGraphId
-    await this.db.settings.put({
-      name: 'loadedGraphId',
-      value: undefined,
-    });
+      // unset loadedGraphId
+      await this.db.settings.put({
+        name: 'loadedGraphId',
+        value: undefined,
+      });
 
-    const newName = `${removeExtension(remoteGraphsRef.current[id])} - copy`; // remove .ppgraph extension and add copy
-    InterfaceController.showSnackBar('Remote playground was loaded', {
-      variant: 'default',
-      autoHideDuration: 20000,
-      action: (key) => (
-        <>
-          <Button size="small" onClick={() => this.saveNewGraph(newName)}>
-            Save
-          </Button>
-          <Button
-            size="small"
-            onClick={() => InterfaceController.hideSnackBar(key)}
-          >
-            Dismiss
-          </Button>
-        </>
-      ),
-    });
+      const newName = `${removeExtension(remoteGraphsRef.current[id])} - copy`; // remove .ppgraph extension and add copy
+      InterfaceController.showSnackBar('Remote playground was loaded', {
+        variant: 'default',
+        autoHideDuration: 20000,
+        action: (key) => (
+          <>
+            <Button size="small" onClick={() => this.saveNewGraph(newName)}>
+              Save
+            </Button>
+            <Button
+              size="small"
+              onClick={() => InterfaceController.hideSnackBar(key)}
+            >
+              Dismiss
+            </Button>
+          </>
+        ),
+      });
+    }
   }
 
   async getGraphs(): Promise<any[]> {
