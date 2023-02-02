@@ -112,8 +112,8 @@ export class MapArrayState extends StateNode {
     }
     state[key].push(this.getInputData('Input'));
     const maxSize = this.getInputData('MaxSize');
-    if (maxSize > 0 && maxSize < state.length) {
-      state[key].splice(0, state.length - maxSize);
+    if (maxSize > 0 && maxSize < state[key].length) {
+      state[key].splice(0, state[key].length - maxSize);
     }
     this.setInputData('State', state);
     this.executeOptimizedChain();

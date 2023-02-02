@@ -81,7 +81,7 @@ export type SerializedNode = {
 };
 
 export type SerializedLink = {
-  id: number;
+  id: string;
   sourceNodeId: string;
   sourceSocketName: string;
   targetNodeId: string;
