@@ -189,7 +189,7 @@ export class GRAPH_LINE extends DRAW_Base {
         graphics.lineTo(-25, -currPos);
 
         const basicText = new PIXI.Text(
-          (ratio * (maxValue - minValue) + minValue).toPrecision(2),
+          (ratio * (maxValue - minValue) + minValue).toPrecision(3),
           textStyle
         );
         basicText.x = -40;
