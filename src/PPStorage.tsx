@@ -24,6 +24,22 @@ const githubBaseURL =
   'https://api.github.com/repos/fakob/plug-and-play-examples';
 const githubBranchName = 'dev';
 
+function SaveOrDismiss(props) {
+  return (
+    <>
+      <Button size="small" onClick={() => this.saveNewGraph(props.newName)}>
+        Save
+      </Button>
+      <Button
+        size="small"
+        onClick={() => InterfaceController.hideSnackBar(props.key)}
+      >
+        Dismiss
+      </Button>
+    </>
+  );
+}
+
 // this function is a bit messed up TODO refactor
 function detectTrackPad(event) {
   let isTrackpad = false;
@@ -188,7 +204,7 @@ export default class PPStorage {
     return undefined;
   }
 
-  async loadGraphFromFile(fileData: SerializedGraph) {
+  async loadGraphFromData(fileData: SerializedGraph) {
     if (checkForUnsavedChanges()) {
       try {
         PPGraph.currentGraph.configure(fileData);
@@ -200,87 +216,40 @@ export default class PPStorage {
         });
 
         const newName = hri.random();
-        InterfaceController.showSnackBar('Playground from file was loaded', {
+        InterfaceController.showSnackBar('Playground was loaded', {
           variant: 'default',
           autoHideDuration: 20000,
-          action: (key) => (
-            <>
-              <Button size="small" onClick={() => this.saveNewGraph(newName)}>
-                Save locally
-              </Button>
-              <Button
-                size="small"
-                onClick={() => InterfaceController.hideSnackBar(key)}
-              >
-                Dismiss
-              </Button>
-            </>
-          ),
+          action: (key) => <SaveOrDismiss newName={newName} key={key} />,
         });
         return fileData;
       } catch (error) {
-        InterfaceController.showSnackBar(
-          'Loading playground from file failed.',
-          {
-            variant: 'error',
-            autoHideDuration: 20000,
-          }
-        );
+        InterfaceController.showSnackBar('Loading playground failed.', {
+          variant: 'error',
+          autoHideDuration: 20000,
+        });
         return undefined;
       }
     }
   }
 
   async loadGraphFromURL(loadURL: string) {
-    if (checkForUnsavedChanges()) {
-      try {
-        const file = await fetch(loadURL, {});
-        const fileData = await file.json();
-        console.log(fileData);
-        PPGraph.currentGraph.configure(fileData);
-
-        // unset loadedGraphId
-        await this.db.settings.put({
-          name: 'loadedGraphId',
-          value: undefined,
-        });
-
-        const newName = hri.random();
-        InterfaceController.showSnackBar(
-          'Playground from link in URL was loaded',
-          {
-            variant: 'default',
-            autoHideDuration: 20000,
-            action: (key) => (
-              <>
-                <Button size="small" onClick={() => this.saveNewGraph(newName)}>
-                  Save locally
-                </Button>
-                <Button
-                  size="small"
-                  onClick={() => InterfaceController.hideSnackBar(key)}
-                >
-                  Dismiss
-                </Button>
-              </>
-            ),
-          }
-        );
-        return fileData;
-      } catch (error) {
-        InterfaceController.showSnackBar(
-          `Loading playground from link in URL failed: ${loadURL}`,
-          {
-            variant: 'error',
-            autoHideDuration: 20000,
-          }
-        );
-        return undefined;
-      }
+    try {
+      const file = await fetch(loadURL, {});
+      const fileData = await file.json();
+      return await this.loadGraphFromData(fileData);
+    } catch (error) {
+      InterfaceController.showSnackBar(
+        `Loading playground from link in URL failed: ${loadURL}`,
+        {
+          variant: 'error',
+          autoHideDuration: 20000,
+        }
+      );
+      return undefined;
     }
   }
 
-  async loadGraph(id = undefined) {
+  async loadGraphFromDB(id = undefined) {
     let loadedGraph;
     if (checkForUnsavedChanges()) {
       await this.db
@@ -326,6 +295,7 @@ export default class PPStorage {
         // load get started graph if there is no saved graph
         this.loadGraphFromURL(GET_STARTED_URL);
       }
+      PPGraph.currentGraph.setUnsavedChange(false);
     }
   }
 
@@ -425,20 +395,9 @@ export default class PPStorage {
       InterfaceController.showSnackBar('Remote playground was loaded', {
         variant: 'default',
         autoHideDuration: 20000,
-        action: (key) => (
-          <>
-            <Button size="small" onClick={() => this.saveNewGraph(newName)}>
-              Save
-            </Button>
-            <Button
-              size="small"
-              onClick={() => InterfaceController.hideSnackBar(key)}
-            >
-              Dismiss
-            </Button>
-          </>
-        ),
+        action: (key) => <SaveOrDismiss newName={newName} key={key} />,
       });
+      PPGraph.currentGraph.setUnsavedChange(false);
     }
   }
 
