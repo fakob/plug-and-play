@@ -6,7 +6,7 @@ import PPGraph from './GraphClass';
 import throttle from 'lodash/throttle';
 
 export default class PPLink extends PIXI.Container {
-  id: number;
+  id: string;
   source: Socket;
   target: Socket;
   _connectionRef: PIXI.Graphics;
@@ -14,7 +14,7 @@ export default class PPLink extends PIXI.Container {
 
   lineThickness = 2;
 
-  constructor(id: number, source: Socket, target: Socket) {
+  constructor(id: string, source: Socket, target: Socket) {
     super();
     this.id = id;
     this.source = source;
@@ -87,7 +87,6 @@ export default class PPLink extends PIXI.Container {
     }
     this.getSource().removeLink(this);
     this.getSource().getGraph().connectionContainer.removeChild(this);
-    delete this.getSource().getGraph()._links[this.id];
   }
 
   public renderOutlineThrottled = throttle(this.renderOutline, 2000, {

@@ -22,13 +22,12 @@ import { Action, ActionHandler } from '../utils/actionHandler';
 import { hri } from 'human-readable-ids';
 import FlowLogic from './FlowLogic';
 import InterfaceController, { ListenEvent } from '../InterfaceController';
+import { v4 as uuid } from 'uuid';
 
 export default class PPGraph {
   static currentGraph: PPGraph;
   app: PIXI.Application;
   viewport: Viewport;
-
-  _links: { [key: number]: PPLink };
 
   _showComments: boolean;
   _showExecutionVisualisation: boolean;
@@ -534,13 +533,6 @@ export default class PPGraph {
     this.removeNode(this.nodes[oldId]);
   };
 
-  getNextID = (): number => {
-    return Object.values(this._links).reduce(
-      (prevMax, link) => (link.id >= prevMax ? link.id + 1 : prevMax),
-      0
-    );
-  };
-
   async linkConnect(
     sourceNodeID: string,
     outputSocketName: string,
@@ -631,10 +623,7 @@ export default class PPGraph {
     }
 
     //create link class
-    const link: PPLink = new PPLink(this.getNextID(), output, input);
-
-    //add to graph links list
-    this._links[link.id] = link;
+    const link: PPLink = new PPLink(uuid(), output, input);
 
     //add link to output
     output.links.push(link);
@@ -682,13 +671,19 @@ export default class PPGraph {
     await connectNodeToSocket(socket, newNode);
   }
 
+  getLinks(): PPLink[] {
+    return Object.values(this.nodes).flatMap((node) =>
+      node.getAllInputSockets().flatMap((socket) => socket.links)
+    );
+  }
+
   checkOldSocketAndUpdateIt<T extends PPSocket>(
     oldSocket: T,
     newSocket: T,
     isInput: boolean
   ): boolean {
     // check if this socket already has a connection
-    Object.values(this._links).forEach((link) => {
+    Object.values(this.getLinks()).forEach((link) => {
       if (isInput ? link.target === oldSocket : link.source === oldSocket) {
         console.log('updating link:', isInput ? link.target : link.source);
 
@@ -711,7 +706,6 @@ export default class PPGraph {
   clear(): void {
     // remove all links
     this.connectionContainer.removeChildren();
-    this._links = {};
 
     // remove all nodes from container
     this.nodes = {};
@@ -923,7 +917,7 @@ export default class PPGraph {
     );
 
     // get serialized links
-    const linksSerialized = Object.values(this._links).map((link) =>
+    const linksSerialized = Object.values(this.getLinks()).map((link) =>
       link.serialize()
     );
 
