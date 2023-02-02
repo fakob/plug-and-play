@@ -123,7 +123,6 @@ const App = (): JSX.Element => {
   const [isGraphContextMenuOpen, setIsGraphContextMenuOpen] = useState(false);
   const [isNodeContextMenuOpen, setIsNodeContextMenuOpen] = useState(false);
   const [isSocketContextMenuOpen, setIsSocketContextMenuOpen] = useState(false);
-  const [unsavedChanges, setUnsavedChanges] = useState(false);
   const [selectedSocket, setSelectedSocket] = useState<PPSocket | null>(null);
   const [contextMenuPosition, setContextMenuPosition] = useState([0, 0]);
   const [isCurrentGraphLoaded, setIsCurrentGraphLoaded] = useState(false);
@@ -195,8 +194,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         switch (extension) {
           case 'ppgraph':
             data = await response.text();
-            await PPGraph.currentGraph.configure(JSON.parse(data), false);
-            PPStorage.getInstance().saveNewGraph(removeExtension(file.name));
+            await PPStorage.getInstance().loadGraphFromFile(JSON.parse(data));
             break;
           case 'csv':
           case 'ods':
@@ -601,19 +599,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       );
     };
   }, []);
-
-  useEffect(() => {
-    const handler = (e) => {
-      e.preventDefault();
-      if (!unsavedChanges) {
-        return;
-      }
-      e.returnValue = true;
-    };
-
-    window.addEventListener('beforeunload', handler);
-    return () => window.removeEventListener('beforeunload', handler);
-  }, [unsavedChanges]);
 
   useEffect(() => {
     InterfaceController.showSnackBar = enqueueSnackbar;

@@ -14,6 +14,7 @@ import PPGraph from './classes/GraphClass';
 import { hri } from 'human-readable-ids';
 import { Button } from '@mui/material';
 import React from 'react';
+import { SerializedGraph } from './utils/interfaces';
 
 (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__ &&
   (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__.register({ PIXI: PIXI });
@@ -22,6 +23,8 @@ import React from 'react';
 const githubBaseURL =
   'https://api.github.com/repos/fakob/plug-and-play-examples';
 const githubBranchName = 'dev';
+const unsavedChangesDialogText =
+  'Changes that you made may not be saved. Do you want to continue?';
 
 // this function is a bit messed up TODO refactor
 function detectTrackPad(event) {
@@ -178,23 +181,22 @@ export default class PPStorage {
     return undefined;
   }
 
-  async loadGraphFromURL(loadURL: string) {
-    try {
-      const file = await fetch(loadURL, {});
-      const fileData = await file.json();
-      console.log(fileData);
-      PPGraph.currentGraph.configure(fileData);
+  async loadGraphFromFile(fileData: SerializedGraph) {
+    if (
+      !PPGraph.currentGraph.existsUnsavedChanges() ||
+      window.confirm(unsavedChangesDialogText)
+    ) {
+      try {
+        PPGraph.currentGraph.configure(fileData);
 
-      // unset loadedGraphId
-      await this.db.settings.put({
-        name: 'loadedGraphId',
-        value: undefined,
-      });
+        // unset loadedGraphId
+        await this.db.settings.put({
+          name: 'loadedGraphId',
+          value: undefined,
+        });
 
-      const newName = hri.random();
-      InterfaceController.showSnackBar(
-        'Playground from link in URL was loaded',
-        {
+        const newName = hri.random();
+        InterfaceController.showSnackBar('Playground from file was loaded', {
           variant: 'default',
           autoHideDuration: 20000,
           action: (key) => (
@@ -210,66 +212,122 @@ export default class PPStorage {
               </Button>
             </>
           ),
-        }
-      );
-      return fileData;
-    } catch (error) {
-      InterfaceController.showSnackBar(
-        `Loading playground from link in URL failed: ${loadURL}`,
-        {
-          variant: 'error',
-          autoHideDuration: 20000,
-        }
-      );
-      return undefined;
+        });
+        return fileData;
+      } catch (error) {
+        InterfaceController.showSnackBar(
+          'Loading playground from file failed.',
+          {
+            variant: 'error',
+            autoHideDuration: 20000,
+          }
+        );
+        return undefined;
+      }
+    }
+  }
+
+  async loadGraphFromURL(loadURL: string) {
+    if (
+      !PPGraph.currentGraph.existsUnsavedChanges() ||
+      window.confirm(unsavedChangesDialogText)
+    ) {
+      try {
+        const file = await fetch(loadURL, {});
+        const fileData = await file.json();
+        console.log(fileData);
+        PPGraph.currentGraph.configure(fileData);
+
+        // unset loadedGraphId
+        await this.db.settings.put({
+          name: 'loadedGraphId',
+          value: undefined,
+        });
+
+        const newName = hri.random();
+        InterfaceController.showSnackBar(
+          'Playground from link in URL was loaded',
+          {
+            variant: 'default',
+            autoHideDuration: 20000,
+            action: (key) => (
+              <>
+                <Button size="small" onClick={() => this.saveNewGraph(newName)}>
+                  Save locally
+                </Button>
+                <Button
+                  size="small"
+                  onClick={() => InterfaceController.hideSnackBar(key)}
+                >
+                  Dismiss
+                </Button>
+              </>
+            ),
+          }
+        );
+        return fileData;
+      } catch (error) {
+        InterfaceController.showSnackBar(
+          `Loading playground from link in URL failed: ${loadURL}`,
+          {
+            variant: 'error',
+            autoHideDuration: 20000,
+          }
+        );
+        return undefined;
+      }
     }
   }
 
   async loadGraph(id = undefined) {
     let loadedGraph;
-    await this.db
-      .transaction('rw', this.db.graphs, this.db.settings, async () => {
-        const graphs = await this.db.graphs.toArray();
-        const loadedGraphId = await getSetting(this.db, 'loadedGraphId');
+    if (
+      !PPGraph.currentGraph.existsUnsavedChanges() ||
+      window.confirm(unsavedChangesDialogText)
+    ) {
+      await this.db
+        .transaction('rw', this.db.graphs, this.db.settings, async () => {
+          const graphs = await this.db.graphs.toArray();
+          const loadedGraphId = await getSetting(this.db, 'loadedGraphId');
 
-        if (graphs.length > 0) {
-          loadedGraph = graphs.find(
-            (graph) => graph.id === (id || loadedGraphId)
-          );
+          if (graphs.length > 0) {
+            loadedGraph = graphs.find(
+              (graph) => graph.id === (id || loadedGraphId)
+            );
 
-          // check if graph exists and load last saved graph if it does not
-          if (loadedGraph === undefined) {
-            loadedGraph = graphs.reduce((a, b) => {
-              return new Date(a.date) > new Date(b.date) ? a : b;
+            // check if graph exists and load last saved graph if it does not
+            if (loadedGraph === undefined) {
+              loadedGraph = graphs.reduce((a, b) => {
+                return new Date(a.date) > new Date(b.date) ? a : b;
+              });
+            }
+
+            // update loadedGraphId
+            await this.db.settings.put({
+              name: 'loadedGraphId',
+              value: loadedGraph.id,
             });
+          } else {
+            console.log('No saved graphData');
           }
+        })
+        .catch((e) => {
+          console.log(e.stack || e);
+        });
+      if (loadedGraph) {
+        const graphData = loadedGraph.graphData;
+        await PPGraph.currentGraph.configure(graphData, false);
 
-          // update loadedGraphId
-          await this.db.settings.put({
-            name: 'loadedGraphId',
-            value: loadedGraph.id,
-          });
-        } else {
-          console.log('No saved graphData');
-        }
-      })
-      .catch((e) => {
-        console.log(e.stack || e);
-      });
+        InterfaceController.notifyListeners(ListenEvent.GraphChanged, {
+          id: loadedGraph.id,
+          name: loadedGraph.name,
+        });
 
-    if (loadedGraph) {
-      const graphData = loadedGraph.graphData;
-      await PPGraph.currentGraph.configure(graphData, false);
-
-      InterfaceController.notifyListeners(ListenEvent.GraphChanged, {
-        id: loadedGraph.id,
-        name: loadedGraph.name,
-      });
-
-      InterfaceController.showSnackBar(`${loadedGraph.name} was loaded`);
-    } else {
-      // load get started graph if there is no saved graph
-      this.loadGraphFromURL(GET_STARTED_URL);
+        InterfaceController.showSnackBar(`${loadedGraph.name} was loaded`);
+      } else {
+        // load get started graph if there is no saved graph
+        this.loadGraphFromURL(GET_STARTED_URL);
+      }
     }
   }
 
@@ -341,6 +399,7 @@ export default class PPStorage {
           console.log(`Updated currentGraph: ${indexId}`);
           InterfaceController.showSnackBar('Playground was saved');
         }
+        PPGraph.currentGraph.setUnsavedChange(false);
       })
       .catch((e) => {
         console.log(e.stack || e);
