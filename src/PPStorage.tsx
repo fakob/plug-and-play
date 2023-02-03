@@ -27,13 +27,10 @@ const githubBranchName = 'dev';
 function SaveOrDismiss(props) {
   return (
     <>
-      <Button size="small" onClick={() => this.saveNewGraph(props.newName)}>
+      <Button size="small" onClick={props.saveClick}>
         Save
       </Button>
-      <Button
-        size="small"
-        onClick={() => InterfaceController.hideSnackBar(props.key)}
-      >
+      <Button size="small" onClick={props.dismissClick}>
         Dismiss
       </Button>
     </>
@@ -219,7 +216,12 @@ export default class PPStorage {
         InterfaceController.showSnackBar('Playground was loaded', {
           variant: 'default',
           autoHideDuration: 20000,
-          action: (key) => <SaveOrDismiss newName={newName} key={key} />,
+          action: (key) => (
+            <SaveOrDismiss
+              saveClick={() => this.saveNewGraph(newName)}
+              dismissClick={() => InterfaceController.hideSnackBar(key)}
+            />
+          ),
         });
         return fileData;
       } catch (error) {
@@ -395,7 +397,12 @@ export default class PPStorage {
       InterfaceController.showSnackBar('Remote playground was loaded', {
         variant: 'default',
         autoHideDuration: 20000,
-        action: (key) => <SaveOrDismiss newName={newName} key={key} />,
+        action: (key) => (
+          <SaveOrDismiss
+            saveClick={() => this.saveNewGraph(newName)}
+            dismissClick={() => InterfaceController.hideSnackBar(key)}
+          />
+        ),
       });
       PPGraph.currentGraph.setUnsavedChange(false);
     }
