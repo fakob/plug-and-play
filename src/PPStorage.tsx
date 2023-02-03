@@ -60,9 +60,7 @@ function detectTrackPad(event) {
 function checkForUnsavedChanges(): boolean {
   return (
     !PPGraph.currentGraph.existsUnsavedChanges() ||
-    window.confirm(
-      'Changes that you made may not be saved. Do you want to continue?'
-    )
+    window.confirm('Changes that you made may not be saved. OK to continue?')
   );
 }
 
