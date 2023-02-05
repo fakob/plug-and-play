@@ -336,11 +336,6 @@ export default class PPGraph {
     }
   }
 
-  onBeforeUnload(event: BeforeUnloadEvent): string {
-    event.preventDefault();
-    return (event.returnValue = '');
-  }
-
   // GETTERS & SETTERS
 
   set showComments(value: boolean) {
@@ -361,25 +356,6 @@ export default class PPGraph {
   }
 
   // METHODS
-
-  existsUnsavedChanges(): boolean {
-    return this.unsavedChanges;
-  }
-
-  setUnsavedChange(state: boolean): void {
-    console.log('setUnsavedChanges:', state);
-    this.unsavedChanges = state;
-    if (this.unsavedChanges) {
-      window.addEventListener('beforeunload', this.onBeforeUnload, {
-        capture: true,
-      });
-    } else {
-      window.removeEventListener('beforeunload', this.onBeforeUnload, {
-        capture: true,
-      });
-    }
-  }
-
   clearTempConnection(): void {
     this.tempConnection.clear();
     this.dragSourcePoint = undefined;

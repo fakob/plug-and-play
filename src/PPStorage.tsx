@@ -1,6 +1,7 @@
 import { Viewport } from 'pixi-viewport';
 import InterfaceController, { ListenEvent } from './InterfaceController';
 import { GESTUREMODE, GET_STARTED_URL } from './utils/constants';
+import { ActionHandler } from './utils/actionHandler';
 import { GraphDatabase } from './utils/indexedDB';
 import {
   downloadFile,
@@ -59,7 +60,7 @@ function detectTrackPad(event) {
 
 function checkForUnsavedChanges(): boolean {
   return (
-    !PPGraph.currentGraph.existsUnsavedChanges() ||
+    !ActionHandler.existsUnsavedChanges() ||
     window.confirm('Changes that you made may not be saved. OK to continue?')
   );
 }
@@ -295,7 +296,7 @@ export default class PPStorage {
         // load get started graph if there is no saved graph
         this.loadGraphFromURL(GET_STARTED_URL);
       }
-      PPGraph.currentGraph.setUnsavedChange(false);
+      ActionHandler.setUnsavedChange(false);
     }
   }
 
@@ -367,7 +368,7 @@ export default class PPStorage {
           console.log(`Updated currentGraph: ${indexId}`);
           InterfaceController.showSnackBar('Playground was saved');
         }
-        PPGraph.currentGraph.setUnsavedChange(false);
+        ActionHandler.setUnsavedChange(false);
       })
       .catch((e) => {
         console.log(e.stack || e);
@@ -382,7 +383,6 @@ export default class PPStorage {
     if (checkForUnsavedChanges()) {
       const nameOfFileToClone = remoteGraphsRef.current[id];
       const fileData = await this.getRemoteGraph(nameOfFileToClone);
-      console.log(fileData);
       PPGraph.currentGraph.configure(fileData);
 
       // unset loadedGraphId
@@ -402,7 +402,7 @@ export default class PPStorage {
           />
         ),
       });
-      PPGraph.currentGraph.setUnsavedChange(false);
+      ActionHandler.setUnsavedChange(false);
     }
   }
 

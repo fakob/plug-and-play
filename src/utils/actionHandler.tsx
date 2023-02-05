@@ -1,5 +1,3 @@
-import PPGraph from '../classes/GraphClass';
-
 // This can be invoked at will, any action you do that you can describe a corresponding undo action can be sent in here and handled by undohandler
 
 export interface Action {
@@ -13,6 +11,7 @@ interface UndoAction {
 export class ActionHandler {
   static undoList: UndoAction[] = [];
   static redoList: UndoAction[] = [];
+  static graphHasUnsavedChanges = false;
 
   // if you make an action through this and pass the inverse in as undo, it becomes part of the undo/redo stack, if your code is messy and you cant describe the main action as one thing, feel free to skip inital action
   static async performAction(
@@ -24,7 +23,7 @@ export class ActionHandler {
       await action();
     }
     this.undoList.push({ action: action, undo: undo });
-    PPGraph.currentGraph.setUnsavedChange(true);
+    this.setUnsavedChange(true);
   }
   static async undo() {
     // move top of undo stack to top of redo stack
@@ -46,5 +45,29 @@ export class ActionHandler {
     } else {
       console.log('Not possible to redo, nothing in redo stack');
     }
+  }
+
+  static setUnsavedChange(state: boolean): void {
+    console.log('setUnsavedChanges:', state);
+    this.graphHasUnsavedChanges = state;
+    if (this.graphHasUnsavedChanges) {
+      window.addEventListener('beforeunload', this.onBeforeUnload, {
+        capture: true,
+      });
+    } else {
+      window.removeEventListener('beforeunload', this.onBeforeUnload, {
+        capture: true,
+      });
+    }
+  }
+
+  static existsUnsavedChanges(): boolean {
+    return this.graphHasUnsavedChanges;
+  }
+
+  // triggers native browser reload/close site dialog
+  static onBeforeUnload(event: BeforeUnloadEvent): string {
+    event.preventDefault();
+    return (event.returnValue = '');
   }
 }
