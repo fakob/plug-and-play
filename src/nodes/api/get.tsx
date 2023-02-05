@@ -4,6 +4,7 @@ import UpdateBehaviourClass from '../../classes/UpdateBehaviourClass';
 import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../../utils/constants';
 import { TRgba } from '../../utils/interfaces';
 import { BooleanType } from '../datatypes/booleanType';
+import { EnumStructure, EnumType } from '../datatypes/enumType';
 import { JSONType } from '../datatypes/jsonType';
 import { StringType } from '../datatypes/stringType';
 
@@ -13,6 +14,60 @@ const headersInputName = 'Headers';
 const outputContentName = 'Content';
 const sendThroughCompanionName = 'Send Through Companion';
 const sendThroughCompanionAddress = 'Companion Location';
+const methodName = 'Method';
+
+const HTTPMethodOptions: EnumStructure = [
+  'Get',
+  'Post',
+  'Put',
+  'Patch',
+  'Delete',
+].map((val) => {
+  return { text: val, value: val };
+});
+
+export class HTTPNode extends PPNode {
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(
+        SOCKET_TYPE.IN,
+        urlInputName,
+        new StringType(),
+        'https://jsonplaceholder.typicode.com/posts'
+      ),
+      new Socket(SOCKET_TYPE.IN, headersInputName, new JSONType(), {
+        'Content-Type': 'application/json',
+      }),
+      new Socket(
+        SOCKET_TYPE.IN,
+        methodName,
+        new EnumType(HTTPMethodOptions),
+        HTTPMethodOptions[0].text
+      ),
+      Socket.getOptionalVisibilitySocket(
+        SOCKET_TYPE.IN,
+        bodyInputName,
+        new JSONType(),
+        {},
+        () => this.getInputData(methodName)
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        sendThroughCompanionName,
+        new BooleanType(),
+        false
+      ),
+      Socket.getOptionalVisibilitySocket(
+        SOCKET_TYPE.IN,
+        sendThroughCompanionAddress,
+        new StringType(),
+        'http://localhost:6655',
+        () => this.getInputData(sendThroughCompanionName)
+      ),
+      new Socket(SOCKET_TYPE.OUT, outputContentName, new JSONType(), ''),
+    ];
+  }
+}
 
 export class Get extends PPNode {
   // default to poll on interval X seconds
