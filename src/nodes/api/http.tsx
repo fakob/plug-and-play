@@ -4,6 +4,7 @@ import UpdateBehaviourClass from '../../classes/UpdateBehaviourClass';
 import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../../utils/constants';
 import { TRgba } from '../../utils/interfaces';
 import { BooleanType } from '../datatypes/booleanType';
+import { EnumStructure, EnumType } from '../datatypes/enumType';
 import { JSONType } from '../datatypes/jsonType';
 import { StringType } from '../datatypes/stringType';
 
@@ -13,13 +14,22 @@ const headersInputName = 'Headers';
 const outputContentName = 'Content';
 const sendThroughCompanionName = 'Send Through Companion';
 const sendThroughCompanionAddress = 'Companion Location';
+const methodName = 'Method';
 
-export class Get extends PPNode {
-  // default to poll on interval X seconds
-  protected getUpdateBehaviour(): UpdateBehaviourClass {
-    return new UpdateBehaviourClass(false, true, 10000);
+const HTTPMethodOptions: EnumStructure = [
+  'Get',
+  'Post',
+  'Put',
+  'Patch',
+  'Delete',
+].map((val) => {
+  return { text: val, value: val };
+});
+
+export class HTTPNode extends PPNode {
+  public getName(): string {
+    return 'HTTP';
   }
-
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(
@@ -31,6 +41,19 @@ export class Get extends PPNode {
       new Socket(SOCKET_TYPE.IN, headersInputName, new JSONType(), {
         'Content-Type': 'application/json',
       }),
+      new Socket(
+        SOCKET_TYPE.IN,
+        methodName,
+        new EnumType(HTTPMethodOptions),
+        HTTPMethodOptions[0].text
+      ),
+      Socket.getOptionalVisibilitySocket(
+        SOCKET_TYPE.IN,
+        bodyInputName,
+        new JSONType(),
+        {},
+        () => this.getInputData(methodName) !== 'Get'
+      ),
       new Socket(
         SOCKET_TYPE.IN,
         sendThroughCompanionName,
@@ -47,6 +70,7 @@ export class Get extends PPNode {
       new Socket(SOCKET_TYPE.OUT, outputContentName, new JSONType(), ''),
     ];
   }
+
   protected async onExecute(
     inputObject: any,
     outputObject: Record<string, unknown>
@@ -54,18 +78,26 @@ export class Get extends PPNode {
     const usingCompanion: boolean = inputObject[sendThroughCompanionName];
     let res: Promise<Response> = undefined;
     if (usingCompanion) {
-      const allHeaders = JSON.parse(
-        JSON.stringify(inputObject[headersInputName])
-      );
-      allHeaders.finalURL = inputObject[urlInputName];
+      const companionSpecific = {
+        finalURL: inputObject[urlInputName],
+        finalMethod: inputObject[methodName],
+      };
+      const body = inputObject[bodyInputName];
+      body.companionSpecific = companionSpecific;
       res = fetch(inputObject[sendThroughCompanionAddress], {
-        method: 'Get',
-        headers: { forwardedHeaders: JSON.stringify(allHeaders) },
+        // companion always receives a post, but it'll be transformed to proper method if its a GET for example on companion
+        method: 'Post',
+        headers: inputObject[headersInputName],
+        body: inputObject[bodyInputName],
       });
     } else {
       res = fetch(inputObject[urlInputName], {
-        method: 'Get',
+        method: inputObject[methodName],
         headers: inputObject[headersInputName],
+        body:
+          inputObject[methodName] !== 'Get'
+            ? inputObject[bodyInputName]
+            : undefined,
       });
     }
     outputObject[outputContentName] = await (await res).json();
@@ -73,48 +105,5 @@ export class Get extends PPNode {
 
   getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
-  }
-}
-
-export class Post extends PPNode {
-  // default to only manual
-  protected getUpdateBehaviour(): UpdateBehaviourClass {
-    return new UpdateBehaviourClass(false, false, 10000);
-  }
-
-  protected getDefaultIO(): Socket[] {
-    return [
-      new Socket(
-        SOCKET_TYPE.IN,
-        urlInputName,
-        new StringType(),
-        'https://jsonplaceholder.typicode.com/posts'
-      ),
-      new Socket(SOCKET_TYPE.IN, headersInputName, new JSONType(), {
-        'Content-Type': 'application/json',
-      }),
-      new Socket(
-        SOCKET_TYPE.IN,
-        sendThroughCompanionName,
-        new BooleanType(),
-        false
-      ),
-      new Socket(SOCKET_TYPE.IN, bodyInputName, new JSONType(), {}),
-      new Socket(SOCKET_TYPE.OUT, outputContentName, new JSONType(), ''),
-    ];
-  }
-  protected async onExecute(
-    inputObject: any,
-    outputObject: Record<string, unknown>
-  ): Promise<void> {
-    const response = await fetch(inputObject[urlInputName], {
-      method: 'POST', // *GET, POST, PUT, DELETE, etc.
-      headers: inputObject[headersInputName],
-      body: inputObject[bodyInputName], // body data type must match "Content-Type" header
-    });
-    outputObject[outputContentName] = await response.json();
-  }
-  getColor(): TRgba {
-    return TRgba.fromString(NODE_TYPE_COLOR.OUTPUT);
   }
 }

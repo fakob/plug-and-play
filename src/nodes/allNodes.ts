@@ -7,7 +7,7 @@ import * as charts from './draw/graph/lineGraph';
 import * as codeEditor from './codeEditor';
 import * as dataFunctions from './data/dataFunctions';
 import * as draw from './draw/draw';
-import * as get from './api/get';
+import * as get from './api/http';
 import * as html from './draw/html';
 import * as image from './image/image';
 import * as json from './data/json';
