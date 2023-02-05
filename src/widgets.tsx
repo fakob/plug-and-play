@@ -22,10 +22,11 @@ import Socket from './classes/SocketClass';
 import {
   COLOR_DARK,
   COLOR_WHITE_TEXT,
+  MAX_STRING_LENGTH,
   PRESET_COLORS,
   TRIGGER_TYPE_OPTIONS,
 } from './utils/constants';
-import { parseJSON, roundNumber } from './utils/utils';
+import { getLoadedValue, parseJSON, roundNumber } from './utils/utils';
 import styles from './utils/style.module.css';
 import { TRgba } from './utils/interfaces';
 import { EnumStructure } from './nodes/datatypes/enumType';
@@ -302,27 +303,48 @@ export type TextWidgetProps = {
 };
 
 export const TextWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
-  const [data, setData] = useState(String(props.data));
+  const dataLength = String(props.data)?.length;
+  const [loadAll, setLoadAll] = useState(dataLength < MAX_STRING_LENGTH);
+
+  const [loadedData, setLoadedData] = useState(
+    getLoadedValue(String(props.data), loadAll)
+  );
+
+  const onLoadAll = () => {
+    setLoadedData(String(props.data));
+    setLoadAll(true);
+  };
+
   useInterval(() => {
-    if (data !== props.property.data) {
-      setData(props.property.data);
+    if (loadedData !== props.property.data) {
+      setLoadedData(getLoadedValue(String(props.data), loadAll));
     }
   }, 100);
 
   return (
-    <FormGroup>
+    <FormGroup sx={{ position: 'relative' }}>
+      {!loadAll && (
+        <Button
+          sx={{ position: 'absolute', top: '8px', right: '8px', zIndex: 10 }}
+          color="secondary"
+          variant="contained"
+          size="small"
+          onClick={onLoadAll}
+        >
+          Load all (to edit)
+        </Button>
+      )}
       <TextField
         hiddenLabel
         variant="filled"
-        // label={props.property.name}
         multiline
-        disabled={props.hasLink}
+        disabled={!loadAll || props.hasLink}
         onChange={(event) => {
           const value = event.target.value;
           potentiallyNotify(props.property, value);
-          setData(value);
+          setLoadedData(value);
         }}
-        value={data}
+        value={loadedData}
       />
     </FormGroup>
   );

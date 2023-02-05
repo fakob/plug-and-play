@@ -206,6 +206,8 @@ export const NOTE_PADDING = 12;
 export const NOTE_FONTSIZE = 32;
 export const NOTE_LINEHEIGHT_FACTOR = 1.15;
 
+export const MAX_STRING_LENGTH = 1000;
+
 export const DEFAULT_EDITOR_DATA = `// Ctrl-Enter to update node
 // Change function name to create new node
 function customFunctionNode(a, b) {
@@ -356,8 +358,8 @@ export const TRIGGER_TYPE_OPTIONS: EnumStructure = [
     text: 'change',
   },
   {
-    text: "always"
-  }
+    text: 'always',
+  },
 ];
 
 export const GRID_SHADER = `

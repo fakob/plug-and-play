@@ -11,6 +11,7 @@ import {
   CONDITION_OPTIONS,
   NODE_PADDING_TOP,
   NODE_HEADER_HEIGHT,
+  MAX_STRING_LENGTH,
   SOCKET_TEXTMARGIN_TOP,
   SOCKET_WIDTH,
   GESTUREMODE,
@@ -766,3 +767,9 @@ export const pasteClipboard = async (e: ClipboardEvent): Promise<void> => {
     }
   }
 };
+
+export function getLoadedValue(value, shouldLoadAll) {
+  return shouldLoadAll
+    ? String(value)
+    : String(value)?.slice(0, MAX_STRING_LENGTH) + '...';
+}

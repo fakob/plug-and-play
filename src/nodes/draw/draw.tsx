@@ -307,10 +307,11 @@ export class DRAW_COMBINE_ARRAY extends DRAW_Base {
       new Socket(SOCKET_TYPE.IN, inputCombineArray, new ArrayType()),
       new Socket(
         SOCKET_TYPE.IN,
-        multiplyYName,
+        numberPerColumnRow,
         new NumberType(true, 0, 100),
         2
       ),
+      new Socket(SOCKET_TYPE.IN, drawingOrder, new BooleanType(), true),
       new Socket(
         SOCKET_TYPE.IN,
         spacingXName,
@@ -339,16 +340,25 @@ export class DRAW_COMBINE_ARRAY extends DRAW_Base {
     };
     const myContainer = new PIXI.Container();
     const graphicsArray = inputObject[inputCombineArray];
-    for (let i = graphicsArray.length - 1; i >= 0; i--) {
-      const x = Math.floor(i / inputObject[multiplyYName]);
-      const y = i % inputObject[multiplyYName];
-      const shallowContainer = new PIXI.Container();
-      graphicsArray[i](shallowContainer, executions);
-      shallowContainer.x = x * inputObject[spacingXName];
-      shallowContainer.y = y * inputObject[spacingYName];
-      myContainer.addChild(shallowContainer);
-    }
 
+    const total = graphicsArray.length;
+    const changeDrawingOrder = inputObject[drawingOrder];
+    const numJ = Math.max(1, inputObject[numberPerColumnRow]);
+    const numI = Math.ceil(total / numJ);
+    let numPlaced = 0;
+
+    for (let i = 0; i < numI; i++) {
+      for (let j = 0; j < numJ && numPlaced < total; j++, numPlaced++) {
+        const currentIndex = numPlaced;
+        const x = changeDrawingOrder ? j : i;
+        const y = changeDrawingOrder ? i : j;
+        const shallowContainer = new PIXI.Container();
+        graphicsArray[currentIndex](shallowContainer, executions);
+        shallowContainer.x = x * inputObject[spacingXName];
+        shallowContainer.y = y * inputObject[spacingYName];
+        myContainer.addChild(shallowContainer);
+      }
+    }
     this.positionAndScale(myContainer, inputObject);
 
     myContainer.interactive = true;
@@ -380,7 +390,7 @@ export class DRAW_Multiplier extends DRAW_Base {
         new NumberType(true, 1, 100),
         2
       ),
-      new Socket(SOCKET_TYPE.IN, drawingOrder, new BooleanType(), 2),
+      new Socket(SOCKET_TYPE.IN, drawingOrder, new BooleanType(), true),
       new Socket(
         SOCKET_TYPE.IN,
         spacingXName,

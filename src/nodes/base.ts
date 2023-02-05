@@ -75,8 +75,8 @@ export class Mouse extends PPNode {
       worldPosition.x,
       worldPosition.y
     );
-    this.setOutputData('screen-x', screenPosition.x);
-    this.setOutputData('screen-y', screenPosition.y);
+    this.setOutputData('screen-x', Math.round(screenPosition.x));
+    this.setOutputData('screen-y', Math.round(screenPosition.y));
     this.setOutputData('world-x', worldPosition.x);
     this.setOutputData('world-y', worldPosition.y);
     this.setOutputData('buttons', getCurrentButtons());
