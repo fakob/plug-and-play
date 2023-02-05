@@ -26,7 +26,12 @@ import {
   PRESET_COLORS,
   TRIGGER_TYPE_OPTIONS,
 } from './utils/constants';
-import { getLoadedValue, parseJSON, roundNumber } from './utils/utils';
+import {
+  convertToString,
+  getLoadedValue,
+  parseJSON,
+  roundNumber,
+} from './utils/utils';
 import styles from './utils/style.module.css';
 import { TRgba } from './utils/interfaces';
 import { EnumStructure } from './nodes/datatypes/enumType';
@@ -364,8 +369,9 @@ export const CodeWidget: React.FunctionComponent<CodeWidgetProps> = (props) => {
   const [data, setData] = useState(props.data);
 
   useInterval(() => {
-    if (data !== props.property.data) {
-      setData(props.property.data);
+    const formattedData = convertToString(props.property.data);
+    if (data !== formattedData) {
+      setData(formattedData);
     }
   }, 100);
 
@@ -388,8 +394,9 @@ export const JSONWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
   const [validJSON, setValidJSON] = useState(true);
 
   useInterval(() => {
-    if (data !== props.property.data) {
-      setData(props.property.data);
+    const formattedData = convertToString(props.property.data);
+    if (data !== formattedData) {
+      setData(formattedData);
     }
   }, 100);
 
@@ -603,8 +610,9 @@ export const DefaultOutputWidget: React.FunctionComponent<
   const [data, setData] = useState(props.data);
 
   useInterval(() => {
-    if (data !== props.property.data) {
-      setData(props.property.data);
+    const formattedData = convertToString(props.property.data);
+    if (data !== formattedData) {
+      setData(formattedData);
     }
   }, 100);
 
