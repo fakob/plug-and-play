@@ -56,9 +56,10 @@ export const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (
   props
 ) => {
   const [data, setData] = useState(Number(props.data || 0));
+
   useInterval(() => {
     if (data !== props.property.data) {
-      setData(props.property.data);
+      setData(Number(props.property.data || 0));
     }
   }, 100);
 
@@ -266,9 +267,10 @@ export const BooleanWidget: React.FunctionComponent<BooleanWidgetProps> = (
   props
 ) => {
   const [data, setData] = useState(Boolean(props.data));
+
   useInterval(() => {
     if (data !== props.property.data) {
-      setData(props.property.data);
+      setData(Boolean(props.property.data));
     }
   }, 100);
 
@@ -317,7 +319,7 @@ export const TextWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
 
   useInterval(() => {
     if (loadedData !== props.property.data) {
-      setLoadedData(getLoadedValue(String(props.data), loadAll));
+      setLoadedData(getLoadedValue(String(props.property.data), loadAll));
     }
   }, 100);
 
@@ -361,6 +363,12 @@ export type CodeWidgetProps = {
 export const CodeWidget: React.FunctionComponent<CodeWidgetProps> = (props) => {
   const [data, setData] = useState(props.data);
 
+  useInterval(() => {
+    if (data !== props.property.data) {
+      setData(props.property.data);
+    }
+  }, 100);
+
   return (
     <CodeEditor
       value={data}
@@ -378,6 +386,12 @@ export const JSONWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
   const [data, setData] = useState(props.data);
   const [displayedString, setDisplayedString] = useState(props.data);
   const [validJSON, setValidJSON] = useState(true);
+
+  useInterval(() => {
+    if (data !== props.property.data) {
+      setData(props.property.data);
+    }
+  }, 100);
 
   return (
     <Box>
@@ -586,9 +600,17 @@ export type DefaultOutputWidgetProps = {
 export const DefaultOutputWidget: React.FunctionComponent<
   DefaultOutputWidgetProps
 > = (props) => {
+  const [data, setData] = useState(props.data);
+
+  useInterval(() => {
+    if (data !== props.property.data) {
+      setData(props.property.data);
+    }
+  }, 100);
+
   return (
     <CodeEditor
-      value={props.data}
+      value={data}
       randomMainColor={props.randomMainColor}
       editable={false}
     />
@@ -608,9 +630,10 @@ export const NumberOutputWidget: React.FunctionComponent<
   NumberOutputWidgetProps
 > = (props) => {
   const [data, setData] = useState(Number(props.data));
+
   useInterval(() => {
     if (data !== props.property.data) {
-      setData(props.property.data);
+      setData(Number(props.property.data));
     }
   }, 100);
 

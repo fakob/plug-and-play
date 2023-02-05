@@ -431,7 +431,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
 
   useInterval(() => {
     const newVal = getSocketsCurrentlyRendered(singleNode);
-    if (newVal != socketsCurrentlyRendered) {
+    if (newVal.toString() != socketsCurrentlyRendered.toString()) {
       setSocketsCurrentlyRendered(newVal);
     }
   }, 100);
