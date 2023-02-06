@@ -48,6 +48,7 @@ export default class PPGraph {
 
   tempConnection: PIXI.Graphics;
   selection: PPSelection;
+  private unsavedChanges: boolean;
 
   ticking: boolean;
 
@@ -355,7 +356,6 @@ export default class PPGraph {
   }
 
   // METHODS
-
   clearTempConnection(): void {
     this.tempConnection.clear();
     this.dragSourcePoint = undefined;
