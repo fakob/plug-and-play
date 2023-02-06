@@ -161,7 +161,7 @@ export default class PPStorage {
   downloadGraph() {
     this.db
       .transaction('rw', this.db.graphs, this.db.settings, async () => {
-        const loadedGraphId = await getSetting(this.db, 'loadedGraphId');
+        const loadedGraphId = await this.getLoadedGraphID();
         const graph = await this.db.graphs
           .where('id')
           .equals(loadedGraphId)
@@ -185,7 +185,7 @@ export default class PPStorage {
   deleteGraph(graphId: string): string {
     this.db
       .transaction('rw', this.db.graphs, this.db.settings, async () => {
-        const loadedGraphId = await getSetting(this.db, 'loadedGraphId');
+        const loadedGraphId = await this.getLoadedGraphID();
 
         const id = await this.db.graphs.where('id').equals(graphId).delete();
         console.log(`Deleted graph: ${id}`);
@@ -206,10 +206,7 @@ export default class PPStorage {
         PPGraph.currentGraph.configure(fileData);
 
         // unset loadedGraphId
-        await this.db.settings.put({
-          name: 'loadedGraphId',
-          value: undefined,
-        });
+        await this.setLoadedGraphID(undefined);
 
         const newName = hri.random();
         InterfaceController.showSnackBar('Playground was loaded', {
@@ -256,7 +253,7 @@ export default class PPStorage {
       await this.db
         .transaction('rw', this.db.graphs, this.db.settings, async () => {
           const graphs = await this.db.graphs.toArray();
-          const loadedGraphId = await getSetting(this.db, 'loadedGraphId');
+          const loadedGraphId = await this.getLoadedGraphID();
 
           if (graphs.length > 0) {
             loadedGraph = graphs.find(
@@ -271,10 +268,7 @@ export default class PPStorage {
             }
 
             // update loadedGraphId
-            await this.db.settings.put({
-              name: 'loadedGraphId',
-              value: loadedGraph.id,
-            });
+            await this.setLoadedGraphID(loadedGraph.id);
           } else {
             console.log('No saved graphData');
           }
@@ -329,7 +323,7 @@ export default class PPStorage {
     this.db
       .transaction('rw', this.db.graphs, this.db.settings, async () => {
         const graphs = await this.db.graphs.toArray();
-        const loadedGraphId = await getSetting(this.db, 'loadedGraphId');
+        const loadedGraphId = await this.getLoadedGraphID();
 
         const id = hri.random();
         const tempName = id.substring(0, id.lastIndexOf('-')).replace('-', ' ');
@@ -346,10 +340,7 @@ export default class PPStorage {
           });
 
           // save loadedGraphId
-          await this.db.settings.put({
-            name: 'loadedGraphId',
-            value: id,
-          });
+          await this.setLoadedGraphID(id);
 
           InterfaceController.notifyListeners(ListenEvent.GraphChanged, {
             id,
@@ -386,10 +377,7 @@ export default class PPStorage {
       PPGraph.currentGraph.configure(fileData);
 
       // unset loadedGraphId
-      await this.db.settings.put({
-        name: 'loadedGraphId',
-        value: undefined,
-      });
+      await this.setLoadedGraphID(undefined);
 
       const newName = `${removeExtension(remoteGraphsRef.current[id])} - copy`; // remove .ppgraph extension and add copy
       InterfaceController.showSnackBar('Remote playground was loaded', {
@@ -411,8 +399,17 @@ export default class PPStorage {
       .db.graphs.toCollection()
       .sortBy('date');
   }
+
   async getLoadedGraphID(): Promise<string> {
     return await getSetting(PPStorage.getInstance().db, 'loadedGraphId');
+  }
+
+  async setLoadedGraphID(loadedGraphId): Promise<void> {
+    await PPStorage.getInstance().db.settings.put({
+      name: 'loadedGraphId',
+      value: loadedGraphId,
+    });
+    return;
   }
 
   static viewport: Viewport; // WARNING, HACK, this should not be saved, TODO improve
