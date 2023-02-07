@@ -30,6 +30,9 @@ export class HTTPNode extends PPNode {
   public getName(): string {
     return 'HTTP';
   }
+  public getDescription(): string {
+    return 'HTTP request (Get,Post,Put,Patch,Delete)';
+  }
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(
