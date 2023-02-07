@@ -194,8 +194,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         switch (extension) {
           case 'ppgraph':
             data = await response.text();
-            await PPGraph.currentGraph.configure(JSON.parse(data), false);
-            PPStorage.getInstance().saveNewGraph(removeExtension(file.name));
+            await PPStorage.getInstance().loadGraphFromData(JSON.parse(data));
             break;
           case 'csv':
           case 'ods':
@@ -480,7 +479,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       removeUrlParameter('loadURL');
     } else {
       if (!createEmptyGraph) {
-        PPStorage.getInstance().loadGraph();
+        PPStorage.getInstance().loadGraphFromDB();
       }
     }
 
@@ -742,7 +741,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         // remove selection flag
         selected.isNew = undefined;
       } else {
-        PPStorage.getInstance().loadGraph(selected.id);
+        PPStorage.getInstance().loadGraphFromDB(selected.id);
       }
       setGraphSearchActiveItem(selected);
     }
@@ -978,7 +977,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
                   );
                   updateGraphSearchItems();
                   if (actionObject.id == deletedGraphID) {
-                    PPStorage.getInstance().loadGraph();
+                    PPStorage.getInstance().loadGraphFromDB();
                   }
                 }}
               >
