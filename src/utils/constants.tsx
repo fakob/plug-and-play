@@ -4,6 +4,7 @@ import Color from 'color';
 import { TextStyle } from '@pixi/text';
 import { EnumStructure } from '../nodes/datatypes/enumType';
 import { darkThemeOverride } from './customTheme';
+import { TRgba } from '../utils/interfaces';
 
 export const PP_VERSION = 0.1;
 
@@ -53,21 +54,13 @@ export const customTheme = createTheme(darkThemeOverride, {
       light: `${Color(RANDOMMAINCOLOR).lighten(0.1)}`,
       main: `${RANDOMMAINCOLOR}`,
       dark: `${Color(RANDOMMAINCOLOR).darken(0.1)}`,
-      contrastText: `${
-        Color(RANDOMMAINCOLOR).isDark()
-          ? Color(RANDOMMAINCOLOR).lighten(0.9)
-          : Color(RANDOMMAINCOLOR).darken(0.9)
-      }`,
+      contrastText: `${TRgba.white().hex()}`,
     },
     secondary: {
       light: `${Color(RANDOMMAINCOLOR).negate().lighten(0.1)}`,
       main: `${Color(RANDOMMAINCOLOR).negate()}`,
       dark: `${Color(RANDOMMAINCOLOR).negate().darken(0.1)}`,
-      contrastText: `${
-        Color(RANDOMMAINCOLOR).negate().isDark()
-          ? Color(RANDOMMAINCOLOR).negate().lighten(0.9)
-          : Color(RANDOMMAINCOLOR).negate().darken(0.9)
-      }`,
+      contrastText: `${TRgba.white().hex()}`,
     },
     background: {
       default: `${Color(RANDOMMAINCOLOR).darken(0.85)}`,
@@ -205,6 +198,8 @@ export const NOTE_MARGIN_STRING = '3px 0px 0px 5px';
 export const NOTE_PADDING = 12;
 export const NOTE_FONTSIZE = 32;
 export const NOTE_LINEHEIGHT_FACTOR = 1.15;
+
+export const MAX_STRING_LENGTH = 1000;
 
 export const DEFAULT_EDITOR_DATA = `// Ctrl-Enter to update node
 // Change function name to create new node
@@ -356,8 +351,8 @@ export const TRIGGER_TYPE_OPTIONS: EnumStructure = [
     text: 'change',
   },
   {
-    text: "always"
-  }
+    text: 'always',
+  },
 ];
 
 export const GRID_SHADER = `
