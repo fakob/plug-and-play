@@ -55,7 +55,6 @@ export const inputHeightName = 'Height';
 
 const inputGraphicsName = 'Graphics';
 const totalNumberName = 'Total Number';
-const multiplyYName = 'Number Per Column';
 const numberPerColumnRow = 'Number Per Column/Row';
 const drawingOrder = 'Change Column/Row drawing order';
 const spacingXName = 'Spacing X';
@@ -340,25 +339,19 @@ export class DRAW_COMBINE_ARRAY extends DRAW_Base {
     };
     const myContainer = new PIXI.Container();
     const graphicsArray = inputObject[inputCombineArray];
-
-    const total = graphicsArray.length;
     const changeDrawingOrder = inputObject[drawingOrder];
-    const numJ = Math.max(1, inputObject[numberPerColumnRow]);
-    const numI = Math.ceil(total / numJ);
-    let numPlaced = 0;
-
-    for (let i = 0; i < numI; i++) {
-      for (let j = 0; j < numJ && numPlaced < total; j++, numPlaced++) {
-        const currentIndex = numPlaced;
-        const x = changeDrawingOrder ? j : i;
-        const y = changeDrawingOrder ? i : j;
-        const shallowContainer = new PIXI.Container();
-        graphicsArray[currentIndex](shallowContainer, executions);
-        shallowContainer.x = x * inputObject[spacingXName];
-        shallowContainer.y = y * inputObject[spacingYName];
-        myContainer.addChild(shallowContainer);
-      }
+    for (let i = graphicsArray.length - 1; i >= 0; i--) {
+      const r = Math.floor(i / inputObject[numberPerColumnRow]);
+      const s = i % inputObject[numberPerColumnRow];
+      const x = changeDrawingOrder ? s : r;
+      const y = changeDrawingOrder ? r : s;
+      const shallowContainer = new PIXI.Container();
+      graphicsArray[i](shallowContainer, executions);
+      shallowContainer.x = x * inputObject[spacingXName];
+      shallowContainer.y = y * inputObject[spacingYName];
+      myContainer.addChild(shallowContainer);
     }
+
     this.positionAndScale(myContainer, inputObject);
 
     myContainer.interactive = true;
@@ -426,49 +419,46 @@ export class DRAW_Multiplier extends DRAW_Base {
     const myContainer = new PIXI.Container();
     const total = inputObject[totalNumberName];
     const changeDrawingOrder = inputObject[drawingOrder];
-    const numJ = Math.max(1, inputObject[numberPerColumnRow]);
-    const numI = Math.ceil(total / numJ);
-    let numPlaced = 0;
 
-    for (let i = 0; i < numI; i++) {
-      for (let j = 0; j < numJ && numPlaced < total; j++, numPlaced++) {
-        const currentIndex = numPlaced;
-        const x = changeDrawingOrder ? j : i;
-        const y = changeDrawingOrder ? i : j;
+    for (let i = total - 1; i >= 0; i--) {
+      const r = Math.floor(i / inputObject[numberPerColumnRow]);
+      const s = i % inputObject[numberPerColumnRow];
+      const x = changeDrawingOrder ? s : r;
+      const y = changeDrawingOrder ? r : s;
 
-        const shallowContainer = new PIXI.Container();
-        if (inputObject[inputGraphicsName])
-          inputObject[inputGraphicsName](shallowContainer, executions);
-        shallowContainer.x = x * inputObject[spacingXName];
-        shallowContainer.y = y * inputObject[spacingYName];
+      const shallowContainer = new PIXI.Container();
+      if (inputObject[inputGraphicsName])
+        inputObject[inputGraphicsName](shallowContainer, executions);
+      shallowContainer.x = x * inputObject[spacingXName];
+      shallowContainer.y = y * inputObject[spacingYName];
 
-        shallowContainer.interactive = true;
-        const alphaPre = shallowContainer.alpha;
-        const scalePreX = shallowContainer.scale.x;
-        const scalePreY = shallowContainer.scale.y;
-        shallowContainer.on('pointerdown', (e) => {
-          this.setOutputData(outputMultiplierIndex, currentIndex);
-          this.setOutputData(outputMultiplierInjected, executions);
-          this.setOutputData(outputMultiplierPointerDown, true);
-          // tell all children when something is pressed
-          this.executeChildren();
-          console.log('pressed: ' + x + ' : ' + y);
-          shallowContainer.scale.x *= 0.97;
-          shallowContainer.scale.y *= 0.97;
-          shallowContainer.alpha = alphaPre * 0.8;
-        });
+      shallowContainer.interactive = true;
+      const alphaPre = shallowContainer.alpha;
+      const scalePreX = shallowContainer.scale.x;
+      const scalePreY = shallowContainer.scale.y;
+      shallowContainer.on('pointerdown', (e) => {
+        this.setOutputData(outputMultiplierIndex, i);
+        this.setOutputData(outputMultiplierInjected, executions);
+        this.setOutputData(outputMultiplierPointerDown, true);
+        // tell all children when something is pressed
+        this.executeChildren();
+        console.log('pressed: ' + x + ' : ' + y);
+        shallowContainer.scale.x *= 0.97;
+        shallowContainer.scale.y *= 0.97;
+        shallowContainer.alpha = alphaPre * 0.8;
+      });
 
-        shallowContainer.on('pointerup', (e) => {
-          this.setOutputData(outputMultiplierPointerDown, false);
-          this.executeChildren();
-          shallowContainer.alpha = alphaPre;
-          shallowContainer.scale.x = scalePreX;
-          shallowContainer.scale.y = scalePreY;
-        });
+      shallowContainer.on('pointerup', (e) => {
+        this.setOutputData(outputMultiplierPointerDown, false);
+        this.executeChildren();
+        shallowContainer.alpha = alphaPre;
+        shallowContainer.scale.x = scalePreX;
+        shallowContainer.scale.y = scalePreY;
+      });
 
-        myContainer.addChild(shallowContainer);
-      }
+      myContainer.addChild(shallowContainer);
     }
+
     this.positionAndScale(myContainer, inputObject);
     myContainer.interactive = true;
     myContainer.on('pointerdown', (e) => {
