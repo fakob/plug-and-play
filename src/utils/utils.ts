@@ -48,7 +48,11 @@ export function convertToArray<T>(value: T | T[]): T[] {
 export function convertToString(value: unknown): string {
   let newValue;
   if (typeof value === 'object') {
-    newValue = JSON.stringify(value, getCircularReplacer(), 2);
+    try {
+      newValue = JSON.stringify(value, getCircularReplacer(), 2);
+    } catch (error) {
+      console.error(error);
+    }
   } else if (typeof value !== 'string') {
     newValue = String(value);
   } else {
