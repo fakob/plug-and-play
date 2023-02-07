@@ -28,9 +28,7 @@ type MyProps = {
   selectedNode: PPNode;
 };
 
-export const FloatingJsonPathPicker: React.FunctionComponent<MyProps> = (
-  props
-) => {
+const FloatingJsonPathPicker: React.FunctionComponent<MyProps> = (props) => {
   const [open, setOpen] = useState(false);
   const [newWidth, setNewWidth] = useState(undefined);
   const handleOpen = () => setOpen(true);
