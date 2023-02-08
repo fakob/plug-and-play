@@ -82,16 +82,18 @@ export class HTTPNode extends PPNode {
     let res: Promise<Response> = undefined;
     if (usingCompanion) {
       const companionSpecific = {
+        finalHeaders: inputObject[headersInputName],
+        finalBody: inputObject[bodyInputName],
         finalURL: inputObject[urlInputName],
         finalMethod: inputObject[methodName],
       };
-      const body = inputObject[bodyInputName];
-      body.companionSpecific = companionSpecific;
+      if (inputObject[methodName] == 'Get') {
+        delete companionSpecific.finalBody;
+      }
       res = fetch(inputObject[sendThroughCompanionAddress], {
-        // companion always receives a post, but it'll be transformed to final method on companion
         method: 'Post',
         headers: inputObject[headersInputName],
-        body: inputObject[bodyInputName],
+        body: JSON.stringify(companionSpecific),
       });
     } else {
       // no body if Get
