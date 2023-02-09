@@ -204,6 +204,7 @@ export const SelectWidget: React.FunctionComponent<SelectWidgetProps> = (
 ) => {
   const [data, setData] = useState(props.data ?? '');
   const [options, setOptions] = useState(props.options);
+
   useInterval(() => {
     if (data !== props.property.data) {
       setData(props.property.data);
@@ -310,21 +311,23 @@ export type TextWidgetProps = {
 };
 
 export const TextWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
-  const dataLength = String(props.data)?.length;
+  const dataLength = convertToString(props.data)?.length;
   const [loadAll, setLoadAll] = useState(dataLength < MAX_STRING_LENGTH);
 
   const [loadedData, setLoadedData] = useState(
-    getLoadedValue(String(props.data), loadAll)
+    getLoadedValue(convertToString(props.data), loadAll)
   );
 
   const onLoadAll = () => {
-    setLoadedData(String(props.data));
+    setLoadedData(convertToString(props.data));
     setLoadAll(true);
   };
 
   useInterval(() => {
     if (loadedData !== props.property.data) {
-      setLoadedData(getLoadedValue(String(props.property.data), loadAll));
+      setLoadedData(
+        getLoadedValue(convertToString(props.property.data), loadAll)
+      );
     }
   }, 100);
 

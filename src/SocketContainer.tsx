@@ -42,7 +42,7 @@ export const SocketContainer: React.FunctionComponent<SocketContainerProps> = (
     data: props.data,
     randomMainColor: props.randomMainColor,
   };
-  // const widget = dataTypeValue.getInputWidget(baseProps);
+
   const widget = props.isInput
     ? dataTypeValue.getInputWidget(baseProps)
     : dataTypeValue.getOutputWidget(baseProps);
@@ -68,6 +68,10 @@ export const SocketContainer: React.FunctionComponent<SocketContainerProps> = (
       });
     }
   }, [props.triggerScrollIntoView]);
+
+  useEffect(() => {
+    setDataTypeValue(props.dataType);
+  }, [props.dataType]);
 
   return (
     <Box ref={myRef} sx={{ bgcolor: 'background.default' }}>
