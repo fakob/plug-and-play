@@ -261,6 +261,14 @@ export class CustomFunction extends PPNode {
     // this might seem unused but it actually isn't, its used inside the eval in many cases but we can't see what's inside it from here
     const node = this;
 
+    this.statuses = [];
+    if (this.getDefaultFunction() !== inputObject['Code']) {
+      this.statuses.push({
+        color: this.getColor().multiply(0.8),
+        statusText: 'Modified',
+      });
+    }
+
     const res = eval('async () => ' + reduced);
     outputObject[this.getOutputParameterName()] = await res();
   }
@@ -303,37 +311,6 @@ export class CustomFunction extends PPNode {
   // adapt all nodes apart from the code one
   public socketShouldAutomaticallyAdapt(socket: Socket): boolean {
     return socket.name !== anyCodeName;
-  }
-
-  public drawNodeShape(): void {
-    this.modifiedBanner.clear();
-    this.modifiedBanner.removeChildren();
-
-    const width = 80;
-
-    if (this.getDefaultFunction() !== this.getInputData('Code')) {
-      //this.modifiedBanner.beginFill(TRgba.fromString('#FFD59E').hexNumber());
-      this.modifiedBanner.beginFill(this.getColor().multiply(0.8).hexNumber());
-      this.modifiedBanner.drawRoundedRect(
-        this.nodeWidth - width,
-        this.nodeHeight - 20,
-        width,
-        30,
-        NODE_CORNERRADIUS
-      );
-      const text = new PIXI.Text(
-        'Modified',
-        new TextStyle({
-          fontSize: 18,
-          fill: COLOR_MAIN,
-        })
-      );
-      text.x = this.nodeWidth - width + 5;
-      text.y = this.nodeHeight - 20 + 5;
-      this.modifiedBanner.addChild(text);
-    }
-
-    super.drawNodeShape();
   }
 }
 

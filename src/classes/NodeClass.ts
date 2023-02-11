@@ -745,18 +745,12 @@ export default class PPNode extends PIXI.Container {
     this.statuses.forEach((nStatus,index) => {
       const color = nStatus.color;
 
-      const width = 100;
       const height = 30;
       const merging = 5;
+      const inlet = 60;
 
-      this._StatusesRef.beginFill(color.hexNumber());
-        this._StatusesRef.drawRoundedRect(
-          this.nodeWidth,// - width,
-          this.nodeHeight - 20 + index * (height-merging),
-          width,
-          height,
-          NODE_CORNERRADIUS
-          );
+      const startY = this.countOfVisibleOutputSockets * SOCKET_HEIGHT + 50;
+
       const text = new PIXI.Text(
         nStatus.statusText,
         new TextStyle({
@@ -764,9 +758,17 @@ export default class PPNode extends PIXI.Container {
           fill: COLOR_MAIN,
         })
         );
-        text.x = this.nodeWidth + 5;// - width;
-        text.y = this.nodeHeight - 15 + index*(height-merging);
+        text.x = this.nodeWidth - inlet + 5;// - width;
+        text.y = startY + 5 + index*(height-merging);
         this._StatusesRef.addChild(text);
+      this._StatusesRef.beginFill(color.hexNumber());
+        this._StatusesRef.drawRoundedRect(
+          this.nodeWidth - inlet,// - width,
+          startY + index * (height-merging),
+          text.width + 10,
+          height,
+          NODE_CORNERRADIUS
+          );
     });
 
   }
