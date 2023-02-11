@@ -94,6 +94,9 @@ export const PRESET_COLORS = [
   '#A45140',
 ];
 
+export const errorColor = TRgba.fromString('#B71C1C');
+export const successColor = TRgba.fromString('#4BB543');
+
 export const PLUGANDPLAY_ICON = '../assets/PlugAndPlayIcon-transparent.svg';
 export const DRAWER30_ICON = '../assets/Drawer30_Icon.svg';
 export const DRAWER50_ICON = '../assets/Drawer50_Icon.svg';

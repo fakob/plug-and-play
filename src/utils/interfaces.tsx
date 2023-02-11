@@ -88,7 +88,7 @@ export type SerializedLink = {
   targetSocketName: string;
 };
 
-export type TSocketType = typeof SOCKET_TYPE[keyof typeof SOCKET_TYPE];
+export type TSocketType = (typeof SOCKET_TYPE)[keyof typeof SOCKET_TYPE];
 
 export type SerializedSocket = {
   socketType: TSocketType;
@@ -97,6 +97,11 @@ export type SerializedSocket = {
   data: any;
   defaultData?: any;
   visible: boolean;
+};
+
+export type NodeStatus = {
+  color: TRgba;
+  statusText: string;
 };
 
 export class TRgba {

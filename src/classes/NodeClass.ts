@@ -4,6 +4,7 @@ import { hri } from 'human-readable-ids';
 import '../pixi/dbclick.js';
 import {
   CustomArgs,
+  NodeStatus,
   SerializedNode,
   SerializedSocket,
   TRgba,
@@ -23,6 +24,7 @@ import {
   NODE_WIDTH,
   SOCKET_HEIGHT,
   SOCKET_TYPE,
+  COLOR_MAIN,
 } from '../utils/constants';
 import UpdateBehaviourClass from './UpdateBehaviourClass';
 import NodeSelectionHeaderClass from './NodeSelectionHeaderClass';
@@ -41,11 +43,14 @@ import { deSerializeType } from '../nodes/datatypes/typehelper';
 import throttle from 'lodash/throttle';
 import FlowLogic from './FlowLogic';
 import InterfaceController from '../InterfaceController';
+import { TextStyle } from 'pixi.js';
 
 export default class PPNode extends PIXI.Container {
   _NodeNameRef: PIXI.Text;
   _BackgroundRef: PIXI.Graphics;
   _CommentRef: PIXI.Graphics;
+  _StatusesRef: PIXI.Graphics;
+
   clickedSocketRef: Socket;
   isHovering: boolean;
 
@@ -71,6 +76,7 @@ export default class PPNode extends PIXI.Container {
   isDraggingNode: boolean;
   sourcePoint: PIXI.Point;
   interactionData: PIXI.InteractionData;
+  protected statuses: NodeStatus[] = []; // you can add statuses into this and they will be rendered on the node
 
   // supported callbacks
   onConfigure: (nodeConfig: SerializedNode) => void = () => { }; // called after the node has been configured
@@ -92,7 +98,7 @@ export default class PPNode extends PIXI.Container {
     }
   }
   public executeOnPlace(): boolean {
-    return true;
+    return false;
   }
 
   protected onNodeExit(): void { }
@@ -269,6 +275,7 @@ export default class PPNode extends PIXI.Container {
     this._BackgroundRef = this.addChild(background);
     this._NodeNameRef = this.addChild(inputNameText);
     this._CommentRef = this.addChild(new PIXI.Graphics());
+    this._StatusesRef = this.addChild(new PIXI.Graphics());
 
     this.updateBehaviour = this.getUpdateBehaviour();
     if (this.getShouldShowHoverActions()) {
@@ -507,7 +514,6 @@ export default class PPNode extends PIXI.Container {
       );
     }
 
-    //this.executeOptimizedChain();
     this.resizeAndDraw();
     this.onConfigure(nodeConfig);
   }
@@ -622,13 +628,13 @@ export default class PPNode extends PIXI.Container {
       this.nodeTriggerSocketArray.findIndex((el) => el.name === slotName)
     ];
   }
-  
+
   getInputSocketByName(slotName: string): Socket {
     return this.inputSocketArray[
       this.inputSocketArray.findIndex((el) => el.name === slotName)
     ];
   }
-  
+
   getInputOrTriggerSocketByName(slotName: string): Socket {
     return this.getAllInputSockets()[
       this.getAllInputSockets().findIndex((el) => el.name === slotName)
@@ -730,6 +736,43 @@ export default class PPNode extends PIXI.Container {
       });
   }
 
+  protected drawStatuses(): void {
+    this._StatusesRef.clear();
+    this._StatusesRef.removeChildren();
+
+
+    this.statuses.forEach((nStatus,index) => {
+      const color = nStatus.color;
+
+      const height = 30;
+      const merging = 5;
+      const inlet = 60;
+
+      const startY = this.countOfVisibleOutputSockets * SOCKET_HEIGHT + 50;
+
+      const text = new PIXI.Text(
+        nStatus.statusText,
+        new TextStyle({
+          fontSize: 18,
+          fill: COLOR_MAIN,
+        })
+        );
+        text.x = this.nodeWidth - inlet + 5;// - width;
+        text.y = startY + 5 + index*(height-merging);
+        this._StatusesRef.addChild(text);
+      this._StatusesRef.beginFill(color.hexNumber());
+        this._StatusesRef.drawRoundedRect(
+          this.nodeWidth - inlet,// - width,
+          startY + index * (height-merging),
+          text.width + 10,
+          height,
+          NODE_CORNERRADIUS
+          );
+    });
+
+  }
+
+
   public drawNodeShape(): void {
     // update selection
 
@@ -742,7 +785,9 @@ export default class PPNode extends PIXI.Container {
     this.drawTriggers();
     this.drawSockets();
     this.drawComment();
+    this.drawStatuses();
   }
+
 
   constructSocketName(prefix: string, existing: Socket[]): string {
     let count = 1;
