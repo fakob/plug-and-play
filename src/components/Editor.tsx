@@ -3,14 +3,8 @@ import { ErrorBoundary } from 'react-error-boundary';
 import MonacoEditor, { monaco } from 'react-monaco-editor';
 import { Box, Button } from '@mui/material';
 import ErrorFallback from './ErrorFallback';
-
-const MAX_STRING_LENGTH = 1000;
-
-function getLoadedValue(value, shouldLoadAll) {
-  return shouldLoadAll
-    ? String(value)
-    : String(value)?.slice(0, MAX_STRING_LENGTH) + '...';
-}
+import { MAX_STRING_LENGTH } from '../utils/constants';
+import { convertToString, getLoadedValue } from '../utils/utils';
 
 type CodeEditorProps = {
   value: unknown;
@@ -20,7 +14,7 @@ type CodeEditorProps = {
 };
 
 export const CodeEditor: React.FunctionComponent<CodeEditorProps> = (props) => {
-  const valueLength = String(props.value)?.length;
+  const valueLength = convertToString(props.value)?.length;
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor>();
   const [loadAll, setLoadAll] = useState(valueLength < MAX_STRING_LENGTH);
 
@@ -30,7 +24,7 @@ export const CodeEditor: React.FunctionComponent<CodeEditorProps> = (props) => {
   const [editorHeight, setEditorHeight] = useState(48);
 
   const onLoadAll = () => {
-    setLoadedValue(String(props.value));
+    setLoadedValue(convertToString(props.value));
     setLoadAll(true);
   };
 

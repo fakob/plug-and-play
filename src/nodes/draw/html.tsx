@@ -161,6 +161,7 @@ export class HtmlRenderer extends HybridNode {
     return (
       <ErrorBoundary FallbackComponent={ErrorFallback}>
         <Frame
+          id={this.id}
           ref={iframeRef}
           style={{
             width: '100%',

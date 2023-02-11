@@ -29,6 +29,9 @@ export class HTTPNode extends PPNode {
   public getName(): string {
     return 'HTTP';
   }
+  public getDescription(): string {
+    return 'HTTP request (Get,Post,Put,Patch,Delete)';
+  }
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(
@@ -78,25 +81,29 @@ export class HTTPNode extends PPNode {
     let res: Promise<Response> = undefined;
     if (usingCompanion) {
       const companionSpecific = {
+        finalHeaders: inputObject[headersInputName],
+        finalBody: inputObject[bodyInputName],
         finalURL: inputObject[urlInputName],
         finalMethod: inputObject[methodName],
       };
-      const body = inputObject[bodyInputName];
-      body.companionSpecific = companionSpecific;
+      if (inputObject[methodName] == 'Get') {
+        delete companionSpecific.finalBody;
+      }
       res = fetch(inputObject[sendThroughCompanionAddress], {
-        // companion always receives a post, but it'll be transformed to proper method if its a GET for example on companion
         method: 'Post',
         headers: inputObject[headersInputName],
-        body: inputObject[bodyInputName],
+        body: JSON.stringify(companionSpecific),
       });
     } else {
+      // no body if Get
+      const body =
+        inputObject[methodName] !== 'Get'
+          ? inputObject[bodyInputName]
+          : undefined;
       res = fetch(inputObject[urlInputName], {
         method: inputObject[methodName],
         headers: inputObject[headersInputName],
-        body:
-          inputObject[methodName] !== 'Get'
-            ? inputObject[bodyInputName]
-            : undefined,
+        body: body,
       });
     }
     outputObject[outputContentName] = await (await res).json();

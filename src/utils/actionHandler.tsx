@@ -48,7 +48,6 @@ export class ActionHandler {
   }
 
   static setUnsavedChange(state: boolean): void {
-    console.log('setUnsavedChanges:', state);
     this.graphHasUnsavedChanges = state;
     if (this.graphHasUnsavedChanges) {
       window.addEventListener('beforeunload', this.onBeforeUnload, {

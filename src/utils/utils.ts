@@ -11,6 +11,7 @@ import {
   CONDITION_OPTIONS,
   NODE_PADDING_TOP,
   NODE_HEADER_HEIGHT,
+  MAX_STRING_LENGTH,
   SOCKET_TEXTMARGIN_TOP,
   SOCKET_WIDTH,
   GESTUREMODE,
@@ -48,7 +49,11 @@ export function convertToArray<T>(value: T | T[]): T[] {
 export function convertToString(value: unknown): string {
   let newValue;
   if (typeof value === 'object') {
-    newValue = JSON.stringify(value, getCircularReplacer(), 2);
+    try {
+      newValue = JSON.stringify(value, getCircularReplacer(), 2);
+    } catch (error) {
+      console.error(error);
+    }
   } else if (typeof value !== 'string') {
     newValue = String(value);
   } else {
@@ -766,3 +771,9 @@ export const pasteClipboard = async (e: ClipboardEvent): Promise<void> => {
     }
   }
 };
+
+export function getLoadedValue(value, shouldLoadAll) {
+  return shouldLoadAll
+    ? String(value)
+    : String(value)?.slice(0, MAX_STRING_LENGTH) + '...';
+}
