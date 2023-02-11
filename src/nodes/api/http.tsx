@@ -33,9 +33,6 @@ const HTTPMethodOptions: EnumStructure = [
 });
 
 export class HTTPNode extends PPNode {
-  lastStatus = 0;
-  statusBanner: PIXI.Graphics;
-
   public getName(): string {
     return 'HTTP';
   }
@@ -83,12 +80,8 @@ export class HTTPNode extends PPNode {
     ];
   }
 
-  private potentiallyUpdateStatus(status: number) {
-    if (status != this.lastStatus) {
-      this.lastStatus = status;
-      this.drawStatusBanner();
-    }
-  }
+  errorColor = TRgba.fromString('#B71C1C');
+  successColor = TRgba.fromString('#4BB543');
 
   protected async onExecute(
     inputObject: any,
@@ -96,8 +89,9 @@ export class HTTPNode extends PPNode {
   ): Promise<void> {
     const usingCompanion: boolean = inputObject[sendThroughCompanionName];
     let res: Promise<Response> = undefined;
-    let status = 404;
+    this.statuses = [];
     if (usingCompanion) {
+      this.statuses.push({ color: TRgba.black(), statusText: 'Companion' });
       try {
         const companionSpecific = {
           finalHeaders: inputObject[headersInputName],
@@ -113,9 +107,12 @@ export class HTTPNode extends PPNode {
           headers: inputObject[headersInputName],
           body: JSON.stringify(companionSpecific),
         });
-        status = (await res).status;
       } catch (error) {
-        this.potentiallyUpdateStatus(status);
+        this.statuses.push({
+          color: TRgba.black(),
+          statusText: 'No companion connection',
+        });
+        this.drawStatuses();
         throw 'Unable to reach companion, is it running at designated address?';
       }
     } else {
@@ -131,13 +128,16 @@ export class HTTPNode extends PPNode {
       });
     }
     const awaitedRes = await res;
-    status = awaitedRes.status;
-    this.potentiallyUpdateStatus(status);
+    this.statuses.push({
+      color: awaitedRes.status > 400 ? this.errorColor : this.successColor,
+      statusText: 'Status: ' + awaitedRes.status,
+    });
+    this.drawStatuses();
 
     outputObject[outputContentName] = await awaitedRes.json();
   }
 
-  public drawStatusBanner() {
+  /*public drawStatusBanner() {
     if (!this.statusBanner) {
       this.statusBanner = this.addChild(new PIXI.Graphics());
     }
@@ -170,13 +170,7 @@ export class HTTPNode extends PPNode {
     text.x = this.nodeWidth - width + 5;
     text.y = this.nodeHeight - 20 + 5;
     this.statusBanner.addChild(text);
-  }
-
-  public drawNodeShape(): void {
-    this.drawStatusBanner();
-
-    super.drawNodeShape();
-  }
+  }*/
 
   getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
