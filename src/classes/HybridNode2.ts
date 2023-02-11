@@ -173,15 +173,9 @@ export default abstract class HybridNode2 extends PPNode {
     outputObject: Record<string, unknown>
   ): Promise<void> {
     if (!this.container) {
-      this.createContainerComponent(
-        this.getParentComponent(inputObject),
-        inputObject
-      );
+      this.createContainerComponent(this.getParentComponent, inputObject);
     } else {
-      this.renderReactComponent(
-        this.getParentComponent(inputObject),
-        inputObject
-      );
+      this.renderReactComponent(this.getParentComponent, inputObject);
     }
   }
 }
