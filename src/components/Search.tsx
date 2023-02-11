@@ -1,6 +1,7 @@
 import * as React from 'react';
 import Color from 'color';
 import { hri } from 'human-readable-ids';
+import { v4 as uuid } from 'uuid';
 import {
   Box,
   ButtonGroup,
@@ -274,17 +275,12 @@ export const getNodes = (): INodeSearch[] => {
   return tempItems;
 };
 
-export const filterOptionsNode = (
-  options: INodeSearch[],
-  { inputValue },
-  setNodeSearchCount
-) => {
+export const filterOptionsNode = (options: INodeSearch[], { inputValue }) => {
   let sorted = options;
   // use the above sort order if no search term has been entered yet
   if (inputValue !== '') {
     sorted = matchSorter(options, inputValue, {
       keys: ['name', 'title', 'description'],
-      threshold: matchSorter.rankings.ACRONYM,
     });
     sorted.push({
       title: inputValue,
@@ -295,12 +291,14 @@ export const filterOptionsNode = (
       isNew: true,
     });
   }
-  setNodeSearchCount(sorted.length);
   return sorted;
 };
 
 export const renderNodeItem = (props, option, { inputValue, selected }) => {
-  const matchesOfName = match(option.name, inputValue, { insideWords: true });
+  const matchesOfName = match(option.name, inputValue, {
+    insideWords: true,
+    findAllOccurrences: true,
+  });
   const partsOfName = parse(option.name, matchesOfName);
   const matchesOfDescription = match(option.description, inputValue, {
     insideWords: true,
@@ -308,7 +306,7 @@ export const renderNodeItem = (props, option, { inputValue, selected }) => {
   const partsOfDescription = parse(option.description, matchesOfDescription);
 
   return (
-    <li {...props} key={option.title}>
+    <li {...props} key={uuid()}>
       <Stack
         sx={{
           width: '100%',
@@ -337,7 +335,7 @@ export const renderNodeItem = (props, option, { inputValue, selected }) => {
                   sx={{
                     display: 'inline',
                     opacity: part.highlight ? 1 : 0.75,
-                    fontWeight: part.highlight ? 500 : 400,
+                    fontWeight: part.highlight ? 600 : 400,
                   }}
                 >
                   {part.text}
@@ -371,7 +369,7 @@ export const renderNodeItem = (props, option, { inputValue, selected }) => {
                 sx={{
                   display: 'inline',
                   opacity: part.highlight ? 1 : 0.75,
-                  fontWeight: part.highlight ? 500 : 400,
+                  fontWeight: part.highlight ? 600 : 400,
                 }}
               >
                 {part.text}
