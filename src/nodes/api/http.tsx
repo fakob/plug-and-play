@@ -1,6 +1,11 @@
 import PPNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
-import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../../utils/constants';
+import {
+  errorColor,
+  NODE_TYPE_COLOR,
+  SOCKET_TYPE,
+  successColor,
+} from '../../utils/constants';
 import { TRgba } from '../../utils/interfaces';
 import { BooleanType } from '../datatypes/booleanType';
 import { EnumStructure, EnumType } from '../datatypes/enumType';
@@ -73,12 +78,9 @@ export class HTTPNode extends PPNode {
     ];
   }
 
-  errorColor = TRgba.fromString('#B71C1C');
-  successColor = TRgba.fromString('#4BB543');
-
   private pushStatusCode(statusCode: number): void {
     this.statuses.push({
-      color: statusCode > 400 ? this.errorColor : this.successColor,
+      color: statusCode > 400 ? errorColor : successColor,
       statusText: 'Status: ' + statusCode,
     });
     this.drawStatuses();
