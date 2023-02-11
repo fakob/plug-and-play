@@ -98,7 +98,7 @@ export default class PPNode extends PIXI.Container {
     }
   }
   public executeOnPlace(): boolean {
-    return true;
+    return false;
   }
 
   protected onNodeExit(): void { }
@@ -514,7 +514,6 @@ export default class PPNode extends PIXI.Container {
       );
     }
 
-    //this.executeOptimizedChain();
     this.resizeAndDraw();
     this.onConfigure(nodeConfig);
   }
