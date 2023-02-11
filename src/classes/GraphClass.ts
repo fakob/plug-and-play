@@ -1008,7 +1008,9 @@ export default class PPGraph {
     }
     // execute all seed nodes to make sure there are values everywhere
     await FlowLogic.executeOptimizedChainBatch(
-      Object.values(this.nodes).filter((node) => !node.getHasDependencies())
+      Object.values(this.nodes).filter(
+        (node) => !node.getHasDependencies() && node.updateBehaviour.update
+      )
     );
 
     this.ticking = true;

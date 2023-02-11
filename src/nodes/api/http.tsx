@@ -1,7 +1,11 @@
 import PPNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
-import UpdateBehaviourClass from '../../classes/UpdateBehaviourClass';
-import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../../utils/constants';
+import {
+  errorColor,
+  NODE_TYPE_COLOR,
+  SOCKET_TYPE,
+  successColor,
+} from '../../utils/constants';
 import { TRgba } from '../../utils/interfaces';
 import { BooleanType } from '../datatypes/booleanType';
 import { EnumStructure, EnumType } from '../datatypes/enumType';
@@ -74,40 +78,62 @@ export class HTTPNode extends PPNode {
     ];
   }
 
+  private pushStatusCode(statusCode: number): void {
+    this.statuses.push({
+      color: statusCode > 400 ? errorColor : successColor,
+      statusText: 'Status: ' + statusCode,
+    });
+    this.drawStatuses();
+  }
+
   protected async onExecute(
     inputObject: any,
     outputObject: Record<string, unknown>
   ): Promise<void> {
     const usingCompanion: boolean = inputObject[sendThroughCompanionName];
-    let res: Promise<Response> = undefined;
+    let awaitedRes: Response = undefined;
+    this.statuses = [];
     if (usingCompanion) {
-      const companionSpecific = {
-        finalHeaders: inputObject[headersInputName],
-        finalBody: inputObject[bodyInputName],
-        finalURL: inputObject[urlInputName],
-        finalMethod: inputObject[methodName],
-      };
-      if (inputObject[methodName] == 'Get') {
-        delete companionSpecific.finalBody;
-      }
-      res = fetch(inputObject[sendThroughCompanionAddress], {
-        method: 'Post',
-        headers: inputObject[headersInputName],
-        body: JSON.stringify(companionSpecific),
+      this.statuses.push({
+        color: TRgba.white().multiply(0.5),
+        statusText: 'Companion',
       });
+      try {
+        const companionSpecific = {
+          finalHeaders: inputObject[headersInputName],
+          finalBody: inputObject[bodyInputName],
+          finalURL: inputObject[urlInputName],
+          finalMethod: inputObject[methodName],
+        };
+        if (inputObject[methodName] == 'Get') {
+          delete companionSpecific.finalBody;
+        }
+        const res = fetch(inputObject[sendThroughCompanionAddress], {
+          method: 'Post',
+          headers: inputObject[headersInputName],
+          body: JSON.stringify(companionSpecific),
+        });
+        awaitedRes = await res;
+      } catch (error) {
+        this.pushStatusCode(404);
+        throw 'Unable to reach companion, is it running at designated address?';
+      }
     } else {
       // no body if Get
       const body =
         inputObject[methodName] !== 'Get'
           ? inputObject[bodyInputName]
           : undefined;
-      res = fetch(inputObject[urlInputName], {
+      const res = fetch(inputObject[urlInputName], {
         method: inputObject[methodName],
         headers: inputObject[headersInputName],
         body: body,
       });
+      awaitedRes = await res;
     }
-    outputObject[outputContentName] = await (await res).json();
+    this.pushStatusCode(awaitedRes.status);
+
+    outputObject[outputContentName] = await awaitedRes.json();
   }
 
   getColor(): TRgba {
