@@ -162,30 +162,8 @@ export class WidgetButton extends Widget_Base {
     );
   };
 }
-/*
-type WidgetColorPickerProps = {
-  doubleClicked: boolean; // is injected by the NodeClass
-  nodeWidth: number;
-  nodeHeight: number;
-  margin: number;
-  initialData: TRgba;
-  label: string;
-};
 
-/*export class WidgetColorPicker extends Widget_Base {
-  protected getParentComponent(inputObject: any) {
-    throw new Error('Method not implemented.');
-  }
-  constructor(name: string, customArgs?: CustomArgs) {
-    super(name, {
-      ...customArgs,
-    });
-
-    if (this.initialData) {
-      this.setInputData(initialValueName, this.initialData);
-    }
-  }
-
+export class WidgetColorPicker extends Widget_Base {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(
@@ -222,55 +200,11 @@ type WidgetColorPickerProps = {
     return 104;
   }
 
-  // when the Node is added, add the container and react component
-  public onNodeAdded = () => {
-    this.createContainerComponent(
-      this.WidgetParent,
-      {
-        nodeWidth: this.nodeWidth,
-        nodeHeight: this.nodeHeight,
-        margin,
-        initialData: this.getInputData(initialValueName),
-        label: this.getInputData(labelName),
-      },
-      {
-        overflow: 'visible',
-      }
-    );
-    this.setOutputData(outName, this.getInputData(initialValueName));
-    super.onNodeAdded();
-  };
-
-  public update = (): void => {
-    this.renderReactComponent(this.WidgetParent, {
-      nodeWidth: this.nodeWidth,
-      nodeHeight: this.nodeHeight,
-      margin,
-      initialData: this.getInputData(initialValueName),
-      label: this.getInputData(labelName),
-    });
-  };
-
-  // when the Node is loaded, update the react component
-  public onConfigure = (): void => {
-    this.update();
-    this.setOutputData(outName, this.getInputData(initialValueName));
-    this.executeOptimizedChain();
-  };
-
-  public onNodeResize = () => {
-    this.update();
-  };
-
-  public onExecute = async function (input, output) {
-    output[outName] = input[initialValueName];
-    this.update();
-  };
-
-  public WidgetParent: FunctionComponent<WidgetColorPickerProps> = (props) => {
+  protected getParentComponent(props: any): any {
+    const node = props.node;
     const ref = useRef<HTMLLIElement | null>(null);
     const [finalColor, setFinalColor] = useState(
-      props.initialData || TRgba.white()
+      props[initialValueName] || TRgba.white()
     );
     const [colorPicker, showColorPicker] = useState(false);
 
@@ -283,9 +217,9 @@ type WidgetColorPickerProps = {
         pickedrgb.a
       );
       setFinalColor(newColor);
-      this.setInputData(initialValueName, newColor);
-      this.setOutputData(outName, newColor);
-      this.executeChildren();
+      node.setInputData(initialValueName, newColor);
+      node.setOutputData(outName, newColor);
+      node.executeChildren();
     };
 
     return (
@@ -299,8 +233,8 @@ type WidgetColorPickerProps = {
             bgcolor: 'background.default',
             fontSize: '16px',
             border: 0,
-            width: `${this.nodeWidth}px`,
-            height: `${this.nodeHeight}px`,
+            width: `${node.nodeWidth}px`,
+            height: `${node.nodeHeight}px`,
             boxShadow: 16,
             '&:hover': {
               boxShadow: 12,
@@ -320,9 +254,9 @@ type WidgetColorPickerProps = {
               border: 0,
               bgcolor: finalColor.hex(),
               color: finalColor.getContrastTextColor().hex(),
-              width: `${this.nodeWidth - 8 * margin}px`,
-              height: `${this.nodeHeight - 8 * margin}px`,
-              borderRadius: `${this.nodeWidth / 4}px`,
+              width: `${node.nodeWidth - 8 * margin}px`,
+              height: `${node.nodeHeight - 8 * margin}px`,
+              borderRadius: `${node.nodeWidth / 4}px`,
               boxShadow: 16,
               '&:hover': {
                 bgcolor: finalColor.darken(0.1).hex(),
@@ -368,7 +302,9 @@ type WidgetColorPickerProps = {
       </ThemeProvider>
     );
   };
-}*/
+}
+
+/*
 
 /*export class WidgetSwitch extends Widget_Base {
   protected getParentComponent(inputObject: any) {
