@@ -53,9 +53,9 @@ import { CustomArgs, TRgba } from '../../utils/interfaces';
 import { ArrayType } from '../datatypes/arrayType';
 import { JSONType } from '../datatypes/jsonType';
 import { NumberType } from '../datatypes/numberType';
-import HybridNode from '../../classes/HybridNode';
 import PPGraph from '../../classes/GraphClass';
 import PPNode from '../../classes/NodeClass';
+import HybridNode2 from '../../classes/HybridNode2';
 
 const arrayOfArraysSocketName = 'Array of arrays';
 const rowObjectsNames = 'Row Objects';
@@ -70,7 +70,7 @@ type MyProps = {
   nodeHeight: number;
 };
 
-export class Table extends HybridNode {
+export class Table extends HybridNode2 {
   _imageRef: PIXI.Sprite;
   _imageRefClone: PIXI.Sprite;
   defaultProps;
@@ -232,66 +232,32 @@ export class Table extends HybridNode {
     return 400;
   }
 
-  // when the Node is added, add the container and react component
-  public onNodeAdded = () => {
-    let sheetIndex = 0;
-    if (this.initialData) {
-      sheetIndex = this.getIndex();
-      this.workBook = XLSX.read(this.initialData);
-      this.setInputData(workBookInputSocketName, this.workBook);
-      this.setAllOutputData(this.workBook);
-    } else {
-      // create workbook with an empty worksheet
-      this.workBook = XLSX.utils.book_new();
-      const ws_data = new Array(24).fill(Array(24).fill(''));
-      const worksheet = XLSX.utils.aoa_to_sheet(ws_data);
-      XLSX.utils.book_append_sheet(this.workBook, worksheet, 'Sheet1');
+
+  protected getParentComponent(props: any) {
+    const node = props.node;
+
+    if (!node.workBook) {
+      let sheetIndex = props[sheetIndexInputSocketName];
+      if (node.initialData) {
+        sheetIndex = node.getIndex();
+        node.workBook = XLSX.read(node.initialData);
+        node.setInputData(workBookInputSocketName, node.workBook);
+        node.setAllOutputData(node.workBook);
+      } else {
+        // create workbook with an empty worksheet
+        node.workBook = XLSX.utils.book_new();
+        const ws_data = new Array(24).fill(Array(24).fill(''));
+        const worksheet = XLSX.utils.aoa_to_sheet(ws_data);
+        XLSX.utils.book_append_sheet(node.workBook, worksheet, 'Sheet1');
+      }
+      return;
     }
 
-    this.createContainerComponent(this.TableParent, {
-      workBook: this.workBook,
-      sheetIndex,
-      nodeWidth: this.nodeWidth,
-      nodeHeight: this.nodeHeight,
-    });
-    super.onNodeAdded();
-  };
-
-  public update = (): void => {
-    const sheetIndex = this.getIndex();
-    this.renderReactComponent(this.TableParent, {
-      workBook: this.workBook,
-      sheetIndex,
-      nodeWidth: this.nodeWidth,
-      nodeHeight: this.nodeHeight,
-    });
-    this.setAllOutputData(this.workBook);
-  };
-
-  // when the Node is loaded, update the react component
-  public onConfigure = (): void => {
-    const dataFromInput = this.getInputData(workBookInputSocketName);
-    if (dataFromInput) {
-      this.workBook = this.createWorkBookFromJSON(dataFromInput);
-      this.setAllOutputData(this.workBook);
-    }
-    this.update();
-  };
-
-  public onNodeResize = () => {
-    this.update();
-  };
-
-  public onExecute = async function () {
-    this.update();
-  };
-
-  public TableParent: FunctionComponent<MyProps> = (props) => {
     const loadSheet = () => {
       const workSheet =
-        this.workBook.Sheets[this.workBook.SheetNames[props.sheetIndex]];
+        node.workBook.Sheets[node.workBook.SheetNames[props[sheetIndexInputSocketName]]];
 
-      const range = XLSX.utils.decode_range(workSheet['!ref']);
+      const range = XLSX.utils.decode_range(Object.values(workSheet)[0]);
       // sheet_to_json will lost empty row and col at begin as default
       range.s = { c: 0, r: 0 };
       const toJson = XLSX.utils.sheet_to_json(workSheet, {
@@ -389,12 +355,12 @@ export class Table extends HybridNode {
 
     const saveAndOutput = useCallback((): void => {
       const worksheet = XLSX.utils.aoa_to_sheet(arrayOfArrays);
-      this.workBook.Sheets[this.workBook.SheetNames[props.sheetIndex]] =
+      node.workBook.Sheets[node.workBook.SheetNames[props.sheetIndex]] =
         worksheet;
 
-      this.setInputData(workBookInputSocketName, this.workBook);
-      this.setAllOutputData(this.workBook);
-      this.executeChildren();
+      node.setInputData(workBookInputSocketName, node.workBook);
+      node.setAllOutputData(node.workBook);
+      node.executeChildren();
     }, [arrayOfArrays, colsMap, arrayOfArrays.length, props.sheetIndex]);
 
     const getContent = useCallback(
