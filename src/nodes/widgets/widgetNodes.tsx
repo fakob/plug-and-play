@@ -68,10 +68,7 @@ type WidgetButtonProps = {
   buttonText: number;
 };
 
-/*export class WidgetButton extends Widget_Base {
-  protected getParentComponent(inputObject: any) {
-    throw new Error('Method not implemented.');
-  }
+export class WidgetButton extends Widget_Base {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, offValueName, new AnyType(), 0, false),
@@ -97,64 +94,25 @@ type WidgetButtonProps = {
     return 104;
   }
 
-  // when the Node is added, add the container and react component
-  public onNodeAdded = () => {
-    const buttonText = this.getInputData(labelName);
-    this.createContainerComponent(
-      this.WidgetParent,
-      {
-        nodeWidth: this.nodeWidth,
-        nodeHeight: this.nodeHeight,
-        margin,
-        buttonText,
-      },
-      {
-        overflow: 'visible',
-      }
-    );
-    super.onNodeAdded();
-  };
-
-  public update = (): void => {
-    const buttonText = this.getInputData(labelName);
-    this.renderReactComponent(this.WidgetParent, {
-      nodeWidth: this.nodeWidth,
-      nodeHeight: this.nodeHeight,
-      margin,
-      buttonText,
-    });
-  };
-
-  // when the Node is loaded, update the react component
-  public onConfigure = (): void => {
-    this.update();
-  };
-
   public onWidgetTrigger = () => {
     console.log('onWidgetTrigger');
     this.executeOptimizedChain();
   };
 
-  public onNodeResize = () => {
-    this.update();
-  };
 
-  public onExecute = async function () {
-    this.update();
-  };
-
-  public WidgetParent: FunctionComponent<WidgetButtonProps> = (props) => {
+  protected getParentComponent(props: any): any {
+    const node = props.node;
     const handleOnPointerDown = () => {
-      this.onWidgetTrigger();
-      const inputData = this.getInputData(onValueName);
-      this.setOutputData(outName, inputData);
-      this.executeChildren();
+      node.onWidgetTrigger();
+      const inputData = node.getInputData(onValueName);
+      node.setOutputData(outName, inputData);
+      node.executeChildren();
     };
 
     const handleOnPointerUp = () => {
-      const inputData = this.getInputData(offValueName);
-      this.setOutputData(outName, inputData);
-      this.executeChildren();
+      const inputData = node.getInputData(offValueName);
+      node.setOutputData(outName, inputData);
+      node.executeChildren();
     };
 
     return (
@@ -167,8 +125,8 @@ type WidgetButtonProps = {
             bgcolor: 'background.default',
             fontSize: '16px',
             border: 0,
-            width: `${this.nodeWidth}px`,
-            height: `${this.nodeHeight}px`,
+            width: `${node.nodeWidth}px`,
+            height: `${node.nodeHeight}px`,
             boxShadow: 16,
             '&:hover': {
               boxShadow: 12,
@@ -185,9 +143,9 @@ type WidgetButtonProps = {
               fontSize: '16px',
               lineHeight: '20px',
               border: 0,
-              width: `${this.nodeWidth - 8 * margin}px`,
-              height: `${this.nodeHeight - 8 * margin}px`,
-              borderRadius: `${this.nodeWidth / 16}px`,
+              width: `${node.nodeWidth - 8 * margin}px`,
+              height: `${node.nodeHeight - 8 * margin}px`,
+              borderRadius: `${node.nodeWidth / 16}px`,
               boxShadow: 16,
               '&:hover': {
                 boxShadow: 12,
@@ -197,14 +155,14 @@ type WidgetButtonProps = {
               },
             }}
           >
-            {props.buttonText}
+            {props[labelName]}
           </Button>
         </Paper>
       </ThemeProvider>
     );
   };
-}*/
-
+}
+/*
 type WidgetColorPickerProps = {
   doubleClicked: boolean; // is injected by the NodeClass
   nodeWidth: number;
