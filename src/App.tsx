@@ -119,7 +119,7 @@ const App = (): JSX.Element => {
   const [isGraphSearchOpen, setIsGraphSearchOpen] = useState(false);
   const [isNodeSearchVisible, setIsNodeSearchVisible] = useState(false);
   const [showRightSideDrawer, setShowRightSideDrawer] = useState(false);
-  const [nodeSearchCount, setNodeSearchCount] = useState(0);
+  const nodeSearchCountRef = useRef(0);
   const [isGraphContextMenuOpen, setIsGraphContextMenuOpen] = useState(false);
   const [isNodeContextMenuOpen, setIsNodeContextMenuOpen] = useState(false);
   const [isSocketContextMenuOpen, setIsSocketContextMenuOpen] = useState(false);
@@ -764,7 +764,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           referenceID,
           newNodeType
         );
-        setNodeSearchActiveItem(selected);
+        setNodeSearchActiveItem(selected ?? null);
         setIsNodeSearchVisible(false);
       };
       const undoAction = async () => {
@@ -786,7 +786,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
 
       const action = async () => {
         let addedNode: PPNode;
-        const nodeExists = getAllNodeTypes()[selected.title] !== undefined;
+        const nodeExists = getAllNodeTypes()[selected?.title] !== undefined;
         if (nodeExists) {
           addedNode = PPGraph.currentGraph.addNewNode(selected.title, {
             overrideId: referenceID,
@@ -805,7 +805,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           connectNodeToSocket(addLink, addedNode);
         }
 
-        setNodeSearchActiveItem(selected);
+        setNodeSearchActiveItem(selected ?? null);
         setIsNodeSearchVisible(false);
       };
       const undoAction = async () => {
@@ -853,7 +853,9 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
             opacity: '0.5',
           }}
         >
-          {`${nodeSearchCount} of ${Object.keys(getAllNodeTypes()).length}`}
+          {`${nodeSearchCountRef.current} of ${
+            Object.keys(getAllNodeTypes()).length
+          }`}
         </Box>
         {children}
       </Paper>
@@ -913,7 +915,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       const loadedGraphIndex = allGraphSearchItems.findIndex(
         (graph) => graph.id === loadedGraphId
       );
-      setGraphSearchActiveItem(newGraphSearchItems[loadedGraphIndex]);
+      setGraphSearchActiveItem(newGraphSearchItems[loadedGraphIndex] ?? null);
     }
   };
 
@@ -1095,25 +1097,26 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
             <>
               <Autocomplete
                 className={styles.graphSearch}
+                sx={{ width: 'calc(65vw - 120px)' }}
                 freeSolo
                 openOnFocus
                 selectOnFocus
                 autoHighlight
                 clearOnBlur
+                // open
+                defaultValue={graphSearchActiveItem}
                 isOptionEqualToValue={(option, value) =>
                   option.name === value.name
                 }
-                // open
-                PopperComponent={(props) => <GraphSearchPopper {...props} />}
                 value={graphSearchActiveItem}
                 getOptionDisabled={(option) => option.isDisabled}
                 getOptionLabel={(option) =>
                   typeof option === 'string' ? option : option.name
                 }
                 options={graphSearchItems}
-                sx={{ width: 'calc(65vw - 120px)' }}
                 onChange={handleGraphItemSelect}
                 filterOptions={filterOptionsGraph}
+                PopperComponent={(props) => <GraphSearchPopper {...props} />}
                 renderOption={(props, option, state) =>
                   renderGraphItem(
                     props,
@@ -1142,29 +1145,32 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
                 }}
               >
                 <Autocomplete
+                  sx={{
+                    maxWidth: '50vw',
+                    width: '400px',
+                    minWidth: '200px',
+                  }}
                   freeSolo
                   openOnFocus
                   selectOnFocus
                   autoHighlight
                   clearOnBlur
                   // open
+                  defaultValue={nodeSearchActiveItem}
                   isOptionEqualToValue={(option, value) =>
                     option.title === value.title
                   }
-                  value={nodeSearchActiveItem} // does not seem to work. why?
+                  value={nodeSearchActiveItem}
                   getOptionLabel={(option) =>
                     typeof option === 'string' ? option : option.name
                   }
                   options={getNodes()}
-                  sx={{
-                    maxWidth: '50vw',
-                    width: '400px',
-                    minWidth: '200px',
-                  }}
                   onChange={action_AddOrReplaceNode}
-                  filterOptions={(options, state) =>
-                    filterOptionsNode(options, state, setNodeSearchCount)
-                  }
+                  filterOptions={(options, state) => {
+                    const filteredOptions = filterOptionsNode(options, state);
+                    nodeSearchCountRef.current = filteredOptions.length;
+                    return filteredOptions;
+                  }}
                   PaperComponent={ResultsWithHeader}
                   renderOption={renderNodeItem}
                   renderInput={(props) => (

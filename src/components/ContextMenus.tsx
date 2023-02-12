@@ -187,9 +187,6 @@ export const GraphContextMenu = (props) => {
             <DownloadIcon fontSize="small" />
           </ListItemIcon>
           <ListItemText>Download</ListItemText>
-          <Typography variant="body2" color="text.secondary">
-            {`${props.controlOrMetaKey}+Shift+S`}
-          </Typography>
         </MenuItem>
         <MenuItem
           sx={{ mt: 1 }}
