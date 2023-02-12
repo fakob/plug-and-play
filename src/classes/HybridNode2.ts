@@ -130,6 +130,7 @@ export default abstract class HybridNode2 extends PPNode {
       this.container.style.width = `${width}px`;
       this.container.style.height = `${height}px`;
     }
+    this.execute();
   }
 
   _onDoubleClick(event: PIXI.InteractionEvent): void {
