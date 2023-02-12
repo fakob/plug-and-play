@@ -20,6 +20,7 @@ import { FunctionType } from '../datatypes/functionType';
 import { NumberType } from '../datatypes/numberType';
 import { StringType } from '../datatypes/stringType';
 import { TriggerType } from '../datatypes/triggerType';
+import { WidgetButton } from '../widgets/widgetNodes';
 
 export class Reroute extends PPNode {
   public getName(): string {
@@ -105,15 +106,9 @@ const getNodeArrayOptions = () => {
   };
 };
 
-/*export class JumpToNode extends WidgetButton {
-  protected getParentComponent(inputObject: any) {
-    throw new Error('Method not implemented.');
-  }
+export class JumpToNode extends WidgetButton {
   public getName(): string {
     return 'Jump to node';
-  }
-  public getDescription(): string {
-    return 'Jump to a specific node in your playground';
   }
 
   onWidgetTrigger = () => {
@@ -216,7 +211,7 @@ export class ThrottleDebounce extends PPNode {
     const input = inputObject['In'];
     outputObject['Out'] = this.passThroughDebounced(input);
   }
-}*/
+}
 
 export class LoadNPM extends CustomFunction {
   public getName(): string {
