@@ -602,7 +602,7 @@ export class WidgetDropdown extends Widget_Base {
     const node = props.node;
     const [options, setOptions] = useState<any[]>(props[optionsName]);
     const [selectedOption, setSelectedOption] = useState<string | string[]>(
-      props[selectedOptionName]
+      formatSelected(props[selectedOptionName], props[multiSelectName])
     );
 
     const ITEM_HEIGHT = 48;
@@ -638,10 +638,14 @@ export class WidgetDropdown extends Widget_Base {
     }, [props[optionsName]]);
 
     useEffect(() => {
+      const formattedValue = formatSelected(
+        props[selectedOptionName],
+        props[multiSelectName]
+      );
       setOptions(props[optionsName]);
-      setSelectedOption(props[selectedOptionName]);
-      node.setInputData(selectedOptionName, props[selectedOptionName]);
-      node.setOutputData(outName, props[selectedOptionName]);
+      setSelectedOption(formattedValue);
+      node.setInputData(selectedOptionName, formattedValue);
+      node.setOutputData(outName, formattedValue);
       node.executeChildren();
     }, [props[multiSelectName], props[selectedOptionName]]);
 
