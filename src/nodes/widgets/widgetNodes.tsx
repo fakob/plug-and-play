@@ -40,6 +40,7 @@ import { BooleanType } from '../datatypes/booleanType';
 import { NumberType } from '../datatypes/numberType';
 import { StringType } from '../datatypes/stringType';
 import { ColorType } from '../datatypes/colorType';
+import PPNode from '../../classes/NodeClass';
 
 const selectedName = 'Initial selection';
 const initialValueName = 'Initial value';
@@ -67,7 +68,10 @@ type WidgetButtonProps = {
   buttonText: number;
 };
 
-export class WidgetButton extends Widget_Base {
+/*export class WidgetButton extends Widget_Base {
+  protected getParentComponent(inputObject: any) {
+    throw new Error('Method not implemented.');
+  }
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, offValueName, new AnyType(), 0, false),
@@ -199,7 +203,7 @@ export class WidgetButton extends Widget_Base {
       </ThemeProvider>
     );
   };
-}
+}*/
 
 type WidgetColorPickerProps = {
   doubleClicked: boolean; // is injected by the NodeClass
@@ -210,7 +214,10 @@ type WidgetColorPickerProps = {
   label: string;
 };
 
-export class WidgetColorPicker extends Widget_Base {
+/*export class WidgetColorPicker extends Widget_Base {
+  protected getParentComponent(inputObject: any) {
+    throw new Error('Method not implemented.');
+  }
   constructor(name: string, customArgs?: CustomArgs) {
     super(name, {
       ...customArgs,
@@ -403,9 +410,12 @@ export class WidgetColorPicker extends Widget_Base {
       </ThemeProvider>
     );
   };
-}
+}*/
 
-export class WidgetSwitch extends Widget_Base {
+/*export class WidgetSwitch extends Widget_Base {
+  protected getParentComponent(inputObject: any) {
+    throw new Error('Method not implemented.');
+  }
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, selectedName, new BooleanType(), false, false),
@@ -542,7 +552,7 @@ export class WidgetSwitch extends Widget_Base {
       </ThemeProvider>
     );
   };
-}
+}*/
 
 export class WidgetSlider extends Widget_Base {
   protected getDefaultIO(): Socket[] {
@@ -574,7 +584,7 @@ export class WidgetSlider extends Widget_Base {
   }
 
   // when the Node is added, add the container and react component
-  public onNodeAdded = () => {
+  /*public onNodeAdded = () => {
     this.createContainerComponent(
       this.WidgetParent,
       {
@@ -593,9 +603,9 @@ export class WidgetSlider extends Widget_Base {
       }
     );
     super.onNodeAdded();
-  };
+  };*/
 
-  public update = (): void => {
+  /*public update = (): void => {
     this.renderReactComponent(this.WidgetParent, {
       nodeWidth: this.nodeWidth,
       nodeHeight: this.nodeHeight,
@@ -618,19 +628,12 @@ export class WidgetSlider extends Widget_Base {
     this.executeChildren();
   };
 
-  public onWidgetTrigger = () => {
-    console.log('onWidgetTrigger');
-  };
-
-  public onNodeResize = () => {
-    this.update();
-  };
-
   public onExecute = async function () {
     this.update();
-  };
+  };*/
 
-  public WidgetParent = (props) => {
+  protected getParentComponent(props: any): any {
+    const node = props.node;
     const [data, setData] = useState(Number(props.initialValue));
     const [minValue, setMinValue] = useState(
       Math.min(props.minValue ?? 0, data)
@@ -657,10 +660,9 @@ export class WidgetSlider extends Widget_Base {
 
     const handleOnChange = (event, value) => {
       if (!Array.isArray(value)) {
-        this.onWidgetTrigger();
         setData(roundNumber(value, 4));
-        this.setOutputData(outName, value);
-        this.executeChildren();
+        node.setOutputData(outName, value);
+        node.executeChildren();
       }
     };
 
@@ -674,8 +676,8 @@ export class WidgetSlider extends Widget_Base {
             bgcolor: 'background.default',
             fontSize: '16px',
             border: 0,
-            width: `${this.nodeWidth}px`,
-            height: `${this.nodeHeight}px`,
+            width: `${node.nodeWidth}px`,
+            height: `${node.nodeHeight}px`,
             boxShadow: 16,
             '&:hover': {
               boxShadow: 12,
@@ -761,235 +763,5 @@ type WidgetDropdownProps = {
   multiSelect: boolean;
 };
 
-export class WidgetDropdown extends Widget_Base {
-  constructor(name: string, customArgs?: CustomArgs) {
-    super(name, {
-      ...customArgs,
-    });
 
-    if (this.initialData) {
-      this.setInputData(optionsName, this.initialData);
-    }
-  }
 
-  protected getDefaultIO(): Socket[] {
-    return [
-      new Socket(
-        SOCKET_TYPE.IN,
-        optionsName,
-        new ArrayType(),
-        defaultOptions,
-        false
-      ),
-      new Socket(
-        SOCKET_TYPE.IN,
-        selectedOptionName,
-        new ArrayType(),
-        undefined,
-        false
-      ),
-      new Socket(
-        SOCKET_TYPE.IN,
-        multiSelectName,
-        new BooleanType(),
-        false,
-        false
-      ),
-      new Socket(
-        SOCKET_TYPE.IN,
-        labelName,
-        new StringType(),
-        'Dropdown',
-        false
-      ),
-      new Socket(SOCKET_TYPE.OUT, outName, new AnyType()),
-    ];
-  }
-
-  public getName(): string {
-    return 'Dropdown';
-  }
-
-  public getDescription(): string {
-    return 'Adds a dropdown to select values';
-  }
-
-  public getDefaultNodeWidth(): number {
-    return 200;
-  }
-
-  public getDefaultNodeHeight(): number {
-    return 104;
-  }
-
-  // when the Node is added, add the container and react component
-  public onNodeAdded(): void {
-    const options = this.getInputData(optionsName) || defaultOptions;
-    const selectedOptionRaw = this.getInputData(selectedOptionName);
-    const multiSelect = this.getInputData(multiSelectName);
-    const label = this.getInputData(labelName);
-    const selectedOption = formatSelected(selectedOptionRaw, multiSelect);
-
-    this.createContainerComponent(
-      this.WidgetParent,
-      {
-        nodeWidth: this.nodeWidth,
-        nodeHeight: this.nodeHeight,
-        margin,
-        label,
-        options,
-        selectedOption,
-        multiSelect,
-      },
-      {
-        overflow: 'visible',
-      }
-    );
-    this.setOutputData(outName, options);
-    super.onNodeAdded();
-  }
-
-  public WidgetParent: FunctionComponent<WidgetDropdownProps> = (props) => {
-    const [options, setOptions] = useState<any[]>(props.options);
-    const [selectedOption, setSelectedOption] = useState<string | string[]>(
-      props.selectedOption
-    );
-
-    const ITEM_HEIGHT = 48;
-    const ITEM_PADDING_TOP = 8;
-    const MenuProps = {
-      PaperProps: {
-        style: {
-          maxHeight: ITEM_HEIGHT * 9.5 + ITEM_PADDING_TOP,
-        },
-      },
-    };
-
-    const handleChange = (event: SelectChangeEvent<typeof selectedOption>) => {
-      const {
-        target: { value },
-      } = event;
-      // single select: value is string
-      // multi select: value is array of strings
-      const formattedValue = formatSelected(value, props.multiSelect);
-      setSelectedOption(formattedValue);
-      this.setInputData(selectedOptionName, formattedValue);
-      this.setOutputData(outName, formattedValue);
-      this.executeChildren();
-    };
-
-    useEffect(() => {
-      this.setOutputData(outName, selectedOption);
-      this.executeChildren();
-    }, []);
-
-    useEffect(() => {
-      setOptions(props.options);
-    }, [props.options]);
-
-    useEffect(() => {
-      setOptions(props.options);
-      setSelectedOption(props.selectedOption);
-      this.setInputData(selectedOptionName, props.selectedOption);
-      this.setOutputData(outName, props.selectedOption);
-      this.executeChildren();
-    }, [props.multiSelect, props.selectedOption]);
-
-    return (
-      <ThemeProvider theme={customTheme}>
-        <Paper
-          component={Stack}
-          direction="column"
-          justifyContent="center"
-          sx={{
-            bgcolor: 'background.default',
-            fontSize: '16px',
-            border: 0,
-            width: `${this.nodeWidth}px`,
-            height: `${this.nodeHeight}px`,
-            boxShadow: 16,
-            '&:hover': {
-              boxShadow: 12,
-            },
-          }}
-        >
-          <FormControl variant="filled" sx={{ m: 2, pointerEvents: 'auto' }}>
-            <InputLabel>{props.label}</InputLabel>
-            <Select
-              variant="filled"
-              multiple={props.multiSelect}
-              value={
-                props.multiSelect && !Array.isArray(selectedOption)
-                  ? String(selectedOption).split(',')
-                  : selectedOption
-              }
-              onChange={handleChange}
-              renderValue={(selected) =>
-                typeof selected === 'string' ? selected : selected.join(', ')
-              }
-              MenuProps={MenuProps}
-            >
-              {Array.isArray(options) &&
-                options.map((name) => (
-                  <MenuItem key={name} value={name}>
-                    {props.multiSelect && (
-                      <Checkbox checked={selectedOption.indexOf(name) > -1} />
-                    )}
-                    <ListItemText primary={name} />
-                  </MenuItem>
-                ))}
-            </Select>
-          </FormControl>
-        </Paper>
-      </ThemeProvider>
-    );
-  };
-
-  public update = (): void => {
-    const options = this.getInputData(optionsName) || defaultOptions;
-    const selectedOptionRaw = this.getInputData(selectedOptionName);
-    const multiSelect = this.getInputData(multiSelectName);
-    const label = this.getInputData(labelName);
-    const selectedOption = formatSelected(selectedOptionRaw, multiSelect);
-
-    this.renderReactComponent(this.WidgetParent, {
-      nodeWidth: this.nodeWidth,
-      nodeHeight: this.nodeHeight,
-      margin,
-      label,
-      options,
-      selectedOption,
-      multiSelect,
-    });
-  };
-
-  // when the Node is loaded, update the react component
-  public onConfigure = (): void => {
-    this.update();
-    this.setOutputData(outName, this.getInputData(selectedOptionName));
-    this.executeOptimizedChain();
-  };
-
-  public onNodeResize = () => {
-    this.update();
-  };
-
-  public onExecute = async function () {
-    this.update();
-  };
-}
-
-const formatSelected = (
-  selected: unknown,
-  multiSelect: boolean
-): string | string[] => {
-  if (multiSelect && !Array.isArray(selected)) {
-    return String(selected).split(',');
-  } else if (!multiSelect && Array.isArray(selected)) {
-    return selected.join(', ');
-  } else if (!Array.isArray(selected)) {
-    return String(selected);
-  } else {
-    return selected;
-  }
-};

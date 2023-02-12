@@ -5,7 +5,6 @@ import PPNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
 import { CustomFunction } from '../data/dataFunctions';
 import UpdateBehaviourClass from '../../classes/UpdateBehaviourClass';
-import { WidgetButton } from '../widgets/widgetNodes';
 import {
   NODE_TYPE_COLOR,
   SOCKET_TYPE,
@@ -106,7 +105,10 @@ const getNodeArrayOptions = () => {
   };
 };
 
-export class JumpToNode extends WidgetButton {
+/*export class JumpToNode extends WidgetButton {
+  protected getParentComponent(inputObject: any) {
+    throw new Error('Method not implemented.');
+  }
   public getName(): string {
     return 'Jump to node';
   }
@@ -214,7 +216,7 @@ export class ThrottleDebounce extends PPNode {
     const input = inputObject['In'];
     outputObject['Out'] = this.passThroughDebounced(input);
   }
-}
+}*/
 
 export class LoadNPM extends CustomFunction {
   public getName(): string {

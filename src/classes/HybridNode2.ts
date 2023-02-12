@@ -30,7 +30,6 @@ export default abstract class HybridNode2 extends PPNode {
   // • adds the onNodeDragOrViewportMove listener to it
   // • adds a react parent component with props
   createContainerComponent(
-    reactParent,
     reactProps,
     customStyles = {}
   ): HTMLElement {
@@ -71,11 +70,11 @@ export default abstract class HybridNode2 extends PPNode {
 
     // render react component
     this.renderReactComponent(
-      reactParent,
       {
         ...reactProps,
       },
-      this.root
+      this.root,
+      this
     );
 
     return this.container;
@@ -85,20 +84,21 @@ export default abstract class HybridNode2 extends PPNode {
 
   // the render method, takes a component and props, and renders it to the page
   renderReactComponent = (
-    component: any,
     props: {
       [key: string]: any;
     },
-    root = this.root
+    root = this.root,
+    node: PPNode = this,
   ): void => {
     root.render(
-      React.createElement(component, {
+      React.createElement(this.getParentComponent, {
         initialData: this.initialData, // positioned before the props so it can be overwritten by them
         ...props,
         id: this.id,
         selected: this.selected,
         doubleClicked: this.doubleClicked,
         randomMainColor: RANDOMMAINCOLOR,
+        node: node,
       })
     );
   };
@@ -108,7 +108,7 @@ export default abstract class HybridNode2 extends PPNode {
     document.getElementById('container').removeChild(container);
   }
 
-  protected onHybridNodeExit(): void {}
+  protected onHybridNodeExit(): void { }
 
   configure(nodeConfig: SerializedNode): void {
     super.configure(nodeConfig);
@@ -173,9 +173,9 @@ export default abstract class HybridNode2 extends PPNode {
     outputObject: Record<string, unknown>
   ): Promise<void> {
     if (!this.container) {
-      this.createContainerComponent(this.getParentComponent, inputObject);
+      this.createContainerComponent(inputObject);
     } else {
-      this.renderReactComponent(this.getParentComponent, inputObject);
+      this.renderReactComponent(inputObject);
     }
   }
 }

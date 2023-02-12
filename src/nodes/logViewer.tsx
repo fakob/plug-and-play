@@ -7,12 +7,6 @@ import { NumberType } from './datatypes/numberType';
 import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../utils/constants';
 import HybridNode2 from '../classes/HybridNode2';
 
-/*type MyProps = {
-  data: string;
-  randomMainColor: string;
-  nodeHeight: number;
-  rowLimit: number;
-};*/
 export class LogViewer extends HybridNode2 {
   public getName(): string {
     return 'LogViewer';
