@@ -634,28 +634,28 @@ export class WidgetSlider extends Widget_Base {
 
   protected getParentComponent(props: any): any {
     const node = props.node;
-    const [data, setData] = useState(Number(props.initialValue));
+    const [data, setData] = useState(Number(props[initialValueName]));
     const [minValue, setMinValue] = useState(
-      Math.min(props.minValue ?? 0, data)
+      Math.min(props[minValueName] ?? 0, data)
     );
     const [maxValue, setMaxValue] = useState(
-      Math.max(props.maxValue ?? 100, data)
+      Math.max(props[maxValueName] ?? 100, data)
     );
-    const [round, setRound] = useState(props.round ?? false);
-    const [stepSizeValue, setStepSizeValue] = useState(props.stepSize ?? 0.01);
+    const [round, setRound] = useState(props[roundName] ?? false);
+    const [stepSizeValue, setStepSizeValue] = useState(props[stepSizeName] ?? 0.01);
 
     useEffect(() => {
-      setData(Number(props.initialValue));
-      setMinValue(Math.min(props.minValue ?? 0, data));
-      setMaxValue(Math.max(props.maxValue ?? 100, data));
-      setRound(props.round ?? false);
-      setStepSizeValue(props.stepSize ?? 0.01);
+      setData(Number(props[initialValueName]));
+      setMinValue(Math.min(props[minValueName] ?? 0, data));
+      setMaxValue(Math.max(props[maxValueName] ?? 100, data));
+      setRound(props[roundName] ?? false);
+      setStepSizeValue(props[stepSizeName] ?? 0.01);
     }, [
-      props.initialValue,
-      props.minValue,
-      props.maxValue,
-      props.round,
-      props.stepSize,
+      props[initialValueName],
+      props[minValueName],
+      props[maxValueName],
+      props[roundName],
+      props[stepSizeName],
     ]);
 
     const handleOnChange = (event, value) => {
