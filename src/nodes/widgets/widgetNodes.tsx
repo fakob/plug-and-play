@@ -304,12 +304,9 @@ export class WidgetColorPicker extends Widget_Base {
   };
 }
 
-/*
 
-/*export class WidgetSwitch extends Widget_Base {
-  protected getParentComponent(inputObject: any) {
-    throw new Error('Method not implemented.');
-  }
+
+export class WidgetSwitch extends Widget_Base {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, selectedName, new BooleanType(), false, false),
@@ -336,66 +333,20 @@ export class WidgetColorPicker extends Widget_Base {
     return 104;
   }
 
-  // when the Node is added, add the container and react component
-  public onNodeAdded = () => {
-    this.createContainerComponent(
-      this.WidgetParent,
-      {
-        nodeWidth: this.nodeWidth,
-        nodeHeight: this.nodeHeight,
-        margin,
-        label: this.getInputData(labelName),
-      },
-      {
-        overflow: 'visible',
-      }
-    );
-    super.onNodeAdded();
-  };
+  protected getParentComponent(props: any): any {
+    const node = props.node;
 
-  public update = (): void => {
-    this.renderReactComponent(this.WidgetParent, {
-      nodeWidth: this.nodeWidth,
-      nodeHeight: this.nodeHeight,
-      margin,
-      label: this.getInputData(labelName),
-    });
-  };
-
-  // when the Node is loaded, update the react component
-  public onConfigure = (): void => {
-    this.update();
-
-    // set initial value and execute
-    this.setOutputData(outName, this.getInputData(selectedName));
-    this.executeChildren();
-  };
-
-  public onWidgetTrigger = () => {
-    console.log('onWidgetTrigger');
-  };
-
-  public onNodeResize = () => {
-    this.update();
-  };
-
-  public onExecute = async function () {
-    this.update();
-  };
-
-  public WidgetParent = (props) => {
-    const [selected, setSelected] = useState(this.getInputData(selectedName));
+    const [selected, setSelected] = useState(node.getInputData(selectedName));
 
     const handleOnChange = () => {
-      this.onWidgetTrigger();
       const newValue = !selected;
       setSelected(newValue);
       // const selectedValue = this.getInputData(selectedName);
-      const onValue = this.getInputData(onValueName);
-      const offValue = this.getInputData(offValueName);
-      this.setInputData(selectedName, newValue ? onValue : offValue);
-      this.setOutputData(outName, newValue ? onValue : offValue);
-      this.executeChildren();
+      const onValue = node.getInputData(onValueName);
+      const offValue = node.getInputData(offValueName);
+      node.setInputData(selectedName, newValue ? onValue : offValue);
+      node.setOutputData(outName, newValue ? onValue : offValue);
+      node.executeChildren();
     };
 
     return (
@@ -408,8 +359,8 @@ export class WidgetColorPicker extends Widget_Base {
             bgcolor: 'background.default',
             fontSize: '16px',
             border: 0,
-            width: `${this.nodeWidth}px`,
-            height: `${this.nodeHeight}px`,
+            width: `${node.nodeWidth}px`,
+            height: `${node.nodeHeight}px`,
 
             boxShadow: 16,
             '&:hover': {
@@ -446,7 +397,7 @@ export class WidgetColorPicker extends Widget_Base {
       </ThemeProvider>
     );
   };
-}*/
+}
 
 export class WidgetSlider extends Widget_Base {
   protected getDefaultIO(): Socket[] {
