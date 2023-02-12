@@ -99,7 +99,6 @@ export class WidgetButton extends Widget_Base {
     this.executeOptimizedChain();
   };
 
-
   protected getParentComponent(props: any): any {
     const node = props.node;
     const handleOnPointerDown = () => {
@@ -160,7 +159,7 @@ export class WidgetButton extends Widget_Base {
         </Paper>
       </ThemeProvider>
     );
-  };
+  }
 }
 
 export class WidgetColorPicker extends Widget_Base {
@@ -267,7 +266,7 @@ export class WidgetColorPicker extends Widget_Base {
               },
             }}
           >
-            {props.label}
+            {props[labelName]}
             <ColorizeIcon sx={{ pl: 1 }} />
           </Button>
           <Popper
@@ -301,10 +300,8 @@ export class WidgetColorPicker extends Widget_Base {
         </Paper>
       </ThemeProvider>
     );
-  };
+  }
 }
-
-
 
 export class WidgetSwitch extends Widget_Base {
   protected getDefaultIO(): Socket[] {
@@ -374,7 +371,7 @@ export class WidgetSwitch extends Widget_Base {
           >
             <FormGroup aria-label="position" row>
               <FormControlLabel
-                value={props.label}
+                value={props[labelName]}
                 control={
                   <Switch
                     size="medium"
@@ -388,7 +385,7 @@ export class WidgetSwitch extends Widget_Base {
                     }}
                   />
                 }
-                label={props.label}
+                label={props[labelName]}
                 labelPlacement="end"
               />
             </FormGroup>
@@ -396,7 +393,7 @@ export class WidgetSwitch extends Widget_Base {
         </Paper>
       </ThemeProvider>
     );
-  };
+  }
 }
 
 export class WidgetSlider extends Widget_Base {
@@ -428,7 +425,6 @@ export class WidgetSlider extends Widget_Base {
     return 104;
   }
 
-
   protected getParentComponent(props: any): any {
     const node = props.node;
     const [data, setData] = useState(Number(props[initialValueName]));
@@ -439,7 +435,9 @@ export class WidgetSlider extends Widget_Base {
       Math.max(props[maxValueName] ?? 100, data)
     );
     const [round, setRound] = useState(props[roundName] ?? false);
-    const [stepSizeValue, setStepSizeValue] = useState(props[stepSizeName] ?? 0.01);
+    const [stepSizeValue, setStepSizeValue] = useState(
+      props[stepSizeName] ?? 0.01
+    );
 
     useEffect(() => {
       setData(Number(props[initialValueName]));
@@ -541,24 +539,174 @@ export class WidgetSlider extends Widget_Base {
               px: 2,
             }}
           >
-            {props.label}
+            {props[labelName]}
           </Typography>
         </Paper>
       </ThemeProvider>
     );
-  };
+  }
 }
 
-type WidgetDropdownProps = {
-  doubleClicked: boolean; // is injected by the NodeClass
-  nodeWidth: number;
-  nodeHeight: number;
-  margin: number;
-  label: string;
-  options: any[];
-  selectedOption: string | string[];
-  multiSelect: boolean;
+export class WidgetDropdown extends Widget_Base {
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(
+        SOCKET_TYPE.IN,
+        optionsName,
+        new ArrayType(),
+        defaultOptions,
+        false
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        selectedOptionName,
+        new ArrayType(),
+        undefined,
+        false
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        multiSelectName,
+        new BooleanType(),
+        false,
+        false
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        labelName,
+        new StringType(),
+        'Dropdown',
+        false
+      ),
+      new Socket(SOCKET_TYPE.OUT, outName, new AnyType()),
+    ];
+  }
+
+  public getName(): string {
+    return 'Dropdown';
+  }
+
+  public getDescription(): string {
+    return 'Adds a dropdown to select values';
+  }
+
+  public getDefaultNodeWidth(): number {
+    return 200;
+  }
+
+  public getDefaultNodeHeight(): number {
+    return 104;
+  }
+
+  protected getParentComponent(props: any): any {
+    const node = props.node;
+    const [options, setOptions] = useState<any[]>(props[optionsName]);
+    const [selectedOption, setSelectedOption] = useState<string | string[]>(
+      props[selectedOptionName]
+    );
+
+    const ITEM_HEIGHT = 48;
+    const ITEM_PADDING_TOP = 8;
+    const MenuProps = {
+      PaperProps: {
+        style: {
+          maxHeight: ITEM_HEIGHT * 9.5 + ITEM_PADDING_TOP,
+        },
+      },
+    };
+
+    const handleChange = (event: SelectChangeEvent<typeof selectedOption>) => {
+      const {
+        target: { value },
+      } = event;
+      // single select: value is string
+      // multi select: value is array of strings
+      const formattedValue = formatSelected(value, props[multiSelectName]);
+      setSelectedOption(formattedValue);
+      node.setInputData(selectedOptionName, formattedValue);
+      node.setOutputData(outName, formattedValue);
+      node.executeChildren();
+    };
+
+    useEffect(() => {
+      node.setOutputData(outName, selectedOption);
+      node.executeChildren();
+    }, []);
+
+    useEffect(() => {
+      setOptions(props[optionsName]);
+    }, [props[optionsName]]);
+
+    useEffect(() => {
+      setOptions(props[optionsName]);
+      setSelectedOption(props[selectedOptionName]);
+      node.setInputData(selectedOptionName, props[selectedOptionName]);
+      node.setOutputData(outName, props[selectedOptionName]);
+      node.executeChildren();
+    }, [props[multiSelectName], props[selectedOptionName]]);
+
+    return (
+      <ThemeProvider theme={customTheme}>
+        <Paper
+          component={Stack}
+          direction="column"
+          justifyContent="center"
+          sx={{
+            bgcolor: 'background.default',
+            fontSize: '16px',
+            border: 0,
+            width: `${node.nodeWidth}px`,
+            height: `${node.nodeHeight}px`,
+            boxShadow: 16,
+            '&:hover': {
+              boxShadow: 12,
+            },
+          }}
+        >
+          <FormControl variant="filled" sx={{ m: 2, pointerEvents: 'auto' }}>
+            <InputLabel>{props[labelName]}</InputLabel>
+            <Select
+              variant="filled"
+              multiple={props[multiSelectName]}
+              value={
+                props[multiSelectName] && !Array.isArray(selectedOption)
+                  ? String(selectedOption).split(',')
+                  : selectedOption
+              }
+              onChange={handleChange}
+              renderValue={(selected) =>
+                typeof selected === 'string' ? selected : selected.join(', ')
+              }
+              MenuProps={MenuProps}
+            >
+              {Array.isArray(options) &&
+                options.map((name) => (
+                  <MenuItem key={name} value={name}>
+                    {props[multiSelectName] && (
+                      <Checkbox checked={selectedOption.indexOf(name) > -1} />
+                    )}
+                    <ListItemText primary={name} />
+                  </MenuItem>
+                ))}
+            </Select>
+          </FormControl>
+        </Paper>
+      </ThemeProvider>
+    );
+  }
+}
+
+const formatSelected = (
+  selected: unknown,
+  multiSelect: boolean
+): string | string[] => {
+  if (multiSelect && !Array.isArray(selected)) {
+    return String(selected).split(',');
+  } else if (!multiSelect && Array.isArray(selected)) {
+    return selected.join(', ');
+  } else if (!Array.isArray(selected)) {
+    return String(selected);
+  } else {
+    return selected;
+  }
 };
-
-
-
