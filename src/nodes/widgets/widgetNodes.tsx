@@ -583,54 +583,6 @@ export class WidgetSlider extends Widget_Base {
     return 104;
   }
 
-  // when the Node is added, add the container and react component
-  /*public onNodeAdded = () => {
-    this.createContainerComponent(
-      this.WidgetParent,
-      {
-        nodeWidth: this.nodeWidth,
-        nodeHeight: this.nodeHeight,
-        margin,
-        initialValue: this.getInputData(initialValueName),
-        minValue: this.getInputData(minValueName),
-        maxValue: this.getInputData(maxValueName),
-        round: this.getInputData(roundName),
-        stepSize: this.getInputData(stepSizeName),
-        label: this.getInputData(labelName),
-      },
-      {
-        overflow: 'visible',
-      }
-    );
-    super.onNodeAdded();
-  };*/
-
-  /*public update = (): void => {
-    this.renderReactComponent(this.WidgetParent, {
-      nodeWidth: this.nodeWidth,
-      nodeHeight: this.nodeHeight,
-      margin,
-      initialValue: this.getInputData(initialValueName),
-      minValue: this.getInputData(minValueName),
-      maxValue: this.getInputData(maxValueName),
-      round: this.getInputData(roundName),
-      stepSize: this.getInputData(stepSizeName),
-      label: this.getInputData(labelName),
-    });
-  };
-
-  // when the Node is loaded, update the react component
-  public onConfigure = (): void => {
-    this.update();
-
-    // set initial value and execute
-    this.setOutputData(outName, this.getInputData(initialValueName));
-    this.executeChildren();
-  };
-
-  public onExecute = async function () {
-    this.update();
-  };*/
 
   protected getParentComponent(props: any): any {
     const node = props.node;
