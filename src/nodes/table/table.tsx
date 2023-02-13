@@ -62,14 +62,6 @@ const rowObjectsNames = 'Row Objects';
 const workBookInputSocketName = 'Initial data';
 const sheetIndexInputSocketName = 'Sheet index';
 
-type MyProps = {
-  doubleClicked: boolean; // is injected by the NodeClass
-  workBook: XLSX.WorkBook;
-  sheetIndex: number;
-  nodeWidth: number;
-  nodeHeight: number;
-};
-
 export class Table extends HybridNode2 {
   _imageRef: PIXI.Sprite;
   _imageRefClone: PIXI.Sprite;
@@ -232,33 +224,15 @@ export class Table extends HybridNode2 {
     return 400;
   }
 
-
   protected getParentComponent(props: any) {
     const node = props.node;
 
-    if (!node.workBook) {
-      let sheetIndex = props[sheetIndexInputSocketName];
-      if (node.initialData) {
-        sheetIndex = node.getIndex();
-        node.workBook = XLSX.read(node.initialData);
-        node.setInputData(workBookInputSocketName, node.workBook);
-        node.setAllOutputData(node.workBook);
-      } else {
-        // create workbook with an empty worksheet
-        node.workBook = XLSX.utils.book_new();
-        const ws_data = new Array(24).fill(Array(24).fill(''));
-        const worksheet = XLSX.utils.aoa_to_sheet(ws_data);
-        XLSX.utils.book_append_sheet(node.workBook, worksheet, 'Sheet1');
-      }
-      return;
-    }
-
     const loadSheet = () => {
+      const sheetIndex = node.getIndex();
       const workSheet =
-        node.workBook.Sheets[node.workBook.SheetNames[props[sheetIndexInputSocketName]]];
-
-      const range = XLSX.utils.decode_range(Object.values(workSheet)[0]);
-      // sheet_to_json will lost empty row and col at begin as default
+        node.workBook.Sheets[node.workBook.SheetNames[sheetIndex]];
+      const range = XLSX.utils.decode_range(workSheet['!ref']);
+      // sheet_to_json will lose empty row and col at begin as default
       range.s = { c: 0, r: 0 };
       const toJson = XLSX.utils.sheet_to_json(workSheet, {
         raw: false,
@@ -266,12 +240,6 @@ export class Table extends HybridNode2 {
         range: range,
       });
       setArrayOfArrays(toJson);
-    };
-
-    const unselected = {
-      current: undefined,
-      rows: CompactSelection.empty(),
-      columns: CompactSelection.empty(),
     };
 
     const getCols = (): GridColumn[] => {
@@ -300,8 +268,6 @@ export class Table extends HybridNode2 {
     const ref = useRef<DataEditorRef | null>(null);
     const [arrayOfArrays, setArrayOfArrays] = useState([]);
     const [colsMap, setColsMap] = useState(() => getCols());
-    const [gridSelection, setGridSelection] =
-      useState<GridSelection>(unselected);
     const [colMenu, setColMenu] = useState<{
       col: number;
       pos: PIXI.Point;
@@ -332,6 +298,25 @@ export class Table extends HybridNode2 {
     const isRowOpen = rowMenu !== undefined;
 
     useEffect(() => {
+      const storedWorkBookData = node.getInputData(workBookInputSocketName);
+      if (node.initialData) {
+        // load initialData from import
+        node.workBook = XLSX.read(node.initialData);
+        node.setInputData(workBookInputSocketName, node.workBook);
+      } else if (
+        storedWorkBookData !== undefined &&
+        Object.keys(storedWorkBookData).length !== 0
+      ) {
+        // load saved data
+        node.workBook = node.createWorkBookFromJSON(storedWorkBookData);
+      } else {
+        // create workbook with an empty worksheet
+        node.workBook = XLSX.utils.book_new();
+        const ws_data = new Array(24).fill(Array(24).fill(''));
+        const worksheet = XLSX.utils.aoa_to_sheet(ws_data);
+        XLSX.utils.book_append_sheet(node.workBook, worksheet, 'Sheet1');
+      }
+      node.setAllOutputData(node.workBook);
       loadSheet();
     }, []);
 
@@ -343,11 +328,11 @@ export class Table extends HybridNode2 {
 
     useEffect(() => {
       loadSheet();
-    }, [props.workBook, props.sheetIndex]);
+    }, [props[workBookInputSocketName], props[sheetIndexInputSocketName]]);
 
     useEffect(() => {
       setColsMap(() => getCols());
-    }, [arrayOfArrays.length, props.sheetIndex]);
+    }, [arrayOfArrays.length, props[sheetIndexInputSocketName]]);
 
     useEffect(() => {
       saveAndOutput();
@@ -355,13 +340,17 @@ export class Table extends HybridNode2 {
 
     const saveAndOutput = useCallback((): void => {
       const worksheet = XLSX.utils.aoa_to_sheet(arrayOfArrays);
-      node.workBook.Sheets[node.workBook.SheetNames[props.sheetIndex]] =
-        worksheet;
-
+      const sheetIndex = node.getIndex();
+      node.workBook.Sheets[node.workBook.SheetNames[sheetIndex]] = worksheet;
       node.setInputData(workBookInputSocketName, node.workBook);
       node.setAllOutputData(node.workBook);
       node.executeChildren();
-    }, [arrayOfArrays, colsMap, arrayOfArrays.length, props.sheetIndex]);
+    }, [
+      arrayOfArrays,
+      colsMap,
+      arrayOfArrays.length,
+      props[sheetIndexInputSocketName],
+    ]);
 
     const getContent = useCallback(
       (cell: Item): GridCell => {
@@ -388,26 +377,17 @@ export class Table extends HybridNode2 {
           };
         }
       },
-      [arrayOfArrays, colsMap, arrayOfArrays.length, props.sheetIndex]
+      [
+        arrayOfArrays,
+        colsMap,
+        arrayOfArrays.length,
+        props[sheetIndexInputSocketName],
+      ]
     );
 
     const cols = useMemo(
       () => colsMap,
-      [colsMap, arrayOfArrays.length, props.sheetIndex]
-    );
-
-    const onGridSelectionChange = useCallback(
-      (newSelection: GridSelection): void => {
-        // plan to store the selection and give option to output selection only
-        // console.log(
-        //   newSelection.columns.toArray(),
-        //   newSelection.rows.toArray(),
-        //   newSelection.current?.cell,
-        //   newSelection.current?.range
-        // );
-        setGridSelection(newSelection);
-      },
-      []
+      [colsMap, arrayOfArrays.length, props[sheetIndexInputSocketName]]
     );
 
     const onPaste = useCallback(
@@ -425,7 +405,7 @@ export class Table extends HybridNode2 {
         setColsMap(() => getCols());
         return true;
       },
-      [arrayOfArrays.length, props.sheetIndex]
+      [arrayOfArrays.length, props[sheetIndexInputSocketName]]
     );
 
     const onCellEdited = useCallback(
@@ -441,7 +421,7 @@ export class Table extends HybridNode2 {
         // update column names and width if needed
         setColsMap(() => getCols());
       },
-      [colsMap, arrayOfArrays.length, props.sheetIndex]
+      [colsMap, arrayOfArrays.length, props[sheetIndexInputSocketName]]
     );
 
     const onColumnResize = useCallback(
@@ -524,7 +504,6 @@ export class Table extends HybridNode2 {
     const onContextMenuClick = useCallback(
       (cell: Item, event: CellClickedEventArgs) => {
         event.preventDefault();
-        console.log(cell);
         setRowMenu({
           cell,
           pos: new PIXI.Point(
@@ -547,14 +526,12 @@ export class Table extends HybridNode2 {
           maxColumnAutoWidth={500}
           maxColumnWidth={2000}
           onColumnResize={onColumnResize}
-          width={props.nodeWidth}
-          height={props.nodeHeight}
+          width={node.nodeWidth}
+          height={node.nodeHeight}
           getRowThemeOverride={getRowThemeOverride}
-          gridSelection={gridSelection}
           onCellEdited={onCellEdited}
           onCellContextMenu={onContextMenuClick}
           onColumnMoved={onColumnMoved}
-          onGridSelectionChange={onGridSelectionChange}
           onHeaderContextMenu={onHeaderContextMenu}
           onHeaderMenuClick={onHeaderMenuClick}
           onItemHovered={onItemHovered}
@@ -627,7 +604,7 @@ export class Table extends HybridNode2 {
         >
           <MenuItem
             onClick={() => {
-              this.getColumn(arrayOfArrays[0][colMenu.col]);
+              node.getColumn(arrayOfArrays[0][colMenu.col]);
               setColMenu(undefined);
             }}
           >
@@ -719,7 +696,7 @@ export class Table extends HybridNode2 {
         >
           <MenuItem
             onClick={() => {
-              this.getCell(rowMenu.cell);
+              node.getCell(rowMenu.cell);
               setRowMenu(undefined);
             }}
           >
@@ -730,7 +707,7 @@ export class Table extends HybridNode2 {
           </MenuItem>
           <MenuItem
             onClick={() => {
-              this.getRowAsArray(rowMenu.cell[1]);
+              node.getRowAsArray(rowMenu.cell[1]);
               setRowMenu(undefined);
             }}
           >
@@ -741,7 +718,7 @@ export class Table extends HybridNode2 {
           </MenuItem>
           <MenuItem
             onClick={() => {
-              this.getRowAsObject(rowMenu.cell[1] - 1);
+              node.getRowAsObject(rowMenu.cell[1] - 1);
               setRowMenu(undefined);
             }}
             disabled={rowMenu?.cell?.[1] === 0}
@@ -789,7 +766,7 @@ export class Table extends HybridNode2 {
         </Menu>
       </>
     );
-  };
+  }
 
   createWorkBookFromJSON(json): any {
     const workBook = XLSX.utils.book_new();
