@@ -15,8 +15,7 @@ import { ParameterMenu } from './ParameterMenu';
 import { MentionElement } from './custom-types';
 import ErrorFallback from '../../components/ErrorFallback';
 import PPSocket from '../../classes/SocketClass';
-import PPGraph from '../../classes/GraphClass';
-import { CustomArgs, TRgba } from '../../utils/interfaces';
+import { TRgba } from '../../utils/interfaces';
 import {
   COLOR_DARK,
   COLOR_WHITE_TEXT,
@@ -41,7 +40,7 @@ import { AnyType } from '../datatypes/anyType';
 import { BooleanType } from '../datatypes/booleanType';
 import { ColorType } from '../datatypes/colorType';
 import { JSONType } from '../datatypes/jsonType';
-import HybridNode from '../../classes/HybridNode';
+import HybridNode2 from '../../classes/HybridNode2';
 import { StringType } from '../datatypes/stringType';
 
 const isMac = navigator.platform.indexOf('Mac') != -1;
@@ -62,7 +61,7 @@ const inputPrefix = 'Input';
 const inputName1 = `${inputPrefix} 1`;
 const backgroundColor = TRgba.fromString(NODE_TYPE_COLOR.OUTPUT);
 
-export class TextEditor extends HybridNode {
+export class TextEditor extends HybridNode2 {
   getAllParameters: () => void;
   update: (newHeight?: number, textToImport?: string) => void;
   readOnly: boolean;
@@ -145,7 +144,7 @@ export class TextEditor extends HybridNode {
   }
 
   protected onHybridNodeExit(): void {
-    this.update();
+    this.executeOptimizedChain();
   }
 
   public getMinNodeWidth(): number {
@@ -160,15 +159,32 @@ export class TextEditor extends HybridNode {
     return 400;
   }
 
-  constructor(name: string, customArgs?: CustomArgs) {
-    super(name, {
-      ...customArgs,
-    });
+  protected getParentComponent(props: any) {
+    const node = props.node;
+    const editor = useMemo(
+      () =>
+        withHtml(
+          withMentions(withLinks(withHistory(withReact(createEditor()))))
+        ),
+      []
+    );
+    const editorRef = useRef(null);
+    const resizeObserver = useRef(null);
+    const [target, setTarget] = useState<Range | undefined>();
+    const [index, setIndex] = useState(0);
+    const [contentHeight, setContentHeight] = useState(0);
+    const [color, setColor] = useState(
+      props[backgroundColorSocketName] || backgroundColor
+    );
 
-    this.readOnly = false;
+    const renderElement = useCallback(
+      (props) => <Element color={color} {...props} />,
+      [props[backgroundColorSocketName]]
+    );
+    const renderLeaf = useCallback((props) => <Leaf {...props} />, []);
 
-    this.getAllParameters = (): string => {
-      const allParameters = this.inputSocketArray.filter((input: PPSocket) => {
+    const getAllParameters = useCallback((): string => {
+      const allParameters = node.inputSocketArray.filter((input: PPSocket) => {
         return input.name.startsWith(inputPrefix);
       });
 
@@ -190,165 +206,70 @@ export class TextEditor extends HybridNode {
       });
 
       return JSON.stringify(dataObject);
-    };
+    }, []);
 
-    // when the Node is added, create the container and react component
-    this.onNodeAdded = () => {
-      const data = this.getInputData(textJSONSocketName);
-      const autoHeight = this.getInputData(autoHeightName);
-      const color: TRgba =
-        this.getInputData(backgroundColorSocketName) || backgroundColor;
-      const allParameters = this.getAllParameters();
-      this.readOnly = this.getInputSocketByName(textJSONSocketName).hasLink();
-      this.createContainerComponent(ParentComponent, {
-        nodeHeight: this.nodeHeight,
-        data,
-        autoHeight,
-        color,
-        allParameters,
-        readOnly: this.readOnly,
-        textToImport: this.initialData,
-      });
-      super.onNodeAdded();
-    };
+    const parameterNameArray = node.inputSocketArray
+      .filter((item) => item.name.startsWith(inputPrefix))
+      .map((item) => item.name);
 
-    // when the Node is loaded, update the react component
-    this.onConfigure = (): void => {
-      this.setOutputData(
-        outputSocketName,
-        this.getInputData(textJSONSocketName)
-      );
-      this.setOutputData(
-        textOutputSocketName,
-        getPlainText(this.getInputData(textJSONSocketName))
-      );
-      this.update();
-    };
+    const updateEditorData = () => {
+      // update editor data
+      editor.children = props[textJSONSocketName];
+      editor.onChange(); // trigger a re-rendering after setting setting new children
 
-    this.update = (newHeight): void => {
-      const data = this.getInputData(textJSONSocketName);
-      const autoHeight = this.getInputData(autoHeightName);
-      const allParameters = this.getAllParameters();
-      const color: TRgba =
-        this.getInputData(backgroundColorSocketName) || backgroundColor;
-      this.container.style.background = color.rgb();
-      this.readOnly = this.getInputSocketByName(textJSONSocketName).hasLink();
-      this.renderReactComponent(ParentComponent, {
-        nodeHeight: newHeight ?? this.nodeHeight,
-        data,
-        autoHeight,
-        color,
-        allParameters,
-        readOnly: this.readOnly,
-        textToImport: this.initialData,
-      });
-    };
-
-    this.onNodeDoubleClick = () => {
-      PPGraph.currentGraph.selection.drawRectanglesFromSelection();
-      this.update();
-    };
-
-    this.onNodeResize = (newWidth, newHeight) => {
-      this.update(newHeight);
-    };
-
-    this.onExecute = async function () {
-      this.update();
-    };
-
-    type MyProps = {
-      doubleClicked: boolean; // is injected by the NodeClass
-      data: Descendant[];
-      autoHeight: boolean;
-      color: TRgba;
-      allParameters: string;
-      randomMainColor: string;
-      nodeHeight: number;
-      readOnly: boolean;
-      textToImport?: { html: string } | { plain: string };
-    };
-
-    const ParentComponent: React.FunctionComponent<MyProps> = (props) => {
-      const editor = useMemo(
-        () =>
-          withHtml(
-            withMentions(withLinks(withHistory(withReact(createEditor()))))
-          ),
-        []
-      );
-      const editorRef = useRef(null);
-      const resizeObserver = useRef(null);
-      const [target, setTarget] = useState<Range | undefined>();
-      const [index, setIndex] = useState(0);
-      const [contentHeight, setContentHeight] = useState(0);
-      const [color, setColor] = useState(props.color);
-      const renderElement = useCallback(
-        (props) => <Element color={color} {...props} />,
-        [color]
-      );
-      const renderLeaf = useCallback((props) => <Leaf {...props} />, []);
-
-      const parameterNameArray = this.inputSocketArray
-        .filter((item) => item.name.startsWith(inputPrefix))
-        .map((item) => item.name);
-
-      const updateEditorData = () => {
-        // update editor data
-        editor.children = props.data;
-
-        // substitute @inputs with input parameters
-        const allParametersObject = JSON.parse(props.allParameters);
-        Object.keys(allParametersObject).map((parameterName) => {
-          Transforms.setNodes(
-            editor,
-            { reactiveText: allParametersObject[parameterName] },
-            {
-              at: [],
-              match: (node: MentionElement) => {
-                return (
-                  node.type === 'mention' && node.inputName === parameterName
-                );
-              },
-              mode: 'all', // also the Editor's children
-            }
-          );
-        });
-      };
-
-      const onHandleParameterSelect = (event, index) => {
-        event.preventDefault();
-        let parameterName = parameterNameArray[index];
-        if (index >= parameterNameArray.length) {
-          parameterName = `Input ${index + 1}`;
-          this.addDefaultInput();
-        }
-        Transforms.select(editor, target);
-        insertMention(editor, parameterName);
-        setTarget(null);
-      };
-
-      // workaround to get ref of editor to be used as mounted/ready check
-      useEffect(() => {
-        editorRef.current = ReactEditor.toDOMNode(editor, editor);
-
-        resizeObserver.current = new ResizeObserver((entries) => {
-          for (const entry of entries) {
-            setContentHeight(entry.borderBoxSize[0].blockSize);
+      // substitute @inputs with input parameters
+      const allParametersObject = JSON.parse(getAllParameters());
+      Object.keys(allParametersObject).map((parameterName) => {
+        Transforms.setNodes(
+          editor,
+          { reactiveText: allParametersObject[parameterName] },
+          {
+            at: [],
+            match: (node: MentionElement) => {
+              return (
+                node.type === 'mention' && node.inputName === parameterName
+              );
+            },
+            mode: 'all', // also the Editor's children
           }
-        });
-        const target = document.getElementById(this.id);
-        resizeObserver.current.observe(target);
+        );
+      });
+    };
 
-        return () => resizeObserver.current.unobserve(target);
-      }, []);
+    const onHandleParameterSelect = (event, index) => {
+      event.preventDefault();
+      let parameterName = parameterNameArray[index];
+      if (index >= parameterNameArray.length) {
+        parameterName = `Input ${index + 1}`;
+        node.addDefaultInput();
+      }
+      Transforms.select(editor, target);
+      insertMention(editor, parameterName);
+      setTarget(null);
+    };
 
-      // wait for editor to be ready before importing/displaying text
-      useEffect(() => {
-        if (editorRef.current) {
-          if (props.textToImport?.['html']) {
+    // workaround to get ref of editor to be used as mounted/ready check
+    useEffect(() => {
+      editorRef.current = ReactEditor.toDOMNode(editor, editor);
+
+      resizeObserver.current = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+          setContentHeight(entry.borderBoxSize[0].blockSize);
+        }
+      });
+      const target = document.getElementById(node.id);
+      resizeObserver.current.observe(target);
+
+      return () => resizeObserver.current.unobserve(target);
+    }, []);
+
+    // wait for editor to be ready before importing/displaying text
+    useEffect(() => {
+      if (editorRef.current) {
+        if (node.initialData) {
+          if (node.initialData?.['html']) {
             const parsed = new DOMParser().parseFromString(
-              props.textToImport?.['html'],
+              node.initialData?.['html'],
               'text/html'
             );
             const fragment = deserialize(parsed.body);
@@ -357,218 +278,228 @@ export class TextEditor extends HybridNode {
               focus: Editor.end(editor, []),
             });
             Transforms.insertFragment(editor, fragment);
-          } else if (props.textToImport?.['plain']) {
+          } else if (node.initialData?.['plain']) {
             Transforms.select(editor, {
               anchor: Editor.start(editor, []),
               focus: Editor.end(editor, []),
             });
-            editor.insertText(props.textToImport['plain']);
+            editor.insertText(node.initialData['plain']);
           } else {
             updateEditorData();
           }
         }
-      }, [editorRef.current]);
+      }
+    }, [editorRef.current]);
 
-      useEffect(() => {
-        if (props.autoHeight) {
-          this.resizeAndDraw(this.nodeWidth, contentHeight);
+    useEffect(() => {
+      if (props[autoHeightName]) {
+        node.resizeAndDraw(node.nodeWidth, contentHeight);
+      }
+    }, [contentHeight, props[autoHeightName]]);
+
+    useEffect(() => {
+      if (props.doubleClicked) {
+        ReactEditor.focus(editor);
+      }
+    }, [props.doubleClicked]);
+
+    useEffect(() => {
+      setColor(props[backgroundColorSocketName]);
+    }, [
+      props[backgroundColorSocketName].r,
+      props[backgroundColorSocketName].g,
+      props[backgroundColorSocketName].b,
+      props[backgroundColorSocketName].a,
+    ]);
+
+    useEffect(() => {
+      if (!props.doubleClicked) {
+        updateEditorData();
+      }
+    }, [getAllParameters(), props[textJSONSocketName]]);
+
+    const onChange = (value) => {
+      const { selection } = editor;
+
+      if (selection && Range.isCollapsed(selection)) {
+        const [start] = Range.edges(selection);
+        const before = Editor.before(editor, start, {
+          unit: 'character',
+        });
+        const beforeRange = before && Editor.range(editor, before, start);
+        const beforeText = beforeRange && Editor.string(editor, beforeRange);
+        const beforeMatch = beforeText && beforeText.match(/(\s*@\w*)$/);
+        const after = Editor.after(editor, start);
+        const afterRange = Editor.range(editor, start, after);
+        const afterText = Editor.string(editor, afterRange);
+        const afterMatch = afterText.match(/^(\s|$)/);
+
+        if (beforeMatch && afterMatch) {
+          setTarget(beforeRange);
+          return;
         }
-      }, [contentHeight, props.autoHeight]);
+      }
+      setTarget(null);
 
-      useEffect(() => {
-        if (props.doubleClicked) {
-          ReactEditor.focus(editor);
-        }
-      }, [props.doubleClicked]);
-
-      useEffect(() => {
-        setColor(props.color);
-      }, [props.color.r, props.color.g, props.color.b, props.color.a]);
-
-      useEffect(() => {
-        if (!props.doubleClicked) {
-          updateEditorData();
-        }
-      }, [props.allParameters, props.data]);
-
-      const onChange = (value) => {
-        const { selection } = editor;
-
-        if (selection && Range.isCollapsed(selection)) {
-          const [start] = Range.edges(selection);
-          const before = Editor.before(editor, start, {
-            unit: 'character',
-          });
-          const beforeRange = before && Editor.range(editor, before, start);
-          const beforeText = beforeRange && Editor.string(editor, beforeRange);
-          const beforeMatch = beforeText && beforeText.match(/(\s*@\w*)$/);
-          const after = Editor.after(editor, start);
-          const afterRange = Editor.range(editor, start, after);
-          const afterText = Editor.string(editor, afterRange);
-          const afterMatch = afterText.match(/^(\s|$)/);
-
-          if (beforeMatch && afterMatch) {
-            setTarget(beforeRange);
-            return;
-          }
-        }
-        setTarget(null);
-
-        // update in and outputs
-        this.setInputData(textJSONSocketName, value);
-        this.setOutputData(outputSocketName, value);
-        this.setOutputData(textOutputSocketName, getPlainText(value));
-        this.executeChildren();
-      };
-
-      const onKeyDown = useCallback(
-        (event) => {
-          const modKey = isMac ? event.metaKey : event.ctrlKey;
-          if (target) {
-            switch (event.key) {
-              case 'ArrowDown':
-                event.preventDefault();
-                const prevIndex =
-                  index >= parameterNameArray.length ? 0 : index + 1;
-                setIndex(prevIndex);
-                break;
-              case 'ArrowUp':
-                event.preventDefault();
-                const nextIndex =
-                  index <= 0 ? parameterNameArray.length : index - 1;
-                setIndex(nextIndex);
-                break;
-              case 'Tab':
-              case 'Enter':
-                event.preventDefault();
-                onHandleParameterSelect(event, index);
-                break;
-              case 'Escape':
-                event.preventDefault();
-                setTarget(null);
-                break;
-            }
-          }
-          if (modKey && !event.shiftKey) {
-            switch (event.key) {
-              case 'b':
-                event.preventDefault();
-                return toggleMark(editor, 'bold');
-              case 'i':
-                event.preventDefault();
-                return toggleMark(editor, 'italic');
-              case 'u':
-                event.preventDefault();
-                return toggleMark(editor, 'underline');
-            }
-          }
-          if (modKey && event.altKey) {
-            switch (event.code) {
-              case 'Digit1':
-                event.preventDefault();
-                return toggleBlock(editor, 'heading-one');
-              case 'Digit2':
-                event.preventDefault();
-                return toggleBlock(editor, 'heading-two');
-              case 'Digit3':
-                event.preventDefault();
-                return toggleBlock(editor, 'heading-three');
-              case 'Digit4':
-                event.preventDefault();
-                return toggleBlock(editor, 'heading-four');
-              case 'Digit5':
-                event.preventDefault();
-                return toggleBlock(editor, 'heading-five');
-              case 'Digit6':
-                event.preventDefault();
-                return toggleBlock(editor, 'heading-six');
-            }
-          }
-          if (modKey && event.shiftKey) {
-            switch (event.code) {
-              case 'Digit7':
-                event.preventDefault();
-                return toggleBlock(editor, 'numbered-list');
-              case 'Digit8':
-                event.preventDefault();
-                return toggleBlock(editor, 'bulleted-list');
-              case 'Digit9':
-                event.preventDefault();
-                return toggleBlock(editor, 'block-quote');
-            }
-            switch (event.key) {
-              case 'c':
-                event.preventDefault();
-                return toggleMark(editor, 'code');
-              case 'x':
-                event.preventDefault();
-                return toggleMark(editor, 'strikethrough');
-              case 'l':
-                event.preventDefault();
-                return toggleBlock(editor, 'left');
-              case 'e':
-                event.preventDefault();
-                return toggleBlock(editor, 'center');
-              case 'r':
-                event.preventDefault();
-                return toggleBlock(editor, 'right');
-              case 'j':
-                event.preventDefault();
-                return toggleBlock(editor, 'justify');
-            }
-          }
-          if (event.shiftKey && event.ctrlKey) {
-            switch (event.key) {
-              case 'ArrowUp':
-                event.preventDefault();
-                return moveBlock(editor, true);
-              case 'ArrowDown':
-                event.preventDefault();
-                return moveBlock(editor, false);
-            }
-          }
-          if (event.shiftKey && event.key === 'Enter') {
-            return editor.insertText('\n');
-          }
-        },
-        [index, target]
-      );
-
-      return (
-        <ErrorBoundary FallbackComponent={ErrorFallback}>
-          <ThemeProvider theme={customTheme}>
-            <Box
-              id={this.id}
-              sx={{
-                position: 'relative',
-                padding: '16px 24px',
-                boxSizing: 'border-box',
-                color: `${color.isDark() ? COLOR_WHITE_TEXT : COLOR_DARK}`,
-              }}
-            >
-              <Slate editor={editor} value={props.data} onChange={onChange}>
-                <HoverToolbar />
-                {target && parameterNameArray.length > 0 && (
-                  <ParameterMenu
-                    parameterNameArray={parameterNameArray}
-                    onHandleParameterSelect={onHandleParameterSelect}
-                    setTarget={setTarget}
-                    index={index}
-                  />
-                )}
-                <Editable
-                  readOnly={!props.doubleClicked}
-                  renderElement={renderElement}
-                  renderLeaf={renderLeaf}
-                  placeholder="Enter some rich text…"
-                  spellCheck={props.doubleClicked}
-                  onKeyDown={onKeyDown}
-                />
-              </Slate>
-            </Box>
-          </ThemeProvider>
-        </ErrorBoundary>
-      );
+      // update in and outputs
+      node.setInputData(textJSONSocketName, value);
+      node.setOutputData(outputSocketName, value);
+      node.setOutputData(textOutputSocketName, getPlainText(value));
+      node.executeChildren();
     };
+
+    const onKeyDown = useCallback(
+      (event) => {
+        const modKey = isMac ? event.metaKey : event.ctrlKey;
+        if (target) {
+          switch (event.key) {
+            case 'ArrowDown':
+              event.preventDefault();
+              const prevIndex =
+                index >= parameterNameArray.length ? 0 : index + 1;
+              setIndex(prevIndex);
+              break;
+            case 'ArrowUp':
+              event.preventDefault();
+              const nextIndex =
+                index <= 0 ? parameterNameArray.length : index - 1;
+              setIndex(nextIndex);
+              break;
+            case 'Tab':
+            case 'Enter':
+              event.preventDefault();
+              onHandleParameterSelect(event, index);
+              break;
+            case 'Escape':
+              event.preventDefault();
+              setTarget(null);
+              break;
+          }
+        }
+        if (modKey && !event.shiftKey) {
+          switch (event.key) {
+            case 'b':
+              event.preventDefault();
+              return toggleMark(editor, 'bold');
+            case 'i':
+              event.preventDefault();
+              return toggleMark(editor, 'italic');
+            case 'u':
+              event.preventDefault();
+              return toggleMark(editor, 'underline');
+          }
+        }
+        if (modKey && event.altKey) {
+          switch (event.code) {
+            case 'Digit1':
+              event.preventDefault();
+              return toggleBlock(editor, 'heading-one');
+            case 'Digit2':
+              event.preventDefault();
+              return toggleBlock(editor, 'heading-two');
+            case 'Digit3':
+              event.preventDefault();
+              return toggleBlock(editor, 'heading-three');
+            case 'Digit4':
+              event.preventDefault();
+              return toggleBlock(editor, 'heading-four');
+            case 'Digit5':
+              event.preventDefault();
+              return toggleBlock(editor, 'heading-five');
+            case 'Digit6':
+              event.preventDefault();
+              return toggleBlock(editor, 'heading-six');
+          }
+        }
+        if (modKey && event.shiftKey) {
+          switch (event.code) {
+            case 'Digit7':
+              event.preventDefault();
+              return toggleBlock(editor, 'numbered-list');
+            case 'Digit8':
+              event.preventDefault();
+              return toggleBlock(editor, 'bulleted-list');
+            case 'Digit9':
+              event.preventDefault();
+              return toggleBlock(editor, 'block-quote');
+          }
+          switch (event.key) {
+            case 'c':
+              event.preventDefault();
+              return toggleMark(editor, 'code');
+            case 'x':
+              event.preventDefault();
+              return toggleMark(editor, 'strikethrough');
+            case 'l':
+              event.preventDefault();
+              return toggleBlock(editor, 'left');
+            case 'e':
+              event.preventDefault();
+              return toggleBlock(editor, 'center');
+            case 'r':
+              event.preventDefault();
+              return toggleBlock(editor, 'right');
+            case 'j':
+              event.preventDefault();
+              return toggleBlock(editor, 'justify');
+          }
+        }
+        if (event.shiftKey && event.ctrlKey) {
+          switch (event.key) {
+            case 'ArrowUp':
+              event.preventDefault();
+              return moveBlock(editor, true);
+            case 'ArrowDown':
+              event.preventDefault();
+              return moveBlock(editor, false);
+          }
+        }
+        if (event.shiftKey && event.key === 'Enter') {
+          return editor.insertText('\n');
+        }
+      },
+      [index, target]
+    );
+
+    return (
+      <ErrorBoundary FallbackComponent={ErrorFallback}>
+        <ThemeProvider theme={customTheme}>
+          <Box
+            id={node.id}
+            sx={{
+              position: 'relative',
+              padding: '16px 24px',
+              boxSizing: 'border-box',
+              color: `${color.isDark() ? COLOR_WHITE_TEXT : COLOR_DARK}`,
+              background: `${color.rgb()}`,
+            }}
+          >
+            <Slate
+              editor={editor}
+              value={props[textJSONSocketName]}
+              onChange={onChange}
+            >
+              <HoverToolbar />
+              {target && parameterNameArray.length > 0 && (
+                <ParameterMenu
+                  parameterNameArray={parameterNameArray}
+                  onHandleParameterSelect={onHandleParameterSelect}
+                  setTarget={setTarget}
+                  index={index}
+                />
+              )}
+              <Editable
+                readOnly={!props.doubleClicked}
+                renderElement={renderElement}
+                renderLeaf={renderLeaf}
+                placeholder="Enter some rich text…"
+                spellCheck={props.doubleClicked}
+                onKeyDown={onKeyDown}
+              />
+            </Slate>
+          </Box>
+        </ThemeProvider>
+      </ErrorBoundary>
+    );
   }
 }
