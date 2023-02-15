@@ -29,10 +29,7 @@ export default abstract class HybridNode2 extends PPNode {
   // • creates a container component
   // • adds the onNodeDragOrViewportMove listener to it
   // • adds a react parent component with props
-  createContainerComponent(
-    reactProps,
-    customStyles = {}
-  ): HTMLElement {
+  createContainerComponent(reactProps, customStyles = {}): HTMLElement {
     const reactElement = document.createElement('div');
     this.container = document
       .getElementById('container')
@@ -88,7 +85,7 @@ export default abstract class HybridNode2 extends PPNode {
       [key: string]: any;
     },
     root = this.root,
-    node: PPNode = this,
+    node: PPNode = this
   ): void => {
     root.render(
       React.createElement(this.getParentComponent, {
@@ -108,7 +105,7 @@ export default abstract class HybridNode2 extends PPNode {
     document.getElementById('container').removeChild(container);
   }
 
-  protected onHybridNodeExit(): void { }
+  protected onHybridNodeExit(): void {}
 
   configure(nodeConfig: SerializedNode): void {
     super.configure(nodeConfig);
@@ -144,6 +141,7 @@ export default abstract class HybridNode2 extends PPNode {
       );
       this.container.style.pointerEvents = 'auto';
       this.container.classList.add(styles.hybridContainerFocused);
+      this.execute();
     }
   }
 
@@ -159,6 +157,7 @@ export default abstract class HybridNode2 extends PPNode {
     // this allows to zoom and drag when the hybrid node is not selected
     this.container.style.pointerEvents = 'none';
     this.container.classList.remove(styles.hybridContainerFocused);
+    this.execute();
   }
 
   public executeOnPlace(): boolean {
