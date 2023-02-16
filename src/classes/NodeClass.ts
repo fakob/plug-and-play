@@ -52,6 +52,8 @@ export default class PPNode extends PIXI.Container {
   _BackgroundRef: PIXI.Graphics;
   _CommentRef: PIXI.Graphics;
   _StatusesRef: PIXI.Graphics;
+  _ScreenspaceRef: PIXI.Graphics;
+  _ScreenspaceContainerRef: PIXI.Container;
 
   clickedSocketRef: Socket;
   isHovering: boolean;
@@ -715,6 +717,27 @@ export default class PPNode extends PIXI.Container {
     this._BackgroundRef.endFill();
   }
 
+  public drawForeground(): void {
+    console.log(this.parent, this.parent?.parent, this.parent?.parent?.parent)
+    this._ScreenspaceContainerRef = this.parent?.parent?.parent?.getChildByName('ScreenspaceContainer');
+
+    if (this._ScreenspaceContainerRef) {
+      this._ScreenspaceRef = this._ScreenspaceContainerRef.addChild(new PIXI.Graphics());
+      this._ScreenspaceRef.beginFill(
+        this.getColor().hexNumber(),
+        this.getOpacity()
+      );
+      this._ScreenspaceRef.drawRoundedRect(
+        NODE_MARGIN,
+        0,
+        this.nodeWidth,
+        this.nodeHeight,
+        this.getRoundedCorners() ? NODE_CORNERRADIUS : 0
+      );
+      this._ScreenspaceRef.endFill();
+    }
+  }
+
   public drawTriggers(): void {
     this.nodeTriggerSocketArray
       .filter((item) => item.visible)
@@ -796,6 +819,7 @@ export default class PPNode extends PIXI.Container {
       this.drawErrorBoundary();
     }
     this.drawBackground();
+    this.drawForeground();
 
     this.drawTriggers();
     this.drawSockets();

@@ -112,6 +112,7 @@ const App = (): JSX.Element => {
   const pixiContext = useRef<HTMLDivElement | null>(null);
   const viewport = useRef<Viewport | null>(null);
   const overlayCommentContainer = useRef<PIXI.Container | null>(null);
+  const screenspaceContainer = useRef<PIXI.Container | null>(null);
   const graphSearchInput = useRef<HTMLInputElement | null>(null);
   const nodeSearchInput = useRef<HTMLInputElement | null>(null);
   const [isGraphSearchOpen, setIsGraphSearchOpen] = useState(false);
@@ -419,6 +420,15 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         minScale: 0.05,
         maxScale: 4,
       });
+
+    // add screenspaceContainer to the stage
+    screenspaceContainer.current = new PIXI.Container();
+    screenspaceContainer.current.name = 'ScreenspaceContainer';
+
+    pixiApp.current.stage.addChild(screenspaceContainer.current);
+
+    // add pixiApp to canvas
+    pixiContext.current.appendChild(pixiApp.current.view);
 
     // add overlayCommentContainer to the stage
     overlayCommentContainer.current = new PIXI.Container();
