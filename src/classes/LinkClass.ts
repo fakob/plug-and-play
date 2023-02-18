@@ -82,7 +82,7 @@ export default class PPLink extends PIXI.Container {
     if (this.getTarget()) {
       this.getTarget().removeLink(this);
       if (!newConnectionPending) {
-        this.getTarget().getNode().executeOptimizedChain();
+        this.getTarget().getNode()?.executeOptimizedChain();
       }
     }
     this.getSource().removeLink(this);
