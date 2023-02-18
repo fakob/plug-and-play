@@ -98,9 +98,29 @@ export default class PPStorage {
           gestureMode === GESTUREMODE.MOUSE ||
           gestureMode === GESTUREMODE.TRACKPAD
         ) {
+          const otherMode =
+            gestureMode === GESTUREMODE.MOUSE
+              ? GESTUREMODE.TRACKPAD
+              : GESTUREMODE.MOUSE;
           setGestureModeOnViewport(viewport, gestureMode);
           InterfaceController.showSnackBar(
-            `GestureMode is set to: ${gestureMode}`
+            `GestureMode is set to: ${gestureMode}`,
+            {
+              action: (key) => (
+                <Button
+                  size="small"
+                  onClick={() => {
+                    this.applyGestureMode(
+                      PPGraph.currentGraph.viewport,
+                      otherMode
+                    );
+                    InterfaceController.hideSnackBar(key);
+                  }}
+                >
+                  Switch to {otherMode}
+                </Button>
+              ),
+            }
           );
         } else {
           // subscribe to mousewheel event to detect pointer device
@@ -214,7 +234,10 @@ export default class PPStorage {
           autoHideDuration: 20000,
           action: (key) => (
             <SaveOrDismiss
-              saveClick={() => this.saveNewGraph(newName)}
+              saveClick={() => {
+                this.saveNewGraph(newName);
+                InterfaceController.hideSnackBar(key);
+              }}
               dismissClick={() => InterfaceController.hideSnackBar(key)}
             />
           ),
