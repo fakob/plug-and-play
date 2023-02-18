@@ -56,7 +56,7 @@ module.exports = (env, argv) => {
       }),
       new MonacoWebpackPlugin({
         // available options are documented at https://github.com/Microsoft/monaco-editor-webpack-plugin#options
-        languages: ['javascript'],
+        languages: ['typescript', 'javascript'],
       }),
       new CopyPlugin({
         patterns: [
