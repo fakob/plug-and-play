@@ -10,6 +10,12 @@ import styles from '../utils/style.module.css';
 import { CustomArgs, SerializedNode } from '../utils/interfaces';
 import { RANDOMMAINCOLOR } from '../utils/constants';
 
+
+function pixiToContainerNumber(value: number) {
+  return `${Math.round(value)}px`;
+}
+
+
 export default abstract class HybridNode2 extends PPNode {
   root: Root;
   static: HTMLElement;
@@ -45,17 +51,22 @@ export default abstract class HybridNode2 extends PPNode {
     // set initial position
     this.container.style.width = `${this.nodeWidth}px`;
     this.container.style.height = `${this.nodeHeight}px`;
-    this.container.style.transform = `translate(50%, 50%)`;
+    //this.container.style.transform = `translate(50%, 50%)`;
     this.container.style.transform = `scale(${scale}`;
     this.container.style.left = `${screenPoint.x}px`;
     this.container.style.top = `${screenPoint.y}px`;
 
+
     this.onNodeDragOrViewportMove = ({ screenX, screenY, scale }) => {
-      this.container.style.width = `${this.nodeWidth}px`;
-      this.container.style.height = `${this.nodeHeight}px`;
-      this.container.style.transform = `scale(${scale}`;
-      this.container.style.left = `${screenX}px`;
-      this.container.style.top = `${screenY}px`;
+      if (this.container.style.transform != `scale(${scale.toPrecision(3)})`) {
+        this.container.style.transform = `scale(${scale.toPrecision(3)})`;
+      }
+      if (this.container.style.left != pixiToContainerNumber(screenX)) {
+        this.container.style.left = pixiToContainerNumber(screenX);
+      }
+      if (this.container.style.top != pixiToContainerNumber(screenY)) {
+        this.container.style.top = pixiToContainerNumber(screenY);
+      }
     };
 
     this.onViewportPointerUpHandler = this._onViewportPointerUp.bind(this);
@@ -105,7 +116,7 @@ export default abstract class HybridNode2 extends PPNode {
     document.getElementById('container').removeChild(container);
   }
 
-  protected onHybridNodeExit(): void {}
+  protected onHybridNodeExit(): void { }
 
   configure(nodeConfig: SerializedNode): void {
     super.configure(nodeConfig);
