@@ -10,7 +10,13 @@ import styles from '../utils/style.module.css';
 import { CustomArgs, SerializedNode } from '../utils/interfaces';
 import { RANDOMMAINCOLOR } from '../utils/constants';
 
-export default abstract class HybridNode extends PPNode {
+
+function pixiToContainerNumber(value: number) {
+  return `${Math.round(value)}px`;
+}
+
+
+export default abstract class HybridNode2 extends PPNode {
   root: Root;
   static: HTMLElement;
   staticRoot: Root;
@@ -29,11 +35,7 @@ export default abstract class HybridNode extends PPNode {
   // • creates a container component
   // • adds the onNodeDragOrViewportMove listener to it
   // • adds a react parent component with props
-  createContainerComponent(
-    reactParent,
-    reactProps,
-    customStyles = {}
-  ): HTMLElement {
+  createContainerComponent(reactProps, customStyles = {}): HTMLElement {
     const reactElement = document.createElement('div');
     this.container = document
       .getElementById('container')
@@ -49,17 +51,22 @@ export default abstract class HybridNode extends PPNode {
     // set initial position
     this.container.style.width = `${this.nodeWidth}px`;
     this.container.style.height = `${this.nodeHeight}px`;
-    this.container.style.transform = `translate(50%, 50%)`;
+    //this.container.style.transform = `translate(50%, 50%)`;
     this.container.style.transform = `scale(${scale}`;
     this.container.style.left = `${screenPoint.x}px`;
     this.container.style.top = `${screenPoint.y}px`;
 
+
     this.onNodeDragOrViewportMove = ({ screenX, screenY, scale }) => {
-      this.container.style.width = `${this.nodeWidth}px`;
-      this.container.style.height = `${this.nodeHeight}px`;
-      this.container.style.transform = `scale(${scale}`;
-      this.container.style.left = `${screenX}px`;
-      this.container.style.top = `${screenY}px`;
+      if (this.container.style.transform != `scale(${scale.toPrecision(3)})`) {
+        this.container.style.transform = `scale(${scale.toPrecision(3)})`;
+      }
+      if (this.container.style.left != pixiToContainerNumber(screenX)) {
+        this.container.style.left = pixiToContainerNumber(screenX);
+      }
+      if (this.container.style.top != pixiToContainerNumber(screenY)) {
+        this.container.style.top = pixiToContainerNumber(screenY);
+      }
     };
 
     this.onViewportPointerUpHandler = this._onViewportPointerUp.bind(this);
@@ -71,32 +78,35 @@ export default abstract class HybridNode extends PPNode {
 
     // render react component
     this.renderReactComponent(
-      reactParent,
       {
         ...reactProps,
       },
-      this.root
+      this.root,
+      this
     );
 
     return this.container;
   }
 
+  protected abstract getParentComponent(inputObject: any): any;
+
   // the render method, takes a component and props, and renders it to the page
   renderReactComponent = (
-    component: any,
     props: {
       [key: string]: any;
     },
-    root = this.root
+    root = this.root,
+    node: PPNode = this
   ): void => {
     root.render(
-      React.createElement(component, {
+      React.createElement(this.getParentComponent, {
         initialData: this.initialData, // positioned before the props so it can be overwritten by them
         ...props,
         id: this.id,
         selected: this.selected,
         doubleClicked: this.doubleClicked,
         randomMainColor: RANDOMMAINCOLOR,
+        node: node,
       })
     );
   };
@@ -106,7 +116,7 @@ export default abstract class HybridNode extends PPNode {
     document.getElementById('container').removeChild(container);
   }
 
-  protected onHybridNodeExit(): void {}
+  protected onHybridNodeExit(): void { }
 
   configure(nodeConfig: SerializedNode): void {
     super.configure(nodeConfig);
@@ -124,8 +134,11 @@ export default abstract class HybridNode extends PPNode {
     maintainAspectRatio = false
   ): void {
     super.resizeAndDraw(width, height, maintainAspectRatio);
-    this.container.style.width = `${width}px`;
-    this.container.style.height = `${height}px`;
+    if (this.container) {
+      this.container.style.width = `${width}px`;
+      this.container.style.height = `${height}px`;
+    }
+    this.execute();
   }
 
   _onDoubleClick(event: PIXI.InteractionEvent): void {
@@ -139,6 +152,7 @@ export default abstract class HybridNode extends PPNode {
       );
       this.container.style.pointerEvents = 'auto';
       this.container.classList.add(styles.hybridContainerFocused);
+      this.execute();
     }
   }
 
@@ -154,17 +168,25 @@ export default abstract class HybridNode extends PPNode {
     // this allows to zoom and drag when the hybrid node is not selected
     this.container.style.pointerEvents = 'none';
     this.container.classList.remove(styles.hybridContainerFocused);
+    this.execute();
   }
 
-  public getContainerComponent(): React.FunctionComponent {
-    return undefined;
-  }
-
-  public onNodeAdded(): void {
-    super.onNodeAdded();
+  public executeOnPlace(): boolean {
+    return true;
   }
 
   public getShrinkOnSocketRemove(): boolean {
     return false;
+  }
+
+  protected async onExecute(
+    inputObject: unknown,
+    outputObject: Record<string, unknown>
+  ): Promise<void> {
+    if (!this.container) {
+      this.createContainerComponent(inputObject);
+    } else {
+      this.renderReactComponent(inputObject);
+    }
   }
 }

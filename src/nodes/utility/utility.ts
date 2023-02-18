@@ -5,7 +5,6 @@ import PPNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
 import { CustomFunction } from '../data/dataFunctions';
 import UpdateBehaviourClass from '../../classes/UpdateBehaviourClass';
-import { WidgetButton } from '../widgets/widgetNodes';
 import {
   NODE_TYPE_COLOR,
   SOCKET_TYPE,
@@ -21,6 +20,7 @@ import { FunctionType } from '../datatypes/functionType';
 import { NumberType } from '../datatypes/numberType';
 import { StringType } from '../datatypes/stringType';
 import { TriggerType } from '../datatypes/triggerType';
+import { WidgetButton } from '../widgets/widgetNodes';
 
 export class Reroute extends PPNode {
   public getName(): string {
@@ -109,9 +109,6 @@ const getNodeArrayOptions = () => {
 export class JumpToNode extends WidgetButton {
   public getName(): string {
     return 'Jump to node';
-  }
-  public getDescription(): string {
-    return 'Jump to a specific node in your playground';
   }
 
   onWidgetTrigger = () => {

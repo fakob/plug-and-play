@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { LazyLog, ScrollFollow } from 'react-lazylog';
 import PPSocket from '../classes/SocketClass';
-import { CustomArgs, TRgba } from '../utils/interfaces';
+import { TRgba } from '../utils/interfaces';
 import { AnyType } from './datatypes/anyType';
 import { NumberType } from './datatypes/numberType';
 import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../utils/constants';
-import HybridNode from '../classes/HybridNode';
+import HybridNode2 from '../classes/HybridNode2';
 
-export class LogViewer extends HybridNode {
+export class LogViewer extends HybridNode2 {
   public getName(): string {
     return 'LogViewer';
   }
@@ -18,7 +18,7 @@ export class LogViewer extends HybridNode {
 
   protected getDefaultIO(): PPSocket[] {
     return [
-      new PPSocket(SOCKET_TYPE.IN, 'input', new AnyType(), '', true),
+      new PPSocket(SOCKET_TYPE.IN, 'data', new AnyType(), '', true),
       new PPSocket(
         SOCKET_TYPE.IN,
         'rowLimit',
@@ -57,62 +57,31 @@ export class LogViewer extends HybridNode {
     return 240;
   }
 
-  constructor(name: string, customArgs?: CustomArgs) {
-    super(name, {
-      ...customArgs,
-    });
+  protected getParentComponent(props: any): any {
+    const [logString, setLogString] = useState<string[]>(
+      props.data ? [props.data] : ['']
+    );
 
-    // when the Node is added, add the container and react component
-    this.onNodeAdded = () => {
-      this.createContainerComponent(ParentComponent, {
-        nodeHeight: this.nodeHeight,
+    useEffect(() => {
+      setLogString((prevArray) => {
+        return [...prevArray.slice(-(props.rowLimit - 1)), props.data];
       });
-      super.onNodeAdded();
-    };
+    }, [props.data]);
 
-    this.onExecute = async function (input) {
-      const newLogData = input['input'];
-      const rowLimit = input['rowLimit'];
-      this.renderReactComponent(ParentComponent, {
-        data: newLogData,
-        rowLimit,
-      });
-    };
-
-    type MyProps = {
-      data: string;
-      randomMainColor: string;
-      nodeHeight: number;
-      rowLimit: number;
-    };
-
-    // small presentational component
-    const ParentComponent: React.FunctionComponent<MyProps> = (props) => {
-      const [logString, setLogString] = useState<string[]>(
-        props.data ? [props.data] : ['']
-      );
-
-      useEffect(() => {
-        setLogString((prevArray) => {
-          return [...prevArray.slice(-(props.rowLimit - 1)), props.data];
-        });
-      }, [props.data]);
-
-      return (
-        <ScrollFollow
-          startFollowing={true}
-          render={({ follow, onScroll }) => (
-            <LazyLog
-              text={logString.join('\r\n')}
-              follow={follow}
-              onScroll={onScroll}
-              enableSearch
-              caseInsensitive
-              extraLines={1}
-            />
-          )}
-        />
-      );
-    };
+    return (
+      <ScrollFollow
+        startFollowing={true}
+        render={({ follow, onScroll }) => (
+          <LazyLog
+            text={logString.join('\r\n')}
+            follow={follow}
+            onScroll={onScroll}
+            enableSearch
+            caseInsensitive
+            extraLines={1}
+          />
+        )}
+      />
+    );
   }
 }

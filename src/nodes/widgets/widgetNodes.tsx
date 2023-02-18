@@ -40,6 +40,7 @@ import { BooleanType } from '../datatypes/booleanType';
 import { NumberType } from '../datatypes/numberType';
 import { StringType } from '../datatypes/stringType';
 import { ColorType } from '../datatypes/colorType';
+import PPNode from '../../classes/NodeClass';
 
 const selectedName = 'Initial selection';
 const initialValueName = 'Initial value';
@@ -93,64 +94,24 @@ export class WidgetButton extends Widget_Base {
     return 104;
   }
 
-  // when the Node is added, add the container and react component
-  public onNodeAdded = () => {
-    const buttonText = this.getInputData(labelName);
-    this.createContainerComponent(
-      this.WidgetParent,
-      {
-        nodeWidth: this.nodeWidth,
-        nodeHeight: this.nodeHeight,
-        margin,
-        buttonText,
-      },
-      {
-        overflow: 'visible',
-      }
-    );
-    super.onNodeAdded();
-  };
-
-  public update = (): void => {
-    const buttonText = this.getInputData(labelName);
-    this.renderReactComponent(this.WidgetParent, {
-      nodeWidth: this.nodeWidth,
-      nodeHeight: this.nodeHeight,
-      margin,
-      buttonText,
-    });
-  };
-
-  // when the Node is loaded, update the react component
-  public onConfigure = (): void => {
-    this.update();
-  };
-
   public onWidgetTrigger = () => {
     console.log('onWidgetTrigger');
     this.executeOptimizedChain();
   };
 
-  public onNodeResize = () => {
-    this.update();
-  };
-
-  public onExecute = async function () {
-    this.update();
-  };
-
-  public WidgetParent: FunctionComponent<WidgetButtonProps> = (props) => {
+  protected getParentComponent(props: any): any {
+    const node = props.node;
     const handleOnPointerDown = () => {
-      this.onWidgetTrigger();
-      const inputData = this.getInputData(onValueName);
-      this.setOutputData(outName, inputData);
-      this.executeChildren();
+      node.onWidgetTrigger();
+      const inputData = node.getInputData(onValueName);
+      node.setOutputData(outName, inputData);
+      node.executeChildren();
     };
 
     const handleOnPointerUp = () => {
-      const inputData = this.getInputData(offValueName);
-      this.setOutputData(outName, inputData);
-      this.executeChildren();
+      const inputData = node.getInputData(offValueName);
+      node.setOutputData(outName, inputData);
+      node.executeChildren();
     };
 
     return (
@@ -163,8 +124,8 @@ export class WidgetButton extends Widget_Base {
             bgcolor: 'background.default',
             fontSize: '16px',
             border: 0,
-            width: `${this.nodeWidth}px`,
-            height: `${this.nodeHeight}px`,
+            width: `${node.nodeWidth}px`,
+            height: `${node.nodeHeight}px`,
             boxShadow: 16,
             '&:hover': {
               boxShadow: 12,
@@ -181,9 +142,9 @@ export class WidgetButton extends Widget_Base {
               fontSize: '16px',
               lineHeight: '20px',
               border: 0,
-              width: `${this.nodeWidth - 8 * margin}px`,
-              height: `${this.nodeHeight - 8 * margin}px`,
-              borderRadius: `${this.nodeWidth / 16}px`,
+              width: `${node.nodeWidth - 8 * margin}px`,
+              height: `${node.nodeHeight - 8 * margin}px`,
+              borderRadius: `${node.nodeWidth / 16}px`,
               boxShadow: 16,
               '&:hover': {
                 boxShadow: 12,
@@ -193,34 +154,15 @@ export class WidgetButton extends Widget_Base {
               },
             }}
           >
-            {props.buttonText}
+            {props[labelName]}
           </Button>
         </Paper>
       </ThemeProvider>
     );
-  };
+  }
 }
 
-type WidgetColorPickerProps = {
-  doubleClicked: boolean; // is injected by the NodeClass
-  nodeWidth: number;
-  nodeHeight: number;
-  margin: number;
-  initialData: TRgba;
-  label: string;
-};
-
 export class WidgetColorPicker extends Widget_Base {
-  constructor(name: string, customArgs?: CustomArgs) {
-    super(name, {
-      ...customArgs,
-    });
-
-    if (this.initialData) {
-      this.setInputData(initialValueName, this.initialData);
-    }
-  }
-
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(
@@ -257,55 +199,11 @@ export class WidgetColorPicker extends Widget_Base {
     return 104;
   }
 
-  // when the Node is added, add the container and react component
-  public onNodeAdded = () => {
-    this.createContainerComponent(
-      this.WidgetParent,
-      {
-        nodeWidth: this.nodeWidth,
-        nodeHeight: this.nodeHeight,
-        margin,
-        initialData: this.getInputData(initialValueName),
-        label: this.getInputData(labelName),
-      },
-      {
-        overflow: 'visible',
-      }
-    );
-    this.setOutputData(outName, this.getInputData(initialValueName));
-    super.onNodeAdded();
-  };
-
-  public update = (): void => {
-    this.renderReactComponent(this.WidgetParent, {
-      nodeWidth: this.nodeWidth,
-      nodeHeight: this.nodeHeight,
-      margin,
-      initialData: this.getInputData(initialValueName),
-      label: this.getInputData(labelName),
-    });
-  };
-
-  // when the Node is loaded, update the react component
-  public onConfigure = (): void => {
-    this.update();
-    this.setOutputData(outName, this.getInputData(initialValueName));
-    this.executeOptimizedChain();
-  };
-
-  public onNodeResize = () => {
-    this.update();
-  };
-
-  public onExecute = async function (input, output) {
-    output[outName] = input[initialValueName];
-    this.update();
-  };
-
-  public WidgetParent: FunctionComponent<WidgetColorPickerProps> = (props) => {
+  protected getParentComponent(props: any): any {
+    const node = props.node;
     const ref = useRef<HTMLLIElement | null>(null);
     const [finalColor, setFinalColor] = useState(
-      props.initialData || TRgba.white()
+      props[initialValueName] || TRgba.white()
     );
     const [colorPicker, showColorPicker] = useState(false);
 
@@ -318,9 +216,9 @@ export class WidgetColorPicker extends Widget_Base {
         pickedrgb.a
       );
       setFinalColor(newColor);
-      this.setInputData(initialValueName, newColor);
-      this.setOutputData(outName, newColor);
-      this.executeChildren();
+      node.setInputData(initialValueName, newColor);
+      node.setOutputData(outName, newColor);
+      node.executeChildren();
     };
 
     return (
@@ -334,8 +232,8 @@ export class WidgetColorPicker extends Widget_Base {
             bgcolor: 'background.default',
             fontSize: '16px',
             border: 0,
-            width: `${this.nodeWidth}px`,
-            height: `${this.nodeHeight}px`,
+            width: `${node.nodeWidth}px`,
+            height: `${node.nodeHeight}px`,
             boxShadow: 16,
             '&:hover': {
               boxShadow: 12,
@@ -355,9 +253,9 @@ export class WidgetColorPicker extends Widget_Base {
               border: 0,
               bgcolor: finalColor.hex(),
               color: finalColor.getContrastTextColor().hex(),
-              width: `${this.nodeWidth - 8 * margin}px`,
-              height: `${this.nodeHeight - 8 * margin}px`,
-              borderRadius: `${this.nodeWidth / 4}px`,
+              width: `${node.nodeWidth - 8 * margin}px`,
+              height: `${node.nodeHeight - 8 * margin}px`,
+              borderRadius: `${node.nodeWidth / 4}px`,
               boxShadow: 16,
               '&:hover': {
                 bgcolor: finalColor.darken(0.1).hex(),
@@ -368,7 +266,7 @@ export class WidgetColorPicker extends Widget_Base {
               },
             }}
           >
-            {props.label}
+            {props[labelName]}
             <ColorizeIcon sx={{ pl: 1 }} />
           </Button>
           <Popper
@@ -402,7 +300,7 @@ export class WidgetColorPicker extends Widget_Base {
         </Paper>
       </ThemeProvider>
     );
-  };
+  }
 }
 
 export class WidgetSwitch extends Widget_Base {
@@ -432,66 +330,20 @@ export class WidgetSwitch extends Widget_Base {
     return 104;
   }
 
-  // when the Node is added, add the container and react component
-  public onNodeAdded = () => {
-    this.createContainerComponent(
-      this.WidgetParent,
-      {
-        nodeWidth: this.nodeWidth,
-        nodeHeight: this.nodeHeight,
-        margin,
-        label: this.getInputData(labelName),
-      },
-      {
-        overflow: 'visible',
-      }
-    );
-    super.onNodeAdded();
-  };
+  protected getParentComponent(props: any): any {
+    const node = props.node;
 
-  public update = (): void => {
-    this.renderReactComponent(this.WidgetParent, {
-      nodeWidth: this.nodeWidth,
-      nodeHeight: this.nodeHeight,
-      margin,
-      label: this.getInputData(labelName),
-    });
-  };
-
-  // when the Node is loaded, update the react component
-  public onConfigure = (): void => {
-    this.update();
-
-    // set initial value and execute
-    this.setOutputData(outName, this.getInputData(selectedName));
-    this.executeChildren();
-  };
-
-  public onWidgetTrigger = () => {
-    console.log('onWidgetTrigger');
-  };
-
-  public onNodeResize = () => {
-    this.update();
-  };
-
-  public onExecute = async function () {
-    this.update();
-  };
-
-  public WidgetParent = (props) => {
-    const [selected, setSelected] = useState(this.getInputData(selectedName));
+    const [selected, setSelected] = useState(node.getInputData(selectedName));
 
     const handleOnChange = () => {
-      this.onWidgetTrigger();
       const newValue = !selected;
       setSelected(newValue);
       // const selectedValue = this.getInputData(selectedName);
-      const onValue = this.getInputData(onValueName);
-      const offValue = this.getInputData(offValueName);
-      this.setInputData(selectedName, newValue ? onValue : offValue);
-      this.setOutputData(outName, newValue ? onValue : offValue);
-      this.executeChildren();
+      const onValue = node.getInputData(onValueName);
+      const offValue = node.getInputData(offValueName);
+      node.setInputData(selectedName, newValue ? onValue : offValue);
+      node.setOutputData(outName, newValue ? onValue : offValue);
+      node.executeChildren();
     };
 
     return (
@@ -504,8 +356,8 @@ export class WidgetSwitch extends Widget_Base {
             bgcolor: 'background.default',
             fontSize: '16px',
             border: 0,
-            width: `${this.nodeWidth}px`,
-            height: `${this.nodeHeight}px`,
+            width: `${node.nodeWidth}px`,
+            height: `${node.nodeHeight}px`,
 
             boxShadow: 16,
             '&:hover': {
@@ -519,7 +371,7 @@ export class WidgetSwitch extends Widget_Base {
           >
             <FormGroup aria-label="position" row>
               <FormControlLabel
-                value={props.label}
+                value={props[labelName]}
                 control={
                   <Switch
                     size="medium"
@@ -533,7 +385,7 @@ export class WidgetSwitch extends Widget_Base {
                     }}
                   />
                 }
-                label={props.label}
+                label={props[labelName]}
                 labelPlacement="end"
               />
             </FormGroup>
@@ -541,7 +393,7 @@ export class WidgetSwitch extends Widget_Base {
         </Paper>
       </ThemeProvider>
     );
-  };
+  }
 }
 
 export class WidgetSlider extends Widget_Base {
@@ -573,94 +425,39 @@ export class WidgetSlider extends Widget_Base {
     return 104;
   }
 
-  // when the Node is added, add the container and react component
-  public onNodeAdded = () => {
-    this.createContainerComponent(
-      this.WidgetParent,
-      {
-        nodeWidth: this.nodeWidth,
-        nodeHeight: this.nodeHeight,
-        margin,
-        initialValue: this.getInputData(initialValueName),
-        minValue: this.getInputData(minValueName),
-        maxValue: this.getInputData(maxValueName),
-        round: this.getInputData(roundName),
-        stepSize: this.getInputData(stepSizeName),
-        label: this.getInputData(labelName),
-      },
-      {
-        overflow: 'visible',
-      }
-    );
-    super.onNodeAdded();
-  };
-
-  public update = (): void => {
-    this.renderReactComponent(this.WidgetParent, {
-      nodeWidth: this.nodeWidth,
-      nodeHeight: this.nodeHeight,
-      margin,
-      initialValue: this.getInputData(initialValueName),
-      minValue: this.getInputData(minValueName),
-      maxValue: this.getInputData(maxValueName),
-      round: this.getInputData(roundName),
-      stepSize: this.getInputData(stepSizeName),
-      label: this.getInputData(labelName),
-    });
-  };
-
-  // when the Node is loaded, update the react component
-  public onConfigure = (): void => {
-    this.update();
-
-    // set initial value and execute
-    this.setOutputData(outName, this.getInputData(initialValueName));
-    this.executeChildren();
-  };
-
-  public onWidgetTrigger = () => {
-    console.log('onWidgetTrigger');
-  };
-
-  public onNodeResize = () => {
-    this.update();
-  };
-
-  public onExecute = async function () {
-    this.update();
-  };
-
-  public WidgetParent = (props) => {
-    const [data, setData] = useState(Number(props.initialValue));
+  protected getParentComponent(props: any): any {
+    const node = props.node;
+    const [data, setData] = useState(Number(props[initialValueName]));
     const [minValue, setMinValue] = useState(
-      Math.min(props.minValue ?? 0, data)
+      Math.min(props[minValueName] ?? 0, data)
     );
     const [maxValue, setMaxValue] = useState(
-      Math.max(props.maxValue ?? 100, data)
+      Math.max(props[maxValueName] ?? 100, data)
     );
-    const [round, setRound] = useState(props.round ?? false);
-    const [stepSizeValue, setStepSizeValue] = useState(props.stepSize ?? 0.01);
+    const [round, setRound] = useState(props[roundName] ?? false);
+    const [stepSizeValue, setStepSizeValue] = useState(
+      props[stepSizeName] ?? 0.01
+    );
 
     useEffect(() => {
-      setData(Number(props.initialValue));
-      setMinValue(Math.min(props.minValue ?? 0, data));
-      setMaxValue(Math.max(props.maxValue ?? 100, data));
-      setRound(props.round ?? false);
-      setStepSizeValue(props.stepSize ?? 0.01);
+      setData(Number(props[initialValueName]));
+      setMinValue(Math.min(props[minValueName] ?? 0, data));
+      setMaxValue(Math.max(props[maxValueName] ?? 100, data));
+      setRound(props[roundName] ?? false);
+      setStepSizeValue(props[stepSizeName] ?? 0.01);
     }, [
-      props.initialValue,
-      props.minValue,
-      props.maxValue,
-      props.round,
-      props.stepSize,
+      props[initialValueName],
+      props[minValueName],
+      props[maxValueName],
+      props[roundName],
+      props[stepSizeName],
     ]);
 
     const handleOnChange = (event, value) => {
       if (!Array.isArray(value)) {
-        this.onWidgetTrigger();
         setData(roundNumber(value, 4));
-        this.setOutputData(outName, value);
-        this.executeChildren();
+        node.setOutputData(outName, value);
+        node.executeChildren();
       }
     };
 
@@ -674,8 +471,8 @@ export class WidgetSlider extends Widget_Base {
             bgcolor: 'background.default',
             fontSize: '16px',
             border: 0,
-            width: `${this.nodeWidth}px`,
-            height: `${this.nodeHeight}px`,
+            width: `${node.nodeWidth}px`,
+            height: `${node.nodeHeight}px`,
             boxShadow: 16,
             '&:hover': {
               boxShadow: 12,
@@ -742,36 +539,15 @@ export class WidgetSlider extends Widget_Base {
               px: 2,
             }}
           >
-            {props.label}
+            {props[labelName]}
           </Typography>
         </Paper>
       </ThemeProvider>
     );
-  };
+  }
 }
 
-type WidgetDropdownProps = {
-  doubleClicked: boolean; // is injected by the NodeClass
-  nodeWidth: number;
-  nodeHeight: number;
-  margin: number;
-  label: string;
-  options: any[];
-  selectedOption: string | string[];
-  multiSelect: boolean;
-};
-
 export class WidgetDropdown extends Widget_Base {
-  constructor(name: string, customArgs?: CustomArgs) {
-    super(name, {
-      ...customArgs,
-    });
-
-    if (this.initialData) {
-      this.setInputData(optionsName, this.initialData);
-    }
-  }
-
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(
@@ -822,37 +598,11 @@ export class WidgetDropdown extends Widget_Base {
     return 104;
   }
 
-  // when the Node is added, add the container and react component
-  public onNodeAdded(): void {
-    const options = this.getInputData(optionsName) || defaultOptions;
-    const selectedOptionRaw = this.getInputData(selectedOptionName);
-    const multiSelect = this.getInputData(multiSelectName);
-    const label = this.getInputData(labelName);
-    const selectedOption = formatSelected(selectedOptionRaw, multiSelect);
-
-    this.createContainerComponent(
-      this.WidgetParent,
-      {
-        nodeWidth: this.nodeWidth,
-        nodeHeight: this.nodeHeight,
-        margin,
-        label,
-        options,
-        selectedOption,
-        multiSelect,
-      },
-      {
-        overflow: 'visible',
-      }
-    );
-    this.setOutputData(outName, options);
-    super.onNodeAdded();
-  }
-
-  public WidgetParent: FunctionComponent<WidgetDropdownProps> = (props) => {
-    const [options, setOptions] = useState<any[]>(props.options);
+  protected getParentComponent(props: any): any {
+    const node = props.node;
+    const [options, setOptions] = useState<any[]>(props[optionsName]);
     const [selectedOption, setSelectedOption] = useState<string | string[]>(
-      props.selectedOption
+      formatSelected(props[selectedOptionName], props[multiSelectName])
     );
 
     const ITEM_HEIGHT = 48;
@@ -871,29 +621,33 @@ export class WidgetDropdown extends Widget_Base {
       } = event;
       // single select: value is string
       // multi select: value is array of strings
-      const formattedValue = formatSelected(value, props.multiSelect);
+      const formattedValue = formatSelected(value, props[multiSelectName]);
       setSelectedOption(formattedValue);
-      this.setInputData(selectedOptionName, formattedValue);
-      this.setOutputData(outName, formattedValue);
-      this.executeChildren();
+      node.setInputData(selectedOptionName, formattedValue);
+      node.setOutputData(outName, formattedValue);
+      node.executeChildren();
     };
 
     useEffect(() => {
-      this.setOutputData(outName, selectedOption);
-      this.executeChildren();
+      node.setOutputData(outName, selectedOption);
+      node.executeChildren();
     }, []);
 
     useEffect(() => {
-      setOptions(props.options);
-    }, [props.options]);
+      setOptions(props[optionsName]);
+    }, [props[optionsName]]);
 
     useEffect(() => {
-      setOptions(props.options);
-      setSelectedOption(props.selectedOption);
-      this.setInputData(selectedOptionName, props.selectedOption);
-      this.setOutputData(outName, props.selectedOption);
-      this.executeChildren();
-    }, [props.multiSelect, props.selectedOption]);
+      const formattedValue = formatSelected(
+        props[selectedOptionName],
+        props[multiSelectName]
+      );
+      setOptions(props[optionsName]);
+      setSelectedOption(formattedValue);
+      node.setInputData(selectedOptionName, formattedValue);
+      node.setOutputData(outName, formattedValue);
+      node.executeChildren();
+    }, [props[multiSelectName], props[selectedOptionName]]);
 
     return (
       <ThemeProvider theme={customTheme}>
@@ -905,8 +659,8 @@ export class WidgetDropdown extends Widget_Base {
             bgcolor: 'background.default',
             fontSize: '16px',
             border: 0,
-            width: `${this.nodeWidth}px`,
-            height: `${this.nodeHeight}px`,
+            width: `${node.nodeWidth}px`,
+            height: `${node.nodeHeight}px`,
             boxShadow: 16,
             '&:hover': {
               boxShadow: 12,
@@ -914,12 +668,12 @@ export class WidgetDropdown extends Widget_Base {
           }}
         >
           <FormControl variant="filled" sx={{ m: 2, pointerEvents: 'auto' }}>
-            <InputLabel>{props.label}</InputLabel>
+            <InputLabel>{props[labelName]}</InputLabel>
             <Select
               variant="filled"
-              multiple={props.multiSelect}
+              multiple={props[multiSelectName]}
               value={
-                props.multiSelect && !Array.isArray(selectedOption)
+                props[multiSelectName] && !Array.isArray(selectedOption)
                   ? String(selectedOption).split(',')
                   : selectedOption
               }
@@ -932,7 +686,7 @@ export class WidgetDropdown extends Widget_Base {
               {Array.isArray(options) &&
                 options.map((name) => (
                   <MenuItem key={name} value={name}>
-                    {props.multiSelect && (
+                    {props[multiSelectName] && (
                       <Checkbox checked={selectedOption.indexOf(name) > -1} />
                     )}
                     <ListItemText primary={name} />
@@ -943,40 +697,7 @@ export class WidgetDropdown extends Widget_Base {
         </Paper>
       </ThemeProvider>
     );
-  };
-
-  public update = (): void => {
-    const options = this.getInputData(optionsName) || defaultOptions;
-    const selectedOptionRaw = this.getInputData(selectedOptionName);
-    const multiSelect = this.getInputData(multiSelectName);
-    const label = this.getInputData(labelName);
-    const selectedOption = formatSelected(selectedOptionRaw, multiSelect);
-
-    this.renderReactComponent(this.WidgetParent, {
-      nodeWidth: this.nodeWidth,
-      nodeHeight: this.nodeHeight,
-      margin,
-      label,
-      options,
-      selectedOption,
-      multiSelect,
-    });
-  };
-
-  // when the Node is loaded, update the react component
-  public onConfigure = (): void => {
-    this.update();
-    this.setOutputData(outName, this.getInputData(selectedOptionName));
-    this.executeOptimizedChain();
-  };
-
-  public onNodeResize = () => {
-    this.update();
-  };
-
-  public onExecute = async function () {
-    this.update();
-  };
+  }
 }
 
 const formatSelected = (

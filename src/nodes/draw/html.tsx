@@ -13,19 +13,11 @@ import {
   SOCKET_TYPE,
   customTheme,
 } from '../../utils/constants';
-import HybridNode from '../../classes/HybridNode';
+import HybridNode2 from '../../classes/HybridNode2';
 
 const inputSocketName = 'Html';
 
-type MyProps = {
-  doubleClicked: boolean; // is injected by the NodeClass
-  data: string;
-  randomMainColor: string;
-  nodeHeight: number;
-  readOnly: boolean;
-};
-
-export class HtmlRenderer extends HybridNode {
+export class HtmlRenderer extends HybridNode2 {
   constructor(name: string, customArgs?: CustomArgs) {
     super(name, {
       ...customArgs,
@@ -94,44 +86,11 @@ export class HtmlRenderer extends HybridNode {
     return 150;
   }
 
-  // when the Node is added, create the container and react component
-  public onNodeAdded = () => {
-    const data = this.getInputData(inputSocketName);
-
-    this.createContainerComponent(
-      this.ParentComponent,
-      {
-        nodeHeight: this.nodeHeight,
-        data,
-      },
-      {
-        overflow: 'visible',
-      }
-    );
-    super.onNodeAdded();
-  };
-
-  public update = (newHeight): void => {
-    const newData = this.getInputData(inputSocketName);
-
-    this.renderReactComponent(this.ParentComponent, {
-      nodeHeight: newHeight ?? this.nodeHeight,
-      data: newData,
-    });
-  };
-
-  public onNodeDoubleClick = () => {
-    PPGraph.currentGraph.selection.drawRectanglesFromSelection();
-  };
-
-  public onExecute = async function () {
-    this.update();
-  };
 
   // small presentational component
-  public ParentComponent: React.FunctionComponent<MyProps> = (props) => {
+  protected getParentComponent(props: any): any {
     const iframeRef = useRef();
-    const [htmlData, setHtmlData] = useState(props.data);
+    const [htmlData, setHtmlData] = useState(props[inputSocketName]);
 
     useEffect(() => {
       if (iframeRef.current) {
@@ -141,8 +100,8 @@ export class HtmlRenderer extends HybridNode {
 
     useEffect(() => {
       console.log('htmlData has changed');
-      setHtmlData(props.data);
-    }, [props.data]);
+      setHtmlData(props[inputSocketName]);
+    }, [props[inputSocketName]]);
 
     function MyComponent() {
       return (
@@ -161,7 +120,7 @@ export class HtmlRenderer extends HybridNode {
     return (
       <ErrorBoundary FallbackComponent={ErrorFallback}>
         <Frame
-          id={this.id}
+          id={props.node.id}
           ref={iframeRef}
           style={{
             width: '100%',

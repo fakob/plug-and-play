@@ -1,43 +1,18 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Box, ThemeProvider } from '@mui/material';
 import { ErrorBoundary } from 'react-error-boundary';
 import ErrorFallback from '../components/ErrorFallback';
 import MonacoEditor from 'react-monaco-editor';
 import PPSocket from '../classes/SocketClass';
-import PPGraph from '../classes/GraphClass';
 import { CodeType } from './datatypes/codeType';
-
 import { convertToString } from '../utils/utils';
-import { CustomArgs } from '../utils/interfaces';
 import { SOCKET_TYPE, customTheme } from '../utils/constants';
-import HybridNode from '../classes/HybridNode';
+import HybridNode2 from '../classes/HybridNode2';
 
 const outputSocketName = 'output';
 const inputSocketName = 'input';
 
-type MyProps = {
-  doubleClicked: boolean; // is injected by the NodeClass
-  data: string;
-  randomMainColor: string;
-  nodeHeight: number;
-  readOnly: boolean;
-};
-
-export class CodeEditor extends HybridNode {
-  constructor(name: string, customArgs?: CustomArgs) {
-    super(name, {
-      ...customArgs,
-    });
-
-    if (this.initialData) {
-      this.setInputData(inputSocketName, this.initialData);
-    }
-
-    this.readOnly = false;
-  }
-
-  readOnly: boolean;
-
+export class CodeEditor extends HybridNode2 {
   protected getActivateByDoubleClick(): boolean {
     return true;
   }
@@ -78,7 +53,7 @@ export class CodeEditor extends HybridNode {
   }
 
   protected onHybridNodeExit(): void {
-    this.update;
+    this.executeOptimizedChain();
   }
 
   public getMinNodeWidth(): number {
@@ -97,45 +72,9 @@ export class CodeEditor extends HybridNode {
     return 300;
   }
 
-  // when the Node is added, create the container and react component
-  public onNodeAdded = () => {
-    const data = this.getInputData(inputSocketName);
-    this.readOnly = this.getInputSocketByName(inputSocketName).hasLink();
+  protected getParentComponent(props: any) {
+    const node = props.node;
 
-    this.createContainerComponent(this.ParentComponent, {
-      nodeHeight: this.nodeHeight,
-      data,
-      readOnly: this.readOnly,
-    });
-    super.onNodeAdded();
-  };
-
-  public update = (newHeight): void => {
-    const newData = this.getInputData(inputSocketName);
-    this.readOnly = this.getInputSocketByName(inputSocketName).hasLink();
-
-    this.renderReactComponent(this.ParentComponent, {
-      nodeHeight: newHeight ?? this.nodeHeight,
-      data: newData,
-      readOnly: this.readOnly,
-    });
-  };
-
-  public onNodeDoubleClick = () => {
-    PPGraph.currentGraph.selection.drawRectanglesFromSelection();
-    this.update(this.nodeHeight);
-  };
-
-  public onNodeResize = (newWidth, newHeight) => {
-    this.update(newHeight);
-  };
-
-  public onExecute = async function () {
-    this.update();
-  };
-
-  // small presentational component
-  public ParentComponent: React.FunctionComponent<MyProps> = (props) => {
     const parseData = (value: any) => {
       let dataAsString;
       if (typeof value !== 'string') {
@@ -148,20 +87,41 @@ export class CodeEditor extends HybridNode {
 
     const onChange = (value) => {
       setCodeString(value);
-      this.setInputData(inputSocketName, value);
-      this.setOutputData(outputSocketName, value);
-      this.executeChildren();
+      node.setInputData(inputSocketName, value);
+      node.setOutputData(outputSocketName, value);
+      node.executeChildren();
     };
 
+    const loadData = useCallback(() => {
+      setCodeString(parseData(props[inputSocketName]));
+      node.setOutputData(outputSocketName, props[inputSocketName]);
+      node.executeChildren();
+    }, [props[inputSocketName]]);
+
     const [codeString, setCodeString] = useState<string | undefined>(
-      parseData(props.data)
+      parseData(props[inputSocketName])
+    );
+
+    const [readOnly, setReadOnly] = useState<boolean>(
+      node.getInputSocketByName(inputSocketName).hasLink()
     );
 
     useEffect(() => {
-      setCodeString(parseData(props.data));
-      this.setOutputData(outputSocketName, props.data);
-      this.executeChildren();
-    }, [props.data]);
+      if (node.initialData) {
+        node.setInputData(inputSocketName, node.initialData);
+        setCodeString(parseData(node.initialData));
+        node.setOutputData(outputSocketName, node.initialData);
+        node.executeOptimizedChain();
+      }
+    }, []);
+
+    useEffect(() => {
+      loadData();
+    }, [props[inputSocketName], props[inputSocketName]?.length]);
+
+    useEffect(() => {
+      setReadOnly(node.getInputSocketByName(inputSocketName).hasLink());
+    }, [node.getInputSocketByName(inputSocketName).hasLink()]);
 
     return (
       <ErrorBoundary FallbackComponent={ErrorFallback}>
@@ -169,14 +129,14 @@ export class CodeEditor extends HybridNode {
           <Box sx={{ position: 'relative' }}>
             <MonacoEditor
               width="100%"
-              height={`${props.nodeHeight}px`}
+              height={`${node.nodeHeight}px`}
               language="javascript"
               theme="vs-dark"
               value={codeString || ''}
               options={{
                 automaticLayout: true,
                 lineNumbersMinChars: 4,
-                readOnly: props.readOnly,
+                readOnly: readOnly,
                 selectOnLineNumbers: true,
                 tabSize: 2,
                 wordWrap: 'on',
@@ -187,5 +147,5 @@ export class CodeEditor extends HybridNode {
         </ThemeProvider>
       </ErrorBoundary>
     );
-  };
+  }
 }
