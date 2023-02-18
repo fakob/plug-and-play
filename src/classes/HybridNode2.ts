@@ -118,11 +118,6 @@ export default abstract class HybridNode2 extends PPNode {
 
   protected onHybridNodeExit(): void { }
 
-  configure(nodeConfig: SerializedNode): void {
-    super.configure(nodeConfig);
-    this._onViewportMove(); // trigger this once, so the react components get positioned properly
-  }
-
   setPosition(x: number, y: number, isRelative = false): void {
     super.setPosition(x, y, isRelative);
     this._onViewportMove(); // trigger this once, so the react components get positioned properly
