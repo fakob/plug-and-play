@@ -33,7 +33,6 @@ import {
   SOCKET_TYPE,
   customTheme,
 } from '../../utils/constants';
-import { roundNumber } from '../../utils/utils';
 import { AnyType } from '../datatypes/anyType';
 import { ArrayType } from '../datatypes/arrayType';
 import { BooleanType } from '../datatypes/booleanType';
@@ -469,7 +468,10 @@ export class WidgetSlider extends Widget_Base {
 
     const handleOnChange = (event, value) => {
       if (!Array.isArray(value)) {
-        setData(roundNumber(value, 4));
+        if (value !== props[initialValueName]) {
+          node.setInputData(initialValueName, value);
+        }
+        setData(value);
         node.setOutputData(outName, value);
         node.executeChildren();
       }
