@@ -2,9 +2,10 @@ import * as PIXI from 'pixi.js';
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
 import PPSocket from '../classes/SocketClass';
-import { CustomArgs, TRgba } from '../utils/interfaces';
+import { CustomArgs, TNodeSource, TRgba } from '../utils/interfaces';
 import {
   NODE_MARGIN,
+  NODE_SOURCE,
   NODE_TYPE_COLOR,
   NOTE_LINEHEIGHT_FACTOR,
   NOTE_MARGIN_STRING,
@@ -97,20 +98,20 @@ export class Label extends PPNode {
     return this.getInputData('backgroundColor');
   }
 
-  // when the Node is added, focus it so one can start writing
-  public onNodeAdded = () => {
+  public onNodeAdded = (source?: TNodeSource) => {
     if (this.initialData) {
       this.setInputData('Input', this.initialData);
     }
-    this.currentInput = null;
-    this.createInputElement();
-    super.onNodeAdded();
-  };
 
-  // when the Node has been configured, remove focus
-  public onConfigure = () => {
-    this.currentInput.remove();
-    this._refText.visible = true;
+    // if the Node is newly added, focus it so one can start writing
+    if (source === NODE_SOURCE.NEW) {
+      this.currentInput = null;
+      this.createInputElement();
+    } else {
+      this._refText.visible = true;
+    }
+
+    super.onNodeAdded(source);
   };
 
   public createInputElement = () => {

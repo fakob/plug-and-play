@@ -174,6 +174,12 @@ export const NODE_TYPE_COLOR = {
   MISSING: COLOR_ERROR,
 };
 
+export const NODE_SOURCE = {
+  NEW: 'New',
+  NEWCONNECTED: 'NewConnected',
+  SERIALIZED: 'Serialized',
+} as const;
+
 export const COMMENT_TEXTSTYLE = new TextStyle({
   fontSize: 12,
   fill: COLOR_COMMENT,
