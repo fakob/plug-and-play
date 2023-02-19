@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 
-import React, { FunctionComponent, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Button,
   Checkbox,
@@ -26,21 +26,19 @@ import ColorizeIcon from '@mui/icons-material/Colorize';
 import { SketchPicker } from 'react-color';
 import Socket from '../../classes/SocketClass';
 import { Widget_Base } from './abstract';
-import { CustomArgs, TRgba } from '../../utils/interfaces';
+import { TRgba } from '../../utils/interfaces';
 import {
   PRESET_COLORS,
   RANDOMMAINCOLOR,
   SOCKET_TYPE,
   customTheme,
 } from '../../utils/constants';
-import { roundNumber } from '../../utils/utils';
 import { AnyType } from '../datatypes/anyType';
 import { ArrayType } from '../datatypes/arrayType';
 import { BooleanType } from '../datatypes/booleanType';
 import { NumberType } from '../datatypes/numberType';
 import { StringType } from '../datatypes/stringType';
 import { ColorType } from '../datatypes/colorType';
-import PPNode from '../../classes/NodeClass';
 
 const selectedName = 'Initial selection';
 const initialValueName = 'Initial value';
@@ -59,14 +57,6 @@ const outName = 'Out';
 const margin = 4;
 
 const defaultOptions = ['Option1', 'Option2', 'Option3'];
-
-type WidgetButtonProps = {
-  doubleClicked: boolean; // is injected by the NodeClass
-  nodeWidth: number;
-  nodeHeight: number;
-  margin: number;
-  buttonText: number;
-};
 
 export class WidgetButton extends Widget_Base {
   protected getDefaultIO(): Socket[] {
@@ -101,6 +91,12 @@ export class WidgetButton extends Widget_Base {
 
   protected getParentComponent(props: any): any {
     const node = props.node;
+
+    useEffect(() => {
+      node.setOutputData(outName, node.getInputData(offValueName));
+      node.executeChildren();
+    }, []);
+
     const handleOnPointerDown = () => {
       node.onWidgetTrigger();
       const inputData = node.getInputData(onValueName);
@@ -206,6 +202,11 @@ export class WidgetColorPicker extends Widget_Base {
       props[initialValueName] || TRgba.white()
     );
     const [colorPicker, showColorPicker] = useState(false);
+
+    useEffect(() => {
+      node.setOutputData(outName, finalColor);
+      node.executeChildren();
+    }, []);
 
     const handleOnChange = (color) => {
       const pickedrgb = color.rgb;
@@ -335,15 +336,22 @@ export class WidgetSwitch extends Widget_Base {
 
     const [selected, setSelected] = useState(node.getInputData(selectedName));
 
-    const handleOnChange = () => {
-      const newValue = !selected;
-      setSelected(newValue);
-      // const selectedValue = this.getInputData(selectedName);
+    useEffect(() => {
+      prepareAndExecute(selected);
+    }, []);
+
+    const prepareAndExecute = (newValue) => {
       const onValue = node.getInputData(onValueName);
       const offValue = node.getInputData(offValueName);
       node.setInputData(selectedName, newValue ? onValue : offValue);
       node.setOutputData(outName, newValue ? onValue : offValue);
       node.executeChildren();
+    };
+
+    const handleOnChange = () => {
+      const newValue = !selected;
+      setSelected(newValue);
+      prepareAndExecute(newValue);
     };
 
     return (
@@ -440,6 +448,11 @@ export class WidgetSlider extends Widget_Base {
     );
 
     useEffect(() => {
+      node.setOutputData(outName, data);
+      node.executeChildren();
+    }, []);
+
+    useEffect(() => {
       setData(Number(props[initialValueName]));
       setMinValue(Math.min(props[minValueName] ?? 0, data));
       setMaxValue(Math.max(props[maxValueName] ?? 100, data));
@@ -455,7 +468,10 @@ export class WidgetSlider extends Widget_Base {
 
     const handleOnChange = (event, value) => {
       if (!Array.isArray(value)) {
-        setData(roundNumber(value, 4));
+        if (value !== props[initialValueName]) {
+          node.setInputData(initialValueName, value);
+        }
+        setData(value);
         node.setOutputData(outName, value);
         node.executeChildren();
       }
