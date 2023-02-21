@@ -91,8 +91,8 @@ export class HTTPNode extends PPNode {
     outputObject: Record<string, unknown>
   ): Promise<void> {
     const usingCompanion: boolean = inputObject[sendThroughCompanionName];
-    let awaitedRes: Response = undefined;
     this.statuses = [];
+    let returnJSON = {};
     if (usingCompanion) {
       this.statuses.push({
         color: TRgba.white().multiply(0.5),
@@ -105,15 +105,15 @@ export class HTTPNode extends PPNode {
           finalURL: inputObject[urlInputName],
           finalMethod: inputObject[methodName],
         };
-        if (inputObject[methodName] == 'Get') {
-          delete companionSpecific.finalBody;
-        }
         const res = fetch(inputObject[sendThroughCompanionAddress], {
           method: 'Post',
           headers: inputObject[headersInputName],
           body: JSON.stringify(companionSpecific),
         });
-        awaitedRes = await res;
+        const companionRes = await (await res).json();
+        returnJSON = JSON.parse(companionRes.response);
+        //this.pushStatusCode(companionRes.status);
+        //console.log('awaitedres: ' + (await (await res).text()));
       } catch (error) {
         this.pushStatusCode(404);
         throw 'Unable to reach companion, is it running at designated address?';
@@ -129,11 +129,12 @@ export class HTTPNode extends PPNode {
         headers: inputObject[headersInputName],
         body: body,
       });
-      awaitedRes = await res;
+      const awaitedRes = await res;
+      returnJSON = awaitedRes.json();
+      this.pushStatusCode(awaitedRes.status);
     }
-    this.pushStatusCode(awaitedRes.status);
 
-    outputObject[outputContentName] = await awaitedRes.json();
+    outputObject[outputContentName] = returnJSON;
   }
 
   getColor(): TRgba {
