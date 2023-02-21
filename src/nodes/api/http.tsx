@@ -112,7 +112,7 @@ export class HTTPNode extends PPNode {
         });
         const companionRes = await (await res).json();
         returnJSON = JSON.parse(companionRes.response);
-        //this.pushStatusCode(companionRes.status);
+        this.pushStatusCode(companionRes.status);
         //console.log('awaitedres: ' + (await (await res).text()));
       } catch (error) {
         this.pushStatusCode(404);
