@@ -1,6 +1,5 @@
 import * as PIXI from 'pixi.js';
 import React, {
-  FunctionComponent,
   useCallback,
   useEffect,
   useMemo,
@@ -10,13 +9,11 @@ import React, {
 import * as XLSX from 'xlsx';
 import DataEditor, {
   CellClickedEventArgs,
-  CompactSelection,
   DataEditorRef,
   EditableGridCell,
   GridCell,
   GridCellKind,
   GridColumn,
-  GridSelection,
   GridMouseEventArgs,
   HeaderClickedEventArgs,
   Item,
@@ -25,6 +22,7 @@ import DataEditor, {
 import '@glideapps/glide-data-grid/dist/index.css';
 import {
   Box,
+  Button,
   Divider,
   IconButton,
   ListItemIcon,
@@ -57,6 +55,7 @@ import PPGraph from '../../classes/GraphClass';
 import PPNode from '../../classes/NodeClass';
 import HybridNode2 from '../../classes/HybridNode2';
 
+const inputArrayOfArraysSocketName = 'Input Array of arrays';
 const arrayOfArraysSocketName = 'Array of arrays';
 const rowObjectsNames = 'Row Objects';
 const workBookInputSocketName = 'Initial data';
@@ -83,7 +82,7 @@ export class Table extends HybridNode2 {
   }
 
   getPreferredInputSocketName(): string {
-    return sheetIndexInputSocketName;
+    return inputArrayOfArraysSocketName;
   }
 
   public getName(): string {
@@ -193,6 +192,13 @@ export class Table extends HybridNode2 {
         new NumberType(true),
         0
       ),
+      new PPSocket(
+        SOCKET_TYPE.IN,
+        inputArrayOfArraysSocketName,
+        new ArrayType(),
+        [],
+        false
+      ),
     ];
   }
 
@@ -231,15 +237,23 @@ export class Table extends HybridNode2 {
       const sheetIndex = node.getIndex();
       const workSheet =
         node.workBook.Sheets[node.workBook.SheetNames[sheetIndex]];
-      const range = XLSX.utils.decode_range(workSheet['!ref']);
-      // sheet_to_json will lose empty row and col at begin as default
-      range.s = { c: 0, r: 0 };
-      const toJson = XLSX.utils.sheet_to_json(workSheet, {
-        raw: false,
-        header: 1,
-        range: range,
-      });
-      setArrayOfArrays(toJson);
+      try {
+        const range = XLSX.utils.decode_range(workSheet['!ref']);
+        // sheet_to_json will lose empty row and col at begin as default
+        range.s = { c: 0, r: 0 };
+        const toJson = XLSX.utils.sheet_to_json(workSheet, {
+          raw: false,
+          header: 1,
+          range: range,
+        });
+        setArrayOfArrays(toJson);
+      } catch (error) {
+        setArrayOfArrays([[], []]);
+      }
+    };
+
+    const onExport = () => {
+      XLSX.writeFile(node.workBook, 'out.xlsx');
     };
 
     const getCols = (): GridColumn[] => {
@@ -312,7 +326,7 @@ export class Table extends HybridNode2 {
       } else {
         // create workbook with an empty worksheet
         node.workBook = XLSX.utils.book_new();
-        const ws_data = new Array(24).fill(Array(24).fill(''));
+        const ws_data = new Array(7).fill(Array(7).fill(''));
         const worksheet = XLSX.utils.aoa_to_sheet(ws_data);
         XLSX.utils.book_append_sheet(node.workBook, worksheet, 'Sheet1');
       }
@@ -337,6 +351,16 @@ export class Table extends HybridNode2 {
     useEffect(() => {
       saveAndOutput();
     }, [arrayOfArrays, colsMap]);
+
+    useEffect(() => {
+      if (
+        Array.isArray(props[inputArrayOfArraysSocketName]) &&
+        props[inputArrayOfArraysSocketName][0] !== undefined
+      ) {
+        setArrayOfArrays(props[inputArrayOfArraysSocketName]);
+        saveAndOutput();
+      }
+    }, [props[inputArrayOfArraysSocketName]]);
 
     const saveAndOutput = useCallback((): void => {
       const worksheet = XLSX.utils.aoa_to_sheet(arrayOfArrays);
@@ -516,7 +540,16 @@ export class Table extends HybridNode2 {
     );
 
     return (
-      <>
+      <Box sx={{ position: 'relative' }}>
+        <Button
+          sx={{ position: 'absolute', bottom: '8px', right: '8px', zIndex: 10 }}
+          color="secondary"
+          variant="contained"
+          size="small"
+          onClick={onExport}
+        >
+          Export
+        </Button>
         <DataEditor
           ref={ref}
           getCellContent={getContent}
@@ -764,7 +797,7 @@ export class Table extends HybridNode2 {
             <ListItemText>Delete row</ListItemText>
           </MenuItem>
         </Menu>
-      </>
+      </Box>
     );
   }
 
