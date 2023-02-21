@@ -130,7 +130,7 @@ export class HTTPNode extends PPNode {
         body: body,
       });
       const awaitedRes = await res;
-      returnJSON = awaitedRes.json();
+      returnJSON = await awaitedRes.json();
       this.pushStatusCode(awaitedRes.status);
     }
 
