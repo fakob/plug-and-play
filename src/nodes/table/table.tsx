@@ -301,9 +301,9 @@ export class Table extends HybridNode2 {
     const exportOptions = ['xlsx', 'csv', 'txt', 'html', 'rtf'];
 
     const [hoverRow, setHoverRow] = useState<number | undefined>(undefined);
-    const [openExportFormat, setExportFormatOpen] = React.useState(false);
-    const anchorRef = React.useRef<HTMLDivElement>(null);
-    const [selectedExportIndex, setSelectedExportIndex] = React.useState(0);
+    const [openExportFormat, setExportFormatOpen] = useState(false);
+    const anchorRef = useRef<HTMLDivElement>(null);
+    const [selectedExportIndex, setSelectedExportIndex] = useState(0);
 
     const handleExportFormatClose = (event: Event) => {
       if (
