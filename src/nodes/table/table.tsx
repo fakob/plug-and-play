@@ -23,15 +23,23 @@ import '@glideapps/glide-data-grid/dist/index.css';
 import {
   Box,
   Button,
+  ButtonGroup,
+  ClickAwayListener,
   Divider,
+  Grow,
   IconButton,
   ListItemIcon,
   ListItemText,
   MenuItem,
+  MenuList,
   Menu,
+  Paper,
+  Popper,
 } from '@mui/material';
+import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
+import DownloadIcon from '@mui/icons-material/Download';
 import EastIcon from '@mui/icons-material/East';
 import SortIcon from '@mui/icons-material/Sort';
 import PPSocket from '../../classes/SocketClass';
@@ -253,7 +261,13 @@ export class Table extends HybridNode2 {
     };
 
     const onExport = () => {
-      XLSX.writeFile(node.workBook, 'out.xlsx');
+      XLSX.writeFile(
+        node.workBook,
+        `${node.name}.${exportOptions[selectedExportIndex]}`,
+        {
+          sheet: node.workBook.SheetNames[node.getIndex()],
+        }
+      );
     };
 
     const getCols = (): GridColumn[] => {
@@ -290,7 +304,35 @@ export class Table extends HybridNode2 {
       cell: Item;
       pos: PIXI.Point;
     }>();
+    const exportOptions = ['xlsx', 'csv', 'txt', 'html', 'rtf'];
+
     const [hoverRow, setHoverRow] = useState<number | undefined>(undefined);
+    const [openExportFormat, setExportFormatOpen] = React.useState(false);
+    const anchorRef = React.useRef<HTMLDivElement>(null);
+    const [selectedExportIndex, setSelectedExportIndex] = React.useState(0);
+
+    const handleExportFormatClose = (event: Event) => {
+      if (
+        anchorRef.current &&
+        anchorRef.current.contains(event.target as HTMLElement)
+      ) {
+        return;
+      }
+
+      setExportFormatOpen(false);
+    };
+
+    const handleExportFormatToggle = () => {
+      setExportFormatOpen((prevOpen) => !prevOpen);
+    };
+
+    const handleExportFormatClick = (
+      event: React.MouseEvent<HTMLLIElement, MouseEvent>,
+      index: number
+    ) => {
+      setSelectedExportIndex(index);
+      setExportFormatOpen(false);
+    };
 
     const onItemHovered = useCallback((args: GridMouseEventArgs) => {
       const [_, row] = args.location;
@@ -541,15 +583,70 @@ export class Table extends HybridNode2 {
 
     return (
       <Box sx={{ position: 'relative' }}>
-        <Button
-          sx={{ position: 'absolute', bottom: '8px', right: '8px', zIndex: 10 }}
-          color="secondary"
-          variant="contained"
-          size="small"
-          onClick={onExport}
-        >
-          Export
-        </Button>
+        {props.doubleClicked && (
+          <>
+            <ButtonGroup
+              variant="contained"
+              size="small"
+              ref={anchorRef}
+              sx={{
+                position: 'absolute',
+                bottom: '8px',
+                right: '8px',
+                zIndex: 10,
+              }}
+            >
+              <Button
+                size="small"
+                onClick={handleExportFormatToggle}
+                sx={{ px: 1 }}
+              >
+                {exportOptions[selectedExportIndex]}
+              </Button>
+              <Button onClick={onExport}>
+                <DownloadIcon sx={{ ml: 0.5, fontSize: '16px' }} />{' '}
+              </Button>
+            </ButtonGroup>
+            <Popper
+              sx={{
+                zIndex: 1,
+              }}
+              open={openExportFormat}
+              anchorEl={anchorRef.current}
+              role={undefined}
+              transition
+              disablePortal
+              placement="top-start"
+            >
+              {({ TransitionProps }) => (
+                <Grow
+                  {...TransitionProps}
+                  style={{
+                    transformOrigin: 'center bottom',
+                  }}
+                >
+                  <Paper>
+                    <ClickAwayListener onClickAway={handleExportFormatClose}>
+                      <MenuList id="split-button-menu" autoFocusItem>
+                        {exportOptions.map((option, index) => (
+                          <MenuItem
+                            key={option}
+                            selected={index === selectedExportIndex}
+                            onClick={(event) =>
+                              handleExportFormatClick(event, index)
+                            }
+                          >
+                            {option}
+                          </MenuItem>
+                        ))}
+                      </MenuList>
+                    </ClickAwayListener>
+                  </Paper>
+                </Grow>
+              )}
+            </Popper>
+          </>
+        )}
         <DataEditor
           ref={ref}
           getCellContent={getContent}
