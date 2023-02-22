@@ -36,7 +36,6 @@ import {
   Paper,
   Popper,
 } from '@mui/material';
-import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import DownloadIcon from '@mui/icons-material/Download';
@@ -63,9 +62,9 @@ import PPGraph from '../../classes/GraphClass';
 import PPNode from '../../classes/NodeClass';
 import HybridNode2 from '../../classes/HybridNode2';
 
-const inputArrayOfArraysSocketName = 'Input Array of arrays';
+const inputSocketName = 'Input';
 const arrayOfArraysSocketName = 'Array of arrays';
-const rowObjectsNames = 'Row Objects';
+const rowObjectsNames = 'Array of objects';
 const workBookInputSocketName = 'Initial data';
 const sheetIndexInputSocketName = 'Sheet index';
 
@@ -90,7 +89,7 @@ export class Table extends HybridNode2 {
   }
 
   getPreferredInputSocketName(): string {
-    return inputArrayOfArraysSocketName;
+    return inputSocketName;
   }
 
   public getName(): string {
@@ -198,15 +197,10 @@ export class Table extends HybridNode2 {
         SOCKET_TYPE.IN,
         sheetIndexInputSocketName,
         new NumberType(true),
-        0
-      ),
-      new PPSocket(
-        SOCKET_TYPE.IN,
-        inputArrayOfArraysSocketName,
-        new ArrayType(),
-        [],
+        0,
         false
       ),
+      new PPSocket(SOCKET_TYPE.IN, inputSocketName, new ArrayType(), [], false),
     ];
   }
 
@@ -396,13 +390,27 @@ export class Table extends HybridNode2 {
 
     useEffect(() => {
       if (
-        Array.isArray(props[inputArrayOfArraysSocketName]) &&
-        props[inputArrayOfArraysSocketName][0] !== undefined
+        Array.isArray(props[inputSocketName]) &&
+        props[inputSocketName][0] !== undefined
       ) {
-        setArrayOfArrays(props[inputArrayOfArraysSocketName]);
-        saveAndOutput();
+        try {
+          if (Array.isArray(props[inputSocketName][0])) {
+            setArrayOfArrays(props[inputSocketName]);
+          } else {
+            const tempWS = XLSX.utils.json_to_sheet(props[inputSocketName]);
+            const toJson = XLSX.utils.sheet_to_json(tempWS, {
+              raw: false,
+              header: 1,
+            });
+            setArrayOfArrays(toJson);
+          }
+          setColsMap(() => getCols());
+          saveAndOutput();
+        } catch (error) {
+          setArrayOfArrays([[], []]);
+        }
       }
-    }, [props[inputArrayOfArraysSocketName]]);
+    }, [props[inputSocketName]]);
 
     const saveAndOutput = useCallback((): void => {
       const worksheet = XLSX.utils.aoa_to_sheet(arrayOfArrays);
