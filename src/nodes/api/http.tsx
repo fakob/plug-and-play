@@ -101,10 +101,12 @@ export class HTTPNode extends PPNode {
       try {
         const companionSpecific = {
           finalHeaders: inputObject[headersInputName],
-          finalBody: inputObject[bodyInputName],
+          finalBody: JSON.stringify(inputObject[bodyInputName]),
           finalURL: inputObject[urlInputName],
           finalMethod: inputObject[methodName],
         };
+        console.log('URL: ' + inputObject[urlInputName]);
+        console.log('Method: ' + inputObject[methodName]);
         const res = fetch(inputObject[sendThroughCompanionAddress], {
           method: 'Post',
           headers: inputObject[headersInputName],
