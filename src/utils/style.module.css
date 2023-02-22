@@ -155,6 +155,10 @@
   overflow: auto;
 }
 
+.hybridContainerInner {
+  height: 100%;
+}
+
 .hybridContainer:focus {
   outline: none;
 }

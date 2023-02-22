@@ -4,17 +4,17 @@
 import React from 'react';
 import { createRoot, Root } from 'react-dom/client';
 import * as PIXI from 'pixi.js';
+import { Button } from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
 import PPGraph from './GraphClass';
 import PPNode from './NodeClass';
 import styles from '../utils/style.module.css';
 import { CustomArgs, SerializedNode } from '../utils/interfaces';
 import { RANDOMMAINCOLOR } from '../utils/constants';
 
-
 function pixiToContainerNumber(value: number) {
   return `${Math.round(value)}px`;
 }
-
 
 export default abstract class HybridNode2 extends PPNode {
   root: Root;
@@ -55,7 +55,6 @@ export default abstract class HybridNode2 extends PPNode {
     this.container.style.transform = `scale(${scale}`;
     this.container.style.left = `${screenPoint.x}px`;
     this.container.style.top = `${screenPoint.y}px`;
-
 
     this.onNodeDragOrViewportMove = ({ screenX, screenY, scale }) => {
       if (this.container.style.transform != `scale(${scale.toPrecision(3)})`) {
@@ -99,15 +98,38 @@ export default abstract class HybridNode2 extends PPNode {
     node: PPNode = this
   ): void => {
     root.render(
-      React.createElement(this.getParentComponent, {
-        initialData: this.initialData, // positioned before the props so it can be overwritten by them
-        ...props,
-        id: this.id,
-        selected: this.selected,
-        doubleClicked: this.doubleClicked,
-        randomMainColor: RANDOMMAINCOLOR,
-        node: node,
-      })
+      <div className={styles.hybridContainerInner}>
+        <this.getParentComponent
+          initialData={this.initialData} // positioned before the props so it can be overwritten by them
+          {...props}
+          id={this.id}
+          selected={this.selected}
+          doubleClicked={this.doubleClicked}
+          randomMainColor={RANDOMMAINCOLOR}
+          node={node}
+        />
+        <Button
+          title={`${props.posLeft ? 'Close inspector' : 'Open inspector'}`}
+          size="small"
+          onClick={props.handleDrawerToggle}
+          color="primary"
+          sx={{
+            position: 'absolute',
+            top: '40px',
+            left: `${props.posLeft ? '-32px' : 'auto'}`,
+            right: `${props.posLeft ? 'auto' : '32px'}`,
+            width: '32px',
+            minWidth: '32px',
+            // background: `${
+            //   props.areNodesSelected
+            //     ? Color(props.randomMainColor).alpha(0.2)
+            //     : 'unset'
+            // }`,
+          }}
+        >
+          {!this.doubleClicked && <EditIcon />}
+        </Button>
+      </div>
     );
   };
 
@@ -116,7 +138,7 @@ export default abstract class HybridNode2 extends PPNode {
     document.getElementById('container').removeChild(container);
   }
 
-  protected onHybridNodeExit(): void { }
+  protected onHybridNodeExit(): void {}
 
   configure(nodeConfig: SerializedNode): void {
     super.configure(nodeConfig);
