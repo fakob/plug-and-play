@@ -11,7 +11,7 @@ export enum ListenEvent {
   ViewportDragging, // data = Boolean
   ViewportZoom, // data = Boolean
   GlobalPointerDown, // data = void TODO implement
-  GlobalPointerUp, // data = event: PIXI.InteractionEvent
+  GlobalPointerUp, // data = event: PIXI.FederatedPointerEvent
   GraphChanged, // data = {id,name}
   OpenInspectorFocusingOnSocket, // (data: Socket) => void: called when inspector should be opened to focus on a socket
 }
@@ -64,7 +64,7 @@ export default class InterfaceController {
   static hideSnackBar = (key: SnackbarKey) => {};
 
   static onRightClick: (
-    event: PIXI.InteractionEvent,
+    event: PIXI.FederatedPointerEvent,
     target: PIXI.DisplayObject
   ) => void = () => {}; // called when the graph is right clicked
   static onOpenNodeSearch: (pos: PIXI.Point) => void = () => {}; // called node search should be openend

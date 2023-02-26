@@ -436,7 +436,7 @@ export class DRAW_Multiplier extends DRAW_Base {
       const alphaPre = shallowContainer.alpha;
       const scalePreX = shallowContainer.scale.x;
       const scalePreY = shallowContainer.scale.y;
-      shallowContainer.on('pointerdown', (e) => {
+      shallowContainer.addEventListener('pointerdown', (e) => {
         this.setOutputData(outputMultiplierIndex, i);
         this.setOutputData(outputMultiplierInjected, executions);
         this.setOutputData(outputMultiplierPointerDown, true);
@@ -448,7 +448,7 @@ export class DRAW_Multiplier extends DRAW_Base {
         shallowContainer.alpha = alphaPre * 0.8;
       });
 
-      shallowContainer.on('pointerup', (e) => {
+      shallowContainer.addEventListener('pointerup', (e) => {
         this.setOutputData(outputMultiplierPointerDown, false);
         this.executeChildren();
         shallowContainer.alpha = alphaPre;
@@ -461,7 +461,7 @@ export class DRAW_Multiplier extends DRAW_Base {
 
     this.positionAndScale(myContainer, inputObject);
     myContainer.interactive = true;
-    myContainer.on('pointerdown', (e) => {
+    myContainer.addEventListener('pointerdown', (e) => {
       console.log('im pressed');
     });
     container.addChild(myContainer);
@@ -690,7 +690,7 @@ export class Export_Image_From_Graphics extends PPNode {
     const newContainer = new PIXI.Container();
     inputObject[outputPixiName](newContainer, {});
     this.addChild(newContainer);
-    const base64out = PPGraph.currentGraph.app.renderer.plugins.extract.image(
+    const base64out = PPGraph.currentGraph.app.renderer.extract.image(
       newContainer,
       'image/jpeg',
       inputObject[outputQualityName]

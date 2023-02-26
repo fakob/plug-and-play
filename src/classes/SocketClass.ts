@@ -169,9 +169,15 @@ export default class Socket extends PIXI.Container {
       this._TextRef.pivot = new PIXI.Point(0, SOCKET_WIDTH / 2);
 
       this._TextRef.interactive = true;
-      this._TextRef.on('pointerover', this._onPointerOver.bind(this));
-      this._TextRef.on('pointerout', this._onPointerOut.bind(this));
-      this._TextRef.on('pointerdown', (event) => {
+      this._TextRef.addEventListener(
+        'pointerover',
+        this._onPointerOver.bind(this)
+      );
+      this._TextRef.addEventListener(
+        'pointerout',
+        this._onPointerOut.bind(this)
+      );
+      this._TextRef.addEventListener('pointerdown', (event) => {
         if (event.data.button !== 2) {
           this.getGraph().socketNameRefMouseDown(this, event);
         }
@@ -181,10 +187,20 @@ export default class Socket extends PIXI.Container {
     this._SocketRef.endFill();
     this._SocketRef.name = 'SocketRef';
     this._SocketRef.interactive = true;
-    this._SocketRef.on('pointerover', this._onPointerOver.bind(this));
-    this._SocketRef.on('pointerout', this._onPointerOut.bind(this));
-    this._SocketRef.on('pointerdown', (event) => this._onPointerDown(event));
-    this._SocketRef.on('pointerup', (event) => this._onPointerUp(event));
+    this._SocketRef.addEventListener(
+      'pointerover',
+      this._onPointerOver.bind(this)
+    );
+    this._SocketRef.addEventListener(
+      'pointerout',
+      this._onPointerOut.bind(this)
+    );
+    this._SocketRef.addEventListener('pointerdown', (event) =>
+      this._onPointerDown(event)
+    );
+    this._SocketRef.addEventListener('pointerup', (event) =>
+      this._onPointerUp(event)
+    );
     this.addChild(this._SelectionBox);
     this.addChild(this._SocketRef);
     this.addChild(this._TextRef);
@@ -397,11 +413,11 @@ export default class Socket extends PIXI.Container {
     //this._TextRef.scale = new PIXI.Point(1, 1);
   }
 
-  _onPointerDown(event: PIXI.InteractionEvent): void {
+  _onPointerDown(event: PIXI.FederatedPointerEvent): void {
     this.getGraph().socketMouseDown(this, event);
   }
 
-  _onPointerUp(event: PIXI.InteractionEvent): void {
+  _onPointerUp(event: PIXI.FederatedPointerEvent): void {
     this.getGraph().socketMouseUp(this, event);
     //this.nodeHoveredOut(); // i removed this, is it needed?
   }

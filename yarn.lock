@@ -2377,7 +2377,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pixi/text-html@npm:^7.2.0-beta.2":
+"@pixi/text-html@npm:^7.2.0-beta.3":
   version: 7.2.0-beta.3
   resolution: "@pixi/text-html@npm:7.2.0-beta.3"
   checksum: 46fbf9a83751199b1be08e683d631c552393ab98bb954a8c12b7aec6f78c1de5dd2cfc180eb403c63e29e130206b4c668e4c534ef1a0e2f85ba51ca01903b0ce
@@ -8605,7 +8605,7 @@ __metadata:
     "@mui/icons-material": ^5.11.0
     "@mui/material": ^5.11.7
     "@mui/styles": ^5.11.7
-    "@pixi/text-html": ^7.2.0-beta.2
+    "@pixi/text-html": ^7.2.0-beta.3
     "@types/copy-webpack-plugin": ^10.1.0
     "@types/html-webpack-plugin": ^3.2.6
     "@types/mini-css-extract-plugin": ^2.5.1

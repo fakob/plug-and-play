@@ -133,7 +133,7 @@ export default abstract class HybridNode2 extends PPNode {
     document.getElementById('container').removeChild(container);
   }
 
-  protected onHybridNodeExit(): void { }
+  protected onHybridNodeExit(): void {}
 
   setPosition(x: number, y: number, isRelative = false): void {
     super.setPosition(x, y, isRelative);
@@ -153,12 +153,12 @@ export default abstract class HybridNode2 extends PPNode {
     this.execute();
   }
 
-  _onDoubleClick(event: any): void {
+  _onDoubleClick(event: PIXI.FederatedPointerEvent): void {
     super._onDoubleClick(event);
     // turn on pointer events for hybrid nodes so the react components become reactive
     if (this.getActivateByDoubleClick()) {
       // register hybrid nodes to listen to outside clicks
-      PPGraph.currentGraph.viewport.on(
+      PPGraph.currentGraph.viewport.addEventListener(
         'pointerup',
         (this as any).onViewportPointerUpHandler
       );
@@ -203,5 +203,4 @@ export default abstract class HybridNode2 extends PPNode {
   public getIsPresentationalNode(): boolean {
     return true;
   }
-
 }

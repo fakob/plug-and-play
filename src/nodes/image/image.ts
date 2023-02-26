@@ -85,7 +85,7 @@ export class Image extends PPNode {
   public getOpacity(): number {
     return 0.2;
   }
-  
+
   public getShrinkOnSocketRemove(): boolean {
     return false;
   }
@@ -174,7 +174,10 @@ export class Image extends PPNode {
         this.texture = PIXI.Texture.from(base64);
 
         // callback when a new texture has been loaded
-        this.texture.baseTexture.on('loaded', hasBaseTextureLoaded);
+        this.texture.baseTexture.addEventListener(
+          'loaded',
+          hasBaseTextureLoaded
+        );
 
         // create image mask
         // only run once if the mask is not yet defined

@@ -102,11 +102,22 @@ export default class PPGraph {
     window.addEventListener('resize', resize);
 
     // register pointer events
-    this.viewport.on('pointerdown', this._onPointerDown.bind(this));
+    this.viewport.addEventListener(
+      'pointerdown',
+      this._onPointerDown.bind(this)
+    );
 
-    this.viewport.on('rightclick', this._onPointerRightClicked.bind(this));
-    this.viewport.on('dblclick', this._onPointerDoubleClicked.bind(this));
-    this.viewport.on('pointermove', (event) => this.onViewportMove(event));
+    this.viewport.addEventListener(
+      'rightclick',
+      this._onPointerRightClicked.bind(this)
+    );
+    this.viewport.addEventListener(
+      'dblclick',
+      this._onPointerDoubleClicked.bind(this)
+    );
+    this.viewport.addEventListener('pointermove', (event) =>
+      this.onViewportMove(event)
+    );
 
     InterfaceController.addListener(
       ListenEvent.GlobalPointerUp,
@@ -121,7 +132,7 @@ export default class PPGraph {
   }
 
   // SETUP
-  _onPointerRightClicked(event: PIXI.InteractionEvent): void {
+  _onPointerRightClicked(event: PIXI.FederatedPointerEvent): void {
     console.log('GraphClass - _onPointerRightClicked');
     event.stopPropagation();
     const target = event.target;
@@ -135,7 +146,7 @@ export default class PPGraph {
     }
   }
 
-  _onPointerDoubleClicked(event: PIXI.InteractionEvent): void {
+  _onPointerDoubleClicked(event: PIXI.FederatedPointerEvent): void {
     console.log('_onPointerDoubleClicked');
     event.stopPropagation();
     const target = event.target;
@@ -144,7 +155,7 @@ export default class PPGraph {
     }
   }
 
-  _onPointerDown(event: PIXI.InteractionEvent): void {
+  _onPointerDown(event: PIXI.FederatedPointerEvent): void {
     console.log('_onPointerDown');
     //event.stopPropagation();
 
@@ -167,7 +178,7 @@ export default class PPGraph {
     }
   }
 
-  _onPointerUpAndUpOutside(event: PIXI.InteractionEvent): void {
+  _onPointerUpAndUpOutside(event: PIXI.FederatedPointerEvent): void {
     if (!this.overInputRef && this.selectedSourceSocket) {
       if (!this.overrideNodeCursorPosition) {
         this.overrideNodeCursorPosition = this.viewport.toWorld(
@@ -215,12 +226,12 @@ export default class PPGraph {
     return this.viewport.toWorld(dragSourcePoint);
   }
 
-  _onNodePointerDown(event: PIXI.InteractionEvent): void {
+  _onNodePointerDown(event: PIXI.FederatedPointerEvent): void {
     event.stopPropagation();
     this.viewport.plugins.pause('drag');
   }
 
-  onViewportMove(event: PIXI.InteractionEvent): void {
+  onViewportMove(event: PIXI.FederatedPointerEvent): void {
     this.tempConnection.clear();
 
     // draw connection
@@ -278,7 +289,7 @@ export default class PPGraph {
     this.overInputRef = null;
   }
 
-  socketMouseDown(socket: PPSocket, event: PIXI.InteractionEvent): void {
+  socketMouseDown(socket: PPSocket, event: PIXI.FederatedPointerEvent): void {
     const overOutput = socket.isOutput();
     this.lastSelectedSocketWasInput = overOutput;
     if (overOutput) {
@@ -299,7 +310,7 @@ export default class PPGraph {
 
   async socketMouseUp(
     socket: PPSocket,
-    event: PIXI.InteractionEvent
+    event: PIXI.FederatedPointerEvent
   ): Promise<void> {
     const source = this.selectedSourceSocket;
     this.stopConnecting();
@@ -314,7 +325,7 @@ export default class PPGraph {
 
   async socketNameRefMouseDown(
     socket: PPSocket,
-    event: PIXI.InteractionEvent
+    event: PIXI.FederatedPointerEvent
   ): Promise<void> {
     const clickedSourcePoint = new PIXI.Point(
       event.data.global.x,

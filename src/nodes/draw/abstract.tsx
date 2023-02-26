@@ -181,7 +181,7 @@ export abstract class DRAW_Base extends PPNode {
   ) {
     this.isDragging = true;
     PPGraph.currentGraph.selection.selectNodes([this], false, true);
-    this.deferredGraphics.on('pointermove', () => {
+    this.deferredGraphics.addEventListener('pointermove', () => {
       this.setOffsetsToCurrentCursor(originalCursorPos, originalOffsets);
       // re-trigger if still holding
       setTimeout(() => {
@@ -236,7 +236,7 @@ export abstract class DRAW_Base extends PPNode {
       if (this.allowMovingDirectly()) {
         this.deferredGraphics.interactive = true;
 
-        this.deferredGraphics.on('pointerdown', () => {
+        this.deferredGraphics.addEventListener('pointerdown', () => {
           this.pointerDown(
             getCurrentCursorPosition(),
             new PIXI.Point(

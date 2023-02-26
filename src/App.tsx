@@ -329,7 +329,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       resolution: 2,
     });
     pixiApp.current.stage.interactive = true;
-    pixiApp.current.stage.buttonMode = true;
+    pixiApp.current.stage.cursor = 'pointer';
 
     globalThis.__PIXI_APP__ = pixiApp.current;
 
@@ -374,19 +374,24 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     pixiApp.current.stage.addChild(viewport.current);
 
     // add global listen events to zoom
-    viewport.current.on('zoomed', () =>
+    viewport.current.addEventListener('zoomed', () =>
       InterfaceController.notifyListeners(ListenEvent.ViewportZoom, true)
     );
-    viewport.current.on('zoomed-end', () =>
+    viewport.current.addEventListener('zoomed-end', () =>
       InterfaceController.notifyListeners(ListenEvent.ViewportZoom, false)
     );
 
-    viewport.current.on('pointerupoutside', (event: PIXI.InteractionEvent) =>
-      InterfaceController.notifyListeners(ListenEvent.GlobalPointerUp, event)
+    viewport.current.addEventListener(
+      'pointerupoutside',
+      (event: PIXI.FederatedPointerEvent) =>
+        InterfaceController.notifyListeners(ListenEvent.GlobalPointerUp, event)
     );
-    viewport.current.on('pointerup', (event: PIXI.InteractionEvent) => {
-      InterfaceController.notifyListeners(ListenEvent.GlobalPointerUp, event);
-    });
+    viewport.current.addEventListener(
+      'pointerup',
+      (event: PIXI.FederatedPointerEvent) => {
+        InterfaceController.notifyListeners(ListenEvent.GlobalPointerUp, event);
+      }
+    );
 
     // configure viewport
     viewport.current
@@ -424,7 +429,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     background.tileScale.x = 0.5;
     background.tileScale.y = 0.5;
     viewport.current.addChild(background);
-    viewport.current.on('moved', (event) => {
+    viewport.current.addEventListener('moved', (event) => {
       background.tilePosition.y = -viewport.current.top;
       background.tilePosition.x = -viewport.current.left;
       background.y = viewport.current.top;
@@ -625,7 +630,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     InterfaceController.onOpenNodeSearch = openNodeSearch;
 
     InterfaceController.onRightClick = (
-      event: PIXI.InteractionEvent,
+      event: PIXI.FederatedPointerEvent,
       target: PIXI.DisplayObject
     ) => {
       setIsGraphContextMenuOpen(false);
