@@ -366,7 +366,8 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       screenHeight: window.innerHeight,
       worldWidth: window.innerWidth,
       worldHeight: window.innerHeight,
-      interaction: pixiApp.current.renderer.plugins.interaction, // the interaction module is important for wheel to work properly when renderer.view is placed or scaled
+      events: pixiApp.current.renderer.events,
+      // interaction: pixiApp.current.renderer.plugins.interaction, // the interaction module is important for wheel to work properly when renderer.view is placed or scaled
     });
 
     // add the viewport to the stage
