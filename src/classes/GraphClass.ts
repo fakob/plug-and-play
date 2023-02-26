@@ -161,11 +161,11 @@ export default class PPGraph {
 
     InterfaceController.onCloseSocketInspector();
 
-    if ((event.data.originalEvent as PointerEvent).button === 0) {
+    if ((event.originalEvent as unknown as PointerEvent).button === 0) {
       if (!this.overInputRef) {
         this.selection.drawSelectionStart(
           event,
-          event.data.originalEvent.shiftKey
+          (event.originalEvent as unknown as PointerEvent).shiftKey
         );
       }
 
@@ -327,11 +327,8 @@ export default class PPGraph {
     socket: PPSocket,
     event: PIXI.FederatedPointerEvent
   ): Promise<void> {
-    const clickedSourcePoint = new PIXI.Point(
-      event.data.global.x,
-      event.data.global.y
-    );
-    if (event.data.originalEvent.ctrlKey) {
+    const clickedSourcePoint = new PIXI.Point(event.global.x, event.global.y);
+    if ((event.originalEvent as unknown as PointerEvent).ctrlKey) {
       InterfaceController.onOpenSocketInspector(clickedSourcePoint, socket);
     } else {
       InterfaceController.notifyListeners(ListenEvent.SelectionChanged, [

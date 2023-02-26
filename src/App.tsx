@@ -417,7 +417,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     overlayCommentContainer.current.addChild(pixiDebugRef);
 
     // add pixiApp to canvas
-    pixiContext.current.appendChild(pixiApp.current.view);
+    pixiContext.current.appendChild(pixiApp.current.view as any);
 
     // add background tiles
     const texture = PIXI.Texture.from(CANVAS_BACKGROUND_TEXTURE);

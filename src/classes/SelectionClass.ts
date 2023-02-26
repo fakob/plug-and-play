@@ -32,7 +32,7 @@ export default class PPSelection extends PIXI.Container {
   private nodePosBeforeMovement: PIXI.Point;
   isDrawingSelection: boolean;
   isDraggingSelection: boolean;
-  interactionData: PIXI.InteractionData | null;
+  interactionData: PIXI.FederatedPointerEvent | null;
 
   protected onMoveHandler: (event?: PIXI.FederatedPointerEvent) => void;
 
@@ -114,7 +114,7 @@ export default class PPSelection extends PIXI.Container {
     this.cursor = 'move';
     this.isDraggingSelection = true;
     InterfaceController.notifyListeners(ListenEvent.SelectionDragging, true);
-    this.interactionData = event.data;
+    this.interactionData = event;
     this.sourcePoint = this.interactionData.getLocalPosition(
       this.selectedNodes[0]
     );
@@ -143,7 +143,7 @@ export default class PPSelection extends PIXI.Container {
     InterfaceController.notifyListeners(ListenEvent.SelectionDragging, false);
 
     // unsubscribe from pointermove
-    this.removeListener('pointermove', this.onMoveHandler);
+    this.removeEventListener('pointermove', this.onMoveHandler);
     const endPoint = getCurrentCursorPosition();
     const deltaX = endPoint.x - this.nodePosBeforeMovement.x;
     const deltaY = endPoint.y - this.nodePosBeforeMovement.y;
@@ -161,10 +161,10 @@ export default class PPSelection extends PIXI.Container {
   onPointerDown(event: PIXI.FederatedPointerEvent): void {
     console.log('Selection: onPointerDown');
     if (this.selectedNodes.length > 0) {
-      if (event.data.originalEvent.shiftKey) {
+      if ((event.originalEvent as unknown as PointerEvent).shiftKey) {
         const targetPoint = new PIXI.Point(
-          (event.data.originalEvent as MouseEvent).clientX,
-          (event.data.originalEvent as MouseEvent).clientY
+          (event.originalEvent as unknown as PointerEvent).clientX,
+          (event.originalEvent as unknown as PointerEvent).clientY
         );
         const selectionRect = new PIXI.Rectangle(
           targetPoint.x,
@@ -213,8 +213,8 @@ export default class PPSelection extends PIXI.Container {
 
       // temporarily draw rectangle while dragging
       const targetPoint = new PIXI.Point(
-        (event.data.originalEvent as MouseEvent).clientX,
-        (event.data.originalEvent as MouseEvent).clientY
+        (event.originalEvent as unknown as PointerEvent).clientX,
+        (event.originalEvent as unknown as PointerEvent).clientY
       );
       const selX = Math.min(this.sourcePoint.x, targetPoint.x);
       const selY = Math.min(this.sourcePoint.y, targetPoint.y);
@@ -295,10 +295,10 @@ export default class PPSelection extends PIXI.Container {
     addToOrToggleSelection || this.resetGraphics(this.selectionGraphics);
 
     this.isDrawingSelection = true;
-    this.interactionData = event.data;
+    this.interactionData = event;
     this.sourcePoint = new PIXI.Point(
-      (event.data.originalEvent as MouseEvent).clientX,
-      (event.data.originalEvent as MouseEvent).clientY
+      (event.originalEvent as unknown as PointerEvent).clientX,
+      (event.originalEvent as unknown as PointerEvent).clientY
     );
 
     // subscribe to pointermove
@@ -313,7 +313,7 @@ export default class PPSelection extends PIXI.Container {
     this.previousSelectedNodes = [];
 
     // unsubscribe from pointermove
-    this.removeListener('pointermove', this.onMoveHandler);
+    this.removeEventListener('pointermove', this.onMoveHandler);
     console.log(this.selectedNodes);
     if (this.selectedNodes.length > 0) {
       this.drawRectanglesFromSelection();
@@ -327,8 +327,8 @@ export default class PPSelection extends PIXI.Container {
 
     // only trigger deselect if the mouse was not moved and onMove was not called
     const targetPoint = new PIXI.Point(
-      (event.data.originalEvent as MouseEvent).clientX,
-      (event.data.originalEvent as MouseEvent).clientY
+      (event.originalEvent as unknown as PointerEvent).clientX,
+      (event.originalEvent as unknown as PointerEvent).clientY
     );
     if (
       this.sourcePoint.x === targetPoint.x &&
@@ -459,9 +459,9 @@ class ScaleHandle extends PIXI.Graphics {
     this._pointerPosition = new PIXI.Point();
     this._pointerMoveTarget = null;
     this.addEventListener('pointerover', this.onPointerOver.bind(this));
-    this.addEventListener('mousedown', this.onPointerDown, this);
-    this.addEventListener('mouseup', this.onPointerUp, this);
-    this.addEventListener('mouseupoutside', this.onPointerUp, this);
+    this.addEventListener('mousedown', this.onPointerDown.bind(this));
+    this.addEventListener('mouseup', this.onPointerUp.bind(this));
+    this.addEventListener('mouseupoutside', this.onPointerUp.bind(this));
     this.addEventListener('dblclick', this._onDoubleClick.bind(this));
   }
 
@@ -487,15 +487,17 @@ class ScaleHandle extends PIXI.Graphics {
     event.stopPropagation();
 
     if (this._pointerMoveTarget) {
-      this._pointerMoveTarget.off('pointermove', this.onPointerMove, this);
+      this._pointerMoveTarget.removeEventListener(
+        'pointermove',
+        this.onPointerMove
+      );
       this._pointerMoveTarget = null;
     }
 
     this._pointerMoveTarget = this;
     this._pointerMoveTarget.addEventListener(
       'pointermove',
-      this.onPointerMove,
-      this
+      this.onPointerMove.bind(this)
     );
   }
 
@@ -521,7 +523,10 @@ class ScaleHandle extends PIXI.Graphics {
     this._pointerDown = false;
 
     if (this._pointerMoveTarget) {
-      this._pointerMoveTarget.off('pointermove', this.onPointerMove, this);
+      this._pointerMoveTarget.removeEventListener(
+        'pointermove',
+        this.onPointerMove
+      );
       this._pointerMoveTarget = null;
     }
   }
@@ -532,15 +537,16 @@ class ScaleHandle extends PIXI.Graphics {
   }
 
   protected onDragStart(event: PIXI.FederatedPointerEvent): void {
-    this._pointerPosition.copyFrom(event.data.global);
+    this._pointerPosition.copyFrom(event.global);
     this._pointerDragging = true;
   }
 
   protected onDrag(event: PIXI.FederatedPointerEvent): void {
-    const currentPosition = event.data.global;
+    const currentPosition = event.global;
 
     // Callback handles the rest!
-    const shiftKeyPressed = event.data.originalEvent.shiftKey;
+    const shiftKeyPressed = (event.originalEvent as unknown as PointerEvent)
+      .shiftKey;
     this.selection.onScaling(currentPosition, shiftKeyPressed);
 
     this._pointerPosition.copyFrom(currentPosition);

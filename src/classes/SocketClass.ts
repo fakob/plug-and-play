@@ -39,7 +39,7 @@ export default class Socket extends PIXI.Container {
   _custom: Record<string, any>;
   _links: PPLink[];
 
-  interactionData: PIXI.InteractionData | null;
+  interactionData: PIXI.FederatedPointerEvent | null;
   linkDragPos: null | PIXI.Point;
 
   showLabel = false;

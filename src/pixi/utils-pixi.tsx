@@ -122,7 +122,10 @@ export const zoomToFitNodes = (nodes?: PPNode[]): void => {
   currentGraph.viewport.fit(true, boundsToZoomTo.width, boundsToZoomTo.height);
   currentGraph.viewport.zoomPercent(zoomOutFactor, true); // zoom out a bit more
   currentGraph.selection.drawRectanglesFromSelection();
-  currentGraph.viewport.emit('moved');
+  currentGraph.viewport.emit('moved', {
+    viewport: currentGraph.viewport,
+    type: 'pinch',
+  });
 };
 
 export const ensureVisible = (nodes: PPNode[]): void => {
@@ -149,5 +152,8 @@ export const ensureVisible = (nodes: PPNode[]): void => {
     ease: 'easeOutExpo',
     time: 750,
   });
-  currentGraph.viewport.emit('moved');
+  currentGraph.viewport.emit('moved', {
+    viewport: currentGraph.viewport,
+    type: 'pinch',
+  });
 };

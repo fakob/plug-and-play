@@ -170,7 +170,7 @@ export default abstract class HybridNode2 extends PPNode {
   _onViewportPointerUp(): void {
     super._onViewportPointerUp();
     // unregister hybrid nodes from listening to outside clicks
-    PPGraph.currentGraph.viewport.removeListener(
+    PPGraph.currentGraph.viewport.removeEventListener(
       'pointerup',
       (this as any).onViewportPointerUpHandler
     );

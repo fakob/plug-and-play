@@ -1059,7 +1059,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     this.addEventListener('removed', this._onRemoved.bind(this));
 
     // first assign the bound function to a handler then add this handler as a listener
-    // otherwise removeListener won't work (bind creates a new function)
+    // otherwise removeEventListener won't work (bind creates a new function)
     this.onViewportMoveHandler = this._onViewportMove.bind(this);
     PPGraph.currentGraph.viewport.addEventListener(
       'moved',
@@ -1083,7 +1083,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
       }
       PPGraph.currentGraph.selection.startDragAction(event);
     }
-    if (event.data.button == 2) {
+    if (event.button == 2) {
       if (event.target == this) {
         InterfaceController.onRightClick(event, this);
       }
@@ -1113,7 +1113,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
 
   _onRemoved(): void {
     // remove added listener from graph.viewport
-    PPGraph.currentGraph.viewport.removeListener(
+    PPGraph.currentGraph.viewport.removeEventListener(
       'moved',
       this.onViewportMoveHandler
     );
@@ -1142,7 +1142,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     if (!this.isDraggingNode) {
       this.isHovering = false;
     }
-    this.removeListener('pointermove');
+    this.removeEventListener('pointermove', this.pointerOverMoving);
     this.updateBehaviour.redrawAnythingChanging();
     this.nodeSelectionHeader.redrawAnythingChanging(false);
     this.getAllSockets().forEach((socket) => socket.nodeHoveredOut());

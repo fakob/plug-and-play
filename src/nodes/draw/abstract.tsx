@@ -185,7 +185,7 @@ export abstract class DRAW_Base extends PPNode {
       this.setOffsetsToCurrentCursor(originalCursorPos, originalOffsets);
       // re-trigger if still holding
       setTimeout(() => {
-        this.removeListener('pointermove');
+        this.removeAllListeners('pointermove');
         if (this.isDragging) {
           this.pointerDown(originalCursorPos, originalOffsets);
         }
@@ -205,7 +205,7 @@ export abstract class DRAW_Base extends PPNode {
   ) {
     const currPos = getCurrentCursorPosition();
     this.isDragging = false;
-    this.deferredGraphics.removeListener('pointermove');
+    this.deferredGraphics.removeAllListeners('pointermove');
     InterfaceController.removeListener(this.listenID);
 
     // allow undoing

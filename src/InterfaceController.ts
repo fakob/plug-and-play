@@ -65,7 +65,7 @@ export default class InterfaceController {
 
   static onRightClick: (
     event: PIXI.FederatedPointerEvent,
-    target: PIXI.DisplayObject
+    target: PIXI.FederatedEventTarget
   ) => void = () => {}; // called when the graph is right clicked
   static onOpenNodeSearch: (pos: PIXI.Point) => void = () => {}; // called node search should be openend
   static onOpenSocketInspector: (pos: PIXI.Point, data: Socket) => void =
