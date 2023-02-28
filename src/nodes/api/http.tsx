@@ -37,6 +37,9 @@ export class HTTPNode extends PPNode {
   public getDescription(): string {
     return 'HTTP request (Get,Post,Put,Patch,Delete)';
   }
+  public socketShouldAutomaticallyAdapt(socket: Socket): boolean {
+    return true;
+  }
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(
@@ -92,7 +95,7 @@ export class HTTPNode extends PPNode {
   ): Promise<void> {
     const usingCompanion: boolean = inputObject[sendThroughCompanionName];
     this.statuses = [];
-    let returnJSON = {};
+    let returnResponse = {};
     if (usingCompanion) {
       this.statuses.push({
         color: TRgba.white().multiply(0.5),
@@ -113,7 +116,11 @@ export class HTTPNode extends PPNode {
           body: JSON.stringify(companionSpecific),
         });
         const companionRes = await (await res).json();
-        returnJSON = JSON.parse(companionRes.response);
+        try {
+          returnResponse = JSON.parse(companionRes.response);
+        } catch (error) {
+          returnResponse = companionRes.response;
+        }
         this.pushStatusCode(companionRes.status);
         //console.log('awaitedres: ' + (await (await res).text()));
       } catch (error) {
@@ -132,11 +139,11 @@ export class HTTPNode extends PPNode {
         body: body,
       });
       const awaitedRes = await res;
-      returnJSON = await awaitedRes.json();
+      returnResponse = await awaitedRes.json();
       this.pushStatusCode(awaitedRes.status);
     }
 
-    outputObject[outputContentName] = returnJSON;
+    outputObject[outputContentName] = returnResponse;
   }
 
   getColor(): TRgba {
