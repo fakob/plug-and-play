@@ -32,8 +32,13 @@ export default abstract class HybridNode2 extends PPNode {
   }
 
   redraw({ screenX = 0, screenY = 0, scale = 1 }) {
-    if (this.container.style.transform != `scale(${scale.toPrecision(3)})`) {
-      this.container.style.transform = `scale(${scale.toPrecision(3)})`;
+    if (
+      this.container.style.transform !=
+      `scale(${this.pinToScreenspace ? 1 : scale.toPrecision(3)})`
+    ) {
+      this.container.style.transform = `scale(${
+        this.pinToScreenspace ? 1 : scale.toPrecision(3)
+      })`;
     }
     if (this.container.style.left != pixiToContainerNumber(screenX)) {
       this.container.style.left = pixiToContainerNumber(screenX);
@@ -55,7 +60,9 @@ export default abstract class HybridNode2 extends PPNode {
     this.root = createRoot(this.container!);
     this.container.id = `Container-${this.id}`;
 
-    const scale = PPGraph.currentGraph.viewportScaleX;
+    const scale = this.pinToScreenspace
+      ? 1
+      : PPGraph.currentGraph.viewportScaleX;
     this.container.classList.add(styles.hybridContainer);
     Object.assign(this.container.style, customStyles);
 

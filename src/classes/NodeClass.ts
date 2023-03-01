@@ -729,7 +729,7 @@ export default class PPNode extends PIXI.Container {
   public drawBackground(): void {
     this._BackgroundRef.beginFill(
       this.getColor().hexNumber(),
-      this.getOpacity()
+      this.pinToScreenspace ? 1 : this.getOpacity()
     );
     this._BackgroundRef.drawRoundedRect(
       NODE_MARGIN,
@@ -742,8 +742,6 @@ export default class PPNode extends PIXI.Container {
   }
 
   public drawForeground(): void {
-    console.log(this.parent, this.parent?.parent, this.parent?.parent?.parent);
-
     if (this._ScreenspaceContainerRef) {
       this._ScreenspaceRef.clear();
       this._ScreenspaceRef.beginFill(this.getColor().hexNumber(), 1);
@@ -929,6 +927,9 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   }
 
   screenPoint(): PIXI.Point {
+    if (this.pinToScreenspace) {
+      return PPGraph.currentGraph.getNextFreeScreenSpacePosition();
+    }
     return PPGraph.currentGraph.viewport.toScreen(this.x + NODE_MARGIN, this.y);
   }
 

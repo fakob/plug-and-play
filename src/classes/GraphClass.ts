@@ -730,6 +730,14 @@ export default class PPGraph {
     );
   }
 
+  getNextFreeScreenSpacePosition(): PIXI.Point {
+    const yPos = Object.values(this.nodes)
+      .filter((node) => node.pinToScreenspace === true)
+      // .slice(0, this.nodes)
+      .reduce((acc, curr) => acc + curr.nodeHeight, 0);
+    return new PIXI.Point(0, yPos);
+  }
+
   checkOldSocketAndUpdateIt<T extends PPSocket>(
     oldSocket: T,
     newSocket: T,
