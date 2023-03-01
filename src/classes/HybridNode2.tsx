@@ -107,7 +107,7 @@ export default abstract class HybridNode2 extends PPNode {
           randomMainColor={RANDOMMAINCOLOR}
           node={node}
         />
-        {!this.doubleClicked && (
+        {this.getActivateByDoubleClick() && !this.doubleClicked && (
           <Button
             title={'Click to edit OR Double click node'}
             className={styles.hybridContainerEditButton}
