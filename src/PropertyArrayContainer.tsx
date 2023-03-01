@@ -87,10 +87,12 @@ function FilterContainer(props: FilterContentProps) {
 }
 
 type CommonContentProps = {
+  pinToScreenspace: boolean;
   hasTriggerSocket: boolean;
   interval: boolean;
   intervalFrequency: number;
   update: boolean;
+  onPinToScreenspaceChange: (event) => void;
   onCheckboxChange: (event) => void;
   onFrequencyChange: (event) => void;
   onUpdateNow: (event) => void;
@@ -106,6 +108,16 @@ function CommonContent(props: CommonContentProps) {
           bgcolor: 'background.default',
         }}
       >
+        <FormControlLabel
+          control={
+            <Checkbox
+              name="pinToScreenspace"
+              checked={props.pinToScreenspace}
+              onChange={props.onPinToScreenspaceChange}
+            />
+          }
+          label="pinToScreenspace"
+        />
         <FormGroup>
           <Button variant="contained" onClick={props.onUpdateNow}>
             Update now
@@ -397,6 +409,16 @@ export const PropertyArrayContainer: React.FunctionComponent<
     getUpdateBehaviourStateForArray()
   );
 
+  const [pinToScreenspace, setPinToScreenspace] = useState(
+    selectedNode.pinToScreenspace
+  );
+
+  const onPinToScreenspaceChange = (event) => {
+    const checked = (event.target as HTMLInputElement).checked;
+    setPinToScreenspace(checked);
+    selectedNode.pinToScreenspace = checked;
+  };
+
   const onCheckboxChange = (event) => {
     const checked = (event.target as HTMLInputElement).checked;
     const name = (event.target as HTMLInputElement).name;
@@ -459,9 +481,11 @@ export const PropertyArrayContainer: React.FunctionComponent<
             props.filter == null) && (
             <CommonContent
               hasTriggerSocket={selectedNode.nodeTriggerSocketArray.length > 0}
+              pinToScreenspace={pinToScreenspace}
               interval={updateBehaviour.interval}
               intervalFrequency={updateBehaviour.intervalFrequency}
               update={updateBehaviour.update}
+              onPinToScreenspaceChange={onPinToScreenspaceChange}
               onCheckboxChange={onCheckboxChange}
               onFrequencyChange={onFrequencyChange}
               onUpdateNow={onUpdateNow}

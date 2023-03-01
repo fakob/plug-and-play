@@ -79,6 +79,7 @@ export type SerializedNode = {
   height: number;
   socketArray: SerializedSocket[];
   updateBehaviour: IUpdateBehaviour;
+  pinToScreenspace: boolean;
 };
 
 export type SerializedLink = {

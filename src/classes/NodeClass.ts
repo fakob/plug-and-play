@@ -57,6 +57,7 @@ export default class PPNode extends PIXI.Container {
 
   clickedSocketRef: Socket;
   isHovering: boolean;
+  _pinToScreenspace: boolean;
 
   id: string;
   type: string; // Type
@@ -277,6 +278,7 @@ export default class PPNode extends PIXI.Container {
     this.nodeWidth = this.getDefaultNodeWidth();
     this.nodeHeight = this.getDefaultNodeHeight(); // if not set height is defined by in/out sockets
     this.isHovering = false;
+    this._pinToScreenspace = false;
 
     const inputNameText = new PIXI.Text(
       this.getNodeTextString(),
@@ -333,6 +335,26 @@ export default class PPNode extends PIXI.Container {
 
   get selected(): boolean {
     return PPGraph.currentGraph.selection.isNodeSelected(this);
+  }
+
+  get pinToScreenspace(): boolean {
+    return this._pinToScreenspace;
+  }
+
+  set pinToScreenspace(state: boolean) {
+    if (state) {
+      this._ScreenspaceContainerRef =
+        this.parent?.parent?.parent?.getChildByName('ScreenspaceContainer');
+      if (this._ScreenspaceContainerRef) {
+        this._ScreenspaceRef = this._ScreenspaceContainerRef.addChild(
+          new PIXI.Graphics()
+        );
+        this._ScreenspaceRef.name = `${this.name}-SP`;
+      }
+    } else {
+      this._ScreenspaceRef?.destroy();
+    }
+    this._pinToScreenspace = state;
   }
 
   get doubleClicked(): boolean {
@@ -478,6 +500,7 @@ export default class PPNode extends PIXI.Container {
         interval: this.updateBehaviour.interval,
         intervalFrequency: this.updateBehaviour.intervalFrequency,
       },
+      pinToScreenspace: this.pinToScreenspace,
     };
 
     return node;
@@ -494,6 +517,7 @@ export default class PPNode extends PIXI.Container {
       nodeConfig.updateBehaviour.interval,
       nodeConfig.updateBehaviour.intervalFrequency
     );
+    this.pinToScreenspace = nodeConfig.pinToScreenspace;
     try {
       const mapSocket = (item: SerializedSocket) => {
         const matchingSocket = this.getSocketByNameAndType(
@@ -718,15 +742,11 @@ export default class PPNode extends PIXI.Container {
   }
 
   public drawForeground(): void {
-    console.log(this.parent, this.parent?.parent, this.parent?.parent?.parent)
-    this._ScreenspaceContainerRef = this.parent?.parent?.parent?.getChildByName('ScreenspaceContainer');
+    console.log(this.parent, this.parent?.parent, this.parent?.parent?.parent);
 
     if (this._ScreenspaceContainerRef) {
-      this._ScreenspaceRef = this._ScreenspaceContainerRef.addChild(new PIXI.Graphics());
-      this._ScreenspaceRef.beginFill(
-        this.getColor().hexNumber(),
-        this.getOpacity()
-      );
+      this._ScreenspaceRef.clear();
+      this._ScreenspaceRef.beginFill(this.getColor().hexNumber(), 1);
       this._ScreenspaceRef.drawRoundedRect(
         NODE_MARGIN,
         0,
@@ -819,7 +839,8 @@ export default class PPNode extends PIXI.Container {
       this.drawErrorBoundary();
     }
     this.drawBackground();
-    this.drawForeground();
+
+    this.pinToScreenspace && this.drawForeground();
 
     this.drawTriggers();
     this.drawSockets();
