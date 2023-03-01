@@ -3,13 +3,12 @@
 
 import React from 'react';
 import { createRoot, Root } from 'react-dom/client';
-import * as PIXI from 'pixi.js';
 import { Button } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import PPGraph from './GraphClass';
 import PPNode from './NodeClass';
 import styles from '../utils/style.module.css';
-import { CustomArgs, SerializedNode } from '../utils/interfaces';
+import { CustomArgs, SerializedNode, TRgba } from '../utils/interfaces';
 import { RANDOMMAINCOLOR } from '../utils/constants';
 
 function pixiToContainerNumber(value: number) {
@@ -98,7 +97,7 @@ export default abstract class HybridNode2 extends PPNode {
     node: PPNode = this
   ): void => {
     root.render(
-      <div className={styles.hybridContainerInner}>
+      <>
         <this.getParentComponent
           initialData={this.initialData} // positioned before the props so it can be overwritten by them
           {...props}
@@ -108,28 +107,24 @@ export default abstract class HybridNode2 extends PPNode {
           randomMainColor={RANDOMMAINCOLOR}
           node={node}
         />
-        <Button
-          title={`${props.posLeft ? 'Close inspector' : 'Open inspector'}`}
-          size="small"
-          onClick={props.handleDrawerToggle}
-          color="primary"
-          sx={{
-            position: 'absolute',
-            top: '40px',
-            left: `${props.posLeft ? '-32px' : 'auto'}`,
-            right: `${props.posLeft ? 'auto' : '32px'}`,
-            width: '32px',
-            minWidth: '32px',
-            // background: `${
-            //   props.areNodesSelected
-            //     ? Color(props.randomMainColor).alpha(0.2)
-            //     : 'unset'
-            // }`,
-          }}
-        >
-          {!this.doubleClicked && <EditIcon />}
-        </Button>
-      </div>
+        {!this.doubleClicked && (
+          <Button
+            title={'Click to edit OR Double click node'}
+            className={styles.hybridContainerEditButton}
+            size="small"
+            onClick={this._onDoubleClick.bind(this)}
+            color="primary"
+            sx={{
+              background: RANDOMMAINCOLOR,
+              color: TRgba.fromString(RANDOMMAINCOLOR)
+                .getContrastTextColor()
+                .hex(),
+            }}
+          >
+            <EditIcon sx={{ fontSize: '16px' }} />
+          </Button>
+        )}
+      </>
     );
   };
 
@@ -163,7 +158,7 @@ export default abstract class HybridNode2 extends PPNode {
     this.execute();
   }
 
-  _onDoubleClick(event: PIXI.InteractionEvent): void {
+  _onDoubleClick(event: any): void {
     super._onDoubleClick(event);
     // turn on pointer events for hybrid nodes so the react components become reactive
     if (this.getActivateByDoubleClick()) {
@@ -172,7 +167,6 @@ export default abstract class HybridNode2 extends PPNode {
         'pointerup',
         (this as any).onViewportPointerUpHandler
       );
-      this.container.style.pointerEvents = 'auto';
       this.container.classList.add(styles.hybridContainerFocused);
       this.execute();
     }
@@ -188,7 +182,6 @@ export default abstract class HybridNode2 extends PPNode {
     this.doubleClicked = false;
     this.onHybridNodeExit();
     // this allows to zoom and drag when the hybrid node is not selected
-    this.container.style.pointerEvents = 'none';
     this.container.classList.remove(styles.hybridContainerFocused);
     this.execute();
   }

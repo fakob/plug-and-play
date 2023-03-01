@@ -155,16 +155,23 @@
   overflow: auto;
 }
 
-.hybridContainerInner {
-  height: 100%;
-}
-
 .hybridContainer:focus {
   outline: none;
 }
 
 .hybridContainerFocused {
+  pointer-events: auto;
   filter: drop-shadow(0px 0px 24px rgba(0, 0, 0, 0.35));
+}
+
+.hybridContainerEditButton {
+  position: absolute !important;
+  top: 16px;
+  right: 16px;
+  width: 24px;
+  min-width: 24px !important;
+  pointer-events: auto;
+  filter: drop-shadow(0px 0px 16px rgba(0, 0, 0, 0.75));
 }
 
 .resizeElement {
