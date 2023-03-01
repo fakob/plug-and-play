@@ -52,7 +52,7 @@ export default class PPNode extends PIXI.Container {
   _StatusesRef: PIXI.Graphics;
 
   clickedSocketRef: Socket;
-  _isHovering: boolean;
+  isHovering: boolean;
 
   id: string;
   type: string; // Type
@@ -260,7 +260,7 @@ export default class PPNode extends PIXI.Container {
     this.y = customArgs?.nodePosY ?? 0;
     this.nodeWidth = this.getDefaultNodeWidth();
     this.nodeHeight = this.getDefaultNodeHeight(); // if not set height is defined by in/out sockets
-    this._isHovering = false;
+    this.isHovering = false;
 
     const inputNameText = new PIXI.Text(
       this.getNodeTextString(),
@@ -317,14 +317,6 @@ export default class PPNode extends PIXI.Container {
 
   get selected(): boolean {
     return PPGraph.currentGraph.selection.isNodeSelected(this);
-  }
-
-  get isHovering(): boolean {
-    return this._isHovering;
-  }
-
-  set isHovering(state: boolean) {
-    this._isHovering = state;
   }
 
   get doubleClicked(): boolean {
