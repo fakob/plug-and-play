@@ -79,16 +79,16 @@ export default class PPNode extends PIXI.Container {
   protected statuses: NodeStatus[] = []; // you can add statuses into this and they will be rendered on the node
 
   // supported callbacks
-  onConfigure: (nodeConfig: SerializedNode) => void = () => {}; // called after the node has been configured
-  onNodeDoubleClick: (event: PIXI.InteractionEvent) => void = () => {};
-  onViewportMoveHandler: (event?: PIXI.InteractionEvent) => void = () => {};
+  onConfigure: (nodeConfig: SerializedNode) => void = () => { }; // called after the node has been configured
+  onNodeDoubleClick: (event: PIXI.InteractionEvent) => void = () => { };
+  onViewportMoveHandler: (event?: PIXI.InteractionEvent) => void = () => { };
   onViewportPointerUpHandler: (event?: PIXI.InteractionEvent) => void =
-    () => {};
-  onNodeRemoved: () => void = () => {}; // called when the node is removed from the graph
-  onNodeResize: (width: number, height: number) => void = () => {}; // called when the node is resized
+    () => { };
+  onNodeRemoved: () => void = () => { }; // called when the node is removed from the graph
+  onNodeResize: (width: number, height: number) => void = () => { }; // called when the node is resized
   onNodeDragOrViewportMove: // called when the node or or the viewport with the node is moved or scaled
-  (positions: { screenX: number; screenY: number; scale: number }) => void =
-    () => {};
+    (positions: { screenX: number; screenY: number; scale: number }) => void =
+    () => { };
 
   // called when the node is added to the graph
   public onNodeAdded(): void {
@@ -101,7 +101,7 @@ export default class PPNode extends PIXI.Container {
     return false;
   }
 
-  protected onNodeExit(): void {}
+  protected onNodeExit(): void { }
 
   ////////////////////////////// Meant to be overriden for visual/behavioral needs
 
@@ -190,8 +190,8 @@ export default class PPNode extends PIXI.Container {
     return '';
   }
   // used when searching for nodes
-  public getTags(): string {
-    return '';
+  public getTags(): string{
+    return "";
   }
 
   public getMinNodeWidth(): number {
@@ -480,10 +480,7 @@ export default class PPNode extends PIXI.Container {
     );
     try {
       const mapSocket = (item: SerializedSocket) => {
-        const matchingSocket = this.getSocketByNameAndType(
-          item.name,
-          item.socketType
-        );
+        const matchingSocket = this.getSocketByNameAndType(item.name, item.socketType);
         if (matchingSocket !== undefined) {
           matchingSocket.dataType = deSerializeType(item.dataType);
           this.initializeType(item.name, matchingSocket.dataType);
@@ -730,7 +727,8 @@ export default class PPNode extends PIXI.Container {
           this.headerHeight +
           this.countOfVisibleNodeTriggerSockets * SOCKET_HEIGHT +
           (!this.getParallelInputsOutputs()
-            ? this.countOfVisibleOutputSockets * SOCKET_HEIGHT
+            ?
+            this.countOfVisibleOutputSockets * SOCKET_HEIGHT
             : 0) +
           index * SOCKET_HEIGHT;
         item.showLabel = this.getShowLabels();
@@ -742,7 +740,8 @@ export default class PPNode extends PIXI.Container {
     this._StatusesRef.clear();
     this._StatusesRef.removeChildren();
 
-    this.statuses.forEach((nStatus, index) => {
+
+    this.statuses.forEach((nStatus,index) => {
       const color = nStatus.color;
 
       const height = 30;
@@ -757,20 +756,22 @@ export default class PPNode extends PIXI.Container {
           fontSize: 18,
           fill: COLOR_MAIN,
         })
-      );
-      text.x = this.nodeWidth - inlet + 5; // - width;
-      text.y = startY + 5 + index * (height - merging);
-      this._StatusesRef.addChild(text);
+        );
+        text.x = this.nodeWidth - inlet + 5;// - width;
+        text.y = startY + 5 + index*(height-merging);
+        this._StatusesRef.addChild(text);
       this._StatusesRef.beginFill(color.hexNumber());
-      this._StatusesRef.drawRoundedRect(
-        this.nodeWidth - inlet, // - width,
-        startY + index * (height - merging),
-        text.width + 10,
-        height,
-        NODE_CORNERRADIUS
-      );
+        this._StatusesRef.drawRoundedRect(
+          this.nodeWidth - inlet,// - width,
+          startY + index * (height-merging),
+          text.width + 10,
+          height,
+          NODE_CORNERRADIUS
+          );
     });
+
   }
+
 
   public drawNodeShape(): void {
     // update selection
@@ -786,6 +787,7 @@ export default class PPNode extends PIXI.Container {
     this.drawComment();
     this.drawStatuses();
   }
+
 
   constructSocketName(prefix: string, existing: Socket[]): string {
     let count = 1;
@@ -920,7 +922,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     if (
       this.updateBehaviour.interval &&
       currentTime - this.lastTimeTicked >=
-        this.updateBehaviour.intervalFrequency
+      this.updateBehaviour.intervalFrequency
     ) {
       this.lastTimeTicked = currentTime;
       this.executeOptimizedChain();
@@ -1065,7 +1067,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
       PPGraph.currentGraph.selection.startDragAction(event);
     }
     if (event.data.button == 2) {
-      if (event.target == this) {
+      if (event.target == this){
         InterfaceController.onRightClick(event, this);
       }
       PPGraph.currentGraph.selection.stopDragAction();
@@ -1177,5 +1179,5 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   }
 
   // kinda hacky but some cant easily serialize functions in JS
-  protected initializeType(socketName: string, datatype: any) {}
+  protected initializeType(socketName: string, datatype: any) { }
 }
