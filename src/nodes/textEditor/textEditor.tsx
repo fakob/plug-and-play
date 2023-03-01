@@ -479,7 +479,7 @@ export class TextEditor extends HybridNode2 {
               value={props[textJSONSocketName]}
               onChange={onChange}
             >
-              <HoverToolbar />
+              {props.doubleClicked && <HoverToolbar />}
               {target && parameterNameArray.length > 0 && (
                 <ParameterMenu
                   parameterNameArray={parameterNameArray}
