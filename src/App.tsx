@@ -540,6 +540,10 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               PPGraph.currentGraph.duplicateSelection();
               e.preventDefault();
               break;
+            case 'p':
+              PPGraph.currentGraph.togglePinSelection();
+              e.preventDefault();
+              break;
             case 'o':
               setIsGraphSearchOpen((prevState) => !prevState);
               e.preventDefault();

@@ -928,7 +928,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
 
   screenPoint(): PIXI.Point {
     if (this.pinToScreenspace) {
-      return PPGraph.currentGraph.getNextFreeScreenSpacePosition();
+      return PPGraph.currentGraph.getScreenSpacePosition(this);
     }
     return PPGraph.currentGraph.viewport.toScreen(this.x + NODE_MARGIN, this.y);
   }

@@ -730,12 +730,64 @@ export default class PPGraph {
     );
   }
 
-  getNextFreeScreenSpacePosition(): PIXI.Point {
-    const yPos = Object.values(this.nodes)
-      .filter((node) => node.pinToScreenspace === true)
-      // .slice(0, this.nodes)
-      .reduce((acc, curr) => acc + curr.nodeHeight, 0);
-    return new PIXI.Point(0, yPos);
+  setScreenSpacePositions() {
+    const pinnedNodes = Object.values(this.nodes).filter(
+      (node) => node.pinToScreenspace === true
+    );
+    if (pinnedNodes.length > 0) {
+      const grid = this.packBoxes(pinnedNodes, 800, 900);
+      pinnedNodes.forEach((node: PPNode) => {
+        const boxCoordinates = grid.find((box) => box.id === node.id);
+        node.setPosition(boxCoordinates.x, boxCoordinates.y);
+      });
+    }
+  }
+
+  getScreenSpacePosition(node: PPNode): PIXI.Point {
+    const boxes = Object.values(this.nodes).filter(
+      (node) => node.pinToScreenspace === true
+    );
+    if (boxes.length > 0) {
+      const grid = this.packBoxes(boxes, 800, 900);
+      const boxCoordinates = grid.find((box) => box?.id === node.id);
+      if (boxCoordinates) {
+        return new PIXI.Point(boxCoordinates.x, boxCoordinates.y);
+      }
+    }
+    return new PIXI.Point(0, 0);
+  }
+
+  packBoxes(boxes: PPNode[], gridWidth: number, gridHeight: number) {
+    const result = [];
+    let currentX = 0;
+    let currentY = 0;
+    let maxHeightInRow = 0;
+
+    for (const box of boxes) {
+      if (currentX + box.nodeWidth > gridWidth) {
+        // Move to next row if box would go outside grid
+        currentX = 0;
+        currentY += maxHeightInRow;
+        maxHeightInRow = 0;
+      }
+
+      if (currentY + box.nodeHeight > gridHeight) {
+        // No more space left in grid
+        result.push(null);
+      } else {
+        result.push({
+          id: box.id,
+          x: currentX,
+          y: currentY,
+          width: box.nodeWidth,
+          height: box.nodeHeight,
+        });
+        currentX += box.nodeWidth;
+        maxHeightInRow = Math.max(maxHeightInRow, box.nodeHeight);
+      }
+    }
+
+    return result;
   }
 
   checkOldSocketAndUpdateIt<T extends PPSocket>(
@@ -778,6 +830,12 @@ export default class PPGraph {
 
     // remove selected nodes
     this.selection.deselectAllNodesAndResetSelection();
+  }
+
+  async togglePinSelection() {
+    Object.values(this.selection.selectedNodes).forEach(
+      (node) => (node.pinToScreenspace = !node.pinToScreenspace)
+    );
   }
 
   async duplicateSelection(): Promise<PPNode[]> {
@@ -1084,6 +1142,8 @@ export default class PPGraph {
       data.graphSettings.showNonPresentationNodes ?? true;
 
     this.ticking = true;
+
+    this.setScreenSpacePositions();
 
     return true;
   }
