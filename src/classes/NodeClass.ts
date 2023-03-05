@@ -958,10 +958,11 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     });
 
     // set the meta settings
-    const metaActions = Object.keys(inputObject["Meta"]);
-    metaActions.forEach(key => {
-      this[key] = inputObject["Meta"][key];
-    });
+    if (inputObject["Meta"] !== undefined){
+      Object.keys(inputObject["Meta"]).forEach(key => {
+        this[key] = inputObject["Meta"][key];
+      });
+    }
 
   }
 
@@ -1164,7 +1165,6 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   }
 
   public async invokeMacro(inputObject: any): Promise<any> {
-    return await PPGraph.currentGraph.invokeMacro(inputObject);
   }
 
   public metaInfoChanged(): void {
