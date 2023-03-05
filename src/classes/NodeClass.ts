@@ -44,6 +44,7 @@ import throttle from 'lodash/throttle';
 import FlowLogic from './FlowLogic';
 import InterfaceController from '../InterfaceController';
 import { TextStyle } from 'pixi.js';
+import { JSONType } from '../nodes/datatypes/jsonType';
 
 export default class PPNode extends PIXI.Container {
   _NodeNameRef: PIXI.Text;
@@ -215,6 +216,10 @@ export default class PPNode extends PIXI.Container {
     return [];
   }
 
+  protected getAllInitialSockets(): Socket[] {
+    return this.getDefaultIO().concat([new Socket(SOCKET_TYPE.IN, "Meta", new JSONType(), {}, false)]);
+  }
+
   public getNodeTextString(): string {
     if (
       this.name !== this.type &&
@@ -297,7 +302,7 @@ export default class PPNode extends PIXI.Container {
     }
 
     // add static inputs and outputs
-    this.getDefaultIO().forEach((IO) => {
+    this.getAllInitialSockets().forEach((IO) => {
       // add in default data if supplied
       const newDefault = customArgs?.defaultArguments?.[IO.name];
       if (newDefault) {
@@ -951,6 +956,14 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
         output.data = outputObject[output.name];
       }
     });
+
+    // set the meta settings
+    if (inputObject["Meta"] !== undefined){
+      Object.keys(inputObject["Meta"]).forEach(key => {
+        this[key] = inputObject["Meta"][key];
+      });
+    }
+
   }
 
   public renderOutlineThrottled = throttle(this.renderOutline, 2000, {
@@ -1124,7 +1137,6 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   _onPointerOut(): void {
     if (!this.isDraggingNode) {
       this.isHovering = false;
-      this.alpha = 1.0;
     }
     this.removeListener('pointermove');
     this.updateBehaviour.redrawAnythingChanging();
@@ -1146,14 +1158,13 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
 
   public hasSocketNameInDefaultIO(name: string, type: TSocketType): boolean {
     return (
-      this.getDefaultIO().find(
+      this.getAllInitialSockets().find(
         (socket) => socket.name == name && socket.socketType == type
       ) !== undefined
     );
   }
 
   public async invokeMacro(inputObject: any): Promise<any> {
-    return await PPGraph.currentGraph.invokeMacro(inputObject);
   }
 
   public metaInfoChanged(): void {
