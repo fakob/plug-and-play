@@ -1136,7 +1136,6 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   _onPointerOut(): void {
     if (!this.isDraggingNode) {
       this.isHovering = false;
-      this.alpha = 1.0;
     }
     this.removeListener('pointermove');
     this.updateBehaviour.redrawAnythingChanging();
