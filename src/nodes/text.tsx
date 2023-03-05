@@ -148,6 +148,7 @@ export class Label extends PPNode {
     };
     Object.assign(this.currentInput.style, style);
 
+    // TODO get rid of this, very bad
     setTimeout(() => {
       // set caret to end
       const range = document.createRange();
@@ -240,6 +241,11 @@ export class Label extends PPNode {
     this._refText.text = text;
     this._refText.x = this.x + NODE_MARGIN + marginLeftRight;
     this._refText.y = this.y + marginTopBottom;
+
+    // TODO remove this insane hack
+    setTimeout(() => {
+      (this._refText.alpha = this.alpha), (this._refText.skew = this.skew);
+    }, 110);
   };
 
   // scale input if node is scaled
