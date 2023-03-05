@@ -28,6 +28,8 @@ export const inputAbsolutePositions = 'Absolute Positions';
 export const inputAlwaysDraw = 'Always Draw';
 export const injectedDataName = 'Injected Data';
 export const outputPixiName = 'Graphics';
+const inputSkewXName = 'Skew X';
+const inputSkewYName = 'Skew Y';
 
 export abstract class DRAW_Base extends PPNode {
   deferredGraphics: PIXI.Container;
@@ -108,6 +110,20 @@ export abstract class DRAW_Base extends PPNode {
         inputAbsolutePositions,
         new BooleanType(),
         false,
+        false
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        inputSkewXName,
+        new NumberType(false, Math.PI / 2, Math.PI / 2),
+        0,
+        false
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        inputSkewYName,
+        new NumberType(false, -Math.PI / 2, Math.PI / 2),
+        0,
         false
       ),
       new Socket(SOCKET_TYPE.IN, injectedDataName, new ArrayType(), [], true),
@@ -251,6 +267,9 @@ export abstract class DRAW_Base extends PPNode {
     );
     toModify.pivot.x = pivotPoint.x * toModify.getBounds().width;
     toModify.pivot.y = pivotPoint.y * toModify.getBounds().height;
+
+    toModify.skew.x = inputObject[inputSkewXName];
+    toModify.skew.y = inputObject[inputSkewYName];
   }
 
   public outputPlugged(): void {
