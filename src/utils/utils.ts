@@ -17,7 +17,7 @@ import {
   GESTUREMODE,
 } from './constants';
 import { GraphDatabase } from './indexedDB';
-import { SerializedSelection } from './interfaces';
+import { ScreenSpaceSettings, SerializedSelection } from './interfaces';
 import { AnyType } from '../nodes/datatypes/anyType';
 import { Viewport } from 'pixi-viewport';
 
@@ -775,4 +775,61 @@ export function getLoadedValue(value, shouldLoadAll) {
   return shouldLoadAll
     ? String(value)
     : String(value)?.slice(0, MAX_STRING_LENGTH) + '...';
+}
+
+function getOccupiedGrid(gridObjects: ScreenSpaceSettings[]) {
+  const grid = new Array(40).fill(false).map(() => new Array(40).fill(false));
+  for (const obj of gridObjects) {
+    for (let y = obj.y; y < obj.y + obj.height; y++) {
+      for (let x = obj.x; x < obj.x + obj.width; x++) {
+        grid[y][x] = true;
+      }
+    }
+  }
+  console.log(grid);
+  return grid;
+}
+
+export function getNextFreeSpace(
+  width: number,
+  height: number,
+  gridObjects: ScreenSpaceSettings[]
+) {
+  const grid = getOccupiedGrid(gridObjects);
+  for (let y = 0; y <= 40 - height; y++) {
+    for (let x = 0; x <= 40 - width; x++) {
+      let freeSpace = true;
+      for (let i = y; i < y + height; i++) {
+        for (let j = x; j < x + width; j++) {
+          if (grid[i][j]) {
+            freeSpace = false;
+            break;
+          }
+        }
+        if (!freeSpace) {
+          break;
+        }
+      }
+      if (freeSpace) {
+        return { x, y, width, height };
+      }
+    }
+  }
+  return null;
+}
+
+export function screenSpaceGridToPx(screenSpaceSettings: ScreenSpaceSettings): {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+} {
+  const multiplierWidth = PPGraph.currentGraph.viewport.screenWidth / 40.0;
+  const multiplierHeight = PPGraph.currentGraph.viewport.screenHeight / 40.0;
+  return {
+    x: Math.round(screenSpaceSettings.x * multiplierWidth),
+    y: Math.round(screenSpaceSettings.y * multiplierHeight),
+    width: Math.round(screenSpaceSettings.width * multiplierWidth),
+    height: Math.round(screenSpaceSettings.height * multiplierHeight),
+  };
 }

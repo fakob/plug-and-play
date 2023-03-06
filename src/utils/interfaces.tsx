@@ -80,6 +80,7 @@ export type SerializedNode = {
   socketArray: SerializedSocket[];
   updateBehaviour: IUpdateBehaviour;
   pinToScreenspace: boolean;
+  screenSpaceSettings: ScreenSpaceSettings;
 };
 
 export type SerializedLink = {
@@ -107,6 +108,14 @@ export type NodeStatus = {
 };
 
 export type TNodeSource = (typeof NODE_SOURCE)[keyof typeof NODE_SOURCE];
+
+// integer coordinates based on a 40 x 40 grid
+export type ScreenSpaceSettings = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
 
 export class TRgba {
   r = 0;

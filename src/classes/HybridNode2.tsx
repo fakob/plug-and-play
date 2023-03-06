@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 /* eslint-disable @typescript-eslint/no-this-alias */
+import * as PIXI from 'pixi.js';
 
 import React from 'react';
 import * as PIXI from 'pixi.js';
@@ -9,6 +10,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import PPGraph from './GraphClass';
 import PPNode from './NodeClass';
 import styles from '../utils/style.module.css';
+import { screenSpaceGridToPx } from '../utils/utils';
 import { CustomArgs, SerializedNode, TRgba } from '../utils/interfaces';
 import { RANDOMMAINCOLOR } from '../utils/constants';
 
@@ -40,11 +42,28 @@ export default abstract class HybridNode2 extends PPNode {
         this.pinToScreenspace ? 1 : scale.toPrecision(3)
       })`;
     }
-    if (this.container.style.left != pixiToContainerNumber(screenX)) {
+    if (
+      !this.pinToScreenspace &&
+      this.container.style.left != pixiToContainerNumber(screenX)
+    ) {
       this.container.style.left = pixiToContainerNumber(screenX);
     }
-    if (this.container.style.top != pixiToContainerNumber(screenY)) {
+    if (
+      !this.pinToScreenspace &&
+      this.container.style.top != pixiToContainerNumber(screenY)
+    ) {
       this.container.style.top = pixiToContainerNumber(screenY);
+    }
+    if (this.pinToScreenspace) {
+      {
+        const { x, y, width, height } = screenSpaceGridToPx(
+          this.screenSpaceSettings
+        );
+        this.container.style.left = `${x}px`;
+        this.container.style.top = `${y}px`;
+        this.container.style.width = `${width}px`;
+        this.container.style.height = `${height}px`;
+      }
     }
   }
 
@@ -60,15 +79,27 @@ export default abstract class HybridNode2 extends PPNode {
     this.root = createRoot(this.container!);
     this.container.id = `Container-${this.id}`;
 
-    const scale = this.pinToScreenspace
-      ? 1
-      : PPGraph.currentGraph.viewportScaleX;
     this.container.classList.add(styles.hybridContainer);
     Object.assign(this.container.style, customStyles);
 
+    let nodeWidth = this.nodeWidth;
+    let nodeHeight = this.nodeHeight;
+    let scale = PPGraph.currentGraph.viewportScaleX;
+
+    if (this.pinToScreenspace) {
+      const { x, y, width, height } = screenSpaceGridToPx(
+        this.screenSpaceSettings
+      );
+      console.log(x, y, width, height);
+      nodeWidth = width;
+      nodeHeight = height;
+      scale = 1;
+      this.container.style.zIndex = '1';
+    }
+
     // set initial position
-    this.container.style.width = `${this.nodeWidth}px`;
-    this.container.style.height = `${this.nodeHeight}px`;
+    this.container.style.width = `${nodeWidth}px`;
+    this.container.style.height = `${nodeHeight}px`;
     this.container.style.transform = `scale(${scale}`;
 
     this.onNodeDragOrViewportMove = this.redraw;

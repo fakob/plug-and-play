@@ -36,7 +36,9 @@ import {
   connectNodeToSocket,
   getNodeCommentPosX,
   getNodeCommentPosY,
+  screenSpaceGridToPx,
 } from '../utils/utils';
+import { ScreenSpaceSettings } from '../utils/interfaces';
 import { AbstractType } from '../nodes/datatypes/abstractType';
 import { AnyType } from '../nodes/datatypes/anyType';
 import { TriggerType } from '../nodes/datatypes/triggerType';
@@ -58,6 +60,7 @@ export default class PPNode extends PIXI.Container {
   clickedSocketRef: Socket;
   isHovering: boolean;
   _pinToScreenspace: boolean;
+  screenSpaceSettings: ScreenSpaceSettings;
 
   id: string;
   type: string; // Type
@@ -262,6 +265,18 @@ export default class PPNode extends PIXI.Container {
     this.nameChanged(text);
   }
 
+  get foreGroundPosAndSize(): ScreenSpaceSettings {
+    if (this.pinToScreenspace) {
+      return screenSpaceGridToPx(this.screenSpaceSettings);
+    }
+    return {
+      x: this.x,
+      y: this.y,
+      width: this.nodeWidth,
+      height: this.nodeHeight,
+    };
+  }
+
   constructor(type: string, customArgs?: CustomArgs) {
     super();
     this.id = customArgs?.overrideId || hri.random();
@@ -351,8 +366,11 @@ export default class PPNode extends PIXI.Container {
         );
         this._ScreenspaceRef.name = `${this.name}-SP`;
       }
+      this.screenSpaceSettings =
+        PPGraph.currentGraph.getScreenSpacePosition(this);
     } else {
       this._ScreenspaceRef?.destroy();
+      this.screenSpaceSettings = undefined;
     }
     this._pinToScreenspace = state;
   }
@@ -501,6 +519,7 @@ export default class PPNode extends PIXI.Container {
         intervalFrequency: this.updateBehaviour.intervalFrequency,
       },
       pinToScreenspace: this.pinToScreenspace,
+      screenSpaceSettings: this.screenSpaceSettings,
     };
 
     return node;
@@ -518,6 +537,7 @@ export default class PPNode extends PIXI.Container {
       nodeConfig.updateBehaviour.intervalFrequency
     );
     this.pinToScreenspace = nodeConfig.pinToScreenspace;
+    this.screenSpaceSettings = nodeConfig.screenSpaceSettings;
     try {
       const mapSocket = (item: SerializedSocket) => {
         const matchingSocket = this.getSocketByNameAndType(
@@ -742,18 +762,20 @@ export default class PPNode extends PIXI.Container {
   }
 
   public drawForeground(): void {
-    if (this._ScreenspaceContainerRef) {
-      this._ScreenspaceRef.clear();
-      this._ScreenspaceRef.beginFill(this.getColor().hexNumber(), 1);
-      this._ScreenspaceRef.drawRoundedRect(
-        NODE_MARGIN,
-        0,
-        this.nodeWidth,
-        this.nodeHeight,
-        this.getRoundedCorners() ? NODE_CORNERRADIUS : 0
-      );
-      this._ScreenspaceRef.endFill();
-    }
+    // if (this._ScreenspaceContainerRef) {
+    //   this._ScreenspaceRef.clear();
+    //   this._ScreenspaceRef.beginFill(this.getColor().hexNumber(), 1);
+    //   const screenSpaceGridInPx = screenSpaceGridToPx(this.screenSpaceSettings);
+    //   console.log(this.screenSpaceSettings, screenSpaceGridInPx);
+    //   this._ScreenspaceRef.drawRoundedRect(
+    //     screenSpaceGridInPx.x,
+    //     screenSpaceGridInPx.y,
+    //     screenSpaceGridInPx.width,
+    //     screenSpaceGridInPx.height,
+    //     0
+    //   );
+    //   this._ScreenspaceRef.endFill();
+    // }
   }
 
   public drawTriggers(): void {
@@ -838,7 +860,7 @@ export default class PPNode extends PIXI.Container {
     }
     this.drawBackground();
 
-    this.pinToScreenspace && this.drawForeground();
+    // this.pinToScreenspace && this.drawForeground();
 
     this.drawTriggers();
     this.drawSockets();
@@ -927,9 +949,6 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   }
 
   screenPoint(): PIXI.Point {
-    if (this.pinToScreenspace) {
-      return PPGraph.currentGraph.getScreenSpacePosition(this);
-    }
     return PPGraph.currentGraph.viewport.toScreen(this.x + NODE_MARGIN, this.y);
   }
 
