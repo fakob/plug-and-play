@@ -31,6 +31,7 @@ export default class PPGraph {
 
   _showComments: boolean;
   _showExecutionVisualisation: boolean;
+  _showNonPresentationNodes: boolean;
   socketToInspect: null | PPSocket;
   selectedSourceSocket: null | PPSocket;
   lastSelectedSocketWasInput = false;
@@ -59,6 +60,7 @@ export default class PPGraph {
 
     this._showComments = true;
     this._showExecutionVisualisation = true;
+    this.showNonPresentationNodes = false;
     this.selectedSourceSocket = null;
 
     this.backgroundTempContainer = new PIXI.Container();
@@ -347,6 +349,16 @@ export default class PPGraph {
     return this.viewport.scale.x;
   }
 
+
+  get showNonPresentationNodes(): boolean {
+    return this._showNonPresentationNodes;
+  }
+
+  set showNonPresentationNodes(value: boolean) {
+    this._showNonPresentationNodes = value;
+
+  }
+
   get showExecutionVisualisation(): boolean {
     return this._showExecutionVisualisation;
   }
@@ -458,10 +470,8 @@ export default class PPGraph {
       await this.connect(outputRef, inputRef, false);
     } else {
       console.warn(
-        `Link could not be created between ${link.sourceNodeId}/${
-          link.sourceSocketName
-        }${outputRef === undefined ? '-MISSING' : ''} and ${
-          link.targetNodeId
+        `Link could not be created between ${link.sourceNodeId}/${link.sourceSocketName
+        }${outputRef === undefined ? '-MISSING' : ''} and ${link.targetNodeId
         }/${link.targetSocketName}${inputRef === undefined ? '-MISSING' : ''}`
       );
       InterfaceController.showSnackBar(
@@ -925,8 +935,10 @@ export default class PPGraph {
       version: PP_VERSION,
       graphSettings: {
         showExecutionVisualisation: this.showExecutionVisualisation,
+        showNonPresentationNodes: this.showNonPresentationNodes,
         viewportCenterPosition: this.viewport.center,
         viewportScale: this.viewportScaleX,
+
       },
       nodes: nodesSerialized,
       links: linksSerialized,
