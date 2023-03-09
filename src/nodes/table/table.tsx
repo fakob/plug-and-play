@@ -1,6 +1,5 @@
 import * as PIXI from 'pixi.js';
 import React, {
-  FunctionComponent,
   useCallback,
   useEffect,
   useMemo,
@@ -10,13 +9,11 @@ import React, {
 import * as XLSX from 'xlsx';
 import DataEditor, {
   CellClickedEventArgs,
-  CompactSelection,
   DataEditorRef,
   EditableGridCell,
   GridCell,
   GridCellKind,
   GridColumn,
-  GridSelection,
   GridMouseEventArgs,
   HeaderClickedEventArgs,
   Item,
@@ -25,15 +22,23 @@ import DataEditor, {
 import '@glideapps/glide-data-grid/dist/index.css';
 import {
   Box,
+  Button,
+  ButtonGroup,
+  ClickAwayListener,
   Divider,
+  Grow,
   IconButton,
   ListItemIcon,
   ListItemText,
   MenuItem,
+  MenuList,
   Menu,
+  Paper,
+  Popper,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
+import DownloadIcon from '@mui/icons-material/Download';
 import EastIcon from '@mui/icons-material/East';
 import SortIcon from '@mui/icons-material/Sort';
 import PPSocket from '../../classes/SocketClass';
@@ -57,8 +62,9 @@ import PPGraph from '../../classes/GraphClass';
 import PPNode from '../../classes/NodeClass';
 import HybridNode2 from '../../classes/HybridNode2';
 
+const inputSocketName = 'Input';
 const arrayOfArraysSocketName = 'Array of arrays';
-const rowObjectsNames = 'Row Objects';
+const rowObjectsNames = 'Array of objects';
 const workBookInputSocketName = 'Initial data';
 const sheetIndexInputSocketName = 'Sheet index';
 
@@ -83,7 +89,7 @@ export class Table extends HybridNode2 {
   }
 
   getPreferredInputSocketName(): string {
-    return sheetIndexInputSocketName;
+    return inputSocketName;
   }
 
   public getName(): string {
@@ -191,8 +197,10 @@ export class Table extends HybridNode2 {
         SOCKET_TYPE.IN,
         sheetIndexInputSocketName,
         new NumberType(true),
-        0
+        0,
+        false
       ),
+      new PPSocket(SOCKET_TYPE.IN, inputSocketName, new ArrayType(), [], false),
     ];
   }
 
@@ -231,15 +239,29 @@ export class Table extends HybridNode2 {
       const sheetIndex = node.getIndex();
       const workSheet =
         node.workBook.Sheets[node.workBook.SheetNames[sheetIndex]];
-      const range = XLSX.utils.decode_range(workSheet['!ref']);
-      // sheet_to_json will lose empty row and col at begin as default
-      range.s = { c: 0, r: 0 };
-      const toJson = XLSX.utils.sheet_to_json(workSheet, {
-        raw: false,
-        header: 1,
-        range: range,
-      });
-      setArrayOfArrays(toJson);
+      try {
+        const range = XLSX.utils.decode_range(workSheet['!ref']);
+        // sheet_to_json will lose empty row and col at begin as default
+        range.s = { c: 0, r: 0 };
+        const toJson = XLSX.utils.sheet_to_json(workSheet, {
+          raw: false,
+          header: 1,
+          range: range,
+        });
+        setArrayOfArrays(toJson);
+      } catch (error) {
+        setArrayOfArrays([[], []]);
+      }
+    };
+
+    const onExport = () => {
+      XLSX.writeFile(
+        node.workBook,
+        `${node.name}.${exportOptions[selectedExportIndex]}`,
+        {
+          sheet: node.workBook.SheetNames[node.getIndex()],
+        }
+      );
     };
 
     const getCols = (): GridColumn[] => {
@@ -276,7 +298,35 @@ export class Table extends HybridNode2 {
       cell: Item;
       pos: PIXI.Point;
     }>();
+    const exportOptions = ['xlsx', 'csv', 'txt', 'html', 'rtf'];
+
     const [hoverRow, setHoverRow] = useState<number | undefined>(undefined);
+    const [openExportFormat, setExportFormatOpen] = useState(false);
+    const anchorRef = useRef<HTMLDivElement>(null);
+    const [selectedExportIndex, setSelectedExportIndex] = useState(0);
+
+    const handleExportFormatClose = (event: Event) => {
+      if (
+        anchorRef.current &&
+        anchorRef.current.contains(event.target as HTMLElement)
+      ) {
+        return;
+      }
+
+      setExportFormatOpen(false);
+    };
+
+    const handleExportFormatToggle = () => {
+      setExportFormatOpen((prevOpen) => !prevOpen);
+    };
+
+    const handleExportFormatClick = (
+      event: React.MouseEvent<HTMLLIElement, MouseEvent>,
+      index: number
+    ) => {
+      setSelectedExportIndex(index);
+      setExportFormatOpen(false);
+    };
 
     const onItemHovered = useCallback((args: GridMouseEventArgs) => {
       const [_, row] = args.location;
@@ -312,7 +362,7 @@ export class Table extends HybridNode2 {
       } else {
         // create workbook with an empty worksheet
         node.workBook = XLSX.utils.book_new();
-        const ws_data = new Array(24).fill(Array(24).fill(''));
+        const ws_data = new Array(7).fill(Array(7).fill(''));
         const worksheet = XLSX.utils.aoa_to_sheet(ws_data);
         XLSX.utils.book_append_sheet(node.workBook, worksheet, 'Sheet1');
       }
@@ -337,6 +387,30 @@ export class Table extends HybridNode2 {
     useEffect(() => {
       saveAndOutput();
     }, [arrayOfArrays, colsMap]);
+
+    useEffect(() => {
+      if (
+        Array.isArray(props[inputSocketName]) &&
+        props[inputSocketName][0] !== undefined
+      ) {
+        try {
+          if (Array.isArray(props[inputSocketName][0])) {
+            setArrayOfArrays(props[inputSocketName]);
+          } else {
+            const tempWS = XLSX.utils.json_to_sheet(props[inputSocketName]);
+            const toJson = XLSX.utils.sheet_to_json(tempWS, {
+              raw: false,
+              header: 1,
+            });
+            setArrayOfArrays(toJson);
+          }
+          setColsMap(() => getCols());
+          saveAndOutput();
+        } catch (error) {
+          setArrayOfArrays([[], []]);
+        }
+      }
+    }, [props[inputSocketName]]);
 
     const saveAndOutput = useCallback((): void => {
       const worksheet = XLSX.utils.aoa_to_sheet(arrayOfArrays);
@@ -516,7 +590,71 @@ export class Table extends HybridNode2 {
     );
 
     return (
-      <>
+      <Box sx={{ position: 'relative' }}>
+        {props.doubleClicked && (
+          <>
+            <ButtonGroup
+              variant="contained"
+              size="small"
+              ref={anchorRef}
+              sx={{
+                position: 'absolute',
+                bottom: '8px',
+                right: '8px',
+                zIndex: 10,
+              }}
+            >
+              <Button
+                size="small"
+                onClick={handleExportFormatToggle}
+                sx={{ px: 1 }}
+              >
+                {exportOptions[selectedExportIndex]}
+              </Button>
+              <Button onClick={onExport}>
+                <DownloadIcon sx={{ ml: 0.5, fontSize: '16px' }} />{' '}
+              </Button>
+            </ButtonGroup>
+            <Popper
+              sx={{
+                zIndex: 1,
+              }}
+              open={openExportFormat}
+              anchorEl={anchorRef.current}
+              role={undefined}
+              transition
+              disablePortal
+              placement="top-start"
+            >
+              {({ TransitionProps }) => (
+                <Grow
+                  {...TransitionProps}
+                  style={{
+                    transformOrigin: 'center bottom',
+                  }}
+                >
+                  <Paper>
+                    <ClickAwayListener onClickAway={handleExportFormatClose}>
+                      <MenuList id="split-button-menu" autoFocusItem>
+                        {exportOptions.map((option, index) => (
+                          <MenuItem
+                            key={option}
+                            selected={index === selectedExportIndex}
+                            onClick={(event) =>
+                              handleExportFormatClick(event, index)
+                            }
+                          >
+                            {option}
+                          </MenuItem>
+                        ))}
+                      </MenuList>
+                    </ClickAwayListener>
+                  </Paper>
+                </Grow>
+              )}
+            </Popper>
+          </>
+        )}
         <DataEditor
           ref={ref}
           getCellContent={getContent}
@@ -764,7 +902,7 @@ export class Table extends HybridNode2 {
             <ListItemText>Delete row</ListItemText>
           </MenuItem>
         </Menu>
-      </>
+      </Box>
     );
   }
 
