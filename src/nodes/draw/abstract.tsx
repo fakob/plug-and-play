@@ -289,4 +289,8 @@ export abstract class DRAW_Base extends PPNode {
   protected allowMovingDirectly(): boolean {
     return true;
   }
+
+  public getIsPresentationalNode(): boolean {
+    return true;
+  }
 }

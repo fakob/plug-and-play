@@ -133,7 +133,7 @@ export default abstract class HybridNode2 extends PPNode {
     document.getElementById('container').removeChild(container);
   }
 
-  protected onHybridNodeExit(): void {}
+  protected onHybridNodeExit(): void { }
 
   configure(nodeConfig: SerializedNode): void {
     super.configure(nodeConfig);
@@ -204,4 +204,9 @@ export default abstract class HybridNode2 extends PPNode {
       this.renderReactComponent(inputObject);
     }
   }
+
+  public getIsPresentationalNode(): boolean {
+    return true;
+  }
+
 }

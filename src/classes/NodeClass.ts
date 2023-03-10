@@ -181,6 +181,10 @@ export default class PPNode extends PIXI.Container {
     return {};
   }
 
+  public getIsPresentationalNode(): boolean {
+    return false;
+  }
+
   //////////////////////////////
 
   // we should migrate all nodes to use these functions instead of specifying the field themselves in constructor
@@ -191,7 +195,7 @@ export default class PPNode extends PIXI.Container {
     return '';
   }
   // used when searching for nodes
-  public getTags(): string{
+  public getTags(): string {
     return "";
   }
 
@@ -746,7 +750,7 @@ export default class PPNode extends PIXI.Container {
     this._StatusesRef.removeChildren();
 
 
-    this.statuses.forEach((nStatus,index) => {
+    this.statuses.forEach((nStatus, index) => {
       const color = nStatus.color;
 
       const height = 30;
@@ -761,18 +765,18 @@ export default class PPNode extends PIXI.Container {
           fontSize: 18,
           fill: COLOR_MAIN,
         })
-        );
-        text.x = this.nodeWidth - inlet + 5;// - width;
-        text.y = startY + 5 + index*(height-merging);
-        this._StatusesRef.addChild(text);
+      );
+      text.x = this.nodeWidth - inlet + 5;// - width;
+      text.y = startY + 5 + index * (height - merging);
+      this._StatusesRef.addChild(text);
       this._StatusesRef.beginFill(color.hexNumber());
-        this._StatusesRef.drawRoundedRect(
-          this.nodeWidth - inlet,// - width,
-          startY + index * (height-merging),
-          text.width + 10,
-          height,
-          NODE_CORNERRADIUS
-          );
+      this._StatusesRef.drawRoundedRect(
+        this.nodeWidth - inlet,// - width,
+        startY + index * (height - merging),
+        text.width + 10,
+        height,
+        NODE_CORNERRADIUS
+      );
     });
 
   }
@@ -958,7 +962,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     });
 
     // set the meta settings
-    if (inputObject["Meta"] !== undefined){
+    if (inputObject["Meta"] !== undefined) {
       Object.keys(inputObject["Meta"]).forEach(key => {
         this[key] = inputObject["Meta"][key];
       });
@@ -1080,7 +1084,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
       PPGraph.currentGraph.selection.startDragAction(event);
     }
     if (event.data.button == 2) {
-      if (event.target == this){
+      if (event.target == this) {
         InterfaceController.onRightClick(event, this);
       }
       PPGraph.currentGraph.selection.stopDragAction();

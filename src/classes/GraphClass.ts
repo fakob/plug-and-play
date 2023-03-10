@@ -60,7 +60,7 @@ export default class PPGraph {
 
     this._showComments = true;
     this._showExecutionVisualisation = true;
-    this.showNonPresentationNodes = false;
+    this.showNonPresentationNodes = true;
     this.selectedSourceSocket = null;
 
     this.backgroundTempContainer = new PIXI.Container();
@@ -356,6 +356,10 @@ export default class PPGraph {
 
   set showNonPresentationNodes(value: boolean) {
     this._showNonPresentationNodes = value;
+    Object.values(this.nodes).forEach(node => {
+      (node.alpha = node.getIsPresentationalNode() ? 1.0 : 0.0)
+    }
+    );
 
   }
 
@@ -938,7 +942,6 @@ export default class PPGraph {
         showNonPresentationNodes: this.showNonPresentationNodes,
         viewportCenterPosition: this.viewport.center,
         viewportScale: this.viewportScaleX,
-
       },
       nodes: nodesSerialized,
       links: linksSerialized,

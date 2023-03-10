@@ -22,8 +22,8 @@ export default class PPLink extends PIXI.Container {
     // this._data = null;
 
     const connection = new PIXI.Graphics();
-    this._drawConnection(connection);
     this._connectionRef = this.addChild(connection);
+    this._drawConnection(connection);
   }
 
   serialize(): SerializedLink {
@@ -114,27 +114,35 @@ export default class PPLink extends PIXI.Container {
     }
   }
 
+
+  refreshConnection() {
+    this._drawConnection(this._connectionRef);
+  }
+
   _drawConnection(
     connection: PIXI.Graphics,
     color = this.source.dataType.getColor().multiply(0.9),
     alpha = 1
   ): void {
-    const sourcePoint = PPGraph.currentGraph.getSocketCenter(this.source);
-    const targetPoint = PPGraph.currentGraph.getSocketCenter(this.target);
 
-    // draw curve from 0,0 as PIXI.Graphics sourceates from 0,0
-    const toX = targetPoint.x - sourcePoint.x;
-    const toY = targetPoint.y - sourcePoint.y;
-    const cpX = Math.abs(toX) / 2;
-    const cpY = 0;
-    const cpX2 = toX - cpX;
-    const cpY2 = toY;
+    if (PPGraph.currentGraph.showNonPresentationNodes) {
+      const sourcePoint = PPGraph.currentGraph.getSocketCenter(this.source);
+      const targetPoint = PPGraph.currentGraph.getSocketCenter(this.target);
 
-    connection.lineStyle(this.lineThickness, color.hexNumber(), alpha);
-    connection.bezierCurveTo(cpX, cpY, cpX2, cpY2, toX, toY);
+      // draw curve from 0,0 as PIXI.Graphics sourceates from 0,0
+      const toX = targetPoint.x - sourcePoint.x;
+      const toY = targetPoint.y - sourcePoint.y;
+      const cpX = Math.abs(toX) / 2;
+      const cpY = 0;
+      const cpX2 = toX - cpX;
+      const cpY2 = toY;
 
-    // offset curve to start from source
-    connection.x = sourcePoint.x;
-    connection.y = sourcePoint.y;
+      connection.lineStyle(this.lineThickness, color.hexNumber(), alpha);
+      connection.bezierCurveTo(cpX, cpY, cpX2, cpY2, toX, toY);
+
+      // offset curve to start from source
+      connection.x = sourcePoint.x;
+      connection.y = sourcePoint.y;
+    }
   }
 }
