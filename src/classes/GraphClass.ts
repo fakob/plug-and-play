@@ -5,14 +5,13 @@ import { Viewport } from 'pixi-viewport';
 import { NODE_SOURCE, NODE_WIDTH, PP_VERSION } from '../utils/constants';
 import {
   CustomArgs,
-  ScreenSpaceSettings,
   SerializedGraph,
   SerializedLink,
   SerializedNode,
   SerializedSelection,
   TNodeSource,
 } from '../utils/interfaces';
-import { connectNodeToSocket, getNextFreeSpace } from '../utils/utils';
+import { connectNodeToSocket } from '../utils/utils';
 import { getNodesBounds } from '../pixi/utils-pixi';
 import PPNode from './NodeClass';
 import PPSocket from './SocketClass';
@@ -729,34 +728,6 @@ export default class PPGraph {
     return Object.values(this.nodes).flatMap((node) =>
       node.getAllInputSockets().flatMap((socket) => socket.links)
     );
-  }
-
-  // setScreenSpacePositions() {
-  //   const pinnedNodes = Object.values(this.nodes).filter(
-  //     (node) => node.pinToScreenspace === true
-  //   );
-  //   if (pinnedNodes.length > 0) {
-  //     const grid = this.packBoxes(pinnedNodes, 800, 900);
-  //     pinnedNodes.forEach((node: PPNode) => {
-  //       const boxCoordinates = grid.find((box) => box.id === node.id);
-  //       node.setPosition(boxCoordinates.x, boxCoordinates.y);
-  //     });
-  //   }
-  // }
-
-  getScreenSpacePosition(node: PPNode): ScreenSpaceSettings {
-    const boxes = Object.values(this.nodes)
-      .filter((node) => node.pinToScreenspace === true)
-      .map((node) => node.screenSpaceSettings);
-    const multiplierWidth = this.viewport.screenWidth / 40.0;
-    const multiplierHeight = this.viewport.screenHeight / 40.0;
-    const nextFreeSpace = getNextFreeSpace(
-      Math.min(node.nodeWidth / multiplierWidth, 40),
-      Math.min(node.nodeHeight / multiplierHeight, 40),
-      boxes
-    );
-    console.log(nextFreeSpace);
-    return nextFreeSpace;
   }
 
   checkOldSocketAndUpdateIt<T extends PPSocket>(

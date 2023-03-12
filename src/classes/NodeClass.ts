@@ -36,6 +36,7 @@ import {
   connectNodeToSocket,
   getNodeCommentPosX,
   getNodeCommentPosY,
+  getScreenSpacePosition,
   screenSpaceGridToPx,
 } from '../utils/utils';
 import { ScreenSpaceSettings } from '../utils/interfaces';
@@ -87,17 +88,18 @@ export default class PPNode extends PIXI.Container {
   protected statuses: NodeStatus[] = []; // you can add statuses into this and they will be rendered on the node
 
   // supported callbacks
-  onConfigure: (nodeConfig: SerializedNode) => void = () => { }; // called after the node has been configured
-  onNodeDoubleClick: (event: PIXI.FederatedPointerEvent) => void = () => { };
+  onConfigure: (nodeConfig: SerializedNode) => void = () => {}; // called after the node has been configured
+  onNodeDoubleClick: (event: PIXI.FederatedPointerEvent) => void = () => {};
   onViewportMoveHandler: (event?: PIXI.FederatedPointerEvent) => void =
-    () => { };
+    () => {};
   onViewportPointerUpHandler: (event?: PIXI.FederatedPointerEvent) => void =
-    () => { };
-  onNodeRemoved: () => void = () => { }; // called when the node is removed from the graph
-  onNodeResize: (width: number, height: number) => void = () => { }; // called when the node is resized
+    () => {};
+  onNodeRemoved: () => void = () => {}; // called when the node is removed from the graph
+  onNodePinned: (state: boolean) => void = () => {}; // called when the node is pinned or unpinned
+  onNodeResize: (width: number, height: number) => void = () => {}; // called when the node is resized
   onNodeDragOrViewportMove: // called when the node or or the viewport with the node is moved or scaled
-    (positions: { screenX: number; screenY: number; scale: number }) => void =
-    () => { };
+  (positions: { screenX: number; screenY: number; scale: number }) => void =
+    () => {};
 
   // called when the node is added to the graph
   public onNodeAdded(source: TNodeSource = NODE_SOURCE.SERIALIZED): void {
@@ -111,7 +113,7 @@ export default class PPNode extends PIXI.Container {
     return false;
   }
 
-  protected onNodeExit(): void { }
+  protected onNodeExit(): void {}
 
   ////////////////////////////// Meant to be overriden for visual/behavioral needs
 
@@ -366,13 +368,15 @@ export default class PPNode extends PIXI.Container {
         );
         this._ScreenspaceRef.name = `${this.name}-SP`;
       }
-      this.screenSpaceSettings =
-        PPGraph.currentGraph.getScreenSpacePosition(this);
+      this.screenSpaceSettings = getScreenSpacePosition(this);
     } else {
       this._ScreenspaceRef?.destroy();
       this.screenSpaceSettings = undefined;
     }
     this._pinToScreenspace = state;
+    this.onNodePinned(state);
+    this.resizeAndDraw();
+    this.execute();
   }
 
   get doubleClicked(): boolean {
@@ -762,20 +766,20 @@ export default class PPNode extends PIXI.Container {
   }
 
   public drawForeground(): void {
-    // if (this._ScreenspaceContainerRef) {
-    //   this._ScreenspaceRef.clear();
-    //   this._ScreenspaceRef.beginFill(this.getColor().hexNumber(), 1);
-    //   const screenSpaceGridInPx = screenSpaceGridToPx(this.screenSpaceSettings);
-    //   console.log(this.screenSpaceSettings, screenSpaceGridInPx);
-    //   this._ScreenspaceRef.drawRoundedRect(
-    //     screenSpaceGridInPx.x,
-    //     screenSpaceGridInPx.y,
-    //     screenSpaceGridInPx.width,
-    //     screenSpaceGridInPx.height,
-    //     0
-    //   );
-    //   this._ScreenspaceRef.endFill();
-    // }
+    if (this._ScreenspaceContainerRef) {
+      this._ScreenspaceRef.clear();
+      this._ScreenspaceRef.beginFill(this.getColor().hexNumber(), 1);
+      const screenSpaceGridInPx = screenSpaceGridToPx(this.screenSpaceSettings);
+      console.log(this.screenSpaceSettings, screenSpaceGridInPx);
+      this._ScreenspaceRef.drawRoundedRect(
+        screenSpaceGridInPx.x,
+        screenSpaceGridInPx.y,
+        screenSpaceGridInPx.width,
+        screenSpaceGridInPx.height,
+        0
+      );
+      this._ScreenspaceRef.endFill();
+    }
   }
 
   public drawTriggers(): void {
@@ -860,7 +864,7 @@ export default class PPNode extends PIXI.Container {
     }
     this.drawBackground();
 
-    // this.pinToScreenspace && this.drawForeground();
+    this.pinToScreenspace && this.drawForeground();
 
     this.drawTriggers();
     this.drawSockets();
@@ -1001,7 +1005,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     if (
       this.updateBehaviour.interval &&
       currentTime - this.lastTimeTicked >=
-      this.updateBehaviour.intervalFrequency
+        this.updateBehaviour.intervalFrequency
     ) {
       this.lastTimeTicked = currentTime;
       this.executeOptimizedChain();
@@ -1268,5 +1272,5 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   }
 
   // kinda hacky but some cant easily serialize functions in JS
-  protected initializeType(socketName: string, datatype: any) { }
+  protected initializeType(socketName: string, datatype: any) {}
 }

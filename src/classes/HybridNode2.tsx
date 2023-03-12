@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 /* eslint-disable @typescript-eslint/no-this-alias */
-import * as PIXI from 'pixi.js';
 
 import React from 'react';
 import * as PIXI from 'pixi.js';
 import { createRoot, Root } from 'react-dom/client';
 import { Button } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
+import PushPinIcon from '@mui/icons-material/PushPin';
 import PPGraph from './GraphClass';
 import PPNode from './NodeClass';
 import styles from '../utils/style.module.css';
@@ -54,7 +54,7 @@ export default abstract class HybridNode2 extends PPNode {
     ) {
       this.container.style.top = pixiToContainerNumber(screenY);
     }
-    if (this.pinToScreenspace) {
+    if (this.pinToScreenspace && this.screenSpaceSettings) {
       {
         const { x, y, width, height } = screenSpaceGridToPx(
           this.screenSpaceSettings
@@ -103,6 +103,14 @@ export default abstract class HybridNode2 extends PPNode {
     this.container.style.transform = `scale(${scale}`;
 
     this.onNodeDragOrViewportMove = this.redraw;
+
+    this.onNodePinned = (state) => {
+      if (state) {
+        this.container.style.zIndex = '1';
+      } else {
+        this.container.style.zIndex = 'unset';
+      }
+    };
 
     this.onViewportPointerUpHandler = this.onViewportPointerUp.bind(this);
 
@@ -161,6 +169,23 @@ export default abstract class HybridNode2 extends PPNode {
             }}
           >
             <EditIcon sx={{ fontSize: '16px' }} />
+          </Button>
+        )}
+        {this.pinToScreenspace && (
+          <Button
+            title={'Click to edit OR Double click node'}
+            className={styles.hybridContainerEditButton}
+            size="small"
+            onClick={() => (this.pinToScreenspace = false)}
+            color="primary"
+            sx={{
+              background: RANDOMMAINCOLOR,
+              color: TRgba.fromString(RANDOMMAINCOLOR)
+                .getContrastTextColor()
+                .hex(),
+            }}
+          >
+            <PushPinIcon sx={{ fontSize: '16px' }} />
           </Button>
         )}
       </>
