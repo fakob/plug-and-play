@@ -337,6 +337,11 @@ export default class PPGraph {
     }
   }
 
+  presentationAndNodeToAlpha(value: boolean, node: PPNode) {
+    const newVisibility = node.getIsPresentationalNode() || value;
+    return newVisibility ? (node.alpha == 0.0 ? 1.0 : node.alpha) : 0.0;
+  }
+
   // GETTERS & SETTERS
 
   set showComments(value: boolean) {
@@ -355,22 +360,12 @@ export default class PPGraph {
   set showNonPresentationNodes(value: boolean) {
     this._showNonPresentationNodes = value;
     Object.values(this.nodes).forEach((node) => {
-      const newVisibility = node.getIsPresentationalNode() || value;
-      const newAlpha = newVisibility
-        ? node.alpha == 0.0
-          ? 1.0
-          : node.alpha
-        : 0.0;
+      const newAlpha = this.presentationAndNodeToAlpha(value, node);
       node.alpha = newAlpha;
       node.getAllInputSockets().forEach((socket) =>
         socket.links.forEach((link) => {
           const otherNode = link.getSource().getNode();
-          const otherAlpha =
-            value || otherNode.getIsPresentationalNode()
-              ? otherNode.alpha == 0.0
-                ? 1.0
-                : otherNode.alpha
-              : 0.0;
+          const otherAlpha = this.presentationAndNodeToAlpha(value, otherNode);
           const totalAlpha = newAlpha * otherAlpha;
           link.alpha = totalAlpha;
         })
