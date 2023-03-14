@@ -58,6 +58,7 @@ import {
   NODE_SOURCE,
   PLUGANDPLAY_ICON,
   RANDOMMAINCOLOR,
+  RANDOMMAINCOLORLIGHTHEX,
 } from './utils/constants';
 import { IGraphSearch, INodeSearch } from './utils/interfaces';
 import {
@@ -89,10 +90,6 @@ const timeAgo = new TimeAgo('en-US');
 const isMac = navigator.platform.indexOf('Mac') != -1;
 const controlOrMetaKey = isMac ? '⌘' : 'Ctrl';
 console.log('isMac: ', isMac);
-
-const randomMainColorLightHex = PIXI.utils.string2hex(
-  Color(RANDOMMAINCOLOR).mix(Color('white'), 0.9).hex()
-);
 
 fetch('https://plugandplayground.dev/buildInfo')
   .then((response) => response.json())
@@ -323,7 +320,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
 
     // create pixiApp
     pixiApp.current = new PIXI.Application({
-      backgroundColor: randomMainColorLightHex,
+      backgroundColor: RANDOMMAINCOLORLIGHTHEX,
       backgroundAlpha: 1,
       width: window.innerWidth,
       height: window.innerHeight,

@@ -87,12 +87,12 @@ function FilterContainer(props: FilterContentProps) {
 }
 
 type CommonContentProps = {
-  pinToScreenspace: boolean;
+  pinned: boolean;
   hasTriggerSocket: boolean;
   interval: boolean;
   intervalFrequency: number;
   update: boolean;
-  onPinToScreenspaceChange: (event) => void;
+  onpinnedChange: (event) => void;
   onCheckboxChange: (event) => void;
   onFrequencyChange: (event) => void;
   onUpdateNow: (event) => void;
@@ -111,12 +111,12 @@ function CommonContent(props: CommonContentProps) {
         <FormControlLabel
           control={
             <Checkbox
-              name="pinToScreenspace"
-              checked={props.pinToScreenspace}
-              onChange={props.onPinToScreenspaceChange}
+              name="pinned"
+              checked={props.pinned}
+              onChange={props.onpinnedChange}
             />
           }
-          label="pinToScreenspace"
+          label="pinned"
         />
         <FormGroup>
           <Button variant="contained" onClick={props.onUpdateNow}>
@@ -409,14 +409,12 @@ export const PropertyArrayContainer: React.FunctionComponent<
     getUpdateBehaviourStateForArray()
   );
 
-  const [pinToScreenspace, setPinToScreenspace] = useState(
-    selectedNode.pinToScreenspace
-  );
+  const [pinned, setpinned] = useState(selectedNode.pinned);
 
-  const onPinToScreenspaceChange = (event) => {
+  const onpinnedChange = (event) => {
     const checked = (event.target as HTMLInputElement).checked;
-    setPinToScreenspace(checked);
-    selectedNode.pinToScreenspace = checked;
+    setpinned(checked);
+    selectedNode.pinned = checked;
   };
 
   const onCheckboxChange = (event) => {
@@ -481,11 +479,11 @@ export const PropertyArrayContainer: React.FunctionComponent<
             props.filter == null) && (
             <CommonContent
               hasTriggerSocket={selectedNode.nodeTriggerSocketArray.length > 0}
-              pinToScreenspace={pinToScreenspace}
+              pinned={pinned}
               interval={updateBehaviour.interval}
               intervalFrequency={updateBehaviour.intervalFrequency}
               update={updateBehaviour.update}
-              onPinToScreenspaceChange={onPinToScreenspaceChange}
+              onpinnedChange={onpinnedChange}
               onCheckboxChange={onCheckboxChange}
               onFrequencyChange={onFrequencyChange}
               onUpdateNow={onUpdateNow}

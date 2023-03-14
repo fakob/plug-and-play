@@ -36,25 +36,25 @@ export default abstract class HybridNode2 extends PPNode {
   redraw({ screenX = 0, screenY = 0, scale = 1 }) {
     if (
       this.container.style.transform !=
-      `scale(${this.pinToScreenspace ? 1 : scale.toPrecision(3)})`
+      `scale(${this.pinned ? 1 : scale.toPrecision(3)})`
     ) {
       this.container.style.transform = `scale(${
-        this.pinToScreenspace ? 1 : scale.toPrecision(3)
+        this.pinned ? 1 : scale.toPrecision(3)
       })`;
     }
     if (
-      !this.pinToScreenspace &&
+      !this.pinned &&
       this.container.style.left != pixiToContainerNumber(screenX)
     ) {
       this.container.style.left = pixiToContainerNumber(screenX);
     }
     if (
-      !this.pinToScreenspace &&
+      !this.pinned &&
       this.container.style.top != pixiToContainerNumber(screenY)
     ) {
       this.container.style.top = pixiToContainerNumber(screenY);
     }
-    if (this.pinToScreenspace && this.screenSpaceSettings) {
+    if (this.pinned && this.screenSpaceSettings) {
       {
         const { x, y, width, height } = screenSpaceGridToPx(
           this.screenSpaceSettings
@@ -86,7 +86,7 @@ export default abstract class HybridNode2 extends PPNode {
     let nodeHeight = this.nodeHeight;
     let scale = PPGraph.currentGraph.viewportScaleX;
 
-    if (this.pinToScreenspace) {
+    if (this.pinned) {
       const { x, y, width, height } = screenSpaceGridToPx(
         this.screenSpaceSettings
       );
@@ -171,12 +171,12 @@ export default abstract class HybridNode2 extends PPNode {
             <EditIcon sx={{ fontSize: '16px' }} />
           </Button>
         )}
-        {this.pinToScreenspace && (
+        {this.pinned && (
           <Button
             title={'Click to edit OR Double click node'}
             className={styles.hybridContainerEditButton}
             size="small"
-            onClick={() => (this.pinToScreenspace = false)}
+            onClick={() => (this.pinned = false)}
             color="primary"
             sx={{
               background: RANDOMMAINCOLOR,

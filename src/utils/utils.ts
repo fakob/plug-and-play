@@ -786,7 +786,6 @@ function getOccupiedGrid(gridObjects: ScreenSpaceSettings[]) {
       }
     }
   }
-  console.log(grid);
   return grid;
 }
 
@@ -867,9 +866,13 @@ export function pxToScreenSpace(
 
 export function getScreenSpacePosition(node: PPNode): ScreenSpaceSettings {
   const boxes = Object.values(PPGraph.currentGraph.nodes)
-    .filter((node) => node.pinToScreenspace === true)
+    .filter((node) => node.pinned === true)
     .map((node) => node.screenSpaceSettings);
-  const { width, height } = pxToScreenSpace(node.nodeWidth, node.nodeHeight);
+  const nodeBounds = node._ForegroundRef.getLocalBounds();
+  const { width, height } = pxToScreenSpace(
+    nodeBounds.width || node.nodeWidth,
+    nodeBounds.height || node.nodeHeight
+  );
   const nextFreeSpace = getNextFreeSpace(width, height, boxes);
   return nextFreeSpace;
 }

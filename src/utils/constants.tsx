@@ -47,6 +47,9 @@ export const WHITE_HEX = 0xffffff;
 export const COLOR_ERROR = '#FF0000';
 
 export const RANDOMMAINCOLOR = COLOR[Math.floor(Math.random() * COLOR.length)];
+export const RANDOMMAINCOLORLIGHTHEX = PIXI.utils.string2hex(
+  Color(RANDOMMAINCOLOR).mix(Color('white'), 0.9).hex()
+);
 
 export const customTheme = createTheme(darkThemeOverride, {
   palette: {

@@ -213,6 +213,15 @@ export default class PPGraph {
 
     this.viewport.cursor = 'default';
     this.viewport.plugins.resume('drag');
+    this.dragSourcePoint = undefined;
+
+    InterfaceController.pinnedChanged = () => {
+      const boxes = Object.values(PPGraph.currentGraph.nodes)
+        .filter((node) => node.pinned === true)
+        .map((node) => node.screenSpaceSettings);
+      console.log(boxes);
+    };
+
     InterfaceController.notifyListeners(ListenEvent.ViewportDragging, false);
   }
 
@@ -765,7 +774,7 @@ export default class PPGraph {
 
   async togglePinSelection() {
     Object.values(this.selection.selectedNodes).forEach(
-      (node) => (node.pinToScreenspace = !node.pinToScreenspace)
+      (node) => (node.pinned = !node.pinned)
     );
   }
 

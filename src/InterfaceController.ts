@@ -4,6 +4,7 @@ import { OptionsObject, SnackbarKey, SnackbarMessage } from 'notistack';
 import * as PIXI from 'pixi.js';
 import Socket from './classes/SocketClass';
 import { v4 as uuid } from 'uuid';
+import PPNode from './classes/NodeClass';
 
 export enum ListenEvent {
   SelectionChanged, // data = PPNode[]
@@ -74,4 +75,5 @@ export default class InterfaceController {
     () => {}; // called when socket inspector should be opened
   static onCloseSocketInspector: () => void; // called when socket inspector should be closed
   static selectionRedrawn: (pos: PIXI.Point) => void = () => {};
+  static pinnedChanged: () => void = () => {};
 }
