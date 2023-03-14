@@ -55,6 +55,7 @@ import {
   CONTEXTMENU_WIDTH,
   DRAGANDDROP_GRID_MARGIN,
   GRID_SHADER,
+  NODE_SOURCE,
   PLUGANDPLAY_ICON,
   RANDOMMAINCOLOR,
 } from './utils/constants';
@@ -787,17 +788,25 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         let addedNode: PPNode;
         const nodeExists = getAllNodeTypes()[selected?.title] !== undefined;
         if (nodeExists) {
-          addedNode = PPGraph.currentGraph.addNewNode(selected.title, {
-            overrideId: referenceID,
-            nodePosX: nodePos.x,
-            nodePosY: nodePos.y,
-          });
+          addedNode = PPGraph.currentGraph.addNewNode(
+            selected.title,
+            {
+              overrideId: referenceID,
+              nodePosX: nodePos.x,
+              nodePosY: nodePos.y,
+            },
+            addLink ? NODE_SOURCE.NEWCONNECTED : NODE_SOURCE.NEW
+          );
         } else {
-          addedNode = PPGraph.currentGraph.addNewNode('CustomFunction', {
-            overrideId: referenceID,
-            nodePosX: nodePos.x,
-            nodePosY: nodePos.y,
-          });
+          addedNode = PPGraph.currentGraph.addNewNode(
+            'CustomFunction',
+            {
+              overrideId: referenceID,
+              nodePosX: nodePos.x,
+              nodePosY: nodePos.y,
+            },
+            addLink ? NODE_SOURCE.NEWCONNECTED : NODE_SOURCE.NEW
+          );
           addedNode.nodeName = selected.title;
         }
         if (addLink) {

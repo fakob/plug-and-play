@@ -1,7 +1,7 @@
 import * as PIXI from 'pixi.js';
 import PPNode from '../classes/NodeClass';
 import { IUpdateBehaviour } from '../classes/UpdateBehaviourClass';
-import { COLOR_DARK, COLOR_WHITE, SOCKET_TYPE } from './constants';
+import { COLOR_DARK, COLOR_WHITE, SOCKET_TYPE, NODE_SOURCE } from './constants';
 import Color from 'color';
 
 export type RegisteredNodeTypes = Record<
@@ -104,6 +104,8 @@ export type NodeStatus = {
   color: TRgba;
   statusText: string;
 };
+
+export type TNodeSource = (typeof NODE_SOURCE)[keyof typeof NODE_SOURCE];
 
 export class TRgba {
   r = 0;

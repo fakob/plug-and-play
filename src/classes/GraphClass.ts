@@ -2,13 +2,14 @@
 import * as PIXI from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
 
-import { NODE_WIDTH, PP_VERSION } from '../utils/constants';
+import { NODE_SOURCE, NODE_WIDTH, PP_VERSION } from '../utils/constants';
 import {
   CustomArgs,
   SerializedGraph,
   SerializedLink,
   SerializedNode,
   SerializedSelection,
+  TNodeSource,
 } from '../utils/interfaces';
 import { connectNodeToSocket } from '../utils/utils';
 import { getNodesBounds } from '../pixi/utils-pixi';
@@ -445,7 +446,10 @@ export default class PPGraph {
     return node;
   }
 
-  addNode<T extends PPNode = PPNode>(node: T): T {
+  addNode<T extends PPNode = PPNode>(
+    node: T,
+    source: TNodeSource = NODE_SOURCE.SERIALIZED
+  ): T {
     if (!node) {
       return;
     }
@@ -454,7 +458,7 @@ export default class PPGraph {
     this.nodes[node.id] = node;
     this.nodeContainer.addChild(node);
 
-    node.onNodeAdded();
+    node.onNodeAdded(source);
 
     return node;
   }
@@ -466,8 +470,8 @@ export default class PPGraph {
     newNodeType?: string
   ): PPNode {
     const node = this.createNode(newNodeType ?? serialized.type, customArgs);
-    this.addNode(node);
     node.configure(serialized);
+    this.addNode(node);
     return node;
   }
 
@@ -500,9 +504,13 @@ export default class PPGraph {
     }
   }
 
-  addNewNode(type: string, customArgs: CustomArgs = {}): PPNode {
+  addNewNode(
+    type: string,
+    customArgs: CustomArgs = {},
+    source: TNodeSource = NODE_SOURCE.NEW
+  ): PPNode {
     const node = this.createNode(type, customArgs);
-    this.addNode(node);
+    this.addNode(node, source);
     return node;
   }
 
@@ -681,18 +689,26 @@ export default class PPGraph {
     let newNode;
     if (socket.isInput()) {
       const nodeType = socket.dataType.defaultInputNodeWidget();
-      newNode = this.addNewNode(nodeType, {
-        nodePosX: node.x,
-        nodePosY: node.y + socket.y,
-        initialData: socket.data,
-      });
+      newNode = this.addNewNode(
+        nodeType,
+        {
+          nodePosX: node.x,
+          nodePosY: node.y + socket.y,
+          initialData: socket.data,
+        },
+        NODE_SOURCE.NEWCONNECTED
+      );
       newNode.setPosition(-(newNode.width + 40), 0, true);
     } else {
       const nodeType = socket.dataType.defaultOutputNodeWidget();
-      newNode = this.addNewNode(nodeType, {
-        nodePosX: node.x + (node.width + 40),
-        nodePosY: node.y + socket.y,
-      });
+      newNode = this.addNewNode(
+        nodeType,
+        {
+          nodePosX: node.x + (node.width + 40),
+          nodePosY: node.y + socket.y,
+        },
+        NODE_SOURCE.NEWCONNECTED
+      );
     }
     await connectNodeToSocket(socket, newNode);
   }
