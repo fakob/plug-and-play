@@ -42,12 +42,10 @@ export default class PPGraph {
   dragSourcePoint: PIXI.Point;
 
   backgroundTempContainer: PIXI.Container;
-  backgroundCanvas: PIXI.Container;
   connectionContainer: PIXI.Container;
   nodeContainer: PIXI.Container;
   nodes: { [key: string]: PPNode } = {};
   macros: { [key: string]: Macro } = {};
-  foregroundCanvas: PIXI.Container;
   id: string;
 
   tempConnection: PIXI.Graphics;
@@ -68,22 +66,16 @@ export default class PPGraph {
 
     this.backgroundTempContainer = new PIXI.Container();
     this.backgroundTempContainer.name = 'backgroundTempContainer';
-    this.backgroundCanvas = new PIXI.Container();
-    this.backgroundCanvas.name = 'backgroundCanvas';
     this.connectionContainer = new PIXI.Container();
     this.connectionContainer.name = 'connectionContainer';
     this.nodeContainer = new PIXI.Container();
     this.nodeContainer.name = 'nodeContainer';
-    this.foregroundCanvas = new PIXI.Container();
-    this.foregroundCanvas.name = 'foregroundCanvas';
     this.ticking = false;
 
     this.viewport.addChild(
-      this.backgroundCanvas,
       this.backgroundTempContainer,
       this.connectionContainer,
-      this.nodeContainer,
-      this.foregroundCanvas
+      this.nodeContainer
     );
 
     this.tempConnection = new PIXI.Graphics();
@@ -766,10 +758,6 @@ export default class PPGraph {
     // remove all nodes from container
     this.nodes = {};
     this.nodeContainer.removeChildren();
-
-    // clearn back and foreground canvas
-    this.backgroundCanvas.removeChildren();
-    this.foregroundCanvas.removeChildren();
 
     // remove selected nodes
     this.selection.deselectAllNodesAndResetSelection();

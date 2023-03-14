@@ -49,9 +49,7 @@ export abstract class DRAW_Base extends PPNode {
   }
 
   onNodeRemoved = (): void => {
-    const canvas = PPGraph.currentGraph.backgroundCanvas;
-
-    canvas.removeChild(this.deferredGraphics);
+    this.removeChild(this.deferredGraphics);
   };
 
   // you probably want to maintain this output in children
