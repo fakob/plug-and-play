@@ -358,6 +358,7 @@ export default class PPGraph {
     this._showNonPresentationNodes = value;
     Object.values(this.nodes).forEach(node => {
       (node.alpha = node.getIsPresentationalNode() ? 1.0 : 0.0)
+      node.getAllInputSockets().forEach(link => link.draw)
     }
     );
 
