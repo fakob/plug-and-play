@@ -133,7 +133,7 @@ export default abstract class HybridNode2 extends PPNode {
     document.getElementById('container').removeChild(container);
   }
 
-  protected onHybridNodeExit(): void {}
+  protected onHybridNodeExit(): void { }
 
   setPosition(x: number, y: number, isRelative = false): void {
     super.setPosition(x, y, isRelative);
@@ -199,4 +199,9 @@ export default abstract class HybridNode2 extends PPNode {
       this.renderReactComponent(inputObject);
     }
   }
+
+  public getIsPresentationalNode(): boolean {
+    return true;
+  }
+
 }

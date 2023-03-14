@@ -82,9 +82,6 @@ import InterfaceController, { ListenEvent } from './InterfaceController';
 import PPStorage from './PPStorage';
 import PPSelection from './classes/SelectionClass';
 
-(window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__ &&
-  (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__.register({ PIXI: PIXI });
-
 TimeAgo.addDefaultLocale(en);
 // Create formatter (English).
 const timeAgo = new TimeAgo('en-US');
@@ -333,6 +330,8 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     });
     pixiApp.current.stage.interactive = true;
     pixiApp.current.stage.buttonMode = true;
+
+    globalThis.__PIXI_APP__ = pixiApp.current;
 
     // disable browser window zoom on trackpad pinch
     document.addEventListener(

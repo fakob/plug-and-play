@@ -22,8 +22,8 @@ export default class PPLink extends PIXI.Container {
     // this._data = null;
 
     const connection = new PIXI.Graphics();
-    this._drawConnection(connection);
     this._connectionRef = this.addChild(connection);
+    this._drawConnection(connection);
   }
 
   serialize(): SerializedLink {
@@ -95,29 +95,12 @@ export default class PPLink extends PIXI.Container {
   });
 
   private renderOutline(iterations = 30, interval = 16.67): void {
-    const activeExecution = new PIXI.Graphics();
-    this.addChild(activeExecution);
-    for (let i = 1; i <= iterations; i++) {
-      setTimeout(() => {
-        activeExecution.clear();
-        this._drawConnection(
-          activeExecution,
-          TRgba.white(),
-          0.4 - i * (0.4 / iterations)
-        );
-
-        activeExecution.endFill();
-        if (i == iterations) {
-          this.removeChild(activeExecution);
-        }
-      }, i * interval);
-    }
+    return;
   }
 
   _drawConnection(
     connection: PIXI.Graphics,
-    color = this.source.dataType.getColor().multiply(0.9),
-    alpha = 1
+    color = this.source.dataType.getColor().multiply(0.9)
   ): void {
     const sourcePoint = PPGraph.currentGraph.getSocketCenter(this.source);
     const targetPoint = PPGraph.currentGraph.getSocketCenter(this.target);
@@ -130,7 +113,7 @@ export default class PPLink extends PIXI.Container {
     const cpX2 = toX - cpX;
     const cpY2 = toY;
 
-    connection.lineStyle(this.lineThickness, color.hexNumber(), alpha);
+    connection.lineStyle(this.lineThickness, color.hexNumber());
     connection.bezierCurveTo(cpX, cpY, cpX2, cpY2, toX, toY);
 
     // offset curve to start from source

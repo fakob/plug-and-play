@@ -184,6 +184,10 @@ export default class PPNode extends PIXI.Container {
     return {};
   }
 
+  public getIsPresentationalNode(): boolean {
+    return false;
+  }
+
   //////////////////////////////
 
   // we should migrate all nodes to use these functions instead of specifying the field themselves in constructor
@@ -195,7 +199,7 @@ export default class PPNode extends PIXI.Container {
   }
   // used when searching for nodes
   public getTags(): string {
-    return '';
+    return "";
   }
 
   public getMinNodeWidth(): number {
@@ -764,12 +768,12 @@ export default class PPNode extends PIXI.Container {
           fill: COLOR_MAIN,
         })
       );
-      text.x = this.nodeWidth - inlet + 5; // - width;
+      text.x = this.nodeWidth - inlet + 5;// - width;
       text.y = startY + 5 + index * (height - merging);
       this._StatusesRef.addChild(text);
       this._StatusesRef.beginFill(color.hexNumber());
       this._StatusesRef.drawRoundedRect(
-        this.nodeWidth - inlet, // - width,
+        this.nodeWidth - inlet,// - width,
         startY + index * (height - merging),
         text.width + 10,
         height,
@@ -957,7 +961,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     });
 
     // set the meta settings
-    if (inputObject["Meta"] !== undefined){
+    if (inputObject["Meta"] !== undefined) {
       Object.keys(inputObject["Meta"]).forEach(key => {
         this[key] = inputObject["Meta"][key];
       });
