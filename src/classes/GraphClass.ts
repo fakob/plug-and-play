@@ -31,6 +31,7 @@ export default class PPGraph {
 
   _showComments: boolean;
   _showExecutionVisualisation: boolean;
+  _showNonPresentationNodes: boolean;
   socketToInspect: null | PPSocket;
   selectedSourceSocket: null | PPSocket;
   lastSelectedSocketWasInput = false;
@@ -48,7 +49,6 @@ export default class PPGraph {
 
   tempConnection: PIXI.Graphics;
   selection: PPSelection;
-  private unsavedChanges: boolean;
 
   ticking: boolean;
 
@@ -59,6 +59,7 @@ export default class PPGraph {
 
     this._showComments = true;
     this._showExecutionVisualisation = true;
+    this.showNonPresentationNodes = true;
     this.selectedSourceSocket = null;
 
     this.backgroundTempContainer = new PIXI.Container();
@@ -345,6 +346,36 @@ export default class PPGraph {
 
   get viewportScaleX(): number {
     return this.viewport.scale.x;
+  }
+
+  get showNonPresentationNodes(): boolean {
+    return this._showNonPresentationNodes;
+  }
+
+  set showNonPresentationNodes(value: boolean) {
+    this._showNonPresentationNodes = value;
+    Object.values(this.nodes).forEach((node) => {
+      const newVisibility = node.getIsPresentationalNode() || value;
+      const newAlpha = newVisibility
+        ? node.alpha == 0.0
+          ? 1.0
+          : node.alpha
+        : 0.0;
+      node.alpha = newAlpha;
+      node.getAllInputSockets().forEach((socket) =>
+        socket.links.forEach((link) => {
+          const otherNode = link.getSource().getNode();
+          const otherAlpha =
+            value || otherNode.getIsPresentationalNode()
+              ? otherNode.alpha == 0.0
+                ? 1.0
+                : otherNode.alpha
+              : 0.0;
+          const totalAlpha = newAlpha * otherAlpha;
+          link.alpha = totalAlpha;
+        })
+      );
+    });
   }
 
   get showExecutionVisualisation(): boolean {
@@ -925,6 +956,7 @@ export default class PPGraph {
       version: PP_VERSION,
       graphSettings: {
         showExecutionVisualisation: this.showExecutionVisualisation,
+        showNonPresentationNodes: this.showNonPresentationNodes,
         viewportCenterPosition: this.viewport.center,
         viewportScale: this.viewportScaleX,
       },
@@ -1012,6 +1044,9 @@ export default class PPGraph {
         (node) => !node.getHasDependencies() && node.updateBehaviour.update
       )
     );
+
+    this.showNonPresentationNodes =
+      data.graphSettings.showNonPresentationNodes ?? true;
 
     this.ticking = true;
 

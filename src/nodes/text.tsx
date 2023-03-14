@@ -37,6 +37,10 @@ export class Label extends PPNode {
     this._refText.visible = false;
   }
 
+  public getIsPresentationalNode(): boolean {
+    return true;
+  }
+
   getShowLabels(): boolean {
     return false;
   }
