@@ -29,12 +29,12 @@ export default class PPLink extends PIXI.Container {
   serialize(): SerializedLink {
     // create serialization object
     // this prevents being blocked from saving when having orphaned links
-    if (this.source.parent && this.target.parent) {
+    if (this.source.getNode() && this.target.getNode()) {
       return {
         id: this.id,
-        sourceNodeId: (this.source.parent as PPNode).id,
+        sourceNodeId: (this.source.getNode() as PPNode).id,
         sourceSocketName: this.source.name,
-        targetNodeId: (this.target.parent as PPNode).id,
+        targetNodeId: (this.target.getNode() as PPNode).id,
         targetSocketName: this.target.name,
       };
     }

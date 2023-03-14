@@ -168,7 +168,7 @@ export default class UpdateBehaviourClass extends PIXI.Container {
   // METHODS
 
   getNode(): PPNode {
-    return this.parent as PPNode;
+    return this.parent?.parent as PPNode;
   }
 
   getGraph(): PPGraph {

@@ -516,7 +516,7 @@ export const TriggerWidget: React.FunctionComponent<TriggerWidgetProps> = (
             startIcon={<PlayArrowIcon />}
             onClick={() => {
               // nodes with trigger input need a trigger function
-              (props.property.parent as any)[
+              (props.property.getNode() as any)[
                 customFunctionString === ''
                   ? 'executeOptimizedChain'
                   : customFunctionString

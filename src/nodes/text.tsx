@@ -33,7 +33,7 @@ export class Label extends PPNode {
 
     this._refTextStyle = new PIXI.TextStyle();
     const basicText = new PIXI.Text('', this._refTextStyle);
-    this._refText = this.addChild(basicText);
+    this._refText = this._ForegroundRef.addChild(basicText);
     this._refText.visible = false;
   }
 

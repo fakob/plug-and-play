@@ -52,10 +52,12 @@ import { JSONType } from '../nodes/datatypes/jsonType';
 
 export default class PPNode extends PIXI.Container {
   _NodeNameRef: PIXI.Text;
-  _BackgroundRef: PIXI.Graphics;
+  _BackgroundRef: PIXI.Container;
+  _BackgroundGraphicsRef: PIXI.Graphics;
   _CommentRef: PIXI.Graphics;
   _StatusesRef: PIXI.Graphics;
-  _ScreenspaceRef: PIXI.Graphics;
+  _ForegroundRef: PIXI.Container;
+  _ScreenspaceRef: PIXI.Container;
   _ScreenspaceContainerRef: PIXI.Container;
 
   clickedSocketRef: Socket;
@@ -305,23 +307,28 @@ export default class PPNode extends PIXI.Container {
     inputNameText.y = NODE_PADDING_TOP + NODE_HEADER_TEXTMARGIN_TOP;
     inputNameText.resolution = 8;
 
-    const background = new PIXI.Graphics();
+    const backgroundContainer = new PIXI.Container();
+    this._BackgroundRef = this.addChild(backgroundContainer);
+    this._BackgroundRef.name = 'background';
+    const backgroundGraphics = new PIXI.Graphics();
+    this._BackgroundGraphicsRef =
+      this._BackgroundRef.addChild(backgroundGraphics);
+    this._BackgroundGraphicsRef.name = 'backgroundGraphics';
 
-    this._BackgroundRef = this.addChild(background);
-    this._NodeNameRef = this.addChild(inputNameText);
-    this._CommentRef = this.addChild(new PIXI.Graphics());
-    this._StatusesRef = this.addChild(new PIXI.Graphics());
+    this._NodeNameRef = this._BackgroundRef.addChild(inputNameText);
+    this._CommentRef = this._BackgroundRef.addChild(new PIXI.Graphics());
+    this._StatusesRef = this._BackgroundRef.addChild(new PIXI.Graphics());
 
     this.updateBehaviour = this.getUpdateBehaviour();
     if (this.getShouldShowHoverActions()) {
-      this.addChild(this.updateBehaviour);
+      this._BackgroundRef.addChild(this.updateBehaviour);
     }
     this.updateBehaviour.x = NODE_MARGIN;
     this.updateBehaviour.y = -24;
 
     this.nodeSelectionHeader = new NodeSelectionHeaderClass();
     if (this.getShouldShowHoverActions()) {
-      this.addChild(this.nodeSelectionHeader);
+      this._BackgroundRef.addChild(this.nodeSelectionHeader);
     }
     this.nodeSelectionHeader.x = NODE_MARGIN + this.nodeWidth - 72;
     this.nodeSelectionHeader.y = -24;
@@ -330,6 +337,10 @@ export default class PPNode extends PIXI.Container {
     if (!this.getShowLabels()) {
       this._NodeNameRef.alpha = 0;
     }
+
+    const foregroundContainer = new PIXI.Container();
+    this._ForegroundRef = this.addChild(foregroundContainer);
+    this._ForegroundRef.name = 'foreground';
 
     // add static inputs and outputs
     this.getAllInitialSockets().forEach((IO) => {
@@ -364,7 +375,7 @@ export default class PPNode extends PIXI.Container {
         this.parent?.parent?.parent?.getChildByName('ScreenspaceContainer');
       if (this._ScreenspaceContainerRef) {
         this._ScreenspaceRef = this._ScreenspaceContainerRef.addChild(
-          new PIXI.Graphics()
+          new PIXI.Container()
         );
         this._ScreenspaceRef.name = `${this.name}-SP`;
       }
@@ -409,7 +420,7 @@ export default class PPNode extends PIXI.Container {
   }
 
   addSocket(socket: Socket): void {
-    const socketRef = this.addChild(socket);
+    const socketRef = this._BackgroundRef.addChild(socket);
     switch (socket.socketType) {
       case SOCKET_TYPE.TRIGGER: {
         this.nodeTriggerSocketArray.push(socketRef);
@@ -737,11 +748,11 @@ export default class PPNode extends PIXI.Container {
   }
 
   public drawErrorBoundary(): void {
-    this._BackgroundRef.beginFill(
+    this._BackgroundGraphicsRef.beginFill(
       new TRgba(255, 0, 0).hexNumber(),
       this.getOpacity()
     );
-    this._BackgroundRef.drawRoundedRect(
+    this._BackgroundGraphicsRef.drawRoundedRect(
       NODE_MARGIN - 3,
       -3,
       this.nodeWidth + 6,
@@ -751,34 +762,42 @@ export default class PPNode extends PIXI.Container {
   }
 
   public drawBackground(): void {
-    this._BackgroundRef.beginFill(
+    this._BackgroundGraphicsRef.beginFill(
       this.getColor().hexNumber(),
       this.pinToScreenspace ? 1 : this.getOpacity()
     );
-    this._BackgroundRef.drawRoundedRect(
+    this._BackgroundGraphicsRef.drawRoundedRect(
       NODE_MARGIN,
       0,
       this.nodeWidth,
       this.nodeHeight,
       this.getRoundedCorners() ? NODE_CORNERRADIUS : 0
     );
-    this._BackgroundRef.endFill();
+    this._BackgroundGraphicsRef.endFill();
   }
 
   public drawForeground(): void {
-    if (this._ScreenspaceContainerRef) {
-      this._ScreenspaceRef.clear();
-      this._ScreenspaceRef.beginFill(this.getColor().hexNumber(), 1);
+    if (this._ScreenspaceContainerRef && this._ScreenspaceRef) {
+      const graphics = new PIXI.Graphics();
+      graphics.name = 'foregroundGraphics';
+      graphics.clear();
+      graphics.beginFill(this.getColor().hexNumber(), 1);
       const screenSpaceGridInPx = screenSpaceGridToPx(this.screenSpaceSettings);
       console.log(this.screenSpaceSettings, screenSpaceGridInPx);
-      this._ScreenspaceRef.drawRoundedRect(
+      graphics.drawRoundedRect(
         screenSpaceGridInPx.x,
         screenSpaceGridInPx.y,
         screenSpaceGridInPx.width,
         screenSpaceGridInPx.height,
         0
       );
-      this._ScreenspaceRef.endFill();
+      graphics.endFill();
+      const inputNameText = new PIXI.Text(
+        this.getNodeTextString(),
+        NODE_TEXTSTYLE
+      );
+      this._ScreenspaceRef.addChild(inputNameText);
+      this._ScreenspaceRef.addChild(graphics);
     }
   }
 
@@ -858,7 +877,7 @@ export default class PPNode extends PIXI.Container {
   public drawNodeShape(): void {
     // update selection
 
-    this._BackgroundRef.clear();
+    this._BackgroundGraphicsRef.clear();
     if (!this.successfullyExecuted) {
       this.drawErrorBoundary();
     }
@@ -1052,7 +1071,8 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     // const iterations = 30;
     // const interval = 16.67;
     const activeExecution = new PIXI.Graphics();
-    this.addChild(activeExecution);
+    activeExecution.name = 'activeExecution';
+    this._BackgroundRef.addChild(activeExecution);
     for (let i = 1; i <= iterations; i++) {
       setTimeout(() => {
         activeExecution.clear();
@@ -1077,7 +1097,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
         );
         activeExecution.endFill();
         if (i == iterations) {
-          this.removeChild(activeExecution);
+          this._BackgroundRef.removeChild(activeExecution);
         }
       }, i * interval);
     }

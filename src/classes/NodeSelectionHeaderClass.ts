@@ -46,7 +46,7 @@ class Button extends PIXI.Sprite {
 
   onPointerDown(event: PIXI.FederatedPointerEvent): void {
     const altKey = event.altKey;
-    const node = this.parent?.parent as PPNode;
+    const node = this.parent?.parent?.parent as PPNode;
     const graph = PPGraph.currentGraph;
     graph.selection.selectNodes(
       Object.values(

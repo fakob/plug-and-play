@@ -140,12 +140,12 @@ abstract class SimpleMathOperation extends CustomFunction {
   public drawBackground(): void {
     const centerX = this.nodeWidth / 2;
     const centerY = this.nodeHeight / 2;
-    this._BackgroundRef.removeChildren();
-    this._BackgroundRef.beginFill(
+    this._BackgroundGraphicsRef.removeChildren();
+    this._BackgroundGraphicsRef.beginFill(
       this.getColor().hexNumber(),
       this.getOpacity()
     );
-    this._BackgroundRef.drawRoundedRect(
+    this._BackgroundGraphicsRef.drawRoundedRect(
       NODE_MARGIN,
       0,
       this.nodeWidth,
@@ -153,7 +153,7 @@ abstract class SimpleMathOperation extends CustomFunction {
       this.getRoundedCorners() ? NODE_CORNERRADIUS : 0
     );
 
-    //this._BackgroundRef.drawCircle(NODE_MARGIN, 0, this.nodeWidth / 2);
+    //this._BackgroundGraphicsRef.drawCircle(NODE_MARGIN, 0, this.nodeWidth / 2);
 
     const fontSize = 70;
     const text = new PIXI.Text(
@@ -167,7 +167,7 @@ abstract class SimpleMathOperation extends CustomFunction {
     );
     text.x = centerX - fontSize / 4;
     text.y = centerY - fontSize / 2;
-    this._BackgroundRef.addChild(text);
+    this._BackgroundGraphicsRef.addChild(text);
   }
 
   public socketTypeChanged(): void {

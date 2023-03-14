@@ -818,7 +818,8 @@ export function getNextFreeSpace(
   return null;
 }
 
-const gridSize = 40.0;
+const gridSizeX = 40.0;
+const gridSizeY = 40.0;
 const topMargin = 140;
 
 export function getGridMultiplier(): {
@@ -826,9 +827,9 @@ export function getGridMultiplier(): {
   multiplierHeight: number;
 } {
   const multiplierWidth =
-    PPGraph.currentGraph.viewport.screenWidth / 2 / gridSize;
+    PPGraph.currentGraph.viewport.screenWidth / 2 / gridSizeX;
   const multiplierHeight =
-    (PPGraph.currentGraph.viewport.screenHeight - topMargin) / gridSize;
+    (PPGraph.currentGraph.viewport.screenHeight - topMargin) / gridSizeY;
   return {
     multiplierWidth,
     multiplierHeight,
@@ -850,15 +851,25 @@ export function screenSpaceGridToPx(screenSpaceSettings: ScreenSpaceSettings): {
   };
 }
 
+export function pxToScreenSpace(
+  nodeWidth: number,
+  nodeHeight: number
+): {
+  width: number;
+  height: number;
+} {
+  const { multiplierWidth, multiplierHeight } = getGridMultiplier();
+  return {
+    width: Math.min(nodeWidth / multiplierWidth, gridSizeX),
+    height: Math.min(nodeHeight / multiplierHeight, gridSizeY),
+  };
+}
+
 export function getScreenSpacePosition(node: PPNode): ScreenSpaceSettings {
   const boxes = Object.values(PPGraph.currentGraph.nodes)
     .filter((node) => node.pinToScreenspace === true)
     .map((node) => node.screenSpaceSettings);
-  const { multiplierWidth, multiplierHeight } = getGridMultiplier();
-  const nextFreeSpace = getNextFreeSpace(
-    Math.min(node.nodeWidth / multiplierWidth, gridSize),
-    Math.min(node.nodeHeight / multiplierHeight, gridSize),
-    boxes
-  );
+  const { width, height } = pxToScreenSpace(node.nodeWidth, node.nodeHeight);
+  const nextFreeSpace = getNextFreeSpace(width, height, boxes);
   return nextFreeSpace;
 }

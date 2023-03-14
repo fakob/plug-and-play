@@ -400,6 +400,8 @@ export default class PPGraph {
   }
 
   getNodeById(id: string): PPNode {
+    console.log(id);
+    console.log(this.nodes);
     return this.nodes[id];
   }
 
@@ -487,6 +489,7 @@ export default class PPGraph {
   }
 
   async addSerializedLink(link: SerializedLink): Promise<void> {
+    console.log(link.sourceNodeId, link.sourceSocketName);
     const outputRef = this.getOutputSocket(
       link.sourceNodeId,
       link.sourceSocketName
@@ -991,7 +994,7 @@ export default class PPGraph {
       nodes: nodesSerialized,
       links: linksSerialized,
     };
-
+    console.log(data.links);
     return data;
   }
 
@@ -1002,7 +1005,7 @@ export default class PPGraph {
       // get links which are completely contained in selection
       node.getAllInputSockets().forEach((socket) => {
         if (socket.hasLink()) {
-          const connectedNode = socket.links[0].source.parent as PPNode;
+          const connectedNode = socket.links[0].source.getNode() as PPNode;
           if (nodes.includes(connectedNode)) {
             linksContainedInSelection.push(socket.links[0]);
           }
@@ -1063,7 +1066,7 @@ export default class PPGraph {
       data.nodes.forEach((node) =>
         this.addSerializedNode(node, { overrideId: node.id })
       );
-
+      console.log(data.links);
       await Promise.all(
         data.links.map(async (link) => await this.addSerializedLink(link))
       );
@@ -1093,6 +1096,7 @@ export default class PPGraph {
 
   getOutputSocket(nodeID: string, socketName: string): PPSocket {
     const node = this.getNodeById(nodeID);
+    console.log(node, nodeID, socketName);
     return node.getOutputSocketByName(socketName);
   }
 

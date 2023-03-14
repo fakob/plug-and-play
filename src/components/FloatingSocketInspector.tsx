@@ -28,7 +28,7 @@ function PaperComponent(props) {
     <Draggable
       handle="#draggable-title"
       cancel={'[id=draggable-content]'}
-      key={`${props.socketinfo.parent.id}.${props.socketinfo.name}`}
+      key={`${props.socketinfo.getNode().id}.${props.socketinfo.name}`}
     >
       <Paper {...props} />
     </Draggable>
@@ -88,7 +88,7 @@ export const FloatingSocketInspector: React.FunctionComponent<MyProps> = (
               alignItems: 'center',
             }}
           >
-            {props.socketToInspect.parent?.name}.{props.socketToInspect.name}
+            {props.socketToInspect.getNode()?.name}.{props.socketToInspect.name}
           </Box>
           <Box
             sx={{
@@ -140,7 +140,7 @@ export const FloatingSocketInspector: React.FunctionComponent<MyProps> = (
             data={props.socketToInspect.data}
             randomMainColor={props.randomMainColor}
             showHeader={false}
-            selectedNode={props.socketToInspect.parent as PPNode}
+            selectedNode={props.socketToInspect.getNode() as PPNode}
           />
         </Box>
       </PaperComponent>
