@@ -227,6 +227,9 @@ export default class Socket extends PIXI.Container {
         this.dataType = proposedType;
         this.redrawAnythingChanging();
         this.getNode().socketTypeChanged();
+        if (this.isOutput()) {
+          this.links.forEach((link) => link.updateConnection());
+        }
       }
     }
     if (this.isInput()) {

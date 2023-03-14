@@ -98,10 +98,6 @@ export default class PPLink extends PIXI.Container {
     return;
   }
 
-  refreshConnection() {
-    this._drawConnection(this._connectionRef);
-  }
-
   _drawConnection(
     connection: PIXI.Graphics,
     color = this.source.dataType.getColor().multiply(0.9)
