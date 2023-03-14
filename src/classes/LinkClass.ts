@@ -95,25 +95,8 @@ export default class PPLink extends PIXI.Container {
   });
 
   private renderOutline(iterations = 30, interval = 16.67): void {
-    const activeExecution = new PIXI.Graphics();
-    this.addChild(activeExecution);
-    for (let i = 1; i <= iterations; i++) {
-      setTimeout(() => {
-        activeExecution.clear();
-        this._drawConnection(
-          activeExecution,
-          TRgba.white(),
-          0.4 - i * (0.4 / iterations)
-        );
-
-        activeExecution.endFill();
-        if (i == iterations) {
-          this.removeChild(activeExecution);
-        }
-      }, i * interval);
-    }
+    return;
   }
-
 
   refreshConnection() {
     this._drawConnection(this._connectionRef);
@@ -121,28 +104,24 @@ export default class PPLink extends PIXI.Container {
 
   _drawConnection(
     connection: PIXI.Graphics,
-    color = this.source.dataType.getColor().multiply(0.9),
-    alpha = 1
+    color = this.source.dataType.getColor().multiply(0.9)
   ): void {
+    const sourcePoint = PPGraph.currentGraph.getSocketCenter(this.source);
+    const targetPoint = PPGraph.currentGraph.getSocketCenter(this.target);
 
-    if (PPGraph.currentGraph.showNonPresentationNodes) {
-      const sourcePoint = PPGraph.currentGraph.getSocketCenter(this.source);
-      const targetPoint = PPGraph.currentGraph.getSocketCenter(this.target);
+    // draw curve from 0,0 as PIXI.Graphics sourceates from 0,0
+    const toX = targetPoint.x - sourcePoint.x;
+    const toY = targetPoint.y - sourcePoint.y;
+    const cpX = Math.abs(toX) / 2;
+    const cpY = 0;
+    const cpX2 = toX - cpX;
+    const cpY2 = toY;
 
-      // draw curve from 0,0 as PIXI.Graphics sourceates from 0,0
-      const toX = targetPoint.x - sourcePoint.x;
-      const toY = targetPoint.y - sourcePoint.y;
-      const cpX = Math.abs(toX) / 2;
-      const cpY = 0;
-      const cpX2 = toX - cpX;
-      const cpY2 = toY;
+    connection.lineStyle(this.lineThickness, color.hexNumber());
+    connection.bezierCurveTo(cpX, cpY, cpX2, cpY2, toX, toY);
 
-      connection.lineStyle(this.lineThickness, color.hexNumber(), alpha);
-      connection.bezierCurveTo(cpX, cpY, cpX2, cpY2, toX, toY);
-
-      // offset curve to start from source
-      connection.x = sourcePoint.x;
-      connection.y = sourcePoint.y;
-    }
+    // offset curve to start from source
+    connection.x = sourcePoint.x;
+    connection.y = sourcePoint.y;
   }
 }
