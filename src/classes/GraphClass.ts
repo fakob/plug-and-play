@@ -49,7 +49,6 @@ export default class PPGraph {
 
   tempConnection: PIXI.Graphics;
   selection: PPSelection;
-  private unsavedChanges: boolean;
 
   ticking: boolean;
 
@@ -349,19 +348,34 @@ export default class PPGraph {
     return this.viewport.scale.x;
   }
 
-
   get showNonPresentationNodes(): boolean {
     return this._showNonPresentationNodes;
   }
 
   set showNonPresentationNodes(value: boolean) {
     this._showNonPresentationNodes = value;
-    Object.values(this.nodes).forEach(node => {
-      (node.alpha = node.getIsPresentationalNode() ? 1.0 : 0.0)
-      node.getAllInputSockets().forEach(link => link.draw)
-    }
-    );
-
+    Object.values(this.nodes).forEach((node) => {
+      const newVisibility = node.getIsPresentationalNode() || value;
+      const newAlpha = newVisibility
+        ? node.alpha == 0.0
+          ? 1.0
+          : node.alpha
+        : 0.0;
+      node.alpha = newAlpha;
+      node.getAllInputSockets().forEach((socket) =>
+        socket.links.forEach((link) => {
+          const otherNode = link.getSource().getNode();
+          const otherAlpha =
+            value || otherNode.getIsPresentationalNode()
+              ? otherNode.alpha == 0.0
+                ? 1.0
+                : otherNode.alpha
+              : 0.0;
+          const totalAlpha = newAlpha * otherAlpha;
+          link.alpha = totalAlpha;
+        })
+      );
+    });
   }
 
   get showExecutionVisualisation(): boolean {
@@ -475,8 +489,10 @@ export default class PPGraph {
       await this.connect(outputRef, inputRef, false);
     } else {
       console.warn(
-        `Link could not be created between ${link.sourceNodeId}/${link.sourceSocketName
-        }${outputRef === undefined ? '-MISSING' : ''} and ${link.targetNodeId
+        `Link could not be created between ${link.sourceNodeId}/${
+          link.sourceSocketName
+        }${outputRef === undefined ? '-MISSING' : ''} and ${
+          link.targetNodeId
         }/${link.targetSocketName}${inputRef === undefined ? '-MISSING' : ''}`
       );
       InterfaceController.showSnackBar(
@@ -1028,6 +1044,9 @@ export default class PPGraph {
         (node) => !node.getHasDependencies() && node.updateBehaviour.update
       )
     );
+
+    this.showNonPresentationNodes =
+      data.graphSettings.showNonPresentationNodes ?? true;
 
     this.ticking = true;
 
