@@ -640,19 +640,18 @@ export const removeColumnFromArrayOfArrays = (
 };
 
 export function getCurrentCursorPosition(): PIXI.Point {
-  let mousePosition: PIXI.Point = JSON.parse(
-    JSON.stringify(
-      PPGraph.currentGraph.app.renderer.plugins.interaction.mouse.global
-    )
+  const event = PPGraph.currentGraph.pointerEvent;
+  let pointerPosition: PIXI.Point = JSON.parse(
+    JSON.stringify(new PIXI.Point(event.clientX, event.clientY))
   );
   const viewport = PPGraph.currentGraph.viewport;
 
-  mousePosition = viewport.toWorld(mousePosition);
-  return mousePosition;
+  pointerPosition = viewport.toWorld(pointerPosition);
+  return pointerPosition;
 }
 
 export function getCurrentButtons(): number {
-  return PPGraph.currentGraph.app.renderer.plugins.interaction.mouse.buttons;
+  return PPGraph.currentGraph.pointerEvent.buttons;
 }
 
 export function sortCompare(a: string, b: string, desc: boolean): number {

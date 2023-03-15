@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-this-alias */
 
 import React from 'react';
+import * as PIXI from 'pixi.js';
 import { createRoot, Root } from 'react-dom/client';
 import { Button } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
@@ -55,7 +56,11 @@ export default abstract class HybridNode2 extends PPNode {
     this.container.style.left = `${screenPoint.x}px`;
     this.container.style.top = `${screenPoint.y}px`;
 
-    this.onNodeDragOrViewportMove = ({ screenX, screenY, scale }) => {
+    this.onNodeDragOrViewportMove = ({
+      screenX = 0,
+      screenY = 0,
+      scale = 1,
+    }) => {
       if (this.container.style.transform != `scale(${scale.toPrecision(3)})`) {
         this.container.style.transform = `scale(${scale.toPrecision(3)})`;
       }

@@ -38,6 +38,7 @@ export default class PPGraph {
   lastSelectedSocketWasInput = false;
   overrideNodeCursorPosition: null | PIXI.Point = null;
   overInputRef: null | PPSocket;
+  pointerEvent: PIXI.FederatedPointerEvent;
   dragSourcePoint: PIXI.Point;
 
   backgroundTempContainer: PIXI.Container;
@@ -120,6 +121,11 @@ export default class PPGraph {
     );
 
     InterfaceController.addListener(
+      ListenEvent.GlobalPointerMove,
+      this._onPointerMove.bind(this)
+    );
+
+    InterfaceController.addListener(
       ListenEvent.GlobalPointerUp,
       this._onPointerUpAndUpOutside.bind(this)
     );
@@ -157,6 +163,7 @@ export default class PPGraph {
 
   _onPointerDown(event: PIXI.FederatedPointerEvent): void {
     console.log('_onPointerDown');
+    this.pointerEvent = event;
     //event.stopPropagation();
 
     InterfaceController.onCloseSocketInspector();
@@ -176,6 +183,10 @@ export default class PPGraph {
       this.dragSourcePoint = new PIXI.Point(this.viewport.x, this.viewport.y);
       InterfaceController.notifyListeners(ListenEvent.ViewportDragging, true);
     }
+  }
+
+  _onPointerMove(event: PIXI.FederatedPointerEvent): void {
+    this.pointerEvent = event;
   }
 
   _onPointerUpAndUpOutside(event: PIXI.FederatedPointerEvent): void {

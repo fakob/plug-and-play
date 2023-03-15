@@ -358,7 +358,16 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     document.addEventListener('copy', copyClipboard);
     document.addEventListener('paste', pasteClipboard);
 
-    window.addEventListener('mousemove', setMousePosition, false);
+    window.addEventListener(
+      'mousemove',
+      (event: PIXI.FederatedPointerEvent) => {
+        InterfaceController.notifyListeners(
+          ListenEvent.GlobalPointerMove,
+          event
+        );
+        setMousePosition(event);
+      }
+    );
 
     // create viewport
     viewport.current = new Viewport({
@@ -386,6 +395,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       (event: PIXI.FederatedPointerEvent) =>
         InterfaceController.notifyListeners(ListenEvent.GlobalPointerUp, event)
     );
+
     viewport.current.addEventListener(
       'pointerup',
       (event: PIXI.FederatedPointerEvent) => {
@@ -596,6 +606,8 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     window.addEventListener('keyup', (e: KeyboardEvent) => {
       InputParser.parseKeyUp(e);
     });
+
+    window.dispatchEvent(new Event('mousemove')); // to initialise event values
 
     return () => {
       // Passing the same reference
