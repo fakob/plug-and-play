@@ -462,7 +462,7 @@ class ScaleHandle extends PIXI.Graphics {
     this.addEventListener('mousedown', this.onPointerDown.bind(this));
     this.addEventListener('mouseup', this.onPointerUp.bind(this));
     this.addEventListener('mouseupoutside', this.onPointerUp.bind(this));
-    this.addEventListener('dblclick', this._onDoubleClick.bind(this));
+    this.addEventListener('click', this._onClick.bind(this));
   }
 
   render(renderer: PIXI.Renderer): void {
@@ -531,9 +531,12 @@ class ScaleHandle extends PIXI.Graphics {
     }
   }
 
-  protected _onDoubleClick(event: PIXI.FederatedPointerEvent): void {
-    event.stopPropagation();
-    this.selection.onScaleReset();
+  protected _onClick(event: PIXI.FederatedPointerEvent): void {
+    // check if double clicked
+    if (event.detail === 2) {
+      event.stopPropagation();
+      this.selection.onScaleReset();
+    }
   }
 
   protected onDragStart(event: PIXI.FederatedPointerEvent): void {

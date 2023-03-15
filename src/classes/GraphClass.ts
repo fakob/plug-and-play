@@ -112,10 +112,7 @@ export default class PPGraph {
       'rightclick',
       this._onPointerRightClicked.bind(this)
     );
-    this.viewport.addEventListener(
-      'dblclick',
-      this._onPointerDoubleClicked.bind(this)
-    );
+    this.viewport.addEventListener('click', this._onPointerClicked.bind(this));
     this.viewport.addEventListener('pointermove', (event) =>
       this.onViewportMove(event)
     );
@@ -152,12 +149,16 @@ export default class PPGraph {
     }
   }
 
-  _onPointerDoubleClicked(event: PIXI.FederatedPointerEvent): void {
-    console.log('_onPointerDoubleClicked');
-    event.stopPropagation();
-    const target = event.target;
-    if (target instanceof Viewport) {
-      InterfaceController.onOpenNodeSearch(event.data.global);
+  _onPointerClicked(event: PIXI.FederatedPointerEvent): void {
+    console.log('_onPointerClicked');
+
+    // check if double clicked
+    if (event.detail === 2) {
+      event.stopPropagation();
+      const target = event.target;
+      if (target instanceof Viewport) {
+        InterfaceController.onOpenNodeSearch(event.data.global);
+      }
     }
   }
 

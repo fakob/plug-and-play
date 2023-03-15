@@ -1055,7 +1055,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     this.addEventListener('pointerup', this._onPointerUp.bind(this));
     this.addEventListener('pointerover', this._onPointerOver.bind(this));
     this.addEventListener('pointerout', this._onPointerOut.bind(this));
-    this.addEventListener('dblclick', this._onDoubleClick.bind(this));
+    this.addEventListener('click', this._onClick.bind(this));
     this.addEventListener('removed', this._onRemoved.bind(this));
 
     // first assign the bound function to a handler then add this handler as a listener
@@ -1148,11 +1148,14 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     this.getAllSockets().forEach((socket) => socket.nodeHoveredOut());
   }
 
-  _onDoubleClick(event: PIXI.FederatedPointerEvent): void {
-    this.doubleClicked = true;
+  _onClick(event: PIXI.FederatedPointerEvent): void {
+    // check if double clicked
+    if (event.detail === 2) {
+      this.doubleClicked = true;
 
-    if (this.onNodeDoubleClick) {
-      this.onNodeDoubleClick(event);
+      if (this.onNodeDoubleClick) {
+        this.onNodeDoubleClick(event);
+      }
     }
   }
 
