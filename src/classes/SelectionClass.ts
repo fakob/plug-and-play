@@ -113,7 +113,6 @@ export default class PPSelection extends PIXI.Container {
   };
 
   public startDragAction(event: PIXI.FederatedPointerEvent) {
-    console.log('startDragAction');
     this.cursor = 'move';
     this.isDraggingSelection = true;
     InterfaceController.notifyListeners(ListenEvent.SelectionDragging, true);
@@ -140,7 +139,6 @@ export default class PPSelection extends PIXI.Container {
   }
 
   public async stopDragAction() {
-    console.log('stopDragAction');
     if (!this.isDraggingSelection) {
       return;
     }
@@ -152,7 +150,6 @@ export default class PPSelection extends PIXI.Container {
     // unsubscribe from pointermove
     InterfaceController.removeListener(this.listenID);
 
-    this.removeEventListener('pointermove', this.onMoveHandler);
     const endPoint = getCurrentCursorPosition();
     const deltaX = endPoint.x - this.nodePosBeforeMovement.x;
     const deltaY = endPoint.y - this.nodePosBeforeMovement.y;
@@ -282,8 +279,6 @@ export default class PPSelection extends PIXI.Container {
     event: PIXI.FederatedPointerEvent,
     addToOrToggleSelection: boolean
   ): void {
-    console.log('drawSelectionStart');
-
     // store selectedNodes in previousSelectedNodes
     // if addToOrToggleSelection is true
     this.previousSelectedNodes = addToOrToggleSelection
@@ -306,7 +301,6 @@ export default class PPSelection extends PIXI.Container {
   }
 
   drawSelectionFinish(event: PIXI.FederatedPointerEvent): void {
-    console.log('drawSelectionFinish');
     this.isDrawingSelection = false;
     this.selectionIntendGraphics.clear();
 
@@ -479,7 +473,6 @@ class ScaleHandle extends PIXI.Graphics {
   }
 
   protected onPointerDown(event: PIXI.FederatedPointerEvent): void {
-    console.log('SelectionClass: onPointerDown');
     this._pointerDown = true;
     this._pointerDragging = false;
 
