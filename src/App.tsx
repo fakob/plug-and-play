@@ -328,7 +328,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       autoDensity: true,
       resolution: 2,
     });
-    pixiApp.current.stage.interactive = true;
+    pixiApp.current.stage.eventMode = 'static';
     pixiApp.current.stage.cursor = 'pointer';
 
     globalThis.__PIXI_APP__ = pixiApp.current;
@@ -376,7 +376,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       worldWidth: window.innerWidth,
       worldHeight: window.innerHeight,
       events: pixiApp.current.renderer.events,
-      // interaction: pixiApp.current.renderer.plugins.interaction, // the interaction module is important for wheel to work properly when renderer.view is placed or scaled
     });
 
     // add the viewport to the stage

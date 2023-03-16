@@ -21,7 +21,7 @@ class Button extends PIXI.Sprite {
 
     this.up = up;
     this.down = down;
-    this.interactive = true;
+    this.eventMode = 'static';
     this.cursor = 'pointer';
     this.alpha = 0.5;
     this.width = 24;

@@ -234,7 +234,7 @@ export abstract class DRAW_Base extends PPNode {
       this.addChild(this.deferredGraphics);
 
       if (this.allowMovingDirectly()) {
-        this.deferredGraphics.interactive = true;
+        this.deferredGraphics.eventMode = 'static';
 
         this.deferredGraphics.addEventListener('pointerdown', () => {
           this.pointerDown(

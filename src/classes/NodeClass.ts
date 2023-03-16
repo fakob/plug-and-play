@@ -320,7 +320,7 @@ export default class PPNode extends PIXI.Container {
       this.addSocket(IO);
     });
 
-    this.interactive = true;
+    this.eventMode = 'static';
     this.isDraggingNode = false;
     this._doubleClicked = false;
 
@@ -1068,6 +1068,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   }
 
   _onPointerDown(event: PIXI.FederatedPointerEvent): void {
+    console.log('Node: onPointerDown');
     event.stopPropagation();
     const node = event.target as PPNode;
 

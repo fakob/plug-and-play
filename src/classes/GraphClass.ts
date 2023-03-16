@@ -163,7 +163,7 @@ export default class PPGraph {
   }
 
   _onPointerDown(event: PIXI.FederatedPointerEvent): void {
-    console.log('_onPointerDown');
+    console.log('Graph: _onPointerDown');
     this.pointerEvent = event;
     //event.stopPropagation();
 

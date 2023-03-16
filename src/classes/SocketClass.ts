@@ -73,7 +73,7 @@ export default class Socket extends PIXI.Container {
     this._links = [];
 
     this.interactionData = null;
-    this.interactive = true;
+    this.eventMode = 'static';
 
     this.redrawAnythingChanging();
   }
@@ -168,7 +168,7 @@ export default class Socket extends PIXI.Container {
 
       this._TextRef.pivot = new PIXI.Point(0, SOCKET_WIDTH / 2);
 
-      this._TextRef.interactive = true;
+      this._TextRef.eventMode = 'static';
       this._TextRef.addEventListener(
         'pointerover',
         this._onPointerOver.bind(this)
@@ -186,7 +186,7 @@ export default class Socket extends PIXI.Container {
 
     this._SocketRef.endFill();
     this._SocketRef.name = 'SocketRef';
-    this._SocketRef.interactive = true;
+    this._SocketRef.eventMode = 'static';
     this._SocketRef.addEventListener(
       'pointerover',
       this._onPointerOver.bind(this)
