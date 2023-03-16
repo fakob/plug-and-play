@@ -49,16 +49,16 @@ const ResponsiveDrawer = (props) => {
   };
 
   const handleMouseDown = (e) => {
-    document.addEventListener('mouseup', handleMouseUp, true);
-    document.addEventListener('mousemove', handleMouseMove, true);
+    document.addEventListener('pointerup', handlePointerUp, true);
+    document.addEventListener('pointermove', handlePointerMove, true);
   };
 
-  const handleMouseUp = () => {
-    document.removeEventListener('mouseup', handleMouseUp, true);
-    document.removeEventListener('mousemove', handleMouseMove, true);
+  const handlePointerUp = () => {
+    document.removeEventListener('pointerup', handlePointerUp, true);
+    document.removeEventListener('pointermove', handlePointerMove, true);
   };
 
-  const handleMouseMove = useCallback((e) => {
+  const handlePointerMove = useCallback((e) => {
     const minDrawerWidth = 50;
     const maxDrawerWidth = window.innerWidth - 100;
     const newWidth =

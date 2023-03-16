@@ -606,7 +606,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       InputParser.parseKeyUp(e);
     });
 
-    window.dispatchEvent(new Event('mousemove')); // to initialise event values
+    window.dispatchEvent(new Event('pointermove')); // to initialise event values
 
     return () => {
       // Passing the same reference

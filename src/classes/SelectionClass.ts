@@ -438,6 +438,7 @@ class ScaleHandle extends PIXI.Graphics {
   private _pointerDragging: boolean;
   private _pointerPosition: PIXI.Point;
   private _pointerMoveTarget: PIXI.Container | null;
+  listenID: string;
 
   constructor(selection: PPSelection) {
     super();
@@ -445,6 +446,7 @@ class ScaleHandle extends PIXI.Graphics {
     this.eventMode = 'dynamic';
 
     this.selection = selection;
+    this.listenID = '';
 
     this._pointerDown = false;
     this._pointerDragging = false;
@@ -479,16 +481,13 @@ class ScaleHandle extends PIXI.Graphics {
     event.stopPropagation();
 
     if (this._pointerMoveTarget) {
-      this._pointerMoveTarget.removeEventListener(
-        'pointermove',
-        this.onPointerMove
-      );
+      InterfaceController.removeListener(this.listenID);
       this._pointerMoveTarget = null;
     }
 
     this._pointerMoveTarget = this;
-    this._pointerMoveTarget.addEventListener(
-      'pointermove',
+    this.listenID = InterfaceController.addListener(
+      ListenEvent.GlobalPointerMove,
       this.onPointerMove.bind(this)
     );
   }
@@ -515,10 +514,7 @@ class ScaleHandle extends PIXI.Graphics {
     this._pointerDown = false;
 
     if (this._pointerMoveTarget) {
-      this._pointerMoveTarget.removeEventListener(
-        'pointermove',
-        this.onPointerMove
-      );
+      InterfaceController.removeListener(this.listenID);
       this._pointerMoveTarget = null;
     }
   }
@@ -532,18 +528,18 @@ class ScaleHandle extends PIXI.Graphics {
   }
 
   protected onDragStart(event: PIXI.FederatedPointerEvent): void {
-    this._pointerPosition.copyFrom(event.global);
+    this._pointerPosition = new PIXI.Point(event.clientX, event.clientY);
     this._pointerDragging = true;
   }
 
   protected onDrag(event: PIXI.FederatedPointerEvent): void {
-    const currentPosition = event.global;
+    const currentPosition = new PIXI.Point(event.clientX, event.clientY);
 
     // Callback handles the rest!
     const shiftKeyPressed = event.shiftKey;
     this.selection.onScaling(currentPosition, shiftKeyPressed);
 
-    this._pointerPosition.copyFrom(currentPosition);
+    this._pointerPosition = currentPosition;
   }
 
   protected onDragEnd(_: PIXI.FederatedPointerEvent): void {
