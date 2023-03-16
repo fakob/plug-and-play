@@ -117,7 +117,7 @@ export default abstract class HybridNode2 extends PPNode {
             title={'Click to edit OR Double click node'}
             className={styles.hybridContainerEditButton}
             size="small"
-            onClick={this._onClick.bind(this)}
+            onClick={this._onPointerClick.bind(this)}
             color="primary"
             sx={{
               background: RANDOMMAINCOLOR,
@@ -158,8 +158,8 @@ export default abstract class HybridNode2 extends PPNode {
     this.execute();
   }
 
-  _onClick(event: PIXI.FederatedPointerEvent): void {
-    super._onClick(event);
+  _onPointerClick(event: PIXI.FederatedPointerEvent): void {
+    super._onPointerClick(event);
     // turn on pointer events for hybrid nodes so the react components become reactive
     if (this.getActivateByDoubleClick()) {
       // register hybrid nodes to listen to outside clicks

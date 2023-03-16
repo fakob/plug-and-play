@@ -112,7 +112,7 @@ export default class PPGraph {
       'rightclick',
       this._onPointerRightClicked.bind(this)
     );
-    this.viewport.addEventListener('click', this._onPointerClicked.bind(this));
+    this.viewport.addEventListener('click', this._onPointerClick.bind(this));
     this.viewport.addEventListener('pointermove', (event) =>
       this.onViewportMove(event)
     );
@@ -149,8 +149,8 @@ export default class PPGraph {
     }
   }
 
-  _onPointerClicked(event: PIXI.FederatedPointerEvent): void {
-    console.log('_onPointerClicked');
+  _onPointerClick(event: PIXI.FederatedPointerEvent): void {
+    console.log('_onPointerClick');
 
     // check if double clicked
     if (event.detail === 2) {
@@ -169,11 +169,11 @@ export default class PPGraph {
 
     InterfaceController.onCloseSocketInspector();
 
-    if ((event.originalEvent as unknown as PointerEvent).button === 0) {
+    if ((event.data.originalEvent as unknown as PointerEvent).button === 0) {
       if (!this.overInputRef) {
         this.selection.drawSelectionStart(
           event,
-          (event.originalEvent as unknown as PointerEvent).shiftKey
+          (event.data.originalEvent as unknown as PointerEvent).shiftKey
         );
       }
 
@@ -339,8 +339,11 @@ export default class PPGraph {
     socket: PPSocket,
     event: PIXI.FederatedPointerEvent
   ): Promise<void> {
-    const clickedSourcePoint = new PIXI.Point(event.global.x, event.global.y);
-    if ((event.originalEvent as unknown as PointerEvent).ctrlKey) {
+    const clickedSourcePoint = new PIXI.Point(
+      event.data.global.x,
+      event.data.global.y
+    );
+    if ((event.data.originalEvent as unknown as PointerEvent).ctrlKey) {
       InterfaceController.onOpenSocketInspector(clickedSourcePoint, socket);
     } else {
       InterfaceController.notifyListeners(ListenEvent.SelectionChanged, [

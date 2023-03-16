@@ -1055,7 +1055,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     this.addEventListener('pointerup', this._onPointerUp.bind(this));
     this.addEventListener('pointerover', this._onPointerOver.bind(this));
     this.addEventListener('pointerout', this._onPointerOut.bind(this));
-    this.addEventListener('click', this._onClick.bind(this));
+    this.addEventListener('click', this._onPointerClick.bind(this));
     this.addEventListener('removed', this._onRemoved.bind(this));
 
     // first assign the bound function to a handler then add this handler as a listener
@@ -1075,7 +1075,8 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     if (node.clickedSocketRef === null) {
       // start dragging the node
 
-      const shiftKey = event.shiftKey;
+      const shiftKey = (event.data.originalEvent as unknown as PointerEvent)
+        .shiftKey;
 
       // select node if the shiftKey is pressed
       // or the node is not yet selected
@@ -1084,7 +1085,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
       }
       PPGraph.currentGraph.selection.startDragAction(event);
     }
-    if (event.button == 2) {
+    if (event.data.button == 2) {
       if (event.target == this) {
         InterfaceController.onRightClick(event, this);
       }
@@ -1149,7 +1150,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     this.getAllSockets().forEach((socket) => socket.nodeHoveredOut());
   }
 
-  _onClick(event: PIXI.FederatedPointerEvent): void {
+  _onPointerClick(event: PIXI.FederatedPointerEvent): void {
     // check if double clicked
     if (event.detail === 2) {
       this.doubleClicked = true;

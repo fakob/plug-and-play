@@ -111,6 +111,7 @@ export default class PPSelection extends PIXI.Container {
   };
 
   public startDragAction(event: PIXI.FederatedPointerEvent) {
+    console.log('startDragAction');
     this.cursor = 'move';
     this.isDraggingSelection = true;
     InterfaceController.notifyListeners(ListenEvent.SelectionDragging, true);
@@ -134,6 +135,7 @@ export default class PPSelection extends PIXI.Container {
   }
 
   public async stopDragAction() {
+    console.log('stopDragAction');
     if (!this.isDraggingSelection) {
       return;
     }
@@ -207,9 +209,9 @@ export default class PPSelection extends PIXI.Container {
   }
 
   onMove(event: PIXI.FederatedPointerEvent): void {
-    // console.log('onMove');
+    console.log('onMove');
     if (this.isDrawingSelection) {
-      // console.log('onMove: isDrawingSelection');
+      console.log('onMove: isDrawingSelection');
 
       // temporarily draw rectangle while dragging
       const targetPoint = new PIXI.Point(
@@ -282,7 +284,8 @@ export default class PPSelection extends PIXI.Container {
     event: PIXI.FederatedPointerEvent,
     addToOrToggleSelection: boolean
   ): void {
-    console.log('startDrawAction');
+    console.log('drawSelectionStart');
+    console.log(event);
 
     // store selectedNodes in previousSelectedNodes
     // if addToOrToggleSelection is true
@@ -301,11 +304,13 @@ export default class PPSelection extends PIXI.Container {
       (event.data.originalEvent as unknown as PointerEvent).clientY
     );
 
+    console.log(this.onMoveHandler);
     // subscribe to pointermove
     this.addEventListener('pointermove', this.onMoveHandler);
   }
 
   drawSelectionFinish(event: PIXI.FederatedPointerEvent): void {
+    console.log('drawSelectionFinish');
     this.isDrawingSelection = false;
     this.selectionIntendGraphics.clear();
 
@@ -462,7 +467,7 @@ class ScaleHandle extends PIXI.Graphics {
     this.addEventListener('mousedown', this.onPointerDown.bind(this));
     this.addEventListener('mouseup', this.onPointerUp.bind(this));
     this.addEventListener('mouseupoutside', this.onPointerUp.bind(this));
-    this.addEventListener('click', this._onClick.bind(this));
+    this.addEventListener('click', this.onPointerClick.bind(this));
   }
 
   render(renderer: PIXI.Renderer): void {
@@ -531,7 +536,7 @@ class ScaleHandle extends PIXI.Graphics {
     }
   }
 
-  protected _onClick(event: PIXI.FederatedPointerEvent): void {
+  protected onPointerClick(event: PIXI.FederatedPointerEvent): void {
     // check if double clicked
     if (event.detail === 2) {
       event.stopPropagation();
