@@ -8066,7 +8066,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pixi.js@npm:7.2.0":
+"pixi.js@npm:^7.2.0":
   version: 7.2.0
   resolution: "pixi.js@npm:7.2.0"
   dependencies:
@@ -8181,7 +8181,7 @@ __metadata:
     notistack: ^2.0.8
     object-fit-math: ^1.0.0
     pixi-viewport: ^5.0.1
-    pixi.js: 7.2.0
+    pixi.js: ^7.2.0
     prettier: ^2.8.3
     react: ^18.2.0
     react-color: ^2.19.3
