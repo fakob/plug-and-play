@@ -74,7 +74,7 @@ export class RecordLocations extends PPNode {
       );
 
       this.addChild(this.recordButton);
-      this.recordButton.eventMode = 'static';
+      this.recordButton.eventMode = 'dynamic';
     }
     this.recordButton.clear();
     this.recordButton.beginFill(

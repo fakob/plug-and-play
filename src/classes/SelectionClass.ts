@@ -63,7 +63,7 @@ export default class PPSelection extends PIXI.Container {
     this.scaleHandle = new ScaleHandle(this);
     this.addChild(this.scaleHandle);
 
-    this.eventMode = 'static';
+    this.eventMode = 'dynamic';
 
     this.addEventListener('pointerdown', this.onPointerDown.bind(this));
     this.addEventListener(
@@ -122,6 +122,7 @@ export default class PPSelection extends PIXI.Container {
 
     this.nodePosBeforeMovement = getCurrentCursorPosition();
 
+    console.log(this);
     // subscribe to pointermove
     this.addEventListener('pointermove', this.onMoveHandler);
   }
@@ -285,7 +286,6 @@ export default class PPSelection extends PIXI.Container {
     addToOrToggleSelection: boolean
   ): void {
     console.log('drawSelectionStart');
-    console.log(event);
 
     // store selectedNodes in previousSelectedNodes
     // if addToOrToggleSelection is true
@@ -304,7 +304,6 @@ export default class PPSelection extends PIXI.Container {
       (event.data.originalEvent as unknown as PointerEvent).clientY
     );
 
-    console.log(this.onMoveHandler);
     // subscribe to pointermove
     this.addEventListener('pointermove', this.onMoveHandler);
   }
@@ -455,7 +454,7 @@ class ScaleHandle extends PIXI.Graphics {
   constructor(selection: PPSelection) {
     super();
 
-    this.eventMode = 'static';
+    this.eventMode = 'dynamic';
 
     this.selection = selection;
 
@@ -464,9 +463,9 @@ class ScaleHandle extends PIXI.Graphics {
     this._pointerPosition = new PIXI.Point();
     this._pointerMoveTarget = null;
     this.addEventListener('pointerover', this.onPointerOver.bind(this));
-    this.addEventListener('mousedown', this.onPointerDown.bind(this));
-    this.addEventListener('mouseup', this.onPointerUp.bind(this));
-    this.addEventListener('mouseupoutside', this.onPointerUp.bind(this));
+    this.addEventListener('pointerdown', this.onPointerDown.bind(this));
+    this.addEventListener('pointerup', this.onPointerUp.bind(this));
+    this.addEventListener('pointerupoutside', this.onPointerUp.bind(this));
     this.addEventListener('click', this.onPointerClick.bind(this));
   }
 
@@ -486,6 +485,7 @@ class ScaleHandle extends PIXI.Graphics {
   }
 
   protected onPointerDown(event: PIXI.FederatedPointerEvent): void {
+    console.log('SelectionClass: onPointerDown');
     this._pointerDown = true;
     this._pointerDragging = false;
 

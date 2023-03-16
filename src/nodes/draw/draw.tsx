@@ -288,7 +288,7 @@ export class DRAW_Combine extends DRAW_Base {
 
     this.positionAndScale(myContainer, inputObject);
 
-    myContainer.eventMode = 'static';
+    myContainer.eventMode = 'dynamic';
 
     container.addChild(myContainer);
   }
@@ -354,7 +354,7 @@ export class DRAW_COMBINE_ARRAY extends DRAW_Base {
 
     this.positionAndScale(myContainer, inputObject);
 
-    myContainer.eventMode = 'static';
+    myContainer.eventMode = 'dynamic';
 
     container.addChild(myContainer);
   }
@@ -432,7 +432,7 @@ export class DRAW_Multiplier extends DRAW_Base {
       shallowContainer.x = x * inputObject[spacingXName];
       shallowContainer.y = y * inputObject[spacingYName];
 
-      shallowContainer.eventMode = 'static';
+      shallowContainer.eventMode = 'dynamic';
       const alphaPre = shallowContainer.alpha;
       const scalePreX = shallowContainer.scale.x;
       const scalePreY = shallowContainer.scale.y;
@@ -460,7 +460,7 @@ export class DRAW_Multiplier extends DRAW_Base {
     }
 
     this.positionAndScale(myContainer, inputObject);
-    myContainer.eventMode = 'static';
+    myContainer.eventMode = 'dynamic';
     myContainer.addEventListener('pointerdown', (e) => {
       console.log('im pressed');
     });

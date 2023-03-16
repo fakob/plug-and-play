@@ -320,7 +320,7 @@ export default class PPNode extends PIXI.Container {
       this.addSocket(IO);
     });
 
-    this.eventMode = 'static';
+    this.eventMode = 'dynamic';
     this.isDraggingNode = false;
     this._doubleClicked = false;
 
