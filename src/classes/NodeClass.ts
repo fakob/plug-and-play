@@ -1075,8 +1075,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     if (node.clickedSocketRef === null) {
       // start dragging the node
 
-      const shiftKey = (event.data.originalEvent as unknown as PointerEvent)
-        .shiftKey;
+      const shiftKey = event.shiftKey;
 
       // select node if the shiftKey is pressed
       // or the node is not yet selected
@@ -1085,7 +1084,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
       }
       PPGraph.currentGraph.selection.startDragAction(event);
     }
-    if (event.data.button == 2) {
+    if (event.button == 2) {
       if (event.target == this) {
         InterfaceController.onRightClick(event, this);
       }

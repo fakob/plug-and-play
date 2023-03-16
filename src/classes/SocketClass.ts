@@ -178,7 +178,7 @@ export default class Socket extends PIXI.Container {
         this._onPointerOut.bind(this)
       );
       this._TextRef.addEventListener('pointerdown', (event) => {
-        if (event.data.button !== 2) {
+        if (event.button !== 2) {
           this.getGraph().socketNameRefMouseDown(this, event);
         }
       });

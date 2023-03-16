@@ -157,7 +157,7 @@ export default class PPGraph {
       event.stopPropagation();
       const target = event.target;
       if (target instanceof Viewport) {
-        InterfaceController.onOpenNodeSearch(event.data.global);
+        InterfaceController.onOpenNodeSearch(event.global);
       }
     }
   }
@@ -169,12 +169,9 @@ export default class PPGraph {
 
     InterfaceController.onCloseSocketInspector();
 
-    if ((event.data.originalEvent as unknown as PointerEvent).button === 0) {
+    if (event.button === 0) {
       if (!this.overInputRef) {
-        this.selection.drawSelectionStart(
-          event,
-          (event.data.originalEvent as unknown as PointerEvent).shiftKey
-        );
+        this.selection.drawSelectionStart(event, event.shiftKey);
       }
 
       // pause viewport drag
@@ -193,14 +190,12 @@ export default class PPGraph {
   _onPointerUpAndUpOutside(event: PIXI.FederatedPointerEvent): void {
     if (!this.overInputRef && this.selectedSourceSocket) {
       if (!this.overrideNodeCursorPosition) {
-        this.overrideNodeCursorPosition = this.viewport.toWorld(
-          event.data.global
-        );
+        this.overrideNodeCursorPosition = this.viewport.toWorld(event.global);
         if (
           this.lastSelectedSocketWasInput ||
           this.selectedSourceSocket.isInput()
         ) {
-          InterfaceController.onOpenNodeSearch(event.data.global);
+          InterfaceController.onOpenNodeSearch(event.global);
         } else {
           this.stopConnecting();
         }
@@ -259,7 +254,7 @@ export default class PPGraph {
       } else if (this.overrideNodeCursorPosition) {
         targetPoint = this.overrideNodeCursorPosition;
       } else {
-        targetPoint = this.viewport.toWorld(event.data.global);
+        targetPoint = this.viewport.toWorld(event.global);
       }
 
       // swap points if i grabbed an input, to make curve look nice
@@ -339,11 +334,8 @@ export default class PPGraph {
     socket: PPSocket,
     event: PIXI.FederatedPointerEvent
   ): Promise<void> {
-    const clickedSourcePoint = new PIXI.Point(
-      event.data.global.x,
-      event.data.global.y
-    );
-    if ((event.data.originalEvent as unknown as PointerEvent).ctrlKey) {
+    const clickedSourcePoint = new PIXI.Point(event.global.x, event.global.y);
+    if (event.ctrlKey) {
       InterfaceController.onOpenSocketInspector(clickedSourcePoint, socket);
     } else {
       InterfaceController.notifyListeners(ListenEvent.SelectionChanged, [

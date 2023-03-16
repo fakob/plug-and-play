@@ -647,13 +647,13 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       setIsGraphContextMenuOpen(false);
       setIsNodeContextMenuOpen(false);
       setIsSocketContextMenuOpen(false);
-      console.log(event, target, event.data.global);
+      console.log(event, target, event.global);
       const contextMenuPosX = Math.min(
         window.innerWidth - (CONTEXTMENU_WIDTH + 8),
-        event.data.global.x
+        event.global.x
       );
       const contextMenuPosY = (offset: number) => {
-        return Math.min(window.innerHeight - offset, event.data.global.y);
+        return Math.min(window.innerHeight - offset, event.global.y);
       };
       switch (true) {
         case target.parent instanceof PPSocket:
@@ -677,9 +677,9 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           setContextMenuPosition([
             Math.min(
               window.innerWidth - (CONTEXTMENU_WIDTH + 8),
-              event.data.global.x
+              event.global.x
             ),
-            Math.min(window.innerHeight - 432, event.data.global.y),
+            Math.min(window.innerHeight - 432, event.global.y),
           ]);
           setIsNodeContextMenuOpen(true);
           break;

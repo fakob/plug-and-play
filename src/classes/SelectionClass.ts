@@ -117,7 +117,7 @@ export default class PPSelection extends PIXI.Container {
     this.cursor = 'move';
     this.isDraggingSelection = true;
     InterfaceController.notifyListeners(ListenEvent.SelectionDragging, true);
-    this.interactionData = event.data;
+    this.interactionData = event;
     this.sourcePoint = this.interactionData.getLocalPosition(
       this.selectedNodes[0]
     );
@@ -170,11 +170,8 @@ export default class PPSelection extends PIXI.Container {
   onPointerDown(event: PIXI.FederatedPointerEvent): void {
     console.log('Selection: onPointerDown');
     if (this.selectedNodes.length > 0) {
-      if ((event.data.originalEvent as unknown as PointerEvent).shiftKey) {
-        const targetPoint = new PIXI.Point(
-          (event.data.originalEvent as unknown as PointerEvent).clientX,
-          (event.data.originalEvent as unknown as PointerEvent).clientY
-        );
+      if (event.shiftKey) {
+        const targetPoint = new PIXI.Point(event.clientX, event.clientY);
         const selectionRect = new PIXI.Rectangle(
           targetPoint.x,
           targetPoint.y,
@@ -216,16 +213,7 @@ export default class PPSelection extends PIXI.Container {
   }
 
   onMove(event: PIXI.FederatedPointerEvent): void {
-    console.log('onMove');
     if (this.isDrawingSelection) {
-      console.log('onMove: isDrawingSelection');
-      console.log(
-        event,
-        event.data,
-        event.data?.originalEvent,
-        event.originalEvent
-      );
-
       // temporarily draw rectangle while dragging
       const targetPoint = new PIXI.Point(event.clientX, event.clientY);
       const selX = Math.min(this.sourcePoint.x, targetPoint.x);
@@ -307,11 +295,8 @@ export default class PPSelection extends PIXI.Container {
     addToOrToggleSelection || this.resetGraphics(this.selectionGraphics);
 
     this.isDrawingSelection = true;
-    this.interactionData = event.data;
-    this.sourcePoint = new PIXI.Point(
-      (event.data.originalEvent as unknown as PointerEvent).clientX,
-      (event.data.originalEvent as unknown as PointerEvent).clientY
-    );
+    this.interactionData = event;
+    this.sourcePoint = new PIXI.Point(event.clientX, event.clientY);
 
     // subscribe to pointermove
     this.listenID = InterfaceController.addListener(
@@ -342,10 +327,7 @@ export default class PPSelection extends PIXI.Container {
     );
 
     // only trigger deselect if the mouse was not moved and onMove was not called
-    const targetPoint = new PIXI.Point(
-      (event.data.originalEvent as unknown as PointerEvent).clientX,
-      (event.data.originalEvent as unknown as PointerEvent).clientY
-    );
+    const targetPoint = new PIXI.Point(event.clientX, event.clientY);
     if (
       this.sourcePoint.x === targetPoint.x &&
       this.sourcePoint.y === targetPoint.y
@@ -557,17 +539,15 @@ class ScaleHandle extends PIXI.Graphics {
   }
 
   protected onDragStart(event: PIXI.FederatedPointerEvent): void {
-    this._pointerPosition.copyFrom(event.data.global);
+    this._pointerPosition.copyFrom(event.global);
     this._pointerDragging = true;
   }
 
   protected onDrag(event: PIXI.FederatedPointerEvent): void {
-    const currentPosition = event.data.global;
+    const currentPosition = event.global;
 
     // Callback handles the rest!
-    const shiftKeyPressed = (
-      event.data.originalEvent as unknown as PointerEvent
-    ).shiftKey;
+    const shiftKeyPressed = event.shiftKey;
     this.selection.onScaling(currentPosition, shiftKeyPressed);
 
     this._pointerPosition.copyFrom(currentPosition);
