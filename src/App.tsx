@@ -359,7 +359,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     document.addEventListener('paste', pasteClipboard);
 
     window.addEventListener(
-      'mousemove',
+      'pointermove',
       (event: PIXI.FederatedPointerEvent) => {
         InterfaceController.notifyListeners(
           ListenEvent.GlobalPointerMove,

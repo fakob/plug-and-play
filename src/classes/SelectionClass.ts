@@ -33,6 +33,7 @@ export default class PPSelection extends PIXI.Container {
   isDrawingSelection: boolean;
   isDraggingSelection: boolean;
   interactionData: PIXI.FederatedPointerEvent | null;
+  listenID: string;
 
   protected onMoveHandler: (event?: PIXI.FederatedPointerEvent) => void;
 
@@ -45,6 +46,7 @@ export default class PPSelection extends PIXI.Container {
     this.previousSelectedNodes = [];
     this._selectedNodes = [];
     this.interactionData = null;
+    this.listenID = '';
 
     this.name = 'selectionContainer';
 
@@ -122,9 +124,11 @@ export default class PPSelection extends PIXI.Container {
 
     this.nodePosBeforeMovement = getCurrentCursorPosition();
 
-    console.log(this);
     // subscribe to pointermove
-    this.addEventListener('pointermove', this.onMoveHandler);
+    this.listenID = InterfaceController.addListener(
+      ListenEvent.GlobalPointerMove,
+      this.onMoveHandler
+    );
   }
 
   moveNodesByID(nodeIDs: string[], deltaX: number, deltaY: number) {
@@ -146,6 +150,8 @@ export default class PPSelection extends PIXI.Container {
     InterfaceController.notifyListeners(ListenEvent.SelectionDragging, false);
 
     // unsubscribe from pointermove
+    InterfaceController.removeListener(this.listenID);
+
     this.removeEventListener('pointermove', this.onMoveHandler);
     const endPoint = getCurrentCursorPosition();
     const deltaX = endPoint.x - this.nodePosBeforeMovement.x;
@@ -213,12 +219,15 @@ export default class PPSelection extends PIXI.Container {
     console.log('onMove');
     if (this.isDrawingSelection) {
       console.log('onMove: isDrawingSelection');
+      console.log(
+        event,
+        event.data,
+        event.data?.originalEvent,
+        event.originalEvent
+      );
 
       // temporarily draw rectangle while dragging
-      const targetPoint = new PIXI.Point(
-        (event.data.originalEvent as unknown as PointerEvent).clientX,
-        (event.data.originalEvent as unknown as PointerEvent).clientY
-      );
+      const targetPoint = new PIXI.Point(event.clientX, event.clientY);
       const selX = Math.min(this.sourcePoint.x, targetPoint.x);
       const selY = Math.min(this.sourcePoint.y, targetPoint.y);
       const selWidth = Math.max(this.sourcePoint.x, targetPoint.x) - selX;
@@ -298,14 +307,17 @@ export default class PPSelection extends PIXI.Container {
     addToOrToggleSelection || this.resetGraphics(this.selectionGraphics);
 
     this.isDrawingSelection = true;
-    this.interactionData = event;
+    this.interactionData = event.data;
     this.sourcePoint = new PIXI.Point(
       (event.data.originalEvent as unknown as PointerEvent).clientX,
       (event.data.originalEvent as unknown as PointerEvent).clientY
     );
 
     // subscribe to pointermove
-    this.addEventListener('pointermove', this.onMoveHandler);
+    this.listenID = InterfaceController.addListener(
+      ListenEvent.GlobalPointerMove,
+      this.onMoveHandler
+    );
   }
 
   drawSelectionFinish(event: PIXI.FederatedPointerEvent): void {
@@ -317,7 +329,7 @@ export default class PPSelection extends PIXI.Container {
     this.previousSelectedNodes = [];
 
     // unsubscribe from pointermove
-    this.removeEventListener('pointermove', this.onMoveHandler);
+    InterfaceController.removeListener(this.listenID);
     console.log(this.selectedNodes);
     if (this.selectedNodes.length > 0) {
       this.drawRectanglesFromSelection();
