@@ -1051,23 +1051,23 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   // SETUP
 
   _addListeners(): void {
-    this.addEventListener('pointerdown', this._onPointerDown.bind(this));
-    this.addEventListener('pointerup', this._onPointerUp.bind(this));
-    this.addEventListener('pointerover', this._onPointerOver.bind(this));
-    this.addEventListener('pointerout', this._onPointerOut.bind(this));
-    this.addEventListener('click', this._onPointerClick.bind(this));
-    this.addEventListener('removed', this._onRemoved.bind(this));
+    this.addEventListener('pointerdown', this.onPointerDown.bind(this));
+    this.addEventListener('pointerup', this.onPointerUp.bind(this));
+    this.addEventListener('pointerover', this.onPointerOver.bind(this));
+    this.addEventListener('pointerout', this.onPointerOut.bind(this));
+    this.addEventListener('click', this.onPointerClick.bind(this));
+    this.addEventListener('removed', this.onRemoved.bind(this));
 
     // first assign the bound function to a handler then add this handler as a listener
     // otherwise removeEventListener won't work (bind creates a new function)
-    this.onViewportMoveHandler = this._onViewportMove.bind(this);
+    this.onViewportMoveHandler = this.onViewportMove.bind(this);
     PPGraph.currentGraph.viewport.addEventListener(
       'moved',
       (this as any).onViewportMoveHandler
     );
   }
 
-  _onPointerDown(event: PIXI.FederatedPointerEvent): void {
+  onPointerDown(event: PIXI.FederatedPointerEvent): void {
     console.log('Node: onPointerDown');
     event.stopPropagation();
     const node = event.target as PPNode;
@@ -1092,7 +1092,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     }
   }
 
-  _onPointerUp(event: PIXI.FederatedPointerEvent): void {
+  onPointerUp(event: PIXI.FederatedPointerEvent): void {
     const source = PPGraph.currentGraph.selectedSourceSocket;
     if (source && this !== source.getNode()) {
       PPGraph.currentGraph.selectedSourceSocket = null; // hack
@@ -1101,7 +1101,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     PPGraph.currentGraph.selection.stopDragAction();
   }
 
-  protected _onViewportMove(): void {
+  protected onViewportMove(): void {
     if (this.onNodeDragOrViewportMove) {
       const screenPoint = this.screenPoint();
       this.onNodeDragOrViewportMove({
@@ -1112,7 +1112,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     }
   }
 
-  _onRemoved(): void {
+  onRemoved(): void {
     // remove added listener from graph.viewport
     PPGraph.currentGraph.viewport.removeEventListener(
       'moved',
@@ -1130,7 +1130,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     this.getAllSockets().forEach((socket) => socket.pointerOverSocketMoving());
   }
 
-  _onPointerOver(): void {
+  onPointerOver(): void {
     this.isHovering = true;
     this.updateBehaviour.redrawAnythingChanging();
     this.nodeSelectionHeader.redrawAnythingChanging(true);
@@ -1139,7 +1139,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     this.getAllSockets().forEach((socket) => socket.nodeHoveredOver());
   }
 
-  _onPointerOut(): void {
+  onPointerOut(): void {
     if (!this.isDraggingNode) {
       this.isHovering = false;
     }
@@ -1149,7 +1149,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     this.getAllSockets().forEach((socket) => socket.nodeHoveredOut());
   }
 
-  _onPointerClick(event: PIXI.FederatedPointerEvent): void {
+  onPointerClick(event: PIXI.FederatedPointerEvent): void {
     // check if double clicked
     if (event.detail === 2) {
       this.doubleClicked = true;
@@ -1160,7 +1160,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     }
   }
 
-  _onViewportPointerUp(): void {
+  onViewportPointerUp(): void {
     // override if desired
   }
 

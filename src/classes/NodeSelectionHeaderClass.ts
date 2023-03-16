@@ -27,24 +27,24 @@ class Button extends PIXI.Sprite {
     this.width = 24;
     this.height = 24;
     this.tint = PIXI.utils.string2hex(Color(RANDOMMAINCOLOR).darken(0.7).hex());
-    this.addEventListener('pointerover', this._onPointerOver.bind(this));
-    this.addEventListener('pointerout', this._onPointerOut.bind(this));
-    this.addEventListener('pointerdown', this._onPointerDown.bind(this));
+    this.addEventListener('pointerover', this.onPointerOver.bind(this));
+    this.addEventListener('pointerout', this.onPointerOut.bind(this));
+    this.addEventListener('pointerdown', this.onPointerDown.bind(this));
   }
 
   // SETUP
 
-  _onPointerOver(): void {
+  onPointerOver(): void {
     this.alpha = 1.0;
     this.cursor = 'pointer';
   }
 
-  _onPointerOut(): void {
+  onPointerOut(): void {
     this.alpha = 0.5;
     this.cursor = 'default';
   }
 
-  _onPointerDown(event: PIXI.FederatedPointerEvent): void {
+  onPointerDown(event: PIXI.FederatedPointerEvent): void {
     const altKey = event.altKey;
     const node = this.parent?.parent as PPNode;
     const graph = PPGraph.currentGraph;

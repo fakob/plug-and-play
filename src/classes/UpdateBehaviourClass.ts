@@ -78,15 +78,15 @@ export default class UpdateBehaviourClass extends PIXI.Container {
 
     this._updateRef.addEventListener(
       'pointerover',
-      this._onPointerOver.bind(this)
+      this.onPointerOver.bind(this)
     );
     this._updateRef.addEventListener(
       'pointerout',
-      this._onPointerOut.bind(this)
+      this.onPointerOut.bind(this)
     );
     this._updateRef.addEventListener(
       'pointerdown',
-      this._onPointerDown.bind(this)
+      this.onPointerDown.bind(this)
     );
 
     this._noUpdateRef.width = 24;
@@ -177,16 +177,16 @@ export default class UpdateBehaviourClass extends PIXI.Container {
 
   // SETUP
 
-  _onPointerOver(): void {
+  onPointerOver(): void {
     this.hover = true;
   }
 
-  _onPointerOut(): void {
+  onPointerOut(): void {
     this.cursor = 'default';
     this.hover = false;
   }
 
-  _onPointerDown(): void {
+  onPointerDown(): void {
     this.getNode().executeOptimizedChain();
   }
 }

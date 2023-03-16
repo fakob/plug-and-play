@@ -72,7 +72,7 @@ export default abstract class HybridNode2 extends PPNode {
       }
     };
 
-    this.onViewportPointerUpHandler = this._onViewportPointerUp.bind(this);
+    this.onViewportPointerUpHandler = this.onViewportPointerUp.bind(this);
 
     // when the Node is removed also remove the react component and its container
     this.onNodeRemoved = () => {
@@ -117,7 +117,7 @@ export default abstract class HybridNode2 extends PPNode {
             title={'Click to edit OR Double click node'}
             className={styles.hybridContainerEditButton}
             size="small"
-            onClick={this._onPointerClick.bind(this)}
+            onClick={this.onPointerClick.bind(this)}
             color="primary"
             sx={{
               background: RANDOMMAINCOLOR,
@@ -142,7 +142,7 @@ export default abstract class HybridNode2 extends PPNode {
 
   setPosition(x: number, y: number, isRelative = false): void {
     super.setPosition(x, y, isRelative);
-    this._onViewportMove(); // trigger this once, so the react components get positioned properly
+    this.onViewportMove(); // trigger this once, so the react components get positioned properly
   }
 
   resizeAndDraw(
@@ -158,8 +158,8 @@ export default abstract class HybridNode2 extends PPNode {
     this.execute();
   }
 
-  _onPointerClick(event: PIXI.FederatedPointerEvent): void {
-    super._onPointerClick(event);
+  onPointerClick(event: PIXI.FederatedPointerEvent): void {
+    super.onPointerClick(event);
     // turn on pointer events for hybrid nodes so the react components become reactive
     if (this.getActivateByDoubleClick()) {
       // register hybrid nodes to listen to outside clicks
@@ -172,8 +172,8 @@ export default abstract class HybridNode2 extends PPNode {
     }
   }
 
-  _onViewportPointerUp(): void {
-    super._onViewportPointerUp();
+  onViewportPointerUp(): void {
+    super.onViewportPointerUp();
     // unregister hybrid nodes from listening to outside clicks
     PPGraph.currentGraph.viewport.removeEventListener(
       'pointerup',

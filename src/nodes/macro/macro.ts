@@ -47,8 +47,8 @@ export class Macro extends PPNode {
     return new UpdateBehaviourClass(false, false, 1000);
   }
 
-  _onRemoved(): void {
-    super._onRemoved();
+  onRemoved(): void {
+    super.onRemoved();
     delete PPGraph.currentGraph.macros[this.id];
   }
 
