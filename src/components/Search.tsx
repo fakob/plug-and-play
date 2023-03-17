@@ -49,9 +49,8 @@ export const GraphSearchInput = (props) => {
           backgroundColor: 'transparent',
         },
         '&&&& input': {
-          paddingBottom: '8px',
-          paddingTop: '0px',
-          // color: COLOR_WHITE_TEXT,
+          paddingBottom: '0px',
+          paddingTop: '8px',
           color: Color(props.randommaincolor).isDark()
             ? COLOR_WHITE_TEXT
             : COLOR_DARK,
@@ -243,8 +242,8 @@ export const NodeSearchInput = (props) => {
           backgroundColor: 'transparent',
         },
         '&&&& input': {
-          paddingBottom: '8px',
-          paddingTop: '0px',
+          paddingBottom: '0px',
+          paddingTop: '8px',
           color: Color(props.randommaincolor).isDark()
             ? COLOR_WHITE_TEXT
             : COLOR_DARK,

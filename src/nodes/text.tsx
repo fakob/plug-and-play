@@ -244,7 +244,10 @@ export class Label extends PPNode {
 
     // TODO remove this insane hack
     setTimeout(() => {
-      (this._refText.alpha = this.alpha), (this._refText.skew = this?.skew);
+      (this._refText.alpha = this.alpha),
+        this._refText &&
+          this._refText.skew &&
+          (this._refText.skew = this?.skew);
     }, 110);
   };
 
