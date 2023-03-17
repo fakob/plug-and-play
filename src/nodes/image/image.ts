@@ -174,10 +174,7 @@ export class Image extends PPNode {
         this.texture = PIXI.Texture.from(base64);
 
         // callback when a new texture has been loaded
-        this.texture.baseTexture.addEventListener(
-          'loaded',
-          hasBaseTextureLoaded
-        );
+        this.texture.baseTexture.on('loaded', hasBaseTextureLoaded);
 
         // create image mask
         // only run once if the mask is not yet defined

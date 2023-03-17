@@ -31,10 +31,9 @@ export class Label extends PPNode {
 
     this.initialData = customArgs?.initialData;
 
-    const canvas = PPGraph.currentGraph.foregroundCanvas;
     this._refTextStyle = new PIXI.TextStyle();
     const basicText = new PIXI.Text('', this._refTextStyle);
-    this._refText = canvas.addChild(basicText);
+    this._refText = this.addChild(basicText);
     this._refText.visible = false;
   }
 
@@ -48,10 +47,6 @@ export class Label extends PPNode {
 
   getRoundedCorners(): boolean {
     return false;
-  }
-
-  shouldExecuteOnMove(): boolean {
-    return true;
   }
 
   getPreferredInputSocketName(): string {
@@ -244,8 +239,8 @@ export class Label extends PPNode {
     output['Output'] = text;
 
     this._refText.text = text;
-    this._refText.x = this.x + NODE_MARGIN + marginLeftRight;
-    this._refText.y = this.y + marginTopBottom;
+    this._refText.x = NODE_MARGIN + marginLeftRight;
+    this._refText.y = marginTopBottom;
 
     // TODO remove this insane hack
     setTimeout(() => {
