@@ -328,8 +328,8 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       autoDensity: true,
       resolution: 2,
     });
-    pixiApp.current.stage.interactive = true;
-    pixiApp.current.stage.buttonMode = true;
+    pixiApp.current.stage.eventMode = 'static';
+    pixiApp.current.stage.cursor = 'pointer';
 
     globalThis.__PIXI_APP__ = pixiApp.current;
 
@@ -358,7 +358,16 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     document.addEventListener('copy', copyClipboard);
     document.addEventListener('paste', pasteClipboard);
 
-    window.addEventListener('mousemove', setMousePosition, false);
+    window.addEventListener(
+      'pointermove',
+      (event: PIXI.FederatedPointerEvent) => {
+        InterfaceController.notifyListeners(
+          ListenEvent.GlobalPointerMove,
+          event
+        );
+        setMousePosition(event);
+      }
+    );
 
     // create viewport
     viewport.current = new Viewport({
@@ -366,26 +375,32 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       screenHeight: window.innerHeight,
       worldWidth: window.innerWidth,
       worldHeight: window.innerHeight,
-      interaction: pixiApp.current.renderer.plugins.interaction, // the interaction module is important for wheel to work properly when renderer.view is placed or scaled
+      events: pixiApp.current.renderer.events,
     });
 
     // add the viewport to the stage
     pixiApp.current.stage.addChild(viewport.current);
 
     // add global listen events to zoom
-    viewport.current.on('zoomed', () =>
+    viewport.current.addEventListener('zoomed', () =>
       InterfaceController.notifyListeners(ListenEvent.ViewportZoom, true)
     );
-    viewport.current.on('zoomed-end', () =>
+    viewport.current.addEventListener('zoomed-end', () =>
       InterfaceController.notifyListeners(ListenEvent.ViewportZoom, false)
     );
 
-    viewport.current.on('pointerupoutside', (event: PIXI.InteractionEvent) =>
-      InterfaceController.notifyListeners(ListenEvent.GlobalPointerUp, event)
+    viewport.current.addEventListener(
+      'pointerupoutside',
+      (event: PIXI.FederatedPointerEvent) =>
+        InterfaceController.notifyListeners(ListenEvent.GlobalPointerUp, event)
     );
-    viewport.current.on('pointerup', (event: PIXI.InteractionEvent) => {
-      InterfaceController.notifyListeners(ListenEvent.GlobalPointerUp, event);
-    });
+
+    viewport.current.addEventListener(
+      'pointerup',
+      (event: PIXI.FederatedPointerEvent) => {
+        InterfaceController.notifyListeners(ListenEvent.GlobalPointerUp, event);
+      }
+    );
 
     // configure viewport
     viewport.current
@@ -411,7 +426,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     overlayCommentContainer.current.addChild(pixiDebugRef);
 
     // add pixiApp to canvas
-    pixiContext.current.appendChild(pixiApp.current.view);
+    pixiContext.current.appendChild(pixiApp.current.view as any);
 
     // add background tiles
     const texture = PIXI.Texture.from(CANVAS_BACKGROUND_TEXTURE);
@@ -423,7 +438,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     background.tileScale.x = 0.5;
     background.tileScale.y = 0.5;
     viewport.current.addChild(background);
-    viewport.current.on('moved', (event) => {
+    viewport.current.addEventListener('moved', (event) => {
       background.tilePosition.y = -viewport.current.top;
       background.tilePosition.x = -viewport.current.left;
       background.y = viewport.current.top;
@@ -591,6 +606,8 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       InputParser.parseKeyUp(e);
     });
 
+    window.dispatchEvent(new Event('pointermove')); // to initialise event values
+
     return () => {
       // Passing the same reference
       graphSearchInput.current.removeEventListener(
@@ -624,19 +641,19 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     InterfaceController.onOpenNodeSearch = openNodeSearch;
 
     InterfaceController.onRightClick = (
-      event: PIXI.InteractionEvent,
+      event: PIXI.FederatedPointerEvent,
       target: PIXI.DisplayObject
     ) => {
       setIsGraphContextMenuOpen(false);
       setIsNodeContextMenuOpen(false);
       setIsSocketContextMenuOpen(false);
-      console.log(event, target, event.data.global);
+      console.log(event, target, event.global);
       const contextMenuPosX = Math.min(
         window.innerWidth - (CONTEXTMENU_WIDTH + 8),
-        event.data.global.x
+        event.global.x
       );
       const contextMenuPosY = (offset: number) => {
-        return Math.min(window.innerHeight - offset, event.data.global.y);
+        return Math.min(window.innerHeight - offset, event.global.y);
       };
       switch (true) {
         case target.parent instanceof PPSocket:
@@ -660,9 +677,9 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           setContextMenuPosition([
             Math.min(
               window.innerWidth - (CONTEXTMENU_WIDTH + 8),
-              event.data.global.x
+              event.global.x
             ),
-            Math.min(window.innerHeight - 432, event.data.global.y),
+            Math.min(window.innerHeight - 432, event.global.y),
           ]);
           setIsNodeContextMenuOpen(true);
           break;

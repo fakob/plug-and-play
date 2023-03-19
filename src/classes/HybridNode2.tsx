@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-this-alias */
 
 import React from 'react';
+import * as PIXI from 'pixi.js';
 import { createRoot, Root } from 'react-dom/client';
 import { Button } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
@@ -55,7 +56,11 @@ export default abstract class HybridNode2 extends PPNode {
     this.container.style.left = `${screenPoint.x}px`;
     this.container.style.top = `${screenPoint.y}px`;
 
-    this.onNodeDragOrViewportMove = ({ screenX, screenY, scale }) => {
+    this.onNodeDragOrViewportMove = ({
+      screenX = 0,
+      screenY = 0,
+      scale = 1,
+    }) => {
       if (this.container.style.transform != `scale(${scale.toPrecision(3)})`) {
         this.container.style.transform = `scale(${scale.toPrecision(3)})`;
       }
@@ -67,7 +72,7 @@ export default abstract class HybridNode2 extends PPNode {
       }
     };
 
-    this.onViewportPointerUpHandler = this._onViewportPointerUp.bind(this);
+    this.onViewportPointerUpHandler = this.onViewportPointerUp.bind(this);
 
     // when the Node is removed also remove the react component and its container
     this.onNodeRemoved = () => {
@@ -112,7 +117,7 @@ export default abstract class HybridNode2 extends PPNode {
             title={'Click to edit OR Double click node'}
             className={styles.hybridContainerEditButton}
             size="small"
-            onClick={this._onDoubleClick.bind(this)}
+            onClick={this.onPointerClick.bind(this)}
             color="primary"
             sx={{
               background: RANDOMMAINCOLOR,
@@ -133,11 +138,11 @@ export default abstract class HybridNode2 extends PPNode {
     document.getElementById('container').removeChild(container);
   }
 
-  protected onHybridNodeExit(): void { }
+  protected onHybridNodeExit(): void {}
 
   setPosition(x: number, y: number, isRelative = false): void {
     super.setPosition(x, y, isRelative);
-    this._onViewportMove(); // trigger this once, so the react components get positioned properly
+    this.onViewportMove(); // trigger this once, so the react components get positioned properly
   }
 
   resizeAndDraw(
@@ -153,12 +158,12 @@ export default abstract class HybridNode2 extends PPNode {
     this.execute();
   }
 
-  _onDoubleClick(event: any): void {
-    super._onDoubleClick(event);
+  onPointerClick(event: PIXI.FederatedPointerEvent): void {
+    super.onPointerClick(event);
     // turn on pointer events for hybrid nodes so the react components become reactive
     if (this.getActivateByDoubleClick()) {
       // register hybrid nodes to listen to outside clicks
-      PPGraph.currentGraph.viewport.on(
+      PPGraph.currentGraph.viewport.addEventListener(
         'pointerup',
         (this as any).onViewportPointerUpHandler
       );
@@ -167,10 +172,10 @@ export default abstract class HybridNode2 extends PPNode {
     }
   }
 
-  _onViewportPointerUp(): void {
-    super._onViewportPointerUp();
+  onViewportPointerUp(): void {
+    super.onViewportPointerUp();
     // unregister hybrid nodes from listening to outside clicks
-    PPGraph.currentGraph.viewport.removeListener(
+    PPGraph.currentGraph.viewport.removeEventListener(
       'pointerup',
       (this as any).onViewportPointerUpHandler
     );
@@ -203,5 +208,4 @@ export default abstract class HybridNode2 extends PPNode {
   public getIsPresentationalNode(): boolean {
     return true;
   }
-
 }

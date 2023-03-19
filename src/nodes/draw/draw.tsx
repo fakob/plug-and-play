@@ -288,7 +288,7 @@ export class DRAW_Combine extends DRAW_Base {
 
     this.positionAndScale(myContainer, inputObject);
 
-    myContainer.interactive = true;
+    myContainer.eventMode = 'dynamic';
 
     container.addChild(myContainer);
   }
@@ -354,7 +354,7 @@ export class DRAW_COMBINE_ARRAY extends DRAW_Base {
 
     this.positionAndScale(myContainer, inputObject);
 
-    myContainer.interactive = true;
+    myContainer.eventMode = 'dynamic';
 
     container.addChild(myContainer);
   }
@@ -432,11 +432,11 @@ export class DRAW_Multiplier extends DRAW_Base {
       shallowContainer.x = x * inputObject[spacingXName];
       shallowContainer.y = y * inputObject[spacingYName];
 
-      shallowContainer.interactive = true;
+      shallowContainer.eventMode = 'dynamic';
       const alphaPre = shallowContainer.alpha;
       const scalePreX = shallowContainer.scale.x;
       const scalePreY = shallowContainer.scale.y;
-      shallowContainer.on('pointerdown', (e) => {
+      shallowContainer.addEventListener('pointerdown', (e) => {
         this.setOutputData(outputMultiplierIndex, i);
         this.setOutputData(outputMultiplierInjected, executions);
         this.setOutputData(outputMultiplierPointerDown, true);
@@ -448,7 +448,7 @@ export class DRAW_Multiplier extends DRAW_Base {
         shallowContainer.alpha = alphaPre * 0.8;
       });
 
-      shallowContainer.on('pointerup', (e) => {
+      shallowContainer.addEventListener('pointerup', (e) => {
         this.setOutputData(outputMultiplierPointerDown, false);
         this.executeChildren();
         shallowContainer.alpha = alphaPre;
@@ -460,8 +460,8 @@ export class DRAW_Multiplier extends DRAW_Base {
     }
 
     this.positionAndScale(myContainer, inputObject);
-    myContainer.interactive = true;
-    myContainer.on('pointerdown', (e) => {
+    myContainer.eventMode = 'dynamic';
+    myContainer.addEventListener('pointerdown', (e) => {
       console.log('im pressed');
     });
     container.addChild(myContainer);
@@ -690,11 +690,9 @@ export class Export_Image_From_Graphics extends PPNode {
     const newContainer = new PIXI.Container();
     inputObject[outputPixiName](newContainer, {});
     this.addChild(newContainer);
-    const base64out = PPGraph.currentGraph.app.renderer.plugins.extract.image(
-      newContainer,
-      'image/jpeg',
-      inputObject[outputQualityName]
-    );
+    const base64out = (
+      PPGraph.currentGraph.app.renderer as PIXI.Renderer
+    ).extract.image(newContainer, 'image/jpeg', inputObject[outputQualityName]);
     outputObject[outputImageName] = base64out;
     this.removeChild(newContainer);
   }

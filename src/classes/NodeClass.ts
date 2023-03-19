@@ -1,7 +1,6 @@
 /* eslint-disable */
 import * as PIXI from 'pixi.js';
 import { hri } from 'human-readable-ids';
-import '../pixi/dbclick.js';
 import {
   CustomArgs,
   NodeStatus,
@@ -78,14 +77,15 @@ export default class PPNode extends PIXI.Container {
   _doubleClicked: boolean;
   isDraggingNode: boolean;
   sourcePoint: PIXI.Point;
-  interactionData: PIXI.InteractionData;
+  interactionData: PIXI.FederatedPointerEvent;
   protected statuses: NodeStatus[] = []; // you can add statuses into this and they will be rendered on the node
 
   // supported callbacks
   onConfigure: (nodeConfig: SerializedNode) => void = () => {}; // called after the node has been configured
-  onNodeDoubleClick: (event: PIXI.InteractionEvent) => void = () => {};
-  onViewportMoveHandler: (event?: PIXI.InteractionEvent) => void = () => {};
-  onViewportPointerUpHandler: (event?: PIXI.InteractionEvent) => void =
+  onNodeDoubleClick: (event: PIXI.FederatedPointerEvent) => void = () => {};
+  onViewportMoveHandler: (event?: PIXI.FederatedPointerEvent) => void =
+    () => {};
+  onViewportPointerUpHandler: (event?: PIXI.FederatedPointerEvent) => void =
     () => {};
   onNodeRemoved: () => void = () => {}; // called when the node is removed from the graph
   onNodeResize: (width: number, height: number) => void = () => {}; // called when the node is resized
@@ -199,7 +199,7 @@ export default class PPNode extends PIXI.Container {
   }
   // used when searching for nodes
   public getTags(): string {
-    return "";
+    return '';
   }
 
   public getMinNodeWidth(): number {
@@ -224,7 +224,9 @@ export default class PPNode extends PIXI.Container {
   }
 
   protected getAllInitialSockets(): Socket[] {
-    return this.getDefaultIO().concat([new Socket(SOCKET_TYPE.IN, "Meta", new JSONType(), {}, false)]);
+    return this.getDefaultIO().concat([
+      new Socket(SOCKET_TYPE.IN, 'Meta', new JSONType(), {}, false),
+    ]);
   }
 
   public getNodeTextString(): string {
@@ -318,7 +320,7 @@ export default class PPNode extends PIXI.Container {
       this.addSocket(IO);
     });
 
-    this.interactive = true;
+    this.eventMode = 'dynamic';
     this.isDraggingNode = false;
     this._doubleClicked = false;
 
@@ -768,12 +770,12 @@ export default class PPNode extends PIXI.Container {
           fill: COLOR_MAIN,
         })
       );
-      text.x = this.nodeWidth - inlet + 5;// - width;
+      text.x = this.nodeWidth - inlet + 5; // - width;
       text.y = startY + 5 + index * (height - merging);
       this._StatusesRef.addChild(text);
       this._StatusesRef.beginFill(color.hexNumber());
       this._StatusesRef.drawRoundedRect(
-        this.nodeWidth - inlet,// - width,
+        this.nodeWidth - inlet, // - width,
         startY + index * (height - merging),
         text.width + 10,
         height,
@@ -961,12 +963,11 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     });
 
     // set the meta settings
-    if (inputObject["Meta"] !== undefined) {
-      Object.keys(inputObject["Meta"]).forEach(key => {
-        this[key] = inputObject["Meta"][key];
+    if (inputObject['Meta'] !== undefined) {
+      Object.keys(inputObject['Meta']).forEach((key) => {
+        this[key] = inputObject['Meta'][key];
       });
     }
-
   }
 
   public renderOutlineThrottled = throttle(this.renderOutline, 2000, {
@@ -1050,30 +1051,31 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   // SETUP
 
   _addListeners(): void {
-    this.on('pointerdown', this._onPointerDown.bind(this));
-    this.on('pointerup', this._onPointerUp.bind(this));
-    this.on('pointerover', this._onPointerOver.bind(this));
-    this.on('pointerout', this._onPointerOut.bind(this));
-    this.on('dblclick', this._onDoubleClick.bind(this));
-    this.on('removed', this._onRemoved.bind(this));
+    this.addEventListener('pointerdown', this.onPointerDown.bind(this));
+    this.addEventListener('pointerup', this.onPointerUp.bind(this));
+    this.addEventListener('pointerover', this.onPointerOver.bind(this));
+    this.addEventListener('pointerout', this.onPointerOut.bind(this));
+    this.addEventListener('click', this.onPointerClick.bind(this));
+    this.addEventListener('removed', this.onRemoved.bind(this));
 
     // first assign the bound function to a handler then add this handler as a listener
-    // otherwise removeListener won't work (bind creates a new function)
-    this.onViewportMoveHandler = this._onViewportMove.bind(this);
-    PPGraph.currentGraph.viewport.on(
+    // otherwise removeEventListener won't work (bind creates a new function)
+    this.onViewportMoveHandler = this.onViewportMove.bind(this);
+    PPGraph.currentGraph.viewport.addEventListener(
       'moved',
       (this as any).onViewportMoveHandler
     );
   }
 
-  _onPointerDown(event: PIXI.InteractionEvent): void {
+  onPointerDown(event: PIXI.FederatedPointerEvent): void {
+    console.log('Node: onPointerDown');
     event.stopPropagation();
     const node = event.target as PPNode;
 
     if (node.clickedSocketRef === null) {
       // start dragging the node
 
-      const shiftKey = event.data.originalEvent.shiftKey;
+      const shiftKey = event.shiftKey;
 
       // select node if the shiftKey is pressed
       // or the node is not yet selected
@@ -1082,7 +1084,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
       }
       PPGraph.currentGraph.selection.startDragAction(event);
     }
-    if (event.data.button == 2) {
+    if (event.button == 2) {
       if (event.target == this) {
         InterfaceController.onRightClick(event, this);
       }
@@ -1090,7 +1092,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     }
   }
 
-  _onPointerUp(event: PIXI.InteractionEvent): void {
+  onPointerUp(event: PIXI.FederatedPointerEvent): void {
     const source = PPGraph.currentGraph.selectedSourceSocket;
     if (source && this !== source.getNode()) {
       PPGraph.currentGraph.selectedSourceSocket = null; // hack
@@ -1099,7 +1101,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     PPGraph.currentGraph.selection.stopDragAction();
   }
 
-  protected _onViewportMove(): void {
+  protected onViewportMove(): void {
     if (this.onNodeDragOrViewportMove) {
       const screenPoint = this.screenPoint();
       this.onNodeDragOrViewportMove({
@@ -1110,9 +1112,9 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     }
   }
 
-  _onRemoved(): void {
+  onRemoved(): void {
     // remove added listener from graph.viewport
-    PPGraph.currentGraph.viewport.removeListener(
+    PPGraph.currentGraph.viewport.removeEventListener(
       'moved',
       this.onViewportMoveHandler
     );
@@ -1128,34 +1130,37 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     this.getAllSockets().forEach((socket) => socket.pointerOverSocketMoving());
   }
 
-  _onPointerOver(): void {
+  onPointerOver(): void {
     this.isHovering = true;
     this.updateBehaviour.redrawAnythingChanging();
     this.nodeSelectionHeader.redrawAnythingChanging(true);
-    this.on('pointermove', this.pointerOverMoving);
+    this.addEventListener('pointermove', this.pointerOverMoving);
 
     this.getAllSockets().forEach((socket) => socket.nodeHoveredOver());
   }
 
-  _onPointerOut(): void {
+  onPointerOut(): void {
     if (!this.isDraggingNode) {
       this.isHovering = false;
     }
-    this.removeListener('pointermove');
+    this.removeEventListener('pointermove', this.pointerOverMoving);
     this.updateBehaviour.redrawAnythingChanging();
     this.nodeSelectionHeader.redrawAnythingChanging(false);
     this.getAllSockets().forEach((socket) => socket.nodeHoveredOut());
   }
 
-  _onDoubleClick(event: PIXI.InteractionEvent): void {
-    this.doubleClicked = true;
+  onPointerClick(event: PIXI.FederatedPointerEvent): void {
+    // check if double clicked
+    if (event.detail === 2) {
+      this.doubleClicked = true;
 
-    if (this.onNodeDoubleClick) {
-      this.onNodeDoubleClick(event);
+      if (this.onNodeDoubleClick) {
+        this.onNodeDoubleClick(event);
+      }
     }
   }
 
-  _onViewportPointerUp(): void {
+  onViewportPointerUp(): void {
     // override if desired
   }
 
@@ -1167,8 +1172,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     );
   }
 
-  public async invokeMacro(inputObject: any): Promise<any> {
-  }
+  public async invokeMacro(inputObject: any): Promise<any> {}
 
   public metaInfoChanged(): void {
     this.resizeAndDraw();

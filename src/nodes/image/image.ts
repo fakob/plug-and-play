@@ -85,7 +85,7 @@ export class Image extends PPNode {
   public getOpacity(): number {
     return 0.2;
   }
-  
+
   public getShrinkOnSocketRemove(): boolean {
     return false;
   }

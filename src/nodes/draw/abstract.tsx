@@ -33,7 +33,8 @@ const inputSkewYName = 'Skew Y';
 
 export abstract class DRAW_Base extends PPNode {
   deferredGraphics: PIXI.Container;
-  listenID = '';
+  listenIDUp = '';
+  listenIDMove = '';
   isDragging = false;
 
   public getDescription(): string {
@@ -181,19 +182,22 @@ export abstract class DRAW_Base extends PPNode {
   ) {
     this.isDragging = true;
     PPGraph.currentGraph.selection.selectNodes([this], false, true);
-    this.deferredGraphics.on('pointermove', () => {
-      this.setOffsetsToCurrentCursor(originalCursorPos, originalOffsets);
-      // re-trigger if still holding
-      setTimeout(() => {
-        this.removeListener('pointermove');
-        if (this.isDragging) {
-          this.pointerDown(originalCursorPos, originalOffsets);
-        }
-      }, 16);
-    });
+    this.listenIDMove = InterfaceController.addListener(
+      ListenEvent.GlobalPointerMove,
+      () => {
+        this.setOffsetsToCurrentCursor(originalCursorPos, originalOffsets);
+        // re-trigger if still holding
+        setTimeout(() => {
+          InterfaceController.removeListener(this.listenIDMove);
+          if (this.isDragging) {
+            this.pointerDown(originalCursorPos, originalOffsets);
+          }
+        }, 16);
+      }
+    );
 
-    InterfaceController.removeListener(this.listenID);
-    this.listenID = InterfaceController.addListener(
+    InterfaceController.removeListener(this.listenIDUp);
+    this.listenIDUp = InterfaceController.addListener(
       ListenEvent.GlobalPointerUp,
       () => this.pointerUp(originalCursorPos, originalOffsets)
     );
@@ -205,8 +209,8 @@ export abstract class DRAW_Base extends PPNode {
   ) {
     const currPos = getCurrentCursorPosition();
     this.isDragging = false;
-    this.deferredGraphics.removeListener('pointermove');
-    InterfaceController.removeListener(this.listenID);
+    InterfaceController.removeListener(this.listenIDMove);
+    InterfaceController.removeListener(this.listenIDUp);
 
     // allow undoing
     ActionHandler.performAction(
@@ -234,9 +238,9 @@ export abstract class DRAW_Base extends PPNode {
       this.addChild(this.deferredGraphics);
 
       if (this.allowMovingDirectly()) {
-        this.deferredGraphics.interactive = true;
+        this.deferredGraphics.eventMode = 'dynamic';
 
-        this.deferredGraphics.on('pointerdown', () => {
+        this.deferredGraphics.addEventListener('pointerdown', () => {
           this.pointerDown(
             getCurrentCursorPosition(),
             new PIXI.Point(

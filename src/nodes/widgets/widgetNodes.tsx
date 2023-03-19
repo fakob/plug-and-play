@@ -197,7 +197,7 @@ export class WidgetColorPicker extends Widget_Base {
 
   protected getParentComponent(props: any): any {
     const node = props.node;
-    const ref = useRef<HTMLLIElement | null>(null);
+    const ref = useRef<HTMLDivElement | null>(null);
     const [finalColor, setFinalColor] = useState(
       props[initialValueName] || TRgba.white()
     );

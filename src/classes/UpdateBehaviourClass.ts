@@ -69,16 +69,25 @@ export default class UpdateBehaviourClass extends PIXI.Container {
     this.addChild(this._updateRef);
     this.addChild(this._noUpdateRef);
 
-    this._updateRef.interactive = true;
-    this._updateRef.buttonMode = true;
+    this._updateRef.eventMode = 'static';
+    this._updateRef.cursor = 'pointer';
     this._updateRef.alpha = 0.05;
     this._updateRef.x = 0;
     this._updateRef.width = 24;
     this._updateRef.height = 24;
 
-    this._updateRef.on('pointerover', this._onPointerOver.bind(this));
-    this._updateRef.on('pointerout', this._onPointerOut.bind(this));
-    this._updateRef.on('pointerdown', this._onPointerDown.bind(this));
+    this._updateRef.addEventListener(
+      'pointerover',
+      this.onPointerOver.bind(this)
+    );
+    this._updateRef.addEventListener(
+      'pointerout',
+      this.onPointerOut.bind(this)
+    );
+    this._updateRef.addEventListener(
+      'pointerdown',
+      this.onPointerDown.bind(this)
+    );
 
     this._noUpdateRef.width = 24;
     this._noUpdateRef.height = 24;
@@ -168,16 +177,16 @@ export default class UpdateBehaviourClass extends PIXI.Container {
 
   // SETUP
 
-  _onPointerOver(): void {
+  onPointerOver(): void {
     this.hover = true;
   }
 
-  _onPointerOut(): void {
+  onPointerOut(): void {
     this.cursor = 'default';
     this.hover = false;
   }
 
-  _onPointerDown(): void {
+  onPointerDown(): void {
     this.getNode().executeOptimizedChain();
   }
 }

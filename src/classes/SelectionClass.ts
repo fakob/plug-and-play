@@ -32,9 +32,10 @@ export default class PPSelection extends PIXI.Container {
   private nodePosBeforeMovement: PIXI.Point;
   isDrawingSelection: boolean;
   isDraggingSelection: boolean;
-  interactionData: PIXI.InteractionData | null;
+  interactionData: PIXI.FederatedPointerEvent | null;
+  listenID: string;
 
-  protected onMoveHandler: (event?: PIXI.InteractionEvent) => void;
+  protected onMoveHandler: (event?: PIXI.FederatedPointerEvent) => void;
 
   constructor(viewport: Viewport) {
     super();
@@ -45,6 +46,7 @@ export default class PPSelection extends PIXI.Container {
     this.previousSelectedNodes = [];
     this._selectedNodes = [];
     this.interactionData = null;
+    this.listenID = '';
 
     this.name = 'selectionContainer';
 
@@ -63,14 +65,22 @@ export default class PPSelection extends PIXI.Container {
     this.scaleHandle = new ScaleHandle(this);
     this.addChild(this.scaleHandle);
 
-    this.interactive = true;
+    this.eventMode = 'dynamic';
 
-    this.on('pointerdown', this.onPointerDown.bind(this));
-    this.on('pointerupoutside', this.onPointerUpAndUpOutside.bind(this));
-    this.on('pointerup', this.onPointerUpAndUpOutside.bind(this));
-    this.on('pointerover', this.onPointerOver.bind(this));
-    this.on('rightclick', event => InterfaceController.onRightClick(event, event.target));
-    this.viewport.on('moved', (this as any).onViewportMoved.bind(this));
+    this.addEventListener('pointerdown', this.onPointerDown.bind(this));
+    this.addEventListener(
+      'pointerupoutside',
+      this.onPointerUpAndUpOutside.bind(this)
+    );
+    this.addEventListener('pointerup', this.onPointerUpAndUpOutside.bind(this));
+    this.addEventListener('pointerover', this.onPointerOver.bind(this));
+    this.addEventListener('rightclick', (event) =>
+      InterfaceController.onRightClick(event, event.target)
+    );
+    this.viewport.addEventListener(
+      'moved',
+      (this as any).onViewportMoved.bind(this)
+    );
 
     this.onMoveHandler = this.onMove.bind(this);
   }
@@ -102,12 +112,11 @@ export default class PPSelection extends PIXI.Container {
     this.drawRectanglesFromSelection();
   };
 
-
-  public startDragAction(event: PIXI.InteractionEvent) {
+  public startDragAction(event: PIXI.FederatedPointerEvent) {
     this.cursor = 'move';
     this.isDraggingSelection = true;
     InterfaceController.notifyListeners(ListenEvent.SelectionDragging, true);
-    this.interactionData = event.data;
+    this.interactionData = event;
     this.sourcePoint = this.interactionData.getLocalPosition(
       this.selectedNodes[0]
     );
@@ -115,7 +124,10 @@ export default class PPSelection extends PIXI.Container {
     this.nodePosBeforeMovement = getCurrentCursorPosition();
 
     // subscribe to pointermove
-    this.on('pointermove', this.onMoveHandler);
+    this.listenID = InterfaceController.addListener(
+      ListenEvent.GlobalPointerMove,
+      this.onMoveHandler
+    );
   }
 
   moveNodesByID(nodeIDs: string[], deltaX: number, deltaY: number) {
@@ -136,7 +148,8 @@ export default class PPSelection extends PIXI.Container {
     InterfaceController.notifyListeners(ListenEvent.SelectionDragging, false);
 
     // unsubscribe from pointermove
-    this.removeListener('pointermove', this.onMoveHandler);
+    InterfaceController.removeListener(this.listenID);
+
     const endPoint = getCurrentCursorPosition();
     const deltaX = endPoint.x - this.nodePosBeforeMovement.x;
     const deltaY = endPoint.y - this.nodePosBeforeMovement.y;
@@ -151,14 +164,11 @@ export default class PPSelection extends PIXI.Container {
     await ActionHandler.performAction(doMove, undoMove, false);
   }
 
-  onPointerDown(event: PIXI.InteractionEvent): void {
+  onPointerDown(event: PIXI.FederatedPointerEvent): void {
     console.log('Selection: onPointerDown');
     if (this.selectedNodes.length > 0) {
-      if (event.data.originalEvent.shiftKey) {
-        const targetPoint = new PIXI.Point(
-          (event.data.originalEvent as MouseEvent).clientX,
-          (event.data.originalEvent as MouseEvent).clientY
-        );
+      if (event.shiftKey) {
+        const targetPoint = new PIXI.Point(event.clientX, event.clientY);
         const selectionRect = new PIXI.Rectangle(
           targetPoint.x,
           targetPoint.y,
@@ -199,16 +209,10 @@ export default class PPSelection extends PIXI.Container {
     }
   }
 
-  onMove(event: PIXI.InteractionEvent): void {
-    // console.log('onMove');
+  onMove(event: PIXI.FederatedPointerEvent): void {
     if (this.isDrawingSelection) {
-      // console.log('onMove: isDrawingSelection');
-
       // temporarily draw rectangle while dragging
-      const targetPoint = new PIXI.Point(
-        (event.data.originalEvent as MouseEvent).clientX,
-        (event.data.originalEvent as MouseEvent).clientY
-      );
+      const targetPoint = new PIXI.Point(event.clientX, event.clientY);
       const selX = Math.min(this.sourcePoint.x, targetPoint.x);
       const selY = Math.min(this.sourcePoint.y, targetPoint.y);
       const selWidth = Math.max(this.sourcePoint.x, targetPoint.x) - selX;
@@ -272,11 +276,9 @@ export default class PPSelection extends PIXI.Container {
   }
 
   drawSelectionStart(
-    event: PIXI.InteractionEvent,
+    event: PIXI.FederatedPointerEvent,
     addToOrToggleSelection: boolean
   ): void {
-    console.log('startDrawAction');
-
     // store selectedNodes in previousSelectedNodes
     // if addToOrToggleSelection is true
     this.previousSelectedNodes = addToOrToggleSelection
@@ -288,17 +290,17 @@ export default class PPSelection extends PIXI.Container {
     addToOrToggleSelection || this.resetGraphics(this.selectionGraphics);
 
     this.isDrawingSelection = true;
-    this.interactionData = event.data;
-    this.sourcePoint = new PIXI.Point(
-      (event.data.originalEvent as MouseEvent).clientX,
-      (event.data.originalEvent as MouseEvent).clientY
-    );
+    this.interactionData = event;
+    this.sourcePoint = new PIXI.Point(event.clientX, event.clientY);
 
     // subscribe to pointermove
-    this.on('pointermove', this.onMoveHandler);
+    this.listenID = InterfaceController.addListener(
+      ListenEvent.GlobalPointerMove,
+      this.onMoveHandler
+    );
   }
 
-  drawSelectionFinish(event: PIXI.InteractionEvent): void {
+  drawSelectionFinish(event: PIXI.FederatedPointerEvent): void {
     this.isDrawingSelection = false;
     this.selectionIntendGraphics.clear();
 
@@ -306,7 +308,7 @@ export default class PPSelection extends PIXI.Container {
     this.previousSelectedNodes = [];
 
     // unsubscribe from pointermove
-    this.removeListener('pointermove', this.onMoveHandler);
+    InterfaceController.removeListener(this.listenID);
     console.log(this.selectedNodes);
     if (this.selectedNodes.length > 0) {
       this.drawRectanglesFromSelection();
@@ -319,10 +321,7 @@ export default class PPSelection extends PIXI.Container {
     );
 
     // only trigger deselect if the mouse was not moved and onMove was not called
-    const targetPoint = new PIXI.Point(
-      (event.data.originalEvent as MouseEvent).clientX,
-      (event.data.originalEvent as MouseEvent).clientY
-    );
+    const targetPoint = new PIXI.Point(event.clientX, event.clientY);
     if (
       this.sourcePoint.x === targetPoint.x &&
       this.sourcePoint.y === targetPoint.y
@@ -439,23 +438,25 @@ class ScaleHandle extends PIXI.Graphics {
   private _pointerDragging: boolean;
   private _pointerPosition: PIXI.Point;
   private _pointerMoveTarget: PIXI.Container | null;
+  listenID: string;
 
   constructor(selection: PPSelection) {
     super();
 
-    this.interactive = true;
+    this.eventMode = 'dynamic';
 
     this.selection = selection;
+    this.listenID = '';
 
     this._pointerDown = false;
     this._pointerDragging = false;
     this._pointerPosition = new PIXI.Point();
     this._pointerMoveTarget = null;
-    this.on('pointerover', this.onPointerOver.bind(this));
-    this.on('mousedown', this.onPointerDown, this);
-    this.on('mouseup', this.onPointerUp, this);
-    this.on('mouseupoutside', this.onPointerUp, this);
-    this.on('dblclick', this._onDoubleClick.bind(this));
+    this.addEventListener('pointerover', this.onPointerOver.bind(this));
+    this.addEventListener('pointerdown', this.onPointerDown.bind(this));
+    this.addEventListener('pointerup', this.onPointerUp.bind(this));
+    this.addEventListener('pointerupoutside', this.onPointerUp.bind(this));
+    this.addEventListener('click', this.onPointerClick.bind(this));
   }
 
   render(renderer: PIXI.Renderer): void {
@@ -468,27 +469,30 @@ class ScaleHandle extends PIXI.Graphics {
     super.render(renderer);
   }
 
-  protected onPointerOver(event: PIXI.InteractionEvent): void {
+  protected onPointerOver(event: PIXI.FederatedPointerEvent): void {
     event.stopPropagation();
     this.cursor = 'nwse-resize';
   }
 
-  protected onPointerDown(event: PIXI.InteractionEvent): void {
+  protected onPointerDown(event: PIXI.FederatedPointerEvent): void {
     this._pointerDown = true;
     this._pointerDragging = false;
 
     event.stopPropagation();
 
     if (this._pointerMoveTarget) {
-      this._pointerMoveTarget.off('pointermove', this.onPointerMove, this);
+      InterfaceController.removeListener(this.listenID);
       this._pointerMoveTarget = null;
     }
 
     this._pointerMoveTarget = this;
-    this._pointerMoveTarget.on('pointermove', this.onPointerMove, this);
+    this.listenID = InterfaceController.addListener(
+      ListenEvent.GlobalPointerMove,
+      this.onPointerMove.bind(this)
+    );
   }
 
-  protected onPointerMove(event: PIXI.InteractionEvent): void {
+  protected onPointerMove(event: PIXI.FederatedPointerEvent): void {
     if (!this._pointerDown) {
       return;
     }
@@ -502,7 +506,7 @@ class ScaleHandle extends PIXI.Graphics {
     event.stopPropagation();
   }
 
-  protected onPointerUp(event: PIXI.InteractionEvent): void {
+  protected onPointerUp(event: PIXI.FederatedPointerEvent): void {
     if (this._pointerDragging) {
       this.onDragEnd(event);
     }
@@ -510,32 +514,35 @@ class ScaleHandle extends PIXI.Graphics {
     this._pointerDown = false;
 
     if (this._pointerMoveTarget) {
-      this._pointerMoveTarget.off('pointermove', this.onPointerMove, this);
+      InterfaceController.removeListener(this.listenID);
       this._pointerMoveTarget = null;
     }
   }
 
-  protected _onDoubleClick(event: PIXI.InteractionEvent): void {
-    event.stopPropagation();
-    this.selection.onScaleReset();
+  protected onPointerClick(event: PIXI.FederatedPointerEvent): void {
+    // check if double clicked
+    if (event.detail === 2) {
+      event.stopPropagation();
+      this.selection.onScaleReset();
+    }
   }
 
-  protected onDragStart(event: PIXI.InteractionEvent): void {
-    this._pointerPosition.copyFrom(event.data.global);
+  protected onDragStart(event: PIXI.FederatedPointerEvent): void {
+    this._pointerPosition = new PIXI.Point(event.clientX, event.clientY);
     this._pointerDragging = true;
   }
 
-  protected onDrag(event: PIXI.InteractionEvent): void {
-    const currentPosition = event.data.global;
+  protected onDrag(event: PIXI.FederatedPointerEvent): void {
+    const currentPosition = new PIXI.Point(event.clientX, event.clientY);
 
     // Callback handles the rest!
-    const shiftKeyPressed = event.data.originalEvent.shiftKey;
+    const shiftKeyPressed = event.shiftKey;
     this.selection.onScaling(currentPosition, shiftKeyPressed);
 
-    this._pointerPosition.copyFrom(currentPosition);
+    this._pointerPosition = currentPosition;
   }
 
-  protected onDragEnd(_: PIXI.InteractionEvent): void {
+  protected onDragEnd(_: PIXI.FederatedPointerEvent): void {
     this._pointerDragging = false;
   }
 }

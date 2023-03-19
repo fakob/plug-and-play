@@ -38,6 +38,7 @@ export default class PPGraph {
   lastSelectedSocketWasInput = false;
   overrideNodeCursorPosition: null | PIXI.Point = null;
   overInputRef: null | PPSocket;
+  pointerEvent: PIXI.FederatedPointerEvent;
   dragSourcePoint: PIXI.Point;
 
   backgroundTempContainer: PIXI.Container;
@@ -102,15 +103,28 @@ export default class PPGraph {
     window.addEventListener('resize', resize);
 
     // register pointer events
-    this.viewport.on('pointerdown', this._onPointerDown.bind(this));
+    this.viewport.addEventListener(
+      'pointerdown',
+      this.onPointerDown.bind(this)
+    );
 
-    this.viewport.on('rightclick', this._onPointerRightClicked.bind(this));
-    this.viewport.on('dblclick', this._onPointerDoubleClicked.bind(this));
-    this.viewport.on('pointermove', (event) => this.onViewportMove(event));
+    this.viewport.addEventListener(
+      'rightclick',
+      this.onPointerRightClicked.bind(this)
+    );
+    this.viewport.addEventListener('click', this.onPointerClick.bind(this));
+    this.viewport.addEventListener('pointermove', (event) =>
+      this.onViewportMove(event)
+    );
+
+    InterfaceController.addListener(
+      ListenEvent.GlobalPointerMove,
+      this.onPointerMove.bind(this)
+    );
 
     InterfaceController.addListener(
       ListenEvent.GlobalPointerUp,
-      this._onPointerUpAndUpOutside.bind(this)
+      this.onPointerUpAndUpOutside.bind(this)
     );
 
     // clear the stage
@@ -121,8 +135,8 @@ export default class PPGraph {
   }
 
   // SETUP
-  _onPointerRightClicked(event: PIXI.InteractionEvent): void {
-    console.log('GraphClass - _onPointerRightClicked');
+  onPointerRightClicked(event: PIXI.FederatedPointerEvent): void {
+    console.log('GraphClass - onPointerRightClicked');
     event.stopPropagation();
     const target = event.target;
     if (
@@ -135,27 +149,29 @@ export default class PPGraph {
     }
   }
 
-  _onPointerDoubleClicked(event: PIXI.InteractionEvent): void {
-    console.log('_onPointerDoubleClicked');
-    event.stopPropagation();
-    const target = event.target;
-    if (target instanceof Viewport) {
-      InterfaceController.onOpenNodeSearch(event.data.global);
+  onPointerClick(event: PIXI.FederatedPointerEvent): void {
+    console.log('onPointerClick');
+
+    // check if double clicked
+    if (event.detail === 2) {
+      event.stopPropagation();
+      const target = event.target;
+      if (target instanceof Viewport) {
+        InterfaceController.onOpenNodeSearch(event.global);
+      }
     }
   }
 
-  _onPointerDown(event: PIXI.InteractionEvent): void {
-    console.log('_onPointerDown');
+  onPointerDown(event: PIXI.FederatedPointerEvent): void {
+    console.log('Graph: onPointerDown');
+    this.pointerEvent = event;
     //event.stopPropagation();
 
     InterfaceController.onCloseSocketInspector();
 
-    if ((event.data.originalEvent as PointerEvent).button === 0) {
+    if (event.button === 0) {
       if (!this.overInputRef) {
-        this.selection.drawSelectionStart(
-          event,
-          event.data.originalEvent.shiftKey
-        );
+        this.selection.drawSelectionStart(event, event.shiftKey);
       }
 
       // pause viewport drag
@@ -167,17 +183,19 @@ export default class PPGraph {
     }
   }
 
-  _onPointerUpAndUpOutside(event: PIXI.InteractionEvent): void {
+  onPointerMove(event: PIXI.FederatedPointerEvent): void {
+    this.pointerEvent = event;
+  }
+
+  onPointerUpAndUpOutside(event: PIXI.FederatedPointerEvent): void {
     if (!this.overInputRef && this.selectedSourceSocket) {
       if (!this.overrideNodeCursorPosition) {
-        this.overrideNodeCursorPosition = this.viewport.toWorld(
-          event.data.global
-        );
+        this.overrideNodeCursorPosition = this.viewport.toWorld(event.global);
         if (
           this.lastSelectedSocketWasInput ||
           this.selectedSourceSocket.isInput()
         ) {
-          InterfaceController.onOpenNodeSearch(event.data.global);
+          InterfaceController.onOpenNodeSearch(event.global);
         } else {
           this.stopConnecting();
         }
@@ -215,12 +233,7 @@ export default class PPGraph {
     return this.viewport.toWorld(dragSourcePoint);
   }
 
-  _onNodePointerDown(event: PIXI.InteractionEvent): void {
-    event.stopPropagation();
-    this.viewport.plugins.pause('drag');
-  }
-
-  onViewportMove(event: PIXI.InteractionEvent): void {
+  onViewportMove(event: PIXI.FederatedPointerEvent): void {
     this.tempConnection.clear();
 
     // draw connection
@@ -236,7 +249,7 @@ export default class PPGraph {
       } else if (this.overrideNodeCursorPosition) {
         targetPoint = this.overrideNodeCursorPosition;
       } else {
-        targetPoint = this.viewport.toWorld(event.data.global);
+        targetPoint = this.viewport.toWorld(event.global);
       }
 
       // swap points if i grabbed an input, to make curve look nice
@@ -278,7 +291,7 @@ export default class PPGraph {
     this.overInputRef = null;
   }
 
-  socketMouseDown(socket: PPSocket, event: PIXI.InteractionEvent): void {
+  socketMouseDown(socket: PPSocket, event: PIXI.FederatedPointerEvent): void {
     const overOutput = socket.isOutput();
     this.lastSelectedSocketWasInput = overOutput;
     if (overOutput) {
@@ -299,7 +312,7 @@ export default class PPGraph {
 
   async socketMouseUp(
     socket: PPSocket,
-    event: PIXI.InteractionEvent
+    event: PIXI.FederatedPointerEvent
   ): Promise<void> {
     const source = this.selectedSourceSocket;
     this.stopConnecting();
@@ -314,13 +327,10 @@ export default class PPGraph {
 
   async socketNameRefMouseDown(
     socket: PPSocket,
-    event: PIXI.InteractionEvent
+    event: PIXI.FederatedPointerEvent
   ): Promise<void> {
-    const clickedSourcePoint = new PIXI.Point(
-      event.data.global.x,
-      event.data.global.y
-    );
-    if (event.data.originalEvent.ctrlKey) {
+    const clickedSourcePoint = new PIXI.Point(event.global.x, event.global.y);
+    if (event.ctrlKey) {
       InterfaceController.onOpenSocketInspector(clickedSourcePoint, socket);
     } else {
       InterfaceController.notifyListeners(ListenEvent.SelectionChanged, [

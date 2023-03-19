@@ -86,7 +86,7 @@ export class Mouse extends PPNode {
 export class Keyboard extends PPNode {
   onKeyDownHandler: (event?: KeyboardEvent) => void = () => {};
   onKeyUpHandler: (event?: KeyboardEvent) => void = () => {};
-  _onKeyDown = (event: KeyboardEvent): void => {
+  onKeyDown = (event: KeyboardEvent): void => {
     this.setOutputData('key', event.key);
     this.setOutputData('code', event.code);
     this.setOutputData('shiftKey', event.shiftKey);
@@ -96,7 +96,7 @@ export class Keyboard extends PPNode {
     this.setOutputData('repeat', event.repeat);
     this.executeChildren();
   };
-  _onKeyUp = (): void => {
+  onKeyUp = (): void => {
     if (!this.getInputData('keep last')) {
       this.setOutputData('key', '');
       this.setOutputData('code', '');
@@ -142,9 +142,9 @@ export class Keyboard extends PPNode {
   public onNodeAdded(): void {
     super.onNodeAdded();
     // add event listener
-    this.onKeyDownHandler = this._onKeyDown.bind(this);
+    this.onKeyDownHandler = this.onKeyDown.bind(this);
     window.addEventListener('keydown', (this as any).onKeyDownHandler);
-    this.onKeyUpHandler = this._onKeyUp.bind(this);
+    this.onKeyUpHandler = this.onKeyUp.bind(this);
     window.addEventListener('keyup', (this as any).onKeyUpHandler);
   }
 
