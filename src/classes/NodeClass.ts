@@ -58,6 +58,7 @@ export default class PPNode extends PIXI.Container {
   _CommentRef: PIXI.Graphics;
   _StatusesRef: PIXI.Graphics;
   _ForegroundRef: PIXI.Container;
+  _ScreenspaceRefBackground: PIXI.Container;
   _ScreenspaceRef: PIXI.Container;
   _ScreenspaceContainerRef: PIXI.Container;
 
@@ -379,6 +380,11 @@ export default class PPNode extends PIXI.Container {
           new PIXI.Container()
         );
         this._ScreenspaceRef.name = `${this.name}-pinned`;
+
+        this._ScreenspaceRefBackground = this._ScreenspaceRef.addChild(
+          new PIXI.Container()
+        );
+        this._ScreenspaceRefBackground.name = 'background';
       }
       this.screenSpaceSettings = getScreenSpacePosition(this);
 
@@ -389,6 +395,7 @@ export default class PPNode extends PIXI.Container {
       this.screenSpaceSettings = undefined;
 
       // reparent foreground to node
+      this._ScreenspaceRef?.removeChild(this._ScreenspaceRefBackground);
       this._ScreenspaceRef?.removeChild(this._ForegroundRef);
       this.addChild(this._ForegroundRef);
       this._ScreenspaceRef?.destroy();
@@ -787,14 +794,18 @@ export default class PPNode extends PIXI.Container {
   }
 
   public drawScreenspace(): void {
-    if (this._ScreenspaceContainerRef && this._ScreenspaceRef) {
+    if (
+      this._ScreenspaceContainerRef &&
+      this._ScreenspaceRef &&
+      this._ScreenspaceRefBackground
+    ) {
+      this._ScreenspaceRefBackground.removeChildren();
       const graphics = new PIXI.Graphics();
-      graphics.name = 'foregroundGraphics';
       graphics.clear();
       graphics.beginFill(RANDOMMAINCOLORLIGHTHEX2, 1);
       const screenSpaceGridInPx = screenSpaceGridToPx(this.screenSpaceSettings);
-      this._ScreenspaceRef.x = screenSpaceGridInPx.x;
-      this._ScreenspaceRef.y = screenSpaceGridInPx.y;
+      this._ScreenspaceRefBackground.x = screenSpaceGridInPx.x;
+      this._ScreenspaceRefBackground.y = screenSpaceGridInPx.y;
       graphics.drawRoundedRect(
         0,
         0,
@@ -807,8 +818,8 @@ export default class PPNode extends PIXI.Container {
         this.getNodeTextString(),
         NODE_TEXTSTYLE
       );
-      this._ScreenspaceRef.addChildAt(graphics, 0);
-      this._ScreenspaceRef.addChildAt(inputNameText, 1);
+      this._ScreenspaceRefBackground.addChildAt(graphics, 0);
+      this._ScreenspaceRefBackground.addChildAt(inputNameText, 1);
     }
   }
 

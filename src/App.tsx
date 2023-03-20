@@ -377,6 +377,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       worldHeight: window.innerHeight,
       events: pixiApp.current.renderer.events,
     });
+    viewport.current.name = 'pixiViewport';
 
     // add the viewport to the stage
     pixiApp.current.stage.addChild(viewport.current);
