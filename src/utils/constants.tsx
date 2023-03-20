@@ -50,6 +50,9 @@ export const RANDOMMAINCOLOR = COLOR[Math.floor(Math.random() * COLOR.length)];
 export const RANDOMMAINCOLORLIGHTHEX = PIXI.utils.string2hex(
   Color(RANDOMMAINCOLOR).mix(Color('white'), 0.9).hex()
 );
+export const RANDOMMAINCOLORLIGHTHEX2 = PIXI.utils.string2hex(
+  Color(RANDOMMAINCOLOR).mix(Color('white'), 0.5).hex()
+);
 
 export const customTheme = createTheme(darkThemeOverride, {
   palette: {

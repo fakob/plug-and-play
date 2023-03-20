@@ -26,7 +26,7 @@ import {
   NODE_WIDTH,
   SOCKET_HEIGHT,
   SOCKET_TYPE,
-  RANDOMMAINCOLORLIGHTHEX,
+  RANDOMMAINCOLORLIGHTHEX2,
 } from '../utils/constants';
 import UpdateBehaviourClass from './UpdateBehaviourClass';
 import NodeSelectionHeaderClass from './NodeSelectionHeaderClass';
@@ -791,7 +791,7 @@ export default class PPNode extends PIXI.Container {
       const graphics = new PIXI.Graphics();
       graphics.name = 'foregroundGraphics';
       graphics.clear();
-      graphics.beginFill(RANDOMMAINCOLORLIGHTHEX, 1);
+      graphics.beginFill(RANDOMMAINCOLORLIGHTHEX2, 1);
       const screenSpaceGridInPx = screenSpaceGridToPx(this.screenSpaceSettings);
       this._ScreenspaceRef.x = screenSpaceGridInPx.x;
       this._ScreenspaceRef.y = screenSpaceGridInPx.y;

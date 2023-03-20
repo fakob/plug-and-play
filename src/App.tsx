@@ -425,7 +425,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     pixiApp.current.stage.addChild(screenspaceContainer.current);
 
     // add pixiApp to canvas
-    pixiContext.current.appendChild(pixiApp.current.view);
+    pixiContext.current.appendChild(pixiApp.current.view as any);
 
     // add overlayCommentContainer to the stage
     overlayCommentContainer.current = new PIXI.Container();
