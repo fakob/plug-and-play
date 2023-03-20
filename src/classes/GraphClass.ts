@@ -221,7 +221,6 @@ export default class PPGraph {
 
     this.viewport.cursor = 'default';
     this.viewport.plugins.resume('drag');
-    this.dragSourcePoint = undefined;
     InterfaceController.notifyListeners(ListenEvent.ViewportDragging, false);
   }
 
