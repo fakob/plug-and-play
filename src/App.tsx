@@ -758,7 +758,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     } else {
       if (selected.isNew) {
         PPGraph.currentGraph.clear();
-        PPStorage.getInstance().saveNewGraph(selected.name);
+        PPStorage.getInstance().saveNewGraph(selected.id);
         // remove selection flag
         selected.isNew = undefined;
       } else {
