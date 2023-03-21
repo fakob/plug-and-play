@@ -31,6 +31,18 @@ export default abstract class HybridNode2 extends PPNode {
     this.initialData = customArgs?.initialData;
   }
 
+  redraw({ screenX = 0, screenY = 0, scale = 1 }) {
+    if (this.container.style.transform != `scale(${scale.toPrecision(3)})`) {
+      this.container.style.transform = `scale(${scale.toPrecision(3)})`;
+    }
+    if (this.container.style.left != pixiToContainerNumber(screenX)) {
+      this.container.style.left = pixiToContainerNumber(screenX);
+    }
+    if (this.container.style.top != pixiToContainerNumber(screenY)) {
+      this.container.style.top = pixiToContainerNumber(screenY);
+    }
+  }
+
   // this function can be called for hybrid nodes, it
   // • creates a container component
   // • adds the onNodeDragOrViewportMove listener to it
@@ -43,7 +55,6 @@ export default abstract class HybridNode2 extends PPNode {
     this.root = createRoot(this.container!);
     this.container.id = `Container-${this.id}`;
 
-    const screenPoint = this.screenPoint();
     const scale = PPGraph.currentGraph.viewportScaleX;
     this.container.classList.add(styles.hybridContainer);
     Object.assign(this.container.style, customStyles);
@@ -51,26 +62,9 @@ export default abstract class HybridNode2 extends PPNode {
     // set initial position
     this.container.style.width = `${this.nodeWidth}px`;
     this.container.style.height = `${this.nodeHeight}px`;
-    //this.container.style.transform = `translate(50%, 50%)`;
     this.container.style.transform = `scale(${scale}`;
-    this.container.style.left = `${screenPoint.x}px`;
-    this.container.style.top = `${screenPoint.y}px`;
 
-    this.onNodeDragOrViewportMove = ({
-      screenX = 0,
-      screenY = 0,
-      scale = 1,
-    }) => {
-      if (this.container.style.transform != `scale(${scale.toPrecision(3)})`) {
-        this.container.style.transform = `scale(${scale.toPrecision(3)})`;
-      }
-      if (this.container.style.left != pixiToContainerNumber(screenX)) {
-        this.container.style.left = pixiToContainerNumber(screenX);
-      }
-      if (this.container.style.top != pixiToContainerNumber(screenY)) {
-        this.container.style.top = pixiToContainerNumber(screenY);
-      }
-    };
+    this.onNodeDragOrViewportMove = this.redraw;
 
     this.onViewportPointerUpHandler = this.onViewportPointerUp.bind(this);
 
@@ -87,6 +81,8 @@ export default abstract class HybridNode2 extends PPNode {
       this.root,
       this
     );
+
+    this.refreshNodeDragOrViewportMove();
 
     return this.container;
   }

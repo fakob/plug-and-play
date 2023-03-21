@@ -560,6 +560,15 @@ export default class PPNode extends PIXI.Container {
     );
   }
 
+  protected refreshNodeDragOrViewportMove(){
+    const screenPoint = this.screenPoint();
+    this.onNodeDragOrViewportMove({
+      screenX: screenPoint.x,
+      screenY: screenPoint.y,
+      scale: PPGraph.currentGraph.viewportScaleX,
+    });
+  }
+
   public setPosition(x: number, y: number, isRelative = false): void {
     this.x = isRelative ? this.x + x : x;
     this.y = isRelative ? this.y + y : y;
@@ -569,13 +578,6 @@ export default class PPNode extends PIXI.Container {
     if (this.shouldExecuteOnMove()) {
       this.executeOptimizedChain();
     }
-
-    const screenPoint = this.screenPoint();
-    this.onNodeDragOrViewportMove({
-      screenX: screenPoint.x,
-      screenY: screenPoint.y,
-      scale: PPGraph.currentGraph.viewportScaleX,
-    });
   }
 
   resizeAndDraw(

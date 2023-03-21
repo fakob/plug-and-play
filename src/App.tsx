@@ -746,6 +746,9 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
   }
 
   const handleGraphItemSelect = (event, selected: IGraphSearch) => {
+    if (!selected) {
+      return;
+    }
     console.log(selected);
     setIsGraphSearchOpen(false);
 
