@@ -1,6 +1,7 @@
 import { CustomFunction } from '../data/dataFunctions';
 import { NODE_TYPE_COLOR } from '../../utils/constants';
 import { TRgba } from '../../utils/interfaces';
+import UpdateBehaviourClass from '../../classes/UpdateBehaviourClass';
 
 export class OpenURL extends CustomFunction {
   protected getDefaultFunction(): string {
@@ -24,5 +25,9 @@ export class OpenURL extends CustomFunction {
 
   getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.SYSTEM);
+  }
+
+  protected getUpdateBehaviour(): UpdateBehaviourClass {
+    return new UpdateBehaviourClass(false, false, 1000);
   }
 }
