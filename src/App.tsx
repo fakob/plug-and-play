@@ -183,6 +183,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         const extension = file.name
           .slice(((file.name.lastIndexOf('.') - 1) >>> 0) + 2)
           .toLowerCase();
+        const preExtension = file.name.replace('.' + extension, '');
 
         // select what node to create
         const response = await fetch(objectURL);
@@ -192,7 +193,10 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         switch (extension) {
           case 'ppgraph':
             data = await response.text();
-            await PPStorage.getInstance().loadGraphFromData(JSON.parse(data));
+            await PPStorage.getInstance().loadGraphFromData(
+              JSON.parse(data),
+              preExtension
+            );
             break;
           case 'csv':
           case 'ods':
@@ -757,7 +761,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     } else {
       if (selected.isNew) {
         PPGraph.currentGraph.clear();
-        PPStorage.getInstance().saveNewGraph(selected.name);
+        PPStorage.getInstance().saveNewGraph(selected.id);
         // remove selection flag
         selected.isNew = undefined;
       } else {
@@ -939,11 +943,9 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       console.log(allGraphSearchItems);
       setGraphSearchItems(allGraphSearchItems);
 
-      const loadedGraphId = PPStorage.getInstance().getLoadedGraphID();
-      const loadedGraphIndex = allGraphSearchItems.findIndex(
-        (graph) => graph.id === loadedGraphId
+      setGraphSearchActiveItem(
+        newGraphSearchItems[PPGraph?.currentGraph?.id] ?? null
       );
-      setGraphSearchActiveItem(newGraphSearchItems[loadedGraphIndex] ?? null);
     }
   };
 

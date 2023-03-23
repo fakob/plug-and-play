@@ -179,39 +179,23 @@ export default class PPStorage {
   };
 
   downloadGraph() {
-    this.db
-      .transaction('rw', this.db.graphs, this.db.settings, async () => {
-        const loadedGraphId = await this.getLoadedGraphID();
-        const graph = await this.db.graphs
-          .where('id')
-          .equals(loadedGraphId)
-          .first();
-
-        const serializedGraph = PPGraph.currentGraph.serialize();
-        downloadFile(
-          JSON.stringify(serializedGraph, null, 2),
-          `${graph?.name} - ${formatDate()}.ppgraph`,
-          'text/plain'
-        );
-        InterfaceController.showSnackBar(
-          'Playground was saved to your Download folder'
-        );
-      })
-      .catch((e) => {
-        console.log(e.stack || e);
-      });
+    const serializedGraph = PPGraph.currentGraph.serialize();
+    downloadFile(
+      JSON.stringify(serializedGraph, null, 2),
+      `${PPGraph.currentGraph.id} - ${formatDate()}.ppgraph`,
+      'text/plain'
+    );
+    InterfaceController.showSnackBar(
+      'Current Playground was saved to your Download folder'
+    );
   }
 
   deleteGraph(graphId: string): string {
     this.db
       .transaction('rw', this.db.graphs, this.db.settings, async () => {
-        const loadedGraphId = await this.getLoadedGraphID();
-
         const id = await this.db.graphs.where('id').equals(graphId).delete();
         console.log(`Deleted graph: ${id}`);
         InterfaceController.showSnackBar('Playground was deleted');
-
-        return loadedGraphId;
       })
       .catch((e) => {
         console.log(e.stack || e);
@@ -220,13 +204,10 @@ export default class PPStorage {
     return undefined;
   }
 
-  async loadGraphFromData(fileData: SerializedGraph) {
+  async loadGraphFromData(fileData: SerializedGraph, id: string) {
     if (checkForUnsavedChanges()) {
       try {
-        PPGraph.currentGraph.configure(fileData);
-
-        // unset loadedGraphId
-        await this.setLoadedGraphID(undefined);
+        PPGraph.currentGraph.configure(fileData, id);
 
         const newName = hri.random();
         InterfaceController.showSnackBar('Playground was loaded', {
@@ -257,7 +238,7 @@ export default class PPStorage {
     try {
       const file = await fetch(loadURL, {});
       const fileData = await file.json();
-      return await this.loadGraphFromData(fileData);
+      return await this.loadGraphFromData(fileData, hri.random());
     } catch (error) {
       InterfaceController.showSnackBar(
         `Loading playground from link in URL failed: ${loadURL}`,
@@ -276,11 +257,10 @@ export default class PPStorage {
       await this.db
         .transaction('rw', this.db.graphs, this.db.settings, async () => {
           const graphs = await this.db.graphs.toArray();
-          const loadedGraphId = await this.getLoadedGraphID();
 
           if (graphs.length > 0) {
             loadedGraph = graphs.find(
-              (graph) => graph.id === (id || loadedGraphId)
+              (graph) => graph.id === (id || PPGraph?.currentGraph?.id)
             );
 
             // check if graph exists and load last saved graph if it does not
@@ -289,9 +269,6 @@ export default class PPStorage {
                 return new Date(a.date) > new Date(b.date) ? a : b;
               });
             }
-
-            // update loadedGraphId
-            await this.setLoadedGraphID(loadedGraph.id);
           } else {
             console.log('No saved graphData');
           }
@@ -301,7 +278,7 @@ export default class PPStorage {
         });
       if (loadedGraph) {
         const graphData = loadedGraph.graphData;
-        await PPGraph.currentGraph.configure(graphData, false);
+        await PPGraph.currentGraph.configure(graphData, loadedGraph.id, false);
 
         InterfaceController.notifyListeners(ListenEvent.GraphChanged, {
           id: loadedGraph.id,
@@ -346,24 +323,19 @@ export default class PPStorage {
     this.db
       .transaction('rw', this.db.graphs, this.db.settings, async () => {
         const graphs = await this.db.graphs.toArray();
-        const loadedGraphId = await this.getLoadedGraphID();
+        const id = PPGraph.currentGraph.id;
 
-        const id = hri.random();
         const tempName = id.substring(0, id.lastIndexOf('-')).replace('-', ' ');
-
-        const loadedGraph = graphs.find((graph) => graph.id === loadedGraphId);
+        const loadedGraph = graphs.find((graph) => graph.id === id);
 
         if (saveNew || graphs.length === 0 || loadedGraph === undefined) {
           const name = newName ?? tempName;
-          const indexId = await this.db.graphs.put({
+          await this.db.graphs.put({
             id,
             date: new Date(),
             name,
             graphData: serializedGraph,
           });
-
-          // save loadedGraphId
-          await this.setLoadedGraphID(id);
 
           InterfaceController.notifyListeners(ListenEvent.GraphChanged, {
             id,
@@ -372,13 +344,10 @@ export default class PPStorage {
 
           InterfaceController.showSnackBar('New playground was saved');
         } else {
-          const indexId = await this.db.graphs
-            .where('id')
-            .equals(loadedGraphId)
-            .modify({
-              date: new Date(),
-              graphData: serializedGraph,
-            });
+          const indexId = await this.db.graphs.where('id').equals(id).modify({
+            date: new Date(),
+            graphData: serializedGraph,
+          });
           console.log(`Updated currentGraph: ${indexId}`);
           InterfaceController.showSnackBar('Playground was saved');
         }
@@ -397,10 +366,7 @@ export default class PPStorage {
     if (checkForUnsavedChanges()) {
       const nameOfFileToClone = remoteGraphsRef.current[id];
       const fileData = await this.getRemoteGraph(nameOfFileToClone);
-      PPGraph.currentGraph.configure(fileData);
-
-      // unset loadedGraphId
-      await this.setLoadedGraphID(undefined);
+      PPGraph.currentGraph.configure(fileData, hri.random());
 
       const newName = `${removeExtension(remoteGraphsRef.current[id])} - copy`; // remove .ppgraph extension and add copy
       InterfaceController.showSnackBar('Remote playground was loaded', {
@@ -421,18 +387,6 @@ export default class PPStorage {
     return await PPStorage.getInstance()
       .db.graphs.toCollection()
       .sortBy('date');
-  }
-
-  async getLoadedGraphID(): Promise<string> {
-    return await getSetting(PPStorage.getInstance().db, 'loadedGraphId');
-  }
-
-  async setLoadedGraphID(loadedGraphId): Promise<void> {
-    await PPStorage.getInstance().db.settings.put({
-      name: 'loadedGraphId',
-      value: loadedGraphId,
-    });
-    return;
   }
 
   static viewport: Viewport; // WARNING, HACK, this should not be saved, TODO improve

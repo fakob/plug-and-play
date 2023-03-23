@@ -48,6 +48,7 @@ export default class PPGraph {
   nodes: { [key: string]: PPNode } = {};
   macros: { [key: string]: Macro } = {};
   foregroundCanvas: PIXI.Container;
+  id: string;
 
   tempConnection: PIXI.Graphics;
   selection: PPSelection;
@@ -57,6 +58,7 @@ export default class PPGraph {
   constructor(app: PIXI.Application, viewport: Viewport) {
     this.app = app;
     this.viewport = viewport;
+    this.id = hri.random();
     console.log('Graph created');
 
     this._showComments = true;
@@ -219,7 +221,6 @@ export default class PPGraph {
 
     this.viewport.cursor = 'default';
     this.viewport.plugins.resume('drag');
-    this.dragSourcePoint = undefined;
     InterfaceController.notifyListeners(ListenEvent.ViewportDragging, false);
   }
 
@@ -939,10 +940,10 @@ export default class PPGraph {
     // this is a heavy-handed way of making this undoable, save the complete graph before and after operation
     ActionHandler.performAction(
       async () => {
-        PPGraph.currentGraph.configure(graphAfter, false);
+        PPGraph.currentGraph.configure(graphAfter, this.id, false);
       },
       async () => {
-        PPGraph.currentGraph.configure(graphPre, false);
+        PPGraph.currentGraph.configure(graphPre, this.id, false);
       },
       false
     );
@@ -1025,8 +1026,13 @@ export default class PPGraph {
     return this.serializeNodes(this.selection.selectedNodes);
   }
 
-  async configure(data: SerializedGraph, keep_old = false): Promise<boolean> {
+  async configure(
+    data: SerializedGraph,
+    id: string,
+    keep_old = false
+  ): Promise<boolean> {
     this.ticking = false;
+    this.id = id;
 
     if (!keep_old) {
       this.clear();
