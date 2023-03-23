@@ -748,6 +748,9 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
   const handleGraphItemSelect = (event, selected: IGraphSearch) => {
     console.log(selected);
     setIsGraphSearchOpen(false);
+    if (!selected) {
+      return;
+    }
 
     if (selected.isRemote) {
       PPStorage.getInstance().cloneRemoteGraph(selected.id, remoteGraphsRef);
