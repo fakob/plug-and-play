@@ -578,6 +578,8 @@ export default class PPNode extends PIXI.Container {
     if (this.shouldExecuteOnMove()) {
       this.executeOptimizedChain();
     }
+
+    this.refreshNodeDragOrViewportMove();
   }
 
   resizeAndDraw(
