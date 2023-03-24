@@ -81,17 +81,17 @@ export default class PPNode extends PIXI.Container {
   protected statuses: NodeStatus[] = []; // you can add statuses into this and they will be rendered on the node
 
   // supported callbacks
-  onConfigure: (nodeConfig: SerializedNode) => void = () => {}; // called after the node has been configured
-  onNodeDoubleClick: (event: PIXI.FederatedPointerEvent) => void = () => {};
+  onConfigure: (nodeConfig: SerializedNode) => void = () => { }; // called after the node has been configured
+  onNodeDoubleClick: (event: PIXI.FederatedPointerEvent) => void = () => { };
   onViewportMoveHandler: (event?: PIXI.FederatedPointerEvent) => void =
-    () => {};
+    () => { };
   onViewportPointerUpHandler: (event?: PIXI.FederatedPointerEvent) => void =
-    () => {};
-  onNodeRemoved: () => void = () => {}; // called when the node is removed from the graph
-  onNodeResize: (width: number, height: number) => void = () => {}; // called when the node is resized
+    () => { };
+  onNodeRemoved: () => void = () => { }; // called when the node is removed from the graph
+  onNodeResize: (width: number, height: number) => void = () => { }; // called when the node is resized
   onNodeDragOrViewportMove: // called when the node or or the viewport with the node is moved or scaled
-  (positions: { screenX: number; screenY: number; scale: number }) => void =
-    () => {};
+    (positions: { screenX: number; screenY: number; scale: number }) => void =
+    () => { };
 
   // called when the node is added to the graph
   public onNodeAdded(source: TNodeSource = NODE_SOURCE.SERIALIZED): void {
@@ -105,7 +105,7 @@ export default class PPNode extends PIXI.Container {
     return false;
   }
 
-  protected onNodeExit(): void {}
+  protected onNodeExit(): void { }
 
   ////////////////////////////// Meant to be overriden for visual/behavioral needs
 
@@ -560,7 +560,7 @@ export default class PPNode extends PIXI.Container {
     );
   }
 
-  protected refreshNodeDragOrViewportMove(){
+  public refreshNodeDragOrViewportMove() {
     const screenPoint = this.screenPoint();
     this.onNodeDragOrViewportMove({
       screenX: screenPoint.x,
@@ -936,7 +936,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     if (
       this.updateBehaviour.interval &&
       currentTime - this.lastTimeTicked >=
-        this.updateBehaviour.intervalFrequency
+      this.updateBehaviour.intervalFrequency
     ) {
       this.lastTimeTicked = currentTime;
       this.executeOptimizedChain();
@@ -1176,7 +1176,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     );
   }
 
-  public async invokeMacro(inputObject: any): Promise<any> {}
+  public async invokeMacro(inputObject: any): Promise<any> { }
 
   public metaInfoChanged(): void {
     this.resizeAndDraw();
@@ -1201,5 +1201,5 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   }
 
   // kinda hacky but some cant easily serialize functions in JS
-  protected initializeType(socketName: string, datatype: any) {}
+  protected initializeType(socketName: string, datatype: any) { }
 }
