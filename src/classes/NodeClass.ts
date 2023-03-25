@@ -1176,7 +1176,9 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     );
   }
 
-  public async invokeMacro(inputObject: any): Promise<any> { }
+  public async invokeMacro(inputObject: any): Promise<any> {
+    return await PPGraph.currentGraph.invokeMacro(inputObject);
+  }
 
   public metaInfoChanged(): void {
     this.resizeAndDraw();
