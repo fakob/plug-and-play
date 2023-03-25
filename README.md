@@ -6,6 +6,7 @@ Work in progress - https://plugandplayground.dev
 ## Problems to solve
 - As a user with no/little programming knowledge I am creatively limited by prototyping or design tools.
 - As a programmer the threshold for fast and creative prototyping with code is too high.
+- As a user who wants to visualize and/or interact with data, CSV or .xlsx in a visual, quick and easy way.
 
 ## Goals to reach
 - Provide an extensive library of nodes to receive, transform and output data
@@ -23,3 +24,7 @@ Work in progress - https://plugandplayground.dev
 - `yarn test` - run tests
 - `yarn code-coverage` - generate code coverage report
 - `yarn code-style-check` - run's eslint and prettier check on your code
+
+## Resources:
+
+- https://github.com/magnificus/pnp-companion-2 - a companion application which provides a way to get around CORS issues and handles things like authentication to API's when applicable.
