@@ -59,10 +59,10 @@ export default abstract class HybridNode2 extends PPNode {
         const { x, y, width, height } = screenSpaceGridToPx(
           this.screenSpaceSettings
         );
-        this.container.style.left = `${x}px`;
-        this.container.style.top = `${y}px`;
-        this.container.style.width = `${width}px`;
-        this.container.style.height = `${height}px`;
+        this.container.style.left = `${(width - this.nodeWidth) / 2 + x}px`;
+        this.container.style.top = `${(height - this.nodeHeight) / 2 + y}px`;
+        this.container.style.width = `${this.nodeWidth}px`;
+        this.container.style.height = `${this.nodeHeight}px`;
       }
     }
   }
@@ -110,6 +110,7 @@ export default abstract class HybridNode2 extends PPNode {
       } else {
         this.container.style.zIndex = 'unset';
       }
+      this.refreshNodeDragOrViewportMove();
     };
 
     this.onViewportPointerUpHandler = this.onViewportPointerUp.bind(this);

@@ -868,11 +868,17 @@ export function getScreenSpacePosition(node: PPNode): ScreenSpaceSettings {
   const boxes = Object.values(PPGraph.currentGraph.nodes)
     .filter((node) => node.pinned === true)
     .map((node) => node.screenSpaceSettings);
-  const nodeBounds = node._ForegroundRef.getLocalBounds();
+  const nodeBounds = node._BackgroundGraphicsRef.getLocalBounds();
+  // const nodeBounds = node._ForegroundRef.getLocalBounds();
   const { width, height } = pxToScreenSpace(
     nodeBounds.width || node.nodeWidth,
     nodeBounds.height || node.nodeHeight
   );
-  const nextFreeSpace = getNextFreeSpace(width, height, boxes);
+  console.log(width, height, boxes);
+  const nextFreeSpace = getNextFreeSpace(
+    Math.ceil(width) + 1,
+    Math.ceil(height) + 1,
+    boxes
+  );
   return nextFreeSpace;
 }

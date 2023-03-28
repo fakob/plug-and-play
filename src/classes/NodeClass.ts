@@ -804,8 +804,8 @@ export default class PPNode extends PIXI.Container {
       graphics.clear();
       graphics.beginFill(RANDOMMAINCOLORLIGHTHEX2, 1);
       const screenSpaceGridInPx = screenSpaceGridToPx(this.screenSpaceSettings);
-      this._ScreenspaceRefBackground.x = screenSpaceGridInPx.x;
-      this._ScreenspaceRefBackground.y = screenSpaceGridInPx.y;
+      this._ScreenspaceRef.x = screenSpaceGridInPx.x;
+      this._ScreenspaceRef.y = screenSpaceGridInPx.y;
       graphics.drawRoundedRect(
         0,
         0,
