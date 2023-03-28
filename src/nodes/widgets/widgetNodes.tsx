@@ -39,6 +39,7 @@ import { BooleanType } from '../datatypes/booleanType';
 import { NumberType } from '../datatypes/numberType';
 import { StringType } from '../datatypes/stringType';
 import { ColorType } from '../datatypes/colorType';
+import UpdateBehaviourClass from '../../classes/UpdateBehaviourClass';
 
 const selectedName = 'Initial selection';
 const initialValueName = 'Initial value';
@@ -59,6 +60,10 @@ const margin = 4;
 const defaultOptions = ['Option1', 'Option2', 'Option3'];
 
 export class WidgetButton extends Widget_Base {
+  protected getUpdateBehaviour(): UpdateBehaviourClass {
+    return new UpdateBehaviourClass(false, false, 1000);
+  }
+
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, offValueName, new AnyType(), 0, false),
