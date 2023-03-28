@@ -98,7 +98,7 @@ export default class PPNode extends PIXI.Container {
     if (this.executeOnPlace()) {
       this.executeOptimizedChain();
     }
-    this.resizeAndDraw(this.getDefaultNodeWidth(), this.getDefaultNodeHeight());
+    this.resizeAndDraw();
   }
 
   public executeOnPlace(): boolean {
