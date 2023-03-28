@@ -374,7 +374,7 @@ export default class PPNode extends PIXI.Container {
   set pinned(state: boolean) {
     if (state) {
       this._ScreenspaceContainerRef =
-        this.parent?.parent?.parent?.getChildByName('ScreenspaceContainer');
+        PPGraph.currentGraph.app.stage.getChildByName('ScreenspaceContainer');
       if (this._ScreenspaceContainerRef) {
         this._ScreenspaceRef = this._ScreenspaceContainerRef.addChild(
           new PIXI.Container()
