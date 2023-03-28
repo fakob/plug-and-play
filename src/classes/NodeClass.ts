@@ -1029,7 +1029,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
       this.drawComment();
     } catch (error) {
       this.lastError = error;
-      console.log('node ' + this.id + ' execution error: ' + error);
+      console.log('node ' + this.id + ' execution error: ' + error.stack);
       this.successfullyExecuted = false;
     }
     if (
