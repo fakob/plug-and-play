@@ -28,6 +28,7 @@ import {
   SOCKET_TYPE,
   RANDOMMAINCOLORLIGHTHEX2,
 } from '../utils/constants';
+import PinnedClass from './PinnedClass';
 import UpdateBehaviourClass from './UpdateBehaviourClass';
 import NodeSelectionHeaderClass from './NodeSelectionHeaderClass';
 import PPGraph from './GraphClass';
@@ -75,6 +76,7 @@ export default class PPNode extends PIXI.Container {
   nodeHeight: number;
 
   updateBehaviour: UpdateBehaviourClass;
+  pinnedBackground: PinnedClass;
   nodeSelectionHeader: NodeSelectionHeaderClass;
   lastTimeTicked = 0;
 
@@ -800,26 +802,11 @@ export default class PPNode extends PIXI.Container {
       this._ScreenspaceRefBackground
     ) {
       this._ScreenspaceRefBackground.removeChildren();
-      const graphics = new PIXI.Graphics();
-      graphics.clear();
-      graphics.beginFill(RANDOMMAINCOLORLIGHTHEX2, 1);
+      this.pinnedBackground = new PinnedClass(this);
+      this._ScreenspaceRefBackground.addChildAt(this.pinnedBackground, 0);
       const screenSpaceGridInPx = screenSpaceGridToPx(this.screenSpaceSettings);
       this._ScreenspaceRef.x = screenSpaceGridInPx.x;
       this._ScreenspaceRef.y = screenSpaceGridInPx.y;
-      graphics.drawRoundedRect(
-        0,
-        0,
-        screenSpaceGridInPx.width,
-        screenSpaceGridInPx.height,
-        0
-      );
-      graphics.endFill();
-      const inputNameText = new PIXI.Text(
-        this.getNodeTextString(),
-        NODE_TEXTSTYLE
-      );
-      this._ScreenspaceRefBackground.addChildAt(graphics, 0);
-      this._ScreenspaceRefBackground.addChildAt(inputNameText, 1);
     }
   }
 

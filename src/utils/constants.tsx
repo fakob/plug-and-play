@@ -149,6 +149,7 @@ export const UPDATEBEHAVIOURHEADER_UPDATE =
   '../assets/UpdateBehaviour_Update.png';
 export const UPDATEBEHAVIOURHEADER_NOUPDATE =
   '../assets/UpdateBehaviour_NoUpdate.png';
+export const PINNED = '../assets/Pinned.png';
 
 export const NODE_TEXTSTYLE = new TextStyle({
   fontSize: 13,
