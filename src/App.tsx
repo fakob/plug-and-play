@@ -152,11 +152,12 @@ const App = (): JSX.Element => {
     const viewportScreenX = Math.round(viewport.current.x);
     const viewportScreenY = Math.round(viewport.current.y);
     const viewportScale = roundNumber(viewport.current.scale.x);
-    pixiDebugRef.text = `Mouse position (world): ${mousePosition.x}, ${mousePosition.y
-      } (${mouseWorldX}, ${mouseWorldY})
+    pixiDebugRef.text = `Mouse position (world): ${mousePosition.x}, ${
+      mousePosition.y
+    } (${mouseWorldX}, ${mouseWorldY})
 Viewport position (scale): ${viewportScreenX}, ${Math.round(
-        viewportScreenY
-      )} (${viewportScale})`;
+      viewportScreenY
+    )} (${viewportScale})`;
   };
 
   // react-dropzone
@@ -259,7 +260,8 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         PPGraph.currentGraph.selection.selectNodes(newNodeSelection);
         ensureVisible(PPGraph.currentGraph.selection.selectedNodes);
         enqueueSnackbar(
-          `${newNodeSelection.length} new ${newNodeSelection.length === 1 ? 'node was' : 'nodes were'
+          `${newNodeSelection.length} new ${
+            newNodeSelection.length === 1 ? 'node was' : 'nodes were'
           } added`
         );
       }
@@ -283,19 +285,19 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     () => ({
       ...(isDragActive
         ? {
-          opacity: 0.5,
-        }
+            opacity: 0.5,
+          }
         : {}),
       ...(isDragAccept
         ? {
-          backgroundColor: RANDOMMAINCOLOR,
-          opacity: 0.5,
-        }
+            backgroundColor: RANDOMMAINCOLOR,
+            opacity: 0.5,
+          }
         : {}),
       ...(isDragReject
         ? {
-          backgroundColor: '#FF0000',
-        }
+            backgroundColor: '#FF0000',
+          }
         : {}),
     }),
     [isDragActive, isDragReject, isDragAccept]
@@ -307,18 +309,20 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
 
   // on mount
   useEffect(() => {
-    (async function () {
-      const res = await fetch('/api/me', {
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      const { sessionExpired } = await res.json();
-      if (!sessionExpired) {
-        setIsLoggedIn(true);
-      }
-    })();
+    if (process.env.NODE_ENV !== 'development') {
+      (async function () {
+        const res = await fetch('/api/me', {
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        const { sessionExpired } = await res.json();
+        if (!sessionExpired) {
+          setIsLoggedIn(true);
+        }
+      })();
+    }
 
     // create pixiApp
     pixiApp.current = new PIXI.Application({
@@ -612,9 +616,11 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     window.addEventListener('visibilitychange', () => {
       setTimeout(() => {
         //console.log("firing viz change");
-        const isVisible = document.visibilityState === "visible";
+        const isVisible = document.visibilityState === 'visible';
         if (isVisible && PPGraph.currentGraph) {
-          Object.values(PPGraph.currentGraph.nodes).forEach(node => node.refreshNodeDragOrViewportMove());
+          Object.values(PPGraph.currentGraph.nodes).forEach((node) =>
+            node.refreshNodeDragOrViewportMove()
+          );
         }
       }, 100);
     });
@@ -894,8 +900,9 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
             opacity: '0.5',
           }}
         >
-          {`${nodeSearchCountRef.current} of ${Object.keys(getAllNodeTypes()).length
-            }`}
+          {`${nodeSearchCountRef.current} of ${
+            Object.keys(getAllNodeTypes()).length
+          }`}
         </Box>
         {children}
       </Paper>
