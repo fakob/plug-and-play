@@ -172,23 +172,6 @@ export default abstract class HybridNode2 extends PPNode {
             <EditIcon sx={{ fontSize: '16px' }} />
           </Button>
         )}
-        {this.pinned && (
-          <Button
-            title={'Click to edit OR Double click node'}
-            className={styles.hybridContainerEditButton}
-            size="small"
-            onClick={() => (this.pinned = false)}
-            color="primary"
-            sx={{
-              background: RANDOMMAINCOLOR,
-              color: TRgba.fromString(RANDOMMAINCOLOR)
-                .getContrastTextColor()
-                .hex(),
-            }}
-          >
-            <PushPinIcon sx={{ fontSize: '16px' }} />
-          </Button>
-        )}
       </>
     );
   };
