@@ -209,7 +209,12 @@ export class ThrottleDebounce extends PPNode {
       this.updateDebounceFunction();
     }
     const input = inputObject['In'];
-    outputObject['Out'] = this.passThroughDebounced(input);
+    const output = this.passThroughDebounced(input);
+    if (output === undefined) {
+      outputObject['Out'] = input;
+    } else {
+      outputObject['Out'] = output;
+    }
   }
 }
 
