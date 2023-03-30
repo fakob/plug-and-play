@@ -814,19 +814,18 @@ export function getNextFreeSpace(
       }
     }
   }
-  return null;
+  return;
 }
 
 const gridSizeX = 40.0;
 const gridSizeY = 40.0;
-const topMargin = 140;
+const topMargin = 0;
 
 export function getGridMultiplier(): {
   multiplierWidth: number;
   multiplierHeight: number;
 } {
-  const multiplierWidth =
-    PPGraph.currentGraph.viewport.screenWidth / 2 / gridSizeX;
+  const multiplierWidth = PPGraph.currentGraph.viewport.screenWidth / gridSizeX;
   const multiplierHeight =
     (PPGraph.currentGraph.viewport.screenHeight - topMargin) / gridSizeY;
   return {
@@ -859,7 +858,7 @@ export function pxToScreenSpace(
 } {
   const { multiplierWidth, multiplierHeight } = getGridMultiplier();
   return {
-    width: Math.min(nodeWidth / multiplierWidth, gridSizeX),
+    width: Math.min(nodeWidth / multiplierWidth, gridSizeX - 1),
     height: Math.min(nodeHeight / multiplierHeight, gridSizeY),
   };
 }
@@ -880,5 +879,6 @@ export function getScreenSpacePosition(node: PPNode): ScreenSpaceSettings {
     Math.ceil(height) + 1,
     boxes
   );
+  console.log(nextFreeSpace);
   return nextFreeSpace;
 }

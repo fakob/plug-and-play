@@ -150,11 +150,12 @@ const App = (): JSX.Element => {
     const viewportScreenX = Math.round(viewport.current.x);
     const viewportScreenY = Math.round(viewport.current.y);
     const viewportScale = roundNumber(viewport.current.scale.x);
-    pixiDebugRef.text = `Mouse position (world): ${mousePosition.x}, ${mousePosition.y
-      } (${mouseWorldX}, ${mouseWorldY})
+    pixiDebugRef.text = `Mouse position (world): ${mousePosition.x}, ${
+      mousePosition.y
+    } (${mouseWorldX}, ${mouseWorldY})
 Viewport position (scale): ${viewportScreenX}, ${Math.round(
-        viewportScreenY
-      )} (${viewportScale})`;
+      viewportScreenY
+    )} (${viewportScale})`;
   };
 
   // react-dropzone
@@ -257,7 +258,8 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         PPGraph.currentGraph.selection.selectNodes(newNodeSelection);
         ensureVisible(PPGraph.currentGraph.selection.selectedNodes);
         enqueueSnackbar(
-          `${newNodeSelection.length} new ${newNodeSelection.length === 1 ? 'node was' : 'nodes were'
+          `${newNodeSelection.length} new ${
+            newNodeSelection.length === 1 ? 'node was' : 'nodes were'
           } added`
         );
       }
@@ -281,19 +283,19 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     () => ({
       ...(isDragActive
         ? {
-          opacity: 0.5,
-        }
+            opacity: 0.5,
+          }
         : {}),
       ...(isDragAccept
         ? {
-          backgroundColor: RANDOMMAINCOLOR,
-          opacity: 0.5,
-        }
+            backgroundColor: RANDOMMAINCOLOR,
+            opacity: 0.5,
+          }
         : {}),
       ...(isDragReject
         ? {
-          backgroundColor: '#FF0000',
-        }
+            backgroundColor: '#FF0000',
+          }
         : {}),
     }),
     [isDragActive, isDragReject, isDragAccept]
@@ -471,6 +473,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       x: 0,
       y: 0,
       zoom: 5,
+      transparency: 0.05,
     };
     const gridShader = PIXI.Shader.from(
       BASIC_VERTEX_SHADER,
@@ -481,6 +484,23 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     gridQuad.name = 'debugGrid';
     gridQuad.visible = showComments;
     viewport.current.addChild(gridQuad);
+
+    const gridUniforms2 = {
+      x: 0,
+      y: 0,
+      zoom: 20,
+      transparency: 0.02,
+    };
+    const gridShader2 = PIXI.Shader.from(
+      BASIC_VERTEX_SHADER,
+      GRID_SHADER,
+      gridUniforms2
+    );
+    const gridQuad2 = new PIXI.Mesh(geometry, gridShader2);
+    screenspaceContainer.current.addChild(gridQuad2);
+    gridQuad2.width = viewport.current.screenWidth;
+    gridQuad2.height = viewport.current.screenHeight;
+    gridQuad2.eventMode = 'none';
 
     // add graph to pixiApp
     PPGraph.currentGraph = new PPGraph(pixiApp.current, viewport.current);
@@ -624,9 +644,11 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     window.addEventListener('visibilitychange', () => {
       setTimeout(() => {
         //console.log("firing viz change");
-        const isVisible = document.visibilityState === "visible";
+        const isVisible = document.visibilityState === 'visible';
         if (isVisible && PPGraph.currentGraph) {
-          Object.values(PPGraph.currentGraph.nodes).forEach(node => node.refreshNodeDragOrViewportMove());
+          Object.values(PPGraph.currentGraph.nodes).forEach((node) =>
+            node.refreshNodeDragOrViewportMove()
+          );
         }
       }, 100);
     });
@@ -764,6 +786,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
   useEffect(() => {
     PPGraph.currentGraph.showComments = showComments;
     overlayCommentContainer.current.visible = showComments;
+    viewport.current.getChildByName('debugGrid').visible = showComments;
   }, [showComments]);
 
   function uploadGraph() {
@@ -906,8 +929,9 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
             opacity: '0.5',
           }}
         >
-          {`${nodeSearchCountRef.current} of ${Object.keys(getAllNodeTypes()).length
-            }`}
+          {`${nodeSearchCountRef.current} of ${
+            Object.keys(getAllNodeTypes()).length
+          }`}
         </Box>
         {children}
       </Paper>

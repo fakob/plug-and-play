@@ -375,24 +375,35 @@ export default class PPNode extends PIXI.Container {
 
   set pinned(state: boolean) {
     if (state) {
-      this._ScreenspaceContainerRef =
-        PPGraph.currentGraph.app.stage.getChildByName('ScreenspaceContainer');
-      if (this._ScreenspaceContainerRef) {
-        this._ScreenspaceRef = this._ScreenspaceContainerRef.addChild(
-          new PIXI.Container()
-        );
-        this._ScreenspaceRef.name = `${this.name}-pinned`;
-
-        this._ScreenspaceRefBackground = this._ScreenspaceRef.addChild(
-          new PIXI.Container()
-        );
-        this._ScreenspaceRefBackground.name = 'background';
-      }
       this.screenSpaceSettings = getScreenSpacePosition(this);
+      if (this.screenSpaceSettings) {
+        this._ScreenspaceContainerRef =
+          PPGraph.currentGraph.app.stage.getChildByName('ScreenspaceContainer');
+        if (this._ScreenspaceContainerRef) {
+          this._ScreenspaceRef = this._ScreenspaceContainerRef.addChild(
+            new PIXI.Container()
+          );
+          this._ScreenspaceRef.name = `${this.name}-pinned`;
 
-      // reparent foreground to screen space
-      this.removeChild(this._ForegroundRef);
-      this._ScreenspaceRef.addChild(this._ForegroundRef);
+          this._ScreenspaceRefBackground = this._ScreenspaceRef.addChild(
+            new PIXI.Container()
+          );
+          this._ScreenspaceRefBackground.name = 'background';
+        }
+        // reparent foreground to screen space
+        this.removeChild(this._ForegroundRef);
+        this._ScreenspaceRef.addChild(this._ForegroundRef);
+        this._pinned = true;
+      } else {
+        // if there is no space, unpin the node again
+        InterfaceController.showSnackBar(
+          `Not enough space to pin ${this.name}!`,
+          {
+            variant: 'warning',
+          }
+        );
+        this._pinned = false;
+      }
     } else {
       this.screenSpaceSettings = undefined;
 
@@ -401,8 +412,8 @@ export default class PPNode extends PIXI.Container {
       this._ScreenspaceRef?.removeChild(this._ForegroundRef);
       this.addChild(this._ForegroundRef);
       this._ScreenspaceRef?.destroy();
+      this._pinned = false;
     }
-    this._pinned = state;
     this.onNodePinned(state);
     InterfaceController.pinnedChanged();
     this.resizeAndDraw();

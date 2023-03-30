@@ -375,6 +375,7 @@ export const GRID_SHADER = `
   precision mediump float;
   varying vec2 vUvs;
   uniform float zoom;
+  uniform float transparency;
 
   void main()
   {
@@ -383,7 +384,7 @@ export const GRID_SHADER = `
       vec2 uv = (vUvs-vec2(0.5))*2.0;
       vec2 gUv = floor(uv*zoom);
       vec4 color1 = vec4(0.0, 0.0, 0.0, 0.0);
-      vec4 color2 = vec4(0.0, 0.0, 0.0, 0.05);
+      vec4 color2 = vec4(0.0, 0.0, 0.0, transparency);
       vec4 outColor = mod(gUv.x + gUv.y, 2.) < 0.5 ? color1 : color2;
       gl_FragColor = outColor;
 
