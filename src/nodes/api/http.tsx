@@ -30,6 +30,8 @@ const HTTPMethodOptions: EnumStructure = [
   return { text: val, value: val };
 });
 
+const companionDefaultAddress = 'http://localhost:6655';
+
 export class HTTPNode extends PPNode {
   public getName(): string {
     return 'HTTP';
@@ -74,7 +76,7 @@ export class HTTPNode extends PPNode {
         SOCKET_TYPE.IN,
         sendThroughCompanionAddress,
         new StringType(),
-        'http://localhost:6655',
+        companionDefaultAddress,
         () => this.getInputData(sendThroughCompanionName)
       ),
       new Socket(SOCKET_TYPE.OUT, outputContentName, new JSONType(), ''),
@@ -163,11 +165,19 @@ export class ChatGPTNode extends HTTPNode {
   }
   protected getDefaultIO(): Socket[] {
     return [
-      new Socket(
+      new Socket(SOCKET_TYPE.IN, 'Input', new JSONType(), {
+        prompt: 'Give me a quick rundown of the battle of Hastings',
+        max_tokens: 10,
+        n: 1,
+        temperature: 0.8,
+        top_p: 1,
+      }),
+      Socket.getOptionalVisibilitySocket(
         SOCKET_TYPE.IN,
-        'Prompt',
+        sendThroughCompanionAddress,
         new StringType(),
-        'Give me a quick rundown of the battle of Hastings'
+        companionDefaultAddress,
+        () => this.getInputData(sendThroughCompanionName)
       ),
       new Socket(SOCKET_TYPE.OUT, outputContentName, new StringType(), ''),
     ];
@@ -177,7 +187,6 @@ export class ChatGPTNode extends HTTPNode {
     inputObject: any,
     outputObject: Record<string, unknown>
   ): Promise<void> {
-    const usingCompanion: boolean = inputObject[sendThroughCompanionName];
     this.statuses = [];
     let returnResponse = {};
     this.statuses.push({
@@ -186,26 +195,32 @@ export class ChatGPTNode extends HTTPNode {
     });
     try {
       const companionSpecific = {
-        finalHeaders: inputObject[headersInputName],
-        finalBody: JSON.stringify(inputObject[bodyInputName]),
-        finalURL: inputObject[urlInputName],
-        finalMethod: inputObject[methodName],
+        finalHeaders: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ${OPENAI_KEY}',
+        },
+        finalBody: JSON.stringify(inputObject['Input']),
+        finalURL:
+          'https://api.openai.com/v1/engines/text-davinci-002/completions',
+        finalMethod: 'Post',
       };
-      console.log('URL: ' + inputObject[urlInputName]);
-      console.log('Method: ' + inputObject[methodName]);
       const res = fetch(inputObject[sendThroughCompanionAddress], {
         method: 'Post',
-        headers: inputObject[headersInputName],
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify(companionSpecific),
       });
+      console.log(res.toString());
       const companionRes = await (await res).json();
       try {
+        this.pushStatusCode(companionRes.status);
         returnResponse = JSON.parse(companionRes.response);
       } catch (error) {
         returnResponse = companionRes.response;
       }
-      //console.log('awaitedres: ' + (await (await res).text()));
     } catch (error) {
+      console.log(error.stack);
       throw 'Unable to reach companion, is it running at designated address?';
     }
 
