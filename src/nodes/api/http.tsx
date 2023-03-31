@@ -20,6 +20,10 @@ const sendThroughCompanionName = 'Send Through Companion';
 const sendThroughCompanionAddress = 'Companion Location';
 const methodName = 'Method';
 
+const chatGPTPromptName = 'Prompt';
+const chatGPTOptionsName = 'Options';
+const chatGPTEnvironmentalVariableAuthKey = 'API Key Name';
+
 const HTTPMethodOptions: EnumStructure = [
   'Get',
   'Post',
@@ -158,26 +162,42 @@ export class ChatGPTNode extends HTTPNode {
     return 'ChatGPT - Companion';
   }
   public getDescription(): string {
-    return 'ChatGPT communication through P&P Companion';
+    return 'ChatGPT communication through P&P Companion, uses environmental variable for API key';
   }
   public socketShouldAutomaticallyAdapt(socket: Socket): boolean {
     return true;
   }
   protected getDefaultIO(): Socket[] {
     return [
-      new Socket(SOCKET_TYPE.IN, 'Input', new JSONType(), {
-        prompt: 'Give me a quick rundown of the battle of Hastings',
+      new Socket(
+        SOCKET_TYPE.IN,
+        urlInputName,
+        new StringType(),
+        'https://api.openai.com/v1/engines/text-davinci-002/completions'
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        chatGPTPromptName,
+        new StringType(),
+        'Give me a quick rundown of the battle of Hastings'
+      ),
+      new Socket(SOCKET_TYPE.IN, chatGPTOptionsName, new JSONType(), {
         max_tokens: 10,
         n: 1,
         temperature: 0.8,
         top_p: 1,
       }),
-      Socket.getOptionalVisibilitySocket(
+      new Socket(
+        SOCKET_TYPE.IN,
+        chatGPTEnvironmentalVariableAuthKey,
+        new StringType(),
+        'OPENAI_KEY'
+      ),
+      new Socket(
         SOCKET_TYPE.IN,
         sendThroughCompanionAddress,
         new StringType(),
-        companionDefaultAddress,
-        () => this.getInputData(sendThroughCompanionName)
+        companionDefaultAddress
       ),
       new Socket(SOCKET_TYPE.OUT, outputContentName, new StringType(), ''),
     ];
@@ -194,14 +214,18 @@ export class ChatGPTNode extends HTTPNode {
       statusText: 'Companion',
     });
     try {
+      const finalOptions = inputObject[chatGPTOptionsName];
+      finalOptions.prompt = inputObject[chatGPTPromptName];
       const companionSpecific = {
         finalHeaders: {
           'Content-Type': 'application/json',
-          Authorization: 'Bearer ${OPENAI_KEY}',
+          Authorization:
+            'Bearer ${' +
+            inputObject[chatGPTEnvironmentalVariableAuthKey] +
+            '}',
         },
-        finalBody: JSON.stringify(inputObject['Input']),
-        finalURL:
-          'https://api.openai.com/v1/engines/text-davinci-002/completions',
+        finalBody: JSON.stringify(finalOptions),
+        finalURL: inputObject[urlInputName],
         finalMethod: 'Post',
       };
       const res = fetch(inputObject[sendThroughCompanionAddress], {
@@ -211,7 +235,6 @@ export class ChatGPTNode extends HTTPNode {
         },
         body: JSON.stringify(companionSpecific),
       });
-      console.log(res.toString());
       const companionRes = await (await res).json();
       try {
         this.pushStatusCode(companionRes.status);
