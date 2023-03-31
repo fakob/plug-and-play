@@ -81,7 +81,7 @@ export class HTTPNode extends PPNode {
     ];
   }
 
-  private pushStatusCode(statusCode: number): void {
+  protected pushStatusCode(statusCode: number): void {
     this.statuses.push({
       color: statusCode > 400 ? errorColor : successColor,
       statusText: 'Status: ' + statusCode,
@@ -141,6 +141,72 @@ export class HTTPNode extends PPNode {
       const awaitedRes = await res;
       returnResponse = await awaitedRes.json();
       this.pushStatusCode(awaitedRes.status);
+    }
+
+    outputObject[outputContentName] = returnResponse;
+  }
+
+  getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
+  }
+}
+
+export class ChatGPTNode extends HTTPNode {
+  public getName(): string {
+    return 'ChatGPT - Companion';
+  }
+  public getDescription(): string {
+    return 'ChatGPT communication through P&P Companion';
+  }
+  public socketShouldAutomaticallyAdapt(socket: Socket): boolean {
+    return true;
+  }
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(
+        SOCKET_TYPE.IN,
+        'Prompt',
+        new StringType(),
+        'Give me a quick rundown of the battle of Hastings'
+      ),
+      new Socket(SOCKET_TYPE.OUT, outputContentName, new StringType(), ''),
+    ];
+  }
+
+  protected async onExecute(
+    inputObject: any,
+    outputObject: Record<string, unknown>
+  ): Promise<void> {
+    const usingCompanion: boolean = inputObject[sendThroughCompanionName];
+    this.statuses = [];
+    let returnResponse = {};
+    this.statuses.push({
+      color: TRgba.white().multiply(0.5),
+      statusText: 'Companion',
+    });
+    try {
+      const companionSpecific = {
+        finalHeaders: inputObject[headersInputName],
+        finalBody: JSON.stringify(inputObject[bodyInputName]),
+        finalURL: inputObject[urlInputName],
+        finalMethod: inputObject[methodName],
+      };
+      console.log('URL: ' + inputObject[urlInputName]);
+      console.log('Method: ' + inputObject[methodName]);
+      const res = fetch(inputObject[sendThroughCompanionAddress], {
+        method: 'Post',
+        headers: inputObject[headersInputName],
+        body: JSON.stringify(companionSpecific),
+      });
+      const companionRes = await (await res).json();
+      try {
+        returnResponse = JSON.parse(companionRes.response);
+      } catch (error) {
+        returnResponse = companionRes.response;
+      }
+      //console.log('awaitedres: ' + (await (await res).text()));
+    } catch (error) {
+      throw 'Unable to reach companion, is it running at designated address?';
     }
 
     outputObject[outputContentName] = returnResponse;
