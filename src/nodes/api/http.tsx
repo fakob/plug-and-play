@@ -1,5 +1,6 @@
 import PPNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
+import UpdateBehaviourClass from '../../classes/UpdateBehaviourClass';
 import {
   errorColor,
   NODE_TYPE_COLOR,
@@ -83,7 +84,7 @@ export class HTTPNode extends PPNode {
         companionDefaultAddress,
         () => this.getInputData(sendThroughCompanionName)
       ),
-      new Socket(SOCKET_TYPE.OUT, outputContentName, new JSONType(), ''),
+      new Socket(SOCKET_TYPE.OUT, outputContentName, new JSONType(), {}),
     ];
   }
 
@@ -164,9 +165,11 @@ export class ChatGPTNode extends HTTPNode {
   public getDescription(): string {
     return 'ChatGPT communication through P&P Companion, uses environmental variable for API key';
   }
-  public socketShouldAutomaticallyAdapt(socket: Socket): boolean {
-    return true;
+
+  protected getUpdateBehaviour(): UpdateBehaviourClass {
+    return new UpdateBehaviourClass(false, false, 1000);
   }
+
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(
@@ -182,7 +185,7 @@ export class ChatGPTNode extends HTTPNode {
         'Give me a quick rundown of the battle of Hastings'
       ),
       new Socket(SOCKET_TYPE.IN, chatGPTOptionsName, new JSONType(), {
-        max_tokens: 10,
+        max_tokens: 100,
         n: 1,
         temperature: 0.8,
         top_p: 1,
@@ -199,7 +202,7 @@ export class ChatGPTNode extends HTTPNode {
         new StringType(),
         companionDefaultAddress
       ),
-      new Socket(SOCKET_TYPE.OUT, outputContentName, new StringType(), ''),
+      new Socket(SOCKET_TYPE.OUT, outputContentName, new JSONType(), {}),
     ];
   }
 
@@ -238,6 +241,7 @@ export class ChatGPTNode extends HTTPNode {
       const companionRes = await (await res).json();
       try {
         this.pushStatusCode(companionRes.status);
+        //console.log('res: ' + companionRes.response);
         returnResponse = JSON.parse(companionRes.response);
       } catch (error) {
         returnResponse = companionRes.response;
