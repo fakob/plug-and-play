@@ -190,7 +190,7 @@ export class Table extends HybridNode2 {
         SOCKET_TYPE.IN,
         workBookInputSocketName,
         new JSONType(),
-        undefined,
+        {},
         false
       ),
       new PPSocket(

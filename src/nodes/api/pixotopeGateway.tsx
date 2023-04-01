@@ -31,7 +31,7 @@ export class PixotopeGatewayGet extends PPNode {
       ),
       new Socket(SOCKET_TYPE.IN, targetName, new StringType(), 'Store'),
       new Socket(SOCKET_TYPE.IN, nameName, new StringType(), 'State'),
-      new Socket(SOCKET_TYPE.OUT, outputContentName, new JSONType(), ''),
+      new Socket(SOCKET_TYPE.OUT, outputContentName, new JSONType(), {}),
     ];
   }
   protected async onExecute(
@@ -116,7 +116,7 @@ export class PixotopeGatewayCall extends PPNode {
         Fingerprint: 'Playground',
         Name: 'PlaygroundCamera',
       }),
-      new Socket(SOCKET_TYPE.OUT, outputContentName, new JSONType(), ''),
+      new Socket(SOCKET_TYPE.OUT, outputContentName, new JSONType(), {}),
     ];
   }
   protected async onExecute(

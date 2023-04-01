@@ -104,7 +104,7 @@ export class TextEditor extends HybridNode2 {
         SOCKET_TYPE.OUT,
         outputSocketName,
         new JSONType(),
-        undefined,
+        {},
         false
       ),
       new PPSocket(
