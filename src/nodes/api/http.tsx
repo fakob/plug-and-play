@@ -176,7 +176,7 @@ export class ChatGPTNode extends HTTPNode {
         SOCKET_TYPE.IN,
         urlInputName,
         new StringType(),
-        'https://api.openai.com/v1/engines/text-davinci-002/completions'
+        'https://api.openai.com/v1/engines/text-davinci-003/completions'
       ),
       new Socket(
         SOCKET_TYPE.IN,
