@@ -1,5 +1,6 @@
 import PPNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
+import UpdateBehaviourClass from '../../classes/UpdateBehaviourClass';
 import {
   errorColor,
   NODE_TYPE_COLOR,
@@ -20,6 +21,10 @@ const sendThroughCompanionName = 'Send Through Companion';
 const sendThroughCompanionAddress = 'Companion Location';
 const methodName = 'Method';
 
+const chatGPTPromptName = 'Prompt';
+const chatGPTOptionsName = 'Options';
+const chatGPTEnvironmentalVariableAuthKey = 'API Key Name';
+
 const HTTPMethodOptions: EnumStructure = [
   'Get',
   'Post',
@@ -29,6 +34,8 @@ const HTTPMethodOptions: EnumStructure = [
 ].map((val) => {
   return { text: val, value: val };
 });
+
+const companionDefaultAddress = 'http://localhost:6655';
 
 export class HTTPNode extends PPNode {
   public getName(): string {
@@ -74,14 +81,14 @@ export class HTTPNode extends PPNode {
         SOCKET_TYPE.IN,
         sendThroughCompanionAddress,
         new StringType(),
-        'http://localhost:6655',
+        companionDefaultAddress,
         () => this.getInputData(sendThroughCompanionName)
       ),
-      new Socket(SOCKET_TYPE.OUT, outputContentName, new JSONType(), ''),
+      new Socket(SOCKET_TYPE.OUT, outputContentName, new JSONType(), {}),
     ];
   }
 
-  private pushStatusCode(statusCode: number): void {
+  protected pushStatusCode(statusCode: number): void {
     this.statuses.push({
       color: statusCode > 400 ? errorColor : successColor,
       statusText: 'Status: ' + statusCode,
@@ -141,6 +148,107 @@ export class HTTPNode extends PPNode {
       const awaitedRes = await res;
       returnResponse = await awaitedRes.json();
       this.pushStatusCode(awaitedRes.status);
+    }
+
+    outputObject[outputContentName] = returnResponse;
+  }
+
+  getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
+  }
+}
+
+export class ChatGPTNode extends HTTPNode {
+  public getName(): string {
+    return 'ChatGPT - Companion';
+  }
+  public getDescription(): string {
+    return 'ChatGPT communication through P&P Companion, uses environmental variable for API key';
+  }
+
+  protected getUpdateBehaviour(): UpdateBehaviourClass {
+    return new UpdateBehaviourClass(false, false, 1000);
+  }
+
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(
+        SOCKET_TYPE.IN,
+        urlInputName,
+        new StringType(),
+        'https://api.openai.com/v1/engines/text-davinci-002/completions'
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        chatGPTPromptName,
+        new StringType(),
+        'Give me a quick rundown of the battle of Hastings'
+      ),
+      new Socket(SOCKET_TYPE.IN, chatGPTOptionsName, new JSONType(), {
+        max_tokens: 100,
+        n: 1,
+        temperature: 0.8,
+        top_p: 1,
+      }),
+      new Socket(
+        SOCKET_TYPE.IN,
+        chatGPTEnvironmentalVariableAuthKey,
+        new StringType(),
+        'OPENAI_KEY'
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        sendThroughCompanionAddress,
+        new StringType(),
+        companionDefaultAddress
+      ),
+      new Socket(SOCKET_TYPE.OUT, outputContentName, new JSONType(), {}),
+    ];
+  }
+
+  protected async onExecute(
+    inputObject: any,
+    outputObject: Record<string, unknown>
+  ): Promise<void> {
+    this.statuses = [];
+    let returnResponse = {};
+    this.statuses.push({
+      color: TRgba.white().multiply(0.5),
+      statusText: 'Companion',
+    });
+    try {
+      const finalOptions = inputObject[chatGPTOptionsName];
+      finalOptions.prompt = inputObject[chatGPTPromptName];
+      const companionSpecific = {
+        finalHeaders: {
+          'Content-Type': 'application/json',
+          Authorization:
+            'Bearer ${' +
+            inputObject[chatGPTEnvironmentalVariableAuthKey] +
+            '}',
+        },
+        finalBody: JSON.stringify(finalOptions),
+        finalURL: inputObject[urlInputName],
+        finalMethod: 'Post',
+      };
+      const res = fetch(inputObject[sendThroughCompanionAddress], {
+        method: 'Post',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(companionSpecific),
+      });
+      const companionRes = await (await res).json();
+      try {
+        this.pushStatusCode(companionRes.status);
+        //console.log('res: ' + companionRes.response);
+        returnResponse = JSON.parse(companionRes.response);
+      } catch (error) {
+        returnResponse = companionRes.response;
+      }
+    } catch (error) {
+      console.log(error.stack);
+      throw 'Unable to reach companion, is it running at designated address?';
     }
 
     outputObject[outputContentName] = returnResponse;
