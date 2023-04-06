@@ -282,10 +282,10 @@ export default class PPStorage {
 
         InterfaceController.notifyListeners(ListenEvent.GraphChanged, {
           id: loadedGraph.id,
-          name: loadedGraph.name,
+          name: loadedGraph.id,
         });
 
-        InterfaceController.showSnackBar(`${loadedGraph.name} was loaded`);
+        InterfaceController.showSnackBar(`${loadedGraph.id} was loaded`);
       } else {
         // load get started graph if there is no saved graph
         this.loadGraphFromURL(GET_STARTED_URL);
@@ -295,19 +295,20 @@ export default class PPStorage {
   }
 
   renameGraph(
-    graphId: number,
+    graphId: string,
     newName = undefined,
     setActionObject: any,
     updateGraphSearchItems: any
   ) {
     this.db
       .transaction('rw', this.db.graphs, this.db.settings, async () => {
-        const id = await this.db.graphs.where('id').equals(graphId).modify({
-          name: newName,
+        await this.db.graphs.where('id').equals(graphId).modify({
+          id: newName,
+          name: newName
         });
-        setActionObject({ id: graphId, name: newName });
+        setActionObject({ id: newName, name: newName });
         updateGraphSearchItems();
-        console.log(`Renamed graph: ${id} to ${newName}`);
+        console.log(`Renamed graph: ${graphId} to ${newName}`);
         InterfaceController.showSnackBar(
           `Playground was renamed to ${newName}`
         );
@@ -315,6 +316,7 @@ export default class PPStorage {
       .catch((e) => {
         console.log(e.stack || e);
       });
+    this.loadGraphFromDB(newName);
   }
 
   saveGraph(saveNew = false, newName = undefined) {
