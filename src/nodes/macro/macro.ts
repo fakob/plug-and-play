@@ -14,6 +14,7 @@ import { anyCodeName, CustomFunction } from '../data/dataFunctions';
 import UpdateBehaviourClass from '../../classes/UpdateBehaviourClass';
 import { DynamicEnumType } from '../datatypes/dynamicEnumType';
 import * as PIXI from 'pixi.js';
+import FlowLogic from '../../classes/FlowLogic';
 
 export const macroOutputName = 'Output';
 
@@ -176,6 +177,11 @@ export class Macro extends PPNode {
     return false;
   }
 
+  public onSpecificallySelected(): void {
+    PPGraph.currentGraph.selection.selectNodes(FlowLogic.getAllUpDownstreamNodes(this, true, true, true));
+  }
+
+
 }
 export class ExecuteMacro extends CustomFunction {
   static getOptions = () =>
@@ -252,7 +258,5 @@ export class ExecuteMacro extends CustomFunction {
         datatype.onChange = this.generateUseNewCode;
     }
   }
-
-
 
 }
