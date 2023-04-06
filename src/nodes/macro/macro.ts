@@ -178,7 +178,7 @@ export class Macro extends PPNode {
   }
 
   public onSpecificallySelected(): void {
-    PPGraph.currentGraph.selection.selectNodes(FlowLogic.getAllUpDownstreamNodes(this, true, true, true));
+    //PPGraph.currentGraph.selection.selectNodes(FlowLogic.getAllUpDownstreamNodes(this, true, true, true));
   }
 
 
