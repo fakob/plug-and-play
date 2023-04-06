@@ -171,6 +171,11 @@ export class Macro extends PPNode {
   public getShrinkOnSocketRemove(): boolean {
     return false;
   }
+
+  public selectableViaBounds(): boolean {
+    return false;
+  }
+
 }
 export class ExecuteMacro extends CustomFunction {
   static getOptions = () =>
@@ -247,4 +252,7 @@ export class ExecuteMacro extends CustomFunction {
         datatype.onChange = this.generateUseNewCode;
     }
   }
+
+
+
 }

@@ -109,6 +109,10 @@ export default class PPNode extends PIXI.Container {
 
   ////////////////////////////// Meant to be overriden for visual/behavioral needs
 
+  public selectableViaBounds(): boolean {
+    return true;
+  }
+
   protected getShowLabels(): boolean {
     return true;
   }
