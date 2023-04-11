@@ -285,7 +285,7 @@ export default class PPStorage {
           name: loadedGraph.id,
         });
 
-        InterfaceController.showSnackBar(`${loadedGraph.id} was loaded`);
+        InterfaceController.showSnackBar(`${loadedGraph.name} was loaded`);
       } else {
         // load get started graph if there is no saved graph
         this.loadGraphFromURL(GET_STARTED_URL);
@@ -304,7 +304,7 @@ export default class PPStorage {
       .transaction('rw', this.db.graphs, this.db.settings, async () => {
         await this.db.graphs.where('id').equals(graphId).modify({
           id: newName,
-          name: newName
+          name: newName,
         });
         setActionObject({ id: newName, name: newName });
         updateGraphSearchItems();
