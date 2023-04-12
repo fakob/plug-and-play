@@ -406,7 +406,9 @@ export default class PPSelection extends PIXI.Container {
         this.selectedNodes = nodes;
       }
       // show scaleHandle only if there is only 1 node selected
-      this.scaleHandle.visible = this.selectedNodes.length === 1;
+      this.scaleHandle.visible =
+        this.selectedNodes.length === 1 ||
+        this.selectedNodes[0]?.shouldShowResizeRectangleEvenWhenMultipleNodesAreSelected();
     }
     this.drawRectanglesFromSelection();
     if (notify) {

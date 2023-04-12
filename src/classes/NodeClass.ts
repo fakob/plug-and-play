@@ -249,6 +249,11 @@ export default class PPNode extends PIXI.Container {
     return true;
   }
 
+  public shouldShowResizeRectangleEvenWhenMultipleNodesAreSelected(): boolean {
+    return false;
+  }
+
+
   public socketShouldAutomaticallyAdapt(socket: Socket): boolean {
     return false;
   }
@@ -1196,7 +1201,6 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   public onSpecificallySelected(): void {
     // override if you care about this event
   }
-
   public socketTypeChanged(): void {
     // override if you care about this event
   }
