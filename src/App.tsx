@@ -99,6 +99,7 @@ fetch('https://plugandplayground.dev/buildInfo')
   .then((data) => console.log(data));
 
 const App = (): JSX.Element => {
+  console.log('FULL APP REDRAW');
   document.title = 'Your Plug and Playground';
 
   const mousePosition = { x: 0, y: 0 };
@@ -123,10 +124,9 @@ const App = (): JSX.Element => {
   const [isSocketContextMenuOpen, setIsSocketContextMenuOpen] = useState(false);
   const [selectedSocket, setSelectedSocket] = useState<PPSocket | null>(null);
   const [contextMenuPosition, setContextMenuPosition] = useState([0, 0]);
-  const [isCurrentGraphLoaded, setIsCurrentGraphLoaded] = useState(false);
   const [actionObject, setActionObject] = useState(null); // id and name of graph to edit/delete
   const [showComments, setShowComments] = useState(false);
-  const [remoteGraphs, setRemoteGraphs, remoteGraphsRef] = useStateRef([]);
+  const [, setRemoteGraphs, remoteGraphsRef] = useStateRef([]);
   const [graphSearchItems, setGraphSearchItems] = useState<
     IGraphSearch[] | null
   >([{ id: '', name: '' }]);
@@ -504,7 +504,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       }
     }
 
-    setIsCurrentGraphLoaded(true);
     console.log('PPGraph.currentGraph:', PPGraph.currentGraph);
 
     PPStorage.getInstance()
@@ -1138,7 +1137,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               </Button>
             )}
           </Box>
-          {isCurrentGraphLoaded && (
+          {PPGraph.currentGraph && (
             <>
               <Autocomplete
                 className={styles.graphSearch}
