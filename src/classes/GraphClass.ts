@@ -499,8 +499,10 @@ export default class PPGraph {
       await this.connect(outputRef, inputRef, false);
     } else {
       console.warn(
-        `Link could not be created between ${link.sourceNodeId}/${link.sourceSocketName
-        }${outputRef === undefined ? '-MISSING' : ''} and ${link.targetNodeId
+        `Link could not be created between ${link.sourceNodeId}/${
+          link.sourceSocketName
+        }${outputRef === undefined ? '-MISSING' : ''} and ${
+          link.targetNodeId
         }/${link.targetSocketName}${inputRef === undefined ? '-MISSING' : ''}`
       );
       InterfaceController.showSnackBar(
@@ -756,7 +758,11 @@ export default class PPGraph {
 
   clear(): void {
     // remove all links without notifying anyone (dont want nodes to trigger)
-    Object.values(this.nodes).forEach(node => node.inputSocketArray.forEach(socket => socket.links.forEach(link => link.delete(true))));
+    Object.values(this.nodes).forEach((node) =>
+      node.inputSocketArray.forEach((socket) =>
+        socket.links.forEach((link) => link.delete(true))
+      )
+    );
 
     // remove all nodes from container
     this.nodes = {};

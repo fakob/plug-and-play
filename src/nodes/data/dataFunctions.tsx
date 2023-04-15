@@ -181,6 +181,12 @@ export class CustomFunction extends PPNode {
     ];
   }
 
+  public isCallingMacro(macroName: string): boolean {
+    return this.getInputData(anyCodeName)
+      .replaceAll("'", '"')
+      .includes('acro("' + macroName);
+  }
+
   protected getDefaultParameterValues(): Record<string, any> {
     return {};
   }
