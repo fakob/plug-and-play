@@ -200,15 +200,12 @@ export class Macro extends PPNode {
   ): Promise<void> {
     // potentially demanding but important QOL, go through all nodes and see which refer to me, they need to be re-executed
     if (!this.isExecutingFromOutside) {
-      console.log('CALLING ALL OUTSIDE BITCHES');
       const nodesCallingMe = Object.values(PPGraph.currentGraph.nodes).filter(
         (node) => node.isCallingMacro(this.name) && node.updateBehaviour.update
       );
       await Promise.all(
         nodesCallingMe.map(async (node) => await node.executeOptimizedChain())
       );
-    } else {
-      console.log('DISREGARD ME');
     }
   }
 }

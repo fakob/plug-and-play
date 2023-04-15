@@ -13,12 +13,16 @@ export default class FlowLogic {
     if (dependents[node.id] !== undefined) {
       return {};
     }
-    const currDependents: { [key: string]: PPNode } =
-      node.getDirectDependents();
 
     //console.log('aggregating');
     dependents[node.id] = node;
 
+    if (!node.propagateExecutionPast()) {
+      return {};
+    }
+
+    const currDependents: { [key: string]: PPNode } =
+      node.getDirectDependents();
     // populate dependents
 
     const numDepending: { [key: string]: Set<string> } = {};
@@ -102,19 +106,17 @@ export default class FlowLogic {
       //console.log('executing');
       // uncomment if you want to see the execution in more detail by slowing it down (to make sure order is correct)
       //await new Promise((resolve) => setTimeout(resolve, 500));
-      if (currentExecuting.propagateExecutionPast()) {
-        Object.keys(currentExecuting.getDirectDependents()).forEach(
-          (dependentKey) => {
-            if (numDepending[dependentKey]) {
-              numDepending[dependentKey].delete(currentExecuting.id);
-              // if this child has no other nodes it is waiting on, and one of its parents did change its output, add it to the queue of nodes to be executed
-              if (numDepending[dependentKey].size == 0) {
-                foundational.push(dependents[dependentKey]);
-              }
+      Object.keys(currentExecuting.getDirectDependents()).forEach(
+        (dependentKey) => {
+          if (numDepending[dependentKey]) {
+            numDepending[dependentKey].delete(currentExecuting.id);
+            // if this child has no other nodes it is waiting on, and one of its parents did change its output, add it to the queue of nodes to be executed
+            if (numDepending[dependentKey].size == 0) {
+              foundational.push(dependents[dependentKey]);
             }
           }
-        );
-      }
+        }
+      );
       currentExecuting = foundational.shift();
     }
     return;
