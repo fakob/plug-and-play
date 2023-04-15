@@ -559,7 +559,9 @@ export default class PPNode extends PIXI.Container {
   }
 
   async executeOptimizedChain(): Promise<void> {
-    await FlowLogic.executeOptimizedChainBatch([this]);
+    if (PPGraph.currentGraph.allowExecution) {
+      await FlowLogic.executeOptimizedChainBatch([this]);
+    }
   }
 
   async executeChildren(): Promise<void> {
