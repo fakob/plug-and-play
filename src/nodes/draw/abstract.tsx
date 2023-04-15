@@ -151,8 +151,13 @@ export abstract class DRAW_Base extends PPNode {
     inputObject: any,
     outputObject: Record<string, unknown>
   ): Promise<void> {
-    const drawingFunction = (container, executions) =>
-      this.drawOnContainer(inputObject, container, executions);
+    const drawingFunction = (container, executions) => {
+      if (container) {
+        this.drawOnContainer(inputObject, container, executions);
+      } else {
+        console.error('container is undefined for some reason');
+      }
+    };
     outputObject[outputPixiName] = drawingFunction;
     this.handleDrawing(drawingFunction, inputObject[inputAbsolutePositions]);
   }

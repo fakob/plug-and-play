@@ -16,6 +16,7 @@ export default class FlowLogic {
     const currDependents: { [key: string]: PPNode } =
       node.getDirectDependents();
 
+    //console.log('aggregating');
     dependents[node.id] = node;
 
     // populate dependents
@@ -95,21 +96,25 @@ export default class FlowLogic {
     });
     // now that we have the complete chain, execute them in order that makes sure all dependents are waiting on their parents, there should always be a node with no more lingering dependents (unless there is an infinite loop)
     let currentExecuting: PPNode = foundational.shift();
+
     while (currentExecuting) {
       await currentExecuting.execute();
+      //console.log('executing');
       // uncomment if you want to see the execution in more detail by slowing it down (to make sure order is correct)
       //await new Promise((resolve) => setTimeout(resolve, 500));
-      Object.keys(currentExecuting.getDirectDependents()).forEach(
-        (dependentKey) => {
-          if (numDepending[dependentKey]) {
-            numDepending[dependentKey].delete(currentExecuting.id);
-            // if this child has no other nodes it is waiting on, and one of its parents did change its output, add it to the queue of nodes to be executed
-            if (numDepending[dependentKey].size == 0) {
-              foundational.push(dependents[dependentKey]);
+      if (currentExecuting.propagateExecutionPast()) {
+        Object.keys(currentExecuting.getDirectDependents()).forEach(
+          (dependentKey) => {
+            if (numDepending[dependentKey]) {
+              numDepending[dependentKey].delete(currentExecuting.id);
+              // if this child has no other nodes it is waiting on, and one of its parents did change its output, add it to the queue of nodes to be executed
+              if (numDepending[dependentKey].size == 0) {
+                foundational.push(dependents[dependentKey]);
+              }
             }
           }
-        }
-      );
+        );
+      }
       currentExecuting = foundational.shift();
     }
     return;
