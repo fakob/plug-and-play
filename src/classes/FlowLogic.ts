@@ -13,11 +13,16 @@ export default class FlowLogic {
     if (dependents[node.id] !== undefined) {
       return {};
     }
-    const currDependents: { [key: string]: PPNode } =
-      node.getDirectDependents();
 
+    //console.log('aggregating');
     dependents[node.id] = node;
 
+    if (!node.propagateExecutionPast()) {
+      return {};
+    }
+
+    const currDependents: { [key: string]: PPNode } =
+      node.getDirectDependents();
     // populate dependents
 
     const numDepending: { [key: string]: Set<string> } = {};
@@ -95,8 +100,10 @@ export default class FlowLogic {
     });
     // now that we have the complete chain, execute them in order that makes sure all dependents are waiting on their parents, there should always be a node with no more lingering dependents (unless there is an infinite loop)
     let currentExecuting: PPNode = foundational.shift();
+
     while (currentExecuting) {
       await currentExecuting.execute();
+      //console.log('executing');
       // uncomment if you want to see the execution in more detail by slowing it down (to make sure order is correct)
       //await new Promise((resolve) => setTimeout(resolve, 500));
       Object.keys(currentExecuting.getDirectDependents()).forEach(

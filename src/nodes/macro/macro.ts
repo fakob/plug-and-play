@@ -24,6 +24,7 @@ const macroOutputBlockSize = 60;
 const macroColor = TRgba.fromString(NODE_TYPE_COLOR.MACRO);
 
 export class Macro extends PPNode {
+  isExecutingFromOutside = false;
   textRef: PIXI.Text = undefined;
   public getMinNodeWidth(): number {
     return macroInputBlockSize * 3;
@@ -45,7 +46,7 @@ export class Macro extends PPNode {
   }
 
   protected getUpdateBehaviour(): UpdateBehaviourClass {
-    return new UpdateBehaviourClass(false, false, 1000);
+    return new UpdateBehaviourClass(true, false, 1000);
   }
 
   onRemoved(): void {
@@ -153,10 +154,12 @@ export class Macro extends PPNode {
   }
 
   public async executeMacro(inputObject: any): Promise<any> {
+    this.isExecutingFromOutside = true;
     Object.keys(inputObject).forEach((key) =>
       this.setOutputData(key, inputObject[key])
     );
     await this.executeChildren();
+    this.isExecutingFromOutside = false;
     return this.getInputData('Output');
   }
 
@@ -185,6 +188,25 @@ export class Macro extends PPNode {
 
   public shouldShowResizeRectangleEvenWhenMultipleNodesAreSelected(): boolean {
     return true;
+  }
+
+  public propagateExecutionPast(): boolean {
+    return false;
+  }
+
+  protected async onExecute(
+    _inputObject: any,
+    _outputObject: Record<string, unknown>
+  ): Promise<void> {
+    // potentially demanding but important QOL, go through all nodes and see which refer to me, they need to be re-executed
+    if (!this.isExecutingFromOutside) {
+      const nodesCallingMe = Object.values(PPGraph.currentGraph.nodes).filter(
+        (node) => node.isCallingMacro(this.name) && node.updateBehaviour.update
+      );
+      await Promise.all(
+        nodesCallingMe.map(async (node) => await node.executeOptimizedChain())
+      );
+    }
   }
 }
 export class ExecuteMacro extends CustomFunction {
@@ -261,5 +283,12 @@ export class ExecuteMacro extends CustomFunction {
         datatype.getOptions = ExecuteMacro.getOptions;
         datatype.onChange = this.generateUseNewCode;
     }
+  }
+
+  public isCallingMacro(macroName: string): boolean {
+    return (
+      super.isCallingMacro(macroName) ||
+      this.getInputData('MacroName') == macroName
+    );
   }
 }

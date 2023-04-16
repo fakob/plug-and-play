@@ -101,111 +101,6 @@ export default class PPNode extends PIXI.Container {
     this.resizeAndDraw();
   }
 
-  public executeOnPlace(): boolean {
-    return false;
-  }
-
-  protected onNodeExit(): void { }
-
-  ////////////////////////////// Meant to be overriden for visual/behavioral needs
-
-  public selectableViaBounds(): boolean {
-    return true;
-  }
-
-  protected getShowLabels(): boolean {
-    return true;
-  }
-
-  protected getActivateByDoubleClick(): boolean {
-    return false;
-  }
-
-  public getDefaultNodeWidth(): number {
-    return this.getMinNodeWidth();
-  }
-
-  public getDefaultNodeHeight(): number {
-    return this.getMinNodeHeight();
-  }
-
-  public getColor(): TRgba {
-    return TRgba.fromString(NODE_TYPE_COLOR.DEFAULT);
-  }
-
-  // for hybrid/transparent nodes, set this value to 0.01, if set to 0, the node is not clickable/selectable anymore
-  public getOpacity(): number {
-    return 1;
-  }
-  protected shouldExecuteOnMove(): boolean {
-    return false;
-  }
-
-  public getCanAddInput(): boolean {
-    return false;
-  }
-
-  protected getShouldShowHoverActions(): boolean {
-    return true;
-  }
-
-  public getParallelInputsOutputs(): boolean {
-    return false;
-  }
-
-  public getRoundedCorners(): boolean {
-    return true;
-  }
-
-  getPreferredInputSocketName(): string {
-    return 'MyPreferredInputSocket';
-  }
-
-  getPreferredOutputSocketName(): string {
-    return 'MyPreferredOutputSocket';
-  }
-
-  public getInputSocketXPos(): number {
-    return 0;
-  }
-  public getOutputSocketXPos(): number {
-    return this.nodeWidth;
-  }
-
-  public getAddOutputDescription(): string {
-    return 'Add Output';
-  }
-
-  public getCanAddOutput(): boolean {
-    return false;
-  }
-
-  public getShrinkOnSocketRemove(): boolean {
-    return true;
-  }
-
-  public getAdditionalRightClickOptions(): any {
-    return {};
-  }
-
-  public getIsPresentationalNode(): boolean {
-    return false;
-  }
-
-  //////////////////////////////
-
-  // we should migrate all nodes to use these functions instead of specifying the field themselves in constructor
-  public getName(): string {
-    return this.name;
-  }
-  public getDescription(): string {
-    return '';
-  }
-  // used when searching for nodes
-  public getTags(): string {
-    return '';
-  }
-
   public getMinNodeWidth(): number {
     return NODE_WIDTH;
   }
@@ -218,13 +113,6 @@ export default class PPNode extends PIXI.Container {
       this.countOfVisibleOutputSockets * SOCKET_HEIGHT +
       NODE_PADDING_BOTTOM;
     return minHeight;
-  }
-  protected getUpdateBehaviour(): UpdateBehaviourClass {
-    return new UpdateBehaviourClass(true, false, 1000);
-  }
-
-  protected getDefaultIO(): Socket[] {
-    return [];
   }
 
   protected getAllInitialSockets(): Socket[] {
@@ -242,20 +130,6 @@ export default class PPNode extends PIXI.Container {
       return this.name + '\t(' + this.getName() + ')';
     }
     return this.getName();
-  }
-
-  // override if you don't want your node to show outline for some reason
-  public shouldDrawExecution(): boolean {
-    return true;
-  }
-
-  public shouldShowResizeRectangleEvenWhenMultipleNodesAreSelected(): boolean {
-    return false;
-  }
-
-
-  public socketShouldAutomaticallyAdapt(socket: Socket): boolean {
-    return false;
   }
 
   get nodeName(): string {
@@ -1051,11 +925,6 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     }
   }
 
-  // dont call this from outside, just override it in child class
-  protected async onExecute(input, output): Promise<void> {
-    // just define function
-  }
-
   // helper function for nodes who want execution to just be a passthrough
   protected async passThrough(input, output): Promise<void> {
     Object.keys(input).forEach((key) => {
@@ -1176,29 +1045,170 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     }
   }
 
-  onViewportPointerUp(): void {
-    // override if desired
-  }
 
   public hasSocketNameInDefaultIO(name: string, type: TSocketType): boolean {
     return (
       this.getAllInitialSockets().find(
         (socket) => socket.name == name && socket.socketType == type
-      ) !== undefined
-    );
-  }
+        ) !== undefined
+        );
+      }
 
-  public async invokeMacro(inputObject: any): Promise<any> {
-    return await PPGraph.currentGraph.invokeMacro(inputObject);
-  }
+      public async invokeMacro(inputObject: any): Promise<any> {
+        return await PPGraph.currentGraph.invokeMacro(inputObject);
+      }
+
+
+  // mean to be overridden with custom behaviour
 
   public metaInfoChanged(): void {
     this.resizeAndDraw();
     this.updateConnectionPosition();
   }
 
+  // dont call this from outside, just override it in child class
+  protected async onExecute(input, output): Promise<void> {
+    // just define function
+  }
+
+  protected getUpdateBehaviour(): UpdateBehaviourClass {
+    return new UpdateBehaviourClass(true, false, 1000);
+  }
+
+  // override if you don't want your node to show outline for some reason
+  public shouldDrawExecution(): boolean {
+    return true;
+  }
+
+  public shouldShowResizeRectangleEvenWhenMultipleNodesAreSelected(): boolean {
+    return false;
+  }
+
+
+  public socketShouldAutomaticallyAdapt(socket: Socket): boolean {
+    return false;
+  }
+
+  protected getDefaultIO(): Socket[] {
+    return [];
+  }
+
+  public executeOnPlace(): boolean {
+    return false;
+  }
+
+  protected onNodeExit(): void { }
+
+  ////////////////////////////// Meant to be overriden for visual/behavioral needs
+
+  public selectableViaBounds(): boolean {
+    return true;
+  }
+
+  protected getShowLabels(): boolean {
+    return true;
+  }
+
+  protected getActivateByDoubleClick(): boolean {
+    return false;
+  }
+
+  public getDefaultNodeWidth(): number {
+    return this.getMinNodeWidth();
+  }
+
+  public getDefaultNodeHeight(): number {
+    return this.getMinNodeHeight();
+  }
+
+  public getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.DEFAULT);
+  }
+
+  // for hybrid/transparent nodes, set this value to 0.01, if set to 0, the node is not clickable/selectable anymore
+  public getOpacity(): number {
+    return 1;
+  }
+  protected shouldExecuteOnMove(): boolean {
+    return false;
+  }
+
+  public getCanAddInput(): boolean {
+    return false;
+  }
+
+  protected getShouldShowHoverActions(): boolean {
+    return true;
+  }
+
+  public getParallelInputsOutputs(): boolean {
+    return false;
+  }
+
+  public getRoundedCorners(): boolean {
+    return true;
+  }
+
+  getPreferredInputSocketName(): string {
+    return 'MyPreferredInputSocket';
+  }
+
+  getPreferredOutputSocketName(): string {
+    return 'MyPreferredOutputSocket';
+  }
+
+  public getInputSocketXPos(): number {
+    return 0;
+  }
+  public getOutputSocketXPos(): number {
+    return this.nodeWidth;
+  }
+
+  public getAddOutputDescription(): string {
+    return 'Add Output';
+  }
+
+  public getCanAddOutput(): boolean {
+    return false;
+  }
+
+  public getShrinkOnSocketRemove(): boolean {
+    return true;
+  }
+
+  public getAdditionalRightClickOptions(): any {
+    return {};
+  }
+
+  public getIsPresentationalNode(): boolean {
+    return false;
+  }
+
+  public isCallingMacro(macroName: string): boolean {
+    return false;
+  }
+
+  // we should migrate all nodes to use these functions instead of specifying the field themselves in constructor
+  public getName(): string {
+    return this.name;
+  }
+  public getDescription(): string {
+    return '';
+  }
+  // used when searching for nodes
+  public getTags(): string {
+    return '';
+  }
+
+  public propagateExecutionPast(): boolean{
+    return true;
+  }
+
   // observers
 
+  public onViewportPointerUp(): void {
+    // override if desired
+  }
   // called when this node specifically is clicked (not just when part of the current selection)
   public onSpecificallySelected(): void {
     // override if you care about this event
