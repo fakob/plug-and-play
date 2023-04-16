@@ -253,25 +253,27 @@ export const NodeSearchInput = (props) => {
   );
 };
 
+let nodesCached = undefined;
 export const getNodes = (): INodeSearch[] => {
   const addLink = PPGraph.currentGraph.selectedSourceSocket;
-  const tempItems = Object.entries(getAllNodeTypes())
-    .map(([title, obj]) => {
-      return {
-        title,
-        name: obj.name,
-        key: title,
-        description: obj.description,
-        hasInputs: obj.hasInputs,
-      };
-    })
-    .sort(
-      (a, b) => a.name.localeCompare(b.name, 'en', { sensitivity: 'base' }) // case insensitive sorting
-    )
-    .filter((node) =>
-      addLink ? node.hasInputs === true : true
-    ) as INodeSearch[];
-  return tempItems;
+  if (!nodesCached) {
+    nodesCached = Object.entries(getAllNodeTypes())
+      .map(([title, obj]) => {
+        return {
+          title,
+          name: obj.name,
+          key: title,
+          description: obj.description,
+          hasInputs: obj.hasInputs,
+        };
+      })
+      .sort(
+        (a, b) => a.name.localeCompare(b.name, 'en', { sensitivity: 'base' }) // case insensitive sorting
+      );
+  }
+  return nodesCached.filter(
+    (node) => !addLink || node.hasInputs
+  ) as INodeSearch[];
 };
 
 export const filterOptionsNode = (options: INodeSearch[], { inputValue }) => {
