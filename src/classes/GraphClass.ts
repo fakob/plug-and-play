@@ -53,7 +53,7 @@ export default class PPGraph {
   tempConnection: PIXI.Graphics;
   selection: PPSelection;
 
-  ticking: boolean;
+  allowExecution: boolean;
 
   constructor(app: PIXI.Application, viewport: Viewport) {
     this.app = app;
@@ -76,7 +76,7 @@ export default class PPGraph {
     this.nodeContainer.name = 'nodeContainer';
     this.foregroundCanvas = new PIXI.Container();
     this.foregroundCanvas.name = 'foregroundCanvas';
-    this.ticking = false;
+    this.allowExecution = false;
 
     this.viewport.addChild(
       this.backgroundCanvas,
@@ -757,12 +757,7 @@ export default class PPGraph {
   }
 
   clear(): void {
-    // remove all links without notifying anyone (dont want nodes to trigger)
-    Object.values(this.nodes).forEach((node) =>
-      node.inputSocketArray.forEach((socket) =>
-        socket.links.forEach((link) => link.delete(true))
-      )
-    );
+    this.allowExecution = false;
 
     // remove all nodes from container
     this.nodes = {};
@@ -1035,7 +1030,7 @@ export default class PPGraph {
     id: string,
     keep_old = false
   ): Promise<boolean> {
-    this.ticking = false;
+    this.allowExecution = false;
     this.id = id;
 
     if (!keep_old) {
@@ -1079,7 +1074,7 @@ export default class PPGraph {
     this.showNonPresentationNodes =
       data.graphSettings.showNonPresentationNodes ?? true;
 
-    this.ticking = true;
+    this.allowExecution = true;
 
     return true;
   }
@@ -1095,7 +1090,7 @@ export default class PPGraph {
   }
 
   tick(currentTime: number, deltaTime: number): void {
-    if (this.ticking) {
+    if (this.allowExecution) {
       Object.values(this.nodes).forEach((node) =>
         node.tick(currentTime, deltaTime)
       );
