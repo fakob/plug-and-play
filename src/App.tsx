@@ -63,6 +63,7 @@ import {
   connectNodeToSocket,
   convertBlobToBase64,
   copyClipboard,
+  cutClipboard,
   isEventComingFromWithinTextInput,
   pasteClipboard,
   removeExtension,
@@ -360,6 +361,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       { passive: false }
     );
 
+    document.addEventListener('cut', cutClipboard);
     document.addEventListener('copy', copyClipboard);
     document.addEventListener('paste', pasteClipboard);
 

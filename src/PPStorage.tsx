@@ -351,6 +351,8 @@ export default class PPStorage {
             graphData: serializedGraph,
           });
 
+          PPGraph.currentGraph.id = newId;
+
           InterfaceController.notifyListeners(ListenEvent.GraphChanged, {
             newId,
             name,

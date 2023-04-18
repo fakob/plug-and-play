@@ -698,6 +698,19 @@ export function createGist(
   });
 }
 
+export const cutClipboard = async (e: ClipboardEvent): Promise<void> => {
+  const selection = document.getSelection();
+  // if text selection is empty
+  // prevent default and copy selected nodes
+  if (selection.toString() === '') {
+    e.preventDefault();
+    const serializeSelection = PPGraph.currentGraph.serializeSelection();
+    writeDataToClipboard(serializeSelection);
+    console.log(serializeSelection);
+    PPGraph.currentGraph.action_DeleteSelectedNodes();
+  }
+};
+
 export const copyClipboard = async (e: ClipboardEvent): Promise<void> => {
   const selection = document.getSelection();
   // if text selection is empty
