@@ -178,16 +178,27 @@ export default class PPStorage {
     }
   };
 
-  downloadGraph() {
-    const serializedGraph = PPGraph.currentGraph.serialize();
-    downloadFile(
-      JSON.stringify(serializedGraph, null, 2),
-      `${PPGraph.currentGraph.id} - ${formatDate()}.ppgraph`,
-      'text/plain'
-    );
-    InterfaceController.showSnackBar(
-      'Current Playground was saved to your Download folder'
-    );
+  async downloadGraph(id = undefined) {
+    this.db
+      .transaction('rw', this.db.graphs, this.db.settings, async () => {
+        const graphId = id || PPGraph.currentGraph?.id;
+        const graph = await this.db.graphs.where('id').equals(graphId).first();
+
+        if (graph) {
+          const serializedGraph = graph.graphData;
+          downloadFile(
+            JSON.stringify(serializedGraph, null, 2),
+            `${graph.name} - ${formatDate()}.ppgraph`,
+            'text/plain'
+          );
+          InterfaceController.showSnackBar(
+            `Playground ${graph.name} was saved to your Download folder`
+          );
+        }
+      })
+      .catch((e) => {
+        console.log(e.stack || e);
+      });
   }
 
   deleteGraph(graphId: string): string {
@@ -282,7 +293,7 @@ export default class PPStorage {
 
         InterfaceController.notifyListeners(ListenEvent.GraphChanged, {
           id: loadedGraph.id,
-          name: loadedGraph.id,
+          name: loadedGraph.name,
         });
 
         InterfaceController.showSnackBar(`${loadedGraph.name} was loaded`);
@@ -303,10 +314,9 @@ export default class PPStorage {
     this.db
       .transaction('rw', this.db.graphs, this.db.settings, async () => {
         await this.db.graphs.where('id').equals(graphId).modify({
-          id: newName,
           name: newName,
         });
-        setActionObject({ id: newName, name: newName });
+        setActionObject({ id: graphId, name: newName });
         updateGraphSearchItems();
         console.log(`Renamed graph: ${graphId} to ${newName}`);
         InterfaceController.showSnackBar(
@@ -325,31 +335,36 @@ export default class PPStorage {
     this.db
       .transaction('rw', this.db.graphs, this.db.settings, async () => {
         const graphs = await this.db.graphs.toArray();
-        const id = PPGraph.currentGraph.id;
+        const loadedGraphId = PPGraph.currentGraph.id;
+        const loadedGraph = graphs.find((graph) => graph.id === loadedGraphId);
 
-        const tempName = id.substring(0, id.lastIndexOf('-')).replace('-', ' ');
-        const loadedGraph = graphs.find((graph) => graph.id === id);
-
-        if (saveNew || graphs.length === 0 || loadedGraph === undefined) {
+        if (saveNew || loadedGraph === undefined) {
+          const newId = hri.random();
+          const tempName = newId
+            .substring(0, newId.lastIndexOf('-'))
+            .replace('-', ' ');
           const name = newName ?? tempName;
           await this.db.graphs.put({
-            id,
+            id: newId,
             date: new Date(),
             name,
             graphData: serializedGraph,
           });
 
           InterfaceController.notifyListeners(ListenEvent.GraphChanged, {
-            id,
+            newId,
             name,
           });
 
           InterfaceController.showSnackBar('New playground was saved');
         } else {
-          const indexId = await this.db.graphs.where('id').equals(id).modify({
-            date: new Date(),
-            graphData: serializedGraph,
-          });
+          const indexId = await this.db.graphs
+            .where('id')
+            .equals(loadedGraphId)
+            .modify({
+              date: new Date(),
+              graphData: serializedGraph,
+            });
           console.log(`Updated currentGraph: ${indexId}`);
           InterfaceController.showSnackBar('Playground was saved');
         }
