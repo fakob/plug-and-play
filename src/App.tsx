@@ -62,8 +62,7 @@ import { IGraphSearch, INodeSearch } from './utils/interfaces';
 import {
   connectNodeToSocket,
   convertBlobToBase64,
-  copyClipboard,
-  cutClipboard,
+  cutOrCopyClipboard,
   isEventComingFromWithinTextInput,
   pasteClipboard,
   removeExtension,
@@ -361,8 +360,8 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       { passive: false }
     );
 
-    document.addEventListener('cut', cutClipboard);
-    document.addEventListener('copy', copyClipboard);
+    document.addEventListener('cut', cutOrCopyClipboard);
+    document.addEventListener('copy', cutOrCopyClipboard);
     document.addEventListener('paste', pasteClipboard);
 
     window.addEventListener(
