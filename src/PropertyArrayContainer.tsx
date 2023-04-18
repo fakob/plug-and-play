@@ -50,6 +50,11 @@ function FilterContainer(props: FilterContentProps) {
       size="small"
       sx={{ bgcolor: 'background.paper', borderRadius: '0px' }}
     >
+      {props.selectedNodes.length === 1 && (
+        <ToggleButton value="info" aria-label="info">
+          Info
+        </ToggleButton>
+      )}
       <ToggleButton value="common" aria-label="common">
         Common
       </ToggleButton>
@@ -83,6 +88,50 @@ function FilterContainer(props: FilterContentProps) {
         </ToggleButton>
       )}
     </ToggleButtonGroup>
+  );
+}
+
+type InfoContentProps = {
+  selectedNode: PPNode;
+};
+
+function InfoContent(props: InfoContentProps) {
+  return (
+    <Stack spacing={1}>
+      <Box sx={{ bgcolor: 'background.paper' }}>
+        <Box sx={{ px: 2, py: 1.5, color: 'text.primary' }}>Description</Box>
+        <Box
+          sx={{
+            p: 1,
+            bgcolor: 'background.default',
+          }}
+        >
+          {props.selectedNode.getDescription()}
+        </Box>
+      </Box>
+      <Box sx={{ bgcolor: 'background.paper' }}>
+        <Box sx={{ px: 2, py: 1.5, color: 'text.primary' }}>Tags</Box>
+        <Box
+          sx={{
+            p: 1,
+            bgcolor: 'background.default',
+          }}
+        >
+          {props.selectedNode.getTags()}
+        </Box>
+      </Box>
+      <Box sx={{ bgcolor: 'background.paper' }}>
+        <Box sx={{ px: 2, py: 1.5, color: 'text.primary' }}>Related nodes</Box>
+        <Box
+          sx={{
+            p: 1,
+            bgcolor: 'background.default',
+          }}
+        >
+          List of nodes
+        </Box>
+      </Box>
+    </Stack>
   );
 }
 
@@ -454,6 +503,10 @@ export const PropertyArrayContainer: React.FunctionComponent<
             height: 'calc(100vh - 100px)',
           }}
         >
+          {props.selectedNodes.length === 1 &&
+            (props.filter === 'info' || props.filter == null) && (
+              <InfoContent selectedNode={selectedNode} />
+            )}
           {(props.selectedNodes.length !== 1 ||
             props.filter === 'common' ||
             props.filter == null) && (
