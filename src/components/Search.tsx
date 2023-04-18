@@ -6,7 +6,6 @@ import {
   Box,
   ButtonGroup,
   IconButton,
-  Popper,
   Stack,
   TextField,
   createFilterOptions,
@@ -51,7 +50,7 @@ export const GraphSearchInput = (props) => {
           backgroundColor: 'transparent',
         },
         '&&&& input': {
-          paddingBottom: '0px',
+          paddingBottom: '8px',
           paddingTop: '8px',
           color: Color(props.randommaincolor).isDark()
             ? COLOR_WHITE_TEXT
@@ -60,10 +59,6 @@ export const GraphSearchInput = (props) => {
       }}
     />
   );
-};
-
-export const GraphSearchPopper = (props) => {
-  return <Popper {...props} placement="bottom" />;
 };
 
 const filterOptionGraph = createFilterOptions<IGraphSearch>();
@@ -254,7 +249,7 @@ export const NodeSearchInput = (props) => {
           backgroundColor: 'transparent',
         },
         '&&&& input': {
-          paddingBottom: '0px',
+          paddingBottom: '8px',
           paddingTop: '8px',
           color: Color(props.randommaincolor).isDark()
             ? COLOR_WHITE_TEXT

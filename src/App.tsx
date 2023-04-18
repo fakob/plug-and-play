@@ -28,7 +28,6 @@ import TimeAgo from 'javascript-time-ago';
 import en from 'javascript-time-ago/locale/en';
 import {
   GraphSearchInput,
-  GraphSearchPopper,
   NodeSearchInput,
   filterOptionsGraph,
   filterOptionsNode,
@@ -1160,7 +1159,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
                 options={graphSearchItems}
                 onChange={handleGraphItemSelect}
                 filterOptions={filterOptionsGraph}
-                PopperComponent={(props) => <GraphSearchPopper {...props} />}
                 renderOption={(props, option, state) =>
                   renderGraphItem(
                     props,

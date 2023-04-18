@@ -94,7 +94,10 @@ export class Label extends PPNode {
   }
 
   getColor(): TRgba {
-    return this.getInputData('backgroundColor');
+    return (
+      this.getInputData('backgroundColor') ||
+      TRgba.fromString(NODE_TYPE_COLOR.DEFAULT)
+    );
   }
 
   public onNodeAdded = (source?: TNodeSource) => {
