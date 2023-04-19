@@ -60,6 +60,7 @@
     "react-frame-component": "^5.2.6",
     "react-lazylog": "^4.5.3",
     "react-monaco-editor": "^0.52.0",
+    "react-responsive-carousel": "^3.2.23",
     "slate": "^0.91.4",
     "slate-history": "^0.86.0",
     "slate-hyperscript": "^0.77.0",
