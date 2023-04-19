@@ -220,20 +220,26 @@ export default class PPStorage {
       try {
         PPGraph.currentGraph.configure(fileData, id);
 
-        const newName = hri.random();
         InterfaceController.showSnackBar('Playground was loaded', {
           variant: 'default',
           autoHideDuration: 20000,
           action: (key) => (
             <SaveOrDismiss
               saveClick={() => {
-                this.saveNewGraph(newName);
+                this.saveNewGraph();
                 InterfaceController.hideSnackBar(key);
               }}
               dismissClick={() => InterfaceController.hideSnackBar(key)}
             />
           ),
         });
+
+        // hacky, but this solves the issue where the graphSearchInput is not being loaded
+        InterfaceController.notifyListeners(ListenEvent.GraphChanged, {
+          id: '',
+          name: '',
+        });
+
         return fileData;
       } catch (error) {
         InterfaceController.showSnackBar('Loading playground failed.', {
