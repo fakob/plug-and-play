@@ -59,7 +59,7 @@ const margin = 4;
 
 const defaultOptions = ['Option1', 'Option2', 'Option3'];
 
-export class WidgetButton extends Widget_Base {
+export class WidgetButton2 extends Widget_Base {
   protected getUpdateBehaviour(): UpdateBehaviourClass {
     return new UpdateBehaviourClass(false, false, 1000);
   }

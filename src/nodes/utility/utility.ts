@@ -20,7 +20,7 @@ import { FunctionType } from '../datatypes/functionType';
 import { NumberType } from '../datatypes/numberType';
 import { StringType } from '../datatypes/stringType';
 import { TriggerType } from '../datatypes/triggerType';
-import { WidgetButton } from '../widgets/widgetNodes';
+import { WidgetButton } from '../widgets/widgetNodes2';
 
 export class Reroute extends PPNode {
   public getName(): string {

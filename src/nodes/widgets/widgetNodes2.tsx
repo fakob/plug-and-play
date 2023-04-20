@@ -36,20 +36,21 @@ const margin = 4;
 
 const defaultOptions = ['Option1', 'Option2', 'Option3'];
 
-const labelTextStyle = new PIXI.TextStyle({
-  fontFamily: ['Roboto', 'Helvetica', 'Arial', 'sans-serif'],
-  fontSize: 16,
-  fontWeight: '500',
-  letterSpacing: 0.45,
-  fill: TRgba.fromString(RANDOMMAINCOLOR).getContrastTextColor().hex(),
-  align: 'center',
-});
-
-export class Button2 extends Widget_Base2 {
+export class WidgetButton extends Widget_Base2 {
   _refText: PIXI.Text;
   _refTextStyle: PIXI.TextStyle;
   _refButton: Button;
   _refGraphics: PIXI.Graphics;
+
+  private labelTextStyle = new PIXI.TextStyle({
+    fontFamily: ['Roboto', 'Helvetica', 'Arial', 'sans-serif'],
+    fontSize: 16,
+    fontWeight: '500',
+    letterSpacing: 0.45,
+    fill: TRgba.fromString(RANDOMMAINCOLOR).getContrastTextColor().hex(),
+    align: 'center',
+    wordWrap: true,
+  });
 
   protected getUpdateBehaviour(): UpdateBehaviourClass {
     return new UpdateBehaviourClass(false, false, 1000);
@@ -81,15 +82,20 @@ export class Button2 extends Widget_Base2 {
   }
 
   handleOnPointerDown = () => {
-    console.log('handleOnPointerDown');
     this.onWidgetTrigger();
+
+    this._refButton.view.scale.x = 0.99;
+    this._refButton.view.scale.y = 0.99;
+    this._refButton.view.alpha = 0.8;
     const inputData = this.getInputData(onValueName);
     this.setOutputData(outName, inputData);
     this.executeChildren();
   };
 
   handleOnPointerUp = () => {
-    console.log('handleOnPointerUp');
+    this._refButton.view.scale.x = 1;
+    this._refButton.view.scale.y = 1;
+    this._refButton.view.alpha = 1;
     const inputData = this.getInputData(offValueName);
     this.setOutputData(outName, inputData);
     this.executeChildren();
@@ -108,23 +114,26 @@ export class Button2 extends Widget_Base2 {
         0,
         this.nodeWidth - 8 * margin,
         this.nodeHeight - 8 * margin,
-        this.nodeWidth / 16
+        16
       );
     this._refButton = new Button(this._refGraphics);
 
+    this._refGraphics.pivot.x = 0;
+    this._refGraphics.pivot.y = 0;
     this._refButton.view.x = NODE_MARGIN + 4 * margin;
     this._refButton.view.y = 4 * margin;
     this._refButton.onDown.connect(this.handleOnPointerDown);
     this._refButton.onUp.connect(this.handleOnPointerUp);
     this.addChild(this._refButton.view);
 
-    this._refTextStyle = labelTextStyle;
+    this._refTextStyle = this.labelTextStyle;
     this._refText = new PIXI.Text(
       String(this.getInputData(labelName)).toUpperCase(),
       this._refTextStyle
     );
     this._refText.anchor.x = 0.5;
     this._refText.anchor.y = 0.5;
+    this._refText.style.wordWrapWidth = this.nodeWidth - 10 * margin;
     this._refText.x = NODE_MARGIN + this.nodeWidth / 2;
     this._refText.y = this.nodeHeight / 2;
     this._refText.eventMode = 'none';
@@ -137,17 +146,12 @@ export class Button2 extends Widget_Base2 {
     this._refGraphics.clear();
     this._refGraphics
       .beginFill(TRgba.fromString(RANDOMMAINCOLOR).hex())
-      .drawRoundedRect(
-        0,
-        0,
-        newWidth - 8 * margin,
-        newHeight - 8 * margin,
-        newWidth / 16
-      );
+      .drawRoundedRect(0, 0, newWidth - 8 * margin, newHeight - 8 * margin, 16);
     this._refButton.view.width = newWidth - 8 * margin;
     this._refButton.view.height = newHeight - 8 * margin;
     this._refText.x = NODE_MARGIN + newWidth / 2;
     this._refText.y = newHeight / 2;
+    this._refText.style.wordWrapWidth = newWidth - 10 * margin;
   };
 
   public onExecute = async (input, output) => {
