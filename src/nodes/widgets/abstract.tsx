@@ -1,5 +1,7 @@
+import Color from 'color';
 import HybridNode2 from '../../classes/HybridNode2';
-import { NODE_TYPE_COLOR } from '../../utils/constants';
+import PPNode from '../../classes/NodeClass';
+import { NODE_TYPE_COLOR, RANDOMMAINCOLOR } from '../../utils/constants';
 import { TRgba } from '../../utils/interfaces';
 
 export abstract class Widget_Base extends HybridNode2 {
@@ -9,6 +11,28 @@ export abstract class Widget_Base extends HybridNode2 {
 
   getOpacity(): number {
     return 0.01;
+  }
+
+  protected getActivateByDoubleClick(): boolean {
+    return false;
+  }
+}
+
+export abstract class Widget_Base2 extends PPNode {
+  getColor(): TRgba {
+    return TRgba.fromString(Color(RANDOMMAINCOLOR).darken(0.85).hex());
+  }
+
+  getRoundedCorners(): boolean {
+    return false;
+  }
+
+  getShowLabels(): boolean {
+    return false;
+  }
+
+  public getShrinkOnSocketRemove(): boolean {
+    return false;
   }
 
   protected getActivateByDoubleClick(): boolean {

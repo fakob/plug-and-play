@@ -1,11 +1,15 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import * as PIXI from 'pixi.js';
-import { Button, ScrollBox } from '@pixi/ui';
+import { Button } from '@pixi/ui';
 
-import PPNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
-import { RANDOMMAINCOLOR, SOCKET_TYPE } from '../../utils/constants';
-import { TNodeSource } from '../../utils/interfaces';
+import { Widget_Base2 } from './abstract';
+import {
+  NODE_MARGIN,
+  RANDOMMAINCOLOR,
+  SOCKET_TYPE,
+} from '../../utils/constants';
+import { TNodeSource, TRgba } from '../../utils/interfaces';
 import { AnyType } from '../datatypes/anyType';
 import { ArrayType } from '../datatypes/arrayType';
 import { BooleanType } from '../datatypes/booleanType';
@@ -32,8 +36,20 @@ const margin = 4;
 
 const defaultOptions = ['Option1', 'Option2', 'Option3'];
 
-export class Button2 extends PPNode {
-  // _refButton: Button;
+const labelTextStyle = new PIXI.TextStyle({
+  fontFamily: ['Roboto', 'Helvetica', 'Arial', 'sans-serif'],
+  fontSize: 16,
+  fontWeight: '500',
+  letterSpacing: 0.45,
+  fill: TRgba.fromString(RANDOMMAINCOLOR).getContrastTextColor().hex(),
+  align: 'center',
+});
+
+export class Button2 extends Widget_Base2 {
+  _refText: PIXI.Text;
+  _refTextStyle: PIXI.TextStyle;
+  _refButton: Button;
+  _refGraphics: PIXI.Graphics;
 
   protected getUpdateBehaviour(): UpdateBehaviourClass {
     return new UpdateBehaviourClass(false, false, 1000);
@@ -85,20 +101,57 @@ export class Button2 extends PPNode {
   };
 
   public onNodeAdded = (source?: TNodeSource) => {
-    const button = new Button(
-      new PIXI.Graphics()
-        .beginFill(0xffffff)
-        .drawRoundedRect(0, 0, this.nodeWidth, this.nodeHeight, 15)
-    );
+    this._refGraphics = new PIXI.Graphics()
+      .beginFill(TRgba.fromString(RANDOMMAINCOLOR).hex())
+      .drawRoundedRect(
+        0,
+        0,
+        this.nodeWidth - 8 * margin,
+        this.nodeHeight - 8 * margin,
+        this.nodeWidth / 16
+      );
+    this._refButton = new Button(this._refGraphics);
 
-    button.onDown.connect(this.handleOnPointerDown);
-    button.onUp.connect(this.handleOnPointerUp);
-    this.addChild(button.view);
+    this._refButton.view.x = NODE_MARGIN + 4 * margin;
+    this._refButton.view.y = 4 * margin;
+    this._refButton.onDown.connect(this.handleOnPointerDown);
+    this._refButton.onUp.connect(this.handleOnPointerUp);
+    this.addChild(this._refButton.view);
+
+    this._refTextStyle = labelTextStyle;
+    this._refText = new PIXI.Text(
+      String(this.getInputData(labelName)).toUpperCase(),
+      this._refTextStyle
+    );
+    this._refText.anchor.x = 0.5;
+    this._refText.anchor.y = 0.5;
+    this._refText.x = NODE_MARGIN + this.nodeWidth / 2;
+    this._refText.y = this.nodeHeight / 2;
+    this._refText.eventMode = 'none';
+    this.addChild(this._refText);
 
     super.onNodeAdded(source);
   };
 
-  public onNodeRemoved = () => {
-    // this._refButton.destroy();
+  public onNodeResize = (newWidth, newHeight) => {
+    this._refGraphics.clear();
+    this._refGraphics
+      .beginFill(TRgba.fromString(RANDOMMAINCOLOR).hex())
+      .drawRoundedRect(
+        0,
+        0,
+        newWidth - 8 * margin,
+        newHeight - 8 * margin,
+        newWidth / 16
+      );
+    this._refButton.view.width = newWidth - 8 * margin;
+    this._refButton.view.height = newHeight - 8 * margin;
+    this._refText.x = NODE_MARGIN + newWidth / 2;
+    this._refText.y = newHeight / 2;
+  };
+
+  public onExecute = async (input, output) => {
+    const text = String(input[labelName]).toUpperCase();
+    this._refText.text = text;
   };
 }
