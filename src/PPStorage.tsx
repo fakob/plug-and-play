@@ -178,23 +178,34 @@ export default class PPStorage {
     }
   };
 
-  async downloadGraph(id = undefined) {
+  async downloadGraph(graphId = undefined) {
     this.db
       .transaction('rw', this.db.graphs, this.db.settings, async () => {
-        const graphId = id || PPGraph.currentGraph?.id;
-        const graph = await this.db.graphs.where('id').equals(graphId).first();
+        let graph;
+        let serializedGraph;
+        let graphName;
+
+        if (graphId) {
+          graph = await this.db.graphs.where('id').equals(graphId).first();
+        }
 
         if (graph) {
-          const serializedGraph = graph.graphData;
-          downloadFile(
-            JSON.stringify(serializedGraph, null, 2),
-            `${graph.name} - ${formatDate()}.ppgraph`,
-            'text/plain'
-          );
-          InterfaceController.showSnackBar(
-            `Playground ${graph.name} was saved to your Download folder`
-          );
+          serializedGraph = graph.graphData;
+          graphName = graph.name;
+        } else {
+          serializedGraph = PPGraph.currentGraph.serialize();
+          graphName = PPGraph.currentGraph.id;
         }
+
+        downloadFile(
+          JSON.stringify(serializedGraph, null, 2),
+          `${graphName} - ${formatDate()}.ppgraph`,
+          'text/plain'
+        );
+
+        InterfaceController.showSnackBar(
+          `Playground ${graphName} was saved to your Download folder`
+        );
       })
       .catch((e) => {
         console.log(e.stack || e);
