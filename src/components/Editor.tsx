@@ -13,10 +13,13 @@ type CodeEditorProps = {
   editable?: boolean;
 };
 
+const shouldLoadAll = (value) => {
+  return convertToString(value)?.length < MAX_STRING_LENGTH;
+};
+
 export const CodeEditor: React.FunctionComponent<CodeEditorProps> = (props) => {
-  const valueLength = convertToString(props.value)?.length;
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor>();
-  const [loadAll, setLoadAll] = useState(valueLength < MAX_STRING_LENGTH);
+  const [loadAll, setLoadAll] = useState(shouldLoadAll(props.value));
 
   const [loadedValue, setLoadedValue] = useState(
     getLoadedValue(props.value, loadAll)
@@ -36,7 +39,6 @@ export const CodeEditor: React.FunctionComponent<CodeEditorProps> = (props) => {
   };
 
   const editorDidMount = (editor) => {
-    // console.log('editorDidMount', editor);
     editorRef.current = editor;
     changeEditorHeight();
   };
@@ -48,8 +50,14 @@ export const CodeEditor: React.FunctionComponent<CodeEditorProps> = (props) => {
   };
 
   useEffect(() => {
-    setLoadedValue(getLoadedValue(props.value, loadAll));
+    const load = shouldLoadAll(props.value);
+    setLoadAll(load);
+    setLoadedValue(getLoadedValue(props.value, load));
   }, [props.value]);
+
+  useEffect(() => {
+    changeEditorHeight();
+  }, [loadedValue]);
 
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
