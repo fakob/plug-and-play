@@ -6,12 +6,12 @@ import {
   Box,
   ButtonGroup,
   IconButton,
-  Popper,
   Stack,
   TextField,
   createFilterOptions,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
+import DownloadIcon from '@mui/icons-material/Download';
 import DeleteIcon from '@mui/icons-material/Delete';
 import LinkIcon from '@mui/icons-material/Link';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
@@ -19,6 +19,7 @@ import { matchSorter } from 'match-sorter';
 import parse from 'autosuggest-highlight/parse';
 import match from 'autosuggest-highlight/match';
 import PPGraph from '../classes/GraphClass';
+import PPStorage from '../PPStorage';
 import { getAllNodeTypes } from '../nodes/allNodes';
 import { IGraphSearch, INodeSearch } from '../utils/interfaces';
 import { COLOR_DARK, COLOR_WHITE_TEXT } from '../utils/constants';
@@ -49,7 +50,7 @@ export const GraphSearchInput = (props) => {
           backgroundColor: 'transparent',
         },
         '&&&& input': {
-          paddingBottom: '0px',
+          paddingBottom: '8px',
           paddingTop: '8px',
           color: Color(props.randommaincolor).isDark()
             ? COLOR_WHITE_TEXT
@@ -58,10 +59,6 @@ export const GraphSearchInput = (props) => {
       }}
     />
   );
-};
-
-export const GraphSearchPopper = (props) => {
-  return <Popper {...props} placement="bottom" />;
 };
 
 const filterOptionGraph = createFilterOptions<IGraphSearch>();
@@ -188,7 +185,18 @@ NOTE: save the playground after loading, if you want to make changes to it`
             size="small"
             onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
               event.stopPropagation();
-              console.log(option.name);
+              setIsGraphSearchOpen(false);
+              PPStorage.getInstance().downloadGraph(option.id);
+            }}
+            title="Download playground"
+            className="menuItemButton"
+          >
+            <DownloadIcon />
+          </IconButton>
+          <IconButton
+            size="small"
+            onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+              event.stopPropagation();
               setIsGraphSearchOpen(false);
               setActionObject(option);
               setShowEdit(true);
@@ -204,7 +212,6 @@ NOTE: save the playground after loading, if you want to make changes to it`
             className="menuItemButton"
             onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
               event.stopPropagation();
-              console.log(option.name);
               setIsGraphSearchOpen(false);
               setActionObject(option);
               setShowDeleteGraph(true);
@@ -242,7 +249,7 @@ export const NodeSearchInput = (props) => {
           backgroundColor: 'transparent',
         },
         '&&&& input': {
-          paddingBottom: '0px',
+          paddingBottom: '8px',
           paddingTop: '8px',
           color: Color(props.randommaincolor).isDark()
             ? COLOR_WHITE_TEXT

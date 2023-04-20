@@ -28,7 +28,6 @@ import TimeAgo from 'javascript-time-ago';
 import en from 'javascript-time-ago/locale/en';
 import {
   GraphSearchInput,
-  GraphSearchPopper,
   NodeSearchInput,
   filterOptionsGraph,
   filterOptionsNode,
@@ -63,7 +62,7 @@ import { IGraphSearch, INodeSearch } from './utils/interfaces';
 import {
   connectNodeToSocket,
   convertBlobToBase64,
-  copyClipboard,
+  cutOrCopyClipboard,
   isEventComingFromWithinTextInput,
   pasteClipboard,
   removeExtension,
@@ -361,7 +360,8 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       { passive: false }
     );
 
-    document.addEventListener('copy', copyClipboard);
+    document.addEventListener('cut', cutOrCopyClipboard);
+    document.addEventListener('copy', cutOrCopyClipboard);
     document.addEventListener('paste', pasteClipboard);
 
     window.addEventListener(
@@ -775,7 +775,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     } else {
       if (selected.isNew) {
         PPGraph.currentGraph.clear();
-        PPStorage.getInstance().saveNewGraph(selected.id);
+        PPStorage.getInstance().saveNewGraph(selected.name);
         // remove selection flag
         selected.isNew = undefined;
       } else {
@@ -1160,7 +1160,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
                 options={graphSearchItems}
                 onChange={handleGraphItemSelect}
                 filterOptions={filterOptionsGraph}
-                PopperComponent={(props) => <GraphSearchPopper {...props} />}
                 renderOption={(props, option, state) =>
                   renderGraphItem(
                     props,

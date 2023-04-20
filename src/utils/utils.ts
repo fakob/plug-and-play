@@ -698,7 +698,7 @@ export function createGist(
   });
 }
 
-export const copyClipboard = async (e: ClipboardEvent): Promise<void> => {
+export const cutOrCopyClipboard = async (e: ClipboardEvent): Promise<void> => {
   const selection = document.getSelection();
   // if text selection is empty
   // prevent default and copy selected nodes
@@ -707,6 +707,9 @@ export const copyClipboard = async (e: ClipboardEvent): Promise<void> => {
     const serializeSelection = PPGraph.currentGraph.serializeSelection();
     writeDataToClipboard(serializeSelection);
     console.log(serializeSelection);
+    if (e.type === 'cut') {
+      PPGraph.currentGraph.action_DeleteSelectedNodes();
+    }
   }
 };
 
