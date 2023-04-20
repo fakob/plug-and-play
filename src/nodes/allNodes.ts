@@ -24,6 +24,7 @@ import * as text from './text';
 import * as textEditor from './textEditor/textEditor';
 import * as utility from './utility/utility';
 import * as widgetNodes from './widgets/widgetNodes';
+import * as widgetNodes2 from './widgets/widgetNodes2';
 import * as recordNodes from './interactivity/record';
 import { RegisteredNodeTypes } from '../utils/interfaces';
 import * as simpleBarChart from './graphSegments/simpleBarGraph';
@@ -58,6 +59,7 @@ export const getAllNodeTypes = (): RegisteredNodeTypes => {
       textEditor,
       utility,
       widgetNodes,
+      widgetNodes2,
       recordNodes,
       simpleBarChart,
     };
