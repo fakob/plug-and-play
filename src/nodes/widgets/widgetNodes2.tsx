@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import * as PIXI from 'pixi.js';
-import { Button } from '@pixi/ui';
+import { Button, Slider } from '@pixi/ui';
 
 import Socket from '../../classes/SocketClass';
 import { Widget_Base2 } from './abstract';
@@ -36,10 +36,17 @@ const margin = 4;
 
 const defaultOptions = ['Option1', 'Option2', 'Option3'];
 
+// const fillColorDarkHex = TRgba.fromString(Color(RANDOMMAINCOLOR).darken(0.85).hex());
+const fillColorDarkHex = TRgba.fromString(RANDOMMAINCOLOR).darken(0.5).hex();
+const fillColorHex = TRgba.fromString(RANDOMMAINCOLOR).hex();
+const contrastColorHex = TRgba.fromString(RANDOMMAINCOLOR)
+  .getContrastTextColor()
+  .hex();
+
 export class WidgetButton extends Widget_Base2 {
   _refText: PIXI.Text;
   _refTextStyle: PIXI.TextStyle;
-  _refButton: Button;
+  _refWidget: Button;
   _refGraphics: PIXI.Graphics;
 
   private labelTextStyle = new PIXI.TextStyle({
@@ -47,7 +54,7 @@ export class WidgetButton extends Widget_Base2 {
     fontSize: 16,
     fontWeight: '500',
     letterSpacing: 0.45,
-    fill: TRgba.fromString(RANDOMMAINCOLOR).getContrastTextColor().hex(),
+    fill: contrastColorHex,
     align: 'center',
     wordWrap: true,
   });
@@ -84,18 +91,18 @@ export class WidgetButton extends Widget_Base2 {
   handleOnPointerDown = () => {
     this.onWidgetTrigger();
 
-    this._refButton.view.scale.x = 0.99;
-    this._refButton.view.scale.y = 0.99;
-    this._refButton.view.alpha = 0.8;
+    this._refWidget.view.scale.x = 0.99;
+    this._refWidget.view.scale.y = 0.99;
+    this._refWidget.view.alpha = 0.8;
     const inputData = this.getInputData(onValueName);
     this.setOutputData(outName, inputData);
     this.executeChildren();
   };
 
   handleOnPointerUp = () => {
-    this._refButton.view.scale.x = 1;
-    this._refButton.view.scale.y = 1;
-    this._refButton.view.alpha = 1;
+    this._refWidget.view.scale.x = 1;
+    this._refWidget.view.scale.y = 1;
+    this._refWidget.view.alpha = 1;
     const inputData = this.getInputData(offValueName);
     this.setOutputData(outName, inputData);
     this.executeChildren();
@@ -108,7 +115,7 @@ export class WidgetButton extends Widget_Base2 {
 
   public onNodeAdded = (source?: TNodeSource) => {
     this._refGraphics = new PIXI.Graphics()
-      .beginFill(TRgba.fromString(RANDOMMAINCOLOR).hex())
+      .beginFill(fillColorHex)
       .drawRoundedRect(
         0,
         0,
@@ -116,15 +123,15 @@ export class WidgetButton extends Widget_Base2 {
         this.nodeHeight - 8 * margin,
         16
       );
-    this._refButton = new Button(this._refGraphics);
+    this._refWidget = new Button(this._refGraphics);
 
     this._refGraphics.pivot.x = 0;
     this._refGraphics.pivot.y = 0;
-    this._refButton.view.x = NODE_MARGIN + 4 * margin;
-    this._refButton.view.y = 4 * margin;
-    this._refButton.onDown.connect(this.handleOnPointerDown);
-    this._refButton.onUp.connect(this.handleOnPointerUp);
-    this.addChild(this._refButton.view);
+    this._refWidget.view.x = NODE_MARGIN + 4 * margin;
+    this._refWidget.view.y = 4 * margin;
+    this._refWidget.onDown.connect(this.handleOnPointerDown);
+    this._refWidget.onUp.connect(this.handleOnPointerUp);
+    this.addChild(this._refWidget.view);
 
     this._refTextStyle = this.labelTextStyle;
     this._refText = new PIXI.Text(
@@ -145,13 +152,149 @@ export class WidgetButton extends Widget_Base2 {
   public onNodeResize = (newWidth, newHeight) => {
     this._refGraphics.clear();
     this._refGraphics
-      .beginFill(TRgba.fromString(RANDOMMAINCOLOR).hex())
+      .beginFill(fillColorHex)
       .drawRoundedRect(0, 0, newWidth - 8 * margin, newHeight - 8 * margin, 16);
-    this._refButton.view.width = newWidth - 8 * margin;
-    this._refButton.view.height = newHeight - 8 * margin;
+    this._refWidget.view.width = newWidth - 8 * margin;
+    this._refWidget.view.height = newHeight - 8 * margin;
     this._refText.x = NODE_MARGIN + newWidth / 2;
     this._refText.y = newHeight / 2;
     this._refText.style.wordWrapWidth = newWidth - 10 * margin;
+  };
+
+  public onExecute = async (input, output) => {
+    const text = String(input[labelName]).toUpperCase();
+    this._refText.text = text;
+  };
+}
+
+export class WidgetSlider2 extends Widget_Base2 {
+  _refText: PIXI.Text;
+  _refTextStyle: PIXI.TextStyle;
+  _refWidget: Slider;
+  _refGraphics: PIXI.Graphics;
+
+  protected getUpdateBehaviour(): UpdateBehaviourClass {
+    return new UpdateBehaviourClass(false, false, 1000);
+  }
+
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(SOCKET_TYPE.IN, initialValueName, new NumberType(), 0, false),
+      new Socket(SOCKET_TYPE.IN, minValueName, new NumberType(), 0, false),
+      new Socket(SOCKET_TYPE.IN, maxValueName, new NumberType(), 100, false),
+      new Socket(SOCKET_TYPE.IN, roundName, new BooleanType(), 100, false),
+      new Socket(SOCKET_TYPE.IN, stepSizeName, new NumberType(), 0.01, false),
+      new Socket(SOCKET_TYPE.IN, labelName, new StringType(), 'Slider', false),
+      new Socket(SOCKET_TYPE.OUT, outName, new NumberType()),
+    ];
+  }
+
+  public getName(): string {
+    return 'Slider2';
+  }
+
+  public getDescription(): string {
+    return 'Adds a button to trigger values';
+  }
+
+  public getDefaultNodeWidth(): number {
+    return 200;
+  }
+
+  public getDefaultNodeHeight(): number {
+    return 104;
+  }
+
+  handleOnChange = (value) => {
+    console.log(value);
+    this.setOutputData(outName, value);
+    this.executeChildren();
+  };
+
+  public onWidgetTrigger = () => {
+    console.log('onWidgetTrigger');
+    this.executeOptimizedChain();
+  };
+
+  public onNodeAdded = (source?: TNodeSource) => {
+    const bg = new PIXI.Graphics()
+      .beginFill(fillColorDarkHex)
+      .drawRoundedRect(
+        0,
+        0,
+        this.nodeWidth - 8 * margin,
+        this.nodeHeight / 8,
+        16
+      );
+
+    const fill = new PIXI.Graphics()
+      .beginFill(fillColorHex)
+      .drawRoundedRect(
+        0,
+        0,
+        this.nodeWidth - 8 * margin,
+        this.nodeHeight / 8,
+        16
+      );
+
+    const slider = new PIXI.Graphics()
+      .beginFill(fillColorHex)
+      .drawCircle(0, 0, this.nodeHeight / 6 + 8)
+      .beginFill(contrastColorHex)
+      .drawCircle(0, 0, this.nodeHeight / 6)
+      .endFill();
+
+    // Component usage
+    this._refWidget = new Slider({
+      bg,
+      fill,
+      slider,
+      min: this.getInputData(minValueName),
+      max: this.getInputData(maxValueName),
+      value: this.getInputData(initialValueName),
+      // valueTextStyle: {
+      //   fill: fontColor,
+      //   fontSize,
+      // },
+      showValue: true,
+    });
+
+    this._refWidget.x = NODE_MARGIN + 4 * margin;
+    this._refWidget.y =
+      this.nodeHeight / 2 - this.nodeHeight / 8 + this.nodeHeight / 16;
+    // this._refWidget.value = value;
+    this._refWidget.onUpdate.connect(this.handleOnChange);
+
+    this.addChild(this._refWidget);
+
+    // this._refTextStyle = this.labelTextStyle;
+    // this._refText = new PIXI.Text(
+    //   String(this.getInputData(labelName)).toUpperCase(),
+    //   this._refTextStyle
+    // );
+    // this._refText.anchor.x = 0.5;
+    // this._refText.anchor.y = 0.5;
+    // this._refText.style.wordWrapWidth = this.nodeWidth - 10 * margin;
+    // this._refText.x = NODE_MARGIN + this.nodeWidth / 2;
+    // this._refText.y = this.nodeHeight / 2;
+    // this._refText.eventMode = 'none';
+    // this.addChild(this._refText);
+
+    super.onNodeAdded(source);
+  };
+
+  public onNodeResize = (newWidth, newHeight) => {
+    // this._refGraphics.clear();
+    // this._refGraphics
+    //   .beginFill(fillColorHex)
+    //   .drawRoundedRect(0, 0, newWidth - 8 * margin, newHeight - 8 * margin, 16);
+    this._refWidget.x = NODE_MARGIN + 4 * margin;
+    this._refWidget.y = newHeight / 2 - newHeight / 8 + newHeight / 16;
+    // this._refWidget.width = newWidth - 8 * margin;
+    // this._refWidget.height = newHeight - 8 * margin;
+    // this._refText.x = NODE_MARGIN + newWidth / 2;
+    // this._refText.y = newHeight / 2;
+    // this._refText.style.wordWrapWidth = newWidth - 10 * margin;
   };
 
   public onExecute = async (input, output) => {
