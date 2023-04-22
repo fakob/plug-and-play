@@ -44,7 +44,7 @@ const contrastColorHex = TRgba.fromString(RANDOMMAINCOLOR)
   .hex();
 
 export class WidgetButton extends Widget_Base2 {
-  _refText: PIXI.Text;
+  _refLabel: PIXI.Text;
   _refTextStyle: PIXI.TextStyle;
   _refWidget: Button;
   _refGraphics: PIXI.Graphics;
@@ -134,17 +134,17 @@ export class WidgetButton extends Widget_Base2 {
     this.addChild(this._refWidget.view);
 
     this._refTextStyle = this.labelTextStyle;
-    this._refText = new PIXI.Text(
+    this._refLabel = new PIXI.Text(
       String(this.getInputData(labelName)).toUpperCase(),
       this._refTextStyle
     );
-    this._refText.anchor.x = 0.5;
-    this._refText.anchor.y = 0.5;
-    this._refText.style.wordWrapWidth = this.nodeWidth - 10 * margin;
-    this._refText.x = NODE_MARGIN + this.nodeWidth / 2;
-    this._refText.y = this.nodeHeight / 2;
-    this._refText.eventMode = 'none';
-    this.addChild(this._refText);
+    this._refLabel.anchor.x = 0.5;
+    this._refLabel.anchor.y = 0.5;
+    this._refLabel.style.wordWrapWidth = this.nodeWidth - 10 * margin;
+    this._refLabel.x = NODE_MARGIN + this.nodeWidth / 2;
+    this._refLabel.y = this.nodeHeight / 2;
+    this._refLabel.eventMode = 'none';
+    this.addChild(this._refLabel);
 
     super.onNodeAdded(source);
   };
@@ -156,22 +156,35 @@ export class WidgetButton extends Widget_Base2 {
       .drawRoundedRect(0, 0, newWidth - 8 * margin, newHeight - 8 * margin, 16);
     this._refWidget.view.width = newWidth - 8 * margin;
     this._refWidget.view.height = newHeight - 8 * margin;
-    this._refText.x = NODE_MARGIN + newWidth / 2;
-    this._refText.y = newHeight / 2;
-    this._refText.style.wordWrapWidth = newWidth - 10 * margin;
+    this._refLabel.x = NODE_MARGIN + newWidth / 2;
+    this._refLabel.y = newHeight / 2;
+    this._refLabel.style.wordWrapWidth = newWidth - 10 * margin;
   };
 
   public onExecute = async (input, output) => {
     const text = String(input[labelName]).toUpperCase();
-    this._refText.text = text;
+    this._refLabel.text = text;
   };
 }
 
 export class WidgetSlider2 extends Widget_Base2 {
-  _refText: PIXI.Text;
+  _refLabel: PIXI.Text;
   _refTextStyle: PIXI.TextStyle;
   _refWidget: Slider;
-  _refGraphics: PIXI.Graphics;
+  _refBg: PIXI.Graphics;
+  _refFill: PIXI.Graphics;
+  _refSlider: PIXI.Graphics;
+
+  private labelTextStyle = new PIXI.TextStyle({
+    fontFamily: ['Roboto', 'Helvetica', 'Arial', 'sans-serif'],
+    fontSize: 16,
+    fontWeight: '500',
+    letterSpacing: 0.45,
+    fill: contrastColorHex,
+    // fill: TRgba.white().hex(),
+    align: 'center',
+    wordWrap: true,
+  });
 
   protected getUpdateBehaviour(): UpdateBehaviourClass {
     return new UpdateBehaviourClass(false, false, 1000);
@@ -207,6 +220,9 @@ export class WidgetSlider2 extends Widget_Base2 {
 
   handleOnChange = (value) => {
     console.log(value);
+    this._refLabel.text = `${String(this.getInputData(labelName)).toUpperCase()}
+${value}`;
+    this.setInputData(initialValueName, value);
     this.setOutputData(outName, value);
     this.executeChildren();
   };
@@ -217,88 +233,83 @@ export class WidgetSlider2 extends Widget_Base2 {
   };
 
   public onNodeAdded = (source?: TNodeSource) => {
-    const bg = new PIXI.Graphics()
+    this._refBg = new PIXI.Graphics()
       .beginFill(fillColorDarkHex)
       .drawRoundedRect(
         0,
         0,
         this.nodeWidth - 8 * margin,
-        this.nodeHeight / 8,
+        this.nodeHeight - 8 * margin,
         16
       );
 
-    const fill = new PIXI.Graphics()
+    this._refFill = new PIXI.Graphics()
       .beginFill(fillColorHex)
       .drawRoundedRect(
         0,
         0,
         this.nodeWidth - 8 * margin,
-        this.nodeHeight / 8,
+        this.nodeHeight - 8 * margin,
         16
       );
 
-    const slider = new PIXI.Graphics()
-      .beginFill(fillColorHex)
-      .drawCircle(0, 0, this.nodeHeight / 6 + 8)
-      .beginFill(contrastColorHex)
-      .drawCircle(0, 0, this.nodeHeight / 6)
-      .endFill();
+    this._refSlider = new PIXI.Graphics();
 
     // Component usage
     this._refWidget = new Slider({
-      bg,
-      fill,
-      slider,
+      bg: this._refBg,
+      fill: this._refFill,
+      slider: this._refSlider,
       min: this.getInputData(minValueName),
       max: this.getInputData(maxValueName),
       value: this.getInputData(initialValueName),
-      // valueTextStyle: {
-      //   fill: fontColor,
-      //   fontSize,
-      // },
-      showValue: true,
+      valueTextStyle: this.labelTextStyle,
+      showValue: false,
     });
 
     this._refWidget.x = NODE_MARGIN + 4 * margin;
-    this._refWidget.y =
-      this.nodeHeight / 2 - this.nodeHeight / 8 + this.nodeHeight / 16;
-    // this._refWidget.value = value;
+    this._refWidget.y = 4 * margin;
     this._refWidget.onUpdate.connect(this.handleOnChange);
 
     this.addChild(this._refWidget);
 
-    // this._refTextStyle = this.labelTextStyle;
-    // this._refText = new PIXI.Text(
-    //   String(this.getInputData(labelName)).toUpperCase(),
-    //   this._refTextStyle
-    // );
-    // this._refText.anchor.x = 0.5;
-    // this._refText.anchor.y = 0.5;
-    // this._refText.style.wordWrapWidth = this.nodeWidth - 10 * margin;
-    // this._refText.x = NODE_MARGIN + this.nodeWidth / 2;
-    // this._refText.y = this.nodeHeight / 2;
-    // this._refText.eventMode = 'none';
-    // this.addChild(this._refText);
+    this._refTextStyle = this.labelTextStyle;
+    this._refLabel = new PIXI.Text(
+      String(this.getInputData(labelName)).toUpperCase(),
+      this._refTextStyle
+    );
+    this._refLabel.text = `${String(this.getInputData(labelName)).toUpperCase()}
+${String(this.getInputData(initialValueName))}`;
+    this._refLabel.anchor.x = 0.5;
+    this._refLabel.anchor.y = 0.5;
+    this._refLabel.style.wordWrapWidth = this.nodeWidth - 10 * margin;
+    this._refLabel.x = NODE_MARGIN + this.nodeWidth / 2;
+    this._refLabel.y = this.nodeHeight / 2;
+    this._refLabel.eventMode = 'none';
+    this.addChild(this._refLabel);
 
     super.onNodeAdded(source);
   };
 
   public onNodeResize = (newWidth, newHeight) => {
-    // this._refGraphics.clear();
-    // this._refGraphics
-    //   .beginFill(fillColorHex)
-    //   .drawRoundedRect(0, 0, newWidth - 8 * margin, newHeight - 8 * margin, 16);
-    this._refWidget.x = NODE_MARGIN + 4 * margin;
-    this._refWidget.y = newHeight / 2 - newHeight / 8 + newHeight / 16;
-    // this._refWidget.width = newWidth - 8 * margin;
-    // this._refWidget.height = newHeight - 8 * margin;
-    // this._refText.x = NODE_MARGIN + newWidth / 2;
-    // this._refText.y = newHeight / 2;
-    // this._refText.style.wordWrapWidth = newWidth - 10 * margin;
+    this._refWidget.progress = this.getInputData(initialValueName);
+    this._refBg.clear();
+    this._refBg
+      .beginFill(fillColorDarkHex)
+      .drawRoundedRect(0, 0, newWidth - 8 * margin, newHeight - 8 * margin, 16);
+
+    this._refFill.clear();
+    this._refFill
+      .beginFill(fillColorHex)
+      .drawRoundedRect(0, 0, newWidth - 8 * margin, newHeight - 8 * margin, 16);
+
+    this._refLabel.x = NODE_MARGIN + newWidth / 2;
+    this._refLabel.y = newHeight / 2;
+    this._refLabel.style.wordWrapWidth = newWidth - 10 * margin;
   };
 
   public onExecute = async (input, output) => {
     const text = String(input[labelName]).toUpperCase();
-    this._refText.text = text;
+    this._refLabel.text = text;
   };
 }
