@@ -38,4 +38,8 @@ export abstract class Widget_Base extends PPNode {
   protected getActivateByDoubleClick(): boolean {
     return false;
   }
+
+  public getMinNodeHeight(): number {
+    return 80;
+  }
 }
