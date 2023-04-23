@@ -2345,6 +2345,26 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@pixi/ui@npm:^0.7.0":
+  version: 0.7.0
+  resolution: "@pixi/ui@npm:0.7.0"
+  dependencies:
+    ts-mixer: ^6.0.3
+    tweedle.js: ^2.0.1
+    typed-signals: ^2.5.0
+  peerDependencies:
+    "@pixi/core": ^7.2.3
+    "@pixi/display": ^7.2.3
+    "@pixi/events": ^7.2.3
+    "@pixi/graphics": ^7.2.3
+    "@pixi/sprite": ^7.2.3
+    "@pixi/text": ^7.2.3
+    "@pixi/text-bitmap": ^7.2.3
+    "@pixi/text-html": ^7.2.3
+  checksum: d25c079d373a08b262779d301ad35c4e4cb8ded15e697a72ecf8e5cf2a4bb24c9ef442e1a7baea3b07032317339fe90b00186dcf1c95ba77d69f6509b060085f
+  languageName: node
+  linkType: hard
+
 "@pixi/utils@npm:7.2.4":
   version: 7.2.4
   resolution: "@pixi/utils@npm:7.2.4"
@@ -8140,6 +8160,7 @@ __metadata:
     "@mui/icons-material": ^5.11.11
     "@mui/material": ^5.11.13
     "@mui/styles": ^5.11.13
+    "@pixi/ui": ^0.7.0
     "@types/copy-webpack-plugin": ^10.1.0
     "@types/html-webpack-plugin": ^3.2.6
     "@types/mini-css-extract-plugin": ^2.5.1
@@ -10207,6 +10228,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"ts-mixer@npm:^6.0.3":
+  version: 6.0.3
+  resolution: "ts-mixer@npm:6.0.3"
+  checksum: 7fbaba0a413bf817835a6a23d46bccf4192dd4d7345b6bae9d594c88acffac35bf4995ef3cce753090c8abcdf2afd16dba8899365584a1f960ccc2a15bf2e2d6
+  languageName: node
+  linkType: hard
+
 "ts-node@npm:^10.9.1":
   version: 10.9.1
   resolution: "ts-node@npm:10.9.1"
@@ -10281,6 +10309,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"tweedle.js@npm:^2.0.1":
+  version: 2.1.0
+  resolution: "tweedle.js@npm:2.1.0"
+  checksum: 0d1abe03e5ac39a83a90bad019822c6ca05515d1d79f7f75228d6d33c279512ecb9cf8ccd5142cbecff5fc75100694238a8baacae84d10c5d4ed6e4eaef601dd
+  languageName: node
+  linkType: hard
+
 "type-check@npm:^0.4.0, type-check@npm:~0.4.0":
   version: 0.4.0
   resolution: "type-check@npm:0.4.0"
@@ -10311,6 +10346,13 @@ __metadata:
     media-typer: 0.3.0
     mime-types: ~2.1.24
   checksum: 2c8e47675d55f8b4e404bcf529abdf5036c537a04c2b20177bcf78c9e3c1da69da3942b1346e6edb09e823228c0ee656ef0e033765ec39a70d496ef601a0c657
+  languageName: node
+  linkType: hard
+
+"typed-signals@npm:^2.5.0":
+  version: 2.5.0
+  resolution: "typed-signals@npm:2.5.0"
+  checksum: 3cfcdf962bcf3c3305d7f5d2952749808584f7d08e18b0172d77d8b8e2b998cbe2d310ff3b08736b5f45148c6aaa878a9611ad01e7fdf0167fbac36ded9a7c0a
   languageName: node
   linkType: hard
 

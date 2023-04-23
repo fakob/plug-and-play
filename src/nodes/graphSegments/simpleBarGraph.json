@@ -2268,13 +2268,6 @@
         },
         {
           "socketType": "in",
-          "name": "Step size",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
-          "data": 1,
-          "visible": false
-        },
-        {
-          "socketType": "in",
           "name": "Label",
           "dataType": "{\"class\":\"StringType\",\"type\":{}}",
           "data": "Spacing",
@@ -2332,13 +2325,6 @@
         },
         {
           "socketType": "in",
-          "name": "Step size",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
-          "data": 1,
-          "visible": false
-        },
-        {
-          "socketType": "in",
           "name": "Label",
           "dataType": "{\"class\":\"StringType\",\"type\":{}}",
           "data": "Width",
@@ -2392,13 +2378,6 @@
           "name": "Round",
           "dataType": "{\"class\":\"BooleanType\",\"type\":{}}",
           "data": true,
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Step size",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
-          "data": 1,
           "visible": false
         },
         {

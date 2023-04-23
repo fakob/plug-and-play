@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
-
+import * as PIXI from 'pixi.js';
+import { Button as PixiUIButton, Slider as PixiUISlider } from '@pixi/ui';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Button,
@@ -14,20 +15,20 @@ import {
   MenuItem,
   Paper,
   Popper,
-  Slider,
   Stack,
   Select,
   SelectChangeEvent,
   Switch,
   ThemeProvider,
-  Typography,
 } from '@mui/material';
 import ColorizeIcon from '@mui/icons-material/Colorize';
 import { SketchPicker } from 'react-color';
 import Socket from '../../classes/SocketClass';
-import { Widget_Base } from './abstract';
-import { TRgba } from '../../utils/interfaces';
+import { Widget_Base, WidgetHybridBase } from './abstract';
+import { TNodeSource, TRgba } from '../../utils/interfaces';
+import { limitRange, roundNumber } from '../../utils/utils';
 import {
+  NODE_MARGIN,
   PRESET_COLORS,
   RANDOMMAINCOLOR,
   SOCKET_TYPE,
@@ -45,7 +46,6 @@ const selectedName = 'Initial selection';
 const initialValueName = 'Initial value';
 const minValueName = 'Min';
 const roundName = 'Round';
-const stepSizeName = 'Step size';
 const maxValueName = 'Max';
 const offValueName = 'Off';
 const onValueName = 'On';
@@ -59,7 +59,33 @@ const margin = 4;
 
 const defaultOptions = ['Option1', 'Option2', 'Option3'];
 
+const fillWhiteHex = TRgba.white().hex();
+const fillColorDarkHex = TRgba.fromString(RANDOMMAINCOLOR).darken(0.5).hex();
+const fillColorHex = TRgba.fromString(RANDOMMAINCOLOR).hex();
+const contrastColorHex = TRgba.fromString(RANDOMMAINCOLOR)
+  .getContrastTextColor()
+  .hex();
+
+const baseStyle = {
+  fontFamily: ['Roboto', 'Helvetica', 'Arial', 'sans-serif'],
+  fontSize: 16,
+  letterSpacing: 0.45,
+  fill: contrastColorHex,
+  wordWrap: true,
+};
+
 export class WidgetButton extends Widget_Base {
+  _refLabel: PIXI.Text;
+  _refWidget: PixiUIButton;
+  _refGraphics: PIXI.Graphics;
+
+  private labelTextStyle = new PIXI.TextStyle({
+    ...baseStyle,
+    align: 'center',
+    fontWeight: '500',
+    fill: contrastColorHex,
+  });
+
   protected getUpdateBehaviour(): UpdateBehaviourClass {
     return new UpdateBehaviourClass(false, false, 1000);
   }
@@ -89,81 +115,80 @@ export class WidgetButton extends Widget_Base {
     return 104;
   }
 
+  handleOnPointerDown = () => {
+    this.onWidgetTrigger();
+
+    this._refWidget.view.scale.x = 0.99;
+    this._refWidget.view.scale.y = 0.99;
+    this._refWidget.view.alpha = 0.8;
+    const inputData = this.getInputData(onValueName);
+    this.setOutputData(outName, inputData);
+    this.executeChildren();
+  };
+
+  handleOnPointerUp = () => {
+    this._refWidget.view.scale.x = 1;
+    this._refWidget.view.scale.y = 1;
+    this._refWidget.view.alpha = 1;
+    const inputData = this.getInputData(offValueName);
+    this.setOutputData(outName, inputData);
+    this.executeChildren();
+  };
+
   public onWidgetTrigger = () => {
     console.log('onWidgetTrigger');
     this.executeOptimizedChain();
   };
 
-  protected getParentComponent(props: any): any {
-    const node = props.node;
+  public drawNodeShape(): void {
+    super.drawNodeShape();
 
-    useEffect(() => {
-      node.setOutputData(outName, node.getInputData(offValueName));
-      node.executeChildren();
-    }, []);
+    if (this._refWidget == undefined) {
+      this._refGraphics = new PIXI.Graphics();
+      this._refWidget = new PixiUIButton(this._refGraphics);
 
-    const handleOnPointerDown = () => {
-      node.onWidgetTrigger();
-      const inputData = node.getInputData(onValueName);
-      node.setOutputData(outName, inputData);
-      node.executeChildren();
-    };
+      this._refGraphics.pivot.x = 0;
+      this._refGraphics.pivot.y = 0;
+      this._refWidget.view.x = NODE_MARGIN + 4 * margin;
+      this._refWidget.view.y = 4 * margin;
+      this._refWidget.onDown.connect(this.handleOnPointerDown);
+      this._refWidget.onUp.connect(this.handleOnPointerUp);
+      this.addChild(this._refWidget.view);
 
-    const handleOnPointerUp = () => {
-      const inputData = node.getInputData(offValueName);
-      node.setOutputData(outName, inputData);
-      node.executeChildren();
-    };
+      this._refLabel = new PIXI.Text(
+        String(this.getInputData(labelName)).toUpperCase(),
+        this.labelTextStyle
+      );
+      this._refLabel.anchor.x = 0.5;
+      this._refLabel.anchor.y = 0.5;
+      this._refLabel.eventMode = 'none';
+      this.addChild(this._refLabel);
+    }
 
-    return (
-      <ThemeProvider theme={customTheme}>
-        <Paper
-          component={Stack}
-          direction="column"
-          justifyContent="center"
-          sx={{
-            bgcolor: 'background.default',
-            fontSize: '16px',
-            border: 0,
-            width: `${node.nodeWidth}px`,
-            height: `${node.nodeHeight}px`,
-            boxShadow: 16,
-            '&:hover': {
-              boxShadow: 12,
-            },
-          }}
-        >
-          <Button
-            variant="contained"
-            onPointerDown={handleOnPointerDown}
-            onPointerUp={handleOnPointerUp}
-            sx={{
-              pointerEvents: 'auto',
-              margin: 'auto',
-              fontSize: '16px',
-              lineHeight: '20px',
-              border: 0,
-              width: `${node.nodeWidth - 8 * margin}px`,
-              height: `${node.nodeHeight - 8 * margin}px`,
-              borderRadius: `${node.nodeWidth / 16}px`,
-              boxShadow: 16,
-              '&:hover': {
-                boxShadow: 12,
-              },
-              '&:active': {
-                boxShadow: 4,
-              },
-            }}
-          >
-            {props[labelName]}
-          </Button>
-        </Paper>
-      </ThemeProvider>
-    );
+    this._refGraphics.clear();
+    this._refGraphics
+      .beginFill(fillColorHex)
+      .drawRoundedRect(
+        0,
+        0,
+        this.nodeWidth - 8 * margin,
+        this.nodeHeight - 8 * margin,
+        16
+      );
+    this._refWidget.view.width = this.nodeWidth - 8 * margin;
+    this._refWidget.view.height = this.nodeHeight - 8 * margin;
+    this._refLabel.x = NODE_MARGIN + this.nodeWidth / 2;
+    this._refLabel.y = this.nodeHeight / 2;
+    this._refLabel.style.wordWrapWidth = this.nodeWidth - 10 * margin;
   }
+
+  public onExecute = async (input, output) => {
+    const text = String(input[labelName]).toUpperCase();
+    this._refLabel.text = text;
+  };
 }
 
-export class WidgetColorPicker extends Widget_Base {
+export class WidgetColorPicker extends WidgetHybridBase {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(
@@ -309,7 +334,7 @@ export class WidgetColorPicker extends Widget_Base {
   }
 }
 
-export class WidgetSwitch extends Widget_Base {
+export class WidgetSwitch extends WidgetHybridBase {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, selectedName, new BooleanType(), false, false),
@@ -410,13 +435,33 @@ export class WidgetSwitch extends Widget_Base {
 }
 
 export class WidgetSlider extends Widget_Base {
+  _refLabel: PIXI.Text;
+  _refValue: PIXI.Text;
+  _refWidget: PixiUISlider;
+  _refBg: PIXI.Graphics;
+  _refFill: PIXI.Graphics;
+  _refSlider: PIXI.Graphics;
+
+  private valueTextStyle = new PIXI.TextStyle({
+    ...baseStyle,
+    align: 'center',
+    fontWeight: '500',
+    fill: fillWhiteHex,
+  });
+
+  private labelTextStyle = new PIXI.TextStyle({
+    ...baseStyle,
+    align: 'center',
+    fontWeight: '100',
+    fill: fillWhiteHex,
+  });
+
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, initialValueName, new NumberType(), 0, false),
       new Socket(SOCKET_TYPE.IN, minValueName, new NumberType(), 0, false),
       new Socket(SOCKET_TYPE.IN, maxValueName, new NumberType(), 100, false),
       new Socket(SOCKET_TYPE.IN, roundName, new BooleanType(), 100, false),
-      new Socket(SOCKET_TYPE.IN, stepSizeName, new NumberType(), 0.01, false),
       new Socket(SOCKET_TYPE.IN, labelName, new StringType(), 'Slider', false),
       new Socket(SOCKET_TYPE.OUT, outName, new NumberType()),
     ];
@@ -438,137 +483,121 @@ export class WidgetSlider extends Widget_Base {
     return 104;
   }
 
-  protected getParentComponent(props: any): any {
-    const node = props.node;
-    const [data, setData] = useState(Number(props[initialValueName]));
-    const [minValue, setMinValue] = useState(
-      Math.min(props[minValueName] ?? 0, data)
-    );
-    const [maxValue, setMaxValue] = useState(
-      Math.max(props[maxValueName] ?? 100, data)
-    );
-    const [round, setRound] = useState(props[roundName] ?? false);
-    const [stepSizeValue, setStepSizeValue] = useState(
-      props[stepSizeName] ?? 0.01
-    );
+  public drawNodeShape(): void {
+    super.drawNodeShape();
 
-    useEffect(() => {
-      node.setOutputData(outName, data);
-      node.executeChildren();
-    }, []);
+    if (this._refWidget == undefined) {
+      // Widget
+      this._refBg = new PIXI.Graphics();
+      this._refFill = new PIXI.Graphics();
+      this._refSlider = new PIXI.Graphics();
+      this._refWidget = new PixiUISlider({
+        bg: this._refBg,
+        fill: this._refFill,
+        slider: this._refSlider,
+        min: this.getInputData(minValueName),
+        max: this.getInputData(maxValueName),
+        value: this.getInputData(initialValueName),
+        valueTextStyle: this.valueTextStyle,
+        showValue: false,
+      });
+      this._refWidget.x = NODE_MARGIN + 4 * margin;
+      this._refWidget.onUpdate.connect(this.handleOnChange);
+      this.addChild(this._refWidget);
 
-    useEffect(() => {
-      setData(Number(props[initialValueName]));
-      setMinValue(Math.min(props[minValueName] ?? 0, data));
-      setMaxValue(Math.max(props[maxValueName] ?? 100, data));
-      setRound(props[roundName] ?? false);
-      setStepSizeValue(props[stepSizeName] ?? 0.01);
-    }, [
-      props[initialValueName],
-      props[minValueName],
-      props[maxValueName],
-      props[roundName],
-      props[stepSizeName],
-    ]);
+      // Label
+      this._refLabel = new PIXI.Text(
+        String(this.getInputData(labelName)),
+        this.labelTextStyle
+      );
+      this._refLabel.anchor.x = 0.5;
+      this._refLabel.anchor.y = 1;
+      this._refLabel.eventMode = 'none';
+      this.addChild(this._refLabel);
 
-    const handleOnChange = (event, value) => {
-      if (!Array.isArray(value)) {
-        if (value !== props[initialValueName]) {
-          node.setInputData(initialValueName, value);
-        }
-        setData(value);
-        node.setOutputData(outName, value);
-        node.executeChildren();
-      }
-    };
+      // Value
+      this._refValue = new PIXI.Text(
+        String(this.getInputData(initialValueName)),
+        this.valueTextStyle
+      );
+      this._refValue.anchor.x = 0.5;
+      this._refValue.anchor.y = 0;
+      this._refValue.y = 2 * margin;
+      this._refValue.eventMode = 'none';
+      this.addChild(this._refValue);
+    }
 
-    return (
-      <ThemeProvider theme={customTheme}>
-        <Paper
-          component={Stack}
-          direction="column"
-          justifyContent="center"
-          sx={{
-            bgcolor: 'background.default',
-            fontSize: '16px',
-            border: 0,
-            width: `${node.nodeWidth}px`,
-            height: `${node.nodeHeight}px`,
-            boxShadow: 16,
-            '&:hover': {
-              boxShadow: 12,
-            },
-          }}
-        >
-          <Slider
-            size="small"
-            color="secondary"
-            valueLabelDisplay="on"
-            min={minValue}
-            max={maxValue}
-            step={round ? 1 : stepSizeValue}
-            onChange={handleOnChange}
-            value={data || 0}
-            sx={{
-              margin: `${6 * margin}px ${8 * margin}px ${margin}px`,
-              height: '8px',
-              pointerEvents: 'auto',
-              '&.MuiSlider-root': {
-                width: 'unset',
-              },
-              '& .MuiSlider-rail': {
-                backgroundColor: 'primary.dark',
-              },
-              '& .MuiSlider-track': {
-                border: 'none',
-                backgroundColor: 'primary.main',
-              },
-              '& .MuiSlider-valueLabel': {
-                fontSize: '1rem',
-                fontWeight: 'normal',
-                top: -4,
-                backgroundColor: 'unset',
-                color: 'text.primary',
-                '&:before': {
-                  display: 'none',
-                },
-                '& *': {
-                  background: 'transparent',
-                  color: 'text.primary',
-                },
-              },
-              '& .MuiSlider-thumb': {
-                height: 32,
-                width: 32,
-                backgroundColor: 'text.primary',
-                borderColor: 'primary.main',
-                borderWidth: '4px',
-                borderStyle: 'solid',
-                '&:focus, &:hover, &.Mui-active, &.Mui-focusVisible': {
-                  boxShadow: 'inherit',
-                },
-                '&:before': {
-                  display: 'none',
-                },
-              },
-            }}
-          />
-          <Typography
-            sx={{
-              textAlign: 'center',
-              textOverflow: 'ellipsis',
-              px: 2,
-            }}
-          >
-            {props[labelName]}
-          </Typography>
-        </Paper>
-      </ThemeProvider>
+    this._refWidget.progress = this.valueToPercent(
+      this.getInputData(initialValueName)
     );
+    this._refBg.clear();
+    this._refBg
+      .beginFill(fillColorDarkHex)
+      .drawRoundedRect(
+        0,
+        0,
+        this.nodeWidth - 8 * margin,
+        this.nodeHeight - 16 * margin,
+        16
+      );
+
+    this._refFill.clear();
+    this._refFill
+      .beginFill(fillColorHex)
+      .drawRoundedRect(
+        0,
+        0,
+        this.nodeWidth - 8 * margin,
+        this.nodeHeight - 16 * margin,
+        16
+      );
+    this._refWidget.y = (this.nodeHeight - (this.nodeHeight - 16 * margin)) / 2;
+
+    this._refValue.x = NODE_MARGIN + this.nodeWidth / 2;
+
+    this._refLabel.x = NODE_MARGIN + this.nodeWidth / 2;
+    this._refLabel.y = this.nodeHeight - 2 * margin;
+    this._refLabel.style.wordWrapWidth = this.nodeWidth - 10 * margin;
   }
+
+  valueToPercent = (value) => {
+    const minValue = this.getInputData(minValueName);
+    const maxValue = this.getInputData(maxValueName);
+    return ((value - minValue) / (maxValue - minValue)) * 100;
+  };
+
+  setOutputDataAndText = (value) => {
+    const shouldRound = this.getInputData(roundName);
+    const newValue = shouldRound ? Math.round(value) : value;
+    this._refValue.text = roundNumber(newValue, shouldRound ? 0 : 2);
+    this.setOutputData(outName, newValue);
+  };
+
+  handleOnChange = (value) => {
+    this.setInputData(initialValueName, value);
+    this.setOutputDataAndText(value);
+    this.executeChildren();
+  };
+
+  public onExecute = async (input, output) => {
+    const value = input[initialValueName];
+    const minValue = input[minValueName];
+    const maxValue = input[maxValueName];
+    this._refWidget.min = minValue;
+    this._refWidget.max = maxValue;
+
+    const text = String(input[labelName]);
+    this._refLabel.text = text;
+
+    // update the slider in percent
+    this._refWidget.progress = this.valueToPercent(value);
+
+    // update the output
+    this.setOutputDataAndText(limitRange(value, minValue, maxValue));
+  };
 }
 
-export class WidgetDropdown extends Widget_Base {
+export class WidgetDropdown extends WidgetHybridBase {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(

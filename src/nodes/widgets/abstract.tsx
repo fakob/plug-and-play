@@ -1,8 +1,10 @@
+import Color from 'color';
 import HybridNode2 from '../../classes/HybridNode2';
-import { NODE_TYPE_COLOR } from '../../utils/constants';
+import PPNode from '../../classes/NodeClass';
+import { NODE_TYPE_COLOR, RANDOMMAINCOLOR } from '../../utils/constants';
 import { TRgba } from '../../utils/interfaces';
 
-export abstract class Widget_Base extends HybridNode2 {
+export abstract class WidgetHybridBase extends HybridNode2 {
   getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
   }
@@ -13,5 +15,27 @@ export abstract class Widget_Base extends HybridNode2 {
 
   protected getActivateByDoubleClick(): boolean {
     return false;
+  }
+}
+
+export abstract class Widget_Base extends PPNode {
+  getColor(): TRgba {
+    return TRgba.fromString(Color(RANDOMMAINCOLOR).darken(0.85).hex());
+  }
+
+  getRoundedCorners(): boolean {
+    return false;
+  }
+
+  getShowLabels(): boolean {
+    return false;
+  }
+
+  public getShrinkOnSocketRemove(): boolean {
+    return false;
+  }
+
+  public getMinNodeHeight(): number {
+    return 80;
   }
 }
