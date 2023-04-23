@@ -409,7 +409,7 @@ export class WidgetSwitch extends Widget_Base {
   }
 }
 
-export class WidgetSlider extends Widget_Base {
+export class WidgetSlider2 extends Widget_Base {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, initialValueName, new NumberType(), 0, false),
@@ -423,7 +423,7 @@ export class WidgetSlider extends Widget_Base {
   }
 
   public getName(): string {
-    return 'Slider';
+    return 'Slider-old';
   }
 
   public getDescription(): string {
