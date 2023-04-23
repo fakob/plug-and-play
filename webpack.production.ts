@@ -60,7 +60,7 @@ module.exports = () => {
           terserOptions: {
             mangle: true,
             toplevel: true,
-            keep_classnames: false,
+            keep_classnames: true,
             keep_fnames: true,
           },
         }),
