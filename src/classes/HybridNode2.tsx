@@ -2,14 +2,13 @@
 /* eslint-disable @typescript-eslint/no-this-alias */
 
 import React from 'react';
-import * as PIXI from 'pixi.js';
 import { createRoot, Root } from 'react-dom/client';
 import { Button } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import PPGraph from './GraphClass';
 import PPNode from './NodeClass';
 import styles from '../utils/style.module.css';
-import { CustomArgs, SerializedNode, TRgba } from '../utils/interfaces';
+import { CustomArgs, TRgba } from '../utils/interfaces';
 import { RANDOMMAINCOLOR } from '../utils/constants';
 
 function pixiToContainerNumber(value: number) {
@@ -104,16 +103,18 @@ export default abstract class HybridNode2 extends PPNode {
           {...props}
           id={this.id}
           selected={this.selected}
-          doubleClicked={this.doubleClicked}
+          isEditable={this.isEditable}
+          isHovering={this.isHovering}
           randomMainColor={RANDOMMAINCOLOR}
           node={node}
+          onClick={(e) => this.onPointerClick(e)}
         />
-        {this.getActivateByDoubleClick() && !this.doubleClicked && (
+        {this.getActivateByClick() && !this.isEditable && (
           <Button
             title={'Click to edit OR Double click node'}
             className={styles.hybridContainerEditButton}
             size="small"
-            onClick={this.onPointerClick.bind(this)}
+            onClick={() => this.onMakeEditable()}
             color="primary"
             sx={{
               background: RANDOMMAINCOLOR,
@@ -134,6 +135,7 @@ export default abstract class HybridNode2 extends PPNode {
     document.getElementById('container').removeChild(container);
   }
 
+  protected onHybridNodeEnter(): void {}
   protected onHybridNodeExit(): void {}
 
   setPosition(x: number, y: number, isRelative = false): void {
@@ -154,17 +156,27 @@ export default abstract class HybridNode2 extends PPNode {
     this.execute();
   }
 
-  onPointerClick(event: PIXI.FederatedPointerEvent): void {
+  onMakeEditable(): void {
+    // register hybrid nodes to listen to outside clicks
+    this.isEditable = true;
+    this.onHybridNodeEnter();
+    PPGraph.currentGraph.viewport.addEventListener(
+      'pointerup',
+      (this as any).onViewportPointerUpHandler
+    );
+    this.container.classList.add(styles.hybridContainerFocused);
+    this.execute();
+  }
+
+  onPointerOver(): void {
+    super.onPointerOver();
+  }
+
+  onPointerClick(event): void {
     super.onPointerClick(event);
     // turn on pointer events for hybrid nodes so the react components become reactive
-    if (this.getActivateByDoubleClick()) {
-      // register hybrid nodes to listen to outside clicks
-      PPGraph.currentGraph.viewport.addEventListener(
-        'pointerup',
-        (this as any).onViewportPointerUpHandler
-      );
-      this.container.classList.add(styles.hybridContainerFocused);
-      this.execute();
+    if (this.getActivateByClick() && event.target === this) {
+      this.onMakeEditable();
     }
   }
 
@@ -175,7 +187,7 @@ export default abstract class HybridNode2 extends PPNode {
       'pointerup',
       (this as any).onViewportPointerUpHandler
     );
-    this.doubleClicked = false;
+    this.isEditable = false;
     this.onHybridNodeExit();
     // this allows to zoom and drag when the hybrid node is not selected
     this.container.classList.remove(styles.hybridContainerFocused);
@@ -187,6 +199,14 @@ export default abstract class HybridNode2 extends PPNode {
   }
 
   public getShrinkOnSocketRemove(): boolean {
+    return false;
+  }
+
+  protected getActivateByClick(): boolean {
+    return true;
+  }
+
+  protected getShowLabels(): boolean {
     return false;
   }
 

@@ -67,10 +67,6 @@ export class TextEditor extends HybridNode2 {
   readOnly: boolean;
   textToImport: { html: string } | { plain: string };
 
-  protected getActivateByDoubleClick(): boolean {
-    return true;
-  }
-
   public getName(): string {
     return 'Text editor';
   }
@@ -298,10 +294,10 @@ export class TextEditor extends HybridNode2 {
     }, [contentHeight, props[autoHeightName]]);
 
     useEffect(() => {
-      if (props.doubleClicked) {
+      if (props.isEditable) {
         ReactEditor.focus(editor);
       }
-    }, [props.doubleClicked]);
+    }, [props.isEditable]);
 
     useEffect(() => {
       setColor(props[backgroundColorSocketName]);
@@ -313,7 +309,7 @@ export class TextEditor extends HybridNode2 {
     ]);
 
     useEffect(() => {
-      if (!props.doubleClicked) {
+      if (!props.isEditable) {
         updateEditorData();
       }
     }, [getAllParameters(), props[textJSONSocketName]]);
@@ -479,7 +475,7 @@ export class TextEditor extends HybridNode2 {
               value={props[textJSONSocketName]}
               onChange={onChange}
             >
-              {props.doubleClicked && <HoverToolbar />}
+              {props.isEditable && <HoverToolbar />}
               {target && parameterNameArray.length > 0 && (
                 <ParameterMenu
                   parameterNameArray={parameterNameArray}
@@ -489,11 +485,11 @@ export class TextEditor extends HybridNode2 {
                 />
               )}
               <Editable
-                readOnly={!props.doubleClicked}
+                readOnly={!props.isEditable}
                 renderElement={renderElement}
                 renderLeaf={renderLeaf}
                 placeholder="Enter some rich text…"
-                spellCheck={props.doubleClicked}
+                spellCheck={props.isEditable}
                 onKeyDown={onKeyDown}
               />
             </Slate>

@@ -84,10 +84,6 @@ export class Table extends HybridNode2 {
     this.workBook = XLSX.utils.book_new();
   }
 
-  protected getActivateByDoubleClick(): boolean {
-    return true;
-  }
-
   getPreferredInputSocketName(): string {
     return inputSocketName;
   }
@@ -371,10 +367,10 @@ export class Table extends HybridNode2 {
     }, []);
 
     useEffect(() => {
-      if (props.doubleClicked) {
+      if (props.isEditable) {
         ref.current.focus();
       }
-    }, [props.doubleClicked]);
+    }, [props.isEditable]);
 
     useEffect(() => {
       loadSheet();
@@ -591,7 +587,7 @@ export class Table extends HybridNode2 {
 
     return (
       <Box sx={{ position: 'relative' }}>
-        {props.doubleClicked && (
+        {props.isEditable && (
           <>
             <ButtonGroup
               variant="contained"

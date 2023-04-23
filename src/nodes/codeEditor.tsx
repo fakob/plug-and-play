@@ -13,10 +13,6 @@ const outputSocketName = 'output';
 const inputSocketName = 'input';
 
 export class CodeEditor extends HybridNode2 {
-  protected getActivateByDoubleClick(): boolean {
-    return true;
-  }
-
   getPreferredInputSocketName(): string {
     return inputSocketName;
   }

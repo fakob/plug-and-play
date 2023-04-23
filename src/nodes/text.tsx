@@ -170,7 +170,7 @@ export class Label extends PPNode {
       console.log('blur', e);
       this.currentInput.remove();
       this._refText.visible = true;
-      this.doubleClicked = false;
+      this.isEditable = false;
       this.executeOptimizedChain();
     });
 

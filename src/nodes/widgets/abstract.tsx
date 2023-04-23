@@ -13,7 +13,7 @@ export abstract class WidgetHybridBase extends HybridNode2 {
     return 0.01;
   }
 
-  protected getActivateByDoubleClick(): boolean {
+  protected getActivateByClick(): boolean {
     return false;
   }
 }

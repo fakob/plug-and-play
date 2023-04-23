@@ -29,10 +29,6 @@ export class LogViewer extends HybridNode2 {
     ];
   }
 
-  protected getActivateByDoubleClick(): boolean {
-    return true;
-  }
-
   public getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.OUTPUT);
   }
