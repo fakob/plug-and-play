@@ -210,7 +210,7 @@ export class ThrottleDebounce extends PPNode {
     }
     const input = inputObject['In'];
     const output = this.passThroughDebounced(input);
-    if (output === undefined) {
+    if (output == undefined || isNaN(output)) {
       outputObject['Out'] = input;
     } else {
       outputObject['Out'] = output;
