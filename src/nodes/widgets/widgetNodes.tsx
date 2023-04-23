@@ -140,8 +140,33 @@ export class WidgetButton extends Widget_Base {
     this.executeOptimizedChain();
   };
 
-  public onNodeAdded = (source?: TNodeSource) => {
-    this._refGraphics = new PIXI.Graphics()
+  public drawNodeShape(): void {
+    super.drawNodeShape();
+
+    if (this._refWidget == undefined) {
+      this._refGraphics = new PIXI.Graphics();
+      this._refWidget = new PixiUIButton(this._refGraphics);
+
+      this._refGraphics.pivot.x = 0;
+      this._refGraphics.pivot.y = 0;
+      this._refWidget.view.x = NODE_MARGIN + 4 * margin;
+      this._refWidget.view.y = 4 * margin;
+      this._refWidget.onDown.connect(this.handleOnPointerDown);
+      this._refWidget.onUp.connect(this.handleOnPointerUp);
+      this.addChild(this._refWidget.view);
+
+      this._refLabel = new PIXI.Text(
+        String(this.getInputData(labelName)).toUpperCase(),
+        this.labelTextStyle
+      );
+      this._refLabel.anchor.x = 0.5;
+      this._refLabel.anchor.y = 0.5;
+      this._refLabel.eventMode = 'none';
+      this.addChild(this._refLabel);
+    }
+
+    this._refGraphics.clear();
+    this._refGraphics
       .beginFill(fillColorHex)
       .drawRoundedRect(
         0,
@@ -150,42 +175,12 @@ export class WidgetButton extends Widget_Base {
         this.nodeHeight - 8 * margin,
         16
       );
-    this._refWidget = new PixiUIButton(this._refGraphics);
-
-    this._refGraphics.pivot.x = 0;
-    this._refGraphics.pivot.y = 0;
-    this._refWidget.view.x = NODE_MARGIN + 4 * margin;
-    this._refWidget.view.y = 4 * margin;
-    this._refWidget.onDown.connect(this.handleOnPointerDown);
-    this._refWidget.onUp.connect(this.handleOnPointerUp);
-    this.addChild(this._refWidget.view);
-
-    this._refLabel = new PIXI.Text(
-      String(this.getInputData(labelName)).toUpperCase(),
-      this.labelTextStyle
-    );
-    this._refLabel.anchor.x = 0.5;
-    this._refLabel.anchor.y = 0.5;
-    this._refLabel.style.wordWrapWidth = this.nodeWidth - 10 * margin;
+    this._refWidget.view.width = this.nodeWidth - 8 * margin;
+    this._refWidget.view.height = this.nodeHeight - 8 * margin;
     this._refLabel.x = NODE_MARGIN + this.nodeWidth / 2;
     this._refLabel.y = this.nodeHeight / 2;
-    this._refLabel.eventMode = 'none';
-    this.addChild(this._refLabel);
-
-    super.onNodeAdded(source);
-  };
-
-  public onNodeResize = (newWidth, newHeight) => {
-    this._refGraphics.clear();
-    this._refGraphics
-      .beginFill(fillColorHex)
-      .drawRoundedRect(0, 0, newWidth - 8 * margin, newHeight - 8 * margin, 16);
-    this._refWidget.view.width = newWidth - 8 * margin;
-    this._refWidget.view.height = newHeight - 8 * margin;
-    this._refLabel.x = NODE_MARGIN + newWidth / 2;
-    this._refLabel.y = newHeight / 2;
-    this._refLabel.style.wordWrapWidth = newWidth - 10 * margin;
-  };
+    this._refLabel.style.wordWrapWidth = this.nodeWidth - 10 * margin;
+  }
 
   public onExecute = async (input, output) => {
     const text = String(input[labelName]).toUpperCase();
@@ -488,88 +483,61 @@ export class WidgetSlider extends Widget_Base {
     return 104;
   }
 
-  public onNodeAdded = (source?: TNodeSource) => {
-    // Widget
-    this._refBg = new PIXI.Graphics()
-      .beginFill(fillColorDarkHex)
-      .drawRoundedRect(
-        0,
-        0,
-        this.nodeWidth - 8 * margin,
-        this.nodeHeight - 16 * margin,
-        16
+  public drawNodeShape(): void {
+    super.drawNodeShape();
+
+    if (this._refWidget == undefined) {
+      // Widget
+      this._refBg = new PIXI.Graphics();
+      this._refFill = new PIXI.Graphics();
+      this._refSlider = new PIXI.Graphics();
+      this._refWidget = new PixiUISlider({
+        bg: this._refBg,
+        fill: this._refFill,
+        slider: this._refSlider,
+        min: this.getInputData(minValueName),
+        max: this.getInputData(maxValueName),
+        value: this.getInputData(initialValueName),
+        valueTextStyle: this.valueTextStyle,
+        showValue: false,
+      });
+      this._refWidget.x = NODE_MARGIN + 4 * margin;
+      this._refWidget.onUpdate.connect(this.handleOnChange);
+      this.addChild(this._refWidget);
+
+      // Label
+      this._refLabel = new PIXI.Text(
+        String(this.getInputData(labelName)),
+        this.labelTextStyle
       );
+      this._refLabel.anchor.x = 0.5;
+      this._refLabel.anchor.y = 1;
+      this._refLabel.eventMode = 'none';
+      this.addChild(this._refLabel);
 
-    this._refFill = new PIXI.Graphics()
-      .beginFill(fillColorHex)
-      .drawRoundedRect(
-        0,
-        0,
-        this.nodeWidth - 8 * margin,
-        this.nodeHeight - 16 * margin,
-        16
+      // Value
+      this._refValue = new PIXI.Text(
+        String(this.getInputData(initialValueName)),
+        this.valueTextStyle
       );
+      this._refValue.anchor.x = 0.5;
+      this._refValue.anchor.y = 0;
+      this._refValue.y = 2 * margin;
+      this._refValue.eventMode = 'none';
+      this.addChild(this._refValue);
+    }
 
-    this._refSlider = new PIXI.Graphics();
-
-    this._refWidget = new PixiUISlider({
-      bg: this._refBg,
-      fill: this._refFill,
-      slider: this._refSlider,
-      min: this.getInputData(minValueName),
-      max: this.getInputData(maxValueName),
-      value: this.getInputData(initialValueName),
-      valueTextStyle: this.valueTextStyle,
-      showValue: false,
-    });
-
-    this._refWidget.x = NODE_MARGIN + 4 * margin;
-    this._refWidget.y = 4 * margin;
-    this._refWidget.onUpdate.connect(this.handleOnChange);
-
-    this.addChild(this._refWidget);
-
-    // Label
-    this._refLabel = new PIXI.Text(
-      String(this.getInputData(labelName)),
-      this.labelTextStyle
-    );
-    this._refLabel.anchor.x = 0.5;
-    this._refLabel.anchor.y = 1;
-    this._refLabel.style.wordWrapWidth = this.nodeWidth - 10 * margin;
-    this._refLabel.x = NODE_MARGIN + this.nodeWidth / 2;
-    this._refLabel.y = this.nodeHeight - 2 * margin;
-    this._refLabel.eventMode = 'none';
-    this.addChild(this._refLabel);
-
-    // Value
-    this._refValue = new PIXI.Text(
-      String(this.getInputData(initialValueName)),
-      this.valueTextStyle
-    );
-    this._refValue.anchor.x = 0.5;
-    this._refValue.anchor.y = 0;
-    this._refValue.x = NODE_MARGIN + this.nodeWidth / 2;
-    this._refValue.y = 2 * margin;
-    this._refValue.eventMode = 'none';
-    this.addChild(this._refValue);
-
-    super.onNodeAdded(source);
-  };
-
-  public onNodeResize = (newWidth, newHeight) => {
     this._refWidget.progress = this.valueToPercent(
       this.getInputData(initialValueName)
     );
-
     this._refBg.clear();
     this._refBg
       .beginFill(fillColorDarkHex)
       .drawRoundedRect(
         0,
         0,
-        newWidth - 8 * margin,
-        newHeight - 16 * margin,
+        this.nodeWidth - 8 * margin,
+        this.nodeHeight - 16 * margin,
         16
       );
 
@@ -579,19 +547,18 @@ export class WidgetSlider extends Widget_Base {
       .drawRoundedRect(
         0,
         0,
-        newWidth - 8 * margin,
-        newHeight - 16 * margin,
+        this.nodeWidth - 8 * margin,
+        this.nodeHeight - 16 * margin,
         16
       );
+    this._refWidget.y = (this.nodeHeight - (this.nodeHeight - 16 * margin)) / 2;
 
-    this._refWidget.y = (newHeight - (newHeight - 16 * margin)) / 2;
+    this._refValue.x = NODE_MARGIN + this.nodeWidth / 2;
 
-    this._refValue.x = NODE_MARGIN + newWidth / 2;
-
-    this._refLabel.x = NODE_MARGIN + newWidth / 2;
+    this._refLabel.x = NODE_MARGIN + this.nodeWidth / 2;
     this._refLabel.y = this.nodeHeight - 2 * margin;
-    this._refLabel.style.wordWrapWidth = newWidth - 10 * margin;
-  };
+    this._refLabel.style.wordWrapWidth = this.nodeWidth - 10 * margin;
+  }
 
   valueToPercent = (value) => {
     const minValue = this.getInputData(minValueName);
