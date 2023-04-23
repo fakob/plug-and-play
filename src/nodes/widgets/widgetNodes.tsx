@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import * as PIXI from 'pixi.js';
+import { Button as PixiUIButton, Slider as PixiUISlider } from '@pixi/ui';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Button,
@@ -14,21 +15,20 @@ import {
   MenuItem,
   Paper,
   Popper,
-  Slider,
   Stack,
   Select,
   SelectChangeEvent,
   Switch,
   ThemeProvider,
-  Typography,
 } from '@mui/material';
 import ColorizeIcon from '@mui/icons-material/Colorize';
 import { SketchPicker } from 'react-color';
 import Socket from '../../classes/SocketClass';
 import { Widget_Base, WidgetHybridBase } from './abstract';
-import { TRgba } from '../../utils/interfaces';
-import { limitRange } from '../../utils/utils';
+import { TNodeSource, TRgba } from '../../utils/interfaces';
+import { limitRange, roundNumber } from '../../utils/utils';
 import {
+  NODE_MARGIN,
   PRESET_COLORS,
   RANDOMMAINCOLOR,
   SOCKET_TYPE,
@@ -76,7 +76,7 @@ const baseStyle = {
 
 export class WidgetButton extends Widget_Base {
   _refLabel: PIXI.Text;
-  _refWidget: Button;
+  _refWidget: PixiUIButton;
   _refGraphics: PIXI.Graphics;
 
   private labelTextStyle = new PIXI.TextStyle({
@@ -100,7 +100,7 @@ export class WidgetButton extends Widget_Base {
   }
 
   public getName(): string {
-    return 'Button2';
+    return 'Button';
   }
 
   public getDescription(): string {
@@ -150,7 +150,7 @@ export class WidgetButton extends Widget_Base {
         this.nodeHeight - 8 * margin,
         16
       );
-    this._refWidget = new Button(this._refGraphics);
+    this._refWidget = new PixiUIButton(this._refGraphics);
 
     this._refGraphics.pivot.x = 0;
     this._refGraphics.pivot.y = 0;
@@ -442,7 +442,7 @@ export class WidgetSwitch extends WidgetHybridBase {
 export class WidgetSlider extends Widget_Base {
   _refLabel: PIXI.Text;
   _refValue: PIXI.Text;
-  _refWidget: Slider;
+  _refWidget: PixiUISlider;
   _refBg: PIXI.Graphics;
   _refFill: PIXI.Graphics;
   _refSlider: PIXI.Graphics;
@@ -516,7 +516,7 @@ export class WidgetSlider extends Widget_Base {
 
     this._refSlider = new PIXI.Graphics();
 
-    this._refWidget = new Slider({
+    this._refWidget = new PixiUISlider({
       bg: this._refBg,
       fill: this._refFill,
       slider: this._refSlider,
