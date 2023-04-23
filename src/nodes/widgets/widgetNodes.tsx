@@ -461,10 +461,6 @@ export class WidgetSlider extends Widget_Base {
     fill: fillWhiteHex,
   });
 
-  // protected getUpdateBehaviour(): UpdateBehaviourClass {
-  //   return new UpdateBehaviourClass(false, false, 1000);
-  // }
-
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, initialValueName, new NumberType(), 0, false),
@@ -481,7 +477,7 @@ export class WidgetSlider extends Widget_Base {
   }
 
   public getDescription(): string {
-    return 'Adds a button to trigger values';
+    return 'Adds a number slider';
   }
 
   public getDefaultNodeWidth(): number {
