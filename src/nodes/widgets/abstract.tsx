@@ -18,7 +18,7 @@ export abstract class WidgetHybridBase extends HybridNode2 {
   }
 }
 
-export abstract class Widget_Base extends PPNode {
+export abstract class WidgetBase extends PPNode {
   getColor(): TRgba {
     return TRgba.fromString(Color(RANDOMMAINCOLOR).darken(0.85).hex());
   }

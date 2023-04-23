@@ -24,8 +24,8 @@ import {
 import ColorizeIcon from '@mui/icons-material/Colorize';
 import { SketchPicker } from 'react-color';
 import Socket from '../../classes/SocketClass';
-import { Widget_Base, WidgetHybridBase } from './abstract';
-import { TNodeSource, TRgba } from '../../utils/interfaces';
+import { WidgetBase, WidgetHybridBase } from './abstract';
+import { TRgba } from '../../utils/interfaces';
 import { limitRange, roundNumber } from '../../utils/utils';
 import {
   NODE_MARGIN,
@@ -74,7 +74,7 @@ const baseStyle = {
   wordWrap: true,
 };
 
-export class WidgetButton extends Widget_Base {
+export class WidgetButton extends WidgetBase {
   _refLabel: PIXI.Text;
   _refWidget: PixiUIButton;
   _refGraphics: PIXI.Graphics;
@@ -434,7 +434,7 @@ export class WidgetSwitch extends WidgetHybridBase {
   }
 }
 
-export class WidgetSlider extends Widget_Base {
+export class WidgetSlider extends WidgetBase {
   _refLabel: PIXI.Text;
   _refValue: PIXI.Text;
   _refWidget: PixiUISlider;
