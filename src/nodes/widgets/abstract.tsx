@@ -4,7 +4,7 @@ import PPNode from '../../classes/NodeClass';
 import { NODE_TYPE_COLOR, RANDOMMAINCOLOR } from '../../utils/constants';
 import { TRgba } from '../../utils/interfaces';
 
-export abstract class Widget_Base extends HybridNode2 {
+export abstract class WidgetHybridBase extends HybridNode2 {
   getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
   }
@@ -18,7 +18,7 @@ export abstract class Widget_Base extends HybridNode2 {
   }
 }
 
-export abstract class Widget_Base2 extends PPNode {
+export abstract class Widget_Base extends PPNode {
   getColor(): TRgba {
     return TRgba.fromString(Color(RANDOMMAINCOLOR).darken(0.85).hex());
   }
