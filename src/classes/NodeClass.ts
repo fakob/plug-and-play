@@ -1047,6 +1047,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   onPointerClick(event: PIXI.FederatedPointerEvent): void {
     // check if double clicked
     if (event.detail === 2) {
+      this.doubleClicked = true;
       if (this.onNodeDoubleClick) {
         this.onNodeDoubleClick(event);
       }

@@ -106,7 +106,6 @@ export default abstract class HybridNode2 extends PPNode {
           doubleClicked={this.doubleClicked}
           randomMainColor={RANDOMMAINCOLOR}
           node={node}
-          onClick={(e) => this.onPointerClick(e)}
         />
         <HybridNodeOverlay
           doubleClicked={this.doubleClicked}
