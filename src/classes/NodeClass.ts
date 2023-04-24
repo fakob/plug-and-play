@@ -43,7 +43,7 @@ import { TriggerType } from '../nodes/datatypes/triggerType';
 import { deSerializeType } from '../nodes/datatypes/typehelper';
 import throttle from 'lodash/throttle';
 import FlowLogic from './FlowLogic';
-import InterfaceController, { ListenEvent } from '../InterfaceController';
+import InterfaceController from '../InterfaceController';
 import { TextStyle } from 'pixi.js';
 import { JSONType } from '../nodes/datatypes/jsonType';
 
