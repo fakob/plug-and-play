@@ -21,6 +21,7 @@ export default abstract class HybridNode2 extends PPNode {
   staticRoot: Root;
   container: HTMLElement;
   initialData: any;
+  _isEditable: boolean;
 
   constructor(name: string, customArgs?: CustomArgs) {
     super(name, {
@@ -28,6 +29,7 @@ export default abstract class HybridNode2 extends PPNode {
     });
 
     this.initialData = customArgs?.initialData;
+    this._isEditable = false;
   }
 
   redraw({ screenX = 0, screenY = 0, scale = 1 }) {
@@ -104,28 +106,16 @@ export default abstract class HybridNode2 extends PPNode {
           id={this.id}
           selected={this.selected}
           isEditable={this.isEditable}
-          isHovering={this.isHovering}
           randomMainColor={RANDOMMAINCOLOR}
           node={node}
           onClick={(e) => this.onPointerClick(e)}
         />
-        {this.getActivateByClick() && !this.isEditable && (
-          <Button
-            title={'Click to edit OR Double click node'}
-            className={styles.hybridContainerEditButton}
-            size="small"
-            onClick={() => this.onMakeEditable()}
-            color="primary"
-            sx={{
-              background: RANDOMMAINCOLOR,
-              color: TRgba.fromString(RANDOMMAINCOLOR)
-                .getContrastTextColor()
-                .hex(),
-            }}
-          >
-            <EditIcon sx={{ fontSize: '16px' }} />
-          </Button>
-        )}
+        <HybridNodeOverlay
+          isEditable={this.isEditable}
+          getActivateByClick={this.getActivateByClick()}
+          isHovering={this.isHovering}
+          onMakeEditable={this.onMakeEditable.bind(this)}
+        />
       </>
     );
   };
@@ -168,8 +158,15 @@ export default abstract class HybridNode2 extends PPNode {
     this.execute();
   }
 
+  // needed so react is forced to rerender and get the isHovering state
   onPointerOver(): void {
     super.onPointerOver();
+    this.execute();
+  }
+
+  onPointerOut(): void {
+    super.onPointerOut();
+    this.execute();
   }
 
   onPointerClick(event): void {
@@ -225,3 +222,34 @@ export default abstract class HybridNode2 extends PPNode {
     return true;
   }
 }
+
+type HybridNodeOverlayProps = {
+  isEditable: boolean;
+  getActivateByClick: boolean;
+  isHovering: boolean;
+  onMakeEditable: () => void;
+};
+
+const HybridNodeOverlay: React.FunctionComponent<HybridNodeOverlayProps> = (
+  props
+) => {
+  return (
+    props.getActivateByClick &&
+    props.isHovering &&
+    !props.isEditable && (
+      <Button
+        title={'Click to edit OR Double click node'}
+        className={styles.hybridContainerEditButton}
+        size="small"
+        onClick={props.onMakeEditable}
+        color="primary"
+        sx={{
+          background: RANDOMMAINCOLOR,
+          color: TRgba.fromString(RANDOMMAINCOLOR).getContrastTextColor().hex(),
+        }}
+      >
+        <EditIcon sx={{ fontSize: '16px' }} />
+      </Button>
+    )
+  );
+};
