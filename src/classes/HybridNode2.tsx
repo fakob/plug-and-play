@@ -2,14 +2,13 @@
 /* eslint-disable @typescript-eslint/no-this-alias */
 
 import React from 'react';
-import * as PIXI from 'pixi.js';
 import { createRoot, Root } from 'react-dom/client';
 import { Button } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import PPGraph from './GraphClass';
 import PPNode from './NodeClass';
 import styles from '../utils/style.module.css';
-import { CustomArgs, SerializedNode, TRgba } from '../utils/interfaces';
+import { CustomArgs, TRgba } from '../utils/interfaces';
 import { RANDOMMAINCOLOR } from '../utils/constants';
 
 function pixiToContainerNumber(value: number) {
@@ -108,23 +107,12 @@ export default abstract class HybridNode2 extends PPNode {
           randomMainColor={RANDOMMAINCOLOR}
           node={node}
         />
-        {this.getActivateByDoubleClick() && !this.doubleClicked && (
-          <Button
-            title={'Click to edit OR Double click node'}
-            className={styles.hybridContainerEditButton}
-            size="small"
-            onClick={this.onPointerClick.bind(this)}
-            color="primary"
-            sx={{
-              background: RANDOMMAINCOLOR,
-              color: TRgba.fromString(RANDOMMAINCOLOR)
-                .getContrastTextColor()
-                .hex(),
-            }}
-          >
-            <EditIcon sx={{ fontSize: '16px' }} />
-          </Button>
-        )}
+        <HybridNodeOverlay
+          doubleClicked={this.doubleClicked}
+          getActivateByDoubleClick={this.getActivateByDoubleClick()}
+          isHovering={this.isHovering}
+          onMakeEditable={this.onMakeEditable.bind(this)}
+        />
       </>
     );
   };
@@ -134,6 +122,7 @@ export default abstract class HybridNode2 extends PPNode {
     document.getElementById('container').removeChild(container);
   }
 
+  protected onHybridNodeEnter(): void {}
   protected onHybridNodeExit(): void {}
 
   setPosition(x: number, y: number, isRelative = false): void {
@@ -154,17 +143,34 @@ export default abstract class HybridNode2 extends PPNode {
     this.execute();
   }
 
-  onPointerClick(event: PIXI.FederatedPointerEvent): void {
+  onMakeEditable(): void {
+    // register hybrid nodes to listen to outside clicks
+    this.doubleClicked = true;
+    this.onHybridNodeEnter();
+    PPGraph.currentGraph.viewport.addEventListener(
+      'pointerup',
+      (this as any).onViewportPointerUpHandler
+    );
+    this.container.classList.add(styles.hybridContainerFocused);
+    this.execute();
+  }
+
+  // needed so react is forced to rerender and get the isHovering state
+  onPointerOver(): void {
+    super.onPointerOver();
+    this.execute();
+  }
+
+  onPointerOut(): void {
+    super.onPointerOut();
+    this.execute();
+  }
+
+  onPointerClick(event): void {
     super.onPointerClick(event);
     // turn on pointer events for hybrid nodes so the react components become reactive
-    if (this.getActivateByDoubleClick()) {
-      // register hybrid nodes to listen to outside clicks
-      PPGraph.currentGraph.viewport.addEventListener(
-        'pointerup',
-        (this as any).onViewportPointerUpHandler
-      );
-      this.container.classList.add(styles.hybridContainerFocused);
-      this.execute();
+    if (this.getActivateByDoubleClick() && event.target === this) {
+      this.onMakeEditable();
     }
   }
 
@@ -190,6 +196,14 @@ export default abstract class HybridNode2 extends PPNode {
     return false;
   }
 
+  protected getActivateByDoubleClick(): boolean {
+    return true;
+  }
+
+  protected getShowLabels(): boolean {
+    return false;
+  }
+
   protected async onExecute(
     inputObject: unknown,
     outputObject: Record<string, unknown>
@@ -205,3 +219,34 @@ export default abstract class HybridNode2 extends PPNode {
     return true;
   }
 }
+
+type HybridNodeOverlayProps = {
+  doubleClicked: boolean;
+  getActivateByDoubleClick: boolean;
+  isHovering: boolean;
+  onMakeEditable: () => void;
+};
+
+const HybridNodeOverlay: React.FunctionComponent<HybridNodeOverlayProps> = (
+  props
+) => {
+  return (
+    props.getActivateByDoubleClick &&
+    props.isHovering &&
+    !props.doubleClicked && (
+      <Button
+        title={'Click to edit OR Double click node'}
+        className={styles.hybridContainerEditButton}
+        size="small"
+        onClick={props.onMakeEditable}
+        color="primary"
+        sx={{
+          background: RANDOMMAINCOLOR,
+          color: TRgba.fromString(RANDOMMAINCOLOR).getContrastTextColor().hex(),
+        }}
+      >
+        <EditIcon sx={{ fontSize: '16px' }} />
+      </Button>
+    )
+  );
+};

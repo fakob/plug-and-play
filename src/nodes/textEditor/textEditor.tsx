@@ -67,10 +67,6 @@ export class TextEditor extends HybridNode2 {
   readOnly: boolean;
   textToImport: { html: string } | { plain: string };
 
-  protected getActivateByDoubleClick(): boolean {
-    return true;
-  }
-
   public getName(): string {
     return 'Text editor';
   }

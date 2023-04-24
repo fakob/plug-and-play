@@ -54,7 +54,7 @@ export default class PPNode extends PIXI.Container {
   _StatusesRef: PIXI.Graphics;
 
   clickedSocketRef: Socket;
-  isHovering: boolean;
+  _isHovering: boolean;
 
   id: string;
   type: string; // Type
@@ -81,17 +81,17 @@ export default class PPNode extends PIXI.Container {
   protected statuses: NodeStatus[] = []; // you can add statuses into this and they will be rendered on the node
 
   // supported callbacks
-  onConfigure: (nodeConfig: SerializedNode) => void = () => { }; // called after the node has been configured
-  onNodeDoubleClick: (event: PIXI.FederatedPointerEvent) => void = () => { };
+  onConfigure: (nodeConfig: SerializedNode) => void = () => {}; // called after the node has been configured
+  onNodeDoubleClick: (event: PIXI.FederatedPointerEvent) => void = () => {};
   onViewportMoveHandler: (event?: PIXI.FederatedPointerEvent) => void =
-    () => { };
+    () => {};
   onViewportPointerUpHandler: (event?: PIXI.FederatedPointerEvent) => void =
-    () => { };
-  onNodeRemoved: () => void = () => { }; // called when the node is removed from the graph
-  onNodeResize: (width: number, height: number) => void = () => { }; // called when the node is resized
+    () => {};
+  onNodeRemoved: () => void = () => {}; // called when the node is removed from the graph
+  onNodeResize: (width: number, height: number) => void = () => {}; // called when the node is resized
   onNodeDragOrViewportMove: // called when the node or or the viewport with the node is moved or scaled
-    (positions: { screenX: number; screenY: number; scale: number }) => void =
-    () => { };
+  (positions: { screenX: number; screenY: number; scale: number }) => void =
+    () => {};
 
   // called when the node is added to the graph
   public onNodeAdded(source: TNodeSource = NODE_SOURCE.SERIALIZED): void {
@@ -132,16 +132,6 @@ export default class PPNode extends PIXI.Container {
     return this.getName();
   }
 
-  get nodeName(): string {
-    return this.name;
-  }
-
-  set nodeName(text: string) {
-    this.name = text;
-    this._NodeNameRef.text = this.getNodeTextString();
-    this.nameChanged(text);
-  }
-
   constructor(type: string, customArgs?: CustomArgs) {
     super();
     this.id = customArgs?.overrideId || hri.random();
@@ -157,7 +147,7 @@ export default class PPNode extends PIXI.Container {
     this.y = customArgs?.nodePosY ?? 0;
     this.nodeWidth = this.getDefaultNodeWidth();
     this.nodeHeight = this.getDefaultNodeHeight(); // if not set height is defined by in/out sockets
-    this.isHovering = false;
+    this._isHovering = false;
 
     const inputNameText = new PIXI.Text(
       this.getNodeTextString(),
@@ -224,6 +214,14 @@ export default class PPNode extends PIXI.Container {
     this._doubleClicked = state;
   }
 
+  get isHovering(): boolean {
+    return this._isHovering;
+  }
+
+  set isHovering(state: boolean) {
+    this._isHovering = state;
+  }
+
   get countOfVisibleNodeTriggerSockets(): number {
     return this.nodeTriggerSocketArray.filter((item) => item.visible).length;
   }
@@ -238,7 +236,19 @@ export default class PPNode extends PIXI.Container {
 
   get headerHeight(): number {
     // hide header if showLabels === false
-    return this.getShowLabels() ? NODE_PADDING_TOP + NODE_HEADER_HEIGHT : 0;
+    return this.getShowLabels()
+      ? NODE_PADDING_TOP + NODE_HEADER_HEIGHT
+      : NODE_PADDING_TOP;
+  }
+
+  get nodeName(): string {
+    return this.name;
+  }
+
+  set nodeName(text: string) {
+    this.name = text;
+    this._NodeNameRef.text = this.getNodeTextString();
+    this.nameChanged(text);
   }
 
   getSourceCode(): string {
@@ -821,7 +831,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     if (
       this.updateBehaviour.interval &&
       currentTime - this.lastTimeTicked >=
-      this.updateBehaviour.intervalFrequency
+        this.updateBehaviour.intervalFrequency
     ) {
       this.lastTimeTicked = currentTime;
       this.executeOptimizedChain();
@@ -1038,26 +1048,23 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     // check if double clicked
     if (event.detail === 2) {
       this.doubleClicked = true;
-
       if (this.onNodeDoubleClick) {
         this.onNodeDoubleClick(event);
       }
     }
   }
 
-
   public hasSocketNameInDefaultIO(name: string, type: TSocketType): boolean {
     return (
       this.getAllInitialSockets().find(
         (socket) => socket.name == name && socket.socketType == type
-        ) !== undefined
-        );
-      }
+      ) !== undefined
+    );
+  }
 
-      public async invokeMacro(inputObject: any): Promise<any> {
-        return await PPGraph.currentGraph.invokeMacro(inputObject);
-      }
-
+  public async invokeMacro(inputObject: any): Promise<any> {
+    return await PPGraph.currentGraph.invokeMacro(inputObject);
+  }
 
   // mean to be overridden with custom behaviour
 
@@ -1084,7 +1091,6 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     return false;
   }
 
-
   public socketShouldAutomaticallyAdapt(socket: Socket): boolean {
     return false;
   }
@@ -1097,7 +1103,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     return false;
   }
 
-  protected onNodeExit(): void { }
+  protected onNodeExit(): void {}
 
   ////////////////////////////// Meant to be overriden for visual/behavioral needs
 
@@ -1107,10 +1113,6 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
 
   protected getShowLabels(): boolean {
     return true;
-  }
-
-  protected getActivateByDoubleClick(): boolean {
-    return false;
   }
 
   public getDefaultNodeWidth(): number {
@@ -1200,7 +1202,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     return '';
   }
 
-  public propagateExecutionPast(): boolean{
+  public propagateExecutionPast(): boolean {
     return true;
   }
 
@@ -1230,5 +1232,5 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   }
 
   // kinda hacky but some cant easily serialize functions in JS
-  protected initializeType(socketName: string, datatype: any) { }
+  protected initializeType(socketName: string, datatype: any) {}
 }

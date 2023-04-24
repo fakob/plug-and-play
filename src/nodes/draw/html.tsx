@@ -40,10 +40,6 @@ export class HtmlRenderer extends HybridNode2 {
     return inputSocketName;
   }
 
-  protected getActivateByDoubleClick(): boolean {
-    return true;
-  }
-
   public getName(): string {
     return 'Html renderer';
   }
@@ -85,7 +81,6 @@ export class HtmlRenderer extends HybridNode2 {
   public getDefaultNodeHeight(): number {
     return 150;
   }
-
 
   // small presentational component
   protected getParentComponent(props: any): any {
@@ -133,7 +128,7 @@ export class HtmlRenderer extends HybridNode2 {
         </Frame>
       </ErrorBoundary>
     );
-  };
+  }
 }
 
 export class EmbedWebsite extends HtmlRenderer {
