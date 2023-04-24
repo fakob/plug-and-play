@@ -35,6 +35,7 @@ import {
   Menu,
   Paper,
   Popper,
+  ThemeProvider,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -53,7 +54,11 @@ import {
   removeRowFromArrayOfArrays,
   sortCompare,
 } from '../../utils/utils';
-import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../../utils/constants';
+import {
+  NODE_TYPE_COLOR,
+  SOCKET_TYPE,
+  customTheme,
+} from '../../utils/constants';
 import { CustomArgs, TRgba } from '../../utils/interfaces';
 import { ArrayType } from '../datatypes/arrayType';
 import { JSONType } from '../datatypes/jsonType';
@@ -588,7 +593,7 @@ export class Table extends HybridNode2 {
     return (
       <Box sx={{ position: 'relative' }}>
         {props.doubleClicked && (
-          <>
+          <ThemeProvider theme={customTheme}>
             <ButtonGroup
               variant="contained"
               size="small"
@@ -649,7 +654,7 @@ export class Table extends HybridNode2 {
                 </Grow>
               )}
             </Popper>
-          </>
+          </ThemeProvider>
         )}
         <DataEditor
           ref={ref}

@@ -1,11 +1,12 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Box, ThemeProvider } from '@mui/material';
+import { Box, Button, ButtonGroup, ThemeProvider } from '@mui/material';
+import DownloadIcon from '@mui/icons-material/Download';
 import { ErrorBoundary } from 'react-error-boundary';
 import ErrorFallback from '../components/ErrorFallback';
 import MonacoEditor from 'react-monaco-editor';
 import PPSocket from '../classes/SocketClass';
 import { CodeType } from './datatypes/codeType';
-import { convertToString } from '../utils/utils';
+import { convertToString, downloadFile, formatDate } from '../utils/utils';
 import { SOCKET_TYPE, customTheme } from '../utils/constants';
 import HybridNode2 from '../classes/HybridNode2';
 
@@ -88,6 +89,14 @@ export class CodeEditor extends HybridNode2 {
       node.executeChildren();
     };
 
+    const onExport = () => {
+      downloadFile(
+        codeString,
+        `${node.name} - ${formatDate()}.txt`,
+        'text/plain'
+      );
+    };
+
     const loadData = useCallback(() => {
       setCodeString(parseData(props[inputSocketName]));
       node.setOutputData(outputSocketName, props[inputSocketName]);
@@ -139,6 +148,22 @@ export class CodeEditor extends HybridNode2 {
               }}
               onChange={onChange}
             />
+            {node.doubleClicked && (
+              <ButtonGroup
+                variant="contained"
+                size="small"
+                sx={{
+                  position: 'absolute',
+                  bottom: '8px',
+                  right: '8px',
+                  zIndex: 10,
+                }}
+              >
+                <Button onClick={onExport}>
+                  <DownloadIcon sx={{ ml: 0.5, fontSize: '16px' }} />{' '}
+                </Button>
+              </ButtonGroup>
+            )}
           </Box>
         </ThemeProvider>
       </ErrorBoundary>
