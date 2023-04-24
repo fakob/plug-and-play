@@ -367,10 +367,10 @@ export class Table extends HybridNode2 {
     }, []);
 
     useEffect(() => {
-      if (props.isEditable) {
+      if (props.doubleClicked) {
         ref.current.focus();
       }
-    }, [props.isEditable]);
+    }, [props.doubleClicked]);
 
     useEffect(() => {
       loadSheet();
@@ -587,7 +587,7 @@ export class Table extends HybridNode2 {
 
     return (
       <Box sx={{ position: 'relative' }}>
-        {props.isEditable && (
+        {props.doubleClicked && (
           <>
             <ButtonGroup
               variant="contained"

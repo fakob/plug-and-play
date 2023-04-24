@@ -21,7 +21,6 @@ export default abstract class HybridNode2 extends PPNode {
   staticRoot: Root;
   container: HTMLElement;
   initialData: any;
-  _isEditable: boolean;
 
   constructor(name: string, customArgs?: CustomArgs) {
     super(name, {
@@ -29,7 +28,6 @@ export default abstract class HybridNode2 extends PPNode {
     });
 
     this.initialData = customArgs?.initialData;
-    this._isEditable = false;
   }
 
   redraw({ screenX = 0, screenY = 0, scale = 1 }) {
@@ -105,14 +103,14 @@ export default abstract class HybridNode2 extends PPNode {
           {...props}
           id={this.id}
           selected={this.selected}
-          isEditable={this.isEditable}
+          doubleClicked={this.doubleClicked}
           randomMainColor={RANDOMMAINCOLOR}
           node={node}
           onClick={(e) => this.onPointerClick(e)}
         />
         <HybridNodeOverlay
-          isEditable={this.isEditable}
-          getActivateByClick={this.getActivateByClick()}
+          doubleClicked={this.doubleClicked}
+          getActivateByDoubleClick={this.getActivateByDoubleClick()}
           isHovering={this.isHovering}
           onMakeEditable={this.onMakeEditable.bind(this)}
         />
@@ -148,7 +146,7 @@ export default abstract class HybridNode2 extends PPNode {
 
   onMakeEditable(): void {
     // register hybrid nodes to listen to outside clicks
-    this.isEditable = true;
+    this.doubleClicked = true;
     this.onHybridNodeEnter();
     PPGraph.currentGraph.viewport.addEventListener(
       'pointerup',
@@ -172,7 +170,7 @@ export default abstract class HybridNode2 extends PPNode {
   onPointerClick(event): void {
     super.onPointerClick(event);
     // turn on pointer events for hybrid nodes so the react components become reactive
-    if (this.getActivateByClick() && event.target === this) {
+    if (this.getActivateByDoubleClick() && event.target === this) {
       this.onMakeEditable();
     }
   }
@@ -184,7 +182,7 @@ export default abstract class HybridNode2 extends PPNode {
       'pointerup',
       (this as any).onViewportPointerUpHandler
     );
-    this.isEditable = false;
+    this.doubleClicked = false;
     this.onHybridNodeExit();
     // this allows to zoom and drag when the hybrid node is not selected
     this.container.classList.remove(styles.hybridContainerFocused);
@@ -199,7 +197,7 @@ export default abstract class HybridNode2 extends PPNode {
     return false;
   }
 
-  protected getActivateByClick(): boolean {
+  protected getActivateByDoubleClick(): boolean {
     return true;
   }
 
@@ -224,8 +222,8 @@ export default abstract class HybridNode2 extends PPNode {
 }
 
 type HybridNodeOverlayProps = {
-  isEditable: boolean;
-  getActivateByClick: boolean;
+  doubleClicked: boolean;
+  getActivateByDoubleClick: boolean;
   isHovering: boolean;
   onMakeEditable: () => void;
 };
@@ -234,9 +232,9 @@ const HybridNodeOverlay: React.FunctionComponent<HybridNodeOverlayProps> = (
   props
 ) => {
   return (
-    props.getActivateByClick &&
+    props.getActivateByDoubleClick &&
     props.isHovering &&
-    !props.isEditable && (
+    !props.doubleClicked && (
       <Button
         title={'Click to edit OR Double click node'}
         className={styles.hybridContainerEditButton}

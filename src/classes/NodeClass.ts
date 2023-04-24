@@ -206,11 +206,11 @@ export default class PPNode extends PIXI.Container {
     return PPGraph.currentGraph.selection.isNodeSelected(this);
   }
 
-  get isEditable(): boolean {
+  get doubleClicked(): boolean {
     return this._doubleClicked;
   }
 
-  set isEditable(state: boolean) {
+  set doubleClicked(state: boolean) {
     this._doubleClicked = state;
   }
 
@@ -1112,10 +1112,6 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
 
   protected getShowLabels(): boolean {
     return true;
-  }
-
-  protected getActivateByDoubleClick(): boolean {
-    return false;
   }
 
   public getDefaultNodeWidth(): number {
