@@ -156,20 +156,10 @@ export default class Socket extends PIXI.Container {
     this._SocketRef.endFill();
     this._SocketRef.name = 'SocketRef';
     this._SocketRef.eventMode = 'static';
-    this._SocketRef.addEventListener(
-      'pointerover',
-      this.onPointerOver.bind(this)
-    );
-    this._SocketRef.addEventListener(
-      'pointerout',
-      this.onPointerOut.bind(this)
-    );
-    this._SocketRef.addEventListener('pointerdown', (event) =>
-      this.onPointerDown(event)
-    );
-    this._SocketRef.addEventListener('pointerup', (event) =>
-      this.onPointerUp(event)
-    );
+    this.addEventListener('pointerover', this.onPointerOver.bind(this));
+    this.addEventListener('pointerout', this.onPointerOut.bind(this));
+    this.addEventListener('pointerdown', (event) => this.onPointerDown(event));
+    this.addEventListener('pointerup', (event) => this.onPointerUp(event));
     this.addChild(this._SelectionBox);
     this.addChild(this._SocketRef);
 
@@ -388,10 +378,18 @@ export default class Socket extends PIXI.Container {
   pointerOverSocketMoving() {
     const currPos = getCurrentCursorPosition();
     const center = PPGraph.currentGraph.getSocketCenter(this);
-    const dist = Math.abs(currPos.y - center.y);
-    const maxDist = 30;
+    /*const dist =
+      Math.abs(currPos.y - center.y) + 0.5 * Math.abs(currPos.x - center.x);
+    const maxDist = 10;
     const scale =
-      Math.pow(Math.max(0, (maxDist - dist) / maxDist), 1) * 0.8 + 1;
+      Math.pow(Math.max(0, (maxDist - dist) / maxDist), 1) * 1.8 + 1;*/
+    const scale =
+      Math.max(
+        0 /*Math.abs(currPos.x - center.x)*/,
+        Math.abs(currPos.y - center.y)
+      ) < 12
+        ? 2
+        : 1;
 
     this._SocketRef.scale = new PIXI.Point(scale, scale);
     if (this._TextRef) {
