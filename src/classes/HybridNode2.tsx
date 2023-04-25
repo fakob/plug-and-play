@@ -158,12 +158,12 @@ export default abstract class HybridNode2 extends PPNode {
   // needed so react is forced to rerender and get the isHovering state
   onPointerOver(): void {
     super.onPointerOver();
-    this.execute();
+    // this.execute();
   }
 
   onPointerOut(): void {
     super.onPointerOut();
-    this.execute();
+    // this.execute();
   }
 
   onPointerClick(event): void {
@@ -232,7 +232,7 @@ const HybridNodeOverlay: React.FunctionComponent<HybridNodeOverlayProps> = (
 ) => {
   return (
     props.getActivateByDoubleClick &&
-    props.isHovering &&
+    // props.isHovering &&
     !props.doubleClicked && (
       <Button
         title={'Click to edit OR Double click node'}
