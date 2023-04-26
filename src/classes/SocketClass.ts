@@ -75,6 +75,11 @@ export default class Socket extends PIXI.Container {
     this.interactionData = null;
     this.eventMode = 'static';
 
+    this.addEventListener('pointerover', this.onPointerOver.bind(this));
+    this.addEventListener('pointerout', this.onPointerOut.bind(this));
+    this.addEventListener('pointerdown', this.onPointerDown);
+    this.addEventListener('pointerup', this.onPointerUp);
+
     this.redrawAnythingChanging();
   }
 
@@ -156,20 +161,7 @@ export default class Socket extends PIXI.Container {
     this._SocketRef.endFill();
     this._SocketRef.name = 'SocketRef';
     this._SocketRef.eventMode = 'static';
-    this._SocketRef.addEventListener(
-      'pointerover',
-      this.onPointerOver.bind(this)
-    );
-    this._SocketRef.addEventListener(
-      'pointerout',
-      this.onPointerOut.bind(this)
-    );
-    this._SocketRef.addEventListener('pointerdown', (event) =>
-      this.onPointerDown(event)
-    );
-    this._SocketRef.addEventListener('pointerup', (event) =>
-      this.onPointerUp(event)
-    );
+
     this.addChild(this._SelectionBox);
     this.addChild(this._SocketRef);
 
@@ -388,14 +380,20 @@ export default class Socket extends PIXI.Container {
   pointerOverSocketMoving() {
     const currPos = getCurrentCursorPosition();
     const center = PPGraph.currentGraph.getSocketCenter(this);
-    const dist = Math.abs(currPos.y - center.y);
-    const maxDist = 30;
-    const scale =
-      Math.pow(Math.max(0, (maxDist - dist) / maxDist), 1) * 0.8 + 1;
+    const dist = Math.sqrt(
+      Math.pow(currPos.y - center.y, 2) /* +
+        1.0 * Math.pow(currPos.x - center.x, 2)*/
+    );
+    const maxDist = 20;
+    const scaleOutside =
+      Math.pow(Math.max(0, (maxDist - dist) / maxDist), 1) * 1.2 + 1;
 
-    this._SocketRef.scale = new PIXI.Point(scale, scale);
+    this._SocketRef.scale = new PIXI.Point(scaleOutside, scaleOutside);
     if (this._TextRef) {
-      this._TextRef.scale = new PIXI.Point(Math.sqrt(scale), Math.sqrt(scale));
+      this._TextRef.scale = new PIXI.Point(
+        Math.sqrt(scaleOutside),
+        Math.sqrt(scaleOutside)
+      );
     }
   }
 
