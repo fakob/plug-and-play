@@ -20,6 +20,7 @@ import * as shader from './image/shader';
 import * as stateNodes from './state/stateNodes';
 import * as table from './table/table';
 import * as tableHelpers from './table/tableHelpers';
+import * as test from './data/test';
 import * as text from './text';
 import * as textEditor from './textEditor/textEditor';
 import * as utility from './utility/utility';
@@ -54,6 +55,7 @@ export const getAllNodeTypes = (): RegisteredNodeTypes => {
       stateNodes,
       table,
       tableHelpers,
+      test,
       text,
       textEditor,
       utility,
@@ -82,4 +84,74 @@ export const getAllNodeTypes = (): RegisteredNodeTypes => {
     allNodesCached = toReturn;
   }
   return allNodesCached;
+};
+
+export const getAllNodesInDetail = (): any[] => {
+  const categories = {
+    array,
+    base,
+    booleanlogic,
+    browser,
+    charts,
+    codeEditor,
+    dataFunctions,
+    draw,
+    get,
+    html,
+    image,
+    json,
+    logViewer,
+    macro,
+    math,
+    playground,
+    pixotopegateway,
+    shader,
+    stateNodes,
+    table,
+    tableHelpers,
+    test,
+    text,
+    textEditor,
+    utility,
+    widgetNodes,
+    recordNodes,
+    simpleBarChart,
+  };
+  const toReturn = [];
+  for (const [categoryKey, categoryValue] of Object.entries(categories)) {
+    console.log(categoryKey, categoryValue);
+    for (const key of Object.keys(categoryValue)) {
+      const nodeConstructor = categoryValue[key];
+      if (nodeConstructor.prototype instanceof PPNode) {
+        const node: PPNode = new nodeConstructor(key);
+        const inputSockets = node.getAllInputSockets().map((socket) => {
+          return socket.dataType.getName();
+        });
+        const outputSockets = node.outputSocketArray.map((socket) => {
+          return socket.dataType.getName();
+        });
+
+        const updateBehaviour = [
+          node.updateBehaviour.update,
+          node.updateBehaviour.interval,
+          node.updateBehaviour.intervalFrequency,
+        ];
+
+        toReturn.push({
+          name: node.getName(),
+          description: node.getDescription(),
+          tags: node.getTags(),
+          inputCount: node.getAllInputSockets().length,
+          inputSockets: inputSockets.join(),
+          outputCount: node.outputSocketArray.length,
+          outputSockets: outputSockets.join(),
+          // minNodeWith: node.getMinNodeWidth(),
+          // minNodeHeight: node.getMinNodeHeight(),
+          updateBehaviour: updateBehaviour.join(),
+          // sourceCode: node.getSourceCode(),
+        });
+      }
+    }
+  }
+  return toReturn.sort((a, b) => a.name.localeCompare(b.name));
 };

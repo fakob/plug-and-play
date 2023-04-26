@@ -1,4 +1,3 @@
-import * as PIXI from 'pixi.js';
 import PPGraph from '../../classes/GraphClass';
 import PPNode from '../../classes/NodeClass';
 import PPSocket from '../../classes/SocketClass';
@@ -12,7 +11,7 @@ import { getNodesBounds, zoomToFitNodes } from '../../pixi/utils-pixi';
 import { TRgba } from '../../utils/interfaces';
 import { JSONType } from '../datatypes/jsonType';
 import { TriggerType } from './../datatypes/triggerType';
-import { getAllNodeTypes } from '../../nodes/allNodes';
+import { getAllNodeTypes, getAllNodesInDetail } from '../../nodes/allNodes';
 import { EnumType } from '../datatypes/enumType';
 
 export class Playground extends PPNode {
@@ -81,6 +80,12 @@ export class Playground extends PPNode {
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
+        'List all nodes',
+        new TriggerType(TRIGGER_TYPE_OPTIONS[0].text, 'listAllNodes'),
+        0
+      ),
+      new PPSocket(
+        SOCKET_TYPE.IN,
         'Output graph JSON',
         new TriggerType(TRIGGER_TYPE_OPTIONS[0].text, 'outputGraphJSON'),
         0
@@ -137,6 +142,33 @@ export class Playground extends PPNode {
     PPGraph.currentGraph.selection.selectedNodes = addedNodes;
     this.arrangeSelectedNodesByType();
     this.setOutputData('output', allNodeTypes);
+    this.executeChildren();
+  }
+
+  listAllNodes(): void {
+    // const allNodeTypes = getAllNodeTypes();
+    // const allNodeTypesArray = Object.values(allNodeTypes);
+    // console.log(allNodeTypes);
+    // console.log(allNodeTypesArray);
+    // const newArray = allNodeTypesArray.map(
+    //   ({ constructor, ...keepAttrs }) => keepAttrs
+    // );
+
+    const newArray = getAllNodesInDetail();
+    console.log(newArray);
+
+    // let lastNodePosX = this.x + this.width + 40;
+    // const lastNodePosY = this.y;
+    // const addedNodes: PPNode[] = [];
+    // allNodeTypeNames.fosArray((nodeName) => {
+    //   const newNode = PPGraph.currentGraph.addNewNode(nodeName);
+    //   newNode.setPosition(lastNodePosX, lastNodePosY, false);
+    //   lastNodePosX += newNode.width + 40;
+    //   addedNodes.push(newNode);
+    // });
+    // PPGraph.currentGraph.selection.selectedNodes = addedNodes;
+    // this.arrangeSelectedNodesByType();
+    this.setOutputData('output', newArray);
     this.executeChildren();
   }
 
