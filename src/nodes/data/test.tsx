@@ -29,7 +29,7 @@ const ArrayName = 'Array';
 const BooleanName = 'Boolean';
 const CodeName = 'Code';
 const ColorName = 'Color';
-const DeferredName = 'Deferred';
+const DeferredPixiTypeName = 'DeferredPixiType';
 // const DynamicName = 'Dynamic';
 const EnumName = 'Enum';
 const FunctionName = 'Function';
@@ -44,7 +44,7 @@ const ArrayOutName = 'Array-Out';
 const BooleanOutName = 'Boolean-Out';
 const CodeOutName = 'Code-Out';
 const ColorOutName = 'Color-Out';
-const DeferredOutName = 'Deferred-Out';
+const DeferredDeferredPixiTypeOutName = 'DeferredPixiType-Out';
 // const DynamicOutName = 'Dynamic-Out';
 // const EnumOutName = 'Enum-Out';
 const FunctionOutName = 'Function-Out';
@@ -79,7 +79,7 @@ export class Test_DataTypes extends PPNode {
       new Socket(SOCKET_TYPE.IN, BooleanName, new BooleanType(), true),
       new Socket(SOCKET_TYPE.IN, CodeName, new CodeType(), DEFAULT_EDITOR_DATA),
       new Socket(SOCKET_TYPE.IN, ColorName, new ColorType()),
-      new Socket(SOCKET_TYPE.IN, DeferredName, new DeferredPixiType()),
+      new Socket(SOCKET_TYPE.IN, DeferredPixiTypeName, new DeferredPixiType()),
       //   new Socket(
       //     SOCKET_TYPE.IN,
       //     DynamicName,
@@ -112,7 +112,11 @@ export class Test_DataTypes extends PPNode {
       new Socket(SOCKET_TYPE.OUT, BooleanOutName, new BooleanType()),
       new Socket(SOCKET_TYPE.OUT, CodeOutName, new CodeType()),
       new Socket(SOCKET_TYPE.OUT, ColorOutName, new ColorType()),
-      new Socket(SOCKET_TYPE.OUT, DeferredOutName, new DeferredPixiType()),
+      new Socket(
+        SOCKET_TYPE.OUT,
+        DeferredDeferredPixiTypeOutName,
+        new DeferredPixiType()
+      ),
       //   new Socket(SOCKET_TYPE.OUT, DynamicOutName, new DynamicEnumType()),
       //   new Socket(SOCKET_TYPE.OUT, EnumOutName, new EnumType()),
       new Socket(SOCKET_TYPE.OUT, FunctionOutName, new FunctionType()),
@@ -133,7 +137,8 @@ export class Test_DataTypes extends PPNode {
     outputObject[BooleanOutName] = inputObject[BooleanName];
     outputObject[CodeOutName] = inputObject[CodeName];
     outputObject[ColorOutName] = inputObject[ColorName];
-    outputObject[DeferredOutName] = inputObject[DeferredName];
+    outputObject[DeferredDeferredPixiTypeOutName] =
+      inputObject[DeferredPixiTypeName];
     // outputObject[DynamicOutName] = inputObject[DynamicName];
     // outputObject[EnumOutName] = inputObject[EnumName];
     outputObject[FunctionOutName] = inputObject[FunctionName];
