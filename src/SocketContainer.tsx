@@ -191,6 +191,9 @@ const SocketHeader: React.FunctionComponent<SocketHeaderProps> = (props) => {
           aria-expanded={open ? 'true' : undefined}
           aria-haspopup="true"
           onClick={handleClick}
+          sx={{
+            borderRadius: 0,
+          }}
         >
           <Box
             sx={{

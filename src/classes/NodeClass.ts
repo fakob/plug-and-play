@@ -1194,10 +1194,16 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   public getName(): string {
     return this.name;
   }
+
   public getDescription(): string {
     return '';
   }
+
   // used when searching for nodes
+  public getKeywords(): string[] {
+    return [];
+  }
+
   public getTags(): string {
     return '';
   }

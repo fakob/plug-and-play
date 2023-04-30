@@ -11,6 +11,7 @@ export type RegisteredNodeTypes = Record<
     name?: string;
     description?: string;
     hasInputs?: boolean;
+    keywords?: string[];
   }
 >;
 

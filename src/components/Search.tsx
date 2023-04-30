@@ -23,7 +23,7 @@ import PPStorage from '../PPStorage';
 import { getAllNodeTypes } from '../nodes/allNodes';
 import { IGraphSearch, INodeSearch } from '../utils/interfaces';
 import { COLOR_DARK, COLOR_WHITE_TEXT } from '../utils/constants';
-import { writeTextToClipboard } from '../utils/utils';
+import { getNodeExampleURL, writeTextToClipboard } from '../utils/utils';
 
 export const GraphSearchInput = (props) => {
   const backgroundColor = Color(props.randommaincolor).alpha(0.8);
@@ -272,6 +272,7 @@ export const getNodes = (): INodeSearch[] => {
           key: title,
           description: obj.description,
           hasInputs: obj.hasInputs,
+          keywords: obj.keywords,
         };
       })
       .sort(
@@ -351,6 +352,36 @@ export const renderNodeItem = (props, option, { inputValue, selected }) => {
               ))}
             </Box>
           </Box>
+          <IconButton
+            sx={{
+              borderRadius: 0,
+              right: '8px',
+              fontSize: '16px',
+              padding: 0,
+              height: '24px',
+              display: 'none',
+              '.Mui-focused &': {
+                display: 'inherit',
+              },
+            }}
+            onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+              event.stopPropagation();
+              window.open(getNodeExampleURL(option.title), '_blank');
+            }}
+            title="Open node example"
+            className="menuItemButton"
+          >
+            <Box
+              sx={{
+                color: 'text.secondary',
+                fontSize: '10px',
+                px: 0.5,
+              }}
+            >
+              Open example
+            </Box>
+            <OpenInNewIcon sx={{ fontSize: '16px' }} />
+          </IconButton>
           <Box
             sx={{
               fontSize: '12px',
@@ -358,6 +389,10 @@ export const renderNodeItem = (props, option, { inputValue, selected }) => {
               background: 'rgba(255,255,255,0.2)',
               cornerRadius: '4px',
               px: 0.5,
+              display: 'inline',
+              '.Mui-focused &': {
+                display: 'none',
+              },
             }}
           >
             {option.title}
@@ -384,6 +419,25 @@ export const renderNodeItem = (props, option, { inputValue, selected }) => {
               </Box>
             ))}
           </Box>
+        </Box>
+        <Box>
+          {option.keywords.map((part, index) => (
+            <Box
+              key={index}
+              sx={{
+                fontSize: '12px',
+                opacity: '0.5',
+                background: 'rgba(255,255,255,0.2)',
+                cornerRadius: '4px',
+                px: 0.5,
+                display: 'inline',
+                // opacity: part.highlight ? 1 : 0.75,
+                fontWeight: part.highlight ? 600 : 400,
+              }}
+            >
+              {part}
+            </Box>
+          ))}
         </Box>
       </Stack>
     </li>

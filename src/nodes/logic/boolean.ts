@@ -2,6 +2,9 @@ import { CustomFunction } from '../data/dataFunctions';
 
 abstract class BooleanOperationNode extends CustomFunction {
   // doesn't really have anything special now, but feels like it makes sense
+  public getKeywords(): string[] {
+    return ['Logic'].concat(super.getKeywords());
+  }
 }
 
 export class NOT extends BooleanOperationNode {
