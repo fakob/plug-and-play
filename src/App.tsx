@@ -129,8 +129,9 @@ const App = (): JSX.Element => {
   const [graphSearchItems, setGraphSearchItems] = useState<
     IGraphSearch[] | null
   >([{ id: '', name: '' }]);
-  const [nodeSearchActiveItem, setNodeSearchActiveItem] =
-    useState<INodeSearch | null>(null);
+  const [nodeSearchActiveItem, setNodeSearchActiveItem] = useState<
+    INodeSearch[]
+  >([]);
   const [graphSearchActiveItem, setGraphSearchActiveItem] =
     useState<IGraphSearch | null>(null);
 
@@ -786,80 +787,91 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
   };
 
   const action_AddOrReplaceNode = async (event, selected: INodeSearch) => {
-    const referenceID = hri.random();
-    const addLink = PPGraph.currentGraph.selectedSourceSocket;
+    if (selected) {
+      const referenceID = hri.random();
+      const addLink = PPGraph.currentGraph.selectedSourceSocket;
 
-    if (PPGraph.currentGraph.selection.selectedNodes.length === 1 && !addLink) {
-      // replace node if there is exactly one node selected
-      const newNodeType = selected.title;
-      const oldNode = PPGraph.currentGraph.selection.selectedNodes[0];
-      const serializedNode = oldNode.serialize();
+      if (
+        PPGraph.currentGraph.selection.selectedNodes.length === 1 &&
+        !addLink
+      ) {
+        // replace node if there is exactly one node selected
+        const newNodeType = selected.title;
+        const oldNode = PPGraph.currentGraph.selection.selectedNodes[0];
+        const serializedNode = oldNode.serialize();
 
-      const action = async () => {
-        PPGraph.currentGraph.replaceNode(
-          serializedNode,
-          serializedNode.id,
-          referenceID,
-          newNodeType
-        );
-        setNodeSearchActiveItem(selected ?? null);
-        setIsNodeSearchVisible(false);
-      };
-      const undoAction = async () => {
-        PPGraph.currentGraph.replaceNode(
-          serializedNode,
-          referenceID,
-          serializedNode.id
-        );
-      };
-      await ActionHandler.performAction(action, undoAction);
-    } else {
-      // add node
-      // store link before search gets hidden and temp connection gets reset
-      const nodePos =
-        PPGraph.currentGraph.overrideNodeCursorPosition ??
-        viewport.current.toWorld(
-          new PIXI.Point(contextMenuPosition[0], contextMenuPosition[1])
-        );
-
-      const action = async () => {
-        let addedNode: PPNode;
-        const nodeExists = getAllNodeTypes()[selected?.title] !== undefined;
-        if (nodeExists) {
-          addedNode = PPGraph.currentGraph.addNewNode(
-            selected.title,
-            {
-              overrideId: referenceID,
-              nodePosX: nodePos.x,
-              nodePosY: nodePos.y,
-            },
-            addLink ? NODE_SOURCE.NEWCONNECTED : NODE_SOURCE.NEW
+        const action = async () => {
+          PPGraph.currentGraph.replaceNode(
+            serializedNode,
+            serializedNode.id,
+            referenceID,
+            newNodeType
           );
-        } else {
-          addedNode = PPGraph.currentGraph.addNewNode(
-            'CustomFunction',
-            {
-              overrideId: referenceID,
-              nodePosX: nodePos.x,
-              nodePosY: nodePos.y,
-            },
-            addLink ? NODE_SOURCE.NEWCONNECTED : NODE_SOURCE.NEW
+          setNodeSearchActiveItem((oldArray) => {
+            selected.group = 'Latest';
+            return [selected, ...oldArray];
+          });
+          setIsNodeSearchVisible(false);
+        };
+        const undoAction = async () => {
+          PPGraph.currentGraph.replaceNode(
+            serializedNode,
+            referenceID,
+            serializedNode.id
           );
-          addedNode.nodeName = selected.title;
-        }
-        if (addLink) {
-          connectNodeToSocket(addLink, addedNode);
-        }
+        };
+        await ActionHandler.performAction(action, undoAction);
+      } else {
+        // add node
+        // store link before search gets hidden and temp connection gets reset
+        const nodePos =
+          PPGraph.currentGraph.overrideNodeCursorPosition ??
+          viewport.current.toWorld(
+            new PIXI.Point(contextMenuPosition[0], contextMenuPosition[1])
+          );
 
-        setNodeSearchActiveItem(selected ?? null);
-        setIsNodeSearchVisible(false);
-      };
-      const undoAction = async () => {
-        PPGraph.currentGraph.removeNode(
-          PPGraph.currentGraph.nodes[referenceID]
-        );
-      };
-      await ActionHandler.performAction(action, undoAction);
+        const action = async () => {
+          let addedNode: PPNode;
+          const nodeExists = getAllNodeTypes()[selected?.title] !== undefined;
+          if (nodeExists) {
+            addedNode = PPGraph.currentGraph.addNewNode(
+              selected.title,
+              {
+                overrideId: referenceID,
+                nodePosX: nodePos.x,
+                nodePosY: nodePos.y,
+              },
+              addLink ? NODE_SOURCE.NEWCONNECTED : NODE_SOURCE.NEW
+            );
+          } else {
+            addedNode = PPGraph.currentGraph.addNewNode(
+              'CustomFunction',
+              {
+                overrideId: referenceID,
+                nodePosX: nodePos.x,
+                nodePosY: nodePos.y,
+              },
+              addLink ? NODE_SOURCE.NEWCONNECTED : NODE_SOURCE.NEW
+            );
+            addedNode.nodeName = selected.title;
+          }
+          if (addLink) {
+            connectNodeToSocket(addLink, addedNode);
+          }
+
+          setNodeSearchActiveItem((oldArray) => {
+            selected.group = 'Latest';
+            return [selected, ...oldArray];
+          });
+          setIsNodeSearchVisible(false);
+        };
+        const undoAction = async () => {
+          PPGraph.currentGraph.removeNode(
+            PPGraph.currentGraph.nodes[referenceID]
+          );
+        };
+        await ActionHandler.performAction(action, undoAction);
+      }
     }
   };
 
@@ -1198,16 +1210,18 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
                   selectOnFocus
                   autoHighlight
                   clearOnBlur
+                  autoComplete
                   // open
-                  defaultValue={nodeSearchActiveItem}
-                  isOptionEqualToValue={(option, value) =>
-                    option.title === value.title
-                  }
-                  value={nodeSearchActiveItem}
+                  defaultValue={null}
+                  isOptionEqualToValue={(option, value) => {
+                    return option.title === value.title;
+                  }}
+                  value={null}
                   getOptionLabel={(option) =>
                     typeof option === 'string' ? option : option.name
                   }
-                  options={getNodes()}
+                  groupBy={(option) => option.group}
+                  options={getNodes(nodeSearchActiveItem)}
                   onChange={action_AddOrReplaceNode}
                   filterOptions={(options, state) => {
                     const filteredOptions = filterOptionsNode(options, state);

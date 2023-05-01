@@ -261,7 +261,7 @@ export const NodeSearchInput = (props) => {
 };
 
 let nodesCached = undefined;
-export const getNodes = (): INodeSearch[] => {
+export const getNodes = (latest: INodeSearch[]): INodeSearch[] => {
   const addLink = PPGraph.currentGraph.selectedSourceSocket;
   if (!nodesCached) {
     nodesCached = Object.entries(getAllNodeTypes())
@@ -273,15 +273,23 @@ export const getNodes = (): INodeSearch[] => {
           description: obj.description,
           hasInputs: obj.hasInputs,
           keywords: obj.keywords,
+          group: obj.keywords[0],
         };
       })
-      .sort(
-        (a, b) => a.name.localeCompare(b.name, 'en', { sensitivity: 'base' }) // case insensitive sorting
+      .sort((a, b) =>
+        a.name.localeCompare(b.name, 'en', { sensitivity: 'base' })
+      )
+      .sort((a, b) =>
+        a.group?.localeCompare(b.group, 'en', { sensitivity: 'base' })
       );
   }
-  return nodesCached.filter(
-    (node) => !addLink || node.hasInputs
-  ) as INodeSearch[];
+
+  const combinedArray = latest.concat(
+    nodesCached.filter((node) => !addLink || node.hasInputs) as INodeSearch[]
+  );
+  const map = new Map(combinedArray.map((node) => [node.title, node]));
+  const uniques = [...map.values()];
+  return uniques;
 };
 
 export const filterOptionsNode = (options: INodeSearch[], { inputValue }) => {
@@ -298,6 +306,7 @@ export const filterOptionsNode = (options: INodeSearch[], { inputValue }) => {
       description: '',
       hasInputs: true,
       isNew: true,
+      group: '',
     });
   }
   return sorted;
@@ -421,7 +430,7 @@ export const renderNodeItem = (props, option, { inputValue, selected }) => {
           </Box>
         </Box>
         <Box>
-          {option.keywords.map((part, index) => (
+          {option.keywords?.map((part, index) => (
             <Box
               key={index}
               sx={{
