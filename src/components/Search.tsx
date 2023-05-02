@@ -295,8 +295,16 @@ export const getNodes = (latest: INodeSearch[]): INodeSearch[] => {
 export const filterOptionsNode = (options: INodeSearch[], { inputValue }) => {
   let sorted = options;
   // use the above sort order if no search term has been entered yet
+  const prefilteredOptions = options.filter((node) => {
+    // const preFilter =
+    //   PPGraph.currentGraph.selectedSourceSocket?.dataType.getName();
+    // console.log(node.key, preFilter);
+    // return node.key.includes(preFilter);
+    return true;
+  });
+
   if (inputValue !== '') {
-    sorted = matchSorter(options, inputValue, {
+    sorted = matchSorter(prefilteredOptions, inputValue, {
       keys: ['name', 'title', 'description'],
     });
     sorted.push({
@@ -391,20 +399,26 @@ export const renderNodeItem = (props, option, { inputValue, selected }) => {
             </Box>
             <OpenInNewIcon sx={{ fontSize: '16px' }} />
           </IconButton>
-          <Box
-            sx={{
-              fontSize: '12px',
-              opacity: '0.5',
-              background: 'rgba(255,255,255,0.2)',
-              cornerRadius: '4px',
-              px: 0.5,
-              display: 'inline',
-              '.Mui-focused &': {
-                display: 'none',
-              },
-            }}
-          >
-            {option.title}
+          <Box>
+            {option.keywords?.map((part, index) => (
+              <Box
+                key={index}
+                sx={{
+                  fontSize: '12px',
+                  background: 'rgba(255,255,255,0.2)',
+                  cornerRadius: '4px',
+                  px: 0.5,
+                  display: 'inline',
+                  '.Mui-focused &': {
+                    display: 'none',
+                  },
+                  opacity: part.highlight ? 1 : 0.5,
+                  fontWeight: part.highlight ? 600 : 400,
+                }}
+              >
+                {part}
+              </Box>
+            ))}
           </Box>
         </Box>
         <Box
@@ -428,25 +442,6 @@ export const renderNodeItem = (props, option, { inputValue, selected }) => {
               </Box>
             ))}
           </Box>
-        </Box>
-        <Box>
-          {option.keywords?.map((part, index) => (
-            <Box
-              key={index}
-              sx={{
-                fontSize: '12px',
-                opacity: '0.5',
-                background: 'rgba(255,255,255,0.2)',
-                cornerRadius: '4px',
-                px: 0.5,
-                display: 'inline',
-                // opacity: part.highlight ? 1 : 0.75,
-                fontWeight: part.highlight ? 600 : 400,
-              }}
-            >
-              {part}
-            </Box>
-          ))}
         </Box>
       </Stack>
     </li>

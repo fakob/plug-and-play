@@ -118,6 +118,7 @@ const App = (): JSX.Element => {
   const [isNodeSearchVisible, setIsNodeSearchVisible] = useState(false);
   const [showRightSideDrawer, setShowRightSideDrawer] = useState(false);
   const nodeSearchCountRef = useRef(0);
+  const nodeSearchFilterRef = useRef('Array');
   const [isGraphContextMenuOpen, setIsGraphContextMenuOpen] = useState(false);
   const [isNodeContextMenuOpen, setIsNodeContextMenuOpen] = useState(false);
   const [isSocketContextMenuOpen, setIsSocketContextMenuOpen] = useState(false);
@@ -914,6 +915,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           {`${nodeSearchCountRef.current} of ${
             Object.keys(getAllNodeTypes()).length
           }`}
+          {`: ${PPGraph.currentGraph.selectedSourceSocket?.dataType.getName()}`}
         </Box>
         {children}
       </Paper>
@@ -1224,6 +1226,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
                   options={getNodes(nodeSearchActiveItem)}
                   onChange={action_AddOrReplaceNode}
                   filterOptions={(options, state) => {
+                    // state.inputValue = `${nodeSearchFilterRef.current}${state.inputValue}`;
                     const filteredOptions = filterOptionsNode(options, state);
                     nodeSearchCountRef.current = filteredOptions.length;
                     return filteredOptions;
