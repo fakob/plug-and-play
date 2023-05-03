@@ -139,6 +139,7 @@ export const getAllNodesInDetail = (): any[] => {
         ];
 
         toReturn.push({
+          key: key,
           name: node.getName(),
           description: node.getDescription(),
           tags: node.getTags(),

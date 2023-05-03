@@ -69,6 +69,14 @@ export class AbstractType {
     return 'Label';
   }
 
+  recommendedInputNodeWidgets(): string[] {
+    return [];
+  }
+
+  recommendedOutputNodeWidgets(): string[] {
+    return [];
+  }
+
   allowedAsInput(): boolean {
     return true;
   }

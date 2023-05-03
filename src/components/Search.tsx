@@ -262,7 +262,7 @@ export const NodeSearchInput = (props) => {
 
 let nodesCached = undefined;
 export const getNodes = (latest: INodeSearch[]): INodeSearch[] => {
-  const addLink = PPGraph.currentGraph.selectedSourceSocket;
+  const sourceSocket = PPGraph.currentGraph.selectedSourceSocket;
   if (!nodesCached) {
     nodesCached = Object.entries(getAllNodeTypes())
       .map(([title, obj]) => {
@@ -284,12 +284,40 @@ export const getNodes = (latest: INodeSearch[]): INodeSearch[] => {
       );
   }
 
+  const arrayWithGroupReset = nodesCached.map((node) => ({
+    ...node,
+    group: node.keywords[0],
+  }));
+
+  const inOrOutputList =
+    (sourceSocket?.isInput()
+      ? sourceSocket?.dataType.recommendedInputNodeWidgets()
+      : sourceSocket?.dataType.recommendedOutputNodeWidgets()) || [];
+
+  const recommendedNodes = inOrOutputList.map((nodeName) => {
+    const foundNode = arrayWithGroupReset.find((node) => node.key === nodeName);
+    foundNode.group = 'Recommended';
+    return foundNode;
+  });
+
   const combinedArray = latest.concat(
-    nodesCached.filter((node) => !addLink || node.hasInputs) as INodeSearch[]
+    recommendedNodes,
+    arrayWithGroupReset.filter(
+      (node) => !sourceSocket || node.hasInputs
+    ) as INodeSearch[]
   );
-  const map = new Map(combinedArray.map((node) => [node.title, node]));
-  const uniques = [...map.values()];
-  return uniques;
+
+  const included = {};
+  const uniqueArray = combinedArray.filter((node) => {
+    if (included[node.key]) {
+      return false;
+    } else {
+      included[node.key] = true;
+      return true;
+    }
+  });
+
+  return uniqueArray;
 };
 
 export const filterOptionsNode = (options: INodeSearch[], { inputValue }) => {
