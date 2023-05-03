@@ -333,6 +333,9 @@ class ArrayFunction extends CustomFunction {
   protected getOutputParameterType(): AbstractType {
     return new ArrayType();
   }
+  public getKeywords(): string[] {
+    return ['Array'].concat(super.getKeywords());
+  }
 }
 
 export class Map extends ArrayFunction {

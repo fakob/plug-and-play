@@ -23,7 +23,7 @@ import PPStorage from '../PPStorage';
 import { getAllNodeTypes } from '../nodes/allNodes';
 import { IGraphSearch, INodeSearch } from '../utils/interfaces';
 import { COLOR_DARK, COLOR_WHITE_TEXT } from '../utils/constants';
-import { writeTextToClipboard } from '../utils/utils';
+import { getNodeExampleURL, writeTextToClipboard } from '../utils/utils';
 
 export const GraphSearchInput = (props) => {
   const backgroundColor = Color(props.randommaincolor).alpha(0.8);
@@ -261,7 +261,7 @@ export const NodeSearchInput = (props) => {
 };
 
 let nodesCached = undefined;
-export const getNodes = (): INodeSearch[] => {
+export const getNodes = (latest: INodeSearch[]): INodeSearch[] => {
   const addLink = PPGraph.currentGraph.selectedSourceSocket;
   if (!nodesCached) {
     nodesCached = Object.entries(getAllNodeTypes())
@@ -272,22 +272,39 @@ export const getNodes = (): INodeSearch[] => {
           key: title,
           description: obj.description,
           hasInputs: obj.hasInputs,
+          keywords: obj.keywords,
+          group: obj.keywords[0],
         };
       })
-      .sort(
-        (a, b) => a.name.localeCompare(b.name, 'en', { sensitivity: 'base' }) // case insensitive sorting
+      .sort((a, b) =>
+        a.name.localeCompare(b.name, 'en', { sensitivity: 'base' })
+      )
+      .sort((a, b) =>
+        a.group?.localeCompare(b.group, 'en', { sensitivity: 'base' })
       );
   }
-  return nodesCached.filter(
-    (node) => !addLink || node.hasInputs
-  ) as INodeSearch[];
+
+  const combinedArray = latest.concat(
+    nodesCached.filter((node) => !addLink || node.hasInputs) as INodeSearch[]
+  );
+  const map = new Map(combinedArray.map((node) => [node.title, node]));
+  const uniques = [...map.values()];
+  return uniques;
 };
 
 export const filterOptionsNode = (options: INodeSearch[], { inputValue }) => {
   let sorted = options;
   // use the above sort order if no search term has been entered yet
+  const prefilteredOptions = options.filter((node) => {
+    // const preFilter =
+    //   PPGraph.currentGraph.selectedSourceSocket?.dataType.getName();
+    // console.log(node.key, preFilter);
+    // return node.key.includes(preFilter);
+    return true;
+  });
+
   if (inputValue !== '') {
-    sorted = matchSorter(options, inputValue, {
+    sorted = matchSorter(prefilteredOptions, inputValue, {
       keys: ['name', 'title', 'description'],
     });
     sorted.push({
@@ -297,6 +314,7 @@ export const filterOptionsNode = (options: INodeSearch[], { inputValue }) => {
       description: '',
       hasInputs: true,
       isNew: true,
+      group: '',
     });
   }
   return sorted;
@@ -351,16 +369,56 @@ export const renderNodeItem = (props, option, { inputValue, selected }) => {
               ))}
             </Box>
           </Box>
-          <Box
+          <IconButton
             sx={{
-              fontSize: '12px',
-              opacity: '0.5',
-              background: 'rgba(255,255,255,0.2)',
-              cornerRadius: '4px',
-              px: 0.5,
+              borderRadius: 0,
+              right: '8px',
+              fontSize: '16px',
+              padding: 0,
+              height: '24px',
+              display: 'none',
+              '.Mui-focused &': {
+                display: 'inherit',
+              },
             }}
+            onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+              event.stopPropagation();
+              window.open(getNodeExampleURL(option.title), '_blank');
+            }}
+            title="Open node example"
+            className="menuItemButton"
           >
-            {option.title}
+            <Box
+              sx={{
+                color: 'text.secondary',
+                fontSize: '10px',
+                px: 0.5,
+              }}
+            >
+              Open example
+            </Box>
+            <OpenInNewIcon sx={{ fontSize: '16px' }} />
+          </IconButton>
+          <Box>
+            {option.keywords?.map((part, index) => (
+              <Box
+                key={index}
+                sx={{
+                  fontSize: '12px',
+                  background: 'rgba(255,255,255,0.2)',
+                  cornerRadius: '4px',
+                  px: 0.5,
+                  display: 'inline',
+                  '.Mui-focused &': {
+                    display: 'none',
+                  },
+                  opacity: part.highlight ? 1 : 0.5,
+                  fontWeight: part.highlight ? 600 : 400,
+                }}
+              >
+                {part}
+              </Box>
+            ))}
           </Box>
         </Box>
         <Box

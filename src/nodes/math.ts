@@ -188,6 +188,9 @@ abstract class SimpleMathOperation extends CustomFunction {
   public getTags(): string {
     return this.getOperator();
   }
+  public getKeywords(): string[] {
+    return ['Math'].concat(super.getKeywords());
+  }
 }
 
 export class Add extends SimpleMathOperation {

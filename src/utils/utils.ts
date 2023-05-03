@@ -14,6 +14,7 @@ import {
   MAX_STRING_LENGTH,
   SOCKET_TEXTMARGIN_TOP,
   SOCKET_WIDTH,
+  GITHUB_RAW_URL_NODES,
   GESTUREMODE,
 } from './constants';
 import { GraphDatabase } from './indexedDB';
@@ -779,3 +780,7 @@ export function getLoadedValue(value, shouldLoadAll) {
     ? String(value)
     : String(value)?.slice(0, MAX_STRING_LENGTH) + '...';
 }
+
+export const getNodeExampleURL = (nodeName: string): string => {
+  return `${window.location.origin}${window.location.pathname}?loadURL=${GITHUB_RAW_URL_NODES}/${nodeName}.ppgraph`;
+};

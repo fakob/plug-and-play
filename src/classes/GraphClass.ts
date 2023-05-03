@@ -769,6 +769,7 @@ export default class PPGraph {
 
     // remove selected nodes
     this.selection.deselectAllNodesAndResetSelection();
+    this.allowExecution = true;
   }
 
   async duplicateSelection(): Promise<PPNode[]> {
