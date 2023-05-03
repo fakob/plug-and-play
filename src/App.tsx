@@ -791,6 +791,16 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     if (selected) {
       const referenceID = hri.random();
       const addLink = PPGraph.currentGraph.selectedSourceSocket;
+      const setActiveItemArray = () =>
+        setNodeSearchActiveItem((oldArray) => {
+          selected.group = 'Latest';
+          const newArray = [selected, ...oldArray];
+          if (newArray.length > 3) {
+            newArray.pop();
+          }
+          console.log(newArray.length, newArray);
+          return newArray;
+        });
 
       if (
         PPGraph.currentGraph.selection.selectedNodes.length === 1 &&
@@ -808,10 +818,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
             referenceID,
             newNodeType
           );
-          setNodeSearchActiveItem((oldArray) => {
-            selected.group = 'Latest';
-            return [selected, ...oldArray];
-          });
+          setActiveItemArray();
           setIsNodeSearchVisible(false);
         };
         const undoAction = async () => {
@@ -860,10 +867,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
             connectNodeToSocket(addLink, addedNode);
           }
 
-          setNodeSearchActiveItem((oldArray) => {
-            selected.group = 'Latest';
-            return [selected, ...oldArray];
-          });
+          setActiveItemArray();
           setIsNodeSearchVisible(false);
         };
         const undoAction = async () => {
