@@ -348,6 +348,27 @@ export const filterOptionsNode = (options: INodeSearch[], { inputValue }) => {
   return sorted;
 };
 
+export const renderGroupItem = (props) => {
+  return (
+    <li key={props.key}>
+      <Box
+        sx={{
+          position: 'sticky',
+          top: '-0px',
+          padding: '4px 10px',
+          color: 'text.secondary',
+          bgcolor: 'background.paper',
+          zIndex: 2,
+          fontSize: '10px',
+        }}
+      >
+        {props.group}
+      </Box>
+      <ul style={{ padding: 0 }}>{props.children}</ul>
+    </li>
+  );
+};
+
 export const renderNodeItem = (props, option, { inputValue, selected }) => {
   const matchesOfName = match(option.name, inputValue, {
     insideWords: true,
@@ -400,7 +421,7 @@ export const renderNodeItem = (props, option, { inputValue, selected }) => {
           <IconButton
             sx={{
               borderRadius: 0,
-              right: '8px',
+              right: '0px',
               fontSize: '16px',
               padding: 0,
               height: '24px',

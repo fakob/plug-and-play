@@ -33,6 +33,7 @@ import {
   filterOptionsNode,
   getNodes,
   renderGraphItem,
+  renderGroupItem,
   renderNodeItem,
 } from './components/Search';
 import GraphOverlay from './components/GraphOverlay';
@@ -1244,6 +1245,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
                       randommaincolor={RANDOMMAINCOLOR}
                     />
                   )}
+                  renderGroup={renderGroupItem}
                 />
               </div>
             </>
