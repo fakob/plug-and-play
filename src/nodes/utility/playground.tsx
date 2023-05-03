@@ -146,28 +146,7 @@ export class Playground extends PPNode {
   }
 
   listAllNodes(): void {
-    // const allNodeTypes = getAllNodeTypes();
-    // const allNodeTypesArray = Object.values(allNodeTypes);
-    // console.log(allNodeTypes);
-    // console.log(allNodeTypesArray);
-    // const newArray = allNodeTypesArray.map(
-    //   ({ constructor, ...keepAttrs }) => keepAttrs
-    // );
-
     const newArray = getAllNodesInDetail();
-    console.log(newArray);
-
-    // let lastNodePosX = this.x + this.width + 40;
-    // const lastNodePosY = this.y;
-    // const addedNodes: PPNode[] = [];
-    // allNodeTypeNames.fosArray((nodeName) => {
-    //   const newNode = PPGraph.currentGraph.addNewNode(nodeName);
-    //   newNode.setPosition(lastNodePosX, lastNodePosY, false);
-    //   lastNodePosX += newNode.width + 40;
-    //   addedNodes.push(newNode);
-    // });
-    // PPGraph.currentGraph.selection.selectedNodes = addedNodes;
-    // this.arrangeSelectedNodesByType();
     this.setOutputData('output', newArray);
     this.executeChildren();
   }

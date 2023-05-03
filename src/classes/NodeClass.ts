@@ -1212,6 +1212,10 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     return true;
   }
 
+  public getPreferredNodesPerSocket(): Map<string, string[]> {
+    return new Map();
+  }
+
   // observers
 
   public onViewportPointerUp(): void {

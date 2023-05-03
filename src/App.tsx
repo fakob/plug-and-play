@@ -1220,9 +1220,9 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
                   autoComplete
                   // open
                   defaultValue={null}
-                  isOptionEqualToValue={(option, value) => {
-                    return option.title === value.title;
-                  }}
+                  isOptionEqualToValue={(option, value) =>
+                    option.title === value.title
+                  }
                   value={null}
                   getOptionLabel={(option) =>
                     typeof option === 'string' ? option : option.name

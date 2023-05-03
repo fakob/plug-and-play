@@ -61,16 +61,12 @@ export class Test_DataTypes extends PPNode {
     return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
   }
 
-  //   getOptions = () => {
-  //     return () => {
-  //       return [
-  //         {
-  //           text: 'text',
-  //           value: 'value',
-  //         },
-  //       ];
-  //     };
-  //   };
+  getPreferredNodesPerSocket(): Map<string, string[]> {
+    return new Map([
+      [BooleanName, ['Break', 'Constant']],
+      [ArrayOutName, ['Constant', 'Break']],
+    ]);
+  }
 
   protected getDefaultIO(): Socket[] {
     return [
@@ -80,11 +76,6 @@ export class Test_DataTypes extends PPNode {
       new Socket(SOCKET_TYPE.IN, CodeName, new CodeType(), DEFAULT_EDITOR_DATA),
       new Socket(SOCKET_TYPE.IN, ColorName, new ColorType()),
       new Socket(SOCKET_TYPE.IN, DeferredPixiTypeName, new DeferredPixiType()),
-      //   new Socket(
-      //     SOCKET_TYPE.IN,
-      //     DynamicName,
-      //     new DynamicEnumType(this.getOptions)
-      //   ),
       new Socket(
         SOCKET_TYPE.IN,
         EnumName,

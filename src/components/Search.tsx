@@ -300,7 +300,26 @@ export const getNodes = (latest: INodeSearch[]): INodeSearch[] => {
     return foundNode;
   });
 
+  const preferredNodesList =
+    sourceSocket
+      ?.getNode()
+      .getPreferredNodesPerSocket()
+      .get(sourceSocket?.name) || [];
+
+  const preferredNodes = preferredNodesList.map((nodeName) => {
+    const foundNode = arrayWithGroupReset.find((node) => node.key === nodeName);
+    foundNode.group = 'Preferred';
+    return foundNode;
+  });
+
+  console.log(
+    sourceSocket?.name,
+    sourceSocket?.getNode().getPreferredNodesPerSocket(),
+    preferredNodesList
+  );
+
   const combinedArray = latest.concat(
+    preferredNodes,
     recommendedNodes,
     arrayWithGroupReset.filter(
       (node) => !sourceSocket || node.hasInputs
