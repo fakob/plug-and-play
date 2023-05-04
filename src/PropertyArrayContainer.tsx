@@ -149,6 +149,14 @@ function InfoContent(props: InfoContentProps) {
           }}
         >
           {props.selectedNode.getDescription()}
+          <Box
+            sx={{
+              lineHeight: '150%',
+            }}
+            dangerouslySetInnerHTML={{
+              __html: props.selectedNode.getAdditionalDescription(),
+            }}
+          />
         </Box>
         <Box
           sx={{

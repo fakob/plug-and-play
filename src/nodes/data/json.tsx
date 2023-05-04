@@ -174,6 +174,10 @@ export class Break extends PPNode {
     return 'Breaks out all properties of a JSON object';
   }
 
+  public hasExample(): boolean {
+    return true;
+  }
+
   protected getDefaultIO(): Socket[] {
     return [new Socket(SOCKET_TYPE.IN, JSONName, new JSONType()), new Socket(SOCKET_TYPE.IN, lockOutputsName, new BooleanType(),false,false)];
   }

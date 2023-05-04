@@ -78,6 +78,7 @@ export const getAllNodeTypes = (): RegisteredNodeTypes => {
             description: node.getDescription(),
             hasInputs: hasInputs,
             tags: node.getTags(),
+            hasExample: node.hasExample(),
           };
         }
       }

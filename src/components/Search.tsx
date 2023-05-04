@@ -273,6 +273,7 @@ export const getNodes = (latest: INodeSearch[]): INodeSearch[] => {
           description: obj.description,
           hasInputs: obj.hasInputs,
           tags: obj.tags,
+          hasExample: obj.hasExample,
           group: obj.tags[0],
         };
       })
@@ -445,36 +446,38 @@ export const renderNodeItem = (props, option, { inputValue, selected }) => {
               ))}
             </Box>
           </Box>
-          <IconButton
-            sx={{
-              borderRadius: 0,
-              right: '0px',
-              fontSize: '16px',
-              padding: 0,
-              height: '24px',
-              display: 'none',
-              '.Mui-focused &': {
-                display: 'inherit',
-              },
-            }}
-            onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
-              event.stopPropagation();
-              window.open(getNodeExampleURL(option.title), '_blank');
-            }}
-            title="Open node example"
-            className="menuItemButton"
-          >
-            <Box
+          {option.hasExample && (
+            <IconButton
               sx={{
-                color: 'text.secondary',
-                fontSize: '10px',
-                px: 0.5,
+                borderRadius: 0,
+                right: '0px',
+                fontSize: '16px',
+                padding: 0,
+                height: '24px',
+                display: 'none',
+                '.Mui-focused &': {
+                  display: 'inherit',
+                },
               }}
+              onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+                event.stopPropagation();
+                window.open(getNodeExampleURL(option.title), '_blank');
+              }}
+              title="Open node example"
+              className="menuItemButton"
             >
-              Open example
-            </Box>
-            <OpenInNewIcon sx={{ fontSize: '16px' }} />
-          </IconButton>
+              <Box
+                sx={{
+                  color: 'text.secondary',
+                  fontSize: '10px',
+                  px: 0.5,
+                }}
+              >
+                Open example
+              </Box>
+              <OpenInNewIcon sx={{ fontSize: '16px' }} />
+            </IconButton>
+          )}
           <Box>
             {option.tags?.map((part, index) => (
               <Box

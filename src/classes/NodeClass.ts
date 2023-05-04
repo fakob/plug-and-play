@@ -1199,6 +1199,15 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     return '';
   }
 
+  // this description is not searchable, only displayed in the info tab and can contain HTML
+  public getAdditionalDescription(): string {
+    return '';
+  }
+
+  public hasExample(): boolean {
+    return false;
+  }
+
   // used when searching for nodes
   public getTags(): string[] {
     return [];

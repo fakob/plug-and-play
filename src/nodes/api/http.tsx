@@ -165,6 +165,10 @@ export class ChatGPTNode extends HTTPNode {
   public getDescription(): string {
     return 'ChatGPT communication through P&P Companion, uses environmental variable for API key';
   }
+  public getAdditionalDescription(): string {
+    return `<p><a style="color:#E154BB" href="https://www.mozilla.org/en-US/" target="_blank">Download Plug and Play Companion</a></p>
+`;
+  }
 
   protected getUpdateBehaviour(): UpdateBehaviourClass {
     return new UpdateBehaviourClass(false, false, 1000);
