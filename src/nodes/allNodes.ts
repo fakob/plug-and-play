@@ -77,7 +77,7 @@ export const getAllNodeTypes = (): RegisteredNodeTypes => {
             name: node.getName(),
             description: node.getDescription(),
             hasInputs: hasInputs,
-            keywords: node.getKeywords(),
+            tags: node.getTags(),
           };
         }
       }
@@ -142,7 +142,6 @@ export const getAllNodesInDetail = (): any[] => {
           key: key,
           name: node.getName(),
           description: node.getDescription(),
-          tags: node.getTags(),
           inputCount: node.getAllInputSockets().length,
           inputSockets: inputSockets.join(),
           outputCount: node.outputSocketArray.length,

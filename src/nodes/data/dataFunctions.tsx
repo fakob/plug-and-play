@@ -333,8 +333,8 @@ class ArrayFunction extends CustomFunction {
   protected getOutputParameterType(): AbstractType {
     return new ArrayType();
   }
-  public getKeywords(): string[] {
-    return ['Array'].concat(super.getKeywords());
+  public getTags(): string[] {
+    return ['Array'].concat(super.getTags());
   }
 }
 

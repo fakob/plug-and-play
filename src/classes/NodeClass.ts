@@ -1200,12 +1200,8 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   }
 
   // used when searching for nodes
-  public getKeywords(): string[] {
+  public getTags(): string[] {
     return [];
-  }
-
-  public getTags(): string {
-    return '';
   }
 
   public propagateExecutionPast(): boolean {

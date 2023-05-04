@@ -1231,7 +1231,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
                   options={getNodes(nodeSearchActiveItem)}
                   onChange={action_AddOrReplaceNode}
                   filterOptions={(options, state) => {
-                    // state.inputValue = `${nodeSearchFilterRef.current}${state.inputValue}`;
                     const filteredOptions = filterOptionsNode(options, state);
                     nodeSearchCountRef.current = filteredOptions.length;
                     return filteredOptions;

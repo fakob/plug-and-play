@@ -12,9 +12,14 @@ import {
   ToggleButton,
   ToggleButtonGroup,
 } from '@mui/material';
-import LockIcon from '@mui/icons-material/Lock';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import { getCircularReplacer, writeTextToClipboard } from './utils/utils';
+import LockIcon from '@mui/icons-material/Lock';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import {
+  getCircularReplacer,
+  getNodeExampleURL,
+  writeTextToClipboard,
+} from './utils/utils';
 import { SerializedNode, SerializedSelection } from './utils/interfaces';
 import { PP_VERSION } from './utils/constants';
 import PPGraph from './classes/GraphClass';
@@ -99,36 +104,74 @@ function InfoContent(props: InfoContentProps) {
   return (
     <Stack spacing={1}>
       <Box sx={{ bgcolor: 'background.paper' }}>
-        <Box sx={{ px: 2, py: 1.5, color: 'text.primary' }}>Description</Box>
         <Box
           sx={{
-            p: 1,
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            px: 2,
+            py: 1,
+          }}
+        >
+          <Box sx={{ color: 'text.primary' }}>Description</Box>
+          <IconButton
+            sx={{
+              borderRadius: 0,
+              right: '0px',
+              fontSize: '16px',
+              padding: 0,
+              height: '24px',
+              lineHeight: '150%',
+            }}
+            onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+              event.stopPropagation();
+              window.open(getNodeExampleURL(props.selectedNode.type), '_blank');
+            }}
+            title="Open node example"
+            className="menuItemButton"
+          >
+            <Box
+              sx={{
+                color: 'text.secondary',
+                fontSize: '10px',
+                px: 0.5,
+              }}
+            >
+              Open example
+            </Box>
+            <OpenInNewIcon sx={{ fontSize: '16px' }} />
+          </IconButton>
+        </Box>
+        <Box
+          sx={{
+            p: 2,
             bgcolor: 'background.default',
           }}
         >
           {props.selectedNode.getDescription()}
         </Box>
-      </Box>
-      <Box sx={{ bgcolor: 'background.paper' }}>
-        <Box sx={{ px: 2, py: 1.5, color: 'text.primary' }}>Tags</Box>
         <Box
           sx={{
-            p: 1,
+            px: 2,
+            pb: 2,
             bgcolor: 'background.default',
+            textAlign: 'right',
           }}
         >
-          {props.selectedNode.getTags()}
-        </Box>
-      </Box>
-      <Box sx={{ bgcolor: 'background.paper' }}>
-        <Box sx={{ px: 2, py: 1.5, color: 'text.primary' }}>Related nodes</Box>
-        <Box
-          sx={{
-            p: 1,
-            bgcolor: 'background.default',
-          }}
-        >
-          List of nodes
+          {props.selectedNode.getTags()?.map((part, index) => (
+            <Box
+              key={index}
+              sx={{
+                fontSize: '12px',
+                background: 'rgba(255,255,255,0.2)',
+                cornerRadius: '4px',
+                px: 0.5,
+                display: 'inline',
+              }}
+            >
+              {part}
+            </Box>
+          ))}
         </Box>
       </Box>
     </Stack>

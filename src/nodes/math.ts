@@ -185,11 +185,8 @@ abstract class SimpleMathOperation extends CustomFunction {
   protected getOperatorSign(): string {
     return this.getOperator();
   }
-  public getTags(): string {
-    return this.getOperator();
-  }
-  public getKeywords(): string[] {
-    return ['Math'].concat(super.getKeywords());
+  public getTags(): string[] {
+    return ['Math'].concat(super.getTags());
   }
 }
 

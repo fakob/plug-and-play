@@ -73,8 +73,9 @@ export const customTheme = createTheme(darkThemeOverride, {
       contrastText: `${TRgba.white().hex()}`,
     },
     background: {
-      default: `${Color(RANDOMMAINCOLOR).darken(0.85)}`,
       paper: `${Color(RANDOMMAINCOLOR).darken(0.5)}`,
+      medium: `${Color(RANDOMMAINCOLOR).darken(0.6)}`,
+      default: `${Color(RANDOMMAINCOLOR).darken(0.85)}`,
     },
   },
 });

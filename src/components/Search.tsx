@@ -272,8 +272,8 @@ export const getNodes = (latest: INodeSearch[]): INodeSearch[] => {
           key: title,
           description: obj.description,
           hasInputs: obj.hasInputs,
-          keywords: obj.keywords,
-          group: obj.keywords[0],
+          tags: obj.tags,
+          group: obj.tags[0],
         };
       })
       .sort((a, b) =>
@@ -286,7 +286,7 @@ export const getNodes = (latest: INodeSearch[]): INodeSearch[] => {
 
   const arrayWithGroupReset = nodesCached.map((node) => ({
     ...node,
-    group: node.keywords[0],
+    group: node.tags[0],
   }));
 
   const inOrOutputList =
@@ -296,7 +296,7 @@ export const getNodes = (latest: INodeSearch[]): INodeSearch[] => {
 
   const recommendedNodes = inOrOutputList.map((nodeName) => {
     const foundNode = arrayWithGroupReset.find((node) => node.key === nodeName);
-    foundNode.group = 'Recommended';
+    foundNode.group = 'Suggested by socket type';
     return foundNode;
   });
 
@@ -308,7 +308,7 @@ export const getNodes = (latest: INodeSearch[]): INodeSearch[] => {
 
   const preferredNodes = preferredNodesList.map((nodeName) => {
     const foundNode = arrayWithGroupReset.find((node) => node.key === nodeName);
-    foundNode.group = 'Preferred';
+    foundNode.group = 'Suggested by node';
     return foundNode;
   });
 
@@ -368,15 +368,23 @@ export const filterOptionsNode = (options: INodeSearch[], { inputValue }) => {
 };
 
 export const renderGroupItem = (props) => {
+  const isSearching = props.children?.[0].props.inputValue; // don't render group header while searching
+  if (isSearching) {
+    return (
+      <li key={props.key}>
+        <ul style={{ padding: 0 }}>{props.children}</ul>
+      </li>
+    );
+  }
   return (
     <li key={props.key}>
       <Box
         sx={{
           position: 'sticky',
           top: '-0px',
-          padding: '4px 10px',
-          color: 'text.secondary',
-          bgcolor: 'background.paper',
+          padding: '2px 8px',
+          color: 'secondary.contrastText',
+          bgcolor: 'background.medium',
           zIndex: 2,
           fontSize: '10px',
         }}
@@ -400,7 +408,7 @@ export const renderNodeItem = (props, option, { inputValue, selected }) => {
   const partsOfDescription = parse(option.description, matchesOfDescription);
 
   return (
-    <li {...props} key={uuid()}>
+    <li {...props} key={uuid()} inputValue={inputValue}>
       <Stack
         sx={{
           width: '100%',
@@ -468,7 +476,7 @@ export const renderNodeItem = (props, option, { inputValue, selected }) => {
             <OpenInNewIcon sx={{ fontSize: '16px' }} />
           </IconButton>
           <Box>
-            {option.keywords?.map((part, index) => (
+            {option.tags?.map((part, index) => (
               <Box
                 key={index}
                 sx={{
