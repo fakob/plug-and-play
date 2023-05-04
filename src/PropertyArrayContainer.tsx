@@ -114,33 +114,38 @@ function InfoContent(props: InfoContentProps) {
           }}
         >
           <Box sx={{ color: 'text.primary' }}>Description</Box>
-          <IconButton
-            sx={{
-              borderRadius: 0,
-              right: '0px',
-              fontSize: '16px',
-              padding: 0,
-              height: '24px',
-              lineHeight: '150%',
-            }}
-            onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
-              event.stopPropagation();
-              window.open(getNodeExampleURL(props.selectedNode.type), '_blank');
-            }}
-            title="Open node example"
-            className="menuItemButton"
-          >
-            <Box
+          {props.selectedNode.hasExample() && (
+            <IconButton
               sx={{
-                color: 'text.secondary',
-                fontSize: '10px',
-                px: 0.5,
+                borderRadius: 0,
+                right: '0px',
+                fontSize: '16px',
+                padding: 0,
+                height: '24px',
+                lineHeight: '150%',
               }}
+              onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+                event.stopPropagation();
+                window.open(
+                  getNodeExampleURL(props.selectedNode.type),
+                  '_blank'
+                );
+              }}
+              title="Open node example"
+              className="menuItemButton"
             >
-              Open example
-            </Box>
-            <OpenInNewIcon sx={{ fontSize: '16px' }} />
-          </IconButton>
+              <Box
+                sx={{
+                  color: 'text.secondary',
+                  fontSize: '10px',
+                  px: 0.5,
+                }}
+              >
+                Open example
+              </Box>
+              <OpenInNewIcon sx={{ fontSize: '16px' }} />
+            </IconButton>
+          )}
         </Box>
         <Box
           sx={{
