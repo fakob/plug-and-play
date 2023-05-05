@@ -14,7 +14,7 @@ export enum ListenEvent {
   GlobalPointerDown, // data = void TODO implement
   GlobalPointerUp, // data = event: PIXI.FederatedPointerEvent
   GraphChanged, // data = {id,name}
-  OpenInspectorFocusingOnSocket, // (data: Socket) => void: called when inspector should be opened to focus on a socket
+  ToggleInspectorWithFocus, // (data: Node, Filter or Socket) => void: called when inspector should be opened to focus on a socket
 }
 
 export default class InterfaceController {

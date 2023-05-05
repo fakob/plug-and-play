@@ -3,6 +3,8 @@ import { Box, Button, Drawer, Paper, Stack } from '@mui/material';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import TuneIcon from '@mui/icons-material/Tune';
 import Color from 'color';
+import InterfaceController, { ListenEvent } from '../InterfaceController';
+import Socket from '../classes/SocketClass';
 import InspectorContainer from '../InspectorContainer';
 import { COLOR_DARK, COLOR_WHITE_TEXT } from '../utils/constants';
 import styles from '../utils/style.module.css';
@@ -42,7 +44,39 @@ function DrawerToggle(props) {
 const ResponsiveDrawer = (props) => {
   // leaving this commented here for potential future testing
   const [open, setOpen] = useState(true);
-  const [filter, setFilter] = useState('in');
+  const [filter, setFilter] = useState(null);
+  const [socketToInspect, setSocketToInspect] = useState<Socket | undefined>(
+    undefined
+  );
+
+  const toggleInspectorAndFocus = ({ filter, socket, open }) => {
+    if (open !== undefined) {
+      setOpen(open);
+    } else {
+      handleDrawerToggle();
+    }
+    if (filter) {
+      setFilter(filter);
+      setSocketToInspect(undefined);
+    } else if (socket) {
+      setSocketToInspect(socket);
+    }
+  };
+
+  useEffect(() => {
+    // register callbacks when currentGraph mounted
+    const ids = [];
+    ids.push(
+      InterfaceController.addListener(
+        ListenEvent.ToggleInspectorWithFocus,
+        toggleInspectorAndFocus
+      )
+    );
+
+    return () => {
+      ids.forEach((id) => InterfaceController.removeListener(id));
+    };
+  }, []);
 
   const handleDrawerToggle = () => {
     setOpen((prevState) => !prevState);
@@ -113,7 +147,7 @@ const ResponsiveDrawer = (props) => {
         {props.selectedNodes.length ? (
           <InspectorContainer
             selectedNodes={props.selectedNodes}
-            socketToInspect={props.socketToInspect}
+            socketToInspect={socketToInspect}
             randomMainColor={props.randomMainColor}
             filter={filter}
             setFilter={setFilter}

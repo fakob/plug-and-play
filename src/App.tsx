@@ -650,14 +650,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         setGraphSearchActiveItem(data);
       })
     );
-    ids.push(
-      InterfaceController.addListener(
-        ListenEvent.OpenInspectorFocusingOnSocket,
-        (socket: PPSocket) => {
-          setShowRightSideDrawer(socket !== null);
-        }
-      )
-    );
 
     InterfaceController.onOpenNodeSearch = openNodeSearch;
 

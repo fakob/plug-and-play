@@ -337,16 +337,37 @@ export default class PPGraph {
       InterfaceController.notifyListeners(ListenEvent.SelectionChanged, [
         socket.getNode(),
       ]);
+      let shouldOpen;
       if (this.socketToInspect !== socket) {
+        shouldOpen = true;
         this.socketToInspect = socket;
       } else {
         this.socketToInspect = null;
       }
       InterfaceController.notifyListeners(
-        ListenEvent.OpenInspectorFocusingOnSocket,
-        this.socketToInspect
+        ListenEvent.ToggleInspectorWithFocus,
+        {
+          socket: this.socketToInspect,
+          open: shouldOpen,
+        }
       );
     }
+  }
+
+  async editNodeMouseDown(node: PPNode): Promise<void> {
+    this.socketToInspect = null;
+    const obj = {
+      filter: 'common',
+      open: undefined,
+    };
+    if (!node.selected) {
+      PPGraph.currentGraph.selection.selectNodes([node], false, true);
+      obj.open = true;
+    }
+    InterfaceController.notifyListeners(
+      ListenEvent.ToggleInspectorWithFocus,
+      obj
+    );
   }
 
   presentationAndNodeToAlpha(value: boolean, node: PPNode) {

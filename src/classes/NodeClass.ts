@@ -1,5 +1,6 @@
 /* eslint-disable */
 import * as PIXI from 'pixi.js';
+import { Button as PixiUIButton } from '@pixi/ui';
 import { hri } from 'human-readable-ids';
 import {
   CustomArgs,
@@ -12,6 +13,7 @@ import {
 } from '../utils/interfaces';
 import {
   COMMENT_TEXTSTYLE,
+  EDIT_ICON,
   NODE_TYPE_COLOR,
   NODE_CORNERRADIUS,
   NODE_HEADER_HEIGHT,
@@ -52,6 +54,7 @@ export default class PPNode extends PIXI.Container {
   _BackgroundRef: PIXI.Graphics;
   _CommentRef: PIXI.Graphics;
   _StatusesRef: PIXI.Graphics;
+  infoIcon: PixiUIButton;
 
   clickedSocketRef: Socket;
   _isHovering: boolean;
@@ -170,6 +173,17 @@ export default class PPNode extends PIXI.Container {
     }
     this.updateBehaviour.x = NODE_MARGIN;
     this.updateBehaviour.y = -24;
+
+    this.infoIcon = new PixiUIButton(PIXI.Sprite.from(EDIT_ICON));
+    this.addChild(this.infoIcon.view);
+    this.infoIcon.view.x = NODE_MARGIN + this.nodeWidth - 16 - 4;
+    this.infoIcon.view.y = 4;
+    this.infoIcon.view.width = 16;
+    this.infoIcon.view.height = 16;
+    this.infoIcon.view.visible = false;
+    this.infoIcon.onDown.connect(() => {
+      PPGraph.currentGraph.editNodeMouseDown(this);
+    });
 
     this.nodeSelectionHeader = new NodeSelectionHeaderClass();
     if (this.getShouldShowHoverActions()) {
@@ -1027,6 +1041,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
 
   onPointerOver(): void {
     this.isHovering = true;
+    this.infoIcon.view.visible = true;
     this.updateBehaviour.redrawAnythingChanging();
     this.nodeSelectionHeader.redrawAnythingChanging(true);
     this.addEventListener('pointermove', this.pointerOverMoving);
@@ -1039,6 +1054,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
       this.isHovering = false;
     }
     this.removeEventListener('pointermove', this.pointerOverMoving);
+    this.infoIcon.view.visible = false;
     this.updateBehaviour.redrawAnythingChanging();
     this.nodeSelectionHeader.redrawAnythingChanging(false);
     this.getAllSockets().forEach((socket) => socket.nodeHoveredOut());
