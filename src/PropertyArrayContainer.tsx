@@ -55,11 +55,6 @@ function FilterContainer(props: FilterContentProps) {
       size="small"
       sx={{ bgcolor: 'background.paper', borderRadius: '0px' }}
     >
-      {props.selectedNodes.length === 1 && (
-        <ToggleButton value="info" aria-label="info">
-          Info
-        </ToggleButton>
-      )}
       <ToggleButton value="common" aria-label="common">
         Common
       </ToggleButton>
@@ -88,106 +83,11 @@ function FilterContainer(props: FilterContentProps) {
         </ToggleButton>
       )}
       {props.selectedNodes.length === 1 && (
-        <ToggleButton value="source" aria-label="source">
-          Source
+        <ToggleButton value="info" aria-label="info">
+          Info
         </ToggleButton>
       )}
     </ToggleButtonGroup>
-  );
-}
-
-type InfoContentProps = {
-  selectedNode: PPNode;
-};
-
-function InfoContent(props: InfoContentProps) {
-  return (
-    <Stack spacing={1}>
-      <Box sx={{ bgcolor: 'background.paper' }}>
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            px: 2,
-            py: 1,
-          }}
-        >
-          <Box sx={{ color: 'text.primary' }}>Description</Box>
-          {props.selectedNode.hasExample() && (
-            <IconButton
-              sx={{
-                borderRadius: 0,
-                right: '0px',
-                fontSize: '16px',
-                padding: 0,
-                height: '24px',
-                lineHeight: '150%',
-              }}
-              onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
-                event.stopPropagation();
-                window.open(
-                  getNodeExampleURL(props.selectedNode.type),
-                  '_blank'
-                );
-              }}
-              title="Open node example"
-              className="menuItemButton"
-            >
-              <Box
-                sx={{
-                  color: 'text.secondary',
-                  fontSize: '10px',
-                  px: 0.5,
-                }}
-              >
-                Open example
-              </Box>
-              <OpenInNewIcon sx={{ fontSize: '16px' }} />
-            </IconButton>
-          )}
-        </Box>
-        <Box
-          sx={{
-            p: 2,
-            bgcolor: 'background.default',
-          }}
-        >
-          {props.selectedNode.getDescription()}
-          <Box
-            sx={{
-              lineHeight: '150%',
-            }}
-            dangerouslySetInnerHTML={{
-              __html: props.selectedNode.getAdditionalDescription(),
-            }}
-          />
-        </Box>
-        <Box
-          sx={{
-            px: 2,
-            pb: 2,
-            bgcolor: 'background.default',
-            textAlign: 'right',
-          }}
-        >
-          {props.selectedNode.getTags()?.map((part, index) => (
-            <Box
-              key={index}
-              sx={{
-                fontSize: '12px',
-                background: 'rgba(255,255,255,0.2)',
-                cornerRadius: '4px',
-                px: 0.5,
-                display: 'inline',
-              }}
-            >
-              {part}
-            </Box>
-          ))}
-        </Box>
-      </Box>
-    </Stack>
   );
 }
 
@@ -317,6 +217,101 @@ function socketArrayToComponent(
       )
     );
   }
+}
+
+type InfoContentProps = {
+  selectedNode: PPNode;
+};
+
+function InfoContent(props: InfoContentProps) {
+  return (
+    <Stack spacing={1}>
+      <Box sx={{ bgcolor: 'background.paper' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            px: 2,
+            py: 1,
+          }}
+        >
+          <Box sx={{ color: 'text.primary' }}>Description</Box>
+          {props.selectedNode.hasExample() && (
+            <IconButton
+              sx={{
+                borderRadius: 0,
+                right: '0px',
+                fontSize: '16px',
+                padding: 0,
+                height: '24px',
+                lineHeight: '150%',
+              }}
+              onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+                event.stopPropagation();
+                window.open(
+                  getNodeExampleURL(props.selectedNode.type),
+                  '_blank'
+                );
+              }}
+              title="Open node example"
+              className="menuItemButton"
+            >
+              <Box
+                sx={{
+                  color: 'text.secondary',
+                  fontSize: '10px',
+                  px: 0.5,
+                }}
+              >
+                Open example
+              </Box>
+              <OpenInNewIcon sx={{ fontSize: '16px' }} />
+            </IconButton>
+          )}
+        </Box>
+        <Box
+          sx={{
+            p: 2,
+            bgcolor: 'background.default',
+          }}
+        >
+          {props.selectedNode.getDescription()}
+          <Box
+            sx={{
+              lineHeight: '150%',
+            }}
+            dangerouslySetInnerHTML={{
+              __html: props.selectedNode.getAdditionalDescription(),
+            }}
+          />
+        </Box>
+        <Box
+          sx={{
+            px: 2,
+            pb: 2,
+            bgcolor: 'background.default',
+            textAlign: 'right',
+          }}
+        >
+          {props.selectedNode.getTags()?.map((part, index) => (
+            <Box
+              key={index}
+              sx={{
+                fontSize: '12px',
+                background: 'rgba(255,255,255,0.2)',
+                cornerRadius: '4px',
+                px: 0.5,
+                display: 'inline',
+              }}
+            >
+              {part}
+            </Box>
+          ))}
+        </Box>
+      </Box>
+    </Stack>
+  );
 }
 
 type SourceContentProps = {
@@ -559,10 +554,6 @@ export const PropertyArrayContainer: React.FunctionComponent<
             height: 'calc(100vh - 100px)',
           }}
         >
-          {props.selectedNodes.length === 1 &&
-            (props.filter === 'info' || props.filter == null) && (
-              <InfoContent selectedNode={selectedNode} />
-            )}
           {(props.selectedNodes.length !== 1 ||
             props.filter === 'common' ||
             props.filter == null) && (
@@ -602,8 +593,10 @@ export const PropertyArrayContainer: React.FunctionComponent<
                 props.filter,
                 'out'
               )}
-              {(props.filter === 'source' || props.filter == null) && (
+              {((props.selectedNodes.length === 1 && props.filter === 'info') ||
+                props.filter == null) && (
                 <Stack spacing={1}>
+                  <InfoContent selectedNode={selectedNode} />
                   <SourceContent
                     header="Config"
                     editable={true}
