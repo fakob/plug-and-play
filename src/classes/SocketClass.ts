@@ -3,6 +3,7 @@ import { SerializedSocket, TRgba, TSocketType } from '../utils/interfaces';
 import PPGraph from './GraphClass';
 import PPNode from './NodeClass';
 import PPLink from './LinkClass';
+import InterfaceController, { ListenEvent } from '../InterfaceController';
 import {
   SOCKET_CORNERRADIUS,
   SOCKET_TEXTMARGIN_TOP,
@@ -190,7 +191,7 @@ export default class Socket extends PIXI.Container {
       );
       this._TextRef.addEventListener('pointerdown', (event) => {
         if (event.button !== 2) {
-          this.getGraph().socketNameRefMouseDown(this, event);
+          this.socketNameRefMouseDown(event);
         }
       });
       this.addChild(this._TextRef);
@@ -417,6 +418,31 @@ export default class Socket extends PIXI.Container {
   onPointerUp(event: PIXI.FederatedPointerEvent): void {
     this.getGraph().socketMouseUp(this, event);
     //this.nodeHoveredOut(); // i removed this, is it needed?
+  }
+
+  socketNameRefMouseDown(event: PIXI.FederatedPointerEvent): void {
+    const clickedSourcePoint = new PIXI.Point(event.global.x, event.global.y);
+    if (event.ctrlKey) {
+      InterfaceController.onOpenSocketInspector(clickedSourcePoint, this);
+    } else {
+      InterfaceController.notifyListeners(ListenEvent.SelectionChanged, [
+        this.getNode(),
+      ]);
+      let shouldOpen;
+      if (PPGraph.currentGraph.socketToInspect !== this) {
+        shouldOpen = true;
+        PPGraph.currentGraph.socketToInspect = this;
+      } else {
+        PPGraph.currentGraph.socketToInspect = null;
+      }
+      InterfaceController.notifyListeners(
+        ListenEvent.ToggleInspectorWithFocus,
+        {
+          socket: PPGraph.currentGraph.socketToInspect,
+          open: shouldOpen,
+        }
+      );
+    }
   }
 
   public nodeHoveredOver() {

@@ -326,50 +326,6 @@ export default class PPGraph {
     }
   }
 
-  async socketNameRefMouseDown(
-    socket: PPSocket,
-    event: PIXI.FederatedPointerEvent
-  ): Promise<void> {
-    const clickedSourcePoint = new PIXI.Point(event.global.x, event.global.y);
-    if (event.ctrlKey) {
-      InterfaceController.onOpenSocketInspector(clickedSourcePoint, socket);
-    } else {
-      InterfaceController.notifyListeners(ListenEvent.SelectionChanged, [
-        socket.getNode(),
-      ]);
-      let shouldOpen;
-      if (this.socketToInspect !== socket) {
-        shouldOpen = true;
-        this.socketToInspect = socket;
-      } else {
-        this.socketToInspect = null;
-      }
-      InterfaceController.notifyListeners(
-        ListenEvent.ToggleInspectorWithFocus,
-        {
-          socket: this.socketToInspect,
-          open: shouldOpen,
-        }
-      );
-    }
-  }
-
-  async editNodeMouseDown(node: PPNode): Promise<void> {
-    this.socketToInspect = null;
-    const obj = {
-      filter: 'common',
-      open: undefined,
-    };
-    if (!node.selected) {
-      PPGraph.currentGraph.selection.selectNodes([node], false, true);
-      obj.open = true;
-    }
-    InterfaceController.notifyListeners(
-      ListenEvent.ToggleInspectorWithFocus,
-      obj
-    );
-  }
-
   presentationAndNodeToAlpha(value: boolean, node: PPNode) {
     const newVisibility = node.getIsPresentationalNode() || value;
     return newVisibility ? (node.alpha == 0.0 ? 1.0 : node.alpha) : 0.0;

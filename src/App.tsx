@@ -55,6 +55,7 @@ import {
   CONTEXTMENU_WIDTH,
   DRAGANDDROP_GRID_MARGIN,
   GRID_SHADER,
+  MAX_LATEST_NODES_IN_SEARCH,
   NODE_SOURCE,
   PLUGANDPLAY_ICON,
   RANDOMMAINCOLOR,
@@ -787,7 +788,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         setNodeSearchActiveItem((oldArray) => {
           selected.group = 'Latest';
           const newArray = [selected, ...oldArray];
-          if (newArray.length > 3) {
+          if (newArray.length > MAX_LATEST_NODES_IN_SEARCH) {
             newArray.pop();
           }
           console.log(newArray.length, newArray);

@@ -2,6 +2,7 @@ import * as PIXI from 'pixi.js';
 import Color from 'color';
 import PPGraph from './GraphClass';
 import PPNode from './NodeClass';
+import InterfaceController, { ListenEvent } from '../InterfaceController';
 import {
   EDIT_ICON,
   RANDOMMAINCOLOR,
@@ -65,8 +66,9 @@ export default class NodeHeaderClass extends PIXI.Container {
       this.onPointerDown(e, false, true)
     );
     this._editNode = new Button(EDIT_ICON);
-    this._editNode.addEventListener('pointerdown', (e) =>
-      PPGraph.currentGraph.editNodeMouseDown(this.parent as PPNode)
+    this._editNode.addEventListener(
+      'pointerdown',
+      this.editNodeMouseDown.bind(this)
     );
 
     this.addChild(this._selectUpstreamBranch);
@@ -100,6 +102,23 @@ export default class NodeHeaderClass extends PIXI.Container {
     console.log(this, node, up, down);
     graph.selection.selectNodes(
       Object.values(FlowLogic.getAllUpDownstreamNodes(node, up, down, altKey))
+    );
+  }
+
+  editNodeMouseDown(): void {
+    const node = this.parent as PPNode;
+    PPGraph.currentGraph.socketToInspect = null;
+    const obj = {
+      filter: 'common',
+      open: undefined,
+    };
+    if (!node.selected) {
+      PPGraph.currentGraph.selection.selectNodes([node], false, true);
+      obj.open = true;
+    }
+    InterfaceController.notifyListeners(
+      ListenEvent.ToggleInspectorWithFocus,
+      obj
     );
   }
 }

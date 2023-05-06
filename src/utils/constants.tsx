@@ -228,6 +228,8 @@ function customFunctionNode(a, b) {
   return a * b;
 }`;
 
+export const MAX_LATEST_NODES_IN_SEARCH = 3;
+
 export const PIXI_PIVOT_OPTIONS: EnumStructure = [
   {
     text: 'top left',
