@@ -138,19 +138,20 @@ export const getAllNodesInDetail = (): any[] => {
           node.updateBehaviour.interval,
           node.updateBehaviour.intervalFrequency,
         ];
+        console.log(node);
 
         toReturn.push({
           key: key,
           name: node.getName(),
           description: node.getDescription(),
+          description2: node.getAdditionalDescription(),
+          tags: node.getTags().join(),
+          hasExample: node.hasExample(),
+          updateBehaviour: updateBehaviour.join(),
           inputCount: node.getAllInputSockets().length,
           inputSockets: inputSockets.join(),
           outputCount: node.outputSocketArray.length,
           outputSockets: outputSockets.join(),
-          // minNodeWith: node.getMinNodeWidth(),
-          // minNodeHeight: node.getMinNodeHeight(),
-          updateBehaviour: updateBehaviour.join(),
-          // sourceCode: node.getSourceCode(),
         });
       }
     }
