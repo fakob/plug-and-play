@@ -138,7 +138,6 @@ export const getAllNodesInDetail = (): any[] => {
           node.updateBehaviour.interval,
           node.updateBehaviour.intervalFrequency,
         ];
-        console.log(node);
 
         toReturn.push({
           key: key,
