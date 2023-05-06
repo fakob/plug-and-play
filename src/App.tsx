@@ -97,7 +97,8 @@ const randomMainColorLightHex = PIXI.utils.string2hex(
 
 fetch('https://plugandplayground.dev/buildInfo')
   .then((response) => response.json())
-  .then((data) => console.log(data));
+  .then((data) => console.log(data))
+  .catch((error) => console.error(error));
 
 const App = (): JSX.Element => {
   console.log('FULL APP REDRAW');

@@ -15,7 +15,6 @@ import { BooleanType } from '../datatypes/booleanType';
 import { CodeType } from '../datatypes/codeType';
 import { ColorType } from '../datatypes/colorType';
 import { DeferredPixiType } from '../datatypes/deferredPixiType';
-import { DynamicEnumType } from '../datatypes/dynamicEnumType';
 import { EnumType } from '../datatypes/enumType';
 import { FunctionType } from '../datatypes/functionType';
 import { ImageType } from '../datatypes/imageType';
@@ -30,7 +29,6 @@ const BooleanName = 'Boolean';
 const CodeName = 'Code';
 const ColorName = 'Color';
 const DeferredPixiTypeName = 'DeferredPixiType';
-// const DynamicName = 'Dynamic';
 const EnumName = 'Enum';
 const FunctionName = 'Function';
 const ImageName = 'Image';
@@ -45,16 +43,13 @@ const BooleanOutName = 'Boolean-Out';
 const CodeOutName = 'Code-Out';
 const ColorOutName = 'Color-Out';
 const DeferredDeferredPixiTypeOutName = 'DeferredPixiType-Out';
-// const DynamicOutName = 'Dynamic-Out';
-// const EnumOutName = 'Enum-Out';
 const FunctionOutName = 'Function-Out';
 const ImageOutName = 'Image-Out';
 const JSONTypeOutName = 'JSONType-Out';
 const NumberOutName = 'Number-Out';
 const StringOutName = 'String-Out';
-// const TriggerOutName = 'Trigger-Out';
 
-export class Test_DataTypes extends PPNode {
+export class TestDataTypes extends PPNode {
   initialData: any;
 
   public getName(): string {
