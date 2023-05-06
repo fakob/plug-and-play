@@ -1204,6 +1204,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     return '';
   }
 
+  // enable if a node example graph exists on github
   public hasExample(): boolean {
     return false;
   }

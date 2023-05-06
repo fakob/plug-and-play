@@ -36,27 +36,28 @@ export class ArrayType extends AbstractType {
 
   recommendedInputNodeWidgets(): string[] {
     return [
-      'Playground',
-      'ArrayPush',
-      'ArrayMethod',
-      'ArrayState',
       'ArrayCreate',
-      // 'ArrayGet',
-      // 'ArrayLength',
+      'ArrayMethod',
       'ArraySlice',
+      'ArrayPush',
+      'ArrayState',
     ];
   }
 
   recommendedOutputNodeWidgets(): string[] {
     return [
-      'Playground',
-      'ArrayPush',
       'ArrayMethod',
-      'ArrayState',
-      // 'ArrayCreate',
       'ArrayGet',
       'ArrayLength',
       'ArraySlice',
+      'ArrayPush',
+      'Filter',
+      'Uniques',
+      'Counts',
+      'Flatten',
+      'Max',
+      'Min',
+      'ArrayState',
     ];
   }
 }

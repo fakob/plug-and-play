@@ -57,6 +57,14 @@ const StringOutName = 'String-Out';
 export class Test_DataTypes extends PPNode {
   initialData: any;
 
+  public getName(): string {
+    return 'Test data types';
+  }
+
+  public getDescription(): string {
+    return 'A test node which lists all available socket data types';
+  }
+
   getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
   }

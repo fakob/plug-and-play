@@ -313,12 +313,6 @@ export const getNodes = (latest: INodeSearch[]): INodeSearch[] => {
     return foundNode;
   });
 
-  console.log(
-    sourceSocket?.name,
-    sourceSocket?.getNode().getPreferredNodesPerSocket(),
-    preferredNodesList
-  );
-
   const combinedArray = latest.concat(
     preferredNodes,
     recommendedNodes,
@@ -343,16 +337,8 @@ export const getNodes = (latest: INodeSearch[]): INodeSearch[] => {
 export const filterOptionsNode = (options: INodeSearch[], { inputValue }) => {
   let sorted = options;
   // use the above sort order if no search term has been entered yet
-  const prefilteredOptions = options.filter((node) => {
-    // const preFilter =
-    //   PPGraph.currentGraph.selectedSourceSocket?.dataType.getName();
-    // console.log(node.key, preFilter);
-    // return node.key.includes(preFilter);
-    return true;
-  });
-
   if (inputValue !== '') {
-    sorted = matchSorter(prefilteredOptions, inputValue, {
+    sorted = matchSorter(options, inputValue, {
       keys: ['name', 'title', 'description'],
     });
     sorted.push({
@@ -409,7 +395,7 @@ export const renderNodeItem = (props, option, { inputValue, selected }) => {
   const partsOfDescription = parse(option.description, matchesOfDescription);
 
   return (
-    <li {...props} key={uuid()} inputValue={inputValue}>
+    <li {...props} key={uuid()}>
       <Stack
         sx={{
           width: '100%',

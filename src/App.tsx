@@ -119,7 +119,6 @@ const App = (): JSX.Element => {
   const [isNodeSearchVisible, setIsNodeSearchVisible] = useState(false);
   const [showRightSideDrawer, setShowRightSideDrawer] = useState(false);
   const nodeSearchCountRef = useRef(0);
-  const nodeSearchFilterRef = useRef('Array');
   const [isGraphContextMenuOpen, setIsGraphContextMenuOpen] = useState(false);
   const [isNodeContextMenuOpen, setIsNodeContextMenuOpen] = useState(false);
   const [isSocketContextMenuOpen, setIsSocketContextMenuOpen] = useState(false);
@@ -912,7 +911,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           {`${nodeSearchCountRef.current} of ${
             Object.keys(getAllNodeTypes()).length
           }`}
-          {`: ${PPGraph.currentGraph.selectedSourceSocket?.dataType.getName()}`}
         </Box>
         {children}
       </Paper>
