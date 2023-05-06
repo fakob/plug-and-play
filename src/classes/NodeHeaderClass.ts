@@ -3,6 +3,7 @@ import Color from 'color';
 import PPGraph from './GraphClass';
 import PPNode from './NodeClass';
 import {
+  EDIT_ICON,
   RANDOMMAINCOLOR,
   SELECTION_DOWNSTREAM_TEXTURE,
   SELECTION_UPSTREAM_TEXTURE,
@@ -16,11 +17,9 @@ class Button extends PIXI.Sprite {
   up: boolean;
   down: boolean;
 
-  constructor(up: boolean, down: boolean, imageURL: string) {
+  constructor(imageURL: string) {
     super(PIXI.Texture.from(imageURL));
 
-    this.up = up;
-    this.down = down;
     this.eventMode = 'static';
     this.cursor = 'pointer';
     this.alpha = 0.5;
@@ -29,7 +28,6 @@ class Button extends PIXI.Sprite {
     this.tint = PIXI.utils.string2hex(Color(RANDOMMAINCOLOR).darken(0.7).hex());
     this.addEventListener('pointerover', this.onPointerOver.bind(this));
     this.addEventListener('pointerout', this.onPointerOut.bind(this));
-    this.addEventListener('pointerdown', this.onPointerDown.bind(this));
   }
 
   // SETUP
@@ -43,46 +41,43 @@ class Button extends PIXI.Sprite {
     this.alpha = 0.5;
     this.cursor = 'default';
   }
-
-  onPointerDown(event: PIXI.FederatedPointerEvent): void {
-    const altKey = event.altKey;
-    const node = this.parent?.parent as PPNode;
-    const graph = PPGraph.currentGraph;
-    graph.selection.selectNodes(
-      Object.values(
-        FlowLogic.getAllUpDownstreamNodes(node, this.up, this.down, altKey)
-      )
-    );
-  }
 }
 
-export default class NodeSelectionHeaderClass extends PIXI.Container {
+export default class NodeHeaderClass extends PIXI.Container {
   _selectDownstreamBranch: Button;
   _selectUpstreamBranch: Button;
   _selectWholeBranch: Button;
+  _editNode: Button;
 
   constructor() {
     super();
 
-    this._selectUpstreamBranch = new Button(
-      true,
-      false,
-      SELECTION_UPSTREAM_TEXTURE
+    this._selectUpstreamBranch = new Button(SELECTION_UPSTREAM_TEXTURE);
+    this._selectUpstreamBranch.addEventListener('pointerdown', (e) =>
+      this.onPointerDown(e, true, false)
     );
-    this._selectWholeBranch = new Button(true, true, SELECTION_WHOLE_TEXTURE);
-    this._selectDownstreamBranch = new Button(
-      false,
-      true,
-      SELECTION_DOWNSTREAM_TEXTURE
+    this._selectWholeBranch = new Button(SELECTION_WHOLE_TEXTURE);
+    this._selectWholeBranch.addEventListener('pointerdown', (e) =>
+      this.onPointerDown(e, true, true)
+    );
+    this._selectDownstreamBranch = new Button(SELECTION_DOWNSTREAM_TEXTURE);
+    this._selectDownstreamBranch.addEventListener('pointerdown', (e) =>
+      this.onPointerDown(e, false, true)
+    );
+    this._editNode = new Button(EDIT_ICON);
+    this._editNode.addEventListener('pointerdown', (e) =>
+      PPGraph.currentGraph.editNodeMouseDown(this.parent as PPNode)
     );
 
-    this.addChild(this._selectDownstreamBranch);
     this.addChild(this._selectUpstreamBranch);
     this.addChild(this._selectWholeBranch);
+    this.addChild(this._selectDownstreamBranch);
+    this.addChild(this._editNode);
 
     this._selectUpstreamBranch.x = 0;
     this._selectWholeBranch.x = 24;
     this._selectDownstreamBranch.x = 48;
+    this._editNode.x = 72;
 
     this.redrawAnythingChanging();
   }
@@ -92,5 +87,19 @@ export default class NodeSelectionHeaderClass extends PIXI.Container {
     if (hoverNode) {
       this.alpha = 1.0;
     }
+  }
+
+  onPointerDown(
+    event: PIXI.FederatedPointerEvent,
+    up: boolean,
+    down: boolean
+  ): void {
+    const altKey = event.altKey;
+    const node = this.parent as PPNode;
+    const graph = PPGraph.currentGraph;
+    console.log(this, node, up, down);
+    graph.selection.selectNodes(
+      Object.values(FlowLogic.getAllUpDownstreamNodes(node, up, down, altKey))
+    );
   }
 }
