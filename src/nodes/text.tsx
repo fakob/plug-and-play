@@ -129,9 +129,6 @@ export class Label extends PPNode {
     //const minWidth = Math.max(1, input['min-width']);
     const color: TRgba = input['backgroundColor'];
 
-    const marginTopBottom = fontSize / 2;
-    const marginLeftRight = fontSize / 1.5;
-
     this.PIXITextStyle.fontSize = fontSize;
     this.PIXITextStyle.lineHeight = fontSize * NOTE_LINEHEIGHT_FACTOR;
     this.PIXITextStyle.fill = color.isDark()
@@ -141,24 +138,45 @@ export class Label extends PPNode {
     const textMetrics = PIXI.TextMetrics.measureText(text, this.PIXITextStyle);
 
     this.resizeAndDraw(
-      Math.max(this.getMinNodeWidth(), textMetrics.width + marginLeftRight * 2),
-      textMetrics.height + marginTopBottom * 2
+      Math.max(
+        this.getMinNodeWidth(),
+        textMetrics.width + this.getMarginLeftRight() * 2
+      ),
+      textMetrics.height + this.getMarginTopBottom() * 2
     );
     output['Output'] = text;
 
     this.PIXIText.text = text;
-    this.PIXIText.x = NODE_MARGIN + marginLeftRight;
-    this.PIXIText.y = marginTopBottom;
+    this.PIXIText.x = this.getMarginLeftRight();
+    this.PIXIText.y = this.getMarginTopBottom();
+  }
+
+  private getMarginTopBottom(): number {
+    const fontSize = this.getInputData('fontSize');
+    return fontSize / 2;
+  }
+
+  private getMarginLeftRight(): number {
+    const fontSize = this.getInputData('fontSize');
+    return fontSize / 1.5;
+  }
+
+  private getHTMLComponentLeft(): number {
+    return this.x + this.getMarginLeftRight();
+  }
+  private getHTMLComponentTop(): number {
+    return this.y + this.getMarginTopBottom();
   }
 
   public createInputElement = () => {
     // create html input element
-    const screenPoint = PPGraph.currentGraph.viewport.toScreen(this.x, this.y);
     const text = this.getInputData('Input');
     const fontSize = this.getInputData('fontSize');
     const color = this.getInputData('backgroundColor');
-    const marginTopBottom = fontSize / 2;
-    const marginLeftRight = fontSize / 1.2;
+    const screenPoint = PPGraph.currentGraph.viewport.toScreen(
+      this.getHTMLComponentLeft(),
+      this.getHTMLComponentTop()
+    );
 
     this.HTMLTextComponent = document.createElement('div');
     this.HTMLTextComponent.id = 'Input';
@@ -168,11 +186,9 @@ export class Label extends PPNode {
     const style = {
       fontFamily: 'Arial',
       fontSize: `${fontSize}px`,
-      //lineHeight: `${fontSize * (NOTE_LINEHEIGHT_FACTOR + 0.022)}px`, // 0.022 corrects difference between div and PIXI.Text
+      lineHeight: `${fontSize * (NOTE_LINEHEIGHT_FACTOR + 0.022)}px`, // 0.022 corrects difference between div and PIXI.Text
       textAlign: 'left',
-      margin: NOTE_MARGIN_STRING,
       color: color.isDark() ? TRgba.white().hex() : TRgba.black().hex(),
-      padding: `${marginTopBottom}px ${marginLeftRight}px`,
       position: 'absolute',
       background: 'transparent',
       border: '0 none',
@@ -202,16 +218,16 @@ export class Label extends PPNode {
 
       const textMetricsHeight = textMetrics.height;
 
-      const newWidth = textMetrics.width + marginLeftRight * 2;
+      const newWidth = textMetrics.width + this.getMarginLeftRight() * 2;
       const newHeight = textMetricsHeight * NOTE_LINEHEIGHT_FACTOR;
       this.HTMLTextComponent.style.width = `${newWidth}px`;
       this.HTMLTextComponent.style.height = `${
-        newHeight + marginTopBottom * 2
+        newHeight + this.getMarginTopBottom() * 2
       }px`;
 
       this.resizeAndDraw(
         Math.max(minWidth, newWidth),
-        newHeight + marginTopBottom
+        newHeight + this.getMarginTopBottom()
       );
 
       this.setInputData('Input', text);
@@ -229,8 +245,8 @@ export class Label extends PPNode {
         this.y
       );
       this.HTMLTextComponent.style.transform = `scale(${PPGraph.currentGraph.viewportScaleX}`;
-      this.HTMLTextComponent.style.left = `${screenPoint.x}px`;
-      this.HTMLTextComponent.style.top = `${screenPoint.y}px`;
+      this.HTMLTextComponent.style.left = `${this.getHTMLComponentLeft()}px`;
+      this.HTMLTextComponent.style.top = `${this.getHTMLComponentTop()}px`;
     }
   };
 
