@@ -1,6 +1,12 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import * as PIXI from 'pixi.js';
-import { Button as PixiUIButton, Slider as PixiUISlider } from '@pixi/ui';
+import {
+  CheckBox,
+  List,
+  Button as PixiUIButton,
+  Slider as PixiUISlider,
+  RadioGroup,
+} from '@pixi/ui';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Button,
@@ -187,6 +193,212 @@ export class WidgetButton extends WidgetBase {
     this._refLabel.text = text;
   };
 }
+
+export class WidgetRadio extends WidgetBase {
+  radio: RadioGroup | undefined = undefined;
+
+  private labelTextStyle = new PIXI.TextStyle({
+    ...baseStyle,
+    align: 'center',
+    fontWeight: '500',
+    fill: contrastColorHex,
+  });
+
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(SOCKET_TYPE.IN, optionsName, new ArrayType(), []),
+      new Socket(SOCKET_TYPE.IN, multiSelectName, new BooleanType()),
+      new Socket(SOCKET_TYPE.OUT, selectedOptionName, new AnyType()),
+    ];
+  }
+
+  public getName(): string {
+    return 'Radio Button';
+  }
+
+  public getDescription(): string {
+    return 'Adds a radio button';
+  }
+
+  public getDefaultNodeWidth(): number {
+    return 200;
+  }
+
+  public getDefaultNodeHeight(): number {
+    return 104;
+  }
+
+  public drawNodeShape(): void {
+    super.drawNodeShape();
+    this.removeChild(this.radio);
+    const items = [];
+
+    const amount = 3;
+    const width = 54;
+    const height = 45;
+    const padding = 4;
+    const radius = 21;
+    const text = 'radio';
+    const textColor = 0x00ffff;
+
+    for (let i = 0; i < amount; i++) {
+      items.push(
+        new CheckBox({
+          text: `${text} ${i + 1}`,
+          style: {
+            unchecked: this.drawRadio({
+              width,
+              height,
+              radius,
+              padding,
+            }),
+            checked: this.drawRadio({
+              width,
+              height,
+              radius,
+              padding,
+            }),
+            text: {
+              fontSize: 22,
+              fill: textColor,
+            },
+          },
+        })
+      );
+    }
+
+    // Component usage
+    const radioGroup = new RadioGroup({
+      selectedItem: 0,
+      items,
+      type: 'vertical',
+      elementsMargin: 10,
+    });
+
+    radioGroup.onChange.connect(
+      (selectedItemID: number, selectedVal: string) => {
+        //onChange({ id: selectedItemID, val: selectedVal })
+        console.log('pressed: ' + selectedItemID);
+      }
+    );
+
+    this.radio = radioGroup;
+
+    this.addChild(this.radio);
+    //view.addChild(radioGroup.innerView);
+
+    //return { view, resize: () => centerElement(view) };
+  }
+
+  drawRadio({ width, height, radius, padding }: GraphicsType) {
+    const graphics = new PIXI.Graphics().beginFill(0xffffff);
+
+    const isCircle = width === height && radius >= width / 2;
+
+    if (isCircle) {
+      graphics.drawCircle(width / 2, width / 2, width / 2);
+    } else {
+      graphics.drawRoundedRect(0, 0, width, height, radius);
+    }
+
+    graphics.beginFill(0xff00ff);
+
+    const center = width / 2;
+
+    if (isCircle) {
+      graphics.drawCircle(center, center, center - padding);
+    } else {
+      graphics.drawRoundedRect(
+        padding,
+        padding,
+        width - padding * 2,
+        height - padding * 2,
+        radius
+      );
+    }
+
+    return graphics;
+  }
+
+  /*
+  handleOnPointerDown = () => {
+    this.onWidgetTrigger();
+
+    this._refWidget.view.scale.x = 0.99;
+    this._refWidget.view.scale.y = 0.99;
+    this._refWidget.view.alpha = 0.8;
+    const inputData = this.getInputData(onValueName);
+    this.setOutputData(outName, inputData);
+    this.executeChildren();
+  };
+
+  handleOnPointerUp = () => {
+    this._refWidget.view.scale.x = 1;
+    this._refWidget.view.scale.y = 1;
+    this._refWidget.view.alpha = 1;
+    const inputData = this.getInputData(offValueName);
+    this.setOutputData(outName, inputData);
+    this.executeChildren();
+  };
+
+  public onWidgetTrigger = () => {
+    console.log('onWidgetTrigger');
+    this.executeOptimizedChain();
+  };
+
+  public drawNodeShape(): void {
+    super.drawNodeShape();
+
+    if (this._refWidget == undefined) {
+      this._refGraphics = new PIXI.Graphics();
+      this._refWidget = new PixiUIButton(this._refGraphics);
+
+      this._refGraphics.pivot.x = 0;
+      this._refGraphics.pivot.y = 0;
+      this._refWidget.view.x = NODE_MARGIN + 4 * margin;
+      this._refWidget.view.y = 4 * margin;
+      this._refWidget.onDown.connect(this.handleOnPointerDown);
+      this._refWidget.onUp.connect(this.handleOnPointerUp);
+      this.addChild(this._refWidget.view);
+
+      this._refLabel = new PIXI.Text(
+        String(this.getInputData(labelName)).toUpperCase(),
+        this.labelTextStyle
+      );
+      this._refLabel.anchor.x = 0.5;
+      this._refLabel.anchor.y = 0.5;
+      this._refLabel.eventMode = 'none';
+      this.addChild(this._refLabel);
+    }
+
+    this._refGraphics.clear();
+    this._refGraphics
+      .beginFill(fillColorHex)
+      .drawRoundedRect(
+        0,
+        0,
+        this.nodeWidth - 8 * margin,
+        this.nodeHeight - 8 * margin,
+        16
+      );
+    this._refWidget.view.width = this.nodeWidth - 8 * margin;
+    this._refWidget.view.height = this.nodeHeight - 8 * margin;
+    this._refLabel.x = NODE_MARGIN + this.nodeWidth / 2;
+    this._refLabel.y = this.nodeHeight / 2;
+    this._refLabel.style.wordWrapWidth = this.nodeWidth - 10 * margin;
+  }
+
+  public onExecute = async (input, output) => {
+    const text = String(input[labelName]).toUpperCase();
+    this._refLabel.text = text;
+  };*/
+}
+type GraphicsType = {
+  width?: number;
+  height?: number;
+  radius?: number;
+  padding?: number;
+};
 
 export class WidgetColorPicker extends WidgetHybridBase {
   protected getDefaultIO(): Socket[] {
