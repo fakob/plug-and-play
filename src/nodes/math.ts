@@ -41,7 +41,14 @@ export class MathFunction extends PPNode {
       'SQRT2',
     ];
     const staticMethodsWith0Parameters = ['random'];
-    const staticMethodsWith2Parameters = ['atan2', 'imul', 'pow'];
+    const staticMethodsWith2Parameters = [
+      'atan2',
+      'hypot',
+      'max',
+      'min',
+      'imul',
+      'pow',
+    ];
 
     this.onExecute = async function (input) {
       const mathOption = input['Option'];
@@ -73,6 +80,7 @@ export class MathFunction extends PPNode {
         text: methodName,
       };
     });
+    console.log(mathOptions);
 
     return [
       new Socket(
