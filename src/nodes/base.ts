@@ -288,9 +288,9 @@ export class RangeArray extends PPNode {
   protected getDefaultIO(): PPSocket[] {
     return [
       new PPSocket(SOCKET_TYPE.OUT, 'output array', new ArrayType()),
-      new PPSocket(SOCKET_TYPE.IN, 'start', new NumberType()),
-      new PPSocket(SOCKET_TYPE.IN, 'stop', new NumberType()),
-      new PPSocket(SOCKET_TYPE.IN, 'step', new NumberType()),
+      new PPSocket(SOCKET_TYPE.IN, 'start', new NumberType(true), 0),
+      new PPSocket(SOCKET_TYPE.IN, 'stop', new NumberType(true), 100),
+      new PPSocket(SOCKET_TYPE.IN, 'step', new NumberType(true, 1), 10),
     ].concat(super.getDefaultIO());
   }
 }
@@ -314,13 +314,7 @@ export class RandomArray extends PPNode {
   protected getDefaultIO(): PPSocket[] {
     return [
       new PPSocket(SOCKET_TYPE.OUT, 'output array', new ArrayType()),
-      new PPSocket(
-        SOCKET_TYPE.IN,
-        'length',
-        new NumberType(true, 1),
-        20,
-        undefined
-      ),
+      new PPSocket(SOCKET_TYPE.IN, 'length', new NumberType(true, 1), 20),
       new PPSocket(SOCKET_TYPE.IN, 'min', new NumberType(true), 0),
       new PPSocket(SOCKET_TYPE.IN, 'max', new NumberType(true), 100),
     ].concat(super.getDefaultIO());
