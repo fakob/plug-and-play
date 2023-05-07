@@ -806,21 +806,27 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         const serializedNode = oldNode.serialize();
 
         const action = async () => {
-          PPGraph.currentGraph.replaceNode(
+          const newNode = PPGraph.currentGraph.replaceNode(
             serializedNode,
             serializedNode.id,
             referenceID,
             newNodeType
           );
+          InterfaceController.notifyListeners(ListenEvent.SelectionChanged, [
+            newNode,
+          ]);
           setActiveItemArray();
           setIsNodeSearchVisible(false);
         };
         const undoAction = async () => {
-          PPGraph.currentGraph.replaceNode(
+          const previousNode = PPGraph.currentGraph.replaceNode(
             serializedNode,
             referenceID,
             serializedNode.id
           );
+          InterfaceController.notifyListeners(ListenEvent.SelectionChanged, [
+            previousNode,
+          ]);
         };
         await ActionHandler.performAction(action, undoAction);
       } else {

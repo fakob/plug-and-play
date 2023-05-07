@@ -537,7 +537,7 @@ export default class PPGraph {
     newType?: string,
     newSerializedNode?: SerializedNode,
     notify?: boolean
-  ) => {
+  ): PPNode => {
     const newNode = this.addSerializedNode(
       newSerializedNode ?? oldSerializedNode,
       {
@@ -553,6 +553,8 @@ export default class PPGraph {
     this.selection.selectNodes([newNode], false, notify);
     this.selection.drawRectanglesFromSelection();
     this.removeNode(this.nodes[oldId]);
+
+    return newNode;
   };
 
   async linkConnect(
