@@ -61,6 +61,10 @@ const selectedOptionName = 'Selected option';
 const multiSelectName = 'Select multiple';
 const outName = 'Out';
 
+const foregroundColorName = 'Foreground Color';
+const backgroundColorName = 'Background Color';
+const textColorName = 'Text Color';
+
 const margin = 4;
 
 const defaultOptions = ['Option1', 'Option2', 'Option3'];
@@ -207,7 +211,34 @@ export class WidgetRadio extends WidgetBase {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, optionsName, new ArrayType(), []),
-      new Socket(SOCKET_TYPE.IN, multiSelectName, new BooleanType()),
+      new Socket(
+        SOCKET_TYPE.IN,
+        multiSelectName,
+        new BooleanType(),
+        false,
+        false
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        backgroundColorName,
+        new ColorType(),
+        new TRgba(255, 255, 255),
+        false
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        foregroundColorName,
+        new ColorType(),
+        new TRgba(0, 0, 0),
+        false
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        textColorName,
+        new ColorType(),
+        new TRgba(255, 255, 255),
+        false
+      ),
       new Socket(SOCKET_TYPE.OUT, selectedOptionName, new AnyType()),
     ];
   }
@@ -231,28 +262,30 @@ export class WidgetRadio extends WidgetBase {
   public drawNodeShape(): void {
     super.drawNodeShape();
     this.removeChild(this.radio);
-    const items = [];
 
-    const amount = 3;
-    const width = 54;
-    const height = 45;
-    const padding = 4;
-    const radius = 21;
-    const text = 'radio';
-    const textColor = 0x00ffff;
+    const inputs: [] = this.getInputData(optionsName);
 
-    for (let i = 0; i < amount; i++) {
+    const width = 30;
+    const height = 30;
+    const padding = 5;
+    const radius = 10;
+    const textColor = this.getInputData(textColorName);
+
+    const items: CheckBox[] = [];
+    for (let i = 0; i < inputs.length; i++) {
       items.push(
         new CheckBox({
-          text: `${text} ${i + 1}`,
+          text: inputs[i],
           style: {
             unchecked: this.drawRadio({
+              checked: false,
               width,
               height,
               radius,
               padding,
             }),
             checked: this.drawRadio({
+              checked: true,
               width,
               height,
               radius,
@@ -275,9 +308,14 @@ export class WidgetRadio extends WidgetBase {
       elementsMargin: 10,
     });
 
+    radioGroup.pivot.set(this.width / 2, this.height / 2);
+    radioGroup.x = this.width / 2;
+    radioGroup.y = this.height / 2;
+    //radioGroup.position.set(this.width / 2, this.height / 2);
+
     radioGroup.onChange.connect(
       (selectedItemID: number, selectedVal: string) => {
-        //onChange({ id: selectedItemID, val: selectedVal })
+        //items[selectedItemID].checked = !items[selectedItemID].checked;
         console.log('pressed: ' + selectedItemID);
       }
     );
@@ -290,8 +328,10 @@ export class WidgetRadio extends WidgetBase {
     //return { view, resize: () => centerElement(view) };
   }
 
-  drawRadio({ width, height, radius, padding }: GraphicsType) {
-    const graphics = new PIXI.Graphics().beginFill(0xffffff);
+  drawRadio({ checked, width, height, radius, padding }: GraphicsType) {
+    const graphics = new PIXI.Graphics().beginFill(
+      this.getInputData(backgroundColorName)
+    );
 
     const isCircle = width === height && radius >= width / 2;
 
@@ -300,100 +340,34 @@ export class WidgetRadio extends WidgetBase {
     } else {
       graphics.drawRoundedRect(0, 0, width, height, radius);
     }
+    if (checked) {
+      graphics.beginFill(this.getInputData(foregroundColorName));
 
-    graphics.beginFill(0xff00ff);
+      const center = width / 2;
 
-    const center = width / 2;
-
-    if (isCircle) {
-      graphics.drawCircle(center, center, center - padding);
-    } else {
-      graphics.drawRoundedRect(
-        padding,
-        padding,
-        width - padding * 2,
-        height - padding * 2,
-        radius
-      );
+      if (isCircle) {
+        graphics.drawCircle(center, center, center - padding);
+      } else {
+        graphics.drawRoundedRect(
+          padding,
+          padding,
+          width - padding * 2,
+          height - padding * 2,
+          radius
+        );
+      }
     }
 
     return graphics;
   }
 
-  /*
-  handleOnPointerDown = () => {
-    this.onWidgetTrigger();
-
-    this._refWidget.view.scale.x = 0.99;
-    this._refWidget.view.scale.y = 0.99;
-    this._refWidget.view.alpha = 0.8;
-    const inputData = this.getInputData(onValueName);
-    this.setOutputData(outName, inputData);
-    this.executeChildren();
-  };
-
-  handleOnPointerUp = () => {
-    this._refWidget.view.scale.x = 1;
-    this._refWidget.view.scale.y = 1;
-    this._refWidget.view.alpha = 1;
-    const inputData = this.getInputData(offValueName);
-    this.setOutputData(outName, inputData);
-    this.executeChildren();
-  };
-
-  public onWidgetTrigger = () => {
-    console.log('onWidgetTrigger');
-    this.executeOptimizedChain();
-  };
-
-  public drawNodeShape(): void {
-    super.drawNodeShape();
-
-    if (this._refWidget == undefined) {
-      this._refGraphics = new PIXI.Graphics();
-      this._refWidget = new PixiUIButton(this._refGraphics);
-
-      this._refGraphics.pivot.x = 0;
-      this._refGraphics.pivot.y = 0;
-      this._refWidget.view.x = NODE_MARGIN + 4 * margin;
-      this._refWidget.view.y = 4 * margin;
-      this._refWidget.onDown.connect(this.handleOnPointerDown);
-      this._refWidget.onUp.connect(this.handleOnPointerUp);
-      this.addChild(this._refWidget.view);
-
-      this._refLabel = new PIXI.Text(
-        String(this.getInputData(labelName)).toUpperCase(),
-        this.labelTextStyle
-      );
-      this._refLabel.anchor.x = 0.5;
-      this._refLabel.anchor.y = 0.5;
-      this._refLabel.eventMode = 'none';
-      this.addChild(this._refLabel);
-    }
-
-    this._refGraphics.clear();
-    this._refGraphics
-      .beginFill(fillColorHex)
-      .drawRoundedRect(
-        0,
-        0,
-        this.nodeWidth - 8 * margin,
-        this.nodeHeight - 8 * margin,
-        16
-      );
-    this._refWidget.view.width = this.nodeWidth - 8 * margin;
-    this._refWidget.view.height = this.nodeHeight - 8 * margin;
-    this._refLabel.x = NODE_MARGIN + this.nodeWidth / 2;
-    this._refLabel.y = this.nodeHeight / 2;
-    this._refLabel.style.wordWrapWidth = this.nodeWidth - 10 * margin;
-  }
-
   public onExecute = async (input, output) => {
-    const text = String(input[labelName]).toUpperCase();
-    this._refLabel.text = text;
-  };*/
+    //const text = String(input[labelName]).toUpperCase();
+    this.drawNodeShape();
+  };
 }
 type GraphicsType = {
+  checked: boolean;
   width?: number;
   height?: number;
   radius?: number;
