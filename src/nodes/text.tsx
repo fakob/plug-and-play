@@ -4,11 +4,9 @@ import PPNode from '../classes/NodeClass';
 import PPSocket from '../classes/SocketClass';
 import { CustomArgs, TNodeSource, TRgba } from '../utils/interfaces';
 import {
-  NODE_MARGIN,
   NODE_SOURCE,
   NODE_TYPE_COLOR,
   NOTE_LINEHEIGHT_FACTOR,
-  NOTE_MARGIN_STRING,
   SOCKET_TYPE,
 } from '../utils/constants';
 import { StringType } from './datatypes/stringType';
@@ -34,6 +32,18 @@ export class Label extends PPNode {
     this.PIXIVisible();
   }
 
+  public getName(): string {
+    return 'Label';
+  }
+
+  public getDescription(): string {
+    return 'Adds a text label';
+  }
+
+  public getTags(): string[] {
+    return ['Widget'].concat(super.getTags());
+  }
+
   public getDefaultNodeWidth(): number {
     return 128;
   }
@@ -52,14 +62,6 @@ export class Label extends PPNode {
 
   getPreferredInputSocketName(): string {
     return 'Input';
-  }
-
-  public getName(): string {
-    return 'Label';
-  }
-
-  public getDescription(): string {
-    return 'Adds a text label';
   }
 
   protected getDefaultIO(): PPSocket[] {

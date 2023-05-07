@@ -72,7 +72,11 @@ export class TextEditor extends HybridNode2 {
   }
 
   public getDescription(): string {
-    return 'Edit your text';
+    return 'Adds a rich text editor';
+  }
+
+  public getTags(): string[] {
+    return ['Input'].concat(super.getTags());
   }
 
   getColor(): TRgba {

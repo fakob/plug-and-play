@@ -66,11 +66,12 @@ const inputPointsName = 'Points';
 
 // a PIXI draw node is a pure node that also draws its graphics if graphics at the end
 export class DRAW_Shape extends DRAW_Base {
-  public getDescription(): string {
-    return 'Draws a shape';
-  }
   public getName(): string {
     return 'Draw shape';
+  }
+
+  public getDescription(): string {
+    return 'Draws a shape';
   }
 
   protected getDefaultIO(): Socket[] {
@@ -157,11 +158,12 @@ export class DRAW_Shape extends DRAW_Base {
 }
 
 export class DRAW_Passthrough extends DRAW_Base {
-  public getDescription(): string {
-    return 'Draws input draw object';
-  }
   public getName(): string {
     return 'Draw Passthrough';
+  }
+
+  public getDescription(): string {
+    return 'Draws input draw object';
   }
 
   protected getDefaultIO(): Socket[] {
@@ -189,11 +191,12 @@ export class DRAW_Passthrough extends DRAW_Base {
 }
 
 export class DRAW_Text extends DRAW_Base {
-  public getDescription(): string {
-    return 'Draws text object';
-  }
   public getName(): string {
     return 'Draw text';
+  }
+
+  public getDescription(): string {
+    return 'Draws text object';
   }
 
   protected getDefaultIO(): Socket[] {
@@ -257,11 +260,12 @@ export class DRAW_Text extends DRAW_Base {
 }
 
 export class DRAW_Combine extends DRAW_Base {
-  public getDescription(): string {
-    return 'Combines two drawn objects';
-  }
   public getName(): string {
     return 'Combine objects';
+  }
+
+  public getDescription(): string {
+    return 'Combines two drawn objects';
   }
 
   protected getDefaultIO(): Socket[] {
@@ -294,11 +298,12 @@ export class DRAW_Combine extends DRAW_Base {
   }
 }
 export class DRAW_COMBINE_ARRAY extends DRAW_Base {
-  public getDescription(): string {
-    return 'Combines an array of draw objects';
-  }
   public getName(): string {
     return 'Combine draw array';
+  }
+
+  public getDescription(): string {
+    return 'Combines an array of draw objects';
   }
 
   protected getDefaultIO(): Socket[] {
@@ -363,11 +368,12 @@ export class DRAW_COMBINE_ARRAY extends DRAW_Base {
 }
 
 export class DRAW_Multiplier extends DRAW_Base {
-  public getDescription(): string {
-    return 'Multiples a drawing objects onto a grid';
-  }
   public getName(): string {
     return 'Multiply object';
+  }
+
+  public getDescription(): string {
+    return 'Multiples a drawing objects onto a grid';
   }
 
   protected getDefaultIO(): Socket[] {
@@ -471,11 +477,12 @@ export class DRAW_Multiplier extends DRAW_Base {
 }
 
 export class DRAW_Multipy_Along extends DRAW_Base {
-  public getDescription(): string {
-    return 'Multiples a drawing onto points';
-  }
   public getName(): string {
     return 'Multiply onto points';
+  }
+
+  public getDescription(): string {
+    return 'Multiples a drawing onto points';
   }
 
   protected getDefaultIO(): Socket[] {
@@ -513,11 +520,12 @@ export class DRAW_Multipy_Along extends DRAW_Base {
 }
 
 export class DRAW_Image extends DRAW_Base {
-  public getDescription(): string {
-    return 'Draws an image object (jpg,png)';
-  }
   public getName(): string {
     return 'Draw image';
+  }
+
+  public getDescription(): string {
+    return 'Draws an image object (jpg,png)';
   }
 
   protected getDefaultIO(): Socket[] {
@@ -547,12 +555,12 @@ export class DRAW_Image extends DRAW_Base {
 }
 
 export class DRAW_Line extends DRAW_Base {
-  public getDescription(): string {
-    return 'Draws a line specified by input points';
-  }
-
   public getName(): string {
     return 'Draw line';
+  }
+
+  public getDescription(): string {
+    return 'Draws a line specified by input points';
   }
 
   protected getDefaultIO(): Socket[] {
@@ -627,12 +635,12 @@ export class DRAW_Line extends DRAW_Base {
 }
 
 export class DRAW_Polygon extends DRAW_Base {
-  public getDescription(): string {
-    return 'Draws a polygon based on input points';
-  }
-
   public getName(): string {
     return 'Draw Polygon';
+  }
+
+  public getDescription(): string {
+    return 'Draws a polygon based on input points';
   }
 
   protected getDefaultIO(): Socket[] {
@@ -672,6 +680,18 @@ export class DRAW_Polygon extends DRAW_Base {
 }
 
 export class Export_Image_From_Graphics extends PPNode {
+  public getName(): string {
+    return 'Export image from graphic';
+  }
+
+  public getDescription(): string {
+    return 'Exports image from a graphic';
+  }
+
+  public getTags(): string[] {
+    return ['Draw'].concat(super.getTags());
+  }
+
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, outputPixiName, new DeferredPixiType()),

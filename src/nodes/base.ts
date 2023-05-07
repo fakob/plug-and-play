@@ -31,6 +31,18 @@ import { EnumType } from './datatypes/enumType';
 import { BooleanType } from './datatypes/booleanType';
 
 export class Placeholder extends PPNode {
+  public getName(): string {
+    return 'Placeholder';
+  }
+
+  public getDescription(): string {
+    return 'Adds a placeholder node';
+  }
+
+  public getTags(): string[] {
+    return ['Playground'].concat(super.getTags());
+  }
+
   getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.MISSING);
   }
@@ -54,7 +66,11 @@ export class Mouse extends PPNode {
   }
 
   public getDescription(): string {
-    return 'Get mouse coordinates';
+    return 'Gets mouse coordinates';
+  }
+
+  public getTags(): string[] {
+    return ['Input'].concat(super.getTags());
   }
 
   protected getDefaultIO(): PPSocket[] {
@@ -109,16 +125,20 @@ export class Keyboard extends PPNode {
     }
   };
 
-  getColor(): TRgba {
-    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
-  }
-
   public getName(): string {
     return 'Keyboard';
   }
 
   public getDescription(): string {
     return 'Get keyboard input';
+  }
+
+  public getTags(): string[] {
+    return ['Input'].concat(super.getTags());
+  }
+
+  getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
   }
 
   protected getDefaultIO(): PPSocket[] {
@@ -155,9 +175,6 @@ export class Keyboard extends PPNode {
 }
 
 export class GridCoordinates extends PPNode {
-  getColor(): TRgba {
-    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
-  }
   constructor(name: string, customArgs: CustomArgs) {
     super(name, {
       ...customArgs,
@@ -189,6 +206,14 @@ export class GridCoordinates extends PPNode {
     return 'Create grid coordinates';
   }
 
+  public getTags(): string[] {
+    return ['Input'].concat(super.getTags());
+  }
+
+  getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
+  }
+
   protected getDefaultIO(): PPSocket[] {
     return [
       new PPSocket(SOCKET_TYPE.OUT, 'x-array', new ArrayType()),
@@ -216,9 +241,6 @@ export class GridCoordinates extends PPNode {
 }
 
 export class ColorArray extends PPNode {
-  getColor(): TRgba {
-    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
-  }
   constructor(name: string, customArgs: CustomArgs) {
     super(name, {
       ...customArgs,
@@ -245,6 +267,14 @@ export class ColorArray extends PPNode {
     return 'Create color array';
   }
 
+  public getTags(): string[] {
+    return ['Input'].concat(super.getTags());
+  }
+
+  getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
+  }
+
   protected getDefaultIO(): PPSocket[] {
     const colorA: TRgba = TRgba.fromString(COLOR[5]);
     const colorB: TRgba = TRgba.fromString(COLOR[15]);
@@ -258,9 +288,6 @@ export class ColorArray extends PPNode {
 }
 
 export class RangeArray extends PPNode {
-  getColor(): TRgba {
-    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
-  }
   constructor(name: string, customArgs: CustomArgs) {
     super(name, {
       ...customArgs,
@@ -282,7 +309,15 @@ export class RangeArray extends PPNode {
   }
 
   public getDescription(): string {
-    return 'Create range array';
+    return 'Creates an array of a number range';
+  }
+
+  public getTags(): string[] {
+    return ['Array'].concat(super.getTags());
+  }
+
+  getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
   }
 
   protected getDefaultIO(): PPSocket[] {
@@ -296,15 +331,20 @@ export class RangeArray extends PPNode {
 }
 
 export class RandomArray extends PPNode {
-  getColor(): TRgba {
-    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
-  }
   public getName(): string {
     return 'Random array';
   }
 
   public getDescription(): string {
-    return 'Create random array';
+    return 'Creates an array with random numbers';
+  }
+
+  public getTags(): string[] {
+    return ['Array'].concat(super.getTags());
+  }
+
+  getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
   }
 
   protected getUpdateBehaviour(): UpdateBehaviourClass {
@@ -341,6 +381,10 @@ export class DateAndTime extends PPNode {
 
   public getDescription(): string {
     return 'Outputs time in different formats';
+  }
+
+  public getTags(): string[] {
+    return ['Input'].concat(super.getTags());
   }
 
   getColor(): TRgba {
@@ -389,16 +433,20 @@ export class DateAndTime extends PPNode {
 }
 
 export class If_Else extends PPNode {
-  getColor(): TRgba {
-    return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
-  }
-
   public getName(): string {
     return 'If else condition';
   }
 
   public getDescription(): string {
     return 'Passes through input A or B based on a condition';
+  }
+
+  public getTags(): string[] {
+    return ['Logic'].concat(super.getTags());
+  }
+
+  getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
   }
 
   protected getDefaultIO(): PPSocket[] {
@@ -424,16 +472,20 @@ export class If_Else extends PPNode {
 }
 
 export class Comparison extends PPNode {
-  getColor(): TRgba {
-    return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
-  }
-
   public getName(): string {
     return 'Compare';
   }
 
   public getDescription(): string {
     return 'Compares two values (greater, less, equal, logical)';
+  }
+
+  public getTags(): string[] {
+    return ['Logic'].concat(super.getTags());
+  }
+
+  getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
   }
 
   protected getDefaultIO(): PPSocket[] {
@@ -467,15 +519,20 @@ export class Comparison extends PPNode {
 }
 
 export class IsValid extends PPNode {
-  getColor(): TRgba {
-    return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
-  }
   public getName(): string {
     return 'IsValid';
   }
 
   public getDescription(): string {
     return 'Check if an input is valid (undefined, null)';
+  }
+
+  public getTags(): string[] {
+    return ['Logic'].concat(super.getTags());
+  }
+
+  getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
   }
 
   protected getDefaultIO(): PPSocket[] {

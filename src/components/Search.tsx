@@ -472,6 +472,7 @@ export const renderNodeItem = (props, option, { inputValue, selected }) => {
                   fontSize: '12px',
                   background: 'rgba(255,255,255,0.2)',
                   cornerRadius: '4px',
+                  marginLeft: '2px',
                   px: 0.5,
                   display: 'inline',
                   '.Mui-focused &': {

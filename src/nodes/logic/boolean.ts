@@ -8,39 +8,43 @@ abstract class BooleanOperationNode extends CustomFunction {
 }
 
 export class NOT extends BooleanOperationNode {
-  protected getDefaultFunction(): string {
-    return '(a) => {\n\treturn !a;\n}';
-  }
-
   public getName(): string {
     return 'NOT';
   }
+
   public getDescription(): string {
-    return 'Logical NOT operation, returns inverse of input truthiness';
+    return 'Returns the inverse of the input';
+  }
+
+  protected getDefaultFunction(): string {
+    return '(a) => {\n\treturn !a;\n}';
   }
 }
 
 export class OR extends BooleanOperationNode {
-  protected getDefaultFunction(): string {
-    return '(a,b) => {\n\treturn a || b ? true : false;\n}';
-  }
-
   public getName(): string {
     return 'OR';
   }
+
   public getDescription(): string {
-    return 'Logical OR operation, returns true if any of the inputs are truthy';
+    return 'Returns true if any of the inputs are truthy';
+  }
+
+  protected getDefaultFunction(): string {
+    return '(a,b) => {\n\treturn a || b ? true : false;\n}';
   }
 }
 
 export class AND extends BooleanOperationNode {
-  protected getDefaultFunction(): string {
-    return '(a,b) => {\n\treturn a && b ? true : false;\n}';
-  }
   public getName(): string {
     return 'AND';
   }
+
   public getDescription(): string {
-    return 'Logical AND operation, returns true if all of the inputs are truthy';
+    return 'Returns true if all of the inputs are truthy';
+  }
+
+  protected getDefaultFunction(): string {
+    return '(a,b) => {\n\treturn a && b ? true : false;\n}';
   }
 }

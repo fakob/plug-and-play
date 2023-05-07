@@ -89,16 +89,20 @@ export class Table extends HybridNode2 {
     this.workBook = XLSX.utils.book_new();
   }
 
-  getPreferredInputSocketName(): string {
-    return inputSocketName;
-  }
-
   public getName(): string {
     return 'Table';
   }
 
   public getDescription(): string {
-    return 'Adds a table';
+    return 'Adds a table. To import a spreadsheets, just drag the file onto the playground';
+  }
+
+  public getTags(): string[] {
+    return ['Input'].concat(super.getTags());
+  }
+
+  getPreferredInputSocketName(): string {
+    return inputSocketName;
   }
 
   getColumn = (nameOfColumn) => {

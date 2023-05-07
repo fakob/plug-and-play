@@ -21,19 +21,26 @@ const JSONInsert = 'New value';
 const outValueName = 'Value';
 
 export class JSONGet extends PPNode {
-  getColor(): TRgba {
-    return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
-  }
-
-  public getDescription(): string {
-    return 'Get the value of a JSON at the defined path';
-  }
   constructor(name: string, customArgs: CustomArgs) {
     super(name, {
       ...customArgs,
     });
+  }
 
-    this.name = 'Get JSON value';
+  public getName(): string {
+    return 'Get a JSON value';
+  }
+  
+  public getDescription(): string {
+    return 'Returns a single value of a JSON at the defined path';
+  }
+  
+  public getTags(): string[] {
+    return ['JSON'].concat(super.getTags());
+  }
+  
+  getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
   }
 
   protected getDefaultIO(): Socket[] {
@@ -74,21 +81,27 @@ export class JSONGet extends PPNode {
 }
 
 export class JSONSet extends PPNode {
-  getColor(): TRgba {
-    return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
-  }
   constructor(name: string, customArgs: CustomArgs) {
     super(name, {
       ...customArgs,
     });
+  }
 
-    this.name = 'Set JSON value';
+  public getName(): string {
+    return 'Set JSON value';
   }
 
   public getDescription(): string {
-    return 'Set a value on a JSON at the defined path';
+    return 'Sets a value on a JSON at the defined path';
   }
 
+  public getTags(): string[] {
+    return ['JSON'].concat(super.getTags());
+  }  
+  
+  getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
+  }
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, JSONName, new JSONType()),
@@ -128,6 +141,10 @@ export class JSONSet extends PPNode {
 }
 
 class JSONCustomFunction extends CustomFunction {
+  public getTags(): string[] {
+    return ['JSON'].concat(super.getTags());
+  }
+
   getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
   }
@@ -140,39 +157,47 @@ class JSONCustomFunction extends CustomFunction {
 }
 
 export class JSONKeys extends JSONCustomFunction {
+  public getName(): string {
+    return 'Get all JSON keys';
+  }
+
+  public getDescription(): string {
+    return 'Gets all keys from a JSON (or object)';
+  }
+
   protected getDefaultFunction(): string {
     return '(a) => {\n\treturn Object.keys(a);\n}';
-  }
-  public getName(): string {
-    return 'Keys';
-  }
-  public getDescription(): string {
-    return 'Gets keys from JSON (or array)';
   }
 }
 
 export class JSONValues extends JSONCustomFunction {
-  protected getDefaultFunction(): string {
-    return '(a) => {\n\treturn Object.values(a);\n}';
-  }
-
   public getName(): string {
-    return 'Values';
+    return 'Get all JSON values';
   }
 
   public getDescription(): string {
-    return 'Gets values from JSON (or array)';
+    return 'Gets all values from a JSON (or object)';
+  }
+
+  protected getDefaultFunction(): string {
+    return '(a) => {\n\treturn Object.values(a);\n}';
   }
 }
 
 const BREAK_MAX_SOCKETS = 50;
 // actually works for arrays as well
 export class Break extends PPNode {
-
-
-  public getDescription(): string {
-    return 'Breaks out all properties of a JSON object';
+  public getName(): string {
+    return 'Break';
   }
+  
+  public getDescription(): string {
+    return 'Breaks out all properties of a JSON object or an array';
+  }
+  
+    public getTags(): string[] {
+      return ['JSON'].concat(super.getTags());
+    }
 
   public hasExample(): boolean {
     return true;

@@ -19,11 +19,15 @@ export class CodeEditor extends HybridNode2 {
   }
 
   public getName(): string {
-    return 'CodeEditor';
+    return 'Code editor';
   }
 
   public getDescription(): string {
-    return 'Edit your code';
+    return 'Adds a code editor';
+  }
+
+  public getTags(): string[] {
+    return ['Widget'].concat(super.getTags());
   }
 
   protected getDefaultIO(): PPSocket[] {
