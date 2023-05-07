@@ -113,8 +113,8 @@ export class Label extends PPNode {
   public PIXIVisible() {
     this.PIXIText.visible = true;
     if (this.HTMLTextComponent) {
-      document.body.removeChild(this.HTMLTextComponent);
-      //this.HTMLTextComponent.hidden = true;
+      //document.body.removeChild(this.HTMLTextComponent);
+      this.HTMLTextComponent.hidden = true;
     }
     this.executeOptimizedChain();
   }
@@ -165,7 +165,7 @@ export class Label extends PPNode {
     return this.x + this.getMarginLeftRight();
   }
   private getHTMLComponentTop(): number {
-    return this.y + this.getMarginTopBottom();
+    return this.y + this.getMarginTopBottom() + 1; // magic number 💀
   }
 
   public createInputElement = () => {
@@ -186,7 +186,7 @@ export class Label extends PPNode {
     const style = {
       fontFamily: 'Arial',
       fontSize: `${fontSize}px`,
-      lineHeight: `${fontSize * (NOTE_LINEHEIGHT_FACTOR + 0.022)}px`, // 0.022 corrects difference between div and PIXI.Text
+      lineHeight: `${fontSize * (NOTE_LINEHEIGHT_FACTOR + 0.025)}px`, // corrects difference between div and PIXI.Text
       textAlign: 'left',
       color: color.isDark() ? TRgba.white().hex() : TRgba.black().hex(),
       position: 'absolute',
@@ -241,12 +241,12 @@ export class Label extends PPNode {
   public onNodeDragOrViewportMove = () => {
     if (this.HTMLTextComponent != null) {
       const screenPoint = PPGraph.currentGraph.viewport.toScreen(
-        this.x,
-        this.y
+        this.getHTMLComponentLeft(),
+        this.getHTMLComponentTop()
       );
       this.HTMLTextComponent.style.transform = `scale(${PPGraph.currentGraph.viewportScaleX}`;
-      this.HTMLTextComponent.style.left = `${this.getHTMLComponentLeft()}px`;
-      this.HTMLTextComponent.style.top = `${this.getHTMLComponentTop()}px`;
+      this.HTMLTextComponent.style.left = `${screenPoint.x}px`;
+      this.HTMLTextComponent.style.top = `${screenPoint.y}px`;
     }
   };
 
