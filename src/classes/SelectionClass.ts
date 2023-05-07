@@ -240,7 +240,7 @@ export default class PPSelection extends PIXI.Container {
       this.selectNodes(differenceSelection);
       this.drawRectanglesFromSelection();
       // this.drawSingleSelections();
-    } else if (this.isDraggingSelection) {
+    } else if (this.isDraggingSelection && this.interactionData) {
       const targetPoint = this.interactionData.getLocalPosition(
         this.selectedNodes[0]
       );
