@@ -18,7 +18,9 @@ export class ArrayType extends AbstractType {
   }
 
   getMetaText(data: any): string {
-    return "(" + (Array.isArray(data) ? data.length.toString() : "Invalid") + ")";
+    return (
+      '(' + (Array.isArray(data) ? data.length.toString() : 'Invalid') + ')'
+    );
   }
 
   parse(data: any): any {
@@ -30,5 +32,32 @@ export class ArrayType extends AbstractType {
       }
     }
     return data;
+  }
+
+  recommendedInputNodeWidgets(): string[] {
+    return [
+      'ArrayCreate',
+      'ArrayMethod',
+      'ArraySlice',
+      'ArrayPush',
+      'ArrayState',
+    ];
+  }
+
+  recommendedOutputNodeWidgets(): string[] {
+    return [
+      'ArrayMethod',
+      'ArrayGet',
+      'ArrayLength',
+      'ArraySlice',
+      'ArrayPush',
+      'Filter',
+      'Uniques',
+      'Counts',
+      'Flatten',
+      'Max',
+      'Min',
+      'ArrayState',
+    ];
   }
 }

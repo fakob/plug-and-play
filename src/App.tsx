@@ -33,6 +33,7 @@ import {
   filterOptionsNode,
   getNodes,
   renderGraphItem,
+  renderGroupItem,
   renderNodeItem,
 } from './components/Search';
 import GraphOverlay from './components/GraphOverlay';
@@ -54,6 +55,7 @@ import {
   CONTEXTMENU_WIDTH,
   DRAGANDDROP_GRID_MARGIN,
   GRID_SHADER,
+  MAX_LATEST_NODES_IN_SEARCH,
   NODE_SOURCE,
   PLUGANDPLAY_ICON,
   RANDOMMAINCOLOR,
@@ -95,7 +97,8 @@ const randomMainColorLightHex = PIXI.utils.string2hex(
 
 fetch('https://plugandplayground.dev/buildInfo')
   .then((response) => response.json())
-  .then((data) => console.log(data));
+  .then((data) => console.log(data))
+  .catch((error) => console.error(error));
 
 const App = (): JSX.Element => {
   console.log('FULL APP REDRAW');
@@ -129,8 +132,9 @@ const App = (): JSX.Element => {
   const [graphSearchItems, setGraphSearchItems] = useState<
     IGraphSearch[] | null
   >([{ id: '', name: '' }]);
-  const [nodeSearchActiveItem, setNodeSearchActiveItem] =
-    useState<INodeSearch | null>(null);
+  const [nodeSearchActiveItem, setNodeSearchActiveItem] = useState<
+    INodeSearch[]
+  >([]);
   const [graphSearchActiveItem, setGraphSearchActiveItem] =
     useState<IGraphSearch | null>(null);
 
@@ -647,14 +651,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         setGraphSearchActiveItem(data);
       })
     );
-    ids.push(
-      InterfaceController.addListener(
-        ListenEvent.OpenInspectorFocusingOnSocket,
-        (socket: PPSocket) => {
-          setShowRightSideDrawer(socket !== null);
-        }
-      )
-    );
 
     InterfaceController.onOpenNodeSearch = openNodeSearch;
 
@@ -786,80 +782,95 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
   };
 
   const action_AddOrReplaceNode = async (event, selected: INodeSearch) => {
-    const referenceID = hri.random();
-    const addLink = PPGraph.currentGraph.selectedSourceSocket;
+    if (selected) {
+      const referenceID = hri.random();
+      const addLink = PPGraph.currentGraph.selectedSourceSocket;
+      const setActiveItemArray = () =>
+        setNodeSearchActiveItem((oldArray) => {
+          selected.group = 'Latest';
+          const newArray = [selected, ...oldArray];
+          if (newArray.length > MAX_LATEST_NODES_IN_SEARCH) {
+            newArray.pop();
+          }
+          console.log(newArray.length, newArray);
+          return newArray;
+        });
 
-    if (PPGraph.currentGraph.selection.selectedNodes.length === 1 && !addLink) {
-      // replace node if there is exactly one node selected
-      const newNodeType = selected.title;
-      const oldNode = PPGraph.currentGraph.selection.selectedNodes[0];
-      const serializedNode = oldNode.serialize();
+      if (
+        PPGraph.currentGraph.selection.selectedNodes.length === 1 &&
+        !addLink
+      ) {
+        // replace node if there is exactly one node selected
+        const newNodeType = selected.title;
+        const oldNode = PPGraph.currentGraph.selection.selectedNodes[0];
+        const serializedNode = oldNode.serialize();
 
-      const action = async () => {
-        PPGraph.currentGraph.replaceNode(
-          serializedNode,
-          serializedNode.id,
-          referenceID,
-          newNodeType
-        );
-        setNodeSearchActiveItem(selected ?? null);
-        setIsNodeSearchVisible(false);
-      };
-      const undoAction = async () => {
-        PPGraph.currentGraph.replaceNode(
-          serializedNode,
-          referenceID,
-          serializedNode.id
-        );
-      };
-      await ActionHandler.performAction(action, undoAction);
-    } else {
-      // add node
-      // store link before search gets hidden and temp connection gets reset
-      const nodePos =
-        PPGraph.currentGraph.overrideNodeCursorPosition ??
-        viewport.current.toWorld(
-          new PIXI.Point(contextMenuPosition[0], contextMenuPosition[1])
-        );
-
-      const action = async () => {
-        let addedNode: PPNode;
-        const nodeExists = getAllNodeTypes()[selected?.title] !== undefined;
-        if (nodeExists) {
-          addedNode = PPGraph.currentGraph.addNewNode(
-            selected.title,
-            {
-              overrideId: referenceID,
-              nodePosX: nodePos.x,
-              nodePosY: nodePos.y,
-            },
-            addLink ? NODE_SOURCE.NEWCONNECTED : NODE_SOURCE.NEW
+        const action = async () => {
+          PPGraph.currentGraph.replaceNode(
+            serializedNode,
+            serializedNode.id,
+            referenceID,
+            newNodeType
           );
-        } else {
-          addedNode = PPGraph.currentGraph.addNewNode(
-            'CustomFunction',
-            {
-              overrideId: referenceID,
-              nodePosX: nodePos.x,
-              nodePosY: nodePos.y,
-            },
-            addLink ? NODE_SOURCE.NEWCONNECTED : NODE_SOURCE.NEW
+          setActiveItemArray();
+          setIsNodeSearchVisible(false);
+        };
+        const undoAction = async () => {
+          PPGraph.currentGraph.replaceNode(
+            serializedNode,
+            referenceID,
+            serializedNode.id
           );
-          addedNode.nodeName = selected.title;
-        }
-        if (addLink) {
-          connectNodeToSocket(addLink, addedNode);
-        }
+        };
+        await ActionHandler.performAction(action, undoAction);
+      } else {
+        // add node
+        // store link before search gets hidden and temp connection gets reset
+        const nodePos =
+          PPGraph.currentGraph.overrideNodeCursorPosition ??
+          viewport.current.toWorld(
+            new PIXI.Point(contextMenuPosition[0], contextMenuPosition[1])
+          );
 
-        setNodeSearchActiveItem(selected ?? null);
-        setIsNodeSearchVisible(false);
-      };
-      const undoAction = async () => {
-        PPGraph.currentGraph.removeNode(
-          PPGraph.currentGraph.nodes[referenceID]
-        );
-      };
-      await ActionHandler.performAction(action, undoAction);
+        const action = async () => {
+          let addedNode: PPNode;
+          const nodeExists = getAllNodeTypes()[selected?.title] !== undefined;
+          if (nodeExists) {
+            addedNode = PPGraph.currentGraph.addNewNode(
+              selected.title,
+              {
+                overrideId: referenceID,
+                nodePosX: nodePos.x,
+                nodePosY: nodePos.y,
+              },
+              addLink ? NODE_SOURCE.NEWCONNECTED : NODE_SOURCE.NEW
+            );
+          } else {
+            addedNode = PPGraph.currentGraph.addNewNode(
+              'CustomFunction',
+              {
+                overrideId: referenceID,
+                nodePosX: nodePos.x,
+                nodePosY: nodePos.y,
+              },
+              addLink ? NODE_SOURCE.NEWCONNECTED : NODE_SOURCE.NEW
+            );
+            addedNode.nodeName = selected.title;
+          }
+          if (addLink) {
+            connectNodeToSocket(addLink, addedNode);
+          }
+
+          setActiveItemArray();
+          setIsNodeSearchVisible(false);
+        };
+        const undoAction = async () => {
+          PPGraph.currentGraph.removeNode(
+            PPGraph.currentGraph.nodes[referenceID]
+          );
+        };
+        await ActionHandler.performAction(action, undoAction);
+      }
     }
   };
 
@@ -1198,16 +1209,18 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
                   selectOnFocus
                   autoHighlight
                   clearOnBlur
+                  autoComplete
                   // open
-                  defaultValue={nodeSearchActiveItem}
+                  defaultValue={null}
                   isOptionEqualToValue={(option, value) =>
                     option.title === value.title
                   }
-                  value={nodeSearchActiveItem}
+                  value={null}
                   getOptionLabel={(option) =>
                     typeof option === 'string' ? option : option.name
                   }
-                  options={getNodes()}
+                  groupBy={(option) => option.group}
+                  options={getNodes(nodeSearchActiveItem)}
                   onChange={action_AddOrReplaceNode}
                   filterOptions={(options, state) => {
                     const filteredOptions = filterOptionsNode(options, state);
@@ -1223,6 +1236,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
                       randommaincolor={RANDOMMAINCOLOR}
                     />
                   )}
+                  renderGroup={renderGroupItem}
                 />
               </div>
             </>

@@ -8,6 +8,16 @@ import { TRgba } from '../utils/interfaces';
 
 export const PP_VERSION = 0.1;
 
+export const GITHUB_REPO_NAME = '/fakob/plug-and-play-examples';
+export const GITHUB_BRANCH_NAME = 'dev';
+
+export const GITHUB_API_BASE_URL_REPO = 'https://api.github.com/repos';
+export const GITHUB_API_URL = GITHUB_API_BASE_URL_REPO + GITHUB_REPO_NAME;
+export const GITHUB_RAW_BASE_URL = 'https://raw.githubusercontent.com';
+export const GITHUB_RAW_URL =
+  GITHUB_RAW_BASE_URL + GITHUB_REPO_NAME + '/' + GITHUB_BRANCH_NAME;
+export const GITHUB_RAW_URL_NODES = GITHUB_RAW_URL + '/nodes';
+
 export const GET_STARTED_URL =
   'https://raw.githubusercontent.com/fakob/plug-and-play-examples/dev/Get started - Welcome to Plug and Playground.ppgraph';
 
@@ -63,8 +73,9 @@ export const customTheme = createTheme(darkThemeOverride, {
       contrastText: `${TRgba.white().hex()}`,
     },
     background: {
-      default: `${Color(RANDOMMAINCOLOR).darken(0.85)}`,
       paper: `${Color(RANDOMMAINCOLOR).darken(0.5)}`,
+      medium: `${Color(RANDOMMAINCOLOR).darken(0.6)}`,
+      default: `${Color(RANDOMMAINCOLOR).darken(0.85)}`,
     },
   },
 });
@@ -143,6 +154,7 @@ export const UPDATEBEHAVIOURHEADER_UPDATE =
   '../assets/UpdateBehaviour_Update.png';
 export const UPDATEBEHAVIOURHEADER_NOUPDATE =
   '../assets/UpdateBehaviour_NoUpdate.png';
+export const EDIT_ICON = '../assets/Tune.png';
 
 export const NODE_TEXTSTYLE = new TextStyle({
   fontSize: 13,
@@ -215,6 +227,8 @@ export const DEFAULT_EDITOR_DATA = `// Ctrl-Enter to update node
 function customFunctionNode(a, b) {
   return a * b;
 }`;
+
+export const MAX_LATEST_NODES_IN_SEARCH = 3;
 
 export const PIXI_PIVOT_OPTIONS: EnumStructure = [
   {

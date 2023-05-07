@@ -11,6 +11,7 @@ import {
   TSocketType,
 } from '../utils/interfaces';
 import {
+  COLOR_MAIN,
   COMMENT_TEXTSTYLE,
   NODE_TYPE_COLOR,
   NODE_CORNERRADIUS,
@@ -25,10 +26,9 @@ import {
   NODE_WIDTH,
   SOCKET_HEIGHT,
   SOCKET_TYPE,
-  COLOR_MAIN,
 } from '../utils/constants';
 import UpdateBehaviourClass from './UpdateBehaviourClass';
-import NodeSelectionHeaderClass from './NodeSelectionHeaderClass';
+import NodeHeaderClass from './NodeHeaderClass';
 import PPGraph from './GraphClass';
 import Socket from './SocketClass';
 import {
@@ -64,7 +64,7 @@ export default class PPNode extends PIXI.Container {
   nodeHeight: number;
 
   updateBehaviour: UpdateBehaviourClass;
-  nodeSelectionHeader: NodeSelectionHeaderClass;
+  nodeSelectionHeader: NodeHeaderClass;
   lastTimeTicked = 0;
 
   successfullyExecuted = true;
@@ -171,11 +171,11 @@ export default class PPNode extends PIXI.Container {
     this.updateBehaviour.x = NODE_MARGIN;
     this.updateBehaviour.y = -24;
 
-    this.nodeSelectionHeader = new NodeSelectionHeaderClass();
+    this.nodeSelectionHeader = new NodeHeaderClass();
     if (this.getShouldShowHoverActions()) {
       this.addChild(this.nodeSelectionHeader);
     }
-    this.nodeSelectionHeader.x = NODE_MARGIN + this.nodeWidth - 72;
+    this.nodeSelectionHeader.x = NODE_MARGIN + this.nodeWidth - 96;
     this.nodeSelectionHeader.y = -24;
 
     // do not show the node name
@@ -509,7 +509,7 @@ export default class PPNode extends PIXI.Container {
 
     this.updateConnectionPosition();
 
-    this.nodeSelectionHeader.x = NODE_MARGIN + this.nodeWidth - 72;
+    this.nodeSelectionHeader.x = NODE_MARGIN + this.nodeWidth - 96;
 
     this.onNodeResize(this.nodeWidth, this.nodeHeight);
 
@@ -1194,16 +1194,33 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   public getName(): string {
     return this.name;
   }
+
   public getDescription(): string {
     return '';
   }
-  // used when searching for nodes
-  public getTags(): string {
+
+  // displayed in the info tab and can contain HTML
+  // not visible when searching nodes
+  public getAdditionalDescription(): string {
     return '';
+  }
+
+  // enable if a node example graph exists on github
+  public hasExample(): boolean {
+    return false;
+  }
+
+  // used when searching for nodes
+  public getTags(): string[] {
+    return [];
   }
 
   public propagateExecutionPast(): boolean {
     return true;
+  }
+
+  public getPreferredNodesPerSocket(): Map<string, string[]> {
+    return new Map();
   }
 
   // observers

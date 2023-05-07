@@ -11,6 +11,8 @@ export type RegisteredNodeTypes = Record<
     name?: string;
     description?: string;
     hasInputs?: boolean;
+    tags?: string[];
+    hasExample: boolean;
   }
 >;
 
@@ -66,6 +68,7 @@ export interface INodeSearch {
   name: string;
   description: string;
   hasInputs: boolean;
+  group: string;
   isNew?: boolean;
 }
 

@@ -23,7 +23,7 @@ import PPStorage from '../PPStorage';
 import { getAllNodeTypes } from '../nodes/allNodes';
 import { IGraphSearch, INodeSearch } from '../utils/interfaces';
 import { COLOR_DARK, COLOR_WHITE_TEXT } from '../utils/constants';
-import { writeTextToClipboard } from '../utils/utils';
+import { getNodeExampleURL, writeTextToClipboard } from '../utils/utils';
 
 export const GraphSearchInput = (props) => {
   const backgroundColor = Color(props.randommaincolor).alpha(0.8);
@@ -261,8 +261,8 @@ export const NodeSearchInput = (props) => {
 };
 
 let nodesCached = undefined;
-export const getNodes = (): INodeSearch[] => {
-  const addLink = PPGraph.currentGraph.selectedSourceSocket;
+export const getNodes = (latest: INodeSearch[]): INodeSearch[] => {
+  const sourceSocket = PPGraph.currentGraph.selectedSourceSocket;
   if (!nodesCached) {
     nodesCached = Object.entries(getAllNodeTypes())
       .map(([title, obj]) => {
@@ -272,15 +272,66 @@ export const getNodes = (): INodeSearch[] => {
           key: title,
           description: obj.description,
           hasInputs: obj.hasInputs,
+          tags: obj.tags,
+          hasExample: obj.hasExample,
+          group: obj.tags[0],
         };
       })
-      .sort(
-        (a, b) => a.name.localeCompare(b.name, 'en', { sensitivity: 'base' }) // case insensitive sorting
+      .sort((a, b) =>
+        a.name.localeCompare(b.name, 'en', { sensitivity: 'base' })
+      )
+      .sort((a, b) =>
+        a.group?.localeCompare(b.group, 'en', { sensitivity: 'base' })
       );
   }
-  return nodesCached.filter(
-    (node) => !addLink || node.hasInputs
-  ) as INodeSearch[];
+
+  const arrayWithGroupReset = nodesCached.map((node) => ({
+    ...node,
+    group: node.tags[0],
+  }));
+
+  const inOrOutputList =
+    (sourceSocket?.isInput()
+      ? sourceSocket?.dataType.recommendedInputNodeWidgets()
+      : sourceSocket?.dataType.recommendedOutputNodeWidgets()) || [];
+
+  const recommendedNodes = inOrOutputList.map((nodeName) => {
+    const foundNode = arrayWithGroupReset.find((node) => node.key === nodeName);
+    foundNode.group = 'Suggested by socket type';
+    return foundNode;
+  });
+
+  const preferredNodesList =
+    sourceSocket
+      ?.getNode()
+      .getPreferredNodesPerSocket()
+      .get(sourceSocket?.name) || [];
+
+  const preferredNodes = preferredNodesList.map((nodeName) => {
+    const foundNode = arrayWithGroupReset.find((node) => node.key === nodeName);
+    foundNode.group = 'Suggested by node';
+    return foundNode;
+  });
+
+  const combinedArray = latest.concat(
+    preferredNodes,
+    recommendedNodes,
+    arrayWithGroupReset.filter(
+      (node) => !sourceSocket || node.hasInputs
+    ) as INodeSearch[]
+  );
+
+  const included = {};
+  const uniqueArray = combinedArray.filter((node) => {
+    if (included[node.key]) {
+      return false;
+    } else {
+      included[node.key] = true;
+      return true;
+    }
+  });
+
+  return uniqueArray;
 };
 
 export const filterOptionsNode = (options: INodeSearch[], { inputValue }) => {
@@ -297,9 +348,39 @@ export const filterOptionsNode = (options: INodeSearch[], { inputValue }) => {
       description: '',
       hasInputs: true,
       isNew: true,
+      group: '',
     });
   }
   return sorted;
+};
+
+export const renderGroupItem = (props) => {
+  const isSearching = props.children?.[0].props.inputValue; // don't render group header while searching
+  if (isSearching) {
+    return (
+      <li key={props.key}>
+        <ul style={{ padding: 0 }}>{props.children}</ul>
+      </li>
+    );
+  }
+  return (
+    <li key={props.key}>
+      <Box
+        sx={{
+          position: 'sticky',
+          top: '-0px',
+          padding: '2px 8px',
+          color: 'secondary.contrastText',
+          bgcolor: 'background.medium',
+          zIndex: 2,
+          fontSize: '10px',
+        }}
+      >
+        {props.group}
+      </Box>
+      <ul style={{ padding: 0 }}>{props.children}</ul>
+    </li>
+  );
 };
 
 export const renderNodeItem = (props, option, { inputValue, selected }) => {
@@ -351,16 +432,58 @@ export const renderNodeItem = (props, option, { inputValue, selected }) => {
               ))}
             </Box>
           </Box>
-          <Box
-            sx={{
-              fontSize: '12px',
-              opacity: '0.5',
-              background: 'rgba(255,255,255,0.2)',
-              cornerRadius: '4px',
-              px: 0.5,
-            }}
-          >
-            {option.title}
+          {option.hasExample && (
+            <IconButton
+              sx={{
+                borderRadius: 0,
+                right: '0px',
+                fontSize: '16px',
+                padding: 0,
+                height: '24px',
+                display: 'none',
+                '.Mui-focused &': {
+                  display: 'inherit',
+                },
+              }}
+              onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+                event.stopPropagation();
+                window.open(getNodeExampleURL(option.title), '_blank');
+              }}
+              title="Open node example"
+              className="menuItemButton"
+            >
+              <Box
+                sx={{
+                  color: 'text.secondary',
+                  fontSize: '10px',
+                  px: 0.5,
+                }}
+              >
+                Open example
+              </Box>
+              <OpenInNewIcon sx={{ fontSize: '16px' }} />
+            </IconButton>
+          )}
+          <Box>
+            {option.tags?.map((part, index) => (
+              <Box
+                key={index}
+                sx={{
+                  fontSize: '12px',
+                  background: 'rgba(255,255,255,0.2)',
+                  cornerRadius: '4px',
+                  px: 0.5,
+                  display: 'inline',
+                  '.Mui-focused &': {
+                    display: 'none',
+                  },
+                  opacity: part.highlight ? 1 : 0.5,
+                  fontWeight: part.highlight ? 600 : 400,
+                }}
+              >
+                {part}
+              </Box>
+            ))}
           </Box>
         </Box>
         <Box

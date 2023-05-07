@@ -1,6 +1,11 @@
 import { Viewport } from 'pixi-viewport';
 import InterfaceController, { ListenEvent } from './InterfaceController';
-import { GESTUREMODE, GET_STARTED_URL } from './utils/constants';
+import {
+  GESTUREMODE,
+  GET_STARTED_URL,
+  GITHUB_API_URL,
+  GITHUB_BRANCH_NAME,
+} from './utils/constants';
 import { ActionHandler } from './utils/actionHandler';
 import { GraphDatabase } from './utils/indexedDB';
 import {
@@ -19,11 +24,6 @@ import { SerializedGraph } from './utils/interfaces';
 
 (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__ &&
   (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__.register({ PIXI: PIXI });
-
-// remote playground database
-const githubBaseURL =
-  'https://api.github.com/repos/fakob/plug-and-play-examples';
-const githubBranchName = 'dev';
 
 function SaveOrDismiss(props) {
   return (
@@ -136,7 +136,7 @@ export default class PPStorage {
   getRemoteGraph = async (fileName: string): Promise<any> => {
     try {
       const file = await fetch(
-        `${githubBaseURL}/contents/${fileName}?ref=${githubBranchName}`,
+        `${GITHUB_API_URL}/contents/${fileName}?ref=${GITHUB_BRANCH_NAME}`,
         {
           headers: {
             accept: 'application/vnd.github.v3.raw',
@@ -153,7 +153,7 @@ export default class PPStorage {
   getRemoteGraphsList = async (): Promise<string[]> => {
     try {
       const branches = await fetch(
-        `${githubBaseURL}/branches/${githubBranchName}`,
+        `${GITHUB_API_URL}/branches/${GITHUB_BRANCH_NAME}`,
         {
           headers: {
             accept: 'application/vnd.github.v3+json',
@@ -163,7 +163,7 @@ export default class PPStorage {
       const branchesData = await branches.json();
       const sha = branchesData.commit.sha;
 
-      const fileList = await fetch(`${githubBaseURL}/git/trees/${sha}`, {
+      const fileList = await fetch(`${GITHUB_API_URL}/git/trees/${sha}`, {
         headers: {
           accept: 'application/vnd.github.v3+json',
         },

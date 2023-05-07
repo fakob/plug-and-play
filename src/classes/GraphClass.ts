@@ -326,29 +326,6 @@ export default class PPGraph {
     }
   }
 
-  async socketNameRefMouseDown(
-    socket: PPSocket,
-    event: PIXI.FederatedPointerEvent
-  ): Promise<void> {
-    const clickedSourcePoint = new PIXI.Point(event.global.x, event.global.y);
-    if (event.ctrlKey) {
-      InterfaceController.onOpenSocketInspector(clickedSourcePoint, socket);
-    } else {
-      InterfaceController.notifyListeners(ListenEvent.SelectionChanged, [
-        socket.getNode(),
-      ]);
-      if (this.socketToInspect !== socket) {
-        this.socketToInspect = socket;
-      } else {
-        this.socketToInspect = null;
-      }
-      InterfaceController.notifyListeners(
-        ListenEvent.OpenInspectorFocusingOnSocket,
-        this.socketToInspect
-      );
-    }
-  }
-
   presentationAndNodeToAlpha(value: boolean, node: PPNode) {
     const newVisibility = node.getIsPresentationalNode() || value;
     return newVisibility ? (node.alpha == 0.0 ? 1.0 : node.alpha) : 0.0;
