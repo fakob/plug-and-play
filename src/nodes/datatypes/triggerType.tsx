@@ -7,7 +7,7 @@ import { TRIGGER_TYPE_OPTIONS } from '../../utils/constants';
 export class TriggerType extends AbstractType {
   triggerType: string;
   customFunctionString: string;
-  previousData: any = null;
+  previousData: any = undefined;
   constructor(
     triggerType = TRIGGER_TYPE_OPTIONS[0].text,
     customFunctionString = ''
@@ -42,12 +42,14 @@ export class TriggerType extends AbstractType {
     super.onDataSet(data, socket);
     if (
       socket.isInput() &&
-      ((this.triggerType === TRIGGER_TYPE_OPTIONS[0].text &&
-        this.previousData < data) ||
+      (this.previousData === undefined || // after loading the first time, execute regardless
+        (this.triggerType === TRIGGER_TYPE_OPTIONS[0].text &&
+          this.previousData < data) ||
         (this.triggerType === TRIGGER_TYPE_OPTIONS[1].text &&
           this.previousData > data) ||
         (this.triggerType === TRIGGER_TYPE_OPTIONS[2].text &&
-          this.previousData !== data) || this.triggerType === TRIGGER_TYPE_OPTIONS[3].text)
+          this.previousData !== data) ||
+        this.triggerType === TRIGGER_TYPE_OPTIONS[3].text)
     ) {
       // if im an input and condition is fullfilled, execute either custom function or start new chain with this as origin
       if (this.customFunctionString !== '') {
