@@ -1169,6 +1169,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           {PPGraph.currentGraph && (
             <>
               <Autocomplete
+                ListboxProps={{ style: { maxHeight: '50vh' } }}
                 className={styles.graphSearch}
                 sx={{ width: 'calc(65vw - 120px)' }}
                 freeSolo
@@ -1217,6 +1218,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
                 }}
               >
                 <Autocomplete
+                  ListboxProps={{ style: { maxHeight: '50vh' } }}
                   sx={{
                     maxWidth: '50vw',
                     width: '400px',
