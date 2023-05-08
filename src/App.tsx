@@ -224,6 +224,18 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               initialData: { plain: data },
             });
             break;
+          case 'json':
+          case 'js':
+          case 'jsx':
+          case 'ts':
+          case 'tsx':
+            data = await response.text();
+            newNode = PPGraph.currentGraph.addNewNode('CodeEditor', {
+              nodePosX,
+              nodePosY,
+              initialData: data,
+            });
+            break;
           case 'jpg':
           case 'png':
             data = await response.blob();
