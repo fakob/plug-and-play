@@ -1,13 +1,7 @@
 /* eslint-disable @typescript-eslint/no-this-alias */
 import PPNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
-import {
-  COLOR_MAIN,
-  NODE_CORNERRADIUS,
-  NODE_MARGIN,
-  NODE_TYPE_COLOR,
-  SOCKET_TYPE,
-} from '../../utils/constants';
+import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../../utils/constants';
 import { CustomArgs, TRgba } from '../../utils/interfaces';
 import { AbstractType } from '../datatypes/abstractType';
 import { AnyType } from '../datatypes/anyType';
@@ -35,6 +29,18 @@ const input2Name = 'Input 2';
 //const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
 
 export class MergeJSONs extends PPNode {
+  public getName(): string {
+    return 'Merge JSONs';
+  }
+
+  public getDescription(): string {
+    return 'Merges 2 JSON objects';
+  }
+
+  public getTags(): string[] {
+    return ['JSON'].concat(super.getTags());
+  }
+
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, input1Name, new JSONType(), {}),
@@ -54,6 +60,18 @@ export class MergeJSONs extends PPNode {
 }
 
 export class ConcatenateArrays extends PPNode {
+  public getName(): string {
+    return 'Concatenate arrays';
+  }
+
+  public getDescription(): string {
+    return 'Merges 2 arrays';
+  }
+
+  public getTags(): string[] {
+    return ['Array'].concat(super.getTags());
+  }
+
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, input1Name, new ArrayType(), ['hello']),
@@ -80,6 +98,18 @@ export class Constant extends PPNode {
     });
 
     this.initialData = customArgs?.initialData;
+  }
+
+  public getName(): string {
+    return 'Constant';
+  }
+
+  public getDescription(): string {
+    return 'Provides a constant input';
+  }
+
+  public getTags(): string[] {
+    return ['Input'].concat(super.getTags());
   }
 
   getColor(): TRgba {
@@ -113,6 +143,18 @@ export class Constant extends PPNode {
 }
 
 export class ParseArray extends PPNode {
+  public getName(): string {
+    return 'Parse array';
+  }
+
+  public getDescription(): string {
+    return 'Transforms all elements of an array to a different data type. Use it to, for example, to parse a number string "12" to a number';
+  }
+
+  public getTags(): string[] {
+    return ['Array'].concat(super.getTags());
+  }
+
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, arrayName, new ArrayType(), []),
@@ -132,6 +174,18 @@ export class ParseArray extends PPNode {
 }
 
 export class ConsolePrint extends PPNode {
+  public getName(): string {
+    return 'Console print';
+  }
+
+  public getDescription(): string {
+    return 'Logs the input in the console';
+  }
+
+  public getTags(): string[] {
+    return ['Debug'].concat(super.getTags());
+  }
+
   getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.OUTPUT);
   }
@@ -164,6 +218,19 @@ function getFunctionFromFunction(inputFunction: string): string {
 // customfunction does any number of inputs but only one output for simplicity
 export class CustomFunction extends PPNode {
   modifiedBanner: PIXI.Graphics;
+
+  public getName(): string {
+    return 'Custom function';
+  }
+
+  public getDescription(): string {
+    return 'Write your own custom function. Add input sockets, by adding parameters in the parentheses, separated by commas.';
+  }
+
+  public getTags(): string[] {
+    return ['Custom'].concat(super.getTags());
+  }
+
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(
@@ -339,12 +406,27 @@ class ArrayFunction extends CustomFunction {
 }
 
 export class Map extends ArrayFunction {
+  public getName(): string {
+    return 'Map array';
+  }
+
+  public getDescription(): string {
+    return 'Transform each element of an array';
+  }
+
   protected getDefaultFunction(): string {
     return '(ArrayIn) => {\n\treturn ArrayIn.map(a=>a);\n}';
   }
 }
 
 export class MapSequential extends ArrayFunction {
+  public getName(): string {
+    return 'Filter array';
+  }
+
+  public getDescription(): string {
+    return 'Filters an array, using your own filter condition';
+  }
   protected getDefaultFunction(): string {
     return '(ArrayIn) => {\n\
 	const toReturn = [];\n\
@@ -357,18 +439,41 @@ export class MapSequential extends ArrayFunction {
 }
 
 export class Filter extends ArrayFunction {
+  public getName(): string {
+    return 'Filter array';
+  }
+
+  public getDescription(): string {
+    return 'Filters an array, using your own filter condition';
+  }
+
   protected getDefaultFunction(): string {
     return '(ArrayIn) => {\n\treturn ArrayIn.filter(a=>true);\n}';
   }
 }
 
 export class Uniques extends ArrayFunction {
+  public getName(): string {
+    return 'Unique array';
+  }
+
+  public getDescription(): string {
+    return 'Returns an array with unique values, removing all duplicates';
+  }
   protected getDefaultFunction(): string {
     return '(ArrayIn) => {\n\treturn [...new Set(ArrayIn)];\n}';
   }
 }
 
 export class Counts extends ArrayFunction {
+  public getName(): string {
+    return 'Count occurrences in array';
+  }
+
+  public getDescription(): string {
+    return 'Counts occurrences of elements in an array, by providing an array and an array with the unique values';
+  }
+
   protected getDefaultFunction(): string {
     return `(ArrayIn, Uniques) => {
       return Uniques.map(unique => [unique,ArrayIn.filter(entry => entry == unique).length])
@@ -377,6 +482,14 @@ export class Counts extends ArrayFunction {
 }
 
 export class Flatten extends ArrayFunction {
+  public getName(): string {
+    return 'Flatten array';
+  }
+
+  public getDescription(): string {
+    return 'Flattens an array. All sub-array elements will be concatenated into it recursively';
+  }
+
   protected getDefaultFunction(): string {
     return '(ArrayIn) => {\n\treturn ArrayIn.flat();\n}';
   }
@@ -385,6 +498,10 @@ export class Flatten extends ArrayFunction {
 export class ArraySlice extends ArrayFunction {
   public getName(): string {
     return 'Slice array';
+  }
+
+  public getDescription(): string {
+    return 'Returns a section of an array using start and end indices';
   }
   protected getDefaultFunction(): string {
     return '(ArrayIn) => {\n\treturn ArrayIn.slice(0,10);\n}';
@@ -395,6 +512,11 @@ export class ArrayCreate extends ArrayFunction {
   public getName(): string {
     return 'Create array';
   }
+
+  public getDescription(): string {
+    return 'Creates an array from a single value';
+  }
+
   protected getDefaultFunction(): string {
     return '(Element) => {\n\treturn [Element];\n}';
   }
@@ -404,9 +526,15 @@ export class ArrayGet extends ArrayFunction {
   public getName(): string {
     return 'Get from array';
   }
+
+  public getDescription(): string {
+    return 'Returns an element based on its index position';
+  }
+
   protected getDefaultFunction(): string {
     return '(ArrayIn, Index) => {\n\treturn ArrayIn[Index];\n}';
   }
+
   protected getOutputParameterName(): string {
     return 'Element';
   }
@@ -414,11 +542,17 @@ export class ArrayGet extends ArrayFunction {
 
 export class ArrayLength extends ArrayFunction {
   public getName(): string {
-    return 'Get length of array';
+    return 'Length of array';
   }
+
+  public getDescription(): string {
+    return 'Returns the length of an array';
+  }
+
   protected getDefaultFunction(): string {
     return '(ArrayIn) => {\n\treturn ArrayIn.length;\n}';
   }
+
   protected getOutputParameterName(): string {
     return 'Length';
   }
@@ -428,6 +562,9 @@ export class ArrayPush extends ArrayFunction {
   public getName(): string {
     return 'Add element to array';
   }
+  public getDescription(): string {
+    return 'Adds an element at the end of the array';
+  }
   protected getDefaultFunction(): string {
     return '(ArrayIn, Element) => {\n\tArrayIn.push(Element);\nreturn ArrayIn;\n}';
   }
@@ -435,8 +572,13 @@ export class ArrayPush extends ArrayFunction {
 
 export class Max extends ArrayFunction {
   public getName(): string {
-    return 'Get max element in array';
+    return 'Max element in array';
   }
+
+  public getDescription(): string {
+    return 'Returns the largest number of the array';
+  }
+
   protected getDefaultFunction(): string {
     return '(ArrayIn) => {\n\treturn Math.max(...ArrayIn);\n}';
   }
@@ -444,8 +586,13 @@ export class Max extends ArrayFunction {
 
 export class Min extends ArrayFunction {
   public getName(): string {
-    return 'Get minimum element in array';
+    return 'Min element in array';
   }
+
+  public getDescription(): string {
+    return 'Returns the smallest number of the array';
+  }
+
   protected getDefaultFunction(): string {
     return '(ArrayIn) => {\n\treturn Math.min(...ArrayIn);\n}';
   }

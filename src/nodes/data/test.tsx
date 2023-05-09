@@ -57,7 +57,11 @@ export class TestDataTypes extends PPNode {
   }
 
   public getDescription(): string {
-    return 'A test node which lists all available socket data types';
+    return 'Adds a test node which lists all available socket data types';
+  }
+
+  public getTags(): string[] {
+    return ['Playground'].concat(super.getTags());
   }
 
   getColor(): TRgba {

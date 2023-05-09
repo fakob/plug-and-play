@@ -86,6 +86,14 @@ export class WidgetButton extends WidgetBase {
     fill: contrastColorHex,
   });
 
+  public getName(): string {
+    return 'Button';
+  }
+
+  public getDescription(): string {
+    return 'Adds a button to trigger values';
+  }
+
   protected getUpdateBehaviour(): UpdateBehaviourClass {
     return new UpdateBehaviourClass(false, false, 1000);
   }
@@ -97,14 +105,6 @@ export class WidgetButton extends WidgetBase {
       new Socket(SOCKET_TYPE.IN, labelName, new StringType(), 'Button', false),
       new Socket(SOCKET_TYPE.OUT, outName, new AnyType()),
     ];
-  }
-
-  public getName(): string {
-    return 'Button';
-  }
-
-  public getDescription(): string {
-    return 'Adds a button to trigger values';
   }
 
   public getDefaultNodeWidth(): number {
@@ -189,6 +189,14 @@ export class WidgetButton extends WidgetBase {
 }
 
 export class WidgetColorPicker extends WidgetHybridBase {
+  public getName(): string {
+    return 'Color picker';
+  }
+
+  public getDescription(): string {
+    return 'Adds a color picker';
+  }
+
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(
@@ -207,14 +215,6 @@ export class WidgetColorPicker extends WidgetHybridBase {
       ),
       new Socket(SOCKET_TYPE.OUT, outName, new ColorType()),
     ];
-  }
-
-  public getName(): string {
-    return 'Color picker';
-  }
-
-  public getDescription(): string {
-    return 'Adds a color picker';
   }
 
   public getDefaultNodeWidth(): number {
@@ -335,6 +335,14 @@ export class WidgetColorPicker extends WidgetHybridBase {
 }
 
 export class WidgetSwitch extends WidgetHybridBase {
+  public getName(): string {
+    return 'Switch';
+  }
+
+  public getDescription(): string {
+    return 'Adds a switch to toggle between values';
+  }
+
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, selectedName, new BooleanType(), false, false),
@@ -343,14 +351,6 @@ export class WidgetSwitch extends WidgetHybridBase {
       new Socket(SOCKET_TYPE.IN, labelName, new StringType(), 'Switch', false),
       new Socket(SOCKET_TYPE.OUT, outName, new AnyType()),
     ];
-  }
-
-  public getName(): string {
-    return 'Switch';
-  }
-
-  public getDescription(): string {
-    return 'Adds a switch to toggle between values';
   }
 
   public getDefaultNodeWidth(): number {
@@ -442,6 +442,14 @@ export class WidgetSlider extends WidgetBase {
   _refFill: PIXI.Graphics;
   _refSlider: PIXI.Graphics;
 
+  public getName(): string {
+    return 'Slider';
+  }
+
+  public getDescription(): string {
+    return 'Adds a number slider';
+  }
+
   private valueTextStyle = new PIXI.TextStyle({
     ...baseStyle,
     align: 'center',
@@ -465,14 +473,6 @@ export class WidgetSlider extends WidgetBase {
       new Socket(SOCKET_TYPE.IN, labelName, new StringType(), 'Slider', false),
       new Socket(SOCKET_TYPE.OUT, outName, new NumberType()),
     ];
-  }
-
-  public getName(): string {
-    return 'Slider';
-  }
-
-  public getDescription(): string {
-    return 'Adds a number slider';
   }
 
   public getDefaultNodeWidth(): number {
@@ -598,6 +598,14 @@ export class WidgetSlider extends WidgetBase {
 }
 
 export class WidgetDropdown extends WidgetHybridBase {
+  public getName(): string {
+    return 'Dropdown';
+  }
+
+  public getDescription(): string {
+    return 'Adds a dropdown to select values';
+  }
+
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(
@@ -630,14 +638,6 @@ export class WidgetDropdown extends WidgetHybridBase {
       ),
       new Socket(SOCKET_TYPE.OUT, outName, new AnyType()),
     ];
-  }
-
-  public getName(): string {
-    return 'Dropdown';
-  }
-
-  public getDescription(): string {
-    return 'Adds a dropdown to select values';
   }
 
   public getDefaultNodeWidth(): number {

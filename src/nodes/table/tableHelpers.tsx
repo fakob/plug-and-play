@@ -19,9 +19,15 @@ export class Table_GetColumnByName extends ExcelHelper {
   public getName(): string {
     return 'Get table column by name';
   }
+
   public getDescription(): string {
-    return 'Get column data by column name';
+    return 'Returns the column data of a specified column';
   }
+
+  public getTags(): string[] {
+    return ['Array'].concat(super.getTags());
+  }
+
   protected getDefaultFunction(): string {
     return `(ArrayOfArraysIn, ColumnName) => {
   const index = ArrayOfArraysIn[0].findIndex(col => col == ColumnName);
@@ -44,11 +50,17 @@ export class Table_GetColumnByName extends ExcelHelper {
 
 export class ObjectFilter extends PPNode {
   public getName(): string {
-    return 'Object Filter';
+    return 'Object filter';
   }
+
   public getDescription(): string {
-    return 'Streamlined filter for use with object arrays';
+    return 'Filters objects (JSON) based on their properties';
   }
+
+  public getTags(): string[] {
+    return ['Array'].concat(super.getTags());
+  }
+
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, 'ObjectArray', new ArrayType()),

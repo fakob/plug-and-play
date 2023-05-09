@@ -14,6 +14,18 @@ export class RecordLocations extends PPNode {
   isRecording = false;
   recordButton: PIXI.Graphics = undefined; // kinda ugly with undefined but whatever
 
+  public getName(): string {
+    return 'Record locations';
+  }
+
+  public getDescription(): string {
+    return 'Records the mouse location';
+  }
+
+  public getTags(): string[] {
+    return ['Input'].concat(super.getTags());
+  }
+
   getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
   }

@@ -2,13 +2,13 @@
 import * as PIXI from 'pixi.js';
 import PPGraph from '../../classes/GraphClass';
 import UpdateBehaviourClass from '../../classes/UpdateBehaviourClass';
-import { CustomArgs, TRgba} from '../../utils/interfaces';
+import { CustomArgs, TRgba } from '../../utils/interfaces';
 import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../../utils/constants';
 import Socket from '../../classes/SocketClass';
 import { AnyType } from '../datatypes/anyType';
 import { ArrayType } from '../datatypes/arrayType';
 import { CodeType } from '../datatypes/codeType';
-import {  inputHeightName, inputWidthName } from '../draw/draw';
+import { inputHeightName, inputWidthName } from '../draw/draw';
 import { NumberType } from '../datatypes/numberType';
 import { DRAW_Base, injectedDataName } from '../draw/abstract';
 
@@ -130,22 +130,21 @@ export class Shader extends DRAW_Base {
         inputHeightName,
         new NumberType(false, 1, 1000),
         200
-      )
+      ),
     ].concat(super.getDefaultIO());
   }
-
 
   getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.SHADER);
   }
 
-  public onNodeAdded () :void {
+  public onNodeAdded(): void {
     super.onNodeAdded();
-      this.canvas = PPGraph.currentGraph.viewport.getChildByName(
-        'backgroundCanvas'
-      ) as PIXI.Container;
+    this.canvas = PPGraph.currentGraph.viewport.getChildByName(
+      'backgroundCanvas'
+    ) as PIXI.Container;
 
-      this.shader = PIXI.Shader.from(this.prevVertex, this.prevFragment);
+    this.shader = PIXI.Shader.from(this.prevVertex, this.prevFragment);
   }
 
   constructor(name: string, customArgs: CustomArgs) {
@@ -164,134 +163,89 @@ export class Shader extends DRAW_Base {
   ): void {
     input = {
       ...input,
-      ...input[injectedDataName][
-        this.getAndIncrementExecutions(executions)
-      ],
+      ...input[injectedDataName][this.getAndIncrementExecutions(executions)],
     };
 
-      //const prevGraphics = this.graphics;
+    //const prevGraphics = this.graphics;
 
-      const currentTime = new Date().getTime();
+    const currentTime = new Date().getTime();
 
-      const uniforms = {
-        time: (currentTime / 1000) % 1000,
-        inputData: input[inputDataName],
-      };
-      const images = input[imageInputDataName];
-      const names = input[imageNamesName];
-
-      let largestX = -1;
-      let largestY = -1;
-
-      if (names) {
-        if (Array.isArray(names)) {
-          for (let i = 0; i < names.length; i++) {
-            uniforms[names[i]] = PIXI.Texture.from(images[i]);
-            largestX = Math.max(largestX, uniforms[names[i]].width);
-            largestY = Math.max(largestY, uniforms[names[i]].Height);
-          }
-        } else {
-          // assume its just a single image
-          uniforms[names] = PIXI.Texture.from(images);
-          largestX = uniforms[names].width;
-          largestY = uniforms[names].height;
-        }
-      }
-
-      if (
-        input[vertexShaderInputName] !== this.prevVertex ||
-        input[fragmentShaderInputName] !== this.prevFragment
-      ) {
-        // regenerate shader
-        try {
-          this.prevVertex = input[vertexShaderInputName];
-          this.prevFragment = input[fragmentShaderInputName];
-          const newShader = PIXI.Shader.from(
-            this.prevVertex,
-            this.prevFragment
-          );
-          this.shader = newShader;
-        } catch (error) {
-          this.shader = PIXI.Shader.from(defaultVertex, errorFragment);
-          //this.successfullyExecuted = false;
-          //this.lastError = error;
-          // dont apply shader if its bad
-        }
-      }
-
-      const geometry = new PIXI.Geometry()
-        .addAttribute(
-          'aVertexPosition', // the attribute name
-          [
-            0,
-            input[inputHeightName], // x, y
-            input[inputWidthName],
-            input[inputHeightName], // x, y
-            input[inputWidthName],
-            0,
-            0,
-            0,
-          ], // x, y
-          2
-        ) // the size of the attribute
-
-        .addAttribute('vUV', [0, 1, 1, 1, 1, 0, 0, 0], 2)
-        .addIndex([0, 1, 2, 0, 2, 3]); // the size of the attribute
-
-      const graphics = new PIXI.Mesh(
-        geometry,
-        new PIXI.MeshMaterial(PIXI.Texture.WHITE, {
-          program: this.shader.program,
-          uniforms,
-        })
-      );
-
-      this.positionAndScale(graphics, input);
-      container.addChild(graphics);
+    const uniforms = {
+      time: (currentTime / 1000) % 1000,
+      inputData: input[inputDataName],
     };
+    const images = input[imageInputDataName];
+    const names = input[imageNamesName];
 
+    let largestX = -1;
+    let largestY = -1;
 
+    if (names) {
+      if (Array.isArray(names)) {
+        for (let i = 0; i < names.length; i++) {
+          uniforms[names[i]] = PIXI.Texture.from(images[i]);
+          largestX = Math.max(largestX, uniforms[names[i]].width);
+          largestY = Math.max(largestY, uniforms[names[i]].Height);
+        }
+      } else {
+        // assume its just a single image
+        uniforms[names] = PIXI.Texture.from(images);
+        largestX = uniforms[names].width;
+        largestY = uniforms[names].height;
+      }
+    }
 
+    if (
+      input[vertexShaderInputName] !== this.prevVertex ||
+      input[fragmentShaderInputName] !== this.prevFragment
+    ) {
+      // regenerate shader
+      try {
+        this.prevVertex = input[vertexShaderInputName];
+        this.prevFragment = input[fragmentShaderInputName];
+        const newShader = PIXI.Shader.from(this.prevVertex, this.prevFragment);
+        this.shader = newShader;
+      } catch (error) {
+        this.shader = PIXI.Shader.from(defaultVertex, errorFragment);
+        //this.successfullyExecuted = false;
+        //this.lastError = error;
+        // dont apply shader if its bad
+      }
+    }
+
+    const geometry = new PIXI.Geometry()
+      .addAttribute(
+        'aVertexPosition', // the attribute name
+        [
+          0,
+          input[inputHeightName], // x, y
+          input[inputWidthName],
+          input[inputHeightName], // x, y
+          input[inputWidthName],
+          0,
+          0,
+          0,
+        ], // x, y
+        2
+      ) // the size of the attribute
+
+      .addAttribute('vUV', [0, 1, 1, 1, 1, 0, 0, 0], 2)
+      .addIndex([0, 1, 2, 0, 2, 3]); // the size of the attribute
+
+    const graphics = new PIXI.Mesh(
+      geometry,
+      new PIXI.MeshMaterial(PIXI.Texture.WHITE, {
+        program: this.shader.program,
+        uniforms,
+      })
+    );
+
+    this.positionAndScale(graphics, input);
+    container.addChild(graphics);
+  }
 
   protected getUpdateBehaviour(): UpdateBehaviourClass {
     return new UpdateBehaviourClass(true, false, 16);
-  }
-}
-
-const mandelbrotFragment = `
-precision mediump float;
-uniform float time;
-uniform float inputData;
-varying vec2 uv;
-
-
-void main() {
-  vec2 current = vec2(0,0);
-  int max = int(inputData);
-  float deathPoint = 0.;
-
-  for (int i = 0; i < 200; i++){
-    current = vec2(pow(current.x,2.) - pow(current.y,2.), current.x*current.y*2.) + (uv - vec2(0.7,0.5))*3.;
-    if (length(current) > 2.){
-        deathPoint = float(i);
-        }
-  }
-  gl_FragColor = vec4(deathPoint/100.0,0,0,1);
-}
-`;
-
-export class Mandelbrot extends Shader {
-  protected getInitialFragment(): string {
-    return mandelbrotFragment;
-  }
-  protected getDefaultSize(): number {
-    return 20000;
-  }
-  public getDescription(): string {
-    return 'Draws the mandelbrot fractal';
-  }
-  public getName(): string {
-    return 'Draw mandelbrot';
   }
 }
 
@@ -310,6 +264,14 @@ void main() {
 `;
 
 export class ImageShader extends Shader {
+  public getName(): string {
+    return 'Draw image shader';
+  }
+
+  public getDescription(): string {
+    return 'Draws an image rendered in a shader';
+  }
+
   protected getInitialFragment(): string {
     return imageFragment;
   }
@@ -320,12 +282,4 @@ export class ImageShader extends Shader {
   protected getDefaultImageNames(): any {
     return 'testImage';
   }
-
-  public getDescription(): string {
-    return 'Draws an image rendered in a shader';
-  }
-  public getName(): string {
-    return 'Draw image shader';
-  }
-
 }

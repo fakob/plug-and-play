@@ -5,6 +5,10 @@ import { NODE_TYPE_COLOR, RANDOMMAINCOLOR } from '../../utils/constants';
 import { TRgba } from '../../utils/interfaces';
 
 export abstract class WidgetHybridBase extends HybridNode2 {
+  public getTags(): string[] {
+    return ['Widget'].concat(super.getTags());
+  }
+
   getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
   }
@@ -19,6 +23,10 @@ export abstract class WidgetHybridBase extends HybridNode2 {
 }
 
 export abstract class WidgetBase extends PPNode {
+  public getTags(): string[] {
+    return ['Widget'].concat(super.getTags());
+  }
+
   getColor(): TRgba {
     return TRgba.fromString(Color(RANDOMMAINCOLOR).darken(0.85).hex());
   }

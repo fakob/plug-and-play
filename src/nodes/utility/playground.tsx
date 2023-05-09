@@ -20,7 +20,11 @@ export class Playground extends PPNode {
   }
 
   public getDescription(): string {
-    return 'Playground functions';
+    return 'Exposes some Playground functions';
+  }
+
+  public getTags(): string[] {
+    return ['Playground'].concat(super.getTags());
   }
 
   getColor(): TRgba {

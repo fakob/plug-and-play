@@ -5,6 +5,7 @@ export abstract class Segment {
   getDescription(): string {
     return 'Description of Segment';
   }
+
   getData(): string {
     return '';
   }
