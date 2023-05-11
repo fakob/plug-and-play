@@ -712,7 +712,7 @@ export class Export_Image_From_Graphics extends PPNode {
     const newContainer = new PIXI.Container();
     inputObject[outputPixiName](newContainer, {});
     this.addChild(newContainer);
-    const base64out = (
+    const base64out = await (
       PPGraph.currentGraph.app.renderer as PIXI.Renderer
     ).extract.image(newContainer, 'image/jpeg', inputObject[outputQualityName]);
     outputObject[outputImageName] = base64out;
