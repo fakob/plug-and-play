@@ -37,11 +37,16 @@ export abstract class DRAW_Base extends PPNode {
   listenIDMove = '';
   isDragging = false;
 
+  public getName(): string {
+    return 'Draw';
+  }
+
   public getDescription(): string {
     return 'Draw Base';
   }
-  public getName(): string {
-    return 'Draw';
+
+  public getTags(): string[] {
+    return ['Draw'].concat(super.getTags());
   }
 
   getColor(): TRgba {

@@ -40,7 +40,11 @@ export class ArrayMethod extends PPNode {
   }
 
   public getDescription(): string {
-    return 'Perform common array operations';
+    return 'Choose an array method and provide a callback';
+  }
+
+  public getTags(): string[] {
+    return ['Array'].concat(super.getTags());
   }
 
   protected getDefaultIO(): PPSocket[] {

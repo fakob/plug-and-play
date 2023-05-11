@@ -12,9 +12,11 @@ class SimpleBarGraph extends Segment {
   getName(): string {
     return 'Simple Bar Graph';
   }
+
   getDescription(): string {
-    return 'Simple Bar Graph Segment';
+    return 'Shows a simple bar graph segment';
   }
+
   getData(): string {
     return JSON.stringify(graph.default);
   }

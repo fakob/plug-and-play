@@ -30,6 +30,7 @@ export class GRAPH_LINE extends DRAW_Base {
   public getName(): string {
     return 'Draw Line Graph';
   }
+
   public getDescription(): string {
     return 'Draws a line graph based on input points and optional labels';
   }

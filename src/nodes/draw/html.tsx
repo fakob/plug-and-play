@@ -28,6 +28,18 @@ export class HtmlRenderer extends HybridNode2 {
     }
   }
 
+  public getName(): string {
+    return 'Html renderer';
+  }
+
+  public getDescription(): string {
+    return 'Renders html';
+  }
+
+  public getTags(): string[] {
+    return ['Draw'].concat(super.getTags());
+  }
+
   getShowLabels(): boolean {
     return false;
   }
@@ -38,14 +50,6 @@ export class HtmlRenderer extends HybridNode2 {
 
   getPreferredInputSocketName(): string {
     return inputSocketName;
-  }
-
-  public getName(): string {
-    return 'Html renderer';
-  }
-
-  public getDescription(): string {
-    return 'Renders html';
   }
 
   getColor(): TRgba {
@@ -133,11 +137,11 @@ export class HtmlRenderer extends HybridNode2 {
 
 export class EmbedWebsite extends HtmlRenderer {
   public getName(): string {
-    return 'Embed a website';
+    return 'Embed website';
   }
 
   public getDescription(): string {
-    return 'Embed a website using an iframe (based on HtmlRenderer)';
+    return 'Embed a website using an iframe. You can also just paste a URL into the playground';
   }
 
   public getDefaultNodeWidth(): number {

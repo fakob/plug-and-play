@@ -11,6 +11,10 @@ import { StringType } from '../datatypes/stringType';
 import { TriggerType } from '../datatypes/triggerType';
 
 abstract class StateNode extends PPNode {
+  public getTags(): string[] {
+    return ['State'].concat(super.getTags());
+  }
+
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(
@@ -62,7 +66,16 @@ abstract class StateNode extends PPNode {
   protected abstract add(): void;
   protected abstract remove(): void;
 }
+
 export class ArrayState extends StateNode {
+  public getName(): string {
+    return 'Array state';
+  }
+
+  public getDescription(): string {
+    return 'Store elements in an array';
+  }
+
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, 'MaxSize', new NumberType(true), 0),
@@ -96,6 +109,14 @@ export class ArrayState extends StateNode {
 }
 
 export class MapArrayState extends StateNode {
+  public getName(): string {
+    return 'Object state';
+  }
+
+  public getDescription(): string {
+    return 'Store elements by key';
+  }
+
   protected getDefaultIO(): Socket[] {
     return [new Socket(SOCKET_TYPE.IN, 'MaxSize', new NumberType(true), 0)]
       .concat(super.getDefaultIO())
@@ -138,6 +159,14 @@ export class MapArrayState extends StateNode {
 }
 
 export class NumberState extends StateNode {
+  public getName(): string {
+    return 'Number state';
+  }
+
+  public getDescription(): string {
+    return 'Store a number and increment/decrement it';
+  }
+
   protected getStateType(): AbstractType {
     return new NumberType();
   }

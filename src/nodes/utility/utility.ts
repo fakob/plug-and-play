@@ -26,8 +26,13 @@ export class Reroute extends PPNode {
   public getName(): string {
     return 'Reroute';
   }
+
   public getDescription(): string {
-    return 'Reroute point';
+    return 'Adds a node to reroute connections';
+  }
+
+  public getTags(): string[] {
+    return ['Playground'].concat(super.getTags());
   }
 
   protected getDefaultIO(): Socket[] {
@@ -111,6 +116,14 @@ export class JumpToNode extends WidgetButton {
     return 'Jump to node';
   }
 
+  public getDescription(): string {
+    return 'Adds a button which can be used to jump to another node';
+  }
+
+  public getTags(): string[] {
+    return ['Playground'].concat(super.getTags());
+  }
+
   onWidgetTrigger = () => {
     const nodeId = getNodeArrayOptions()().find(
       (option) => option.text === this.getInputData(selectNodeName)
@@ -149,16 +162,20 @@ export class JumpToNode extends WidgetButton {
 export class ThrottleDebounce extends PPNode {
   passThroughDebounced;
 
-  getColor(): TRgba {
-    return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
-  }
-
   public getName(): string {
     return 'Throttle/Debounce';
   }
 
   public getDescription(): string {
     return 'Limits how often the value is passed through';
+  }
+
+  public getTags(): string[] {
+    return ['Logic'].concat(super.getTags());
+  }
+
+  getColor(): TRgba {
+    return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
   }
 
   protected getDefaultIO(): Socket[] {
@@ -222,24 +239,35 @@ export class LoadNPM extends CustomFunction {
   public getName(): string {
     return 'Load NPM package';
   }
+
   public getDescription(): string {
     return 'Lazy loads an NPM package';
   }
+
+  public getTags(): string[] {
+    return ['Playground'].concat(super.getTags());
+  }
+
   protected getDefaultParameterValues(): Record<string, any> {
     return { packageName: 'uuid' };
   }
+
   protected getDefaultParameterTypes(): Record<string, any> {
     return { packageName: new StringType() };
   }
+
   protected getOutputParameterName(): string {
     return 'NpmPackage';
   }
+
   protected getOutputParameterType(): AbstractType {
     return new FunctionType();
   }
+
   protected getUpdateBehaviour(): UpdateBehaviourClass {
     return new UpdateBehaviourClass(false, false, 1000);
   }
+
   protected getDefaultFunction(): string {
     return `(packageName) => {
   const url = 'https://esm.sh/' + packageName;

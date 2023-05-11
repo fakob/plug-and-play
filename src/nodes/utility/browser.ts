@@ -23,6 +23,10 @@ export class OpenURL extends CustomFunction {
     return 'Opens a URL in a new tab';
   }
 
+  public getTags(): string[] {
+    return ['Playground'].concat(super.getTags());
+  }
+
   getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.SYSTEM);
   }

@@ -224,6 +224,18 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               initialData: { plain: data },
             });
             break;
+          case 'json':
+          case 'js':
+          case 'jsx':
+          case 'ts':
+          case 'tsx':
+            data = await response.text();
+            newNode = PPGraph.currentGraph.addNewNode('CodeEditor', {
+              nodePosX,
+              nodePosY,
+              initialData: data,
+            });
+            break;
           case 'jpg':
           case 'png':
             data = await response.blob();
@@ -806,21 +818,27 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         const serializedNode = oldNode.serialize();
 
         const action = async () => {
-          PPGraph.currentGraph.replaceNode(
+          const newNode = PPGraph.currentGraph.replaceNode(
             serializedNode,
             serializedNode.id,
             referenceID,
             newNodeType
           );
+          InterfaceController.notifyListeners(ListenEvent.SelectionChanged, [
+            newNode,
+          ]);
           setActiveItemArray();
           setIsNodeSearchVisible(false);
         };
         const undoAction = async () => {
-          PPGraph.currentGraph.replaceNode(
+          const previousNode = PPGraph.currentGraph.replaceNode(
             serializedNode,
             referenceID,
             serializedNode.id
           );
+          InterfaceController.notifyListeners(ListenEvent.SelectionChanged, [
+            previousNode,
+          ]);
         };
         await ActionHandler.performAction(action, undoAction);
       } else {
@@ -1151,6 +1169,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           {PPGraph.currentGraph && (
             <>
               <Autocomplete
+                ListboxProps={{ style: { maxHeight: '50vh' } }}
                 className={styles.graphSearch}
                 sx={{ width: 'calc(65vw - 120px)' }}
                 freeSolo
@@ -1199,6 +1218,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
                 }}
               >
                 <Autocomplete
+                  ListboxProps={{ style: { maxHeight: '50vh' } }}
                   sx={{
                     maxWidth: '50vw',
                     width: '400px',

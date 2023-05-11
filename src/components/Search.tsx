@@ -355,7 +355,7 @@ export const filterOptionsNode = (options: INodeSearch[], { inputValue }) => {
 };
 
 export const renderGroupItem = (props) => {
-  const isSearching = props.children?.[0].props.inputvalue; // don't render group header while searching
+  const isSearching = props.children?.[0].props.issearching; // don't render group header while searching
   if (isSearching) {
     return (
       <li key={props.key}>
@@ -395,7 +395,7 @@ export const renderNodeItem = (props, option, { inputValue, selected }) => {
   const partsOfDescription = parse(option.description, matchesOfDescription);
 
   return (
-    <li {...props} key={uuid()} inputvalue={inputValue}>
+    <li {...props} key={uuid()} issearching={inputValue.length > 0}>
       <Stack
         sx={{
           width: '100%',
@@ -472,6 +472,7 @@ export const renderNodeItem = (props, option, { inputValue, selected }) => {
                   fontSize: '12px',
                   background: 'rgba(255,255,255,0.2)',
                   cornerRadius: '4px',
+                  marginLeft: '2px',
                   px: 0.5,
                   display: 'inline',
                   '.Mui-focused &': {

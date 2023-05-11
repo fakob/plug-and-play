@@ -37,7 +37,11 @@ export class Image extends PPNode {
   }
 
   public getDescription(): string {
-    return 'Draws an Image (base64)';
+    return 'Draws an Image. To import an image, just drag the file onto the playground';
+  }
+
+  public getTags(): string[] {
+    return ['Draw'].concat(super.getTags());
   }
 
   protected getDefaultIO(): Socket[] {
