@@ -636,7 +636,7 @@ export class DRAW_Line extends DRAW_Base {
 
 export class DRAW_Polygon extends DRAW_Base {
   public getName(): string {
-    return 'Draw Polygon';
+    return 'Draw polygon';
   }
 
   public getDescription(): string {

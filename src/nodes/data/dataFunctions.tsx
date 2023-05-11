@@ -10,7 +10,6 @@ import { CodeType } from '../datatypes/codeType';
 import { JSONType } from '../datatypes/jsonType';
 import { NumberType } from '../datatypes/numberType';
 import * as PIXI from 'pixi.js';
-import { TextStyle } from 'pixi.js';
 
 const arrayName = 'Array';
 const typeName = 'Type';

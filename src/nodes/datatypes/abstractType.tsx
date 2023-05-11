@@ -61,14 +61,6 @@ export class AbstractType {
     return data;
   }
 
-  defaultInputNodeWidget(): string {
-    return 'Constant';
-  }
-
-  defaultOutputNodeWidget(): string {
-    return 'Label';
-  }
-
   recommendedInputNodeWidgets(): string[] {
     return [];
   }

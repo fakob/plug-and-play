@@ -19,11 +19,15 @@ export class BooleanType extends AbstractType {
     return <BooleanWidget {...data} />;
   };
 
-  defaultInputNodeWidget(): string {
-    return 'WidgetSwitch';
-  }
-
   getColor(): TRgba {
     return new TRgba(90, 90, 90);
+  }
+
+  recommendedOutputNodeWidgets(): string[] {
+    return ['AND', 'OR', 'NOT', 'If_Else', 'Comparison'];
+  }
+
+  recommendedInputNodeWidgets(): string[] {
+    return ['WidgetSwitch', 'Constant'];
   }
 }

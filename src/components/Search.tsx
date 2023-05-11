@@ -295,10 +295,14 @@ export const getNodes = (latest: INodeSearch[]): INodeSearch[] => {
       ? sourceSocket?.dataType.recommendedInputNodeWidgets()
       : sourceSocket?.dataType.recommendedOutputNodeWidgets()) || [];
 
-  const recommendedNodes = inOrOutputList.map((nodeName) => {
+  const suggestedByType = [];
+  inOrOutputList.forEach((nodeName) => {
     const foundNode = arrayWithGroupReset.find((node) => node.key === nodeName);
-    foundNode.group = 'Suggested by socket type';
-    return foundNode;
+    console.log(foundNode);
+    if (foundNode) {
+      foundNode.group = 'Suggested by socket type';
+      suggestedByType.push(foundNode);
+    }
   });
 
   const preferredNodesList =
@@ -307,15 +311,18 @@ export const getNodes = (latest: INodeSearch[]): INodeSearch[] => {
       .getPreferredNodesPerSocket()
       .get(sourceSocket?.name) || [];
 
-  const preferredNodes = preferredNodesList.map((nodeName) => {
+  const suggestedByNode = [];
+  preferredNodesList.forEach((nodeName) => {
     const foundNode = arrayWithGroupReset.find((node) => node.key === nodeName);
-    foundNode.group = 'Suggested by node';
-    return foundNode;
+    if (foundNode) {
+      foundNode.group = 'Suggested by node';
+      suggestedByNode.push(foundNode);
+    }
   });
 
   const combinedArray = latest.concat(
-    preferredNodes,
-    recommendedNodes,
+    suggestedByNode,
+    suggestedByType,
     arrayWithGroupReset.filter(
       (node) => !sourceSocket || node.hasInputs
     ) as INodeSearch[]
@@ -356,7 +363,7 @@ export const filterOptionsNode = (options: INodeSearch[], { inputValue }) => {
 
 export const renderGroupItem = (props) => {
   const isSearching = props.children?.[0].props.issearching; // don't render group header while searching
-  if (isSearching) {
+  if (isSearching === 'true') {
     return (
       <li key={props.key}>
         <ul style={{ padding: 0 }}>{props.children}</ul>
@@ -395,7 +402,11 @@ export const renderNodeItem = (props, option, { inputValue, selected }) => {
   const partsOfDescription = parse(option.description, matchesOfDescription);
 
   return (
-    <li {...props} key={uuid()} issearching={inputValue.length > 0}>
+    <li
+      {...props}
+      key={uuid()}
+      issearching={(inputValue.length > 0).toString()}
+    >
       <Stack
         sx={{
           width: '100%',

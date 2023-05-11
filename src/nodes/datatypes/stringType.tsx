@@ -25,13 +25,18 @@ export class StringType extends AbstractType {
     return new TRgba(148, 250, 148);
   }
 
-  defaultInputNodeWidget(): string {
-    return 'Label';
-  }
   parse(data: any): any {
     if (typeof data == 'object' || Array.isArray(data)) {
       return JSON.stringify(data);
     }
     return data;
+  }
+
+  recommendedOutputNodeWidgets(): string[] {
+    return ['Label', 'DRAW_Text', 'Add'];
+  }
+
+  recommendedInputNodeWidgets(): string[] {
+    return ['Label', 'Constant', 'TextEditor'];
   }
 }

@@ -314,11 +314,14 @@ export const GraphContextMenu = (props) => {
         </MenuItem>
         <MenuItem
           onClick={() => {
-            PPGraph.currentGraph.showNonPresentationNodes = !PPGraph.currentGraph.showNonPresentationNodes;
+            PPGraph.currentGraph.showNonPresentationNodes =
+              !PPGraph.currentGraph.showNonPresentationNodes;
           }}
         >
           <ListItemText>
-            {PPGraph.currentGraph.showNonPresentationNodes ? 'Hide non-presentation nodes' : 'Show non-presentation nodes'}
+            {PPGraph.currentGraph.showNonPresentationNodes
+              ? 'Hide non-presentation nodes'
+              : 'Show non-presentation nodes'}
           </ListItemText>
           <Typography variant="body2" color="text.secondary">
             {`${props.controlOrMetaKey}+Shift+Y`}
@@ -470,10 +473,10 @@ export const NodeContextMenu = (props) => {
           <ListItemText>Extract to Macro</ListItemText>
         </MenuItem>
         {PPGraph.currentGraph &&
-          PPGraph.currentGraph.selection.selectedNodes.length > 0
+        PPGraph.currentGraph.selection.selectedNodes.length > 0
           ? constructListOptions(
-            PPGraph.currentGraph.selection.selectedNodes[0].getAdditionalRightClickOptions()
-          )
+              PPGraph.currentGraph.selection.selectedNodes[0].getAdditionalRightClickOptions()
+            )
           : ''}
       </MenuList>
     </Paper>
@@ -539,7 +542,7 @@ export const SocketContextMenu = (props) => {
               <AddIcon fontSize="small" />
             </ListItemIcon>
             <ListItemText>
-              Connect {selectedSocket.dataType.defaultInputNodeWidget()}
+              Connect {selectedSocket.dataType.recommendedInputNodeWidgets()[0]}
             </ListItemText>
           </MenuItem>
         )}
@@ -553,7 +556,8 @@ export const SocketContextMenu = (props) => {
               <AddIcon fontSize="small" />
             </ListItemIcon>
             <ListItemText>
-              Connect {selectedSocket.dataType.defaultOutputNodeWidget()}
+              Connect{' '}
+              {selectedSocket.dataType.recommendedOutputNodeWidgets()[0]}
             </ListItemText>
           </MenuItem>
         )}
