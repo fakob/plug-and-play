@@ -48,8 +48,8 @@ import { StringType } from '../datatypes/stringType';
 import { ColorType } from '../datatypes/colorType';
 import UpdateBehaviourClass from '../../classes/UpdateBehaviourClass';
 
-const selectedName = 'Initial selection';
-const initialValueName = 'Initial value';
+const selectedName = 'Initial Selection';
+const initialValueName = 'Initial Value';
 const minValueName = 'Min';
 const roundName = 'Round';
 const maxValueName = 'Max';
@@ -57,7 +57,8 @@ const offValueName = 'Off';
 const onValueName = 'On';
 const labelName = 'Label';
 const optionsName = 'Options';
-const selectedOptionName = 'Selected option';
+const selectedOptionIndex = 'Selected Index';
+const selectedOptionName = 'Selected Option';
 const multiSelectName = 'Select multiple';
 const outName = 'Out';
 
@@ -201,22 +202,13 @@ export class WidgetButton extends WidgetBase {
 export class WidgetRadio extends WidgetBase {
   radio: RadioGroup | undefined = undefined;
 
-  private labelTextStyle = new PIXI.TextStyle({
-    ...baseStyle,
-    align: 'center',
-    fontWeight: '500',
-    fill: contrastColorHex,
-  });
-
   protected getDefaultIO(): Socket[] {
     return [
-      new Socket(SOCKET_TYPE.IN, optionsName, new ArrayType(), []),
+      new Socket(SOCKET_TYPE.IN, optionsName, new ArrayType(), ['A', 'B', 'C']),
       new Socket(
         SOCKET_TYPE.IN,
-        multiSelectName,
-        new BooleanType(),
-        false,
-        false
+        selectedOptionIndex,
+        new NumberType(true, 0, 10)
       ),
       new Socket(
         SOCKET_TYPE.IN,
@@ -239,7 +231,7 @@ export class WidgetRadio extends WidgetBase {
         new TRgba(255, 255, 255),
         false
       ),
-      new Socket(SOCKET_TYPE.OUT, selectedOptionName, new AnyType()),
+      new Socket(SOCKET_TYPE.OUT, selectedOptionName, new StringType()),
     ];
   }
 
@@ -252,11 +244,11 @@ export class WidgetRadio extends WidgetBase {
   }
 
   public getDefaultNodeWidth(): number {
-    return 200;
+    return 150;
   }
 
   public getDefaultNodeHeight(): number {
-    return 104;
+    return 150;
   }
 
   public drawNodeShape(): void {
@@ -266,9 +258,7 @@ export class WidgetRadio extends WidgetBase {
     const inputs: [] = this.getInputData(optionsName);
 
     const width = 30;
-    const height = 30;
     const padding = 5;
-    const radius = 10;
     const textColor = this.getInputData(textColorName);
 
     const items: CheckBox[] = [];
@@ -280,19 +270,15 @@ export class WidgetRadio extends WidgetBase {
             unchecked: this.drawRadio({
               checked: false,
               width,
-              height,
-              radius,
               padding,
             }),
             checked: this.drawRadio({
               checked: true,
               width,
-              height,
-              radius,
               padding,
             }),
             text: {
-              fontSize: 22,
+              fontSize: 20,
               fill: textColor,
             },
           },
@@ -302,67 +288,53 @@ export class WidgetRadio extends WidgetBase {
 
     // Component usage
     const radioGroup = new RadioGroup({
-      selectedItem: 0,
+      selectedItem: Math.min(
+        inputs.length - 1,
+        Math.max(this.getInputData(selectedOptionIndex), 0)
+      ),
       items,
       type: 'vertical',
       elementsMargin: 10,
     });
 
-    radioGroup.pivot.set(this.width / 2, this.height / 2);
-    radioGroup.x = this.width / 2;
-    radioGroup.y = this.height / 2;
-    //radioGroup.position.set(this.width / 2, this.height / 2);
+    radioGroup.x = 40;
+    radioGroup.y = 20;
 
-    radioGroup.onChange.connect(
-      (selectedItemID: number, selectedVal: string) => {
-        //items[selectedItemID].checked = !items[selectedItemID].checked;
-        console.log('pressed: ' + selectedItemID);
-      }
-    );
+    radioGroup.onChange.connect((selectedItemID: number) => {
+      this.setInputData(selectedOptionIndex, selectedItemID);
+      this.executeOptimizedChain();
+    });
 
     this.radio = radioGroup;
 
     this.addChild(this.radio);
-    //view.addChild(radioGroup.innerView);
-
-    //return { view, resize: () => centerElement(view) };
   }
 
-  drawRadio({ checked, width, height, radius, padding }: GraphicsType) {
+  drawRadio({ checked, width, padding }: GraphicsType) {
     const graphics = new PIXI.Graphics().beginFill(
       this.getInputData(backgroundColorName)
     );
 
-    const isCircle = width === height && radius >= width / 2;
-
-    if (isCircle) {
-      graphics.drawCircle(width / 2, width / 2, width / 2);
-    } else {
-      graphics.drawRoundedRect(0, 0, width, height, radius);
-    }
+    graphics.drawCircle(width / 2, width / 2, width / 2);
     if (checked) {
       graphics.beginFill(this.getInputData(foregroundColorName));
-
       const center = width / 2;
-
-      if (isCircle) {
-        graphics.drawCircle(center, center, center - padding);
-      } else {
-        graphics.drawRoundedRect(
-          padding,
-          padding,
-          width - padding * 2,
-          height - padding * 2,
-          radius
-        );
-      }
+      graphics.drawCircle(center, center, center - padding);
     }
 
     return graphics;
   }
 
   public onExecute = async (input, output) => {
-    //const text = String(input[labelName]).toUpperCase();
+    output[selectedOptionName] = input[optionsName].at(
+      Math.max(
+        0,
+        Math.min(
+          input[optionsName].length - 1,
+          this.getInputData(selectedOptionIndex)
+        )
+      )
+    );
     this.drawNodeShape();
   };
 }

@@ -448,6 +448,7 @@ export default class PPNode extends PIXI.Container {
     }
   }
 
+  // for when you dont want to execute your own node (you probably already did in some fashion), but run all children
   async executeChildren(): Promise<void> {
     this.drawComment();
     await FlowLogic.executeOptimizedChainBatch(
