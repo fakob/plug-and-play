@@ -410,21 +410,7 @@ export class Map extends ArrayFunction {
   }
 
   public getDescription(): string {
-    return 'Transform each element of an array';
-  }
-
-  protected getDefaultFunction(): string {
-    return '(ArrayIn) => {\n\treturn ArrayIn.map(a=>a);\n}';
-  }
-}
-
-export class MapSequential extends ArrayFunction {
-  public getName(): string {
-    return 'Filter array';
-  }
-
-  public getDescription(): string {
-    return 'Filters an array, using your own filter condition';
+    return 'Transform and or filter each element of an array';
   }
   protected getDefaultFunction(): string {
     return '(ArrayIn) => {\n\
