@@ -298,7 +298,6 @@ export const getNodes = (latest: INodeSearch[]): INodeSearch[] => {
   const suggestedByType = [];
   inOrOutputList.forEach((nodeName) => {
     const foundNode = arrayWithGroupReset.find((node) => node.key === nodeName);
-    console.log(foundNode);
     if (foundNode) {
       foundNode.group = 'Suggested by socket type';
       suggestedByType.push(foundNode);
