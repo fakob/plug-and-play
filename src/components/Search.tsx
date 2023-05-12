@@ -372,7 +372,7 @@ export const filterOptionsNode = (options: INodeSearch[], { inputValue }) => {
 
 export const renderGroupItem = (props) => {
   const isSearching = props.children?.[0].props.issearching; // don't render group header while searching
-  if (isSearching === 'true') {
+  if (isSearching) {
     return (
       <li key={props.key}>
         <ul style={{ padding: 0 }}>{props.children}</ul>
@@ -414,7 +414,7 @@ export const renderNodeItem = (props, option, { inputValue, selected }) => {
     <li
       {...props}
       key={uuid()}
-      issearching={(inputValue.length > 0).toString()}
+      issearching={inputValue.length > 0 ? 1 : undefined}
     >
       <Stack
         sx={{
