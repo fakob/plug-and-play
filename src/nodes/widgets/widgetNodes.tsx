@@ -256,6 +256,9 @@ export class WidgetRadio extends WidgetBase {
     this.removeChild(this.radio);
 
     const inputs: [] = this.getInputData(optionsName);
+    if (!Array.isArray(inputs)) {
+      return;
+    }
 
     const width = 30;
     const padding = 5;
@@ -267,16 +270,8 @@ export class WidgetRadio extends WidgetBase {
         new CheckBox({
           text: inputs[i],
           style: {
-            unchecked: this.drawRadio({
-              checked: false,
-              width,
-              padding,
-            }),
-            checked: this.drawRadio({
-              checked: true,
-              width,
-              padding,
-            }),
+            unchecked: this.drawRadio(false, width, padding),
+            checked: this.drawRadio(true, width, padding),
             text: {
               fontSize: 20,
               fill: textColor,
@@ -297,8 +292,8 @@ export class WidgetRadio extends WidgetBase {
       elementsMargin: 10,
     });
 
-    radioGroup.x = 40;
-    radioGroup.y = 20;
+    radioGroup.x = 50;
+    radioGroup.y = 50;
 
     radioGroup.onChange.connect((selectedItemID: number) => {
       this.setInputData(selectedOptionIndex, selectedItemID);
@@ -310,7 +305,7 @@ export class WidgetRadio extends WidgetBase {
     this.addChild(this.radio);
   }
 
-  drawRadio({ checked, width, padding }: GraphicsType) {
+  drawRadio(checked, width, padding) {
     const graphics = new PIXI.Graphics().beginFill(
       this.getInputData(backgroundColorName)
     );
@@ -336,15 +331,20 @@ export class WidgetRadio extends WidgetBase {
       )
     );
     this.drawNodeShape();
+    const preferredHeight = this.radio.height + this.radio.y * 2;
+    const preferredWidth = this.radio.width + this.radio.x * 2;
+    if (
+      this.nodeHeight != preferredHeight ||
+      this.nodeWidth != preferredWidth
+    ) {
+      this.resizeAndDraw(preferredWidth, preferredHeight);
+    }
   };
+
+  public allowResize(): boolean {
+    return false;
+  }
 }
-type GraphicsType = {
-  checked: boolean;
-  width?: number;
-  height?: number;
-  radius?: number;
-  padding?: number;
-};
 
 export class WidgetColorPicker extends WidgetHybridBase {
   public getName(): string {

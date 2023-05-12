@@ -1088,6 +1088,11 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     return true;
   }
 
+
+  public allowResize(): boolean {
+    return true;
+  }
+
   public shouldShowResizeRectangleEvenWhenMultipleNodesAreSelected(): boolean {
     return false;
   }
