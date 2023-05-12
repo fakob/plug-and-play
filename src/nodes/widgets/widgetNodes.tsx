@@ -344,6 +344,9 @@ export class WidgetRadio extends WidgetBase {
   public allowResize(): boolean {
     return false;
   }
+  public executeOnPlace(): boolean {
+    return true;
+  }
 }
 
 export class WidgetColorPicker extends WidgetHybridBase {

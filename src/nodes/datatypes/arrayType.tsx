@@ -58,6 +58,7 @@ export class ArrayType extends AbstractType {
       'Max',
       'Min',
       'ArrayState',
+      'WidgetRadio',
     ];
   }
 }
