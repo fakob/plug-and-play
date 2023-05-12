@@ -20,7 +20,7 @@ export class ColorType extends AbstractType {
   }
 
   getDefaultValue(): any {
-    return TRgba.randomColor();//TRgba.fromString('#ff3700');
+    return TRgba.randomColor(); //TRgba.fromString('#ff3700');
   }
 
   parse(data: any): any {
@@ -38,11 +38,15 @@ export class ColorType extends AbstractType {
     return <ColorWidget {...props} />;
   };
 
-  defaultInputNodeWidget(): string {
-    return 'WidgetColorPicker';
-  }
-
   getColor(): TRgba {
     return new TRgba(255, 170, 60);
+  }
+
+  recommendedOutputNodeWidgets(): string[] {
+    return ['ColorArray'];
+  }
+
+  recommendedInputNodeWidgets(): string[] {
+    return ['WidgetColorPicker', 'Constant'];
   }
 }

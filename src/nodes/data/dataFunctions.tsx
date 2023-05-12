@@ -10,7 +10,6 @@ import { CodeType } from '../datatypes/codeType';
 import { JSONType } from '../datatypes/jsonType';
 import { NumberType } from '../datatypes/numberType';
 import * as PIXI from 'pixi.js';
-import { TextStyle } from 'pixi.js';
 
 const arrayName = 'Array';
 const typeName = 'Type';
@@ -411,21 +410,7 @@ export class Map extends ArrayFunction {
   }
 
   public getDescription(): string {
-    return 'Transform each element of an array';
-  }
-
-  protected getDefaultFunction(): string {
-    return '(ArrayIn) => {\n\treturn ArrayIn.map(a=>a);\n}';
-  }
-}
-
-export class MapSequential extends ArrayFunction {
-  public getName(): string {
-    return 'Filter array';
-  }
-
-  public getDescription(): string {
-    return 'Filters an array, using your own filter condition';
+    return 'Transform and or filter each element of an array';
   }
   protected getDefaultFunction(): string {
     return '(ArrayIn) => {\n\

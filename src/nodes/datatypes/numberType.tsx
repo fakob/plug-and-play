@@ -64,7 +64,11 @@ export class NumberType extends AbstractType {
     return new TRgba(128, 229, 229);
   }
 
-  defaultInputNodeWidget(): string {
-    return 'WidgetSlider';
+  recommendedOutputNodeWidgets(): string[] {
+    return ['Add', 'Subtract', 'Multiply', 'Divide', 'Sqrt', 'MathFunction'];
+  }
+
+  recommendedInputNodeWidgets(): string[] {
+    return ['WidgetSlider', 'Constant'];
   }
 }

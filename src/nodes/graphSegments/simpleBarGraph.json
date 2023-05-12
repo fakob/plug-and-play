@@ -305,8 +305,8 @@
     },
     {
       "id": "lazy-eagle-10",
-      "name": "MapSequential",
-      "type": "MapSequential",
+      "name": "Map",
+      "type": "Map",
       "x": 674.4922724231465,
       "y": 1669.2816334428917,
       "width": 160,

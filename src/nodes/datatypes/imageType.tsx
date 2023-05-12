@@ -57,4 +57,12 @@ export class ImageType extends AbstractType {
   getComment(data: any): string {
     return data ? 'Image' : 'No Image';
   }
+
+  recommendedOutputNodeWidgets(): string[] {
+    return ['DRAW_Image', 'ImageShader', 'Image'];
+  }
+
+  recommendedInputNodeWidgets(): string[] {
+    return ['Image', 'Export_Image_From_Graphics'];
+  }
 }

@@ -1,6 +1,5 @@
 /* eslint-disable prettier/prettier */
 import { JSONPath } from 'jsonpath-plus';
-import PPGraph from '../../classes/GraphClass';
 import PPNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
 import FloatingJsonPathPicker from '../../components/FloatingJsonPathPicker';

@@ -260,7 +260,23 @@ export const NodeSearchInput = (props) => {
   );
 };
 
+const findAndResetGroup = (
+  suggestedNames: string[],
+  arrayToFindIn: INodeSearch[],
+  groupName: string
+): INodeSearch[] => {
+  const suggestedNodes: INodeSearch[] = [];
+  suggestedNames.forEach((nodeName) => {
+    const foundNode = arrayToFindIn.find((node) => node.key === nodeName);
+    if (foundNode) {
+      foundNode.group = groupName;
+      suggestedNodes.push(foundNode);
+    }
+  });
+  return suggestedNodes;
+};
 let nodesCached = undefined;
+
 export const getNodes = (latest: INodeSearch[]): INodeSearch[] => {
   const sourceSocket = PPGraph.currentGraph.selectedSourceSocket;
   if (!nodesCached) {
@@ -285,7 +301,7 @@ export const getNodes = (latest: INodeSearch[]): INodeSearch[] => {
       );
   }
 
-  const arrayWithGroupReset = nodesCached.map((node) => ({
+  const arrayWithGroupReset: INodeSearch[] = nodesCached.map((node) => ({
     ...node,
     group: node.tags[0],
   }));
@@ -295,11 +311,11 @@ export const getNodes = (latest: INodeSearch[]): INodeSearch[] => {
       ? sourceSocket?.dataType.recommendedInputNodeWidgets()
       : sourceSocket?.dataType.recommendedOutputNodeWidgets()) || [];
 
-  const recommendedNodes = inOrOutputList.map((nodeName) => {
-    const foundNode = arrayWithGroupReset.find((node) => node.key === nodeName);
-    foundNode.group = 'Suggested by socket type';
-    return foundNode;
-  });
+  const suggestedByType = findAndResetGroup(
+    inOrOutputList,
+    arrayWithGroupReset,
+    'Suggested by socket type'
+  );
 
   const preferredNodesList =
     sourceSocket
@@ -307,15 +323,15 @@ export const getNodes = (latest: INodeSearch[]): INodeSearch[] => {
       .getPreferredNodesPerSocket()
       .get(sourceSocket?.name) || [];
 
-  const preferredNodes = preferredNodesList.map((nodeName) => {
-    const foundNode = arrayWithGroupReset.find((node) => node.key === nodeName);
-    foundNode.group = 'Suggested by node';
-    return foundNode;
-  });
+  const suggestedByNode = findAndResetGroup(
+    preferredNodesList,
+    arrayWithGroupReset,
+    'Suggested by node'
+  );
 
   const combinedArray = latest.concat(
-    preferredNodes,
-    recommendedNodes,
+    suggestedByNode,
+    suggestedByType,
     arrayWithGroupReset.filter(
       (node) => !sourceSocket || node.hasInputs
     ) as INodeSearch[]
@@ -395,7 +411,11 @@ export const renderNodeItem = (props, option, { inputValue, selected }) => {
   const partsOfDescription = parse(option.description, matchesOfDescription);
 
   return (
-    <li {...props} key={uuid()} issearching={inputValue.length > 0}>
+    <li
+      {...props}
+      key={uuid()}
+      issearching={inputValue.length > 0 ? 1 : undefined}
+    >
       <Stack
         sx={{
           width: '100%',
