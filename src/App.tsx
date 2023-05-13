@@ -21,6 +21,7 @@ import {
   Paper,
   TextField,
 } from '@mui/material';
+import { useTheme } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import Color from 'color';
 import { hri } from 'human-readable-ids';
@@ -54,6 +55,7 @@ import {
   COMMENT_TEXTSTYLE,
   CONTEXTMENU_WIDTH,
   DRAGANDDROP_GRID_MARGIN,
+  GESTUREMODE,
   GRID_SHADER,
   MAX_LATEST_NODES_IN_SEARCH,
   NODE_SOURCE,
@@ -108,6 +110,8 @@ const App = (): JSX.Element => {
   const pixiDebugRef = new PIXI.Text('', COMMENT_TEXTSTYLE);
   pixiDebugRef.resolution = 1;
   pixiDebugRef.x = 4;
+
+  const theme = useTheme();
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
@@ -895,10 +899,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
   const openNodeSearch = (pos = undefined) => {
     console.log('openNodeSearch');
     if (pos !== undefined) {
-      setContextMenuPosition([
-        Math.min(window.innerWidth - 408, pos.x),
-        Math.min(window.innerHeight - 56, pos.y),
-      ]);
+      setContextMenuPosition([pos.x, pos.y]);
     }
     setIsNodeSearchVisible(true);
   };
@@ -1014,6 +1015,11 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           setIsNodeContextMenuOpen(false);
           setIsSocketContextMenuOpen(false);
           setIsGraphSearchOpen(false);
+        }}
+        style={{
+          overflow: 'hidden',
+          width: '100%',
+          height: '100vh',
         }}
       >
         <div {...getRootProps({ style })}>
@@ -1155,6 +1161,26 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
             >
               Share
             </Button>
+            <Button
+              onClick={() => {
+                PPStorage.getInstance().applyGestureMode(
+                  PPGraph.currentGraph.viewport,
+                  GESTUREMODE.TRACKPAD
+                );
+              }}
+            >
+              Trackpad
+            </Button>
+            <Button
+              onClick={() => {
+                PPStorage.getInstance().applyGestureMode(
+                  PPGraph.currentGraph.viewport,
+                  GESTUREMODE.MOUSE
+                );
+              }}
+            >
+              Mouse
+            </Button>
             {isLoggedIn && (
               <Button
                 onClick={() => {
@@ -1171,13 +1197,19 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               <Autocomplete
                 ListboxProps={{ style: { maxHeight: '50vh' } }}
                 className={styles.graphSearch}
-                sx={{ width: 'calc(65vw - 120px)' }}
+                sx={{
+                  width: 'calc(65vw - 120px)',
+                  [theme.breakpoints.down('sm')]: {
+                    width: 'calc(90vw - 130px)',
+                  },
+                }}
                 freeSolo
                 openOnFocus
                 selectOnFocus
                 autoHighlight
                 clearOnBlur
                 // open
+                disablePortal
                 defaultValue={graphSearchActiveItem}
                 isOptionEqualToValue={(option, value) =>
                   option.name === value.name
@@ -1223,6 +1255,10 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
                     maxWidth: '50vw',
                     width: '400px',
                     minWidth: '200px',
+                    [theme.breakpoints.down('sm')]: {
+                      maxWidth: '90vw',
+                      width: '90vw',
+                    },
                   }}
                   freeSolo
                   openOnFocus
@@ -1231,6 +1267,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
                   clearOnBlur
                   autoComplete
                   // open
+                  disablePortal
                   defaultValue={null}
                   isOptionEqualToValue={(option, value) =>
                     option.title === value.title
