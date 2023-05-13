@@ -62,7 +62,7 @@ export class AbstractType {
   }
 
   recommendedInputNodeWidgets(): string[] {
-    return [];
+    return ["Constant","WidgetRadio"];
   }
 
   recommendedOutputNodeWidgets(): string[] {

@@ -1,6 +1,12 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import * as PIXI from 'pixi.js';
-import { Button as PixiUIButton, Slider as PixiUISlider } from '@pixi/ui';
+import {
+  CheckBox,
+  List,
+  Button as PixiUIButton,
+  Slider as PixiUISlider,
+  RadioGroup,
+} from '@pixi/ui';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Button,
@@ -42,8 +48,8 @@ import { StringType } from '../datatypes/stringType';
 import { ColorType } from '../datatypes/colorType';
 import UpdateBehaviourClass from '../../classes/UpdateBehaviourClass';
 
-const selectedName = 'Initial selection';
-const initialValueName = 'Initial value';
+const selectedName = 'Initial Selection';
+const initialValueName = 'Initial Value';
 const minValueName = 'Min';
 const roundName = 'Round';
 const maxValueName = 'Max';
@@ -51,9 +57,14 @@ const offValueName = 'Off';
 const onValueName = 'On';
 const labelName = 'Label';
 const optionsName = 'Options';
-const selectedOptionName = 'Selected option';
+const selectedOptionIndex = 'Selected Index';
+const selectedOptionName = 'Selected Option';
 const multiSelectName = 'Select multiple';
 const outName = 'Out';
+
+const foregroundColorName = 'Foreground Color';
+const backgroundColorName = 'Background Color';
+const textColorName = 'Text Color';
 
 const margin = 4;
 
@@ -186,6 +197,156 @@ export class WidgetButton extends WidgetBase {
     const text = String(input[labelName]).toUpperCase();
     this._refLabel.text = text;
   };
+}
+
+export class WidgetRadio extends WidgetBase {
+  radio: RadioGroup | undefined = undefined;
+
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(SOCKET_TYPE.IN, optionsName, new ArrayType(), ['A', 'B', 'C']),
+      new Socket(
+        SOCKET_TYPE.IN,
+        selectedOptionIndex,
+        new NumberType(true, 0, 10)
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        backgroundColorName,
+        new ColorType(),
+        new TRgba(255, 255, 255),
+        false
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        foregroundColorName,
+        new ColorType(),
+        new TRgba(0, 0, 0),
+        false
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        textColorName,
+        new ColorType(),
+        new TRgba(255, 255, 255),
+        false
+      ),
+      new Socket(SOCKET_TYPE.OUT, selectedOptionName, new StringType()),
+    ];
+  }
+
+  public getName(): string {
+    return 'Radio Button';
+  }
+
+  public getDescription(): string {
+    return 'Adds a radio button';
+  }
+
+  public getDefaultNodeWidth(): number {
+    return 150;
+  }
+
+  public getDefaultNodeHeight(): number {
+    return 150;
+  }
+
+  public drawNodeShape(): void {
+    super.drawNodeShape();
+    this.removeChild(this.radio);
+
+    const inputs: [] = this.getInputData(optionsName);
+    if (!Array.isArray(inputs)) {
+      return;
+    }
+
+    const width = 30;
+    const padding = 5;
+    const textColor = this.getInputData(textColorName);
+
+    const items: CheckBox[] = [];
+    for (let i = 0; i < inputs.length; i++) {
+      items.push(
+        new CheckBox({
+          text: inputs[i],
+          style: {
+            unchecked: this.drawRadio(false, width, padding),
+            checked: this.drawRadio(true, width, padding),
+            text: {
+              fontSize: 20,
+              fill: textColor,
+            },
+          },
+        })
+      );
+    }
+
+    // Component usage
+    const radioGroup = new RadioGroup({
+      selectedItem: Math.min(
+        inputs.length - 1,
+        Math.max(this.getInputData(selectedOptionIndex), 0)
+      ),
+      items,
+      type: 'vertical',
+      elementsMargin: 10,
+    });
+
+    radioGroup.x = 50;
+    radioGroup.y = 50;
+
+    radioGroup.onChange.connect((selectedItemID: number) => {
+      this.setInputData(selectedOptionIndex, selectedItemID);
+      this.executeOptimizedChain();
+    });
+
+    this.radio = radioGroup;
+
+    this.addChild(this.radio);
+  }
+
+  drawRadio(checked, width, padding) {
+    const graphics = new PIXI.Graphics().beginFill(
+      this.getInputData(backgroundColorName)
+    );
+
+    graphics.drawCircle(width / 2, width / 2, width / 2);
+    if (checked) {
+      graphics.beginFill(this.getInputData(foregroundColorName));
+      const center = width / 2;
+      graphics.drawCircle(center, center, center - padding);
+    }
+
+    return graphics;
+  }
+
+  public onExecute = async (input, output) => {
+    output[selectedOptionName] = input[optionsName].at(
+      Math.max(
+        0,
+        Math.min(
+          input[optionsName].length - 1,
+          this.getInputData(selectedOptionIndex)
+        )
+      )
+    );
+    this.drawNodeShape();
+    const preferredHeight = this.radio.height + this.radio.y * 2;
+    const preferredWidth = this.radio.width + this.radio.x * 2;
+    if (
+      this.nodeHeight != preferredHeight ||
+      this.nodeWidth != preferredWidth
+    ) {
+      this.resizeAndDraw(preferredWidth, preferredHeight);
+    }
+  };
+
+  public allowResize(): boolean {
+    return false;
+  }
+  public executeOnPlace(): boolean {
+    return true;
+  }
 }
 
 export class WidgetColorPicker extends WidgetHybridBase {

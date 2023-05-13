@@ -53,6 +53,7 @@ export class ArrayType extends AbstractType {
       'RangeArray',
       'ColorArray',
       'ArrayCreate',
+      'WidgetRadio',
     ];
   }
 }
