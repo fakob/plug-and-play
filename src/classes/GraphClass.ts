@@ -1012,9 +1012,11 @@ export default class PPGraph {
     // position and scale viewport
     const newX = data.graphSettings.viewportCenterPosition.x ?? 0;
     const newY = data.graphSettings.viewportCenterPosition.y ?? 0;
+    const storedScale = data.graphSettings.viewportScale ?? 1;
+    const scale = isPhone() ? storedScale / 2 : storedScale;
     this.viewport.animate({
       position: new PIXI.Point(newX, newY),
-      scale: data.graphSettings.viewportScale ?? 1,
+      scale,
       ease: 'easeOutExpo',
       time: 750,
     });

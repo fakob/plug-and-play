@@ -323,9 +323,6 @@ export const GraphContextMenu = (props) => {
               ? 'Hide non-presentation nodes'
               : 'Show non-presentation nodes'}
           </ListItemText>
-          <Typography variant="body2" color="text.secondary">
-            {`${props.controlOrMetaKey}+Shift+Y`}
-          </Typography>
         </MenuItem>
       </MenuList>
     </Paper>

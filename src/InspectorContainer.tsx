@@ -7,7 +7,10 @@ import {
   ThemeProvider,
   Typography,
 } from '@mui/material';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import Color from 'color';
 import styles from './utils/style.module.css';
 import PPNode from './classes/NodeClass';
@@ -45,7 +48,10 @@ function InspectorHeaderReadOnly(props) {
 }
 
 function InspectorHeader(props) {
+  const theme = useTheme();
+  const smallScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const textInput = useRef(null);
+
   return (
     <Box
       sx={{
@@ -61,6 +67,14 @@ function InspectorHeader(props) {
           alignItems: 'center',
         }}
       >
+        {smallScreen && (
+          <IconButton
+            title="Close inspector"
+            onClick={props.handleDrawerToggle}
+          >
+            <ChevronRightIcon />
+          </IconButton>
+        )}
         <TextField
           hiddenLabel
           inputRef={textInput}
@@ -103,11 +117,6 @@ function InspectorHeader(props) {
         />
         <IconButton
           title="Edit node name"
-          aria-label="more"
-          id="select-type"
-          aria-controls="long-menu"
-          aria-expanded={open ? 'true' : undefined}
-          aria-haspopup="true"
           color="secondary"
           size="small"
           onClick={() => {
@@ -141,6 +150,7 @@ type InspectorContainerProps = {
   randomMainColor: string;
   filter: string;
   setFilter: React.Dispatch<React.SetStateAction<string>>;
+  handleDrawerToggle: () => void;
 };
 
 const InspectorContainer: React.FunctionComponent<InspectorContainerProps> = (
@@ -170,6 +180,7 @@ const InspectorContainer: React.FunctionComponent<InspectorContainerProps> = (
             setNodeName={setNodeName}
             selectedNodes={props.selectedNodes}
             randomMainColor={props.randomMainColor}
+            handleDrawerToggle={props.handleDrawerToggle}
           />
         ) : (
           <InspectorHeaderReadOnly
