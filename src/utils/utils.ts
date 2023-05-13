@@ -784,3 +784,19 @@ export function getLoadedValue(value, shouldLoadAll) {
 export const getNodeExampleURL = (nodeName: string): string => {
   return `${window.location.origin}${window.location.pathname}?loadURL=${GITHUB_RAW_URL_NODES}/${nodeName}.ppgraph`;
 };
+
+export function isPhone(): boolean {
+  const toMatch = [
+    /Android/i,
+    /webOS/i,
+    /iPhone/i,
+    /iPad/i,
+    /iPod/i,
+    /BlackBerry/i,
+    /Windows Phone/i,
+  ];
+
+  return toMatch.some((toMatchItem) => {
+    return navigator.userAgent.match(toMatchItem);
+  });
+}
