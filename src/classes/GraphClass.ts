@@ -11,7 +11,7 @@ import {
   SerializedSelection,
   TNodeSource,
 } from '../utils/interfaces';
-import { connectNodeToSocket } from '../utils/utils';
+import { connectNodeToSocket, isPhone } from '../utils/utils';
 import { getNodesBounds } from '../pixi/utils-pixi';
 import PPNode from './NodeClass';
 import PPSocket from './SocketClass';
@@ -172,7 +172,7 @@ export default class PPGraph {
     InterfaceController.onCloseSocketInspector();
 
     if (event.button === 0) {
-      if (!this.overInputRef) {
+      if (!this.overInputRef && !isPhone()) {
         this.selection.drawSelectionStart(event, event.shiftKey);
       }
 
