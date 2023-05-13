@@ -61,15 +61,15 @@ export class TriggerType extends AbstractType {
     this.previousData = data;
   }
 
-  defaultInputNodeWidget(): string {
-    return 'WidgetButton';
-  }
-
   allowedAsOutput(): boolean {
     return false;
   }
 
   allowedToAutomaticallyAdapt(): boolean {
     return false;
+  }
+
+  recommendedInputNodeWidgets(): string[] {
+    return ['WidgetButton', 'Constant', 'WidgetSwitch'];
   }
 }

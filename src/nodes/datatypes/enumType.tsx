@@ -26,4 +26,12 @@ export class EnumType extends AbstractType {
     widgetProps.onChange = this.onChange;
     return <SelectWidget {...widgetProps} />;
   };
+
+  recommendedOutputNodeWidgets(): string[] {
+    return ['WidgetDropdown'];
+  }
+
+  recommendedInputNodeWidgets(): string[] {
+    return ['CodeEditor', 'Constant'];
+  }
 }

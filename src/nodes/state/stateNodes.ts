@@ -108,7 +108,7 @@ export class ArrayState extends StateNode {
   }
 }
 
-export class MapArrayState extends StateNode {
+export class ObjectState extends StateNode {
   public getName(): string {
     return 'Object state';
   }

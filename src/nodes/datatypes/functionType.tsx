@@ -14,4 +14,8 @@ export class FunctionType extends AbstractType {
   getColor(): TRgba {
     return new TRgba(239, 239, 138);
   }
+
+  recommendedInputNodeWidgets(): string[] {
+    return ['CodeEditor', 'Constant'];
+  }
 }

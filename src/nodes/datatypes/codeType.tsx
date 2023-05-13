@@ -24,11 +24,11 @@ export class CodeType extends AbstractType {
     return '';
   }
 
-  defaultInputNodeWidget(): undefined | string {
-    return 'CodeEditor';
+  recommendedOutputNodeWidgets(): string[] {
+    return ['CodeEditor'];
   }
 
-  defaultOutputNodeWidget(): string {
-    return 'CodeEditor';
+  recommendedInputNodeWidgets(): string[] {
+    return ['CodeEditor', 'Constant'];
   }
 }

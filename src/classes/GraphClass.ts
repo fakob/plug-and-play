@@ -677,30 +677,22 @@ export default class PPGraph {
   async addWidgetNode(socket: PPSocket): Promise<void> {
     const node = socket.getNode();
     let newNode;
-    if (socket.isInput()) {
-      const nodeType = socket.dataType.defaultInputNodeWidget();
+    const recommendedNodeWidget = socket.isInput()
+      ? socket.dataType.recommendedInputNodeWidgets()?.[0]
+      : socket.dataType.recommendedOutputNodeWidgets()?.[0];
+    if (recommendedNodeWidget) {
       newNode = this.addNewNode(
-        nodeType,
+        recommendedNodeWidget,
         {
-          nodePosX: node.x,
+          nodePosX: node.x + (socket.isInput() ? 0 : node.width + 40),
           nodePosY: node.y + socket.y,
-          initialData: socket.data,
+          initialData: socket.isInput() ? socket.data : undefined,
         },
         NODE_SOURCE.NEWCONNECTED
       );
-      newNode.setPosition(-(newNode.width + 40), 0, true);
-    } else {
-      const nodeType = socket.dataType.defaultOutputNodeWidget();
-      newNode = this.addNewNode(
-        nodeType,
-        {
-          nodePosX: node.x + (node.width + 40),
-          nodePosY: node.y + socket.y,
-        },
-        NODE_SOURCE.NEWCONNECTED
-      );
+      socket.isInput() && newNode.setPosition(-(newNode.width + 40), 0, true);
+      await connectNodeToSocket(socket, newNode);
     }
-    await connectNodeToSocket(socket, newNode);
   }
 
   getLinks(): PPLink[] {
