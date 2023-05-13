@@ -55,7 +55,6 @@ import {
   COMMENT_TEXTSTYLE,
   CONTEXTMENU_WIDTH,
   DRAGANDDROP_GRID_MARGIN,
-  GESTUREMODE,
   GRID_SHADER,
   MAX_LATEST_NODES_IN_SEARCH,
   NODE_SOURCE,
@@ -1160,26 +1159,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               }}
             >
               Share
-            </Button>
-            <Button
-              onClick={() => {
-                PPStorage.getInstance().applyGestureMode(
-                  PPGraph.currentGraph.viewport,
-                  GESTUREMODE.TRACKPAD
-                );
-              }}
-            >
-              Trackpad
-            </Button>
-            <Button
-              onClick={() => {
-                PPStorage.getInstance().applyGestureMode(
-                  PPGraph.currentGraph.viewport,
-                  GESTUREMODE.MOUSE
-                );
-              }}
-            >
-              Mouse
             </Button>
             {isLoggedIn && (
               <Button

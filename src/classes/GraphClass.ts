@@ -11,7 +11,7 @@ import {
   SerializedSelection,
   TNodeSource,
 } from '../utils/interfaces';
-import { connectNodeToSocket, isPhone } from '../utils/utils';
+import { connectNodeToSocket } from '../utils/utils';
 import { getNodesBounds } from '../pixi/utils-pixi';
 import PPNode from './NodeClass';
 import PPSocket from './SocketClass';
@@ -172,7 +172,7 @@ export default class PPGraph {
     InterfaceController.onCloseSocketInspector();
 
     if (event.button === 0) {
-      if (!this.overInputRef && !isPhone()) {
+      if (!this.overInputRef) {
         this.selection.drawSelectionStart(event, event.shiftKey);
       }
 
@@ -1012,11 +1012,9 @@ export default class PPGraph {
     // position and scale viewport
     const newX = data.graphSettings.viewportCenterPosition.x ?? 0;
     const newY = data.graphSettings.viewportCenterPosition.y ?? 0;
-    const storedScale = data.graphSettings.viewportScale ?? 1;
-    const scale = isPhone() ? storedScale / 2 : storedScale;
     this.viewport.animate({
       position: new PIXI.Point(newX, newY),
-      scale,
+      scale: data.graphSettings.viewportScale ?? 1,
       ease: 'easeOutExpo',
       time: 750,
     });
