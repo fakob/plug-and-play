@@ -249,14 +249,13 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               ) {
                 const existingNode = PPGraph.currentGraph.selection
                   .selectedNodes[index] as ImageNode;
-                existingNode.updateTexture(base64 as string);
+                existingNode.updateAndExecute(base64 as string);
               } else {
                 newNode = PPGraph.currentGraph.addNewNode('Image', {
                   nodePosX,
                   nodePosY,
                   defaultArguments: { Image: base64 },
                 });
-                newNode.resetNodeSize();
               }
             }
             break;
@@ -1165,6 +1164,13 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
                 Logout
               </Button>
             )}
+            <Button
+              onClick={() => {
+                PPGraph.currentGraph.viewport.setZoom(1, true);
+              }}
+            >
+              100%
+            </Button>
           </Box>
           {PPGraph.currentGraph && (
             <>
