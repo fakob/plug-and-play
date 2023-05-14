@@ -32,6 +32,7 @@ import MouseIcon from '@mui/icons-material/Mouse';
 import SwipeIcon from '@mui/icons-material/Swipe';
 import PPSocket from './../classes/SocketClass';
 import { GESTUREMODE, CONTEXTMENU_WIDTH } from '../utils/constants';
+import { isPhone } from '../utils/utils';
 import PPGraph from '../classes/GraphClass';
 import PPStorage from '../PPStorage';
 
@@ -119,6 +120,8 @@ export const GraphContextMenu = (props) => {
       sx={{
         width: CONTEXTMENU_WIDTH,
         maxWidth: '100%',
+        maxHeight: 'calc(100vh - 112px)',
+        overflow: 'auto',
         position: 'absolute',
         zIndex: 400,
         left: props.contextMenuPosition[0],
@@ -244,47 +247,26 @@ export const GraphContextMenu = (props) => {
         </MenuItem>
         <Divider />
         <MenuItem disabled>Settings</MenuItem>
-        <SubMenuItem autoFocus={false} label="Gesture mode">
-          <MenuItem
-            onClick={() => {
-              PPStorage.getInstance().applyGestureMode(
-                PPGraph.currentGraph.viewport,
-                GESTUREMODE.MOUSE
-              );
-            }}
-          >
-            <ListItemIcon>
-              <MouseIcon fontSize="small" />
-            </ListItemIcon>
-            <ListItemText>{GESTUREMODE.MOUSE}</ListItemText>
-          </MenuItem>
-          <MenuItem
-            onClick={() => {
-              PPStorage.getInstance().applyGestureMode(
-                PPGraph.currentGraph.viewport,
-                GESTUREMODE.TRACKPAD
-              );
-            }}
-          >
-            <ListItemIcon>
-              <SwipeIcon fontSize="small" />
-            </ListItemIcon>
-            <ListItemText>{GESTUREMODE.TRACKPAD}</ListItemText>
-          </MenuItem>
-          <MenuItem
-            onClick={() => {
-              PPStorage.getInstance().applyGestureMode(
-                PPGraph.currentGraph.viewport,
-                GESTUREMODE.AUTO
-              );
-            }}
-          >
-            <ListItemIcon>
-              <SensorsIcon fontSize="small" />
-            </ListItemIcon>
-            <ListItemText>{GESTUREMODE.AUTO}</ListItemText>
-          </MenuItem>
-        </SubMenuItem>
+        {isPhone() ? (
+          [
+            <Divider
+              key="Gesture mode "
+              variant="inset"
+              sx={{
+                fontSize: '0.7rem',
+                color: 'text.disabled',
+              }}
+            >
+              Gesture mode
+            </Divider>,
+            gestureModes(),
+            <Divider key="Gesture mode - end" variant="inset" />,
+          ]
+        ) : (
+          <SubMenuItem autoFocus={false} label="Gesture mode">
+            {gestureModes()}
+          </SubMenuItem>
+        )}
         <MenuItem
           onClick={() => {
             PPGraph.currentGraph.showExecutionVisualisation =
@@ -323,14 +305,55 @@ export const GraphContextMenu = (props) => {
               ? 'Hide non-presentation nodes'
               : 'Show non-presentation nodes'}
           </ListItemText>
-          <Typography variant="body2" color="text.secondary">
-            {`${props.controlOrMetaKey}+Shift+Y`}
-          </Typography>
         </MenuItem>
       </MenuList>
     </Paper>
   );
 };
+
+function gestureModes(): any {
+  return [
+    <MenuItem
+      onClick={() => {
+        PPStorage.getInstance().applyGestureMode(
+          PPGraph.currentGraph.viewport,
+          GESTUREMODE.MOUSE
+        );
+      }}
+    >
+      <ListItemIcon>
+        <MouseIcon fontSize="small" />
+      </ListItemIcon>
+      <ListItemText>{GESTUREMODE.MOUSE}</ListItemText>
+    </MenuItem>,
+    <MenuItem
+      onClick={() => {
+        PPStorage.getInstance().applyGestureMode(
+          PPGraph.currentGraph.viewport,
+          GESTUREMODE.TRACKPAD
+        );
+      }}
+    >
+      <ListItemIcon>
+        <SwipeIcon fontSize="small" />
+      </ListItemIcon>
+      <ListItemText>{GESTUREMODE.TRACKPAD}</ListItemText>
+    </MenuItem>,
+    <MenuItem
+      onClick={() => {
+        PPStorage.getInstance().applyGestureMode(
+          PPGraph.currentGraph.viewport,
+          GESTUREMODE.AUTO
+        );
+      }}
+    >
+      <ListItemIcon>
+        <SensorsIcon fontSize="small" />
+      </ListItemIcon>
+      <ListItemText>{GESTUREMODE.AUTO}</ListItemText>
+    </MenuItem>,
+  ];
+}
 
 function constructListOptions(options: any): any {
   return Object.keys(options).map((key) => {
