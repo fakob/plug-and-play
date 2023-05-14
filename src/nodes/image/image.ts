@@ -3,12 +3,8 @@ import * as PIXI from 'pixi.js';
 import { fitAndPosition } from 'object-fit-math';
 import type { FitMode } from 'object-fit-math/dist/types';
 import PPGraph from '../../classes/GraphClass';
-import {
-  CustomArgs,
-  SerializedNode,
-  TNodeSource,
-  TRgba,
-} from '../../utils/interfaces';
+import { downloadFile, formatDate } from '../../utils/utils';
+import { TNodeSource, TRgba } from '../../utils/interfaces';
 import {
   DEFAULT_IMAGE,
   NODE_TYPE_COLOR,
@@ -28,6 +24,7 @@ import { TriggerType } from '../datatypes/triggerType';
 const imageInputName = 'Image';
 const imageObjectFit = 'Object fit';
 const imageResetSize = 'Reset size';
+const imageExport = 'Save image';
 const imageOutputName = 'Image';
 const imageOutputDetails = 'Details';
 
@@ -71,6 +68,13 @@ export class Image extends PPNode {
         false
       ),
       new Socket(
+        SOCKET_TYPE.IN,
+        imageExport,
+        new TriggerType(TRIGGER_TYPE_OPTIONS[0].text, 'saveImage'),
+        0,
+        false
+      ),
+      new Socket(
         SOCKET_TYPE.OUT,
         imageOutputName,
         new ImageType(),
@@ -102,7 +106,12 @@ export class Image extends PPNode {
     this.sprite = new PIXI.Sprite();
     this.addChild(this.sprite);
 
-    const texture = await PIXI.Assets.load(this.getInputData('Image'));
+    let texture;
+    try {
+      texture = await PIXI.Assets.load(this.getInputData('Image'));
+    } catch (error) {
+      texture = await PIXI.Assets.load(DEFAULT_IMAGE);
+    }
     this.texture = new PIXI.Texture(texture);
     this.sprite.texture = this.texture;
     this.sprite.texture.update();
@@ -208,5 +217,12 @@ export class Image extends PPNode {
   onExecute = async function (input) {
     const base64 = input[imageInputName];
     this.updateTexture(base64);
+  };
+
+  saveImage = async () => {
+    const data = await fetch(this.getInputData(imageOutputName)).then((b) =>
+      b.arrayBuffer()
+    );
+    downloadFile(data, `${this.name} - ${formatDate()}.png`, 'image/png');
   };
 }
