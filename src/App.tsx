@@ -1164,13 +1164,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
                 Logout
               </Button>
             )}
-            <Button
-              onClick={() => {
-                PPGraph.currentGraph.viewport.setZoom(1, true);
-              }}
-            >
-              100%
-            </Button>
           </Box>
           {PPGraph.currentGraph && (
             <>
