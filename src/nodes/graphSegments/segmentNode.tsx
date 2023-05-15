@@ -5,18 +5,6 @@ import { getNodeDataFromText } from '../../utils/utils';
 import { Segment } from './segment';
 
 export abstract class SegmentNode extends PPNode {
-  getName() {
-    return this.getSegment().getName();
-  }
-
-  getDescription() {
-    return this.getSegment().getDescription();
-  }
-
-  getTags(): string[] {
-    return ['Segment'];
-  }
-
   protected getSegment(): Segment {
     return undefined;
   }

@@ -85,12 +85,7 @@ export class Shader extends DRAW_Base {
   getCanAddInput(): boolean {
     return true;
   }
-  public getDescription(): string {
-    return 'Draws a shader';
-  }
-  public getName(): string {
-    return 'Draw shader';
-  }
+
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, inputDataName, new AnyType(), {}),
@@ -264,14 +259,6 @@ void main() {
 `;
 
 export class ImageShader extends Shader {
-  public getName(): string {
-    return 'Draw image shader';
-  }
-
-  public getDescription(): string {
-    return 'Draws an image rendered in a shader';
-  }
-
   protected getInitialFragment(): string {
     return imageFragment;
   }

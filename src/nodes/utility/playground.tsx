@@ -15,18 +15,6 @@ import { getAllNodeTypes, getAllNodesInDetail } from '../../nodes/allNodes';
 import { EnumType } from '../datatypes/enumType';
 
 export class Playground extends PPNode {
-  public getName(): string {
-    return 'Playground';
-  }
-
-  public getDescription(): string {
-    return 'Exposes some Playground functions';
-  }
-
-  public getTags(): string[] {
-    return ['Playground'].concat(super.getTags());
-  }
-
   getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.SYSTEM);
   }

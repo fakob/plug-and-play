@@ -26,18 +26,6 @@ export class JSONGet extends PPNode {
     });
   }
 
-  public getName(): string {
-    return 'Get a JSON value';
-  }
-  
-  public getDescription(): string {
-    return 'Returns a single value of a JSON at the defined path';
-  }
-  
-  public getTags(): string[] {
-    return ['JSON'].concat(super.getTags());
-  }
-  
   getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
   }
@@ -86,18 +74,6 @@ export class JSONSet extends PPNode {
     });
   }
 
-  public getName(): string {
-    return 'Set JSON value';
-  }
-
-  public getDescription(): string {
-    return 'Sets a value on a JSON at the defined path';
-  }
-
-  public getTags(): string[] {
-    return ['JSON'].concat(super.getTags());
-  }  
-  
   getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
   }
@@ -140,44 +116,26 @@ export class JSONSet extends PPNode {
 }
 
 class JSONCustomFunction extends CustomFunction {
-  public getTags(): string[] {
-    return ['JSON'].concat(super.getTags());
-  }
-
   getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
   }
+
   protected getDefaultParameterValues(): Record<string, any> {
     return { JSONName: {} };
   }
+
   protected getOutputParameterName(): string {
     return outValueName;
   }
 }
 
 export class JSONKeys extends JSONCustomFunction {
-  public getName(): string {
-    return 'Get all JSON keys';
-  }
-
-  public getDescription(): string {
-    return 'Gets all keys from a JSON (or object)';
-  }
-
   protected getDefaultFunction(): string {
     return '(a) => {\n\treturn Object.keys(a);\n}';
   }
 }
 
 export class JSONValues extends JSONCustomFunction {
-  public getName(): string {
-    return 'Get all JSON values';
-  }
-
-  public getDescription(): string {
-    return 'Gets all values from a JSON (or object)';
-  }
-
   protected getDefaultFunction(): string {
     return '(a) => {\n\treturn Object.values(a);\n}';
   }
@@ -186,22 +144,6 @@ export class JSONValues extends JSONCustomFunction {
 const BREAK_MAX_SOCKETS = 50;
 // actually works for arrays as well
 export class Break extends PPNode {
-  public getName(): string {
-    return 'Break';
-  }
-  
-  public getDescription(): string {
-    return 'Breaks out all properties of a JSON object or an array';
-  }
-  
-    public getTags(): string[] {
-      return ['JSON'].concat(super.getTags());
-    }
-
-  public hasExample(): boolean {
-    return true;
-  }
-
   protected getDefaultIO(): Socket[] {
     return [new Socket(SOCKET_TYPE.IN, JSONName, new JSONType()), new Socket(SOCKET_TYPE.IN, lockOutputsName, new BooleanType(),false,false)];
   }

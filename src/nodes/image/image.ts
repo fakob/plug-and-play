@@ -33,18 +33,6 @@ export class Image extends PPNode {
   texture: PIXI.Texture;
   maskRef: PIXI.Graphics;
 
-  public getName(): string {
-    return 'Image';
-  }
-
-  public getDescription(): string {
-    return 'Draws an Image. To import an image, just drag the file onto the playground';
-  }
-
-  public getTags(): string[] {
-    return ['Draw'].concat(super.getTags());
-  }
-
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(

@@ -20,18 +20,6 @@ const addressName = 'Address';
 const gatewayAddressDefault = 'http://localhost:16208/gateway/2.0.0/publish';
 
 export class PixotopeGatewayGet extends PPNode {
-  public getName(): string {
-    return 'Pixotope Get';
-  }
-
-  public getDescription(): string {
-    return 'Pixotope Gateway: Get a value from a service';
-  }
-
-  public getTags(): string[] {
-    return ['Pixotope'].concat(super.getTags());
-  }
-
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(
@@ -71,18 +59,6 @@ export class PixotopeGatewayGet extends PPNode {
 }
 
 export class PixotopeGatewaySet extends PPNode {
-  public getName(): string {
-    return 'Pixotope Set';
-  }
-
-  public getDescription(): string {
-    return 'Pixotope Gateway: Set a value on a service';
-  }
-
-  public getTags(): string[] {
-    return ['Pixotope'].concat(super.getTags());
-  }
-
   protected getUpdateBehaviour(): UpdateBehaviourClass {
     return new UpdateBehaviourClass(false, false, 1000);
   }
@@ -125,18 +101,6 @@ export class PixotopeGatewaySet extends PPNode {
 }
 
 export class PixotopeGatewayCall extends PPNode {
-  public getName(): string {
-    return 'Pixotope Call';
-  }
-
-  public getDescription(): string {
-    return 'Pixotope Gateway: Send a ZMQ call';
-  }
-
-  public getTags(): string[] {
-    return ['Pixotope'].concat(super.getTags());
-  }
-
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(
@@ -175,18 +139,6 @@ export class PixotopeGatewayCall extends PPNode {
 }
 
 export class PixotopeGatewayCallSaveImage extends PPNode {
-  public getName(): string {
-    return 'Pixotope Call SaveImage';
-  }
-
-  public getDescription(): string {
-    return 'Pixotope Gateway: Get an image from the videoIO service';
-  }
-
-  public getTags(): string[] {
-    return ['Pixotope'].concat(super.getTags());
-  }
-
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(

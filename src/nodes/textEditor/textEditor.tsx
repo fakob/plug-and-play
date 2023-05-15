@@ -67,18 +67,6 @@ export class TextEditor extends HybridNode2 {
   readOnly: boolean;
   textToImport: { html: string } | { plain: string };
 
-  public getName(): string {
-    return 'Text editor';
-  }
-
-  public getDescription(): string {
-    return 'Adds a rich text editor';
-  }
-
-  public getTags(): string[] {
-    return ['Input'].concat(super.getTags());
-  }
-
   getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.OUTPUT);
   }

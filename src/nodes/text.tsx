@@ -32,18 +32,6 @@ export class Label extends PPNode {
     this.PIXIVisible();
   }
 
-  public getName(): string {
-    return 'Label';
-  }
-
-  public getDescription(): string {
-    return 'Adds a text label';
-  }
-
-  public getTags(): string[] {
-    return ['Widget'].concat(super.getTags());
-  }
-
   public getDefaultNodeWidth(): number {
     return 128;
   }

@@ -8,18 +8,6 @@ import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../utils/constants';
 import HybridNode2 from '../classes/HybridNode2';
 
 export class LogViewer extends HybridNode2 {
-  public getName(): string {
-    return 'Log viewer';
-  }
-
-  public getDescription(): string {
-    return 'Adds a log viewer';
-  }
-
-  public getTags(): string[] {
-    return ['Debug'].concat(super.getTags());
-  }
-
   protected getDefaultIO(): PPSocket[] {
     return [
       new PPSocket(SOCKET_TYPE.IN, 'data', new AnyType(), '', true),

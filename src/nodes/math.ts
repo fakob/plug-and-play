@@ -61,18 +61,6 @@ export class MathFunction extends PPNode {
     };
   }
 
-  public getName(): string {
-    return 'Math function';
-  }
-
-  public getDescription(): string {
-    return 'Perform mathematical operations or get constants';
-  }
-
-  public getTags(): string[] {
-    return ['Math'].concat(super.getTags());
-  }
-
   getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
   }
@@ -121,12 +109,6 @@ abstract class SimpleMathOperation extends CustomFunction {
     return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
   }
 
-  public getName(): string {
-    return 'MathOperation';
-  }
-  public getDescription(): string {
-    return 'Performs a math operation to two numbers or strings';
-  }
   public getParallelInputsOutputs(): boolean {
     return true;
   }
@@ -200,48 +182,21 @@ abstract class SimpleMathOperation extends CustomFunction {
   protected getOperatorSign(): string {
     return this.getOperator();
   }
-  public getTags(): string[] {
-    return ['Math'].concat(super.getTags());
-  }
 }
 
 export class Add extends SimpleMathOperation {
-  public getName(): string {
-    return 'Add';
-  }
-
-  public getDescription(): string {
-    return 'Adds numbers or concatenates strings';
-  }
-
   protected getOperator(): string {
     return '+';
   }
 }
 
 export class Subtract extends SimpleMathOperation {
-  public getName(): string {
-    return 'Subtract';
-  }
-
-  public getDescription(): string {
-    return 'Subtracts two numbers';
-  }
-
   protected getOperator(): string {
     return '-';
   }
 }
 
 export class Multiply extends SimpleMathOperation {
-  public getName(): string {
-    return 'Multiply';
-  }
-
-  public getDescription(): string {
-    return 'Multiplies two numbers';
-  }
-
   protected getOperator(): string {
     return '*';
   }
@@ -252,14 +207,6 @@ export class Multiply extends SimpleMathOperation {
 }
 
 export class Divide extends SimpleMathOperation {
-  public getName(): string {
-    return 'Divide';
-  }
-
-  public getDescription(): string {
-    return 'Divides two numbers';
-  }
-
   protected getOperator(): string {
     return '/';
   }
@@ -270,14 +217,6 @@ export class Divide extends SimpleMathOperation {
 }
 
 export class Sqrt extends SimpleMathOperation {
-  public getName(): string {
-    return 'Square root';
-  }
-
-  public getDescription(): string {
-    return 'Square root of number';
-  }
-
   protected getOperatorSign(): string {
     return '√';
   }

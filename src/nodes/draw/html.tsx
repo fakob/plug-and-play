@@ -4,7 +4,6 @@ import { ErrorBoundary } from 'react-error-boundary';
 import Frame from 'react-frame-component';
 import ErrorFallback from '../../components/ErrorFallback';
 import PPSocket from '../../classes/SocketClass';
-import PPGraph from '../../classes/GraphClass';
 import { CodeType } from '../datatypes/codeType';
 
 import { CustomArgs, TRgba } from '../../utils/interfaces';
@@ -26,18 +25,6 @@ export class HtmlRenderer extends HybridNode2 {
     if (this.initialData) {
       this.setInputData(inputSocketName, this.initialData);
     }
-  }
-
-  public getName(): string {
-    return 'Html renderer';
-  }
-
-  public getDescription(): string {
-    return 'Renders html';
-  }
-
-  public getTags(): string[] {
-    return ['Draw'].concat(super.getTags());
   }
 
   getShowLabels(): boolean {
@@ -136,14 +123,6 @@ export class HtmlRenderer extends HybridNode2 {
 }
 
 export class EmbedWebsite extends HtmlRenderer {
-  public getName(): string {
-    return 'Embed website';
-  }
-
-  public getDescription(): string {
-    return 'Embed a website using an iframe. You can also just paste a URL into the playground';
-  }
-
   public getDefaultNodeWidth(): number {
     return 800;
   }

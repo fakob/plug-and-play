@@ -2,7 +2,6 @@
 import * as PIXI from 'pixi.js';
 import {
   CheckBox,
-  List,
   Button as PixiUIButton,
   Slider as PixiUISlider,
   RadioGroup,
@@ -96,14 +95,6 @@ export class WidgetButton extends WidgetBase {
     fontWeight: '500',
     fill: contrastColorHex,
   });
-
-  public getName(): string {
-    return 'Button';
-  }
-
-  public getDescription(): string {
-    return 'Adds a button to trigger values';
-  }
 
   protected getUpdateBehaviour(): UpdateBehaviourClass {
     return new UpdateBehaviourClass(false, false, 1000);
@@ -235,14 +226,6 @@ export class WidgetRadio extends WidgetBase {
     ];
   }
 
-  public getName(): string {
-    return 'Radio Button';
-  }
-
-  public getDescription(): string {
-    return 'Adds a radio button';
-  }
-
   public getDefaultNodeWidth(): number {
     return 150;
   }
@@ -350,14 +333,6 @@ export class WidgetRadio extends WidgetBase {
 }
 
 export class WidgetColorPicker extends WidgetHybridBase {
-  public getName(): string {
-    return 'Color picker';
-  }
-
-  public getDescription(): string {
-    return 'Adds a color picker';
-  }
-
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(
@@ -496,14 +471,6 @@ export class WidgetColorPicker extends WidgetHybridBase {
 }
 
 export class WidgetSwitch extends WidgetHybridBase {
-  public getName(): string {
-    return 'Switch';
-  }
-
-  public getDescription(): string {
-    return 'Adds a switch to toggle between values';
-  }
-
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, selectedName, new BooleanType(), false, false),
@@ -602,14 +569,6 @@ export class WidgetSlider extends WidgetBase {
   _refBg: PIXI.Graphics;
   _refFill: PIXI.Graphics;
   _refSlider: PIXI.Graphics;
-
-  public getName(): string {
-    return 'Slider';
-  }
-
-  public getDescription(): string {
-    return 'Adds a number slider';
-  }
 
   private valueTextStyle = new PIXI.TextStyle({
     ...baseStyle,
@@ -759,14 +718,6 @@ export class WidgetSlider extends WidgetBase {
 }
 
 export class WidgetDropdown extends WidgetHybridBase {
-  public getName(): string {
-    return 'Dropdown';
-  }
-
-  public getDescription(): string {
-    return 'Adds a dropdown to select values';
-  }
-
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(

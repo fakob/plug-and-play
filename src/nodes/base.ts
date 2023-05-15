@@ -31,18 +31,6 @@ import { EnumType } from './datatypes/enumType';
 import { BooleanType } from './datatypes/booleanType';
 
 export class Placeholder extends PPNode {
-  public getName(): string {
-    return 'Placeholder';
-  }
-
-  public getDescription(): string {
-    return 'Adds a placeholder node';
-  }
-
-  public getTags(): string[] {
-    return ['Playground'].concat(super.getTags());
-  }
-
   getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.MISSING);
   }
@@ -59,18 +47,6 @@ export class Placeholder extends PPNode {
 export class Mouse extends PPNode {
   getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
-  }
-
-  public getName(): string {
-    return 'Mouse';
-  }
-
-  public getDescription(): string {
-    return 'Gets mouse coordinates';
-  }
-
-  public getTags(): string[] {
-    return ['Input'].concat(super.getTags());
   }
 
   protected getDefaultIO(): PPSocket[] {
@@ -124,18 +100,6 @@ export class Keyboard extends PPNode {
       this.executeChildren();
     }
   };
-
-  public getName(): string {
-    return 'Keyboard';
-  }
-
-  public getDescription(): string {
-    return 'Get keyboard input';
-  }
-
-  public getTags(): string[] {
-    return ['Input'].concat(super.getTags());
-  }
 
   getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
@@ -198,18 +162,6 @@ export class GridCoordinates extends PPNode {
     };
   }
 
-  public getName(): string {
-    return 'Grid coordinates';
-  }
-
-  public getDescription(): string {
-    return 'Create grid coordinates';
-  }
-
-  public getTags(): string[] {
-    return ['Input'].concat(super.getTags());
-  }
-
   getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
   }
@@ -259,18 +211,6 @@ export class ColorArray extends PPNode {
     };
   }
 
-  public getName(): string {
-    return 'Color array';
-  }
-
-  public getDescription(): string {
-    return 'Create color array';
-  }
-
-  public getTags(): string[] {
-    return ['Input'].concat(super.getTags());
-  }
-
   getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
   }
@@ -304,18 +244,6 @@ export class RangeArray extends PPNode {
     };
   }
 
-  public getName(): string {
-    return 'Range array';
-  }
-
-  public getDescription(): string {
-    return 'Creates an array of a number range';
-  }
-
-  public getTags(): string[] {
-    return ['Array'].concat(super.getTags());
-  }
-
   getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
   }
@@ -331,18 +259,6 @@ export class RangeArray extends PPNode {
 }
 
 export class RandomArray extends PPNode {
-  public getName(): string {
-    return 'Random array';
-  }
-
-  public getDescription(): string {
-    return 'Creates an array with random numbers';
-  }
-
-  public getTags(): string[] {
-    return ['Array'].concat(super.getTags());
-  }
-
   getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
   }
@@ -375,18 +291,6 @@ export class RandomArray extends PPNode {
 }
 
 export class DateAndTime extends PPNode {
-  public getName(): string {
-    return 'Date and time';
-  }
-
-  public getDescription(): string {
-    return 'Outputs time in different formats';
-  }
-
-  public getTags(): string[] {
-    return ['Input'].concat(super.getTags());
-  }
-
   getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
   }
@@ -433,18 +337,6 @@ export class DateAndTime extends PPNode {
 }
 
 export class If_Else extends PPNode {
-  public getName(): string {
-    return 'If else condition';
-  }
-
-  public getDescription(): string {
-    return 'Passes through input A or B based on a condition';
-  }
-
-  public getTags(): string[] {
-    return ['Logic'].concat(super.getTags());
-  }
-
   getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
   }
@@ -472,18 +364,6 @@ export class If_Else extends PPNode {
 }
 
 export class Comparison extends PPNode {
-  public getName(): string {
-    return 'Compare';
-  }
-
-  public getDescription(): string {
-    return 'Compares two values (greater, less, equal, logical)';
-  }
-
-  public getTags(): string[] {
-    return ['Logic'].concat(super.getTags());
-  }
-
   getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
   }
@@ -519,18 +399,6 @@ export class Comparison extends PPNode {
 }
 
 export class IsValid extends PPNode {
-  public getName(): string {
-    return 'IsValid';
-  }
-
-  public getDescription(): string {
-    return 'Check if an input is valid (undefined, null)';
-  }
-
-  public getTags(): string[] {
-    return ['Logic'].concat(super.getTags());
-  }
-
   getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
   }

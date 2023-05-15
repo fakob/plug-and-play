@@ -38,18 +38,6 @@ const HTTPMethodOptions: EnumStructure = [
 const companionDefaultAddress = 'http://localhost:6655';
 
 export class HTTPNode extends PPNode {
-  public getName(): string {
-    return 'HTTP';
-  }
-
-  public getDescription(): string {
-    return 'Make an HTTP request to get data from or send data to a server or API';
-  }
-
-  public getTags(): string[] {
-    return ['Input'].concat(super.getTags());
-  }
-
   public socketShouldAutomaticallyAdapt(socket: Socket): boolean {
     return true;
   }
@@ -165,19 +153,6 @@ export class HTTPNode extends PPNode {
 }
 
 export class ChatGPTNode extends HTTPNode {
-  public getName(): string {
-    return 'ChatGPT - Companion';
-  }
-
-  public getDescription(): string {
-    return 'ChatGPT communication through P&P Companion, uses environmental variable for API key';
-  }
-
-  //   public getAdditionalDescription(): string {
-  //     return `<p><a style="color:#E154BB" href="https://www.mozilla.org/en-US/" target="_blank">Download Plug and Play Companion</a></p>
-  // `;
-  //   }
-
   protected getUpdateBehaviour(): UpdateBehaviourClass {
     return new UpdateBehaviourClass(false, false, 1000);
   }

@@ -34,18 +34,6 @@ export class Macro extends PPNode {
     PPGraph.currentGraph.macros[this.id] = this;
   }
 
-  public getName(): string {
-    return 'Macro';
-  }
-
-  public getDescription(): string {
-    return 'Wrap a group of nodes into a macro and use this Macro as often as you want';
-  }
-
-  public getTags(): string[] {
-    return ['Macro'].concat(super.getTags());
-  }
-
   public getMinNodeWidth(): number {
     return macroInputBlockSize * 3;
   }
@@ -229,18 +217,6 @@ export class ExecuteMacro extends CustomFunction {
       .map((node) => {
         return { text: node.nodeName };
       });
-
-  public getName(): string {
-    return 'Execute Macro';
-  }
-
-  public getDescription(): string {
-    return 'Executes a macro that is defined in the graph';
-  }
-
-  public getTags(): string[] {
-    return ['Macro'].concat(super.getTags());
-  }
 
   getColor(): TRgba {
     return macroColor;

@@ -35,18 +35,6 @@ export class ArrayMethod extends PPNode {
     };
   }
 
-  public getName(): string {
-    return 'Array method';
-  }
-
-  public getDescription(): string {
-    return 'Choose an array method and provide a callback';
-  }
-
-  public getTags(): string[] {
-    return ['Array'].concat(super.getTags());
-  }
-
   protected getDefaultIO(): PPSocket[] {
     const arrayMethodsArray = getMethods(new Array(1));
     const arrayMethodsArrayOptions = arrayMethodsArray

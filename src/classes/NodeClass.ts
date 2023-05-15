@@ -1,6 +1,7 @@
 /* eslint-disable */
 import * as PIXI from 'pixi.js';
 import { hri } from 'human-readable-ids';
+import * as nodeData from '../nodes/nodeDescriptions.json';
 import {
   CustomArgs,
   NodeStatus,
@@ -198,6 +199,8 @@ export default class PPNode extends PIXI.Container {
     this._doubleClicked = false;
 
     this._addListeners();
+
+    console.log(this.constructor.name);
   }
 
   // GETTERS & SETTERS
@@ -1088,7 +1091,6 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     return true;
   }
 
-
   public allowResize(): boolean {
     return true;
   }
@@ -1196,29 +1198,28 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     return false;
   }
 
-  // we should migrate all nodes to use these functions instead of specifying the field themselves in constructor
   public getName(): string {
-    return this.name;
+    return nodeData[this.constructor.name].name;
   }
 
   public getDescription(): string {
-    return '';
+    return nodeData[this.constructor.name].description;
   }
 
   // displayed in the info tab and can contain HTML
   // not visible when searching nodes
   public getAdditionalDescription(): string {
-    return '';
-  }
-
-  // enable if a node example graph exists on github
-  public hasExample(): boolean {
-    return false;
+    return nodeData[this.constructor.name].description2;
   }
 
   // used when searching for nodes
   public getTags(): string[] {
-    return [];
+    return nodeData[this.constructor.name].tags.split(',');
+  }
+
+  // enable if a node example graph exists on github
+  public hasExample(): boolean {
+    return nodeData[this.constructor.name].hasExample;
   }
 
   public propagateExecutionPast(): boolean {

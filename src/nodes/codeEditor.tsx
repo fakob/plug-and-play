@@ -18,18 +18,6 @@ export class CodeEditor extends HybridNode2 {
     return inputSocketName;
   }
 
-  public getName(): string {
-    return 'Code editor';
-  }
-
-  public getDescription(): string {
-    return 'Adds a code editor';
-  }
-
-  public getTags(): string[] {
-    return ['Widget'].concat(super.getTags());
-  }
-
   protected getDefaultIO(): PPSocket[] {
     return [
       new PPSocket(
