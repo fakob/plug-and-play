@@ -7,8 +7,6 @@ import {
   ThemeProvider,
   Typography,
 } from '@mui/material';
-import useMediaQuery from '@mui/material/useMediaQuery';
-import { useTheme } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import Color from 'color';
@@ -17,6 +15,7 @@ import PPNode from './classes/NodeClass';
 import Socket from './classes/SocketClass';
 import { PropertyArrayContainer } from './PropertyArrayContainer';
 import { COLOR_WHITE_TEXT, COLOR_DARK, customTheme } from './utils/constants';
+import { useIsSmallScreen } from './utils/utils';
 
 function InspectorHeaderReadOnly(props) {
   return (
@@ -48,9 +47,8 @@ function InspectorHeaderReadOnly(props) {
 }
 
 function InspectorHeader(props) {
-  const theme = useTheme();
-  const smallScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const textInput = useRef(null);
+  const smallScreen = useIsSmallScreen();
 
   return (
     <Box
