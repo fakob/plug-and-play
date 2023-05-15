@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { ThemeProvider } from '@mui/material';
 import { SnackbarProvider } from 'notistack';
 import { customTheme } from './utils/constants';
+import { isPhone } from './utils/utils';
 import App from './App';
 import styles from './utils/style.module.css';
 import './utils/global.css';
@@ -17,7 +18,10 @@ root.render(
   <ThemeProvider theme={customTheme}>
     <SnackbarProvider
       maxSnack={9}
-      anchorOrigin={{ horizontal: 'center', vertical: 'top' }}
+      anchorOrigin={{
+        horizontal: 'center',
+        vertical: isPhone() ? 'bottom' : 'top',
+      }}
       classes={{
         containerRoot: styles.snackbarContainerRoot,
       }}

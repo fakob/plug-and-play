@@ -3,7 +3,8 @@ import JSON5 from 'json5';
 import * as PIXI from 'pixi.js';
 import * as XLSX from 'xlsx';
 import isUrl from 'is-url';
-
+import { useTheme } from '@mui/material';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import PPGraph from '../classes/GraphClass';
 import PPSocket from '../classes/SocketClass';
 import PPNode from '../classes/NodeClass';
@@ -799,4 +800,10 @@ export function isPhone(): boolean {
   return toMatch.some((toMatchItem) => {
     return navigator.userAgent.match(toMatchItem);
   });
+}
+
+// needs ThemeProvider context
+export function useIsSmallScreen(): boolean {
+  const theme = useTheme();
+  return useMediaQuery(theme.breakpoints.down('sm'));
 }

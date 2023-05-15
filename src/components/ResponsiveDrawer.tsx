@@ -7,9 +7,10 @@ import InterfaceController, { ListenEvent } from '../InterfaceController';
 import Socket from '../classes/SocketClass';
 import InspectorContainer from '../InspectorContainer';
 import { COLOR_DARK, COLOR_WHITE_TEXT } from '../utils/constants';
+import { useIsSmallScreen } from '../utils/utils';
 import styles from '../utils/style.module.css';
 
-function DrawerToggle(props) {
+export function DrawerToggle(props) {
   return (
     <Box>
       <Button
@@ -48,6 +49,7 @@ const ResponsiveDrawer = (props) => {
   const [socketToInspect, setSocketToInspect] = useState<Socket | undefined>(
     undefined
   );
+  const smallScreen = useIsSmallScreen();
 
   const toggleInspectorAndFocus = ({ filter, socket, open }) => {
     if (open !== undefined) {
@@ -127,7 +129,7 @@ const ResponsiveDrawer = (props) => {
         PaperProps={{
           elevation: 8,
           style: {
-            width: props.drawerWidth,
+            width: smallScreen ? '100%' : props.drawerWidth,
             border: 0,
             background: `${Color(props.randomMainColor).alpha(0.8)}`,
             overflowY: 'unset',
@@ -151,6 +153,7 @@ const ResponsiveDrawer = (props) => {
             randomMainColor={props.randomMainColor}
             filter={filter}
             setFilter={setFilter}
+            handleDrawerToggle={handleDrawerToggle}
           />
         ) : (
           <Paper
