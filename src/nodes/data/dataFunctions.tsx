@@ -6,6 +6,7 @@ import { CustomArgs, TRgba } from '../../utils/interfaces';
 import { AbstractType } from '../datatypes/abstractType';
 import { AnyType } from '../datatypes/anyType';
 import { ArrayType } from '../datatypes/arrayType';
+import { StringType } from '../datatypes/stringType';
 import { CodeType } from '../datatypes/codeType';
 import { JSONType } from '../datatypes/jsonType';
 import { NumberType } from '../datatypes/numberType';
@@ -580,5 +581,30 @@ export class Min extends ArrayFunction {
 
   protected getDefaultFunction(): string {
     return '(ArrayIn) => {\n\treturn Math.min(...ArrayIn);\n}';
+  }
+}
+
+export class ArrayToObject extends ArrayFunction {
+  public getName(): string {
+    return 'Convert array to object';
+  }
+
+  public getDescription(): string {
+    return 'Converts an array into an object using a specified property as key';
+  }
+
+  protected getDefaultParameterValues(): Record<string, any> {
+    return { ArrayIn: [], KeyPropertyName: 'key' };
+  }
+  protected getDefaultParameterTypes(): Record<string, any> {
+    return { ArrayIn: new ArrayType(), KeyPropertyName: new StringType() };
+  }
+
+  protected getDefaultFunction(): string {
+    return '(ArrayIn, KeyPropertyName) => {\n  return ArrayIn.reduce((obj, item) => {\n    const { [KeyPropertyName]: key, ...rest } = item;\n    obj[key] = rest;\n    return obj;\n  }, {});\n}\n';
+  }
+
+  protected getOutputParameterName(): string {
+    return 'Object';
   }
 }
