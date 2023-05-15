@@ -210,13 +210,13 @@ export class Image extends PPNode {
   };
 
   updateAndExecute = async (base64: string): Promise<void> => {
-    this.updateTexture(base64);
+    await this.updateTexture(base64);
     this.executeChildren();
   };
 
   onExecute = async function (input) {
     const base64 = input[imageInputName];
-    this.updateTexture(base64);
+    await this.updateTexture(base64);
   };
 
   saveImage = async () => {
