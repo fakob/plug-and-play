@@ -48,6 +48,7 @@ type SubMenuItemProps = MenuItemProps & {
   button?: true;
   label: string;
 } & Pick<PopperProps, 'placement'>;
+
 const SubMenuItem = (props: SubMenuItemProps) => {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
@@ -96,6 +97,25 @@ const SubMenuItem = (props: SubMenuItemProps) => {
           <MenuList dense>{props.children}</MenuList>
         </Paper>
       </Popper>
+    </MenuItem>
+  );
+};
+
+const GestureModeMenuItem = (props) => {
+  const GestureIcon = props.icon;
+  return (
+    <MenuItem
+      onClick={() => {
+        PPStorage.getInstance().applyGestureMode(
+          PPGraph.currentGraph.viewport,
+          props.gestureMode
+        );
+      }}
+    >
+      <ListItemIcon>
+        <GestureIcon fontSize="small" />
+      </ListItemIcon>
+      <ListItemText>{props.gestureMode}</ListItemText>
     </MenuItem>
   );
 };
@@ -313,45 +333,9 @@ export const GraphContextMenu = (props) => {
 
 function gestureModes(): any {
   return [
-    <MenuItem
-      onClick={() => {
-        PPStorage.getInstance().applyGestureMode(
-          PPGraph.currentGraph.viewport,
-          GESTUREMODE.MOUSE
-        );
-      }}
-    >
-      <ListItemIcon>
-        <MouseIcon fontSize="small" />
-      </ListItemIcon>
-      <ListItemText>{GESTUREMODE.MOUSE}</ListItemText>
-    </MenuItem>,
-    <MenuItem
-      onClick={() => {
-        PPStorage.getInstance().applyGestureMode(
-          PPGraph.currentGraph.viewport,
-          GESTUREMODE.TRACKPAD
-        );
-      }}
-    >
-      <ListItemIcon>
-        <SwipeIcon fontSize="small" />
-      </ListItemIcon>
-      <ListItemText>{GESTUREMODE.TRACKPAD}</ListItemText>
-    </MenuItem>,
-    <MenuItem
-      onClick={() => {
-        PPStorage.getInstance().applyGestureMode(
-          PPGraph.currentGraph.viewport,
-          GESTUREMODE.AUTO
-        );
-      }}
-    >
-      <ListItemIcon>
-        <SensorsIcon fontSize="small" />
-      </ListItemIcon>
-      <ListItemText>{GESTUREMODE.AUTO}</ListItemText>
-    </MenuItem>,
+    <GestureModeMenuItem icon={MouseIcon} gestureMode={GESTUREMODE.MOUSE} />,
+    <GestureModeMenuItem icon={SwipeIcon} gestureMode={GESTUREMODE.TRACKPAD} />,
+    <GestureModeMenuItem icon={SensorsIcon} gestureMode={GESTUREMODE.AUTO} />,
   ];
 }
 
