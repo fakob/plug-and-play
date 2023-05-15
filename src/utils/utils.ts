@@ -191,7 +191,7 @@ export const getCircularReplacer = () => {
 };
 
 export const downloadFile = (
-  content: string,
+  content: string | ArrayBufferLike,
   fileName: string,
   contentType: string
 ): void => {

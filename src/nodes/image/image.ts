@@ -3,11 +3,13 @@ import * as PIXI from 'pixi.js';
 import { fitAndPosition } from 'object-fit-math';
 import type { FitMode } from 'object-fit-math/dist/types';
 import PPGraph from '../../classes/GraphClass';
-import { CustomArgs, SerializedNode, TRgba } from '../../utils/interfaces';
+import { downloadFile, formatDate } from '../../utils/utils';
+import { TNodeSource, TRgba } from '../../utils/interfaces';
 import {
   DEFAULT_IMAGE,
   NODE_TYPE_COLOR,
   NODE_MARGIN,
+  NODE_SOURCE,
   OBJECT_FIT_OPTIONS,
   SOCKET_TYPE,
   TRIGGER_TYPE_OPTIONS,
@@ -22,6 +24,7 @@ import { TriggerType } from '../datatypes/triggerType';
 const imageInputName = 'Image';
 const imageObjectFit = 'Object fit';
 const imageResetSize = 'Reset size';
+const imageExport = 'Save image';
 const imageOutputName = 'Image';
 const imageOutputDetails = 'Details';
 
@@ -29,8 +32,6 @@ export class Image extends PPNode {
   sprite: PIXI.Sprite;
   texture: PIXI.Texture;
   maskRef: PIXI.Graphics;
-  updateTexture: (base64: string) => void;
-  resetNodeSize: () => void;
 
   public getName(): string {
     return 'Image';
@@ -67,6 +68,13 @@ export class Image extends PPNode {
         false
       ),
       new Socket(
+        SOCKET_TYPE.IN,
+        imageExport,
+        new TriggerType(TRIGGER_TYPE_OPTIONS[0].text, 'saveImage'),
+        0,
+        false
+      ),
+      new Socket(
         SOCKET_TYPE.OUT,
         imageOutputName,
         new ImageType(),
@@ -94,152 +102,127 @@ export class Image extends PPNode {
     return false;
   }
 
-  constructor(name: string, customArgs: CustomArgs) {
-    super(name, {
-      ...customArgs,
-    });
-    this.name = 'Draw Image';
+  public async onNodeAdded(source: TNodeSource): Promise<void> {
+    this.sprite = new PIXI.Sprite();
+    this.addChild(this.sprite);
 
-    this.onConfigure = (nodeConfig: SerializedNode) => {
-      this.getDefaultNodeWidth = () => {
-        return nodeConfig.width;
-      };
-      this.getDefaultNodeHeight = () => {
-        return nodeConfig.height;
-      };
-      this.executeOptimizedChain();
+    let texture;
+    try {
+      texture = await PIXI.Assets.load(this.getInputData('Image'));
+    } catch (error) {
+      texture = await PIXI.Assets.load(DEFAULT_IMAGE);
+    }
+    this.texture = new PIXI.Texture(texture);
+    this.sprite.texture = this.texture;
+    this.sprite.texture.update();
+
+    this.maskRef = new PIXI.Graphics();
+    this.maskRef.beginFill(0xffffff);
+    this.maskRef.drawRect(0, 0, this.texture.width, this.texture.height);
+    this.maskRef.x = NODE_MARGIN;
+    this.maskRef.endFill();
+
+    this.addChild(this.maskRef);
+    this.sprite.mask = this.maskRef;
+
+    // set default width and height to texture size
+    this.getDefaultNodeWidth = () => {
+      return this.texture.width;
+    };
+    this.getDefaultNodeHeight = () => {
+      return this.texture.height;
     };
 
-    const setNodeSizes = () => {
-      if (this.texture === undefined) {
-        this.executeOptimizedChain();
-      }
-      const aspectRatio = this.texture.width / this.texture.height;
-      this.getMinNodeHeight = () => {
-        return this.getMinNodeWidth() / aspectRatio;
-      };
-    };
+    if (source !== NODE_SOURCE.SERIALIZED) {
+      this.resetNodeSize();
+    }
 
-    this.resetNodeSize = () => {
-      setNodeSizes();
+    super.onNodeAdded(source);
+  }
+
+  resetNodeSize = () => {
+    if (this.texture !== undefined) {
+      this.setMinNodeHeight();
       this.resizeAndDraw(this.texture.width, this.texture.height);
       PPGraph.currentGraph.selection.drawRectanglesFromSelection();
+    }
+  };
+
+  setMinNodeHeight = () => {
+    const aspectRatio = this.texture.width / this.texture.height;
+    this.getMinNodeHeight = () => {
+      return this.getMinNodeWidth() / aspectRatio;
     };
+  };
 
-    this.updateTexture = (base64: string): void => {
-      this.setInputData(imageOutputName, base64);
-      this.setOutputData(imageOutputName, base64);
-      this.texture = PIXI.Texture.from(base64);
-      this.sprite.texture = this.texture;
-      this.sprite.texture.update();
-      this.executeOptimizedChain();
+  onNodeResize = (newWidth, newHeight) => {
+    const objectFit = this.getInputData(imageObjectFit);
+    this.doFitAndPosition(newWidth, newHeight, objectFit);
+    this.maskRef.width = newWidth;
+    this.maskRef.height = newHeight;
+    this.setOutputData(imageOutputDetails, {
+      textureWidth: this.texture.width,
+      textureHeight: this.texture.height,
+      width: Math.round(newWidth),
+      height: Math.round(newHeight),
+    });
+  };
+
+  doFitAndPosition = (
+    newWidth: number,
+    newHeight: number,
+    objectFit: FitMode
+  ): void => {
+    const parentSize = {
+      width: newWidth,
+      height: newHeight,
     };
-
-    const hasBaseTextureLoaded = (): void => {
-      if (this.texture.valid) {
-        setNodeSizes();
-        this.resizeAndDraw(
-          this.getDefaultNodeWidth(),
-          this.getDefaultNodeHeight()
-        );
-      }
+    const childSize = {
+      width: this.texture.width,
+      height: this.texture.height,
     };
+    const rect = fitAndPosition(parentSize, childSize, objectFit, '50%', '50%');
+    this.sprite.x = rect.x + NODE_MARGIN;
+    this.sprite.y = rect.y;
+    this.sprite.width = rect.width;
+    this.sprite.height = rect.height;
+  };
 
-    const doFitAndPosition = (
-      newWidth: number,
-      newHeight: number,
-      objectFit: FitMode
-    ): void => {
-      const parentSize = {
-        width: newWidth,
-        height: newHeight,
-      };
-      const childSize = {
-        width: this.texture.width,
-        height: this.texture.height,
-      };
-      const rect = fitAndPosition(
-        parentSize,
-        childSize,
-        objectFit,
-        '50%',
-        '50%'
-      );
-      this.sprite.x = rect.x;
-      this.sprite.y = rect.y;
-      this.sprite.width = rect.width;
-      this.sprite.height = rect.height;
-    };
+  updateTexture = async (base64: string): Promise<void> => {
+    this.setInputData(imageOutputName, base64);
+    const texture = await PIXI.Assets.load(base64);
 
-    this.onExecute = async function (input, output) {
-      const base64 = input[imageInputName];
-      const objectFit = input[imageObjectFit];
-      if (base64) {
-        this.texture = PIXI.Texture.from(base64);
+    // this.texture.baseTexture.destroy();
+    // need to find a way to check if a baseTexture is used elsewhere
+    // until then baseTextures are kept
 
-        // callback when a new texture has been loaded
-        this.texture.baseTexture.on('loaded', hasBaseTextureLoaded);
+    this.texture = new PIXI.Texture(texture);
+    this.sprite.texture = this.texture;
+    this.sprite.texture.update();
 
-        // create image mask
-        // only run once if the mask is not yet defined
-        if (this.maskRef === undefined) {
-          this.maskRef = new PIXI.Graphics();
-          this.maskRef.beginFill(0xffffff);
-          this.maskRef.drawRect(
-            0,
-            0,
-            this.width - 2 * NODE_MARGIN,
-            this.height
-          );
-          this.maskRef.x = NODE_MARGIN;
-          this.maskRef.endFill();
-          (this as PIXI.Container).addChild(this.maskRef);
-        }
+    this.setOutputData(imageOutputName, base64);
+    this.setOutputData(imageOutputDetails, {
+      textureWidth: this.texture.width,
+      textureHeight: this.texture.height,
+      width: Math.round(this.maskRef.width),
+      height: Math.round(this.maskRef.height),
+    });
+  };
 
-        const prevSprite: PIXI.Sprite = this.sprite;
-        this.sprite = new PIXI.Sprite(this.texture);
-        this.sprite.mask = this.maskRef;
+  updateAndExecute = async (base64: string): Promise<void> => {
+    await this.updateTexture(base64);
+    this.executeChildren();
+  };
 
-        doFitAndPosition(this.width, this.height, objectFit);
+  onExecute = async function (input) {
+    const base64 = input[imageInputName];
+    await this.updateTexture(base64);
+  };
 
-        this.addChild(this.sprite);
-        // wait with the clear to avoid flashing
-        setTimeout(() => this.removeChild(prevSprite), 20);
-        // race condition here? dont know why this is needed...
-        await new Promise((resolve) => setTimeout(resolve, 1));
-
-        output[imageOutputName] = base64;
-        output[imageOutputDetails] = {
-          textureWidth: this.texture.width,
-          textureHeight: this.texture.height,
-          width: Math.round(this.width),
-          height: Math.round(this.height),
-        };
-      }
-    };
-
-    this.onNodeResize = (newWidth, newHeight) => {
-      if (this.sprite !== undefined) {
-        const objectFit = this.getInputData(imageObjectFit);
-        doFitAndPosition(newWidth + 2 * NODE_MARGIN, newHeight, objectFit);
-        this.maskRef.width = newWidth;
-        this.maskRef.height = newHeight;
-      }
-      this.setOutputData(imageOutputDetails, {
-        textureWidth: this.texture?.width,
-        textureHeight: this.texture?.height,
-        width: Math.round(this.width),
-        height: Math.round(this.height),
-      });
-    };
-
-    // scale input if node is scaled
-    this.onNodeDragOrViewportMove = () => {
-      this.drawComment();
-    };
-
-    this.onNodeRemoved = (): void => {
-      this.texture.baseTexture.removeAllListeners('loaded');
-    };
-  }
+  saveImage = async () => {
+    const data = await fetch(this.getInputData(imageOutputName)).then((b) =>
+      b.arrayBuffer()
+    );
+    downloadFile(data, `${this.name} - ${formatDate()}.png`, 'image/png');
+  };
 }

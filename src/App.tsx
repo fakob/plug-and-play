@@ -252,14 +252,13 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               ) {
                 const existingNode = PPGraph.currentGraph.selection
                   .selectedNodes[index] as ImageNode;
-                existingNode.updateTexture(base64 as string);
+                await existingNode.updateAndExecute(base64 as string);
               } else {
                 newNode = PPGraph.currentGraph.addNewNode('Image', {
                   nodePosX,
                   nodePosY,
                   defaultArguments: { Image: base64 },
                 });
-                newNode.resetNodeSize();
               }
             }
             break;
