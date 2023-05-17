@@ -31,10 +31,6 @@ import { EnumType } from './datatypes/enumType';
 import { BooleanType } from './datatypes/booleanType';
 
 export class Placeholder extends PPNode {
-  getColor(): TRgba {
-    return TRgba.fromString(NODE_TYPE_COLOR.MISSING);
-  }
-
   getCanAddInput(): boolean {
     return true;
   }
@@ -45,10 +41,6 @@ export class Placeholder extends PPNode {
 }
 
 export class Mouse extends PPNode {
-  getColor(): TRgba {
-    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
-  }
-
   protected getDefaultIO(): PPSocket[] {
     return [
       new PPSocket(SOCKET_TYPE.OUT, 'screen-x', new NumberType()),
@@ -100,10 +92,6 @@ export class Keyboard extends PPNode {
       this.executeChildren();
     }
   };
-
-  getColor(): TRgba {
-    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
-  }
 
   protected getDefaultIO(): PPSocket[] {
     return [
@@ -162,10 +150,6 @@ export class GridCoordinates extends PPNode {
     };
   }
 
-  getColor(): TRgba {
-    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
-  }
-
   protected getDefaultIO(): PPSocket[] {
     return [
       new PPSocket(SOCKET_TYPE.OUT, 'x-array', new ArrayType()),
@@ -211,10 +195,6 @@ export class ColorArray extends PPNode {
     };
   }
 
-  getColor(): TRgba {
-    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
-  }
-
   protected getDefaultIO(): PPSocket[] {
     const colorA: TRgba = TRgba.fromString(COLOR[5]);
     const colorB: TRgba = TRgba.fromString(COLOR[15]);
@@ -244,10 +224,6 @@ export class RangeArray extends PPNode {
     };
   }
 
-  getColor(): TRgba {
-    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
-  }
-
   protected getDefaultIO(): PPSocket[] {
     return [
       new PPSocket(SOCKET_TYPE.OUT, 'output array', new ArrayType()),
@@ -259,10 +235,6 @@ export class RangeArray extends PPNode {
 }
 
 export class RandomArray extends PPNode {
-  getColor(): TRgba {
-    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
-  }
-
   protected getUpdateBehaviour(): UpdateBehaviourClass {
     return new UpdateBehaviourClass(false, false, 10000);
   }
@@ -291,10 +263,6 @@ export class RandomArray extends PPNode {
 }
 
 export class DateAndTime extends PPNode {
-  getColor(): TRgba {
-    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
-  }
-
   protected getDefaultIO(): PPSocket[] {
     const dateMethodsArray = getMethods(new Date());
     const dateMethodsArrayOptions = dateMethodsArray
@@ -337,10 +305,6 @@ export class DateAndTime extends PPNode {
 }
 
 export class If_Else extends PPNode {
-  getColor(): TRgba {
-    return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
-  }
-
   protected getDefaultIO(): PPSocket[] {
     return [
       new PPSocket(SOCKET_TYPE.IN, 'Condition', new BooleanType(), false),
@@ -364,10 +328,6 @@ export class If_Else extends PPNode {
 }
 
 export class Comparison extends PPNode {
-  getColor(): TRgba {
-    return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
-  }
-
   protected getDefaultIO(): PPSocket[] {
     const onOptionChange = (value) => {
       this.nodeName = value;
@@ -399,10 +359,6 @@ export class Comparison extends PPNode {
 }
 
 export class IsValid extends PPNode {
-  getColor(): TRgba {
-    return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
-  }
-
   protected getDefaultIO(): PPSocket[] {
     const onOptionChange = (value) => {
       this.nodeName = value;

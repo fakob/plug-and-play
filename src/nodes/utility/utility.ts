@@ -138,10 +138,6 @@ export class JumpToNode extends WidgetButton {
 export class ThrottleDebounce extends PPNode {
   passThroughDebounced;
 
-  getColor(): TRgba {
-    return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
-  }
-
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, 'In', new AnyType()),

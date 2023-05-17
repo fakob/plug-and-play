@@ -61,10 +61,6 @@ export class MathFunction extends PPNode {
     };
   }
 
-  getColor(): TRgba {
-    return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
-  }
-
   protected getDefaultIO(): Socket[] {
     const onOptionChange = (value) => {
       this.nodeName = 'Math.' + value;
@@ -105,10 +101,6 @@ export class MathFunction extends PPNode {
 }
 
 abstract class SimpleMathOperation extends CustomFunction {
-  public getColor(): TRgba {
-    return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
-  }
-
   public getParallelInputsOutputs(): boolean {
     return true;
   }

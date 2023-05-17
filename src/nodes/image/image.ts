@@ -78,10 +78,6 @@ export class Image extends PPNode {
     ];
   }
 
-  public getColor(): TRgba {
-    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
-  }
-
   public getOpacity(): number {
     return 0.2;
   }

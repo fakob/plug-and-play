@@ -52,10 +52,6 @@ const StringOutName = 'String-Out';
 export class TestDataTypes extends PPNode {
   initialData: any;
 
-  getColor(): TRgba {
-    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
-  }
-
   getPreferredNodesPerSocket(): Map<string, string[]> {
     return new Map([
       [BooleanName, ['Break', 'Constant']],

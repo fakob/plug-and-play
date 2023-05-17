@@ -26,10 +26,6 @@ export class JSONGet extends PPNode {
     });
   }
 
-  getColor(): TRgba {
-    return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
-  }
-
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, JSONName, new JSONType()),
@@ -74,9 +70,6 @@ export class JSONSet extends PPNode {
     });
   }
 
-  getColor(): TRgba {
-    return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
-  }
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, JSONName, new JSONType()),
@@ -116,10 +109,6 @@ export class JSONSet extends PPNode {
 }
 
 class JSONCustomFunction extends CustomFunction {
-  getColor(): TRgba {
-    return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
-  }
-
   protected getDefaultParameterValues(): Record<string, any> {
     return { JSONName: {} };
   }

@@ -1,7 +1,7 @@
 /* eslint-disable */
 import * as PIXI from 'pixi.js';
 import { hri } from 'human-readable-ids';
-import * as nodeData from '../nodes/nodeDescriptions.json';
+import { nodeData } from '../nodes/nodeData';
 import {
   CustomArgs,
   NodeStatus,
@@ -1131,10 +1131,6 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     return this.getMinNodeHeight();
   }
 
-  public getColor(): TRgba {
-    return TRgba.fromString(NODE_TYPE_COLOR.DEFAULT);
-  }
-
   // for hybrid/transparent nodes, set this value to 0.01, if set to 0, the node is not clickable/selectable anymore
   public getOpacity(): number {
     return 1;
@@ -1199,27 +1195,33 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   }
 
   public getName(): string {
-    return nodeData[this.constructor.name].name;
+    return nodeData[this.constructor.name].name || this.name;
   }
 
   public getDescription(): string {
-    return nodeData[this.constructor.name].description;
+    return nodeData[this.constructor.name].description || '';
   }
 
   // displayed in the info tab and can contain HTML
   // not visible when searching nodes
   public getAdditionalDescription(): string {
-    return nodeData[this.constructor.name].description2;
+    return nodeData[this.constructor.name].description2 || '';
   }
 
   // used when searching for nodes
   public getTags(): string[] {
-    return nodeData[this.constructor.name].tags.split(',');
+    return nodeData[this.constructor.name].tags || [];
   }
 
   // enable if a node example graph exists on github
   public hasExample(): boolean {
-    return nodeData[this.constructor.name].hasExample;
+    return nodeData[this.constructor.name].hasExample || false;
+  }
+
+  public getColor(): TRgba {
+    return TRgba.fromString(
+      nodeData[this.constructor.name].color || NODE_TYPE_COLOR.DEFAULT
+    );
   }
 
   public propagateExecutionPast(): boolean {

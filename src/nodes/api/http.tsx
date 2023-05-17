@@ -146,10 +146,6 @@ export class HTTPNode extends PPNode {
 
     outputObject[outputContentName] = returnResponse;
   }
-
-  getColor(): TRgba {
-    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
-  }
 }
 
 export class ChatGPTNode extends HTTPNode {
@@ -239,9 +235,5 @@ export class ChatGPTNode extends HTTPNode {
     }
 
     outputObject[outputContentName] = returnResponse;
-  }
-
-  getColor(): TRgba {
-    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
   }
 }

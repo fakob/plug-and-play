@@ -76,10 +76,6 @@ export class Constant extends PPNode {
     this.initialData = customArgs?.initialData;
   }
 
-  getColor(): TRgba {
-    return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
-  }
-
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, constantInName, new AnyType(), 0),
