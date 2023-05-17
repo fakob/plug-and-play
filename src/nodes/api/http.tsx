@@ -1,6 +1,7 @@
 import PPNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
 import UpdateBehaviourClass from '../../classes/UpdateBehaviourClass';
+import { wrapDownloadLink } from '../../utils/utils';
 import {
   errorColor,
   NODE_TYPE_COLOR,
@@ -44,6 +45,13 @@ export class HTTPNode extends PPNode {
 
   public getDescription(): string {
     return 'Make an HTTP request to get data from or send data to a server or API';
+  }
+
+  public getAdditionalDescription(): string {
+    return `<p>${wrapDownloadLink(
+      'https://github.com/magnificus/pnp-companion-2/releases/tag/1.0',
+      'Download Plug and Play Companion'
+    )}</p>`;
   }
 
   public getTags(): string[] {
@@ -170,13 +178,15 @@ export class ChatGPTNode extends HTTPNode {
   }
 
   public getDescription(): string {
-    return 'ChatGPT communication through P&P Companion, uses environmental variable for API key';
+    return 'ChatGPT communication through the Plug and Play Companion, uses environmental variable for API key';
   }
 
-  //   public getAdditionalDescription(): string {
-  //     return `<p><a style="color:#E154BB" href="https://www.mozilla.org/en-US/" target="_blank">Download Plug and Play Companion</a></p>
-  // `;
-  //   }
+  public getAdditionalDescription(): string {
+    return `<p>${wrapDownloadLink(
+      'https://github.com/magnificus/pnp-companion-2/releases/tag/1.0',
+      'Download Plug and Play Companion'
+    )}</p>`;
+  }
 
   protected getUpdateBehaviour(): UpdateBehaviourClass {
     return new UpdateBehaviourClass(false, false, 1000);

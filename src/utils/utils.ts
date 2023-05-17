@@ -807,3 +807,9 @@ export function useIsSmallScreen(): boolean {
   const theme = useTheme();
   return useMediaQuery(theme.breakpoints.down('sm'));
 }
+
+export const wrapDownloadLink = (URL: string, text = '') => {
+  return `<a style="color:#E154BB;text-decoration:none;" href="${URL}" target="_blank">${
+    text || URL
+  }</a>`;
+};
