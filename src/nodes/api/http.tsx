@@ -49,7 +49,7 @@ export class HTTPNode extends PPNode {
 
   public getAdditionalDescription(): string {
     return `<p>${wrapDownloadLink(
-      'https://github.com/magnificus/pnp-companion-2/releases/tag/1.0',
+      'https://github.com/magnificus/pnp-companion-2/releases/',
       'Download Plug and Play Companion'
     )}</p>`;
   }
@@ -183,7 +183,7 @@ export class ChatGPTNode extends HTTPNode {
 
   public getAdditionalDescription(): string {
     return `<p>${wrapDownloadLink(
-      'https://github.com/magnificus/pnp-companion-2/releases/tag/1.0',
+      'https://github.com/magnificus/pnp-companion-2/releases/',
       'Download Plug and Play Companion'
     )}</p>`;
   }
