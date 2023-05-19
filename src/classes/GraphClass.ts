@@ -656,7 +656,10 @@ export default class PPGraph {
     input.links = [link];
 
     // set input data from output data, if undefined use socket type default value
-    input.data = output.data || output.dataType.getDefaultValue();
+    input.data =
+      output.data === undefined
+        ? output.dataType.getDefaultValue()
+        : output.data;
 
     this.connectionContainer.addChild(link);
 
