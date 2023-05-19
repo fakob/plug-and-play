@@ -106,6 +106,10 @@ export class Image extends PPNode {
     this.sprite = new PIXI.Sprite();
     this.addChild(this.sprite);
 
+    this.maskRef = new PIXI.Graphics();
+    this.addChild(this.maskRef);
+    this.sprite.mask = this.maskRef;
+
     let texture;
     try {
       texture = await PIXI.Assets.load(this.getInputData('Image'));
@@ -116,14 +120,10 @@ export class Image extends PPNode {
     this.sprite.texture = this.texture;
     this.sprite.texture.update();
 
-    this.maskRef = new PIXI.Graphics();
     this.maskRef.beginFill(0xffffff);
     this.maskRef.drawRect(0, 0, this.texture.width, this.texture.height);
     this.maskRef.x = NODE_MARGIN;
     this.maskRef.endFill();
-
-    this.addChild(this.maskRef);
-    this.sprite.mask = this.maskRef;
 
     // set default width and height to texture size
     this.getDefaultNodeWidth = () => {
@@ -156,16 +156,19 @@ export class Image extends PPNode {
   };
 
   onNodeResize = (newWidth, newHeight) => {
-    const objectFit = this.getInputData(imageObjectFit);
-    this.doFitAndPosition(newWidth, newHeight, objectFit);
-    this.maskRef.width = newWidth;
-    this.maskRef.height = newHeight;
-    this.setOutputData(imageOutputDetails, {
-      textureWidth: this.texture.width,
-      textureHeight: this.texture.height,
-      width: Math.round(newWidth),
-      height: Math.round(newHeight),
-    });
+    // make sure node has been added
+    if (this.maskRef) {
+      const objectFit = this.getInputData(imageObjectFit);
+      this.doFitAndPosition(newWidth, newHeight, objectFit);
+      this.maskRef.width = newWidth;
+      this.maskRef.height = newHeight;
+      this.setOutputData(imageOutputDetails, {
+        textureWidth: this.texture.width,
+        textureHeight: this.texture.height,
+        width: Math.round(newWidth),
+        height: Math.round(newHeight),
+      });
+    }
   };
 
   doFitAndPosition = (
