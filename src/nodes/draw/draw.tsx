@@ -2,7 +2,11 @@
 import PPGraph from '../../classes/GraphClass';
 import PPNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
-import { NOTE_LINEHEIGHT_FACTOR, SOCKET_TYPE } from '../../utils/constants';
+import {
+  IMAGE_TYPES,
+  NOTE_LINEHEIGHT_FACTOR,
+  SOCKET_TYPE,
+} from '../../utils/constants';
 import { DeferredPixiType } from '../datatypes/deferredPixiType';
 import { EnumStructure, EnumType } from '../datatypes/enumType';
 import * as PIXI from 'pixi.js';
@@ -37,6 +41,7 @@ const inputSizeName = 'Size';
 const inputBorderName = 'Border';
 const outputImageName = 'Image';
 const outputQualityName = 'Quality';
+const outputTypeyName = 'Type';
 
 const inputDottedName = 'Dotted';
 const inputDottedIntervalName = 'Dot Interval';
@@ -697,6 +702,13 @@ export class Export_Image_From_Graphics extends PPNode {
       new Socket(SOCKET_TYPE.IN, outputPixiName, new DeferredPixiType()),
       new Socket(
         SOCKET_TYPE.IN,
+        outputTypeyName,
+        new EnumType(IMAGE_TYPES),
+        IMAGE_TYPES[0].text,
+        false
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
         outputQualityName,
         new NumberType(false, 0, 1),
         0.92
@@ -714,7 +726,11 @@ export class Export_Image_From_Graphics extends PPNode {
     this.addChild(newContainer);
     const base64out = await (
       PPGraph.currentGraph.app.renderer as PIXI.Renderer
-    ).extract.image(newContainer, 'image/jpeg', inputObject[outputQualityName]);
+    ).extract.base64(
+      newContainer,
+      inputObject[outputTypeyName],
+      inputObject[outputQualityName]
+    );
     outputObject[outputImageName] = base64out;
     this.removeChild(newContainer);
   }

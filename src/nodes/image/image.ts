@@ -223,9 +223,17 @@ export class Image extends PPNode {
   };
 
   saveImage = async () => {
-    const data = await fetch(this.getInputData(imageOutputName)).then((b) =>
-      b.arrayBuffer()
+    const base64 = this.getInputData(imageOutputName);
+    const data = await fetch(base64).then((b) => b.arrayBuffer());
+
+    // extract format
+    const regex = /^data:image\/(\w+);/;
+    const matches = base64.match(regex);
+    const imageType = matches ? matches[1] : 'png';
+    downloadFile(
+      data,
+      `${this.name} - ${formatDate()}.${imageType}`,
+      `image/${imageType}`
     );
-    downloadFile(data, `${this.name} - ${formatDate()}.png`, 'image/png');
   };
 }
