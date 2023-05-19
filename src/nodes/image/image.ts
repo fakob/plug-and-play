@@ -3,7 +3,7 @@ import * as PIXI from 'pixi.js';
 import { fitAndPosition } from 'object-fit-math';
 import type { FitMode } from 'object-fit-math/dist/types';
 import PPGraph from '../../classes/GraphClass';
-import { downloadFile, formatDate } from '../../utils/utils';
+import { saveBase64AsImage } from '../../utils/utils';
 import { TNodeSource, TRgba } from '../../utils/interfaces';
 import {
   DEFAULT_IMAGE,
@@ -224,16 +224,6 @@ export class Image extends PPNode {
 
   saveImage = async () => {
     const base64 = this.getInputData(imageOutputName);
-    const data = await fetch(base64).then((b) => b.arrayBuffer());
-
-    // extract format
-    const regex = /^data:image\/(\w+);/;
-    const matches = base64.match(regex);
-    const imageType = matches ? matches[1] : 'png';
-    downloadFile(
-      data,
-      `${this.name} - ${formatDate()}.${imageType}`,
-      `image/${imageType}`
-    );
+    saveBase64AsImage(base64, this.name);
   };
 }

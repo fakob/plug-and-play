@@ -6,6 +6,7 @@ import {
   IMAGE_TYPES,
   NOTE_LINEHEIGHT_FACTOR,
   SOCKET_TYPE,
+  TRIGGER_TYPE_OPTIONS,
 } from '../../utils/constants';
 import { DeferredPixiType } from '../datatypes/deferredPixiType';
 import { EnumStructure, EnumType } from '../datatypes/enumType';
@@ -14,8 +15,10 @@ import { ColorType } from '../datatypes/colorType';
 import { NumberType } from '../datatypes/numberType';
 import { BooleanType } from '../datatypes/booleanType';
 import { ArrayType } from '../datatypes/arrayType';
+import { TriggerType } from '../datatypes/triggerType';
 import { StringType } from '../datatypes/stringType';
 import { ImageType } from '../datatypes/imageType';
+import { saveBase64AsImage } from '../../utils/utils';
 import { TRgba } from '../../utils/interfaces';
 import { drawDottedLine } from '../../pixi/utils-pixi';
 import { DRAW_Base, injectedDataName, outputPixiName } from './abstract';
@@ -66,6 +69,7 @@ const spacingXName = 'Spacing X';
 const spacingYName = 'Spacing Y';
 
 const inputImageName = 'Image';
+const imageExport = 'Save image';
 
 const inputPointsName = 'Points';
 
@@ -713,6 +717,13 @@ export class Export_Image_From_Graphics extends PPNode {
         new NumberType(false, 0, 1),
         0.92
       ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        imageExport,
+        new TriggerType(TRIGGER_TYPE_OPTIONS[0].text, 'saveImage'),
+        0,
+        false
+      ),
       new Socket(SOCKET_TYPE.OUT, outputImageName, new ImageType()),
     ];
   }
@@ -734,4 +745,9 @@ export class Export_Image_From_Graphics extends PPNode {
     outputObject[outputImageName] = base64out;
     this.removeChild(newContainer);
   }
+
+  saveImage = async () => {
+    const base64 = this.getOutputData(outputImageName);
+    saveBase64AsImage(base64, this.name);
+  };
 }

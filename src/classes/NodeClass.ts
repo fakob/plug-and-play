@@ -816,6 +816,19 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     inputSocket.data = data;
   }
 
+  // avoid calling this directly when possible
+  public getOutputData(name: string): any {
+    const outputSocket = this.outputSocketArray.find((output: Socket) => {
+      return name === output.name;
+    });
+
+    if (!outputSocket) {
+      return undefined;
+    }
+
+    return outputSocket.data;
+  }
+
   // avoid calling this directly if possible, instead use the input/output objects in onExecute
   public setOutputData(name: string, data: any): void {
     const outputSocket = this.outputSocketArray
@@ -1087,7 +1100,6 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   public shouldDrawExecution(): boolean {
     return true;
   }
-
 
   public allowResize(): boolean {
     return true;
