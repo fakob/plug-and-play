@@ -21,6 +21,10 @@ export class TriggerType extends AbstractType {
     return 'Trigger';
   }
 
+  getDefaultValue(): any {
+    return 0;
+  }
+
   getInputWidget = (props: any): any => {
     const triggerProps: TriggerWidgetProps = {
       property: props.property,
@@ -42,9 +46,8 @@ export class TriggerType extends AbstractType {
     super.onDataSet(data, socket);
     if (
       socket.isInput() &&
-      (this.previousData === undefined || // after loading the first time, execute regardless
-        (this.triggerType === TRIGGER_TYPE_OPTIONS[0].text &&
-          this.previousData < data) ||
+      ((this.triggerType === TRIGGER_TYPE_OPTIONS[0].text &&
+        this.previousData < data) ||
         (this.triggerType === TRIGGER_TYPE_OPTIONS[1].text &&
           this.previousData > data) ||
         (this.triggerType === TRIGGER_TYPE_OPTIONS[2].text &&
