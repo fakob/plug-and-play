@@ -1088,7 +1088,6 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     return true;
   }
 
-
   public allowResize(): boolean {
     return true;
   }

@@ -59,7 +59,7 @@ export default class Socket extends PIXI.Container {
 
     if (socketType !== SOCKET_TYPE.OUT) {
       // define defaultData for different types
-      if (data === null && dataType) {
+      if (data == null && dataType) {
         data = dataType.getDefaultValue();
       }
     }
