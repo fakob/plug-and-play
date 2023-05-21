@@ -813,3 +813,17 @@ export const wrapDownloadLink = (URL: string, text = '') => {
     text || URL
   }</a>`;
 };
+
+export const saveBase64AsImage = async (base64, fileName) => {
+  const data = await fetch(base64).then((b) => b.arrayBuffer());
+
+  // extract format
+  const regex = /^data:image\/(\w+);/;
+  const matches = base64.match(regex);
+  const imageType = matches ? matches[1] : 'png';
+  downloadFile(
+    data,
+    `${fileName} - ${formatDate()}.${imageType}`,
+    `image/${imageType}`
+  );
+};
