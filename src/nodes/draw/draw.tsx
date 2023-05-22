@@ -21,7 +21,15 @@ import { ImageType } from '../datatypes/imageType';
 import { saveBase64AsImage } from '../../utils/utils';
 import { TRgba } from '../../utils/interfaces';
 import { drawDottedLine } from '../../pixi/utils-pixi';
-import { DRAW_Base, injectedDataName, outputPixiName } from './abstract';
+import {
+  DRAW_Base,
+  DRAW_Interactive_Base,
+  injectedDataName,
+  outputMultiplierIndex,
+  outputMultiplierInjected,
+  outputMultiplierPointerDown,
+  outputPixiName,
+} from './abstract';
 
 const availableShapes: EnumStructure = [
   {
@@ -52,9 +60,6 @@ const inputDottedIntervalName = 'Dot Interval';
 const inputCombineArray = 'GraphicsArray';
 const inputCombine1Name = 'Foreground';
 const inputCombine2Name = 'Background';
-const outputMultiplierIndex = 'LatestPressedIndex';
-const outputMultiplierInjected = 'LastPressedInjected';
-const outputMultiplierPointerDown = 'PointerDown';
 
 const inputTextName = 'Text';
 const inputLineHeightName = 'Line Height';
@@ -337,7 +342,7 @@ export class DRAW_Combine extends DRAW_Base {
     container.addChild(myContainer);
   }
 }
-export class DRAW_COMBINE_ARRAY extends DRAW_Base {
+export class DRAW_COMBINE_ARRAY extends DRAW_Interactive_Base {
   public getName(): string {
     return 'Combine draw array';
   }
@@ -367,13 +372,6 @@ export class DRAW_COMBINE_ARRAY extends DRAW_Base {
         spacingYName,
         new NumberType(true, 0, 1000),
         300
-      ),
-      new Socket(SOCKET_TYPE.OUT, outputMultiplierIndex, new NumberType(true)),
-      new Socket(SOCKET_TYPE.OUT, outputMultiplierInjected, new ArrayType()),
-      new Socket(
-        SOCKET_TYPE.OUT,
-        outputMultiplierPointerDown,
-        new BooleanType()
       ),
     ].concat(super.getDefaultIO());
   }
@@ -417,7 +415,7 @@ export class DRAW_COMBINE_ARRAY extends DRAW_Base {
   }
 }
 
-export class DRAW_Multiplier extends DRAW_Base {
+export class DRAW_Multiplier extends DRAW_Interactive_Base {
   public getName(): string {
     return 'Multiply object';
   }
@@ -453,13 +451,6 @@ export class DRAW_Multiplier extends DRAW_Base {
         spacingYName,
         new NumberType(true, 0, 1000),
         300
-      ),
-      new Socket(SOCKET_TYPE.OUT, outputMultiplierIndex, new NumberType(true)),
-      new Socket(SOCKET_TYPE.OUT, outputMultiplierInjected, new ArrayType()),
-      new Socket(
-        SOCKET_TYPE.OUT,
-        outputMultiplierPointerDown,
-        new BooleanType()
       ),
     ].concat(super.getDefaultIO());
   }
@@ -504,7 +495,7 @@ export class DRAW_Multiplier extends DRAW_Base {
   }
 }
 
-export class DRAW_Multipy_Along extends DRAW_Base {
+export class DRAW_Multipy_Along extends DRAW_Interactive_Base {
   public getName(): string {
     return 'Multiply onto points';
   }
