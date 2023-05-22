@@ -159,6 +159,71 @@ export class JumpToNode extends WidgetButton {
   }
 }
 
+const dataToCopyName = 'Input';
+
+export class WriteToClipboard extends PPNode {
+  public getName(): string {
+    return 'Write to clipboard';
+  }
+
+  public getDescription(): string {
+    return 'Copies the input value to the clipboard';
+  }
+
+  public getTags(): string[] {
+    return ['Playground'].concat(super.getTags());
+  }
+
+  protected getUpdateBehaviour(): UpdateBehaviourClass {
+    return new UpdateBehaviourClass(false, false, 1000);
+  }
+
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(
+        SOCKET_TYPE.TRIGGER,
+        'Trigger',
+        new TriggerType(TRIGGER_TYPE_OPTIONS[1].text),
+        undefined,
+        true
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        dataToCopyName,
+        new StringType(),
+        undefined,
+        true
+      ),
+    ].concat(super.getDefaultIO());
+  }
+
+  public socketShouldAutomaticallyAdapt(socket: Socket): boolean {
+    return true;
+  }
+
+  protected async onExecute(inputObject: any): Promise<void> {
+    const input = inputObject[dataToCopyName];
+    if (navigator.clipboard && window.ClipboardItem) {
+      navigator.clipboard
+        .write([
+          new ClipboardItem({
+            'text/plain': new Blob([input], {
+              type: 'text/plain',
+            }),
+          }),
+        ])
+        .then(
+          function () {
+            /* clipboard successfully set */
+          },
+          function () {
+            console.error('Writing to clipboard of this text failed:', input);
+          }
+        );
+    }
+  }
+}
+
 export class ThrottleDebounce extends PPNode {
   passThroughDebounced;
 
