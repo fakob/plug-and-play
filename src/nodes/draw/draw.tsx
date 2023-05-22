@@ -73,6 +73,37 @@ const imageExport = 'Save image';
 
 const inputPointsName = 'Points';
 
+const addShallowContainerEventListeners = (
+  shallowContainer: PIXI.Container,
+  node: PPNode,
+  index: number,
+  executions: { string: number }
+) => {
+  shallowContainer.eventMode = 'dynamic';
+  const alphaPre = shallowContainer.alpha;
+  const scalePreX = shallowContainer.scale.x;
+  const scalePreY = shallowContainer.scale.y;
+  shallowContainer.addEventListener('pointerdown', (e) => {
+    node.setOutputData(outputMultiplierIndex, index);
+    node.setOutputData(outputMultiplierInjected, executions);
+    node.setOutputData(outputMultiplierPointerDown, true);
+    // tell all children when something is pressed
+    node.executeChildren();
+    console.log('pressed: ' + shallowContainer.x + ' : ' + shallowContainer.y);
+    shallowContainer.scale.x *= 0.97;
+    shallowContainer.scale.y *= 0.97;
+    shallowContainer.alpha = alphaPre * 0.8;
+  });
+
+  shallowContainer.addEventListener('pointerup', (e) => {
+    node.setOutputData(outputMultiplierPointerDown, false);
+    node.executeChildren();
+    shallowContainer.alpha = alphaPre;
+    shallowContainer.scale.x = scalePreX;
+    shallowContainer.scale.y = scalePreY;
+  });
+};
+
 // a PIXI draw node is a pure node that also draws its graphics if graphics at the end
 export class DRAW_Shape extends DRAW_Base {
   public getName(): string {
@@ -337,6 +368,13 @@ export class DRAW_COMBINE_ARRAY extends DRAW_Base {
         new NumberType(true, 0, 1000),
         300
       ),
+      new Socket(SOCKET_TYPE.OUT, outputMultiplierIndex, new NumberType(true)),
+      new Socket(SOCKET_TYPE.OUT, outputMultiplierInjected, new ArrayType()),
+      new Socket(
+        SOCKET_TYPE.OUT,
+        outputMultiplierPointerDown,
+        new BooleanType()
+      ),
     ].concat(super.getDefaultIO());
   }
 
@@ -365,6 +403,9 @@ export class DRAW_COMBINE_ARRAY extends DRAW_Base {
       }
       shallowContainer.x = x * inputObject[spacingXName];
       shallowContainer.y = y * inputObject[spacingYName];
+
+      addShallowContainerEventListeners(shallowContainer, this, i, executions);
+
       myContainer.addChild(shallowContainer);
     }
 
@@ -382,7 +423,7 @@ export class DRAW_Multiplier extends DRAW_Base {
   }
 
   public getDescription(): string {
-    return 'Multiples a drawing objects onto a grid';
+    return 'Multiples a drawn object onto a grid';
   }
 
   protected getDefaultIO(): Socket[] {
@@ -449,29 +490,7 @@ export class DRAW_Multiplier extends DRAW_Base {
       shallowContainer.x = x * inputObject[spacingXName];
       shallowContainer.y = y * inputObject[spacingYName];
 
-      shallowContainer.eventMode = 'dynamic';
-      const alphaPre = shallowContainer.alpha;
-      const scalePreX = shallowContainer.scale.x;
-      const scalePreY = shallowContainer.scale.y;
-      shallowContainer.addEventListener('pointerdown', (e) => {
-        this.setOutputData(outputMultiplierIndex, i);
-        this.setOutputData(outputMultiplierInjected, executions);
-        this.setOutputData(outputMultiplierPointerDown, true);
-        // tell all children when something is pressed
-        this.executeChildren();
-        console.log('pressed: ' + x + ' : ' + y);
-        shallowContainer.scale.x *= 0.97;
-        shallowContainer.scale.y *= 0.97;
-        shallowContainer.alpha = alphaPre * 0.8;
-      });
-
-      shallowContainer.addEventListener('pointerup', (e) => {
-        this.setOutputData(outputMultiplierPointerDown, false);
-        this.executeChildren();
-        shallowContainer.alpha = alphaPre;
-        shallowContainer.scale.x = scalePreX;
-        shallowContainer.scale.y = scalePreY;
-      });
+      addShallowContainerEventListeners(shallowContainer, this, i, executions);
 
       myContainer.addChild(shallowContainer);
     }
@@ -491,7 +510,7 @@ export class DRAW_Multipy_Along extends DRAW_Base {
   }
 
   public getDescription(): string {
-    return 'Multiples a drawing onto points';
+    return 'Multiples a drawn object onto points';
   }
 
   protected getDefaultIO(): Socket[] {
@@ -512,7 +531,7 @@ export class DRAW_Multipy_Along extends DRAW_Base {
       ],
     };
     const myContainer = new PIXI.Container();
-    inputObject[inputPointsName].forEach((points) => {
+    inputObject[inputPointsName].forEach((points, i) => {
       const x = points[0];
       const y = points[1];
       const shallowContainer = new PIXI.Container();
@@ -520,6 +539,8 @@ export class DRAW_Multipy_Along extends DRAW_Base {
         inputObject[inputGraphicsName](shallowContainer, executions);
       shallowContainer.x = x;
       shallowContainer.y = y;
+
+      addShallowContainerEventListeners(shallowContainer, this, i, executions);
 
       myContainer.addChild(shallowContainer);
     });
