@@ -41,6 +41,7 @@ import GraphOverlay from './components/GraphOverlay';
 import ErrorFallback from './components/ErrorFallback';
 import PixiContainer from './PixiContainer';
 import { Image as ImageNode } from './nodes/image/image';
+import { Video as VideoNode } from './nodes/draw/video';
 import {
   GraphContextMenu,
   NodeContextMenu,
@@ -261,6 +262,30 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
                 });
               }
             }
+            break;
+          case 'mp4':
+            data = await response.blob();
+            const reader = new FileReader();
+            reader.onloadend = () => {
+              const dataURL = reader.result;
+              // Use the dataURL as needed
+              console.log(dataURL);
+              // if (
+              //   PPGraph.currentGraph.selection.selectedNodes?.[index]?.type ===
+              //   'Video'
+              // ) {
+              //   const existingNode = PPGraph.currentGraph.selection
+              //     .selectedNodes[index] as VideoNode;
+              //   await existingNode.updateAndExecute(base64 as string);
+              // } else {
+              newNode = PPGraph.currentGraph.addNewNode('Video', {
+                nodePosX,
+                nodePosY,
+                defaultArguments: { Video: dataURL },
+              });
+              // }
+            };
+            reader.readAsDataURL(data);
             break;
           default:
             break;
