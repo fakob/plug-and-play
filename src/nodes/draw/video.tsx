@@ -91,7 +91,6 @@ export class Video extends HybridNode2 {
     const node = props.node;
     const name = 'importedVideo.mp4';
     let ffmpeg;
-    let ffmpegIsLoaded = false;
 
     const [dataURL, setDataURL] = useState(props[inputSocketName]);
 
@@ -109,8 +108,6 @@ export class Video extends HybridNode2 {
           try {
             console.log(ffmpeg);
             await ffmpeg.load();
-            ffmpegIsLoaded = true;
-            ffmpeg.run('-version');
           } catch (error) {
             // Handle any errors that occur during the asynchronous operations
             console.error('Error loading ffmpeg:', error);
@@ -125,9 +122,9 @@ export class Video extends HybridNode2 {
       console.log('uint8Array has changed');
 
       const waitForVariable = () => {
-        if (ffmpegIsLoaded) {
+        if (ffmpeg.isLoaded()) {
           // Perform your desired operation with the variable
-          console.log('myVariable is now defined:', ffmpegIsLoaded);
+          console.log('myVariable is now defined:', ffmpeg.isLoaded());
 
           const uint8Array = props[inputSocketName];
 
@@ -138,8 +135,9 @@ export class Video extends HybridNode2 {
           const loadMovie = async () => {
             try {
               ffmpeg.FS('writeFile', name, uint8Array);
+              console.log(ffmpeg.FS('stat', name));
               console.log(ffmpeg.FS('readdir', '/'));
-              await ffmpeg.run('-i', name, '-c:v', 'libx264', 'output.mp4');
+              await ffmpeg.run('-i', name, 'output.mp4');
               // const data = ffmpeg.FS('readFile', 'output.mp4');
               const data = ffmpeg.FS('readFile', 'output.mp4', {
                 // const data = ffmpeg.FS('readFile', name, {
