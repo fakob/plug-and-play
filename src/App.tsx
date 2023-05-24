@@ -263,29 +263,25 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               }
             }
             break;
+          case 'mov':
           case 'mp4':
-            data = await response.blob();
-            const reader = new FileReader();
-            reader.onloadend = () => {
-              const dataURL = reader.result;
-              // Use the dataURL as needed
-              console.log(dataURL);
-              // if (
-              //   PPGraph.currentGraph.selection.selectedNodes?.[index]?.type ===
-              //   'Video'
-              // ) {
-              //   const existingNode = PPGraph.currentGraph.selection
-              //     .selectedNodes[index] as VideoNode;
-              //   await existingNode.updateAndExecute(base64 as string);
-              // } else {
-              newNode = PPGraph.currentGraph.addNewNode('Video', {
-                nodePosX,
-                nodePosY,
-                defaultArguments: { Video: dataURL },
-              });
-              // }
-            };
-            reader.readAsDataURL(data);
+            data = await response.arrayBuffer();
+            const uint8Array = new Uint8Array(data);
+            console.log(uint8Array);
+            // if (
+            //   PPGraph.currentGraph.selection.selectedNodes?.[index]?.type ===
+            //   'Video'
+            // ) {
+            //   const existingNode = PPGraph.currentGraph.selection
+            //     .selectedNodes[index] as VideoNode;
+            //   await existingNode.updateAndExecute(base64 as string);
+            // } else {
+            newNode = PPGraph.currentGraph.addNewNode('Video', {
+              nodePosX,
+              nodePosY,
+              defaultArguments: { Video: uint8Array },
+            });
+            // }
             break;
           default:
             break;

@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ThemeProvider } from '@mui/material';
 import { ErrorBoundary } from 'react-error-boundary';
 import ErrorFallback from '../../components/ErrorFallback';
 import PPSocket from '../../classes/SocketClass';
-import { CodeType } from '../datatypes/codeType';
+import { MovieType } from '../datatypes/movieType';
 
 import { CustomArgs, TNodeSource, TRgba } from '../../utils/interfaces';
 import {
@@ -58,8 +58,8 @@ export class Video extends HybridNode2 {
 
   protected getDefaultIO(): PPSocket[] {
     return [
-      new PPSocket(SOCKET_TYPE.IN, inputSocketName, new CodeType(), '', false),
-      new PPSocket(SOCKET_TYPE.OUT, inputSocketName, new CodeType(), '', true),
+      new PPSocket(SOCKET_TYPE.IN, inputSocketName, new MovieType(), '', false),
+      new PPSocket(SOCKET_TYPE.OUT, inputSocketName, new MovieType()),
     ];
   }
 
@@ -78,7 +78,8 @@ export class Video extends HybridNode2 {
   public onNodeAdded = async (source?: TNodeSource): Promise<void> => {
     const packageName = '@ffmpeg/ffmpeg';
     const url = 'https://esm.sh/' + packageName;
-    this.FFmpeg = await import(url);
+    console.log(url);
+    this.FFmpeg = await import(/* webpackIgnore: true */ url);
     console.log(this.FFmpeg);
 
     super.onNodeAdded(source);
@@ -86,38 +87,103 @@ export class Video extends HybridNode2 {
 
   // small presentational component
   protected getParentComponent(props: any): any {
+    const videoRef = useRef();
     const node = props.node;
+    const name = 'importedVideo.mp4';
+    let ffmpeg;
+    let ffmpegIsLoaded = false;
+
     const [dataURL, setDataURL] = useState(props[inputSocketName]);
 
     // on load
-    useEffect(() => {}, []);
+    useEffect(() => {
+      if (node.FFmpeg) {
+        const loadffmpeg = async () => {
+          const { createFFmpeg } = node.FFmpeg;
+          ffmpeg = createFFmpeg({
+            mainName: 'main',
+            corePath:
+              'https://unpkg.com/@ffmpeg/core-st@0.11.1/dist/ffmpeg-core.js',
+            log: true,
+          });
+          try {
+            console.log(ffmpeg);
+            await ffmpeg.load();
+            ffmpegIsLoaded = true;
+            ffmpeg.run('-version');
+          } catch (error) {
+            // Handle any errors that occur during the asynchronous operations
+            console.error('Error loading ffmpeg:', error);
+          }
+        };
 
-    const { createFFmpeg, fetchFile } = FFmpeg;
-    const ffmpeg = createFFmpeg({ log: true });
-    const transcode = async ({ target: { files } }) => {
-      const { name } = files[0];
-      await ffmpeg.load();
-      ffmpeg.FS('writeFile', name, await fetchFile(files[0]));
-      await ffmpeg.run('-i', name, 'output.mp4');
-      const data = ffmpeg.FS('readFile', 'output.mp4');
-      const video = document.getElementById('player');
-      video.src = URL.createObjectURL(
-        new Blob([data.buffer], { type: 'video/mp4' })
-      );
-    };
+        loadffmpeg(); // Call the async function immediately
+      }
+    }, [node.FFmpeg]);
 
     useEffect(() => {
-      console.log('dataURL has changed');
-      setDataURL(props[inputSocketName]);
-      // update output
-      node.setOutputData(inputSocketName, props[inputSocketName]);
-      node.executeChildren();
+      console.log('uint8Array has changed');
+
+      const waitForVariable = () => {
+        if (ffmpegIsLoaded) {
+          // Perform your desired operation with the variable
+          console.log('myVariable is now defined:', ffmpegIsLoaded);
+
+          const uint8Array = props[inputSocketName];
+
+          ffmpeg.setProgress(({ ratio }) => {
+            console.log(ratio);
+          });
+
+          const loadMovie = async () => {
+            try {
+              ffmpeg.FS('writeFile', name, uint8Array);
+              console.log(ffmpeg.FS('readdir', '/'));
+              await ffmpeg.run('-i', name, '-c:v', 'libx264', 'output.mp4');
+              // const data = ffmpeg.FS('readFile', 'output.mp4');
+              const data = ffmpeg.FS('readFile', 'output.mp4', {
+                // const data = ffmpeg.FS('readFile', name, {
+                encoding: 'binary',
+              });
+              const dataURLL = URL.createObjectURL(
+                new Blob([data.buffer], { type: 'video/mp4' })
+              );
+              console.log(dataURLL);
+              setDataURL(dataURLL);
+              // if (videoRef.current) {
+              //   (videoRef.current as any).src = URL.createObjectURL(
+              //     new Blob([data.buffer], { type: 'video/mp4' })
+              //   );
+              // }
+            } catch (error) {
+              // Handle any errors that occur during the asynchronous operations
+              console.error('Error loading movie:', error);
+            }
+          };
+
+          loadMovie(); // Call the async function immediately
+
+          // update output
+          node.setOutputData(inputSocketName, props[inputSocketName]);
+          node.executeChildren();
+        } else {
+          console.log('wait');
+          setTimeout(waitForVariable, 100);
+        }
+      };
+
+      waitForVariable();
     }, [props[inputSocketName]]);
 
     return (
       <ErrorBoundary FallbackComponent={ErrorFallback}>
         <ThemeProvider theme={customTheme}>
-          <video style={{ width: '100%' }} src={dataURL} controls></video>
+          <video
+            ref={videoRef}
+            style={{ width: '100%' }}
+            src={dataURL}
+            controls
+          ></video>
         </ThemeProvider>
       </ErrorBoundary>
     );
