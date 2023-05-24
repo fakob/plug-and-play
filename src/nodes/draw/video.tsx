@@ -87,12 +87,31 @@ export class Video extends HybridNode2 {
 
   // small presentational component
   protected getParentComponent(props: any): any {
+    const resizeObserver = useRef(null);
     const videoRef = useRef();
     const node = props.node;
     const name = 'importedVideo.mp4';
     let ffmpeg;
 
     const [dataURL, setDataURL] = useState(props[inputSocketName]);
+    const [contentHeight, setContentHeight] = useState(0);
+
+    // workaround to get ref of editor to be used as mounted/ready check
+    useEffect(() => {
+      resizeObserver.current = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+          setContentHeight(entry.borderBoxSize[0].blockSize);
+        }
+      });
+      const target = document.getElementById('video');
+      resizeObserver.current.observe(target);
+
+      return () => resizeObserver.current.unobserve(target);
+    }, []);
+
+    useEffect(() => {
+      node.resizeAndDraw(node.nodeWidth, contentHeight);
+    }, [contentHeight]);
 
     // on load
     useEffect(() => {
@@ -177,6 +196,7 @@ export class Video extends HybridNode2 {
       <ErrorBoundary FallbackComponent={ErrorFallback}>
         <ThemeProvider theme={customTheme}>
           <video
+            id="video"
             ref={videoRef}
             style={{ width: '100%' }}
             src={dataURL}
