@@ -1,9 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ThemeProvider } from '@mui/material';
+import { Box, Typography } from '@mui/material';
+import LinearProgress, {
+  LinearProgressProps,
+} from '@mui/material/LinearProgress';
 import { ErrorBoundary } from 'react-error-boundary';
 import ErrorFallback from '../../components/ErrorFallback';
 import PPSocket from '../../classes/SocketClass';
-import { MovieType } from '../datatypes/movieType';
+import { VideoType } from '../datatypes/videoType';
 
 import { CustomArgs, TNodeSource, TRgba } from '../../utils/interfaces';
 import {
@@ -12,6 +16,23 @@ import {
   customTheme,
 } from '../../utils/constants';
 import HybridNode2 from '../../classes/HybridNode2';
+
+function LinearProgressWithLabel(
+  props: LinearProgressProps & { value: number }
+) {
+  return (
+    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+      <Box sx={{ width: '100%', mr: 1 }}>
+        <LinearProgress variant="determinate" {...props} />
+      </Box>
+      <Box sx={{ minWidth: 35 }}>
+        <Typography variant="body2" color="text.secondary">{`${Math.round(
+          props.value
+        )}%`}</Typography>
+      </Box>
+    </Box>
+  );
+}
 
 const inputSocketName = 'Video';
 
@@ -58,8 +79,8 @@ export class Video extends HybridNode2 {
 
   protected getDefaultIO(): PPSocket[] {
     return [
-      new PPSocket(SOCKET_TYPE.IN, inputSocketName, new MovieType(), '', false),
-      new PPSocket(SOCKET_TYPE.OUT, inputSocketName, new MovieType()),
+      new PPSocket(SOCKET_TYPE.IN, inputSocketName, new VideoType(), '', false),
+      new PPSocket(SOCKET_TYPE.OUT, inputSocketName, new VideoType()),
     ];
   }
 
@@ -76,11 +97,13 @@ export class Video extends HybridNode2 {
   }
 
   public onNodeAdded = async (source?: TNodeSource): Promise<void> => {
+    console.time('import');
     const packageName = '@ffmpeg/ffmpeg';
     const url = 'https://esm.sh/' + packageName;
     console.log(url);
     this.FFmpeg = await import(/* webpackIgnore: true */ url);
     console.log(this.FFmpeg);
+    console.timeEnd('import');
 
     super.onNodeAdded(source);
   };
@@ -93,6 +116,7 @@ export class Video extends HybridNode2 {
     const name = 'importedVideo.mp4';
     let ffmpeg;
 
+    const [progress, setProgress] = useState(0);
     const [dataURL, setDataURL] = useState(props[inputSocketName]);
     const [contentHeight, setContentHeight] = useState(0);
 
@@ -115,8 +139,10 @@ export class Video extends HybridNode2 {
 
     // on load
     useEffect(() => {
+      console.log('useEffect node.FFmpeg triggered');
       if (node.FFmpeg) {
         const loadffmpeg = async () => {
+          console.time('loadFFmpeg');
           const { createFFmpeg } = node.FFmpeg;
           ffmpeg = createFFmpeg({
             mainName: 'main',
@@ -131,6 +157,7 @@ export class Video extends HybridNode2 {
             // Handle any errors that occur during the asynchronous operations
             console.error('Error loading ffmpeg:', error);
           }
+          console.timeEnd('loadFFmpeg');
         };
 
         loadffmpeg(); // Call the async function immediately
@@ -148,23 +175,37 @@ export class Video extends HybridNode2 {
           const uint8Array = props[inputSocketName];
 
           ffmpeg.setProgress(({ ratio }) => {
+            setProgress(Math.ceil(ratio * 100));
             console.log(ratio);
           });
 
           const loadMovie = async () => {
             try {
+              console.time('loadMovie');
+              console.time('writeFile');
               ffmpeg.FS('writeFile', name, uint8Array);
+              console.timeEnd('writeFile');
+
               console.log(ffmpeg.FS('stat', name));
               console.log(ffmpeg.FS('readdir', '/'));
+
+              console.time('transcode');
               await ffmpeg.run('-i', name, 'output.mp4');
-              // const data = ffmpeg.FS('readFile', 'output.mp4');
+              console.timeEnd('transcode');
+
+              console.time('readFile');
               const data = ffmpeg.FS('readFile', 'output.mp4', {
-                // const data = ffmpeg.FS('readFile', name, {
                 encoding: 'binary',
               });
+              console.timeEnd('readFile');
+              console.time('createObjectURL');
               const dataURLL = URL.createObjectURL(
                 new Blob([data.buffer], { type: 'video/mp4' })
               );
+              console.timeEnd('createObjectURL');
+              console.timeEnd('loadMovie');
+              console.log(ffmpeg.FS('readdir', '/'));
+
               console.log(dataURLL);
               setDataURL(dataURLL);
               // if (videoRef.current) {
@@ -195,13 +236,16 @@ export class Video extends HybridNode2 {
     return (
       <ErrorBoundary FallbackComponent={ErrorFallback}>
         <ThemeProvider theme={customTheme}>
-          <video
-            id="video"
-            ref={videoRef}
-            style={{ width: '100%' }}
-            src={dataURL}
-            controls
-          ></video>
+          <LinearProgressWithLabel value={progress} />
+          {dataURL && (
+            <video
+              id="video"
+              ref={videoRef}
+              style={{ width: '100%' }}
+              src={dataURL}
+              controls
+            ></video>
+          )}
         </ThemeProvider>
       </ErrorBoundary>
     );

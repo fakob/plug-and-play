@@ -2,7 +2,7 @@ import React from 'react';
 import { FunctionType } from './functionType';
 
 // its a function that will draw onto a container
-export class MovieType extends FunctionType {
+export class VideoType extends FunctionType {
   getInputWidget = (props: any): any => {
     return <></>;
   };
