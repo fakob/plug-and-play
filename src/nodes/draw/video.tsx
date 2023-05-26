@@ -37,7 +37,7 @@ function LinearProgressWithLabel(
 const inputSocketName = 'Video';
 
 export class Video extends HybridNode2 {
-  FFmpeg: any;
+  worker: Worker;
 
   constructor(name: string, customArgs?: CustomArgs) {
     super(name, {
@@ -97,15 +97,18 @@ export class Video extends HybridNode2 {
   }
 
   public onNodeAdded = async (source?: TNodeSource): Promise<void> => {
-    console.time('import');
-    const packageName = '@ffmpeg/ffmpeg';
-    const url = 'https://esm.sh/' + packageName;
-    console.log(url);
-    this.FFmpeg = await import(/* webpackIgnore: true */ url);
-    console.log(this.FFmpeg);
-    console.timeEnd('import');
+    this.worker = new Worker(
+      new URL('./ffmpeg.worker.js', import.meta.url).href
+    );
+    console.log(this.worker);
 
     super.onNodeAdded(source);
+  };
+
+  public onRemoved = (): void => {
+    super.onRemoved();
+    this.worker.terminate();
+    // this.worker.removeEventListener('message', handleWorkerMessage);
   };
 
   // small presentational component
@@ -113,8 +116,7 @@ export class Video extends HybridNode2 {
     const resizeObserver = useRef(null);
     const videoRef = useRef();
     const node = props.node;
-    const name = 'importedVideo.mp4';
-    let ffmpeg;
+    const inName = 'importedVideo.mp4';
 
     const [progress, setProgress] = useState(0);
     const [dataURL, setDataURL] = useState(props[inputSocketName]);
@@ -122,6 +124,28 @@ export class Video extends HybridNode2 {
 
     // workaround to get ref of editor to be used as mounted/ready check
     useEffect(() => {
+      const waitForVariable = () => {
+        if (node.worker) {
+          node.worker.onmessage = (event) => {
+            const { data } = event;
+            console.log('Complete transcoding');
+            const dataURLL = URL.createObjectURL(
+              new Blob([data.buffer], { type: 'video/mp4' })
+            );
+            console.timeEnd('createObjectURL');
+            console.timeEnd('loadMovie');
+
+            console.log(dataURLL);
+            setDataURL(dataURLL);
+          };
+          node.worker.onerror = (error) => console.error(error);
+        } else {
+          console.log('wait');
+          setTimeout(waitForVariable, 100);
+        }
+      };
+      waitForVariable();
+
       resizeObserver.current = new ResizeObserver((entries) => {
         for (const entry of entries) {
           setContentHeight(entry.borderBoxSize[0].blockSize);
@@ -137,86 +161,31 @@ export class Video extends HybridNode2 {
       node.resizeAndDraw(node.nodeWidth, contentHeight);
     }, [contentHeight]);
 
-    // on load
-    useEffect(() => {
-      console.log('useEffect node.FFmpeg triggered');
-      if (node.FFmpeg) {
-        const loadffmpeg = async () => {
-          console.time('loadFFmpeg');
-          const { createFFmpeg } = node.FFmpeg;
-          ffmpeg = createFFmpeg({
-            mainName: 'main',
-            corePath:
-              'https://unpkg.com/@ffmpeg/core-st@0.11.1/dist/ffmpeg-core.js',
-            log: true,
-          });
-          try {
-            console.log(ffmpeg);
-            await ffmpeg.load();
-          } catch (error) {
-            // Handle any errors that occur during the asynchronous operations
-            console.error('Error loading ffmpeg:', error);
-          }
-          console.timeEnd('loadFFmpeg');
-        };
-
-        loadffmpeg(); // Call the async function immediately
-      }
-    }, [node.FFmpeg]);
-
     useEffect(() => {
       console.log('uint8Array has changed');
 
       const waitForVariable = () => {
-        if (ffmpeg.isLoaded()) {
-          // Perform your desired operation with the variable
-          console.log('myVariable is now defined:', ffmpeg.isLoaded());
+        if (node.worker) {
+          const buffer = props[inputSocketName].buffer;
 
-          const uint8Array = props[inputSocketName];
-
-          ffmpeg.setProgress(({ ratio }) => {
-            setProgress(Math.ceil(ratio * 100));
-            console.log(ratio);
-          });
+          // ffmpeg.setProgress(({ ratio }) => {
+          //   setProgress(Math.ceil(ratio * 100));
+          //   console.log(ratio);
+          // });
 
           const loadMovie = async () => {
-            try {
-              console.time('loadMovie');
-              console.time('writeFile');
-              ffmpeg.FS('writeFile', name, uint8Array);
-              console.timeEnd('writeFile');
+            const oldName = inName.split('.');
+            const inType = oldName.pop();
+            const name = oldName.join();
+            const outType = 'mp4';
+            console.log(name, inType, outType);
+            // console.log(buffer);
 
-              console.log(ffmpeg.FS('stat', name));
-              console.log(ffmpeg.FS('readdir', '/'));
+            node.worker.postMessage({ name, inType, outType, buffer }, [
+              buffer,
+            ]);
 
-              console.time('transcode');
-              await ffmpeg.run('-i', name, 'output.mp4');
-              console.timeEnd('transcode');
-
-              console.time('readFile');
-              const data = ffmpeg.FS('readFile', 'output.mp4', {
-                encoding: 'binary',
-              });
-              console.timeEnd('readFile');
-              console.time('createObjectURL');
-              const dataURLL = URL.createObjectURL(
-                new Blob([data.buffer], { type: 'video/mp4' })
-              );
-              console.timeEnd('createObjectURL');
-              console.timeEnd('loadMovie');
-              console.log(ffmpeg.FS('readdir', '/'));
-
-              console.log(dataURLL);
-              setDataURL(dataURLL);
-              // if (videoRef.current) {
-              //   (videoRef.current as any).src = URL.createObjectURL(
-              //     new Blob([data.buffer], { type: 'video/mp4' })
-              //   );
-              // }
-            } catch (error) {
-              // Handle any errors that occur during the asynchronous operations
-              console.error('Error loading movie:', error);
-            }
+            console.log('Start transcoding');
           };
 
           loadMovie(); // Call the async function immediately
@@ -237,15 +206,13 @@ export class Video extends HybridNode2 {
       <ErrorBoundary FallbackComponent={ErrorFallback}>
         <ThemeProvider theme={customTheme}>
           <LinearProgressWithLabel value={progress} />
-          {dataURL && (
-            <video
-              id="video"
-              ref={videoRef}
-              style={{ width: '100%' }}
-              src={dataURL}
-              controls
-            ></video>
-          )}
+          <video
+            id="video"
+            ref={videoRef}
+            style={{ width: '100%' }}
+            src={dataURL}
+            controls
+          ></video>
         </ThemeProvider>
       </ErrorBoundary>
     );

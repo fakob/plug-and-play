@@ -263,11 +263,12 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               }
             }
             break;
+          case 'avi':
           case 'mov':
           case 'mp4':
             data = await response.arrayBuffer();
             const uint8Array = new Uint8Array(data);
-            console.log(uint8Array);
+            // console.log(uint8Array);
             // if (
             //   PPGraph.currentGraph.selection.selectedNodes?.[index]?.type ===
             //   'Video'
