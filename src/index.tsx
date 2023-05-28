@@ -29,16 +29,21 @@ const author = 'a plug and player';
 
 // Define the meta tag attributes
 const metaTags = [
-  { name: 'title', property: 'og:title', content: title },
-  { name: 'type', property: 'og:type', content: 'website' },
-  { name: 'image', property: 'og:image', content: imageURL },
-  { name: 'url', property: 'og:url', content: url },
-  { name: 'description', property: 'og:description', content: description },
-  { name: 'author', content: author },
-  { name: 'twitte:card', content: 'summary' },
+  // Google
+  { itemprop: 'name', content: title },
+  { itemprop: 'description', content: description },
+  { itemprop: 'image', content: imageURL },
+  // LinkedIn, Facebook
+  { property: 'og:url', content: url },
+  { property: 'og:type', content: 'website' },
+  { property: 'og:title', content: title },
+  { property: 'og:description', content: description },
+  { property: 'og:image', content: imageURL },
+  // Twitter
+  { name: 'twitter:card', content: 'summary' },
   { name: 'twitter:title', content: title },
-  { name: 'twitter:image', content: imageURL },
   { name: 'twitter:description', content: description },
+  { name: 'twitter:image', content: imageURL },
   { name: 'twitter:creator', content: author },
 ];
 
