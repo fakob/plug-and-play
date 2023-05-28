@@ -20,7 +20,8 @@ const createMetaTag = (attributes) => {
 };
 
 const title = 'Your Plug and Playground';
-const imageURL = 'https://plugandplayground.dev/assets/PlugAndPlayIcon512.png';
+const imageURL =
+  'https://plugandplayground.dev/assets/PlugAndPlayground-Drawing-a-chart.png';
 const url = 'https://plugandplayground.dev';
 const description =
   'A visual toolkit for creative prototyping to explore, transform or visualise data.';
