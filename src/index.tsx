@@ -10,15 +10,6 @@ import './utils/global.css';
 
 const head = document.querySelector('head');
 
-// Helper function to create and append a meta tag
-const createMetaTag = (attributes) => {
-  const meta = document.createElement('meta');
-  Object.entries(attributes).forEach(([key, value]) => {
-    meta.setAttribute(key, value as any);
-  });
-  head.appendChild(meta);
-};
-
 const title = 'Your Plug and Playground';
 const imageURL =
   'https://plugandplayground.dev/assets/PlugAndPlayground-Drawing-a-chart.png';
@@ -27,30 +18,25 @@ const description =
   'A visual toolkit for creative prototyping to explore, transform or visualise data.';
 const author = 'a plug and player';
 
-// Define the meta tag attributes
-const metaTags = [
-  // Google
-  { itemprop: 'name', content: title },
-  { itemprop: 'description', content: description },
-  { itemprop: 'image', content: imageURL },
-  // LinkedIn, Facebook
-  { property: 'og:url', content: url },
-  { property: 'og:type', content: 'website' },
-  { property: 'og:title', content: title },
-  { property: 'og:description', content: description },
-  { property: 'og:image', content: imageURL },
-  // Twitter
-  { name: 'twitter:card', content: 'summary' },
-  { name: 'twitter:title', content: title },
-  { name: 'twitter:description', content: description },
-  { name: 'twitter:image', content: imageURL },
-  { name: 'twitter:creator', content: author },
-];
+const metaTagHTML = `<!-- Google / Search Engine Tags -->
+<meta itemprop="name" content=${title}>
+<meta itemprop="description" content=${description}>
+<meta itemprop="image" content=${imageURL}>
+<!-- Facebook Meta Tags -->
+<meta property="og:url" content=${url}>
+<meta property="og:type" content="website">
+<meta property="og:title" content=${title}>
+<meta property="og:description" content=${description}>
+<meta property="og:image" content=${imageURL}>
+<!-- Twitter Meta Tags -->
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content=${title}>
+<meta name="twitter:description" content=${description}>
+<meta name="twitter:image" content=${imageURL}>
+<meta name="twitter:creator" content=${author}>
+`;
 
-// Create and append the meta tags
-metaTags.forEach((attributes) => {
-  createMetaTag(attributes);
-});
+head.insertAdjacentHTML('afterbegin', metaTagHTML);
 
 const reactElement = document.createElement('div');
 const container = document.body.appendChild(reactElement);
