@@ -113,6 +113,10 @@ export class Video extends HybridNode2 {
           /* webpackIgnore: true */ './ffmpeg.worker.js',
           import.meta.url
         ).href
+        // new URL(
+        //   /* webpackIgnore: true */ './dist/ffmpeg.worker.js',
+        //   import.meta.url
+        // ).href
       );
     }
     console.log(this.worker);

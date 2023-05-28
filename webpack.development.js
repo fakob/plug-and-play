@@ -1,21 +1,21 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-
-import * as path from 'path';
-
-import { merge } from 'webpack-merge';
-import { Configuration } from 'webpack';
-
-// plugins
-import HtmlWebpackPlugin from 'html-webpack-plugin';
-import MiniCssExtractPlugin from 'mini-css-extract-plugin';
-import CopyPlugin from 'copy-webpack-plugin';
-import { CleanWebpackPlugin } from 'clean-webpack-plugin';
-import MonacoWebpackPlugin from 'monaco-editor-webpack-plugin';
-
 const webpack = require('webpack');
+const path = require('path');
+const ESLintPlugin = require('eslint-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const Dotenv = require('dotenv-webpack');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CopyPlugin = require('copy-webpack-plugin');
+const CleanWebpackPlugin = require('clean-webpack-plugin').CleanWebpackPlugin;
+const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 
-module.exports = (env, argv) => {
-  const config: Configuration = {
+module.exports = () => {
+  return {
+    mode: 'development',
+
+    target: 'web',
+
+    devtool: 'inline-source-map',
+
     entry: './src/index.tsx',
 
     resolve: {
@@ -43,7 +43,18 @@ module.exports = (env, argv) => {
           test: /\.ttf$/,
           type: 'asset/resource',
         },
+        {
+          test: /\.tsx?$/,
+          loader: 'ts-loader',
+          exclude: /node_modules/,
+        },
       ],
+    },
+
+    output: {
+      path: path.resolve(__dirname, 'dist'),
+      filename: '[name].js',
+      chunkFilename: '[name].chunk.js',
     },
 
     plugins: [
@@ -73,22 +84,19 @@ module.exports = (env, argv) => {
           },
         ],
       }),
+      new ESLintPlugin(),
+      new MiniCssExtractPlugin({
+        filename: '[name].css',
+      }),
+      new webpack.HotModuleReplacementPlugin(),
+      new Dotenv(),
     ],
-  };
 
-  const envConfig = require(path.resolve(
-    __dirname,
-    `./webpack.${argv.mode}.ts`
-  ))(env);
-
-  const mergedConfig = merge(config, envConfig, {
     devServer: {
       allowedHosts: ['localhost', '.csb.app'],
       client: {
         logging: 'info',
       },
     },
-  });
-
-  return mergedConfig;
+  };
 };

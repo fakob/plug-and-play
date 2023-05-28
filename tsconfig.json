@@ -17,7 +17,7 @@
   "include": ["./src/**/*", "./src/custom.d.ts"],
   "ts-node": {
     "compilerOptions": {
-      "module": "commonjs",
+      "module": "ES2022",
       "resolveJsonModule": true
     }
   }
