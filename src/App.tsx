@@ -183,7 +183,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     (async function () {
       for (let index = 0; index < acceptedFiles.length; index++) {
         const file = acceptedFiles[index];
-
+        console.log(file);
         // const reader = new FileReader();
         const objectURL = URL.createObjectURL(file);
 
@@ -265,6 +265,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
             break;
           case 'avi':
           case 'mov':
+          case 'mkv':
           case 'mp4':
             data = await response.arrayBuffer();
             const uint8Array = new Uint8Array(data);
@@ -280,7 +281,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
             newNode = PPGraph.currentGraph.addNewNode('Video', {
               nodePosX,
               nodePosY,
-              defaultArguments: { Video: uint8Array },
+              defaultArguments: { Path: file.path, Video: uint8Array },
             });
             // }
             break;

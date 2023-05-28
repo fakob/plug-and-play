@@ -6,16 +6,21 @@ import LinearProgress, {
 } from '@mui/material/LinearProgress';
 import { ErrorBoundary } from 'react-error-boundary';
 import ErrorFallback from '../../components/ErrorFallback';
+import PPGraph from '../../classes/GraphClass';
+import PPNode from '../../classes/NodeClass';
 import PPSocket from '../../classes/SocketClass';
+import HybridNode2 from '../../classes/HybridNode2';
+import { StringType } from '../datatypes/stringType';
 import { VideoType } from '../datatypes/videoType';
 
 import { CustomArgs, TNodeSource, TRgba } from '../../utils/interfaces';
+import { ensureVisible } from '../../pixi/utils-pixi';
 import {
+  DRAGANDDROP_GRID_MARGIN,
   NODE_TYPE_COLOR,
   SOCKET_TYPE,
   customTheme,
 } from '../../utils/constants';
-import HybridNode2 from '../../classes/HybridNode2';
 
 function LinearProgressWithLabel(
   props: LinearProgressProps & { value: number }
@@ -35,6 +40,7 @@ function LinearProgressWithLabel(
 }
 
 const inputSocketName = 'Video';
+const inputPathName = 'Path';
 
 export class Video extends HybridNode2 {
   worker: Worker;
@@ -79,6 +85,7 @@ export class Video extends HybridNode2 {
 
   protected getDefaultIO(): PPSocket[] {
     return [
+      new PPSocket(SOCKET_TYPE.IN, inputPathName, new StringType(), '', false),
       new PPSocket(
         SOCKET_TYPE.IN,
         inputSocketName,
@@ -103,22 +110,12 @@ export class Video extends HybridNode2 {
   }
 
   public onNodeAdded = async (source?: TNodeSource): Promise<void> => {
-    if (process.env.NODE_ENV === 'development') {
-      this.worker = new Worker(
-        new URL('./ffmpeg.worker.js', import.meta.url).href
-      );
-    } else {
-      this.worker = new Worker(
-        new URL(
-          /* webpackIgnore: true */ './ffmpeg.worker.js',
-          import.meta.url
-        ).href
-        // new URL(
-        //   /* webpackIgnore: true */ './dist/ffmpeg.worker.js',
-        //   import.meta.url
-        // ).href
-      );
-    }
+    this.worker = new Worker(
+      new URL(
+        /* webpackIgnore: true */ './ffmpeg.worker.js',
+        import.meta.url
+      ).href
+    );
     console.log(this.worker);
 
     super.onNodeAdded(source);
@@ -134,9 +131,11 @@ export class Video extends HybridNode2 {
     const resizeObserver = useRef(null);
     const videoRef = useRef();
     const node = props.node;
-    const inName = 'importedVideo.mp4';
+    let nodePosX = node.x + node.nodeWidth;
+    const newNodeSelection: PPNode[] = [];
 
     const [progress, setProgress] = useState(0);
+    const [path, setPath] = useState(props[inputPathName]);
     const [dataURL, setDataURL] = useState(props[inputSocketName]);
     const [contentHeight, setContentHeight] = useState(0);
 
@@ -158,9 +157,31 @@ export class Video extends HybridNode2 {
                 console.log(dataURLL);
                 setDataURL(dataURLL);
                 break;
+              case 'frame':
+                console.log('Complete one frame');
+                const base64 = arrayBufferToBase64(data.buffer);
+                const newNode = PPGraph.currentGraph.addNewNode('Image', {
+                  nodePosX,
+                  nodePosY: node.y,
+                  defaultArguments: {
+                    Image: base64,
+                  },
+                });
+                newNodeSelection.push(newNode);
+                nodePosX =
+                  nodePosX + newNode.nodeWidth + DRAGANDDROP_GRID_MARGIN;
+                if (data.isLast) {
+                  // select the newly added nodes
+                  if (newNodeSelection.length > 0) {
+                    PPGraph.currentGraph.selection.selectNodes(
+                      newNodeSelection
+                    );
+                    ensureVisible(PPGraph.currentGraph.selection.selectedNodes);
+                  }
+                }
+                break;
               case 'progress':
-                console.log(data);
-                setProgress(Math.ceil(data * 100));
+                setProgress(Math.ceil(data.data * 100));
               default:
                 break;
             }
@@ -199,22 +220,17 @@ export class Video extends HybridNode2 {
         if (node.worker) {
           const buffer = props[inputSocketName].buffer;
 
-          // ffmpeg.setProgress(({ ratio }) => {
-          //   setProgress(Math.ceil(ratio * 100));
-          //   console.log(ratio);
-          // });
-
           const loadMovie = async () => {
-            const oldName = inName.split('.');
+            const oldName = path.split('.');
             const inType = oldName.pop();
             const name = oldName.join();
             const outType = 'mp4';
             console.log(name, inType, outType);
-            // console.log(buffer);
 
-            node.worker.postMessage({ name, inType, outType, buffer }, [
-              buffer,
-            ]);
+            node.worker.postMessage(
+              { name, type: 'getStills', inType, outType, buffer },
+              [buffer]
+            );
 
             console.log('Start transcoding');
           };
@@ -249,4 +265,14 @@ export class Video extends HybridNode2 {
       </ErrorBoundary>
     );
   }
+}
+
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  let binary = '';
+  const bytes = new Uint8Array(buffer);
+  const len = bytes.byteLength;
+  for (let i = 0; i < len; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return 'data:image/png;base64,' + window.btoa(binary);
 }
