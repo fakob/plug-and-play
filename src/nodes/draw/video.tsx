@@ -124,11 +124,10 @@ export class Video extends HybridNode2 {
     super.onNodeAdded(source);
   };
 
-  public onRemoved = (): void => {
+  onRemoved(): void {
     super.onRemoved();
     this.worker.terminate();
-    // this.worker.removeEventListener('message', handleWorkerMessage);
-  };
+  }
 
   // small presentational component
   protected getParentComponent(props: any): any {
