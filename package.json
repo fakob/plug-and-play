@@ -4,9 +4,9 @@
   "description": "nodes",
   "browserslist": "> 0.25%, not dead",
   "scripts": {
-    "build": "yarn del-cli dist --force  && yarn run webpack --mode production --env production --config webpack.production.js",
+    "build": "yarn del-cli dist --force  && yarn run webpack --mode production --env production",
     "code-style-check": "yarn run lint-check && yarn run prettier:check",
-    "dev": "yarn run webpack-dev-server --progress --mode development --env development --config webpack.development.js",
+    "dev": "yarn run webpack-dev-server --progress --mode development --env development",
     "lint-check": "yarn eslint ./src/**/*.ts",
     "prettier": "npx prettier",
     "prettier:check": "yarn run prettier -- -c ./src/**/*.ts",

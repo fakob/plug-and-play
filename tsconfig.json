@@ -2,7 +2,7 @@
   "compilerOptions": {
 
     "target": "ES2022",
-    "module": "ES2022",
+    "module": "es2020",
     "moduleResolution": "node",
     "jsx": "react",
     "sourceMap": true,
@@ -17,7 +17,7 @@
   "include": ["./src/**/*", "./src/custom.d.ts"],
   "ts-node": {
     "compilerOptions": {
-      "module": "ES2022",
+      "module": "CommonJS",
       "resolveJsonModule": true
     }
   }
