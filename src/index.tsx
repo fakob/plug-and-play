@@ -10,44 +10,41 @@ import './utils/global.css';
 
 const head = document.querySelector('head');
 
-// Create and append the title meta tag
-const titleMeta = document.createElement('meta');
-titleMeta.setAttribute('name', 'title');
-titleMeta.setAttribute('property', 'og:title');
-titleMeta.setAttribute('content', 'Your Plug and Playground');
-head.appendChild(titleMeta);
+// Helper function to create and append a meta tag
+const createMetaTag = (attributes) => {
+  const meta = document.createElement('meta');
+  Object.entries(attributes).forEach(([key, value]) => {
+    meta.setAttribute(key, value as any);
+  });
+  head.appendChild(meta);
+};
 
-// Create and append the type meta tag
-const typeMeta = document.createElement('meta');
-typeMeta.setAttribute('property', 'og:type');
-typeMeta.setAttribute('content', 'website');
-head.appendChild(typeMeta);
+const title = 'Your Plug and Playground';
+const imageURL = 'https://plugandplayground.dev/assets/PlugAndPlayIcon512.png';
+const url = 'https://plugandplayground.dev';
+const description =
+  'A visual toolkit for creative prototyping to explore, transform or visualise data.';
+const author = 'a plug and player';
 
-// Create and append the image meta tag
-const imageMeta = document.createElement('meta');
-imageMeta.setAttribute('name', 'image');
-imageMeta.setAttribute('property', 'og:image');
-imageMeta.setAttribute(
-  'content',
-  'https://plugandplayground.dev/assets/PlugAndPlayIcon512.png'
-);
-head.appendChild(imageMeta);
+// Define the meta tag attributes
+const metaTags = [
+  { name: 'title', property: 'og:title', content: title },
+  { name: 'type', property: 'og:type', content: 'website' },
+  { name: 'image', property: 'og:image', content: imageURL },
+  { name: 'url', property: 'og:url', content: url },
+  { name: 'description', property: 'og:description', content: description },
+  { name: 'author', content: author },
+  { name: 'twitte:card', content: 'summary' },
+  { name: 'twitter:title', content: title },
+  { name: 'twitter:image', content: imageURL },
+  { name: 'twitter:description', content: description },
+  { name: 'twitter:creator', content: author },
+];
 
-// Create and append the description meta tag
-const descriptionMeta = document.createElement('meta');
-descriptionMeta.setAttribute('name', 'description');
-descriptionMeta.setAttribute('property', 'og:description');
-descriptionMeta.setAttribute(
-  'content',
-  'A visual toolkit for creative prototyping to explore, transform or visualise data.'
-);
-head.appendChild(descriptionMeta);
-
-// Create and append the author meta tag
-const authorMeta = document.createElement('meta');
-authorMeta.setAttribute('name', 'author');
-authorMeta.setAttribute('content', 'The Plug and Players');
-head.appendChild(authorMeta);
+// Create and append the meta tags
+metaTags.forEach((attributes) => {
+  createMetaTag(attributes);
+});
 
 const reactElement = document.createElement('div');
 const container = document.body.appendChild(reactElement);
