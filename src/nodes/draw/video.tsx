@@ -79,7 +79,13 @@ export class Video extends HybridNode2 {
 
   protected getDefaultIO(): PPSocket[] {
     return [
-      new PPSocket(SOCKET_TYPE.IN, inputSocketName, new VideoType(), '', false),
+      new PPSocket(
+        SOCKET_TYPE.IN,
+        inputSocketName,
+        new VideoType(),
+        undefined,
+        false
+      ),
       new PPSocket(SOCKET_TYPE.OUT, inputSocketName, new VideoType()),
     ];
   }
@@ -97,9 +103,18 @@ export class Video extends HybridNode2 {
   }
 
   public onNodeAdded = async (source?: TNodeSource): Promise<void> => {
-    this.worker = new Worker(
-      new URL('./ffmpeg.worker.js', import.meta.url).href
-    );
+    if (process.env.NODE_ENV === 'development') {
+      this.worker = new Worker(
+        new URL('./ffmpeg.worker.js', import.meta.url).href
+      );
+    } else {
+      this.worker = new Worker(
+        new URL(
+          /* webpackIgnore: true */ './ffmpeg.worker.js',
+          import.meta.url
+        ).href
+      );
+    }
     console.log(this.worker);
 
     super.onNodeAdded(source);
@@ -128,15 +143,24 @@ export class Video extends HybridNode2 {
         if (node.worker) {
           node.worker.onmessage = (event) => {
             const { data } = event;
-            console.log('Complete transcoding');
-            const dataURLL = URL.createObjectURL(
-              new Blob([data.buffer], { type: 'video/mp4' })
-            );
-            console.timeEnd('createObjectURL');
-            console.timeEnd('loadMovie');
+            switch (data.type) {
+              case 'result':
+                console.log('Complete transcoding');
+                const dataURLL = URL.createObjectURL(
+                  new Blob([data.buffer], { type: 'video/mp4' })
+                );
+                console.timeEnd('createObjectURL');
+                console.timeEnd('loadMovie');
 
-            console.log(dataURLL);
-            setDataURL(dataURLL);
+                console.log(dataURLL);
+                setDataURL(dataURLL);
+                break;
+              case 'progress':
+                console.log(data);
+                setProgress(Math.ceil(data * 100));
+              default:
+                break;
+            }
           };
           node.worker.onerror = (error) => console.error(error);
         } else {
@@ -145,6 +169,10 @@ export class Video extends HybridNode2 {
         }
       };
       waitForVariable();
+
+      if (videoRef.current) {
+        (videoRef.current as any).loop = true;
+      }
 
       resizeObserver.current = new ResizeObserver((entries) => {
         for (const entry of entries) {
@@ -207,6 +235,7 @@ export class Video extends HybridNode2 {
         <ThemeProvider theme={customTheme}>
           <LinearProgressWithLabel value={progress} />
           <video
+            autoPlay
             id="video"
             ref={videoRef}
             style={{ width: '100%' }}

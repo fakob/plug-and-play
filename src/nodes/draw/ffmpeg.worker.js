@@ -16,11 +16,15 @@ let ffmpeg;
     log: true,
   });
   await ffmpeg.load();
+  await ffmpeg.setProgress(({ ratio }) => {
+    console.log(ratio);
+    self.postMessage({ type: 'progress', data: ratio });
+  });
   console.log(ffmpeg);
   console.timeEnd('loadFFmpeg');
 })();
 
-onmessage = async (event) => {
+self.onmessage = async (event) => {
   try {
     const { buffer, name, inType, outType } = event.data;
 
@@ -31,7 +35,9 @@ onmessage = async (event) => {
         await ffmpeg.run('-i', `${name}.${inType}`, `${name}.${outType}`);
         const data = ffmpeg.FS('readFile', `${name}.${outType}`);
 
-        postMessage({ buffer: data.buffer, type: 'result' }, [data.buffer]);
+        self.postMessage({ buffer: data.buffer, type: 'result' }, [
+          data.buffer,
+        ]);
 
         // delete files from memory
         ffmpeg.FS('unlink', `${name}.${inType}`);
@@ -43,6 +49,6 @@ onmessage = async (event) => {
     };
     waitForVariable();
   } catch (e) {
-    postMessage({ type: 'error', error: e });
+    self.postMessage({ type: 'error', error: e });
   }
 };
