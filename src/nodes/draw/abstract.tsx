@@ -329,6 +329,6 @@ export abstract class DRAW_Interactive_Base extends DRAW_Base {
         outputMultiplierPointerDown,
         new BooleanType()
       ),
-    ];
+    ].concat(super.getDefaultIO());
   }
 }
