@@ -312,6 +312,10 @@ export abstract class DRAW_Base extends PPNode {
   public getIsPresentationalNode(): boolean {
     return true;
   }
+
+  public executeOnPlace(): boolean {
+    return true;
+  }
 }
 
 export abstract class DRAW_Interactive_Base extends DRAW_Base {
