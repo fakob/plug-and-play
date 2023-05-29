@@ -1,5 +1,8 @@
 // This can be invoked at will, any action you do that you can describe a corresponding undo action can be sent in here and handled by undohandler
 
+import Socket from '../classes/SocketClass';
+import _ from 'lodash';
+
 export interface Action {
   (): Promise<void>;
 }
@@ -8,10 +11,35 @@ interface UndoAction {
   undo: Action;
 }
 
+const MAX_STACK_SIZE = 100;
+
 export class ActionHandler {
   static undoList: UndoAction[] = [];
   static redoList: UndoAction[] = [];
   static graphHasUnsavedChanges = false;
+
+  // this stuff is for allowing undoing changing socket values via interface specifically, maybe a bit hacky...
+  static lastDebounceSocket: Socket | undefined = undefined;
+  static valueBeforeDebounce: any = undefined;
+  static lastValueSet: any | undefined = undefined;
+  static setValueDebouncer = _.debounce(() => {
+    if (ActionHandler.lastDebounceSocket) {
+      console.log('setting new debounce point');
+      const socketRef = ActionHandler.lastDebounceSocket;
+      const newData = JSON.parse(JSON.stringify(this.lastValueSet));
+      const prevData = JSON.parse(JSON.stringify(this.valueBeforeDebounce));
+      this.lastValueSet = undefined;
+      ActionHandler.performAction(
+        async () => {
+          socketRef.data = newData;
+        },
+        async () => {
+          socketRef.data = prevData;
+        },
+        false
+      );
+    }
+  }, 100);
 
   // if you make an action through this and pass the inverse in as undo, it becomes part of the undo/redo stack, if your code is messy and you cant describe the main action as one thing, feel free to skip inital action
   static async performAction(
@@ -23,6 +51,9 @@ export class ActionHandler {
       await action();
     }
     this.undoList.push({ action: action, undo: undo });
+    if (this.undoList.length > MAX_STACK_SIZE) {
+      this.undoList.shift();
+    }
     this.setUnsavedChange(true);
   }
   static async undo() {
@@ -45,6 +76,16 @@ export class ActionHandler {
     } else {
       console.log('Not possible to redo, nothing in redo stack');
     }
+  }
+
+  static interfaceSetValueOnSocket(socket: Socket, value: any) {
+    if (!this.valueBeforeDebounce) {
+      this.valueBeforeDebounce = socket.data;
+    }
+    this.lastDebounceSocket = socket;
+    this.lastValueSet = value;
+    socket.data = value;
+    this.setValueDebouncer();
   }
 
   static setUnsavedChange(state: boolean): void {
