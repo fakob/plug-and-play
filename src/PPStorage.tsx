@@ -425,6 +425,64 @@ export default class PPStorage {
       .sortBy('date');
   }
 
+  async loadResource(resourceId: string): Promise<Blob> {
+    let foundResource;
+    return this.db
+      .transaction('rw', this.db.localResources, async () => {
+        const resources = await this.db.localResources.toArray();
+
+        if (resources.length > 0) {
+          foundResource = resources.find(
+            (resource) => resource.id === resourceId
+          );
+          if (foundResource) {
+            InterfaceController.showSnackBar(`${resourceId} was loaded`);
+            return foundResource.data;
+          }
+        }
+        console.log('Resource not found');
+        return undefined;
+      })
+      .catch((e) => {
+        console.log(e.stack || e);
+        return undefined;
+      });
+  }
+
+  storeResource(resourceId: string, data: Blob) {
+    this.db
+      .transaction('rw', this.db.localResources, async () => {
+        const resources = await this.db.localResources.toArray();
+        const foundResource = resources.find(
+          (resource) => resource.id === resourceId
+        );
+
+        if (foundResource === undefined) {
+          await this.db.localResources.put({
+            id: resourceId,
+            date: new Date(),
+            data,
+          });
+
+          InterfaceController.showSnackBar(
+            `New resource was stored: ${resourceId}`
+          );
+        } else {
+          await this.db.localResources.where('id').equals(resourceId).modify({
+            date: new Date(),
+            data,
+          });
+          console.log(`Resource ${resourceId} was updated`);
+          InterfaceController.showSnackBar(
+            `Resource ${resourceId} was updated`
+          );
+        }
+      })
+      .catch((e) => {
+        console.log(e.stack || e);
+      });
+  }
+
   static viewport: Viewport; // WARNING, HACK, this should not be saved, TODO improve
   private db: GraphDatabase; // spent a lot of effort making this private, if you want to do something with it, please go through this class
   private static instance: PPStorage;

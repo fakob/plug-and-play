@@ -5,6 +5,7 @@ import LinearProgress, {
   LinearProgressProps,
 } from '@mui/material/LinearProgress';
 import { ErrorBoundary } from 'react-error-boundary';
+import PPStorage from '../../PPStorage';
 import ErrorFallback from '../../components/ErrorFallback';
 import PPGraph from '../../classes/GraphClass';
 import PPNode from '../../classes/NodeClass';
@@ -50,9 +51,9 @@ export class Video extends HybridNode2 {
       ...customArgs,
     });
 
-    if (this.initialData) {
-      this.setInputData(inputSocketName, this.initialData);
-    }
+    // if (this.initialData) {
+    //   this.setInputData(inputSocketName, this.initialData);
+    // }
   }
 
   public getName(): string {
@@ -72,12 +73,12 @@ export class Video extends HybridNode2 {
   }
 
   getOpacity(): number {
-    return 0.05;
+    return 0.01;
   }
 
-  getPreferredInputSocketName(): string {
-    return inputSocketName;
-  }
+  // getPreferredInputSocketName(): string {
+  //   return inputSocketName;
+  // }
 
   getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.OUTPUT);
@@ -86,13 +87,6 @@ export class Video extends HybridNode2 {
   protected getDefaultIO(): PPSocket[] {
     return [
       new PPSocket(SOCKET_TYPE.IN, inputPathName, new StringType(), '', false),
-      new PPSocket(
-        SOCKET_TYPE.IN,
-        inputSocketName,
-        new VideoType(),
-        undefined,
-        false
-      ),
       new PPSocket(SOCKET_TYPE.OUT, inputSocketName, new VideoType()),
     ];
   }
@@ -126,6 +120,10 @@ export class Video extends HybridNode2 {
     this.worker.terminate();
   }
 
+  // protected getActivateByDoubleClick(): boolean {
+  //   return false;
+  // }
+
   // small presentational component
   protected getParentComponent(props: any): any {
     const resizeObserver = useRef(null);
@@ -136,26 +134,29 @@ export class Video extends HybridNode2 {
 
     const [progress, setProgress] = useState(0);
     const [path, setPath] = useState(props[inputPathName]);
-    const [dataURL, setDataURL] = useState(props[inputSocketName]);
+    const [videoSrc, setVideoSrc] = useState(props[inputSocketName]);
     const [contentHeight, setContentHeight] = useState(0);
 
-    // workaround to get ref of editor to be used as mounted/ready check
+    const loadResource = async () => {
+      return await PPStorage.getInstance().loadResource(path);
+    };
+
     useEffect(() => {
-      const waitForVariable = () => {
+      const waitForWorker = () => {
         if (node.worker) {
           node.worker.onmessage = (event) => {
             const { data } = event;
             switch (data.type) {
               case 'result':
                 console.log('Complete transcoding');
-                const dataURLL = URL.createObjectURL(
+                const videoSrc = URL.createObjectURL(
                   new Blob([data.buffer], { type: 'video/mp4' })
                 );
                 console.timeEnd('createObjectURL');
                 console.timeEnd('loadMovie');
 
-                console.log(dataURLL);
-                setDataURL(dataURLL);
+                console.log(videoSrc);
+                setVideoSrc(videoSrc);
                 break;
               case 'frame':
                 console.log('Complete one frame');
@@ -189,13 +190,20 @@ export class Video extends HybridNode2 {
           node.worker.onerror = (error) => console.error(error);
         } else {
           console.log('wait');
-          setTimeout(waitForVariable, 100);
+          setTimeout(waitForWorker, 100);
         }
       };
-      waitForVariable();
+      waitForWorker();
 
       if (videoRef.current) {
         (videoRef.current as any).loop = true;
+        (videoRef.current as any).addEventListener('error', () => {
+          console.error(`Error loading: ${path}`);
+        });
+        loadResource().then((blob) => {
+          console.log(blob);
+          setVideoSrc(URL.createObjectURL(blob));
+        });
       }
 
       resizeObserver.current = new ResizeObserver((entries) => {
@@ -214,9 +222,13 @@ export class Video extends HybridNode2 {
     }, [contentHeight]);
 
     useEffect(() => {
-      console.log('uint8Array has changed');
+      console.log('inputSocketName has changed');
+      loadResource().then((blob) => {
+        console.log(blob);
+        setVideoSrc(URL.createObjectURL(blob));
+      });
 
-      const waitForVariable = () => {
+      const waitForWorker = () => {
         if (node.worker) {
           const buffer = props[inputSocketName].buffer;
 
@@ -242,11 +254,11 @@ export class Video extends HybridNode2 {
           node.executeChildren();
         } else {
           console.log('wait');
-          setTimeout(waitForVariable, 100);
+          setTimeout(waitForWorker, 100);
         }
       };
 
-      waitForVariable();
+      // waitForWorker();
     }, [props[inputSocketName]]);
 
     return (
@@ -258,7 +270,7 @@ export class Video extends HybridNode2 {
             id="video"
             ref={videoRef}
             style={{ width: '100%' }}
-            src={dataURL}
+            src={videoSrc}
             controls
           ></video>
         </ThemeProvider>

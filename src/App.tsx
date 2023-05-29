@@ -267,8 +267,9 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           case 'mov':
           case 'mkv':
           case 'mp4':
-            data = await response.arrayBuffer();
-            const uint8Array = new Uint8Array(data);
+          case 'webm':
+            data = await response.blob();
+            PPStorage.getInstance().storeResource(file.path, data);
             // console.log(uint8Array);
             // if (
             //   PPGraph.currentGraph.selection.selectedNodes?.[index]?.type ===
@@ -281,7 +282,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
             newNode = PPGraph.currentGraph.addNewNode('Video', {
               nodePosX,
               nodePosY,
-              defaultArguments: { Path: file.path, Video: uint8Array },
+              defaultArguments: { Path: file.path },
             });
             // }
             break;
