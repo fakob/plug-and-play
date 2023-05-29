@@ -90,7 +90,10 @@ const addShallowContainerEventListeners = (
   const scalePreY = shallowContainer.scale.y;
   shallowContainer.addEventListener('pointerdown', (e) => {
     node.setOutputData(outputMultiplierIndex, index);
-    node.setOutputData(outputMultiplierInjected, executions);
+    node.setOutputData(
+      outputMultiplierInjected,
+      node.getInputData(injectedDataName)?.[index]
+    );
     node.setOutputData(outputMultiplierPointerDown, true);
     // tell all children when something is pressed
     node.executeChildren();

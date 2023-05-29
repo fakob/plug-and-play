@@ -29,7 +29,7 @@ export const inputAlwaysDraw = 'Always Draw';
 export const injectedDataName = 'Injected Data';
 export const outputPixiName = 'Graphics';
 
-export const outputMultiplierIndex = 'LatestPressedIndex';
+export const outputMultiplierIndex = 'LastPressedIndex';
 export const outputMultiplierInjected = 'LastPressedInjected';
 export const outputMultiplierPointerDown = 'PointerDown';
 
