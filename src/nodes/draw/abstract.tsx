@@ -28,6 +28,11 @@ export const inputAbsolutePositions = 'Absolute Positions';
 export const inputAlwaysDraw = 'Always Draw';
 export const injectedDataName = 'Injected Data';
 export const outputPixiName = 'Graphics';
+
+export const outputMultiplierIndex = 'LatestPressedIndex';
+export const outputMultiplierInjected = 'LastPressedInjected';
+export const outputMultiplierPointerDown = 'PointerDown';
+
 const inputSkewXName = 'Skew X';
 const inputSkewYName = 'Skew Y';
 
@@ -306,5 +311,20 @@ export abstract class DRAW_Base extends PPNode {
 
   public getIsPresentationalNode(): boolean {
     return true;
+  }
+}
+
+export abstract class DRAW_Interactive_Base extends DRAW_Base {
+  // you probably want to maintain this output in children
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(SOCKET_TYPE.OUT, outputMultiplierIndex, new NumberType(true)),
+      new Socket(SOCKET_TYPE.OUT, outputMultiplierInjected, new ArrayType()),
+      new Socket(
+        SOCKET_TYPE.OUT,
+        outputMultiplierPointerDown,
+        new BooleanType()
+      ),
+    ];
   }
 }
