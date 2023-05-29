@@ -13,14 +13,16 @@ type CodeEditorProps = {
   editable?: boolean;
 };
 
-const shouldLoadAll = (value) => {
-  return convertToString(value)?.length < MAX_STRING_LENGTH;
-};
-
 export const CodeEditor: React.FunctionComponent<CodeEditorProps> = (props) => {
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor>();
-  const [loadAll, setLoadAll] = useState(shouldLoadAll(props.value));
+  const shouldLoadAll = (value) => {
+    if (editorRef.current?.hasTextFocus()) {
+      return true;
+    }
+    return convertToString(value)?.length < MAX_STRING_LENGTH;
+  };
 
+  const [loadAll, setLoadAll] = useState(shouldLoadAll(props.value));
   const [loadedValue, setLoadedValue] = useState(
     getLoadedValue(props.value, loadAll)
   );
