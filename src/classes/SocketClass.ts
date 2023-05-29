@@ -78,7 +78,6 @@ export default class Socket extends PIXI.Container {
 
     this.addEventListener('pointerover', this.onPointerOver.bind(this));
     this.addEventListener('pointerout', this.onPointerOut.bind(this));
-    this.addEventListener('pointerdown', this.onPointerDown);
     this.addEventListener('pointerup', this.onPointerUp);
 
     this.redrawAnythingChanging();
@@ -162,6 +161,10 @@ export default class Socket extends PIXI.Container {
     this._SocketRef.endFill();
     this._SocketRef.name = 'SocketRef';
     this._SocketRef.eventMode = 'static';
+    this._SocketRef.addEventListener(
+      'pointerdown',
+      this.onSocketRefPointerDown.bind(this)
+    );
 
     this.addChild(this._SelectionBox);
     this.addChild(this._SocketRef);
@@ -411,13 +414,12 @@ export default class Socket extends PIXI.Container {
     this.getGraph().socketHoverOut(this);
   }
 
-  onPointerDown(event: PIXI.FederatedPointerEvent): void {
+  onSocketRefPointerDown(event: PIXI.FederatedPointerEvent): void {
     this.getGraph().socketMouseDown(this, event);
   }
 
   onPointerUp(event: PIXI.FederatedPointerEvent): void {
     this.getGraph().socketMouseUp(this, event);
-    //this.nodeHoveredOut(); // i removed this, is it needed?
   }
 
   socketNameRefMouseDown(event: PIXI.FederatedPointerEvent): void {
