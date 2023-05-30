@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ThemeProvider } from '@mui/material';
-import { Box, Typography } from '@mui/material';
-import LinearProgress, {
-  LinearProgressProps,
-} from '@mui/material/LinearProgress';
+import { Box, Grid, Typography } from '@mui/material';
+import CircularProgress, {
+  CircularProgressProps,
+} from '@mui/material/CircularProgress';
 import { ErrorBoundary } from 'react-error-boundary';
 import PPStorage from '../../PPStorage';
 import ErrorFallback from '../../components/ErrorFallback';
@@ -12,49 +12,66 @@ import PPNode from '../../classes/NodeClass';
 import PPSocket from '../../classes/SocketClass';
 import HybridNode2 from '../../classes/HybridNode2';
 import { StringType } from '../datatypes/stringType';
+import { TriggerType } from '../datatypes/triggerType';
 import { VideoType } from '../datatypes/videoType';
 
-import { CustomArgs, TNodeSource, TRgba } from '../../utils/interfaces';
+import { TNodeSource, TRgba } from '../../utils/interfaces';
 import { ensureVisible } from '../../pixi/utils-pixi';
 import {
   DRAGANDDROP_GRID_MARGIN,
   NODE_TYPE_COLOR,
   SOCKET_TYPE,
+  TRIGGER_TYPE_OPTIONS,
   customTheme,
 } from '../../utils/constants';
+import { JSONType } from '../datatypes/jsonType';
+import { BooleanType } from '../datatypes/booleanType';
+import { NumberType } from '../datatypes/numberType';
 
-function LinearProgressWithLabel(
-  props: LinearProgressProps & { value: number }
+function CircularProgressWithLabel(
+  props: CircularProgressProps & { value: number }
 ) {
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-      <Box sx={{ width: '100%', mr: 1 }}>
-        <LinearProgress variant="determinate" {...props} />
-      </Box>
-      <Box sx={{ minWidth: 35 }}>
-        <Typography variant="body2" color="text.secondary">{`${Math.round(
-          props.value
-        )}%`}</Typography>
+    <Box sx={{ position: 'relative', display: 'inline-flex' }}>
+      <CircularProgress variant="determinate" {...props} />
+      <Box
+        sx={{
+          top: 0,
+          left: 0,
+          bottom: 0,
+          right: 0,
+          position: 'absolute',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Typography
+          variant="caption"
+          component="div"
+          color="text.secondary"
+        >{`${Math.round(props.value)}%`}</Typography>
       </Box>
     </Box>
   );
 }
 
-const inputSocketName = 'Video';
-const inputPathName = 'Path';
+export const inputResourceIdSocketName = 'Local resource ID';
+export const inputFileNameSocketName = 'File name';
+const getStillsSocketName = 'Get stills';
+const transcodeSocketName = 'Transcode video';
+const playSocketName = 'Play/Pause';
+const loopSocketName = 'Loop';
+const speedSocketName = 'Speed';
+const muteSocketName = 'Mute';
+const volumeSocketName = 'Volume';
+const posTimeSocketName = 'Position (s)';
+const posPercSocketName = 'Position (%)';
+const outputDetailsSocketName = 'Details';
+const outputSocketName = 'Video';
 
 export class Video extends HybridNode2 {
   worker: Worker;
-
-  constructor(name: string, customArgs?: CustomArgs) {
-    super(name, {
-      ...customArgs,
-    });
-
-    // if (this.initialData) {
-    //   this.setInputData(inputSocketName, this.initialData);
-    // }
-  }
 
   public getName(): string {
     return 'Video player';
@@ -76,9 +93,9 @@ export class Video extends HybridNode2 {
     return 0.01;
   }
 
-  // getPreferredInputSocketName(): string {
-  //   return inputSocketName;
-  // }
+  getPreferredInputSocketName(): string {
+    return inputResourceIdSocketName;
+  }
 
   getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.OUTPUT);
@@ -86,8 +103,85 @@ export class Video extends HybridNode2 {
 
   protected getDefaultIO(): PPSocket[] {
     return [
-      new PPSocket(SOCKET_TYPE.IN, inputPathName, new StringType(), '', false),
-      new PPSocket(SOCKET_TYPE.OUT, inputSocketName, new VideoType()),
+      new PPSocket(
+        SOCKET_TYPE.IN,
+        inputResourceIdSocketName,
+        new StringType(),
+        '',
+        false
+      ),
+      new PPSocket(
+        SOCKET_TYPE.IN,
+        inputFileNameSocketName,
+        new StringType(),
+        '',
+        false
+      ),
+      new PPSocket(
+        SOCKET_TYPE.IN,
+        playSocketName,
+        new BooleanType(),
+        true,
+        true
+      ),
+      new PPSocket(
+        SOCKET_TYPE.IN,
+        loopSocketName,
+        new BooleanType(),
+        true,
+        true
+      ),
+      new PPSocket(
+        SOCKET_TYPE.IN,
+        speedSocketName,
+        new NumberType(false, 0, 10),
+        1.0,
+        true
+      ),
+      new PPSocket(
+        SOCKET_TYPE.IN,
+        muteSocketName,
+        new BooleanType(),
+        false,
+        true
+      ),
+      new PPSocket(
+        SOCKET_TYPE.IN,
+        volumeSocketName,
+        new NumberType(false, 0, 1),
+        1.0,
+        true
+      ),
+      new PPSocket(
+        SOCKET_TYPE.IN,
+        posTimeSocketName,
+        new NumberType(),
+        undefined,
+        true
+      ),
+      new PPSocket(
+        SOCKET_TYPE.IN,
+        posPercSocketName,
+        new NumberType(false, 0, 100),
+        undefined,
+        true
+      ),
+      new PPSocket(
+        SOCKET_TYPE.IN,
+        transcodeSocketName,
+        new TriggerType(TRIGGER_TYPE_OPTIONS[0].text, 'transcode'),
+        0,
+        true
+      ),
+      new PPSocket(
+        SOCKET_TYPE.IN,
+        getStillsSocketName,
+        new TriggerType(TRIGGER_TYPE_OPTIONS[0].text, 'getStills'),
+        0,
+        true
+      ),
+      new PPSocket(SOCKET_TYPE.OUT, outputDetailsSocketName, new JSONType()),
+      new PPSocket(SOCKET_TYPE.OUT, outputSocketName, new VideoType()),
     ];
   }
 
@@ -124,22 +218,65 @@ export class Video extends HybridNode2 {
   //   return false;
   // }
 
+  updateAndExecute = (localResourceId: string, path: string): void => {
+    this.setInputData(inputResourceIdSocketName, localResourceId);
+    this.setInputData(inputFileNameSocketName, path);
+    this.executeOptimizedChain();
+  };
+
+  loadResource = async () => {
+    return await PPStorage.getInstance().loadResource(
+      this.getInputData(inputResourceIdSocketName)
+    );
+  };
+
+  transcode = async () => {
+    await this.workerAction('transcode');
+  };
+
+  getStills = async () => {
+    await this.workerAction('getStills');
+  };
+
+  workerAction = async (type) => {
+    const blob = await this.loadResource();
+    const fileName = this.getInputData(inputFileNameSocketName);
+
+    const waitForWorker = async () => {
+      if (this.worker) {
+        const buffer = await blob.arrayBuffer();
+        const oldName = fileName.split('.');
+        const inType = oldName.pop();
+        const name = oldName.join();
+        const outType = 'mp4';
+
+        this.worker.postMessage({ name, type, inType, outType, buffer }, [
+          buffer,
+        ]);
+
+        console.log(`Start ${type}`);
+        this.executeChildren();
+      } else {
+        console.log('Wait');
+        setTimeout(waitForWorker, 100);
+      }
+    };
+
+    waitForWorker();
+  };
+
   // small presentational component
   protected getParentComponent(props: any): any {
     const resizeObserver = useRef(null);
-    const videoRef = useRef();
+    const videoRef = useRef<HTMLVideoElement>();
     const node = props.node;
     let nodePosX = node.x + node.nodeWidth;
     const newNodeSelection: PPNode[] = [];
 
-    const [progress, setProgress] = useState(0);
-    const [path, setPath] = useState(props[inputPathName]);
-    const [videoSrc, setVideoSrc] = useState(props[inputSocketName]);
+    const [progress, setProgress] = useState(100);
+    const [path, setPath] = useState(props[inputFileNameSocketName]);
+    const [videoSrc, setVideoSrc] = useState(undefined);
     const [contentHeight, setContentHeight] = useState(0);
-
-    const loadResource = async () => {
-      return await PPStorage.getInstance().loadResource(path);
-    };
 
     useEffect(() => {
       const waitForWorker = () => {
@@ -147,16 +284,20 @@ export class Video extends HybridNode2 {
           node.worker.onmessage = (event) => {
             const { data } = event;
             switch (data.type) {
-              case 'result':
-                console.log('Complete transcoding');
-                const videoSrc = URL.createObjectURL(
-                  new Blob([data.buffer], { type: 'video/mp4' })
+              case 'transcodingResult':
+                console.log('Completed transcoding');
+                const blob = new Blob([data.buffer], { type: 'video/mp4' });
+                const size = blob.size;
+                const localResourceId = `${data.name}-${size}`;
+                PPStorage.getInstance().storeResource(
+                  localResourceId,
+                  size,
+                  blob,
+                  data.name
                 );
+                node.setInputData(inputResourceIdSocketName, localResourceId);
                 console.timeEnd('createObjectURL');
                 console.timeEnd('loadMovie');
-
-                console.log(videoSrc);
-                setVideoSrc(videoSrc);
                 break;
               case 'frame':
                 console.log('Complete one frame');
@@ -182,7 +323,9 @@ export class Video extends HybridNode2 {
                 }
                 break;
               case 'progress':
+                console.log(data);
                 setProgress(Math.ceil(data.data * 100));
+                break;
               default:
                 break;
             }
@@ -196,13 +339,9 @@ export class Video extends HybridNode2 {
       waitForWorker();
 
       if (videoRef.current) {
-        (videoRef.current as any).loop = true;
+        // (videoRef.current as any).loop = true;
         (videoRef.current as any).addEventListener('error', () => {
           console.error(`Error loading: ${path}`);
-        });
-        loadResource().then((blob) => {
-          console.log(blob);
-          setVideoSrc(URL.createObjectURL(blob));
         });
       }
 
@@ -211,7 +350,7 @@ export class Video extends HybridNode2 {
           setContentHeight(entry.borderBoxSize[0].blockSize);
         }
       });
-      const target = document.getElementById('video');
+      const target = document.getElementById(node.id);
       resizeObserver.current.observe(target);
 
       return () => resizeObserver.current.unobserve(target);
@@ -222,57 +361,73 @@ export class Video extends HybridNode2 {
     }, [contentHeight]);
 
     useEffect(() => {
-      console.log('inputSocketName has changed');
-      loadResource().then((blob) => {
-        console.log(blob);
+      node.loadResource().then((blob) => {
         setVideoSrc(URL.createObjectURL(blob));
       });
+    }, [props[inputResourceIdSocketName]]);
 
-      const waitForWorker = () => {
-        if (node.worker) {
-          const buffer = props[inputSocketName].buffer;
+    useEffect(() => {
+      if (props[playSocketName]) {
+        videoRef.current.play();
+      } else {
+        videoRef.current.pause();
+      }
+    }, [props[playSocketName]]);
 
-          const loadMovie = async () => {
-            const oldName = path.split('.');
-            const inType = oldName.pop();
-            const name = oldName.join();
-            const outType = 'mp4';
-            console.log(name, inType, outType);
+    useEffect(() => {
+      videoRef.current.loop = props[loopSocketName];
+    }, [props[loopSocketName]]);
 
-            node.worker.postMessage(
-              { name, type: 'getStills', inType, outType, buffer },
-              [buffer]
-            );
+    useEffect(() => {
+      videoRef.current.playbackRate = props[speedSocketName];
+    }, [props[speedSocketName]]);
 
-            console.log('Start transcoding');
-          };
+    useEffect(() => {
+      videoRef.current.muted = props[muteSocketName];
+    }, [props[muteSocketName]]);
 
-          loadMovie(); // Call the async function immediately
+    useEffect(() => {
+      videoRef.current.volume = props[volumeSocketName];
+    }, [props[volumeSocketName]]);
 
-          // update output
-          node.setOutputData(inputSocketName, props[inputSocketName]);
-          node.executeChildren();
-        } else {
-          console.log('wait');
-          setTimeout(waitForWorker, 100);
-        }
-      };
+    useEffect(() => {
+      videoRef.current.currentTime = props[posTimeSocketName];
+    }, [props[posTimeSocketName]]);
 
-      // waitForWorker();
-    }, [props[inputSocketName]]);
+    useEffect(() => {
+      if (videoRef.current.duration) {
+        videoRef.current.currentTime =
+          (props[posPercSocketName] / 100) * videoRef.current.duration;
+      }
+    }, [props[posPercSocketName]]);
 
     return (
       <ErrorBoundary FallbackComponent={ErrorFallback}>
         <ThemeProvider theme={customTheme}>
-          <LinearProgressWithLabel value={progress} />
           <video
-            autoPlay
-            id="video"
+            autoPlay={props[playSocketName]}
+            id={node.id}
             ref={videoRef}
-            style={{ width: '100%' }}
+            style={{ width: '100%', opacity: progress !== 100 ? 0.3 : 1 }}
             src={videoSrc}
             controls
           ></video>
+          {progress !== 100 && (
+            <Grid
+              container
+              alignItems="center"
+              justifyContent="center"
+              sx={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                width: '100%',
+              }}
+            >
+              <CircularProgressWithLabel value={progress} />
+            </Grid>
+          )}
         </ThemeProvider>
       </ErrorBoundary>
     );

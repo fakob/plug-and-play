@@ -16,8 +16,10 @@ interface Settings {
 
 interface LocalResource {
   id: string;
+  size: number;
   date: Date;
   data: Blob;
+  name?: string;
 }
 
 // Declare Database

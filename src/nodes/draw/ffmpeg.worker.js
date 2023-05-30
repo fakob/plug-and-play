@@ -15,7 +15,6 @@ let ffmpeg;
     corePath: 'https://unpkg.com/@ffmpeg/core-st@0.11.1/dist/ffmpeg-core.js',
     log: true,
   });
-  await ffmpeg.load();
   await ffmpeg.setProgress(progressMessage);
   console.log(ffmpeg);
   console.timeEnd('loadFFmpeg');
@@ -25,26 +24,40 @@ self.onmessage = async (event) => {
   try {
     const { type, buffer, name, inType, outType } = event.data;
 
-    const waitForVariable = async () => {
-      if (ffmpeg && ffmpeg.isLoaded()) {
+    const waitForFfmpeg = async () => {
+      if (ffmpeg) {
+        if (!ffmpeg.isLoaded()) {
+          await ffmpeg.load();
+        }
         console.log(ffmpeg);
         switch (type) {
           case 'transcode':
-            ffmpeg.FS('writeFile', `${name}.${inType}`, new Uint8Array(buffer));
+            const version = inType === outType ? '-in' : '';
+            ffmpeg.FS(
+              'writeFile',
+              `${name}${version}.${inType}`,
+              new Uint8Array(buffer)
+            );
             await ffmpeg.run('-i', `${name}.${inType}`, `${name}.${outType}`);
             const data = ffmpeg.FS('readFile', `${name}.${outType}`);
 
-            self.postMessage({ buffer: data.buffer, type: 'result' }, [
-              data.buffer,
-            ]);
+            self.postMessage(
+              {
+                buffer: data.buffer,
+                type: 'transcodingResult',
+                name: `${name}.${outType}`,
+              },
+              [data.buffer]
+            );
 
             // delete files from memory
-            ffmpeg.FS('unlink', `${name}.${inType}`);
+            ffmpeg.FS('unlink', `${name}${version}.${inType}`);
             ffmpeg.FS('unlink', `${name}.${outType}`);
             break;
           case 'getStills':
             ffmpeg.FS('writeFile', `${name}.${inType}`, new Uint8Array(buffer));
             // await ffmpeg.run('-i', `${name}.${inType}`, `${name}.${outType}`);
+            console.log(await ffmpeg.FS('readdir', '/'));
             await ffmpeg.FS('mkdir', '/frames');
             await ffmpeg.run(
               '-i',
@@ -63,24 +76,46 @@ self.onmessage = async (event) => {
             for (const [i, fileName] of exportedFrames.entries()) {
               const framePath = '/frames/' + fileName;
               const data = ffmpeg.FS('readFile', `${framePath}`);
-              console.log(i, exportedFrames.length);
+              console.log(i, exportedFrames.length - 1);
+              self.postMessage({
+                type: 'progress',
+                data: i / (exportedFrames.length - 1.0),
+              });
               const isLast = i === exportedFrames.length - 1;
               self.postMessage({ buffer: data.buffer, type: 'frame', isLast }, [
                 data.buffer,
               ]);
+              ffmpeg.FS('unlink', `${framePath}`);
             }
+            await ffmpeg.FS('rmdir', '/frames');
+            ffmpeg.FS('unlink', `${name}.${inType}`);
+            console.log(await ffmpeg.FS('readdir', '/'));
+            ffmpeg.exit();
+            break;
           default:
+            console.warn('Unknown message type', event.data);
             break;
         }
+        // due to a bug you can always only execute one ffmpeg.run command
+        // after that you need to exit -> load again
+        ffmpeg.exit();
       } else {
         console.log('wait');
-        setTimeout(waitForVariable, 100);
+        setTimeout(waitForFfmpeg, 100);
       }
     };
-    waitForVariable();
+    waitForFfmpeg();
   } catch (e) {
     self.postMessage({ type: 'error', error: e });
   }
+};
+
+self.onerror = (err) => {
+  console.error(err);
+};
+
+self.onmessageerror = (err) => {
+  console.error(err);
 };
 
 const progressMessage = ({ ratio }) => {

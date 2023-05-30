@@ -436,7 +436,9 @@ export default class PPStorage {
             (resource) => resource.id === resourceId
           );
           if (foundResource) {
-            InterfaceController.showSnackBar(`${resourceId} was loaded`);
+            InterfaceController.showSnackBar(
+              `${resourceId} was loaded from the local storage.`
+            );
             return foundResource.data;
           }
         }
@@ -449,7 +451,7 @@ export default class PPStorage {
       });
   }
 
-  storeResource(resourceId: string, data: Blob) {
+  storeResource(resourceId: string, size: number, data: Blob, name: string) {
     this.db
       .transaction('rw', this.db.localResources, async () => {
         const resources = await this.db.localResources.toArray();
@@ -460,12 +462,14 @@ export default class PPStorage {
         if (foundResource === undefined) {
           await this.db.localResources.put({
             id: resourceId,
+            size,
             date: new Date(),
             data,
+            name,
           });
 
           InterfaceController.showSnackBar(
-            `New resource was stored: ${resourceId}`
+            `${resourceId} is stored in the local storage.`
           );
         } else {
           await this.db.localResources.where('id').equals(resourceId).modify({
@@ -473,9 +477,6 @@ export default class PPStorage {
             data,
           });
           console.log(`Resource ${resourceId} was updated`);
-          InterfaceController.showSnackBar(
-            `Resource ${resourceId} was updated`
-          );
         }
       })
       .catch((e) => {

@@ -41,7 +41,11 @@ import GraphOverlay from './components/GraphOverlay';
 import ErrorFallback from './components/ErrorFallback';
 import PixiContainer from './PixiContainer';
 import { Image as ImageNode } from './nodes/image/image';
-import { Video as VideoNode } from './nodes/draw/video';
+import {
+  Video as VideoNode,
+  inputResourceIdSocketName,
+  inputFileNameSocketName,
+} from './nodes/draw/video';
 import {
   GraphContextMenu,
   NodeContextMenu,
@@ -269,22 +273,31 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           case 'mp4':
           case 'webm':
             data = await response.blob();
-            PPStorage.getInstance().storeResource(file.path, data);
-            // console.log(uint8Array);
-            // if (
-            //   PPGraph.currentGraph.selection.selectedNodes?.[index]?.type ===
-            //   'Video'
-            // ) {
-            //   const existingNode = PPGraph.currentGraph.selection
-            //     .selectedNodes[index] as VideoNode;
-            //   await existingNode.updateAndExecute(base64 as string);
-            // } else {
-            newNode = PPGraph.currentGraph.addNewNode('Video', {
-              nodePosX,
-              nodePosY,
-              defaultArguments: { Path: file.path },
-            });
-            // }
+            const localResourceId = `${file.path}-${file.size}`;
+            PPStorage.getInstance().storeResource(
+              localResourceId,
+              file.size,
+              data,
+              file.path
+            );
+            if (
+              PPGraph.currentGraph.selection.selectedNodes?.[index]?.type ===
+              'Video'
+            ) {
+              const existingNode = PPGraph.currentGraph.selection.selectedNodes[
+                index
+              ] as VideoNode;
+              await existingNode.updateAndExecute(localResourceId, file.path);
+            } else {
+              newNode = PPGraph.currentGraph.addNewNode('Video', {
+                nodePosX,
+                nodePosY,
+                defaultArguments: {
+                  [inputResourceIdSocketName]: localResourceId,
+                  [inputFileNameSocketName]: file.path,
+                },
+              });
+            }
             break;
           default:
             break;
