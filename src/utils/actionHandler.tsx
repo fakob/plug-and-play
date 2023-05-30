@@ -69,10 +69,10 @@ export class ActionHandler {
       this.valueBeforeDebounce = undefined;
       ActionHandler.performAction(
         async () => {
-          socketRef.data = newData;
+          ActionHandler.applySocketValue(socketRef, newData);
         },
         async () => {
-          socketRef.data = prevData;
+          ActionHandler.applySocketValue(socketRef, prevData);
         },
         false
       );
@@ -86,6 +86,9 @@ export class ActionHandler {
     this.lastDebounceSocket = socket;
     this.lastValueSet = value;
     socket.data = value;
+  }
+
+  static applySocketValue(socket: Socket, value: any) {
     ActionHandler.setValueDebouncer();
     if (socket.getNode().updateBehaviour.update) {
       socket.getNode().executeOptimizedChain();

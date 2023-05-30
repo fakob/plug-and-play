@@ -379,17 +379,7 @@ export const CodeWidget: React.FunctionComponent<CodeWidgetProps> = (props) => {
     }
   }, 100);
 
-  return (
-    <CodeEditor
-      value={data}
-      randomMainColor={props.randomMainColor}
-      editable={!props.hasLink}
-      onChange={(value) => {
-        potentiallyUpdateSocketData(props.property, value);
-        setData(value);
-      }}
-    />
-  );
+  return <></>;
 };
 
 export const JSONWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
