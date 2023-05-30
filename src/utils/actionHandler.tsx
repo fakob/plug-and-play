@@ -22,24 +22,6 @@ export class ActionHandler {
   static lastDebounceSocket: Socket | undefined = undefined;
   static valueBeforeDebounce: any = undefined;
   static lastValueSet: any | undefined = undefined;
-  static setValueDebouncer = _.debounce(() => {
-    if (ActionHandler.lastDebounceSocket) {
-      console.log('setting new debounce point');
-      const socketRef = ActionHandler.lastDebounceSocket;
-      const newData = JSON.parse(JSON.stringify(this.lastValueSet));
-      const prevData = JSON.parse(JSON.stringify(this.valueBeforeDebounce));
-      this.valueBeforeDebounce = undefined;
-      ActionHandler.performAction(
-        async () => {
-          socketRef.data = newData;
-        },
-        async () => {
-          socketRef.data = prevData;
-        },
-        false
-      );
-    }
-  }, 100);
 
   // if you make an action through this and pass the inverse in as undo, it becomes part of the undo/redo stack, if your code is messy and you cant describe the main action as one thing, feel free to skip inital action
   static async performAction(
@@ -78,6 +60,25 @@ export class ActionHandler {
     }
   }
 
+  static setValueDebouncer = _.debounce(() => {
+    if (ActionHandler.lastDebounceSocket) {
+      console.log('setting new debounce point');
+      const socketRef = ActionHandler.lastDebounceSocket;
+      const newData = JSON.parse(JSON.stringify(this.lastValueSet));
+      const prevData = JSON.parse(JSON.stringify(this.valueBeforeDebounce));
+      this.valueBeforeDebounce = undefined;
+      ActionHandler.performAction(
+        async () => {
+          socketRef.data = newData;
+        },
+        async () => {
+          socketRef.data = prevData;
+        },
+        false
+      );
+    }
+  }, 100);
+
   static interfaceSetValueOnSocket(socket: Socket, value: any) {
     if (!this.valueBeforeDebounce) {
       this.valueBeforeDebounce = socket.data;
@@ -85,7 +86,10 @@ export class ActionHandler {
     this.lastDebounceSocket = socket;
     this.lastValueSet = value;
     socket.data = value;
-    this.setValueDebouncer();
+    ActionHandler.setValueDebouncer();
+    if (socket.getNode().updateBehaviour.update) {
+      socket.getNode().executeOptimizedChain();
+    }
   }
 
   static setUnsavedChange(state: boolean): void {

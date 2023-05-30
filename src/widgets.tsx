@@ -43,10 +43,6 @@ import { ActionHandler } from './utils/actionHandler';
 async function potentiallyUpdateSocketData(property: Socket, newValue) {
   if (property.data !== newValue) {
     ActionHandler.interfaceSetValueOnSocket(property, newValue);
-    //property.data = newValue;
-    if (property.getNode().updateBehaviour.update) {
-      await property.getNode().executeOptimizedChain();
-    }
   }
 }
 
