@@ -28,7 +28,7 @@ export class ActionHandler {
       const socketRef = ActionHandler.lastDebounceSocket;
       const newData = JSON.parse(JSON.stringify(this.lastValueSet));
       const prevData = JSON.parse(JSON.stringify(this.valueBeforeDebounce));
-      this.lastValueSet = undefined;
+      this.valueBeforeDebounce = undefined;
       ActionHandler.performAction(
         async () => {
           socketRef.data = newData;
