@@ -14,9 +14,10 @@ import PPSocket from '../../classes/SocketClass';
 import HybridNode2 from '../../classes/HybridNode2';
 import { StringType } from '../datatypes/stringType';
 import { TriggerType } from '../datatypes/triggerType';
-import { VideoType } from '../datatypes/videoType';
+import { ImageType } from '../datatypes/imageType';
+import { ArrayType } from '../datatypes/arrayType';
 
-import { CustomArgs, TNodeSource, TRgba } from '../../utils/interfaces';
+import { TNodeSource, TRgba } from '../../utils/interfaces';
 import { ensureVisible } from '../../pixi/utils-pixi';
 import {
   DRAGANDDROP_GRID_MARGIN,
@@ -70,7 +71,8 @@ const volumeSocketName = 'Volume';
 const posTimeSocketName = 'Position (s)';
 const posPercSocketName = 'Position (%)';
 const outputDetailsSocketName = 'Details';
-const outputSocketName = 'Still';
+const outputSocketName = 'Frame';
+const outputArraySocketName = 'FrameArray';
 
 export class Video extends HybridNode2 {
   worker: Worker;
@@ -191,7 +193,8 @@ export class Video extends HybridNode2 {
         true
       ),
       new PPSocket(SOCKET_TYPE.OUT, outputDetailsSocketName, new JSONType()),
-      new PPSocket(SOCKET_TYPE.OUT, outputSocketName, new VideoType()),
+      new PPSocket(SOCKET_TYPE.OUT, outputSocketName, new ImageType()),
+      new PPSocket(SOCKET_TYPE.OUT, outputArraySocketName, new ArrayType()),
     ];
   }
 
@@ -385,14 +388,19 @@ export class Video extends HybridNode2 {
       resizeObserver.current.observe(videoTarget);
 
       node.eventTarget.addEventListener('getMultipleFrames', () => {
-        captureFrame();
+        captureMultipleFrames();
       });
       node.eventTarget.addEventListener('getFrame', () => {
-        captureFrame();
+        captureCurrentFrame();
       });
 
       return () => resizeObserver.current.unobserve(videoTarget);
     }, []);
+
+    const captureCurrentFrame = () => {
+      node.setOutputData(outputSocketName, captureFrame());
+      node.executeChildren();
+    };
 
     const captureFrame = () => {
       const canvas = document.createElement('canvas');
@@ -402,8 +410,20 @@ export class Video extends HybridNode2 {
       const context = canvas.getContext('2d');
       context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
 
-      const base64Image = canvas.toDataURL('image/png');
-      node.setOutputData(outputSocketName, base64Image);
+      return canvas.toDataURL('image/png');
+    };
+
+    const captureMultipleFrames = () => {
+      videoRef.current.pause();
+      const amount = 10;
+      const imageArray = [];
+      for (let index = 0; index < amount; index++) {
+        const time = (index / (amount * 1.0)) * videoRef.current.duration;
+        console.log(time);
+        videoRef.current.currentTime = time;
+        imageArray.push(captureFrame());
+      }
+      node.setOutputData(outputArraySocketName, imageArray);
       node.executeChildren();
     };
 

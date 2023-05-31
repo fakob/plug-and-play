@@ -12,7 +12,7 @@ export class VideoType extends FunctionType {
   };
 
   getName(): string {
-    return 'Movie';
+    return 'Video';
   }
 
   getComment(commentData: any): string {
