@@ -16,7 +16,7 @@ import { StringType } from '../datatypes/stringType';
 import { TriggerType } from '../datatypes/triggerType';
 import { VideoType } from '../datatypes/videoType';
 
-import { TNodeSource, TRgba } from '../../utils/interfaces';
+import { CustomArgs, TNodeSource, TRgba } from '../../utils/interfaces';
 import { ensureVisible } from '../../pixi/utils-pixi';
 import {
   DRAGANDDROP_GRID_MARGIN,
@@ -59,7 +59,8 @@ function CircularProgressWithLabel(
 
 export const inputResourceIdSocketName = 'Local resource ID';
 export const inputFileNameSocketName = 'File name';
-const getStillsSocketName = 'Get stills';
+const getFrameSocketName = 'Get current frame';
+const getMultipleFramesSocketName = 'Get multiple frames';
 const transcodeSocketName = 'Transcode video';
 const playSocketName = 'Play/Pause';
 const loopSocketName = 'Loop';
@@ -69,17 +70,18 @@ const volumeSocketName = 'Volume';
 const posTimeSocketName = 'Position (s)';
 const posPercSocketName = 'Position (%)';
 const outputDetailsSocketName = 'Details';
-const outputSocketName = 'Video';
+const outputSocketName = 'Still';
 
 export class Video extends HybridNode2 {
   worker: Worker;
+  eventTarget: EventTarget;
 
   public getName(): string {
     return 'Video player';
   }
 
   public getDescription(): string {
-    return 'Plays a video';
+    return 'Play a video or grab a frame. The video is stored locally.';
   }
 
   public getTags(): string[] {
@@ -176,8 +178,15 @@ export class Video extends HybridNode2 {
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
-        getStillsSocketName,
-        new TriggerType(TRIGGER_TYPE_OPTIONS[0].text, 'getStills'),
+        getMultipleFramesSocketName,
+        new TriggerType(TRIGGER_TYPE_OPTIONS[0].text, 'getMultipleFrames'),
+        0,
+        true
+      ),
+      new PPSocket(
+        SOCKET_TYPE.IN,
+        getFrameSocketName,
+        new TriggerType(TRIGGER_TYPE_OPTIONS[0].text, 'getFrame'),
         0,
         true
       ),
@@ -199,6 +208,8 @@ export class Video extends HybridNode2 {
   }
 
   public onNodeAdded = async (source?: TNodeSource): Promise<void> => {
+    this.eventTarget = new EventTarget();
+
     this.worker = new Worker(
       new URL(
         /* webpackIgnore: true */ './ffmpeg.worker.js',
@@ -233,8 +244,13 @@ export class Video extends HybridNode2 {
     await this.workerAction('transcode');
   };
 
-  getStills = async () => {
-    await this.workerAction('getStills');
+  getMultipleFrames = async () => {
+    // await this.workerAction('getMultipleFrames');
+    this.eventTarget.dispatchEvent(new Event('getMultipleFrames'));
+  };
+
+  getFrame = async () => {
+    this.eventTarget.dispatchEvent(new Event('getFrame'));
   };
 
   workerAction = async (type) => {
@@ -301,6 +317,11 @@ export class Video extends HybridNode2 {
                 console.timeEnd('loadMovie');
                 break;
               case 'frame':
+                if (data.i === 0) {
+                  // reset values
+                  newNodeSelection.length = 0; // clear node selection
+                  nodePosX = node.x + node.nodeWidth;
+                }
                 console.log('Complete one frame');
                 const base64 = arrayBufferToBase64(data.buffer);
                 const newNode = PPGraph.currentGraph.addNewNode('Image', {
@@ -360,11 +381,31 @@ export class Video extends HybridNode2 {
           setContentHeight(entry.borderBoxSize[0].blockSize);
         }
       });
-      const target = document.getElementById(node.id);
-      resizeObserver.current.observe(target);
+      const videoTarget = document.getElementById(node.id);
+      resizeObserver.current.observe(videoTarget);
 
-      return () => resizeObserver.current.unobserve(target);
+      node.eventTarget.addEventListener('getMultipleFrames', () => {
+        captureFrame();
+      });
+      node.eventTarget.addEventListener('getFrame', () => {
+        captureFrame();
+      });
+
+      return () => resizeObserver.current.unobserve(videoTarget);
     }, []);
+
+    const captureFrame = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = videoRef.current.videoWidth;
+      canvas.height = videoRef.current.videoHeight;
+
+      const context = canvas.getContext('2d');
+      context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+
+      const base64Image = canvas.toDataURL('image/png');
+      node.setOutputData(outputSocketName, base64Image);
+      node.executeChildren();
+    };
 
     useEffect(() => {
       node.resizeAndDraw(node.nodeWidth, contentHeight);

@@ -76,15 +76,20 @@ self.onmessage = async (event) => {
             for (const [i, fileName] of exportedFrames.entries()) {
               const framePath = '/frames/' + fileName;
               const data = ffmpeg.FS('readFile', `${framePath}`);
-              console.log(i, exportedFrames.length - 1);
+              console.log(
+                i,
+                exportedFrames.length - 1,
+                i / (exportedFrames.length - 1.0)
+              );
               self.postMessage({
                 type: 'progress',
                 data: i / (exportedFrames.length - 1.0),
               });
               const isLast = i === exportedFrames.length - 1;
-              self.postMessage({ buffer: data.buffer, type: 'frame', isLast }, [
-                data.buffer,
-              ]);
+              self.postMessage(
+                { buffer: data.buffer, type: 'frame', i, isLast },
+                [data.buffer]
+              );
               ffmpeg.FS('unlink', `${framePath}`);
             }
             await ffmpeg.FS('rmdir', '/frames');
