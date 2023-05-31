@@ -704,6 +704,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     );
 
     InterfaceController.onOpenNodeSearch = openNodeSearch;
+    InterfaceController.onOpenFileBrowser = open;
 
     InterfaceController.onRightClick = (
       event: PIXI.FederatedPointerEvent,

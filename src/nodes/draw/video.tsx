@@ -1,10 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ThemeProvider } from '@mui/material';
-import { Box, Grid, Typography } from '@mui/material';
+import { Box, Button, Grid, Typography } from '@mui/material';
 import CircularProgress, {
   CircularProgressProps,
 } from '@mui/material/CircularProgress';
 import { ErrorBoundary } from 'react-error-boundary';
+import InterfaceController from '../../InterfaceController';
 import PPStorage from '../../PPStorage';
 import ErrorFallback from '../../components/ErrorFallback';
 import PPGraph from '../../classes/GraphClass';
@@ -224,10 +225,8 @@ export class Video extends HybridNode2 {
     this.executeOptimizedChain();
   };
 
-  loadResource = async () => {
-    return await PPStorage.getInstance().loadResource(
-      this.getInputData(inputResourceIdSocketName)
-    );
+  loadResource = async (resourceId) => {
+    return await PPStorage.getInstance().loadResource(resourceId);
   };
 
   transcode = async () => {
@@ -239,7 +238,9 @@ export class Video extends HybridNode2 {
   };
 
   workerAction = async (type) => {
-    const blob = await this.loadResource();
+    const blob = await this.loadResource(
+      this.getInputData(inputResourceIdSocketName)
+    );
     const fileName = this.getInputData(inputFileNameSocketName);
 
     const waitForWorker = async () => {
@@ -361,41 +362,50 @@ export class Video extends HybridNode2 {
     }, [contentHeight]);
 
     useEffect(() => {
-      node.loadResource().then((blob) => {
-        setVideoSrc(URL.createObjectURL(blob));
-      });
+      node
+        .loadResource(props[inputResourceIdSocketName])
+        .then((blob) => {
+          setVideoSrc(URL.createObjectURL(blob));
+        })
+        .catch((e) => {
+          console.error(e.message); // "oh, no!"
+        });
     }, [props[inputResourceIdSocketName]]);
 
     useEffect(() => {
-      if (props[playSocketName]) {
-        videoRef.current.play();
-      } else {
-        videoRef.current.pause();
+      if (videoRef.current) {
+        if (props[playSocketName]) {
+          videoRef.current.play();
+        } else {
+          videoRef.current.pause();
+        }
       }
     }, [props[playSocketName]]);
 
     useEffect(() => {
-      videoRef.current.loop = props[loopSocketName];
+      videoRef.current && (videoRef.current.loop = props[loopSocketName]);
     }, [props[loopSocketName]]);
 
     useEffect(() => {
-      videoRef.current.playbackRate = props[speedSocketName];
+      videoRef.current &&
+        (videoRef.current.playbackRate = props[speedSocketName]);
     }, [props[speedSocketName]]);
 
     useEffect(() => {
-      videoRef.current.muted = props[muteSocketName];
+      videoRef.current && (videoRef.current.muted = props[muteSocketName]);
     }, [props[muteSocketName]]);
 
     useEffect(() => {
-      videoRef.current.volume = props[volumeSocketName];
+      videoRef.current && (videoRef.current.volume = props[volumeSocketName]);
     }, [props[volumeSocketName]]);
 
     useEffect(() => {
-      videoRef.current.currentTime = props[posTimeSocketName];
+      videoRef.current &&
+        (videoRef.current.currentTime = props[posTimeSocketName]);
     }, [props[posTimeSocketName]]);
 
     useEffect(() => {
-      if (videoRef.current.duration) {
+      if (videoRef.current && videoRef.current.duration) {
         videoRef.current.currentTime =
           (props[posPercSocketName] / 100) * videoRef.current.duration;
       }
@@ -404,15 +414,23 @@ export class Video extends HybridNode2 {
     return (
       <ErrorBoundary FallbackComponent={ErrorFallback}>
         <ThemeProvider theme={customTheme}>
-          <video
-            autoPlay={props[playSocketName]}
-            id={node.id}
-            ref={videoRef}
-            style={{ width: '100%', opacity: progress !== 100 ? 0.3 : 1 }}
-            src={videoSrc}
-            controls
-          ></video>
-          {progress !== 100 && (
+          <Box
+            sx={{
+              bgcolor: 'background.default',
+            }}
+          >
+            <video
+              autoPlay={props[playSocketName]}
+              id={node.id}
+              ref={videoRef}
+              style={{
+                width: '100%',
+                opacity: progress !== 100 ? 0.3 : 1,
+                visibility: videoSrc ? 'visible' : 'hidden',
+              }}
+              src={videoSrc}
+              controls
+            ></video>
             <Grid
               container
               alignItems="center"
@@ -423,11 +441,28 @@ export class Video extends HybridNode2 {
                 left: '50%',
                 transform: 'translate(-50%, -50%)',
                 width: '100%',
+                pointerEvents: 'none',
               }}
             >
-              <CircularProgressWithLabel value={progress} />
+              {progress !== 100 && (
+                <CircularProgressWithLabel value={progress} />
+              )}
+              {!videoSrc && (
+                <Button
+                  sx={{
+                    pointerEvents: 'auto',
+                  }}
+                  variant="outlined"
+                  onClick={() => {
+                    PPGraph.currentGraph.selection.selectNodes([node], false);
+                    InterfaceController.onOpenFileBrowser();
+                  }}
+                >
+                  Select video
+                </Button>
+              )}
             </Grid>
-          )}
+          </Box>
         </ThemeProvider>
       </ErrorBoundary>
     );
