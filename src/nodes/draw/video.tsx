@@ -341,8 +341,17 @@ export class Video extends HybridNode2 {
 
       if (videoRef.current) {
         // (videoRef.current as any).loop = true;
-        (videoRef.current as any).addEventListener('error', () => {
+        videoRef.current.addEventListener('error', () => {
           console.error(`Error loading: ${path}`);
+        });
+        videoRef.current.addEventListener('loadedmetadata', () => {
+          const details = {
+            videoWidth: videoRef.current.videoWidth,
+            videoHeight: videoRef.current.videoHeight,
+            duration: videoRef.current.duration,
+          };
+          node.setOutputData(outputDetailsSocketName, details);
+          node.executeChildren();
         });
       }
 
@@ -362,14 +371,16 @@ export class Video extends HybridNode2 {
     }, [contentHeight]);
 
     useEffect(() => {
-      node
-        .loadResource(props[inputResourceIdSocketName])
-        .then((blob) => {
-          setVideoSrc(URL.createObjectURL(blob));
-        })
-        .catch((e) => {
-          console.error(e.message); // "oh, no!"
-        });
+      if (props[inputResourceIdSocketName]) {
+        node
+          .loadResource(props[inputResourceIdSocketName])
+          .then((blob) => {
+            setVideoSrc(URL.createObjectURL(blob));
+          })
+          .catch((e) => {
+            console.error(e.message);
+          });
+      }
     }, [props[inputResourceIdSocketName]]);
 
     useEffect(() => {
