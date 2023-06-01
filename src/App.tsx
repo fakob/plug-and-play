@@ -316,7 +316,11 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       }
       // select the newly added nodes
       if (newNodeSelection.length > 0) {
-        PPGraph.currentGraph.selection.selectNodes(newNodeSelection);
+        PPGraph.currentGraph.selection.selectNodes(
+          newNodeSelection,
+          false,
+          true
+        );
         ensureVisible(PPGraph.currentGraph.selection.selectedNodes);
         enqueueSnackbar(
           `${newNodeSelection.length} new ${

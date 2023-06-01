@@ -130,56 +130,56 @@ export class Video extends HybridNode2 {
         playSocketName,
         new BooleanType(),
         true,
-        true
+        false
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
         loopSocketName,
         new BooleanType(),
         true,
-        true
+        false
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
         speedSocketName,
         new NumberType(false, 0, 10),
         1.0,
-        true
+        false
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
         muteSocketName,
         new BooleanType(),
         false,
-        true
+        false
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
         volumeSocketName,
         new NumberType(false, 0, 1),
         1.0,
-        true
+        false
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
         posTimeSocketName,
         new NumberType(),
         undefined,
-        true
+        false
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
         posPercSocketName,
         new NumberType(false, 0, 100),
         undefined,
-        true
+        false
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
         transcodeSocketName,
         new TriggerType(TRIGGER_TYPE_OPTIONS[0].text, 'transcode'),
         0,
-        true
+        false
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
@@ -193,32 +193,38 @@ export class Video extends HybridNode2 {
         getFramesIntervalSocketName,
         new TriggerType(TRIGGER_TYPE_OPTIONS[0].text, 'getFramesInterval'),
         0,
-        true
+        false
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
         intervalSocketName,
         new NumberType(false, 1, 100),
         10,
-        true
+        false
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
         getFramesCountSocketName,
         new TriggerType(TRIGGER_TYPE_OPTIONS[0].text, 'getFramesCount'),
         0,
-        true
+        false
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
         countSocketName,
         new NumberType(false, 1, 100),
         10,
-        true
+        false
+      ),
+      new PPSocket(SOCKET_TYPE.OUT, outputSocketName, new ImageType()),
+      new PPSocket(
+        SOCKET_TYPE.OUT,
+        outputArraySocketName,
+        new ArrayType(),
+        [],
+        false
       ),
       new PPSocket(SOCKET_TYPE.OUT, outputDetailsSocketName, new JSONType()),
-      new PPSocket(SOCKET_TYPE.OUT, outputSocketName, new ImageType()),
-      new PPSocket(SOCKET_TYPE.OUT, outputArraySocketName, new ArrayType()),
     ];
   }
 
