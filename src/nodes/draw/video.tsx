@@ -9,7 +9,6 @@ import InterfaceController from '../../InterfaceController';
 import PPStorage from '../../PPStorage';
 import ErrorFallback from '../../components/ErrorFallback';
 import PPGraph from '../../classes/GraphClass';
-import PPNode from '../../classes/NodeClass';
 import PPSocket from '../../classes/SocketClass';
 import HybridNode2 from '../../classes/HybridNode2';
 import { StringType } from '../datatypes/stringType';
@@ -18,9 +17,7 @@ import { ImageType } from '../datatypes/imageType';
 import { ArrayType } from '../datatypes/arrayType';
 
 import { TNodeSource, TRgba } from '../../utils/interfaces';
-import { ensureVisible } from '../../pixi/utils-pixi';
 import {
-  DRAGANDDROP_GRID_MARGIN,
   NODE_TYPE_COLOR,
   SOCKET_TYPE,
   TRIGGER_TYPE_OPTIONS,
@@ -91,6 +88,10 @@ export class Video extends HybridNode2 {
 
   public getTags(): string[] {
     return ['Draw'].concat(super.getTags());
+  }
+
+  public hasExample(): boolean {
+    return true;
   }
 
   getShowLabels(): boolean {
