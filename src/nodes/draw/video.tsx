@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ThemeProvider } from '@mui/material';
 import { Box, Button, Grid, Typography } from '@mui/material';
 import CircularProgress, {
@@ -61,7 +61,10 @@ function CircularProgressWithLabel(
 export const inputResourceIdSocketName = 'Local resource ID';
 export const inputFileNameSocketName = 'File name';
 const getFrameSocketName = 'Get current frame';
-const getMultipleFramesSocketName = 'Get multiple frames';
+const getFramesIntervalSocketName = 'Get frames (interval)';
+const intervalSocketName = 'Interval (s)';
+const getFramesCountSocketName = 'Get frames (count)';
+const countSocketName = 'Count';
 const transcodeSocketName = 'Transcode video';
 const playSocketName = 'Play/Pause';
 const loopSocketName = 'Loop';
@@ -180,16 +183,37 @@ export class Video extends HybridNode2 {
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
-        getMultipleFramesSocketName,
-        new TriggerType(TRIGGER_TYPE_OPTIONS[0].text, 'getMultipleFrames'),
+        getFrameSocketName,
+        new TriggerType(TRIGGER_TYPE_OPTIONS[0].text, 'getFrame'),
         0,
         true
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
-        getFrameSocketName,
-        new TriggerType(TRIGGER_TYPE_OPTIONS[0].text, 'getFrame'),
+        getFramesIntervalSocketName,
+        new TriggerType(TRIGGER_TYPE_OPTIONS[0].text, 'getFramesInterval'),
         0,
+        true
+      ),
+      new PPSocket(
+        SOCKET_TYPE.IN,
+        intervalSocketName,
+        new NumberType(false, 1, 100),
+        10,
+        true
+      ),
+      new PPSocket(
+        SOCKET_TYPE.IN,
+        getFramesCountSocketName,
+        new TriggerType(TRIGGER_TYPE_OPTIONS[0].text, 'getFramesCount'),
+        0,
+        true
+      ),
+      new PPSocket(
+        SOCKET_TYPE.IN,
+        countSocketName,
+        new NumberType(false, 1, 100),
+        10,
         true
       ),
       new PPSocket(SOCKET_TYPE.OUT, outputDetailsSocketName, new JSONType()),
@@ -247,9 +271,12 @@ export class Video extends HybridNode2 {
     await this.workerAction('transcode');
   };
 
-  getMultipleFrames = async () => {
-    // await this.workerAction('getMultipleFrames');
-    this.eventTarget.dispatchEvent(new Event('getMultipleFrames'));
+  getFramesInterval = async () => {
+    this.eventTarget.dispatchEvent(new Event('getFramesInterval'));
+  };
+
+  getFramesCount = async () => {
+    this.eventTarget.dispatchEvent(new Event('getFramesCount'));
   };
 
   getFrame = async () => {
@@ -294,7 +321,8 @@ export class Video extends HybridNode2 {
     const newNodeSelection: PPNode[] = [];
 
     const [progress, setProgress] = useState(100);
-    const [path, setPath] = useState(props[inputFileNameSocketName]);
+    const [path] = useState(props[inputFileNameSocketName]);
+    const [interval] = useState(props[intervalSocketName]);
     const [videoSrc, setVideoSrc] = useState(undefined);
     const [contentHeight, setContentHeight] = useState(0);
 
@@ -387,9 +415,6 @@ export class Video extends HybridNode2 {
       const videoTarget = document.getElementById(node.id);
       resizeObserver.current.observe(videoTarget);
 
-      node.eventTarget.addEventListener('getMultipleFrames', () => {
-        captureMultipleFrames();
-      });
       node.eventTarget.addEventListener('getFrame', () => {
         captureCurrentFrame();
       });
@@ -397,27 +422,36 @@ export class Video extends HybridNode2 {
       return () => resizeObserver.current.unobserve(videoTarget);
     }, []);
 
+    const getCanvasAndContext = (): [
+      HTMLCanvasElement,
+      CanvasRenderingContext2D
+    ] => {
+      const canvas = document.createElement('canvas');
+      canvas.width = videoRef.current.videoWidth;
+      canvas.height = videoRef.current.videoHeight;
+      const context = canvas.getContext('2d');
+      return [canvas, context];
+    };
+
+    const captureFrame = () => {
+      const [canvas, context] = getCanvasAndContext();
+      context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+      return canvas.toDataURL();
+    };
+
     const captureCurrentFrame = () => {
       node.setOutputData(outputSocketName, captureFrame());
       node.executeChildren();
     };
 
-    const captureFrame = () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = videoRef.current.videoWidth;
-      canvas.height = videoRef.current.videoHeight;
+    const captureMultipleFramesCount = useCallback(async () => {
+      const interval =
+        videoRef.current.duration / (Math.max(1, props[countSocketName]) * 1.0);
+      captureMultipleFrames(interval);
+    }, [props[countSocketName]]);
 
-      const context = canvas.getContext('2d');
-      context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
-
-      return canvas.toDataURL('image/png');
-    };
-
-    const captureMultipleFrames = async () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = videoRef.current.videoWidth;
-      canvas.height = videoRef.current.videoHeight;
-      const context = canvas.getContext('2d');
+    const captureMultipleFrames = async (interval: number) => {
+      const [canvas, context] = getCanvasAndContext();
 
       const imageArray = [];
       node.setOutputData(outputArraySocketName, imageArray);
@@ -427,11 +461,10 @@ export class Video extends HybridNode2 {
         if (seekResolve) seekResolve();
       });
 
-      const interval = 1 / 1;
       let currentTime = 0;
       const duration = videoRef.current.duration;
 
-      while (currentTime < duration) {
+      while (currentTime <= duration) {
         videoRef.current.currentTime = currentTime;
         await new Promise((r) => (seekResolve = r));
 
@@ -443,6 +476,38 @@ export class Video extends HybridNode2 {
         currentTime += interval;
       }
     };
+
+    useEffect(() => {
+      // needed in combination with useCallback
+      node.eventTarget.addEventListener(
+        'getFramesInterval',
+        captureMultipleFramesInterval
+      );
+      return () => {
+        node.eventTarget.removeEventListener(
+          'getFramesInterval',
+          captureMultipleFramesInterval
+        );
+      };
+    }, [props[intervalSocketName]]);
+
+    const captureMultipleFramesInterval = useCallback(async () => {
+      captureMultipleFrames(props[intervalSocketName]);
+    }, [props[intervalSocketName]]);
+
+    useEffect(() => {
+      // needed in combination with useCallback
+      node.eventTarget.addEventListener(
+        'getFramesCount',
+        captureMultipleFramesCount
+      );
+      return () => {
+        node.eventTarget.removeEventListener(
+          'getFramesCount',
+          captureMultipleFramesCount
+        );
+      };
+    }, [props[countSocketName]]);
 
     useEffect(() => {
       node.resizeAndDraw(node.nodeWidth, contentHeight);
