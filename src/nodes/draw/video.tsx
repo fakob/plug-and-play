@@ -243,7 +243,6 @@ export class Video extends HybridNode2 {
         import.meta.url
       ).href
     );
-    console.log(this.worker);
 
     super.onNodeAdded(source);
   };
@@ -252,10 +251,6 @@ export class Video extends HybridNode2 {
     super.onRemoved();
     this.worker.terminate();
   }
-
-  // protected getActivateByDoubleClick(): boolean {
-  //   return false;
-  // }
 
   updateAndExecute = (localResourceId: string, path: string): void => {
     this.setInputData(inputResourceIdSocketName, localResourceId);
@@ -301,10 +296,8 @@ export class Video extends HybridNode2 {
           buffer,
         ]);
 
-        console.log(`Start ${type}`);
         this.executeChildren();
       } else {
-        console.log('Wait');
         setTimeout(waitForWorker, 100);
       }
     };
@@ -317,12 +310,9 @@ export class Video extends HybridNode2 {
     const resizeObserver = useRef(null);
     const videoRef = useRef<HTMLVideoElement>();
     const node = props.node;
-    let nodePosX = node.x + node.nodeWidth;
-    const newNodeSelection: PPNode[] = [];
 
     const [progress, setProgress] = useState(100);
     const [path] = useState(props[inputFileNameSocketName]);
-    const [interval] = useState(props[intervalSocketName]);
     const [videoSrc, setVideoSrc] = useState(undefined);
     const [contentHeight, setContentHeight] = useState(0);
 
@@ -333,7 +323,6 @@ export class Video extends HybridNode2 {
             const { data } = event;
             switch (data.type) {
               case 'transcodingResult':
-                console.log('Completed transcoding');
                 const blob = new Blob([data.buffer], { type: 'video/mp4' });
                 const size = blob.size;
                 const localResourceId = `${data.name}-${size}`;
@@ -344,36 +333,6 @@ export class Video extends HybridNode2 {
                   data.name
                 );
                 node.setInputData(inputResourceIdSocketName, localResourceId);
-                console.timeEnd('createObjectURL');
-                console.timeEnd('loadMovie');
-                break;
-              case 'frame':
-                if (data.i === 0) {
-                  // reset values
-                  newNodeSelection.length = 0; // clear node selection
-                  nodePosX = node.x + node.nodeWidth;
-                }
-                console.log('Complete one frame');
-                const base64 = arrayBufferToBase64(data.buffer);
-                const newNode = PPGraph.currentGraph.addNewNode('Image', {
-                  nodePosX,
-                  nodePosY: node.y,
-                  defaultArguments: {
-                    Image: base64,
-                  },
-                });
-                newNodeSelection.push(newNode);
-                nodePosX =
-                  nodePosX + newNode.nodeWidth + DRAGANDDROP_GRID_MARGIN;
-                if (data.isLast) {
-                  // select the newly added nodes
-                  if (newNodeSelection.length > 0) {
-                    PPGraph.currentGraph.selection.selectNodes(
-                      newNodeSelection
-                    );
-                    ensureVisible(PPGraph.currentGraph.selection.selectedNodes);
-                  }
-                }
                 break;
               case 'progress':
                 console.log(data);
@@ -385,14 +344,12 @@ export class Video extends HybridNode2 {
           };
           node.worker.onerror = (error) => console.error(error);
         } else {
-          console.log('wait');
           setTimeout(waitForWorker, 100);
         }
       };
       waitForWorker();
 
       if (videoRef.current) {
-        // (videoRef.current as any).loop = true;
         videoRef.current.addEventListener('error', () => {
           console.error(`Error loading: ${path}`);
         });
@@ -608,7 +565,11 @@ export class Video extends HybridNode2 {
                   }}
                   variant="outlined"
                   onClick={() => {
-                    PPGraph.currentGraph.selection.selectNodes([node], false);
+                    PPGraph.currentGraph.selection.selectNodes(
+                      [node],
+                      false,
+                      true
+                    );
                     InterfaceController.onOpenFileBrowser();
                   }}
                 >
@@ -621,14 +582,4 @@ export class Video extends HybridNode2 {
       </ErrorBoundary>
     );
   }
-}
-
-function arrayBufferToBase64(buffer: ArrayBuffer): string {
-  let binary = '';
-  const bytes = new Uint8Array(buffer);
-  const len = bytes.byteLength;
-  for (let i = 0; i < len; i++) {
-    binary += String.fromCharCode(bytes[i]);
-  }
-  return 'data:image/png;base64,' + window.btoa(binary);
 }

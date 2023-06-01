@@ -187,8 +187,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     (async function () {
       for (let index = 0; index < acceptedFiles.length; index++) {
         const file = acceptedFiles[index];
-        console.log(file);
-        // const reader = new FileReader();
         const objectURL = URL.createObjectURL(file);
 
         const extension = file.name
@@ -267,11 +265,18 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               }
             }
             break;
+          case '3gp':
           case 'avi':
+          case 'flv':
           case 'mov':
           case 'mkv':
+          case 'm4v':
           case 'mp4':
+          case 'ogg':
+          case 'qt':
+          case 'swf':
           case 'webm':
+          case 'wmv':
             data = await response.blob();
             const localResourceId = `${file.path}-${file.size}`;
             PPStorage.getInstance().storeResource(

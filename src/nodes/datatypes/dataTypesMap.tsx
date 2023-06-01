@@ -12,7 +12,6 @@ import { JSONType } from './jsonType';
 import { NumberType } from './numberType';
 import { StringType } from './stringType';
 import { TriggerType } from './triggerType';
-import { VideoType } from './videoType';
 
 // I hate this but what can you do
 export const allDataTypes = {
@@ -25,7 +24,6 @@ export const allDataTypes = {
   FunctionType: FunctionType,
   StringType: StringType,
   TriggerType: TriggerType,
-  VideoType: VideoType,
   JSONType: JSONType,
   ImageType: ImageType,
   CodeType: CodeType,
