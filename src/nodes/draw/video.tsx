@@ -413,18 +413,35 @@ export class Video extends HybridNode2 {
       return canvas.toDataURL('image/png');
     };
 
-    const captureMultipleFrames = () => {
-      videoRef.current.pause();
-      const amount = 10;
+    const captureMultipleFrames = async () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = videoRef.current.videoWidth;
+      canvas.height = videoRef.current.videoHeight;
+      const context = canvas.getContext('2d');
+
       const imageArray = [];
-      for (let index = 0; index < amount; index++) {
-        const time = (index / (amount * 1.0)) * videoRef.current.duration;
-        console.log(time);
-        videoRef.current.currentTime = time;
-        imageArray.push(captureFrame());
-      }
       node.setOutputData(outputArraySocketName, imageArray);
-      node.executeChildren();
+
+      let seekResolve;
+      videoRef.current.addEventListener('seeked', async function () {
+        if (seekResolve) seekResolve();
+      });
+
+      const interval = 1 / 1;
+      let currentTime = 0;
+      const duration = videoRef.current.duration;
+
+      while (currentTime < duration) {
+        videoRef.current.currentTime = currentTime;
+        await new Promise((r) => (seekResolve = r));
+
+        context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+        const base64ImageData = canvas.toDataURL();
+        imageArray.push(base64ImageData);
+        node.executeChildren();
+
+        currentTime += interval;
+      }
     };
 
     useEffect(() => {
