@@ -159,7 +159,7 @@ export default class PPGraph {
       event.stopPropagation();
       const target = event.target;
       if (target instanceof Viewport) {
-        InterfaceController.onOpenNodeSearch(event.global);
+        InterfaceController.openNodeSearch();
       }
     }
   }
@@ -197,7 +197,7 @@ export default class PPGraph {
           this.lastSelectedSocketWasInput ||
           this.selectedSourceSocket.isInput()
         ) {
-          InterfaceController.onOpenNodeSearch(event.global);
+          InterfaceController.openNodeSearch();
         } else {
           this.stopConnecting();
         }

@@ -64,6 +64,7 @@ import {
 import { IGraphSearch, INodeSearch } from './utils/interfaces';
 import {
   connectNodeToSocket,
+  controlOrMetaKey,
   convertBlobToBase64,
   cutOrCopyClipboard,
   isEventComingFromWithinTextInput,
@@ -87,10 +88,6 @@ import PPSelection from './classes/SelectionClass';
 TimeAgo.addDefaultLocale(en);
 // Create formatter (English).
 const timeAgo = new TimeAgo('en-US');
-
-const isMac = navigator.platform.indexOf('Mac') != -1;
-const controlOrMetaKey = isMac ? '⌘' : 'Ctrl';
-console.log('isMac: ', isMac);
 
 const randomMainColorLightHex = PIXI.utils.string2hex(
   Color(RANDOMMAINCOLOR).mix(Color('white'), 0.9).hex()
@@ -533,93 +530,31 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         );
       });
 
+    /*
+  static toggleGraphSearchOpen: () => void = () => {};
+  static toggleShowEdit: () => void = () => {};
+  static toggleRightSideDrawer: () => void = () => {};
+  static toggleShowComments: () => void = () => {};*/
+
+    const toggleInputValue = (prev) => !prev;
+
+    InterfaceController.toggleGraphSearchOpen = () =>
+      setIsGraphSearchOpen(toggleInputValue);
+    InterfaceController.toggleShowEdit = () => setShowEdit(toggleInputValue);
+    InterfaceController.toggleRightSideDrawer = () =>
+      setShowRightSideDrawer(toggleInputValue);
+    InterfaceController.toggleShowComments = () =>
+      setShowComments(toggleInputValue);
+
+    InterfaceController.openNodeSearch = openNodeSearch;
+    InterfaceController.setIsGraphSearchOpen = setIsGraphSearchOpen;
+    InterfaceController.setIsNodeSearchVisible = setIsNodeSearchVisible;
+    InterfaceController.setIsGraphContextMenuOpen = setIsGraphContextMenuOpen;
+    InterfaceController.setIsNodeContextMenuOpen = setIsNodeContextMenuOpen;
+    InterfaceController.setIsSocketContextMenuOpen = setIsSocketContextMenuOpen;
+
     // register key events
-    const keysDown = (e: KeyboardEvent): void => {
-      const modKey = isMac ? e.metaKey : e.ctrlKey;
-      if (!isEventComingFromWithinTextInput(e)) {
-        if (modKey && !e.shiftKey) {
-          switch (e.key.toLowerCase()) {
-            case 'a':
-              PPGraph.currentGraph.selection.selectAllNodes();
-              e.preventDefault();
-              break;
-            case 'f':
-              openNodeSearch(mousePosition);
-              e.preventDefault();
-              break;
-            case 'd':
-              PPGraph.currentGraph.duplicateSelection();
-              e.preventDefault();
-              break;
-            case 'o':
-              setIsGraphSearchOpen((prevState) => !prevState);
-              e.preventDefault();
-              break;
-            case 'e':
-              setShowEdit((prevState) => !prevState);
-              e.preventDefault();
-              break;
-            case '\\':
-              setShowRightSideDrawer((prevState) => !prevState);
-              e.preventDefault();
-              break;
-            case 'z':
-              ActionHandler.undo();
-              e.preventDefault();
-              break;
-          }
-        } else if (modKey && e.shiftKey) {
-          switch (e.key.toLowerCase()) {
-            case 'a':
-              PPGraph.currentGraph.selection.deselectAllNodes();
-              e.preventDefault();
-              break;
-            case 'y':
-              setShowComments((prevState) => !prevState);
-              break;
-            case 'x':
-              PPGraph.currentGraph.showExecutionVisualisation =
-                !PPGraph.currentGraph.showExecutionVisualisation;
-              break;
-            case 'z':
-              ActionHandler.redo();
-              break;
-          }
-        } else if (e.shiftKey) {
-          switch (e.code) {
-            case 'Digit1':
-              zoomToFitNodes();
-              break;
-            case 'Digit2':
-              zoomToFitNodes(PPGraph.currentGraph.selection.selectedNodes);
-              break;
-          }
-        } else if (e.altKey) {
-          switch (e.code) {
-            case 'KeyA':
-              console.log('alt a');
-              e.preventDefault();
-              PPGraph.currentGraph.sendKeyEvent(e);
-              break;
-          }
-        }
-      }
-      if (modKey && e.key.toLowerCase() === 's') {
-        e.preventDefault();
-        if (e.shiftKey) {
-          PPStorage.getInstance().saveNewGraph();
-        } else {
-          PPStorage.getInstance().saveGraph(false);
-        }
-      } else if (e.key === 'Escape') {
-        setIsGraphSearchOpen(false);
-        setIsNodeSearchVisible(false);
-        setIsGraphContextMenuOpen(false);
-        setIsNodeContextMenuOpen(false);
-        setIsSocketContextMenuOpen(false);
-      }
-    };
-    window.addEventListener('keydown', keysDown.bind(this));
+    window.addEventListener('keydown', InterfaceController.keysDown);
 
     window.addEventListener('keydown', (e: KeyboardEvent) =>
       InputParser.parseKeyDown(e, PPGraph.currentGraph)
@@ -666,7 +601,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       })
     );
 
-    InterfaceController.onOpenNodeSearch = openNodeSearch;
+    InterfaceController.openNodeSearch = openNodeSearch;
 
     InterfaceController.onRightClick = (
       event: PIXI.FederatedPointerEvent,
@@ -894,8 +829,9 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     }
   };
 
-  const openNodeSearch = (pos = undefined) => {
+  const openNodeSearch = () => {
     console.log('openNodeSearch');
+    const pos = mousePosition;
     if (pos !== undefined) {
       setContextMenuPosition([pos.x, pos.y]);
     }
@@ -1103,7 +1039,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           </Dialog>
           {isGraphContextMenuOpen && (
             <GraphContextMenu
-              controlOrMetaKey={controlOrMetaKey}
+              controlOrMetaKey={controlOrMetaKey()}
               contextMenuPosition={contextMenuPosition}
               setIsGraphSearchOpen={setIsGraphSearchOpen}
               openNodeSearch={openNodeSearch}
@@ -1117,7 +1053,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           )}
           {isNodeContextMenuOpen && (
             <NodeContextMenu
-              controlOrMetaKey={controlOrMetaKey}
+              controlOrMetaKey={controlOrMetaKey()}
               contextMenuPosition={contextMenuPosition}
               currentGraph={PPGraph.currentGraph}
               openNodeSearch={openNodeSearch}
@@ -1127,7 +1063,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           )}
           {isSocketContextMenuOpen && (
             <SocketContextMenu
-              controlOrMetaKey={controlOrMetaKey}
+              controlOrMetaKey={controlOrMetaKey()}
               contextMenuPosition={contextMenuPosition}
               currentGraph={PPGraph.currentGraph}
               selectedSocket={selectedSocket}

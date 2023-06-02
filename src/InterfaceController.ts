@@ -4,6 +4,11 @@ import { OptionsObject, SnackbarKey, SnackbarMessage } from 'notistack';
 import * as PIXI from 'pixi.js';
 import Socket from './classes/SocketClass';
 import { v4 as uuid } from 'uuid';
+import { isEventComingFromWithinTextInput, isMac } from './utils/utils';
+import PPGraph from './classes/GraphClass';
+import PPStorage from './PPStorage';
+import { ActionHandler } from './utils/actionHandler';
+import { zoomToFitNodes } from './pixi/utils-pixi';
 
 export enum ListenEvent {
   SelectionChanged, // data = PPNode[]
@@ -69,9 +74,113 @@ export default class InterfaceController {
     event: PIXI.FederatedPointerEvent,
     target: PIXI.FederatedEventTarget
   ) => void = () => {}; // called when the graph is right clicked
-  static onOpenNodeSearch: (pos: PIXI.Point) => void = () => {}; // called node search should be openend
   static onOpenSocketInspector: (pos: PIXI.Point, data: Socket) => void =
     () => {}; // called when socket inspector should be opened
   static onCloseSocketInspector: () => void; // called when socket inspector should be closed
   static selectionRedrawn: (pos: PIXI.Point) => void = () => {};
+
+  // these were previously only in app.tsx and are still being set from there
+  static openNodeSearch: () => void = () => {};
+  static toggleGraphSearchOpen: () => void = () => {};
+  static toggleShowEdit: () => void = () => {};
+  static toggleRightSideDrawer: () => void = () => {};
+  static toggleShowComments: () => void = () => {};
+
+  static setIsGraphSearchOpen: (boolean) => void = () => {};
+  static setIsNodeSearchVisible: (boolean) => void = () => {};
+  static setIsGraphContextMenuOpen: (boolean) => void = () => {};
+  static setIsNodeContextMenuOpen: (boolean) => void = () => {};
+  static setIsSocketContextMenuOpen: (boolean) => void = () => {};
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  static keysDown = (e: KeyboardEvent): void => {
+    const modKey = isMac() ? e.metaKey : e.ctrlKey;
+    if (!isEventComingFromWithinTextInput(e)) {
+      if (modKey && !e.shiftKey) {
+        switch (e.key.toLowerCase()) {
+          case 'a':
+            PPGraph.currentGraph.selection.selectAllNodes();
+            e.preventDefault();
+            break;
+          case 'f':
+            this.openNodeSearch();
+            e.preventDefault();
+            break;
+          case 'd':
+            PPGraph.currentGraph.duplicateSelection();
+            e.preventDefault();
+            break;
+          case 'o':
+            this.toggleGraphSearchOpen();
+            //setIsGraphSearchOpen((prevState) => !prevState);
+            e.preventDefault();
+            break;
+          case 'e':
+            this.toggleShowEdit();
+            //setShowEdit((prevState) => !prevState);
+            e.preventDefault();
+            break;
+          case '\\':
+            this.toggleRightSideDrawer();
+            //setShowRightSideDrawer((prevState) => !prevState);
+            e.preventDefault();
+            break;
+          case 'z':
+            ActionHandler.undo();
+            e.preventDefault();
+            break;
+        }
+      } else if (modKey && e.shiftKey) {
+        switch (e.key.toLowerCase()) {
+          case 'a':
+            PPGraph.currentGraph.selection.deselectAllNodes();
+            e.preventDefault();
+            break;
+          case 'y':
+            this.toggleShowComments();
+            //setShowComments((prevState) => !prevState);
+            break;
+          case 'x':
+            PPGraph.currentGraph.showExecutionVisualisation =
+              !PPGraph.currentGraph.showExecutionVisualisation;
+            break;
+          case 'z':
+            ActionHandler.redo();
+            break;
+        }
+      } else if (e.shiftKey) {
+        switch (e.code) {
+          case 'Digit1':
+            zoomToFitNodes();
+            break;
+          case 'Digit2':
+            zoomToFitNodes(PPGraph.currentGraph.selection.selectedNodes);
+            break;
+        }
+      } else if (e.altKey) {
+        switch (e.code) {
+          case 'KeyA':
+            console.log('alt a');
+            e.preventDefault();
+            PPGraph.currentGraph.sendKeyEvent(e);
+            break;
+        }
+      }
+    }
+    if (modKey && e.key.toLowerCase() === 's') {
+      e.preventDefault();
+      if (e.shiftKey) {
+        PPStorage.getInstance().saveNewGraph();
+      } else {
+        PPStorage.getInstance().saveGraph(false);
+      }
+    } else if (e.key === 'Escape') {
+      this.setIsGraphSearchOpen(false);
+      this.setIsNodeSearchVisible(false);
+      this.setIsGraphContextMenuOpen(false);
+      this.setIsNodeContextMenuOpen(false);
+      this.setIsSocketContextMenuOpen(false);
+    }
+  };
 }

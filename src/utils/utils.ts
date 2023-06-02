@@ -802,6 +802,14 @@ export function isPhone(): boolean {
   });
 }
 
+export function controlOrMetaKey() {
+  return isMac() ? '⌘' : 'Ctrl';
+}
+
+export function isMac(): boolean {
+  return navigator.platform.indexOf('Mac') != -1;
+}
+
 // needs ThemeProvider context
 export function useIsSmallScreen(): boolean {
   const theme = useTheme();
