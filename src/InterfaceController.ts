@@ -113,17 +113,14 @@ export default class InterfaceController {
             break;
           case 'o':
             this.toggleGraphSearchOpen();
-            //setIsGraphSearchOpen((prevState) => !prevState);
             e.preventDefault();
             break;
           case 'e':
             this.toggleShowEdit();
-            //setShowEdit((prevState) => !prevState);
             e.preventDefault();
             break;
           case '\\':
             this.toggleRightSideDrawer();
-            //setShowRightSideDrawer((prevState) => !prevState);
             e.preventDefault();
             break;
           case 'z':
@@ -139,7 +136,6 @@ export default class InterfaceController {
             break;
           case 'y':
             this.toggleShowComments();
-            //setShowComments((prevState) => !prevState);
             break;
           case 'x':
             PPGraph.currentGraph.showExecutionVisualisation =

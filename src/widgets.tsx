@@ -52,7 +52,7 @@ const bindKeyDown = () => {
 
 async function potentiallyUpdateSocketData(property: Socket, newValue) {
   if (property.data !== newValue) {
-    ActionHandler.interfaceSetValueOnSocket(property, newValue);
+    ActionHandler.interfaceApplyValue(property, newValue);
   }
 }
 
@@ -390,8 +390,17 @@ export const CodeWidget: React.FunctionComponent<CodeWidgetProps> = (props) => {
       setData(formattedData);
     }
   }, 100);
-
-  return <></>;
+  return (
+    <CodeEditor
+      value={data}
+      randomMainColor={props.randomMainColor}
+      editable={!props.hasLink}
+      onChange={(value) => {
+        potentiallyUpdateSocketData(props.property, value);
+        setData(value);
+      }}
+    />
+  );
 };
 
 export const JSONWidget: React.FunctionComponent<TextWidgetProps> = (props) => {

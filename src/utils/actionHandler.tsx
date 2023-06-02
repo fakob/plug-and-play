@@ -60,39 +60,43 @@ export class ActionHandler {
     }
   }
 
-  static setValueDebouncer = _.debounce(() => {
+  static setValueSaveAction = _.debounce(() => {
     if (ActionHandler.lastDebounceSocket) {
       console.log('setting new debounce point');
       const socketRef = ActionHandler.lastDebounceSocket;
       const newData = JSON.parse(JSON.stringify(this.lastValueSet));
       const prevData = JSON.parse(JSON.stringify(this.valueBeforeDebounce));
       this.valueBeforeDebounce = undefined;
-      ActionHandler.performAction(
-        async () => {
-          ActionHandler.applySocketValue(socketRef, newData);
-        },
-        async () => {
-          ActionHandler.applySocketValue(socketRef, prevData);
-        },
-        false
-      );
+      if (newData !== prevData) {
+        ActionHandler.performAction(
+          async () => {
+            ActionHandler.applyValueToSocket(socketRef, newData);
+          },
+          async () => {
+            ActionHandler.applyValueToSocket(socketRef, prevData);
+          },
+          false
+        );
+      }
     }
   }, 100);
 
-  static interfaceSetValueOnSocket(socket: Socket, value: any) {
+  static applyValueToSocket(socket: Socket, value: any) {
+    socket.data = value;
+    if (socket.getNode().updateBehaviour.update) {
+      socket.getNode().executeOptimizedChain();
+    }
+  }
+
+  // call this from the interface, it will both set the value of the socket as expected and trigger the debounce stuff that will make it undoable
+  static interfaceApplyValue(socket: Socket, value: any) {
     if (!this.valueBeforeDebounce) {
       this.valueBeforeDebounce = socket.data;
     }
     this.lastDebounceSocket = socket;
     this.lastValueSet = value;
-    socket.data = value;
-  }
-
-  static applySocketValue(socket: Socket, value: any) {
-    ActionHandler.setValueDebouncer();
-    if (socket.getNode().updateBehaviour.update) {
-      socket.getNode().executeOptimizedChain();
-    }
+    this.applyValueToSocket(socket, value);
+    this.setValueSaveAction();
   }
 
   static setUnsavedChange(state: boolean): void {
