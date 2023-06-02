@@ -105,7 +105,9 @@ export class Label extends PPNode {
         data = this.initialData;
       }
       this.setInputData('Input', data);
-      this.executeOptimizedChain();
+      this.executeOptimizedChain().catch((error) => {
+        console.error(error);
+      });
     }
 
     if (source === NODE_SOURCE.NEW) {
