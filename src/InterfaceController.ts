@@ -74,4 +74,5 @@ export default class InterfaceController {
     () => {}; // called when socket inspector should be opened
   static onCloseSocketInspector: () => void; // called when socket inspector should be closed
   static selectionRedrawn: (pos: PIXI.Point) => void = () => {};
+  static onOpenFileBrowser: () => void = () => {};
 }
