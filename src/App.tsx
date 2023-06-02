@@ -530,12 +530,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         );
       });
 
-    /*
-  static toggleGraphSearchOpen: () => void = () => {};
-  static toggleShowEdit: () => void = () => {};
-  static toggleRightSideDrawer: () => void = () => {};
-  static toggleShowComments: () => void = () => {};*/
-
     const toggleInputValue = (prev) => !prev;
 
     InterfaceController.toggleGraphSearchOpen = () =>

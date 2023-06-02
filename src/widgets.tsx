@@ -39,6 +39,16 @@ import { NumberType } from './nodes/datatypes/numberType';
 import { TriggerType } from './nodes/datatypes/triggerType';
 import useInterval from 'use-interval';
 import { ActionHandler } from './utils/actionHandler';
+import InterfaceController from './InterfaceController';
+
+const bindKeyDown = () => {
+  useEffect(() => {
+    document.addEventListener('keydown', InterfaceController.keysDown);
+    return () => {
+      document.removeEventListener('keydown', InterfaceController.keysDown);
+    };
+  }, [InterfaceController.keysDown]);
+};
 
 async function potentiallyUpdateSocketData(property: Socket, newValue) {
   if (property.data !== newValue) {
@@ -74,6 +84,8 @@ export const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (
   );
   const [round, setRound] = useState(props.type.round ?? false);
   const [stepSizeValue] = useState(props.type.stepSize ?? 0.01);
+
+  //bindKeyDown();
 
   return (
     <>
