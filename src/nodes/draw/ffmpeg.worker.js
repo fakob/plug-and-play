@@ -62,7 +62,7 @@ self.onmessage = async (event) => {
         setTimeout(waitForFfmpeg, 100);
       }
     };
-    waitForFfmpeg();
+    await waitForFfmpeg();
   } catch (e) {
     self.postMessage({ type: 'error', error: e });
   }

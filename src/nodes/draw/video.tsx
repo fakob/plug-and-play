@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ThemeProvider } from '@mui/material';
-import { Box, Button, Grid, Typography } from '@mui/material';
+import { Box, Button, Grid, ThemeProvider, Typography } from '@mui/material';
 import CircularProgress, {
   CircularProgressProps,
 } from '@mui/material/CircularProgress';
@@ -262,7 +261,9 @@ export class Video extends HybridNode2 {
   updateAndExecute = (localResourceId: string, path: string): void => {
     this.setInputData(inputResourceIdSocketName, localResourceId);
     this.setInputData(inputFileNameSocketName, path);
-    this.executeOptimizedChain();
+    this.executeOptimizedChain().catch((error) => {
+      console.error(error);
+    });
   };
 
   loadResource = async (resourceId) => {
@@ -303,13 +304,13 @@ export class Video extends HybridNode2 {
           buffer,
         ]);
 
-        this.executeChildren();
+        await this.executeChildren();
       } else {
         setTimeout(waitForWorker, 100);
       }
     };
 
-    waitForWorker();
+    await waitForWorker();
   };
 
   // small presentational component
@@ -411,7 +412,7 @@ export class Video extends HybridNode2 {
     const captureMultipleFramesCount = useCallback(async () => {
       const interval =
         videoRef.current.duration / (Math.max(1, props[countSocketName]) * 1.0);
-      captureMultipleFrames(interval);
+      await captureMultipleFrames(interval);
     }, [props[countSocketName]]);
 
     const captureMultipleFrames = async (interval: number) => {
@@ -456,7 +457,7 @@ export class Video extends HybridNode2 {
     }, [props[intervalSocketName]]);
 
     const captureMultipleFramesInterval = useCallback(async () => {
-      captureMultipleFrames(props[intervalSocketName]);
+      await captureMultipleFrames(props[intervalSocketName]);
     }, [props[intervalSocketName]]);
 
     useEffect(() => {
@@ -523,7 +524,7 @@ export class Video extends HybridNode2 {
     }, [props[posTimeSocketName]]);
 
     useEffect(() => {
-      if (videoRef.current && videoRef.current.duration) {
+      if (videoRef.current?.duration) {
         videoRef.current.currentTime =
           (props[posPercSocketName] / 100) * videoRef.current.duration;
       }

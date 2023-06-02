@@ -292,7 +292,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               const existingNode = PPGraph.currentGraph.selection.selectedNodes[
                 index
               ] as VideoNode;
-              await existingNode.updateAndExecute(localResourceId, file.path);
+              existingNode.updateAndExecute(localResourceId, file.path);
             } else {
               newNode = PPGraph.currentGraph.addNewNode('Video', {
                 nodePosX,
