@@ -8,8 +8,7 @@ import { convertToString } from '../../utils/utils';
 import { TRgba } from '../../utils/interfaces';
 import { SOCKET_COLOR_HEX } from '../../utils/constants';
 export class AbstractType {
-  onDataSet(data: any, socket: Socket) {
-  }
+  onDataSet(data: any, socket: Socket) {}
 
   // override any and all of these in child classes
   getName(): string {
@@ -21,7 +20,7 @@ export class AbstractType {
 
   // optional, used to give extra information that should be written at all times next to the sockets, keep it short
   getMetaText(data: any): string {
-    return "";
+    return '';
   }
 
   getComment(data: any): string {
@@ -61,8 +60,9 @@ export class AbstractType {
     return data;
   }
 
+  // these nodes need to cater for initialData to be a socket
   recommendedInputNodeWidgets(): string[] {
-    return ["Constant","WidgetRadio"];
+    return ['Constant', 'WidgetRadio'];
   }
 
   recommendedOutputNodeWidgets(): string[] {

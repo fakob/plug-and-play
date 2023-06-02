@@ -98,7 +98,18 @@ export class Label extends PPNode {
 
   public onNodeAdded = (source?: TNodeSource) => {
     if (this.initialData) {
-      this.setInputData('Input', this.initialData);
+      let data;
+      if (this.initialData instanceof PPSocket) {
+        data = this.initialData.data;
+      } else {
+        data = this.initialData;
+      }
+      this.setInputData('Input', data);
+      this.executeOptimizedChain();
+    }
+
+    if (source === NODE_SOURCE.NEW) {
+      this.HTMLVisible();
     }
 
     super.onNodeAdded(source);

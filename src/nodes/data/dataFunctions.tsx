@@ -136,7 +136,14 @@ export class Constant extends PPNode {
 
   public onNodeAdded = () => {
     if (this.initialData) {
-      this.setInputData(constantInName, this.initialData);
+      let data;
+      if (this.initialData instanceof Socket) {
+        this.name = this.initialData.name;
+        data = this.initialData.data;
+      } else {
+        data = this.initialData;
+      }
+      this.setInputData(constantInName, data);
     }
     super.onNodeAdded();
   };

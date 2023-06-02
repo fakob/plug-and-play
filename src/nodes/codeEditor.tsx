@@ -6,6 +6,7 @@ import ErrorFallback from '../components/ErrorFallback';
 import MonacoEditor from 'react-monaco-editor';
 import PPSocket from '../classes/SocketClass';
 import { CodeType } from './datatypes/codeType';
+import { TNodeSource } from '../utils/interfaces';
 import { convertToString, downloadFile, formatDate } from '../utils/utils';
 import { SOCKET_TYPE, customTheme } from '../utils/constants';
 import HybridNode2 from '../classes/HybridNode2';
@@ -29,6 +30,20 @@ export class CodeEditor extends HybridNode2 {
   public getTags(): string[] {
     return ['Widget'].concat(super.getTags());
   }
+
+  public onNodeAdded = (source?: TNodeSource) => {
+    if (this.initialData) {
+      let data;
+      if (this.initialData instanceof PPSocket) {
+        data = this.initialData.data;
+      } else {
+        data = this.initialData;
+      }
+      this.setInputData(inputSocketName, data);
+    }
+
+    super.onNodeAdded(source);
+  };
 
   protected getDefaultIO(): PPSocket[] {
     return [
@@ -114,15 +129,6 @@ export class CodeEditor extends HybridNode2 {
     const [readOnly, setReadOnly] = useState<boolean>(
       node.getInputSocketByName(inputSocketName).hasLink()
     );
-
-    useEffect(() => {
-      if (node.initialData) {
-        node.setInputData(inputSocketName, node.initialData);
-        setCodeString(parseData(node.initialData));
-        node.setOutputData(outputSocketName, node.initialData);
-        node.executeOptimizedChain();
-      }
-    }, []);
 
     useEffect(() => {
       loadData();

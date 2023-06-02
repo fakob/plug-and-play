@@ -2,7 +2,6 @@
 import * as PIXI from 'pixi.js';
 import {
   CheckBox,
-  List,
   Button as PixiUIButton,
   Slider as PixiUISlider,
   RadioGroup,
@@ -31,7 +30,7 @@ import ColorizeIcon from '@mui/icons-material/Colorize';
 import { SketchPicker } from 'react-color';
 import Socket from '../../classes/SocketClass';
 import { WidgetBase, WidgetHybridBase } from './abstract';
-import { TRgba } from '../../utils/interfaces';
+import { TNodeSource, TRgba } from '../../utils/interfaces';
 import { limitRange, roundNumber } from '../../utils/utils';
 import {
   NODE_MARGIN,
@@ -105,6 +104,14 @@ export class WidgetButton extends WidgetBase {
   public getDescription(): string {
     return 'Adds a button to trigger values';
   }
+
+  public onNodeAdded = (source?: TNodeSource) => {
+    if (this.initialData instanceof Socket) {
+      this.setInputData(labelName, this.initialData.name);
+    }
+
+    super.onNodeAdded(source);
+  };
 
   protected getUpdateBehaviour(): UpdateBehaviourClass {
     return new UpdateBehaviourClass(false, false, 1000);
@@ -202,6 +209,21 @@ export class WidgetButton extends WidgetBase {
 
 export class WidgetRadio extends WidgetBase {
   radio: RadioGroup | undefined = undefined;
+
+  public onNodeAdded = (source?: TNodeSource) => {
+    if (this.initialData) {
+      let data;
+      if (this.initialData instanceof Socket) {
+        // this.setInputData(labelName, this.initialData.name);
+        data = this.initialData.data;
+      } else {
+        data = this.initialData;
+      }
+      this.setInputData(optionsName, data);
+    }
+
+    super.onNodeAdded(source);
+  };
 
   protected getDefaultIO(): Socket[] {
     return [
@@ -369,6 +391,21 @@ export class WidgetColorPicker extends WidgetHybridBase {
     return 'Adds a color picker';
   }
 
+  public onNodeAdded = (source?: TNodeSource) => {
+    if (this.initialData) {
+      let data;
+      if (this.initialData instanceof Socket) {
+        this.setInputData(labelName, this.initialData.name);
+        data = this.initialData.data;
+      } else {
+        data = this.initialData;
+      }
+      this.setInputData(initialValueName, data);
+    }
+
+    super.onNodeAdded(source);
+  };
+
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(
@@ -530,6 +567,21 @@ export class WidgetSwitch extends WidgetHybridBase {
     return 'Adds a switch to toggle between values';
   }
 
+  public onNodeAdded = (source?: TNodeSource) => {
+    if (this.initialData) {
+      let data;
+      if (this.initialData instanceof Socket) {
+        this.setInputData(labelName, this.initialData.name);
+        data = this.initialData.data;
+      } else {
+        data = this.initialData;
+      }
+      this.setInputData(selectedName, data);
+    }
+
+    super.onNodeAdded(source);
+  };
+
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, selectedName, new BooleanType(), false, false),
@@ -666,6 +718,25 @@ export class WidgetSlider extends WidgetBase {
     fontWeight: '100',
     fill: fillWhiteHex,
   });
+
+  public onNodeAdded = (source?: TNodeSource) => {
+    if (this.initialData) {
+      if (this.initialData instanceof Socket) {
+        const { round, minValue, maxValue } = this.initialData
+          .dataType as NumberType;
+        this.setInputData(initialValueName, this.initialData.data);
+        this.setInputData(minValueName, minValue);
+        this.setInputData(maxValueName, maxValue);
+        this.setInputData(roundName, round);
+        this.setInputData(labelName, this.initialData.name);
+      } else {
+        this.setInputData('Input', this.initialData);
+      }
+      this.drawNodeShape();
+    }
+
+    super.onNodeAdded(source);
+  };
 
   protected getDefaultIO(): Socket[] {
     return [
