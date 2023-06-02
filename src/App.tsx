@@ -40,12 +40,7 @@ import {
 import GraphOverlay from './components/GraphOverlay';
 import ErrorFallback from './components/ErrorFallback';
 import PixiContainer from './PixiContainer';
-import { Image as ImageNode } from './nodes/image/image';
-import {
-  Video as VideoNode,
-  inputResourceIdSocketName,
-  inputFileNameSocketName,
-} from './nodes/draw/video';
+import { dragAndDrop } from './dragAndDrop';
 import {
   GraphContextMenu,
   NodeContextMenu,
@@ -59,7 +54,6 @@ import {
   CANVAS_BACKGROUND_TEXTURE,
   COMMENT_TEXTSTYLE,
   CONTEXTMENU_WIDTH,
-  DRAGANDDROP_GRID_MARGIN,
   GRID_SHADER,
   MAX_LATEST_NODES_IN_SEARCH,
   NODE_SOURCE,
@@ -69,7 +63,6 @@ import {
 import { IGraphSearch, INodeSearch } from './utils/interfaces';
 import {
   connectNodeToSocket,
-  convertBlobToBase64,
   cutOrCopyClipboard,
   isEventComingFromWithinTextInput,
   pasteClipboard,
@@ -78,7 +71,7 @@ import {
   roundNumber,
   useStateRef,
 } from './utils/utils';
-import { ensureVisible, zoomToFitNodes } from './pixi/utils-pixi';
+import { zoomToFitNodes } from './pixi/utils-pixi';
 import { getAllNodeTypes } from './nodes/allNodes';
 import PPSocket from './classes/SocketClass';
 import PPNode from './classes/NodeClass';
@@ -173,162 +166,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
 
   // react-dropzone
   const onDrop = useCallback((acceptedFiles, fileRejections, event) => {
-    console.log(acceptedFiles, fileRejections);
-
-    const dropPoint = viewport.current.toWorld(
-      // no event exists in case graph gets loaded from file
-      new PIXI.Point(event?.clientX ?? 0, event?.clientY ?? 0)
-    );
-
-    let nodePosX = dropPoint.x;
-    const nodePosY = dropPoint.y;
-    const newNodeSelection: PPNode[] = [];
-
-    (async function () {
-      for (let index = 0; index < acceptedFiles.length; index++) {
-        const file = acceptedFiles[index];
-        const objectURL = URL.createObjectURL(file);
-
-        const extension = file.name
-          .slice(((file.name.lastIndexOf('.') - 1) >>> 0) + 2)
-          .toLowerCase();
-        const preExtension = file.name.replace('.' + extension, '');
-
-        // select what node to create
-        const response = await fetch(objectURL);
-        let data;
-        let newNode;
-
-        switch (extension) {
-          case 'ppgraph':
-            data = await response.text();
-            await PPStorage.getInstance().loadGraphFromData(
-              JSON.parse(data),
-              preExtension
-            );
-            break;
-          case 'csv':
-          case 'ods':
-          case 'numbers':
-          case 'xls':
-          case 'xlsm':
-          case 'xlsb':
-          case 'xlsx':
-            /* data is an ArrayBuffer */
-            data = await response.arrayBuffer();
-            newNode = PPGraph.currentGraph.addNewNode('Table', {
-              nodePosX,
-              nodePosY,
-              initialData: data,
-            });
-            break;
-          case 'txt':
-            data = await response.text();
-            newNode = PPGraph.currentGraph.addNewNode('TextEditor', {
-              nodePosX,
-              nodePosY,
-              initialData: { plain: data },
-            });
-            break;
-          case 'json':
-          case 'js':
-          case 'jsx':
-          case 'ts':
-          case 'tsx':
-            data = await response.text();
-            newNode = PPGraph.currentGraph.addNewNode('CodeEditor', {
-              nodePosX,
-              nodePosY,
-              initialData: data,
-            });
-            break;
-          case 'jpg':
-          case 'png':
-            data = await response.blob();
-            const base64 = await convertBlobToBase64(data).catch((err) => {
-              console.error(err);
-            });
-            if (base64) {
-              if (
-                PPGraph.currentGraph.selection.selectedNodes?.[index]?.type ===
-                'Image'
-              ) {
-                const existingNode = PPGraph.currentGraph.selection
-                  .selectedNodes[index] as ImageNode;
-                await existingNode.updateAndExecute(base64 as string);
-              } else {
-                newNode = PPGraph.currentGraph.addNewNode('Image', {
-                  nodePosX,
-                  nodePosY,
-                  defaultArguments: { Image: base64 },
-                });
-              }
-            }
-            break;
-          case '3gp':
-          case 'avi':
-          case 'flv':
-          case 'mov':
-          case 'mkv':
-          case 'm4v':
-          case 'mp4':
-          case 'ogg':
-          case 'qt':
-          case 'swf':
-          case 'webm':
-          case 'wmv':
-            data = await response.blob();
-            const localResourceId = `${file.path}-${file.size}`;
-            PPStorage.getInstance().storeResource(
-              localResourceId,
-              file.size,
-              data,
-              file.path
-            );
-            if (
-              PPGraph.currentGraph.selection.selectedNodes?.[index]?.type ===
-              'Video'
-            ) {
-              const existingNode = PPGraph.currentGraph.selection.selectedNodes[
-                index
-              ] as VideoNode;
-              existingNode.updateAndExecute(localResourceId, file.path);
-            } else {
-              newNode = PPGraph.currentGraph.addNewNode('Video', {
-                nodePosX,
-                nodePosY,
-                defaultArguments: {
-                  [inputResourceIdSocketName]: localResourceId,
-                  [inputFileNameSocketName]: file.path,
-                },
-              });
-            }
-            break;
-          default:
-            break;
-        }
-
-        // update postion if there are more than one
-        if (newNode) {
-          newNodeSelection.push(newNode);
-          nodePosX = nodePosX + newNode.nodeWidth + DRAGANDDROP_GRID_MARGIN;
-        }
-      }
-      // select the newly added nodes
-      if (newNodeSelection.length > 0) {
-        PPGraph.currentGraph.selection.selectNodes(
-          newNodeSelection,
-          false,
-          true
-        );
-        ensureVisible(PPGraph.currentGraph.selection.selectedNodes);
-        enqueueSnackbar(
-          `${newNodeSelection.length} new ${
-            newNodeSelection.length === 1 ? 'node was' : 'nodes were'
-          } added`
-        );
-      }
-    })();
+    dragAndDrop(acceptedFiles, fileRejections, event);
   }, []);
 
   const {
