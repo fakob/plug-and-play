@@ -97,53 +97,55 @@ export default class InterfaceController {
   static keysDown = (e: KeyboardEvent): void => {
     const modKey = isMac() ? e.metaKey : e.ctrlKey;
     if (!isEventComingFromWithinTextInput(e)) {
-      if (modKey && !e.shiftKey) {
-        switch (e.key.toLowerCase()) {
-          case 'a':
-            PPGraph.currentGraph.selection.selectAllNodes();
-            e.preventDefault();
-            break;
-          case 'f':
-            this.openNodeSearch();
-            e.preventDefault();
-            break;
-          case 'd':
-            PPGraph.currentGraph.duplicateSelection();
-            e.preventDefault();
-            break;
-          case 'o':
-            this.toggleGraphSearchOpen();
-            e.preventDefault();
-            break;
-          case 'e':
-            this.toggleShowEdit();
-            e.preventDefault();
-            break;
-          case '\\':
-            this.toggleRightSideDrawer();
-            e.preventDefault();
-            break;
-          case 'z':
-            ActionHandler.undo();
-            e.preventDefault();
-            break;
-        }
-      } else if (modKey && e.shiftKey) {
-        switch (e.key.toLowerCase()) {
-          case 'a':
-            PPGraph.currentGraph.selection.deselectAllNodes();
-            e.preventDefault();
-            break;
-          case 'y':
-            this.toggleShowComments();
-            break;
-          case 'x':
-            PPGraph.currentGraph.showExecutionVisualisation =
-              !PPGraph.currentGraph.showExecutionVisualisation;
-            break;
-          case 'z':
-            ActionHandler.redo();
-            break;
+      if (modKey) {
+        if (!e.shiftKey) {
+          switch (e.key.toLowerCase()) {
+            case 'a':
+              PPGraph.currentGraph.selection.selectAllNodes();
+              e.preventDefault();
+              break;
+            case 'f':
+              this.openNodeSearch();
+              e.preventDefault();
+              break;
+            case 'd':
+              PPGraph.currentGraph.duplicateSelection();
+              e.preventDefault();
+              break;
+            case 'o':
+              this.toggleGraphSearchOpen();
+              e.preventDefault();
+              break;
+            case 'e':
+              this.toggleShowEdit();
+              e.preventDefault();
+              break;
+            case '\\':
+              this.toggleRightSideDrawer();
+              e.preventDefault();
+              break;
+            case 'z':
+              ActionHandler.undo();
+              e.preventDefault();
+              break;
+          }
+        } else if (e.shiftKey) {
+          switch (e.key.toLowerCase()) {
+            case 'a':
+              PPGraph.currentGraph.selection.deselectAllNodes();
+              e.preventDefault();
+              break;
+            case 'y':
+              this.toggleShowComments();
+              break;
+            case 'x':
+              PPGraph.currentGraph.showExecutionVisualisation =
+                !PPGraph.currentGraph.showExecutionVisualisation;
+              break;
+            case 'z':
+              ActionHandler.redo();
+              break;
+          }
         }
       } else if (e.shiftKey) {
         switch (e.code) {
@@ -163,6 +165,8 @@ export default class InterfaceController {
             break;
         }
       }
+    } else {
+      console.log('Ignoring keydown as it came from inside an input');
     }
     if (modKey && e.key.toLowerCase() === 's') {
       e.preventDefault();

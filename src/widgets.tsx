@@ -41,15 +41,6 @@ import useInterval from 'use-interval';
 import { ActionHandler } from './utils/actionHandler';
 import InterfaceController from './InterfaceController';
 
-const bindKeyDown = () => {
-  useEffect(() => {
-    document.addEventListener('keydown', InterfaceController.keysDown);
-    return () => {
-      document.removeEventListener('keydown', InterfaceController.keysDown);
-    };
-  }, [InterfaceController.keysDown]);
-};
-
 async function potentiallyUpdateSocketData(property: Socket, newValue) {
   if (property.data !== newValue) {
     ActionHandler.interfaceApplyValue(property, newValue);

@@ -363,8 +363,8 @@ export const getNodeDataFromText = (text: string): SerializedSelection => {
 
 export const isEventComingFromWithinTextInput = (event: any): boolean => {
   return (
-    event.target.id === 'Input' ||
-    event.target.localName === 'input' ||
+    //event.target.id === 'Input' ||
+    //event.target.localName === 'input' || // I removed these to allow undoing from inside slider
     event.target.localName === 'textarea' ||
     event.target?.attributes?.['data-slate-editor'] !== undefined ||
     event.target?.attributes?.['data-slate-node'] !== undefined ||
