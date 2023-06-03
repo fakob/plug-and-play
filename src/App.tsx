@@ -86,9 +86,9 @@ TimeAgo.addDefaultLocale(en);
 // Create formatter (English).
 const timeAgo = new TimeAgo('en-US');
 
-const randomMainColorLightHex = PIXI.utils.string2hex(
+const randomMainColorLightHex = new PIXI.Color(
   Color(RANDOMMAINCOLOR).mix(Color('white'), 0.9).hex()
-);
+).toNumber();
 
 fetch('https://plugandplayground.dev/buildInfo')
   .then((response) => response.json())
