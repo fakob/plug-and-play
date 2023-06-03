@@ -573,7 +573,6 @@ export class WidgetSwitch extends WidgetHybridBase {
     node.prepareAndExecute = prepareAndExecute;
 
     const handleOnChange = () => {
-      const newValue = !selected;
       const id = node.id;
       const applyAction = (value) => {
         const safeNode = ActionHandler.getSafeNode(id) as WidgetSwitch;

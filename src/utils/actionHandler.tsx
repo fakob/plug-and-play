@@ -30,7 +30,7 @@ export class ActionHandler {
   static lastApplyFunction: (value: any) => void;
   static lastIdentifier = '';
   static valueBeforeDebounce: any = undefined;
-  static lastValueSet: any | undefined = undefined;
+  static lastValueSet: any = undefined;
   // allows undo actions to keep data for later use
   static undoActionSavedData: Record<string, (value: any) => void> = {};
 
