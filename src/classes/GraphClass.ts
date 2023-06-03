@@ -527,7 +527,7 @@ export default class PPGraph {
         true
       );
     };
-    await ActionHandler.performAction(action, undoAction);
+    await ActionHandler.performAction(action, undoAction, 'Replace node');
   }
 
   replaceNode = (
@@ -611,7 +611,11 @@ export default class PPGraph {
       preTargetName,
       preTargetNodeID
     );
-    await ActionHandler.performAction(actions[1], actions[0]);
+    await ActionHandler.performAction(
+      actions[1],
+      actions[0],
+      'Disconnect nodes'
+    );
   }
 
   async action_Connect(output: PPSocket, input: PPSocket, notify = true) {
@@ -628,7 +632,7 @@ export default class PPGraph {
       notify
     );
 
-    await ActionHandler.performAction(actions[0], actions[1]);
+    await ActionHandler.performAction(actions[0], actions[1], 'Connect nodes');
   }
 
   async connect(
@@ -920,6 +924,7 @@ export default class PPGraph {
       async () => {
         PPGraph.currentGraph.configure(graphPre, this.id, false);
       },
+      'Turn nodes into macro',
       false
     );
   }
@@ -1145,7 +1150,7 @@ export default class PPGraph {
       this.selection.selectNodes(addedNodes);
       this.selection.drawRectanglesFromSelection();
     };
-    ActionHandler.performAction(action, undoAction);
+    ActionHandler.performAction(action, undoAction, 'Delete node(s)');
   }
 
   async invokeMacro(inputObject: any): Promise<any> {

@@ -654,7 +654,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
             previousNode,
           ]);
         };
-        await ActionHandler.performAction(action, undoAction);
+        await ActionHandler.performAction(action, undoAction, 'Replace node');
       } else {
         // add node
         // store link before search gets hidden and temp connection gets reset
@@ -701,7 +701,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
             ActionHandler.getSafeNode(referenceID)
           );
         };
-        await ActionHandler.performAction(action, undoAction);
+        await ActionHandler.performAction(action, undoAction, 'Add node');
       }
     }
   };

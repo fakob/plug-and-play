@@ -5,6 +5,7 @@ import PPNode from '../classes/NodeClass';
 import Socket from '../classes/SocketClass';
 import _ from 'lodash';
 import { TSocketType } from './interfaces';
+import InterfaceController from '../InterfaceController';
 
 export interface Action {
   (): Promise<void>;
@@ -12,6 +13,7 @@ export interface Action {
 interface UndoAction {
   action: Action;
   undo: Action;
+  label: string;
 }
 
 const MAX_STACK_SIZE = 100;
@@ -34,6 +36,7 @@ export class ActionHandler {
   static async performAction(
     action: Action,
     undo: Action,
+    label: string,
     doPerformAction = true
   ) {
     this.addIndex++;
@@ -41,7 +44,7 @@ export class ActionHandler {
     if (doPerformAction) {
       await action();
     }
-    this.undoList.push({ action: action, undo: undo });
+    this.undoList.push({ action: action, undo: undo, label: label });
     if (this.undoList.length > MAX_STACK_SIZE) {
       this.undoList.shift();
       delete this.undoActionSavedData[this.removeIndex]; // clear data the undo actions might have saved
@@ -55,9 +58,11 @@ export class ActionHandler {
     if (lastAction) {
       await lastAction.undo();
       this.redoList.push(lastAction);
-      console.log('undo');
+      InterfaceController.showSnackBar('Undo: ' + lastAction.label);
     } else {
-      console.log('Not possible to undo, nothing in undo stack');
+      InterfaceController.showSnackBar(
+        'Not possible to undo, nothing in undo stack'
+      );
     }
   }
   static async redo() {
@@ -65,9 +70,11 @@ export class ActionHandler {
     if (lastUndo) {
       await lastUndo.action();
       this.undoList.push(lastUndo);
-      console.log('redo');
+      InterfaceController.showSnackBar('Redo: ' + lastUndo.label);
     } else {
-      console.log('Not possible to redo, nothing in redo stack');
+      InterfaceController.showSnackBar(
+        'Not possible to redo, nothing in redo stack'
+      );
     }
   }
 
@@ -89,6 +96,7 @@ export class ActionHandler {
           async () => {
             this.undoActionSavedData[currIndex](prevData);
           },
+          'Set Value',
           false
         );
       }
