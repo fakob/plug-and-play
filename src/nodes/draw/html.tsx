@@ -4,7 +4,6 @@ import { ErrorBoundary } from 'react-error-boundary';
 import Frame from 'react-frame-component';
 import ErrorFallback from '../../components/ErrorFallback';
 import PPSocket from '../../classes/SocketClass';
-import PPGraph from '../../classes/GraphClass';
 import { CodeType } from '../datatypes/codeType';
 
 import { CustomArgs, TRgba } from '../../utils/interfaces';

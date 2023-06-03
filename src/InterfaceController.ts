@@ -183,4 +183,5 @@ export default class InterfaceController {
       this.setIsSocketContextMenuOpen(false);
     }
   };
+  static onOpenFileBrowser: () => void = () => {};
 }

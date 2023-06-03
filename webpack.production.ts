@@ -19,7 +19,7 @@ module.exports = () => {
               loader: 'babel-loader',
             },
           ],
-          exclude: /node_modules/,
+          exclude: [/node_modules/, /ffmpeg\.worker\.js$/],
         },
         {
           test: /\.tsx?$/,

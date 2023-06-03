@@ -134,11 +134,22 @@ export class Image extends PPNode {
     };
 
     if (source !== NODE_SOURCE.SERIALIZED) {
-      this.resetNodeSize();
+      this.setInitialNodeSize();
     }
 
     super.onNodeAdded(source);
   }
+
+  setInitialNodeSize = () => {
+    if (this.texture !== undefined) {
+      this.setMinNodeHeight();
+      this.resizeAndDraw(
+        this.getMinNodeWidth() * 2,
+        this.getMinNodeHeight() * 2
+      );
+      PPGraph.currentGraph.selection.drawRectanglesFromSelection();
+    }
+  };
 
   resetNodeSize = () => {
     if (this.texture !== undefined) {
