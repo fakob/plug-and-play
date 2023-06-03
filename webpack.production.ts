@@ -71,6 +71,15 @@ module.exports = () => {
           },
         }),
       ],
+      splitChunks: {
+        cacheGroups: {
+          vendor: {
+            test: /[\\/]node_modules[\\/](monaco-editor|xlsx)[\\/]/,
+            name: 'vendor',
+            chunks: 'all',
+          },
+        },
+      },
     },
   };
 };
