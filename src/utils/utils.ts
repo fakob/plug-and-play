@@ -360,10 +360,16 @@ export const getNodeDataFromText = (text: string): SerializedSelection => {
   return JSON.parse(text) as SerializedSelection;
 };
 
+export const isEventComongFromWithinWidget = (event: any): boolean => {
+  return (
+    event.target.id === 'Input' ||
+    event.target.id === 'input' ||
+    isEventComingFromWithinTextInput(event)
+  );
+};
+
 export const isEventComingFromWithinTextInput = (event: any): boolean => {
   return (
-    //event.target.id === 'Input' ||
-    //event.target.localName === 'input' || // I removed these to allow undoing from inside slider, tell me if it causes problems you are aware of
     event.target.localName === 'textarea' ||
     event.target?.attributes?.['data-slate-editor'] !== undefined ||
     event.target?.attributes?.['data-slate-node'] !== undefined ||
