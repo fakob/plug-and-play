@@ -51,7 +51,7 @@
     "memorystore": "^1.6.7",
     "monaco-editor": "^0.38.0",
     "monaco-editor-webpack-plugin": "^7.0.1",
-    "notistack": "^2.0.8",
+    "notistack": "^3.0.1",
     "object-fit-math": "^1.0.0",
     "pixi-viewport": "^5.0.1",
     "pixi.js": "^7.2.4",

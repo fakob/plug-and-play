@@ -1,11 +1,10 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { ThemeProvider } from '@mui/material';
+import { CssBaseline, ThemeProvider } from '@mui/material';
 import { SnackbarProvider } from 'notistack';
 import { customTheme } from './utils/constants';
 import { isPhone } from './utils/utils';
 import App from './App';
-import styles from './utils/style.module.css';
 import './utils/global.css';
 
 const titleTag = document.querySelector('title');
@@ -49,14 +48,13 @@ container.id = 'container';
 
 root.render(
   <ThemeProvider theme={customTheme}>
+    <CssBaseline />
     <SnackbarProvider
       maxSnack={9}
+      dense={isPhone() ? true : false}
       anchorOrigin={{
         horizontal: 'center',
         vertical: isPhone() ? 'bottom' : 'top',
-      }}
-      classes={{
-        containerRoot: styles.snackbarContainerRoot,
       }}
     >
       <App />
