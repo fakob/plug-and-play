@@ -26,7 +26,9 @@ class Button extends PIXI.Sprite {
     this.alpha = 0.5;
     this.width = 24;
     this.height = 24;
-    this.tint = PIXI.utils.string2hex(Color(RANDOMMAINCOLOR).darken(0.7).hex());
+    this.tint = new PIXI.Color(
+      Color(RANDOMMAINCOLOR).darken(0.7).hex()
+    ).toNumber();
     this.addEventListener('pointerover', this.onPointerOver.bind(this));
     this.addEventListener('pointerout', this.onPointerOut.bind(this));
   }

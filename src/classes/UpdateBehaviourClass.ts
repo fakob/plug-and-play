@@ -47,24 +47,24 @@ export default class UpdateBehaviourClass extends PIXI.Container {
     FrequencyText.alpha = 0.5;
 
     this._frequencyRef = this.addChild(FrequencyText);
-    this._frequencyRef.tint = PIXI.utils.string2hex(
+    this._frequencyRef.tint = new PIXI.Color(
       Color(RANDOMMAINCOLOR).darken(0.7).hex()
-    );
+    ).toNumber();
 
     this._updateRef = this.addChild(
       PIXI.Sprite.from(UPDATEBEHAVIOURHEADER_UPDATE)
     );
-    this._updateRef.tint = PIXI.utils.string2hex(
+    this._updateRef.tint = new PIXI.Color(
       Color(RANDOMMAINCOLOR).darken(0.7).hex()
-    );
+    ).toNumber();
 
     this._noUpdateRef = this.addChild(
       PIXI.Sprite.from(UPDATEBEHAVIOURHEADER_NOUPDATE)
     );
     this._noUpdateRef.visible = false;
-    this._noUpdateRef.tint = PIXI.utils.string2hex(
+    this._noUpdateRef.tint = new PIXI.Color(
       Color(RANDOMMAINCOLOR).darken(0.7).hex()
-    );
+    ).toNumber();
 
     this.addChild(this._updateRef);
     this.addChild(this._noUpdateRef);

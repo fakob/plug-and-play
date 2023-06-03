@@ -898,7 +898,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
         activeExecution.clear();
         if (this.successfullyExecuted) {
           activeExecution.beginFill(
-            PIXI.utils.string2hex('#CCFFFF'),
+            new PIXI.Color('#CCFFFF').toNumber(),
             0.4 - i * (0.4 / iterations)
           );
         } else {
