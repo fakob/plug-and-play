@@ -397,6 +397,8 @@ export class WidgetColorPicker extends WidgetHybridBase {
     return 104;
   }
 
+  setFinalColor: any = () => {};
+
   protected getParentComponent(props: any): any {
     const node = props.node;
     const ref = useRef<HTMLDivElement | null>(null);
@@ -405,11 +407,14 @@ export class WidgetColorPicker extends WidgetHybridBase {
     );
     const [colorPicker, showColorPicker] = useState(false);
 
+    node.setFinalColor = setFinalColor;
+
     useEffect(() => {
       node.setOutputData(outName, finalColor);
       node.executeChildren();
     }, []);
 
+    const id = node.id;
     const handleOnChange = (color) => {
       const pickedrgb = color.rgb;
       const newColor = new TRgba(
@@ -418,10 +423,20 @@ export class WidgetColorPicker extends WidgetHybridBase {
         pickedrgb.b,
         pickedrgb.a
       );
-      setFinalColor(newColor);
-      node.setInputData(initialValueName, newColor);
-      node.setOutputData(outName, newColor);
-      node.executeChildren();
+      const applyFunction = (value) => {
+        const safeNode = ActionHandler.getSafeNode(id) as WidgetColorPicker;
+        safeNode.setFinalColor(value);
+        safeNode.setInputData(initialValueName, value);
+        safeNode.setOutputData(outName, value);
+        safeNode.executeChildren();
+      };
+      applyFunction(newColor); // couldnt add this as an action as it crashes, dont know why
+      /*ActionHandler.interfaceApplyValueFunction(
+        node.id,
+        node.getInputData(initialValueName),
+        newColor,
+        applyFunction
+      );*/
     };
 
     return (
@@ -533,6 +548,10 @@ export class WidgetSwitch extends WidgetHybridBase {
     return 104;
   }
 
+  // kept here to be accessed by redo undo
+  setSelected: any = () => {};
+  prepareAndExecute: any = () => {};
+
   protected getParentComponent(props: any): any {
     const node = props.node;
 
@@ -550,10 +569,23 @@ export class WidgetSwitch extends WidgetHybridBase {
       node.executeChildren();
     };
 
+    node.setSelected = setSelected;
+    node.prepareAndExecute = prepareAndExecute;
+
     const handleOnChange = () => {
       const newValue = !selected;
-      setSelected(newValue);
-      prepareAndExecute(newValue);
+      const id = node.id;
+      const applyAction = (value) => {
+        const safeNode = ActionHandler.getSafeNode(id) as WidgetSwitch;
+        safeNode.setSelected(value);
+        safeNode.prepareAndExecute(value);
+      };
+      ActionHandler.interfaceApplyValueFunction(
+        node.id,
+        selected,
+        !selected,
+        applyAction
+      );
     };
 
     return (
@@ -832,12 +864,15 @@ export class WidgetDropdown extends WidgetHybridBase {
     return 104;
   }
 
+  setSelectedOption: any = () => {};
+
   protected getParentComponent(props: any): any {
     const node = props.node;
     const [options, setOptions] = useState<any[]>(props[optionsName]);
     const [selectedOption, setSelectedOption] = useState<string | string[]>(
       formatSelected(props[selectedOptionName], props[multiSelectName])
     );
+    node.setSelectedOption = setSelectedOption;
 
     const ITEM_HEIGHT = 48;
     const ITEM_PADDING_TOP = 8;
@@ -858,8 +893,8 @@ export class WidgetDropdown extends WidgetHybridBase {
       const formattedValue = formatSelected(value, props[multiSelectName]);
       const id = node.id;
       const applyFunction = (newValue) => {
-        const safeNode = ActionHandler.getSafeNode(id);
-        setSelectedOption(newValue);
+        const safeNode = ActionHandler.getSafeNode(id) as WidgetDropdown;
+        safeNode.setSelectedOption(newValue);
         safeNode.setInputData(selectedOptionName, newValue);
         safeNode.setOutputData(outName, newValue);
         safeNode.executeChildren();
