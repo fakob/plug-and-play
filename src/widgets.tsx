@@ -89,8 +89,6 @@ export const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (
   const [round, setRound] = useState(props.type.round ?? false);
   const [stepSizeValue] = useState(props.type.stepSize ?? 0.01);
 
-  //bindKeyDown();
-
   return (
     <>
       <Slider
