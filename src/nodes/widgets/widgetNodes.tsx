@@ -47,6 +47,7 @@ import { NumberType } from '../datatypes/numberType';
 import { StringType } from '../datatypes/stringType';
 import { ColorType } from '../datatypes/colorType';
 import UpdateBehaviourClass from '../../classes/UpdateBehaviourClass';
+import { ActionHandler } from '../../utils/actionHandler';
 
 const selectedName = 'Initial Selection';
 const initialValueName = 'Initial Value';
@@ -735,9 +736,20 @@ export class WidgetSlider extends WidgetBase {
   };
 
   handleOnChange = (value) => {
-    this.setInputData(initialValueName, value);
-    this.setOutputDataAndText(value);
-    this.executeChildren();
+    const applyFunction = (newValue) => {
+      this.setInputData(initialValueName, newValue);
+
+      this.setOutputDataAndText(newValue);
+      // update the slider in percent
+      this._refWidget.progress = this.valueToPercent(newValue);
+      this.executeChildren();
+    };
+    ActionHandler.interfaceApplyValueFunction(
+      this.id,
+      this.getInputData(initialValueName),
+      value,
+      applyFunction
+    );
   };
 
   public onExecute = async (input, output) => {
@@ -749,9 +761,6 @@ export class WidgetSlider extends WidgetBase {
 
     const text = String(input[labelName]);
     this._refLabel.text = text;
-
-    // update the slider in percent
-    this._refWidget.progress = this.valueToPercent(value);
 
     // update the output
     this.setOutputDataAndText(limitRange(value, minValue, maxValue));
@@ -833,10 +842,18 @@ export class WidgetDropdown extends WidgetHybridBase {
       // single select: value is string
       // multi select: value is array of strings
       const formattedValue = formatSelected(value, props[multiSelectName]);
-      setSelectedOption(formattedValue);
-      node.setInputData(selectedOptionName, formattedValue);
-      node.setOutputData(outName, formattedValue);
-      node.executeChildren();
+      const applyFunction = (newValue) => {
+        setSelectedOption(newValue);
+        node.setInputData(selectedOptionName, newValue);
+        node.setOutputData(outName, newValue);
+        node.executeChildren();
+      };
+      ActionHandler.interfaceApplyValueFunction(
+        node.id,
+        selectedOption,
+        formattedValue,
+        applyFunction
+      );
     };
 
     useEffect(() => {

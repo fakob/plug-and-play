@@ -41,15 +41,19 @@ import useInterval from 'use-interval';
 import { ActionHandler } from './utils/actionHandler';
 
 async function potentiallyUpdateSocketData(property: Socket, newValue) {
+  const nodeID = property.getNode().id;
+  const name = property.name;
+  const type = property.socketType;
   if (property.data !== newValue) {
     ActionHandler.interfaceApplyValueFunction(
       property.name,
       property.data,
       newValue,
       (newValue) => {
-        property.data = newValue;
-        if (property.getNode().updateBehaviour.update) {
-          property.getNode().executeOptimizedChain();
+        const socket = ActionHandler.getSafeSocket(nodeID, type, name);
+        socket.data = newValue;
+        if (socket.getNode().updateBehaviour.update) {
+          socket.getNode().executeOptimizedChain();
         }
       }
     );
