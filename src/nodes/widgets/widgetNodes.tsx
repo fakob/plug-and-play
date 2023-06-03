@@ -297,8 +297,16 @@ export class WidgetRadio extends WidgetBase {
     radioGroup.y = 50;
 
     radioGroup.onChange.connect((selectedItemID: number) => {
-      this.setInputData(selectedOptionIndex, selectedItemID);
-      this.executeOptimizedChain();
+      const applyFunction = (newValue) => {
+        this.setInputData(selectedOptionIndex, newValue);
+        this.executeOptimizedChain();
+      };
+      ActionHandler.interfaceApplyValueFunction(
+        this.id,
+        this.getInputData(selectedOptionIndex),
+        selectedItemID,
+        applyFunction
+      );
     });
 
     this.radio = radioGroup;
