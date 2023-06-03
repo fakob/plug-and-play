@@ -363,8 +363,8 @@ export const getNodeDataFromText = (text: string): SerializedSelection => {
 
 export const isEventComingFromWithinTextInput = (event: any): boolean => {
   return (
-    event.target.id === 'Input' ||
-    event.target.localName === 'input' ||
+    //event.target.id === 'Input' ||
+    //event.target.localName === 'input' || // I removed these to allow undoing from inside slider, tell me if it causes problems you are aware of
     event.target.localName === 'textarea' ||
     event.target?.attributes?.['data-slate-editor'] !== undefined ||
     event.target?.attributes?.['data-slate-node'] !== undefined ||
@@ -800,6 +800,14 @@ export function isPhone(): boolean {
   return toMatch.some((toMatchItem) => {
     return navigator.userAgent.match(toMatchItem);
   });
+}
+
+export function controlOrMetaKey() {
+  return isMac() ? '⌘' : 'Ctrl';
+}
+
+export function isMac(): boolean {
+  return navigator.platform.indexOf('Mac') != -1;
 }
 
 // needs ThemeProvider context

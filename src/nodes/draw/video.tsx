@@ -243,12 +243,7 @@ export class Video extends HybridNode2 {
   public onNodeAdded = async (source?: TNodeSource): Promise<void> => {
     this.eventTarget = new EventTarget();
 
-    this.worker = new Worker(
-      new URL(
-        /* webpackIgnore: true */ './ffmpeg.worker.js',
-        import.meta.url
-      ).href
-    );
+    this.restartWorker();
 
     super.onNodeAdded(source);
   };
@@ -256,6 +251,16 @@ export class Video extends HybridNode2 {
   onRemoved(): void {
     super.onRemoved();
     this.worker.terminate();
+  }
+
+  restartWorker(): void {
+    this.worker?.terminate();
+    this.worker = new Worker(
+      new URL(
+        /* webpackIgnore: true */ './ffmpeg.worker.js',
+        import.meta.url
+      ).href
+    );
   }
 
   updateAndExecute = (localResourceId: string, path: string): void => {
@@ -324,38 +329,39 @@ export class Video extends HybridNode2 {
     const [videoSrc, setVideoSrc] = useState(undefined);
     const [contentHeight, setContentHeight] = useState(0);
 
+    const waitForWorkerBeingLoaded = () => {
+      if (node.worker) {
+        node.worker.onmessage = (event) => {
+          const { data } = event;
+          switch (data.type) {
+            case 'transcodingResult':
+              const blob = new Blob([data.buffer], { type: 'video/mp4' });
+              const size = blob.size;
+              const localResourceId = `${data.name}-${size}`;
+              PPStorage.getInstance().storeResource(
+                localResourceId,
+                size,
+                blob,
+                data.name
+              );
+              node.setInputData(inputResourceIdSocketName, localResourceId);
+              break;
+            case 'progress':
+              console.log(data);
+              setProgress(Math.ceil(data.data * 100));
+              break;
+            default:
+              break;
+          }
+        };
+        node.worker.onerror = (error) => console.error(error);
+      } else {
+        setTimeout(waitForWorkerBeingLoaded, 100);
+      }
+    };
+
     useEffect(() => {
-      const waitForWorker = () => {
-        if (node.worker) {
-          node.worker.onmessage = (event) => {
-            const { data } = event;
-            switch (data.type) {
-              case 'transcodingResult':
-                const blob = new Blob([data.buffer], { type: 'video/mp4' });
-                const size = blob.size;
-                const localResourceId = `${data.name}-${size}`;
-                PPStorage.getInstance().storeResource(
-                  localResourceId,
-                  size,
-                  blob,
-                  data.name
-                );
-                node.setInputData(inputResourceIdSocketName, localResourceId);
-                break;
-              case 'progress':
-                console.log(data);
-                setProgress(Math.ceil(data.data * 100));
-                break;
-              default:
-                break;
-            }
-          };
-          node.worker.onerror = (error) => console.error(error);
-        } else {
-          setTimeout(waitForWorker, 100);
-        }
-      };
-      waitForWorker();
+      waitForWorkerBeingLoaded();
 
       if (videoRef.current) {
         videoRef.current.addEventListener('error', () => {
@@ -554,6 +560,7 @@ export class Video extends HybridNode2 {
               container
               alignItems="center"
               justifyContent="center"
+              direction="column"
               sx={{
                 position: 'absolute',
                 top: '50%',
@@ -564,7 +571,22 @@ export class Video extends HybridNode2 {
               }}
             >
               {progress !== 100 && (
-                <CircularProgressWithLabel value={progress} />
+                <>
+                  <CircularProgressWithLabel value={progress} />
+                  <Button
+                    sx={{
+                      pointerEvents: 'auto',
+                    }}
+                    variant="text"
+                    onClick={() => {
+                      node.restartWorker();
+                      setProgress(100);
+                      waitForWorkerBeingLoaded();
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </>
               )}
               {!videoSrc && (
                 <Button

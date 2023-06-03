@@ -38,13 +38,25 @@ import { EnumStructure } from './nodes/datatypes/enumType';
 import { NumberType } from './nodes/datatypes/numberType';
 import { TriggerType } from './nodes/datatypes/triggerType';
 import useInterval from 'use-interval';
+import { ActionHandler } from './utils/actionHandler';
 
-async function potentiallyNotify(property: Socket, newValue) {
+async function potentiallyUpdateSocketData(property: Socket, newValue) {
+  const nodeID = property.getNode().id;
+  const name = property.name;
+  const type = property.socketType;
   if (property.data !== newValue) {
-    property.data = newValue;
-    if (property.getNode().updateBehaviour.update) {
-      await property.getNode().executeOptimizedChain();
-    }
+    ActionHandler.interfaceApplyValueFunction(
+      property.name,
+      property.data,
+      newValue,
+      (newValue) => {
+        const socket = ActionHandler.getSafeSocket(nodeID, type, name);
+        socket.data = newValue;
+        if (socket.getNode().updateBehaviour.update) {
+          socket.getNode().executeOptimizedChain();
+        }
+      }
+    );
   }
 }
 
@@ -90,7 +102,7 @@ export const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (
         step={round ? 1 : stepSizeValue}
         marks={[{ value: minValue }, { value: maxValue }]}
         onChange={(event, value) => {
-          potentiallyNotify(props.property, value);
+          potentiallyUpdateSocketData(props.property, value);
           if (!Array.isArray(value)) {
             setData(roundNumber(value, 4));
           }
@@ -140,7 +152,10 @@ export const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (
             step: round ? null : stepSizeValue,
           }}
           onChange={(event) => {
-            potentiallyNotify(props.property, Number(event.target.value));
+            potentiallyUpdateSocketData(
+              props.property,
+              Number(event.target.value)
+            );
             setData(Number(event.target.value));
           }}
           value={data || 0}
@@ -219,7 +234,7 @@ export const SelectWidget: React.FunctionComponent<SelectWidgetProps> = (
 
   const onChange = (event) => {
     const value = event.target.value;
-    potentiallyNotify(props.property, value);
+    potentiallyUpdateSocketData(props.property, value);
     setData(value);
     if (props.onChange) {
       props.onChange(value);
@@ -282,7 +297,7 @@ export const BooleanWidget: React.FunctionComponent<BooleanWidgetProps> = (
 
   const onChange = (event) => {
     const value = event.target.checked;
-    potentiallyNotify(props.property, value);
+    potentiallyUpdateSocketData(props.property, value);
     setData(value);
   };
 
@@ -351,7 +366,7 @@ export const TextWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
         disabled={!loadAll || props.hasLink}
         onChange={(event) => {
           const value = event.target.value;
-          potentiallyNotify(props.property, value);
+          potentiallyUpdateSocketData(props.property, value);
           setLoadedData(value);
         }}
         value={loadedData}
@@ -377,14 +392,13 @@ export const CodeWidget: React.FunctionComponent<CodeWidgetProps> = (props) => {
       setData(formattedData);
     }
   }, 100);
-
   return (
     <CodeEditor
       value={data}
       randomMainColor={props.randomMainColor}
       editable={!props.hasLink}
       onChange={(value) => {
-        potentiallyNotify(props.property, value);
+        potentiallyUpdateSocketData(props.property, value);
         setData(value);
       }}
     />
@@ -415,7 +429,7 @@ export const JSONWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
             const parsedJSON = parseJSON(value);
             if (parsedJSON) {
               setData(parsedJSON as any);
-              potentiallyNotify(props.property, parsedJSON);
+              potentiallyUpdateSocketData(props.property, parsedJSON);
               setValidJSON(true);
             } else {
               setValidJSON(false);
@@ -471,7 +485,7 @@ export const TriggerWidget: React.FunctionComponent<TriggerWidgetProps> = (
           value={data || ''}
           randomMainColor={props.randomMainColor}
           onChange={(value) => {
-            potentiallyNotify(props.property, value);
+            potentiallyUpdateSocketData(props.property, value);
             setData(value);
           }}
         />
@@ -557,7 +571,7 @@ export const ColorWidget: React.FunctionComponent<ColorWidgetProps> = (
       // uses useRef to avoid running when component' mounts
       componentMounted.current = false;
     } else {
-      potentiallyNotify(props.property, finalColor);
+      potentiallyUpdateSocketData(props.property, finalColor);
     }
     return () => undefined;
   }, [finalColor]);

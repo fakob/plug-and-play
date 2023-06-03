@@ -237,6 +237,7 @@ export abstract class DRAW_Base extends PPNode {
           )
         ),
       async () => this.setOffsets(originalOffsets),
+      'Move Graphics',
       false
     );
   }

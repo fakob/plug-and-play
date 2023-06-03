@@ -2,9 +2,8 @@
 import PPGraph from '../classes/GraphClass';
 import { isEventComingFromWithinTextInput } from './utils';
 
-// if it is a mac use the "Cmd" key instead of "Ctrl"
-const isMac = navigator.platform.indexOf('Mac') != -1;
-const controlOrMetaKey = isMac ? 'Meta' : 'Control';
+
+// This class didnt really work out TODO deprecate entirely
 
 abstract class Hotkey {
   protected getKeys(): string[] {

@@ -12,6 +12,7 @@ import {
 import { StringType } from './datatypes/stringType';
 import { NumberType } from './datatypes/numberType';
 import { ColorType } from './datatypes/colorType';
+import { ActionHandler } from '../utils/actionHandler';
 
 export class Label extends PPNode {
   PIXIText: PIXI.Text;
@@ -99,9 +100,6 @@ export class Label extends PPNode {
     if (this.initialData) {
       this.setInputData('Input', this.initialData);
     }
-    if (source === NODE_SOURCE.NEW) {
-      this.HTMLVisible();
-    }
 
     super.onNodeAdded(source);
   };
@@ -115,7 +113,6 @@ export class Label extends PPNode {
   public PIXIVisible() {
     this.PIXIText.visible = true;
     if (this.HTMLTextComponent) {
-      //document.body.removeChild(this.HTMLTextComponent);
       this.HTMLTextComponent.hidden = true;
     }
     this.executeOptimizedChain();
@@ -232,8 +229,19 @@ export class Label extends PPNode {
         newHeight + this.getMarginTopBottom()
       );
 
-      this.setInputData('Input', text);
-      this.executeOptimizedChain();
+      const id = this.id;
+      const applyFunction = (newText) => {
+        const node = ActionHandler.getSafeNode(id);
+        node.setInputData('Input', newText);
+        node.executeOptimizedChain();
+      };
+
+      ActionHandler.interfaceApplyValueFunction(
+        this.id,
+        this.getInputData('Input'),
+        text,
+        applyFunction
+      );
     });
 
     document.body.appendChild(this.HTMLTextComponent);
