@@ -47,6 +47,7 @@ import { NumberType } from '../datatypes/numberType';
 import { StringType } from '../datatypes/stringType';
 import { ColorType } from '../datatypes/colorType';
 import UpdateBehaviourClass from '../../classes/UpdateBehaviourClass';
+import { ActionHandler } from '../../utils/actionHandler';
 
 const selectedName = 'Initial Selection';
 const initialValueName = 'Initial Value';
@@ -295,9 +296,19 @@ export class WidgetRadio extends WidgetBase {
     radioGroup.x = 50;
     radioGroup.y = 50;
 
+    const id = this.id;
     radioGroup.onChange.connect((selectedItemID: number) => {
-      this.setInputData(selectedOptionIndex, selectedItemID);
-      this.executeOptimizedChain();
+      const applyFunction = (newValue) => {
+        const safeNode = ActionHandler.getSafeNode(id);
+        safeNode.setInputData(selectedOptionIndex, newValue);
+        safeNode.executeOptimizedChain();
+      };
+      ActionHandler.interfaceApplyValueFunction(
+        this.id,
+        this.getInputData(selectedOptionIndex),
+        selectedItemID,
+        applyFunction
+      );
     });
 
     this.radio = radioGroup;
@@ -386,6 +397,8 @@ export class WidgetColorPicker extends WidgetHybridBase {
     return 104;
   }
 
+  setFinalColor: any = () => {};
+
   protected getParentComponent(props: any): any {
     const node = props.node;
     const ref = useRef<HTMLDivElement | null>(null);
@@ -394,11 +407,14 @@ export class WidgetColorPicker extends WidgetHybridBase {
     );
     const [colorPicker, showColorPicker] = useState(false);
 
+    node.setFinalColor = setFinalColor;
+
     useEffect(() => {
       node.setOutputData(outName, finalColor);
       node.executeChildren();
     }, []);
 
+    const id = node.id;
     const handleOnChange = (color) => {
       const pickedrgb = color.rgb;
       const newColor = new TRgba(
@@ -407,10 +423,20 @@ export class WidgetColorPicker extends WidgetHybridBase {
         pickedrgb.b,
         pickedrgb.a
       );
-      setFinalColor(newColor);
-      node.setInputData(initialValueName, newColor);
-      node.setOutputData(outName, newColor);
-      node.executeChildren();
+      const applyFunction = (value) => {
+        const safeNode = ActionHandler.getSafeNode(id) as WidgetColorPicker;
+        safeNode.setFinalColor(value);
+        safeNode.setInputData(initialValueName, value);
+        safeNode.setOutputData(outName, value);
+        safeNode.executeChildren();
+      };
+      applyFunction(newColor); // couldnt add this as an action as it crashes, dont know why
+      /*ActionHandler.interfaceApplyValueFunction(
+        node.id,
+        node.getInputData(initialValueName),
+        newColor,
+        applyFunction
+      );*/
     };
 
     return (
@@ -522,6 +548,10 @@ export class WidgetSwitch extends WidgetHybridBase {
     return 104;
   }
 
+  // kept here to be accessed by redo undo
+  setSelected: any = () => {};
+  prepareAndExecute: any = () => {};
+
   protected getParentComponent(props: any): any {
     const node = props.node;
 
@@ -539,10 +569,22 @@ export class WidgetSwitch extends WidgetHybridBase {
       node.executeChildren();
     };
 
+    node.setSelected = setSelected;
+    node.prepareAndExecute = prepareAndExecute;
+
     const handleOnChange = () => {
-      const newValue = !selected;
-      setSelected(newValue);
-      prepareAndExecute(newValue);
+      const id = node.id;
+      const applyAction = (value) => {
+        const safeNode = ActionHandler.getSafeNode(id) as WidgetSwitch;
+        safeNode.setSelected(value);
+        safeNode.prepareAndExecute(value);
+      };
+      ActionHandler.interfaceApplyValueFunction(
+        node.id,
+        selected,
+        !selected,
+        applyAction
+      );
     };
 
     return (
@@ -735,9 +777,24 @@ export class WidgetSlider extends WidgetBase {
   };
 
   handleOnChange = (value) => {
-    this.setInputData(initialValueName, value);
-    this.setOutputDataAndText(value);
-    this.executeChildren();
+    const id = this.id;
+    const applyFunction = (newValue) => {
+      const safeNode: WidgetSlider = ActionHandler.getSafeNode(
+        id
+      ) as WidgetSlider;
+      safeNode.setInputData(initialValueName, newValue);
+
+      safeNode.setOutputDataAndText(newValue);
+      // update the slider in percent
+      safeNode._refWidget.progress = safeNode.valueToPercent(newValue);
+      safeNode.executeChildren();
+    };
+    ActionHandler.interfaceApplyValueFunction(
+      this.id,
+      this.getInputData(initialValueName),
+      value,
+      applyFunction
+    );
   };
 
   public onExecute = async (input, output) => {
@@ -749,9 +806,6 @@ export class WidgetSlider extends WidgetBase {
 
     const text = String(input[labelName]);
     this._refLabel.text = text;
-
-    // update the slider in percent
-    this._refWidget.progress = this.valueToPercent(value);
 
     // update the output
     this.setOutputDataAndText(limitRange(value, minValue, maxValue));
@@ -809,12 +863,15 @@ export class WidgetDropdown extends WidgetHybridBase {
     return 104;
   }
 
+  setSelectedOption: any = () => {};
+
   protected getParentComponent(props: any): any {
     const node = props.node;
     const [options, setOptions] = useState<any[]>(props[optionsName]);
     const [selectedOption, setSelectedOption] = useState<string | string[]>(
       formatSelected(props[selectedOptionName], props[multiSelectName])
     );
+    node.setSelectedOption = setSelectedOption;
 
     const ITEM_HEIGHT = 48;
     const ITEM_PADDING_TOP = 8;
@@ -833,10 +890,20 @@ export class WidgetDropdown extends WidgetHybridBase {
       // single select: value is string
       // multi select: value is array of strings
       const formattedValue = formatSelected(value, props[multiSelectName]);
-      setSelectedOption(formattedValue);
-      node.setInputData(selectedOptionName, formattedValue);
-      node.setOutputData(outName, formattedValue);
-      node.executeChildren();
+      const id = node.id;
+      const applyFunction = (newValue) => {
+        const safeNode = ActionHandler.getSafeNode(id) as WidgetDropdown;
+        safeNode.setSelectedOption(newValue);
+        safeNode.setInputData(selectedOptionName, newValue);
+        safeNode.setOutputData(outName, newValue);
+        safeNode.executeChildren();
+      };
+      ActionHandler.interfaceApplyValueFunction(
+        node.id,
+        selectedOption,
+        formattedValue,
+        applyFunction
+      );
     };
 
     useEffect(() => {

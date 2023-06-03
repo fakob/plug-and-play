@@ -88,6 +88,7 @@ const addShallowContainerEventListeners = (
   const alphaPre = shallowContainer.alpha;
   const scalePreX = shallowContainer.scale.x;
   const scalePreY = shallowContainer.scale.y;
+
   shallowContainer.addEventListener('pointerdown', (e) => {
     node.setOutputData(outputMultiplierIndex, index);
     node.setOutputData(
@@ -98,9 +99,7 @@ const addShallowContainerEventListeners = (
     // tell all children when something is pressed
     node.executeChildren();
     console.log('pressed: ' + shallowContainer.x + ' : ' + shallowContainer.y);
-    shallowContainer.scale.x *= 0.97;
-    shallowContainer.scale.y *= 0.97;
-    shallowContainer.alpha = alphaPre * 0.8;
+    shallowContainer.alpha = alphaPre * 0.6;
   });
 
   shallowContainer.addEventListener('pointerup', (e) => {

@@ -161,7 +161,7 @@ export default class PPSelection extends PIXI.Container {
     const undoMove = async () => {
       this.moveNodesByID(nodeIDs, -deltaX, -deltaY);
     };
-    await ActionHandler.performAction(doMove, undoMove, false);
+    await ActionHandler.performAction(doMove, undoMove, 'Move node(s)', false);
   }
 
   onPointerDown(event: PIXI.FederatedPointerEvent): void {
