@@ -11,6 +11,7 @@ import { CodeType } from '../datatypes/codeType';
 import { inputHeightName, inputWidthName } from '../draw/draw';
 import { NumberType } from '../datatypes/numberType';
 import { DRAW_Base, injectedDataName } from '../draw/abstract';
+import { JSONType } from '../datatypes/jsonType';
 
 const defaultVertex = `
 precision mediump float;
@@ -43,17 +44,10 @@ void main() {
 
 `;
 
-const errorFragment = `
-precision mediump float;
-varying vec2 uv;
 
-void main() {
-  gl_FragColor = vec4(1,0,0,1.0);
-}
-`;
 const vertexShaderInputName = 'Vertex';
 const fragmentShaderInputName = 'Fragment';
-const inputDataName = 'Input';
+const inputUniformName = 'Uniforms';
 
 const imageInputDataName = 'Images';
 const imageNamesName = 'ImageNames';
@@ -74,14 +68,14 @@ export class Shader extends DRAW_Base {
   protected getInitialFragment(): string {
     return defaultFragment;
   }
-  protected getDefaultImageData(): any {
-    return undefined;
+
+  protected getDefaultUniforms(): Record<string,string> {
+    return {};
   }
 
-  protected getDefaultImageNames(): any {
-    return undefined;
+  protected getDefaultImages(): Record<string,string> {
+    return {};
   }
-
   getCanAddInput(): boolean {
     return true;
   }
@@ -93,18 +87,12 @@ export class Shader extends DRAW_Base {
   }
   protected getDefaultIO(): Socket[] {
     return [
-      new Socket(SOCKET_TYPE.IN, inputDataName, new AnyType(), {}),
+      new Socket(SOCKET_TYPE.IN, inputUniformName, new AnyType(), this.getDefaultUniforms()),
       new Socket(
         SOCKET_TYPE.IN,
         imageInputDataName,
-        new ArrayType(),
-        this.getDefaultImageData()
-      ),
-      new Socket(
-        SOCKET_TYPE.IN,
-        imageNamesName,
-        new ArrayType(),
-        this.getDefaultImageNames()
+        new JSONType(),
+        this.getDefaultImages()
       ),
       new Socket(
         SOCKET_TYPE.IN,
@@ -166,51 +154,38 @@ export class Shader extends DRAW_Base {
       ...input[injectedDataName][this.getAndIncrementExecutions(executions)],
     };
 
-    //const prevGraphics = this.graphics;
-
     const currentTime = new Date().getTime();
 
     const uniforms = {
       time: (currentTime / 1000) % 1000,
-      inputData: input[inputDataName],
+      inputData: input[inputUniformName],
     };
-    const images = input[imageInputDataName];
-    const names = input[imageNamesName];
+    const images : Record<string, string> = input[imageInputDataName];
 
     let largestX = -1;
     let largestY = -1;
 
-    if (names) {
-      if (Array.isArray(names)) {
-        for (let i = 0; i < names.length; i++) {
-          uniforms[names[i]] = PIXI.Texture.from(images[i]);
-          largestX = Math.max(largestX, uniforms[names[i]].width);
-          largestY = Math.max(largestY, uniforms[names[i]].Height);
-        }
-      } else {
-        // assume its just a single image
-        uniforms[names] = PIXI.Texture.from(images);
-        largestX = uniforms[names].width;
-        largestY = uniforms[names].height;
-      }
-    }
+    const imageKeys = Object.keys(images);
+    imageKeys.forEach(key => {
+      uniforms[key] = PIXI.Texture.from(images[key]);
+      largestX = Math.max(largestX, uniforms[key].width);
+      largestY = Math.max(largestY, uniforms[key].Height);
 
+    });
     if (
       input[vertexShaderInputName] !== this.prevVertex ||
       input[fragmentShaderInputName] !== this.prevFragment
     ) {
       // regenerate shader
-      try {
+      //try {
         this.prevVertex = input[vertexShaderInputName];
         this.prevFragment = input[fragmentShaderInputName];
         const newShader = PIXI.Shader.from(this.prevVertex, this.prevFragment);
         this.shader = newShader;
-      } catch (error) {
-        this.shader = PIXI.Shader.from(defaultVertex, errorFragment);
-        //this.successfullyExecuted = false;
-        //this.lastError = error;
-        // dont apply shader if its bad
-      }
+      //} catch (error) {
+      //  this.shader = PIXI.Shader.from(defaultVertex, errorFragment);
+      //  throw error;
+      //}
     }
 
     const geometry = new PIXI.Geometry()
@@ -253,8 +228,6 @@ const imageFragment = `
 precision mediump float;
 uniform float time;
 
-// designate your input data yourself, it will be automatically fed in here
-//uniform float inputData;
 varying vec2 uv;
 uniform sampler2D testImage;
 
@@ -276,10 +249,13 @@ export class ImageShader extends Shader {
     return imageFragment;
   }
 
-  protected getDefaultImageData(): any {
-    return defaultImage;
+
+  protected getDefaultUniforms(): Record<string,any> {
+    return {"time":0};
   }
-  protected getDefaultImageNames(): any {
-    return 'testImage';
+
+  protected getDefaultImages(): Record<string,string> {
+    return {"testImage":defaultImage};
   }
+
 }
