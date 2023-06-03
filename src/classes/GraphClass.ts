@@ -376,7 +376,7 @@ export default class PPGraph {
     this.dragSourcePoint = undefined;
   }
 
-  getNodeById(id: string): PPNode {
+  public getNodeById(id: string): PPNode {
     return this.nodes[id];
   }
 

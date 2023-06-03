@@ -39,11 +39,20 @@ import { NumberType } from './nodes/datatypes/numberType';
 import { TriggerType } from './nodes/datatypes/triggerType';
 import useInterval from 'use-interval';
 import { ActionHandler } from './utils/actionHandler';
-import InterfaceController from './InterfaceController';
 
 async function potentiallyUpdateSocketData(property: Socket, newValue) {
   if (property.data !== newValue) {
-    ActionHandler.interfaceApplyValue(property, newValue);
+    ActionHandler.interfaceApplyValueFunction(
+      property.name,
+      property.data,
+      newValue,
+      (newValue) => {
+        property.data = newValue;
+        if (property.getNode().updateBehaviour.update) {
+          property.getNode().executeOptimizedChain();
+        }
+      }
+    );
   }
 }
 
