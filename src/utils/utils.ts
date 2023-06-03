@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import JSON5 from 'json5';
 import * as PIXI from 'pixi.js';
-import * as XLSX from 'xlsx';
 import isUrl from 'is-url';
 import { useTheme } from '@mui/material';
 import useMediaQuery from '@mui/material/useMediaQuery';
@@ -441,18 +440,6 @@ export const parseJSON = (jsonToParse: any): { [key: string]: any } => {
       break;
   }
   return jsonObj;
-};
-
-export const getXLSXSelectionRange = (
-  sri: number,
-  sci: number,
-  eri: number,
-  eci: number
-): string => {
-  const selectionRange = `${XLSX.utils.encode_col(sci)}${XLSX.utils.encode_row(
-    sri
-  )}:${XLSX.utils.encode_col(eci)}${XLSX.utils.encode_row(eri)}`;
-  return selectionRange;
 };
 
 export const compare = (
