@@ -37,6 +37,7 @@ export class ActionHandler {
     doPerformAction = true
   ) {
     this.addIndex++;
+    this.redoList = [];
     if (doPerformAction) {
       await action();
     }

@@ -698,7 +698,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         };
         const undoAction = async () => {
           PPGraph.currentGraph.removeNode(
-            PPGraph.currentGraph.nodes[referenceID]
+            ActionHandler.getSafeNode(referenceID)
           );
         };
         await ActionHandler.performAction(action, undoAction);
