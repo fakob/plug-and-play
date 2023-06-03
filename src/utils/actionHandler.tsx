@@ -111,17 +111,6 @@ export class ActionHandler {
     this.setValueSaveAction();
   }
 
-  /*// call this from the interface, it will both set the value of the socket as expected and trigger the debounce stuff that will make it undoable
-  static interfaceApplyValueToSocket(socket: Socket, value: any) {
-    if (!this.valueBeforeDebounce || socket.name !== this.lastDebounceSocket?.name) {
-      this.valueBeforeDebounce = socket.data;
-    }
-    this.lastDebounceSocket = socket;
-    this.lastValueSet = value;
-    this.applyValueToSocket(socket, value);
-    this.setValueSaveAction();
-  }*/
-
   static setUnsavedChange(state: boolean): void {
     this.graphHasUnsavedChanges = state;
     if (this.graphHasUnsavedChanges) {
