@@ -296,10 +296,12 @@ export class WidgetRadio extends WidgetBase {
     radioGroup.x = 50;
     radioGroup.y = 50;
 
+    const id = this.id;
     radioGroup.onChange.connect((selectedItemID: number) => {
       const applyFunction = (newValue) => {
-        this.setInputData(selectedOptionIndex, newValue);
-        this.executeOptimizedChain();
+        const safeNode = ActionHandler.getSafeNode(id);
+        safeNode.setInputData(selectedOptionIndex, newValue);
+        safeNode.executeOptimizedChain();
       };
       ActionHandler.interfaceApplyValueFunction(
         this.id,
@@ -744,13 +746,17 @@ export class WidgetSlider extends WidgetBase {
   };
 
   handleOnChange = (value) => {
+    const id = this.id;
     const applyFunction = (newValue) => {
-      this.setInputData(initialValueName, newValue);
+      const safeNode: WidgetSlider = ActionHandler.getSafeNode(
+        id
+      ) as WidgetSlider;
+      safeNode.setInputData(initialValueName, newValue);
 
-      this.setOutputDataAndText(newValue);
+      safeNode.setOutputDataAndText(newValue);
       // update the slider in percent
-      this._refWidget.progress = this.valueToPercent(newValue);
-      this.executeChildren();
+      safeNode._refWidget.progress = safeNode.valueToPercent(newValue);
+      safeNode.executeChildren();
     };
     ActionHandler.interfaceApplyValueFunction(
       this.id,
@@ -850,11 +856,13 @@ export class WidgetDropdown extends WidgetHybridBase {
       // single select: value is string
       // multi select: value is array of strings
       const formattedValue = formatSelected(value, props[multiSelectName]);
+      const id = node.id;
       const applyFunction = (newValue) => {
+        const safeNode = ActionHandler.getSafeNode(id);
         setSelectedOption(newValue);
-        node.setInputData(selectedOptionName, newValue);
-        node.setOutputData(outName, newValue);
-        node.executeChildren();
+        safeNode.setInputData(selectedOptionName, newValue);
+        safeNode.setOutputData(outName, newValue);
+        safeNode.executeChildren();
       };
       ActionHandler.interfaceApplyValueFunction(
         node.id,

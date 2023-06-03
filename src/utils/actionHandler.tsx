@@ -18,6 +18,8 @@ interface UndoAction {
 
 const MAX_STACK_SIZE = 100;
 
+const SET_VALUE_DEBOUNCE_TIME = 200;
+
 export class ActionHandler {
   static addIndex = 0;
   static removeIndex = 0;
@@ -101,8 +103,9 @@ export class ActionHandler {
         );
       }
     }
-  }, 100);
+  }, SET_VALUE_DEBOUNCE_TIME);
 
+  // this function exists to allow you to set values and have them undo/redoable, it debounces so if you set many times in a row it will combine them into a single undo/redo action
   static interfaceApplyValueFunction(
     identifier: string,
     prevValue: any,
