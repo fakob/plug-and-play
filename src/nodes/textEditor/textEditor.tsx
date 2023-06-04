@@ -476,7 +476,7 @@ export class TextEditor extends HybridNode2 {
           >
             <Slate
               editor={editor}
-              value={props[textJSONSocketName]}
+              initialValue={props[textJSONSocketName]}
               onChange={onChange}
             >
               {props.doubleClicked && <HoverToolbar />}

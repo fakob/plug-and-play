@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import JSON5 from 'json5';
 import * as PIXI from 'pixi.js';
-import * as XLSX from 'xlsx';
 import isUrl from 'is-url';
 import { useTheme } from '@mui/material';
 import useMediaQuery from '@mui/material/useMediaQuery';
@@ -361,10 +360,16 @@ export const getNodeDataFromText = (text: string): SerializedSelection => {
   return JSON.parse(text) as SerializedSelection;
 };
 
+export const isEventComongFromWithinWidget = (event: any): boolean => {
+  return (
+    event.target.id === 'Input' ||
+    event.target.id === 'input' ||
+    isEventComingFromWithinTextInput(event)
+  );
+};
+
 export const isEventComingFromWithinTextInput = (event: any): boolean => {
   return (
-    //event.target.id === 'Input' ||
-    //event.target.localName === 'input' || // I removed these to allow undoing from inside slider, tell me if it causes problems you are aware of
     event.target.localName === 'textarea' ||
     event.target?.attributes?.['data-slate-editor'] !== undefined ||
     event.target?.attributes?.['data-slate-node'] !== undefined ||
@@ -441,18 +446,6 @@ export const parseJSON = (jsonToParse: any): { [key: string]: any } => {
       break;
   }
   return jsonObj;
-};
-
-export const getXLSXSelectionRange = (
-  sri: number,
-  sci: number,
-  eri: number,
-  eci: number
-): string => {
-  const selectionRange = `${XLSX.utils.encode_col(sci)}${XLSX.utils.encode_row(
-    sri
-  )}:${XLSX.utils.encode_col(eci)}${XLSX.utils.encode_row(eri)}`;
-  return selectionRange;
 };
 
 export const compare = (

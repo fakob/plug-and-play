@@ -124,7 +124,7 @@ export const CANVAS_BACKGROUND_ALPHA = 0.02;
 
 // export const COLOR_MAIN = '#2E3A59';
 export const COLOR_MAIN = Color(COLOR[0]).lighten(0.8).hex();
-export const COLOR_MAIN_HEX = PIXI.utils.string2hex(COLOR_MAIN);
+export const COLOR_MAIN_HEX = new PIXI.Color(COLOR_MAIN).toNumber();
 export const COLOR_COMMENT = COLOR[12];
 
 // common
@@ -199,13 +199,13 @@ export const COMMENT_TEXTSTYLE = new TextStyle({
   fontStyle: 'italic',
 });
 
-export const CONNECTION_COLOR_HEX = PIXI.utils.string2hex(
+export const CONNECTION_COLOR_HEX = new PIXI.Color(
   Color(COLOR[0]).desaturate(0.3).hex()
-);
+).toNumber();
 
-export const SELECTION_COLOR_HEX = PIXI.utils.string2hex(
+export const SELECTION_COLOR_HEX = new PIXI.Color(
   Color(COLOR[4]).desaturate(0.3).hex()
-);
+).toNumber();
 
 export const EMPTY_TEXTURE = '../assets/Empty.png';
 

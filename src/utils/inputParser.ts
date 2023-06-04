@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import PPGraph from '../classes/GraphClass';
-import { isEventComingFromWithinTextInput } from './utils';
+import { isEventComingFromWithinTextInput, isEventComongFromWithinWidget } from './utils';
 
 
 // This class didnt really work out TODO deprecate entirely
@@ -39,7 +39,7 @@ abstract class Hotkey {
 class deleteNodeAction extends Hotkey {
   potentiallyExecute(currPressed, allPressed, graph): boolean {
     if (currPressed.key === 'Backspace' || currPressed.key === 'Delete') {
-      if (!isEventComingFromWithinTextInput(currPressed)) {
+      if (!isEventComongFromWithinWidget(currPressed)) {
         graph.action_DeleteSelectedNodes();
       }
       return true;
