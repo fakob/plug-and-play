@@ -984,7 +984,6 @@ export default class PPGraph {
           if (nodes.includes(connectedNode)) {
             linksContainedInSelection.push(socket.links[0]);
           } else {
-            // console.log(socket.links[0].target.data);
             socketsToIncludeDataOf.push(socket);
           }
         }
