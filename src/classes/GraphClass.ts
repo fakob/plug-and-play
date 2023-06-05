@@ -971,6 +971,7 @@ export default class PPGraph {
 
   serializeNodes(nodes: PPNode[]): SerializedSelection {
     const linksContainedInSelection: PPLink[] = [];
+    const socketsToIncludeDataOf: PPSocket[] = [];
 
     nodes.forEach((node) => {
       // get links which are completely contained in selection
@@ -979,6 +980,9 @@ export default class PPGraph {
           const connectedNode = socket.links[0].source.parent as PPNode;
           if (nodes.includes(connectedNode)) {
             linksContainedInSelection.push(socket.links[0]);
+          } else {
+            console.log(socket.links[0].target.data);
+            socketsToIncludeDataOf.push(socket);
           }
         }
       });
@@ -987,6 +991,9 @@ export default class PPGraph {
 
     // get serialized nodes
     const nodesSerialized = nodes.map((node) => node.serialize());
+
+    // include deep copy of data from sockets whos links are not included
+    nodes.forEach((node) => {});
 
     // get serialized links
     const linksSerialized = linksContainedInSelection.map((link) =>
