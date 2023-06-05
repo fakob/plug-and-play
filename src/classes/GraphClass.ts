@@ -981,7 +981,7 @@ export default class PPGraph {
           if (nodes.includes(connectedNode)) {
             linksContainedInSelection.push(socket.links[0]);
           } else {
-            console.log(socket.links[0].target.data);
+            // console.log(socket.links[0].target.data);
             socketsToIncludeDataOf.push(socket);
           }
         }
@@ -993,7 +993,16 @@ export default class PPGraph {
     const nodesSerialized = nodes.map((node) => node.serialize());
 
     // include deep copy of data from sockets whos links are not included
-    nodes.forEach((node) => {});
+    socketsToIncludeDataOf.forEach((socket) => {
+      const foundSocket = nodesSerialized
+        .find((nodes) => nodes.id === socket.getNode().id)
+        .socketArray.find(
+          (socketToOverwrite) => socketToOverwrite.name === socket.name
+        );
+      const deepCopy = JSON.parse(JSON.stringify(socket.data));
+      foundSocket.defaultData = undefined;
+      foundSocket.data = deepCopy;
+    });
 
     // get serialized links
     const linksSerialized = linksContainedInSelection.map((link) =>
