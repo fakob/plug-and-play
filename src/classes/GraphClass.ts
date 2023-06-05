@@ -809,6 +809,9 @@ export default class PPGraph {
     this.selection.selectNodes(newNodes, false, true);
     this.selection.drawRectanglesFromSelection();
 
+    // execute all seed nodes to make sure there are values everywhere
+    await this.executeAllSeedNodes(newNodes);
+
     return newNodes;
   }
 
@@ -1062,11 +1065,7 @@ export default class PPGraph {
       return false;
     }
     // execute all seed nodes to make sure there are values everywhere
-    await FlowLogic.executeOptimizedChainBatch(
-      Object.values(this.nodes).filter(
-        (node) => !node.getHasDependencies() && node.updateBehaviour.update
-      )
-    );
+    await this.executeAllSeedNodes(Object.values(this.nodes));
 
     this.showNonPresentationNodes =
       data.graphSettings.showNonPresentationNodes ?? true;
@@ -1074,6 +1073,14 @@ export default class PPGraph {
     this.allowExecution = true;
 
     return true;
+  }
+
+  async executeAllSeedNodes(nodes: PPNode[]): Promise<void> {
+    await FlowLogic.executeOptimizedChainBatch(
+      nodes.filter(
+        (node) => !node.getHasDependencies() && node.updateBehaviour.update
+      )
+    );
   }
 
   getInputSocket(nodeID: string, socketName: string): PPSocket {
