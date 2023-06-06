@@ -364,7 +364,7 @@ export const isEventComongFromWithinWidget = (event: any): boolean => {
   console.log('eventid: ' + event.target.id);
   return (
     event.target.id === 'Input' ||
-    event.target.id === 'input' ||
+    event.target.localName === 'input' ||
     isEventComingFromWithinTextInput(event)
   );
 };
@@ -372,8 +372,6 @@ export const isEventComongFromWithinWidget = (event: any): boolean => {
 export const isEventComingFromWithinTextInput = (event: any): boolean => {
   return (
     event.target.localName === 'textarea' ||
-    event.target.id === 'r3' ||
-    event.target.id === 'r5' ||
     event.target?.attributes?.['data-slate-editor'] !== undefined ||
     event.target?.attributes?.['data-slate-node'] !== undefined ||
     event.target?.attributes?.['data-slate-string'] !== undefined ||
