@@ -809,6 +809,9 @@ export default class PPGraph {
     this.selection.selectNodes(newNodes, false, true);
     this.selection.drawRectanglesFromSelection();
 
+    // execute all seed nodes to make sure there are values everywhere
+    await this.executeAllSeedNodes(newNodes);
+
     return newNodes;
   }
 
@@ -970,26 +973,39 @@ export default class PPGraph {
   }
 
   serializeNodes(nodes: PPNode[]): SerializedSelection {
-    const linksContainedInSelection: PPLink[] = [];
+    const linksFullyContainedInSelection: PPLink[] = [];
+    const linksPartiallyInSelection: PPLink[] = [];
 
     nodes.forEach((node) => {
       // get links which are completely contained in selection
       node.getAllInputSockets().forEach((socket) => {
         if (socket.hasLink()) {
           const connectedNode = socket.links[0].source.parent as PPNode;
-          if (nodes.includes(connectedNode)) {
-            linksContainedInSelection.push(socket.links[0]);
-          }
+          nodes.includes(connectedNode)
+            ? linksFullyContainedInSelection.push(socket.links[0])
+            : linksPartiallyInSelection.push(socket.links[0]);
         }
       });
-      console.log(linksContainedInSelection);
     });
 
     // get serialized nodes
     const nodesSerialized = nodes.map((node) => node.serialize());
 
+    // add deep copy of data from input sockets whos links are not included
+    linksPartiallyInSelection.forEach((link) => {
+      const socket = link.getTarget();
+      const foundSocket = nodesSerialized
+        .find((nodes) => nodes.id === socket.getNode().id)
+        .socketArray.find(
+          (socketToOverwrite) => socketToOverwrite.name === socket.name
+        );
+      const deepCopy = JSON.parse(JSON.stringify(socket.data));
+      foundSocket.defaultData = undefined;
+      foundSocket.data = deepCopy;
+    });
+
     // get serialized links
-    const linksSerialized = linksContainedInSelection.map((link) =>
+    const linksSerialized = linksFullyContainedInSelection.map((link) =>
       link.serialize()
     );
 
@@ -1046,11 +1062,7 @@ export default class PPGraph {
       return false;
     }
     // execute all seed nodes to make sure there are values everywhere
-    await FlowLogic.executeOptimizedChainBatch(
-      Object.values(this.nodes).filter(
-        (node) => !node.getHasDependencies() && node.updateBehaviour.update
-      )
-    );
+    await this.executeAllSeedNodes(Object.values(this.nodes));
 
     this.showNonPresentationNodes =
       data.graphSettings.showNonPresentationNodes ?? true;
@@ -1058,6 +1070,14 @@ export default class PPGraph {
     this.allowExecution = true;
 
     return true;
+  }
+
+  async executeAllSeedNodes(nodes: PPNode[]): Promise<void> {
+    await FlowLogic.executeOptimizedChainBatch(
+      nodes.filter(
+        (node) => !node.getHasDependencies() && node.updateBehaviour.update
+      )
+    );
   }
 
   getInputSocket(nodeID: string, socketName: string): PPSocket {
