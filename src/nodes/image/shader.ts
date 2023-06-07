@@ -163,8 +163,6 @@ export class Shader extends DRAW_Base {
       ...input[injectedDataName][this.getAndIncrementExecutions(executions)],
     };
 
-    const currentTime = new Date().getTime();
-
     const uniforms = {};
     Object.keys(input[inputUniformName]).forEach(key => uniforms[key] = input[inputUniformName][key]);
 
