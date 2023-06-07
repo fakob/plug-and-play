@@ -23,13 +23,11 @@ export abstract class SegmentNode extends PPNode {
 
   // paste my segment and remove self
   public async addAndDestroy() {
-    const addedNodes = await PPGraph.currentGraph.pasteNodes(
+    await PPGraph.currentGraph.pasteNodes(
       getNodeDataFromText(this.getSegment().getData()),
       { x: this.x, y: this.y }
     );
-    await FlowLogic.executeOptimizedChainBatch(
-      addedNodes.filter((node) => !node.getHasDependencies())
-    );
+
     PPGraph.currentGraph.removeNode(this);
   }
 
