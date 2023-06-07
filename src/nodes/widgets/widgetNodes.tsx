@@ -31,7 +31,11 @@ import { SketchPicker } from 'react-color';
 import Socket from '../../classes/SocketClass';
 import { WidgetBase, WidgetHybridBase } from './abstract';
 import { TRgba } from '../../utils/interfaces';
-import { limitRange, roundNumber } from '../../utils/utils';
+import {
+  limitRange,
+  roundNumber,
+  updateDataIfDefault,
+} from '../../utils/utils';
 import {
   NODE_MARGIN,
   PRESET_COLORS,
@@ -45,7 +49,6 @@ import { BooleanType } from '../datatypes/booleanType';
 import { NumberType } from '../datatypes/numberType';
 import { StringType } from '../datatypes/stringType';
 import { ColorType } from '../datatypes/colorType';
-import { TriggerType } from '../datatypes/triggerType';
 import UpdateBehaviourClass from '../../classes/UpdateBehaviourClass';
 import { ActionHandler } from '../../utils/actionHandler';
 
@@ -208,15 +211,9 @@ export class WidgetButton extends WidgetBase {
   };
 
   public outputPlugged(): void {
-    const links = this.getSocketByName(outName).links;
-    const target = links[0].getTarget();
-    if (
-      links.length === 1 &&
-      buttonDefaultName === this.getInputData(labelName)
-    ) {
-      this.setInputData(labelName, target.name);
-      this.executeOptimizedChain();
-    }
+    const dataToUpdate =
+      this.getSocketByName(outName).links[0].getTarget().name;
+    updateDataIfDefault(this, labelName, buttonDefaultName, dataToUpdate);
     super.outputPlugged();
   }
 }
@@ -389,15 +386,14 @@ export class WidgetRadio extends WidgetBase {
   }
 
   public outputPlugged(): void {
-    const links = this.getSocketByName(selectedOptionName).links;
-    const target = links[0].getTarget();
+    const target =
+      this.getSocketByName(selectedOptionName).links[0].getTarget();
     if (
-      links.length === 1 &&
       target.dataType.constructor === new ArrayType().constructor &&
       JSON.stringify(radioDefaultValue) ===
         JSON.stringify(this.getInputData(optionsName))
     ) {
-      this.setInputData(optionsName, JSON.parse(target.defaultData));
+      this.setInputData(optionsName, target.defaultData);
       this.executeOptimizedChain();
     }
     super.outputPlugged();
@@ -444,10 +440,8 @@ export class WidgetColorPicker extends WidgetHybridBase {
   }
 
   public outputPlugged(): void {
-    const links = this.getSocketByName(outName).links;
-    const target = links[0].getTarget();
+    const target = this.getSocketByName(outName).links[0].getTarget();
     if (
-      links.length === 1 &&
       target.dataType.constructor === new ColorType().constructor &&
       pickerDefaultName === this.getInputData(labelName) &&
       RANDOMMAINCOLOR === this.getInputData(initialValueName).hex()
@@ -626,10 +620,8 @@ export class WidgetSwitch extends WidgetHybridBase {
   }
 
   public outputPlugged(): void {
-    const links = this.getSocketByName(outName).links;
-    const target = links[0].getTarget();
+    const target = this.getSocketByName(outName).links[0].getTarget();
     if (
-      links.length === 1 &&
       switchDefaultName === this.getInputData(labelName) &&
       switchDefaultData === this.getInputData(selectedName)
     ) {
@@ -912,10 +904,8 @@ export class WidgetSlider extends WidgetBase {
   };
 
   public outputPlugged(): void {
-    const links = this.getSocketByName(outName).links;
-    const target = links[0].getTarget();
+    const target = this.getSocketByName(outName).links[0].getTarget();
     if (
-      links.length === 1 &&
       target.dataType.constructor === new NumberType().constructor &&
       sliderDefaultValue === this.getInputData(initialValueName)
     ) {
@@ -980,6 +970,21 @@ export class WidgetDropdown extends WidgetHybridBase {
 
   public getDefaultNodeHeight(): number {
     return 104;
+  }
+
+  public outputPlugged(): void {
+    const target = this.getSocketByName(outName).links[0].getTarget();
+    if (
+      target.dataType.constructor === new ArrayType().constructor &&
+      JSON.stringify(defaultOptions) ===
+        JSON.stringify(this.getInputData(optionsName))
+    ) {
+      console.log(target.defaultData);
+      this.setInputData(optionsName, target.defaultData);
+      this.setInputData(labelName, target.name);
+      this.executeOptimizedChain();
+    }
+    super.outputPlugged();
   }
 
   setSelectedOption: any = () => {};

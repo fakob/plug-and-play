@@ -9,10 +9,11 @@ import {
   NOTE_LINEHEIGHT_FACTOR,
   SOCKET_TYPE,
 } from '../utils/constants';
+import { convertToString, updateDataIfDefault } from '../utils/utils';
+import { ActionHandler } from '../utils/actionHandler';
 import { StringType } from './datatypes/stringType';
 import { NumberType } from './datatypes/numberType';
 import { ColorType } from './datatypes/colorType';
-import { ActionHandler } from '../utils/actionHandler';
 
 const backgroundColorName = 'backgroundColor';
 const inputSocketName = 'Input';
@@ -280,16 +281,10 @@ export class Label extends PPNode {
   }
 
   public outputPlugged(): void {
-    const links = this.getSocketByName(outputSocketName).links;
-    const target = links[0].getTarget();
-    if (
-      links.length === 1 &&
-      target.dataType.constructor === new StringType().constructor &&
-      labelDefaultText === this.getInputData(inputSocketName)
-    ) {
-      this.setInputData(inputSocketName, target.defaultData);
-      this.executeOptimizedChain();
-    }
+    const dataToUpdate = convertToString(
+      this.getSocketByName(outputSocketName).links[0].getTarget().defaultData
+    );
+    updateDataIfDefault(this, inputSocketName, labelDefaultText, dataToUpdate);
     super.outputPlugged();
   }
 }

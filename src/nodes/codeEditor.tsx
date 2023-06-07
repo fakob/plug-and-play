@@ -6,8 +6,12 @@ import ErrorFallback from '../components/ErrorFallback';
 import MonacoEditor from 'react-monaco-editor';
 import PPSocket from '../classes/SocketClass';
 import { CodeType } from './datatypes/codeType';
-import { TNodeSource } from '../utils/interfaces';
-import { convertToString, downloadFile, formatDate } from '../utils/utils';
+import {
+  convertToString,
+  downloadFile,
+  formatDate,
+  updateDataIfDefault,
+} from '../utils/utils';
 import { SOCKET_TYPE, customTheme } from '../utils/constants';
 import HybridNode2 from '../classes/HybridNode2';
 
@@ -77,15 +81,9 @@ export class CodeEditor extends HybridNode2 {
   }
 
   public outputPlugged(): void {
-    const links = this.getSocketByName(outputSocketName).links;
-    const target = links[0].getTarget();
-    if (
-      links.length === 1 &&
-      codeDefaultData === this.getInputData(inputSocketName)
-    ) {
-      this.setInputData(inputSocketName, target.defaultData);
-      this.executeOptimizedChain();
-    }
+    const dataToUpdate =
+      this.getSocketByName(outputSocketName).links[0].getTarget().defaultData;
+    updateDataIfDefault(this, inputSocketName, codeDefaultData, dataToUpdate);
     super.outputPlugged();
   }
 

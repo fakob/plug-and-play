@@ -3,6 +3,7 @@ import PPNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
 import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../../utils/constants';
 import { CustomArgs, TRgba } from '../../utils/interfaces';
+import { updateDataIfDefault } from '../../utils/utils';
 import { AbstractType } from '../datatypes/abstractType';
 import { AnyType } from '../datatypes/anyType';
 import { ArrayType } from '../datatypes/arrayType';
@@ -142,15 +143,14 @@ export class Constant extends PPNode {
   }
 
   public outputPlugged(): void {
-    const links = this.getSocketByName(constantOutName).links;
-    const target = links[0].getTarget();
-    if (
-      links.length === 1 &&
-      constantDefaultData === this.getInputData(constantInName)
-    ) {
-      this.setInputData(constantInName, target.defaultData);
-      this.executeOptimizedChain();
-    }
+    const dataToUpdate =
+      this.getSocketByName(constantOutName).links[0].getTarget().defaultData;
+    updateDataIfDefault(
+      this,
+      constantInName,
+      constantDefaultData,
+      dataToUpdate
+    );
     super.outputPlugged();
   }
 }

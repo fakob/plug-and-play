@@ -828,3 +828,15 @@ export const saveBase64AsImage = async (base64, fileName) => {
     `image/${imageType}`
   );
 };
+
+export const updateDataIfDefault = (
+  node: PPNode,
+  inputSocketName: string,
+  defaultData: any,
+  dataToUpdate: any
+): void => {
+  if (defaultData === node.getInputData(inputSocketName)) {
+    node.setInputData(inputSocketName, dataToUpdate);
+    node.executeOptimizedChain();
+  }
+};
