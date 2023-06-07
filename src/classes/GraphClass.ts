@@ -973,29 +973,27 @@ export default class PPGraph {
   }
 
   serializeNodes(nodes: PPNode[]): SerializedSelection {
-    const linksContainedInSelection: PPLink[] = [];
-    const socketsToIncludeDataOf: PPSocket[] = [];
+    const linksFullyContainedInSelection: PPLink[] = [];
+    const linksPartiallyInSelection: PPLink[] = [];
 
     nodes.forEach((node) => {
       // get links which are completely contained in selection
       node.getAllInputSockets().forEach((socket) => {
         if (socket.hasLink()) {
           const connectedNode = socket.links[0].source.parent as PPNode;
-          if (nodes.includes(connectedNode)) {
-            linksContainedInSelection.push(socket.links[0]);
-          } else {
-            socketsToIncludeDataOf.push(socket);
-          }
+          nodes.includes(connectedNode)
+            ? linksFullyContainedInSelection.push(socket.links[0])
+            : linksPartiallyInSelection.push(socket.links[0]);
         }
       });
-      console.log(linksContainedInSelection);
     });
 
     // get serialized nodes
     const nodesSerialized = nodes.map((node) => node.serialize());
 
-    // include deep copy of data from sockets whos links are not included
-    socketsToIncludeDataOf.forEach((socket) => {
+    // add deep copy of data from input sockets whos links are not included
+    linksPartiallyInSelection.forEach((link) => {
+      const socket = link.getTarget();
       const foundSocket = nodesSerialized
         .find((nodes) => nodes.id === socket.getNode().id)
         .socketArray.find(
@@ -1007,7 +1005,7 @@ export default class PPGraph {
     });
 
     // get serialized links
-    const linksSerialized = linksContainedInSelection.map((link) =>
+    const linksSerialized = linksFullyContainedInSelection.map((link) =>
       link.serialize()
     );
 
