@@ -86,7 +86,7 @@ const baseStyle = {
   wordWrap: true,
 };
 
-const buttonDefaultName = 'Button';
+const buttonDefaultName = 'Button'; // dummy comment
 
 export class WidgetButton extends WidgetBase {
   _refLabel: PIXI.Text;
