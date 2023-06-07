@@ -361,9 +361,10 @@ export const getNodeDataFromText = (text: string): SerializedSelection => {
 };
 
 export const isEventComongFromWithinWidget = (event: any): boolean => {
+  console.log('eventid: ' + event.target.id);
   return (
     event.target.id === 'Input' ||
-    event.target.id === 'input' ||
+    event.target.localName === 'input' ||
     isEventComingFromWithinTextInput(event)
   );
 };
