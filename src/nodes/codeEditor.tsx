@@ -13,6 +13,8 @@ import HybridNode2 from '../classes/HybridNode2';
 
 const outputSocketName = 'output';
 const inputSocketName = 'input';
+const codeDefaultData =
+  '// javascript code editor\n// to run this code, plug it into a CustomFunction node\n(a) => {\nreturn a;\n}';
 
 export class CodeEditor extends HybridNode2 {
   getPreferredInputSocketName(): string {
@@ -31,20 +33,6 @@ export class CodeEditor extends HybridNode2 {
     return ['Widget'].concat(super.getTags());
   }
 
-  public onNodeAdded = (source?: TNodeSource) => {
-    if (this.initialData) {
-      let data;
-      if (this.initialData instanceof PPSocket) {
-        data = this.initialData.data;
-      } else {
-        data = this.initialData;
-      }
-      this.setInputData(inputSocketName, data);
-    }
-
-    super.onNodeAdded(source);
-  };
-
   protected getDefaultIO(): PPSocket[] {
     return [
       new PPSocket(
@@ -58,7 +46,7 @@ export class CodeEditor extends HybridNode2 {
         SOCKET_TYPE.IN,
         inputSocketName,
         new CodeType(),
-        '// javascript code editor\n// to run this code, plug it into a CustomFunction node\n(a) => {\nreturn a;\n}',
+        codeDefaultData,
         true
       ),
     ];
@@ -86,6 +74,19 @@ export class CodeEditor extends HybridNode2 {
 
   public getDefaultNodeHeight(): number {
     return 300;
+  }
+
+  public outputPlugged(): void {
+    const links = this.getSocketByName(outputSocketName).links;
+    const target = links[0].getTarget();
+    if (
+      links.length === 1 &&
+      codeDefaultData === this.getInputData(inputSocketName)
+    ) {
+      this.setInputData(inputSocketName, target.defaultData);
+      this.executeOptimizedChain();
+    }
+    super.outputPlugged();
   }
 
   protected getParentComponent(props: any) {

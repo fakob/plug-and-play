@@ -14,6 +14,12 @@ import { NumberType } from './datatypes/numberType';
 import { ColorType } from './datatypes/colorType';
 import { ActionHandler } from '../utils/actionHandler';
 
+const backgroundColorName = 'backgroundColor';
+const inputSocketName = 'Input';
+const outputSocketName = 'Output';
+const fontSizeSocketName = 'fontSize';
+const labelDefaultText = '';
+
 export class Label extends PPNode {
   PIXIText: PIXI.Text;
   PIXITextStyle: PIXI.TextStyle;
@@ -28,7 +34,7 @@ export class Label extends PPNode {
     this.initialData = customArgs?.initialData;
 
     this.PIXITextStyle = new PIXI.TextStyle();
-    const basicText = new PIXI.Text('', this.PIXITextStyle);
+    const basicText = new PIXI.Text(labelDefaultText, this.PIXITextStyle);
     this.PIXIText = this.addChild(basicText);
     this.PIXIVisible();
   }
@@ -62,7 +68,7 @@ export class Label extends PPNode {
   }
 
   getPreferredInputSocketName(): string {
-    return 'Input';
+    return inputSocketName;
   }
 
   protected getDefaultIO(): PPSocket[] {
@@ -70,18 +76,24 @@ export class Label extends PPNode {
     const fillColor = NODE_TYPE_COLOR.OUTPUT;
 
     return [
-      new PPSocket(SOCKET_TYPE.OUT, 'Output', new StringType(), false),
-      new PPSocket(SOCKET_TYPE.IN, 'Input', new StringType(), '', true),
+      new PPSocket(SOCKET_TYPE.OUT, outputSocketName, new StringType(), false),
       new PPSocket(
         SOCKET_TYPE.IN,
-        'fontSize',
+        inputSocketName,
+        new StringType(),
+        labelDefaultText,
+        true
+      ),
+      new PPSocket(
+        SOCKET_TYPE.IN,
+        fontSizeSocketName,
         new NumberType(true, 1),
         fontSize,
         false
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
-        'backgroundColor',
+        backgroundColorName,
         new ColorType(),
         TRgba.fromString(fillColor),
         false
@@ -91,29 +103,15 @@ export class Label extends PPNode {
 
   getColor(): TRgba {
     return (
-      this.getInputData('backgroundColor') ||
+      this.getInputData(backgroundColorName) ||
       TRgba.fromString(NODE_TYPE_COLOR.DEFAULT)
     );
   }
 
   public onNodeAdded = (source?: TNodeSource) => {
-    if (this.initialData) {
-      let data;
-      if (this.initialData instanceof PPSocket) {
-        data = this.initialData.data;
-      } else {
-        data = this.initialData;
-      }
-      this.setInputData('Input', data);
-      this.executeOptimizedChain().catch((error) => {
-        console.error(error);
-      });
-    }
-
     if (source === NODE_SOURCE.NEW) {
       this.HTMLVisible();
     }
-
     super.onNodeAdded(source);
   };
 
@@ -136,10 +134,10 @@ export class Label extends PPNode {
   }
 
   protected async onExecute(input, output): Promise<void> {
-    const text = String(input['Input']);
-    const fontSize = Math.max(1, input['fontSize']);
+    const text = String(input[inputSocketName]);
+    const fontSize = Math.max(1, input[fontSizeSocketName]);
     //const minWidth = Math.max(1, input['min-width']);
-    const color: TRgba = input['backgroundColor'];
+    const color: TRgba = input[backgroundColorName];
 
     this.PIXITextStyle.fontSize = fontSize;
     this.PIXITextStyle.lineHeight = fontSize * NOTE_LINEHEIGHT_FACTOR;
@@ -156,7 +154,7 @@ export class Label extends PPNode {
       ),
       textMetrics.height + this.getMarginTopBottom() * 2
     );
-    output['Output'] = text;
+    output[outputSocketName] = text;
 
     this.PIXIText.text = text;
     this.PIXIText.x = this.getMarginLeftRight();
@@ -164,12 +162,12 @@ export class Label extends PPNode {
   }
 
   private getMarginTopBottom(): number {
-    const fontSize = this.getInputData('fontSize');
+    const fontSize = this.getInputData(fontSizeSocketName);
     return fontSize / 2;
   }
 
   private getMarginLeftRight(): number {
-    const fontSize = this.getInputData('fontSize');
+    const fontSize = this.getInputData(fontSizeSocketName);
     return fontSize / 1.5;
   }
 
@@ -182,16 +180,16 @@ export class Label extends PPNode {
 
   public createInputElement = () => {
     // create html input element
-    const text = this.getInputData('Input');
-    const fontSize = this.getInputData('fontSize');
-    const color = this.getInputData('backgroundColor');
+    const text = this.getInputData(inputSocketName);
+    const fontSize = this.getInputData(fontSizeSocketName);
+    const color = this.getInputData(backgroundColorName);
     const screenPoint = PPGraph.currentGraph.viewport.toScreen(
       this.getHTMLComponentLeft(),
       this.getHTMLComponentTop()
     );
 
     this.HTMLTextComponent = document.createElement('div');
-    this.HTMLTextComponent.id = 'Input';
+    this.HTMLTextComponent.id = inputSocketName;
     this.HTMLTextComponent.contentEditable = 'true';
     this.HTMLTextComponent.innerText = text;
 
@@ -245,13 +243,13 @@ export class Label extends PPNode {
       const id = this.id;
       const applyFunction = (newText) => {
         const node = ActionHandler.getSafeNode(id);
-        node.setInputData('Input', newText);
+        node.setInputData(inputSocketName, newText);
         node.executeOptimizedChain();
       };
 
       ActionHandler.interfaceApplyValueFunction(
         this.id,
-        this.getInputData('Input'),
+        this.getInputData(inputSocketName),
         text,
         applyFunction
       );
@@ -279,5 +277,19 @@ export class Label extends PPNode {
 
   public getShrinkOnSocketRemove(): boolean {
     return false;
+  }
+
+  public outputPlugged(): void {
+    const links = this.getSocketByName(outputSocketName).links;
+    const target = links[0].getTarget();
+    if (
+      links.length === 1 &&
+      target.dataType.constructor === new StringType().constructor &&
+      labelDefaultText === this.getInputData(inputSocketName)
+    ) {
+      this.setInputData(inputSocketName, target.defaultData);
+      this.executeOptimizedChain();
+    }
+    super.outputPlugged();
   }
 }

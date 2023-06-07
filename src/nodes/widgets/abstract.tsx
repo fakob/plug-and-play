@@ -2,7 +2,7 @@ import Color from 'color';
 import HybridNode2 from '../../classes/HybridNode2';
 import PPNode from '../../classes/NodeClass';
 import { NODE_TYPE_COLOR, RANDOMMAINCOLOR } from '../../utils/constants';
-import { CustomArgs, TRgba } from '../../utils/interfaces';
+import { TRgba } from '../../utils/interfaces';
 
 export abstract class WidgetHybridBase extends HybridNode2 {
   public getTags(): string[] {
@@ -23,16 +23,6 @@ export abstract class WidgetHybridBase extends HybridNode2 {
 }
 
 export abstract class WidgetBase extends PPNode {
-  initialData: any;
-
-  constructor(name: string, customArgs?: CustomArgs) {
-    super(name, {
-      ...customArgs,
-    });
-
-    this.initialData = customArgs?.initialData;
-  }
-
   public getTags(): string[] {
     return ['Widget'].concat(super.getTags());
   }

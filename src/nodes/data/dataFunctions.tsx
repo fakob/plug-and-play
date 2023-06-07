@@ -89,6 +89,8 @@ export class ConcatenateArrays extends PPNode {
   }
 }
 
+const constantDefaultData = 0;
+
 export class Constant extends PPNode {
   initialData: any;
 
@@ -118,7 +120,12 @@ export class Constant extends PPNode {
 
   protected getDefaultIO(): Socket[] {
     return [
-      new Socket(SOCKET_TYPE.IN, constantInName, new AnyType(), 0),
+      new Socket(
+        SOCKET_TYPE.IN,
+        constantInName,
+        new AnyType(),
+        constantDefaultData
+      ),
       new Socket(SOCKET_TYPE.OUT, constantOutName, new AnyType()),
     ];
   }
@@ -134,19 +141,18 @@ export class Constant extends PPNode {
     return true;
   }
 
-  public onNodeAdded = () => {
-    if (this.initialData) {
-      let data;
-      if (this.initialData instanceof Socket) {
-        this.name = this.initialData.name;
-        data = this.initialData.data;
-      } else {
-        data = this.initialData;
-      }
-      this.setInputData(constantInName, data);
+  public outputPlugged(): void {
+    const links = this.getSocketByName(constantOutName).links;
+    const target = links[0].getTarget();
+    if (
+      links.length === 1 &&
+      constantDefaultData === this.getInputData(constantInName)
+    ) {
+      this.setInputData(constantInName, target.defaultData);
+      this.executeOptimizedChain();
     }
-    super.onNodeAdded();
-  };
+    super.outputPlugged();
+  }
 }
 
 export class ParseArray extends PPNode {

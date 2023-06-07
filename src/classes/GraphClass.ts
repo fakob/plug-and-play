@@ -694,7 +694,7 @@ export default class PPGraph {
         {
           nodePosX: node.x + (socket.isInput() ? 0 : node.width + 40),
           nodePosY: node.y + socket.y,
-          initialData: socket.isInput() ? socket : undefined,
+          initialData: socket.isInput() ? socket.data : undefined,
         },
         NODE_SOURCE.NEWCONNECTED
       );
