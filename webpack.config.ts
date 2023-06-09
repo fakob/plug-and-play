@@ -86,6 +86,7 @@ module.exports = (env, argv) => {
       allowedHosts: ['localhost', '.csb.app'],
       client: {
         logging: 'info',
+        // overlay: false, // to hide the error overlay
       },
     },
   });
