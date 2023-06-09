@@ -32,14 +32,14 @@ void main() {
 
 const defaultFragment = `
 precision mediump float;
-uniform float time;
+uniform float time; // this one comes in by default
 
 // designate your input data yourself, it will be automatically fed in here
 //uniform float inputData;
 varying vec2 uv;
 
 void main() {
-  gl_FragColor = vec4(0.5,uv*vec2(sin(time),cos(time)),1.0);
+gl_FragColor = vec4(0.5,uv*vec2(sin(time),cos(time)),1.0);
 }
 
 `;
@@ -59,7 +59,7 @@ precision mediump float;
 varying vec2 uv;
 
 void main() {
-  gl_FragColor = vec4(1,0,0,1.0);
+gl_FragColor = vec4(1,0,0,1.0);
 }`;
 export class Shader extends DRAW_Base {
   //graphics: PIXI.Mesh;
@@ -76,11 +76,11 @@ export class Shader extends DRAW_Base {
     return defaultFragment;
   }
 
-  protected getDefaultUniforms(): Record<string,any> {
-    return {"time":0};
+  protected getDefaultUniforms(): Record<string, any> {
+    return {};
   }
 
-  protected getDefaultImages(): Record<string,string> {
+  protected getDefaultImages(): Record<string, string> {
     return {};
   }
   getCanAddInput(): boolean {
@@ -163,13 +163,16 @@ export class Shader extends DRAW_Base {
       ...input[injectedDataName][this.getAndIncrementExecutions(executions)],
     };
 
-    const uniforms = {};
+
+    var time = new Date().getTime() % 1000000;
+
+    const uniforms = { time: time };
     Object.keys(input[inputUniformName]).forEach(key => uniforms[key] = input[inputUniformName][key]);
 
-    const images : Record<string, string> = input[imageInputDataName];
+    const images: Record<string, string> = input[imageInputDataName];
 
     // got a weird crash here if i didnt check and it was invalid
-    if (typeof images == "object"){
+    if (typeof images == "object") {
       const imageKeys = Object.keys(images);
       imageKeys.forEach(key => {
         uniforms[key] = PIXI.Texture.from(images[key]);
@@ -229,13 +232,13 @@ export class Shader extends DRAW_Base {
 
 const imageFragment = `
 precision mediump float;
-uniform float time;
+uniform float time; // this one comes in by default
 
 varying vec2 uv;
 uniform sampler2D testImage;
 
 void main() {
-  gl_FragColor = texture2D(testImage,uv) + vec4(0.2,0,0,1);
+gl_FragColor = texture2D(testImage,uv) + vec4(0.2,0,0,1);
 }
 `;
 
@@ -252,8 +255,8 @@ export class ImageShader extends Shader {
     return imageFragment;
   }
 
-  protected getDefaultImages(): Record<string,string> {
-    return {"testImage":defaultImage};
+  protected getDefaultImages(): Record<string, string> {
+    return { "testImage": defaultImage };
   }
 
 }
