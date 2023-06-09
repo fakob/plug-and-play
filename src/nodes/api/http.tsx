@@ -239,7 +239,7 @@ export class ChatGPTNode extends HTTPNode {
       statusText: 'Companion',
     });
     try {
-      const finalOptions = inputObject[chatGPTOptionsName];
+      const finalOptions = JSON.parse(JSON.stringify(inputObject[chatGPTOptionsName]));
       finalOptions.prompt = inputObject[chatGPTPromptName];
       const companionSpecific = {
         finalHeaders: {
