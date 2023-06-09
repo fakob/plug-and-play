@@ -29,15 +29,15 @@ export class JSONGet extends PPNode {
   public getName(): string {
     return 'Get a JSON value';
   }
-  
+
   public getDescription(): string {
     return 'Returns a single value of a JSON at the defined path';
   }
-  
+
   public getTags(): string[] {
     return ['JSON'].concat(super.getTags());
   }
-  
+
   getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
   }
@@ -96,8 +96,8 @@ export class JSONSet extends PPNode {
 
   public getTags(): string[] {
     return ['JSON'].concat(super.getTags());
-  }  
-  
+  }
+
   getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
   }
@@ -187,13 +187,13 @@ const BREAK_MAX_SOCKETS = 50;
 // actually works for arrays as well
 export class Break extends PPNode {
   public getName(): string {
-    return 'Break';
+    return 'Break JSON';
   }
-  
+
   public getDescription(): string {
     return 'Breaks out all properties of a JSON object or an array';
   }
-  
+
     public getTags(): string[] {
       return ['JSON'].concat(super.getTags());
     }
@@ -245,4 +245,25 @@ export class Break extends PPNode {
       this.metaInfoChanged();
     }
   }
+}
+
+
+export class Make extends CustomFunction {
+  public getName(): string {
+    return 'Make JSON';
+  }
+
+  public getDescription(): string {
+    return 'Create new JSON from inputs';
+  }
+
+  public getTags(): string[] {
+    return ['JSON'].concat(super.getTags());
+  }
+
+
+  protected getDefaultFunction(): string {
+    return '(a) => {\n\treturn {a};\n}';
+  }
+
 }
