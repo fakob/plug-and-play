@@ -169,15 +169,7 @@ const MemoizedComponent = memo<any>(function MemoizedComponent({
       </ThemeProvider>
     </Frame>
   );
-},
-arePropsEqual);
-
-function arePropsEqual(oldProps, newProps) {
-  return (
-    oldProps.htmlData === newProps.htmlData &&
-    oldProps.reload === newProps.reload
-  );
-}
+});
 
 export class EmbedWebsite extends HtmlRenderer {
   public getName(): string {
