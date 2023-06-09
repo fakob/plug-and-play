@@ -82,7 +82,7 @@ export class ActionHandler {
 
   static setValueSaveAction = _.debounce(() => {
     if (ActionHandler.lastIdentifier) {
-      console.log('setting new debounce point');
+      //console.log('setting new debounce point');
 
       // deep copy data so that it doesnt get replaced
       const newData = JSON.parse(JSON.stringify(this.lastValueSet));
