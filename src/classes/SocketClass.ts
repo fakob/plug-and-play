@@ -386,7 +386,7 @@ export default class Socket extends PIXI.Container {
     const center = PPGraph.currentGraph.getSocketCenter(this);
     const dist = Math.sqrt(
       Math.pow(currPos.y - center.y, 2) +
-        0.2 * Math.pow(currPos.x - center.x, 2)
+      0.05 * Math.pow(currPos.x - center.x, 2)
     );
     const maxDist = 20;
     const scaleOutside =
