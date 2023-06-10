@@ -6,12 +6,19 @@ import ErrorFallback from '../components/ErrorFallback';
 import MonacoEditor from 'react-monaco-editor';
 import PPSocket from '../classes/SocketClass';
 import { CodeType } from './datatypes/codeType';
-import { convertToString, downloadFile, formatDate } from '../utils/utils';
+import {
+  convertToString,
+  downloadFile,
+  formatDate,
+  updateDataIfDefault,
+} from '../utils/utils';
 import { SOCKET_TYPE, customTheme } from '../utils/constants';
 import HybridNode2 from '../classes/HybridNode2';
 
 const outputSocketName = 'output';
 const inputSocketName = 'input';
+const codeDefaultData =
+  '// javascript code editor\n// to run this code, plug it into a CustomFunction node\n(a) => {\nreturn a;\n}';
 
 export class CodeEditor extends HybridNode2 {
   getPreferredInputSocketName(): string {
@@ -43,7 +50,7 @@ export class CodeEditor extends HybridNode2 {
         SOCKET_TYPE.IN,
         inputSocketName,
         new CodeType(),
-        '// javascript code editor\n// to run this code, plug it into a CustomFunction node\n(a) => {\nreturn a;\n}',
+        codeDefaultData,
         true
       ),
     ];
@@ -71,6 +78,13 @@ export class CodeEditor extends HybridNode2 {
 
   public getDefaultNodeHeight(): number {
     return 300;
+  }
+
+  public outputPlugged(): void {
+    const dataToUpdate =
+      this.getSocketByName(outputSocketName).links[0].getTarget().defaultData;
+    updateDataIfDefault(this, inputSocketName, codeDefaultData, dataToUpdate);
+    super.outputPlugged();
   }
 
   protected getParentComponent(props: any) {
@@ -114,15 +128,6 @@ export class CodeEditor extends HybridNode2 {
     const [readOnly, setReadOnly] = useState<boolean>(
       node.getInputSocketByName(inputSocketName).hasLink()
     );
-
-    useEffect(() => {
-      if (node.initialData) {
-        node.setInputData(inputSocketName, node.initialData);
-        setCodeString(parseData(node.initialData));
-        node.setOutputData(outputSocketName, node.initialData);
-        node.executeOptimizedChain();
-      }
-    }, []);
 
     useEffect(() => {
       loadData();

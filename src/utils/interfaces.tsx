@@ -123,11 +123,13 @@ export class TRgba {
     this.a = a;
   }
 
-  static fromString(hex: string): TRgba {
-    const r = parseInt(hex.slice(1, 3), 16);
-    const g = parseInt(hex.slice(3, 5), 16);
-    const b = parseInt(hex.slice(5, 7), 16);
-    return new TRgba(r, g, b);
+  static fromString(hexOrOtherString: string): TRgba {
+    try {
+      const parsedData = JSON.parse(hexOrOtherString);
+      return Object.assign(new TRgba(), parsedData);
+    } catch (error) {
+      return TRgba.fromColor(Color(hexOrOtherString));
+    }
   }
 
   object(): string {
@@ -205,10 +207,10 @@ export class TRgba {
     return (
       typeof data == 'object' &&
       Object.keys(data).length == 4 &&
-      data['r'] &&
-      data['g'] &&
-      data['b'] &&
-      data['a']
+      data['r'] !== undefined &&
+      data['g'] !== undefined &&
+      data['b'] !== undefined &&
+      data['a'] !== undefined
     );
   }
 
