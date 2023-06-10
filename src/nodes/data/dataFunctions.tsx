@@ -3,6 +3,7 @@ import PPNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
 import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../../utils/constants';
 import { CustomArgs, TRgba } from '../../utils/interfaces';
+import { updateDataIfDefault } from '../../utils/utils';
 import { AbstractType } from '../datatypes/abstractType';
 import { AnyType } from '../datatypes/anyType';
 import { ArrayType } from '../datatypes/arrayType';
@@ -89,6 +90,8 @@ export class ConcatenateArrays extends PPNode {
   }
 }
 
+const constantDefaultData = 0;
+
 export class Constant extends PPNode {
   initialData: any;
 
@@ -118,7 +121,12 @@ export class Constant extends PPNode {
 
   protected getDefaultIO(): Socket[] {
     return [
-      new Socket(SOCKET_TYPE.IN, constantInName, new AnyType(), 0),
+      new Socket(
+        SOCKET_TYPE.IN,
+        constantInName,
+        new AnyType(),
+        constantDefaultData
+      ),
       new Socket(SOCKET_TYPE.OUT, constantOutName, new AnyType()),
     ];
   }
@@ -134,12 +142,17 @@ export class Constant extends PPNode {
     return true;
   }
 
-  public onNodeAdded = () => {
-    if (this.initialData) {
-      this.setInputData(constantInName, this.initialData);
-    }
-    super.onNodeAdded();
-  };
+  public outputPlugged(): void {
+    const dataToUpdate =
+      this.getSocketByName(constantOutName).links[0].getTarget().defaultData;
+    updateDataIfDefault(
+      this,
+      constantInName,
+      constantDefaultData,
+      dataToUpdate
+    );
+    super.outputPlugged();
+  }
 }
 
 export class ParseArray extends PPNode {

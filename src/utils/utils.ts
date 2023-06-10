@@ -361,7 +361,6 @@ export const getNodeDataFromText = (text: string): SerializedSelection => {
 };
 
 export const isEventComongFromWithinWidget = (event: any): boolean => {
-  console.log('eventid: ' + event.target.id);
   return (
     event.target.id === 'Input' ||
     event.target.localName === 'input' ||
@@ -828,4 +827,16 @@ export const saveBase64AsImage = async (base64, fileName) => {
     `${fileName} - ${formatDate()}.${imageType}`,
     `image/${imageType}`
   );
+};
+
+export const updateDataIfDefault = (
+  node: PPNode,
+  inputSocketName: string,
+  defaultData: any,
+  dataToUpdate: any
+): void => {
+  if (defaultData === node.getInputData(inputSocketName)) {
+    node.setInputData(inputSocketName, dataToUpdate);
+    node.executeOptimizedChain();
+  }
 };
