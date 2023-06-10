@@ -40,6 +40,8 @@ export const dragAndDrop = (acceptedFiles, fileRejections, event) => {
       let data;
       let newNode;
 
+      const localResourceId = `${file.path}-${file.size}`;
+
       switch (extension) {
         case 'ppgraph':
           data = await response.text();
@@ -120,7 +122,6 @@ export const dragAndDrop = (acceptedFiles, fileRejections, event) => {
         case 'webm':
         case 'wmv':
           data = await response.blob();
-          const localResourceId = `${file.path}-${file.size}`;
           PPStorage.getInstance().storeResource(
             localResourceId,
             file.size,
@@ -137,6 +138,39 @@ export const dragAndDrop = (acceptedFiles, fileRejections, event) => {
             existingNode.updateAndExecute(localResourceId, file.path);
           } else {
             newNode = PPGraph.currentGraph.addNewNode('Video', {
+              nodePosX,
+              nodePosY,
+              defaultArguments: {
+                [inputResourceIdSocketName]: localResourceId,
+                [inputFileNameSocketName]: file.path,
+              },
+            });
+          }
+          break;
+        case 'pxshow':
+        case 'sqlite':
+        case 'sqlite3':
+        case 'db':
+        case 'db3':
+        case 's3db':
+        case 'sl3':
+          data = await response.blob();
+          PPStorage.getInstance().storeResource(
+            localResourceId,
+            file.size,
+            data,
+            file.path
+          );
+          if (
+            PPGraph.currentGraph.selection.selectedNodes?.[index]?.type ===
+            'SqliteReader'
+          ) {
+            const existingNode = PPGraph.currentGraph.selection.selectedNodes[
+              index
+            ] as any;
+            existingNode.updateAndExecute(localResourceId, file.path);
+          } else {
+            newNode = PPGraph.currentGraph.addNewNode('SqliteReader', {
               nodePosX,
               nodePosY,
               defaultArguments: {
