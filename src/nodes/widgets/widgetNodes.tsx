@@ -294,7 +294,7 @@ export class WidgetRadio extends WidgetBase {
     for (let i = 0; i < inputs.length; i++) {
       items.push(
         new CheckBox({
-          text: inputs[i],
+          text: String(inputs[i]),
           style: {
             unchecked: this.drawRadio(false, width, padding),
             checked: this.drawRadio(true, width, padding),
@@ -388,12 +388,13 @@ export class WidgetRadio extends WidgetBase {
   public outputPlugged(): void {
     const target =
       this.getSocketByName(selectedOptionName).links[0].getTarget();
+    const data = new ArrayType().parse(target.defaultData);
     if (
-      target.dataType.constructor === new ArrayType().constructor &&
+      Array.isArray(data) &&
       JSON.stringify(radioDefaultValue) ===
         JSON.stringify(this.getInputData(optionsName))
     ) {
-      this.setInputData(optionsName, target.defaultData);
+      this.setInputData(optionsName, data);
       this.executeOptimizedChain();
     }
     super.outputPlugged();
@@ -441,12 +442,13 @@ export class WidgetColorPicker extends WidgetHybridBase {
 
   public outputPlugged(): void {
     const target = this.getSocketByName(outName).links[0].getTarget();
+    const data: TRgba = new ColorType().parse(target.defaultData);
     if (
-      target.dataType.constructor === new ColorType().constructor &&
+      TRgba.isTRgba(data) &&
       pickerDefaultName === this.getInputData(labelName) &&
       RANDOMMAINCOLOR === this.getInputData(initialValueName).hex()
     ) {
-      this.setInputData(initialValueName, target.defaultData);
+      this.setInputData(initialValueName, data);
       this.setInputData(labelName, target.name);
       this.executeOptimizedChain();
     }
@@ -974,13 +976,13 @@ export class WidgetDropdown extends WidgetHybridBase {
 
   public outputPlugged(): void {
     const target = this.getSocketByName(outName).links[0].getTarget();
+    const data = new ArrayType().parse(target.defaultData);
     if (
-      target.dataType.constructor === new ArrayType().constructor &&
+      Array.isArray(data) &&
       JSON.stringify(defaultOptions) ===
         JSON.stringify(this.getInputData(optionsName))
     ) {
-      console.log(target.defaultData);
-      this.setInputData(optionsName, target.defaultData);
+      this.setInputData(optionsName, data);
       this.setInputData(labelName, target.name);
       this.executeOptimizedChain();
     }
