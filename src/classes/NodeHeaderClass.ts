@@ -111,7 +111,7 @@ export default class NodeHeaderClass extends PIXI.Container {
     const node = this.parent as PPNode;
     PPGraph.currentGraph.socketToInspect = null;
     const obj = {
-      filter: 'common',
+      filter: null,
       open: undefined,
     };
     if (!node.selected) {
