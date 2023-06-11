@@ -92,12 +92,13 @@ export class SqliteReader extends PPNode {
   }
 
   public onNodeAdded = async (source?: TNodeSource): Promise<void> => {
-    console.time('import');
+    const namePrefix = this.id + ' sqlite-wasm';
+    console.time(`${namePrefix} imported`);
     const packageName = '@sqlite.org/sqlite-wasm';
     const url = 'https://esm.sh/' + packageName;
     this.sqlite3Module = await import(/* webpackIgnore: true */ url);
-    console.timeEnd('import');
-    console.time('initialize');
+    console.timeEnd(`${namePrefix} imported`);
+    console.time(`${namePrefix} initialized`);
 
     this.sqlite3Module
       .default({
@@ -107,7 +108,7 @@ export class SqliteReader extends PPNode {
       .then((sqlite3) => {
         try {
           this.sqlite3 = sqlite3;
-          console.timeEnd('initialize');
+          console.timeEnd(`${namePrefix} initialized`);
           console.log(
             'Running SQLite3 version',
             this.sqlite3.version.libVersion
@@ -122,7 +123,6 @@ export class SqliteReader extends PPNode {
   };
 
   loadDatabase = async (): Promise<SqliteReader['db']> => {
-    console.log('reloadResourceSocketName');
     const resourceId = this.getInputData(inputResourceIdSocketName);
     const resourceURL = this.getInputData(inputResourceURLSocketName);
     try {
@@ -139,7 +139,6 @@ export class SqliteReader extends PPNode {
           sql: "SELECT name FROM sqlite_master WHERE type='table'",
           rowMode: 'array',
           callback: function (row) {
-            console.log(row);
             returnArray.push(row);
           }.bind(this),
         });
@@ -149,7 +148,7 @@ export class SqliteReader extends PPNode {
         this.executeQuery();
         return this.db;
       }
-      Promise.reject(new Error('No database loaded'));
+      return Promise.reject(new Error('No database loaded'));
     } catch (error) {
       return Promise.reject(new Error(error));
     }
@@ -164,17 +163,14 @@ export class SqliteReader extends PPNode {
         columnNames: columnNames,
         rowMode: 'array',
         callback: function (row) {
-          console.log(row);
           returnArray.push(row);
         }.bind(this),
       });
-      console.log(returnArray);
       this.setOutputData(
         outputQuerySocketName,
         returnArray.length === 1 ? returnArray[0] : returnArray
       );
       this.setOutputData(outputColumnNamesSocketName, columnNames);
-      console.log('executeChildren');
       this.executeChildren().catch((error) => {
         console.error(error);
       });

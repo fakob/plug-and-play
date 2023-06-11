@@ -1,20 +1,20 @@
 let ffmpeg;
 
 (async () => {
-  console.time('import');
+  console.time('ffmpeg imported');
   const packageName = '@ffmpeg/ffmpeg';
   const url = 'https://esm.sh/' + packageName;
   self.FFmpeg = await import(/* webpackIgnore: true */ url);
-  console.timeEnd('import');
+  console.timeEnd('ffmpeg imported');
 
-  console.time('loadFFmpeg');
+  console.time('ffmpeg initialized');
   ffmpeg = self.FFmpeg.createFFmpeg({
     mainName: 'main',
     corePath: 'https://unpkg.com/@ffmpeg/core-st@0.11.1/dist/ffmpeg-core.js',
     // log: true,
   });
   await ffmpeg.setProgress(progressMessage);
-  console.timeEnd('loadFFmpeg');
+  console.timeEnd('ffmpeg initialized');
 })();
 
 self.onmessage = async (event) => {
