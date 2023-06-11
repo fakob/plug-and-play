@@ -3,7 +3,7 @@ import InterfaceController from './InterfaceController';
 import PPStorage from './PPStorage';
 import PPGraph from './classes/GraphClass';
 import PPNode from './classes/NodeClass';
-import { DRAGANDDROP_GRID_MARGIN } from './utils/constants';
+import { DRAGANDDROP_GRID_MARGIN, PXSHOW_SQL_QUERY } from './utils/constants';
 import { convertBlobToBase64 } from './utils/utils';
 import { ensureVisible } from './pixi/utils-pixi';
 import { Image as ImageNode } from './nodes/image/image';
@@ -12,6 +12,7 @@ import {
   inputResourceIdSocketName,
   inputFileNameSocketName,
 } from './nodes/draw/video';
+import { sqlQuerySocketName } from './nodes/utility/database';
 
 export const dragAndDrop = (acceptedFiles, fileRejections, event) => {
   console.log(acceptedFiles, fileRejections);
@@ -39,6 +40,8 @@ export const dragAndDrop = (acceptedFiles, fileRejections, event) => {
       const response = await fetch(objectURL);
       let data;
       let newNode;
+
+      const localResourceId = `${file.path}-${file.size}`;
 
       switch (extension) {
         case 'ppgraph':
@@ -120,7 +123,6 @@ export const dragAndDrop = (acceptedFiles, fileRejections, event) => {
         case 'webm':
         case 'wmv':
           data = await response.blob();
-          const localResourceId = `${file.path}-${file.size}`;
           PPStorage.getInstance().storeResource(
             localResourceId,
             file.size,
@@ -142,6 +144,42 @@ export const dragAndDrop = (acceptedFiles, fileRejections, event) => {
               defaultArguments: {
                 [inputResourceIdSocketName]: localResourceId,
                 [inputFileNameSocketName]: file.path,
+              },
+            });
+          }
+          break;
+        case 'pxshow':
+        case 'sqlite':
+        case 'sqlite3':
+        case 'db':
+        case 'db3':
+        case 's3db':
+        case 'sl3':
+          data = await response.blob();
+          PPStorage.getInstance().storeResource(
+            localResourceId,
+            file.size,
+            data,
+            file.path
+          );
+          if (
+            PPGraph.currentGraph.selection.selectedNodes?.[index]?.type ===
+            'SqliteReader'
+          ) {
+            const existingNode = PPGraph.currentGraph.selection.selectedNodes[
+              index
+            ] as any;
+            existingNode.updateAndExecute(localResourceId, file.path);
+          } else {
+            const sqlQuery =
+              extension === 'pxshow' ? PXSHOW_SQL_QUERY : undefined;
+            newNode = PPGraph.currentGraph.addNewNode('SqliteReader', {
+              nodePosX,
+              nodePosY,
+              defaultArguments: {
+                [inputResourceIdSocketName]: localResourceId,
+                [inputFileNameSocketName]: file.path,
+                [sqlQuerySocketName]: sqlQuery,
               },
             });
           }

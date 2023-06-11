@@ -5,6 +5,7 @@ import * as booleanlogic from './logic/boolean';
 import * as browser from './utility/browser';
 import * as charts from './draw/graph/lineGraph';
 import * as codeEditor from './codeEditor';
+import * as database from './utility/database';
 import * as dataFunctions from './data/dataFunctions';
 import * as draw from './draw/draw';
 import * as get from './api/http';
@@ -41,6 +42,7 @@ export const getAllNodeTypes = (): RegisteredNodeTypes => {
       browser,
       charts,
       codeEditor,
+      database,
       dataFunctions,
       draw,
       get,

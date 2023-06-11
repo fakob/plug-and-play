@@ -426,3 +426,6 @@ export const BASIC_VERTEX_SHADER = `
       gl_Position = vec4((projectionMatrix * translationMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);
 
   }`;
+
+export const PXSHOW_SQL_QUERY = `SELECT json_extract(state,'$.State') as State FROM states
+WHERE service IS 'Store'`;
