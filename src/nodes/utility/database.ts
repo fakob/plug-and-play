@@ -7,20 +7,26 @@ import {
 } from '../../utils/constants';
 import PPStorage from '../../PPStorage';
 import PPNode from '../../classes/NodeClass';
-import { JSONType } from '../datatypes/jsonType';
 import { StringType } from '../datatypes/stringType';
-import { TriggerType } from '../datatypes/triggerType';
 import {
   inputResourceIdSocketName,
   inputFileNameSocketName,
 } from '../../nodes/draw/video';
+import { ArrayType } from '../datatypes/arrayType';
+import { TriggerType } from '../datatypes/triggerType';
 
-const triggerSocketName = 'Trigger';
-const outputSocketName = 'Output';
+const inputResourceURLSocketName = 'Resource URL';
+export const sqlQuerySocketName = 'SQL query';
+const reloadResourceSocketName = 'Reload resource';
+const outputTableSocketName = 'Tables';
+const outputColumnNamesSocketName = 'Query columns';
+const outputQuerySocketName = 'Query result';
+const defaultSqlQuery = `SELECT * FROM tablename`;
 
 export class SqliteReader extends PPNode {
   sqlite3Module;
   sqlite3;
+  db;
 
   public getName(): string {
     return 'Sqlite reader';
@@ -56,46 +62,168 @@ export class SqliteReader extends PPNode {
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
-        triggerSocketName,
-        new TriggerType(TRIGGER_TYPE_OPTIONS[0].text, 'trigger'),
+        inputResourceURLSocketName,
+        new StringType(),
+        '',
+        false
+      ),
+      new PPSocket(
+        SOCKET_TYPE.IN,
+        reloadResourceSocketName,
+        new TriggerType(TRIGGER_TYPE_OPTIONS[0].text, 'loadDatabase'),
         0,
+        false
+      ),
+      new PPSocket(
+        SOCKET_TYPE.IN,
+        sqlQuerySocketName,
+        new StringType(),
+        defaultSqlQuery,
         true
       ),
-      new PPSocket(SOCKET_TYPE.OUT, outputSocketName, new JSONType()),
+      new PPSocket(SOCKET_TYPE.OUT, outputTableSocketName, new ArrayType()),
+      new PPSocket(
+        SOCKET_TYPE.OUT,
+        outputColumnNamesSocketName,
+        new ArrayType()
+      ),
+      new PPSocket(SOCKET_TYPE.OUT, outputQuerySocketName, new ArrayType()),
     ];
   }
 
   public onNodeAdded = async (source?: TNodeSource): Promise<void> => {
-    (async () => {
-      console.time('import');
-      const packageName = '@sqlite.org/sqlite-wasm';
-      const url = 'https://esm.sh/' + packageName;
-      this.sqlite3Module = await import(/* webpackIgnore: true */ url);
-      console.timeEnd('import');
+    console.time('import');
+    const packageName = '@sqlite.org/sqlite-wasm';
+    const url = 'https://esm.sh/' + packageName;
+    this.sqlite3Module = await import(/* webpackIgnore: true */ url);
+    console.timeEnd('import');
+    console.time('initialize');
 
-      console.log(this.sqlite3Module);
-
-      console.log('Loading and initializing SQLite3 module...');
-      this.sqlite3Module
-        .default({
-          print: console.log,
-          printErr: console.error,
-        })
-        .then((sqlite3) => {
-          try {
-            this.sqlite3 = sqlite3;
-            console.log('Done initializing. Running demo...');
-            this.start();
-          } catch (err) {
-            console.error(err.name, err.message);
-          }
-        });
-    })();
+    this.sqlite3Module
+      .default({
+        print: console.log,
+        printErr: console.error,
+      })
+      .then((sqlite3) => {
+        try {
+          this.sqlite3 = sqlite3;
+          console.timeEnd('initialize');
+          console.log(
+            'Running SQLite3 version',
+            this.sqlite3.version.libVersion
+          );
+          this.loadDatabase();
+        } catch (err) {
+          console.error(err.name, err.message);
+        }
+      });
 
     super.onNodeAdded(source);
   };
 
-  loadDbFromArrayBuffer = function (buf) {
+  loadDatabase = async (): Promise<SqliteReader['db']> => {
+    console.log('reloadResourceSocketName');
+    const resourceId = this.getInputData(inputResourceIdSocketName);
+    const resourceURL = this.getInputData(inputResourceURLSocketName);
+    try {
+      let blob;
+      if (resourceId) {
+        blob = await this.loadResourceLocal(resourceId);
+      } else if (resourceURL) {
+        blob = await this.loadResourceURL(resourceURL);
+      }
+      if (blob) {
+        this.db = await this.loadDbFromBlob(blob);
+        const returnArray = [];
+        this.db.exec({
+          sql: "SELECT name FROM sqlite_master WHERE type='table'",
+          rowMode: 'array',
+          callback: function (row) {
+            console.log(row);
+            returnArray.push(row);
+          }.bind(this),
+        });
+        this.setOutputData(outputTableSocketName, returnArray);
+        this.setOutputData(outputQuerySocketName, []);
+        this.setOutputData(outputColumnNamesSocketName, []);
+        this.executeQuery();
+        return this.db;
+      }
+      Promise.reject(new Error('No database loaded'));
+    } catch (error) {
+      return Promise.reject(new Error(error));
+    }
+  };
+
+  executeQuery = async (): Promise<void> => {
+    if (this.db) {
+      const returnArray = [];
+      const columnNames = [];
+      this.db.exec({
+        sql: this.getInputData(sqlQuerySocketName),
+        columnNames: columnNames,
+        rowMode: 'array',
+        callback: function (row) {
+          console.log(row);
+          returnArray.push(row);
+        }.bind(this),
+      });
+      console.log(returnArray);
+      this.setOutputData(
+        outputQuerySocketName,
+        returnArray.length === 1 ? returnArray[0] : returnArray
+      );
+      this.setOutputData(outputColumnNamesSocketName, columnNames);
+      console.log('executeChildren');
+      this.executeChildren().catch((error) => {
+        console.error(error);
+      });
+    }
+  };
+
+  updateAndExecute = async (
+    localResourceId: string,
+    path: string,
+    sqlQuery?: string
+  ): Promise<void> => {
+    this.setInputData(inputResourceIdSocketName, localResourceId);
+    this.setInputData(inputFileNameSocketName, path);
+    if (sqlQuery) {
+      this.setInputData(sqlQuerySocketName, sqlQuery);
+    }
+    await this.loadDatabase();
+    await this.executeQuery();
+  };
+
+  onExecute = async (): Promise<void> => {
+    await this.executeQuery();
+  };
+
+  loadResourceLocal = async (resourceId) => {
+    return await PPStorage.getInstance().loadResource(resourceId);
+  };
+
+  loadResourceURL = async (resourceURL) => {
+    const promise = fetch(resourceURL)
+      .then((response) => {
+        if (!response.ok) {
+          return null;
+        }
+        return response.blob();
+      })
+      .catch((error) => {
+        console.error(error);
+        return null;
+      });
+    const blob = await promise;
+    if (!blob) {
+      return null;
+    }
+    return blob;
+  };
+
+  loadDbFromBlob = async function (blob) {
+    const buf = await blob.arrayBuffer();
     const bytes = new Uint8Array(buf);
     const p = this.sqlite3.wasm.allocFromTypedArray(bytes);
     const db = new this.sqlite3.oo1.DB();
@@ -109,123 +237,4 @@ export class SqliteReader extends PPNode {
     );
     return db;
   };
-
-  start = async function () {
-    // console.log('Running SQLite3 version', sqlite3.version.libVersion);
-    // console.log(this);
-    // console.log(this.getInputData(inputResourceIdSocketName));
-
-    console.log(this.sqlite3, this.sqlite3.wasm, this.sqlite3.capi);
-    const blob = await this.loadResource(
-      this.getInputData(inputResourceIdSocketName)
-    );
-    const data = await blob.arrayBuffer();
-    const path = new DatabasePath(data);
-    const fileName = this.getInputData(inputFileNameSocketName);
-    console.log(fileName, path);
-    const db = this.loadDbFromArrayBuffer(data);
-    // const db = new sqlite3.oo1.DB(fileName, path);
-    console.log(db);
-    db.exec({
-      sql: `SELECT * FROM states
-where service is 'Store'`,
-      rowMode: 'array', // 'array' (default), 'object', or 'stmt'
-      callback: function (row) {
-        this.setOutputData(outputSocketName, JSON.parse(row[1]));
-        console.log('row ', ++this.counter, '=', row);
-      }.bind(this),
-    });
-  };
-
-  updateAndExecute = (localResourceId: string, path: string): void => {
-    this.setInputData(inputResourceIdSocketName, localResourceId);
-    this.setInputData(inputFileNameSocketName, path);
-    this.executeOptimizedChain().catch((error) => {
-      console.error(error);
-    });
-  };
-
-  loadResource = async (resourceId) => {
-    return await PPStorage.getInstance().loadResource(resourceId);
-  };
-
-  trigger = () => {
-    console.log('db');
-    console.log(this.sqlite3);
-    console.log(this.sqlite3.default);
-    const db = new this.sqlite3.default('foobar.db');
-    db.pragma('journal_mode = WAL');
-
-    db.close();
-  };
 }
-
-// Path to an SQLite database.
-
-// Could be one of the following:
-//   - local (../data.db),
-//   - remote (https://domain.com/data.db)
-//   - binary (binary database content)
-//   - id (gist:02994fe7f2de0611726d61dbf26f46e4)
-//        (deta:yuiqairmb558)
-//   - empty
-
-class DatabasePath {
-  value;
-  type;
-
-  constructor(value, type = null) {
-    this.value = value;
-    this.type = type || this.inferType(value);
-  }
-
-  // inferType guesses the path type by its value.
-  inferType(value) {
-    if (!value) {
-      return 'empty';
-    }
-    if (value instanceof ArrayBuffer) {
-      return 'binary';
-    }
-    if (value.startsWith('http://') || value.startsWith('https://')) {
-      return 'remote';
-    }
-    if (value.includes(':')) {
-      return 'id';
-    }
-    return 'local';
-  }
-
-  // extractName extracts the database name from the path.
-  extractName() {
-    if (['binary', 'id', 'empty'].includes(this.type)) {
-      return '';
-    }
-    const parts = this.value.split('/');
-    return parts[parts.length - 1];
-  }
-
-  // toHash returns the path as a window location hash string.
-  toHash() {
-    if (this.type == 'local' || this.type == 'remote' || this.type == 'id') {
-      return `#${this.value}`;
-    } else {
-      return '';
-    }
-  }
-
-  // toString returns the path as a string.
-  toString() {
-    if (this.type == 'local' || this.type == 'remote') {
-      return `URL ${this.value}`;
-    } else if (this.type == 'binary') {
-      return 'binary value';
-    } else if (this.type == 'id') {
-      return `ID ${this.value}`;
-    } else {
-      return 'empty value';
-    }
-  }
-}
-
-export { DatabasePath };
