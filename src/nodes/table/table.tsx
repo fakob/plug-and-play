@@ -59,7 +59,7 @@ import {
   SOCKET_TYPE,
   customTheme,
 } from '../../utils/constants';
-import { CustomArgs, TRgba } from '../../utils/interfaces';
+import { TNodeSource, TRgba } from '../../utils/interfaces';
 import { ArrayType } from '../datatypes/arrayType';
 import { JSONType } from '../datatypes/jsonType';
 import { NumberType } from '../datatypes/numberType';
@@ -74,20 +74,13 @@ const workBookInputSocketName = 'Initial data';
 const sheetIndexInputSocketName = 'Sheet index';
 
 export class Table extends HybridNode2 {
+  XLSXModule: typeof XLSX;
   _imageRef: PIXI.Sprite;
   _imageRefClone: PIXI.Sprite;
   defaultProps;
   createElement;
   workBook: XLSX.WorkBook;
   parsedData: any;
-
-  constructor(name: string, customArgs?: CustomArgs) {
-    super(name, {
-      ...customArgs,
-    });
-
-    this.workBook = XLSX.utils.book_new();
-  }
 
   public getName(): string {
     return 'Table';
@@ -104,6 +97,19 @@ export class Table extends HybridNode2 {
   getPreferredInputSocketName(): string {
     return inputSocketName;
   }
+
+  public onNodeAdded = async (source?: TNodeSource): Promise<void> => {
+    const namePrefix = this.id + ' xlsx';
+    console.time(`${namePrefix} imported`);
+    const packageName = 'xlsx';
+    const url = 'https://esm.sh/' + packageName;
+    this.XLSXModule = await import(/* webpackIgnore: true */ url);
+    console.timeEnd(`${namePrefix} imported`);
+
+    this.workBook = this.XLSXModule.utils.book_new();
+
+    super.onNodeAdded(source);
+  };
 
   getColumn = (nameOfColumn) => {
     const added: PPNode = PPGraph.currentGraph.addNewNode(
@@ -245,10 +251,10 @@ export class Table extends HybridNode2 {
       const workSheet =
         node.workBook.Sheets[node.workBook.SheetNames[sheetIndex]];
       try {
-        const range = XLSX.utils.decode_range(workSheet['!ref']);
+        const range = node.XLSXModule.utils.decode_range(workSheet['!ref']);
         // sheet_to_json will lose empty row and col at begin as default
         range.s = { c: 0, r: 0 };
-        const toJson = XLSX.utils.sheet_to_json(workSheet, {
+        const toJson = node.XLSXModule.utils.sheet_to_json(workSheet, {
           raw: false,
           header: 1,
           range: range,
@@ -260,7 +266,7 @@ export class Table extends HybridNode2 {
     };
 
     const onExport = () => {
-      XLSX.writeFile(
+      node.XLSXModule.writeFile(
         node.workBook,
         `${node.name}.${exportOptions[selectedExportIndex]}`,
         {
@@ -352,27 +358,39 @@ export class Table extends HybridNode2 {
     const isColOpen = colMenu !== undefined;
     const isRowOpen = rowMenu !== undefined;
 
-    useEffect(() => {
-      const storedWorkBookData = node.getInputData(workBookInputSocketName);
-      if (node.initialData) {
-        // load initialData from import
-        node.workBook = XLSX.read(node.initialData);
-        node.setInputData(workBookInputSocketName, node.workBook);
-      } else if (
-        storedWorkBookData !== undefined &&
-        Object.keys(storedWorkBookData).length !== 0
-      ) {
-        // load saved data
-        node.workBook = node.createWorkBookFromJSON(storedWorkBookData);
+    const waitForImportBeingLoaded = () => {
+      if (node.XLSXModule) {
+        const storedWorkBookData = node.getInputData(workBookInputSocketName);
+        if (node.initialData) {
+          // load initialData from import
+          node.workBook = node.XLSXModule.read(node.initialData);
+          node.setInputData(workBookInputSocketName, node.workBook);
+        } else if (
+          storedWorkBookData !== undefined &&
+          Object.keys(storedWorkBookData).length !== 0
+        ) {
+          // load saved data
+          node.workBook = node.createWorkBookFromJSON(storedWorkBookData);
+        } else {
+          // create workbook with an empty worksheet
+          node.workBook = node.XLSXModule.utils.book_new();
+          const ws_data = new Array(7).fill(Array(7).fill(''));
+          const worksheet = node.XLSXModule.utils.aoa_to_sheet(ws_data);
+          node.XLSXModule.utils.book_append_sheet(
+            node.workBook,
+            worksheet,
+            'Sheet1'
+          );
+        }
+        node.setAllOutputData(node.workBook);
+        loadSheet();
       } else {
-        // create workbook with an empty worksheet
-        node.workBook = XLSX.utils.book_new();
-        const ws_data = new Array(7).fill(Array(7).fill(''));
-        const worksheet = XLSX.utils.aoa_to_sheet(ws_data);
-        XLSX.utils.book_append_sheet(node.workBook, worksheet, 'Sheet1');
+        setTimeout(waitForImportBeingLoaded, 100);
       }
-      node.setAllOutputData(node.workBook);
-      loadSheet();
+    };
+
+    useEffect(() => {
+      waitForImportBeingLoaded();
     }, []);
 
     useEffect(() => {
@@ -402,8 +420,10 @@ export class Table extends HybridNode2 {
           if (Array.isArray(props[inputSocketName][0])) {
             setArrayOfArrays(props[inputSocketName]);
           } else {
-            const tempWS = XLSX.utils.json_to_sheet(props[inputSocketName]);
-            const toJson = XLSX.utils.sheet_to_json(tempWS, {
+            const tempWS = node.XLSXModule.utils.json_to_sheet(
+              props[inputSocketName]
+            );
+            const toJson = node.XLSXModule.utils.sheet_to_json(tempWS, {
               raw: false,
               header: 1,
             });
@@ -418,7 +438,7 @@ export class Table extends HybridNode2 {
     }, [props[inputSocketName]]);
 
     const saveAndOutput = useCallback((): void => {
-      const worksheet = XLSX.utils.aoa_to_sheet(arrayOfArrays);
+      const worksheet = node.XLSXModule.utils.aoa_to_sheet(arrayOfArrays);
       const sheetIndex = node.getIndex();
       node.workBook.Sheets[node.workBook.SheetNames[sheetIndex]] = worksheet;
       node.setInputData(workBookInputSocketName, node.workBook);
@@ -912,9 +932,13 @@ export class Table extends HybridNode2 {
   }
 
   createWorkBookFromJSON(json): any {
-    const workBook = XLSX.utils.book_new();
+    const workBook = this.XLSXModule.utils.book_new();
     json.SheetNames.forEach(function (name) {
-      XLSX.utils.book_append_sheet(workBook, json.Sheets[name], name);
+      this.XLSXModule.utils.book_append_sheet(
+        workBook,
+        json.Sheets[name],
+        name
+      );
     });
     return workBook;
   }
@@ -928,19 +952,19 @@ export class Table extends HybridNode2 {
   }
 
   getJSON(sheet: XLSX.WorkSheet): any {
-    const data = XLSX.utils.sheet_to_json(sheet);
+    const data = this.XLSXModule.utils.sheet_to_json(sheet);
     return data;
   }
 
   getArrayOfArrays(sheet: XLSX.WorkSheet): any {
-    const data = XLSX.utils.sheet_to_json(sheet, {
+    const data = this.XLSXModule.utils.sheet_to_json(sheet, {
       header: 1,
     });
     return data;
   }
 
   getCSV(sheet: XLSX.WorkSheet): any {
-    const data = XLSX.utils.sheet_to_csv(sheet);
+    const data = this.XLSXModule.utils.sheet_to_csv(sheet);
     return data;
   }
 
