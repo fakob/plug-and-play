@@ -74,7 +74,6 @@ const workBookInputSocketName = 'Initial data';
 const sheetIndexInputSocketName = 'Sheet index';
 
 export class Table extends HybridNode2 {
-  XLSXModule: typeof XLSX;
   _imageRef: PIXI.Sprite;
   _imageRefClone: PIXI.Sprite;
   defaultProps;
@@ -98,21 +97,17 @@ export class Table extends HybridNode2 {
     return inputSocketName;
   }
 
+  getXLSXModule(): typeof XLSX {
+    return PPGraph.currentGraph.dynamicImports['xlsx'];
+  }
+
   public onNodeAdded = async (source?: TNodeSource): Promise<void> => {
-    const namePrefix = this.id + ' xlsx';
-    console.time(`${namePrefix} imported`);
-    const packageName = 'xlsx';
-    const url = 'https://esm.sh/' + packageName;
-    this.XLSXModule = await import(/* webpackIgnore: true */ url);
-    console.timeEnd(`${namePrefix} imported`);
-
-    this.workBook = this.XLSXModule.utils.book_new();
-
+    this.workBook = this.getXLSXModule().utils.book_new();
     super.onNodeAdded(source);
   };
 
-  getColumn = (nameOfColumn) => {
-    const added: PPNode = PPGraph.currentGraph.addNewNode(
+  getColumn = async (nameOfColumn) => {
+    const added: PPNode = await PPGraph.currentGraph.addNewNode(
       'Table_GetColumnByName',
       {
         nodePosX: this.x + (this.width + 40),
@@ -128,8 +123,8 @@ export class Table extends HybridNode2 {
     added.executeOptimizedChain();
   };
 
-  getRowAsArray = (nameOfRow) => {
-    const added: PPNode = PPGraph.currentGraph.addNewNode('ArrayGet', {
+  getRowAsArray = async (nameOfRow) => {
+    const added: PPNode = await PPGraph.currentGraph.addNewNode('ArrayGet', {
       nodePosX: this.x + (this.width + 40),
       nodePosY: this.y,
     });
@@ -142,8 +137,8 @@ export class Table extends HybridNode2 {
     added.executeOptimizedChain();
   };
 
-  getRowAsObject = (nameOfRow) => {
-    const added: PPNode = PPGraph.currentGraph.addNewNode('ArrayGet', {
+  getRowAsObject = async (nameOfRow) => {
+    const added: PPNode = await PPGraph.currentGraph.addNewNode('ArrayGet', {
       nodePosX: this.x + (this.width + 40),
       nodePosY: this.y,
     });
@@ -153,8 +148,8 @@ export class Table extends HybridNode2 {
     added.executeOptimizedChain();
   };
 
-  getCell = (cell: Item) => {
-    const added: PPNode = PPGraph.currentGraph.addNewNode('ArrayGet', {
+  getCell = async (cell: Item) => {
+    const added: PPNode = await PPGraph.currentGraph.addNewNode('ArrayGet', {
       nodePosX: this.x + (this.width + 40),
       nodePosY: this.y,
     });
@@ -164,7 +159,7 @@ export class Table extends HybridNode2 {
       added
     );
     added.executeOptimizedChain();
-    const added2: PPNode = PPGraph.currentGraph.addNewNode('ArrayGet', {
+    const added2: PPNode = await PPGraph.currentGraph.addNewNode('ArrayGet', {
       nodePosX: added.x + (added.width + 40),
       nodePosY: this.y,
     });
@@ -176,8 +171,8 @@ export class Table extends HybridNode2 {
     added.executeOptimizedChain();
   };
 
-  createRowFilter = () => {
-    const filterObject = PPGraph.currentGraph.addNewNode('ObjectFilter', {
+  createRowFilter = async () => {
+    const filterObject = await PPGraph.currentGraph.addNewNode('ObjectFilter', {
       nodePosX: this.x + (this.width + 40),
       nodePosY: this.y,
     });
@@ -251,10 +246,12 @@ export class Table extends HybridNode2 {
       const workSheet =
         node.workBook.Sheets[node.workBook.SheetNames[sheetIndex]];
       try {
-        const range = node.XLSXModule.utils.decode_range(workSheet['!ref']);
+        const range = node
+          .getXLSXModule()
+          .utils.decode_range(workSheet['!ref']);
         // sheet_to_json will lose empty row and col at begin as default
         range.s = { c: 0, r: 0 };
-        const toJson = node.XLSXModule.utils.sheet_to_json(workSheet, {
+        const toJson = node.getXLSXModule().utils.sheet_to_json(workSheet, {
           raw: false,
           header: 1,
           range: range,
@@ -266,13 +263,15 @@ export class Table extends HybridNode2 {
     };
 
     const onExport = () => {
-      node.XLSXModule.writeFile(
-        node.workBook,
-        `${node.name}.${exportOptions[selectedExportIndex]}`,
-        {
-          sheet: node.workBook.SheetNames[node.getIndex()],
-        }
-      );
+      node
+        .getXLSXModule()
+        .writeFile(
+          node.workBook,
+          `${node.name}.${exportOptions[selectedExportIndex]}`,
+          {
+            sheet: node.workBook.SheetNames[node.getIndex()],
+          }
+        );
     };
 
     const getCols = (): GridColumn[] => {
@@ -358,39 +357,29 @@ export class Table extends HybridNode2 {
     const isColOpen = colMenu !== undefined;
     const isRowOpen = rowMenu !== undefined;
 
-    const waitForImportBeingLoaded = () => {
-      if (node.XLSXModule) {
-        const storedWorkBookData = node.getInputData(workBookInputSocketName);
-        if (node.initialData) {
-          // load initialData from import
-          node.workBook = node.XLSXModule.read(node.initialData);
-          node.setInputData(workBookInputSocketName, node.workBook);
-        } else if (
-          storedWorkBookData !== undefined &&
-          Object.keys(storedWorkBookData).length !== 0
-        ) {
-          // load saved data
-          node.workBook = node.createWorkBookFromJSON(storedWorkBookData);
-        } else {
-          // create workbook with an empty worksheet
-          node.workBook = node.XLSXModule.utils.book_new();
-          const ws_data = new Array(7).fill(Array(7).fill(''));
-          const worksheet = node.XLSXModule.utils.aoa_to_sheet(ws_data);
-          node.XLSXModule.utils.book_append_sheet(
-            node.workBook,
-            worksheet,
-            'Sheet1'
-          );
-        }
-        node.setAllOutputData(node.workBook);
-        loadSheet();
-      } else {
-        setTimeout(waitForImportBeingLoaded, 100);
-      }
-    };
-
     useEffect(() => {
-      waitForImportBeingLoaded();
+      const storedWorkBookData = node.getInputData(workBookInputSocketName);
+      if (node.initialData) {
+        // load initialData from import
+        node.workBook = node.getXLSXModule().read(node.initialData);
+        node.setInputData(workBookInputSocketName, node.workBook);
+      } else if (
+        storedWorkBookData !== undefined &&
+        Object.keys(storedWorkBookData).length !== 0
+      ) {
+        // load saved data
+        node.workBook = node.createWorkBookFromJSON(storedWorkBookData);
+      } else {
+        // create workbook with an empty worksheet
+        node.workBook = node.getXLSXModule().utils.book_new();
+        const ws_data = new Array(7).fill(Array(7).fill(''));
+        const worksheet = node.getXLSXModule().utils.aoa_to_sheet(ws_data);
+        node
+          .getXLSXModule()
+          .utils.book_append_sheet(node.workBook, worksheet, 'Sheet1');
+      }
+      node.setAllOutputData(node.workBook);
+      loadSheet();
     }, []);
 
     useEffect(() => {
@@ -420,10 +409,10 @@ export class Table extends HybridNode2 {
           if (Array.isArray(props[inputSocketName][0])) {
             setArrayOfArrays(props[inputSocketName]);
           } else {
-            const tempWS = node.XLSXModule.utils.json_to_sheet(
-              props[inputSocketName]
-            );
-            const toJson = node.XLSXModule.utils.sheet_to_json(tempWS, {
+            const tempWS = node
+              .getXLSXModule()
+              .utils.json_to_sheet(props[inputSocketName]);
+            const toJson = node.getXLSXModule().utils.sheet_to_json(tempWS, {
               raw: false,
               header: 1,
             });
@@ -438,7 +427,7 @@ export class Table extends HybridNode2 {
     }, [props[inputSocketName]]);
 
     const saveAndOutput = useCallback((): void => {
-      const worksheet = node.XLSXModule.utils.aoa_to_sheet(arrayOfArrays);
+      const worksheet = node.getXLSXModule().utils.aoa_to_sheet(arrayOfArrays);
       const sheetIndex = node.getIndex();
       node.workBook.Sheets[node.workBook.SheetNames[sheetIndex]] = worksheet;
       node.setInputData(workBookInputSocketName, node.workBook);
@@ -932,13 +921,10 @@ export class Table extends HybridNode2 {
   }
 
   createWorkBookFromJSON(json): any {
-    const workBook = this.XLSXModule.utils.book_new();
+    const module = this.getXLSXModule();
+    const workBook = module.utils.book_new();
     json.SheetNames.forEach(function (name) {
-      this.XLSXModule.utils.book_append_sheet(
-        workBook,
-        json.Sheets[name],
-        name
-      );
+      module.utils.book_append_sheet(workBook, json.Sheets[name], name);
     });
     return workBook;
   }
@@ -952,19 +938,19 @@ export class Table extends HybridNode2 {
   }
 
   getJSON(sheet: XLSX.WorkSheet): any {
-    const data = this.XLSXModule.utils.sheet_to_json(sheet);
+    const data = this.getXLSXModule().utils.sheet_to_json(sheet);
     return data;
   }
 
   getArrayOfArrays(sheet: XLSX.WorkSheet): any {
-    const data = this.XLSXModule.utils.sheet_to_json(sheet, {
+    const data = this.getXLSXModule().utils.sheet_to_json(sheet, {
       header: 1,
     });
     return data;
   }
 
   getCSV(sheet: XLSX.WorkSheet): any {
-    const data = this.XLSXModule.utils.sheet_to_csv(sheet);
+    const data = this.getXLSXModule().utils.sheet_to_csv(sheet);
     return data;
   }
 
@@ -973,5 +959,9 @@ export class Table extends HybridNode2 {
     const sheet = workBook.Sheets[workBook.SheetNames[currentSheetIndex]];
     this.setOutputData(rowObjectsNames, this.getJSON(sheet));
     this.setOutputData(arrayOfArraysSocketName, this.getArrayOfArrays(sheet));
+  }
+
+  public getDynamicImports(): string[] {
+    return ['xlsx'];
   }
 }

@@ -1263,4 +1263,10 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
 
   // kinda hacky but some cant easily serialize functions in JS
   protected initializeType(socketName: string, datatype: any) { }
+
+
+  // these are imported before node is added to the graph
+  public getDynamicImports() : string[]{
+    return [];
+  }
 }
