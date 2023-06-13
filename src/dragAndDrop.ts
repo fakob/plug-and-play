@@ -173,7 +173,7 @@ export const dragAndDrop = (acceptedFiles, fileRejections, event) => {
           } else {
             const sqlQuery =
               extension === 'pxshow' ? PXSHOW_SQL_QUERY : undefined;
-            newNode = PPGraph.currentGraph.addNewNode('SqliteReader', {
+            newNode = await PPGraph.currentGraph.addNewNode('SqliteReader', {
               nodePosX,
               nodePosY,
               defaultArguments: {
