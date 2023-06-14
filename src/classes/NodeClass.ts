@@ -79,16 +79,16 @@ export default class PPNode extends PIXI.Container {
   protected statuses: NodeStatus[] = []; // you can add statuses into this and they will be rendered on the node
 
   // supported callbacks
-  onNodeDoubleClick: (event: PIXI.FederatedPointerEvent) => void = () => { };
+  onNodeDoubleClick: (event: PIXI.FederatedPointerEvent) => void = () => {};
   onViewportMoveHandler: (event?: PIXI.FederatedPointerEvent) => void =
-    () => { };
+    () => {};
   onViewportPointerUpHandler: (event?: PIXI.FederatedPointerEvent) => void =
-    () => { };
-  onNodeRemoved: () => void = () => { }; // called when the node is removed from the graph
-  onNodeResize: (width: number, height: number) => void = () => { }; // called when the node is resized
+    () => {};
+  onNodeRemoved: () => void = () => {}; // called when the node is removed from the graph
+  onNodeResize: (width: number, height: number) => void = () => {}; // called when the node is resized
   onNodeDragOrViewportMove: // called when the node or or the viewport with the node is moved or scaled
-    (positions: { screenX: number; screenY: number; scale: number }) => void =
-    () => { };
+  (positions: { screenX: number; screenY: number; scale: number }) => void =
+    () => {};
 
   // called when the node is added to the graph
   public onNodeAdded(source: TNodeSource = NODE_SOURCE.SERIALIZED): void {
@@ -840,7 +840,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     if (
       this.updateBehaviour.interval &&
       currentTime - this.lastTimeTicked >=
-      this.updateBehaviour.intervalFrequency
+        this.updateBehaviour.intervalFrequency
     ) {
       this.lastTimeTicked = currentTime;
       this.executeOptimizedChain();
@@ -972,31 +972,41 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
 
   onPointerDown(event: PIXI.FederatedPointerEvent): void {
     console.log('Node: onPointerDown');
-    event.stopPropagation();
-    const node = event.target as PPNode;
+    console.log(event.pointerType, event.isPrimary);
+    if (event.pointerType === 'touch' && event.isPrimary) {
+      // Single touch gesture
+      console.log('Single touch');
+      event.stopPropagation();
+      const node = event.target as PPNode;
 
-    if (node.clickedSocketRef === null) {
-      // start dragging the node
+      if (node.clickedSocketRef === null) {
+        // start dragging the node
 
-      const shiftKey = event.shiftKey;
+        const shiftKey = event.shiftKey;
 
-      // select node if the shiftKey is pressed
-      // or the node is not yet selected
-      if (shiftKey || !this.selected) {
-        PPGraph.currentGraph.selection.selectNodes([this], shiftKey, true);
-        this.onSpecificallySelected();
+        // select node if the shiftKey is pressed
+        // or the node is not yet selected
+        if (shiftKey || !this.selected) {
+          PPGraph.currentGraph.selection.selectNodes([this], shiftKey, true);
+          this.onSpecificallySelected();
+        }
+        PPGraph.currentGraph.selection.startDragAction(event);
       }
-      PPGraph.currentGraph.selection.startDragAction(event);
-    }
-    if (event.button == 2) {
-      if (event.target == this) {
-        InterfaceController.onRightClick(event, this);
+      if (event.button == 2) {
+        if (event.target == this) {
+          InterfaceController.onRightClick(event, this);
+        }
+        PPGraph.currentGraph.selection.stopDragAction();
       }
-      PPGraph.currentGraph.selection.stopDragAction();
+    } else if (event.pointerType === 'touch' && !event.isPrimary) {
+      // Multi-touch gesture
+      console.log('Multi-touch');
     }
   }
 
   onPointerUp(event: PIXI.FederatedPointerEvent): void {
+    console.log('Node: onPointerUp');
+
     const source = PPGraph.currentGraph.selectedSourceSocket;
     if (source && this !== source.getNode()) {
       PPGraph.currentGraph.selectedSourceSocket = null; // hack
@@ -1116,7 +1126,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     return false;
   }
 
-  protected onNodeExit(): void { }
+  protected onNodeExit(): void {}
 
   ////////////////////////////// Meant to be overriden for visual/behavioral needs
 
@@ -1262,5 +1272,5 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   }
 
   // kinda hacky but some cant easily serialize functions in JS
-  protected initializeType(socketName: string, datatype: any) { }
+  protected initializeType(socketName: string, datatype: any) {}
 }

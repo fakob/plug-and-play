@@ -66,6 +66,7 @@ import {
   controlOrMetaKey,
   cutOrCopyClipboard,
   pasteClipboard,
+  preventDefault,
   removeExtension,
   removeUrlParameter,
   roundNumber,
@@ -124,7 +125,7 @@ const App = (): JSX.Element => {
   const [selectedSocket, setSelectedSocket] = useState<PPSocket | null>(null);
   const [contextMenuPosition, setContextMenuPosition] = useState([0, 0]);
   const [actionObject, setActionObject] = useState(null); // id and name of graph to edit/delete
-  const [showComments, setShowComments] = useState(false);
+  const [showComments, setShowComments] = useState(true);
   const [, setRemoteGraphs, remoteGraphsRef] = useStateRef([]);
   const [graphSearchItems, setGraphSearchItems] = useState<
     IGraphSearch[] | null
@@ -248,6 +249,9 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       },
       { passive: false }
     );
+    document.addEventListener('gesturestart', preventDefault);
+    document.addEventListener('gesturechange', preventDefault);
+    document.addEventListener('gestureend', preventDefault);
 
     // disable default context menu for pixi only
     pixiApp.current.view.addEventListener(
@@ -462,6 +466,9 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         'focus',
         updateGraphSearchItems
       );
+      document.removeEventListener('gesturestart', preventDefault);
+      document.removeEventListener('gesturechange', preventDefault);
+      document.removeEventListener('gestureend', preventDefault);
     };
   }, []);
 

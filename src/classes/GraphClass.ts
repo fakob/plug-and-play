@@ -172,13 +172,16 @@ export default class PPGraph {
     InterfaceController.onCloseSocketInspector();
 
     if (event.button === 0) {
+      console.log('event.button === 0');
       if (!this.overInputRef && !isPhone()) {
+        console.log('drawSelectionStart');
         this.selection.drawSelectionStart(event, event.shiftKey);
       }
 
       // pause viewport drag
       //this.viewport.plugins.pause('drag');
     } else {
+      console.log('dragSourcePoint start');
       this.viewport.cursor = 'grabbing';
       this.dragSourcePoint = new PIXI.Point(this.viewport.x, this.viewport.y);
       InterfaceController.notifyListeners(ListenEvent.ViewportDragging, true);
@@ -205,10 +208,11 @@ export default class PPGraph {
     }
     // check if viewport has been dragged,
     // if not, this is a deselect all nodes action
-    if (this.dragSourcePoint !== undefined) {
+    if (this.dragSourcePoint !== undefined || isPhone()) {
       if (
-        this.dragSourcePoint.x === this.viewport.x &&
-        this.dragSourcePoint.y === this.viewport.y
+        isPhone() ||
+        (this.dragSourcePoint.x === this.viewport.x &&
+          this.dragSourcePoint.y === this.viewport.y)
       ) {
         this.selection.deselectAllNodesAndResetSelection();
 

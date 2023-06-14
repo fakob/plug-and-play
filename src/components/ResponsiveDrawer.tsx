@@ -161,6 +161,7 @@ const ResponsiveDrawer = (props) => {
             direction="column"
             justifyContent="center"
             sx={{ height: '100%', background: 'unset' }}
+            onClick={() => setOpen(false)}
           >
             <Box
               sx={{
@@ -170,7 +171,7 @@ const ResponsiveDrawer = (props) => {
                   : COLOR_DARK,
               }}
             >
-              No node selected
+              No node selected. Click to close
             </Box>
           </Paper>
         )}

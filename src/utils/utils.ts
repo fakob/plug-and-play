@@ -840,3 +840,8 @@ export const updateDataIfDefault = (
     node.executeOptimizedChain();
   }
 };
+
+export function preventDefault(event: React.BaseSyntheticEvent | Event) {
+  event.preventDefault();
+  console.warn('preventDefault called on event:', event);
+}
