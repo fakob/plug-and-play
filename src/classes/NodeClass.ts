@@ -490,9 +490,9 @@ export default class PPNode extends PIXI.Container {
     const newNodeWidth = Math.max(width, this.getMinNodeWidth());
     const newNodeHeight = Math.max(height, this.getMinNodeHeight());
 
-    const oldWidth = this.nodeWidth;
-    const oldHeight = this.nodeHeight;
     if (maintainAspectRatio) {
+      const oldWidth = this.nodeWidth;
+      const oldHeight = this.nodeHeight;
       const newRect = calculateAspectRatioFit(
         oldWidth,
         oldHeight,
@@ -515,9 +515,7 @@ export default class PPNode extends PIXI.Container {
 
     this.nodeSelectionHeader.x = NODE_MARGIN + this.nodeWidth - 96;
 
-    if (oldWidth !== newNodeWidth || oldHeight !== newNodeHeight) {
-      this.onNodeResize(newNodeWidth, newNodeHeight);
-    }
+    this.onNodeResize(newNodeWidth, newNodeHeight);
 
     if (this.selected) {
       PPGraph.currentGraph.selection.drawRectanglesFromSelection();
