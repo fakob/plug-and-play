@@ -12,6 +12,14 @@ import CopyPlugin from 'copy-webpack-plugin';
 import { CleanWebpackPlugin } from 'clean-webpack-plugin';
 import MonacoWebpackPlugin from 'monaco-editor-webpack-plugin';
 
+const title = 'Your Plug and Playground';
+const imageURL =
+  'https://plugandplayground.dev/assets/PlugAndPlayground-Drawing-a-chart.png';
+const url = 'https://plugandplayground.dev';
+const description =
+  'Creative prototyping to explore, transform or visualise data.';
+const author = 'a plug and player';
+
 const webpack = require('webpack');
 
 module.exports = (env, argv) => {
@@ -48,7 +56,35 @@ module.exports = (env, argv) => {
 
     plugins: [
       new HtmlWebpackPlugin({
-        title: 'Your Plug and Playground',
+        title: `${title}`,
+        meta: {
+          description: {
+            name: 'description',
+            content: `{description}`,
+          },
+          // keyword: { name: 'keywords', content: '...' },
+          // Google / Search Engine Tags
+          title: { itemprop: 'name', content: `${title}` },
+          image: { itemprop: 'image', content: `${imageURL}` },
+          // Open Graph Meta Tags
+          'og:url': { property: 'og:url', content: `${url}` },
+          'og:type': { property: 'og:type', content: 'website' },
+          'og:title': { property: 'og:title', content: `${title}` },
+          'og:description': {
+            property: 'og:description',
+            content: `${description}`,
+          },
+          'og:image': { property: 'og:image', content: `${imageURL}` },
+          // Twitter Meta Tags
+          'twitter:card': { name: 'twitter:card', content: 'summary' },
+          'twitter:title': { name: 'twitter:title', content: `${title}` },
+          'twitter:description': {
+            name: 'twitter:description',
+            content: `${description}`,
+          },
+          'twitter:image': { name: 'twitter:image', content: `${imageURL}` },
+          'twitter:creator': { name: 'twitter:creator', content: `${author}` },
+        },
       }),
       new CleanWebpackPlugin(),
       new webpack.ProvidePlugin({
