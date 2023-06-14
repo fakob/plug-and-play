@@ -130,19 +130,21 @@ export class Playground extends PPNode {
     ].concat(super.getDefaultIO());
   }
 
-  addAllNodes(): void {
+  async addAllNodes(): Promise<void> {
     const allNodeTypes = getAllNodeTypes();
     const allNodeTypeNames = Object.keys(allNodeTypes);
     console.log(allNodeTypeNames);
     let lastNodePosX = this.x + this.width + 40;
     const lastNodePosY = this.y;
     const addedNodes: PPNode[] = [];
-    allNodeTypeNames.forEach((nodeName) => {
-      const newNode = PPGraph.currentGraph.addNewNode(nodeName);
-      newNode.setPosition(lastNodePosX, lastNodePosY, false);
-      lastNodePosX += newNode.width + 40;
-      addedNodes.push(newNode);
-    });
+    await Promise.all(
+      allNodeTypeNames.map(async (nodeName) => {
+        const newNode = await PPGraph.currentGraph.addNewNode(nodeName);
+        newNode.setPosition(lastNodePosX, lastNodePosY, false);
+        lastNodePosX += newNode.width + 40;
+        addedNodes.push(newNode);
+      })
+    );
     PPGraph.currentGraph.selection.selectedNodes = addedNodes;
     this.arrangeSelectedNodesByType();
     this.setOutputData('output', allNodeTypes);

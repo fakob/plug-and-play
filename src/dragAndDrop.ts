@@ -60,7 +60,7 @@ export const dragAndDrop = (acceptedFiles, fileRejections, event) => {
         case 'xlsx':
           /* data is an ArrayBuffer */
           data = await response.arrayBuffer();
-          newNode = PPGraph.currentGraph.addNewNode('Table', {
+          newNode = await PPGraph.currentGraph.addNewNode('Table', {
             nodePosX,
             nodePosY,
             initialData: data,
@@ -68,7 +68,7 @@ export const dragAndDrop = (acceptedFiles, fileRejections, event) => {
           break;
         case 'txt':
           data = await response.text();
-          newNode = PPGraph.currentGraph.addNewNode('TextEditor', {
+          newNode = await PPGraph.currentGraph.addNewNode('TextEditor', {
             nodePosX,
             nodePosY,
             initialData: { plain: data },
@@ -80,7 +80,7 @@ export const dragAndDrop = (acceptedFiles, fileRejections, event) => {
         case 'ts':
         case 'tsx':
           data = await response.text();
-          newNode = PPGraph.currentGraph.addNewNode('CodeEditor', {
+          newNode = await PPGraph.currentGraph.addNewNode('CodeEditor', {
             nodePosX,
             nodePosY,
             initialData: data,
@@ -102,7 +102,7 @@ export const dragAndDrop = (acceptedFiles, fileRejections, event) => {
               ] as ImageNode;
               await existingNode.updateAndExecute(base64 as string);
             } else {
-              newNode = PPGraph.currentGraph.addNewNode('Image', {
+              newNode = await PPGraph.currentGraph.addNewNode('Image', {
                 nodePosX,
                 nodePosY,
                 defaultArguments: { Image: base64 },
@@ -138,7 +138,7 @@ export const dragAndDrop = (acceptedFiles, fileRejections, event) => {
             ] as VideoNode;
             existingNode.updateAndExecute(localResourceId, file.path);
           } else {
-            newNode = PPGraph.currentGraph.addNewNode('Video', {
+            newNode = await PPGraph.currentGraph.addNewNode('Video', {
               nodePosX,
               nodePosY,
               defaultArguments: {
@@ -173,7 +173,7 @@ export const dragAndDrop = (acceptedFiles, fileRejections, event) => {
           } else {
             const sqlQuery =
               extension === 'pxshow' ? PXSHOW_SQL_QUERY : undefined;
-            newNode = PPGraph.currentGraph.addNewNode('SqliteReader', {
+            newNode = await PPGraph.currentGraph.addNewNode('SqliteReader', {
               nodePosX,
               nodePosY,
               defaultArguments: {

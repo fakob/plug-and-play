@@ -1,6 +1,4 @@
 /* eslint-disable */
-import * as PIXI from 'pixi.js';
-import _ from 'lodash-contrib';
 
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
@@ -462,7 +460,7 @@ export class If_Else extends PPNode {
     inputObject: any,
     outputObject: Record<string, unknown>
   ): Promise<void> {
-    const condition = _.truthy(inputObject['Condition']);
+    const condition = (inputObject['Condition']);
     if (condition) {
       outputObject['Output'] = inputObject['A'];
     } else {
