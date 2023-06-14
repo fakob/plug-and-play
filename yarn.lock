@@ -7433,15 +7433,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash-contrib@npm:^4.1200.1":
-  version: 4.1200.1
-  resolution: "lodash-contrib@npm:4.1200.1"
-  dependencies:
-    lodash: 4.12.x
-  checksum: 6ea91dd53d639f56076d84756075e14e39e2f3f193ffb565bf0da6773bdf6f29dbf78c89e12d4da5fb808b5878e1e8b02a627faf26951fb6d899bf74631a65a2
-  languageName: node
-  linkType: hard
-
 "lodash-es@npm:^4.17.15":
   version: 4.17.21
   resolution: "lodash-es@npm:4.17.21"
@@ -7481,13 +7472,6 @@ __metadata:
   version: 4.5.0
   resolution: "lodash.uniq@npm:4.5.0"
   checksum: a4779b57a8d0f3c441af13d9afe7ecff22dd1b8ce1129849f71d9bbc8e8ee4e46dfb4b7c28f7ad3d67481edd6e51126e4e2a6ee276e25906d10f7140187c392d
-  languageName: node
-  linkType: hard
-
-"lodash@npm:4.12.x":
-  version: 4.12.0
-  resolution: "lodash@npm:4.12.0"
-  checksum: 22aae20313afcfb03641c84328a11e35c0416fda67fccb4f56645dda0b2693d16a3c2a53b8e2c017914690fbef26dadb72b3e59e4ee06d67e59a0dae1cb259fc
   languageName: node
   linkType: hard
 
@@ -8602,6 +8586,7 @@ __metadata:
     babel-register: ^6.26.0
     clean-webpack-plugin: ^4.0.0
     color: ^4.2.3
+    compression: ^1.7.4
     cookie-parser: ^1.4.6
     copy-webpack-plugin: 11.0.0
     core-js: ^3.30.2
@@ -8624,7 +8609,6 @@ __metadata:
     json5: ^2.2.3
     jsonpath-plus: ^7.2.0
     lodash: ^4.17.21
-    lodash-contrib: ^4.1200.1
     marked: ^5.0.4
     match-sorter: ^6.3.1
     memorystore: ^1.6.7

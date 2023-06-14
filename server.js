@@ -7,6 +7,7 @@ const querystring = require('node:querystring');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const MemoryStore = require('memorystore')(session);
+const compression = require('compression');
 
 const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID;
 const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET;
@@ -23,6 +24,17 @@ const app = express();
 
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
+app.use(compression({ filter: shouldCompress }));
+
+function shouldCompress(req, res) {
+  if (req.headers['x-no-compression']) {
+    // don't compress responses with this request header
+    return false;
+  }
+
+  // fallback to standard filter function
+  return compression.filter(req, res);
+}
 
 app.use(express.json()); // needs to be after bodyParser
 

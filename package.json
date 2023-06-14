@@ -30,6 +30,7 @@
     "autosuggest-highlight": "^3.3.4",
     "axios": "^1.4.0",
     "color": "^4.2.3",
+    "compression": "^1.7.4",
     "cookie-parser": "^1.4.6",
     "core-js": "^3.30.2",
     "cors": "^2.8.5",
