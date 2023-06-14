@@ -99,11 +99,10 @@ export default class PPSelection extends PIXI.Container {
       pointerPosition.y
     );
 
-    this.selectedNodes[0].resizeAndDraw(
+    this.selectedNodes[0].onBeingScaled(
       Math.abs(worldPosition.x - this.selectedNodes[0].x),
       Math.abs(worldPosition.y - this.selectedNodes[0].y),
-      shiftKeyPressed,
-      true
+      shiftKeyPressed
     );
     this.drawRectanglesFromSelection();
   };

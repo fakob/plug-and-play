@@ -217,12 +217,10 @@ export class Label extends PPNode {
     return textMetrics;
   };
 
-  public onNodeResize = (newWidth, newHeight, activeRescaling) => {
-    if (activeRescaling) {
-      const innerWidth = newWidth - this.getMarginLeftRight() * 2;
-      this.setInputData(widthSocketName, innerWidth);
-      this.measureThenResizeAndDrawLabel(this.getInputData(inputSocketName));
-    }
+  public onBeingScaled = (newWidth) => {
+    const innerWidth = newWidth - this.getMarginLeftRight() * 2;
+    this.setInputData(widthSocketName, innerWidth);
+    this.measureThenResizeAndDrawLabel(this.getInputData(inputSocketName));
   };
 
   public resetSize(): void {

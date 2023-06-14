@@ -85,11 +85,7 @@ export default class PPNode extends PIXI.Container {
   onViewportPointerUpHandler: (event?: PIXI.FederatedPointerEvent) => void =
     () => {};
   onNodeRemoved: () => void = () => {}; // called when the node is removed from the graph
-  onNodeResize: (
-    width: number,
-    height: number,
-    activeRescaling: boolean
-  ) => void = () => {}; // called when the node is resized
+  onNodeResize: (width: number, height: number) => void = () => {}; // called when the node is resized
   onNodeDragOrViewportMove: // called when the node or or the viewport with the node is moved or scaled
   (positions: { screenX: number; screenY: number; scale: number }) => void =
     () => {};
@@ -477,11 +473,18 @@ export default class PPNode extends PIXI.Container {
     this.refreshNodeDragOrViewportMove();
   }
 
+  onBeingScaled(
+    width: number = this.nodeWidth,
+    height: number = this.nodeHeight,
+    maintainAspectRatio = false
+  ): void {
+    this.resizeAndDraw(width, height, maintainAspectRatio);
+  }
+
   resizeAndDraw(
     width: number = this.nodeWidth,
     height: number = this.nodeHeight,
-    maintainAspectRatio = false,
-    activeRescaling = false // mouse rescaleing
+    maintainAspectRatio = false
   ): void {
     // set new size
     const newNodeWidth = Math.max(width, this.getMinNodeWidth());
@@ -513,7 +516,7 @@ export default class PPNode extends PIXI.Container {
     this.nodeSelectionHeader.x = NODE_MARGIN + this.nodeWidth - 96;
 
     if (oldWidth !== newNodeWidth || oldHeight !== newNodeHeight) {
-      this.onNodeResize(newNodeWidth, newNodeHeight, activeRescaling);
+      this.onNodeResize(newNodeWidth, newNodeHeight);
     }
 
     if (this.selected) {
