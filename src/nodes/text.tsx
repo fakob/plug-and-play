@@ -280,7 +280,10 @@ export class Label extends PPNode {
 
       const textMetrics = this.measureThenResizeAndDrawLabel(text);
 
-      this.HTMLTextComponent.style.width = `${textMetrics.width}px`;
+      this.HTMLTextComponent.style.width = `${Math.max(
+        20, // a small minimum width so the blinking cursor is visible
+        textMetrics.width
+      )}px`;
       this.HTMLTextComponent.style.height = `${textMetrics.height}px`;
 
       const id = this.id;
