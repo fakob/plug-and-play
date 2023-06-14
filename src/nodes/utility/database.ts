@@ -14,6 +14,7 @@ import {
 } from '../../nodes/draw/video';
 import { ArrayType } from '../datatypes/arrayType';
 import { TriggerType } from '../datatypes/triggerType';
+import PPGraph from '../../classes/GraphClass';
 
 const inputResourceURLSocketName = 'Resource URL';
 export const sqlQuerySocketName = 'SQL query';
@@ -23,6 +24,7 @@ const outputColumnNamesSocketName = 'Query columns';
 const outputQuerySocketName = 'Query result';
 const defaultSqlQuery = `SELECT * FROM tablename`;
 
+const IMPORT_NAME = '@sqlite.org/sqlite-wasm';
 export class SqliteReader extends PPNode {
   sqlite3Module;
   sqlite3;
@@ -92,13 +94,7 @@ export class SqliteReader extends PPNode {
   }
 
   public onNodeAdded = async (source?: TNodeSource): Promise<void> => {
-    const namePrefix = this.id + ' sqlite-wasm';
-    console.time(`${namePrefix} imported`);
-    const packageName = '@sqlite.org/sqlite-wasm';
-    const url = 'https://esm.sh/' + packageName;
-    this.sqlite3Module = await import(/* webpackIgnore: true */ url);
-    console.timeEnd(`${namePrefix} imported`);
-    console.time(`${namePrefix} initialized`);
+    this.sqlite3Module = PPGraph.currentGraph.dynamicImports[IMPORT_NAME];
 
     this.sqlite3Module
       .default({
@@ -108,11 +104,6 @@ export class SqliteReader extends PPNode {
       .then((sqlite3) => {
         try {
           this.sqlite3 = sqlite3;
-          console.timeEnd(`${namePrefix} initialized`);
-          console.log(
-            'Running SQLite3 version',
-            this.sqlite3.version.libVersion
-          );
           this.loadDatabase();
         } catch (err) {
           console.error(err.name, err.message);
@@ -233,4 +224,8 @@ export class SqliteReader extends PPNode {
     );
     return db;
   };
+
+  public getDynamicImports(): string[] {
+    return [IMPORT_NAME];
+  }
 }

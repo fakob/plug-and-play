@@ -59,7 +59,7 @@ import {
   SOCKET_TYPE,
   customTheme,
 } from '../../utils/constants';
-import { CustomArgs, TRgba } from '../../utils/interfaces';
+import { TNodeSource, TRgba } from '../../utils/interfaces';
 import { ArrayType } from '../datatypes/arrayType';
 import { JSONType } from '../datatypes/jsonType';
 import { NumberType } from '../datatypes/numberType';
@@ -81,14 +81,6 @@ export class Table extends HybridNode2 {
   workBook: XLSX.WorkBook;
   parsedData: any;
 
-  constructor(name: string, customArgs?: CustomArgs) {
-    super(name, {
-      ...customArgs,
-    });
-
-    this.workBook = XLSX.utils.book_new();
-  }
-
   public getName(): string {
     return 'Table';
   }
@@ -105,8 +97,17 @@ export class Table extends HybridNode2 {
     return inputSocketName;
   }
 
-  getColumn = (nameOfColumn) => {
-    const added: PPNode = PPGraph.currentGraph.addNewNode(
+  getXLSXModule(): typeof XLSX {
+    return PPGraph.currentGraph.dynamicImports['xlsx'];
+  }
+
+  public onNodeAdded = async (source?: TNodeSource): Promise<void> => {
+    this.workBook = this.getXLSXModule().utils.book_new();
+    super.onNodeAdded(source);
+  };
+
+  getColumn = async (nameOfColumn) => {
+    const added: PPNode = await PPGraph.currentGraph.addNewNode(
       'Table_GetColumnByName',
       {
         nodePosX: this.x + (this.width + 40),
@@ -122,8 +123,8 @@ export class Table extends HybridNode2 {
     added.executeOptimizedChain();
   };
 
-  getRowAsArray = (nameOfRow) => {
-    const added: PPNode = PPGraph.currentGraph.addNewNode('ArrayGet', {
+  getRowAsArray = async (nameOfRow) => {
+    const added: PPNode = await PPGraph.currentGraph.addNewNode('ArrayGet', {
       nodePosX: this.x + (this.width + 40),
       nodePosY: this.y,
     });
@@ -136,8 +137,8 @@ export class Table extends HybridNode2 {
     added.executeOptimizedChain();
   };
 
-  getRowAsObject = (nameOfRow) => {
-    const added: PPNode = PPGraph.currentGraph.addNewNode('ArrayGet', {
+  getRowAsObject = async (nameOfRow) => {
+    const added: PPNode = await PPGraph.currentGraph.addNewNode('ArrayGet', {
       nodePosX: this.x + (this.width + 40),
       nodePosY: this.y,
     });
@@ -147,8 +148,8 @@ export class Table extends HybridNode2 {
     added.executeOptimizedChain();
   };
 
-  getCell = (cell: Item) => {
-    const added: PPNode = PPGraph.currentGraph.addNewNode('ArrayGet', {
+  getCell = async (cell: Item) => {
+    const added: PPNode = await PPGraph.currentGraph.addNewNode('ArrayGet', {
       nodePosX: this.x + (this.width + 40),
       nodePosY: this.y,
     });
@@ -158,7 +159,7 @@ export class Table extends HybridNode2 {
       added
     );
     added.executeOptimizedChain();
-    const added2: PPNode = PPGraph.currentGraph.addNewNode('ArrayGet', {
+    const added2: PPNode = await PPGraph.currentGraph.addNewNode('ArrayGet', {
       nodePosX: added.x + (added.width + 40),
       nodePosY: this.y,
     });
@@ -170,8 +171,8 @@ export class Table extends HybridNode2 {
     added.executeOptimizedChain();
   };
 
-  createRowFilter = () => {
-    const filterObject = PPGraph.currentGraph.addNewNode('ObjectFilter', {
+  createRowFilter = async () => {
+    const filterObject = await PPGraph.currentGraph.addNewNode('ObjectFilter', {
       nodePosX: this.x + (this.width + 40),
       nodePosY: this.y,
     });
@@ -245,10 +246,12 @@ export class Table extends HybridNode2 {
       const workSheet =
         node.workBook.Sheets[node.workBook.SheetNames[sheetIndex]];
       try {
-        const range = XLSX.utils.decode_range(workSheet['!ref']);
+        const range = node
+          .getXLSXModule()
+          .utils.decode_range(workSheet['!ref']);
         // sheet_to_json will lose empty row and col at begin as default
         range.s = { c: 0, r: 0 };
-        const toJson = XLSX.utils.sheet_to_json(workSheet, {
+        const toJson = node.getXLSXModule().utils.sheet_to_json(workSheet, {
           raw: false,
           header: 1,
           range: range,
@@ -260,13 +263,15 @@ export class Table extends HybridNode2 {
     };
 
     const onExport = () => {
-      XLSX.writeFile(
-        node.workBook,
-        `${node.name}.${exportOptions[selectedExportIndex]}`,
-        {
-          sheet: node.workBook.SheetNames[node.getIndex()],
-        }
-      );
+      node
+        .getXLSXModule()
+        .writeFile(
+          node.workBook,
+          `${node.name}.${exportOptions[selectedExportIndex]}`,
+          {
+            sheet: node.workBook.SheetNames[node.getIndex()],
+          }
+        );
     };
 
     const getCols = (): GridColumn[] => {
@@ -356,7 +361,7 @@ export class Table extends HybridNode2 {
       const storedWorkBookData = node.getInputData(workBookInputSocketName);
       if (node.initialData) {
         // load initialData from import
-        node.workBook = XLSX.read(node.initialData);
+        node.workBook = node.getXLSXModule().read(node.initialData);
         node.setInputData(workBookInputSocketName, node.workBook);
       } else if (
         storedWorkBookData !== undefined &&
@@ -366,10 +371,12 @@ export class Table extends HybridNode2 {
         node.workBook = node.createWorkBookFromJSON(storedWorkBookData);
       } else {
         // create workbook with an empty worksheet
-        node.workBook = XLSX.utils.book_new();
+        node.workBook = node.getXLSXModule().utils.book_new();
         const ws_data = new Array(7).fill(Array(7).fill(''));
-        const worksheet = XLSX.utils.aoa_to_sheet(ws_data);
-        XLSX.utils.book_append_sheet(node.workBook, worksheet, 'Sheet1');
+        const worksheet = node.getXLSXModule().utils.aoa_to_sheet(ws_data);
+        node
+          .getXLSXModule()
+          .utils.book_append_sheet(node.workBook, worksheet, 'Sheet1');
       }
       node.setAllOutputData(node.workBook);
       loadSheet();
@@ -402,8 +409,10 @@ export class Table extends HybridNode2 {
           if (Array.isArray(props[inputSocketName][0])) {
             setArrayOfArrays(props[inputSocketName]);
           } else {
-            const tempWS = XLSX.utils.json_to_sheet(props[inputSocketName]);
-            const toJson = XLSX.utils.sheet_to_json(tempWS, {
+            const tempWS = node
+              .getXLSXModule()
+              .utils.json_to_sheet(props[inputSocketName]);
+            const toJson = node.getXLSXModule().utils.sheet_to_json(tempWS, {
               raw: false,
               header: 1,
             });
@@ -418,7 +427,7 @@ export class Table extends HybridNode2 {
     }, [props[inputSocketName]]);
 
     const saveAndOutput = useCallback((): void => {
-      const worksheet = XLSX.utils.aoa_to_sheet(arrayOfArrays);
+      const worksheet = node.getXLSXModule().utils.aoa_to_sheet(arrayOfArrays);
       const sheetIndex = node.getIndex();
       node.workBook.Sheets[node.workBook.SheetNames[sheetIndex]] = worksheet;
       node.setInputData(workBookInputSocketName, node.workBook);
@@ -912,9 +921,10 @@ export class Table extends HybridNode2 {
   }
 
   createWorkBookFromJSON(json): any {
-    const workBook = XLSX.utils.book_new();
+    const module = this.getXLSXModule();
+    const workBook = module.utils.book_new();
     json.SheetNames.forEach(function (name) {
-      XLSX.utils.book_append_sheet(workBook, json.Sheets[name], name);
+      module.utils.book_append_sheet(workBook, json.Sheets[name], name);
     });
     return workBook;
   }
@@ -928,19 +938,19 @@ export class Table extends HybridNode2 {
   }
 
   getJSON(sheet: XLSX.WorkSheet): any {
-    const data = XLSX.utils.sheet_to_json(sheet);
+    const data = this.getXLSXModule().utils.sheet_to_json(sheet);
     return data;
   }
 
   getArrayOfArrays(sheet: XLSX.WorkSheet): any {
-    const data = XLSX.utils.sheet_to_json(sheet, {
+    const data = this.getXLSXModule().utils.sheet_to_json(sheet, {
       header: 1,
     });
     return data;
   }
 
   getCSV(sheet: XLSX.WorkSheet): any {
-    const data = XLSX.utils.sheet_to_csv(sheet);
+    const data = this.getXLSXModule().utils.sheet_to_csv(sheet);
     return data;
   }
 
@@ -949,5 +959,9 @@ export class Table extends HybridNode2 {
     const sheet = workBook.Sheets[workBook.SheetNames[currentSheetIndex]];
     this.setOutputData(rowObjectsNames, this.getJSON(sheet));
     this.setOutputData(arrayOfArraysSocketName, this.getArrayOfArrays(sheet));
+  }
+
+  public getDynamicImports(): string[] {
+    return ['xlsx'];
   }
 }

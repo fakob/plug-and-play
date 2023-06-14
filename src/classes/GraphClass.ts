@@ -24,6 +24,7 @@ import { hri } from 'human-readable-ids';
 import FlowLogic from './FlowLogic';
 import InterfaceController, { ListenEvent } from '../InterfaceController';
 import { v4 as uuid } from 'uuid';
+import { dynamicImport } from '../utils/dynamicImport';
 
 export default class PPGraph {
   static currentGraph: PPGraph;
@@ -54,6 +55,8 @@ export default class PPGraph {
   selection: PPSelection;
 
   allowExecution: boolean;
+
+  dynamicImports: Record<string, any> = {};
 
   constructor(app: PIXI.Application, viewport: Viewport) {
     this.app = app;
@@ -434,13 +437,19 @@ export default class PPGraph {
     return node;
   }
 
-  addNode<T extends PPNode = PPNode>(
+  async addNode<T extends PPNode = PPNode>(
     node: T,
     source: TNodeSource = NODE_SOURCE.SERIALIZED
-  ): T {
+  ): Promise<T> {
     if (!node) {
       return;
     }
+    // check for possible extra imports, make them accessible to the node (not the absolutely cleanest way to do this but OK I think)
+    await Promise.all(
+      node.getDynamicImports().map(async (currImport) => {
+        this.dynamicImports[currImport] = await dynamicImport(node, currImport);
+      })
+    );
 
     // add the node to the canvas
     this.nodes[node.id] = node;
@@ -452,14 +461,15 @@ export default class PPGraph {
   }
 
   // does not add any links, youll have do do that yourself
-  addSerializedNode(
+  async addSerializedNode(
     serialized: SerializedNode,
     customArgs: CustomArgs = {},
     newNodeType?: string
-  ): PPNode {
+  ): Promise<PPNode> {
     const node = this.createNode(newNodeType ?? serialized.type, customArgs);
+
     node.configure(serialized);
-    this.addNode(node);
+    await this.addNode(node);
     return node;
   }
 
@@ -492,13 +502,13 @@ export default class PPGraph {
     }
   }
 
-  addNewNode(
+  async addNewNode(
     type: string,
     customArgs: CustomArgs = {},
     source: TNodeSource = NODE_SOURCE.NEW
-  ): PPNode {
+  ): Promise<PPNode> {
     const node = this.createNode(type, customArgs);
-    this.addNode(node, source);
+    await this.addNode(node, source);
     return node;
   }
 
@@ -530,15 +540,15 @@ export default class PPGraph {
     await ActionHandler.performAction(action, undoAction, 'Replace node');
   }
 
-  replaceNode = (
+  replaceNode = async (
     oldSerializedNode: SerializedNode,
     oldId: string,
     newId: string,
     newType?: string,
     newSerializedNode?: SerializedNode,
     notify?: boolean
-  ): PPNode => {
-    const newNode = this.addSerializedNode(
+  ): Promise<PPNode> => {
+    const newNode = await this.addSerializedNode(
       newSerializedNode ?? oldSerializedNode,
       {
         overrideId: newId,
@@ -770,7 +780,7 @@ export default class PPGraph {
     //create nodes
     const offset = new PIXI.Point();
     try {
-      data.nodes.forEach((node, index) => {
+      data.nodes.forEach(async (node, index) => {
         if (index === 0) {
           if (pasteTo) {
             offset.set(pasteTo.x - node.x, pasteTo.y - node.y);
@@ -779,7 +789,7 @@ export default class PPGraph {
           }
         }
         // add node and carry over its configuration
-        const newNode = this.addSerializedNode(node, {
+        const newNode = await this.addSerializedNode(node, {
           overrideId: hri.random(),
         });
 
@@ -835,7 +845,7 @@ export default class PPGraph {
       forwardMapping[sourceNodes[i].id] = newNodes[i];
       backwardMapping[newNodes[i].id] = sourceNodes[i];
     }
-    const macroNode: PPNode = this.addNewNode('Macro');
+    const macroNode: PPNode = await this.addNewNode('Macro');
     macroNode.nodeName = hri.random();
     // add extending inputs
     const inputs: PPSocket[] = sourceNodes.reduce((list, node) => {
@@ -886,7 +896,7 @@ export default class PPGraph {
     macroNode.resizeAndDraw(bounds.width + 400, bounds.height + 200);
 
     // create new executemacro node calling us, and link the old inputs to it
-    const invokeMacroNode = this.addNewNode('ExecuteMacro');
+    const invokeMacroNode = await this.addNewNode('ExecuteMacro');
     invokeMacroNode.setPosition(sourceNodes[0].x, sourceNodes[0].y);
     invokeMacroNode.setInputData('MacroName', macroNode.nodeName);
     (invokeMacroNode as ExecuteMacro).generateUseNewCode();
@@ -1050,8 +1060,11 @@ export default class PPGraph {
 
     //create nodes
     try {
-      data.nodes.forEach((node) =>
-        this.addSerializedNode(node, { overrideId: node.id })
+      await Promise.all(
+        data.nodes.map(
+          async (node) =>
+            await this.addSerializedNode(node, { overrideId: node.id })
+        )
       );
 
       await Promise.all(
@@ -1148,12 +1161,14 @@ export default class PPGraph {
     };
     const undoAction = async () => {
       const addedNodes: PPNode[] = [];
-      nodesSerialized.forEach((node: SerializedNode) => {
-        const addedNode = PPGraph.currentGraph.addSerializedNode(node, {
-          overrideId: node.id,
-        });
-        addedNodes.push(addedNode);
-      });
+      await Promise.all(
+        nodesSerialized.map(async (node: SerializedNode) => {
+          const addedNode = await PPGraph.currentGraph.addSerializedNode(node, {
+            overrideId: node.id,
+          });
+          addedNodes.push(addedNode);
+        })
+      );
 
       linksSerialized.forEach((link) => {
         this.connect(

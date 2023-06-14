@@ -668,7 +668,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           let addedNode: PPNode;
           const nodeExists = getAllNodeTypes()[selected?.title] !== undefined;
           if (nodeExists) {
-            addedNode = PPGraph.currentGraph.addNewNode(
+            addedNode = await PPGraph.currentGraph.addNewNode(
               selected.title,
               {
                 overrideId: referenceID,
@@ -678,7 +678,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               addLink ? NODE_SOURCE.NEWCONNECTED : NODE_SOURCE.NEW
             );
           } else {
-            addedNode = PPGraph.currentGraph.addNewNode(
+            addedNode = await PPGraph.currentGraph.addNewNode(
               'CustomFunction',
               {
                 overrideId: referenceID,
