@@ -19,7 +19,9 @@ const backgroundColorName = 'backgroundColor';
 const inputSocketName = 'Input';
 const outputSocketName = 'Output';
 const fontSizeSocketName = 'fontSize';
+const widthSocketName = 'Width';
 const labelDefaultText = '';
+const defaultNodeWidth = 128;
 
 export class Label extends PPNode {
   PIXIText: PIXI.Text;
@@ -35,6 +37,7 @@ export class Label extends PPNode {
     this.initialData = customArgs?.initialData;
 
     this.PIXITextStyle = new PIXI.TextStyle();
+    this.PIXITextStyle.breakWords = true;
     const basicText = new PIXI.Text(labelDefaultText, this.PIXITextStyle);
     this.PIXIText = this.addChild(basicText);
     this.PIXIVisible();
@@ -53,7 +56,7 @@ export class Label extends PPNode {
   }
 
   public getDefaultNodeWidth(): number {
-    return 128;
+    return defaultNodeWidth;
   }
 
   public getIsPresentationalNode(): boolean {
@@ -94,6 +97,13 @@ export class Label extends PPNode {
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
+        widthSocketName,
+        new NumberType(true, 0, defaultNodeWidth * 10),
+        undefined,
+        false
+      ),
+      new PPSocket(
+        SOCKET_TYPE.IN,
         backgroundColorName,
         new ColorType(),
         TRgba.fromString(fillColor),
@@ -119,8 +129,9 @@ export class Label extends PPNode {
   public HTMLVisible() {
     this.PIXIText.visible = false;
     this.createInputElement();
-    //this.HTMLTextComponent.hidden = false;
     this.HTMLTextComponent.focus();
+    // correct initial edit view
+    this.HTMLTextComponent.dispatchEvent(new Event('input'));
   }
   public PIXIVisible() {
     this.PIXIText.visible = true;
@@ -130,14 +141,13 @@ export class Label extends PPNode {
     this.executeOptimizedChain();
   }
 
-  onPointerClick(event: PIXI.FederatedPointerEvent): void {
+  onPointerClick(): void {
     this.HTMLVisible();
   }
 
   protected async onExecute(input, output): Promise<void> {
     const text = String(input[inputSocketName]);
     const fontSize = Math.max(1, input[fontSizeSocketName]);
-    //const minWidth = Math.max(1, input['min-width']);
     const color: TRgba = input[backgroundColorName];
 
     this.PIXITextStyle.fontSize = fontSize;
@@ -146,15 +156,8 @@ export class Label extends PPNode {
       ? TRgba.white().hex()
       : TRgba.black().hex();
 
-    const textMetrics = PIXI.TextMetrics.measureText(text, this.PIXITextStyle);
+    this.measureThenResizeAndDrawLabel(text);
 
-    this.resizeAndDraw(
-      Math.max(
-        this.getMinNodeWidth(),
-        textMetrics.width + this.getMarginLeftRight() * 2
-      ),
-      textMetrics.height + this.getMarginTopBottom() * 2
-    );
     output[outputSocketName] = text;
 
     this.PIXIText.text = text;
@@ -179,8 +182,55 @@ export class Label extends PPNode {
     return this.y + this.getMarginTopBottom() + 1; // magic number 💀
   }
 
+  private getInputWidth(): number {
+    return Math.max(this.getMinNodeWidth(), this.getInputData(widthSocketName));
+  }
+
+  private useInputWidth(): boolean {
+    return Boolean(this.getInputData(widthSocketName));
+  }
+
+  private setPixiTextStyleWidth(): void {
+    if (this.useInputWidth()) {
+      this.PIXITextStyle.wordWrap = true;
+      this.PIXITextStyle.wordWrapWidth = this.getInputWidth();
+    } else {
+      this.PIXITextStyle.wordWrap = false;
+    }
+  }
+
+  private resizeAndDrawLabel(width, height): void {
+    this.resizeAndDraw(
+      Math.max(
+        this.getMinNodeWidth(),
+        (this.useInputWidth() ? this.getInputWidth() : width) +
+          this.getMarginLeftRight() * 2
+      ),
+      height + this.getMarginTopBottom() * 2
+    );
+  }
+
+  private measureThenResizeAndDrawLabel = (text) => {
+    this.setPixiTextStyleWidth();
+    const textMetrics = PIXI.TextMetrics.measureText(text, this.PIXITextStyle);
+    this.resizeAndDrawLabel(textMetrics.width, textMetrics.height);
+    return textMetrics;
+  };
+
+  public onBeingScaled = (newWidth) => {
+    const innerWidth = newWidth - this.getMarginLeftRight() * 2;
+    this.setInputData(widthSocketName, innerWidth);
+    this.measureThenResizeAndDrawLabel(this.getInputData(inputSocketName));
+  };
+
+  public resetSize(): void {
+    this.setInputData(widthSocketName, 0);
+    this.measureThenResizeAndDrawLabel(this.getInputData(inputSocketName));
+  }
+
   public createInputElement = () => {
     // create html input element
+    const htmlComponentId = `Label-${inputSocketName}`;
     const text = this.getInputData(inputSocketName);
     const fontSize = this.getInputData(fontSizeSocketName);
     const color = this.getInputData(backgroundColorName);
@@ -189,15 +239,20 @@ export class Label extends PPNode {
       this.getHTMLComponentTop()
     );
 
+    const existingElement = document.getElementById(
+      htmlComponentId
+    ) as HTMLDivElement;
+
     this.HTMLTextComponent = document.createElement('div');
-    this.HTMLTextComponent.id = inputSocketName;
+    this.HTMLTextComponent.id = htmlComponentId;
     this.HTMLTextComponent.contentEditable = 'true';
     this.HTMLTextComponent.innerText = text;
 
     const style = {
       fontFamily: 'Arial',
       fontSize: `${fontSize}px`,
-      lineHeight: `${fontSize * (NOTE_LINEHEIGHT_FACTOR + 0.025)}px`, // corrects difference between div and PIXI.Text
+      lineHeight: `${fontSize * NOTE_LINEHEIGHT_FACTOR}px`,
+      letterSpacing: '0px',
       textAlign: 'left',
       color: color.isDark() ? TRgba.white().hex() : TRgba.black().hex(),
       position: 'absolute',
@@ -210,6 +265,7 @@ export class Label extends PPNode {
       top: `${screenPoint.y}px`,
       width: `${this.nodeWidth}px`,
       height: `${this.nodeHeight}px`,
+      overflowWrap: 'anywhere',
     };
     Object.assign(this.HTMLTextComponent.style, style);
 
@@ -221,25 +277,14 @@ export class Label extends PPNode {
     this.HTMLTextComponent.addEventListener('input', (e) => {
       const text = (e as any).target.innerText;
       this.PIXIText.text = text;
-      const minWidth = this.width;
-      const textMetrics = PIXI.TextMetrics.measureText(
-        text,
-        this.PIXITextStyle
-      );
 
-      const textMetricsHeight = textMetrics.height;
+      const textMetrics = this.measureThenResizeAndDrawLabel(text);
 
-      const newWidth = textMetrics.width + this.getMarginLeftRight() * 2;
-      const newHeight = textMetricsHeight * NOTE_LINEHEIGHT_FACTOR;
-      this.HTMLTextComponent.style.width = `${newWidth}px`;
-      this.HTMLTextComponent.style.height = `${
-        newHeight + this.getMarginTopBottom() * 2
-      }px`;
-
-      this.resizeAndDraw(
-        Math.max(minWidth, newWidth),
-        newHeight + this.getMarginTopBottom()
-      );
+      this.HTMLTextComponent.style.width = `${Math.max(
+        20, // a small minimum width so the blinking cursor is visible
+        textMetrics.width
+      )}px`;
+      this.HTMLTextComponent.style.height = `${textMetrics.height}px`;
 
       const id = this.id;
       const applyFunction = (newText) => {
@@ -256,7 +301,11 @@ export class Label extends PPNode {
       );
     });
 
-    document.body.appendChild(this.HTMLTextComponent);
+    if (existingElement) {
+      existingElement.replaceWith(this.HTMLTextComponent);
+    } else {
+      document.body.appendChild(this.HTMLTextComponent);
+    }
   };
 
   // scale input if node is scaled

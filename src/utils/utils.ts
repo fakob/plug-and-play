@@ -362,7 +362,7 @@ export const getNodeDataFromText = (text: string): SerializedSelection => {
 
 export const isEventComongFromWithinWidget = (event: any): boolean => {
   return (
-    event.target.id === 'Input' ||
+    (event.target.id as string).endsWith('Input') ||
     event.target.localName === 'input' ||
     isEventComingFromWithinTextInput(event)
   );
