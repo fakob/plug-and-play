@@ -20,7 +20,7 @@ root.render(
       maxSnack={9}
       dense={isPhone() ? true : false}
       anchorOrigin={{
-        horizontal: 'center',
+        horizontal: isPhone() ? 'center' : 'right',
         vertical: isPhone() ? 'bottom' : 'top',
       }}
     >
