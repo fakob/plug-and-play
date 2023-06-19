@@ -60,11 +60,14 @@ module.exports = (env, argv) => {
         meta: {
           description: {
             name: 'description',
-            content: `{description}`,
+            content: `${description}`,
           },
-          // keyword: { name: 'keywords', content: '...' },
           // Google / Search Engine Tags
           title: { itemprop: 'name', content: `${title}` },
+          googleDescription: {
+            itemprop: 'description',
+            content: `${description}`,
+          },
           image: { itemprop: 'image', content: `${imageURL}` },
           // Open Graph Meta Tags
           'og:url': { property: 'og:url', content: `${url}` },
