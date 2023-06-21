@@ -2,6 +2,7 @@ import PPNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
 import UpdateBehaviourClass from '../../classes/UpdateBehaviourClass';
 import { SOCKET_TYPE } from '../../utils/constants';
+import { AnyType } from '../datatypes/anyType';
 import { ImageType } from '../datatypes/imageType';
 import { JSONType } from '../datatypes/jsonType';
 import { NumberType } from '../datatypes/numberType';
@@ -103,7 +104,7 @@ export class PixotopeGatewaySet extends PPNode {
         new StringType(),
         'State.ThirdParty.PlugAndPlaygroundSettable'
       ),
-      new Socket(SOCKET_TYPE.IN, valueName, new StringType(), 'TempValue'),
+      new Socket(SOCKET_TYPE.IN, valueName, new AnyType(), 'TempValue'),
     ];
   }
   protected async onExecute(
