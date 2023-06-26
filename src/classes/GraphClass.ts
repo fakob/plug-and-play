@@ -193,6 +193,11 @@ export default class PPGraph {
   }
 
   onPointerUpAndUpOutside(event: PIXI.FederatedPointerEvent): void {
+    console.log(
+      event.target,
+      this.viewport,
+      (event.target as any) === this.viewport
+    );
     if (!this.overInputRef && this.selectedSourceSocket) {
       if (!this.overrideNodeCursorPosition) {
         this.overrideNodeCursorPosition = this.viewport.toWorld(event.global);

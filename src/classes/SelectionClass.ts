@@ -81,8 +81,12 @@ export default class PPSelection extends PIXI.Container {
       'moved',
       (this as any).onViewportMoved.bind(this)
     );
-
     this.onMoveHandler = this.onMove.bind(this);
+
+    this.viewport.addEventListener(
+      'gesturestart',
+      (this as any).onPointerGestureStart.bind(this)
+    );
   }
 
   get selectedNodes(): PPNode[] {
@@ -165,6 +169,7 @@ export default class PPSelection extends PIXI.Container {
   }
 
   onPointerDown(event: PIXI.FederatedPointerEvent): void {
+    console.log('Selection: onPointerDown');
     if (event.pointerType === 'touch' && event.isPrimary) {
       // Single touch gesture
       console.log('Single touch');
@@ -172,7 +177,6 @@ export default class PPSelection extends PIXI.Container {
       // Multi-touch gesture
       console.log('Multi-touch');
     }
-    console.log('Selection: onPointerDown');
     if (this.selectedNodes.length > 0) {
       if (event.shiftKey) {
         const targetPoint = new PIXI.Point(event.clientX, event.clientY);
@@ -216,9 +220,14 @@ export default class PPSelection extends PIXI.Container {
     }
   }
 
+  onPointerGestureStart(): void {
+    console.log('selection: onPointerGestureStart');
+  }
+
   onMove(event: PIXI.FederatedPointerEvent): void {
     console.log(event.pointerType, event.isPrimary);
     if (this.isDrawingSelection) {
+      console.log('this.isDrawingSelection');
       // temporarily draw rectangle while dragging
       const targetPoint = new PIXI.Point(event.clientX, event.clientY);
       const selX = Math.min(this.sourcePoint.x, targetPoint.x);
@@ -253,12 +262,15 @@ export default class PPSelection extends PIXI.Container {
       this.interactionData &&
       event.isPrimary
     ) {
-      const targetPoint = this.interactionData.getLocalPosition(
-        this.selectedNodes[0]
-      );
-      const deltaX = targetPoint.x - this.sourcePoint.x;
-      const deltaY = targetPoint.y - this.sourcePoint.y;
-      this.moveSelection(deltaX, deltaY);
+      // console.log(this.isDraggingSelection, event.isPrimary);
+      if (event.isPrimary) {
+        const targetPoint = this.interactionData.getLocalPosition(
+          this.selectedNodes[0]
+        );
+        const deltaX = targetPoint.x - this.sourcePoint.x;
+        const deltaY = targetPoint.y - this.sourcePoint.y;
+        this.moveSelection(deltaX, deltaY);
+      }
     }
   }
 
@@ -437,10 +449,12 @@ export default class PPSelection extends PIXI.Container {
   }
 
   deselectAllNodes(): void {
+    console.log('deselectAllNodes');
     this.selectNodes([], false, true);
   }
 
   deselectAllNodesAndResetSelection(): void {
+    console.trace('deselectAllNodesAndResetSelection');
     this.resetAllGraphics();
     this.deselectAllNodes();
   }

@@ -973,13 +973,17 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   onPointerDown(event: PIXI.FederatedPointerEvent): void {
     console.log('Node: onPointerDown');
     console.log(event.pointerType, event.isPrimary);
-    if (event.pointerType === 'touch' && event.isPrimary) {
+    if (
+      event.pointerType !== 'touch' ||
+      (event.pointerType === 'touch' && event.isPrimary)
+    ) {
       // Single touch gesture
       console.log('Single touch');
       event.stopPropagation();
       const node = event.target as PPNode;
 
       if (node.clickedSocketRef === null) {
+        console.log('Node: start dragging the node');
         // start dragging the node
 
         const shiftKey = event.shiftKey;
@@ -1006,6 +1010,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
 
   onPointerUp(event: PIXI.FederatedPointerEvent): void {
     console.log('Node: onPointerUp');
+    event.stopPropagation();
 
     const source = PPGraph.currentGraph.selectedSourceSocket;
     if (source && this !== source.getNode()) {
