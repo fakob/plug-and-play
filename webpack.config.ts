@@ -126,6 +126,14 @@ module.exports = (env, argv) => {
       client: {
         logging: 'info',
         // overlay: false, // to hide the error overlay
+        overlay: {
+          runtimeErrors: (error) => {
+            if (error.message === 'ResizeObserver loop limit exceeded') {
+              return false;
+            }
+            return true;
+          },
+        },
       },
     },
   });
