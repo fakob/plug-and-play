@@ -97,10 +97,6 @@ export class Video extends HybridNode2 {
     return false;
   }
 
-  getOpacity(): number {
-    return 0.01;
-  }
-
   getPreferredInputSocketName(): string {
     return inputResourceIdSocketName;
   }

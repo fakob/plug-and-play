@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 /* eslint-disable @typescript-eslint/no-this-alias */
 
+import * as PIXI from 'pixi.js';
 import React from 'react';
 import { createRoot, Root } from 'react-dom/client';
 import { Button } from '@mui/material';
@@ -9,11 +10,18 @@ import PPGraph from './GraphClass';
 import PPNode from './NodeClass';
 import styles from '../utils/style.module.css';
 import { CustomArgs, TRgba } from '../utils/interfaces';
-import { RANDOMMAINCOLOR } from '../utils/constants';
+import {
+  NINE_SLICE_SHADOW,
+  NODE_MARGIN,
+  NODE_CORNERRADIUS,
+  RANDOMMAINCOLOR,
+} from '../utils/constants';
 
 function pixiToContainerNumber(value: number) {
   return `${Math.round(value)}px`;
 }
+
+const blurAmount = 48;
 
 export default abstract class HybridNode2 extends PPNode {
   root: Root;
@@ -21,6 +29,7 @@ export default abstract class HybridNode2 extends PPNode {
   staticRoot: Root;
   container: HTMLElement;
   initialData: any;
+  shadowPlane: PIXI.NineSlicePlane;
 
   constructor(name: string, customArgs?: CustomArgs) {
     super(name, {
@@ -28,6 +37,15 @@ export default abstract class HybridNode2 extends PPNode {
     });
 
     this.initialData = customArgs?.initialData;
+
+    this.shadowPlane = new PIXI.NineSlicePlane(
+      PIXI.Texture.from(NINE_SLICE_SHADOW),
+      blurAmount,
+      blurAmount,
+      blurAmount,
+      blurAmount
+    );
+    this.addChildAt(this.shadowPlane, 0);
   }
 
   redraw({ screenX = 0, screenY = 0, scale = 1 }) {
@@ -152,6 +170,7 @@ export default abstract class HybridNode2 extends PPNode {
       (this as any).onViewportPointerUpHandler
     );
     this.container.classList.add(styles.hybridContainerFocused);
+    this.drawBackground();
     this.execute();
   }
 
@@ -185,6 +204,7 @@ export default abstract class HybridNode2 extends PPNode {
     this.onHybridNodeExit();
     // this allows to zoom and drag when the hybrid node is not selected
     this.container.classList.remove(styles.hybridContainerFocused);
+    this.drawBackground();
     this.execute();
   }
 
@@ -217,6 +237,34 @@ export default abstract class HybridNode2 extends PPNode {
 
   public getIsPresentationalNode(): boolean {
     return true;
+  }
+
+  getOpacity(): number {
+    return 0.01;
+  }
+
+  public drawBackground(): void {
+    this._BackgroundRef.beginFill(
+      this.getColor().hexNumber(),
+      this.getOpacity()
+    );
+    this._BackgroundRef.drawRoundedRect(
+      NODE_MARGIN,
+      0,
+      this.nodeWidth,
+      this.nodeHeight,
+      this.getRoundedCorners() ? NODE_CORNERRADIUS : 0
+    );
+    if (this.doubleClicked) {
+      this.shadowPlane.x = -blurAmount + NODE_MARGIN;
+      this.shadowPlane.y = -blurAmount;
+      this.shadowPlane.width = this.nodeWidth + blurAmount * 2;
+      this.shadowPlane.height = this.nodeHeight + blurAmount * 2;
+      this.shadowPlane.visible = true;
+    } else {
+      this.shadowPlane.visible = false;
+    }
+    this._BackgroundRef.endFill();
   }
 }
 

@@ -56,10 +56,6 @@ export class CodeEditor extends HybridNode2 {
     ];
   }
 
-  getOpacity(): number {
-    return 0.01;
-  }
-
   protected onHybridNodeExit(): void {
     this.executeOptimizedChain();
   }

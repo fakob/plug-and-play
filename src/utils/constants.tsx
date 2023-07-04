@@ -121,6 +121,7 @@ export const NARROW_ICON = '../assets/Narrow_Icon.svg';
 export const CANVAS_BACKGROUND_TEXTURE =
   '../assets/Pixel_grid_4000x2000.svg.png';
 export const CANVAS_BACKGROUND_ALPHA = 0.02;
+export const NINE_SLICE_SHADOW = '../assets/NineSliceShadow.png';
 
 // export const COLOR_MAIN = '#2E3A59';
 export const COLOR_MAIN = Color(COLOR[0]).lighten(0.8).hex();
