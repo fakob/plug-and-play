@@ -181,20 +181,22 @@ export default class PPStorage {
   async downloadGraph(graphId = undefined) {
     this.db
       .transaction('rw', this.db.graphs, this.db.settings, async () => {
-        let graph;
         let serializedGraph;
         let graphName;
 
-        if (graphId) {
-          graph = await this.db.graphs.where('id').equals(graphId).first();
-        }
+        const loadedGraphId = PPGraph.currentGraph.id;
 
-        if (graph) {
+        const graph = await this.db.graphs
+          .where('id')
+          .equals(graphId || loadedGraphId)
+          .first();
+
+        if (graphId && graph) {
           serializedGraph = graph.graphData;
           graphName = graph.name;
         } else {
           serializedGraph = PPGraph.currentGraph.serialize();
-          graphName = PPGraph.currentGraph.id;
+          graphName = graph ? graph.name : PPGraph.currentGraph.id;
         }
 
         downloadFile(
