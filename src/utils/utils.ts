@@ -736,13 +736,13 @@ export const pasteClipboard = async (e: ClipboardEvent): Promise<void> => {
         e.preventDefault();
         if (PPGraph.currentGraph.selection.selectedNodes.length < 1) {
           if (isUrl(data)) {
-            PPGraph.currentGraph.addNewNode('EmbedWebsite', {
+            await PPGraph.currentGraph.addNewNode('EmbedWebsite', {
               nodePosX: mouseWorld.x,
               nodePosY: mouseWorld.y,
               initialData: `<iframe src="${data}" style="width: 100%; height: 100%;"></iframe>`,
             });
           } else {
-            PPGraph.currentGraph.addNewNode('TextEditor', {
+            await PPGraph.currentGraph.addNewNode('TextEditor', {
               nodePosX: mouseWorld.x,
               nodePosY: mouseWorld.y,
               initialData: {

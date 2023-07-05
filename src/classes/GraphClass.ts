@@ -699,7 +699,7 @@ export default class PPGraph {
       ? socket.dataType.recommendedInputNodeWidgets()?.[0]
       : socket.dataType.recommendedOutputNodeWidgets()?.[0];
     if (recommendedNodeWidget) {
-      newNode = this.addNewNode(
+      newNode = await this.addNewNode(
         recommendedNodeWidget,
         {
           nodePosX: node.x + (socket.isInput() ? 0 : node.width + 40),
