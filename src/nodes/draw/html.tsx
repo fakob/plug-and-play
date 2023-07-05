@@ -156,7 +156,7 @@ const MemoizedComponent = memo<any>(function MemoizedComponent({
         height: '100%',
         borderWidth: 0,
       }}
-      initialContent="<!DOCTYPE html><html><head><style>* {border: none;}</style></head><body style='overflow:hidden; border-width: 0px;'><div></div></body></html>"
+      initialContent="<!DOCTYPE html><html><head><style>* {border: none;}</style></head><body style='overflow:hidden; border-width: 0px; background: white;'><div></div></body></html>"
     >
       <ThemeProvider theme={theme}>
         <Box

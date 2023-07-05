@@ -214,10 +214,6 @@ export class Table extends HybridNode2 {
     return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
   }
 
-  getOpacity(): number {
-    return 0.01;
-  }
-
   protected onHybridNodeExit(): void {
     this.executeOptimizedChain();
   }
