@@ -1,8 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Box, Button, Grid, ThemeProvider, Typography } from '@mui/material';
-import CircularProgress, {
-  CircularProgressProps,
-} from '@mui/material/CircularProgress';
+import { Box, ThemeProvider } from '@mui/material';
 import { ErrorBoundary } from 'react-error-boundary';
 import ErrorFallback from '../../components/ErrorFallback';
 import PPGraph from '../../classes/GraphClass';
@@ -35,7 +32,7 @@ const backgroundColor = TRgba.fromString(NODE_TYPE_COLOR.OUTPUT);
 const IMPORT_NAME = [
   '@editorjs/editorjs',
   '@editorjs/header',
-  '@editorjs/image',
+  '@editorjs/simple-image',
   '@editorjs/code',
   '@editorjs/list',
   '@editorjs/delimiter',
@@ -55,7 +52,7 @@ export class TextEditor2 extends HybridNode2 {
   module;
   editor;
   Header;
-  Image;
+  SimpleImage;
   CodeTool;
   List;
   Delimiter;
@@ -152,7 +149,8 @@ export class TextEditor2 extends HybridNode2 {
   public onNodeAdded = async (source?: TNodeSource): Promise<void> => {
     this.module = PPGraph.currentGraph.dynamicImports[IMPORT_NAME[0]].default;
     this.Header = PPGraph.currentGraph.dynamicImports[IMPORT_NAME[1]].default;
-    this.Image = PPGraph.currentGraph.dynamicImports[IMPORT_NAME[2]].default;
+    this.SimpleImage =
+      PPGraph.currentGraph.dynamicImports[IMPORT_NAME[2]].default;
     this.CodeTool = PPGraph.currentGraph.dynamicImports[IMPORT_NAME[3]].default;
     this.List = PPGraph.currentGraph.dynamicImports[IMPORT_NAME[4]].default;
     this.Delimiter =
@@ -213,79 +211,70 @@ export class TextEditor2 extends HybridNode2 {
           // defaultBlock: 'myOwnParagraph',
           placeholder: 'Let`s write an awesome story!',
           // readOnly: true,
-          inlineToolbar: ['bold', 'italic', 'underline'],
           tools: {
             header: {
               class: node.Header,
               // inlineToolbar: true,
-              inlineToolbar: ['marker', 'inlineCode'],
+              // inlineToolbar: ['marker', 'inlineCode'],
               config: {
                 placeholder: '',
               },
             },
 
-            // // image: {
-            // //   class: node.Image,
-            // //   inlineToolbar: true,
-            // //   config: {
-            // //     types: 'image/*, video/mp4',
-            // //     endpoints: {
-            // //       byFile: '/api/transport/image',
-            // //       byUrl: '/api/transport/fetch',
-            // //     },
-            // //   },
-            // // },
+            image: {
+              class: node.SimpleImage,
+            },
 
-            // // linkTool: {
-            // //   class: node.LinkTool,
-            // //   config: {
-            // //     endpoint: '/api/fetchUrl',
-            // //   },
-            // // },
+            // linkTool: {
+            //   class: node.LinkTool,
+            //   config: {
+            //     endpoint: '/api/fetchUrl',
+            //   },
+            // },
 
-            // // code: {
-            // //   class: node.CodeTool,
-            // //   shortcut: 'CMD+SHIFT+D',
-            // // },
+            code: {
+              class: node.CodeTool,
+              shortcut: 'CMD+SHIFT+D',
+            },
 
-            // // list: {
-            // //   class: node.List,
-            // //   inlineToolbar: true,
-            // // },
+            list: {
+              class: node.List,
+              inlineToolbar: true,
+            },
 
-            // // delimiter: node.Delimiter,
+            delimiter: node.Delimiter,
 
-            // // table: {
-            // //   class: node.Table,
-            // //   inlineToolbar: true,
-            // // },
+            table: {
+              class: node.Table,
+              inlineToolbar: true,
+            },
 
-            // // warning: {
-            // //   class: node.Warning,
-            // //   inlineToolbar: true,
-            // // },
+            warning: {
+              class: node.Warning,
+              inlineToolbar: true,
+            },
 
-            // // checklist: {
-            // //   class: node.Checklist,
-            // //   inlineToolbar: true,
-            // // },
+            checklist: {
+              class: node.Checklist,
+              inlineToolbar: true,
+            },
 
-            // /**
-            //  * Inline Tools
-            //  */
-            // // inlineCode: {
-            // //   class: node.InlineCode,
-            // //   shortcut: 'CMD+SHIFT+C',
-            // // },
+            /**
+             * Inline Tools
+             */
+            inlineCode: {
+              class: node.InlineCode,
+              shortcut: 'CMD+SHIFT+C',
+            },
 
-            // // marker: {
-            // //   class: node.Marker,
-            // //   shortcut: 'CMD+SHIFT+M',
-            // // },
+            marker: {
+              class: node.Marker,
+              shortcut: 'CMD+SHIFT+M',
+            },
 
-            // // raw: node.RawTool,
+            raw: node.RawTool,
 
-            // // embed: node.Embed,
+            embed: node.Embed,
           },
           data: props[textJSONSocketName],
         });

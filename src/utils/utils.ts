@@ -361,7 +361,7 @@ export const getNodeDataFromText = (text: string): SerializedSelection => {
 };
 
 export const isEventComongFromWithinWidget = (event: any): boolean => {
-  // console.log(event.target);
+  console.log(event.target);
   return (
     (event.target.id as string).endsWith('Input') ||
     event.target.localName === 'input' ||
@@ -372,8 +372,8 @@ export const isEventComongFromWithinWidget = (event: any): boolean => {
 export const isEventComingFromWithinTextInput = (event: any): boolean => {
   return (
     event.target.localName === 'textarea' ||
+    event.target.classList.contains('ce-header') ||
     event.target.classList.contains('ce-paragraph') ||
-    event.target.classList.contains('cdx-block') ||
     event.target?.attributes?.['data-slate-editor'] !== undefined ||
     event.target?.attributes?.['data-slate-node'] !== undefined ||
     event.target?.attributes?.['data-slate-string'] !== undefined ||
