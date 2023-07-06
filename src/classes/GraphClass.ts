@@ -780,25 +780,27 @@ export default class PPGraph {
     //create nodes
     const offset = new PIXI.Point();
     try {
-      data.nodes.forEach(async (node, index) => {
-        if (index === 0) {
-          if (pasteTo) {
-            offset.set(pasteTo.x - node.x, pasteTo.y - node.y);
-          } else {
-            offset.set(node.width + 40, 0);
+      await Promise.all(
+        data.nodes.map(async (node, index) => {
+          if (index === 0) {
+            if (pasteTo) {
+              offset.set(pasteTo.x - node.x, pasteTo.y - node.y);
+            } else {
+              offset.set(node.width + 40, 0);
+            }
           }
-        }
-        // add node and carry over its configuration
-        const newNode = await this.addSerializedNode(node, {
-          overrideId: hri.random(),
-        });
+          // add node and carry over its configuration
+          const newNode = await this.addSerializedNode(node, {
+            overrideId: hri.random(),
+          });
 
-        // offset pasted node
-        newNode.setPosition(offset.x, offset.y, true);
+          // offset pasted node
+          newNode.setPosition(offset.x, offset.y, true);
 
-        mappingOfOldAndNewNodes[node.id] = newNode;
-        newNodes.push(newNode);
-      });
+          mappingOfOldAndNewNodes[node.id] = newNode;
+          newNodes.push(newNode);
+        })
+      );
 
       await Promise.all(
         data.links.map(async (link: SerializedLink) => {
