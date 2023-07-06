@@ -1011,7 +1011,9 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
           true
         );
       }
-      PPGraph.currentGraph.selection.startDragAction(event);
+      if (PPGraph.currentGraph.selection.selectedNodes.length > 0) {
+        PPGraph.currentGraph.selection.startDragAction(event);
+      }
     }
     if (event.button == 2) {
       if (event.target == this) {
