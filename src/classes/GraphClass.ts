@@ -10,6 +10,7 @@ import {
   SerializedNode,
   SerializedSelection,
   TNodeSource,
+  TPasteTo,
 } from '../utils/interfaces';
 import { connectNodeToSocket, isPhone } from '../utils/utils';
 import { getNodesBounds } from '../pixi/utils-pixi';
@@ -761,18 +762,15 @@ export default class PPGraph {
     this.allowExecution = true;
   }
 
-  async duplicateSelection(): Promise<PPNode[]> {
+  async duplicateSelection(pasteTo: TPasteTo = undefined): Promise<PPNode[]> {
     const serializeSelection = this.serializeSelection();
-    const pastedNodes = await this.pasteNodes(serializeSelection);
+    const pastedNodes = await this.pasteNodes(serializeSelection, pasteTo);
     return pastedNodes;
   }
 
   async pasteNodes(
     data: SerializedSelection,
-    pasteTo?: {
-      x: number;
-      y: number;
-    }
+    pasteTo?: TPasteTo
   ): Promise<PPNode[]> {
     const newNodes: PPNode[] = [];
     const mappingOfOldAndNewNodes: { [key: string]: PPNode } = {};

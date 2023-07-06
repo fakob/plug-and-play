@@ -118,6 +118,11 @@ export type TNodeSource = (typeof NODE_SOURCE)[keyof typeof NODE_SOURCE];
 
 export type TAlignOptions = (typeof ALIGNOPTIONS)[keyof typeof ALIGNOPTIONS];
 
+export type TPasteTo = {
+  x: number;
+  y: number;
+};
+
 export class TRgba {
   r = 0;
   g = 0;
