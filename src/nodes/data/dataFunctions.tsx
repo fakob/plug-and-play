@@ -442,9 +442,6 @@ export class Map extends ArrayFunction {
   public getName(): string {
     return 'Map array';
   }
-  protected getInnerCode(): string {
-    return '(a) => a';
-  }
 
   public getDescription(): string {
     return 'Transform and or filter each element of an array';
@@ -469,12 +466,16 @@ export class Filter extends ArrayFunction {
     return 'Filters an array, using your own filter condition';
   }
 
-  protected getInnerCode(): string {
-    return '(a) => a';
-  }
-
   protected getDefaultFunction(): string {
-    return '(ArrayIn, InnerCode) => {\n\treturn ArrayIn.filter(await(eval(InnerCode)));\n}';
+    return '(ArrayIn, InnerCode) => { \n\
+      const toReturn = []; \n\
+      for (let i = 0; i < ArrayIn.length; i++){\n\
+        if (await eval(InnerCode)(ArrayIn[i], i)){\n\
+          toReturn.push(ArrayIn[i]);\n\
+        }\n\
+      }\n\
+      return toReturn;\n\
+    }';
   }
 }
 
