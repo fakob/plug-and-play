@@ -15,6 +15,7 @@ import UpdateBehaviourClass from '../../classes/UpdateBehaviourClass';
 import { DynamicEnumType } from '../datatypes/dynamicEnumType';
 import * as PIXI from 'pixi.js';
 import FlowLogic from '../../classes/FlowLogic';
+import { CodeType } from '../datatypes/codeType';
 
 export const macroOutputName = 'Output';
 
@@ -151,7 +152,7 @@ export class Macro extends PPNode {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.OUT, 'Parameter 1', new AnyType()),
-      new Socket(SOCKET_TYPE.IN, 'Output', new AnyType()),
+      new Socket(SOCKET_TYPE.IN, macroOutputName, new AnyType()),
     ];
   }
 
@@ -166,14 +167,31 @@ export class Macro extends PPNode {
     return true;
   }
 
-  public async executeMacro(inputObject: any): Promise<any> {
-    this.isExecutingFromOutside = true;
-    Object.keys(inputObject).forEach((key) =>
-      this.setOutputData(key, inputObject[key])
+  getCallMacroCode() {
+    const paramLength = this.outputSocketArray.length;
+    let paramLine = '';
+    for (let i = 1; i < paramLength + 1; i++) {
+      paramLine += ', Parameter_' + i.toString();
+    }
+    return (
+      'async (MacroName' +
+      paramLine +
+      ') => {\n\
+      \treturn await macro(MacroName' +
+      paramLine +
+      ');\n\
+      }'
     );
+  }
+
+  public async executeMacro(args: any[]): Promise<any> {
+    this.isExecutingFromOutside = true;
+    args.forEach((arg, i) => {
+      this.setOutputData('Parameter ' + (i + 1), arg);
+    });
     await this.executeChildren();
     this.isExecutingFromOutside = false;
-    return this.getInputData('Output');
+    return this.getInputData(macroOutputName);
   }
 
   public socketTypeChanged(): void {
@@ -222,6 +240,13 @@ export class Macro extends PPNode {
     }
   }
 }
+
+function buildDefaultMacroFunction(macroName: string) {
+  const targetMacro = Object.values(PPGraph.currentGraph.macros).find(
+    (macro) => macro.nodeName == macroName
+  );
+  return targetMacro ? targetMacro.getCallMacroCode() : '';
+}
 export class ExecuteMacro extends CustomFunction {
   static getOptions = () =>
     Object.values(PPGraph.currentGraph.nodes)
@@ -262,28 +287,12 @@ export class ExecuteMacro extends CustomFunction {
     \treturn await macro(MacroName,Parameter);\
     \n}';
   }
-  buildDefaultFunction = () => {
-    const targetMacro = Object.values(PPGraph.currentGraph.macros).find(
-      (macro) => macro.nodeName == this.getInputData('MacroName')
-    );
-    const paramLength = targetMacro ? targetMacro.outputSocketArray.length : 0;
-    let paramLine = '';
-    for (let i = 1; i < paramLength + 1; i++) {
-      paramLine += ', Parameter_' + i.toString();
-    }
-    return (
-      'async (MacroName' +
-      paramLine +
-      ') => {\n\
-      \treturn await macro(MacroName' +
-      paramLine +
-      ');\n\
-      }'
-    );
-  };
 
   public generateUseNewCode = async () => {
-    this.setInputData(anyCodeName, this.buildDefaultFunction());
+    this.setInputData(
+      anyCodeName,
+      buildDefaultMacroFunction(this.getInputData('MacroName'))
+    );
     await this.executeOptimizedChain();
     this.resizeAndDraw(0, 0);
   };
@@ -309,5 +318,12 @@ export class ExecuteMacro extends CustomFunction {
       super.isCallingMacro(macroName) ||
       this.getInputData('MacroName') == macroName
     );
+  }
+
+  protected potentiallyModifyOutgoingCode(inCode: string) {
+    // baking in the macro name selected in the node into the output code (makes it easier if using it for map or something)
+    return inCode
+      .replace('MacroName,', '')
+      .replace('MacroName', "'" + this.getInputData('MacroName') + "'");
   }
 }

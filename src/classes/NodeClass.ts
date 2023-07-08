@@ -1079,8 +1079,8 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     );
   }
 
-  public async invokeMacro(inputObject: any): Promise<any> {
-    return await PPGraph.currentGraph.invokeMacro(inputObject);
+  public async invokeMacro(name : string, args : any[]): Promise<any> {
+    return await PPGraph.currentGraph.invokeMacro(name, args);
   }
 
   // mean to be overridden with custom behaviour
