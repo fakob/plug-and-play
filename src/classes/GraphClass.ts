@@ -1190,11 +1190,9 @@ export default class PPGraph {
     ActionHandler.performAction(action, undoAction, 'Delete node(s)');
   }
 
-  async invokeMacro(inputObject: any): Promise<any> {
-    const macro = Object.values(this.macros).find(
-      (node) => node.name === inputObject['Name']
-    );
-    return await macro.executeMacro(inputObject);
+  async invokeMacro(name: string, args: any[]): Promise<any> {
+    const macro = Object.values(this.macros).find((node) => node.name === name);
+    return await macro.executeMacro(args);
   }
 
   static getCurrentGraph(): PPGraph {

@@ -258,6 +258,7 @@ export class CustomFunction extends PPNode {
         this.getOutputParameterName(),
         this.getOutputParameterType()
       ),
+      new Socket(SOCKET_TYPE.OUT, anyCodeName, new CodeType(), '', false),
     ];
   }
 
@@ -296,6 +297,38 @@ export class CustomFunction extends PPNode {
     this.adaptInputs(this.getInputData(anyCodeName));
   }
 
+  protected getFunctionalFunction() {}
+
+  protected getBakedFunction() {}
+
+  protected replaceMacros(functionToExecute: string) {
+    // we fix the macros for the user so that they are more pleasant to type
+    const foundMacroCalls = [...functionToExecute.matchAll(/macro\(.*?\)/g)];
+
+    return foundMacroCalls.reduce((formatted, macroCall) => {
+      const macroContents = macroCall
+        .toString()
+        .replace('macro(', '')
+        .replace(')', '');
+      const parameters = macroContents.trim().split(',');
+
+      let formattedParamsString = parameters[0];
+      if (parameters.length > 1) {
+        formattedParamsString += ',';
+        formattedParamsString += '[';
+        for (let i = 1; i < parameters.length; i++) {
+          formattedParamsString += parameters[i] + ',';
+        }
+        formattedParamsString += ']';
+      }
+      const finalMacroDefinition =
+        'this.invokeMacro(' + formattedParamsString + ')';
+      console.log(finalMacroDefinition);
+
+      return formatted.replace(macroCall.toString(), finalMacroDefinition);
+    }, functionToExecute);
+  }
+
   protected async onExecute(
     inputObject: any,
     outputObject: Record<string, unknown>
@@ -318,31 +351,9 @@ export class CustomFunction extends PPNode {
       '{',
       '{' + defineAllVariables
     );
+    //console.log(functionToExecute);
 
-    // we fix the macros for the user so that they are more pleasant to type
-    const foundMacroCalls = [...functionToExecute.matchAll(/macro\(.*?\)/g)];
-
-    const reduced = foundMacroCalls.reduce((formatted, macroCall) => {
-      const macroContents = macroCall
-        .toString()
-        .replace('macro(', '')
-        .replace(')', '');
-      const parameters = macroContents.trim().split(',');
-      let formattedParamsString = '{"Name": ' + parameters[0];
-      for (let i = 1; i < parameters.length; i++) {
-        formattedParamsString =
-          formattedParamsString +
-          ',"Parameter ' +
-          i.toString() +
-          '":' +
-          parameters[i];
-      }
-      formattedParamsString = formattedParamsString + '}';
-      const finalMacroDefinition =
-        'this.invokeMacro(' + formattedParamsString + ')';
-
-      return formatted.replace(macroCall.toString(), finalMacroDefinition);
-    }, functionToExecute);
+    const reduced = this.replaceMacros(functionToExecute);
 
     // this might seem unused but it actually isn't, its used inside the eval in many cases but we can't see what's inside it from here
     const node = this;
@@ -355,8 +366,10 @@ export class CustomFunction extends PPNode {
       });
     }
 
-    const res = eval('async () => ' + reduced);
+    const finalized = 'async () => ' + reduced;
+    const res = eval(finalized);
     outputObject[this.getOutputParameterName()] = await res();
+    outputObject[anyCodeName] = reduced;
   }
 
   // returns true if there was a change
@@ -401,11 +414,16 @@ export class CustomFunction extends PPNode {
 }
 
 class ArrayFunction extends CustomFunction {
+  // the function that will be called inside the array function, for example what to filter on
+  protected getInnerCode(): string {
+    return '(a) => a';
+  }
+
   protected getDefaultParameterValues(): Record<string, any> {
-    return { ArrayIn: [] };
+    return { ArrayIn: [], InnerCode: this.getInnerCode() };
   }
   protected getDefaultParameterTypes(): Record<string, any> {
-    return { ArrayIn: new ArrayType() };
+    return { ArrayIn: new ArrayType(), InnerCode: new CodeType() };
   }
   protected getOutputParameterName(): string {
     return 'ArrayOut';
@@ -422,18 +440,21 @@ export class Map extends ArrayFunction {
   public getName(): string {
     return 'Map array';
   }
+  protected getInnerCode(): string {
+    return '(a) => a';
+  }
 
   public getDescription(): string {
     return 'Transform and or filter each element of an array';
   }
   protected getDefaultFunction(): string {
-    return '(ArrayIn) => {\n\
-	const toReturn = [];\n\
-	for (let i = 0; i < ArrayIn.length; i++){\n\
-		toReturn.push(await 1);\n\
-	}\n\
-	return toReturn;\n\
-}';
+    return '(ArrayIn, InnerCode) => {\n\
+    const toReturn = [];\n\
+    for (let i = 0; i < ArrayIn.length; i++){\n\
+      toReturn.push(await(eval(InnerCode)(ArrayIn[i], i)));\n\
+    }\n\
+    return toReturn;\n\
+  }';
   }
 }
 
@@ -446,8 +467,12 @@ export class Filter extends ArrayFunction {
     return 'Filters an array, using your own filter condition';
   }
 
+  protected getInnerCode(): string {
+    return '(a) => a';
+  }
+
   protected getDefaultFunction(): string {
-    return '(ArrayIn) => {\n\treturn ArrayIn.filter(a=>true);\n}';
+    return '(ArrayIn, InnerCode) => {\n\treturn ArrayIn.filter(await(eval(InnerCode)(ArrayIn[i], i)));\n}';
   }
 }
 
