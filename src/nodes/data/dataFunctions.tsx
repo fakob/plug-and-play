@@ -297,10 +297,6 @@ export class CustomFunction extends PPNode {
     this.adaptInputs(this.getInputData(anyCodeName));
   }
 
-  protected getFunctionalFunction() {}
-
-  protected getBakedFunction() {}
-
   protected replaceMacros(functionToExecute: string) {
     // we fix the macros for the user so that they are more pleasant to type
     const foundMacroCalls = [...functionToExecute.matchAll(/macro\(.*?\)/g)];
@@ -329,6 +325,11 @@ export class CustomFunction extends PPNode {
     }, functionToExecute);
   }
 
+  // can be used as an extra pass over the "Code" output
+  protected potentiallyModifyOutgoingCode(inCode: string) {
+    return inCode;
+  }
+
   protected async onExecute(
     inputObject: any,
     outputObject: Record<string, unknown>
@@ -339,21 +340,21 @@ export class CustomFunction extends PPNode {
       // there might be new inputs, so re-run rawexecute
       return await this.rawExecute();
     }
-    const functionToCall = getFunctionFromFunction(inputObject[anyCodeName]);
-    // eslint-disable-next-line prefer-const
-    const defineAllVariables = Object.keys(inputObject)
+
+    const replacedMacros = this.replaceMacros(inputObject[anyCodeName]);
+
+    const functionToCall = getFunctionFromFunction(replacedMacros);
+    const paramKeys = Object.keys(inputObject).filter((key) => key !== 'Code');
+    const defineAllVariablesFromInputObject = paramKeys
       .map(
         (argument) =>
           'const ' + argument + ' = inputObject["' + argument + '"];'
       )
       .join(';');
-    const functionToExecute = functionToCall.replace(
+    const functionWithVariablesFromInputObject = functionToCall.replace(
       '{',
-      '{' + defineAllVariables
+      '{' + defineAllVariablesFromInputObject
     );
-    //console.log(functionToExecute);
-
-    const reduced = this.replaceMacros(functionToExecute);
 
     // this might seem unused but it actually isn't, its used inside the eval in many cases but we can't see what's inside it from here
     const node = this;
@@ -366,10 +367,11 @@ export class CustomFunction extends PPNode {
       });
     }
 
-    const finalized = 'async () => ' + reduced;
+    const finalized = 'async () => ' + functionWithVariablesFromInputObject;
     const res = eval(finalized);
     outputObject[this.getOutputParameterName()] = await res();
-    outputObject[anyCodeName] = reduced;
+    outputObject[anyCodeName] =
+      this.potentiallyModifyOutgoingCode(replacedMacros);
   }
 
   // returns true if there was a change
@@ -472,7 +474,7 @@ export class Filter extends ArrayFunction {
   }
 
   protected getDefaultFunction(): string {
-    return '(ArrayIn, InnerCode) => {\n\treturn ArrayIn.filter(await(eval(InnerCode)(ArrayIn[i], i)));\n}';
+    return '(ArrayIn, InnerCode) => {\n\treturn ArrayIn.filter(await(eval(InnerCode)));\n}';
   }
 }
 

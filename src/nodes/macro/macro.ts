@@ -187,14 +187,10 @@ export class Macro extends PPNode {
   public async executeMacro(args: any[]): Promise<any> {
     this.isExecutingFromOutside = true;
     args.forEach((arg, i) => {
-      this.setOutputData('Parameter_' + i, arg);
+      this.setOutputData('Parameter ' + (i + 1), arg);
     });
     await this.executeChildren();
     this.isExecutingFromOutside = false;
-    const callMacroWithNameBakedIn = this.getCallMacroCode()
-      .replace('MacroName, ', '')
-      .replace('MacroName', "'" + this.name + "'");
-    this.setOutputData('Call Macro Code', callMacroWithNameBakedIn);
     return this.getInputData(macroOutputName);
   }
 
@@ -324,9 +320,9 @@ export class ExecuteMacro extends CustomFunction {
     );
   }
 
-  protected getOutputCode(codeIn: string): string {
+  protected potentiallyModifyOutgoingCode(inCode: string) {
     // baking in the macro name selected in the node into the output code (makes it easier if using it for map or something)
-    return codeIn
+    return inCode
       .replace('MacroName,', '')
       .replace('MacroName', "'" + this.getInputData('MacroName') + "'");
   }
