@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import JSON5 from 'json5';
 import * as PIXI from 'pixi.js';
 import isUrl from 'is-url';
+import { hri } from 'human-readable-ids';
 import { useTheme } from '@mui/material';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import PPGraph from '../classes/GraphClass';
@@ -839,4 +840,12 @@ export const updateDataIfDefault = (
     node.setInputData(inputSocketName, dataToUpdate);
     node.executeOptimizedChain();
   }
+};
+
+export const createArrayOfRandomIds = (length: number): string[] => {
+  const arrayOfRandomIds: string[] = [];
+  for (let index = 0; index < length; index++) {
+    arrayOfRandomIds.push(hri.random());
+  }
+  return arrayOfRandomIds;
 };

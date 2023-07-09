@@ -12,7 +12,11 @@ import {
   TNodeSource,
   TPastePos,
 } from '../utils/interfaces';
-import { connectNodeToSocket, isPhone } from '../utils/utils';
+import {
+  connectNodeToSocket,
+  createArrayOfRandomIds,
+  isPhone,
+} from '../utils/utils';
 import { getNodesBounds } from '../pixi/utils-pixi';
 import PPNode from './NodeClass';
 import PPSocket from './SocketClass';
@@ -519,7 +523,7 @@ export default class PPGraph {
   ) {
     const referenceID = hri.random();
     const action = async () => {
-      PPGraph.currentGraph.replaceNode(
+      await PPGraph.currentGraph.replaceNode(
         oldSerializedNode,
         oldSerializedNode.id,
         referenceID,
@@ -529,7 +533,7 @@ export default class PPGraph {
       );
     };
     const undoAction = async () => {
-      PPGraph.currentGraph.replaceNode(
+      await PPGraph.currentGraph.replaceNode(
         newSerializedNode,
         referenceID,
         oldSerializedNode.id,
@@ -775,16 +779,18 @@ export default class PPGraph {
     data: SerializedSelection,
     pastePos?: TPastePos
   ): Promise<PPNode[]> {
-    // const originalNodes: PPNode[] = ;
     const newNodes: PPNode[] = [];
     const mappingOfOldAndNewNodes: { [key: string]: PPNode } = {};
+    const arrayOfRandomIds = createArrayOfRandomIds(data.nodes.length);
 
     const action = async () => {
+      const originalNodes: SerializedSelection = data;
+      newNodes.length = 0;
       //create nodes
       const offset = new PIXI.Point();
       try {
         await Promise.all(
-          data.nodes.map(async (node, index) => {
+          originalNodes.nodes.map(async (node, index) => {
             if (index === 0) {
               if (pastePos) {
                 offset.set(pastePos.x - node.x, pastePos.y - node.y);
@@ -794,7 +800,7 @@ export default class PPGraph {
             }
             // add node and carry over its configuration
             const newNode = await this.addSerializedNode(node, {
-              overrideId: hri.random(),
+              overrideId: arrayOfRandomIds[index],
             });
 
             // offset pasted node
@@ -806,7 +812,7 @@ export default class PPGraph {
         );
 
         await Promise.all(
-          data.links.map(async (link: SerializedLink) => {
+          originalNodes.links.map(async (link: SerializedLink) => {
             const newSource = mappingOfOldAndNewNodes[
               link.sourceNodeId
             ].getOutputSocketByName(link.sourceSocketName);
@@ -830,8 +836,9 @@ export default class PPGraph {
 
     const undoAction = async () => {
       this.selection.deselectAllNodesAndResetSelection();
-      newNodes.forEach((node) => this.removeNode(this.nodes[node.id])); // notice no direct references to make it work with redo
-      // this.selection.selectNodes(newNodes, false, true);
+      arrayOfRandomIds.forEach((id) => {
+        PPGraph.currentGraph.removeNode(ActionHandler.getSafeNode(id));
+      });
     };
 
     await ActionHandler.performAction(action, undoAction, 'Paste node(s)');
