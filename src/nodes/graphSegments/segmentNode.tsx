@@ -23,7 +23,7 @@ export abstract class SegmentNode extends PPNode {
 
   // paste my segment and remove self
   public async addAndDestroy() {
-    await PPGraph.currentGraph.pasteNodes(
+    await PPGraph.currentGraph.action_pasteNodes(
       getNodeDataFromText(this.getSegment().getData()),
       { x: this.x, y: this.y }
     );

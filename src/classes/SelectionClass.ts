@@ -196,7 +196,7 @@ export default class PPSelection extends PIXI.Container {
         this.selectNodes(differenceSelection, false, true);
         this.drawRectanglesFromSelection();
       } else {
-        const sourceNodes = PPGraph.currentGraph.selection.selectedNodes;
+        const sourceNodes = this.selectedNodes;
         const bounds = getNodesBounds(sourceNodes);
         if (altKey) {
           const duplicatedNodes = await PPGraph.currentGraph.duplicateSelection(
@@ -205,11 +205,7 @@ export default class PPSelection extends PIXI.Container {
               y: bounds.y,
             }
           );
-          PPGraph.currentGraph.selection.selectNodes(
-            duplicatedNodes,
-            shiftKey,
-            true
-          );
+          this.selectNodes(duplicatedNodes, false, true);
         }
         this.startDragAction(event);
       }
@@ -519,6 +515,7 @@ export default class PPSelection extends PIXI.Container {
       this.selectionGraphics.getBounds().y
     );
   }
+
   selectNodes(
     nodes: PPNode[],
     addToOrToggleSelection = false,

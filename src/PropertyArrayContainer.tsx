@@ -378,7 +378,7 @@ function SourceContent(props: SourceContentProps) {
                 const newSerializedSelection = JSON.parse(
                   `{"version": ${PP_VERSION},"nodes": [${sourceCode}],"links": []}`
                 ) as SerializedSelection;
-                PPGraph.currentGraph.pasteNodes(newSerializedSelection);
+                PPGraph.currentGraph.action_pasteNodes(newSerializedSelection);
               }}
             >
               Create new

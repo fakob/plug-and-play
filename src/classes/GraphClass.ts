@@ -764,63 +764,77 @@ export default class PPGraph {
 
   async duplicateSelection(pastePos: TPastePos = undefined): Promise<PPNode[]> {
     const serializeSelection = this.serializeSelection();
-    const pastedNodes = await this.pasteNodes(serializeSelection, pastePos);
+    const pastedNodes = await this.action_pasteNodes(
+      serializeSelection,
+      pastePos
+    );
     return pastedNodes;
   }
 
-  async pasteNodes(
+  async action_pasteNodes(
     data: SerializedSelection,
     pastePos?: TPastePos
   ): Promise<PPNode[]> {
+    // const originalNodes: PPNode[] = ;
     const newNodes: PPNode[] = [];
     const mappingOfOldAndNewNodes: { [key: string]: PPNode } = {};
 
-    //create nodes
-    const offset = new PIXI.Point();
-    try {
-      await Promise.all(
-        data.nodes.map(async (node, index) => {
-          if (index === 0) {
-            if (pastePos) {
-              offset.set(pastePos.x - node.x, pastePos.y - node.y);
-            } else {
-              offset.set(node.width + 40, 0);
+    const action = async () => {
+      //create nodes
+      const offset = new PIXI.Point();
+      try {
+        await Promise.all(
+          data.nodes.map(async (node, index) => {
+            if (index === 0) {
+              if (pastePos) {
+                offset.set(pastePos.x - node.x, pastePos.y - node.y);
+              } else {
+                offset.set(node.width + 40, 0);
+              }
             }
-          }
-          // add node and carry over its configuration
-          const newNode = await this.addSerializedNode(node, {
-            overrideId: hri.random(),
-          });
+            // add node and carry over its configuration
+            const newNode = await this.addSerializedNode(node, {
+              overrideId: hri.random(),
+            });
 
-          // offset pasted node
-          newNode.setPosition(offset.x, offset.y, true);
+            // offset pasted node
+            newNode.setPosition(offset.x, offset.y, true);
 
-          mappingOfOldAndNewNodes[node.id] = newNode;
-          newNodes.push(newNode);
-        })
-      );
+            mappingOfOldAndNewNodes[node.id] = newNode;
+            newNodes.push(newNode);
+          })
+        );
 
-      await Promise.all(
-        data.links.map(async (link: SerializedLink) => {
-          const newSource = mappingOfOldAndNewNodes[
-            link.sourceNodeId
-          ].getOutputSocketByName(link.sourceSocketName);
-          const newTarget = mappingOfOldAndNewNodes[
-            link.targetNodeId
-          ].getInputOrTriggerSocketByName(link.targetSocketName);
-          await this.connect(newSource, newTarget, false);
-        })
-      );
-    } catch (error) {
-      console.error(error);
-    }
+        await Promise.all(
+          data.links.map(async (link: SerializedLink) => {
+            const newSource = mappingOfOldAndNewNodes[
+              link.sourceNodeId
+            ].getOutputSocketByName(link.sourceSocketName);
+            const newTarget = mappingOfOldAndNewNodes[
+              link.targetNodeId
+            ].getInputOrTriggerSocketByName(link.targetSocketName);
+            await this.connect(newSource, newTarget, false);
+          })
+        );
+      } catch (error) {
+        console.error(error);
+      }
 
-    // select newNode
-    this.selection.selectNodes(newNodes, false, true);
-    this.selection.drawRectanglesFromSelection();
+      // select newNode
+      this.selection.selectNodes(newNodes, false, true);
+      this.selection.drawRectanglesFromSelection();
 
-    // execute all seed nodes to make sure there are values everywhere
-    await this.executeAllSeedNodes(newNodes);
+      // execute all seed nodes to make sure there are values everywhere
+      await this.executeAllSeedNodes(newNodes);
+    };
+
+    const undoAction = async () => {
+      this.selection.deselectAllNodesAndResetSelection();
+      newNodes.forEach((node) => this.removeNode(this.nodes[node.id])); // notice no direct references to make it work with redo
+      // this.selection.selectNodes(newNodes, false, true);
+    };
+
+    await ActionHandler.performAction(action, undoAction, 'Paste node(s)');
 
     return newNodes;
   }
@@ -837,7 +851,9 @@ export default class PPGraph {
     const graphPre = this.serialize();
     // we copy all selected nodes, and all inputs to these that are not found inside the macro are turned into parameters, combined outputs are turned into the output
     const sourceNodes = this.selection.selectedNodes;
-    const newNodes = await this.pasteNodes(this.serializeNodes(sourceNodes));
+    const newNodes = await this.action_pasteNodes(
+      this.serializeNodes(sourceNodes)
+    );
 
     const forwardMapping: Record<string, PPNode> = {};
     const backwardMapping: Record<string, PPNode> = {};

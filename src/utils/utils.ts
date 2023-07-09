@@ -723,7 +723,7 @@ export const pasteClipboard = async (e: ClipboardEvent): Promise<void> => {
           data = getNodeDataFromText(clipboardBlobs[mimeType]);
         }
         e.preventDefault();
-        await PPGraph.currentGraph.pasteNodes(data, {
+        await PPGraph.currentGraph.action_pasteNodes(data, {
           x: mouseWorld.x,
           y: mouseWorld.y,
         });
