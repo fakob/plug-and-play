@@ -201,8 +201,8 @@ export default class PPSelection extends PIXI.Container {
         if (altKey) {
           const duplicatedNodes = await PPGraph.currentGraph.duplicateSelection(
             {
-              x: bounds.x,
-              y: bounds.y,
+              x: bounds.x + 24,
+              y: bounds.y + 24,
             }
           );
           this.selectNodes(duplicatedNodes, false, true);

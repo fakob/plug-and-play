@@ -1,4 +1,3 @@
-import FlowLogic from '../../classes/FlowLogic';
 import PPGraph from '../../classes/GraphClass';
 import PPNode from '../../classes/NodeClass';
 import { getNodeDataFromText } from '../../utils/utils';
