@@ -175,7 +175,7 @@ export class WidgetButton extends WidgetBase {
       this._refWidget.view.y = 4 * margin;
       this._refWidget.onDown.connect(this.handleOnPointerDown);
       this._refWidget.onUp.connect(this.handleOnPointerUp);
-      this.addChild(this._refWidget.view);
+      this._ForegroundRef.addChild(this._refWidget.view);
 
       this._refLabel = new PIXI.Text(
         String(this.getInputData(labelName)).toUpperCase(),
@@ -184,7 +184,7 @@ export class WidgetButton extends WidgetBase {
       this._refLabel.anchor.x = 0.5;
       this._refLabel.anchor.y = 0.5;
       this._refLabel.eventMode = 'none';
-      this.addChild(this._refLabel);
+      this._ForegroundRef.addChild(this._refLabel);
     }
 
     const fontSize = this.nodeHeight / 6;
@@ -281,7 +281,7 @@ export class WidgetRadio extends WidgetBase {
 
   public drawNodeShape(): void {
     super.drawNodeShape();
-    this.removeChild(this.radio);
+    this._ForegroundRef.removeChild(this.radio);
 
     const inputs: [] = this.getInputData(optionsName);
     if (!Array.isArray(inputs)) {
@@ -340,7 +340,7 @@ export class WidgetRadio extends WidgetBase {
 
     this.radio = radioGroup;
 
-    this.addChild(this.radio);
+    this._ForegroundRef.addChild(this.radio);
   }
 
   drawRadio(checked, width, padding) {
@@ -804,7 +804,7 @@ export class WidgetSlider extends WidgetBase {
       });
       this._refWidget.x = NODE_MARGIN + 4 * margin;
       this._refWidget.onUpdate.connect(this.handleOnChange);
-      this.addChild(this._refWidget);
+      this._ForegroundRef.addChild(this._refWidget);
 
       // Label
       this._refLabel = new PIXI.Text(
@@ -814,7 +814,7 @@ export class WidgetSlider extends WidgetBase {
       this._refLabel.anchor.x = 0.5;
       this._refLabel.anchor.y = 1;
       this._refLabel.eventMode = 'none';
-      this.addChild(this._refLabel);
+      this._ForegroundRef.addChild(this._refLabel);
 
       // Value
       this._refValue = new PIXI.Text(
@@ -825,7 +825,7 @@ export class WidgetSlider extends WidgetBase {
       this._refValue.anchor.y = 0;
       this._refValue.y = margin;
       this._refValue.eventMode = 'none';
-      this.addChild(this._refValue);
+      this._ForegroundRef.addChild(this._refValue);
     }
 
     const fontSize = this.nodeHeight / 6;

@@ -288,6 +288,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       worldHeight: window.innerHeight,
       events: pixiApp.current.renderer.events,
     });
+    viewport.current.name = 'pixiViewport';
 
     globalThis.__VIEWPORT__ = viewport.current;
 
@@ -787,13 +788,13 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     async function load() {
       const remoteGraphSearchItems = remoteGraphsRef.current.map(
         (graph, index) => {
-        return {
-          id: index,
-          name: removeExtension(graph), // remove .ppgraph extension
-          label: 'remote',
-          isRemote: true,
-        } as IGraphSearch;
-        },
+          return {
+            id: index,
+            name: removeExtension(graph), // remove .ppgraph extension
+            label: 'remote',
+            isRemote: true,
+          } as IGraphSearch;
+        }
       );
       // add remote header entry
       if (remoteGraphSearchItems.length > 0) {

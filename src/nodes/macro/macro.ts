@@ -86,19 +86,19 @@ export class Macro extends PPNode {
   }
 
   public drawBackground(): void {
-    this._BackgroundRef.beginFill(
+    this._BackgroundGraphicsRef.beginFill(
       this.getColor().hexNumber(),
       this.getOpacity()
     );
-    this._BackgroundRef.removeChild(this.textRef);
+    this._BackgroundGraphicsRef.removeChild(this.textRef);
     this.textRef = new PIXI.Text(this.getMacroText());
     this.textRef.y = -50;
     this.textRef.x = 50;
     this.textRef.style.fill = new TRgba(128, 128, 128).hexNumber();
     this.textRef.style.fontSize = 36;
-    this._BackgroundRef.addChild(this.textRef);
+    this._BackgroundGraphicsRef.addChild(this.textRef);
 
-    this._BackgroundRef.drawRoundedRect(
+    this._BackgroundGraphicsRef.drawRoundedRect(
       NODE_MARGIN,
       0,
       macroInputBlockSize,
@@ -106,7 +106,7 @@ export class Macro extends PPNode {
       this.getRoundedCorners() ? NODE_CORNERRADIUS : 0
     );
 
-    this._BackgroundRef.drawRoundedRect(
+    this._BackgroundGraphicsRef.drawRoundedRect(
       NODE_MARGIN + this.nodeWidth - macroOutputBlockSize,
       0,
       macroOutputBlockSize,
@@ -114,9 +114,12 @@ export class Macro extends PPNode {
       this.getRoundedCorners() ? NODE_CORNERRADIUS : 0
     );
 
-    this._BackgroundRef.lineStyle(3, this.getColor().multiply(0.8).hexNumber());
+    this._BackgroundGraphicsRef.lineStyle(
+      3,
+      this.getColor().multiply(0.8).hexNumber()
+    );
     drawDottedLine(
-      this._BackgroundRef,
+      this._BackgroundGraphicsRef,
       macroInputBlockSize + 5,
       5,
       this.nodeWidth - macroOutputBlockSize + 10,
@@ -124,7 +127,7 @@ export class Macro extends PPNode {
       5
     );
     drawDottedLine(
-      this._BackgroundRef,
+      this._BackgroundGraphicsRef,
       macroInputBlockSize + 5,
       this.nodeHeight,
       this.nodeWidth - macroOutputBlockSize + 10,
@@ -132,7 +135,7 @@ export class Macro extends PPNode {
       5
     );
 
-    this._BackgroundRef.endFill();
+    this._BackgroundGraphicsRef.endFill();
   }
 
   public getInputSocketXPos(): number {

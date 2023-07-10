@@ -59,9 +59,7 @@ export abstract class DRAW_Base extends PPNode {
   }
 
   onNodeRemoved = (): void => {
-    const canvas = PPGraph.currentGraph.backgroundCanvas;
-
-    canvas.removeChild(this.deferredGraphics);
+    this._ForegroundRef.removeChild(this.deferredGraphics);
   };
 
   // you probably want to maintain this output in children
@@ -243,7 +241,7 @@ export abstract class DRAW_Base extends PPNode {
   }
 
   private handleDrawing(drawingFunction: any, absolutePosition: boolean): void {
-    this.removeChild(this.deferredGraphics);
+    this._ForegroundRef.removeChild(this.deferredGraphics);
     if (this.shouldDraw()) {
       this.deferredGraphics = new PIXI.Container();
       drawingFunction(this.deferredGraphics, {});
@@ -251,7 +249,7 @@ export abstract class DRAW_Base extends PPNode {
         this.deferredGraphics.x -= this.x;
         this.deferredGraphics.y -= this.y;
       }
-      this.addChild(this.deferredGraphics);
+      this._ForegroundRef.addChild(this.deferredGraphics);
 
       if (this.allowMovingDirectly()) {
         this.deferredGraphics.eventMode = 'dynamic';

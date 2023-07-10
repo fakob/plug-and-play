@@ -56,9 +56,11 @@ import { JSONType } from '../nodes/datatypes/jsonType';
 
 export default class PPNode extends PIXI.Container implements Tooltipable {
   _NodeNameRef: PIXI.Text;
-  _BackgroundRef: PIXI.Graphics;
+  _BackgroundRef: PIXI.Container;
+  _BackgroundGraphicsRef: PIXI.Graphics;
   _CommentRef: PIXI.Graphics;
   _StatusesRef: PIXI.Graphics;
+  _ForegroundRef: PIXI.Container;
 
   clickedSocketRef: Socket;
   _isHovering: boolean;
@@ -162,23 +164,28 @@ export default class PPNode extends PIXI.Container implements Tooltipable {
     inputNameText.y = NODE_PADDING_TOP + NODE_HEADER_TEXTMARGIN_TOP;
     inputNameText.resolution = 8;
 
-    const background = new PIXI.Graphics();
+    const backgroundContainer = new PIXI.Container();
+    this._BackgroundRef = this.addChild(backgroundContainer);
+    this._BackgroundRef.name = 'background';
+    const backgroundGraphics = new PIXI.Graphics();
+    this._BackgroundGraphicsRef =
+      this._BackgroundRef.addChild(backgroundGraphics);
+    this._BackgroundGraphicsRef.name = 'backgroundGraphics';
 
-    this._BackgroundRef = this.addChild(background);
-    this._NodeNameRef = this.addChild(inputNameText);
-    this._CommentRef = this.addChild(new PIXI.Graphics());
-    this._StatusesRef = this.addChild(new PIXI.Graphics());
+    this._NodeNameRef = this._BackgroundRef.addChild(inputNameText);
+    this._CommentRef = this._BackgroundRef.addChild(new PIXI.Graphics());
+    this._StatusesRef = this._BackgroundRef.addChild(new PIXI.Graphics());
 
     this.updateBehaviour = this.getUpdateBehaviour();
     if (this.getShouldShowHoverActions()) {
-      this.addChild(this.updateBehaviour);
+      this._BackgroundRef.addChild(this.updateBehaviour);
     }
     this.updateBehaviour.x = NODE_MARGIN;
     this.updateBehaviour.y = -24;
 
     this.nodeSelectionHeader = new NodeHeaderClass();
     if (this.getShouldShowHoverActions()) {
-      this.addChild(this.nodeSelectionHeader);
+      this._BackgroundRef.addChild(this.nodeSelectionHeader);
     }
     this.nodeSelectionHeader.x = NODE_MARGIN + this.nodeWidth - 96;
     this.nodeSelectionHeader.y = -24;
@@ -187,6 +194,10 @@ export default class PPNode extends PIXI.Container implements Tooltipable {
     if (!this.getShowLabels()) {
       this._NodeNameRef.alpha = 0;
     }
+
+    const foregroundContainer = new PIXI.Container();
+    this._ForegroundRef = this.addChild(foregroundContainer);
+    this._ForegroundRef.name = 'foreground';
 
     // add static inputs and outputs
     this.getAllInitialSockets().forEach((IO) => {
@@ -261,7 +272,7 @@ export default class PPNode extends PIXI.Container implements Tooltipable {
   }
 
   addSocket(socket: Socket): void {
-    const socketRef = this.addChild(socket);
+    const socketRef = this._BackgroundRef.addChild(socket);
     switch (socket.socketType) {
       case SOCKET_TYPE.TRIGGER: {
         this.nodeTriggerSocketArray.push(socketRef);
@@ -604,11 +615,11 @@ export default class PPNode extends PIXI.Container implements Tooltipable {
   }
 
   public drawErrorBoundary(): void {
-    this._BackgroundRef.beginFill(
+    this._BackgroundGraphicsRef.beginFill(
       new TRgba(255, 0, 0).hexNumber(),
       this.getOpacity()
     );
-    this._BackgroundRef.drawRoundedRect(
+    this._BackgroundGraphicsRef.drawRoundedRect(
       NODE_MARGIN - 3,
       -3,
       this.nodeWidth + 6,
@@ -618,18 +629,18 @@ export default class PPNode extends PIXI.Container implements Tooltipable {
   }
 
   public drawBackground(): void {
-    this._BackgroundRef.beginFill(
+    this._BackgroundGraphicsRef.beginFill(
       this.getColor().hexNumber(),
       this.getOpacity()
     );
-    this._BackgroundRef.drawRoundedRect(
+    this._BackgroundGraphicsRef.drawRoundedRect(
       NODE_MARGIN,
       0,
       this.nodeWidth,
       this.nodeHeight,
       this.getRoundedCorners() ? NODE_CORNERRADIUS : 0
     );
-    this._BackgroundRef.endFill();
+    this._BackgroundGraphicsRef.endFill();
   }
 
   public drawTriggers(): void {
@@ -708,7 +719,7 @@ export default class PPNode extends PIXI.Container implements Tooltipable {
   public drawNodeShape(): void {
     // update selection
 
-    this._BackgroundRef.clear();
+    this._BackgroundGraphicsRef.clear();
     if (!this.successfullyExecuted) {
       this.drawErrorBoundary();
     }
@@ -913,7 +924,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     // const iterations = 30;
     // const interval = 16.67;
     const activeExecution = new PIXI.Graphics();
-    this.addChild(activeExecution);
+    this._BackgroundRef.addChild(activeExecution);
     for (let i = 1; i <= iterations; i++) {
       setTimeout(() => {
         activeExecution.clear();
@@ -938,7 +949,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
         );
         activeExecution.endFill();
         if (i == iterations) {
-          this.removeChild(activeExecution);
+          this._BackgroundRef.removeChild(activeExecution);
         }
       }, i * interval);
     }

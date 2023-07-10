@@ -41,7 +41,7 @@ export class Label extends PPNode {
     this.PIXITextStyle = new PIXI.TextStyle();
     this.PIXITextStyle.breakWords = true;
     const basicText = new PIXI.Text(labelDefaultText, this.PIXITextStyle);
-    this.PIXIText = this.addChild(basicText);
+    this.PIXIText = this._ForegroundRef.addChild(basicText);
     this.PIXIVisible();
   }
 

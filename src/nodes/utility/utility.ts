@@ -76,12 +76,12 @@ export class Reroute extends PPNode {
   }
 
   public drawBackground(): void {
-    this._BackgroundRef.beginFill(
+    this._BackgroundGraphicsRef.beginFill(
       this.getColor().hexNumber(),
       this.getOpacity()
     );
-    this._BackgroundRef.drawCircle(16, 0, 14.5);
-    this._BackgroundRef.endFill();
+    this._BackgroundGraphicsRef.drawCircle(16, 0, 14.5);
+    this._BackgroundGraphicsRef.endFill();
   }
 
   protected async onExecute(

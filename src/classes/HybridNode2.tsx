@@ -251,11 +251,11 @@ export default abstract class HybridNode2 extends PPNode {
   }
 
   public drawBackground(): void {
-    this._BackgroundRef.beginFill(
+    this._BackgroundGraphicsRef.beginFill(
       this.getColor().hexNumber(),
       this.getOpacity(),
     );
-    this._BackgroundRef.drawRoundedRect(
+    this._BackgroundGraphicsRef.drawRoundedRect(
       NODE_MARGIN,
       0,
       this.nodeWidth,
@@ -271,7 +271,7 @@ export default abstract class HybridNode2 extends PPNode {
     } else {
       this.shadowPlane.visible = false;
     }
-    this._BackgroundRef.endFill();
+    this._BackgroundGraphicsRef.endFill();
   }
 
   onNodeRemoved = (): void => {
