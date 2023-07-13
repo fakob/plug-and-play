@@ -28,36 +28,39 @@ export default class SelectionHeaderClass extends PIXI.Container {
   constructor() {
     super();
 
-    this.alignLeft = new Button(ALIGNLEFT_TEXTURE);
+    this.alignLeft = new Button(ALIGNLEFT_TEXTURE, 16);
     this.alignLeft.addEventListener('pointerdown', (e) =>
       this.onPointerDown(e, 'alignLeft')
     );
-    this.alignCenterHorizontal = new Button(ALIGNCENTERHORIZONTALLY_TEXTURE);
+    this.alignCenterHorizontal = new Button(
+      ALIGNCENTERHORIZONTALLY_TEXTURE,
+      16
+    );
     this.alignCenterHorizontal.addEventListener('pointerdown', (e) =>
       this.onPointerDown(e, 'alignCenterHorizontal')
     );
-    this.alignRight = new Button(ALIGNRIGHT_TEXTURE);
+    this.alignRight = new Button(ALIGNRIGHT_TEXTURE, 16);
     this.alignRight.addEventListener('pointerdown', (e) =>
       this.onPointerDown(e, 'alignRight')
     );
 
-    this.alignTop = new Button(ALIGNTOP_TEXTURE);
+    this.alignTop = new Button(ALIGNTOP_TEXTURE, 16);
     this.alignTop.addEventListener('pointerdown', (e) =>
       this.onPointerDown(e, 'alignTop')
     );
-    this.alignCenterVertical = new Button(ALIGNCENTERVERTICALLY_TEXTURE);
+    this.alignCenterVertical = new Button(ALIGNCENTERVERTICALLY_TEXTURE, 16);
     this.alignCenterVertical.addEventListener('pointerdown', (e) =>
       this.onPointerDown(e, 'alignCenterVertical')
     );
-    this.alignBottom = new Button(ALIGNBOTTOM_TEXTURE);
+    this.alignBottom = new Button(ALIGNBOTTOM_TEXTURE, 16);
     this.alignBottom.addEventListener('pointerdown', (e) =>
       this.onPointerDown(e, 'alignBottom')
     );
-    this.distributeVertical = new Button(DISTRIBUTEVERTICAL_TEXTURE);
+    this.distributeVertical = new Button(DISTRIBUTEVERTICAL_TEXTURE, 16);
     this.distributeVertical.addEventListener('pointerdown', (e) =>
       this.onPointerDown(e, 'distributeVertical')
     );
-    this.distributeHorizontal = new Button(DISTRIBUTEHORIZONTAL_TEXTURE);
+    this.distributeHorizontal = new Button(DISTRIBUTEHORIZONTAL_TEXTURE, 16);
     this.distributeHorizontal.addEventListener('pointerdown', (e) =>
       this.onPointerDown(e, 'distributeHorizontal')
     );
@@ -72,13 +75,13 @@ export default class SelectionHeaderClass extends PIXI.Container {
     this.addChild(this.distributeVertical);
 
     this.alignLeft.x = 0;
-    this.alignCenterHorizontal.x = 24;
-    this.alignRight.x = 48;
-    this.alignTop.x = 72;
-    this.alignCenterVertical.x = 96;
-    this.alignBottom.x = 120;
-    this.distributeVertical.x = 144;
-    this.distributeHorizontal.x = 168;
+    this.alignCenterHorizontal.x = 20;
+    this.alignRight.x = 40;
+    this.alignTop.x = 68;
+    this.alignCenterVertical.x = 88;
+    this.alignBottom.x = 108;
+    this.distributeVertical.x = 136;
+    this.distributeHorizontal.x = 156;
   }
 
   async onPointerDown(

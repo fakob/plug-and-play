@@ -10,14 +10,14 @@ export default class Button extends PIXI.Sprite {
   up: boolean;
   down: boolean;
 
-  constructor(imageURL: string) {
+  constructor(imageURL: string, size = 24) {
     super(PIXI.Texture.from(imageURL));
 
     this.eventMode = 'static';
     this.cursor = 'pointer';
     this.alpha = 0.5;
-    this.width = 24;
-    this.height = 24;
+    this.width = size;
+    this.height = size;
     this.tint = new PIXI.Color(
       Color(RANDOMMAINCOLOR).darken(0.7).hex()
     ).toNumber();
