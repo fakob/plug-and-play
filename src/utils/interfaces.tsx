@@ -110,6 +110,16 @@ export type NodeStatus = {
 
 export type TNodeSource = (typeof NODE_SOURCE)[keyof typeof NODE_SOURCE];
 
+export type TAlignAndDistribute =
+  | 'alignLeft'
+  | 'alignCenterHorizontal'
+  | 'alignRight'
+  | 'alignTop'
+  | 'alignCenterVertical'
+  | 'alignBottom'
+  | 'distributeHorizontal'
+  | 'distributeVertical';
+
 export class TRgba {
   r = 0;
   g = 0;

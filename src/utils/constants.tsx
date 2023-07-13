@@ -109,14 +109,8 @@ export const errorColor = TRgba.fromString('#B71C1C');
 export const successColor = TRgba.fromString('#4BB543');
 
 export const PLUGANDPLAY_ICON = '../assets/PlugAndPlayIcon-transparent.svg';
-export const DRAWER30_ICON = '../assets/Drawer30_Icon.svg';
-export const DRAWER50_ICON = '../assets/Drawer50_Icon.svg';
-export const DRAWER60_ICON = '../assets/Drawer60_Icon.svg';
 export const DRAWER30M_ICON = '../assets/Drawer30M_Icon.svg';
 export const DRAWER60M_ICON = '../assets/Drawer60M_Icon.svg';
-export const DRAWER90_ICON = '../assets/Drawer90_Icon.svg';
-export const WIDEN_ICON = '../assets/Widen_Icon.svg';
-export const NARROW_ICON = '../assets/Narrow_Icon.svg';
 
 export const CANVAS_BACKGROUND_TEXTURE =
   '../assets/Pixel_grid_4000x2000.svg.png';
@@ -156,6 +150,14 @@ export const UPDATEBEHAVIOURHEADER_UPDATE =
 export const UPDATEBEHAVIOURHEADER_NOUPDATE =
   '../assets/UpdateBehaviour_NoUpdate.png';
 export const EDIT_ICON = '../assets/Tune.png';
+export const ALIGNLEFT_TEXTURE = '../assets/AlignLeft_Icon.png';
+export const ALIGNCENTERHORIZONTALLY_TEXTURE =
+  '../assets/AlignCenterHorizontally_Icon.png';
+export const ALIGNRIGHT_TEXTURE = '../assets/AlignRight_Icon.png';
+export const ALIGNTOP_TEXTURE = '../assets/AlignTop_Icon.png';
+export const ALIGNCENTERVERTICALLY_TEXTURE =
+  '../assets/AlignCenterVertically_Icon.png';
+export const ALIGNBOTTOM_TEXTURE = '../assets/AlignBottom_Icon.png';
 
 export const NODE_TEXTSTYLE = new TextStyle({
   fontSize: 13,

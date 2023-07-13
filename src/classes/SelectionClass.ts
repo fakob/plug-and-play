@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import * as PIXI from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
-
+import SelectionHeaderClass from './SelectionHeaderClass';
 import PPNode from './NodeClass';
 import {
   NODE_MARGIN,
@@ -27,6 +27,7 @@ export default class PPSelection extends PIXI.Container {
   selectionGraphics: PIXI.Graphics;
   protected singleSelectionsGraphics: PIXI.Graphics;
   protected scaleHandle: ScaleHandle;
+  selectionHeader: SelectionHeaderClass;
 
   protected sourcePoint: PIXI.Point;
   private nodePosBeforeMovement: PIXI.Point;
@@ -61,6 +62,9 @@ export default class PPSelection extends PIXI.Container {
     this.selectionGraphics = new PIXI.Graphics();
     this.selectionGraphics.name = 'selectionGraphics';
     this.addChild(this.selectionGraphics);
+
+    this.selectionHeader = new SelectionHeaderClass();
+    this.selectionGraphics.addChild(this.selectionHeader);
 
     this.scaleHandle = new ScaleHandle(this);
     this.addChild(this.scaleHandle);
@@ -369,6 +373,9 @@ export default class PPSelection extends PIXI.Container {
       selectionBounds.height
     );
     this.selectionGraphics.endFill();
+
+    this.selectionHeader.x = selectionBounds.x + selectionBounds.width - 144;
+    this.selectionHeader.y = selectionBounds.y - 24;
 
     this.scaleHandle.x =
       selectionBounds.x + selectionBounds.width - SCALEHANDLE_SIZE / 2;

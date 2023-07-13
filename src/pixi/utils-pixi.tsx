@@ -44,9 +44,9 @@ export const getObjectsInsideBounds = (
   selectionRect: PIXI.Rectangle
 ): PPNode[] => {
   // console.log(selectionRect);
-  return nodes.filter(node => node.selectableViaBounds()).filter((node) =>
-    doRectsIntersect(selectionRect, node.getBounds())
-  );
+  return nodes
+    .filter((node) => node.selectableViaBounds())
+    .filter((node) => doRectsIntersect(selectionRect, node.getBounds()));
 };
 
 export const doRectsIntersect = (
@@ -55,12 +55,12 @@ export const doRectsIntersect = (
 ): boolean => {
   return (
     Math.max(firstRect.x, secondRect.x) <
-    Math.min(
-      firstRect.x + firstRect.width,
-      secondRect.x + secondRect.width
-    ) &&
+      Math.min(
+        firstRect.x + firstRect.width,
+        secondRect.x + secondRect.width
+      ) &&
     Math.max(firstRect.y, secondRect.y) <
-    Math.min(firstRect.y + firstRect.height, secondRect.y + secondRect.height)
+      Math.min(firstRect.y + firstRect.height, secondRect.y + secondRect.height)
   );
 };
 
