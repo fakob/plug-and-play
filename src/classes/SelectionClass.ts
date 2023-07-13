@@ -268,6 +268,7 @@ export default class PPSelection extends PIXI.Container {
     this.resetGraphics(this.selectionIntendGraphics);
     this.resetGraphics(this.singleSelectionsGraphics);
     this.resetGraphics(this.selectionGraphics);
+    this.selectionHeader.visible = false;
     this.scaleHandle.visible = false;
   }
 
@@ -374,8 +375,8 @@ export default class PPSelection extends PIXI.Container {
     );
     this.selectionGraphics.endFill();
 
-    this.selectionHeader.x = selectionBounds.x + selectionBounds.width - 192;
-    this.selectionHeader.y = selectionBounds.y - 24;
+    this.selectionHeader.x = selectionBounds.x;
+    this.selectionHeader.y = selectionBounds.y + selectionBounds.height;
 
     this.scaleHandle.x =
       selectionBounds.x + selectionBounds.width - SCALEHANDLE_SIZE / 2;
@@ -412,12 +413,15 @@ export default class PPSelection extends PIXI.Container {
       } else {
         this.selectedNodes = nodes;
       }
-      // show scaleHandle only if there is only 1 node selected
+      // show selectionHeader if there are more than 1 node selected
+      this.selectionHeader.visible = this.selectedNodes.length !== 1;
+      // show scaleHandle if there is only 1 node selected
       this.scaleHandle.visible =
         (this.selectedNodes.length === 1 ||
           this.selectedNodes[0]?.shouldShowResizeRectangleEvenWhenMultipleNodesAreSelected()) &&
         this.selectedNodes[0]?.allowResize();
     }
+
     this.drawRectanglesFromSelection();
     if (notify) {
       InterfaceController.notifyListeners(
