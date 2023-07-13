@@ -10,6 +10,8 @@ import {
   ALIGNTOP_TEXTURE,
   ALIGNCENTERVERTICALLY_TEXTURE,
   ALIGNBOTTOM_TEXTURE,
+  DISTRIBUTEHORIZONTAL_TEXTURE,
+  DISTRIBUTEVERTICAL_TEXTURE,
 } from '../utils/constants';
 import PPNode from './NodeClass';
 
@@ -20,6 +22,8 @@ export default class SelectionHeaderClass extends PIXI.Container {
   alignTop: Button;
   alignCenterVertical: Button;
   alignBottom: Button;
+  distributeHorizontal: Button;
+  distributeVertical: Button;
 
   constructor() {
     super();
@@ -49,6 +53,14 @@ export default class SelectionHeaderClass extends PIXI.Container {
     this.alignBottom.addEventListener('pointerdown', (e) =>
       this.onPointerDown(e, 'alignBottom')
     );
+    this.distributeVertical = new Button(DISTRIBUTEVERTICAL_TEXTURE);
+    this.distributeVertical.addEventListener('pointerdown', (e) =>
+      this.onPointerDown(e, 'distributeVertical')
+    );
+    this.distributeHorizontal = new Button(DISTRIBUTEHORIZONTAL_TEXTURE);
+    this.distributeHorizontal.addEventListener('pointerdown', (e) =>
+      this.onPointerDown(e, 'distributeHorizontal')
+    );
 
     this.addChild(this.alignLeft);
     this.addChild(this.alignCenterHorizontal);
@@ -56,6 +68,8 @@ export default class SelectionHeaderClass extends PIXI.Container {
     this.addChild(this.alignTop);
     this.addChild(this.alignCenterVertical);
     this.addChild(this.alignBottom);
+    this.addChild(this.distributeHorizontal);
+    this.addChild(this.distributeVertical);
 
     this.alignLeft.x = 0;
     this.alignCenterHorizontal.x = 24;
@@ -63,6 +77,8 @@ export default class SelectionHeaderClass extends PIXI.Container {
     this.alignTop.x = 72;
     this.alignCenterVertical.x = 96;
     this.alignBottom.x = 120;
+    this.distributeVertical.x = 144;
+    this.distributeHorizontal.x = 168;
   }
 
   async onPointerDown(
@@ -83,13 +99,18 @@ export default class SelectionHeaderClass extends PIXI.Container {
       maxY = Math.max(maxY, node.y + node.height);
     });
 
-    const oldNodePositions = selection.selectedNodes.map((node) => ({
+    const nodeIDsAndPos = selection.selectedNodes.map((node) => ({
+      id: node.id,
       x: node.x,
       y: node.y,
     }));
-    const nodeIDs = selection.selectedNodes.map((node) => node.id);
 
-    function alignNodes(node: PPNode, alignAndDistribute: TAlignAndDistribute) {
+    function alignNodes(
+      node: PPNode,
+      alignAndDistribute: TAlignAndDistribute,
+      interval: number,
+      index: number
+    ) {
       switch (alignAndDistribute) {
         case 'alignLeft':
           node.x = minX;
@@ -109,23 +130,47 @@ export default class SelectionHeaderClass extends PIXI.Container {
         case 'alignBottom':
           node.y = maxY - node.height;
           break;
+        case 'distributeHorizontal':
+          node.x = minX + interval * index;
+          break;
+        case 'distributeVertical':
+          node.y = minY + interval * index;
+          break;
       }
       node.updateConnectionPosition();
     }
 
+    const calcInterval = (min, max, length) => (max - min) / (length - 1);
+
     const doMove = async () => {
-      nodeIDs.forEach((id) => {
-        const node = PPGraph.currentGraph.nodes[id];
-        console.log(alignAndDistribute);
-        alignNodes(node, alignAndDistribute);
+      const sortedIDsAndPos = nodeIDsAndPos.sort((a, b) => {
+        return alignAndDistribute === 'distributeVertical'
+          ? a.y - b.y
+          : a.x - b.x;
       });
+
+      const lastNode =
+        PPGraph.currentGraph.nodes[
+          sortedIDsAndPos[sortedIDsAndPos.length - 1].id
+        ];
+
+      const interval =
+        alignAndDistribute === 'distributeVertical'
+          ? calcInterval(minY, maxY - lastNode.height, nodeIDsAndPos.length)
+          : calcInterval(minX, maxX - lastNode.width, nodeIDsAndPos.length);
+
+      sortedIDsAndPos.forEach((idAndPos, index) => {
+        const node = PPGraph.currentGraph.nodes[idAndPos.id];
+        alignNodes(node, alignAndDistribute, interval, index);
+      });
+
       selection.drawRectanglesFromSelection();
     };
 
     const undoMove = async () => {
-      nodeIDs.forEach((id, index) => {
-        const node = PPGraph.currentGraph.nodes[id];
-        const oldPosition = oldNodePositions[index];
+      nodeIDsAndPos.forEach((idAndPos, index) => {
+        const node = PPGraph.currentGraph.nodes[idAndPos.id];
+        const oldPosition = nodeIDsAndPos[index];
         node.setPosition(oldPosition.x, oldPosition.y);
       });
       selection.drawRectanglesFromSelection();

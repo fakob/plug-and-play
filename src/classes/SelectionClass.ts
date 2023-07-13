@@ -374,7 +374,7 @@ export default class PPSelection extends PIXI.Container {
     );
     this.selectionGraphics.endFill();
 
-    this.selectionHeader.x = selectionBounds.x + selectionBounds.width - 144;
+    this.selectionHeader.x = selectionBounds.x + selectionBounds.width - 192;
     this.selectionHeader.y = selectionBounds.y - 24;
 
     this.scaleHandle.x =

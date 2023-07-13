@@ -117,8 +117,8 @@ export type TAlignAndDistribute =
   | 'alignTop'
   | 'alignCenterVertical'
   | 'alignBottom'
-  | 'distributeHorizontal'
-  | 'distributeVertical';
+  | 'distributeVertical'
+  | 'distributeHorizontal';
 
 export class TRgba {
   r = 0;

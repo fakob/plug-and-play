@@ -158,6 +158,10 @@ export const ALIGNTOP_TEXTURE = '../assets/AlignTop_Icon.png';
 export const ALIGNCENTERVERTICALLY_TEXTURE =
   '../assets/AlignCenterVertically_Icon.png';
 export const ALIGNBOTTOM_TEXTURE = '../assets/AlignBottom_Icon.png';
+export const DISTRIBUTEHORIZONTAL_TEXTURE =
+  '../assets/DistributeHorizontally_Icon.png';
+export const DISTRIBUTEVERTICAL_TEXTURE =
+  '../assets/DistributeVertically_Icon.png';
 
 export const NODE_TEXTSTYLE = new TextStyle({
   fontSize: 13,
