@@ -102,11 +102,15 @@ export default class SelectionHeaderClass extends PIXI.Container {
       maxY = Math.max(maxY, node.y + node.height);
     });
 
-    const nodeIDsAndPos = selection.selectedNodes.map((node) => ({
+    const nodeIDsPos = selection.selectedNodes.map((node) => ({
       id: node.id,
       x: node.x,
       y: node.y,
+      width: node.width,
+      height: node.height,
     }));
+
+    let incrementPos = 0;
 
     function alignNodes(
       node: PPNode,
@@ -134,46 +138,50 @@ export default class SelectionHeaderClass extends PIXI.Container {
           node.y = maxY - node.height;
           break;
         case 'distributeHorizontal':
-          node.x = minX + interval * index;
+          node.x = index === 0 ? minX : incrementPos + interval;
+          incrementPos = node.x + node.width;
           break;
         case 'distributeVertical':
-          node.y = minY + interval * index;
+          node.y = index === 0 ? minY : incrementPos + interval;
+          incrementPos = node.y + node.height;
           break;
       }
       node.updateConnectionPosition();
     }
 
-    const calcInterval = (min, max, length) => (max - min) / (length - 1);
-
     const doMove = async () => {
-      const sortedIDsAndPos = nodeIDsAndPos.sort((a, b) => {
+      const calcInterval = (min, max, sum, length) =>
+        (max - min - sum) / (length - 1);
+
+      const sortedIDsAndPos = nodeIDsPos.sort((a, b) => {
         return alignAndDistribute === 'distributeVertical'
           ? a.y - b.y
           : a.x - b.x;
       });
 
-      const lastNode =
-        PPGraph.currentGraph.nodes[
-          sortedIDsAndPos[sortedIDsAndPos.length - 1].id
-        ];
+      const sumOfWidthHeight =
+        alignAndDistribute === 'distributeVertical'
+          ? sortedIDsAndPos.reduce((n, { height }) => n + height, 0)
+          : sortedIDsAndPos.reduce((n, { width }) => n + width, 0);
 
       const interval =
         alignAndDistribute === 'distributeVertical'
-          ? calcInterval(minY, maxY - lastNode.height, nodeIDsAndPos.length)
-          : calcInterval(minX, maxX - lastNode.width, nodeIDsAndPos.length);
+          ? calcInterval(minY, maxY, sumOfWidthHeight, nodeIDsPos.length)
+          : calcInterval(minX, maxX, sumOfWidthHeight, nodeIDsPos.length);
 
       sortedIDsAndPos.forEach((idAndPos, index) => {
         const node = PPGraph.currentGraph.nodes[idAndPos.id];
         alignNodes(node, alignAndDistribute, interval, index);
       });
+      incrementPos = 0; // reset
 
       selection.drawRectanglesFromSelection();
     };
 
     const undoMove = async () => {
-      nodeIDsAndPos.forEach((idAndPos, index) => {
+      nodeIDsPos.forEach((idAndPos, index) => {
         const node = PPGraph.currentGraph.nodes[idAndPos.id];
-        const oldPosition = nodeIDsAndPos[index];
+        const oldPosition = nodeIDsPos[index];
         node.setPosition(oldPosition.x, oldPosition.y);
       });
       selection.drawRectanglesFromSelection();

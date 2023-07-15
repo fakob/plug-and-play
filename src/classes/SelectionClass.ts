@@ -375,7 +375,7 @@ export default class PPSelection extends PIXI.Container {
     );
     this.selectionGraphics.endFill();
 
-    this.selectionHeader.x = selectionBounds.x + selectionBounds.width - 172;
+    this.selectionHeader.x = selectionBounds.x;
     this.selectionHeader.y = selectionBounds.y + selectionBounds.height + 4;
 
     this.scaleHandle.x =
@@ -414,7 +414,7 @@ export default class PPSelection extends PIXI.Container {
         this.selectedNodes = nodes;
       }
       // show selectionHeader if there are more than 1 node selected
-      this.selectionHeader.visible = this.selectedNodes.length !== 1;
+      this.selectionHeader.visible = this.selectedNodes.length > 1;
       // show scaleHandle if there is only 1 node selected
       this.scaleHandle.visible =
         (this.selectedNodes.length === 1 ||
