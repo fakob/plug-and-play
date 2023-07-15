@@ -328,7 +328,7 @@ export default class PPSelection extends PIXI.Container {
       node.setPosition(x, y);
     }
 
-    const doMove = async () => {
+    const doAlign = async () => {
       const calcInterval = (min, max, sum, length) =>
         (max - min - sum) / (length - 1);
 
@@ -357,7 +357,7 @@ export default class PPSelection extends PIXI.Container {
       selection.drawRectanglesFromSelection();
     };
 
-    const undoMove = async () => {
+    const undoAlign = async () => {
       nodeIDsPos.forEach((idAndPos, index) => {
         const node = PPGraph.currentGraph.nodes[idAndPos.id];
         const oldPosition = nodeIDsPos[index];
@@ -366,7 +366,7 @@ export default class PPSelection extends PIXI.Container {
       selection.drawRectanglesFromSelection();
     };
 
-    await ActionHandler.performAction(doMove, undoMove, 'Align node(s)');
+    await ActionHandler.performAction(doAlign, undoAlign, 'Align node(s)');
   }
 
   resetAllGraphics(): void {
@@ -518,7 +518,7 @@ export default class PPSelection extends PIXI.Container {
       } else {
         this.selectedNodes = nodes;
       }
-      // show selectionHeader if there are more than 1 node selected
+      // show selectionHeader if there are more than 1 nodes selected
       this.selectionHeader.visible = this.selectedNodes.length > 1;
       // show scaleHandle if there is only 1 node selected
       this.scaleHandle.visible =

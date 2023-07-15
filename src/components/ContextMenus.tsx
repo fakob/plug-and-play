@@ -579,16 +579,18 @@ export const NodeContextMenu = (props) => {
           </ListItemIcon>
           <ListItemText>Add Trigger Input</ListItemText>
         </MenuItem>
-        <MenuItem
-          onClick={() => {
-            PPGraph.currentGraph.extractToMacro();
-          }}
-        >
-          <ListItemIcon>
-            <AddIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Extract to Macro</ListItemText>
-        </MenuItem>
+        {selectionCount > 1 && (
+          <MenuItem
+            onClick={() => {
+              PPGraph.currentGraph.extractToMacro();
+            }}
+          >
+            <ListItemIcon>
+              <AddIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Extract to Macro</ListItemText>
+          </MenuItem>
+        )}
         {PPGraph.currentGraph && selectionCount > 0
           ? constructListOptions(
               PPGraph.currentGraph.selection.selectedNodes[0].getAdditionalRightClickOptions()
