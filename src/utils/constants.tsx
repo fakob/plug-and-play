@@ -120,8 +120,8 @@ export const errorColor = TRgba.fromString('#B71C1C');
 export const successColor = TRgba.fromString('#4BB543');
 
 export const PLUGANDPLAY_ICON = '../assets/PlugAndPlayIcon-transparent.svg';
-export const DRAWER30M_ICON = '../assets/Drawer30M_Icon.svg';
-export const DRAWER60M_ICON = '../assets/Drawer60M_Icon.svg';
+export const DRAWER30M_ICON = '../assets/Icon_Drawer30M.svg';
+export const DRAWER60M_ICON = '../assets/Icon_Drawer60M.svg';
 
 export const CANVAS_BACKGROUND_TEXTURE =
   '../assets/Pixel_grid_4000x2000.svg.png';
@@ -157,22 +157,23 @@ export const UPDATEBEHAVIOURHEADER_TEXTSTYLE = new TextStyle({
   fill: '#FFFFFF',
 });
 export const UPDATEBEHAVIOURHEADER_UPDATE =
-  '../assets/UpdateBehaviour_Update.png';
+  '../assets/Icon_UpdateBehaviour_Update.png';
 export const UPDATEBEHAVIOURHEADER_NOUPDATE =
-  '../assets/UpdateBehaviour_NoUpdate.png';
-export const EDIT_ICON = '../assets/Tune.png';
-export const ALIGNLEFT_TEXTURE = '../assets/AlignLeft_Icon.png';
+  '../assets/Icon_UpdateBehaviour_NoUpdate.png';
+export const EDIT_ICON = '../assets/Icon_Tune.png';
+
+export const ALIGNLEFT_TEXTURE = '../assets/Icon_AlignLeft.png';
 export const ALIGNCENTERHORIZONTALLY_TEXTURE =
-  '../assets/AlignCenterHorizontally_Icon.png';
-export const ALIGNRIGHT_TEXTURE = '../assets/AlignRight_Icon.png';
-export const ALIGNTOP_TEXTURE = '../assets/AlignTop_Icon.png';
+  '../assets/Icon_AlignCenterHorizontally.png';
+export const ALIGNRIGHT_TEXTURE = '../assets/Icon_AlignRight.png';
+export const ALIGNTOP_TEXTURE = '../assets/Icon_AlignTop.png';
 export const ALIGNCENTERVERTICALLY_TEXTURE =
-  '../assets/AlignCenterVertically_Icon.png';
-export const ALIGNBOTTOM_TEXTURE = '../assets/AlignBottom_Icon.png';
+  '../assets/Icon_AlignCenterVertically.png';
+export const ALIGNBOTTOM_TEXTURE = '../assets/Icon_AlignBottom.png';
 export const DISTRIBUTEHORIZONTAL_TEXTURE =
-  '../assets/DistributeHorizontally_Icon.png';
+  '../assets/Icon_DistributeHorizontally.png';
 export const DISTRIBUTEVERTICAL_TEXTURE =
-  '../assets/DistributeVertically_Icon.png';
+  '../assets/Icon_DistributeVertically.png';
 
 export const NODE_TEXTSTYLE = new TextStyle({
   fontSize: 13,
@@ -227,9 +228,10 @@ export const SELECTION_COLOR_HEX = new PIXI.Color(
 
 export const EMPTY_TEXTURE = '../assets/Empty.png';
 
-export const SELECTION_DOWNSTREAM_TEXTURE = '../assets/SelectDownstream.png';
-export const SELECTION_UPSTREAM_TEXTURE = '../assets/SelectUpstream.png';
-export const SELECTION_WHOLE_TEXTURE = '../assets/SelectWhole.png';
+export const SELECTION_DOWNSTREAM_TEXTURE =
+  '../assets/Icon_SelectDownstream.png';
+export const SELECTION_UPSTREAM_TEXTURE = '../assets/Icon_SelectUpstream.png';
+export const SELECTION_WHOLE_TEXTURE = '../assets/Icon_SelectWhole.png';
 
 export const NOTE_TEXTURE = '../assets/Note-white.png';
 export const NOTE_FONT = '../assets/Arial-normal-black.fnt';
