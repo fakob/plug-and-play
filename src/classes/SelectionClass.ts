@@ -4,12 +4,13 @@ import { Viewport } from 'pixi-viewport';
 import SelectionHeaderClass from './SelectionHeaderClass';
 import PPNode from './NodeClass';
 import {
+  ALIGNOPTIONS,
   NODE_MARGIN,
   SCALEHANDLE_SIZE,
   SELECTION_COLOR_HEX,
   WHITE_HEX,
 } from '../utils/constants';
-import { TAlignAndDistribute } from '../utils/interfaces';
+import { TAlignOptions } from '../utils/interfaces';
 import { getObjectsInsideBounds } from '../pixi/utils-pixi';
 import {
   getCurrentCursorPosition,
@@ -265,9 +266,7 @@ export default class PPSelection extends PIXI.Container {
     this.drawRectanglesFromSelection();
   }
 
-  async action_alignNodes(
-    alignAndDistribute: TAlignAndDistribute
-  ): Promise<void> {
+  async action_alignNodes(alignAndDistribute: TAlignOptions): Promise<void> {
     const selection = PPGraph.currentGraph.selection;
     let minX = Number.MAX_VALUE;
     let minY = Number.MAX_VALUE;
@@ -292,36 +291,36 @@ export default class PPSelection extends PIXI.Container {
 
     function alignNode(
       node: PPNode,
-      alignAndDistribute: TAlignAndDistribute,
+      alignAndDistribute: TAlignOptions,
       interval: number,
       index: number
     ) {
       let x;
       let y;
       switch (alignAndDistribute) {
-        case 'alignLeft':
+        case ALIGNOPTIONS.ALIGN_LEFT:
           x = minX;
           break;
-        case 'alignCenterHorizontal':
+        case ALIGNOPTIONS.ALIGN_CENTER_HORIZONTAL:
           x = minX + (maxX - minX) / 2 - node.width / 2;
           break;
-        case 'alignRight':
+        case ALIGNOPTIONS.ALIGN_RIGHT:
           x = maxX - node.width;
           break;
-        case 'alignTop':
+        case ALIGNOPTIONS.ALIGN_TOP:
           y = minY;
           break;
-        case 'alignCenterVertical':
+        case ALIGNOPTIONS.ALIGN_CENTER_VERTICAL:
           y = minY + (maxY - minY) / 2 - node.height / 2;
           break;
-        case 'alignBottom':
+        case ALIGNOPTIONS.ALIGN_BOTTOM:
           y = maxY - node.height;
           break;
-        case 'distributeHorizontal':
+        case ALIGNOPTIONS.DISTRIBUTE_HORIZONTAL:
           x = index === 0 ? minX : incrementPos + interval;
           incrementPos = x + node.width;
           break;
-        case 'distributeVertical':
+        case ALIGNOPTIONS.DISTRIBUTE_VERTICAL:
           y = index === 0 ? minY : incrementPos + interval;
           incrementPos = y + node.height;
           break;
@@ -334,18 +333,18 @@ export default class PPSelection extends PIXI.Container {
         (max - min - sum) / (length - 1);
 
       const sortedIDsAndPos = nodeIDsPos.sort((a, b) => {
-        return alignAndDistribute === 'distributeVertical'
+        return alignAndDistribute === ALIGNOPTIONS.DISTRIBUTE_VERTICAL
           ? a.y - b.y
           : a.x - b.x;
       });
 
       const sumOfWidthHeight =
-        alignAndDistribute === 'distributeVertical'
+        alignAndDistribute === ALIGNOPTIONS.DISTRIBUTE_VERTICAL
           ? sortedIDsAndPos.reduce((n, { height }) => n + height, 0)
           : sortedIDsAndPos.reduce((n, { width }) => n + width, 0);
 
       const interval =
-        alignAndDistribute === 'distributeVertical'
+        alignAndDistribute === ALIGNOPTIONS.DISTRIBUTE_VERTICAL
           ? calcInterval(minY, maxY, sumOfWidthHeight, nodeIDsPos.length)
           : calcInterval(minX, maxX, sumOfWidthHeight, nodeIDsPos.length);
 

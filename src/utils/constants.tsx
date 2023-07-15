@@ -27,6 +27,17 @@ export const GESTUREMODE = {
   AUTO: 'Auto detect',
 } as const;
 
+export const ALIGNOPTIONS = {
+  ALIGN_LEFT: 'Align left',
+  ALIGN_CENTER_HORIZONTAL: 'Align center horizontal',
+  ALIGN_RIGHT: 'Align right',
+  ALIGN_TOP: 'Align top',
+  ALIGN_CENTER_VERTICAL: 'Align center vertical',
+  ALIGN_BOTTOM: 'Align bottom',
+  DISTRIBUTE_VERTICAL: 'Distribute vertical',
+  DISTRIBUTE_HORIZONTAL: 'Distribute horizontal',
+} as const;
+
 // old node color #C1CADF
 export const COLOR = [
   '#E1547D',
