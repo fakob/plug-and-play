@@ -118,35 +118,37 @@ export default class SelectionHeaderClass extends PIXI.Container {
       interval: number,
       index: number
     ) {
+      let x;
+      let y;
       switch (alignAndDistribute) {
         case 'alignLeft':
-          node.x = minX;
+          x = minX;
           break;
         case 'alignCenterHorizontal':
-          node.x = minX + (maxX - minX) / 2 - node.width / 2;
+          x = minX + (maxX - minX) / 2 - node.width / 2;
           break;
         case 'alignRight':
-          node.x = maxX - node.width;
+          x = maxX - node.width;
           break;
         case 'alignTop':
-          node.y = minY;
+          y = minY;
           break;
         case 'alignCenterVertical':
-          node.y = minY + (maxY - minY) / 2 - node.height / 2;
+          y = minY + (maxY - minY) / 2 - node.height / 2;
           break;
         case 'alignBottom':
-          node.y = maxY - node.height;
+          y = maxY - node.height;
           break;
         case 'distributeHorizontal':
-          node.x = index === 0 ? minX : incrementPos + interval;
-          incrementPos = node.x + node.width;
+          x = index === 0 ? minX : incrementPos + interval;
+          incrementPos = x + node.width;
           break;
         case 'distributeVertical':
-          node.y = index === 0 ? minY : incrementPos + interval;
-          incrementPos = node.y + node.height;
+          y = index === 0 ? minY : incrementPos + interval;
+          incrementPos = y + node.height;
           break;
       }
-      node.updateConnectionPosition();
+      node.setPosition(x, y);
     }
 
     const doMove = async () => {

@@ -461,8 +461,13 @@ export default class PPNode extends PIXI.Container {
   }
 
   public setPosition(x: number, y: number, isRelative = false): void {
-    this.x = isRelative ? this.x + x : x;
-    this.y = isRelative ? this.y + y : y;
+    if (isRelative) {
+      this.x = this.x + (x ?? 0);
+      this.y = this.y + (y ?? 0);
+    } else {
+      this.x = x ?? this.x;
+      this.y = y ?? this.y;
+    }
 
     this.updateConnectionPosition();
 
@@ -1079,7 +1084,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     );
   }
 
-  public async invokeMacro(name : string, args : any[]): Promise<any> {
+  public async invokeMacro(name: string, args: any[]): Promise<any> {
     return await PPGraph.currentGraph.invokeMacro(name, args);
   }
 
