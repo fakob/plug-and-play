@@ -31,8 +31,21 @@ import SensorsIcon from '@mui/icons-material/Sensors';
 import MouseIcon from '@mui/icons-material/Mouse';
 import SwipeIcon from '@mui/icons-material/Swipe';
 import PPSocket from './../classes/SocketClass';
-import { GESTUREMODE, CONTEXTMENU_WIDTH } from '../utils/constants';
+import {
+  ALIGNOPTIONS,
+  ALIGNLEFT_TEXTURE,
+  ALIGNCENTERHORIZONTALLY_TEXTURE,
+  ALIGNRIGHT_TEXTURE,
+  ALIGNTOP_TEXTURE,
+  ALIGNCENTERVERTICALLY_TEXTURE,
+  ALIGNBOTTOM_TEXTURE,
+  CONTEXTMENU_WIDTH,
+  DISTRIBUTEHORIZONTAL_TEXTURE,
+  DISTRIBUTEVERTICAL_TEXTURE,
+  GESTUREMODE,
+} from '../utils/constants';
 import { isPhone } from '../utils/utils';
+import styles from '../utils/style.module.css';
 import PPGraph from '../classes/GraphClass';
 import PPStorage from '../PPStorage';
 
@@ -372,7 +385,68 @@ function constructListOptions(options: any): any {
   });
 }
 
+function alignOptions(): any {
+  return [
+    <AlignOptionMenuItem
+      image={ALIGNLEFT_TEXTURE}
+      key={ALIGNOPTIONS.ALIGN_LEFT}
+      alignOption={ALIGNOPTIONS.ALIGN_LEFT}
+    />,
+    <AlignOptionMenuItem
+      image={ALIGNCENTERHORIZONTALLY_TEXTURE}
+      key={ALIGNOPTIONS.ALIGN_CENTER_HORIZONTAL}
+      alignOption={ALIGNOPTIONS.ALIGN_CENTER_HORIZONTAL}
+    />,
+    <AlignOptionMenuItem
+      image={ALIGNRIGHT_TEXTURE}
+      key={ALIGNOPTIONS.ALIGN_RIGHT}
+      alignOption={ALIGNOPTIONS.ALIGN_RIGHT}
+    />,
+    <AlignOptionMenuItem
+      image={ALIGNTOP_TEXTURE}
+      key={ALIGNOPTIONS.ALIGN_TOP}
+      alignOption={ALIGNOPTIONS.ALIGN_TOP}
+    />,
+    <AlignOptionMenuItem
+      image={ALIGNCENTERVERTICALLY_TEXTURE}
+      key={ALIGNOPTIONS.ALIGN_CENTER_VERTICAL}
+      alignOption={ALIGNOPTIONS.ALIGN_CENTER_VERTICAL}
+    />,
+    <AlignOptionMenuItem
+      image={ALIGNBOTTOM_TEXTURE}
+      key={ALIGNOPTIONS.ALIGN_BOTTOM}
+      alignOption={ALIGNOPTIONS.ALIGN_BOTTOM}
+    />,
+    <AlignOptionMenuItem
+      image={DISTRIBUTEVERTICAL_TEXTURE}
+      key={ALIGNOPTIONS.DISTRIBUTE_VERTICAL}
+      alignOption={ALIGNOPTIONS.DISTRIBUTE_VERTICAL}
+    />,
+    <AlignOptionMenuItem
+      image={DISTRIBUTEHORIZONTAL_TEXTURE}
+      key={ALIGNOPTIONS.DISTRIBUTE_HORIZONTAL}
+      alignOption={ALIGNOPTIONS.DISTRIBUTE_HORIZONTAL}
+    />,
+  ];
+}
+
+const AlignOptionMenuItem = (props) => {
+  return (
+    <MenuItem
+      onClick={() => {
+        PPGraph.currentGraph.selection.action_alignNodes(props.alignOption);
+      }}
+    >
+      <img className={styles.imageMenuIcon} src={props.image} />
+      <ListItemText>{props.alignOption}</ListItemText>
+    </MenuItem>
+  );
+};
+
 export const NodeContextMenu = (props) => {
+  const [selectionCount, setSelectionCount] = useState(
+    PPGraph.currentGraph.selection.selectedNodes.length
+  );
   useEffect(() => {
     window.addEventListener('contextmenu', handleContextMenu);
   });
@@ -382,6 +456,10 @@ export const NodeContextMenu = (props) => {
       window.removeEventListener('contextmenu', handleContextMenu);
     };
   }, []);
+
+  useEffect(() => {
+    setSelectionCount(PPGraph.currentGraph.selection.selectedNodes.length);
+  }, [PPGraph.currentGraph.selection.selectedNodes.length]);
 
   function handleContextMenu(e: Event) {
     e.preventDefault();
@@ -427,16 +505,39 @@ export const NodeContextMenu = (props) => {
           </Typography>
         </MenuItem>
         <Divider />
-        <MenuItem
-          onClick={() => {
-            props.openNodeSearch();
-          }}
-        >
-          <ListItemIcon>
-            <CachedIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Replace with ...</ListItemText>
-        </MenuItem>
+        {selectionCount === 1 && (
+          <MenuItem
+            onClick={() => {
+              props.openNodeSearch();
+            }}
+          >
+            <ListItemIcon>
+              <CachedIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Replace with ...</ListItemText>
+          </MenuItem>
+        )}
+        {selectionCount > 1 &&
+          (isPhone() ? (
+            [
+              <Divider
+                key="Align nodes "
+                variant="inset"
+                sx={{
+                  fontSize: '0.7rem',
+                  color: 'text.disabled',
+                }}
+              >
+                Align nodes
+              </Divider>,
+              alignOptions(),
+              <Divider key="Align nodes - end" variant="inset" />,
+            ]
+          ) : (
+            <SubMenuItem autoFocus={false} label="Align nodes">
+              {alignOptions()}
+            </SubMenuItem>
+          ))}
         <MenuItem
           onClick={() => {
             PPGraph.currentGraph.duplicateSelection();
@@ -486,18 +587,19 @@ export const NodeContextMenu = (props) => {
           </ListItemIcon>
           <ListItemText>Add Trigger Input</ListItemText>
         </MenuItem>
-        <MenuItem
-          onClick={() => {
-            PPGraph.currentGraph.extractToMacro();
-          }}
-        >
-          <ListItemIcon>
-            <AddIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Extract to Macro</ListItemText>
-        </MenuItem>
-        {PPGraph.currentGraph &&
-        PPGraph.currentGraph.selection.selectedNodes.length > 0
+        {selectionCount > 1 && (
+          <MenuItem
+            onClick={() => {
+              PPGraph.currentGraph.extractToMacro();
+            }}
+          >
+            <ListItemIcon>
+              <AddIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Extract to Macro</ListItemText>
+          </MenuItem>
+        )}
+        {PPGraph.currentGraph && selectionCount > 0
           ? constructListOptions(
               PPGraph.currentGraph.selection.selectedNodes[0].getAdditionalRightClickOptions()
             )

@@ -1,14 +1,16 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import * as PIXI from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
-
+import SelectionHeaderClass from './SelectionHeaderClass';
 import PPNode from './NodeClass';
 import {
+  ALIGNOPTIONS,
   NODE_MARGIN,
   SCALEHANDLE_SIZE,
   SELECTION_COLOR_HEX,
   WHITE_HEX,
 } from '../utils/constants';
+import { TAlignOptions } from '../utils/interfaces';
 import { getObjectsInsideBounds } from '../pixi/utils-pixi';
 import {
   getCurrentCursorPosition,
@@ -27,6 +29,7 @@ export default class PPSelection extends PIXI.Container {
   selectionGraphics: PIXI.Graphics;
   protected singleSelectionsGraphics: PIXI.Graphics;
   protected scaleHandle: ScaleHandle;
+  selectionHeader: SelectionHeaderClass;
 
   protected sourcePoint: PIXI.Point;
   private nodePosBeforeMovement: PIXI.Point;
@@ -61,6 +64,9 @@ export default class PPSelection extends PIXI.Container {
     this.selectionGraphics = new PIXI.Graphics();
     this.selectionGraphics.name = 'selectionGraphics';
     this.addChild(this.selectionGraphics);
+
+    this.selectionHeader = new SelectionHeaderClass();
+    this.selectionGraphics.addChild(this.selectionHeader);
 
     this.scaleHandle = new ScaleHandle(this);
     this.addChild(this.scaleHandle);
@@ -260,10 +266,114 @@ export default class PPSelection extends PIXI.Container {
     this.drawRectanglesFromSelection();
   }
 
+  async action_alignNodes(alignAndDistribute: TAlignOptions): Promise<void> {
+    const selection = PPGraph.currentGraph.selection;
+    let minX = Number.MAX_VALUE;
+    let minY = Number.MAX_VALUE;
+    let maxX = -Number.MAX_VALUE;
+    let maxY = -Number.MAX_VALUE;
+    selection.selectedNodes.forEach((node) => {
+      minX = Math.min(minX, node.x);
+      minY = Math.min(minY, node.y);
+      maxX = Math.max(maxX, node.x + node.width);
+      maxY = Math.max(maxY, node.y + node.height);
+    });
+
+    const nodeIDsPos = selection.selectedNodes.map((node) => ({
+      id: node.id,
+      x: node.x,
+      y: node.y,
+      width: node.width,
+      height: node.height,
+    }));
+
+    let incrementPos = 0;
+
+    function alignNode(
+      node: PPNode,
+      alignAndDistribute: TAlignOptions,
+      interval: number,
+      index: number
+    ) {
+      let x;
+      let y;
+      switch (alignAndDistribute) {
+        case ALIGNOPTIONS.ALIGN_LEFT:
+          x = minX;
+          break;
+        case ALIGNOPTIONS.ALIGN_CENTER_HORIZONTAL:
+          x = minX + (maxX - minX) / 2 - node.width / 2;
+          break;
+        case ALIGNOPTIONS.ALIGN_RIGHT:
+          x = maxX - node.width;
+          break;
+        case ALIGNOPTIONS.ALIGN_TOP:
+          y = minY;
+          break;
+        case ALIGNOPTIONS.ALIGN_CENTER_VERTICAL:
+          y = minY + (maxY - minY) / 2 - node.height / 2;
+          break;
+        case ALIGNOPTIONS.ALIGN_BOTTOM:
+          y = maxY - node.height;
+          break;
+        case ALIGNOPTIONS.DISTRIBUTE_HORIZONTAL:
+          x = index === 0 ? minX : incrementPos + interval;
+          incrementPos = x + node.width;
+          break;
+        case ALIGNOPTIONS.DISTRIBUTE_VERTICAL:
+          y = index === 0 ? minY : incrementPos + interval;
+          incrementPos = y + node.height;
+          break;
+      }
+      node.setPosition(x, y);
+    }
+
+    const doAlign = async () => {
+      const calcInterval = (min, max, sum, length) =>
+        (max - min - sum) / (length - 1);
+
+      nodeIDsPos.sort((a, b) => {
+        return alignAndDistribute === ALIGNOPTIONS.DISTRIBUTE_VERTICAL
+          ? a.y - b.y
+          : a.x - b.x;
+      });
+
+      const sumOfWidthHeight =
+        alignAndDistribute === ALIGNOPTIONS.DISTRIBUTE_VERTICAL
+          ? nodeIDsPos.reduce((n, { height }) => n + height, 0)
+          : nodeIDsPos.reduce((n, { width }) => n + width, 0);
+
+      const interval =
+        alignAndDistribute === ALIGNOPTIONS.DISTRIBUTE_VERTICAL
+          ? calcInterval(minY, maxY, sumOfWidthHeight, nodeIDsPos.length)
+          : calcInterval(minX, maxX, sumOfWidthHeight, nodeIDsPos.length);
+
+      nodeIDsPos.forEach((idAndPos, index) => {
+        const node = PPGraph.currentGraph.nodes[idAndPos.id];
+        alignNode(node, alignAndDistribute, interval, index);
+      });
+      incrementPos = 0; // reset
+
+      selection.drawRectanglesFromSelection();
+    };
+
+    const undoAlign = async () => {
+      nodeIDsPos.forEach((idAndPos, index) => {
+        const node = PPGraph.currentGraph.nodes[idAndPos.id];
+        const oldPosition = nodeIDsPos[index];
+        node.setPosition(oldPosition.x, oldPosition.y);
+      });
+      selection.drawRectanglesFromSelection();
+    };
+
+    await ActionHandler.performAction(doAlign, undoAlign, 'Align node(s)');
+  }
+
   resetAllGraphics(): void {
     this.resetGraphics(this.selectionIntendGraphics);
     this.resetGraphics(this.singleSelectionsGraphics);
     this.resetGraphics(this.selectionGraphics);
+    this.selectionHeader.visible = false;
     this.scaleHandle.visible = false;
   }
 
@@ -370,6 +480,9 @@ export default class PPSelection extends PIXI.Container {
     );
     this.selectionGraphics.endFill();
 
+    this.selectionHeader.x = selectionBounds.x;
+    this.selectionHeader.y = selectionBounds.y + selectionBounds.height + 4;
+
     this.scaleHandle.x =
       selectionBounds.x + selectionBounds.width - SCALEHANDLE_SIZE / 2;
     this.scaleHandle.y =
@@ -405,12 +518,15 @@ export default class PPSelection extends PIXI.Container {
       } else {
         this.selectedNodes = nodes;
       }
-      // show scaleHandle only if there is only 1 node selected
+      // show selectionHeader if there are more than 1 nodes selected
+      this.selectionHeader.visible = this.selectedNodes.length > 1;
+      // show scaleHandle if there is only 1 node selected
       this.scaleHandle.visible =
         (this.selectedNodes.length === 1 ||
           this.selectedNodes[0]?.shouldShowResizeRectangleEvenWhenMultipleNodesAreSelected()) &&
         this.selectedNodes[0]?.allowResize();
     }
+
     this.drawRectanglesFromSelection();
     if (notify) {
       InterfaceController.notifyListeners(

@@ -255,6 +255,13 @@
   width: inherit;
 }
 
+.imageMenuIcon {
+  display: flex;
+  height: 16px;
+  width: 16px;
+  margin-right: 8px;
+}
+
 .iconRoot {
   text-align: 'center';
 }

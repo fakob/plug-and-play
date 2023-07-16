@@ -1,7 +1,13 @@
 import * as PIXI from 'pixi.js';
 import PPNode from '../classes/NodeClass';
 import { IUpdateBehaviour } from '../classes/UpdateBehaviourClass';
-import { COLOR_DARK, COLOR_WHITE, SOCKET_TYPE, NODE_SOURCE } from './constants';
+import {
+  ALIGNOPTIONS,
+  COLOR_DARK,
+  COLOR_WHITE,
+  SOCKET_TYPE,
+  NODE_SOURCE,
+} from './constants';
 import Color from 'color';
 
 export type RegisteredNodeTypes = Record<
@@ -109,6 +115,8 @@ export type NodeStatus = {
 };
 
 export type TNodeSource = (typeof NODE_SOURCE)[keyof typeof NODE_SOURCE];
+
+export type TAlignOptions = (typeof ALIGNOPTIONS)[keyof typeof ALIGNOPTIONS];
 
 export class TRgba {
   r = 0;
