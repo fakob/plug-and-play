@@ -2,7 +2,6 @@ import React, { useEffect, useState, useRef } from 'react';
 import JSON5 from 'json5';
 import * as PIXI from 'pixi.js';
 import isUrl from 'is-url';
-import { hri } from 'human-readable-ids';
 import { useTheme } from '@mui/material';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import PPGraph from '../classes/GraphClass';
