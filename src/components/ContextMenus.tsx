@@ -89,7 +89,7 @@ const SubMenuItem = (props: SubMenuItemProps) => {
         <Paper
           elevation={3}
           sx={{
-            width: 240,
+            minWidth: 240,
             maxWidth: '100%',
             zIndex: 500,
           }}
@@ -116,6 +116,9 @@ const GestureModeMenuItem = (props) => {
         <GestureIcon fontSize="small" />
       </ListItemIcon>
       <ListItemText>{props.gestureMode}</ListItemText>
+      <Typography variant="body2" color="text.secondary">
+        {props.details}
+      </Typography>
     </MenuItem>
   );
 };
@@ -333,9 +336,23 @@ export const GraphContextMenu = (props) => {
 
 function gestureModes(): any {
   return [
-    <GestureModeMenuItem icon={MouseIcon} gestureMode={GESTUREMODE.MOUSE} />,
-    <GestureModeMenuItem icon={SwipeIcon} gestureMode={GESTUREMODE.TRACKPAD} />,
-    <GestureModeMenuItem icon={SensorsIcon} gestureMode={GESTUREMODE.AUTO} />,
+    <GestureModeMenuItem
+      icon={MouseIcon}
+      key={GESTUREMODE.MOUSE}
+      gestureMode={GESTUREMODE.MOUSE}
+      details="Scroll to zoom, right click to pan"
+    />,
+    <GestureModeMenuItem
+      icon={SwipeIcon}
+      key={GESTUREMODE.TRACKPAD}
+      gestureMode={GESTUREMODE.TRACKPAD}
+      details="Pinch to zoom, 2 finger to pan"
+    />,
+    <GestureModeMenuItem
+      icon={SensorsIcon}
+      key={GESTUREMODE.AUTO}
+      gestureMode={GESTUREMODE.AUTO}
+    />,
   ];
 }
 
