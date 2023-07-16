@@ -841,11 +841,3 @@ export const updateDataIfDefault = (
     node.executeOptimizedChain();
   }
 };
-
-export const createArrayOfRandomIds = (length: number): string[] => {
-  const arrayOfRandomIds: string[] = [];
-  for (let index = 0; index < length; index++) {
-    arrayOfRandomIds.push(hri.random());
-  }
-  return arrayOfRandomIds;
-};

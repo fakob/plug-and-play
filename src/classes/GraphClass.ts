@@ -12,11 +12,7 @@ import {
   TNodeSource,
   TPastePos,
 } from '../utils/interfaces';
-import {
-  connectNodeToSocket,
-  createArrayOfRandomIds,
-  isPhone,
-} from '../utils/utils';
+import { connectNodeToSocket, isPhone } from '../utils/utils';
 import { getNodesBounds } from '../pixi/utils-pixi';
 import PPNode from './NodeClass';
 import PPSocket from './SocketClass';
@@ -781,7 +777,9 @@ export default class PPGraph {
   ): Promise<PPNode[]> {
     const newNodes: PPNode[] = [];
     const mappingOfOldAndNewNodes: { [key: string]: PPNode } = {};
-    const arrayOfRandomIds = createArrayOfRandomIds(data.nodes.length);
+    const arrayOfRandomIds = Array.from({ length: data.nodes.length }, () =>
+      hri.random()
+    );
 
     const action = async () => {
       const originalNodes: SerializedSelection = data;

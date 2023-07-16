@@ -996,10 +996,12 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
 
       // select node if the shiftKey is pressed
       // or the node is not yet selected
-      if (shiftKey || !this.selected) {
+      if (shiftKey || this.selected === false) {
         PPGraph.currentGraph.selection.selectNodes([this], shiftKey, true);
         this.onSpecificallySelected();
       }
+
+      // duplicate the selection if altKey is pressed and select the duplicates for dragging
       if (altKey) {
         const duplicatedNodes = await PPGraph.currentGraph.duplicateSelection({
           x: this.x,
@@ -1011,6 +1013,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
           true
         );
       }
+
       if (PPGraph.currentGraph.selection.selectedNodes.length > 0) {
         PPGraph.currentGraph.selection.startDragAction(event);
       }
