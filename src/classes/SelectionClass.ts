@@ -332,7 +332,7 @@ export default class PPSelection extends PIXI.Container {
       const calcInterval = (min, max, sum, length) =>
         (max - min - sum) / (length - 1);
 
-      const sortedIDsAndPos = nodeIDsPos.sort((a, b) => {
+      nodeIDsPos.sort((a, b) => {
         return alignAndDistribute === ALIGNOPTIONS.DISTRIBUTE_VERTICAL
           ? a.y - b.y
           : a.x - b.x;
@@ -340,15 +340,15 @@ export default class PPSelection extends PIXI.Container {
 
       const sumOfWidthHeight =
         alignAndDistribute === ALIGNOPTIONS.DISTRIBUTE_VERTICAL
-          ? sortedIDsAndPos.reduce((n, { height }) => n + height, 0)
-          : sortedIDsAndPos.reduce((n, { width }) => n + width, 0);
+          ? nodeIDsPos.reduce((n, { height }) => n + height, 0)
+          : nodeIDsPos.reduce((n, { width }) => n + width, 0);
 
       const interval =
         alignAndDistribute === ALIGNOPTIONS.DISTRIBUTE_VERTICAL
           ? calcInterval(minY, maxY, sumOfWidthHeight, nodeIDsPos.length)
           : calcInterval(minX, maxX, sumOfWidthHeight, nodeIDsPos.length);
 
-      sortedIDsAndPos.forEach((idAndPos, index) => {
+      nodeIDsPos.forEach((idAndPos, index) => {
         const node = PPGraph.currentGraph.nodes[idAndPos.id];
         alignNode(node, alignAndDistribute, interval, index);
       });

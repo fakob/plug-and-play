@@ -389,34 +389,42 @@ function alignOptions(): any {
   return [
     <AlignOptionMenuItem
       image={ALIGNLEFT_TEXTURE}
+      key={ALIGNOPTIONS.ALIGN_LEFT}
       alignOption={ALIGNOPTIONS.ALIGN_LEFT}
     />,
     <AlignOptionMenuItem
       image={ALIGNCENTERHORIZONTALLY_TEXTURE}
+      key={ALIGNOPTIONS.ALIGN_CENTER_HORIZONTAL}
       alignOption={ALIGNOPTIONS.ALIGN_CENTER_HORIZONTAL}
     />,
     <AlignOptionMenuItem
       image={ALIGNRIGHT_TEXTURE}
+      key={ALIGNOPTIONS.ALIGN_RIGHT}
       alignOption={ALIGNOPTIONS.ALIGN_RIGHT}
     />,
     <AlignOptionMenuItem
       image={ALIGNTOP_TEXTURE}
+      key={ALIGNOPTIONS.ALIGN_TOP}
       alignOption={ALIGNOPTIONS.ALIGN_TOP}
     />,
     <AlignOptionMenuItem
       image={ALIGNCENTERVERTICALLY_TEXTURE}
+      key={ALIGNOPTIONS.ALIGN_CENTER_VERTICAL}
       alignOption={ALIGNOPTIONS.ALIGN_CENTER_VERTICAL}
     />,
     <AlignOptionMenuItem
       image={ALIGNBOTTOM_TEXTURE}
+      key={ALIGNOPTIONS.ALIGN_BOTTOM}
       alignOption={ALIGNOPTIONS.ALIGN_BOTTOM}
     />,
     <AlignOptionMenuItem
       image={DISTRIBUTEVERTICAL_TEXTURE}
+      key={ALIGNOPTIONS.DISTRIBUTE_VERTICAL}
       alignOption={ALIGNOPTIONS.DISTRIBUTE_VERTICAL}
     />,
     <AlignOptionMenuItem
       image={DISTRIBUTEHORIZONTAL_TEXTURE}
+      key={ALIGNOPTIONS.DISTRIBUTE_HORIZONTAL}
       alignOption={ALIGNOPTIONS.DISTRIBUTE_HORIZONTAL}
     />,
   ];
