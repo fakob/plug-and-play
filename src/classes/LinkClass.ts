@@ -69,11 +69,13 @@ export default class PPLink extends PIXI.Container {
 
   updateSource(newSource: Socket): void {
     this.source = newSource;
+    this.source.setVisible(true);
     this.updateConnection();
   }
 
   updateTarget(newTarget: Socket): void {
     this.target = newTarget;
+    this.target.setVisible(true);
     this.updateConnection();
   }
 

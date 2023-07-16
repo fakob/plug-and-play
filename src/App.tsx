@@ -632,7 +632,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         const serializedNode = oldNode.serialize();
 
         const action = async () => {
-          const newNode = PPGraph.currentGraph.replaceNode(
+          const newNode = await PPGraph.currentGraph.replaceNode(
             serializedNode,
             serializedNode.id,
             referenceID,
@@ -645,7 +645,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           setIsNodeSearchVisible(false);
         };
         const undoAction = async () => {
-          const previousNode = PPGraph.currentGraph.replaceNode(
+          const previousNode = await PPGraph.currentGraph.replaceNode(
             serializedNode,
             referenceID,
             serializedNode.id
