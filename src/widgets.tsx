@@ -14,6 +14,7 @@ import {
   Slider,
   TextField,
   ToggleButton,
+  Tooltip,
 } from '@mui/material';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import { SketchPicker } from 'react-color';
@@ -60,6 +61,16 @@ async function potentiallyUpdateSocketData(property: Socket, newValue) {
   }
 }
 
+function SliderValueLabelComponent(props) {
+  const { children, value } = props;
+
+  return (
+    <Tooltip enterTouchDelay={0} placement="top" title={value}>
+      {children}
+    </Tooltip>
+  );
+}
+
 export type SliderWidgetProps = {
   property: Socket;
   isInput: boolean;
@@ -101,6 +112,9 @@ export const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (
         max={maxValue}
         step={round ? 1 : stepSizeValue}
         marks={[{ value: minValue }, { value: maxValue }]}
+        slots={{
+          valueLabel: SliderValueLabelComponent,
+        }}
         onChange={(event, value) => {
           potentiallyUpdateSocketData(props.property, value);
           if (!Array.isArray(value)) {
