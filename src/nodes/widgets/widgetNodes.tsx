@@ -13,7 +13,6 @@ import {
   ClickAwayListener,
   Fade,
   FormControl,
-  FormControlLabel,
   FormGroup,
   InputLabel,
   ListItemText,
@@ -25,6 +24,7 @@ import {
   SelectChangeEvent,
   Switch,
   ThemeProvider,
+  Typography,
 } from '@mui/material';
 import ColorizeIcon from '@mui/icons-material/Colorize';
 import { SketchPicker } from 'react-color';
@@ -527,8 +527,8 @@ export class WidgetColorPicker extends WidgetHybridBase {
             sx={{
               pointerEvents: 'auto',
               margin: 'auto',
-              fontSize: '16px',
-              lineHeight: '20px',
+              fontSize: `${node.nodeHeight / 6}px`,
+              lineHeight: `${node.nodeHeight / 5}px`,
               border: 0,
               bgcolor: finalColor.hex(),
               color: finalColor.getContrastTextColor().hex(),
@@ -546,7 +546,9 @@ export class WidgetColorPicker extends WidgetHybridBase {
             }}
           >
             {props[labelName]}
-            <ColorizeIcon sx={{ pl: 1 }} />
+            <ColorizeIcon
+              sx={{ pl: 0.5, fontSize: `${node.nodeHeight / 5}px` }}
+            />
           </Button>
           <Popper
             id="toolbar-popper"
@@ -699,26 +701,26 @@ export class WidgetSwitch extends WidgetHybridBase {
             component="fieldset"
             sx={{ margin: 'auto', pointerEvents: 'auto' }}
           >
-            <FormGroup aria-label="position" row>
-              <FormControlLabel
-                value={props[labelName]}
-                control={
-                  <Switch
-                    size="medium"
-                    checked={selected}
-                    color="primary"
-                    onChange={handleOnChange}
-                    sx={{
-                      transform: 'scale(1.5)',
-                      marginLeft: '24px',
-                      marginRight: '8px',
-                    }}
-                  />
-                }
-                label={props[labelName]}
-                labelPlacement="end"
+            <Stack direction="column" alignItems="center">
+              <Switch
+                size="medium"
+                checked={selected}
+                color="primary"
+                onChange={handleOnChange}
+                sx={{
+                  transform: `scale(${node.nodeHeight / 60})`,
+                  my: `${Math.pow(node.nodeHeight / 80, 2)}px`,
+                }}
               />
-            </FormGroup>
+              <Typography
+                sx={{
+                  mt: `${node.nodeHeight / 24}px`,
+                  fontSize: `${node.nodeHeight / 6}px`,
+                }}
+              >
+                {props[labelName]}
+              </Typography>
+            </Stack>
           </FormControl>
         </Paper>
       </ThemeProvider>
