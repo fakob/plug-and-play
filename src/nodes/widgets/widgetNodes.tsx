@@ -188,6 +188,8 @@ export class WidgetButton extends WidgetBase {
       this.addChild(this._refLabel);
     }
 
+    const fontSize = this.nodeHeight / 6;
+
     this._refGraphics.clear();
     this._refGraphics
       .beginFill(fillColorHex)
@@ -203,6 +205,7 @@ export class WidgetButton extends WidgetBase {
     this._refLabel.x = NODE_MARGIN + this.nodeWidth / 2;
     this._refLabel.y = this.nodeHeight / 2;
     this._refLabel.style.wordWrapWidth = this.nodeWidth - 10 * margin;
+    this._refLabel.style.fontSize = fontSize;
   }
 
   public onExecute = async (input, output) => {
@@ -819,10 +822,12 @@ export class WidgetSlider extends WidgetBase {
       );
       this._refValue.anchor.x = 0.5;
       this._refValue.anchor.y = 0;
-      this._refValue.y = 2 * margin;
+      this._refValue.y = margin;
       this._refValue.eventMode = 'none';
       this.addChild(this._refValue);
     }
+
+    const fontSize = this.nodeHeight / 6;
 
     this._refBg.clear();
     this._refBg
@@ -831,7 +836,7 @@ export class WidgetSlider extends WidgetBase {
         0,
         0,
         this.nodeWidth - 8 * margin,
-        this.nodeHeight - 16 * margin,
+        this.nodeHeight - 2 * fontSize - 8 * margin,
         16
       );
 
@@ -842,20 +847,23 @@ export class WidgetSlider extends WidgetBase {
         0,
         0,
         this.nodeWidth - 8 * margin,
-        this.nodeHeight - 16 * margin,
+        this.nodeHeight - 2 * fontSize - 8 * margin,
         16
       );
-    this._refWidget.y = (this.nodeHeight - (this.nodeHeight - 16 * margin)) / 2;
+    this._refWidget.y =
+      (this.nodeHeight - (this.nodeHeight - 2 * fontSize - 8 * margin)) / 2;
 
     this._refValue.x = NODE_MARGIN + this.nodeWidth / 2;
+    this._refValue.style.fontSize = fontSize;
 
     this._refWidget.progress = this.valueToPercent(
       this.getInputData(initialValueName)
     );
 
     this._refLabel.x = NODE_MARGIN + this.nodeWidth / 2;
-    this._refLabel.y = this.nodeHeight - 2 * margin;
+    this._refLabel.y = this.nodeHeight - margin;
     this._refLabel.style.wordWrapWidth = this.nodeWidth - 10 * margin;
+    this._refLabel.style.fontSize = fontSize;
   }
 
   valueToPercent = (value) => {
