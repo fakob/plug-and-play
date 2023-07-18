@@ -824,9 +824,6 @@ export class WidgetSlider extends WidgetBase {
       this.addChild(this._refValue);
     }
 
-    this._refWidget.progress = this.valueToPercent(
-      this.getInputData(initialValueName)
-    );
     this._refBg.clear();
     this._refBg
       .beginFill(fillColorDarkHex)
@@ -851,6 +848,10 @@ export class WidgetSlider extends WidgetBase {
     this._refWidget.y = (this.nodeHeight - (this.nodeHeight - 16 * margin)) / 2;
 
     this._refValue.x = NODE_MARGIN + this.nodeWidth / 2;
+
+    this._refWidget.progress = this.valueToPercent(
+      this.getInputData(initialValueName)
+    );
 
     this._refLabel.x = NODE_MARGIN + this.nodeWidth / 2;
     this._refLabel.y = this.nodeHeight - 2 * margin;
