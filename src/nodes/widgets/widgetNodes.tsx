@@ -13,7 +13,6 @@ import {
   ClickAwayListener,
   Fade,
   FormControl,
-  FormGroup,
   InputLabel,
   ListItemText,
   MenuItem,
