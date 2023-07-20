@@ -203,14 +203,14 @@ export default class PPSelection extends PIXI.Container {
   }
 
   onViewportMoved(): void {
-    this.drawRectanglesFromSelection();
+    this.drawRectanglesFromSelection(this.selectedNodes.length !== 1);
   }
 
   onPointerUpAndUpOutside(): void {
     console.log('Selection: onPointerUpAndUpOutside');
     this.stopDragAction();
     // we remove the fill of the selection on the nodes if its just one, so that sockets etc on it can be pressed
-    if (this.selectedNodes.length == 1) {
+    if (this.selectedNodes.length === 1) {
       this.drawRectanglesFromSelection(false);
     }
   }
