@@ -468,7 +468,7 @@ export default class PPGraph {
   ): Promise<PPNode> {
     const node = this.createNode(newNodeType ?? serialized.type, customArgs);
 
-    node.configure(serialized);
+    node.configure(serialized, newNodeType === undefined);
     await this.addNode(node);
     return node;
   }

@@ -371,7 +371,7 @@ export default class PPNode extends PIXI.Container {
     return node;
   }
 
-  configure(nodeConfig: SerializedNode): void {
+  configure(nodeConfig: SerializedNode, includeSocketData = true): void {
     this.x = nodeConfig.x;
     this.y = nodeConfig.y;
     this.nodeWidth = nodeConfig.width || this.getMinNodeWidth();
@@ -382,42 +382,44 @@ export default class PPNode extends PIXI.Container {
       nodeConfig.updateBehaviour.interval,
       nodeConfig.updateBehaviour.intervalFrequency
     );
-    try {
-      const mapSocket = (item: SerializedSocket) => {
-        const matchingSocket = this.getSocketByNameAndType(
-          item.name,
-          item.socketType
-        );
-        if (matchingSocket !== undefined) {
-          matchingSocket.dataType = deSerializeType(item.dataType);
-          this.initializeType(item.name, matchingSocket.dataType);
-          matchingSocket.data = item.data;
-          matchingSocket.defaultData = item.defaultData ?? item.data;
-          matchingSocket.setVisible(item.visible);
-        } else {
-          // add socket if it does not exist yet
-          console.info(
-            `Socket does not exist (yet) and will be created: ${this.name}(${this.id})/${item.name}`
+    if (includeSocketData) {
+      try {
+        const mapSocket = (item: SerializedSocket) => {
+          const matchingSocket = this.getSocketByNameAndType(
+            item.name,
+            item.socketType
           );
-          this.addSocket(
-            new Socket(
-              item.socketType,
-              item.name,
-              deSerializeType(item.dataType),
-              item.data,
-              item.visible
-            )
-          );
-        }
-      };
+          if (matchingSocket !== undefined) {
+            matchingSocket.dataType = deSerializeType(item.dataType);
+            this.initializeType(item.name, matchingSocket.dataType);
+            matchingSocket.data = item.data;
+            matchingSocket.defaultData = item.defaultData ?? item.data;
+            matchingSocket.setVisible(item.visible);
+          } else {
+            // add socket if it does not exist yet
+            console.info(
+              `Socket does not exist (yet) and will be created: ${this.name}(${this.id})/${item.name}`
+            );
+            this.addSocket(
+              new Socket(
+                item.socketType,
+                item.name,
+                deSerializeType(item.dataType),
+                item.data,
+                item.visible
+              )
+            );
+          }
+        };
 
-      const sockets = nodeConfig.socketArray;
-      sockets.forEach((item) => mapSocket(item));
-    } catch (error) {
-      console.error(
-        `Could not configure node: ${this.name}(${this.id})`,
-        error
-      );
+        const sockets = nodeConfig.socketArray;
+        sockets.forEach((item) => mapSocket(item));
+      } catch (error) {
+        console.error(
+          `Could not configure node: ${this.name}(${this.id})`,
+          error
+        );
+      }
     }
   }
 
