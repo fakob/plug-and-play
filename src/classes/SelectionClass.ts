@@ -11,7 +11,7 @@ import {
   WHITE_HEX,
 } from '../utils/constants';
 import { TAlignOptions } from '../utils/interfaces';
-import { getObjectsInsideBounds } from '../pixi/utils-pixi';
+import { getObjectsInsideBounds, getNodesBounds } from '../pixi/utils-pixi';
 import {
   getCurrentCursorPosition,
   getDifferenceSelection,
@@ -170,10 +170,13 @@ export default class PPSelection extends PIXI.Container {
     await ActionHandler.performAction(doMove, undoMove, 'Move node(s)', false);
   }
 
-  onPointerDown(event: PIXI.FederatedPointerEvent): void {
+  async onPointerDown(event: PIXI.FederatedPointerEvent): Promise<void> {
     console.log('Selection: onPointerDown');
+    const shiftKey = event.shiftKey;
+    const altKey = event.altKey;
+
     if (this.selectedNodes.length > 0) {
-      if (event.shiftKey) {
+      if (shiftKey) {
         const targetPoint = new PIXI.Point(event.clientX, event.clientY);
         const selectionRect = new PIXI.Rectangle(
           targetPoint.x,
@@ -193,6 +196,17 @@ export default class PPSelection extends PIXI.Container {
         this.selectNodes(differenceSelection, false, true);
         this.drawRectanglesFromSelection();
       } else {
+        const sourceNodes = this.selectedNodes;
+        const bounds = getNodesBounds(sourceNodes);
+        if (altKey) {
+          const duplicatedNodes = await PPGraph.currentGraph.duplicateSelection(
+            {
+              x: bounds.x + 24,
+              y: bounds.y + 24,
+            }
+          );
+          this.selectNodes(duplicatedNodes, false, true);
+        }
         this.startDragAction(event);
       }
     }
@@ -501,6 +515,7 @@ export default class PPSelection extends PIXI.Container {
       this.selectionGraphics.getBounds().y
     );
   }
+
   selectNodes(
     nodes: PPNode[],
     addToOrToggleSelection = false,

@@ -10,6 +10,7 @@ import {
   SerializedNode,
   SerializedSelection,
   TNodeSource,
+  TPastePos,
 } from '../utils/interfaces';
 import { connectNodeToSocket, isPhone } from '../utils/utils';
 import { getNodesBounds } from '../pixi/utils-pixi';
@@ -518,7 +519,7 @@ export default class PPGraph {
   ) {
     const referenceID = hri.random();
     const action = async () => {
-      PPGraph.currentGraph.replaceNode(
+      await PPGraph.currentGraph.replaceNode(
         oldSerializedNode,
         oldSerializedNode.id,
         referenceID,
@@ -528,7 +529,7 @@ export default class PPGraph {
       );
     };
     const undoAction = async () => {
-      PPGraph.currentGraph.replaceNode(
+      await PPGraph.currentGraph.replaceNode(
         newSerializedNode,
         referenceID,
         oldSerializedNode.id,
@@ -768,68 +769,84 @@ export default class PPGraph {
     this.allowExecution = true;
   }
 
-  async duplicateSelection(): Promise<PPNode[]> {
+  async duplicateSelection(pastePos: TPastePos = undefined): Promise<PPNode[]> {
     const serializeSelection = this.serializeSelection();
-    const pastedNodes = await this.pasteNodes(serializeSelection);
+    const pastedNodes = await this.action_pasteNodes(
+      serializeSelection,
+      pastePos
+    );
     return pastedNodes;
   }
 
-  async pasteNodes(
+  async action_pasteNodes(
     data: SerializedSelection,
-    pasteTo?: {
-      x: number;
-      y: number;
-    }
+    pastePos?: TPastePos
   ): Promise<PPNode[]> {
     const newNodes: PPNode[] = [];
     const mappingOfOldAndNewNodes: { [key: string]: PPNode } = {};
+    const arrayOfRandomIds = Array.from({ length: data.nodes.length }, () =>
+      hri.random()
+    );
 
-    //create nodes
-    const offset = new PIXI.Point();
-    try {
-      await Promise.all(
-        data.nodes.map(async (node, index) => {
-          if (index === 0) {
-            if (pasteTo) {
-              offset.set(pasteTo.x - node.x, pasteTo.y - node.y);
-            } else {
-              offset.set(node.width + 40, 0);
+    const action = async () => {
+      const originalNodes: SerializedSelection = data;
+      newNodes.length = 0;
+      //create nodes
+      const offset = new PIXI.Point();
+      try {
+        await Promise.all(
+          originalNodes.nodes.map(async (node, index) => {
+            if (index === 0) {
+              if (pastePos) {
+                offset.set(pastePos.x - node.x, pastePos.y - node.y);
+              } else {
+                offset.set(node.width + 40, 0);
+              }
             }
-          }
-          // add node and carry over its configuration
-          const newNode = await this.addSerializedNode(node, {
-            overrideId: hri.random(),
-          });
+            // add node and carry over its configuration
+            const newNode = await this.addSerializedNode(node, {
+              overrideId: arrayOfRandomIds[index],
+            });
 
-          // offset pasted node
-          newNode.setPosition(offset.x, offset.y, true);
+            // offset pasted node
+            newNode.setPosition(offset.x, offset.y, true);
 
-          mappingOfOldAndNewNodes[node.id] = newNode;
-          newNodes.push(newNode);
-        })
-      );
+            mappingOfOldAndNewNodes[node.id] = newNode;
+            newNodes.push(newNode);
+          })
+        );
 
-      await Promise.all(
-        data.links.map(async (link: SerializedLink) => {
-          const newSource = mappingOfOldAndNewNodes[
-            link.sourceNodeId
-          ].getOutputSocketByName(link.sourceSocketName);
-          const newTarget = mappingOfOldAndNewNodes[
-            link.targetNodeId
-          ].getInputOrTriggerSocketByName(link.targetSocketName);
-          await this.connect(newSource, newTarget, false);
-        })
-      );
-    } catch (error) {
-      console.error(error);
-    }
+        await Promise.all(
+          originalNodes.links.map(async (link: SerializedLink) => {
+            const newSource = mappingOfOldAndNewNodes[
+              link.sourceNodeId
+            ].getOutputSocketByName(link.sourceSocketName);
+            const newTarget = mappingOfOldAndNewNodes[
+              link.targetNodeId
+            ].getInputOrTriggerSocketByName(link.targetSocketName);
+            await this.connect(newSource, newTarget, false);
+          })
+        );
+      } catch (error) {
+        console.error(error);
+      }
 
-    // select newNode
-    this.selection.selectNodes(newNodes, false, true);
-    this.selection.drawRectanglesFromSelection();
+      // select newNode
+      this.selection.selectNodes(newNodes, false, true);
+      this.selection.drawRectanglesFromSelection();
 
-    // execute all seed nodes to make sure there are values everywhere
-    await this.executeAllSeedNodes(newNodes);
+      // execute all seed nodes to make sure there are values everywhere
+      await this.executeAllSeedNodes(newNodes);
+    };
+
+    const undoAction = async () => {
+      this.selection.deselectAllNodesAndResetSelection();
+      arrayOfRandomIds.forEach((id) => {
+        PPGraph.currentGraph.removeNode(ActionHandler.getSafeNode(id));
+      });
+    };
+
+    await ActionHandler.performAction(action, undoAction, 'Paste node(s)');
 
     return newNodes;
   }
@@ -846,7 +863,9 @@ export default class PPGraph {
     const graphPre = this.serialize();
     // we copy all selected nodes, and all inputs to these that are not found inside the macro are turned into parameters, combined outputs are turned into the output
     const sourceNodes = this.selection.selectedNodes;
-    const newNodes = await this.pasteNodes(this.serializeNodes(sourceNodes));
+    const newNodes = await this.action_pasteNodes(
+      this.serializeNodes(sourceNodes)
+    );
 
     const forwardMapping: Record<string, PPNode> = {};
     const backwardMapping: Record<string, PPNode> = {};

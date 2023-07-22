@@ -985,7 +985,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     );
   }
 
-  onPointerDown(event: PIXI.FederatedPointerEvent): void {
+  async onPointerDown(event: PIXI.FederatedPointerEvent): Promise<void> {
     console.log('Node: onPointerDown');
     event.stopPropagation();
     const node = event.target as PPNode;
@@ -994,14 +994,31 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
       // start dragging the node
 
       const shiftKey = event.shiftKey;
+      const altKey = event.altKey;
 
       // select node if the shiftKey is pressed
       // or the node is not yet selected
-      if (shiftKey || !this.selected) {
+      if (shiftKey || this.selected === false) {
         PPGraph.currentGraph.selection.selectNodes([this], shiftKey, true);
         this.onSpecificallySelected();
       }
-      PPGraph.currentGraph.selection.startDragAction(event);
+
+      // duplicate the selection if altKey is pressed and select the duplicates for dragging
+      if (altKey) {
+        const duplicatedNodes = await PPGraph.currentGraph.duplicateSelection({
+          x: this.x,
+          y: this.y,
+        });
+        PPGraph.currentGraph.selection.selectNodes(
+          duplicatedNodes,
+          shiftKey,
+          true
+        );
+      }
+
+      if (PPGraph.currentGraph.selection.selectedNodes.length > 0) {
+        PPGraph.currentGraph.selection.startDragAction(event);
+      }
     }
     if (event.button == 2) {
       if (event.target == this) {
