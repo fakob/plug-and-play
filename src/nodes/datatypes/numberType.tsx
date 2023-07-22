@@ -65,7 +65,15 @@ export class NumberType extends AbstractType {
   }
 
   recommendedOutputNodeWidgets(): string[] {
-    return ['Add', 'Subtract', 'Multiply', 'Divide', 'Sqrt', 'MathFunction'];
+    return [
+      'Label',
+      'Add',
+      'Subtract',
+      'Multiply',
+      'Divide',
+      'Sqrt',
+      'MathFunction',
+    ];
   }
 
   recommendedInputNodeWidgets(): string[] {

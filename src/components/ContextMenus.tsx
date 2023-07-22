@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
+  Box,
   Divider,
   ListItemIcon,
   ListItemText,
@@ -47,6 +48,7 @@ import {
 import { isPhone } from '../utils/utils';
 import styles from '../utils/style.module.css';
 import PPGraph from '../classes/GraphClass';
+import PPNode from '../classes/NodeClass';
 import PPStorage from '../PPStorage';
 
 const useStyles = makeStyles((theme) =>
@@ -609,6 +611,40 @@ export const NodeContextMenu = (props) => {
   );
 };
 
+function constructRecommendedNodeOptions(selectedSocket: PPSocket): any {
+  const preferredNodes = selectedSocket.getPreferredNodes();
+  return preferredNodes.map((preferredNodesType) => {
+    return (
+      <MenuItem
+        key={preferredNodesType}
+        onClick={() => {
+          PPGraph.currentGraph.action_addWidgetNode(
+            selectedSocket,
+            preferredNodesType
+          );
+        }}
+      >
+        <ListItemIcon>
+          <AddIcon fontSize="small" />
+        </ListItemIcon>
+        <ListItemText>
+          <Box
+            component="span"
+            sx={{
+              display: 'inline',
+              color: 'text.secondary',
+              typography: 'body2',
+            }}
+          >
+            Connect{' '}
+          </Box>
+          {preferredNodesType}
+        </ListItemText>
+      </MenuItem>
+    );
+  });
+}
+
 export const SocketContextMenu = (props) => {
   useEffect(() => {
     window.addEventListener('contextmenu', handleContextMenu);
@@ -625,14 +661,16 @@ export const SocketContextMenu = (props) => {
   }
 
   const selectedSocket: PPSocket = props.selectedSocket;
-  const isDeletable = !selectedSocket
-    .getNode()
-    .hasSocketNameInDefaultIO(selectedSocket.name, selectedSocket.socketType);
+  const node: PPNode = selectedSocket.getNode();
+  const isDeletable = !node.hasSocketNameInDefaultIO(
+    selectedSocket.name,
+    selectedSocket.socketType
+  );
 
   return (
     <Paper
       sx={{
-        width: 240,
+        minWidth: 240,
         maxWidth: '100%',
         position: 'absolute',
         zIndex: 400,
@@ -658,41 +696,13 @@ export const SocketContextMenu = (props) => {
             <Divider />
           </>
         )}
-        {selectedSocket.isInput() && (
-          <MenuItem
-            onClick={() => {
-              PPGraph.currentGraph.addWidgetNode(selectedSocket);
-            }}
-          >
-            <ListItemIcon>
-              <AddIcon fontSize="small" />
-            </ListItemIcon>
-            <ListItemText>
-              Connect {selectedSocket.dataType.recommendedInputNodeWidgets()[0]}
-            </ListItemText>
-          </MenuItem>
-        )}
-        {!selectedSocket.isInput() && (
-          <MenuItem
-            onClick={() => {
-              PPGraph.currentGraph.addWidgetNode(selectedSocket);
-            }}
-          >
-            <ListItemIcon>
-              <AddIcon fontSize="small" />
-            </ListItemIcon>
-            <ListItemText>
-              Connect{' '}
-              {selectedSocket.dataType.recommendedOutputNodeWidgets()[0]}
-            </ListItemText>
-          </MenuItem>
-        )}
+        {constructRecommendedNodeOptions(selectedSocket)}
         {isDeletable && (
           <>
             <Divider />
             <MenuItem
               onClick={() => {
-                selectedSocket.getNode().removeSocket(selectedSocket);
+                node.removeSocket(selectedSocket);
               }}
             >
               <ListItemIcon>

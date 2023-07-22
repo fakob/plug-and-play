@@ -692,16 +692,18 @@ export default class PPGraph {
     this.selectedSourceSocket = null;
   }
 
-  async addWidgetNode(socket: PPSocket): Promise<void> {
-    const node = socket.getNode();
-    let newNode;
-    const recommendedNodeWidget = socket.isInput()
-      ? socket.dataType.recommendedInputNodeWidgets()?.[0]
-      : socket.dataType.recommendedOutputNodeWidgets()?.[0];
-    if (recommendedNodeWidget) {
-      newNode = await this.addNewNode(
-        recommendedNodeWidget,
+  async action_addWidgetNode(
+    socket: PPSocket,
+    newNodeType: string
+  ): Promise<void> {
+    const referenceID = hri.random();
+
+    const action = async () => {
+      const node = socket.getNode();
+      const newNode = await this.addNewNode(
+        newNodeType,
         {
+          overrideId: referenceID,
           nodePosX: node.x + (socket.isInput() ? 0 : node.width + 40),
           nodePosY: node.y + socket.y,
           initialData: socket.isInput() ? socket.data : undefined,
@@ -709,8 +711,13 @@ export default class PPGraph {
         NODE_SOURCE.NEWCONNECTED
       );
       socket.isInput() && newNode.setPosition(-(newNode.width + 40), 0, true);
-      await connectNodeToSocket(socket, newNode);
-    }
+      connectNodeToSocket(socket, newNode);
+    };
+
+    const undoAction = async () => {
+      PPGraph.currentGraph.removeNode(ActionHandler.getSafeNode(referenceID));
+    };
+    await ActionHandler.performAction(action, undoAction, 'Add node');
   }
 
   getLinks(): PPLink[] {

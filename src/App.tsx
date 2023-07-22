@@ -487,7 +487,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       setIsGraphContextMenuOpen(false);
       setIsNodeContextMenuOpen(false);
       setIsSocketContextMenuOpen(false);
-      console.log(event, target, event.global);
       const contextMenuPosX = Math.min(
         window.innerWidth - (CONTEXTMENU_WIDTH + 8),
         event.global.x
