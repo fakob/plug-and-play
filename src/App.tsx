@@ -41,6 +41,7 @@ import GraphOverlay from './components/GraphOverlay';
 import ErrorFallback from './components/ErrorFallback';
 import PixiContainer from './PixiContainer';
 import { dragAndDrop } from './dragAndDrop';
+import { Tooltip } from './components/Tooltip';
 import {
   GraphContextMenu,
   NodeContextMenu,
@@ -838,6 +839,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       >
         <div {...getRootProps({ style })}>
           <input {...getInputProps()} />
+          <Tooltip pixiApp={pixiApp.current} />
           <ShareDialog
             showSharePlayground={showSharePlayground}
             setShowSharePlayground={setShowSharePlayground}

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import * as PIXI from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
-import debounce from 'lodash/debounce';
+
 import { NODE_SOURCE, NODE_WIDTH, PP_VERSION } from '../utils/constants';
 import {
   CustomArgs,
@@ -31,8 +31,6 @@ export default class PPGraph {
   static currentGraph: PPGraph;
   app: PIXI.Application;
   viewport: Viewport;
-  debouncedOnViewportMove;
-  lastMove: { x: number; y: number; timestamp: Date };
 
   _showComments: boolean;
   _showExecutionVisualisation: boolean;
@@ -66,12 +64,6 @@ export default class PPGraph {
     this.viewport = viewport;
     this.id = hri.random();
     console.log('Graph created');
-
-    this.lastMove = {
-      x: 0,
-      y: 0,
-      timestamp: new Date(),
-    };
 
     this._showComments = true;
     this._showExecutionVisualisation = true;
@@ -130,12 +122,6 @@ export default class PPGraph {
     this.viewport.addEventListener('pointermove', (event) =>
       this.onViewportMove(event)
     );
-
-    // Create a debounced version of the handlePointerMove function
-    this.debouncedOnViewportMove = debounce(this.onViewportMoveEnded, 2000);
-
-    // Add an event listener for the debouncedOnViewportMove event
-    this.viewport.addEventListener('pointermove', this.debouncedOnViewportMove);
 
     InterfaceController.addListener(
       ListenEvent.GlobalPointerMove,
@@ -253,24 +239,6 @@ export default class PPGraph {
   }
 
   onViewportMove(event: PIXI.FederatedPointerEvent): void {
-    console.log('onViewportMove', event.clientX, event.clientY);
-    if (
-      this.lastMove.x !== event.clientX ||
-      this.lastMove.y !== event.clientY
-    ) {
-      this.lastMove = {
-        x: event.clientX,
-        y: event.clientY,
-        timestamp: new Date(),
-      };
-    } else {
-      console.log('no move');
-      console.log(new Date().getTime() - this.lastMove.timestamp.getTime());
-      if (new Date().getTime() - this.lastMove.timestamp.getTime() > 2000) {
-        this.onViewportMoveEnded(event);
-        // this.debouncedOnViewportMove();
-      }
-    }
     this.tempConnection.clear();
 
     // draw connection
@@ -318,55 +286,6 @@ export default class PPGraph {
       this.tempConnection.x = sourcePointX;
       this.tempConnection.y = sourcePointY;
     }
-  }
-
-  onViewportMoveEnded(event: PIXI.FederatedPointerEvent): void {
-    console.log('onViewportMoveEnded', event.clientX, event.clientY);
-    // draw connection
-    // if (this.selectedSourceSocket) {
-    //   // draw connection while dragging
-    //   let socketCenter = this.getSocketCenter(this.selectedSourceSocket);
-
-    //   // change mouse coordinates from screen to world space
-    //   let targetPoint = new PIXI.Point();
-    //   if (this.overInputRef) {
-    //     // get target position
-    //     targetPoint = this.getSocketCenter(this.overInputRef);
-    //   } else if (this.overrideNodeCursorPosition) {
-    //     targetPoint = this.overrideNodeCursorPosition;
-    //   } else {
-    //     targetPoint = this.viewport.toWorld(event.global);
-    //   }
-
-    //   // swap points if i grabbed an input, to make curve look nice
-    //   if (this.selectedSourceSocket.isInput()) {
-    //     const temp: PIXI.Point = targetPoint;
-    //     targetPoint = socketCenter;
-    //     socketCenter = temp;
-    //   }
-
-    //   const sourcePointX = socketCenter.x;
-    //   const sourcePointY = socketCenter.y;
-    //   // draw curve from 0,0 as PIXI.thisics originates from 0,0
-    //   const toX = targetPoint.x - sourcePointX;
-    //   const toY = targetPoint.y - sourcePointY;
-    //   const cpX = Math.abs(toX) / 2;
-    //   const cpY = 0;
-    //   const cpX2 = toX - cpX;
-    //   const cpY2 = toY;
-    //   // console.log(sourcePointX, toX);
-
-    //   this.tempConnection.lineStyle(
-    //     2,
-    //     this.selectedSourceSocket.dataType.getColor().multiply(0.9).hexNumber(),
-    //     1
-    //   );
-    //   this.tempConnection.bezierCurveTo(cpX, cpY, cpX2, cpY2, toX, toY);
-
-    //   // offset curve to start from source
-    //   this.tempConnection.x = sourcePointX;
-    //   this.tempConnection.y = sourcePointY;
-    // }
   }
 
   socketHoverOver(socket: PPSocket): void {
