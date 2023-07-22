@@ -79,16 +79,16 @@ export default class PPNode extends PIXI.Container {
   protected statuses: NodeStatus[] = []; // you can add statuses into this and they will be rendered on the node
 
   // supported callbacks
-  onNodeDoubleClick: (event: PIXI.FederatedPointerEvent) => void = () => {};
+  onNodeDoubleClick: (event: PIXI.FederatedPointerEvent) => void = () => { };
   onViewportMoveHandler: (event?: PIXI.FederatedPointerEvent) => void =
-    () => {};
+    () => { };
   onViewportPointerUpHandler: (event?: PIXI.FederatedPointerEvent) => void =
-    () => {};
-  onNodeRemoved: () => void = () => {}; // called when the node is removed from the graph
-  onNodeResize: (width: number, height: number) => void = () => {}; // called when the node is resized
+    () => { };
+  onNodeRemoved: () => void = () => { }; // called when the node is removed from the graph
+  onNodeResize: (width: number, height: number) => void = () => { }; // called when the node is resized
   onNodeDragOrViewportMove: // called when the node or or the viewport with the node is moved or scaled
-  (positions: { screenX: number; screenY: number; scale: number }) => void =
-    () => {};
+    (positions: { screenX: number; screenY: number; scale: number }) => void =
+    () => { };
 
   // called when the node is added to the graph
   public onNodeAdded(source: TNodeSource = NODE_SOURCE.SERIALIZED): void {
@@ -855,7 +855,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     if (
       this.updateBehaviour.interval &&
       currentTime - this.lastTimeTicked >=
-        this.updateBehaviour.intervalFrequency
+      this.updateBehaviour.intervalFrequency
     ) {
       this.lastTimeTicked = currentTime;
       this.executeOptimizedChain();
@@ -1148,7 +1148,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     return false;
   }
 
-  protected onNodeExit(): void {}
+  protected onNodeExit(): void { }
 
   ////////////////////////////// Meant to be overriden for visual/behavioral needs
 
@@ -1170,6 +1170,10 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
 
   public getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.DEFAULT);
+  }
+
+  public getSocketDisplayName(socket: Socket): string {
+    return socket.name;
   }
 
   // for hybrid/transparent nodes, set this value to 0.01, if set to 0, the node is not clickable/selectable anymore
@@ -1294,7 +1298,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   }
 
   // kinda hacky but some cant easily serialize functions in JS
-  protected initializeType(socketName: string, datatype: any) {}
+  protected initializeType(socketName: string, datatype: any) { }
 
   // these are imported before node is added to the graph
   public getDynamicImports(): string[] {

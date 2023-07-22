@@ -78,7 +78,7 @@ export class Macro extends PPNode {
       socket.hasLink()
     );
     toReturn += linkedOutputs
-      .map((socket) => socket.dataType.getName())
+      .map((socket) => this.getSocketDisplayName(socket) + ": " + socket.dataType.getName())
       .join(',');
     toReturn += ') => ' + this.inputSocketArray[0].dataType.getName();
     return toReturn;
@@ -147,6 +147,12 @@ export class Macro extends PPNode {
     if (last.hasLink()) {
       this.addDefaultOutput();
     }
+    this.drawNodeShape();
+  }
+
+  public outputUnplugged(): void {
+    super.outputUnplugged();
+    this.drawNodeShape();
   }
 
   protected getDefaultIO(): Socket[] {
@@ -223,6 +229,10 @@ export class Macro extends PPNode {
 
   public propagateExecutionPast(): boolean {
     return false;
+  }
+
+  public getSocketDisplayName(socket: Socket): string {
+    return socket.isOutput() && socket.hasLink() ? socket.links[0].target.name : socket.name;
   }
 
   protected async onExecute(
