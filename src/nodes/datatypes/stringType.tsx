@@ -27,7 +27,11 @@ export class StringType extends AbstractType {
 
   parse(data: any): any {
     if (typeof data == 'object' || Array.isArray(data)) {
-      return JSON.stringify(data);
+      try {
+        return JSON.stringify(data);
+      } catch (e) {
+        // continue
+      }
     }
     return data;
   }
