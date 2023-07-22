@@ -338,6 +338,16 @@ export default class Socket extends PIXI.Container {
     return PPGraph.currentGraph;
   }
 
+  public getPreferredNodes(): string[] {
+    const preferredNodesPerSocket =
+      this.getNode().getPreferredNodesPerSocket().get(this.name) || [];
+    return preferredNodesPerSocket.concat(
+      this.isInput()
+        ? this.dataType.recommendedInputNodeWidgets()
+        : this.dataType.recommendedOutputNodeWidgets()
+    );
+  }
+
   //create serialization object
   serialize(): SerializedSocket {
     // ignore data for output sockets and input sockets with links
@@ -384,7 +394,7 @@ export default class Socket extends PIXI.Container {
     const center = PPGraph.currentGraph.getSocketCenter(this);
     const dist = Math.sqrt(
       Math.pow(currPos.y - center.y, 2) +
-      0.05 * Math.pow(currPos.x - center.x, 2)
+        0.05 * Math.pow(currPos.x - center.x, 2)
     );
     const maxDist = 20;
     const scaleOutside =

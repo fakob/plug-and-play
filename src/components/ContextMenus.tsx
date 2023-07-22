@@ -509,15 +509,8 @@ export const NodeContextMenu = (props) => {
   );
 };
 
-function constructRecommendedNodeOptions(
-  preferredNodesPerSocket: string[],
-  selectedSocket: PPSocket
-): any {
-  const preferredNodes = preferredNodesPerSocket.concat(
-    selectedSocket.isInput()
-      ? selectedSocket.dataType.recommendedInputNodeWidgets()
-      : selectedSocket.dataType.recommendedOutputNodeWidgets()
-  );
+function constructRecommendedNodeOptions(selectedSocket: PPSocket): any {
+  const preferredNodes = selectedSocket.getPreferredNodes();
   return preferredNodes.map((preferredNodesType) => {
     return (
       <MenuItem
@@ -567,8 +560,6 @@ export const SocketContextMenu = (props) => {
 
   const selectedSocket: PPSocket = props.selectedSocket;
   const node: PPNode = selectedSocket.getNode();
-  const preferredNodesPerSocket =
-    node.getPreferredNodesPerSocket().get(selectedSocket.name) || [];
   const isDeletable = !node.hasSocketNameInDefaultIO(
     selectedSocket.name,
     selectedSocket.socketType
@@ -603,10 +594,7 @@ export const SocketContextMenu = (props) => {
             <Divider />
           </>
         )}
-        {constructRecommendedNodeOptions(
-          preferredNodesPerSocket,
-          selectedSocket
-        )}
+        {constructRecommendedNodeOptions(selectedSocket)}
         {isDeletable && (
           <>
             <Divider />
