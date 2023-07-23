@@ -1239,6 +1239,12 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     return false;
   }
 
+  public async calledMacroUpdated(): Promise<void> {
+    if (this.updateBehaviour.update) {
+      await this.executeOptimizedChain();
+    }
+  }
+
   // we should migrate all nodes to use these functions instead of specifying the field themselves in constructor
   public getName(): string {
     return this.name;

@@ -147,11 +147,13 @@ export class Macro extends PPNode {
     if (last.hasLink()) {
       this.addDefaultOutput();
     }
+    this.updateAllCallers();
     this.drawNodeShape();
   }
 
   public outputUnplugged(): void {
     super.outputUnplugged();
+    this.updateAllCallers();
     this.drawNodeShape();
   }
 
@@ -234,10 +236,10 @@ export class Macro extends PPNode {
 
   protected async updateAllCallers() {
     const nodesCallingMe = Object.values(PPGraph.currentGraph.nodes).filter(
-      (node) => node.isCallingMacro(this.name) && node.updateBehaviour.update
+      (node) => node.isCallingMacro(this.name)
     );
     await Promise.all(
-      nodesCallingMe.map(async (node) => await node.executeOptimizedChain())
+      nodesCallingMe.map(async (node) => await node.calledMacroUpdated())
     );
   }
 
@@ -336,5 +338,10 @@ export class ExecuteMacro extends CustomFunction {
     return inCode
       .replace('MacroName,', '')
       .replace('MacroName', "'" + this.getInputData('MacroName') + "'");
+  }
+
+  public async calledMacroUpdated(): Promise<void> {
+    await this.generateUseNewCode();
+    await super.calledMacroUpdated();
   }
 }
