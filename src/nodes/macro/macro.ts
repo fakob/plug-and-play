@@ -78,7 +78,7 @@ export class Macro extends PPNode {
       socket.hasLink()
     );
     toReturn += linkedOutputs
-      .map((socket) => socket.dataType.getName())
+      .map((socket) => this.getSocketDisplayName(socket) + ": " + socket.dataType.getName())
       .join(',');
     toReturn += ') => ' + this.inputSocketArray[0].dataType.getName();
     return toReturn;
@@ -147,6 +147,14 @@ export class Macro extends PPNode {
     if (last.hasLink()) {
       this.addDefaultOutput();
     }
+    this.updateAllCallers();
+    this.drawNodeShape();
+  }
+
+  public outputUnplugged(): void {
+    super.outputUnplugged();
+    this.updateAllCallers();
+    this.drawNodeShape();
   }
 
   protected getDefaultIO(): Socket[] {
@@ -168,20 +176,17 @@ export class Macro extends PPNode {
   }
 
   getCallMacroCode() {
-    const paramLength = this.outputSocketArray.length;
-    let paramLine = '';
-    for (let i = 1; i < paramLength + 1; i++) {
-      paramLine += ', Parameter_' + i.toString();
-    }
-    return (
-      'async (MacroName' +
+    const allParams = ["MacroName"].concat(this.outputSocketArray.slice(0, -1).map(socket => this.getSocketDisplayName(socket)));
+    let paramLine = allParams.join(",").replaceAll(" ", "_");
+    console.log("paramLine: " + paramLine);
+    const totalMacroCall = 'async (' +
       paramLine +
       ') => {\n\
-      \treturn await macro(MacroName' +
+  \treturn await macro(' +
       paramLine +
       ');\n\
-      }'
-    );
+  }'
+    return totalMacroCall;
   }
 
   public async executeMacro(args: any[]): Promise<any> {
@@ -225,18 +230,26 @@ export class Macro extends PPNode {
     return false;
   }
 
+  public getSocketDisplayName(socket: Socket): string {
+    return socket.isOutput() && socket.hasLink() ? socket.links[0].target.name : socket.name;
+  }
+
+  protected async updateAllCallers() {
+    const nodesCallingMe = Object.values(PPGraph.currentGraph.nodes).filter(
+      (node) => node.isCallingMacro(this.name)
+    );
+    await Promise.all(
+      nodesCallingMe.map(async (node) => await node.calledMacroUpdated())
+    );
+  }
+
   protected async onExecute(
     _inputObject: any,
     _outputObject: Record<string, unknown>
   ): Promise<void> {
     // potentially demanding but important QOL, go through all nodes and see which refer to me, they need to be re-executed
     if (!this.isExecutingFromOutside) {
-      const nodesCallingMe = Object.values(PPGraph.currentGraph.nodes).filter(
-        (node) => node.isCallingMacro(this.name) && node.updateBehaviour.update
-      );
-      await Promise.all(
-        nodesCallingMe.map(async (node) => await node.executeOptimizedChain())
-      );
+      await this.updateAllCallers();
     }
   }
 }
@@ -284,8 +297,8 @@ export class ExecuteMacro extends CustomFunction {
 
   protected getDefaultFunction(): string {
     return 'async (MacroName, Parameter) => {\n\
-    \treturn await macro(MacroName,Parameter);\
-    \n}';
+\treturn await macro(MacroName,Parameter);\
+\n}';
   }
 
   public generateUseNewCode = async () => {
@@ -325,5 +338,10 @@ export class ExecuteMacro extends CustomFunction {
     return inCode
       .replace('MacroName,', '')
       .replace('MacroName', "'" + this.getInputData('MacroName') + "'");
+  }
+
+  public async calledMacroUpdated(): Promise<void> {
+    await this.generateUseNewCode();
+    await super.calledMacroUpdated();
   }
 }

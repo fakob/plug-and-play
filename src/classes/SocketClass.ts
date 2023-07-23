@@ -168,7 +168,7 @@ export default class Socket extends PIXI.Container {
     this.addChild(this._SocketRef);
 
     if (this.showLabel) {
-      this._TextRef = new PIXI.Text(this.name, SOCKET_TEXTSTYLE);
+      this._TextRef = new PIXI.Text(this.getNode()?.getSocketDisplayName(this), SOCKET_TEXTSTYLE);
       if (this.socketType === SOCKET_TYPE.OUT) {
         this._TextRef.anchor.set(1, 0);
         this._TextRef.name = 'TextRef';
@@ -394,7 +394,7 @@ export default class Socket extends PIXI.Container {
     const center = PPGraph.currentGraph.getSocketCenter(this);
     const dist = Math.sqrt(
       Math.pow(currPos.y - center.y, 2) +
-        0.05 * Math.pow(currPos.x - center.x, 2)
+      0.05 * Math.pow(currPos.x - center.x, 2)
     );
     const maxDist = 20;
     const scaleOutside =

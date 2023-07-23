@@ -253,7 +253,9 @@ export const SelectWidget: React.FunctionComponent<SelectWidgetProps> = (
     if (props.onChange) {
       props.onChange(value);
     }
-    props.property.getNode().metaInfoChanged();
+    if (props.property.getNode()) {
+      props.property.getNode().metaInfoChanged();
+    }
   };
 
   useEffect(() => {
@@ -602,8 +604,8 @@ export const ColorWidget: React.FunctionComponent<ColorWidgetProps> = (
           props.hasLink
             ? undefined
             : () => {
-                showColorPicker(!colorPicker);
-              }
+              showColorPicker(!colorPicker);
+            }
         }
       >
         {props.isInput && !props.hasLink ? 'Pick a color' : ''}
