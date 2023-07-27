@@ -60,7 +60,7 @@ export class Macro extends PPNode {
   }
 
   protected getUpdateBehaviour(): UpdateBehaviourClass {
-    return new UpdateBehaviourClass(true, false, 1000);
+    return new UpdateBehaviourClass(false, false, 1000);
   }
 
   onRemoved(): void {
@@ -78,7 +78,10 @@ export class Macro extends PPNode {
       socket.hasLink()
     );
     toReturn += linkedOutputs
-      .map((socket) => this.getSocketDisplayName(socket) + ": " + socket.dataType.getName())
+      .map(
+        (socket) =>
+          this.getSocketDisplayName(socket) + ': ' + socket.dataType.getName()
+      )
       .join(',');
     toReturn += ') => ' + this.inputSocketArray[0].dataType.getName();
     return toReturn;
@@ -176,16 +179,21 @@ export class Macro extends PPNode {
   }
 
   getCallMacroCode() {
-    const allParams = ["MacroName"].concat(this.outputSocketArray.slice(0, -1).map(socket => this.getSocketDisplayName(socket)));
-    let paramLine = allParams.join(",").replaceAll(" ", "_");
-    console.log("paramLine: " + paramLine);
-    const totalMacroCall = 'async (' +
+    const allParams = ['MacroName'].concat(
+      this.outputSocketArray
+        .slice(0, -1)
+        .map((socket) => this.getSocketDisplayName(socket))
+    );
+    const paramLine = allParams.join(',').replaceAll(' ', '_');
+    console.log('paramLine: ' + paramLine);
+    const totalMacroCall =
+      'async (' +
       paramLine +
       ') => {\n\
   \treturn await macro(' +
       paramLine +
       ');\n\
-  }'
+  }';
     return totalMacroCall;
   }
 
@@ -231,7 +239,9 @@ export class Macro extends PPNode {
   }
 
   public getSocketDisplayName(socket: Socket): string {
-    return socket.isOutput() && socket.hasLink() ? socket.links[0].target.name : socket.name;
+    return socket.isOutput() && socket.hasLink()
+      ? socket.links[0].target.name
+      : socket.name;
   }
 
   protected async updateAllCallers() {

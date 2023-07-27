@@ -309,14 +309,12 @@ export class CustomFunction extends PPNode {
       const parameters = macroContents.trim().split(',');
 
       let formattedParamsString = parameters[0];
-      if (parameters.length > 1) {
-        formattedParamsString += ',';
-        formattedParamsString += '[';
-        for (let i = 1; i < parameters.length; i++) {
-          formattedParamsString += parameters[i] + ',';
-        }
-        formattedParamsString += ']';
+      formattedParamsString += ',';
+      formattedParamsString += '[';
+      for (let i = 1; i < parameters.length; i++) {
+        formattedParamsString += parameters[i] + ',';
       }
+      formattedParamsString += ']';
       const finalMacroDefinition =
         'this.invokeMacro(' + formattedParamsString + ')';
       console.log(finalMacroDefinition);
