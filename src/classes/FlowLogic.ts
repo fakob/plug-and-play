@@ -62,7 +62,9 @@ export default class FlowLogic {
   ): void {
     socketArray.forEach((socket) => {
       Object.values(socket.getLinkedNodes(upstream)).forEach((dependent) => {
-        currDependents[dependent.id] = dependent;
+        if (dependent) {
+          currDependents[dependent.id] = dependent;
+        }
       });
     });
   }
