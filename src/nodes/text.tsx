@@ -15,6 +15,8 @@ import { StringType } from './datatypes/stringType';
 import { NumberType } from './datatypes/numberType';
 import { ColorType } from './datatypes/colorType';
 
+const LABEL_MAX_STRING_LENGTH = 10000;
+
 const backgroundColorName = 'backgroundColor';
 const inputSocketName = 'Input';
 const outputSocketName = 'Output';
@@ -146,7 +148,12 @@ export class Label extends PPNode {
   }
 
   protected async onExecute(input, output): Promise<void> {
-    const text = String(input[inputSocketName]);
+    let text = String(input[inputSocketName]);
+    text =
+      text.length > LABEL_MAX_STRING_LENGTH
+        ? text.substring(0, LABEL_MAX_STRING_LENGTH) + '...'
+        : text;
+
     const fontSize = Math.max(1, input[fontSizeSocketName]);
     const color: TRgba = input[backgroundColorName];
 

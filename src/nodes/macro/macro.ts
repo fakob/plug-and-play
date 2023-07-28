@@ -9,13 +9,11 @@ import {
 } from '../../utils/constants';
 import { CustomArgs, TRgba } from '../../utils/interfaces';
 import { AnyType } from '../datatypes/anyType';
-import { drawDottedLine } from '../../pixi/utils-pixi';
+import { drawDottedLine, getObjectsInsideBounds } from '../../pixi/utils-pixi';
 import { anyCodeName, CustomFunction } from '../data/dataFunctions';
 import UpdateBehaviourClass from '../../classes/UpdateBehaviourClass';
 import { DynamicEnumType } from '../datatypes/dynamicEnumType';
 import * as PIXI from 'pixi.js';
-import FlowLogic from '../../classes/FlowLogic';
-import { CodeType } from '../datatypes/codeType';
 
 export const macroOutputName = 'Output';
 
@@ -225,8 +223,12 @@ export class Macro extends PPNode {
   }
 
   public onSpecificallySelected(): void {
+    // get all nodes that are within the bounds
     PPGraph.currentGraph.selection.selectNodes(
-      FlowLogic.getAllUpDownstreamNodes(this, true, true, true)
+      getObjectsInsideBounds(
+        Object.values(PPGraph.currentGraph.nodes),
+        this.getBounds()
+      ).concat(this)
     );
   }
 
