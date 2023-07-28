@@ -607,6 +607,10 @@ export class Max extends ArrayFunction {
   protected getDefaultFunction(): string {
     return '(ArrayIn) => {\n\treturn Math.max(...ArrayIn);\n}';
   }
+
+  protected getOutputParameterName(): string {
+    return 'Max Element';
+  }
 }
 
 export class Min extends ArrayFunction {
@@ -620,6 +624,9 @@ export class Min extends ArrayFunction {
 
   protected getDefaultFunction(): string {
     return '(ArrayIn) => {\n\treturn Math.min(...ArrayIn);\n}';
+  }
+  protected getOutputParameterName(): string {
+    return 'Min Element';
   }
 }
 
@@ -645,5 +652,30 @@ export class ArrayToObject extends ArrayFunction {
 
   protected getOutputParameterName(): string {
     return 'Object';
+  }
+}
+
+export class Reduce extends ArrayFunction {
+  public getName(): string {
+    return 'Reduce array';
+  }
+
+  public getDescription(): string {
+    return 'Reduce (or fold) an array into a single value';
+  }
+
+  protected getDefaultFunction(): string {
+    return '(ArrayIn) => { \n\
+      return ArrayIn.reduce((sum, a) => sum + a,0);\n\
+    }';
+  }
+  protected getOutputParameterName(): string {
+    return 'Reduced';
+  }
+  protected getOutputParameterType(): AbstractType {
+    return new AnyType();
+  }
+  public getTags(): string[] {
+    return ['Array'].concat(super.getTags());
   }
 }
