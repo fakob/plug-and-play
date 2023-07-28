@@ -269,8 +269,8 @@ export class DRAW_Text extends DRAW_Base {
       new Socket(
         SOCKET_TYPE.IN,
         inputWidthName,
-        new NumberType(true, 0, 1000),
-        0
+        new NumberType(true, 0, 2000),
+        1000
       ),
       new Socket(SOCKET_TYPE.IN, inputColorName, new ColorType()),
     ].concat(super.getDefaultIO());
