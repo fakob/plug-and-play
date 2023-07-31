@@ -51,6 +51,7 @@ function Item(props) {
 }
 
 export const Tooltip = (props) => {
+  let timeout;
   const [showTooltip, setShowTooltip] = useState(false);
   const [tooltipObject, setTooltipObject] =
     useState<PIXI.DisplayObject | null>();
@@ -64,28 +65,23 @@ export const Tooltip = (props) => {
 
   useEffect(() => {
     // subscribe to pointermove
-    const ids = [];
-    let timeout;
-    ids.push(
-      InterfaceController.addListener(
-        ListenEvent.GlobalPointerMove,
-        (event: PIXI.FederatedPointerEvent) => {
-          clearTimeout(timeout);
-          setShowTooltip(false);
-          timeout = setTimeout(function () {
-            setPos([event.clientX, event.clientY]);
-            const object = getObjectAtPoint(
-              new PIXI.Point(event.clientX, event.clientY)
-            );
-            setShowTooltip(shouldShow(object));
-            setTooltipObject(object);
-          }, 300);
-        }
-      )
+    const id = InterfaceController.addListener(
+      ListenEvent.GlobalPointerMove,
+      (event: PIXI.FederatedPointerEvent) => {
+        clearTimeout(timeout);
+        setShowTooltip(false);
+        timeout = setTimeout(function () {
+          setPos([event.clientX, event.clientY]);
+          const object = getObjectAtPoint(
+            new PIXI.Point(event.clientX, event.clientY)
+          );
+          setShowTooltip(shouldShow(object));
+          setTooltipObject(object);
+        }, 300);
+      }
     );
-
     return () => {
-      ids.forEach((id) => InterfaceController.removeListener(id));
+      InterfaceController.removeListener(id);
     };
   }, []);
 
@@ -99,7 +95,8 @@ export const Tooltip = (props) => {
         left: pos[0] + 32,
         top: pos[1] - 32,
         p: 1,
-        visibility: showTooltip ? 'visible' : 'hidden',
+        visibility:
+          showTooltip && !props.isContextMenuOpen ? 'visible' : 'hidden',
       }}
     >
       <Item object={tooltipObject} />

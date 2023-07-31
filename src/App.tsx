@@ -839,7 +839,14 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       >
         <div {...getRootProps({ style })}>
           <input {...getInputProps()} />
-          <Tooltip pixiApp={pixiApp.current} />
+          <Tooltip
+            pixiApp={pixiApp.current}
+            isContextMenuOpen={
+              isGraphContextMenuOpen ||
+              isNodeContextMenuOpen ||
+              isSocketContextMenuOpen
+            }
+          />
           <ShareDialog
             showSharePlayground={showSharePlayground}
             setShowSharePlayground={setShowSharePlayground}
