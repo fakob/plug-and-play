@@ -13,7 +13,9 @@
     "prettier:format": "yarn run prettier -- --write src/**/*.ts",
     "start": "node ./server.js",
     "webpack": "webpack",
-    "webpack-dev-server": "webpack serve --hot --open"
+    "webpack-dev-server": "webpack serve --hot --open",
+    "test": "yarn cypress run --spec cypress/e2e/pnp/*.ts",
+    "test-editor": "yarn cypress open"
   },
   "author": "jkanchelov",
   "license": "MIT",
