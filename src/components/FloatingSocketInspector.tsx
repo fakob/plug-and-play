@@ -61,7 +61,9 @@ export const FloatingSocketInspector: React.FunctionComponent<MyProps> = (
         className={styles.floatingSocketInspector}
         elevation={8}
         sx={{
-          left: props.socketInspectorPosition?.x + 32,
+          left:
+            props.socketInspectorPosition?.x +
+            (props.socketToInspect.isInput() ? -320 : 32),
           top: props.socketInspectorPosition?.y,
           display: showFloatingSocketInspector ? 'auto' : 'none',
           width: newWidth ? newWidth : 'undefined',

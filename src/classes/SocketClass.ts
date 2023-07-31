@@ -435,7 +435,7 @@ export default class Socket extends PIXI.Container {
 
   socketNameRefMouseDown(event: PIXI.FederatedPointerEvent): void {
     const clickedSourcePoint = new PIXI.Point(event.global.x, event.global.y);
-    if (event.ctrlKey) {
+    if (event.shiftKey) {
       InterfaceController.onOpenSocketInspector(clickedSourcePoint, this);
     } else {
       InterfaceController.notifyListeners(ListenEvent.SelectionChanged, [
