@@ -17,9 +17,11 @@ jobs:
         # Allow some time for the server to start
       - name: Wait for server
         run: sleep 10
+      - name: run tests
+        run: yarn test
       # Install NPM dependencies, cache them correctly
       # and run all Cypress tests
-      - name: Cypress run
-        uses: cypress-io/github-action@v5
-        with:
-          start: yarn test
+      #- name: Cypress run
+      #  uses: cypress-io/github-action@v5
+      #  with:
+      #    start: yarn test
