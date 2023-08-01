@@ -13,7 +13,10 @@ jobs:
       - name: build PNP
         run: yarn build
       - name: run PNP
-        run: yarn start
+        run: yarn start &
+        # Allow some time for the server to start
+      - name: Wait for server
+        run: sleep 5
       # Install NPM dependencies, cache them correctly
       # and run all Cypress tests
       - name: Cypress run
