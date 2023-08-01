@@ -8,6 +8,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - name: install PNP
+        run: yarn install
       - name: build PNP
         run: yarn build
       - name: run PNP
