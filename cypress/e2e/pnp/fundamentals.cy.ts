@@ -1,7 +1,7 @@
 describe('fundamentals', () => {
   it('opens page', () => {
-    cy.visit('http://localhost:8080');
-    cy.wait(2000); // ugly, should not have to wait
+    cy.visit('http://127.0.0.1:8080');
+    //cy.wait(2000); // ugly, should not have to wait
   });
   /*it('right click', () => {
     cy.get('.DwtG9OodcaM_pw_oSWFh > canvas').rightclick(); // just background
