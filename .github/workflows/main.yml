@@ -8,6 +8,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - name: build PNP
+        run: yarn build
+      - name: run PNP
+        run: yarn start
       # Install NPM dependencies, cache them correctly
       # and run all Cypress tests
       - name: Cypress run
