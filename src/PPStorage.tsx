@@ -291,7 +291,7 @@ export default class PPStorage {
     if (loadedGraph === undefined) {
       const graphs = await this.db.graphs.toArray();
       loadedGraph = graphs.sort(
-        (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
       )?.[0];
     }
 
@@ -334,52 +334,35 @@ export default class PPStorage {
     this.loadGraphFromDB(newName);
   }
 
-  saveGraph(saveNew = false, newName = undefined) {
+  async saveGraph(saveNew = false, newName = undefined) {
     const serializedGraph = PPGraph.currentGraph.serialize();
-    console.log(serializedGraph);
-    this.db
-      .transaction('rw', this.db.graphs, this.db.settings, async () => {
-        const graphs = await this.db.graphs.toArray();
-        const loadedGraphId = PPGraph.currentGraph.id;
-        const loadedGraph = graphs.find((graph) => graph.id === loadedGraphId);
+    const loadedGraphId = PPGraph.currentGraph.id;
+    const existingGraph = await this.getGraphFromDB(loadedGraphId);
 
-        if (saveNew || loadedGraph === undefined) {
-          const newId = hri.random();
-          const tempName = newId
-            .substring(0, newId.lastIndexOf('-'))
-            .replace('-', ' ');
-          const name = newName ?? tempName;
-          await this.db.graphs.add({
-            id: newId,
-            date: new Date(),
-            name,
-            graphData: serializedGraph,
-          });
-
-          PPGraph.currentGraph.id = newId;
-
-          InterfaceController.notifyListeners(ListenEvent.GraphChanged, {
-            newId,
-            name,
-          });
-
-          InterfaceController.showSnackBar('New playground was saved');
-        } else {
-          const indexId = await this.db.graphs
-            .where('id')
-            .equals(loadedGraphId)
-            .modify({
-              date: new Date(),
-              graphData: serializedGraph,
-            });
-          console.log(`Updated currentGraph: ${indexId}`);
-          InterfaceController.showSnackBar('Playground was saved');
-        }
-        ActionHandler.setUnsavedChange(false);
-      })
-      .catch((e) => {
-        console.log(e.stack || e);
+    if (saveNew || existingGraph === undefined) {
+      const newId = hri.random();
+      const tempName = newId
+        .substring(0, newId.lastIndexOf('-'))
+        .replace('-', ' ');
+      const name = newName ?? tempName;
+      this.db.graphs.put({
+        id: newId,
+        date: new Date(),
+        name,
+        graphData: serializedGraph,
       });
+      PPGraph.currentGraph.id = newId;
+      InterfaceController.notifyListeners(ListenEvent.GraphChanged, {
+        newId,
+        name,
+      });
+    } else {
+      existingGraph.graphData = serializedGraph;
+      existingGraph.date = new Date();
+      this.db.graphs.put(existingGraph);
+      InterfaceController.showSnackBar('Playground was saved');
+    }
+    ActionHandler.setUnsavedChange(false);
   }
 
   saveNewGraph(newName = undefined) {
