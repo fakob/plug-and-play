@@ -276,35 +276,23 @@ export default class PPStorage {
   }
 
   async getGraphFromDB(id: string): Promise<undefined | any> {
-    await this.db
-      .transaction('rw', this.db.graphs, this.db.settings, async () => {
-        const graphs = await this.db.graphs.toArray();
-        const loadedGraph = graphs.find((graph) => graph.id === id);
-        return loadedGraph;
-      })
-      .catch((e) => {
-        console.log(e.stack || e);
-      });
-    return undefined;
+    try {
+      const loadedGraph = await this.db.graphs.get(id);
+      return loadedGraph;
+    } catch (e) {
+      console.log(e.stack || e);
+      return undefined;
+    }
   }
 
   async loadGraphFromDB(id = PPGraph.currentGraph.id): Promise<void> {
     let loadedGraph = await this.getGraphFromDB(id);
     // check if graph exists and load last saved graph if it does not
     if (loadedGraph === undefined) {
-      await this.db.transaction(
-        'rw',
-        this.db.graphs,
-        this.db.settings,
-        async () => {
-          const graphs = await this.db.graphs.toArray();
-          if (graphs.length) {
-            loadedGraph = graphs.reduce((a, b) => {
-              return new Date(a.date) > new Date(b.date) ? a : b;
-            });
-          }
-        }
-      );
+      const graphs = await this.db.graphs.toArray();
+      loadedGraph = graphs.sort(
+        (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+      )?.[0];
     }
 
     // see if we found something to load
@@ -361,7 +349,7 @@ export default class PPStorage {
             .substring(0, newId.lastIndexOf('-'))
             .replace('-', ' ');
           const name = newName ?? tempName;
-          await this.db.graphs.put({
+          await this.db.graphs.add({
             id: newId,
             date: new Date(),
             name,
