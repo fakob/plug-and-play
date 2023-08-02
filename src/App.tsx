@@ -79,7 +79,7 @@ import { InputParser } from './utils/inputParser';
 import styles from './utils/style.module.css';
 import { ActionHandler } from './utils/actionHandler';
 import InterfaceController, { ListenEvent } from './InterfaceController';
-import PPStorage from './PPStorage';
+import PPStorage, { checkForUnsavedChanges } from './PPStorage';
 import PPSelection from './classes/SelectionClass';
 
 TimeAgo.addDefaultLocale(en);
@@ -475,6 +475,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       InterfaceController.addListener(ListenEvent.GraphChanged, (data: any) => {
         setActionObject(data);
         setGraphSearchActiveItem(data);
+        updateGraphSearchItems();
       })
     );
 
@@ -600,7 +601,9 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         // remove selection flag
         selected.isNew = undefined;
       } else {
-        PPStorage.getInstance().loadGraphFromDB(selected.id);
+        if (checkForUnsavedChanges()) {
+          PPStorage.getInstance().loadGraphFromDB(selected.id);
+        }
       }
       setGraphSearchActiveItem(selected);
     }
@@ -808,12 +811,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       document.getElementById('playground-name-input') as HTMLInputElement
     ).value;
     setShowEdit(false);
-    PPStorage.getInstance().renameGraph(
-      actionObject.id,
-      name,
-      setActionObject,
-      updateGraphSearchItems
-    );
+    PPStorage.getInstance().renameGraph(actionObject.id, name);
   };
 
   return (

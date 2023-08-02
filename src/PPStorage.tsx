@@ -58,7 +58,7 @@ function detectTrackPad(event) {
   window.removeEventListener('DOMMouseScroll', detectTrackPad);
 }
 
-function checkForUnsavedChanges(): boolean {
+export function checkForUnsavedChanges(): boolean {
   return (
     !ActionHandler.existsUnsavedChanges() ||
     window.confirm('Changes that you made may not be saved. OK to continue?')
@@ -247,12 +247,6 @@ export default class PPStorage {
           ),
         });
 
-        // hacky, but this solves the issue where the graphSearchInput is not being loaded
-        InterfaceController.notifyListeners(ListenEvent.GraphChanged, {
-          id: '',
-          name: '',
-        });
-
         return fileData;
       } catch (error) {
         InterfaceController.showSnackBar('Loading playground failed.', {
@@ -281,66 +275,70 @@ export default class PPStorage {
     }
   }
 
-  async loadGraphFromDB(id = undefined) {
-    let loadedGraph;
-    if (checkForUnsavedChanges()) {
-      await this.db
-        .transaction('rw', this.db.graphs, this.db.settings, async () => {
-          const graphs = await this.db.graphs.toArray();
-
-          if (graphs.length > 0) {
-            loadedGraph = graphs.find(
-              (graph) => graph.id === (id || PPGraph?.currentGraph?.id)
-            );
-
-            // check if graph exists and load last saved graph if it does not
-            if (loadedGraph === undefined) {
-              loadedGraph = graphs.reduce((a, b) => {
-                return new Date(a.date) > new Date(b.date) ? a : b;
-              });
-            }
-          } else {
-            console.log('No saved graphData');
-          }
-        })
-        .catch((e) => {
-          console.log(e.stack || e);
-        });
-      if (loadedGraph) {
-        const graphData = loadedGraph.graphData;
-        await PPGraph.currentGraph.configure(graphData, loadedGraph.id, false);
-
-        InterfaceController.notifyListeners(ListenEvent.GraphChanged, {
-          id: loadedGraph.id,
-          name: loadedGraph.name,
-        });
-
-        InterfaceController.showSnackBar(`${loadedGraph.name} was loaded`);
-      } else {
-        // load get started graph if there is no saved graph
-        this.loadGraphFromURL(GET_STARTED_URL);
-      }
-      ActionHandler.setUnsavedChange(false);
-    }
+  async getGraphFromDB(id: string): Promise<undefined | any> {
+    await this.db
+      .transaction('rw', this.db.graphs, this.db.settings, async () => {
+        const graphs = await this.db.graphs.toArray();
+        const loadedGraph = graphs.find((graph) => graph.id === id);
+        return loadedGraph;
+      })
+      .catch((e) => {
+        console.log(e.stack || e);
+      });
+    return undefined;
   }
 
-  renameGraph(
-    graphId: string,
-    newName = undefined,
-    setActionObject: any,
-    updateGraphSearchItems: any
-  ) {
+  async loadGraphFromDB(id = PPGraph.currentGraph.id): Promise<void> {
+    let loadedGraph = await this.getGraphFromDB(id);
+    // check if graph exists and load last saved graph if it does not
+    if (loadedGraph === undefined) {
+      await this.db.transaction(
+        'rw',
+        this.db.graphs,
+        this.db.settings,
+        async () => {
+          const graphs = await this.db.graphs.toArray();
+          if (graphs.length) {
+            loadedGraph = graphs.reduce((a, b) => {
+              return new Date(a.date) > new Date(b.date) ? a : b;
+            });
+          }
+        }
+      );
+    }
+
+    // see if we found something to load
+    if (loadedGraph !== undefined) {
+      const graphData: SerializedGraph = loadedGraph.graphData;
+      await PPGraph.currentGraph.configure(graphData, loadedGraph.id, false);
+
+      InterfaceController.notifyListeners(ListenEvent.GraphChanged, {
+        id: loadedGraph.id,
+        name: loadedGraph.name,
+      });
+
+      InterfaceController.showSnackBar(`${loadedGraph.name} was loaded`);
+    } else {
+      this.loadGraphFromURL(GET_STARTED_URL);
+    }
+
+    ActionHandler.setUnsavedChange(false);
+  }
+
+  renameGraph(graphId: string, newName = undefined) {
     this.db
       .transaction('rw', this.db.graphs, this.db.settings, async () => {
         await this.db.graphs.where('id').equals(graphId).modify({
           name: newName,
         });
-        setActionObject({ id: graphId, name: newName });
-        updateGraphSearchItems();
         console.log(`Renamed graph: ${graphId} to ${newName}`);
         InterfaceController.showSnackBar(
           `Playground was renamed to ${newName}`
         );
+        InterfaceController.notifyListeners(ListenEvent.GraphChanged, {
+          id: PPGraph.currentGraph.id,
+          name: this.loadGraphFromDB(PPGraph.currentGraph.id),
+        });
       })
       .catch((e) => {
         console.log(e.stack || e);
