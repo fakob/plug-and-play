@@ -24,6 +24,7 @@ import { getAllNodeTypes } from '../nodes/allNodes';
 import { IGraphSearch, INodeSearch } from '../utils/interfaces';
 import { COLOR_DARK, COLOR_WHITE_TEXT } from '../utils/constants';
 import { getNodeExampleURL, writeTextToClipboard } from '../utils/utils';
+import InterfaceController from '../InterfaceController';
 
 export const GraphSearchInput = (props) => {
   const backgroundColor = Color(props.randommaincolor).alpha(0.8);
@@ -75,15 +76,7 @@ export const filterOptionsGraph = (options, params) => {
   return filtered;
 };
 
-export const renderGraphItem = (
-  props,
-  option,
-  state,
-  setIsGraphSearchOpen,
-  setActionObject,
-  setShowEdit,
-  setShowDeleteGraph
-) => {
+export const renderGraphItem = (props, option, state) => {
   const isRemote = option.isRemote;
   const text = option.name;
   const title = isRemote // hover title tag
@@ -147,7 +140,7 @@ NOTE: save the playground after loading, if you want to make changes to it`
             size="small"
             onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
               event.stopPropagation();
-              setIsGraphSearchOpen(false);
+              InterfaceController.setIsGraphSearchOpen(false);
               writeTextToClipboard(url);
             }}
             title="Copy URL"
@@ -161,7 +154,7 @@ NOTE: save the playground after loading, if you want to make changes to it`
             className="menuItemButton"
             onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
               event.stopPropagation();
-              setIsGraphSearchOpen(false);
+              InterfaceController.setIsGraphSearchOpen(false);
               window.open(`${url}`, '_blank')?.focus();
             }}
           >
@@ -185,7 +178,7 @@ NOTE: save the playground after loading, if you want to make changes to it`
             size="small"
             onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
               event.stopPropagation();
-              setIsGraphSearchOpen(false);
+              InterfaceController.setIsGraphSearchOpen(false);
               PPStorage.getInstance().downloadGraph(option.id);
             }}
             title="Download playground"
@@ -197,9 +190,9 @@ NOTE: save the playground after loading, if you want to make changes to it`
             size="small"
             onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
               event.stopPropagation();
-              setIsGraphSearchOpen(false);
-              setActionObject(option);
-              setShowEdit(true);
+              InterfaceController.setIsGraphSearchOpen(false);
+              InterfaceController.setGraphToBeModified(option);
+              InterfaceController.setShowGraphEdit(true);
             }}
             title="Rename playground"
             className="menuItemButton"
@@ -212,9 +205,9 @@ NOTE: save the playground after loading, if you want to make changes to it`
             className="menuItemButton"
             onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
               event.stopPropagation();
-              setIsGraphSearchOpen(false);
-              setActionObject(option);
-              setShowDeleteGraph(true);
+              InterfaceController.setIsGraphSearchOpen(false);
+              InterfaceController.setGraphToBeModified(option);
+              InterfaceController.setShowGraphDelete(true);
             }}
           >
             <DeleteIcon />
