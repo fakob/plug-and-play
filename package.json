@@ -13,7 +13,9 @@
     "prettier:format": "yarn run prettier -- --write src/**/*.ts",
     "start": "node ./server.js",
     "webpack": "webpack",
-    "webpack-dev-server": "webpack serve --hot --open"
+    "webpack-dev-server": "webpack serve --hot --open",
+    "test": "yarn cypress run --spec cypress/e2e/pnp/*.ts",
+    "test-editor": "yarn cypress open"
   },
   "author": "jkanchelov",
   "license": "MIT",
@@ -35,6 +37,7 @@
     "core-js": "^3.30.2",
     "cors": "^2.8.5",
     "css-minimizer-webpack-plugin": "^5.0.0",
+    "cypress": "^12.17.2",
     "dexie": "^3.2.4",
     "dotenv-webpack": "^8.0.1",
     "eslint-webpack-plugin": "^4.0.1",

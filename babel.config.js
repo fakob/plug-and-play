@@ -20,9 +20,7 @@ module.exports = function (api) {
       },
     ],
   ];
-  const plugins = [
-    ['@babel/transform-runtime'],
-  ];
+  const plugins = [['@babel/transform-runtime']];
   return {
     presets,
     plugins,
