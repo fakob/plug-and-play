@@ -83,18 +83,22 @@ export default class InterfaceController {
   static onCloseSocketInspector: () => void; // called when socket inspector should be closed
   static selectionRedrawn: (pos: PIXI.Point) => void = () => {};
 
-  // these were previously only in app.tsx and are still being set from there
+  // these were previously only in app.tsx and are still being set from there, but they can be accessed from anywhere
   static openNodeSearch: () => void = () => {};
   static toggleGraphSearchOpen: () => void = () => {};
   static toggleShowEdit: () => void = () => {};
   static toggleRightSideDrawer: () => void = () => {};
   static toggleShowComments: () => void = () => {};
 
-  static setIsGraphSearchOpen: (boolean) => void = () => {};
-  static setIsNodeSearchVisible: (boolean) => void = () => {};
-  static setIsGraphContextMenuOpen: (boolean) => void = () => {};
-  static setIsNodeContextMenuOpen: (boolean) => void = () => {};
-  static setIsSocketContextMenuOpen: (boolean) => void = () => {};
+  static setIsGraphSearchOpen: (open: boolean) => void = () => {};
+  static setIsNodeSearchVisible: (open: boolean) => void = () => {};
+  static setIsGraphContextMenuOpen: (open: boolean) => void = () => {};
+  static setIsNodeContextMenuOpen: (open: boolean) => void = () => {};
+  static setIsSocketContextMenuOpen: (open: boolean) => void = () => {};
+
+  static setGraphToBeModified: (graph: any /*Graph*/) => void = () => {};
+  static setShowGraphEdit: (show: boolean) => void = () => {};
+  static setShowGraphDelete: (show: boolean) => void = () => {};
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -180,7 +184,7 @@ export default class InterfaceController {
       if (e.shiftKey) {
         PPStorage.getInstance().saveNewGraph();
       } else {
-        PPStorage.getInstance().saveGraph(false);
+        PPStorage.getInstance().saveGraphAction(false);
       }
     } else if (e.key === 'Escape') {
       this.setIsGraphSearchOpen(false);

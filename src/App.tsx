@@ -79,8 +79,9 @@ import { InputParser } from './utils/inputParser';
 import styles from './utils/style.module.css';
 import { ActionHandler } from './utils/actionHandler';
 import InterfaceController, { ListenEvent } from './InterfaceController';
-import PPStorage from './PPStorage';
+import PPStorage, { checkForUnsavedChanges } from './PPStorage';
 import PPSelection from './classes/SelectionClass';
+import { update } from 'lodash';
 
 TimeAgo.addDefaultLocale(en);
 // Create formatter (English).
@@ -123,9 +124,9 @@ const App = (): JSX.Element => {
   const [isSocketContextMenuOpen, setIsSocketContextMenuOpen] = useState(false);
   const [selectedSocket, setSelectedSocket] = useState<PPSocket | null>(null);
   const [contextMenuPosition, setContextMenuPosition] = useState([0, 0]);
-  const [actionObject, setActionObject] = useState(null); // id and name of graph to edit/delete
+  const [graphToBeModified, setGraphToBeModified] = useState(null); // id and name of graph to edit/delete
   const [showComments, setShowComments] = useState(false);
-  const [, setRemoteGraphs, remoteGraphsRef] = useStateRef([]);
+  const [remoteGraphs, setRemoteGraphs, remoteGraphsRef] = useStateRef([]);
   const [graphSearchItems, setGraphSearchItems] = useState<
     IGraphSearch[] | null
   >([{ id: '', name: '' }]);
@@ -404,6 +405,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
 
     console.log('PPGraph.currentGraph:', PPGraph.currentGraph);
 
+    //updateGraphSearchItems();
     PPStorage.getInstance()
       .getRemoteGraphsList()
       .then((arrayOfFileNames) => {
@@ -429,6 +431,10 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     InterfaceController.setIsGraphContextMenuOpen = setIsGraphContextMenuOpen;
     InterfaceController.setIsNodeContextMenuOpen = setIsNodeContextMenuOpen;
     InterfaceController.setIsSocketContextMenuOpen = setIsSocketContextMenuOpen;
+
+    InterfaceController.setGraphToBeModified = setGraphToBeModified;
+    InterfaceController.setShowGraphDelete = setShowDeleteGraph;
+    InterfaceController.setShowGraphEdit = setShowEdit;
 
     // register key events
     window.addEventListener('keydown', InterfaceController.keysDown);
@@ -456,6 +462,8 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
 
     window.dispatchEvent(new Event('pointermove')); // to initialise event values
 
+    updateGraphSearchItems();
+
     return () => {
       // Passing the same reference
       graphSearchInput.current.removeEventListener(
@@ -473,8 +481,9 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     const ids = [];
     ids.push(
       InterfaceController.addListener(ListenEvent.GraphChanged, (data: any) => {
-        setActionObject(data);
+        setGraphToBeModified(data);
         setGraphSearchActiveItem(data);
+        updateGraphSearchItems();
       })
     );
 
@@ -600,7 +609,9 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         // remove selection flag
         selected.isNew = undefined;
       } else {
-        PPStorage.getInstance().loadGraphFromDB(selected.id);
+        if (checkForUnsavedChanges()) {
+          PPStorage.getInstance().loadGraphFromDB(selected.id);
+        }
       }
       setGraphSearchActiveItem(selected);
     }
@@ -753,16 +764,14 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     load();
 
     async function load() {
-      const remoteGraphSearchItems = remoteGraphsRef.current.map(
-        (graph, index) => {
-          return {
-            id: index,
-            name: removeExtension(graph), // remove .ppgraph extension
-            label: 'remote',
-            isRemote: true,
-          } as IGraphSearch;
-        }
-      );
+      const remoteGraphSearchItems = remoteGraphs.map((graph, index) => {
+        return {
+          id: index,
+          name: removeExtension(graph), // remove .ppgraph extension
+          label: 'remote',
+          isRemote: true,
+        } as IGraphSearch;
+      });
       // add remote header entry
       if (remoteGraphSearchItems.length > 0) {
         remoteGraphSearchItems.unshift({
@@ -808,12 +817,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       document.getElementById('playground-name-input') as HTMLInputElement
     ).value;
     setShowEdit(false);
-    PPStorage.getInstance().renameGraph(
-      actionObject.id,
-      name,
-      setActionObject,
-      updateGraphSearchItems
-    );
+    PPStorage.getInstance().renameGraph(graphToBeModified.id, name);
   };
 
   return (
@@ -853,7 +857,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               <DialogContentText id="alert-dialog-description">
                 Are you sure you want to delete
                 <br />
-                <b>{`${actionObject?.name}`}</b>?
+                <b>{`${graphToBeModified?.name}`}</b>?
               </DialogContentText>
             </DialogContent>
             <DialogActions>
@@ -864,10 +868,10 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
                 onClick={() => {
                   setShowDeleteGraph(false);
                   const deletedGraphID = PPStorage.getInstance().deleteGraph(
-                    actionObject.id
+                    graphToBeModified.id
                   );
                   updateGraphSearchItems();
-                  if (actionObject.id == deletedGraphID) {
+                  if (graphToBeModified.id == deletedGraphID) {
                     PPStorage.getInstance().loadGraphFromDB();
                   }
                 }}
@@ -897,8 +901,8 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
                   label="Name of playground"
                   fullWidth
                   variant="standard"
-                  defaultValue={`${actionObject?.name}`}
-                  placeholder={`${actionObject?.name}`}
+                  defaultValue={`${graphToBeModified?.name}`}
+                  placeholder={`${graphToBeModified?.name}`}
                 />
               </DialogContent>
               <DialogActions>
@@ -1013,15 +1017,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
                 onChange={handleGraphItemSelect}
                 filterOptions={filterOptionsGraph}
                 renderOption={(props, option, state) =>
-                  renderGraphItem(
-                    props,
-                    option,
-                    state,
-                    setIsGraphSearchOpen,
-                    setActionObject,
-                    setShowEdit,
-                    setShowDeleteGraph
-                  )
+                  renderGraphItem(props, option, state)
                 }
                 renderInput={(props) => (
                   <GraphSearchInput

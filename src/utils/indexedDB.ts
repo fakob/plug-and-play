@@ -1,7 +1,7 @@
 import Dexie from 'dexie';
 import { SerializedGraph } from './interfaces';
 
-interface Graph {
+export interface Graph {
   id: string;
   date: Date;
   graphData: SerializedGraph;
@@ -9,7 +9,7 @@ interface Graph {
   name?: string;
 }
 
-interface Settings {
+export interface Settings {
   name: string;
   value: string;
 }
@@ -24,14 +24,14 @@ interface LocalResource {
 
 // Declare Database
 export class GraphDatabase extends Dexie {
-  public graphs: Dexie.Table<Graph, number>; // id is number in this case
-  public settings: Dexie.Table<Settings, string>; // id is number in this case
-  public localResources: Dexie.Table<LocalResource, string>; // id is number in this case
+  public graphs: Dexie.Table<Graph, string>;
+  public settings: Dexie.Table<Settings, string>;
+  public localResources: Dexie.Table<LocalResource, string>;
 
   public constructor() {
     super('GraphDatabase');
     this.version(2).stores({
-      graphs: '++id',
+      graphs: 'id',
       settings: '&name',
       localResources: '&id',
     });
