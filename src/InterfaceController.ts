@@ -184,7 +184,7 @@ export default class InterfaceController {
       if (e.shiftKey) {
         PPStorage.getInstance().saveNewGraph();
       } else {
-        PPStorage.getInstance().saveGraph(false);
+        PPStorage.getInstance().saveGraphAction(false);
       }
     } else if (e.key === 'Escape') {
       this.setIsGraphSearchOpen(false);

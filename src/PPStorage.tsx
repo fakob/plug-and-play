@@ -21,6 +21,7 @@ import { hri } from 'human-readable-ids';
 import { Button } from '@mui/material';
 import React from 'react';
 import { SerializedGraph } from './utils/interfaces';
+import { Graph } from './utils/indexedDB';
 
 (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__ &&
   (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__.register({ PIXI: PIXI });
@@ -275,7 +276,7 @@ export default class PPStorage {
     }
   }
 
-  async getGraphFromDB(id: string): Promise<undefined | any> {
+  async getGraphFromDB(id: string): Promise<undefined | Graph> {
     try {
       const loadedGraph = await this.db.graphs.get(id);
       return loadedGraph;
@@ -313,60 +314,49 @@ export default class PPStorage {
     ActionHandler.setUnsavedChange(false);
   }
 
-  renameGraph(graphId: string, newName = undefined) {
-    this.db
-      .transaction('rw', this.db.graphs, this.db.settings, async () => {
-        await this.db.graphs.where('id').equals(graphId).modify({
-          name: newName,
-        });
-        console.log(`Renamed graph: ${graphId} to ${newName}`);
-        InterfaceController.showSnackBar(
-          `Playground was renamed to ${newName}`
-        );
-        InterfaceController.notifyListeners(ListenEvent.GraphChanged, {
-          id: PPGraph.currentGraph.id,
-          name: this.loadGraphFromDB(PPGraph.currentGraph.id),
-        });
-      })
-      .catch((e) => {
-        console.log(e.stack || e);
-      });
-    this.loadGraphFromDB(newName);
+  async renameGraph(graphId: string, newName: string) {
+    const existing = await this.getGraphFromDB(graphId);
+    await this.saveGraphToDabase(graphId, existing.graphData, newName);
+    await this.loadGraphFromDB(graphId);
   }
 
-  async saveGraph(saveNew = false, newName = undefined) {
+  async saveGraphAction(saveNew = false, newName = undefined) {
     const serializedGraph = PPGraph.currentGraph.serialize();
     const loadedGraphId = PPGraph.currentGraph.id;
-    const existingGraph = await this.getGraphFromDB(loadedGraphId);
+    const existingGraph: Graph = await this.getGraphFromDB(loadedGraphId);
 
     if (saveNew || existingGraph === undefined) {
       const newId = hri.random();
-      const tempName = newId
-        .substring(0, newId.lastIndexOf('-'))
-        .replace('-', ' ');
-      const name = newName ?? tempName;
-      this.db.graphs.put({
-        id: newId,
-        date: new Date(),
-        name,
-        graphData: serializedGraph,
-      });
+      const name =
+        newName ?? newId.substring(0, newId.lastIndexOf('-')).replace('-', ' ');
+      await this.saveGraphToDabase(newId, serializedGraph, name);
       PPGraph.currentGraph.id = newId;
       InterfaceController.notifyListeners(ListenEvent.GraphChanged, {
         newId,
         name,
       });
     } else {
-      existingGraph.graphData = serializedGraph;
-      existingGraph.date = new Date();
-      this.db.graphs.put(existingGraph);
-      InterfaceController.showSnackBar('Playground was saved');
+      await this.saveGraphToDabase(
+        existingGraph.id,
+        serializedGraph,
+        existingGraph.name
+      );
     }
     ActionHandler.setUnsavedChange(false);
   }
 
+  async saveGraphToDabase(id: string, graphData: SerializedGraph, name) {
+    await this.db.graphs.put({
+      id,
+      name: name,
+      graphData,
+      date: new Date(),
+    });
+    InterfaceController.showSnackBar('Playground was saved');
+  }
+
   saveNewGraph(newName = undefined) {
-    this.saveGraph(true, newName);
+    this.saveGraphAction(true, newName);
   }
 
   async cloneRemoteGraph(id = undefined, remoteGraphsRef: any) {

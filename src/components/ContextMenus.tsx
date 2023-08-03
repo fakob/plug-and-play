@@ -205,7 +205,7 @@ export const GraphContextMenu = (props) => {
             {`${props.controlOrMetaKey}+E`}
           </Typography>
         </MenuItem>
-        <MenuItem onClick={() => PPStorage.getInstance().saveGraph()}>
+        <MenuItem onClick={() => PPStorage.getInstance().saveGraphAction()}>
           <ListItemIcon>
             <SaveIcon fontSize="small" />
           </ListItemIcon>
