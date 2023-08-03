@@ -81,6 +81,7 @@ import { ActionHandler } from './utils/actionHandler';
 import InterfaceController, { ListenEvent } from './InterfaceController';
 import PPStorage, { checkForUnsavedChanges } from './PPStorage';
 import PPSelection from './classes/SelectionClass';
+import { update } from 'lodash';
 
 TimeAgo.addDefaultLocale(en);
 // Create formatter (English).
@@ -125,7 +126,7 @@ const App = (): JSX.Element => {
   const [contextMenuPosition, setContextMenuPosition] = useState([0, 0]);
   const [graphToBeModified, setGraphToBeModified] = useState(null); // id and name of graph to edit/delete
   const [showComments, setShowComments] = useState(false);
-  const [, setRemoteGraphs, remoteGraphsRef] = useStateRef([]);
+  const [remoteGraphs, setRemoteGraphs, remoteGraphsRef] = useStateRef([]);
   const [graphSearchItems, setGraphSearchItems] = useState<
     IGraphSearch[] | null
   >([{ id: '', name: '' }]);
@@ -404,6 +405,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
 
     console.log('PPGraph.currentGraph:', PPGraph.currentGraph);
 
+    //updateGraphSearchItems();
     PPStorage.getInstance()
       .getRemoteGraphsList()
       .then((arrayOfFileNames) => {
@@ -459,6 +461,8 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     });
 
     window.dispatchEvent(new Event('pointermove')); // to initialise event values
+
+    updateGraphSearchItems();
 
     return () => {
       // Passing the same reference
@@ -760,16 +764,14 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     load();
 
     async function load() {
-      const remoteGraphSearchItems = remoteGraphsRef.current.map(
-        (graph, index) => {
-          return {
-            id: index,
-            name: removeExtension(graph), // remove .ppgraph extension
-            label: 'remote',
-            isRemote: true,
-          } as IGraphSearch;
-        }
-      );
+      const remoteGraphSearchItems = remoteGraphs.map((graph, index) => {
+        return {
+          id: index,
+          name: removeExtension(graph), // remove .ppgraph extension
+          label: 'remote',
+          isRemote: true,
+        } as IGraphSearch;
+      });
       // add remote header entry
       if (remoteGraphSearchItems.length > 0) {
         remoteGraphSearchItems.unshift({

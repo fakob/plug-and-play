@@ -151,7 +151,10 @@ export default class PPStorage {
     }
   };
 
-  getRemoteGraphsList = async (): Promise<string[]> => {
+  getRemoteGraphsList = async (timeouts = 10): Promise<string[]> => {
+    if (timeouts == 0) {
+      return [];
+    }
     try {
       const branches = await fetch(
         `${GITHUB_API_URL}/branches/${GITHUB_BRANCH_NAME}`,
@@ -175,7 +178,9 @@ export default class PPStorage {
 
       return arrayOfFileNames;
     } catch (error) {
-      return [];
+      console.log('Failed to fetch remote graphs: ' + error);
+      await new Promise((r) => setTimeout(r, 100));
+      return this.getRemoteGraphsList(timeouts - 1);
     }
   };
 
