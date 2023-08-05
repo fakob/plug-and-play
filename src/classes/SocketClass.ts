@@ -80,6 +80,7 @@ export default class Socket extends PIXI.Container {
     this.addEventListener('pointerover', this.onPointerOver.bind(this));
     this.addEventListener('pointerout', this.onPointerOut.bind(this));
     this.addEventListener('pointerup', this.onPointerUp);
+    this.addEventListener('pointerdown', this.onSocketPointerDown.bind(this));
 
     this.redrawAnythingChanging();
   }
@@ -162,10 +163,6 @@ export default class Socket extends PIXI.Container {
     this._SocketRef.endFill();
     this._SocketRef.name = 'SocketRef';
     this._SocketRef.eventMode = 'static';
-    this._SocketRef.addEventListener(
-      'pointerdown',
-      this.onSocketRefPointerDown.bind(this)
-    );
 
     this.addChild(this._SelectionBox);
     this.addChild(this._SocketRef);
@@ -428,7 +425,7 @@ export default class Socket extends PIXI.Container {
     this.getGraph().socketHoverOut(this);
   }
 
-  onSocketRefPointerDown(event: PIXI.FederatedPointerEvent): void {
+  onSocketPointerDown(event: PIXI.FederatedPointerEvent): void {
     const clickedSourcePoint = getTooltipPositionForSocket(this);
     if (event.shiftKey) {
       InterfaceController.onOpenSocketInspector(clickedSourcePoint, this);
@@ -442,10 +439,7 @@ export default class Socket extends PIXI.Container {
   }
 
   socketNameRefMouseDown(event: PIXI.FederatedPointerEvent): void {
-    const clickedSourcePoint = getTooltipPositionForSocket(this);
-    if (event.shiftKey) {
-      InterfaceController.onOpenSocketInspector(clickedSourcePoint, this);
-    } else {
+    if (!event.shiftKey) {
       InterfaceController.notifyListeners(ListenEvent.SelectionChanged, [
         this.getNode(),
       ]);

@@ -92,6 +92,7 @@ export const FloatingSocketInspector: React.FunctionComponent<MyProps> = (
               display: 'inline-flex',
               alignItems: 'center',
               flexGrow: 1,
+              userSelect: 'none',
             }}
           >
             {props.socketToInspect.parent?.name}

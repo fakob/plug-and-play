@@ -179,8 +179,11 @@ const SocketHeader: React.FunctionComponent<SocketHeaderProps> = (props) => {
           <IconButton
             size="small"
             onClick={() => writeDataToClipboard(props.property?.data)}
+            sx={{
+              borderRadius: 0,
+            }}
           >
-            <ContentCopyIcon sx={{ pl: 1, fontSize: '16px' }} />
+            <ContentCopyIcon sx={{ fontSize: '12px' }} />
           </IconButton>
         </Box>
         <IconButton

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import * as PIXI from 'pixi.js';
-import { Box, Paper, ThemeProvider, Typography } from '@mui/material';
+import { Box, Paper, ThemeProvider } from '@mui/material';
 import { SocketContainer } from '../SocketContainer';
 import InterfaceController, { ListenEvent } from '../InterfaceController';
 import PPGraph from '../classes/GraphClass';
@@ -31,16 +31,18 @@ function Item(props) {
       const socket = object?.parent as PPSocket;
       return (
         <>
-          <Typography
-            variant="caption"
-            color="text.secondary"
+          <Box
             sx={{
-              px: '8px',
-              py: '4px',
+              p: '8px',
+              py: '9px',
+              color: 'text.primary',
+              fontWeight: 'medium',
+              fontSize: 'small',
+              fontStyle: 'italic',
             }}
           >
             Shift+Click to pin
-          </Typography>
+          </Box>
           <SocketContainer
             triggerScrollIntoView={false}
             key={0}
@@ -115,8 +117,9 @@ export const Tooltip = (props) => {
         elevation={8}
         sx={{
           position: 'absolute',
-          zIndex: 1400,
-          p: 1,
+          zIndex: 1210,
+          px: 1,
+          pb: 1,
           width: TOOLTIP_WIDTH,
           left: Math.min(window.innerWidth - TOOLTIP_WIDTH, pos[0]),
           top: pos[1],

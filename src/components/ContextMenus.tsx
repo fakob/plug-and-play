@@ -107,7 +107,7 @@ const SubMenuItem = (props: SubMenuItemProps) => {
           sx={{
             minWidth: 240,
             maxWidth: '100%',
-            zIndex: 1300,
+            zIndex: 1230,
           }}
         >
           <MenuList dense>{props.children}</MenuList>
@@ -162,7 +162,7 @@ export const GraphContextMenu = (props) => {
         maxHeight: 'calc(100vh - 112px)',
         overflow: 'auto',
         position: 'absolute',
-        zIndex: 1300,
+        zIndex: 1230,
         left: props.contextMenuPosition[0],
         top: props.contextMenuPosition[1],
       }}
@@ -475,7 +475,7 @@ export const NodeContextMenu = (props) => {
         width: CONTEXTMENU_WIDTH,
         maxWidth: '100%',
         position: 'absolute',
-        zIndex: 1300,
+        zIndex: 1230,
         left: props.contextMenuPosition[0],
         top: props.contextMenuPosition[1],
       }}
@@ -674,7 +674,7 @@ export const SocketContextMenu = (props) => {
         minWidth: 240,
         maxWidth: '100%',
         position: 'absolute',
-        zIndex: 1300,
+        zIndex: 1230,
         left: props.contextMenuPosition[0],
         top: props.contextMenuPosition[1],
       }}
