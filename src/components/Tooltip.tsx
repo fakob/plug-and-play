@@ -17,7 +17,9 @@ import { TPPType } from '../utils/interfaces';
 import { TOOLTIP_WIDTH, customTheme } from '../utils/constants';
 
 function shouldShow(object) {
-  return isSocket(object) || isNode(object);
+  return (
+    isSocket(object) || (isNode(object) && !(object as PPNode).doubleClicked)
+  );
 }
 
 function Content(props) {
