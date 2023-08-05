@@ -17,6 +17,7 @@ import {
   NODE_PADDING_TOP,
   SOCKET_TEXTMARGIN_TOP,
   SOCKET_WIDTH,
+  TOOLTIP_DISTANCE,
   TOOLTIP_WIDTH,
 } from './constants';
 import { GraphDatabase } from './indexedDB';
@@ -885,7 +886,7 @@ export function isSelection(object) {
 
 export const getTooltipPositionBasedOnType = (object: TPPType): PIXI.Point => {
   const scale = PPGraph.currentGraph.viewportScaleX;
-  const distanceX = 32 * scale;
+  const distanceX = TOOLTIP_DISTANCE * scale;
   let absPos;
   switch (true) {
     case isSocket(object):
@@ -909,7 +910,7 @@ export const getTooltipPositionBasedOnType = (object: TPPType): PIXI.Point => {
       const selection = object as PPSelection;
       absPos = selection.selectionGraphics.getBounds();
       return new PIXI.Point(
-        Math.max(0, absPos.x - TOOLTIP_WIDTH - 32),
+        Math.max(0, absPos.x - TOOLTIP_WIDTH - TOOLTIP_DISTANCE),
         absPos.y
       );
     default:
