@@ -1,4 +1,5 @@
 import * as PIXI from 'pixi.js';
+import PPSelection from '../classes/SelectionClass';
 import PPNode from '../classes/NodeClass';
 import PPSocket from '../classes/SocketClass';
 import { IUpdateBehaviour } from '../classes/UpdateBehaviourClass';
@@ -124,7 +125,7 @@ export type TPastePos = {
   y: number;
 };
 
-export type TPPType = PPNode | PPSocket;
+export type TPPType = PPSelection | PPNode | PPSocket;
 
 export class TRgba {
   r = 0;

@@ -5,8 +5,9 @@ import isUrl from 'is-url';
 import { useTheme } from '@mui/material';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import PPGraph from '../classes/GraphClass';
-import PPSocket from '../classes/SocketClass';
+import PPSelection from '../classes/SelectionClass';
 import PPNode from '../classes/NodeClass';
+import PPSocket from '../classes/SocketClass';
 import {
   CONDITION_OPTIONS,
   GESTUREMODE,
@@ -855,6 +856,8 @@ export const getTypeAtPoint = (point): TPPType => {
       return getSocket(object);
     case isNode(object):
       return object as PPNode;
+    case isSelection(object):
+      return object as PPSelection;
     default:
       return undefined;
   }
@@ -874,6 +877,10 @@ export function getSocket(socketish): PPSocket {
 
 export function isNode(object) {
   return object instanceof PPNode;
+}
+
+export function isSelection(object) {
+  return object instanceof PPSelection;
 }
 
 export const getTooltipPositionBasedOnType = (object: TPPType): PIXI.Point => {
@@ -898,6 +905,13 @@ export const getTooltipPositionBasedOnType = (object: TPPType): PIXI.Point => {
         Math.max(0, absPos.x - TOOLTIP_WIDTH - distanceX),
         absPos.y
       );
+    case isSelection(object):
+      const selection = object as PPSelection;
+      absPos = selection.selectionGraphics.getBounds();
+      return new PIXI.Point(
+        Math.max(0, absPos.x - TOOLTIP_WIDTH - 32),
+        absPos.y
+      );
     default:
       return undefined;
   }
@@ -909,5 +923,13 @@ export function getNodeTooltipData(selectedNode) {
     name: selectedNode.name,
     type: selectedNode.type,
   };
+  return JSON.stringify(data, getCircularReplacer(), 2);
+}
+
+export function getSelectionTooltipData(selection: PPNode[]) {
+  const data = selection.map((node) => {
+    return node.id;
+  });
+
   return JSON.stringify(data, getCircularReplacer(), 2);
 }

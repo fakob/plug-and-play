@@ -2,23 +2,28 @@ import React, { useEffect, useState } from 'react';
 import * as PIXI from 'pixi.js';
 import { Box, Paper, ThemeProvider } from '@mui/material';
 import InterfaceController, { ListenEvent } from '../InterfaceController';
+import PPSelection from '../classes/SelectionClass';
 import PPNode from '../classes/NodeClass';
 import PPSocket from '../classes/SocketClass';
 import { SocketContainer } from '../SocketContainer';
 import { CodeEditor } from '../components/Editor';
 import {
   getNodeTooltipData,
+  getSelectionTooltipData,
   getTypeAtPoint,
   getTooltipPositionBasedOnType,
   isNode,
   isSocket,
+  isSelection,
 } from '../utils/utils';
 import { TPPType } from '../utils/interfaces';
 import { TOOLTIP_WIDTH, customTheme } from '../utils/constants';
 
 function shouldShow(object) {
   return (
-    isSocket(object) || (isNode(object) && !(object as PPNode).doubleClicked)
+    isSocket(object) ||
+    (isNode(object) && !(object as PPNode).doubleClicked) ||
+    isSelection(object)
   );
 }
 
@@ -57,7 +62,6 @@ function Content(props) {
       );
     case isNode(object):
       const node = object as PPNode;
-      const configData = getNodeTooltipData(node);
       return (
         <>
           <Box
@@ -69,10 +73,31 @@ function Content(props) {
               fontSize: 'small',
             }}
           >
-            {node.name}
+            Node: {node.name}
           </Box>
           <CodeEditor
-            value={configData}
+            value={getNodeTooltipData(node)}
+            randomMainColor={props.randomMainColor}
+          />
+        </>
+      );
+    case isSelection(object):
+      const selection = (object as PPSelection).selectedNodes;
+      return (
+        <>
+          <Box
+            sx={{
+              p: '8px',
+              py: '9px',
+              color: 'text.primary',
+              fontWeight: 'medium',
+              fontSize: 'small',
+            }}
+          >
+            {(object as PPSelection).selectedNodes.length} nodes selected
+          </Box>
+          <CodeEditor
+            value={getSelectionTooltipData(selection)}
             randomMainColor={props.randomMainColor}
           />
         </>
