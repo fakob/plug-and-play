@@ -17,7 +17,7 @@ import {
   isSelection,
 } from '../utils/utils';
 import { TPPType } from '../utils/interfaces';
-import { TOOLTIP_WIDTH, customTheme } from '../utils/constants';
+import { TOOLTIP_DELAY, TOOLTIP_WIDTH, customTheme } from '../utils/constants';
 
 function shouldShow(object) {
   return (
@@ -134,7 +134,7 @@ export const Tooltip = (props) => {
           setPos(getPosition(object, event));
           setShowTooltip(shouldShow(object));
           setTooltipObject(object);
-        }, 300);
+        }, TOOLTIP_DELAY);
       }
     );
     return () => {
