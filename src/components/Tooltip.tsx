@@ -7,6 +7,8 @@ import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
 import PPSocket from '../classes/SocketClass';
 
+const tooltipWidth = 320;
+
 function isSocket(object) {
   return (
     object?.parent instanceof PPSocket ||
@@ -63,6 +65,23 @@ export const Tooltip = (props) => {
     return objectsUnderPoint;
   };
 
+  const getPositionBasedOnType = (object: PIXI.DisplayObject, event) => {
+    switch (true) {
+      case isSocket(object):
+        const socket = object?.parent as PPSocket;
+        const absPos = socket.getGlobalPosition();
+        const scale = PPGraph.currentGraph.viewportScaleX;
+        const distanceX = 32 * scale;
+        const nodeWidthScaled = socket.getNode()._BackgroundRef.width * scale;
+        if (socket.isInput()) {
+          return [Math.max(0, absPos.x - tooltipWidth - distanceX), absPos.y];
+        }
+        return [Math.max(0, absPos.x + nodeWidthScaled + distanceX), absPos.y];
+      default:
+        return [event.clientX + 16, event.clientY - 8];
+    }
+  };
+
   useEffect(() => {
     // subscribe to pointermove
     const id = InterfaceController.addListener(
@@ -71,10 +90,10 @@ export const Tooltip = (props) => {
         clearTimeout(timeout);
         setShowTooltip(false);
         timeout = setTimeout(function () {
-          setPos([event.clientX, event.clientY]);
           const object = getObjectAtPoint(
             new PIXI.Point(event.clientX, event.clientY)
           );
+          setPos(getPositionBasedOnType(object, event));
           setShowTooltip(shouldShow(object));
           setTooltipObject(object);
         }, 300);
@@ -88,12 +107,11 @@ export const Tooltip = (props) => {
   return (
     <Paper
       sx={{
-        minWidth: 240,
-        maxWidth: '100%',
+        width: tooltipWidth,
         position: 'absolute',
-        zIndex: 400,
-        left: pos[0] + 32,
-        top: pos[1] - 32,
+        zIndex: 1400,
+        left: Math.min(window.innerWidth - tooltipWidth, pos[0]),
+        top: pos[1],
         p: 1,
         visibility:
           showTooltip && !props.isContextMenuOpen ? 'visible' : 'hidden',
