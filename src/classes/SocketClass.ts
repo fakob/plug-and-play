@@ -17,7 +17,10 @@ import {
 import { AbstractType } from '../nodes/datatypes/abstractType';
 import { TriggerType } from '../nodes/datatypes/triggerType';
 import { dataToType, serializeType } from '../nodes/datatypes/typehelper';
-import { getCurrentCursorPosition } from '../utils/utils';
+import {
+  getCurrentCursorPosition,
+  getTooltipPositionForSocket,
+} from '../utils/utils';
 import { TextStyle } from 'pixi.js';
 
 export default class Socket extends PIXI.Container {
@@ -397,7 +400,7 @@ export default class Socket extends PIXI.Container {
     const center = PPGraph.currentGraph.getSocketCenter(this);
     const dist = Math.sqrt(
       Math.pow(currPos.y - center.y, 2) +
-      0.05 * Math.pow(currPos.x - center.x, 2)
+        0.05 * Math.pow(currPos.x - center.x, 2)
     );
     const maxDist = 20;
     const scaleOutside =
@@ -426,7 +429,12 @@ export default class Socket extends PIXI.Container {
   }
 
   onSocketRefPointerDown(event: PIXI.FederatedPointerEvent): void {
-    this.getGraph().socketMouseDown(this, event);
+    const clickedSourcePoint = getTooltipPositionForSocket(this);
+    if (event.shiftKey) {
+      InterfaceController.onOpenSocketInspector(clickedSourcePoint, this);
+    } else {
+      this.getGraph().socketMouseDown(this, event);
+    }
   }
 
   onPointerUp(event: PIXI.FederatedPointerEvent): void {
@@ -434,7 +442,7 @@ export default class Socket extends PIXI.Container {
   }
 
   socketNameRefMouseDown(event: PIXI.FederatedPointerEvent): void {
-    const clickedSourcePoint = new PIXI.Point(event.global.x, event.global.y);
+    const clickedSourcePoint = getTooltipPositionForSocket(this);
     if (event.shiftKey) {
       InterfaceController.onOpenSocketInspector(clickedSourcePoint, this);
     } else {

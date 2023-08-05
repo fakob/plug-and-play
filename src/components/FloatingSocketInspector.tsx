@@ -10,16 +10,15 @@ import {
   ToggleButtonGroup,
 } from '@mui/material';
 import Draggable from 'react-draggable';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CloseIcon from '@mui/icons-material/Close';
 import PPNode from '../classes/NodeClass';
 import Socket from '../classes/SocketClass';
 import {
   DRAWER60M_ICON,
   DRAWER30M_ICON,
+  TOOLTIP_WIDTH,
   customTheme,
 } from './../utils/constants';
-import { writeDataToClipboard } from './../utils/utils';
 import { SocketContainer } from '../SocketContainer';
 import styles from './../utils/style.module.css';
 
@@ -58,15 +57,19 @@ export const FloatingSocketInspector: React.FunctionComponent<MyProps> = (
   return (
     <ThemeProvider theme={customTheme}>
       <PaperComponent
-        className={styles.floatingSocketInspector}
         elevation={8}
         sx={{
-          left:
-            props.socketInspectorPosition?.x +
-            (props.socketToInspect.isInput() ? -320 : 32),
-          top: props.socketInspectorPosition?.y,
+          position: 'absolute',
+          zIndex: 1400,
+          px: 1,
+          pb: 1,
+          left: Math.min(
+            window.innerWidth - TOOLTIP_WIDTH,
+            props.socketInspectorPosition.x
+          ),
+          top: props.socketInspectorPosition.y,
           display: showFloatingSocketInspector ? 'auto' : 'none',
-          width: newWidth ? newWidth : 'undefined',
+          width: newWidth ? newWidth : TOOLTIP_WIDTH,
         }}
         socketinfo={props.socketToInspect}
       >
@@ -88,21 +91,10 @@ export const FloatingSocketInspector: React.FunctionComponent<MyProps> = (
               fontWeight: 'medium',
               display: 'inline-flex',
               alignItems: 'center',
-            }}
-          >
-            {props.socketToInspect.parent?.name}.{props.socketToInspect.name}
-          </Box>
-          <Box
-            sx={{
               flexGrow: 1,
             }}
           >
-            <IconButton
-              size="small"
-              onClick={() => writeDataToClipboard(props.socketToInspect.data)}
-            >
-              <ContentCopyIcon sx={{ fontSize: '16px' }} />
-            </IconButton>
+            {props.socketToInspect.parent?.name}
           </Box>
           <ToggleButtonGroup
             value={newWidth}
@@ -141,7 +133,6 @@ export const FloatingSocketInspector: React.FunctionComponent<MyProps> = (
             hasLink={props.socketToInspect.hasLink()}
             data={props.socketToInspect.data}
             randomMainColor={props.randomMainColor}
-            showHeader={false}
             selectedNode={props.socketToInspect.parent as PPNode}
           />
         </Box>

@@ -173,7 +173,7 @@ export default class PPGraph {
     this.pointerEvent = event;
     //event.stopPropagation();
 
-    InterfaceController.onCloseSocketInspector();
+    // InterfaceController.onCloseSocketInspector();
 
     if (event.button === 0) {
       if (!this.overInputRef && !isPhone()) {
@@ -216,7 +216,7 @@ export default class PPGraph {
       ) {
         this.selection.deselectAllNodesAndResetSelection();
 
-        InterfaceController.onCloseSocketInspector();
+        // InterfaceController.onCloseSocketInspector();
       }
     }
     if (this.selection.isDrawingSelection) {

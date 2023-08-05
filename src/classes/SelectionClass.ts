@@ -542,7 +542,7 @@ export default class PPSelection extends PIXI.Container {
         this.selectedNodes[0]?.allowResize();
     }
 
-    this.drawRectanglesFromSelection();
+    this.drawRectanglesFromSelection(this.selectedNodes.length > 1);
     if (notify) {
       InterfaceController.notifyListeners(
         ListenEvent.SelectionChanged,

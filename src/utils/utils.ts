@@ -9,13 +9,14 @@ import PPSocket from '../classes/SocketClass';
 import PPNode from '../classes/NodeClass';
 import {
   CONDITION_OPTIONS,
-  NODE_PADDING_TOP,
-  NODE_HEADER_HEIGHT,
+  GESTUREMODE,
+  GITHUB_RAW_URL_NODES,
   MAX_STRING_LENGTH,
+  NODE_HEADER_HEIGHT,
+  NODE_PADDING_TOP,
   SOCKET_TEXTMARGIN_TOP,
   SOCKET_WIDTH,
-  GITHUB_RAW_URL_NODES,
-  GESTUREMODE,
+  TOOLTIP_WIDTH,
 } from './constants';
 import { GraphDatabase } from './indexedDB';
 import { SerializedSelection } from './interfaces';
@@ -839,4 +840,18 @@ export const updateDataIfDefault = (
     node.setInputData(inputSocketName, dataToUpdate);
     node.executeOptimizedChain();
   }
+};
+
+export const getTooltipPositionForSocket = (socket: PPSocket): PIXI.Point => {
+  const absPos = socket.getGlobalPosition();
+  const scale = PPGraph.currentGraph.viewportScaleX;
+  const distanceX = 32 * scale;
+  const nodeWidthScaled = socket.getNode()._BackgroundRef.width * scale;
+  const pos = new PIXI.Point(0, absPos.y);
+  if (socket.isInput()) {
+    pos.x = Math.max(0, absPos.x - TOOLTIP_WIDTH - distanceX);
+  } else {
+    pos.x = Math.max(0, absPos.x + nodeWidthScaled + distanceX);
+  }
+  return pos;
 };

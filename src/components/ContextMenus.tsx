@@ -700,7 +700,7 @@ export const SocketContextMenu = (props) => {
           <ListItemIcon>
             <TuneIcon fontSize="small" />
           </ListItemIcon>
-          <ListItemText>Inspect</ListItemText>
+          <ListItemText>Show node inspector</ListItemText>
         </MenuItem>
         <Divider />
         {selectedSocket.hasLink() && (
