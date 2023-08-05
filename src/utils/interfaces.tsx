@@ -1,5 +1,6 @@
 import * as PIXI from 'pixi.js';
 import PPNode from '../classes/NodeClass';
+import PPSocket from '../classes/SocketClass';
 import { IUpdateBehaviour } from '../classes/UpdateBehaviourClass';
 import {
   ALIGNOPTIONS,
@@ -122,6 +123,8 @@ export type TPastePos = {
   x: number;
   y: number;
 };
+
+export type TPPType = PPNode | PPSocket;
 
 export class TRgba {
   r = 0;

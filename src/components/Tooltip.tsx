@@ -1,34 +1,30 @@
 import React, { useEffect, useState } from 'react';
 import * as PIXI from 'pixi.js';
 import { Box, Paper, ThemeProvider } from '@mui/material';
-import { SocketContainer } from '../SocketContainer';
 import InterfaceController, { ListenEvent } from '../InterfaceController';
-import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
 import PPSocket from '../classes/SocketClass';
-import { getTooltipPositionForSocket } from '../utils/utils';
+import { SocketContainer } from '../SocketContainer';
+import { CodeEditor } from '../components/Editor';
+import {
+  getNodeTooltipData,
+  getTypeAtPoint,
+  getTooltipPositionBasedOnType,
+  isNode,
+  isSocket,
+} from '../utils/utils';
+import { TPPType } from '../utils/interfaces';
 import { TOOLTIP_WIDTH, customTheme } from '../utils/constants';
-
-function isSocket(object) {
-  return (
-    object?.parent instanceof PPSocket ||
-    (object?.parent instanceof PPSocket && object instanceof PIXI.Text)
-  );
-}
-
-function isNode(object) {
-  return object instanceof PPNode;
-}
 
 function shouldShow(object) {
   return isSocket(object) || isNode(object);
 }
 
-function Item(props) {
-  const object: PIXI.DisplayObject = props.object;
+function Content(props) {
+  const object: TPPType = props.object;
   switch (true) {
     case isSocket(object):
-      const socket = object?.parent as PPSocket;
+      const socket = object as PPSocket;
       return (
         <>
           <Box
@@ -59,7 +55,26 @@ function Item(props) {
       );
     case isNode(object):
       const node = object as PPNode;
-      return <Box>{node.name}</Box>;
+      const configData = getNodeTooltipData(node);
+      return (
+        <>
+          <Box
+            sx={{
+              p: '8px',
+              py: '9px',
+              color: 'text.primary',
+              fontWeight: 'medium',
+              fontSize: 'small',
+            }}
+          >
+            {node.name}
+          </Box>
+          <CodeEditor
+            value={configData}
+            randomMainColor={props.randomMainColor}
+          />
+        </>
+      );
     default:
       return null;
   }
@@ -68,25 +83,14 @@ function Item(props) {
 export const Tooltip = (props) => {
   let timeout;
   const [showTooltip, setShowTooltip] = useState(false);
-  const [tooltipObject, setTooltipObject] =
-    useState<PIXI.DisplayObject | null>();
+  const [tooltipObject, setTooltipObject] = useState<TPPType>();
   const [pos, setPos] = useState([0, 0]);
 
-  const getObjectAtPoint = (point) => {
-    const boundary = new PIXI.EventBoundary(PPGraph.currentGraph.app.stage);
-    const objectsUnderPoint = boundary.hitTest(point.x, point.y);
-    return objectsUnderPoint;
-  };
-
-  const getPositionBasedOnType = (object: PIXI.DisplayObject, event) => {
-    switch (true) {
-      case isSocket(object):
-        const socket = object?.parent as PPSocket;
-        const pos = getTooltipPositionForSocket(socket);
-        return [pos.x, pos.y];
-      default:
-        return [event.clientX + 16, event.clientY - 8];
-    }
+  const getPosition = (object: TPPType, event) => {
+    const pos =
+      getTooltipPositionBasedOnType(object) ||
+      new PIXI.Point(event.clientX + 16, event.clientY - 8);
+    return [pos.x, pos.y];
   };
 
   useEffect(() => {
@@ -97,10 +101,10 @@ export const Tooltip = (props) => {
         clearTimeout(timeout);
         setShowTooltip(false);
         timeout = setTimeout(function () {
-          const object = getObjectAtPoint(
+          const object = getTypeAtPoint(
             new PIXI.Point(event.clientX, event.clientY)
           );
-          setPos(getPositionBasedOnType(object, event));
+          setPos(getPosition(object, event));
           setShowTooltip(shouldShow(object));
           setTooltipObject(object);
         }, 300);
@@ -130,7 +134,7 @@ export const Tooltip = (props) => {
           opacity: showTooltip && !props.isContextMenuOpen ? 1 : 0,
         }}
       >
-        <Item object={tooltipObject} />
+        <Content object={tooltipObject} />
       </Paper>
     </ThemeProvider>
   );

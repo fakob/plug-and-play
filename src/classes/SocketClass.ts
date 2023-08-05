@@ -19,7 +19,7 @@ import { TriggerType } from '../nodes/datatypes/triggerType';
 import { dataToType, serializeType } from '../nodes/datatypes/typehelper';
 import {
   getCurrentCursorPosition,
-  getTooltipPositionForSocket,
+  getTooltipPositionBasedOnType,
 } from '../utils/utils';
 import { TextStyle } from 'pixi.js';
 
@@ -426,7 +426,7 @@ export default class Socket extends PIXI.Container {
   }
 
   onSocketPointerDown(event: PIXI.FederatedPointerEvent): void {
-    const clickedSourcePoint = getTooltipPositionForSocket(this);
+    const clickedSourcePoint = getTooltipPositionBasedOnType(this);
     if (event.shiftKey) {
       InterfaceController.onOpenSocketInspector(clickedSourcePoint, this);
     } else {

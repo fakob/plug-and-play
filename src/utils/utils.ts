@@ -19,7 +19,7 @@ import {
   TOOLTIP_WIDTH,
 } from './constants';
 import { GraphDatabase } from './indexedDB';
-import { SerializedSelection } from './interfaces';
+import { SerializedSelection, TPPType } from './interfaces';
 import { AnyType } from '../nodes/datatypes/anyType';
 import { Viewport } from 'pixi-viewport';
 
@@ -842,16 +842,72 @@ export const updateDataIfDefault = (
   }
 };
 
-export const getTooltipPositionForSocket = (socket: PPSocket): PIXI.Point => {
-  const absPos = socket.getGlobalPosition();
+export const getObjectAtPoint = (point): PIXI.DisplayObject => {
+  const boundary = new PIXI.EventBoundary(PPGraph.currentGraph.app.stage);
+  const objectsUnderPoint = boundary.hitTest(point.x, point.y);
+  return objectsUnderPoint;
+};
+
+export const getTypeAtPoint = (point): TPPType => {
+  const object = getObjectAtPoint(point);
+  switch (true) {
+    case isSocket(object):
+      return getSocket(object);
+    case isNode(object):
+      return object as PPNode;
+    default:
+      return undefined;
+  }
+};
+
+export function isSocket(object) {
+  return (
+    object instanceof PPSocket ||
+    object?.parent instanceof PPSocket ||
+    (object?.parent instanceof PPSocket && object instanceof PIXI.Text)
+  );
+}
+
+export function getSocket(socketish): PPSocket {
+  return socketish instanceof PPSocket ? socketish : socketish?.parent;
+}
+
+export function isNode(object) {
+  return object instanceof PPNode;
+}
+
+export const getTooltipPositionBasedOnType = (object: TPPType): PIXI.Point => {
   const scale = PPGraph.currentGraph.viewportScaleX;
   const distanceX = 32 * scale;
-  const nodeWidthScaled = socket.getNode()._BackgroundRef.width * scale;
-  const pos = new PIXI.Point(0, absPos.y);
-  if (socket.isInput()) {
-    pos.x = Math.max(0, absPos.x - TOOLTIP_WIDTH - distanceX);
-  } else {
-    pos.x = Math.max(0, absPos.x + nodeWidthScaled + distanceX);
+  let absPos;
+  switch (true) {
+    case isSocket(object):
+      const socket = object as PPSocket;
+      absPos = socket.getGlobalPosition();
+      const nodeWidthScaled = socket.getNode()._BackgroundRef.width * scale;
+      const pos = new PIXI.Point(0, absPos.y);
+      if (socket.isInput()) {
+        pos.x = Math.max(0, absPos.x - TOOLTIP_WIDTH - distanceX);
+      } else {
+        pos.x = Math.max(0, absPos.x + nodeWidthScaled + distanceX);
+      }
+      return pos;
+    case isNode(object):
+      absPos = object.getGlobalPosition();
+      return new PIXI.Point(
+        Math.max(0, absPos.x - TOOLTIP_WIDTH - distanceX),
+        absPos.y
+      );
+    default:
+      return undefined;
   }
-  return pos;
 };
+
+export function getNodeTooltipData(selectedNode) {
+  const data = {
+    id: selectedNode.id,
+    name: selectedNode.name,
+    type: selectedNode.type,
+  };
+  return JSON.stringify(data, getCircularReplacer(), 2);
+}
