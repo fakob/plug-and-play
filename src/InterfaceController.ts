@@ -13,7 +13,7 @@ import PPGraph from './classes/GraphClass';
 import PPStorage from './PPStorage';
 import { ActionHandler } from './utils/actionHandler';
 import { zoomToFitNodes } from './pixi/utils-pixi';
-import ConsoleController from './consoleController';
+import { Graph } from './utils/indexedDB';
 
 export enum ListenEvent {
   SelectionChanged, // data = PPNode[]
@@ -97,9 +97,11 @@ export default class InterfaceController {
   static setIsNodeContextMenuOpen: (open: boolean) => void = () => {};
   static setIsSocketContextMenuOpen: (open: boolean) => void = () => {};
 
-  static setGraphToBeModified: (graph: any /*Graph*/) => void = () => {};
+  static setGraphToBeModified: (graph: Graph) => void = () => {};
   static setShowGraphEdit: (show: boolean) => void = () => {};
   static setShowGraphDelete: (show: boolean) => void = () => {};
+
+  static setBackgroundColor: (number) => void = () => {};
 
   /////////////////////////////////////////////////////////////////////////////
   static isTypingInConsole = false;
@@ -207,4 +209,15 @@ export default class InterfaceController {
     }
   };
   static onOpenFileBrowser: () => void = () => {};
+}
+class ConsoleController {
+  static executeCommand(command: string): void {
+    switch (command.toLowerCase()) {
+      case 'clear': {
+        PPGraph.currentGraph.clear();
+      }
+      case 'resetbgcolor': {
+      }
+    }
+  }
 }
