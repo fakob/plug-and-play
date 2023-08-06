@@ -211,6 +211,7 @@ const SocketHeader: React.FunctionComponent<SocketHeaderProps> = (props) => {
         <Menu
           sx={{
             fontSize: '12px',
+            zIndex: 1500,
           }}
           MenuListProps={{
             'aria-labelledby': 'long-button',

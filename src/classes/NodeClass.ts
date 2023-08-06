@@ -43,7 +43,7 @@ import { TriggerType } from '../nodes/datatypes/triggerType';
 import { deSerializeType } from '../nodes/datatypes/typehelper';
 import throttle from 'lodash/throttle';
 import FlowLogic from './FlowLogic';
-import InterfaceController from '../InterfaceController';
+import InterfaceController, { ListenEvent } from '../InterfaceController';
 import { TextStyle } from 'pixi.js';
 import { JSONType } from '../nodes/datatypes/jsonType';
 
@@ -77,6 +77,7 @@ export default class PPNode extends PIXI.Container {
   _doubleClicked: boolean;
   isDraggingNode: boolean;
   protected statuses: NodeStatus[] = []; // you can add statuses into this and they will be rendered on the node
+  listenIdUp: string;
 
   // supported callbacks
   onNodeDoubleClick: (event: PIXI.FederatedPointerEvent) => void = () => {};
@@ -1084,9 +1085,9 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   }
 
   onPointerClick(event: PIXI.FederatedPointerEvent): void {
-    PPGraph.currentGraph.viewport.addEventListener(
-      'pointerup',
-      (this as any).onViewportPointerUpHandler
+    this.listenIdUp = InterfaceController.addListener(
+      ListenEvent.GlobalPointerUp,
+      this.onViewportPointerUpHandler
     );
     // check if double clicked
     if (event.detail === 2) {
@@ -1098,10 +1099,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   }
 
   onViewportPointerUp(): void {
-    PPGraph.currentGraph.viewport.removeEventListener(
-      'pointerup',
-      (this as any).onViewportPointerUpHandler
-    );
+    InterfaceController.removeListener(this.listenIdUp);
     this.doubleClicked = false;
   }
 

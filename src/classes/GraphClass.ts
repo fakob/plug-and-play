@@ -129,7 +129,7 @@ export default class PPGraph {
     );
 
     InterfaceController.addListener(
-      ListenEvent.GlobalPointerUp,
+      ListenEvent.GlobalPointerUpAndUpOutside,
       this.onPointerUpAndUpOutside.bind(this)
     );
 

@@ -27,7 +27,7 @@ function shouldShow(object) {
   );
 }
 
-function Content(props) {
+function Content(props): React.ReactElement {
   const object: TPPType = props.object;
   switch (true) {
     case isSocket(object):

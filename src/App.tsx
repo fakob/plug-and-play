@@ -298,7 +298,20 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     viewport.current.addEventListener(
       'pointerupoutside',
       (event: PIXI.FederatedPointerEvent) =>
-        InterfaceController.notifyListeners(ListenEvent.GlobalPointerUp, event)
+        InterfaceController.notifyListeners(
+          ListenEvent.GlobalPointerUpAndUpOutside,
+          event
+        )
+    );
+
+    viewport.current.addEventListener(
+      'pointerup',
+      (event: PIXI.FederatedPointerEvent) => {
+        InterfaceController.notifyListeners(
+          ListenEvent.GlobalPointerUpAndUpOutside,
+          event
+        );
+      }
     );
 
     viewport.current.addEventListener(
