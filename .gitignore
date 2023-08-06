@@ -5,6 +5,10 @@ dist/*
 .env
 .DS_Store
 
+cypress/screenshots
+cypress/videos
+cypress/logs
+
 .yarn/*
 !.yarn/cache
 !.yarn/patches
