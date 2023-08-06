@@ -474,7 +474,6 @@ export default class PPSelection extends PIXI.Container {
   }
 
   drawRectanglesFromSelection(fill = true): void {
-    console.trace(fill);
     this.drawSingleSelections();
 
     const selectionBounds = this.singleSelectionsGraphics.getBounds();
