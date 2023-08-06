@@ -217,7 +217,7 @@ export default class PPSelection extends PIXI.Container {
   }
 
   onViewportMoved(): void {
-    this.drawRectanglesFromSelection(this.selectedNodes.length !== 1);
+    this.drawRectanglesFromSelection(this.selectedNodes.length > 1);
   }
 
   onPointerUpAndUpOutside(): void {
@@ -474,6 +474,7 @@ export default class PPSelection extends PIXI.Container {
   }
 
   drawRectanglesFromSelection(fill = true): void {
+    console.trace(fill);
     this.drawSingleSelections();
 
     const selectionBounds = this.singleSelectionsGraphics.getBounds();

@@ -143,9 +143,9 @@ export class Label extends PPNode {
     this.executeOptimizedChain();
   }
 
-  onPointerClick(): void {
+  public onNodeDoubleClick = () => {
     this.HTMLVisible();
-  }
+  };
 
   protected async onExecute(input, output): Promise<void> {
     let text = String(input[inputSocketName]);

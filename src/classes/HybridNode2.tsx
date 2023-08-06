@@ -163,12 +163,7 @@ export default abstract class HybridNode2 extends PPNode {
 
   onMakeEditable(): void {
     // register hybrid nodes to listen to outside clicks
-    this.doubleClicked = true;
     this.onHybridNodeEnter();
-    PPGraph.currentGraph.viewport.addEventListener(
-      'pointerup',
-      (this as any).onViewportPointerUpHandler
-    );
     this.container.classList.add(styles.hybridContainerFocused);
     this.drawBackground();
     this.execute();
@@ -185,22 +180,15 @@ export default abstract class HybridNode2 extends PPNode {
     // this.execute();
   }
 
-  onPointerClick(event): void {
-    super.onPointerClick(event);
+  public onNodeDoubleClick = (event) => {
     // turn on pointer events for hybrid nodes so the react components become reactive
     if (this.getActivateByDoubleClick() && event.target === this) {
       this.onMakeEditable();
     }
-  }
+  };
 
   onViewportPointerUp(): void {
     super.onViewportPointerUp();
-    // unregister hybrid nodes from listening to outside clicks
-    PPGraph.currentGraph.viewport.removeEventListener(
-      'pointerup',
-      (this as any).onViewportPointerUpHandler
-    );
-    this.doubleClicked = false;
     this.onHybridNodeExit();
     // this allows to zoom and drag when the hybrid node is not selected
     this.container.classList.remove(styles.hybridContainerFocused);
