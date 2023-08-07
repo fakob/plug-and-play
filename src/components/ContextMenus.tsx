@@ -51,7 +51,6 @@ import styles from '../utils/style.module.css';
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
 import PPStorage from '../PPStorage';
-import InterfaceController from '../InterfaceController';
 
 const useStyles = makeStyles((theme) =>
   createStyles({
