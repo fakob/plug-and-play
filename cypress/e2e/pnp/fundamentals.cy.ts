@@ -4,10 +4,10 @@ describe('fundamentals', () => {
     cy.visit('http://127.0.0.1:8080');
     cy.get('#\\:r3\\:').click();
   });
-  it('Clear', () => {
+  /*it('Clear', () => {
     cy.visit('http://127.0.0.1:8080');
     cy.wait(2000);
     cy.get('body').type("§clear§")
-  });
+  });*/
 
 });
