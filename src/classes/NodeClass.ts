@@ -371,17 +371,14 @@ export default class PPNode extends PIXI.Container {
     return node;
   }
 
+  // Remember, this is called before the node is added, so no visual operations needed
   configure(nodeConfig: SerializedNode, includeSocketData = true): void {
     this.x = nodeConfig.x;
     this.y = nodeConfig.y;
     this.nodeWidth = nodeConfig.width || this.getMinNodeWidth();
     this.nodeHeight = nodeConfig.height || this.getMinNodeHeight();
     this.nodeName = nodeConfig.name;
-    this.updateBehaviour.setUpdateBehaviour(
-      nodeConfig.updateBehaviour.update,
-      nodeConfig.updateBehaviour.interval,
-      nodeConfig.updateBehaviour.intervalFrequency
-    );
+    this.updateBehaviour = new UpdateBehaviourClass(nodeConfig.updateBehaviour.update, nodeConfig.updateBehaviour.interval, nodeConfig.updateBehaviour.intervalFrequency);
     if (includeSocketData) {
       try {
         const mapSocket = (item: SerializedSocket) => {
@@ -394,7 +391,7 @@ export default class PPNode extends PIXI.Container {
             this.initializeType(item.name, matchingSocket.dataType);
             matchingSocket.data = item.data;
             matchingSocket.defaultData = item.defaultData ?? item.data;
-            matchingSocket.setVisible(item.visible);
+            matchingSocket.visible = item.visible;
           } else {
             // add socket if it does not exist yet
             console.info(

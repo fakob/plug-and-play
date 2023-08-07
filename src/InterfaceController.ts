@@ -13,6 +13,7 @@ import PPGraph from './classes/GraphClass';
 import PPStorage from './PPStorage';
 import { ActionHandler } from './utils/actionHandler';
 import { zoomToFitNodes } from './pixi/utils-pixi';
+import { Graph } from './utils/indexedDB';
 
 export enum ListenEvent {
   SelectionChanged, // data = PPNode[]
@@ -96,11 +97,15 @@ export default class InterfaceController {
   static setIsNodeContextMenuOpen: (open: boolean) => void = () => {};
   static setIsSocketContextMenuOpen: (open: boolean) => void = () => {};
 
-  static setGraphToBeModified: (graph: any /*Graph*/) => void = () => {};
+  static setGraphToBeModified: (graph: Graph) => void = () => {};
   static setShowGraphEdit: (show: boolean) => void = () => {};
   static setShowGraphDelete: (show: boolean) => void = () => {};
 
+  static setBackgroundColor: (number) => void = () => {};
+
   /////////////////////////////////////////////////////////////////////////////
+  static isTypingInConsole = false;
+  static consoleBeingTyped = '';
 
   static keysDown = (e: KeyboardEvent): void => {
     const modKey = isMac() ? e.metaKey : e.ctrlKey;
@@ -175,9 +180,18 @@ export default class InterfaceController {
             PPGraph.currentGraph.sendKeyEvent(e);
             break;
         }
+      } else if (e.key == '§') {
+        if (this.isTypingInConsole) {
+          ConsoleController.executeCommand(this.consoleBeingTyped);
+          console.log('Executing console command: ' + this.consoleBeingTyped);
+          this.consoleBeingTyped = '';
+        } else {
+          console.log('Starting typing into console');
+        }
+        this.isTypingInConsole = !this.isTypingInConsole;
+      } else if (this.isTypingInConsole) {
+        this.consoleBeingTyped += e.key;
       }
-    } else {
-      console.log('Ignoring keydown as it came from inside an input');
     }
     if (modKey && e.key.toLowerCase() === 's') {
       e.preventDefault();
@@ -195,4 +209,15 @@ export default class InterfaceController {
     }
   };
   static onOpenFileBrowser: () => void = () => {};
+}
+class ConsoleController {
+  static executeCommand(command: string): void {
+    switch (command.toLowerCase()) {
+      case 'clear': {
+        PPGraph.currentGraph.clear();
+      }
+      case 'resetbgcolor': {
+      }
+    }
+  }
 }
