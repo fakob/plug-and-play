@@ -5,7 +5,6 @@ import isUrl from 'is-url';
 import { useTheme } from '@mui/material';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import PPGraph from '../classes/GraphClass';
-import PPSelection from '../classes/SelectionClass';
 import PPNode from '../classes/NodeClass';
 import PPSocket from '../classes/SocketClass';
 import {
@@ -17,11 +16,9 @@ import {
   NODE_PADDING_TOP,
   SOCKET_TEXTMARGIN_TOP,
   SOCKET_WIDTH,
-  TOOLTIP_DISTANCE,
-  TOOLTIP_WIDTH,
 } from './constants';
 import { GraphDatabase } from './indexedDB';
-import { SerializedSelection, TPPType } from './interfaces';
+import { SerializedSelection } from './interfaces';
 import { AnyType } from '../nodes/datatypes/anyType';
 import { Viewport } from 'pixi-viewport';
 
