@@ -201,7 +201,7 @@ export default class InterfaceController {
         PPStorage.getInstance().saveGraphAction(false);
       }
     } else if (e.key === 'Escape') {
-      this.setIsGraphSearchOpen(false);
+      InterfaceController.setIsGraphSearchOpen(false);
       this.setIsNodeSearchVisible(false);
       this.setIsGraphContextMenuOpen(false);
       this.setIsNodeContextMenuOpen(false);

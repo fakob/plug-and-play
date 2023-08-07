@@ -50,6 +50,7 @@ import styles from '../utils/style.module.css';
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
 import PPStorage from '../PPStorage';
+import InterfaceController from '../InterfaceController';
 
 const useStyles = makeStyles((theme) =>
   createStyles({
@@ -170,7 +171,8 @@ export const GraphContextMenu = (props) => {
         <MenuItem disabled>Playground</MenuItem>
         <MenuItem
           onClick={() => {
-            props.setIsGraphSearchOpen(true);
+            // TODO FIX THIS WTF DOESNT IT WORK WITHOUT A TIMEOUT
+            setTimeout(InterfaceController.toggleGraphSearchOpen, 10);
           }}
         >
           <ListItemIcon>
@@ -194,7 +196,7 @@ export const GraphContextMenu = (props) => {
         <MenuItem
           sx={{ mt: 1 }}
           onClick={() => {
-            props.setShowEdit(true);
+            InterfaceController.setShowGraphEdit(true);
           }}
         >
           <ListItemIcon>
@@ -244,7 +246,7 @@ export const GraphContextMenu = (props) => {
         <MenuItem disabled>Nodes</MenuItem>
         <MenuItem
           onClick={() => {
-            props.openNodeSearch();
+            InterfaceController.openNodeSearch();
           }}
         >
           <ListItemIcon>
@@ -510,7 +512,7 @@ export const NodeContextMenu = (props) => {
         {selectionCount === 1 && (
           <MenuItem
             onClick={() => {
-              props.openNodeSearch();
+              InterfaceController.openNodeSearch();
             }}
           >
             <ListItemIcon>

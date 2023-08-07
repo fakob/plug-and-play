@@ -921,8 +921,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
             <GraphContextMenu
               controlOrMetaKey={controlOrMetaKey()}
               contextMenuPosition={contextMenuPosition}
-              setIsGraphSearchOpen={setIsGraphSearchOpen}
-              openNodeSearch={openNodeSearch}
               setShowRightSideDrawer={setShowRightSideDrawer}
               setShowEdit={setShowEdit}
               uploadGraph={uploadGraph}
