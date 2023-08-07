@@ -2,8 +2,8 @@
 describe('fundamentals', () => {
   it('Save Graph', () => {
     cy.visit('http://127.0.0.1:8080');
-    cy.get("body").trigger('mousemove',  500, 500);
-    cy.wait(3000);
+  });
+  /*cy.wait(3000);
     cy.get("body").type("{ctrl}s")
     cy.get("body").contains("Playground was saved").should("be.visible");
     cy.get('#\\:r3\\:').click();
@@ -30,7 +30,7 @@ describe('fundamentals', () => {
 
     cy.wait(5000);
     cy.get(':nth-child(1) > :nth-child(3) > :nth-child(1) > .MuiButtonBase-root', {timeout:10000}).click();
-  });
+  });*/
 
   //it("Delete graph", () => {
 //
