@@ -1,4 +1,7 @@
 import * as PIXI from 'pixi.js';
+import React from 'react';
+import { Box } from '@mui/material';
+import { SocketContainer } from '../SocketContainer';
 import { SerializedSocket, TRgba, TSocketType } from '../utils/interfaces';
 import PPGraph from './GraphClass';
 import PPNode from './NodeClass';
@@ -12,15 +15,14 @@ import {
   SOCKET_TYPE,
   SOCKET_WIDTH,
   TEXT_RESOLUTION,
+  TOOLTIP_DISTANCE,
+  TOOLTIP_WIDTH,
   COLOR_MAIN,
 } from '../utils/constants';
 import { AbstractType } from '../nodes/datatypes/abstractType';
 import { TriggerType } from '../nodes/datatypes/triggerType';
 import { dataToType, serializeType } from '../nodes/datatypes/typehelper';
-import {
-  getCurrentCursorPosition,
-  getTooltipPositionBasedOnType,
-} from '../utils/utils';
+import { getCurrentCursorPosition } from '../utils/utils';
 import { TextStyle } from 'pixi.js';
 
 export default class Socket extends PIXI.Container {
@@ -390,6 +392,51 @@ export default class Socket extends PIXI.Container {
     });
   }
 
+  getTooltipContent(props): React.ReactElement {
+    return (
+      <>
+        <Box
+          sx={{
+            p: '8px',
+            py: '9px',
+            color: 'text.primary',
+            fontWeight: 'medium',
+            fontSize: 'small',
+            fontStyle: 'italic',
+          }}
+        >
+          Shift+Click to pin
+        </Box>
+        <SocketContainer
+          triggerScrollIntoView={false}
+          key={0}
+          property={this}
+          index={0}
+          dataType={this.dataType}
+          isInput={this.isInput()}
+          hasLink={this.hasLink()}
+          data={this.data}
+          randomMainColor={props.randomMainColor}
+          selectedNode={this.parent as PPNode}
+        />
+      </>
+    );
+  }
+
+  getTooltipPosition(): PIXI.Point {
+    const scale = PPGraph.currentGraph.viewportScaleX;
+    const distanceX = TOOLTIP_DISTANCE * scale;
+    const absPos = this.getGlobalPosition();
+    const nodeWidthScaled = this.getNode()._BackgroundRef.width * scale;
+    const pos = new PIXI.Point(0, absPos.y);
+    if (this.isInput()) {
+      pos.x = Math.max(0, absPos.x - TOOLTIP_WIDTH - distanceX);
+    } else {
+      pos.x = Math.max(0, absPos.x + nodeWidthScaled + distanceX);
+    }
+    return pos;
+  }
+
   // SETUP
 
   pointerOverSocketMoving() {
@@ -426,7 +473,7 @@ export default class Socket extends PIXI.Container {
   }
 
   onSocketPointerDown(event: PIXI.FederatedPointerEvent): void {
-    const clickedSourcePoint = getTooltipPositionBasedOnType(this);
+    const clickedSourcePoint = this.getTooltipPosition();
     if (event.shiftKey) {
       InterfaceController.onOpenSocketInspector(clickedSourcePoint, this);
     } else {

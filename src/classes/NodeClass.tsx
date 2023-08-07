@@ -1,6 +1,9 @@
 /* eslint-disable */
 import * as PIXI from 'pixi.js';
+import React from 'react';
 import { hri } from 'human-readable-ids';
+import { Box } from '@mui/material';
+import { CodeEditor } from '../components/Editor';
 import {
   CustomArgs,
   NodeStatus,
@@ -26,6 +29,8 @@ import {
   NODE_WIDTH,
   SOCKET_HEIGHT,
   SOCKET_TYPE,
+  TOOLTIP_DISTANCE,
+  TOOLTIP_WIDTH,
 } from '../utils/constants';
 import UpdateBehaviourClass from './UpdateBehaviourClass';
 import NodeHeaderClass from './NodeHeaderClass';
@@ -34,6 +39,7 @@ import Socket from './SocketClass';
 import {
   calculateAspectRatioFit,
   connectNodeToSocket,
+  getCircularReplacer,
   getNodeCommentPosX,
   getNodeCommentPosY,
 } from '../utils/utils';
@@ -964,6 +970,43 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     Object.keys(input).forEach((key) => {
       output[key] = input[key];
     });
+  }
+
+  getTooltipContent(props): React.ReactElement {
+    const data = JSON.stringify({
+    id: this.id,
+    name: this.name,
+    type: this.type,
+  }, getCircularReplacer(), 2);
+    return (
+             <>
+          <Box
+            sx={{
+              p: '8px',
+              py: '9px',
+              color: 'text.primary',
+              fontWeight: 'medium',
+              fontSize: 'small',
+            }}
+          >
+            Node: {this.name}
+          </Box>
+          <CodeEditor
+            value={data}
+            randomMainColor={props.randomMainColor}
+          />
+        </>
+    );
+  }
+
+  getTooltipPosition(): PIXI.Point {
+    const scale = PPGraph.currentGraph.viewportScaleX;
+    const distanceX = TOOLTIP_DISTANCE * scale;
+    const absPos = this.getGlobalPosition();
+    return new PIXI.Point(
+      Math.max(0, absPos.x - TOOLTIP_WIDTH - distanceX),
+      absPos.y
+    );
   }
 
   // SETUP
