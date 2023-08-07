@@ -6,6 +6,7 @@ import { CodeEditor } from '../components/Editor';
 import { Viewport } from 'pixi-viewport';
 import SelectionHeaderClass from './SelectionHeaderClass';
 import PPNode from './NodeClass';
+import { Tooltipable } from '../components/Tooltip';
 import {
   ALIGNOPTIONS,
   NODE_MARGIN,
@@ -26,7 +27,7 @@ import PPGraph from './GraphClass';
 import { ActionHandler } from '../utils/actionHandler';
 import InterfaceController, { ListenEvent } from '../InterfaceController';
 
-export default class PPSelection extends PIXI.Container {
+export default class PPSelection extends PIXI.Container implements Tooltipable {
   protected viewport: Viewport;
   protected previousSelectedNodes: PPNode[];
   _selectedNodes: PPNode[];

@@ -6,6 +6,7 @@ import { SerializedSocket, TRgba, TSocketType } from '../utils/interfaces';
 import PPGraph from './GraphClass';
 import PPNode from './NodeClass';
 import PPLink from './LinkClass';
+import { Tooltipable } from '../components/Tooltip';
 import InterfaceController, { ListenEvent } from '../InterfaceController';
 import {
   SOCKET_CORNERRADIUS,
@@ -25,7 +26,7 @@ import { dataToType, serializeType } from '../nodes/datatypes/typehelper';
 import { getCurrentCursorPosition } from '../utils/utils';
 import { TextStyle } from 'pixi.js';
 
-export default class Socket extends PIXI.Container {
+export default class Socket extends PIXI.Container implements Tooltipable {
   // Input sockets
   // only 1 link is allowed
   // data can be set or comes from link

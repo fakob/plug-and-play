@@ -36,6 +36,7 @@ import UpdateBehaviourClass from './UpdateBehaviourClass';
 import NodeHeaderClass from './NodeHeaderClass';
 import PPGraph from './GraphClass';
 import Socket from './SocketClass';
+import { Tooltipable } from '../components/Tooltip';
 import {
   calculateAspectRatioFit,
   connectNodeToSocket,
@@ -53,7 +54,7 @@ import InterfaceController, { ListenEvent } from '../InterfaceController';
 import { TextStyle } from 'pixi.js';
 import { JSONType } from '../nodes/datatypes/jsonType';
 
-export default class PPNode extends PIXI.Container {
+export default class PPNode extends PIXI.Container implements Tooltipable {
   _NodeNameRef: PIXI.Text;
   _BackgroundRef: PIXI.Graphics;
   _CommentRef: PIXI.Graphics;

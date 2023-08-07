@@ -6,6 +6,16 @@ import { getObjectAtPoint } from '../utils/utils';
 import { TPPType } from '../utils/interfaces';
 import { TOOLTIP_DELAY, TOOLTIP_WIDTH, customTheme } from '../utils/constants';
 
+export abstract class Tooltipable {
+  getTooltipContent(props): React.ReactElement {
+    return <></>;
+  }
+
+  getTooltipPosition(): PIXI.Point {
+    return new PIXI.Point(0, 0);
+  }
+}
+
 function shouldShow(object): boolean {
   return object !== undefined && object.doubleClicked !== true;
 }
