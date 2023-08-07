@@ -5,17 +5,17 @@ import isUrl from 'is-url';
 import { useTheme } from '@mui/material';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import PPGraph from '../classes/GraphClass';
-import PPSocket from '../classes/SocketClass';
 import PPNode from '../classes/NodeClass';
+import PPSocket from '../classes/SocketClass';
 import {
   CONDITION_OPTIONS,
-  NODE_PADDING_TOP,
-  NODE_HEADER_HEIGHT,
+  GESTUREMODE,
+  GITHUB_RAW_URL_NODES,
   MAX_STRING_LENGTH,
+  NODE_HEADER_HEIGHT,
+  NODE_PADDING_TOP,
   SOCKET_TEXTMARGIN_TOP,
   SOCKET_WIDTH,
-  GITHUB_RAW_URL_NODES,
-  GESTUREMODE,
 } from './constants';
 import { GraphDatabase } from './indexedDB';
 import { SerializedSelection } from './interfaces';
@@ -839,4 +839,10 @@ export const updateDataIfDefault = (
     node.setInputData(inputSocketName, dataToUpdate);
     node.executeOptimizedChain();
   }
+};
+
+export const getObjectAtPoint = (point): PIXI.DisplayObject => {
+  const boundary = new PIXI.EventBoundary(PPGraph.currentGraph.app.stage);
+  const objectsUnderPoint = boundary.hitTest(point.x, point.y);
+  return objectsUnderPoint;
 };

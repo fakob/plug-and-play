@@ -1,18 +1,25 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import * as PIXI from 'pixi.js';
+import React from 'react';
+import { Box } from '@mui/material';
+import { CodeEditor } from '../components/Editor';
 import { Viewport } from 'pixi-viewport';
 import SelectionHeaderClass from './SelectionHeaderClass';
 import PPNode from './NodeClass';
+import { Tooltipable } from '../components/Tooltip';
 import {
   ALIGNOPTIONS,
   NODE_MARGIN,
   SCALEHANDLE_SIZE,
   SELECTION_COLOR_HEX,
+  TOOLTIP_DISTANCE,
+  TOOLTIP_WIDTH,
   WHITE_HEX,
 } from '../utils/constants';
 import { TAlignOptions } from '../utils/interfaces';
 import { getObjectsInsideBounds, getNodesBounds } from '../pixi/utils-pixi';
 import {
+  getCircularReplacer,
   getCurrentCursorPosition,
   getDifferenceSelection,
 } from '../utils/utils';
@@ -20,7 +27,7 @@ import PPGraph from './GraphClass';
 import { ActionHandler } from '../utils/actionHandler';
 import InterfaceController, { ListenEvent } from '../InterfaceController';
 
-export default class PPSelection extends PIXI.Container {
+export default class PPSelection extends PIXI.Container implements Tooltipable {
   protected viewport: Viewport;
   protected previousSelectedNodes: PPNode[];
   _selectedNodes: PPNode[];
@@ -217,7 +224,7 @@ export default class PPSelection extends PIXI.Container {
   }
 
   onViewportMoved(): void {
-    this.drawRectanglesFromSelection(this.selectedNodes.length !== 1);
+    this.drawRectanglesFromSelection(this.selectedNodes.length > 1);
   }
 
   onPointerUpAndUpOutside(): void {
@@ -542,7 +549,7 @@ export default class PPSelection extends PIXI.Container {
         this.selectedNodes[0]?.allowResize();
     }
 
-    this.drawRectanglesFromSelection();
+    this.drawRectanglesFromSelection(this.selectedNodes.length > 1);
     if (notify) {
       InterfaceController.notifyListeners(
         ListenEvent.SelectionChanged,
@@ -562,6 +569,37 @@ export default class PPSelection extends PIXI.Container {
   deselectAllNodesAndResetSelection(): void {
     this.resetAllGraphics();
     this.deselectAllNodes();
+  }
+
+  getTooltipContent(props): React.ReactElement {
+    const dataArray = this.selectedNodes.map((node) => {
+      return node.id;
+    });
+    const data = JSON.stringify(dataArray, getCircularReplacer(), 2);
+    return (
+      <>
+        <Box
+          sx={{
+            p: '8px',
+            py: '9px',
+            color: 'text.primary',
+            fontWeight: 'medium',
+            fontSize: 'small',
+          }}
+        >
+          {this.selectedNodes.length} nodes selected
+        </Box>
+        <CodeEditor value={data} randomMainColor={props.randomMainColor} />
+      </>
+    );
+  }
+
+  getTooltipPosition(): PIXI.Point {
+    const absPos = this.selectionGraphics.getBounds();
+    return new PIXI.Point(
+      Math.max(0, absPos.x - TOOLTIP_WIDTH - TOOLTIP_DISTANCE),
+      absPos.y
+    );
   }
 }
 

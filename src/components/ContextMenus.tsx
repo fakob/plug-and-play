@@ -32,6 +32,7 @@ import SensorsIcon from '@mui/icons-material/Sensors';
 import MouseIcon from '@mui/icons-material/Mouse';
 import SwipeIcon from '@mui/icons-material/Swipe';
 import PPSocket from './../classes/SocketClass';
+import InterfaceController, { ListenEvent } from '../InterfaceController';
 import {
   ALIGNOPTIONS,
   ALIGNLEFT_TEXTURE,
@@ -50,7 +51,6 @@ import styles from '../utils/style.module.css';
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
 import PPStorage from '../PPStorage';
-import InterfaceController from '../InterfaceController';
 
 const useStyles = makeStyles((theme) =>
   createStyles({
@@ -107,7 +107,7 @@ const SubMenuItem = (props: SubMenuItemProps) => {
           sx={{
             minWidth: 240,
             maxWidth: '100%',
-            zIndex: 500,
+            zIndex: 1230,
           }}
         >
           <MenuList dense>{props.children}</MenuList>
@@ -162,7 +162,7 @@ export const GraphContextMenu = (props) => {
         maxHeight: 'calc(100vh - 112px)',
         overflow: 'auto',
         position: 'absolute',
-        zIndex: 400,
+        zIndex: 1230,
         left: props.contextMenuPosition[0],
         top: props.contextMenuPosition[1],
       }}
@@ -476,7 +476,7 @@ export const NodeContextMenu = (props) => {
         width: CONTEXTMENU_WIDTH,
         maxWidth: '100%',
         position: 'absolute',
-        zIndex: 400,
+        zIndex: 1230,
         left: props.contextMenuPosition[0],
         top: props.contextMenuPosition[1],
       }}
@@ -675,12 +675,35 @@ export const SocketContextMenu = (props) => {
         minWidth: 240,
         maxWidth: '100%',
         position: 'absolute',
-        zIndex: 400,
+        zIndex: 1230,
         left: props.contextMenuPosition[0],
         top: props.contextMenuPosition[1],
       }}
     >
       <MenuList dense>
+        <MenuItem
+          onClick={() => {
+            PPGraph.currentGraph.selection.selectNodes(
+              [selectedSocket.getNode()],
+              false,
+              true
+            );
+            PPGraph.currentGraph.socketToInspect = selectedSocket;
+            InterfaceController.notifyListeners(
+              ListenEvent.ToggleInspectorWithFocus,
+              {
+                socket: PPGraph.currentGraph.socketToInspect,
+                open: true,
+              }
+            );
+          }}
+        >
+          <ListItemIcon>
+            <TuneIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Show node inspector</ListItemText>
+        </MenuItem>
+        <Divider />
         {selectedSocket.hasLink() && (
           <>
             <MenuItem

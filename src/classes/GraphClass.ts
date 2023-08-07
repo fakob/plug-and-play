@@ -129,7 +129,7 @@ export default class PPGraph {
     );
 
     InterfaceController.addListener(
-      ListenEvent.GlobalPointerUp,
+      ListenEvent.GlobalPointerUpAndUpOutside,
       this.onPointerUpAndUpOutside.bind(this)
     );
 
@@ -171,9 +171,6 @@ export default class PPGraph {
   onPointerDown(event: PIXI.FederatedPointerEvent): void {
     console.log('Graph: onPointerDown');
     this.pointerEvent = event;
-    //event.stopPropagation();
-
-    InterfaceController.onCloseSocketInspector();
 
     if (event.button === 0) {
       if (!this.overInputRef && !isPhone()) {
@@ -215,8 +212,6 @@ export default class PPGraph {
         this.dragSourcePoint.y === this.viewport.y
       ) {
         this.selection.deselectAllNodesAndResetSelection();
-
-        InterfaceController.onCloseSocketInspector();
       }
     }
     if (this.selection.isDrawingSelection) {
