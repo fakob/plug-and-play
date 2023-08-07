@@ -15,6 +15,10 @@ export class FunctionType extends AbstractType {
     return new TRgba(239, 239, 138);
   }
 
+  recommendedOutputNodeWidgets(): string[] {
+    return ['CodeEditor'];
+  }
+
   recommendedInputNodeWidgets(): string[] {
     return ['CodeEditor', 'Constant'];
   }

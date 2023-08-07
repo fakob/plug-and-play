@@ -213,7 +213,7 @@ export abstract class DRAW_Base extends PPNode {
 
     InterfaceController.removeListener(this.listenIDUp);
     this.listenIDUp = InterfaceController.addListener(
-      ListenEvent.GlobalPointerUp,
+      ListenEvent.GlobalPointerUpAndUpOutside,
       () => this.pointerUp(originalCursorPos, originalOffsets)
     );
   }

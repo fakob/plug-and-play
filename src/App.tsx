@@ -41,6 +41,7 @@ import GraphOverlay from './components/GraphOverlay';
 import ErrorFallback from './components/ErrorFallback';
 import PixiContainer from './PixiContainer';
 import { dragAndDrop } from './dragAndDrop';
+import { Tooltip } from './components/Tooltip';
 import {
   GraphContextMenu,
   NodeContextMenu,
@@ -297,7 +298,20 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     viewport.current.addEventListener(
       'pointerupoutside',
       (event: PIXI.FederatedPointerEvent) =>
-        InterfaceController.notifyListeners(ListenEvent.GlobalPointerUp, event)
+        InterfaceController.notifyListeners(
+          ListenEvent.GlobalPointerUpAndUpOutside,
+          event
+        )
+    );
+
+    viewport.current.addEventListener(
+      'pointerup',
+      (event: PIXI.FederatedPointerEvent) => {
+        InterfaceController.notifyListeners(
+          ListenEvent.GlobalPointerUpAndUpOutside,
+          event
+        );
+      }
     );
 
     viewport.current.addEventListener(
@@ -838,6 +852,14 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       >
         <div {...getRootProps({ style })}>
           <input {...getInputProps()} />
+          <Tooltip
+            pixiApp={pixiApp.current}
+            isContextMenuOpen={
+              isGraphContextMenuOpen ||
+              isNodeContextMenuOpen ||
+              isSocketContextMenuOpen
+            }
+          />
           <ShareDialog
             showSharePlayground={showSharePlayground}
             setShowSharePlayground={setShowSharePlayground}

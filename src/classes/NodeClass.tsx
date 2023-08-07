@@ -1,6 +1,9 @@
 /* eslint-disable */
 import * as PIXI from 'pixi.js';
+import React from 'react';
 import { hri } from 'human-readable-ids';
+import { Box } from '@mui/material';
+import { CodeEditor } from '../components/Editor';
 import {
   CustomArgs,
   NodeStatus,
@@ -26,14 +29,18 @@ import {
   NODE_WIDTH,
   SOCKET_HEIGHT,
   SOCKET_TYPE,
+  TOOLTIP_DISTANCE,
+  TOOLTIP_WIDTH,
 } from '../utils/constants';
 import UpdateBehaviourClass from './UpdateBehaviourClass';
 import NodeHeaderClass from './NodeHeaderClass';
 import PPGraph from './GraphClass';
 import Socket from './SocketClass';
+import { Tooltipable } from '../components/Tooltip';
 import {
   calculateAspectRatioFit,
   connectNodeToSocket,
+  getCircularReplacer,
   getNodeCommentPosX,
   getNodeCommentPosY,
 } from '../utils/utils';
@@ -43,11 +50,11 @@ import { TriggerType } from '../nodes/datatypes/triggerType';
 import { deSerializeType } from '../nodes/datatypes/typehelper';
 import throttle from 'lodash/throttle';
 import FlowLogic from './FlowLogic';
-import InterfaceController from '../InterfaceController';
+import InterfaceController, { ListenEvent } from '../InterfaceController';
 import { TextStyle } from 'pixi.js';
 import { JSONType } from '../nodes/datatypes/jsonType';
 
-export default class PPNode extends PIXI.Container {
+export default class PPNode extends PIXI.Container implements Tooltipable {
   _NodeNameRef: PIXI.Text;
   _BackgroundRef: PIXI.Graphics;
   _CommentRef: PIXI.Graphics;
@@ -77,18 +84,19 @@ export default class PPNode extends PIXI.Container {
   _doubleClicked: boolean;
   isDraggingNode: boolean;
   protected statuses: NodeStatus[] = []; // you can add statuses into this and they will be rendered on the node
+  listenIdUp: string;
 
   // supported callbacks
-  onNodeDoubleClick: (event: PIXI.FederatedPointerEvent) => void = () => { };
+  onNodeDoubleClick: (event: PIXI.FederatedPointerEvent) => void = () => {};
   onViewportMoveHandler: (event?: PIXI.FederatedPointerEvent) => void =
-    () => { };
+    () => {};
   onViewportPointerUpHandler: (event?: PIXI.FederatedPointerEvent) => void =
-    () => { };
-  onNodeRemoved: () => void = () => { }; // called when the node is removed from the graph
-  onNodeResize: (width: number, height: number) => void = () => { }; // called when the node is resized
+    () => {};
+  onNodeRemoved: () => void = () => {}; // called when the node is removed from the graph
+  onNodeResize: (width: number, height: number) => void = () => {}; // called when the node is resized
   onNodeDragOrViewportMove: // called when the node or or the viewport with the node is moved or scaled
-    (positions: { screenX: number; screenY: number; scale: number }) => void =
-    () => { };
+  (positions: { screenX: number; screenY: number; scale: number }) => void =
+    () => {};
 
   // called when the node is added to the graph
   public onNodeAdded(source: TNodeSource = NODE_SOURCE.SERIALIZED): void {
@@ -522,7 +530,9 @@ export default class PPNode extends PIXI.Container {
     this.onNodeResize(this.nodeWidth, this.nodeHeight);
 
     if (this.selected) {
-      PPGraph.currentGraph.selection.drawRectanglesFromSelection();
+      PPGraph.currentGraph.selection.drawRectanglesFromSelection(
+        PPGraph.currentGraph.selection.selectedNodes.length > 1
+      );
     }
   }
 
@@ -852,7 +862,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     if (
       this.updateBehaviour.interval &&
       currentTime - this.lastTimeTicked >=
-      this.updateBehaviour.intervalFrequency
+        this.updateBehaviour.intervalFrequency
     ) {
       this.lastTimeTicked = currentTime;
       this.executeOptimizedChain();
@@ -963,6 +973,43 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     });
   }
 
+  getTooltipContent(props): React.ReactElement {
+    const data = JSON.stringify({
+    id: this.id,
+    name: this.name,
+    type: this.type,
+  }, getCircularReplacer(), 2);
+    return (
+             <>
+          <Box
+            sx={{
+              p: '8px',
+              py: '9px',
+              color: 'text.primary',
+              fontWeight: 'medium',
+              fontSize: 'small',
+            }}
+          >
+            Node: {this.name}
+          </Box>
+          <CodeEditor
+            value={data}
+            randomMainColor={props.randomMainColor}
+          />
+        </>
+    );
+  }
+
+  getTooltipPosition(): PIXI.Point {
+    const scale = PPGraph.currentGraph.viewportScaleX;
+    const distanceX = TOOLTIP_DISTANCE * scale;
+    const absPos = this.getGlobalPosition();
+    return new PIXI.Point(
+      Math.max(0, absPos.x - TOOLTIP_WIDTH - distanceX),
+      absPos.y
+    );
+  }
+
   // SETUP
 
   _addListeners(): void {
@@ -973,8 +1020,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     this.addEventListener('click', this.onPointerClick.bind(this));
     this.addEventListener('removed', this.onRemoved.bind(this));
 
-    // first assign the bound function to a handler then add this handler as a listener
-    // otherwise removeEventListener won't work (bind creates a new function)
+    this.onViewportPointerUpHandler = this.onViewportPointerUp.bind(this);
     this.onViewportMoveHandler = this.onViewportMove.bind(this);
     PPGraph.currentGraph.viewport.addEventListener(
       'moved',
@@ -1083,6 +1129,10 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   }
 
   onPointerClick(event: PIXI.FederatedPointerEvent): void {
+    this.listenIdUp = InterfaceController.addListener(
+      ListenEvent.GlobalPointerUp,
+      this.onViewportPointerUpHandler
+    );
     // check if double clicked
     if (event.detail === 2) {
       this.doubleClicked = true;
@@ -1090,6 +1140,11 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
         this.onNodeDoubleClick(event);
       }
     }
+  }
+
+  onViewportPointerUp(): void {
+    InterfaceController.removeListener(this.listenIdUp);
+    this.doubleClicked = false;
   }
 
   public hasSocketNameInDefaultIO(name: string, type: TSocketType): boolean {
@@ -1145,7 +1200,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     return false;
   }
 
-  protected onNodeExit(): void { }
+  protected onNodeExit(): void {}
 
   ////////////////////////////// Meant to be overriden for visual/behavioral needs
 
@@ -1277,9 +1332,6 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
 
   // observers
 
-  public onViewportPointerUp(): void {
-    // override if desired
-  }
   // called when this node specifically is clicked (not just when part of the current selection)
   public onSpecificallySelected(): void {
     // override if you care about this event
@@ -1301,7 +1353,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   }
 
   // kinda hacky but some cant easily serialize functions in JS
-  protected initializeType(socketName: string, datatype: any) { }
+  protected initializeType(socketName: string, datatype: any) {}
 
   // these are imported before node is added to the graph
   public getDynamicImports(): string[] {

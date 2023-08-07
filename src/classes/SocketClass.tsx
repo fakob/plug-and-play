@@ -1,8 +1,12 @@
 import * as PIXI from 'pixi.js';
+import React from 'react';
+import { Box } from '@mui/material';
+import { SocketContainer } from '../SocketContainer';
 import { SerializedSocket, TRgba, TSocketType } from '../utils/interfaces';
 import PPGraph from './GraphClass';
 import PPNode from './NodeClass';
 import PPLink from './LinkClass';
+import { Tooltipable } from '../components/Tooltip';
 import InterfaceController, { ListenEvent } from '../InterfaceController';
 import {
   SOCKET_CORNERRADIUS,
@@ -12,6 +16,8 @@ import {
   SOCKET_TYPE,
   SOCKET_WIDTH,
   TEXT_RESOLUTION,
+  TOOLTIP_DISTANCE,
+  TOOLTIP_WIDTH,
   COLOR_MAIN,
 } from '../utils/constants';
 import { AbstractType } from '../nodes/datatypes/abstractType';
@@ -20,7 +26,7 @@ import { dataToType, serializeType } from '../nodes/datatypes/typehelper';
 import { getCurrentCursorPosition } from '../utils/utils';
 import { TextStyle } from 'pixi.js';
 
-export default class Socket extends PIXI.Container {
+export default class Socket extends PIXI.Container implements Tooltipable {
   // Input sockets
   // only 1 link is allowed
   // data can be set or comes from link
@@ -77,6 +83,7 @@ export default class Socket extends PIXI.Container {
     this.addEventListener('pointerover', this.onPointerOver.bind(this));
     this.addEventListener('pointerout', this.onPointerOut.bind(this));
     this.addEventListener('pointerup', this.onPointerUp);
+    this.addEventListener('pointerdown', this.onSocketPointerDown.bind(this));
 
     this.redrawAnythingChanging();
   }
@@ -159,10 +166,6 @@ export default class Socket extends PIXI.Container {
     this._SocketRef.endFill();
     this._SocketRef.name = 'SocketRef';
     this._SocketRef.eventMode = 'static';
-    this._SocketRef.addEventListener(
-      'pointerdown',
-      this.onSocketRefPointerDown.bind(this)
-    );
 
     this.addChild(this._SelectionBox);
     this.addChild(this._SocketRef);
@@ -390,6 +393,51 @@ export default class Socket extends PIXI.Container {
     });
   }
 
+  getTooltipContent(props): React.ReactElement {
+    return (
+      <>
+        <Box
+          sx={{
+            p: '8px',
+            py: '9px',
+            color: 'text.primary',
+            fontWeight: 'medium',
+            fontSize: 'small',
+            fontStyle: 'italic',
+          }}
+        >
+          Shift+Click to pin
+        </Box>
+        <SocketContainer
+          triggerScrollIntoView={false}
+          key={0}
+          property={this}
+          index={0}
+          dataType={this.dataType}
+          isInput={this.isInput()}
+          hasLink={this.hasLink()}
+          data={this.data}
+          randomMainColor={props.randomMainColor}
+          selectedNode={this.parent as PPNode}
+        />
+      </>
+    );
+  }
+
+  getTooltipPosition(): PIXI.Point {
+    const scale = PPGraph.currentGraph.viewportScaleX;
+    const distanceX = TOOLTIP_DISTANCE * scale;
+    const absPos = this.getGlobalPosition();
+    const nodeWidthScaled = this.getNode()._BackgroundRef.width * scale;
+    const pos = new PIXI.Point(0, absPos.y);
+    if (this.isInput()) {
+      pos.x = Math.max(0, absPos.x - TOOLTIP_WIDTH - distanceX);
+    } else {
+      pos.x = Math.max(0, absPos.x + nodeWidthScaled + distanceX);
+    }
+    return pos;
+  }
+
   // SETUP
 
   pointerOverSocketMoving() {
@@ -397,7 +445,7 @@ export default class Socket extends PIXI.Container {
     const center = PPGraph.currentGraph.getSocketCenter(this);
     const dist = Math.sqrt(
       Math.pow(currPos.y - center.y, 2) +
-      0.05 * Math.pow(currPos.x - center.x, 2)
+        0.05 * Math.pow(currPos.x - center.x, 2)
     );
     const maxDist = 20;
     const scaleOutside =
@@ -425,8 +473,13 @@ export default class Socket extends PIXI.Container {
     this.getGraph().socketHoverOut(this);
   }
 
-  onSocketRefPointerDown(event: PIXI.FederatedPointerEvent): void {
-    this.getGraph().socketMouseDown(this, event);
+  onSocketPointerDown(event: PIXI.FederatedPointerEvent): void {
+    const clickedSourcePoint = this.getTooltipPosition();
+    if (event.shiftKey) {
+      InterfaceController.onOpenSocketInspector(clickedSourcePoint, this);
+    } else {
+      this.getGraph().socketMouseDown(this, event);
+    }
   }
 
   onPointerUp(event: PIXI.FederatedPointerEvent): void {
@@ -434,10 +487,7 @@ export default class Socket extends PIXI.Container {
   }
 
   socketNameRefMouseDown(event: PIXI.FederatedPointerEvent): void {
-    const clickedSourcePoint = new PIXI.Point(event.global.x, event.global.y);
-    if (event.ctrlKey) {
-      InterfaceController.onOpenSocketInspector(clickedSourcePoint, this);
-    } else {
+    if (!event.shiftKey) {
       InterfaceController.notifyListeners(ListenEvent.SelectionChanged, [
         this.getNode(),
       ]);
