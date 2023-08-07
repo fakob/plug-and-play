@@ -2,6 +2,8 @@
 describe('fundamentals', () => {
   it('Save Graph', () => {
     cy.visit('http://127.0.0.1:8080');
+    cy.get("body").trigger('mousemove',  500, 500);
+    cy.wait(3000);
     cy.get("body").type("{ctrl}s")
     cy.get("body").contains("Playground was saved").should("be.visible");
     cy.get('#\\:r3\\:').click();
