@@ -66,6 +66,7 @@ import {
   connectNodeToSocket,
   controlOrMetaKey,
   cutOrCopyClipboard,
+  isPhone,
   pasteClipboard,
   removeExtension,
   removeUrlParameter,
@@ -82,7 +83,6 @@ import { ActionHandler } from './utils/actionHandler';
 import InterfaceController, { ListenEvent } from './InterfaceController';
 import PPStorage, { checkForUnsavedChanges } from './PPStorage';
 import PPSelection from './classes/SelectionClass';
-import { update } from 'lodash';
 
 TimeAgo.addDefaultLocale(en);
 // Create formatter (English).
@@ -852,14 +852,16 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       >
         <div {...getRootProps({ style })}>
           <input {...getInputProps()} />
-          <Tooltip
-            pixiApp={pixiApp.current}
-            isContextMenuOpen={
-              isGraphContextMenuOpen ||
-              isNodeContextMenuOpen ||
-              isSocketContextMenuOpen
-            }
-          />
+          {!isPhone() && (
+            <Tooltip
+              pixiApp={pixiApp.current}
+              isContextMenuOpen={
+                isGraphContextMenuOpen ||
+                isNodeContextMenuOpen ||
+                isSocketContextMenuOpen
+              }
+            />
+          )}
           <ShareDialog
             showSharePlayground={showSharePlayground}
             setShowSharePlayground={setShowSharePlayground}
