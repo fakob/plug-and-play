@@ -55,17 +55,26 @@ function FilterContainer(props: FilterContentProps) {
       size="small"
       sx={{ bgcolor: 'background.paper', borderRadius: '0px' }}
     >
-      <ToggleButton value="common" aria-label="common">
+      <ToggleButton
+        id="inspector-filter-common"
+        value="common"
+        aria-label="common"
+      >
         Common
       </ToggleButton>
       {props.selectedNodes.length === 1 &&
         props.selectedNode.nodeTriggerSocketArray.length > 0 && (
-          <ToggleButton value="trigger" aria-label="trigger">
+          <ToggleButton
+            id="inspector-filter-trigger"
+            value="trigger"
+            aria-label="trigger"
+          >
             Trigger
           </ToggleButton>
         )}
       {props.selectedNodes.length === 1 && (
         <ToggleButton
+          id="inspector-filter-in"
           value="in"
           aria-label="in"
           disabled={props.selectedNode.inputSocketArray.length <= 0}
@@ -75,6 +84,7 @@ function FilterContainer(props: FilterContentProps) {
       )}
       {props.selectedNodes.length === 1 && (
         <ToggleButton
+          id="inspector-filter-out"
           value="out"
           aria-label="out"
           disabled={props.selectedNode.outputSocketArray.length <= 0}
@@ -83,7 +93,7 @@ function FilterContainer(props: FilterContentProps) {
         </ToggleButton>
       )}
       {props.selectedNodes.length === 1 && (
-        <ToggleButton value="info" aria-label="info">
+        <ToggleButton id="inspector-filter-info" value="info" aria-label="info">
           Info
         </ToggleButton>
       )}
@@ -103,7 +113,7 @@ type CommonContentProps = {
 
 function CommonContent(props: CommonContentProps) {
   return (
-    <Box sx={{ bgcolor: 'background.paper' }}>
+    <Box id="inspector-common-content" sx={{ bgcolor: 'background.paper' }}>
       <Box sx={{ px: 2, py: 1.5, color: 'text.primary' }}>Update behaviour</Box>
       <FormGroup
         sx={{
@@ -226,7 +236,7 @@ type InfoContentProps = {
 function InfoContent(props: InfoContentProps) {
   return (
     <Stack spacing={1}>
-      <Box sx={{ bgcolor: 'background.paper' }}>
+      <Box id="inspector-info-content" sx={{ bgcolor: 'background.paper' }}>
         <Box
           sx={{
             display: 'flex',
@@ -325,7 +335,10 @@ type SourceContentProps = {
 
 function SourceContent(props: SourceContentProps) {
   return (
-    <Box sx={{ bgcolor: 'background.paper' }}>
+    <Box
+      id={`inspector-source-content-${props.header}`}
+      sx={{ bgcolor: 'background.paper' }}
+    >
       <Box
         sx={{
           flexGrow: 1,

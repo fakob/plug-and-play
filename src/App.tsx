@@ -978,6 +978,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
             randomMainColor={RANDOMMAINCOLOR}
           />
           <img
+            id="plugandplayground-logo"
             className={styles.plugAndPlaygroundIcon}
             style={{
               backgroundColor: RANDOMMAINCOLOR,
@@ -1011,6 +1012,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           {PPGraph.currentGraph && (
             <>
               <Autocomplete
+                id="graph-search"
                 ListboxProps={{ style: { maxHeight: '50vh' } }}
                 className={styles.graphSearch}
                 sx={{
@@ -1058,6 +1060,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
                 }}
               >
                 <Autocomplete
+                  id="node-search"
                   ListboxProps={{ style: { maxHeight: '50vh' } }}
                   sx={{
                     maxWidth: '50vw',

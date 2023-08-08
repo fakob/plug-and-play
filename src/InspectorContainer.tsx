@@ -20,6 +20,7 @@ import { useIsSmallScreen } from './utils/utils';
 function InspectorHeaderReadOnly(props) {
   return (
     <Box
+      id="inspector-header-readonly"
       sx={{
         color: `${
           Color(props.randomMainColor).isDark() ? COLOR_WHITE_TEXT : COLOR_DARK
@@ -52,6 +53,7 @@ function InspectorHeader(props) {
 
   return (
     <Box
+      id="inspector-header"
       sx={{
         color: `${
           Color(props.randomMainColor).isDark() ? COLOR_WHITE_TEXT : COLOR_DARK
@@ -165,6 +167,7 @@ const InspectorContainer: React.FunctionComponent<InspectorContainerProps> = (
   return (
     <ThemeProvider theme={customTheme}>
       <Stack
+        id="inspector-container"
         spacing={1}
         className={`${styles.inspectorContainer}`}
         sx={{

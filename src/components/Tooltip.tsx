@@ -82,6 +82,7 @@ export const Tooltip = (props) => {
   return (
     <ThemeProvider theme={customTheme}>
       <Paper
+        id="tooltip-container"
         elevation={8}
         sx={{
           position: 'absolute',
