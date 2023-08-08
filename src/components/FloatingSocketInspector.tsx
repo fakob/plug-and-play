@@ -57,6 +57,7 @@ export const FloatingSocketInspector: React.FunctionComponent<MyProps> = (
   return (
     <ThemeProvider theme={customTheme}>
       <PaperComponent
+        id="floating-inspector-container"
         elevation={8}
         sx={{
           position: 'absolute',

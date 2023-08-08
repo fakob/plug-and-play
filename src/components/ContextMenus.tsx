@@ -156,6 +156,7 @@ export const GraphContextMenu = (props) => {
 
   return (
     <Paper
+      id="graph-contextmenu"
       sx={{
         width: CONTEXTMENU_WIDTH,
         maxWidth: '100%',
@@ -472,6 +473,7 @@ export const NodeContextMenu = (props) => {
   const canAddOutput: boolean = PPGraph.currentGraph?.getCanAddOutput();
   return (
     <Paper
+      id="node-contextmenu"
       sx={{
         width: CONTEXTMENU_WIDTH,
         maxWidth: '100%',
@@ -671,6 +673,7 @@ export const SocketContextMenu = (props) => {
 
   return (
     <Paper
+      id="socket-contextmenu"
       sx={{
         minWidth: 240,
         maxWidth: '100%',

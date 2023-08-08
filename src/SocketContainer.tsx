@@ -74,7 +74,11 @@ export const SocketContainer: React.FunctionComponent<SocketContainerProps> = (
   }, [props.dataType]);
 
   return (
-    <Box ref={myRef} sx={{ bgcolor: 'background.default' }}>
+    <Box
+      id={`inspector-socket-${props.dataType.getName()}`}
+      ref={myRef}
+      sx={{ bgcolor: 'background.default' }}
+    >
       {showHeader && (
         <SocketHeader
           key={`SocketHeader-${props.dataType.getName()}`}
