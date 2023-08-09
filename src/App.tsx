@@ -284,6 +284,8 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       events: pixiApp.current.renderer.events,
     });
 
+    globalThis.__VIEWPORT__ = viewport.current;
+
     // add the viewport to the stage
     pixiApp.current.stage.addChild(viewport.current);
 

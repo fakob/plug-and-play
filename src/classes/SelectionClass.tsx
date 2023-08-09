@@ -49,6 +49,7 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
 
   constructor(viewport: Viewport) {
     super();
+    globalThis.__PPSELECTION__ = this;
     this.viewport = viewport;
     this.sourcePoint = new PIXI.Point(0, 0);
     this.isDrawingSelection = false;
