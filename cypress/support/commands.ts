@@ -1,37 +1,53 @@
-/// <reference types="cypress" />
-// ***********************************************
-// This example commands.ts shows you how to
-// create various custom commands and overwrite
-// existing commands.
-//
-// For more comprehensive examples of custom
-// commands please read more here:
-// https://on.cypress.io/custom-commands
-// ***********************************************
-//
-//
-// -- This is a parent command --
-// Cypress.Commands.add('login', (email, password) => { ... })
-//
-//
-// -- This is a child command --
-// Cypress.Commands.add('drag', { prevSubject: 'element'}, (subject, options) => { ... })
-//
-//
-// -- This is a dual command --
-// Cypress.Commands.add('dismiss', { prevSubject: 'optional'}, (subject, options) => { ... })
-//
-//
-// -- This will overwrite an existing command --
-// Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
-//
-// declare global {
-//   namespace Cypress {
-//     interface Chainable {
-//       login(email: string, password: string): Chainable<void>
-//       drag(subject: string, options?: Partial<TypeOptions>): Chainable<Element>
-//       dismiss(subject: string, options?: Partial<TypeOptions>): Chainable<Element>
-//       visit(originalFn: CommandOriginalFn, url: string, options: Partial<VisitOptions>): Chainable<Element>
-//     }
-//   }
-// }
+// eslint-disable-next-line @typescript-eslint/no-namespace
+declare namespace Cypress {
+  interface Chainable {
+    /**
+     * Custom command to get PIXI.App
+     * @example cy.getPIXIApp();
+     */
+    getPIXIApp(): Chainable;
+    /**
+     * Custom command to get Viewport
+     * @example cy.getPPViewport();
+     */
+    getPPViewport(): Chainable;
+    /**
+     * Custom command to get PPGraph
+     * @example cy.getPPGraph();
+     */
+    getPPGraph(): Chainable;
+    /**
+     * Custom command to get PPSelection
+     * @example cy.getPPSelection();
+     */
+    getPPSelection(): Chainable;
+  }
+}
+
+Cypress.Commands.add('getPIXIApp', () => {
+  cy.window().then((win) => {
+    cy.log((win as any).__PIXI_APP__);
+    return cy.wrap((win as any).__PIXI_APP__);
+  });
+});
+
+Cypress.Commands.add('getPPViewport', () => {
+  cy.window().then((win) => {
+    cy.log((win as any).__VIEWPORT__);
+    return cy.wrap((win as any).__VIEWPORT__);
+  });
+});
+
+Cypress.Commands.add('getPPGraph', () => {
+  cy.window().then((win) => {
+    cy.log((win as any).__PPGRAPH__);
+    return cy.wrap((win as any).__PPGRAPH__);
+  });
+});
+
+Cypress.Commands.add('getPPSelection', () => {
+  cy.window().then((win) => {
+    cy.log((win as any).__PPSELECTION__);
+    return cy.wrap((win as any).__PPSELECTION__);
+  });
+});

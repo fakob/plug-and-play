@@ -61,6 +61,7 @@ export default class PPGraph {
 
   constructor(app: PIXI.Application, viewport: Viewport) {
     this.app = app;
+    globalThis.__PPGRAPH__ = this;
     this.viewport = viewport;
     this.id = hri.random();
     console.log('Graph created');
