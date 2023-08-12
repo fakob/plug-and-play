@@ -23,7 +23,11 @@ import PPStorage from '../PPStorage';
 import { getAllNodeTypes } from '../nodes/allNodes';
 import { IGraphSearch, INodeSearch } from '../utils/interfaces';
 import { COLOR_DARK, COLOR_WHITE_TEXT } from '../utils/constants';
-import { getNodeExampleURL, writeTextToClipboard } from '../utils/utils';
+import {
+  getLoadGraphExampleURL,
+  getLoadNodeExampleURL,
+  writeTextToClipboard,
+} from '../utils/utils';
 import InterfaceController from '../InterfaceController';
 
 export const GraphSearchInput = (props) => {
@@ -84,10 +88,7 @@ export const renderGraphItem = (props, option, state) => {
 NOTE: save the playground after loading, if you want to make changes to it`
     : option.name;
   const optionLabel = option.label;
-  const url =
-    'https://plugandplayground.dev/?loadURL=https://raw.githubusercontent.com/fakob/plug-and-play-examples/dev/' +
-    encodeURIComponent(option.name) +
-    '.ppgraph';
+  const url = getLoadGraphExampleURL(option.name);
   const itemToReturn = option.isDisabled ? (
     <Box {...props} key={option.id} component="li">
       {text}
@@ -460,7 +461,7 @@ export const renderNodeItem = (props, option, { inputValue, selected }) => {
               }}
               onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
                 event.stopPropagation();
-                window.open(getNodeExampleURL(option.title), '_blank');
+                window.open(getLoadNodeExampleURL(option.title), '_blank');
               }}
               title="Open node example"
               className="menuItemButton"

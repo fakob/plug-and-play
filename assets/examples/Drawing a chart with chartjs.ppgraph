@@ -1,0 +1,674 @@
+{
+  "version": 0.1,
+  "graphSettings": {
+    "showExecutionVisualisation": true,
+    "viewportCenterPosition": {
+      "x": -2912.6820684838744,
+      "y": 600.5022704830714
+    },
+    "viewportScale": 0.7551894710383836
+  },
+  "nodes": [
+    {
+      "id": "shy-fish-54",
+      "name": "Table",
+      "type": "Table",
+      "x": -3803.045198944148,
+      "y": 117.15787307702317,
+      "width": 215.58551736991876,
+      "height": 1016.2267302230032,
+      "socketArray": [
+        {
+          "socketType": "in",
+          "name": "Initial data",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "data": {
+            "SheetNames": [
+              "Sheet1"
+            ],
+            "Sheets": {
+              "Sheet1": {
+                "A1": {
+                  "v": "letter",
+                  "t": "s",
+                  "w": "letter"
+                },
+                "B1": {
+                  "v": "frequency",
+                  "t": "s",
+                  "w": "frequency"
+                },
+                "A2": {
+                  "v": "A",
+                  "t": "s"
+                },
+                "B2": {
+                  "v": "0.08167",
+                  "t": "s"
+                },
+                "A3": {
+                  "v": "B",
+                  "t": "s"
+                },
+                "B3": {
+                  "v": "0.01492",
+                  "t": "s"
+                },
+                "A4": {
+                  "v": "C",
+                  "t": "s"
+                },
+                "B4": {
+                  "v": "0.02782",
+                  "t": "s"
+                },
+                "A5": {
+                  "v": "D",
+                  "t": "s"
+                },
+                "B5": {
+                  "v": "0.04253",
+                  "t": "s"
+                },
+                "A6": {
+                  "v": "E",
+                  "t": "s"
+                },
+                "B6": {
+                  "v": "0.12702",
+                  "t": "s"
+                },
+                "A7": {
+                  "v": "F",
+                  "t": "s"
+                },
+                "B7": {
+                  "v": "0.02288",
+                  "t": "s"
+                },
+                "A8": {
+                  "v": "G",
+                  "t": "s"
+                },
+                "B8": {
+                  "v": "0.02015",
+                  "t": "s"
+                },
+                "A9": {
+                  "v": "H",
+                  "t": "s"
+                },
+                "B9": {
+                  "v": "0.06094",
+                  "t": "s"
+                },
+                "A10": {
+                  "v": "I",
+                  "t": "s"
+                },
+                "B10": {
+                  "v": "0.06966",
+                  "t": "s"
+                },
+                "A11": {
+                  "v": "J",
+                  "t": "s"
+                },
+                "B11": {
+                  "v": "0.00153",
+                  "t": "s"
+                },
+                "A12": {
+                  "v": "K",
+                  "t": "s"
+                },
+                "B12": {
+                  "v": "0.00772",
+                  "t": "s"
+                },
+                "A13": {
+                  "v": "L",
+                  "t": "s"
+                },
+                "B13": {
+                  "v": "0.04025",
+                  "t": "s"
+                },
+                "A14": {
+                  "v": "M",
+                  "t": "s"
+                },
+                "B14": {
+                  "v": "0.02406",
+                  "t": "s"
+                },
+                "A15": {
+                  "v": "N",
+                  "t": "s"
+                },
+                "B15": {
+                  "v": "0.06749",
+                  "t": "s"
+                },
+                "A16": {
+                  "v": "O",
+                  "t": "s"
+                },
+                "B16": {
+                  "v": "0.07507",
+                  "t": "s"
+                },
+                "A17": {
+                  "v": "P",
+                  "t": "s"
+                },
+                "B17": {
+                  "v": "0.01929",
+                  "t": "s"
+                },
+                "A18": {
+                  "v": "Q",
+                  "t": "s"
+                },
+                "B18": {
+                  "v": "0.00095",
+                  "t": "s"
+                },
+                "A19": {
+                  "v": "R",
+                  "t": "s"
+                },
+                "B19": {
+                  "v": "0.05987",
+                  "t": "s"
+                },
+                "A20": {
+                  "v": "S",
+                  "t": "s"
+                },
+                "B20": {
+                  "v": "0.06327",
+                  "t": "s"
+                },
+                "A21": {
+                  "v": "T",
+                  "t": "s"
+                },
+                "B21": {
+                  "v": "0.09056",
+                  "t": "s"
+                },
+                "A22": {
+                  "v": "U",
+                  "t": "s"
+                },
+                "B22": {
+                  "v": "0.02758",
+                  "t": "s"
+                },
+                "A23": {
+                  "v": "V",
+                  "t": "s"
+                },
+                "B23": {
+                  "v": "0.00978",
+                  "t": "s"
+                },
+                "A24": {
+                  "v": "W",
+                  "t": "s"
+                },
+                "B24": {
+                  "v": "0.0236",
+                  "t": "s"
+                },
+                "A25": {
+                  "v": "X",
+                  "t": "s"
+                },
+                "B25": {
+                  "v": "0.0015",
+                  "t": "s"
+                },
+                "A26": {
+                  "v": "Y",
+                  "t": "s"
+                },
+                "B26": {
+                  "v": "0.01974",
+                  "t": "s"
+                },
+                "A27": {
+                  "v": "Z",
+                  "t": "s"
+                },
+                "B27": {
+                  "v": "0.00074",
+                  "t": "s"
+                },
+                "!ref": "A1:B27"
+              }
+            }
+          },
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Sheet index",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
+          "data": 0,
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "Row Objects",
+          "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "Array of arrays",
+          "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
+          "visible": true
+        }
+      ],
+      "updateBehaviour": {
+        "update": true,
+        "interval": false,
+        "intervalFrequency": 1000
+      }
+    },
+    {
+      "id": "black-elephant-32",
+      "name": "Render chartjs",
+      "type": "CustomFunction",
+      "x": -3060.48953711552,
+      "y": 215.0732665001645,
+      "width": 160,
+      "height": 112,
+      "socketArray": [
+        {
+          "socketType": "in",
+          "name": "Code",
+          "dataType": "{\"class\":\"CodeType\",\"type\":{}}",
+          "data": "//define your function here, node will adapt to inputs automatically\n(chartjs, data) => {\n  const { Chart, registerables } = chartjs;\n\n  Chart.register(...registerables);\n\n\tconst ctx = document.getElementById('kind-ape-68').contentWindow.document.getElementById('myChart2');\n\nlet chartStatus = Chart.getChart(ctx); // <canvas> id\nif (chartStatus != undefined) {\n  chartStatus.destroy();\n}\n\n  const myChart = new Chart(ctx, {\n    type: 'bar',\n    data: data,\n    options: {\n      scales: {\n        y: {\n          beginAtZero: true\n        }\n      }\n    }\n  });\n}",
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "chartjs",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "defaultData": {},
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "data",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "defaultData": {},
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "OutData",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
+          "visible": true
+        }
+      ],
+      "updateBehaviour": {
+        "update": true,
+        "interval": false,
+        "intervalFrequency": 1000
+      }
+    },
+    {
+      "id": "kind-ape-68",
+      "name": "HtmlRenderer",
+      "type": "HtmlRenderer",
+      "x": -3066.0866256440927,
+      "y": 393.71231649928745,
+      "width": 921.50132756728,
+      "height": 478.03293552104714,
+      "socketArray": [
+        {
+          "socketType": "in",
+          "name": "Html",
+          "dataType": "{\"class\":\"CodeType\",\"type\":{}}",
+          "data": "<div>\n  <div id=\"myDiv\"></div>\n  <canvas style=\"width:100%;\" id=\"myChart2\"></canvas>\n</div>\n",
+          "visible": false
+        }
+      ],
+      "updateBehaviour": {
+        "update": true,
+        "interval": false,
+        "intervalFrequency": 1000
+      }
+    },
+    {
+      "id": "witty-fly-23",
+      "name": "Table_GetColumnByName",
+      "type": "Table_GetColumnByName",
+      "x": -3499.7575611292486,
+      "y": 279.7821662734587,
+      "width": 160,
+      "height": 112,
+      "socketArray": [
+        {
+          "socketType": "in",
+          "name": "Code",
+          "dataType": "{\"class\":\"CodeType\",\"type\":{}}",
+          "data": "(ArrayOfArraysIn, ColumnName) => {\n  const index = ArrayOfArraysIn[0].findIndex(col => col == ColumnName);\n  if (index > -1) {\n    return ArrayOfArraysIn.map(row => row[index]).slice(1);\n  }\n  return [];\n}",
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "ArrayOfArraysIn",
+          "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
+          "defaultData": 0,
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "ColumnName",
+          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
+          "data": "letter",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "OutData",
+          "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
+          "visible": true
+        }
+      ],
+      "updateBehaviour": {
+        "update": true,
+        "interval": false,
+        "intervalFrequency": 1000
+      }
+    },
+    {
+      "id": "little-ape-18",
+      "name": "Table_GetColumnByName",
+      "type": "Table_GetColumnByName",
+      "x": -3498.473100288444,
+      "y": 433.3817588129887,
+      "width": 160,
+      "height": 112,
+      "socketArray": [
+        {
+          "socketType": "in",
+          "name": "Code",
+          "dataType": "{\"class\":\"CodeType\",\"type\":{}}",
+          "data": "(ArrayOfArraysIn, ColumnName) => {\n  const index = ArrayOfArraysIn[0].findIndex(col => col == ColumnName);\n  if (index > -1) {\n    return ArrayOfArraysIn.map(row => row[index]).slice(1);\n  }\n  return [];\n}",
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "ArrayOfArraysIn",
+          "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
+          "defaultData": 0,
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "ColumnName",
+          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
+          "data": "frequency",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "OutData",
+          "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
+          "visible": true
+        }
+      ],
+      "updateBehaviour": {
+        "update": true,
+        "interval": false,
+        "intervalFrequency": 1000
+      }
+    },
+    {
+      "id": "loud-quail-91",
+      "name": "Prepare data",
+      "type": "CustomFunction",
+      "x": -3284.4736677158626,
+      "y": 377.93648550388014,
+      "width": 160,
+      "height": 136,
+      "socketArray": [
+        {
+          "socketType": "in",
+          "name": "Code",
+          "dataType": "{\"class\":\"CodeType\",\"type\":{}}",
+          "data": "//define your function here, node will adapt to inputs automatically\n(label, data, color) => {\n\t\n\tconst bgColor = color.map((c) => {\n\t\treturn c.rgb();\n\t})\n\n\tconst object = {\n\t\tlabels: label,\n\t\tdatasets: [{\n\t\t\tlabel: 'alphabet frequencies',\n\t\t\tdata: data,\n\t\t\tborderWidth: 1,\n\t\t\tbackgroundColor: bgColor\n\t\t}]\n\t}\n\n\treturn object;\n}",
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "label",
+          "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
+          "defaultData": [],
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "data",
+          "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
+          "defaultData": [],
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "color",
+          "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
+          "defaultData": [],
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "OutData",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "visible": true
+        }
+      ],
+      "updateBehaviour": {
+        "update": true,
+        "interval": false,
+        "intervalFrequency": 1000
+      }
+    },
+    {
+      "id": "gentle-snail-54",
+      "name": "Load chartjs npm",
+      "type": "LoadNPM",
+      "x": -3290.3298029402104,
+      "y": 137.68013804217412,
+      "width": 160,
+      "height": 88,
+      "socketArray": [
+        {
+          "socketType": "in",
+          "name": "Code",
+          "dataType": "{\"class\":\"CodeType\",\"type\":{}}",
+          "data": "(packageName) => {\n  const url = 'https://esm.sh/' + packageName;\n  const npmPackage = await import(url);\n  console.log(npmPackage);\n\treturn npmPackage;\n}",
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "packageName",
+          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
+          "data": "chart.js",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "NpmPackage",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "visible": true
+        }
+      ],
+      "updateBehaviour": {
+        "update": true,
+        "interval": false,
+        "intervalFrequency": 1000
+      }
+    },
+    {
+      "id": "perfect-kangaroo-55",
+      "name": "ColorArray",
+      "type": "ColorArray",
+      "x": -3502.5157352596775,
+      "y": 697.6128520926909,
+      "width": 160,
+      "height": 88,
+      "socketArray": [
+        {
+          "socketType": "in",
+          "name": "count",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
+          "defaultData": 9,
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "colorA",
+          "dataType": "{\"class\":\"ColorType\",\"type\":{}}",
+          "data": {
+            "r": 62,
+            "g": 156,
+            "b": 163,
+            "a": 1
+          },
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "colorB",
+          "dataType": "{\"class\":\"ColorType\",\"type\":{}}",
+          "data": {
+            "r": 225,
+            "g": 84,
+            "b": 125,
+            "a": 1
+          },
+          "visible": false
+        },
+        {
+          "socketType": "out",
+          "name": "color-array",
+          "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
+          "visible": true
+        }
+      ],
+      "updateBehaviour": {
+        "update": true,
+        "interval": false,
+        "intervalFrequency": 1000
+      }
+    },
+    {
+      "id": "purple-lion-40",
+      "name": "ArrayLength",
+      "type": "ArrayLength",
+      "x": -3503.574939385052,
+      "y": 582.2185667252078,
+      "width": 160,
+      "height": 88,
+      "socketArray": [
+        {
+          "socketType": "in",
+          "name": "Code",
+          "dataType": "{\"class\":\"CodeType\",\"type\":{}}",
+          "data": "(ArrayIn) => {\n\treturn ArrayIn.length;\n}",
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "ArrayIn",
+          "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
+          "defaultData": [],
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "Length",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
+          "visible": true
+        }
+      ],
+      "updateBehaviour": {
+        "update": true,
+        "interval": false,
+        "intervalFrequency": 1000
+      }
+    }
+  ],
+  "links": [
+    {
+      "id": "c84c08eb-e4b4-4c4e-b3de-0c9df6dc69ac",
+      "sourceNodeId": "gentle-snail-54",
+      "sourceSocketName": "NpmPackage",
+      "targetNodeId": "black-elephant-32",
+      "targetSocketName": "chartjs"
+    },
+    {
+      "id": "16aba0a8-99c4-46b1-9524-884cd599372d",
+      "sourceNodeId": "loud-quail-91",
+      "sourceSocketName": "OutData",
+      "targetNodeId": "black-elephant-32",
+      "targetSocketName": "data"
+    },
+    {
+      "id": "f609f6e4-af0d-414a-8098-a38440b01ade",
+      "sourceNodeId": "shy-fish-54",
+      "sourceSocketName": "Array of arrays",
+      "targetNodeId": "witty-fly-23",
+      "targetSocketName": "ArrayOfArraysIn"
+    },
+    {
+      "id": "78f4b11e-c2a9-4ec5-86c5-41185e4f953e",
+      "sourceNodeId": "shy-fish-54",
+      "sourceSocketName": "Array of arrays",
+      "targetNodeId": "little-ape-18",
+      "targetSocketName": "ArrayOfArraysIn"
+    },
+    {
+      "id": "2e2a36ff-6482-472d-911b-578814912d3d",
+      "sourceNodeId": "witty-fly-23",
+      "sourceSocketName": "OutData",
+      "targetNodeId": "loud-quail-91",
+      "targetSocketName": "label"
+    },
+    {
+      "id": "4a230ef2-2c45-4f8c-824e-0804f9c8f6a7",
+      "sourceNodeId": "little-ape-18",
+      "sourceSocketName": "OutData",
+      "targetNodeId": "loud-quail-91",
+      "targetSocketName": "data"
+    },
+    {
+      "id": "aca747b4-b379-4c5c-b435-87bd63380e1f",
+      "sourceNodeId": "perfect-kangaroo-55",
+      "sourceSocketName": "color-array",
+      "targetNodeId": "loud-quail-91",
+      "targetSocketName": "color"
+    },
+    {
+      "id": "c7b85b92-bb03-4ae6-aa41-7dbb4fa527d3",
+      "sourceNodeId": "purple-lion-40",
+      "sourceSocketName": "Length",
+      "targetNodeId": "perfect-kangaroo-55",
+      "targetSocketName": "count"
+    },
+    {
+      "id": "db1c7371-3e6d-448b-822a-6388ffd24197",
+      "sourceNodeId": "shy-fish-54",
+      "sourceSocketName": "Array of arrays",
+      "targetNodeId": "purple-lion-40",
+      "targetSocketName": "ArrayIn"
+    }
+  ]
+}

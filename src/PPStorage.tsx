@@ -1,16 +1,12 @@
 import { Viewport } from 'pixi-viewport';
 import InterfaceController, { ListenEvent } from './InterfaceController';
-import {
-  GESTUREMODE,
-  GET_STARTED_URL,
-  GITHUB_API_URL,
-  GITHUB_BRANCH_NAME,
-} from './utils/constants';
+import { GESTUREMODE, GET_STARTED_GRAPH } from './utils/constants';
 import { ActionHandler } from './utils/actionHandler';
 import { GraphDatabase } from './utils/indexedDB';
 import {
   downloadFile,
   formatDate,
+  getExampleURL,
   getSetting,
   removeExtension,
   setGestureModeOnViewport,
@@ -136,14 +132,7 @@ export default class PPStorage {
 
   getRemoteGraph = async (fileName: string): Promise<any> => {
     try {
-      const file = await fetch(
-        `${GITHUB_API_URL}/contents/${fileName}?ref=${GITHUB_BRANCH_NAME}`,
-        {
-          headers: {
-            accept: 'application/vnd.github.v3.raw',
-          },
-        }
-      );
+      const file = await fetch(`assets/examples/${fileName}`);
       const fileData = await file.json();
       return fileData;
     } catch (error) {
@@ -156,27 +145,11 @@ export default class PPStorage {
       return [];
     }
     try {
-      const branches = await fetch(
-        `${GITHUB_API_URL}/branches/${GITHUB_BRANCH_NAME}`,
-        {
-          headers: {
-            accept: 'application/vnd.github.v3+json',
-          },
-        }
-      );
-      const branchesData = await branches.json();
-      const sha = branchesData.commit.sha;
-
-      const fileList = await fetch(`${GITHUB_API_URL}/git/trees/${sha}`, {
-        headers: {
-          accept: 'application/vnd.github.v3+json',
-        },
-      });
+      const fileList = await fetch(`/listExamples`);
       const fileListData = await fileList.json();
-      const files = fileListData.tree;
-      const arrayOfFileNames = files.map((file) => file.path);
-
-      return arrayOfFileNames;
+      console.log(fileList);
+      console.log(fileListData);
+      return fileListData.files;
     } catch (error) {
       console.log('Failed to fetch remote graphs: ' + error);
       await new Promise((r) => setTimeout(r, 100));
@@ -266,8 +239,11 @@ export default class PPStorage {
 
   async loadGraphFromURL(loadURL: string) {
     try {
-      const file = await fetch(loadURL, {});
+      const file = await fetch(loadURL);
+      console.log(loadURL);
+      console.log(file);
       const fileData = await file.json();
+      console.log(fileData);
       return await this.loadGraphFromData(fileData, hri.random());
     } catch (error) {
       InterfaceController.showSnackBar(
@@ -313,7 +289,7 @@ export default class PPStorage {
 
       InterfaceController.showSnackBar(`${loadedGraph.name} was loaded`);
     } else {
-      this.loadGraphFromURL(GET_STARTED_URL);
+      this.loadGraphFromURL(getExampleURL('', GET_STARTED_GRAPH));
     }
 
     ActionHandler.setUnsavedChange(false);
