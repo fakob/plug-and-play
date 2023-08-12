@@ -84,7 +84,7 @@ export default class PPNode extends PIXI.Container implements Tooltipable {
   _doubleClicked: boolean;
   isDraggingNode: boolean;
   protected statuses: NodeStatus[] = []; // you can add statuses into this and they will be rendered on the node
-  listenIdUp: string;
+  listenId: string[] = [];
 
   // supported callbacks
   onNodeDoubleClick: (event: PIXI.FederatedPointerEvent) => void = () => {};
@@ -386,7 +386,11 @@ export default class PPNode extends PIXI.Container implements Tooltipable {
     this.nodeWidth = nodeConfig.width || this.getMinNodeWidth();
     this.nodeHeight = nodeConfig.height || this.getMinNodeHeight();
     this.nodeName = nodeConfig.name;
-    this.updateBehaviour = new UpdateBehaviourClass(nodeConfig.updateBehaviour.update, nodeConfig.updateBehaviour.interval, nodeConfig.updateBehaviour.intervalFrequency);
+    this.updateBehaviour = new UpdateBehaviourClass(
+      nodeConfig.updateBehaviour.update,
+      nodeConfig.updateBehaviour.interval,
+      nodeConfig.updateBehaviour.intervalFrequency
+    );
     if (includeSocketData) {
       try {
         const mapSocket = (item: SerializedSocket) => {
@@ -974,29 +978,30 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   }
 
   getTooltipContent(props): React.ReactElement {
-    const data = JSON.stringify({
-    id: this.id,
-    name: this.name,
-    type: this.type,
-  }, getCircularReplacer(), 2);
+    const data = JSON.stringify(
+      {
+        id: this.id,
+        name: this.name,
+        type: this.type,
+      },
+      getCircularReplacer(),
+      2
+    );
     return (
-             <>
-          <Box
-            sx={{
-              p: '8px',
-              py: '9px',
-              color: 'text.primary',
-              fontWeight: 'medium',
-              fontSize: 'small',
-            }}
-          >
-            Node: {this.name}
-          </Box>
-          <CodeEditor
-            value={data}
-            randomMainColor={props.randomMainColor}
-          />
-        </>
+      <>
+        <Box
+          sx={{
+            p: '8px',
+            py: '9px',
+            color: 'text.primary',
+            fontWeight: 'medium',
+            fontSize: 'small',
+          }}
+        >
+          Node: {this.name}
+        </Box>
+        <CodeEditor value={data} randomMainColor={props.randomMainColor} />
+      </>
     );
   }
 
@@ -1129,13 +1134,21 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   }
 
   onPointerClick(event: PIXI.FederatedPointerEvent): void {
-    this.listenIdUp = InterfaceController.addListener(
-      ListenEvent.GlobalPointerUp,
-      this.onViewportPointerUpHandler
+    this.listenId.push(
+      InterfaceController.addListener(
+        ListenEvent.GlobalPointerUp,
+        this.onViewportPointerUpHandler
+      )
     );
     // check if double clicked
     if (event.detail === 2) {
       this.doubleClicked = true;
+      this.listenId.push(
+        InterfaceController.addListener(
+          ListenEvent.EscapeKeyUsed,
+          this.onViewportPointerUpHandler
+        )
+      );
       if (this.onNodeDoubleClick) {
         this.onNodeDoubleClick(event);
       }
@@ -1143,7 +1156,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   }
 
   onViewportPointerUp(): void {
-    InterfaceController.removeListener(this.listenIdUp);
+    this.listenId.forEach((id) => InterfaceController.removeListener(id));
     this.doubleClicked = false;
   }
 
