@@ -147,8 +147,6 @@ export default class PPStorage {
     try {
       const fileList = await fetch(`/listExamples`);
       const fileListData = await fileList.json();
-      console.log(fileList);
-      console.log(fileListData);
       return fileListData.files;
     } catch (error) {
       console.log('Failed to fetch remote graphs: ' + error);
@@ -240,10 +238,7 @@ export default class PPStorage {
   async loadGraphFromURL(loadURL: string) {
     try {
       const file = await fetch(loadURL);
-      console.log(loadURL);
-      console.log(file);
       const fileData = await file.json();
-      console.log(fileData);
       return await this.loadGraphFromData(fileData, hri.random());
     } catch (error) {
       InterfaceController.showSnackBar(
