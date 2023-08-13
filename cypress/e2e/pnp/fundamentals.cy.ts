@@ -3,10 +3,12 @@ describe('fundamentals', () => {
   const controlOrMetaKey = Cypress.platform === 'darwin' ? '{meta}' : '{ctrl}';
 
   beforeEach(() => {
-    cy.visit('http://127.0.0.1:8080/?new=true');
-    cy.intercept('GET', 'listExamples', {
-      fixture: 'listExamples.json',
+    cy.intercept('GET', '/listExamples', (req) => {
+      req.reply({
+        fixture: 'listExamples.json',
+      });
     });
+    cy.visit('http://127.0.0.1:8080/?new=true');
     // cy.wait(2000); // ugly, wait for graphs to arrive
   });
 
@@ -74,13 +76,10 @@ describe('fundamentals', () => {
     cy.get('body').type(`${controlOrMetaKey}\\`);
   });
 
-  it('load graph example', () => {
+  it.only('load graph example', () => {
     cy.get('#graph-search').click();
-    cy.wait(3000);
-    cy.get('#graph-search-listbox')
-      .wait(3000)
-      .contains('li', 'z test node')
-      .click();
+    cy.wait(1000);
+    cy.get('#graph-search-listbox').contains('li', 'z test node').click();
     cy.wait(3000)
       .get('#notistack-snackbar')
       .contains('Remote playground was loaded');
