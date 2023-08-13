@@ -102,11 +102,6 @@ fetch('/listExamples')
   .then((data) => console.log(data))
   .catch((error) => console.error(error));
 
-fetch('/listNodeExamples')
-  .then((response) => response.json())
-  .then((data) => console.log(data))
-  .catch((error) => console.error(error));
-
 const App = (): JSX.Element => {
   console.log('FULL APP REDRAW');
   document.title = 'Your Plug and Playground';

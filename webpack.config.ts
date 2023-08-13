@@ -160,14 +160,8 @@ module.exports = (env, argv) => {
               'pixotopePipelineImageSave - NOT WORKING.ppgraph',
               'z debug missing nodes, sockets and links.ppgraph',
               'z test node.ppgraph',
+              'z test nodelist.ppgraph',
             ],
-          });
-        });
-
-        devServer.app.get('/listNodeExamples', (_, response) => {
-          response.send({
-            message: 'This is a mock response',
-            data: { files: ['Break.ppgraph', 'Video.ppgraph'] },
           });
         });
 

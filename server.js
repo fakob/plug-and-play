@@ -80,26 +80,6 @@ app.get('/listExamples', (req, res) => {
   });
 });
 
-app.get('/listNodeExamples', (req, res) => {
-  const assetsFolderPath = path.join(
-    __dirname,
-    'dist',
-    'assets',
-    'examples',
-    'nodes'
-  );
-  fs.readdir(assetsFolderPath, { withFileTypes: false }, (err, files) => {
-    res.header('Content-Type', 'application/json');
-    if (err) {
-      console.error(err);
-      return res
-        .status(500)
-        .json({ error: 'An error occurred while listing files.' });
-    }
-    res.json({ files });
-  });
-});
-
 app.get('/auth-with-github', async function (req, res) {
   res.redirect(
     `https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&redirect_uri=${GITHUB_REDIRECT_URL}&scope=gist`
