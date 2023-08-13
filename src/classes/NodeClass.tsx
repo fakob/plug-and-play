@@ -386,7 +386,11 @@ export default class PPNode extends PIXI.Container implements Tooltipable {
     this.nodeWidth = nodeConfig.width || this.getMinNodeWidth();
     this.nodeHeight = nodeConfig.height || this.getMinNodeHeight();
     this.nodeName = nodeConfig.name;
-    this.updateBehaviour = new UpdateBehaviourClass(nodeConfig.updateBehaviour.update, nodeConfig.updateBehaviour.interval, nodeConfig.updateBehaviour.intervalFrequency);
+    this.updateBehaviour = new UpdateBehaviourClass(
+      nodeConfig.updateBehaviour.update,
+      nodeConfig.updateBehaviour.interval,
+      nodeConfig.updateBehaviour.intervalFrequency
+    );
     if (includeSocketData) {
       try {
         const mapSocket = (item: SerializedSocket) => {
@@ -955,7 +959,9 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
       this.drawComment();
     } catch (error) {
       this.lastError = error;
-      console.log('node ' + this.id + ' execution error: ' + error.stack);
+      console.log(
+        `Node ${this.name}(${this.id}) execution error:  ${error.stack}`
+      );
       this.successfullyExecuted = false;
     }
     if (
@@ -974,29 +980,30 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   }
 
   getTooltipContent(props): React.ReactElement {
-    const data = JSON.stringify({
-    id: this.id,
-    name: this.name,
-    type: this.type,
-  }, getCircularReplacer(), 2);
+    const data = JSON.stringify(
+      {
+        id: this.id,
+        name: this.name,
+        type: this.type,
+      },
+      getCircularReplacer(),
+      2
+    );
     return (
-             <>
-          <Box
-            sx={{
-              p: '8px',
-              py: '9px',
-              color: 'text.primary',
-              fontWeight: 'medium',
-              fontSize: 'small',
-            }}
-          >
-            Node: {this.name}
-          </Box>
-          <CodeEditor
-            value={data}
-            randomMainColor={props.randomMainColor}
-          />
-        </>
+      <>
+        <Box
+          sx={{
+            p: '8px',
+            py: '9px',
+            color: 'text.primary',
+            fontWeight: 'medium',
+            fontSize: 'small',
+          }}
+        >
+          Node: {this.name}
+        </Box>
+        <CodeEditor value={data} randomMainColor={props.randomMainColor} />
+      </>
     );
   }
 
