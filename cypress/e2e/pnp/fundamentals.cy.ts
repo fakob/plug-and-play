@@ -4,7 +4,6 @@ describe('fundamentals', () => {
 
   beforeEach(() => {
     cy.visit('http://127.0.0.1:8080/?new=true');
-    cy.intercept('/dummy').as('dummy'); // suggested hack from SO
     cy.intercept('GET', 'listExamples', {
       fixture: 'listExamples.json',
     });
@@ -77,6 +76,7 @@ describe('fundamentals', () => {
 
   it('load graph example', () => {
     cy.get('#graph-search').click();
+    cy.wait(3000);
     cy.get('#graph-search-listbox')
       .wait(3000)
       .contains('li', 'z test node')
