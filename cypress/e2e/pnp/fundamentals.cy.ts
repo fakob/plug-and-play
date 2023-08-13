@@ -9,7 +9,7 @@ describe('fundamentals', () => {
       });
     });
     cy.visit('http://127.0.0.1:8080/?new=true');
-    // cy.wait(2000); // ugly, wait for graphs to arrive
+    cy.wait(1000); // ugly, wait for graphs to arrive
   });
 
   // it('Save Graph', () => {
