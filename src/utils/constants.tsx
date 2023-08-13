@@ -59,6 +59,7 @@ export const COLOR = [
   '#7BA442',
   '#A58E43',
   '#A45140',
+  '#D4FF00',
 ];
 
 export const COLOR_WHITE = '#F5F5F5';
@@ -114,6 +115,7 @@ export const PRESET_COLORS = [
   '#7BA442',
   '#A58E43',
   '#A45140',
+  '#D4FF00',
 ];
 
 export const errorColor = TRgba.fromString('#B71C1C');

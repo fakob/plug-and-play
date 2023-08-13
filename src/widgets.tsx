@@ -272,6 +272,9 @@ export const SelectWidget: React.FunctionComponent<SelectWidgetProps> = (
         onOpen={onOpen}
         onChange={onChange}
         disabled={props.hasLink}
+        MenuProps={{
+          style: { zIndex: 1500 },
+        }}
       >
         {options?.map(({ text }, index) => {
           return (
@@ -512,6 +515,9 @@ export const TriggerWidget: React.FunctionComponent<TriggerWidgetProps> = (
           variant="filled"
           value={triggerType}
           onChange={onChangeTriggerType}
+          MenuProps={{
+            style: { zIndex: 1500 },
+          }}
         >
           {TRIGGER_TYPE_OPTIONS?.map(({ text }, index) => {
             return (
@@ -604,8 +610,8 @@ export const ColorWidget: React.FunctionComponent<ColorWidgetProps> = (
           props.hasLink
             ? undefined
             : () => {
-              showColorPicker(!colorPicker);
-            }
+                showColorPicker(!colorPicker);
+              }
         }
       >
         {props.isInput && !props.hasLink ? 'Pick a color' : ''}
