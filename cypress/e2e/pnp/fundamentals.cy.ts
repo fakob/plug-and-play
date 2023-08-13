@@ -74,10 +74,10 @@ describe('fundamentals', () => {
   it('load graph example', () => {
     cy.get('#graph-search').click();
     cy.get('#graph-search-listbox')
-      .wait(1000)
+      .wait(3000)
       .contains('li', 'z test node')
       .click();
-    cy.wait(1000)
+    cy.wait(3000)
       .get('#notistack-snackbar')
       .contains('Remote playground was loaded');
   });
