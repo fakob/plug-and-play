@@ -10,7 +10,6 @@ import PPSocket from '../classes/SocketClass';
 import {
   CONDITION_OPTIONS,
   GESTUREMODE,
-  GITHUB_RAW_URL_NODES,
   MAX_STRING_LENGTH,
   NODE_HEADER_HEIGHT,
   NODE_PADDING_TOP,
@@ -775,8 +774,25 @@ export function getLoadedValue(value, shouldLoadAll) {
     : String(value)?.slice(0, MAX_STRING_LENGTH) + '...';
 }
 
-export const getNodeExampleURL = (nodeName: string): string => {
-  return `${window.location.origin}${window.location.pathname}?loadURL=${GITHUB_RAW_URL_NODES}/${nodeName}.ppgraph`;
+export const getExampleURL = (path: string, fileName: string): string => {
+  return `${
+    window.location.origin
+  }/assets/examples/${path}/${encodeURIComponent(fileName)}.ppgraph`;
+};
+
+export const getLoadExampleURL = (path: string, fileName: string): string => {
+  const fullPath = `${window.location.origin}${
+    window.location.pathname
+  }?loadURL=${getExampleURL(path, fileName)}`;
+  return fullPath;
+};
+
+export const getLoadGraphExampleURL = (graphName: string): string => {
+  return getLoadExampleURL('', graphName);
+};
+
+export const getLoadNodeExampleURL = (nodeName: string): string => {
+  return getLoadExampleURL('nodes', nodeName);
 };
 
 export function isPhone(): boolean {

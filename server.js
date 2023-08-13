@@ -1,3 +1,4 @@
+const fs = require('fs');
 const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -63,6 +64,20 @@ app.set('port', process.env.PORT || 8080);
 
 app.get('/buildInfo', function (req, res) {
   res.send(buildInfo);
+});
+
+app.get('/listExamples', (req, res) => {
+  const assetsFolderPath = path.join(__dirname, 'dist', 'assets', 'examples');
+  fs.readdir(assetsFolderPath, { withFileTypes: false }, (err, files) => {
+    res.header('Content-Type', 'application/json');
+    if (err) {
+      console.error(err);
+      return res
+        .status(500)
+        .json({ error: 'An error occurred while listing files.' });
+    }
+    res.json({ files });
+  });
 });
 
 app.get('/auth-with-github', async function (req, res) {

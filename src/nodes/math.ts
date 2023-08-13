@@ -217,6 +217,10 @@ export class Add extends SimpleMathOperation {
   protected getOperator(): string {
     return '+';
   }
+
+  public hasExample(): boolean {
+    return true;
+  }
 }
 
 export class Subtract extends SimpleMathOperation {

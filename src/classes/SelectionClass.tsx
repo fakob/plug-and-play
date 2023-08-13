@@ -297,16 +297,16 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
     selection.selectedNodes.forEach((node) => {
       minX = Math.min(minX, node.x);
       minY = Math.min(minY, node.y);
-      maxX = Math.max(maxX, node.x + node.width);
-      maxY = Math.max(maxY, node.y + node.height);
+      maxX = Math.max(maxX, node.x + node.nodeWidth);
+      maxY = Math.max(maxY, node.y + node.nodeHeight);
     });
 
     const nodeIDsPos = selection.selectedNodes.map((node) => ({
       id: node.id,
       x: node.x,
       y: node.y,
-      width: node.width,
-      height: node.height,
+      width: node.nodeWidth,
+      height: node.nodeHeight,
     }));
 
     let incrementPos = 0;
@@ -324,27 +324,28 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
           x = minX;
           break;
         case ALIGNOPTIONS.ALIGN_CENTER_HORIZONTAL:
-          x = minX + (maxX - minX) / 2 - node.width / 2;
+          x = minX + (maxX - minX) / 2 - node.nodeWidth / 2;
           break;
         case ALIGNOPTIONS.ALIGN_RIGHT:
-          x = maxX - node.width;
+          console.log(node.width, node.nodeWidth, node.getMinNodeWidth());
+          x = maxX - node.nodeWidth;
           break;
         case ALIGNOPTIONS.ALIGN_TOP:
           y = minY;
           break;
         case ALIGNOPTIONS.ALIGN_CENTER_VERTICAL:
-          y = minY + (maxY - minY) / 2 - node.height / 2;
+          y = minY + (maxY - minY) / 2 - node.nodeHeight / 2;
           break;
         case ALIGNOPTIONS.ALIGN_BOTTOM:
-          y = maxY - node.height;
+          y = maxY - node.nodeHeight;
           break;
         case ALIGNOPTIONS.DISTRIBUTE_HORIZONTAL:
           x = index === 0 ? minX : incrementPos + interval;
-          incrementPos = x + node.width;
+          incrementPos = x + node.nodeWidth;
           break;
         case ALIGNOPTIONS.DISTRIBUTE_VERTICAL:
           y = index === 0 ? minY : incrementPos + interval;
-          incrementPos = y + node.height;
+          incrementPos = y + node.nodeHeight;
           break;
       }
       node.setPosition(x, y);

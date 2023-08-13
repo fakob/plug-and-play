@@ -121,6 +121,10 @@ export class DRAW_Shape extends DRAW_Base {
     return 'Draws a shape';
   }
 
+  public hasExample(): boolean {
+    return true;
+  }
+
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(

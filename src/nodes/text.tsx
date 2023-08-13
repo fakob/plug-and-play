@@ -132,8 +132,9 @@ export class Label extends PPNode {
     this.PIXIText.visible = false;
     this.createInputElement();
     this.HTMLTextComponent.focus();
-    // correct initial edit view
-    this.HTMLTextComponent.dispatchEvent(new Event('input'));
+
+    // select all content
+    window.getSelection().selectAllChildren(this.HTMLTextComponent);
   }
   public PIXIVisible() {
     this.PIXIText.visible = true;

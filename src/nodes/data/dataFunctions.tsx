@@ -244,6 +244,10 @@ export class CustomFunction extends PPNode {
     return ['Custom'].concat(super.getTags());
   }
 
+  public hasExample(): boolean {
+    return true;
+  }
+
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(

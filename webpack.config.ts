@@ -101,14 +101,7 @@ module.exports = (env, argv) => {
         patterns: [
           {
             from: 'assets/**',
-
-            // after upgrading packages transformPath throws a typescript error
-            // have not found another solution than to ignore it
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            to({ context, absoluteFilename }) {
-              return Promise.resolve('assets/[name][ext]');
-            },
+            to: path.resolve(__dirname, 'dist'),
           },
         ],
       }),
@@ -134,6 +127,48 @@ module.exports = (env, argv) => {
             return true;
           },
         },
+      },
+      setupMiddlewares: (middlewares, devServer) => {
+        if (!devServer) {
+          throw new Error('webpack-dev-server is not defined');
+        }
+
+        devServer.app.get('/buildInfo', (_, response) => {
+          response.send({
+            message: 'This is a mock response',
+            data: { buildVersion: 'v518', buildTime: '2023-08-11T21:33:54Z' },
+          });
+        });
+
+        devServer.app.get('/listExamples', (_, response) => {
+          response.send({
+            files: [
+              'Drawing a chart with chartjs.ppgraph',
+              'Drawing a line graph from weather API.ppgraph',
+              'Drawing example - tixy.ppgraph',
+              'Drawing examples.ppgraph',
+              'Get API example.ppgraph',
+              'Get frames from a video.ppgraph',
+              'Get started - Welcome to Plug and Playground.ppgraph',
+              'How to share your playgrounds.ppgraph',
+              'Node update behaviour example.ppgraph',
+              'Shaders example.ppgraph',
+              'Tweet filter example v01 - NOT WORKING.ppgraph',
+              'Using macros within a function - Get dominant colors.ppgraph',
+              'Using macros within a function - Random color array.ppgraph',
+              'Using macros within a function - UV texture generator.ppgraph',
+              'pixotopePipelineImageSave - NOT WORKING.ppgraph',
+              'z debug missing nodes, sockets and links.ppgraph',
+              'z test node.ppgraph',
+              'z test nodelist.ppgraph',
+            ],
+          });
+        });
+
+        return middlewares;
+      },
+      proxy: {
+        '/dist': '/assets',
       },
     },
   });

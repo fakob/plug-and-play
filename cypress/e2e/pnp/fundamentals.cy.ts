@@ -3,22 +3,13 @@ describe('fundamentals', () => {
   const controlOrMetaKey = Cypress.platform === 'darwin' ? '{meta}' : '{ctrl}';
 
   beforeEach(() => {
+    cy.intercept('GET', '/listExamples', (req) => {
+      req.reply({
+        fixture: 'listExamples.json',
+      });
+    });
     cy.visit('http://127.0.0.1:8080/?new=true');
-    cy.intercept(
-      'GET',
-      'https://api.github.com/repos/fakob/plug-and-play-examples/branches/dev',
-      {
-        fixture: 'github-branches-dev.json',
-      }
-    );
-    cy.intercept(
-      'GET',
-      'https://api.github.com/repos/fakob/plug-and-play-examples/git/trees/89985e29d08342d61c043b22f451c8a21ec862cf',
-      {
-        fixture: 'github-trees-sha.json',
-      }
-    );
-    // cy.wait(2000); // ugly, wait for graphs to arrive
+    cy.wait(1000); // ugly, wait for graphs to arrive
   });
 
   // it('Save Graph', () => {
@@ -83,5 +74,14 @@ describe('fundamentals', () => {
       });
     });
     cy.get('body').type(`${controlOrMetaKey}\\`);
+  });
+
+  it('load graph example', () => {
+    cy.get('#graph-search').click();
+    cy.wait(1000);
+    cy.get('#graph-search-listbox').contains('li', 'z test node').click();
+    cy.wait(3000)
+      .get('#notistack-snackbar')
+      .contains('Remote playground was loaded');
   });
 });

@@ -1,0 +1,615 @@
+{
+  "version": 0.1,
+  "graphSettings": {
+    "showExecutionVisualisation": true,
+    "showNonPresentationNodes": true,
+    "viewportCenterPosition": {
+      "x": -329.595714288526,
+      "y": 1159.9174609449167
+    },
+    "viewportScale": 0.9109224444952355
+  },
+  "nodes": [
+    {
+      "id": "foolish-firefox-92",
+      "name": "URL parameter",
+      "type": "CustomFunction",
+      "x": -14.864395204518587,
+      "y": 1311.381293808573,
+      "width": 160,
+      "height": 112,
+      "socketArray": [
+        {
+          "socketType": "in",
+          "name": "Code",
+          "dataType": "{\"class\":\"CodeType\",\"type\":{}}",
+          "data": "(parameterName) => {\n\tconst urlParams = new URLSearchParams(window.location.search);\n\tif (parameterName === '') {\n\t\treturn Object.fromEntries(urlParams);\n\t} else {\n\t\treturn urlParams.get(parameterName);\n\t}\n}",
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "parameterName",
+          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
+          "defaultData": "",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "OutData",
+          "dataType": "{\"class\":\"AnyType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "Code",
+          "dataType": "{\"class\":\"CodeType\",\"type\":{}}",
+          "visible": false
+        }
+      ],
+      "updateBehaviour": {
+        "update": true,
+        "interval": false,
+        "intervalFrequency": 1000
+      }
+    },
+    {
+      "id": "quick-stingray-14",
+      "name": "CodeEditor",
+      "type": "CodeEditor",
+      "x": 179.29148157919815,
+      "y": 1311.3734334663309,
+      "width": 200,
+      "height": 150,
+      "socketArray": [
+        {
+          "socketType": "in",
+          "name": "input",
+          "dataType": "{\"class\":\"CodeType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Meta",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "data": {},
+          "visible": false
+        },
+        {
+          "socketType": "out",
+          "name": "output",
+          "dataType": "{\"class\":\"CodeType\",\"type\":{}}",
+          "visible": true
+        }
+      ],
+      "updateBehaviour": {
+        "update": true,
+        "interval": false,
+        "intervalFrequency": 1000
+      }
+    },
+    {
+      "id": "tiny-squid-67",
+      "name": "Label",
+      "type": "Label",
+      "x": -193.74574610211027,
+      "y": 1383.273142890078,
+      "width": 160,
+      "height": 40,
+      "socketArray": [
+        {
+          "socketType": "in",
+          "name": "Input",
+          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
+          "data": "param1",
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "fontSize",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":1,\"maxValue\":100,\"stepSize\":0.01}}",
+          "data": 16,
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Width",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":0,\"maxValue\":1280,\"stepSize\":0.01}}",
+          "data": 0,
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "backgroundColor",
+          "dataType": "{\"class\":\"ColorType\",\"type\":{}}",
+          "data": {
+            "r": 86,
+            "g": 225,
+            "b": 204,
+            "a": 1
+          },
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Meta",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "data": {},
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "min-width",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":1,\"maxValue\":100,\"stepSize\":0.01}}",
+          "data": 128,
+          "visible": false
+        },
+        {
+          "socketType": "out",
+          "name": "Output",
+          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
+          "visible": true
+        }
+      ],
+      "updateBehaviour": {
+        "update": true,
+        "interval": false,
+        "intervalFrequency": 1000
+      }
+    },
+    {
+      "id": "dangerous-bullfrog-13",
+      "name": "TextEditor",
+      "type": "TextEditor",
+      "x": -1086.4829010223839,
+      "y": 1187.7052221828021,
+      "width": 806.9601374150925,
+      "height": 329.984375,
+      "socketArray": [
+        {
+          "socketType": "in",
+          "name": "textJSON",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "data": [
+            {
+              "type": "heading-four",
+              "children": [
+                {
+                  "text": "Use URL parameters as inputs"
+                }
+              ],
+              "align": "left"
+            },
+            {
+              "type": "paragraph",
+              "align": "left",
+              "children": [
+                {
+                  "text": "To customise shared links you can use URL parameters as inputs"
+                }
+              ]
+            },
+            {
+              "type": "numbered-list",
+              "children": [
+                {
+                  "type": "list-item",
+                  "align": "left",
+                  "children": [
+                    {
+                      "text": "Add URL parameter"
+                    }
+                  ]
+                },
+                {
+                  "type": "list-item",
+                  "align": "left",
+                  "children": [
+                    {
+                      "text": "Get the URL parameter and use it as an input"
+                    }
+                  ]
+                },
+                {
+                  "type": "list-item",
+                  "align": "left",
+                  "children": [
+                    {
+                      "text": "Try it out with this link"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "align": "left",
+              "children": [
+                {
+                  "text": ""
+                },
+                {
+                  "type": "link",
+                  "url": "https://plugandplayground.dev/?loadURL=https://raw.githubusercontent.com/fakob/plug-and-play-examples/dev/How%20to%20share%20your%20playgrounds.ppgraph&param1=Hello%20World",
+                  "children": [
+                    {
+                      "text": "https://plugandplayground.dev/?loadURL=https://raw.githubusercontent.com/fakob/plug-and-play-examples/dev/How%20to%20share%20your%20playgrounds.ppgraph&param1=Hello%20Worl"
+                    }
+                  ]
+                },
+                {
+                  "text": ""
+                }
+              ]
+            }
+          ],
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Background Color",
+          "dataType": "{\"class\":\"ColorType\",\"type\":{}}",
+          "data": {
+            "r": 212,
+            "g": 255,
+            "b": 0,
+            "a": 1
+          },
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Auto height",
+          "dataType": "{\"class\":\"BooleanType\",\"type\":{}}",
+          "data": true,
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Input 1",
+          "dataType": "{\"class\":\"AnyType\",\"type\":{}}",
+          "data": 0,
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Meta",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "data": {},
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "background Color",
+          "dataType": "{\"class\":\"ColorType\",\"type\":{}}",
+          "data": {
+            "r": 212,
+            "g": 226,
+            "b": 90,
+            "a": 1
+          },
+          "visible": false
+        },
+        {
+          "socketType": "out",
+          "name": "Output",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "visible": false
+        },
+        {
+          "socketType": "out",
+          "name": "Plain text",
+          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "output",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "visible": false
+        }
+      ],
+      "updateBehaviour": {
+        "update": true,
+        "interval": false,
+        "intervalFrequency": 1000
+      }
+    },
+    {
+      "id": "empty-dragonfly-63",
+      "name": "Label",
+      "type": "Label",
+      "x": -1086.4829010223839,
+      "y": 826.1453273991277,
+      "width": 348.6354166666667,
+      "height": 69,
+      "socketArray": [
+        {
+          "socketType": "in",
+          "name": "Input",
+          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
+          "data": "To share playgrounds",
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "fontSize",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":1,\"maxValue\":100,\"stepSize\":0.01}}",
+          "data": 32,
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Width",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":0,\"maxValue\":1280,\"stepSize\":0.01}}",
+          "data": 0,
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "backgroundColor",
+          "dataType": "{\"class\":\"ColorType\",\"type\":{}}",
+          "data": {
+            "r": 212,
+            "g": 255,
+            "b": 0,
+            "a": 1
+          },
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Meta",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "data": {},
+          "visible": false
+        },
+        {
+          "socketType": "out",
+          "name": "Output",
+          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
+          "visible": false
+        }
+      ],
+      "updateBehaviour": {
+        "update": true,
+        "interval": false,
+        "intervalFrequency": 1000
+      }
+    },
+    {
+      "id": "rare-dog-85",
+      "name": "TextEditor",
+      "type": "TextEditor",
+      "x": -1086.4829010223839,
+      "y": 927.440899790965,
+      "width": 724.1514677790921,
+      "height": 227.96875,
+      "socketArray": [
+        {
+          "socketType": "in",
+          "name": "textJSON",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "data": [
+            {
+              "type": "heading-four",
+              "children": [
+                {
+                  "text": "Click the share button on the top left"
+                }
+              ],
+              "align": "left"
+            },
+            {
+              "type": "numbered-list",
+              "children": [
+                {
+                  "type": "list-item",
+                  "align": "left",
+                  "children": [
+                    {
+                      "text": "Log in to Github and share it by creating a Github gist"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "heading-four",
+              "align": "left",
+              "children": [
+                {
+                  "text": "or"
+                }
+              ]
+            },
+            {
+              "type": "numbered-list",
+              "children": [
+                {
+                  "type": "list-item",
+                  "align": "left",
+                  "children": [
+                    {
+                      "text": "Download it and share it the old school way"
+                    },
+                    {
+                      "type": "link",
+                      "url": "https://plugandplayground.dev/?loadURL=https://raw.githubusercontent.com/fakob/plug-and-play-examples/dev/Drawing%20examples.ppgraph",
+                      "children": [
+                        {
+                          "text": ""
+                        }
+                      ]
+                    },
+                    {
+                      "text": ""
+                    },
+                    {
+                      "type": "link",
+                      "url": "https://plugandplayground.dev/?loadURL=https://raw.githubusercontent.com/fakob/plug-and-play-examples/dev/Drawing%20examples.ppgraph",
+                      "children": [
+                        {
+                          "text": ""
+                        }
+                      ]
+                    },
+                    {
+                      "text": ""
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Background Color",
+          "dataType": "{\"class\":\"ColorType\",\"type\":{}}",
+          "data": {
+            "r": 212,
+            "g": 255,
+            "b": 0,
+            "a": 1
+          },
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Auto height",
+          "dataType": "{\"class\":\"BooleanType\",\"type\":{}}",
+          "data": true,
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Input 1",
+          "dataType": "{\"class\":\"AnyType\",\"type\":{}}",
+          "data": 0,
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Meta",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "data": {},
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "background Color",
+          "dataType": "{\"class\":\"ColorType\",\"type\":{}}",
+          "data": {
+            "r": 212,
+            "g": 226,
+            "b": 90,
+            "a": 1
+          },
+          "visible": false
+        },
+        {
+          "socketType": "out",
+          "name": "Output",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "visible": false
+        },
+        {
+          "socketType": "out",
+          "name": "Plain text",
+          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "output",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "visible": false
+        }
+      ],
+      "updateBehaviour": {
+        "update": true,
+        "interval": false,
+        "intervalFrequency": 1000
+      }
+    },
+    {
+      "id": "cold-newt-65",
+      "name": "Label",
+      "type": "Label",
+      "x": -221.32779933094798,
+      "y": 1295.5120541897663,
+      "width": 184,
+      "height": 59.7,
+      "socketArray": [
+        {
+          "socketType": "in",
+          "name": "Input",
+          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
+          "data": "An empty string returns all URLS",
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "fontSize",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":1,\"maxValue\":100,\"stepSize\":0.01}}",
+          "data": 18,
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Width",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":0,\"maxValue\":1280,\"stepSize\":0.01}}",
+          "data": 124.66668112908133,
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "backgroundColor",
+          "dataType": "{\"class\":\"ColorType\",\"type\":{}}",
+          "data": {
+            "r": 212,
+            "g": 255,
+            "b": 0,
+            "a": 1
+          },
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Meta",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "data": {},
+          "visible": false
+        },
+        {
+          "socketType": "out",
+          "name": "Output",
+          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
+          "visible": false
+        }
+      ],
+      "updateBehaviour": {
+        "update": true,
+        "interval": false,
+        "intervalFrequency": 1000
+      }
+    }
+  ],
+  "links": [
+    {
+      "id": "49d0230e-1551-43ce-bbd1-c258ab081b04",
+      "sourceNodeId": "tiny-squid-67",
+      "sourceSocketName": "Output",
+      "targetNodeId": "foolish-firefox-92",
+      "targetSocketName": "parameterName"
+    },
+    {
+      "id": "fb4e10b7-1d36-4a00-94f9-901d12431961",
+      "sourceNodeId": "foolish-firefox-92",
+      "sourceSocketName": "OutData",
+      "targetNodeId": "quick-stingray-14",
+      "targetSocketName": "input"
+    }
+  ]
+}

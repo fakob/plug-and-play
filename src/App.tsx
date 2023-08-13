@@ -92,7 +92,12 @@ const randomMainColorLightHex = new PIXI.Color(
   Color(RANDOMMAINCOLOR).mix(Color('white'), 0.9).hex()
 ).toNumber();
 
-fetch('https://plugandplayground.dev/buildInfo')
+fetch('/buildInfo')
+  .then((response) => response.json())
+  .then((data) => console.log(data))
+  .catch((error) => console.error(error));
+
+fetch('/listExamples')
   .then((response) => response.json())
   .then((data) => console.log(data))
   .catch((error) => console.error(error));

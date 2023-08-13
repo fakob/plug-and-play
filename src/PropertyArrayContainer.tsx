@@ -17,7 +17,7 @@ import LockIcon from '@mui/icons-material/Lock';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import {
   getCircularReplacer,
-  getNodeExampleURL,
+  getLoadNodeExampleURL,
   writeTextToClipboard,
 } from './utils/utils';
 import { SerializedNode, SerializedSelection } from './utils/interfaces';
@@ -260,7 +260,7 @@ function InfoContent(props: InfoContentProps) {
               onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
                 event.stopPropagation();
                 window.open(
-                  getNodeExampleURL(props.selectedNode.type),
+                  getLoadNodeExampleURL(props.selectedNode.type),
                   '_blank'
                 );
               }}

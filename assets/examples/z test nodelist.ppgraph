@@ -1,0 +1,4590 @@
+{
+  "version": 0.1,
+  "graphSettings": {
+    "showExecutionVisualisation": true,
+    "showNonPresentationNodes": true,
+    "viewportCenterPosition": {
+      "x": -1385.0040464890437,
+      "y": -7067.242006711258
+    },
+    "viewportScale": 0.5293854036284733
+  },
+  "nodes": [
+    {
+      "id": "tender-badger-58",
+      "name": "Playground",
+      "type": "Playground",
+      "x": -2431.4307944357765,
+      "y": -7608.442575796724,
+      "width": 160,
+      "height": 232,
+      "socketArray": [
+        {
+          "socketType": "in",
+          "name": "Add all nodes",
+          "dataType": "{\"class\":\"TriggerType\",\"type\":{\"triggerType\":\"positiveFlank\",\"customFunctionString\":\"addAllNodes\",\"previousData\":0}}",
+          "data": 0,
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "List all nodes",
+          "dataType": "{\"class\":\"TriggerType\",\"type\":{\"triggerType\":\"positiveFlank\",\"customFunctionString\":\"listAllNodes\",\"previousData\":null}}",
+          "defaultData": 0,
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Output graph JSON",
+          "dataType": "{\"class\":\"TriggerType\",\"type\":{\"triggerType\":\"positiveFlank\",\"customFunctionString\":\"outputGraphJSON\",\"previousData\":0}}",
+          "data": 0,
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Output all added nodes",
+          "dataType": "{\"class\":\"TriggerType\",\"type\":{\"triggerType\":\"positiveFlank\",\"customFunctionString\":\"outputAllAddedNodes\",\"previousData\":0}}",
+          "data": 0,
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Zoom to fit selected nodes",
+          "dataType": "{\"class\":\"TriggerType\",\"type\":{\"triggerType\":\"positiveFlank\",\"customFunctionString\":\"zoomToFitNodes\",\"previousData\":0}}",
+          "data": 0,
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Trigger graph method",
+          "dataType": "{\"class\":\"EnumType\",\"type\":{\"options\":[{\"text\":\"constructor\"},{\"text\":\"clearTempConnection\"},{\"text\":\"stopConnecting\"},{\"text\":\"getLinks\"},{\"text\":\"clear\"},{\"text\":\"getCanAddInput\"},{\"text\":\"addTriggerInput\"},{\"text\":\"extractToMacro\"},{\"text\":\"getCanAddOutput\"},{\"text\":\"addOutput\"},{\"text\":\"getAddOutputName\"},{\"text\":\"serialize\"},{\"text\":\"serializeSelection\"},{\"text\":\"action_DeleteSelectedNodes\"}]}}",
+          "data": 0,
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Trigger node method",
+          "dataType": "{\"class\":\"EnumType\",\"type\":{\"options\":[{\"text\":\"_events\"},{\"text\":\"_eventsCount\"},{\"text\":\"tempDisplayObjectParent\"},{\"text\":\"transform\"},{\"text\":\"alpha\"},{\"text\":\"visible\"},{\"text\":\"renderable\"},{\"text\":\"cullable\"},{\"text\":\"cullArea\"},{\"text\":\"parent\"},{\"text\":\"worldAlpha\"},{\"text\":\"_lastSortedIndex\"},{\"text\":\"_zIndex\"},{\"text\":\"filterArea\"},{\"text\":\"filters\"},{\"text\":\"_enabledFilters\"},{\"text\":\"_bounds\"},{\"text\":\"_localBounds\"},{\"text\":\"_boundsID\"},{\"text\":\"_boundsRect\"},{\"text\":\"_localBoundsRect\"},{\"text\":\"_mask\"},{\"text\":\"_maskRefCount\"},{\"text\":\"_destroyed\"},{\"text\":\"isSprite\"},{\"text\":\"isMask\"},{\"text\":\"children\"},{\"text\":\"sortableChildren\"},{\"text\":\"sortDirty\"},{\"text\":\"_NodeNameRef\"},{\"text\":\"_BackgroundRef\"},{\"text\":\"_CommentRef\"},{\"text\":\"_StatusesRef\"},{\"text\":\"clickedSocketRef\"},{\"text\":\"_isHovering\"},{\"text\":\"id\"},{\"text\":\"type\"},{\"text\":\"nodePosX\"},{\"text\":\"nodePosY\"},{\"text\":\"nodeWidth\"},{\"text\":\"nodeHeight\"},{\"text\":\"updateBehaviour\"},{\"text\":\"nodeSelectionHeader\"},{\"text\":\"lastTimeTicked\"},{\"text\":\"successfullyExecuted\"},{\"text\":\"lastError\"},{\"text\":\"inputSocketArray\"},{\"text\":\"nodeTriggerSocketArray\"},{\"text\":\"outputSocketArray\"},{\"text\":\"_doubleClicked\"},{\"text\":\"isDraggingNode\"},{\"text\":\"statuses\"},{\"text\":\"listenIdUp\"},{\"text\":\"onNodeDoubleClick\"},{\"text\":\"onViewportMoveHandler\"},{\"text\":\"onViewportPointerUpHandler\"},{\"text\":\"onNodeRemoved\"},{\"text\":\"onNodeResize\"},{\"text\":\"onNodeDragOrViewportMove\"},{\"text\":\"renderOutlineThrottled\"},{\"text\":\"name\"},{\"text\":\"constructor\"},{\"text\":\"getName\"},{\"text\":\"getDescription\"},{\"text\":\"getTags\"},{\"text\":\"getColor\"},{\"text\":\"getDefaultIO\"},{\"text\":\"addAllNodes\"},{\"text\":\"listAllNodes\"},{\"text\":\"arrangeSelectedNodesByType\"},{\"text\":\"outputGraphJSON\"},{\"text\":\"outputAllAddedNodes\"},{\"text\":\"zoomToFitNodes\"}]}}",
+          "data": 0,
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Meta",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "data": {},
+          "visible": false
+        },
+        {
+          "socketType": "out",
+          "name": "output",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "visible": true
+        }
+      ],
+      "updateBehaviour": {
+        "update": true,
+        "interval": false,
+        "intervalFrequency": 1000
+      }
+    },
+    {
+      "id": "clever-sheep-88",
+      "name": "Table",
+      "type": "Table",
+      "x": -2213.3540474323404,
+      "y": -7631.998135524573,
+      "width": 2119.578230665601,
+      "height": 3560.90123110285,
+      "socketArray": [
+        {
+          "socketType": "in",
+          "name": "Initial data",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "data": {
+            "SheetNames": [
+              "Sheet1"
+            ],
+            "Sheets": {
+              "Sheet1": {
+                "A1": {
+                  "v": "key",
+                  "t": "s",
+                  "w": "key"
+                },
+                "B1": {
+                  "v": "name",
+                  "t": "s",
+                  "w": "name"
+                },
+                "C1": {
+                  "v": "description",
+                  "t": "s",
+                  "w": "description"
+                },
+                "D1": {
+                  "v": "description2",
+                  "t": "s",
+                  "w": "description2"
+                },
+                "E1": {
+                  "v": "tags",
+                  "t": "s",
+                  "w": "tags"
+                },
+                "F1": {
+                  "v": "hasExample",
+                  "t": "s",
+                  "w": "hasExample"
+                },
+                "G1": {
+                  "v": "updateBehaviour",
+                  "t": "s",
+                  "w": "updateBehaviour"
+                },
+                "H1": {
+                  "v": "inputCount",
+                  "t": "s",
+                  "w": "inputCount"
+                },
+                "I1": {
+                  "v": "inputSockets",
+                  "t": "s",
+                  "w": "inputSockets"
+                },
+                "J1": {
+                  "v": "outputCount",
+                  "t": "s",
+                  "w": "outputCount"
+                },
+                "K1": {
+                  "v": "outputSockets",
+                  "t": "s",
+                  "w": "outputSockets"
+                },
+                "A2": {
+                  "v": "Add",
+                  "t": "s"
+                },
+                "B2": {
+                  "v": "Add",
+                  "t": "s"
+                },
+                "C2": {
+                  "v": "Adds numbers or concatenates strings",
+                  "t": "s"
+                },
+                "D2": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E2": {
+                  "v": "Math,Custom",
+                  "t": "s"
+                },
+                "F2": {
+                  "v": "TRUE",
+                  "t": "s"
+                },
+                "G2": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H2": {
+                  "v": "3",
+                  "t": "s"
+                },
+                "I2": {
+                  "v": "Code,Number,Number",
+                  "t": "s"
+                },
+                "J2": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "K2": {
+                  "v": "Number,Code",
+                  "t": "s"
+                },
+                "A3": {
+                  "v": "ArrayPush",
+                  "t": "s"
+                },
+                "B3": {
+                  "v": "Add element to array",
+                  "t": "s"
+                },
+                "C3": {
+                  "v": "Adds an element at the end of the array",
+                  "t": "s"
+                },
+                "D3": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E3": {
+                  "v": "Array,Custom",
+                  "t": "s"
+                },
+                "F3": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G3": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H3": {
+                  "v": "3",
+                  "t": "s"
+                },
+                "I3": {
+                  "v": "Code,Array,Any",
+                  "t": "s"
+                },
+                "J3": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "K3": {
+                  "v": "Array,Code",
+                  "t": "s"
+                },
+                "A4": {
+                  "v": "AND",
+                  "t": "s"
+                },
+                "B4": {
+                  "v": "AND",
+                  "t": "s"
+                },
+                "C4": {
+                  "v": "Returns true if all of the inputs are truthy",
+                  "t": "s"
+                },
+                "D4": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E4": {
+                  "v": "Logic,Custom",
+                  "t": "s"
+                },
+                "F4": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G4": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H4": {
+                  "v": "3",
+                  "t": "s"
+                },
+                "I4": {
+                  "v": "Code,Any,Any",
+                  "t": "s"
+                },
+                "J4": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "K4": {
+                  "v": "Any,Code",
+                  "t": "s"
+                },
+                "A5": {
+                  "v": "ArrayMethod",
+                  "t": "s"
+                },
+                "B5": {
+                  "v": "Array method",
+                  "t": "s"
+                },
+                "C5": {
+                  "v": "Choose an array method and provide a callback",
+                  "t": "s"
+                },
+                "D5": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E5": {
+                  "v": "Array",
+                  "t": "s"
+                },
+                "F5": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G5": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H5": {
+                  "v": "4",
+                  "t": "s"
+                },
+                "I5": {
+                  "v": "Array,Enum,Code,JSON",
+                  "t": "s"
+                },
+                "J5": {
+                  "v": "1",
+                  "t": "s"
+                },
+                "K5": {
+                  "v": "Any",
+                  "t": "s"
+                },
+                "A6": {
+                  "v": "ArrayState",
+                  "t": "s"
+                },
+                "B6": {
+                  "v": "Array state",
+                  "t": "s"
+                },
+                "C6": {
+                  "v": "Store elements in an array",
+                  "t": "s"
+                },
+                "D6": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E6": {
+                  "v": "State",
+                  "t": "s"
+                },
+                "F6": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G6": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H6": {
+                  "v": "7",
+                  "t": "s"
+                },
+                "I6": {
+                  "v": "Number,Any,Trigger,Trigger,Trigger,Array,JSON",
+                  "t": "s"
+                },
+                "J6": {
+                  "v": "1",
+                  "t": "s"
+                },
+                "K6": {
+                  "v": "Array",
+                  "t": "s"
+                },
+                "A7": {
+                  "v": "Break",
+                  "t": "s"
+                },
+                "B7": {
+                  "v": "Break JSON",
+                  "t": "s"
+                },
+                "C7": {
+                  "v": "Breaks out all properties of a JSON object or an array",
+                  "t": "s"
+                },
+                "D7": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E7": {
+                  "v": "JSON",
+                  "t": "s"
+                },
+                "F7": {
+                  "v": "TRUE",
+                  "t": "s"
+                },
+                "G7": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H7": {
+                  "v": "3",
+                  "t": "s"
+                },
+                "I7": {
+                  "v": "JSON,Boolean,JSON",
+                  "t": "s"
+                },
+                "J7": {
+                  "v": "0",
+                  "t": "s"
+                },
+                "K7": {
+                  "v": "",
+                  "t": "s"
+                },
+                "A8": {
+                  "v": "WidgetButton",
+                  "t": "s"
+                },
+                "B8": {
+                  "v": "Button",
+                  "t": "s"
+                },
+                "C8": {
+                  "v": "Adds a button to trigger values",
+                  "t": "s"
+                },
+                "D8": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E8": {
+                  "v": "Widget",
+                  "t": "s"
+                },
+                "F8": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G8": {
+                  "v": "false,false,1000",
+                  "t": "s"
+                },
+                "H8": {
+                  "v": "4",
+                  "t": "s"
+                },
+                "I8": {
+                  "v": "Any,Any,String,JSON",
+                  "t": "s"
+                },
+                "J8": {
+                  "v": "1",
+                  "t": "s"
+                },
+                "K8": {
+                  "v": "Any",
+                  "t": "s"
+                },
+                "A9": {
+                  "v": "ChatGPTNode",
+                  "t": "s"
+                },
+                "B9": {
+                  "v": "ChatGPT - Companion",
+                  "t": "s"
+                },
+                "C9": {
+                  "v": "ChatGPT communication through the Plug and Play Companion, uses environmental variable for API key",
+                  "t": "s"
+                },
+                "D9": {
+                  "v": "<p><a style=\"color:#E154BB;text-decoration:none;\" href=\"https://github.com/magnificus/pnp-companion-2/releases/\" target=\"_blank\">Download Plug and Play Companion</a></p>",
+                  "t": "s"
+                },
+                "E9": {
+                  "v": "Input",
+                  "t": "s"
+                },
+                "F9": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G9": {
+                  "v": "false,false,1000",
+                  "t": "s"
+                },
+                "H9": {
+                  "v": "6",
+                  "t": "s"
+                },
+                "I9": {
+                  "v": "String,String,JSON,String,String,JSON",
+                  "t": "s"
+                },
+                "J9": {
+                  "v": "1",
+                  "t": "s"
+                },
+                "K9": {
+                  "v": "JSON",
+                  "t": "s"
+                },
+                "A10": {
+                  "v": "CodeEditor",
+                  "t": "s"
+                },
+                "B10": {
+                  "v": "Code editor",
+                  "t": "s"
+                },
+                "C10": {
+                  "v": "Adds a code editor",
+                  "t": "s"
+                },
+                "D10": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E10": {
+                  "v": "Widget",
+                  "t": "s"
+                },
+                "F10": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G10": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H10": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "I10": {
+                  "v": "Code,JSON",
+                  "t": "s"
+                },
+                "J10": {
+                  "v": "1",
+                  "t": "s"
+                },
+                "K10": {
+                  "v": "Code",
+                  "t": "s"
+                },
+                "A11": {
+                  "v": "ColorArray",
+                  "t": "s"
+                },
+                "B11": {
+                  "v": "Color array",
+                  "t": "s"
+                },
+                "C11": {
+                  "v": "Create color array",
+                  "t": "s"
+                },
+                "D11": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E11": {
+                  "v": "Input",
+                  "t": "s"
+                },
+                "F11": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G11": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H11": {
+                  "v": "4",
+                  "t": "s"
+                },
+                "I11": {
+                  "v": "Number,Color,Color,JSON",
+                  "t": "s"
+                },
+                "J11": {
+                  "v": "1",
+                  "t": "s"
+                },
+                "K11": {
+                  "v": "Array",
+                  "t": "s"
+                },
+                "A12": {
+                  "v": "WidgetColorPicker",
+                  "t": "s"
+                },
+                "B12": {
+                  "v": "Color picker",
+                  "t": "s"
+                },
+                "C12": {
+                  "v": "Adds a color picker",
+                  "t": "s"
+                },
+                "D12": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E12": {
+                  "v": "Widget",
+                  "t": "s"
+                },
+                "F12": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G12": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H12": {
+                  "v": "3",
+                  "t": "s"
+                },
+                "I12": {
+                  "v": "Color,String,JSON",
+                  "t": "s"
+                },
+                "J12": {
+                  "v": "1",
+                  "t": "s"
+                },
+                "K12": {
+                  "v": "Color",
+                  "t": "s"
+                },
+                "A13": {
+                  "v": "DRAW_COMBINE_ARRAY",
+                  "t": "s"
+                },
+                "B13": {
+                  "v": "Combine draw array",
+                  "t": "s"
+                },
+                "C13": {
+                  "v": "Combines an array of draw objects",
+                  "t": "s"
+                },
+                "D13": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E13": {
+                  "v": "Draw",
+                  "t": "s"
+                },
+                "F13": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G13": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H13": {
+                  "v": "17",
+                  "t": "s"
+                },
+                "I13": {
+                  "v": "Array,Number,Boolean,Number,Number,Number,Number,Number,Number,Number,Enum,Boolean,Boolean,Number,Number,Array,JSON",
+                  "t": "s"
+                },
+                "J13": {
+                  "v": "4",
+                  "t": "s"
+                },
+                "K13": {
+                  "v": "Number,Array,Boolean,Deferred Pixi",
+                  "t": "s"
+                },
+                "A14": {
+                  "v": "DRAW_Combine",
+                  "t": "s"
+                },
+                "B14": {
+                  "v": "Combine objects",
+                  "t": "s"
+                },
+                "C14": {
+                  "v": "Combines two drawn objects",
+                  "t": "s"
+                },
+                "D14": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E14": {
+                  "v": "Draw",
+                  "t": "s"
+                },
+                "F14": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G14": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H14": {
+                  "v": "14",
+                  "t": "s"
+                },
+                "I14": {
+                  "v": "Deferred Pixi,Deferred Pixi,Number,Number,Number,Number,Number,Enum,Boolean,Boolean,Number,Number,Array,JSON",
+                  "t": "s"
+                },
+                "J14": {
+                  "v": "1",
+                  "t": "s"
+                },
+                "K14": {
+                  "v": "Deferred Pixi",
+                  "t": "s"
+                },
+                "A15": {
+                  "v": "Comparison",
+                  "t": "s"
+                },
+                "B15": {
+                  "v": "Compare",
+                  "t": "s"
+                },
+                "C15": {
+                  "v": "Compares two values (greater, less, equal, logical)",
+                  "t": "s"
+                },
+                "D15": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E15": {
+                  "v": "Logic",
+                  "t": "s"
+                },
+                "F15": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G15": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H15": {
+                  "v": "4",
+                  "t": "s"
+                },
+                "I15": {
+                  "v": "Any,Any,Enum,JSON",
+                  "t": "s"
+                },
+                "J15": {
+                  "v": "1",
+                  "t": "s"
+                },
+                "K15": {
+                  "v": "Boolean",
+                  "t": "s"
+                },
+                "A16": {
+                  "v": "ConcatenateArrays",
+                  "t": "s"
+                },
+                "B16": {
+                  "v": "Concatenate arrays",
+                  "t": "s"
+                },
+                "C16": {
+                  "v": "Merges 2 arrays",
+                  "t": "s"
+                },
+                "D16": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E16": {
+                  "v": "Array",
+                  "t": "s"
+                },
+                "F16": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G16": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H16": {
+                  "v": "3",
+                  "t": "s"
+                },
+                "I16": {
+                  "v": "Array,Array,JSON",
+                  "t": "s"
+                },
+                "J16": {
+                  "v": "1",
+                  "t": "s"
+                },
+                "K16": {
+                  "v": "Array",
+                  "t": "s"
+                },
+                "A17": {
+                  "v": "ConsolePrint",
+                  "t": "s"
+                },
+                "B17": {
+                  "v": "Console print",
+                  "t": "s"
+                },
+                "C17": {
+                  "v": "Logs the input in the console",
+                  "t": "s"
+                },
+                "D17": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E17": {
+                  "v": "Debug",
+                  "t": "s"
+                },
+                "F17": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G17": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H17": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "I17": {
+                  "v": "Array,JSON",
+                  "t": "s"
+                },
+                "J17": {
+                  "v": "0",
+                  "t": "s"
+                },
+                "K17": {
+                  "v": "",
+                  "t": "s"
+                },
+                "A18": {
+                  "v": "Constant",
+                  "t": "s"
+                },
+                "B18": {
+                  "v": "Constant",
+                  "t": "s"
+                },
+                "C18": {
+                  "v": "Provides a constant input",
+                  "t": "s"
+                },
+                "D18": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E18": {
+                  "v": "Input",
+                  "t": "s"
+                },
+                "F18": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G18": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H18": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "I18": {
+                  "v": "Any,JSON",
+                  "t": "s"
+                },
+                "J18": {
+                  "v": "1",
+                  "t": "s"
+                },
+                "K18": {
+                  "v": "Any",
+                  "t": "s"
+                },
+                "A19": {
+                  "v": "ArrayToObject",
+                  "t": "s"
+                },
+                "B19": {
+                  "v": "Convert array to object",
+                  "t": "s"
+                },
+                "C19": {
+                  "v": "Converts an array into an object using a specified property as key",
+                  "t": "s"
+                },
+                "D19": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E19": {
+                  "v": "Array,Custom",
+                  "t": "s"
+                },
+                "F19": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G19": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H19": {
+                  "v": "3",
+                  "t": "s"
+                },
+                "I19": {
+                  "v": "Code,Array,String",
+                  "t": "s"
+                },
+                "J19": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "K19": {
+                  "v": "Array,Code",
+                  "t": "s"
+                },
+                "A20": {
+                  "v": "Counts",
+                  "t": "s"
+                },
+                "B20": {
+                  "v": "Count occurrences in array",
+                  "t": "s"
+                },
+                "C20": {
+                  "v": "Counts occurrences of elements in an array, by providing an array and an array with the unique values",
+                  "t": "s"
+                },
+                "D20": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E20": {
+                  "v": "Array,Custom",
+                  "t": "s"
+                },
+                "F20": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G20": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H20": {
+                  "v": "3",
+                  "t": "s"
+                },
+                "I20": {
+                  "v": "Code,Array,Any",
+                  "t": "s"
+                },
+                "J20": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "K20": {
+                  "v": "Array,Code",
+                  "t": "s"
+                },
+                "A21": {
+                  "v": "ArrayCreate",
+                  "t": "s"
+                },
+                "B21": {
+                  "v": "Create array",
+                  "t": "s"
+                },
+                "C21": {
+                  "v": "Creates an array from a single value",
+                  "t": "s"
+                },
+                "D21": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E21": {
+                  "v": "Array,Custom",
+                  "t": "s"
+                },
+                "F21": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G21": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H21": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "I21": {
+                  "v": "Code,Any",
+                  "t": "s"
+                },
+                "J21": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "K21": {
+                  "v": "Array,Code",
+                  "t": "s"
+                },
+                "A22": {
+                  "v": "CustomFunction",
+                  "t": "s"
+                },
+                "B22": {
+                  "v": "Custom function",
+                  "t": "s"
+                },
+                "C22": {
+                  "v": "Write your own custom function. Add input sockets, by adding parameters in the parentheses, separated by commas.",
+                  "t": "s"
+                },
+                "D22": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E22": {
+                  "v": "Custom",
+                  "t": "s"
+                },
+                "F22": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G22": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H22": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "I22": {
+                  "v": "Code,Any",
+                  "t": "s"
+                },
+                "J22": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "K22": {
+                  "v": "Any,Code",
+                  "t": "s"
+                },
+                "A23": {
+                  "v": "DateAndTime",
+                  "t": "s"
+                },
+                "B23": {
+                  "v": "Date and time",
+                  "t": "s"
+                },
+                "C23": {
+                  "v": "Outputs time in different formats",
+                  "t": "s"
+                },
+                "D23": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E23": {
+                  "v": "Input",
+                  "t": "s"
+                },
+                "F23": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G23": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H23": {
+                  "v": "3",
+                  "t": "s"
+                },
+                "I23": {
+                  "v": "String,Enum,JSON",
+                  "t": "s"
+                },
+                "J23": {
+                  "v": "1",
+                  "t": "s"
+                },
+                "K23": {
+                  "v": "String",
+                  "t": "s"
+                },
+                "A24": {
+                  "v": "Divide",
+                  "t": "s"
+                },
+                "B24": {
+                  "v": "Divide",
+                  "t": "s"
+                },
+                "C24": {
+                  "v": "Divides two numbers",
+                  "t": "s"
+                },
+                "D24": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E24": {
+                  "v": "Math,Custom",
+                  "t": "s"
+                },
+                "F24": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G24": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H24": {
+                  "v": "3",
+                  "t": "s"
+                },
+                "I24": {
+                  "v": "Code,Number,Number",
+                  "t": "s"
+                },
+                "J24": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "K24": {
+                  "v": "Number,Code",
+                  "t": "s"
+                },
+                "A25": {
+                  "v": "DRAW_Image",
+                  "t": "s"
+                },
+                "B25": {
+                  "v": "Draw image",
+                  "t": "s"
+                },
+                "C25": {
+                  "v": "Draws an image object (jpg,png)",
+                  "t": "s"
+                },
+                "D25": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E25": {
+                  "v": "Draw",
+                  "t": "s"
+                },
+                "F25": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G25": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H25": {
+                  "v": "13",
+                  "t": "s"
+                },
+                "I25": {
+                  "v": "Image,Number,Number,Number,Number,Number,Enum,Boolean,Boolean,Number,Number,Array,JSON",
+                  "t": "s"
+                },
+                "J25": {
+                  "v": "1",
+                  "t": "s"
+                },
+                "K25": {
+                  "v": "Deferred Pixi",
+                  "t": "s"
+                },
+                "A26": {
+                  "v": "ImageShader",
+                  "t": "s"
+                },
+                "B26": {
+                  "v": "Draw image shader",
+                  "t": "s"
+                },
+                "C26": {
+                  "v": "Draws an image rendered in a shader",
+                  "t": "s"
+                },
+                "D26": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E26": {
+                  "v": "Draw",
+                  "t": "s"
+                },
+                "F26": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G26": {
+                  "v": "true,false,16",
+                  "t": "s"
+                },
+                "H26": {
+                  "v": "18",
+                  "t": "s"
+                },
+                "I26": {
+                  "v": "JSON,JSON,Code,Code,Number,Number,Number,Number,Number,Number,Number,Enum,Boolean,Boolean,Number,Number,Array,JSON",
+                  "t": "s"
+                },
+                "J26": {
+                  "v": "1",
+                  "t": "s"
+                },
+                "K26": {
+                  "v": "Deferred Pixi",
+                  "t": "s"
+                },
+                "A27": {
+                  "v": "DRAW_Line",
+                  "t": "s"
+                },
+                "B27": {
+                  "v": "Draw line",
+                  "t": "s"
+                },
+                "C27": {
+                  "v": "Draws a line specified by input points",
+                  "t": "s"
+                },
+                "D27": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E27": {
+                  "v": "Draw",
+                  "t": "s"
+                },
+                "F27": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G27": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H27": {
+                  "v": "17",
+                  "t": "s"
+                },
+                "I27": {
+                  "v": "Array,Color,Number,Boolean,Number,Number,Number,Number,Number,Number,Enum,Boolean,Boolean,Number,Number,Array,JSON",
+                  "t": "s"
+                },
+                "J27": {
+                  "v": "1",
+                  "t": "s"
+                },
+                "K27": {
+                  "v": "Deferred Pixi",
+                  "t": "s"
+                },
+                "A28": {
+                  "v": "GRAPH_LINE",
+                  "t": "s"
+                },
+                "B28": {
+                  "v": "Draw Line Graph",
+                  "t": "s"
+                },
+                "C28": {
+                  "v": "Draws a line graph based on input points and optional labels",
+                  "t": "s"
+                },
+                "D28": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E28": {
+                  "v": "Draw",
+                  "t": "s"
+                },
+                "F28": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G28": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H28": {
+                  "v": "28",
+                  "t": "s"
+                },
+                "I28": {
+                  "v": "Array,Array,Number,Number,Number,Boolean,Number,Number,Boolean,Boolean,Boolean,Boolean,Number,Boolean,Number,Color,Number,Number,Number,Number,Number,Enum,Boolean,Boolean,Number,Number,Array,JSON",
+                  "t": "s"
+                },
+                "J28": {
+                  "v": "1",
+                  "t": "s"
+                },
+                "K28": {
+                  "v": "Deferred Pixi",
+                  "t": "s"
+                },
+                "A29": {
+                  "v": "DRAW_Passthrough",
+                  "t": "s"
+                },
+                "B29": {
+                  "v": "Draw Passthrough",
+                  "t": "s"
+                },
+                "C29": {
+                  "v": "Draws input draw object",
+                  "t": "s"
+                },
+                "D29": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E29": {
+                  "v": "Draw",
+                  "t": "s"
+                },
+                "F29": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G29": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H29": {
+                  "v": "13",
+                  "t": "s"
+                },
+                "I29": {
+                  "v": "Deferred Pixi,Number,Number,Number,Number,Number,Enum,Boolean,Boolean,Number,Number,Array,JSON",
+                  "t": "s"
+                },
+                "J29": {
+                  "v": "1",
+                  "t": "s"
+                },
+                "K29": {
+                  "v": "Deferred Pixi",
+                  "t": "s"
+                },
+                "A30": {
+                  "v": "DRAW_Polygon",
+                  "t": "s"
+                },
+                "B30": {
+                  "v": "Draw polygon",
+                  "t": "s"
+                },
+                "C30": {
+                  "v": "Draws a polygon based on input points",
+                  "t": "s"
+                },
+                "D30": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E30": {
+                  "v": "Draw",
+                  "t": "s"
+                },
+                "F30": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G30": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H30": {
+                  "v": "14",
+                  "t": "s"
+                },
+                "I30": {
+                  "v": "Array,Color,Number,Number,Number,Number,Number,Enum,Boolean,Boolean,Number,Number,Array,JSON",
+                  "t": "s"
+                },
+                "J30": {
+                  "v": "1",
+                  "t": "s"
+                },
+                "K30": {
+                  "v": "Deferred Pixi",
+                  "t": "s"
+                },
+                "A31": {
+                  "v": "Shader",
+                  "t": "s"
+                },
+                "B31": {
+                  "v": "Draw shader",
+                  "t": "s"
+                },
+                "C31": {
+                  "v": "Draws a shader",
+                  "t": "s"
+                },
+                "D31": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E31": {
+                  "v": "Draw",
+                  "t": "s"
+                },
+                "F31": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G31": {
+                  "v": "true,false,16",
+                  "t": "s"
+                },
+                "H31": {
+                  "v": "18",
+                  "t": "s"
+                },
+                "I31": {
+                  "v": "JSON,JSON,Code,Code,Number,Number,Number,Number,Number,Number,Number,Enum,Boolean,Boolean,Number,Number,Array,JSON",
+                  "t": "s"
+                },
+                "J31": {
+                  "v": "1",
+                  "t": "s"
+                },
+                "K31": {
+                  "v": "Deferred Pixi",
+                  "t": "s"
+                },
+                "A32": {
+                  "v": "DRAW_Shape",
+                  "t": "s"
+                },
+                "B32": {
+                  "v": "Draw shape",
+                  "t": "s"
+                },
+                "C32": {
+                  "v": "Draws a shape",
+                  "t": "s"
+                },
+                "D32": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E32": {
+                  "v": "Draw",
+                  "t": "s"
+                },
+                "F32": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G32": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H32": {
+                  "v": "17",
+                  "t": "s"
+                },
+                "I32": {
+                  "v": "Enum,Color,Number,Number,Boolean,Number,Number,Number,Number,Number,Enum,Boolean,Boolean,Number,Number,Array,JSON",
+                  "t": "s"
+                },
+                "J32": {
+                  "v": "1",
+                  "t": "s"
+                },
+                "K32": {
+                  "v": "Deferred Pixi",
+                  "t": "s"
+                },
+                "A33": {
+                  "v": "DRAW_Text",
+                  "t": "s"
+                },
+                "B33": {
+                  "v": "Draw text",
+                  "t": "s"
+                },
+                "C33": {
+                  "v": "Draws text object",
+                  "t": "s"
+                },
+                "D33": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E33": {
+                  "v": "Draw",
+                  "t": "s"
+                },
+                "F33": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G33": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H33": {
+                  "v": "17",
+                  "t": "s"
+                },
+                "I33": {
+                  "v": "String,Number,Number,Number,Color,Number,Number,Number,Number,Number,Enum,Boolean,Boolean,Number,Number,Array,JSON",
+                  "t": "s"
+                },
+                "J33": {
+                  "v": "1",
+                  "t": "s"
+                },
+                "K33": {
+                  "v": "Deferred Pixi",
+                  "t": "s"
+                },
+                "A34": {
+                  "v": "WidgetDropdown",
+                  "t": "s"
+                },
+                "B34": {
+                  "v": "Dropdown",
+                  "t": "s"
+                },
+                "C34": {
+                  "v": "Adds a dropdown to select values",
+                  "t": "s"
+                },
+                "D34": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E34": {
+                  "v": "Widget",
+                  "t": "s"
+                },
+                "F34": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G34": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H34": {
+                  "v": "5",
+                  "t": "s"
+                },
+                "I34": {
+                  "v": "Array,Array,Boolean,String,JSON",
+                  "t": "s"
+                },
+                "J34": {
+                  "v": "1",
+                  "t": "s"
+                },
+                "K34": {
+                  "v": "Any",
+                  "t": "s"
+                },
+                "A35": {
+                  "v": "EmbedWebsite",
+                  "t": "s"
+                },
+                "B35": {
+                  "v": "Embed website",
+                  "t": "s"
+                },
+                "C35": {
+                  "v": "Embed a website using an iframe. You can also just paste a URL into the playground",
+                  "t": "s"
+                },
+                "D35": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E35": {
+                  "v": "Draw",
+                  "t": "s"
+                },
+                "F35": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G35": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H35": {
+                  "v": "3",
+                  "t": "s"
+                },
+                "I35": {
+                  "v": "Code,Trigger,JSON",
+                  "t": "s"
+                },
+                "J35": {
+                  "v": "0",
+                  "t": "s"
+                },
+                "K35": {
+                  "v": "",
+                  "t": "s"
+                },
+                "A36": {
+                  "v": "ExecuteMacro",
+                  "t": "s"
+                },
+                "B36": {
+                  "v": "Execute Macro",
+                  "t": "s"
+                },
+                "C36": {
+                  "v": "Executes a macro that is defined in the graph",
+                  "t": "s"
+                },
+                "D36": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E36": {
+                  "v": "Macro,Custom",
+                  "t": "s"
+                },
+                "F36": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G36": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H36": {
+                  "v": "3",
+                  "t": "s"
+                },
+                "I36": {
+                  "v": "Code,Dynamic Enum,Any",
+                  "t": "s"
+                },
+                "J36": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "K36": {
+                  "v": "Any,Code",
+                  "t": "s"
+                },
+                "A37": {
+                  "v": "Export_Image_From_Graphics",
+                  "t": "s"
+                },
+                "B37": {
+                  "v": "Export image from graphic",
+                  "t": "s"
+                },
+                "C37": {
+                  "v": "Exports image from a graphic",
+                  "t": "s"
+                },
+                "D37": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E37": {
+                  "v": "Draw",
+                  "t": "s"
+                },
+                "F37": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G37": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H37": {
+                  "v": "5",
+                  "t": "s"
+                },
+                "I37": {
+                  "v": "Deferred Pixi,Enum,Number,Trigger,JSON",
+                  "t": "s"
+                },
+                "J37": {
+                  "v": "1",
+                  "t": "s"
+                },
+                "K37": {
+                  "v": "Image",
+                  "t": "s"
+                },
+                "A38": {
+                  "v": "Filter",
+                  "t": "s"
+                },
+                "B38": {
+                  "v": "Filter array",
+                  "t": "s"
+                },
+                "C38": {
+                  "v": "Filters an array, using your own filter condition",
+                  "t": "s"
+                },
+                "D38": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E38": {
+                  "v": "Array,Custom",
+                  "t": "s"
+                },
+                "F38": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G38": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H38": {
+                  "v": "3",
+                  "t": "s"
+                },
+                "I38": {
+                  "v": "Code,Array,Code",
+                  "t": "s"
+                },
+                "J38": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "K38": {
+                  "v": "Array,Code",
+                  "t": "s"
+                },
+                "A39": {
+                  "v": "Flatten",
+                  "t": "s"
+                },
+                "B39": {
+                  "v": "Flatten array",
+                  "t": "s"
+                },
+                "C39": {
+                  "v": "Flattens an array. All sub-array elements will be concatenated into it recursively",
+                  "t": "s"
+                },
+                "D39": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E39": {
+                  "v": "Array,Custom",
+                  "t": "s"
+                },
+                "F39": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G39": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H39": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "I39": {
+                  "v": "Code,Array",
+                  "t": "s"
+                },
+                "J39": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "K39": {
+                  "v": "Array,Code",
+                  "t": "s"
+                },
+                "A40": {
+                  "v": "JSONGet",
+                  "t": "s"
+                },
+                "B40": {
+                  "v": "Get a JSON value",
+                  "t": "s"
+                },
+                "C40": {
+                  "v": "Returns a single value of a JSON at the defined path",
+                  "t": "s"
+                },
+                "D40": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E40": {
+                  "v": "JSON",
+                  "t": "s"
+                },
+                "F40": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G40": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H40": {
+                  "v": "3",
+                  "t": "s"
+                },
+                "I40": {
+                  "v": "JSON,String,JSON",
+                  "t": "s"
+                },
+                "J40": {
+                  "v": "1",
+                  "t": "s"
+                },
+                "K40": {
+                  "v": "JSON",
+                  "t": "s"
+                },
+                "A41": {
+                  "v": "JSONKeys",
+                  "t": "s"
+                },
+                "B41": {
+                  "v": "Get all JSON keys",
+                  "t": "s"
+                },
+                "C41": {
+                  "v": "Gets all keys from a JSON (or object)",
+                  "t": "s"
+                },
+                "D41": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E41": {
+                  "v": "JSON,Custom",
+                  "t": "s"
+                },
+                "F41": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G41": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H41": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "I41": {
+                  "v": "Code,Any",
+                  "t": "s"
+                },
+                "J41": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "K41": {
+                  "v": "Any,Code",
+                  "t": "s"
+                },
+                "A42": {
+                  "v": "JSONValues",
+                  "t": "s"
+                },
+                "B42": {
+                  "v": "Get all JSON values",
+                  "t": "s"
+                },
+                "C42": {
+                  "v": "Gets all values from a JSON (or object)",
+                  "t": "s"
+                },
+                "D42": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E42": {
+                  "v": "JSON,Custom",
+                  "t": "s"
+                },
+                "F42": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G42": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H42": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "I42": {
+                  "v": "Code,Any",
+                  "t": "s"
+                },
+                "J42": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "K42": {
+                  "v": "Any,Code",
+                  "t": "s"
+                },
+                "A43": {
+                  "v": "ArrayGet",
+                  "t": "s"
+                },
+                "B43": {
+                  "v": "Get from array",
+                  "t": "s"
+                },
+                "C43": {
+                  "v": "Returns an element based on its index position",
+                  "t": "s"
+                },
+                "D43": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E43": {
+                  "v": "Array,Custom",
+                  "t": "s"
+                },
+                "F43": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G43": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H43": {
+                  "v": "3",
+                  "t": "s"
+                },
+                "I43": {
+                  "v": "Code,Array,Any",
+                  "t": "s"
+                },
+                "J43": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "K43": {
+                  "v": "Array,Code",
+                  "t": "s"
+                },
+                "A44": {
+                  "v": "Table_GetColumnByName",
+                  "t": "s"
+                },
+                "B44": {
+                  "v": "Get table column by name",
+                  "t": "s"
+                },
+                "C44": {
+                  "v": "Returns the column data of a specified column",
+                  "t": "s"
+                },
+                "D44": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E44": {
+                  "v": "Array,Custom",
+                  "t": "s"
+                },
+                "F44": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G44": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H44": {
+                  "v": "3",
+                  "t": "s"
+                },
+                "I44": {
+                  "v": "Code,Array,String",
+                  "t": "s"
+                },
+                "J44": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "K44": {
+                  "v": "Array,Code",
+                  "t": "s"
+                },
+                "A45": {
+                  "v": "GridCoordinates",
+                  "t": "s"
+                },
+                "B45": {
+                  "v": "Grid coordinates",
+                  "t": "s"
+                },
+                "C45": {
+                  "v": "Create grid coordinates",
+                  "t": "s"
+                },
+                "D45": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E45": {
+                  "v": "Input",
+                  "t": "s"
+                },
+                "F45": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G45": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H45": {
+                  "v": "7",
+                  "t": "s"
+                },
+                "I45": {
+                  "v": "Number,Number,Number,Number,Number,Number,JSON",
+                  "t": "s"
+                },
+                "J45": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "K45": {
+                  "v": "Array,Array",
+                  "t": "s"
+                },
+                "A46": {
+                  "v": "HtmlRenderer",
+                  "t": "s"
+                },
+                "B46": {
+                  "v": "Html renderer",
+                  "t": "s"
+                },
+                "C46": {
+                  "v": "Renders html",
+                  "t": "s"
+                },
+                "D46": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E46": {
+                  "v": "Draw",
+                  "t": "s"
+                },
+                "F46": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G46": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H46": {
+                  "v": "3",
+                  "t": "s"
+                },
+                "I46": {
+                  "v": "Code,Trigger,JSON",
+                  "t": "s"
+                },
+                "J46": {
+                  "v": "0",
+                  "t": "s"
+                },
+                "K46": {
+                  "v": "",
+                  "t": "s"
+                },
+                "A47": {
+                  "v": "HTTPNode",
+                  "t": "s"
+                },
+                "B47": {
+                  "v": "HTTP",
+                  "t": "s"
+                },
+                "C47": {
+                  "v": "Make an HTTP request to get data from or send data to a server or API",
+                  "t": "s"
+                },
+                "D47": {
+                  "v": "<p><a style=\"color:#E154BB;text-decoration:none;\" href=\"https://github.com/magnificus/pnp-companion-2/releases/\" target=\"_blank\">Download Plug and Play Companion</a></p>",
+                  "t": "s"
+                },
+                "E47": {
+                  "v": "Input",
+                  "t": "s"
+                },
+                "F47": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G47": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H47": {
+                  "v": "7",
+                  "t": "s"
+                },
+                "I47": {
+                  "v": "String,JSON,Enum,JSON,Boolean,String,JSON",
+                  "t": "s"
+                },
+                "J47": {
+                  "v": "1",
+                  "t": "s"
+                },
+                "K47": {
+                  "v": "JSON",
+                  "t": "s"
+                },
+                "A48": {
+                  "v": "If_Else",
+                  "t": "s"
+                },
+                "B48": {
+                  "v": "If else condition",
+                  "t": "s"
+                },
+                "C48": {
+                  "v": "Passes through input A or B based on a condition",
+                  "t": "s"
+                },
+                "D48": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E48": {
+                  "v": "Logic",
+                  "t": "s"
+                },
+                "F48": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G48": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H48": {
+                  "v": "4",
+                  "t": "s"
+                },
+                "I48": {
+                  "v": "Boolean,Any,Any,JSON",
+                  "t": "s"
+                },
+                "J48": {
+                  "v": "1",
+                  "t": "s"
+                },
+                "K48": {
+                  "v": "Any",
+                  "t": "s"
+                },
+                "A49": {
+                  "v": "Image",
+                  "t": "s"
+                },
+                "B49": {
+                  "v": "Image",
+                  "t": "s"
+                },
+                "C49": {
+                  "v": "Draws an Image. To import an image, just drag the file onto the playground",
+                  "t": "s"
+                },
+                "D49": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E49": {
+                  "v": "Draw",
+                  "t": "s"
+                },
+                "F49": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G49": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H49": {
+                  "v": "5",
+                  "t": "s"
+                },
+                "I49": {
+                  "v": "Image,Enum,Trigger,Trigger,JSON",
+                  "t": "s"
+                },
+                "J49": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "K49": {
+                  "v": "Image,JSON",
+                  "t": "s"
+                },
+                "A50": {
+                  "v": "IsValid",
+                  "t": "s"
+                },
+                "B50": {
+                  "v": "IsValid",
+                  "t": "s"
+                },
+                "C50": {
+                  "v": "Check if an input is valid (undefined, null)",
+                  "t": "s"
+                },
+                "D50": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E50": {
+                  "v": "Logic",
+                  "t": "s"
+                },
+                "F50": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G50": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H50": {
+                  "v": "3",
+                  "t": "s"
+                },
+                "I50": {
+                  "v": "Any,Enum,JSON",
+                  "t": "s"
+                },
+                "J50": {
+                  "v": "1",
+                  "t": "s"
+                },
+                "K50": {
+                  "v": "Boolean",
+                  "t": "s"
+                },
+                "A51": {
+                  "v": "JumpToNode",
+                  "t": "s"
+                },
+                "B51": {
+                  "v": "Jump to node",
+                  "t": "s"
+                },
+                "C51": {
+                  "v": "Adds a button which can be used to jump to another node",
+                  "t": "s"
+                },
+                "D51": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E51": {
+                  "v": "Playground,Widget",
+                  "t": "s"
+                },
+                "F51": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G51": {
+                  "v": "false,false,1000",
+                  "t": "s"
+                },
+                "H51": {
+                  "v": "5",
+                  "t": "s"
+                },
+                "I51": {
+                  "v": "Dynamic Enum,Any,Any,String,JSON",
+                  "t": "s"
+                },
+                "J51": {
+                  "v": "1",
+                  "t": "s"
+                },
+                "K51": {
+                  "v": "Any",
+                  "t": "s"
+                },
+                "A52": {
+                  "v": "Keyboard",
+                  "t": "s"
+                },
+                "B52": {
+                  "v": "Keyboard",
+                  "t": "s"
+                },
+                "C52": {
+                  "v": "Get keyboard input",
+                  "t": "s"
+                },
+                "D52": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E52": {
+                  "v": "Input",
+                  "t": "s"
+                },
+                "F52": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G52": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H52": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "I52": {
+                  "v": "Boolean,JSON",
+                  "t": "s"
+                },
+                "J52": {
+                  "v": "7",
+                  "t": "s"
+                },
+                "K52": {
+                  "v": "String,String,Boolean,Boolean,Boolean,Boolean,Boolean",
+                  "t": "s"
+                },
+                "A53": {
+                  "v": "Label",
+                  "t": "s"
+                },
+                "B53": {
+                  "v": "Label",
+                  "t": "s"
+                },
+                "C53": {
+                  "v": "Adds a text label",
+                  "t": "s"
+                },
+                "D53": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E53": {
+                  "v": "Widget",
+                  "t": "s"
+                },
+                "F53": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G53": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H53": {
+                  "v": "5",
+                  "t": "s"
+                },
+                "I53": {
+                  "v": "String,Number,Number,Color,JSON",
+                  "t": "s"
+                },
+                "J53": {
+                  "v": "1",
+                  "t": "s"
+                },
+                "K53": {
+                  "v": "String",
+                  "t": "s"
+                },
+                "A54": {
+                  "v": "ArrayLength",
+                  "t": "s"
+                },
+                "B54": {
+                  "v": "Length of array",
+                  "t": "s"
+                },
+                "C54": {
+                  "v": "Returns the length of an array",
+                  "t": "s"
+                },
+                "D54": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E54": {
+                  "v": "Array,Custom",
+                  "t": "s"
+                },
+                "F54": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G54": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H54": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "I54": {
+                  "v": "Code,Array",
+                  "t": "s"
+                },
+                "J54": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "K54": {
+                  "v": "Array,Code",
+                  "t": "s"
+                },
+                "A55": {
+                  "v": "LoadNPM",
+                  "t": "s"
+                },
+                "B55": {
+                  "v": "Load NPM package",
+                  "t": "s"
+                },
+                "C55": {
+                  "v": "Lazy loads an NPM package",
+                  "t": "s"
+                },
+                "D55": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E55": {
+                  "v": "Playground,Custom",
+                  "t": "s"
+                },
+                "F55": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G55": {
+                  "v": "false,false,1000",
+                  "t": "s"
+                },
+                "H55": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "I55": {
+                  "v": "Code,String",
+                  "t": "s"
+                },
+                "J55": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "K55": {
+                  "v": "Function,Code",
+                  "t": "s"
+                },
+                "A56": {
+                  "v": "LogViewer",
+                  "t": "s"
+                },
+                "B56": {
+                  "v": "Log viewer",
+                  "t": "s"
+                },
+                "C56": {
+                  "v": "Adds a log viewer",
+                  "t": "s"
+                },
+                "D56": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E56": {
+                  "v": "Debug",
+                  "t": "s"
+                },
+                "F56": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G56": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H56": {
+                  "v": "3",
+                  "t": "s"
+                },
+                "I56": {
+                  "v": "Any,Number,JSON",
+                  "t": "s"
+                },
+                "J56": {
+                  "v": "0",
+                  "t": "s"
+                },
+                "K56": {
+                  "v": "",
+                  "t": "s"
+                },
+                "A57": {
+                  "v": "Macro",
+                  "t": "s"
+                },
+                "B57": {
+                  "v": "Macro",
+                  "t": "s"
+                },
+                "C57": {
+                  "v": "Wrap a group of nodes into a macro and use this Macro as often as you want",
+                  "t": "s"
+                },
+                "D57": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E57": {
+                  "v": "Macro",
+                  "t": "s"
+                },
+                "F57": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G57": {
+                  "v": "false,false,1000",
+                  "t": "s"
+                },
+                "H57": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "I57": {
+                  "v": "Any,JSON",
+                  "t": "s"
+                },
+                "J57": {
+                  "v": "1",
+                  "t": "s"
+                },
+                "K57": {
+                  "v": "Any",
+                  "t": "s"
+                },
+                "A58": {
+                  "v": "Make",
+                  "t": "s"
+                },
+                "B58": {
+                  "v": "Make JSON",
+                  "t": "s"
+                },
+                "C58": {
+                  "v": "Create new JSON from inputs",
+                  "t": "s"
+                },
+                "D58": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E58": {
+                  "v": "JSON,Custom",
+                  "t": "s"
+                },
+                "F58": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G58": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H58": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "I58": {
+                  "v": "Code,Any",
+                  "t": "s"
+                },
+                "J58": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "K58": {
+                  "v": "Any,Code",
+                  "t": "s"
+                },
+                "A59": {
+                  "v": "Map",
+                  "t": "s"
+                },
+                "B59": {
+                  "v": "Map array",
+                  "t": "s"
+                },
+                "C59": {
+                  "v": "Transform and or filter each element of an array",
+                  "t": "s"
+                },
+                "D59": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E59": {
+                  "v": "Array,Custom",
+                  "t": "s"
+                },
+                "F59": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G59": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H59": {
+                  "v": "3",
+                  "t": "s"
+                },
+                "I59": {
+                  "v": "Code,Array,Code",
+                  "t": "s"
+                },
+                "J59": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "K59": {
+                  "v": "Array,Code",
+                  "t": "s"
+                },
+                "A60": {
+                  "v": "MathFunction",
+                  "t": "s"
+                },
+                "B60": {
+                  "v": "Math function",
+                  "t": "s"
+                },
+                "C60": {
+                  "v": "Perform mathematical operations or get constants",
+                  "t": "s"
+                },
+                "D60": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E60": {
+                  "v": "Math",
+                  "t": "s"
+                },
+                "F60": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G60": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H60": {
+                  "v": "4",
+                  "t": "s"
+                },
+                "I60": {
+                  "v": "Number,Number,Enum,JSON",
+                  "t": "s"
+                },
+                "J60": {
+                  "v": "1",
+                  "t": "s"
+                },
+                "K60": {
+                  "v": "Number",
+                  "t": "s"
+                },
+                "A61": {
+                  "v": "Max",
+                  "t": "s"
+                },
+                "B61": {
+                  "v": "Max element in array",
+                  "t": "s"
+                },
+                "C61": {
+                  "v": "Returns the largest number of the array",
+                  "t": "s"
+                },
+                "D61": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E61": {
+                  "v": "Array,Custom",
+                  "t": "s"
+                },
+                "F61": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G61": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H61": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "I61": {
+                  "v": "Code,Array",
+                  "t": "s"
+                },
+                "J61": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "K61": {
+                  "v": "Array,Code",
+                  "t": "s"
+                },
+                "A62": {
+                  "v": "MergeJSONs",
+                  "t": "s"
+                },
+                "B62": {
+                  "v": "Merge JSONs",
+                  "t": "s"
+                },
+                "C62": {
+                  "v": "Merges 2 JSON objects",
+                  "t": "s"
+                },
+                "D62": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E62": {
+                  "v": "JSON",
+                  "t": "s"
+                },
+                "F62": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G62": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H62": {
+                  "v": "3",
+                  "t": "s"
+                },
+                "I62": {
+                  "v": "JSON,JSON,JSON",
+                  "t": "s"
+                },
+                "J62": {
+                  "v": "1",
+                  "t": "s"
+                },
+                "K62": {
+                  "v": "JSON",
+                  "t": "s"
+                },
+                "A63": {
+                  "v": "Min",
+                  "t": "s"
+                },
+                "B63": {
+                  "v": "Min element in array",
+                  "t": "s"
+                },
+                "C63": {
+                  "v": "Returns the smallest number of the array",
+                  "t": "s"
+                },
+                "D63": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E63": {
+                  "v": "Array,Custom",
+                  "t": "s"
+                },
+                "F63": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G63": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H63": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "I63": {
+                  "v": "Code,Array",
+                  "t": "s"
+                },
+                "J63": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "K63": {
+                  "v": "Array,Code",
+                  "t": "s"
+                },
+                "A64": {
+                  "v": "Mouse",
+                  "t": "s"
+                },
+                "B64": {
+                  "v": "Mouse",
+                  "t": "s"
+                },
+                "C64": {
+                  "v": "Gets mouse coordinates",
+                  "t": "s"
+                },
+                "D64": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E64": {
+                  "v": "Input",
+                  "t": "s"
+                },
+                "F64": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G64": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H64": {
+                  "v": "1",
+                  "t": "s"
+                },
+                "I64": {
+                  "v": "JSON",
+                  "t": "s"
+                },
+                "J64": {
+                  "v": "6",
+                  "t": "s"
+                },
+                "K64": {
+                  "v": "Number,Number,Number,Number,Number,Number",
+                  "t": "s"
+                },
+                "A65": {
+                  "v": "Multiply",
+                  "t": "s"
+                },
+                "B65": {
+                  "v": "Multiply",
+                  "t": "s"
+                },
+                "C65": {
+                  "v": "Multiplies two numbers",
+                  "t": "s"
+                },
+                "D65": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E65": {
+                  "v": "Math,Custom",
+                  "t": "s"
+                },
+                "F65": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G65": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H65": {
+                  "v": "3",
+                  "t": "s"
+                },
+                "I65": {
+                  "v": "Code,Number,Number",
+                  "t": "s"
+                },
+                "J65": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "K65": {
+                  "v": "Number,Code",
+                  "t": "s"
+                },
+                "A66": {
+                  "v": "DRAW_Multiplier",
+                  "t": "s"
+                },
+                "B66": {
+                  "v": "Multiply object",
+                  "t": "s"
+                },
+                "C66": {
+                  "v": "Multiples a drawn object onto a grid",
+                  "t": "s"
+                },
+                "D66": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E66": {
+                  "v": "Draw",
+                  "t": "s"
+                },
+                "F66": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G66": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H66": {
+                  "v": "18",
+                  "t": "s"
+                },
+                "I66": {
+                  "v": "Deferred Pixi,Number,Number,Boolean,Number,Number,Number,Number,Number,Number,Number,Enum,Boolean,Boolean,Number,Number,Array,JSON",
+                  "t": "s"
+                },
+                "J66": {
+                  "v": "4",
+                  "t": "s"
+                },
+                "K66": {
+                  "v": "Number,Array,Boolean,Deferred Pixi",
+                  "t": "s"
+                },
+                "A67": {
+                  "v": "DRAW_Multipy_Along",
+                  "t": "s"
+                },
+                "B67": {
+                  "v": "Multiply onto points",
+                  "t": "s"
+                },
+                "C67": {
+                  "v": "Multiples a drawn object onto points",
+                  "t": "s"
+                },
+                "D67": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E67": {
+                  "v": "Draw",
+                  "t": "s"
+                },
+                "F67": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G67": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H67": {
+                  "v": "14",
+                  "t": "s"
+                },
+                "I67": {
+                  "v": "Deferred Pixi,Array,Number,Number,Number,Number,Number,Enum,Boolean,Boolean,Number,Number,Array,JSON",
+                  "t": "s"
+                },
+                "J67": {
+                  "v": "4",
+                  "t": "s"
+                },
+                "K67": {
+                  "v": "Number,Array,Boolean,Deferred Pixi",
+                  "t": "s"
+                },
+                "A68": {
+                  "v": "NOT",
+                  "t": "s"
+                },
+                "B68": {
+                  "v": "NOT",
+                  "t": "s"
+                },
+                "C68": {
+                  "v": "Returns the inverse of the input",
+                  "t": "s"
+                },
+                "D68": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E68": {
+                  "v": "Logic,Custom",
+                  "t": "s"
+                },
+                "F68": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G68": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H68": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "I68": {
+                  "v": "Code,Any",
+                  "t": "s"
+                },
+                "J68": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "K68": {
+                  "v": "Any,Code",
+                  "t": "s"
+                },
+                "A69": {
+                  "v": "NumberState",
+                  "t": "s"
+                },
+                "B69": {
+                  "v": "Number state",
+                  "t": "s"
+                },
+                "C69": {
+                  "v": "Store a number and increment/decrement it",
+                  "t": "s"
+                },
+                "D69": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E69": {
+                  "v": "State",
+                  "t": "s"
+                },
+                "F69": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G69": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H69": {
+                  "v": "6",
+                  "t": "s"
+                },
+                "I69": {
+                  "v": "Any,Trigger,Trigger,Trigger,Number,JSON",
+                  "t": "s"
+                },
+                "J69": {
+                  "v": "1",
+                  "t": "s"
+                },
+                "K69": {
+                  "v": "Number",
+                  "t": "s"
+                },
+                "A70": {
+                  "v": "ObjectFilter",
+                  "t": "s"
+                },
+                "B70": {
+                  "v": "Object filter",
+                  "t": "s"
+                },
+                "C70": {
+                  "v": "Filters objects (JSON) based on their properties",
+                  "t": "s"
+                },
+                "D70": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E70": {
+                  "v": "Array",
+                  "t": "s"
+                },
+                "F70": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G70": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H70": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "I70": {
+                  "v": "Array,JSON",
+                  "t": "s"
+                },
+                "J70": {
+                  "v": "1",
+                  "t": "s"
+                },
+                "K70": {
+                  "v": "Array",
+                  "t": "s"
+                },
+                "A71": {
+                  "v": "ObjectState",
+                  "t": "s"
+                },
+                "B71": {
+                  "v": "Object state",
+                  "t": "s"
+                },
+                "C71": {
+                  "v": "Store elements by key",
+                  "t": "s"
+                },
+                "D71": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E71": {
+                  "v": "State",
+                  "t": "s"
+                },
+                "F71": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G71": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H71": {
+                  "v": "8",
+                  "t": "s"
+                },
+                "I71": {
+                  "v": "Number,Any,Trigger,Trigger,Trigger,JSON,String,JSON",
+                  "t": "s"
+                },
+                "J71": {
+                  "v": "1",
+                  "t": "s"
+                },
+                "K71": {
+                  "v": "JSON",
+                  "t": "s"
+                },
+                "A72": {
+                  "v": "OpenURL",
+                  "t": "s"
+                },
+                "B72": {
+                  "v": "Open URL",
+                  "t": "s"
+                },
+                "C72": {
+                  "v": "Opens a URL in a new tab",
+                  "t": "s"
+                },
+                "D72": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E72": {
+                  "v": "Playground,Custom",
+                  "t": "s"
+                },
+                "F72": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G72": {
+                  "v": "false,false,1000",
+                  "t": "s"
+                },
+                "H72": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "I72": {
+                  "v": "Code,Any",
+                  "t": "s"
+                },
+                "J72": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "K72": {
+                  "v": "Any,Code",
+                  "t": "s"
+                },
+                "A73": {
+                  "v": "OR",
+                  "t": "s"
+                },
+                "B73": {
+                  "v": "OR",
+                  "t": "s"
+                },
+                "C73": {
+                  "v": "Returns true if any of the inputs are truthy",
+                  "t": "s"
+                },
+                "D73": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E73": {
+                  "v": "Logic,Custom",
+                  "t": "s"
+                },
+                "F73": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G73": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H73": {
+                  "v": "3",
+                  "t": "s"
+                },
+                "I73": {
+                  "v": "Code,Any,Any",
+                  "t": "s"
+                },
+                "J73": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "K73": {
+                  "v": "Any,Code",
+                  "t": "s"
+                },
+                "A74": {
+                  "v": "ParseArray",
+                  "t": "s"
+                },
+                "B74": {
+                  "v": "Parse array",
+                  "t": "s"
+                },
+                "C74": {
+                  "v": "Transforms all elements of an array to a different data type. Use it to, for example, to parse a number string \"12\" to a number",
+                  "t": "s"
+                },
+                "D74": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E74": {
+                  "v": "Array",
+                  "t": "s"
+                },
+                "F74": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G74": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H74": {
+                  "v": "3",
+                  "t": "s"
+                },
+                "I74": {
+                  "v": "Array,Number,JSON",
+                  "t": "s"
+                },
+                "J74": {
+                  "v": "1",
+                  "t": "s"
+                },
+                "K74": {
+                  "v": "Array",
+                  "t": "s"
+                },
+                "A75": {
+                  "v": "PixotopeGatewayCall",
+                  "t": "s"
+                },
+                "B75": {
+                  "v": "Pixotope Call",
+                  "t": "s"
+                },
+                "C75": {
+                  "v": "Pixotope Gateway: Send a ZMQ call",
+                  "t": "s"
+                },
+                "D75": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E75": {
+                  "v": "Pixotope",
+                  "t": "s"
+                },
+                "F75": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G75": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H75": {
+                  "v": "5",
+                  "t": "s"
+                },
+                "I75": {
+                  "v": "String,String,String,JSON,JSON",
+                  "t": "s"
+                },
+                "J75": {
+                  "v": "1",
+                  "t": "s"
+                },
+                "K75": {
+                  "v": "JSON",
+                  "t": "s"
+                },
+                "A76": {
+                  "v": "PixotopeGatewayCallSaveImage",
+                  "t": "s"
+                },
+                "B76": {
+                  "v": "Pixotope Call SaveImage",
+                  "t": "s"
+                },
+                "C76": {
+                  "v": "Pixotope Gateway: Get an image from the videoIO service",
+                  "t": "s"
+                },
+                "D76": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E76": {
+                  "v": "Pixotope",
+                  "t": "s"
+                },
+                "F76": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G76": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H76": {
+                  "v": "5",
+                  "t": "s"
+                },
+                "I76": {
+                  "v": "String,String,String,Number,JSON",
+                  "t": "s"
+                },
+                "J76": {
+                  "v": "1",
+                  "t": "s"
+                },
+                "K76": {
+                  "v": "Image",
+                  "t": "s"
+                },
+                "A77": {
+                  "v": "PixotopeGatewayGet",
+                  "t": "s"
+                },
+                "B77": {
+                  "v": "Pixotope Get",
+                  "t": "s"
+                },
+                "C77": {
+                  "v": "Pixotope Gateway: Get a value from a service",
+                  "t": "s"
+                },
+                "D77": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E77": {
+                  "v": "Pixotope",
+                  "t": "s"
+                },
+                "F77": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G77": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H77": {
+                  "v": "4",
+                  "t": "s"
+                },
+                "I77": {
+                  "v": "String,String,String,JSON",
+                  "t": "s"
+                },
+                "J77": {
+                  "v": "1",
+                  "t": "s"
+                },
+                "K77": {
+                  "v": "JSON",
+                  "t": "s"
+                },
+                "A78": {
+                  "v": "PixotopeGatewaySet",
+                  "t": "s"
+                },
+                "B78": {
+                  "v": "Pixotope Set",
+                  "t": "s"
+                },
+                "C78": {
+                  "v": "Pixotope Gateway: Set a value on a service",
+                  "t": "s"
+                },
+                "D78": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E78": {
+                  "v": "Pixotope",
+                  "t": "s"
+                },
+                "F78": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G78": {
+                  "v": "false,false,1000",
+                  "t": "s"
+                },
+                "H78": {
+                  "v": "5",
+                  "t": "s"
+                },
+                "I78": {
+                  "v": "String,String,String,Any,JSON",
+                  "t": "s"
+                },
+                "J78": {
+                  "v": "0",
+                  "t": "s"
+                },
+                "K78": {
+                  "v": "",
+                  "t": "s"
+                },
+                "A79": {
+                  "v": "Placeholder",
+                  "t": "s"
+                },
+                "B79": {
+                  "v": "Placeholder",
+                  "t": "s"
+                },
+                "C79": {
+                  "v": "Adds a placeholder node",
+                  "t": "s"
+                },
+                "D79": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E79": {
+                  "v": "Playground",
+                  "t": "s"
+                },
+                "F79": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G79": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H79": {
+                  "v": "1",
+                  "t": "s"
+                },
+                "I79": {
+                  "v": "JSON",
+                  "t": "s"
+                },
+                "J79": {
+                  "v": "0",
+                  "t": "s"
+                },
+                "K79": {
+                  "v": "",
+                  "t": "s"
+                },
+                "A80": {
+                  "v": "Playground",
+                  "t": "s"
+                },
+                "B80": {
+                  "v": "Playground",
+                  "t": "s"
+                },
+                "C80": {
+                  "v": "Exposes some Playground functions",
+                  "t": "s"
+                },
+                "D80": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E80": {
+                  "v": "Playground",
+                  "t": "s"
+                },
+                "F80": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G80": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H80": {
+                  "v": "8",
+                  "t": "s"
+                },
+                "I80": {
+                  "v": "Trigger,Trigger,Trigger,Trigger,Trigger,Enum,Enum,JSON",
+                  "t": "s"
+                },
+                "J80": {
+                  "v": "1",
+                  "t": "s"
+                },
+                "K80": {
+                  "v": "JSON",
+                  "t": "s"
+                },
+                "A81": {
+                  "v": "WidgetRadio",
+                  "t": "s"
+                },
+                "B81": {
+                  "v": "Radio Button",
+                  "t": "s"
+                },
+                "C81": {
+                  "v": "Adds a radio button",
+                  "t": "s"
+                },
+                "D81": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E81": {
+                  "v": "Widget",
+                  "t": "s"
+                },
+                "F81": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G81": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H81": {
+                  "v": "6",
+                  "t": "s"
+                },
+                "I81": {
+                  "v": "Array,Number,Color,Color,Color,JSON",
+                  "t": "s"
+                },
+                "J81": {
+                  "v": "1",
+                  "t": "s"
+                },
+                "K81": {
+                  "v": "String",
+                  "t": "s"
+                },
+                "A82": {
+                  "v": "RandomArray",
+                  "t": "s"
+                },
+                "B82": {
+                  "v": "Random array",
+                  "t": "s"
+                },
+                "C82": {
+                  "v": "Creates an array with random numbers",
+                  "t": "s"
+                },
+                "D82": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E82": {
+                  "v": "Array",
+                  "t": "s"
+                },
+                "F82": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G82": {
+                  "v": "false,false,10000",
+                  "t": "s"
+                },
+                "H82": {
+                  "v": "4",
+                  "t": "s"
+                },
+                "I82": {
+                  "v": "Number,Number,Number,JSON",
+                  "t": "s"
+                },
+                "J82": {
+                  "v": "1",
+                  "t": "s"
+                },
+                "K82": {
+                  "v": "Array",
+                  "t": "s"
+                },
+                "A83": {
+                  "v": "RangeArray",
+                  "t": "s"
+                },
+                "B83": {
+                  "v": "Range array",
+                  "t": "s"
+                },
+                "C83": {
+                  "v": "Creates an array of a number range",
+                  "t": "s"
+                },
+                "D83": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E83": {
+                  "v": "Array",
+                  "t": "s"
+                },
+                "F83": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G83": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H83": {
+                  "v": "4",
+                  "t": "s"
+                },
+                "I83": {
+                  "v": "Number,Number,Number,JSON",
+                  "t": "s"
+                },
+                "J83": {
+                  "v": "1",
+                  "t": "s"
+                },
+                "K83": {
+                  "v": "Array",
+                  "t": "s"
+                },
+                "A84": {
+                  "v": "RecordLocations",
+                  "t": "s"
+                },
+                "B84": {
+                  "v": "Record locations",
+                  "t": "s"
+                },
+                "C84": {
+                  "v": "Records the mouse location",
+                  "t": "s"
+                },
+                "D84": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E84": {
+                  "v": "Input",
+                  "t": "s"
+                },
+                "F84": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G84": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H84": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "I84": {
+                  "v": "Array,JSON",
+                  "t": "s"
+                },
+                "J84": {
+                  "v": "1",
+                  "t": "s"
+                },
+                "K84": {
+                  "v": "Array",
+                  "t": "s"
+                },
+                "A85": {
+                  "v": "Reduce",
+                  "t": "s"
+                },
+                "B85": {
+                  "v": "Reduce array",
+                  "t": "s"
+                },
+                "C85": {
+                  "v": "Reduce (or fold) an array into a single value",
+                  "t": "s"
+                },
+                "D85": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E85": {
+                  "v": "Array,Array,Custom",
+                  "t": "s"
+                },
+                "F85": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G85": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H85": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "I85": {
+                  "v": "Code,Array",
+                  "t": "s"
+                },
+                "J85": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "K85": {
+                  "v": "Any,Code",
+                  "t": "s"
+                },
+                "A86": {
+                  "v": "Reroute",
+                  "t": "s"
+                },
+                "B86": {
+                  "v": "Reroute",
+                  "t": "s"
+                },
+                "C86": {
+                  "v": "Adds a node to reroute connections",
+                  "t": "s"
+                },
+                "D86": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E86": {
+                  "v": "Playground",
+                  "t": "s"
+                },
+                "F86": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G86": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H86": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "I86": {
+                  "v": "Any,JSON",
+                  "t": "s"
+                },
+                "J86": {
+                  "v": "1",
+                  "t": "s"
+                },
+                "K86": {
+                  "v": "Any",
+                  "t": "s"
+                },
+                "A87": {
+                  "v": "JSONSet",
+                  "t": "s"
+                },
+                "B87": {
+                  "v": "Set JSON value",
+                  "t": "s"
+                },
+                "C87": {
+                  "v": "Sets a value on a JSON at the defined path",
+                  "t": "s"
+                },
+                "D87": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E87": {
+                  "v": "JSON",
+                  "t": "s"
+                },
+                "F87": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G87": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H87": {
+                  "v": "4",
+                  "t": "s"
+                },
+                "I87": {
+                  "v": "JSON,String,Any,JSON",
+                  "t": "s"
+                },
+                "J87": {
+                  "v": "1",
+                  "t": "s"
+                },
+                "K87": {
+                  "v": "JSON",
+                  "t": "s"
+                },
+                "A88": {
+                  "v": "SimpleBarGraphSegmentNode",
+                  "t": "s"
+                },
+                "B88": {
+                  "v": "Simple Bar Graph",
+                  "t": "s"
+                },
+                "C88": {
+                  "v": "Shows a simple bar graph segment",
+                  "t": "s"
+                },
+                "D88": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E88": {
+                  "v": "Segment",
+                  "t": "s"
+                },
+                "F88": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G88": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H88": {
+                  "v": "1",
+                  "t": "s"
+                },
+                "I88": {
+                  "v": "JSON",
+                  "t": "s"
+                },
+                "J88": {
+                  "v": "0",
+                  "t": "s"
+                },
+                "K88": {
+                  "v": "",
+                  "t": "s"
+                },
+                "A89": {
+                  "v": "ArraySlice",
+                  "t": "s"
+                },
+                "B89": {
+                  "v": "Slice array",
+                  "t": "s"
+                },
+                "C89": {
+                  "v": "Returns a section of an array using start and end indices",
+                  "t": "s"
+                },
+                "D89": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E89": {
+                  "v": "Array,Custom",
+                  "t": "s"
+                },
+                "F89": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G89": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H89": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "I89": {
+                  "v": "Code,Array",
+                  "t": "s"
+                },
+                "J89": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "K89": {
+                  "v": "Array,Code",
+                  "t": "s"
+                },
+                "A90": {
+                  "v": "WidgetSlider",
+                  "t": "s"
+                },
+                "B90": {
+                  "v": "Slider",
+                  "t": "s"
+                },
+                "C90": {
+                  "v": "Adds a number slider",
+                  "t": "s"
+                },
+                "D90": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E90": {
+                  "v": "Widget",
+                  "t": "s"
+                },
+                "F90": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G90": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H90": {
+                  "v": "6",
+                  "t": "s"
+                },
+                "I90": {
+                  "v": "Number,Number,Number,Boolean,String,JSON",
+                  "t": "s"
+                },
+                "J90": {
+                  "v": "1",
+                  "t": "s"
+                },
+                "K90": {
+                  "v": "Number",
+                  "t": "s"
+                },
+                "A91": {
+                  "v": "Sqrt",
+                  "t": "s"
+                },
+                "B91": {
+                  "v": "Square root",
+                  "t": "s"
+                },
+                "C91": {
+                  "v": "Square root of number",
+                  "t": "s"
+                },
+                "D91": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E91": {
+                  "v": "Math,Custom",
+                  "t": "s"
+                },
+                "F91": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G91": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H91": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "I91": {
+                  "v": "Code,Number",
+                  "t": "s"
+                },
+                "J91": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "K91": {
+                  "v": "Number,Code",
+                  "t": "s"
+                },
+                "A92": {
+                  "v": "Subtract",
+                  "t": "s"
+                },
+                "B92": {
+                  "v": "Subtract",
+                  "t": "s"
+                },
+                "C92": {
+                  "v": "Subtracts two numbers",
+                  "t": "s"
+                },
+                "D92": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E92": {
+                  "v": "Math,Custom",
+                  "t": "s"
+                },
+                "F92": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G92": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H92": {
+                  "v": "3",
+                  "t": "s"
+                },
+                "I92": {
+                  "v": "Code,Number,Number",
+                  "t": "s"
+                },
+                "J92": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "K92": {
+                  "v": "Number,Code",
+                  "t": "s"
+                },
+                "A93": {
+                  "v": "WidgetSwitch",
+                  "t": "s"
+                },
+                "B93": {
+                  "v": "Switch",
+                  "t": "s"
+                },
+                "C93": {
+                  "v": "Adds a switch to toggle between values",
+                  "t": "s"
+                },
+                "D93": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E93": {
+                  "v": "Widget",
+                  "t": "s"
+                },
+                "F93": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G93": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H93": {
+                  "v": "5",
+                  "t": "s"
+                },
+                "I93": {
+                  "v": "Boolean,Any,Any,String,JSON",
+                  "t": "s"
+                },
+                "J93": {
+                  "v": "1",
+                  "t": "s"
+                },
+                "K93": {
+                  "v": "Any",
+                  "t": "s"
+                },
+                "A94": {
+                  "v": "Table",
+                  "t": "s"
+                },
+                "B94": {
+                  "v": "Table",
+                  "t": "s"
+                },
+                "C94": {
+                  "v": "Adds a table. To import a spreadsheets, just drag the file onto the playground",
+                  "t": "s"
+                },
+                "D94": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E94": {
+                  "v": "Input",
+                  "t": "s"
+                },
+                "F94": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G94": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H94": {
+                  "v": "4",
+                  "t": "s"
+                },
+                "I94": {
+                  "v": "JSON,Number,Array,JSON",
+                  "t": "s"
+                },
+                "J94": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "K94": {
+                  "v": "Array,Array",
+                  "t": "s"
+                },
+                "A95": {
+                  "v": "TestDataTypes",
+                  "t": "s"
+                },
+                "B95": {
+                  "v": "Test data types",
+                  "t": "s"
+                },
+                "C95": {
+                  "v": "Adds a test node which lists all available socket data types",
+                  "t": "s"
+                },
+                "D95": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E95": {
+                  "v": "Playground",
+                  "t": "s"
+                },
+                "F95": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G95": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H95": {
+                  "v": "14",
+                  "t": "s"
+                },
+                "I95": {
+                  "v": "Any,Array,Boolean,Code,Color,Deferred Pixi,Enum,Function,Image,JSON,Number,String,Trigger,JSON",
+                  "t": "s"
+                },
+                "J95": {
+                  "v": "11",
+                  "t": "s"
+                },
+                "K95": {
+                  "v": "Any,Array,Boolean,Code,Color,Deferred Pixi,Function,Image,JSON,Number,String",
+                  "t": "s"
+                },
+                "A96": {
+                  "v": "TextEditor",
+                  "t": "s"
+                },
+                "B96": {
+                  "v": "Text editor",
+                  "t": "s"
+                },
+                "C96": {
+                  "v": "Adds a rich text editor",
+                  "t": "s"
+                },
+                "D96": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E96": {
+                  "v": "Input",
+                  "t": "s"
+                },
+                "F96": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G96": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H96": {
+                  "v": "5",
+                  "t": "s"
+                },
+                "I96": {
+                  "v": "JSON,Color,Boolean,Any,JSON",
+                  "t": "s"
+                },
+                "J96": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "K96": {
+                  "v": "JSON,String",
+                  "t": "s"
+                },
+                "A97": {
+                  "v": "ThrottleDebounce",
+                  "t": "s"
+                },
+                "B97": {
+                  "v": "Throttle/Debounce",
+                  "t": "s"
+                },
+                "C97": {
+                  "v": "Limits how often the value is passed through",
+                  "t": "s"
+                },
+                "D97": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E97": {
+                  "v": "Logic",
+                  "t": "s"
+                },
+                "F97": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G97": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H97": {
+                  "v": "7",
+                  "t": "s"
+                },
+                "I97": {
+                  "v": "Any,Trigger,Number,Number,Boolean,Boolean,JSON",
+                  "t": "s"
+                },
+                "J97": {
+                  "v": "1",
+                  "t": "s"
+                },
+                "K97": {
+                  "v": "Any",
+                  "t": "s"
+                },
+                "A98": {
+                  "v": "Uniques",
+                  "t": "s"
+                },
+                "B98": {
+                  "v": "Unique array",
+                  "t": "s"
+                },
+                "C98": {
+                  "v": "Returns an array with unique values, removing all duplicates",
+                  "t": "s"
+                },
+                "D98": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E98": {
+                  "v": "Array,Custom",
+                  "t": "s"
+                },
+                "F98": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G98": {
+                  "v": "true,false,1000",
+                  "t": "s"
+                },
+                "H98": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "I98": {
+                  "v": "Code,Array",
+                  "t": "s"
+                },
+                "J98": {
+                  "v": "2",
+                  "t": "s"
+                },
+                "K98": {
+                  "v": "Array,Code",
+                  "t": "s"
+                },
+                "A99": {
+                  "v": "WriteToClipboard",
+                  "t": "s"
+                },
+                "B99": {
+                  "v": "Write to clipboard",
+                  "t": "s"
+                },
+                "C99": {
+                  "v": "Copies the input value to the clipboard",
+                  "t": "s"
+                },
+                "D99": {
+                  "v": "",
+                  "t": "s"
+                },
+                "E99": {
+                  "v": "Playground",
+                  "t": "s"
+                },
+                "F99": {
+                  "v": "FALSE",
+                  "t": "s"
+                },
+                "G99": {
+                  "v": "false,false,1000",
+                  "t": "s"
+                },
+                "H99": {
+                  "v": "3",
+                  "t": "s"
+                },
+                "I99": {
+                  "v": "String,JSON,Trigger",
+                  "t": "s"
+                },
+                "J99": {
+                  "v": "0",
+                  "t": "s"
+                },
+                "K99": {
+                  "v": "",
+                  "t": "s"
+                },
+                "!ref": "A1:K99"
+              }
+            }
+          },
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Sheet index",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
+          "data": 0,
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Input",
+          "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
+          "defaultData": [],
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Meta",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "data": {},
+          "visible": false
+        },
+        {
+          "socketType": "out",
+          "name": "Array of objects",
+          "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "Array of arrays",
+          "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
+          "visible": true
+        }
+      ],
+      "updateBehaviour": {
+        "update": true,
+        "interval": false,
+        "intervalFrequency": 1000
+      }
+    },
+    {
+      "id": "wise-impala-57",
+      "name": "WidgetButton",
+      "type": "WidgetButton",
+      "x": -2690.9691613885975,
+      "y": -7537.238513002465,
+      "width": 200,
+      "height": 104,
+      "socketArray": [
+        {
+          "socketType": "in",
+          "name": "Off",
+          "dataType": "{\"class\":\"AnyType\",\"type\":{}}",
+          "data": 0,
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "On",
+          "dataType": "{\"class\":\"AnyType\",\"type\":{}}",
+          "data": 1,
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Label",
+          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
+          "data": "List all nodes",
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Meta",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "data": {},
+          "visible": false
+        },
+        {
+          "socketType": "out",
+          "name": "Out",
+          "dataType": "{\"class\":\"AnyType\",\"type\":{}}",
+          "visible": true
+        }
+      ],
+      "updateBehaviour": {
+        "update": false,
+        "interval": false,
+        "intervalFrequency": 1000
+      }
+    }
+  ],
+  "links": [
+    {
+      "id": "ee6d5d07-d02f-4953-a7fd-facd4c2d49a8",
+      "sourceNodeId": "wise-impala-57",
+      "sourceSocketName": "Out",
+      "targetNodeId": "tender-badger-58",
+      "targetSocketName": "List all nodes"
+    },
+    {
+      "id": "ff2818f2-5c4a-4ad0-b935-db8ae5722370",
+      "sourceNodeId": "tender-badger-58",
+      "sourceSocketName": "output",
+      "targetNodeId": "clever-sheep-88",
+      "targetSocketName": "Input"
+    }
+  ]
+}
