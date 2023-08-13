@@ -78,7 +78,13 @@ export class TestDataTypes extends PPNode {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, AnyName, new AnyType()),
-      new Socket(SOCKET_TYPE.IN, ArrayName, new ArrayType(), [0, 1, 2, 3]),
+      new Socket(SOCKET_TYPE.IN, ArrayName, new ArrayType(), [
+        'Edith Carlmar',
+        'Shirin Neshat',
+        'Olga Preobrazhenskaya',
+        'Alice Guy-Blaché',
+        'Lois Weber',
+      ]),
       new Socket(SOCKET_TYPE.IN, BooleanName, new BooleanType(), true),
       new Socket(SOCKET_TYPE.IN, CodeName, new CodeType(), DEFAULT_EDITOR_DATA),
       new Socket(SOCKET_TYPE.IN, ColorName, new ColorType()),

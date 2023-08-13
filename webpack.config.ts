@@ -158,7 +158,8 @@ module.exports = (env, argv) => {
               'Using macros within a function - Random color array.ppgraph',
               'Using macros within a function - UV texture generator.ppgraph',
               'pixotopePipelineImageSave - NOT WORKING.ppgraph',
-              'z For debugging - Missing nodes - sockets - links.ppgraph',
+              'z debug missing nodes, sockets and links.ppgraph',
+              'z test node.ppgraph',
             ],
           });
         });

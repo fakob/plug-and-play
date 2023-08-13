@@ -68,7 +68,6 @@ app.get('/buildInfo', function (req, res) {
 
 app.get('/listExamples', (req, res) => {
   const assetsFolderPath = path.join(__dirname, 'dist', 'assets', 'examples');
-  console.log(assetsFolderPath);
   fs.readdir(assetsFolderPath, { withFileTypes: false }, (err, files) => {
     res.header('Content-Type', 'application/json');
     if (err) {
@@ -89,7 +88,6 @@ app.get('/listNodeExamples', (req, res) => {
     'examples',
     'nodes'
   );
-  console.log(assetsFolderPath);
   fs.readdir(assetsFolderPath, { withFileTypes: false }, (err, files) => {
     res.header('Content-Type', 'application/json');
     if (err) {
