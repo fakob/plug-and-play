@@ -76,7 +76,7 @@ describe('fundamentals', () => {
     cy.get('body').type(`${controlOrMetaKey}\\`);
   });
 
-  it.only('load graph example', () => {
+  it('load graph example', () => {
     cy.get('#graph-search').click();
     cy.wait(1000);
     cy.get('#graph-search-listbox').contains('li', 'z test node').click();
