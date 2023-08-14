@@ -26,6 +26,7 @@ export enum ListenEvent {
   GlobalPointerUpAndUpOutside, // data = event: PIXI.FederatedPointerEvent
   GraphChanged, // data = {id,name}
   ToggleInspectorWithFocus, // (data: Node, Filter or Socket) => void: called when inspector should be opened with focus
+  EscapeKeyUsed,
 }
 
 export default class InterfaceController {
@@ -40,6 +41,7 @@ export default class InterfaceController {
     7: {},
     8: {},
     9: {},
+    10: {},
   }; // not sure why this one is so messed up and needs these defined by default, very annoying
 
   // we use this listener structure here as there can be multiple listeners, not needed for everything (sometimes there is just one listener)
@@ -203,7 +205,9 @@ export default class InterfaceController {
         PPStorage.getInstance().saveGraphAction(false);
       }
     } else if (e.key === 'Escape') {
+      InterfaceController.notifyListeners(ListenEvent.EscapeKeyUsed, e);
       InterfaceController.setIsGraphSearchOpen(false);
+      InterfaceController.onCloseSocketInspector();
       this.setIsNodeSearchVisible(false);
       this.setIsGraphContextMenuOpen(false);
       this.setIsNodeContextMenuOpen(false);

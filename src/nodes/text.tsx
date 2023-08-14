@@ -136,6 +136,7 @@ export class Label extends PPNode {
     // select all content
     window.getSelection().selectAllChildren(this.HTMLTextComponent);
   }
+
   public PIXIVisible() {
     this.PIXIText.visible = true;
     if (this.HTMLTextComponent) {
@@ -147,6 +148,11 @@ export class Label extends PPNode {
   public onNodeDoubleClick = () => {
     this.HTMLVisible();
   };
+
+  public onViewportPointerUp(): void {
+    super.onViewportPointerUp();
+    this.PIXIVisible();
+  }
 
   protected async onExecute(input, output): Promise<void> {
     let text = String(input[inputSocketName]);

@@ -84,7 +84,7 @@ export default class PPNode extends PIXI.Container implements Tooltipable {
   _doubleClicked: boolean;
   isDraggingNode: boolean;
   protected statuses: NodeStatus[] = []; // you can add statuses into this and they will be rendered on the node
-  listenIdUp: string;
+  listenId: string[] = [];
 
   // supported callbacks
   onNodeDoubleClick: (event: PIXI.FederatedPointerEvent) => void = () => {};
@@ -1137,13 +1137,21 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   }
 
   onPointerClick(event: PIXI.FederatedPointerEvent): void {
-    this.listenIdUp = InterfaceController.addListener(
-      ListenEvent.GlobalPointerUp,
-      this.onViewportPointerUpHandler
+    this.listenId.push(
+      InterfaceController.addListener(
+        ListenEvent.GlobalPointerUp,
+        this.onViewportPointerUpHandler
+      )
     );
     // check if double clicked
     if (event.detail === 2) {
       this.doubleClicked = true;
+      this.listenId.push(
+        InterfaceController.addListener(
+          ListenEvent.EscapeKeyUsed,
+          this.onViewportPointerUpHandler
+        )
+      );
       if (this.onNodeDoubleClick) {
         this.onNodeDoubleClick(event);
       }
@@ -1151,7 +1159,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   }
 
   onViewportPointerUp(): void {
-    InterfaceController.removeListener(this.listenIdUp);
+    this.listenId.forEach((id) => InterfaceController.removeListener(id));
     this.doubleClicked = false;
   }
 
