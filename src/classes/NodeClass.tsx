@@ -1104,7 +1104,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
       'moved',
       this.onViewportMoveHandler
     );
-    InterfaceController.removeListener(this.listenIdUp);
+    this.listenId.forEach((id) => InterfaceController.removeListener(id));
 
     this.getAllSockets().forEach((socket) => {
       socket.links.forEach((link) => link.delete());
