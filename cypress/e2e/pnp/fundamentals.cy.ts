@@ -11,6 +11,13 @@ describe('fundamentals', () => {
     cy.get('body').type(`${controlOrMetaKey}\\`);
   }
 
+  function checkToastForMessage(messageToSearchFor) {
+    cy.wait(1000)
+      .get('[id^="notistack-snackbar"]')
+      .contains(messageToSearchFor)
+      .should('exist');
+  }
+
   beforeEach(() => {
     cy.intercept('GET', '/listExamples', (req) => {
       req.reply({
@@ -49,10 +56,7 @@ describe('fundamentals', () => {
   it('Save Graph', () => {
     cy.wait(3000);
     cy.get('body').type(`${controlOrMetaKey}s`);
-    cy.wait(1000)
-      .get('#notistack-snackbar')
-      .contains('Playground was saved')
-      .should('exist');
+    checkToastForMessage('Playground was saved');
   });
 
   // triggers error: Failed to execute 'get' on 'IDBObjectStore': No key or key range specified.
@@ -73,10 +77,7 @@ describe('fundamentals', () => {
       )
       .click();
     cy.get('.MuiDialogActions-root > :nth-child(2)').click();
-    cy.wait(1000)
-      .get('#notistack-snackbar')
-      .contains('Playground was deleted')
-      .should('exist');
+    checkToastForMessage('Playground was deleted');
   });
 
   it('Load graph example', () => {
@@ -85,10 +86,7 @@ describe('fundamentals', () => {
       .get('#graph-search-listbox')
       .contains('li', 'z test node')
       .click();
-    cy.wait(1000)
-      .get('#notistack-snackbar')
-      .contains('Remote playground was loaded')
-      .should('exist');
+    checkToastForMessage('Remote playground was loaded');
   });
 
   // doesnt work yet as it rightclicks with a node underneath
