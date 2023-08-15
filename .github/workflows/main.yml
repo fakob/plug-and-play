@@ -20,7 +20,7 @@ jobs:
         run: yarn dev &
         # Allow some time for the server to start
       - name: Wait for server to start
-        run: sleep 20
+        run: sleep 30
       - name: run tests
         run: yarn test
       - name: Archive test results
