@@ -32,7 +32,7 @@ self.onmessage = async (event) => {
             ffmpeg.FS(
               'writeFile',
               `${name}${version}.${inType}`,
-              new Uint8Array(buffer)
+              new Uint8Array(buffer),
             );
             await ffmpeg.run('-i', `${name}.${inType}`, `${name}.${outType}`);
             const data = ffmpeg.FS('readFile', `${name}.${outType}`);
@@ -43,7 +43,7 @@ self.onmessage = async (event) => {
                 type: 'transcodingResult',
                 name: `${name}.${outType}`,
               },
-              [data.buffer]
+              [data.buffer],
             );
 
             // delete files from memory
