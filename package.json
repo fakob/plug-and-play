@@ -22,6 +22,8 @@
   "dependencies": {
     "@emotion/react": "^11.11.0",
     "@emotion/styled": "^11.11.0",
+    "@finos/perspective": "^2.5.0",
+    "@finos/perspective-viewer": "^2.5.0",
     "@fontsource/roboto": "^5.0.2",
     "@fontsource/roboto-mono": "^5.0.2",
     "@glideapps/glide-data-grid": "^5.2.1",

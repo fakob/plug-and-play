@@ -11,6 +11,7 @@ import * as draw from './draw/draw';
 import * as get from './api/http';
 import * as html from './draw/html';
 import * as video from './draw/video';
+import * as perspective from './draw/perspective';
 import * as image from './image/image';
 import * as json from './data/json';
 import * as logViewer from './logViewer';
@@ -48,6 +49,7 @@ export const getAllNodeTypes = (): RegisteredNodeTypes => {
       get,
       html,
       video,
+      perspective,
       image,
       json,
       logViewer,

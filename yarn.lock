@@ -1854,6 +1854,26 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@finos/perspective-viewer@npm:^2.5.0":
+  version: 2.5.0
+  resolution: "@finos/perspective-viewer@npm:2.5.0"
+  dependencies:
+    "@finos/perspective": ^2.5.0
+    fflate: ^0.7.4
+  checksum: 1eec348b6be28156c1e987466d652717330438687e151766dae16924c0a2feedff40347778e5290e90a36c66e8e2de3d62789c2d5ab8885925db36ca4a8e5a76
+  languageName: node
+  linkType: hard
+
+"@finos/perspective@npm:^2.5.0":
+  version: 2.5.0
+  resolution: "@finos/perspective@npm:2.5.0"
+  dependencies:
+    fflate: ^0.7.4
+    ws: ^6.1.2
+  checksum: 41bdfaeae59b9aa4ca1564962fd968eb3bd08a84d3a48bdb82156a3e59914e0f99f8e83f4d5776a04c49aed1e157f4db7bd024f891ec2cef82dbf94ff7330989
+  languageName: node
+  linkType: hard
+
 "@fontsource/roboto-mono@npm:^5.0.2":
   version: 5.0.2
   resolution: "@fontsource/roboto-mono@npm:5.0.2"
@@ -4014,6 +4034,13 @@ __metadata:
   version: 2.0.0
   resolution: "astral-regex@npm:2.0.0"
   checksum: 876231688c66400473ba505731df37ea436e574dd524520294cc3bbc54ea40334865e01fa0d074d74d036ee874ee7e62f486ea38bc421ee8e6a871c06f011766
+  languageName: node
+  linkType: hard
+
+"async-limiter@npm:~1.0.0":
+  version: 1.0.1
+  resolution: "async-limiter@npm:1.0.1"
+  checksum: 2b849695b465d93ad44c116220dee29a5aeb63adac16c1088983c339b0de57d76e82533e8e364a93a9f997f28bbfc6a92948cefc120652bd07f3b59f8d75cf2b
   languageName: node
   linkType: hard
 
@@ -6442,6 +6469,13 @@ __metadata:
   version: 0.2.0
   resolution: "fetch-readablestream@npm:0.2.0"
   checksum: 247ec167f3afa9257176ffec3d3c42cb01dd5474ae00d4059af5ea2dd78b2b9c6e1df503c228ecaa9f208562dc47b1b27d981830a47b187e05828fec38bc8f4d
+  languageName: node
+  linkType: hard
+
+"fflate@npm:^0.7.4":
+  version: 0.7.4
+  resolution: "fflate@npm:0.7.4"
+  checksum: b812ab26047432db70ff4c73eb45ad53bd0774575b4818b9c61c2921e89ec65d1259f06ec1618f2ac55e6a2f2e29b6dc09173d213b46580bc69efae5344bf8f1
   languageName: node
   linkType: hard
 
@@ -9347,6 +9381,8 @@ __metadata:
     "@babel/runtime": ^7.22.3
     "@emotion/react": ^11.11.0
     "@emotion/styled": ^11.11.0
+    "@finos/perspective": ^2.5.0
+    "@finos/perspective-viewer": ^2.5.0
     "@fontsource/roboto": ^5.0.2
     "@fontsource/roboto-mono": ^5.0.2
     "@glideapps/glide-data-grid": ^5.2.1
@@ -12451,6 +12487,15 @@ __metadata:
   version: 1.0.2
   resolution: "wrappy@npm:1.0.2"
   checksum: 159da4805f7e84a3d003d8841557196034155008f817172d4e986bd591f74aa82aa7db55929a54222309e01079a65a92a9e6414da5a6aa4b01ee44a511ac3ee5
+  languageName: node
+  linkType: hard
+
+"ws@npm:^6.1.2":
+  version: 6.2.2
+  resolution: "ws@npm:6.2.2"
+  dependencies:
+    async-limiter: ~1.0.0
+  checksum: aec3154ec51477c094ac2cb5946a156e17561a581fa27005cbf22c53ac57f8d4e5f791dd4bbba6a488602cb28778c8ab7df06251d590507c3c550fd8ebeee949
   languageName: node
   linkType: hard
 
