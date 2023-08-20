@@ -8,6 +8,7 @@ import { Button } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import PPGraph from './GraphClass';
 import PPNode from './NodeClass';
+import InterfaceController, { ListenEvent } from '../InterfaceController';
 import styles from '../utils/style.module.css';
 import { CustomArgs, TRgba } from '../utils/interfaces';
 import {
@@ -30,6 +31,7 @@ export default abstract class HybridNode2 extends PPNode {
   container: HTMLElement;
   initialData: any;
   shadowPlane: PIXI.NineSlicePlane;
+  listenId: string[] = [];
 
   constructor(name: string, customArgs?: CustomArgs) {
     super(name, {
@@ -43,7 +45,7 @@ export default abstract class HybridNode2 extends PPNode {
       blurAmount,
       blurAmount,
       blurAmount,
-      blurAmount
+      blurAmount,
     );
     this.addChildAt(this.shadowPlane, 0);
   }
@@ -96,7 +98,7 @@ export default abstract class HybridNode2 extends PPNode {
         ...reactProps,
       },
       this.root,
-      this
+      this,
     );
 
     this.refreshNodeDragOrViewportMove();
@@ -112,7 +114,7 @@ export default abstract class HybridNode2 extends PPNode {
       [key: string]: any;
     },
     root = this.root,
-    node: PPNode = this
+    node: PPNode = this,
   ): void => {
     root.render(
       <>
@@ -129,9 +131,9 @@ export default abstract class HybridNode2 extends PPNode {
           doubleClicked={this.doubleClicked}
           getActivateByDoubleClick={this.getActivateByDoubleClick()}
           isHovering={this.isHovering}
-          onMakeEditable={this.onMakeEditable.bind(this)}
+          onEditButtonClick={this.onEditButtonClick.bind(this)}
         />
-      </>
+      </>,
     );
   };
 
@@ -151,7 +153,7 @@ export default abstract class HybridNode2 extends PPNode {
   resizeAndDraw(
     width = this.nodeWidth,
     height = this.nodeHeight,
-    maintainAspectRatio = false
+    maintainAspectRatio = false,
   ): void {
     super.resizeAndDraw(width, height, maintainAspectRatio);
     if (this.container) {
@@ -161,7 +163,7 @@ export default abstract class HybridNode2 extends PPNode {
     this.execute();
   }
 
-  onMakeEditable(): void {
+  makeEditable(): void {
     // register hybrid nodes to listen to outside clicks
     this.onHybridNodeEnter();
     this.container.classList.add(styles.hybridContainerFocused);
@@ -180,16 +182,36 @@ export default abstract class HybridNode2 extends PPNode {
     // this.execute();
   }
 
+  onEditButtonClick(): void {
+    if (this.getActivateByDoubleClick()) {
+      this.listenId.push(
+        InterfaceController.addListener(
+          ListenEvent.GlobalPointerUp,
+          this.onViewportPointerUpHandler,
+        ),
+      );
+      this.listenId.push(
+        InterfaceController.addListener(
+          ListenEvent.EscapeKeyUsed,
+          this.onViewportPointerUpHandler,
+        ),
+      );
+      this.doubleClicked = true;
+      this.makeEditable();
+    }
+  }
+
   public onNodeDoubleClick = (event) => {
     // turn on pointer events for hybrid nodes so the react components become reactive
     if (this.getActivateByDoubleClick() && event.target === this) {
-      this.onMakeEditable();
+      this.makeEditable();
     }
   };
 
   onViewportPointerUp(): void {
     super.onViewportPointerUp();
     this.onHybridNodeExit();
+    this.listenId.forEach((id) => InterfaceController.removeListener(id));
     // this allows to zoom and drag when the hybrid node is not selected
     this.container.classList.remove(styles.hybridContainerFocused);
     this.drawBackground();
@@ -212,10 +234,7 @@ export default abstract class HybridNode2 extends PPNode {
     return false;
   }
 
-  protected async onExecute(
-    inputObject: unknown,
-    outputObject: Record<string, unknown>
-  ): Promise<void> {
+  protected async onExecute(inputObject: unknown): Promise<void> {
     if (!this.container) {
       this.createContainerComponent(inputObject);
     } else {
@@ -234,14 +253,14 @@ export default abstract class HybridNode2 extends PPNode {
   public drawBackground(): void {
     this._BackgroundRef.beginFill(
       this.getColor().hexNumber(),
-      this.getOpacity()
+      this.getOpacity(),
     );
     this._BackgroundRef.drawRoundedRect(
       NODE_MARGIN,
       0,
       this.nodeWidth,
       this.nodeHeight,
-      this.getRoundedCorners() ? NODE_CORNERRADIUS : 0
+      this.getRoundedCorners() ? NODE_CORNERRADIUS : 0,
     );
     if (this.doubleClicked) {
       this.shadowPlane.x = -blurAmount + NODE_MARGIN;
@@ -254,17 +273,21 @@ export default abstract class HybridNode2 extends PPNode {
     }
     this._BackgroundRef.endFill();
   }
+
+  onNodeRemoved = (): void => {
+    this.listenId.forEach((id) => InterfaceController.removeListener(id));
+  };
 }
 
 type HybridNodeOverlayProps = {
   doubleClicked: boolean;
   getActivateByDoubleClick: boolean;
   isHovering: boolean;
-  onMakeEditable: () => void;
+  onEditButtonClick: () => void;
 };
 
 const HybridNodeOverlay: React.FunctionComponent<HybridNodeOverlayProps> = (
-  props
+  props,
 ) => {
   return (
     props.getActivateByDoubleClick &&
@@ -274,7 +297,7 @@ const HybridNodeOverlay: React.FunctionComponent<HybridNodeOverlayProps> = (
         title={'Click to edit OR Double click node'}
         className={styles.hybridContainerEditButton}
         size="small"
-        onClick={props.onMakeEditable}
+        onClick={props.onEditButtonClick}
         color="primary"
         sx={{
           background: RANDOMMAINCOLOR,
