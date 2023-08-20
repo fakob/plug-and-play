@@ -1033,7 +1033,14 @@ export default class PPGraph {
         .socketArray.find(
           (socketToOverwrite) => socketToOverwrite.name === socket.name
         );
-      const deepCopy = JSON.parse(JSON.stringify(socket.data));
+
+      let deepCopy;
+      try {
+        deepCopy = JSON.parse(JSON.stringify(socket.data));
+      } catch (error) {
+        console.error('Error during deep copy:', error);
+      }
+
       foundSocket.defaultData = undefined;
       foundSocket.data = deepCopy;
     });
