@@ -785,14 +785,16 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     load();
 
     async function load() {
-      const remoteGraphSearchItems = remoteGraphs.map((graph, index) => {
+      const remoteGraphSearchItems = remoteGraphsRef.current.map(
+        (graph, index) => {
         return {
           id: index,
           name: removeExtension(graph), // remove .ppgraph extension
           label: 'remote',
           isRemote: true,
         } as IGraphSearch;
-      });
+        },
+      );
       // add remote header entry
       if (remoteGraphSearchItems.length > 0) {
         remoteGraphSearchItems.unshift({
