@@ -18,7 +18,7 @@ import { ArrayType } from '../datatypes/arrayType';
 import { TriggerType } from '../datatypes/triggerType';
 import { StringType } from '../datatypes/stringType';
 import { ImageType } from '../datatypes/imageType';
-import { mapRange, saveBase64AsImage } from '../../utils/utils';
+import { saveBase64AsImage } from '../../utils/utils';
 import { TRgba } from '../../utils/interfaces';
 import { drawDottedLine } from '../../pixi/utils-pixi';
 import {
@@ -78,12 +78,7 @@ const imageExport = 'Save image';
 
 const inputPointsName = 'Points';
 
-const inputPixelLocationXPercent = 'x in %';
-const inputPixelLocationYPercent = 'y in %';
-const inputPixelLocationX = 'x';
-const inputPixelLocationY = 'y';
-const outputPixel = 'Pixel';
-const outputPixelArray = 'Pixel array';
+const outputPixelArray = 'Color array';
 const outputGrayscaleArray = 'Grayscale array';
 
 const addShallowContainerEventListeners = (
@@ -714,9 +709,9 @@ export class DRAW_Polygon extends DRAW_Base {
   }
 }
 
-export class Export_Image_From_Graphics extends PPNode {
+export class Extract_Image_From_Graphics extends PPNode {
   public getName(): string {
-    return 'Export image from graphic';
+    return 'Get image from graphic';
   }
 
   public getDescription(): string {
@@ -778,13 +773,13 @@ export class Export_Image_From_Graphics extends PPNode {
   };
 }
 
-export class Get_Pixel_From_Graphics extends PPNode {
+export class Extract_PixelArray_From_Graphics extends PPNode {
   public getName(): string {
-    return 'Get pixel from graphic';
+    return 'Get pixel array from graphic';
   }
 
   public getDescription(): string {
-    return 'Get the color value of a pixel from a graphic';
+    return 'Get the color and grayscale values from a graphic';
   }
 
   public getTags(): string[] {
@@ -794,33 +789,16 @@ export class Get_Pixel_From_Graphics extends PPNode {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, outputPixiName, new DeferredPixiType()),
-      new Socket(
-        SOCKET_TYPE.IN,
-        inputPixelLocationXPercent,
-        new NumberType(true, 0, 100),
-        0,
-      ),
-      new Socket(
-        SOCKET_TYPE.IN,
-        inputPixelLocationYPercent,
-        new NumberType(true, 0, 100),
-        0,
-      ),
-      new Socket(
-        SOCKET_TYPE.IN,
-        inputPixelLocationX,
-        new NumberType(true, 0, 1000),
-        0,
-      ),
-      new Socket(
-        SOCKET_TYPE.IN,
-        inputPixelLocationY,
-        new NumberType(true, 0, 1000),
-        0,
-      ),
-      new Socket(SOCKET_TYPE.OUT, outputPixel, new ColorType()),
       new Socket(SOCKET_TYPE.OUT, outputPixelArray, new ArrayType()),
-      new Socket(SOCKET_TYPE.OUT, outputGrayscaleArray, new ArrayType()),
+      new Socket(
+        SOCKET_TYPE.OUT,
+        outputGrayscaleArray,
+        new ArrayType(),
+        undefined,
+        false,
+      ),
+      new Socket(SOCKET_TYPE.OUT, inputWidthName, new NumberType()),
+      new Socket(SOCKET_TYPE.OUT, inputHeightName, new NumberType()),
     ];
   }
 
@@ -836,34 +814,16 @@ export class Get_Pixel_From_Graphics extends PPNode {
       PPGraph.currentGraph.app.renderer.extract.pixels(newContainer); // returns double the size
     const imageWidth = Math.floor(newContainer.width);
     const imageHeight = Math.floor(newContainer.height);
-    // const xSample = inputObject[inputPixelLocationX];
-    // const ySample = inputObject[inputPixelLocationY];
-    const xSample = mapRange(
-      inputObject[inputPixelLocationXPercent],
-      0,
-      100,
-      0,
-      imageWidth - 1,
-      true,
-    );
-    const ySample = mapRange(
-      inputObject[inputPixelLocationYPercent],
-      0,
-      100,
-      0,
-      imageHeight - 1,
-      true,
-    );
 
     // Initialize an empty array to store RGBA objects
     const pixelArray = [];
     const grayScaleArray = [];
 
     // Populate the two-dimensional array with RGBA values
-    for (let y = 0; y < imageHeight; y += 1) {
+    for (let y = 0; y < imageHeight; y++) {
       const row = [];
       const rowG = [];
-      for (let x = 0; x < imageWidth; x += 1) {
+      for (let x = 0; x < imageWidth; x++) {
         const startIndex = (y * 2 * imageWidth + x) * 8; // 4 channels * 2 as pixels() returns a double size image
         const r = rgbaArray[startIndex];
         const g = rgbaArray[startIndex + 1];
@@ -884,22 +844,10 @@ export class Get_Pixel_From_Graphics extends PPNode {
       grayScaleArray.push(rowG);
     }
 
-    // console.log(pixelArray);
-    console.log(
-      rgbaArray.length,
-      pixelArray.length,
-      pixelArray[0].length,
-      imageWidth,
-      imageHeight,
-      xSample,
-      ySample,
-    );
-
-    const pixel = pixelArray[ySample][xSample];
-    const data: TRgba = new TRgba(pixel.r, pixel.g, pixel.b, pixel.a);
-    outputObject[outputPixel] = data;
     outputObject[outputPixelArray] = pixelArray;
     outputObject[outputGrayscaleArray] = grayScaleArray;
+    outputObject[inputWidthName] = imageWidth;
+    outputObject[inputHeightName] = imageHeight;
 
     this.removeChild(newContainer);
   }

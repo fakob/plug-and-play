@@ -1083,8 +1083,8 @@
     },
     {
       "id": "soft-otter-64",
-      "name": "Export_Image_From_Graphics",
-      "type": "Export_Image_From_Graphics",
+      "name": "Extract_Image_From_Graphics",
+      "type": "Extract_Image_From_Graphics",
       "x": 507.4757033870667,
       "y": 1417.7933285182096,
       "width": 160,
