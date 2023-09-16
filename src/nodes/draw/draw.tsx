@@ -18,7 +18,7 @@ import { ArrayType } from '../datatypes/arrayType';
 import { TriggerType } from '../datatypes/triggerType';
 import { StringType } from '../datatypes/stringType';
 import { ImageType } from '../datatypes/imageType';
-import { saveBase64AsImage } from '../../utils/utils';
+import { mapRange, saveBase64AsImage } from '../../utils/utils';
 import { TRgba } from '../../utils/interfaces';
 import { drawDottedLine } from '../../pixi/utils-pixi';
 import {
@@ -78,11 +78,18 @@ const imageExport = 'Save image';
 
 const inputPointsName = 'Points';
 
+const inputPixelLocationXPercent = 'x in %';
+const inputPixelLocationYPercent = 'y in %';
+const inputPixelLocationX = 'x';
+const inputPixelLocationY = 'y';
+const outputPixel = 'Pixel';
+const outputPixelArray = 'Pixel array';
+
 const addShallowContainerEventListeners = (
   shallowContainer: PIXI.Container,
   node: PPNode,
   index: number,
-  executions: { string: number }
+  executions: { string: number },
 ) => {
   shallowContainer.eventMode = 'dynamic';
   const alphaPre = shallowContainer.alpha;
@@ -93,7 +100,7 @@ const addShallowContainerEventListeners = (
     node.setOutputData(outputMultiplierIndex, index);
     node.setOutputData(
       outputMultiplierInjected,
-      node.getInputData(injectedDataName)?.[index]
+      node.getInputData(injectedDataName)?.[index],
     );
     node.setOutputData(outputMultiplierPointerDown, true);
     // tell all children when something is pressed
@@ -131,25 +138,25 @@ export class DRAW_Shape extends DRAW_Base {
         SOCKET_TYPE.IN,
         inputShapeName,
         new EnumType(availableShapes),
-        'Circle'
+        'Circle',
       ),
       new Socket(
         SOCKET_TYPE.IN,
         inputColorName,
         new ColorType(),
-        TRgba.randomColor()
+        TRgba.randomColor(),
       ),
       new Socket(
         SOCKET_TYPE.IN,
         inputWidthName,
         new NumberType(true, 1, 1000),
-        200
+        200,
       ),
       new Socket(
         SOCKET_TYPE.IN,
         inputHeightName,
         new NumberType(true, 1, 1000),
-        200
+        200,
       ),
       new Socket(SOCKET_TYPE.IN, inputBorderName, new BooleanType(), false),
     ].concat(super.getDefaultIO());
@@ -158,7 +165,7 @@ export class DRAW_Shape extends DRAW_Base {
   protected drawOnContainer(
     inputObject: any,
     container: PIXI.Container,
-    executions: { string: number }
+    executions: { string: number },
   ): void {
     inputObject = {
       ...inputObject,
@@ -171,14 +178,14 @@ export class DRAW_Shape extends DRAW_Base {
     if (Number.isFinite(width) && Number.isFinite(height)) {
       const graphics: PIXI.Graphics = new PIXI.Graphics();
       const selectedColor: TRgba = new ColorType().parse(
-        inputObject[inputColorName]
+        inputObject[inputColorName],
       );
       const drawBorder = inputObject[inputBorderName];
       graphics.beginFill(selectedColor.hexNumber());
       graphics.alpha = selectedColor.a;
       graphics.lineStyle(
         drawBorder ? 3 : 0,
-        selectedColor.multiply(0.7).hexNumber()
+        selectedColor.multiply(0.7).hexNumber(),
       );
 
       const shapeEnum = inputObject[inputShapeName];
@@ -226,7 +233,7 @@ export class DRAW_Passthrough extends DRAW_Base {
   protected drawOnContainer(
     inputObject: any,
     container: PIXI.Container,
-    executions: { string: number }
+    executions: { string: number },
   ): void {
     inputObject = {
       ...inputObject,
@@ -256,25 +263,25 @@ export class DRAW_Text extends DRAW_Base {
         SOCKET_TYPE.IN,
         inputTextName,
         new StringType(),
-        'ExampleText'
+        'ExampleText',
       ),
       new Socket(
         SOCKET_TYPE.IN,
         inputSizeName,
         new NumberType(true, 1, 100),
-        24
+        24,
       ),
       new Socket(
         SOCKET_TYPE.IN,
         inputLineHeightName,
         new NumberType(true, 1, 100),
-        18
+        18,
       ),
       new Socket(
         SOCKET_TYPE.IN,
         inputWidthName,
         new NumberType(true, 0, 2000),
-        1000
+        1000,
       ),
       new Socket(SOCKET_TYPE.IN, inputColorName, new ColorType()),
     ].concat(super.getDefaultIO());
@@ -283,7 +290,7 @@ export class DRAW_Text extends DRAW_Base {
   protected drawOnContainer(
     inputObject: any,
     container: PIXI.Container,
-    executions: { string: number }
+    executions: { string: number },
   ): void {
     inputObject = {
       ...inputObject,
@@ -328,7 +335,7 @@ export class DRAW_Combine extends DRAW_Base {
   protected drawOnContainer(
     inputObject: any,
     container: PIXI.Container,
-    executions: { string: number }
+    executions: { string: number },
   ): void {
     inputObject = {
       ...inputObject,
@@ -364,20 +371,20 @@ export class DRAW_COMBINE_ARRAY extends DRAW_Interactive_Base {
         SOCKET_TYPE.IN,
         numberPerColumnRow,
         new NumberType(true, 0, 100),
-        2
+        2,
       ),
       new Socket(SOCKET_TYPE.IN, drawingOrder, new BooleanType(), true),
       new Socket(
         SOCKET_TYPE.IN,
         spacingXName,
         new NumberType(true, 0, 1000),
-        400
+        400,
       ),
       new Socket(
         SOCKET_TYPE.IN,
         spacingYName,
         new NumberType(true, 0, 1000),
-        300
+        300,
       ),
     ].concat(super.getDefaultIO());
   }
@@ -385,7 +392,7 @@ export class DRAW_COMBINE_ARRAY extends DRAW_Interactive_Base {
   protected drawOnContainer(
     inputObject: any,
     container: PIXI.Container,
-    executions: { string: number }
+    executions: { string: number },
   ): void {
     inputObject = {
       ...inputObject,
@@ -437,33 +444,33 @@ export class DRAW_Multiplier extends DRAW_Interactive_Base {
         SOCKET_TYPE.IN,
         totalNumberName,
         new NumberType(true, 0, 100),
-        2
+        2,
       ),
       new Socket(
         SOCKET_TYPE.IN,
         numberPerColumnRow,
         new NumberType(true, 1, 100),
-        2
+        2,
       ),
       new Socket(SOCKET_TYPE.IN, drawingOrder, new BooleanType(), true),
       new Socket(
         SOCKET_TYPE.IN,
         spacingXName,
         new NumberType(true, 0, 1000),
-        400
+        400,
       ),
       new Socket(
         SOCKET_TYPE.IN,
         spacingYName,
         new NumberType(true, 0, 1000),
-        300
+        300,
       ),
     ].concat(super.getDefaultIO());
   }
   protected drawOnContainer(
     inputObject: any,
     container: PIXI.Container,
-    executions: { string: number }
+    executions: { string: number },
   ): void {
     inputObject = {
       ...inputObject,
@@ -519,7 +526,7 @@ export class DRAW_Multipy_Along extends DRAW_Interactive_Base {
   protected drawOnContainer(
     inputObject: any,
     container: PIXI.Container,
-    executions: { string: number }
+    executions: { string: number },
   ): void {
     inputObject = {
       ...inputObject,
@@ -557,14 +564,14 @@ export class DRAW_Image extends DRAW_Base {
 
   protected getDefaultIO(): Socket[] {
     return [new Socket(SOCKET_TYPE.IN, inputImageName, new ImageType())].concat(
-      super.getDefaultIO()
+      super.getDefaultIO(),
     );
   }
 
   protected drawOnContainer(
     inputObject: any,
     container: PIXI.Container,
-    executions: { string: number }
+    executions: { string: number },
   ): void {
     inputObject = {
       ...inputObject,
@@ -602,14 +609,14 @@ export class DRAW_Line extends DRAW_Base {
         SOCKET_TYPE.IN,
         inputWidthName,
         new NumberType(false, 1, 10),
-        3
+        3,
       ),
       new Socket(SOCKET_TYPE.IN, inputDottedName, new BooleanType(), true),
       new Socket(
         SOCKET_TYPE.IN,
         inputDottedIntervalName,
         new NumberType(true, 2, 100),
-        10
+        10,
       ),
     ].concat(super.getDefaultIO());
   }
@@ -617,7 +624,7 @@ export class DRAW_Line extends DRAW_Base {
   protected drawOnContainer(
     inputObject: any,
     container: PIXI.Container,
-    executions: { string: number }
+    executions: { string: number },
   ): void {
     inputObject = {
       ...inputObject,
@@ -627,7 +634,7 @@ export class DRAW_Line extends DRAW_Base {
     };
     const graphics: PIXI.Graphics = new PIXI.Graphics();
     const selectedColor: TRgba = new ColorType().parse(
-      inputObject[inputColorName]
+      inputObject[inputColorName],
     );
     graphics.endFill();
     graphics.lineStyle(inputObject[inputWidthName], selectedColor.hexNumber());
@@ -648,7 +655,7 @@ export class DRAW_Line extends DRAW_Base {
           lastY,
           nextX,
           nextY,
-          inputObject[inputDottedIntervalName]
+          inputObject[inputDottedIntervalName],
         );
         lastX = nextX;
         lastY = nextY;
@@ -684,7 +691,7 @@ export class DRAW_Polygon extends DRAW_Base {
   protected drawOnContainer(
     inputObject: any,
     container: PIXI.Container,
-    executions: { string: number }
+    executions: { string: number },
   ): void {
     inputObject = {
       ...inputObject,
@@ -694,7 +701,7 @@ export class DRAW_Polygon extends DRAW_Base {
     };
     const graphics: PIXI.Graphics = new PIXI.Graphics();
     const selectedColor: TRgba = new ColorType().parse(
-      inputObject[inputColorName]
+      inputObject[inputColorName],
     );
     graphics.beginFill(selectedColor.hexNumber());
     graphics.alpha = selectedColor.a;
@@ -712,7 +719,7 @@ export class Export_Image_From_Graphics extends PPNode {
   }
 
   public getDescription(): string {
-    return 'Exports image from a graphic';
+    return 'Create image from a graphic and save it';
   }
 
   public getTags(): string[] {
@@ -727,20 +734,20 @@ export class Export_Image_From_Graphics extends PPNode {
         outputTypeyName,
         new EnumType(IMAGE_TYPES),
         IMAGE_TYPES[0].text,
-        false
+        false,
       ),
       new Socket(
         SOCKET_TYPE.IN,
         outputQualityName,
         new NumberType(false, 0, 1),
-        0.92
+        0.92,
       ),
       new Socket(
         SOCKET_TYPE.IN,
         imageExport,
         new TriggerType(TRIGGER_TYPE_OPTIONS[0].text, 'saveImage'),
         0,
-        false
+        false,
       ),
       new Socket(SOCKET_TYPE.OUT, outputImageName, new ImageType()),
     ];
@@ -748,7 +755,7 @@ export class Export_Image_From_Graphics extends PPNode {
 
   protected async onExecute(
     inputObject: any,
-    outputObject: Record<string, unknown>
+    outputObject: Record<string, unknown>,
   ): Promise<void> {
     const newContainer = new PIXI.Container();
     inputObject[outputPixiName](newContainer, {});
@@ -758,7 +765,7 @@ export class Export_Image_From_Graphics extends PPNode {
     ).extract.base64(
       newContainer,
       inputObject[outputTypeyName],
-      inputObject[outputQualityName]
+      inputObject[outputQualityName],
     );
     outputObject[outputImageName] = base64out;
     this.removeChild(newContainer);
@@ -768,4 +775,120 @@ export class Export_Image_From_Graphics extends PPNode {
     const base64 = this.getOutputData(outputImageName);
     saveBase64AsImage(base64, this.name);
   };
+}
+
+export class Get_Pixel_From_Graphics extends PPNode {
+  public getName(): string {
+    return 'Get pixel from graphic';
+  }
+
+  public getDescription(): string {
+    return 'Get the color value of a pixel from a graphic';
+  }
+
+  public getTags(): string[] {
+    return ['Draw'].concat(super.getTags());
+  }
+
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(SOCKET_TYPE.IN, outputPixiName, new DeferredPixiType()),
+      new Socket(
+        SOCKET_TYPE.IN,
+        inputPixelLocationXPercent,
+        new NumberType(true, 0, 100),
+        0,
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        inputPixelLocationYPercent,
+        new NumberType(true, 0, 100),
+        0,
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        inputPixelLocationX,
+        new NumberType(true, 0, 1000),
+        0,
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        inputPixelLocationY,
+        new NumberType(true, 0, 1000),
+        0,
+      ),
+      new Socket(SOCKET_TYPE.OUT, outputPixel, new ColorType()),
+      new Socket(SOCKET_TYPE.OUT, outputPixelArray, new ArrayType()),
+    ];
+  }
+
+  protected async onExecute(
+    inputObject: any,
+    outputObject: Record<string, unknown>,
+  ): Promise<void> {
+    const newContainer = new PIXI.Graphics();
+    inputObject[outputPixiName](newContainer, {});
+    this.addChild(newContainer);
+
+    const rgbaArray =
+      PPGraph.currentGraph.app.renderer.extract.pixels(newContainer);
+    const imageWidth = Math.floor(newContainer.width) * 2;
+    const imageHeight = Math.floor(newContainer.height) * 2;
+    // const xSample = inputObject[inputPixelLocationX];
+    // const ySample = inputObject[inputPixelLocationY];
+    const xSample = mapRange(
+      inputObject[inputPixelLocationXPercent],
+      0,
+      100,
+      0,
+      imageWidth - 2,
+      true,
+    );
+    const ySample = mapRange(
+      inputObject[inputPixelLocationYPercent],
+      0,
+      100,
+      0,
+      imageHeight - 2,
+      true,
+    );
+
+    // Initialize an empty array to store RGBA objects
+    const pixelArray = [];
+
+    // Populate the two-dimensional array with RGBA values
+    for (let y = 0; y < imageHeight; y += 1) {
+      const row = [];
+      for (let x = 0; x < imageWidth; x += 1) {
+        const startIndex = (y * imageWidth + x) * 4; // 4 channels * 2 as pixels() returns a double size image
+        // const rgbaPixel = rgbaArray[startIndex];
+        const rgbaPixel = {
+          r: rgbaArray[startIndex],
+          g: rgbaArray[startIndex + 1],
+          b: rgbaArray[startIndex + 2],
+          a: rgbaArray[startIndex + 3] / 255.0,
+        };
+        row.push(rgbaPixel);
+      }
+      pixelArray.push(row);
+    }
+
+    // console.log(pixelArray);
+    console.log(
+      rgbaArray.length,
+      pixelArray.length,
+      pixelArray[0].length,
+      imageWidth,
+      imageHeight,
+      xSample,
+      ySample,
+    );
+
+    const pixel = pixelArray[ySample][xSample];
+    const data: TRgba = new TRgba(pixel.r, pixel.g, pixel.b, pixel.a);
+    outputObject[outputPixel] = data;
+    outputObject[outputPixelArray] = pixelArray;
+
+    this.removeChild(newContainer);
+  }
 }
