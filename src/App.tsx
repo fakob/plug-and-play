@@ -419,15 +419,13 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     if (loadURL) {
       PPStorage.getInstance().loadGraphFromURL(loadURL);
       removeUrlParameter('loadURL');
-    } else if (fetchFromLocalServer || true) {
+    } else if (fetchFromLocalServer) {
       PPStorage.getInstance()
         .getLocallyProvidedGraph()
         .then((serializedGraph) => {
           PPGraph.currentGraph.configure(serializedGraph, hri.random());
         });
-    } else if (!createEmptyGraph) {
-      PPStorage.getInstance().loadGraphFromDB();
-    }
+    } else { }
 
     console.log('PPGraph.currentGraph:', PPGraph.currentGraph);
 
