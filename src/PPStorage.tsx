@@ -155,11 +155,14 @@ export default class PPStorage {
     }
   };
 
-  getLocallyProvidedGraph = async (): Promise<string[]> => {
+  HEADLESS_PORT = 16301;
+
+  getLocallyProvidedGraph = async (): Promise<SerializedGraph> => {
     try {
-      const fileList = await fetch('http://');
-      const fileListData = await fileList.json();
-      return fileListData.files;
+      const fileList = await fetch(
+        `http://localhost:${this.HEADLESS_PORT}/loadedGraph`,
+      );
+      return fileList.json();
     } catch (error) {
       console.log('Failed to fetch local graph: ' + error);
     }
