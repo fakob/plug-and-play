@@ -790,13 +790,6 @@ export class Extract_PixelArray_From_Graphics extends PPNode {
     return [
       new Socket(SOCKET_TYPE.IN, outputPixiName, new DeferredPixiType()),
       new Socket(SOCKET_TYPE.OUT, outputPixelArray, new ArrayType()),
-      new Socket(
-        SOCKET_TYPE.OUT,
-        outputGrayscaleArray,
-        new ArrayType(),
-        undefined,
-        false,
-      ),
       new Socket(SOCKET_TYPE.OUT, inputWidthName, new NumberType()),
       new Socket(SOCKET_TYPE.OUT, inputHeightName, new NumberType()),
     ];
@@ -810,42 +803,27 @@ export class Extract_PixelArray_From_Graphics extends PPNode {
     inputObject[outputPixiName](newContainer, {});
     this.addChild(newContainer);
 
-    const rgbaArray =
-      PPGraph.currentGraph.app.renderer.extract.pixels(newContainer); // returns double the size
     const imageWidth = Math.floor(newContainer.width);
     const imageHeight = Math.floor(newContainer.height);
 
-    // Initialize an empty array to store RGBA objects
-    const pixelArray = [];
-    const grayScaleArray = [];
+    // temporarily change resolution so the extraction is not double size
+    PPGraph.currentGraph.app.renderer.resolution = 1;
+    const rgbaArray =
+      PPGraph.currentGraph.app.renderer.extract.pixels(newContainer); // returns double the size
+    PPGraph.currentGraph.app.renderer.resolution = 2;
 
-    // Populate the two-dimensional array with RGBA values
-    for (let y = 0; y < imageHeight; y++) {
-      const row = [];
-      const rowG = [];
-      for (let x = 0; x < imageWidth; x++) {
-        const startIndex = (y * 2 * imageWidth + x) * 8; // 4 channels * 2 as pixels() returns a double size image
-        const r = rgbaArray[startIndex];
-        const g = rgbaArray[startIndex + 1];
-        const b = rgbaArray[startIndex + 2];
-        const a = rgbaArray[startIndex + 3] / 255.0;
-        const gray = Math.round(r * 0.3 + g * 0.59 + b * 0.11);
-        const rgbaPixel = {
-          r,
-          g,
-          b,
-          a,
-          gray,
-        };
-        row.push(rgbaPixel);
-        rowG.push(gray);
-      }
-      pixelArray.push(row);
-      grayScaleArray.push(rowG);
+    const pixelArray = [];
+    for (let i = 0; i < rgbaArray.length; i += 4) {
+      const rgbaObject = {
+        r: rgbaArray[i],
+        g: rgbaArray[i + 1],
+        b: rgbaArray[i + 2],
+        a: rgbaArray[i + 3] / 255.0,
+      };
+      pixelArray.push(rgbaObject);
     }
 
     outputObject[outputPixelArray] = pixelArray;
-    outputObject[outputGrayscaleArray] = grayScaleArray;
     outputObject[inputWidthName] = imageWidth;
     outputObject[inputHeightName] = imageHeight;
 
