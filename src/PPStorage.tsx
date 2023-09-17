@@ -159,7 +159,7 @@ export default class PPStorage {
 
   getLocallyProvidedGraph = async (graphName): Promise<SerializedGraph> => {
     try {
-      console.log('Fetching local graph');
+      console.log(`Fetching local graph: ${graphName}`);
       const fileList = await fetch(
         `http://localhost:${this.HEADLESS_PORT}/loadedGraph/${graphName}`,
       );
