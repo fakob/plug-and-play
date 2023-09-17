@@ -187,7 +187,7 @@ export class DRAW_Shape extends DRAW_Base {
       const shapeEnum = inputObject[inputShapeName];
       switch (shapeEnum) {
         case 'Circle': {
-          graphics.drawCircle(width / 2, width / 2, width / 2);
+          graphics.drawCircle(width / 2, -width / 2, width / 2);
           break;
         }
         case 'Rectangle': {
@@ -199,7 +199,7 @@ export class DRAW_Shape extends DRAW_Base {
           break;
         }
         case 'Ellipse': {
-          graphics.drawEllipse(width / 2, height / 2, width / 2, height / 2);
+          graphics.drawEllipse(width / 2, -height / 2, width / 2, height / 2);
           break;
         }
       }

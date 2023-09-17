@@ -53,7 +53,7 @@ export class MathFunction extends PPNode {
         // check for staticMethodsWith2Parameters
         this.setOutputData(
           'Output',
-          Math[mathOption](input['Input'], input['Input2'])
+          Math[mathOption](input['Input'], input['Input2']),
         );
       } else {
         this.setOutputData('Output', Math[mathOption](input['Input']));
@@ -95,21 +95,21 @@ export class MathFunction extends PPNode {
         'Input',
         new NumberType(false, -10, 10),
         0,
-        true
+        true,
       ),
       new Socket(
         SOCKET_TYPE.IN,
         'Input2',
         new NumberType(false, -10, 10),
         0,
-        true
+        true,
       ),
       new Socket(
         SOCKET_TYPE.IN,
         'Option',
         new EnumType(mathOptions, onOptionChange),
         'abs',
-        false
+        false,
       ),
       new Socket(SOCKET_TYPE.OUT, 'Output', new NumberType()),
     ];
@@ -158,14 +158,14 @@ abstract class SimpleMathOperation extends CustomFunction {
     this._BackgroundRef.removeChildren();
     this._BackgroundRef.beginFill(
       this.getColor().hexNumber(),
-      this.getOpacity()
+      this.getOpacity(),
     );
     this._BackgroundRef.drawRoundedRect(
       NODE_MARGIN,
       0,
       this.nodeWidth,
       this.nodeHeight,
-      this.getRoundedCorners() ? NODE_CORNERRADIUS : 0
+      this.getRoundedCorners() ? NODE_CORNERRADIUS : 0,
     );
 
     //this._BackgroundRef.drawCircle(NODE_MARGIN, 0, this.nodeWidth / 2);
@@ -178,7 +178,7 @@ abstract class SimpleMathOperation extends CustomFunction {
         fill: this.getSocketByName('Input1')
           ? this.getSocketByName('Input1').dataType.getColor().hex()
           : COLOR_MAIN,
-      })
+      }),
     );
     text.x = centerX - fontSize / 4;
     text.y = centerY - fontSize / 2;
@@ -270,6 +270,24 @@ export class Divide extends SimpleMathOperation {
 
   protected getOperatorSign(): string {
     return '÷';
+  }
+}
+
+export class Remainder extends SimpleMathOperation {
+  public getName(): string {
+    return 'Remainder';
+  }
+
+  public getDescription(): string {
+    return 'The remainder (%) or modulo operator returns the remainder left over when one operand is divided by a second operand. It always takes the sign of the dividend.';
+  }
+
+  protected getOperator(): string {
+    return '%';
+  }
+
+  protected getOperatorSign(): string {
+    return '%';
   }
 }
 

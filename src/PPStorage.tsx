@@ -109,7 +109,7 @@ export default class PPStorage {
                   onClick={() => {
                     this.applyGestureMode(
                       PPGraph.currentGraph.viewport,
-                      otherMode
+                      otherMode,
                     );
                     InterfaceController.hideSnackBar(key);
                   }}
@@ -117,7 +117,7 @@ export default class PPStorage {
                   Switch to {otherMode}
                 </Button>
               ),
-            }
+            },
           );
         } else {
           // subscribe to mousewheel event to detect pointer device
@@ -179,11 +179,13 @@ export default class PPStorage {
         downloadFile(
           JSON.stringify(serializedGraph, null, 2),
           `${graphName} - ${formatDate()}.ppgraph`,
-          'text/plain'
+          'text/plain',
         );
 
         InterfaceController.showSnackBar(
-          `Playground ${graphName} was saved to your Download folder`
+          <span>
+            Playground <b>{graphName}</b> was saved to your Download folder
+          </span>,
         );
       })
       .catch((e) => {
@@ -246,7 +248,7 @@ export default class PPStorage {
         {
           variant: 'error',
           autoHideDuration: 20000,
-        }
+        },
       );
       return undefined;
     }
@@ -268,7 +270,7 @@ export default class PPStorage {
     if (loadedGraph === undefined) {
       const graphs = await this.db.graphs.toArray();
       loadedGraph = graphs.sort(
-        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
       )?.[0];
     }
 
@@ -315,7 +317,7 @@ export default class PPStorage {
       await this.saveGraphToDabase(
         existingGraph.id,
         serializedGraph,
-        existingGraph.name
+        existingGraph.name,
       );
     }
     ActionHandler.setUnsavedChange(false);
@@ -328,7 +330,11 @@ export default class PPStorage {
       graphData,
       date: new Date(),
     });
-    InterfaceController.showSnackBar('Playground was saved');
+    InterfaceController.showSnackBar(
+      <span>
+        Playground <b>{name}</b> was saved
+      </span>,
+    );
   }
 
   saveNewGraph(newName = undefined) {
@@ -370,11 +376,11 @@ export default class PPStorage {
 
         if (resources.length > 0) {
           foundResource = resources.find(
-            (resource) => resource.id === resourceId
+            (resource) => resource.id === resourceId,
           );
           if (foundResource) {
             InterfaceController.showSnackBar(
-              `${resourceId} was loaded from the local storage.`
+              `${resourceId} was loaded from the local storage.`,
             );
             return foundResource.data;
           }
@@ -393,7 +399,7 @@ export default class PPStorage {
       .transaction('rw', this.db.localResources, async () => {
         const resources = await this.db.localResources.toArray();
         const foundResource = resources.find(
-          (resource) => resource.id === resourceId
+          (resource) => resource.id === resourceId,
         );
 
         if (foundResource === undefined) {
@@ -406,7 +412,7 @@ export default class PPStorage {
           });
 
           InterfaceController.showSnackBar(
-            `${resourceId} is stored in the local storage.`
+            `${resourceId} is stored in the local storage.`,
           );
         } else {
           await this.db.localResources.where('id').equals(resourceId).modify({

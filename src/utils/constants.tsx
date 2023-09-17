@@ -213,11 +213,11 @@ export const COMMENT_TEXTSTYLE = new TextStyle({
 });
 
 export const CONNECTION_COLOR_HEX = new PIXI.Color(
-  Color(COLOR[0]).desaturate(0.3).hex()
+  Color(COLOR[0]).desaturate(0.3).hex(),
 ).toNumber();
 
 export const SELECTION_COLOR_HEX = new PIXI.Color(
-  Color(COLOR[4]).desaturate(0.3).hex()
+  Color(COLOR[4]).desaturate(0.3).hex(),
 ).toNumber();
 
 export const EMPTY_TEXTURE = '../assets/Empty.png';
@@ -247,39 +247,39 @@ export const MAX_LATEST_NODES_IN_SEARCH = 3;
 export const PIXI_PIVOT_OPTIONS: EnumStructure = [
   {
     text: 'top left',
-    value: { x: 0.0, y: 0.0 },
+    value: { x: 0.0, y: -0.0 },
   },
   {
     text: 'top center',
-    value: { x: 0.5, y: 0.0 },
+    value: { x: 0.5, y: -0.0 },
   },
   {
     text: 'top right',
-    value: { x: 1.0, y: 0.0 },
+    value: { x: 1.0, y: -0.0 },
   },
   {
     text: 'center left',
-    value: { x: 0.0, y: 0.5 },
+    value: { x: 0.0, y: -0.5 },
   },
   {
     text: 'center center',
-    value: { x: 0.5, y: 0.5 },
+    value: { x: 0.5, y: -0.5 },
   },
   {
     text: 'center right',
-    value: { x: 1.0, y: 0.5 },
+    value: { x: 1.0, y: -0.5 },
   },
   {
     text: 'bottom left',
-    value: { x: 0.0, y: 1.0 },
+    value: { x: 0.0, y: -1.0 },
   },
   {
     text: 'bottom center',
-    value: { x: 0.5, y: 1.0 },
+    value: { x: 0.5, y: -1.0 },
   },
   {
     text: 'bottom right',
-    value: { x: 1.0, y: 1.0 },
+    value: { x: 1.0, y: -1.0 },
   },
 ];
 
