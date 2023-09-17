@@ -36,13 +36,13 @@ const availableShapes: EnumStructure = [
     text: 'Circle',
   },
   {
+    text: 'Ellipse',
+  },
+  {
     text: 'Rectangle',
   },
   {
     text: 'Rounded Rectangle',
-  },
-  {
-    text: 'Ellipse',
   },
 ];
 
@@ -79,7 +79,6 @@ const imageExport = 'Save image';
 const inputPointsName = 'Points';
 
 const outputPixelArray = 'Color array';
-const outputGrayscaleArray = 'Grayscale array';
 
 const addShallowContainerEventListeners = (
   shallowContainer: PIXI.Container,
@@ -187,19 +186,19 @@ export class DRAW_Shape extends DRAW_Base {
       const shapeEnum = inputObject[inputShapeName];
       switch (shapeEnum) {
         case 'Circle': {
-          graphics.drawCircle(width / 2, -width / 2, width / 2);
+          graphics.drawCircle(width / 2, width / 2, width / 2);
           break;
         }
         case 'Rectangle': {
-          graphics.drawRect(0, -height, width, height);
+          graphics.drawRect(0, 0, width, height);
           break;
         }
         case 'Rounded Rectangle': {
-          graphics.drawRoundedRect(0, -height, width, height, width * 0.1);
+          graphics.drawRoundedRect(0, 0, width, height, width * 0.1);
           break;
         }
         case 'Ellipse': {
-          graphics.drawEllipse(width / 2, -height / 2, width / 2, height / 2);
+          graphics.drawEllipse(width / 2, height / 2, width / 2, height / 2);
           break;
         }
       }
@@ -351,6 +350,7 @@ export class DRAW_Combine extends DRAW_Base {
     container.addChild(myContainer);
   }
 }
+
 export class DRAW_COMBINE_ARRAY extends DRAW_Interactive_Base {
   public getName(): string {
     return 'Combine draw array';
@@ -597,8 +597,8 @@ export class DRAW_Line extends DRAW_Base {
     return [
       new Socket(SOCKET_TYPE.IN, inputPointsName, new ArrayType(), [
         [0, 0],
-        [100, 100],
-        [100, 200],
+        [100, 50],
+        [0, 100],
       ]),
       new Socket(SOCKET_TYPE.IN, inputColorName, new ColorType()),
       new Socket(
@@ -677,8 +677,8 @@ export class DRAW_Polygon extends DRAW_Base {
     return [
       new Socket(SOCKET_TYPE.IN, inputPointsName, new ArrayType(), [
         [0, 0],
-        [100, 100],
-        [100, 200],
+        [100, 50],
+        [0, 100],
       ]),
       new Socket(SOCKET_TYPE.IN, inputColorName, new ColorType()),
     ].concat(super.getDefaultIO());
