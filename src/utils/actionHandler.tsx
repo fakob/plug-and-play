@@ -124,15 +124,15 @@ export class ActionHandler {
 
   static setUnsavedChange(state: boolean): void {
     this.graphHasUnsavedChanges = state;
-    // if (this.graphHasUnsavedChanges) {
-    //   window.addEventListener('beforeunload', this.onBeforeUnload, {
-    //     capture: true,
-    //   });
-    // } else {
-    //   window.removeEventListener('beforeunload', this.onBeforeUnload, {
-    //     capture: true,
-    //   });
-    // }
+    if (this.graphHasUnsavedChanges) {
+      window.addEventListener('beforeunload', this.onBeforeUnload, {
+        capture: true,
+      });
+    } else {
+      window.removeEventListener('beforeunload', this.onBeforeUnload, {
+        capture: true,
+      });
+    }
   }
 
   static existsUnsavedChanges(): boolean {
