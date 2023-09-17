@@ -279,7 +279,7 @@ export class Remainder extends SimpleMathOperation {
   }
 
   public getDescription(): string {
-    return 'The remainder (%) or modulo operator returns the remainder left over when one operand is divided by a second operand. It always takes the sign of the dividend.';
+    return 'The remainder (%) or modulo operator returns the remainder left over when one operand is divided by a second operand (takes the sign of the dividend)';
   }
 
   protected getOperator(): string {

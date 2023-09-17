@@ -295,21 +295,6 @@ export abstract class DRAW_Base extends PPNode {
       pivotPoint.x * width,
       pivotPoint.y * height,
     );
-    // toModify.pivot.x = pivotPoint.x * width;
-    // toModify.pivot.y = pivotPoint.y * height;
-    console.log(
-      // pivotPoint,
-      // toModify,
-      Math.round(toModify.getBounds().width),
-      Math.round(toModify.getBounds().height),
-      Math.round(toModify.x),
-      Math.round(toModify.y),
-      pivotPoint.x * width,
-      pivotPoint.y * height,
-    );
-
-    // toModify.skew.x = inputObject[inputSkewXName];
-    // toModify.skew.y = inputObject[inputSkewYName];
   }
 
   public outputPlugged(): void {

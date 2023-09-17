@@ -39,7 +39,7 @@ export class ActionHandler {
     action: Action,
     undo: Action,
     label: string,
-    doPerformAction = true
+    doPerformAction = true,
   ) {
     this.addIndex++;
     this.redoList = [];
@@ -63,7 +63,7 @@ export class ActionHandler {
       InterfaceController.showSnackBar('Undo: ' + lastAction.label);
     } else {
       InterfaceController.showSnackBar(
-        'Not possible to undo, nothing in undo stack'
+        'Not possible to undo, nothing in undo stack',
       );
     }
   }
@@ -75,7 +75,7 @@ export class ActionHandler {
       InterfaceController.showSnackBar('Redo: ' + lastUndo.label);
     } else {
       InterfaceController.showSnackBar(
-        'Not possible to redo, nothing in redo stack'
+        'Not possible to redo, nothing in redo stack',
       );
     }
   }
@@ -99,7 +99,7 @@ export class ActionHandler {
             this.undoActionSavedData[currIndex](prevData);
           },
           'Set Value',
-          false
+          false,
         );
       }
     }
@@ -110,7 +110,7 @@ export class ActionHandler {
     identifier: string,
     prevValue: any,
     newValue: any,
-    applyFunction: (newValue: any) => void
+    applyFunction: (newValue: any) => void,
   ) {
     if (!this.valueBeforeDebounce || identifier !== this.lastIdentifier) {
       this.valueBeforeDebounce = prevValue;
@@ -124,15 +124,15 @@ export class ActionHandler {
 
   static setUnsavedChange(state: boolean): void {
     this.graphHasUnsavedChanges = state;
-    if (this.graphHasUnsavedChanges) {
-      window.addEventListener('beforeunload', this.onBeforeUnload, {
-        capture: true,
-      });
-    } else {
-      window.removeEventListener('beforeunload', this.onBeforeUnload, {
-        capture: true,
-      });
-    }
+    // if (this.graphHasUnsavedChanges) {
+    //   window.addEventListener('beforeunload', this.onBeforeUnload, {
+    //     capture: true,
+    //   });
+    // } else {
+    //   window.removeEventListener('beforeunload', this.onBeforeUnload, {
+    //     capture: true,
+    //   });
+    // }
   }
 
   static existsUnsavedChanges(): boolean {
@@ -152,7 +152,7 @@ export class ActionHandler {
   static getSafeSocket(
     nodeID: string,
     socketType: TSocketType,
-    socketName: string
+    socketName: string,
   ): Socket {
     return PPGraph.currentGraph
       .getNodeById(nodeID)
