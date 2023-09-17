@@ -715,7 +715,7 @@ export class Extract_Image_From_Graphics extends PPNode {
   }
 
   public getDescription(): string {
-    return 'Create image from a graphic and save it';
+    return 'Get image from a graphic and save it';
   }
 
   public getTags(): string[] {
@@ -779,7 +779,7 @@ export class Extract_PixelArray_From_Graphics extends PPNode {
   }
 
   public getDescription(): string {
-    return 'Get the color and grayscale values from a graphic';
+    return 'Get all color values of a graphic as a 1-dimensional array';
   }
 
   public getTags(): string[] {

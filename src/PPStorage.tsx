@@ -284,7 +284,11 @@ export default class PPStorage {
         name: loadedGraph.name,
       });
 
-      InterfaceController.showSnackBar(`${loadedGraph.name} was loaded`);
+      InterfaceController.showSnackBar(
+        <span>
+          <b>{loadedGraph.name}</b> was loaded
+        </span>,
+      );
     } else {
       this.loadGraphFromURL(getExampleURL('', GET_STARTED_GRAPH));
     }
@@ -380,7 +384,9 @@ export default class PPStorage {
           );
           if (foundResource) {
             InterfaceController.showSnackBar(
-              `${resourceId} was loaded from the local storage.`,
+              <span>
+                <b>{resourceId}</b> was loaded from the local storage
+              </span>,
             );
             return foundResource.data;
           }
@@ -412,7 +418,9 @@ export default class PPStorage {
           });
 
           InterfaceController.showSnackBar(
-            `${resourceId} is stored in the local storage.`,
+            <span>
+              <b>{resourceId}</b> is stored in the local storage
+            </span>,
           );
         } else {
           await this.db.localResources.where('id').equals(resourceId).modify({
