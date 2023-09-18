@@ -161,7 +161,7 @@ export default class PPStorage {
     try {
       console.log(`Fetching local graph: ${graphName}`);
       const fileList = await fetch(
-        `http://localhost:${this.HEADLESS_PORT}/loadedGraph/${graphName}`,
+        `http://localhost:${this.HEADLESS_PORT}/graphs/${graphName}`,
       );
       return fileList.json();
     } catch (error) {
