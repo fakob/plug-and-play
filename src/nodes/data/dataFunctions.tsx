@@ -296,7 +296,7 @@ export class CustomFunction extends PPNode {
     super(name, {
       ...customArgs,
     });
-    this.modifiedBanner = this.addChild(new PIXI.Graphics());
+    this.modifiedBanner = this._StatusesRef.addChild(new PIXI.Graphics());
     // added this to make sure all sockets are in place before anything happens (caused visual issues on load before)
     this.adaptInputs(this.getInputData(anyCodeName));
   }
