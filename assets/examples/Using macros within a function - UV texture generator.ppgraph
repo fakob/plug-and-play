@@ -668,7 +668,7 @@
           "socketType": "in",
           "name": "Input2",
           "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
-          "data": -1,
+          "data": 1,
           "visible": true
         },
         {
@@ -1083,10 +1083,10 @@
     },
     {
       "id": "soft-otter-64",
-      "name": "Export_Image_From_Graphics",
-      "type": "Export_Image_From_Graphics",
-      "x": 507.4757033870667,
-      "y": 1417.7933285182096,
+      "name": "Extract_Image_From_Graphics",
+      "type": "Extract_Image_From_Graphics",
+      "x": 513.3926641814969,
+      "y": 1477.3113289417224,
       "width": 160,
       "height": 136,
       "socketArray": [
@@ -1186,14 +1186,14 @@
           "socketType": "in",
           "name": "Offset X",
           "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":-2000,\"maxValue\":2000,\"stepSize\":0.01}}",
-          "data": 208.37913108155215,
+          "data": 209.2186998429239,
           "visible": false
         },
         {
           "socketType": "in",
           "name": "Offset Y",
           "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":-2000,\"maxValue\":2000,\"stepSize\":0.01}}",
-          "data": 143.34851357164086,
+          "data": 44.650637617439656,
           "visible": false
         },
         {

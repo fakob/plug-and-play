@@ -26,6 +26,8 @@ export class DeferredPixiType extends FunctionType {
       'DRAW_Passthrough',
       'DRAW_Multiplier',
       'DRAW_Multipy_Along',
+      'Extract_Image_From_Graphics',
+      'Extract_PixelArray_From_Graphics',
     ];
   }
 

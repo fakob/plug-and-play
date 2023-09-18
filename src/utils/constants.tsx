@@ -213,11 +213,11 @@ export const COMMENT_TEXTSTYLE = new TextStyle({
 });
 
 export const CONNECTION_COLOR_HEX = new PIXI.Color(
-  Color(COLOR[0]).desaturate(0.3).hex()
+  Color(COLOR[0]).desaturate(0.3).hex(),
 ).toNumber();
 
 export const SELECTION_COLOR_HEX = new PIXI.Color(
-  Color(COLOR[4]).desaturate(0.3).hex()
+  Color(COLOR[4]).desaturate(0.3).hex(),
 ).toNumber();
 
 export const EMPTY_TEXTURE = '../assets/Empty.png';
