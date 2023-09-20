@@ -155,6 +155,20 @@ export default class PPStorage {
     }
   };
 
+  HEADLESS_PORT = 16301;
+
+  getLocallyProvidedGraph = async (graphName): Promise<SerializedGraph> => {
+    try {
+      console.log(`Fetching local graph: ${graphName}`);
+      const fileList = await fetch(
+        `http://localhost:${this.HEADLESS_PORT}/graphs/${graphName}`,
+      );
+      return fileList.json();
+    } catch (error) {
+      console.log('Failed to fetch local graph: ' + error);
+    }
+  };
+
   async downloadGraph(graphId = undefined) {
     this.db
       .transaction('rw', this.db.graphs, this.db.settings, async () => {

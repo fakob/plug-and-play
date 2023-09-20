@@ -89,7 +89,7 @@ TimeAgo.addDefaultLocale(en);
 const timeAgo = new TimeAgo('en-US');
 
 const randomMainColorLightHex = new PIXI.Color(
-  Color(RANDOMMAINCOLOR).mix(Color('white'), 0.9).hex()
+  Color(RANDOMMAINCOLOR).mix(Color('white'), 0.9).hex(),
 ).toNumber();
 
 fetch('/buildInfo')
@@ -163,7 +163,7 @@ const App = (): JSX.Element => {
       mousePosition.y
     } (${mouseWorldX}, ${mouseWorldY})
 Viewport position (scale): ${viewportScreenX}, ${Math.round(
-      viewportScreenY
+      viewportScreenY,
     )} (${viewportScale})`;
   };
 
@@ -204,7 +204,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           }
         : {}),
     }),
-    [isDragActive, isDragReject, isDragAccept]
+    [isDragActive, isDragReject, isDragAccept],
   ) as any;
 
   useEffect(() => {
@@ -253,7 +253,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           return;
         }
       },
-      { passive: false }
+      { passive: false },
     );
 
     // disable default context menu for pixi only
@@ -262,7 +262,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       (e: Event) => {
         e.preventDefault();
       },
-      { passive: false }
+      { passive: false },
     );
 
     document.addEventListener('cut', cutOrCopyClipboard);
@@ -274,10 +274,10 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       (event: PIXI.FederatedPointerEvent) => {
         InterfaceController.notifyListeners(
           ListenEvent.GlobalPointerMove,
-          event
+          event,
         );
         setMousePosition(event);
-      }
+      },
     );
 
     // create viewport
@@ -296,10 +296,10 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
 
     // add global listen events to zoom
     viewport.current.addEventListener('zoomed', () =>
-      InterfaceController.notifyListeners(ListenEvent.ViewportZoom, true)
+      InterfaceController.notifyListeners(ListenEvent.ViewportZoom, true),
     );
     viewport.current.addEventListener('zoomed-end', () =>
-      InterfaceController.notifyListeners(ListenEvent.ViewportZoom, false)
+      InterfaceController.notifyListeners(ListenEvent.ViewportZoom, false),
     );
 
     viewport.current.addEventListener(
@@ -307,8 +307,8 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       (event: PIXI.FederatedPointerEvent) =>
         InterfaceController.notifyListeners(
           ListenEvent.GlobalPointerUpAndUpOutside,
-          event
-        )
+          event,
+        ),
     );
 
     viewport.current.addEventListener(
@@ -316,16 +316,16 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       (event: PIXI.FederatedPointerEvent) => {
         InterfaceController.notifyListeners(
           ListenEvent.GlobalPointerUpAndUpOutside,
-          event
+          event,
         );
-      }
+      },
     );
 
     viewport.current.addEventListener(
       'pointerup',
       (event: PIXI.FederatedPointerEvent) => {
         InterfaceController.notifyListeners(ListenEvent.GlobalPointerUp, event);
-      }
+      },
     );
 
     // configure viewport
@@ -359,7 +359,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     const background = new PIXI.TilingSprite(
       texture,
       pixiApp.current.screen.width,
-      pixiApp.current.screen.height
+      pixiApp.current.screen.height,
     );
     background.tileScale.x = 0.5;
     background.tileScale.y = 0.5;
@@ -391,7 +391,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     const gridShader = PIXI.Shader.from(
       BASIC_VERTEX_SHADER,
       GRID_SHADER,
-      gridUniforms
+      gridUniforms,
     );
     const gridQuad = new PIXI.Mesh(geometry, gridShader);
     gridQuad.name = 'debugGrid';
@@ -414,14 +414,19 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     const urlParams = new URLSearchParams(window.location.search);
     const loadURL = urlParams.get('loadURL');
     const createEmptyGraph = urlParams.get('new');
+    const fetchFromLocalServer = urlParams.get('fetchLocalGraph');
     console.log('loadURL: ', loadURL, 'new', createEmptyGraph);
     if (loadURL) {
       PPStorage.getInstance().loadGraphFromURL(loadURL);
       removeUrlParameter('loadURL');
-    } else {
-      if (!createEmptyGraph) {
-        PPStorage.getInstance().loadGraphFromDB();
-      }
+    } else if (fetchFromLocalServer) {
+      PPStorage.getInstance()
+        .getLocallyProvidedGraph(fetchFromLocalServer)
+        .then((serializedGraph) => {
+          PPGraph.currentGraph.configure(serializedGraph, hri.random());
+        });
+    } else if (!createEmptyGraph) {
+      PPStorage.getInstance().loadGraphFromDB();
     }
 
     console.log('PPGraph.currentGraph:', PPGraph.currentGraph);
@@ -432,7 +437,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       .then((arrayOfFileNames) => {
         console.log(arrayOfFileNames);
         setRemoteGraphs(
-          arrayOfFileNames.filter((file) => file.endsWith('.ppgraph'))
+          arrayOfFileNames.filter((file) => file.endsWith('.ppgraph')),
         );
       });
 
@@ -461,7 +466,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     window.addEventListener('keydown', InterfaceController.keysDown);
 
     window.addEventListener('keydown', (e: KeyboardEvent) =>
-      InputParser.parseKeyDown(e, PPGraph.currentGraph)
+      InputParser.parseKeyDown(e, PPGraph.currentGraph),
     );
 
     window.addEventListener('keyup', (e: KeyboardEvent) => {
@@ -475,7 +480,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         const isVisible = document.visibilityState === 'visible';
         if (isVisible && PPGraph.currentGraph) {
           Object.values(PPGraph.currentGraph.nodes).forEach((node) =>
-            node.refreshNodeDragOrViewportMove()
+            node.refreshNodeDragOrViewportMove(),
           );
         }
       }, 100);
@@ -489,7 +494,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       // Passing the same reference
       graphSearchInput.current.removeEventListener(
         'focus',
-        updateGraphSearchItems
+        updateGraphSearchItems,
       );
     };
   }, []);
@@ -505,21 +510,21 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         setGraphToBeModified(data);
         setGraphSearchActiveItem(data);
         updateGraphSearchItems();
-      })
+      }),
     );
 
     InterfaceController.onOpenFileBrowser = open;
 
     InterfaceController.onRightClick = (
       event: PIXI.FederatedPointerEvent,
-      target: PIXI.DisplayObject
+      target: PIXI.DisplayObject,
     ) => {
       setIsGraphContextMenuOpen(false);
       setIsNodeContextMenuOpen(false);
       setIsSocketContextMenuOpen(false);
       const contextMenuPosX = Math.min(
         window.innerWidth - (CONTEXTMENU_WIDTH + 8),
-        event.global.x
+        event.global.x,
       );
       const contextMenuPosY = (offset: number) => {
         return Math.min(window.innerHeight - offset, event.global.y);
@@ -546,7 +551,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           setContextMenuPosition([
             Math.min(
               window.innerWidth - (CONTEXTMENU_WIDTH + 8),
-              event.global.x
+              event.global.x,
             ),
             Math.min(window.innerHeight - 432, event.global.y),
           ]);
@@ -667,7 +672,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
             serializedNode,
             serializedNode.id,
             referenceID,
-            newNodeType
+            newNodeType,
           );
           InterfaceController.notifyListeners(ListenEvent.SelectionChanged, [
             newNode,
@@ -679,7 +684,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           const previousNode = await PPGraph.currentGraph.replaceNode(
             serializedNode,
             referenceID,
-            serializedNode.id
+            serializedNode.id,
           );
           InterfaceController.notifyListeners(ListenEvent.SelectionChanged, [
             previousNode,
@@ -692,7 +697,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         const nodePos =
           PPGraph.currentGraph.overrideNodeCursorPosition ??
           viewport.current.toWorld(
-            new PIXI.Point(contextMenuPosition[0], contextMenuPosition[1])
+            new PIXI.Point(contextMenuPosition[0], contextMenuPosition[1]),
           );
 
         const action = async () => {
@@ -706,7 +711,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
                 nodePosX: nodePos.x,
                 nodePosY: nodePos.y,
               },
-              addLink ? NODE_SOURCE.NEWCONNECTED : NODE_SOURCE.NEW
+              addLink ? NODE_SOURCE.NEWCONNECTED : NODE_SOURCE.NEW,
             );
           } else {
             addedNode = await PPGraph.currentGraph.addNewNode(
@@ -716,7 +721,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
                 nodePosX: nodePos.x,
                 nodePosY: nodePos.y,
               },
-              addLink ? NODE_SOURCE.NEWCONNECTED : NODE_SOURCE.NEW
+              addLink ? NODE_SOURCE.NEWCONNECTED : NODE_SOURCE.NEW,
             );
             addedNode.nodeName = selected.title;
           }
@@ -729,7 +734,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         };
         const undoAction = async () => {
           PPGraph.currentGraph.removeNode(
-            ActionHandler.getSafeNode(referenceID)
+            ActionHandler.getSafeNode(referenceID),
           );
         };
         await ActionHandler.performAction(action, undoAction, 'Add node');
@@ -787,12 +792,12 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     async function load() {
       const remoteGraphSearchItems = remoteGraphsRef.current.map(
         (graph, index) => {
-        return {
-          id: index,
-          name: removeExtension(graph), // remove .ppgraph extension
-          label: 'remote',
-          isRemote: true,
-        } as IGraphSearch;
+          return {
+            id: index,
+            name: removeExtension(graph), // remove .ppgraph extension
+            label: 'remote',
+            isRemote: true,
+          } as IGraphSearch;
         },
       );
       // add remote header entry
@@ -830,7 +835,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       setGraphSearchItems(allGraphSearchItems);
 
       setGraphSearchActiveItem(
-        newGraphSearchItems[PPGraph?.currentGraph?.id] ?? null
+        newGraphSearchItems[PPGraph?.currentGraph?.id] ?? null,
       );
     }
   };
@@ -901,7 +906,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
                 onClick={() => {
                   setShowDeleteGraph(false);
                   const deletedGraphID = PPStorage.getInstance().deleteGraph(
-                    graphToBeModified.id
+                    graphToBeModified.id,
                   );
                   updateGraphSearchItems();
                   if (graphToBeModified.id == deletedGraphID) {
