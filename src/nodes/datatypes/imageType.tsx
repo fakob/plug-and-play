@@ -63,6 +63,6 @@ export class ImageType extends AbstractType {
   }
 
   recommendedInputNodeWidgets(): string[] {
-    return ['Image', 'Export_Image_From_Graphics'];
+    return ['Image', 'Extract_Image_From_Graphics'];
   }
 }

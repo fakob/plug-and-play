@@ -197,7 +197,13 @@ export default class PPStorage {
         );
 
         InterfaceController.showSnackBar(
+<<<<<<< HEAD
           `Playground ${graphName} was saved to your Download folder`,
+=======
+          <span>
+            Playground <b>{graphName}</b> was saved to your Download folder
+          </span>,
+>>>>>>> main
         );
       })
       .catch((e) => {
@@ -296,7 +302,11 @@ export default class PPStorage {
         name: loadedGraph.name,
       });
 
-      InterfaceController.showSnackBar(`${loadedGraph.name} was loaded`);
+      InterfaceController.showSnackBar(
+        <span>
+          <b>{loadedGraph.name}</b> was loaded
+        </span>,
+      );
     } else {
       this.loadGraphFromURL(getExampleURL('', GET_STARTED_GRAPH));
     }
@@ -342,7 +352,11 @@ export default class PPStorage {
       graphData,
       date: new Date(),
     });
-    InterfaceController.showSnackBar('Playground was saved');
+    InterfaceController.showSnackBar(
+      <span>
+        Playground <b>{name}</b> was saved
+      </span>,
+    );
   }
 
   saveNewGraph(newName = undefined) {
@@ -388,7 +402,13 @@ export default class PPStorage {
           );
           if (foundResource) {
             InterfaceController.showSnackBar(
+<<<<<<< HEAD
               `${resourceId} was loaded from the local storage.`,
+=======
+              <span>
+                <b>{resourceId}</b> was loaded from the local storage
+              </span>,
+>>>>>>> main
             );
             return foundResource.data;
           }
@@ -420,7 +440,13 @@ export default class PPStorage {
           });
 
           InterfaceController.showSnackBar(
+<<<<<<< HEAD
             `${resourceId} is stored in the local storage.`,
+=======
+            <span>
+              <b>{resourceId}</b> is stored in the local storage
+            </span>,
+>>>>>>> main
           );
         } else {
           await this.db.localResources.where('id').equals(resourceId).modify({
