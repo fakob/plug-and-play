@@ -425,7 +425,8 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         .then((serializedGraph) => {
           PPGraph.currentGraph.configure(serializedGraph, hri.random());
         });
-    } else {
+    } else if (!createEmptyGraph) {
+      PPStorage.getInstance().loadGraphFromDB();
     }
 
     console.log('PPGraph.currentGraph:', PPGraph.currentGraph);
