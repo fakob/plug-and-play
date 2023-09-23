@@ -21,6 +21,17 @@
   z-index: 300;
 }
 
+.draggerLeft {
+  width: 8px;
+  cursor: ew-resize;
+  padding: 4px 0 0;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 300;
+}
+
 .editor {
   position: absolute;
   right: 0;
