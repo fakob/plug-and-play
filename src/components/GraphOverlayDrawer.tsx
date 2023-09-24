@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Box } from '@mui/material';
 import PPNode from '../classes/NodeClass';
 import ResponsiveDrawer from './ResponsiveDrawer';
-import ResponsiveDrawerLeft from './ResponsiveDrawerLeft';
 
 type GraphOverlayDrawerProps = {
   randomMainColor: string;
@@ -19,7 +18,8 @@ const GraphOverlayDrawer: React.FunctionComponent<GraphOverlayDrawerProps> = (
 
   return (
     <Box sx={{ position: 'relative' }}>
-      <ResponsiveDrawerLeft
+      <ResponsiveDrawer
+        isLeft={true}
         drawerWidth={drawerWidth}
         setDrawerWidth={setDrawerWidth}
         toggle={props.toggle}
@@ -27,6 +27,7 @@ const GraphOverlayDrawer: React.FunctionComponent<GraphOverlayDrawerProps> = (
         randomMainColor={props.randomMainColor}
       />
       <ResponsiveDrawer
+        isLeft={false}
         drawerWidth={drawerWidth}
         setDrawerWidth={setDrawerWidth}
         toggle={props.toggle}

@@ -8,14 +8,12 @@ import {
   Typography,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import Color from 'color';
 import styles from './utils/style.module.css';
 import PPNode from './classes/NodeClass';
 import Socket from './classes/SocketClass';
 import { PropertyArrayContainer } from './PropertyArrayContainer';
 import { COLOR_WHITE_TEXT, COLOR_DARK, customTheme } from './utils/constants';
-import { useIsSmallScreen } from './utils/utils';
 
 function InspectorHeaderReadOnly(props) {
   return (
@@ -49,7 +47,6 @@ function InspectorHeaderReadOnly(props) {
 
 function InspectorHeader(props) {
   const textInput = useRef(null);
-  const smallScreen = useIsSmallScreen();
 
   return (
     <Box
@@ -67,14 +64,6 @@ function InspectorHeader(props) {
           alignItems: 'center',
         }}
       >
-        {smallScreen && (
-          <IconButton
-            title="Close inspector"
-            onClick={props.handleDrawerToggle}
-          >
-            <ChevronRightIcon />
-          </IconButton>
-        )}
         <TextField
           hiddenLabel
           inputRef={textInput}
@@ -150,14 +139,13 @@ type InspectorContainerProps = {
   randomMainColor: string;
   filter: string;
   setFilter: React.Dispatch<React.SetStateAction<string>>;
-  handleDrawerToggle: () => void;
 };
 
 const InspectorContainer: React.FunctionComponent<InspectorContainerProps> = (
-  props
+  props,
 ) => {
   const [nodeName, setNodeName] = React.useState(
-    props.selectedNodes?.[0]?.name
+    props.selectedNodes?.[0]?.name,
   );
 
   useEffect(() => {
@@ -181,7 +169,6 @@ const InspectorContainer: React.FunctionComponent<InspectorContainerProps> = (
             setNodeName={setNodeName}
             selectedNodes={props.selectedNodes}
             randomMainColor={props.randomMainColor}
-            handleDrawerToggle={props.handleDrawerToggle}
           />
         ) : (
           <InspectorHeaderReadOnly

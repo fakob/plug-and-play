@@ -70,7 +70,6 @@ const HelpContent = (props) => {
       sx={{
         height: 'inherit',
         overflow: 'auto',
-        p: 2,
         color: Color(props.randomMainColor).isDark()
           ? COLOR_WHITE_TEXT
           : COLOR_DARK,

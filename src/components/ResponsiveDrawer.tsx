@@ -2,41 +2,60 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { Box, Button, Drawer, Paper, Stack } from '@mui/material';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import TuneIcon from '@mui/icons-material/Tune';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
 import Color from 'color';
 import InterfaceController, { ListenEvent } from '../InterfaceController';
 import Socket from '../classes/SocketClass';
 import InspectorContainer from '../InspectorContainer';
+import HelpContainer from '../HelpContainer';
 import { COLOR_DARK, COLOR_WHITE_TEXT } from '../utils/constants';
 import { useIsSmallScreen } from '../utils/utils';
 import styles from '../utils/style.module.css';
 
-export function DrawerToggle(props) {
+function DrawerToggleInspector(props) {
   return (
-    <Box>
+    <Box id="drawer-toggle-inspector">
       <Button
-        title={`${props.posLeft ? 'Close inspector' : 'Open inspector'}`}
+        title={`${props.open ? 'Close inspector' : 'Open inspector'}`}
         size="small"
         onClick={props.handleDrawerToggle}
         color="primary"
         sx={{
-          position: 'absolute',
-          top: '40px',
-          left: `${props.posLeft ? '-32px' : 'auto'}`,
-          right: `${props.posLeft ? 'auto' : '32px'}`,
+          position: 'fixed',
+          bottom: '40px',
+          right: '32px',
           width: '32px',
           minWidth: '32px',
-          background: `${
-            props.areNodesSelected
-              ? Color(props.randomMainColor).alpha(0.2)
-              : 'unset'
-          }`,
+          backgroundColor: props.open ? COLOR_DARK : COLOR_WHITE_TEXT,
+          zIndex: '1300',
         }}
       >
-        {props.posLeft ? (
-          <ChevronRightIcon />
-        ) : (
-          props.areNodesSelected && <TuneIcon />
-        )}
+        {props.open ? <ChevronRightIcon /> : <TuneIcon />}
+      </Button>
+    </Box>
+  );
+}
+
+function DrawerToggleHelp(props) {
+  return (
+    <Box id="drawer-toggle-help">
+      <Button
+        size="small"
+        title={`${props.open ? 'Close help' : 'Open help'}`}
+        onClick={props.handleDrawerToggle}
+        color="primary"
+        sx={{
+          position: 'fixed',
+          bottom: '40px',
+          left: '32px',
+          width: '32px',
+          minWidth: '32px',
+          backgroundColor: props.open ? COLOR_DARK : COLOR_WHITE_TEXT,
+          zIndex: '1300',
+        }}
+      >
+        {props.open ? <ChevronLeftIcon /> : <QuestionMarkIcon />}
       </Button>
     </Box>
   );
@@ -47,7 +66,7 @@ const ResponsiveDrawer = (props) => {
   const [open, setOpen] = useState(true);
   const [filter, setFilter] = useState(null);
   const [socketToInspect, setSocketToInspect] = useState<Socket | undefined>(
-    undefined
+    undefined,
   );
   const smallScreen = useIsSmallScreen();
 
@@ -71,8 +90,8 @@ const ResponsiveDrawer = (props) => {
     ids.push(
       InterfaceController.addListener(
         ListenEvent.ToggleInspectorWithFocus,
-        toggleInspectorAndFocus
-      )
+        toggleInspectorAndFocus,
+      ),
     );
 
     return () => {
@@ -98,7 +117,9 @@ const ResponsiveDrawer = (props) => {
     const minDrawerWidth = 50;
     const maxDrawerWidth = window.innerWidth - 100;
     const newWidth =
-      document.body.offsetLeft + document.body.offsetWidth - e.clientX + 20;
+      document.body.offsetLeft + props.isLeft
+        ? e.clientX - 8
+        : document.body.offsetWidth - e.clientX + 20;
 
     if (newWidth > minDrawerWidth && newWidth < maxDrawerWidth) {
       props.setDrawerWidth(newWidth);
@@ -111,15 +132,23 @@ const ResponsiveDrawer = (props) => {
 
   return (
     <>
-      {!open && (
-        <DrawerToggle
-          areNodesSelected={props.selectedNodes?.length > 0}
+      {props.isLeft ? (
+        <DrawerToggleHelp
+          posLeft={false}
+          open={open}
+          randomMainColor={props.randomMainColor}
+          handleDrawerToggle={handleDrawerToggle}
+        />
+      ) : (
+        <DrawerToggleInspector
+          posLeft={true}
+          open={open}
           randomMainColor={props.randomMainColor}
           handleDrawerToggle={handleDrawerToggle}
         />
       )}
       <Drawer
-        anchor="right"
+        anchor={props.isLeft ? 'left' : 'right'}
         variant="persistent"
         hideBackdrop
         open={open}
@@ -131,29 +160,32 @@ const ResponsiveDrawer = (props) => {
           style: {
             width: smallScreen ? '100%' : props.drawerWidth,
             border: 0,
-            background: `${Color(props.randomMainColor).alpha(0.8)}`,
+            background: `${Color(props.randomMainColor).alpha(0.98)}`,
             overflowY: 'unset',
-            height: '100vh',
+            height: 'calc(100vh - 16px)',
+            marginTop: '8px',
+            marginRight: props.isLeft ? 'unset' : '8px',
+            marginLeft: props.isLeft ? '8px' : 'unset',
           },
         }}
       >
         <div
           onMouseDown={(e) => handleMouseDown(e)}
-          className={styles.dragger}
+          className={props.isLeft ? styles.draggerLeft : styles.dragger}
         ></div>
-        <DrawerToggle
-          posLeft={true}
-          randomMainColor={props.randomMainColor}
-          handleDrawerToggle={handleDrawerToggle}
-        />
-        {props.selectedNodes.length ? (
+        {props.isLeft ? (
+          <HelpContainer
+            filter={filter}
+            setFilter={setFilter}
+            randomMainColor={props.randomMainColor}
+          />
+        ) : props.selectedNodes.length ? (
           <InspectorContainer
             selectedNodes={props.selectedNodes}
             socketToInspect={socketToInspect}
             randomMainColor={props.randomMainColor}
             filter={filter}
             setFilter={setFilter}
-            handleDrawerToggle={handleDrawerToggle}
           />
         ) : (
           <Paper

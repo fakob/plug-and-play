@@ -9,13 +9,11 @@ import {
   Typography,
 } from '@mui/material';
 import Color from 'color';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import TwitterIcon from '@mui/icons-material/Twitter';
 import HelpContent from './HelpContent';
 import { COLOR_DARK, COLOR_WHITE_TEXT, customTheme } from './utils/constants';
 import styles from './utils/style.module.css';
-import { useIsSmallScreen } from './utils/utils';
 import { getAllNodeTypes } from './nodes/allNodes';
 
 function HelpHeader(props) {
@@ -68,8 +66,6 @@ type HelpContainerProps = {
   randomMainColor: string;
   filter: string;
   setFilter: React.Dispatch<React.SetStateAction<string>>;
-
-  handleDrawerToggle: () => void;
 };
 
 const HelpContainer: React.FunctionComponent<HelpContainerProps> = (props) => {
@@ -109,14 +105,6 @@ const HelpContainer: React.FunctionComponent<HelpContainerProps> = (props) => {
           height: '100%',
         }}
       >
-        {useIsSmallScreen() && (
-          <IconButton
-            title="Close inspector"
-            onClick={props.handleDrawerToggle}
-          >
-            <ChevronRightIcon />
-          </IconButton>
-        )}
         <HelpHeader />
         <HelpContent
           nodesCached={nodesCached}

@@ -61,7 +61,7 @@ export const FloatingSocketInspector: React.FunctionComponent<MyProps> = (
         elevation={8}
         sx={{
           position: 'absolute',
-          zIndex: 1400,
+          zIndex: 1130,
           px: 1,
           pb: 1,
           left: Math.min(
