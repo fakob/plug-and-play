@@ -66,6 +66,9 @@ function HelpHeader(props) {
 
 type HelpContainerProps = {
   randomMainColor: string;
+  filter: string;
+  setFilter: React.Dispatch<React.SetStateAction<string>>;
+
   handleDrawerToggle: () => void;
 };
 
@@ -115,7 +118,12 @@ const HelpContainer: React.FunctionComponent<HelpContainerProps> = (props) => {
           </IconButton>
         )}
         <HelpHeader />
-        <HelpContent nodesCached={nodesCached} />
+        <HelpContent
+          nodesCached={nodesCached}
+          randomMainColor={props.randomMainColor}
+          filter={props.filter}
+          setFilter={props.setFilter}
+        />
       </Stack>
     </ThemeProvider>
   );

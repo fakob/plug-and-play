@@ -143,6 +143,8 @@ const ResponsiveDrawer = (props) => {
           handleDrawerToggle={handleDrawerToggle}
         />
         <HelpContainer
+          filter={filter}
+          setFilter={setFilter}
           randomMainColor={props.randomMainColor}
           handleDrawerToggle={handleDrawerToggle}
         />

@@ -33,16 +33,24 @@ function FilterContainer(props: FilterContentProps) {
       sx={{ bgcolor: 'background.paper', borderRadius: '0px' }}
     >
       <ToggleButton
-        id="inspector-filter-common"
-        value="common"
-        aria-label="common"
+        id="inspector-filter-get-started"
+        value="get-started"
+        aria-label="get-started"
       >
         Get started
       </ToggleButton>
-      <ToggleButton id="inspector-filter-out" value="out" aria-label="out">
+      <ToggleButton
+        id="inspector-filter-nodes"
+        value="nodes"
+        aria-label="nodes"
+      >
         Nodes
       </ToggleButton>
-      <ToggleButton id="inspector-filter-info" value="info" aria-label="info">
+      <ToggleButton
+        id="inspector-filter-about"
+        value="about"
+        aria-label="about"
+      >
         About
       </ToggleButton>
     </ToggleButtonGroup>
@@ -69,187 +77,261 @@ const HelpContent = (props) => {
       }}
     >
       <FilterContainer handleFilter={handleFilter} filter={props.filter} />
-      <p>
-        Your visual toolkit for creative prototyping, to explore, transform or
-        visualise data.
-      </p>
-      <p>Add and connect nodes</p>
-      <h2>Quickstart</h2>
-      <ol>
-        <li>Add nodes</li>
-        <ul>
-          <li>
-            Open <em>Search nodes</em> by double clicking into the playground or
-            press <em>Cmd/Ctrl+F</em>
-          </li>
-        </ul>
-      </ol>
-      <ul>
-        <li>
-          <em>
-            There are many ready made nodes available, but you can also{' '}
-            <a href="https://docs.google.com/document/d/11dS2uk3qdvrVBHGdu0af5c3NmpCylHUrxrkcu4oNexU/edit#heading=h.l22knu24xajp">
-              create your own
+      {(props.filter === 'get-started' || props.filter == null) && (
+        <>
+          <p>
+            Your visual toolkit for creative prototyping, to explore, transform
+            or visualise data.
+          </p>
+          <p>Add and connect nodes</p>
+          <h4>Quickstart</h4>
+          <ol>
+            <li>Add nodes</li>
+            <ul>
+              <li>
+                Open <em>Search nodes</em> by double clicking into the
+                playground or press <em>Cmd/Ctrl+F</em>
+              </li>
+            </ul>
+          </ol>
+          <ul>
+            <li>
+              <em>
+                There are many ready made nodes available, but you can also{' '}
+                <a href="https://docs.google.com/document/d/11dS2uk3qdvrVBHGdu0af5c3NmpCylHUrxrkcu4oNexU/edit#heading=h.l22knu24xajp">
+                  create your own
+                </a>
+              </em>
+            </li>
+          </ul>
+          <ol>
+            <li>Connect them</li>
+            <li>They are executed right away</li>
+          </ol>
+          <h5>Open an example playground</h5>
+          <ol>
+            <li>
+              Click into <em>Search playgrounds</em> or press{' '}
+              <em>Cmd/Ctrl+O</em>
+            </li>
+            <li>Select an existing playground</li>
+          </ol>
+          <h5>Start a new playground</h5>
+          <ol>
+            <li>
+              Click into <em>Search playgrounds</em> or press{' '}
+              <em>Cmd/Ctrl+O</em>
+            </li>
+            <li>Give it a name</li>
+            <li>
+              Click <em>Create empty playground</em>
+            </li>
+          </ol>
+          <p>
+            OR Click{' '}
+            <a href="https://plugandplayground.dev/?new=true">
+              https://plugandplayground.dev/?new=true
             </a>
-          </em>
-        </li>
-      </ul>
-      <ol>
-        <li>Connect them</li>
-        <li>They are executed right away</li>
-      </ol>
-      <h3>Open an example playground</h3>
-      <ol>
-        <li>
-          Click into <em>Search playgrounds</em> or press <em>Cmd/Ctrl+O</em>
-        </li>
-        <li>Select an existing playground</li>
-      </ol>
-      <h3>Start a new playground</h3>
-      <ol>
-        <li>
-          Click into <em>Search playgrounds</em> or press <em>Cmd/Ctrl+O</em>
-        </li>
-        <li>Give it a name</li>
-        <li>
-          Click <em>Create empty playground</em>
-        </li>
-      </ol>
-      <p>
-        OR Click{' '}
-        <a href="https://plugandplayground.dev/?new=true">
-          https://plugandplayground.dev/?new=true
-        </a>
-      </p>
-      <h2>What data can be used?</h2>
-      <p>Excel (Tabular data)TextImagesAnd whatever you get from an API</p>
-      <h2>How do I add and connect nodes?</h2>
-      <h3>What are nodes?</h3>
-      <p>A node can</p>
-      <ul>
-        <li>Get or represent data</li>
-        <li>Transform data</li>
-        <li>Display data</li>
-      </ul>
-      <p>
-        See{' '}
-        <a href="https://docs.google.com/document/d/11dS2uk3qdvrVBHGdu0af5c3NmpCylHUrxrkcu4oNexU/edit#heading=h.94je4wsnhfom">
-          list of nodes
-        </a>
-      </p>
-      <p>
-        A node can have input and output sockets depending on its functionality.
-      </p>
-      <h3>What are sockets?</h3>
-      <p>Input sockets are exposed variables. Output sockets are</p>
-      <p>
-        <br />
-        <br />
-        <br />
-        <br />
-        <br />
-      </p>
-      <p>See list of socket types</p>
-      <h3>Search for nodes</h3>
-      <p>To open the node search:</p>
-      <ul>
-        <li>double click the canvas</li>
-        <li>
-          press <em>Cmd/Ctrl-F</em>
-        </li>
-        <li>start dragging a connection and release the mouse</li>
-      </ul>
-      <h3>Create a connection</h3>
-      <ol>
-        <li>Click and drag and input/output socket</li>
-        <li>Connect it to an output/input socket of another node</li>
-      </ol>
-      <p>
-        You can also just drag the connection onto the node and release the
-        mouse. This will connect to the socket which fits best.
-      </p>
-      <h3>Remove nodes</h3>
-      <ul>
-        <li>Select a node and press Delete</li>
-        <li>Right click a node and click "Delete"</li>
-      </ul>
-      <h3>Remove a connection</h3>
-      <ul>
-        <li>Click and unplug the input side of a connection</li>
-        <li>Right click a socket and click "Remove connection"</li>
-      </ul>
-      <h3>Change their update behaviour</h3>
-      <p>
-        By default, nodes update when one of their inputs updates. Change this
-        behaviour using the node inspector on the right.
-      </p>
-      <h2>What nodes are available?</h2>
-      <h2>How do I create my own nodes?</h2>
-      <h3>Create your own node</h3>
-      <ol>
-        <li>Open the node search</li>
-        <li>Find and add a Custom node</li>
-        <li>
-          Select the added node and write your own JavaScript function in the
-          code field
-        </li>
-      </ol>
-      <p>
-        Tip: You can also just type a new name in the node search and create a
-        custom node using the new name.
-      </p>
-      <h3>Write your own function</h3>
-      <p>
-        A function is a block of JavaScript code that gets executed. You can add
-        as many inputs as you like, process them and output the result.&nbsp;
-      </p>
-      <p>Learn more about JavaScript functions</p>
-      <p>Tip: To write your function in a separate code editor</p>
-      <ol>
-        <li>Unhide the Code input</li>
-        <li>Right click the input and choose "Connect CodeEditor"</li>
-      </ol>
-      <h2>How do I import data?</h2>
-      <ul>
-        <li>Drag in excel, text, image, video or database files</li>
-        <li>OR get data from any API</li>
-      </ul>
-      <h2>How do I transform data?</h2>
-      <ul>
-        <li>
-          Select the data you need and transform it using ready made nodes
-        </li>
-        <li>OR create your own nodes</li>
-      </ul>
-      <h2>How do I visualise data?</h2>
-      <ul>
-        <li>Use the drawing methods and composite them together</li>
-        <li>If you want to reuse logic, create a macro</li>
-      </ul>
-      <h2>How do I share my playgrounds?</h2>
-      <p>We are a local first platform. To share your playgrounds online</p>
-      <ol>
-        <li>Log in to Github</li>
-        <li>Store your playground as a Gist</li>
-        <li>Create a shareable link</li>
-      </ol>
-      <p>
-        Of course you can also just save the file locally and share it the old
-        school way :-)
-      </p>
-      <h2>My playground does not work. How can I fix it?</h2>
-      <ul>
-        <li>Use the Console print node</li>
-        <li>Use the Logger node</li>
-        <li>Use the browsers devtools</li>
-      </ul>
-      <h2>Do you want to contribute?</h2>
-      <p>
-        This project is open source. Check out the project on Github and make a
-        pull request.
-      </p>
-      <h2>Start a new playground?</h2>
-      <h1>List of nodes</h1>
+          </p>
+          <h4>What data can be used?</h4>
+          <p>Excel (Tabular data)TextImagesAnd whatever you get from an API</p>
+          <h4>How do I add and connect nodes?</h4>
+          <h5>What are nodes?</h5>
+          <p>A node can</p>
+          <ul>
+            <li>Get or represent data</li>
+            <li>Transform data</li>
+            <li>Display data</li>
+          </ul>
+          <p>
+            See{' '}
+            <a href="https://docs.google.com/document/d/11dS2uk3qdvrVBHGdu0af5c3NmpCylHUrxrkcu4oNexU/edit#heading=h.94je4wsnhfom">
+              list of nodes
+            </a>
+          </p>
+          <p>
+            A node can have input and output sockets depending on its
+            functionality.
+          </p>
+          <h5>What are sockets?</h5>
+          <p>Input sockets are exposed variables. Output sockets are</p>
+          <p>
+            <br />
+            <br />
+            <br />
+            <br />
+            <br />
+          </p>
+          <p>See list of socket types</p>
+          <h5>Search for nodes</h5>
+          <p>To open the node search:</p>
+          <ul>
+            <li>double click the canvas</li>
+            <li>
+              press <em>Cmd/Ctrl-F</em>
+            </li>
+            <li>start dragging a connection and release the mouse</li>
+          </ul>
+          <h5>Create a connection</h5>
+          <ol>
+            <li>Click and drag and input/output socket</li>
+            <li>Connect it to an output/input socket of another node</li>
+          </ol>
+          <p>
+            You can also just drag the connection onto the node and release the
+            mouse. This will connect to the socket which fits best.
+          </p>
+          <h5>Remove nodes</h5>
+          <ul>
+            <li>Select a node and press Delete</li>
+            <li>Right click a node and click "Delete"</li>
+          </ul>
+          <h5>Remove a connection</h5>
+          <ul>
+            <li>Click and unplug the input side of a connection</li>
+            <li>Right click a socket and click "Remove connection"</li>
+          </ul>
+          <h5>Change their update behaviour</h5>
+          <p>
+            By default, nodes update when one of their inputs updates. Change
+            this behaviour using the node inspector on the right.
+          </p>
+          <h4>What nodes are available?</h4>
+          <h4>How do I create my own nodes?</h4>
+          <h5>Create your own node</h5>
+          <ol>
+            <li>Open the node search</li>
+            <li>Find and add a Custom node</li>
+            <li>
+              Select the added node and write your own JavaScript function in
+              the code field
+            </li>
+          </ol>
+          <p>
+            Tip: You can also just type a new name in the node search and create
+            a custom node using the new name.
+          </p>
+          <h5>Write your own function</h5>
+          <p>
+            A function is a block of JavaScript code that gets executed. You can
+            add as many inputs as you like, process them and output the
+            result.&nbsp;
+          </p>
+          <p>Learn more about JavaScript functions</p>
+          <p>Tip: To write your function in a separate code editor</p>
+          <ol>
+            <li>Unhide the Code input</li>
+            <li>Right click the input and choose "Connect CodeEditor"</li>
+          </ol>
+          <h4>How do I import data?</h4>
+          <ul>
+            <li>Drag in excel, text, image, video or database files</li>
+            <li>OR get data from any API</li>
+          </ul>
+          <h4>How do I transform data?</h4>
+          <ul>
+            <li>
+              Select the data you need and transform it using ready made nodes
+            </li>
+            <li>OR create your own nodes</li>
+          </ul>
+          <h4>How do I visualise data?</h4>
+          <ul>
+            <li>Use the drawing methods and composite them together</li>
+            <li>If you want to reuse logic, create a macro</li>
+          </ul>
+          <h4>How do I share my playgrounds?</h4>
+          <p>We are a local first platform. To share your playgrounds online</p>
+          <ol>
+            <li>Log in to Github</li>
+            <li>Store your playground as a Gist</li>
+            <li>Create a shareable link</li>
+          </ol>
+          <p>
+            Of course you can also just save the file locally and share it the
+            old school way :-)
+          </p>
+          <h4>My playground does not work. How can I fix it?</h4>
+          <ul>
+            <li>Use the Console print node</li>
+            <li>Use the Logger node</li>
+            <li>Use the browsers devtools</li>
+          </ul>
+          <h4>Do you want to contribute?</h4>
+          <p>
+            This project is open source. Check out the project on Github and
+            make a pull request.
+          </p>
+          <h4>Start a new playground?</h4>
+        </>
+      )}
+      {(props.filter === 'nodes' || props.filter == null) && (
+        <NodesContent nodesCached={props.nodesCached} />
+      )}
+      {(props.filter === 'about' || props.filter == null) && (
+        <>
+          <h3>About</h3>
+          <p>
+            Plug and Playground is open source, local first and does not collect
+            any data. Everything happens inside your browser.
+          </p>
+          <h4>Problems to solve</h4>
+          <ul>
+            <li>
+              As a user with no/little programming knowledge I am creatively
+              limited by prototyping or design tools.
+            </li>
+            <li>
+              As a programmer the threshold for fast and creative prototyping
+              with code is too high.
+            </li>
+            <li>
+              As a user who wants to visualize and/or interact with data, CSV or
+              .xlsx in a visual, quick and easy way.
+            </li>
+          </ul>
+          <h4>Goals to reach</h4>
+          <ul>
+            <li>
+              Provide an extensive library of nodes to receive, transform and
+              output data
+            </li>
+            <li>Make it easy to jump between visual and real coding</li>
+            <li>Make it easy to use for mouse, trackpad and keyboard people</li>
+            <li>Make it easy to add nodes or libraries of others</li>
+            <li>Allow for easy sharing, forking and collaborating</li>
+            <li>
+              Make the tool self explanatory and build in examples and comments
+            </li>
+            <li>Make it cross platform and open source</li>
+          </ul>
+          <h4>Resources:</h4>
+          <ul>
+            <li>
+              https://github.com/magnificus/pnp-companion-2 - a companion
+              application which provides a way to get around CORS issues and
+              handles things like authentication to API's when applicable.
+            </li>
+            <li>
+              https://github.com/magnificus/pnp-headless - running PNP graphs in
+              headless mode.
+            </li>
+          </ul>
+          <h4>Do you want to contribute?</h4>
+          <p>
+            This project is open source. Check out the project on Github and
+            make a pull request.
+          </p>
+        </>
+      )}
+    </Box>
+  );
+};
+
+const NodesContent = (props) => {
+  return (
+    <>
+      <h3>List of nodes</h3>
       <ul>
         {props.nodesCached.map((property, index) => {
           return (
@@ -264,7 +346,7 @@ const HelpContent = (props) => {
           );
         })}
       </ul>
-    </Box>
+    </>
   );
 };
 
