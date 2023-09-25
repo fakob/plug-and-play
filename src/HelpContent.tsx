@@ -33,18 +33,18 @@ function FilterContainer(props: FilterContentProps) {
       sx={{ bgcolor: 'background.paper', borderRadius: '0px' }}
     >
       <ToggleButton
-        id="inspector-filter-get-started"
-        value="get-started"
-        aria-label="get-started"
+        id="inspector-filter-explore"
+        value="explore"
+        aria-label="explore"
       >
-        Get started
+        Explore
       </ToggleButton>
       <ToggleButton
-        id="inspector-filter-nodes"
-        value="nodes"
-        aria-label="nodes"
+        id="inspector-filter-create"
+        value="create"
+        aria-label="create"
       >
-        Nodes
+        Create
       </ToggleButton>
       <ToggleButton
         id="inspector-filter-about"
@@ -76,7 +76,16 @@ const HelpContent = (props) => {
       }}
     >
       <FilterContainer handleFilter={handleFilter} filter={props.filter} />
-      {(props.filter === 'get-started' || props.filter == null) && (
+      {(props.filter === 'explore' || props.filter == null) && (
+        <>
+          <p>
+            Your visual toolkit for creative prototyping, to explore, transform
+            or visualise data.
+          </p>
+          <NodesContent nodesCached={props.nodesCached} />
+        </>
+      )}
+      {(props.filter === 'create' || props.filter == null) && (
         <>
           <p>
             Your visual toolkit for creative prototyping, to explore, transform
@@ -263,9 +272,6 @@ const HelpContent = (props) => {
           </p>
           <h4>Start a new playground?</h4>
         </>
-      )}
-      {(props.filter === 'nodes' || props.filter == null) && (
-        <NodesContent nodesCached={props.nodesCached} />
       )}
       {(props.filter === 'about' || props.filter == null) && (
         <>

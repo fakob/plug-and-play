@@ -13,7 +13,7 @@ const GraphOverlayDrawer: React.FunctionComponent<GraphOverlayDrawerProps> = (
   props,
 ) => {
   // drawer
-  const defaultDrawerWidth = 320;
+  const defaultDrawerWidth = 340;
   const [drawerWidth, setDrawerWidth] = useState(defaultDrawerWidth);
 
   return (
