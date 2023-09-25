@@ -756,7 +756,7 @@ export default class PPGraph {
     this.nodes = {};
     this.nodeContainer.removeChildren();
 
-    // clearn back and foreground canvas
+    // clear back and foreground canvas
     this.backgroundCanvas.removeChildren();
     this.foregroundCanvas.removeChildren();
 
@@ -1014,7 +1014,7 @@ export default class PPGraph {
       // get links which are completely contained in selection
       node.getAllInputSockets().forEach((socket) => {
         if (socket.hasLink()) {
-          const connectedNode = socket.links[0].source.parent as PPNode;
+          const connectedNode = socket.links[0].source.getNode() as PPNode;
           nodes.includes(connectedNode)
             ? linksFullyContainedInSelection.push(socket.links[0])
             : linksPartiallyInSelection.push(socket.links[0]);

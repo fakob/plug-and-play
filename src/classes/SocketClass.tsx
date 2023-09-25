@@ -337,7 +337,7 @@ export default class Socket extends PIXI.Container implements Tooltipable {
   }
 
   getNode(): PPNode {
-    return this.parent as PPNode;
+    return this.parent?.parent as PPNode;
   }
 
   getGraph(): PPGraph {

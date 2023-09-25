@@ -56,9 +56,11 @@ import { JSONType } from '../nodes/datatypes/jsonType';
 
 export default class PPNode extends PIXI.Container implements Tooltipable {
   _NodeNameRef: PIXI.Text;
-  _BackgroundRef: PIXI.Graphics;
+  _BackgroundRef: PIXI.Container;
+  _BackgroundGraphicsRef: PIXI.Graphics;
   _CommentRef: PIXI.Graphics;
   _StatusesRef: PIXI.Graphics;
+  _ForegroundRef: PIXI.Container;
 
   clickedSocketRef: Socket;
   _isHovering: boolean;
@@ -156,29 +158,34 @@ export default class PPNode extends PIXI.Container implements Tooltipable {
 
     const inputNameText = new PIXI.Text(
       this.getNodeTextString(),
-      NODE_TEXTSTYLE
+      NODE_TEXTSTYLE,
     );
     inputNameText.x = NODE_HEADER_TEXTMARGIN_LEFT;
     inputNameText.y = NODE_PADDING_TOP + NODE_HEADER_TEXTMARGIN_TOP;
     inputNameText.resolution = 8;
 
-    const background = new PIXI.Graphics();
+    const backgroundContainer = new PIXI.Container();
+    this._BackgroundRef = this.addChild(backgroundContainer);
+    this._BackgroundRef.name = 'background';
+    const backgroundGraphics = new PIXI.Graphics();
+    this._BackgroundGraphicsRef =
+      this._BackgroundRef.addChild(backgroundGraphics);
+    this._BackgroundGraphicsRef.name = 'backgroundGraphics';
 
-    this._BackgroundRef = this.addChild(background);
-    this._NodeNameRef = this.addChild(inputNameText);
-    this._CommentRef = this.addChild(new PIXI.Graphics());
-    this._StatusesRef = this.addChild(new PIXI.Graphics());
+    this._NodeNameRef = this._BackgroundRef.addChild(inputNameText);
+    this._CommentRef = this._BackgroundRef.addChild(new PIXI.Graphics());
+    this._StatusesRef = this._BackgroundRef.addChild(new PIXI.Graphics());
 
     this.updateBehaviour = this.getUpdateBehaviour();
     if (this.getShouldShowHoverActions()) {
-      this.addChild(this.updateBehaviour);
+      this._BackgroundRef.addChild(this.updateBehaviour);
     }
     this.updateBehaviour.x = NODE_MARGIN;
     this.updateBehaviour.y = -24;
 
     this.nodeSelectionHeader = new NodeHeaderClass();
     if (this.getShouldShowHoverActions()) {
-      this.addChild(this.nodeSelectionHeader);
+      this._BackgroundRef.addChild(this.nodeSelectionHeader);
     }
     this.nodeSelectionHeader.x = NODE_MARGIN + this.nodeWidth - 96;
     this.nodeSelectionHeader.y = -24;
@@ -187,6 +194,10 @@ export default class PPNode extends PIXI.Container implements Tooltipable {
     if (!this.getShowLabels()) {
       this._NodeNameRef.alpha = 0;
     }
+
+    const foregroundContainer = new PIXI.Container();
+    this._ForegroundRef = this.addChild(foregroundContainer);
+    this._ForegroundRef.name = 'foreground';
 
     // add static inputs and outputs
     this.getAllInitialSockets().forEach((IO) => {
@@ -261,7 +272,7 @@ export default class PPNode extends PIXI.Container implements Tooltipable {
   }
 
   addSocket(socket: Socket): void {
-    const socketRef = this.addChild(socket);
+    const socketRef = this._BackgroundRef.addChild(socket);
     switch (socket.socketType) {
       case SOCKET_TYPE.TRIGGER: {
         this.nodeTriggerSocketArray.push(socketRef);
@@ -285,7 +296,7 @@ export default class PPNode extends PIXI.Container implements Tooltipable {
           !(
             socketRef.name === socket.name &&
             socketRef.socketType === socket.socketType
-          )
+          ),
       );
     };
 
@@ -308,10 +319,10 @@ export default class PPNode extends PIXI.Container implements Tooltipable {
     data?: unknown,
     visible?: boolean,
     custom?: Record<string, any>, // lets get rid of this ASAP
-    redraw = true
+    redraw = true,
   ): void {
     this.addSocket(
-      new Socket(SOCKET_TYPE.TRIGGER, name, type, data, visible, custom)
+      new Socket(SOCKET_TYPE.TRIGGER, name, type, data, visible, custom),
     );
     // redraw background due to size change
     if (redraw) {
@@ -325,10 +336,10 @@ export default class PPNode extends PIXI.Container implements Tooltipable {
     data?: unknown,
     visible?: boolean,
     custom?: Record<string, any>, // lets get rid of this ASAP
-    redraw = true
+    redraw = true,
   ): void {
     this.addSocket(
-      new Socket(SOCKET_TYPE.IN, name, type, data, visible, custom)
+      new Socket(SOCKET_TYPE.IN, name, type, data, visible, custom),
     );
     // redraw background due to size change
     if (redraw) {
@@ -341,7 +352,7 @@ export default class PPNode extends PIXI.Container implements Tooltipable {
     type: AbstractType,
     visible?: boolean,
     custom?: Record<string, any>,
-    redraw = true
+    redraw = true,
   ): void {
     this.addSocket(
       new Socket(
@@ -349,8 +360,8 @@ export default class PPNode extends PIXI.Container implements Tooltipable {
         name,
         type,
         null, // need to get rid of this
-        visible
-      )
+        visible,
+      ),
     );
     // redraw background due to size change
     if (redraw) {
@@ -389,14 +400,15 @@ export default class PPNode extends PIXI.Container implements Tooltipable {
     this.updateBehaviour = new UpdateBehaviourClass(
       nodeConfig.updateBehaviour.update,
       nodeConfig.updateBehaviour.interval,
-      nodeConfig.updateBehaviour.intervalFrequency
+      nodeConfig.updateBehaviour.intervalFrequency,
+      this,
     );
     if (includeSocketData) {
       try {
         const mapSocket = (item: SerializedSocket) => {
           const matchingSocket = this.getSocketByNameAndType(
             item.name,
-            item.socketType
+            item.socketType,
           );
           if (matchingSocket !== undefined) {
             matchingSocket.dataType = deSerializeType(item.dataType);
@@ -407,7 +419,7 @@ export default class PPNode extends PIXI.Container implements Tooltipable {
           } else {
             // add socket if it does not exist yet
             console.info(
-              `Socket does not exist (yet) and will be created: ${this.name}(${this.id})/${item.name}`
+              `Socket does not exist (yet) and will be created: ${this.name}(${this.id})/${item.name}`,
             );
             this.addSocket(
               new Socket(
@@ -415,8 +427,8 @@ export default class PPNode extends PIXI.Container implements Tooltipable {
                 item.name,
                 deSerializeType(item.dataType),
                 item.data,
-                item.visible
-              )
+                item.visible,
+              ),
             );
           }
         };
@@ -426,7 +438,7 @@ export default class PPNode extends PIXI.Container implements Tooltipable {
       } catch (error) {
         console.error(
           `Could not configure node: ${this.name}(${this.id})`,
-          error
+          error,
         );
       }
     }
@@ -458,7 +470,7 @@ export default class PPNode extends PIXI.Container implements Tooltipable {
   async executeChildren(): Promise<void> {
     this.drawComment();
     await FlowLogic.executeOptimizedChainBatch(
-      Object.values(this.getDirectDependents())
+      Object.values(this.getDirectDependents()),
     );
   }
 
@@ -492,7 +504,7 @@ export default class PPNode extends PIXI.Container implements Tooltipable {
   onBeingScaled(
     width: number = this.nodeWidth,
     height: number = this.nodeHeight,
-    maintainAspectRatio = false
+    maintainAspectRatio = false,
   ): void {
     this.resizeAndDraw(width, height, maintainAspectRatio);
   }
@@ -500,7 +512,7 @@ export default class PPNode extends PIXI.Container implements Tooltipable {
   resizeAndDraw(
     width: number = this.nodeWidth,
     height: number = this.nodeHeight,
-    maintainAspectRatio = false
+    maintainAspectRatio = false,
   ): void {
     // set new size
     const newNodeWidth = Math.max(width, this.getMinNodeWidth());
@@ -515,7 +527,7 @@ export default class PPNode extends PIXI.Container implements Tooltipable {
         newNodeWidth,
         newNodeHeight,
         this.getMinNodeWidth(),
-        this.getMinNodeHeight()
+        this.getMinNodeHeight(),
       );
       this.nodeWidth = newRect.width;
       this.nodeHeight = newRect.height;
@@ -535,7 +547,7 @@ export default class PPNode extends PIXI.Container implements Tooltipable {
 
     if (this.selected) {
       PPGraph.currentGraph.selection.drawRectanglesFromSelection(
-        PPGraph.currentGraph.selection.selectedNodes.length > 1
+        PPGraph.currentGraph.selection.selectedNodes.length > 1,
       );
     }
   }
@@ -555,7 +567,7 @@ export default class PPNode extends PIXI.Container implements Tooltipable {
   getAllSockets(): Socket[] {
     return this.inputSocketArray.concat(
       this.nodeTriggerSocketArray,
-      this.outputSocketArray
+      this.outputSocketArray,
     );
   }
 
@@ -604,32 +616,32 @@ export default class PPNode extends PIXI.Container implements Tooltipable {
   }
 
   public drawErrorBoundary(): void {
-    this._BackgroundRef.beginFill(
+    this._BackgroundGraphicsRef.beginFill(
       new TRgba(255, 0, 0).hexNumber(),
-      this.getOpacity()
+      this.getOpacity(),
     );
-    this._BackgroundRef.drawRoundedRect(
+    this._BackgroundGraphicsRef.drawRoundedRect(
       NODE_MARGIN - 3,
       -3,
       this.nodeWidth + 6,
       this.nodeHeight + 6,
-      this.getRoundedCorners() ? NODE_CORNERRADIUS : 0
+      this.getRoundedCorners() ? NODE_CORNERRADIUS : 0,
     );
   }
 
   public drawBackground(): void {
-    this._BackgroundRef.beginFill(
+    this._BackgroundGraphicsRef.beginFill(
       this.getColor().hexNumber(),
-      this.getOpacity()
+      this.getOpacity(),
     );
-    this._BackgroundRef.drawRoundedRect(
+    this._BackgroundGraphicsRef.drawRoundedRect(
       NODE_MARGIN,
       0,
       this.nodeWidth,
       this.nodeHeight,
-      this.getRoundedCorners() ? NODE_CORNERRADIUS : 0
+      this.getRoundedCorners() ? NODE_CORNERRADIUS : 0,
     );
-    this._BackgroundRef.endFill();
+    this._BackgroundGraphicsRef.endFill();
   }
 
   public drawTriggers(): void {
@@ -689,7 +701,7 @@ export default class PPNode extends PIXI.Container implements Tooltipable {
         new TextStyle({
           fontSize: 18,
           fill: COLOR_MAIN,
-        })
+        }),
       );
       text.x = this.nodeWidth - inlet + 5; // - width;
       text.y = startY + 5 + index * (height - merging);
@@ -700,7 +712,7 @@ export default class PPNode extends PIXI.Container implements Tooltipable {
         startY + index * (height - merging),
         text.width + 10,
         height,
-        NODE_CORNERRADIUS
+        NODE_CORNERRADIUS,
       );
     });
   }
@@ -708,7 +720,7 @@ export default class PPNode extends PIXI.Container implements Tooltipable {
   public drawNodeShape(): void {
     // update selection
 
-    this._BackgroundRef.clear();
+    this._BackgroundGraphicsRef.clear();
     if (!this.successfullyExecuted) {
       this.drawErrorBoundary();
     }
@@ -732,21 +744,21 @@ export default class PPNode extends PIXI.Container implements Tooltipable {
   public addDefaultTrigger(): void {
     this.addTrigger(
       this.constructSocketName('Trigger', this.nodeTriggerSocketArray),
-      new TriggerType()
+      new TriggerType(),
     );
   }
 
   public addDefaultInput(): void {
     this.addInput(
       this.constructSocketName('Custom Input', this.inputSocketArray),
-      new AnyType()
+      new AnyType(),
     );
   }
 
   public addDefaultOutput(): void {
     this.addOutput(
       this.constructSocketName('Custom Output', this.outputSocketArray),
-      new AnyType()
+      new AnyType(),
     );
   }
 
@@ -763,7 +775,7 @@ export default class PPNode extends PIXI.Container implements Tooltipable {
     this._CommentRef.removeChildren();
     if (PPGraph.currentGraph._showComments) {
       let commentData = this.outputSocketArray[0]?.dataType?.getComment(
-        this.outputSocketArray[0]?.data
+        this.outputSocketArray[0]?.data,
       );
       if (commentData !== undefined && commentData.length > 10000) {
         commentData = 'Too long to display';
@@ -771,12 +783,12 @@ export default class PPNode extends PIXI.Container implements Tooltipable {
       const debugText = new PIXI.Text(
         `${this.id}
 ${Math.round(this.transform.position.x)}, ${Math.round(
-          this.transform.position.y
+          this.transform.position.y,
         )}
 ${Math.round(this._bounds.minX)}, ${Math.round(
-          this._bounds.minY
+          this._bounds.minY,
         )}, ${Math.round(this._bounds.maxX)}, ${Math.round(this._bounds.maxY)}`,
-        COMMENT_TEXTSTYLE
+        COMMENT_TEXTSTYLE,
       );
       debugText.resolution = 1;
       const nodeComment = new PIXI.Text(commentData, COMMENT_TEXTSTYLE);
@@ -913,19 +925,19 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     // const iterations = 30;
     // const interval = 16.67;
     const activeExecution = new PIXI.Graphics();
-    this.addChild(activeExecution);
+    this._BackgroundRef.addChild(activeExecution);
     for (let i = 1; i <= iterations; i++) {
       setTimeout(() => {
         activeExecution.clear();
         if (this.successfullyExecuted) {
           activeExecution.beginFill(
             new PIXI.Color('#CCFFFF').toNumber(),
-            0.4 - i * (0.4 / iterations)
+            0.4 - i * (0.4 / iterations),
           );
         } else {
           activeExecution.beginFill(
             new TRgba(255, 0, 0).hexNumber(),
-            1.0 - i * (1.0 / iterations)
+            1.0 - i * (1.0 / iterations),
           );
         }
 
@@ -934,11 +946,11 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
           0,
           this.nodeWidth,
           this.nodeHeight,
-          this.getRoundedCorners() ? NODE_CORNERRADIUS : 0
+          this.getRoundedCorners() ? NODE_CORNERRADIUS : 0,
         );
         activeExecution.endFill();
         if (i == iterations) {
-          this.removeChild(activeExecution);
+          this._BackgroundRef.removeChild(activeExecution);
         }
       }, i * interval);
     }
@@ -960,7 +972,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     } catch (error) {
       this.lastError = error;
       console.log(
-        `Node ${this.name}(${this.id}) execution error:  ${error.stack}`
+        `Node ${this.name}(${this.id}) execution error:  ${error.stack}`,
       );
       this.successfullyExecuted = false;
     }
@@ -987,7 +999,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
         type: this.type,
       },
       getCircularReplacer(),
-      2
+      2,
     );
     return (
       <>
@@ -1013,7 +1025,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     const absPos = this.getGlobalPosition();
     return new PIXI.Point(
       Math.max(0, absPos.x - TOOLTIP_WIDTH - distanceX),
-      absPos.y
+      absPos.y,
     );
   }
 
@@ -1031,7 +1043,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     this.onViewportMoveHandler = this.onViewportMove.bind(this);
     PPGraph.currentGraph.viewport.addEventListener(
       'moved',
-      (this as any).onViewportMoveHandler
+      (this as any).onViewportMoveHandler,
     );
   }
 
@@ -1062,7 +1074,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
         PPGraph.currentGraph.selection.selectNodes(
           duplicatedNodes,
           shiftKey,
-          true
+          true,
         );
       }
 
@@ -1102,7 +1114,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     // remove added listener from graph.viewport
     PPGraph.currentGraph.viewport.removeEventListener(
       'moved',
-      this.onViewportMoveHandler
+      this.onViewportMoveHandler,
     );
     this.listenId.forEach((id) => InterfaceController.removeListener(id));
 
@@ -1140,8 +1152,8 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     this.listenId.push(
       InterfaceController.addListener(
         ListenEvent.GlobalPointerUp,
-        this.onViewportPointerUpHandler
-      )
+        this.onViewportPointerUpHandler,
+      ),
     );
     // check if double clicked
     if (event.detail === 2) {
@@ -1149,8 +1161,8 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
       this.listenId.push(
         InterfaceController.addListener(
           ListenEvent.EscapeKeyUsed,
-          this.onViewportPointerUpHandler
-        )
+          this.onViewportPointerUpHandler,
+        ),
       );
       if (this.onNodeDoubleClick) {
         this.onNodeDoubleClick(event);
@@ -1166,7 +1178,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   public hasSocketNameInDefaultIO(name: string, type: TSocketType): boolean {
     return (
       this.getAllInitialSockets().find(
-        (socket) => socket.name == name && socket.socketType == type
+        (socket) => socket.name == name && socket.socketType == type,
       ) !== undefined
     );
   }
@@ -1188,7 +1200,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   }
 
   protected getUpdateBehaviour(): UpdateBehaviourClass {
-    return new UpdateBehaviourClass(true, false, 1000);
+    return new UpdateBehaviourClass(true, false, 1000, this);
   }
 
   // override if you don't want your node to show outline for some reason

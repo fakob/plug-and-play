@@ -104,10 +104,10 @@ export class Image extends PPNode {
 
   public async onNodeAdded(source: TNodeSource): Promise<void> {
     this.sprite = new PIXI.Sprite();
-    this.addChild(this.sprite);
+    this._ForegroundRef.addChild(this.sprite);
 
     this.maskRef = new PIXI.Graphics();
-    this.addChild(this.maskRef);
+    this._ForegroundRef.addChild(this.maskRef);
     this.sprite.mask = this.maskRef;
 
     let texture;

@@ -76,17 +76,17 @@ export class Reroute extends PPNode {
   }
 
   public drawBackground(): void {
-    this._BackgroundRef.beginFill(
+    this._BackgroundGraphicsRef.beginFill(
       this.getColor().hexNumber(),
-      this.getOpacity()
+      this.getOpacity(),
     );
-    this._BackgroundRef.drawCircle(16, 0, 14.5);
-    this._BackgroundRef.endFill();
+    this._BackgroundGraphicsRef.drawCircle(16, 0, 14.5);
+    this._BackgroundGraphicsRef.endFill();
   }
 
   protected async onExecute(
     inputObject: unknown,
-    outputObject: Record<string, unknown>
+    outputObject: Record<string, unknown>,
   ): Promise<void> {
     outputObject['Out'] = inputObject['In'];
   }
@@ -126,7 +126,7 @@ export class JumpToNode extends WidgetButton {
 
   onWidgetTrigger = () => {
     const nodeId = getNodeArrayOptions()().find(
-      (option) => option.text === this.getInputData(selectNodeName)
+      (option) => option.text === this.getInputData(selectNodeName),
     )?.value;
     const nodeToJumpTo = PPGraph.currentGraph.nodes[nodeId];
     if (nodeToJumpTo) {
@@ -145,7 +145,7 @@ export class JumpToNode extends WidgetButton {
         selectNodeName,
         new DynamicEnumType(getNodeArrayOptions),
         undefined,
-        false
+        false,
       ),
     ].concat(super.getDefaultIO());
   }
@@ -175,7 +175,7 @@ export class WriteToClipboard extends PPNode {
   }
 
   protected getUpdateBehaviour(): UpdateBehaviourClass {
-    return new UpdateBehaviourClass(false, false, 1000);
+    return new UpdateBehaviourClass(false, false, 1000, this);
   }
 
   protected getDefaultIO(): Socket[] {
@@ -185,14 +185,14 @@ export class WriteToClipboard extends PPNode {
         'Trigger',
         new TriggerType(TRIGGER_TYPE_OPTIONS[1].text),
         undefined,
-        true
+        true,
       ),
       new Socket(
         SOCKET_TYPE.IN,
         dataToCopyName,
         new StringType(),
         undefined,
-        true
+        true,
       ),
     ].concat(super.getDefaultIO());
   }
@@ -218,7 +218,7 @@ export class WriteToClipboard extends PPNode {
           },
           function () {
             console.error('Writing to clipboard of this text failed:', input);
-          }
+          },
         );
     }
   }
@@ -251,7 +251,7 @@ export class ThrottleDebounce extends PPNode {
         'Update',
         new TriggerType(TRIGGER_TYPE_OPTIONS[0].text, 'updateDebounceFunction'),
         undefined,
-        false
+        false,
       ),
       new Socket(SOCKET_TYPE.IN, 'Wait', new NumberType(), 1000, false),
       new Socket(
@@ -259,7 +259,7 @@ export class ThrottleDebounce extends PPNode {
         'Max Wait',
         new NumberType(),
         undefined,
-        false
+        false,
       ),
       new Socket(SOCKET_TYPE.IN, 'Leading', new BooleanType(), false, false),
       new Socket(SOCKET_TYPE.IN, 'Trailing', new BooleanType(), true, false),
@@ -279,13 +279,13 @@ export class ThrottleDebounce extends PPNode {
         maxWait: this.getInputData('Max Wait'),
         leading: this.getInputData('Leading'),
         trailing: this.getInputData('Trailing'),
-      }
+      },
     );
   }
 
   protected async onExecute(
     inputObject: any,
-    outputObject: any
+    outputObject: any,
   ): Promise<void> {
     if (this.passThroughDebounced === undefined) {
       this.updateDebounceFunction();
@@ -330,7 +330,7 @@ export class LoadNPM extends CustomFunction {
   }
 
   protected getUpdateBehaviour(): UpdateBehaviourClass {
-    return new UpdateBehaviourClass(false, false, 1000);
+    return new UpdateBehaviourClass(false, false, 1000, this);
   }
 
   protected getDefaultFunction(): string {

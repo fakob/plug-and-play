@@ -27,7 +27,7 @@ function PaperComponent(props) {
     <Draggable
       handle="#draggable-title"
       cancel={'[id=draggable-content]'}
-      key={`${props.socketinfo.parent.id}.${props.socketinfo.name}`}
+      key={`${props.socketinfo.getNode().id}.${props.socketinfo.name}`}
     >
       <Paper {...props} />
     </Draggable>
@@ -96,7 +96,7 @@ export const FloatingSocketInspector: React.FunctionComponent<MyProps> = (
               userSelect: 'none',
             }}
           >
-            {props.socketToInspect.parent?.name}
+            {props.socketToInspect.getNode()?.name}
           </Box>
           <ToggleButtonGroup
             value={newWidth}
@@ -135,7 +135,7 @@ export const FloatingSocketInspector: React.FunctionComponent<MyProps> = (
             hasLink={props.socketToInspect.hasLink()}
             data={props.socketToInspect.data}
             randomMainColor={props.randomMainColor}
-            selectedNode={props.socketToInspect.parent as PPNode}
+            selectedNode={props.socketToInspect.getNode() as PPNode}
           />
         </Box>
       </PaperComponent>

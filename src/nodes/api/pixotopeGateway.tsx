@@ -40,7 +40,7 @@ export class PixotopeGatewayGet extends PPNode {
         addressName,
         new StringType(),
         gatewayAddressDefault,
-        false
+        false,
       ),
       new Socket(SOCKET_TYPE.IN, targetName, new StringType(), 'Store'),
       new Socket(SOCKET_TYPE.IN, nameName, new StringType(), 'State'),
@@ -49,7 +49,7 @@ export class PixotopeGatewayGet extends PPNode {
   }
   protected async onExecute(
     inputObject: any,
-    outputObject: Record<string, unknown>
+    outputObject: Record<string, unknown>,
   ): Promise<void> {
     const target = inputObject[targetName];
     const name = inputObject[nameName];
@@ -85,7 +85,7 @@ export class PixotopeGatewaySet extends PPNode {
   }
 
   protected getUpdateBehaviour(): UpdateBehaviourClass {
-    return new UpdateBehaviourClass(false, false, 1000);
+    return new UpdateBehaviourClass(false, false, 1000, this);
   }
 
   protected getDefaultIO(): Socket[] {
@@ -95,21 +95,21 @@ export class PixotopeGatewaySet extends PPNode {
         addressName,
         new StringType(),
         gatewayAddressDefault,
-        false
+        false,
       ),
       new Socket(SOCKET_TYPE.IN, targetName, new StringType(), 'Store'),
       new Socket(
         SOCKET_TYPE.IN,
         nameName,
         new StringType(),
-        'State.ThirdParty.PlugAndPlaygroundSettable'
+        'State.ThirdParty.PlugAndPlaygroundSettable',
       ),
       new Socket(SOCKET_TYPE.IN, valueName, new AnyType(), 'TempValue'),
     ];
   }
   protected async onExecute(
     inputObject: any,
-    outputObject: Record<string, unknown>
+    outputObject: Record<string, unknown>,
   ): Promise<void> {
     const target = inputObject[targetName];
     const name = inputObject[nameName];
@@ -145,7 +145,7 @@ export class PixotopeGatewayCall extends PPNode {
         addressName,
         new StringType(),
         gatewayAddressDefault,
-        false
+        false,
       ),
       new Socket(SOCKET_TYPE.IN, targetName, new StringType(), 'Store'),
       new Socket(SOCKET_TYPE.IN, methodName, new StringType(), 'VideoIO'),
@@ -158,7 +158,7 @@ export class PixotopeGatewayCall extends PPNode {
   }
   protected async onExecute(
     inputObject: any,
-    outputObject: Record<string, unknown>
+    outputObject: Record<string, unknown>,
   ): Promise<void> {
     const target = inputObject[targetName];
     const method = inputObject[methodName];
@@ -195,7 +195,7 @@ export class PixotopeGatewayCallSaveImage extends PPNode {
         addressName,
         new StringType(),
         gatewayAddressDefault,
-        false
+        false,
       ),
       new Socket(SOCKET_TYPE.IN, targetName, new StringType(), 'Pipeline'),
       new Socket(SOCKET_TYPE.IN, nodeName, new StringType(), 'XXX'),
@@ -203,14 +203,14 @@ export class PixotopeGatewayCallSaveImage extends PPNode {
         SOCKET_TYPE.IN,
         scaleName,
         new NumberType(false, 0.1, 1.0, 0.01),
-        0.1
+        0.1,
       ),
       new Socket(SOCKET_TYPE.OUT, outputContentName, new ImageType(), ''),
     ];
   }
   protected async onExecute(
     inputObject: any,
-    outputObject: Record<string, unknown>
+    outputObject: Record<string, unknown>,
   ): Promise<void> {
     const address = inputObject[addressName];
     const res = await fetch(address, {
@@ -229,8 +229,7 @@ export class PixotopeGatewayCallSaveImage extends PPNode {
         },
       }),
     });
-    outputObject[outputContentName] = (
-      await res.json()
-    )[0]?.Message?.Result?.Image;
+    outputObject[outputContentName] = (await res.json())[0]?.Message?.Result
+      ?.Image;
   }
 }

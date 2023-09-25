@@ -58,7 +58,7 @@ export class Macro extends PPNode {
   }
 
   protected getUpdateBehaviour(): UpdateBehaviourClass {
-    return new UpdateBehaviourClass(false, false, 1000);
+    return new UpdateBehaviourClass(false, false, 1000, this);
   }
 
   onRemoved(): void {
@@ -73,12 +73,12 @@ export class Macro extends PPNode {
   private getMacroText(): string {
     let toReturn = this.nodeName + ': (';
     const linkedOutputs = this.outputSocketArray.filter((socket) =>
-      socket.hasLink()
+      socket.hasLink(),
     );
     toReturn += linkedOutputs
       .map(
         (socket) =>
-          this.getSocketDisplayName(socket) + ': ' + socket.dataType.getName()
+          this.getSocketDisplayName(socket) + ': ' + socket.dataType.getName(),
       )
       .join(',');
     toReturn += ') => ' + this.inputSocketArray[0].dataType.getName();
@@ -86,53 +86,56 @@ export class Macro extends PPNode {
   }
 
   public drawBackground(): void {
-    this._BackgroundRef.beginFill(
+    this._BackgroundGraphicsRef.beginFill(
       this.getColor().hexNumber(),
-      this.getOpacity()
+      this.getOpacity(),
     );
-    this._BackgroundRef.removeChild(this.textRef);
+    this._BackgroundGraphicsRef.removeChild(this.textRef);
     this.textRef = new PIXI.Text(this.getMacroText());
     this.textRef.y = -50;
     this.textRef.x = 50;
     this.textRef.style.fill = new TRgba(128, 128, 128).hexNumber();
     this.textRef.style.fontSize = 36;
-    this._BackgroundRef.addChild(this.textRef);
+    this._BackgroundGraphicsRef.addChild(this.textRef);
 
-    this._BackgroundRef.drawRoundedRect(
+    this._BackgroundGraphicsRef.drawRoundedRect(
       NODE_MARGIN,
       0,
       macroInputBlockSize,
       this.nodeHeight,
-      this.getRoundedCorners() ? NODE_CORNERRADIUS : 0
+      this.getRoundedCorners() ? NODE_CORNERRADIUS : 0,
     );
 
-    this._BackgroundRef.drawRoundedRect(
+    this._BackgroundGraphicsRef.drawRoundedRect(
       NODE_MARGIN + this.nodeWidth - macroOutputBlockSize,
       0,
       macroOutputBlockSize,
       this.nodeHeight,
-      this.getRoundedCorners() ? NODE_CORNERRADIUS : 0
+      this.getRoundedCorners() ? NODE_CORNERRADIUS : 0,
     );
 
-    this._BackgroundRef.lineStyle(3, this.getColor().multiply(0.8).hexNumber());
+    this._BackgroundGraphicsRef.lineStyle(
+      3,
+      this.getColor().multiply(0.8).hexNumber(),
+    );
     drawDottedLine(
-      this._BackgroundRef,
+      this._BackgroundGraphicsRef,
       macroInputBlockSize + 5,
       5,
       this.nodeWidth - macroOutputBlockSize + 10,
       5,
-      5
+      5,
     );
     drawDottedLine(
-      this._BackgroundRef,
+      this._BackgroundGraphicsRef,
       macroInputBlockSize + 5,
       this.nodeHeight,
       this.nodeWidth - macroOutputBlockSize + 10,
       this.nodeHeight,
-      5
+      5,
     );
 
-    this._BackgroundRef.endFill();
+    this._BackgroundGraphicsRef.endFill();
   }
 
   public getInputSocketXPos(): number {
@@ -168,7 +171,7 @@ export class Macro extends PPNode {
   public addDefaultOutput(): void {
     this.addOutput(
       this.constructSocketName('Parameter', this.outputSocketArray),
-      new AnyType()
+      new AnyType(),
     );
   }
 
@@ -180,7 +183,7 @@ export class Macro extends PPNode {
     const allParams = ['MacroName'].concat(
       this.outputSocketArray
         .slice(0, -1)
-        .map((socket) => this.getSocketDisplayName(socket))
+        .map((socket) => this.getSocketDisplayName(socket)),
     );
     const paramLine = allParams.join(',').replaceAll(' ', '_');
     console.log('paramLine: ' + paramLine);
@@ -227,7 +230,7 @@ export class Macro extends PPNode {
     const myBounds = this.getBounds();
     const nodesInside: PPNode[] = getObjectsInsideBounds(
       Object.values(PPGraph.currentGraph.nodes),
-      myBounds
+      myBounds,
     );
     nodesInside.unshift(this);
     PPGraph.currentGraph.selection.selectNodes(nodesInside);
@@ -249,16 +252,16 @@ export class Macro extends PPNode {
 
   protected async updateAllCallers() {
     const nodesCallingMe = Object.values(PPGraph.currentGraph.nodes).filter(
-      (node) => node.isCallingMacro(this.name)
+      (node) => node.isCallingMacro(this.name),
     );
     await Promise.all(
-      nodesCallingMe.map(async (node) => await node.calledMacroUpdated())
+      nodesCallingMe.map(async (node) => await node.calledMacroUpdated()),
     );
   }
 
   protected async onExecute(
     _inputObject: any,
-    _outputObject: Record<string, unknown>
+    _outputObject: Record<string, unknown>,
   ): Promise<void> {
     // potentially demanding but important QOL, go through all nodes and see which refer to me, they need to be re-executed
     if (!this.isExecutingFromOutside) {
@@ -269,7 +272,7 @@ export class Macro extends PPNode {
 
 function buildDefaultMacroFunction(macroName: string) {
   const targetMacro = Object.values(PPGraph.currentGraph.macros).find(
-    (macro) => macro.nodeName == macroName
+    (macro) => macro.nodeName == macroName,
   );
   return targetMacro ? targetMacro.getCallMacroCode() : '';
 }
@@ -300,7 +303,7 @@ export class ExecuteMacro extends CustomFunction {
   protected getDefaultParameterTypes(): Record<string, any> {
     return {
       MacroName: new DynamicEnumType(ExecuteMacro.getOptions, () =>
-        this.generateUseNewCode()
+        this.generateUseNewCode(),
       ),
     };
   }
@@ -317,7 +320,7 @@ export class ExecuteMacro extends CustomFunction {
   public generateUseNewCode = async () => {
     this.setInputData(
       anyCodeName,
-      buildDefaultMacroFunction(this.getInputData('MacroName'))
+      buildDefaultMacroFunction(this.getInputData('MacroName')),
     );
     await this.executeOptimizedChain();
     this.resizeAndDraw(0, 0);

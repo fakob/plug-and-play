@@ -64,7 +64,7 @@ export default class NodeHeaderClass extends PIXI.Container {
     down: boolean
   ): void {
     const altKey = event.altKey;
-    const node = this.parent as PPNode;
+    const node = this.parent?.parent as PPNode;
     const graph = PPGraph.currentGraph;
     console.log(this, node, up, down);
     graph.selection.selectNodes(
@@ -73,7 +73,7 @@ export default class NodeHeaderClass extends PIXI.Container {
   }
 
   editNodeMouseDown(): void {
-    const node = this.parent as PPNode;
+    const node = this.parent?.parent as PPNode;
     PPGraph.currentGraph.socketToInspect = null;
     const obj = {
       filter: null,
