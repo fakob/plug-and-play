@@ -70,70 +70,70 @@ export abstract class DRAW_Base extends PPNode {
         offseXName,
         new NumberType(true, -2000, 2000),
         400,
-        false
+        false,
       ),
       new Socket(
         SOCKET_TYPE.IN,
         offsetYName,
         new NumberType(true, -2000, 2000),
         0,
-        false
+        false,
       ),
       new Socket(
         SOCKET_TYPE.IN,
         scaleXName,
         new NumberType(false, 0.01, 10),
         1,
-        false
+        false,
       ),
       new Socket(
         SOCKET_TYPE.IN,
         scaleYName,
         new NumberType(false, 0.01, 10),
         1,
-        false
+        false,
       ),
       new Socket(
         SOCKET_TYPE.IN,
         inputRotationName,
         new NumberType(true, -180, 180),
         0,
-        false
+        false,
       ),
       new Socket(
         SOCKET_TYPE.IN,
         inputPivotName,
         new EnumType(PIXI_PIVOT_OPTIONS),
         PIXI_PIVOT_OPTIONS[0].text,
-        false
+        false,
       ),
       new Socket(
         SOCKET_TYPE.IN,
         inputAlwaysDraw,
         new BooleanType(),
         true,
-        false
+        false,
       ),
       new Socket(
         SOCKET_TYPE.IN,
         inputAbsolutePositions,
         new BooleanType(),
         false,
-        false
+        false,
       ),
       new Socket(
         SOCKET_TYPE.IN,
         inputSkewXName,
         new NumberType(false, Math.PI / 2, Math.PI / 2),
         0,
-        false
+        false,
       ),
       new Socket(
         SOCKET_TYPE.IN,
         inputSkewYName,
         new NumberType(false, -Math.PI / 2, Math.PI / 2),
         0,
-        false
+        false,
       ),
       new Socket(SOCKET_TYPE.IN, injectedDataName, new ArrayType(), [], true),
       new Socket(SOCKET_TYPE.OUT, outputPixiName, new DeferredPixiType()),
@@ -144,7 +144,7 @@ export abstract class DRAW_Base extends PPNode {
   protected abstract drawOnContainer(
     inputObject: any,
     container: PIXI.Container,
-    executions: { string: number }
+    executions: { string: number },
   ): void;
 
   protected getAndIncrementExecutions(executions: { string: number }): number {
@@ -157,7 +157,7 @@ export abstract class DRAW_Base extends PPNode {
   }
   protected async onExecute(
     inputObject: any,
-    outputObject: Record<string, unknown>
+    outputObject: Record<string, unknown>,
   ): Promise<void> {
     const drawingFunction = (container, executions) => {
       if (container) {
@@ -178,20 +178,20 @@ export abstract class DRAW_Base extends PPNode {
 
   protected setOffsetsToCurrentCursor(
     originalCursorPos: PIXI.Point,
-    originalOffsets: PIXI.Point
+    originalOffsets: PIXI.Point,
   ) {
     const currPos = getCurrentCursorPosition();
     this.setOffsetsToCurrentCursor;
     const diffX = currPos.x - originalCursorPos.x;
     const diffY = currPos.y - originalCursorPos.y;
     this.setOffsets(
-      new PIXI.Point(originalOffsets.x + diffX, originalOffsets.y + diffY)
+      new PIXI.Point(originalOffsets.x + diffX, originalOffsets.y + diffY),
     );
   }
 
   protected pointerDown(
     originalCursorPos: PIXI.Point,
-    originalOffsets: PIXI.Point
+    originalOffsets: PIXI.Point,
   ) {
     this.isDragging = true;
     PPGraph.currentGraph.selection.selectNodes([this], false, true);
@@ -206,19 +206,19 @@ export abstract class DRAW_Base extends PPNode {
             this.pointerDown(originalCursorPos, originalOffsets);
           }
         }, 16);
-      }
+      },
     );
 
     InterfaceController.removeListener(this.listenIDUp);
     this.listenIDUp = InterfaceController.addListener(
       ListenEvent.GlobalPointerUpAndUpOutside,
-      () => this.pointerUp(originalCursorPos, originalOffsets)
+      () => this.pointerUp(originalCursorPos, originalOffsets),
     );
   }
 
   protected pointerUp(
     originalCursorPos: PIXI.Point,
-    originalOffsets: PIXI.Point
+    originalOffsets: PIXI.Point,
   ) {
     const currPos = getCurrentCursorPosition();
     this.isDragging = false;
@@ -231,12 +231,12 @@ export abstract class DRAW_Base extends PPNode {
         this.setOffsets(
           new PIXI.Point(
             currPos.x - originalCursorPos.x,
-            currPos.y - originalCursorPos.y
-          )
+            currPos.y - originalCursorPos.y,
+          ),
         ),
       async () => this.setOffsets(originalOffsets),
       'Move Graphics',
-      false
+      false,
     );
   }
 
@@ -259,8 +259,8 @@ export abstract class DRAW_Base extends PPNode {
             getCurrentCursorPosition(),
             new PIXI.Point(
               this.getInputData(offseXName),
-              this.getInputData(offsetYName)
-            )
+              this.getInputData(offsetYName),
+            ),
           );
         });
       }
@@ -270,24 +270,29 @@ export abstract class DRAW_Base extends PPNode {
   protected positionAndScale(toModify: DisplayObject, inputObject: any): void {
     const pivot = inputObject[inputPivotName];
     const pivotPointFound = PIXI_PIVOT_OPTIONS.find(
-      (option) => option.text === pivot
+      (option) => option.text === pivot,
     );
     const pivotPoint = pivotPointFound
       ? pivotPointFound.value
       : PIXI_PIVOT_OPTIONS[0].value;
+
+    // get bounds with reset pivot
+    toModify.pivot.x = 0;
+    toModify.pivot.y = 0;
+    const width = toModify.getBounds().width;
+    const height = toModify.getBounds().height;
 
     toModify.setTransform(
       inputObject[offseXName],
       inputObject[offsetYName],
       inputObject[scaleXName],
       inputObject[scaleYName],
-      (inputObject[inputRotationName] * Math.PI) / 180
+      (inputObject[inputRotationName] * Math.PI) / 180,
+      inputObject[inputSkewXName],
+      inputObject[inputSkewYName],
+      pivotPoint.x * width,
+      pivotPoint.y * height,
     );
-    toModify.pivot.x = pivotPoint.x * toModify.getBounds().width;
-    toModify.pivot.y = pivotPoint.y * toModify.getBounds().height;
-
-    toModify.skew.x = inputObject[inputSkewXName];
-    toModify.skew.y = inputObject[inputSkewYName];
   }
 
   public outputPlugged(): void {
@@ -326,7 +331,7 @@ export abstract class DRAW_Interactive_Base extends DRAW_Base {
       new Socket(
         SOCKET_TYPE.OUT,
         outputMultiplierPointerDown,
-        new BooleanType()
+        new BooleanType(),
       ),
     ].concat(super.getDefaultIO());
   }

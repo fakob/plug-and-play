@@ -27,4 +27,5 @@ Work in progress - https://plugandplayground.dev
 
 ## Resources:
 
-- https://github.com/magnificus/pnp-companion-2/releases/ - a companion application which provides a way to get around CORS issues and handles things like authentication to API's when applicable.
+- https://github.com/magnificus/pnp-companion-2 - a companion application which provides a way to get around CORS issues and handles things like authentication to API's when applicable.
+- https://github.com/magnificus/pnp-headless - running PNP graphs in headless mode.

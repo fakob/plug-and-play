@@ -56,7 +56,7 @@ describe('fundamentals', () => {
   it('Save Graph', () => {
     cy.wait(3000);
     cy.get('body').type(`${controlOrMetaKey}s`);
-    checkToastForMessage('Playground was saved');
+    checkToastForMessage('was saved');
   });
 
   // triggers error: Failed to execute 'get' on 'IDBObjectStore': No key or key range specified.
@@ -73,7 +73,7 @@ describe('fundamentals', () => {
     cy.get('body').type(`${controlOrMetaKey}o`);
     cy.wait(1000)
       .get(
-        '#graph-search-option-1 > .MuiButtonGroup-root > [title="Delete playground"]'
+        '#graph-search-option-1 > .MuiButtonGroup-root > [title="Delete playground"]',
       )
       .click();
     cy.get('.MuiDialogActions-root > :nth-child(2)').click();
