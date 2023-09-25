@@ -50,7 +50,7 @@ export class HTTPNode extends PPNode {
   public getAdditionalDescription(): string {
     return `<p>${wrapDownloadLink(
       'https://github.com/magnificus/pnp-companion-2/releases/',
-      'Download Plug and Play Companion'
+      'Download Plug and Play Companion',
     )}</p>`;
   }
 
@@ -67,7 +67,7 @@ export class HTTPNode extends PPNode {
         SOCKET_TYPE.IN,
         urlInputName,
         new StringType(),
-        'https://jsonplaceholder.typicode.com/posts'
+        'https://jsonplaceholder.typicode.com/posts',
       ),
       new Socket(SOCKET_TYPE.IN, headersInputName, new JSONType(), {
         'Content-Type': 'application/json',
@@ -76,27 +76,27 @@ export class HTTPNode extends PPNode {
         SOCKET_TYPE.IN,
         methodName,
         new EnumType(HTTPMethodOptions),
-        HTTPMethodOptions[0].text
+        HTTPMethodOptions[0].text,
       ),
       Socket.getOptionalVisibilitySocket(
         SOCKET_TYPE.IN,
         bodyInputName,
         new JSONType(),
         {},
-        () => this.getInputData(methodName) !== 'Get'
+        () => this.getInputData(methodName) !== 'Get',
       ),
       new Socket(
         SOCKET_TYPE.IN,
         sendThroughCompanionName,
         new BooleanType(),
-        false
+        false,
       ),
       Socket.getOptionalVisibilitySocket(
         SOCKET_TYPE.IN,
         sendThroughCompanionAddress,
         new StringType(),
         companionDefaultAddress,
-        () => this.getInputData(sendThroughCompanionName)
+        () => this.getInputData(sendThroughCompanionName),
       ),
       new Socket(SOCKET_TYPE.OUT, outputContentName, new JSONType(), {}),
     ];
@@ -112,7 +112,7 @@ export class HTTPNode extends PPNode {
 
   protected async onExecute(
     inputObject: any,
-    outputObject: Record<string, unknown>
+    outputObject: Record<string, unknown>,
   ): Promise<void> {
     const usingCompanion: boolean = inputObject[sendThroughCompanionName];
     this.statuses = [];
@@ -184,12 +184,12 @@ export class ChatGPTNode extends HTTPNode {
   public getAdditionalDescription(): string {
     return `<p>${wrapDownloadLink(
       'https://github.com/magnificus/pnp-companion-2/releases/',
-      'Download Plug and Play Companion'
+      'Download Plug and Play Companion',
     )}</p>`;
   }
 
   protected getUpdateBehaviour(): UpdateBehaviourClass {
-    return new UpdateBehaviourClass(false, false, 1000);
+    return new UpdateBehaviourClass(false, false, 1000, this);
   }
 
   protected getDefaultIO(): Socket[] {
@@ -198,13 +198,13 @@ export class ChatGPTNode extends HTTPNode {
         SOCKET_TYPE.IN,
         urlInputName,
         new StringType(),
-        'https://api.openai.com/v1/engines/text-davinci-003/completions'
+        'https://api.openai.com/v1/engines/text-davinci-003/completions',
       ),
       new Socket(
         SOCKET_TYPE.IN,
         chatGPTPromptName,
         new StringType(),
-        'Give me a quick rundown of the battle of Hastings'
+        'Give me a quick rundown of the battle of Hastings',
       ),
       new Socket(SOCKET_TYPE.IN, chatGPTOptionsName, new JSONType(), {
         max_tokens: 100,
@@ -216,13 +216,13 @@ export class ChatGPTNode extends HTTPNode {
         SOCKET_TYPE.IN,
         chatGPTEnvironmentalVariableAuthKey,
         new StringType(),
-        'OPENAI_KEY'
+        'OPENAI_KEY',
       ),
       new Socket(
         SOCKET_TYPE.IN,
         sendThroughCompanionAddress,
         new StringType(),
-        companionDefaultAddress
+        companionDefaultAddress,
       ),
       new Socket(SOCKET_TYPE.OUT, outputContentName, new JSONType(), {}),
     ];
@@ -230,7 +230,7 @@ export class ChatGPTNode extends HTTPNode {
 
   protected async onExecute(
     inputObject: any,
-    outputObject: Record<string, unknown>
+    outputObject: Record<string, unknown>,
   ): Promise<void> {
     this.statuses = [];
     let returnResponse = {};
@@ -239,7 +239,9 @@ export class ChatGPTNode extends HTTPNode {
       statusText: 'Companion',
     });
     try {
-      const finalOptions = JSON.parse(JSON.stringify(inputObject[chatGPTOptionsName]));
+      const finalOptions = JSON.parse(
+        JSON.stringify(inputObject[chatGPTOptionsName]),
+      );
       finalOptions.prompt = inputObject[chatGPTPromptName];
       const companionSpecific = {
         finalHeaders: {

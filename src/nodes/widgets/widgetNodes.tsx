@@ -111,7 +111,7 @@ export class WidgetButton extends WidgetBase {
   }
 
   protected getUpdateBehaviour(): UpdateBehaviourClass {
-    return new UpdateBehaviourClass(false, false, 1000);
+    return new UpdateBehaviourClass(false, false, 1000, this);
   }
 
   protected getDefaultIO(): Socket[] {
@@ -123,7 +123,7 @@ export class WidgetButton extends WidgetBase {
         labelName,
         new StringType(),
         buttonDefaultName,
-        false
+        false,
       ),
       new Socket(SOCKET_TYPE.OUT, outName, new AnyType()),
     ];
@@ -179,7 +179,7 @@ export class WidgetButton extends WidgetBase {
 
       this._refLabel = new PIXI.Text(
         String(this.getInputData(labelName)).toUpperCase(),
-        this.labelTextStyle
+        this.labelTextStyle,
       );
       this._refLabel.anchor.x = 0.5;
       this._refLabel.anchor.y = 0.5;
@@ -197,7 +197,7 @@ export class WidgetButton extends WidgetBase {
         0,
         this.nodeWidth - 8 * margin,
         this.nodeHeight - 8 * margin,
-        16
+        16,
       );
     this._refWidget.view.width = this.nodeWidth - 8 * margin;
     this._refWidget.view.height = this.nodeHeight - 8 * margin;
@@ -231,33 +231,33 @@ export class WidgetRadio extends WidgetBase {
         SOCKET_TYPE.IN,
         optionsName,
         new ArrayType(),
-        radioDefaultValue
+        radioDefaultValue,
       ),
       new Socket(
         SOCKET_TYPE.IN,
         selectedOptionIndex,
-        new NumberType(true, 0, 10)
+        new NumberType(true, 0, 10),
       ),
       new Socket(
         SOCKET_TYPE.IN,
         backgroundColorName,
         new ColorType(),
         new TRgba(255, 255, 255),
-        false
+        false,
       ),
       new Socket(
         SOCKET_TYPE.IN,
         foregroundColorName,
         new ColorType(),
         new TRgba(0, 0, 0),
-        false
+        false,
       ),
       new Socket(
         SOCKET_TYPE.IN,
         textColorName,
         new ColorType(),
         new TRgba(255, 255, 255),
-        false
+        false,
       ),
       new Socket(SOCKET_TYPE.OUT, selectedOptionName, new StringType()),
     ];
@@ -305,7 +305,7 @@ export class WidgetRadio extends WidgetBase {
               fill: textColor,
             },
           },
-        })
+        }),
       );
     }
 
@@ -313,7 +313,7 @@ export class WidgetRadio extends WidgetBase {
     const radioGroup = new RadioGroup({
       selectedItem: Math.min(
         inputs.length - 1,
-        Math.max(this.getInputData(selectedOptionIndex), 0)
+        Math.max(this.getInputData(selectedOptionIndex), 0),
       ),
       items,
       type: 'vertical',
@@ -334,7 +334,7 @@ export class WidgetRadio extends WidgetBase {
         this.id,
         this.getInputData(selectedOptionIndex),
         selectedItemID,
-        applyFunction
+        applyFunction,
       );
     });
 
@@ -345,7 +345,7 @@ export class WidgetRadio extends WidgetBase {
 
   drawRadio(checked, width, padding) {
     const graphics = new PIXI.Graphics().beginFill(
-      this.getInputData(backgroundColorName)
+      this.getInputData(backgroundColorName),
     );
 
     graphics.drawCircle(width / 2, width / 2, width / 2);
@@ -364,9 +364,9 @@ export class WidgetRadio extends WidgetBase {
         0,
         Math.min(
           input[optionsName].length - 1,
-          this.getInputData(selectedOptionIndex)
-        )
-      )
+          this.getInputData(selectedOptionIndex),
+        ),
+      ),
     );
     this.drawNodeShape();
     const preferredHeight = this.radio.height + this.radio.y * 2;
@@ -421,14 +421,14 @@ export class WidgetColorPicker extends WidgetHybridBase {
         initialValueName,
         new ColorType(),
         RANDOMMAINCOLOR,
-        false
+        false,
       ),
       new Socket(
         SOCKET_TYPE.IN,
         labelName,
         new StringType(),
         pickerDefaultName,
-        false
+        false,
       ),
       new Socket(SOCKET_TYPE.OUT, outName, new ColorType()),
     ];
@@ -463,7 +463,7 @@ export class WidgetColorPicker extends WidgetHybridBase {
     const node = props.node;
     const ref = useRef<HTMLDivElement | null>(null);
     const [finalColor, setFinalColor] = useState(
-      props[initialValueName] || TRgba.white()
+      props[initialValueName] || TRgba.white(),
     );
     const [colorPicker, showColorPicker] = useState(false);
 
@@ -481,7 +481,7 @@ export class WidgetColorPicker extends WidgetHybridBase {
         pickedrgb.r,
         pickedrgb.g,
         pickedrgb.b,
-        pickedrgb.a
+        pickedrgb.a,
       );
       const applyFunction = (value) => {
         const safeNode = ActionHandler.getSafeNode(id) as WidgetColorPicker;
@@ -602,7 +602,7 @@ export class WidgetSwitch extends WidgetHybridBase {
         selectedName,
         new BooleanType(),
         switchDefaultData,
-        false
+        false,
       ),
       new Socket(SOCKET_TYPE.IN, offValueName, new AnyType(), 0, false),
       new Socket(SOCKET_TYPE.IN, onValueName, new AnyType(), 1, false),
@@ -611,7 +611,7 @@ export class WidgetSwitch extends WidgetHybridBase {
         labelName,
         new StringType(),
         switchDefaultName,
-        false
+        false,
       ),
       new Socket(SOCKET_TYPE.OUT, outName, new AnyType()),
     ];
@@ -673,7 +673,7 @@ export class WidgetSwitch extends WidgetHybridBase {
         node.id,
         selected,
         !selected,
-        applyAction
+        applyAction,
       );
     };
 
@@ -766,7 +766,7 @@ export class WidgetSlider extends WidgetBase {
         initialValueName,
         new NumberType(),
         sliderDefaultValue,
-        false
+        false,
       ),
       new Socket(SOCKET_TYPE.IN, minValueName, new NumberType(), 0, false),
       new Socket(SOCKET_TYPE.IN, maxValueName, new NumberType(), 100, false),
@@ -809,7 +809,7 @@ export class WidgetSlider extends WidgetBase {
       // Label
       this._refLabel = new PIXI.Text(
         String(this.getInputData(labelName)),
-        this.labelTextStyle
+        this.labelTextStyle,
       );
       this._refLabel.anchor.x = 0.5;
       this._refLabel.anchor.y = 1;
@@ -819,7 +819,7 @@ export class WidgetSlider extends WidgetBase {
       // Value
       this._refValue = new PIXI.Text(
         String(this.getInputData(initialValueName)),
-        this.valueTextStyle
+        this.valueTextStyle,
       );
       this._refValue.anchor.x = 0.5;
       this._refValue.anchor.y = 0;
@@ -838,7 +838,7 @@ export class WidgetSlider extends WidgetBase {
         0,
         this.nodeWidth - 8 * margin,
         this.nodeHeight - 2 * fontSize - 8 * margin,
-        16
+        16,
       );
 
     this._refFill.clear();
@@ -849,7 +849,7 @@ export class WidgetSlider extends WidgetBase {
         0,
         this.nodeWidth - 8 * margin,
         this.nodeHeight - 2 * fontSize - 8 * margin,
-        16
+        16,
       );
     this._refWidget.y =
       (this.nodeHeight - (this.nodeHeight - 2 * fontSize - 8 * margin)) / 2;
@@ -858,7 +858,7 @@ export class WidgetSlider extends WidgetBase {
     this._refValue.style.fontSize = fontSize;
 
     this._refWidget.progress = this.valueToPercent(
-      this.getInputData(initialValueName)
+      this.getInputData(initialValueName),
     );
 
     this._refLabel.x = NODE_MARGIN + this.nodeWidth / 2;
@@ -884,7 +884,7 @@ export class WidgetSlider extends WidgetBase {
     const id = this.id;
     const applyFunction = (newValue) => {
       const safeNode: WidgetSlider = ActionHandler.getSafeNode(
-        id
+        id,
       ) as WidgetSlider;
       safeNode.setInputData(initialValueName, newValue);
 
@@ -897,7 +897,7 @@ export class WidgetSlider extends WidgetBase {
       this.id,
       this.getInputData(initialValueName),
       value,
-      applyFunction
+      applyFunction,
     );
   };
 
@@ -949,28 +949,28 @@ export class WidgetDropdown extends WidgetHybridBase {
         optionsName,
         new ArrayType(),
         defaultOptions,
-        false
+        false,
       ),
       new Socket(
         SOCKET_TYPE.IN,
         selectedOptionName,
         new ArrayType(),
         undefined,
-        false
+        false,
       ),
       new Socket(
         SOCKET_TYPE.IN,
         multiSelectName,
         new BooleanType(),
         false,
-        false
+        false,
       ),
       new Socket(
         SOCKET_TYPE.IN,
         labelName,
         new StringType(),
         'Dropdown',
-        false
+        false,
       ),
       new Socket(SOCKET_TYPE.OUT, outName, new AnyType()),
     ];
@@ -1005,7 +1005,7 @@ export class WidgetDropdown extends WidgetHybridBase {
     const node = props.node;
     const [options, setOptions] = useState<any[]>(props[optionsName]);
     const [selectedOption, setSelectedOption] = useState<string | string[]>(
-      formatSelected(props[selectedOptionName], props[multiSelectName])
+      formatSelected(props[selectedOptionName], props[multiSelectName]),
     );
     node.setSelectedOption = setSelectedOption;
 
@@ -1038,7 +1038,7 @@ export class WidgetDropdown extends WidgetHybridBase {
         node.id,
         selectedOption,
         formattedValue,
-        applyFunction
+        applyFunction,
       );
     };
 
@@ -1054,7 +1054,7 @@ export class WidgetDropdown extends WidgetHybridBase {
     useEffect(() => {
       const formattedValue = formatSelected(
         props[selectedOptionName],
-        props[multiSelectName]
+        props[multiSelectName],
       );
       setOptions(props[optionsName]);
       setSelectedOption(formattedValue);
@@ -1116,7 +1116,7 @@ export class WidgetDropdown extends WidgetHybridBase {
 
 const formatSelected = (
   selected: unknown,
-  multiSelect: boolean
+  multiSelect: boolean,
 ): string | string[] => {
   if (multiSelect && !Array.isArray(selected)) {
     return String(selected).split(',');

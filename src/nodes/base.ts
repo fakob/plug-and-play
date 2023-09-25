@@ -87,7 +87,7 @@ export class Mouse extends PPNode {
     const worldPosition = getCurrentCursorPosition();
     const screenPosition = PPGraph.currentGraph.viewport.toScreen(
       worldPosition.x,
-      worldPosition.y
+      worldPosition.y,
     );
     this.setOutputData('screen-x', Math.round(screenPosition.x));
     this.setOutputData('screen-y', Math.round(screenPosition.y));
@@ -153,7 +153,7 @@ export class Keyboard extends PPNode {
         'keep last',
         new BooleanType(),
         false,
-        false
+        false,
       ),
     ].concat(super.getDefaultIO());
   }
@@ -225,14 +225,14 @@ export class GridCoordinates extends PPNode {
         'distanceWidth',
         new NumberType(),
         110.0,
-        false
+        false,
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
         'distanceHeight',
         new NumberType(),
         110.0,
-        false
+        false,
       ),
     ].concat(super.getDefaultIO());
   }
@@ -297,7 +297,7 @@ export class RangeArray extends PPNode {
       const step = input['step'] || 2;
       output['output array'] = Array.from(
         { length: (stop - start) / step + 1 },
-        (_, i) => start + i * step
+        (_, i) => start + i * step,
       );
     };
   }
@@ -346,7 +346,7 @@ export class RandomArray extends PPNode {
   }
 
   protected getUpdateBehaviour(): UpdateBehaviourClass {
-    return new UpdateBehaviourClass(false, false, 10000);
+    return new UpdateBehaviourClass(false, false, 10000, this);
   }
 
   protected getDefaultIO(): PPSocket[] {
@@ -360,7 +360,7 @@ export class RandomArray extends PPNode {
 
   protected async onExecute(
     inputObject: any,
-    outputObject: Record<string, unknown>
+    outputObject: Record<string, unknown>,
   ): Promise<void> {
     const length = inputObject['length'];
     const min = inputObject['min'];
@@ -414,14 +414,14 @@ export class DateAndTime extends PPNode {
         'Date method',
         new EnumType(dateMethodsArrayOptions),
         'toUTCString',
-        false
+        false,
       ),
     ].concat(super.getDefaultIO());
   }
 
   protected async onExecute(
     inputObject: any,
-    outputObject: Record<string, unknown>
+    outputObject: Record<string, unknown>,
   ): Promise<void> {
     const dateString = inputObject['Date string'];
     const dateMethod = inputObject['Date method'];
@@ -458,9 +458,9 @@ export class If_Else extends PPNode {
 
   protected async onExecute(
     inputObject: any,
-    outputObject: Record<string, unknown>
+    outputObject: Record<string, unknown>,
   ): Promise<void> {
-    const condition = (inputObject['Condition']);
+    const condition = inputObject['Condition'];
     if (condition) {
       outputObject['Output'] = inputObject['A'];
     } else {
@@ -499,7 +499,7 @@ export class Comparison extends PPNode {
         'Operator',
         new EnumType(COMPARISON_OPTIONS, onOptionChange),
         COMPARISON_OPTIONS[0].value,
-        false
+        false,
       ),
       new PPSocket(SOCKET_TYPE.OUT, 'Output', new BooleanType()),
     ];
@@ -507,7 +507,7 @@ export class Comparison extends PPNode {
 
   protected async onExecute(
     inputObject: any,
-    outputObject: Record<string, unknown>
+    outputObject: Record<string, unknown>,
   ): Promise<void> {
     const inputA = inputObject['A'];
     const inputB = inputObject['B'];
@@ -545,7 +545,7 @@ export class IsValid extends PPNode {
         'Condition',
         new EnumType(CONDITION_OPTIONS, onOptionChange),
         CONDITION_OPTIONS[0].text,
-        false
+        false,
       ),
       new PPSocket(SOCKET_TYPE.OUT, 'Output', new BooleanType()),
     ];
@@ -553,7 +553,7 @@ export class IsValid extends PPNode {
 
   protected async onExecute(
     inputObject: any,
-    outputObject: Record<string, unknown>
+    outputObject: Record<string, unknown>,
   ): Promise<void> {
     const inputA = inputObject['A'];
     const condition = inputObject['Condition'];

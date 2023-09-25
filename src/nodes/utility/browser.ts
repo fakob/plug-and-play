@@ -32,6 +32,6 @@ export class OpenURL extends CustomFunction {
   }
 
   protected getUpdateBehaviour(): UpdateBehaviourClass {
-    return new UpdateBehaviourClass(false, false, 1000);
+    return new UpdateBehaviourClass(false, false, 1000, this);
   }
 }

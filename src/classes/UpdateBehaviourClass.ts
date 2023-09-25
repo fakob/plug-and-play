@@ -25,21 +25,24 @@ export default class UpdateBehaviourClass extends PIXI.Container {
   private _intervalFrequency: number;
   private _hoverNode: boolean;
   private _hover: boolean;
+  node: PPNode;
 
   constructor(
     inUpdate: boolean,
     inInterval: boolean,
-    inIntervalFrequency: number
+    inIntervalFrequency: number,
+    node: PPNode,
   ) {
     super();
 
     this._update = inUpdate;
     this._interval = inInterval;
     this._intervalFrequency = inIntervalFrequency;
+    this.node = node;
 
     const FrequencyText = new PIXI.Text(
       this._intervalFrequency.toString(),
-      UPDATEBEHAVIOURHEADER_TEXTSTYLE
+      UPDATEBEHAVIOURHEADER_TEXTSTYLE,
     );
     FrequencyText.x = 26;
     FrequencyText.y = 6;
@@ -48,22 +51,22 @@ export default class UpdateBehaviourClass extends PIXI.Container {
 
     this._frequencyRef = this.addChild(FrequencyText);
     this._frequencyRef.tint = new PIXI.Color(
-      Color(RANDOMMAINCOLOR).darken(0.7).hex()
+      Color(RANDOMMAINCOLOR).darken(0.7).hex(),
     ).toNumber();
 
     this._updateRef = this.addChild(
-      PIXI.Sprite.from(UPDATEBEHAVIOURHEADER_UPDATE)
+      PIXI.Sprite.from(UPDATEBEHAVIOURHEADER_UPDATE),
     );
     this._updateRef.tint = new PIXI.Color(
-      Color(RANDOMMAINCOLOR).darken(0.7).hex()
+      Color(RANDOMMAINCOLOR).darken(0.7).hex(),
     ).toNumber();
 
     this._noUpdateRef = this.addChild(
-      PIXI.Sprite.from(UPDATEBEHAVIOURHEADER_NOUPDATE)
+      PIXI.Sprite.from(UPDATEBEHAVIOURHEADER_NOUPDATE),
     );
     this._noUpdateRef.visible = false;
     this._noUpdateRef.tint = new PIXI.Color(
-      Color(RANDOMMAINCOLOR).darken(0.7).hex()
+      Color(RANDOMMAINCOLOR).darken(0.7).hex(),
     ).toNumber();
 
     this.addChild(this._updateRef);
@@ -78,15 +81,15 @@ export default class UpdateBehaviourClass extends PIXI.Container {
 
     this._updateRef.addEventListener(
       'pointerover',
-      this.onPointerOver.bind(this)
+      this.onPointerOver.bind(this),
     );
     this._updateRef.addEventListener(
       'pointerout',
-      this.onPointerOut.bind(this)
+      this.onPointerOut.bind(this),
     );
     this._updateRef.addEventListener(
       'pointerdown',
-      this.onPointerDown.bind(this)
+      this.onPointerDown.bind(this),
     );
 
     this._noUpdateRef.width = 24;
@@ -119,7 +122,7 @@ export default class UpdateBehaviourClass extends PIXI.Container {
   setUpdateBehaviour(
     newUpdate: boolean,
     newInterval: boolean,
-    newIntervalFrequency: number
+    newIntervalFrequency: number,
   ): void {
     this._update = newUpdate;
     this._interval = newInterval;
@@ -168,7 +171,7 @@ export default class UpdateBehaviourClass extends PIXI.Container {
   // METHODS
 
   getNode(): PPNode {
-    return this.parent?.parent as PPNode;
+    return this.node;
   }
 
   getGraph(): PPGraph {

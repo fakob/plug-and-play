@@ -44,7 +44,6 @@ gl_FragColor = vec4(0.5,uv*vec2(sin(time),cos(time)),1.0);
 
 `;
 
-
 const vertexShaderInputName = 'Vertex';
 const fragmentShaderInputName = 'Fragment';
 const inputUniformName = 'Uniforms';
@@ -94,37 +93,42 @@ export class Shader extends DRAW_Base {
   }
   protected getDefaultIO(): Socket[] {
     return [
-      new Socket(SOCKET_TYPE.IN, inputUniformName, new JSONType(), this.getDefaultUniforms()),
+      new Socket(
+        SOCKET_TYPE.IN,
+        inputUniformName,
+        new JSONType(),
+        this.getDefaultUniforms(),
+      ),
       new Socket(
         SOCKET_TYPE.IN,
         imageInputDataName,
         new JSONType(),
-        this.getDefaultImages()
+        this.getDefaultImages(),
       ),
       new Socket(
         SOCKET_TYPE.IN,
         vertexShaderInputName,
         new CodeType(),
         this.getInitialVertex(),
-        false
+        false,
       ),
       new Socket(
         SOCKET_TYPE.IN,
         fragmentShaderInputName,
         new CodeType(),
-        this.getInitialFragment()
+        this.getInitialFragment(),
       ),
       new Socket(
         SOCKET_TYPE.IN,
         inputWidthName,
         new NumberType(false, 1, 1000),
-        200
+        200,
       ),
       new Socket(
         SOCKET_TYPE.IN,
         inputHeightName,
         new NumberType(false, 1, 1000),
-        200
+        200,
       ),
     ].concat(super.getDefaultIO());
   }
@@ -136,7 +140,7 @@ export class Shader extends DRAW_Base {
   public onNodeAdded(): void {
     super.onNodeAdded();
     this.canvas = PPGraph.currentGraph.viewport.getChildByName(
-      'backgroundCanvas'
+      'backgroundCanvas',
     ) as PIXI.Container;
 
     this.shader = PIXI.Shader.from(this.prevVertex, this.prevFragment);
@@ -151,30 +155,29 @@ export class Shader extends DRAW_Base {
     this.prevFragment = this.getInitialFragment();
   }
 
-
-
   protected drawOnContainer(
     input: any,
     container: PIXI.Container,
-    executions: { string: number }
+    executions: { string: number },
   ): void {
     input = {
       ...input,
       ...input[injectedDataName][this.getAndIncrementExecutions(executions)],
     };
 
-
-    var time = new Date().getTime() % 1000000;
+    const time = new Date().getTime() % 1000000;
 
     const uniforms = { time: time };
-    Object.keys(input[inputUniformName]).forEach(key => uniforms[key] = input[inputUniformName][key]);
+    Object.keys(input[inputUniformName]).forEach(
+      (key) => (uniforms[key] = input[inputUniformName][key]),
+    );
 
     const images: Record<string, string> = input[imageInputDataName];
 
     // got a weird crash here if i didnt check and it was invalid
-    if (typeof images == "object") {
+    if (typeof images == 'object') {
       const imageKeys = Object.keys(images);
-      imageKeys.forEach(key => {
+      imageKeys.forEach((key) => {
         uniforms[key] = PIXI.Texture.from(images[key]);
       });
     }
@@ -207,7 +210,7 @@ export class Shader extends DRAW_Base {
           0,
           0,
         ], // x, y
-        2
+        2,
       ) // the size of the attribute
 
       .addAttribute('vUV', [0, 1, 1, 1, 1, 0, 0, 0], 2)
@@ -218,7 +221,7 @@ export class Shader extends DRAW_Base {
       new PIXI.MeshMaterial(PIXI.Texture.WHITE, {
         program: this.shader.program,
         uniforms,
-      })
+      }),
     );
 
     this.positionAndScale(graphics, input);
@@ -226,7 +229,7 @@ export class Shader extends DRAW_Base {
   }
 
   protected getUpdateBehaviour(): UpdateBehaviourClass {
-    return new UpdateBehaviourClass(true, false, 16);
+    return new UpdateBehaviourClass(true, false, 16, this);
   }
 }
 
@@ -256,7 +259,6 @@ export class ImageShader extends Shader {
   }
 
   protected getDefaultImages(): Record<string, string> {
-    return { "testImage": defaultImage };
+    return { testImage: defaultImage };
   }
-
 }
