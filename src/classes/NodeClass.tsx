@@ -54,7 +54,8 @@ import InterfaceController, { ListenEvent } from '../InterfaceController';
 import { TextStyle } from 'pixi.js';
 import { JSONType } from '../nodes/datatypes/jsonType';
 
-export default class PPNode extends PIXI.Container implements Tooltipable {
+// export default class PPNode extends PIXI.Container implements Tooltipable {
+export default class PPNode extends PIXI.Container {
   _NodeNameRef: PIXI.Text;
   _BackgroundRef: PIXI.Container;
   _BackgroundGraphicsRef: PIXI.Graphics;
@@ -991,43 +992,43 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     });
   }
 
-  getTooltipContent(props): React.ReactElement {
-    const data = JSON.stringify(
-      {
-        id: this.id,
-        name: this.name,
-        type: this.type,
-      },
-      getCircularReplacer(),
-      2,
-    );
-    return (
-      <>
-        <Box
-          sx={{
-            p: '8px',
-            py: '9px',
-            color: 'text.primary',
-            fontWeight: 'medium',
-            fontSize: 'small',
-          }}
-        >
-          Node: {this.name}
-        </Box>
-        <CodeEditor value={data} randomMainColor={props.randomMainColor} />
-      </>
-    );
-  }
+  // getTooltipContent(props): React.ReactElement {
+  //   const data = JSON.stringify(
+  //     {
+  //       id: this.id,
+  //       name: this.name,
+  //       type: this.type,
+  //     },
+  //     getCircularReplacer(),
+  //     2,
+  //   );
+  //   return (
+  //     <>
+  //       <Box
+  //         sx={{
+  //           p: '8px',
+  //           py: '9px',
+  //           color: 'text.primary',
+  //           fontWeight: 'medium',
+  //           fontSize: 'small',
+  //         }}
+  //       >
+  //         Node: {this.name}
+  //       </Box>
+  //       <CodeEditor value={data} randomMainColor={props.randomMainColor} />
+  //     </>
+  //   );
+  // }
 
-  getTooltipPosition(): PIXI.Point {
-    const scale = PPGraph.currentGraph.viewportScaleX;
-    const distanceX = TOOLTIP_DISTANCE * scale;
-    const absPos = this.getGlobalPosition();
-    return new PIXI.Point(
-      Math.max(0, absPos.x - TOOLTIP_WIDTH - distanceX),
-      absPos.y,
-    );
-  }
+  // getTooltipPosition(): PIXI.Point {
+  //   const scale = PPGraph.currentGraph.viewportScaleX;
+  //   const distanceX = TOOLTIP_DISTANCE * scale;
+  //   const absPos = this.getGlobalPosition();
+  //   return new PIXI.Point(
+  //     Math.max(0, absPos.x - TOOLTIP_WIDTH - distanceX),
+  //     absPos.y,
+  //   );
+  // }
 
   // SETUP
 

@@ -125,7 +125,8 @@ export type TPastePos = {
   y: number;
 };
 
-export type TPPType = PPSelection | PPNode | PPSocket;
+// export type TPPType = PPSelection | PPNode | PPSocket;
+export type TPPType = PPSelection | PPSocket;
 
 export class TRgba {
   r = 0;
@@ -183,7 +184,7 @@ export class TRgba {
 
   mix(otherColor: TRgba, blendFactor: number): TRgba {
     return TRgba.fromColor(
-      this.toColor().mix(otherColor.toColor(), blendFactor)
+      this.toColor().mix(otherColor.toColor(), blendFactor),
     );
   }
 
@@ -199,7 +200,7 @@ export class TRgba {
       this.r * value,
       this.g * value,
       this.b * value,
-      this.a * value
+      this.a * value,
     );
   }
   // private so no temptation to call from outside (lets not expose the Color class at all and keep it TRgba)
@@ -216,7 +217,7 @@ export class TRgba {
       color.color[0],
       color.color[1],
       color.color[2],
-      color.valpha
+      color.valpha,
     );
   };
 
@@ -236,7 +237,7 @@ export class TRgba {
       Math.random() * 255,
       Math.random() * 255,
       Math.random() * 255,
-      1
+      1,
     );
   }
 }
