@@ -1005,7 +1005,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               setIsGraphContextMenuOpen((isOpen) => !isOpen);
             }}
           />
-          <Box className={styles.userMenu}>
+          {/* <Box className={styles.userMenu}>
             <Button
               onClick={() => {
                 setShowSharePlayground(true);
@@ -1023,7 +1023,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
                 Logout
               </Button>
             )}
-          </Box>
+          </Box> */}
           {PPGraph.currentGraph && (
             <>
               <Autocomplete
@@ -1065,6 +1065,9 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
                     randommaincolor={RANDOMMAINCOLOR}
                   />
                 )}
+                componentsProps={{
+                  popper: { style: { width: 'fit-content' } },
+                }}
               />
               <div
                 style={{

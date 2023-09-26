@@ -1,13 +1,16 @@
-import * as React from 'react';
+import React, { useEffect, useState } from 'react';
 import Color from 'color';
 import { hri } from 'human-readable-ids';
 import { v4 as uuid } from 'uuid';
 import {
   Box,
+  Button,
   ButtonGroup,
   IconButton,
+  Paper,
   Stack,
   TextField,
+  Typography,
   createFilterOptions,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
@@ -18,10 +21,11 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { matchSorter } from 'match-sorter';
 import parse from 'autosuggest-highlight/parse';
 import match from 'autosuggest-highlight/match';
+import styles from '../utils/style.module.css';
 import PPGraph from '../classes/GraphClass';
 import PPStorage from '../PPStorage';
 import { getAllNodeTypes } from '../nodes/allNodes';
-import { IGraphSearch, INodeSearch } from '../utils/interfaces';
+import { IGraphSearch, INodeSearch, TRgba } from '../utils/interfaces';
 import { COLOR_DARK, COLOR_WHITE_TEXT } from '../utils/constants';
 import {
   getLoadGraphExampleURL,
@@ -31,38 +35,157 @@ import {
 import InterfaceController from '../InterfaceController';
 
 export const GraphSearchInput = (props) => {
+  const [currentGraphName, setCurrentGraphName] = useState('');
   const backgroundColor = Color(props.randommaincolor).alpha(0.8);
+
+  useEffect(() => {
+    PPStorage.getInstance()
+      .getGraphNameFromDB()
+      .then((name) => {
+        setCurrentGraphName(name);
+      });
+  }, [PPGraph.currentGraph?.id]);
+
   return (
-    <TextField
-      {...props}
-      hiddenLabel
-      inputRef={props.inputRef}
-      variant="filled"
-      placeholder="Search playgrounds"
-      InputProps={{
-        ...props.InputProps,
-        disableUnderline: true,
-        endAdornment: null,
-      }}
+    <Paper
+      component="form"
+      elevation={0}
       sx={{
-        margin: 0,
-        borderRadius: '16px',
-        fontSize: '16px',
+        p: '0px 2px  0px 2px',
+        display: 'flex',
+        alignItems: 'center',
+        width: '100%',
         height: '40px',
-        lineHeight: '40px',
+        borderRadius: '16px',
         backgroundColor: `${backgroundColor}`,
-        '&&& .MuiInputBase-root': {
-          backgroundColor: 'transparent',
-        },
-        '&&&& input': {
-          paddingBottom: '8px',
-          paddingTop: '8px',
-          color: Color(props.randommaincolor).isDark()
-            ? COLOR_WHITE_TEXT
-            : COLOR_DARK,
-        },
       }}
-    />
+    >
+      <Box
+      // className={styles.userMenu}
+      >
+        <Button
+          sx={{
+            px: 1,
+            borderRadius: '14px 2px 2px 14px',
+            color: TRgba.fromString(props.randommaincolor)
+              .getContrastTextColor()
+              .hex(),
+            '&:hover': {
+              backgroundColor: TRgba.fromString(props.randommaincolor)
+                .darken(0.05)
+                .hex(),
+            },
+          }}
+          onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+            event.stopPropagation();
+            // InterfaceController.setIsGraphSearchOpen(false);
+          }}
+        >
+          Share
+        </Button>
+        {/* {isLoggedIn && (
+          <Button
+            onClick={() => {
+              const currentUrl = window.location.href;
+              window.location.href = `/logout?redirectUrl=${currentUrl}`;
+            }}
+          >
+            Logout
+          </Button>
+        )} */}
+      </Box>
+      <Typography
+        title={`${currentGraphName} (${PPGraph?.currentGraph?.id})`}
+        sx={{
+          pl: 1,
+          fontSize: '16px',
+          width: '100%',
+          color: TRgba.fromString(props.randommaincolor)
+            .getContrastTextColor()
+            .hex(),
+          opacity: 0.8,
+          overflow: 'hidden',
+          whiteSpace: 'nowrap',
+          textOverflow: 'ellipsis',
+        }}
+      >
+        {currentGraphName}
+      </Typography>
+      <IconButton
+        sx={{ mr: 1 }}
+        size="small"
+        onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+          event.stopPropagation();
+          // InterfaceController.setIsGraphSearchOpen(false);
+        }}
+        title="Create new playground"
+        className="menuItemButton"
+      >
+        <EditIcon
+          sx={{
+            fontSize: '20px',
+            // borderRadius: '2px 14px 14px 2px',
+            color: TRgba.fromString(props.randommaincolor)
+              .getContrastTextColor()
+              .hex(),
+            '&:hover': {
+              backgroundColor: TRgba.fromString(props.randommaincolor)
+                .darken(0.05)
+                .hex(),
+            },
+          }}
+        />
+      </IconButton>
+      <TextField
+        {...props}
+        hiddenLabel
+        inputRef={props.inputRef}
+        variant="filled"
+        placeholder={`Search playgrounds`}
+        InputProps={{
+          ...props.InputProps,
+          disableUnderline: true,
+          endAdornment: null,
+        }}
+        sx={{
+          margin: 0,
+          borderRadius: '2px',
+          fontSize: '16px',
+          backgroundColor: `${backgroundColor}`,
+          '&&& .MuiInputBase-root': {
+            backgroundColor: 'transparent',
+          },
+          '&&&& input': {
+            paddingBottom: '8px',
+            paddingTop: '9px',
+            color: TRgba.fromString(props.randommaincolor)
+              .getContrastTextColor()
+              .hex(),
+          },
+        }}
+      />
+      <Button
+        // color="secondary"
+        sx={{
+          px: 1,
+          borderRadius: '2px 14px 14px 2px',
+          color: TRgba.fromString(props.randommaincolor)
+            .getContrastTextColor()
+            .hex(),
+          '&:hover': {
+            backgroundColor: TRgba.fromString(props.randommaincolor)
+              .darken(0.05)
+              .hex(),
+          },
+        }}
+        onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+          event.stopPropagation();
+          // InterfaceController.setIsGraphSearchOpen(false);
+        }}
+      >
+        New
+      </Button>
+    </Paper>
   );
 };
 
@@ -257,7 +380,7 @@ export const NodeSearchInput = (props) => {
 const findAndResetGroup = (
   suggestedNames: string[],
   arrayToFindIn: INodeSearch[],
-  groupName: string
+  groupName: string,
 ): INodeSearch[] => {
   const suggestedNodes: INodeSearch[] = [];
   suggestedNames.forEach((nodeName) => {
@@ -288,10 +411,11 @@ export const getNodes = (latest: INodeSearch[]): INodeSearch[] => {
         };
       })
       .sort((a, b) =>
-        a.name.localeCompare(b.name, 'en', { sensitivity: 'base' })
+        a.name.localeCompare(b.name, 'en', { sensitivity: 'base' }),
       )
-      .sort((a, b) =>
-        a.group?.localeCompare(b.group, 'en', { sensitivity: 'base' })
+      .sort(
+        (a, b) =>
+          a.group?.localeCompare(b.group, 'en', { sensitivity: 'base' }),
       );
   }
 
@@ -308,7 +432,7 @@ export const getNodes = (latest: INodeSearch[]): INodeSearch[] => {
   const suggestedByType = findAndResetGroup(
     inOrOutputList,
     arrayWithGroupReset,
-    'Suggested by socket type'
+    'Suggested by socket type',
   );
 
   const preferredNodesList =
@@ -320,15 +444,15 @@ export const getNodes = (latest: INodeSearch[]): INodeSearch[] => {
   const suggestedByNode = findAndResetGroup(
     preferredNodesList,
     arrayWithGroupReset,
-    'Suggested by node'
+    'Suggested by node',
   );
 
   const combinedArray = latest.concat(
     suggestedByNode,
     suggestedByType,
     arrayWithGroupReset.filter(
-      (node) => !sourceSocket || node.hasInputs
-    ) as INodeSearch[]
+      (node) => !sourceSocket || node.hasInputs,
+    ) as INodeSearch[],
   );
 
   const included = {};
