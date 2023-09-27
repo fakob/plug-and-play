@@ -41,11 +41,14 @@ export const GraphSearchInput = (props) => {
   const backgroundColor = Color(props.randommaincolor).alpha(0.8);
 
   useEffect(() => {
-    PPStorage.getInstance()
-      .getGraphNameFromDB()
-      .then((name) => {
-        setCurrentGraphName(name);
-      });
+    const graphId = PPGraph.currentGraph?.id;
+    if (graphId) {
+      PPStorage.getInstance()
+        .getGraphNameFromDB(graphId)
+        .then((name) => {
+          setCurrentGraphName(name);
+        });
+    }
   }, [PPGraph.currentGraph?.id]);
 
   return (
@@ -92,7 +95,7 @@ export const GraphSearchInput = (props) => {
             <Button
               variant="text"
               size="small"
-              title="Logour from Github"
+              title="Log out from Github"
               onClick={() => {
                 const currentUrl = window.location.href;
                 window.location.href = `/logout?redirectUrl=${currentUrl}`;
