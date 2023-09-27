@@ -161,6 +161,7 @@ const InspectorContainer: React.FunctionComponent<InspectorContainerProps> = (
         sx={{
           fontFamily: "'Roboto', 'Helvetica', 'Arial', 'sans-serif'",
           height: '100%',
+          paddingRight: 0,
         }}
       >
         {props.selectedNodes.length === 1 ? (

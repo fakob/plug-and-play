@@ -23,8 +23,8 @@ function DrawerToggleInspector(props) {
         color="primary"
         sx={{
           position: 'fixed',
-          bottom: '40px',
-          right: '32px',
+          bottom: '24px',
+          right: '24px',
           width: '32px',
           minWidth: '32px',
           backgroundColor: props.open ? COLOR_DARK : COLOR_WHITE_TEXT,
@@ -47,8 +47,8 @@ function DrawerToggleHelp(props) {
         color="primary"
         sx={{
           position: 'fixed',
-          bottom: '40px',
-          left: '32px',
+          bottom: '24px',
+          left: '24px',
           width: '32px',
           minWidth: '32px',
           backgroundColor: props.open ? COLOR_DARK : COLOR_WHITE_TEXT,
