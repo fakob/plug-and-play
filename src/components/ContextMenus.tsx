@@ -31,6 +31,8 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import SensorsIcon from '@mui/icons-material/Sensors';
 import MouseIcon from '@mui/icons-material/Mouse';
 import SwipeIcon from '@mui/icons-material/Swipe';
+import ShareIcon from '@mui/icons-material/Share';
+import LogoutIcon from '@mui/icons-material/Logout';
 import PPSocket from './../classes/SocketClass';
 import InterfaceController, { ListenEvent } from '../InterfaceController';
 import {
@@ -57,7 +59,7 @@ const useStyles = makeStyles((theme) =>
     active: {
       backgroundColor: 'rgba(255, 255, 255, 0.04)',
     },
-  })
+  }),
 );
 
 type SubMenuItemProps = MenuItemProps & {
@@ -124,7 +126,7 @@ const GestureModeMenuItem = (props) => {
       onClick={() => {
         PPStorage.getInstance().applyGestureMode(
           PPGraph.currentGraph.viewport,
-          props.gestureMode
+          props.gestureMode,
         );
       }}
     >
@@ -232,6 +234,25 @@ export const GraphContextMenu = (props) => {
           </ListItemIcon>
           <ListItemText>Download</ListItemText>
         </MenuItem>
+        <MenuItem onClick={() => props.setShowSharePlayground(true)}>
+          <ListItemIcon>
+            <ShareIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Share</ListItemText>
+        </MenuItem>
+        {props.isLoggedIn && (
+          <MenuItem
+            onClick={() => {
+              const currentUrl = window.location.href;
+              window.location.href = `/logout?redirectUrl=${currentUrl}`;
+            }}
+          >
+            <ListItemIcon>
+              <LogoutIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Logout</ListItemText>
+          </MenuItem>
+        )}
         <MenuItem
           sx={{ mt: 1 }}
           onClick={() => {
@@ -450,7 +471,7 @@ const AlignOptionMenuItem = (props) => {
 
 export const NodeContextMenu = (props) => {
   const [selectionCount, setSelectionCount] = useState(
-    PPGraph.currentGraph.selection.selectedNodes.length
+    PPGraph.currentGraph.selection.selectedNodes.length,
   );
   useEffect(() => {
     window.addEventListener('contextmenu', handleContextMenu);
@@ -607,7 +628,7 @@ export const NodeContextMenu = (props) => {
         )}
         {PPGraph.currentGraph && selectionCount > 0
           ? constructListOptions(
-              PPGraph.currentGraph.selection.selectedNodes[0].getAdditionalRightClickOptions()
+              PPGraph.currentGraph.selection.selectedNodes[0].getAdditionalRightClickOptions(),
             )
           : ''}
       </MenuList>
@@ -624,7 +645,7 @@ function constructRecommendedNodeOptions(selectedSocket: PPSocket): any {
         onClick={() => {
           PPGraph.currentGraph.action_addWidgetNode(
             selectedSocket,
-            preferredNodesType
+            preferredNodesType,
           );
         }}
       >
@@ -668,7 +689,7 @@ export const SocketContextMenu = (props) => {
   const node: PPNode = selectedSocket.getNode();
   const isDeletable = !node.hasSocketNameInDefaultIO(
     selectedSocket.name,
-    selectedSocket.socketType
+    selectedSocket.socketType,
   );
 
   return (
@@ -689,7 +710,7 @@ export const SocketContextMenu = (props) => {
             PPGraph.currentGraph.selection.selectNodes(
               [selectedSocket.getNode()],
               false,
-              true
+              true,
             );
             PPGraph.currentGraph.socketToInspect = selectedSocket;
             InterfaceController.notifyListeners(
@@ -697,7 +718,7 @@ export const SocketContextMenu = (props) => {
               {
                 socket: PPGraph.currentGraph.socketToInspect,
                 open: true,
-              }
+              },
             );
           }}
         >
@@ -712,7 +733,7 @@ export const SocketContextMenu = (props) => {
             <MenuItem
               onClick={() => {
                 selectedSocket.links.forEach((link) =>
-                  PPGraph.currentGraph.action_Disconnect(link)
+                  PPGraph.currentGraph.action_Disconnect(link),
                 );
               }}
             >

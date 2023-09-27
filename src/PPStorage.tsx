@@ -268,6 +268,16 @@ export default class PPStorage {
     }
   }
 
+  async getGraphNameFromDB(graphId: string): Promise<undefined | string> {
+    try {
+      const graph = await this.db.graphs.get(graphId);
+      return graph.name;
+    } catch (e) {
+      console.log(e.stack || e);
+      return '';
+    }
+  }
+
   async getGraphFromDB(id: string): Promise<undefined | Graph> {
     try {
       const loadedGraph = await this.db.graphs.get(id);

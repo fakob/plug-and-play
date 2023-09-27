@@ -1,13 +1,16 @@
-import * as React from 'react';
+import React, { useEffect, useState } from 'react';
 import Color from 'color';
 import { hri } from 'human-readable-ids';
 import { v4 as uuid } from 'uuid';
 import {
   Box,
+  Button,
   ButtonGroup,
   IconButton,
+  Paper,
   Stack,
   TextField,
+  Typography,
   createFilterOptions,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
@@ -21,48 +24,200 @@ import match from 'autosuggest-highlight/match';
 import PPGraph from '../classes/GraphClass';
 import PPStorage from '../PPStorage';
 import { getAllNodeTypes } from '../nodes/allNodes';
-import { IGraphSearch, INodeSearch } from '../utils/interfaces';
+import { IGraphSearch, INodeSearch, TRgba } from '../utils/interfaces';
 import { COLOR_DARK, COLOR_WHITE_TEXT } from '../utils/constants';
 import {
   getLoadGraphExampleURL,
   getLoadNodeExampleURL,
+  useIsSmallScreen,
   writeTextToClipboard,
 } from '../utils/utils';
 import InterfaceController from '../InterfaceController';
 
 export const GraphSearchInput = (props) => {
+  const smallScreen = useIsSmallScreen();
+  const [currentGraphName, setCurrentGraphName] = useState('');
   const backgroundColor = Color(props.randommaincolor).alpha(0.8);
+
+  useEffect(() => {
+    const graphId = PPGraph.currentGraph?.id;
+    if (graphId) {
+      PPStorage.getInstance()
+        .getGraphNameFromDB(graphId)
+        .then((name) => {
+          setCurrentGraphName(name);
+        });
+    }
+  }, [PPGraph.currentGraph?.id]);
+
   return (
-    <TextField
-      {...props}
-      hiddenLabel
-      inputRef={props.inputRef}
-      variant="filled"
-      placeholder="Search playgrounds"
-      InputProps={{
-        ...props.InputProps,
-        disableUnderline: true,
-        endAdornment: null,
-      }}
+    <Paper
+      component="form"
+      elevation={0}
       sx={{
-        margin: 0,
-        borderRadius: '16px',
-        fontSize: '16px',
+        p: '0px 2px  0px 2px',
+        display: 'flex',
+        alignItems: 'center',
+        width: '100%',
         height: '40px',
-        lineHeight: '40px',
+        borderRadius: '16px',
         backgroundColor: `${backgroundColor}`,
-        '&&& .MuiInputBase-root': {
-          backgroundColor: 'transparent',
-        },
-        '&&&& input': {
-          paddingBottom: '8px',
-          paddingTop: '8px',
-          color: Color(props.randommaincolor).isDark()
-            ? COLOR_WHITE_TEXT
-            : COLOR_DARK,
-        },
       }}
-    />
+    >
+      {!smallScreen && (
+        <ButtonGroup>
+          <Button
+            variant="text"
+            size="small"
+            title="Share this playground"
+            sx={{
+              px: 1,
+              py: '6px',
+              borderRadius: '14px 2px 2px 14px',
+              color: TRgba.fromString(props.randommaincolor)
+                .getContrastTextColor()
+                .hex(),
+              '&:hover': {
+                backgroundColor: TRgba.fromString(props.randommaincolor)
+                  .darken(0.05)
+                  .hex(),
+              },
+            }}
+            onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+              event.stopPropagation();
+              props.setShowSharePlayground(true);
+            }}
+          >
+            Share
+          </Button>
+          {props.isLoggedIn && (
+            <Button
+              variant="text"
+              size="small"
+              title="Log out from Github"
+              onClick={() => {
+                const currentUrl = window.location.href;
+                window.location.href = `/logout?redirectUrl=${currentUrl}`;
+              }}
+              sx={{
+                px: 1,
+                py: '6px',
+                borderRadius: '2px',
+                color: TRgba.fromString(props.randommaincolor)
+                  .getContrastTextColor()
+                  .hex(),
+                '&:hover': {
+                  backgroundColor: TRgba.fromString(props.randommaincolor)
+                    .darken(0.05)
+                    .hex(),
+                },
+              }}
+            >
+              Logout
+            </Button>
+          )}
+        </ButtonGroup>
+      )}
+      <Typography
+        title={`${currentGraphName} (${PPGraph?.currentGraph?.id})`}
+        sx={{
+          pl: 1,
+          fontSize: '16px',
+          width: '80%',
+          maxWidth: '240px',
+          color: TRgba.fromString(props.randommaincolor)
+            .getContrastTextColor()
+            .hex(),
+          opacity: 0.8,
+          overflow: 'hidden',
+          whiteSpace: 'nowrap',
+          textOverflow: 'ellipsis',
+        }}
+      >
+        {currentGraphName}
+      </Typography>
+      {!smallScreen && (
+        <Button
+          variant="text"
+          size="small"
+          title="Save this playground"
+          sx={{
+            px: 1,
+            py: '6px',
+            borderRadius: '2px',
+            color: TRgba.fromString(props.randommaincolor)
+              .getContrastTextColor()
+              .hex(),
+            '&:hover': {
+              backgroundColor: TRgba.fromString(props.randommaincolor)
+                .darken(0.05)
+                .hex(),
+            },
+          }}
+          onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+            event.stopPropagation();
+            PPStorage.getInstance().saveGraphAction();
+          }}
+        >
+          Save
+        </Button>
+      )}
+      <TextField
+        {...props}
+        hiddenLabel
+        inputRef={props.inputRef}
+        variant="filled"
+        placeholder={`Search playgrounds`}
+        InputProps={{
+          ...props.InputProps,
+          disableUnderline: true,
+          endAdornment: null,
+        }}
+        sx={{
+          margin: 0,
+          borderRadius: smallScreen ? '2px 14px 14px 2px' : '2px',
+          fontSize: '16px',
+          backgroundColor: `${backgroundColor}`,
+          '&&& .MuiInputBase-root': {
+            backgroundColor: 'transparent',
+          },
+          '&&&& input': {
+            paddingBottom: '8px',
+            paddingTop: '9px',
+            color: TRgba.fromString(props.randommaincolor)
+              .getContrastTextColor()
+              .hex(),
+          },
+        }}
+      />
+      {!smallScreen && (
+        <Button
+          variant="text"
+          size="small"
+          title="Create empty playground"
+          sx={{
+            px: 1,
+            py: '6px',
+            borderRadius: '2px 14px 14px 2px',
+            color: TRgba.fromString(props.randommaincolor)
+              .getContrastTextColor()
+              .hex(),
+            '&:hover': {
+              backgroundColor: TRgba.fromString(props.randommaincolor)
+                .darken(0.05)
+                .hex(),
+            },
+          }}
+          onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+            event.stopPropagation();
+            PPGraph.currentGraph.clear();
+            PPStorage.getInstance().saveNewGraph();
+          }}
+        >
+          New
+        </Button>
+      )}
+    </Paper>
   );
 };
 
@@ -257,7 +412,7 @@ export const NodeSearchInput = (props) => {
 const findAndResetGroup = (
   suggestedNames: string[],
   arrayToFindIn: INodeSearch[],
-  groupName: string
+  groupName: string,
 ): INodeSearch[] => {
   const suggestedNodes: INodeSearch[] = [];
   suggestedNames.forEach((nodeName) => {
@@ -288,10 +443,11 @@ export const getNodes = (latest: INodeSearch[]): INodeSearch[] => {
         };
       })
       .sort((a, b) =>
-        a.name.localeCompare(b.name, 'en', { sensitivity: 'base' })
+        a.name.localeCompare(b.name, 'en', { sensitivity: 'base' }),
       )
-      .sort((a, b) =>
-        a.group?.localeCompare(b.group, 'en', { sensitivity: 'base' })
+      .sort(
+        (a, b) =>
+          a.group?.localeCompare(b.group, 'en', { sensitivity: 'base' }),
       );
   }
 
@@ -308,7 +464,7 @@ export const getNodes = (latest: INodeSearch[]): INodeSearch[] => {
   const suggestedByType = findAndResetGroup(
     inOrOutputList,
     arrayWithGroupReset,
-    'Suggested by socket type'
+    'Suggested by socket type',
   );
 
   const preferredNodesList =
@@ -320,15 +476,15 @@ export const getNodes = (latest: INodeSearch[]): INodeSearch[] => {
   const suggestedByNode = findAndResetGroup(
     preferredNodesList,
     arrayWithGroupReset,
-    'Suggested by node'
+    'Suggested by node',
   );
 
   const combinedArray = latest.concat(
     suggestedByNode,
     suggestedByType,
     arrayWithGroupReset.filter(
-      (node) => !sourceSocket || node.hasInputs
-    ) as INodeSearch[]
+      (node) => !sourceSocket || node.hasInputs,
+    ) as INodeSearch[],
   );
 
   const included = {};
