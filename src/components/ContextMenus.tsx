@@ -57,7 +57,7 @@ const useStyles = makeStyles((theme) =>
     active: {
       backgroundColor: 'rgba(255, 255, 255, 0.04)',
     },
-  })
+  }),
 );
 
 type SubMenuItemProps = MenuItemProps & {
@@ -124,7 +124,7 @@ const GestureModeMenuItem = (props) => {
       onClick={() => {
         PPStorage.getInstance().applyGestureMode(
           PPGraph.currentGraph.viewport,
-          props.gestureMode
+          props.gestureMode,
         );
       }}
     >
@@ -450,7 +450,7 @@ const AlignOptionMenuItem = (props) => {
 
 export const NodeContextMenu = (props) => {
   const [selectionCount, setSelectionCount] = useState(
-    PPGraph.currentGraph.selection.selectedNodes.length
+    PPGraph.currentGraph.selection.selectedNodes.length,
   );
   useEffect(() => {
     window.addEventListener('contextmenu', handleContextMenu);
@@ -605,9 +605,21 @@ export const NodeContextMenu = (props) => {
             <ListItemText>Extract to Macro</ListItemText>
           </MenuItem>
         )}
+        {selectionCount > 1 && (
+          <MenuItem
+            onClick={() => {
+              //PPGraph.currentGraph.extractToMacro();
+            }}
+          >
+            <ListItemIcon>
+              <AddIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Collapse Selection</ListItemText>
+          </MenuItem>
+        )}
         {PPGraph.currentGraph && selectionCount > 0
           ? constructListOptions(
-              PPGraph.currentGraph.selection.selectedNodes[0].getAdditionalRightClickOptions()
+              PPGraph.currentGraph.selection.selectedNodes[0].getAdditionalRightClickOptions(),
             )
           : ''}
       </MenuList>
@@ -624,7 +636,7 @@ function constructRecommendedNodeOptions(selectedSocket: PPSocket): any {
         onClick={() => {
           PPGraph.currentGraph.action_addWidgetNode(
             selectedSocket,
-            preferredNodesType
+            preferredNodesType,
           );
         }}
       >
@@ -668,7 +680,7 @@ export const SocketContextMenu = (props) => {
   const node: PPNode = selectedSocket.getNode();
   const isDeletable = !node.hasSocketNameInDefaultIO(
     selectedSocket.name,
-    selectedSocket.socketType
+    selectedSocket.socketType,
   );
 
   return (
@@ -689,7 +701,7 @@ export const SocketContextMenu = (props) => {
             PPGraph.currentGraph.selection.selectNodes(
               [selectedSocket.getNode()],
               false,
-              true
+              true,
             );
             PPGraph.currentGraph.socketToInspect = selectedSocket;
             InterfaceController.notifyListeners(
@@ -697,7 +709,7 @@ export const SocketContextMenu = (props) => {
               {
                 socket: PPGraph.currentGraph.socketToInspect,
                 open: true,
-              }
+              },
             );
           }}
         >
@@ -712,7 +724,7 @@ export const SocketContextMenu = (props) => {
             <MenuItem
               onClick={() => {
                 selectedSocket.links.forEach((link) =>
-                  PPGraph.currentGraph.action_Disconnect(link)
+                  PPGraph.currentGraph.action_Disconnect(link),
                 );
               }}
             >
