@@ -66,9 +66,11 @@ export const GraphSearchInput = (props) => {
         <ButtonGroup>
           <Button
             variant="text"
+            size="small"
             title="Share this playground"
             sx={{
               px: 1,
+              py: '6px',
               borderRadius: '14px 2px 2px 14px',
               color: TRgba.fromString(props.randommaincolor)
                 .getContrastTextColor()
@@ -89,6 +91,7 @@ export const GraphSearchInput = (props) => {
           {props.isLoggedIn && (
             <Button
               variant="text"
+              size="small"
               title="Logour from Github"
               onClick={() => {
                 const currentUrl = window.location.href;
@@ -96,6 +99,7 @@ export const GraphSearchInput = (props) => {
               }}
               sx={{
                 px: 1,
+                py: '6px',
                 borderRadius: '2px',
                 color: TRgba.fromString(props.randommaincolor)
                   .getContrastTextColor()
@@ -131,34 +135,30 @@ export const GraphSearchInput = (props) => {
         {currentGraphName}
       </Typography>
       {!smallScreen && (
-        <IconButton
+        <Button
+          variant="text"
+          size="small"
+          title="Save this playground"
           sx={{
-            p: '9px',
-            mr: '2px',
+            px: 1,
+            py: '6px',
             borderRadius: '2px',
+            color: TRgba.fromString(props.randommaincolor)
+              .getContrastTextColor()
+              .hex(),
             '&:hover': {
               backgroundColor: TRgba.fromString(props.randommaincolor)
                 .darken(0.05)
                 .hex(),
             },
           }}
-          size="small"
           onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
             event.stopPropagation();
             PPStorage.getInstance().saveGraphAction();
           }}
-          title="Save this playground"
-          className="menuItemButton"
         >
-          <SaveIcon
-            sx={{
-              fontSize: '18px',
-              color: TRgba.fromString(props.randommaincolor)
-                .getContrastTextColor()
-                .hex(),
-            }}
-          />
-        </IconButton>
+          Save
+        </Button>
       )}
       <TextField
         {...props}
@@ -191,9 +191,11 @@ export const GraphSearchInput = (props) => {
       {!smallScreen && (
         <Button
           variant="text"
+          size="small"
           title="Create empty playground"
           sx={{
             px: 1,
+            py: '6px',
             borderRadius: '2px 14px 14px 2px',
             color: TRgba.fromString(props.randommaincolor)
               .getContrastTextColor()
