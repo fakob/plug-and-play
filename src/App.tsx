@@ -966,6 +966,8 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               showComments={showComments}
               setShowComments={setShowComments}
               zoomToFitNodes={zoomToFitNodes}
+              setShowSharePlayground={setShowSharePlayground}
+              isLoggedIn={isLoggedIn}
             />
           )}
           {isNodeContextMenuOpen && (
@@ -1005,25 +1007,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               setIsGraphContextMenuOpen((isOpen) => !isOpen);
             }}
           />
-          {/* <Box className={styles.userMenu}>
-            <Button
-              onClick={() => {
-                setShowSharePlayground(true);
-              }}
-            >
-              Share
-            </Button>
-            {isLoggedIn && (
-              <Button
-                onClick={() => {
-                  const currentUrl = window.location.href;
-                  window.location.href = `/logout?redirectUrl=${currentUrl}`;
-                }}
-              >
-                Logout
-              </Button>
-            )}
-          </Box> */}
           {PPGraph.currentGraph && (
             <>
               <Autocomplete
@@ -1063,6 +1046,8 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
                     {...props}
                     inputRef={graphSearchInput}
                     randommaincolor={RANDOMMAINCOLOR}
+                    setShowSharePlayground={setShowSharePlayground}
+                    isLoggedIn={isLoggedIn}
                   />
                 )}
                 componentsProps={{

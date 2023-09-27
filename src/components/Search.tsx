@@ -14,6 +14,7 @@ import {
   createFilterOptions,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
+import SaveIcon from '@mui/icons-material/Save';
 import DownloadIcon from '@mui/icons-material/Download';
 import DeleteIcon from '@mui/icons-material/Delete';
 import LinkIcon from '@mui/icons-material/Link';
@@ -21,7 +22,6 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { matchSorter } from 'match-sorter';
 import parse from 'autosuggest-highlight/parse';
 import match from 'autosuggest-highlight/match';
-import styles from '../utils/style.module.css';
 import PPGraph from '../classes/GraphClass';
 import PPStorage from '../PPStorage';
 import { getAllNodeTypes } from '../nodes/allNodes';
@@ -30,11 +30,13 @@ import { COLOR_DARK, COLOR_WHITE_TEXT } from '../utils/constants';
 import {
   getLoadGraphExampleURL,
   getLoadNodeExampleURL,
+  useIsSmallScreen,
   writeTextToClipboard,
 } from '../utils/utils';
 import InterfaceController from '../InterfaceController';
 
 export const GraphSearchInput = (props) => {
+  const smallScreen = useIsSmallScreen();
   const [currentGraphName, setCurrentGraphName] = useState('');
   const backgroundColor = Color(props.randommaincolor).alpha(0.8);
 
@@ -60,46 +62,63 @@ export const GraphSearchInput = (props) => {
         backgroundColor: `${backgroundColor}`,
       }}
     >
-      <Box
-      // className={styles.userMenu}
-      >
-        <Button
-          sx={{
-            px: 1,
-            borderRadius: '14px 2px 2px 14px',
-            color: TRgba.fromString(props.randommaincolor)
-              .getContrastTextColor()
-              .hex(),
-            '&:hover': {
-              backgroundColor: TRgba.fromString(props.randommaincolor)
-                .darken(0.05)
-                .hex(),
-            },
-          }}
-          onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
-            event.stopPropagation();
-            // InterfaceController.setIsGraphSearchOpen(false);
-          }}
-        >
-          Share
-        </Button>
-        {/* {isLoggedIn && (
+      {!smallScreen && (
+        <ButtonGroup>
           <Button
-            onClick={() => {
-              const currentUrl = window.location.href;
-              window.location.href = `/logout?redirectUrl=${currentUrl}`;
+            variant="text"
+            title="Share this playground"
+            sx={{
+              px: 1,
+              borderRadius: '14px 2px 2px 14px',
+              color: TRgba.fromString(props.randommaincolor)
+                .getContrastTextColor()
+                .hex(),
+              '&:hover': {
+                backgroundColor: TRgba.fromString(props.randommaincolor)
+                  .darken(0.05)
+                  .hex(),
+              },
+            }}
+            onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+              event.stopPropagation();
+              props.setShowSharePlayground(true);
             }}
           >
-            Logout
+            Share
           </Button>
-        )} */}
-      </Box>
+          {props.isLoggedIn && (
+            <Button
+              variant="text"
+              title="Logour from Github"
+              onClick={() => {
+                const currentUrl = window.location.href;
+                window.location.href = `/logout?redirectUrl=${currentUrl}`;
+              }}
+              sx={{
+                px: 1,
+                borderRadius: '2px',
+                color: TRgba.fromString(props.randommaincolor)
+                  .getContrastTextColor()
+                  .hex(),
+                '&:hover': {
+                  backgroundColor: TRgba.fromString(props.randommaincolor)
+                    .darken(0.05)
+                    .hex(),
+                },
+              }}
+            >
+              Logout
+            </Button>
+          )}
+        </ButtonGroup>
+      )}
       <Typography
         title={`${currentGraphName} (${PPGraph?.currentGraph?.id})`}
         sx={{
           pl: 1,
           fontSize: '16px',
-          width: '100%',
+          width: '80%',
+          maxWidth: '240px',
           color: TRgba.fromString(props.randommaincolor)
             .getContrastTextColor()
             .hex(),
@@ -111,31 +130,36 @@ export const GraphSearchInput = (props) => {
       >
         {currentGraphName}
       </Typography>
-      <IconButton
-        sx={{ mr: 1 }}
-        size="small"
-        onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
-          event.stopPropagation();
-          // InterfaceController.setIsGraphSearchOpen(false);
-        }}
-        title="Create new playground"
-        className="menuItemButton"
-      >
-        <EditIcon
+      {!smallScreen && (
+        <IconButton
           sx={{
-            fontSize: '20px',
-            // borderRadius: '2px 14px 14px 2px',
-            color: TRgba.fromString(props.randommaincolor)
-              .getContrastTextColor()
-              .hex(),
+            p: '9px',
+            mr: '2px',
+            borderRadius: '2px',
             '&:hover': {
               backgroundColor: TRgba.fromString(props.randommaincolor)
                 .darken(0.05)
                 .hex(),
             },
           }}
-        />
-      </IconButton>
+          size="small"
+          onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+            event.stopPropagation();
+            PPStorage.getInstance().saveGraphAction();
+          }}
+          title="Save this playground"
+          className="menuItemButton"
+        >
+          <SaveIcon
+            sx={{
+              fontSize: '18px',
+              color: TRgba.fromString(props.randommaincolor)
+                .getContrastTextColor()
+                .hex(),
+            }}
+          />
+        </IconButton>
+      )}
       <TextField
         {...props}
         hiddenLabel
@@ -149,7 +173,7 @@ export const GraphSearchInput = (props) => {
         }}
         sx={{
           margin: 0,
-          borderRadius: '2px',
+          borderRadius: smallScreen ? '2px 14px 14px 2px' : '2px',
           fontSize: '16px',
           backgroundColor: `${backgroundColor}`,
           '&&& .MuiInputBase-root': {
@@ -164,27 +188,31 @@ export const GraphSearchInput = (props) => {
           },
         }}
       />
-      <Button
-        // color="secondary"
-        sx={{
-          px: 1,
-          borderRadius: '2px 14px 14px 2px',
-          color: TRgba.fromString(props.randommaincolor)
-            .getContrastTextColor()
-            .hex(),
-          '&:hover': {
-            backgroundColor: TRgba.fromString(props.randommaincolor)
-              .darken(0.05)
+      {!smallScreen && (
+        <Button
+          variant="text"
+          title="Create empty playground"
+          sx={{
+            px: 1,
+            borderRadius: '2px 14px 14px 2px',
+            color: TRgba.fromString(props.randommaincolor)
+              .getContrastTextColor()
               .hex(),
-          },
-        }}
-        onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
-          event.stopPropagation();
-          // InterfaceController.setIsGraphSearchOpen(false);
-        }}
-      >
-        New
-      </Button>
+            '&:hover': {
+              backgroundColor: TRgba.fromString(props.randommaincolor)
+                .darken(0.05)
+                .hex(),
+            },
+          }}
+          onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+            event.stopPropagation();
+            PPGraph.currentGraph.clear();
+            PPStorage.getInstance().saveNewGraph();
+          }}
+        >
+          New
+        </Button>
+      )}
     </Paper>
   );
 };
