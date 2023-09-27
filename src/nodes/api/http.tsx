@@ -140,6 +140,7 @@ export class HTTPNode extends PPNode {
         try {
           returnResponse = JSON.parse(companionRes.response);
         } catch (error) {
+          console.log("Couldn't parse message: " + error);
           returnResponse = companionRes.response;
         }
         this.pushStatusCode(companionRes.status);
