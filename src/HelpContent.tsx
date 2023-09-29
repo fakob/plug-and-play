@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   IconButton,
@@ -13,6 +13,7 @@ import {
 } from '@mui/material';
 import Color from 'color';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import PPStorage from './PPStorage';
 import { COLOR_DARK, COLOR_WHITE_TEXT } from './utils/constants';
 import { getLoadNodeExampleURL } from './utils/utils';
 
@@ -68,12 +69,25 @@ const Item = styled(Paper)(({ theme }) => ({
 }));
 
 const HelpContent = (props) => {
+  const [remoteGraphs, setRemoteGraphs] = useState<string[]>([]);
   const handleFilter = (
     event: React.MouseEvent<HTMLElement>,
     newFilter: string | null,
   ) => {
     props.setFilter(newFilter);
   };
+
+  useEffect(() => {
+    //updateGraphSearchItems();
+    PPStorage.getInstance()
+      .getRemoteGraphsList()
+      .then((arrayOfFileNames) => {
+        console.log(arrayOfFileNames);
+        setRemoteGraphs(
+          arrayOfFileNames.filter((file) => file.endsWith('.ppgraph')),
+        );
+      });
+  }, []);
 
   return (
     <Box
@@ -97,6 +111,7 @@ const HelpContent = (props) => {
               Your visual toolkit for creative prototyping, to explore,
               transform or visualise data.
             </Box>
+            <GraphsContent graphs={remoteGraphs} />
             <NodesContent nodesCached={props.nodesCached} />
           </Item>
         )}
@@ -357,6 +372,73 @@ const HelpContent = (props) => {
         )}
       </Stack>
     </Box>
+  );
+};
+
+const GraphsContent = (props) => {
+  return (
+    <>
+      <h3>List of example graphs</h3>
+      <List
+        sx={{
+          width: '100%',
+          // maxWidth: 360,
+          bgcolor: 'background.paper',
+          position: 'relative',
+          overflow: 'auto',
+          // maxHeight: 300,
+          '& ul': { padding: 0 },
+        }}
+        subheader={<li />}
+      >
+        {props.graphs.map((property, index) => {
+          return (
+            <GraphItem
+              key={index}
+              property={property}
+              index={index}
+              sx={{
+                listStyleType: 'none',
+              }}
+            />
+          );
+        })}
+      </List>
+    </>
+  );
+};
+
+const GraphItem = (props) => {
+  // console.log(props);
+  return (
+    <ListItem
+      key={`item-${props.property.title}`}
+      sx={{ p: 0 }}
+      title="Open node example"
+    >
+      <ListItemButton
+        onClick={() => {
+          PPStorage.getInstance().cloneRemoteGraph(props.property);
+        }}
+      >
+        <Stack
+          sx={{
+            width: '100%',
+          }}
+        >
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+            {props.property}
+          </Box>
+        </Stack>
+      </ListItemButton>
+      {/* <ListItemText primary={`Item ${item}`} /> */}
+    </ListItem>
   );
 };
 

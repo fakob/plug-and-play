@@ -369,13 +369,12 @@ export default class PPStorage {
     this.saveGraphAction(true, newName);
   }
 
-  async cloneRemoteGraph(id = undefined, remoteGraphsRef: any) {
+  async cloneRemoteGraph(nameOfFileToClone) {
     if (checkForUnsavedChanges()) {
-      const nameOfFileToClone = remoteGraphsRef.current[id];
       const fileData = await this.getRemoteGraph(nameOfFileToClone);
       PPGraph.currentGraph.configure(fileData, hri.random());
 
-      const newName = `${removeExtension(remoteGraphsRef.current[id])} - copy`; // remove .ppgraph extension and add copy
+      const newName = `${removeExtension(nameOfFileToClone)} - copy`; // remove .ppgraph extension and add copy
       InterfaceController.showSnackBar('Remote playground was loaded', {
         variant: 'default',
         autoHideDuration: 20000,

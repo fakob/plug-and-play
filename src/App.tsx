@@ -628,7 +628,8 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     }
 
     if (selected.isRemote) {
-      PPStorage.getInstance().cloneRemoteGraph(selected.id, remoteGraphsRef);
+      const nameOfFileToClone = remoteGraphsRef.current[selected.id];
+      PPStorage.getInstance().cloneRemoteGraph(nameOfFileToClone);
     } else {
       if (selected.isNew) {
         PPGraph.currentGraph.clear();
