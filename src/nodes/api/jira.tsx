@@ -8,6 +8,7 @@ import { StringType } from '../datatypes/stringType';
 import {
   HTTPNode,
   companionDefaultAddress,
+  defaultHeaders,
   outputContentName,
   sendThroughCompanionAddress,
   urlInputName,
@@ -17,9 +18,9 @@ const jiraEnvironmentalVariableAuthKey = 'JIRA API Key';
 const jiraEmail = 'JIRA Email';
 const jiraIssueID = 'JIRA Issue ID';
 
-export class Jira_GetIssue extends HTTPNode {
+export class Jira_GetIssues extends HTTPNode {
   public getName(): string {
-    return 'JIRA - Get Issue - Companion';
+    return 'JIRA - Get Issues - Companion';
   }
 
   //public getDescription(): string {
@@ -36,7 +37,7 @@ export class Jira_GetIssue extends HTTPNode {
         SOCKET_TYPE.IN,
         urlInputName,
         new StringType(),
-        'https://your-jira-domain.atlassian.net/rest/api/2',
+        'https://your-jira-domain.atlassian.net/rest/api/2/search?jql=assignee=5a041851120cec1d9519de0b',
       ),
       new Socket(
         SOCKET_TYPE.IN,
@@ -61,16 +62,20 @@ export class Jira_GetIssue extends HTTPNode {
     outputObject: Record<string, unknown>,
   ): Promise<void> {
     this.statuses = [];
-    const returnResponse = {};
-    this.statuses.push({
-      color: TRgba.white().multiply(0.5),
-      statusText: 'Companion',
-    });
-    const AUTHORIZATION_HEADER_VALUE = `Basic ${Buffer.from(
-      inputObject[jiraEmail] +
-        ':' +
-        inputObject[jiraEnvironmentalVariableAuthKey],
-    ).toString('base64')}`;
+
+    const AUTHORIZATION_HEADER_VALUE = `Basic ${btoa(
+      `${jiraEmail}:${jiraEnvironmentalVariableAuthKey}`,
+    )}`;
+    inputObject[outputContentName] = HTTPNode.sendThroughCompanion(
+      inputObject[sendThroughCompanionAddress],
+      {
+        ...{ Authorization: AUTHORIZATION_HEADER_VALUE },
+        ...defaultHeaders,
+      },
+      {},
+      inputObject[urlInputName],
+      'GET',
+    );
 
     /*const options = {
       hostname: inputObject[urlInputName],

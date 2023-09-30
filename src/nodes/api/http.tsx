@@ -37,6 +37,8 @@ export interface CompanionResponse {
   response: string;
 }
 
+export const defaultHeaders = { 'Content-Type': 'application/json' };
+
 export class HTTPNode extends PPNode {
   public getName(): string {
     return 'HTTP';
@@ -68,9 +70,12 @@ export class HTTPNode extends PPNode {
         new StringType(),
         'https://jsonplaceholder.typicode.com/posts',
       ),
-      new Socket(SOCKET_TYPE.IN, headersInputName, new JSONType(), {
-        'Content-Type': 'application/json',
-      }),
+      new Socket(
+        SOCKET_TYPE.IN,
+        headersInputName,
+        new JSONType(),
+        defaultHeaders,
+      ),
       new Socket(
         SOCKET_TYPE.IN,
         methodName,
