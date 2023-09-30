@@ -32,7 +32,7 @@ export const HTTPMethodOptions: EnumStructure = [
   return { text: val, value: val };
 });
 
-interface CompanionResponse {
+export interface CompanionResponse {
   status: number;
   response: string;
 }
@@ -121,27 +121,17 @@ export class HTTPNode extends PPNode {
         color: TRgba.white().multiply(0.5),
         statusText: 'Companion',
       });
-      try {
-        //console.log('awaitedres: ' + (await (await res).text()));
-        const companionRes = await HTTPNode.sendThroughCompanion(
-          inputObject[sendThroughCompanionAddress],
-          inputObject[headersInputName],
-          inputObject[bodyInputName],
-          inputObject[urlInputName],
-          inputObject[methodName],
-        );
-        try {
-          returnResponse = JSON.parse(companionRes.response);
-        } catch (error) {
-          console.log("Couldn't parse message: " + error);
-          returnResponse = companionRes.response;
-        }
-        this.pushStatusCode(companionRes.status);
-      } catch (error) {
-        console.log(error);
-        this.pushStatusCode(404);
-        throw 'Unable to reach companion, is it running at designated address?';
-      }
+      //console.log('awaitedres: ' + (await (await res).text()));
+      const companionRes = await HTTPNode.sendThroughCompanion(
+        inputObject[sendThroughCompanionAddress],
+        inputObject[headersInputName],
+        inputObject[bodyInputName],
+        inputObject[urlInputName],
+        inputObject[methodName],
+      );
+
+      returnResponse = companionRes.response;
+      this.pushStatusCode(companionRes.status);
     } else {
       // no body if Get
       const body =
@@ -168,19 +158,23 @@ export class HTTPNode extends PPNode {
     URL,
     method,
   ): Promise<CompanionResponse> {
-    const companionSpecific = {
-      finalHeaders: headers,
-      finalBody: JSON.stringify(body),
-      finalURL: URL,
-      finalMethod: method,
-    };
-    const res = fetch(companionAddress, {
-      method: 'Post',
-      headers: headers,
-      body: JSON.stringify(companionSpecific),
-    });
-    const companionRes = await (await res).json();
-    return companionRes;
+    try {
+      const companionSpecific = {
+        finalHeaders: headers,
+        finalBody: JSON.stringify(body),
+        finalURL: URL,
+        finalMethod: method,
+      };
+      const res = fetch(companionAddress, {
+        method: 'Post',
+        headers: headers,
+        body: JSON.stringify(companionSpecific),
+      });
+      const companionRes: CompanionResponse = await (await res).json();
+      return companionRes;
+    } catch (error) {
+      return { status: 404, response: error };
+    }
   }
 
   getColor(): TRgba {
