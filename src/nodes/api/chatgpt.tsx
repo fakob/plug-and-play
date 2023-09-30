@@ -5,7 +5,13 @@ import { TRgba } from '../../utils/interfaces';
 import { wrapDownloadLink } from '../../utils/utils';
 import { JSONType } from '../datatypes/jsonType';
 import { StringType } from '../datatypes/stringType';
-import { HTTPNode } from './http';
+import {
+  HTTPNode,
+  companionDefaultAddress,
+  outputContentName,
+  sendThroughCompanionAddress,
+  urlInputName,
+} from './http';
 
 const chatGPTPromptName = 'Prompt';
 const chatGPTOptionsName = 'Options';
