@@ -30,6 +30,8 @@ import * as widgetNodes from './widgets/widgetNodes';
 import * as recordNodes from './interactivity/record';
 import { RegisteredNodeTypes } from '../utils/interfaces';
 import * as simpleBarChart from './graphSegments/simpleBarGraph';
+import * as jira from './api/jira';
+import * as chatgpt from './api/chatgpt';
 
 let allNodesCached = undefined;
 
@@ -66,6 +68,8 @@ export const getAllNodeTypes = (): RegisteredNodeTypes => {
       widgetNodes,
       recordNodes,
       simpleBarChart,
+      jira,
+      chatgpt,
     };
     const toReturn = {};
     for (const [categoryKey, categoryValue] of Object.entries(categories)) {

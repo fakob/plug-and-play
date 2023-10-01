@@ -58,7 +58,7 @@ export class Macro extends PPNode {
   }
 
   protected getUpdateBehaviour(): UpdateBehaviourClass {
-    return new UpdateBehaviourClass(false, false, 1000, this);
+    return new UpdateBehaviourClass(true, false, 1000, this);
   }
 
   onRemoved(): void {
@@ -245,8 +245,9 @@ export class Macro extends PPNode {
   }
 
   public getSocketDisplayName(socket: Socket): string {
-    return socket.isOutput() && socket.hasLink()
-      ? socket.links[0].target.name
+    return socket.isOutput() && socket.hasLink() && false
+      ? socket.links[0].target
+          .name /* this didnt work because it can produce duplicates */
       : socket.name;
   }
 
@@ -254,9 +255,10 @@ export class Macro extends PPNode {
     const nodesCallingMe = Object.values(PPGraph.currentGraph.nodes).filter(
       (node) => node.isCallingMacro(this.name),
     );
-    await Promise.all(
-      nodesCallingMe.map(async (node) => await node.calledMacroUpdated()),
-    );
+    // needs to be sequential
+    for (let i = 0; i < nodesCallingMe.length; i++) {
+      await nodesCallingMe[i].calledMacroUpdated();
+    }
   }
 
   protected async onExecute(
@@ -359,5 +361,8 @@ export class ExecuteMacro extends CustomFunction {
   public async calledMacroUpdated(): Promise<void> {
     await this.generateUseNewCode();
     await super.calledMacroUpdated();
+  }
+  protected getOutputCodeVisibleByDefault(): boolean {
+    return true;
   }
 }

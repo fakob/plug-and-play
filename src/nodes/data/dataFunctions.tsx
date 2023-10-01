@@ -51,7 +51,7 @@ export class MergeJSONs extends PPNode {
   }
   protected async onExecute(
     inputObject: any,
-    outputObject: Record<string, unknown>
+    outputObject: Record<string, unknown>,
   ): Promise<void> {
     outputObject[constantOutName] = {
       ...inputObject[input1Name],
@@ -82,10 +82,10 @@ export class ConcatenateArrays extends PPNode {
   }
   protected async onExecute(
     inputObject: any,
-    outputObject: Record<string, unknown>
+    outputObject: Record<string, unknown>,
   ): Promise<void> {
     outputObject[constantOutName] = inputObject[input1Name].concat(
-      inputObject[input2Name]
+      inputObject[input2Name],
     );
   }
 }
@@ -125,7 +125,7 @@ export class Constant extends PPNode {
         SOCKET_TYPE.IN,
         constantInName,
         new AnyType(),
-        constantDefaultData
+        constantDefaultData,
       ),
       new Socket(SOCKET_TYPE.OUT, constantOutName, new AnyType()),
     ];
@@ -133,7 +133,7 @@ export class Constant extends PPNode {
 
   protected async onExecute(
     inputObject: any,
-    outputObject: Record<string, unknown>
+    outputObject: Record<string, unknown>,
   ): Promise<void> {
     outputObject[constantOutName] = inputObject?.[constantInName];
   }
@@ -149,7 +149,7 @@ export class Constant extends PPNode {
       this,
       constantInName,
       constantDefaultData,
-      dataToUpdate
+      dataToUpdate,
     );
     super.outputPlugged();
   }
@@ -177,11 +177,11 @@ export class ParseArray extends PPNode {
   }
   protected async onExecute(
     inputObject: any,
-    outputObject: Record<string, unknown>
+    outputObject: Record<string, unknown>,
   ): Promise<void> {
     const inputArray = inputObject[arrayName];
     outputObject[arrayOutName] = inputArray.map((element) =>
-      this.getSocketByName(typeName).dataType.parse(element)
+      this.getSocketByName(typeName).dataType.parse(element),
     );
   }
 }
@@ -255,14 +255,20 @@ export class CustomFunction extends PPNode {
         anyCodeName,
         new CodeType(),
         this.getDefaultFunction(),
-        false
+        false,
       ),
       new Socket(
         SOCKET_TYPE.OUT,
         this.getOutputParameterName(),
-        this.getOutputParameterType()
+        this.getOutputParameterType(),
       ),
-      new Socket(SOCKET_TYPE.OUT, anyCodeName, new CodeType(), '', false),
+      new Socket(
+        SOCKET_TYPE.OUT,
+        anyCodeName,
+        new CodeType(),
+        '',
+        this.getOutputCodeVisibleByDefault(),
+      ),
     ];
   }
 
@@ -283,6 +289,9 @@ export class CustomFunction extends PPNode {
   }
   protected getOutputParameterName(): string {
     return outDataName;
+  }
+  protected getOutputCodeVisibleByDefault(): boolean {
+    return false;
   }
 
   protected getDefaultFunction(): string {
@@ -334,7 +343,7 @@ export class CustomFunction extends PPNode {
 
   protected async onExecute(
     inputObject: any,
-    outputObject: Record<string, unknown>
+    outputObject: Record<string, unknown>,
   ): Promise<void> {
     // before every execute, re-evaluate inputs
     const changeFound = this.adaptInputs(inputObject[anyCodeName]);
@@ -350,12 +359,12 @@ export class CustomFunction extends PPNode {
     const defineAllVariablesFromInputObject = paramKeys
       .map(
         (argument) =>
-          'const ' + argument + ' = inputObject["' + argument + '"];'
+          'const ' + argument + ' = inputObject["' + argument + '"];',
       )
       .join(';');
     const functionWithVariablesFromInputObject = functionToCall.replace(
       '{',
-      '{' + defineAllVariablesFromInputObject
+      '{' + defineAllVariablesFromInputObject,
     );
 
     // this might seem unused but it actually isn't, its used inside the eval in many cases but we can't see what's inside it from here
@@ -381,16 +390,16 @@ export class CustomFunction extends PPNode {
     const codeArguments = getArgumentsFromFunction(code);
     // remove all non existing arguments and add all missing (based on the definition we just got)
     const currentInputSockets = this.getDataSockets().filter(
-      (socket) => socket.socketType === SOCKET_TYPE.IN
+      (socket) => socket.socketType === SOCKET_TYPE.IN,
     );
     const socketsToBeRemoved = currentInputSockets.filter(
       (socket) =>
         !codeArguments.some((argument) => socket.name === argument) &&
-        socket.name !== anyCodeName
+        socket.name !== anyCodeName,
     );
     const argumentsToBeAdded = codeArguments.filter(
       (argument) =>
-        !currentInputSockets.some((socket) => socket.name === argument)
+        !currentInputSockets.some((socket) => socket.name === argument),
     );
     socketsToBeRemoved.forEach((socket) => {
       this.removeSocket(socket);
@@ -402,7 +411,7 @@ export class CustomFunction extends PPNode {
         this.getDefaultParameterValues()[argument] || 0,
         true,
         {},
-        false
+        false,
       );
     });
     if (socketsToBeRemoved.length > 0 || argumentsToBeAdded.length > 0) {
@@ -505,7 +514,14 @@ export class Counts extends ArrayFunction {
 
   protected getDefaultFunction(): string {
     return `(ArrayIn, Uniques) => {
-      return Uniques.map(unique => [unique,ArrayIn.filter(entry => entry == unique).length])
+        const results = {}
+        ArrayIn.forEach(entry => {
+          if (results[entry] == undefined){
+            results[entry] = 0;
+          }
+          results[entry]++;
+        });
+        return results;
     }`;
   }
 }
