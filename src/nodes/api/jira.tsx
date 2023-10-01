@@ -17,6 +17,8 @@ import {
 const jiraEnvironmentalVariableAuthKey = 'JIRA API Key';
 const jiraEmail = 'JIRA Email';
 
+const jql = 'JQL';
+
 abstract class Jira_Base extends HTTPNode {
   protected getDefaultIO(): Socket[] {
     return [
@@ -43,13 +45,17 @@ abstract class Jira_Base extends HTTPNode {
     ];
   }
 
+  protected static getAuthorizationHeader(inputObject: any) {
+    return `Basic $BASE64_ENCODE\{${inputObject[jiraEmail]}:$\{${inputObject[jiraEnvironmentalVariableAuthKey]}\}\}`;
+  }
+
   public getDescription(): string {
     return 'JIRA communication through the Plug and Play Companion, uses environmental variable for API key';
   }
 }
 
 abstract class Jira_Get extends Jira_Base {
-  protected abstract getAddress(): string;
+  protected abstract getAddress(inputObject: any): string;
 
   protected async onExecute(
     inputObject: any,
@@ -57,16 +63,14 @@ abstract class Jira_Get extends Jira_Base {
   ): Promise<void> {
     this.statuses = [];
 
-    const AUTHORIZATION_HEADER_VALUE = `Basic $BASE64_ENCODE\{${inputObject[jiraEmail]}:$\{${inputObject[jiraEnvironmentalVariableAuthKey]}\}\}`;
-
     outputObject[outputContentName] = await HTTPNode.sendThroughCompanion(
       inputObject[sendThroughCompanionAddress],
       {
-        ...{ Authorization: AUTHORIZATION_HEADER_VALUE },
+        ...{ Authorization: Jira_Base.getAuthorizationHeader(inputObject) },
         ...defaultHeaders,
       },
       {},
-      inputObject[urlInputName] + this.getAddress(),
+      inputObject[urlInputName] + this.getAddress(inputObject),
       'Get',
     );
   }
@@ -88,3 +92,57 @@ export class Jira_GetProjects extends Jira_Get {
     return new UpdateBehaviourClass(false, false, 1000, this);
   }
 }
+
+export class Jira_GetIssues extends Jira_Get {
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(
+        SOCKET_TYPE.IN,
+        jql,
+        new StringType(),
+        'created >= startOfDay(-1d)',
+      ),
+    ].concat(super.getDefaultIO());
+  }
+
+  protected getAddress(inputObject: any): string {
+    return '/search?jql=' + inputObject[jql];
+  }
+  public getName(): string {
+    return 'JIRA - Get Issues - Companion';
+  }
+
+  protected getUpdateBehaviour(): UpdateBehaviourClass {
+    return new UpdateBehaviourClass(false, false, 1000, this);
+  }
+}
+
+// TODO add post stuff, needed to create issues, add comments, etc etc.
+/*
+abstract class Jira_Post extends Jira_Base {
+  public getName(): string {
+    return 'JIRA - Custom Request';
+  }
+
+  protected getUpdateBehaviour(): UpdateBehaviourClass {
+    return new UpdateBehaviourClass(false, false, 1000, this);
+  }
+  protected async onExecute(
+    inputObject: any,
+    outputObject: Record<string, unknown>,
+  ): Promise<void> {
+    this.statuses = [];
+
+    outputObject[outputContentName] = await HTTPNode.sendThroughCompanion(
+      inputObject[sendThroughCompanionAddress],
+      {
+        ...{ Authorization: Jira_Base.getAuthorizationHeader(inputObject) },
+        ...defaultHeaders,
+      },
+      {},
+      inputObject[urlInputName],
+      'Post',
+    );
+  }
+}
+*/
