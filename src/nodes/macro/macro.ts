@@ -58,7 +58,7 @@ export class Macro extends PPNode {
   }
 
   protected getUpdateBehaviour(): UpdateBehaviourClass {
-    return new UpdateBehaviourClass(false, false, 1000, this);
+    return new UpdateBehaviourClass(true, false, 1000, this);
   }
 
   onRemoved(): void {
