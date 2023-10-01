@@ -245,8 +245,9 @@ export class Macro extends PPNode {
   }
 
   public getSocketDisplayName(socket: Socket): string {
-    return socket.isOutput() && socket.hasLink()
-      ? socket.links[0].target.name
+    return socket.isOutput() && socket.hasLink() && false
+      ? socket.links[0].target
+          .name /* this didnt work because it can produce duplicates */
       : socket.name;
   }
 
