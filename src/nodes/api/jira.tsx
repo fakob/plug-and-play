@@ -18,6 +18,7 @@ const jiraEnvironmentalVariableAuthKey = 'JIRA API Key';
 const jiraEmail = 'JIRA Email';
 
 const jql = 'JQL';
+const maxResults = 'Max Results';
 
 abstract class Jira_Base extends HTTPNode {
   protected getDefaultIO(): Socket[] {
@@ -35,6 +36,7 @@ abstract class Jira_Base extends HTTPNode {
         'JIRA_TOKEN',
       ),
       new Socket(SOCKET_TYPE.IN, jiraEmail, new StringType(), 'JIRA_MAIL'),
+      new Socket(SOCKET_TYPE.IN, maxResults, new NumberType(), 50),
       new Socket(
         SOCKET_TYPE.IN,
         sendThroughCompanionAddress,
@@ -70,7 +72,10 @@ abstract class Jira_Get extends Jira_Base {
         ...defaultHeaders,
       },
       {},
-      inputObject[urlInputName] + this.getAddress(inputObject),
+      inputObject[urlInputName] +
+        this.getAddress(inputObject) +
+        '&maxResults=' +
+        inputObject[maxResults],
       'Get',
     );
   }
@@ -110,6 +115,10 @@ export class Jira_GetIssues extends Jira_Get {
   }
   public getName(): string {
     return 'JIRA - Get Issues - Companion';
+  }
+
+  public getDescription(): string {
+    return 'Enter your own JQL query to filter issues';
   }
 
   protected getUpdateBehaviour(): UpdateBehaviourClass {
