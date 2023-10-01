@@ -262,7 +262,13 @@ export class CustomFunction extends PPNode {
         this.getOutputParameterName(),
         this.getOutputParameterType(),
       ),
-      new Socket(SOCKET_TYPE.OUT, anyCodeName, new CodeType(), '', false),
+      new Socket(
+        SOCKET_TYPE.OUT,
+        anyCodeName,
+        new CodeType(),
+        '',
+        this.getOutputCodeVisibleByDefault(),
+      ),
     ];
   }
 
@@ -283,6 +289,9 @@ export class CustomFunction extends PPNode {
   }
   protected getOutputParameterName(): string {
     return outDataName;
+  }
+  protected getOutputCodeVisibleByDefault(): boolean {
+    return false;
   }
 
   protected getDefaultFunction(): string {

@@ -255,9 +255,10 @@ export class Macro extends PPNode {
     const nodesCallingMe = Object.values(PPGraph.currentGraph.nodes).filter(
       (node) => node.isCallingMacro(this.name),
     );
-    await Promise.all(
-      nodesCallingMe.map(async (node) => await node.calledMacroUpdated()),
-    );
+    // needs to be sequential
+    for (let i = 0; i < nodesCallingMe.length; i++) {
+      await nodesCallingMe[i].calledMacroUpdated();
+    }
   }
 
   protected async onExecute(
@@ -360,5 +361,8 @@ export class ExecuteMacro extends CustomFunction {
   public async calledMacroUpdated(): Promise<void> {
     await this.generateUseNewCode();
     await super.calledMacroUpdated();
+  }
+  protected getOutputCodeVisibleByDefault(): boolean {
+    return true;
   }
 }
