@@ -8,13 +8,12 @@ import { StringType } from '../datatypes/stringType';
 import {
   HTTPNode,
   companionDefaultAddress,
-  defaultHeaders,
   outputContentName,
   sendThroughCompanionAddress,
   urlInputName,
 } from './http';
 
-const jiraEnvironmentalVariableAuthKey = 'JIRA API Key';
+const jiraAuthKey = 'JIRA API Key';
 const jiraEmail = 'JIRA Email';
 
 const jql = 'JQL';
@@ -29,12 +28,7 @@ abstract class Jira_Base extends HTTPNode {
         new StringType(),
         'https://your-jira-domain.atlassian.net/rest/api/2',
       ),
-      new Socket(
-        SOCKET_TYPE.IN,
-        jiraEnvironmentalVariableAuthKey,
-        new StringType(),
-        'JIRA_TOKEN',
-      ),
+      new Socket(SOCKET_TYPE.IN, jiraAuthKey, new StringType(), 'JIRA_TOKEN'),
       new Socket(SOCKET_TYPE.IN, jiraEmail, new StringType(), 'JIRA_MAIL'),
       new Socket(SOCKET_TYPE.IN, maxResults, new NumberType(), 50),
       new Socket(
@@ -48,7 +42,7 @@ abstract class Jira_Base extends HTTPNode {
   }
 
   protected static getAuthorizationHeader(inputObject: any) {
-    return `Basic $BASE64_ENCODE\{${inputObject[jiraEmail]}:$\{${inputObject[jiraEnvironmentalVariableAuthKey]}\}\}`;
+    return `Basic $BASE64_ENCODE\{${inputObject[jiraEmail]}:${inputObject[jiraAuthKey]}\}`;
   }
 
   public getDescription(): string {
@@ -69,7 +63,7 @@ abstract class Jira_Get extends Jira_Base {
       inputObject[sendThroughCompanionAddress],
       {
         ...{ Authorization: Jira_Base.getAuthorizationHeader(inputObject) },
-        ...defaultHeaders,
+        ...Jira_Get.defaultHeaders,
       },
       {},
       inputObject[urlInputName] +
@@ -125,33 +119,3 @@ export class Jira_GetIssues extends Jira_Get {
     return new UpdateBehaviourClass(false, false, 1000, this);
   }
 }
-
-// TODO add post stuff, needed to create issues, add comments, etc etc.
-/*
-abstract class Jira_Post extends Jira_Base {
-  public getName(): string {
-    return 'JIRA - Custom Request';
-  }
-
-  protected getUpdateBehaviour(): UpdateBehaviourClass {
-    return new UpdateBehaviourClass(false, false, 1000, this);
-  }
-  protected async onExecute(
-    inputObject: any,
-    outputObject: Record<string, unknown>,
-  ): Promise<void> {
-    this.statuses = [];
-
-    outputObject[outputContentName] = await HTTPNode.sendThroughCompanion(
-      inputObject[sendThroughCompanionAddress],
-      {
-        ...{ Authorization: Jira_Base.getAuthorizationHeader(inputObject) },
-        ...defaultHeaders,
-      },
-      {},
-      inputObject[urlInputName],
-      'Post',
-    );
-  }
-}
-*/

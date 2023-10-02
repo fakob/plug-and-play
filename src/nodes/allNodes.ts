@@ -32,6 +32,7 @@ import { RegisteredNodeTypes } from '../utils/interfaces';
 import * as simpleBarChart from './graphSegments/simpleBarGraph';
 import * as jira from './api/jira';
 import * as chatgpt from './api/chatgpt';
+import * as twitter from './api/twitter';
 
 let allNodesCached = undefined;
 
@@ -70,6 +71,7 @@ export const getAllNodeTypes = (): RegisteredNodeTypes => {
       simpleBarChart,
       jira,
       chatgpt,
+      twitter,
     };
     const toReturn = {};
     for (const [categoryKey, categoryValue] of Object.entries(categories)) {

@@ -37,8 +37,6 @@ export interface CompanionResponse {
   response: string;
 }
 
-export const defaultHeaders = { 'Content-Type': 'application/json' };
-
 export class HTTPNode extends PPNode {
   public getName(): string {
     return 'HTTP';
@@ -74,7 +72,7 @@ export class HTTPNode extends PPNode {
         SOCKET_TYPE.IN,
         headersInputName,
         new JSONType(),
-        defaultHeaders,
+        HTTPNode.defaultHeaders,
       ),
       new Socket(
         SOCKET_TYPE.IN,
@@ -185,4 +183,13 @@ export class HTTPNode extends PPNode {
   getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
   }
+
+  static getDefaultBearerHeaders(key) {
+    return { ...this.getBearerAuthentication(key), ...this.defaultHeaders };
+  }
+  static getBearerAuthentication(key) {
+    return { Authorization: 'Bearer ' + key };
+  }
+
+  static defaultHeaders = { 'Content-Type': 'application/json' };
 }
