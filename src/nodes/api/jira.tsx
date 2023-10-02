@@ -33,7 +33,7 @@ abstract class Jira_Base extends HTTPNode {
         SOCKET_TYPE.IN,
         jiraEnvironmentalVariableAuthKey,
         new StringType(),
-        'JIRA_TOKEN',
+        '${JIRA_TOKEN}',
       ),
       new Socket(SOCKET_TYPE.IN, jiraEmail, new StringType(), 'JIRA_MAIL'),
       new Socket(SOCKET_TYPE.IN, maxResults, new NumberType(), 50),
@@ -48,7 +48,7 @@ abstract class Jira_Base extends HTTPNode {
   }
 
   protected static getAuthorizationHeader(inputObject: any) {
-    return `Basic $BASE64_ENCODE\{${inputObject[jiraEmail]}:$\{${inputObject[jiraEnvironmentalVariableAuthKey]}\}\}`;
+    return `Basic $BASE64_ENCODE\{${inputObject[jiraEmail]}:${inputObject[jiraEnvironmentalVariableAuthKey]}\}`;
   }
 
   public getDescription(): string {

@@ -61,7 +61,7 @@ export class ChatGPTNode extends HTTPNode {
         SOCKET_TYPE.IN,
         chatGPTEnvironmentalVariableAuthKey,
         new StringType(),
-        'OPENAI_KEY',
+        '${OPENAI_KEY}',
       ),
       new Socket(
         SOCKET_TYPE.IN,
@@ -92,9 +92,7 @@ export class ChatGPTNode extends HTTPNode {
         finalHeaders: {
           'Content-Type': 'application/json',
           Authorization:
-            'Bearer ${' +
-            inputObject[chatGPTEnvironmentalVariableAuthKey] +
-            '}',
+            'Bearer ' + inputObject[chatGPTEnvironmentalVariableAuthKey],
         },
         finalBody: JSON.stringify(finalOptions),
         finalURL: inputObject[urlInputName],
