@@ -377,7 +377,7 @@ export default class PPStorage {
       const newName = `${removeExtension(nameOfFileToClone)} - copy`; // remove .ppgraph extension and add copy
       InterfaceController.showSnackBar('Remote playground was loaded', {
         variant: 'default',
-        autoHideDuration: 20000,
+        autoHideDuration: 4000,
         action: (key) => (
           <SaveOrDismiss
             saveClick={() => this.saveNewGraph(newName)}

@@ -8,7 +8,6 @@ import {
   ThemeProvider,
   Typography,
 } from '@mui/material';
-import Color from 'color';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import TwitterIcon from '@mui/icons-material/Twitter';
 import HelpContent from './HelpContent';
@@ -42,7 +41,10 @@ function HelpHeader(props) {
           Plug and Playground
         </Typography>
         <ButtonGroup variant="outlined">
-          <IconButton size="small" href="https://github.com">
+          <IconButton
+            size="small"
+            href="https://github.com/fakob/plug-and-play"
+          >
             <GitHubIcon sx={{ fontSize: '20px' }} />
           </IconButton>
           <IconButton size="small" href="https://twitter.com">

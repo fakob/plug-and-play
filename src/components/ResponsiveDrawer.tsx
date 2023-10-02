@@ -65,6 +65,7 @@ const ResponsiveDrawer = (props) => {
   // leaving this commented here for potential future testing
   const [open, setOpen] = useState(true);
   const [filter, setFilter] = useState(null);
+  const [helpFilter, setHelpFilter] = useState('explore');
   const [socketToInspect, setSocketToInspect] = useState<Socket | undefined>(
     undefined,
   );
@@ -114,6 +115,8 @@ const ResponsiveDrawer = (props) => {
   };
 
   const handlePointerMove = useCallback((e) => {
+    console.log(e);
+
     const minDrawerWidth = 50;
     const maxDrawerWidth = window.innerWidth - 100;
     const newWidth =
@@ -175,8 +178,8 @@ const ResponsiveDrawer = (props) => {
         ></div>
         {props.isLeft ? (
           <HelpContainer
-            filter={filter}
-            setFilter={setFilter}
+            filter={helpFilter}
+            setFilter={setHelpFilter}
             randomMainColor={props.randomMainColor}
           />
         ) : props.selectedNodes.length ? (

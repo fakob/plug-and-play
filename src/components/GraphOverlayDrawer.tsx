@@ -14,14 +14,15 @@ const GraphOverlayDrawer: React.FunctionComponent<GraphOverlayDrawerProps> = (
 ) => {
   // drawer
   const defaultDrawerWidth = 340;
+  const [helpDrawerWidth, setHelpDrawerWidth] = useState(defaultDrawerWidth);
   const [drawerWidth, setDrawerWidth] = useState(defaultDrawerWidth);
 
   return (
     <Box sx={{ position: 'relative' }}>
       <ResponsiveDrawer
         isLeft={true}
-        drawerWidth={drawerWidth}
-        setDrawerWidth={setDrawerWidth}
+        drawerWidth={helpDrawerWidth}
+        setDrawerWidth={setHelpDrawerWidth}
         toggle={props.toggle}
         selectedNodes={props.selectedNodes}
         randomMainColor={props.randomMainColor}

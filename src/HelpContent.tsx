@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import {
   Box,
+  ButtonGroup,
   IconButton,
   List,
   ListItem,
   ListItemButton,
+  ListItemSecondaryAction,
   Paper,
   Stack,
   ToggleButton,
@@ -15,7 +17,11 @@ import Color from 'color';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import PPStorage from './PPStorage';
 import { COLOR_DARK, COLOR_WHITE_TEXT } from './utils/constants';
-import { getLoadNodeExampleURL } from './utils/utils';
+import {
+  getLoadGraphExampleURL,
+  getLoadNodeExampleURL,
+  removeExtension,
+} from './utils/utils';
 
 type FilterContentProps = {
   handleFilter: (
@@ -34,7 +40,10 @@ function FilterContainer(props: FilterContentProps) {
       onChange={props.handleFilter}
       aria-label="socket filter"
       size="small"
-      sx={{ bgcolor: 'background.paper', borderRadius: '0px' }}
+      sx={{
+        bgcolor: 'background.paper',
+        borderRadius: '0px',
+      }}
     >
       <ToggleButton
         id="inspector-filter-explore"
@@ -66,6 +75,7 @@ const Item = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(1),
   elevation: 0,
   borderRadius: 0,
+  overflow: 'auto',
 }));
 
 const HelpContent = (props) => {
@@ -92,15 +102,16 @@ const HelpContent = (props) => {
   return (
     <Box
       sx={{
-        height: 'inherit',
-        overflow: 'auto',
         color: Color(props.randomMainColor).isDark()
           ? COLOR_WHITE_TEXT
           : COLOR_DARK,
       }}
     >
       <FilterContainer handleFilter={handleFilter} filter={props.filter} />
-      <Stack spacing={1} sx={{ mt: 1 }}>
+      <Stack
+        spacing={1}
+        sx={{ mt: 1, overflow: 'auto', height: 'calc(100vh - 120px)' }}
+      >
         {(props.filter === 'explore' || props.filter == null) && (
           <Item>
             <Box
@@ -313,11 +324,14 @@ const HelpContent = (props) => {
         )}
         {(props.filter === 'about' || props.filter == null) && (
           <Item>
-            <h3>About</h3>
-            <p>
+            <Box
+              sx={{
+                mt: 0,
+              }}
+            >
               Plug and Playground is open source, local first and does not
               collect any data. Everything happens inside your browser.
-            </p>
+            </Box>
             <h4>Problems to solve</h4>
             <ul>
               <li>
@@ -382,11 +396,9 @@ const GraphsContent = (props) => {
       <List
         sx={{
           width: '100%',
-          // maxWidth: 360,
           bgcolor: 'background.paper',
           position: 'relative',
           overflow: 'auto',
-          // maxHeight: 300,
           '& ul': { padding: 0 },
         }}
         subheader={<li />}
@@ -409,16 +421,23 @@ const GraphsContent = (props) => {
 };
 
 const GraphItem = (props) => {
-  // console.log(props);
+  const title = props.property;
+  const url = getLoadGraphExampleURL(removeExtension(title));
+
   return (
     <ListItem
-      key={`item-${props.property.title}`}
-      sx={{ p: 0 }}
+      key={`item-${title}`}
+      sx={{
+        p: 0,
+        '&:hover + .MuiListItemSecondaryAction-root': {
+          visibility: 'visible',
+        },
+      }}
       title="Open node example"
     >
       <ListItemButton
         onClick={() => {
-          PPStorage.getInstance().cloneRemoteGraph(props.property);
+          PPStorage.getInstance().cloneRemoteGraph(title);
         }}
       >
         <Stack
@@ -433,11 +452,31 @@ const GraphItem = (props) => {
               alignItems: 'center',
             }}
           >
-            {props.property}
+            {title}
           </Box>
         </Stack>
       </ListItemButton>
-      {/* <ListItemText primary={`Item ${item}`} /> */}
+      <ListItemSecondaryAction
+        sx={{
+          visibility: 'hidden',
+          '&&:hover': {
+            visibility: 'visible',
+            '& + .MuiListItem-root': {},
+          },
+        }}
+      >
+        <IconButton
+          size="small"
+          title="Open in new tab"
+          className="menuItemButton"
+          onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+            event.stopPropagation();
+            window.open(`${url}`, '_blank')?.focus();
+          }}
+        >
+          <OpenInNewIcon />
+        </IconButton>
+      </ListItemSecondaryAction>
     </ListItem>
   );
 };
@@ -476,9 +515,16 @@ const NodesContent = (props) => {
 };
 
 const NodeItem = (props) => {
-  // console.log(props);
   return (
-    <ListItem key={`item-${props.property.title}`} sx={{ p: 0 }}>
+    <ListItem
+      key={`item-${props.property.title}`}
+      sx={{
+        p: 0,
+        // '&:hover + .MuiListItemSecondaryAction-root': {
+        //   visibility: 'visible',
+        // },
+      }}
+    >
       <ListItemButton>
         <Stack
           sx={{
@@ -492,21 +538,15 @@ const NodeItem = (props) => {
               alignItems: 'center',
             }}
           >
-            {/* {props.property.title} */}
             <Box
               title={props.property.description}
               sx={{
                 flexGrow: 1,
               }}
             >
-              <Box component="div" sx={{ display: 'inline', opacity: '0.5' }}>
-                {props.property.isNew && 'Create custom node: '}
-              </Box>
               <Box
                 sx={{
                   display: 'inline',
-                  // opacity: part.highlight ? 1 : 0.75,
-                  // fontWeight: part.highlight ? 600 : 400,
                 }}
               >
                 {props.property.name}
@@ -520,7 +560,7 @@ const NodeItem = (props) => {
                   fontSize: '16px',
                   padding: 0,
                   height: '24px',
-                  display: 'none',
+                  // display: 'none',
                   '.Mui-focused &': {
                     display: 'inherit',
                   },
@@ -561,8 +601,6 @@ const NodeItem = (props) => {
                     '.Mui-focused &': {
                       display: 'none',
                     },
-                    opacity: part.highlight ? 1 : 0.5,
-                    fontWeight: part.highlight ? 600 : 400,
                   }}
                 >
                   {part}
@@ -580,21 +618,11 @@ const NodeItem = (props) => {
             <Box
               sx={{
                 display: 'inline',
-                // opacity: part.highlight ? 1 : 0.75,
-                // fontWeight: part.highlight ? 600 : 400,
               }}
             >
               {props.property.description}
             </Box>
           </Box>
-          {/* <Box
-            sx={{
-              lineHeight: '150%',
-            }}
-            dangerouslySetInnerHTML={{
-              __html: props.property.getAdditionalDescription(),
-            }}
-          /> */}
         </Stack>
       </ListItemButton>
       {/* <ListItemText primary={`Item ${item}`} /> */}
