@@ -78,18 +78,26 @@ const HelpContainer: React.FunctionComponent<HelpContainerProps> = (props) => {
       const allNodeTypes = Object.entries(getAllNodeTypes());
       if (allNodeTypes) {
         setNodesCached(
-          allNodeTypes.map(([title, obj]) => {
-            return {
-              title,
-              name: obj.name,
-              key: title,
-              description: obj.description,
-              hasInputs: obj.hasInputs,
-              tags: obj.tags,
-              hasExample: obj.hasExample,
-              group: obj.tags[0],
-            };
-          }),
+          allNodeTypes
+            .map(([title, obj]) => {
+              return {
+                title,
+                name: obj.name,
+                key: title,
+                description: obj.description,
+                hasInputs: obj.hasInputs,
+                tags: obj.tags,
+                hasExample: obj.hasExample,
+                group: obj.tags[0],
+              };
+            })
+            .sort((a, b) =>
+              a.name.localeCompare(b.name, 'en', { sensitivity: 'base' }),
+            )
+            .sort(
+              (a, b) =>
+                a.group?.localeCompare(b.group, 'en', { sensitivity: 'base' }),
+            ),
         );
       }
       console.log(nodesCached);
