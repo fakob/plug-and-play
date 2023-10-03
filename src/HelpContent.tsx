@@ -110,7 +110,11 @@ const HelpContent = (props) => {
       <FilterContainer handleFilter={handleFilter} filter={props.filter} />
       <Stack
         spacing={1}
-        sx={{ mt: 1, overflow: 'auto', height: 'calc(100vh - 120px)' }}
+        sx={{
+          mt: 1,
+          overflow: 'auto',
+          height: 'calc(100vh - 120px)',
+        }}
       >
         {(props.filter === 'explore' || props.filter == null) && (
           <Item>
@@ -122,8 +126,14 @@ const HelpContent = (props) => {
               Your visual toolkit for creative prototyping, to explore,
               transform or visualise data.
             </Box>
-            <GraphsContent graphs={remoteGraphs} />
-            <NodesContent nodesCached={props.nodesCached} />
+            <GraphsContent
+              graphs={remoteGraphs}
+              randomMainColor={props.randomMainColor}
+            />
+            <NodesContent
+              nodesCached={props.nodesCached}
+              randomMainColor={props.randomMainColor}
+            />
           </Item>
         )}
         {(props.filter === 'create' || props.filter == null) && (
@@ -408,9 +418,11 @@ const GraphsContent = (props) => {
             <GraphItem
               key={index}
               property={property}
+              randomMainColor={props.randomMainColor}
               index={index}
               sx={{
                 listStyleType: 'none',
+                m: 1,
               }}
             />
           );
@@ -432,12 +444,17 @@ const GraphItem = (props) => {
         '&:hover + .MuiListItemSecondaryAction-root': {
           visibility: 'visible',
         },
+        bgcolor: `${Color(props.randomMainColor).darken(0.6)}`,
+        margin: '1px 0',
       }}
       title="Open node example"
     >
       <ListItemButton
         onClick={() => {
           PPStorage.getInstance().cloneRemoteGraph(title);
+        }}
+        sx={{
+          p: 1,
         }}
       >
         <Stack
@@ -461,8 +478,12 @@ const GraphItem = (props) => {
           visibility: 'hidden',
           '&&:hover': {
             visibility: 'visible',
-            '& + .MuiListItem-root': {},
           },
+          '.MuiListItem-root:has(+ &:hover)': {
+            background: 'rgba(255, 255, 255, 0.08)',
+          },
+          bgcolor: `${Color(props.randomMainColor).darken(0.6)}`,
+          right: '8px',
         }}
       >
         <IconButton
@@ -473,8 +494,15 @@ const GraphItem = (props) => {
             event.stopPropagation();
             window.open(`${url}`, '_blank')?.focus();
           }}
+          sx={{
+            borderRadius: 0,
+          }}
         >
-          <OpenInNewIcon />
+          <OpenInNewIcon
+            sx={{
+              fontSize: '16px',
+            }}
+          />
         </IconButton>
       </ListItemSecondaryAction>
     </ListItem>
@@ -488,11 +516,9 @@ const NodesContent = (props) => {
       <List
         sx={{
           width: '100%',
-          // maxWidth: 360,
           bgcolor: 'background.paper',
           position: 'relative',
           overflow: 'auto',
-          // maxHeight: 300,
           '& ul': { padding: 0 },
         }}
         subheader={<li />}
@@ -502,6 +528,7 @@ const NodesContent = (props) => {
             <NodeItem
               key={index}
               property={property}
+              randomMainColor={props.randomMainColor}
               index={index}
               sx={{
                 listStyleType: 'none',
@@ -520,12 +547,19 @@ const NodeItem = (props) => {
       key={`item-${props.property.title}`}
       sx={{
         p: 0,
-        // '&:hover + .MuiListItemSecondaryAction-root': {
-        //   visibility: 'visible',
-        // },
+        '&:hover + .MuiListItemSecondaryAction-root': {
+          visibility: 'visible',
+        },
+        bgcolor: `${Color(props.randomMainColor).darken(0.6)}`,
+        margin: '1px 0',
       }}
+      title="Add node"
     >
-      <ListItemButton>
+      <ListItemButton
+        sx={{
+          p: 1,
+        }}
+      >
         <Stack
           sx={{
             width: '100%',
@@ -552,41 +586,6 @@ const NodeItem = (props) => {
                 {props.property.name}
               </Box>
             </Box>
-            {props.property.hasExample && (
-              <IconButton
-                sx={{
-                  borderRadius: 0,
-                  right: '0px',
-                  fontSize: '16px',
-                  padding: 0,
-                  height: '24px',
-                  // display: 'none',
-                  '.Mui-focused &': {
-                    display: 'inherit',
-                  },
-                }}
-                onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
-                  event.stopPropagation();
-                  window.open(
-                    getLoadNodeExampleURL(props.property.title),
-                    '_blank',
-                  );
-                }}
-                title="Open node example"
-                className="menuItemButton"
-              >
-                <Box
-                  sx={{
-                    color: 'text.secondary',
-                    fontSize: '10px',
-                    px: 0.5,
-                  }}
-                >
-                  Open example
-                </Box>
-                <OpenInNewIcon sx={{ fontSize: '16px' }} />
-              </IconButton>
-            )}
             <Box>
               {props.property.tags?.map((part, index) => (
                 <Box
@@ -625,7 +624,48 @@ const NodeItem = (props) => {
           </Box>
         </Stack>
       </ListItemButton>
-      {/* <ListItemText primary={`Item ${item}`} /> */}
+      {props.property.hasExample && (
+        <ListItemSecondaryAction
+          sx={{
+            visibility: 'hidden',
+            '&&:hover': {
+              visibility: 'visible',
+            },
+            '.MuiListItem-root:has(+ &:hover)': {
+              background: 'rgba(255, 255, 255, 0.08)',
+            },
+            bgcolor: `${Color(props.randomMainColor).darken(0.6)}`,
+            right: '8px',
+          }}
+        >
+          <IconButton
+            size="small"
+            title="Open node example"
+            className="menuItemButton"
+            onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+              event.stopPropagation();
+              window.open(
+                getLoadNodeExampleURL(props.property.title),
+                '_blank',
+              );
+            }}
+            sx={{
+              borderRadius: 0,
+            }}
+          >
+            <Box
+              sx={{
+                color: 'text.secondary',
+                fontSize: '10px',
+                px: 0.5,
+              }}
+            >
+              Open example
+            </Box>
+            <OpenInNewIcon sx={{ fontSize: '16px' }} />
+          </IconButton>
+        </ListItemSecondaryAction>
+      )}
     </ListItem>
   );
 };
