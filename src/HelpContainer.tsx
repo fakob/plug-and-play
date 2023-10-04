@@ -9,7 +9,6 @@ import {
   Typography,
 } from '@mui/material';
 import GitHubIcon from '@mui/icons-material/GitHub';
-import TwitterIcon from '@mui/icons-material/Twitter';
 import HelpContent from './HelpContent';
 import { customTheme } from './utils/constants';
 import styles from './utils/style.module.css';
@@ -20,7 +19,7 @@ function HelpHeader(props) {
   return (
     <Box
       sx={{
-        color: TRgba.fromString(props.randommaincolor)
+        color: TRgba.fromString(props.randomMainColor)
           .getContrastTextColor()
           .hex(),
       }}
@@ -44,6 +43,11 @@ function HelpHeader(props) {
           <IconButton
             size="small"
             href="https://discord.com/channels/818911619354198019/1159139141381017730"
+            sx={{
+              color: TRgba.fromString(props.randomMainColor)
+                .getContrastTextColor()
+                .hex(),
+            }}
           >
             <SvgIcon sx={{ fontSize: '20px' }} {...props}>
               <path
@@ -56,7 +60,14 @@ function HelpHeader(props) {
             size="small"
             href="https://github.com/fakob/plug-and-play"
           >
-            <GitHubIcon sx={{ fontSize: '20px' }} />
+            <GitHubIcon
+              sx={{
+                fontSize: '20px',
+                color: TRgba.fromString(props.randomMainColor)
+                  .getContrastTextColor()
+                  .hex(),
+              }}
+            />
           </IconButton>
         </ButtonGroup>
       </Box>
@@ -116,7 +127,7 @@ const HelpContainer: React.FunctionComponent<HelpContainerProps> = (props) => {
           paddingRight: 0,
         }}
       >
-        <HelpHeader />
+        <HelpHeader randomMainColor={props.randomMainColor} />
         <HelpContent
           nodesCached={nodesCached}
           randomMainColor={props.randomMainColor}
