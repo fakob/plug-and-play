@@ -124,6 +124,7 @@ const App = (): JSX.Element => {
   const [isGraphSearchOpen, setIsGraphSearchOpen] = useState(false);
   const [isNodeSearchVisible, setIsNodeSearchVisible] = useState(false);
   const [showRightSideDrawer, setShowRightSideDrawer] = useState(false);
+  const [showLeftSideDrawer, setShowLeftSideDrawer] = useState(false);
   const nodeSearchCountRef = useRef(0);
   const [isGraphContextMenuOpen, setIsGraphContextMenuOpen] = useState(false);
   const [isNodeContextMenuOpen, setIsNodeContextMenuOpen] = useState(false);
@@ -449,6 +450,8 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     InterfaceController.toggleShowEdit = () => setShowEdit(toggleInputValue);
     InterfaceController.toggleRightSideDrawer = () =>
       setShowRightSideDrawer(toggleInputValue);
+    InterfaceController.toggleLeftSideDrawer = () =>
+      setShowLeftSideDrawer(toggleInputValue);
     InterfaceController.toggleShowComments = () =>
       setShowComments(toggleInputValue);
 
@@ -962,6 +965,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               controlOrMetaKey={controlOrMetaKey()}
               contextMenuPosition={contextMenuPosition}
               setShowRightSideDrawer={setShowRightSideDrawer}
+              setShowLeftSideDrawer={setShowLeftSideDrawer}
               setShowEdit={setShowEdit}
               uploadGraph={uploadGraph}
               showComments={showComments}
@@ -992,6 +996,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           <PixiContainer ref={pixiContext} />
           <GraphOverlay
             toggle={showRightSideDrawer}
+            toggleLeft={showLeftSideDrawer}
             currentGraph={PPGraph.currentGraph}
             randomMainColor={RANDOMMAINCOLOR}
           />
@@ -1052,7 +1057,9 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
                   />
                 )}
                 componentsProps={{
-                  popper: { style: { width: 'fit-content' } },
+                  popper: {
+                    style: { width: 'fit-content', minWidth: '400px' },
+                  },
                 }}
               />
               <div

@@ -17,7 +17,7 @@ function DrawerToggleInspector(props) {
   return (
     <Box id="drawer-toggle-inspector">
       <Button
-        title={`${props.open ? 'Close inspector' : 'Open inspector'}`}
+        title={`${props.open ? 'Close node inspector' : 'Open node inspector'}`}
         size="small"
         onClick={props.handleDrawerToggle}
         color="primary"
@@ -65,7 +65,7 @@ const ResponsiveDrawer = (props) => {
   // leaving this commented here for potential future testing
   const [open, setOpen] = useState(true);
   const [filter, setFilter] = useState(null);
-  const [helpFilter, setHelpFilter] = useState('explore');
+  const [helpFilter, setHelpFilter] = useState('create');
   const [socketToInspect, setSocketToInspect] = useState<Socket | undefined>(
     undefined,
   );

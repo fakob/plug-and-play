@@ -1,136 +1,244 @@
-Your visual toolkit for creative prototyping, to explore, transform or visualise data.
+import { Button } from '@mui/material';
 
-Add and connect nodes
+Your visual toolkit for creative prototyping, to explore, transform or visualise data.
 
 ## Quickstart
 
 1. Add nodes
 
-   - Open _Search nodes_ by double clicking into the playground or press _Cmd/Ctrl+F_
-   - There are many ready made nodes available, but you can also [_create your own_](https://docs.google.com/document/d/11dS2uk3qdvrVBHGdu0af5c3NmpCylHUrxrkcu4oNexU/edit#heading=h.l22knu24xajp)
+   - `Double click` into the playground or press `Cmd/Ctrl+F` to open the node search
+   - There are many ready made nodes available, but you can also create your own custom nodes
 
 2. Connect them
+
+   - `Click` on an input/output socket and drag to an output/input socket to create a connection
 
 3. They are executed right away
 
 ### Open an example playground
 
-1. Click into _Search playgrounds_ or press _Cmd/Ctrl+O_
+1. Click into `Search playgrounds` or press `Cmd/Ctrl+O`
 2. Select an existing playground
 
 ### Start a new playground
 
-4. Click into _Search playgrounds_ or press _Cmd/Ctrl+O_
-5. Give it a name
-6. Click _Create empty playground_
+1. Click [NEW](https://plugandplayground.dev/?new=true) in the top header
 
-OR Click [https://plugandplayground.dev/?new=true](https://plugandplayground.dev/?new=true)
+## What data can be imported/used?
 
-## What data can be used?
+- Tabular data (xls, xlsm, xlsb, xlsx, csv, ods, numbers)
+- Text (txt)
+- Code (json, js)
+- Image (jpg, png)
+- Video (3gp, avi, flv, mov, mkv, m4v, mp4, ogg, qt, swf, webm, wmv)
+- Sqlite (sqlite, sqlite3, db, db3, s3db, sl3)
+- And whatever you get from an API
 
-Excel (Tabular data)TextImagesAnd whatever you get from an API
+## What are nodes?
 
-## How do I add and connect nodes?
-
-### What are nodes?
-
-A node can
+Nodes are building blocks that can be connected together to perform various tasks. They can for example
 
 - Get or represent data
 - Transform data
 - Display data
+- Wrap a group of nodes into a single node (Macro)
+- Run a custom javascript function (Custom function)
 
-See [list of nodes](https://docs.google.com/document/d/11dS2uk3qdvrVBHGdu0af5c3NmpCylHUrxrkcu4oNexU/edit#heading=h.94je4wsnhfom)
+See a [list of available nodes](https://docs.google.com/document/d/11dS2uk3qdvrVBHGdu0af5c3NmpCylHUrxrkcu4oNexU/edit#heading=h.94je4wsnhfom)
 
-A node can have input and output sockets depending on its functionality.
+- To connect nodes, they have input and output `sockets` depending on their functionality
+- To execute them (calculate the outputs) you can specify the node's `update behaviour` defining how/when they should update.
 
-### What are sockets?
+### What nodes are available?
 
-Input sockets are exposed variables. Output sockets are
+See _Explore > Available nodes_
 
-See list of socket types
+## What are sockets?
 
-### Search for nodes
+`Sockets` allow to input or output data. These are the available socket types:
 
-To open the node search:
+- `Input sockets` allow for inputing data
+  - constant values changeable via the **inspector**
+  - OR data from an output socket connected to it
+- `Output sockets` expose data outputted by the node
+- `Trigger input` are used to trigger a node update
 
-- double click the canvas
-- press _Cmd/Ctrl-F_
-- start dragging a connection and release the mouse
+`Sockets` have a default `data type`, which can be changed. There is basic data parsing built in, to help transform between different data types. Not all data types are supported by all sockets. Here a list of available `data types`:
+
+- any
+- array
+- boolean
+- code
+- color
+- dataType
+- deferredPixi
+- dynamicEnum
+- enum
+- function
+- image
+- json
+- number
+- string
+- trigger
+
+## What is a node update behaviour?
+
+Node outputs are calculated/updated depending on their update behaviour. You can combine the following options:
+
+- `Update on change` (default for most nodes)
+- `Update on interval`
+  - Specify the interval in milliseconds
+- Update via a `Trigger input`
+
+## What is a node insepctor?
+
+A node inspector allows you to inspect and edit all node specific parameters. To toggle the node inspector on the right side you can
+
+- `Click` the socket name on the node
+- `Click` the `Node inspector` icon in the top right of a node
+- `Click` the `Node inspector` icon in the bottom right of the canvas
+- `Right click` a node and select `Toggle node inspector`
+- Press `Ctrl/Cmd+\`
+
+To open a floating inspector for a specific socket
+
+- `Shift+Click` the socket name on the node
+
+## How do I add and connect nodes?
+
+### Find and add the right node
+
+1. To find the right node use the `node search`
+   - `double clicking` the canvas
+   - pressing `Cmd/Ctrl-F`
+   - start dragging a connection and releasing the mouse
+2. Enter a search term
+3. Press `Enter`
+
+OR open an example and copy/paste it into your own playground.
+
+#### Remove a node
+
+- Select a node and press `Delete`
+- `Right click` a node and select `Delete`
 
 ### Create a connection
 
 1. Click and drag and input/output socket
 2. Connect it to an output/input socket of another node
 
-You can also just drag the connection onto the node and release the mouse. This will connect to the socket which fits best.
+_TIp: You can just drag the connection onto the node and release the mouse. This will connect to the first socket which fits best._
 
-### Remove nodes
+#### Remove a connection
 
-- Select a node and press Delete
-- Right click a node and click "Delete"
+- `Click` and unplug the input side of a connection
+- `Right click` a socket and click `Remove connection`
 
-### Remove a connection
+### Change the update behaviour of a node
 
-- Click and unplug the input side of a connection
-- Right click a socket and click "Remove connection"
+By default, most nodes update when one of their inputs update. To change this behaviour
 
-### Change their update behaviour
+1. Open the node inspector on the right
+2. `Click` on Common
+3. Choose a different update behaviour
 
-By default, nodes update when one of their inputs updates. Change this behaviour using the node inspector on the right.
+#### Add a trigger input
 
-## What nodes are available?
+1. `Right click` a node and select `Add trigger input`
+2. `Click` the added socket name to open the `Node inspector`
+3. Change the trigger method if necessary
 
-## How do I create my own nodes?
+##### What trigger methods are available?
 
-### Create your own node
-
-1. Open the node search
-2. Find and add a Custom node
-3. Select the added node and write your own JavaScript function in the code field
-
-Tip: You can also just type a new name in the node search and create a custom node using the new name.
-
-### Write your own function
-
-A function is a block of JavaScript code that gets executed. You can add as many inputs as you like, process them and output the result.
-
-Learn more about JavaScript functions
-
-Tip: To write your function in a separate code editor
-
-1. Unhide the Code input
-2. Right click the input and choose "Connect CodeEditor"
+- `positiveFlank`: triggered when the new value is **larger** than the previous one
+- `negativeFlank`: triggered when the new value is **smaller** than the previous one
+- `change`: triggered when the new value is **different** from the previous one
+- `always`: triggere on every execution
 
 ## How do I import data?
 
-- Drag in excel, text, image, video or database files
-- OR get data from any API
+- Drag in excel, text, code, image, video or database files
+  - A node is created representing this data
+- OR get data from any API using the `HTTP` node
 
 ## How do I transform data?
 
 - Select the data you need and transform it using ready made nodes
-- OR create your own nodes
+- OR create your own node
+
+### How do I create my own custom node?
+
+1. Open the `Node search`
+2. Find and add a `Custom` node
+3. Select the added node and write your own JavaScript function in the code field
+
+_Tip: You can also just type a new name in the node search and create a custom node using the new name._
+
+#### Write your own JavaScript function
+
+A function is a block of JavaScript code that gets executed. You can add as many inputs as you like, process them and output the result.
+
+Learn more about [JavaScript functions](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Functions)
+
+_Tip: To write your function in a separate code editor_
+
+1. Unhide the `Code` input socket by `clicking` on the `Eye` icon in the inspector
+2. `Right click` the `Code` socket name and choose `Connect CodeEditor`
 
 ## How do I visualise data?
 
-- Use the drawing methods and composite them together
+- Use the drawing nodes and composite them together
 - If you want to reuse logic, create a macro
+- See drawing examples for inspiration
+
+## How do I create a macro?
+
+A macro allows to group selected nodes into a single node and reuse it as often as you want.
+
+1. Select a group of nodes which you want to reuse
+2. `Right click` the selection and select `Extract to macro`
+   - The selected nodes are placed inside a `Macro` node and connected inputs and outputs are exposed to the Macro
+
+OR manually add a `Macro` node and place nodes inside it
+
+### How do I use the macro?
+
+1. Add an `Execute Macro` node
+2. `Click` the `MacroName` input socket to open the inspector and select the macro to execute
 
 ## How do I share my playgrounds?
 
-We are a local first platform. To share your playgrounds online
+To share a playground online, we use Github Gists
 
-1. Log in to Github
-2. Store your playground as a Gist
-3. Create a shareable link
+1. `Click` on the `Share` button in the header
+   - Log in to `Github` if not already done and click `Share` again
+2. Optionally
+   - add a description and name
+   - choose if this link/Gist should be public or private
+3. `Click` the `Share playground`
+4. The playground is stored as a Gist and a shareable link is created
 
-Of course you can also just save the file locally and share it the old school way :-)
+OR save the file locally and share it the old school way :-)
 
 ## My playground does not work. How can I fix it?
 
-- Use the Console print node
-- Use the Logger node
+- Use the `Console print` node
+- Use the `Logger` node
 - Use the browsers devtools
 
-## Start a new playground?
+<Button
+  variant="contained"
+  size="small"
+  onClick={(event) => {
+    event.stopPropagation();
+    window.open(
+      'https://discord.com/channels/818911619354198019/1159139141381017730',
+      '_blank',
+    );
+  }}
+  sx={{
+    width: '100%',
+  }}
+>
+  OR get in touch via Discord
+</Button>

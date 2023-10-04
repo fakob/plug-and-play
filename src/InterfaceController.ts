@@ -55,7 +55,7 @@ export default class InterfaceController {
   }
   static removeListener(id: string) {
     Object.values(InterfaceController.listeners).forEach(
-      (currL) => delete currL[id]
+      (currL) => delete currL[id],
     );
   }
   static notifyListeners(event: ListenEvent, data: any) {
@@ -63,7 +63,7 @@ export default class InterfaceController {
     if (specificListeners) {
       // remove potentially bad functions
       const badFunctions = Object.keys(specificListeners).filter(
-        (key) => !specificListeners[key]
+        (key) => !specificListeners[key],
       );
       badFunctions.forEach((key) => specificListeners.delete(key));
 
@@ -75,13 +75,13 @@ export default class InterfaceController {
   // these are single target, move them up to be multi listener if multiple places needs to use them
   static showSnackBar: (
     message: SnackbarMessage,
-    options?: OptionsObject
+    options?: OptionsObject,
   ) => void = () => {};
   static hideSnackBar = (key: SnackbarKey) => {};
 
   static onRightClick: (
     event: PIXI.FederatedPointerEvent,
-    target: PIXI.FederatedEventTarget
+    target: PIXI.FederatedEventTarget,
   ) => void = () => {}; // called when the graph is right clicked
   static onOpenSocketInspector: (pos: PIXI.Point, data: Socket) => void =
     () => {}; // called when socket inspector should be opened
@@ -93,6 +93,7 @@ export default class InterfaceController {
   static toggleGraphSearchOpen: () => void = () => {};
   static toggleShowEdit: () => void = () => {};
   static toggleRightSideDrawer: () => void = () => {};
+  static toggleLeftSideDrawer: () => void = () => {};
   static toggleShowComments: () => void = () => {};
 
   static setIsGraphSearchOpen: (open: boolean) => void = () => {};
@@ -142,6 +143,10 @@ export default class InterfaceController {
               break;
             case '\\':
               this.toggleRightSideDrawer();
+              e.preventDefault();
+              break;
+            case 'h':
+              this.toggleLeftSideDrawer();
               e.preventDefault();
               break;
             case 'z':

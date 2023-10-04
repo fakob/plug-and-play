@@ -47,18 +47,18 @@ function FilterContainer(props: FilterContentProps) {
       }}
     >
       <ToggleButton
-        id="inspector-filter-explore"
-        value="explore"
-        aria-label="explore"
-      >
-        Explore
-      </ToggleButton>
-      <ToggleButton
         id="inspector-filter-create"
         value="create"
         aria-label="create"
       >
         Create
+      </ToggleButton>
+      <ToggleButton
+        id="inspector-filter-explore"
+        value="explore"
+        aria-label="explore"
+      >
+        Explore
       </ToggleButton>
       <ToggleButton
         id="inspector-filter-about"
@@ -116,6 +116,11 @@ const HelpContent = (props) => {
         color: Color(props.randomMainColor).isDark()
           ? COLOR_WHITE_TEXT
           : COLOR_DARK,
+        code: {
+          bgcolor: `${Color(props.randomMainColor).darken(0.6)}`,
+          padding: '2px 5px 2px',
+          whiteSpace: 'nowrap',
+        },
       }}
     >
       <FilterContainer handleFilter={handleFilter} filter={props.filter} />
@@ -127,6 +132,11 @@ const HelpContent = (props) => {
           height: 'calc(100vh - 120px)',
         }}
       >
+        {(props.filter === 'create' || props.filter == null) && (
+          <Item>
+            <MDXCreate />
+          </Item>
+        )}
         {(props.filter === 'explore' || props.filter == null) && (
           <Item>
             <GraphsContent
@@ -137,11 +147,6 @@ const HelpContent = (props) => {
               nodesCached={props.nodesCached}
               randomMainColor={props.randomMainColor}
             />
-          </Item>
-        )}
-        {(props.filter === 'create' || props.filter == null) && (
-          <Item>
-            <MDXCreate />
           </Item>
         )}
         {(props.filter === 'about' || props.filter == null) && (

@@ -9,6 +9,7 @@ type GraphOverlayProps = {
   currentGraph: PPGraph;
   randomMainColor: string;
   toggle: boolean;
+  toggleLeft: boolean;
 };
 
 const GraphOverlay: React.FunctionComponent<GraphOverlayProps> = (props) => {
@@ -20,8 +21,8 @@ const GraphOverlay: React.FunctionComponent<GraphOverlayProps> = (props) => {
     ids.push(
       InterfaceController.addListener(
         ListenEvent.SelectionChanged,
-        setSelectedNodes
-      )
+        setSelectedNodes,
+      ),
     );
 
     return () => {
@@ -33,6 +34,7 @@ const GraphOverlay: React.FunctionComponent<GraphOverlayProps> = (props) => {
     <>
       <GraphOverlayDrawer
         toggle={props.toggle}
+        toggleLeft={props.toggleLeft}
         selectedNodes={selectedNodes}
         randomMainColor={props.randomMainColor}
       />
