@@ -120,6 +120,10 @@ const HelpContent = (props) => {
           bgcolor: `${Color(props.randomMainColor).darken(0.6)}`,
           padding: '2px 5px 2px',
           whiteSpace: 'nowrap',
+          fontSize: '0.95em',
+        },
+        a: {
+          textDecoration: 'none',
         },
       }}
     >
