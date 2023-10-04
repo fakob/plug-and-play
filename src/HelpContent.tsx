@@ -99,7 +99,6 @@ const HelpContent = (props) => {
   };
 
   useEffect(() => {
-    //updateGraphSearchItems();
     PPStorage.getInstance()
       .getRemoteGraphsList()
       .then((arrayOfFileNames) => {
