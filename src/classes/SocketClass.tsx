@@ -58,7 +58,7 @@ export default class Socket extends PIXI.Container implements Tooltipable {
     dataType: AbstractType,
     data = null,
     visible = true,
-    custom?: Record<string, any>
+    custom?: Record<string, any>,
   ) {
     super();
 
@@ -93,7 +93,7 @@ export default class Socket extends PIXI.Container implements Tooltipable {
     name: string,
     dataType: AbstractType,
     data: any,
-    visibilityCondition: () => boolean
+    visibilityCondition: () => boolean,
   ): Socket {
     const socket = new Socket(socketType, name, dataType, data);
     socket.visibilityCondition = visibilityCondition;
@@ -106,7 +106,7 @@ export default class Socket extends PIXI.Container implements Tooltipable {
       this.isInput()
         ? this.getNode()?.getInputSocketXPos() + SOCKET_WIDTH / 2
         : this.getNode()?.getOutputSocketXPos() + SOCKET_WIDTH / 2,
-      SOCKET_WIDTH / 2
+      SOCKET_WIDTH / 2,
     );
   }
 
@@ -118,7 +118,7 @@ export default class Socket extends PIXI.Container implements Tooltipable {
       SOCKET_WIDTH,
       this.dataType.constructor === new TriggerType().constructor || !rounded
         ? 0
-        : SOCKET_CORNERRADIUS
+        : SOCKET_CORNERRADIUS,
     );
   }
 
@@ -137,7 +137,7 @@ export default class Socket extends PIXI.Container implements Tooltipable {
       new TextStyle({
         fontSize: 8,
         fill: COLOR_MAIN,
-      })
+      }),
     );
     if (!this.isInput()) {
       this._MetaText.anchor.set(1, 0);
@@ -157,7 +157,7 @@ export default class Socket extends PIXI.Container implements Tooltipable {
     this._SelectionBox.scale = new PIXI.Point(6, 2);
     this._SelectionBox.pivot = new PIXI.Point(
       SOCKET_WIDTH / 2,
-      SOCKET_WIDTH / 2
+      SOCKET_WIDTH / 2,
     );
     this.drawSocket(this._SelectionBox, false);
 
@@ -173,7 +173,7 @@ export default class Socket extends PIXI.Container implements Tooltipable {
     if (this.showLabel) {
       this._TextRef = new PIXI.Text(
         this.getNode()?.getSocketDisplayName(this),
-        SOCKET_TEXTSTYLE
+        SOCKET_TEXTSTYLE,
       );
       if (this.socketType === SOCKET_TYPE.OUT) {
         this._TextRef.anchor.set(1, 0);
@@ -190,11 +190,11 @@ export default class Socket extends PIXI.Container implements Tooltipable {
       this._TextRef.eventMode = 'static';
       this._TextRef.addEventListener(
         'pointerover',
-        this.onPointerOver.bind(this)
+        this.onPointerOver.bind(this),
       );
       this._TextRef.addEventListener(
         'pointerout',
-        this.onPointerOut.bind(this)
+        this.onPointerOut.bind(this),
       );
       this._TextRef.addEventListener('pointerdown', (event) => {
         if (event.button !== 2) {
@@ -350,7 +350,7 @@ export default class Socket extends PIXI.Container implements Tooltipable {
     return preferredNodesPerSocket.concat(
       this.isInput()
         ? this.dataType.recommendedInputNodeWidgets()
-        : this.dataType.recommendedOutputNodeWidgets()
+        : this.dataType.recommendedOutputNodeWidgets(),
     );
   }
 
@@ -382,7 +382,7 @@ export default class Socket extends PIXI.Container implements Tooltipable {
 
     const nodes = this.links.map((link) => link.getTarget().getNode());
     const filteredNodes = nodes.filter(
-      (node) => node && node.updateBehaviour.update
+      (node) => node && node.updateBehaviour.update,
     );
     return filteredNodes;
   }
@@ -445,7 +445,7 @@ export default class Socket extends PIXI.Container implements Tooltipable {
     const center = PPGraph.currentGraph.getSocketCenter(this);
     const dist = Math.sqrt(
       Math.pow(currPos.y - center.y, 2) +
-        0.05 * Math.pow(currPos.x - center.x, 2)
+        0.05 * Math.pow(currPos.x - center.x, 2),
     );
     const maxDist = 20;
     const scaleOutside =
@@ -455,7 +455,7 @@ export default class Socket extends PIXI.Container implements Tooltipable {
     if (this._TextRef) {
       this._TextRef.scale = new PIXI.Point(
         Math.sqrt(scaleOutside),
-        Math.sqrt(scaleOutside)
+        Math.sqrt(scaleOutside),
       );
     }
   }
@@ -503,7 +503,7 @@ export default class Socket extends PIXI.Container implements Tooltipable {
         {
           socket: PPGraph.currentGraph.socketToInspect,
           open: shouldOpen,
-        }
+        },
       );
     }
   }

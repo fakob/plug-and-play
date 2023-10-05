@@ -33,6 +33,7 @@ export const outputMultiplierIndex = 'LastPressedIndex';
 export const outputMultiplierInjected = 'LastPressedInjected';
 export const outputMultiplierPointerDown = 'PointerDown';
 
+export const objectsInteractive = 'Clickable objects';
 const inputSkewXName = 'Skew X';
 const inputSkewYName = 'Skew Y';
 
@@ -326,12 +327,27 @@ export abstract class DRAW_Interactive_Base extends DRAW_Base {
   // you probably want to maintain this output in children
   protected getDefaultIO(): Socket[] {
     return [
-      new Socket(SOCKET_TYPE.OUT, outputMultiplierIndex, new NumberType(true)),
-      new Socket(SOCKET_TYPE.OUT, outputMultiplierInjected, new ArrayType()),
-      new Socket(
+      new Socket(SOCKET_TYPE.IN, objectsInteractive, new BooleanType(), false),
+      Socket.getOptionalVisibilitySocket(
+        SOCKET_TYPE.OUT,
+        outputMultiplierIndex,
+        new NumberType(true),
+        0,
+        () => this.getInputData(objectsInteractive),
+      ),
+      Socket.getOptionalVisibilitySocket(
+        SOCKET_TYPE.OUT,
+        outputMultiplierInjected,
+        new ArrayType(),
+        [],
+        () => this.getInputData(objectsInteractive),
+      ),
+      Socket.getOptionalVisibilitySocket(
         SOCKET_TYPE.OUT,
         outputMultiplierPointerDown,
         new BooleanType(),
+        false,
+        () => this.getInputData(objectsInteractive),
       ),
     ].concat(super.getDefaultIO());
   }

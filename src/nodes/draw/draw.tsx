@@ -25,6 +25,7 @@ import {
   DRAW_Base,
   DRAW_Interactive_Base,
   injectedDataName,
+  objectsInteractive,
   outputMultiplierIndex,
   outputMultiplierInjected,
   outputMultiplierPointerDown,
@@ -411,7 +412,14 @@ export class DRAW_COMBINE_ARRAY extends DRAW_Interactive_Base {
       shallowContainer.x = x * inputObject[spacingXName];
       shallowContainer.y = y * inputObject[spacingYName];
 
-      addShallowContainerEventListeners(shallowContainer, this, i, executions);
+      if (inputObject[objectsInteractive]) {
+        addShallowContainerEventListeners(
+          shallowContainer,
+          this,
+          i,
+          executions,
+        );
+      }
 
       myContainer.addChild(shallowContainer);
     }
