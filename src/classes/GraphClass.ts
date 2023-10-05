@@ -88,7 +88,7 @@ export default class PPGraph {
       this.backgroundTempContainer,
       this.connectionContainer,
       this.nodeContainer,
-      this.foregroundCanvas
+      this.foregroundCanvas,
     );
 
     this.tempConnection = new PIXI.Graphics();
@@ -112,26 +112,26 @@ export default class PPGraph {
     // register pointer events
     this.viewport.addEventListener(
       'pointerdown',
-      this.onPointerDown.bind(this)
+      this.onPointerDown.bind(this),
     );
 
     this.viewport.addEventListener(
       'rightclick',
-      this.onPointerRightClicked.bind(this)
+      this.onPointerRightClicked.bind(this),
     );
     this.viewport.addEventListener('click', this.onPointerClick.bind(this));
     this.viewport.addEventListener('pointermove', (event) =>
-      this.onViewportMove(event)
+      this.onViewportMove(event),
     );
 
     InterfaceController.addListener(
       ListenEvent.GlobalPointerMove,
-      this.onPointerMove.bind(this)
+      this.onPointerMove.bind(this),
     );
 
     InterfaceController.addListener(
       ListenEvent.GlobalPointerUpAndUpOutside,
-      this.onPointerUpAndUpOutside.bind(this)
+      this.onPointerUpAndUpOutside.bind(this),
     );
 
     // clear the stage
@@ -228,7 +228,7 @@ export default class PPGraph {
     const dragSourceRect = object._SocketRef.getBounds();
     const dragSourcePoint = new PIXI.Point(
       dragSourceRect.x + dragSourceRect.width / 2,
-      dragSourceRect.y + dragSourceRect.height / 2
+      dragSourceRect.y + dragSourceRect.height / 2,
     );
     // change dragSourcePoint coordinates from screen to world space
     return this.viewport.toWorld(dragSourcePoint);
@@ -274,7 +274,7 @@ export default class PPGraph {
       this.tempConnection.lineStyle(
         2,
         this.selectedSourceSocket.dataType.getColor().multiply(0.9).hexNumber(),
-        1
+        1,
       );
       this.tempConnection.bezierCurveTo(cpX, cpY, cpX2, cpY2, toX, toY);
 
@@ -313,7 +313,7 @@ export default class PPGraph {
 
   async socketMouseUp(
     socket: PPSocket,
-    event: PIXI.FederatedPointerEvent
+    event: PIXI.FederatedPointerEvent,
   ): Promise<void> {
     const source = this.selectedSourceSocket;
     this.stopConnecting();
@@ -326,9 +326,9 @@ export default class PPGraph {
     }
   }
 
-  presentationAndNodeToAlpha(value: boolean, node: PPNode) {
-    const newVisibility = node.getIsPresentationalNode() || value;
-    return newVisibility ? (node.alpha == 0.0 ? 1.0 : node.alpha) : 0.0;
+  static presentationAndNodeToAlpha(value: boolean, node: PPNode | undefined) {
+    const newVisibility = node?.getIsPresentationalNode() || value; // node can be invalid here if the link was cut (for example with Break JSON) so not a bug that it is null (just a bit ugly)
+    return newVisibility ? (node?.alpha == 0.0 ? 1.0 : node?.alpha) : 0.0;
   }
 
   // GETTERS & SETTERS
@@ -349,15 +349,18 @@ export default class PPGraph {
   set showNonPresentationNodes(value: boolean) {
     this._showNonPresentationNodes = value;
     Object.values(this.nodes).forEach((node) => {
-      const newAlpha = this.presentationAndNodeToAlpha(value, node);
+      const newAlpha = PPGraph.presentationAndNodeToAlpha(value, node);
       node.alpha = newAlpha;
       node.getAllInputSockets().forEach((socket) =>
         socket.links.forEach((link) => {
           const otherNode = link.getSource().getNode();
-          const otherAlpha = this.presentationAndNodeToAlpha(value, otherNode);
+          const otherAlpha = PPGraph.presentationAndNodeToAlpha(
+            value,
+            otherNode,
+          );
           const totalAlpha = newAlpha * otherAlpha;
           link.alpha = totalAlpha;
-        })
+        }),
       );
     });
   }
@@ -382,7 +385,7 @@ export default class PPGraph {
 
   createNode<T extends PPNode = PPNode>(
     type: string,
-    customArgs?: CustomArgs
+    customArgs?: CustomArgs,
   ): T {
     // console.log(this._registeredNodeTypes);
     const newArgs: any = {};
@@ -400,11 +403,11 @@ export default class PPGraph {
           `A replacement for the placeholder node ${customArgs?.name} was found. It will be replaced with ${name}.`,
           {
             variant: 'success',
-          }
+          },
         );
       } else {
         InterfaceController.showSnackBar(
-          `No replacement for the placeholder node ${customArgs?.name} was found.`
+          `No replacement for the placeholder node ${customArgs?.name} was found.`,
         );
       }
     } else {
@@ -436,7 +439,7 @@ export default class PPGraph {
 
   async addNode<T extends PPNode = PPNode>(
     node: T,
-    source: TNodeSource = NODE_SOURCE.SERIALIZED
+    source: TNodeSource = NODE_SOURCE.SERIALIZED,
   ): Promise<T> {
     if (!node) {
       return;
@@ -445,7 +448,7 @@ export default class PPGraph {
     await Promise.all(
       node.getDynamicImports().map(async (currImport) => {
         this.dynamicImports[currImport] = await dynamicImport(node, currImport);
-      })
+      }),
     );
 
     // add the node to the canvas
@@ -461,7 +464,7 @@ export default class PPGraph {
   async addSerializedNode(
     serialized: SerializedNode,
     customArgs: CustomArgs = {},
-    newNodeType?: string
+    newNodeType?: string,
   ): Promise<PPNode> {
     const node = this.createNode(newNodeType ?? serialized.type, customArgs);
 
@@ -473,11 +476,11 @@ export default class PPGraph {
   async addSerializedLink(link: SerializedLink): Promise<void> {
     const outputRef = this.getOutputSocket(
       link.sourceNodeId,
-      link.sourceSocketName
+      link.sourceSocketName,
     );
     const inputRef = this.getInputSocket(
       link.targetNodeId,
-      link.targetSocketName
+      link.targetSocketName,
     );
     if (outputRef && inputRef) {
       await this.connect(outputRef, inputRef, false);
@@ -487,14 +490,14 @@ export default class PPGraph {
           link.sourceSocketName
         }${outputRef === undefined ? '-MISSING' : ''} and ${
           link.targetNodeId
-        }/${link.targetSocketName}${inputRef === undefined ? '-MISSING' : ''}`
+        }/${link.targetSocketName}${inputRef === undefined ? '-MISSING' : ''}`,
       );
       InterfaceController.showSnackBar(
         'Some links could not be created. Check console for more info',
         {
           variant: 'warning',
           preventDuplicate: true,
-        }
+        },
       );
     }
   }
@@ -502,7 +505,7 @@ export default class PPGraph {
   async addNewNode(
     type: string,
     customArgs: CustomArgs = {},
-    source: TNodeSource = NODE_SOURCE.NEW
+    source: TNodeSource = NODE_SOURCE.NEW,
   ): Promise<PPNode> {
     const node = this.createNode(type, customArgs);
     await this.addNode(node, source);
@@ -511,7 +514,7 @@ export default class PPGraph {
 
   async action_ReplaceNode(
     oldSerializedNode: SerializedNode,
-    newSerializedNode: SerializedNode
+    newSerializedNode: SerializedNode,
   ) {
     const referenceID = hri.random();
     const action = async () => {
@@ -521,7 +524,7 @@ export default class PPGraph {
         referenceID,
         newSerializedNode.type,
         newSerializedNode,
-        true
+        true,
       );
     };
     const undoAction = async () => {
@@ -531,7 +534,7 @@ export default class PPGraph {
         oldSerializedNode.id,
         oldSerializedNode.type,
         oldSerializedNode,
-        true
+        true,
       );
     };
     await ActionHandler.performAction(action, undoAction, 'Replace node');
@@ -543,14 +546,14 @@ export default class PPGraph {
     newId: string,
     newType?: string,
     newSerializedNode?: SerializedNode,
-    notify?: boolean
+    notify?: boolean,
   ): Promise<PPNode> => {
     const newNode = await this.addSerializedNode(
       newSerializedNode ?? oldSerializedNode,
       {
         overrideId: newId,
       },
-      newType
+      newType,
     );
     if (newType && newSerializedNode === undefined) {
       newNode.nodeName = newType;
@@ -569,12 +572,12 @@ export default class PPGraph {
     outputSocketName: string,
     targetNodeID: string,
     inputSocketName: string,
-    notify = false
+    notify = false,
   ) {
     await this.connect(
       this.nodes[sourceNodeID].getOutputSocketByName(outputSocketName),
       this.nodes[targetNodeID].getInputOrTriggerSocketByName(inputSocketName),
-      notify
+      notify,
     );
   }
 
@@ -590,7 +593,7 @@ export default class PPGraph {
     preSourceNodeID: string,
     preTargetName: string,
     preTargetNodeID: string,
-    notify = false
+    notify = false,
   ): any {
     const action: Action = async () => {
       await this.linkConnect(
@@ -598,7 +601,7 @@ export default class PPGraph {
         preSourceName,
         preTargetNodeID,
         preTargetName,
-        notify
+        notify,
       );
     };
     const undoAction: Action = async () => {
@@ -616,12 +619,12 @@ export default class PPGraph {
       preSourceName,
       preSourceNodeID,
       preTargetName,
-      preTargetNodeID
+      preTargetNodeID,
     );
     await ActionHandler.performAction(
       actions[1],
       actions[0],
-      'Disconnect nodes'
+      'Disconnect nodes',
     );
   }
 
@@ -636,7 +639,7 @@ export default class PPGraph {
       preSourceNodeID,
       preTargetName,
       preTargetNodeID,
-      notify
+      notify,
     );
 
     await ActionHandler.performAction(actions[0], actions[1], 'Connect nodes');
@@ -645,7 +648,7 @@ export default class PPGraph {
   async connect(
     output: PPSocket,
     input: PPSocket,
-    notify = true
+    notify = true,
   ): Promise<PPLink> {
     // remove all input links from before on this socket
     input.links.forEach((link) => link.delete(true));
@@ -691,7 +694,7 @@ export default class PPGraph {
 
   async action_addWidgetNode(
     socket: PPSocket,
-    newNodeType: string
+    newNodeType: string,
   ): Promise<void> {
     const referenceID = hri.random();
 
@@ -705,7 +708,7 @@ export default class PPGraph {
           nodePosY: node.y + socket.y,
           initialData: socket.isInput() ? socket.data : undefined,
         },
-        NODE_SOURCE.NEWCONNECTED
+        NODE_SOURCE.NEWCONNECTED,
       );
       socket.isInput() && newNode.setPosition(-(newNode.width + 40), 0, true);
       connectNodeToSocket(socket, newNode);
@@ -719,14 +722,14 @@ export default class PPGraph {
 
   getLinks(): PPLink[] {
     return Object.values(this.nodes).flatMap((node) =>
-      node.getAllInputSockets().flatMap((socket) => socket.links)
+      node.getAllInputSockets().flatMap((socket) => socket.links),
     );
   }
 
   checkOldSocketAndUpdateIt<T extends PPSocket>(
     oldSocket: T,
     newSocket: T,
-    isInput: boolean
+    isInput: boolean,
   ): boolean {
     // check if this socket already has a connection
     Object.values(this.getLinks()).forEach((link) => {
@@ -769,19 +772,19 @@ export default class PPGraph {
     const serializeSelection = this.serializeSelection();
     const pastedNodes = await this.action_pasteNodes(
       serializeSelection,
-      pastePos
+      pastePos,
     );
     return pastedNodes;
   }
 
   async action_pasteNodes(
     data: SerializedSelection,
-    pastePos?: TPastePos
+    pastePos?: TPastePos,
   ): Promise<PPNode[]> {
     const newNodes: PPNode[] = [];
     const mappingOfOldAndNewNodes: { [key: string]: PPNode } = {};
     const arrayOfRandomIds = Array.from({ length: data.nodes.length }, () =>
-      hri.random()
+      hri.random(),
     );
 
     const action = async () => {
@@ -809,7 +812,7 @@ export default class PPGraph {
 
             mappingOfOldAndNewNodes[node.id] = newNode;
             newNodes.push(newNode);
-          })
+          }),
         );
 
         await Promise.all(
@@ -821,7 +824,7 @@ export default class PPGraph {
               link.targetNodeId
             ].getInputOrTriggerSocketByName(link.targetSocketName);
             await this.connect(newSource, newTarget, false);
-          })
+          }),
         );
       } catch (error) {
         console.error(error);
@@ -860,7 +863,7 @@ export default class PPGraph {
     // we copy all selected nodes, and all inputs to these that are not found inside the macro are turned into parameters, combined outputs are turned into the output
     const sourceNodes = this.selection.selectedNodes;
     const newNodes = await this.action_pasteNodes(
-      this.serializeNodes(sourceNodes)
+      this.serializeNodes(sourceNodes),
     );
 
     const forwardMapping: Record<string, PPNode> = {};
@@ -878,9 +881,9 @@ export default class PPGraph {
           (socket) =>
             socket.hasLink() &&
             !sourceNodes.find(
-              (node) => node.id == socket.links[0].getSource().getNode().id
-            )
-        )
+              (node) => node.id == socket.links[0].getSource().getNode().id,
+            ),
+        ),
       );
     }, []);
     for (let i = 0; i < inputs.length - 1; i++) {
@@ -901,9 +904,9 @@ export default class PPGraph {
           (socket) =>
             socket.hasLink() &&
             !sourceNodes.find(
-              (node) => node.id == socket.links[0].getTarget().getNode().id
-            )
-        )
+              (node) => node.id == socket.links[0].getTarget().getNode().id,
+            ),
+        ),
       );
     }, []);
     if (outputs.length) {
@@ -928,16 +931,16 @@ export default class PPGraph {
     if (outputs.length) {
       await this.connect(
         invokeMacroNode.outputSocketArray[0],
-        outputs[0].links[0].getTarget()
+        outputs[0].links[0].getTarget(),
       );
     }
     const validInputSockets = invokeMacroNode.inputSocketArray.filter(
-      (socket) => socket.name.includes('Parameter')
+      (socket) => socket.name.includes('Parameter'),
     );
     inputs.forEach(async (inputSocket, index) => {
       await this.connect(
         inputSocket.links[0].getSource(),
-        validInputSockets[index]
+        validInputSockets[index],
       );
     });
 
@@ -962,13 +965,13 @@ export default class PPGraph {
         PPGraph.currentGraph.configure(graphPre, this.id, false);
       },
       'Turn nodes into macro',
-      false
+      false,
     );
   }
 
   getCanAddOutput(): boolean {
     return !this.selection.selectedNodes.find(
-      (node) => !node.getCanAddOutput()
+      (node) => !node.getCanAddOutput(),
     );
   }
   addOutput(): void {
@@ -983,12 +986,12 @@ export default class PPGraph {
   serialize(): SerializedGraph {
     // get serialized nodes
     const nodesSerialized = Object.values(this.nodes).map((node) =>
-      node.serialize()
+      node.serialize(),
     );
 
     // get serialized links
     const linksSerialized = Object.values(this.getLinks()).map((link) =>
-      link.serialize()
+      link.serialize(),
     );
 
     const data = {
@@ -1031,7 +1034,7 @@ export default class PPGraph {
       const foundSocket = nodesSerialized
         .find((nodes) => nodes.id === socket.getNode().id)
         .socketArray.find(
-          (socketToOverwrite) => socketToOverwrite.name === socket.name
+          (socketToOverwrite) => socketToOverwrite.name === socket.name,
         );
 
       let deepCopy;
@@ -1047,7 +1050,7 @@ export default class PPGraph {
 
     // get serialized links
     const linksSerialized = linksFullyContainedInSelection.map((link) =>
-      link.serialize()
+      link.serialize(),
     );
 
     const data = {
@@ -1066,7 +1069,7 @@ export default class PPGraph {
   async configure(
     data: SerializedGraph,
     id: string,
-    keep_old = false
+    keep_old = false,
   ): Promise<boolean> {
     this.allowExecution = false;
     this.id = id;
@@ -1094,12 +1097,12 @@ export default class PPGraph {
       await Promise.all(
         data.nodes.map(
           async (node) =>
-            await this.addSerializedNode(node, { overrideId: node.id })
-        )
+            await this.addSerializedNode(node, { overrideId: node.id }),
+        ),
       );
 
       await Promise.all(
-        data.links.map(async (link) => await this.addSerializedLink(link))
+        data.links.map(async (link) => await this.addSerializedLink(link)),
       );
     } catch (error) {
       console.log(error);
@@ -1108,6 +1111,7 @@ export default class PPGraph {
     // execute all seed nodes to make sure there are values everywhere
     await this.executeAllSeedNodes(Object.values(this.nodes));
 
+    //Object.values(this.nodes).forEach((node) => console.log(node.name));
     this.showNonPresentationNodes =
       data.graphSettings.showNonPresentationNodes ?? true;
 
@@ -1119,8 +1123,8 @@ export default class PPGraph {
   async executeAllSeedNodes(nodes: PPNode[]): Promise<void> {
     await FlowLogic.executeOptimizedChainBatch(
       nodes.filter(
-        (node) => !node.getHasDependencies() && node.updateBehaviour.update
-      )
+        (node) => !node.getHasDependencies() && node.updateBehaviour.update,
+      ),
     );
   }
 
@@ -1137,7 +1141,7 @@ export default class PPGraph {
   tick(currentTime: number, deltaTime: number): void {
     if (this.allowExecution) {
       Object.values(this.nodes).forEach((node) =>
-        node.tick(currentTime, deltaTime)
+        node.tick(currentTime, deltaTime),
       );
     }
   }
@@ -1146,26 +1150,26 @@ export default class PPGraph {
     const checkAndUpdateSocketArray = (
       oldArray: PPSocket[],
       newArray: PPSocket[],
-      isInput = true
+      isInput = true,
     ): void => {
       oldArray.forEach((socket, index) =>
-        this.checkOldSocketAndUpdateIt(socket, newArray[index], isInput)
+        this.checkOldSocketAndUpdateIt(socket, newArray[index], isInput),
       );
     };
 
     //check arrays
     checkAndUpdateSocketArray(
       oldNode.nodeTriggerSocketArray,
-      newNode.nodeTriggerSocketArray
+      newNode.nodeTriggerSocketArray,
     );
     checkAndUpdateSocketArray(
       oldNode.inputSocketArray,
-      newNode.inputSocketArray
+      newNode.inputSocketArray,
     );
     checkAndUpdateSocketArray(
       oldNode.outputSocketArray,
       newNode.outputSocketArray,
-      false
+      false,
     );
   }
 
@@ -1176,13 +1180,13 @@ export default class PPGraph {
 
   action_DeleteSelectedNodes(): void {
     const nodesSerialized = this.selection.selectedNodes.map((node) =>
-      node.serialize()
+      node.serialize(),
     );
     const linksSerialized = this.selection.selectedNodes
       .map((node) =>
         node
           .getAllSockets()
-          .map((socket) => socket.links.map((link) => link.serialize()))
+          .map((socket) => socket.links.map((link) => link.serialize())),
       )
       .flat()
       .flat();
@@ -1198,18 +1202,18 @@ export default class PPGraph {
             overrideId: node.id,
           });
           addedNodes.push(addedNode);
-        })
+        }),
       );
 
       linksSerialized.forEach((link) => {
         this.connect(
           this.nodes[link.sourceNodeId].getOutputSocketByName(
-            link.sourceSocketName
+            link.sourceSocketName,
           ),
           this.nodes[link.targetNodeId].getInputOrTriggerSocketByName(
-            link.targetSocketName
+            link.targetSocketName,
           ),
-          false
+          false,
         );
       });
 

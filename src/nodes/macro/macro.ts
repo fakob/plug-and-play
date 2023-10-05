@@ -23,7 +23,7 @@ const macroOutputBlockSize = 60;
 const macroColor = TRgba.fromString(NODE_TYPE_COLOR.MACRO);
 
 export class Macro extends PPNode {
-  isExecutingFromOutside = false;
+  executingFromOutside = 0;
   textRef: PIXI.Text = undefined;
 
   constructor(name: string, customArgs: CustomArgs) {
@@ -199,12 +199,13 @@ export class Macro extends PPNode {
   }
 
   public async executeMacro(args: any[]): Promise<any> {
-    this.isExecutingFromOutside = true;
+    this.executingFromOutside++;
     args.forEach((arg, i) => {
       this.setOutputData('Parameter ' + (i + 1), arg);
     });
+    console.log('executing: ' + this.executingFromOutside);
     await this.executeChildren();
-    this.isExecutingFromOutside = false;
+    this.executingFromOutside--;
     return this.getInputData(macroOutputName);
   }
 
@@ -257,6 +258,7 @@ export class Macro extends PPNode {
     );
     // needs to be sequential
     for (let i = 0; i < nodesCallingMe.length; i++) {
+      console.log('calling: ' + nodesCallingMe[i].name);
       await nodesCallingMe[i].calledMacroUpdated();
     }
   }
@@ -266,7 +268,8 @@ export class Macro extends PPNode {
     _outputObject: Record<string, unknown>,
   ): Promise<void> {
     // potentially demanding but important QOL, go through all nodes and see which refer to me, they need to be re-executed
-    if (!this.isExecutingFromOutside) {
+    if (this.executingFromOutside == 0) {
+      console.log('executin (and updating callers): ' + this.name);
       await this.updateAllCallers();
     }
   }
