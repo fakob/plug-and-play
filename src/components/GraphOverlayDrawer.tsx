@@ -7,18 +7,32 @@ type GraphOverlayDrawerProps = {
   randomMainColor: string;
   selectedNodes: PPNode[];
   toggle: boolean;
+  toggleLeft: boolean;
 };
 
 const GraphOverlayDrawer: React.FunctionComponent<GraphOverlayDrawerProps> = (
-  props
+  props,
 ) => {
   // drawer
-  const defaultDrawerWidth = 320;
+  const defaultDrawerWidth = 340;
+  const defaultHelpDrawerWidth = 440;
+  const [helpDrawerWidth, setHelpDrawerWidth] = useState(
+    defaultHelpDrawerWidth,
+  );
   const [drawerWidth, setDrawerWidth] = useState(defaultDrawerWidth);
 
   return (
     <Box sx={{ position: 'relative' }}>
       <ResponsiveDrawer
+        isLeft={true}
+        drawerWidth={helpDrawerWidth}
+        setDrawerWidth={setHelpDrawerWidth}
+        toggle={props.toggleLeft}
+        selectedNodes={props.selectedNodes}
+        randomMainColor={props.randomMainColor}
+      />
+      <ResponsiveDrawer
+        isLeft={false}
         drawerWidth={drawerWidth}
         setDrawerWidth={setDrawerWidth}
         toggle={props.toggle}

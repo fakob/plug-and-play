@@ -86,7 +86,7 @@ export const Tooltip = (props) => {
         elevation={8}
         sx={{
           position: 'absolute',
-          zIndex: 1210,
+          zIndex: 1120,
           px: 1,
           pb: 1,
           width: TOOLTIP_WIDTH,

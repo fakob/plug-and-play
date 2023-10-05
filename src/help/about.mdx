@@ -1,0 +1,59 @@
+import { Button } from '@mui/material';
+
+Plug and Playground is a visual toolkit for creative prototyping, to explore, transform or visualise data. It is
+
+- open source
+- local first
+- and does not collect any data. Everything happens inside your browser!
+
+## Problems we would like to solve
+
+- As a programmer the threshold for fast and creative prototyping with code is too high.
+- As a user with no/little programming knowledge I am creatively limited by complex prototyping or design tools.
+- As a user who wants to visualize and/or interact with any data in a visual, quick and easy way my options are limited toby very narrowly focused tools.
+
+## Goals to reach
+
+- Provide an extensive library of nodes to receive, transform and visualise/output data
+- Make it easy to jump between visual and real coding
+- Make it easy to use for mouse, trackpad and keyboard people
+- Make it easy to add nodes or libraries of others
+- Allow for easy sharing, forking and collaborating
+- Allow for sharing as read only or as a dashboard only showing exposed parameters or views
+- Make the tool self explanatory and build in examples and options to document it
+- Make it cross platform and open source
+
+## Additional Plug and Playground resources
+
+- `PnP companion`: a companion app which provides a way to get around CORS issues and handles things like authentication to API's when applicable - [Latest release](https://github.com/magnificus/pnp-companion-2/releases/latest)
+- `PnP headless`: an app allowing to run playgrounds in headless mode - [Latest release](https://github.com/magnificus/pnp-headless/releases/latest)
+
+## Standing on the shoulders of giants
+
+This project would not be possible without the fantastic (open source) projects down by others. Here an incomplete list of (open source) projects we have been inspired by or make use of:
+
+- [Softimage's Interactive Creative Environment](https://download.autodesk.com/global/docs/softimage2014/en_us/userguide/index.html?url=files/ice_cover.htm,topicNumber=d30e271142)
+- [litegraph.js](https://github.com/jagenjo/litegraph.js)
+- [nodes.io](https://nodes.io/)
+- [natto.dev](https://natto.dev/)
+- [pixi.js](https://pixijs.com/)
+- [pixi-viewport](https://github.com/davidfig/pixi-viewport)
+- [sheetjs](https://sheetjs.com/)
+
+## Do you want to contribute?
+
+This project is open source. Check out the project on Github and make a pull request.
+
+<Button
+  variant="contained"
+  size="small"
+  onClick={(event) => {
+    event.stopPropagation();
+    window.open('https://github.com/fakob/plug-and-play', '_blank');
+  }}
+  sx={{
+    width: '100%',
+  }}
+>
+  Plug and playground on Github
+</Button>

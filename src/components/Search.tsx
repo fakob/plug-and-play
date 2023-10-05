@@ -72,7 +72,8 @@ export const GraphSearchInput = (props) => {
             title="Share this playground"
             sx={{
               px: 1,
-              py: '6px',
+              pt: '8px',
+              pb: '6px',
               borderRadius: '14px 2px 2px 14px',
               color: TRgba.fromString(props.randommaincolor)
                 .getContrastTextColor()
@@ -101,7 +102,8 @@ export const GraphSearchInput = (props) => {
               }}
               sx={{
                 px: 1,
-                py: '6px',
+                pt: '8px',
+                pb: '6px',
                 borderRadius: '2px',
                 color: TRgba.fromString(props.randommaincolor)
                   .getContrastTextColor()
@@ -143,7 +145,8 @@ export const GraphSearchInput = (props) => {
           title="Save this playground"
           sx={{
             px: 1,
-            py: '6px',
+            pt: '8px',
+            pb: '6px',
             borderRadius: '2px',
             color: TRgba.fromString(props.randommaincolor)
               .getContrastTextColor()
@@ -197,7 +200,8 @@ export const GraphSearchInput = (props) => {
           title="Create empty playground"
           sx={{
             px: 1,
-            py: '6px',
+            pt: '8px',
+            pb: '6px',
             borderRadius: '2px 14px 14px 2px',
             color: TRgba.fromString(props.randommaincolor)
               .getContrastTextColor()
