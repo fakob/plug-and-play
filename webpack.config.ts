@@ -51,6 +51,16 @@ module.exports = (env, argv) => {
           test: /\.ttf$/,
           type: 'asset/resource',
         },
+        {
+          test: /\.mdx?$/,
+          use: [
+            {
+              loader: '@mdx-js/loader',
+              /** @type {import('@mdx-js/loader').Options} */
+              options: {},
+            },
+          ],
+        },
       ],
     },
 
@@ -110,7 +120,7 @@ module.exports = (env, argv) => {
 
   const envConfig = require(path.resolve(
     __dirname,
-    `./webpack.${argv.mode}.ts`
+    `./webpack.${argv.mode}.ts`,
   ))(env);
 
   const mergedConfig = merge(config, envConfig, {

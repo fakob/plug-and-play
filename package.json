@@ -25,6 +25,7 @@
     "@fontsource/roboto": "^5.0.8",
     "@fontsource/roboto-mono": "^5.0.8",
     "@glideapps/glide-data-grid": "^5.2.1",
+    "@mdx-js/loader": "^2.3.0",
     "@mui/icons-material": "^5.14.3",
     "@mui/material": "^5.14.5",
     "@mui/styles": "^5.14.5",

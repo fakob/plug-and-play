@@ -37,7 +37,7 @@ function getConfigData(selectedNode) {
 type FilterContentProps = {
   handleFilter: (
     event: React.MouseEvent<HTMLElement>,
-    newFilter: string | null
+    newFilter: string | null,
   ) => void;
   filter: string;
   selectedNode: PPNode;
@@ -190,7 +190,7 @@ function socketArrayToComponent(
   props: PropertyArrayContainerProps,
   text: string,
   filter: string,
-  value: string
+  value: string,
 ) {
   {
     return (
@@ -261,7 +261,7 @@ function InfoContent(props: InfoContentProps) {
                 event.stopPropagation();
                 window.open(
                   getLoadNodeExampleURL(props.selectedNode.type),
-                  '_blank'
+                  '_blank',
                 );
               }}
               title="Open node example"
@@ -375,11 +375,11 @@ function SourceContent(props: SourceContentProps) {
               onClick={() => {
                 const sourceCode = props.sourceCode;
                 const newSerializedNode = JSON.parse(
-                  sourceCode
+                  sourceCode,
                 ) as SerializedNode;
                 PPGraph.currentGraph.action_ReplaceNode(
                   props.selectedNode.serialize(),
-                  newSerializedNode
+                  newSerializedNode,
                 );
               }}
             >
@@ -389,7 +389,7 @@ function SourceContent(props: SourceContentProps) {
               onClick={() => {
                 const sourceCode = props.sourceCode;
                 const newSerializedSelection = JSON.parse(
-                  `{"version": ${PP_VERSION},"nodes": [${sourceCode}],"links": []}`
+                  `{"version": ${PP_VERSION},"nodes": [${sourceCode}],"links": []}`,
                 ) as SerializedSelection;
                 PPGraph.currentGraph.action_pasteNodes(newSerializedSelection);
               }}
@@ -428,7 +428,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
   PropertyArrayContainerProps
 > = (props) => {
   const [dragging, setIsDragging] = useState(
-    false
+    false,
     // PPGraph.currentGraph.selection.isDraggingSelection
   );
 
@@ -446,7 +446,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
   useEffect(() => {
     const id = InterfaceController.addListener(
       ListenEvent.SelectionDragging,
-      setIsDragging
+      setIsDragging,
     );
     return () => {
       InterfaceController.removeListener(id);
@@ -468,7 +468,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
 
   const handleFilter = (
     event: React.MouseEvent<HTMLElement>,
-    newFilter: string | null
+    newFilter: string | null,
   ) => {
     props.setFilter(newFilter);
   };
@@ -480,17 +480,17 @@ export const PropertyArrayContainer: React.FunctionComponent<
     const areAllIntervalsTheSame = props.selectedNodes.every(
       (node) =>
         node.updateBehaviour.interval ===
-        props.selectedNodes[0].updateBehaviour.interval
+        props.selectedNodes[0].updateBehaviour.interval,
     );
     const areAllFrequenciesTheSame = props.selectedNodes.every(
       (node) =>
         node.updateBehaviour.intervalFrequency ===
-        props.selectedNodes[0].updateBehaviour.intervalFrequency
+        props.selectedNodes[0].updateBehaviour.intervalFrequency,
     );
     const areAllUpdatesTheSame = props.selectedNodes.every(
       (node) =>
         node.updateBehaviour.update ===
-        props.selectedNodes[0].updateBehaviour.update
+        props.selectedNodes[0].updateBehaviour.update,
     );
     const updateBehaviourObject = {
       interval: areAllIntervalsTheSame
@@ -507,7 +507,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
   };
 
   const [updateBehaviour, setUpdatebehaviour] = useState(
-    getUpdateBehaviourStateForArray()
+    getUpdateBehaviourStateForArray(),
   );
 
   const onCheckboxChange = (event) => {
@@ -540,7 +540,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
   };
 
   const [socketsCurrentlyRendered, setSocketsCurrentlyRendered] = useState(
-    getSocketsCurrentlyRendered(singleNode)
+    getSocketsCurrentlyRendered(singleNode),
   );
 
   useInterval(() => {
@@ -564,7 +564,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
           sx={{
             mt: 1,
             overflow: 'auto',
-            height: 'calc(100vh - 100px)',
+            height: 'calc(100vh - 120px)',
           }}
         >
           {(props.selectedNodes.length !== 1 ||
@@ -588,7 +588,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
                 props,
                 'Triggers',
                 props.filter,
-                'trigger'
+                'trigger',
               )}
               {socketArrayToComponent(
                 props.socketToInspect,
@@ -596,7 +596,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
                 props,
                 'Inputs',
                 props.filter,
-                'in'
+                'in',
               )}
               {socketArrayToComponent(
                 props.socketToInspect,
@@ -604,7 +604,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
                 props,
                 'Outputs',
                 props.filter,
-                'out'
+                'out',
               )}
               {((props.selectedNodes.length === 1 && props.filter === 'info') ||
                 props.filter == null) && (

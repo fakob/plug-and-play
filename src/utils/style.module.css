@@ -2,7 +2,7 @@
   position: absolute;
   left: 0;
   top: 0;
-  width: calc(100% - 16px);
+  width: calc(100% - 8px);
   padding: 8px;
   max-height: 100vh;
   overflow: hidden;
@@ -17,6 +17,17 @@
   position: absolute;
   top: 0;
   left: 0;
+  bottom: 0;
+  z-index: 300;
+}
+
+.draggerLeft {
+  width: 8px;
+  cursor: ew-resize;
+  padding: 4px 0 0;
+  position: absolute;
+  top: 0;
+  right: 0;
   bottom: 0;
   z-index: 300;
 }
