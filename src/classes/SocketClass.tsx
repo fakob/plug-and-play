@@ -418,7 +418,7 @@ export default class Socket extends PIXI.Container implements Tooltipable {
           hasLink={this.hasLink()}
           data={this.data}
           randomMainColor={props.randomMainColor}
-          selectedNode={this.parent as PPNode}
+          selectedNode={this.getNode()}
         />
       </>
     );

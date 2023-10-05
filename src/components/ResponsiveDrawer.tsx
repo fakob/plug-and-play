@@ -29,6 +29,9 @@ function DrawerToggleInspector(props) {
           minWidth: '32px',
           backgroundColor: props.open ? COLOR_DARK : COLOR_WHITE_TEXT,
           zIndex: '1300',
+          '&:hover': {
+            backgroundColor: `${Color(props.randomMainColor).darken(0.7)}`,
+          },
         }}
       >
         {props.open ? <ChevronRightIcon /> : <TuneIcon />}
@@ -53,6 +56,9 @@ function DrawerToggleHelp(props) {
           minWidth: '32px',
           backgroundColor: props.open ? COLOR_DARK : COLOR_WHITE_TEXT,
           zIndex: '1300',
+          '&:hover': {
+            backgroundColor: `${Color(props.randomMainColor).darken(0.7)}`,
+          },
         }}
       >
         {props.open ? <ChevronLeftIcon /> : <QuestionMarkIcon />}
@@ -72,16 +78,18 @@ const ResponsiveDrawer = (props) => {
   const smallScreen = useIsSmallScreen();
 
   const toggleInspectorAndFocus = ({ filter, socket, open }) => {
-    if (open !== undefined) {
-      setOpen(open);
-    } else {
-      handleDrawerToggle();
-    }
-    if (filter) {
-      setFilter(filter);
-      setSocketToInspect(undefined);
-    } else if (socket) {
-      setSocketToInspect(socket);
+    if (!props.isLeft) {
+      if (open !== undefined) {
+        setOpen(open);
+      } else {
+        handleDrawerToggle();
+      }
+      if (filter) {
+        setFilter(filter);
+        setSocketToInspect(undefined);
+      } else if (socket) {
+        setSocketToInspect(socket);
+      }
     }
   };
 
