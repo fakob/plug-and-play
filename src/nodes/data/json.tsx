@@ -216,13 +216,18 @@ export class Break extends PPNode {
       this.adaptOutputs(currentJSON);
     }
     // eslint-disable-next-line prefer-const
-    Object.keys(currentJSON).forEach(
-      (key) => (outputObject[key] = currentJSON[key])
-    );
+      Object.keys(currentJSON).forEach(
+        (key) => (outputObject[key] = currentJSON[key])
+      );
   }
 
   private adaptOutputs(json: any): void {
     // remove all non existing arguments and add all missing (based on the definition we just got)
+    // if current JSON is empty, then dont adapt (maybe data just hasnt arrived yet)
+    if (json === undefined || Object.keys(json).length === 0){
+      return;
+    }
+
     const currentOutputSockets = this.getDataSockets().filter(
       (socket) => socket.socketType === SOCKET_TYPE.OUT
     );

@@ -203,7 +203,6 @@ export class Macro extends PPNode {
     args.forEach((arg, i) => {
       this.setOutputData('Parameter ' + (i + 1), arg);
     });
-    console.log('executing: ' + this.executingFromOutside);
     await this.executeChildren();
     this.executingFromOutside--;
     return this.getInputData(macroOutputName);
