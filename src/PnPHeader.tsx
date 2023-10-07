@@ -4,12 +4,10 @@ import {
   Autocomplete,
   Button,
   ButtonGroup,
-  IconButton,
   Paper,
   TextField,
 } from '@mui/material';
 import { useTheme } from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
 import PPGraph from './classes/GraphClass';
 import PPStorage from './PPStorage';
 import {
@@ -43,7 +41,14 @@ function PnPHeader(props: PnPHeaderProps) {
     .hex();
   const textInput = useRef(null);
   const [currentGraphName, setCurrentGraphName] = useState('');
-  const [originalGraphName, setOriginalGraphName] = useState('');
+
+  const updateGraphName = () => {
+    textInput.current.blur();
+    PPStorage.getInstance().renameGraph(
+      PPGraph?.currentGraph?.id,
+      currentGraphName,
+    );
+  };
 
   useEffect(() => {
     const graphId = PPGraph.currentGraph?.id;
@@ -53,7 +58,6 @@ function PnPHeader(props: PnPHeaderProps) {
         .then((name) => {
           console.log(name);
           setCurrentGraphName(name);
-          setOriginalGraphName(name);
         });
     }
   }, [PPGraph.currentGraph?.id]);
@@ -144,30 +148,22 @@ function PnPHeader(props: PnPHeaderProps) {
           </ButtonGroup>
         )}
         <TextField
-          title={`${currentGraphName} (${PPGraph?.currentGraph?.id})`}
+          title={`${currentGraphName} (${PPGraph?.currentGraph?.id})
+Click to edit name`}
           hiddenLabel
           inputRef={textInput}
           onChange={(event) => {
             const value = event.target.value;
             setCurrentGraphName(value);
-            setOriginalGraphName(value);
           }}
-          // onClick={(event: React.MouseEvent<HTMLDivElement>) => {
-          //   event.stopPropagation();
-          // }}
           onKeyDown={(event) => {
-            if (event.key === 'Enter') {
+            if (event.key === 'Enter' || event.key === 'Escape') {
               event.preventDefault();
               textInput.current.blur();
-              PPStorage.getInstance().renameGraph(
-                PPGraph?.currentGraph?.id,
-                currentGraphName,
-              );
-            } else if (event.key === 'Escape') {
-              event.preventDefault();
-              textInput.current.blur();
-              setCurrentGraphName(originalGraphName);
             }
+          }}
+          onBlur={() => {
+            updateGraphName();
           }}
           value={currentGraphName}
           sx={{
@@ -188,7 +184,9 @@ function PnPHeader(props: PnPHeaderProps) {
                 padding: '4px 8px',
               },
               '& input:hover': {
-                backgroundColor: 'unset',
+                backgroundColor: TRgba.fromString(props.randomMainColor)
+                  .darken(0.05)
+                  .hex(),
               },
               '& input:focus': {
                 boxShadow: `0 0 0 1px ${props.randomMainColor}`,
@@ -199,30 +197,6 @@ function PnPHeader(props: PnPHeaderProps) {
             },
           }}
         />
-        <IconButton
-          title="Edit node name"
-          color="secondary"
-          size="small"
-          onClick={() => {
-            setTimeout(() => {
-              textInput.current.focus();
-            }, 100);
-          }}
-          sx={{
-            px: 1,
-            pt: '8px',
-            pb: '6px',
-            borderRadius: '2px',
-            color: textColor,
-            '&:hover': {
-              backgroundColor: TRgba.fromString(props.randomMainColor)
-                .darken(0.05)
-                .hex(),
-            },
-          }}
-        >
-          <EditIcon fontSize="inherit" />
-        </IconButton>
         {!smallScreen && (
           <Button
             variant="text"

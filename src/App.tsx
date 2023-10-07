@@ -922,6 +922,11 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
             onClose={() => setShowEdit(false)}
             fullWidth
             maxWidth="sm"
+            sx={{
+              '& .MuiDialog-paper': {
+                bgcolor: 'background.default',
+              },
+            }}
           >
             <DialogTitle>Edit playground details</DialogTitle>
             <form
