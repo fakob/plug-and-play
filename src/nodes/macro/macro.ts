@@ -186,7 +186,7 @@ export class Macro extends PPNode {
         .map((socket) => this.getSocketDisplayName(socket)),
     );
     const paramLine = allParams.join(',').replaceAll(' ', '_');
-    console.log('paramLine: ' + paramLine);
+    //console.log('paramLine: ' + paramLine);
     const totalMacroCall =
       'async (' +
       paramLine +
@@ -257,7 +257,6 @@ export class Macro extends PPNode {
     );
     // needs to be sequential
     for (let i = 0; i < nodesCallingMe.length; i++) {
-      console.log('calling: ' + nodesCallingMe[i].name);
       await nodesCallingMe[i].calledMacroUpdated();
     }
   }
@@ -268,7 +267,6 @@ export class Macro extends PPNode {
   ): Promise<void> {
     // potentially demanding but important QOL, go through all nodes and see which refer to me, they need to be re-executed
     if (this.executingFromOutside == 0) {
-      console.log('executin (and updating callers): ' + this.name);
       await this.updateAllCallers();
     }
   }

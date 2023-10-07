@@ -5,7 +5,7 @@ import Socket from './SocketClass';
 export default class FlowLogic {
   static aggregateDependents(
     node,
-    dependents: { [key: string]: PPNode }
+    dependents: { [key: string]: PPNode },
   ): {
     [key: string]: Set<string>;
   } {
@@ -42,7 +42,7 @@ export default class FlowLogic {
 
   static combineNumDependings(
     numDepending1: { [key: string]: Set<string> },
-    numDepending2: { [key: string]: Set<string> }
+    numDepending2: { [key: string]: Set<string> },
   ): void {
     Object.keys(numDepending2).forEach((childDependent) => {
       if (numDepending1[childDependent] === undefined) {
@@ -58,7 +58,7 @@ export default class FlowLogic {
   static goThroughSockets(
     currDependents: { [key: string]: PPNode },
     socketArray: Socket[],
-    upstream = false
+    upstream = false,
   ): void {
     socketArray.forEach((socket) => {
       Object.values(socket.getLinkedNodes(upstream)).forEach((dependent) => {
@@ -72,7 +72,7 @@ export default class FlowLogic {
   static getLinkedNodes(
     node: PPNode,
     includeUpstream = false,
-    includeDownstream = true
+    includeDownstream = true,
   ): { [key: string]: PPNode } {
     const currDependents: { [key: string]: PPNode } = {};
 
@@ -86,7 +86,7 @@ export default class FlowLogic {
   }
 
   static async executeOptimizedChainBatch(
-    foundational: PPNode[]
+    foundational: PPNode[],
   ): Promise<void> {
     const dependents: { [key: string]: PPNode } = {};
     const numDepending: { [key: string]: Set<string> } = {};
@@ -97,15 +97,16 @@ export default class FlowLogic {
       });
       FlowLogic.combineNumDependings(
         numDepending,
-        FlowLogic.aggregateDependents(node, dependents)
+        FlowLogic.aggregateDependents(node, dependents),
       );
     });
     // now that we have the complete chain, execute them in order that makes sure all dependents are waiting on their parents, there should always be a node with no more lingering dependents (unless there is an infinite loop)
     let currentExecuting: PPNode = foundational.shift();
+    const hasExecuted: Set<string> = new Set();
 
     while (currentExecuting) {
       await currentExecuting.execute();
-      //console.log('executing');
+      hasExecuted.add(currentExecuting.id);
       // uncomment if you want to see the execution in more detail by slowing it down (to make sure order is correct)
       //await new Promise((resolve) => setTimeout(resolve, 500));
       Object.keys(currentExecuting.getDirectDependents()).forEach(
@@ -113,11 +114,14 @@ export default class FlowLogic {
           if (numDepending[dependentKey]) {
             numDepending[dependentKey].delete(currentExecuting.id);
             // if this child has no other nodes it is waiting on, and one of its parents did change its output, add it to the queue of nodes to be executed
-            if (numDepending[dependentKey].size == 0) {
+            if (
+              numDepending[dependentKey].size == 0 &&
+              !hasExecuted.has(dependents[dependentKey]?.id)
+            ) {
               foundational.push(dependents[dependentKey]);
             }
           }
-        }
+        },
       );
       currentExecuting = foundational.shift();
     }
@@ -128,7 +132,7 @@ export default class FlowLogic {
     node: PPNode,
     includeUpstream: boolean,
     includeDownstream: boolean,
-    wholeBranch: boolean // includes the whole up/downstream branch
+    wholeBranch: boolean, // includes the whole up/downstream branch
   ): PPNode[] {
     const getDirectDependentsAndAccumulateThem = (
       dependents: {
@@ -136,14 +140,14 @@ export default class FlowLogic {
       },
       includeUpstream: boolean,
       includeDownstream: boolean,
-      wholeBranch: boolean
+      wholeBranch: boolean,
     ): void => {
       Object.values(dependents).forEach((node) => {
         const newDependents: { [key: string]: PPNode } =
           FlowLogic.getLinkedNodes(
             node,
             wholeBranch || includeUpstream,
-            wholeBranch || includeDownstream
+            wholeBranch || includeDownstream,
           );
 
         combinedDependents[node.id] = node;
@@ -159,7 +163,7 @@ export default class FlowLogic {
           filtered,
           includeUpstream,
           includeDownstream,
-          wholeBranch
+          wholeBranch,
         );
       });
     };
@@ -172,14 +176,14 @@ export default class FlowLogic {
         combinedDependents,
         includeUpstream,
         includeDownstream,
-        wholeBranch
+        wholeBranch,
       );
     } else {
       getDirectDependentsAndAccumulateThem(
         FlowLogic.getLinkedNodes(node, includeUpstream, includeDownstream),
         includeUpstream,
         includeDownstream,
-        wholeBranch
+        wholeBranch,
       );
     }
     return Object.values(combinedDependents);
