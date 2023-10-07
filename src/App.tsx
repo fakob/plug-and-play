@@ -28,12 +28,9 @@ import { hri } from 'human-readable-ids';
 import TimeAgo from 'javascript-time-ago';
 import en from 'javascript-time-ago/locale/en';
 import {
-  GraphSearchInput,
   NodeSearchInput,
-  filterOptionsGraph,
   filterOptionsNode,
   getNodes,
-  renderGraphItem,
   renderGroupItem,
   renderNodeItem,
 } from './components/Search';
@@ -58,7 +55,6 @@ import {
   GRID_SHADER,
   MAX_LATEST_NODES_IN_SEARCH,
   NODE_SOURCE,
-  PLUGANDPLAY_ICON,
   RANDOMMAINCOLOR,
 } from './utils/constants';
 import { IGraphSearch, INodeSearch } from './utils/interfaces';
@@ -78,11 +74,11 @@ import { getAllNodeTypes } from './nodes/allNodes';
 import PPSocket from './classes/SocketClass';
 import PPNode from './classes/NodeClass';
 import { InputParser } from './utils/inputParser';
-import styles from './utils/style.module.css';
 import { ActionHandler } from './utils/actionHandler';
 import InterfaceController, { ListenEvent } from './InterfaceController';
 import PPStorage, { checkForUnsavedChanges } from './PPStorage';
 import PPSelection from './classes/SelectionClass';
+import PnPHeader from './PnPHeader';
 
 TimeAgo.addDefaultLocale(en);
 // Create formatter (English).
@@ -791,7 +787,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
   };
 
   const updateGraphSearchItems = () => {
-    console.log('updateGraphSearchItems');
     load();
 
     async function load() {
@@ -836,7 +831,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
         ...newGraphSearchItems,
         ...remoteGraphSearchItems,
       ];
-      console.log(allGraphSearchItems);
       setGraphSearchItems(allGraphSearchItems);
 
       setGraphSearchActiveItem(
@@ -1000,68 +994,19 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
             currentGraph={PPGraph.currentGraph}
             randomMainColor={RANDOMMAINCOLOR}
           />
-          <img
-            id="plugandplayground-logo"
-            className={styles.plugAndPlaygroundIcon}
-            style={{
-              backgroundColor: RANDOMMAINCOLOR,
-            }}
-            src={PLUGANDPLAY_ICON}
-            onClick={(event) => {
-              event.stopPropagation();
-              setContextMenuPosition([16, 96]);
-              setIsGraphContextMenuOpen((isOpen) => !isOpen);
-            }}
+          <PnPHeader
+            randomMainColor={RANDOMMAINCOLOR}
+            isLoggedIn={isLoggedIn}
+            setContextMenuPosition={setContextMenuPosition}
+            setIsGraphContextMenuOpen={setIsGraphContextMenuOpen}
+            setShowSharePlayground={setShowSharePlayground}
+            graphSearchActiveItem={graphSearchActiveItem}
+            graphSearchItems={graphSearchItems}
+            handleGraphItemSelect={handleGraphItemSelect}
+            graphSearchInput={graphSearchInput}
           />
           {PPGraph.currentGraph && (
             <>
-              <Autocomplete
-                id="graph-search"
-                ListboxProps={{ style: { maxHeight: '50vh' } }}
-                className={styles.graphSearch}
-                sx={{
-                  width: 'calc(65vw - 120px)',
-                  [theme.breakpoints.down('sm')]: {
-                    width: 'calc(90vw - 130px)',
-                  },
-                }}
-                freeSolo
-                openOnFocus
-                selectOnFocus
-                autoHighlight
-                clearOnBlur
-                // open
-                disablePortal
-                defaultValue={graphSearchActiveItem}
-                isOptionEqualToValue={(option, value) =>
-                  option.name === value.name
-                }
-                value={graphSearchActiveItem}
-                getOptionDisabled={(option) => option.isDisabled}
-                getOptionLabel={(option) =>
-                  typeof option === 'string' ? option : option.name
-                }
-                options={graphSearchItems}
-                onChange={handleGraphItemSelect}
-                filterOptions={filterOptionsGraph}
-                renderOption={(props, option, state) =>
-                  renderGraphItem(props, option, state)
-                }
-                renderInput={(props) => (
-                  <GraphSearchInput
-                    {...props}
-                    inputRef={graphSearchInput}
-                    randommaincolor={RANDOMMAINCOLOR}
-                    setShowSharePlayground={setShowSharePlayground}
-                    isLoggedIn={isLoggedIn}
-                  />
-                )}
-                componentsProps={{
-                  popper: {
-                    style: { width: 'fit-content', minWidth: '400px' },
-                  },
-                }}
-              />
               <div
                 style={{
                   visibility: isNodeSearchVisible ? undefined : 'hidden',
@@ -1106,16 +1051,16 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
                     nodeSearchCountRef.current = filteredOptions.length;
                     return filteredOptions;
                   }}
-                  PaperComponent={ResultsWithHeader}
                   renderOption={renderNodeItem}
                   renderInput={(props) => (
                     <NodeSearchInput
                       {...props}
                       inputRef={nodeSearchInput}
-                      randommaincolor={RANDOMMAINCOLOR}
+                      randomMainColor={RANDOMMAINCOLOR}
                     />
                   )}
                   renderGroup={renderGroupItem}
+                  PaperComponent={ResultsWithHeader}
                 />
               </div>
             </>
