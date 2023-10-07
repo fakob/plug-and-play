@@ -108,8 +108,8 @@ export function highlightText(text: string, query: string): any {
         {
           key: lastIndex,
         },
-        match[0]
-      )
+        match[0],
+      ),
     );
   }
   const rest = text.slice(lastIndex);
@@ -129,7 +129,7 @@ export const roundNumber = (number: number, decimals = 2): number =>
 export const limitRange = (
   value: number,
   lowerLimit: number,
-  upperLimit: number
+  upperLimit: number,
 ): number => {
   const min = Math.min(lowerLimit, upperLimit);
   const max = Math.max(lowerLimit, upperLimit);
@@ -143,7 +143,7 @@ export const mapRange = (
   high1: number,
   low2: number,
   high2: number,
-  returnInt = true
+  returnInt = true,
 ): number => {
   // special case, prevent division by 0
   if (high1 - low1 === 0) {
@@ -191,7 +191,7 @@ export const getCircularReplacer = () => {
 export const downloadFile = (
   content: string | ArrayBufferLike,
   fileName: string,
-  contentType: string
+  contentType: string,
 ): void => {
   const a = document.createElement('a');
   const file = new Blob([content], { type: contentType });
@@ -210,13 +210,13 @@ export const formatDate = () => {
   const seconds = String(d.getSeconds()).padStart(2, '0');
 
   return `${[year, month, day].join('-')} at ${[hour, minutes, seconds].join(
-    '.'
+    '.',
   )}`;
 };
 
 export const getDifferenceSelection = (
   firstSelection: PPNode[],
-  secondSelection: PPNode[]
+  secondSelection: PPNode[],
 ): PPNode[] => {
   return firstSelection
     .filter((x) => !secondSelection.includes(x))
@@ -225,7 +225,7 @@ export const getDifferenceSelection = (
 
 export const truncateText = (
   inputString: string,
-  maxLength: number
+  maxLength: number,
 ): string => {
   if (inputString.length > maxLength) {
     return inputString.substring(0, maxLength) + '...';
@@ -251,7 +251,7 @@ export const removeExtension = (fileName: string): string => {
 
 export const getSetting = async (
   db: GraphDatabase,
-  settingsName: string
+  settingsName: string,
 ): Promise<string | undefined> => {
   const settingsObject = await db.settings
     .where({
@@ -264,7 +264,7 @@ export const getSetting = async (
 
 export function setGestureModeOnViewport(
   viewport: Viewport,
-  gestureMode = undefined
+  gestureMode = undefined,
 ) {
   viewport.wheel({
     smooth: 3,
@@ -275,7 +275,7 @@ export function setGestureModeOnViewport(
 
 export const getMethods = (o): string[] => {
   return Object.getOwnPropertyNames(Object.getPrototypeOf(o)).filter(
-    (m) => 'function' === typeof o[m]
+    (m) => 'function' === typeof o[m],
   );
 };
 
@@ -286,7 +286,7 @@ export const writeTextToClipboard = (newClip: string): void => {
     },
     function () {
       console.error('Writing to clipboard of this text failed:', newClip);
-    }
+    },
   );
 };
 
@@ -315,16 +315,16 @@ export const writeNodeDataToClipboard = (stringifiedData: string): void => {
         function () {
           console.error(
             'Writing to clipboard of this text failed:',
-            stringifiedData
+            stringifiedData,
           );
-        }
+        },
       );
   }
 };
 
 export const writeDataToClipboard = (data: unknown): void => {
   writeNodeDataToClipboard(
-    JSON.stringify(data, getCircularReplacer(), 2) || ''
+    JSON.stringify(data, getCircularReplacer(), 2) || '',
   );
 };
 
@@ -384,7 +384,7 @@ export const calculateAspectRatioFit = (
   newWidth: number,
   newHeight: number,
   minWidth: number,
-  minHeight: number
+  minHeight: number,
 ): { width: number; height: number } => {
   let ratio = Math.min(newWidth / oldWidth, newHeight / oldHeight);
   const tempWidth = oldWidth * ratio;
@@ -398,7 +398,7 @@ export const calculateAspectRatioFit = (
 export const replacePartOfObject = (
   originalObject: any,
   pathToReplace: string,
-  value: any
+  value: any,
 ): any => {
   let objValue = value;
   const parsedJSON = parseJSON(value);
@@ -450,7 +450,7 @@ export const parseJSON = (jsonToParse: any): { [key: string]: any } => {
 export const compare = (
   inputA: unknown,
   chosenOperator: string,
-  inputB: unknown
+  inputB: unknown,
 ): unknown => {
   switch (chosenOperator) {
     case '>':
@@ -480,7 +480,7 @@ export const compare = (
 
 export const isVariable = (
   inputA: unknown,
-  chosenCondition: string
+  chosenCondition: string,
 ): unknown => {
   switch (chosenCondition) {
     case CONDITION_OPTIONS[0].text:
@@ -502,7 +502,7 @@ export const isVariable = (
 
 export async function connectNodeToSocket(
   socket: PPSocket,
-  node: PPNode
+  node: PPNode,
 ): Promise<void> {
   if (!node) {
     return;
@@ -512,7 +512,6 @@ export async function connectNodeToSocket(
   if (!input || !output) {
     return;
   }
-  // this is an action, feel free to chance
   await PPGraph.currentGraph.action_Connect(output, input);
 }
 
@@ -524,7 +523,7 @@ export const getMatchingSocket = (socket: PPSocket, node: PPNode): PPSocket => {
     const getSocket = (
       condition,
       onlyFreeSocket,
-      onlyVisibleSocket = true
+      onlyVisibleSocket = true,
     ): PPSocket => {
       return socketArray.find((socketInArray) => {
         return (
@@ -593,19 +592,19 @@ export const getLongestArrayInArray = (arrayOfArrays): number => {
 
 export const addRowToArrayOfArrays = (
   arrayOfArrays: any[],
-  insertIndex
+  insertIndex,
 ): any[] => {
   arrayOfArrays.splice(
     insertIndex,
     0,
-    Array(getLongestArrayInArray(arrayOfArrays)).fill('')
+    Array(getLongestArrayInArray(arrayOfArrays)).fill(''),
   );
   return arrayOfArrays;
 };
 
 export const removeRowFromArrayOfArrays = (
   arrayOfArrays: any[],
-  insertIndex
+  insertIndex,
 ): any[] => {
   arrayOfArrays.splice(insertIndex, 1);
   return arrayOfArrays;
@@ -613,7 +612,7 @@ export const removeRowFromArrayOfArrays = (
 
 export const addColumnToArrayOfArrays = (
   arrayOfArrays: any[],
-  insertIndex
+  insertIndex,
 ): any[] => {
   const newArrayOfArrays = arrayOfArrays.map((row) => {
     row.splice(insertIndex, 0, '');
@@ -624,7 +623,7 @@ export const addColumnToArrayOfArrays = (
 
 export const removeColumnFromArrayOfArrays = (
   arrayOfArrays: any[],
-  insertIndex
+  insertIndex,
 ): any[] => {
   const newArrayOfArrays = arrayOfArrays.map((row) => {
     row.splice(insertIndex, 1);
@@ -636,7 +635,7 @@ export const removeColumnFromArrayOfArrays = (
 export function getCurrentCursorPosition(): PIXI.Point {
   const event = PPGraph.currentGraph.pointerEvent;
   let pointerPosition: PIXI.Point = JSON.parse(
-    JSON.stringify(new PIXI.Point(event.clientX, event.clientY))
+    JSON.stringify(new PIXI.Point(event.clientX, event.clientY)),
   );
   const viewport = PPGraph.currentGraph.viewport;
 
@@ -680,7 +679,7 @@ export function createGist(
   description: string,
   fileName: string,
   fileContent: string,
-  isPublic: boolean
+  isPublic: boolean,
 ) {
   const data = { description, fileName, fileContent, isPublic };
   return fetch('/create-gist', {
@@ -841,7 +840,7 @@ export const saveBase64AsImage = async (base64, fileName) => {
   downloadFile(
     data,
     `${fileName} - ${formatDate()}.${imageType}`,
-    `image/${imageType}`
+    `image/${imageType}`,
   );
 };
 
@@ -849,7 +848,7 @@ export const updateDataIfDefault = (
   node: PPNode,
   inputSocketName: string,
   defaultData: any,
-  dataToUpdate: any
+  dataToUpdate: any,
 ): void => {
   if (defaultData === node.getInputData(inputSocketName)) {
     node.setInputData(inputSocketName, dataToUpdate);

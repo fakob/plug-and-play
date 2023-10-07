@@ -557,6 +557,11 @@ export default class PPNode extends PIXI.Container {
     this.resizeAndDraw(this.getDefaultNodeWidth(), this.getDefaultNodeHeight());
   }
 
+  // check out for example customfunction to see the point of this
+  public getAllCustomInputSockets(): Socket[] {
+    return this.getAllInputSockets();
+  }
+
   public getAllInputSockets(): Socket[] {
     return this.inputSocketArray.concat(this.nodeTriggerSocketArray);
   }
@@ -1091,11 +1096,27 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     }
   }
 
+  protected getNewInputSocketName(preferredName: string): string {
+    const existing = this.getAllInputSockets();
+    let newParamName = preferredName;
+    let count: number = 2;
+    // find a new param name that is unique
+    while (existing.find((param) => param.name === newParamName)) {
+      newParamName = preferredName + '_' + count;
+      count += 1;
+    }
+    return newParamName;
+  }
+
+  protected async mouseReleasedOverWithSourceSocketSelected(source: Socket) : Promise<void>{
+    connectNodeToSocket(source, this);
+  }
+
   onPointerUp(event: PIXI.FederatedPointerEvent): void {
     const source = PPGraph.currentGraph.selectedSourceSocket;
     if (source && this !== source.getNode()) {
-      PPGraph.currentGraph.selectedSourceSocket = null; // hack
-      connectNodeToSocket(source, this);
+      PPGraph.currentGraph.selectedSourceSocket = null; // hack // ????
+      this.mouseReleasedOverWithSourceSocketSelected(source);
     }
     PPGraph.currentGraph.selection.stopDragAction();
   }

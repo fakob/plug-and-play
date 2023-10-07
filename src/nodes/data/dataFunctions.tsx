@@ -12,6 +12,7 @@ import { CodeType } from '../datatypes/codeType';
 import { JSONType } from '../datatypes/jsonType';
 import { NumberType } from '../datatypes/numberType';
 import * as PIXI from 'pixi.js';
+import PPGraph from '../../classes/GraphClass';
 
 const arrayName = 'Array';
 const typeName = 'Type';
@@ -293,6 +294,11 @@ export class CustomFunction extends PPNode {
   protected getOutputCodeVisibleByDefault(): boolean {
     return false;
   }
+  public getAllCustomInputSockets(): Socket[] {
+    return this.getAllInputSockets().filter(
+      (socket) => socket.name !== anyCodeName,
+    );
+  }
 
   protected getDefaultFunction(): string {
     return '//define your function here, node will adapt to inputs automatically\n(a) => {\n\treturn a;\n}';
@@ -389,13 +395,9 @@ export class CustomFunction extends PPNode {
   private adaptInputs(code: string): boolean {
     const codeArguments = getArgumentsFromFunction(code);
     // remove all non existing arguments and add all missing (based on the definition we just got)
-    const currentInputSockets = this.getDataSockets().filter(
-      (socket) => socket.socketType === SOCKET_TYPE.IN,
-    );
+    const currentInputSockets = this.getAllCustomInputSockets();
     const socketsToBeRemoved = currentInputSockets.filter(
-      (socket) =>
-        !codeArguments.some((argument) => socket.name === argument) &&
-        socket.name !== anyCodeName,
+      (socket) => !codeArguments.some((argument) => socket.name === argument),
     );
     const argumentsToBeAdded = codeArguments.filter(
       (argument) =>
@@ -559,11 +561,32 @@ export class ArrayCreate extends ArrayFunction {
   }
 
   public getDescription(): string {
-    return 'Creates an array from a single value';
+    return 'Creates an array from selected values';
   }
 
   protected getDefaultFunction(): string {
-    return '(Element) => {\n\treturn [Element];\n}';
+    return '() => {\n\treturn [];\n}';
+  }
+  protected addNewDynamicInputSocket(name: string) {
+    const paramLine = this.getAllCustomInputSockets()
+      .map((socket) => socket.name)
+      .concat(name);
+    return (
+      '(' +
+      paramLine.join(',') +
+      ') => {\n\treturn [' +
+      paramLine.join(',') +
+      '];\n}'
+    );
+  }
+
+  protected async mouseReleasedOverWithSourceSocketSelected(
+    source: Socket,
+  ): Promise<void> {
+    const newName = this.getNewInputSocketName(source.name);
+    this.setInputData(anyCodeName, this.addNewDynamicInputSocket(newName));
+    await this.executeOptimizedChain();
+    PPGraph.currentGraph.connect(source, this.getInputSocketByName(newName));
   }
 }
 
