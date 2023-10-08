@@ -61,8 +61,8 @@ export class Macro extends PPNode {
     return new UpdateBehaviourClass(true, false, 1000, this);
   }
 
-  onRemoved(): void {
-    super.onRemoved();
+  async onRemoved(): Promise<void> {
+    await super.onRemoved();
     delete PPGraph.currentGraph.macros[this.id];
   }
 
@@ -144,8 +144,8 @@ export class Macro extends PPNode {
   public getOutputSocketXPos(): number {
     return macroInputBlockSize;
   }
-  public outputPlugged(): void {
-    super.outputPlugged();
+  public async outputPlugged(): Promise<void> {
+    await super.outputPlugged();
     const last = this.outputSocketArray[this.outputSocketArray.length - 1];
     // if furthest down parameter is plugged in, add a new one
     if (last.hasLink()) {
@@ -155,8 +155,8 @@ export class Macro extends PPNode {
     this.drawNodeShape();
   }
 
-  public outputUnplugged(): void {
-    super.outputUnplugged();
+  public async outputUnplugged(): Promise<void> {
+    await super.outputUnplugged();
     this.updateAllCallers();
     this.drawNodeShape();
   }

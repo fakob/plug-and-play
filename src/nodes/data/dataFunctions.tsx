@@ -143,7 +143,7 @@ export class Constant extends PPNode {
     return true;
   }
 
-  public outputPlugged(): void {
+  public async outputPlugged(): Promise<void> {
     const dataToUpdate =
       this.getSocketByName(constantOutName).links[0].getTarget().defaultData;
     updateDataIfDefault(
@@ -392,7 +392,7 @@ export class CustomFunction extends PPNode {
   }
 
   // returns true if there was a change
-  private adaptInputs(code: string): boolean {
+  protected adaptInputs(code: string): boolean {
     const codeArguments = getArgumentsFromFunction(code);
     // remove all non existing arguments and add all missing (based on the definition we just got)
     const currentInputSockets = this.getAllCustomInputSockets();
@@ -567,10 +567,11 @@ export class ArrayCreate extends ArrayFunction {
   protected getDefaultFunction(): string {
     return '() => {\n\treturn [];\n}';
   }
-  protected addNewDynamicInputSocket(name: string) {
+  protected recalculateInputs(newNames: string[] = []) {
     const paramLine = this.getAllCustomInputSockets()
+      .filter((socket) => socket.links.length)
       .map((socket) => socket.name)
-      .concat(name);
+      .concat(newNames);
     return (
       '(' +
       paramLine.join(',') +
@@ -584,9 +585,15 @@ export class ArrayCreate extends ArrayFunction {
     source: Socket,
   ): Promise<void> {
     const newName = this.getNewInputSocketName(source.name);
-    this.setInputData(anyCodeName, this.addNewDynamicInputSocket(newName));
+    this.setInputData(anyCodeName, this.recalculateInputs([newName]));
     await this.executeOptimizedChain();
     PPGraph.currentGraph.connect(source, this.getInputSocketByName(newName));
+  }
+
+  public async inputUnplugged(): Promise<void> {
+    this.setInputData(anyCodeName, this.recalculateInputs());
+    //this.adaptInputs(this.getInputData(anyCodeName));
+    // override if you care about this event
   }
 }
 

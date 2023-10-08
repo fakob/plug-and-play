@@ -1132,7 +1132,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     }
   }
 
-  onRemoved(): void {
+  async onRemoved(): Promise<void> {
     // remove added listener from graph.viewport
     PPGraph.currentGraph.viewport.removeEventListener(
       'moved',
@@ -1140,9 +1140,9 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     );
     this.listenId.forEach((id) => InterfaceController.removeListener(id));
 
-    this.getAllSockets().forEach((socket) => {
-      socket.links.forEach((link) => link.delete());
-    });
+    await Promise.all(this.getAllSockets().map((socket) => {
+      socket.links.forEach(async (link) => await link.delete())
+    }));
 
     this.onNodeRemoved();
   }
@@ -1392,10 +1392,17 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   public nameChanged(newName: string): void {
     // override if you care about this event
   }
-  public outputPlugged(): void {
+  public async inputPlugged(): Promise<void> {
     // override if you care about this event
   }
-  public outputUnplugged(): void {
+
+  public async inputUnplugged(): Promise<void> {
+    // override if you care about this event
+  }
+  public async outputPlugged(): Promise<void> {
+    // override if you care about this event
+  }
+  public async outputUnplugged(): Promise<void> {
     // override if you care about this event
   }
   public nodeKeyEvent(e: KeyboardEvent): void {

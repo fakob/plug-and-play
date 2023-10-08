@@ -296,11 +296,11 @@ export abstract class DRAW_Base extends PPNode {
     );
   }
 
-  public outputPlugged(): void {
-    this.executeOptimizedChain();
+  public async outputPlugged(): Promise<void> {
+    await this.executeOptimizedChain();
   }
-  public outputUnplugged(): void {
-    this.executeOptimizedChain();
+  public async outputUnplugged(): Promise<void> {
+    await this.executeOptimizedChain();
   }
 
   protected shouldDraw(): boolean {

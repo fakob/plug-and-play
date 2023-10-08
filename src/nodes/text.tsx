@@ -88,28 +88,28 @@ export class Label extends PPNode {
         inputSocketName,
         new StringType(),
         labelDefaultText,
-        true
+        true,
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
         fontSizeSocketName,
         new NumberType(true, 1),
         fontSize,
-        false
+        false,
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
         widthSocketName,
         new NumberType(true, 0, defaultNodeWidth * 10),
         undefined,
-        false
+        false,
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
         backgroundColorName,
         new ColorType(),
         TRgba.fromString(fillColor),
-        false
+        false,
       ),
     ].concat(super.getDefaultIO());
   }
@@ -218,9 +218,9 @@ export class Label extends PPNode {
       Math.max(
         this.getMinNodeWidth(),
         (this.useInputWidth() ? this.getInputWidth() : width) +
-          this.getMarginLeftRight() * 2
+          this.getMarginLeftRight() * 2,
       ),
-      height + this.getMarginTopBottom() * 2
+      height + this.getMarginTopBottom() * 2,
     );
   }
 
@@ -250,11 +250,11 @@ export class Label extends PPNode {
     const color = this.getInputData(backgroundColorName);
     const screenPoint = PPGraph.currentGraph.viewport.toScreen(
       this.getHTMLComponentLeft(),
-      this.getHTMLComponentTop()
+      this.getHTMLComponentTop(),
     );
 
     const existingElement = document.getElementById(
-      htmlComponentId
+      htmlComponentId,
     ) as HTMLDivElement;
 
     this.HTMLTextComponent = document.createElement('div');
@@ -296,7 +296,7 @@ export class Label extends PPNode {
 
       this.HTMLTextComponent.style.width = `${Math.max(
         20, // a small minimum width so the blinking cursor is visible
-        textMetrics.width
+        textMetrics.width,
       )}px`;
       this.HTMLTextComponent.style.height = `${textMetrics.height}px`;
 
@@ -311,7 +311,7 @@ export class Label extends PPNode {
         this.id,
         this.getInputData(inputSocketName),
         text,
-        applyFunction
+        applyFunction,
       );
     });
 
@@ -327,7 +327,7 @@ export class Label extends PPNode {
     if (this.HTMLTextComponent != null) {
       const screenPoint = PPGraph.currentGraph.viewport.toScreen(
         this.getHTMLComponentLeft(),
-        this.getHTMLComponentTop()
+        this.getHTMLComponentTop(),
       );
       this.HTMLTextComponent.style.transform = `scale(${PPGraph.currentGraph.viewportScaleX}`;
       this.HTMLTextComponent.style.left = `${screenPoint.x}px`;
@@ -343,9 +343,9 @@ export class Label extends PPNode {
     return false;
   }
 
-  public outputPlugged(): void {
+  public async outputPlugged(): Promise<void> {
     const dataToUpdate = convertToString(
-      this.getSocketByName(outputSocketName).links[0].getTarget().defaultData
+      this.getSocketByName(outputSocketName).links[0].getTarget().defaultData,
     );
     updateDataIfDefault(this, inputSocketName, labelDefaultText, dataToUpdate);
     super.outputPlugged();
