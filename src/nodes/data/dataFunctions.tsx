@@ -152,7 +152,7 @@ export class Constant extends PPNode {
       constantDefaultData,
       dataToUpdate,
     );
-    super.outputPlugged();
+    await super.outputPlugged();
   }
 }
 

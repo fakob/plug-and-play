@@ -151,13 +151,13 @@ export class Macro extends PPNode {
     if (last.hasLink()) {
       this.addDefaultOutput();
     }
-    this.updateAllCallers();
+    await this.updateAllCallers();
     this.drawNodeShape();
   }
 
   public async outputUnplugged(): Promise<void> {
     await super.outputUnplugged();
-    this.updateAllCallers();
+    await this.updateAllCallers();
     this.drawNodeShape();
   }
 
