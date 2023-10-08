@@ -289,7 +289,7 @@ export default class PPGraph {
   }
 
   socketHoverOut(socket: PPSocket): void {
-    this.overInputRef = null;
+    if (socket == this.overInputRef) this.overInputRef = null;
   }
 
   async socketMouseDown(

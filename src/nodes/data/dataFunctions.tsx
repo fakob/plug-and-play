@@ -347,6 +347,10 @@ export class CustomFunction extends PPNode {
     return inCode;
   }
 
+  protected showModifiedBanner(): boolean {
+    return true;
+  }
+
   protected async onExecute(
     inputObject: any,
     outputObject: Record<string, unknown>,
@@ -377,7 +381,10 @@ export class CustomFunction extends PPNode {
     const node = this;
 
     this.statuses = [];
-    if (this.getDefaultFunction() !== inputObject['Code']) {
+    if (
+      this.showModifiedBanner() &&
+      this.getDefaultFunction() !== inputObject['Code']
+    ) {
       this.statuses.push({
         color: this.getColor().multiply(0.8),
         statusText: 'Modified',
@@ -565,7 +572,7 @@ export class ArrayCreate extends ArrayFunction {
   }
 
   protected getDefaultFunction(): string {
-    return '() => {\n\treturn [];\n}';
+    return this.recalculateInputs();
   }
   protected recalculateInputs(newNames: string[] = []) {
     const paramLine = this.getAllCustomInputSockets()
@@ -592,8 +599,12 @@ export class ArrayCreate extends ArrayFunction {
 
   public async inputUnplugged(): Promise<void> {
     this.setInputData(anyCodeName, this.recalculateInputs());
+    await this.executeOptimizedChain();
     //this.adaptInputs(this.getInputData(anyCodeName));
     // override if you care about this event
+  }
+  protected showModifiedBanner(): boolean {
+    return false;
   }
 }
 
