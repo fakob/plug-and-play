@@ -525,6 +525,5 @@ export default class Socket extends PIXI.Container implements Tooltipable {
   destroy(): void {
     PPGraph.currentGraph.socketHoverOut(this);
     super.destroy();
-    this.getNode()?.resizeAndDraw();
   }
 }

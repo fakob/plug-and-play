@@ -585,15 +585,19 @@ export default class PPGraph {
     );
   }
 
-  async linkDisconnect(targetNodeID, inputSocketName, notify: boolean) {
+  async linkDisconnect(
+    targetNodeID: string,
+    inputSocketName: string,
+    notify: boolean,
+  ) {
     const socket =
       this.nodes[targetNodeID].getInputOrTriggerSocketByName(inputSocketName);
     const link = socket.links[0];
     const sourceNodeID = link.getSource().getNode().id;
     await link.delete();
     if (notify) {
-      this.nodes[targetNodeID].inputUnplugged();
-      this.nodes[sourceNodeID].outputUnplugged();
+      await this.nodes[targetNodeID].inputUnplugged();
+      await this.nodes[sourceNodeID].outputUnplugged();
     }
   }
 

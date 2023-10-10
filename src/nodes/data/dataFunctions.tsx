@@ -294,7 +294,7 @@ export class CustomFunction extends PPNode {
   protected getOutputCodeVisibleByDefault(): boolean {
     return false;
   }
-  public getAllCustomInputSockets(): Socket[] {
+  public getAllUserInterestingInputSockets(): Socket[] {
     return this.getAllInputSockets().filter(
       (socket) => socket.name !== anyCodeName,
     );
@@ -402,7 +402,7 @@ export class CustomFunction extends PPNode {
   protected adaptInputs(code: string): boolean {
     const codeArguments = getArgumentsFromFunction(code);
     // remove all non existing arguments and add all missing (based on the definition we just got)
-    const currentInputSockets = this.getAllCustomInputSockets();
+    const currentInputSockets = this.getAllUserInterestingInputSockets();
     const socketsToBeRemoved = currentInputSockets.filter(
       (socket) => !codeArguments.some((argument) => socket.name === argument),
     );
@@ -562,7 +562,7 @@ export class ArraySlice extends ArrayFunction {
   }
 }
 
-export class ArrayCreate extends ArrayFunction {
+export class ArrayCreate extends PPNode {
   public getName(): string {
     return 'Create array';
   }
@@ -571,37 +571,40 @@ export class ArrayCreate extends ArrayFunction {
     return 'Creates an array from selected values';
   }
 
-  protected getDefaultFunction(): string {
-    return this.recalculateInputs();
+  protected getDefaultIO(): Socket[] {
+    return [new Socket(SOCKET_TYPE.OUT, arrayName, new ArrayType(), [])];
   }
-  protected recalculateInputs(newNames: string[] = []) {
-    const paramLine = this.getAllCustomInputSockets()
-      .filter((socket) => socket.links.length)
-      .map((socket) => socket.name)
-      .concat(newNames);
-    return (
-      '(' +
-      paramLine.join(',') +
-      ') => {\n\treturn [' +
-      paramLine.join(',') +
-      '];\n}'
+
+  protected async onExecute(input, output): Promise<void> {
+    output[arrayName] = this.getAllUserInterestingInputSockets().map(
+      (socket) => socket.data,
     );
   }
 
-  protected async mouseReleasedOverWithSourceSocketSelected(
-    source: Socket,
-  ): Promise<void> {
-    const newName = this.getNewInputSocketName(source.name);
-    this.setInputData(anyCodeName, this.recalculateInputs([newName]));
-    await this.executeOptimizedChain();
-    PPGraph.currentGraph.connect(source, this.getInputSocketByName(newName));
-  }
+  public getSocketForNewConnection = (socket: Socket): Socket => {
+    if (socket.isInput()) {
+      return super.getSocketForNewConnection(socket);
+    } else {
+      console.log('bruda');
+      const newSocket = new Socket(
+        SOCKET_TYPE.IN,
+        this.getNewInputSocketName(socket.name),
+        socket.dataType,
+      );
+      this.addSocket(newSocket);
+      this.resizeAndDraw();
+      return newSocket;
+    }
+  };
 
   public async inputUnplugged(): Promise<void> {
-    this.setInputData(anyCodeName, this.recalculateInputs());
+    // remove all input sockets without connections
+    const toRemove = this.getAllUserInterestingInputSockets().filter(
+      (socket) => !socket.links.length,
+    );
+    toRemove.forEach((socket) => this.removeSocket(socket));
     await this.executeOptimizedChain();
-    //this.adaptInputs(this.getInputData(anyCodeName));
-    // override if you care about this event
+    super.inputUnplugged();
   }
   protected showModifiedBanner(): boolean {
     return false;

@@ -80,9 +80,9 @@ export default class PPNode extends PIXI.Container {
   successfullyExecuted = true;
   lastError = '';
 
-  inputSocketArray: Socket[];
-  nodeTriggerSocketArray: Socket[];
-  outputSocketArray: Socket[];
+  inputSocketArray: Socket[] = [];
+  nodeTriggerSocketArray: Socket[] = [];
+  outputSocketArray: Socket[] = [];
 
   _doubleClicked: boolean;
   isDraggingNode: boolean;
@@ -558,8 +558,8 @@ export default class PPNode extends PIXI.Container {
   }
 
   // check out for example customfunction to see the point of this
-  public getAllCustomInputSockets(): Socket[] {
-    return this.getAllInputSockets();
+  public getAllUserInterestingInputSockets(): Socket[] {
+    return this.getAllInputSockets().filter(socket => socket.name != 'Meta');
   }
 
   public getAllInputSockets(): Socket[] {
@@ -1108,8 +1108,66 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     return newParamName;
   }
 
+  public getSocketForNewConnection(socket: Socket): Socket {
+  const socketArray = socket.isInput()
+    ? this.outputSocketArray
+    : this.inputSocketArray;
+  if (socketArray.length > 0) {
+    const getSocket = (
+      condition,
+      onlyFreeSocket,
+      onlyVisibleSocket = true,
+    ): Socket => {
+      return socketArray.find((socketInArray) => {
+        return (
+          (!onlyVisibleSocket || socketInArray.visible) &&
+          condition(socketInArray) &&
+          (!onlyFreeSocket || !socketInArray.hasLink())
+        );
+      });
+    };
+
+    const preferredCondition = (socketInArray): boolean => {
+      const preferredSocketName = socketInArray.isInput()
+        ? this.getPreferredInputSocketName()
+        : this.getPreferredOutputSocketName();
+      return socketInArray.name === preferredSocketName;
+    };
+
+    const exactMatchCondition = (socketInArray): boolean => {
+      return socketInArray.dataType.constructor === socket.dataType.constructor;
+    };
+
+    const anyTypeCondition = (socketInArray): boolean => {
+      return socketInArray.dataType.constructor === new AnyType().constructor;
+    };
+
+    const anyCondition = (): boolean => {
+      return true;
+    };
+
+    return (
+      getSocket(preferredCondition, true, false) ?? // get preferred with no link
+      getSocket(exactMatchCondition, true) ?? // get exact match with no link
+      getSocket(anyTypeCondition, true) ?? // get anyType with no link
+      getSocket(anyCondition, true) ?? // get any with no link
+      // no match free and visible
+      getSocket(preferredCondition, false, false) ??
+      getSocket(exactMatchCondition, false) ??
+      getSocket(anyTypeCondition, false) ??
+      getSocket(anyCondition, false) ??
+      // no match linked and visible
+      getSocket(exactMatchCondition, false, false) ??
+      getSocket(anyTypeCondition, false, false) ??
+      getSocket(anyCondition, false, false)
+    );
+  }
+  // node does not have an in/output socket
+  return undefined;
+};
+
   protected async mouseReleasedOverWithSourceSocketSelected(source: Socket) : Promise<void>{
-    connectNodeToSocket(source, this);
+    await connectNodeToSocket(source, this);
   }
 
   onPointerUp(event: PIXI.FederatedPointerEvent): void {
@@ -1216,7 +1274,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     this.updateConnectionPosition();
   }
 
-  // dont call this from outside, just override it in child class
+  // This is the main one you'll want to override this in child classes
   protected async onExecute(input, output): Promise<void> {
     // just define function
   }

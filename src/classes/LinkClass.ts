@@ -83,7 +83,7 @@ export default class PPLink extends PIXI.Container {
   async delete(skipExecute = false): Promise<void> {
     if (this.getTarget()) {
       this.getTarget().removeLink(this);
-      if (!skipExecute) {
+      if (!skipExecute && this.getTarget().getNode().updateBehaviour.update) {
         await this.getTarget().getNode()?.executeOptimizedChain();
       }
     }
