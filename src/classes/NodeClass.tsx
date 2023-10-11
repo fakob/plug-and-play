@@ -590,9 +590,17 @@ export default class PPNode extends PIXI.Container {
   }
 
   getInputOrTriggerSocketByName(slotName: string): Socket {
-    return this.getAllInputSockets()[
-      this.getAllInputSockets().findIndex((el) => el.name === slotName)
-    ];
+    const found = this.getAllInputSockets().find(el => el.name === slotName);
+    if (found === undefined){
+      // create new socket for this ask, maybe this is a bit ugly
+      console.log("creating new socket because someone is trying to get a socket that didnt exist: " + slotName);
+      const newSocket = new Socket(SOCKET_TYPE.IN, slotName, new AnyType());
+      this.addSocket(newSocket);
+      this.resizeAndDraw();
+      return newSocket;
+    } else {
+      return found;
+    }
   }
 
   getOutputSocketByName(slotName: string): Socket {
