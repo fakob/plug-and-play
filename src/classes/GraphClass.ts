@@ -289,10 +289,13 @@ export default class PPGraph {
   }
 
   socketHoverOut(socket: PPSocket): void {
-    this.overInputRef = null;
+    if (socket == this.overInputRef) this.overInputRef = null;
   }
 
-  socketMouseDown(socket: PPSocket, event: PIXI.FederatedPointerEvent): void {
+  async socketMouseDown(
+    socket: PPSocket,
+    event: PIXI.FederatedPointerEvent,
+  ): Promise<void> {
     const overOutput = socket.isOutput();
     this.lastSelectedSocketWasInput = overOutput;
     if (overOutput) {
@@ -302,9 +305,10 @@ export default class PPGraph {
       const hasLink = socket.links.length > 0;
       if (hasLink) {
         this.selectedSourceSocket = socket.links[0].getSource();
-        socket.links.forEach((link) => this.action_Disconnect(link));
+        await Promise.all(
+          socket.links.map(async (link) => await this.action_Disconnect(link)),
+        );
         this.onViewportMove(event);
-        this.selectedSourceSocket.getNode().outputUnplugged();
       } else {
         this.selectedSourceSocket = socket;
       }
@@ -581,10 +585,20 @@ export default class PPGraph {
     );
   }
 
-  async linkDisconnect(targetNodeID, inputSocketName) {
-    this.nodes[targetNodeID]
-      .getInputOrTriggerSocketByName(inputSocketName)
-      .links[0].delete();
+  async linkDisconnect(
+    targetNodeID: string,
+    inputSocketName: string,
+    notify: boolean,
+  ) {
+    const socket =
+      this.nodes[targetNodeID].getInputOrTriggerSocketByName(inputSocketName);
+    const link = socket.links[0];
+    const sourceNodeID = link.getSource().getNode().id;
+    await link.delete();
+    if (notify) {
+      await this.nodes[targetNodeID].inputUnplugged();
+      await this.nodes[sourceNodeID].outputUnplugged();
+    }
   }
 
   // gets connect and unconnect actions for specified hypothetic link, based on node ID and socket name in order to be generic actions not reference-based
@@ -593,7 +607,6 @@ export default class PPGraph {
     preSourceNodeID: string,
     preTargetName: string,
     preTargetNodeID: string,
-    notify = false,
   ): any {
     const action: Action = async () => {
       await this.linkConnect(
@@ -601,11 +614,11 @@ export default class PPGraph {
         preSourceName,
         preTargetNodeID,
         preTargetName,
-        notify,
+        true,
       );
     };
     const undoAction: Action = async () => {
-      await this.linkDisconnect(preTargetNodeID, preTargetName);
+      await this.linkDisconnect(preTargetNodeID, preTargetName, true);
     };
     return [action, undoAction];
   }
@@ -628,7 +641,7 @@ export default class PPGraph {
     );
   }
 
-  async action_Connect(output: PPSocket, input: PPSocket, notify = true) {
+  async action_Connect(output: PPSocket, input: PPSocket) {
     const preSourceName = output.name;
     const preSourceNodeID = output.getNode().id;
     const preTargetName = input.name;
@@ -639,7 +652,6 @@ export default class PPGraph {
       preSourceNodeID,
       preTargetName,
       preTargetNodeID,
-      notify,
     );
 
     await ActionHandler.performAction(actions[0], actions[1], 'Connect nodes');
@@ -651,7 +663,7 @@ export default class PPGraph {
     notify = true,
   ): Promise<PPLink> {
     // remove all input links from before on this socket
-    input.links.forEach((link) => link.delete(true));
+    await Promise.all(input.links.map(async (link) => await link.delete(true)));
 
     // force connected sockets to be visible
     if (!input.visible) {
@@ -679,7 +691,8 @@ export default class PPGraph {
 
     // send notification pulse
     if (notify) {
-      link.getSource().getNode().outputPlugged();
+      await link.getSource().getNode().outputPlugged();
+      await link.getTarget().getNode().inputPlugged();
       await link.getTarget().getNode().executeOptimizedChain();
     }
 

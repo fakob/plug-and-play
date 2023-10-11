@@ -80,11 +80,11 @@ export default class PPLink extends PIXI.Container {
   }
 
   // if there is a new connection pending, don't execute inbetween, wait until new connection to execute
-  delete(skipExecute = false): void {
+  async delete(skipExecute = false): Promise<void> {
     if (this.getTarget()) {
       this.getTarget().removeLink(this);
-      if (!skipExecute) {
-        this.getTarget().getNode()?.executeOptimizedChain();
+      if (!skipExecute && this.getTarget().getNode().updateBehaviour.update) {
+        await this.getTarget().getNode()?.executeOptimizedChain();
       }
     }
     this.getSource().removeLink(this);
@@ -102,7 +102,7 @@ export default class PPLink extends PIXI.Container {
 
   _drawConnection(
     connection: PIXI.Graphics,
-    color = this.source.dataType.getColor().multiply(0.9)
+    color = this.source.dataType.getColor().multiply(0.9),
   ): void {
     const sourcePoint = PPGraph.currentGraph.getSocketCenter(this.source);
     const targetPoint = PPGraph.currentGraph.getSocketCenter(this.target);

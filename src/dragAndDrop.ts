@@ -19,7 +19,7 @@ export const dragAndDrop = (acceptedFiles, fileRejections, event) => {
 
   const dropPoint = PPGraph.currentGraph.viewport.toWorld(
     // no event exists in case graph gets loaded from file
-    new PIXI.Point(event?.clientX ?? 0, event?.clientY ?? 0)
+    new PIXI.Point(event?.clientX ?? 0, event?.clientY ?? 0),
   );
 
   let nodePosX = dropPoint.x;
@@ -48,7 +48,7 @@ export const dragAndDrop = (acceptedFiles, fileRejections, event) => {
           data = await response.text();
           await PPStorage.getInstance().loadGraphFromData(
             JSON.parse(data),
-            preExtension
+            preExtension,
           );
           break;
         case 'csv':
@@ -127,7 +127,7 @@ export const dragAndDrop = (acceptedFiles, fileRejections, event) => {
             localResourceId,
             file.size,
             data,
-            file.path
+            file.path,
           );
           if (
             PPGraph.currentGraph.selection.selectedNodes?.[index]?.type ===
@@ -160,7 +160,7 @@ export const dragAndDrop = (acceptedFiles, fileRejections, event) => {
             localResourceId,
             file.size,
             data,
-            file.path
+            file.path,
           );
           if (
             PPGraph.currentGraph.selection.selectedNodes?.[index]?.type ===
@@ -201,7 +201,7 @@ export const dragAndDrop = (acceptedFiles, fileRejections, event) => {
       InterfaceController.showSnackBar(
         `${newNodeSelection.length} new ${
           newNodeSelection.length === 1 ? 'node was' : 'nodes were'
-        } added`
+        } added`,
       );
     }
   })();

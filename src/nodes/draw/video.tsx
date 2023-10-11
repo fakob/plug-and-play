@@ -27,7 +27,7 @@ import { BooleanType } from '../datatypes/booleanType';
 import { NumberType } from '../datatypes/numberType';
 
 function CircularProgressWithLabel(
-  props: CircularProgressProps & { value: number }
+  props: CircularProgressProps & { value: number },
 ) {
   return (
     <Box sx={{ position: 'relative', display: 'inline-flex' }}>
@@ -112,105 +112,105 @@ export class Video extends HybridNode2 {
         inputResourceIdSocketName,
         new StringType(),
         '',
-        false
+        false,
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
         inputFileNameSocketName,
         new StringType(),
         '',
-        false
+        false,
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
         playSocketName,
         new BooleanType(),
         true,
-        false
+        false,
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
         loopSocketName,
         new BooleanType(),
         true,
-        false
+        false,
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
         speedSocketName,
         new NumberType(false, 0, 10),
         1.0,
-        false
+        false,
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
         muteSocketName,
         new BooleanType(),
         false,
-        false
+        false,
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
         volumeSocketName,
         new NumberType(false, 0, 1),
         1.0,
-        false
+        false,
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
         posTimeSocketName,
         new NumberType(),
         undefined,
-        false
+        false,
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
         posPercSocketName,
         new NumberType(false, 0, 100),
         undefined,
-        false
+        false,
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
         transcodeSocketName,
         new TriggerType(TRIGGER_TYPE_OPTIONS[0].text, 'transcode'),
         0,
-        false
+        false,
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
         getFrameSocketName,
         new TriggerType(TRIGGER_TYPE_OPTIONS[0].text, 'getFrame'),
         0,
-        true
+        true,
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
         getFramesIntervalSocketName,
         new TriggerType(TRIGGER_TYPE_OPTIONS[0].text, 'getFramesInterval'),
         0,
-        false
+        false,
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
         intervalSocketName,
         new NumberType(false, 1, 100),
         10,
-        false
+        false,
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
         getFramesCountSocketName,
         new TriggerType(TRIGGER_TYPE_OPTIONS[0].text, 'getFramesCount'),
         0,
-        false
+        false,
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
         countSocketName,
         new NumberType(false, 1, 100),
         10,
-        false
+        false,
       ),
       new PPSocket(SOCKET_TYPE.OUT, outputSocketName, new ImageType()),
       new PPSocket(
@@ -218,7 +218,7 @@ export class Video extends HybridNode2 {
         outputArraySocketName,
         new ArrayType(),
         [],
-        false
+        false,
       ),
       new PPSocket(SOCKET_TYPE.OUT, outputDetailsSocketName, new JSONType()),
     ];
@@ -244,8 +244,8 @@ export class Video extends HybridNode2 {
     super.onNodeAdded(source);
   };
 
-  onRemoved(): void {
-    super.onRemoved();
+  async onRemoved(): Promise<void> {
+    await super.onRemoved();
     this.worker.terminate();
   }
 
@@ -254,8 +254,8 @@ export class Video extends HybridNode2 {
     this.worker = new Worker(
       new URL(
         /* webpackIgnore: true */ './ffmpeg.worker.js',
-        import.meta.url
-      ).href
+        import.meta.url,
+      ).href,
     );
   }
 
@@ -289,7 +289,7 @@ export class Video extends HybridNode2 {
 
   workerAction = async (type) => {
     const blob = await this.loadResource(
-      this.getInputData(inputResourceIdSocketName)
+      this.getInputData(inputResourceIdSocketName),
     );
     const fileName = this.getInputData(inputFileNameSocketName);
 
@@ -338,7 +338,7 @@ export class Video extends HybridNode2 {
                 localResourceId,
                 size,
                 blob,
-                data.name
+                data.name,
               );
               node.setInputData(inputResourceIdSocketName, localResourceId);
               break;
@@ -391,7 +391,7 @@ export class Video extends HybridNode2 {
 
     const getCanvasAndContext = (): [
       HTMLCanvasElement,
-      CanvasRenderingContext2D
+      CanvasRenderingContext2D,
     ] => {
       const canvas = document.createElement('canvas');
       canvas.width = videoRef.current.videoWidth;
@@ -448,12 +448,12 @@ export class Video extends HybridNode2 {
       // needed in combination with useCallback
       node.eventTarget.addEventListener(
         'getFramesInterval',
-        captureMultipleFramesInterval
+        captureMultipleFramesInterval,
       );
       return () => {
         node.eventTarget.removeEventListener(
           'getFramesInterval',
-          captureMultipleFramesInterval
+          captureMultipleFramesInterval,
         );
       };
     }, [props[intervalSocketName]]);
@@ -466,12 +466,12 @@ export class Video extends HybridNode2 {
       // needed in combination with useCallback
       node.eventTarget.addEventListener(
         'getFramesCount',
-        captureMultipleFramesCount
+        captureMultipleFramesCount,
       );
       return () => {
         node.eventTarget.removeEventListener(
           'getFramesCount',
-          captureMultipleFramesCount
+          captureMultipleFramesCount,
         );
       };
     }, [props[countSocketName]]);
@@ -594,7 +594,7 @@ export class Video extends HybridNode2 {
                     PPGraph.currentGraph.selection.selectNodes(
                       [node],
                       false,
-                      true
+                      true,
                     );
                     InterfaceController.onOpenFileBrowser();
                   }}

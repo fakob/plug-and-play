@@ -212,11 +212,11 @@ export class WidgetButton extends WidgetBase {
     this._refLabel.text = text;
   };
 
-  public outputPlugged(): void {
+  public async outputPlugged(): Promise<void> {
     const dataToUpdate =
       this.getSocketByName(outName).links[0].getTarget().name;
     updateDataIfDefault(this, labelName, buttonDefaultName, dataToUpdate);
-    super.outputPlugged();
+    await super.outputPlugged();
   }
 }
 
@@ -387,7 +387,7 @@ export class WidgetRadio extends WidgetBase {
     return true;
   }
 
-  public outputPlugged(): void {
+  public async outputPlugged(): Promise<void> {
     const target =
       this.getSocketByName(selectedOptionName).links[0].getTarget();
     const data = new ArrayType().parse(target.defaultData);
@@ -399,7 +399,7 @@ export class WidgetRadio extends WidgetBase {
       this.setInputData(optionsName, data);
       this.executeOptimizedChain();
     }
-    super.outputPlugged();
+    await super.outputPlugged();
   }
 }
 
@@ -442,7 +442,7 @@ export class WidgetColorPicker extends WidgetHybridBase {
     return 104;
   }
 
-  public outputPlugged(): void {
+  public async outputPlugged(): Promise<void> {
     const target = this.getSocketByName(outName).links[0].getTarget();
     const data: TRgba = new ColorType().parse(target.defaultData);
     if (
@@ -454,7 +454,7 @@ export class WidgetColorPicker extends WidgetHybridBase {
       this.setInputData(labelName, target.name);
       this.executeOptimizedChain();
     }
-    super.outputPlugged();
+    await super.outputPlugged();
   }
 
   setFinalColor: any = () => {};
@@ -625,7 +625,7 @@ export class WidgetSwitch extends WidgetHybridBase {
     return 104;
   }
 
-  public outputPlugged(): void {
+  public async outputPlugged(): Promise<void> {
     const target = this.getSocketByName(outName).links[0].getTarget();
     if (
       switchDefaultName === this.getInputData(labelName) &&
@@ -635,7 +635,7 @@ export class WidgetSwitch extends WidgetHybridBase {
       this.setInputData(labelName, target.name);
       this.executeOptimizedChain();
     }
-    super.outputPlugged();
+    await super.outputPlugged();
   }
 
   // kept here to be accessed by redo undo
@@ -915,7 +915,7 @@ export class WidgetSlider extends WidgetBase {
     this.setOutputDataAndText(limitRange(value, minValue, maxValue));
   };
 
-  public outputPlugged(): void {
+  public async outputPlugged(): Promise<void> {
     const target = this.getSocketByName(outName).links[0].getTarget();
     if (
       target.dataType.constructor === new NumberType().constructor &&
@@ -929,7 +929,7 @@ export class WidgetSlider extends WidgetBase {
       this.setInputData(labelName, target.name);
       this.executeOptimizedChain();
     }
-    super.outputPlugged();
+    await super.outputPlugged();
   }
 }
 
@@ -984,7 +984,7 @@ export class WidgetDropdown extends WidgetHybridBase {
     return 104;
   }
 
-  public outputPlugged(): void {
+  public async outputPlugged(): Promise<void> {
     const target = this.getSocketByName(outName).links[0].getTarget();
     const data = new ArrayType().parse(target.defaultData);
     if (
@@ -996,7 +996,7 @@ export class WidgetDropdown extends WidgetHybridBase {
       this.setInputData(labelName, target.name);
       this.executeOptimizedChain();
     }
-    super.outputPlugged();
+    await super.outputPlugged();
   }
 
   setSelectedOption: any = () => {};

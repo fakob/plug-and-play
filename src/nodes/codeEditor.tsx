@@ -44,14 +44,14 @@ export class CodeEditor extends HybridNode2 {
         outputSocketName,
         new CodeType(),
         undefined,
-        true
+        true,
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
         inputSocketName,
         new CodeType(),
         codeDefaultData,
-        true
+        true,
       ),
     ];
   }
@@ -76,11 +76,11 @@ export class CodeEditor extends HybridNode2 {
     return 300;
   }
 
-  public outputPlugged(): void {
+  public async outputPlugged(): Promise<void> {
     const dataToUpdate =
       this.getSocketByName(outputSocketName).links[0].getTarget().defaultData;
     updateDataIfDefault(this, inputSocketName, codeDefaultData, dataToUpdate);
-    super.outputPlugged();
+    await super.outputPlugged();
   }
 
   protected getParentComponent(props: any) {
@@ -107,7 +107,7 @@ export class CodeEditor extends HybridNode2 {
       downloadFile(
         codeString,
         `${node.name} - ${formatDate()}.txt`,
-        'text/plain'
+        'text/plain',
       );
     };
 
@@ -118,11 +118,11 @@ export class CodeEditor extends HybridNode2 {
     }, [props[inputSocketName]]);
 
     const [codeString, setCodeString] = useState<string | undefined>(
-      parseData(props[inputSocketName])
+      parseData(props[inputSocketName]),
     );
 
     const [readOnly, setReadOnly] = useState<boolean>(
-      node.getInputSocketByName(inputSocketName).hasLink()
+      node.getInputSocketByName(inputSocketName).hasLink(),
     );
 
     useEffect(() => {

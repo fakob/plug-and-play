@@ -80,9 +80,9 @@ export default class PPNode extends PIXI.Container {
   successfullyExecuted = true;
   lastError = '';
 
-  inputSocketArray: Socket[];
-  nodeTriggerSocketArray: Socket[];
-  outputSocketArray: Socket[];
+  inputSocketArray: Socket[] = [];
+  nodeTriggerSocketArray: Socket[] = [];
+  outputSocketArray: Socket[] = [];
 
   _doubleClicked: boolean;
   isDraggingNode: boolean;
@@ -557,6 +557,11 @@ export default class PPNode extends PIXI.Container {
     this.resizeAndDraw(this.getDefaultNodeWidth(), this.getDefaultNodeHeight());
   }
 
+  // check out for example customfunction to see the point of this
+  public getAllUserInterestingInputSockets(): Socket[] {
+    return this.getAllInputSockets().filter(socket => socket.name != 'Meta');
+  }
+
   public getAllInputSockets(): Socket[] {
     return this.inputSocketArray.concat(this.nodeTriggerSocketArray);
   }
@@ -585,9 +590,17 @@ export default class PPNode extends PIXI.Container {
   }
 
   getInputOrTriggerSocketByName(slotName: string): Socket {
-    return this.getAllInputSockets()[
-      this.getAllInputSockets().findIndex((el) => el.name === slotName)
-    ];
+    const found = this.getAllInputSockets().find(el => el.name === slotName);
+    if (found === undefined){
+      // create new socket for this ask, maybe this is a bit ugly
+      console.log("creating new socket because someone is trying to get a socket that didnt exist: " + slotName);
+      const newSocket = new Socket(SOCKET_TYPE.IN, slotName, new AnyType());
+      this.addSocket(newSocket);
+      this.resizeAndDraw();
+      return newSocket;
+    } else {
+      return found;
+    }
   }
 
   getOutputSocketByName(slotName: string): Socket {
@@ -1091,11 +1104,85 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     }
   }
 
+  protected getNewInputSocketName(preferredName: string): string {
+    const existing = this.getAllInputSockets();
+    let newParamName = preferredName;
+    let count: number = 2;
+    // find a new param name that is unique
+    while (existing.find((param) => param.name === newParamName)) {
+      newParamName = preferredName + '_' + count;
+      count += 1;
+    }
+    return newParamName;
+  }
+
+  public getSocketForNewConnection(socket: Socket): Socket {
+  const socketArray = socket.isInput()
+    ? this.outputSocketArray
+    : this.inputSocketArray;
+  if (socketArray.length > 0) {
+    const getSocket = (
+      condition,
+      onlyFreeSocket,
+      onlyVisibleSocket = true,
+    ): Socket => {
+      return socketArray.find((socketInArray) => {
+        return (
+          (!onlyVisibleSocket || socketInArray.visible) &&
+          condition(socketInArray) &&
+          (!onlyFreeSocket || !socketInArray.hasLink())
+        );
+      });
+    };
+
+    const preferredCondition = (socketInArray): boolean => {
+      const preferredSocketName = socketInArray.isInput()
+        ? this.getPreferredInputSocketName()
+        : this.getPreferredOutputSocketName();
+      return socketInArray.name === preferredSocketName;
+    };
+
+    const exactMatchCondition = (socketInArray): boolean => {
+      return socketInArray.dataType.constructor === socket.dataType.constructor;
+    };
+
+    const anyTypeCondition = (socketInArray): boolean => {
+      return socketInArray.dataType.constructor === new AnyType().constructor;
+    };
+
+    const anyCondition = (): boolean => {
+      return true;
+    };
+
+    return (
+      getSocket(preferredCondition, true, false) ?? // get preferred with no link
+      getSocket(exactMatchCondition, true) ?? // get exact match with no link
+      getSocket(anyTypeCondition, true) ?? // get anyType with no link
+      getSocket(anyCondition, true) ?? // get any with no link
+      // no match free and visible
+      getSocket(preferredCondition, false, false) ??
+      getSocket(exactMatchCondition, false) ??
+      getSocket(anyTypeCondition, false) ??
+      getSocket(anyCondition, false) ??
+      // no match linked and visible
+      getSocket(exactMatchCondition, false, false) ??
+      getSocket(anyTypeCondition, false, false) ??
+      getSocket(anyCondition, false, false)
+    );
+  }
+  // node does not have an in/output socket
+  return undefined;
+};
+
+  protected async mouseReleasedOverWithSourceSocketSelected(source: Socket) : Promise<void>{
+    await connectNodeToSocket(source, this);
+  }
+
   onPointerUp(event: PIXI.FederatedPointerEvent): void {
     const source = PPGraph.currentGraph.selectedSourceSocket;
     if (source && this !== source.getNode()) {
-      PPGraph.currentGraph.selectedSourceSocket = null; // hack
-      connectNodeToSocket(source, this);
+      PPGraph.currentGraph.selectedSourceSocket = null; // hack // ????
+      this.mouseReleasedOverWithSourceSocketSelected(source);
     }
     PPGraph.currentGraph.selection.stopDragAction();
   }
@@ -1111,7 +1198,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     }
   }
 
-  onRemoved(): void {
+  async onRemoved(): Promise<void> {
     // remove added listener from graph.viewport
     PPGraph.currentGraph.viewport.removeEventListener(
       'moved',
@@ -1119,9 +1206,9 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     );
     this.listenId.forEach((id) => InterfaceController.removeListener(id));
 
-    this.getAllSockets().forEach((socket) => {
-      socket.links.forEach((link) => link.delete());
-    });
+    await Promise.all(this.getAllSockets().map((socket) => {
+      socket.links.forEach(async (link) => await link.delete())
+    }));
 
     this.onNodeRemoved();
   }
@@ -1195,7 +1282,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     this.updateConnectionPosition();
   }
 
-  // dont call this from outside, just override it in child class
+  // This is the main one you'll want to override this in child classes
   protected async onExecute(input, output): Promise<void> {
     // just define function
   }
@@ -1371,10 +1458,17 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   public nameChanged(newName: string): void {
     // override if you care about this event
   }
-  public outputPlugged(): void {
+  public async inputPlugged(): Promise<void> {
     // override if you care about this event
   }
-  public outputUnplugged(): void {
+
+  public async inputUnplugged(): Promise<void> {
+    // override if you care about this event
+  }
+  public async outputPlugged(): Promise<void> {
+    // override if you care about this event
+  }
+  public async outputUnplugged(): Promise<void> {
     // override if you care about this event
   }
   public nodeKeyEvent(e: KeyboardEvent): void {

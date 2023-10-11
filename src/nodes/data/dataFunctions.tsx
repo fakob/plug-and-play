@@ -12,6 +12,7 @@ import { CodeType } from '../datatypes/codeType';
 import { JSONType } from '../datatypes/jsonType';
 import { NumberType } from '../datatypes/numberType';
 import * as PIXI from 'pixi.js';
+import PPGraph from '../../classes/GraphClass';
 
 const arrayName = 'Array';
 const typeName = 'Type';
@@ -142,7 +143,7 @@ export class Constant extends PPNode {
     return true;
   }
 
-  public outputPlugged(): void {
+  public async outputPlugged(): Promise<void> {
     const dataToUpdate =
       this.getSocketByName(constantOutName).links[0].getTarget().defaultData;
     updateDataIfDefault(
@@ -151,7 +152,7 @@ export class Constant extends PPNode {
       constantDefaultData,
       dataToUpdate,
     );
-    super.outputPlugged();
+    await super.outputPlugged();
   }
 }
 
@@ -293,6 +294,11 @@ export class CustomFunction extends PPNode {
   protected getOutputCodeVisibleByDefault(): boolean {
     return false;
   }
+  public getAllUserInterestingInputSockets(): Socket[] {
+    return this.getAllInputSockets().filter(
+      (socket) => socket.name !== anyCodeName,
+    );
+  }
 
   protected getDefaultFunction(): string {
     return '//define your function here, node will adapt to inputs automatically\n(a) => {\n\treturn a;\n}';
@@ -341,6 +347,10 @@ export class CustomFunction extends PPNode {
     return inCode;
   }
 
+  protected showModifiedBanner(): boolean {
+    return true;
+  }
+
   protected async onExecute(
     inputObject: any,
     outputObject: Record<string, unknown>,
@@ -371,7 +381,10 @@ export class CustomFunction extends PPNode {
     const node = this;
 
     this.statuses = [];
-    if (this.getDefaultFunction() !== inputObject['Code']) {
+    if (
+      this.showModifiedBanner() &&
+      this.getDefaultFunction() !== inputObject['Code']
+    ) {
       this.statuses.push({
         color: this.getColor().multiply(0.8),
         statusText: 'Modified',
@@ -386,16 +399,12 @@ export class CustomFunction extends PPNode {
   }
 
   // returns true if there was a change
-  private adaptInputs(code: string): boolean {
+  protected adaptInputs(code: string): boolean {
     const codeArguments = getArgumentsFromFunction(code);
     // remove all non existing arguments and add all missing (based on the definition we just got)
-    const currentInputSockets = this.getDataSockets().filter(
-      (socket) => socket.socketType === SOCKET_TYPE.IN,
-    );
+    const currentInputSockets = this.getAllUserInterestingInputSockets();
     const socketsToBeRemoved = currentInputSockets.filter(
-      (socket) =>
-        !codeArguments.some((argument) => socket.name === argument) &&
-        socket.name !== anyCodeName,
+      (socket) => !codeArguments.some((argument) => socket.name === argument),
     );
     const argumentsToBeAdded = codeArguments.filter(
       (argument) =>
@@ -553,17 +562,52 @@ export class ArraySlice extends ArrayFunction {
   }
 }
 
-export class ArrayCreate extends ArrayFunction {
+export class ArrayCreate extends PPNode {
   public getName(): string {
     return 'Create array';
   }
 
   public getDescription(): string {
-    return 'Creates an array from a single value';
+    return 'Creates an array from selected values';
   }
 
-  protected getDefaultFunction(): string {
-    return '(Element) => {\n\treturn [Element];\n}';
+  protected getDefaultIO(): Socket[] {
+    return [new Socket(SOCKET_TYPE.OUT, arrayName, new ArrayType(), [])];
+  }
+
+  protected async onExecute(input, output): Promise<void> {
+    output[arrayName] = this.getAllUserInterestingInputSockets().map(
+      (socket) => socket.data,
+    );
+  }
+
+  public getSocketForNewConnection = (socket: Socket): Socket => {
+    if (socket.isInput()) {
+      return super.getSocketForNewConnection(socket);
+    } else {
+      console.log('bruda');
+      const newSocket = new Socket(
+        SOCKET_TYPE.IN,
+        this.getNewInputSocketName(socket.name),
+        socket.dataType,
+      );
+      this.addSocket(newSocket);
+      this.resizeAndDraw();
+      return newSocket;
+    }
+  };
+
+  public async inputUnplugged(): Promise<void> {
+    // remove all input sockets without connections
+    const toRemove = this.getAllUserInterestingInputSockets().filter(
+      (socket) => !socket.links.length,
+    );
+    toRemove.forEach((socket) => this.removeSocket(socket));
+    await this.executeOptimizedChain();
+    super.inputUnplugged();
+  }
+  protected showModifiedBanner(): boolean {
+    return false;
   }
 }
 
