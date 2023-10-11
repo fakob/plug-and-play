@@ -585,7 +585,6 @@ export class ArrayCreate extends PPNode {
     if (socket.isInput()) {
       return super.getSocketForNewConnection(socket);
     } else {
-      console.log('bruda');
       const newSocket = new Socket(
         SOCKET_TYPE.IN,
         this.getNewInputSocketName(socket.name),
