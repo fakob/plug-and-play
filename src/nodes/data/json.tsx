@@ -12,6 +12,7 @@ import { StringType } from '../datatypes/stringType';
 import { dataToType } from '../datatypes/typehelper';
 import { CustomFunction } from './dataFunctions';
 import { BooleanType } from '../datatypes/booleanType';
+import { DynamicInputNode } from '../abstract/DynamicInputNode';
 
 const JSONName = 'JSON';
 const lockOutputsName = "Lock Outputs";
@@ -253,9 +254,13 @@ export class Break extends PPNode {
 }
 
 
-export class Make extends CustomFunction {
+export class Make extends DynamicInputNode {
   public getName(): string {
     return 'Make JSON';
+  }
+
+  protected getDefaultIO(): Socket[] {
+    return [new Socket(SOCKET_TYPE.OUT, JSONName, new JSONType())];
   }
 
   public getDescription(): string {
@@ -266,9 +271,7 @@ export class Make extends CustomFunction {
     return ['JSON'].concat(super.getTags());
   }
 
-
-  protected getDefaultFunction(): string {
-    return '(a) => {\n\treturn {a};\n}';
+  protected async onExecute(input, output): Promise<void> {
+    output[JSONName] = this.getAllUserInterestingInputSockets().map(socket => ({ [socket.name]: socket.data }));
   }
-
 }

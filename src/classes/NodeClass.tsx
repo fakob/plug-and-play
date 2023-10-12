@@ -1104,7 +1104,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     }
   }
 
-  protected getNewInputSocketName(preferredName: string): string {
+  public getNewInputSocketName(preferredName: string): string {
     const existing = this.getAllInputSockets();
     let newParamName = preferredName;
     let count: number = 2;

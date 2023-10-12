@@ -13,6 +13,7 @@ import { JSONType } from '../datatypes/jsonType';
 import { NumberType } from '../datatypes/numberType';
 import * as PIXI from 'pixi.js';
 import PPGraph from '../../classes/GraphClass';
+import { DynamicInputNode } from '../abstract/DynamicInputNode';
 
 const arrayName = 'Array';
 const typeName = 'Type';
@@ -562,7 +563,7 @@ export class ArraySlice extends ArrayFunction {
   }
 }
 
-export class ArrayCreate extends PPNode {
+export class ArrayCreate extends DynamicInputNode {
   public getName(): string {
     return 'Create array';
   }
@@ -579,34 +580,6 @@ export class ArrayCreate extends PPNode {
     output[arrayName] = this.getAllUserInterestingInputSockets().map(
       (socket) => socket.data,
     );
-  }
-
-  public getSocketForNewConnection = (socket: Socket): Socket => {
-    if (socket.isInput()) {
-      return super.getSocketForNewConnection(socket);
-    } else {
-      const newSocket = new Socket(
-        SOCKET_TYPE.IN,
-        this.getNewInputSocketName(socket.name),
-        socket.dataType,
-      );
-      this.addSocket(newSocket);
-      this.resizeAndDraw();
-      return newSocket;
-    }
-  };
-
-  public async inputUnplugged(): Promise<void> {
-    // remove all input sockets without connections
-    const toRemove = this.getAllUserInterestingInputSockets().filter(
-      (socket) => !socket.links.length,
-    );
-    toRemove.forEach((socket) => this.removeSocket(socket));
-    await this.executeOptimizedChain();
-    super.inputUnplugged();
-  }
-  protected showModifiedBanner(): boolean {
-    return false;
   }
 }
 
