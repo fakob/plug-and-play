@@ -7,7 +7,8 @@ export class DynamicInputNode extends PPNode {
     DynamicInputNodeFunctions.getSocketForNewConnection(socket, this);
 
   public async inputUnplugged() {
-    return DynamicInputNodeFunctions.inputUnplugged(this);
+    await DynamicInputNodeFunctions.inputUnplugged(this);
+    await super.inputUnplugged();
   }
 }
 
@@ -35,6 +36,5 @@ export class DynamicInputNodeFunctions {
       .filter((socket) => !socket.links.length);
     toRemove.forEach((socket) => node.removeSocket(socket));
     await node.executeOptimizedChain();
-    node.inputUnplugged();
   }
 }

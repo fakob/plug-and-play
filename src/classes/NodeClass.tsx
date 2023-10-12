@@ -559,7 +559,9 @@ export default class PPNode extends PIXI.Container {
 
   // check out for example customfunction to see the point of this
   public getAllUserInterestingInputSockets(): Socket[] {
-    return this.getAllInputSockets().filter(socket => socket.name != 'Meta');
+    const defaultIONames = this.getDefaultIO().filter(socket => socket.isInput()).map((socket) => socket.name);
+    return this.getAllInputSockets()
+      .filter((socket) => !defaultIONames.includes(socket.name));
   }
 
   public getAllInputSockets(): Socket[] {

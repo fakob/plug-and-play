@@ -31,6 +31,10 @@ import {
   outputMultiplierPointerDown,
   outputPixiName,
 } from './abstract';
+import {
+  DynamicInputNode,
+  DynamicInputNodeFunctions,
+} from '../abstract/DynamicInputNode';
 
 const availableShapes: EnumStructure = [
   {
@@ -59,8 +63,6 @@ const inputDottedName = 'Dotted';
 const inputDottedIntervalName = 'Dot Interval';
 
 const inputCombineArray = 'GraphicsArray';
-const inputCombine1Name = 'Foreground';
-const inputCombine2Name = 'Background';
 
 const inputTextName = 'Text';
 const inputLineHeightName = 'Line Height';
@@ -323,10 +325,7 @@ export class DRAW_Combine extends DRAW_Base {
   }
 
   protected getDefaultIO(): Socket[] {
-    return [
-      new Socket(SOCKET_TYPE.IN, inputCombine1Name, new DeferredPixiType()),
-      new Socket(SOCKET_TYPE.IN, inputCombine2Name, new DeferredPixiType()),
-    ].concat(super.getDefaultIO());
+    return super.getDefaultIO();
   }
   protected drawOnContainer(
     inputObject: any,
@@ -341,14 +340,23 @@ export class DRAW_Combine extends DRAW_Base {
     };
     const myContainer = new PIXI.Container();
 
-    inputObject[inputCombine2Name](myContainer, executions);
-    inputObject[inputCombine1Name](myContainer, executions);
+    // assume the inputs are all functions named graphics, if not then you dun goofed
+    Object.keys(inputObject)
+      .filter((key) => key.includes(inputGraphicsName))
+      .forEach((key) => inputObject[key](myContainer, executions));
 
     this.positionAndScale(myContainer, inputObject);
 
     myContainer.eventMode = 'dynamic';
 
     container.addChild(myContainer);
+  }
+
+  public getSocketForNewConnection = (socket: Socket): Socket =>
+    DynamicInputNodeFunctions.getSocketForNewConnection(socket, this);
+
+  public async inputUnplugged() {
+    return DynamicInputNodeFunctions.inputUnplugged(this);
   }
 }
 
