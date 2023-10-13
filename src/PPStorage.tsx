@@ -321,12 +321,15 @@ export default class PPStorage {
   }
 
   async renameGraph(graphId: string, newName: string) {
-    await this.db.graphs.update(graphId, { name: newName });
-    InterfaceController.showSnackBar(
-      <span>
-        Name changed to <b>{newName}</b>
-      </span>,
-    );
+    const loadedGraph = await this.getGraphFromDB(graphId);
+    if (loadedGraph.name !== newName) {
+      await this.db.graphs.update(graphId, { name: newName });
+      InterfaceController.showSnackBar(
+        <span>
+          Name changed to <b>{newName}</b>
+        </span>,
+      );
+    }
   }
 
   async saveGraphAction(saveNew = false, newName = undefined) {
