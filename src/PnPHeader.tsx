@@ -8,17 +8,24 @@ import {
   TextField,
 } from '@mui/material';
 import { useTheme } from '@mui/material';
+import TimeAgo from 'javascript-time-ago';
+import en from 'javascript-time-ago/locale/en';
 import PPGraph from './classes/GraphClass';
-import PPStorage from './PPStorage';
+import PPStorage, { checkForUnsavedChanges } from './PPStorage';
 import {
   GraphSearchInput,
   filterOptionsGraph,
   renderGraphItem,
 } from './components/Search';
+import InterfaceController, { ListenEvent } from './InterfaceController';
 import styles from './utils/style.module.css';
 import { IGraphSearch, TRgba } from './utils/interfaces';
 import { PLUGANDPLAY_ICON } from './utils/constants';
-import { useIsSmallScreen } from './utils/utils';
+import { removeExtension, useIsSmallScreen, useStateRef } from './utils/utils';
+
+TimeAgo.addDefaultLocale(en);
+// Create formatter (English).
+const timeAgo = new TimeAgo('en-US');
 
 type PnPHeaderProps = {
   randomMainColor: string;
@@ -26,10 +33,6 @@ type PnPHeaderProps = {
   setContextMenuPosition: React.Dispatch<React.SetStateAction<number[]>>;
   setIsGraphContextMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setShowSharePlayground: React.Dispatch<React.SetStateAction<boolean>>;
-  graphSearchInput: React.MutableRefObject<HTMLInputElement>;
-  graphSearchActiveItem: IGraphSearch;
-  graphSearchItems: IGraphSearch[];
-  handleGraphItemSelect: (event: any, selected: IGraphSearch) => void;
 };
 
 function PnPHeader(props: PnPHeaderProps) {
@@ -39,6 +42,14 @@ function PnPHeader(props: PnPHeaderProps) {
   const textColor = TRgba.fromString(props.randomMainColor)
     .getContrastTextColor()
     .hex();
+  const graphSearchInput = useRef<HTMLInputElement | null>(null);
+  const [isGraphSearchOpen, setIsGraphSearchOpen] = useState(false);
+  const [remoteGraphs, setRemoteGraphs, remoteGraphsRef] = useStateRef([]);
+  const [graphSearchItems, setGraphSearchItems] = useState<
+    IGraphSearch[] | null
+  >([{ id: '', name: '' }]);
+  const [graphSearchActiveItem, setGraphSearchActiveItem] =
+    useState<IGraphSearch | null>(null);
   const textInput = useRef(null);
   const [currentGraphName, setCurrentGraphName] = useState('');
 
@@ -49,6 +60,136 @@ function PnPHeader(props: PnPHeaderProps) {
       currentGraphName,
     );
   };
+
+  const handleGraphItemSelect = (event, selected: IGraphSearch) => {
+    setIsGraphSearchOpen(false);
+    if (!selected) {
+      return;
+    }
+
+    if (selected.isRemote) {
+      const nameOfFileToClone = remoteGraphsRef.current[selected.id];
+      PPStorage.getInstance().cloneRemoteGraph(nameOfFileToClone);
+    } else {
+      if (selected.isNew) {
+        PPGraph.currentGraph.clear();
+        PPStorage.getInstance().saveNewGraph(selected.name);
+        // remove selection flag
+        selected.isNew = undefined;
+      } else {
+        if (checkForUnsavedChanges()) {
+          PPStorage.getInstance().loadGraphFromDB(selected.id);
+        }
+      }
+      setGraphSearchActiveItem(selected);
+    }
+  };
+
+  const updateGraphSearchItems = () => {
+    load();
+
+    async function load() {
+      const remoteGraphSearchItems = remoteGraphsRef.current.map(
+        (graph, index) => {
+          return {
+            id: index,
+            name: removeExtension(graph), // remove .ppgraph extension
+            label: 'remote',
+            isRemote: true,
+          } as IGraphSearch;
+        },
+      );
+      // add remote header entry
+      if (remoteGraphSearchItems.length > 0) {
+        remoteGraphSearchItems.unshift({
+          id: `remote-header`,
+          name: 'Remote playgrounds', // opening a remote playground creates a local copy
+          isDisabled: true,
+        });
+      }
+
+      const graphs: any[] = await PPStorage.getInstance().getGraphs();
+      const newGraphSearchItems = graphs.map((graph) => {
+        return {
+          id: graph.id,
+          name: graph.name,
+          label: `saved ${timeAgo.format(graph.date)}`,
+        } as IGraphSearch;
+      });
+
+      // add local header entry
+      if (graphs.length > 0) {
+        newGraphSearchItems.unshift({
+          id: `local-header`,
+          name: 'Local playgrounds',
+          isDisabled: true,
+        });
+      }
+
+      const allGraphSearchItems = [
+        ...newGraphSearchItems,
+        ...remoteGraphSearchItems,
+      ];
+      setGraphSearchItems(allGraphSearchItems);
+
+      setGraphSearchActiveItem(
+        newGraphSearchItems[PPGraph?.currentGraph?.id] ?? null,
+      );
+    }
+  };
+
+  useEffect(() => {
+    if (graphSearchInput.current != null) {
+      if (isGraphSearchOpen) {
+        graphSearchInput.current.focus();
+      }
+    }
+  }, [isGraphSearchOpen]);
+
+  useEffect(() => {
+    // data has id and name
+    const ids = [];
+    ids.push(
+      InterfaceController.addListener(ListenEvent.GraphChanged, (data: any) => {
+        setGraphSearchActiveItem(data);
+        updateGraphSearchItems();
+      }),
+    );
+
+    const toggleInputValue = (prev) => !prev;
+    InterfaceController.toggleGraphSearchOpen = () =>
+      setIsGraphSearchOpen(toggleInputValue);
+    InterfaceController.setIsGraphSearchOpen = setIsGraphSearchOpen;
+
+    PPStorage.getInstance()
+      .getRemoteGraphsList()
+      .then((arrayOfFileNames) => {
+        console.log(arrayOfFileNames);
+        setRemoteGraphs(
+          arrayOfFileNames.filter((file) => file.endsWith('.ppgraph')),
+        );
+      });
+
+    updateGraphSearchItems();
+
+    return () => {
+      // Passing the same reference
+      graphSearchInput.current.removeEventListener(
+        'focus',
+        updateGraphSearchItems,
+      );
+    };
+  }, []);
+
+  // addEventListener to graphSearchInput
+  useEffect(() => {
+    if (!graphSearchInput?.current) {
+      return;
+    }
+    console.log('add eventlistener to graphSearchInput');
+    graphSearchInput.current.addEventListener('focus', updateGraphSearchItems);
+    // }
+  }, [graphSearchInput?.current]);
 
   useEffect(() => {
     const graphId = PPGraph.currentGraph?.id;
@@ -235,15 +376,15 @@ Click to edit name`}
           clearOnBlur
           // open
           disablePortal
-          defaultValue={props.graphSearchActiveItem}
+          defaultValue={graphSearchActiveItem}
           isOptionEqualToValue={(option, value) => option.name === value.name}
-          value={props.graphSearchActiveItem}
+          value={graphSearchActiveItem}
           getOptionDisabled={(option) => option.isDisabled}
           getOptionLabel={(option) =>
             typeof option === 'string' ? option : option.name
           }
-          options={props.graphSearchItems}
-          onChange={props.handleGraphItemSelect}
+          options={graphSearchItems}
+          onChange={handleGraphItemSelect}
           filterOptions={filterOptionsGraph}
           renderOption={(props, option, state) =>
             renderGraphItem(props, option, state)
@@ -251,7 +392,7 @@ Click to edit name`}
           renderInput={(renderInputProps) => (
             <GraphSearchInput
               {...renderInputProps}
-              inputRef={props.graphSearchInput}
+              inputRef={graphSearchInput}
               randomMainColor={props.randomMainColor}
               setShowSharePlayground={props.setShowSharePlayground}
               isLoggedIn={props.isLoggedIn}

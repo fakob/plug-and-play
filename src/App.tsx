@@ -25,8 +25,6 @@ import { useTheme } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import Color from 'color';
 import { hri } from 'human-readable-ids';
-import TimeAgo from 'javascript-time-ago';
-import en from 'javascript-time-ago/locale/en';
 import {
   NodeSearchInput,
   filterOptionsNode,
@@ -57,17 +55,15 @@ import {
   NODE_SOURCE,
   RANDOMMAINCOLOR,
 } from './utils/constants';
-import { IGraphSearch, INodeSearch } from './utils/interfaces';
+import { INodeSearch } from './utils/interfaces';
 import {
   connectNodeToSocket,
   controlOrMetaKey,
   cutOrCopyClipboard,
   isPhone,
   pasteClipboard,
-  removeExtension,
   removeUrlParameter,
   roundNumber,
-  useStateRef,
 } from './utils/utils';
 import { zoomToFitNodes } from './pixi/utils-pixi';
 import { getAllNodeTypes } from './nodes/allNodes';
@@ -76,13 +72,9 @@ import PPNode from './classes/NodeClass';
 import { InputParser } from './utils/inputParser';
 import { ActionHandler } from './utils/actionHandler';
 import InterfaceController, { ListenEvent } from './InterfaceController';
-import PPStorage, { checkForUnsavedChanges } from './PPStorage';
+import PPStorage from './PPStorage';
 import PPSelection from './classes/SelectionClass';
 import PnPHeader from './PnPHeader';
-
-TimeAgo.addDefaultLocale(en);
-// Create formatter (English).
-const timeAgo = new TimeAgo('en-US');
 
 const randomMainColorLightHex = new PIXI.Color(
   Color(RANDOMMAINCOLOR).mix(Color('white'), 0.9).hex(),
@@ -115,9 +107,7 @@ const App = (): JSX.Element => {
   const pixiContext = useRef<HTMLDivElement | null>(null);
   const viewport = useRef<Viewport | null>(null);
   const overlayCommentContainer = useRef<PIXI.Container | null>(null);
-  const graphSearchInput = useRef<HTMLInputElement | null>(null);
   const nodeSearchInput = useRef<HTMLInputElement | null>(null);
-  const [isGraphSearchOpen, setIsGraphSearchOpen] = useState(false);
   const [isNodeSearchVisible, setIsNodeSearchVisible] = useState(false);
   const [showRightSideDrawer, setShowRightSideDrawer] = useState(false);
   const [showLeftSideDrawer, setShowLeftSideDrawer] = useState(false);
@@ -129,15 +119,9 @@ const App = (): JSX.Element => {
   const [contextMenuPosition, setContextMenuPosition] = useState([0, 0]);
   const [graphToBeModified, setGraphToBeModified] = useState(null); // id and name of graph to edit/delete
   const [showComments, setShowComments] = useState(false);
-  const [remoteGraphs, setRemoteGraphs, remoteGraphsRef] = useStateRef([]);
-  const [graphSearchItems, setGraphSearchItems] = useState<
-    IGraphSearch[] | null
-  >([{ id: '', name: '' }]);
   const [nodeSearchActiveItem, setNodeSearchActiveItem] = useState<
     INodeSearch[]
   >([]);
-  const [graphSearchActiveItem, setGraphSearchActiveItem] =
-    useState<IGraphSearch | null>(null);
 
   // dialogs
   const [showEdit, setShowEdit] = useState(false);
@@ -429,20 +413,8 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
 
     console.log('PPGraph.currentGraph:', PPGraph.currentGraph);
 
-    //updateGraphSearchItems();
-    PPStorage.getInstance()
-      .getRemoteGraphsList()
-      .then((arrayOfFileNames) => {
-        console.log(arrayOfFileNames);
-        setRemoteGraphs(
-          arrayOfFileNames.filter((file) => file.endsWith('.ppgraph')),
-        );
-      });
-
     const toggleInputValue = (prev) => !prev;
 
-    InterfaceController.toggleGraphSearchOpen = () =>
-      setIsGraphSearchOpen(toggleInputValue);
     InterfaceController.toggleShowEdit = () => setShowEdit(toggleInputValue);
     InterfaceController.toggleRightSideDrawer = () =>
       setShowRightSideDrawer(toggleInputValue);
@@ -452,7 +424,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       setShowComments(toggleInputValue);
 
     InterfaceController.openNodeSearch = openNodeSearch;
-    InterfaceController.setIsGraphSearchOpen = setIsGraphSearchOpen;
     InterfaceController.setIsNodeSearchVisible = setIsNodeSearchVisible;
     InterfaceController.setIsGraphContextMenuOpen = setIsGraphContextMenuOpen;
     InterfaceController.setIsNodeContextMenuOpen = setIsNodeContextMenuOpen;
@@ -487,16 +458,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     });
 
     window.dispatchEvent(new Event('pointermove')); // to initialise event values
-
-    updateGraphSearchItems();
-
-    return () => {
-      // Passing the same reference
-      graphSearchInput.current.removeEventListener(
-        'focus',
-        updateGraphSearchItems,
-      );
-    };
   }, []);
 
   useEffect(() => {
@@ -508,8 +469,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     ids.push(
       InterfaceController.addListener(ListenEvent.GraphChanged, (data: any) => {
         setGraphToBeModified(data);
-        setGraphSearchActiveItem(data);
-        updateGraphSearchItems();
       }),
     );
 
@@ -568,24 +527,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     };
   }, []);
 
-  // addEventListener to graphSearchInput
-  useEffect(() => {
-    if (!graphSearchInput?.current) {
-      return;
-    }
-    console.log('add eventlistener to graphSearchInput');
-    graphSearchInput.current.addEventListener('focus', updateGraphSearchItems);
-    // }
-  }, [graphSearchInput?.current]);
-
-  useEffect(() => {
-    if (graphSearchInput.current != null) {
-      if (isGraphSearchOpen) {
-        graphSearchInput.current.focus();
-      }
-    }
-  }, [isGraphSearchOpen]);
-
   useEffect(() => {
     if (!nodeSearchInput?.current) {
       return;
@@ -618,31 +559,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
   function uploadGraph() {
     open();
   }
-
-  const handleGraphItemSelect = (event, selected: IGraphSearch) => {
-    console.log(selected);
-    setIsGraphSearchOpen(false);
-    if (!selected) {
-      return;
-    }
-
-    if (selected.isRemote) {
-      const nameOfFileToClone = remoteGraphsRef.current[selected.id];
-      PPStorage.getInstance().cloneRemoteGraph(nameOfFileToClone);
-    } else {
-      if (selected.isNew) {
-        PPGraph.currentGraph.clear();
-        PPStorage.getInstance().saveNewGraph(selected.name);
-        // remove selection flag
-        selected.isNew = undefined;
-      } else {
-        if (checkForUnsavedChanges()) {
-          PPStorage.getInstance().loadGraphFromDB(selected.id);
-        }
-      }
-      setGraphSearchActiveItem(selected);
-    }
-  };
 
   const action_AddOrReplaceNode = async (event, selected: INodeSearch) => {
     if (selected) {
@@ -786,59 +702,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     );
   };
 
-  const updateGraphSearchItems = () => {
-    load();
-
-    async function load() {
-      const remoteGraphSearchItems = remoteGraphsRef.current.map(
-        (graph, index) => {
-          return {
-            id: index,
-            name: removeExtension(graph), // remove .ppgraph extension
-            label: 'remote',
-            isRemote: true,
-          } as IGraphSearch;
-        },
-      );
-      // add remote header entry
-      if (remoteGraphSearchItems.length > 0) {
-        remoteGraphSearchItems.unshift({
-          id: `remote-header`,
-          name: 'Remote playgrounds', // opening a remote playground creates a local copy
-          isDisabled: true,
-        });
-      }
-
-      const graphs: any[] = await PPStorage.getInstance().getGraphs();
-      const newGraphSearchItems = graphs.map((graph) => {
-        return {
-          id: graph.id,
-          name: graph.name,
-          label: `saved ${timeAgo.format(graph.date)}`,
-        } as IGraphSearch;
-      });
-
-      // add local header entry
-      if (graphs.length > 0) {
-        newGraphSearchItems.unshift({
-          id: `local-header`,
-          name: 'Local playgrounds',
-          isDisabled: true,
-        });
-      }
-
-      const allGraphSearchItems = [
-        ...newGraphSearchItems,
-        ...remoteGraphSearchItems,
-      ];
-      setGraphSearchItems(allGraphSearchItems);
-
-      setGraphSearchActiveItem(
-        newGraphSearchItems[PPGraph?.currentGraph?.id] ?? null,
-      );
-    }
-  };
-
   const submitEditDialog = (): void => {
     const name = (
       document.getElementById('playground-name-input') as HTMLInputElement
@@ -855,7 +718,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           setIsGraphContextMenuOpen(false);
           setIsNodeContextMenuOpen(false);
           setIsSocketContextMenuOpen(false);
-          setIsGraphSearchOpen(false);
         }}
         style={{
           overflow: 'hidden',
@@ -888,6 +750,11 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
             aria-describedby="alert-dialog-description"
             fullWidth
             maxWidth="sm"
+            sx={{
+              '& .MuiDialog-paper': {
+                bgcolor: 'background.default',
+              },
+            }}
           >
             <DialogTitle id="alert-dialog-title">{'Delete Graph?'}</DialogTitle>
             <DialogContent>
@@ -907,7 +774,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
                   const deletedGraphID = PPStorage.getInstance().deleteGraph(
                     graphToBeModified.id,
                   );
-                  updateGraphSearchItems();
                   if (graphToBeModified.id == deletedGraphID) {
                     PPStorage.getInstance().loadGraphFromDB();
                   }
@@ -1005,10 +871,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
             setContextMenuPosition={setContextMenuPosition}
             setIsGraphContextMenuOpen={setIsGraphContextMenuOpen}
             setShowSharePlayground={setShowSharePlayground}
-            graphSearchActiveItem={graphSearchActiveItem}
-            graphSearchItems={graphSearchItems}
-            handleGraphItemSelect={handleGraphItemSelect}
-            graphSearchInput={graphSearchInput}
           />
           {PPGraph.currentGraph && (
             <>
