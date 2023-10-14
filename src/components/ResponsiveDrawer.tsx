@@ -173,10 +173,10 @@ const ResponsiveDrawer = (props) => {
             border: 0,
             background: `${Color(props.randomMainColor).alpha(0.98)}`,
             overflowY: 'unset',
-            height: 'calc(100vh - 16px)',
-            marginTop: '8px',
-            marginRight: props.isLeft ? 'unset' : '8px',
-            marginLeft: props.isLeft ? '8px' : 'unset',
+            height: smallScreen ? '100vh' : 'calc(100vh - 16px)',
+            marginTop: smallScreen ? 0 : '8px',
+            marginRight: props.isLeft || smallScreen ? 'unset' : '8px',
+            marginLeft: props.isLeft && !smallScreen ? '8px' : 'unset',
           },
         }}
       >

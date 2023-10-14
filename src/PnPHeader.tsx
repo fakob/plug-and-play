@@ -4,6 +4,7 @@ import {
   Autocomplete,
   Button,
   ButtonGroup,
+  InputAdornment,
   Paper,
   TextField,
 } from '@mui/material';
@@ -43,6 +44,7 @@ function PnPHeader(props: PnPHeaderProps) {
     .getContrastTextColor()
     .hex();
   const graphSearchInput = useRef<HTMLInputElement | null>(null);
+  const [unsavedChanges, setUnsavedChanges] = useState(false);
   const [isGraphSearchOpen, setIsGraphSearchOpen] = useState(false);
   const [remoteGraphs, setRemoteGraphs, remoteGraphsRef] = useStateRef([]);
   const [graphSearchItems, setGraphSearchItems] = useState<
@@ -154,6 +156,12 @@ function PnPHeader(props: PnPHeaderProps) {
         setGraphSearchActiveItem(data);
         updateGraphSearchItems();
       }),
+      InterfaceController.addListener(
+        ListenEvent.UnsavedChanges,
+        (data: any) => {
+          setUnsavedChanges(data);
+        },
+      ),
     );
 
     const toggleInputValue = (prev) => !prev;
@@ -337,6 +345,20 @@ Click to edit name`}
               },
             },
           }}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment
+                position="end"
+                sx={{
+                  '& .MuiTypography-root': {
+                    color: textColor,
+                  },
+                }}
+              >
+                {unsavedChanges && '*'}
+              </InputAdornment>
+            ),
+          }}
         />
         {!smallScreen && (
           <Button
@@ -349,6 +371,9 @@ Click to edit name`}
               pb: '6px',
               borderRadius: '2px',
               color: textColor,
+              backgroundColor: unsavedChanges
+                ? TRgba.fromString(props.randomMainColor).darken(0.15).hex()
+                : 'unset',
               '&:hover': {
                 backgroundColor: TRgba.fromString(props.randomMainColor)
                   .darken(0.05)

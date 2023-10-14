@@ -4,10 +4,10 @@
     "showExecutionVisualisation": true,
     "showNonPresentationNodes": true,
     "viewportCenterPosition": {
-      "x": -3021.845720022836,
-      "y": -8970.86846673432
+      "x": -2807.097110738101,
+      "y": -8935.386572099877
     },
-    "viewportScale": 0.5107719361297555
+    "viewportScale": 0.5032208445316709
   },
   "nodes": [
     {
@@ -770,6 +770,12 @@
           "name": "ArrayOut",
           "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
           "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "Code",
+          "dataType": "{\"class\":\"CodeType\",\"type\":{}}",
+          "visible": false
         }
       ],
       "updateBehaviour": {
@@ -782,10 +788,10 @@
       "id": "heavy-lionfish-6",
       "name": "DRAW_COMBINE_ARRAY",
       "type": "DRAW_COMBINE_ARRAY",
-      "x": -2228.9717568056544,
-      "y": -9338.58068516958,
+      "x": -2057.583671464536,
+      "y": -9339.067889098704,
       "width": 160,
-      "height": 328,
+      "height": 352,
       "socketArray": [
         {
           "socketType": "in",
@@ -820,6 +826,13 @@
           "name": "Spacing Y",
           "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":0,\"maxValue\":1000,\"stepSize\":0.01}}",
           "defaultData": 319,
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Clickable objects",
+          "dataType": "{\"class\":\"BooleanType\",\"type\":{}}",
+          "data": false,
           "visible": true
         },
         {
@@ -1027,7 +1040,7 @@
           "socketType": "in",
           "name": "Initial Value",
           "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
-          "data": 10,
+          "data": 11,
           "visible": false
         },
         {
@@ -1121,7 +1134,7 @@
       "x": -3571.3692858930312,
       "y": -9276.440143066933,
       "width": 754.4241301510478,
-      "height": 424.359375,
+      "height": 565.8125,
       "socketArray": [
         {
           "socketType": "in",
@@ -1463,6 +1476,12 @@
           "name": "Result",
           "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
           "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "Code",
+          "dataType": "{\"class\":\"CodeType\",\"type\":{}}",
+          "visible": false
         }
       ],
       "updateBehaviour": {
@@ -1570,6 +1589,12 @@
           "name": "Result",
           "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
           "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "Code",
+          "dataType": "{\"class\":\"CodeType\",\"type\":{}}",
+          "visible": false
         }
       ],
       "updateBehaviour": {
@@ -1641,204 +1666,325 @@
         "interval": false,
         "intervalFrequency": 1000
       }
+    },
+    {
+      "id": "slimy-turkey-54",
+      "name": "Extract_Image_From_Graphics",
+      "type": "Extract_Image_From_Graphics",
+      "x": -2063.362977501323,
+      "y": -8964.166932544014,
+      "width": 160,
+      "height": 136,
+      "socketArray": [
+        {
+          "socketType": "in",
+          "name": "Graphics",
+          "dataType": "{\"class\":\"DeferredPixiType\",\"type\":{}}",
+          "defaultData": {},
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Type",
+          "dataType": "{\"class\":\"EnumType\",\"type\":{\"options\":[{\"text\":\"image/png\"},{\"text\":\"image/jpeg\"},{\"text\":\"image/webp\"}]}}",
+          "data": "image/png",
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Quality",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":1,\"stepSize\":0.01}}",
+          "data": 0.92,
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Save image",
+          "dataType": "{\"class\":\"TriggerType\",\"type\":{\"triggerType\":\"positiveFlank\",\"customFunctionString\":\"saveImage\",\"previousData\":0}}",
+          "defaultData": 0,
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Meta",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "data": {},
+          "visible": false
+        },
+        {
+          "socketType": "out",
+          "name": "Image",
+          "dataType": "{\"class\":\"ImageType\",\"type\":{}}",
+          "visible": true
+        }
+      ],
+      "updateBehaviour": {
+        "update": true,
+        "interval": false,
+        "intervalFrequency": 1000
+      }
+    },
+    {
+      "id": "smooth-eel-0",
+      "name": "WidgetButton",
+      "type": "WidgetButton",
+      "x": -2290.7913099988314,
+      "y": -8869.316109486726,
+      "width": 200,
+      "height": 104,
+      "socketArray": [
+        {
+          "socketType": "in",
+          "name": "Off",
+          "dataType": "{\"class\":\"AnyType\",\"type\":{}}",
+          "data": 0,
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "On",
+          "dataType": "{\"class\":\"AnyType\",\"type\":{}}",
+          "data": 1,
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Label",
+          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
+          "data": "Save image",
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Meta",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "data": {},
+          "visible": false
+        },
+        {
+          "socketType": "out",
+          "name": "Out",
+          "dataType": "{\"class\":\"AnyType\",\"type\":{}}",
+          "visible": true
+        }
+      ],
+      "updateBehaviour": {
+        "update": false,
+        "interval": false,
+        "intervalFrequency": 1000
+      }
     }
   ],
   "links": [
     {
-      "id": "f27879bb-8334-44a6-b98c-8b5300438220",
+      "id": "7d7f7619-14e5-41f3-9528-a5090bda353e",
       "sourceNodeId": "purple-pig-66",
       "sourceSocketName": "Parameter 1",
       "targetNodeId": "wonderful-fly-58",
       "targetSocketName": "Image"
     },
     {
-      "id": "16ecf388-b403-4fb6-9f9a-8383e20d8524",
+      "id": "1326d7d1-f43b-46a9-a247-83e2ecf12a72",
       "sourceNodeId": "wonderful-fly-58",
       "sourceSocketName": "Graphics",
       "targetNodeId": "purple-pig-66",
       "targetSocketName": "Output"
     },
     {
-      "id": "f2dd04a6-5dbf-4383-a74a-465f4b0f4f2e",
+      "id": "40c2f053-7372-4538-a875-27cb9fcde697",
       "sourceNodeId": "ancient-donkey-29",
       "sourceSocketName": "FrameArray",
       "targetNodeId": "modern-husky-85",
       "targetSocketName": "Images"
     },
     {
-      "id": "2428144b-1ab1-46f0-856e-5d7fee7a0783",
+      "id": "03f08408-ba11-4353-ba5f-7441187a7071",
       "sourceNodeId": "modern-husky-85",
       "sourceSocketName": "ArrayOut",
       "targetNodeId": "heavy-lionfish-6",
       "targetSocketName": "GraphicsArray"
     },
     {
-      "id": "42d62912-6d82-4358-99e8-59e19a998e6d",
+      "id": "13ce7082-eff5-44a5-85bf-1bf78225c527",
       "sourceNodeId": "pretty-shrimp-23",
       "sourceSocketName": "Result",
       "targetNodeId": "heavy-lionfish-6",
       "targetSocketName": "Spacing X"
     },
     {
-      "id": "48064086-0ffb-4442-b96a-878d14532b48",
+      "id": "6280605c-2d01-4144-b10b-6c1095efa0c4",
       "sourceNodeId": "curly-badger-34",
       "sourceSocketName": "Result",
       "targetNodeId": "heavy-lionfish-6",
       "targetSocketName": "Spacing Y"
     },
     {
-      "id": "6bf38100-371f-4f5f-96ca-930fa22574cd",
+      "id": "2253e519-fa67-4f37-b4a3-1e1b2ad46d5c",
       "sourceNodeId": "dangerous-catfish-72",
       "sourceSocketName": "Out",
       "targetNodeId": "heavy-lionfish-6",
       "targetSocketName": "Scale X"
     },
     {
-      "id": "cb2eadea-3990-454a-a823-b6fd272ae9a1",
+      "id": "9c9ba61b-9de7-410a-b910-50bda53937bf",
       "sourceNodeId": "dangerous-catfish-72",
       "sourceSocketName": "Out",
       "targetNodeId": "heavy-lionfish-6",
       "targetSocketName": "Scale Y"
     },
     {
-      "id": "cd1ab080-6d54-461a-a82d-14b922ed7ff7",
+      "id": "c6574812-90bd-46e2-8053-ad1fcc21758b",
       "sourceNodeId": "ancient-donkey-29",
       "sourceSocketName": "Details",
       "targetNodeId": "stale-bear-27",
       "targetSocketName": "input"
     },
     {
-      "id": "4941e185-61a8-4e64-ae7f-8a9438bfd135",
+      "id": "91c2ea8e-f9a5-48c8-8e8c-d5634800a141",
       "sourceNodeId": "perfect-yak-95",
       "sourceSocketName": "Out",
       "targetNodeId": "ancient-donkey-29",
       "targetSocketName": "Play/Pause"
     },
     {
-      "id": "1b66c0f6-c258-4d3b-8b30-ab4aab98a0c3",
+      "id": "547d7dca-145a-4835-a6ad-02c05b4469be",
       "sourceNodeId": "lovely-wombat-90",
       "sourceSocketName": "Out",
       "targetNodeId": "ancient-donkey-29",
       "targetSocketName": "Loop"
     },
     {
-      "id": "764a66b1-ec50-4234-8e2c-98177f69c447",
+      "id": "dadbb539-6b51-4309-8675-0add29df5010",
       "sourceNodeId": "mighty-moth-17",
       "sourceSocketName": "Out",
       "targetNodeId": "ancient-donkey-29",
       "targetSocketName": "Speed"
     },
     {
-      "id": "80b8bc96-db2e-4000-bbf4-012ceb6ee30a",
+      "id": "83931212-0d37-4088-a54d-26833c0f9574",
       "sourceNodeId": "serious-snail-95",
       "sourceSocketName": "Out",
       "targetNodeId": "ancient-donkey-29",
       "targetSocketName": "Mute"
     },
     {
-      "id": "bf109398-6591-4fb1-b759-45d8251301aa",
+      "id": "426f1d70-abd4-4f9d-b237-de7817a58a07",
       "sourceNodeId": "cowardly-eel-29",
       "sourceSocketName": "Out",
       "targetNodeId": "ancient-donkey-29",
       "targetSocketName": "Volume"
     },
     {
-      "id": "57c761da-b20d-450d-9e44-04969007a683",
+      "id": "234dc0b3-21d3-4422-adc9-3d62dc204489",
       "sourceNodeId": "warm-wolverine-28",
       "sourceSocketName": "Out",
       "targetNodeId": "ancient-donkey-29",
       "targetSocketName": "Position (s)"
     },
     {
-      "id": "3bb23658-ed62-452c-9560-118758d6dba9",
+      "id": "6d168a5b-54a7-4252-aac3-4c9cf501ebc9",
       "sourceNodeId": "brave-dingo-23",
       "sourceSocketName": "Out",
       "targetNodeId": "ancient-donkey-29",
       "targetSocketName": "Position (%)"
     },
     {
-      "id": "32c702f6-0a6e-4bd7-90c8-3dbf177ad724",
+      "id": "3ac1e3f1-8d23-4ea7-9e31-15d5f30b783c",
       "sourceNodeId": "loud-ape-55",
       "sourceSocketName": "Out",
       "targetNodeId": "ancient-donkey-29",
       "targetSocketName": "Transcode video"
     },
     {
-      "id": "586a5d9c-0227-476d-9646-4840cb3dbbbe",
+      "id": "f52819fd-59b9-4338-9c7e-e7cad669c3b7",
       "sourceNodeId": "lazy-catfish-37",
       "sourceSocketName": "Out",
       "targetNodeId": "ancient-donkey-29",
       "targetSocketName": "Get current frame"
     },
     {
-      "id": "f82d182c-2a83-49a3-9b1e-ca8f6430a1c0",
+      "id": "8907dc41-793e-46e6-955f-04078d7acc6e",
       "sourceNodeId": "green-monkey-15",
       "sourceSocketName": "Out",
       "targetNodeId": "ancient-donkey-29",
       "targetSocketName": "Get frames (interval)"
     },
     {
-      "id": "8956dcb1-6c3b-4ae9-ad0d-12addd33a9d4",
+      "id": "3a8d2c21-60f5-4721-b8ed-4cf473956ff2",
       "sourceNodeId": "ugly-cow-13",
       "sourceSocketName": "Out",
       "targetNodeId": "ancient-donkey-29",
       "targetSocketName": "Interval (s)"
     },
     {
-      "id": "ce789c18-b11c-41d4-a831-f89bc864d4c7",
+      "id": "c2493332-6f60-4d54-8b6f-c74c241ca287",
       "sourceNodeId": "mean-termite-34",
       "sourceSocketName": "Out",
       "targetNodeId": "ancient-donkey-29",
       "targetSocketName": "Get frames (count)"
     },
     {
-      "id": "c25dba7e-fb8f-460f-a2e4-4165f59dd7aa",
+      "id": "ba37757f-610f-47b3-8e4b-6fadad69858e",
       "sourceNodeId": "clever-warthog-59",
       "sourceSocketName": "Out",
       "targetNodeId": "ancient-donkey-29",
       "targetSocketName": "Count"
     },
     {
-      "id": "852e4cf7-668e-48db-88e3-e1758fd0666c",
+      "id": "51364adc-c695-4d94-b918-af474504f0c7",
       "sourceNodeId": "ancient-donkey-29",
       "sourceSocketName": "Frame",
       "targetNodeId": "wise-chipmunk-74",
       "targetSocketName": "Image"
     },
     {
-      "id": "3cc17e0d-e34f-41f7-896f-bbb2765a77e4",
+      "id": "0d75e7bb-334d-4470-a7c2-41ea46e2d1af",
       "sourceNodeId": "ancient-donkey-29",
       "sourceSocketName": "Details",
       "targetNodeId": "rare-penguin-16",
       "targetSocketName": "JSON"
     },
     {
-      "id": "da7b584e-a968-46a5-b315-bfea4fff7da2",
+      "id": "39f60d0c-4550-4597-8db8-7fd2188b46bc",
       "sourceNodeId": "rare-penguin-16",
       "sourceSocketName": "videoWidth",
       "targetNodeId": "pretty-shrimp-23",
       "targetSocketName": "Input1"
     },
     {
-      "id": "4eb459ed-9967-41c6-9217-ef4e446cbfdf",
+      "id": "10c2cb05-ff2d-4900-af2f-13ebed055db2",
       "sourceNodeId": "shy-walrus-44",
       "sourceSocketName": "Out",
       "targetNodeId": "pretty-shrimp-23",
       "targetSocketName": "Input2"
     },
     {
-      "id": "2b434066-7e2a-47ba-816d-737d366f14cb",
+      "id": "655d3c77-2855-46de-9b36-7949f8be8ad0",
       "sourceNodeId": "rare-penguin-16",
       "sourceSocketName": "videoHeight",
       "targetNodeId": "curly-badger-34",
       "targetSocketName": "Input1"
     },
     {
-      "id": "283c5752-cc37-4b9d-ad9e-76861a5d067e",
+      "id": "3e0856dc-ca91-4c14-9e3a-acf128f50f18",
       "sourceNodeId": "shy-walrus-44",
       "sourceSocketName": "Out",
       "targetNodeId": "curly-badger-34",
       "targetSocketName": "Input2"
+    },
+    {
+      "id": "f4369db6-ea3c-4344-a179-fd7b715f60e2",
+      "sourceNodeId": "heavy-lionfish-6",
+      "sourceSocketName": "Graphics",
+      "targetNodeId": "slimy-turkey-54",
+      "targetSocketName": "Graphics"
+    },
+    {
+      "id": "6b932f7a-21bc-4fd2-b4a2-42da9ae6e68b",
+      "sourceNodeId": "smooth-eel-0",
+      "sourceSocketName": "Out",
+      "targetNodeId": "slimy-turkey-54",
+      "targetSocketName": "Save image"
     }
   ]
 }

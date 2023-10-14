@@ -5,7 +5,7 @@ import PPNode from '../classes/NodeClass';
 import Socket from '../classes/SocketClass';
 import _ from 'lodash';
 import { TSocketType } from './interfaces';
-import InterfaceController from '../InterfaceController';
+import InterfaceController, { ListenEvent } from '../InterfaceController';
 
 export interface Action {
   (): Promise<void>;
@@ -53,6 +53,7 @@ export class ActionHandler {
       this.removeIndex++;
     }
     this.setUnsavedChange(true);
+    InterfaceController.notifyListeners(ListenEvent.UnsavedChanges, true);
   }
   static async undo() {
     // move top of undo stack to top of redo stack
@@ -123,6 +124,7 @@ export class ActionHandler {
   }
 
   static setUnsavedChange(state: boolean): void {
+    InterfaceController.notifyListeners(ListenEvent.UnsavedChanges, state);
     this.graphHasUnsavedChanges = state;
     if (this.graphHasUnsavedChanges) {
       window.addEventListener('beforeunload', this.onBeforeUnload, {
