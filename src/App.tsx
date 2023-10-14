@@ -873,64 +873,62 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
             setShowSharePlayground={setShowSharePlayground}
           />
           {PPGraph.currentGraph && (
-            <>
-              <div
-                style={{
-                  visibility: isNodeSearchVisible ? undefined : 'hidden',
-                  position: 'relative',
-                  left: `${contextMenuPosition[0]}px`,
-                  top: `${contextMenuPosition[1]}px`,
+            <div
+              style={{
+                visibility: isNodeSearchVisible ? undefined : 'hidden',
+                position: 'relative',
+                left: `${contextMenuPosition[0]}px`,
+                top: `${contextMenuPosition[1]}px`,
+              }}
+            >
+              <Autocomplete
+                id="node-search"
+                ListboxProps={{ style: { maxHeight: '50vh' } }}
+                sx={{
+                  maxWidth: '50vw',
+                  width: '400px',
+                  minWidth: '200px',
+                  [theme.breakpoints.down('sm')]: {
+                    maxWidth: '90vw',
+                    width: '90vw',
+                  },
                 }}
-              >
-                <Autocomplete
-                  id="node-search"
-                  ListboxProps={{ style: { maxHeight: '50vh' } }}
-                  sx={{
-                    maxWidth: '50vw',
-                    width: '400px',
-                    minWidth: '200px',
-                    [theme.breakpoints.down('sm')]: {
-                      maxWidth: '90vw',
-                      width: '90vw',
-                    },
-                  }}
-                  freeSolo
-                  openOnFocus
-                  selectOnFocus
-                  autoHighlight
-                  clearOnBlur
-                  autoComplete
-                  // open
-                  disablePortal
-                  defaultValue={null}
-                  isOptionEqualToValue={(option, value) =>
-                    option.title === value.title
-                  }
-                  value={null}
-                  getOptionLabel={(option) =>
-                    typeof option === 'string' ? option : option.name
-                  }
-                  groupBy={(option) => option.group}
-                  options={getNodes(nodeSearchActiveItem)}
-                  onChange={action_AddOrReplaceNode}
-                  filterOptions={(options, state) => {
-                    const filteredOptions = filterOptionsNode(options, state);
-                    nodeSearchCountRef.current = filteredOptions.length;
-                    return filteredOptions;
-                  }}
-                  renderOption={renderNodeItem}
-                  renderInput={(props) => (
-                    <NodeSearchInput
-                      {...props}
-                      inputRef={nodeSearchInput}
-                      randomMainColor={RANDOMMAINCOLOR}
-                    />
-                  )}
-                  renderGroup={renderGroupItem}
-                  PaperComponent={ResultsWithHeader}
-                />
-              </div>
-            </>
+                freeSolo
+                openOnFocus
+                selectOnFocus
+                autoHighlight
+                clearOnBlur
+                autoComplete
+                // open
+                disablePortal
+                defaultValue={null}
+                isOptionEqualToValue={(option, value) =>
+                  option.title === value.title
+                }
+                value={null}
+                getOptionLabel={(option) =>
+                  typeof option === 'string' ? option : option.name
+                }
+                groupBy={(option) => option.group}
+                options={getNodes(nodeSearchActiveItem)}
+                onChange={action_AddOrReplaceNode}
+                filterOptions={(options, state) => {
+                  const filteredOptions = filterOptionsNode(options, state);
+                  nodeSearchCountRef.current = filteredOptions.length;
+                  return filteredOptions;
+                }}
+                renderOption={renderNodeItem}
+                renderInput={(props) => (
+                  <NodeSearchInput
+                    {...props}
+                    inputRef={nodeSearchInput}
+                    randomMainColor={RANDOMMAINCOLOR}
+                  />
+                )}
+                renderGroup={renderGroupItem}
+                PaperComponent={ResultsWithHeader}
+              />
+            </div>
           )}
         </div>
         <div

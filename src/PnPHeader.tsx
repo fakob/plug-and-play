@@ -7,8 +7,8 @@ import {
   InputAdornment,
   Paper,
   TextField,
+  useTheme,
 } from '@mui/material';
-import { useTheme } from '@mui/material';
 import TimeAgo from 'javascript-time-ago';
 import en from 'javascript-time-ago/locale/en';
 import PPGraph from './classes/GraphClass';
@@ -36,7 +36,7 @@ type PnPHeaderProps = {
   setShowSharePlayground: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-function PnPHeader(props: PnPHeaderProps) {
+function PnPHeader(props: Readonly<PnPHeaderProps>) {
   const theme = useTheme();
   const smallScreen = useIsSmallScreen();
   const backgroundColor = Color(props.randomMainColor).alpha(0.8);
@@ -46,7 +46,7 @@ function PnPHeader(props: PnPHeaderProps) {
   const graphSearchInput = useRef<HTMLInputElement | null>(null);
   const [unsavedChanges, setUnsavedChanges] = useState(false);
   const [isGraphSearchOpen, setIsGraphSearchOpen] = useState(false);
-  const [remoteGraphs, setRemoteGraphs, remoteGraphsRef] = useStateRef([]);
+  const [, setRemoteGraphs, remoteGraphsRef] = useStateRef([]);
   const [graphSearchItems, setGraphSearchItems] = useState<
     IGraphSearch[] | null
   >([{ id: '', name: '' }]);
@@ -78,10 +78,8 @@ function PnPHeader(props: PnPHeaderProps) {
         PPStorage.getInstance().saveNewGraph(selected.name);
         // remove selection flag
         selected.isNew = undefined;
-      } else {
-        if (checkForUnsavedChanges()) {
-          PPStorage.getInstance().loadGraphFromDB(selected.id);
-        }
+      } else if (checkForUnsavedChanges()) {
+        PPStorage.getInstance().loadGraphFromDB(selected.id);
       }
       setGraphSearchActiveItem(selected);
     }
@@ -181,7 +179,7 @@ function PnPHeader(props: PnPHeaderProps) {
     updateGraphSearchItems();
 
     return () => {
-      // Passing the same reference
+      ids.forEach((id) => InterfaceController.removeListener(id));
       graphSearchInput.current.removeEventListener(
         'focus',
         updateGraphSearchItems,
