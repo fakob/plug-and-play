@@ -25,15 +25,10 @@ import { useTheme } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import Color from 'color';
 import { hri } from 'human-readable-ids';
-import TimeAgo from 'javascript-time-ago';
-import en from 'javascript-time-ago/locale/en';
 import {
-  GraphSearchInput,
   NodeSearchInput,
-  filterOptionsGraph,
   filterOptionsNode,
   getNodes,
-  renderGraphItem,
   renderGroupItem,
   renderNodeItem,
 } from './components/Search';
@@ -58,35 +53,28 @@ import {
   GRID_SHADER,
   MAX_LATEST_NODES_IN_SEARCH,
   NODE_SOURCE,
-  PLUGANDPLAY_ICON,
   RANDOMMAINCOLOR,
 } from './utils/constants';
-import { IGraphSearch, INodeSearch } from './utils/interfaces';
+import { INodeSearch } from './utils/interfaces';
 import {
   connectNodeToSocket,
   controlOrMetaKey,
   cutOrCopyClipboard,
   isPhone,
   pasteClipboard,
-  removeExtension,
   removeUrlParameter,
   roundNumber,
-  useStateRef,
 } from './utils/utils';
 import { zoomToFitNodes } from './pixi/utils-pixi';
 import { getAllNodeTypes } from './nodes/allNodes';
 import PPSocket from './classes/SocketClass';
 import PPNode from './classes/NodeClass';
 import { InputParser } from './utils/inputParser';
-import styles from './utils/style.module.css';
 import { ActionHandler } from './utils/actionHandler';
 import InterfaceController, { ListenEvent } from './InterfaceController';
-import PPStorage, { checkForUnsavedChanges } from './PPStorage';
+import PPStorage from './PPStorage';
 import PPSelection from './classes/SelectionClass';
-
-TimeAgo.addDefaultLocale(en);
-// Create formatter (English).
-const timeAgo = new TimeAgo('en-US');
+import PnPHeader from './PnPHeader';
 
 const randomMainColorLightHex = new PIXI.Color(
   Color(RANDOMMAINCOLOR).mix(Color('white'), 0.9).hex(),
@@ -119,9 +107,7 @@ const App = (): JSX.Element => {
   const pixiContext = useRef<HTMLDivElement | null>(null);
   const viewport = useRef<Viewport | null>(null);
   const overlayCommentContainer = useRef<PIXI.Container | null>(null);
-  const graphSearchInput = useRef<HTMLInputElement | null>(null);
   const nodeSearchInput = useRef<HTMLInputElement | null>(null);
-  const [isGraphSearchOpen, setIsGraphSearchOpen] = useState(false);
   const [isNodeSearchVisible, setIsNodeSearchVisible] = useState(false);
   const [showRightSideDrawer, setShowRightSideDrawer] = useState(false);
   const [showLeftSideDrawer, setShowLeftSideDrawer] = useState(false);
@@ -133,15 +119,9 @@ const App = (): JSX.Element => {
   const [contextMenuPosition, setContextMenuPosition] = useState([0, 0]);
   const [graphToBeModified, setGraphToBeModified] = useState(null); // id and name of graph to edit/delete
   const [showComments, setShowComments] = useState(false);
-  const [remoteGraphs, setRemoteGraphs, remoteGraphsRef] = useStateRef([]);
-  const [graphSearchItems, setGraphSearchItems] = useState<
-    IGraphSearch[] | null
-  >([{ id: '', name: '' }]);
   const [nodeSearchActiveItem, setNodeSearchActiveItem] = useState<
     INodeSearch[]
   >([]);
-  const [graphSearchActiveItem, setGraphSearchActiveItem] =
-    useState<IGraphSearch | null>(null);
 
   // dialogs
   const [showEdit, setShowEdit] = useState(false);
@@ -433,20 +413,8 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
 
     console.log('PPGraph.currentGraph:', PPGraph.currentGraph);
 
-    //updateGraphSearchItems();
-    PPStorage.getInstance()
-      .getRemoteGraphsList()
-      .then((arrayOfFileNames) => {
-        console.log(arrayOfFileNames);
-        setRemoteGraphs(
-          arrayOfFileNames.filter((file) => file.endsWith('.ppgraph')),
-        );
-      });
-
     const toggleInputValue = (prev) => !prev;
 
-    InterfaceController.toggleGraphSearchOpen = () =>
-      setIsGraphSearchOpen(toggleInputValue);
     InterfaceController.toggleShowEdit = () => setShowEdit(toggleInputValue);
     InterfaceController.toggleRightSideDrawer = () =>
       setShowRightSideDrawer(toggleInputValue);
@@ -456,7 +424,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       setShowComments(toggleInputValue);
 
     InterfaceController.openNodeSearch = openNodeSearch;
-    InterfaceController.setIsGraphSearchOpen = setIsGraphSearchOpen;
     InterfaceController.setIsNodeSearchVisible = setIsNodeSearchVisible;
     InterfaceController.setIsGraphContextMenuOpen = setIsGraphContextMenuOpen;
     InterfaceController.setIsNodeContextMenuOpen = setIsNodeContextMenuOpen;
@@ -491,16 +458,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     });
 
     window.dispatchEvent(new Event('pointermove')); // to initialise event values
-
-    updateGraphSearchItems();
-
-    return () => {
-      // Passing the same reference
-      graphSearchInput.current.removeEventListener(
-        'focus',
-        updateGraphSearchItems,
-      );
-    };
   }, []);
 
   useEffect(() => {
@@ -512,8 +469,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     ids.push(
       InterfaceController.addListener(ListenEvent.GraphChanged, (data: any) => {
         setGraphToBeModified(data);
-        setGraphSearchActiveItem(data);
-        updateGraphSearchItems();
       }),
     );
 
@@ -572,24 +527,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     };
   }, []);
 
-  // addEventListener to graphSearchInput
-  useEffect(() => {
-    if (!graphSearchInput?.current) {
-      return;
-    }
-    console.log('add eventlistener to graphSearchInput');
-    graphSearchInput.current.addEventListener('focus', updateGraphSearchItems);
-    // }
-  }, [graphSearchInput?.current]);
-
-  useEffect(() => {
-    if (graphSearchInput.current != null) {
-      if (isGraphSearchOpen) {
-        graphSearchInput.current.focus();
-      }
-    }
-  }, [isGraphSearchOpen]);
-
   useEffect(() => {
     if (!nodeSearchInput?.current) {
       return;
@@ -622,31 +559,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
   function uploadGraph() {
     open();
   }
-
-  const handleGraphItemSelect = (event, selected: IGraphSearch) => {
-    console.log(selected);
-    setIsGraphSearchOpen(false);
-    if (!selected) {
-      return;
-    }
-
-    if (selected.isRemote) {
-      const nameOfFileToClone = remoteGraphsRef.current[selected.id];
-      PPStorage.getInstance().cloneRemoteGraph(nameOfFileToClone);
-    } else {
-      if (selected.isNew) {
-        PPGraph.currentGraph.clear();
-        PPStorage.getInstance().saveNewGraph(selected.name);
-        // remove selection flag
-        selected.isNew = undefined;
-      } else {
-        if (checkForUnsavedChanges()) {
-          PPStorage.getInstance().loadGraphFromDB(selected.id);
-        }
-      }
-      setGraphSearchActiveItem(selected);
-    }
-  };
 
   const action_AddOrReplaceNode = async (event, selected: INodeSearch) => {
     if (selected) {
@@ -790,61 +702,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     );
   };
 
-  const updateGraphSearchItems = () => {
-    console.log('updateGraphSearchItems');
-    load();
-
-    async function load() {
-      const remoteGraphSearchItems = remoteGraphsRef.current.map(
-        (graph, index) => {
-          return {
-            id: index,
-            name: removeExtension(graph), // remove .ppgraph extension
-            label: 'remote',
-            isRemote: true,
-          } as IGraphSearch;
-        },
-      );
-      // add remote header entry
-      if (remoteGraphSearchItems.length > 0) {
-        remoteGraphSearchItems.unshift({
-          id: `remote-header`,
-          name: 'Remote playgrounds', // opening a remote playground creates a local copy
-          isDisabled: true,
-        });
-      }
-
-      const graphs: any[] = await PPStorage.getInstance().getGraphs();
-      const newGraphSearchItems = graphs.map((graph) => {
-        return {
-          id: graph.id,
-          name: graph.name,
-          label: `saved ${timeAgo.format(graph.date)}`,
-        } as IGraphSearch;
-      });
-
-      // add local header entry
-      if (graphs.length > 0) {
-        newGraphSearchItems.unshift({
-          id: `local-header`,
-          name: 'Local playgrounds',
-          isDisabled: true,
-        });
-      }
-
-      const allGraphSearchItems = [
-        ...newGraphSearchItems,
-        ...remoteGraphSearchItems,
-      ];
-      console.log(allGraphSearchItems);
-      setGraphSearchItems(allGraphSearchItems);
-
-      setGraphSearchActiveItem(
-        newGraphSearchItems[PPGraph?.currentGraph?.id] ?? null,
-      );
-    }
-  };
-
   const submitEditDialog = (): void => {
     const name = (
       document.getElementById('playground-name-input') as HTMLInputElement
@@ -861,7 +718,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           setIsGraphContextMenuOpen(false);
           setIsNodeContextMenuOpen(false);
           setIsSocketContextMenuOpen(false);
-          setIsGraphSearchOpen(false);
         }}
         style={{
           overflow: 'hidden',
@@ -894,6 +750,11 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
             aria-describedby="alert-dialog-description"
             fullWidth
             maxWidth="sm"
+            sx={{
+              '& .MuiDialog-paper': {
+                bgcolor: 'background.default',
+              },
+            }}
           >
             <DialogTitle id="alert-dialog-title">{'Delete Graph?'}</DialogTitle>
             <DialogContent>
@@ -913,7 +774,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
                   const deletedGraphID = PPStorage.getInstance().deleteGraph(
                     graphToBeModified.id,
                   );
-                  updateGraphSearchItems();
                   if (graphToBeModified.id == deletedGraphID) {
                     PPStorage.getInstance().loadGraphFromDB();
                   }
@@ -928,6 +788,11 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
             onClose={() => setShowEdit(false)}
             fullWidth
             maxWidth="sm"
+            sx={{
+              '& .MuiDialog-paper': {
+                bgcolor: 'background.default',
+              },
+            }}
           >
             <DialogTitle>Edit playground details</DialogTitle>
             <form
@@ -1000,29 +865,32 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
             currentGraph={PPGraph.currentGraph}
             randomMainColor={RANDOMMAINCOLOR}
           />
-          <img
-            id="plugandplayground-logo"
-            className={styles.plugAndPlaygroundIcon}
-            style={{
-              backgroundColor: RANDOMMAINCOLOR,
-            }}
-            src={PLUGANDPLAY_ICON}
-            onClick={(event) => {
-              event.stopPropagation();
-              setContextMenuPosition([16, 96]);
-              setIsGraphContextMenuOpen((isOpen) => !isOpen);
-            }}
+          <PnPHeader
+            randomMainColor={RANDOMMAINCOLOR}
+            isLoggedIn={isLoggedIn}
+            setContextMenuPosition={setContextMenuPosition}
+            setIsGraphContextMenuOpen={setIsGraphContextMenuOpen}
+            setShowSharePlayground={setShowSharePlayground}
           />
           {PPGraph.currentGraph && (
-            <>
+            <div
+              style={{
+                visibility: isNodeSearchVisible ? undefined : 'hidden',
+                position: 'relative',
+                left: `${contextMenuPosition[0]}px`,
+                top: `${contextMenuPosition[1]}px`,
+              }}
+            >
               <Autocomplete
-                id="graph-search"
+                id="node-search"
                 ListboxProps={{ style: { maxHeight: '50vh' } }}
-                className={styles.graphSearch}
                 sx={{
-                  width: 'calc(65vw - 120px)',
+                  maxWidth: '50vw',
+                  width: '400px',
+                  minWidth: '200px',
                   [theme.breakpoints.down('sm')]: {
-                    width: 'calc(90vw - 130px)',
+                    maxWidth: '90vw',
+                    width: '90vw',
                   },
                 }}
                 freeSolo
@@ -1030,95 +898,37 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
                 selectOnFocus
                 autoHighlight
                 clearOnBlur
+                autoComplete
                 // open
                 disablePortal
-                defaultValue={graphSearchActiveItem}
+                defaultValue={null}
                 isOptionEqualToValue={(option, value) =>
-                  option.name === value.name
+                  option.title === value.title
                 }
-                value={graphSearchActiveItem}
-                getOptionDisabled={(option) => option.isDisabled}
+                value={null}
                 getOptionLabel={(option) =>
                   typeof option === 'string' ? option : option.name
                 }
-                options={graphSearchItems}
-                onChange={handleGraphItemSelect}
-                filterOptions={filterOptionsGraph}
-                renderOption={(props, option, state) =>
-                  renderGraphItem(props, option, state)
-                }
+                groupBy={(option) => option.group}
+                options={getNodes(nodeSearchActiveItem)}
+                onChange={action_AddOrReplaceNode}
+                filterOptions={(options, state) => {
+                  const filteredOptions = filterOptionsNode(options, state);
+                  nodeSearchCountRef.current = filteredOptions.length;
+                  return filteredOptions;
+                }}
+                renderOption={renderNodeItem}
                 renderInput={(props) => (
-                  <GraphSearchInput
+                  <NodeSearchInput
                     {...props}
-                    inputRef={graphSearchInput}
-                    randommaincolor={RANDOMMAINCOLOR}
-                    setShowSharePlayground={setShowSharePlayground}
-                    isLoggedIn={isLoggedIn}
+                    inputRef={nodeSearchInput}
+                    randomMainColor={RANDOMMAINCOLOR}
                   />
                 )}
-                componentsProps={{
-                  popper: {
-                    style: { width: 'fit-content', minWidth: '400px' },
-                  },
-                }}
+                renderGroup={renderGroupItem}
+                PaperComponent={ResultsWithHeader}
               />
-              <div
-                style={{
-                  visibility: isNodeSearchVisible ? undefined : 'hidden',
-                  position: 'relative',
-                  left: `${contextMenuPosition[0]}px`,
-                  top: `${contextMenuPosition[1]}px`,
-                }}
-              >
-                <Autocomplete
-                  id="node-search"
-                  ListboxProps={{ style: { maxHeight: '50vh' } }}
-                  sx={{
-                    maxWidth: '50vw',
-                    width: '400px',
-                    minWidth: '200px',
-                    [theme.breakpoints.down('sm')]: {
-                      maxWidth: '90vw',
-                      width: '90vw',
-                    },
-                  }}
-                  freeSolo
-                  openOnFocus
-                  selectOnFocus
-                  autoHighlight
-                  clearOnBlur
-                  autoComplete
-                  // open
-                  disablePortal
-                  defaultValue={null}
-                  isOptionEqualToValue={(option, value) =>
-                    option.title === value.title
-                  }
-                  value={null}
-                  getOptionLabel={(option) =>
-                    typeof option === 'string' ? option : option.name
-                  }
-                  groupBy={(option) => option.group}
-                  options={getNodes(nodeSearchActiveItem)}
-                  onChange={action_AddOrReplaceNode}
-                  filterOptions={(options, state) => {
-                    const filteredOptions = filterOptionsNode(options, state);
-                    nodeSearchCountRef.current = filteredOptions.length;
-                    return filteredOptions;
-                  }}
-                  PaperComponent={ResultsWithHeader}
-                  renderOption={renderNodeItem}
-                  renderInput={(props) => (
-                    <NodeSearchInput
-                      {...props}
-                      inputRef={nodeSearchInput}
-                      randommaincolor={RANDOMMAINCOLOR}
-                    />
-                  )}
-                  renderGroup={renderGroupItem}
-                />
-              </div>
-            </>
+            </div>
           )}
         </div>
         <div
