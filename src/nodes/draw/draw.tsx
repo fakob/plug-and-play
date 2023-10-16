@@ -358,6 +358,9 @@ export class DRAW_Combine extends DRAW_Base {
   public async inputUnplugged() {
     return DynamicInputNodeFunctions.inputUnplugged(this);
   }
+  public socketShouldAutomaticallyAdapt(socket: Socket): boolean {
+    return true;
+  }
 }
 
 export class DRAW_COMBINE_ARRAY extends DRAW_Interactive_Base {

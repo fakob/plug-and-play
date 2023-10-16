@@ -10,9 +10,12 @@ export class DynamicInputNode extends PPNode {
     await DynamicInputNodeFunctions.inputUnplugged(this);
     await super.inputUnplugged();
   }
+  public socketShouldAutomaticallyAdapt(socket: Socket): boolean {
+    return true;
+  }
 }
 
-// i structured it like this so that classes that cannot directly inherit from DynamicInputNode can still use these
+// i structured it like this so that classes that cannot directly inherit from DynamicInputNode (because JS/TS doesn't allow multiple inheritance) can still use these
 export class DynamicInputNodeFunctions {
   static getSocketForNewConnection(socket: Socket, node: PPNode): Socket {
     if (socket.isInput()) {
