@@ -12,7 +12,6 @@ import { CodeType } from '../datatypes/codeType';
 import { JSONType } from '../datatypes/jsonType';
 import { NumberType } from '../datatypes/numberType';
 import * as PIXI from 'pixi.js';
-import PPGraph from '../../classes/GraphClass';
 import { DynamicInputNode } from '../abstract/DynamicInputNode';
 
 const arrayName = 'Array';
@@ -573,7 +572,10 @@ export class ArrayCreate extends DynamicInputNode {
   }
 
   protected getDefaultIO(): Socket[] {
-    return [new Socket(SOCKET_TYPE.OUT, arrayName, new ArrayType(), [])];
+    return [
+      new Socket(SOCKET_TYPE.IN, constantInName, new AnyType()),
+      new Socket(SOCKET_TYPE.OUT, arrayName, new ArrayType(), []),
+    ];
   }
 
   protected async onExecute(input, output): Promise<void> {

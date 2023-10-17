@@ -1106,13 +1106,14 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     }
   }
 
-  public getNewInputSocketName(preferredName: string): string {
+  public getNewInputSocketName(): string {
     const existing = this.getAllInputSockets();
-    let newParamName = preferredName;
+    const inputName = "Input";
+    let newParamName = inputName;
     let count: number = 2;
     // find a new param name that is unique
     while (existing.find((param) => param.name === newParamName)) {
-      newParamName = preferredName + '_' + count;
+      newParamName = inputName + '_' + count;
       count += 1;
     }
     return newParamName;
