@@ -12,12 +12,11 @@ import { CodeType } from '../datatypes/codeType';
 import { JSONType } from '../datatypes/jsonType';
 import { NumberType } from '../datatypes/numberType';
 import * as PIXI from 'pixi.js';
-import PPGraph from '../../classes/GraphClass';
 import { DynamicInputNode } from '../abstract/DynamicInputNode';
 
 const arrayName = 'Array';
 const typeName = 'Type';
-const arrayOutName = 'FilteredArray';
+const arrayOutName = 'Out';
 
 export const anyCodeName = 'Code';
 const outDataName = 'OutData';
@@ -449,7 +448,7 @@ class ArrayFunction extends CustomFunction {
     return { ArrayIn: new ArrayType(), InnerCode: new CodeType() };
   }
   protected getOutputParameterName(): string {
-    return 'ArrayOut';
+    return 'Out';
   }
   protected getOutputParameterType(): AbstractType {
     return new ArrayType();

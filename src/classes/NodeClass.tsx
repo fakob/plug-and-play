@@ -978,8 +978,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     try {
       this.successfullyExecuted = true;
       if (
-        PPGraph.currentGraph.showExecutionVisualisation &&
-        this.shouldDrawExecution()
+        PPGraph.currentGraph.showExecutionVisualisation
       ) {
         this.renderOutlineThrottled();
       }
@@ -1293,10 +1292,6 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     return new UpdateBehaviourClass(true, false, 1000, this);
   }
 
-  // override if you don't want your node to show outline for some reason
-  public shouldDrawExecution(): boolean {
-    return true;
-  }
 
   public allowResize(): boolean {
     return true;

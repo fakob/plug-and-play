@@ -201,7 +201,13 @@ abstract class SimpleMathOperation extends CustomFunction {
     return this.getOperator();
   }
   public getTags(): string[] {
-    return ['Math'].concat(super.getTags());
+    return ['Math', this.getOperator(), this.getOperatorSign()].concat(
+      super.getTags(),
+    );
+  }
+
+  public executeOnPlace(): boolean {
+    return true;
   }
 }
 
