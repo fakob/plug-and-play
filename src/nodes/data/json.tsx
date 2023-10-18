@@ -272,6 +272,6 @@ export class Make extends DynamicInputNode {
   }
 
   protected async onExecute(input, output): Promise<void> {
-    output[JSONName] = this.getAllUserInterestingInputSockets().map(socket => ({ [socket.name]: socket.data }));
+    output[JSONName] = this.getAllNonDefaultSockets().map(socket => ({ [socket.name]: socket.data }));
   }
 }

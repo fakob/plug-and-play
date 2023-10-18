@@ -138,7 +138,7 @@ export abstract class DRAW_Base extends PPNode {
       ),
       new Socket(SOCKET_TYPE.IN, injectedDataName, new ArrayType(), [], true),
       new Socket(SOCKET_TYPE.OUT, outputPixiName, new DeferredPixiType()),
-    ];
+    ].concat(super.getDefaultIO());
   }
 
   // if you are a child you likely want to use this instead of normal execute

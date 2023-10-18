@@ -557,9 +557,9 @@ export default class PPNode extends PIXI.Container {
     this.resizeAndDraw(this.getDefaultNodeWidth(), this.getDefaultNodeHeight());
   }
 
-  // check out for example customfunction to see the point of this
-  public getAllUserInterestingInputSockets(): Socket[] {
-    const defaultIONames = this.getDefaultIO().filter(socket => socket.isInput()).map((socket) => socket.name);
+  // get all sockets that are not part of the base kit for the node
+  public getAllNonDefaultSockets(): Socket[] {
+    const defaultIONames = this.getAllInitialSockets().filter(socket => socket.isInput()).map((socket) => socket.name);
     return this.getAllInputSockets()
       .filter((socket) => !defaultIONames.includes(socket.name));
   }
@@ -1312,8 +1312,6 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   public executeOnPlace(): boolean {
     return false;
   }
-
-  protected onNodeExit(): void {}
 
   ////////////////////////////// Meant to be overriden for visual/behavioral needs
 

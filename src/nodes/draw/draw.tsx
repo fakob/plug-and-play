@@ -340,10 +340,11 @@ export class DRAW_Combine extends DRAW_Base {
     };
     const myContainer = new PIXI.Container();
 
-    // assume the inputs are all functions named graphics, if not then you dun goofed
-    Object.keys(inputObject)
-      .filter((key) => key.includes(inputGraphicsName))
-      .forEach((key) => inputObject[key](myContainer, executions));
+    this.getAllNonDefaultSockets().map((socket) => {
+      if (socket.data !== undefined) {
+        socket.data(myContainer, executions);
+      }
+    });
 
     this.positionAndScale(myContainer, inputObject);
 
