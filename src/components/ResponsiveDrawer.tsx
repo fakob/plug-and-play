@@ -8,6 +8,7 @@ import Color from 'color';
 import InterfaceController, { ListenEvent } from '../InterfaceController';
 import Socket from '../classes/SocketClass';
 import InspectorContainer from '../InspectorContainer';
+import GraphInspectorContainer from '../GraphInspectorContainer';
 import HelpContainer from '../HelpContainer';
 import { COLOR_DARK, COLOR_WHITE_TEXT } from '../utils/constants';
 import { useIsSmallScreen } from '../utils/utils';
@@ -199,23 +200,12 @@ const ResponsiveDrawer = (props) => {
             setFilter={setFilter}
           />
         ) : (
-          <Paper
-            component={Stack}
-            direction="column"
-            justifyContent="center"
-            sx={{ height: '100%', background: 'unset' }}
-          >
-            <Box
-              sx={{
-                textAlign: 'center',
-                color: Color(props.randomMainColor).isDark()
-                  ? COLOR_WHITE_TEXT
-                  : COLOR_DARK,
-              }}
-            >
-              No node selected
-            </Box>
-          </Paper>
+          <GraphInspectorContainer
+            selectedNodes={props.selectedNodes}
+            randomMainColor={props.randomMainColor}
+            filter={filter}
+            setFilter={setFilter}
+          />
         )}
       </Drawer>
     </>
