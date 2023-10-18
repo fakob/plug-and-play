@@ -392,7 +392,7 @@
         },
         {
           "socketType": "out",
-          "name": "ArrayOut",
+          "name": "Out",
           "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
           "visible": true
         },
@@ -433,7 +433,7 @@
         },
         {
           "socketType": "out",
-          "name": "ArrayOut",
+          "name": "Out",
           "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
           "visible": true
         },
@@ -474,7 +474,7 @@
         },
         {
           "socketType": "out",
-          "name": "ArrayOut",
+          "name": "Out",
           "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
           "visible": true
         },
@@ -515,7 +515,7 @@
         },
         {
           "socketType": "out",
-          "name": "ArrayOut",
+          "name": "Out",
           "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
           "visible": true
         },
@@ -556,7 +556,7 @@
         },
         {
           "socketType": "out",
-          "name": "ArrayOut",
+          "name": "Out",
           "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
           "visible": true
         },
@@ -4741,7 +4741,7 @@
     {
       "id": "c049999f-aa15-4de8-984f-0b04ba9846f6",
       "sourceNodeId": "sharp-stingray-42",
-      "sourceSocketName": "ArrayOut",
+      "sourceSocketName": "Out",
       "targetNodeId": "ancient-panther-61",
       "targetSocketName": "Injected Data"
     },
@@ -4769,21 +4769,21 @@
     {
       "id": "f63918c7-a501-461d-afdd-b58ff2a4c3d7",
       "sourceNodeId": "nasty-ladybug-80",
-      "sourceSocketName": "ArrayOut",
+      "sourceSocketName": "Out",
       "targetNodeId": "fast-fox-82",
       "targetSocketName": "Injected Data"
     },
     {
       "id": "2ebf071e-904d-4f52-a870-1f7a3bf1b0e5",
       "sourceNodeId": "odd-bullfrog-9",
-      "sourceSocketName": "ArrayOut",
+      "sourceSocketName": "Out",
       "targetNodeId": "stale-donkey-21",
       "targetSocketName": "Injected Data"
     },
     {
       "id": "01a2f98d-b3e2-4747-8d18-57e129b18291",
       "sourceNodeId": "horrible-skunk-39",
-      "sourceSocketName": "ArrayOut",
+      "sourceSocketName": "Out",
       "targetNodeId": "thin-eel-19",
       "targetSocketName": "Injected Data"
     },
@@ -4860,7 +4860,7 @@
     {
       "id": "df78da68-37bc-48f4-ae4a-340d79f2a20f",
       "sourceNodeId": "mighty-wasp-43",
-      "sourceSocketName": "ArrayOut",
+      "sourceSocketName": "Out",
       "targetNodeId": "shaggy-chicken-45",
       "targetSocketName": "Injected Data"
     },

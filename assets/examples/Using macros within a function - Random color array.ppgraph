@@ -714,7 +714,7 @@
         },
         {
           "socketType": "out",
-          "name": "ArrayOut",
+          "name": "Out",
           "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
           "visible": true
         }
@@ -1581,7 +1581,7 @@
     {
       "id": "c6ae2c2d-a141-4496-8136-8772ac05a3db",
       "sourceNodeId": "spicy-skunk-69",
-      "sourceSocketName": "ArrayOut",
+      "sourceSocketName": "Out",
       "targetNodeId": "wise-cougar-68",
       "targetSocketName": "GraphicsArray"
     },

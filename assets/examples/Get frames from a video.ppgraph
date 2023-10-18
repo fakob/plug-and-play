@@ -767,7 +767,7 @@
         },
         {
           "socketType": "out",
-          "name": "ArrayOut",
+          "name": "Out",
           "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
           "visible": true
         },
@@ -1800,7 +1800,7 @@
     {
       "id": "03f08408-ba11-4353-ba5f-7441187a7071",
       "sourceNodeId": "modern-husky-85",
-      "sourceSocketName": "ArrayOut",
+      "sourceSocketName": "Out",
       "targetNodeId": "heavy-lionfish-6",
       "targetSocketName": "GraphicsArray"
     },

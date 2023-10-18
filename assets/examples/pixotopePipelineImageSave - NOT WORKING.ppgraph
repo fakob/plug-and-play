@@ -77,7 +77,7 @@
       "outputSocketArray": [
         {
           "socketType": "out",
-          "name": "FilteredArray",
+          "name": "Out",
           "dataType": "{\"class\":\"ArrayType\",\"type\":{\"inputWidgets\":[null],\"outputWidgets\":[null],\"possibleConversions\":[]}}",
           "visible": true
         }

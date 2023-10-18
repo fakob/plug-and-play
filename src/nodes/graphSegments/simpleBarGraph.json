@@ -425,7 +425,7 @@
         },
         {
           "socketType": "out",
-          "name": "ArrayOut",
+          "name": "Out",
           "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
           "visible": true
         }
@@ -456,17 +456,7 @@
           "socketType": "in",
           "name": "Values",
           "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
-          "data": [
-            1,
-            0.696,
-            0.907,
-            1.27,
-            0.986,
-            0.604,
-            0.645,
-            0.513,
-            0.804
-          ],
+          "data": [1, 0.696, 0.907, 1.27, 0.986, 0.604, 0.645, 0.513, 0.804],
           "visible": true
         },
         {
@@ -1596,7 +1586,7 @@
         },
         {
           "socketType": "out",
-          "name": "ArrayOut",
+          "name": "Out",
           "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
           "visible": true
         }
@@ -2896,7 +2886,7 @@
     {
       "id": "5824e89e-a06c-4a73-bc03-87c45166fa4b",
       "sourceNodeId": "soft-skunk-3",
-      "sourceSocketName": "ArrayOut",
+      "sourceSocketName": "Out",
       "targetNodeId": "fluffy-goose-65",
       "targetSocketName": "GraphicsArray"
     },
@@ -3022,7 +3012,7 @@
     {
       "id": "e7c72c43-a8cc-4185-8e93-8a74249ac413",
       "sourceNodeId": "quick-snail-49",
-      "sourceSocketName": "ArrayOut",
+      "sourceSocketName": "Out",
       "targetNodeId": "brave-owl-82",
       "targetSocketName": "Input2"
     },
@@ -3064,7 +3054,7 @@
     {
       "id": "f065af2b-5d45-4baf-9be6-97a7934d1f62",
       "sourceNodeId": "quick-snail-49",
-      "sourceSocketName": "ArrayOut",
+      "sourceSocketName": "Out",
       "targetNodeId": "honest-parrot-28",
       "targetSocketName": "Text"
     },

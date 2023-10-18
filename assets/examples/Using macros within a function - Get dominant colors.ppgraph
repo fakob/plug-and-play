@@ -725,7 +725,7 @@
         },
         {
           "socketType": "out",
-          "name": "ArrayOut",
+          "name": "Out",
           "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
           "visible": true
         }
@@ -1058,7 +1058,7 @@
         },
         {
           "socketType": "out",
-          "name": "ArrayOut",
+          "name": "Out",
           "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
           "visible": true
         }
@@ -1517,14 +1517,14 @@
     {
       "id": "a19d529d-e5d8-4ca6-a945-9a4e196bb544",
       "sourceNodeId": "brown-duck-57",
-      "sourceSocketName": "ArrayOut",
+      "sourceSocketName": "Out",
       "targetNodeId": "rotten-penguin-80",
       "targetSocketName": "GraphicsArray"
     },
     {
       "id": "c018a95b-4f7b-4906-9a76-b8937ba65e7b",
       "sourceNodeId": "young-eagle-93",
-      "sourceSocketName": "ArrayOut",
+      "sourceSocketName": "Out",
       "targetNodeId": "brown-duck-57",
       "targetSocketName": "Colors"
     },

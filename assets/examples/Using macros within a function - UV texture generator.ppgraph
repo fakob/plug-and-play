@@ -1020,7 +1020,7 @@
         },
         {
           "socketType": "out",
-          "name": "ArrayOut",
+          "name": "Out",
           "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
           "visible": true
         }
@@ -1755,7 +1755,7 @@
     {
       "id": "90e236e2-1560-4f2f-a949-b4a221c21964",
       "sourceNodeId": "smart-goat-34",
-      "sourceSocketName": "ArrayOut",
+      "sourceSocketName": "Out",
       "targetNodeId": "cowardly-ape-69",
       "targetSocketName": "GraphicsArray"
     },
