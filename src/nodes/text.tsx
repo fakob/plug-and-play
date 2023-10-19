@@ -348,6 +348,6 @@ export class Label extends PPNode {
       this.getSocketByName(outputSocketName).links[0].getTarget().defaultData,
     );
     updateDataIfDefault(this, inputSocketName, labelDefaultText, dataToUpdate);
-    super.outputPlugged();
+    await super.outputPlugged();
   }
 }

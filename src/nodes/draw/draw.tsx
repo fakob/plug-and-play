@@ -31,10 +31,7 @@ import {
   outputMultiplierPointerDown,
   outputPixiName,
 } from './abstract';
-import {
-  DynamicInputNode,
-  DynamicInputNodeFunctions,
-} from '../abstract/DynamicInputNode';
+import { DynamicInputNodeFunctions } from '../abstract/DynamicInputNode';
 
 const availableShapes: EnumStructure = [
   {
@@ -340,9 +337,10 @@ export class DRAW_Combine extends DRAW_Base {
     };
     const myContainer = new PIXI.Container();
 
-    this.getAllNonDefaultSockets().map((socket) => {
-      if (socket.data !== undefined) {
-        socket.data(myContainer, executions);
+    // this is hacky
+    Object.values(inputObject).forEach((value) => {
+      if (typeof value == 'function') {
+        value(myContainer, executions);
       }
     });
 
