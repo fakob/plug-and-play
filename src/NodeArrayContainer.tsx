@@ -9,19 +9,17 @@ import {
   ListItemButton,
   ListItemSecondaryAction,
   Stack,
+  TextField,
   ToggleButton,
   ToggleButtonGroup,
 } from '@mui/material';
+import ClearIcon from '@mui/icons-material/Clear';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import LockIcon from '@mui/icons-material/Lock';
-import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import Color from 'color';
-import {
-  getConfigData,
-  getLoadNodeExampleURL,
-  writeTextToClipboard,
-} from './utils/utils';
+import { getConfigData, writeTextToClipboard } from './utils/utils';
 import { ensureVisible, zoomToFitNodes } from './pixi/utils-pixi';
+import { TRgba } from './utils/interfaces';
 import { CodeEditor } from './components/Editor';
 // import { SerializedNode, SerializedSelection } from './utils/interfaces';
 import PPGraph from './classes/GraphClass';
@@ -76,17 +74,17 @@ const NodesContent = (props) => {
           bgcolor: 'background.paper',
           position: 'relative',
           overflow: 'auto',
-          paddingLeft: '0 !important',
+          paddingLeft: '2px !important',
         }}
         subheader={<li />}
       >
-        {Object.entries(props.nodes).map((property, index) => {
+        {props.nodes.map((property) => {
           return (
             <NodeItem
-              key={index}
+              key={property.id}
               property={property}
               randomMainColor={props.randomMainColor}
-              index={index}
+              index={property.id}
               sx={{
                 listStyleType: 'none',
               }}
@@ -102,7 +100,7 @@ const NodeItem = (props) => {
   console.log(props);
   return (
     <ListItem
-      key={`item-${props.property[1].title}`}
+      key={props.property.id}
       sx={{
         p: 0,
         '&:hover + .MuiListItemSecondaryAction-root': {
@@ -110,21 +108,21 @@ const NodeItem = (props) => {
         },
         bgcolor: `${Color(props.randomMainColor).darken(0.6)}`,
         margin: '2px 0',
-        borderLeft: `16px solid ${props.property[1].getColor().hex()}`,
+        borderLeft: `16px solid ${props.property.getColor().hex()}`,
       }}
-      title="Add node"
+      title={props.property.id}
       onPointerEnter={(event: React.MouseEvent<HTMLLIElement>) => {
         event.stopPropagation();
-        const nodeToJumpTo = PPGraph.currentGraph.nodes[props.property[0]];
+        const nodeToJumpTo = PPGraph.currentGraph.nodes[props.property.id];
         if (nodeToJumpTo) {
           nodeToJumpTo.renderOutlineThrottled(50);
         }
       }}
       onClick={(event: React.MouseEvent<HTMLLIElement>) => {
         event.stopPropagation();
-        const nodeToJumpTo = PPGraph.currentGraph.nodes[props.property[0]];
+        const nodeToJumpTo = PPGraph.currentGraph.nodes[props.property.id];
         if (nodeToJumpTo) {
-          nodeToJumpTo.renderOutlineThrottled(50);
+          nodeToJumpTo.renderOutlineThrottled(20);
           ensureVisible([nodeToJumpTo]);
           if (event.detail === 2) {
             zoomToFitNodes([nodeToJumpTo], -0.5);
@@ -158,7 +156,6 @@ const NodeItem = (props) => {
             }}
           >
             <Box
-              title={props.property[1].id}
               sx={{
                 flexGrow: 1,
               }}
@@ -168,11 +165,11 @@ const NodeItem = (props) => {
                   display: 'inline',
                 }}
               >
-                {props.property[1].name}
+                {props.property.name}
               </Box>
             </Box>
             <Box>
-              {props.property[1].tags?.map((part, index) => (
+              {props.property.getTags().map((part, index) => (
                 <Box
                   key={index}
                   sx={{
@@ -185,6 +182,8 @@ const NodeItem = (props) => {
                     '.Mui-focused &': {
                       display: 'none',
                     },
+                    opacity: 0.5,
+                    fontWeight: 400,
                   }}
                 >
                   {part}
@@ -204,65 +203,67 @@ const NodeItem = (props) => {
                 display: 'inline',
               }}
             >
-              {props.property[1].type}:{props.property[1].id}
+              {props.property.name === props.property.type
+                ? ''
+                : props.property.type}
+              {props.property.type === 'Macro'
+                ? props.property.getInsideNodes().map((item) => item.id)
+                : ''}
             </Box>
           </Box>
         </Stack>
       </ListItemButton>
-      {props.property[1].hasExample && (
-        <ListItemSecondaryAction
+      <ListItemSecondaryAction
+        sx={{
+          visibility: 'hidden',
+          '&&:hover': {
+            visibility: 'visible',
+          },
+          '.MuiListItem-root:has(+ &:hover)': {
+            background: 'rgba(255, 255, 255, 0.08)',
+          },
+          bgcolor: `${Color(props.randomMainColor).darken(0.6)}`,
+          right: '8px',
+        }}
+      >
+        <IconButton
+          size="medium"
+          title="Open node example"
+          className="menuItemButton"
+          onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+            event.stopPropagation();
+            const nodeToJumpTo = PPGraph.currentGraph.nodes[props.property.id];
+            if (nodeToJumpTo) {
+              nodeToJumpTo.renderOutlineThrottled(50);
+              ensureVisible([nodeToJumpTo]);
+              PPGraph.currentGraph.selection.selectNodes(
+                [nodeToJumpTo],
+                false,
+                true,
+              );
+            }
+          }}
           sx={{
-            visibility: 'hidden',
-            '&&:hover': {
-              visibility: 'visible',
-            },
-            '.MuiListItem-root:has(+ &:hover)': {
-              background: 'rgba(255, 255, 255, 0.08)',
-            },
-            bgcolor: `${Color(props.randomMainColor).darken(0.6)}`,
-            right: '8px',
+            borderRadius: 0,
           }}
         >
-          <IconButton
-            size="small"
-            title="Open node example"
-            className="menuItemButton"
-            onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
-              event.stopPropagation();
-              const nodeToJumpTo =
-                PPGraph.currentGraph.nodes[props.property[0]];
-              if (nodeToJumpTo) {
-                nodeToJumpTo.renderOutlineThrottled(50);
-                ensureVisible([nodeToJumpTo]);
-                PPGraph.currentGraph.selection.selectNodes(
-                  [nodeToJumpTo],
-                  false,
-                  true,
-                );
-              }
-            }}
+          <Box
             sx={{
-              borderRadius: 0,
+              color: 'text.secondary',
+              fontSize: '14px',
+              px: 0.5,
             }}
           >
-            <Box
-              sx={{
-                color: 'text.secondary',
-                fontSize: '10px',
-                px: 0.5,
-              }}
-            >
-              Select node
-            </Box>
-          </IconButton>
-        </ListItemSecondaryAction>
-      )}
+            Select node
+          </Box>
+        </IconButton>
+      </ListItemSecondaryAction>
     </ListItem>
   );
 };
 
 type InfoContentProps = {
-  selectedNode: PPNode;
+  graph: PPGraph;
 };
 
 function InfoContent(props: InfoContentProps) {
@@ -279,34 +280,6 @@ function InfoContent(props: InfoContentProps) {
           }}
         >
           <Box sx={{ color: 'text.primary' }}>Description</Box>
-          {/* {props.selectedNode.hasExample() && (
-            <IconButton
-              sx={{
-                borderRadius: 0,
-                right: '0px',
-                fontSize: '16px',
-                padding: 0,
-                height: '24px',
-                lineHeight: '150%',
-              }}
-              onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
-                event.stopPropagation();
-              }}
-              title="Open node example"
-              className="menuItemButton"
-            >
-              <Box
-                sx={{
-                  color: 'text.secondary',
-                  fontSize: '10px',
-                  px: 0.5,
-                }}
-              >
-                Open example
-              </Box>
-              <OpenInNewIcon sx={{ fontSize: '16px' }} />
-            </IconButton>
-          )} */}
         </Box>
         <Box
           sx={{
@@ -314,8 +287,8 @@ function InfoContent(props: InfoContentProps) {
             bgcolor: 'background.default',
           }}
         >
-          {/* {props.selectedNode.getDescription()} */}
-          {/* <Box
+          {/* {props.graph.serialize()}
+          <Box
             sx={{
               lineHeight: '150%',
             }}
@@ -323,29 +296,6 @@ function InfoContent(props: InfoContentProps) {
               __html: props.selectedNode.getAdditionalDescription(),
             }}
           /> */}
-        </Box>
-        <Box
-          sx={{
-            px: 2,
-            pb: 2,
-            bgcolor: 'background.default',
-            textAlign: 'right',
-          }}
-        >
-          {/* {props.selectedNode.getTags()?.map((part, index) => (
-            <Box
-              key={index}
-              sx={{
-                fontSize: '12px',
-                background: 'rgba(255,255,255,0.2)',
-                cornerRadius: '4px',
-                px: 0.5,
-                display: 'inline',
-              }}
-            >
-              {part}
-            </Box>
-          ))} */}
         </Box>
       </Box>
     </Stack>
@@ -441,11 +391,16 @@ type NodeArrayContainerProps = {
 export const NodeArrayContainer: React.FunctionComponent<
   NodeArrayContainerProps
 > = (props) => {
-  const [dragging, setIsDragging] = useState(false);
   const singleNode = props.selectedNodes.length ? props.selectedNodes[0] : null;
   const [selectedNode, setSelectedNode] = useState(singleNode);
-  const [nodesInGraph, setNodesInGraph] = useState({});
+  const [nodesInGraph, setNodesInGraph] = useState<PPNode[]>([]);
+  const [filteredNodes, setFilteredNodes] = useState<PPNode[]>([]);
   const [configData, setConfigData] = useState('');
+  const [filterText, setFilterText] = useState('');
+
+  const handleFilterChange = (event) => {
+    setFilterText(event.target.value);
+  };
 
   const handleFilter = (
     event: React.MouseEvent<HTMLElement>,
@@ -454,14 +409,26 @@ export const NodeArrayContainer: React.FunctionComponent<
     props.setFilter(newFilter);
   };
 
+  // useEffect(() => {
+  //   const id = InterfaceController.addListener(
+  //     ListenEvent.SelectionDragging,
+  //     setIsDragging,
+  //   );
+  //   return () => {
+  //     InterfaceController.removeListener(id);
+  //   };
+  // }, []);
+
   useEffect(() => {
-    const id = InterfaceController.addListener(
-      ListenEvent.SelectionDragging,
-      setIsDragging,
-    );
-    return () => {
-      InterfaceController.removeListener(id);
-    };
+    if (PPGraph.currentGraph) {
+      const nodes = Object.values(PPGraph.currentGraph.nodes);
+      console.log(nodes);
+      if (nodes) {
+        nodes.sort(customSort);
+        setNodesInGraph(nodes);
+        setFilteredNodes(nodes);
+      }
+    }
   }, []);
 
   useEffect(() => {
@@ -474,57 +441,130 @@ export const NodeArrayContainer: React.FunctionComponent<
     setSelectedNode(newSelectedNode);
   }, [props.selectedNodes]);
 
+  // Custom filter function to filter items based on their length
+  const customFilter = (item, filterText) => {
+    const filter = filterText.toLowerCase();
+    return (
+      item.name.toLowerCase().includes(filter) ||
+      item.type.toLowerCase().includes(filter) ||
+      item.id.toLowerCase().includes(filter)
+    );
+  };
+
+  // Custom sort function to sort items alphabetically
+  const customSort = (a, b) => a.name.localeCompare(b.name);
+
+  // const customSort = (array, compareFunction = undefined): PPNode[] => {
+  //   if (typeof compareFunction === 'function') {
+  //     // Use the provided compare function for sorting
+  //     return array.slice().sort(compareFunction);
+  //   } else {
+  //     // Default to ascending alphabetical sorting
+  //     return array
+  //       .slice()
+  //       .sort((a, b) =>
+  //         a.name.localeCompare(b.name, 'en', { sensitivity: 'base' }),
+  //       );
+  //   }
+  // };
+
   useEffect(() => {
-    const nodes = PPGraph.currentGraph?.nodes;
-    if (nodes) {
-      setNodesInGraph(nodes);
+    if (PPGraph.currentGraph) {
+      const nodes = Object.values(PPGraph.currentGraph.nodes);
+      console.log(nodes);
+      if (nodes) {
+        nodes.sort(customSort);
+        setNodesInGraph(nodes);
+        setFilteredNodes(nodes);
+      }
     }
   }, [
     PPGraph.currentGraph?.nodes,
     PPGraph.currentGraph?.nodes !== undefined &&
       Object.keys(PPGraph.currentGraph?.nodes).length,
+    // selectedNode,
   ]);
 
+  useEffect(() => {
+    // const sortedAlphabetically = customSort(nodes);
+    console.log(nodesInGraph);
+    const filteredItems = nodesInGraph.filter((node) =>
+      customFilter(node, filterText),
+    );
+    console.log(filterText, nodesInGraph, filteredItems);
+    filteredItems.sort(customSort);
+
+    setFilteredNodes(filteredItems);
+  }, [filterText]);
+
   return (
-    !dragging && (
-      <Box sx={{ width: '100%', m: 1 }}>
-        <FilterContainer
-          handleFilter={handleFilter}
-          filter={props.filter}
-          selectedNode={selectedNode}
-          selectedNodes={props.selectedNodes}
-        />
-        <Stack
-          spacing={1}
-          sx={{
-            mt: 1,
-            overflow: 'auto',
-            height: 'calc(100vh - 120px)',
-          }}
-        >
-          {(props.filter === 'nodes' || props.filter == null) && (
+    <Box sx={{ width: '100%', m: 1 }}>
+      <FilterContainer
+        handleFilter={handleFilter}
+        filter={props.filter}
+        selectedNode={selectedNode}
+        selectedNodes={props.selectedNodes}
+      />
+      <Stack
+        spacing={1}
+        sx={{
+          mt: 1,
+          overflow: 'auto',
+          height: 'calc(100vh - 120px)',
+        }}
+      >
+        {(props.filter === 'nodes' || props.filter == null) && (
+          <>
+            <TextField
+              hiddenLabel
+              placeholder={`Filter or search nodes`}
+              variant="filled"
+              fullWidth
+              value={filterText}
+              onChange={handleFilterChange}
+              InputProps={{
+                disableUnderline: true,
+                endAdornment: filterText ? (
+                  <IconButton size="small" onClick={() => setFilterText('')}>
+                    <ClearIcon />
+                  </IconButton>
+                ) : undefined,
+              }}
+              sx={{
+                fontSize: '16px',
+                opacity: 0.8,
+                bgcolor: 'background.paper',
+                '&&&& input': {
+                  paddingBottom: '8px',
+                  paddingTop: '9px',
+                  color: TRgba.fromString(props.randomMainColor)
+                    .getContrastTextColor()
+                    .hex(),
+                },
+              }}
+            />
             <NodesContent
-              nodes={nodesInGraph}
+              nodes={filteredNodes}
               randomMainColor={props.randomMainColor}
             />
-          )}
-          {(props.filter === 'graph-info' || props.filter == null) && (
-            <Stack spacing={1}>
-              <InfoContent selectedNode={selectedNode} />
-              <SourceContent
-                header="Config"
-                editable={true}
-                sourceCode={configData}
-                randomMainColor={props.randomMainColor}
-                onChange={(value) => {
-                  setConfigData(value);
-                }}
-                selectedNode={selectedNode}
-              />
-            </Stack>
-          )}
-        </Stack>
-      </Box>
-    )
+          </>
+        )}
+        {(props.filter === 'graph-info' || props.filter == null) && (
+          <Stack spacing={1}>
+            <InfoContent graph={PPGraph.currentGraph} />
+            <SourceContent
+              header="Config"
+              editable={true}
+              sourceCode={configData}
+              randomMainColor={props.randomMainColor}
+              onChange={(value) => {
+                setConfigData(value);
+              }}
+              selectedNode={selectedNode}
+            />
+          </Stack>
+        )}
+      </Stack>
+    </Box>
   );
 };

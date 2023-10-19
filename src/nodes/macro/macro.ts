@@ -231,6 +231,10 @@ export class Macro extends PPNode {
   }
 
   public onSpecificallySelected(): void {
+    PPGraph.currentGraph.selection.selectNodes(this.getInsideNodes());
+  }
+
+  public getInsideNodes(): PPNode[] {
     // get all nodes that are within the bounds
     const myBounds = this.getBounds();
     const nodesInside: PPNode[] = getObjectsInsideBounds(
@@ -238,7 +242,7 @@ export class Macro extends PPNode {
       myBounds,
     );
     nodesInside.unshift(this);
-    PPGraph.currentGraph.selection.selectNodes(nodesInside);
+    return nodesInside;
   }
 
   public shouldShowResizeRectangleEvenWhenMultipleNodesAreSelected(): boolean {
