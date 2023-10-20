@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
   Box,
-  Button,
-  ButtonGroup,
   IconButton,
   List,
   ListItem,
@@ -19,7 +17,7 @@ import LockIcon from '@mui/icons-material/Lock';
 import Color from 'color';
 import { getConfigData, writeTextToClipboard } from './utils/utils';
 import { ensureVisible, zoomToFitNodes } from './pixi/utils-pixi';
-import { errorColor } from './utils/constants';
+import { ERROR_COLOR } from './utils/constants';
 import { TRgba } from './utils/interfaces';
 import { CodeEditor } from './components/Editor';
 // import { SerializedNode, SerializedSelection } from './utils/interfaces';
@@ -123,15 +121,15 @@ ${props.property
         event.stopPropagation();
         const nodeToJumpTo = PPGraph.currentGraph.nodes[props.property.id];
         if (nodeToJumpTo) {
-          nodeToJumpTo.renderOutlineThrottled(50);
+          PPGraph.currentGraph.selection.drawSingleFocus(nodeToJumpTo);
         }
       }}
       onClick={(event: React.MouseEvent<HTMLLIElement>) => {
         event.stopPropagation();
         const nodeToJumpTo = PPGraph.currentGraph.nodes[props.property.id];
         if (nodeToJumpTo) {
-          nodeToJumpTo.renderOutlineThrottled(20);
           ensureVisible([nodeToJumpTo]);
+          PPGraph.currentGraph.selection.drawSingleFocus(nodeToJumpTo);
           if (event.detail === 2) {
             zoomToFitNodes([nodeToJumpTo], -0.5);
           } else if (event.detail === 3) {
@@ -176,7 +174,7 @@ ${props.property
                   )}
                   sx={{
                     fontSize: '16px',
-                    background: errorColor.hex(),
+                    background: ERROR_COLOR.hex(),
                     marginRight: '8px',
                     px: 0.5,
                     py: '2px',

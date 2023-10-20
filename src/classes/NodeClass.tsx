@@ -957,17 +957,13 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
             1.0 - i * (1.0 / iterations),
           );
         }
-        activeExecution.lineStyle(
-          4,
-          new PIXI.Color('#FF0000').toNumber(),
-          1,
-          1,
-        );
-        activeExecution.drawRect(
+
+        activeExecution.drawRoundedRect(
           NODE_MARGIN,
           0,
           this.nodeWidth,
           this.nodeHeight,
+          this.getRoundedCorners() ? NODE_CORNERRADIUS : 0,
         );
         activeExecution.endFill();
         if (i == iterations) {
