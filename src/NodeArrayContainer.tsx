@@ -19,6 +19,7 @@ import LockIcon from '@mui/icons-material/Lock';
 import Color from 'color';
 import { getConfigData, writeTextToClipboard } from './utils/utils';
 import { ensureVisible, zoomToFitNodes } from './pixi/utils-pixi';
+import { errorColor } from './utils/constants';
 import { TRgba } from './utils/interfaces';
 import { CodeEditor } from './components/Editor';
 // import { SerializedNode, SerializedSelection } from './utils/interfaces';
@@ -97,7 +98,6 @@ const NodesContent = (props) => {
 };
 
 const NodeItem = (props) => {
-  console.log(props);
   return (
     <ListItem
       key={props.property.id}
@@ -110,7 +110,15 @@ const NodeItem = (props) => {
         margin: '2px 0',
         borderLeft: `16px solid ${props.property.getColor().hex()}`,
       }}
-      title={props.property.id}
+      title={
+        props.property.type === 'Macro'
+          ? `${props.property.id}
+${props.property
+  .getInsideNodes()
+  .map((item) => item.name)
+  .join()}`
+          : props.property.id
+      }
       onPointerEnter={(event: React.MouseEvent<HTMLLIElement>) => {
         event.stopPropagation();
         const nodeToJumpTo = PPGraph.currentGraph.nodes[props.property.id];
@@ -160,6 +168,25 @@ const NodeItem = (props) => {
                 flexGrow: 1,
               }}
             >
+              {!props.property.successfullyExecuted && (
+                <Box
+                  title={JSON.stringify(
+                    props.property.lastError,
+                    Object.getOwnPropertyNames(props.property.lastError),
+                  )}
+                  sx={{
+                    fontSize: '16px',
+                    background: errorColor.hex(),
+                    marginRight: '8px',
+                    px: 0.5,
+                    py: '2px',
+                    display: 'inline',
+                    fontWeight: 400,
+                  }}
+                >
+                  Error
+                </Box>
+              )}
               <Box
                 sx={{
                   display: 'inline',
@@ -206,9 +233,6 @@ const NodeItem = (props) => {
               {props.property.name === props.property.getName()
                 ? ''
                 : props.property.getName()}
-              {props.property.type === 'Macro'
-                ? props.property.getInsideNodes().map((item) => item.id)
-                : ''}
             </Box>
           </Box>
         </Stack>
@@ -342,7 +366,7 @@ function SourceContent(props: SourceContentProps) {
         editable={props.editable}
         onChange={props.onChange}
       />
-      {props.onChange && (
+      {/* {props.onChange && (
         <Box
           sx={{
             m: 1,
@@ -351,32 +375,32 @@ function SourceContent(props: SourceContentProps) {
           <ButtonGroup variant="outlined" size="small" fullWidth>
             <Button
               onClick={() => {
-                // const sourceCode = props.sourceCode;
-                // const newSerializedNode = JSON.parse(
-                //   sourceCode,
-                // ) as SerializedNode;
-                // PPGraph.currentGraph.action_ReplaceNode(
-                //   props.selectedNode.serialize(),
-                //   newSerializedNode,
-                // );
+                const sourceCode = props.sourceCode;
+                const newSerializedNode = JSON.parse(
+                  sourceCode,
+                ) as SerializedNode;
+                PPGraph.currentGraph.action_ReplaceNode(
+                  props.selectedNode.serialize(),
+                  newSerializedNode,
+                );
               }}
             >
               Replace
             </Button>
             <Button
               onClick={() => {
-                // const sourceCode = props.sourceCode;
-                // const newSerializedSelection = JSON.parse(
-                //   `{"version": ${PP_VERSION},"nodes": [${sourceCode}],"links": []}`,
-                // ) as SerializedSelection;
-                // PPGraph.currentGraph.action_pasteNodes(newSerializedSelection);
+                const sourceCode = props.sourceCode;
+                const newSerializedSelection = JSON.parse(
+                  `{"version": ${PP_VERSION},"nodes": [${sourceCode}],"links": []}`,
+                ) as SerializedSelection;
+                PPGraph.currentGraph.action_pasteNodes(newSerializedSelection);
               }}
             >
               Create new
             </Button>
           </ButtonGroup>
         </Box>
-      )}
+      )} */}
     </Box>
   );
 }
@@ -386,6 +410,8 @@ type NodeArrayContainerProps = {
   randomMainColor: string;
   filter: string;
   setFilter: React.Dispatch<React.SetStateAction<string>>;
+  filterText: string;
+  setFilterText: React.Dispatch<React.SetStateAction<string>>;
 };
 
 export const NodeArrayContainer: React.FunctionComponent<
@@ -396,10 +422,9 @@ export const NodeArrayContainer: React.FunctionComponent<
   const [nodesInGraph, setNodesInGraph] = useState<PPNode[]>([]);
   const [filteredNodes, setFilteredNodes] = useState<PPNode[]>([]);
   const [configData, setConfigData] = useState('');
-  const [filterText, setFilterText] = useState('');
 
   const handleFilterChange = (event) => {
-    setFilterText(event.target.value);
+    props.setFilterText(event.target.value);
   };
 
   const handleFilter = (
@@ -409,25 +434,29 @@ export const NodeArrayContainer: React.FunctionComponent<
     props.setFilter(newFilter);
   };
 
-  // useEffect(() => {
-  //   const id = InterfaceController.addListener(
-  //     ListenEvent.SelectionDragging,
-  //     setIsDragging,
-  //   );
-  //   return () => {
-  //     InterfaceController.removeListener(id);
-  //   };
-  // }, []);
-
-  useEffect(() => {
-    if (PPGraph.currentGraph) {
-      const nodes = Object.values(PPGraph.currentGraph.nodes);
-      console.log(nodes);
+  const updateNodes = (currentGraph: PPGraph) => {
+    if (currentGraph) {
+      const nodes = Object.values(currentGraph.nodes);
       if (nodes) {
         nodes.sort(customSort);
         setNodesInGraph(nodes);
         setFilteredNodes(nodes);
       }
+    }
+  };
+
+  const filterNodes = (nodes: PPNode[]) => {
+    const filteredItems = nodes.filter((node) =>
+      customFilter(node, props.filterText),
+    );
+    filteredItems.sort(customSort);
+    setFilteredNodes(filteredItems);
+  };
+
+  useEffect(() => {
+    if (PPGraph.currentGraph) {
+      updateNodes(PPGraph.currentGraph);
+      filterNodes(nodesInGraph);
     }
   }, []);
 
@@ -452,31 +481,21 @@ export const NodeArrayContainer: React.FunctionComponent<
   };
 
   // Custom sort function to sort items alphabetically
-  const customSort = (a, b) => a.name.localeCompare(b.name);
-
-  // const customSort = (array, compareFunction = undefined): PPNode[] => {
-  //   if (typeof compareFunction === 'function') {
-  //     // Use the provided compare function for sorting
-  //     return array.slice().sort(compareFunction);
-  //   } else {
-  //     // Default to ascending alphabetical sorting
-  //     return array
-  //       .slice()
-  //       .sort((a, b) =>
-  //         a.name.localeCompare(b.name, 'en', { sensitivity: 'base' }),
-  //       );
-  //   }
-  // };
+  const customSort = (a, b) => {
+    // order nodes with errors on top
+    if (!a.successfullyExecuted && b.successfullyExecuted) return -1;
+    if (a.successfullyExecuted && !b.successfullyExecuted) return 1;
+    // next up are macros
+    if (a.type === 'Macro' && b.type !== 'Macro') return -1;
+    if (a.type !== 'Macro' && b.type === 'Macro') return 1;
+    // now the rest
+    return a.name.localeCompare(b.name);
+  };
 
   useEffect(() => {
     if (PPGraph.currentGraph) {
-      const nodes = Object.values(PPGraph.currentGraph.nodes);
-      console.log(nodes);
-      if (nodes) {
-        nodes.sort(customSort);
-        setNodesInGraph(nodes);
-        setFilteredNodes(nodes);
-      }
+      updateNodes(PPGraph.currentGraph);
+      filterNodes(nodesInGraph);
     }
   }, [
     PPGraph.currentGraph?.nodes,
@@ -486,16 +505,8 @@ export const NodeArrayContainer: React.FunctionComponent<
   ]);
 
   useEffect(() => {
-    // const sortedAlphabetically = customSort(nodes);
-    console.log(nodesInGraph);
-    const filteredItems = nodesInGraph.filter((node) =>
-      customFilter(node, filterText),
-    );
-    console.log(filterText, nodesInGraph, filteredItems);
-    filteredItems.sort(customSort);
-
-    setFilteredNodes(filteredItems);
-  }, [filterText]);
+    filterNodes(nodesInGraph);
+  }, [props.filterText, nodesInGraph]);
 
   return (
     <Box sx={{ width: '100%', m: 1 }}>
@@ -520,12 +531,15 @@ export const NodeArrayContainer: React.FunctionComponent<
               placeholder={`Filter or search nodes`}
               variant="filled"
               fullWidth
-              value={filterText}
+              value={props.filterText}
               onChange={handleFilterChange}
               InputProps={{
                 disableUnderline: true,
-                endAdornment: filterText ? (
-                  <IconButton size="small" onClick={() => setFilterText('')}>
+                endAdornment: props.filterText ? (
+                  <IconButton
+                    size="small"
+                    onClick={() => props.setFilterText('')}
+                  >
                     <ClearIcon />
                   </IconButton>
                 ) : undefined,

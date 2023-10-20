@@ -41,6 +41,8 @@ type InspectorContainerProps = {
   randomMainColor: string;
   filter: string;
   setFilter: React.Dispatch<React.SetStateAction<string>>;
+  filterText: string;
+  setFilterText: React.Dispatch<React.SetStateAction<string>>;
 };
 
 const InspectorContainer: React.FunctionComponent<InspectorContainerProps> = (
@@ -77,6 +79,8 @@ const InspectorContainer: React.FunctionComponent<InspectorContainerProps> = (
           randomMainColor={props.randomMainColor}
           filter={props.filter}
           setFilter={props.setFilter}
+          filterText={props.filterText}
+          setFilterText={props.setFilterText}
         />
       </Stack>
     </ThemeProvider>

@@ -231,7 +231,10 @@ export class Macro extends PPNode {
   }
 
   public onSpecificallySelected(): void {
-    PPGraph.currentGraph.selection.selectNodes(this.getInsideNodes());
+    const macroAndNodes = this.getInsideNodes();
+    // add the macro itself to it
+    macroAndNodes.unshift(this);
+    PPGraph.currentGraph.selection.selectNodes(macroAndNodes);
   }
 
   public getInsideNodes(): PPNode[] {
@@ -241,7 +244,6 @@ export class Macro extends PPNode {
       Object.values(PPGraph.currentGraph.nodes),
       myBounds,
     );
-    nodesInside.unshift(this);
     return nodesInside;
   }
 
