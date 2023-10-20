@@ -492,7 +492,6 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
 
     // draw single selections
     const nodeBounds = node._BackgroundGraphicsRef.getBounds();
-    console.log(nodeBounds);
     this.singleSelectionsGraphics.drawRect(
       nodeBounds.x - 4,
       nodeBounds.y - 4,

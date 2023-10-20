@@ -129,7 +129,9 @@ ${props.property
         const nodeToJumpTo = PPGraph.currentGraph.nodes[props.property.id];
         if (nodeToJumpTo) {
           ensureVisible([nodeToJumpTo]);
-          PPGraph.currentGraph.selection.drawSingleFocus(nodeToJumpTo);
+          setTimeout(() => {
+            PPGraph.currentGraph.selection.drawSingleFocus(nodeToJumpTo);
+          }, 800);
           if (event.detail === 2) {
             zoomToFitNodes([nodeToJumpTo], -0.5);
           } else if (event.detail === 3) {
