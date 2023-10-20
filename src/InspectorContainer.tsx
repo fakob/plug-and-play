@@ -161,7 +161,7 @@ function InspectorHeader(props) {
           <EditIcon fontSize="inherit" />
         </IconButton>
       </Box>
-      {props.selectedNodes[0].type !== props.nodeName && (
+      {props.selectedNodes[0].name !== props.selectedNodes[0].getName() && (
         <Typography
           sx={{
             opacity: 0.5,
@@ -170,7 +170,7 @@ function InspectorHeader(props) {
             pl: 1,
           }}
         >
-          {props.selectedNodes[0].type}
+          {props.selectedNodes[0].getName()}
         </Typography>
       )}
     </Box>
@@ -188,9 +188,7 @@ type InspectorContainerProps = {
 const InspectorContainer: React.FunctionComponent<InspectorContainerProps> = (
   props,
 ) => {
-  const [nodeName, setNodeName] = React.useState(
-    props.selectedNodes?.[0]?.name,
-  );
+  const [nodeName, setNodeName] = React.useState('');
 
   useEffect(() => {
     setNodeName(props.selectedNodes?.[0]?.name);

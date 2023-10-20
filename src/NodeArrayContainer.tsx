@@ -24,7 +24,7 @@ import { CodeEditor } from './components/Editor';
 // import { SerializedNode, SerializedSelection } from './utils/interfaces';
 import PPGraph from './classes/GraphClass';
 import PPNode from './classes/NodeClass';
-import InterfaceController, { ListenEvent } from './InterfaceController';
+// import InterfaceController, { ListenEvent } from './InterfaceController';
 
 type FilterContentProps = {
   handleFilter: (
@@ -203,9 +203,9 @@ const NodeItem = (props) => {
                 display: 'inline',
               }}
             >
-              {props.property.name === props.property.type
+              {props.property.name === props.property.getName()
                 ? ''
-                : props.property.type}
+                : props.property.getName()}
               {props.property.type === 'Macro'
                 ? props.property.getInsideNodes().map((item) => item.id)
                 : ''}
