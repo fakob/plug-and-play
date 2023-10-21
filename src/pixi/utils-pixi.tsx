@@ -169,7 +169,6 @@ export const ensureVisible = (nodes: PPNode[], undoable = false): void => {
 
   if (undoable) {
     const positionPre = getCurrentCursorPosition();
-    console.log('positionpre: ' + currentGraph.viewport.position);
     const scalePre = currentGraph.viewport.scale.x;
     const undoAction = async () => smoothMoveViewport(positionPre, scalePre);
     ActionHandler.performAction(action, undoAction, 'Move Viewport', true);

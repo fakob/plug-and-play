@@ -17,7 +17,7 @@ const jiraAuthKey = 'JIRA API Key';
 const jiraEmail = 'JIRA Email';
 
 const jql = 'JQL';
-const maxResults = 'Max Results';
+const startAt = 'Start At';
 
 abstract class Jira_Base extends HTTPNode {
   protected getDefaultIO(): Socket[] {
@@ -30,7 +30,7 @@ abstract class Jira_Base extends HTTPNode {
       ),
       new Socket(SOCKET_TYPE.IN, jiraAuthKey, new StringType(), 'JIRA_TOKEN'),
       new Socket(SOCKET_TYPE.IN, jiraEmail, new StringType(), 'JIRA_MAIL'),
-      new Socket(SOCKET_TYPE.IN, maxResults, new NumberType(), 50),
+      new Socket(SOCKET_TYPE.IN, startAt, new NumberType(), 0),
       new Socket(
         SOCKET_TYPE.IN,
         sendThroughCompanionAddress,
@@ -68,8 +68,8 @@ abstract class Jira_Get extends Jira_Base {
       {},
       inputObject[urlInputName] +
         this.getAddress(inputObject) +
-        '&maxResults=' +
-        inputObject[maxResults],
+        '&maxResults=100&startAt' +
+        inputObject[startAt],
       'Get',
     );
   }
