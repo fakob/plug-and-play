@@ -80,4 +80,8 @@ export class AbstractType {
   allowedToAutomaticallyAdapt(): boolean {
     return true;
   }
+
+  roundedCorners(): boolean{
+    return true;
+  }
 }

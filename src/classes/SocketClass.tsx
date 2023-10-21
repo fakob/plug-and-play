@@ -85,7 +85,7 @@ export default class Socket extends PIXI.Container implements Tooltipable {
     this.addEventListener('pointerup', this.onPointerUp);
     this.addEventListener('pointerdown', this.onSocketPointerDown.bind(this));
 
-    this.redrawAnythingChanging();
+    this.redraw();
   }
 
   static getOptionalVisibilitySocket(
@@ -110,15 +110,17 @@ export default class Socket extends PIXI.Container implements Tooltipable {
     );
   }
 
-  drawSocket(graphics: PIXI.Graphics, rounded = true) {
+  static drawSocket(
+    graphics: PIXI.Graphics,
+    dataType: AbstractType,
+    rounded = true,
+  ) {
     graphics.drawRoundedRect(
       0,
       0,
       SOCKET_WIDTH,
       SOCKET_WIDTH,
-      this.dataType.constructor === new TriggerType().constructor || !rounded
-        ? 0
-        : SOCKET_CORNERRADIUS,
+      !dataType.roundedCorners() || !rounded ? 0 : SOCKET_CORNERRADIUS,
     );
   }
 
@@ -130,7 +132,32 @@ export default class Socket extends PIXI.Container implements Tooltipable {
     this.addChild(this._MetaText);
   }
 
-  redrawAnythingChanging(): void {
+  static drawBox(
+    socketRef: PIXI.Graphics,
+    selectionBox: PIXI.Graphics,
+    dataType: AbstractType,
+    location: PIXI.Point,
+  ) {
+    socketRef.beginFill(dataType.getColor().hexNumber());
+    socketRef.x = location.x;
+    socketRef.y = location.y;
+    socketRef.pivot = new PIXI.Point(SOCKET_WIDTH / 2, SOCKET_WIDTH / 2);
+    Socket.drawSocket(socketRef, dataType);
+    // add bigger invisible box under hood
+    selectionBox.beginFill(dataType.getColor().hexNumber());
+    selectionBox.alpha = 0.01;
+    selectionBox.x = location.x;
+    selectionBox.y = location.y;
+    selectionBox.scale = new PIXI.Point(9, 2);
+    selectionBox.pivot = new PIXI.Point(SOCKET_WIDTH / 2, SOCKET_WIDTH / 2);
+    Socket.drawSocket(selectionBox, dataType, false);
+
+    socketRef.endFill();
+    socketRef.name = 'SocketRef';
+    socketRef.eventMode = 'static';
+  }
+
+  redraw(): void {
     this.removeChildren();
     this._MetaText = new PIXI.Text(
       '',
@@ -144,31 +171,15 @@ export default class Socket extends PIXI.Container implements Tooltipable {
     }
     this._SocketRef = new PIXI.Graphics();
     this._SelectionBox = new PIXI.Graphics();
-    this._SocketRef.beginFill(this.dataType.getColor().hexNumber());
-    this._SocketRef.x = this.getSocketLocation().x;
-    this._SocketRef.y = this.getSocketLocation().y;
-    this._SocketRef.pivot = new PIXI.Point(SOCKET_WIDTH / 2, SOCKET_WIDTH / 2);
-    this.drawSocket(this._SocketRef);
-    // add bigger invisible box under hood
-    this._SelectionBox.beginFill(this.dataType.getColor().hexNumber());
-    this._SelectionBox.alpha = 0.01;
-    this._SelectionBox.x = this.getSocketLocation().x;
-    this._SelectionBox.y = this.getSocketLocation().y;
-    this._SelectionBox.scale = new PIXI.Point(6, 2);
-    this._SelectionBox.pivot = new PIXI.Point(
-      SOCKET_WIDTH / 2,
-      SOCKET_WIDTH / 2,
+    Socket.drawBox(
+      this._SocketRef,
+      this._SelectionBox,
+      this.dataType,
+      this.getSocketLocation(),
     );
-    this.drawSocket(this._SelectionBox, false);
-
     this.redrawMetaText();
-
-    this._SocketRef.endFill();
-    this._SocketRef.name = 'SocketRef';
-    this._SocketRef.eventMode = 'static';
-
-    this.addChild(this._SelectionBox);
     this.addChild(this._SocketRef);
+    this.addChild(this._SelectionBox);
 
     if (this.showLabel) {
       this._TextRef = new PIXI.Text(
@@ -240,7 +251,7 @@ export default class Socket extends PIXI.Container implements Tooltipable {
       const proposedType = dataToType(newData);
       if (this.dataType.getName() !== proposedType.getName()) {
         this.dataType = proposedType;
-        this.redrawAnythingChanging();
+        this.redraw();
         this.getNode().socketTypeChanged();
         if (this.isOutput()) {
           this.links.forEach((link) => link.updateConnection());

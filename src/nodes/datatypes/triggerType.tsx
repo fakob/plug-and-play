@@ -10,7 +10,7 @@ export class TriggerType extends AbstractType {
   previousData: any = undefined;
   constructor(
     triggerType = TRIGGER_TYPE_OPTIONS[0].text,
-    customFunctionString = ''
+    customFunctionString = '',
   ) {
     super();
     this.triggerType = triggerType;
@@ -69,6 +69,10 @@ export class TriggerType extends AbstractType {
   }
 
   allowedToAutomaticallyAdapt(): boolean {
+    return false;
+  }
+
+  roundedCorners(): boolean {
     return false;
   }
 
