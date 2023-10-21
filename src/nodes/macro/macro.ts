@@ -290,6 +290,10 @@ export class ExecuteMacro extends CustomFunction {
     return 'Execute Macro';
   }
 
+  public getNodeTextString(): string {
+    return this.getInputData('MacroName') || 'Execute Macro';
+  }
+
   public getDescription(): string {
     return 'Executes a macro that is defined in the graph';
   }

@@ -1,9 +1,6 @@
 /* eslint-disable */
 import * as PIXI from 'pixi.js';
-import React from 'react';
 import { hri } from 'human-readable-ids';
-import { Box } from '@mui/material';
-import { CodeEditor } from '../components/Editor';
 import {
   CustomArgs,
   NodeStatus,
@@ -29,18 +26,14 @@ import {
   NODE_WIDTH,
   SOCKET_HEIGHT,
   SOCKET_TYPE,
-  TOOLTIP_DISTANCE,
-  TOOLTIP_WIDTH,
 } from '../utils/constants';
 import UpdateBehaviourClass from './UpdateBehaviourClass';
 import NodeHeaderClass from './NodeHeaderClass';
 import PPGraph from './GraphClass';
 import Socket from './SocketClass';
-import { Tooltipable } from '../components/Tooltip';
 import {
   calculateAspectRatioFit,
   connectNodeToSocket,
-  getCircularReplacer,
   getNodeCommentPosX,
   getNodeCommentPosY,
 } from '../utils/utils';
@@ -58,6 +51,7 @@ import { JSONType } from '../nodes/datatypes/jsonType';
 export default class PPNode extends PIXI.Container {
   _NodeNameRef: PIXI.Text;
   _BackgroundRef: PIXI.Container;
+  _NodeTextStringRef: PIXI.Text;
   _BackgroundGraphicsRef: PIXI.Graphics;
   _CommentRef: PIXI.Graphics;
   _StatusesRef: PIXI.Graphics;
@@ -157,13 +151,13 @@ export default class PPNode extends PIXI.Container {
     this.nodeHeight = this.getDefaultNodeHeight(); // if not set height is defined by in/out sockets
     this._isHovering = false;
 
-    const inputNameText = new PIXI.Text(
+    this._NodeTextStringRef = new PIXI.Text(
       this.getNodeTextString(),
       NODE_TEXTSTYLE,
     );
-    inputNameText.x = NODE_HEADER_TEXTMARGIN_LEFT;
-    inputNameText.y = NODE_PADDING_TOP + NODE_HEADER_TEXTMARGIN_TOP;
-    inputNameText.resolution = 8;
+    this._NodeTextStringRef.x = NODE_HEADER_TEXTMARGIN_LEFT;
+    this._NodeTextStringRef.y = NODE_PADDING_TOP + NODE_HEADER_TEXTMARGIN_TOP;
+    this._NodeTextStringRef.resolution = 8;
 
     const backgroundContainer = new PIXI.Container();
     this._BackgroundRef = this.addChild(backgroundContainer);
@@ -173,7 +167,7 @@ export default class PPNode extends PIXI.Container {
       this._BackgroundRef.addChild(backgroundGraphics);
     this._BackgroundGraphicsRef.name = 'backgroundGraphics';
 
-    this._NodeNameRef = this._BackgroundRef.addChild(inputNameText);
+    this._NodeNameRef = this._BackgroundRef.addChild(this._NodeTextStringRef);
     this._CommentRef = this._BackgroundRef.addChild(new PIXI.Graphics());
     this._StatusesRef = this._BackgroundRef.addChild(new PIXI.Graphics());
 
@@ -746,6 +740,7 @@ export default class PPNode extends PIXI.Container {
     this.drawSockets();
     this.drawComment();
     this.drawStatuses();
+    this._NodeTextStringRef.text = this.getNodeTextString();
   }
 
   constructSocketName(prefix: string, existing: Socket[]): string {
