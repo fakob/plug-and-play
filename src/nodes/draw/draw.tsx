@@ -55,6 +55,7 @@ const inputBorderName = 'Border';
 const outputImageName = 'Image';
 const outputQualityName = 'Quality';
 const outputTypeyName = 'Type';
+const inputReverseName = 'Reverse Direction';
 
 const inputDottedName = 'Dotted';
 const inputDottedIntervalName = 'Dot Interval';
@@ -322,7 +323,9 @@ export class DRAW_Combine extends DRAW_Base {
   }
 
   protected getDefaultIO(): Socket[] {
-    return super.getDefaultIO();
+    return [
+      new Socket(SOCKET_TYPE.IN, inputReverseName, new BooleanType()),
+    ].concat(super.getDefaultIO());
   }
   protected drawOnContainer(
     inputObject: any,
@@ -337,8 +340,12 @@ export class DRAW_Combine extends DRAW_Base {
     };
     const myContainer = new PIXI.Container();
 
-    // this is hacky
-    Object.values(inputObject).forEach((value) => {
+    // this is a bit hacky fishing them out like this but
+    const drawFunctions = Object.values(inputObject);
+    if (inputObject[inputReverseName]) {
+      drawFunctions.reverse();
+    }
+    drawFunctions.forEach((value) => {
       if (typeof value == 'function') {
         value(myContainer, executions);
       }
