@@ -794,7 +794,7 @@ export class Extract_Image_From_Graphics extends PPNode {
 
   saveImage = async () => {
     const base64 = this.getOutputData(outputImageName);
-    saveBase64AsImage(base64, this.name);
+    await saveBase64AsImage(base64, this.name);
   };
 }
 

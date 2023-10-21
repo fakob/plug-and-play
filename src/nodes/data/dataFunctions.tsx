@@ -392,7 +392,7 @@ export class CustomFunction extends PPNode {
     }
 
     const finalized = 'async () => ' + functionWithVariablesFromInputObject;
-    const res = eval(finalized);
+    const res = await eval(finalized);
     outputObject[this.getOutputParameterName()] = await res();
     outputObject[anyCodeName] =
       this.potentiallyModifyOutgoingCode(replacedMacros);
@@ -467,7 +467,7 @@ export class Map extends ArrayFunction {
     return 'Transform and or filter each element of an array';
   }
   protected getDefaultFunction(): string {
-    return '(ArrayIn, InnerCode) => {\n\
+    return 'async (ArrayIn, InnerCode) => {\n\
     const toReturn = [];\n\
     for (let i = 0; i < ArrayIn.length; i++){\n\
       toReturn.push(await(eval(InnerCode)(ArrayIn[i], i)));\n\
