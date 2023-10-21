@@ -491,7 +491,6 @@ export const NodeContextMenu = (props) => {
     e.preventDefault();
   }
 
-  const canAddOutput: boolean = PPGraph.currentGraph?.getCanAddOutput();
   return (
     <Paper
       id="node-contextmenu"
@@ -592,18 +591,6 @@ export const NodeContextMenu = (props) => {
           </Typography>
         </MenuItem>
         <Divider />
-        {canAddOutput && (
-          <MenuItem
-            onClick={() => {
-              PPGraph.currentGraph.addOutput();
-            }}
-          >
-            <ListItemIcon>
-              <AddIcon fontSize="small" />
-            </ListItemIcon>
-            <ListItemText>Add Output</ListItemText>
-          </MenuItem>
-        )}
         <MenuItem
           onClick={() => {
             PPGraph.currentGraph.addTriggerInput();

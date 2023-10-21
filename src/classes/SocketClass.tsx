@@ -482,7 +482,7 @@ export default class Socket extends PIXI.Container implements Tooltipable {
     }
   }
 
-  onPointerUp(event: PIXI.FederatedPointerEvent): void {
+  protected onPointerUp(event: PIXI.FederatedPointerEvent): void {
     this.getGraph().socketMouseUp(this, event);
   }
 
@@ -525,5 +525,11 @@ export default class Socket extends PIXI.Container implements Tooltipable {
   destroy(): void {
     PPGraph.currentGraph.socketHoverOut(this);
     super.destroy();
+  }
+}
+
+export class DummySocket extends Socket {
+  protected onPointerUp(event: PIXI.FederatedPointerEvent): void {
+    this.getNode().onPointerUp(event);
   }
 }

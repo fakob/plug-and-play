@@ -49,9 +49,6 @@ export class Placeholder extends PPNode {
     return true;
   }
 
-  getCanAddOutput(): boolean {
-    return true;
-  }
 }
 
 export class Mouse extends PPNode {

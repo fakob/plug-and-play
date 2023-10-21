@@ -1382,9 +1382,6 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     return 'Add Output';
   }
 
-  public getCanAddOutput(): boolean {
-    return false;
-  }
 
   public getShrinkOnSocketRemove(): boolean {
     return true;
