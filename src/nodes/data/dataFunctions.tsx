@@ -522,7 +522,7 @@ export class Counts extends ArrayFunction {
   }
 
   protected getDefaultFunction(): string {
-    return `(ArrayIn, Uniques) => {
+    return `(ArrayIn) => {
         const results = {}
         ArrayIn.forEach(entry => {
           if (results[entry] == undefined){

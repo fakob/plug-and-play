@@ -260,7 +260,7 @@ export class Make extends DynamicInputNode {
   }
 
   protected getDefaultIO(): Socket[] {
-    return [new Socket(SOCKET_TYPE.OUT, JSONName, new JSONType())];
+    return [new Socket(SOCKET_TYPE.OUT, JSONName, new JSONType())].concat(super.getDefaultIO());
   }
 
   public getDescription(): string {
