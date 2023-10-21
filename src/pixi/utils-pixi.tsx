@@ -1,6 +1,8 @@
 import * as PIXI from 'pixi.js';
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
+import { ActionHandler } from '../utils/actionHandler';
+import { getCurrentCursorPosition } from '../utils/utils';
 
 export const getTextWithLineBreaks = (node: any): string => {
   // we only deal with TextNodes
@@ -26,7 +28,7 @@ export const getTextWithLineBreaks = (node: any): string => {
     if (bottom > prevBottom) {
       // line break
       lines.push(
-        str.substr(lastFound, current - lastFound) // text content
+        str.substr(lastFound, current - lastFound), // text content
       );
       prevBottom = bottom;
       lastFound = current;
@@ -41,7 +43,7 @@ export const getTextWithLineBreaks = (node: any): string => {
 
 export const getObjectsInsideBounds = (
   nodes: PPNode[],
-  selectionRect: PIXI.Rectangle
+  selectionRect: PIXI.Rectangle,
 ): PPNode[] => {
   // console.log(selectionRect);
   return nodes
@@ -51,13 +53,13 @@ export const getObjectsInsideBounds = (
 
 export const doRectsIntersect = (
   firstRect: PIXI.Rectangle,
-  secondRect: PIXI.Rectangle
+  secondRect: PIXI.Rectangle,
 ): boolean => {
   return (
     Math.max(firstRect.x, secondRect.x) <
       Math.min(
         firstRect.x + firstRect.width,
-        secondRect.x + secondRect.width
+        secondRect.x + secondRect.width,
       ) &&
     Math.max(firstRect.y, secondRect.y) <
       Math.min(firstRect.y + firstRect.height, secondRect.y + secondRect.height)
@@ -70,7 +72,7 @@ export function drawDottedLine(
   startY: number,
   endX: number,
   endY: number,
-  interval: number
+  interval: number,
 ) {
   const deltaX: number = endX - startX;
   const deltaY: number = endY - startY;
@@ -82,7 +84,7 @@ export function drawDottedLine(
     graphics.moveTo(startX + i * segmentLengthX, startY + i * segmentLengthY);
     graphics.lineTo(
       startX + (i + 1) * segmentLengthX,
-      startY + (i + 1) * segmentLengthY
+      startY + (i + 1) * segmentLengthY,
     );
   }
 }
@@ -117,7 +119,7 @@ export const zoomToFitNodes = (nodes?: PPNode[]): void => {
 
   currentGraph.viewport.moveCenter(
     boundsToZoomTo.x + boundsToZoomTo.width / 2,
-    boundsToZoomTo.y + boundsToZoomTo.height / 2
+    boundsToZoomTo.y + boundsToZoomTo.height / 2,
   );
   currentGraph.viewport.fit(true, boundsToZoomTo.width, boundsToZoomTo.height);
   currentGraph.viewport.zoomPercent(zoomOutFactor, true); // zoom out a bit more
@@ -128,32 +130,50 @@ export const zoomToFitNodes = (nodes?: PPNode[]): void => {
   });
 };
 
-export const ensureVisible = (nodes: PPNode[]): void => {
-  let boundsToZoomTo: PIXI.Rectangle;
-  const currentGraph = PPGraph.currentGraph;
-
-  if (nodes.length < 1) {
-    boundsToZoomTo = currentGraph.nodeContainer.getLocalBounds(); // get bounds of the whole nodeContainer
-  } else {
-    boundsToZoomTo = getNodesBounds(nodes);
-  }
-  const fitScale = currentGraph.viewport.findFit(
-    boundsToZoomTo.width,
-    boundsToZoomTo.height
-  );
-  const fitScaleWithViewport = fitScale / currentGraph.viewportScaleX;
-
-  currentGraph.viewport.animate({
-    position: new PIXI.Point(
-      boundsToZoomTo.x + boundsToZoomTo.width / 2,
-      boundsToZoomTo.y + boundsToZoomTo.height / 2
-    ),
-    scale: fitScaleWithViewport < 1 ? fitScale / 2 : undefined, // only zoom out if necessary
+export function smoothMoveViewport(point: PIXI.Point, scale: number) {
+  PPGraph.currentGraph.viewport.animate({
+    position: point,
+    scale: scale,
     ease: 'easeOutExpo',
     time: 750,
   });
-  currentGraph.viewport.emit('moved', {
-    viewport: currentGraph.viewport,
+  PPGraph.currentGraph.viewport.emit('moved', {
+    viewport: PPGraph.currentGraph.viewport,
     type: 'pinch',
   });
+}
+
+export const ensureVisible = (nodes: PPNode[], undoable = false): void => {
+  const currentGraph = PPGraph.currentGraph;
+
+  const action = async () => {
+    let boundsToZoomTo: PIXI.Rectangle;
+
+    if (nodes.length < 1) {
+      boundsToZoomTo = currentGraph.nodeContainer.getLocalBounds(); // get bounds of the whole nodeContainer
+    } else {
+      boundsToZoomTo = getNodesBounds(nodes);
+    }
+    const fitScale = currentGraph.viewport.findFit(
+      boundsToZoomTo.width,
+      boundsToZoomTo.height,
+    );
+    const fitScaleWithViewport = fitScale / currentGraph.viewportScaleX;
+    const scale = fitScaleWithViewport < 1 ? fitScale / 2 : undefined; // only zoom out if necessary
+    const position = new PIXI.Point(
+      boundsToZoomTo.x + boundsToZoomTo.width / 2,
+      boundsToZoomTo.y + boundsToZoomTo.height / 2,
+    );
+    smoothMoveViewport(position, scale);
+  };
+
+  if (undoable) {
+    const positionPre = getCurrentCursorPosition();
+    console.log('positionpre: ' + currentGraph.viewport.position);
+    const scalePre = currentGraph.viewport.scale.x;
+    const undoAction = async () => smoothMoveViewport(positionPre, scalePre);
+    ActionHandler.performAction(action, undoAction, 'Move Viewport', true);
+  } else {
+    action();
+  }
 };

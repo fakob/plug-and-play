@@ -9,7 +9,12 @@ import {
 } from '../../utils/constants';
 import { CustomArgs, TRgba } from '../../utils/interfaces';
 import { AnyType } from '../datatypes/anyType';
-import { drawDottedLine, getObjectsInsideBounds } from '../../pixi/utils-pixi';
+import {
+  drawDottedLine,
+  ensureVisible,
+  getObjectsInsideBounds,
+  smoothMoveViewport,
+} from '../../pixi/utils-pixi';
 import { anyCodeName, CustomFunction } from '../data/dataFunctions';
 import UpdateBehaviourClass from '../../classes/UpdateBehaviourClass';
 import { DynamicEnumType } from '../datatypes/dynamicEnumType';
@@ -301,6 +306,12 @@ export class ExecuteMacro extends CustomFunction {
   public getTags(): string[] {
     return ['Macro'].concat(super.getTags());
   }
+  onNodeDoubleClick: (event: PIXI.FederatedPointerEvent) => void = () => {
+    const macroName = this.getInputData('MacroName');
+    if (macroName !== undefined) {
+      ensureVisible([PPGraph.currentGraph.getMacroWithName(macroName)], true);
+    }
+  };
 
   getColor(): TRgba {
     return macroColor;
