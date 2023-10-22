@@ -68,7 +68,7 @@ abstract class Jira_Get extends Jira_Base {
       {},
       inputObject[urlInputName] +
         this.getAddress(inputObject) +
-        '&maxResults=100&startAt' +
+        '&maxResults=100&startAt=' +
         inputObject[startAt],
       'Get',
     );
