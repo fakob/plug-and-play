@@ -7,7 +7,6 @@ import { BooleanType } from '../../datatypes/booleanType';
 import { TRgba } from '../../../utils/interfaces';
 import { ColorType } from '../../datatypes/colorType';
 import { DRAW_Base, injectedDataName } from '../abstract';
-import PPGraph from '../../../classes/GraphClass';
 
 const inputPointsName = 'Points X';
 const inputLabelsName = 'Labels';
@@ -41,96 +40,96 @@ export class GRAPH_LINE extends DRAW_Base {
         SOCKET_TYPE.IN,
         inputPointsName,
         new ArrayType(),
-        [0, 1, 5, 10, 7]
+        [0, 1, 5, 10, 7],
       ),
       new Socket(SOCKET_TYPE.IN, inputLabelsName, new ArrayType(), []),
       new Socket(
         SOCKET_TYPE.IN,
         inputWidthName,
         new NumberType(false, 1, 1000),
-        400
+        400,
       ),
       new Socket(
         SOCKET_TYPE.IN,
         inputHeightName,
         new NumberType(false, 1, 1000),
-        200
+        200,
       ),
       new Socket(
         SOCKET_TYPE.IN,
         inputLineWidthName,
         new NumberType(false, 1, 10),
-        2
+        2,
       ),
       new Socket(
         SOCKET_TYPE.IN,
         inputAutoScaleHeight,
         new BooleanType(),
         true,
-        false
+        false,
       ),
       new Socket(
         SOCKET_TYPE.IN,
         inputCustomMinHeight,
         new NumberType(false, -100, 100),
         0,
-        false
+        false,
       ),
       new Socket(
         SOCKET_TYPE.IN,
         inputCustomMaxHeight,
         new NumberType(false, 0, 100),
         1,
-        false
+        false,
       ),
       new Socket(
         SOCKET_TYPE.IN,
         inputShouldUseBezierCurve,
         new BooleanType(),
         true,
-        false
+        false,
       ),
       new Socket(
         SOCKET_TYPE.IN,
         inputShouldShowAxis,
         new BooleanType(),
         true,
-        false
+        false,
       ),
       Socket.getOptionalVisibilitySocket(
         SOCKET_TYPE.IN,
         inputShouldShowAxisLines,
         new BooleanType(),
         false,
-        () => this.getInputData(inputShouldShowAxis)
+        () => this.getInputData(inputShouldShowAxis),
       ),
       new Socket(
         SOCKET_TYPE.IN,
         inputFillGraph,
         new BooleanType(),
         false,
-        false
+        false,
       ),
       Socket.getOptionalVisibilitySocket(
         SOCKET_TYPE.IN,
         inputAxisGranularity,
         new NumberType(true, 1, 10),
         3,
-        () => this.getInputData(inputShouldShowAxis)
+        () => this.getInputData(inputShouldShowAxis),
       ),
       new Socket(
         SOCKET_TYPE.IN,
         inputShouldShowValues,
         new BooleanType(),
         true,
-        false
+        false,
       ),
       Socket.getOptionalVisibilitySocket(
         SOCKET_TYPE.IN,
         inputShowValuesFontSize,
         new NumberType(),
         12,
-        () => this.getInputData(inputShouldShowValues)
+        () => this.getInputData(inputShouldShowValues),
       ),
       new Socket(SOCKET_TYPE.IN, inputColorName, new ColorType()),
     ].concat(super.getDefaultIO());
@@ -139,7 +138,7 @@ export class GRAPH_LINE extends DRAW_Base {
   protected drawOnContainer(
     inputObject: any,
     container: PIXI.Container,
-    executions: { string: number }
+    executions: { string: number },
   ): void {
     inputObject = {
       ...inputObject,
@@ -163,7 +162,7 @@ export class GRAPH_LINE extends DRAW_Base {
 
     const graphics: PIXI.Graphics = new PIXI.Graphics();
     const selectedColor: TRgba = new ColorType().parse(
-      inputObject[inputColorName]
+      inputObject[inputColorName],
     );
     graphics.alpha = selectedColor.a;
 
@@ -180,7 +179,7 @@ export class GRAPH_LINE extends DRAW_Base {
     if (inputObject[inputShouldShowAxis]) {
       graphics.lineStyle(
         inputObject[inputLineWidthName] * 0.5,
-        TRgba.black().hexNumber()
+        TRgba.black().hexNumber(),
       );
       const samples = inputObject[inputAxisGranularity];
       for (let i = 0; i < samples; i++) {
@@ -191,7 +190,7 @@ export class GRAPH_LINE extends DRAW_Base {
 
         const basicText = new PIXI.Text(
           (ratio * (maxValue - minValue) + minValue).toPrecision(3),
-          textStyle
+          textStyle,
         );
         basicText.x = -40;
         basicText.y = -currPos - fontSize * 0.5 - 5;
@@ -206,7 +205,7 @@ export class GRAPH_LINE extends DRAW_Base {
     graphics.lineStyle(
       inputObject[inputLineWidthName],
       selectedColor.hexNumber(),
-      selectedColor.a
+      selectedColor.a,
     );
 
     graphics.moveTo(0, (points[0] - minValue) * -scaleY);
@@ -237,7 +236,7 @@ export class GRAPH_LINE extends DRAW_Base {
           nextTanX,
           nextTanY,
           scaledX,
-          scaledY
+          scaledY,
         );
       } else {
         graphics.lineTo(scaledX, scaledY);
@@ -256,7 +255,7 @@ export class GRAPH_LINE extends DRAW_Base {
       if (inputObject[inputLabelsName][i]) {
         const basicText = new PIXI.Text(
           inputObject[inputLabelsName][i],
-          textStyle
+          textStyle,
         );
         basicText.x = scaledX - fontSize * 0.5;
         basicText.y = 30;
