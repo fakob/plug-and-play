@@ -1,4 +1,5 @@
 import * as PIXI from 'pixi.js';
+import { hri } from 'human-readable-ids';
 import InterfaceController from './InterfaceController';
 import PPStorage from './PPStorage';
 import PPGraph from './classes/GraphClass';
@@ -48,6 +49,7 @@ export const dragAndDrop = (acceptedFiles, fileRejections, event) => {
           data = await response.text();
           await PPStorage.getInstance().loadGraphFromData(
             JSON.parse(data),
+            hri.random(),
             preExtension,
           );
           break;

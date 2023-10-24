@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   Box,
   Button,
@@ -17,17 +17,15 @@ import ClearIcon from '@mui/icons-material/Clear';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import LockIcon from '@mui/icons-material/Lock';
 import Color from 'color';
-import { hri } from 'human-readable-ids';
+import InterfaceController, { ListenEvent } from './InterfaceController';
 import { getConfigData, writeTextToClipboard } from './utils/utils';
 import { ensureVisible, zoomToFitNodes } from './pixi/utils-pixi';
 import { ERROR_COLOR } from './utils/constants';
 import { SerializedGraph, TRgba } from './utils/interfaces';
 import { CodeEditor } from './components/Editor';
-// import { SerializedNode, SerializedSelection } from './utils/interfaces';
 import PPGraph from './classes/GraphClass';
 import PPNode from './classes/NodeClass';
 import PPStorage from './PPStorage';
-// import InterfaceController, { ListenEvent } from './InterfaceController';
 
 type FilterContentProps = {
   handleFilter: (
@@ -391,6 +389,7 @@ function SourceContent(props: SourceContentProps) {
 
 type NodeArrayContainerProps = {
   graphName: string;
+  graphId: string;
   selectedNodes: PPNode[];
   randomMainColor: string;
   filter: string;
@@ -438,23 +437,6 @@ export const NodeArrayContainer: React.FunctionComponent<
     setFilteredNodes(filteredItems);
   };
 
-  useEffect(() => {
-    if (PPGraph.currentGraph) {
-      updateNodes(PPGraph.currentGraph);
-      filterNodes(nodesInGraph);
-    }
-  }, []);
-
-  useEffect(() => {
-    setConfigData(getConfigData(PPGraph.currentGraph));
-  }, [PPGraph.currentGraph?.id]);
-
-  useEffect(() => {
-    const newSelectedNode =
-      props.selectedNodes.length > 0 ? props.selectedNodes?.[0] : null;
-    setSelectedNode(newSelectedNode);
-  }, [props.selectedNodes]);
-
   // Custom filter function to filter items based on their length
   const customFilter = (item, filterText) => {
     const filter = filterText.toLowerCase();
@@ -477,17 +459,48 @@ export const NodeArrayContainer: React.FunctionComponent<
     return a.name.localeCompare(b.name);
   };
 
-  useEffect(() => {
-    if (PPGraph.currentGraph) {
-      updateNodes(PPGraph.currentGraph);
+  const updateNodesAndInfo = useCallback(() => {
+    const currentGraph = PPGraph.currentGraph;
+    if (currentGraph) {
+      setConfigData(getConfigData(currentGraph));
+      updateNodes(currentGraph);
       filterNodes(nodesInGraph);
     }
+  }, [PPGraph.currentGraph]);
+
+  useEffect(() => {
+    // data has id and name
+    const ids = [];
+    ids.push(
+      InterfaceController.addListener(ListenEvent.GraphChanged, () => {
+        updateNodesAndInfo();
+      }),
+    );
+
+    updateNodesAndInfo();
+
+    return () => {
+      ids.forEach((id) => InterfaceController.removeListener(id));
+    };
+  }, []);
+
+  useEffect(() => {
+    updateNodesAndInfo();
   }, [
     PPGraph.currentGraph?.nodes,
     PPGraph.currentGraph?.nodes !== undefined &&
       Object.keys(PPGraph.currentGraph?.nodes).length,
-    // selectedNode,
   ]);
+
+  useEffect(() => {
+    setConfigData(getConfigData(PPGraph.currentGraph));
+  }, [PPGraph.currentGraph?.id]);
+
+  useEffect(() => {
+    const newSelectedNode =
+      props.selectedNodes.length > 0 ? props.selectedNodes?.[0] : null;
+    setSelectedNode(newSelectedNode);
+  }, [props.selectedNodes]);
 
   useEffect(() => {
     filterNodes(nodesInGraph);
@@ -567,9 +580,9 @@ export const NodeArrayContainer: React.FunctionComponent<
                 ) as SerializedGraph;
                 PPStorage.getInstance().loadGraphFromData(
                   newSerializedGraph,
+                  props.graphId,
                   props.graphName,
                 );
-                // setConfigData(sourceCode);
               }}
             />
           </Stack>

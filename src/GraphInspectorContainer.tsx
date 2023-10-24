@@ -50,9 +50,7 @@ type GraphInspectorContainerProps = {
 const GraphInspectorContainer: React.FunctionComponent<
   GraphInspectorContainerProps
 > = (props) => {
-  const [graphName, setGraphName] = React.useState(
-    props.selectedNodes?.[0]?.name,
-  );
+  const [graphName, setGraphName] = React.useState('');
 
   useEffect(() => {
     const graphId = PPGraph.currentGraph?.id;
@@ -84,6 +82,7 @@ const GraphInspectorContainer: React.FunctionComponent<
         />
         <NodeArrayContainer
           graphName={graphName}
+          graphId={PPGraph.currentGraph?.id}
           selectedNodes={props.selectedNodes}
           randomMainColor={props.randomMainColor}
           filter={props.filter}

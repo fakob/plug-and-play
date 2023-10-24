@@ -487,8 +487,8 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
     this.singleSelectionsGraphics.clear();
     this.singleSelectionsGraphics.x = 0;
     this.singleSelectionsGraphics.y = 0;
-    this.singleSelectionsGraphics.lineStyle(2, SELECTION_COLOR_HEX, 0.8, 1);
-    this.singleSelectionsGraphics.beginFill(SELECTION_COLOR_HEX, 0.3);
+    this.singleSelectionsGraphics.lineStyle(2, ERROR_COLOR.hexNumber(), 0.8, 1);
+    this.singleSelectionsGraphics.beginFill(ERROR_COLOR.hexNumber(), 0.15);
 
     // draw single selections
     const nodeBounds = node._BackgroundGraphicsRef.getBounds();

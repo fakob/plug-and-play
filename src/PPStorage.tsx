@@ -221,14 +221,19 @@ export default class PPStorage {
     return undefined;
   }
 
-  async loadGraphFromData(fileData: SerializedGraph, id: string) {
+  async loadGraphFromData(fileData: SerializedGraph, id: string, name: string) {
     if (checkForUnsavedChanges()) {
       try {
         PPGraph.currentGraph.configure(fileData, id);
 
+        InterfaceController.notifyListeners(ListenEvent.GraphChanged, {
+          id,
+          name,
+        });
+
         InterfaceController.showSnackBar('Playground was loaded', {
           variant: 'default',
-          autoHideDuration: 20000,
+          autoHideDuration: 8000,
           action: (key) => (
             <SaveOrDismiss
               saveClick={() => {
@@ -244,7 +249,7 @@ export default class PPStorage {
       } catch (error) {
         InterfaceController.showSnackBar('Loading playground failed.', {
           variant: 'error',
-          autoHideDuration: 20000,
+          autoHideDuration: 8000,
         });
         return undefined;
       }
@@ -255,13 +260,14 @@ export default class PPStorage {
     try {
       const file = await fetch(loadURL);
       const fileData = await file.json();
-      return await this.loadGraphFromData(fileData, hri.random());
+      const id = hri.random();
+      return await this.loadGraphFromData(fileData, id, id);
     } catch (error) {
       InterfaceController.showSnackBar(
         `Loading playground from link in URL failed: ${loadURL}`,
         {
           variant: 'error',
-          autoHideDuration: 20000,
+          autoHideDuration: 8000,
         },
       );
       return undefined;
