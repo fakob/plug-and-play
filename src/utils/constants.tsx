@@ -52,9 +52,10 @@ export const COLOR = [
 ];
 
 export const COLOR_WHITE = '#F5F5F5';
+export const WHITE_HEX = 0xf5f5f5;
 export const COLOR_DARK = '#0C0C0C';
+export const DARK_HEX = 0x0c0c0c;
 export const COLOR_WHITE_TEXT = '#F4FAF9';
-export const WHITE_HEX = 0xffffff;
 export const COLOR_ERROR = '#FF0000';
 
 export const RANDOMMAINCOLOR = COLOR[Math.floor(Math.random() * COLOR.length)];

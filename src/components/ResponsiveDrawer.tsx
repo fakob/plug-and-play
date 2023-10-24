@@ -73,6 +73,7 @@ const ResponsiveDrawer = (props) => {
   const [open, setOpen] = useState(true);
   const [filter, setFilter] = useState(null);
   const [helpFilter, setHelpFilter] = useState('create');
+  const [graphFilter, setGraphFilter] = useState('nodes');
   const [socketToInspect, setSocketToInspect] = useState<Socket | undefined>(
     undefined,
   );
@@ -203,8 +204,8 @@ const ResponsiveDrawer = (props) => {
           <GraphInspectorContainer
             selectedNodes={props.selectedNodes}
             randomMainColor={props.randomMainColor}
-            filter={filter}
-            setFilter={setFilter}
+            filter={graphFilter}
+            setFilter={setGraphFilter}
           />
         )}
       </Drawer>

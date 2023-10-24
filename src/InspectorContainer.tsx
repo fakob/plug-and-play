@@ -7,9 +7,11 @@ import {
   ThemeProvider,
   Typography,
 } from '@mui/material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import EditIcon from '@mui/icons-material/Edit';
 import Color from 'color';
 import styles from './utils/style.module.css';
+import PPGraph from './classes/GraphClass';
 import PPNode from './classes/NodeClass';
 import Socket from './classes/SocketClass';
 import { PropertyArrayContainer } from './PropertyArrayContainer';
@@ -32,6 +34,23 @@ function InspectorHeaderReadOnly(props) {
           alignItems: 'center',
         }}
       >
+        <IconButton
+          title="Unselect nodes"
+          color="secondary"
+          size="small"
+          sx={{
+            color: `${
+              Color(props.randomMainColor).isDark()
+                ? COLOR_WHITE_TEXT
+                : COLOR_DARK
+            }`,
+          }}
+          onClick={() => {
+            PPGraph.currentGraph.selection.deselectAllNodes();
+          }}
+        >
+          <ArrowBackIcon fontSize="inherit" />
+        </IconButton>
         <Typography
           sx={{
             pl: 1,
@@ -64,7 +83,25 @@ function InspectorHeader(props) {
           alignItems: 'center',
         }}
       >
+        <IconButton
+          title="Unselect nodes"
+          color="secondary"
+          size="small"
+          sx={{
+            color: `${
+              Color(props.randomMainColor).isDark()
+                ? COLOR_WHITE_TEXT
+                : COLOR_DARK
+            }`,
+          }}
+          onClick={() => {
+            PPGraph.currentGraph.selection.deselectAllNodes();
+          }}
+        >
+          <ArrowBackIcon fontSize="inherit" />
+        </IconButton>
         <TextField
+          title={props.selectedNodes[0].id}
           hiddenLabel
           inputRef={textInput}
           disabled={props.selectedNodes.length !== 1}
@@ -108,6 +145,13 @@ function InspectorHeader(props) {
           title="Edit node name"
           color="secondary"
           size="small"
+          sx={{
+            color: `${
+              Color(props.randomMainColor).isDark()
+                ? COLOR_WHITE_TEXT
+                : COLOR_DARK
+            }`,
+          }}
           onClick={() => {
             setTimeout(() => {
               textInput.current.focus();

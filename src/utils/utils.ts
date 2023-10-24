@@ -513,6 +513,64 @@ export async function connectNodeToSocket(
   await PPGraph.currentGraph.action_Connect(output, input);
 }
 
+export const getMatchingSocket = (socket: PPSocket, node: PPNode): PPSocket => {
+  const socketArray = socket.isInput()
+    ? node.outputSocketArray
+    : node.inputSocketArray;
+  if (socketArray.length > 0) {
+    const getSocket = (
+      condition,
+      onlyFreeSocket,
+      onlyVisibleSocket = true,
+    ): PPSocket => {
+      return socketArray.find((socketInArray) => {
+        return (
+          (!onlyVisibleSocket || socketInArray.visible) &&
+          condition(socketInArray) &&
+          (!onlyFreeSocket || !socketInArray.hasLink())
+        );
+      });
+    };
+
+    const preferredCondition = (socketInArray): boolean => {
+      const preferredSocketName = socketInArray.isInput()
+        ? node.getPreferredInputSocketName()
+        : node.getPreferredOutputSocketName();
+      return socketInArray.name === preferredSocketName;
+    };
+
+    const exactMatchCondition = (socketInArray): boolean => {
+      return socketInArray.dataType.constructor === socket.dataType.constructor;
+    };
+
+    const anyTypeCondition = (socketInArray): boolean => {
+      return socketInArray.dataType.constructor === new AnyType().constructor;
+    };
+
+    const anyCondition = (): boolean => {
+      return true;
+    };
+
+    return (
+      getSocket(preferredCondition, true, false) ?? // get preferred with no link
+      getSocket(exactMatchCondition, true) ?? // get exact match with no link
+      getSocket(anyTypeCondition, true) ?? // get anyType with no link
+      getSocket(anyCondition, true) ?? // get any with no link
+      // no match free and visible
+      getSocket(preferredCondition, false, false) ??
+      getSocket(exactMatchCondition, false) ??
+      getSocket(anyTypeCondition, false) ??
+      getSocket(anyCondition, false) ??
+      // no match linked and visible
+      getSocket(exactMatchCondition, false, false) ??
+      getSocket(anyTypeCondition, false, false) ??
+      getSocket(anyCondition, false, false)
+    );
+  }
+  // node does not have an in/output socket
+  return undefined;
+};
+
 export const indexToAlphaNumName = (num: number) => {
   let alpha = '';
 
@@ -801,3 +859,11 @@ export const getObjectAtPoint = (point): PIXI.DisplayObject => {
   const objectsUnderPoint = boundary.hitTest(point.x, point.y);
   return objectsUnderPoint;
 };
+
+export function getConfigData(selectedNodeOrGraph) {
+  return JSON.stringify(
+    selectedNodeOrGraph?.serialize(),
+    getCircularReplacer(),
+    2,
+  );
+}
