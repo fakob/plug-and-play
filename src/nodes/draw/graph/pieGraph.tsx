@@ -11,6 +11,18 @@ const inputLineWidth = 'Line width';
 const inputShowValues = 'Show values';
 const inputShowValuesFontSize = 'Font size';
 
+
+class PieSlice {
+  Value: number;
+  Name: string;
+
+  constructor(inValue, inName) {
+    this.Name = inName;
+    this.Value = inValue;
+  }
+};
+const PIE_GRAPH_RESOLUTION = 360;
+
 export class GRAPH_PIE extends DRAW_Base {
   public getName(): string {
     return 'Draw Pie Graph';
@@ -19,6 +31,7 @@ export class GRAPH_PIE extends DRAW_Base {
   public getDescription(): string {
     return 'Draws a Pie Graph based on input data/labels/colors';
   }
+
 
   protected getDefaultIO(): Socket[] {
     return [
@@ -48,6 +61,7 @@ export class GRAPH_PIE extends DRAW_Base {
     ].concat(super.getDefaultIO());
   }
 
+
   protected drawOnContainer(
     inputObject: any,
     container: PIXI.Container,
@@ -56,16 +70,22 @@ export class GRAPH_PIE extends DRAW_Base {
     inputObject = {
       ...inputObject,
       ...inputObject[injectedDataName][
-        this.getAndIncrementExecutions(executions)
+      this.getAndIncrementExecutions(executions)
       ],
     };
 
     const graphics = new PIXI.Graphics();
 
+    const pieSlices: PieSlice[] = inputObject[inputDataName];
     // determine total amount of values
     // we allow either an array of just the numbers, or (better), an object that contains data and potentially other stuff
-    const total = inputObject[inputDataName].map((value) => {
-      return typeof value == 'number' ? value : value['Value'];
+    const total: number = pieSlices.reduce((total, pieSlice) =>
+      total + pieSlice.Value, 0);
+
+    let currDegrees = 0;
+    pieSlices.forEach(pieSlice => {
+      const degrees = 360 * pieSlice.Value / total;
+
     });
 
     this.positionAndScale(graphics, inputObject);
