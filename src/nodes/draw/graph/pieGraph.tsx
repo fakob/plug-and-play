@@ -16,7 +16,8 @@ const inputShowValuesFontSize = 'Font size';
 
 class PieSlice {
   Value: number;
-  Name: string;
+  Name: string | undefined;
+  Color: TRgba | undefined;
 
   constructor(inValue, inName) {
     this.Name = inName;
@@ -39,7 +40,7 @@ export class GRAPH_PIE extends DRAW_Base {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, inputDataName, new ArrayType(), [
-        { Value: 2, Name: 'Big slice' }, { Value: 1, Name: "Small slice" }
+        { Value: 2, Name: 'Big slice', Color: new TRgba(1, 0, 0, 0.5) }, { Value: 1, Name: "Small slice", Color: new TRgba(0, 1, 1, 0.5) }
       ]),
       new Socket(SOCKET_TYPE.IN, inputRadius, new NumberType(false, 1, 1000), 100),
       new Socket(
@@ -108,7 +109,8 @@ export class GRAPH_PIE extends DRAW_Base {
       const slice = new PIXI.Polygon();
       slice.points.push(0);
       slice.points.push(0);
-      graphics.beginFill(this.generateHexColorFromString(pieSlice.Name));
+      const hexColor = /*pieSlice.Color !== undefined ? new TRgba(pieSlice.Color).hexNumber() :*/ this.generateHexColorFromString(pieSlice.Name);
+      graphics.beginFill(hexColor);
       //graphics.alpha = 0.5;
       for (let i = 0; i < PIE_GRAPH_RESOLUTION * partOfTotal; i++) {
         const x = Math.cos(RADIAN_PER_DEGREES * currDegrees) * radius;
