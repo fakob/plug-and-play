@@ -79,6 +79,7 @@ export const dragAndDrop = (acceptedFiles, fileRejections, event) => {
         case 'jsx':
         case 'ts':
         case 'tsx':
+        case 'xml':
           data = await response.text();
           newNode = await PPGraph.currentGraph.addNewNode('CodeEditor', {
             nodePosX,
