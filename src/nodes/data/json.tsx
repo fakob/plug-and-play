@@ -216,12 +216,13 @@ export class Break extends PPNode {
     if (!inputObject[lockOutputsName]) {
       this.adaptOutputs(currentJSON);
     }
-    // eslint-disable-next-line prefer-const
-    Object.keys(currentJSON).forEach(
-      (key) => {
+    // cant use keys of input object here becasue i might have nested properties
+    this.outputSocketArray.forEach(
+      (socket) => {
+        const key = socket.name;
         const allSegments = key.split(".");
         const value = allSegments.reduce((prev, segment) => prev[segment], currentJSON);
-        (outputObject[key] = value);
+        outputObject[key] = value;
       }
     );
   }
