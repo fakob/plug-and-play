@@ -8,6 +8,7 @@ import * as PIXI from 'pixi.js';
 
 const inputDataName = 'Input data';
 const inputLineWidth = 'Line width';
+const inputRadius = "Radius";
 const inputShowValues = 'Show values';
 const inputShowValuesFontSize = 'Font size';
 
@@ -22,6 +23,7 @@ class PieSlice {
   }
 };
 const PIE_GRAPH_RESOLUTION = 360;
+const RADIAN_PER_DEGREES = 1 / 57.2957795;
 
 export class GRAPH_PIE extends DRAW_Base {
   public getName(): string {
@@ -36,8 +38,9 @@ export class GRAPH_PIE extends DRAW_Base {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, inputDataName, new ArrayType(), [
-        { Value: 1, Name: 'Example' },
+        { Value: 2, Name: 'Big slice' }, { Value: 1, Name: "Small slice" }
       ]),
+      new Socket(SOCKET_TYPE.IN, inputRadius, new NumberType(false, 1, 1000), 100),
       new Socket(
         SOCKET_TYPE.IN,
         inputLineWidth,
@@ -82,11 +85,29 @@ export class GRAPH_PIE extends DRAW_Base {
     const total: number = pieSlices.reduce((total, pieSlice) =>
       total + pieSlice.Value, 0);
 
+    const radius = inputObject[inputRadius];
+
     let currDegrees = 0;
     pieSlices.forEach(pieSlice => {
-      const degrees = 360 * pieSlice.Value / total;
-
+      const partOfTotal = pieSlice.Value / total;
+      const slice = new PIXI.Polygon();
+      slice.points.push(0);
+      slice.points.push(0);
+      for (let i = 0; i < PIE_GRAPH_RESOLUTION * partOfTotal; i++) {
+        const x = Math.cos(RADIAN_PER_DEGREES * currDegrees) * radius;
+        const y = Math.sin(RADIAN_PER_DEGREES * currDegrees) * radius;
+        graphics.drawCircle(x, y, 10);
+        //slice.points.push();
+        //slice.points.push();
+        currDegrees += 1 / PIE_GRAPH_RESOLUTION;
+        // console.log("x, y: " + x + ", " + y);
+      }
+      slice.points.push(0);
+      slice.points.push(0);
+      //console.log(slice.points.join(","));
+      graphics.drawPolygon(slice);
     });
+
 
     this.positionAndScale(graphics, inputObject);
     container.addChild(graphics);
