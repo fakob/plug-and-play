@@ -5,6 +5,7 @@ import { ArrayType } from '../../datatypes/arrayType';
 import { NumberType } from '../../datatypes/numberType';
 import { BooleanType } from '../../datatypes/booleanType';
 import * as PIXI from 'pixi.js';
+import { TRgba } from '../../../utils/interfaces';
 
 const inputDataName = 'Input data';
 const inputLineWidth = 'Line width';
@@ -64,6 +65,20 @@ export class GRAPH_PIE extends DRAW_Base {
     ].concat(super.getDefaultIO());
   }
 
+  private djb2(str) {
+    let hash = 5381;
+    for (let i = 0; i < str.length; i++) {
+      hash = (hash * 33) ^ str.charCodeAt(i);
+    }
+    return hash >>> 0;
+  }
+
+  private generateHexColorFromString(input) {
+    const hashValue = this.djb2(input);
+    const hexColor = '#' + (hashValue & 0xFFFFFF).toString(16).padStart(6, '0');
+    return hexColor;
+  }
+
 
   protected drawOnContainer(
     inputObject: any,
@@ -88,23 +103,31 @@ export class GRAPH_PIE extends DRAW_Base {
     const radius = inputObject[inputRadius];
 
     let currDegrees = 0;
-    pieSlices.forEach(pieSlice => {
+    pieSlices.forEach((pieSlice, index) => {
       const partOfTotal = pieSlice.Value / total;
       const slice = new PIXI.Polygon();
       slice.points.push(0);
       slice.points.push(0);
+      graphics.beginFill(this.generateHexColorFromString(pieSlice.Name));
+      //graphics.alpha = 0.5;
       for (let i = 0; i < PIE_GRAPH_RESOLUTION * partOfTotal; i++) {
         const x = Math.cos(RADIAN_PER_DEGREES * currDegrees) * radius;
         const y = Math.sin(RADIAN_PER_DEGREES * currDegrees) * radius;
-        graphics.drawCircle(x, y, 10);
-        //slice.points.push();
-        //slice.points.push();
-        currDegrees += 1 / PIE_GRAPH_RESOLUTION;
+        //graphics.drawCircle(x, y, 10);
+        slice.points.push(x);
+        slice.points.push(y);
+        currDegrees += 360 / PIE_GRAPH_RESOLUTION;
         // console.log("x, y: " + x + ", " + y);
+      }
+      currDegrees -= 360 / PIE_GRAPH_RESOLUTION;
+      // last slice needs to wrap around
+      if (index == pieSlices.length - 1) {
+        slice.points.push(radius);
+        slice.points.push(0);
       }
       slice.points.push(0);
       slice.points.push(0);
-      //console.log(slice.points.join(","));
+
       graphics.drawPolygon(slice);
     });
 
