@@ -2,6 +2,8 @@ import React, { useEffect } from 'react';
 import { Box, Stack, ThemeProvider, Typography } from '@mui/material';
 import Color from 'color';
 import styles from './utils/style.module.css';
+import PPStorage from './PPStorage';
+import PPGraph from './classes/GraphClass';
 import PPNode from './classes/NodeClass';
 import { NodeArrayContainer } from './NodeArrayContainer';
 import { COLOR_WHITE_TEXT, COLOR_DARK, customTheme } from './utils/constants';
@@ -29,14 +31,14 @@ function GraphInspectorHeader(props) {
             py: 0.5,
           }}
         >
-          Graph inspector
+          {props.graphName}
         </Typography>
       </Box>
     </Box>
   );
 }
 
-type InspectorContainerProps = {
+type GraphInspectorContainerProps = {
   selectedNodes: PPNode[];
   randomMainColor: string;
   filter: string;
@@ -45,16 +47,24 @@ type InspectorContainerProps = {
   setFilterText: React.Dispatch<React.SetStateAction<string>>;
 };
 
-const InspectorContainer: React.FunctionComponent<InspectorContainerProps> = (
-  props,
-) => {
-  const [nodeName, setNodeName] = React.useState(
+const GraphInspectorContainer: React.FunctionComponent<
+  GraphInspectorContainerProps
+> = (props) => {
+  const [graphName, setGraphName] = React.useState(
     props.selectedNodes?.[0]?.name,
   );
 
   useEffect(() => {
-    setNodeName(props.selectedNodes?.[0]?.name);
-  }, [props.selectedNodes]);
+    const graphId = PPGraph.currentGraph?.id;
+    if (graphId) {
+      PPStorage.getInstance()
+        .getGraphNameFromDB(graphId)
+        .then((name) => {
+          console.log(name);
+          setGraphName(name);
+        });
+    }
+  }, [PPGraph.currentGraph?.id]);
 
   return (
     <ThemeProvider theme={customTheme}>
@@ -69,12 +79,11 @@ const InspectorContainer: React.FunctionComponent<InspectorContainerProps> = (
         }}
       >
         <GraphInspectorHeader
-          nodeName={nodeName}
-          setNodeName={setNodeName}
-          selectedNodes={props.selectedNodes}
+          graphName={graphName}
           randomMainColor={props.randomMainColor}
         />
         <NodeArrayContainer
+          graphName={graphName}
           selectedNodes={props.selectedNodes}
           randomMainColor={props.randomMainColor}
           filter={props.filter}
@@ -87,4 +96,4 @@ const InspectorContainer: React.FunctionComponent<InspectorContainerProps> = (
   );
 };
 
-export default InspectorContainer;
+export default GraphInspectorContainer;

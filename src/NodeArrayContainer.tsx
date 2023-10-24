@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import {
   Box,
+  Button,
+  ButtonGroup,
   IconButton,
   List,
   ListItem,
@@ -15,14 +17,16 @@ import ClearIcon from '@mui/icons-material/Clear';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import LockIcon from '@mui/icons-material/Lock';
 import Color from 'color';
+import { hri } from 'human-readable-ids';
 import { getConfigData, writeTextToClipboard } from './utils/utils';
 import { ensureVisible, zoomToFitNodes } from './pixi/utils-pixi';
 import { ERROR_COLOR } from './utils/constants';
-import { TRgba } from './utils/interfaces';
+import { SerializedGraph, TRgba } from './utils/interfaces';
 import { CodeEditor } from './components/Editor';
 // import { SerializedNode, SerializedSelection } from './utils/interfaces';
 import PPGraph from './classes/GraphClass';
 import PPNode from './classes/NodeClass';
+import PPStorage from './PPStorage';
 // import InterfaceController, { ListenEvent } from './InterfaceController';
 
 type FilterContentProps = {
@@ -74,8 +78,8 @@ const NodesContent = (props) => {
           position: 'relative',
           overflow: 'auto',
           paddingLeft: '2px !important',
+          minHeight: '50vh',
         }}
-        subheader={<li />}
       >
         {props.nodes.map((property) => {
           return (
@@ -328,10 +332,12 @@ function InfoContent(props: InfoContentProps) {
 
 type SourceContentProps = {
   header: string;
+  graphName: string;
   editable: boolean;
   sourceCode: string;
   randomMainColor: string;
   onChange?: (value) => void;
+  replaceClick?: (value) => void;
   selectedNode?: PPNode;
 };
 
@@ -366,46 +372,25 @@ function SourceContent(props: SourceContentProps) {
         editable={props.editable}
         onChange={props.onChange}
       />
-      {/* {props.onChange && (
+      {props.onChange && (
         <Box
           sx={{
             m: 1,
           }}
         >
           <ButtonGroup variant="outlined" size="small" fullWidth>
-            <Button
-              onClick={() => {
-                const sourceCode = props.sourceCode;
-                const newSerializedNode = JSON.parse(
-                  sourceCode,
-                ) as SerializedNode;
-                PPGraph.currentGraph.action_ReplaceNode(
-                  props.selectedNode.serialize(),
-                  newSerializedNode,
-                );
-              }}
-            >
-              Replace
-            </Button>
-            <Button
-              onClick={() => {
-                const sourceCode = props.sourceCode;
-                const newSerializedSelection = JSON.parse(
-                  `{"version": ${PP_VERSION},"nodes": [${sourceCode}],"links": []}`,
-                ) as SerializedSelection;
-                PPGraph.currentGraph.action_pasteNodes(newSerializedSelection);
-              }}
-            >
-              Create new
+            <Button onClick={() => props.replaceClick(props.sourceCode)}>
+              Replace playground with this config
             </Button>
           </ButtonGroup>
         </Box>
-      )} */}
+      )}
     </Box>
   );
 }
 
 type NodeArrayContainerProps = {
+  graphName: string;
   selectedNodes: PPNode[];
   randomMainColor: string;
   filter: string;
@@ -568,13 +553,24 @@ export const NodeArrayContainer: React.FunctionComponent<
             <InfoContent graph={PPGraph.currentGraph} />
             <SourceContent
               header="Config"
+              graphName={props.graphName}
               editable={true}
               sourceCode={configData}
               randomMainColor={props.randomMainColor}
               onChange={(value) => {
                 setConfigData(value);
               }}
-              selectedNode={selectedNode}
+              replaceClick={(value) => {
+                const sourceCode = value;
+                const newSerializedGraph = JSON.parse(
+                  sourceCode,
+                ) as SerializedGraph;
+                PPStorage.getInstance().loadGraphFromData(
+                  newSerializedGraph,
+                  props.graphName,
+                );
+                // setConfigData(sourceCode);
+              }}
             />
           </Stack>
         )}

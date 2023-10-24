@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { Box, Button, Drawer, Paper, Stack } from '@mui/material';
+import { Box, Button, Drawer } from '@mui/material';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import TuneIcon from '@mui/icons-material/Tune';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
