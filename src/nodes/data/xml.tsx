@@ -65,15 +65,11 @@ export class XMLReader extends PPNode {
   };
 
   protected async onExecute(input, output): Promise<void> {
-    this.xml2jsModule
-      .parseStringPromise(this.getInputData(inputSocketName))
-      .then(function (result) {
-        const json = JSON.stringify(result);
-        output[outputSocketName] = json;
-      })
-      .catch(function (err) {
-        console.error(err.name, err.message);
-      });
+    const result = await this.xml2jsModule.parseStringPromise(
+      this.getInputData(inputSocketName),
+    );
+    const json = JSON.stringify(result);
+    output[outputSocketName] = json;
   }
 
   public getDynamicImports(): string[] {
