@@ -11,6 +11,7 @@ import {
   ALIGNOPTIONS,
   ERROR_COLOR,
   NODE_MARGIN,
+  ONCLICK_DOUBLECLICK,
   SCALEHANDLE_SIZE,
   SELECTION_COLOR_HEX,
   TOOLTIP_DISTANCE,
@@ -714,7 +715,7 @@ class ScaleHandle extends PIXI.Graphics {
 
   protected onPointerClick(event: PIXI.FederatedPointerEvent): void {
     // check if double clicked
-    if (event.detail === 2) {
+    if (event.detail === ONCLICK_DOUBLECLICK) {
       event.stopPropagation();
       this.selection.onScaleReset();
     }

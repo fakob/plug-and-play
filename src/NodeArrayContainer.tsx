@@ -20,7 +20,11 @@ import Color from 'color';
 import InterfaceController, { ListenEvent } from './InterfaceController';
 import { getConfigData, writeTextToClipboard } from './utils/utils';
 import { ensureVisible, zoomToFitNodes } from './pixi/utils-pixi';
-import { ERROR_COLOR } from './utils/constants';
+import {
+  ERROR_COLOR,
+  ONCLICK_DOUBLECLICK,
+  ONCLICK_TRIPPLECLICK,
+} from './utils/constants';
 import { SerializedGraph, TRgba } from './utils/interfaces';
 import { CodeEditor } from './components/Editor';
 import PPGraph from './classes/GraphClass';
@@ -33,8 +37,6 @@ type FilterContentProps = {
     newFilter: string | null,
   ) => void;
   filter: string;
-  selectedNode: PPNode;
-  selectedNodes: PPNode[];
 };
 
 function FilterContainer(props: FilterContentProps) {
@@ -134,9 +136,9 @@ ${props.property
           setTimeout(() => {
             PPGraph.currentGraph.selection.drawSingleFocus(nodeToJumpTo);
           }, 800);
-          if (event.detail === 2) {
+          if (event.detail === ONCLICK_DOUBLECLICK) {
             zoomToFitNodes([nodeToJumpTo], -0.5);
-          } else if (event.detail === 3) {
+          } else if (event.detail === ONCLICK_TRIPPLECLICK) {
             setTimeout(() => {
               PPGraph.currentGraph.selection.selectNodes(
                 [nodeToJumpTo],
@@ -401,11 +403,11 @@ type NodeArrayContainerProps = {
 export const NodeArrayContainer: React.FunctionComponent<
   NodeArrayContainerProps
 > = (props) => {
-  const singleNode = props.selectedNodes.length ? props.selectedNodes[0] : null;
-  const [selectedNode, setSelectedNode] = useState(singleNode);
   const [nodesInGraph, setNodesInGraph] = useState<PPNode[]>([]);
   const [filteredNodes, setFilteredNodes] = useState<PPNode[]>([]);
   const [configData, setConfigData] = useState('');
+  const showNodes = props.filter === 'nodes' || props.filter == null;
+  const showGraphInfo = props.filter === 'graph-info' || props.filter == null;
 
   const handleFilterChange = (event) => {
     props.setFilterText(event.target.value);
@@ -437,26 +439,19 @@ export const NodeArrayContainer: React.FunctionComponent<
     setFilteredNodes(filteredItems);
   };
 
-  // Custom filter function to filter items based on their length
+  // Custom filter function searching specified fields
   const customFilter = (item, filterText) => {
     const filter = filterText.toLowerCase();
-    return (
-      item.name.toLowerCase().includes(filter) ||
-      item.type.toLowerCase().includes(filter) ||
-      item.id.toLowerCase().includes(filter)
-    );
+    const fields = ['name', 'type', 'id'];
+    return fields.some((field) => item[field].toLowerCase().includes(filter));
   };
 
-  // Custom sort function to sort items alphabetically
   const customSort = (a, b) => {
-    // order nodes with errors on top
-    if (!a.successfullyExecuted && b.successfullyExecuted) return -1;
-    if (a.successfullyExecuted && !b.successfullyExecuted) return 1;
-    // next up are macros
-    if (a.type === 'Macro' && b.type !== 'Macro') return -1;
-    if (a.type !== 'Macro' && b.type === 'Macro') return 1;
-    // now the rest
-    return a.name.localeCompare(b.name);
+    const order =
+      (+!b.successfullyExecuted - +!a.successfullyExecuted) * 100 +
+        (+(b.type === 'Macro') - +(a.type === 'Macro')) * 10 ||
+      a.name.localeCompare(b.name);
+    return order;
   };
 
   const updateNodesAndInfo = useCallback(() => {
@@ -497,23 +492,12 @@ export const NodeArrayContainer: React.FunctionComponent<
   }, [PPGraph.currentGraph?.id]);
 
   useEffect(() => {
-    const newSelectedNode =
-      props.selectedNodes.length > 0 ? props.selectedNodes?.[0] : null;
-    setSelectedNode(newSelectedNode);
-  }, [props.selectedNodes]);
-
-  useEffect(() => {
     filterNodes(nodesInGraph);
   }, [props.filterText, nodesInGraph]);
 
   return (
     <Box sx={{ width: '100%', m: 1 }}>
-      <FilterContainer
-        handleFilter={handleFilter}
-        filter={props.filter}
-        selectedNode={selectedNode}
-        selectedNodes={props.selectedNodes}
-      />
+      <FilterContainer handleFilter={handleFilter} filter={props.filter} />
       <Stack
         spacing={1}
         sx={{
@@ -522,7 +506,7 @@ export const NodeArrayContainer: React.FunctionComponent<
           height: 'calc(100vh - 120px)',
         }}
       >
-        {(props.filter === 'nodes' || props.filter == null) && (
+        {showNodes && (
           <>
             <TextField
               hiddenLabel
@@ -561,7 +545,7 @@ export const NodeArrayContainer: React.FunctionComponent<
             />
           </>
         )}
-        {(props.filter === 'graph-info' || props.filter == null) && (
+        {showGraphInfo && (
           <Stack spacing={1}>
             <InfoContent graph={PPGraph.currentGraph} />
             <SourceContent

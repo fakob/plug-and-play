@@ -24,6 +24,7 @@ import {
   NODE_SOURCE,
   NODE_TEXTSTYLE,
   NODE_WIDTH,
+  ONCLICK_DOUBLECLICK,
   SOCKET_HEIGHT,
   SOCKET_TYPE,
 } from '../utils/constants';
@@ -1252,7 +1253,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
       ),
     );
     // check if double clicked
-    if (event.detail === 2) {
+    if (event.detail === ONCLICK_DOUBLECLICK) {
       this.doubleClicked = true;
       this.listenId.push(
         InterfaceController.addListener(

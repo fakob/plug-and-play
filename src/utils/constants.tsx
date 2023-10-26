@@ -16,6 +16,9 @@ export const GESTUREMODE = {
   AUTO: 'Auto detect',
 } as const;
 
+export const ONCLICK_DOUBLECLICK = 2;
+export const ONCLICK_TRIPPLECLICK = 3;
+
 export const ALIGNOPTIONS = {
   ALIGN_LEFT: 'Align left',
   ALIGN_CENTER_HORIZONTAL: 'Align center horizontal',
