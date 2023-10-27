@@ -13,8 +13,6 @@ const IMPORT_NAME = 'xml2js';
 
 export class XMLReader extends PPNode {
   initialData: any;
-  xml2jsModule;
-  xml;
 
   constructor(name: string, customArgs?: CustomArgs) {
     super(name, {
@@ -54,8 +52,6 @@ export class XMLReader extends PPNode {
   }
 
   public onNodeAdded = async (source?: TNodeSource): Promise<void> => {
-    this.xml2jsModule = PPGraph.currentGraph.dynamicImports[IMPORT_NAME];
-
     if (this.initialData) {
       this.setInputData(inputSocketName, this.initialData);
     }
@@ -65,9 +61,9 @@ export class XMLReader extends PPNode {
   };
 
   protected async onExecute(input, output): Promise<void> {
-    const result = await this.xml2jsModule.parseStringPromise(
-      this.getInputData(inputSocketName),
-    );
+    const result = await PPGraph.currentGraph.dynamicImports[
+      IMPORT_NAME
+    ].parseStringPromise(this.getInputData(inputSocketName));
     const json = JSON.stringify(result);
     output[outputSocketName] = json;
   }
