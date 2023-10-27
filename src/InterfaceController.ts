@@ -4,11 +4,7 @@ import { OptionsObject, SnackbarKey, SnackbarMessage } from 'notistack';
 import * as PIXI from 'pixi.js';
 import Socket from './classes/SocketClass';
 import { v4 as uuid } from 'uuid';
-import {
-  isEventComingFromWithinTextInput,
-  isEventComongFromWithinWidget,
-  isMac,
-} from './utils/utils';
+import { isEventComingFromWithinTextInput, isMac } from './utils/utils';
 import PPGraph from './classes/GraphClass';
 import PPStorage from './PPStorage';
 import { ActionHandler } from './utils/actionHandler';
@@ -116,16 +112,13 @@ export default class InterfaceController {
 
   static keysDown = (e: KeyboardEvent): void => {
     const modKey = isMac() ? e.metaKey : e.ctrlKey;
-    const fromWidget = isEventComongFromWithinWidget(e);
     if (!isEventComingFromWithinTextInput(e)) {
       if (modKey) {
         if (!e.shiftKey) {
           switch (e.key.toLowerCase()) {
             case 'a':
-              if (!fromWidget) {
-                PPGraph.currentGraph.selection.selectAllNodes();
-                e.preventDefault();
-              }
+              PPGraph.currentGraph.selection.selectAllNodes();
+              e.preventDefault();
               break;
             case 'f':
               this.openNodeSearch();
