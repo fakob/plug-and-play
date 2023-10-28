@@ -4,7 +4,7 @@ import PPStorage from './PPStorage';
 import PPGraph from './classes/GraphClass';
 import PPNode from './classes/NodeClass';
 import { DRAGANDDROP_GRID_MARGIN, PXSHOW_SQL_QUERY } from './utils/constants';
-import { convertBlobToBase64 } from './utils/utils';
+import { constructLocalResourceId, convertBlobToBase64 } from './utils/utils';
 import { Image as ImageNode } from './nodes/image/image';
 import {
   Video as VideoNode,
@@ -40,7 +40,7 @@ export const dragAndDrop = (acceptedFiles, fileRejections, event) => {
       let data;
       let newNode;
 
-      const localResourceId = `${file.path}-${file.size}`;
+      const localResourceId = constructLocalResourceId(file);
 
       switch (extension) {
         case 'ppgraph':

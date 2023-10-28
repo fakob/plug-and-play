@@ -815,3 +815,6 @@ export function getConfigData(selectedNodeOrGraph) {
     2,
   );
 }
+export const constructLocalResourceId = (file) => {
+  return `${file.name}-${file.size}`;
+};
