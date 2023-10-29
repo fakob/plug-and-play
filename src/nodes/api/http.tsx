@@ -2,10 +2,10 @@ import PPNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
 import { wrapDownloadLink } from '../../utils/utils';
 import {
-  errorColor,
+  ERROR_COLOR,
   NODE_TYPE_COLOR,
   SOCKET_TYPE,
-  successColor,
+  SUCCESS_COLOR,
 } from '../../utils/constants';
 import { TRgba } from '../../utils/interfaces';
 import { BooleanType } from '../datatypes/booleanType';
@@ -106,7 +106,7 @@ export class HTTPNode extends PPNode {
 
   protected pushStatusCode(statusCode: number): void {
     this.statuses.push({
-      color: statusCode > 400 ? errorColor : successColor,
+      color: statusCode > 400 ? ERROR_COLOR : SUCCESS_COLOR,
       statusText: 'Status: ' + statusCode,
     });
     this.drawStatuses();

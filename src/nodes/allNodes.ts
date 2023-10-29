@@ -14,6 +14,7 @@ import * as html from './draw/html';
 import * as video from './draw/video';
 import * as image from './image/image';
 import * as json from './data/json';
+import * as xml from './data/xml';
 import * as logViewer from './logViewer';
 import * as macro from './macro/macro';
 import * as math from './math';
@@ -55,6 +56,7 @@ export const getAllNodeTypes = (): RegisteredNodeTypes => {
       video,
       image,
       json,
+      xml,
       logViewer,
       macro,
       math,

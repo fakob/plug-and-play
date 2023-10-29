@@ -26,6 +26,7 @@ import FlowLogic from './FlowLogic';
 import InterfaceController, { ListenEvent } from '../InterfaceController';
 import { v4 as uuid } from 'uuid';
 import { dynamicImport } from '../utils/dynamicImport';
+import { ONCLICK_DOUBLECLICK } from '../utils/constants';
 
 export default class PPGraph {
   static currentGraph: PPGraph;
@@ -160,7 +161,7 @@ export default class PPGraph {
     console.log('onPointerClick');
 
     // check if double clicked
-    if (event.detail === 2) {
+    if (event.detail === ONCLICK_DOUBLECLICK) {
       event.stopPropagation();
       const target = event.target;
       if (target instanceof Viewport) {

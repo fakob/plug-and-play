@@ -104,7 +104,10 @@ export const getNodesBounds = (nodes: PPNode[]): PIXI.Rectangle => {
   return bounds;
 };
 
-export const zoomToFitNodes = (nodes?: PPNode[]): void => {
+export const zoomToFitNodes = (
+  nodes?: PPNode[],
+  initZoomOutFactor = undefined,
+): void => {
   const currentGraph = PPGraph.currentGraph;
   let boundsToZoomTo: PIXI.Rectangle;
   let zoomOutFactor: number;
@@ -122,7 +125,7 @@ export const zoomToFitNodes = (nodes?: PPNode[]): void => {
     boundsToZoomTo.y + boundsToZoomTo.height / 2,
   );
   currentGraph.viewport.fit(true, boundsToZoomTo.width, boundsToZoomTo.height);
-  currentGraph.viewport.zoomPercent(zoomOutFactor, true); // zoom out a bit more
+  currentGraph.viewport.zoomPercent(initZoomOutFactor || zoomOutFactor, true); // zoom out a bit more
   currentGraph.selection.drawRectanglesFromSelection();
   currentGraph.viewport.emit('moved', {
     viewport: currentGraph.viewport,

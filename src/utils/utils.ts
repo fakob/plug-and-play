@@ -359,16 +359,10 @@ export const getNodeDataFromText = (text: string): SerializedSelection => {
   return JSON.parse(text) as SerializedSelection;
 };
 
-export const isEventComongFromWithinWidget = (event: any): boolean => {
+export const isEventComingFromWithinTextInput = (event: any): boolean => {
   return (
     (event.target.id as string).endsWith('Input') ||
     event.target.localName === 'input' ||
-    isEventComingFromWithinTextInput(event)
-  );
-};
-
-export const isEventComingFromWithinTextInput = (event: any): boolean => {
-  return (
     event.target.localName === 'textarea' ||
     event.target?.attributes?.['data-slate-editor'] !== undefined ||
     event.target?.attributes?.['data-slate-node'] !== undefined ||
@@ -807,3 +801,11 @@ export const getObjectAtPoint = (point): PIXI.DisplayObject => {
   const objectsUnderPoint = boundary.hitTest(point.x, point.y);
   return objectsUnderPoint;
 };
+
+export function getConfigData(selectedNodeOrGraph) {
+  return JSON.stringify(
+    selectedNodeOrGraph?.serialize(),
+    getCircularReplacer(),
+    2,
+  );
+}

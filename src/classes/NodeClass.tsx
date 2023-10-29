@@ -24,6 +24,7 @@ import {
   NODE_SOURCE,
   NODE_TEXTSTYLE,
   NODE_WIDTH,
+  ONCLICK_DOUBLECLICK,
   SOCKET_HEIGHT,
   SOCKET_TYPE,
 } from '../utils/constants';
@@ -137,7 +138,7 @@ export default class PPNode extends PIXI.Container {
   constructor(type: string, customArgs?: CustomArgs) {
     super();
     this.id = customArgs?.overrideId || hri.random();
-    this.name = type;
+    this.name = this.getName();
     this.type = type;
     this.nodeTriggerSocketArray = [];
     this.inputSocketArray = [];
@@ -553,9 +554,12 @@ export default class PPNode extends PIXI.Container {
 
   // get all sockets that are not part of the base kit for the node
   public getAllNonDefaultSockets(): Socket[] {
-    const defaultIONames = this.getAllInitialSockets().filter(socket => socket.isInput()).map((socket) => socket.name);
-    return this.getAllInputSockets()
-      .filter((socket) => !defaultIONames.includes(socket.name));
+    const defaultIONames = this.getAllInitialSockets()
+      .filter((socket) => socket.isInput())
+      .map((socket) => socket.name);
+    return this.getAllInputSockets().filter(
+      (socket) => !defaultIONames.includes(socket.name),
+    );
   }
 
   public getAllInputSockets(): Socket[] {
@@ -586,10 +590,13 @@ export default class PPNode extends PIXI.Container {
   }
 
   getInputOrTriggerSocketByName(slotName: string): Socket {
-    const found = this.getAllInputSockets().find(el => el.name === slotName);
-    if (found === undefined){
+    const found = this.getAllInputSockets().find((el) => el.name === slotName);
+    if (found === undefined) {
       // create new socket for this ask, maybe this is a bit ugly
-      console.log("creating new socket because someone is trying to get a socket that didnt exist: " + slotName);
+      console.log(
+        'creating new socket because someone is trying to get a socket that didnt exist: ' +
+          slotName,
+      );
       const newSocket = new Socket(SOCKET_TYPE.IN, slotName, new AnyType());
       this.addSocket(newSocket);
       this.resizeAndDraw();
@@ -972,9 +979,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     const executedSuccessOld = this.successfullyExecuted;
     try {
       this.successfullyExecuted = true;
-      if (
-        PPGraph.currentGraph.showExecutionVisualisation
-      ) {
+      if (PPGraph.currentGraph.showExecutionVisualisation) {
         this.renderOutlineThrottled();
       }
       await this.rawExecute();
@@ -1113,64 +1118,68 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   }
 
   public getSocketForNewConnection(socket: Socket): Socket {
-  const socketArray = socket.isInput()
-    ? this.outputSocketArray
-    : this.inputSocketArray;
-  if (socketArray.length > 0) {
-    const getSocket = (
-      condition,
-      onlyFreeSocket,
-      onlyVisibleSocket = true,
-    ): Socket => {
-      return socketArray.find((socketInArray) => {
+    const socketArray = socket.isInput()
+      ? this.outputSocketArray
+      : this.inputSocketArray;
+    if (socketArray.length > 0) {
+      const getSocket = (
+        condition,
+        onlyFreeSocket,
+        onlyVisibleSocket = true,
+      ): Socket => {
+        return socketArray.find((socketInArray) => {
+          return (
+            (!onlyVisibleSocket || socketInArray.visible) &&
+            condition(socketInArray) &&
+            (!onlyFreeSocket || !socketInArray.hasLink())
+          );
+        });
+      };
+
+      const preferredCondition = (socketInArray): boolean => {
+        const preferredSocketName = socketInArray.isInput()
+          ? this.getPreferredInputSocketName()
+          : this.getPreferredOutputSocketName();
+        return socketInArray.name === preferredSocketName;
+      };
+
+      const exactMatchCondition = (socketInArray): boolean => {
         return (
-          (!onlyVisibleSocket || socketInArray.visible) &&
-          condition(socketInArray) &&
-          (!onlyFreeSocket || !socketInArray.hasLink())
+          socketInArray.dataType.constructor === socket.dataType.constructor
         );
-      });
-    };
+      };
 
-    const preferredCondition = (socketInArray): boolean => {
-      const preferredSocketName = socketInArray.isInput()
-        ? this.getPreferredInputSocketName()
-        : this.getPreferredOutputSocketName();
-      return socketInArray.name === preferredSocketName;
-    };
+      const anyTypeCondition = (socketInArray): boolean => {
+        return socketInArray.dataType.constructor === new AnyType().constructor;
+      };
 
-    const exactMatchCondition = (socketInArray): boolean => {
-      return socketInArray.dataType.constructor === socket.dataType.constructor;
-    };
+      const anyCondition = (): boolean => {
+        return true;
+      };
 
-    const anyTypeCondition = (socketInArray): boolean => {
-      return socketInArray.dataType.constructor === new AnyType().constructor;
-    };
-
-    const anyCondition = (): boolean => {
-      return true;
-    };
-
-    return (
-      getSocket(preferredCondition, true, false) ?? // get preferred with no link
-      getSocket(exactMatchCondition, true) ?? // get exact match with no link
-      getSocket(anyTypeCondition, true) ?? // get anyType with no link
-      getSocket(anyCondition, true) ?? // get any with no link
-      // no match free and visible
-      getSocket(preferredCondition, false, false) ??
-      getSocket(exactMatchCondition, false) ??
-      getSocket(anyTypeCondition, false) ??
-      getSocket(anyCondition, false) ??
-      // no match linked and visible
-      getSocket(exactMatchCondition, false, false) ??
-      getSocket(anyTypeCondition, false, false) ??
-      getSocket(anyCondition, false, false)
-    );
+      return (
+        getSocket(preferredCondition, true, false) ?? // get preferred with no link
+        getSocket(exactMatchCondition, true) ?? // get exact match with no link
+        getSocket(anyTypeCondition, true) ?? // get anyType with no link
+        getSocket(anyCondition, true) ?? // get any with no link
+        // no match free and visible
+        getSocket(preferredCondition, false, false) ??
+        getSocket(exactMatchCondition, false) ??
+        getSocket(anyTypeCondition, false) ??
+        getSocket(anyCondition, false) ??
+        // no match linked and visible
+        getSocket(exactMatchCondition, false, false) ??
+        getSocket(anyTypeCondition, false, false) ??
+        getSocket(anyCondition, false, false)
+      );
+    }
+    // node does not have an in/output socket
+    return undefined;
   }
-  // node does not have an in/output socket
-  return undefined;
-};
 
-  protected async mouseReleasedOverWithSourceSocketSelected(source: Socket) : Promise<void>{
+  protected async mouseReleasedOverWithSourceSocketSelected(
+    source: Socket,
+  ): Promise<void> {
     await connectNodeToSocket(source, this);
   }
 
@@ -1202,9 +1211,13 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     );
     this.listenId.forEach((id) => InterfaceController.removeListener(id));
 
-    await Promise.all(this.getAllSockets().map((socket) => {
-      socket.links.forEach(async (link) => await link.delete())
-    }));
+    await Promise.all(
+      this.getAllSockets().map(async (socket) => {
+        await Promise.all(
+          socket.links.map(async (link) => await link.delete()),
+        );
+      }),
+    );
 
     this.onNodeRemoved();
   }
@@ -1240,7 +1253,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
       ),
     );
     // check if double clicked
-    if (event.detail === 2) {
+    if (event.detail === ONCLICK_DOUBLECLICK) {
       this.doubleClicked = true;
       this.listenId.push(
         InterfaceController.addListener(
@@ -1286,7 +1299,6 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   protected getUpdateBehaviour(): UpdateBehaviourClass {
     return new UpdateBehaviourClass(true, false, 1000, this);
   }
-
 
   public allowResize(): boolean {
     return true;
@@ -1376,7 +1388,6 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   public getAddOutputDescription(): string {
     return 'Add Output';
   }
-
 
   public getShrinkOnSocketRemove(): boolean {
     return true;

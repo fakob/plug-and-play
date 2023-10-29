@@ -16,7 +16,7 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import LockIcon from '@mui/icons-material/Lock';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import {
-  getCircularReplacer,
+  getConfigData,
   getLoadNodeExampleURL,
   writeTextToClipboard,
 } from './utils/utils';
@@ -29,10 +29,6 @@ import { SocketContainer } from './SocketContainer';
 import { CodeEditor } from './components/Editor';
 import InterfaceController, { ListenEvent } from './InterfaceController';
 import useInterval from 'use-interval';
-
-function getConfigData(selectedNode) {
-  return JSON.stringify(selectedNode?.serialize(), getCircularReplacer(), 2);
-}
 
 type FilterContentProps = {
   handleFilter: (

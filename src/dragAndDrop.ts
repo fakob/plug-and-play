@@ -1,4 +1,5 @@
 import * as PIXI from 'pixi.js';
+import { hri } from 'human-readable-ids';
 import InterfaceController from './InterfaceController';
 import PPStorage from './PPStorage';
 import PPGraph from './classes/GraphClass';
@@ -48,6 +49,7 @@ export const dragAndDrop = (acceptedFiles, fileRejections, event) => {
           data = await response.text();
           await PPStorage.getInstance().loadGraphFromData(
             JSON.parse(data),
+            hri.random(),
             preExtension,
           );
           break;
@@ -183,6 +185,14 @@ export const dragAndDrop = (acceptedFiles, fileRejections, event) => {
               },
             });
           }
+          break;
+        case 'xml':
+          data = await response.text();
+          newNode = await PPGraph.currentGraph.addNewNode('XMLReader', {
+            nodePosX,
+            nodePosY,
+            defaultArguments: { ['Input']: data },
+          });
           break;
         default:
           break;
