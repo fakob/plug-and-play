@@ -18,7 +18,6 @@ import {
 } from './constants';
 import { GraphDatabase } from './indexedDB';
 import { SerializedSelection } from './interfaces';
-import { AnyType } from '../nodes/datatypes/anyType';
 import { Viewport } from 'pixi-viewport';
 
 export function isFunction(funcOrClass: any): boolean {
@@ -243,6 +242,12 @@ export const useStateRef = (initialValue: any) => {
   }, [value]);
 
   return [value, setValue, ref];
+};
+
+export const getFileExtension = (fileName: string): string => {
+  return fileName
+    .slice(((fileName.lastIndexOf('.') - 1) >>> 0) + 2)
+    .toLowerCase();
 };
 
 export const removeExtension = (fileName: string): string => {
@@ -820,7 +825,12 @@ export const constructLocalResourceId = (fileName, fileSize) => {
   return `${fileName}-${fileSize}`;
 };
 
-export const getNameFromLocalResourceId = (localResourceId) => {
+export const getFileNameFromLocalResourceId = (localResourceId) => {
   const regex = /(.+)-\d+$/;
   return localResourceId.match(regex)[1];
+};
+
+export const getExtensionFromLocalResourceId = (localResourceId) => {
+  const fileName = getFileNameFromLocalResourceId(localResourceId);
+  return getFileExtension(fileName);
 };

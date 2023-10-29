@@ -7,6 +7,7 @@ import {
 } from '../../utils/constants';
 import PPStorage from '../../PPStorage';
 import PPNode from '../../classes/NodeClass';
+import InterfaceController, { ListenEvent } from '../../InterfaceController';
 import { ArrayType } from '../datatypes/arrayType';
 import { FileType } from '../datatypes/fileType';
 import { StringType } from '../datatypes/stringType';
@@ -27,6 +28,7 @@ export class SqliteReader extends PPNode {
   sqlite3Module;
   sqlite3;
   db;
+  listenID;
 
   public getName(): string {
     return 'Sqlite reader';
@@ -49,7 +51,15 @@ export class SqliteReader extends PPNode {
       new PPSocket(
         SOCKET_TYPE.IN,
         inputResourceIdSocketName,
-        new FileType(),
+        new FileType([
+          'pxshow',
+          'sqlite',
+          'sqlite3',
+          'db',
+          'db3',
+          's3db',
+          'sl3',
+        ]),
         '',
         false,
       ),
@@ -100,6 +110,16 @@ export class SqliteReader extends PPNode {
           console.error(err.name, err.message);
         }
       });
+
+    this.listenID = InterfaceController.addListener(
+      ListenEvent.ResourceUpdated,
+      async (data: any) => {
+        const resourceId = this.getInputData(inputResourceIdSocketName);
+        if (data.id === resourceId) {
+          await this.updateFile();
+        }
+      },
+    );
 
     super.onNodeAdded(source);
   };
@@ -161,8 +181,7 @@ export class SqliteReader extends PPNode {
 
   updateAndExecute = async (localResourceId: string): Promise<void> => {
     this.setInputData(inputResourceIdSocketName, localResourceId);
-    await this.loadDatabase();
-    await this.executeQuery();
+    await this.updateFile();
   };
 
   // triggered by file socket
@@ -216,5 +235,10 @@ export class SqliteReader extends PPNode {
 
   public getDynamicImports(): string[] {
     return [IMPORT_NAME];
+  }
+
+  async onRemoved(): Promise<void> {
+    await super.onRemoved();
+    InterfaceController.removeListener(this.listenID);
   }
 }

@@ -34,7 +34,11 @@ self.onmessage = async (event) => {
               `${name}${version}.${inType}`,
               new Uint8Array(buffer),
             );
-            await ffmpeg.run('-i', `${name}.${inType}`, `${name}.${outType}`);
+            await ffmpeg.run(
+              '-i',
+              `${name}${version}.${inType}`,
+              `${name}.${outType}`,
+            );
             const data = ffmpeg.FS('readFile', `${name}.${outType}`);
 
             self.postMessage(

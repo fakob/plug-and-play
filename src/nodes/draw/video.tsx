@@ -18,7 +18,7 @@ import { ArrayType } from '../datatypes/arrayType';
 import { TNodeSource, TRgba } from '../../utils/interfaces';
 import {
   constructLocalResourceId,
-  getNameFromLocalResourceId,
+  getFileNameFromLocalResourceId,
 } from '../../utils/utils';
 import {
   LOADING_STATE,
@@ -116,7 +116,20 @@ export class Video extends HybridNode2 {
       new PPSocket(
         SOCKET_TYPE.IN,
         inputResourceIdSocketName,
-        new FileType(),
+        new FileType([
+          '3gp',
+          'avi',
+          'flv',
+          'mov',
+          'mkv',
+          'm4v',
+          'mp4',
+          'ogg',
+          'qt',
+          'swf',
+          'webm',
+          'wmv',
+        ]),
         '',
         false,
       ),
@@ -288,7 +301,7 @@ export class Video extends HybridNode2 {
   workerAction = async (type) => {
     const localResourceId = this.getInputData(inputResourceIdSocketName);
     const blob = await this.loadResource(localResourceId);
-    const fileName = getNameFromLocalResourceId(localResourceId);
+    const fileName = getFileNameFromLocalResourceId(localResourceId);
 
     const waitForWorker = async () => {
       if (this.worker) {

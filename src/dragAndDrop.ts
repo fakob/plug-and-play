@@ -4,7 +4,11 @@ import PPStorage from './PPStorage';
 import PPGraph from './classes/GraphClass';
 import PPNode from './classes/NodeClass';
 import { DRAGANDDROP_GRID_MARGIN, PXSHOW_SQL_QUERY } from './utils/constants';
-import { constructLocalResourceId, convertBlobToBase64 } from './utils/utils';
+import {
+  constructLocalResourceId,
+  convertBlobToBase64,
+  getFileExtension,
+} from './utils/utils';
 import { Image as ImageNode } from './nodes/image/image';
 import {
   Video as VideoNode,
@@ -29,9 +33,7 @@ export const dragAndDrop = (acceptedFiles, fileRejections, event) => {
       const file = acceptedFiles[index];
       const objectURL = URL.createObjectURL(file);
 
-      const extension = file.name
-        .slice(((file.name.lastIndexOf('.') - 1) >>> 0) + 2)
-        .toLowerCase();
+      const extension = getFileExtension(file.name);
       const preExtension = file.name.replace('.' + extension, '');
 
       // select what node to create

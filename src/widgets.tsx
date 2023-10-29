@@ -9,15 +9,19 @@ import {
   FormControl,
   FormGroup,
   InputLabel,
+  ListItemText,
   MenuItem,
   Select,
   Slider,
   TextField,
   ToggleButton,
   Tooltip,
+  Typography,
 } from '@mui/material';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import { SketchPicker } from 'react-color';
+import prettyBytes from 'pretty-bytes';
+import InterfaceController from './InterfaceController';
 import { CodeEditor } from './components/Editor';
 import PPStorage from './PPStorage';
 import Socket from './classes/SocketClass';
@@ -29,8 +33,8 @@ import {
   TRIGGER_TYPE_OPTIONS,
 } from './utils/constants';
 import {
-  constructLocalResourceId,
   convertToString,
+  getFileExtension,
   getLoadedValue,
   parseJSON,
   roundNumber,
@@ -39,6 +43,7 @@ import styles from './utils/style.module.css';
 import { TRgba } from './utils/interfaces';
 import { EnumStructure } from './nodes/datatypes/enumType';
 import { NumberType } from './nodes/datatypes/numberType';
+import { FileType } from './nodes/datatypes/fileType';
 import { TriggerType } from './nodes/datatypes/triggerType';
 import useInterval from 'use-interval';
 import { ActionHandler } from './utils/actionHandler';
@@ -396,63 +401,108 @@ export const TextWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
   );
 };
 
-export const FileBrowserWidget: React.FunctionComponent<TextWidgetProps> = (
+export type FileWidgetProps = {
+  property: Socket;
+  index: number;
+  hasLink: boolean;
+  data: unknown;
+  randomMainColor: string;
+  type: FileType;
+};
+
+export const FileBrowserWidget: React.FunctionComponent<FileWidgetProps> = (
   props,
 ) => {
   const [filename, setFilename] = useState(props.data);
+  const [options, setOptions] = useState([]);
+  const [filterExtensions, setFilterExtensions] = useState(
+    props.type.filterExtensions,
+  );
 
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      setData(file);
-    }
+  const openFileBrowser = () => {
+    InterfaceController.onOpenFileBrowser();
   };
 
-  const setData = (file) => {
-    const localResourceId = constructLocalResourceId(file.name, file.size);
-    const reader = new FileReader();
-    reader.onload = function (e) {
-      const data = new Blob([e.target.result], { type: file.type });
-      console.log(data);
-      PPStorage.getInstance().storeResource(
-        localResourceId,
-        file.size,
-        data,
-        file.path,
-      );
-    };
+  const onOpen = async () => {
+    const listOfResources: any[] = await PPStorage.getInstance().getResources();
+    const filtered = listOfResources.filter(({ name }) => {
+      if (filterExtensions.length === 0) {
+        return true;
+      }
+      const extension = getFileExtension(name);
+      return filterExtensions.includes(extension);
+    });
+    setOptions(filtered);
+  };
 
-    reader.readAsArrayBuffer(file);
+  const onChange = (event) => {
+    const value = event.target.value;
+    potentiallyUpdateSocketData(props.property, value);
+    setData(value);
+  };
 
+  const setData = (localResourceId) => {
     potentiallyUpdateSocketData(props.property, localResourceId);
-    (props.property.getNode() as any)['updateFile']();
     setFilename(localResourceId);
   };
 
   useInterval(() => {
     if (filename !== props.property.data) {
+      setFilterExtensions(props.type.filterExtensions);
       setFilename(convertToString(props.property.data));
+      onOpen();
     }
   }, 100);
 
+  useEffect(() => {
+    onOpen();
+  }, []);
+
   return (
     <FormGroup sx={{ position: 'relative' }}>
-      <TextField
-        hiddenLabel
-        variant="filled"
-        multiline
-        disabled={true}
-        value={filename}
-      />
-      <Button
-        color="secondary"
-        variant="contained"
-        size="small"
-        component="label"
-      >
-        Load file
-        <input type="file" hidden onChange={handleFileChange} />
-      </Button>
+      <FormControl variant="filled" fullWidth>
+        <InputLabel>Select file (browser cache)</InputLabel>
+        <Select
+          variant="filled"
+          value={filename}
+          onOpen={onOpen}
+          onChange={onChange}
+          disabled={props.hasLink}
+          sx={{ width: '100%' }}
+          MenuProps={{
+            style: { zIndex: 1500 },
+          }}
+        >
+          {options.map(({ id, name, size }, index) => {
+            return (
+              <MenuItem
+                key={index}
+                value={id}
+                sx={{
+                  '&.Mui-selected': {
+                    backgroundColor: `${Color(props.randomMainColor).negate()}`,
+                  },
+                }}
+              >
+                <ListItemText>{name}</ListItemText>
+                <Typography variant="body2" color="text.secondary">
+                  {prettyBytes(size)}
+                </Typography>
+              </MenuItem>
+            );
+          })}
+        </Select>
+        <Button
+          color="secondary"
+          variant="contained"
+          onClick={openFileBrowser}
+          sx={{
+            mt: 1,
+          }}
+        >
+          OR Load new file
+        </Button>
+      </FormControl>
     </FormGroup>
   );
 };

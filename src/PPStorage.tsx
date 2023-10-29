@@ -7,7 +7,7 @@ import {
   downloadFile,
   formatDate,
   getExampleURL,
-  getNameFromLocalResourceId,
+  getFileNameFromLocalResourceId,
   getSetting,
   removeExtension,
   setGestureModeOnViewport,
@@ -408,6 +408,12 @@ export default class PPStorage {
       .sortBy('date');
   }
 
+  async getResources(): Promise<any[]> {
+    return await PPStorage.getInstance()
+      .db.localResources.toCollection()
+      .sortBy('date');
+  }
+
   async loadResource(resourceId: string): Promise<Blob> {
     let foundResource;
     return this.db
@@ -421,8 +427,8 @@ export default class PPStorage {
           if (foundResource) {
             InterfaceController.showSnackBar(
               <span>
-                <b>{getNameFromLocalResourceId(resourceId)}</b> was loaded from
-                the local storage
+                <b>{getFileNameFromLocalResourceId(resourceId)}</b> was loaded
+                from the local storage
               </span>,
             );
             return foundResource.data;
@@ -444,7 +450,7 @@ export default class PPStorage {
         const foundResource = resources.find(
           (resource) => resource.id === resourceId,
         );
-        const fileName = getNameFromLocalResourceId(resourceId);
+        const fileName = getFileNameFromLocalResourceId(resourceId);
 
         if (foundResource === undefined) {
           await this.db.localResources.put({

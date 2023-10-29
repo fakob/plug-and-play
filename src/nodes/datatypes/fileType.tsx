@@ -1,20 +1,29 @@
 import React from 'react';
 import { TRgba } from '../../utils/interfaces';
-import { FileBrowserWidget } from '../../widgets';
+import { FileBrowserWidget, FileWidgetProps } from '../../widgets';
 import { AbstractType } from './abstractType';
 
 export class FileType extends AbstractType {
-  constructor() {
+  filterExtensions: string[];
+  constructor(filterExtensions = []) {
     super();
+    this.filterExtensions = filterExtensions;
   }
 
   getName(): string {
     return 'File';
   }
 
-  getInputWidget = (data: any): any => {
-    const props = { ...data };
-    return <FileBrowserWidget {...props} />;
+  getInputWidget = (props: any): any => {
+    const sliderProps: FileWidgetProps = {
+      property: props.property,
+      hasLink: props.hasLink,
+      index: props.index,
+      data: props.data,
+      randomMainColor: props.randomMainColor,
+      type: this,
+    };
+    return <FileBrowserWidget {...sliderProps} />;
   };
 
   getDefaultValue(): any {
