@@ -27,7 +27,7 @@ export type RegisteredNodeTypes = Record<
 export type PPNodeConstructor<T extends PPNode = PPNode> = {
   type?: string;
   category?: string;
-  new(name: string, ...args: any[]): T;
+  new (name: string, ...args: any[]): T;
 };
 
 export type SerializedGraph = {
@@ -203,6 +203,11 @@ export class TRgba {
       this.a * value,
     );
   }
+
+  public static fromObject = (color: any): TRgba => {
+    return new TRgba(color.r, color.g, color.b, color.a);
+  };
+
   // private so no temptation to call from outside (lets not expose the Color class at all and keep it TRgba)
   private toColor(): Color {
     return Color({
