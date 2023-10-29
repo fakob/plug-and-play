@@ -14,7 +14,7 @@ const inputShowValuesFontSize = 'Font Size';
 const inputShowReference = 'Show Reference';
 const inputShowPercentage = 'Percentage';
 const input3DRatio = '3D ratio';
-const distanceFromCenter = 'Distance From Center';
+const inputDistanceFromCenter = 'Distance From Center';
 
 class PieSlice {
   Value: number;
@@ -53,7 +53,7 @@ export class GRAPH_PIE extends DRAW_Base {
       new Socket(SOCKET_TYPE.IN, input3DRatio, new NumberType(false, 0, 1), 0),
       new Socket(
         SOCKET_TYPE.IN,
-        distanceFromCenter,
+        inputDistanceFromCenter,
         new NumberType(false, 0, 20),
         1,
       ),
@@ -217,8 +217,12 @@ export class GRAPH_PIE extends DRAW_Base {
       polygonPoints.push(new PIXI.Point(0, 0));
 
       polygonPoints.forEach((point) => {
-        slice.points.push(point.x);
-        slice.points.push(point.y);
+        slice.points.push(
+          point.x + averageDirection.x * inputObject[inputDistanceFromCenter],
+        );
+        slice.points.push(
+          point.y + averageDirection.y * inputObject[inputDistanceFromCenter],
+        );
       });
 
       graphics.drawPolygon(slice);
