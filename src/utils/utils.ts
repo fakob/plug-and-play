@@ -801,3 +801,11 @@ export const getObjectAtPoint = (point): PIXI.DisplayObject => {
   const objectsUnderPoint = boundary.hitTest(point.x, point.y);
   return objectsUnderPoint;
 };
+
+export function getConfigData(selectedNodeOrGraph) {
+  return JSON.stringify(
+    selectedNodeOrGraph?.serialize(),
+    getCircularReplacer(),
+    2,
+  );
+}

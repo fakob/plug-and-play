@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { Box, Button, Drawer, Paper, Stack } from '@mui/material';
+import { Box, Button, Drawer } from '@mui/material';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import TuneIcon from '@mui/icons-material/Tune';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
@@ -8,6 +8,7 @@ import Color from 'color';
 import InterfaceController, { ListenEvent } from '../InterfaceController';
 import Socket from '../classes/SocketClass';
 import InspectorContainer from '../InspectorContainer';
+import GraphInspectorContainer from '../GraphInspectorContainer';
 import HelpContainer from '../HelpContainer';
 import { COLOR_DARK, COLOR_WHITE_TEXT } from '../utils/constants';
 import { useIsSmallScreen } from '../utils/utils';
@@ -72,6 +73,8 @@ const ResponsiveDrawer = (props) => {
   const [open, setOpen] = useState(true);
   const [filter, setFilter] = useState(null);
   const [helpFilter, setHelpFilter] = useState('create');
+  const [graphFilter, setGraphFilter] = useState('nodes');
+  const [graphFilterText, setGraphFilterText] = useState('');
   const [socketToInspect, setSocketToInspect] = useState<Socket | undefined>(
     undefined,
   );
@@ -199,23 +202,14 @@ const ResponsiveDrawer = (props) => {
             setFilter={setFilter}
           />
         ) : (
-          <Paper
-            component={Stack}
-            direction="column"
-            justifyContent="center"
-            sx={{ height: '100%', background: 'unset' }}
-          >
-            <Box
-              sx={{
-                textAlign: 'center',
-                color: Color(props.randomMainColor).isDark()
-                  ? COLOR_WHITE_TEXT
-                  : COLOR_DARK,
-              }}
-            >
-              No node selected
-            </Box>
-          </Paper>
+          <GraphInspectorContainer
+            selectedNodes={props.selectedNodes}
+            randomMainColor={props.randomMainColor}
+            filter={graphFilter}
+            setFilter={setGraphFilter}
+            filterText={graphFilterText}
+            setFilterText={setGraphFilterText}
+          />
         )}
       </Drawer>
     </>

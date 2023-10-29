@@ -231,14 +231,20 @@ export class Macro extends PPNode {
   }
 
   public onSpecificallySelected(): void {
+    const macroAndNodes = this.getInsideNodes();
+    // add the macro itself to it
+    macroAndNodes.unshift(this);
+    PPGraph.currentGraph.selection.selectNodes(macroAndNodes);
+  }
+
+  public getInsideNodes(): PPNode[] {
     // get all nodes that are within the bounds
     const myBounds = this.getBounds();
     const nodesInside: PPNode[] = getObjectsInsideBounds(
       Object.values(PPGraph.currentGraph.nodes),
       myBounds,
     );
-    nodesInside.unshift(this);
-    PPGraph.currentGraph.selection.selectNodes(nodesInside);
+    return nodesInside;
   }
 
   public shouldShowResizeRectangleEvenWhenMultipleNodesAreSelected(): boolean {

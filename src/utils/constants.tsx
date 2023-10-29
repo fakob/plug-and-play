@@ -16,6 +16,9 @@ export const GESTUREMODE = {
   AUTO: 'Auto detect',
 } as const;
 
+export const ONCLICK_DOUBLECLICK = 2;
+export const ONCLICK_TRIPPLECLICK = 3;
+
 export const ALIGNOPTIONS = {
   ALIGN_LEFT: 'Align left',
   ALIGN_CENTER_HORIZONTAL: 'Align center horizontal',
@@ -52,9 +55,10 @@ export const COLOR = [
 ];
 
 export const COLOR_WHITE = '#F5F5F5';
+export const WHITE_HEX = 0xf5f5f5;
 export const COLOR_DARK = '#0C0C0C';
+export const DARK_HEX = 0x0c0c0c;
 export const COLOR_WHITE_TEXT = '#F4FAF9';
-export const WHITE_HEX = 0xffffff;
 export const COLOR_ERROR = '#FF0000';
 
 export const RANDOMMAINCOLOR = COLOR[Math.floor(Math.random() * COLOR.length)];
@@ -107,8 +111,8 @@ export const PRESET_COLORS = [
   '#D4FF00',
 ];
 
-export const errorColor = TRgba.fromString('#B71C1C');
-export const successColor = TRgba.fromString('#4BB543');
+export const ERROR_COLOR = TRgba.fromString('#B71C1C');
+export const SUCCESS_COLOR = TRgba.fromString('#4BB543');
 
 export const PLUGANDPLAY_ICON = '../assets/PlugAndPlayIcon-transparent.svg';
 export const DRAWER30M_ICON = '../assets/Icon_Drawer30M.svg';
