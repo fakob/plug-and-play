@@ -28,6 +28,10 @@ export class XMLReader extends PPNode {
     return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
   }
 
+  public executeOnPlace(): boolean {
+    return true;
+  }
+
   protected getDefaultIO(): PPSocket[] {
     return [
       new PPSocket(
@@ -40,12 +44,6 @@ export class XMLReader extends PPNode {
       new PPSocket(SOCKET_TYPE.IN, inputSocketName, new CodeType(), '', true),
     ];
   }
-
-  public onNodeAdded = async (source?: TNodeSource): Promise<void> => {
-    this.executeOptimizedChain();
-
-    super.onNodeAdded(source);
-  };
 
   protected async onExecute(input, output): Promise<void> {
     const result = await PPGraph.currentGraph.dynamicImports[
