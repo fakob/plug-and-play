@@ -8,10 +8,7 @@ import {
 import PPStorage from '../../PPStorage';
 import PPNode from '../../classes/NodeClass';
 import { StringType } from '../datatypes/stringType';
-import {
-  inputResourceIdSocketName,
-  inputFileNameSocketName,
-} from '../../nodes/draw/video';
+import { inputResourceIdSocketName } from '../../nodes/draw/video';
 import { ArrayType } from '../datatypes/arrayType';
 import { TriggerType } from '../datatypes/triggerType';
 import PPGraph from '../../classes/GraphClass';
@@ -53,41 +50,34 @@ export class SqliteReader extends PPNode {
         inputResourceIdSocketName,
         new StringType(),
         '',
-        false
-      ),
-      new PPSocket(
-        SOCKET_TYPE.IN,
-        inputFileNameSocketName,
-        new StringType(),
-        '',
-        false
+        false,
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
         inputResourceURLSocketName,
         new StringType(),
         '',
-        false
+        false,
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
         reloadResourceSocketName,
         new TriggerType(TRIGGER_TYPE_OPTIONS[0].text, 'loadDatabase'),
         0,
-        false
+        false,
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
         sqlQuerySocketName,
         new StringType(),
         defaultSqlQuery,
-        true
+        true,
       ),
       new PPSocket(SOCKET_TYPE.OUT, outputTableSocketName, new ArrayType()),
       new PPSocket(
         SOCKET_TYPE.OUT,
         outputColumnNamesSocketName,
-        new ArrayType()
+        new ArrayType(),
       ),
       new PPSocket(SOCKET_TYPE.OUT, outputQuerySocketName, new ArrayType()),
     ];
@@ -159,7 +149,7 @@ export class SqliteReader extends PPNode {
       });
       this.setOutputData(
         outputQuerySocketName,
-        returnArray.length === 1 ? returnArray[0] : returnArray
+        returnArray.length === 1 ? returnArray[0] : returnArray,
       );
       this.setOutputData(outputColumnNamesSocketName, columnNames);
       this.executeChildren().catch((error) => {
@@ -168,16 +158,8 @@ export class SqliteReader extends PPNode {
     }
   };
 
-  updateAndExecute = async (
-    localResourceId: string,
-    path: string,
-    sqlQuery?: string
-  ): Promise<void> => {
+  updateAndExecute = async (localResourceId: string): Promise<void> => {
     this.setInputData(inputResourceIdSocketName, localResourceId);
-    this.setInputData(inputFileNameSocketName, path);
-    if (sqlQuery) {
-      this.setInputData(sqlQuerySocketName, sqlQuery);
-    }
     await this.loadDatabase();
     await this.executeQuery();
   };
@@ -220,7 +202,7 @@ export class SqliteReader extends PPNode {
       p,
       bytes.length,
       bytes.length,
-      this.sqlite3.capi.SQLITE_DESERIALIZE_FREEONCLOSE
+      this.sqlite3.capi.SQLITE_DESERIALIZE_FREEONCLOSE,
     );
     return db;
   };

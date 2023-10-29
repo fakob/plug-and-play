@@ -411,7 +411,7 @@ export const FileBrowserWidget: React.FunctionComponent<TextWidgetProps> = (
   };
 
   const setData = (file) => {
-    const localResourceId = constructLocalResourceId(file);
+    const localResourceId = constructLocalResourceId(file.name, file.size);
     const reader = new FileReader();
     reader.onload = function (e) {
       const data = new Blob([e.target.result], { type: file.type });

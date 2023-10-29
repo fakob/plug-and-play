@@ -9,7 +9,6 @@ import { Image as ImageNode } from './nodes/image/image';
 import {
   Video as VideoNode,
   inputResourceIdSocketName,
-  inputFileNameSocketName,
 } from './nodes/draw/video';
 import { sqlQuerySocketName } from './nodes/utility/database';
 
@@ -40,7 +39,7 @@ export const dragAndDrop = (acceptedFiles, fileRejections, event) => {
       let data;
       let newNode;
 
-      const localResourceId = constructLocalResourceId(file);
+      const localResourceId = constructLocalResourceId(file.name, file.size);
 
       switch (extension) {
         case 'ppgraph':
@@ -127,7 +126,7 @@ export const dragAndDrop = (acceptedFiles, fileRejections, event) => {
             localResourceId,
             file.size,
             data,
-            file.path,
+            file.name,
           );
           if (
             PPGraph.currentGraph.selection.selectedNodes?.[index]?.type ===
@@ -136,14 +135,13 @@ export const dragAndDrop = (acceptedFiles, fileRejections, event) => {
             const existingNode = PPGraph.currentGraph.selection.selectedNodes[
               index
             ] as VideoNode;
-            existingNode.updateAndExecute(localResourceId, file.path);
+            existingNode.updateAndExecute(localResourceId);
           } else {
             newNode = await PPGraph.currentGraph.addNewNode('Video', {
               nodePosX,
               nodePosY,
               defaultArguments: {
                 [inputResourceIdSocketName]: localResourceId,
-                [inputFileNameSocketName]: file.path,
               },
             });
           }
@@ -160,7 +158,7 @@ export const dragAndDrop = (acceptedFiles, fileRejections, event) => {
             localResourceId,
             file.size,
             data,
-            file.path,
+            file.name,
           );
           if (
             PPGraph.currentGraph.selection.selectedNodes?.[index]?.type ===
@@ -169,7 +167,7 @@ export const dragAndDrop = (acceptedFiles, fileRejections, event) => {
             const existingNode = PPGraph.currentGraph.selection.selectedNodes[
               index
             ] as any;
-            existingNode.updateAndExecute(localResourceId, file.path);
+            existingNode.updateAndExecute(localResourceId);
           } else {
             const sqlQuery =
               extension === 'pxshow' ? PXSHOW_SQL_QUERY : undefined;
@@ -178,7 +176,6 @@ export const dragAndDrop = (acceptedFiles, fileRejections, event) => {
               nodePosY,
               defaultArguments: {
                 [inputResourceIdSocketName]: localResourceId,
-                [inputFileNameSocketName]: file.path,
                 [sqlQuerySocketName]: sqlQuery,
               },
             });

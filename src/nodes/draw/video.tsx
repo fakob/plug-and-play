@@ -17,6 +17,10 @@ import { ArrayType } from '../datatypes/arrayType';
 
 import { TNodeSource, TRgba } from '../../utils/interfaces';
 import {
+  constructLocalResourceId,
+  getNameFromLocalResourceId,
+} from '../../utils/utils';
+import {
   NODE_TYPE_COLOR,
   SOCKET_TYPE,
   TRIGGER_TYPE_OPTIONS,
@@ -55,7 +59,6 @@ function CircularProgressWithLabel(
 }
 
 export const inputResourceIdSocketName = 'Local resource ID';
-export const inputFileNameSocketName = 'File name';
 const getFrameSocketName = 'Get current frame';
 const getFramesIntervalSocketName = 'Get frames (interval)';
 const intervalSocketName = 'Interval (s)';
@@ -110,13 +113,6 @@ export class Video extends HybridNode2 {
       new PPSocket(
         SOCKET_TYPE.IN,
         inputResourceIdSocketName,
-        new StringType(),
-        '',
-        false,
-      ),
-      new PPSocket(
-        SOCKET_TYPE.IN,
-        inputFileNameSocketName,
         new StringType(),
         '',
         false,
@@ -259,9 +255,8 @@ export class Video extends HybridNode2 {
     );
   }
 
-  updateAndExecute = (localResourceId: string, path: string): void => {
+  updateAndExecute = (localResourceId: string): void => {
     this.setInputData(inputResourceIdSocketName, localResourceId);
-    this.setInputData(inputFileNameSocketName, path);
     this.executeOptimizedChain().catch((error) => {
       console.error(error);
     });
@@ -288,10 +283,9 @@ export class Video extends HybridNode2 {
   };
 
   workerAction = async (type) => {
-    const blob = await this.loadResource(
-      this.getInputData(inputResourceIdSocketName),
-    );
-    const fileName = this.getInputData(inputFileNameSocketName);
+    const localResourceId = this.getInputData(inputResourceIdSocketName);
+    const blob = await this.loadResource(localResourceId);
+    const fileName = getNameFromLocalResourceId(localResourceId);
 
     const waitForWorker = async () => {
       if (this.worker) {
@@ -321,7 +315,7 @@ export class Video extends HybridNode2 {
     const node = props.node;
 
     const [progress, setProgress] = useState(100);
-    const [path] = useState(props[inputFileNameSocketName]);
+    const [localResourceId] = useState(props[inputResourceIdSocketName]);
     const [videoSrc, setVideoSrc] = useState(undefined);
     const [contentHeight, setContentHeight] = useState(0);
 
@@ -333,14 +327,14 @@ export class Video extends HybridNode2 {
             case 'transcodingResult':
               const blob = new Blob([data.buffer], { type: 'video/mp4' });
               const size = blob.size;
-              const localResourceId = `${data.name}-${size}`;
+              const newResourceId = constructLocalResourceId(data.name, size);
               PPStorage.getInstance().storeResource(
-                localResourceId,
+                newResourceId,
                 size,
                 blob,
                 data.name,
               );
-              node.setInputData(inputResourceIdSocketName, localResourceId);
+              node.setInputData(inputResourceIdSocketName, newResourceId);
               break;
             case 'progress':
               console.log(data);
@@ -361,7 +355,7 @@ export class Video extends HybridNode2 {
 
       if (videoRef.current) {
         videoRef.current.addEventListener('error', () => {
-          console.error(`Error loading: ${path}`);
+          console.error(`Error loading: ${localResourceId}`);
         });
         videoRef.current.addEventListener('loadedmetadata', () => {
           const details = {

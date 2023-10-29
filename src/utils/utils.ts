@@ -815,6 +815,12 @@ export function getConfigData(selectedNodeOrGraph) {
     2,
   );
 }
-export const constructLocalResourceId = (file) => {
-  return `${file.name}-${file.size}`;
+
+export const constructLocalResourceId = (fileName, fileSize) => {
+  return `${fileName}-${fileSize}`;
+};
+
+export const getNameFromLocalResourceId = (localResourceId) => {
+  const regex = /(.+)-\d+$/;
+  return localResourceId.match(regex);
 };
