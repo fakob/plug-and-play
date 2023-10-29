@@ -7,10 +7,11 @@ import {
 } from '../../utils/constants';
 import PPStorage from '../../PPStorage';
 import PPNode from '../../classes/NodeClass';
-import { StringType } from '../datatypes/stringType';
-import { inputResourceIdSocketName } from '../../nodes/draw/video';
 import { ArrayType } from '../datatypes/arrayType';
+import { FileType } from '../datatypes/fileType';
+import { StringType } from '../datatypes/stringType';
 import { TriggerType } from '../datatypes/triggerType';
+import { inputResourceIdSocketName } from '../../nodes/draw/video';
 import PPGraph from '../../classes/GraphClass';
 
 const inputResourceURLSocketName = 'Resource URL';
@@ -48,7 +49,7 @@ export class SqliteReader extends PPNode {
       new PPSocket(
         SOCKET_TYPE.IN,
         inputResourceIdSocketName,
-        new StringType(),
+        new FileType(),
         '',
         false,
       ),
@@ -160,6 +161,12 @@ export class SqliteReader extends PPNode {
 
   updateAndExecute = async (localResourceId: string): Promise<void> => {
     this.setInputData(inputResourceIdSocketName, localResourceId);
+    await this.loadDatabase();
+    await this.executeQuery();
+  };
+
+  // triggered by file socket
+  updateFile = async (): Promise<void> => {
     await this.loadDatabase();
     await this.executeQuery();
   };

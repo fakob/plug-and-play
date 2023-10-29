@@ -24,6 +24,7 @@ export enum ListenEvent {
   ToggleInspectorWithFocus, // (data: Node, Filter or Socket) => void: called when inspector should be opened with focus
   EscapeKeyUsed,
   UnsavedChanges, // data = Boolean
+  ResourceUpdated, // data = {id}
 }
 
 export default class InterfaceController {
@@ -40,6 +41,7 @@ export default class InterfaceController {
     9: {},
     10: {},
     11: {},
+    12: {},
   }; // not sure why this one is so messed up and needs these defined by default, very annoying
 
   // we use this listener structure here as there can be multiple listeners, not needed for everything (sometimes there is just one listener)

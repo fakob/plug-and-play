@@ -822,5 +822,5 @@ export const constructLocalResourceId = (fileName, fileSize) => {
 
 export const getNameFromLocalResourceId = (localResourceId) => {
   const regex = /(.+)-\d+$/;
-  return localResourceId.match(regex);
+  return localResourceId.match(regex)[1];
 };

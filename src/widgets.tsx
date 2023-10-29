@@ -400,12 +400,10 @@ export const FileBrowserWidget: React.FunctionComponent<TextWidgetProps> = (
   props,
 ) => {
   const [filename, setFilename] = useState(props.data);
-  const [fileResource, setFileResource] = useState();
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
-      setFileResource(file);
       setData(file);
     }
   };
@@ -427,6 +425,7 @@ export const FileBrowserWidget: React.FunctionComponent<TextWidgetProps> = (
     reader.readAsArrayBuffer(file);
 
     potentiallyUpdateSocketData(props.property, localResourceId);
+    (props.property.getNode() as any)['updateFile']();
     setFilename(localResourceId);
   };
 
