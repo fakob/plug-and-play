@@ -128,6 +128,10 @@ export class Label extends PPNode {
     super.onNodeAdded(source);
   };
 
+  public executeOnPlace(): boolean {
+    return true;
+  }
+
   public HTMLVisible() {
     this.PIXIText.visible = false;
     this.createInputElement();
