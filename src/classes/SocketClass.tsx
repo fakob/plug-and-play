@@ -394,7 +394,7 @@ export default class Socket extends PIXI.Container implements Tooltipable {
     const nodes = this.links.map((link) => link.getTarget().getNode());
     const filteredNodes = nodes.filter(
       (node) =>
-        node && node.updateBehaviour.update && node.id !== this.getNode().id,
+        node && node.updateBehaviour.update && node.id !== this.getNode()?.id,
     );
     return filteredNodes;
   }

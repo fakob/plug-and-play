@@ -81,15 +81,13 @@ export default class PPLink extends PIXI.Container {
 
   // if there is a new connection pending, don't execute inbetween, wait until new connection to execute
   async delete(skipExecute = false): Promise<void> {
-    if (this.getTarget()) {
-      this.getTarget().removeLink(this);
-      if (!skipExecute && this.getTarget().getNode()?.updateBehaviour?.update) {
-        // nodes might have been killed before in a mass delete action
-        await this.getTarget().getNode()?.executeOptimizedChain();
-      }
-    }
+    this.getTarget().removeLink(this);
     this.getSource().removeLink(this);
     this.getSource().getGraph().connectionContainer.removeChild(this);
+    if (!skipExecute && this.getTarget().getNode()?.updateBehaviour?.update) {
+      // nodes might have been killed before in a mass delete action
+      await this.getTarget().getNode()?.executeOptimizedChain();
+    }
   }
 
   public renderOutlineThrottled = throttle(this.renderOutline, 2000, {
