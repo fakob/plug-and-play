@@ -1129,7 +1129,7 @@
     },
     {
       "id": "ancient-donkey-29",
-      "name": "Video",
+      "name": "Video player",
       "type": "Video",
       "x": -3571.3692858930312,
       "y": -9276.440143066933,
@@ -1139,8 +1139,8 @@
         {
           "socketType": "in",
           "name": "Local resource ID",
-          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
-          "data": "fingers.mov-238059",
+          "dataType": "{\"class\":\"FileType\",\"type\":{\"filterExtensions\":[\"3gp\",\"avi\",\"flv\",\"mov\",\"mkv\",\"m4v\",\"mp4\",\"ogg\",\"qt\",\"swf\",\"webm\",\"wmv\"]}}",
+          "data": "",
           "visible": false
         },
         {
