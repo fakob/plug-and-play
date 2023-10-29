@@ -6,8 +6,10 @@ import { convertToString } from '../../utils/utils';
 import { TRgba } from '../../utils/interfaces';
 
 export class JSONType extends AbstractType {
-  constructor() {
+  strictParsing: boolean; // whether to force the result into JSON or not
+  constructor(strictParsing: boolean = false) {
     super();
+    this.strictParsing = strictParsing;
   }
 
   getName(): string {
@@ -43,6 +45,9 @@ export class JSONType extends AbstractType {
         return JSON.parse(data);
       } catch (error) {
         console.log('failed parsing data: ' + data);
+        if (this.strictParsing) {
+          return { InvalidJSON: data };
+        }
       }
     }
     return data;
