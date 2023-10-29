@@ -1202,8 +1202,8 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     );
     this.listenId.forEach((id) => InterfaceController.removeListener(id));
 
-    await Promise.all(this.getAllSockets().map((socket) => {
-      socket.links.forEach(async (link) => await link.delete())
+    await Promise.all(this.getAllSockets().map(async (socket) => {
+      await Promise.all(socket.links.map(async (link) => await link.delete()))
     }));
 
     this.onNodeRemoved();
