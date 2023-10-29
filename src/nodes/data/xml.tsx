@@ -1,27 +1,17 @@
 import PPSocket from '../../classes/SocketClass';
-import { CustomArgs, TNodeSource, TRgba } from '../../utils/interfaces';
+import { TNodeSource, TRgba } from '../../utils/interfaces';
 import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../../utils/constants';
 import PPNode from '../../classes/NodeClass';
 import { JSONType } from '../datatypes/jsonType';
 import { CodeType } from '../datatypes/codeType';
 import PPGraph from '../../classes/GraphClass';
 
-const outputSocketName = 'output';
-const inputSocketName = 'input';
+const outputSocketName = 'Output';
+const inputSocketName = 'Input';
 
 const IMPORT_NAME = 'xml2js';
 
 export class XMLReader extends PPNode {
-  initialData: any;
-
-  constructor(name: string, customArgs?: CustomArgs) {
-    super(name, {
-      ...customArgs,
-    });
-
-    this.initialData = customArgs?.initialData;
-  }
-
   public getName(): string {
     return 'XML reader';
   }
@@ -52,9 +42,6 @@ export class XMLReader extends PPNode {
   }
 
   public onNodeAdded = async (source?: TNodeSource): Promise<void> => {
-    if (this.initialData) {
-      this.setInputData(inputSocketName, this.initialData);
-    }
     this.executeOptimizedChain();
 
     super.onNodeAdded(source);

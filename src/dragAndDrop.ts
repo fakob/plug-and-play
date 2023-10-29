@@ -189,7 +189,7 @@ export const dragAndDrop = (acceptedFiles, fileRejections, event) => {
           newNode = await PPGraph.currentGraph.addNewNode('XMLReader', {
             nodePosX,
             nodePosY,
-            initialData: data,
+            defaultArguments: { ['Input']: data },
           });
           break;
         default:
