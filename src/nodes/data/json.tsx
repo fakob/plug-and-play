@@ -195,16 +195,16 @@ export class Break extends PPNode {
     return 'Breaks out all properties of a JSON object or an array';
   }
 
-    public getTags(): string[] {
-      return ['JSON'].concat(super.getTags());
-    }
+  public getTags(): string[] {
+    return ['JSON'].concat(super.getTags());
+  }
 
   public hasExample(): boolean {
     return true;
   }
 
   protected getDefaultIO(): Socket[] {
-    return [new Socket(SOCKET_TYPE.IN, JSONName, new JSONType()), new Socket(SOCKET_TYPE.IN, lockOutputsName, new BooleanType(),false,false)];
+    return [new Socket(SOCKET_TYPE.IN, JSONName, new JSONType(true)), new Socket(SOCKET_TYPE.IN, lockOutputsName, new BooleanType(), false, false)];
   }
 
   protected async onExecute(
@@ -213,19 +213,24 @@ export class Break extends PPNode {
   ): Promise<void> {
     // before every execute, re-evaluate inputs
     const currentJSON = inputObject[JSONName];
-    if (!inputObject[lockOutputsName]){
+    if (!inputObject[lockOutputsName]) {
       this.adaptOutputs(currentJSON);
     }
-    // eslint-disable-next-line prefer-const
-      Object.keys(currentJSON).forEach(
-        (key) => (outputObject[key] = currentJSON[key])
-      );
+    // cant use keys of input object here becasue i might have nested properties
+    this.outputSocketArray.forEach(
+      (socket) => {
+        const key = socket.name;
+        const allSegments = key.split(".");
+        const value = allSegments.reduce((prev, segment) => prev[segment], currentJSON);
+        outputObject[key] = value;
+      }
+    );
   }
 
   private adaptOutputs(json: any): void {
     // remove all non existing arguments and add all missing (based on the definition we just got)
     // if current JSON is empty, then dont adapt (maybe data just hasnt arrived yet)
-    if (json === undefined || Object.keys(json).length === 0){
+    if (json === undefined || Object.keys(json).length === 0) {
       return;
     }
 
@@ -244,7 +249,17 @@ export class Break extends PPNode {
     argumentsToBeAdded.forEach((argument) => {
       // block creation of new sockets after a while to not freeze the whole editor
       if (this.outputSocketArray.length < BREAK_MAX_SOCKETS) {
-        this.addOutput(argument, dataToType(json[argument]), true, {}, false);
+        // if we only have one child, keep unpacking until thers is none or several
+        let currentPath = argument;
+        let currentVal = json[argument];
+        let currentKeys = Object.keys(currentVal);
+        while (currentKeys.length == 1) {
+          const currentKey = currentKeys[0];
+          currentVal = currentVal[currentKey];
+          currentPath += "." + currentKey;
+          currentKeys = Object.keys(currentVal);
+        }
+        this.addOutput(currentPath, dataToType(currentVal), true, {}, false);
       }
     });
     if (socketsToBeRemoved.length > 0 || argumentsToBeAdded.length > 0) {
