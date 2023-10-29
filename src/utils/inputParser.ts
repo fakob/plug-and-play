@@ -1,7 +1,6 @@
 /* eslint-disable prettier/prettier */
 import PPGraph from '../classes/GraphClass';
-import { isEventComingFromWithinTextInput, isEventComongFromWithinWidget } from './utils';
-
+import { isEventComingFromWithinTextInput } from './utils';
 
 // This class didnt really work out TODO deprecate entirely
 
@@ -23,7 +22,7 @@ abstract class Hotkey {
   potentiallyExecute(
     currPressed: KeyboardEvent,
     allPressed: Set<string>,
-    graph: PPGraph
+    graph: PPGraph,
   ): boolean {
     // see if all keys are pressed and if one of the relevant keys was pressed now
     if (this.areKeysPressed(currPressed.key, allPressed)) {
@@ -39,7 +38,7 @@ abstract class Hotkey {
 class deleteNodeAction extends Hotkey {
   potentiallyExecute(currPressed, allPressed, graph): boolean {
     if (currPressed.key === 'Backspace' || currPressed.key === 'Delete') {
-      if (!isEventComongFromWithinWidget(currPressed)) {
+      if (!isEventComingFromWithinTextInput(currPressed)) {
         graph.action_DeleteSelectedNodes();
       }
       return true;
@@ -61,7 +60,7 @@ export class InputParser {
     // console.log('parsed keykey: ' + JSON.stringify(event.key));
     this.keysPressed.add(event.key);
     activeHotkeys.forEach((hotkey) =>
-      hotkey.potentiallyExecute(event, this.keysPressed, graph)
+      hotkey.potentiallyExecute(event, this.keysPressed, graph),
     );
   }
 
