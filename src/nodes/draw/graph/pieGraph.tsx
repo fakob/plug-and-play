@@ -121,6 +121,43 @@ export class GRAPH_PIE extends DRAW_Base {
 
   private drawReference() {}
 
+  private convexHull(points) {
+    if (points.length <= 3) return points;
+
+    // Sort by lowest Y and then by X if tied
+    points.sort((a, b) => (a.y === b.y ? a.x - b.x : a.y - b.y));
+    const start = points[0];
+
+    // Calculate polar angles
+    points.forEach((p) => {
+      p.angle = Math.atan2(p.y - start.y, p.x - start.x);
+    });
+
+    // Sort by polar angle
+    points.sort((a, b) => a.angle - b.angle);
+
+    const result = [start];
+    for (let i = 1; i < points.length; i++) {
+      while (
+        result.length > 1 &&
+        this.crossProduct(
+          result[result.length - 2],
+          result[result.length - 1],
+          points[i],
+        ) <= 0
+      ) {
+        result.pop();
+      }
+      result.push(points[i]);
+    }
+
+    return result;
+  }
+
+  private crossProduct(o, a, b) {
+    return (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
+  }
+
   protected drawOnContainer(
     inputObject: any,
     container: PIXI.Container,
@@ -147,17 +184,17 @@ export class GRAPH_PIE extends DRAW_Base {
     const fontSize = inputObject[inputShowValuesFontSize];
 
     let currDegrees = 0;
+    const deferredGraphics = new PIXI.Graphics(); // we might want stuff underneath the top layer (3D perspective)
     pieSlices.forEach((pieSlice, index) => {
       const partOfTotal = pieSlice.Value / total;
-      const slice = new PIXI.Polygon();
       const polygonPoints: PIXI.Point[] = [];
       polygonPoints.push(new PIXI.Point(0, 0));
       const color =
         pieSlice.Color !== undefined
           ? TRgba.fromObject(pieSlice.Color)
           : this.generateColorFromString(pieSlice.Name);
-      graphics.beginFill(color.hexNumber());
-      graphics.alpha = color.a;
+      deferredGraphics.beginFill(color.hexNumber(), color.a);
+      graphics.beginFill(color.hexNumber(), color.a);
       const degreesPre = currDegrees;
       for (let i = 0; i < PIE_GRAPH_RESOLUTION * partOfTotal; i++) {
         const x = Math.cos(RADIAN_PER_DEGREES * currDegrees) * radius;
@@ -179,7 +216,7 @@ export class GRAPH_PIE extends DRAW_Base {
           averageDirection.y * distance,
         );
         const textToUse = pieSlice.Name;
-        graphics.addChild(
+        deferredGraphics.addChild(
           this.getValueText(textToUse, valuePosition, fontSize),
         );
       }
@@ -196,7 +233,7 @@ export class GRAPH_PIE extends DRAW_Base {
           (inputObject[inputShowPercentage]
             ? (partOfTotal * 100.0).toFixed(2) + '%'
             : pieSlice.Value.toString());
-        graphics.addChild(
+        deferredGraphics.addChild(
           this.getValueText(
             textToUse,
             location,
@@ -204,7 +241,7 @@ export class GRAPH_PIE extends DRAW_Base {
             false,
           ),
         );
-        graphics.drawCircle(
+        deferredGraphics.drawCircle(
           location.x - fontSize * 2,
           location.y + fontSize * 0.5,
           fontSize,
@@ -216,18 +253,44 @@ export class GRAPH_PIE extends DRAW_Base {
       }
       polygonPoints.push(new PIXI.Point(0, 0));
 
-      polygonPoints.forEach((point) => {
-        slice.points.push(
+      const polygonPointsMovedFromCenter = polygonPoints.map((point) => {
+        return new PIXI.Point(
           point.x + averageDirection.x * inputObject[inputDistanceFromCenter],
-        );
-        slice.points.push(
           point.y + averageDirection.y * inputObject[inputDistanceFromCenter],
         );
       });
 
-      graphics.drawPolygon(slice);
+      const slice = new PIXI.Polygon();
+      polygonPointsMovedFromCenter.forEach((point) => {
+        slice.points.push(point.x);
+        slice.points.push(point.y);
+      });
+
+      if (inputObject[input3DRatio] > 0) {
+        const dist = inputObject[input3DRatio] * radius;
+        //const resultiung;
+        const bottom = polygonPointsMovedFromCenter.map(
+          (point) => new PIXI.Point(point.x, point.y + dist),
+        );
+        //const hullP = polygonPointsMovedFromCenter
+        //  .concat(bottom)
+        //  .map((point) => [point.x, point.y]);
+        const allP = this.convexHull(
+          bottom.concat(polygonPointsMovedFromCenter),
+        );
+
+        const bottomSide = new PIXI.Polygon();
+        allP.forEach((point) => {
+          bottomSide.points.push(point.x);
+          bottomSide.points.push(point.y);
+        });
+        graphics.drawPolygon(bottomSide);
+      }
+
+      deferredGraphics.drawPolygon(slice);
     });
 
+    graphics.addChild(deferredGraphics);
     this.positionAndScale(graphics, inputObject);
     container.addChild(graphics);
   }
