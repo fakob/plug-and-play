@@ -207,12 +207,6 @@ export const dragAndDrop = (acceptedFiles, fileRejections, event) => {
     // select the newly added nodes
     if (newNodeSelection.length > 0) {
       PPGraph.currentGraph.selection.selectNodes(newNodeSelection, false, true);
-      ensureVisible(PPGraph.currentGraph.selection.selectedNodes);
-      InterfaceController.showSnackBar(
-        `${newNodeSelection.length} new ${
-          newNodeSelection.length === 1 ? 'node was' : 'nodes were'
-        } added`,
-      );
     }
   })();
 };
