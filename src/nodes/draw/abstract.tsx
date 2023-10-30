@@ -17,6 +17,7 @@ import { DisplayObject } from 'pixi.js';
 import { getCurrentCursorPosition } from '../../utils/utils';
 import { ActionHandler } from '../../utils/actionHandler';
 import InterfaceController, { ListenEvent } from '../../InterfaceController';
+import throttle from 'lodash/throttle';
 
 export const offseXName = 'Offset X';
 export const offsetYName = 'Offset Y';
@@ -168,7 +169,10 @@ export abstract class DRAW_Base extends PPNode {
       }
     };
     outputObject[outputPixiName] = drawingFunction;
-    this.handleDrawing(drawingFunction, inputObject[inputAbsolutePositions]);
+    this.handleDrawingThrottled(
+      drawingFunction,
+      inputObject[inputAbsolutePositions],
+    );
   }
 
   protected setOffsets(offsets: PIXI.Point) {
@@ -240,6 +244,11 @@ export abstract class DRAW_Base extends PPNode {
       false,
     );
   }
+
+  public handleDrawingThrottled = throttle(this.handleDrawing, 16, {
+    trailing: true,
+    leading: false,
+  });
 
   private handleDrawing(drawingFunction: any, absolutePosition: boolean): void {
     this._ForegroundRef.removeChild(this.deferredGraphics);
