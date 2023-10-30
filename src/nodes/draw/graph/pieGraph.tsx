@@ -12,6 +12,7 @@ const inputRadius = 'Radius';
 const inputShowNames = 'Show Names';
 const inputShowValuesFontSize = 'Font Size';
 const inputShowReference = 'Show Reference';
+const inputShowBorder = 'Show Border';
 const inputShowPercentage = 'Percentage';
 const input3DRatio = '3D ratio';
 const inputDistanceFromCenter = 'Distance From Center';
@@ -28,7 +29,7 @@ class PieSlice {
 }
 
 interface PieDrawnSlice {
-  lowestY: number;
+  highestY: number;
   color: TRgba;
   drawFunction: (graphics: PIXI.Graphics) => void;
 }
@@ -48,16 +49,22 @@ export class GRAPH_PIE extends DRAW_Base {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, inputDataName, new ArrayType(), [
-        { Value: 2, Name: 'Big slice', Color: new TRgba(1, 0, 0, 0.5) },
-        { Value: 1, Name: 'Small slice', Color: new TRgba(0, 1, 1, 0.5) },
+        { Value: 5, Name: 'Big slice', Color: new TRgba(0, 9, 148, 1) },
+        { Value: 3, Name: 'Small slice', Color: new TRgba(128, 192, 0, 1) },
+        { Value: 1, Name: 'Tiny slice', Color: new TRgba(192, 128, 0, 1) },
       ]),
       new Socket(
         SOCKET_TYPE.IN,
         inputRadius,
         new NumberType(false, 1, 1000),
-        100,
+        250,
       ),
-      new Socket(SOCKET_TYPE.IN, input3DRatio, new NumberType(false, 0, 1), 0),
+      new Socket(
+        SOCKET_TYPE.IN,
+        input3DRatio,
+        new NumberType(false, 0, 1),
+        0.25,
+      ),
       new Socket(
         SOCKET_TYPE.IN,
         inputDistanceFromCenter,
@@ -74,6 +81,13 @@ export class GRAPH_PIE extends DRAW_Base {
       new Socket(
         SOCKET_TYPE.IN,
         inputShowReference,
+        new BooleanType(),
+        true,
+        true,
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        inputShowBorder,
         new BooleanType(),
         true,
         true,
@@ -193,11 +207,12 @@ export class GRAPH_PIE extends DRAW_Base {
     let currDegrees = 0;
     const deferredGraphics = new PIXI.Graphics(); // we might want stuff underneath the top layer (3D perspective)
 
-    // 3D perspective scale
-    const yScale = Math.max(
-      0,
-      Math.pow(Math.cos(inputObject[input3DRatio]), 0.8),
+    const distanceFromCenter = Math.max(
+      0.01,
+      inputObject[inputDistanceFromCenter],
     );
+    // 3D perspective scale
+    const yScale = Math.max(0, Math.cos(inputObject[input3DRatio]));
 
     const slicesToDraw: PieDrawnSlice[] = [];
 
@@ -239,10 +254,11 @@ export class GRAPH_PIE extends DRAW_Base {
         );
       }
       if (inputObject[inputShowReference]) {
+        const circleOffsetX = fontSize * 2;
         const distanceBetween =
           (radius * 2) / Math.max(1, pieSlices.length - 1);
         const location = new PIXI.Point(
-          radius * (4 / 3),
+          radius * (4 / 3) + distanceFromCenter + circleOffsetX,
           -radius + index * distanceBetween,
         );
         const textToUse =
@@ -260,7 +276,7 @@ export class GRAPH_PIE extends DRAW_Base {
           ),
         );
         deferredGraphics.drawCircle(
-          location.x - fontSize * 2,
+          location.x - circleOffsetX,
           location.y + fontSize * 0.5,
           fontSize,
         );
@@ -273,36 +289,23 @@ export class GRAPH_PIE extends DRAW_Base {
 
       const polygonPointsMovedFromCenter = polygonPoints.map((point) => {
         return new PIXI.Point(
-          point.x + averageDirection.x * inputObject[inputDistanceFromCenter],
-          point.y + averageDirection.y * inputObject[inputDistanceFromCenter],
+          point.x + averageDirection.x * distanceFromCenter,
+          point.y + averageDirection.y * distanceFromCenter,
         );
       });
 
       const slice = new PIXI.Polygon();
-      let lowestY = 100000000000;
-      let lowestX = 10000000;
-      let lowestXY = -1;
-      let highestX = -10000000;
-      let highestXY = -1;
+      let highestY = -100000000000;
 
       polygonPointsMovedFromCenter.forEach((point) => {
         const scaledY = yScale * point.y;
         slice.points.push(point.x);
         slice.points.push(scaledY);
-        lowestY = Math.min(lowestY, scaledY);
-        if (lowestX > point.x) {
-          lowestXY = point.y;
-          lowestX = point.x;
-        } else if (highestX < point.x) {
-          highestX = point.x;
-          highestXY = point.y;
-        }
-        lowestX = Math.min(lowestX, point.x);
-        highestX = Math.max(highestX, point.x);
+        highestY = Math.max(highestY, scaledY);
       });
 
       if (inputObject[input3DRatio] > 0) {
-        const dist = inputObject[input3DRatio] * radius;
+        const dist = Math.sin(inputObject[input3DRatio]) * radius;
         const polygonMovedScaled = polygonPointsMovedFromCenter.map((point) => {
           return new PIXI.Point(point.x, point.y * yScale);
         });
@@ -316,29 +319,57 @@ export class GRAPH_PIE extends DRAW_Base {
           slice3D.points.push(point.x);
           slice3D.points.push(point.y);
         });
+
+        // complex... wander around the two polygons filling in area in between them
         const inbetweenArea = new PIXI.Polygon();
-        inbetweenArea.points.push(lowestX);
-        inbetweenArea.points.push(lowestXY);
-        inbetweenArea.points.push(highestX);
-        inbetweenArea.points.push(highestXY);
-        inbetweenArea.points.push(lowestX);
-        inbetweenArea.points.push(lowestX);
-        inbetweenArea.points.push(lowestX);
-        inbetweenArea.points.push(lowestX);
+        let minX = 1000000;
+        let minXY = -1;
+        let maxX = -1000000;
+        let maxXY = -1;
+
+        polygonMovedScaled.forEach((point) => {
+          if (point.x < minX) {
+            minX = point.x;
+            minXY = point.y;
+          } else if (point.x > maxX) {
+            maxX = point.x;
+            maxXY = point.y;
+          }
+        });
+        inbetweenArea.points.push(minX);
+        inbetweenArea.points.push(minXY);
+
+        inbetweenArea.points.push(minX);
+        inbetweenArea.points.push(minXY + dist);
+
+        inbetweenArea.points.push(maxX);
+        inbetweenArea.points.push(maxXY + dist);
+
+        inbetweenArea.points.push(maxX);
+        inbetweenArea.points.push(maxXY);
+
         slicesToDraw.push({
-          lowestY,
+          highestY: highestY,
           color,
           drawFunction: (graphics: PIXI.Graphics) => {
+            graphics.lineStyle(0);
+            graphics.drawPolygon(inbetweenArea);
             graphics.drawPolygon(slice3D);
+            if (inputObject[inputShowBorder]) {
+              graphics.lineStyle(1, color.multiply(0.8).hexNumber());
+            }
             graphics.drawPolygon(slice);
           },
         });
       } else {
         slicesToDraw.push({
-          lowestY,
+          highestY: highestY,
           color,
           drawFunction: (graphics: PIXI.Graphics) => {
-            graphics.drawPolygon(slice);
+            if (inputObject[inputShowBorder]) {
+              graphics.lineStyle(1, color.multiply(0.8).hexNumber());
+              graphics.drawPolygon(slice);
+            }
           },
         });
       }
@@ -346,14 +377,11 @@ export class GRAPH_PIE extends DRAW_Base {
 
     // we sort them based on Y so that they are correctly sorted when doing the 3D view
     slicesToDraw.sort(
-      (pieSlice1, pieSlice2) => pieSlice1.lowestY - pieSlice2.lowestY,
+      (pieSlice1, pieSlice2) => pieSlice1.highestY - pieSlice2.highestY,
     );
     slicesToDraw.forEach((slice) => {
-      graphics.lineStyle(2, slice.color.multiply(0.8).hexNumber());
       graphics.beginFill(slice.color.hexNumber());
       slice.drawFunction(graphics);
-      //graphics.drawPolygon(slice.fullSlice);
-      //graphics.drawPolygon(slice.topSlice);
     });
 
     graphics.addChild(deferredGraphics);
