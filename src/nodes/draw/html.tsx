@@ -72,14 +72,14 @@ export class HtmlRenderer extends HybridNode2 {
         inputSocketName,
         new CodeType(),
         defaultCode,
-        false
+        false,
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
         reloadSocketName,
         new TriggerType(TRIGGER_TYPE_OPTIONS[0].text, 'reload'),
         0,
-        false
+        false,
       ),
     ];
   }
@@ -156,7 +156,7 @@ const MemoizedComponent = memo<any>(function MemoizedComponent({
         height: '100%',
         borderWidth: 0,
       }}
-      initialContent="<!DOCTYPE html><html><head><style>* {border: none;}</style></head><body style='overflow:hidden; border-width: 0px; background: white;'><div></div></body></html>"
+      initialContent="<!DOCTYPE html><html><head><style>* {border: none;}</style></head><body style='overflow:auto; border-width: 0px; background: white;'><div></div></body></html>"
     >
       <ThemeProvider theme={theme}>
         <Box
