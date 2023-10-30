@@ -368,8 +368,8 @@ export class GRAPH_PIE extends DRAW_Base {
           drawFunction: (graphics: PIXI.Graphics) => {
             if (inputObject[inputShowBorder]) {
               graphics.lineStyle(1, color.multiply(0.8).hexNumber());
-              graphics.drawPolygon(slice);
             }
+            graphics.drawPolygon(slice);
           },
         });
       }
