@@ -28,7 +28,7 @@ export class LogViewer extends HybridNode2 {
         'rowLimit',
         new NumberType(true, 1, 1000),
         100,
-        false
+        false,
       ),
     ];
   }
@@ -53,9 +53,9 @@ export class LogViewer extends HybridNode2 {
     return 240;
   }
 
-  protected getParentComponent(props: any): any {
+  protected getParentComponent(props: any): React.ReactElement {
     const [logString, setLogString] = useState<string[]>(
-      props.data ? [props.data] : ['']
+      props.data ? [props.data] : [''],
     );
 
     useEffect(() => {

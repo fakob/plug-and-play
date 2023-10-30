@@ -473,10 +473,10 @@ export const FileBrowserWidget: React.FunctionComponent<FileWidgetProps> = (
             style: { zIndex: 1500 },
           }}
         >
-          {options.map(({ id, name, size }, index) => {
+          {options.map(({ id, name, size }) => {
             return (
               <MenuItem
-                key={index}
+                key={id}
                 value={id}
                 sx={{
                   '&.Mui-selected': {
@@ -485,7 +485,11 @@ export const FileBrowserWidget: React.FunctionComponent<FileWidgetProps> = (
                 }}
               >
                 <ListItemText>{name}</ListItemText>
-                <Typography variant="body2" color="text.secondary">
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ pl: 1 }}
+                >
                   {prettyBytes(size)}
                 </Typography>
               </MenuItem>

@@ -123,7 +123,7 @@ export class Table extends HybridNode2 {
       this.getXLSXModule().utils.book_append_sheet(
         this.workBook,
         worksheet,
-        'Sheet1'
+        'Sheet1',
       );
     }
     this.setAllOutputData(this.workBook);
@@ -136,12 +136,12 @@ export class Table extends HybridNode2 {
       {
         nodePosX: this.x + (this.width + 40),
         nodePosY: this.y,
-      }
+      },
     );
 
     connectNodeToSocket(
       this.getOutputSocketByName(arrayOfArraysSocketName),
-      added
+      added,
     );
     added.getSocketByName('ColumnName').data = nameOfColumn;
     added.executeOptimizedChain();
@@ -155,7 +155,7 @@ export class Table extends HybridNode2 {
 
     connectNodeToSocket(
       this.getOutputSocketByName(arrayOfArraysSocketName),
-      added
+      added,
     );
     added.getSocketByName('Index').data = nameOfRow;
     added.executeOptimizedChain();
@@ -180,7 +180,7 @@ export class Table extends HybridNode2 {
     added.getSocketByName('Index').data = cell[1];
     connectNodeToSocket(
       this.getOutputSocketByName(arrayOfArraysSocketName),
-      added
+      added,
     );
     added.executeOptimizedChain();
     const added2: PPNode = await PPGraph.currentGraph.addNewNode('ArrayGet', {
@@ -190,7 +190,7 @@ export class Table extends HybridNode2 {
     added2.getSocketByName('Index').data = cell[0];
     connectNodeToSocket(
       added.outputSocketArray.find((socket) => socket.name == 'Element'),
-      added2
+      added2,
     );
     added.executeOptimizedChain();
   };
@@ -202,7 +202,7 @@ export class Table extends HybridNode2 {
     });
     connectNodeToSocket(
       this.getOutputSocketByName(rowObjectsNames),
-      filterObject
+      filterObject,
     );
   };
 
@@ -221,14 +221,14 @@ export class Table extends HybridNode2 {
         workBookInputSocketName,
         new JSONType(),
         {},
-        false
+        false,
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
         sheetIndexInputSocketName,
         new NumberType(true),
         0,
-        false
+        false,
       ),
       new PPSocket(SOCKET_TYPE.IN, inputSocketName, new ArrayType(), [], false),
     ];
@@ -280,7 +280,7 @@ export class Table extends HybridNode2 {
     }
   }
 
-  protected getParentComponent(props: any) {
+  protected getParentComponent(props: any): React.ReactElement {
     const node = props.node;
 
     const onExport = () => {
@@ -291,7 +291,7 @@ export class Table extends HybridNode2 {
           `${node.name}.${exportOptions[selectedExportIndex]}`,
           {
             sheet: node.workBook.SheetNames[node.getIndex()],
-          }
+          },
         );
     };
 
@@ -354,7 +354,7 @@ export class Table extends HybridNode2 {
 
     const handleExportFormatClick = (
       event: React.MouseEvent<HTMLLIElement, MouseEvent>,
-      index: number
+      index: number,
     ) => {
       setSelectedExportIndex(index);
       setExportFormatOpen(false);
@@ -373,7 +373,7 @@ export class Table extends HybridNode2 {
           bgCellMedium: '#f0f0f0',
         };
       },
-      [hoverRow]
+      [hoverRow],
     );
 
     const isColOpen = colMenu !== undefined;
@@ -467,12 +467,12 @@ export class Table extends HybridNode2 {
         colsMap,
         arrayOfArrays.length,
         props[sheetIndexInputSocketName],
-      ]
+      ],
     );
 
     const cols = useMemo(
       () => colsMap,
-      [colsMap, arrayOfArrays.length, props[sheetIndexInputSocketName]]
+      [colsMap, arrayOfArrays.length, props[sheetIndexInputSocketName]],
     );
 
     const onPaste = useCallback(
@@ -482,7 +482,7 @@ export class Table extends HybridNode2 {
           // extending the dataset when the pasted data is larger is not working directly
           // one has to paste twice. first pasting extends the data set, second one pastes the data
           const arrayToAppend = Array.from({ length: rowDifference }, () =>
-            Array(1).fill('')
+            Array(1).fill(''),
           );
           setArrayOfArrays(arrayOfArrays.concat(arrayToAppend));
         }
@@ -490,7 +490,7 @@ export class Table extends HybridNode2 {
         setColsMap(() => getCols());
         return true;
       },
-      [arrayOfArrays.length, props[sheetIndexInputSocketName]]
+      [arrayOfArrays.length, props[sheetIndexInputSocketName]],
     );
 
     const onCellEdited = useCallback(
@@ -506,14 +506,14 @@ export class Table extends HybridNode2 {
         // update column names and width if needed
         setColsMap(() => getCols());
       },
-      [colsMap, arrayOfArrays.length, props[sheetIndexInputSocketName]]
+      [colsMap, arrayOfArrays.length, props[sheetIndexInputSocketName]],
     );
 
     const onColumnResize = useCallback(
       (column: GridColumn, newSize: number) => {
         setColsMap((prevColsMap) => {
           const index = prevColsMap.findIndex(
-            (ci) => ci.title === column.title
+            (ci) => ci.title === column.title,
           );
           const newArray = [...prevColsMap];
           newArray.splice(index, 1, {
@@ -523,7 +523,7 @@ export class Table extends HybridNode2 {
           return newArray;
         });
       },
-      []
+      [],
     );
 
     const onColumnMoved = useCallback(
@@ -543,7 +543,7 @@ export class Table extends HybridNode2 {
           return newArrayOfArrays;
         });
       },
-      []
+      [],
     );
 
     const onRowMoved = useCallback((from: number, to: number) => {
@@ -559,7 +559,7 @@ export class Table extends HybridNode2 {
       setArrayOfArrays((old) => {
         const shallowCopy = [...old];
         shallowCopy.sort((a, b) =>
-          sortCompare(a[columnIndex], b[columnIndex], desc)
+          sortCompare(a[columnIndex], b[columnIndex], desc),
         );
         return shallowCopy;
       });
@@ -579,11 +579,11 @@ export class Table extends HybridNode2 {
           col,
           pos: new PIXI.Point(
             event.bounds.x + event.localEventX,
-            event.bounds.y + event.localEventY
+            event.bounds.y + event.localEventY,
           ),
         });
       },
-      []
+      [],
     );
 
     const onContextMenuClick = useCallback(
@@ -593,11 +593,11 @@ export class Table extends HybridNode2 {
           cell,
           pos: new PIXI.Point(
             event.bounds.x + event.localEventX,
-            event.bounds.y + event.localEventY
+            event.bounds.y + event.localEventY,
           ),
         });
       },
-      []
+      [],
     );
 
     return (
@@ -718,7 +718,7 @@ export class Table extends HybridNode2 {
                 onClick={() => {
                   addColumnToArrayOfArrays(
                     arrayOfArrays,
-                    getLongestArrayInArray(arrayOfArrays)
+                    getLongestArrayInArray(arrayOfArrays),
                   );
                   setColsMap(() => getCols());
                 }}
@@ -930,7 +930,7 @@ export class Table extends HybridNode2 {
     return limitRange(
       this.getInputData(sheetIndexInputSocketName),
       0,
-      this.workBook.SheetNames.length - 1
+      this.workBook.SheetNames.length - 1,
     );
   }
 

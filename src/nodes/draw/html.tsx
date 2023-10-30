@@ -101,7 +101,7 @@ export class HtmlRenderer extends HybridNode2 {
   }
 
   // small presentational component
-  protected getParentComponent(props: any): any {
+  protected getParentComponent(props: any): React.ReactElement {
     const node = props.node;
     const iframeRef = useRef();
     const [htmlData, setHtmlData] = useState(props[inputSocketName]);

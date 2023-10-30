@@ -325,7 +325,7 @@ export class Video extends HybridNode2 {
   };
 
   // small presentational component
-  protected getParentComponent(props: any): any {
+  protected getParentComponent(props: any): React.ReactElement {
     const resizeObserver = useRef(null);
     const videoRef = useRef<HTMLVideoElement>();
     const node = props.node;
@@ -632,9 +632,7 @@ export class Video extends HybridNode2 {
               <>
                 {localResourceId &&
                   loadingState === LOADING_STATE.ISLOADING && (
-                    <>
-                      <CircularProgressWithLabel variant="indeterminate" />
-                    </>
+                    <CircularProgressWithLabel variant="indeterminate" />
                   )}
                 {localResourceId &&
                   !videoSrc &&

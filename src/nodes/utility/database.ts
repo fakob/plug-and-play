@@ -113,10 +113,10 @@ export class SqliteReader extends PPNode {
 
     this.listenID = InterfaceController.addListener(
       ListenEvent.ResourceUpdated,
-      async (data: any) => {
+      (data: any) => {
         const resourceId = this.getInputData(inputResourceIdSocketName);
         if (data.id === resourceId) {
-          await this.updateFile();
+          this.updateFile();
         }
       },
     );

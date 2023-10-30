@@ -90,7 +90,7 @@ export class TextEditor extends HybridNode2 {
   public addDefaultInput(): void {
     this.addInput(
       this.constructSocketName(inputPrefix, this.inputSocketArray),
-      new AnyType()
+      new AnyType(),
     );
   }
 
@@ -105,35 +105,35 @@ export class TextEditor extends HybridNode2 {
         outputSocketName,
         new JSONType(),
         {},
-        false
+        false,
       ),
       new PPSocket(
         SOCKET_TYPE.OUT,
         textOutputSocketName,
         new StringType(),
         undefined,
-        true
+        true,
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
         textJSONSocketName,
         new JSONType(),
         initialValue,
-        false
+        false,
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
         backgroundColorSocketName,
         new ColorType(),
         backgroundColor,
-        false
+        false,
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
         autoHeightName,
         new BooleanType(),
         true,
-        false
+        false,
       ),
       new PPSocket(SOCKET_TYPE.IN, inputName1, new AnyType(), undefined, true),
     ];
@@ -155,14 +155,14 @@ export class TextEditor extends HybridNode2 {
     return 400;
   }
 
-  protected getParentComponent(props: any) {
+  protected getParentComponent(props: any): React.ReactElement {
     const node = props.node;
     const editor = useMemo(
       () =>
         withHtml(
-          withMentions(withLinks(withHistory(withReact(createEditor()))))
+          withMentions(withLinks(withHistory(withReact(createEditor())))),
         ),
-      []
+      [],
     );
     const editorRef = useRef(null);
     const resizeObserver = useRef(null);
@@ -170,12 +170,12 @@ export class TextEditor extends HybridNode2 {
     const [index, setIndex] = useState(0);
     const [contentHeight, setContentHeight] = useState(0);
     const [color, setColor] = useState(
-      props[backgroundColorSocketName] || backgroundColor
+      props[backgroundColorSocketName] || backgroundColor,
     );
 
     const renderElement = useCallback(
       (props) => <Element color={color} {...props} />,
-      [props[backgroundColorSocketName]]
+      [props[backgroundColorSocketName]],
     );
     const renderLeaf = useCallback((props) => <Leaf {...props} />, []);
 
@@ -227,7 +227,7 @@ export class TextEditor extends HybridNode2 {
               );
             },
             mode: 'all', // also the Editor's children
-          }
+          },
         );
       });
     };
@@ -266,7 +266,7 @@ export class TextEditor extends HybridNode2 {
           if (node.initialData?.['html']) {
             const parsed = new DOMParser().parseFromString(
               node.initialData?.['html'],
-              'text/html'
+              'text/html',
             );
             const fragment = deserialize(parsed.body);
             Transforms.select(editor, {
@@ -454,7 +454,7 @@ export class TextEditor extends HybridNode2 {
           return editor.insertText('\n');
         }
       },
-      [index, target]
+      [index, target],
     );
 
     return (

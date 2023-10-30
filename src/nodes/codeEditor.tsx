@@ -90,7 +90,7 @@ export class CodeEditor extends HybridNode2 {
     await super.outputPlugged();
   }
 
-  protected getParentComponent(props: any) {
+  protected getParentComponent(props: any): React.ReactElement {
     const node = props.node;
 
     const parseData = (value: any) => {
