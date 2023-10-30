@@ -34,7 +34,7 @@ interface PieDrawnSlice {
   drawFunction: (graphics: PIXI.Graphics) => void;
 }
 
-const PIE_GRAPH_RESOLUTION = 360;
+const PIE_GRAPH_RESOLUTION = 1000;
 const RADIAN_PER_DEGREES = 1 / 57.2957795;
 
 export class GRAPH_PIE extends DRAW_Base {
@@ -49,15 +49,15 @@ export class GRAPH_PIE extends DRAW_Base {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, inputDataName, new ArrayType(), [
-        { Value: 5, Name: 'Big slice', Color: new TRgba(0, 9, 148, 1) },
-        { Value: 3, Name: 'Small slice', Color: new TRgba(128, 192, 0, 1) },
-        { Value: 1, Name: 'Tiny slice', Color: new TRgba(192, 128, 0, 1) },
+        { Value: 5, Name: 'Big slice', Color: new TRgba(33, 150, 243, 1) },
+        { Value: 3, Name: 'Small slice', Color: new TRgba(251, 192, 45, 1) },
+        { Value: 1, Name: 'Tiny slice', Color: new TRgba(38, 166, 154, 1) },
       ]),
       new Socket(
         SOCKET_TYPE.IN,
         inputRadius,
         new NumberType(false, 1, 1000),
-        250,
+        205,
       ),
       new Socket(
         SOCKET_TYPE.IN,
@@ -68,8 +68,8 @@ export class GRAPH_PIE extends DRAW_Base {
       new Socket(
         SOCKET_TYPE.IN,
         inputDistanceFromCenter,
-        new NumberType(false, 0, 20),
-        1,
+        new NumberType(false, 0, 40),
+        10,
       ),
       new Socket(
         SOCKET_TYPE.IN,
@@ -229,7 +229,7 @@ export class GRAPH_PIE extends DRAW_Base {
       deferredGraphics.beginFill(color.hexNumber(), color.a);
       graphics.beginFill(color.hexNumber(), color.a);
       const degreesPre = currDegrees;
-      for (let i = 0; i < PIE_GRAPH_RESOLUTION * partOfTotal; i++) {
+      for (let i = 0; i < Math.round(PIE_GRAPH_RESOLUTION * partOfTotal); i++) {
         const x = Math.cos(RADIAN_PER_DEGREES * currDegrees) * radius;
         const y = Math.sin(RADIAN_PER_DEGREES * currDegrees) * radius;
         polygonPoints.push(new PIXI.Point(x, y));
@@ -282,9 +282,9 @@ export class GRAPH_PIE extends DRAW_Base {
         );
       }
       // last slice needs to wrap around
-      if (index == pieSlices.length - 1) {
-        polygonPoints.push(new PIXI.Point(radius, 0));
-      }
+      //if (index == pieSlices.length - 1) {
+      //  polygonPoints.push(new PIXI.Point(radius, 0));
+      // }
       polygonPoints.push(new PIXI.Point(0, 0));
 
       const polygonPointsMovedFromCenter = polygonPoints.map((point) => {
