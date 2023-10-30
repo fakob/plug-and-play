@@ -255,8 +255,7 @@ export class Break extends PPNode {
         let currentPath = argument;
         let currentVal = json[argument];
         let currentKeys = Object.keys(currentVal);
-        let depth = 0;
-        while (currentKeys.length == 1 && ++depth < this.MAX_DEPTH) {
+        while (typeof currentVal == "object" && currentKeys.length == 1) {
           const currentKey = currentKeys[0];
           currentVal = currentVal[currentKey];
           currentPath += "." + currentKey;
