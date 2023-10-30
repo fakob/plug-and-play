@@ -227,10 +227,12 @@ export class Break extends PPNode {
     );
   }
 
+  MAX_DEPTH = 5;
+
   private adaptOutputs(json: any): void {
     // remove all non existing arguments and add all missing (based on the definition we just got)
     // if current JSON is empty, then dont adapt (maybe data just hasnt arrived yet)
-    if (json === undefined || Object.keys(json).length === 0) {
+    if (json === undefined || Object.keys(json).length === 0 || typeof json !== "object") {
       return;
     }
 
@@ -253,7 +255,8 @@ export class Break extends PPNode {
         let currentPath = argument;
         let currentVal = json[argument];
         let currentKeys = Object.keys(currentVal);
-        while (currentKeys.length == 1) {
+        let depth = 0;
+        while (currentKeys.length == 1 && ++depth < this.MAX_DEPTH) {
           const currentKey = currentKeys[0];
           currentVal = currentVal[currentKey];
           currentPath += "." + currentKey;
