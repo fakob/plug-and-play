@@ -75,6 +75,13 @@
       "socketArray": [
         {
           "socketType": "in",
+          "name": "Reverse Direction",
+          "dataType": "{\"class\":\"BooleanType\",\"type\":{}}",
+          "data": true,
+          "visible": true
+        },
+        {
+          "socketType": "in",
           "name": "Foreground",
           "dataType": "{\"class\":\"DeferredPixiType\",\"type\":{}}",
           "defaultData": {},
