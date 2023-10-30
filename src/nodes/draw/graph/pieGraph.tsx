@@ -268,13 +268,9 @@ export class GRAPH_PIE extends DRAW_Base {
 
       if (inputObject[input3DRatio] > 0) {
         const dist = inputObject[input3DRatio] * radius;
-        //const resultiung;
         const bottom = polygonPointsMovedFromCenter.map(
           (point) => new PIXI.Point(point.x, point.y + dist),
         );
-        //const hullP = polygonPointsMovedFromCenter
-        //  .concat(bottom)
-        //  .map((point) => [point.x, point.y]);
         const allP = this.convexHull(
           bottom.concat(polygonPointsMovedFromCenter),
         );
