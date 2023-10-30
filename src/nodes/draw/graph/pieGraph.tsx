@@ -26,6 +26,13 @@ class PieSlice {
     this.Value = inValue;
   }
 }
+
+interface PieDrawnSlice {
+  lowestY: number;
+  color: TRgba;
+  drawFunction: (graphics: PIXI.Graphics) => void;
+}
+
 const PIE_GRAPH_RESOLUTION = 360;
 const RADIAN_PER_DEGREES = 1 / 57.2957795;
 
@@ -185,6 +192,17 @@ export class GRAPH_PIE extends DRAW_Base {
 
     let currDegrees = 0;
     const deferredGraphics = new PIXI.Graphics(); // we might want stuff underneath the top layer (3D perspective)
+
+    // 3D perspective scale
+    const yScale = Math.max(
+      0,
+      Math.pow(Math.cos(inputObject[input3DRatio]), 0.8),
+    );
+
+    const slicesToDraw: PieDrawnSlice[] = [];
+
+    pieSlices.sort((slice1, slice2) => slice2.Value - slice1.Value);
+
     pieSlices.forEach((pieSlice, index) => {
       const partOfTotal = pieSlice.Value / total;
       const polygonPoints: PIXI.Point[] = [];
@@ -213,7 +231,7 @@ export class GRAPH_PIE extends DRAW_Base {
         const distance = radius * (3 / 4);
         const valuePosition = new PIXI.Point(
           averageDirection.x * distance,
-          averageDirection.y * distance,
+          averageDirection.y * distance * yScale,
         );
         const textToUse = pieSlice.Name;
         deferredGraphics.addChild(
@@ -261,29 +279,81 @@ export class GRAPH_PIE extends DRAW_Base {
       });
 
       const slice = new PIXI.Polygon();
+      let lowestY = 100000000000;
+      let lowestX = 10000000;
+      let lowestXY = -1;
+      let highestX = -10000000;
+      let highestXY = -1;
+
       polygonPointsMovedFromCenter.forEach((point) => {
+        const scaledY = yScale * point.y;
         slice.points.push(point.x);
-        slice.points.push(point.y);
+        slice.points.push(scaledY);
+        lowestY = Math.min(lowestY, scaledY);
+        if (lowestX > point.x) {
+          lowestXY = point.y;
+          lowestX = point.x;
+        } else if (highestX < point.x) {
+          highestX = point.x;
+          highestXY = point.y;
+        }
+        lowestX = Math.min(lowestX, point.x);
+        highestX = Math.max(highestX, point.x);
       });
 
       if (inputObject[input3DRatio] > 0) {
         const dist = inputObject[input3DRatio] * radius;
-        const bottom = polygonPointsMovedFromCenter.map(
+        const polygonMovedScaled = polygonPointsMovedFromCenter.map((point) => {
+          return new PIXI.Point(point.x, point.y * yScale);
+        });
+        const bottom = polygonMovedScaled.map(
           (point) => new PIXI.Point(point.x, point.y + dist),
         );
-        const allP = this.convexHull(
-          bottom.concat(polygonPointsMovedFromCenter),
-        );
+        //const allP = this.convexHull(bottom.concat(polygonMovedScaled));
 
-        const bottomSide = new PIXI.Polygon();
-        allP.forEach((point) => {
-          bottomSide.points.push(point.x);
-          bottomSide.points.push(point.y);
+        const slice3D = new PIXI.Polygon();
+        bottom.forEach((point) => {
+          slice3D.points.push(point.x);
+          slice3D.points.push(point.y);
         });
-        graphics.drawPolygon(bottomSide);
+        const inbetweenArea = new PIXI.Polygon();
+        inbetweenArea.points.push(lowestX);
+        inbetweenArea.points.push(lowestXY);
+        inbetweenArea.points.push(highestX);
+        inbetweenArea.points.push(highestXY);
+        inbetweenArea.points.push(lowestX);
+        inbetweenArea.points.push(lowestX);
+        inbetweenArea.points.push(lowestX);
+        inbetweenArea.points.push(lowestX);
+        slicesToDraw.push({
+          lowestY,
+          color,
+          drawFunction: (graphics: PIXI.Graphics) => {
+            graphics.drawPolygon(slice3D);
+            graphics.drawPolygon(slice);
+          },
+        });
+      } else {
+        slicesToDraw.push({
+          lowestY,
+          color,
+          drawFunction: (graphics: PIXI.Graphics) => {
+            graphics.drawPolygon(slice);
+          },
+        });
       }
+    });
 
-      deferredGraphics.drawPolygon(slice);
+    // we sort them based on Y so that they are correctly sorted when doing the 3D view
+    slicesToDraw.sort(
+      (pieSlice1, pieSlice2) => pieSlice1.lowestY - pieSlice2.lowestY,
+    );
+    slicesToDraw.forEach((slice) => {
+      graphics.lineStyle(2, slice.color.multiply(0.8).hexNumber());
+      graphics.beginFill(slice.color.hexNumber());
+      slice.drawFunction(graphics);
+      //graphics.drawPolygon(slice.fullSlice);
+      //graphics.drawPolygon(slice.topSlice);
     });
 
     graphics.addChild(deferredGraphics);
