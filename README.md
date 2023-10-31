@@ -1,14 +1,17 @@
 # Plug and Playground
+
 A visual toolkit for creative prototyping to explore, transform or visualise data.
 
 Work in progress - https://plugandplayground.dev
 
 ## Problems to solve
+
 - As a user with no/little programming knowledge I am creatively limited by prototyping or design tools.
 - As a programmer the threshold for fast and creative prototyping with code is too high.
 - As a user who wants to visualize and/or interact with data, CSV or .xlsx in a visual, quick and easy way.
 
 ## Goals to reach
+
 - Provide an extensive library of nodes to receive, transform and output data
 - Make it easy to jump between visual and real coding
 - Make it easy to use for mouse, trackpad and keyboard people
@@ -29,3 +32,7 @@ Work in progress - https://plugandplayground.dev
 
 - https://github.com/magnificus/pnp-companion-2 - a companion application which provides a way to get around CORS issues and handles things like authentication to API's when applicable.
 - https://github.com/magnificus/pnp-headless - running PNP graphs in headless mode.
+
+## Licenses of third party packages:
+
+ExifReader: Mozilla Public License 2.0 (MPL-2.0)
