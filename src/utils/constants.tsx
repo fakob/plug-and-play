@@ -408,6 +408,12 @@ export const TRIGGER_TYPE_OPTIONS: EnumStructure = [
   },
 ];
 
+export const LOADING_STATE = {
+  ISLOADING: 'ISLOADING',
+  LOADED: 'LOADED',
+  FAILED: 'FAILED',
+};
+
 export const GRID_SHADER = `
   precision mediump float;
   varying vec2 vUvs;

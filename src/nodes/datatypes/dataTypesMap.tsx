@@ -6,6 +6,7 @@ import { ColorType } from './colorType';
 import { DeferredPixiType } from './deferredPixiType';
 import { DynamicEnumType } from './dynamicEnumType';
 import { EnumType } from './enumType';
+import { FileType } from './fileType';
 import { FunctionType } from './functionType';
 import { ImageType } from './imageType';
 import { JSONType } from './jsonType';
@@ -21,6 +22,7 @@ export const allDataTypes = {
   ColorType: ColorType,
   NumberType: NumberType,
   DeferredPixiType: DeferredPixiType,
+  FileType: FileType,
   FunctionType: FunctionType,
   StringType: StringType,
   TriggerType: TriggerType,

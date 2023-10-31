@@ -459,7 +459,7 @@ export class WidgetColorPicker extends WidgetHybridBase {
 
   setFinalColor: any = () => {};
 
-  protected getParentComponent(props: any): any {
+  protected getParentComponent(props: any): React.ReactElement {
     const node = props.node;
     const ref = useRef<HTMLDivElement | null>(null);
     const [finalColor, setFinalColor] = useState(
@@ -642,7 +642,7 @@ export class WidgetSwitch extends WidgetHybridBase {
   setSelected: any = () => {};
   prepareAndExecute: any = () => {};
 
-  protected getParentComponent(props: any): any {
+  protected getParentComponent(props: any): React.ReactElement {
     const node = props.node;
 
     const [selected, setSelected] = useState(node.getInputData(selectedName));
@@ -1001,7 +1001,7 @@ export class WidgetDropdown extends WidgetHybridBase {
 
   setSelectedOption: any = () => {};
 
-  protected getParentComponent(props: any): any {
+  protected getParentComponent(props: any): React.ReactElement {
     const node = props.node;
     const [options, setOptions] = useState<any[]>(props[optionsName]);
     const [selectedOption, setSelectedOption] = useState<string | string[]>(

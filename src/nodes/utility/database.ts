@@ -7,13 +7,12 @@ import {
 } from '../../utils/constants';
 import PPStorage from '../../PPStorage';
 import PPNode from '../../classes/NodeClass';
-import { StringType } from '../datatypes/stringType';
-import {
-  inputResourceIdSocketName,
-  inputFileNameSocketName,
-} from '../../nodes/draw/video';
+import InterfaceController, { ListenEvent } from '../../InterfaceController';
 import { ArrayType } from '../datatypes/arrayType';
+import { FileType } from '../datatypes/fileType';
+import { StringType } from '../datatypes/stringType';
 import { TriggerType } from '../datatypes/triggerType';
+import { inputResourceIdSocketName } from '../../nodes/draw/video';
 import PPGraph from '../../classes/GraphClass';
 
 const inputResourceURLSocketName = 'Resource URL';
@@ -29,6 +28,7 @@ export class SqliteReader extends PPNode {
   sqlite3Module;
   sqlite3;
   db;
+  listenID;
 
   public getName(): string {
     return 'Sqlite reader';
@@ -51,43 +51,44 @@ export class SqliteReader extends PPNode {
       new PPSocket(
         SOCKET_TYPE.IN,
         inputResourceIdSocketName,
-        new StringType(),
+        new FileType([
+          'pxshow',
+          'sqlite',
+          'sqlite3',
+          'db',
+          'db3',
+          's3db',
+          'sl3',
+        ]),
         '',
-        false
-      ),
-      new PPSocket(
-        SOCKET_TYPE.IN,
-        inputFileNameSocketName,
-        new StringType(),
-        '',
-        false
+        false,
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
         inputResourceURLSocketName,
         new StringType(),
         '',
-        false
+        false,
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
         reloadResourceSocketName,
         new TriggerType(TRIGGER_TYPE_OPTIONS[0].text, 'loadDatabase'),
         0,
-        false
+        false,
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
         sqlQuerySocketName,
         new StringType(),
         defaultSqlQuery,
-        true
+        true,
       ),
       new PPSocket(SOCKET_TYPE.OUT, outputTableSocketName, new ArrayType()),
       new PPSocket(
         SOCKET_TYPE.OUT,
         outputColumnNamesSocketName,
-        new ArrayType()
+        new ArrayType(),
       ),
       new PPSocket(SOCKET_TYPE.OUT, outputQuerySocketName, new ArrayType()),
     ];
@@ -109,6 +110,16 @@ export class SqliteReader extends PPNode {
           console.error(err.name, err.message);
         }
       });
+
+    this.listenID = InterfaceController.addListener(
+      ListenEvent.ResourceUpdated,
+      (data: any) => {
+        const resourceId = this.getInputData(inputResourceIdSocketName);
+        if (data.id === resourceId) {
+          this.updateFile();
+        }
+      },
+    );
 
     super.onNodeAdded(source);
   };
@@ -159,7 +170,7 @@ export class SqliteReader extends PPNode {
       });
       this.setOutputData(
         outputQuerySocketName,
-        returnArray.length === 1 ? returnArray[0] : returnArray
+        returnArray.length === 1 ? returnArray[0] : returnArray,
       );
       this.setOutputData(outputColumnNamesSocketName, columnNames);
       this.executeChildren().catch((error) => {
@@ -168,16 +179,13 @@ export class SqliteReader extends PPNode {
     }
   };
 
-  updateAndExecute = async (
-    localResourceId: string,
-    path: string,
-    sqlQuery?: string
-  ): Promise<void> => {
+  updateAndExecute = async (localResourceId: string): Promise<void> => {
     this.setInputData(inputResourceIdSocketName, localResourceId);
-    this.setInputData(inputFileNameSocketName, path);
-    if (sqlQuery) {
-      this.setInputData(sqlQuerySocketName, sqlQuery);
-    }
+    await this.updateFile();
+  };
+
+  // triggered by file socket
+  updateFile = async (): Promise<void> => {
     await this.loadDatabase();
     await this.executeQuery();
   };
@@ -220,12 +228,17 @@ export class SqliteReader extends PPNode {
       p,
       bytes.length,
       bytes.length,
-      this.sqlite3.capi.SQLITE_DESERIALIZE_FREEONCLOSE
+      this.sqlite3.capi.SQLITE_DESERIALIZE_FREEONCLOSE,
     );
     return db;
   };
 
   public getDynamicImports(): string[] {
     return [IMPORT_NAME];
+  }
+
+  async onRemoved(): Promise<void> {
+    await super.onRemoved();
+    InterfaceController.removeListener(this.listenID);
   }
 }

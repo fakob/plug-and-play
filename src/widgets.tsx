@@ -9,16 +9,21 @@ import {
   FormControl,
   FormGroup,
   InputLabel,
+  ListItemText,
   MenuItem,
   Select,
   Slider,
   TextField,
   ToggleButton,
   Tooltip,
+  Typography,
 } from '@mui/material';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import { SketchPicker } from 'react-color';
+import prettyBytes from 'pretty-bytes';
+import InterfaceController from './InterfaceController';
 import { CodeEditor } from './components/Editor';
+import PPStorage from './PPStorage';
 import Socket from './classes/SocketClass';
 import {
   COLOR_DARK,
@@ -29,6 +34,7 @@ import {
 } from './utils/constants';
 import {
   convertToString,
+  getFileExtension,
   getLoadedValue,
   parseJSON,
   roundNumber,
@@ -37,6 +43,7 @@ import styles from './utils/style.module.css';
 import { TRgba } from './utils/interfaces';
 import { EnumStructure } from './nodes/datatypes/enumType';
 import { NumberType } from './nodes/datatypes/numberType';
+import { FileType } from './nodes/datatypes/fileType';
 import { TriggerType } from './nodes/datatypes/triggerType';
 import useInterval from 'use-interval';
 import { ActionHandler } from './utils/actionHandler';
@@ -56,7 +63,7 @@ async function potentiallyUpdateSocketData(property: Socket, newValue) {
         if (socket.getNode().updateBehaviour.update) {
           socket.getNode().executeOptimizedChain();
         }
-      }
+      },
     );
   }
 }
@@ -81,7 +88,7 @@ export type SliderWidgetProps = {
 };
 
 export const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (
-  props
+  props,
 ) => {
   const [data, setData] = useState(Number(props.data || 0));
 
@@ -92,10 +99,10 @@ export const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (
   }, 100);
 
   const [minValue, setMinValue] = useState(
-    Math.min(props.type.minValue ?? 0, data)
+    Math.min(props.type.minValue ?? 0, data),
   );
   const [maxValue, setMaxValue] = useState(
-    Math.max(props.type.maxValue ?? 100, data)
+    Math.max(props.type.maxValue ?? 100, data),
   );
   const [round, setRound] = useState(props.type.round ?? false);
   const [stepSizeValue] = useState(props.type.stepSize ?? 0.01);
@@ -168,7 +175,7 @@ export const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (
           onChange={(event) => {
             potentiallyUpdateSocketData(
               props.property,
-              Number(event.target.value)
+              Number(event.target.value),
             );
             setData(Number(event.target.value));
           }}
@@ -229,7 +236,7 @@ export type SelectWidgetProps = {
 };
 
 export const SelectWidget: React.FunctionComponent<SelectWidgetProps> = (
-  props
+  props,
 ) => {
   const [data, setData] = useState(props.data ?? '');
   const [options, setOptions] = useState(props.options);
@@ -304,7 +311,7 @@ export type BooleanWidgetProps = {
 };
 
 export const BooleanWidget: React.FunctionComponent<BooleanWidgetProps> = (
-  props
+  props,
 ) => {
   const [data, setData] = useState(Boolean(props.data));
 
@@ -349,7 +356,7 @@ export const TextWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
   const [loadAll, setLoadAll] = useState(dataLength < MAX_STRING_LENGTH);
 
   const [loadedData, setLoadedData] = useState(
-    getLoadedValue(convertToString(props.data), loadAll)
+    getLoadedValue(convertToString(props.data), loadAll),
   );
 
   const onLoadAll = () => {
@@ -360,7 +367,7 @@ export const TextWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
   useInterval(() => {
     if (loadedData !== props.property.data) {
       setLoadedData(
-        getLoadedValue(convertToString(props.property.data), loadAll)
+        getLoadedValue(convertToString(props.property.data), loadAll),
       );
     }
   }, 100);
@@ -390,6 +397,116 @@ export const TextWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
         }}
         value={loadedData}
       />
+    </FormGroup>
+  );
+};
+
+export type FileWidgetProps = {
+  property: Socket;
+  index: number;
+  hasLink: boolean;
+  data: unknown;
+  randomMainColor: string;
+  type: FileType;
+};
+
+export const FileBrowserWidget: React.FunctionComponent<FileWidgetProps> = (
+  props,
+) => {
+  const [filename, setFilename] = useState(props.data);
+  const [options, setOptions] = useState([]);
+  const [filterExtensions, setFilterExtensions] = useState(
+    props.type.filterExtensions,
+  );
+
+  const openFileBrowser = () => {
+    InterfaceController.onOpenFileBrowser();
+  };
+
+  const onOpen = async () => {
+    const listOfResources: any[] = await PPStorage.getInstance().getResources();
+    const filtered = listOfResources.filter(({ name }) => {
+      if (filterExtensions.length === 0) {
+        return true;
+      }
+      const extension = getFileExtension(name);
+      return filterExtensions.includes(extension);
+    });
+    setOptions(filtered);
+  };
+
+  const onChange = (event) => {
+    const value = event.target.value;
+    potentiallyUpdateSocketData(props.property, value);
+    setData(value);
+  };
+
+  const setData = (localResourceId) => {
+    potentiallyUpdateSocketData(props.property, localResourceId);
+    setFilename(localResourceId);
+  };
+
+  useInterval(() => {
+    if (filename !== props.property.data) {
+      setFilterExtensions(props.type.filterExtensions);
+      setFilename(convertToString(props.property.data));
+      onOpen();
+    }
+  }, 100);
+
+  useEffect(() => {
+    onOpen();
+  }, []);
+
+  return (
+    <FormGroup sx={{ position: 'relative' }}>
+      <FormControl variant="filled" fullWidth>
+        <InputLabel>Select file (browser cache)</InputLabel>
+        <Select
+          variant="filled"
+          value={filename}
+          onOpen={onOpen}
+          onChange={onChange}
+          disabled={props.hasLink}
+          sx={{ width: '100%' }}
+          MenuProps={{
+            style: { zIndex: 1500 },
+          }}
+        >
+          {options.map(({ id, name, size }) => {
+            return (
+              <MenuItem
+                key={id}
+                value={id}
+                sx={{
+                  '&.Mui-selected': {
+                    backgroundColor: `${Color(props.randomMainColor).negate()}`,
+                  },
+                }}
+              >
+                <ListItemText>{name}</ListItemText>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ pl: 1 }}
+                >
+                  {prettyBytes(size)}
+                </Typography>
+              </MenuItem>
+            );
+          })}
+        </Select>
+        <Button
+          color="secondary"
+          variant="contained"
+          onClick={openFileBrowser}
+          sx={{
+            mt: 1,
+          }}
+        >
+          OR Load new file
+        </Button>
+      </FormControl>
     </FormGroup>
   );
 };
@@ -475,14 +592,14 @@ export type TriggerWidgetProps = {
 };
 
 export const TriggerWidget: React.FunctionComponent<TriggerWidgetProps> = (
-  props
+  props,
 ) => {
   const [data, setData] = useState(props.data);
   const [triggerType, setChangeFunctionString] = useState(
-    props.type.triggerType
+    props.type.triggerType,
   );
   const [customFunctionString, setCustomFunctionString] = useState(
-    props.type.customFunctionString
+    props.type.customFunctionString,
   );
 
   const onChangeTriggerType = (event) => {
@@ -580,7 +697,7 @@ export type ColorWidgetProps = {
 };
 
 export const ColorWidget: React.FunctionComponent<ColorWidgetProps> = (
-  props
+  props,
 ) => {
   const defaultColor: TRgba = Object.assign(new TRgba(), props.data);
 
@@ -623,7 +740,7 @@ export const ColorWidget: React.FunctionComponent<ColorWidgetProps> = (
             onChangeComplete={(color) => {
               const pickedrgb = color.rgb;
               changeColor(
-                new TRgba(pickedrgb.r, pickedrgb.g, pickedrgb.b, pickedrgb.a)
+                new TRgba(pickedrgb.r, pickedrgb.g, pickedrgb.b, pickedrgb.a),
               );
             }}
             presetColors={PRESET_COLORS}

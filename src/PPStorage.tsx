@@ -7,6 +7,7 @@ import {
   downloadFile,
   formatDate,
   getExampleURL,
+  getFileNameFromLocalResourceId,
   getSetting,
   removeExtension,
   setGestureModeOnViewport,
@@ -350,7 +351,7 @@ export default class PPStorage {
       await this.saveGraphToDabase(newId, serializedGraph, name);
       PPGraph.currentGraph.id = newId;
       InterfaceController.notifyListeners(ListenEvent.GraphChanged, {
-        newId,
+        id: newId,
         name,
       });
     } else {
@@ -407,6 +408,12 @@ export default class PPStorage {
       .sortBy('date');
   }
 
+  async getResources(): Promise<any[]> {
+    return await PPStorage.getInstance()
+      .db.localResources.toCollection()
+      .sortBy('date');
+  }
+
   async loadResource(resourceId: string): Promise<Blob> {
     let foundResource;
     return this.db
@@ -420,7 +427,8 @@ export default class PPStorage {
           if (foundResource) {
             InterfaceController.showSnackBar(
               <span>
-                <b>{resourceId}</b> was loaded from the local storage
+                <b>{getFileNameFromLocalResourceId(resourceId)}</b> was loaded
+                from the local storage
               </span>,
             );
             return foundResource.data;
@@ -442,6 +450,7 @@ export default class PPStorage {
         const foundResource = resources.find(
           (resource) => resource.id === resourceId,
         );
+        const fileName = getFileNameFromLocalResourceId(resourceId);
 
         if (foundResource === undefined) {
           await this.db.localResources.put({
@@ -454,9 +463,10 @@ export default class PPStorage {
 
           InterfaceController.showSnackBar(
             <span>
-              <b>{resourceId}</b> is stored in the local storage
+              <b>{fileName}</b> is stored in the local storage
             </span>,
           );
+          console.log(`Resource ${resourceId} was stored`);
         } else {
           await this.db.localResources.where('id').equals(resourceId).modify({
             date: new Date(),
@@ -464,6 +474,9 @@ export default class PPStorage {
           });
           console.log(`Resource ${resourceId} was updated`);
         }
+        InterfaceController.notifyListeners(ListenEvent.ResourceUpdated, {
+          id: resourceId,
+        });
       })
       .catch((e) => {
         console.log(e.stack || e);

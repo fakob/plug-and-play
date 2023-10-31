@@ -4,19 +4,24 @@ import CircularProgress, {
   CircularProgressProps,
 } from '@mui/material/CircularProgress';
 import { ErrorBoundary } from 'react-error-boundary';
-import InterfaceController from '../../InterfaceController';
+import InterfaceController, { ListenEvent } from '../../InterfaceController';
 import PPStorage from '../../PPStorage';
 import ErrorFallback from '../../components/ErrorFallback';
 import PPGraph from '../../classes/GraphClass';
 import PPSocket from '../../classes/SocketClass';
 import HybridNode2 from '../../classes/HybridNode2';
-import { StringType } from '../datatypes/stringType';
+import { FileType } from '../datatypes/fileType';
 import { TriggerType } from '../datatypes/triggerType';
 import { ImageType } from '../datatypes/imageType';
 import { ArrayType } from '../datatypes/arrayType';
 
 import { TNodeSource, TRgba } from '../../utils/interfaces';
 import {
+  constructLocalResourceId,
+  getFileNameFromLocalResourceId,
+} from '../../utils/utils';
+import {
+  LOADING_STATE,
   NODE_TYPE_COLOR,
   SOCKET_TYPE,
   TRIGGER_TYPE_OPTIONS,
@@ -27,35 +32,36 @@ import { BooleanType } from '../datatypes/booleanType';
 import { NumberType } from '../datatypes/numberType';
 
 function CircularProgressWithLabel(
-  props: CircularProgressProps & { value: number },
+  props: CircularProgressProps & { variant: string; value?: number },
 ) {
   return (
     <Box sx={{ position: 'relative', display: 'inline-flex' }}>
-      <CircularProgress variant="determinate" {...props} />
-      <Box
-        sx={{
-          top: 0,
-          left: 0,
-          bottom: 0,
-          right: 0,
-          position: 'absolute',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        <Typography
-          variant="caption"
-          component="div"
-          color="text.secondary"
-        >{`${Math.round(props.value)}%`}</Typography>
-      </Box>
+      <CircularProgress variant={props.variant} {...props} />
+      {props.value && (
+        <Box
+          sx={{
+            top: 0,
+            left: 0,
+            bottom: 0,
+            right: 0,
+            position: 'absolute',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Typography
+            variant="caption"
+            component="div"
+            color="text.secondary"
+          >{`${Math.round(props.value)}%`}</Typography>
+        </Box>
+      )}
     </Box>
   );
 }
 
 export const inputResourceIdSocketName = 'Local resource ID';
-export const inputFileNameSocketName = 'File name';
 const getFrameSocketName = 'Get current frame';
 const getFramesIntervalSocketName = 'Get frames (interval)';
 const intervalSocketName = 'Interval (s)';
@@ -110,14 +116,20 @@ export class Video extends HybridNode2 {
       new PPSocket(
         SOCKET_TYPE.IN,
         inputResourceIdSocketName,
-        new StringType(),
-        '',
-        false,
-      ),
-      new PPSocket(
-        SOCKET_TYPE.IN,
-        inputFileNameSocketName,
-        new StringType(),
+        new FileType([
+          '3gp',
+          'avi',
+          'flv',
+          'mov',
+          'mkv',
+          'm4v',
+          'mp4',
+          'ogg',
+          'qt',
+          'swf',
+          'webm',
+          'wmv',
+        ]),
         '',
         false,
       ),
@@ -259,9 +271,8 @@ export class Video extends HybridNode2 {
     );
   }
 
-  updateAndExecute = (localResourceId: string, path: string): void => {
+  updateAndExecute = (localResourceId: string): void => {
     this.setInputData(inputResourceIdSocketName, localResourceId);
-    this.setInputData(inputFileNameSocketName, path);
     this.executeOptimizedChain().catch((error) => {
       console.error(error);
     });
@@ -288,10 +299,9 @@ export class Video extends HybridNode2 {
   };
 
   workerAction = async (type) => {
-    const blob = await this.loadResource(
-      this.getInputData(inputResourceIdSocketName),
-    );
-    const fileName = this.getInputData(inputFileNameSocketName);
+    const localResourceId = this.getInputData(inputResourceIdSocketName);
+    const blob = await this.loadResource(localResourceId);
+    const fileName = getFileNameFromLocalResourceId(localResourceId);
 
     const waitForWorker = async () => {
       if (this.worker) {
@@ -315,15 +325,18 @@ export class Video extends HybridNode2 {
   };
 
   // small presentational component
-  protected getParentComponent(props: any): any {
+  protected getParentComponent(props: any): React.ReactElement {
     const resizeObserver = useRef(null);
     const videoRef = useRef<HTMLVideoElement>();
     const node = props.node;
 
     const [progress, setProgress] = useState(100);
-    const [path] = useState(props[inputFileNameSocketName]);
+    const [localResourceId, setLocalResourceId] = useState(
+      props[inputResourceIdSocketName],
+    );
     const [videoSrc, setVideoSrc] = useState(undefined);
     const [contentHeight, setContentHeight] = useState(0);
+    const [loadingState, setLoadingState] = useState(LOADING_STATE.ISLOADING);
 
     const waitForWorkerBeingLoaded = () => {
       if (node.worker) {
@@ -333,14 +346,14 @@ export class Video extends HybridNode2 {
             case 'transcodingResult':
               const blob = new Blob([data.buffer], { type: 'video/mp4' });
               const size = blob.size;
-              const localResourceId = `${data.name}-${size}`;
+              const newResourceId = constructLocalResourceId(data.name, size);
               PPStorage.getInstance().storeResource(
-                localResourceId,
+                newResourceId,
                 size,
                 blob,
                 data.name,
               );
-              node.setInputData(inputResourceIdSocketName, localResourceId);
+              node.setInputData(inputResourceIdSocketName, newResourceId);
               break;
             case 'progress':
               console.log(data);
@@ -361,7 +374,8 @@ export class Video extends HybridNode2 {
 
       if (videoRef.current) {
         videoRef.current.addEventListener('error', () => {
-          console.error(`Error loading: ${path}`);
+          console.error(`Error loading video`);
+          setVideoSrc(undefined);
         });
         videoRef.current.addEventListener('loadedmetadata', () => {
           const details = {
@@ -481,14 +495,41 @@ export class Video extends HybridNode2 {
     }, [contentHeight]);
 
     useEffect(() => {
-      if (props[inputResourceIdSocketName]) {
+      const resourceId = props[inputResourceIdSocketName];
+      setLocalResourceId(resourceId);
+      if (resourceId) {
+        setLoadingState(LOADING_STATE.ISLOADING);
         node
-          .loadResource(props[inputResourceIdSocketName])
+          .loadResource(resourceId)
           .then((blob) => {
-            setVideoSrc(URL.createObjectURL(blob));
+            if (blob) {
+              setVideoSrc(URL.createObjectURL(blob));
+              setLoadingState(LOADING_STATE.LOADED);
+            } else {
+              // video is being saved, listen to the ResourceUpdated event
+              const listenID = InterfaceController.addListener(
+                ListenEvent.ResourceUpdated,
+                (data: any) => {
+                  if (data.id === resourceId) {
+                    node
+                      .loadResource(resourceId)
+                      .then((blob) => {
+                        setVideoSrc(URL.createObjectURL(blob));
+                        setLoadingState(LOADING_STATE.LOADED);
+                        InterfaceController.removeListener(listenID);
+                      })
+                      .catch((e) => {
+                        console.error(e.message);
+                        setLoadingState(LOADING_STATE.FAILED);
+                      });
+                  }
+                },
+              );
+            }
           })
           .catch((e) => {
             console.error(e.message);
+            setLoadingState(LOADING_STATE.FAILED);
           });
       }
     }, [props[inputResourceIdSocketName]]);
@@ -564,11 +605,15 @@ export class Video extends HybridNode2 {
                 transform: 'translate(-50%, -50%)',
                 width: '100%',
                 pointerEvents: 'none',
+                rowGap: '8px',
               }}
             >
               {progress !== 100 && (
                 <>
-                  <CircularProgressWithLabel value={progress} />
+                  <CircularProgressWithLabel
+                    value={progress}
+                    variant="determinate"
+                  />
                   <Button
                     sx={{
                       pointerEvents: 'auto',
@@ -584,24 +629,45 @@ export class Video extends HybridNode2 {
                   </Button>
                 </>
               )}
-              {!videoSrc && (
-                <Button
-                  sx={{
-                    pointerEvents: 'auto',
-                  }}
-                  variant="outlined"
-                  onClick={() => {
-                    PPGraph.currentGraph.selection.selectNodes(
-                      [node],
-                      false,
-                      true,
-                    );
-                    InterfaceController.onOpenFileBrowser();
-                  }}
-                >
-                  Select video
-                </Button>
-              )}
+              <>
+                {localResourceId &&
+                  loadingState === LOADING_STATE.ISLOADING && (
+                    <CircularProgressWithLabel variant="indeterminate" />
+                  )}
+                {localResourceId &&
+                  !videoSrc &&
+                  loadingState === LOADING_STATE.LOADED && (
+                    <Button
+                      sx={{
+                        pointerEvents: 'auto',
+                      }}
+                      variant="outlined"
+                      onClick={() => {
+                        node.transcode();
+                      }}
+                    >
+                      Transcode
+                    </Button>
+                  )}
+                {loadingState === LOADING_STATE.ISLOADING && (
+                  <Button
+                    sx={{
+                      pointerEvents: 'auto',
+                    }}
+                    variant="outlined"
+                    onClick={() => {
+                      PPGraph.currentGraph.selection.selectNodes(
+                        [node],
+                        false,
+                        true,
+                      );
+                      InterfaceController.onOpenFileBrowser();
+                    }}
+                  >
+                    Select video
+                  </Button>
+                )}
+              </>
             </Grid>
           </Box>
         </ThemeProvider>
