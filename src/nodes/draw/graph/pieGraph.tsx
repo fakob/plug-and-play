@@ -1,6 +1,6 @@
 import { DRAW_Base, injectedDataName } from '../abstract';
 import Socket from '../../../classes/SocketClass';
-import { SOCKET_TYPE } from '../../../utils/constants';
+import { COLOR, PRESET_COLORS, SOCKET_TYPE } from '../../../utils/constants';
 import { ArrayType } from '../../datatypes/arrayType';
 import { NumberType } from '../../datatypes/numberType';
 import { BooleanType } from '../../datatypes/booleanType';
@@ -86,13 +86,7 @@ export class GRAPH_PIE extends DRAW_Base {
         true,
         true,
       ),
-      new Socket(
-        SOCKET_TYPE.IN,
-        inputShowBorder,
-        new BooleanType(),
-        true,
-        true,
-      ),
+      new Socket(SOCKET_TYPE.IN, inputShowBorder, new BooleanType(), false),
       new Socket(SOCKET_TYPE.IN, inputShowPercentage, new BooleanType(), false),
       Socket.getOptionalVisibilitySocket(
         SOCKET_TYPE.IN,
@@ -102,22 +96,6 @@ export class GRAPH_PIE extends DRAW_Base {
         () => this.getInputData(inputShowNames),
       ),
     ].concat(super.getDefaultIO());
-  }
-
-  private djb2(str) {
-    let hash = 5381;
-    for (let i = 0; i < str.length; i++) {
-      hash = (hash * 33) ^ str.charCodeAt(i);
-    }
-    return hash >>> 0;
-  }
-
-  private generateColorFromString(input) {
-    const hashValue = this.djb2(input);
-    const hexColor = '#' + (hashValue & 0xffffff).toString(16).padStart(6, '0');
-    const toReturn = TRgba.fromString(hexColor);
-    toReturn.a = 0.5;
-    return toReturn;
   }
 
   private getValueText(
@@ -139,45 +117,6 @@ export class GRAPH_PIE extends DRAW_Base {
       basicText.anchor.x = 0.5;
     }
     return basicText;
-  }
-
-  private drawReference() {}
-
-  private convexHull(points) {
-    if (points.length <= 3) return points;
-
-    // Sort by lowest Y and then by X if tied
-    points.sort((a, b) => (a.y === b.y ? a.x - b.x : a.y - b.y));
-    const start = points[0];
-
-    // Calculate polar angles
-    points.forEach((p) => {
-      p.angle = Math.atan2(p.y - start.y, p.x - start.x);
-    });
-
-    // Sort by polar angle
-    points.sort((a, b) => a.angle - b.angle);
-
-    const result = [start];
-    for (let i = 1; i < points.length; i++) {
-      while (
-        result.length > 1 &&
-        this.crossProduct(
-          result[result.length - 2],
-          result[result.length - 1],
-          points[i],
-        ) <= 0
-      ) {
-        result.pop();
-      }
-      result.push(points[i]);
-    }
-
-    return result;
-  }
-
-  private crossProduct(o, a, b) {
-    return (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
   }
 
   protected drawOnContainer(
@@ -237,7 +176,7 @@ export class GRAPH_PIE extends DRAW_Base {
       const color =
         pieSlice.Color !== undefined
           ? TRgba.fromObject(pieSlice.Color)
-          : this.generateColorFromString(pieSlice.Name);
+          : TRgba.fromString(COLOR[index % COLOR.length]);
       deferredGraphics.beginFill(color.hexNumber(), color.a);
       graphics.beginFill(color.hexNumber(), color.a);
       const degreesPre = currDegrees;
@@ -249,7 +188,6 @@ export class GRAPH_PIE extends DRAW_Base {
         const y = Math.sin(RADIAN_PER_DEGREES * currDegrees) * radius;
         polygonPoints.push(new PIXI.Point(x, y));
         currDegrees += 360 / PIE_GRAPH_RESOLUTION;
-        // console.log("x, y: " + x + ", " + y);
       }
       currDegrees -= 360 / PIE_GRAPH_RESOLUTION;
       const averageDegree = (currDegrees + degreesPre) / 2;
@@ -296,10 +234,6 @@ export class GRAPH_PIE extends DRAW_Base {
           fontSize,
         );
       }
-      // last slice needs to wrap around
-      //if (index == pieSlices.length - 1) {
-      //  polygonPoints.push(new PIXI.Point(radius, 0));
-      // }
       polygonPoints.push(new PIXI.Point(0, 0));
 
       const polygonPointsMovedFromCenter = polygonPoints.map((point) => {
@@ -370,12 +304,13 @@ export class GRAPH_PIE extends DRAW_Base {
           lowestY,
           color,
           drawFunction: (graphics: PIXI.Graphics) => {
+            graphics.lineStyle(0);
             graphics.beginFill(color.multiply(0.95).hexNumber());
             graphics.drawPolygon(inbetweenArea);
             graphics.drawPolygon(slice3D);
-            //if (inputObject[inputShowBorder]) {
-            //  graphics.lineStyle(1, color.multiply(0.8).hexNumber());
-            //}
+            if (inputObject[inputShowBorder]) {
+              graphics.lineStyle(1, color.multiply(0.8).hexNumber());
+            }
             graphics.beginFill(color.hexNumber());
             graphics.drawPolygon(slice);
           },
