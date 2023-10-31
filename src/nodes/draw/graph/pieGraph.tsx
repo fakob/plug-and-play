@@ -30,6 +30,7 @@ class PieSlice {
 
 interface PieDrawnSlice {
   highestY: number;
+  lowestY: number;
   color: TRgba;
   drawFunction: (graphics: PIXI.Graphics) => void;
 }
@@ -310,12 +311,14 @@ export class GRAPH_PIE extends DRAW_Base {
 
       const slice = new PIXI.Polygon();
       let highestY = -100000000000;
+      let lowestY = 1000000000;
 
       polygonPointsMovedFromCenter.forEach((point) => {
         const scaledY = yScale * point.y;
         slice.points.push(point.x);
         slice.points.push(scaledY);
         highestY = Math.max(highestY, scaledY);
+        lowestY = Math.min(lowestY, scaledY);
       });
 
       if (inputObject[input3DRatio] > 0) {
@@ -363,7 +366,8 @@ export class GRAPH_PIE extends DRAW_Base {
         inbetweenArea.points.push(maxXY);
 
         slicesToDraw.push({
-          highestY: highestY,
+          highestY,
+          lowestY,
           color,
           drawFunction: (graphics: PIXI.Graphics) => {
             graphics.beginFill(color.multiply(0.95).hexNumber());
@@ -378,7 +382,8 @@ export class GRAPH_PIE extends DRAW_Base {
         });
       } else {
         slicesToDraw.push({
-          highestY: highestY,
+          highestY,
+          lowestY,
           color,
           drawFunction: (graphics: PIXI.Graphics) => {
             if (inputObject[inputShowBorder]) {
@@ -392,7 +397,10 @@ export class GRAPH_PIE extends DRAW_Base {
 
     // we sort them based on Y so that they are correctly sorted when doing the 3D view
     slicesToDraw.sort(
-      (pieSlice1, pieSlice2) => pieSlice1.highestY - pieSlice2.highestY,
+      (pieSlice1, pieSlice2) =>
+        pieSlice1.highestY -
+        pieSlice2.highestY +
+        (pieSlice1.lowestY - pieSlice2.lowestY),
     );
     slicesToDraw.forEach((slice) => {
       graphics.beginFill(slice.color.hexNumber());
