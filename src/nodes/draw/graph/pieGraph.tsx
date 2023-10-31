@@ -1,6 +1,6 @@
 import { DRAW_Base, injectedDataName } from '../abstract';
 import Socket from '../../../classes/SocketClass';
-import { COLOR, PRESET_COLORS, SOCKET_TYPE } from '../../../utils/constants';
+import { COLOR, SOCKET_TYPE } from '../../../utils/constants';
 import { ArrayType } from '../../datatypes/arrayType';
 import { NumberType } from '../../datatypes/numberType';
 import { BooleanType } from '../../datatypes/booleanType';
@@ -10,9 +10,11 @@ import { TRgba } from '../../../utils/interfaces';
 const inputDataName = 'Input Data';
 const inputRadius = 'Radius';
 const inputShowNames = 'Show Names';
+const inputShowNamesDistance = 'Name Distance';
 const inputShowValuesFontSize = 'Font Size';
 const inputShowReference = 'Show Reference';
 const inputShowBorder = 'Show Border';
+const inputDegreesTotal = 'Degrees In Total';
 const inputShowPercentage = 'Percentage';
 const input3DRatio = '3D ratio';
 const inputDistanceFromCenter = 'Distance From Center';
@@ -21,6 +23,8 @@ class PieSlice {
   Value: number;
   Name: string | undefined;
   Color: TRgba | undefined;
+  DistanceFromCenter: number | undefined;
+  NameDistance: number | undefined;
 
   constructor(inValue, inName) {
     this.Name = inName;
@@ -52,7 +56,13 @@ export class GRAPH_PIE extends DRAW_Base {
       new Socket(SOCKET_TYPE.IN, inputDataName, new ArrayType(), [
         { Value: 5, Name: 'Big slice', Color: new TRgba(33, 150, 243, 1) },
         { Value: 3, Name: 'Small slice', Color: new TRgba(251, 192, 45, 1) },
-        { Value: 1, Name: 'Tiny slice', Color: new TRgba(38, 166, 154, 1) },
+        {
+          Value: 1,
+          Name: 'Tiny slice',
+          Color: new TRgba(38, 166, 154, 1),
+          DistanceFromCenter: 50,
+          'Name Distance': 300,
+        },
       ]),
       new Socket(
         SOCKET_TYPE.IN,
@@ -79,12 +89,26 @@ export class GRAPH_PIE extends DRAW_Base {
         true,
         false,
       ),
+      Socket.getOptionalVisibilitySocket(
+        SOCKET_TYPE.IN,
+        inputShowNamesDistance,
+        new NumberType(false, 0.1, 2),
+        0.75,
+        () => this.getInputData(inputShowNamesDistance),
+      ),
       new Socket(
         SOCKET_TYPE.IN,
         inputShowReference,
         new BooleanType(),
         true,
         true,
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        inputDegreesTotal,
+        new NumberType(true, 1, 360),
+        360,
+        false,
       ),
       new Socket(SOCKET_TYPE.IN, inputShowBorder, new BooleanType(), false),
       new Socket(SOCKET_TYPE.IN, inputShowPercentage, new BooleanType(), false),
@@ -146,11 +170,8 @@ export class GRAPH_PIE extends DRAW_Base {
 
     let currDegrees = 0;
     const deferredGraphics = new PIXI.Graphics(); // we might want stuff underneath the top layer (3D perspective)
+    deferredGraphics.lineStyle(1, TRgba.black().hexNumber());
 
-    const distanceFromCenter = Math.max(
-      0.01,
-      inputObject[inputDistanceFromCenter],
-    );
     // 3D perspective scale
     const yScale = Math.max(0, Math.cos(inputObject[input3DRatio]));
 
@@ -168,10 +189,20 @@ export class GRAPH_PIE extends DRAW_Base {
       0,
     );
 
+    const degreesTotal = inputObject[inputDegreesTotal];
+
     // draw all slices
     pieSlices.forEach((pieSlice, index) => {
+      const { DistanceFromCenter } = pieSlice;
+      const defaultDistance = inputObject[inputDistanceFromCenter] || 0.01;
+      const distanceFromCenter =
+        DistanceFromCenter !== undefined
+          ? DistanceFromCenter
+          : Math.max(0.01, defaultDistance);
+
       const partOfTotal = pieSlice.Value / total;
       const polygonPoints: PIXI.Point[] = [];
+
       polygonPoints.push(new PIXI.Point(0, 0));
       const color =
         pieSlice.Color !== undefined
@@ -183,20 +214,23 @@ export class GRAPH_PIE extends DRAW_Base {
       const endIndex =
         PIE_GRAPH_RESOLUTION * partOfTotal +
         (index < totalRemainingSteps ? 1 : 0);
+
       for (let i = 0; i < endIndex; i++) {
-        const x = Math.cos(RADIAN_PER_DEGREES * currDegrees) * radius;
-        const y = Math.sin(RADIAN_PER_DEGREES * currDegrees) * radius;
+        const currRadian = RADIAN_PER_DEGREES * currDegrees;
+        const x = Math.cos(currRadian) * radius;
+        const y = Math.sin(currRadian) * radius;
         polygonPoints.push(new PIXI.Point(x, y));
-        currDegrees += 360 / PIE_GRAPH_RESOLUTION;
+        currDegrees += degreesTotal / PIE_GRAPH_RESOLUTION;
       }
-      currDegrees -= 360 / PIE_GRAPH_RESOLUTION;
+      currDegrees -= degreesTotal / PIE_GRAPH_RESOLUTION;
       const averageDegree = (currDegrees + degreesPre) / 2;
       const averageDirection = new PIXI.Point(
         Math.cos(RADIAN_PER_DEGREES * averageDegree),
         Math.sin(RADIAN_PER_DEGREES * averageDegree),
       );
       if (inputObject[inputShowNames]) {
-        const distance = radius * (3 / 4);
+        const defaultDistance = inputObject[inputShowNamesDistance];
+        const distance = radius * defaultDistance;
         const valuePosition = new PIXI.Point(
           averageDirection.x * distance,
           averageDirection.y * distance * yScale,
@@ -205,6 +239,18 @@ export class GRAPH_PIE extends DRAW_Base {
         deferredGraphics.addChild(
           this.getValueText(textToUse, valuePosition, fontSize),
         );
+
+        // if too far away, draw line back to my slice
+        if (distance > radius) {
+          deferredGraphics.moveTo(
+            averageDirection.x * radius,
+            averageDirection.y * radius * yScale,
+          );
+          deferredGraphics.lineTo(
+            averageDirection.x * distance,
+            averageDirection.y * (distance - fontSize * 0.5) * yScale,
+          );
+        }
       }
       if (inputObject[inputShowReference]) {
         const circleOffsetX = fontSize * 2;
@@ -271,7 +317,7 @@ export class GRAPH_PIE extends DRAW_Base {
           slice3D.points.push(point.y);
         });
 
-        // complex... wander around the two polygons filling in area in between them
+        // complex... wander around the two polygons filling in area in between them with a 4 corner polygon
         const inbetweenArea = new PIXI.Polygon();
         let minX = 1000000;
         let minXY = -1;
@@ -287,17 +333,16 @@ export class GRAPH_PIE extends DRAW_Base {
             maxXY = point.y;
           }
         });
-        inbetweenArea.points.push(minX);
-        inbetweenArea.points.push(minXY);
-
-        inbetweenArea.points.push(minX);
-        inbetweenArea.points.push(minXY + dist);
-
-        inbetweenArea.points.push(maxX);
-        inbetweenArea.points.push(maxXY + dist);
-
-        inbetweenArea.points.push(maxX);
-        inbetweenArea.points.push(maxXY);
+        [
+          minX,
+          minXY,
+          minX,
+          minXY + dist,
+          maxX,
+          maxXY + dist,
+          maxX,
+          maxXY,
+        ].forEach((point) => inbetweenArea.points.push(point));
 
         slicesToDraw.push({
           highestY,
