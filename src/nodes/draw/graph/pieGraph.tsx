@@ -218,6 +218,17 @@ export class GRAPH_PIE extends DRAW_Base {
 
     pieSlices.sort((slice1, slice2) => slice2.Value - slice1.Value);
 
+    // sick shit
+    const remainders = pieSlices.map((slice) => {
+      const val = (slice.Value * PIE_GRAPH_RESOLUTION) / total;
+      return val - Math.floor(val);
+    });
+    const totalRemainingSteps = remainders.reduce(
+      (prev, curr) => prev + curr,
+      0,
+    );
+
+    // draw all slices
     pieSlices.forEach((pieSlice, index) => {
       const partOfTotal = pieSlice.Value / total;
       const polygonPoints: PIXI.Point[] = [];
@@ -229,7 +240,10 @@ export class GRAPH_PIE extends DRAW_Base {
       deferredGraphics.beginFill(color.hexNumber(), color.a);
       graphics.beginFill(color.hexNumber(), color.a);
       const degreesPre = currDegrees;
-      for (let i = 0; i < Math.round(PIE_GRAPH_RESOLUTION * partOfTotal); i++) {
+      const endIndex =
+        PIE_GRAPH_RESOLUTION * partOfTotal +
+        (index < totalRemainingSteps ? 1 : 0);
+      for (let i = 0; i < endIndex; i++) {
         const x = Math.cos(RADIAN_PER_DEGREES * currDegrees) * radius;
         const y = Math.sin(RADIAN_PER_DEGREES * currDegrees) * radius;
         polygonPoints.push(new PIXI.Point(x, y));
@@ -305,7 +319,7 @@ export class GRAPH_PIE extends DRAW_Base {
       });
 
       if (inputObject[input3DRatio] > 0) {
-        const dist = Math.sin(inputObject[input3DRatio]) * radius;
+        const dist = Math.sin(inputObject[input3DRatio]) * 0.5 * radius;
         const polygonMovedScaled = polygonPointsMovedFromCenter.map((point) => {
           return new PIXI.Point(point.x, point.y * yScale);
         });
@@ -352,12 +366,13 @@ export class GRAPH_PIE extends DRAW_Base {
           highestY: highestY,
           color,
           drawFunction: (graphics: PIXI.Graphics) => {
-            graphics.lineStyle(0);
+            graphics.beginFill(color.multiply(0.95).hexNumber());
             graphics.drawPolygon(inbetweenArea);
             graphics.drawPolygon(slice3D);
-            if (inputObject[inputShowBorder]) {
-              graphics.lineStyle(1, color.multiply(0.8).hexNumber());
-            }
+            //if (inputObject[inputShowBorder]) {
+            //  graphics.lineStyle(1, color.multiply(0.8).hexNumber());
+            //}
+            graphics.beginFill(color.hexNumber());
             graphics.drawPolygon(slice);
           },
         });
