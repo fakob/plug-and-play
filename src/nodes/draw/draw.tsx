@@ -3,6 +3,7 @@ import PPGraph from '../../classes/GraphClass';
 import PPNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
 import {
+  DEFAULT_IMAGE,
   IMAGE_TYPES,
   NOTE_LINEHEIGHT_FACTOR,
   SOCKET_TYPE,
