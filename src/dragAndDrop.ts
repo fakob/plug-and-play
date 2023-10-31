@@ -1,12 +1,10 @@
 import * as PIXI from 'pixi.js';
 import { hri } from 'human-readable-ids';
-import InterfaceController from './InterfaceController';
 import PPStorage from './PPStorage';
 import PPGraph from './classes/GraphClass';
 import PPNode from './classes/NodeClass';
 import { DRAGANDDROP_GRID_MARGIN, PXSHOW_SQL_QUERY } from './utils/constants';
 import { convertBlobToBase64 } from './utils/utils';
-import { ensureVisible } from './pixi/utils-pixi';
 import { Image as ImageNode } from './nodes/image/image';
 import {
   Video as VideoNode,
@@ -207,12 +205,6 @@ export const dragAndDrop = (acceptedFiles, fileRejections, event) => {
     // select the newly added nodes
     if (newNodeSelection.length > 0) {
       PPGraph.currentGraph.selection.selectNodes(newNodeSelection, false, true);
-      ensureVisible(PPGraph.currentGraph.selection.selectedNodes);
-      InterfaceController.showSnackBar(
-        `${newNodeSelection.length} new ${
-          newNodeSelection.length === 1 ? 'node was' : 'nodes were'
-        } added`,
-      );
     }
   })();
 };

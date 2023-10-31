@@ -3,6 +3,7 @@ import PPGraph from '../../classes/GraphClass';
 import PPNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
 import {
+  DEFAULT_IMAGE,
   IMAGE_TYPES,
   NOTE_LINEHEIGHT_FACTOR,
   SOCKET_TYPE,
@@ -238,7 +239,9 @@ export class DRAW_Passthrough extends DRAW_Base {
       ],
     };
     const myContainer = new PIXI.Container();
-    inputObject[inputGraphicsName](myContainer, executions);
+    if (typeof inputObject[inputGraphicsName] === 'function') {
+      inputObject[inputGraphicsName](myContainer, executions);
+    }
     this.positionAndScale(myContainer, inputObject);
     container.addChild(myContainer);
   }
@@ -510,8 +513,9 @@ export class DRAW_Multiplier extends DRAW_Interactive_Base {
       const y = changeDrawingOrder ? r : s;
 
       const shallowContainer = new PIXI.Container();
-      if (inputObject[inputGraphicsName])
+      if (typeof inputObject[inputGraphicsName] === 'function') {
         inputObject[inputGraphicsName](shallowContainer, executions);
+      }
       shallowContainer.x = x * inputObject[spacingXName];
       shallowContainer.y = y * inputObject[spacingYName];
 
@@ -569,7 +573,6 @@ export class DRAW_Multipy_Along extends DRAW_Interactive_Base {
 
       myContainer.addChild(shallowContainer);
     });
-
     container.addChild(myContainer);
   }
 }
@@ -601,7 +604,9 @@ export class DRAW_Image extends DRAW_Base {
       ],
     };
 
-    const image = PIXI.Texture.from(inputObject[inputImageName]);
+    const image = PIXI.Texture.from(
+      inputObject[inputImageName] || DEFAULT_IMAGE,
+    );
     const sprite = new PIXI.Sprite(image);
     this.positionAndScale(sprite, inputObject);
 

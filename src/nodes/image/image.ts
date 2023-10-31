@@ -27,6 +27,9 @@ const imageResetSize = 'Reset size';
 const imageExport = 'Save image';
 const imageOutputName = 'Image';
 const imageOutputDetails = 'Details';
+const imageOutputExif = 'Exif';
+
+const IMPORT_NAME = 'exifreader';
 
 export class Image extends PPNode {
   sprite: PIXI.Sprite;
@@ -45,47 +48,62 @@ export class Image extends PPNode {
     return ['Draw'].concat(super.getTags());
   }
 
+  public getDynamicImports(): string[] {
+    return [IMPORT_NAME];
+  }
+
+  public executeOnPlace(): boolean {
+    return true;
+  }
+
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(
         SOCKET_TYPE.IN,
         imageInputName,
         new ImageType(),
-        DEFAULT_IMAGE
+        DEFAULT_IMAGE,
       ),
       new Socket(
         SOCKET_TYPE.IN,
         imageObjectFit,
         new EnumType(OBJECT_FIT_OPTIONS),
         'cover',
-        false
+        false,
       ),
       new Socket(
         SOCKET_TYPE.IN,
         imageResetSize,
         new TriggerType(TRIGGER_TYPE_OPTIONS[0].text, 'resetNodeSize'),
         0,
-        false
+        false,
       ),
       new Socket(
         SOCKET_TYPE.IN,
         imageExport,
         new TriggerType(TRIGGER_TYPE_OPTIONS[0].text, 'saveImage'),
         0,
-        false
+        false,
       ),
       new Socket(
         SOCKET_TYPE.OUT,
         imageOutputName,
         new ImageType(),
-        DEFAULT_IMAGE
+        DEFAULT_IMAGE,
       ),
       new Socket(
         SOCKET_TYPE.OUT,
         imageOutputDetails,
         new JSONType(),
         undefined,
-        false
+        false,
+      ),
+      new Socket(
+        SOCKET_TYPE.OUT,
+        imageOutputExif,
+        new JSONType(),
+        undefined,
+        false,
       ),
     ];
   }
@@ -145,7 +163,7 @@ export class Image extends PPNode {
       this.setMinNodeHeight();
       this.resizeAndDraw(
         this.getMinNodeWidth() * 2,
-        this.getMinNodeHeight() * 2
+        this.getMinNodeHeight() * 2,
       );
       PPGraph.currentGraph.selection.drawRectanglesFromSelection();
     }
@@ -185,7 +203,7 @@ export class Image extends PPNode {
   doFitAndPosition = (
     newWidth: number,
     newHeight: number,
-    objectFit: FitMode
+    objectFit: FitMode,
   ): void => {
     const parentSize = {
       width: newWidth,
@@ -214,6 +232,12 @@ export class Image extends PPNode {
     this.sprite.texture = this.texture;
     this.sprite.texture.update();
 
+    const arrayBuffer = await fetch(base64).then((b) => b.arrayBuffer());
+    const tags = PPGraph.currentGraph.dynamicImports[IMPORT_NAME].load(
+      arrayBuffer,
+      { expanded: true },
+    );
+
     this.setOutputData(imageOutputName, base64);
     this.setOutputData(imageOutputDetails, {
       textureWidth: this.texture.width,
@@ -221,6 +245,7 @@ export class Image extends PPNode {
       width: Math.round(this.maskRef.width),
       height: Math.round(this.maskRef.height),
     });
+    this.setOutputData(imageOutputExif, JSON.stringify(tags));
   };
 
   updateAndExecute = async (base64: string): Promise<void> => {

@@ -452,7 +452,13 @@ export default class PPGraph {
     // check for possible extra imports, make them accessible to the node (not the absolutely cleanest way to do this but OK I think)
     await Promise.all(
       node.getDynamicImports().map(async (currImport) => {
-        this.dynamicImports[currImport] = await dynamicImport(node, currImport);
+        // check if import already exists
+        if (!this.dynamicImports[currImport]) {
+          this.dynamicImports[currImport] = await dynamicImport(
+            node,
+            currImport,
+          );
+        }
       }),
     );
 
