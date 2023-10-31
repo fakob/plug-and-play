@@ -357,9 +357,8 @@ export const getDataFromClipboard = async (): Promise<
 };
 
 export const getNodeDataFromHtml = (html: string): SerializedSelection => {
-  const maybeJson = unescapeHtml(
-    html.match(/<plugandplayground>([\s\S]*)<\/plugandplayground>/)?.[1],
-  );
+  const regex = /<plugandplayground>([\s\S]*)<\/plugandplayground>/;
+  const maybeJson = unescapeHtml(regex.exec(html)?.[1]);
   return JSON.parse(maybeJson) as SerializedSelection;
 };
 
