@@ -601,7 +601,9 @@ export class DRAW_Image extends DRAW_Base {
       ],
     };
 
-    const image = PIXI.Texture.from(inputObject[inputImageName]);
+    const image = PIXI.Texture.from(
+      inputObject[inputImageName] || DEFAULT_IMAGE,
+    );
     const sprite = new PIXI.Sprite(image);
     this.positionAndScale(sprite, inputObject);
 
