@@ -290,13 +290,22 @@ export const writeTextToClipboard = (newClip: string): void => {
   );
 };
 
-export const writeNodeDataToClipboard = (stringifiedData: string): void => {
-  // const dataObject = {
-  //   type: 'plug-and-playground/clipboard',
-  //   data: stringifiedData,
-  // };
+export const escapeHtml = (str: string) => {
+  const element = document.createElement('div');
+  element.textContent = str;
+  return element.innerHTML;
+};
 
-  const htmlString = `<plugandplayground>${stringifiedData}</plugandplayground>`;
+export const unescapeHtml = (escapedStr: string) => {
+  const element = document.createElement('div');
+  element.innerHTML = escapedStr;
+  return element.textContent;
+};
+
+export const writeNodeDataToClipboard = (stringifiedData: string): void => {
+  const htmlString = `<plugandplayground>${escapeHtml(
+    stringifiedData,
+  )}</plugandplayground>`;
 
   if (navigator.clipboard && window.ClipboardItem) {
     navigator.clipboard
@@ -348,10 +357,9 @@ export const getDataFromClipboard = async (): Promise<
 };
 
 export const getNodeDataFromHtml = (html: string): SerializedSelection => {
-  const maybeJson = html
-    .match(/<plugandplayground>([\s\S]*)<\/plugandplayground>/)?.[1]
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>');
+  const maybeJson = unescapeHtml(
+    html.match(/<plugandplayground>([\s\S]*)<\/plugandplayground>/)?.[1],
+  );
   return JSON.parse(maybeJson) as SerializedSelection;
 };
 
@@ -639,7 +647,6 @@ export const cutOrCopyClipboard = async (e: ClipboardEvent): Promise<void> => {
     e.preventDefault();
     const serializeSelection = PPGraph.currentGraph.serializeSelection();
     writeDataToClipboard(serializeSelection);
-    console.log(serializeSelection);
     if (e.type === 'cut') {
       PPGraph.currentGraph.action_DeleteSelectedNodes();
     }
