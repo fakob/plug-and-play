@@ -36,7 +36,8 @@ interface PieDrawnSlice {
   highestY: number;
   lowestY: number;
   color: TRgba;
-  drawFunction: (graphics: PIXI.Graphics) => void;
+  drawBottom: (graphics: PIXI.Graphics) => void;
+  drawTop: (graphics: PIXI.Graphics) => void;
 }
 
 const PIE_GRAPH_RESOLUTION = 1000;
@@ -301,6 +302,14 @@ export class GRAPH_PIE extends DRAW_Base {
         lowestY = Math.min(lowestY, scaledY);
       });
 
+      const drawTop = (graphics: PIXI.Graphics) => {
+        if (inputObject[inputShowBorder]) {
+          graphics.lineStyle(1, color.multiply(0.8).hexNumber());
+        }
+        graphics.beginFill(color.hexNumber());
+        graphics.drawPolygon(slice);
+      };
+
       if (inputObject[input3DRatio] > 0) {
         const dist = Math.sin(inputObject[input3DRatio]) * 0.5 * radius;
         const polygonMovedScaled = polygonPointsMovedFromCenter.map((point) => {
@@ -348,29 +357,21 @@ export class GRAPH_PIE extends DRAW_Base {
           highestY,
           lowestY,
           color,
-          drawFunction: (graphics: PIXI.Graphics) => {
+          drawBottom: (graphics: PIXI.Graphics) => {
             graphics.lineStyle(0);
             graphics.beginFill(color.multiply(0.95).hexNumber());
             graphics.drawPolygon(inbetweenArea);
             graphics.drawPolygon(slice3D);
-            if (inputObject[inputShowBorder]) {
-              graphics.lineStyle(1, color.multiply(0.8).hexNumber());
-            }
-            graphics.beginFill(color.hexNumber());
-            graphics.drawPolygon(slice);
           },
+          drawTop,
         });
       } else {
         slicesToDraw.push({
           highestY,
           lowestY,
           color,
-          drawFunction: (graphics: PIXI.Graphics) => {
-            if (inputObject[inputShowBorder]) {
-              graphics.lineStyle(1, color.multiply(0.8).hexNumber());
-            }
-            graphics.drawPolygon(slice);
-          },
+          drawBottom: () => {},
+          drawTop,
         });
       }
     });
@@ -384,7 +385,11 @@ export class GRAPH_PIE extends DRAW_Base {
     );
     slicesToDraw.forEach((slice) => {
       graphics.beginFill(slice.color.hexNumber());
-      slice.drawFunction(graphics);
+      slice.drawBottom(graphics);
+    });
+    slicesToDraw.forEach((slice) => {
+      graphics.beginFill(slice.color.hexNumber());
+      slice.drawTop(graphics);
     });
 
     graphics.addChild(deferredGraphics);
