@@ -406,7 +406,6 @@ export class GRAPH_PIE extends DRAW_Base {
       draw.interactive = true;
       draw.addEventListener('pointerover', (e) => {
         draw.removeChildren();
-        draw.beginFill(slice.color.multiply(1.1).hexNumber());
         slice.draws.forEach((preDraw) => {
           preDraw(draw, 1.2);
         });
@@ -414,7 +413,6 @@ export class GRAPH_PIE extends DRAW_Base {
 
       draw.addEventListener('pointerout', (e) => {
         draw.removeChildren();
-        draw.beginFill(slice.color.multiply(1.0).hexNumber());
         slice.draws.forEach((preDraw) => {
           preDraw(draw, 1.0);
         });
