@@ -36,8 +36,8 @@ interface PieDrawnSlice {
   highestY: number;
   lowestY: number;
   color: TRgba;
-  drawBottom: (graphics: PIXI.Graphics) => void;
-  drawTop: (graphics: PIXI.Graphics) => void;
+  preDraws: ((g: PIXI.Graphics, desiredIntensity: number) => void)[];
+  draws: ((g: PIXI.Graphics, desiredIntensity: number) => void)[];
 }
 
 const PIE_GRAPH_RESOLUTION = 1000;
@@ -61,8 +61,6 @@ export class GRAPH_PIE extends DRAW_Base {
           Value: 1,
           Name: 'Tiny slice',
           Color: new TRgba(38, 166, 154, 1),
-          DistanceFromCenter: 50,
-          'Name Distance': 300,
         },
       ]),
       new Socket(
@@ -159,6 +157,10 @@ export class GRAPH_PIE extends DRAW_Base {
     const graphics = new PIXI.Graphics();
 
     const pieSlices: PieSlice[] = inputObject[inputDataName];
+    // fail error if invalid input
+    if (typeof pieSlices !== 'object') {
+      return;
+    }
     // determine total amount of values
     // we allow either an array of just the numbers, or (better), an object that contains data and potentially other stuff
     const total: number = pieSlices.reduce(
@@ -168,10 +170,10 @@ export class GRAPH_PIE extends DRAW_Base {
 
     const radius = inputObject[inputRadius];
     const fontSize = inputObject[inputShowValuesFontSize];
+    const degreesTotal = inputObject[inputDegreesTotal];
+    const defaultNameDistance = inputObject[inputShowNamesDistance];
 
     let currDegrees = 0;
-    const deferredGraphics = new PIXI.Graphics(); // we might want stuff underneath the top layer (3D perspective)
-    deferredGraphics.lineStyle(1, TRgba.black().hexNumber());
 
     // 3D perspective scale
     const yScale = Math.max(0, Math.cos(inputObject[input3DRatio]));
@@ -190,27 +192,27 @@ export class GRAPH_PIE extends DRAW_Base {
       0,
     );
 
-    const degreesTotal = inputObject[inputDegreesTotal];
-
     // draw all slices
     pieSlices.forEach((pieSlice, index) => {
-      const { DistanceFromCenter } = pieSlice;
-      const defaultDistance = inputObject[inputDistanceFromCenter] || 0.01;
-      const distanceFromCenter =
-        DistanceFromCenter !== undefined
-          ? DistanceFromCenter
-          : Math.max(0.01, defaultDistance);
+      pieSlice.Value |= 0;
+      pieSlice.Color =
+        pieSlice.Color !== undefined
+          ? TRgba.fromObject(pieSlice.Color)
+          : TRgba.fromString(COLOR[index % COLOR.length]);
+      const draws: ((g: PIXI.Graphics, desiredIntensity: number) => void)[] =
+        [];
+      const preDraws: ((g: PIXI.Graphics, desiredIntensity: number) => void)[] =
+        [];
+      const distanceFromCenter = Math.max(
+        0.01,
+        inputObject[inputDistanceFromCenter] || 0.01,
+      );
 
       const partOfTotal = pieSlice.Value / total;
       const polygonPoints: PIXI.Point[] = [];
 
       polygonPoints.push(new PIXI.Point(0, 0));
-      const color =
-        pieSlice.Color !== undefined
-          ? TRgba.fromObject(pieSlice.Color)
-          : TRgba.fromString(COLOR[index % COLOR.length]);
-      deferredGraphics.beginFill(color.hexNumber(), color.a);
-      graphics.beginFill(color.hexNumber(), color.a);
+      const color = pieSlice.Color;
       const degreesPre = currDegrees;
       const endIndex =
         PIE_GRAPH_RESOLUTION * partOfTotal +
@@ -230,35 +232,44 @@ export class GRAPH_PIE extends DRAW_Base {
         Math.sin(RADIAN_PER_DEGREES * averageDegree),
       );
       if (inputObject[inputShowNames]) {
-        const defaultDistance = inputObject[inputShowNamesDistance];
-        const distance = radius * defaultDistance;
+        const distance = radius * defaultNameDistance;
         const valuePosition = new PIXI.Point(
           averageDirection.x * distance,
           averageDirection.y * distance * yScale,
         );
         const textToUse = pieSlice.Name;
-        deferredGraphics.addChild(
-          this.getValueText(textToUse, valuePosition, fontSize),
-        );
+        draws.push((drawGraphics: PIXI.Graphics) => {
+          drawGraphics.addChild(
+            this.getValueText(textToUse, valuePosition, fontSize),
+          );
+        });
 
         // if too far away, draw line back to my slice
         if (distance > radius) {
-          deferredGraphics.moveTo(
-            averageDirection.x * radius,
-            averageDirection.y * radius * yScale,
-          );
-          deferredGraphics.lineTo(
-            averageDirection.x * distance,
-            averageDirection.y * (distance - fontSize * 0.5) * yScale,
-          );
+          draws.push((drawGraphics: PIXI.Graphics) => {
+            drawGraphics.lineStyle(1, TRgba.black().hexNumber());
+            drawGraphics.moveTo(
+              averageDirection.x * radius,
+              averageDirection.y * radius * yScale,
+            );
+            drawGraphics.lineTo(
+              averageDirection.x * distance,
+              averageDirection.y * (distance - fontSize * 0.5) * yScale,
+            );
+            drawGraphics.lineStyle(0, TRgba.black().hexNumber());
+          });
         }
       }
       if (inputObject[inputShowReference]) {
         const circleOffsetX = fontSize * 2;
+        const distanceDesiredByPie = distanceFromCenter + circleOffsetX;
+        const distanceDesiredByName =
+          (defaultNameDistance - 1) * radius + circleOffsetX;
         const distanceBetween =
           (radius * 2) / Math.max(1, pieSlices.length - 1);
         const location = new PIXI.Point(
-          radius * (4 / 3) + distanceFromCenter + circleOffsetX,
+          radius * (4 / 3) +
+            Math.max(distanceDesiredByName, distanceDesiredByPie),
           -radius + index * distanceBetween,
         );
         const textToUse =
@@ -267,19 +278,24 @@ export class GRAPH_PIE extends DRAW_Base {
           (inputObject[inputShowPercentage]
             ? (partOfTotal * 100.0).toFixed(2) + '%'
             : pieSlice.Value.toString());
-        deferredGraphics.addChild(
-          this.getValueText(
-            textToUse,
-            location,
-            inputObject[inputShowValuesFontSize],
-            false,
-          ),
-        );
-        deferredGraphics.drawCircle(
-          location.x - circleOffsetX,
-          location.y + fontSize * 0.5,
-          fontSize,
-        );
+
+        draws.push((drawGraphics: PIXI.Graphics) => {
+          drawGraphics.lineStyle(1, TRgba.black().hexNumber());
+          drawGraphics.addChild(
+            this.getValueText(
+              textToUse,
+              location,
+              inputObject[inputShowValuesFontSize],
+              false,
+            ),
+          );
+          drawGraphics.drawCircle(
+            location.x - circleOffsetX,
+            location.y + fontSize * 0.5,
+            fontSize,
+          );
+          drawGraphics.lineStyle(0);
+        });
       }
       polygonPoints.push(new PIXI.Point(0, 0));
 
@@ -302,13 +318,14 @@ export class GRAPH_PIE extends DRAW_Base {
         lowestY = Math.min(lowestY, scaledY);
       });
 
-      const drawTop = (graphics: PIXI.Graphics) => {
+      const drawTop = (graphics: PIXI.Graphics, desiredIntensity) => {
         if (inputObject[inputShowBorder]) {
           graphics.lineStyle(1, color.multiply(0.8).hexNumber());
         }
-        graphics.beginFill(color.hexNumber());
+        graphics.beginFill(color.multiply(desiredIntensity).hexNumber());
         graphics.drawPolygon(slice);
       };
+      draws.unshift(drawTop);
 
       if (inputObject[input3DRatio] > 0) {
         const dist = Math.sin(inputObject[input3DRatio]) * 0.5 * radius;
@@ -318,7 +335,6 @@ export class GRAPH_PIE extends DRAW_Base {
         const bottom = polygonMovedScaled.map(
           (point) => new PIXI.Point(point.x, point.y + dist),
         );
-        //const allP = this.convexHull(bottom.concat(polygonMovedScaled));
 
         const slice3D = new PIXI.Polygon();
         bottom.forEach((point) => {
@@ -352,28 +368,20 @@ export class GRAPH_PIE extends DRAW_Base {
           maxX,
           maxXY,
         ].forEach((point) => inbetweenArea.points.push(point));
-
-        slicesToDraw.push({
-          highestY,
-          lowestY,
-          color,
-          drawBottom: (graphics: PIXI.Graphics) => {
-            graphics.lineStyle(0);
-            graphics.beginFill(color.multiply(0.95).hexNumber());
-            graphics.drawPolygon(inbetweenArea);
-            graphics.drawPolygon(slice3D);
-          },
-          drawTop,
-        });
-      } else {
-        slicesToDraw.push({
-          highestY,
-          lowestY,
-          color,
-          drawBottom: () => {},
-          drawTop,
+        preDraws.unshift((graphics: PIXI.Graphics) => {
+          graphics.lineStyle(0);
+          graphics.beginFill(color.multiply(0.95).hexNumber());
+          graphics.drawPolygon(inbetweenArea);
+          graphics.drawPolygon(slice3D);
         });
       }
+      slicesToDraw.push({
+        highestY,
+        lowestY,
+        color,
+        preDraws,
+        draws,
+      });
     });
 
     // we sort them based on Y so that they are correctly sorted when doing the 3D view
@@ -383,16 +391,41 @@ export class GRAPH_PIE extends DRAW_Base {
         pieSlice2.highestY +
         (pieSlice1.lowestY - pieSlice2.lowestY),
     );
+    const topDraws: PIXI.Graphics[] = [];
+    graphics.lineStyle(1, TRgba.black().hexNumber());
     slicesToDraw.forEach((slice) => {
       graphics.beginFill(slice.color.hexNumber());
-      slice.drawBottom(graphics);
+      slice.preDraws.forEach((preDraw) => {
+        preDraw(graphics, 1.0);
+      });
     });
     slicesToDraw.forEach((slice) => {
-      graphics.beginFill(slice.color.hexNumber());
-      slice.drawTop(graphics);
+      const draw = new PIXI.Graphics();
+      draw.beginFill(slice.color.hexNumber());
+      slice.draws.forEach((preDraw) => {
+        preDraw(draw, 1.0);
+      });
+      draw.interactive = true;
+      draw.addEventListener('pointerover', (e) => {
+        draw.removeChildren();
+        draw.beginFill(slice.color.multiply(1.1).hexNumber());
+        slice.draws.forEach((preDraw) => {
+          preDraw(draw, 1.2);
+        });
+      });
+
+      draw.addEventListener('pointerout', (e) => {
+        draw.removeChildren();
+        draw.beginFill(slice.color.multiply(1.0).hexNumber());
+        slice.draws.forEach((preDraw) => {
+          preDraw(draw, 1.0);
+        });
+      });
+      topDraws.push(draw);
     });
 
-    graphics.addChild(deferredGraphics);
+    topDraws.forEach((draw) => graphics.addChild(draw));
+    //graphics.addChild(deferredGraphics);
     this.positionAndScale(graphics, inputObject);
     container.addChild(graphics);
   }
