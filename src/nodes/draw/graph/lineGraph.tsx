@@ -8,8 +8,7 @@ import { TRgba } from '../../../utils/interfaces';
 import { ColorType } from '../../datatypes/colorType';
 import { DRAW_Base, injectedDataName } from '../abstract';
 
-const inputPointsName = 'Points X';
-const inputLabelsName = 'Labels';
+const inputDataName = 'Input Data';
 const inputHeightName = 'Height';
 const inputWidthName = 'Width';
 const inputAutoScaleHeight = 'Auto scale';
@@ -25,6 +24,15 @@ const inputShowValuesFontSize = 'Font size';
 const inputColorName = 'Color';
 const inputLineWidthName = 'Line Width';
 
+class LineGraphPoint {
+  Value: number;
+  Name: string | undefined;
+
+  constructor(inValue, inName) {
+    this.Name = inName;
+    this.Value = inValue;
+  }
+}
 export class GRAPH_LINE extends DRAW_Base {
   public getName(): string {
     return 'Draw Line Graph';
@@ -36,13 +44,13 @@ export class GRAPH_LINE extends DRAW_Base {
 
   protected getDefaultIO(): Socket[] {
     return [
-      new Socket(
-        SOCKET_TYPE.IN,
-        inputPointsName,
-        new ArrayType(),
-        [0, 1, 5, 10, 7],
-      ),
-      new Socket(SOCKET_TYPE.IN, inputLabelsName, new ArrayType(), []),
+      new Socket(SOCKET_TYPE.IN, inputDataName, new ArrayType(), [
+        { Value: 0, Name: 'First' },
+        { Value: 1, Name: 'Second' },
+        { Value: 5 },
+        { Value: 10 },
+        { Value: 7 },
+      ]),
       new Socket(
         SOCKET_TYPE.IN,
         inputWidthName,
@@ -147,12 +155,13 @@ export class GRAPH_LINE extends DRAW_Base {
       ],
     };
 
-    const points: number[] = inputObject[inputPointsName];
+    const points: LineGraphPoint[] = inputObject[inputDataName];
     if (!points.length) {
       return;
     }
-    let maxValue = points.reduce((prevMax, point) => Math.max(prevMax, point));
-    let minValue = points.reduce((prevMax, point) => Math.min(prevMax, point));
+    const values = points.map((point) => point.Value);
+    let maxValue = values.reduce((prevMax, point) => Math.max(prevMax, point));
+    let minValue = values.reduce((prevMax, point) => Math.min(prevMax, point));
     if (!inputObject[inputAutoScaleHeight]) {
       maxValue = inputObject[inputCustomMaxHeight];
       minValue = inputObject[inputCustomMinHeight];
@@ -208,23 +217,23 @@ export class GRAPH_LINE extends DRAW_Base {
       selectedColor.a,
     );
 
-    graphics.moveTo(0, (points[0] - minValue) * -scaleY);
+    graphics.moveTo(0, (points[0].Value - minValue) * -scaleY);
     const placedPoints: PIXI.Point[] = [];
     for (let i = 0; i < points.length; i++) {
       const point = points[i];
       const scaledX = scaleX * i;
-      const scaledY = (point - minValue) * -scaleY;
+      const scaledY = (point.Value - minValue) * -scaleY;
       const prevPoint = points[Math.max(0, i - 1)];
       const prevPrevPoint = points[Math.max(i - 2, 0)];
       const nextPoint = points[Math.min(i + 1, points.length - 1)];
       placedPoints.push(new PIXI.Point(scaledX, scaledY));
       if (inputObject[inputShouldUseBezierCurve] && i > 0) {
         const scaledPrevX = scaleX * (i - 1);
-        const scaledPrevY = (prevPoint - minValue) * -scaleY;
+        const scaledPrevY = (prevPoint.Value - minValue) * -scaleY;
         const scaledPrevPrevX = scaleX * Math.max(i - 2, 0);
-        const scaledPrevPrevY = (prevPrevPoint - minValue) * -scaleY;
+        const scaledPrevPrevY = (prevPrevPoint.Value - minValue) * -scaleY;
         const scaledNextX = scaleX * (i + 1);
-        const scaledNextY = (nextPoint - minValue) * -scaleY;
+        const scaledNextY = (nextPoint.Value - minValue) * -scaleY;
         const prevTanX = (scaledPrevX - scaledPrevPrevX) * 0.07 + scaledPrevX;
         const prevTanY = (scaledPrevY - scaledPrevPrevY) * 0.07 + scaledPrevY;
         const nextTanX = (scaledNextX - scaledX) * -0.07 + scaledX;
@@ -242,7 +251,7 @@ export class GRAPH_LINE extends DRAW_Base {
         graphics.lineTo(scaledX, scaledY);
       }
       if (inputObject[inputShouldShowValues]) {
-        const basicText = new PIXI.Text(point.toPrecision(2), textStyle);
+        const basicText = new PIXI.Text(point.Value.toPrecision(2), textStyle);
         basicText.x = scaledX - fontSize * 0.5;
         basicText.y = scaledY - 30 - fontSize * 0.5;
 
@@ -252,11 +261,8 @@ export class GRAPH_LINE extends DRAW_Base {
         }
         graphics.addChild(basicText);
       }
-      if (inputObject[inputLabelsName][i]) {
-        const basicText = new PIXI.Text(
-          inputObject[inputLabelsName][i],
-          textStyle,
-        );
+      if (point.Name) {
+        const basicText = new PIXI.Text(point.Name, textStyle);
         basicText.x = scaledX - fontSize * 0.5;
         basicText.y = 30;
         graphics.addChild(basicText);

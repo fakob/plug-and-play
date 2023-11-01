@@ -23,8 +23,6 @@ class PieSlice {
   Value: number;
   Name: string | undefined;
   Color: TRgba | undefined;
-  DistanceFromCenter: number | undefined;
-  NameDistance: number | undefined;
 
   constructor(inValue, inName) {
     this.Name = inName;
