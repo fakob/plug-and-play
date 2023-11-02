@@ -3,7 +3,8 @@ import * as array from './data/array';
 import * as base from './base';
 import * as booleanlogic from './logic/boolean';
 import * as browser from './utility/browser';
-import * as charts from './draw/graph/lineGraph';
+import * as lineCharts from './draw/graph/lineGraph';
+import * as pieCharts from './draw/graph/pieGraph';
 import * as codeEditor from './codeEditor';
 import * as database from './utility/database';
 import * as dataFunctions from './data/dataFunctions';
@@ -44,7 +45,8 @@ export const getAllNodeTypes = (): RegisteredNodeTypes => {
       base,
       booleanlogic,
       browser,
-      charts,
+      charts: lineCharts,
+      pieCharts,
       codeEditor,
       database,
       dataFunctions,
@@ -106,7 +108,8 @@ export const getAllNodesInDetail = (): any[] => {
     base,
     booleanlogic,
     browser,
-    charts,
+    charts: lineCharts,
+    pieCharts,
     codeEditor,
     dataFunctions,
     draw,
