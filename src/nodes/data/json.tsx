@@ -262,7 +262,6 @@ export class Break extends PPNode {
           //currentKeys = Object.keys(currentVal);
         }
 
-        console.log("SETTIN IT");
         this.addOutput(currentPath, dataToType(currentVal), true, {}, false);
       }
     });
