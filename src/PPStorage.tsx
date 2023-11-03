@@ -11,6 +11,7 @@ import {
   getSetting,
   removeExtension,
   setGestureModeOnViewport,
+  updateLocalIdInURL,
 } from './utils/utils';
 import * as PIXI from 'pixi.js';
 import PPGraph from './classes/GraphClass';
@@ -320,6 +321,8 @@ export default class PPStorage {
           <b>{loadedGraph.name}</b> was loaded
         </span>,
       );
+
+      updateLocalIdInURL(loadedGraph.id);
     } else {
       this.loadGraphFromURL(getExampleURL('', GET_STARTED_GRAPH));
     }

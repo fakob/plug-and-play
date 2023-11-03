@@ -2,8 +2,10 @@ import React, { useEffect, useState, useRef } from 'react';
 import JSON5 from 'json5';
 import * as PIXI from 'pixi.js';
 import isUrl from 'is-url';
+import { hri } from 'human-readable-ids';
 import { useTheme } from '@mui/material';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import PPStorage from '../PPStorage';
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
 import PPSocket from '../classes/SocketClass';
@@ -15,6 +17,7 @@ import {
   NODE_PADDING_TOP,
   SOCKET_TEXTMARGIN_TOP,
   SOCKET_WIDTH,
+  URL_PARAMETER_NAME,
 } from './constants';
 import { GraphDatabase } from './indexedDB';
 import { SerializedSelection } from './interfaces';
@@ -615,17 +618,25 @@ export function sortCompare(a: string, b: string, desc: boolean): number {
 }
 
 export function removeUrlParameter(parameter: string): void {
-  // Get the current URL
   const currentUrl = new URL(window.location.href);
   const searchParams = new URLSearchParams(currentUrl.search);
-
-  // Remove the specified parameter
   searchParams.delete(parameter);
-
-  // Update the URL
   currentUrl.search = searchParams.toString();
   window.history.pushState({}, '', currentUrl.href);
 }
+
+export const updateLocalIdInURL = (localGraphID) => {
+  const urlObj = new URL(window.location.href);
+  const previousLocalGraphID = urlObj.searchParams.get(
+    URL_PARAMETER_NAME.LOADLOCAL,
+  );
+  urlObj.searchParams.set(URL_PARAMETER_NAME.LOADLOCAL, localGraphID);
+
+  // only add to history if there was a change
+  if (previousLocalGraphID !== localGraphID) {
+    history.pushState(null, '', urlObj.toString());
+  }
+};
 
 export function createGist(
   description: string,
@@ -833,4 +844,31 @@ export const getFileNameFromLocalResourceId = (localResourceId) => {
 export const getExtensionFromLocalResourceId = (localResourceId) => {
   const fileName = getFileNameFromLocalResourceId(localResourceId);
   return getFileExtension(fileName);
+};
+
+export const loadGraph = () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const loadURL = urlParams.get(URL_PARAMETER_NAME.LOADURL);
+  const localGraphID = urlParams.get(URL_PARAMETER_NAME.LOADLOCAL);
+  const createEmptyGraph = urlParams.get(URL_PARAMETER_NAME.NEW);
+  const fetchFromLocalServer = urlParams.get(
+    URL_PARAMETER_NAME.FETCHLOCALGRAPH,
+  );
+  console.log(
+    `${URL_PARAMETER_NAME.LOADURL}: ${loadURL}, ${URL_PARAMETER_NAME.LOADLOCAL}: ${localGraphID}, ${URL_PARAMETER_NAME.NEW}: ${createEmptyGraph}`,
+  );
+  if (loadURL) {
+    PPStorage.getInstance().loadGraphFromURL(loadURL);
+    removeUrlParameter(URL_PARAMETER_NAME.LOADURL);
+  } else if (localGraphID) {
+    PPStorage.getInstance().loadGraphFromDB(localGraphID);
+  } else if (fetchFromLocalServer) {
+    PPStorage.getInstance()
+      .getLocallyProvidedGraph(fetchFromLocalServer)
+      .then((serializedGraph) => {
+        PPGraph.currentGraph.configure(serializedGraph, hri.random());
+      });
+  } else if (!createEmptyGraph) {
+    PPStorage.getInstance().loadGraphFromDB();
+  }
 };
