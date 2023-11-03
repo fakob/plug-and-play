@@ -184,7 +184,7 @@ export class JSONValues extends JSONCustomFunction {
   }
 }
 
-const BREAK_MAX_SOCKETS = 50;
+const BREAK_MAX_SOCKETS = 100;
 // actually works for arrays as well
 export class Break extends PPNode {
   public getName(): string {
@@ -220,7 +220,7 @@ export class Break extends PPNode {
     this.outputSocketArray.forEach(
       (socket) => {
         const key = socket.name;
-        const allSegments = key.split(".");
+        const allSegments = key.split(":::");
         const value = allSegments.reduce((prev, segment) => prev[segment], currentJSON);
         outputObject[key] = value;
       }
@@ -254,13 +254,15 @@ export class Break extends PPNode {
         // if we only have one child, keep unpacking until thers is none or several
         let currentPath = argument;
         let currentVal = json[argument];
-        let currentKeys = Object.keys(currentVal);
-        while (typeof currentVal == "object" && currentKeys.length == 1) {
+        while (currentVal !== undefined && currentVal !== null && typeof currentVal == "object" && Object.keys(currentVal).length == 1) {
+          const currentKeys = Object.keys(currentVal);
           const currentKey = currentKeys[0];
           currentVal = currentVal[currentKey];
-          currentPath += "." + currentKey;
-          currentKeys = Object.keys(currentVal);
+          currentPath += ":::" + currentKey;
+          //currentKeys = Object.keys(currentVal);
         }
+
+        console.log("SETTIN IT");
         this.addOutput(currentPath, dataToType(currentVal), true, {}, false);
       }
     });
