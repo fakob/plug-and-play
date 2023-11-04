@@ -635,7 +635,7 @@ export default class PPNode extends PIXI.Container {
 
   public drawErrorBoundary(): void {
     this._BackgroundGraphicsRef.beginFill(
-      this.getColor().hexNumber(),
+      this.status.getColor().hexNumber(),
       this.getOpacity(),
     );
     this._BackgroundGraphicsRef.drawRoundedRect(
