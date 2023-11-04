@@ -178,14 +178,14 @@ export class GRAPH_PIE extends DRAW_Base {
       const val = (slice.Value * PIE_GRAPH_RESOLUTION) / total;
       return val - Math.floor(val);
     });
-    const totalRemainingSteps = remainders.reduce(
-      (prev, curr) => prev + curr,
-      0,
-    );
+
+    //console.log('remainders : ' + JSON.stringify(remainders));
+    let totalRemainingSteps = remainders.reduce((prev, curr) => prev + curr, 0);
+    totalRemainingSteps = Math.ceil(totalRemainingSteps);
+    //console.log('remainding steps: ' + totalRemainingSteps);
 
     // draw all slices
     pieSlices.forEach((pieSlice, index) => {
-      pieSlice.Value |= 0;
       pieSlice.Color =
         pieSlice.Color !== undefined
           ? TRgba.fromObject(pieSlice.Color)
@@ -207,7 +207,7 @@ export class GRAPH_PIE extends DRAW_Base {
       const degreesPre = currDegrees;
       const endIndex =
         PIE_GRAPH_RESOLUTION * partOfTotal +
-        (index < totalRemainingSteps ? 1 : 0);
+        (index < totalRemainingSteps ? 1.0 : 0.0);
 
       for (let i = 0; i < endIndex; i++) {
         const currRadian = RADIAN_PER_DEGREES * currDegrees;
