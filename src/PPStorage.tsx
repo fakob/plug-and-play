@@ -357,6 +357,7 @@ export default class PPStorage {
         id: newId,
         name,
       });
+      updateLocalIdInURL(newId);
     } else {
       await this.saveGraphToDabase(
         existingGraph.id,
