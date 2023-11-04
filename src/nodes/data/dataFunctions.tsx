@@ -714,3 +714,23 @@ export class Reduce extends ArrayFunction {
     return ['Array'].concat(super.getTags());
   }
 }
+
+export class Sort extends ArrayFunction {
+  public getName(): string {
+    return 'Sort array';
+  }
+
+  public getDescription(): string {
+    return 'Sort an array, optionally using your own filter condition';
+  }
+
+  protected getDefaultFunction(): string {
+    return '(ArrayIn, InnerCode) => { \n\
+      return ArrayIn.sort(eval(InnerCode)) \n\
+    }';
+  }
+
+  protected getInnerCode(): string {
+    return '(a, b) => a - b';
+  }
+}

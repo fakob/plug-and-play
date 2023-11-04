@@ -1,5 +1,4 @@
 import { TRgba } from '../../utils/interfaces';
-import { AbstractType } from './abstractType';
 import { ArrayType } from './arrayType';
 
 // this one forces data to arrive in the form of an array of objects with specific properties
