@@ -23,7 +23,7 @@ export class GraphInputType extends ArrayType {
   }
 
   private static parseEntryIntoGraphInputPoint(arrayEntry: any) {
-    let valueToUse = undefined;
+    let valueToUse = NaN;
     let nameToUse = undefined;
     let colorToUse = undefined;
     if (typeof arrayEntry === 'number') {
@@ -43,7 +43,7 @@ export class GraphInputType extends ArrayType {
           (entry) => typeof entry == 'number',
         );
         if (firstNumber !== undefined) {
-          valueToUse = firstNumber;
+          valueToUse = firstNumber as number;
         } else {
           // continue trying to parse some string into our elusive value
           Object.values(arrayEntry).forEach((entry) => {
@@ -56,7 +56,15 @@ export class GraphInputType extends ArrayType {
           });
         }
       }
-      nameToUse = arrayEntry['Name'];
+      if ('Name' in arrayEntry) {
+        nameToUse = arrayEntry['Name'];
+      } else {
+        // see if any other field here can be of use
+        nameToUse =
+          Object.values(arrayEntry).find(
+            (entry) => typeof entry === 'string',
+          ) || '';
+      }
       colorToUse = arrayEntry['Color'];
     } else if (typeof arrayEntry == 'string') {
       return { Value: parseFloat(arrayEntry), Name: '', Color: undefined };
@@ -85,9 +93,9 @@ export class GraphInputType extends ArrayType {
     }
     if (Array.isArray(dataArray)) {
       // check out all the array entries to see if they are any good
-      const parsedArray: GraphInputPoint[] = dataArray.map(
-        GraphInputType.parseEntryIntoGraphInputPoint,
-      );
+      const parsedArray: GraphInputPoint[] = dataArray
+        .map(GraphInputType.parseEntryIntoGraphInputPoint)
+        .filter((entry) => !Number.isNaN(entry.Value));
       return parsedArray;
     } else {
       return [];
