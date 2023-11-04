@@ -8,6 +8,7 @@ import { DynamicEnumType } from './dynamicEnumType';
 import { EnumType } from './enumType';
 import { FileType } from './fileType';
 import { FunctionType } from './functionType';
+import { GraphInputType } from './graphInputType';
 import { ImageType } from './imageType';
 import { JSONType } from './jsonType';
 import { NumberType } from './numberType';
@@ -31,4 +32,5 @@ export const allDataTypes = {
   CodeType: CodeType,
   EnumType: EnumType,
   DynamicEnumType: DynamicEnumType,
+  GraphInputType: GraphInputType,
 };
