@@ -635,7 +635,7 @@ export default class PPNode extends PIXI.Container {
 
   public drawErrorBoundary(): void {
     this._BackgroundGraphicsRef.beginFill(
-      new TRgba(255, 0, 0).hexNumber(),
+      this.getColor().hexNumber(),
       this.getOpacity(),
     );
     this._BackgroundGraphicsRef.drawRoundedRect(
@@ -832,7 +832,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
       const errorText = new PIXI.Text(this.status.message);
       errorText.x = -50;
       errorText.y = this.height;
-      errorText.style.fill = new TRgba(255, 128, 128).hexNumber();
+      errorText.style.fill = this.status.getColor().hexNumber();
       errorText.style.fontSize = 18;
       this._CommentRef.addChild(errorText);
     }
