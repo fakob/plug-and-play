@@ -20,7 +20,7 @@ export class GraphInputType extends ArrayType {
   }
 
   getColor(): TRgba {
-    return new TRgba(204, 183, 255);
+    return new TRgba(154, 183, 255);
   }
 
   private static parseEntryIntoGraphInputPoint(arrayEntry: any) {
