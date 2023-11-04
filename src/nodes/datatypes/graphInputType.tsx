@@ -69,8 +69,20 @@ export class GraphInputType extends ArrayType {
     // lets hope its an array, if not then we will have to turn something into an array
     let dataArray: any = data;
     if (typeof data === 'object') {
-      // its an object, lets see if there is an array in here
-      dataArray = Object.values(data).find((entry) => Array.isArray(entry));
+      // its an object, lets see if there is an array in here that contains numbers or objects
+      Object.values(data).forEach((potentialArray) => {
+        if (Array.isArray(potentialArray) && potentialArray.length > 0) {
+          // promising
+          const testSample = potentialArray[0];
+          if (
+            typeof testSample === 'number' ||
+            (typeof testSample === 'string' &&
+              !Number.isNaN(parseFloat(testSample)))
+          ) {
+            dataArray = potentialArray;
+          }
+        }
+      });
     }
     if (Array.isArray(dataArray)) {
       // check out all the array entries to see if they are any good
