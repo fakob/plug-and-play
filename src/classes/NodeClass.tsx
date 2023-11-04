@@ -791,10 +791,10 @@ export default class PPNode extends PIXI.Container {
   }
 
   protected setStatus(status : PNPStatus){
-    //if (JSON.stringify(this.status) !== JSON.stringify(status)){
+    if (JSON.stringify(this.status.message) !== JSON.stringify(status.message)){
       this.status = status;
       this.drawNodeShape();
-    //}
+    }
   }
 
   drawComment(): void {
@@ -956,7 +956,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
       setTimeout(() => {
         activeExecution.clear();
         activeExecution.beginFill(
-          new PIXI.Color(this.status.getColor()).toNumber(),
+          this.status.getColor().hexNumber(),
           0.4 - i * (0.4 / iterations),
         );
 

@@ -85,7 +85,7 @@ export class NodeExecutionError extends PNPError {
   }
 
   public getColor(): TRgba {
-    return TRgba.fromString('#CCFFFF'); // Jakob please decide on color (Red??)
+    return new TRgba(255, 0, 0); // Jakob please decide on color (Red??)
   }
 }
 
