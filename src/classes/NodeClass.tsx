@@ -47,6 +47,7 @@ import FlowLogic from './FlowLogic';
 import InterfaceController, { ListenEvent } from '../InterfaceController';
 import { TextStyle } from 'pixi.js';
 import { JSONType } from '../nodes/datatypes/jsonType';
+import { NodeConfigurationError, NodeExecutionError, PNPError, PNPStatus, PNPSuccess } from './ErrorClass';
 
 // export default class PPNode extends PIXI.Container implements Tooltipable {
 export default class PPNode extends PIXI.Container {
@@ -72,8 +73,7 @@ export default class PPNode extends PIXI.Container {
   nodeSelectionHeader: NodeHeaderClass;
   lastTimeTicked = 0;
 
-  successfullyExecuted = true;
-  lastError = '';
+  status : PNPStatus = new PNPSuccess();
 
   inputSocketArray: Socket[] = [];
   nodeTriggerSocketArray: Socket[] = [];
@@ -432,6 +432,7 @@ export default class PPNode extends PIXI.Container {
         const sockets = nodeConfig.socketArray;
         sockets.forEach((item) => mapSocket(item));
       } catch (error) {
+        this.setStatus(new NodeConfigurationError(error))
         console.error(
           `Could not configure node: ${this.name}(${this.id})`,
           error,
@@ -738,7 +739,7 @@ export default class PPNode extends PIXI.Container {
     // update selection
 
     this._BackgroundGraphicsRef.clear();
-    if (!this.successfullyExecuted) {
+    if (this.status.isError()) {
       this.drawErrorBoundary();
     }
     this.drawBackground();
@@ -789,6 +790,13 @@ export default class PPNode extends PIXI.Container {
     });
   }
 
+  protected setStatus(status : PNPStatus){
+    if (JSON.stringify(status) !== JSON.stringify(status)){
+      this.status = status;
+      this.drawNodeShape();
+    }
+  }
+
   drawComment(): void {
     this._CommentRef.removeChildren();
     if (PPGraph.currentGraph._showComments) {
@@ -820,8 +828,8 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
       this._CommentRef.addChild(debugText);
       this._CommentRef.addChild(nodeComment);
     }
-    if (!this.successfullyExecuted) {
-      const errorText = new PIXI.Text(this.lastError);
+    if (!this.status.isError()) {
+      const errorText = new PIXI.Text(this.status.getName());
       errorText.x = -50;
       errorText.y = -50;
       errorText.style.fill = new TRgba(255, 128, 128).hexNumber();
@@ -947,9 +955,9 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     for (let i = 1; i <= iterations; i++) {
       setTimeout(() => {
         activeExecution.clear();
-        if (this.successfullyExecuted) {
+        if (this.status.isError()) {
           activeExecution.beginFill(
-            new PIXI.Color('#CCFFFF').toNumber(),
+            new PIXI.Color(this.status.getColor()).toNumber(),
             0.4 - i * (0.4 / iterations),
           );
         } else {
@@ -976,26 +984,24 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
 
   // Don't call this from outside unless you know very well what you are doing, you are probably looking for executeOptimizedChain()
   public async execute(): Promise<void> {
-    const executedSuccessOld = this.successfullyExecuted;
     try {
-      this.successfullyExecuted = true;
       if (PPGraph.currentGraph.showExecutionVisualisation) {
         this.renderOutlineThrottled();
       }
       await this.rawExecute();
       this.drawComment();
+      this.setStatus(new PNPSuccess());
     } catch (error) {
-      this.lastError = error;
+
+      if (error instanceof PNPError){
+        this.status = error;
+      } else{
+        this.status = new NodeExecutionError(error.stack);
+      }
       console.log(
         `Node ${this.name}(${this.id}) execution error:  ${error.stack}`,
       );
-      this.successfullyExecuted = false;
-    }
-    if (
-      executedSuccessOld !== this.successfullyExecuted ||
-      !this.successfullyExecuted
-    ) {
-      this.resizeAndDraw();
+
     }
   }
 
