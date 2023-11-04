@@ -831,7 +831,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     if (this.status.isError()) {
       const errorText = new PIXI.Text(this.status.message);
       errorText.x = -50;
-      errorText.y = this.height;
+      errorText.y = this.nodeHeight;
       errorText.style.fill = this.status.getColor().hexNumber();
       errorText.style.fontSize = 18;
       this._CommentRef.addChild(errorText);
