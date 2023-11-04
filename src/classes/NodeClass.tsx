@@ -791,10 +791,10 @@ export default class PPNode extends PIXI.Container {
   }
 
   protected setStatus(status : PNPStatus){
-    if (JSON.stringify(status) !== JSON.stringify(status)){
+    //if (JSON.stringify(this.status) !== JSON.stringify(status)){
       this.status = status;
       this.drawNodeShape();
-    }
+    //}
   }
 
   drawComment(): void {
@@ -828,10 +828,10 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
       this._CommentRef.addChild(debugText);
       this._CommentRef.addChild(nodeComment);
     }
-    if (!this.status.isError()) {
-      const errorText = new PIXI.Text(this.status.getName());
+    if (this.status.isError()) {
+      const errorText = new PIXI.Text(this.status.message);
       errorText.x = -50;
-      errorText.y = -50;
+      errorText.y = this.height;
       errorText.style.fill = new TRgba(255, 128, 128).hexNumber();
       errorText.style.fontSize = 18;
       this._CommentRef.addChild(errorText);
@@ -955,17 +955,10 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     for (let i = 1; i <= iterations; i++) {
       setTimeout(() => {
         activeExecution.clear();
-        if (this.status.isError()) {
-          activeExecution.beginFill(
-            new PIXI.Color(this.status.getColor()).toNumber(),
-            0.4 - i * (0.4 / iterations),
-          );
-        } else {
-          activeExecution.beginFill(
-            new TRgba(255, 0, 0).hexNumber(),
-            1.0 - i * (1.0 / iterations),
-          );
-        }
+        activeExecution.beginFill(
+          new PIXI.Color(this.status.getColor()).toNumber(),
+          0.4 - i * (0.4 / iterations),
+        );
 
         activeExecution.drawRoundedRect(
           NODE_MARGIN,
@@ -984,19 +977,19 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
 
   // Don't call this from outside unless you know very well what you are doing, you are probably looking for executeOptimizedChain()
   public async execute(): Promise<void> {
+    this.setStatus(new PNPSuccess());
     try {
       if (PPGraph.currentGraph.showExecutionVisualisation) {
         this.renderOutlineThrottled();
       }
       await this.rawExecute();
       this.drawComment();
-      this.setStatus(new PNPSuccess());
     } catch (error) {
 
       if (error instanceof PNPError){
-        this.status = error;
+        this.setStatus(error);
       } else{
-        this.status = new NodeExecutionError(error.stack);
+        this.setStatus(new NodeExecutionError(error.stack));
       }
       console.log(
         `Node ${this.name}(${this.id}) execution error:  ${error.stack}`,

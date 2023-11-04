@@ -50,7 +50,7 @@ export class PNPSuccess extends PNPStatus {
   }
 
   public getColor(): TRgba {
-    return TRgba.black();
+    return TRgba.white();
   }
 }
 
