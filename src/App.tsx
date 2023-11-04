@@ -262,7 +262,8 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     );
 
     window.addEventListener('popstate', () => {
-      loadGraph();
+      const urlParams = new URLSearchParams(window.location.search);
+      loadGraph(urlParams);
     });
 
     // create viewport
@@ -397,7 +398,8 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     // load plug and playground settings
     PPStorage.getInstance().applyGestureMode(viewport.current);
 
-    loadGraph();
+    const urlParams = new URLSearchParams(window.location.search);
+    loadGraph(urlParams);
 
     console.log('PPGraph.currentGraph:', PPGraph.currentGraph);
 

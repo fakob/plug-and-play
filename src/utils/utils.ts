@@ -846,8 +846,7 @@ export const getExtensionFromLocalResourceId = (localResourceId) => {
   return getFileExtension(fileName);
 };
 
-export const loadGraph = () => {
-  const urlParams = new URLSearchParams(window.location.search);
+export const loadGraph = (urlParams: URLSearchParams) => {
   const loadURL = urlParams.get(URL_PARAMETER_NAME.LOADURL);
   const localGraphID = urlParams.get(URL_PARAMETER_NAME.LOADLOCAL);
   const createEmptyGraph = urlParams.get(URL_PARAMETER_NAME.NEW);
