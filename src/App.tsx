@@ -61,8 +61,8 @@ import {
   controlOrMetaKey,
   cutOrCopyClipboard,
   isPhone,
+  loadGraph,
   pasteClipboard,
-  removeUrlParameter,
   roundNumber,
 } from './utils/utils';
 import { zoomToFitNodes } from './pixi/utils-pixi';
@@ -261,6 +261,11 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
       },
     );
 
+    window.addEventListener('popstate', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      loadGraph(urlParams);
+    });
+
     // create viewport
     viewport.current = new Viewport({
       screenWidth: window.innerWidth,
@@ -394,22 +399,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     PPStorage.getInstance().applyGestureMode(viewport.current);
 
     const urlParams = new URLSearchParams(window.location.search);
-    const loadURL = urlParams.get('loadURL');
-    const createEmptyGraph = urlParams.get('new');
-    const fetchFromLocalServer = urlParams.get('fetchLocalGraph');
-    console.log('loadURL: ', loadURL, 'new', createEmptyGraph);
-    if (loadURL) {
-      PPStorage.getInstance().loadGraphFromURL(loadURL);
-      removeUrlParameter('loadURL');
-    } else if (fetchFromLocalServer) {
-      PPStorage.getInstance()
-        .getLocallyProvidedGraph(fetchFromLocalServer)
-        .then((serializedGraph) => {
-          PPGraph.currentGraph.configure(serializedGraph, hri.random());
-        });
-    } else if (!createEmptyGraph) {
-      PPStorage.getInstance().loadGraphFromDB();
-    }
+    loadGraph(urlParams);
 
     console.log('PPGraph.currentGraph:', PPGraph.currentGraph);
 
