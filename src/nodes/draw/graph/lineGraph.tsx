@@ -7,6 +7,10 @@ import { BooleanType } from '../../datatypes/booleanType';
 import { TRgba } from '../../../utils/interfaces';
 import { ColorType } from '../../datatypes/colorType';
 import { DRAW_Base, injectedDataName } from '../abstract';
+import {
+  GraphInputPoint,
+  GraphInputType,
+} from '../../datatypes/graphInputType';
 
 const inputDataName = 'Input Data';
 const inputHeightName = 'Height';
@@ -24,15 +28,6 @@ const inputShowValuesFontSize = 'Font size';
 const inputColorName = 'Color';
 const inputLineWidthName = 'Line Width';
 
-class LineGraphPoint {
-  Value: number;
-  Name: string | undefined;
-
-  constructor(inValue, inName) {
-    this.Name = inName;
-    this.Value = inValue;
-  }
-}
 export class GRAPH_LINE extends DRAW_Base {
   public getName(): string {
     return 'Draw Line Graph';
@@ -44,7 +39,7 @@ export class GRAPH_LINE extends DRAW_Base {
 
   protected getDefaultIO(): Socket[] {
     return [
-      new Socket(SOCKET_TYPE.IN, inputDataName, new ArrayType(), [
+      new Socket(SOCKET_TYPE.IN, inputDataName, new GraphInputType(), [
         { Value: 0, Name: 'First' },
         { Value: 1, Name: 'Second' },
         { Value: 5 },
@@ -155,7 +150,7 @@ export class GRAPH_LINE extends DRAW_Base {
       ],
     };
 
-    const points: LineGraphPoint[] = inputObject[inputDataName];
+    const points: GraphInputPoint[] = inputObject[inputDataName];
     if (!points.length) {
       return;
     }

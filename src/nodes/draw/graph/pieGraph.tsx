@@ -6,6 +6,10 @@ import { NumberType } from '../../datatypes/numberType';
 import { BooleanType } from '../../datatypes/booleanType';
 import * as PIXI from 'pixi.js';
 import { TRgba } from '../../../utils/interfaces';
+import {
+  GraphInputPoint,
+  GraphInputType,
+} from '../../datatypes/graphInputType';
 
 const inputDataName = 'Input Data';
 const inputRadius = 'Radius';
@@ -18,17 +22,6 @@ const inputDegreesTotal = 'Degrees In Total';
 const inputShowPercentage = 'Percentage';
 const input3DRatio = '3D ratio';
 const inputDistanceFromCenter = 'Distance From Center';
-
-class PieSlice {
-  Value: number;
-  Name: string | undefined;
-  Color: TRgba | undefined;
-
-  constructor(inValue, inName) {
-    this.Name = inName;
-    this.Value = inValue;
-  }
-}
 
 interface PieDrawnSlice {
   highestY: number;
@@ -52,7 +45,7 @@ export class GRAPH_PIE extends DRAW_Base {
 
   protected getDefaultIO(): Socket[] {
     return [
-      new Socket(SOCKET_TYPE.IN, inputDataName, new ArrayType(), [
+      new Socket(SOCKET_TYPE.IN, inputDataName, new GraphInputType(), [
         { Value: 5, Name: 'Big slice', Color: new TRgba(33, 150, 243, 1) },
         { Value: 3, Name: 'Small slice', Color: new TRgba(251, 192, 45, 1) },
         {
@@ -154,7 +147,7 @@ export class GRAPH_PIE extends DRAW_Base {
 
     const graphics = new PIXI.Graphics();
 
-    const pieSlices: PieSlice[] = inputObject[inputDataName];
+    const pieSlices: GraphInputPoint[] = inputObject[inputDataName];
     // fail error if invalid input
     if (typeof pieSlices !== 'object') {
       return;
