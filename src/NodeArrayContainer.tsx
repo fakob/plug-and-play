@@ -172,11 +172,11 @@ ${props.property
                 flexGrow: 1,
               }}
             >
-              {!props.property.successfullyExecuted && (
+              {props.property.status.isError() && (
                 <Box
                   title={JSON.stringify(
-                    props.property.lastError,
-                    Object.getOwnPropertyNames(props.property.lastError),
+                    props.property.status.getName(),
+                    Object.getOwnPropertyNames(props.property.status.message),
                   )}
                   sx={{
                     fontSize: '16px',
@@ -446,9 +446,9 @@ export const NodeArrayContainer: React.FunctionComponent<
     return fields.some((field) => item[field].toLowerCase().includes(filter));
   };
 
-  const customSort = (a, b) => {
+  const customSort = (a: PPNode, b: PPNode) => {
     const order =
-      (+!b.successfullyExecuted - +!a.successfullyExecuted) * 100 +
+      (+b.status.isError() - +a.status.isError()) * 100 +
         (+(b.type === 'Macro') - +(a.type === 'Macro')) * 10 ||
       a.name.localeCompare(b.name);
     return order;

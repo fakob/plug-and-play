@@ -47,6 +47,7 @@ import FlowLogic from './FlowLogic';
 import InterfaceController, { ListenEvent } from '../InterfaceController';
 import { TextStyle } from 'pixi.js';
 import { JSONType } from '../nodes/datatypes/jsonType';
+import { NodeConfigurationError, NodeExecutionError, PNPError, PNPStatus, PNPSuccess } from './ErrorClass';
 
 // export default class PPNode extends PIXI.Container implements Tooltipable {
 export default class PPNode extends PIXI.Container {
@@ -72,8 +73,7 @@ export default class PPNode extends PIXI.Container {
   nodeSelectionHeader: NodeHeaderClass;
   lastTimeTicked = 0;
 
-  successfullyExecuted = true;
-  lastError = '';
+  status : PNPStatus = new PNPSuccess();
 
   inputSocketArray: Socket[] = [];
   nodeTriggerSocketArray: Socket[] = [];
@@ -432,6 +432,7 @@ export default class PPNode extends PIXI.Container {
         const sockets = nodeConfig.socketArray;
         sockets.forEach((item) => mapSocket(item));
       } catch (error) {
+        this.setStatus(new NodeConfigurationError(error))
         console.error(
           `Could not configure node: ${this.name}(${this.id})`,
           error,
@@ -634,7 +635,7 @@ export default class PPNode extends PIXI.Container {
 
   public drawErrorBoundary(): void {
     this._BackgroundGraphicsRef.beginFill(
-      new TRgba(255, 0, 0).hexNumber(),
+      this.getColor().hexNumber(),
       this.getOpacity(),
     );
     this._BackgroundGraphicsRef.drawRoundedRect(
@@ -738,7 +739,7 @@ export default class PPNode extends PIXI.Container {
     // update selection
 
     this._BackgroundGraphicsRef.clear();
-    if (!this.successfullyExecuted) {
+    if (this.status.isError()) {
       this.drawErrorBoundary();
     }
     this.drawBackground();
@@ -789,6 +790,13 @@ export default class PPNode extends PIXI.Container {
     });
   }
 
+  protected setStatus(status : PNPStatus){
+    if (JSON.stringify(this.status.message) !== JSON.stringify(status.message)){
+      this.status = status;
+      this.drawNodeShape();
+    }
+  }
+
   drawComment(): void {
     this._CommentRef.removeChildren();
     if (PPGraph.currentGraph._showComments) {
@@ -820,11 +828,11 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
       this._CommentRef.addChild(debugText);
       this._CommentRef.addChild(nodeComment);
     }
-    if (!this.successfullyExecuted) {
-      const errorText = new PIXI.Text(this.lastError);
+    if (this.status.isError()) {
+      const errorText = new PIXI.Text(this.status.message);
       errorText.x = -50;
-      errorText.y = -50;
-      errorText.style.fill = new TRgba(255, 128, 128).hexNumber();
+      errorText.y = this.height;
+      errorText.style.fill = this.status.getColor().hexNumber();
       errorText.style.fontSize = 18;
       this._CommentRef.addChild(errorText);
     }
@@ -947,17 +955,10 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     for (let i = 1; i <= iterations; i++) {
       setTimeout(() => {
         activeExecution.clear();
-        if (this.successfullyExecuted) {
-          activeExecution.beginFill(
-            new PIXI.Color('#CCFFFF').toNumber(),
-            0.4 - i * (0.4 / iterations),
-          );
-        } else {
-          activeExecution.beginFill(
-            new TRgba(255, 0, 0).hexNumber(),
-            1.0 - i * (1.0 / iterations),
-          );
-        }
+        activeExecution.beginFill(
+          this.status.getColor().hexNumber(),
+          0.4 - i * (0.4 / iterations),
+        );
 
         activeExecution.drawRoundedRect(
           NODE_MARGIN,
@@ -976,26 +977,24 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
 
   // Don't call this from outside unless you know very well what you are doing, you are probably looking for executeOptimizedChain()
   public async execute(): Promise<void> {
-    const executedSuccessOld = this.successfullyExecuted;
+    this.setStatus(new PNPSuccess());
     try {
-      this.successfullyExecuted = true;
       if (PPGraph.currentGraph.showExecutionVisualisation) {
         this.renderOutlineThrottled();
       }
       await this.rawExecute();
       this.drawComment();
     } catch (error) {
-      this.lastError = error;
+
+      if (error instanceof PNPError){
+        this.setStatus(error);
+      } else{
+        this.setStatus(new NodeExecutionError(error.stack));
+      }
       console.log(
         `Node ${this.name}(${this.id}) execution error:  ${error.stack}`,
       );
-      this.successfullyExecuted = false;
-    }
-    if (
-      executedSuccessOld !== this.successfullyExecuted ||
-      !this.successfullyExecuted
-    ) {
-      this.resizeAndDraw();
+
     }
   }
 
