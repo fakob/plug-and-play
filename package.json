@@ -35,7 +35,7 @@
     "marked": "^9.1.4",
     "match-sorter": "^6.3.1",
     "memorystore": "^1.6.7",
-    "monaco-editor": "^0.44.0",
+    "monaco-editor": "0.43.0",
     "monaco-editor-webpack-plugin": "^7.1.0",
     "notistack": "^3.0.1",
     "object-fit-math": "^1.0.0",

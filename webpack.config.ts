@@ -105,7 +105,7 @@ module.exports = (env, argv) => {
       }),
       new MonacoWebpackPlugin({
         // available options are documented at https://github.com/Microsoft/monaco-editor-webpack-plugin#options
-        languages: ['typescript', 'javascript'],
+        languages: ['json', 'javascript', 'typescript'],
       }),
       new CopyPlugin({
         patterns: [
@@ -118,10 +118,9 @@ module.exports = (env, argv) => {
     ],
   };
 
-  const envConfig = require(path.resolve(
-    __dirname,
-    `./webpack.${argv.mode}.ts`,
-  ))(env);
+  const envConfig = require(
+    path.resolve(__dirname, `./webpack.${argv.mode}.ts`),
+  )(env);
 
   const mergedConfig = merge(config, envConfig, {
     devServer: {
