@@ -20,6 +20,8 @@ const JSONParamName = 'Path';
 const JSONInsert = 'New value';
 const outValueName = 'Value';
 
+const JSON_SEPARATOR = "->";
+
 export class JSONGet extends PPNode {
   constructor(name: string, customArgs: CustomArgs) {
     super(name, {
@@ -220,7 +222,7 @@ export class Break extends PPNode {
     this.outputSocketArray.forEach(
       (socket) => {
         const key = socket.name;
-        const allSegments = key.split(":::");
+        const allSegments = key.split(JSON_SEPARATOR);
         const value = allSegments.reduce((prev, segment) => prev[segment], currentJSON);
         outputObject[key] = value;
       }
@@ -258,7 +260,7 @@ export class Break extends PPNode {
           const currentKeys = Object.keys(currentVal);
           const currentKey = currentKeys[0];
           currentVal = currentVal[currentKey];
-          currentPath += ":::" + currentKey;
+          currentPath += JSON_SEPARATOR + currentKey;
           //currentKeys = Object.keys(currentVal);
         }
 
