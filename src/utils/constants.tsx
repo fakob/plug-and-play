@@ -8,6 +8,13 @@ import { TRgba } from '../utils/interfaces';
 
 export const PP_VERSION = 0.1;
 
+export const URL_PARAMETER_NAME = {
+  LOADURL: 'loadURL',
+  LOADLOCAL: 'loadLocal',
+  NEW: 'new',
+  FETCHLOCALGRAPH: 'fetchLocalGraph',
+};
+
 export const GET_STARTED_GRAPH = 'Get started - Welcome to Plug and Playground';
 
 export const GESTUREMODE = {
