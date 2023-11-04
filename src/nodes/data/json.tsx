@@ -242,7 +242,7 @@ export class Break extends PPNode {
       (socket) => socket.socketType === SOCKET_TYPE.OUT
     );
     const socketsToBeRemoved = currentOutputSockets.filter(
-      (socket) => json[socket.name] == undefined
+      (socket) => !(socket.name in json)
     );
     const argumentsToBeAdded = Object.keys(json).filter(
       (key) => !currentOutputSockets.some((socket) => socket.name === key)
@@ -252,7 +252,7 @@ export class Break extends PPNode {
     });
     argumentsToBeAdded.forEach((argument) => {
       // block creation of new sockets after a while to not freeze the whole editor
-      if (this.outputSocketArray.length < BREAK_MAX_SOCKETS) {
+      if (true || this.outputSocketArray.length < BREAK_MAX_SOCKETS) {
         // if we only have one child, keep unpacking until thers is none or several
         let currentPath = argument;
         let currentVal = json[argument];
