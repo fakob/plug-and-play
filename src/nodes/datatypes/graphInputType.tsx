@@ -20,7 +20,7 @@ export class GraphInputType extends ArrayType {
   }
 
   getColor(): TRgba {
-    return new TRgba(148, 48, 196);
+    return new TRgba(204, 183, 255);
   }
 
   private static parseEntryIntoGraphInputPoint(arrayEntry: any) {
@@ -72,7 +72,7 @@ export class GraphInputType extends ArrayType {
       // its an object, lets see if there is an array in here that contains numbers or objects
       Object.values(data).forEach((potentialArray) => {
         if (Array.isArray(potentialArray) && potentialArray.length > 0) {
-          // promising
+          // found an array, lets see what the elements inside look like
           const testSample = potentialArray[0];
           if (
             typeof testSample === 'number' ||
