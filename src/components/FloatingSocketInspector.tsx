@@ -36,20 +36,20 @@ function PaperComponent(props) {
 
 type MyProps = {
   socketInspectorPosition: PIXI.Point;
-  socketToInspect: Socket;
+  socketsToInspect: Socket[];
   randomMainColor: string;
   closeSocketInspector: () => void;
 };
 
 export const FloatingSocketInspector: React.FunctionComponent<MyProps> = (
-  props
+  props,
 ) => {
   const showFloatingSocketInspector = Boolean(props.socketInspectorPosition);
   const [newWidth, setNewWidth] = useState(undefined);
 
   const handleWidthPercentage = (
     event: React.MouseEvent<HTMLElement>,
-    newWidth: number | null
+    newWidth: number | null,
   ) => {
     setNewWidth(newWidth);
   };
@@ -66,78 +66,85 @@ export const FloatingSocketInspector: React.FunctionComponent<MyProps> = (
           pb: 1,
           left: Math.min(
             window.innerWidth - TOOLTIP_WIDTH,
-            props.socketInspectorPosition.x
+            props.socketInspectorPosition.x,
           ),
           top: props.socketInspectorPosition.y,
           display: showFloatingSocketInspector ? 'auto' : 'none',
           width: newWidth ? newWidth : TOOLTIP_WIDTH,
         }}
-        socketinfo={props.socketToInspect}
+        socketinfo={props.socketsToInspect[0]}
       >
-        <Box
-          id="draggable-title"
-          sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            cursor: 'move',
-            fontSize: 'small',
-          }}
-        >
+        <>
           <Box
+            id="draggable-title"
             sx={{
-              px: '8px',
-              py: '4px',
-              color: 'text.primary',
-              fontWeight: 'medium',
-              display: 'inline-flex',
+              display: 'flex',
+              justifyContent: 'space-between',
               alignItems: 'center',
-              flexGrow: 1,
-              userSelect: 'none',
+              cursor: 'move',
+              fontSize: 'small',
             }}
           >
-            {props.socketToInspect.getNode()?.name}
+            <Box
+              sx={{
+                px: '8px',
+                py: '4px',
+                color: 'text.primary',
+                fontWeight: 'medium',
+                display: 'inline-flex',
+                alignItems: 'center',
+                flexGrow: 1,
+                userSelect: 'none',
+              }}
+            >
+              Floating inspector
+            </Box>
+            <ToggleButtonGroup
+              value={newWidth}
+              exclusive
+              onChange={handleWidthPercentage}
+              size="small"
+              sx={{
+                '& .MuiToggleButtonGroup-grouped': {
+                  border: 0,
+                },
+              }}
+            >
+              <ToggleButton value="0.6">
+                <Icon classes={{ root: styles.iconRoot }}>
+                  <img className={styles.imageIcon} src={DRAWER60M_ICON} />
+                </Icon>
+              </ToggleButton>
+              <ToggleButton value="0.3">
+                <Icon classes={{ root: styles.iconRoot }}>
+                  <img className={styles.imageIcon} src={DRAWER30M_ICON} />
+                </Icon>
+              </ToggleButton>
+            </ToggleButtonGroup>
+            <IconButton size="small" onClick={props.closeSocketInspector}>
+              <CloseIcon sx={{ fontSize: '16px' }} />
+            </IconButton>
           </Box>
-          <ToggleButtonGroup
-            value={newWidth}
-            exclusive
-            onChange={handleWidthPercentage}
-            size="small"
-            sx={{
-              '& .MuiToggleButtonGroup-grouped': {
-                border: 0,
-              },
-            }}
-          >
-            <ToggleButton value="0.6">
-              <Icon classes={{ root: styles.iconRoot }}>
-                <img className={styles.imageIcon} src={DRAWER60M_ICON} />
-              </Icon>
-            </ToggleButton>
-            <ToggleButton value="0.3">
-              <Icon classes={{ root: styles.iconRoot }}>
-                <img className={styles.imageIcon} src={DRAWER30M_ICON} />
-              </Icon>
-            </ToggleButton>
-          </ToggleButtonGroup>
-          <IconButton size="small" onClick={props.closeSocketInspector}>
-            <CloseIcon sx={{ fontSize: '16px' }} />
-          </IconButton>
-        </Box>
-        <Box id="draggable-content">
-          <SocketContainer
-            triggerScrollIntoView={false}
-            key={0}
-            property={props.socketToInspect}
-            index={0}
-            dataType={props.socketToInspect.dataType}
-            isInput={props.socketToInspect.isInput()}
-            hasLink={props.socketToInspect.hasLink()}
-            data={props.socketToInspect.data}
-            randomMainColor={props.randomMainColor}
-            selectedNode={props.socketToInspect.getNode() as PPNode}
-          />
-        </Box>
+          <Box id="draggable-content">
+            {props.socketsToInspect.map((socketToInspect) => (
+              <>
+                <Box>{socketToInspect.getNode()?.name}</Box>
+                <SocketContainer
+                  triggerScrollIntoView={false}
+                  key={0}
+                  property={socketToInspect}
+                  index={0}
+                  dataType={socketToInspect.dataType}
+                  isInput={socketToInspect.isInput()}
+                  hasLink={socketToInspect.hasLink()}
+                  data={socketToInspect.data}
+                  randomMainColor={props.randomMainColor}
+                  selectedNode={socketToInspect.getNode() as PPNode}
+                />
+              </>
+            ))}
+          </Box>
+        </>
       </PaperComponent>
     </ThemeProvider>
   );

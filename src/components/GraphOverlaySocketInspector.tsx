@@ -14,9 +14,7 @@ const GraphOverlaySocketInspector: React.FunctionComponent<
 > = (props) => {
   const [socketInspectorPosition, setSocketInspectorPosition] =
     useState<PIXI.Point>(new PIXI.Point(0, 0));
-  const [socketToInspect, setSocketToInspect] = useState<PPSocket | undefined>(
-    undefined
-  );
+  const [socketsToInspect, setSocketsToInspect] = useState<PPSocket[]>([]);
 
   useEffect(() => {
     InterfaceController.onOpenSocketInspector = openSocketInspector;
@@ -24,22 +22,23 @@ const GraphOverlaySocketInspector: React.FunctionComponent<
   });
 
   const openSocketInspector = (pos = null, socket = null) => {
-    console.log('openSocketInspector');
+    console.log('openSocketInspector', socketsToInspect);
     setSocketInspectorPosition(pos);
-    setSocketToInspect(socket);
+    setSocketsToInspect([...socketsToInspect, socket]);
   };
 
   const closeSocketInspector = () => {
+    console.log('closeSocketInspector');
     setSocketInspectorPosition(null);
-    setSocketToInspect(null);
+    setSocketsToInspect([]);
   };
 
   return (
     <Box sx={{ position: 'relative' }}>
-      {socketToInspect && socketToInspect.getNode() && (
+      {socketsToInspect.length > 0 && socketsToInspect[0].getNode() && (
         <FloatingSocketInspector
           socketInspectorPosition={socketInspectorPosition}
-          socketToInspect={socketToInspect}
+          socketsToInspect={socketsToInspect}
           randomMainColor={props.randomMainColor}
           closeSocketInspector={closeSocketInspector}
         />
