@@ -1007,6 +1007,9 @@ export default class PPGraph {
       link.serialize(),
     );
 
+    // get serialized layouts
+    const layoutsSerialized = this.layouts;
+
     const data = {
       version: PP_VERSION,
       graphSettings: {
@@ -1015,9 +1018,9 @@ export default class PPGraph {
         viewportCenterPosition: this.viewport.center,
         viewportScale: this.viewportScaleX,
       },
-      // controls:
       nodes: nodesSerialized,
       links: linksSerialized,
+      layouts: layoutsSerialized,
     };
 
     return data;
@@ -1106,7 +1109,7 @@ export default class PPGraph {
     this.showExecutionVisualisation =
       data.graphSettings.showExecutionVisualisation ?? true;
 
-    //create nodes
+    // create nodes
     try {
       await Promise.all(
         data.nodes.map(
@@ -1122,6 +1125,10 @@ export default class PPGraph {
       console.log(error);
       return false;
     }
+
+    // create layouts
+    this.layouts = data?.layouts ? data.layouts : LAYOUTS_EMPTY;
+
     // execute all seed nodes to make sure there are values everywhere
     await this.executeAllSeedNodes(Object.values(this.nodes));
 

@@ -84,6 +84,7 @@ export default class InterfaceController {
     target: PIXI.FederatedEventTarget,
   ) => void = () => {}; // called when the graph is right clicked
   static onAddToDashboard: (data: Socket) => void = () => {}; // called when socket inspector should be opened
+  static onRemoveFromDashboard: (data: Socket) => void = () => {}; // called when socket inspector should be opened
   static selectionRedrawn: (pos: PIXI.Point) => void = () => {};
 
   // these were previously only in app.tsx and are still being set from there, but they can be accessed from anywhere

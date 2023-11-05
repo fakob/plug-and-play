@@ -40,6 +40,7 @@ export type SerializedGraph = {
   };
   nodes: SerializedNode[];
   links: SerializedLink[];
+  layouts: any;
 };
 
 export type SerializedSelection = {

@@ -44,7 +44,7 @@ export class JSONType extends AbstractType {
       try {
         return JSON.parse(data);
       } catch (error) {
-        console.log('failed parsing data: ' + data);
+        // console.log('failed parsing data: ' + data);
         if (this.strictParsing) {
           return { InvalidJSON: data };
         }

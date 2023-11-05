@@ -48,6 +48,24 @@ export class AbstractType {
     return <DefaultOutputWidget {...props} />;
   };
 
+  getInputWidgetSize(): any {
+    return {
+      w: 1,
+      h: 1,
+      minW: 1,
+      minH: 1,
+    };
+  }
+
+  getOutputWidgetSize(): any {
+    return {
+      w: 1,
+      h: 1,
+      minW: 1,
+      minH: 1,
+    };
+  }
+
   getDefaultValue(): any {
     return {};
   }
@@ -81,7 +99,7 @@ export class AbstractType {
     return true;
   }
 
-  roundedCorners(): boolean{
+  roundedCorners(): boolean {
     return true;
   }
 }

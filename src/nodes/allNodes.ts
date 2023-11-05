@@ -79,7 +79,7 @@ export const getAllNodeTypes = (): RegisteredNodeTypes => {
     };
     const toReturn = {};
     for (const [categoryKey, categoryValue] of Object.entries(categories)) {
-      console.log(categoryKey, categoryValue);
+      // console.log(categoryKey, categoryValue);
       for (const key of Object.keys(categoryValue)) {
         const nodeConstructor = categoryValue[key];
         if (nodeConstructor.prototype instanceof PPNode) {

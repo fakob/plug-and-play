@@ -16,7 +16,7 @@ export class NumberType extends AbstractType {
     inRound = false,
     inMinValue = 0,
     inMaxValue = 100,
-    stepSize = 0.01
+    stepSize = 0.01,
   ) {
     super();
     this.round = inRound;
@@ -43,6 +43,24 @@ export class NumberType extends AbstractType {
     }
     return <NumberOutputWidget {...props} />;
   };
+
+  getInputWidgetSize(): any {
+    return {
+      w: 2,
+      h: 4,
+      minW: 1,
+      minH: 4,
+    };
+  }
+
+  getOutputWidgetSize(): any {
+    return {
+      w: 1,
+      h: 1,
+      minW: 1,
+      minH: 1,
+    };
+  }
 
   getName(): string {
     return 'Number';

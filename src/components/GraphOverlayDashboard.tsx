@@ -1,13 +1,11 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Box } from '@mui/material';
-import * as PIXI from 'pixi.js';
-import _ from 'lodash';
 import { Responsive, WidthProvider } from 'react-grid-layout';
 import { SocketContainer } from '../SocketContainer';
 import PPNode from '../classes/NodeClass';
-import PPSocket from '../classes/SocketClass';
 import InterfaceController from '../InterfaceController';
 import PPGraph from '../classes/GraphClass';
+import PPSocket from '../classes/SocketClass';
 import { deconstructSocketId } from '../utils/utils';
 import { LAYOUTS_EMPTY } from '../utils/constants';
 
@@ -18,38 +16,62 @@ type GraphOverlayDashboardProps = {
 const GraphOverlayDashboard: React.FunctionComponent<
   GraphOverlayDashboardProps
 > = (props) => {
-  // const [socketInspectorPosition, setSocketInspectorPosition] =
-  //   useState<PIXI.Point>(new PIXI.Point(0, 0));
-  // const [socketsToInspect, setSocketsToInspect] = useState<PPSocket[]>([]);
-  const [layouts, setLayouts] = useState(
-    PPGraph.currentGraph?.layouts || LAYOUTS_EMPTY,
-  );
-  const [breakPoint, setBreakPoint] = useState('lg');
+  const [layouts, setLayouts] = useState(LAYOUTS_EMPTY);
+  const [currentLayout, setCurrentLayout] = useState([]);
   const [columns, setColumns] = useState(12);
-
   const ResponsiveGridLayout = useMemo(() => WidthProvider(Responsive), []);
-
-  const [socketsToInspect, setSocketsToInspect] = useState<PPSocket[]>([]);
 
   useEffect(() => {
     InterfaceController.onAddToDashboard = addToDashboard;
+    InterfaceController.onRemoveFromDashboard = removeFromDashboard;
   }, []);
 
-  const addToDashboard = (socket = null) => {
+  useEffect(() => {
+    console.log(layouts);
+    if (PPGraph.currentGraph?.layouts) {
+      console.log(PPGraph.currentGraph.layouts);
+      setLayouts(PPGraph.currentGraph.layouts);
+      setCurrentLayout(
+        JSON.parse(JSON.stringify(PPGraph.currentGraph.layouts.layout1)),
+      );
+    }
+  }, [PPGraph.currentGraph?.layouts]);
+
+  const addToDashboard = (socket: PPSocket) => {
     console.log('addToDashboard', socket);
     console.log(deconstructSocketId(socket.getSocketId()));
     console.log(layouts);
-    const newCurrentLayout = layouts[breakPoint];
-    newCurrentLayout.push({
-      i: socket.getSocketId(),
-      x: (newCurrentLayout.length * 2) % columns,
-      y: Infinity, // puts it at the bottom
-      w: 2,
-      h: 2,
-    });
-    console.log(newCurrentLayout);
-    // setLayouts({ ...layouts });
-    setSocketsToInspect([...socketsToInspect, socket]);
+    const newCurrentLayout = JSON.parse(
+      JSON.stringify(PPGraph.currentGraph.layouts.layout1),
+    );
+    const socketId = socket.getSocketId();
+    const socketIdExists = newCurrentLayout.find((item) => item.i === socketId);
+    const size = socket.dataType.getInputWidgetSize();
+    if (!socketIdExists) {
+      newCurrentLayout.push({
+        i: socketId,
+        x: (newCurrentLayout.length * 2) % columns,
+        y: Infinity, // puts it at the bottom
+        w: size.w,
+        h: size.h,
+        minW: size.minW,
+        minH: size.minH,
+      });
+      console.log(newCurrentLayout);
+      setCurrentLayout(newCurrentLayout);
+    }
+  };
+
+  const removeFromDashboard = (socket: PPSocket) => {
+    console.log('removeFromDashboard', socket);
+    console.log(deconstructSocketId(socket.getSocketId()));
+    console.log(layouts);
+    const currentLayout = JSON.parse(
+      JSON.stringify(PPGraph.currentGraph.layouts.layout1),
+    );
+    const socketId = socket.getSocketId();
+    const newLayout = currentLayout.filter((item) => item.i !== socketId);
+    setCurrentLayout(newLayout);
   };
 
   const onWidthChange = (
@@ -58,34 +80,33 @@ const GraphOverlayDashboard: React.FunctionComponent<
     cols: number,
     containerPadding: [number, number],
   ) => {
-    console.log(containerWidth, margin, cols, containerPadding);
+    // console.log(containerWidth, margin, cols, containerPadding);
+    setColumns(cols);
   };
 
   const onLayoutChange = (currentLayout, allLayouts) => {
     console.log(currentLayout, allLayouts);
-  };
-
-  const onBreakpointChange = (breakpoint, cols) => {
-    console.log(breakpoint, cols);
-    setBreakPoint(breakPoint);
-    setColumns(cols);
+    if (PPGraph.currentGraph && currentLayout.length > 1) {
+      PPGraph.currentGraph.layouts.layout1 = currentLayout;
+    }
   };
 
   return (
     // <Box sx={{ position: 'relative', zIndex: 2000, background: 'black' }}>
     <ResponsiveGridLayout
-      className="layout"
-      layouts={layouts}
       breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
       cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }}
+      className="layout"
+      layouts={{ lg: currentLayout }}
       style={{ zIndex: 1, pointerEvents: 'none' }}
       margin={[8, 8]}
       rowHeight={48}
       onLayoutChange={onLayoutChange}
-      onBreakpointChange={onBreakpointChange}
       onWidthChange={onWidthChange}
+      draggableHandle=".dragHandle"
+      resizeHandles={['s', 'w', 'e', 'n', 'sw', 'nw', 'se', 'ne']}
     >
-      {layouts.lg.map((item) => {
+      {currentLayout.map((item) => {
         if (item.i === 'placeholder') {
           return (
             <Box key={item.i} sx={{ background: 'red', pointerEvents: 'auto' }}>
@@ -98,12 +119,23 @@ const GraphOverlayDashboard: React.FunctionComponent<
           );
         }
         const { nodeId, socketType, socketName } = deconstructSocketId(item.i);
-        console.log(item, nodeId, socketType, socketName);
+        // console.log(item, nodeId, socketType, socketName);
         const socket = PPGraph.currentGraph
           .getNodeById(nodeId)
           .getSocketByNameAndType(socketName, socketType);
         return (
-          <Box key={item.i} sx={{ background: 'blue', pointerEvents: 'auto' }}>
+          <Box
+            key={item.i}
+            sx={{
+              background: 'blue',
+              pointerEvents: 'auto',
+              filter: 'drop-shadow(0px 0px 24px rgba(0, 0, 0, 0.15))',
+            }}
+          >
+            {/* <Box
+              sx={{ width: '100%', height: '16px' }}
+              className="dragHandle"
+            ></Box> */}
             <SocketContainer
               triggerScrollIntoView={false}
               key={item.i}
@@ -115,6 +147,7 @@ const GraphOverlayDashboard: React.FunctionComponent<
               data={socket.data}
               randomMainColor={props.randomMainColor}
               selectedNode={socket.getNode() as PPNode}
+              onDashboard={true}
             />
           </Box>
         );
