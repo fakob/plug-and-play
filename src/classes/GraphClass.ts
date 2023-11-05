@@ -2,7 +2,12 @@
 import * as PIXI from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
 
-import { NODE_SOURCE, NODE_WIDTH, PP_VERSION } from '../utils/constants';
+import {
+  LAYOUTS_EMPTY,
+  NODE_SOURCE,
+  NODE_WIDTH,
+  PP_VERSION,
+} from '../utils/constants';
 import {
   CustomArgs,
   SerializedGraph,
@@ -50,6 +55,7 @@ export default class PPGraph {
   nodeContainer: PIXI.Container;
   nodes: { [key: string]: PPNode } = {};
   macros: { [key: string]: Macro } = {};
+  layouts: any;
   foregroundCanvas: PIXI.Container;
   id: string;
 
@@ -66,6 +72,7 @@ export default class PPGraph {
     this.viewport = viewport;
     this.id = hri.random();
     console.log('Graph created');
+    this.layouts = LAYOUTS_EMPTY;
 
     this._showComments = true;
     this._showExecutionVisualisation = true;
@@ -1008,6 +1015,7 @@ export default class PPGraph {
         viewportCenterPosition: this.viewport.center,
         viewportScale: this.viewportScaleX,
       },
+      // controls:
       nodes: nodesSerialized,
       links: linksSerialized,
     };

@@ -80,6 +80,8 @@ export interface INodeSearch {
   isNew?: boolean;
 }
 
+export type SerializedControls = Map<string, string>;
+
 export type SerializedNode = {
   type: string;
   id: string;

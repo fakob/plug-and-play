@@ -460,3 +460,15 @@ export const BASIC_VERTEX_SHADER = `
 
 export const PXSHOW_SQL_QUERY = `SELECT json_extract(state,'$.State') as State FROM states
 WHERE service IS 'Store'`;
+
+export const LAYOUTS_EMPTY = {
+  lg: [
+    {
+      x: 0,
+      y: 0,
+      w: 2,
+      h: 2,
+      i: 'placeholder',
+    },
+  ],
+};
