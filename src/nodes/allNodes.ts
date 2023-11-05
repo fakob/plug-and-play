@@ -3,15 +3,16 @@ import * as array from './data/array';
 import * as base from './base';
 import * as booleanlogic from './logic/boolean';
 import * as browser from './utility/browser';
-import * as lineCharts from './draw/graph/lineGraph';
-import * as pieCharts from './draw/graph/pieGraph';
 import * as codeEditor from './codeEditor';
 import * as database from './utility/database';
 import * as dataFunctions from './data/dataFunctions';
 import * as draw from './draw/draw';
-import * as get from './api/http';
 import * as html from './draw/html';
 import * as video from './draw/video';
+import * as lineCharts from './draw/graph/lineGraph';
+import * as pieCharts from './draw/graph/pieGraph';
+import * as draw_meta from './draw/drawMeta';
+import * as get from './api/http';
 import * as image from './image/image';
 import * as json from './data/json';
 import * as xml from './data/xml';
@@ -47,6 +48,7 @@ export const getAllNodeTypes = (): RegisteredNodeTypes => {
       browser,
       charts: lineCharts,
       pieCharts,
+      draw_meta,
       codeEditor,
       database,
       dataFunctions,
