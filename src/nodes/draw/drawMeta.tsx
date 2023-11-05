@@ -19,7 +19,7 @@ export default class DRAw_Get_Bounds extends PPNode {
   }
 
   public getDescription(): string {
-    return 'Returns the origina and width and height of a draw';
+    return 'Returns the bounds from a draw with optional side margin parameter';
   }
 
   public getTags(): string[] {
