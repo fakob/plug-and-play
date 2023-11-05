@@ -19,6 +19,10 @@ export class BooleanType extends AbstractType {
     return <BooleanWidget {...data} />;
   };
 
+  getMetaText(data: any): string {
+    return data ? 'True' : 'False';
+  }
+
   getColor(): TRgba {
     return new TRgba(90, 90, 90);
   }
