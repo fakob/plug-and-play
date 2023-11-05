@@ -417,8 +417,6 @@ Click to edit name`}
               {...renderInputProps}
               inputRef={graphSearchInput}
               randomMainColor={props.randomMainColor}
-              setShowSharePlayground={props.setShowSharePlayground}
-              isLoggedIn={props.isLoggedIn}
             />
           )}
           componentsProps={{

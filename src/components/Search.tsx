@@ -35,26 +35,27 @@ type GraphSearchInputProps = {
   InputProps;
   inputRef;
   randomMainColor: string;
-  isLoggedIn: boolean;
-  setShowSharePlayground: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-export const GraphSearchInput = (props: GraphSearchInputProps) => {
+export const GraphSearchInput = ({
+  randomMainColor,
+  ...restOfProps
+}: GraphSearchInputProps) => {
   const smallScreen = useIsSmallScreen();
-  const backgroundColor = Color(props.randomMainColor).alpha(0.8);
-  const textColor = TRgba.fromString(props.randomMainColor)
+  const backgroundColor = Color(randomMainColor).alpha(0.8);
+  const textColor = TRgba.fromString(randomMainColor)
     .getContrastTextColor()
     .hex();
 
   return (
     <TextField
-      {...props}
+      {...restOfProps} // exclude randomMainColor to avoid react console warning
       hiddenLabel
-      inputRef={props.inputRef}
+      inputRef={restOfProps.inputRef}
       variant="filled"
       placeholder={`Search playgrounds`}
       InputProps={{
-        ...props.InputProps,
+        ...restOfProps.InputProps,
         disableUnderline: true,
         endAdornment: null,
       }}
@@ -231,16 +232,16 @@ NOTE: save the playground after loading, if you want to make changes to it`
   return itemToReturn;
 };
 
-export const NodeSearchInput = (props) => {
-  const backgroundColor = Color(props.randomMainColor).alpha(0.9);
+export const NodeSearchInput = ({ randomMainColor, ...restOfProps }) => {
+  const backgroundColor = Color(randomMainColor).alpha(0.9);
   return (
     <TextField
-      {...props}
+      {...restOfProps}
       hiddenLabel
-      inputRef={props.inputRef}
+      inputRef={restOfProps.inputRef}
       variant="filled"
       placeholder="Search nodes"
-      InputProps={{ ...props.InputProps, disableUnderline: true }}
+      InputProps={{ ...restOfProps.InputProps, disableUnderline: true }}
       sx={{
         margin: 0,
         borderRadius: '16px',
@@ -255,7 +256,7 @@ export const NodeSearchInput = (props) => {
         '&&&& input': {
           paddingBottom: '8px',
           paddingTop: '8px',
-          color: Color(props.randomMainColor).isDark()
+          color: Color(randomMainColor).isDark()
             ? COLOR_WHITE_TEXT
             : COLOR_DARK,
         },
