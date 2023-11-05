@@ -13,7 +13,7 @@ const outputWidthName = 'Width';
 const outputHeightName = 'Height';
 const inputMarginName = 'Margin';
 
-export default class DRAw_Get_Bounds extends PPNode {
+export default class DRAW_Get_Bounds extends PPNode {
   public getName(): string {
     return 'Get Draw Bounds';
   }
@@ -45,21 +45,26 @@ export default class DRAw_Get_Bounds extends PPNode {
     ];
   }
 
-  public static getDrawingBounds(drawingFunction, margin: number) {
+  public static getDrawingBounds(
+    drawingFunction,
+    marginX: number = 0,
+    marginY: number = 0,
+  ) {
     const tempContainer = new PIXI.Container();
     drawingFunction(tempContainer, {});
     const bounds = tempContainer.getBounds();
-    bounds.x -= margin;
-    bounds.y -= margin;
-    bounds.width += margin * 2;
-    bounds.height += margin * 2;
+    bounds.x -= marginX;
+    bounds.y -= marginY;
+    bounds.width += marginX * 2;
+    bounds.height += marginY * 2;
     return bounds;
   }
 
   protected onExecute(input: any, output: any): Promise<void> {
     const drawingFunction = input[outputPixiName];
-    const bounds = DRAw_Get_Bounds.getDrawingBounds(
+    const bounds = DRAW_Get_Bounds.getDrawingBounds(
       drawingFunction,
+      input[inputMarginName],
       input[inputMarginName],
     );
     output[outputXName] = bounds.x;

@@ -33,6 +33,7 @@ import {
   outputPixiName,
 } from './abstract';
 import { DynamicInputNodeFunctions } from '../abstract/DynamicInputNode';
+import DRAW_Get_Bounds from './drawMeta';
 
 const availableShapes: EnumStructure = [
   {
@@ -74,6 +75,7 @@ const numberPerColumnRow = 'Number Per Column/Row';
 const drawingOrder = 'Change Column/Row drawing order';
 const spacingXName = 'Spacing X';
 const spacingYName = 'Spacing Y';
+const useBoundingBoxSpacingName = 'Adjacent Placing';
 
 const inputImageName = 'Image';
 const imageExport = 'Save image';
@@ -390,18 +392,24 @@ export class DRAW_COMBINE_ARRAY extends DRAW_Interactive_Base {
         new NumberType(true, 0, 100),
         2,
       ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        useBoundingBoxSpacingName,
+        new BooleanType(),
+        true,
+      ),
       new Socket(SOCKET_TYPE.IN, drawingOrder, new BooleanType(), true),
       new Socket(
         SOCKET_TYPE.IN,
         spacingXName,
-        new NumberType(true, 0, 1000),
-        400,
+        new NumberType(true, 0, 2000),
+        0,
       ),
       new Socket(
         SOCKET_TYPE.IN,
         spacingYName,
-        new NumberType(true, 0, 1000),
-        300,
+        new NumberType(true, 0, 2000),
+        0,
       ),
     ].concat(super.getDefaultIO());
   }
@@ -420,6 +428,19 @@ export class DRAW_COMBINE_ARRAY extends DRAW_Interactive_Base {
     const myContainer = new PIXI.Container();
     const graphicsArray = inputObject[inputCombineArray];
     const changeDrawingOrder = inputObject[drawingOrder];
+    const spacingSize =
+      graphicsArray.length && inputObject[useBoundingBoxSpacingName]
+        ? DRAW_Get_Bounds.getDrawingBounds(
+            graphicsArray[0],
+            inputObject[spacingXName],
+            inputObject[spacingYName],
+          )
+        : new PIXI.Rectangle(
+            0,
+            0,
+            inputObject[spacingXName],
+            inputObject[spacingYName],
+          );
     for (let i = graphicsArray.length - 1; i >= 0; i--) {
       const r = Math.floor(i / inputObject[numberPerColumnRow]);
       const s = i % inputObject[numberPerColumnRow];
@@ -429,8 +450,8 @@ export class DRAW_COMBINE_ARRAY extends DRAW_Interactive_Base {
       if (typeof graphicsArray[i] == 'function') {
         graphicsArray[i](shallowContainer, executions);
       }
-      shallowContainer.x = x * inputObject[spacingXName];
-      shallowContainer.y = y * inputObject[spacingYName];
+      shallowContainer.x = x * spacingSize.width;
+      shallowContainer.y = y * spacingSize.height;
 
       if (inputObject[objectsInteractive]) {
         addShallowContainerEventListeners(
