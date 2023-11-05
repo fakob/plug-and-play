@@ -83,9 +83,7 @@ export default class InterfaceController {
     event: PIXI.FederatedPointerEvent,
     target: PIXI.FederatedEventTarget,
   ) => void = () => {}; // called when the graph is right clicked
-  static onOpenSocketInspector: (pos: PIXI.Point, data: Socket) => void =
-    () => {}; // called when socket inspector should be opened
-  static onCloseSocketInspector: () => void; // called when socket inspector should be closed
+  static onAddToDashboard: (data: Socket) => void = () => {}; // called when socket inspector should be opened
   static selectionRedrawn: (pos: PIXI.Point) => void = () => {};
 
   // these were previously only in app.tsx and are still being set from there, but they can be accessed from anywhere
@@ -209,7 +207,6 @@ export default class InterfaceController {
     } else if (e.key === 'Escape') {
       InterfaceController.notifyListeners(ListenEvent.EscapeKeyUsed, e);
       InterfaceController.setIsGraphSearchOpen(false);
-      InterfaceController.onCloseSocketInspector();
       this.setIsNodeSearchVisible(false);
       this.setIsGraphContextMenuOpen(false);
       this.setIsNodeContextMenuOpen(false);

@@ -2,7 +2,12 @@ import * as PIXI from 'pixi.js';
 import React from 'react';
 import { Box } from '@mui/material';
 import { SocketContainer } from '../SocketContainer';
-import { SerializedSocket, TRgba, TSocketType } from '../utils/interfaces';
+import {
+  SerializedSocket,
+  TRgba,
+  TSocketId,
+  TSocketType,
+} from '../utils/interfaces';
 import PPGraph from './GraphClass';
 import PPNode from './NodeClass';
 import PPLink from './LinkClass';
@@ -21,7 +26,6 @@ import {
   COLOR_MAIN,
 } from '../utils/constants';
 import { AbstractType } from '../nodes/datatypes/abstractType';
-import { TriggerType } from '../nodes/datatypes/triggerType';
 import { dataToType, serializeType } from '../nodes/datatypes/typehelper';
 import { getCurrentCursorPosition } from '../utils/utils';
 import { TextStyle } from 'pixi.js';
@@ -355,6 +359,10 @@ export default class Socket extends PIXI.Container implements Tooltipable {
     return PPGraph.currentGraph;
   }
 
+  getSocketId(): TSocketId {
+    return `${this.getNode().id}-${this.socketType}-${this.name}`;
+  }
+
   public getPreferredNodes(): string[] {
     const preferredNodesPerSocket =
       this.getNode().getPreferredNodesPerSocket().get(this.name) || [];
@@ -486,9 +494,8 @@ export default class Socket extends PIXI.Container implements Tooltipable {
   }
 
   onSocketPointerDown(event: PIXI.FederatedPointerEvent): void {
-    const clickedSourcePoint = this.getTooltipPosition();
     if (event.shiftKey) {
-      InterfaceController.onOpenSocketInspector(clickedSourcePoint, this);
+      InterfaceController.onAddToDashboard(this);
     } else {
       this.getGraph().socketMouseDown(this, event);
     }

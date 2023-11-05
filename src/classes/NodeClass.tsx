@@ -7,6 +7,7 @@ import {
   SerializedNode,
   SerializedSocket,
   TRgba,
+  TNodeId,
   TNodeSource,
   TSocketType,
 } from '../utils/interfaces';
@@ -47,7 +48,13 @@ import FlowLogic from './FlowLogic';
 import InterfaceController, { ListenEvent } from '../InterfaceController';
 import { TextStyle } from 'pixi.js';
 import { JSONType } from '../nodes/datatypes/jsonType';
-import { NodeConfigurationError, NodeExecutionError, PNPError, PNPStatus, PNPSuccess } from './ErrorClass';
+import {
+  NodeConfigurationError,
+  NodeExecutionError,
+  PNPError,
+  PNPStatus,
+  PNPSuccess,
+} from './ErrorClass';
 
 // export default class PPNode extends PIXI.Container implements Tooltipable {
 export default class PPNode extends PIXI.Container {
@@ -62,7 +69,7 @@ export default class PPNode extends PIXI.Container {
   clickedSocketRef: Socket;
   _isHovering: boolean;
 
-  id: string;
+  id: TNodeId;
   type: string; // Type
   nodePosX: number;
   nodePosY: number;
@@ -73,7 +80,7 @@ export default class PPNode extends PIXI.Container {
   nodeSelectionHeader: NodeHeaderClass;
   lastTimeTicked = 0;
 
-  status : PNPStatus = new PNPSuccess();
+  status: PNPStatus = new PNPSuccess();
 
   inputSocketArray: Socket[] = [];
   nodeTriggerSocketArray: Socket[] = [];
@@ -432,7 +439,7 @@ export default class PPNode extends PIXI.Container {
         const sockets = nodeConfig.socketArray;
         sockets.forEach((item) => mapSocket(item));
       } catch (error) {
-        this.setStatus(new NodeConfigurationError(error))
+        this.setStatus(new NodeConfigurationError(error));
         console.error(
           `Could not configure node: ${this.name}(${this.id})`,
           error,
@@ -790,8 +797,10 @@ export default class PPNode extends PIXI.Container {
     });
   }
 
-  protected setStatus(status : PNPStatus){
-    if (JSON.stringify(this.status.message) !== JSON.stringify(status.message)){
+  protected setStatus(status: PNPStatus) {
+    if (
+      JSON.stringify(this.status.message) !== JSON.stringify(status.message)
+    ) {
       this.status = status;
       this.drawNodeShape();
     }
@@ -985,16 +994,14 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
       await this.rawExecute();
       this.drawComment();
     } catch (error) {
-
-      if (error instanceof PNPError){
+      if (error instanceof PNPError) {
         this.setStatus(error);
-      } else{
+      } else {
         this.setStatus(new NodeExecutionError(error.stack));
       }
       console.log(
         `Node ${this.name}(${this.id}) execution error:  ${error.stack}`,
       );
-
     }
   }
 
