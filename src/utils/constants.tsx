@@ -462,13 +462,5 @@ export const PXSHOW_SQL_QUERY = `SELECT json_extract(state,'$.State') as State F
 WHERE service IS 'Store'`;
 
 export const LAYOUTS_EMPTY = {
-  layout1: [
-    {
-      x: 0,
-      y: 0,
-      w: 2,
-      h: 2,
-      i: 'placeholder',
-    },
-  ],
+  layout1: [],
 };

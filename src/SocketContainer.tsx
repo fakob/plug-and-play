@@ -5,10 +5,7 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import LockIcon from '@mui/icons-material/Lock';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import DragHandleIcon from '@mui/icons-material/DragHandle';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import ClearIcon from '@mui/icons-material/Clear';
-import InterfaceController from './InterfaceController';
 import { writeDataToClipboard } from './utils/utils';
 import styles from './utils/style.module.css';
 import PPNode from './classes/NodeClass';
@@ -35,7 +32,7 @@ export const SocketContainer: React.FunctionComponent<SocketContainerProps> = (
 ) => {
   const myRef = useRef(null);
 
-  const { showHeader = true, onDashboard = false } = props;
+  const { showHeader = true } = props;
   const [dataTypeValue, setDataTypeValue] = useState(props.dataType);
   const baseProps = {
     key: props.dataType.getName(),
@@ -58,10 +55,6 @@ export const SocketContainer: React.FunctionComponent<SocketContainerProps> = (
     props.property.dataType = entry;
     setDataTypeValue(entry);
     props.property.getNode().metaInfoChanged();
-  };
-
-  const CustomSocketInjection = ({ InjectionContent, props }) => {
-    return <InjectionContent {...props} />;
   };
 
   useEffect(() => {
@@ -93,7 +86,6 @@ export const SocketContainer: React.FunctionComponent<SocketContainerProps> = (
           hasLink={props.hasLink}
           onChangeDropdown={onChangeDropdown}
           randomMainColor={props.randomMainColor}
-          onDashboard={props.onDashboard}
         />
       )}
       <Box
@@ -122,6 +114,10 @@ export const SocketContainer: React.FunctionComponent<SocketContainerProps> = (
   );
 };
 
+export const CustomSocketInjection = ({ InjectionContent, props }) => {
+  return <InjectionContent {...props} />;
+};
+
 type SocketHeaderProps = {
   property: Socket;
   index: number;
@@ -130,7 +126,6 @@ type SocketHeaderProps = {
   hasLink: boolean;
   onChangeDropdown: (event) => void;
   randomMainColor: string;
-  onDashboard: boolean;
 };
 
 const SocketHeader: React.FunctionComponent<SocketHeaderProps> = (props) => {
@@ -153,37 +148,27 @@ const SocketHeader: React.FunctionComponent<SocketHeaderProps> = (props) => {
         bgcolor: props.isSelected && 'secondary.dark',
       }}
     >
-      {props.onDashboard ? (
-        <IconButton
-          size="small"
-          sx={{
-            borderRadius: 0,
-          }}
-        >
-          <DragHandleIcon fontSize="inherit" />
-        </IconButton>
-      ) : (
-        <ToggleButton
-          value="check"
-          size="small"
-          selected={!visible}
-          onChange={() => {
-            props.property.setVisible(!visible);
-            setVisible((value) => !value);
-          }}
-          sx={{
-            fontSize: '16px',
-            border: 0,
-            width: '40px',
-          }}
-        >
-          {visible ? (
-            <VisibilityIcon fontSize="inherit" />
-          ) : (
-            <VisibilityOffIcon fontSize="inherit" />
-          )}
-        </ToggleButton>
-      )}
+      <ToggleButton
+        value="check"
+        size="small"
+        selected={!visible}
+        onChange={() => {
+          props.property.setVisible(!visible);
+          setVisible((value) => !value);
+        }}
+        sx={{
+          fontSize: '16px',
+          border: 0,
+          width: '40px',
+        }}
+      >
+        {visible ? (
+          <VisibilityIcon fontSize="inherit" />
+        ) : (
+          <VisibilityOffIcon fontSize="inherit" />
+        )}
+      </ToggleButton>
+
       <Box
         className="dragHandle"
         sx={{
@@ -211,93 +196,72 @@ const SocketHeader: React.FunctionComponent<SocketHeaderProps> = (props) => {
             <ContentCopyIcon sx={{ fontSize: '12px' }} />
           </IconButton>
         </Box>
-        {props.onDashboard ? (
-          <IconButton
-            title="Remove from dashboard"
-            aria-label="more"
-            id="select-type"
-            aria-controls="long-menu"
-            aria-expanded={open ? 'true' : undefined}
-            aria-haspopup="true"
-            onClick={() => {
-              InterfaceController.onRemoveFromDashboard(props.property);
-            }}
+        <IconButton
+          title={`Property type: ${props.property.dataType.constructor.name}`}
+          aria-label="more"
+          id="select-type"
+          aria-controls="long-menu"
+          aria-expanded={open ? 'true' : undefined}
+          aria-haspopup="true"
+          onClick={handleClick}
+          sx={{
+            borderRadius: 0,
+          }}
+        >
+          <Box
             sx={{
-              borderRadius: 0,
+              color: 'text.secondary',
+              fontSize: '10px',
             }}
           >
-            <ClearIcon />
-          </IconButton>
-        ) : (
-          <IconButton
-            title={`Property type: ${props.property.dataType.constructor.name}`}
-            aria-label="more"
-            id="select-type"
-            aria-controls="long-menu"
-            aria-expanded={open ? 'true' : undefined}
-            aria-haspopup="true"
-            onClick={handleClick}
-            sx={{
-              borderRadius: 0,
-            }}
-          >
-            <Box
-              sx={{
-                color: 'text.secondary',
-                fontSize: '10px',
-              }}
-            >
-              {props.property.dataType.getName()}
-            </Box>
-            <MoreVertIcon />
-          </IconButton>
-        )}
-        {!props.onDashboard && (
-          <Menu
-            sx={{
-              fontSize: '12px',
-              zIndex: 1500,
-            }}
-            MenuListProps={{
-              'aria-labelledby': 'long-button',
-            }}
-            anchorEl={anchorEl}
-            open={open}
-            onClose={handleClose}
-          >
-            {Object.keys(allDataTypes)
-              .filter((name) => {
-                const dataTypeItem = new allDataTypes[name]();
-                if (props.isInput) {
-                  return dataTypeItem.allowedAsInput();
-                } else {
-                  return dataTypeItem.allowedAsOutput();
-                }
-              })
-              .sort()
-              .map((name) => {
-                const entry = new allDataTypes[name]().getName();
-                return (
-                  <MenuItem
-                    key={name}
-                    value={name}
-                    data-my-value={name}
-                    selected={props.property.dataType.constructor.name === name}
-                    onClick={props.onChangeDropdown}
-                    sx={{
-                      '&.Mui-selected': {
-                        backgroundColor: `${Color(
-                          props.randomMainColor,
-                        ).negate()}`,
-                      },
-                    }}
-                  >
-                    {entry}
-                  </MenuItem>
-                );
-              })}
-          </Menu>
-        )}
+            {props.property.dataType.getName()}
+          </Box>
+          <MoreVertIcon />
+        </IconButton>
+        <Menu
+          sx={{
+            fontSize: '12px',
+            zIndex: 1500,
+          }}
+          MenuListProps={{
+            'aria-labelledby': 'long-button',
+          }}
+          anchorEl={anchorEl}
+          open={open}
+          onClose={handleClose}
+        >
+          {Object.keys(allDataTypes)
+            .filter((name) => {
+              const dataTypeItem = new allDataTypes[name]();
+              if (props.isInput) {
+                return dataTypeItem.allowedAsInput();
+              } else {
+                return dataTypeItem.allowedAsOutput();
+              }
+            })
+            .sort()
+            .map((name) => {
+              const entry = new allDataTypes[name]().getName();
+              return (
+                <MenuItem
+                  key={name}
+                  value={name}
+                  data-my-value={name}
+                  selected={props.property.dataType.constructor.name === name}
+                  onClick={props.onChangeDropdown}
+                  sx={{
+                    '&.Mui-selected': {
+                      backgroundColor: `${Color(
+                        props.randomMainColor,
+                      ).negate()}`,
+                    },
+                  }}
+                >
+                  {entry}
+                </MenuItem>
+              );
+            })}
+        </Menu>
       </Box>
     </Box>
   );

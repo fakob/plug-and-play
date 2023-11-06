@@ -24,6 +24,24 @@ export class JSONType extends AbstractType {
     return <JSONWidget {...props} />;
   };
 
+  getInputWidgetSize(): any {
+    return {
+      w: 2,
+      h: 4,
+      minW: 2,
+      minH: 2,
+    };
+  }
+
+  getOutputWidgetSize(): any {
+    return {
+      w: 2,
+      h: 4,
+      minW: 2,
+      minH: 2,
+    };
+  }
+
   getDefaultValue(): any {
     return {};
   }

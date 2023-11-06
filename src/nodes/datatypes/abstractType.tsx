@@ -50,19 +50,19 @@ export class AbstractType {
 
   getInputWidgetSize(): any {
     return {
-      w: 1,
-      h: 1,
-      minW: 1,
-      minH: 1,
+      w: 2,
+      h: 2,
+      minW: 2,
+      minH: 2,
     };
   }
 
   getOutputWidgetSize(): any {
     return {
-      w: 1,
-      h: 1,
-      minW: 1,
-      minH: 1,
+      w: 2,
+      h: 2,
+      minW: 2,
+      minH: 2,
     };
   }
 
