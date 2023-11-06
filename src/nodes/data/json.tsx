@@ -187,7 +187,53 @@ export class JSONValues extends JSONCustomFunction {
 }
 
 const BREAK_MAX_SOCKETS = 100;
-// actually works for arrays as well
+/*
+interface SocketDiscrepancy{
+  toAdd: string[];
+  toRemove: string[];
+}
+
+function findIncomingJSONSocketDiscrepancy(json: any, node : PPNode) : SocketDiscrepancy {
+    // remove all non existing arguments and add all missing (based on the definition we just got)
+    // if current JSON is empty, then dont adapt (maybe data just hasnt arrived yet)
+    if (json === undefined || Object.keys(json).length === 0 || typeof json !== "object") {
+      return;
+    }
+
+    const currentOutputSockets = node.getDataSockets().filter(
+      (socket) => socket.socketType === SOCKET_TYPE.OUT
+    );
+    const socketsToBeRemoved = currentOutputSockets.filter(
+      (socket) => !(socket.name in json)
+    );
+    const argumentsToBeAdded = Object.keys(json).filter(
+      (key) => !currentOutputSockets.some((socket) => socket.name === key)
+    );
+    socketsToBeRemoved.forEach((socket) => {
+      this.removeSocket(socket);
+    });
+    argumentsToBeAdded.forEach((argument) => {
+      // block creation of new sockets after a while to not freeze the whole editor
+      if (true || this.outputSocketArray.length < BREAK_MAX_SOCKETS) {
+        // if we only have one child, keep unpacking until thers is none or several
+        let currentPath = argument;
+        let currentVal = json[argument];
+        while (currentVal !== undefined && currentVal !== null && typeof currentVal == "object" && Object.keys(currentVal).length == 1) {
+          const currentKeys = Object.keys(currentVal);
+          const currentKey = currentKeys[0];
+          currentVal = currentVal[currentKey];
+          currentPath += JSON_SEPARATOR + currentKey;
+          //currentKeys = Object.keys(currentVal);
+        }
+
+        this.addOutput(currentPath, dataToType(currentVal), true, {}, false);
+      }
+    });
+    if (socketsToBeRemoved.length > 0 || argumentsToBeAdded.length > 0) {
+      this.metaInfoChanged();
+    }
+}
+*/
 export class Break extends PPNode {
   public getName(): string {
     return 'Break JSON';
@@ -238,9 +284,162 @@ export class Break extends PPNode {
       return;
     }
 
-    const currentOutputSockets = this.getDataSockets().filter(
-      (socket) => socket.socketType === SOCKET_TYPE.OUT
+    const socketsToBeRemoved = this.outputSocketArray.filter(
+      (socket) => !(socket.name in json)
     );
+    const argumentsToBeAdded = Object.keys(json).filter(
+      (key) => !this.outputSocketArray.some((socket) => socket.name === key)
+    );
+    socketsToBeRemoved.forEach((socket) => {
+      this.removeSocket(socket);
+    });
+    argumentsToBeAdded.forEach((argument) => {
+      // block creation of new sockets after a while to not freeze the whole editor
+      if (true || this.outputSocketArray.length < BREAK_MAX_SOCKETS) {
+        // if we only have one child, keep unpacking until thers is none or several
+        let currentPath = argument;
+        let currentVal = json[argument];
+        while (currentVal !== undefined && currentVal !== null && typeof currentVal == "object" && Object.keys(currentVal).length == 1) {
+          const currentKeys = Object.keys(currentVal);
+          const currentKey = currentKeys[0];
+          currentVal = currentVal[currentKey];
+          currentPath += JSON_SEPARATOR + currentKey;
+          //currentKeys = Object.keys(currentVal);
+        }
+
+        this.addOutput(currentPath, dataToType(currentVal), true, {}, false);
+      }
+    });
+    if (socketsToBeRemoved.length > 0 || argumentsToBeAdded.length > 0) {
+      this.metaInfoChanged();
+    }
+  }
+}
+
+export class Format extends PPNode {
+  public getName(): string {
+    return 'Format Object Properties';
+  }
+
+  public getDescription(): string {
+    return 'Takes an object as input, filters and possibly renames fields within these objects';
+  }
+
+  public getTags(): string[] {
+    return ['JSON'].concat(super.getTags());
+  }
+
+
+  protected getDefaultIO(): Socket[] {
+    return [new Socket(SOCKET_TYPE.IN, JSONName, new JSONType(true)), new Socket(SOCKET_TYPE.IN, lockOutputsName, new BooleanType(), false, false)];
+  }
+
+  protected async onExecute(
+    inputObject: any,
+    outputObject: Record<string, unknown>
+  ): Promise<void> {
+    // before every execute, re-evaluate inputs
+    const currentJSON = inputObject[JSONName];
+    if (!inputObject[lockOutputsName]) {
+      this.adaptOutputs(currentJSON);
+    }
+    /*this.outputSocketArray.forEach(
+      (socket) => {
+        const key = socket.name;
+        const allSegments = key.split(JSON_SEPARATOR);
+        const value = allSegments.reduce((prev, segment) => prev[segment], currentJSON);
+        outputObject[key] = value;
+      }
+    );
+    */
+  }
+
+  private adaptOutputs(json: any): void {
+    // remove all non existing arguments and add all missing (based on the definition we just got)
+    // if current JSON is empty, then dont adapt (maybe data just hasnt arrived yet)
+    if (json === undefined || Object.keys(json).length === 0 || typeof json !== "object") {
+      return;
+    }
+
+    const socketsToBeRemoved = this.outputSocketArray.filter(
+      (socket) => !(socket.name in json)
+    );
+    const argumentsToBeAdded = Object.keys(json).filter(
+      (key) => !this.outputSocketArray.some((socket) => socket.name === key)
+    );
+    socketsToBeRemoved.forEach((socket) => {
+      this.removeSocket(socket);
+    });
+
+    argumentsToBeAdded.forEach((argument) => {
+      // block creation of new sockets after a while to not freeze the whole editor
+      if (true || this.outputSocketArray.length < BREAK_MAX_SOCKETS) {
+        // if we only have one child, keep unpacking until thers is none or several
+        let currentPath = argument;
+        let currentVal = json[argument];
+        while (currentVal !== undefined && currentVal !== null && typeof currentVal == "object" && Object.keys(currentVal).length == 1) {
+          const currentKeys = Object.keys(currentVal);
+          const currentKey = currentKeys[0];
+          currentVal = currentVal[currentKey];
+          currentPath += JSON_SEPARATOR + currentKey;
+          //currentKeys = Object.keys(currentVal);
+        }
+
+        this.addOutput(currentPath, dataToType(currentVal), true, {}, false);
+      }
+    });
+    if (socketsToBeRemoved.length > 0 || argumentsToBeAdded.length > 0) {
+      this.metaInfoChanged();
+    }
+  }
+}
+
+
+export class MapFormat extends PPNode {
+  public getName(): string {
+    return 'Map Format Properties';
+  }
+
+  public getDescription(): string {
+    return 'Takes an input array of objects, filters and possibly renames fields within these objects';
+  }
+
+  public getTags(): string[] {
+    return ['JSON'].concat(super.getTags());
+  }
+
+
+  protected getDefaultIO(): Socket[] {
+    return [new Socket(SOCKET_TYPE.IN, JSONName, new JSONType(true)), new Socket(SOCKET_TYPE.IN, lockOutputsName, new BooleanType(), false, false)];
+  }
+
+  protected async onExecute(
+    inputObject: any,
+    outputObject: Record<string, unknown>
+  ): Promise<void> {
+    // before every execute, re-evaluate inputs
+    const currentJSON = inputObject[JSONName];
+    if (!inputObject[lockOutputsName]) {
+      this.adaptOutputs(currentJSON);
+    }
+    /*this.outputSocketArray.forEach(
+      (socket) => {
+        const key = socket.name;
+        const allSegments = key.split(JSON_SEPARATOR);
+        const value = allSegments.reduce((prev, segment) => prev[segment], currentJSON);
+        outputObject[key] = value;
+      }
+    );
+    */
+  }
+
+  private adaptOutputs(json: any): void {
+    // remove all non existing arguments and add all missing (based on the definition we just got)
+    // if current JSON is empty, then dont adapt (maybe data just hasnt arrived yet)
+    if (json === undefined || Object.keys(json).length === 0 || typeof json !== "object") {
+      return;
+    }
+
     const socketsToBeRemoved = currentOutputSockets.filter(
       (socket) => !(socket.name in json)
     );
@@ -272,6 +471,7 @@ export class Break extends PPNode {
     }
   }
 }
+
 
 
 export class Make extends DynamicInputNode {
