@@ -286,6 +286,9 @@ export default class PPNode extends PIXI.Container {
   }
 
   removeSocket(socket: Socket): void {
+    if (socket == undefined){
+      return;
+    }
     const checkAndRemoveFrom = (nameOfArrayToCheck: string): void => {
       this[nameOfArrayToCheck] = this[nameOfArrayToCheck].filter(
         (socketRef: Socket) =>
@@ -556,12 +559,12 @@ export default class PPNode extends PIXI.Container {
   // get all sockets that are not part of the base kit for the node
   public getAllNonDefaultSockets(): Socket[] {
     const defaultIONames = this.getAllInitialSockets()
-      .filter((socket) => socket.isInput())
-      .map((socket) => socket.name);
+    .filter((socket) => socket.isInput())
+    .map((socket) => socket.name);
     return this.getAllInputSockets().filter(
       (socket) => !defaultIONames.includes(socket.name),
-    );
-  }
+      );
+    }
 
   public getAllInputSockets(): Socket[] {
     return this.inputSocketArray.concat(this.nodeTriggerSocketArray);
@@ -575,19 +578,15 @@ export default class PPNode extends PIXI.Container {
     return this.inputSocketArray.concat(
       this.nodeTriggerSocketArray,
       this.outputSocketArray,
-    );
-  }
+      );
+    }
 
-  getNodeTriggerSocketByName(slotName: string): Socket {
-    return this.nodeTriggerSocketArray[
-      this.nodeTriggerSocketArray.findIndex((el) => el.name === slotName)
-    ];
+    getNodeTriggerSocketByName(slotName: string): Socket {
+      return this.nodeTriggerSocketArray.find((el) => el.name === slotName);
   }
 
   getInputSocketByName(slotName: string): Socket {
-    return this.inputSocketArray[
-      this.inputSocketArray.findIndex((el) => el.name === slotName)
-    ];
+    return this.inputSocketArray.find((el) => el.name === slotName)
   }
 
   getInputOrTriggerSocketByName(slotName: string): Socket {
@@ -596,47 +595,45 @@ export default class PPNode extends PIXI.Container {
       // create new socket for this ask, maybe this is a bit ugly
       console.log(
         'creating new socket because someone is trying to get a socket that didnt exist: ' +
-          slotName,
-      );
-      const newSocket = new Socket(SOCKET_TYPE.IN, slotName, new AnyType());
-      this.addSocket(newSocket);
-      this.resizeAndDraw();
-      return newSocket;
-    } else {
-      return found;
+        slotName,
+        );
+        const newSocket = new Socket(SOCKET_TYPE.IN, slotName, new AnyType());
+        this.addSocket(newSocket);
+        this.resizeAndDraw();
+        return newSocket;
+      } else {
+        return found;
+      }
     }
-  }
-
-  getOutputSocketByName(slotName: string): Socket {
-    return this.outputSocketArray[
-      this.outputSocketArray.findIndex((el) => el.name === slotName)
-    ];
-  }
-
-  public getSocketByName(name: string): Socket {
-    return this.getAllSockets().find((socket) => socket.name === name);
-  }
-
-  public getSocketByNameAndType(name: string, socketType: TSocketType): Socket {
-    switch (socketType) {
-      case SOCKET_TYPE.TRIGGER: {
-        return this.getNodeTriggerSocketByName(name);
-      }
-      case SOCKET_TYPE.IN: {
-        return this.getInputSocketByName(name);
-      }
-      case SOCKET_TYPE.OUT: {
-        return this.getOutputSocketByName(name);
-      }
-      default:
-        return;
+    getOutputSocketByName(slotName: string): Socket {
+      return this.outputSocketArray.find((el) => el.name === slotName);
     }
-  }
 
-  public drawErrorBoundary(): void {
-    this._BackgroundGraphicsRef.beginFill(
-      this.status.getColor().hexNumber(),
-      this.getOpacity(),
+    public getSocketByName(name: string): Socket {
+      return this.getAllSockets().find((socket) => socket.name === name);
+    }
+
+    public getSocketByNameAndType(name: string, socketType: TSocketType): Socket {
+      switch (socketType) {
+        case SOCKET_TYPE.TRIGGER: {
+          return this.getNodeTriggerSocketByName(name);
+        }
+        case SOCKET_TYPE.IN: {
+          return this.getInputSocketByName(name);
+        }
+        case SOCKET_TYPE.OUT: {
+          return this.getOutputSocketByName(name);
+        }
+        default:
+          return;
+      }
+    }
+
+
+    public drawErrorBoundary(): void {
+      this._BackgroundGraphicsRef.beginFill(
+        this.status.getColor().hexNumber(),
+        this.getOpacity(),
     );
     this._BackgroundGraphicsRef.drawRoundedRect(
       NODE_MARGIN - 3,

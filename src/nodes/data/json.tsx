@@ -295,7 +295,7 @@ export class Break extends PPNode {
     });
     argumentsToBeAdded.forEach((argument) => {
       // block creation of new sockets after a while to not freeze the whole editor
-      if (true || this.outputSocketArray.length < BREAK_MAX_SOCKETS) {
+      if (this.outputSocketArray.length < BREAK_MAX_SOCKETS) {
         // if we only have one child, keep unpacking until thers is none or several
         let currentPath = argument;
         let currentVal = json[argument];
@@ -315,6 +315,10 @@ export class Break extends PPNode {
     }
   }
 }
+
+const socketAliasSuffix = " - Alias";
+
+const FORMAT_MAX_SOCKETS = 100;
 
 export class Format extends PPNode {
   public getName(): string {
@@ -361,31 +365,24 @@ export class Format extends PPNode {
       return;
     }
 
-    const socketsToBeRemoved = this.outputSocketArray.filter(
-      (socket) => !(socket.name in json)
+    const socketsToBeRemoved = this.inputSocketArray.filter(
+      (socket) => {
+        const replacedName = socket.name.replaceAll(socketAliasSuffix, "");;
+        return !(replacedName in json) && socket.name !== JSONName
+      }
     );
     const argumentsToBeAdded = Object.keys(json).filter(
-      (key) => !this.outputSocketArray.some((socket) => socket.name === key)
+      (key) => !this.inputSocketArray.some((socket) => socket.name === key)
     );
     socketsToBeRemoved.forEach((socket) => {
       this.removeSocket(socket);
+      this.removeSocket(this.getInputSocketByName(socket.name + socketAliasSuffix));
     });
 
     argumentsToBeAdded.forEach((argument) => {
-      // block creation of new sockets after a while to not freeze the whole editor
-      if (true || this.outputSocketArray.length < BREAK_MAX_SOCKETS) {
-        // if we only have one child, keep unpacking until thers is none or several
-        let currentPath = argument;
-        let currentVal = json[argument];
-        while (currentVal !== undefined && currentVal !== null && typeof currentVal == "object" && Object.keys(currentVal).length == 1) {
-          const currentKeys = Object.keys(currentVal);
-          const currentKey = currentKeys[0];
-          currentVal = currentVal[currentKey];
-          currentPath += JSON_SEPARATOR + currentKey;
-          //currentKeys = Object.keys(currentVal);
-        }
-
-        this.addOutput(currentPath, dataToType(currentVal), true, {}, false);
+      if (this.inputSocketArray.length < FORMAT_MAX_SOCKETS) {
+        this.addInput(argument, new BooleanType(), false);
+        this.addSocket(Socket.getOptionalVisibilitySocket(SOCKET_TYPE.IN, argument + socketAliasSuffix, new StringType, "", () => this.getInputData(argument)));
       }
     });
     if (socketsToBeRemoved.length > 0 || argumentsToBeAdded.length > 0) {
@@ -394,7 +391,7 @@ export class Format extends PPNode {
   }
 }
 
-
+/*
 export class MapFormat extends PPNode {
   public getName(): string {
     return 'Map Format Properties';
@@ -430,7 +427,7 @@ export class MapFormat extends PPNode {
         outputObject[key] = value;
       }
     );
-    */
+
   }
 
   private adaptOutputs(json: any): void {
@@ -451,7 +448,7 @@ export class MapFormat extends PPNode {
     });
     argumentsToBeAdded.forEach((argument) => {
       // block creation of new sockets after a while to not freeze the whole editor
-      if (true || this.outputSocketArray.length < BREAK_MAX_SOCKETS) {
+      if ( this.outputSocketArray.length < BREAK_MAX_SOCKETS) {
         // if we only have one child, keep unpacking until thers is none or several
         let currentPath = argument;
         let currentVal = json[argument];
@@ -472,7 +469,7 @@ export class MapFormat extends PPNode {
   }
 }
 
-
+*/
 
 export class Make extends DynamicInputNode {
   public getName(): string {
