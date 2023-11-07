@@ -848,8 +848,8 @@ export const getExtensionFromLocalResourceId = (localResourceId) => {
 };
 
 export const constructSocketId = (
-  nodeId: string,
-  socketType: typeof SOCKET_TYPE,
+  nodeId: TNodeId,
+  socketType: TSocketType,
   socketName: string,
 ) => {
   return `${nodeId}-${socketType}-${socketName}`;

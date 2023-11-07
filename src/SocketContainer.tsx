@@ -6,6 +6,8 @@ import LockIcon from '@mui/icons-material/Lock';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
+import InterfaceController from './InterfaceController';
 import { writeDataToClipboard } from './utils/utils';
 import styles from './utils/style.module.css';
 import PPNode from './classes/NodeClass';
@@ -168,27 +170,39 @@ const SocketHeader: React.FunctionComponent<SocketHeaderProps> = (props) => {
           <VisibilityOffIcon fontSize="inherit" />
         )}
       </ToggleButton>
-
       <Box
-        className="dragHandle"
         sx={{
           flexGrow: 1,
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          cursor: 'move',
+          opacity: visible ? 1 : 0.5,
         }}
       >
         <Box sx={{ flexGrow: 1, display: 'inline-flex', alignItems: 'center' }}>
-          <Box sx={{ pl: 1, color: 'text.primary' }}>{`${
-            props.property.getNode().name
-          } > ${props.property.name}`}</Box>
+          <IconButton
+            title="Add to dashboard"
+            size="small"
+            onClick={() => {
+              InterfaceController.onAddToDashboard(props.property);
+            }}
+            sx={{
+              borderRadius: 0,
+            }}
+          >
+            <PlaylistAddIcon sx={{ fontSize: '12px' }} />
+          </IconButton>
+          <Box sx={{ pl: 1, color: 'text.primary' }}>{props.property.name}</Box>
           {(!props.isInput || props.hasLink) && (
             <LockIcon sx={{ pl: '2px', fontSize: '16px', opacity: 0.5 }} />
           )}
           <IconButton
             size="small"
-            onClick={() => writeDataToClipboard(props.property?.data)}
+            title="Copy data to clipboard"
+            onClick={() => {
+              InterfaceController.showSnackBar('Data copied to clipboard');
+              writeDataToClipboard(props.property?.data);
+            }}
             sx={{
               borderRadius: 0,
             }}

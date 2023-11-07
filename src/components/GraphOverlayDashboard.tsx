@@ -11,7 +11,9 @@ import InterfaceController from '../InterfaceController';
 import PPGraph from '../classes/GraphClass';
 import PPSocket from '../classes/SocketClass';
 import { AbstractType } from '../nodes/datatypes/abstractType';
+import { ensureVisible, zoomToFitNodes } from '../pixi/utils-pixi';
 import { deconstructSocketId, writeDataToClipboard } from '../utils/utils';
+import { ONCLICK_DOUBLECLICK, ONCLICK_TRIPPLECLICK } from '../utils/constants';
 
 type GraphOverlayDashboardProps = {
   randomMainColor: string;
@@ -95,61 +97,70 @@ const GraphOverlayDashboard: React.FunctionComponent<
   };
 
   return (
-    // <Box sx={{ position: 'relative', zIndex: 2000, background: 'black' }}>
-    <ResponsiveGridLayout
-      breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
-      cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }}
-      className="layout"
-      layouts={{ lg: currentLayout }}
-      style={{
-        zIndex: 1,
+    <Box
+      sx={{
         pointerEvents: 'none',
-        filter: 'drop-shadow(0px 0px 24px rgba(0, 0, 0, 0.5))',
+        height: '100vh !important',
+        width: '100%',
+        overflow: 'auto',
       }}
-      margin={[2, 2]}
-      rowHeight={56}
-      onLayoutChange={onLayoutChange}
-      onWidthChange={onWidthChange}
-      draggableHandle=".dragHandle"
-      resizeHandles={['s', 'w', 'e', 'sw', 'se']}
     >
-      {currentLayout.map((item) => {
-        if (item.i === 'placeholder') {
-          return <EmptyDashboardWidget item={item} />;
-        }
-        const { nodeId, socketType, socketName } = deconstructSocketId(item.i);
-        // console.log(item, nodeId, socketType, socketName);
-        const node = PPGraph.currentGraph.getNodeById(nodeId);
-        if (!node) {
-          return <EmptyDashboardWidget item={item} />;
-        }
-        const socket = node.getSocketByNameAndType(socketName, socketType);
-        return (
-          <Box
-            key={item.i}
-            sx={{
-              pointerEvents: 'auto',
-              // background: `${Color(props.randomMainColor).alpha(0.98)}`,
-              bgcolor: 'background.paper',
-            }}
-          >
-            <DashboardWidgetContainer
-              triggerScrollIntoView={false}
+      <ResponsiveGridLayout
+        breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
+        cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }}
+        className="layout"
+        layouts={{ lg: currentLayout }}
+        style={{
+          zIndex: 1,
+          pointerEvents: 'none',
+          filter: 'drop-shadow(0px 0px 24px rgba(0, 0, 0, 0.5))',
+        }}
+        margin={[2, 2]}
+        rowHeight={56}
+        onLayoutChange={onLayoutChange}
+        onWidthChange={onWidthChange}
+        draggableHandle=".dragHandle"
+        resizeHandles={['s', 'w', 'e', 'sw', 'se']}
+      >
+        {currentLayout.map((item) => {
+          if (item.i === 'placeholder') {
+            return <EmptyDashboardWidget item={item} />;
+          }
+          const { nodeId, socketType, socketName } = deconstructSocketId(
+            item.i,
+          );
+          // console.log(item, nodeId, socketType, socketName);
+          const node = PPGraph.currentGraph.getNodeById(nodeId);
+          if (!node) {
+            return <EmptyDashboardWidget item={item} />;
+          }
+          const socket = node.getSocketByNameAndType(socketName, socketType);
+          return (
+            <Box
               key={item.i}
-              property={socket}
-              index={item.i}
-              dataType={socket.dataType}
-              isInput={socket.isInput()}
-              hasLink={socket.hasLink()}
-              data={socket.data}
-              randomMainColor={props.randomMainColor}
-              selectedNode={socket.getNode() as PPNode}
-            />
-          </Box>
-        );
-      })}
-    </ResponsiveGridLayout>
-    // </Box>
+              sx={{
+                pointerEvents: 'auto',
+                // background: `${Color(props.randomMainColor).alpha(0.98)}`,
+                bgcolor: 'background.paper',
+              }}
+            >
+              <DashboardWidgetContainer
+                triggerScrollIntoView={false}
+                key={item.i}
+                property={socket}
+                index={item.i}
+                dataType={socket.dataType}
+                isInput={socket.isInput()}
+                hasLink={socket.hasLink()}
+                data={socket.data}
+                randomMainColor={props.randomMainColor}
+                selectedNode={socket.getNode() as PPNode}
+              />
+            </Box>
+          );
+        })}
+      </ResponsiveGridLayout>
+    </Box>
   );
 };
 
@@ -200,6 +211,27 @@ export const DashboardWidgetContainer: React.FunctionComponent<
         overflow: 'hidden',
         // p: 1,
       }}
+      onPointerEnter={(event: React.MouseEvent<HTMLDivElement>) => {
+        event.stopPropagation();
+        const nodeToJumpTo = props.selectedNode;
+        if (nodeToJumpTo) {
+          PPGraph.currentGraph.selection.drawSingleFocus(nodeToJumpTo);
+        }
+      }}
+      onClick={(event: React.MouseEvent<HTMLDivElement>) => {
+        event.stopPropagation();
+        const nodeToJumpTo = props.selectedNode;
+        if (nodeToJumpTo) {
+          if (event.detail === ONCLICK_DOUBLECLICK) {
+            ensureVisible([nodeToJumpTo]);
+            setTimeout(() => {
+              PPGraph.currentGraph.selection.drawSingleFocus(nodeToJumpTo);
+            }, 800);
+          } else if (event.detail === ONCLICK_TRIPPLECLICK) {
+            zoomToFitNodes([nodeToJumpTo], -0.5);
+          }
+        }
+      }}
     >
       {showHeader && (
         <DashboardWidgetHeader
@@ -214,7 +246,7 @@ export const DashboardWidgetContainer: React.FunctionComponent<
       <Box
         sx={{
           p: 1,
-          height: 'calc(100% - 40px)',
+          height: 'calc(100% - 24px)',
           bgcolor: 'background.default',
           overflow: 'auto',
         }}
@@ -255,7 +287,7 @@ const DashboardWidgetHeader: React.FunctionComponent<
         flexWrap: 'nowrap',
         width: '100%',
         bgcolor: 'background.default',
-        justifyContent: 'space-between', // Add this to the parent container
+        justifyContent: 'space-between',
       }}
     >
       <Box
@@ -270,6 +302,7 @@ const DashboardWidgetHeader: React.FunctionComponent<
         }}
       >
         <Box
+          title={props.property.getNode().id}
           sx={{
             flexGrow: 1,
             display: 'inline-flex',
@@ -283,40 +316,24 @@ const DashboardWidgetHeader: React.FunctionComponent<
             sx={{
               pl: 1,
               color: 'text.primary',
-              // width: '100%',
             }}
           >{`${props.property.getNode().name} > ${props.property.name}`}</Box>
           {(!props.isInput || props.hasLink) && (
             <LockIcon sx={{ pl: '2px', fontSize: '16px', opacity: 0.5 }} />
           )}
-          <IconButton
-            size="small"
-            onClick={() => writeDataToClipboard(props.property?.data)}
-            sx={{
-              borderRadius: 0,
-            }}
-          >
-            <ContentCopyIcon sx={{ fontSize: '12px' }} />
-          </IconButton>
         </Box>
         <Box sx={{ flex: '1' }}></Box>{' '}
         <IconButton
           title="Remove from dashboard"
-          aria-label="more"
-          id="select-type"
-          aria-controls="long-menu"
-          aria-expanded={open ? 'true' : undefined}
-          aria-haspopup="true"
+          size="small"
           onClick={() => {
             InterfaceController.onRemoveFromDashboard(props.property);
           }}
           sx={{
             borderRadius: 0,
-            // position: 'absolute',
-            // right: 0,
           }}
         >
-          <ClearIcon />
+          <ClearIcon sx={{ fontSize: '12px' }} />
         </IconButton>
       </Box>
     </Box>
