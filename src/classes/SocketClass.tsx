@@ -1,7 +1,7 @@
 import * as PIXI from 'pixi.js';
 import React from 'react';
 import { Box } from '@mui/material';
-import { SocketContainer } from '../SocketContainer';
+import { SocketBody } from '../SocketContainer';
 import {
   SerializedSocket,
   TRgba,
@@ -414,6 +414,19 @@ export default class Socket extends PIXI.Container implements Tooltipable {
   }
 
   getTooltipContent(props): React.ReactElement {
+    console.log(props);
+    const baseProps = {
+      key: this.dataType.getName(),
+      property: this,
+      index: 0,
+      isInput: this.isInput,
+      hasLink: this.hasLink,
+      data: this.data,
+      randomMainColor: props.randomMainColor,
+    };
+    const widget = this.isInput
+      ? this.dataType.getInputWidget(baseProps)
+      : this.dataType.getOutputWidget(baseProps);
     return (
       <>
         <Box
@@ -423,23 +436,22 @@ export default class Socket extends PIXI.Container implements Tooltipable {
             color: 'text.primary',
             fontWeight: 'medium',
             fontSize: 'small',
-            fontStyle: 'italic',
           }}
         >
-          Shift+Click to pin
+          <em>Shift+Click</em> to add to dashboard
         </Box>
-        <SocketContainer
-          triggerScrollIntoView={false}
-          key={0}
-          property={this}
-          index={0}
-          dataType={this.dataType}
-          isInput={this.isInput()}
-          hasLink={this.hasLink()}
-          data={this.data}
-          randomMainColor={props.randomMainColor}
-          selectedNode={this.getNode()}
-        />
+        <Box
+          sx={{
+            bgcolor: 'background.default',
+          }}
+        >
+          <SocketBody
+            property={this}
+            randomMainColor={props.randomMainColor}
+            selectedNode={props.selectedNode}
+            widget={widget}
+          />
+        </Box>
       </>
     );
   }

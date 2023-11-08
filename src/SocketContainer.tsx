@@ -24,7 +24,6 @@ type SocketContainerProps = {
   hasLink: boolean;
   data: any;
   randomMainColor: string;
-  showHeader?: boolean;
   selectedNode: PPNode;
   onDashboard?: boolean;
 };
@@ -34,7 +33,6 @@ export const SocketContainer: React.FunctionComponent<SocketContainerProps> = (
 ) => {
   const myRef = useRef(null);
 
-  const { showHeader = true } = props;
   const [dataTypeValue, setDataTypeValue] = useState(props.dataType);
   const baseProps = {
     key: props.dataType.getName(),
@@ -72,45 +70,37 @@ export const SocketContainer: React.FunctionComponent<SocketContainerProps> = (
     setDataTypeValue(props.dataType);
   }, [props.dataType]);
 
+  const locked = !props.isInput || props.hasLink;
+
   return (
     <Box
       id={`inspector-socket-${props.dataType.getName()}`}
       ref={myRef}
-      sx={{ bgcolor: 'background.default' }}
+      sx={{ bgcolor: 'background.default', opacity: locked ? 0.75 : 1 }}
     >
-      {showHeader && (
-        <SocketHeader
-          key={`SocketHeader-${props.dataType.getName()}`}
-          property={props.property}
-          index={props.index}
-          isSelected={props.triggerScrollIntoView}
-          isInput={props.isInput}
-          hasLink={props.hasLink}
-          onChangeDropdown={onChangeDropdown}
-          randomMainColor={props.randomMainColor}
-        />
-      )}
+      <SocketHeader
+        key={`SocketHeader-${props.dataType.getName()}`}
+        property={props.property}
+        index={props.index}
+        isSelected={props.triggerScrollIntoView}
+        isInput={props.isInput}
+        hasLink={props.hasLink}
+        onChangeDropdown={onChangeDropdown}
+        randomMainColor={props.randomMainColor}
+      />
       <Box
         sx={{
           px: 1,
           py: 1,
-          ...(!showHeader && { margin: '0px' }), // if no header, then override the margins
         }}
         className={styles.propertyContainerContent}
       >
-        {props.property.custom?.inspectorInjection && (
-          <CustomSocketInjection
-            InjectionContent={
-              props.property.custom?.inspectorInjection?.reactComponent
-            }
-            props={{
-              ...props.property.custom?.inspectorInjection?.props,
-              randomMainColor: props.randomMainColor,
-              selectedNode: props.selectedNode,
-            }}
-          />
-        )}
-        {widget}
+        <SocketBody
+          property={props.property}
+          randomMainColor={props.randomMainColor}
+          selectedNode={props.selectedNode}
+          widget={widget}
+        />
       </Box>
     </Box>
   );
@@ -132,6 +122,7 @@ type SocketHeaderProps = {
 
 const SocketHeader: React.FunctionComponent<SocketHeaderProps> = (props) => {
   const [visible, setVisible] = useState(props.property.visible);
+  const [locked] = useState(!props.isInput || props.hasLink);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -140,6 +131,8 @@ const SocketHeader: React.FunctionComponent<SocketHeaderProps> = (props) => {
   const handleClose = () => {
     setAnchorEl(null);
   };
+
+  console.log(props.hasLink, props.isInput, props.isSelected);
 
   return (
     <Box
@@ -150,33 +143,39 @@ const SocketHeader: React.FunctionComponent<SocketHeaderProps> = (props) => {
         bgcolor: props.isSelected && 'secondary.dark',
       }}
     >
-      <ToggleButton
-        value="check"
-        size="small"
-        selected={!visible}
-        onChange={() => {
-          props.property.setVisible(!visible);
-          setVisible((value) => !value);
-        }}
-        sx={{
-          fontSize: '16px',
-          border: 0,
-          width: '40px',
-        }}
-      >
-        {visible ? (
-          <VisibilityIcon fontSize="inherit" />
-        ) : (
-          <VisibilityOffIcon fontSize="inherit" />
-        )}
-      </ToggleButton>
+      {locked ? (
+        <Box sx={{ p: 1, opacity: 0.75, width: '40px', textAlign: 'center' }}>
+          <LockIcon sx={{ fontSize: '16px' }} />
+        </Box>
+      ) : (
+        <ToggleButton
+          value="check"
+          size="small"
+          selected={!visible}
+          onChange={() => {
+            props.property.setVisible(!visible);
+            setVisible((value) => !value);
+          }}
+          sx={{
+            fontSize: '16px',
+            border: 0,
+            width: '40px',
+          }}
+        >
+          {visible ? (
+            <VisibilityIcon fontSize="inherit" />
+          ) : (
+            <VisibilityOffIcon fontSize="inherit" />
+          )}
+        </ToggleButton>
+      )}
       <Box
         sx={{
           flexGrow: 1,
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          opacity: visible ? 1 : 0.5,
+          opacity: visible ? 1 : 0.75,
         }}
       >
         <Box sx={{ flexGrow: 1, display: 'inline-flex', alignItems: 'center' }}>
@@ -190,12 +189,11 @@ const SocketHeader: React.FunctionComponent<SocketHeaderProps> = (props) => {
               borderRadius: 0,
             }}
           >
-            <PlaylistAddIcon sx={{ fontSize: '12px' }} />
+            <PlaylistAddIcon sx={{ fontSize: '24px' }} />
           </IconButton>
-          <Box sx={{ pl: 1, color: 'text.primary' }}>{props.property.name}</Box>
-          {(!props.isInput || props.hasLink) && (
-            <LockIcon sx={{ pl: '2px', fontSize: '16px', opacity: 0.5 }} />
-          )}
+          <Box sx={{ pl: 0.5, color: 'text.primary' }}>
+            {props.property.name}
+          </Box>
           <IconButton
             size="small"
             title="Copy data to clipboard"
@@ -278,5 +276,31 @@ const SocketHeader: React.FunctionComponent<SocketHeaderProps> = (props) => {
         </Menu>
       </Box>
     </Box>
+  );
+};
+type SocketBodyProps = {
+  property: Socket;
+  selectedNode: PPNode;
+  widget: any;
+  randomMainColor: string;
+};
+
+export const SocketBody: React.FunctionComponent<SocketBodyProps> = (props) => {
+  return (
+    <>
+      {props.property.custom?.inspectorInjection && (
+        <CustomSocketInjection
+          InjectionContent={
+            props.property.custom?.inspectorInjection?.reactComponent
+          }
+          props={{
+            ...props.property.custom?.inspectorInjection?.props,
+            randomMainColor: props.randomMainColor,
+            selectedNode: props.selectedNode,
+          }}
+        />
+      )}
+      {props.widget}
+    </>
   );
 };

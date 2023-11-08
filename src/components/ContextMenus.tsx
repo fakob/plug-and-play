@@ -33,6 +33,7 @@ import MouseIcon from '@mui/icons-material/Mouse';
 import SwipeIcon from '@mui/icons-material/Swipe';
 import ShareIcon from '@mui/icons-material/Share';
 import LogoutIcon from '@mui/icons-material/Logout';
+import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
 import PPSocket from './../classes/SocketClass';
 import InterfaceController, { ListenEvent } from '../InterfaceController';
 import {
@@ -692,6 +693,16 @@ export const SocketContextMenu = (props) => {
       }}
     >
       <MenuList dense>
+        <MenuItem
+          onClick={() => {
+            InterfaceController.onAddToDashboard(selectedSocket);
+          }}
+        >
+          <ListItemIcon>
+            <PlaylistAddIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Add to dashboard</ListItemText>
+        </MenuItem>
         <MenuItem
           onClick={() => {
             PPGraph.currentGraph.selection.selectNodes(

@@ -1,18 +1,16 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Box, IconButton } from '@mui/material';
 import LockIcon from '@mui/icons-material/Lock';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import ClearIcon from '@mui/icons-material/Clear';
-import Color from 'color';
 import { Responsive, WidthProvider } from 'react-grid-layout';
-import { CustomSocketInjection } from '../SocketContainer';
+import { SocketBody } from '../SocketContainer';
 import PPNode from '../classes/NodeClass';
 import InterfaceController from '../InterfaceController';
 import PPGraph from '../classes/GraphClass';
 import PPSocket from '../classes/SocketClass';
 import { AbstractType } from '../nodes/datatypes/abstractType';
 import { ensureVisible, zoomToFitNodes } from '../pixi/utils-pixi';
-import { deconstructSocketId, writeDataToClipboard } from '../utils/utils';
+import { deconstructSocketId } from '../utils/utils';
 import { ONCLICK_DOUBLECLICK, ONCLICK_TRIPPLECLICK } from '../utils/constants';
 
 type GraphOverlayDashboardProps = {
@@ -93,12 +91,14 @@ const GraphOverlayDashboard: React.FunctionComponent<
     console.log('onLayoutChange', currLayout, allLayouts);
     if (PPGraph.currentGraph) {
       PPGraph.currentGraph.layouts.layout1 = currLayout;
+      setCurrentLayout(currLayout);
     }
   };
 
   return (
     <Box
       sx={{
+        position: 'absolute',
         pointerEvents: 'none',
         height: '100vh !important',
         width: '100%',
@@ -113,9 +113,10 @@ const GraphOverlayDashboard: React.FunctionComponent<
         style={{
           zIndex: 1,
           pointerEvents: 'none',
-          filter: 'drop-shadow(0px 0px 24px rgba(0, 0, 0, 0.5))',
+          filter: 'drop-shadow(8px 8px 0px rgba(0, 0, 0, 0.5))',
+          // filter: 'drop-shadow(0px 0px 24px rgba(0, 0, 0, 0.5))',
         }}
-        margin={[2, 2]}
+        margin={[4, 4]}
         rowHeight={56}
         onLayoutChange={onLayoutChange}
         onWidthChange={onWidthChange}
@@ -175,7 +176,6 @@ type DashboardWidgetContainerProps = {
   hasLink: boolean;
   data: any;
   randomMainColor: string;
-  showHeader?: boolean;
   selectedNode: PPNode;
   onDashboard?: boolean;
 };
@@ -183,7 +183,6 @@ type DashboardWidgetContainerProps = {
 export const DashboardWidgetContainer: React.FunctionComponent<
   DashboardWidgetContainerProps
 > = (props) => {
-  const { showHeader = true } = props;
   const [dataTypeValue, setDataTypeValue] = useState(props.dataType);
   const baseProps = {
     key: props.dataType.getName(),
@@ -209,7 +208,60 @@ export const DashboardWidgetContainer: React.FunctionComponent<
       sx={{
         height: '100%',
         overflow: 'hidden',
-        // p: 1,
+      }}
+    >
+      <DashboardWidgetHeader
+        key={`SocketHeader-${props.dataType.getName()}`}
+        property={props.property}
+        selectedNode={props.selectedNode}
+        index={props.index}
+        isInput={props.isInput}
+        hasLink={props.hasLink}
+        randomMainColor={props.randomMainColor}
+      />
+      <Box
+        sx={{
+          p: 1,
+          height: 'calc(100% - 32px)',
+          bgcolor: 'background.default',
+          overflow: 'auto',
+          paddingTop: '2px',
+        }}
+      >
+        <SocketBody
+          property={props.property}
+          randomMainColor={props.randomMainColor}
+          selectedNode={props.selectedNode}
+          widget={widget}
+        />
+      </Box>
+    </Box>
+  );
+};
+
+type DashboardWidgetHeaderProps = {
+  property: PPSocket;
+  selectedNode: PPNode;
+  index: number;
+  isInput: boolean;
+  hasLink: boolean;
+  randomMainColor: string;
+};
+
+const DashboardWidgetHeader: React.FunctionComponent<
+  DashboardWidgetHeaderProps
+> = (props) => {
+  const locked = !props.isInput || props.hasLink;
+
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        flexWrap: 'nowrap',
+        width: '100%',
+        color: 'text.secondary',
+        justifyContent: 'space-between',
+        height: '32px',
       }}
       onPointerEnter={(event: React.MouseEvent<HTMLDivElement>) => {
         event.stopPropagation();
@@ -233,109 +285,45 @@ export const DashboardWidgetContainer: React.FunctionComponent<
         }
       }}
     >
-      {showHeader && (
-        <DashboardWidgetHeader
-          key={`SocketHeader-${props.dataType.getName()}`}
-          property={props.property}
-          index={props.index}
-          isInput={props.isInput}
-          hasLink={props.hasLink}
-          randomMainColor={props.randomMainColor}
-        />
-      )}
-      <Box
-        sx={{
-          p: 1,
-          height: 'calc(100% - 24px)',
-          bgcolor: 'background.default',
-          overflow: 'auto',
-        }}
-      >
-        {props.property.custom?.inspectorInjection && (
-          <CustomSocketInjection
-            InjectionContent={
-              props.property.custom?.inspectorInjection?.reactComponent
-            }
-            props={{
-              ...props.property.custom?.inspectorInjection?.props,
-              randomMainColor: props.randomMainColor,
-              selectedNode: props.selectedNode,
-            }}
-          />
-        )}
-        {widget}
-      </Box>
-    </Box>
-  );
-};
-
-type DashboardWidgetHeaderProps = {
-  property: PPSocket;
-  index: number;
-  isInput: boolean;
-  hasLink: boolean;
-  randomMainColor: string;
-};
-
-const DashboardWidgetHeader: React.FunctionComponent<
-  DashboardWidgetHeaderProps
-> = (props) => {
-  return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexWrap: 'nowrap',
-        width: '100%',
-        bgcolor: 'background.default',
-        justifyContent: 'space-between',
-      }}
-    >
       <Box
         className="dragHandle"
+        title={props.property.getNode().id}
         sx={{
+          pl: 1,
           flexGrow: 1,
           display: 'flex',
-          justifyContent: 'space-between',
+          justifyContent: 'flex-start',
           alignItems: 'center',
           cursor: 'move',
-          width: '100%',
+          width: 'calc(100% - 32px)',
         }}
       >
+        {locked && <LockIcon sx={{ fontSize: '16px', opacity: 0.5 }} />}
         <Box
-          title={props.property.getNode().id}
           sx={{
-            flexGrow: 1,
-            display: 'inline-flex',
-            alignItems: 'center',
+            pl: 0.5,
+            pt: 0.3,
+            fontSize: '14px',
             whiteSpace: 'nowrap',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
           }}
-        >
-          <Box
-            sx={{
-              pl: 1,
-              color: 'text.primary',
-            }}
-          >{`${props.property.getNode().name} > ${props.property.name}`}</Box>
-          {(!props.isInput || props.hasLink) && (
-            <LockIcon sx={{ pl: '2px', fontSize: '16px', opacity: 0.5 }} />
-          )}
-        </Box>
-        <Box sx={{ flex: '1' }}></Box>{' '}
-        <IconButton
-          title="Remove from dashboard"
-          size="small"
-          onClick={() => {
-            InterfaceController.onRemoveFromDashboard(props.property);
-          }}
-          sx={{
-            borderRadius: 0,
-          }}
-        >
-          <ClearIcon sx={{ fontSize: '12px' }} />
-        </IconButton>
+        >{`${props.property.getNode().name} > ${props.property.name}`}</Box>
       </Box>
+      <Box sx={{ flex: '1' }}></Box>{' '}
+      <IconButton
+        title="Remove from dashboard"
+        size="small"
+        onClick={() => {
+          InterfaceController.onRemoveFromDashboard(props.property);
+        }}
+        sx={{
+          borderRadius: 0,
+        }}
+      >
+        <ClearIcon sx={{ fontSize: '12px' }} />
+      </IconButton>
+      {/* </Box> */}
     </Box>
   );
 };
