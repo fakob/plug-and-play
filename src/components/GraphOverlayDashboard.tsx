@@ -97,17 +97,19 @@ const GraphOverlayDashboard: React.FunctionComponent<
 
   return (
     <Box
+      id="dashboard-container"
       sx={{
         position: 'absolute',
         pointerEvents: 'none',
         height: '100vh !important',
-        width: '100%',
+        width: 'calc(100% - 320px)',
         overflow: 'auto',
+        left: '320px',
       }}
     >
       <ResponsiveGridLayout
-        breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
-        cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }}
+        breakpoints={{ lg: 1200, sm: 768, xxs: 0 }}
+        cols={{ lg: 12, sm: 6, xxs: 4 }}
         className="layout"
         layouts={{ lg: currentLayout }}
         style={{
@@ -225,7 +227,6 @@ export const DashboardWidgetContainer: React.FunctionComponent<
           height: 'calc(100% - 32px)',
           bgcolor: 'background.default',
           overflow: 'auto',
-          paddingTop: '2px',
         }}
       >
         <SocketBody

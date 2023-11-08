@@ -126,8 +126,6 @@ const ResponsiveDrawer = (props) => {
   };
 
   const handlePointerMove = useCallback((e) => {
-    console.log(e);
-
     const minDrawerWidth = 50;
     const maxDrawerWidth = window.innerWidth - 100;
     const newWidth =
@@ -177,9 +175,9 @@ const ResponsiveDrawer = (props) => {
             background: `${Color(props.randomMainColor).alpha(0.98)}`,
             overflowY: 'unset',
             height: smallScreen ? '100vh' : 'calc(100vh - 16px)',
-            marginTop: smallScreen ? 0 : '8px',
-            marginRight: props.isLeft || smallScreen ? 'unset' : '8px',
-            marginLeft: props.isLeft && !smallScreen ? '8px' : 'unset',
+            marginTop: smallScreen ? 0 : '4px',
+            marginRight: props.isLeft || smallScreen ? 'unset' : '4px',
+            marginLeft: props.isLeft && !smallScreen ? '4px' : 'unset',
           },
         }}
       >
