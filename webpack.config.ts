@@ -15,6 +15,7 @@ import MonacoWebpackPlugin from 'monaco-editor-webpack-plugin';
 const title = 'Your Plug and Playground';
 const imageURL =
   'https://plugandplayground.dev/assets/PlugAndPlayground-Drawing-a-chart.png';
+const faviconURL = './assets/favicon-32.png';
 const url = 'https://plugandplayground.dev';
 const description =
   'Creative prototyping to explore, transform or visualise data.';
@@ -98,6 +99,7 @@ module.exports = (env, argv) => {
           'twitter:image': { name: 'twitter:image', content: `${imageURL}` },
           'twitter:creator': { name: 'twitter:creator', content: `${author}` },
         },
+        favicon: faviconURL,
       }),
       new CleanWebpackPlugin(),
       new webpack.ProvidePlugin({
