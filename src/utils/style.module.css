@@ -268,3 +268,15 @@
   max-height: 60vh;
   overflow: auto;
 }
+
+.fadeEnter {
+  opacity: 1;
+  transform: scale(1.0);
+  transition: opacity 150ms ease-in-out, transform 150ms ease-in-out;
+}
+
+.fadeExit {
+  opacity: 0;
+  transform: scale(1.1);
+  transition: opacity 150ms ease-in-out, transform 150ms ease-in-out;
+}

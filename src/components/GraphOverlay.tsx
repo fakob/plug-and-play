@@ -38,7 +38,10 @@ const GraphOverlay: React.FunctionComponent<GraphOverlayProps> = (props) => {
         selectedNodes={selectedNodes}
         randomMainColor={props.randomMainColor}
       />
-      <GraphOverlayDashboard randomMainColor={props.randomMainColor} />
+      <GraphOverlayDashboard
+        randomMainColor={props.randomMainColor}
+        toggleLeft={props.toggleLeft}
+      />
     </>
   );
 };

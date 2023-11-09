@@ -47,18 +47,18 @@ function FilterContainer(props: FilterContentProps) {
       }}
     >
       <ToggleButton
-        id="inspector-filter-create"
-        value="create"
-        aria-label="create"
-      >
-        Create
-      </ToggleButton>
-      <ToggleButton
         id="inspector-filter-explore"
         value="explore"
         aria-label="explore"
       >
-        Explore
+        My playgrounds
+      </ToggleButton>
+      <ToggleButton
+        id="inspector-filter-create"
+        value="create"
+        aria-label="create"
+      >
+        Help
       </ToggleButton>
       <ToggleButton
         id="inspector-filter-about"

@@ -15,18 +15,21 @@ import { ONCLICK_DOUBLECLICK, ONCLICK_TRIPPLECLICK } from '../utils/constants';
 
 type GraphOverlayDashboardProps = {
   randomMainColor: string;
+  toggleLeft: boolean;
 };
 
 const GraphOverlayDashboard: React.FunctionComponent<
   GraphOverlayDashboardProps
 > = (props) => {
   const [currentLayout, setCurrentLayout] = useState([]);
-  // const [columns, setColumns] = useState(12);
   const ResponsiveGridLayout = useMemo(() => WidthProvider(Responsive), []);
+  const [leftDrawerWidth, setLeftDrawerWidth] = useState(0);
+  const [rightDrawerWidth, setRightDrawerWidth] = useState(0);
 
   useEffect(() => {
     InterfaceController.onAddToDashboard = addToDashboard;
     InterfaceController.onRemoveFromDashboard = removeFromDashboard;
+    InterfaceController.onDrawerSizeChanged = drawerSizeChanged;
   }, []);
 
   useEffect(() => {
@@ -77,6 +80,12 @@ const GraphOverlayDashboard: React.FunctionComponent<
     });
   };
 
+  const drawerSizeChanged = (leftWidth: number, rightWidth: number) => {
+    console.log('drawerSizeChanged', leftWidth, rightWidth);
+    setLeftDrawerWidth(leftWidth + 4);
+    setRightDrawerWidth(rightWidth + 4);
+  };
+
   const onWidthChange = (
     containerWidth: number,
     margin: [number, number],
@@ -102,9 +111,9 @@ const GraphOverlayDashboard: React.FunctionComponent<
         position: 'absolute',
         pointerEvents: 'none',
         height: '100vh !important',
-        width: 'calc(100% - 320px)',
+        width: `calc(100% - ${leftDrawerWidth + rightDrawerWidth}px)`,
         overflow: 'auto',
-        left: '320px',
+        left: `${leftDrawerWidth}px`,
       }}
     >
       <ResponsiveGridLayout
@@ -118,7 +127,7 @@ const GraphOverlayDashboard: React.FunctionComponent<
           filter: 'drop-shadow(8px 8px 0px rgba(0, 0, 0, 0.5))',
           // filter: 'drop-shadow(0px 0px 24px rgba(0, 0, 0, 0.5))',
         }}
-        margin={[4, 4]}
+        margin={props.toggleLeft ? [0, 12] : [4, 4]}
         rowHeight={56}
         onLayoutChange={onLayoutChange}
         onWidthChange={onWidthChange}

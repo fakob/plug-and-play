@@ -83,6 +83,10 @@ export default class InterfaceController {
     event: PIXI.FederatedPointerEvent,
     target: PIXI.FederatedEventTarget,
   ) => void = () => {}; // called when the graph is right clicked
+  static onDrawerSizeChanged: (
+    leftDrawerWidth: number,
+    rightDrawerWidth: number,
+  ) => void = () => {}; // called when a drawer is toggled or resized
   static onAddToDashboard: (data: Socket) => void = () => {}; // called when socket inspector should be opened
   static onRemoveFromDashboard: (data: Socket) => void = () => {}; // called when socket inspector should be opened
   static selectionRedrawn: (pos: PIXI.Point) => void = () => {};
@@ -104,8 +108,6 @@ export default class InterfaceController {
   static setGraphToBeModified: (graph: Graph) => void = () => {};
   static setShowGraphEdit: (show: boolean) => void = () => {};
   static setShowGraphDelete: (show: boolean) => void = () => {};
-
-  static setBackgroundColor: (number) => void = () => {};
 
   /////////////////////////////////////////////////////////////////////////////
   static isTypingInConsole = false;

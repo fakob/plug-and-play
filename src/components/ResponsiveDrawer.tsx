@@ -1,16 +1,19 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { Box, Button, Drawer } from '@mui/material';
+import { Box, Button, Drawer, IconButton } from '@mui/material';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import TuneIcon from '@mui/icons-material/Tune';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
 import Color from 'color';
 import InterfaceController, { ListenEvent } from '../InterfaceController';
 import Socket from '../classes/SocketClass';
 import InspectorContainer from '../InspectorContainer';
 import GraphInspectorContainer from '../GraphInspectorContainer';
 import HelpContainer from '../HelpContainer';
-import { COLOR_DARK, COLOR_WHITE_TEXT } from '../utils/constants';
+import {
+  COLOR_DARK,
+  COLOR_WHITE_TEXT,
+  PLUGANDPLAY_ICON_BLACK,
+} from '../utils/constants';
 import { useIsSmallScreen } from '../utils/utils';
 import styles from '../utils/style.module.css';
 
@@ -20,7 +23,7 @@ function DrawerToggleInspector(props) {
       <Button
         title={`${props.open ? 'Close node inspector' : 'Open node inspector'}`}
         size="small"
-        onClick={props.handleDrawerToggle}
+        onClick={() => InterfaceController.toggleRightSideDrawer()}
         color="primary"
         sx={{
           position: 'fixed',
@@ -44,10 +47,10 @@ function DrawerToggleInspector(props) {
 function DrawerToggleHelp(props) {
   return (
     <Box id="drawer-toggle-help">
-      <Button
+      <IconButton
         size="small"
         title={`${props.open ? 'Close help' : 'Open help'}`}
-        onClick={props.handleDrawerToggle}
+        onClick={() => InterfaceController.toggleLeftSideDrawer()}
         color="primary"
         sx={{
           position: 'fixed',
@@ -57,20 +60,26 @@ function DrawerToggleHelp(props) {
           minWidth: '32px',
           backgroundColor: props.open ? COLOR_DARK : COLOR_WHITE_TEXT,
           zIndex: '1300',
-          '&:hover': {
-            backgroundColor: `${Color(props.randomMainColor).darken(0.7)}`,
-          },
         }}
       >
-        {props.open ? <ChevronLeftIcon /> : <QuestionMarkIcon />}
-      </Button>
+        {props.open ? (
+          <ChevronLeftIcon />
+        ) : (
+          <img
+            id="plugandplayground-logo"
+            style={{
+              width: '32px',
+            }}
+            src={PLUGANDPLAY_ICON_BLACK}
+          />
+        )}
+      </IconButton>
     </Box>
   );
 }
 
 const ResponsiveDrawer = (props) => {
   // leaving this commented here for potential future testing
-  const [open, setOpen] = useState(true);
   const [filter, setFilter] = useState(null);
   const [helpFilter, setHelpFilter] = useState('create');
   const [graphFilter, setGraphFilter] = useState('nodes');
@@ -82,11 +91,6 @@ const ResponsiveDrawer = (props) => {
 
   const toggleInspectorAndFocus = ({ filter, socket, open }) => {
     if (!props.isLeft) {
-      if (open !== undefined) {
-        setOpen(open);
-      } else {
-        handleDrawerToggle();
-      }
       if (filter) {
         setFilter(filter);
         setSocketToInspect(undefined);
@@ -111,10 +115,6 @@ const ResponsiveDrawer = (props) => {
     };
   }, []);
 
-  const handleDrawerToggle = () => {
-    setOpen((prevState) => !prevState);
-  };
-
   const handleMouseDown = (e) => {
     document.addEventListener('pointerup', handlePointerUp, true);
     document.addEventListener('pointermove', handlePointerMove, true);
@@ -138,46 +138,41 @@ const ResponsiveDrawer = (props) => {
     }
   }, []);
 
-  useEffect(() => {
-    handleDrawerToggle();
-  }, [props.toggle]);
+  const margin = props.isLeft ? 0 : 8;
 
   return (
     <>
       {props.isLeft ? (
         <DrawerToggleHelp
-          posLeft={false}
-          open={open}
+          open={props.toggle}
           randomMainColor={props.randomMainColor}
-          handleDrawerToggle={handleDrawerToggle}
         />
       ) : (
         <DrawerToggleInspector
-          posLeft={true}
-          open={open}
+          open={props.toggle}
           randomMainColor={props.randomMainColor}
-          handleDrawerToggle={handleDrawerToggle}
         />
       )}
       <Drawer
         anchor={props.isLeft ? 'left' : 'right'}
         variant="persistent"
         hideBackdrop
-        open={open}
+        open={props.toggle}
         ModalProps={{
           keepMounted: true,
         }}
         PaperProps={{
-          elevation: 8,
+          elevation: margin,
           style: {
+            zIndex: props.isLeft ? 10 : 4,
             width: smallScreen ? '100%' : props.drawerWidth,
             border: 0,
             background: `${Color(props.randomMainColor).alpha(0.98)}`,
             overflowY: 'unset',
-            height: smallScreen ? '100vh' : 'calc(100vh - 16px)',
-            marginTop: smallScreen ? 0 : '4px',
-            marginRight: props.isLeft || smallScreen ? 'unset' : '4px',
-            marginLeft: props.isLeft && !smallScreen ? '4px' : 'unset',
+            height: smallScreen ? '100vh' : `calc(100vh - ${margin * 2}px)`,
+            marginTop: smallScreen ? 0 : `${margin}px`,
+            marginRight: props.isLeft || smallScreen ? 'unset' : `${margin}px`,
+            marginLeft: props.isLeft && !smallScreen ? `${margin}px` : 'unset',
           },
         }}
       >

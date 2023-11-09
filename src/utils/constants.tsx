@@ -122,6 +122,8 @@ export const ERROR_COLOR = TRgba.fromString('#B71C1C');
 export const SUCCESS_COLOR = TRgba.fromString('#4BB543');
 
 export const PLUGANDPLAY_ICON = '../assets/PlugAndPlayIcon-transparent.svg';
+export const PLUGANDPLAY_ICON_WHITE = '../assets/PlugAndPlayIconWhite.svg';
+export const PLUGANDPLAY_ICON_BLACK = '../assets/PlugAndPlayIconBlack.svg';
 export const DRAWER30M_ICON = '../assets/Icon_Drawer30M.svg';
 export const DRAWER60M_ICON = '../assets/Icon_Drawer60M.svg';
 

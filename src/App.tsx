@@ -54,8 +54,10 @@ import {
   MAX_LATEST_NODES_IN_SEARCH,
   NODE_SOURCE,
   RANDOMMAINCOLOR,
+  PLUGANDPLAY_ICON_BLACK,
+  PLUGANDPLAY_ICON_WHITE,
 } from './utils/constants';
-import { INodeSearch } from './utils/interfaces';
+import { INodeSearch, TRgba } from './utils/interfaces';
 import {
   connectNodeToSocket,
   controlOrMetaKey,
@@ -110,7 +112,7 @@ const App = (): JSX.Element => {
   const nodeSearchInput = useRef<HTMLInputElement | null>(null);
   const [isNodeSearchVisible, setIsNodeSearchVisible] = useState(false);
   const [showRightSideDrawer, setShowRightSideDrawer] = useState(false);
-  const [showLeftSideDrawer, setShowLeftSideDrawer] = useState(false);
+  const [showLeftSideDrawer, setShowLeftSideDrawer] = useState(true);
   const nodeSearchCountRef = useRef(0);
   const [isGraphContextMenuOpen, setIsGraphContextMenuOpen] = useState(false);
   const [isNodeContextMenuOpen, setIsNodeContextMenuOpen] = useState(false);
@@ -820,7 +822,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               controlOrMetaKey={controlOrMetaKey()}
               contextMenuPosition={contextMenuPosition}
               setShowRightSideDrawer={setShowRightSideDrawer}
-              setShowLeftSideDrawer={setShowLeftSideDrawer}
               setShowEdit={setShowEdit}
               uploadGraph={uploadGraph}
               showComments={showComments}

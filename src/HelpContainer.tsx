@@ -10,7 +10,11 @@ import {
 } from '@mui/material';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import HelpContent from './HelpContent';
-import { customTheme } from './utils/constants';
+import {
+  PLUGANDPLAY_ICON_BLACK,
+  PLUGANDPLAY_ICON_WHITE,
+  customTheme,
+} from './utils/constants';
 import styles from './utils/style.module.css';
 import { TRgba } from './utils/interfaces';
 import { getAllNodeTypes } from './nodes/allNodes';
@@ -31,6 +35,18 @@ function HelpHeader(props) {
           alignItems: 'center',
         }}
       >
+        <img
+          id="plugandplayground-logo"
+          style={{
+            // backgroundColor: props.randomMainColor,
+            width: '24px',
+          }}
+          src={
+            TRgba.fromString(props.randomMainColor).isDark()
+              ? PLUGANDPLAY_ICON_WHITE
+              : PLUGANDPLAY_ICON_BLACK
+          }
+        />
         <Typography
           sx={{
             pl: 1,
