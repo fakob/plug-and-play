@@ -34,3 +34,16 @@ export const allDataTypes = {
   DynamicEnumType: DynamicEnumType,
   GraphInputType: GraphInputType,
 };
+
+export const dropDownSelectableTypes = {
+  AnyType: AnyType,
+  ArrayType: ArrayType,
+  BooleanType: BooleanType,
+  ColorType: ColorType,
+  NumberType: NumberType,
+  FunctionType: FunctionType,
+  StringType: StringType,
+  JSONType: JSONType,
+  ImageType: ImageType,
+  CodeType: CodeType,
+};
