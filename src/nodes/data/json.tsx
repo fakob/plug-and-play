@@ -282,7 +282,7 @@ export class Format extends PPNode {
   }
 
   public getDescription(): string {
-    return 'Takes an object as input, filters and possibly renames fields within these objects';
+    return 'Customize and transform a JSON object';
   }
 
   public getTags(): string[] {
@@ -329,9 +329,7 @@ export class Format extends PPNode {
 
   protected adaptOutputs(json: any): void {
     // remove all non existing arguments and add all missing (based on the definition we just got)
-    if (Object.keys(json).length === 0 || typeof json !== "object") {
-      return;
-    }
+
 
     const socketsToBeRemoved = this.inputSocketArray.filter(
       (socket) => {
@@ -360,13 +358,13 @@ export class Format extends PPNode {
 }
 
 const inputArrayName ="ObjectArray";
-export class MapFormat extends Format {
+export class FormatMap extends Format {
     public getName(): string {
-    return 'Map Format Object Properties';
+    return 'Format Object Properties (Map)';
   }
 
   public getDescription(): string {
-    return 'Takes an array of objects as input, uses the first object (if any) to base formatting on (see regular Format node)';
+    return 'Customize and transform an array of JSON objects';
   }
 
   public getTags(): string[] {
