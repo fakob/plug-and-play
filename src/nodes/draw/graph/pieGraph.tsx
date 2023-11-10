@@ -29,6 +29,7 @@ interface PieDrawnSlice {
   color: TRgba;
   preDraws: ((g: PIXI.Graphics, desiredIntensity: number) => void)[];
   draws: ((g: PIXI.Graphics, desiredIntensity: number) => void)[];
+  textDraws: ((g: PIXI.Graphics, desiredIntensity: number) => void)[];
 }
 
 const PIE_GRAPH_RESOLUTION = 1000;
@@ -194,6 +195,10 @@ export class GRAPH_PIE extends DRAW_Base {
         [];
       const preDraws: ((g: PIXI.Graphics, desiredIntensity: number) => void)[] =
         [];
+      const textDraws: ((
+        g: PIXI.Graphics,
+        desiredIntensity: number,
+      ) => void)[] = [];
       const distanceFromCenter = Math.max(
         0.01,
         inputObject[inputDistanceFromCenter] || 0.01,
@@ -229,7 +234,7 @@ export class GRAPH_PIE extends DRAW_Base {
           averageDirection.y * distance * yScale,
         );
         const textToUse = pieSlice.Name;
-        draws.push((drawGraphics: PIXI.Graphics) => {
+        textDraws.push((drawGraphics: PIXI.Graphics) => {
           drawGraphics.addChild(
             this.getValueText(textToUse, valuePosition, fontSize),
           );
@@ -237,7 +242,7 @@ export class GRAPH_PIE extends DRAW_Base {
 
         // if too far away, draw line back to my slice
         if (distance > radius) {
-          draws.push((drawGraphics: PIXI.Graphics) => {
+          textDraws.push((drawGraphics: PIXI.Graphics) => {
             drawGraphics.lineStyle(1, TRgba.black().hexNumber());
             drawGraphics.moveTo(
               averageDirection.x * radius,
@@ -372,6 +377,7 @@ export class GRAPH_PIE extends DRAW_Base {
         color,
         preDraws,
         draws,
+        textDraws,
       });
     });
 
@@ -391,29 +397,35 @@ export class GRAPH_PIE extends DRAW_Base {
       });
     });
     slicesToDraw.forEach((slice) => {
-      const draw = new PIXI.Graphics();
-      draw.beginFill(slice.color.hexNumber());
-      slice.draws.forEach((preDraw) => {
-        preDraw(draw, 1.0);
+      const drawGraphics = new PIXI.Graphics();
+      drawGraphics.beginFill(slice.color.hexNumber());
+      slice.draws.forEach((draw) => {
+        draw(drawGraphics, 1.0);
       });
-      draw.interactive = true;
-      draw.addEventListener('pointerover', (e) => {
-        draw.removeChildren();
-        slice.draws.forEach((preDraw) => {
-          preDraw(draw, 1.2);
+      drawGraphics.interactive = true;
+      drawGraphics.addEventListener('pointerover', (e) => {
+        drawGraphics.removeChildren();
+        slice.draws.forEach((draw) => {
+          draw(drawGraphics, 1.2);
         });
       });
 
-      draw.addEventListener('pointerout', (e) => {
-        draw.removeChildren();
-        slice.draws.forEach((preDraw) => {
-          preDraw(draw, 1.0);
+      drawGraphics.addEventListener('pointerout', (e) => {
+        drawGraphics.removeChildren();
+        slice.draws.forEach((draw) => {
+          draw(drawGraphics, 1.0);
         });
       });
-      topDraws.push(draw);
+      topDraws.push(drawGraphics);
     });
 
     topDraws.forEach((draw) => graphics.addChild(draw));
+    slicesToDraw.forEach((slice) => {
+      graphics.beginFill(slice.color.hexNumber());
+      slice.textDraws.forEach((draw) => {
+        draw(graphics, 1.0);
+      });
+    });
     //graphics.addChild(deferredGraphics);
     this.positionAndScale(graphics, inputObject);
     container.addChild(graphics);
