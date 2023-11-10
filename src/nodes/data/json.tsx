@@ -13,6 +13,7 @@ import { dataToType } from '../datatypes/typehelper';
 import { CustomFunction } from './dataFunctions';
 import { BooleanType } from '../datatypes/booleanType';
 import { DynamicInputNode } from '../abstract/DynamicInputNode';
+import { ArrayType } from '../datatypes/arrayType';
 
 const JSONName = 'JSON';
 const lockOutputsName = "Lock Outputs";
@@ -187,7 +188,7 @@ export class JSONValues extends JSONCustomFunction {
 }
 
 const BREAK_MAX_SOCKETS = 100;
-// actually works for arrays as well
+
 export class Break extends PPNode {
   public getName(): string {
     return 'Break JSON';
@@ -238,21 +239,18 @@ export class Break extends PPNode {
       return;
     }
 
-    const currentOutputSockets = this.getDataSockets().filter(
-      (socket) => socket.socketType === SOCKET_TYPE.OUT
-    );
-    const socketsToBeRemoved = currentOutputSockets.filter(
+    const socketsToBeRemoved = this.outputSocketArray.filter(
       (socket) => !(socket.name in json)
     );
     const argumentsToBeAdded = Object.keys(json).filter(
-      (key) => !currentOutputSockets.some((socket) => socket.name === key)
+      (key) => !this.outputSocketArray.some((socket) => socket.name === key)
     );
     socketsToBeRemoved.forEach((socket) => {
       this.removeSocket(socket);
     });
     argumentsToBeAdded.forEach((argument) => {
       // block creation of new sockets after a while to not freeze the whole editor
-      if (true || this.outputSocketArray.length < BREAK_MAX_SOCKETS) {
+      if (this.outputSocketArray.length < BREAK_MAX_SOCKETS) {
         // if we only have one child, keep unpacking until thers is none or several
         let currentPath = argument;
         let currentVal = json[argument];
@@ -273,6 +271,147 @@ export class Break extends PPNode {
   }
 }
 
+const socketAliasSuffix = " - Alias";
+const socketFieldPrefix = "Use ";
+
+const FORMAT_MAX_SOCKETS = 100;
+
+export class Format extends PPNode {
+  public getName(): string {
+    return 'Format Object Properties';
+  }
+
+  public getDescription(): string {
+    return 'Customize and transform a JSON object';
+  }
+
+  public getTags(): string[] {
+    return ['JSON'].concat(super.getTags());
+  }
+
+  protected getStandardInputName(){
+    return JSONName;
+  }
+
+
+  protected getDefaultIO(): Socket[] {
+    return [new Socket(SOCKET_TYPE.IN, this.getStandardInputName(), new JSONType(true)), new Socket(SOCKET_TYPE.OUT, this.getStandardInputName(), new JSONType(true))];
+  }
+
+  protected createUseSocketName(fieldName: string){
+    return socketFieldPrefix + fieldName;
+  }
+  protected createAliasName(fieldName: string){
+    return fieldName + socketAliasSuffix;
+  }
+
+  protected async onExecute(
+    inputObject: any,
+    outputObject: Record<string, unknown>
+  ): Promise<void> {
+    // before every execute, re-evaluate inputs
+    const json = inputObject[JSONName];
+    const outJSON = {};
+
+    this.adaptOutputs(json);
+
+    Object.keys(json).forEach(key => {
+      if (inputObject[this.createUseSocketName(key)]){
+        let transformedName = inputObject[this.createAliasName(key)];
+        if (transformedName.length < 1){
+          transformedName = key;
+        }
+        outJSON[transformedName] = json[key];
+      }
+    });
+    outputObject[JSONName] = outJSON;
+  }
+
+  protected adaptOutputs(json: any): void {
+    // remove all non existing arguments and add all missing (based on the definition we just got)
+
+
+    const socketsToBeRemoved = this.inputSocketArray.filter(
+      (socket) => {
+        const replacedName = socket.name.replaceAll(socketAliasSuffix, "").replaceAll(socketFieldPrefix, "");
+        return !(replacedName in json) && socket.name !== this.getStandardInputName()
+      }
+    );
+    const argumentsToBeAdded = Object.keys(json).filter(
+      (key) => !this.inputSocketArray.some((socket) => socket.name === this.createUseSocketName(key))
+    );
+    socketsToBeRemoved.forEach((socket) => {
+      this.removeSocket(socket);
+      //this.removeSocket(this.getInputSocketByName(socket.name + socketAliasSuffix));
+    });
+
+    argumentsToBeAdded.forEach((argument) => {
+      if (this.inputSocketArray.length < FORMAT_MAX_SOCKETS) {
+        this.addInput(this.createUseSocketName(argument), new BooleanType(), false);
+        this.addSocket(Socket.getOptionalVisibilitySocket(SOCKET_TYPE.IN, this.createAliasName(argument), new StringType, "", () => this.getInputData(this.createUseSocketName(argument))));
+      }
+    });
+    if (socketsToBeRemoved.length > 0 || argumentsToBeAdded.length > 0) {
+      this.metaInfoChanged();
+    }
+  }
+}
+
+const inputArrayName ="ObjectArray";
+export class FormatMap extends Format {
+    public getName(): string {
+    return 'Format Object Properties (Map)';
+  }
+
+  public getDescription(): string {
+    return 'Customize and transform an array of JSON objects';
+  }
+
+  public getTags(): string[] {
+    return ['JSON', "Array"].concat(super.getTags());
+  }
+
+  protected getStandardInputName(): string {
+   return inputArrayName;
+  }
+
+  protected getDefaultIO(): Socket[] {
+    return [new Socket(SOCKET_TYPE.IN, inputArrayName, new ArrayType()), new Socket(SOCKET_TYPE.OUT, inputArrayName, new ArrayType())];
+  }
+
+
+  protected async onExecute(
+    inputObject: any,
+    outputObject: Record<string, unknown>
+  ): Promise<void> {
+    const inputArray = inputObject[inputArrayName];
+
+    if (Array.isArray(inputArray) && inputArray.length > 0){
+      const json = inputArray[0];
+
+      this.adaptOutputs(json);
+      const outputArray = [];
+      for (let i = 0; i < inputArray.length; i++){
+        outputArray.push({});
+      }
+
+      Object.keys(json).forEach((key) => {
+        if (inputObject[this.createUseSocketName(key)]){
+          let transformedName = inputObject[this.createAliasName(key)];
+          if (transformedName.length < 1){
+            transformedName = key;
+          }
+          for (let i = 0; i < inputArray.length; i++){
+            outputArray[i][transformedName] = inputArray[i][key];
+          }
+        }
+      });
+      outputObject[inputArrayName] = outputArray;
+    }
+  }
+
+
+}
 
 export class Make extends DynamicInputNode {
   public getName(): string {
