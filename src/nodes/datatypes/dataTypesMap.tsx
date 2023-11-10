@@ -14,7 +14,7 @@ import { JSONType } from './jsonType';
 import { NumberType } from './numberType';
 import { StringType } from './stringType';
 import { TriggerType } from './triggerType';
-import { FormatJSONType } from './formatJSONFIeld';
+import FormatJSONType from './formatJSONType';
 
 // I hate this but what can you do
 export const allDataTypes = {
