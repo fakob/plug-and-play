@@ -11,7 +11,10 @@ import styles from './utils/style.module.css';
 import PPNode from './classes/NodeClass';
 import Socket from './classes/SocketClass';
 import { AbstractType } from './nodes/datatypes/abstractType';
-import { allDataTypes } from './nodes/datatypes/dataTypesMap';
+import {
+  allDataTypes,
+  dropDownSelectableTypes,
+} from './nodes/datatypes/dataTypesMap';
 
 type SocketContainerProps = {
   triggerScrollIntoView: boolean;
@@ -27,7 +30,7 @@ type SocketContainerProps = {
 };
 
 export const SocketContainer: React.FunctionComponent<SocketContainerProps> = (
-  props
+  props,
 ) => {
   const myRef = useRef(null);
 
@@ -138,6 +141,10 @@ const SocketHeader: React.FunctionComponent<SocketHeaderProps> = (props) => {
     setAnchorEl(null);
   };
 
+  const typeAvailableInDropdown =
+    dropDownSelectableTypes[props.property.dataType.constructor.name] !==
+    undefined;
+
   return (
     <Box
       sx={{
@@ -210,52 +217,54 @@ const SocketHeader: React.FunctionComponent<SocketHeaderProps> = (props) => {
           >
             {props.property.dataType.getName()}
           </Box>
-          <MoreVertIcon />
+          {typeAvailableInDropdown && <MoreVertIcon />}
         </IconButton>
-        <Menu
-          sx={{
-            fontSize: '12px',
-            zIndex: 1500,
-          }}
-          MenuListProps={{
-            'aria-labelledby': 'long-button',
-          }}
-          anchorEl={anchorEl}
-          open={open}
-          onClose={handleClose}
-        >
-          {Object.keys(allDataTypes)
-            .filter((name) => {
-              const dataTypeItem = new allDataTypes[name]();
-              if (props.isInput) {
-                return dataTypeItem.allowedAsInput();
-              } else {
-                return dataTypeItem.allowedAsOutput();
-              }
-            })
-            .sort()
-            .map((name) => {
-              const entry = new allDataTypes[name]().getName();
-              return (
-                <MenuItem
-                  key={name}
-                  value={name}
-                  data-my-value={name}
-                  selected={props.property.dataType.constructor.name === name}
-                  onClick={props.onChangeDropdown}
-                  sx={{
-                    '&.Mui-selected': {
-                      backgroundColor: `${Color(
-                        props.randomMainColor
-                      ).negate()}`,
-                    },
-                  }}
-                >
-                  {entry}
-                </MenuItem>
-              );
-            })}
-        </Menu>
+        {typeAvailableInDropdown && (
+          <Menu
+            sx={{
+              fontSize: '12px',
+              zIndex: 1500,
+            }}
+            MenuListProps={{
+              'aria-labelledby': 'long-button',
+            }}
+            anchorEl={anchorEl}
+            open={open}
+            onClose={handleClose}
+          >
+            {Object.keys(dropDownSelectableTypes)
+              .filter((name) => {
+                const dataTypeItem = new dropDownSelectableTypes[name]();
+                if (props.isInput) {
+                  return dataTypeItem.allowedAsInput();
+                } else {
+                  return dataTypeItem.allowedAsOutput();
+                }
+              })
+              .sort()
+              .map((name) => {
+                const entry = new allDataTypes[name]().getName();
+                return (
+                  <MenuItem
+                    key={name}
+                    value={name}
+                    data-my-value={name}
+                    selected={props.property.dataType.constructor.name === name}
+                    onClick={props.onChangeDropdown}
+                    sx={{
+                      '&.Mui-selected': {
+                        backgroundColor: `${Color(
+                          props.randomMainColor,
+                        ).negate()}`,
+                      },
+                    }}
+                  >
+                    {entry}
+                  </MenuItem>
+                );
+              })}
+          </Menu>
+        )}
       </Box>
     </Box>
   );

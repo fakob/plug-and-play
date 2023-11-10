@@ -169,10 +169,11 @@ export abstract class DRAW_Base extends PPNode {
       }
     };
     outputObject[outputPixiName] = drawingFunction;
-    this.handleDrawingThrottled(
+    this.handleDrawing(drawingFunction, inputObject[inputAbsolutePositions]);
+    /*this.handleDrawingThrottled(
       drawingFunction,
       inputObject[inputAbsolutePositions],
-    );
+    );*/
   }
 
   protected setOffsets(offsets: PIXI.Point) {
