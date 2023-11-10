@@ -141,6 +141,10 @@ const SocketHeader: React.FunctionComponent<SocketHeaderProps> = (props) => {
     setAnchorEl(null);
   };
 
+  const typeAvailableInDropdown =
+    dropDownSelectableTypes[props.property.dataType.constructor.name] !==
+    undefined;
+
   return (
     <Box
       sx={{
@@ -213,10 +217,9 @@ const SocketHeader: React.FunctionComponent<SocketHeaderProps> = (props) => {
           >
             {props.property.dataType.getName()}
           </Box>
-          <MoreVertIcon />
+          {typeAvailableInDropdown && <MoreVertIcon />}
         </IconButton>
-        {dropDownSelectableTypes[props.property.dataType.constructor.name] !==
-          undefined && (
+        {typeAvailableInDropdown && (
           <Menu
             sx={{
               fontSize: '12px',
