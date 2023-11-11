@@ -37,6 +37,8 @@ export const ALIGNOPTIONS = {
   DISTRIBUTE_HORIZONTAL: 'Distribute horizontal',
 } as const;
 
+export const DEFAULT_DRAWER_WIDTH = 340;
+
 // old node color #C1CADF
 export const COLOR = [
   '#E1547D',

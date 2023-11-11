@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import {
   Box,
   ButtonGroup,
@@ -9,7 +9,7 @@ import {
   Typography,
 } from '@mui/material';
 import GitHubIcon from '@mui/icons-material/GitHub';
-import HelpContent from './HelpContent';
+import LeftsideContent from './LeftsideContent';
 import {
   PLUGANDPLAY_ICON_BLACK,
   PLUGANDPLAY_ICON_WHITE,
@@ -17,9 +17,8 @@ import {
 } from './utils/constants';
 import styles from './utils/style.module.css';
 import { TRgba } from './utils/interfaces';
-import { getAllNodeTypes } from './nodes/allNodes';
 
-function HelpHeader(props) {
+function LeftsideHeader(props) {
   return (
     <Box
       sx={{
@@ -91,46 +90,15 @@ function HelpHeader(props) {
   );
 }
 
-type HelpContainerProps = {
+type LeftsideContainerProps = {
   randomMainColor: string;
   filter: string;
   setFilter: React.Dispatch<React.SetStateAction<string>>;
 };
 
-const HelpContainer: React.FunctionComponent<HelpContainerProps> = (props) => {
-  const [nodesCached, setNodesCached] = useState([]);
-
-  useEffect(() => {
-    setTimeout(() => {
-      const allNodeTypes = Object.entries(getAllNodeTypes());
-      if (allNodeTypes) {
-        setNodesCached(
-          allNodeTypes
-            .map(([title, obj]) => {
-              return {
-                title,
-                name: obj.name,
-                key: title,
-                description: obj.description,
-                hasInputs: obj.hasInputs,
-                tags: obj.tags,
-                hasExample: obj.hasExample,
-                group: obj.tags[0],
-              };
-            })
-            .sort((a, b) =>
-              a.name.localeCompare(b.name, 'en', { sensitivity: 'base' }),
-            )
-            .sort(
-              (a, b) =>
-                a.group?.localeCompare(b.group, 'en', { sensitivity: 'base' }),
-            ),
-        );
-      }
-      console.log(nodesCached);
-    }, 1000);
-  }, []);
-
+const LeftsideContainer: React.FunctionComponent<LeftsideContainerProps> = (
+  props,
+) => {
   return (
     <ThemeProvider theme={customTheme}>
       <Stack
@@ -139,13 +107,12 @@ const HelpContainer: React.FunctionComponent<HelpContainerProps> = (props) => {
         className={`${styles.inspectorContainer}`}
         sx={{
           fontFamily: "'Roboto', 'Helvetica', 'Arial', 'sans-serif'",
-          height: '100%',
+          height: 'calc(100vh - 8px)',
           paddingRight: 0,
         }}
       >
-        <HelpHeader randomMainColor={props.randomMainColor} />
-        <HelpContent
-          nodesCached={nodesCached}
+        <LeftsideHeader randomMainColor={props.randomMainColor} />
+        <LeftsideContent
           randomMainColor={props.randomMainColor}
           filter={props.filter}
           setFilter={props.setFilter}
@@ -155,4 +122,4 @@ const HelpContainer: React.FunctionComponent<HelpContainerProps> = (props) => {
   );
 };
 
-export default HelpContainer;
+export default LeftsideContainer;

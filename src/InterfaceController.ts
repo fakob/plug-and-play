@@ -9,7 +9,7 @@ import PPGraph from './classes/GraphClass';
 import PPStorage from './PPStorage';
 import { ActionHandler } from './utils/actionHandler';
 import { zoomToFitNodes } from './pixi/utils-pixi';
-import { Graph } from './utils/indexedDB';
+import { IGraphSearch } from './utils/interfaces';
 
 export enum ListenEvent {
   SelectionChanged, // data = PPNode[]
@@ -90,6 +90,7 @@ export default class InterfaceController {
   static onAddToDashboard: (data: Socket) => void = () => {}; // called when socket inspector should be opened
   static onRemoveFromDashboard: (data: Socket) => void = () => {}; // called when socket inspector should be opened
   static selectionRedrawn: (pos: PIXI.Point) => void = () => {};
+  static onGraphListChanged: () => void = () => {};
 
   // these were previously only in app.tsx and are still being set from there, but they can be accessed from anywhere
   static openNodeSearch: () => void = () => {};
@@ -98,6 +99,7 @@ export default class InterfaceController {
   static toggleRightSideDrawer: () => void = () => {};
   static toggleLeftSideDrawer: () => void = () => {};
   static toggleShowComments: () => void = () => {};
+  static toggleShowDashboard: () => void = () => {};
 
   static setIsGraphSearchOpen: (open: boolean) => void = () => {};
   static setIsNodeSearchVisible: (open: boolean) => void = () => {};
@@ -105,9 +107,10 @@ export default class InterfaceController {
   static setIsNodeContextMenuOpen: (open: boolean) => void = () => {};
   static setIsSocketContextMenuOpen: (open: boolean) => void = () => {};
 
-  static setGraphToBeModified: (graph: Graph) => void = () => {};
+  static setGraphToBeModified: (graph: IGraphSearch) => void = () => {};
   static setShowGraphEdit: (show: boolean) => void = () => {};
   static setShowGraphDelete: (show: boolean) => void = () => {};
+  static setShowSharePlayground: (show: boolean) => void = () => {};
 
   /////////////////////////////////////////////////////////////////////////////
   static isTypingInConsole = false;
@@ -198,6 +201,10 @@ export default class InterfaceController {
         this.isTypingInConsole = !this.isTypingInConsole;
       } else if (this.isTypingInConsole) {
         this.consoleBeingTyped += e.key;
+      }
+      console.log(e.code);
+      if (e.code === 'Space') {
+        this.toggleShowDashboard();
       }
     }
     if (modKey && e.key.toLowerCase() === 's') {

@@ -12,7 +12,7 @@ import HelpContainer from '../HelpContainer';
 import {
   COLOR_DARK,
   COLOR_WHITE_TEXT,
-  PLUGANDPLAY_ICON_BLACK,
+  PLUGANDPLAY_ICON,
 } from '../utils/constants';
 import { useIsSmallScreen } from '../utils/utils';
 import styles from '../utils/style.module.css';
@@ -24,14 +24,14 @@ function DrawerToggleInspector(props) {
         title={`${props.open ? 'Close node inspector' : 'Open node inspector'}`}
         size="small"
         onClick={() => InterfaceController.toggleRightSideDrawer()}
-        color="primary"
         sx={{
           position: 'fixed',
           bottom: '24px',
           right: '24px',
           width: '32px',
           minWidth: '32px',
-          backgroundColor: props.open ? COLOR_DARK : COLOR_WHITE_TEXT,
+          color: COLOR_WHITE_TEXT,
+          bgcolor: props.open ? 'background.default' : 'primary.main',
           zIndex: '1300',
           '&:hover': {
             backgroundColor: `${Color(props.randomMainColor).darken(0.7)}`,
@@ -45,21 +45,27 @@ function DrawerToggleInspector(props) {
 }
 
 function DrawerToggleHelp(props) {
+  const smallScreen = useIsSmallScreen();
+
   return (
     <Box id="drawer-toggle-help">
-      <IconButton
+      <Button
         size="small"
         title={`${props.open ? 'Close help' : 'Open help'}`}
         onClick={() => InterfaceController.toggleLeftSideDrawer()}
-        color="primary"
         sx={{
           position: 'fixed',
           bottom: '24px',
           left: '24px',
           width: '32px',
+          height: '32px',
           minWidth: '32px',
+          color: COLOR_WHITE_TEXT,
           backgroundColor: props.open ? COLOR_DARK : COLOR_WHITE_TEXT,
           zIndex: '1300',
+          '&:hover': {
+            backgroundColor: props.open ? COLOR_DARK : COLOR_WHITE_TEXT,
+          },
         }}
       >
         {props.open ? (
@@ -68,12 +74,14 @@ function DrawerToggleHelp(props) {
           <img
             id="plugandplayground-logo"
             style={{
-              width: '32px',
+              backgroundColor: props.randomMainColor,
+              borderRadius: '32px',
+              width: smallScreen ? '40px' : '64px',
             }}
-            src={PLUGANDPLAY_ICON_BLACK}
+            src={PLUGANDPLAY_ICON}
           />
         )}
-      </IconButton>
+      </Button>
     </Box>
   );
 }
@@ -81,7 +89,7 @@ function DrawerToggleHelp(props) {
 const ResponsiveDrawer = (props) => {
   // leaving this commented here for potential future testing
   const [filter, setFilter] = useState(null);
-  const [helpFilter, setHelpFilter] = useState('create');
+  const [helpFilter, setHelpFilter] = useState('explore');
   const [graphFilter, setGraphFilter] = useState('nodes');
   const [graphFilterText, setGraphFilterText] = useState('');
   const [socketToInspect, setSocketToInspect] = useState<Socket | undefined>(

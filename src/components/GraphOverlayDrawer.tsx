@@ -5,6 +5,7 @@ import styles from '../utils/style.module.css';
 import InterfaceController from '../InterfaceController';
 import PPNode from '../classes/NodeClass';
 import ResponsiveDrawer from './ResponsiveDrawer';
+import { DEFAULT_DRAWER_WIDTH } from '../utils/constants';
 
 type GraphOverlayDrawerProps = {
   randomMainColor: string;
@@ -16,12 +17,9 @@ type GraphOverlayDrawerProps = {
 const GraphOverlayDrawer: React.FunctionComponent<GraphOverlayDrawerProps> = (
   props,
 ) => {
-  const defaultDrawerWidth = 340;
-  const defaultHelpDrawerWidth = 440;
-  const [leftDrawerWidth, setLeftDrawerWidth] = useState(
-    defaultHelpDrawerWidth,
-  );
-  const [rightDrawerWidth, setRightDrawerWidth] = useState(defaultDrawerWidth);
+  const [leftDrawerWidth, setLeftDrawerWidth] = useState(DEFAULT_DRAWER_WIDTH);
+  const [rightDrawerWidth, setRightDrawerWidth] =
+    useState(DEFAULT_DRAWER_WIDTH);
 
   useEffect(() => {
     console.log('onDrawerSizeChanged');
@@ -42,7 +40,7 @@ const GraphOverlayDrawer: React.FunctionComponent<GraphOverlayDrawerProps> = (
           pointerEvents: 'none',
           border: `8px solid ${Color(props.randomMainColor).alpha(0.98)}`,
           zIndex: 10,
-          boxShadow: 'inset 0px 0px 20px 20px #00000030',
+          boxShadow: 'inset 0px 0px 40px 0px rgba(0,0,0,0.3)',
         }}
       />
       <ResponsiveDrawer

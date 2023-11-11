@@ -132,8 +132,6 @@ const SocketHeader: React.FunctionComponent<SocketHeaderProps> = (props) => {
     setAnchorEl(null);
   };
 
-  console.log(props.hasLink, props.isInput, props.isSelected);
-
   return (
     <Box
       sx={{

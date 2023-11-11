@@ -901,3 +901,6 @@ export const loadGraph = (urlParams: URLSearchParams) => {
     PPStorage.getInstance().loadGraphFromDB();
   }
 };
+
+export const sortByDate = (a, b) =>
+  new Date(b.date).getTime() - new Date(a.date).getTime();

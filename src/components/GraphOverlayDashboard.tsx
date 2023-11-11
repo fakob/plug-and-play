@@ -11,7 +11,29 @@ import PPSocket from '../classes/SocketClass';
 import { AbstractType } from '../nodes/datatypes/abstractType';
 import { ensureVisible, zoomToFitNodes } from '../pixi/utils-pixi';
 import { deconstructSocketId } from '../utils/utils';
-import { ONCLICK_DOUBLECLICK, ONCLICK_TRIPPLECLICK } from '../utils/constants';
+import styles from '../utils/style.module.css';
+import {
+  DEFAULT_DRAWER_WIDTH,
+  ONCLICK_DOUBLECLICK,
+  ONCLICK_TRIPPLECLICK,
+} from '../utils/constants';
+
+const MyHandle = React.forwardRef<HTMLInputElement, { handleAxis?: string }>(
+  (props, ref) => {
+    const { handleAxis, ...restProps } = props;
+    return (
+      <Box
+        ref={ref}
+        className={`react-resizable-handle react-resizable-handle-${handleAxis}`}
+        {...restProps}
+        sx={{
+          background: 'white',
+          mixBlendMode: 'darken',
+        }}
+      />
+    );
+  },
+);
 
 type GraphOverlayDashboardProps = {
   randomMainColor: string;
@@ -23,13 +45,17 @@ const GraphOverlayDashboard: React.FunctionComponent<
 > = (props) => {
   const [currentLayout, setCurrentLayout] = useState([]);
   const ResponsiveGridLayout = useMemo(() => WidthProvider(Responsive), []);
-  const [leftDrawerWidth, setLeftDrawerWidth] = useState(0);
-  const [rightDrawerWidth, setRightDrawerWidth] = useState(0);
+  const [leftDrawerWidth, setLeftDrawerWidth] = useState(
+    props.toggleLeft ? DEFAULT_DRAWER_WIDTH : 0,
+  );
+  const [showDashboard, setShowDashboard] = useState(true);
 
   useEffect(() => {
     InterfaceController.onAddToDashboard = addToDashboard;
     InterfaceController.onRemoveFromDashboard = removeFromDashboard;
     InterfaceController.onDrawerSizeChanged = drawerSizeChanged;
+    InterfaceController.toggleShowDashboard = () =>
+      setShowDashboard((prev) => !prev);
   }, []);
 
   useEffect(() => {
@@ -44,6 +70,7 @@ const GraphOverlayDashboard: React.FunctionComponent<
   }, [PPGraph.currentGraph?.layouts]);
 
   const addToDashboard = (socket: PPSocket) => {
+    InterfaceController.toggleShowDashboard();
     setCurrentLayout((prevLayout) => {
       console.log('addToDashboard', socket);
       console.log(deconstructSocketId(socket.getSocketId()));
@@ -83,17 +110,6 @@ const GraphOverlayDashboard: React.FunctionComponent<
   const drawerSizeChanged = (leftWidth: number, rightWidth: number) => {
     console.log('drawerSizeChanged', leftWidth, rightWidth);
     setLeftDrawerWidth(leftWidth + 4);
-    setRightDrawerWidth(rightWidth + 4);
-  };
-
-  const onWidthChange = (
-    containerWidth: number,
-    margin: [number, number],
-    cols: number,
-    containerPadding: [number, number],
-  ) => {
-    // console.log(containerWidth, margin, cols, containerPadding);
-    // setColumns(cols);
   };
 
   const onLayoutChange = (currLayout, allLayouts) => {
@@ -111,7 +127,7 @@ const GraphOverlayDashboard: React.FunctionComponent<
         position: 'absolute',
         pointerEvents: 'none',
         height: '100vh !important',
-        width: `calc(100% - ${leftDrawerWidth + rightDrawerWidth}px)`,
+        width: `calc(100% - ${leftDrawerWidth}px)`,
         overflow: 'auto',
         left: `${leftDrawerWidth}px`,
       }}
@@ -125,14 +141,13 @@ const GraphOverlayDashboard: React.FunctionComponent<
           zIndex: 1,
           pointerEvents: 'none',
           filter: 'drop-shadow(8px 8px 0px rgba(0, 0, 0, 0.5))',
-          // filter: 'drop-shadow(0px 0px 24px rgba(0, 0, 0, 0.5))',
+          visibility: showDashboard ? 'visible' : 'hidden',
         }}
         margin={props.toggleLeft ? [0, 12] : [4, 4]}
         rowHeight={56}
         onLayoutChange={onLayoutChange}
-        onWidthChange={onWidthChange}
-        draggableHandle=".dragHandle"
         resizeHandles={['s', 'w', 'e', 'sw', 'se']}
+        resizeHandle={<MyHandle />}
       >
         {currentLayout.map((item) => {
           if (item.i === 'placeholder') {
@@ -296,7 +311,7 @@ const DashboardWidgetHeader: React.FunctionComponent<
       }}
     >
       <Box
-        className="dragHandle"
+        // className="dragHandle"
         title={props.property.getNode().id}
         sx={{
           pl: 1,
