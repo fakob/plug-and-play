@@ -9,7 +9,9 @@ import { TRgba } from '../../utils/interfaces';
 import { SOCKET_COLOR_HEX, SOCKET_CORNERRADIUS, SOCKET_WIDTH } from '../../utils/constants';
 import * as PIXI from 'pixi.js';
 export class AbstractType {
-  drawValueSpecificGraphics(container: PIXI.Container<PIXI.DisplayObject>) {}
+  drawValueSpecificGraphics(graphics: PIXI.Graphics, data: any) {
+
+  }
   onDataSet(data: any, socket: Socket) {}
 
   // override any and all of these in child classes

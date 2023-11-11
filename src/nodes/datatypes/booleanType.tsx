@@ -2,7 +2,7 @@ import React from 'react';
 import { TRgba } from '../../utils/interfaces';
 import { BooleanWidget } from '../../widgets';
 import { AbstractType } from './abstractType';
-
+import * as PIXI from 'pixi.js';
 export class BooleanType extends AbstractType {
   getName(): string {
     return 'Boolean';
@@ -34,8 +34,13 @@ export class BooleanType extends AbstractType {
   recommendedInputNodeWidgets(): string[] {
     return ['WidgetSwitch', 'Constant'];
   }
-
-  protected drawSocket(graphics: PIXI.Graphics, data: any) {
-    super.drawSocket(graphics);
+  drawValueSpecificGraphics(graphics: PIXI.Graphics, data: any) {
+    //graphics.lineStyle(2, TRgba.white().hexNumber());
+    if (data) {
+      graphics.beginFill(TRgba.white().hexNumber());
+      graphics.drawCircle(0, 0, 2);
+      //graphics.moveTo(-5, -5);
+      //graphics.lineTo(5, 0);
+    }
   }
 }
