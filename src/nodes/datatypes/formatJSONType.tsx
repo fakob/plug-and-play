@@ -20,7 +20,7 @@ export default class FormatJSONType extends AbstractType {
 export const FormatJSONWidget: React.FunctionComponent<DataTypeProps> = (
   props,
 ) => {
-  const propertyEnabled = props.property?.data?.Enabled;
+  const propertyEnabled = props.property.data.Enabled;
   const propertyAlias = props.property.data.Alias;
 
   const [enabled, setEnabled] = useState(propertyEnabled);
