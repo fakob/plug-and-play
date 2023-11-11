@@ -391,26 +391,26 @@ export class GRAPH_PIE extends DRAW_Base {
       });
     });
     slicesToDraw.forEach((slice) => {
-      const draw = new PIXI.Graphics();
-      draw.beginFill(slice.color.hexNumber());
-      slice.draws.forEach((preDraw) => {
-        preDraw(draw, 1.0);
+      const drawContainer = new PIXI.Graphics();
+      drawContainer.beginFill(slice.color.hexNumber());
+      slice.draws.forEach((draw) => {
+        draw(drawContainer, 1.0);
       });
-      draw.interactive = true;
-      draw.addEventListener('pointerover', (e) => {
-        draw.removeChildren();
-        slice.draws.forEach((preDraw) => {
-          preDraw(draw, 1.2);
+      drawContainer.interactive = true;
+      drawContainer.addEventListener('pointerover', (e) => {
+        drawContainer.removeChildren();
+        slice.draws.forEach((draw) => {
+          draw(drawContainer, 1.2);
         });
       });
 
-      draw.addEventListener('pointerout', (e) => {
-        draw.removeChildren();
-        slice.draws.forEach((preDraw) => {
-          preDraw(draw, 1.0);
+      drawContainer.addEventListener('pointerout', (e) => {
+        drawContainer.removeChildren();
+        slice.draws.forEach((draw) => {
+          draw(drawContainer, 1.0);
         });
       });
-      topDraws.push(draw);
+      topDraws.push(drawContainer);
     });
 
     topDraws.forEach((draw) => graphics.addChild(draw));

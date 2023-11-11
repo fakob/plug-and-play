@@ -36,3 +36,16 @@ export const allDataTypes = {
   GraphInputType: GraphInputType,
   FormatJSONType: FormatJSONType,
 };
+
+export const dropDownSelectableTypes = {
+  AnyType: AnyType,
+  ArrayType: ArrayType,
+  BooleanType: BooleanType,
+  ColorType: ColorType,
+  NumberType: NumberType,
+  FunctionType: FunctionType,
+  StringType: StringType,
+  JSONType: JSONType,
+  ImageType: ImageType,
+  CodeType: CodeType,
+};
