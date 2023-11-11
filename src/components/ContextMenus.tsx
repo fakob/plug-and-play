@@ -715,7 +715,6 @@ export const SocketContextMenu = (props) => {
               ListenEvent.ToggleInspectorWithFocus,
               {
                 socket: PPGraph.currentGraph.socketToInspect,
-                open: true,
               },
             );
           }}

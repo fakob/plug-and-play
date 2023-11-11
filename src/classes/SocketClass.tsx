@@ -522,9 +522,7 @@ export default class Socket extends PIXI.Container implements Tooltipable {
       InterfaceController.notifyListeners(ListenEvent.SelectionChanged, [
         this.getNode(),
       ]);
-      let shouldOpen;
       if (PPGraph.currentGraph.socketToInspect !== this) {
-        shouldOpen = true;
         PPGraph.currentGraph.socketToInspect = this;
       } else {
         PPGraph.currentGraph.socketToInspect = null;
@@ -533,7 +531,6 @@ export default class Socket extends PIXI.Container implements Tooltipable {
         ListenEvent.ToggleInspectorWithFocus,
         {
           socket: PPGraph.currentGraph.socketToInspect,
-          open: shouldOpen,
         },
       );
     }

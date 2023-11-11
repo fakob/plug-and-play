@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { Box, Button, Drawer, IconButton } from '@mui/material';
+import { Box, Button, Drawer } from '@mui/material';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import TuneIcon from '@mui/icons-material/Tune';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
@@ -8,7 +8,7 @@ import InterfaceController, { ListenEvent } from '../InterfaceController';
 import Socket from '../classes/SocketClass';
 import InspectorContainer from '../InspectorContainer';
 import GraphInspectorContainer from '../GraphInspectorContainer';
-import HelpContainer from '../HelpContainer';
+import LeftsideContainer from '../LeftsideContainer';
 import {
   COLOR_DARK,
   COLOR_WHITE_TEXT,
@@ -97,7 +97,8 @@ const ResponsiveDrawer = (props) => {
   );
   const smallScreen = useIsSmallScreen();
 
-  const toggleInspectorAndFocus = ({ filter, socket, open }) => {
+  const toggleInspectorAndFocus = ({ filter, socket }) => {
+    InterfaceController.toggleRightSideDrawer();
     if (!props.isLeft) {
       if (filter) {
         setFilter(filter);
@@ -109,18 +110,20 @@ const ResponsiveDrawer = (props) => {
   };
 
   useEffect(() => {
-    // register callbacks when currentGraph mounted
-    const ids = [];
-    ids.push(
-      InterfaceController.addListener(
-        ListenEvent.ToggleInspectorWithFocus,
-        toggleInspectorAndFocus,
-      ),
-    );
+    if (!props.isLeft) {
+      // register callbacks when currentGraph mounted
+      const ids = [];
+      ids.push(
+        InterfaceController.addListener(
+          ListenEvent.ToggleInspectorWithFocus,
+          toggleInspectorAndFocus,
+        ),
+      );
 
-    return () => {
-      ids.forEach((id) => InterfaceController.removeListener(id));
-    };
+      return () => {
+        ids.forEach((id) => InterfaceController.removeListener(id));
+      };
+    }
   }, []);
 
   const handleMouseDown = (e) => {
@@ -189,7 +192,7 @@ const ResponsiveDrawer = (props) => {
           className={props.isLeft ? styles.draggerLeft : styles.dragger}
         ></div>
         {props.isLeft ? (
-          <HelpContainer
+          <LeftsideContainer
             filter={helpFilter}
             setFilter={setHelpFilter}
             randomMainColor={props.randomMainColor}
