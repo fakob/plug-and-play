@@ -38,6 +38,7 @@ export default class Socket extends PIXI.Container implements Tooltipable {
   _TextRef: PIXI.Text;
   _SelectionBox: PIXI.Graphics;
   _MetaText: PIXI.Text;
+  _ValueSpecificGraphics: PIXI.Container;
 
   _socketType: TSocketType;
   _dataType: AbstractType;
@@ -116,6 +117,12 @@ export default class Socket extends PIXI.Container implements Tooltipable {
     this._MetaText.x = this.getSocketLocation().x + (this.isInput() ? 14 : -14);
     this._MetaText.y = this.getSocketLocation().y + 5;
     this.addChild(this._MetaText);
+  }
+  redrawValueSpecificGraphics() {
+    this.removeChild(this._ValueSpecificGraphics);
+    this._ValueSpecificGraphics.removeChildren();
+    this.dataType.drawValueSpecificGraphics(this._ValueSpecificGraphics);
+    this.addChild(this._ValueSpecificGraphics);
   }
 
   redraw(): void {
