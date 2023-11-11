@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { AbstractType, DataTypeProps } from './abstractType';
 import { Checkbox, FormGroup, TextField } from '@mui/material';
 import React from 'react';
+import useInterval from 'use-interval';
 
 export interface FormatJSONInterface {
   Enabled: boolean;
@@ -14,20 +15,35 @@ export default class FormatJSONType extends AbstractType {
   allowedAsOutput(): boolean {
     return false;
   }
+  /*parse(data: any): any {
+    const defaultObject = { Enabled: false, Alias: '' };
+    if (typeof data !== 'object') {
+      return defaultObject;
+    } else {
+      data = { ...defaultObject, ...data };
+    }
+    return data;
+  }*/
 }
 
 export const FormatJSONWidget: React.FunctionComponent<DataTypeProps> = (
   props,
 ) => {
-  const [enabled, setEnabled] = useState(props.property.data.Enabled);
-  const [alias, setAlias] = useState(props.property.data.Alias);
+  const propertyEnabled = props.property?.data?.Enabled;
+  const propertyAlias = props.property.data.Alias;
 
-  /*useInterval(() => {
-    if (data !== props.property.data) {
-      setData(Number(props.property.data));
+  const [enabled, setEnabled] = useState(propertyEnabled);
+  const [alias, setAlias] = useState(propertyAlias);
+
+  useInterval(() => {
+    if (enabled !== propertyEnabled) {
+      setEnabled(propertyEnabled);
+    }
+
+    if (alias !== propertyAlias) {
+      setAlias(propertyAlias);
     }
   }, 100);
-  */
 
   return (
     <>
@@ -39,22 +55,30 @@ export const FormatJSONWidget: React.FunctionComponent<DataTypeProps> = (
         }}
       >
         <Checkbox
+          name="Include"
           checked={enabled}
           onChange={() => {
             setEnabled(!enabled);
-            //props.property
+            props.property.data.Enabled = !enabled;
+            props.property.getNode().executeOptimizedChain();
           }}
-          disabled={!enabled}
+          disabled={false}
         />
         <TextField
+          label={props.property.name}
           variant="filled"
-          label="Value"
           sx={{
             flexGrow: 1,
           }}
-          disabled={enabled}
+          onChange={(event) => {
+            const value = event.target.value;
+            setAlias(value);
+            props.property.data.Alias = value;
+            props.property.getNode().executeOptimizedChain();
+          }}
+          disabled={!enabled}
           inputProps={{
-            type: 'number',
+            type: 'string',
           }}
           value={alias}
         />

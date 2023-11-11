@@ -317,7 +317,7 @@ export class Format extends PPNode {
     Object.keys(json).forEach(key => {
       const socketName = this.createUseSocketName(key);
       const formatType : FormatJSONInterface = inputObject[socketName];
-      if (formatType.Enabled){
+      if (formatType?.Enabled){
         let transformedName = formatType.Alias;
         if (transformedName.length < 1){
           transformedName = key;
@@ -347,9 +347,7 @@ export class Format extends PPNode {
 
     argumentsToBeAdded.forEach((argument) => {
       if (this.inputSocketArray.length < FORMAT_MAX_SOCKETS) {
-        this.addInput(this.createUseSocketName(argument), new FormatJSONType(), {Enabled:"false", Alias:""});
-        //this.addInput(this.createUseSocketName(argument), new BooleanType(), false);
-        //this.addSocket(Socket.getOptionalVisibilitySocket(SOCKET_TYPE.IN, this.createAliasName(argument), new StringType, "", () => this.getInputData(this.createUseSocketName(argument))));
+        this.addInput(this.createUseSocketName(argument), new FormatJSONType(), {Enabled: false, Alias:""});
       }
     });
     if (socketsToBeRemoved.length > 0 || argumentsToBeAdded.length > 0) {
