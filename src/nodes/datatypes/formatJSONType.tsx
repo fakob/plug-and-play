@@ -15,15 +15,6 @@ export default class FormatJSONType extends AbstractType {
   allowedAsOutput(): boolean {
     return false;
   }
-  /*parse(data: any): any {
-    const defaultObject = { Enabled: false, Alias: '' };
-    if (typeof data !== 'object') {
-      return defaultObject;
-    } else {
-      data = { ...defaultObject, ...data };
-    }
-    return data;
-  }*/
 }
 
 export const FormatJSONWidget: React.FunctionComponent<DataTypeProps> = (

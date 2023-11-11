@@ -14,6 +14,7 @@ import { CustomFunction } from './dataFunctions';
 import { BooleanType } from '../datatypes/booleanType';
 import { DynamicInputNode } from '../abstract/DynamicInputNode';
 import FormatJSONType, { FormatJSONInterface } from '../datatypes/formatJSONType';
+import { ArrayType } from '../datatypes/arrayType';
 
 const JSONName = 'JSON';
 const lockOutputsName = "Lock Outputs";
@@ -356,7 +357,7 @@ export class Format extends PPNode {
   }
 }
 
-/*
+
 const inputArrayName ="ObjectArray";
 export class FormatMap extends Format {
     public getName(): string {
@@ -396,13 +397,11 @@ export class FormatMap extends Format {
       }
 
       Object.keys(json).forEach((key) => {
-        if (inputObject[this.createUseSocketName(key)]){
-          let transformedName = inputObject[this.createAliasName(key)];
-          if (transformedName.length < 1){
-            transformedName = key;
-          }
+        const formatInfo : FormatJSONInterface= inputObject[this.createUseSocketName(key)];
+        if (formatInfo?.Enabled){
+          const alias = formatInfo.Alias.length < 1 ? key : formatInfo.Alias;
           for (let i = 0; i < inputArray.length; i++){
-            outputArray[i][transformedName] = inputArray[i][key];
+            outputArray[i][alias] = inputArray[i][key];
           }
         }
       });
@@ -410,7 +409,7 @@ export class FormatMap extends Format {
     }
   }
 }
-*/
+
 
 export class Make extends DynamicInputNode {
   public getName(): string {
