@@ -16,11 +16,12 @@ import {
   NODE_HEADER_HEIGHT,
   NODE_PADDING_TOP,
   SOCKET_TEXTMARGIN_TOP,
+  SOCKET_TYPE,
   SOCKET_WIDTH,
   URL_PARAMETER_NAME,
 } from './constants';
 import { GraphDatabase } from './indexedDB';
-import { SerializedSelection } from './interfaces';
+import { SerializedSelection, TNodeId, TSocketType } from './interfaces';
 import { Viewport } from 'pixi-viewport';
 
 export function isFunction(funcOrClass: any): boolean {
@@ -846,6 +847,35 @@ export const getExtensionFromLocalResourceId = (localResourceId) => {
   return getFileExtension(fileName);
 };
 
+export const constructSocketId = (
+  nodeId: TNodeId,
+  socketType: TSocketType,
+  socketName: string,
+) => {
+  return `${nodeId}-${socketType}-${socketName}`;
+};
+
+export const deconstructSocketId = (
+  socketId: string,
+): {
+  nodeId: TNodeId;
+  socketType: TSocketType;
+  socketName: string;
+} => {
+  const pattern = /^([a-z]+-[a-z]+-\d+)-([a-zA-Z]+)-(.+)$/;
+  const match = socketId.match(pattern);
+  if (match) {
+    const [, nodeId, socketType, socketName] = match;
+    return {
+      nodeId: nodeId as TNodeId,
+      socketType: socketType as TSocketType,
+      socketName,
+    };
+  } else {
+    throw new Error('Invalid socketId format');
+  }
+};
+
 export const loadGraph = (urlParams: URLSearchParams) => {
   const loadURL = urlParams.get(URL_PARAMETER_NAME.LOADURL);
   const localGraphID = urlParams.get(URL_PARAMETER_NAME.LOADLOCAL);
@@ -871,3 +901,6 @@ export const loadGraph = (urlParams: URLSearchParams) => {
     PPStorage.getInstance().loadGraphFromDB();
   }
 };
+
+export const sortByDate = (a, b) =>
+  new Date(b.date).getTime() - new Date(a.date).getTime();

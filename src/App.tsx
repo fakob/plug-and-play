@@ -54,8 +54,10 @@ import {
   MAX_LATEST_NODES_IN_SEARCH,
   NODE_SOURCE,
   RANDOMMAINCOLOR,
+  PLUGANDPLAY_ICON_BLACK,
+  PLUGANDPLAY_ICON_WHITE,
 } from './utils/constants';
-import { INodeSearch } from './utils/interfaces';
+import { IGraphSearch, INodeSearch, TRgba } from './utils/interfaces';
 import {
   connectNodeToSocket,
   controlOrMetaKey,
@@ -74,7 +76,6 @@ import { ActionHandler } from './utils/actionHandler';
 import InterfaceController, { ListenEvent } from './InterfaceController';
 import PPStorage from './PPStorage';
 import PPSelection from './classes/SelectionClass';
-import PnPHeader from './PnPHeader';
 
 const randomMainColorLightHex = new PIXI.Color(
   Color(RANDOMMAINCOLOR).mix(Color('white'), 0.9).hex(),
@@ -110,14 +111,15 @@ const App = (): JSX.Element => {
   const nodeSearchInput = useRef<HTMLInputElement | null>(null);
   const [isNodeSearchVisible, setIsNodeSearchVisible] = useState(false);
   const [showRightSideDrawer, setShowRightSideDrawer] = useState(false);
-  const [showLeftSideDrawer, setShowLeftSideDrawer] = useState(false);
+  const [showLeftSideDrawer, setShowLeftSideDrawer] = useState(true);
   const nodeSearchCountRef = useRef(0);
   const [isGraphContextMenuOpen, setIsGraphContextMenuOpen] = useState(false);
   const [isNodeContextMenuOpen, setIsNodeContextMenuOpen] = useState(false);
   const [isSocketContextMenuOpen, setIsSocketContextMenuOpen] = useState(false);
   const [selectedSocket, setSelectedSocket] = useState<PPSocket | null>(null);
   const [contextMenuPosition, setContextMenuPosition] = useState([0, 0]);
-  const [graphToBeModified, setGraphToBeModified] = useState(null); // id and name of graph to edit/delete
+  const [graphToBeModified, setGraphToBeModified] =
+    useState<IGraphSearch>(null); // id and name of graph to edit/delete
   const [showComments, setShowComments] = useState(false);
   const [nodeSearchActiveItem, setNodeSearchActiveItem] = useState<
     INodeSearch[]
@@ -422,6 +424,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     InterfaceController.setGraphToBeModified = setGraphToBeModified;
     InterfaceController.setShowGraphDelete = setShowDeleteGraph;
     InterfaceController.setShowGraphEdit = setShowEdit;
+    InterfaceController.setShowSharePlayground = setShowSharePlayground;
 
     // register key events
     window.addEventListener('keydown', InterfaceController.keysDown);
@@ -458,7 +461,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     const ids = [];
     ids.push(
       InterfaceController.addListener(ListenEvent.GraphChanged, (data: any) => {
-        setGraphToBeModified(data);
+        setGraphToBeModified(data as IGraphSearch);
       }),
     );
 
@@ -820,7 +823,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               controlOrMetaKey={controlOrMetaKey()}
               contextMenuPosition={contextMenuPosition}
               setShowRightSideDrawer={setShowRightSideDrawer}
-              setShowLeftSideDrawer={setShowLeftSideDrawer}
               setShowEdit={setShowEdit}
               uploadGraph={uploadGraph}
               showComments={showComments}
@@ -854,13 +856,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
             toggleLeft={showLeftSideDrawer}
             currentGraph={PPGraph.currentGraph}
             randomMainColor={RANDOMMAINCOLOR}
-          />
-          <PnPHeader
-            randomMainColor={RANDOMMAINCOLOR}
-            isLoggedIn={isLoggedIn}
-            setContextMenuPosition={setContextMenuPosition}
-            setIsGraphContextMenuOpen={setIsGraphContextMenuOpen}
-            setShowSharePlayground={setShowSharePlayground}
           />
           {PPGraph.currentGraph && (
             <div

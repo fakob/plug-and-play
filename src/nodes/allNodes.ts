@@ -144,10 +144,10 @@ export const getAllNodesInDetail = (): any[] => {
       if (nodeConstructor.prototype instanceof PPNode) {
         const node: PPNode = new nodeConstructor(key);
         const inputSockets = node.getAllInputSockets().map((socket) => {
-          return socket.dataType.getName();
+          return `${socket.name}:${socket.dataType.getName()}`;
         });
         const outputSockets = node.outputSocketArray.map((socket) => {
-          return socket.dataType.getName();
+          return `${socket.name}: ${socket.dataType.getName()}`;
         });
 
         const updateBehaviour = [

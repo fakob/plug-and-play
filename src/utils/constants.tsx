@@ -37,6 +37,8 @@ export const ALIGNOPTIONS = {
   DISTRIBUTE_HORIZONTAL: 'Distribute horizontal',
 } as const;
 
+export const DEFAULT_DRAWER_WIDTH = 340;
+
 // old node color #C1CADF
 export const COLOR = [
   '#E1547D',
@@ -122,6 +124,8 @@ export const ERROR_COLOR = TRgba.fromString('#B71C1C');
 export const SUCCESS_COLOR = TRgba.fromString('#4BB543');
 
 export const PLUGANDPLAY_ICON = '../assets/PlugAndPlayIcon-transparent.svg';
+export const PLUGANDPLAY_ICON_WHITE = '../assets/PlugAndPlayIconWhite.svg';
+export const PLUGANDPLAY_ICON_BLACK = '../assets/PlugAndPlayIconBlack.svg';
 export const DRAWER30M_ICON = '../assets/Icon_Drawer30M.svg';
 export const DRAWER60M_ICON = '../assets/Icon_Drawer60M.svg';
 
@@ -460,3 +464,7 @@ export const BASIC_VERTEX_SHADER = `
 
 export const PXSHOW_SQL_QUERY = `SELECT json_extract(state,'$.State') as State FROM states
 WHERE service IS 'Store'`;
+
+export const LAYOUTS_EMPTY = {
+  layout1: [],
+};

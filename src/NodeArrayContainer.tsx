@@ -17,6 +17,7 @@ import ClearIcon from '@mui/icons-material/Clear';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import LockIcon from '@mui/icons-material/Lock';
 import Color from 'color';
+import styles from './utils/style.module.css';
 import InterfaceController, { ListenEvent } from './InterfaceController';
 import { getConfigData, writeTextToClipboard } from './utils/utils';
 import { ensureVisible, zoomToFitNodes } from './pixi/utils-pixi';
@@ -257,7 +258,7 @@ ${props.property
         <IconButton
           size="medium"
           title="Open node example"
-          className="menuItemButton"
+          className={styles.menuItemButton}
           onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
             event.stopPropagation();
             const nodeToJumpTo = PPGraph.currentGraph.nodes[props.property.id];

@@ -7,6 +7,7 @@ import {
   SerializedNode,
   SerializedSocket,
   TRgba,
+  TNodeId,
   TNodeSource,
   TSocketType,
 } from '../utils/interfaces';
@@ -47,7 +48,13 @@ import FlowLogic from './FlowLogic';
 import InterfaceController, { ListenEvent } from '../InterfaceController';
 import { TextStyle } from 'pixi.js';
 import { JSONType } from '../nodes/datatypes/jsonType';
-import { NodeConfigurationError, NodeExecutionError, PNPError, PNPStatus, PNPSuccess } from './ErrorClass';
+import {
+  NodeConfigurationError,
+  NodeExecutionError,
+  PNPError,
+  PNPStatus,
+  PNPSuccess,
+} from './ErrorClass';
 
 // export default class PPNode extends PIXI.Container implements Tooltipable {
 export default class PPNode extends PIXI.Container {
@@ -62,7 +69,7 @@ export default class PPNode extends PIXI.Container {
   clickedSocketRef: Socket;
   _isHovering: boolean;
 
-  id: string;
+  id: TNodeId;
   type: string; // Type
   nodePosX: number;
   nodePosY: number;
@@ -73,7 +80,7 @@ export default class PPNode extends PIXI.Container {
   nodeSelectionHeader: NodeHeaderClass;
   lastTimeTicked = 0;
 
-  status : PNPStatus = new PNPSuccess();
+  status: PNPStatus = new PNPSuccess();
 
   inputSocketArray: Socket[] = [];
   nodeTriggerSocketArray: Socket[] = [];
@@ -286,7 +293,7 @@ export default class PPNode extends PIXI.Container {
   }
 
   removeSocket(socket: Socket): void {
-    if (socket == undefined){
+    if (socket == undefined) {
       return;
     }
     const checkAndRemoveFrom = (nameOfArrayToCheck: string): void => {
@@ -435,7 +442,7 @@ export default class PPNode extends PIXI.Container {
         const sockets = nodeConfig.socketArray;
         sockets.forEach((item) => mapSocket(item));
       } catch (error) {
-        this.setStatus(new NodeConfigurationError(error))
+        this.setStatus(new NodeConfigurationError(error));
         console.error(
           `Could not configure node: ${this.name}(${this.id})`,
           error,
@@ -559,12 +566,12 @@ export default class PPNode extends PIXI.Container {
   // get all sockets that are not part of the base kit for the node
   public getAllNonDefaultSockets(): Socket[] {
     const defaultIONames = this.getAllInitialSockets()
-    .filter((socket) => socket.isInput())
-    .map((socket) => socket.name);
+      .filter((socket) => socket.isInput())
+      .map((socket) => socket.name);
     return this.getAllInputSockets().filter(
       (socket) => !defaultIONames.includes(socket.name),
-      );
-    }
+    );
+  }
 
   public getAllInputSockets(): Socket[] {
     return this.inputSocketArray.concat(this.nodeTriggerSocketArray);
@@ -578,15 +585,15 @@ export default class PPNode extends PIXI.Container {
     return this.inputSocketArray.concat(
       this.nodeTriggerSocketArray,
       this.outputSocketArray,
-      );
-    }
+    );
+  }
 
-    getNodeTriggerSocketByName(slotName: string): Socket {
-      return this.nodeTriggerSocketArray.find((el) => el.name === slotName);
+  getNodeTriggerSocketByName(slotName: string): Socket {
+    return this.nodeTriggerSocketArray.find((el) => el.name === slotName);
   }
 
   getInputSocketByName(slotName: string): Socket {
-    return this.inputSocketArray.find((el) => el.name === slotName)
+    return this.inputSocketArray.find((el) => el.name === slotName);
   }
 
   getInputOrTriggerSocketByName(slotName: string): Socket {
@@ -595,45 +602,45 @@ export default class PPNode extends PIXI.Container {
       // create new socket for this ask, maybe this is a bit ugly
       console.log(
         'creating new socket because someone is trying to get a socket that didnt exist: ' +
-        slotName,
-        );
-        const newSocket = new Socket(SOCKET_TYPE.IN, slotName, new AnyType());
-        this.addSocket(newSocket);
-        this.resizeAndDraw();
-        return newSocket;
-      } else {
-        return found;
+          slotName,
+      );
+      const newSocket = new Socket(SOCKET_TYPE.IN, slotName, new AnyType());
+      this.addSocket(newSocket);
+      this.resizeAndDraw();
+      return newSocket;
+    } else {
+      return found;
+    }
+  }
+
+  getOutputSocketByName(slotName: string): Socket {
+    return this.outputSocketArray.find((el) => el.name === slotName);
+  }
+
+  public getSocketByName(name: string): Socket {
+    return this.getAllSockets().find((socket) => socket.name === name);
+  }
+
+  public getSocketByNameAndType(name: string, socketType: TSocketType): Socket {
+    switch (socketType) {
+      case SOCKET_TYPE.TRIGGER: {
+        return this.getNodeTriggerSocketByName(name);
       }
-    }
-    getOutputSocketByName(slotName: string): Socket {
-      return this.outputSocketArray.find((el) => el.name === slotName);
-    }
-
-    public getSocketByName(name: string): Socket {
-      return this.getAllSockets().find((socket) => socket.name === name);
-    }
-
-    public getSocketByNameAndType(name: string, socketType: TSocketType): Socket {
-      switch (socketType) {
-        case SOCKET_TYPE.TRIGGER: {
-          return this.getNodeTriggerSocketByName(name);
-        }
-        case SOCKET_TYPE.IN: {
-          return this.getInputSocketByName(name);
-        }
-        case SOCKET_TYPE.OUT: {
-          return this.getOutputSocketByName(name);
-        }
-        default:
-          return;
+      case SOCKET_TYPE.IN: {
+        return this.getInputSocketByName(name);
       }
+      case SOCKET_TYPE.OUT: {
+        return this.getOutputSocketByName(name);
+      }
+      default:
+        return;
     }
+  }
 
-
-    public drawErrorBoundary(): void {
-      this._BackgroundGraphicsRef.beginFill(
-        this.status.getColor().hexNumber(),
-        this.getOpacity(),
+  public drawErrorBoundary(): void {
+    this._BackgroundGraphicsRef.beginFill(
+      this.status.getColor().hexNumber(),
+      this.getOpacity(),
     );
     this._BackgroundGraphicsRef.drawRoundedRect(
       NODE_MARGIN - 3,
@@ -787,8 +794,10 @@ export default class PPNode extends PIXI.Container {
     });
   }
 
-  protected setStatus(status : PNPStatus){
-    if (JSON.stringify(this.status.message) !== JSON.stringify(status.message)){
+  protected setStatus(status: PNPStatus) {
+    if (
+      JSON.stringify(this.status.message) !== JSON.stringify(status.message)
+    ) {
       this.status = status;
       this.drawNodeShape();
     }
@@ -982,16 +991,14 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
       await this.rawExecute();
       this.drawComment();
     } catch (error) {
-
-      if (error instanceof PNPError){
+      if (error instanceof PNPError) {
         this.setStatus(error);
-      } else{
+      } else {
         this.setStatus(new NodeExecutionError(error.stack));
       }
       console.log(
         `Node ${this.name}(${this.id}) execution error:  ${error.stack}`,
       );
-
     }
   }
 

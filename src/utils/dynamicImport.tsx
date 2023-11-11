@@ -21,7 +21,7 @@ export async function dynamicImport(
   InterfaceController.hideSnackBar(packageName);
   InterfaceController.showSnackBar(
     <span>
-      <b>{packageName}</b> is installed
+      <b>{packageName}</b> was installed
     </span>,
   );
   return toReturn;

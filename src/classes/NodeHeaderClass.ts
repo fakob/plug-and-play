@@ -22,20 +22,20 @@ export default class NodeHeaderClass extends PIXI.Container {
 
     this._selectUpstreamBranch = new Button(SELECTION_UPSTREAM_TEXTURE);
     this._selectUpstreamBranch.addEventListener('pointerdown', (e) =>
-      this.onPointerDown(e, true, false)
+      this.onPointerDown(e, true, false),
     );
     this._selectWholeBranch = new Button(SELECTION_WHOLE_TEXTURE);
     this._selectWholeBranch.addEventListener('pointerdown', (e) =>
-      this.onPointerDown(e, true, true)
+      this.onPointerDown(e, true, true),
     );
     this._selectDownstreamBranch = new Button(SELECTION_DOWNSTREAM_TEXTURE);
     this._selectDownstreamBranch.addEventListener('pointerdown', (e) =>
-      this.onPointerDown(e, false, true)
+      this.onPointerDown(e, false, true),
     );
     this._editNode = new Button(EDIT_ICON);
     this._editNode.addEventListener(
       'pointerdown',
-      this.editNodeMouseDown.bind(this)
+      this.editNodeMouseDown.bind(this),
     );
 
     this.addChild(this._selectUpstreamBranch);
@@ -61,14 +61,14 @@ export default class NodeHeaderClass extends PIXI.Container {
   onPointerDown(
     event: PIXI.FederatedPointerEvent,
     up: boolean,
-    down: boolean
+    down: boolean,
   ): void {
     const altKey = event.altKey;
     const node = this.parent?.parent as PPNode;
     const graph = PPGraph.currentGraph;
     console.log(this, node, up, down);
     graph.selection.selectNodes(
-      Object.values(FlowLogic.getAllUpDownstreamNodes(node, up, down, altKey))
+      Object.values(FlowLogic.getAllUpDownstreamNodes(node, up, down, altKey)),
     );
   }
 
@@ -77,15 +77,13 @@ export default class NodeHeaderClass extends PIXI.Container {
     PPGraph.currentGraph.socketToInspect = null;
     const obj = {
       filter: null,
-      open: undefined,
     };
     if (!node.selected) {
       PPGraph.currentGraph.selection.selectNodes([node], false, true);
-      obj.open = true;
     }
     InterfaceController.notifyListeners(
       ListenEvent.ToggleInspectorWithFocus,
-      obj
+      obj,
     );
   }
 }

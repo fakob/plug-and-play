@@ -24,6 +24,24 @@ export class JSONType extends AbstractType {
     return <JSONWidget {...props} />;
   };
 
+  getInputWidgetSize(): any {
+    return {
+      w: 2,
+      h: 4,
+      minW: 2,
+      minH: 2,
+    };
+  }
+
+  getOutputWidgetSize(): any {
+    return {
+      w: 2,
+      h: 4,
+      minW: 2,
+      minH: 2,
+    };
+  }
+
   getDefaultValue(): any {
     return {};
   }
@@ -44,7 +62,7 @@ export class JSONType extends AbstractType {
       try {
         return JSON.parse(data);
       } catch (error) {
-        console.log('failed parsing data: ' + data);
+        // console.log('failed parsing data: ' + data);
         if (this.strictParsing) {
           return { InvalidJSON: data };
         }

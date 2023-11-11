@@ -3,7 +3,7 @@ import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
 import InterfaceController, { ListenEvent } from '../InterfaceController';
 import GraphOverlayDrawer from './GraphOverlayDrawer';
-import GraphOverlaySocketInspector from './GraphOverlaySocketInspector';
+import GraphOverlayDashboard from './GraphOverlayDashboard';
 
 type GraphOverlayProps = {
   currentGraph: PPGraph;
@@ -38,7 +38,10 @@ const GraphOverlay: React.FunctionComponent<GraphOverlayProps> = (props) => {
         selectedNodes={selectedNodes}
         randomMainColor={props.randomMainColor}
       />
-      <GraphOverlaySocketInspector randomMainColor={props.randomMainColor} />
+      <GraphOverlayDashboard
+        randomMainColor={props.randomMainColor}
+        toggleLeft={props.toggleLeft}
+      />
     </>
   );
 };
