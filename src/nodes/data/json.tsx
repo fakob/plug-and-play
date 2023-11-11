@@ -301,9 +301,6 @@ export class Format extends PPNode {
   protected createUseSocketName(fieldName: string){
     return socketFieldPrefix + fieldName;
   }
-  //protected createAliasName(fieldName: string){
-  //  return fieldName + socketAliasSuffix;
-  //}
 
   protected async onExecute(
     inputObject: any,
