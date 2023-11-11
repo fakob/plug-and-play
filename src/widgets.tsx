@@ -515,12 +515,11 @@ export type CodeWidgetProps = {
   property: Socket;
   index: number;
   hasLink: boolean;
-  data: unknown;
   randomMainColor: string;
 };
 
 export const CodeWidget: React.FunctionComponent<CodeWidgetProps> = (props) => {
-  const [data, setData] = useState(props.data);
+  const [data, setData] = useState(props.property.data);
 
   useInterval(() => {
     const formattedData = convertToString(props.property.data);

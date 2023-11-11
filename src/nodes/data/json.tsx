@@ -13,7 +13,7 @@ import { dataToType } from '../datatypes/typehelper';
 import { CustomFunction } from './dataFunctions';
 import { BooleanType } from '../datatypes/booleanType';
 import { DynamicInputNode } from '../abstract/DynamicInputNode';
-import { ArrayType } from '../datatypes/arrayType';
+import FormatJSONType, { FormatJSONInterface } from '../datatypes/formatJSONType';
 
 const JSONName = 'JSON';
 const lockOutputsName = "Lock Outputs";
@@ -271,8 +271,7 @@ export class Break extends PPNode {
   }
 }
 
-const socketAliasSuffix = " - Alias";
-const socketFieldPrefix = "Use ";
+const socketFieldPrefix = "Format ";
 
 const FORMAT_MAX_SOCKETS = 100;
 
@@ -301,9 +300,9 @@ export class Format extends PPNode {
   protected createUseSocketName(fieldName: string){
     return socketFieldPrefix + fieldName;
   }
-  protected createAliasName(fieldName: string){
-    return fieldName + socketAliasSuffix;
-  }
+  //protected createAliasName(fieldName: string){
+  //  return fieldName + socketAliasSuffix;
+  //}
 
   protected async onExecute(
     inputObject: any,
@@ -316,8 +315,10 @@ export class Format extends PPNode {
     this.adaptOutputs(json);
 
     Object.keys(json).forEach(key => {
-      if (inputObject[this.createUseSocketName(key)]){
-        let transformedName = inputObject[this.createAliasName(key)];
+      const socketName = this.createUseSocketName(key);
+      const formatType : FormatJSONInterface = inputObject[socketName];
+      if (formatType.Enabled){
+        let transformedName = formatType.Alias;
         if (transformedName.length < 1){
           transformedName = key;
         }
@@ -333,7 +334,7 @@ export class Format extends PPNode {
 
     const socketsToBeRemoved = this.inputSocketArray.filter(
       (socket) => {
-        const replacedName = socket.name.replaceAll(socketAliasSuffix, "").replaceAll(socketFieldPrefix, "");
+        const replacedName = socket.name.replaceAll(socketFieldPrefix, "");
         return !(replacedName in json) && socket.name !== this.getStandardInputName()
       }
     );
@@ -342,13 +343,13 @@ export class Format extends PPNode {
     );
     socketsToBeRemoved.forEach((socket) => {
       this.removeSocket(socket);
-      //this.removeSocket(this.getInputSocketByName(socket.name + socketAliasSuffix));
     });
 
     argumentsToBeAdded.forEach((argument) => {
       if (this.inputSocketArray.length < FORMAT_MAX_SOCKETS) {
-        this.addInput(this.createUseSocketName(argument), new BooleanType(), false);
-        this.addSocket(Socket.getOptionalVisibilitySocket(SOCKET_TYPE.IN, this.createAliasName(argument), new StringType, "", () => this.getInputData(this.createUseSocketName(argument))));
+        this.addInput(this.createUseSocketName(argument), new FormatJSONType(), {Enabled:"false", Alias:""});
+        //this.addInput(this.createUseSocketName(argument), new BooleanType(), false);
+        //this.addSocket(Socket.getOptionalVisibilitySocket(SOCKET_TYPE.IN, this.createAliasName(argument), new StringType, "", () => this.getInputData(this.createUseSocketName(argument))));
       }
     });
     if (socketsToBeRemoved.length > 0 || argumentsToBeAdded.length > 0) {
@@ -357,6 +358,7 @@ export class Format extends PPNode {
   }
 }
 
+/*
 const inputArrayName ="ObjectArray";
 export class FormatMap extends Format {
     public getName(): string {
@@ -409,9 +411,8 @@ export class FormatMap extends Format {
       outputObject[inputArrayName] = outputArray;
     }
   }
-
-
 }
+*/
 
 export class Make extends DynamicInputNode {
   public getName(): string {
