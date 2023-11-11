@@ -34,4 +34,8 @@ export class BooleanType extends AbstractType {
   recommendedInputNodeWidgets(): string[] {
     return ['WidgetSwitch', 'Constant'];
   }
+
+  protected drawSocket(graphics: PIXI.Graphics, data: any) {
+    super.drawSocket(graphics);
+  }
 }

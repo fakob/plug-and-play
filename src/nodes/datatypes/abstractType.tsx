@@ -6,7 +6,8 @@ import Socket from '../../classes/SocketClass';
 import { DefaultOutputWidget, CodeWidget } from '../../widgets';
 import { convertToString } from '../../utils/utils';
 import { TRgba } from '../../utils/interfaces';
-import { SOCKET_COLOR_HEX } from '../../utils/constants';
+import { SOCKET_COLOR_HEX, SOCKET_CORNERRADIUS, SOCKET_WIDTH } from '../../utils/constants';
+import * as PIXI from 'pixi.js';
 export class AbstractType {
   onDataSet(data: any, socket: Socket) {}
 
@@ -84,4 +85,41 @@ export class AbstractType {
   roundedCorners(): boolean{
     return true;
   }
+
+  protected drawSocket(
+    graphics: PIXI.Graphics,
+    data: any
+  ) {
+    graphics.drawRoundedRect(
+      0,
+      0,
+      SOCKET_WIDTH,
+      SOCKET_WIDTH,
+      !this.roundedCorners() ? 0 : SOCKET_CORNERRADIUS,
+    );
+  }
+
+  public drawBox(socketRef: PIXI.Graphics,
+    selectionBox: PIXI.Graphics,
+    location: PIXI.Point,
+    data: any)
+    {
+    socketRef.beginFill(this.getColor().hexNumber());
+    socketRef.x = location.x;
+    socketRef.y = location.y;
+    socketRef.pivot = new PIXI.Point(SOCKET_WIDTH / 2, SOCKET_WIDTH / 2);
+    this.drawSocket(socketRef, data);
+    // add bigger invisible box underneath
+    selectionBox.beginFill(this.getColor().hexNumber());
+    selectionBox.alpha = 0.01;
+    selectionBox.x = location.x;
+    selectionBox.y = location.y;
+    selectionBox.scale = new PIXI.Point(9, 2);
+    selectionBox.pivot = new PIXI.Point(SOCKET_WIDTH / 2, SOCKET_WIDTH / 2);
+    this.drawSocket(selectionBox, data);
+
+    socketRef.endFill();
+    socketRef.name = 'SocketRef';
+    socketRef.eventMode = 'static';
+    }
 }

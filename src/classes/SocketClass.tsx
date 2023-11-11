@@ -110,51 +110,12 @@ export default class Socket extends PIXI.Container implements Tooltipable {
     );
   }
 
-  static drawSocket(
-    graphics: PIXI.Graphics,
-    dataType: AbstractType,
-    rounded = true,
-  ) {
-    graphics.drawRoundedRect(
-      0,
-      0,
-      SOCKET_WIDTH,
-      SOCKET_WIDTH,
-      !dataType.roundedCorners() || !rounded ? 0 : SOCKET_CORNERRADIUS,
-    );
-  }
-
   redrawMetaText() {
     this.removeChild(this._MetaText);
     this._MetaText.text = this.dataType.getMetaText(this.data);
     this._MetaText.x = this.getSocketLocation().x + (this.isInput() ? 14 : -14);
     this._MetaText.y = this.getSocketLocation().y + 5;
     this.addChild(this._MetaText);
-  }
-
-  static drawBox(
-    socketRef: PIXI.Graphics,
-    selectionBox: PIXI.Graphics,
-    dataType: AbstractType,
-    location: PIXI.Point,
-  ) {
-    socketRef.beginFill(dataType.getColor().hexNumber());
-    socketRef.x = location.x;
-    socketRef.y = location.y;
-    socketRef.pivot = new PIXI.Point(SOCKET_WIDTH / 2, SOCKET_WIDTH / 2);
-    Socket.drawSocket(socketRef, dataType);
-    // add bigger invisible box under hood
-    selectionBox.beginFill(dataType.getColor().hexNumber());
-    selectionBox.alpha = 0.01;
-    selectionBox.x = location.x;
-    selectionBox.y = location.y;
-    selectionBox.scale = new PIXI.Point(9, 2);
-    selectionBox.pivot = new PIXI.Point(SOCKET_WIDTH / 2, SOCKET_WIDTH / 2);
-    Socket.drawSocket(selectionBox, dataType, false);
-
-    socketRef.endFill();
-    socketRef.name = 'SocketRef';
-    socketRef.eventMode = 'static';
   }
 
   redraw(): void {
@@ -171,11 +132,11 @@ export default class Socket extends PIXI.Container implements Tooltipable {
     }
     this._SocketRef = new PIXI.Graphics();
     this._SelectionBox = new PIXI.Graphics();
-    Socket.drawBox(
+    this.dataType.drawBox(
       this._SocketRef,
       this._SelectionBox,
-      this.dataType,
       this.getSocketLocation(),
+      this.data,
     );
     this.redrawMetaText();
     this.addChild(this._SocketRef);
