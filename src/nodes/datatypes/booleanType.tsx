@@ -1,8 +1,13 @@
 import React from 'react';
+import * as PIXI from 'pixi.js';
 import { TRgba } from '../../utils/interfaces';
 import { BooleanWidget } from '../../widgets';
-import { AbstractType } from './abstractType';
-import * as PIXI from 'pixi.js';
+import { AbstractType, DataTypeProps } from './abstractType';
+
+export interface BooleanTypeProps extends DataTypeProps {
+  dataType: BooleanType;
+}
+
 export class BooleanType extends AbstractType {
   getName(): string {
     return 'Boolean';
@@ -15,8 +20,9 @@ export class BooleanType extends AbstractType {
     return data ? true : false;
   }
 
-  getInputWidget = (data: any): any => {
-    return <BooleanWidget {...data} />;
+  getInputWidget = (props: BooleanTypeProps): any => {
+    props.dataType = this;
+    return <BooleanWidget {...props} />;
   };
 
   getColor(): TRgba {

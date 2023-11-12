@@ -1,8 +1,15 @@
 import React from 'react';
 import Socket from '../../classes/SocketClass';
-import { TriggerWidget, TriggerWidgetProps } from '../../widgets';
-import { AbstractType } from './abstractType';
+import { TriggerWidget } from '../../widgets';
+import { AbstractType, DataTypeProps } from './abstractType';
 import { TRIGGER_TYPE_OPTIONS } from '../../utils/constants';
+
+export interface TriggerTypeProps extends DataTypeProps {
+  dataType: TriggerType;
+  triggerType: string;
+  customFunctionString: string;
+  previousData: any;
+}
 
 export class TriggerType extends AbstractType {
   triggerType: string;
@@ -25,21 +32,14 @@ export class TriggerType extends AbstractType {
     return 0;
   }
 
-  getInputWidget = (props: any): any => {
-    const triggerProps: TriggerWidgetProps = {
-      property: props.property,
-      isInput: props.isInput,
-      index: props.index,
-      hasLink: props.hasLink,
-      data: props.data,
-      type: this,
-      randomMainColor: props.randomMainColor,
-    };
-    return <TriggerWidget {...triggerProps} />;
+  getInputWidget = (props: TriggerTypeProps): any => {
+    props.dataType = this;
+    return <TriggerWidget {...props} />;
   };
 
-  getOutputWidget = (data: any): any => {
-    return <TriggerWidget {...data} />;
+  getOutputWidget = (props: TriggerTypeProps): any => {
+    props.dataType = this;
+    return <TriggerWidget {...props} />;
   };
 
   getDefaultWidgetSize(): any {

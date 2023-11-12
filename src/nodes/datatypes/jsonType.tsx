@@ -1,9 +1,13 @@
 import { inspect } from 'util';
 import React from 'react';
 import { JSONWidget } from '../../widgets';
-import { AbstractType } from './abstractType';
+import { AbstractType, DataTypeProps } from './abstractType';
 import { convertToString } from '../../utils/utils';
 import { TRgba } from '../../utils/interfaces';
+
+export interface JSONTypeProps extends DataTypeProps {
+  dataType: JSONType;
+}
 
 export class JSONType extends AbstractType {
   strictParsing: boolean; // whether to force the result into JSON or not
@@ -16,11 +20,11 @@ export class JSONType extends AbstractType {
     return 'JSON';
   }
 
-  getInputWidget = (props: any): any => {
-    if (typeof props.data !== 'string') {
-      props.data = convertToString(props.data);
-    }
+  getInputWidget = (props: JSONTypeProps): any => {
     props.dataType = this;
+    if (typeof props.property.data !== 'string') {
+      props.property.data = convertToString(props.property.data);
+    }
     return <JSONWidget {...props} />;
   };
 

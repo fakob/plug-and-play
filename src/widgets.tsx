@@ -41,10 +41,17 @@ import {
 } from './utils/utils';
 import styles from './utils/style.module.css';
 import { TRgba } from './utils/interfaces';
-import { EnumStructure } from './nodes/datatypes/enumType';
-import { NumberType } from './nodes/datatypes/numberType';
-import { FileType } from './nodes/datatypes/fileType';
-import { TriggerType } from './nodes/datatypes/triggerType';
+import { DataTypeProps } from './nodes/datatypes/abstractType';
+import { BooleanTypeProps } from './nodes/datatypes/booleanType';
+import { CodeTypeProps } from './nodes/datatypes/codeType';
+import { ColorTypeProps } from './nodes/datatypes/colorType';
+import { DynamicEnumTypeProps } from './nodes/datatypes/dynamicEnumType';
+import { EnumTypeProps } from './nodes/datatypes/enumType';
+import { JSONTypeProps } from './nodes/datatypes/jsonType';
+import { NumberTypeProps } from './nodes/datatypes/numberType';
+import { FileTypeProps } from './nodes/datatypes/fileType';
+import { StringTypeProps } from './nodes/datatypes/stringType';
+import { TriggerTypeProps } from './nodes/datatypes/triggerType';
 import useInterval from 'use-interval';
 import { ActionHandler } from './utils/actionHandler';
 
@@ -78,19 +85,10 @@ function SliderValueLabelComponent(props) {
   );
 }
 
-export type SliderWidgetProps = {
-  property: Socket;
-  isInput: boolean;
-  hasLink: boolean;
-  index: number;
-  data: unknown;
-  type: NumberType;
-};
-
-export const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (
+export const SliderWidget: React.FunctionComponent<NumberTypeProps> = (
   props,
 ) => {
-  const [data, setData] = useState(Number(props.data || 0));
+  const [data, setData] = useState(Number(props.property.data || 0));
 
   useInterval(() => {
     if (data !== props.property.data) {
@@ -99,13 +97,13 @@ export const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (
   }, 100);
 
   const [minValue, setMinValue] = useState(
-    Math.min(props.type.minValue ?? 0, data),
+    Math.min(props.dataType.minValue ?? 0, data),
   );
   const [maxValue, setMaxValue] = useState(
-    Math.max(props.type.maxValue ?? 100, data),
+    Math.max(props.dataType.maxValue ?? 100, data),
   );
-  const [round, setRound] = useState(props.type.round ?? false);
-  const [stepSizeValue] = useState(props.type.stepSize ?? 0.01);
+  const [round, setRound] = useState(props.dataType.round ?? false);
+  const [stepSizeValue] = useState(props.dataType.stepSize ?? 0.01);
 
   return (
     <>
@@ -150,7 +148,7 @@ export const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (
             setRound((value) => {
               // have to add this in here as there is an issue with getting the value from the event
               // https://github.com/mui/material-ui/issues/17454
-              (props.type as NumberType).round = !value;
+              props.dataType.round = !value;
               return !value;
             });
           }}
@@ -196,7 +194,7 @@ export const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (
           onChange={(event) => {
             const newMinValue = Number(event.target.value);
             setMinValue(newMinValue);
-            (props.type as NumberType).minValue = newMinValue;
+            props.dataType.minValue = newMinValue;
           }}
           value={minValue}
         />
@@ -215,7 +213,7 @@ export const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (
           onChange={(event) => {
             const newMaxValue = Number(event.target.value);
             setMaxValue(newMaxValue);
-            (props.type as NumberType).maxValue = newMaxValue;
+            props.dataType.maxValue = newMaxValue;
           }}
           value={maxValue}
         />
@@ -224,21 +222,10 @@ export const SliderWidget: React.FunctionComponent<SliderWidgetProps> = (
   );
 };
 
-export type SelectWidgetProps = {
-  property: Socket;
-  index: number;
-  hasLink: boolean;
-  data: unknown;
-  options: EnumStructure;
-  randomMainColor: string;
-  onChange?: (value: string) => void;
-  setOptions?: () => EnumStructure;
-};
-
-export const SelectWidget: React.FunctionComponent<SelectWidgetProps> = (
-  props,
-) => {
-  const [data, setData] = useState(props.data ?? '');
+export const SelectWidget: React.FunctionComponent<
+  EnumTypeProps | DynamicEnumTypeProps
+> = (props) => {
+  const [data, setData] = useState(props.property.data ?? '');
   const [options, setOptions] = useState(props.options);
 
   useInterval(() => {
@@ -303,17 +290,10 @@ export const SelectWidget: React.FunctionComponent<SelectWidgetProps> = (
   );
 };
 
-export type BooleanWidgetProps = {
-  property: Socket;
-  index: number;
-  hasLink: boolean;
-  data: unknown;
-};
-
-export const BooleanWidget: React.FunctionComponent<BooleanWidgetProps> = (
+export const BooleanWidget: React.FunctionComponent<BooleanTypeProps> = (
   props,
 ) => {
-  const [data, setData] = useState(Boolean(props.data));
+  const [data, setData] = useState(Boolean(props.property.data));
 
   useInterval(() => {
     if (data !== props.property.data) {
@@ -343,24 +323,16 @@ export const BooleanWidget: React.FunctionComponent<BooleanWidgetProps> = (
   );
 };
 
-export type TextWidgetProps = {
-  property: Socket;
-  index: number;
-  hasLink: boolean;
-  data: unknown;
-  randomMainColor: string;
-};
-
-export const TextWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
-  const dataLength = convertToString(props.data)?.length;
+export const TextWidget: React.FunctionComponent<StringTypeProps> = (props) => {
+  const dataLength = convertToString(props.property.data)?.length;
   const [loadAll, setLoadAll] = useState(dataLength < MAX_STRING_LENGTH);
 
   const [loadedData, setLoadedData] = useState(
-    getLoadedValue(convertToString(props.data), loadAll),
+    getLoadedValue(convertToString(props.property.data), loadAll),
   );
 
   const onLoadAll = () => {
-    setLoadedData(convertToString(props.data));
+    setLoadedData(convertToString(props.property.data));
     setLoadAll(true);
   };
 
@@ -401,22 +373,13 @@ export const TextWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
   );
 };
 
-export type FileWidgetProps = {
-  property: Socket;
-  index: number;
-  hasLink: boolean;
-  data: unknown;
-  randomMainColor: string;
-  type: FileType;
-};
-
-export const FileBrowserWidget: React.FunctionComponent<FileWidgetProps> = (
+export const FileBrowserWidget: React.FunctionComponent<FileTypeProps> = (
   props,
 ) => {
-  const [filename, setFilename] = useState(props.data);
+  const [filename, setFilename] = useState(props.property.data);
   const [options, setOptions] = useState([]);
   const [filterExtensions, setFilterExtensions] = useState(
-    props.type.filterExtensions,
+    props.dataType.filterExtensions,
   );
 
   const openFileBrowser = () => {
@@ -448,7 +411,7 @@ export const FileBrowserWidget: React.FunctionComponent<FileWidgetProps> = (
 
   useInterval(() => {
     if (filename !== props.property.data) {
-      setFilterExtensions(props.type.filterExtensions);
+      setFilterExtensions(props.dataType.filterExtensions);
       setFilename(convertToString(props.property.data));
       onOpen();
     }
@@ -511,14 +474,7 @@ export const FileBrowserWidget: React.FunctionComponent<FileWidgetProps> = (
   );
 };
 
-export type CodeWidgetProps = {
-  property: Socket;
-  index: number;
-  hasLink: boolean;
-  randomMainColor: string;
-};
-
-export const CodeWidget: React.FunctionComponent<CodeWidgetProps> = (props) => {
+export const CodeWidget: React.FunctionComponent<CodeTypeProps> = (props) => {
   const [data, setData] = useState(props.property.data);
 
   useInterval(() => {
@@ -540,9 +496,9 @@ export const CodeWidget: React.FunctionComponent<CodeWidgetProps> = (props) => {
   );
 };
 
-export const JSONWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
-  const [data, setData] = useState(props.data);
-  const [displayedString, setDisplayedString] = useState(props.data);
+export const JSONWidget: React.FunctionComponent<JSONTypeProps> = (props) => {
+  const [data, setData] = useState(props.property.data);
+  const [displayedString, setDisplayedString] = useState(props.property.data);
   const [validJSON, setValidJSON] = useState(true);
 
   useInterval(() => {
@@ -580,36 +536,26 @@ export const JSONWidget: React.FunctionComponent<TextWidgetProps> = (props) => {
   );
 };
 
-export type TriggerWidgetProps = {
-  property: Socket;
-  isInput: boolean;
-  index: number;
-  hasLink: boolean;
-  data: unknown;
-  type: TriggerType;
-  randomMainColor: string;
-};
-
-export const TriggerWidget: React.FunctionComponent<TriggerWidgetProps> = (
+export const TriggerWidget: React.FunctionComponent<TriggerTypeProps> = (
   props,
 ) => {
-  const [data, setData] = useState(props.data);
+  const [data, setData] = useState(props.property.data);
   const [triggerType, setChangeFunctionString] = useState(
-    props.type.triggerType,
+    props.dataType.triggerType,
   );
   const [customFunctionString, setCustomFunctionString] = useState(
-    props.type.customFunctionString,
+    props.dataType.customFunctionString,
   );
 
   const onChangeTriggerType = (event) => {
     const value = event.target.value;
-    (props.type as TriggerType).triggerType = value;
+    props.dataType.triggerType = value;
     setChangeFunctionString(value);
   };
 
   const onChangeFunction = (event) => {
     const value = event.target.value;
-    (props.type as TriggerType).customFunctionString = value;
+    props.dataType.customFunctionString = value;
     setCustomFunctionString(value);
   };
 
@@ -687,18 +633,8 @@ export const TriggerWidget: React.FunctionComponent<TriggerWidgetProps> = (
   );
 };
 
-export type ColorWidgetProps = {
-  property: Socket;
-  index: number;
-  isInput: boolean;
-  hasLink: boolean;
-  data: TRgba;
-};
-
-export const ColorWidget: React.FunctionComponent<ColorWidgetProps> = (
-  props,
-) => {
-  const defaultColor: TRgba = Object.assign(new TRgba(), props.data);
+export const ColorWidget: React.FunctionComponent<ColorTypeProps> = (props) => {
+  const defaultColor: TRgba = Object.assign(new TRgba(), props.property.data);
 
   const [colorPicker, showColorPicker] = useState(false);
   const [finalColor, changeColor] = useState(defaultColor);
@@ -750,19 +686,10 @@ export const ColorWidget: React.FunctionComponent<ColorWidgetProps> = (
   );
 };
 
-export type DefaultOutputWidgetProps = {
-  property: Socket;
-  index: number;
-  isInput: boolean;
-  hasLink: boolean;
-  data: unknown;
-  randomMainColor?: string;
-};
-
-export const DefaultOutputWidget: React.FunctionComponent<
-  DefaultOutputWidgetProps
-> = (props) => {
-  const [data, setData] = useState(props.data);
+export const DefaultOutputWidget: React.FunctionComponent<DataTypeProps> = (
+  props,
+) => {
+  const [data, setData] = useState(props.property.data);
 
   useInterval(() => {
     const formattedData = convertToString(props.property.data);
@@ -780,19 +707,10 @@ export const DefaultOutputWidget: React.FunctionComponent<
   );
 };
 
-export type NumberOutputWidgetProps = {
-  property: Socket;
-  index: number;
-  isInput: boolean;
-  hasLink: boolean;
-  data: unknown;
-  randomMainColor?: string;
-};
-
-export const NumberOutputWidget: React.FunctionComponent<
-  NumberOutputWidgetProps
-> = (props) => {
-  const [data, setData] = useState(Number(props.data));
+export const NumberOutputWidget: React.FunctionComponent<DataTypeProps> = (
+  props,
+) => {
+  const [data, setData] = useState(Number(props.property.data));
 
   useInterval(() => {
     if (data !== props.property.data) {
