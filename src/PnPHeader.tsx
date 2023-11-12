@@ -180,7 +180,8 @@ function PnPHeader(props: Readonly<PnPHeaderProps>) {
 
     return () => {
       ids.forEach((id) => InterfaceController.removeListener(id));
-      graphSearchInput.current.removeEventListener(
+      graphSearchInput.current?.removeEventListener(
+        // why can this be null? TODO fix
         'focus',
         updateGraphSearchItems,
       );
