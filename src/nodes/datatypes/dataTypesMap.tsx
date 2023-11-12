@@ -14,6 +14,7 @@ import { JSONType } from './jsonType';
 import { NumberType } from './numberType';
 import { StringType } from './stringType';
 import { TriggerType } from './triggerType';
+import FormatJSONType from './formatJSONType';
 
 // I hate this but what can you do
 export const allDataTypes = {
@@ -33,6 +34,7 @@ export const allDataTypes = {
   EnumType: EnumType,
   DynamicEnumType: DynamicEnumType,
   GraphInputType: GraphInputType,
+  FormatJSONType: FormatJSONType,
 };
 
 export const dropDownSelectableTypes = {

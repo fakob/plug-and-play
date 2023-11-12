@@ -4,9 +4,18 @@ import React from 'react';
 import { inspect } from 'util';
 import Socket from '../../classes/SocketClass';
 import { DefaultOutputWidget, CodeWidget } from '../../widgets';
-import { convertToString } from '../../utils/utils';
 import { TRgba } from '../../utils/interfaces';
 import { SOCKET_COLOR_HEX } from '../../utils/constants';
+
+export interface DataTypeProps {
+  key: string;
+  property: Socket;
+  index: number;
+  isInput: boolean;
+  hasLink: boolean;
+  randomMainColor: any;
+  dataType: AbstractType;
+}
 export class AbstractType {
   onDataSet(data: any, socket: Socket) {}
 
@@ -30,19 +39,13 @@ export class AbstractType {
     return 'null';
   }
 
-  getInputWidget = (props: any): any => {
-    if (typeof props.data !== 'string') {
-      props.data = convertToString(props.data);
-    }
+  getInputWidget = (props: DataTypeProps): any => {
     props.dataType = this;
-
     return <CodeWidget {...props} />;
   };
 
   getOutputWidget = (props: any): any => {
-    if (typeof props.data !== 'string') {
-      props.data = convertToString(props.data);
-    }
+
 
     props.dataType = this;
     return <DefaultOutputWidget {...props} />;

@@ -10,7 +10,7 @@ import { writeDataToClipboard } from './utils/utils';
 import styles from './utils/style.module.css';
 import PPNode from './classes/NodeClass';
 import Socket from './classes/SocketClass';
-import { AbstractType } from './nodes/datatypes/abstractType';
+import { AbstractType, DataTypeProps } from './nodes/datatypes/abstractType';
 import {
   allDataTypes,
   dropDownSelectableTypes,
@@ -36,14 +36,14 @@ export const SocketContainer: React.FunctionComponent<SocketContainerProps> = (
 
   const { showHeader = true } = props;
   const [dataTypeValue, setDataTypeValue] = useState(props.dataType);
-  const baseProps = {
+  const baseProps: DataTypeProps = {
     key: props.dataType.getName(),
     property: props.property,
     index: props.index,
     isInput: props.isInput,
     hasLink: props.hasLink,
-    data: props.data,
     randomMainColor: props.randomMainColor,
+    dataType: props.property.dataType,
   };
 
   const widget = props.isInput
