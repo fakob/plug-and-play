@@ -27,8 +27,10 @@ interface PieDrawnSlice {
   highestY: number;
   lowestY: number;
   color: TRgba;
+  index: number;
   preDraws: ((g: PIXI.Graphics, desiredIntensity: number) => void)[];
   draws: ((g: PIXI.Graphics, desiredIntensity: number) => void)[];
+  textDraws: ((g: PIXI.Graphics, desiredIntensity: number) => void)[];
 }
 
 const PIE_GRAPH_RESOLUTION = 1000;
@@ -194,6 +196,10 @@ export class GRAPH_PIE extends DRAW_Base {
         [];
       const preDraws: ((g: PIXI.Graphics, desiredIntensity: number) => void)[] =
         [];
+      const textDraws: ((
+        g: PIXI.Graphics,
+        desiredIntensity: number,
+      ) => void)[] = [];
       const distanceFromCenter = Math.max(
         0.01,
         inputObject[inputDistanceFromCenter] || 0.01,
@@ -229,7 +235,7 @@ export class GRAPH_PIE extends DRAW_Base {
           averageDirection.y * distance * yScale,
         );
         const textToUse = pieSlice.Name;
-        draws.push((drawGraphics: PIXI.Graphics) => {
+        textDraws.push((drawGraphics: PIXI.Graphics) => {
           drawGraphics.addChild(
             this.getValueText(textToUse, valuePosition, fontSize),
           );
@@ -237,7 +243,7 @@ export class GRAPH_PIE extends DRAW_Base {
 
         // if too far away, draw line back to my slice
         if (distance > radius) {
-          draws.push((drawGraphics: PIXI.Graphics) => {
+          textDraws.push((drawGraphics: PIXI.Graphics) => {
             drawGraphics.lineStyle(1, TRgba.black().hexNumber());
             drawGraphics.moveTo(
               averageDirection.x * radius,
@@ -370,8 +376,10 @@ export class GRAPH_PIE extends DRAW_Base {
         highestY,
         lowestY,
         color,
+        index,
         preDraws,
         draws,
+        textDraws,
       });
     });
 
@@ -400,7 +408,7 @@ export class GRAPH_PIE extends DRAW_Base {
       drawContainer.addEventListener('pointerover', (e) => {
         drawContainer.removeChildren();
         slice.draws.forEach((draw) => {
-          draw(drawContainer, 1.2);
+          draw(drawContainer, 1.5);
         });
       });
 
@@ -414,6 +422,14 @@ export class GRAPH_PIE extends DRAW_Base {
     });
 
     topDraws.forEach((draw) => graphics.addChild(draw));
+
+    slicesToDraw.forEach((slice) => [
+      slice.textDraws.forEach((textDraw) => {
+        graphics.beginFill(slice.color.hexNumber());
+        textDraw(graphics, 1.0);
+      }),
+    ]);
+
     //graphics.addChild(deferredGraphics);
     this.positionAndScale(graphics, inputObject);
     container.addChild(graphics);
