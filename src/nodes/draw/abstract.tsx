@@ -324,10 +324,6 @@ export abstract class DRAW_Base extends PPNode {
     return true;
   }
 
-  public getIsPresentationalNode(): boolean {
-    return true;
-  }
-
   public executeOnPlace(): boolean {
     return true;
   }

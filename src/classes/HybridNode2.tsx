@@ -242,10 +242,6 @@ export default abstract class HybridNode2 extends PPNode {
     }
   }
 
-  public getIsPresentationalNode(): boolean {
-    return true;
-  }
-
   getOpacity(): number {
     return 0.01;
   }

@@ -1393,9 +1393,6 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     return {};
   }
 
-  public getIsPresentationalNode(): boolean {
-    return false;
-  }
 
   public isCallingMacro(macroName: string): boolean {
     return false;
