@@ -48,7 +48,7 @@ import { TriggerType } from './nodes/datatypes/triggerType';
 import useInterval from 'use-interval';
 import { ActionHandler } from './utils/actionHandler';
 
-async function potentiallyUpdateSocketData(property: Socket, newValue) {
+export async function potentiallyUpdateSocketData(property: Socket, newValue) {
   const nodeID = property.getNode().id;
   const name = property.name;
   const type = property.socketType;

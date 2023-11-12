@@ -30,8 +30,8 @@ export class BooleanType extends AbstractType {
   recommendedInputNodeWidgets(): string[] {
     return ['WidgetSwitch', 'Constant'];
   }
-  drawValueSpecificGraphics(graphics: PIXI.Graphics, data: any) {
-    super.drawValueSpecificGraphics(graphics, data);
+
+  static drawBooleanValue(graphics: PIXI.Graphics, data: any) {
     graphics.lineStyle(1, TRgba.white().hexNumber());
     graphics.beginFill(TRgba.white().hexNumber());
     if (data) {
@@ -45,5 +45,10 @@ export class BooleanType extends AbstractType {
       graphics.moveTo(-4, 4);
       graphics.lineTo(4, -4);
     }
+  }
+
+  drawValueSpecificGraphics(graphics: PIXI.Graphics, data: any) {
+    super.drawValueSpecificGraphics(graphics, data);
+    BooleanType.drawBooleanValue(graphics, data);
   }
 }
