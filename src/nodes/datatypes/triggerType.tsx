@@ -4,13 +4,6 @@ import { TriggerWidget, TriggerWidgetProps } from '../../widgets';
 import { AbstractType } from './abstractType';
 import { TRIGGER_TYPE_OPTIONS } from '../../utils/constants';
 
-const widgetSize = {
-  w: 2,
-  h: 4,
-  minW: 2,
-  minH: 2,
-};
-
 export class TriggerType extends AbstractType {
   triggerType: string;
   customFunctionString: string;
@@ -49,12 +42,13 @@ export class TriggerType extends AbstractType {
     return <TriggerWidget {...data} />;
   };
 
-  getInputWidgetSize(): any {
-    return widgetSize;
-  }
-
-  getOutputWidgetSize(): any {
-    return widgetSize;
+  getDefaultWidgetSize(): any {
+    return {
+      w: 2,
+      h: 4,
+      minW: 2,
+      minH: 2,
+    };
   }
 
   onDataSet(data: any, socket: Socket): void {

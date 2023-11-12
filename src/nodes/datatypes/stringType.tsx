@@ -3,13 +3,6 @@ import { TRgba } from '../../utils/interfaces';
 import { TextWidget } from '../../widgets';
 import { AbstractType } from './abstractType';
 
-const widgetSize = {
-  w: 2,
-  h: 3,
-  minW: 2,
-  minH: 2,
-};
-
 export class StringType extends AbstractType {
   constructor() {
     super();
@@ -24,12 +17,13 @@ export class StringType extends AbstractType {
     return <TextWidget {...props} />;
   };
 
-  getInputWidgetSize(): any {
-    return widgetSize;
-  }
-
-  getOutputWidgetSize(): any {
-    return widgetSize;
+  getDefaultWidgetSize(): any {
+    return {
+      w: 2,
+      h: 3,
+      minW: 2,
+      minH: 2,
+    };
   }
 
   getDefaultValue(): any {

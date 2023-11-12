@@ -57,12 +57,16 @@ export class AbstractType {
     return <DefaultOutputWidget {...props} />;
   };
 
-  getInputWidgetSize(): any {
+  getDefaultWidgetSize() {
     return widgetSize;
   }
 
+  getInputWidgetSize(): any {
+    return this.getDefaultWidgetSize();
+  }
+
   getOutputWidgetSize(): any {
-    return widgetSize;
+    return this.getDefaultWidgetSize();
   }
 
   getDefaultValue(): any {
