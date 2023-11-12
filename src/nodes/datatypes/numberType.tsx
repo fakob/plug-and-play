@@ -1,11 +1,11 @@
 import React from 'react';
 import { TRgba } from '../../utils/interfaces';
-import {
-  NumberOutputWidget,
-  SliderWidget,
-  SliderWidgetProps,
-} from '../../widgets';
-import { AbstractType } from './abstractType';
+import { NumberOutputWidget, SliderWidget } from '../../widgets';
+import { AbstractType, DataTypeProps } from './abstractType';
+
+export interface NumberTypeProps extends DataTypeProps {
+  dataType: NumberType;
+}
 
 export class NumberType extends AbstractType {
   round: boolean;
@@ -25,21 +25,15 @@ export class NumberType extends AbstractType {
     this.stepSize = stepSize;
   }
 
-  getInputWidget = (props: any): any => {
-    const sliderProps: SliderWidgetProps = {
-      property: props.property,
-      isInput: props.isInput,
-      hasLink: props.hasLink,
-      index: props.index,
-      data: props.data,
-      type: this,
-    };
-    return <SliderWidget {...sliderProps} />;
+  getInputWidget = (props: NumberTypeProps): any => {
+    props.dataType = this;
+    return <SliderWidget {...props} />;
   };
 
-  getOutputWidget = (props: any): any => {
-    if (typeof props.data !== 'number') {
-      props.data = Number(props.data);
+  getOutputWidget = (props: NumberTypeProps): any => {
+    props.dataType = this;
+    if (typeof props.property.data !== 'number') {
+      props.property.data = Number(props.property.data);
     }
     return <NumberOutputWidget {...props} />;
   };

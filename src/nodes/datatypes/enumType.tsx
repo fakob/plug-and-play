@@ -1,8 +1,15 @@
 import React from 'react';
-import { SelectWidget, SelectWidgetProps } from '../../widgets';
-import { AbstractType } from './abstractType';
+import { SelectWidget } from '../../widgets';
+import { AbstractType, DataTypeProps } from './abstractType';
 
 export type EnumStructure = { text: string; value?: any }[];
+
+export interface EnumTypeProps extends DataTypeProps {
+  dataType: EnumType;
+  options: EnumStructure;
+  onChange?: (value: string) => void;
+  setOptions;
+}
 
 // This class is a crutch for legacy reasons, you normally shouldn't need it but instead create new types
 
@@ -20,11 +27,11 @@ export class EnumType extends AbstractType {
     return 'Enum';
   }
 
-  getInputWidget = (data: any): any => {
-    const widgetProps: SelectWidgetProps = data;
-    widgetProps.options = this.options;
-    widgetProps.onChange = this.onChange;
-    return <SelectWidget {...widgetProps} />;
+  getInputWidget = (props: EnumTypeProps): any => {
+    props.dataType = this;
+    props.options = this.options;
+    props.onChange = this.onChange;
+    return <SelectWidget {...props} />;
   };
 
   recommendedOutputNodeWidgets(): string[] {

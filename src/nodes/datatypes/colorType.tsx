@@ -1,8 +1,12 @@
 import React from 'react';
+import * as PIXI from 'pixi.js';
 import { TRgba } from '../../utils/interfaces';
 import { ColorWidget } from '../../widgets';
-import { AbstractType } from './abstractType';
-import * as PIXI from 'pixi.js';
+import { AbstractType, DataTypeProps } from './abstractType';
+
+export interface ColorTypeProps extends DataTypeProps {
+  dataType: ColorType;
+}
 
 export class Color {
   R: number;
@@ -33,8 +37,7 @@ export class ColorType extends AbstractType {
     }
   }
 
-  getInputWidget = (data: any): any => {
-    const props = { ...data };
+  getInputWidget = (props: ColorTypeProps): any => {
     props.dataType = this;
     return <ColorWidget {...props} />;
   };

@@ -25,7 +25,7 @@ import {
   TOOLTIP_WIDTH,
   COLOR_MAIN,
 } from '../utils/constants';
-import { AbstractType } from '../nodes/datatypes/abstractType';
+import { AbstractType, DataTypeProps } from '../nodes/datatypes/abstractType';
 import { dataToType, serializeType } from '../nodes/datatypes/typehelper';
 import { getCurrentCursorPosition } from '../utils/utils';
 import { TextStyle } from 'pixi.js';
@@ -391,7 +391,7 @@ export default class Socket extends PIXI.Container implements Tooltipable {
   }
 
   getTooltipContent(props): React.ReactElement {
-    const baseProps = {
+    const baseProps: DataTypeProps = {
       key: this.dataType.getName(),
       property: this,
       index: 0,

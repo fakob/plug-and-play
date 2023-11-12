@@ -1,7 +1,11 @@
 import React from 'react';
 import { TRgba } from '../../utils/interfaces';
 import { TextWidget } from '../../widgets';
-import { AbstractType } from './abstractType';
+import { AbstractType, DataTypeProps } from './abstractType';
+
+export interface StringTypeProps extends DataTypeProps {
+  dataType: StringType;
+}
 
 export class StringType extends AbstractType {
   constructor() {
@@ -12,8 +16,8 @@ export class StringType extends AbstractType {
     return 'String';
   }
 
-  getInputWidget = (data: any): any => {
-    const props = { ...data };
+  getInputWidget = (props: StringTypeProps): any => {
+    props.dataType = this;
     return <TextWidget {...props} />;
   };
 

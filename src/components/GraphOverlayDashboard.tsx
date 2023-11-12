@@ -8,7 +8,7 @@ import PPNode from '../classes/NodeClass';
 import InterfaceController from '../InterfaceController';
 import PPGraph from '../classes/GraphClass';
 import PPSocket from '../classes/SocketClass';
-import { AbstractType } from '../nodes/datatypes/abstractType';
+import { AbstractType, DataTypeProps } from '../nodes/datatypes/abstractType';
 import { ensureVisible, zoomToFitNodes } from '../pixi/utils-pixi';
 import { deconstructSocketId } from '../utils/utils';
 import {
@@ -177,7 +177,7 @@ export const DashboardWidgetContainer: React.FunctionComponent<
   DashboardWidgetContainerProps
 > = (props) => {
   const [dataTypeValue, setDataTypeValue] = useState(props.dataType);
-  const baseProps = {
+  const baseProps: DataTypeProps = {
     key: props.dataType.getName(),
     property: props.property,
     index: props.index,

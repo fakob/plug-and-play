@@ -56,7 +56,7 @@ export class AbstractType {
     return <CodeWidget {...props} />;
   };
 
-  getOutputWidget = (props: any): any => {
+  getOutputWidget = (props: DataTypeProps): any => {
     props.dataType = this;
     return <DefaultOutputWidget {...props} />;
   };

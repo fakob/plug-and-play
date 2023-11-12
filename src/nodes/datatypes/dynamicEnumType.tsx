@@ -1,7 +1,15 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import React from 'react';
-import { SelectWidget, SelectWidgetProps } from '../../widgets';
-import { AbstractType } from './abstractType';
+import { SelectWidget } from '../../widgets';
+import { AbstractType, DataTypeProps } from './abstractType';
+import { EnumStructure } from './enumType';
+
+export interface DynamicEnumTypeProps extends DataTypeProps {
+  dataType: DynamicEnumType;
+  options: EnumStructure;
+  onChange?: (value: string) => void;
+  setOptions;
+}
 
 export class DynamicEnumType extends AbstractType {
   getOptions = () => [];
@@ -19,11 +27,11 @@ export class DynamicEnumType extends AbstractType {
     return '';
   }
 
-  getInputWidget = (data: any): any => {
-    const widgetProps: SelectWidgetProps = data;
-    widgetProps.options = this.getOptions();
-    widgetProps.onChange = this.onChange;
-    return <SelectWidget {...widgetProps} />;
+  getInputWidget = (props: DynamicEnumTypeProps): any => {
+    props.dataType = this;
+    props.options = this.getOptions();
+    props.onChange = this.onChange;
+    return <SelectWidget {...props} />;
   };
 
   recommendedOutputNodeWidgets(): string[] {

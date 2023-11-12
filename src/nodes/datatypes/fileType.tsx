@@ -1,7 +1,11 @@
 import React from 'react';
 import { TRgba } from '../../utils/interfaces';
-import { FileBrowserWidget, FileWidgetProps } from '../../widgets';
-import { AbstractType } from './abstractType';
+import { FileBrowserWidget } from '../../widgets';
+import { AbstractType, DataTypeProps } from './abstractType';
+
+export interface FileTypeProps extends DataTypeProps {
+  dataType: FileType;
+}
 
 export class FileType extends AbstractType {
   filterExtensions: string[];
@@ -14,16 +18,9 @@ export class FileType extends AbstractType {
     return 'File';
   }
 
-  getInputWidget = (props: any): any => {
-    const sliderProps: FileWidgetProps = {
-      property: props.property,
-      hasLink: props.hasLink,
-      index: props.index,
-      data: props.data,
-      randomMainColor: props.randomMainColor,
-      type: this,
-    };
-    return <FileBrowserWidget {...sliderProps} />;
+  getInputWidget = (props: FileTypeProps): any => {
+    props.dataType = this;
+    return <FileBrowserWidget {...props} />;
   };
 
   getDefaultValue(): any {
