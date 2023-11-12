@@ -42,6 +42,7 @@ export default class Socket extends PIXI.Container implements Tooltipable {
   _TextRef: PIXI.Text;
   _SelectionBox: PIXI.Graphics;
   _MetaText: PIXI.Text;
+  _ValueSpecificGraphics: PIXI.Graphics;
 
   _socketType: TSocketType;
   _dataType: AbstractType;
@@ -114,20 +115,6 @@ export default class Socket extends PIXI.Container implements Tooltipable {
     );
   }
 
-  static drawSocket(
-    graphics: PIXI.Graphics,
-    dataType: AbstractType,
-    rounded = true,
-  ) {
-    graphics.drawRoundedRect(
-      0,
-      0,
-      SOCKET_WIDTH,
-      SOCKET_WIDTH,
-      !dataType.roundedCorners() || !rounded ? 0 : SOCKET_CORNERRADIUS,
-    );
-  }
-
   redrawMetaText() {
     this.removeChild(this._MetaText);
     this._MetaText.text = this.dataType.getMetaText(this.data);
@@ -135,30 +122,17 @@ export default class Socket extends PIXI.Container implements Tooltipable {
     this._MetaText.y = this.getSocketLocation().y + 5;
     this.addChild(this._MetaText);
   }
-
-  static drawBox(
-    socketRef: PIXI.Graphics,
-    selectionBox: PIXI.Graphics,
-    dataType: AbstractType,
-    location: PIXI.Point,
-  ) {
-    socketRef.beginFill(dataType.getColor().hexNumber());
-    socketRef.x = location.x;
-    socketRef.y = location.y;
-    socketRef.pivot = new PIXI.Point(SOCKET_WIDTH / 2, SOCKET_WIDTH / 2);
-    Socket.drawSocket(socketRef, dataType);
-    // add bigger invisible box under hood
-    selectionBox.beginFill(dataType.getColor().hexNumber());
-    selectionBox.alpha = 0.01;
-    selectionBox.x = location.x;
-    selectionBox.y = location.y;
-    selectionBox.scale = new PIXI.Point(9, 2);
-    selectionBox.pivot = new PIXI.Point(SOCKET_WIDTH / 2, SOCKET_WIDTH / 2);
-    Socket.drawSocket(selectionBox, dataType, false);
-
-    socketRef.endFill();
-    socketRef.name = 'SocketRef';
-    socketRef.eventMode = 'static';
+  redrawValueSpecificGraphics() {
+    this.removeChild(this._ValueSpecificGraphics);
+    this._ValueSpecificGraphics.clear();
+    this._ValueSpecificGraphics.removeChildren();
+    this.dataType.drawValueSpecificGraphics(
+      this._ValueSpecificGraphics,
+      this.data,
+    );
+    this._ValueSpecificGraphics.x = this.getSocketLocation().x;
+    this._ValueSpecificGraphics.y = this.getSocketLocation().y;
+    this.addChild(this._ValueSpecificGraphics);
   }
 
   redraw(): void {
@@ -175,11 +149,12 @@ export default class Socket extends PIXI.Container implements Tooltipable {
     }
     this._SocketRef = new PIXI.Graphics();
     this._SelectionBox = new PIXI.Graphics();
-    Socket.drawBox(
+    this._ValueSpecificGraphics = new PIXI.Graphics();
+    this.dataType.drawBox(
       this._SocketRef,
       this._SelectionBox,
-      this.dataType,
       this.getSocketLocation(),
+      this.data,
     );
     this.redrawMetaText();
     this.addChild(this._SocketRef);
@@ -217,6 +192,7 @@ export default class Socket extends PIXI.Container implements Tooltipable {
         }
       });
       this.addChild(this._TextRef);
+      this.redrawValueSpecificGraphics();
     }
   }
 
@@ -248,6 +224,7 @@ export default class Socket extends PIXI.Container implements Tooltipable {
   set data(newData: any) {
     this._data = newData;
     this.redrawMetaText();
+    this.redrawValueSpecificGraphics();
     if (
       this.getNode()?.socketShouldAutomaticallyAdapt(this) &&
       this.dataType.allowedToAutomaticallyAdapt()
@@ -483,6 +460,10 @@ export default class Socket extends PIXI.Container implements Tooltipable {
       Math.pow(Math.max(0, (maxDist - dist) / maxDist), 1) * 1.2 + 1;
 
     this._SocketRef.scale = new PIXI.Point(scaleOutside, scaleOutside);
+    this._ValueSpecificGraphics.scale = new PIXI.Point(
+      scaleOutside,
+      scaleOutside,
+    );
     if (this._TextRef) {
       this._TextRef.scale = new PIXI.Point(
         Math.sqrt(scaleOutside),
@@ -544,6 +525,7 @@ export default class Socket extends PIXI.Container implements Tooltipable {
 
     // scale might have been touched by us in pointeroversocketmoving
     this._SocketRef.scale = new PIXI.Point(1, 1);
+    this._ValueSpecificGraphics.scale = new PIXI.Point(1, 1);
     if (this._TextRef) {
       this._TextRef.scale = new PIXI.Point(1, 1);
     }

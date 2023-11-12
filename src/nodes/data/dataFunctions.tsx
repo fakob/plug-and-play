@@ -731,6 +731,22 @@ export class Sort extends ArrayFunction {
   }
 
   protected getInnerCode(): string {
-    return '(a, b) => a - b';
+    return '(a, b) => b.localeCompare(a)';
+  }
+}
+
+export class Reverse extends ArrayFunction {
+  public getName(): string {
+    return 'Reverse array';
+  }
+
+  public getDescription(): string {
+    return 'Reverse an array';
+  }
+
+  protected getDefaultFunction(): string {
+    return '(ArrayIn, InnerCode) => { \n\
+      return ArrayIn.toReversed() \n\
+    }';
   }
 }

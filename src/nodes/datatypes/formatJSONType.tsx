@@ -3,6 +3,9 @@ import { AbstractType, DataTypeProps } from './abstractType';
 import { Checkbox, FormGroup, TextField } from '@mui/material';
 import React from 'react';
 import useInterval from 'use-interval';
+import { BooleanType } from './booleanType';
+import * as PIXI from 'pixi.js';
+import { potentiallyUpdateSocketData } from '../../widgets';
 
 export interface FormatJSONInterface {
   Enabled: boolean;
@@ -14,6 +17,15 @@ export default class FormatJSONType extends AbstractType {
   };
   allowedAsOutput(): boolean {
     return false;
+  }
+
+  drawValueSpecificGraphics(graphics: PIXI.Graphics, data: any) {
+    super.drawValueSpecificGraphics(graphics, data);
+    BooleanType.drawBooleanValue(graphics, data.Enabled);
+  }
+
+  getMetaText(data: any): string {
+    return data.Alias;
   }
 }
 
@@ -50,8 +62,8 @@ export const FormatJSONWidget: React.FunctionComponent<DataTypeProps> = (
           checked={enabled}
           onChange={() => {
             setEnabled(!enabled);
-            props.property.data.Enabled = !enabled;
-            props.property.getNode().executeOptimizedChain();
+            const newData = { Enabled: !enabled, Alias: alias };
+            potentiallyUpdateSocketData(props.property, newData);
           }}
           disabled={false}
         />
@@ -64,8 +76,8 @@ export const FormatJSONWidget: React.FunctionComponent<DataTypeProps> = (
           onChange={(event) => {
             const value = event.target.value;
             setAlias(value);
-            props.property.data.Alias = value;
-            props.property.getNode().executeOptimizedChain();
+            const newData = { Enabled: enabled, Alias: value };
+            potentiallyUpdateSocketData(props.property, newData);
           }}
           disabled={!enabled}
           inputProps={{

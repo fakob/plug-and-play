@@ -114,7 +114,7 @@ export abstract class DRAW_Base extends PPNode {
         inputAlwaysDraw,
         new BooleanType(),
         true,
-        false,
+        true,
       ),
       new Socket(
         SOCKET_TYPE.IN,

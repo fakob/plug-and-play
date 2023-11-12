@@ -2,6 +2,7 @@ import React from 'react';
 import { TRgba } from '../../utils/interfaces';
 import { ColorWidget } from '../../widgets';
 import { AbstractType } from './abstractType';
+import * as PIXI from 'pixi.js';
 
 export class Color {
   R: number;
@@ -39,7 +40,7 @@ export class ColorType extends AbstractType {
   };
 
   getColor(): TRgba {
-    return new TRgba(255, 170, 60);
+    return new TRgba(110, 110, 110);
   }
 
   recommendedOutputNodeWidgets(): string[] {
@@ -48,5 +49,13 @@ export class ColorType extends AbstractType {
 
   recommendedInputNodeWidgets(): string[] {
     return ['WidgetColorPicker', 'Constant'];
+  }
+
+  drawValueSpecificGraphics(graphics: PIXI.Graphics, data: any) {
+    super.drawValueSpecificGraphics(graphics, data);
+    if (data) {
+      graphics.beginFill(data.hexNumber());
+      graphics.drawCircle(0, 0, 4);
+    }
   }
 }
