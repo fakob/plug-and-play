@@ -173,12 +173,7 @@ export const GraphContextMenu = (props) => {
     >
       <MenuList dense>
         <MenuItem disabled>Playground</MenuItem>
-        <MenuItem
-          onClick={() => {
-            // TODO FIX THIS WTF DOESNT IT WORK WITHOUT A TIMEOUT
-            setTimeout(InterfaceController.toggleGraphSearchOpen, 10);
-          }}
-        >
+        <MenuItem onClick={() => InterfaceController.toggleLeftSideDrawer()}>
           <ListItemIcon>
             <SearchIcon fontSize="small" />
           </ListItemIcon>

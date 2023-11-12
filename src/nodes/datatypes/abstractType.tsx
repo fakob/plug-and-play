@@ -7,6 +7,13 @@ import { DefaultOutputWidget, CodeWidget } from '../../widgets';
 import { TRgba } from '../../utils/interfaces';
 import { SOCKET_COLOR_HEX } from '../../utils/constants';
 
+const widgetSize = {
+  w: 2,
+  h: 2,
+  minW: 2,
+  minH: 2,
+};
+
 export interface DataTypeProps {
   key: string;
   property: Socket;
@@ -16,6 +23,7 @@ export interface DataTypeProps {
   randomMainColor: any;
   dataType: AbstractType;
 }
+
 export class AbstractType {
   onDataSet(data: any, socket: Socket) {}
 
@@ -45,28 +53,16 @@ export class AbstractType {
   };
 
   getOutputWidget = (props: any): any => {
-
-
     props.dataType = this;
     return <DefaultOutputWidget {...props} />;
   };
 
   getInputWidgetSize(): any {
-    return {
-      w: 2,
-      h: 2,
-      minW: 2,
-      minH: 2,
-    };
+    return widgetSize;
   }
 
   getOutputWidgetSize(): any {
-    return {
-      w: 2,
-      h: 2,
-      minW: 2,
-      minH: 2,
-    };
+    return widgetSize;
   }
 
   getDefaultValue(): any {

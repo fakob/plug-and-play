@@ -10,7 +10,6 @@ import {
   ListItemText,
   ListSubheader,
   Paper,
-  TextField,
   Stack,
   ToggleButton,
   ToggleButtonGroup,
@@ -48,11 +47,11 @@ TimeAgo.addDefaultLocale(en);
 const timeAgo = new TimeAgo('en-US');
 
 type FilterContentProps = {
-  handleFilter: (
+  readonly handleFilter: (
     event: React.MouseEvent<HTMLElement>,
     newFilter: string | null,
   ) => void;
-  filter: string;
+  readonly filter: string;
 };
 
 function FilterContainer(props: FilterContentProps) {
@@ -70,9 +69,9 @@ function FilterContainer(props: FilterContentProps) {
       }}
     >
       <ToggleButton
-        id="inspector-filter-explore"
-        value="explore"
-        aria-label="explore"
+        id="inspector-filter-graphs"
+        value="graphs"
+        aria-label="graphs"
       >
         My&nbsp;playgrounds
       </ToggleButton>
@@ -159,7 +158,6 @@ const LeftsideContent = (props) => {
 
       const graphs: any[] = await PPStorage.getInstance().getGraphs();
       const newGraphSearchItems = graphs.sort(sortByDate).map((graph) => {
-        console.log(graph.date);
         return {
           id: graph.id,
           name: graph.name,
@@ -185,7 +183,6 @@ const LeftsideContent = (props) => {
       const selectedItem = newGraphSearchItems.find(
         (item) => item.id === PPGraph.currentGraph.id,
       );
-      console.log(newGraphSearchItems, PPGraph.currentGraph?.id, selectedItem);
       setGraphSearchActiveItem(selectedItem);
     }
   };
@@ -233,7 +230,6 @@ const LeftsideContent = (props) => {
             ),
         );
       }
-      console.log(nodesCached);
     }, 1000);
   }, []);
 
@@ -263,7 +259,7 @@ const LeftsideContent = (props) => {
           height: 'calc(100vh - 100px)',
         }}
       >
-        {(props.filter === 'explore' || props.filter == null) && (
+        {(props.filter === 'graphs' || props.filter == null) && (
           <Item>
             <GraphsContent
               graphs={graphSearchItems}
@@ -341,6 +337,7 @@ const GraphsContent = (props) => {
         </Button>
       </Box>
       <List
+        id="graphs-list"
         sx={{
           width: '100%',
           bgcolor: 'background.paper',
@@ -351,15 +348,13 @@ const GraphsContent = (props) => {
         }}
         subheader={<li />}
       >
-        {props.graphs.map((property, index) => {
+        {props.graphs.map((property) => {
           return (
             <GraphItem
-              key={index}
               graphSearchActiveItem={props.graphSearchActiveItem}
               loadGraph={props.loadGraph}
               property={property}
               randomMainColor={props.randomMainColor}
-              index={index}
               sx={{
                 listStyleType: 'none',
                 m: 1,
@@ -381,6 +376,7 @@ const GraphItem = (props) => {
 
   return graph.isDisabled ? (
     <ListSubheader
+      key={`subheader-${graph.id}`}
       sx={{
         lineHeight: '40px',
         paddingLeft: '8px',
@@ -533,13 +529,11 @@ const NodesContent = (props) => {
         }}
         subheader={<li />}
       >
-        {props.nodesCached.map((property, index) => {
+        {props.nodesCached.map((property) => {
           return (
             <NodeItem
-              key={index}
               property={property}
               randomMainColor={props.randomMainColor}
-              index={index}
               sx={{
                 listStyleType: 'none',
               }}
@@ -554,7 +548,7 @@ const NodesContent = (props) => {
 const NodeItem = (props) => {
   return (
     <ListItem
-      key={`item-${props.property.title}`}
+      key={`list-item-${props.property.title}`}
       sx={{
         p: 0,
         '&:hover + .MuiListItemSecondaryAction-root': {
@@ -597,9 +591,9 @@ const NodeItem = (props) => {
               </Box>
             </Box>
             <Box>
-              {props.property.tags?.map((part, index) => (
+              {props.property.tags?.map((name) => (
                 <Box
-                  key={index}
+                  key={`tag-${name}`}
                   sx={{
                     fontSize: '12px',
                     background: 'rgba(255,255,255,0.2)',
@@ -612,7 +606,7 @@ const NodeItem = (props) => {
                     },
                   }}
                 >
-                  {part}
+                  {name}
                 </Box>
               ))}
             </Box>

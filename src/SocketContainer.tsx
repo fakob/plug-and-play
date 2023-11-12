@@ -28,7 +28,6 @@ type SocketContainerProps = {
   data: any;
   randomMainColor: string;
   selectedNode: PPNode;
-  onDashboard?: boolean;
 };
 
 export const SocketContainer: React.FunctionComponent<SocketContainerProps> = (
@@ -125,9 +124,9 @@ type SocketHeaderProps = {
 
 const SocketHeader: React.FunctionComponent<SocketHeaderProps> = (props) => {
   const [visible, setVisible] = useState(props.property.visible);
-  const [locked] = useState(!props.isInput || props.hasLink);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
+  const locked = !props.isInput || props.hasLink;
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };

@@ -3,6 +3,13 @@ import { CodeWidget } from '../../widgets';
 import { AbstractType } from './abstractType';
 import { convertToString } from '../../utils/utils';
 
+const widgetSize = {
+  w: 2,
+  h: 4,
+  minW: 2,
+  minH: 2,
+};
+
 export class CodeType extends AbstractType {
   constructor() {
     super();
@@ -21,21 +28,11 @@ export class CodeType extends AbstractType {
   };
 
   getInputWidgetSize(): any {
-    return {
-      w: 2,
-      h: 4,
-      minW: 2,
-      minH: 2,
-    };
+    return widgetSize;
   }
 
   getOutputWidgetSize(): any {
-    return {
-      w: 2,
-      h: 4,
-      minW: 2,
-      minH: 2,
-    };
+    return widgetSize;
   }
 
   getDefaultValue(): any {

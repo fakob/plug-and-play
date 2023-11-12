@@ -5,10 +5,10 @@ describe('fundamentals', () => {
   const myGraphName = 'Bingus';
 
   function openInspectorAndCheckForName(nameOfNode) {
-    cy.get('body').type(`${controlOrMetaKey}\\`); // open inspector
+    cy.get('body').type(`${controlOrMetaKey}3`); // open inspector
     cy.get('#inspector-filter-common').contains('Common').should('exist');
     // cy.get('#:ri:').contains(nameOfNode).should('exist');
-    cy.get('body').type(`${controlOrMetaKey}\\`);
+    cy.get('body').type(`${controlOrMetaKey}3`);
   }
 
   function checkToastForMessage(messageToSearchFor) {
@@ -59,33 +59,29 @@ describe('fundamentals', () => {
     checkToastForMessage('was saved');
   });
 
-  // triggers error: Failed to execute 'get' on 'IDBObjectStore': No key or key range specified.
-  // it('Rename Graph', () => {
-  //   cy.get('body').type(`${controlOrMetaKey}e`);
-  //   cy.get('#playground-name-input').clear().type(`${myGraphName}{enter}`);
-  //   cy.wait(1000)
-  //     .get('#notistack-snackbar')
-  //     .contains(`${myGraphName} was loaded`)
-  //     .should('exist');
-  // });
+  it('Rename Graph', () => {
+    cy.get('body').type(`${controlOrMetaKey}e`);
+    cy.get('#playground-name-input').clear().type(`${myGraphName}{enter}`);
+    cy.wait(1000)
+      .get('.notistack-SnackbarContainer')
+      .contains(`Name changed to ${myGraphName}`)
+      .should('exist');
+  });
 
   it('Delete graph', () => {
-    cy.get('body').type(`${controlOrMetaKey}o`);
     cy.wait(1000)
       .get(
-        '#graph-search-option-1 > .MuiButtonGroup-root > [title="Delete playground"]',
+        '#graphs-list .MuiListItemSecondaryAction-root:first [title="Delete playground"]',
       )
-      .click();
+      .should('exist')
+      .click({ force: true });
     cy.get('.MuiDialogActions-root > :nth-child(2)').click();
     checkToastForMessage('Playground was deleted');
   });
 
   it('Load graph example', () => {
     cy.get('body').type(`${controlOrMetaKey}o`);
-    cy.wait(1000)
-      .get('#graph-search-listbox')
-      .contains('li', 'z test node')
-      .click();
+    cy.wait(1000).get('#graphs-list').contains('li', 'z test node').click();
     checkToastForMessage('Remote playground was loaded');
   });
 

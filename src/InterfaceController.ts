@@ -9,7 +9,7 @@ import PPGraph from './classes/GraphClass';
 import PPStorage from './PPStorage';
 import { ActionHandler } from './utils/actionHandler';
 import { zoomToFitNodes } from './pixi/utils-pixi';
-import { IGraphSearch } from './utils/interfaces';
+import { IGraphSearch, TSocketId } from './utils/interfaces';
 
 export enum ListenEvent {
   SelectionChanged, // data = PPNode[]
@@ -88,18 +88,17 @@ export default class InterfaceController {
     rightDrawerWidth: number,
   ) => void = () => {}; // called when a drawer is toggled or resized
   static onAddToDashboard: (data: Socket) => void = () => {}; // called when socket inspector should be opened
-  static onRemoveFromDashboard: (data: Socket) => void = () => {}; // called when socket inspector should be opened
+  static onRemoveFromDashboard: (socketId: TSocketId) => void = () => {}; // called when socket inspector should be opened
   static selectionRedrawn: (pos: PIXI.Point) => void = () => {};
   static onGraphListChanged: () => void = () => {};
 
   // these were previously only in app.tsx and are still being set from there, but they can be accessed from anywhere
   static openNodeSearch: () => void = () => {};
-  static toggleGraphSearchOpen: () => void = () => {};
-  static toggleShowEdit: () => void = () => {};
-  static toggleRightSideDrawer: () => void = () => {};
-  static toggleLeftSideDrawer: () => void = () => {};
-  static toggleShowComments: () => void = () => {};
-  static toggleShowDashboard: () => void = () => {};
+  static toggleShowEdit: (open?: boolean) => void = () => {};
+  static toggleLeftSideDrawer: (open?: boolean) => void = () => {};
+  static toggleShowDashboard: (open?: boolean) => void = () => {};
+  static toggleRightSideDrawer: (open?: boolean) => void = () => {};
+  static toggleShowComments: (open?: boolean) => void = () => {};
 
   static setIsGraphSearchOpen: (open: boolean) => void = () => {};
   static setIsNodeSearchVisible: (open: boolean) => void = () => {};
@@ -136,19 +135,11 @@ export default class InterfaceController {
               e.preventDefault();
               break;
             case 'o':
-              this.toggleGraphSearchOpen();
+              this.toggleLeftSideDrawer(true);
               e.preventDefault();
               break;
             case 'e':
               this.toggleShowEdit();
-              e.preventDefault();
-              break;
-            case '\\':
-              this.toggleRightSideDrawer();
-              e.preventDefault();
-              break;
-            case 'h':
-              this.toggleLeftSideDrawer();
               e.preventDefault();
               break;
             case 'z':
@@ -203,8 +194,19 @@ export default class InterfaceController {
       } else if (this.isTypingInConsole) {
         this.consoleBeingTyped += e.key;
       }
-      if (e.code === 'Space') {
-        this.toggleShowDashboard();
+      switch (e.code) {
+        case 'Digit1':
+          this.toggleLeftSideDrawer();
+          e.preventDefault();
+          break;
+        case 'Digit2':
+          this.toggleShowDashboard();
+          e.preventDefault();
+          break;
+        case 'Digit3':
+          this.toggleRightSideDrawer();
+          e.preventDefault();
+          break;
       }
     }
     if (modKey && e.key.toLowerCase() === 's') {

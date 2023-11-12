@@ -2,6 +2,13 @@ import React from 'react';
 import { AbstractType } from './abstractType';
 import { BROKEN_IMAGE } from '../../utils/constants';
 
+const widgetSize = {
+  w: 2,
+  h: 5,
+  minW: 2,
+  minH: 2,
+};
+
 type ImgComponentProps = {
   data: string;
   alt: string;
@@ -51,21 +58,11 @@ export class ImageType extends AbstractType {
   };
 
   getInputWidgetSize(): any {
-    return {
-      w: 2,
-      h: 5,
-      minW: 2,
-      minH: 2,
-    };
+    return widgetSize;
   }
 
   getOutputWidgetSize(): any {
-    return {
-      w: 2,
-      h: 5,
-      minW: 2,
-      minH: 2,
-    };
+    return widgetSize;
   }
 
   getDefaultValue(): any {

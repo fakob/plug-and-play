@@ -16,7 +16,6 @@ import {
   NODE_HEADER_HEIGHT,
   NODE_PADDING_TOP,
   SOCKET_TEXTMARGIN_TOP,
-  SOCKET_TYPE,
   SOCKET_WIDTH,
   URL_PARAMETER_NAME,
 } from './constants';
@@ -863,7 +862,7 @@ export const deconstructSocketId = (
   socketName: string;
 } => {
   const pattern = /^([a-z]+-[a-z]+-\d+)-([a-zA-Z]+)-(.+)$/;
-  const match = socketId.match(pattern);
+  const match = pattern.exec(socketId);
   if (match) {
     const [, nodeId, socketType, socketName] = match;
     return {

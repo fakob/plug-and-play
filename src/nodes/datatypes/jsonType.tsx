@@ -5,6 +5,13 @@ import { AbstractType } from './abstractType';
 import { convertToString } from '../../utils/utils';
 import { TRgba } from '../../utils/interfaces';
 
+const widgetSize = {
+  w: 2,
+  h: 4,
+  minW: 2,
+  minH: 2,
+};
+
 export class JSONType extends AbstractType {
   strictParsing: boolean; // whether to force the result into JSON or not
   constructor(strictParsing: boolean = false) {
@@ -25,21 +32,11 @@ export class JSONType extends AbstractType {
   };
 
   getInputWidgetSize(): any {
-    return {
-      w: 2,
-      h: 4,
-      minW: 2,
-      minH: 2,
-    };
+    return widgetSize;
   }
 
   getOutputWidgetSize(): any {
-    return {
-      w: 2,
-      h: 4,
-      minW: 2,
-      minH: 2,
-    };
+    return widgetSize;
   }
 
   getDefaultValue(): any {

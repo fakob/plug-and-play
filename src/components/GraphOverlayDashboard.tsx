@@ -11,12 +11,12 @@ import PPSocket from '../classes/SocketClass';
 import { AbstractType } from '../nodes/datatypes/abstractType';
 import { ensureVisible, zoomToFitNodes } from '../pixi/utils-pixi';
 import { deconstructSocketId } from '../utils/utils';
-import styles from '../utils/style.module.css';
 import {
   DEFAULT_DRAWER_WIDTH,
   ONCLICK_DOUBLECLICK,
   ONCLICK_TRIPPLECLICK,
 } from '../utils/constants';
+import { TSocketId } from '../utils/interfaces';
 
 const MyHandle = React.forwardRef<HTMLInputElement, { handleAxis?: string }>(
   (props, ref) => {
@@ -54,8 +54,8 @@ const GraphOverlayDashboard: React.FunctionComponent<
     InterfaceController.onAddToDashboard = addToDashboard;
     InterfaceController.onRemoveFromDashboard = removeFromDashboard;
     InterfaceController.onDrawerSizeChanged = drawerSizeChanged;
-    InterfaceController.toggleShowDashboard = () =>
-      setShowDashboard((prev) => !prev);
+    InterfaceController.toggleShowDashboard = (open) =>
+      setShowDashboard((prev) => open ?? !prev);
   }, []);
 
   useEffect(() => {
@@ -70,13 +70,12 @@ const GraphOverlayDashboard: React.FunctionComponent<
   }, [PPGraph.currentGraph?.layouts]);
 
   const addToDashboard = (socket: PPSocket) => {
-    InterfaceController.toggleShowDashboard();
+    InterfaceController.toggleShowDashboard(true);
     setCurrentLayout((prevLayout) => {
       console.log('addToDashboard', socket);
       console.log(deconstructSocketId(socket.getSocketId()));
       const socketId = socket.getSocketId();
       const socketIdExists = prevLayout.find((item) => item.i === socketId);
-      // const size = socket.dataType.getInputWidgetSize();
       const size = socket.isInput
         ? socket.dataType.getInputWidgetSize()
         : socket.dataType.getOutputWidgetSize();
@@ -97,12 +96,10 @@ const GraphOverlayDashboard: React.FunctionComponent<
     });
   };
 
-  const removeFromDashboard = (socket: PPSocket) => {
-    console.log('removeFromDashboard', socket);
+  const removeFromDashboard = (socketId: TSocketId) => {
+    console.log('removeFromDashboard', socketId);
     setCurrentLayout((prevLayout) => {
-      const newLayout = prevLayout.filter(
-        (item) => item.i !== socket.getSocketId(),
-      );
+      const newLayout = prevLayout.filter((item) => item.i !== socketId);
       return newLayout;
     });
   };
@@ -150,16 +147,12 @@ const GraphOverlayDashboard: React.FunctionComponent<
         resizeHandle={<MyHandle />}
       >
         {currentLayout.map((item) => {
-          if (item.i === 'placeholder') {
-            return <EmptyDashboardWidget item={item} />;
-          }
           const { nodeId, socketType, socketName } = deconstructSocketId(
             item.i,
           );
-          // console.log(item, nodeId, socketType, socketName);
           const node = PPGraph.currentGraph.getNodeById(nodeId);
           if (!node) {
-            return <EmptyDashboardWidget item={item} />;
+            return <EmptyDashboardWidget key={item.i} item={item} />;
           }
           const socket = node.getSocketByNameAndType(socketName, socketType);
           return (
@@ -167,12 +160,10 @@ const GraphOverlayDashboard: React.FunctionComponent<
               key={item.i}
               sx={{
                 pointerEvents: 'auto',
-                // background: `${Color(props.randomMainColor).alpha(0.98)}`,
                 bgcolor: 'background.paper',
               }}
             >
               <DashboardWidgetContainer
-                triggerScrollIntoView={false}
                 key={item.i}
                 property={socket}
                 index={item.i}
@@ -181,7 +172,7 @@ const GraphOverlayDashboard: React.FunctionComponent<
                 hasLink={socket.hasLink()}
                 data={socket.data}
                 randomMainColor={props.randomMainColor}
-                selectedNode={socket.getNode() as PPNode}
+                selectedNode={socket.getNode()}
               />
             </Box>
           );
@@ -194,7 +185,6 @@ const GraphOverlayDashboard: React.FunctionComponent<
 export default GraphOverlayDashboard;
 
 type DashboardWidgetContainerProps = {
-  triggerScrollIntoView: boolean;
   property: PPSocket;
   index: number;
   dataType: AbstractType;
@@ -203,7 +193,6 @@ type DashboardWidgetContainerProps = {
   data: any;
   randomMainColor: string;
   selectedNode: PPNode;
-  onDashboard?: boolean;
 };
 
 export const DashboardWidgetContainer: React.FunctionComponent<
@@ -240,10 +229,8 @@ export const DashboardWidgetContainer: React.FunctionComponent<
         key={`SocketHeader-${props.dataType.getName()}`}
         property={props.property}
         selectedNode={props.selectedNode}
-        index={props.index}
         isInput={props.isInput}
         hasLink={props.hasLink}
-        randomMainColor={props.randomMainColor}
       />
       <Box
         sx={{
@@ -267,10 +254,8 @@ export const DashboardWidgetContainer: React.FunctionComponent<
 type DashboardWidgetHeaderProps = {
   property: PPSocket;
   selectedNode: PPNode;
-  index: number;
   isInput: boolean;
   hasLink: boolean;
-  randomMainColor: string;
 };
 
 const DashboardWidgetHeader: React.FunctionComponent<
@@ -311,7 +296,6 @@ const DashboardWidgetHeader: React.FunctionComponent<
       }}
     >
       <Box
-        // className="dragHandle"
         title={props.property.getNode().id}
         sx={{
           pl: 1,
@@ -340,7 +324,9 @@ const DashboardWidgetHeader: React.FunctionComponent<
         title="Remove from dashboard"
         size="small"
         onClick={() => {
-          InterfaceController.onRemoveFromDashboard(props.property);
+          InterfaceController.onRemoveFromDashboard(
+            props.property.getSocketId(),
+          );
         }}
         sx={{
           borderRadius: 0,
@@ -348,7 +334,6 @@ const DashboardWidgetHeader: React.FunctionComponent<
       >
         <ClearIcon sx={{ fontSize: '12px' }} />
       </IconButton>
-      {/* </Box> */}
     </Box>
   );
 };
@@ -356,11 +341,19 @@ const DashboardWidgetHeader: React.FunctionComponent<
 function EmptyDashboardWidget({ item }) {
   return (
     <Box key={item.i} sx={{ background: 'red', pointerEvents: 'auto' }}>
-      <span className="text">{`${item.i}: ${JSON.stringify(
-        item,
-        null,
-        2,
-      )}`}</span>
+      {`${item.i} could not be found!`}
+      <IconButton
+        title="Remove from dashboard"
+        size="small"
+        onClick={() => {
+          InterfaceController.onRemoveFromDashboard(item.i);
+        }}
+        sx={{
+          borderRadius: 0,
+        }}
+      >
+        <ClearIcon sx={{ fontSize: '12px' }} />
+      </IconButton>
     </Box>
   );
 }

@@ -6,7 +6,7 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import Color from 'color';
 import InterfaceController, { ListenEvent } from '../InterfaceController';
 import Socket from '../classes/SocketClass';
-import InspectorContainer from '../InspectorContainer';
+import NodeInspectorContainer from '../NodeInspectorContainer';
 import GraphInspectorContainer from '../GraphInspectorContainer';
 import LeftsideContainer from '../LeftsideContainer';
 import {
@@ -88,8 +88,8 @@ function DrawerToggleHelp(props) {
 
 const ResponsiveDrawer = (props) => {
   // leaving this commented here for potential future testing
-  const [filter, setFilter] = useState(null);
-  const [helpFilter, setHelpFilter] = useState('explore');
+  const [nodeFilter, setNodeFilter] = useState(null);
+  const [leftsideFilter, setLeftsideFilter] = useState('graphs');
   const [graphFilter, setGraphFilter] = useState('nodes');
   const [graphFilterText, setGraphFilterText] = useState('');
   const [socketToInspect, setSocketToInspect] = useState<Socket | undefined>(
@@ -98,10 +98,10 @@ const ResponsiveDrawer = (props) => {
   const smallScreen = useIsSmallScreen();
 
   const toggleInspectorAndFocus = ({ filter, socket }) => {
-    InterfaceController.toggleRightSideDrawer();
+    InterfaceController.toggleRightSideDrawer(true);
     if (!props.isLeft) {
       if (filter) {
-        setFilter(filter);
+        setNodeFilter(filter);
         setSocketToInspect(undefined);
       } else if (socket) {
         setSocketToInspect(socket);
@@ -193,17 +193,17 @@ const ResponsiveDrawer = (props) => {
         ></div>
         {props.isLeft ? (
           <LeftsideContainer
-            filter={helpFilter}
-            setFilter={setHelpFilter}
+            filter={leftsideFilter}
+            setFilter={setLeftsideFilter}
             randomMainColor={props.randomMainColor}
           />
         ) : props.selectedNodes.length ? (
-          <InspectorContainer
+          <NodeInspectorContainer
             selectedNodes={props.selectedNodes}
             socketToInspect={socketToInspect}
             randomMainColor={props.randomMainColor}
-            filter={filter}
-            setFilter={setFilter}
+            filter={nodeFilter}
+            setFilter={setNodeFilter}
           />
         ) : (
           <GraphInspectorContainer

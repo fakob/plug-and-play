@@ -54,10 +54,8 @@ import {
   MAX_LATEST_NODES_IN_SEARCH,
   NODE_SOURCE,
   RANDOMMAINCOLOR,
-  PLUGANDPLAY_ICON_BLACK,
-  PLUGANDPLAY_ICON_WHITE,
 } from './utils/constants';
-import { IGraphSearch, INodeSearch, TRgba } from './utils/interfaces';
+import { IGraphSearch, INodeSearch } from './utils/interfaces';
 import {
   connectNodeToSocket,
   controlOrMetaKey,
@@ -405,15 +403,16 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
 
     console.log('PPGraph.currentGraph:', PPGraph.currentGraph);
 
-    const toggleInputValue = (prev) => !prev;
+    const toggleInputValue = (open) => (prev) => open ?? !prev;
 
-    InterfaceController.toggleShowEdit = () => setShowEdit(toggleInputValue);
-    InterfaceController.toggleRightSideDrawer = () =>
-      setShowRightSideDrawer(toggleInputValue);
-    InterfaceController.toggleLeftSideDrawer = () =>
-      setShowLeftSideDrawer(toggleInputValue);
-    InterfaceController.toggleShowComments = () =>
-      setShowComments(toggleInputValue);
+    InterfaceController.toggleShowEdit = (open) =>
+      setShowEdit(toggleInputValue(open));
+    InterfaceController.toggleLeftSideDrawer = (open) =>
+      setShowLeftSideDrawer(toggleInputValue(open));
+    InterfaceController.toggleRightSideDrawer = (open) =>
+      setShowRightSideDrawer(toggleInputValue(open));
+    InterfaceController.toggleShowComments = (open) =>
+      setShowComments(toggleInputValue(open));
 
     InterfaceController.openNodeSearch = openNodeSearch;
     InterfaceController.setIsNodeSearchVisible = setIsNodeSearchVisible;
