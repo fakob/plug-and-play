@@ -118,13 +118,6 @@ export class GRAPH_PIE extends DRAW_Base {
         360,
         false,
       ),
-      new Socket(
-        SOCKET_TYPE.IN,
-        inputDegreesTotal,
-        new NumberType(true, 1, 360),
-        360,
-        false,
-      ),
       new Socket(SOCKET_TYPE.IN, inputShowBorder, new BooleanType(), false),
       new Socket(SOCKET_TYPE.IN, inputShowPercentage, new BooleanType(), false),
       Socket.getOptionalVisibilitySocket(
