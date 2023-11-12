@@ -18,23 +18,6 @@ import {
 } from '../utils/constants';
 import { TSocketId } from '../utils/interfaces';
 
-const MyHandle = React.forwardRef<HTMLInputElement, { handleAxis?: string }>(
-  (props, ref) => {
-    const { handleAxis, ...restProps } = props;
-    return (
-      <Box
-        ref={ref}
-        className={`react-resizable-handle react-resizable-handle-${handleAxis}`}
-        {...restProps}
-        sx={{
-          background: 'white',
-          mixBlendMode: 'darken',
-        }}
-      />
-    );
-  },
-);
-
 type GraphOverlayDashboardProps = {
   randomMainColor: string;
   toggleLeft: boolean;
@@ -60,11 +43,9 @@ const GraphOverlayDashboard: React.FunctionComponent<
 
   useEffect(() => {
     if (PPGraph.currentGraph?.layouts) {
-      console.log(PPGraph.currentGraph.layouts);
       const newCurrentLayout = JSON.parse(
-        JSON.stringify(PPGraph.currentGraph.layouts.layout1),
+        JSON.stringify(PPGraph.currentGraph.layouts.default),
       );
-      console.log(newCurrentLayout);
       setCurrentLayout(newCurrentLayout);
     }
   }, [PPGraph.currentGraph?.layouts]);
@@ -72,8 +53,6 @@ const GraphOverlayDashboard: React.FunctionComponent<
   const addToDashboard = (socket: PPSocket) => {
     InterfaceController.toggleShowDashboard(true);
     setCurrentLayout((prevLayout) => {
-      console.log('addToDashboard', socket);
-      console.log(deconstructSocketId(socket.getSocketId()));
       const socketId = socket.getSocketId();
       const socketIdExists = prevLayout.find((item) => item.i === socketId);
       const size = socket.isInput
@@ -97,7 +76,6 @@ const GraphOverlayDashboard: React.FunctionComponent<
   };
 
   const removeFromDashboard = (socketId: TSocketId) => {
-    console.log('removeFromDashboard', socketId);
     setCurrentLayout((prevLayout) => {
       const newLayout = prevLayout.filter((item) => item.i !== socketId);
       return newLayout;
@@ -105,14 +83,12 @@ const GraphOverlayDashboard: React.FunctionComponent<
   };
 
   const drawerSizeChanged = (leftWidth: number, rightWidth: number) => {
-    console.log('drawerSizeChanged', leftWidth, rightWidth);
     setLeftDrawerWidth(leftWidth + 4);
   };
 
-  const onLayoutChange = (currLayout, allLayouts) => {
-    console.log('onLayoutChange', currLayout, allLayouts);
+  const onLayoutChange = (currLayout) => {
     if (PPGraph.currentGraph) {
-      PPGraph.currentGraph.layouts.layout1 = currLayout;
+      PPGraph.currentGraph.layouts.default = currLayout;
       setCurrentLayout(currLayout);
     }
   };
@@ -143,6 +119,7 @@ const GraphOverlayDashboard: React.FunctionComponent<
         margin={props.toggleLeft ? [0, 12] : [4, 4]}
         rowHeight={56}
         onLayoutChange={onLayoutChange}
+        draggableHandle=".MyDragHandleClassName"
         resizeHandles={['s', 'w', 'e', 'sw', 'se']}
         resizeHandle={<MyHandle />}
       >
@@ -265,6 +242,7 @@ const DashboardWidgetHeader: React.FunctionComponent<
 
   return (
     <Box
+      className="MyDragHandleClassName"
       sx={{
         display: 'flex',
         flexWrap: 'nowrap',
@@ -337,6 +315,23 @@ const DashboardWidgetHeader: React.FunctionComponent<
     </Box>
   );
 };
+
+const MyHandle = React.forwardRef<HTMLInputElement, { handleAxis?: string }>(
+  (props, ref) => {
+    const { handleAxis, ...restProps } = props;
+    return (
+      <Box
+        ref={ref}
+        className={`react-resizable-handle react-resizable-handle-${handleAxis}`}
+        {...restProps}
+        sx={{
+          background: 'white',
+          mixBlendMode: 'darken',
+        }}
+      />
+    );
+  },
+);
 
 function EmptyDashboardWidget({ item }) {
   return (

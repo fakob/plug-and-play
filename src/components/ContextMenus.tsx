@@ -33,7 +33,8 @@ import MouseIcon from '@mui/icons-material/Mouse';
 import SwipeIcon from '@mui/icons-material/Swipe';
 import ShareIcon from '@mui/icons-material/Share';
 import LogoutIcon from '@mui/icons-material/Logout';
-import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
+import DashboardCustomizeIcon from '@mui/icons-material/DashboardCustomize';
+import DashboardIcon from '@mui/icons-material/Dashboard';
 import PPSocket from './../classes/SocketClass';
 import InterfaceController, { ListenEvent } from '../InterfaceController';
 import {
@@ -48,6 +49,7 @@ import {
   DISTRIBUTEHORIZONTAL_TEXTURE,
   DISTRIBUTEVERTICAL_TEXTURE,
   GESTUREMODE,
+  PLUGANDPLAY_ICON_WHITE,
 } from '../utils/constants';
 import { isPhone } from '../utils/utils';
 import styles from '../utils/style.module.css';
@@ -261,7 +263,7 @@ export const GraphContextMenu = (props) => {
           <ListItemText>Clear</ListItemText>
         </MenuItem>
         <Divider />
-        <MenuItem disabled>Nodes</MenuItem>
+        <MenuItem disabled>Menus</MenuItem>
         <MenuItem
           onClick={() => {
             InterfaceController.openNodeSearch();
@@ -277,15 +279,47 @@ export const GraphContextMenu = (props) => {
         </MenuItem>
         <MenuItem
           onClick={() => {
-            props.setShowRightSideDrawer();
+            InterfaceController.toggleLeftSideDrawer();
+          }}
+        >
+          <ListItemIcon>
+            <img
+              id="plugandplayground-logo"
+              style={{
+                width: '20px',
+              }}
+              src={PLUGANDPLAY_ICON_WHITE}
+            />
+          </ListItemIcon>
+          <ListItemText>Toggle playgrounds</ListItemText>
+          <Typography variant="body2" color="text.secondary">
+            {`1`}
+          </Typography>
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            InterfaceController.toggleShowDashboard();
+          }}
+        >
+          <ListItemIcon>
+            <DashboardIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Toggle dashboard</ListItemText>
+          <Typography variant="body2" color="text.secondary">
+            {`2`}
+          </Typography>
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            InterfaceController.toggleRightSideDrawer();
           }}
         >
           <ListItemIcon>
             <TuneIcon fontSize="small" />
           </ListItemIcon>
-          <ListItemText>Toggle node inspector</ListItemText>
+          <ListItemText>Toggle inspector</ListItemText>
           <Typography variant="body2" color="text.secondary">
-            {`${props.controlOrMetaKey}+\\`}
+            {`3`}
           </Typography>
         </MenuItem>
         <Divider />
@@ -503,15 +537,15 @@ export const NodeContextMenu = (props) => {
         </MenuItem>
         <MenuItem
           onClick={() => {
-            props.setShowRightSideDrawer();
+            InterfaceController.toggleRightSideDrawer();
           }}
         >
           <ListItemIcon>
             <TuneIcon fontSize="small" />
           </ListItemIcon>
-          <ListItemText>Toggle node inspector</ListItemText>
+          <ListItemText>Toggle inspector</ListItemText>
           <Typography variant="body2" color="text.secondary">
-            {`${props.controlOrMetaKey}+\\`}
+            3
           </Typography>
         </MenuItem>
         <Divider />
@@ -682,7 +716,7 @@ export const SocketContextMenu = (props) => {
           }}
         >
           <ListItemIcon>
-            <PlaylistAddIcon fontSize="small" />
+            <DashboardCustomizeIcon fontSize="small" />
           </ListItemIcon>
           <ListItemText>Add to dashboard</ListItemText>
         </MenuItem>

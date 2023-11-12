@@ -43,7 +43,6 @@ import MDXCreate from './help/help.mdx';
 import MDXAbout from './help/about.mdx';
 
 TimeAgo.addDefaultLocale(en);
-// Create formatter (English).
 const timeAgo = new TimeAgo('en-US');
 
 type FilterContentProps = {
@@ -398,8 +397,10 @@ const GraphItem = (props) => {
       }}
       title={
         graph.isRemote
-          ? 'Load remote playground\nNOTE: Save it after loading, if you want to make changes to it'
-          : 'Load local playground'
+          ? `Load remote playground
+NOTE: Save it after loading, if you want to make changes to it`
+          : `Load local playground
+${graph.id}`
       }
     >
       <ListItemButton

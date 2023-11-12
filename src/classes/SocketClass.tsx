@@ -414,7 +414,6 @@ export default class Socket extends PIXI.Container implements Tooltipable {
   }
 
   getTooltipContent(props): React.ReactElement {
-    console.log(props);
     const baseProps = {
       key: this.dataType.getName(),
       property: this,

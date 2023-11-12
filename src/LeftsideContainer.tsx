@@ -37,7 +37,6 @@ function LeftsideHeader(props) {
         <img
           id="plugandplayground-logo"
           style={{
-            // backgroundColor: props.randomMainColor,
             width: '24px',
           }}
           src={

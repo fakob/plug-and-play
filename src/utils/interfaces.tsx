@@ -80,6 +80,18 @@ export interface INodeSearch {
   isNew?: boolean;
 }
 
+export interface ILayoutItem {
+  w: number;
+  h: number;
+  x: number;
+  y: number;
+  i: TNodeId;
+  minW: number;
+  minH: number;
+  moved: boolean;
+  static: boolean;
+}
+
 export type TNodeId = `${string}-${string}-${number}`;
 
 export type SerializedNode = {

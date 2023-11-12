@@ -495,7 +495,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           break;
         case target instanceof Viewport:
           console.log('app right click, viewport');
-          setContextMenuPosition([contextMenuPosX, contextMenuPosY(640)]);
+          setContextMenuPosition([contextMenuPosX, contextMenuPosY(780)]);
           setIsGraphContextMenuOpen(true);
           break;
         case target instanceof PPSelection:
@@ -821,7 +821,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
             <GraphContextMenu
               controlOrMetaKey={controlOrMetaKey()}
               contextMenuPosition={contextMenuPosition}
-              setShowRightSideDrawer={setShowRightSideDrawer}
               setShowEdit={setShowEdit}
               uploadGraph={uploadGraph}
               showComments={showComments}
@@ -838,7 +837,6 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               currentGraph={PPGraph.currentGraph}
               openNodeSearch={openNodeSearch}
               zoomToFitSelection={zoomToFitNodes}
-              setShowRightSideDrawer={setShowRightSideDrawer}
             />
           )}
           {isSocketContextMenuOpen && (

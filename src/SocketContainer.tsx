@@ -6,7 +6,7 @@ import LockIcon from '@mui/icons-material/Lock';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
+import DashboardCustomizeIcon from '@mui/icons-material/DashboardCustomize';
 import InterfaceController from './InterfaceController';
 import { writeDataToClipboard } from './utils/utils';
 import styles from './utils/style.module.css';
@@ -192,7 +192,7 @@ const SocketHeader: React.FunctionComponent<SocketHeaderProps> = (props) => {
               borderRadius: 0,
             }}
           >
-            <PlaylistAddIcon sx={{ fontSize: '24px' }} />
+            <DashboardCustomizeIcon sx={{ fontSize: '24px' }} />
           </IconButton>
           <Box sx={{ pl: 0.5, color: 'text.primary' }}>
             {props.property.name}

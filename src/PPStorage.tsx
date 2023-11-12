@@ -237,7 +237,7 @@ export default class PPStorage {
 
         InterfaceController.showSnackBar('Playground was loaded', {
           variant: 'default',
-          autoHideDuration: 8000,
+          autoHideDuration: 5000,
           action: (key) => (
             <SaveOrDismiss
               saveClick={() => {
@@ -253,7 +253,6 @@ export default class PPStorage {
       } catch (error) {
         InterfaceController.showSnackBar('Loading playground failed.', {
           variant: 'error',
-          autoHideDuration: 8000,
         });
         return undefined;
       }
@@ -271,7 +270,7 @@ export default class PPStorage {
         `Loading playground from link in URL failed: ${loadURL}`,
         {
           variant: 'error',
-          autoHideDuration: 8000,
+          autoHideDuration: 5000,
         },
       );
       return undefined;
@@ -396,7 +395,7 @@ export default class PPStorage {
       const newName = `${removeExtension(nameOfFileToClone)} - copy`; // remove .ppgraph extension and add copy
       InterfaceController.showSnackBar('Remote playground was loaded', {
         variant: 'default',
-        autoHideDuration: 4000,
+        autoHideDuration: 5000,
         action: (key) => (
           <SaveOrDismiss
             saveClick={() => this.saveNewGraph(newName)}
