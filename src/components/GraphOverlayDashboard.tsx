@@ -83,7 +83,7 @@ const GraphOverlayDashboard: React.FunctionComponent<
   };
 
   const drawerSizeChanged = (leftWidth: number, rightWidth: number) => {
-    setLeftDrawerWidth(leftWidth + 4);
+    setLeftDrawerWidth(leftWidth);
   };
 
   const onLayoutChange = (currLayout) => {
@@ -116,7 +116,8 @@ const GraphOverlayDashboard: React.FunctionComponent<
           filter: 'drop-shadow(8px 8px 0px rgba(0, 0, 0, 0.5))',
           visibility: showDashboard ? 'visible' : 'hidden',
         }}
-        margin={props.toggleLeft ? [0, 12] : [4, 4]}
+        margin={[4, 4]}
+        containerPadding={props.toggleLeft ? [4, 12] : [4, 4]}
         rowHeight={56}
         onLayoutChange={onLayoutChange}
         draggableHandle=".MyDragHandleClassName"
