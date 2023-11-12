@@ -39,6 +39,7 @@ export type SerializedGraph = {
   };
   nodes: SerializedNode[];
   links: SerializedLink[];
+  layouts: any;
 };
 
 export type SerializedSelection = {
@@ -79,6 +80,20 @@ export interface INodeSearch {
   isNew?: boolean;
 }
 
+export interface ILayoutItem {
+  w: number;
+  h: number;
+  x: number;
+  y: number;
+  i: TNodeId;
+  minW: number;
+  minH: number;
+  moved: boolean;
+  static: boolean;
+}
+
+export type TNodeId = `${string}-${string}-${number}`;
+
 export type SerializedNode = {
   type: string;
   id: string;
@@ -98,6 +113,9 @@ export type SerializedLink = {
   targetNodeId: string;
   targetSocketName: string;
 };
+
+export type TSocketId =
+  `${string}-${string}-${number}-${TSocketType}-${string}`;
 
 export type TSocketType = (typeof SOCKET_TYPE)[keyof typeof SOCKET_TYPE];
 

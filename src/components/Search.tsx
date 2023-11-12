@@ -20,6 +20,7 @@ import parse from 'autosuggest-highlight/parse';
 import match from 'autosuggest-highlight/match';
 import PPGraph from '../classes/GraphClass';
 import PPStorage from '../PPStorage';
+import styles from '../utils/style.module.css';
 import { getAllNodeTypes } from '../nodes/allNodes';
 import { IGraphSearch, INodeSearch, TRgba } from '../utils/interfaces';
 import { COLOR_DARK, COLOR_WHITE_TEXT } from '../utils/constants';
@@ -156,14 +157,14 @@ NOTE: save the playground after loading, if you want to make changes to it`
               writeTextToClipboard(url);
             }}
             title="Copy URL"
-            className="menuItemButton"
+            className={styles.menuItemButton}
           >
             <LinkIcon />
           </IconButton>
           <IconButton
             size="small"
             title="Open in new tab"
-            className="menuItemButton"
+            className={styles.menuItemButton}
             onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
               event.stopPropagation();
               InterfaceController.setIsGraphSearchOpen(false);
@@ -194,7 +195,7 @@ NOTE: save the playground after loading, if you want to make changes to it`
               PPStorage.getInstance().downloadGraph(option.id);
             }}
             title="Download playground"
-            className="menuItemButton"
+            className={styles.menuItemButton}
           >
             <DownloadIcon />
           </IconButton>
@@ -207,14 +208,14 @@ NOTE: save the playground after loading, if you want to make changes to it`
               InterfaceController.setShowGraphEdit(true);
             }}
             title="Rename playground"
-            className="menuItemButton"
+            className={styles.menuItemButton}
           >
             <EditIcon />
           </IconButton>
           <IconButton
             size="small"
             title="Delete playground"
-            className="menuItemButton"
+            className={styles.menuItemButton}
             onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
               event.stopPropagation();
               InterfaceController.setIsGraphSearchOpen(false);
@@ -476,7 +477,7 @@ export const renderNodeItem = (props, option, { inputValue, selected }) => {
                 window.open(getLoadNodeExampleURL(option.title), '_blank');
               }}
               title="Open node example"
-              className="menuItemButton"
+              className={styles.menuItemButton}
             >
               <Box
                 sx={{

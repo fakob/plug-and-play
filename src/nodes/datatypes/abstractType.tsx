@@ -8,6 +8,13 @@ import { TRgba } from '../../utils/interfaces';
 import { SOCKET_COLOR_HEX, SOCKET_CORNERRADIUS, SOCKET_WIDTH } from '../../utils/constants';
 import * as PIXI from 'pixi.js';
 
+const widgetSize = {
+  w: 2,
+  h: 2,
+  minW: 2,
+  minH: 2,
+};
+
 export interface DataTypeProps {
   key: string;
   property: Socket;
@@ -17,6 +24,7 @@ export interface DataTypeProps {
   randomMainColor: any;
   dataType: AbstractType;
 }
+
 export class AbstractType {
   drawValueSpecificGraphics(graphics: PIXI.Graphics, data: any) {
 
@@ -49,11 +57,21 @@ export class AbstractType {
   };
 
   getOutputWidget = (props: any): any => {
-
-
     props.dataType = this;
     return <DefaultOutputWidget {...props} />;
   };
+
+  getDefaultWidgetSize() {
+    return widgetSize;
+  }
+
+  getInputWidgetSize(): any {
+    return this.getDefaultWidgetSize();
+  }
+
+  getOutputWidgetSize(): any {
+    return this.getDefaultWidgetSize();
+  }
 
   getDefaultValue(): any {
     return {};
@@ -88,7 +106,7 @@ export class AbstractType {
     return true;
   }
 
-  roundedCorners(): boolean{
+  roundedCorners(): boolean {
     return true;
   }
 

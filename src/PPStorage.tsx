@@ -11,6 +11,7 @@ import {
   getSetting,
   removeExtension,
   setGestureModeOnViewport,
+  sortByDate,
   updateLocalIdInURL,
 } from './utils/utils';
 import * as PIXI from 'pixi.js';
@@ -214,6 +215,7 @@ export default class PPStorage {
       .transaction('rw', this.db.graphs, this.db.settings, async () => {
         const id = await this.db.graphs.where('id').equals(graphId).delete();
         console.log(`Deleted graph: ${id}`);
+        InterfaceController.onGraphListChanged();
         InterfaceController.showSnackBar('Playground was deleted');
       })
       .catch((e) => {
@@ -235,7 +237,7 @@ export default class PPStorage {
 
         InterfaceController.showSnackBar('Playground was loaded', {
           variant: 'default',
-          autoHideDuration: 8000,
+          autoHideDuration: 5000,
           action: (key) => (
             <SaveOrDismiss
               saveClick={() => {
@@ -251,7 +253,6 @@ export default class PPStorage {
       } catch (error) {
         InterfaceController.showSnackBar('Loading playground failed.', {
           variant: 'error',
-          autoHideDuration: 8000,
         });
         return undefined;
       }
@@ -269,7 +270,7 @@ export default class PPStorage {
         `Loading playground from link in URL failed: ${loadURL}`,
         {
           variant: 'error',
-          autoHideDuration: 8000,
+          autoHideDuration: 5000,
         },
       );
       return undefined;
@@ -301,9 +302,7 @@ export default class PPStorage {
     // check if graph exists and load last saved graph if it does not
     if (loadedGraph === undefined) {
       const graphs = await this.db.graphs.toArray();
-      loadedGraph = graphs.sort(
-        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
-      )?.[0];
+      loadedGraph = graphs.sort(sortByDate)?.[0];
     }
 
     // see if we found something to load
@@ -334,6 +333,7 @@ export default class PPStorage {
     const loadedGraph = await this.getGraphFromDB(graphId);
     if (loadedGraph.name !== newName) {
       await this.db.graphs.update(graphId, { name: newName });
+      InterfaceController.onGraphListChanged();
       InterfaceController.showSnackBar(
         <span>
           Name changed to <b>{newName}</b>
@@ -353,6 +353,7 @@ export default class PPStorage {
         newName ?? newId.substring(0, newId.lastIndexOf('-')).replace('-', ' ');
       await this.saveGraphToDabase(newId, serializedGraph, name);
       PPGraph.currentGraph.id = newId;
+      InterfaceController.onGraphListChanged();
       InterfaceController.notifyListeners(ListenEvent.GraphChanged, {
         id: newId,
         name,
@@ -394,7 +395,7 @@ export default class PPStorage {
       const newName = `${removeExtension(nameOfFileToClone)} - copy`; // remove .ppgraph extension and add copy
       InterfaceController.showSnackBar('Remote playground was loaded', {
         variant: 'default',
-        autoHideDuration: 4000,
+        autoHideDuration: 5000,
         action: (key) => (
           <SaveOrDismiss
             saveClick={() => this.saveNewGraph(newName)}

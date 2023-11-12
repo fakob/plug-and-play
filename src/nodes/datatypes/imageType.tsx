@@ -50,6 +50,15 @@ export class ImageType extends AbstractType {
     return '';
   };
 
+  getDefaultWidgetSize(): any {
+    return {
+      w: 2,
+      h: 5,
+      minW: 2,
+      minH: 2,
+    };
+  }
+
   getDefaultValue(): any {
     return '';
   }

@@ -23,8 +23,9 @@ root.render(
         horizontal: isPhone() ? 'center' : 'right',
         vertical: isPhone() ? 'bottom' : 'top',
       }}
+      autoHideDuration={3000}
     >
       <App />
     </SnackbarProvider>
-  </ThemeProvider>
+  </ThemeProvider>,
 );

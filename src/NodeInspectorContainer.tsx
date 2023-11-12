@@ -163,9 +163,9 @@ type InspectorContainerProps = {
   setFilter: React.Dispatch<React.SetStateAction<string>>;
 };
 
-const InspectorContainer: React.FunctionComponent<InspectorContainerProps> = (
-  props,
-) => {
+const NodeInspectorContainer: React.FunctionComponent<
+  InspectorContainerProps
+> = (props) => {
   return (
     <ThemeProvider theme={customTheme}>
       <Stack
@@ -203,4 +203,4 @@ const InspectorContainer: React.FunctionComponent<InspectorContainerProps> = (
   );
 };
 
-export default InspectorContainer;
+export default NodeInspectorContainer;

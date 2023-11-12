@@ -208,18 +208,20 @@
 
 .plugAndPlaygroundIcon {
   position: absolute;
-  left: 16px;
-  top: 16px;
+  left: 50%;
+  bottom: 0;
+  width: 40px;
+  transform: translate(-50%, -50%);
   filter: drop-shadow(0px 0px 24px rgba(0, 0, 0, 0.15));
   user-select: none;
-  border-radius: 32px;
+  border-radius: 32px !important;
   z-index: 10;
 }
 
 .pnpHeader {
   position: absolute;
-  left: 96px;
-  top: 28px;
+  left: 168px;
+  bottom: 28px;
   filter: drop-shadow(0px 0px 24px rgba(94, 69, 69, 0.15));
   background: none;
   z-index: 10;
@@ -267,4 +269,20 @@
 .propertyContainerContent {
   max-height: 60vh;
   overflow: auto;
+}
+
+.fadeEnter {
+  opacity: 1;
+  transform: scale(1.0);
+  transition: opacity 150ms ease-in-out, transform 150ms ease-in-out;
+}
+
+.fadeExit {
+  opacity: 0;
+  transform: scale(1.1);
+  transition: opacity 150ms ease-in-out, transform 150ms ease-in-out;
+}
+
+.menuItemButton {
+  border-radius: 0 !important;
 }
