@@ -10,6 +10,7 @@ import {
   GraphInputPoint,
   GraphInputType,
 } from '../../datatypes/graphInputType';
+import { StringType } from '../../datatypes/stringType';
 
 const inputDataName = 'Input Data';
 const inputRadius = 'Radius';
@@ -22,6 +23,8 @@ const inputDegreesTotal = 'Degrees In Total';
 const inputShowPercentage = 'Percentage';
 const input3DRatio = '3D ratio';
 const inputDistanceFromCenter = 'Distance From Center';
+const inputIncludeThreshold = 'Size Threshold';
+const othersName = 'Others Label';
 
 interface PieDrawnSlice {
   highestY: number;
@@ -76,6 +79,19 @@ export class GRAPH_PIE extends DRAW_Base {
       ),
       new Socket(
         SOCKET_TYPE.IN,
+        inputIncludeThreshold,
+        new NumberType(false, 0, 1),
+        0.03,
+      ),
+      Socket.getOptionalVisibilitySocket(
+        SOCKET_TYPE.IN,
+        othersName,
+        new StringType(),
+        'Other',
+        () => this.getInputData(inputIncludeThreshold) > 0,
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
         inputShowNames,
         new BooleanType(),
         true,
@@ -94,6 +110,13 @@ export class GRAPH_PIE extends DRAW_Base {
         new BooleanType(),
         true,
         true,
+      ),
+      new Socket(
+        SOCKET_TYPE.IN,
+        inputDegreesTotal,
+        new NumberType(true, 1, 360),
+        360,
+        false,
       ),
       new Socket(
         SOCKET_TYPE.IN,
@@ -149,17 +172,33 @@ export class GRAPH_PIE extends DRAW_Base {
 
     const graphics = new PIXI.Graphics();
 
-    const pieSlices: GraphInputPoint[] = inputObject[inputDataName];
+    const pieSlicesRaw: GraphInputPoint[] = inputObject[inputDataName];
     // fail error if invalid input
-    if (typeof pieSlices !== 'object') {
+    if (typeof pieSlicesRaw !== 'object') {
       return;
     }
+
     // determine total amount of values
     // we allow either an array of just the numbers, or (better), an object that contains data and potentially other stuff
-    const total: number = pieSlices.reduce(
+    const total: number = pieSlicesRaw.reduce(
       (total, pieSlice) => total + pieSlice.Value,
       0,
     );
+    // merge slices that are too small into a single one based on set threshold
+    const cutoff = total * inputObject[inputIncludeThreshold];
+    const pieSlices = pieSlicesRaw.filter((slice) => slice.Value > cutoff);
+    const remaining = pieSlicesRaw.filter((slice) => slice.Value <= cutoff);
+    if (remaining.length == 1) {
+      // if only one, no point, push it back
+      pieSlices.push(remaining[0]);
+    } else if (remaining.length > 1) {
+      const remainingSlice: GraphInputPoint = {
+        Color: TRgba.white().multiply(0.5),
+        Name: inputObject[othersName],
+        Value: remaining.reduce((total, slice) => total + slice.Value, 0),
+      };
+      pieSlices.push(remainingSlice);
+    }
 
     const radius = inputObject[inputRadius];
     const fontSize = inputObject[inputShowValuesFontSize];
