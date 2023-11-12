@@ -34,7 +34,6 @@ export type SerializedGraph = {
   version: number;
   graphSettings: {
     showExecutionVisualisation: boolean;
-    showNonPresentationNodes: boolean;
     viewportCenterPosition: PIXI.Point;
     viewportScale: number;
   };

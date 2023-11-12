@@ -356,18 +356,6 @@ export const GraphContextMenu = (props) => {
             {`${props.controlOrMetaKey}+Shift+Y`}
           </Typography>
         </MenuItem>
-        <MenuItem
-          onClick={() => {
-            PPGraph.currentGraph.showNonPresentationNodes =
-              !PPGraph.currentGraph.showNonPresentationNodes;
-          }}
-        >
-          <ListItemText>
-            {PPGraph.currentGraph.showNonPresentationNodes
-              ? 'Hide non-presentation nodes'
-              : 'Show non-presentation nodes'}
-          </ListItemText>
-        </MenuItem>
       </MenuList>
     </Paper>
   );

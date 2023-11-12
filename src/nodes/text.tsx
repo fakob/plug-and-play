@@ -61,10 +61,6 @@ export class Label extends PPNode {
     return defaultNodeWidth;
   }
 
-  public getIsPresentationalNode(): boolean {
-    return true;
-  }
-
   getShowLabels(): boolean {
     return false;
   }

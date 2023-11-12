@@ -35,7 +35,6 @@ export default class PPGraph {
 
   _showComments: boolean;
   _showExecutionVisualisation: boolean;
-  _showNonPresentationNodes: boolean;
   socketToInspect: null | PPSocket;
   selectedSourceSocket: null | PPSocket;
   lastSelectedSocketWasInput = false;
@@ -69,7 +68,6 @@ export default class PPGraph {
 
     this._showComments = true;
     this._showExecutionVisualisation = true;
-    this.showNonPresentationNodes = true;
     this.selectedSourceSocket = null;
 
     this.backgroundTempContainer = new PIXI.Container();
@@ -331,11 +329,6 @@ export default class PPGraph {
     }
   }
 
-  static presentationAndNodeToAlpha(value: boolean, node: PPNode | undefined) {
-    const newVisibility = node?.getIsPresentationalNode() || value; // node can be invalid here if the link was cut (for example with Break JSON) so not a bug that it is null (just a bit ugly)
-    return newVisibility ? (node?.alpha == 0.0 ? 1.0 : node?.alpha) : 0.0;
-  }
-
   // GETTERS & SETTERS
 
   set showComments(value: boolean) {
@@ -345,29 +338,6 @@ export default class PPGraph {
 
   get viewportScaleX(): number {
     return this.viewport.scale.x;
-  }
-
-  get showNonPresentationNodes(): boolean {
-    return this._showNonPresentationNodes;
-  }
-
-  set showNonPresentationNodes(value: boolean) {
-    this._showNonPresentationNodes = value;
-    Object.values(this.nodes).forEach((node) => {
-      const newAlpha = PPGraph.presentationAndNodeToAlpha(value, node);
-      node.alpha = newAlpha;
-      node.getAllInputSockets().forEach((socket) =>
-        socket.links.forEach((link) => {
-          const otherNode = link.getSource().getNode();
-          const otherAlpha = PPGraph.presentationAndNodeToAlpha(
-            value,
-            otherNode,
-          );
-          const totalAlpha = newAlpha * otherAlpha;
-          link.alpha = totalAlpha;
-        }),
-      );
-    });
   }
 
   get showExecutionVisualisation(): boolean {
@@ -1004,7 +974,6 @@ export default class PPGraph {
       version: PP_VERSION,
       graphSettings: {
         showExecutionVisualisation: this.showExecutionVisualisation,
-        showNonPresentationNodes: this.showNonPresentationNodes,
         viewportCenterPosition: this.viewport.center,
         viewportScale: this.viewportScaleX,
       },
@@ -1116,10 +1085,6 @@ export default class PPGraph {
     }
     // execute all seed nodes to make sure there are values everywhere
     await this.executeAllSeedNodes(Object.values(this.nodes));
-
-    //Object.values(this.nodes).forEach((node) => console.log(node.name));
-    this.showNonPresentationNodes =
-      data.graphSettings.showNonPresentationNodes ?? true;
 
     this.allowExecution = true;
 

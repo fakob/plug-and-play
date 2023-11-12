@@ -38,7 +38,7 @@ export class BooleanType extends AbstractType {
     //graphics.lineStyle(2, TRgba.white().hexNumber());
     if (data) {
       graphics.beginFill(TRgba.white().hexNumber());
-      graphics.drawCircle(0, 0, 2);
+      graphics.drawCircle(0, 0, 3);
       //graphics.moveTo(-5, -5);
       //graphics.lineTo(5, 0);
     }
