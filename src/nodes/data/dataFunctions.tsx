@@ -731,6 +731,6 @@ export class Sort extends ArrayFunction {
   }
 
   protected getInnerCode(): string {
-    return '(a, b) => a - b';
+    return '(a, b) => b.localeCompare(a)';
   }
 }
