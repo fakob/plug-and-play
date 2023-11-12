@@ -120,6 +120,7 @@ export default class Socket extends PIXI.Container implements Tooltipable {
   }
   redrawValueSpecificGraphics() {
     this.removeChild(this._ValueSpecificGraphics);
+    this._ValueSpecificGraphics.clear();
     this._ValueSpecificGraphics.removeChildren();
     this.dataType.drawValueSpecificGraphics(
       this._ValueSpecificGraphics,
@@ -440,6 +441,10 @@ export default class Socket extends PIXI.Container implements Tooltipable {
       Math.pow(Math.max(0, (maxDist - dist) / maxDist), 1) * 1.2 + 1;
 
     this._SocketRef.scale = new PIXI.Point(scaleOutside, scaleOutside);
+    this._ValueSpecificGraphics.scale = new PIXI.Point(
+      scaleOutside,
+      scaleOutside,
+    );
     if (this._TextRef) {
       this._TextRef.scale = new PIXI.Point(
         Math.sqrt(scaleOutside),
@@ -505,6 +510,7 @@ export default class Socket extends PIXI.Container implements Tooltipable {
 
     // scale might have been touched by us in pointeroversocketmoving
     this._SocketRef.scale = new PIXI.Point(1, 1);
+    this._ValueSpecificGraphics.scale = new PIXI.Point(1, 1);
     if (this._TextRef) {
       this._TextRef.scale = new PIXI.Point(1, 1);
     }
