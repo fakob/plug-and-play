@@ -350,6 +350,7 @@ const GraphsContent = (props) => {
         {props.graphs.map((property) => {
           return (
             <GraphItem
+              key={`item-${property.id}`}
               graphSearchActiveItem={props.graphSearchActiveItem}
               loadGraph={props.loadGraph}
               property={property}
