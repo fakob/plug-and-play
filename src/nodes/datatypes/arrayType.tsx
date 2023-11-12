@@ -9,6 +9,15 @@ export class ArrayType extends AbstractType {
     return 'Array';
   }
 
+  getDefaultWidgetSize(): any {
+    return {
+      w: 2,
+      h: 3,
+      minW: 2,
+      minH: 2,
+    };
+  }
+
   getDefaultValue(): any {
     return [];
   }

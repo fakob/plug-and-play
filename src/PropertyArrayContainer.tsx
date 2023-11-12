@@ -15,6 +15,7 @@ import {
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import LockIcon from '@mui/icons-material/Lock';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import styles from './utils/style.module.css';
 import {
   getConfigData,
   getLoadNodeExampleURL,
@@ -261,7 +262,7 @@ function InfoContent(props: InfoContentProps) {
                 );
               }}
               title="Open node example"
-              className="menuItemButton"
+              className={styles.menuItemButton}
             >
               <Box
                 sx={{

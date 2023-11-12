@@ -37,6 +37,7 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
   protected selectionIntendGraphics: PIXI.Graphics;
   selectionGraphics: PIXI.Graphics;
   protected singleSelectionsGraphics: PIXI.Graphics;
+  protected focusGraphics: PIXI.Graphics;
   protected scaleHandle: ScaleHandle;
   selectionHeader: SelectionHeaderClass;
 
@@ -71,6 +72,10 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
     this.singleSelectionsGraphics.name = 'singleSelectionsGraphics';
     this.addChild(this.singleSelectionsGraphics);
 
+    this.focusGraphics = new PIXI.Graphics();
+    this.focusGraphics.name = 'focusGraphics';
+    this.addChild(this.focusGraphics);
+
     this.selectionGraphics = new PIXI.Graphics();
     this.selectionGraphics.name = 'selectionGraphics';
     this.addChild(this.selectionGraphics);
@@ -82,6 +87,7 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
     this.addChild(this.scaleHandle);
 
     this.eventMode = 'dynamic';
+    this.focusGraphics.eventMode = 'none';
 
     this.addEventListener('pointerdown', this.onPointerDown.bind(this));
     this.addEventListener(
@@ -397,6 +403,7 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
   resetAllGraphics(): void {
     this.resetGraphics(this.selectionIntendGraphics);
     this.resetGraphics(this.singleSelectionsGraphics);
+    this.resetGraphics(this.focusGraphics);
     this.resetGraphics(this.selectionGraphics);
     this.selectionHeader.visible = false;
     this.scaleHandle.visible = false;
@@ -422,6 +429,7 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
 
     this.resetGraphics(this.selectionIntendGraphics);
     addToOrToggleSelection || this.resetGraphics(this.singleSelectionsGraphics);
+    addToOrToggleSelection || this.resetGraphics(this.focusGraphics);
     addToOrToggleSelection || this.resetGraphics(this.selectionGraphics);
 
     this.isDrawingSelection = true;
@@ -467,6 +475,7 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
   }
 
   drawSingleSelections(): void {
+    this.focusGraphics.clear();
     this.singleSelectionsGraphics.clear();
     this.singleSelectionsGraphics.x = 0;
     this.singleSelectionsGraphics.y = 0;
@@ -485,21 +494,21 @@ export default class PPSelection extends PIXI.Container implements Tooltipable {
   }
 
   public drawSingleFocus(node: PPNode): void {
-    this.singleSelectionsGraphics.clear();
-    this.singleSelectionsGraphics.x = 0;
-    this.singleSelectionsGraphics.y = 0;
-    this.singleSelectionsGraphics.lineStyle(2, ERROR_COLOR.hexNumber(), 0.8, 1);
-    this.singleSelectionsGraphics.beginFill(ERROR_COLOR.hexNumber(), 0.15);
+    this.focusGraphics.clear();
+    this.focusGraphics.x = 0;
+    this.focusGraphics.y = 0;
+    this.focusGraphics.lineStyle(2, ERROR_COLOR.hexNumber(), 0.8, 1);
+    this.focusGraphics.beginFill(ERROR_COLOR.hexNumber(), 0.15);
 
     // draw single selections
     const nodeBounds = node._BackgroundGraphicsRef.getBounds();
-    this.singleSelectionsGraphics.drawRect(
+    this.focusGraphics.drawRect(
       nodeBounds.x - 4,
       nodeBounds.y - 4,
       nodeBounds.width + 8,
       nodeBounds.height + 8,
     );
-    this.singleSelectionsGraphics.endFill();
+    this.focusGraphics.endFill();
   }
 
   drawRectanglesFromSelection(fill = true): void {

@@ -1,8 +1,13 @@
 import * as PIXI from 'pixi.js';
 import React from 'react';
 import { Box } from '@mui/material';
-import { SocketContainer } from '../SocketContainer';
-import { SerializedSocket, TRgba, TSocketType } from '../utils/interfaces';
+import { SocketBody } from '../SocketContainer';
+import {
+  SerializedSocket,
+  TRgba,
+  TSocketId,
+  TSocketType,
+} from '../utils/interfaces';
 import PPGraph from './GraphClass';
 import PPNode from './NodeClass';
 import PPLink from './LinkClass';
@@ -21,7 +26,6 @@ import {
   COLOR_MAIN,
 } from '../utils/constants';
 import { AbstractType } from '../nodes/datatypes/abstractType';
-import { TriggerType } from '../nodes/datatypes/triggerType';
 import { dataToType, serializeType } from '../nodes/datatypes/typehelper';
 import { getCurrentCursorPosition } from '../utils/utils';
 import { TextStyle } from 'pixi.js';
@@ -355,6 +359,10 @@ export default class Socket extends PIXI.Container implements Tooltipable {
     return PPGraph.currentGraph;
   }
 
+  getSocketId(): TSocketId {
+    return `${this.getNode().id}-${this.socketType}-${this.name}`;
+  }
+
   public getPreferredNodes(): string[] {
     const preferredNodesPerSocket =
       this.getNode().getPreferredNodesPerSocket().get(this.name) || [];
@@ -406,6 +414,18 @@ export default class Socket extends PIXI.Container implements Tooltipable {
   }
 
   getTooltipContent(props): React.ReactElement {
+    const baseProps = {
+      key: this.dataType.getName(),
+      property: this,
+      index: 0,
+      isInput: this.isInput(),
+      hasLink: this.hasLink(),
+      randomMainColor: props.randomMainColor,
+      dataType: this.dataType,
+    };
+    const widget = this.isInput
+      ? this.dataType.getInputWidget(baseProps)
+      : this.dataType.getOutputWidget(baseProps);
     return (
       <>
         <Box
@@ -415,23 +435,22 @@ export default class Socket extends PIXI.Container implements Tooltipable {
             color: 'text.primary',
             fontWeight: 'medium',
             fontSize: 'small',
-            fontStyle: 'italic',
           }}
         >
-          Shift+Click to pin
+          <em>Shift+Click</em> to add to dashboard
         </Box>
-        <SocketContainer
-          triggerScrollIntoView={false}
-          key={0}
-          property={this}
-          index={0}
-          dataType={this.dataType}
-          isInput={this.isInput()}
-          hasLink={this.hasLink()}
-          data={this.data}
-          randomMainColor={props.randomMainColor}
-          selectedNode={this.getNode()}
-        />
+        <Box
+          sx={{
+            bgcolor: 'background.default',
+          }}
+        >
+          <SocketBody
+            property={this}
+            randomMainColor={props.randomMainColor}
+            selectedNode={props.selectedNode}
+            widget={widget}
+          />
+        </Box>
       </>
     );
   }
@@ -486,9 +505,8 @@ export default class Socket extends PIXI.Container implements Tooltipable {
   }
 
   onSocketPointerDown(event: PIXI.FederatedPointerEvent): void {
-    const clickedSourcePoint = this.getTooltipPosition();
     if (event.shiftKey) {
-      InterfaceController.onOpenSocketInspector(clickedSourcePoint, this);
+      InterfaceController.onAddToDashboard(this);
     } else {
       this.getGraph().socketMouseDown(this, event);
     }
@@ -503,9 +521,7 @@ export default class Socket extends PIXI.Container implements Tooltipable {
       InterfaceController.notifyListeners(ListenEvent.SelectionChanged, [
         this.getNode(),
       ]);
-      let shouldOpen;
       if (PPGraph.currentGraph.socketToInspect !== this) {
-        shouldOpen = true;
         PPGraph.currentGraph.socketToInspect = this;
       } else {
         PPGraph.currentGraph.socketToInspect = null;
@@ -514,7 +530,6 @@ export default class Socket extends PIXI.Container implements Tooltipable {
         ListenEvent.ToggleInspectorWithFocus,
         {
           socket: PPGraph.currentGraph.socketToInspect,
-          open: shouldOpen,
         },
       );
     }

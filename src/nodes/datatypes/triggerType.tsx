@@ -42,6 +42,15 @@ export class TriggerType extends AbstractType {
     return <TriggerWidget {...data} />;
   };
 
+  getDefaultWidgetSize(): any {
+    return {
+      w: 2,
+      h: 4,
+      minW: 2,
+      minH: 2,
+    };
+  }
+
   onDataSet(data: any, socket: Socket): void {
     super.onDataSet(data, socket);
     if (

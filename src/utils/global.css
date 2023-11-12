@@ -3,6 +3,8 @@
 @import '~@fontsource/roboto/500.css';
 @import '~@fontsource/roboto/700.css';
 @import '~@fontsource/roboto-mono';
+@import '~react-grid-layout/css/styles.css';
+@import '~react-resizable/css/styles.css';
 
 body {
   width: 100%;

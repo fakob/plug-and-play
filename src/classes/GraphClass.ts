@@ -2,9 +2,15 @@
 import * as PIXI from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
 
-import { NODE_SOURCE, NODE_WIDTH, PP_VERSION } from '../utils/constants';
+import {
+  LAYOUTS_EMPTY,
+  NODE_SOURCE,
+  NODE_WIDTH,
+  PP_VERSION,
+} from '../utils/constants';
 import {
   CustomArgs,
+  ILayoutItem,
   SerializedGraph,
   SerializedLink,
   SerializedNode,
@@ -49,6 +55,7 @@ export default class PPGraph {
   nodeContainer: PIXI.Container;
   nodes: { [key: string]: PPNode } = {};
   macros: { [key: string]: Macro } = {};
+  layouts: { [key: string]: ILayoutItem[] } = {};
   foregroundCanvas: PIXI.Container;
   id: string;
 
@@ -65,6 +72,7 @@ export default class PPGraph {
     this.viewport = viewport;
     this.id = hri.random();
     console.log('Graph created');
+    this.layouts = LAYOUTS_EMPTY;
 
     this._showComments = true;
     this._showExecutionVisualisation = true;
@@ -970,6 +978,9 @@ export default class PPGraph {
       link.serialize(),
     );
 
+    // get serialized layouts
+    const layoutsSerialized = this.layouts;
+
     const data = {
       version: PP_VERSION,
       graphSettings: {
@@ -979,6 +990,7 @@ export default class PPGraph {
       },
       nodes: nodesSerialized,
       links: linksSerialized,
+      layouts: layoutsSerialized,
     };
 
     return data;
@@ -1067,7 +1079,7 @@ export default class PPGraph {
     this.showExecutionVisualisation =
       data.graphSettings.showExecutionVisualisation ?? true;
 
-    //create nodes
+    // create nodes
     try {
       await Promise.all(
         data.nodes.map(
@@ -1083,6 +1095,10 @@ export default class PPGraph {
       console.log(error);
       return false;
     }
+
+    // create layouts
+    this.layouts = data.layouts || LAYOUTS_EMPTY;
+
     // execute all seed nodes to make sure there are values everywhere
     await this.executeAllSeedNodes(Object.values(this.nodes));
 
