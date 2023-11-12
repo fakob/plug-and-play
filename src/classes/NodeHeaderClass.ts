@@ -2,7 +2,7 @@ import * as PIXI from 'pixi.js';
 import PPGraph from './GraphClass';
 import Button from './ButtonClass';
 import PPNode from './NodeClass';
-import InterfaceController, { ListenEvent } from '../InterfaceController';
+import InterfaceController from '../InterfaceController';
 import {
   EDIT_ICON,
   SELECTION_DOWNSTREAM_TEXTURE,
@@ -75,15 +75,12 @@ export default class NodeHeaderClass extends PIXI.Container {
   editNodeMouseDown(): void {
     const node = this.parent?.parent as PPNode;
     PPGraph.currentGraph.socketToInspect = null;
-    const obj = {
-      filter: null,
-    };
-    if (!node.selected) {
+
+    if (node.selected) {
+      InterfaceController.toggleRightSideDrawer();
+    } else {
       PPGraph.currentGraph.selection.selectNodes([node], false, true);
+      InterfaceController.toggleRightSideDrawer(true);
     }
-    InterfaceController.notifyListeners(
-      ListenEvent.ToggleInspectorWithFocus,
-      obj,
-    );
   }
 }

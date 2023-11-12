@@ -183,8 +183,8 @@ export const DashboardWidgetContainer: React.FunctionComponent<
     index: props.index,
     isInput: props.isInput,
     hasLink: props.hasLink,
-    data: props.data,
     randomMainColor: props.randomMainColor,
+    dataType: props.dataType,
   };
 
   const widget = props.isInput

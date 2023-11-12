@@ -418,10 +418,10 @@ export default class Socket extends PIXI.Container implements Tooltipable {
       key: this.dataType.getName(),
       property: this,
       index: 0,
-      isInput: this.isInput,
-      hasLink: this.hasLink,
-      data: this.data,
+      isInput: this.isInput(),
+      hasLink: this.hasLink(),
       randomMainColor: props.randomMainColor,
+      dataType: this.dataType,
     };
     const widget = this.isInput
       ? this.dataType.getInputWidget(baseProps)

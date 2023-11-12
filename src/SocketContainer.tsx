@@ -133,10 +133,10 @@ const SocketHeader: React.FunctionComponent<SocketHeaderProps> = (props) => {
   const handleClose = () => {
     setAnchorEl(null);
   };
-
   const typeAvailableInDropdown =
     dropDownSelectableTypes[props.property.dataType.constructor.name] !==
     undefined;
+
   return (
     <Box
       sx={{
