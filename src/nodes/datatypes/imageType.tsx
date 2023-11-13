@@ -44,6 +44,7 @@ export class ImageType extends AbstractType {
   };
 
   getOutputWidget = (props: any): any => {
+    props.dataType = this;
     if (typeof props.property.data === 'string') {
       return <ImageWidget {...props} />;
     }
