@@ -42,6 +42,15 @@ export class ColorType extends AbstractType {
     return <ColorWidget {...props} />;
   };
 
+  getDefaultWidgetSize(): any {
+    return {
+      w: 2,
+      h: 1,
+      minW: 1,
+      minH: 1,
+    };
+  }
+
   getColor(): TRgba {
     return new TRgba(110, 110, 110);
   }

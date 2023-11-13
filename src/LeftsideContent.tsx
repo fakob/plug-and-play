@@ -247,6 +247,7 @@ const LeftsideContent = (props) => {
         a: {
           textDecoration: 'none',
         },
+        userSelect: 'none',
       }}
     >
       <FilterContainer handleFilter={handleFilter} filter={props.filter} />

@@ -1,23 +1,22 @@
 import React from 'react';
-import { AbstractType } from './abstractType';
+import { AbstractType, DataTypeProps } from './abstractType';
 import { BROKEN_IMAGE } from '../../utils/constants';
 
-type ImgComponentProps = {
-  data: string;
-  alt: string;
-};
+interface ImageTypeProps extends DataTypeProps {
+  dataType: ImageType;
+}
 
-const ImgComponent: React.FunctionComponent<ImgComponentProps> = (props) => {
+const ImageWidget: React.FunctionComponent<ImageTypeProps> = (props) => {
   return (
     <img
       style={{
         width: '100%',
         height: '100%',
         maxHeight: '60vh',
-        objectFit: 'scale-down',
+        objectFit: 'contain',
       }}
-      src={props.data}
-      alt={props.alt}
+      src={props.property.data}
+      alt={props.key}
       onError={({ currentTarget }) => {
         currentTarget.onerror = null; // prevents looping
         currentTarget.src = BROKEN_IMAGE;
@@ -37,15 +36,17 @@ export class ImageType extends AbstractType {
   }
 
   getInputWidget = (props: any): any => {
-    if (typeof props.data === 'string') {
-      return <ImgComponent data={props.data} alt={props.key} />;
+    props.dataType = this;
+    if (typeof props.property.data === 'string') {
+      return <ImageWidget {...props} />;
     }
     return '';
   };
 
   getOutputWidget = (props: any): any => {
-    if (typeof props.data === 'string') {
-      return <ImgComponent data={props.data} alt={props.key} />;
+    props.dataType = this;
+    if (typeof props.property.data === 'string') {
+      return <ImageWidget {...props} />;
     }
     return '';
   };
@@ -54,8 +55,8 @@ export class ImageType extends AbstractType {
     return {
       w: 2,
       h: 5,
-      minW: 2,
-      minH: 2,
+      minW: 1,
+      minH: 1,
     };
   }
 

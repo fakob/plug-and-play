@@ -21,12 +21,17 @@ export class StringType extends AbstractType {
     return <TextWidget {...props} />;
   };
 
+  getOutputWidget = (props: StringTypeProps): any => {
+    props.dataType = this;
+    return <TextWidget {...props} />;
+  };
+
   getDefaultWidgetSize(): any {
     return {
       w: 2,
-      h: 3,
-      minW: 2,
-      minH: 2,
+      h: 2,
+      minW: 1,
+      minH: 1,
     };
   }
 

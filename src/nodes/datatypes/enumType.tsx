@@ -34,6 +34,15 @@ export class EnumType extends AbstractType {
     return <SelectWidget {...props} />;
   };
 
+  getDefaultWidgetSize(): any {
+    return {
+      w: 2,
+      h: 2,
+      minW: 1,
+      minH: 1,
+    };
+  }
+
   recommendedOutputNodeWidgets(): string[] {
     return ['WidgetDropdown'];
   }

@@ -25,6 +25,20 @@ export class BooleanType extends AbstractType {
     return <BooleanWidget {...props} />;
   };
 
+  getOutputWidget = (props: BooleanTypeProps): any => {
+    props.dataType = this;
+    return <BooleanWidget {...props} />;
+  };
+
+  getDefaultWidgetSize(): any {
+    return {
+      w: 2,
+      h: 1,
+      minW: 1,
+      minH: 1,
+    };
+  }
+
   getColor(): TRgba {
     return new TRgba(90, 90, 90);
   }
