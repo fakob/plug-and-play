@@ -45,7 +45,7 @@ export class TriggerType extends AbstractType {
   getDefaultWidgetSize(): any {
     return {
       w: 2,
-      h: 4,
+      h: 3,
       minW: 2,
       minH: 2,
     };

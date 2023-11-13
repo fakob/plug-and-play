@@ -55,7 +55,7 @@ const GraphOverlayDashboard: React.FunctionComponent<
     setCurrentLayout((prevLayout) => {
       const socketId = socket.getSocketId();
       const socketIdExists = prevLayout.find((item) => item.i === socketId);
-      const size = socket.isInput
+      const size = socket.isInput()
         ? socket.dataType.getInputWidgetSize()
         : socket.dataType.getOutputWidgetSize();
 
@@ -118,7 +118,7 @@ const GraphOverlayDashboard: React.FunctionComponent<
         }}
         margin={[4, 4]}
         containerPadding={props.toggleLeft ? [4, 12] : [4, 4]}
-        rowHeight={56}
+        rowHeight={64}
         onLayoutChange={onLayoutChange}
         draggableHandle=".MyDragHandleClassName"
         resizeHandles={['s', 'w', 'e', 'sw', 'se']}
@@ -212,8 +212,8 @@ export const DashboardWidgetContainer: React.FunctionComponent<
       />
       <Box
         sx={{
-          p: 1,
-          height: 'calc(100% - 32px)',
+          p: 0.5,
+          height: 'calc(100% - 24px)',
           bgcolor: 'background.default',
           overflow: 'auto',
         }}
@@ -240,6 +240,9 @@ const DashboardWidgetHeader: React.FunctionComponent<
   DashboardWidgetHeaderProps
 > = (props) => {
   const locked = !props.isInput || props.hasLink;
+  const headerText = `${props.property.getNode().name} > ${
+    props.property.name
+  }`;
 
   return (
     <Box
@@ -250,7 +253,8 @@ const DashboardWidgetHeader: React.FunctionComponent<
         width: '100%',
         color: 'text.secondary',
         justifyContent: 'space-between',
-        height: '32px',
+        height: '24px',
+        userSelect: 'none',
       }}
       onPointerEnter={(event: React.MouseEvent<HTMLDivElement>) => {
         event.stopPropagation();
@@ -275,7 +279,7 @@ const DashboardWidgetHeader: React.FunctionComponent<
       }}
     >
       <Box
-        title={props.property.getNode().id}
+        title={headerText}
         sx={{
           pl: 1,
           flexGrow: 1,
@@ -296,7 +300,9 @@ const DashboardWidgetHeader: React.FunctionComponent<
             overflow: 'hidden',
             textOverflow: 'ellipsis',
           }}
-        >{`${props.property.getNode().name} > ${props.property.name}`}</Box>
+        >
+          {headerText}
+        </Box>
       </Box>
       <Box sx={{ flex: '1' }}></Box>{' '}
       <IconButton

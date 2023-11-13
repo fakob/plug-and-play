@@ -4,20 +4,23 @@ import {
   Alert,
   Box,
   Button,
-  Checkbox,
   FormControlLabel,
   FormControl,
   FormGroup,
   InputLabel,
   ListItemText,
+  ListItemSecondaryAction,
   MenuItem,
+  Popper,
   Select,
   Slider,
+  Switch,
   TextField,
   ToggleButton,
   Tooltip,
   Typography,
 } from '@mui/material';
+import { ClickAwayListener } from '@mui/base/ClickAwayListener';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import { SketchPicker } from 'react-color';
 import prettyBytes from 'pretty-bytes';
@@ -129,6 +132,7 @@ export const SliderWidget: React.FunctionComponent<NumberTypeProps> = (
         value={data}
         sx={{
           ml: 1,
+          width: 'calc(100% - 16px)',
         }}
       />
       <FormGroup
@@ -136,6 +140,7 @@ export const SliderWidget: React.FunctionComponent<NumberTypeProps> = (
         sx={{
           display: 'flex',
           flexWrap: 'nowrap',
+          gap: '2px',
         }}
       >
         <ToggleButton
@@ -308,16 +313,17 @@ export const BooleanWidget: React.FunctionComponent<BooleanTypeProps> = (
   };
 
   return (
-    <FormGroup>
+    <FormGroup sx={{ pl: 1, userSelect: 'none' }}>
       <FormControlLabel
         control={
-          <Checkbox
+          <Switch
             checked={data}
             onChange={onChange}
-            disabled={props.hasLink}
+            disabled={props.hasLink || !props.isInput}
+            inputProps={{ 'aria-label': 'controlled' }}
           />
         }
-        label={props.property.custom?.label ?? ''}
+        label={data.toString()}
       />
     </FormGroup>
   );
@@ -448,13 +454,15 @@ export const FileBrowserWidget: React.FunctionComponent<FileTypeProps> = (
                 }}
               >
                 <ListItemText>{name}</ListItemText>
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{ pl: 1 }}
-                >
-                  {prettyBytes(size)}
-                </Typography>
+                <ListItemSecondaryAction>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ pr: 1.5 }}
+                  >
+                    {prettyBytes(size)}
+                  </Typography>
+                </ListItemSecondaryAction>
               </MenuItem>
             );
           })}
@@ -598,7 +606,6 @@ export const TriggerWidget: React.FunctionComponent<TriggerTypeProps> = (
           })}
         </Select>
         <TextField
-          hiddenLabel
           variant="filled"
           placeholder="Name of function to trigger"
           label={
@@ -638,6 +645,7 @@ export const ColorWidget: React.FunctionComponent<ColorTypeProps> = (props) => {
 
   const [colorPicker, showColorPicker] = useState(false);
   const [finalColor, changeColor] = useState(defaultColor);
+  const anchorRef = useRef(null);
   const componentMounted = useRef(true);
 
   useEffect(() => {
@@ -650,26 +658,39 @@ export const ColorWidget: React.FunctionComponent<ColorTypeProps> = (props) => {
     return () => undefined;
   }, [finalColor]);
 
+  const handleClickAway = (e) => {
+    showColorPicker(false);
+  };
+
   return (
     <>
-      <div
+      <Box
+        ref={anchorRef}
         className={styles.colorPickerSwatch}
-        style={{
+        sx={{
           backgroundColor: finalColor.rgb(),
           color: `${finalColor.isDark() ? COLOR_WHITE_TEXT : COLOR_DARK}`,
+          userSelect: 'none',
+          height: '100%',
         }}
         onClick={
           props.hasLink
             ? undefined
-            : () => {
+            : (event) => {
+                event.stopPropagation();
                 showColorPicker(!colorPicker);
               }
         }
       >
         {props.isInput && !props.hasLink ? 'Pick a color' : ''}
-      </div>
-      {props.isInput && colorPicker && (
-        <span className="chrome-picker">
+      </Box>
+      <ClickAwayListener onClickAway={handleClickAway}>
+        <Popper
+          id={`color-picker-${props.property.name}`}
+          open={props.isInput && colorPicker}
+          anchorEl={anchorRef.current}
+          sx={{ zIndex: 10 }}
+        >
           <SketchPicker
             color={finalColor.object()}
             onChangeComplete={(color) => {
@@ -680,8 +701,8 @@ export const ColorWidget: React.FunctionComponent<ColorTypeProps> = (props) => {
             }}
             presetColors={PRESET_COLORS}
           />
-        </span>
-      )}
+        </Popper>
+      </ClickAwayListener>
     </>
   );
 };
@@ -728,8 +749,8 @@ export const NumberOutputWidget: React.FunctionComponent<DataTypeProps> = (
         }}
       >
         <TextField
+          hiddenLabel
           variant="filled"
-          label="Value"
           sx={{
             flexGrow: 1,
           }}
@@ -738,6 +759,7 @@ export const NumberOutputWidget: React.FunctionComponent<DataTypeProps> = (
             type: 'number',
           }}
           value={data}
+          size="small"
         />
       </FormGroup>
     </>
