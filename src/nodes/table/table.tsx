@@ -493,21 +493,19 @@ export class Table extends HybridNode2 {
       [arrayOfArrays.length, props[sheetIndexInputSocketName]],
     );
 
-    const onCellEdited = useCallback(
-      (cell: Item, newValue: EditableGridCell) => {
-        if (newValue.kind !== GridCellKind.Text) {
-          // we only have text cells, might as well just die here.
-          return;
-        }
-        const [col, row] = cell;
-        arrayOfArrays[row][col] = newValue.data;
+    const onCellEdited = (cell: Item, newValue: EditableGridCell) => {
+      if (newValue.kind !== GridCellKind.Text) {
+        console.log('CELL IS NOT TEXT?? UNEXPECTED');
+        // we only have text cells, might as well just die here.
+        return;
+      }
+      const [col, row] = cell;
+      arrayOfArrays[row][col] = newValue.data;
 
-        saveAndOutput();
-        // update column names and width if needed
-        setColsMap(() => getCols());
-      },
-      [colsMap, arrayOfArrays.length, props[sheetIndexInputSocketName]],
-    );
+      saveAndOutput();
+      // update column names and width if needed
+      setColsMap(() => getCols());
+    };
 
     const onColumnResize = useCallback(
       (column: GridColumn, newSize: number) => {
