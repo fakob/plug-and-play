@@ -16,6 +16,7 @@ import { CodeType } from '../datatypes/codeType';
 import { ColorType } from '../datatypes/colorType';
 import { DeferredPixiType } from '../datatypes/deferredPixiType';
 import { EnumType } from '../datatypes/enumType';
+import { FileType } from '../datatypes/fileType';
 import { FunctionType } from '../datatypes/functionType';
 import { ImageType } from '../datatypes/imageType';
 import { JSONType } from '../datatypes/jsonType';
@@ -30,6 +31,7 @@ const CodeName = 'Code';
 const ColorName = 'Color';
 const DeferredPixiTypeName = 'DeferredPixiType';
 const EnumName = 'Enum';
+const FileName = 'File';
 const FunctionName = 'Function';
 const ImageName = 'Image';
 const JSONTypeName = 'JSONType';
@@ -97,8 +99,9 @@ export class TestDataTypes extends PPNode {
             text: 'text',
             value: 'value',
           },
-        ])
+        ]),
       ),
+      new Socket(SOCKET_TYPE.IN, FileName, new FileType()),
       new Socket(SOCKET_TYPE.IN, FunctionName, new FunctionType()),
       new Socket(SOCKET_TYPE.IN, ImageName, new ImageType(), DEFAULT_IMAGE),
       new Socket(SOCKET_TYPE.IN, JSONTypeName, new JSONType(), GESTUREMODE),
@@ -107,7 +110,7 @@ export class TestDataTypes extends PPNode {
         SOCKET_TYPE.IN,
         StringName,
         new StringType(),
-        'In the midst of winter, I found there was, within me, an invincible summer'
+        'In the midst of winter, I found there was, within me, an invincible summer',
       ),
       new Socket(SOCKET_TYPE.IN, TriggerName, new TriggerType()),
 
@@ -119,7 +122,7 @@ export class TestDataTypes extends PPNode {
       new Socket(
         SOCKET_TYPE.OUT,
         DeferredDeferredPixiTypeOutName,
-        new DeferredPixiType()
+        new DeferredPixiType(),
       ),
       //   new Socket(SOCKET_TYPE.OUT, DynamicOutName, new DynamicEnumType()),
       //   new Socket(SOCKET_TYPE.OUT, EnumOutName, new EnumType()),
@@ -134,7 +137,7 @@ export class TestDataTypes extends PPNode {
 
   protected async onExecute(
     inputObject: any,
-    outputObject: Record<string, unknown>
+    outputObject: Record<string, unknown>,
   ): Promise<void> {
     outputObject[AnyOutName] = inputObject[AnyName];
     outputObject[ArrayOutName] = inputObject[ArrayName];

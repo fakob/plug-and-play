@@ -24,7 +24,7 @@ export const CodeEditor: React.FunctionComponent<CodeEditorProps> = (props) => {
 
   const [loadAll, setLoadAll] = useState(shouldLoadAll(props.value));
   const [loadedValue, setLoadedValue] = useState(
-    getLoadedValue(props.value, loadAll)
+    getLoadedValue(props.value, loadAll),
   );
   const [editorHeight, setEditorHeight] = useState(48);
 
@@ -42,6 +42,16 @@ export const CodeEditor: React.FunctionComponent<CodeEditorProps> = (props) => {
 
   const editorDidMount = (editor) => {
     editorRef.current = editor;
+    editorRef.current.addAction({
+      id: 'Copy-lines-down',
+      label: 'Copy lines down',
+      keybindings: [
+        monaco.KeyMod.Shift | monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyD,
+      ],
+      run: function () {
+        editor.trigger('Copy lines down', 'editor.action.copyLinesDownAction');
+      },
+    });
     changeEditorHeight();
   };
 

@@ -11,6 +11,15 @@ export class DeferredPixiType extends FunctionType {
     return <></>;
   };
 
+  getDefaultWidgetSize(): any {
+    return {
+      w: 2,
+      h: 1,
+      minW: 1,
+      minH: 1,
+    };
+  }
+
   getName(): string {
     return 'Deferred Pixi';
   }
