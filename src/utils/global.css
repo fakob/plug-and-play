@@ -28,3 +28,30 @@ body {
   position: relative;
   overflow: hidden;
 }
+
+/* Custom css for react-grid-layout */
+.react-resizable-handle {
+  display: none;
+  transition: display 0.3s ease;
+}
+
+.react-grid-item:hover .react-resizable-handle {
+  display: block;
+}
+
+.react-grid-item>.react-resizable-handle {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+}
+
+.react-grid-item>.react-resizable-handle::after {
+  content: "";
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  width: 9px;
+  height: 9px;
+  border-right: 3px solid #F5F5F5;
+  border-bottom: 3px solid #F5F5F5;
+}

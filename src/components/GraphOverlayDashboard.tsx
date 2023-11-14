@@ -332,8 +332,7 @@ const MyHandle = React.forwardRef<HTMLInputElement, { handleAxis?: string }>(
         className={`react-resizable-handle react-resizable-handle-${handleAxis}`}
         {...restProps}
         sx={{
-          background: 'white',
-          mixBlendMode: 'darken',
+          zIndex: 100,
         }}
       />
     );
@@ -342,11 +341,20 @@ const MyHandle = React.forwardRef<HTMLInputElement, { handleAxis?: string }>(
 
 function EmptyDashboardWidget({ item }) {
   return (
-    <Box key={item.i} sx={{ background: 'red', pointerEvents: 'auto' }}>
+    <Box
+      key={item.i}
+      sx={{
+        background: 'red',
+        pointerEvents: 'auto',
+        display: 'flex',
+        justifyContent: 'space-between',
+        p: 1,
+        m: 1,
+      }}
+    >
       {`${item.i} could not be found!`}
       <IconButton
         title="Remove from dashboard"
-        size="small"
         onClick={() => {
           InterfaceController.onRemoveFromDashboard(item.i);
         }}
@@ -354,7 +362,7 @@ function EmptyDashboardWidget({ item }) {
           borderRadius: 0,
         }}
       >
-        <ClearIcon sx={{ fontSize: '12px' }} />
+        <ClearIcon sx={{ fontSize: '16px' }} />
       </IconButton>
     </Box>
   );
