@@ -100,6 +100,7 @@ export class TestDataTypes extends PPNode {
             value: 'value',
           },
         ]),
+        '',
       ),
       new Socket(SOCKET_TYPE.IN, FileName, new FileType()),
       new Socket(SOCKET_TYPE.IN, FunctionName, new FunctionType()),

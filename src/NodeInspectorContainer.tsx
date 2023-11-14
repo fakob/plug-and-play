@@ -158,6 +158,7 @@ function InspectorHeader(props) {
 type InspectorContainerProps = {
   selectedNodes: PPNode[];
   socketToInspect: Socket;
+  setSocketToInspect: React.Dispatch<React.SetStateAction<Socket>>;
   randomMainColor: string;
   filter: string;
   setFilter: React.Dispatch<React.SetStateAction<string>>;
@@ -194,6 +195,7 @@ const NodeInspectorContainer: React.FunctionComponent<
         <PropertyArrayContainer
           selectedNodes={props.selectedNodes}
           socketToInspect={props.socketToInspect}
+          setSocketToInspect={props.setSocketToInspect}
           randomMainColor={props.randomMainColor}
           filter={props.filter}
           setFilter={props.setFilter}

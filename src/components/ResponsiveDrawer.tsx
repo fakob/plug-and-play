@@ -97,13 +97,10 @@ const ResponsiveDrawer = (props) => {
   );
   const smallScreen = useIsSmallScreen();
 
-  const toggleInspectorAndFocus = ({ filter, socket }) => {
+  const toggleInspectorAndFocus = ({ socket }) => {
     InterfaceController.toggleRightSideDrawer(true);
     if (!props.isLeft) {
-      if (filter) {
-        setNodeFilter(filter);
-        setSocketToInspect(undefined);
-      } else if (socket) {
+      if (socket) {
         setSocketToInspect(socket);
       }
     }
@@ -204,6 +201,7 @@ const ResponsiveDrawer = (props) => {
             randomMainColor={props.randomMainColor}
             filter={nodeFilter}
             setFilter={setNodeFilter}
+            setSocketToInspect={setSocketToInspect}
           />
         ) : (
           <GraphInspectorContainer
