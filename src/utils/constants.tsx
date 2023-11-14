@@ -196,6 +196,7 @@ export const NODE_WIDTH = 160;
 export const NODE_CORNERRADIUS = 8;
 
 export const CONTEXTMENU_WIDTH = 288;
+export const CONTEXTMENU_GRAPH_HEIGHT = 734;
 export const TOOLTIP_WIDTH = 320;
 export const TOOLTIP_DISTANCE = 32;
 export const TOOLTIP_DELAY = 700;

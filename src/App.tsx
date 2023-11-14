@@ -49,6 +49,7 @@ import {
   CANVAS_BACKGROUND_ALPHA,
   CANVAS_BACKGROUND_TEXTURE,
   COMMENT_TEXTSTYLE,
+  CONTEXTMENU_GRAPH_HEIGHT,
   CONTEXTMENU_WIDTH,
   GRID_SHADER,
   MAX_LATEST_NODES_IN_SEARCH,
@@ -495,7 +496,10 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           break;
         case target instanceof Viewport:
           console.log('app right click, viewport');
-          setContextMenuPosition([contextMenuPosX, contextMenuPosY(780)]);
+          setContextMenuPosition([
+            contextMenuPosX,
+            contextMenuPosY(CONTEXTMENU_GRAPH_HEIGHT + 8),
+          ]);
           setIsGraphContextMenuOpen(true);
           break;
         case target instanceof PPSelection:
@@ -849,6 +853,8 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
           )}
           <PixiContainer ref={pixiContext} />
           <GraphOverlay
+            setContextMenuPosition={setContextMenuPosition}
+            setIsGraphContextMenuOpen={setIsGraphContextMenuOpen}
             toggle={showRightSideDrawer}
             toggleLeft={showLeftSideDrawer}
             currentGraph={PPGraph.currentGraph}

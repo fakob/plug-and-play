@@ -35,6 +35,7 @@ import ShareIcon from '@mui/icons-material/Share';
 import LogoutIcon from '@mui/icons-material/Logout';
 import DashboardCustomizeIcon from '@mui/icons-material/DashboardCustomize';
 import DashboardIcon from '@mui/icons-material/Dashboard';
+import ViewListIcon from '@mui/icons-material/ViewList';
 import PPSocket from './../classes/SocketClass';
 import InterfaceController, { ListenEvent } from '../InterfaceController';
 import {
@@ -49,9 +50,8 @@ import {
   DISTRIBUTEHORIZONTAL_TEXTURE,
   DISTRIBUTEVERTICAL_TEXTURE,
   GESTUREMODE,
-  PLUGANDPLAY_ICON_WHITE,
 } from '../utils/constants';
-import { isPhone } from '../utils/utils';
+import { useIsSmallScreen } from '../utils/utils';
 import styles from '../utils/style.module.css';
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
@@ -163,9 +163,8 @@ export const GraphContextMenu = (props) => {
     <Paper
       id="graph-contextmenu"
       sx={{
-        width: CONTEXTMENU_WIDTH,
-        maxWidth: '100%',
-        maxHeight: 'calc(100vh - 112px)',
+        width: useIsSmallScreen() ? 'calc(100% - 16px)' : CONTEXTMENU_WIDTH,
+        maxHeight: 'calc(100vh - 16px)',
         overflow: 'auto',
         position: 'absolute',
         zIndex: 1230,
@@ -283,15 +282,9 @@ export const GraphContextMenu = (props) => {
           }}
         >
           <ListItemIcon>
-            <img
-              id="plugandplayground-logo"
-              style={{
-                width: '20px',
-              }}
-              src={PLUGANDPLAY_ICON_WHITE}
-            />
+            <ViewListIcon fontSize="small" />
           </ListItemIcon>
-          <ListItemText>Toggle playgrounds</ListItemText>
+          <ListItemText>Toggle playground list</ListItemText>
           <Typography variant="body2" color="text.secondary">
             {`1`}
           </Typography>
@@ -339,7 +332,7 @@ export const GraphContextMenu = (props) => {
         </MenuItem>
         <Divider />
         <MenuItem disabled>Settings</MenuItem>
-        {isPhone() ? (
+        {useIsSmallScreen() ? (
           [
             <Divider
               key="Gesture mode "
@@ -562,7 +555,7 @@ export const NodeContextMenu = (props) => {
           </MenuItem>
         )}
         {selectionCount > 1 &&
-          (isPhone() ? (
+          (useIsSmallScreen() ? (
             [
               <Divider
                 key="Align nodes "

@@ -22,7 +22,6 @@ const GraphOverlayDrawer: React.FunctionComponent<GraphOverlayDrawerProps> = (
     useState(DEFAULT_DRAWER_WIDTH);
 
   useEffect(() => {
-    console.log('onDrawerSizeChanged');
     InterfaceController.onDrawerSizeChanged(
       props.toggleLeft ? leftDrawerWidth : 0,
       false ? rightDrawerWidth : 0,

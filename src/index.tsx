@@ -21,7 +21,7 @@ root.render(
       dense={isPhone() ? true : false}
       anchorOrigin={{
         horizontal: isPhone() ? 'center' : 'right',
-        vertical: isPhone() ? 'bottom' : 'top',
+        vertical: 'top',
       }}
       autoHideDuration={3000}
     >

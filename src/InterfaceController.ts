@@ -196,16 +196,16 @@ export default class InterfaceController {
       }
       switch (e.code) {
         case 'Digit1':
-          this.toggleLeftSideDrawer();
           e.preventDefault();
+          this.toggleLeftSideDrawer();
           break;
         case 'Digit2':
-          this.toggleShowDashboard();
           e.preventDefault();
+          this.toggleShowDashboard();
           break;
         case 'Digit3':
-          this.toggleRightSideDrawer();
           e.preventDefault();
+          this.toggleRightSideDrawer();
           break;
       }
     }

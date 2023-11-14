@@ -3,27 +3,31 @@ import { Box, Button, Drawer } from '@mui/material';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import TuneIcon from '@mui/icons-material/Tune';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import ViewListIcon from '@mui/icons-material/ViewList';
 import Color from 'color';
 import InterfaceController, { ListenEvent } from '../InterfaceController';
 import Socket from '../classes/SocketClass';
 import NodeInspectorContainer from '../NodeInspectorContainer';
 import GraphInspectorContainer from '../GraphInspectorContainer';
 import LeftsideContainer from '../LeftsideContainer';
-import {
-  COLOR_DARK,
-  COLOR_WHITE_TEXT,
-  PLUGANDPLAY_ICON,
-} from '../utils/constants';
+import { COLOR_WHITE_TEXT } from '../utils/constants';
 import { useIsSmallScreen } from '../utils/utils';
 import styles from '../utils/style.module.css';
 
 function DrawerToggleInspector(props) {
+  const smallScreen = useIsSmallScreen();
+
   return (
     <Box id="drawer-toggle-inspector">
       <Button
         title={`${props.open ? 'Close node inspector' : 'Open node inspector'}`}
         size="small"
-        onClick={() => InterfaceController.toggleRightSideDrawer()}
+        onClick={() => {
+          InterfaceController.toggleRightSideDrawer();
+          if (smallScreen) {
+            InterfaceController.toggleLeftSideDrawer(false);
+          }
+        }}
         sx={{
           position: 'fixed',
           bottom: '24px',
@@ -31,7 +35,9 @@ function DrawerToggleInspector(props) {
           width: '32px',
           minWidth: '32px',
           color: COLOR_WHITE_TEXT,
-          bgcolor: props.open ? 'background.default' : 'primary.main',
+          bgcolor: props.open
+            ? 'background.default'
+            : `${Color(props.randomMainColor).darken(0.4)}`,
           zIndex: '1300',
           '&:hover': {
             backgroundColor: `${Color(props.randomMainColor).darken(0.7)}`,
@@ -44,15 +50,20 @@ function DrawerToggleInspector(props) {
   );
 }
 
-function DrawerToggleHelp(props) {
+function DrawerToggleLeftside(props) {
   const smallScreen = useIsSmallScreen();
 
   return (
-    <Box id="drawer-toggle-help">
+    <Box id="drawer-toggle-leftside">
       <Button
         size="small"
-        title={`${props.open ? 'Close help' : 'Open help'}`}
-        onClick={() => InterfaceController.toggleLeftSideDrawer()}
+        title={`${props.open ? 'Close' : 'Open playground list'}`}
+        onClick={() => {
+          InterfaceController.toggleLeftSideDrawer();
+          if (smallScreen) {
+            InterfaceController.toggleRightSideDrawer(false);
+          }
+        }}
         sx={{
           position: 'fixed',
           bottom: '24px',
@@ -61,26 +72,16 @@ function DrawerToggleHelp(props) {
           height: '32px',
           minWidth: '32px',
           color: COLOR_WHITE_TEXT,
-          backgroundColor: props.open ? COLOR_DARK : COLOR_WHITE_TEXT,
+          bgcolor: props.open
+            ? 'background.default'
+            : `${Color(props.randomMainColor).darken(0.4)}`,
           zIndex: '1300',
           '&:hover': {
-            backgroundColor: props.open ? COLOR_DARK : COLOR_WHITE_TEXT,
+            backgroundColor: `${Color(props.randomMainColor).darken(0.7)}`,
           },
         }}
       >
-        {props.open ? (
-          <ChevronLeftIcon />
-        ) : (
-          <img
-            id="plugandplayground-logo"
-            style={{
-              backgroundColor: props.randomMainColor,
-              borderRadius: '32px',
-              width: smallScreen ? '40px' : '64px',
-            }}
-            src={PLUGANDPLAY_ICON}
-          />
-        )}
+        {props.open ? <ChevronLeftIcon /> : <ViewListIcon />}
       </Button>
     </Box>
   );
@@ -151,7 +152,7 @@ const ResponsiveDrawer = (props) => {
   return (
     <>
       {props.isLeft ? (
-        <DrawerToggleHelp
+        <DrawerToggleLeftside
           open={props.toggle}
           randomMainColor={props.randomMainColor}
         />
