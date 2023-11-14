@@ -16,7 +16,7 @@ const ImageWidget: React.FunctionComponent<ImageTypeProps> = (props) => {
         objectFit: 'contain',
       }}
       src={props.property.data}
-      alt={props.key}
+      alt={props.property.name}
       onError={({ currentTarget }) => {
         currentTarget.onerror = null; // prevents looping
         currentTarget.src = BROKEN_IMAGE;

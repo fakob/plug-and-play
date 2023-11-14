@@ -27,15 +27,16 @@ import TimeAgo from 'javascript-time-ago';
 import en from 'javascript-time-ago/locale/en';
 import styles from './utils/style.module.css';
 import PPGraph from './classes/GraphClass';
-import { IGraphSearch, TRgba } from './utils/interfaces';
 import PPStorage from './PPStorage';
 import InterfaceController from './InterfaceController';
+import { IGraphSearch, TRgba } from './utils/interfaces';
 import { COLOR_DARK, COLOR_WHITE_TEXT } from './utils/constants';
 import {
   getLoadGraphExampleURL,
   getLoadNodeExampleURL,
   removeExtension,
   sortByDate,
+  useIsSmallScreen,
   writeTextToClipboard,
 } from './utils/utils';
 import { getAllNodeTypes } from './nodes/allNodes';
@@ -375,6 +376,8 @@ const GraphItem = (props) => {
     .getContrastTextColor()
     .hex();
 
+  const smallScreen = useIsSmallScreen();
+
   return graph.isDisabled ? (
     <ListSubheader
       key={`subheader-${graph.id}`}
@@ -407,7 +410,12 @@ ${graph.id}`
     >
       <ListItemButton
         selected={graph.id === props.graphSearchActiveItem?.id}
-        onClick={() => props.loadGraph(graph.id, graph.isRemote)}
+        onClick={() => {
+          props.loadGraph(graph.id, graph.isRemote);
+          if (smallScreen) {
+            InterfaceController.toggleLeftSideDrawer(false);
+          }
+        }}
         sx={{
           px: 1,
           py: 0,

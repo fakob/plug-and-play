@@ -403,6 +403,7 @@ function SourceContent(props: SourceContentProps) {
 type PropertyArrayContainerProps = {
   selectedNodes: PPNode[];
   socketToInspect: Socket;
+  setSocketToInspect: React.Dispatch<React.SetStateAction<Socket>>;
   randomMainColor: string;
   filter: string;
   setFilter: React.Dispatch<React.SetStateAction<string>>;
@@ -467,6 +468,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
     event: React.MouseEvent<HTMLElement>,
     newFilter: string | null,
   ) => {
+    props.setSocketToInspect(undefined);
     props.setFilter(newFilter);
   };
 

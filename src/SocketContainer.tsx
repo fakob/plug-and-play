@@ -108,7 +108,7 @@ export const SocketContainer: React.FunctionComponent<SocketContainerProps> = (
   );
 };
 
-export const CustomSocketInjection = ({ InjectionContent, props }) => {
+const CustomSocketInjection = ({ InjectionContent, props }) => {
   return <InjectionContent {...props} />;
 };
 
