@@ -506,7 +506,9 @@ export const CodeWidget: React.FunctionComponent<CodeTypeProps> = (props) => {
 
 export const JSONWidget: React.FunctionComponent<JSONTypeProps> = (props) => {
   const [data, setData] = useState(props.property.data);
-  const [displayedString, setDisplayedString] = useState(props.property.data);
+  const [displayedString, setDisplayedString] = useState(
+    convertToString(props.property.data),
+  );
   const [validJSON, setValidJSON] = useState(true);
 
   useInterval(() => {
