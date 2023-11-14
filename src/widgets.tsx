@@ -483,7 +483,7 @@ export const FileBrowserWidget: React.FunctionComponent<FileTypeProps> = (
 };
 
 export const CodeWidget: React.FunctionComponent<CodeTypeProps> = (props) => {
-  const [data, setData] = useState(props.property.data);
+  const [data, setData] = useState(convertToString(props.property.data));
 
   useInterval(() => {
     const formattedData = convertToString(props.property.data);
