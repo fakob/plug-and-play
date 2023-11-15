@@ -193,20 +193,21 @@ export default class InterfaceController {
         this.isTypingInConsole = !this.isTypingInConsole;
       } else if (this.isTypingInConsole) {
         this.consoleBeingTyped += e.key;
-      }
-      switch (e.code) {
-        case 'Digit1':
-          e.preventDefault();
-          this.toggleLeftSideDrawer();
-          break;
-        case 'Digit2':
-          e.preventDefault();
-          this.toggleShowDashboard();
-          break;
-        case 'Digit3':
-          e.preventDefault();
-          this.toggleRightSideDrawer();
-          break;
+      } else {
+        switch (e.code) {
+          case 'Digit1':
+            e.preventDefault();
+            this.toggleLeftSideDrawer();
+            break;
+          case 'Digit2':
+            e.preventDefault();
+            this.toggleShowDashboard();
+            break;
+          case 'Digit3':
+            e.preventDefault();
+            this.toggleRightSideDrawer();
+            break;
+        }
       }
     }
     if (modKey && e.key.toLowerCase() === 's') {

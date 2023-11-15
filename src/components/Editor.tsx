@@ -87,7 +87,7 @@ export const CodeEditor: React.FunctionComponent<CodeEditorProps> = (props) => {
         )}
         <MonacoEditor
           width="100%"
-          height={`clamp(48px, ${editorHeight}px, 60vh)`}
+          height={`clamp(48px, ${editorHeight}px, 100vh)`}
           language="javascript"
           theme="vs-dark"
           value={loadedValue}
