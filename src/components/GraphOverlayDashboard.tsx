@@ -130,7 +130,8 @@ const GraphOverlayDashboard: React.FunctionComponent<
           );
           const node = PPGraph.currentGraph.getNodeById(nodeId);
           if (!node) {
-            return <EmptyDashboardWidget key={item.i} item={item} />;
+            removeFromDashboard(item.i);
+            return;
           }
           const socket = node.getSocketByNameAndType(socketName, socketType);
           return (
@@ -338,32 +339,3 @@ const MyHandle = React.forwardRef<HTMLInputElement, { handleAxis?: string }>(
     );
   },
 );
-
-function EmptyDashboardWidget({ item }) {
-  return (
-    <Box
-      key={item.i}
-      sx={{
-        background: 'red',
-        pointerEvents: 'auto',
-        display: 'flex',
-        justifyContent: 'space-between',
-        p: 1,
-        m: 1,
-      }}
-    >
-      {`${item.i} could not be found!`}
-      <IconButton
-        title="Remove from dashboard"
-        onClick={() => {
-          InterfaceController.onRemoveFromDashboard(item.i);
-        }}
-        sx={{
-          borderRadius: 0,
-        }}
-      >
-        <ClearIcon sx={{ fontSize: '16px' }} />
-      </IconButton>
-    </Box>
-  );
-}
