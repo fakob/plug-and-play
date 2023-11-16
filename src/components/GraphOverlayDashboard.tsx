@@ -318,7 +318,7 @@ const DashboardWidgetHeader: React.FunctionComponent<
           borderRadius: 0,
         }}
       >
-        <ClearIcon sx={{ fontSize: '12px' }} />
+        <ClearIcon sx={{ fontSize: '20px' }} />
       </IconButton>
     </Box>
   );
