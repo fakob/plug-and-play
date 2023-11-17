@@ -21,11 +21,7 @@ import styles from './utils/style.module.css';
 import InterfaceController, { ListenEvent } from './InterfaceController';
 import { getConfigData, writeTextToClipboard } from './utils/utils';
 import { ensureVisible, zoomToFitNodes } from './pixi/utils-pixi';
-import {
-  ERROR_COLOR,
-  ONCLICK_DOUBLECLICK,
-  ONCLICK_TRIPPLECLICK,
-} from './utils/constants';
+import { ONCLICK_DOUBLECLICK, ONCLICK_TRIPPLECLICK } from './utils/constants';
 import { SerializedGraph, TRgba } from './utils/interfaces';
 import { CodeEditor } from './components/Editor';
 import PPGraph from './classes/GraphClass';
@@ -181,7 +177,7 @@ ${props.property
                   )}
                   sx={{
                     fontSize: '16px',
-                    background: ERROR_COLOR.hex(),
+                    background: props.property.status.getColor().hex(),
                     marginRight: '8px',
                     px: 0.5,
                     py: '2px',
@@ -190,6 +186,27 @@ ${props.property
                   }}
                 >
                   Error
+                </Box>
+              )}
+              {props.property.statusConfig.isError() && (
+                <Box
+                  title={JSON.stringify(
+                    props.property.statusConfig.getName(),
+                    Object.getOwnPropertyNames(
+                      props.property.statusConfig.message,
+                    ),
+                  )}
+                  sx={{
+                    fontSize: '16px',
+                    background: props.property.statusConfig.getColor().hex(),
+                    marginRight: '8px',
+                    px: 0.5,
+                    py: '2px',
+                    display: 'inline',
+                    fontWeight: 400,
+                  }}
+                >
+                  Config error
                 </Box>
               )}
               <Box
@@ -449,7 +466,8 @@ export const NodeArrayContainer: React.FunctionComponent<
 
   const customSort = (a: PPNode, b: PPNode) => {
     const order =
-      (+b.status.isError() - +a.status.isError()) * 100 +
+      (+b.status.isError() - +a.status.isError()) * 1000 +
+        (+b.statusConfig.isError() - +a.statusConfig.isError()) * 100 +
         (+(b.type === 'Macro') - +(a.type === 'Macro')) * 10 ||
       a.name.localeCompare(b.name);
     return order;

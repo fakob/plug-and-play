@@ -34,6 +34,8 @@ import { v4 as uuid } from 'uuid';
 import { dynamicImport } from '../utils/dynamicImport';
 import { ONCLICK_DOUBLECLICK } from '../utils/constants';
 
+const longPressDuration = 800;
+
 export default class PPGraph {
   static currentGraph: PPGraph;
   app: PIXI.Application;
@@ -48,6 +50,7 @@ export default class PPGraph {
   overInputRef: null | PPSocket;
   pointerEvent: PIXI.FederatedPointerEvent;
   dragSourcePoint: PIXI.Point;
+  longPressTimer;
 
   backgroundTempContainer: PIXI.Container;
   backgroundCanvas: PIXI.Container;
@@ -77,6 +80,7 @@ export default class PPGraph {
     this._showComments = true;
     this._showExecutionVisualisation = true;
     this.selectedSourceSocket = null;
+    this.longPressTimer;
 
     this.backgroundTempContainer = new PIXI.Container();
     this.backgroundTempContainer.name = 'backgroundTempContainer';
@@ -127,6 +131,11 @@ export default class PPGraph {
       this.onPointerRightClicked.bind(this),
     );
     this.viewport.addEventListener('click', this.onPointerClick.bind(this));
+    this.viewport.addEventListener(
+      'touchstart',
+      this.handleTouchStart.bind(this),
+    );
+    this.viewport.addEventListener('touchend', this.handleTouchEnd.bind(this));
     this.viewport.addEventListener('pointermove', (event) =>
       this.onViewportMove(event),
     );
@@ -174,6 +183,23 @@ export default class PPGraph {
         InterfaceController.openNodeSearch();
       }
     }
+  }
+
+  handleTouchStart(event: PIXI.FederatedPointerEvent): void {
+    console.log('handleTouchStart');
+    this.longPressTimer = setTimeout(() => {
+      // Long press logic goes here
+      console.log('Long press detected');
+      this.onPointerRightClicked(event);
+
+      // Trigger a custom right-click event or your specific logic
+      // ...
+    }, longPressDuration);
+  }
+
+  handleTouchEnd(): void {
+    console.log('handleTouchEnd');
+    clearTimeout(this.longPressTimer);
   }
 
   onPointerDown(event: PIXI.FederatedPointerEvent): void {

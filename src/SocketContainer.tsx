@@ -13,6 +13,7 @@ import styles from './utils/style.module.css';
 import PPNode from './classes/NodeClass';
 import Socket from './classes/SocketClass';
 import { AbstractType, DataTypeProps } from './nodes/datatypes/abstractType';
+import { MissingType } from './nodes/datatypes/missingType';
 import {
   allDataTypes,
   dropDownSelectableTypes,
@@ -137,6 +138,8 @@ const SocketHeader: React.FunctionComponent<SocketHeaderProps> = (props) => {
     dropDownSelectableTypes[props.property.dataType.constructor.name] !==
     undefined;
 
+  const missing = props.property.dataType.constructor === MissingType;
+
   return (
     <Box
       sx={{
@@ -190,11 +193,18 @@ const SocketHeader: React.FunctionComponent<SocketHeaderProps> = (props) => {
             }}
             sx={{
               borderRadius: 0,
+              opacity: missing ? 0 : 1,
             }}
           >
             <DashboardCustomizeIcon sx={{ fontSize: '24px' }} />
           </IconButton>
-          <Box sx={{ pl: 0.5, color: 'text.primary' }}>
+          <Box
+            sx={{
+              pl: 0.5,
+              color: 'text.primary',
+              fontStyle: missing ? 'italic' : 'normal',
+            }}
+          >
             {props.property.name}
           </Box>
           <IconButton

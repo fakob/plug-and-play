@@ -1,3 +1,4 @@
+import { COLOR_WARNING } from '../utils/constants';
 import { TRgba } from '../utils/interfaces';
 
 export abstract class PNPStatus extends Error {
@@ -103,7 +104,7 @@ export class NodeConfigurationError extends PNPError {
   }
 
   public getColor(): TRgba {
-    return TRgba.fromString('#CC66FF'); // Jakob please decide on color (??)
+    return TRgba.fromString(COLOR_WARNING); // Jakob please decide on color (??)
   }
 }
 
