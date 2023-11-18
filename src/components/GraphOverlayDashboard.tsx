@@ -87,7 +87,7 @@ const GraphOverlayDashboard: React.FunctionComponent<
   };
 
   const onLayoutChange = (currLayout) => {
-    if (PPGraph.currentGraph) {
+    if (PPGraph.currentGraph && currLayout.length > 0) {
       PPGraph.currentGraph.layouts.default = currLayout;
       setCurrentLayout(currLayout);
     }
