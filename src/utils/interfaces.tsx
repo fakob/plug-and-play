@@ -6,6 +6,7 @@ import { IUpdateBehaviour } from '../classes/UpdateBehaviourClass';
 import {
   ALIGNOPTIONS,
   COLOR_DARK,
+  COLOR_WARNING,
   COLOR_WHITE,
   SOCKET_TYPE,
   NODE_SOURCE,
@@ -78,6 +79,10 @@ export interface INodeSearch {
   hasInputs: boolean;
   group: string;
   isNew?: boolean;
+}
+
+export interface ILayouts {
+  [key: string]: ILayoutItem[];
 }
 
 export interface ILayoutItem {
@@ -163,7 +168,13 @@ export class TRgba {
       const parsedData = JSON.parse(hexOrOtherString);
       return Object.assign(new TRgba(), parsedData);
     } catch (error) {
-      return TRgba.fromColor(Color(hexOrOtherString));
+      try {
+        return TRgba.fromColor(Color(hexOrOtherString));
+      } catch (errorInner) {
+        console.warn(errorInner);
+        return TRgba.fromString(COLOR_WARNING);
+        // throw new NodeExecutionWarning(errorInner);
+      }
     }
   }
 

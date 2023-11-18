@@ -36,6 +36,7 @@ import {
   TRIGGER_TYPE_OPTIONS,
 } from './utils/constants';
 import {
+  convertToNumber,
   convertToString,
   getFileExtension,
   getLoadedValue,
@@ -91,11 +92,11 @@ function SliderValueLabelComponent(props) {
 export const SliderWidget: React.FunctionComponent<NumberTypeProps> = (
   props,
 ) => {
-  const [data, setData] = useState(Number(props.property.data || 0));
+  const [data, setData] = useState(convertToNumber(props.property.data));
 
   useInterval(() => {
     if (data !== props.property.data) {
-      setData(Number(props.property.data || 0));
+      setData(convertToNumber(props.property.data));
     }
   }, 100);
 
@@ -230,12 +231,14 @@ export const SliderWidget: React.FunctionComponent<NumberTypeProps> = (
 export const SelectWidget: React.FunctionComponent<
   EnumTypeProps | DynamicEnumTypeProps
 > = (props) => {
-  const [data, setData] = useState(props.property.data ?? '');
+  const [data, setData] = useState('');
   const [options, setOptions] = useState(props.options);
 
   useInterval(() => {
     if (data !== props.property.data) {
-      setData(props.property.data);
+      const dataToSet =
+        options[props.property.data] === undefined ? '' : props.property.data;
+      setData(dataToSet);
     }
   }, 100);
 
@@ -382,7 +385,7 @@ export const TextWidget: React.FunctionComponent<StringTypeProps> = (props) => {
 export const FileBrowserWidget: React.FunctionComponent<FileTypeProps> = (
   props,
 ) => {
-  const [filename, setFilename] = useState(props.property.data);
+  const [filename, setFilename] = useState('');
   const [options, setOptions] = useState([]);
   const [filterExtensions, setFilterExtensions] = useState(
     props.dataType.filterExtensions,
@@ -418,7 +421,12 @@ export const FileBrowserWidget: React.FunctionComponent<FileTypeProps> = (
   useInterval(() => {
     if (filename !== props.property.data) {
       setFilterExtensions(props.dataType.filterExtensions);
-      setFilename(convertToString(props.property.data));
+      console.log(options, props.property.data);
+      const dataToSet =
+        options[convertToString(props.property.data)] === undefined
+          ? ''
+          : convertToString(props.property.data);
+      setData(dataToSet);
       onOpen();
     }
   }, 100);
@@ -733,11 +741,11 @@ export const DefaultOutputWidget: React.FunctionComponent<DataTypeProps> = (
 export const NumberOutputWidget: React.FunctionComponent<DataTypeProps> = (
   props,
 ) => {
-  const [data, setData] = useState(Number(props.property.data));
+  const [data, setData] = useState(convertToNumber(props.property.data));
 
   useInterval(() => {
     if (data !== props.property.data) {
-      setData(Number(props.property.data));
+      setData(convertToNumber(props.property.data));
     }
   }, 100);
 

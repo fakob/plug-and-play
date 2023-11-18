@@ -434,7 +434,7 @@ export default class PPNode extends PIXI.Container {
               new Socket(
                 item.socketType,
                 item.name,
-                new MissingType(),
+                deSerializeType(item.dataType), // new MissingType(),
                 item.data,
                 item.visible,
               ),
@@ -998,22 +998,27 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
 
   // Don't call this from outside unless you know very well what you are doing, you are probably looking for executeOptimizedChain()
   public async execute(): Promise<void> {
-    this.setStatus(new PNPSuccess());
     try {
+      this.setStatus(new PNPSuccess());
       if (PPGraph.currentGraph.showExecutionVisualisation) {
         this.renderOutlineThrottled();
       }
       await this.rawExecute();
       this.drawComment();
     } catch (error) {
-      if (error instanceof PNPError) {
-        this.setStatus(error);
-      } else {
-        this.setStatus(new NodeExecutionError(error.stack));
+      try {
+        // setStatus redraws the node and sockets and could potentially throw for example a parsing error again
+        if (error instanceof PNPError) {
+          this.setStatus(error);
+        } else {
+          this.setStatus(new NodeExecutionError(error.stack));
+        }
+        console.log(
+          `Node ${this.name}(${this.id}) execution error:  ${error.stack}`,
+        );
+      } catch (error) {
+        console.warn(error);
       }
-      console.log(
-        `Node ${this.name}(${this.id}) execution error:  ${error.stack}`,
-      );
     }
   }
 

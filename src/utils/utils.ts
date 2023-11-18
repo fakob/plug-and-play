@@ -64,6 +64,24 @@ export function convertToString(value: unknown): string {
   return newValue;
 }
 
+export function convertToNumber(value: unknown): number {
+  if (value == null) {
+    return 0;
+  }
+  if (typeof value === 'object') {
+    try {
+      const primitive = value.valueOf();
+      if (typeof primitive === 'number') {
+        return primitive;
+      }
+      return Number(primitive);
+    } catch (e) {
+      return NaN;
+    }
+  }
+  return Number(value);
+}
+
 export function getElement(value: number | number[], index: number): number {
   let array: number[] = [];
   if (Array.isArray(value)) {

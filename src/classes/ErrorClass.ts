@@ -104,7 +104,7 @@ export class NodeConfigurationError extends PNPError {
   }
 
   public getColor(): TRgba {
-    return TRgba.fromString(COLOR_WARNING); // Jakob please decide on color (??)
+    return TRgba.fromString(COLOR_WARNING);
   }
 }
 
@@ -122,6 +122,6 @@ export class NodeExecutionWarning extends PNPError {
   }
 
   public getColor(): TRgba {
-    return TRgba.black(); // Jakob please decide on color (Orange??)
+    return TRgba.fromString(COLOR_WARNING);
   }
 }

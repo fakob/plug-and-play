@@ -4,7 +4,7 @@ import Color from 'color';
 import { TextStyle } from '@pixi/text';
 import { EnumStructure } from '../nodes/datatypes/enumType';
 import { darkThemeOverride } from './customTheme';
-import { TRgba } from '../utils/interfaces';
+import { ILayouts, TRgba } from '../utils/interfaces';
 
 export const PP_VERSION = 0.1;
 
@@ -467,6 +467,6 @@ export const BASIC_VERTEX_SHADER = `
 export const PXSHOW_SQL_QUERY = `SELECT json_extract(state,'$.State') as State FROM states
 WHERE service IS 'Store'`;
 
-export const LAYOUTS_EMPTY = {
+export const LAYOUTS_EMPTY: ILayouts = {
   default: [],
 };

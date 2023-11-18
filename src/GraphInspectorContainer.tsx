@@ -58,7 +58,6 @@ const GraphInspectorContainer: React.FunctionComponent<
       PPStorage.getInstance()
         .getGraphNameFromDB(graphId)
         .then((name) => {
-          console.log(name);
           setGraphName(name);
         });
     }

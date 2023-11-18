@@ -85,23 +85,27 @@ export class ActionHandler {
     if (ActionHandler.lastIdentifier) {
       //console.log('setting new debounce point');
 
-      // deep copy data so that it doesnt get replaced
-      const newData = JSON.parse(JSON.stringify(this.lastValueSet));
-      const prevData = JSON.parse(JSON.stringify(this.valueBeforeDebounce));
-      const currIndex = this.addIndex;
-      this.valueBeforeDebounce = undefined;
-      if (newData !== prevData) {
-        this.undoActionSavedData[currIndex] = this.lastApplyFunction;
-        ActionHandler.performAction(
-          async () => {
-            this.undoActionSavedData[currIndex](newData);
-          },
-          async () => {
-            this.undoActionSavedData[currIndex](prevData);
-          },
-          'Set Value',
-          false,
-        );
+      try {
+        // deep copy data so that it doesnt get replaced
+        const newData = JSON.parse(JSON.stringify(this.lastValueSet));
+        const prevData = JSON.parse(JSON.stringify(this.valueBeforeDebounce));
+        const currIndex = this.addIndex;
+        this.valueBeforeDebounce = undefined;
+        if (newData !== prevData) {
+          this.undoActionSavedData[currIndex] = this.lastApplyFunction;
+          ActionHandler.performAction(
+            async () => {
+              this.undoActionSavedData[currIndex](newData);
+            },
+            async () => {
+              this.undoActionSavedData[currIndex](prevData);
+            },
+            'Set Value',
+            false,
+          );
+        }
+      } catch (error) {
+        console.warn(error);
       }
     }
   }, SET_VALUE_DEBOUNCE_TIME);
