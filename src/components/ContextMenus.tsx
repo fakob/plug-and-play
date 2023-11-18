@@ -736,37 +736,33 @@ export const SocketContextMenu = (props) => {
         </MenuItem>
         <Divider />
         {selectedSocket.hasLink() && (
-          <>
-            <MenuItem
-              onClick={() => {
-                selectedSocket.links.forEach((link) =>
-                  PPGraph.currentGraph.action_Disconnect(link),
-                );
-              }}
-            >
-              <ListItemIcon>
-                <DeleteIcon fontSize="small" />
-              </ListItemIcon>
-              <ListItemText>Remove connection</ListItemText>
-            </MenuItem>
-            <Divider />
-          </>
+          <MenuItem
+            onClick={() => {
+              selectedSocket.links.forEach((link) =>
+                PPGraph.currentGraph.action_Disconnect(link),
+              );
+            }}
+          >
+            <ListItemIcon>
+              <DeleteIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Remove connection</ListItemText>
+          </MenuItem>
         )}
+        {selectedSocket.hasLink() && <Divider />}
         {constructRecommendedNodeOptions(selectedSocket)}
+        {isDeletable && <Divider />}
         {isDeletable && (
-          <>
-            <Divider />
-            <MenuItem
-              onClick={() => {
-                node.removeSocket(selectedSocket);
-              }}
-            >
-              <ListItemIcon>
-                <DeleteIcon fontSize="small" />
-              </ListItemIcon>
-              <ListItemText>Delete Socket</ListItemText>
-            </MenuItem>
-          </>
+          <MenuItem
+            onClick={() => {
+              node.removeSocket(selectedSocket);
+            }}
+          >
+            <ListItemIcon>
+              <DeleteIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Delete Socket</ListItemText>
+          </MenuItem>
         )}
       </MenuList>
     </Paper>
