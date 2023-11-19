@@ -128,17 +128,9 @@ export class CodeEditor extends HybridNode2 {
       parseData(props[inputSocketName]),
     );
 
-    const [readOnly, setReadOnly] = useState<boolean>(
-      node.getInputSocketByName(inputSocketName).hasLink(),
-    );
-
     useEffect(() => {
       loadData();
     }, [props[inputSocketName], props[inputSocketName]?.length]);
-
-    useEffect(() => {
-      setReadOnly(node.getInputSocketByName(inputSocketName).hasLink());
-    }, [node.getInputSocketByName(inputSocketName).hasLink()]);
 
     return (
       <ErrorBoundary FallbackComponent={ErrorFallback}>
@@ -153,7 +145,7 @@ export class CodeEditor extends HybridNode2 {
               options={{
                 automaticLayout: true,
                 lineNumbersMinChars: 4,
-                readOnly: readOnly,
+                readOnly: false,
                 selectOnLineNumbers: true,
                 tabSize: 2,
                 wordWrap: 'on',
