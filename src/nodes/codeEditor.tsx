@@ -57,10 +57,10 @@ export class CodeEditor extends HybridNode2 {
   }
 
   public onNodeAdded = async (): Promise<void> => {
+    await super.onNodeAdded();
     if (this.initialData) {
       this.setInputData(inputSocketName, this.initialData);
     }
-    super.onNodeAdded();
   };
 
   protected onHybridNodeExit(): void {
@@ -129,7 +129,7 @@ export class CodeEditor extends HybridNode2 {
     );
 
     const [readOnly, setReadOnly] = useState<boolean>(
-      node.getInputSocketByName(inputSocketName).hasLink(),
+      node.hasBeenAdded && node.getInputSocketByName(inputSocketName).hasLink(),
     );
 
     useEffect(() => {

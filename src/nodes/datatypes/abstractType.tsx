@@ -82,6 +82,7 @@ export class AbstractType {
   }
 
   parse(data: any): any {
+    //console.log("abstract parse");
     return data;
   }
 

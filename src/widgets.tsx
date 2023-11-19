@@ -505,7 +505,6 @@ export const CodeWidget: React.FunctionComponent<CodeTypeProps> = (props) => {
 };
 
 export const JSONWidget: React.FunctionComponent<JSONTypeProps> = (props) => {
-  const [data, setData] = useState(props.property.data);
   const [displayedString, setDisplayedString] = useState(
     convertToString(props.property.data),
   );
@@ -513,8 +512,8 @@ export const JSONWidget: React.FunctionComponent<JSONTypeProps> = (props) => {
 
   useInterval(() => {
     const formattedData = convertToString(props.property.data);
-    if (data !== formattedData) {
-      setData(formattedData);
+    if (displayedString !== formattedData) {
+      setDisplayedString(formattedData);
     }
   }, 100);
 
@@ -529,7 +528,6 @@ export const JSONWidget: React.FunctionComponent<JSONTypeProps> = (props) => {
             setDisplayedString(value);
             const parsedJSON = parseJSON(value);
             if (parsedJSON) {
-              setData(parsedJSON as any);
               potentiallyUpdateSocketData(props.property, parsedJSON);
               setValidJSON(true);
             } else {

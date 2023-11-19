@@ -31,20 +31,6 @@ export class Label extends PPNode {
   HTMLTextComponent: HTMLDivElement;
   initialData: any;
 
-  constructor(name: string, customArgs?: CustomArgs) {
-    super(name, {
-      ...customArgs,
-    });
-
-    this.initialData = customArgs?.initialData;
-
-    this.PIXITextStyle = new PIXI.TextStyle();
-    this.PIXITextStyle.breakWords = true;
-    const basicText = new PIXI.Text(labelDefaultText, this.PIXITextStyle);
-    this.PIXIText = this._ForegroundRef.addChild(basicText);
-    this.PIXIVisible();
-  }
-
   public getName(): string {
     return 'Label';
   }
@@ -117,12 +103,19 @@ export class Label extends PPNode {
     );
   }
 
-  public onNodeAdded = (source?: TNodeSource) => {
+  public async onNodeAdded(source?: TNodeSource): Promise<void> {
+    await super.onNodeAdded(source);
     if (source === NODE_SOURCE.NEW) {
       this.HTMLVisible();
     }
-    super.onNodeAdded(source);
-  };
+    this.initialData = this.customArgsSentFromConstructor?.initialData;
+
+    this.PIXITextStyle = new PIXI.TextStyle();
+    this.PIXITextStyle.breakWords = true;
+    const basicText = new PIXI.Text(labelDefaultText, this.PIXITextStyle);
+    this.PIXIText = this._ForegroundRef.addChild(basicText);
+    this.PIXIVisible();
+  }
 
   public executeOnPlace(): boolean {
     return true;

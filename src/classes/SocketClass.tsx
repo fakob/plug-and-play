@@ -222,6 +222,9 @@ export default class Socket extends PIXI.Container implements Tooltipable {
 
   // for inputs: set data is called only on the socket where the change is being made
   set data(newData: any) {
+    console.log(
+      'setting data on socket: ' + this.name + ', ' + this.getNode()?.name,
+    );
     this._data = newData;
     this.redrawMetaText();
     this.redrawValueSpecificGraphics();

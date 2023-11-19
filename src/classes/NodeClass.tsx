@@ -91,6 +91,9 @@ export default class PPNode extends PIXI.Container {
   protected statuses: NodeStatus[] = []; // you can add statuses into this and they will be rendered on the node
   listenId: string[] = [];
 
+  customArgsSentFromConstructor : any = undefined;
+  hasBeenAdded = false;
+
   // supported callbacks
   onNodeDoubleClick: (event: PIXI.FederatedPointerEvent) => void = () => {};
   onViewportMoveHandler: (event?: PIXI.FederatedPointerEvent) => void =
@@ -104,57 +107,19 @@ export default class PPNode extends PIXI.Container {
     () => {};
 
   // called when the node is added to the graph
-  public onNodeAdded(source: TNodeSource = NODE_SOURCE.SERIALIZED): void {
-    if (this.executeOnPlace()) {
-      this.executeOptimizedChain();
-    }
-    this.resizeAndDraw();
-  }
-
-  public getMinNodeWidth(): number {
-    return NODE_WIDTH;
-  }
-
-  public getMinNodeHeight(): number {
-    const minHeight =
-      this.headerHeight +
-      this.countOfVisibleNodeTriggerSockets * SOCKET_HEIGHT +
-      this.countOfVisibleInputSockets * SOCKET_HEIGHT +
-      this.countOfVisibleOutputSockets * SOCKET_HEIGHT +
-      NODE_PADDING_BOTTOM;
-    return minHeight;
-  }
-
-  protected getAllInitialSockets(): Socket[] {
-    return this.getDefaultIO().concat([
-      new Socket(SOCKET_TYPE.IN, 'Meta', new JSONType(), {}, false),
-    ]);
-  }
-
-  public getNodeTextString(): string {
-    if (
-      this.name !== this.type &&
-      this.getName() !== this.name &&
-      this.name.length > 0
-    ) {
-      return this.name + '\t(' + this.getName() + ')';
-    }
-    return this.getName();
-  }
-
-  constructor(type: string, customArgs?: CustomArgs) {
-    super();
-    this.id = customArgs?.overrideId || hri.random();
+  public async onNodeAdded(source: TNodeSource = NODE_SOURCE.SERIALIZED): Promise<void> {
+    //console.log("constructor called for : " + type);
+    console.log("onNodeAdded called for: " +  this.type);
+    this.id = this.customArgsSentFromConstructor?.overrideId || hri.random();
     this.name = this.getName();
-    this.type = type;
     this.nodeTriggerSocketArray = [];
     this.inputSocketArray = [];
     this.outputSocketArray = [];
     this.clickedSocketRef = null;
 
     // customArgs
-    this.x = customArgs?.nodePosX ?? 0;
-    this.y = customArgs?.nodePosY ?? 0;
+    this.x = this.customArgsSentFromConstructor?.nodePosX ?? 0;
+    this.y = this.customArgsSentFromConstructor?.nodePosY ?? 0;
     this.nodeWidth = this.getDefaultNodeWidth();
     this.nodeHeight = this.getDefaultNodeHeight(); // if not set height is defined by in/out sockets
     this._isHovering = false;
@@ -203,20 +168,65 @@ export default class PPNode extends PIXI.Container {
     this._ForegroundRef.name = 'foreground';
 
     // add static inputs and outputs
-    this.getAllInitialSockets().forEach((IO) => {
-      // add in default data if supplied
-      const newDefault = customArgs?.defaultArguments?.[IO.name];
-      if (newDefault) {
-        IO.data = newDefault;
-      }
-      this.addSocket(IO);
-    });
 
     this.eventMode = 'dynamic';
     this.isDraggingNode = false;
     this._doubleClicked = false;
 
     this._addListeners();
+
+    this.resizeAndDraw();
+    this.hasBeenAdded = true;
+    if (this.executeOnPlace()) {
+      await this.executeOptimizedChain();
+    }
+  }
+
+  public getMinNodeWidth(): number {
+    return NODE_WIDTH;
+  }
+
+  public getMinNodeHeight(): number {
+    const minHeight =
+      this.headerHeight +
+      this.countOfVisibleNodeTriggerSockets * SOCKET_HEIGHT +
+      this.countOfVisibleInputSockets * SOCKET_HEIGHT +
+      this.countOfVisibleOutputSockets * SOCKET_HEIGHT +
+      NODE_PADDING_BOTTOM;
+    return minHeight;
+  }
+
+  protected getAllInitialSockets(): Socket[] {
+    return this.getDefaultIO().concat([
+      new Socket(SOCKET_TYPE.IN, 'Meta', new JSONType(), {}, false),
+    ]);
+  }
+
+  public getNodeTextString(): string {
+    if (
+      this.name !== this.type &&
+      this.getName() !== this.name &&
+      this.name.length > 0
+    ) {
+      return this.name + '\t(' + this.getName() + ')';
+    }
+    return this.getName();
+  }
+
+  constructor(type: string, customArgs?: CustomArgs) {
+    super();
+    this.type = type;
+    this.customArgsSentFromConstructor = customArgs;
+
+    this.getAllInitialSockets().forEach((IO) => {
+      // add in default data if supplied
+      const newDefault = this.customArgsSentFromConstructor?.defaultArguments?.[IO.name];
+      if (newDefault) {
+        IO.data = newDefault;
+      }
+      this.addSocket(IO);
+    });
+
   }
 
   // GETTERS & SETTERS
@@ -266,8 +276,11 @@ export default class PPNode extends PIXI.Container {
 
   set nodeName(text: string) {
     this.name = text;
-    this._NodeNameRef.text = this.getNodeTextString();
     this.nameChanged(text);
+    // this is a little bit hacky, but we set name in configure, this is to allow the "move everything out of constructor" refactor
+    if (this._NodeNameRef){
+      this._NodeNameRef.text = this.getNodeTextString();
+    }
   }
 
   getSourceCode(): string {
@@ -275,18 +288,20 @@ export default class PPNode extends PIXI.Container {
   }
 
   addSocket(socket: Socket): void {
-    const socketRef = this._BackgroundRef.addChild(socket);
+    if (this.hasBeenAdded){
+      this._BackgroundRef.addChild(socket);
+    }
     switch (socket.socketType) {
       case SOCKET_TYPE.TRIGGER: {
-        this.nodeTriggerSocketArray.push(socketRef);
+        this.nodeTriggerSocketArray.push(socket);
         break;
       }
       case SOCKET_TYPE.IN: {
-        this.inputSocketArray.push(socketRef);
+        this.inputSocketArray.push(socket);
         break;
       }
       case SOCKET_TYPE.OUT: {
-        this.outputSocketArray.push(socketRef);
+        this.outputSocketArray.push(socket);
         break;
       }
     }
@@ -740,6 +755,9 @@ export default class PPNode extends PIXI.Container {
   }
 
   public drawNodeShape(): void {
+    if (!this.hasBeenAdded){
+      return;
+    }
     // update selection
 
     this._BackgroundGraphicsRef.clear();
