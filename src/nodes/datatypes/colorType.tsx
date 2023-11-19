@@ -1,6 +1,7 @@
 import React from 'react';
 import * as PIXI from 'pixi.js';
-import { TRgba } from '../../utils/interfaces';
+import { TParseType, TRgba } from '../../utils/interfaces';
+import { COLOR_WARNING } from '../../utils/constants';
 import { ColorWidget } from '../../widgets';
 import { AbstractType, DataTypeProps } from './abstractType';
 
@@ -28,13 +29,30 @@ export class ColorType extends AbstractType {
     return TRgba.randomColor(); //TRgba.fromString('#ff3700');
   }
 
-  parse(data: any): any {
+  parse(data: any): TParseType {
+    let parsedData;
+    let warning: string;
+    const warn = 'Not a color. Default color is returned';
+
     if (typeof data === 'string') {
-      return TRgba.fromString(data);
+      try {
+        parsedData = TRgba.fromString(data);
+      } catch (error) {
+        warning = warn;
+        parsedData = TRgba.fromString(COLOR_WARNING);
+      }
     } else {
-      const color = Object.assign(new TRgba(), data);
-      return color;
+      parsedData = Object.assign(new TRgba(), data);
+      if (!TRgba.isTRgba(parsedData)) {
+        warning = warn;
+        parsedData = TRgba.fromString(COLOR_WARNING);
+      }
     }
+
+    return {
+      value: parsedData as TRgba,
+      warning: warning,
+    };
   }
 
   getInputWidget = (props: ColorTypeProps): any => {

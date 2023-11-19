@@ -1,6 +1,6 @@
 import React from 'react';
 import { ArrayWidget } from '../../widgets';
-import { TRgba } from '../../utils/interfaces';
+import { TParseType, TRgba } from '../../utils/interfaces';
 import { AbstractType, DataTypeProps } from './abstractType';
 
 export interface ArrayTypeProps extends DataTypeProps {
@@ -43,15 +43,33 @@ export class ArrayType extends AbstractType {
     );
   }
 
-  parse(data: any): any {
-    if (typeof data === 'string') {
+  parse(data: any): TParseType {
+    let parsedData;
+    let warning: string;
+    const warn = 'Not an array. [] is returned';
+
+    if (Array.isArray(data)) {
+      parsedData = data;
+    } else if (typeof data === 'string') {
       try {
-        return JSON.parse(data);
+        parsedData = JSON.parse(data);
+        if (!Array.isArray(parsedData)) {
+          warning = warn;
+          parsedData = [];
+        }
       } catch (error) {
-        return data;
+        warning = warn;
+        parsedData = [];
       }
+    } else {
+      warning = warn;
+      parsedData = [];
     }
-    return data;
+
+    return {
+      value: parsedData,
+      warning: warning,
+    };
   }
 
   recommendedOutputNodeWidgets(): string[] {

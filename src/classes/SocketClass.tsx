@@ -14,7 +14,6 @@ import PPLink from './LinkClass';
 import { Tooltipable } from '../components/Tooltip';
 import InterfaceController, { ListenEvent } from '../InterfaceController';
 import {
-  SOCKET_CORNERRADIUS,
   SOCKET_TEXTMARGIN_TOP,
   SOCKET_TEXTMARGIN,
   SOCKET_TEXTSTYLE,
@@ -219,7 +218,9 @@ export default class Socket extends PIXI.Container implements Tooltipable {
   get data(): any {
     const dataToReturn = this._data;
     // allow the type to potentially sanitize the data before passing it on
-    return this.dataType.parse(dataToReturn);
+    const { value, warning } = this.dataType.parse(dataToReturn);
+    warning && console.warn(this.getSocketId(), warning);
+    return value;
   }
 
   // for inputs: set data is called only on the socket where the change is being made
@@ -343,7 +344,7 @@ export default class Socket extends PIXI.Container implements Tooltipable {
   }
 
   getSocketId(): TSocketId {
-    return `${this.getNode().id}-${this.socketType}-${this.name}`;
+    return `${this.getNode()?.id}-${this.socketType}-${this.name}`;
   }
 
   public getPreferredNodes(): string[] {

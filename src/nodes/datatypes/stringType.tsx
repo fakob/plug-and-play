@@ -1,5 +1,5 @@
 import React from 'react';
-import { TRgba } from '../../utils/interfaces';
+import { TParseType, TRgba } from '../../utils/interfaces';
 import { TextWidget } from '../../widgets';
 import { AbstractType, DataTypeProps } from './abstractType';
 
@@ -43,11 +43,8 @@ export class StringType extends AbstractType {
     return new TRgba(148, 250, 148);
   }
 
-  parse(data: any): any {
-    if (typeof data == 'object' || Array.isArray(data)) {
-      return JSON.stringify(data);
-    }
-    return data;
+  parse(data: any): TParseType {
+    return parseString(data);
   }
 
   recommendedOutputNodeWidgets(): string[] {
@@ -58,3 +55,28 @@ export class StringType extends AbstractType {
     return ['Label', 'Constant', 'TextEditor'];
   }
 }
+
+export const parseString = (data: any): TParseType => {
+  let parsedData;
+  let warning: string;
+  const warn = 'Not a file type. Empty string is returned';
+
+  if (data === null || data === undefined) {
+    warning = warn;
+    parsedData = [];
+  } else if (typeof data == 'object' || Array.isArray(data)) {
+    try {
+      parsedData = JSON.stringify(data);
+    } catch (error) {
+      warning = warn;
+      parsedData = [];
+    }
+  } else {
+    parsedData = String(data);
+  }
+
+  return {
+    value: parsedData,
+    warning: warning,
+  };
+};

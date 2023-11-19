@@ -165,9 +165,10 @@ export class GRAPH_LINE extends DRAW_Base {
     const scaleX = inputObject[inputWidthName] / Math.max(1, points.length - 1);
 
     const graphics: PIXI.Graphics = new PIXI.Graphics();
-    const selectedColor: TRgba = new ColorType().parse(
+    const { value: selectedColor, warning } = new ColorType().parse(
       inputObject[inputColorName],
     );
+    warning && console.warn(warning);
     graphics.alpha = selectedColor.a;
 
     const fontSize = inputObject[inputShowValuesFontSize];

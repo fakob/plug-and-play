@@ -1,6 +1,6 @@
 import React from 'react';
 import * as PIXI from 'pixi.js';
-import { TRgba } from '../../utils/interfaces';
+import { TParseType, TRgba } from '../../utils/interfaces';
 import { BooleanWidget } from '../../widgets';
 import { AbstractType, DataTypeProps } from './abstractType';
 
@@ -16,8 +16,8 @@ export class BooleanType extends AbstractType {
   getDefaultValue(): any {
     return false;
   }
-  parse(data: any): any {
-    return data ? true : false;
+  parse(data: any): TParseType {
+    return { value: data ? true : false };
   }
 
   getInputWidget = (props: BooleanTypeProps): any => {

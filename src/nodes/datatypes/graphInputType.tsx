@@ -1,4 +1,4 @@
-import { TRgba } from '../../utils/interfaces';
+import { TParseType, TRgba } from '../../utils/interfaces';
 import { ArrayType } from './arrayType';
 
 // this one forces data to arrive in the form of an array of objects with specific properties
@@ -72,7 +72,10 @@ export class GraphInputType extends ArrayType {
     return { Value: valueToUse, Name: nameToUse, Color: colorToUse };
   }
 
-  parse(data: any): any {
+  parse(data: any): TParseType {
+    let parsedData;
+    let warning: string;
+
     // lets hope its an array, if not then we will have to turn something into an array
     let dataArray: GraphInputPoint[] = data;
     if (typeof data === 'object') {
@@ -133,10 +136,16 @@ export class GraphInputType extends ArrayType {
       const parsedArray: GraphInputPoint[] = dataArray
         .map(GraphInputType.parseEntryIntoGraphInputPoint)
         .filter((entry) => !Number.isNaN(entry.Value));
-      return parsedArray;
+      parsedData = parsedArray;
     } else {
-      return [];
+      warning = 'No data could be graph input data found. [] is returned';
+      parsedData = [];
     }
+
+    return {
+      value: parsedData,
+      warning: warning,
+    };
   }
 
   recommendedInputNodeWidgets(): string[] {

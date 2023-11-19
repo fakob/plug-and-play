@@ -181,9 +181,12 @@ export class ParseArray extends PPNode {
     outputObject: Record<string, unknown>,
   ): Promise<void> {
     const inputArray = inputObject[arrayName];
-    outputObject[arrayOutName] = inputArray.map((element) =>
-      this.getSocketByName(typeName).dataType.parse(element),
-    );
+    outputObject[arrayOutName] = inputArray.map((element) => {
+      const { value, warning } =
+        this.getSocketByName(typeName).dataType.parse(element);
+      warning && console.warn(warning);
+      return value;
+    });
   }
 }
 

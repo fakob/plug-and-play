@@ -4,8 +4,12 @@ import React from 'react';
 import { inspect } from 'util';
 import Socket from '../../classes/SocketClass';
 import { DefaultOutputWidget, CodeWidget } from '../../widgets';
-import { TRgba } from '../../utils/interfaces';
-import { SOCKET_COLOR_HEX, SOCKET_CORNERRADIUS, SOCKET_WIDTH } from '../../utils/constants';
+import { TParseType, TRgba } from '../../utils/interfaces';
+import {
+  SOCKET_COLOR_HEX,
+  SOCKET_CORNERRADIUS,
+  SOCKET_WIDTH,
+} from '../../utils/constants';
 import * as PIXI from 'pixi.js';
 
 const widgetSize = {
@@ -26,9 +30,7 @@ export interface DataTypeProps {
 }
 
 export class AbstractType {
-  drawValueSpecificGraphics(graphics: PIXI.Graphics, data: any) {
-
-  }
+  drawValueSpecificGraphics(graphics: PIXI.Graphics, data: any) {}
   onDataSet(data: any, socket: Socket) {}
 
   // override any and all of these in child classes
@@ -81,8 +83,8 @@ export class AbstractType {
     return TRgba.fromString(SOCKET_COLOR_HEX);
   }
 
-  parse(data: any): any {
-    return data;
+  parse(data: any): TParseType {
+    return { value: data };
   }
 
   // these nodes need to cater for initialData to be a socket
@@ -110,10 +112,7 @@ export class AbstractType {
     return true;
   }
 
-  protected drawSocket(
-    graphics: PIXI.Graphics,
-    data: any
-  ) {
+  protected drawSocket(graphics: PIXI.Graphics, data: any) {
     graphics.drawRoundedRect(
       0,
       0,
@@ -123,11 +122,12 @@ export class AbstractType {
     );
   }
 
-  public drawBox(socketRef: PIXI.Graphics,
+  public drawBox(
+    socketRef: PIXI.Graphics,
     selectionBox: PIXI.Graphics,
     location: PIXI.Point,
-    data: any)
-    {
+    data: any,
+  ) {
     socketRef.beginFill(this.getColor().hexNumber());
     socketRef.x = location.x;
     socketRef.y = location.y;
@@ -145,5 +145,5 @@ export class AbstractType {
     socketRef.endFill();
     socketRef.name = 'SocketRef';
     socketRef.eventMode = 'static';
-    }
+  }
 }

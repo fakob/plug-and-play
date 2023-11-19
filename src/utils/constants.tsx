@@ -69,6 +69,7 @@ export const COLOR_DARK = '#0C0C0C';
 export const DARK_HEX = 0x0c0c0c;
 export const COLOR_WHITE_TEXT = '#F4FAF9';
 export const COLOR_ERROR = '#FF0000';
+export const COLOR_WARNING = '#FF8A00';
 
 export const RANDOMMAINCOLOR = COLOR[Math.floor(Math.random() * COLOR.length)];
 

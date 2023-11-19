@@ -3,7 +3,7 @@ import React from 'react';
 import { JSONWidget } from '../../widgets';
 import { AbstractType, DataTypeProps } from './abstractType';
 import { convertToString } from '../../utils/utils';
-import { TRgba } from '../../utils/interfaces';
+import { TParseType, TRgba } from '../../utils/interfaces';
 
 export interface JSONTypeProps extends DataTypeProps {
   dataType: JSONType;
@@ -52,18 +52,28 @@ export class JSONType extends AbstractType {
     return 'null';
   }
 
-  parse(data: any): any {
+  parse(data: any): TParseType {
+    let parsedData;
+    let warning: string;
+
     if (typeof data === 'string') {
       try {
-        return JSON.parse(data);
+        parsedData = JSON.parse(data);
       } catch (error) {
-        // console.log('failed parsing data: ' + data);
         if (this.strictParsing) {
-          return { InvalidJSON: data };
+          warning = 'Not a JSON. {} is returned';
+          parsedData = {};
         }
       }
+    } else {
+      warning = 'Not a JSON string. Data is returned';
+      parsedData = data;
     }
-    return data;
+
+    return {
+      value: parsedData,
+      warning: warning,
+    };
   }
 
   recommendedOutputNodeWidgets(): string[] {

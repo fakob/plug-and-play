@@ -390,11 +390,11 @@ export class WidgetRadio extends WidgetBase {
   public async outputPlugged(): Promise<void> {
     const target =
       this.getSocketByName(selectedOptionName).links[0].getTarget();
-    const data = new ArrayType().parse(target.defaultData);
+    const { value: data, warning } = new ArrayType().parse(target.defaultData);
+    warning && console.warn(warning);
     if (
-      Array.isArray(data) &&
       JSON.stringify(radioDefaultValue) ===
-        JSON.stringify(this.getInputData(optionsName))
+      JSON.stringify(this.getInputData(optionsName))
     ) {
       this.setInputData(optionsName, data);
       this.executeOptimizedChain();
@@ -444,9 +444,9 @@ export class WidgetColorPicker extends WidgetHybridBase {
 
   public async outputPlugged(): Promise<void> {
     const target = this.getSocketByName(outName).links[0].getTarget();
-    const data: TRgba = new ColorType().parse(target.defaultData);
+    const { value: data, warning } = new ColorType().parse(target.defaultData);
+    warning && console.warn(warning);
     if (
-      TRgba.isTRgba(data) &&
       pickerDefaultName === this.getInputData(labelName) &&
       RANDOMMAINCOLOR === this.getInputData(initialValueName).hex()
     ) {
@@ -986,11 +986,11 @@ export class WidgetDropdown extends WidgetHybridBase {
 
   public async outputPlugged(): Promise<void> {
     const target = this.getSocketByName(outName).links[0].getTarget();
-    const data = new ArrayType().parse(target.defaultData);
+    const { value: data, warning } = new ArrayType().parse(target.defaultData);
+    warning && console.warn(warning);
     if (
-      Array.isArray(data) &&
       JSON.stringify(defaultOptions) ===
-        JSON.stringify(this.getInputData(optionsName))
+      JSON.stringify(this.getInputData(optionsName))
     ) {
       this.setInputData(optionsName, data);
       this.setInputData(labelName, target.name);

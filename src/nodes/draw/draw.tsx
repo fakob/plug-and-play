@@ -176,9 +176,10 @@ export class DRAW_Shape extends DRAW_Base {
     const height = inputObject[inputHeightName];
     if (Number.isFinite(width) && Number.isFinite(height)) {
       const graphics: PIXI.Graphics = new PIXI.Graphics();
-      const selectedColor: TRgba = new ColorType().parse(
+      const { value: selectedColor, warning } = new ColorType().parse(
         inputObject[inputColorName],
       );
+      warning && console.warn(warning);
       const drawBorder = inputObject[inputBorderName];
       graphics.beginFill(selectedColor.hexNumber());
       graphics.alpha = selectedColor.a;
@@ -309,9 +310,11 @@ export class DRAW_Text extends DRAW_Base {
       lineJoin: 'round',
     });
     const basicText = new PIXI.Text(inputObject[inputTextName], textStyle);
-    basicText.style.fill = new ColorType()
-      .parse(inputObject[inputColorName])
-      .hex();
+    const { value: selectedColor, warning } = new ColorType().parse(
+      inputObject[inputColorName],
+    );
+    warning && console.warn(warning);
+    basicText.style.fill = selectedColor.hex();
 
     this.positionAndScale(basicText, inputObject);
     container.addChild(basicText);
@@ -680,9 +683,10 @@ export class DRAW_Line extends DRAW_Base {
       ],
     };
     const graphics: PIXI.Graphics = new PIXI.Graphics();
-    const selectedColor: TRgba = new ColorType().parse(
+    const { value: selectedColor, warning } = new ColorType().parse(
       inputObject[inputColorName],
     );
+    warning && console.warn(warning);
     graphics.endFill();
     graphics.lineStyle(inputObject[inputWidthName], selectedColor.hexNumber());
     const points: number[][] = inputObject[inputPointsName];
@@ -747,9 +751,10 @@ export class DRAW_Polygon extends DRAW_Base {
       ],
     };
     const graphics: PIXI.Graphics = new PIXI.Graphics();
-    const selectedColor: TRgba = new ColorType().parse(
+    const { value: selectedColor, warning } = new ColorType().parse(
       inputObject[inputColorName],
     );
+    warning && console.warn(warning);
     graphics.beginFill(selectedColor.hexNumber());
     graphics.alpha = selectedColor.a;
 

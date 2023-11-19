@@ -119,6 +119,11 @@ export type TSocketId =
 
 export type TSocketType = (typeof SOCKET_TYPE)[keyof typeof SOCKET_TYPE];
 
+export type TParseType = {
+  value: any;
+  warning?: string;
+};
+
 export type SerializedSocket = {
   socketType: TSocketType;
   name: string;

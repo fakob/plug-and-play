@@ -1,7 +1,8 @@
 import React from 'react';
-import { TRgba } from '../../utils/interfaces';
+import { TParseType, TRgba } from '../../utils/interfaces';
 import { FileBrowserWidget } from '../../widgets';
 import { AbstractType, DataTypeProps } from './abstractType';
+import { parseString } from './stringType';
 
 export interface FileTypeProps extends DataTypeProps {
   dataType: FileType;
@@ -31,11 +32,8 @@ export class FileType extends AbstractType {
     return new TRgba(148, 0, 148);
   }
 
-  parse(data: any): any {
-    if (typeof data == 'object' || Array.isArray(data)) {
-      return JSON.stringify(data);
-    }
-    return data;
+  parse(data: any): TParseType {
+    return parseString(data);
   }
 
   allowedAsOutput(): boolean {
