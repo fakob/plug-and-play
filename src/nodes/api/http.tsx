@@ -58,7 +58,7 @@ export class HTTPNode extends PPNode {
   }
 
   public socketShouldAutomaticallyAdapt(socket: Socket): boolean {
-    return socket.isInput() === false;
+    return !socket.isInput()
   }
 
   protected getDefaultIO(): Socket[] {
