@@ -114,7 +114,6 @@ export const SliderWidget: React.FunctionComponent<NumberTypeProps> = (
         size="small"
         color="secondary"
         valueLabelDisplay="auto"
-        disabled={props.hasLink}
         key={`${props.property.name}-${props.index}`}
         min={minValue}
         max={maxValue}
@@ -148,7 +147,6 @@ export const SliderWidget: React.FunctionComponent<NumberTypeProps> = (
           size="small"
           selected={round}
           color="secondary"
-          disabled={props.hasLink}
           onChange={() => {
             setRound((value) => {
               // have to add this in here as there is an issue with getting the value from the event
@@ -169,7 +167,6 @@ export const SliderWidget: React.FunctionComponent<NumberTypeProps> = (
           sx={{
             flexGrow: 1,
           }}
-          disabled={props.hasLink}
           inputProps={{
             type: 'number',
             inputMode: 'numeric',
@@ -190,7 +187,6 @@ export const SliderWidget: React.FunctionComponent<NumberTypeProps> = (
           sx={{
             width: '104px',
           }}
-          disabled={props.hasLink}
           inputProps={{
             type: 'number',
             inputMode: 'numeric',
@@ -209,7 +205,6 @@ export const SliderWidget: React.FunctionComponent<NumberTypeProps> = (
           sx={{
             width: '104px',
           }}
-          disabled={props.hasLink}
           inputProps={{
             type: 'number',
             inputMode: 'numeric',
@@ -270,7 +265,6 @@ export const SelectWidget: React.FunctionComponent<
         value={data}
         onOpen={onOpen}
         onChange={onChange}
-        disabled={props.hasLink}
         MenuProps={{
           style: { zIndex: 1500 },
         }}
@@ -319,7 +313,7 @@ export const BooleanWidget: React.FunctionComponent<BooleanTypeProps> = (
           <Switch
             checked={data}
             onChange={onChange}
-            disabled={props.hasLink || !props.isInput}
+            disabled={!props.isInput}
             inputProps={{ 'aria-label': 'controlled' }}
           />
         }
@@ -367,7 +361,7 @@ export const TextWidget: React.FunctionComponent<StringTypeProps> = (props) => {
         hiddenLabel
         variant="filled"
         multiline
-        disabled={!loadAll || props.hasLink}
+        disabled={!loadAll}
         onChange={(event) => {
           const value = event.target.value;
           potentiallyUpdateSocketData(props.property, value);
@@ -436,7 +430,6 @@ export const FileBrowserWidget: React.FunctionComponent<FileTypeProps> = (
           value={filename}
           onOpen={onOpen}
           onChange={onChange}
-          disabled={props.hasLink}
           sx={{ width: '100%' }}
           MenuProps={{
             style: { zIndex: 1500 },
@@ -495,7 +488,7 @@ export const CodeWidget: React.FunctionComponent<CodeTypeProps> = (props) => {
     <CodeEditor
       value={data}
       randomMainColor={props.randomMainColor}
-      editable={!props.hasLink}
+      editable={true}
       onChange={(value) => {
         potentiallyUpdateSocketData(props.property, value);
         setData(value);
@@ -523,7 +516,7 @@ export const JSONWidget: React.FunctionComponent<JSONTypeProps> = (props) => {
       <CodeEditor
         value={displayedString || ''}
         randomMainColor={props.randomMainColor}
-        editable={!props.hasLink}
+        editable={true}
         onChange={(value) => {
           try {
             setDisplayedString(value);
@@ -571,16 +564,14 @@ export const TriggerWidget: React.FunctionComponent<TriggerTypeProps> = (
 
   return (
     <>
-      {props.hasLink && (
-        <CodeEditor
-          value={data || ''}
-          randomMainColor={props.randomMainColor}
-          onChange={(value) => {
-            potentiallyUpdateSocketData(props.property, value);
-            setData(value);
-          }}
-        />
-      )}
+      <CodeEditor
+        value={data || ''}
+        randomMainColor={props.randomMainColor}
+        onChange={(value) => {
+          potentiallyUpdateSocketData(props.property, value);
+          setData(value);
+        }}
+      />
       <FormControl variant="filled" fullWidth>
         <InputLabel>Trigger method</InputLabel>
         <Select
@@ -618,25 +609,23 @@ export const TriggerWidget: React.FunctionComponent<TriggerTypeProps> = (
           onChange={onChangeFunction}
           value={customFunctionString}
         />
-        {!props.hasLink && (
-          <Button
-            startIcon={<PlayArrowIcon />}
-            onClick={() => {
-              // nodes with trigger input need a trigger function
-              (props.property.getNode() as any)[
-                customFunctionString === ''
-                  ? 'executeOptimizedChain'
-                  : customFunctionString
-              ]();
-            }}
-            variant="contained"
-            fullWidth
-          >
-            {customFunctionString === ''
-              ? 'executeOptimizedChain'
-              : customFunctionString}
-          </Button>
-        )}
+        <Button
+          startIcon={<PlayArrowIcon />}
+          onClick={() => {
+            // nodes with trigger input need a trigger function
+            (props.property.getNode() as any)[
+              customFunctionString === ''
+                ? 'executeOptimizedChain'
+                : customFunctionString
+            ]();
+          }}
+          variant="contained"
+          fullWidth
+        >
+          {customFunctionString === ''
+            ? 'executeOptimizedChain'
+            : customFunctionString}
+        </Button>
       </FormControl>
     </>
   );
@@ -675,16 +664,12 @@ export const ColorWidget: React.FunctionComponent<ColorTypeProps> = (props) => {
           userSelect: 'none',
           height: '100%',
         }}
-        onClick={
-          props.hasLink
-            ? undefined
-            : (event) => {
-                event.stopPropagation();
-                showColorPicker(!colorPicker);
-              }
-        }
+        onClick={(event) => {
+          event.stopPropagation();
+          showColorPicker(!colorPicker);
+        }}
       >
-        {props.isInput && !props.hasLink ? 'Pick a color' : ''}
+        {props.isInput ? 'Pick a color' : ''}
       </Box>
       <ClickAwayListener onClickAway={handleClickAway}>
         <Popper
