@@ -444,7 +444,7 @@ export default class PPGraph {
     this.nodes[node.id] = node;
     this.nodeContainer.addChild(node);
 
-    node.onNodeAdded(source);
+    await node.onNodeAdded(source);
 
     return node;
   }

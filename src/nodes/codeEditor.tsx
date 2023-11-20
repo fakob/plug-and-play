@@ -128,6 +128,7 @@ export class CodeEditor extends HybridNode2 {
       parseData(props[inputSocketName]),
     );
 
+    console.log('trying input socket: ' + inputSocketName);
     const [readOnly, setReadOnly] = useState<boolean>(
       node.hasBeenAdded && node.getInputSocketByName(inputSocketName).hasLink(),
     );
