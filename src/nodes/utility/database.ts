@@ -95,6 +95,7 @@ export class SqliteReader extends PPNode {
   }
 
   public onNodeAdded = async (source?: TNodeSource): Promise<void> => {
+    super.onNodeAdded(source);
     this.sqlite3Module = PPGraph.currentGraph.dynamicImports[IMPORT_NAME];
 
     this.sqlite3Module
@@ -120,8 +121,6 @@ export class SqliteReader extends PPNode {
         }
       },
     );
-
-    super.onNodeAdded(source);
   };
 
   loadDatabase = async (): Promise<SqliteReader['db']> => {

@@ -24,13 +24,14 @@ export abstract class SegmentNode extends PPNode {
   public async addAndDestroy() {
     await PPGraph.currentGraph.action_pasteNodes(
       getNodeDataFromText(this.getSegment().getData()),
-      { x: this.x, y: this.y }
+      { x: this.x, y: this.y },
     );
 
     PPGraph.currentGraph.removeNode(this);
   }
 
   public onNodeAdded() {
+    super.onNodeAdded();
     this.addAndDestroy();
   }
 }

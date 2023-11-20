@@ -118,10 +118,10 @@ export class Label extends PPNode {
   }
 
   public onNodeAdded = (source?: TNodeSource) => {
+    super.onNodeAdded(source);
     if (source === NODE_SOURCE.NEW) {
       this.HTMLVisible();
     }
-    super.onNodeAdded(source);
   };
 
   public executeOnPlace(): boolean {
