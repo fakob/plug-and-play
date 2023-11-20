@@ -2,7 +2,7 @@
 import PPNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
 import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../../utils/constants';
-import { CustomArgs, TRgba } from '../../utils/interfaces';
+import { CustomArgs, TNodeSource, TRgba } from '../../utils/interfaces';
 import { updateDataIfDefault } from '../../utils/utils';
 import { AbstractType } from '../datatypes/abstractType';
 import { AnyType } from '../datatypes/anyType';
@@ -307,10 +307,9 @@ export class CustomFunction extends PPNode {
   getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.DEFAULT);
   }
-  constructor(name: string, customArgs: CustomArgs) {
-    super(name, {
-      ...customArgs,
-    });
+
+  public onNodeAdded(source?: TNodeSource): void {
+    super.onNodeAdded(source);
     this.modifiedBanner = this._StatusesRef.addChild(new PIXI.Graphics());
     // added this to make sure all sockets are in place before anything happens (caused visual issues on load before)
     this.adaptInputs(this.getInputData(anyCodeName));
