@@ -31,6 +31,16 @@ import { getCurrentCursorPosition } from '../utils/utils';
 import { TextStyle } from 'pixi.js';
 
 export default class Socket extends PIXI.Container implements Tooltipable {
+  onNodeAdded(): void {
+    this.eventMode = 'static';
+    this.addEventListener('pointerover', this.onPointerOver.bind(this));
+    this.addEventListener('pointerout', this.onPointerOut.bind(this));
+    this.addEventListener('pointerup', this.onPointerUp);
+    this.addEventListener('pointerdown', this.onSocketPointerDown.bind(this));
+    this.hasBeenAdded = true;
+
+    this.redraw();
+  }
   // Input sockets
   // only 1 link is allowed
   // data can be set or comes from link
@@ -54,6 +64,7 @@ export default class Socket extends PIXI.Container implements Tooltipable {
   linkDragPos: null | PIXI.Point;
 
   showLabel = false;
+  hasBeenAdded = false;
   visibilityCondition: () => boolean = () => true;
 
   // TODO get rid of custom here it is very ugly
@@ -66,9 +77,9 @@ export default class Socket extends PIXI.Container implements Tooltipable {
     custom?: Record<string, any>,
   ) {
     super();
-
     if (socketType !== SOCKET_TYPE.OUT) {
       // define defaultData for different types
+      //data = data || dataType.getDefaultValue();
       if (data == null && dataType) {
         data = dataType.getDefaultValue();
       }
@@ -82,15 +93,6 @@ export default class Socket extends PIXI.Container implements Tooltipable {
     this.visible = visible;
     this._custom = custom;
     this._links = [];
-
-    this.eventMode = 'static';
-
-    this.addEventListener('pointerover', this.onPointerOver.bind(this));
-    this.addEventListener('pointerout', this.onPointerOut.bind(this));
-    this.addEventListener('pointerup', this.onPointerUp);
-    this.addEventListener('pointerdown', this.onSocketPointerDown.bind(this));
-
-    this.redraw();
   }
 
   static getOptionalVisibilitySocket(
@@ -223,6 +225,9 @@ export default class Socket extends PIXI.Container implements Tooltipable {
   // for inputs: set data is called only on the socket where the change is being made
   set data(newData: any) {
     this._data = newData;
+    if (!this.hasBeenAdded) {
+      return;
+    }
     this.redrawMetaText();
     this.redrawValueSpecificGraphics();
     if (
@@ -314,6 +319,7 @@ export default class Socket extends PIXI.Container implements Tooltipable {
   }
 
   removeLink(link?: PPLink): void {
+    const hadLinks = this.links.length > 0;
     if (link === undefined) {
       this.links.forEach((link) => link.destroy());
       this.links = [];
@@ -323,7 +329,7 @@ export default class Socket extends PIXI.Container implements Tooltipable {
 
     // if this is an input which has defaultData stored
     // copy it back into data
-    if (this.isInput()) {
+    if (this.isInput() && hadLinks) {
       this.data = this.defaultData;
     }
   }

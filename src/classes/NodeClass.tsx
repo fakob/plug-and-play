@@ -105,6 +105,7 @@ export default class PPNode extends PIXI.Container {
 
   // called when the node is added to the graph
   public onNodeAdded(source: TNodeSource = NODE_SOURCE.SERIALIZED): void {
+    this.getAllSockets().forEach(socket => socket.onNodeAdded());
     if (this.executeOnPlace()) {
       this.executeOptimizedChain();
     }
