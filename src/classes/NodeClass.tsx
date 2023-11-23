@@ -105,7 +105,7 @@ export default class PPNode extends PIXI.Container {
   hasBeenAdded = false;
 
   // called when the node is added to the graph
-  public onNodeAdded(source: TNodeSource = NODE_SOURCE.SERIALIZED): void {
+  public async onNodeAdded(source: TNodeSource = NODE_SOURCE.SERIALIZED): Promise<void> {
     this._NodeTextStringRef = new PIXI.Text(
       this.getNodeTextString(),
       NODE_TEXTSTYLE,
@@ -159,7 +159,7 @@ export default class PPNode extends PIXI.Container {
     this.hasBeenAdded = true;
     this.getAllSockets().forEach(socket => socket.onNodeAdded());
     if (this.executeOnPlace()) {
-      this.executeOptimizedChain();
+      await this.executeOptimizedChain();
     }
     this.resizeAndDraw();
   }

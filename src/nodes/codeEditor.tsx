@@ -57,7 +57,7 @@ export class CodeEditor extends HybridNode2 {
   }
 
   public onNodeAdded = async (): Promise<void> => {
-    super.onNodeAdded();
+    await super.onNodeAdded();
     if (this.initialData) {
       this.setInputData(inputSocketName, this.initialData);
     }

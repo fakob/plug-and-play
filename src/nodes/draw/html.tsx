@@ -30,7 +30,7 @@ export class HtmlRenderer extends HybridNode2 {
   eventTarget: EventTarget;
 
   public onNodeAdded = async (): Promise<void> => {
-    super.onNodeAdded();
+    await super.onNodeAdded();
     this.eventTarget = new EventTarget();
     if (this.initialData) {
       this.setInputData(inputSocketName, this.initialData);

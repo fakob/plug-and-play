@@ -30,8 +30,8 @@ export abstract class SegmentNode extends PPNode {
     PPGraph.currentGraph.removeNode(this);
   }
 
-  public onNodeAdded() {
-    super.onNodeAdded();
+  public async onNodeAdded() {
+    await super.onNodeAdded();
     this.addAndDestroy();
   }
 }

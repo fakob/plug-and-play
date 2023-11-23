@@ -121,7 +121,7 @@ export class Image extends PPNode {
   }
 
   public async onNodeAdded(source: TNodeSource): Promise<void> {
-    super.onNodeAdded(source);
+    await super.onNodeAdded(source);
     this.sprite = new PIXI.Sprite();
     this._ForegroundRef.addChild(this.sprite);
 

@@ -308,8 +308,8 @@ export class CustomFunction extends PPNode {
     return TRgba.fromString(NODE_TYPE_COLOR.DEFAULT);
   }
 
-  public onNodeAdded(source?: TNodeSource): void {
-    super.onNodeAdded(source);
+  public async onNodeAdded(source?: TNodeSource): Promise<void> {
+    await super.onNodeAdded(source);
     this.modifiedBanner = this._StatusesRef.addChild(new PIXI.Graphics());
     // added this to make sure all sockets are in place before anything happens (caused visual issues on load before)
     this.adaptInputs(this.getInputData(anyCodeName));

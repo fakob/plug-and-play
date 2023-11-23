@@ -154,8 +154,8 @@ export class Keyboard extends PPNode {
       ),
     ].concat(super.getDefaultIO());
   }
-  public onNodeAdded(): void {
-    super.onNodeAdded();
+  public async onNodeAdded(): Promise<void> {
+    await super.onNodeAdded();
     // add event listener
     this.onKeyDownHandler = this.onKeyDown.bind(this);
     window.addEventListener('keydown', (this as any).onKeyDownHandler);
