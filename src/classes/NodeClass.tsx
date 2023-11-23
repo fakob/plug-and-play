@@ -752,6 +752,9 @@ export default class PPNode extends PIXI.Container {
   }
 
   public drawNodeShape(): void {
+    if (!this.hasBeenAdded){
+      return;
+    }
     // update selection
 
     this._BackgroundGraphicsRef.clear();
@@ -939,6 +942,9 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
 
   // if you want to optimize the mapping of arguments, override this function instead of execute(), but most of the time just override onExecute()
   protected async rawExecute(): Promise<void> {
+    if (!this.hasBeenAdded){
+      return;
+    }
     // remap input
     const inputObject = PPNode.remapInput(this.inputSocketArray);
     const outputObject = {};
