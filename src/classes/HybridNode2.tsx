@@ -10,7 +10,7 @@ import PPGraph from './GraphClass';
 import PPNode from './NodeClass';
 import InterfaceController, { ListenEvent } from '../InterfaceController';
 import styles from '../utils/style.module.css';
-import { CustomArgs, TRgba } from '../utils/interfaces';
+import { CustomArgs, TNodeSource, TRgba } from '../utils/interfaces';
 import {
   NINE_SLICE_SHADOW,
   NODE_MARGIN,
@@ -39,7 +39,9 @@ export default abstract class HybridNode2 extends PPNode {
     });
 
     this.initialData = customArgs?.initialData;
+  }
 
+  public async onNodeAdded(source?: TNodeSource): Promise<void> {
     this.shadowPlane = new PIXI.NineSlicePlane(
       PIXI.Texture.from(NINE_SLICE_SHADOW),
       blurAmount,
@@ -48,6 +50,7 @@ export default abstract class HybridNode2 extends PPNode {
       blurAmount,
     );
     this.addChildAt(this.shadowPlane, 0);
+    await super.onNodeAdded(source);
   }
 
   redraw({ screenX = 0, screenY = 0, scale = 1 }) {
