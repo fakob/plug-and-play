@@ -312,7 +312,9 @@ export class CustomFunction extends PPNode {
     await super.onNodeAdded(source);
     this.modifiedBanner = this._StatusesRef.addChild(new PIXI.Graphics());
     // added this to make sure all sockets are in place before anything happens (caused visual issues on load before)
-    this.adaptInputs(this.getInputData(anyCodeName));
+    if (this.getInputData(anyCodeName) !== undefined) {
+      this.adaptInputs(this.getInputData(anyCodeName));
+    }
   }
 
   protected replaceMacros(functionToExecute: string) {

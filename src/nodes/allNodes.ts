@@ -39,6 +39,8 @@ import * as twitter from './api/twitter';
 
 let allNodesCached = undefined;
 
+// TODO get rid of copy pasting here
+
 export const getAllNodeTypes = (): RegisteredNodeTypes => {
   if (!allNodesCached) {
     const categories = {
@@ -80,8 +82,8 @@ export const getAllNodeTypes = (): RegisteredNodeTypes => {
       twitter,
     };
     const toReturn = {};
+    const start = Date.now();
     for (const [categoryKey, categoryValue] of Object.entries(categories)) {
-      console.log(categoryKey, categoryValue);
       for (const key of Object.keys(categoryValue)) {
         const nodeConstructor = categoryValue[key];
         if (nodeConstructor.prototype instanceof PPNode) {
@@ -99,6 +101,7 @@ export const getAllNodeTypes = (): RegisteredNodeTypes => {
         }
       }
     }
+    console.log('time to gather all node info: ' + (Date.now() - start));
     allNodesCached = toReturn;
   }
   return allNodesCached;
@@ -136,9 +139,9 @@ export const getAllNodesInDetail = (): any[] => {
     recordNodes,
     simpleBarChart,
   };
+  const start = Date.now();
   const toReturn = [];
   for (const [categoryKey, categoryValue] of Object.entries(categories)) {
-    console.log(categoryKey, categoryValue);
     for (const key of Object.keys(categoryValue)) {
       const nodeConstructor = categoryValue[key];
       if (nodeConstructor.prototype instanceof PPNode) {
@@ -172,5 +175,6 @@ export const getAllNodesInDetail = (): any[] => {
       }
     }
   }
+  console.log('time to gather all node info detail: ' + (Date.now() - start));
   return toReturn.sort((a, b) => a.name.localeCompare(b.name));
 };

@@ -52,10 +52,6 @@ export class Image extends PPNode {
     return [IMPORT_NAME];
   }
 
-  public executeOnPlace(): boolean {
-    return true;
-  }
-
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(
@@ -119,6 +115,12 @@ export class Image extends PPNode {
   public getShrinkOnSocketRemove(): boolean {
     return false;
   }
+  public getDefaultNodeWidth() {
+    return !this.texture ? super.getDefaultNodeWidth() : this.texture.width;
+  };
+  public getDefaultNodeHeight() {
+    return !this.texture ? super.getDefaultNodeHeight() : this.texture.height;
+  };
 
   public async onNodeAdded(source: TNodeSource): Promise<void> {
     await super.onNodeAdded(source);
@@ -145,12 +147,6 @@ export class Image extends PPNode {
     this.maskRef.endFill();
 
     // set default width and height to texture size
-    this.getDefaultNodeWidth = () => {
-      return this.texture.width;
-    };
-    this.getDefaultNodeHeight = () => {
-      return this.texture.height;
-    };
 
     if (source !== NODE_SOURCE.SERIALIZED) {
       this.setInitialNodeSize();
@@ -260,6 +256,6 @@ export class Image extends PPNode {
 
   saveImage = async () => {
     const base64 = this.getInputData(imageOutputName);
-    saveBase64AsImage(base64, this.name);
+    await saveBase64AsImage(base64, this.name);
   };
 }
