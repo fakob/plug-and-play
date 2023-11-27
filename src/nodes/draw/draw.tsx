@@ -19,7 +19,10 @@ import { ArrayType } from '../datatypes/arrayType';
 import { TriggerType } from '../datatypes/triggerType';
 import { StringType } from '../datatypes/stringType';
 import { ImageType } from '../datatypes/imageType';
-import { saveBase64AsImage } from '../../utils/utils';
+import {
+  parseValueAndAttachWarnings,
+  saveBase64AsImage,
+} from '../../utils/utils';
 import { TRgba } from '../../utils/interfaces';
 import { drawDottedLine } from '../../pixi/utils-pixi';
 import {
@@ -176,10 +179,11 @@ export class DRAW_Shape extends DRAW_Base {
     const height = inputObject[inputHeightName];
     if (Number.isFinite(width) && Number.isFinite(height)) {
       const graphics: PIXI.Graphics = new PIXI.Graphics();
-      const { value: selectedColor, warning } = new ColorType().parse(
+      const selectedColor = parseValueAndAttachWarnings(
+        this,
+        new ColorType(),
         inputObject[inputColorName],
       );
-      warning && console.warn(warning);
       const drawBorder = inputObject[inputBorderName];
       graphics.beginFill(selectedColor.hexNumber());
       graphics.alpha = selectedColor.a;
@@ -310,10 +314,11 @@ export class DRAW_Text extends DRAW_Base {
       lineJoin: 'round',
     });
     const basicText = new PIXI.Text(inputObject[inputTextName], textStyle);
-    const { value: selectedColor, warning } = new ColorType().parse(
+    const selectedColor = parseValueAndAttachWarnings(
+      this,
+      new ColorType(),
       inputObject[inputColorName],
     );
-    warning && console.warn(warning);
     basicText.style.fill = selectedColor.hex();
 
     this.positionAndScale(basicText, inputObject);
@@ -683,10 +688,11 @@ export class DRAW_Line extends DRAW_Base {
       ],
     };
     const graphics: PIXI.Graphics = new PIXI.Graphics();
-    const { value: selectedColor, warning } = new ColorType().parse(
+    const selectedColor = parseValueAndAttachWarnings(
+      this,
+      new ColorType(),
       inputObject[inputColorName],
     );
-    warning && console.warn(warning);
     graphics.endFill();
     graphics.lineStyle(inputObject[inputWidthName], selectedColor.hexNumber());
     const points: number[][] = inputObject[inputPointsName];
@@ -751,10 +757,11 @@ export class DRAW_Polygon extends DRAW_Base {
       ],
     };
     const graphics: PIXI.Graphics = new PIXI.Graphics();
-    const { value: selectedColor, warning } = new ColorType().parse(
+    const selectedColor = parseValueAndAttachWarnings(
+      this,
+      new ColorType(),
       inputObject[inputColorName],
     );
-    warning && console.warn(warning);
     graphics.beginFill(selectedColor.hexNumber());
     graphics.alpha = selectedColor.a;
 

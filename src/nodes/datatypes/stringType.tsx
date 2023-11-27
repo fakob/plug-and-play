@@ -1,4 +1,5 @@
 import React from 'react';
+import { NodeExecutionWarning } from '../../classes/ErrorClass';
 import { TParseType, TRgba } from '../../utils/interfaces';
 import { TextWidget } from '../../widgets';
 import { AbstractType, DataTypeProps } from './abstractType';
@@ -58,25 +59,24 @@ export class StringType extends AbstractType {
 
 export const parseString = (data: any): TParseType => {
   let parsedData;
-  let warning: string;
-  const warn = 'Not a file type. Empty string is returned';
+  const warnings: NodeExecutionWarning[] = [];
 
-  if (data === null || data === undefined) {
-    warning = warn;
-    parsedData = [];
-  } else if (typeof data == 'object' || Array.isArray(data)) {
+  if (typeof data == 'object' || Array.isArray(data)) {
     try {
       parsedData = JSON.stringify(data);
-    } catch (error) {
-      warning = warn;
-      parsedData = [];
-    }
+    } catch (error) {}
   } else {
     parsedData = String(data);
+  }
+  if (parsedData == undefined) {
+    parsedData = '';
+    warnings.push(
+      new NodeExecutionWarning('Not a string. Empty string is returned'),
+    );
   }
 
   return {
     value: parsedData,
-    warning: warning,
+    warnings: warnings,
   };
 };

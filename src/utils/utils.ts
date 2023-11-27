@@ -22,6 +22,8 @@ import {
 import { GraphDatabase } from './indexedDB';
 import { SerializedSelection, TNodeId, TSocketType } from './interfaces';
 import { Viewport } from 'pixi-viewport';
+import { AbstractType } from '../nodes/datatypes/abstractType';
+import { PNPSuccess } from '../classes/ErrorClass';
 
 export function isFunction(funcOrClass: any): boolean {
   const propertyNames = Object.getOwnPropertyNames(funcOrClass);
@@ -903,3 +905,23 @@ export const loadGraph = (urlParams: URLSearchParams) => {
 
 export const sortByDate = (a, b) =>
   new Date(b.date).getTime() - new Date(a.date).getTime();
+
+export const parseValueAndAttachWarnings = (
+  nodeOrSocket: PPNode | PPSocket,
+  dataType: AbstractType,
+  data: any,
+): any => {
+  const { value, warnings } = dataType.parse(data);
+  if (warnings.length === 0) {
+    nodeOrSocket?.setStatus(new PNPSuccess());
+  } else {
+    warnings.map((warning) => {
+      if (nodeOrSocket instanceof PPSocket) {
+        nodeOrSocket.getNode()?.setStatusSocket(warning);
+      }
+      nodeOrSocket?.setStatus(warning);
+    });
+  }
+
+  return value;
+};

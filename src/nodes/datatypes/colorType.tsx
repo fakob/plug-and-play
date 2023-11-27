@@ -1,5 +1,6 @@
 import React from 'react';
 import * as PIXI from 'pixi.js';
+import { NodeExecutionWarning } from '../../classes/ErrorClass';
 import { TParseType, TRgba } from '../../utils/interfaces';
 import { COLOR_WARNING } from '../../utils/constants';
 import { ColorWidget } from '../../widgets';
@@ -31,27 +32,28 @@ export class ColorType extends AbstractType {
 
   parse(data: any): TParseType {
     let parsedData;
-    let warning: string;
-    const warn = 'Not a color. Default color is returned';
+    const warnings: NodeExecutionWarning[] = [];
 
     if (typeof data === 'string') {
       try {
         parsedData = TRgba.fromString(data);
-      } catch (error) {
-        warning = warn;
-        parsedData = TRgba.fromString(COLOR_WARNING);
-      }
+      } catch (error) {}
     } else {
       parsedData = Object.assign(new TRgba(), data);
       if (!TRgba.isTRgba(parsedData)) {
-        warning = warn;
-        parsedData = TRgba.fromString(COLOR_WARNING);
+        parsedData = undefined;
       }
+    }
+    if (parsedData == undefined) {
+      parsedData = TRgba.fromString(COLOR_WARNING);
+      warnings.push(
+        new NodeExecutionWarning('Not a color. Default color is returned'),
+      );
     }
 
     return {
       value: parsedData as TRgba,
-      warning: warning,
+      warnings: warnings,
     };
   }
 
@@ -84,8 +86,10 @@ export class ColorType extends AbstractType {
   drawValueSpecificGraphics(graphics: PIXI.Graphics, data: any) {
     super.drawValueSpecificGraphics(graphics, data);
     if (data) {
-      graphics.beginFill(data.hexNumber());
-      graphics.drawCircle(0, 0, 4);
+      try {
+        graphics.beginFill(data.hexNumber());
+        graphics.drawCircle(0, 0, 4);
+      } catch (error) {}
     }
   }
 }

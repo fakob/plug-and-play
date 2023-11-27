@@ -3,7 +3,10 @@ import PPNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
 import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../../utils/constants';
 import { CustomArgs, TNodeSource, TRgba } from '../../utils/interfaces';
-import { updateDataIfDefault } from '../../utils/utils';
+import {
+  parseValueAndAttachWarnings,
+  updateDataIfDefault,
+} from '../../utils/utils';
 import { AbstractType } from '../datatypes/abstractType';
 import { AnyType } from '../datatypes/anyType';
 import { ArrayType } from '../datatypes/arrayType';
@@ -182,9 +185,8 @@ export class ParseArray extends PPNode {
   ): Promise<void> {
     const inputArray = inputObject[arrayName];
     outputObject[arrayOutName] = inputArray.map((element) => {
-      const { value, warning } =
-        this.getSocketByName(typeName).dataType.parse(element);
-      warning && console.warn(warning);
+      const socket = this.getSocketByName(typeName);
+      const value = parseValueAndAttachWarnings(this, socket.dataType, element);
       return value;
     });
   }

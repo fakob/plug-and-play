@@ -80,7 +80,10 @@ export default class PPNode extends PIXI.Container {
   nodeSelectionHeader: NodeHeaderClass;
   lastTimeTicked = 0;
 
-  status: PNPStatus = new PNPSuccess();
+  status: { node: PNPStatus; socket: PNPStatus } = {
+    node: new PNPSuccess(),
+    socket: new PNPSuccess(),
+  };
 
   inputSocketArray: Socket[] = [];
   nodeTriggerSocketArray: Socket[] = [];
@@ -654,17 +657,27 @@ export default class PPNode extends PIXI.Container {
   }
 
   public drawErrorBoundary(): void {
-    this._BackgroundGraphicsRef.beginFill(
-      this.status.getColor().hexNumber(),
-      this.getOpacity(),
-    );
+    if (this.status.node.isError()) {
+      this._BackgroundGraphicsRef.lineStyle(
+        3,
+        this.status.node.getColor().hexNumber(),
+        this.getOpacity(),
+      );
+    } else {
+      this._BackgroundGraphicsRef.lineStyle(
+        3,
+        this.status.socket.getColor().hexNumber(),
+        this.getOpacity(),
+      );
+    }
     this._BackgroundGraphicsRef.drawRoundedRect(
       NODE_MARGIN - 3,
       -3,
       this.nodeWidth + 6,
       this.nodeHeight + 6,
-      this.getRoundedCorners() ? NODE_CORNERRADIUS : 0,
+      this.getRoundedCorners() ? NODE_CORNERRADIUS + 3 : 0,
     );
+    this._BackgroundGraphicsRef.lineStyle();
   }
 
   public drawBackground(): void {
@@ -762,7 +775,7 @@ export default class PPNode extends PIXI.Container {
     // update selection
 
     this._BackgroundGraphicsRef.clear();
-    if (this.status.isError()) {
+    if (this.status.node.isError() || this.status.socket.isError()) {
       this.drawErrorBoundary();
     }
     this.drawBackground();
@@ -813,11 +826,21 @@ export default class PPNode extends PIXI.Container {
     });
   }
 
-  protected setStatus(status: PNPStatus) {
-    if (
-      JSON.stringify(this.status.message) !== JSON.stringify(status.message)
-    ) {
-      this.status = status;
+  public setStatus(status: PNPStatus) {
+    const currentMessage = JSON.stringify(this.status.node.message);
+    const newMessage = JSON.stringify(status.message);
+    if (currentMessage !== newMessage) {
+      this.status.node = status;
+      this.drawNodeShape();
+    }
+  }
+
+  public setStatusSocket(status: PNPStatus) {
+    const currentMessage = JSON.stringify(this.status.socket.message);
+    const newMessage = JSON.stringify(status.message);
+    if (currentMessage !== newMessage) {
+      console.log(status);
+      this.status.socket = status;
       this.drawNodeShape();
     }
   }
@@ -853,11 +876,11 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
       this._CommentRef.addChild(debugText);
       this._CommentRef.addChild(nodeComment);
     }
-    if (this.status.isError()) {
-      const errorText = new PIXI.Text(this.status.message);
+    if (this.status.node.isError()) {
+      const errorText = new PIXI.Text(this.status.node.message);
       errorText.x = -50;
       errorText.y = this.nodeHeight;
-      errorText.style.fill = this.status.getColor().hexNumber();
+      errorText.style.fill = this.status.node.getColor().hexNumber();
       errorText.style.fontSize = 18;
       this._CommentRef.addChild(errorText);
     }
@@ -984,7 +1007,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
       setTimeout(() => {
         activeExecution.clear();
         activeExecution.beginFill(
-          this.status.getColor().hexNumber(),
+          this.status.node.getColor().hexNumber(),
           0.4 - i * (0.4 / iterations),
         );
 

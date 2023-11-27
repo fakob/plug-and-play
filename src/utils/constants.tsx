@@ -4,7 +4,7 @@ import Color from 'color';
 import { TextStyle } from '@pixi/text';
 import { EnumStructure } from '../nodes/datatypes/enumType';
 import { darkThemeOverride } from './customTheme';
-import { TRgba } from '../utils/interfaces';
+import { ILayouts, TRgba } from '../utils/interfaces';
 
 export const PP_VERSION = 0.1;
 
@@ -135,9 +135,7 @@ export const CANVAS_BACKGROUND_TEXTURE =
 export const CANVAS_BACKGROUND_ALPHA = 0.02;
 export const NINE_SLICE_SHADOW = '../assets/NineSliceShadow.png';
 
-// export const COLOR_MAIN = '#2E3A59';
 export const COLOR_MAIN = Color(COLOR[0]).lighten(0.8).hex();
-export const COLOR_MAIN_HEX = new PIXI.Color(COLOR_MAIN).toNumber();
 export const COLOR_COMMENT = COLOR[12];
 
 // common
@@ -467,6 +465,4 @@ export const BASIC_VERTEX_SHADER = `
 export const PXSHOW_SQL_QUERY = `SELECT json_extract(state,'$.State') as State FROM states
 WHERE service IS 'Store'`;
 
-export const LAYOUTS_EMPTY = {
-  default: [],
-};
+export const LAYOUTS_EMPTY: ILayouts = { default: [] };

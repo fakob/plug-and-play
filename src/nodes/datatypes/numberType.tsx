@@ -1,4 +1,5 @@
 import React from 'react';
+import { NodeExecutionWarning } from '../../classes/ErrorClass';
 import { TParseType, TRgba } from '../../utils/interfaces';
 import { NumberOutputWidget, SliderWidget } from '../../widgets';
 import { AbstractType, DataTypeProps } from './abstractType';
@@ -91,7 +92,7 @@ export class NumberType extends AbstractType {
 
 const parseNumber = (data): TParseType => {
   let parsedData;
-  let warning: string;
+  const warnings: NodeExecutionWarning[] = [];
 
   switch (typeof data) {
     case 'number':
@@ -104,8 +105,10 @@ const parseNumber = (data): TParseType => {
       if (!isNaN(parsedString)) {
         parsedData = parsedString;
       } else {
-        warning = 'Not a number (NaN). 0 is returned';
         parsedData = 0;
+        warnings.push(
+          new NodeExecutionWarning('Not a number (NaN). 0 is returned'),
+        );
       }
       break;
     case 'object':
@@ -113,14 +116,19 @@ const parseNumber = (data): TParseType => {
         for (const item of data) {
           const parsedArrayItem = parseNumber(item);
           if (parsedArrayItem.value !== 0) {
-            warning = 'A number was extracted from the array';
             parsedData = parsedArrayItem.value;
+            warnings.push(
+              new NodeExecutionWarning('A number was extracted from the array'),
+            );
           }
         }
         if (parsedData === undefined) {
-          warning =
-            'No number could be extracted from the array. 0 is returned';
           parsedData = 0;
+          warnings.push(
+            new NodeExecutionWarning(
+              'No number could be extracted from the array. 0 is returned',
+            ),
+          );
         }
       } else if (data !== null) {
         const primitive = data.valueOf();
@@ -130,26 +138,35 @@ const parseNumber = (data): TParseType => {
           for (const key in data) {
             const parsedObjectValue = parseNumber(data[key]);
             if (parsedObjectValue.value !== 0) {
-              warning = 'A number was extracted from the object';
               parsedData = parsedObjectValue;
+              warnings.push(
+                new NodeExecutionWarning(
+                  'A number was extracted from the object',
+                ),
+              );
             }
           }
           if (parsedData === undefined) {
-            warning =
-              'No number could be extracted from the object. 0 is returned';
             parsedData = 0;
+            warnings.push(
+              new NodeExecutionWarning(
+                'No number could be extracted from the object. 0 is returned',
+              ),
+            );
           }
         }
       }
       break;
     // Default case to handle other data types like 'undefined', 'function', etc.
     default:
-      warning = 'Number is null or undefined. 0 is returned';
       parsedData = 0;
+      warnings.push(
+        new NodeExecutionWarning('Number is null or undefined. 0 is returned'),
+      );
       break;
   }
   return {
     value: parsedData,
-    warning: warning,
+    warnings: warnings,
   };
 };

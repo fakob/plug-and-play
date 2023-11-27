@@ -17,7 +17,7 @@ export class BooleanType extends AbstractType {
     return false;
   }
   parse(data: any): TParseType {
-    return { value: data ? true : false };
+    return { value: data ? true : false, warnings: [] };
   }
 
   getInputWidget = (props: BooleanTypeProps): any => {

@@ -3,6 +3,7 @@ import PPSelection from '../classes/SelectionClass';
 import PPNode from '../classes/NodeClass';
 import PPSocket from '../classes/SocketClass';
 import { IUpdateBehaviour } from '../classes/UpdateBehaviourClass';
+import { NodeExecutionWarning } from '../classes/ErrorClass';
 import {
   ALIGNOPTIONS,
   COLOR_DARK,
@@ -80,6 +81,10 @@ export interface INodeSearch {
   isNew?: boolean;
 }
 
+export interface ILayouts {
+  [key: string]: ILayoutItem[];
+}
+
 export interface ILayoutItem {
   w: number;
   h: number;
@@ -121,7 +126,7 @@ export type TSocketType = (typeof SOCKET_TYPE)[keyof typeof SOCKET_TYPE];
 
 export type TParseType = {
   value: any;
-  warning?: string;
+  warnings: NodeExecutionWarning[];
 };
 
 export type SerializedSocket = {

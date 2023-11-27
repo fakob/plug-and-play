@@ -10,7 +10,7 @@ import {
 } from '../utils/constants';
 import {
   CustomArgs,
-  ILayoutItem,
+  ILayouts,
   SerializedGraph,
   SerializedLink,
   SerializedNode,
@@ -55,7 +55,7 @@ export default class PPGraph {
   nodeContainer: PIXI.Container;
   nodes: { [key: string]: PPNode } = {};
   macros: { [key: string]: Macro } = {};
-  layouts: { [key: string]: ILayoutItem[] } = {};
+  layouts: ILayouts;
   foregroundCanvas: PIXI.Container;
   id: string;
 

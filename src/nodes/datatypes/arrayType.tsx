@@ -1,5 +1,6 @@
 import React from 'react';
 import { ArrayWidget } from '../../widgets';
+import { NodeExecutionWarning } from '../../classes/ErrorClass';
 import { TParseType, TRgba } from '../../utils/interfaces';
 import { AbstractType, DataTypeProps } from './abstractType';
 
@@ -45,8 +46,7 @@ export class ArrayType extends AbstractType {
 
   parse(data: any): TParseType {
     let parsedData;
-    let warning: string;
-    const warn = 'Not an array. [] is returned';
+    const warnings: NodeExecutionWarning[] = [];
 
     if (Array.isArray(data)) {
       parsedData = data;
@@ -54,21 +54,18 @@ export class ArrayType extends AbstractType {
       try {
         parsedData = JSON.parse(data);
         if (!Array.isArray(parsedData)) {
-          warning = warn;
-          parsedData = [];
+          parsedData = undefined;
         }
-      } catch (error) {
-        warning = warn;
-        parsedData = [];
-      }
-    } else {
-      warning = warn;
+      } catch (error) {}
+    }
+    if (parsedData == undefined) {
       parsedData = [];
+      warnings.push(new NodeExecutionWarning('Not an array. [] is returned'));
     }
 
     return {
       value: parsedData,
-      warning: warning,
+      warnings: warnings,
     };
   }
 

@@ -173,15 +173,17 @@ ${props.property
                 flexGrow: 1,
               }}
             >
-              {props.property.status.isError() && (
+              {props.property.status.node.isError() && (
                 <Box
                   title={JSON.stringify(
-                    props.property.status.getName(),
-                    Object.getOwnPropertyNames(props.property.status.message),
+                    props.property.status.node.getName(),
+                    Object.getOwnPropertyNames(
+                      props.property.status.node.message,
+                    ),
                   )}
                   sx={{
                     fontSize: '16px',
-                    background: ERROR_COLOR.hex(),
+                    background: props.property.status.node.getColor().hex(),
                     marginRight: '8px',
                     px: 0.5,
                     py: '2px',
@@ -190,6 +192,27 @@ ${props.property
                   }}
                 >
                   Error
+                </Box>
+              )}
+              {props.property.status.socket.isError() && (
+                <Box
+                  title={JSON.stringify(
+                    props.property.status.socket.getName(),
+                    Object.getOwnPropertyNames(
+                      props.property.status.socket.message,
+                    ),
+                  )}
+                  sx={{
+                    fontSize: '16px',
+                    background: props.property.status.socket.getColor().hex(),
+                    marginRight: '8px',
+                    px: 0.5,
+                    py: '2px',
+                    display: 'inline',
+                    fontWeight: 400,
+                  }}
+                >
+                  Socket error
                 </Box>
               )}
               <Box
@@ -449,7 +472,8 @@ export const NodeArrayContainer: React.FunctionComponent<
 
   const customSort = (a: PPNode, b: PPNode) => {
     const order =
-      (+b.status.isError() - +a.status.isError()) * 100 +
+      (+b.status.node.isError() - +a.status.node.isError()) * 1000 +
+        (+b.status.socket.isError() - +a.status.socket.isError()) * 100 +
         (+(b.type === 'Macro') - +(a.type === 'Macro')) * 10 ||
       a.name.localeCompare(b.name);
     return order;

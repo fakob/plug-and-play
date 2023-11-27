@@ -32,6 +32,7 @@ import { WidgetBase, WidgetHybridBase } from './abstract';
 import { TRgba } from '../../utils/interfaces';
 import {
   limitRange,
+  parseValueAndAttachWarnings,
   roundNumber,
   updateDataIfDefault,
 } from '../../utils/utils';
@@ -390,8 +391,12 @@ export class WidgetRadio extends WidgetBase {
   public async outputPlugged(): Promise<void> {
     const target =
       this.getSocketByName(selectedOptionName).links[0].getTarget();
-    const { value: data, warning } = new ArrayType().parse(target.defaultData);
-    warning && console.warn(warning);
+    const data = parseValueAndAttachWarnings(
+      this,
+      new ArrayType(),
+      target.defaultData,
+    );
+
     if (
       JSON.stringify(radioDefaultValue) ===
       JSON.stringify(this.getInputData(optionsName))
@@ -444,8 +449,12 @@ export class WidgetColorPicker extends WidgetHybridBase {
 
   public async outputPlugged(): Promise<void> {
     const target = this.getSocketByName(outName).links[0].getTarget();
-    const { value: data, warning } = new ColorType().parse(target.defaultData);
-    warning && console.warn(warning);
+    const data = parseValueAndAttachWarnings(
+      this,
+      new ColorType(),
+      target.defaultData,
+    );
+
     if (
       pickerDefaultName === this.getInputData(labelName) &&
       RANDOMMAINCOLOR === this.getInputData(initialValueName).hex()
@@ -986,8 +995,12 @@ export class WidgetDropdown extends WidgetHybridBase {
 
   public async outputPlugged(): Promise<void> {
     const target = this.getSocketByName(outName).links[0].getTarget();
-    const { value: data, warning } = new ArrayType().parse(target.defaultData);
-    warning && console.warn(warning);
+    const data = parseValueAndAttachWarnings(
+      this,
+      new ArrayType(),
+      target.defaultData,
+    );
+
     if (
       JSON.stringify(defaultOptions) ===
       JSON.stringify(this.getInputData(optionsName))

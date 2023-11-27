@@ -1,3 +1,4 @@
+import { NodeExecutionWarning } from '../../classes/ErrorClass';
 import { TParseType, TRgba } from '../../utils/interfaces';
 import { ArrayType } from './arrayType';
 
@@ -74,7 +75,7 @@ export class GraphInputType extends ArrayType {
 
   parse(data: any): TParseType {
     let parsedData;
-    let warning: string;
+    const warnings: NodeExecutionWarning[] = [];
 
     // lets hope its an array, if not then we will have to turn something into an array
     let dataArray: GraphInputPoint[] = data;
@@ -138,13 +139,17 @@ export class GraphInputType extends ArrayType {
         .filter((entry) => !Number.isNaN(entry.Value));
       parsedData = parsedArray;
     } else {
-      warning = 'No data could be graph input data found. [] is returned';
       parsedData = [];
+      warnings.push(
+        new NodeExecutionWarning(
+          'No data could be graph input data found. [] is returned',
+        ),
+      );
     }
 
     return {
       value: parsedData,
-      warning: warning,
+      warnings: warnings,
     };
   }
 
