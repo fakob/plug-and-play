@@ -115,12 +115,14 @@ export class Image extends PPNode {
   public getShrinkOnSocketRemove(): boolean {
     return false;
   }
+
   public getDefaultNodeWidth() {
     return !this.texture ? super.getDefaultNodeWidth() : this.texture.width;
-  };
+  }
+
   public getDefaultNodeHeight() {
     return !this.texture ? super.getDefaultNodeHeight() : this.texture.height;
-  };
+  }
 
   public async onNodeAdded(source: TNodeSource): Promise<void> {
     await super.onNodeAdded(source);
@@ -146,12 +148,12 @@ export class Image extends PPNode {
     this.maskRef.x = NODE_MARGIN;
     this.maskRef.endFill();
 
-    // set default width and height to texture size
-
+    // set width and height to texture size
     if (source !== NODE_SOURCE.SERIALIZED) {
       this.setInitialNodeSize();
+    } else {
+      super.resizeAndDraw();
     }
-
   }
 
   setInitialNodeSize = () => {
