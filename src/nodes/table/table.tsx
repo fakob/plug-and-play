@@ -102,7 +102,7 @@ export class Table extends HybridNode2 {
   }
 
   public onNodeAdded = async (source?: TNodeSource): Promise<void> => {
-    super.onNodeAdded(source);
+    await super.onNodeAdded(source);
     this.workBook = this.getXLSXModule().utils.book_new();
     const storedWorkBookData = this.getInputData(workBookInputSocketName);
     if (this.initialData) {

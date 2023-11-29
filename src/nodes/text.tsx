@@ -37,12 +37,6 @@ export class Label extends PPNode {
     });
 
     this.initialData = customArgs?.initialData;
-
-    this.PIXITextStyle = new PIXI.TextStyle();
-    this.PIXITextStyle.breakWords = true;
-    const basicText = new PIXI.Text(labelDefaultText, this.PIXITextStyle);
-    this.PIXIText = this._ForegroundRef.addChild(basicText);
-    this.PIXIVisible();
   }
 
   public getName(): string {
@@ -117,16 +111,22 @@ export class Label extends PPNode {
     );
   }
 
-  public onNodeAdded = (source?: TNodeSource) => {
+  public onNodeAdded = async (source?: TNodeSource) => {
+    await super.onNodeAdded(source);
+    this.PIXITextStyle = new PIXI.TextStyle();
+    this.PIXITextStyle.breakWords = true;
+    const basicText = new PIXI.Text(labelDefaultText, this.PIXITextStyle);
+    this.PIXIText = this._ForegroundRef.addChild(basicText);
     if (source === NODE_SOURCE.NEW) {
       this.HTMLVisible();
+    } else {
+      this.PIXIVisible();
     }
-    super.onNodeAdded(source);
   };
 
-  public executeOnPlace(): boolean {
-    return true;
-  }
+  //public executeOnPlace(): boolean {
+  //  return true;
+  //}
 
   public HTMLVisible() {
     this.PIXIText.visible = false;

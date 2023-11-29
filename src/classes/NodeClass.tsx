@@ -102,11 +102,64 @@ export default class PPNode extends PIXI.Container {
   onNodeDragOrViewportMove: // called when the node or or the viewport with the node is moved or scaled
   (positions: { screenX: number; screenY: number; scale: number }) => void =
     () => {};
+  hasBeenAdded = false;
 
   // called when the node is added to the graph
-  public onNodeAdded(source: TNodeSource = NODE_SOURCE.SERIALIZED): void {
+  public async onNodeAdded(source: TNodeSource = NODE_SOURCE.SERIALIZED): Promise<void> {
+    this._NodeTextStringRef = new PIXI.Text(
+      this.getNodeTextString(),
+      NODE_TEXTSTYLE,
+    );
+    this._NodeTextStringRef.x = NODE_HEADER_TEXTMARGIN_LEFT;
+    this._NodeTextStringRef.y = NODE_PADDING_TOP + NODE_HEADER_TEXTMARGIN_TOP;
+    this._NodeTextStringRef.resolution = 8;
+
+    const backgroundContainer = new PIXI.Container();
+    this._BackgroundRef = this.addChild(backgroundContainer);
+    this._BackgroundRef.name = 'background';
+    const backgroundGraphics = new PIXI.Graphics();
+    this._BackgroundGraphicsRef =
+      this._BackgroundRef.addChild(backgroundGraphics);
+    this._BackgroundGraphicsRef.name = 'backgroundGraphics';
+
+    this._NodeNameRef = this._BackgroundRef.addChild(this._NodeTextStringRef);
+    this._CommentRef = this._BackgroundRef.addChild(new PIXI.Graphics());
+    this._StatusesRef = this._BackgroundRef.addChild(new PIXI.Graphics());
+
+    this.updateBehaviour = this.getUpdateBehaviour();
+    if (this.getShouldShowHoverActions()) {
+      this._BackgroundRef.addChild(this.updateBehaviour);
+    }
+    this.updateBehaviour.x = NODE_MARGIN;
+    this.updateBehaviour.y = -24;
+
+    this.nodeSelectionHeader = new NodeHeaderClass();
+    if (this.getShouldShowHoverActions()) {
+      this._BackgroundRef.addChild(this.nodeSelectionHeader);
+    }
+    this.nodeSelectionHeader.x = NODE_MARGIN + this.nodeWidth - 96;
+    this.nodeSelectionHeader.y = -24;
+
+    // do not show the node name
+    if (!this.getShowLabels()) {
+      this._NodeNameRef.alpha = 0;
+    }
+    this.getAllSockets().forEach(socket => this._BackgroundRef.addChild(socket));
+
+    const foregroundContainer = new PIXI.Container();
+    this._ForegroundRef = this.addChild(foregroundContainer);
+    this._ForegroundRef.name = 'foreground';
+    this.eventMode = 'dynamic';
+    this.isDraggingNode = false;
+    this._doubleClicked = false;
+
+    this._addListeners();
+
+
+    this.hasBeenAdded = true;
+    this.getAllSockets().forEach(socket => socket.onNodeAdded());
     if (this.executeOnPlace()) {
-      this.executeOptimizedChain();
+      await this.executeOptimizedChain();
     }
     this.resizeAndDraw();
   }
@@ -159,48 +212,7 @@ export default class PPNode extends PIXI.Container {
     this.nodeHeight = this.getDefaultNodeHeight(); // if not set height is defined by in/out sockets
     this._isHovering = false;
 
-    this._NodeTextStringRef = new PIXI.Text(
-      this.getNodeTextString(),
-      NODE_TEXTSTYLE,
-    );
-    this._NodeTextStringRef.x = NODE_HEADER_TEXTMARGIN_LEFT;
-    this._NodeTextStringRef.y = NODE_PADDING_TOP + NODE_HEADER_TEXTMARGIN_TOP;
-    this._NodeTextStringRef.resolution = 8;
 
-    const backgroundContainer = new PIXI.Container();
-    this._BackgroundRef = this.addChild(backgroundContainer);
-    this._BackgroundRef.name = 'background';
-    const backgroundGraphics = new PIXI.Graphics();
-    this._BackgroundGraphicsRef =
-      this._BackgroundRef.addChild(backgroundGraphics);
-    this._BackgroundGraphicsRef.name = 'backgroundGraphics';
-
-    this._NodeNameRef = this._BackgroundRef.addChild(this._NodeTextStringRef);
-    this._CommentRef = this._BackgroundRef.addChild(new PIXI.Graphics());
-    this._StatusesRef = this._BackgroundRef.addChild(new PIXI.Graphics());
-
-    this.updateBehaviour = this.getUpdateBehaviour();
-    if (this.getShouldShowHoverActions()) {
-      this._BackgroundRef.addChild(this.updateBehaviour);
-    }
-    this.updateBehaviour.x = NODE_MARGIN;
-    this.updateBehaviour.y = -24;
-
-    this.nodeSelectionHeader = new NodeHeaderClass();
-    if (this.getShouldShowHoverActions()) {
-      this._BackgroundRef.addChild(this.nodeSelectionHeader);
-    }
-    this.nodeSelectionHeader.x = NODE_MARGIN + this.nodeWidth - 96;
-    this.nodeSelectionHeader.y = -24;
-
-    // do not show the node name
-    if (!this.getShowLabels()) {
-      this._NodeNameRef.alpha = 0;
-    }
-
-    const foregroundContainer = new PIXI.Container();
-    this._ForegroundRef = this.addChild(foregroundContainer);
-    this._ForegroundRef.name = 'foreground';
 
     // add static inputs and outputs
     this.getAllInitialSockets().forEach((IO) => {
@@ -212,11 +224,7 @@ export default class PPNode extends PIXI.Container {
       this.addSocket(IO);
     });
 
-    this.eventMode = 'dynamic';
-    this.isDraggingNode = false;
-    this._doubleClicked = false;
 
-    this._addListeners();
   }
 
   // GETTERS & SETTERS
@@ -266,7 +274,9 @@ export default class PPNode extends PIXI.Container {
 
   set nodeName(text: string) {
     this.name = text;
-    this._NodeNameRef.text = this.getNodeTextString();
+    if (this.hasBeenAdded){
+      this._NodeNameRef.text = this.getNodeTextString();
+    }
     this.nameChanged(text);
   }
 
@@ -275,18 +285,20 @@ export default class PPNode extends PIXI.Container {
   }
 
   addSocket(socket: Socket): void {
-    const socketRef = this._BackgroundRef.addChild(socket);
+    if (this.hasBeenAdded){
+      this._BackgroundRef.addChild(socket);
+    }
     switch (socket.socketType) {
       case SOCKET_TYPE.TRIGGER: {
-        this.nodeTriggerSocketArray.push(socketRef);
+        this.nodeTriggerSocketArray.push(socket);
         break;
       }
       case SOCKET_TYPE.IN: {
-        this.inputSocketArray.push(socketRef);
+        this.inputSocketArray.push(socket);
         break;
       }
       case SOCKET_TYPE.OUT: {
-        this.outputSocketArray.push(socketRef);
+        this.outputSocketArray.push(socket);
         break;
       }
     }
@@ -740,6 +752,9 @@ export default class PPNode extends PIXI.Container {
   }
 
   public drawNodeShape(): void {
+    if (!this.hasBeenAdded){
+      return;
+    }
     // update selection
 
     this._BackgroundGraphicsRef.clear();
@@ -927,6 +942,9 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
 
   // if you want to optimize the mapping of arguments, override this function instead of execute(), but most of the time just override onExecute()
   protected async rawExecute(): Promise<void> {
+    if (!this.hasBeenAdded){
+      return;
+    }
     // remap input
     const inputObject = PPNode.remapInput(this.inputSocketArray);
     const outputObject = {};

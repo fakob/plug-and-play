@@ -137,8 +137,8 @@ export class Shader extends DRAW_Base {
     return TRgba.fromString(NODE_TYPE_COLOR.SHADER);
   }
 
-  public onNodeAdded(): void {
-    super.onNodeAdded();
+  public async onNodeAdded(): Promise<void> {
+    await super.onNodeAdded();
     this.canvas = PPGraph.currentGraph.viewport.getChildByName(
       'backgroundCanvas',
     ) as PIXI.Container;
