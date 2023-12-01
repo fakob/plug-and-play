@@ -136,3 +136,22 @@ export class NodeExecutionWarning extends PNPError {
     return TRgba.fromString(COLOR_WARNING);
   }
 }
+
+export class SocketParsingWarning extends PNPError {
+  constructor(message?: string) {
+    super(message);
+    Object.setPrototypeOf(this, SocketParsingWarning.prototype);
+  }
+
+  public getName(): string {
+    return 'Socket Parsing Warning';
+  }
+
+  public getDescription(): string {
+    return 'Socket parsing returned warnings';
+  }
+
+  public getColor(): TRgba {
+    return TRgba.fromString(COLOR_WARNING);
+  }
+}

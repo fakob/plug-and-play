@@ -1,4 +1,4 @@
-import { NodeExecutionWarning } from '../../classes/ErrorClass';
+import { SocketParsingWarning } from '../../classes/ErrorClass';
 import { TParseType, TRgba } from '../../utils/interfaces';
 import { ArrayType } from './arrayType';
 
@@ -75,7 +75,7 @@ export class GraphInputType extends ArrayType {
 
   parse(data: any): TParseType {
     let parsedData;
-    const warnings: NodeExecutionWarning[] = [];
+    const warnings: SocketParsingWarning[] = [];
 
     // lets hope its an array, if not then we will have to turn something into an array
     let dataArray: GraphInputPoint[] = data;
@@ -141,7 +141,7 @@ export class GraphInputType extends ArrayType {
     } else {
       parsedData = [];
       warnings.push(
-        new NodeExecutionWarning(
+        new SocketParsingWarning(
           'No data could be graph input data found. [] is returned',
         ),
       );

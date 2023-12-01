@@ -3,7 +3,7 @@ import PPSelection from '../classes/SelectionClass';
 import PPNode from '../classes/NodeClass';
 import PPSocket from '../classes/SocketClass';
 import { IUpdateBehaviour } from '../classes/UpdateBehaviourClass';
-import { NodeExecutionWarning } from '../classes/ErrorClass';
+import { SocketParsingWarning } from '../classes/ErrorClass';
 import {
   ALIGNOPTIONS,
   COLOR_DARK,
@@ -126,7 +126,7 @@ export type TSocketType = (typeof SOCKET_TYPE)[keyof typeof SOCKET_TYPE];
 
 export type TParseType = {
   value: any;
-  warnings: NodeExecutionWarning[];
+  warnings: SocketParsingWarning[];
 };
 
 export type SerializedSocket = {

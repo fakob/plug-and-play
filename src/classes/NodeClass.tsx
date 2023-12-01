@@ -661,13 +661,13 @@ export default class PPNode extends PIXI.Container {
       this._BackgroundGraphicsRef.lineStyle(
         3,
         this.status.node.getColor().hexNumber(),
-        this.getOpacity(),
+        1,
       );
     } else {
       this._BackgroundGraphicsRef.lineStyle(
         3,
         this.status.socket.getColor().hexNumber(),
-        this.getOpacity(),
+        1,
       );
     }
     this._BackgroundGraphicsRef.drawRoundedRect(
@@ -839,8 +839,17 @@ export default class PPNode extends PIXI.Container {
     const currentMessage = JSON.stringify(this.status.socket.message);
     const newMessage = JSON.stringify(status.message);
     if (currentMessage !== newMessage) {
-      console.log(status);
       this.status.socket = status;
+      this.drawNodeShape();
+    }
+  }
+
+  doSocketsHaveErrors(): void {
+    const hasErrors = this.getAllSockets().some((socket) =>
+      socket.status.isError(),
+    );
+    if (!hasErrors) {
+      this.setStatusSocket(new PNPSuccess());
       this.drawNodeShape();
     }
   }

@@ -128,14 +128,17 @@ export class AbstractType {
     socketRef: PIXI.Graphics,
     selectionBox: PIXI.Graphics,
     location: PIXI.Point,
+    isInput: boolean,
     status: PNPStatus,
   ) {
     if (status.isError()) {
       errorBox.beginFill(status.getColor().hex());
+      const errorBoxWidth = SOCKET_WIDTH * 2 - SOCKET_WIDTH / 2;
       errorBox.drawRoundedRect(
-        -(SOCKET_WIDTH + SOCKET_WIDTH / 4),
+        location.x +
+          (isInput ? -errorBoxWidth - SOCKET_WIDTH / 4 : SOCKET_WIDTH / 4),
         -SOCKET_WIDTH / 4,
-        SOCKET_WIDTH * 2 + SOCKET_WIDTH / 2,
+        errorBoxWidth,
         SOCKET_WIDTH + SOCKET_WIDTH / 2,
         0,
       );

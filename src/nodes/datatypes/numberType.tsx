@@ -1,5 +1,5 @@
 import React from 'react';
-import { NodeExecutionWarning } from '../../classes/ErrorClass';
+import { SocketParsingWarning } from '../../classes/ErrorClass';
 import { TParseType, TRgba } from '../../utils/interfaces';
 import { NumberOutputWidget, SliderWidget } from '../../widgets';
 import { AbstractType, DataTypeProps } from './abstractType';
@@ -92,7 +92,7 @@ export class NumberType extends AbstractType {
 
 const parseNumber = (data): TParseType => {
   let parsedData;
-  const warnings: NodeExecutionWarning[] = [];
+  const warnings: SocketParsingWarning[] = [];
 
   switch (typeof data) {
     case 'number':
@@ -107,7 +107,7 @@ const parseNumber = (data): TParseType => {
       } else {
         parsedData = 0;
         warnings.push(
-          new NodeExecutionWarning('Not a number (NaN). 0 is returned'),
+          new SocketParsingWarning('Not a number (NaN). 0 is returned'),
         );
       }
       break;
@@ -118,14 +118,14 @@ const parseNumber = (data): TParseType => {
           if (parsedArrayItem.value !== 0) {
             parsedData = parsedArrayItem.value;
             warnings.push(
-              new NodeExecutionWarning('A number was extracted from the array'),
+              new SocketParsingWarning('A number was extracted from the array'),
             );
           }
         }
         if (parsedData === undefined) {
           parsedData = 0;
           warnings.push(
-            new NodeExecutionWarning(
+            new SocketParsingWarning(
               'No number could be extracted from the array. 0 is returned',
             ),
           );
@@ -140,7 +140,7 @@ const parseNumber = (data): TParseType => {
             if (parsedObjectValue.value !== 0) {
               parsedData = parsedObjectValue;
               warnings.push(
-                new NodeExecutionWarning(
+                new SocketParsingWarning(
                   'A number was extracted from the object',
                 ),
               );
@@ -149,7 +149,7 @@ const parseNumber = (data): TParseType => {
           if (parsedData === undefined) {
             parsedData = 0;
             warnings.push(
-              new NodeExecutionWarning(
+              new SocketParsingWarning(
                 'No number could be extracted from the object. 0 is returned',
               ),
             );
@@ -161,7 +161,7 @@ const parseNumber = (data): TParseType => {
     default:
       parsedData = 0;
       warnings.push(
-        new NodeExecutionWarning('Number is null or undefined. 0 is returned'),
+        new SocketParsingWarning('Number is null or undefined. 0 is returned'),
       );
       break;
   }

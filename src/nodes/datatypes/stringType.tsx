@@ -1,5 +1,5 @@
 import React from 'react';
-import { NodeExecutionWarning } from '../../classes/ErrorClass';
+import { SocketParsingWarning } from '../../classes/ErrorClass';
 import { TParseType, TRgba } from '../../utils/interfaces';
 import { TextWidget } from '../../widgets';
 import { AbstractType, DataTypeProps } from './abstractType';
@@ -59,7 +59,7 @@ export class StringType extends AbstractType {
 
 export const parseString = (data: any): TParseType => {
   let parsedData;
-  const warnings: NodeExecutionWarning[] = [];
+  const warnings: SocketParsingWarning[] = [];
 
   if (typeof data == 'object' || Array.isArray(data)) {
     try {
@@ -71,7 +71,7 @@ export const parseString = (data: any): TParseType => {
   if (parsedData == undefined) {
     parsedData = '';
     warnings.push(
-      new NodeExecutionWarning('Not a string. Empty string is returned'),
+      new SocketParsingWarning('Not a string. Empty string is returned'),
     );
   }
 

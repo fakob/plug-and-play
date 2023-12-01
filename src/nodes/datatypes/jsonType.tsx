@@ -1,6 +1,6 @@
 import { inspect } from 'util';
 import React from 'react';
-import { NodeExecutionWarning } from '../../classes/ErrorClass';
+import { SocketParsingWarning } from '../../classes/ErrorClass';
 import { JSONWidget } from '../../widgets';
 import { AbstractType, DataTypeProps } from './abstractType';
 import { convertToString } from '../../utils/utils';
@@ -55,7 +55,7 @@ export class JSONType extends AbstractType {
 
   parse(data: any): TParseType {
     let parsedData;
-    const warnings: NodeExecutionWarning[] = [];
+    const warnings: SocketParsingWarning[] = [];
 
     if (typeof data === 'string') {
       try {
@@ -63,13 +63,13 @@ export class JSONType extends AbstractType {
       } catch (error) {
         if (this.strictParsing) {
           parsedData = {};
-          warnings.push(new NodeExecutionWarning('Not a JSON. {} is returned'));
+          warnings.push(new SocketParsingWarning('Not a JSON. {} is returned'));
         }
       }
     } else {
       parsedData = data;
       warnings.push(
-        new NodeExecutionWarning('Not a JSON string. Data is returned'),
+        new SocketParsingWarning('Not a JSON string. Data is returned'),
       );
     }
 

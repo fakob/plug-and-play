@@ -148,6 +148,10 @@ export default class Socket extends PIXI.Container implements Tooltipable {
     const newMessage = JSON.stringify(status.message);
     if (currentMessage !== newMessage) {
       this.status = status;
+      this.redraw();
+      if (!status.isError()) {
+        this.getNode().doSocketsHaveErrors();
+      }
     }
   }
 
@@ -175,6 +179,7 @@ export default class Socket extends PIXI.Container implements Tooltipable {
       this._SocketRef,
       this._SelectionBox,
       this.getSocketLocation(),
+      this.isInput(),
       this.status,
     );
     this.redrawMetaText();

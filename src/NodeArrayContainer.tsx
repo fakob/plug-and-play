@@ -21,16 +21,13 @@ import styles from './utils/style.module.css';
 import InterfaceController, { ListenEvent } from './InterfaceController';
 import { getConfigData, writeTextToClipboard } from './utils/utils';
 import { ensureVisible, zoomToFitNodes } from './pixi/utils-pixi';
-import {
-  ERROR_COLOR,
-  ONCLICK_DOUBLECLICK,
-  ONCLICK_TRIPPLECLICK,
-} from './utils/constants';
+import { ONCLICK_DOUBLECLICK, ONCLICK_TRIPPLECLICK } from './utils/constants';
 import { SerializedGraph, TRgba } from './utils/interfaces';
 import { CodeEditor } from './components/Editor';
 import PPGraph from './classes/GraphClass';
 import PPNode from './classes/NodeClass';
 import PPStorage from './PPStorage';
+import { PNPStatus } from './classes/ErrorClass';
 
 type FilterContentProps = {
   handleFilter: (
@@ -101,6 +98,9 @@ const NodesContent = (props) => {
 };
 
 const NodeItem = (props) => {
+  const nodeStatus = props.property.status.node as PNPStatus;
+  const socketStatus = props.property.status.socket as PNPStatus;
+
   return (
     <ListItem
       key={props.property.id}
@@ -173,48 +173,6 @@ ${props.property
                 flexGrow: 1,
               }}
             >
-              {props.property.status.node.isError() && (
-                <Box
-                  title={JSON.stringify(
-                    props.property.status.node.getName(),
-                    Object.getOwnPropertyNames(
-                      props.property.status.node.message,
-                    ),
-                  )}
-                  sx={{
-                    fontSize: '16px',
-                    background: props.property.status.node.getColor().hex(),
-                    marginRight: '8px',
-                    px: 0.5,
-                    py: '2px',
-                    display: 'inline',
-                    fontWeight: 400,
-                  }}
-                >
-                  Error
-                </Box>
-              )}
-              {props.property.status.socket.isError() && (
-                <Box
-                  title={JSON.stringify(
-                    props.property.status.socket.getName(),
-                    Object.getOwnPropertyNames(
-                      props.property.status.socket.message,
-                    ),
-                  )}
-                  sx={{
-                    fontSize: '16px',
-                    background: props.property.status.socket.getColor().hex(),
-                    marginRight: '8px',
-                    px: 0.5,
-                    py: '2px',
-                    display: 'inline',
-                    fontWeight: 400,
-                  }}
-                >
-                  Socket error
-                </Box>
-              )}
               <Box
                 sx={{
                   display: 'inline',
@@ -222,6 +180,12 @@ ${props.property
               >
                 {props.property.name}
               </Box>
+              {nodeStatus.isError() && (
+                <StatusTag name="Node" status={nodeStatus} />
+              )}
+              {socketStatus.isError() && (
+                <StatusTag name="Socket" status={socketStatus} />
+              )}
             </Box>
             <Box>
               {props.property.getTags().map((part, index) => (
@@ -311,6 +275,26 @@ ${props.property
         </IconButton>
       </ListItemSecondaryAction>
     </ListItem>
+  );
+};
+
+const StatusTag = (props) => {
+  return (
+    <Box
+      title={`${props.status.getName()}
+${props.status.message}`}
+      sx={{
+        fontSize: '12px',
+        background: props.status.getColor().hex(),
+        marginLeft: '8px',
+        px: 0.5,
+        py: '2px',
+        display: 'inline',
+        fontWeight: 400,
+      }}
+    >
+      {props.name}
+    </Box>
   );
 };
 

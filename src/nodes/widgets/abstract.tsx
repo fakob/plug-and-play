@@ -17,6 +17,10 @@ export abstract class WidgetHybridBase extends HybridNode2 {
     return 0.01;
   }
 
+  getRoundedCorners(): boolean {
+    return false;
+  }
+
   protected getActivateByDoubleClick(): boolean {
     return false;
   }

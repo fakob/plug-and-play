@@ -1,6 +1,6 @@
 import React from 'react';
 import * as PIXI from 'pixi.js';
-import { NodeExecutionWarning } from '../../classes/ErrorClass';
+import { SocketParsingWarning } from '../../classes/ErrorClass';
 import { TParseType, TRgba } from '../../utils/interfaces';
 import { COLOR_WARNING } from '../../utils/constants';
 import { ColorWidget } from '../../widgets';
@@ -32,7 +32,7 @@ export class ColorType extends AbstractType {
 
   parse(data: any): TParseType {
     let parsedData;
-    const warnings: NodeExecutionWarning[] = [];
+    const warnings: SocketParsingWarning[] = [];
 
     if (typeof data === 'string') {
       try {
@@ -47,7 +47,7 @@ export class ColorType extends AbstractType {
     if (parsedData == undefined) {
       parsedData = TRgba.fromString(COLOR_WARNING);
       warnings.push(
-        new NodeExecutionWarning('Not a color. Default color is returned'),
+        new SocketParsingWarning('Not a color. Default color is returned'),
       );
     }
 
