@@ -23,7 +23,7 @@ import { GraphDatabase } from './indexedDB';
 import { SerializedSelection, TNodeId, TSocketType } from './interfaces';
 import { Viewport } from 'pixi-viewport';
 import { AbstractType } from '../nodes/datatypes/abstractType';
-import { PNPSuccess } from '../classes/ErrorClass';
+import { NodeExecutionWarning, PNPSuccess } from '../classes/ErrorClass';
 
 export function isFunction(funcOrClass: any): boolean {
   const propertyNames = Object.getOwnPropertyNames(funcOrClass);
@@ -913,13 +913,13 @@ export const parseValueAndAttachWarnings = (
 ): any => {
   const { value, warnings } = dataType.parse(data);
   if (warnings.length === 0) {
-    nodeOrSocket?.setStatus(new PNPSuccess());
+    nodeOrSocket.setStatus(new PNPSuccess());
   } else {
-    warnings.map((warning) => {
+    warnings.forEach((warning) => {
       if (nodeOrSocket instanceof PPSocket) {
-        nodeOrSocket.getNode()?.setStatusSocket(warning);
+        nodeOrSocket.getNode()?.setStatus(new NodeExecutionWarning(), true);
       }
-      nodeOrSocket?.setStatus(warning);
+      nodeOrSocket.setStatus(warning);
     });
   }
 

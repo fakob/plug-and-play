@@ -76,12 +76,9 @@ const GraphOverlayDashboard: React.FunctionComponent<
   };
 
   const removeFromDashboard = (socketId: TSocketId) => {
-    setCurrentLayout((prevLayout) => {
-      const newLayout = prevLayout.filter((item) => item.i !== socketId);
-      console.log(socketId, prevLayout.length, newLayout.length);
-
-      return newLayout;
-    });
+    setCurrentLayout((prevLayout) =>
+      prevLayout.filter((item) => item.i !== socketId),
+    );
   };
 
   const drawerSizeChanged = (leftWidth: number, rightWidth: number) => {

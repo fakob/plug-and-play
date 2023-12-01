@@ -370,7 +370,7 @@ export default class Socket extends PIXI.Container implements Tooltipable {
   }
 
   getSocketId(): TSocketId {
-    return `${this.getNode()?.id}-${this.socketType}-${this.name}`;
+    return `${this.getNode().id}-${this.socketType}-${this.name}`;
   }
 
   public getPreferredNodes(): string[] {

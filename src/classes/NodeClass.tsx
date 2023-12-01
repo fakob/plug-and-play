@@ -657,19 +657,11 @@ export default class PPNode extends PIXI.Container {
   }
 
   public drawErrorBoundary(): void {
-    if (this.status.node.isError()) {
-      this._BackgroundGraphicsRef.lineStyle(
-        3,
-        this.status.node.getColor().hexNumber(),
-        1,
-      );
-    } else {
-      this._BackgroundGraphicsRef.lineStyle(
-        3,
-        this.status.socket.getColor().hexNumber(),
-        1,
-      );
-    }
+    const status = this.status.node.isError()
+      ? this.status.node
+      : this.status.socket;
+
+    this._BackgroundGraphicsRef.lineStyle(3, status.getColor().hexNumber(), 1);
     this._BackgroundGraphicsRef.drawRoundedRect(
       NODE_MARGIN - 3,
       -3,
@@ -826,20 +818,13 @@ export default class PPNode extends PIXI.Container {
     });
   }
 
-  public setStatus(status: PNPStatus) {
-    const currentMessage = JSON.stringify(this.status.node.message);
+  public setStatus(status: PNPStatus, typeSocket = false) {
+    const currentMessage = JSON.stringify(
+      typeSocket ? this.status.socket : this.status.node.message,
+    );
     const newMessage = JSON.stringify(status.message);
     if (currentMessage !== newMessage) {
-      this.status.node = status;
-      this.drawNodeShape();
-    }
-  }
-
-  public setStatusSocket(status: PNPStatus) {
-    const currentMessage = JSON.stringify(this.status.socket.message);
-    const newMessage = JSON.stringify(status.message);
-    if (currentMessage !== newMessage) {
-      this.status.socket = status;
+      this.status[typeSocket ? 'socket' : 'node'] = status;
       this.drawNodeShape();
     }
   }
@@ -849,7 +834,7 @@ export default class PPNode extends PIXI.Container {
       socket.status.isError(),
     );
     if (!hasErrors) {
-      this.setStatusSocket(new PNPSuccess());
+      this.setStatus(new PNPSuccess(), true);
       this.drawNodeShape();
     }
   }
