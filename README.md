@@ -4,7 +4,7 @@ A visual toolkit for creative prototyping to explore, transform or visualise dat
 
 https://plugandplayground.dev
 
-You can also access specific versions and run them locally to the right under "Releases", running these locally comes with some minor issues like missing icons.
+You can also access specific versions and run them locally to the right under "Releases", running these locally comes with some minor issues like missing icons. In addition, any potential hotloaded dependencies in a graph will require an internet connection (for example the table node).
 
 ## Problems to solve
 
