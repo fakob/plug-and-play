@@ -2,7 +2,9 @@
 
 A visual toolkit for creative prototyping to explore, transform or visualise data.
 
-Work in progress - https://plugandplayground.dev
+https://plugandplayground.dev
+
+You can also access specific versions and run them locally to the right under "Releases", running these locally comes with some minor issues like missing icons.
 
 ## Problems to solve
 
