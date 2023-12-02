@@ -126,7 +126,11 @@ export default class PPNode extends PIXI.Container {
     this._CommentRef = this._BackgroundRef.addChild(new PIXI.Graphics());
     this._StatusesRef = this._BackgroundRef.addChild(new PIXI.Graphics());
 
-    this.updateBehaviour = this.getUpdateBehaviour();
+    // only get default updateBehaviour when newly added
+    if (source !== NODE_SOURCE.SERIALIZED) {
+      this.updateBehaviour = this.getUpdateBehaviour();
+    }
+
     if (this.getShouldShowHoverActions()) {
       this._BackgroundRef.addChild(this.updateBehaviour);
     }
