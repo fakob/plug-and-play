@@ -15,6 +15,7 @@ import DataEditor, {
   GridCellKind,
   GridColumn,
   GridMouseEventArgs,
+  GridSelection,
   HeaderClickedEventArgs,
   Item,
   Rectangle,
@@ -73,6 +74,8 @@ const rowObjectsNames = 'Array of objects';
 const workBookInputSocketName = 'Initial data';
 const sheetIndexInputSocketName = 'Sheet index';
 
+const ONE_SHEET_PER_NODE = false;
+
 export class Table extends HybridNode2 {
   _imageRef: PIXI.Sprite;
   _imageRefClone: PIXI.Sprite;
@@ -107,7 +110,21 @@ export class Table extends HybridNode2 {
     const storedWorkBookData = this.getInputData(workBookInputSocketName);
     if (this.initialData) {
       // load initialData from import
-      this.workBook = this.getXLSXModule().read(this.initialData);
+      const workbook = this.getXLSXModule().read(this.initialData);
+      if (ONE_SHEET_PER_NODE) {
+        console.log('TOCONVERTTOJSON: ' + JSON.stringify(workbook));
+        console.log('sheetnames: ' + JSON.stringify(workbook.SheetNames));
+        console.log(
+          'sheet: ' + JSON.stringify(workbook.Sheets[workbook.SheetNames[0]]),
+        );
+        this.workBook = this.createWorkBookFromJSON(
+          this.getJSON(workbook.Sheets[workbook.SheetNames[0]]),
+        );
+        // create a new node for every sheet
+      } else {
+        this.workBook = workbook;
+      }
+      //this.customArgs;
       this.setInputData(workBookInputSocketName, this.workBook);
     } else if (
       storedWorkBookData !== undefined &&
@@ -915,12 +932,18 @@ export class Table extends HybridNode2 {
     );
   }
 
-  createWorkBookFromJSON(json): any {
+  createWorkBookFromJSON(json): XLSX.WorkBook {
     const module = this.getXLSXModule();
     const workBook = module.utils.book_new();
-    json.SheetNames.forEach(function (name) {
-      module.utils.book_append_sheet(workBook, json.Sheets[name], name);
-    });
+    // a JSON could ve either just one or several sheets
+    if (json.SheetNames) {
+      json.SheetNames.forEach(function (name) {
+        module.utils.book_append_sheet(workBook, json.Sheets[name], name);
+      });
+    } else {
+      console.log('json: ' + JSON.stringify(json[0]));
+      module.utils.book_append_sheet(workBook, json[0], 'Sheet');
+    }
     return workBook;
   }
 

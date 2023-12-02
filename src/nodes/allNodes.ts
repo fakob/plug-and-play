@@ -24,6 +24,7 @@ import * as pixotopegateway from './api/pixotopeGateway';
 import * as shader from './image/shader';
 import * as stateNodes from './state/stateNodes';
 import * as table from './table/table';
+import * as table2 from './table/table2';
 import * as tableHelpers from './table/tableHelpers';
 import * as test from './data/test';
 import * as text from './text';
@@ -80,6 +81,7 @@ export const getAllNodeTypes = (): RegisteredNodeTypes => {
       jira,
       chatgpt,
       twitter,
+      table2,
     };
     const toReturn = {};
     const start = Date.now();
@@ -138,6 +140,7 @@ export const getAllNodesInDetail = (): any[] => {
     widgetNodes,
     recordNodes,
     simpleBarChart,
+    table2,
   };
   const start = Date.now();
   const toReturn = [];
