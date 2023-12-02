@@ -94,7 +94,7 @@ export class SqliteReader extends PPNode {
     ];
   }
 
-  public onNodeAdded = async (source?: TNodeSource): Promise<void> => {
+  public onNodeAdded = async (source: TNodeSource): Promise<void> => {
     await super.onNodeAdded(source);
     this.sqlite3Module = PPGraph.currentGraph.dynamicImports[IMPORT_NAME];
 

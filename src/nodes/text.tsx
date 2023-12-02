@@ -111,7 +111,7 @@ export class Label extends PPNode {
     );
   }
 
-  public onNodeAdded = async (source?: TNodeSource) => {
+  public onNodeAdded = async (source: TNodeSource) => {
     await super.onNodeAdded(source);
     this.PIXITextStyle = new PIXI.TextStyle();
     this.PIXITextStyle.breakWords = true;

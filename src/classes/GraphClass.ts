@@ -422,7 +422,7 @@ export default class PPGraph {
 
   async addNode<T extends PPNode = PPNode>(
     node: T,
-    source: TNodeSource = NODE_SOURCE.SERIALIZED,
+    source: TNodeSource,
   ): Promise<T> {
     if (!node) {
       return;
@@ -458,7 +458,7 @@ export default class PPGraph {
     const node = this.createNode(newNodeType ?? serialized.type, customArgs);
 
     node.configure(serialized, newNodeType === undefined);
-    await this.addNode(node);
+    await this.addNode(node, NODE_SOURCE.SERIALIZED);
     return node;
   }
 

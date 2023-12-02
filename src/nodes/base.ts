@@ -12,7 +12,7 @@ import {
   SOCKET_TYPE,
   TRIGGER_TYPE_OPTIONS,
 } from '../utils/constants';
-import { CustomArgs, TRgba } from '../utils/interfaces';
+import { CustomArgs, TNodeSource, TRgba } from '../utils/interfaces';
 import {
   compare,
   getCurrentButtons,
@@ -48,7 +48,6 @@ export class Placeholder extends PPNode {
   getCanAddInput(): boolean {
     return true;
   }
-
 }
 
 export class Mouse extends PPNode {
@@ -154,8 +153,8 @@ export class Keyboard extends PPNode {
       ),
     ].concat(super.getDefaultIO());
   }
-  public async onNodeAdded(): Promise<void> {
-    await super.onNodeAdded();
+  public async onNodeAdded(source: TNodeSource): Promise<void> {
+    await super.onNodeAdded(source);
     // add event listener
     this.onKeyDownHandler = this.onKeyDown.bind(this);
     window.addEventListener('keydown', (this as any).onKeyDownHandler);

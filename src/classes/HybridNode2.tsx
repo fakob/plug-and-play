@@ -41,7 +41,7 @@ export default abstract class HybridNode2 extends PPNode {
     this.initialData = customArgs?.initialData;
   }
 
-  public async onNodeAdded(source?: TNodeSource): Promise<void> {
+  public async onNodeAdded(source: TNodeSource): Promise<void> {
     this.shadowPlane = new PIXI.NineSlicePlane(
       PIXI.Texture.from(NINE_SLICE_SHADOW),
       blurAmount,

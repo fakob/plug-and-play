@@ -6,8 +6,7 @@ import ErrorFallback from '../../components/ErrorFallback';
 import PPSocket from '../../classes/SocketClass';
 import { CodeType } from '../datatypes/codeType';
 import { TriggerType } from '../datatypes/triggerType';
-
-import { TRgba } from '../../utils/interfaces';
+import { TNodeSource, TRgba } from '../../utils/interfaces';
 import {
   NODE_TYPE_COLOR,
   SOCKET_TYPE,
@@ -29,8 +28,8 @@ const defaultCode = `<h2>HTML Node</h2>
 export class HtmlRenderer extends HybridNode2 {
   eventTarget: EventTarget;
 
-  public onNodeAdded = async (): Promise<void> => {
-    await super.onNodeAdded();
+  public onNodeAdded = async (source: TNodeSource): Promise<void> => {
+    await super.onNodeAdded(source);
     this.eventTarget = new EventTarget();
     if (this.initialData) {
       this.setInputData(inputSocketName, this.initialData);

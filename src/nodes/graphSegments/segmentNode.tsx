@@ -1,5 +1,6 @@
 import PPGraph from '../../classes/GraphClass';
 import PPNode from '../../classes/NodeClass';
+import { TNodeSource } from '../../utils/interfaces';
 import { getNodeDataFromText } from '../../utils/utils';
 import { Segment } from './segment';
 
@@ -30,8 +31,8 @@ export abstract class SegmentNode extends PPNode {
     PPGraph.currentGraph.removeNode(this);
   }
 
-  public async onNodeAdded() {
-    await super.onNodeAdded();
+  public async onNodeAdded(source: TNodeSource) {
+    await super.onNodeAdded(source);
     this.addAndDestroy();
   }
 }
