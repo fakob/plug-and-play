@@ -442,14 +442,26 @@ export const PropertyArrayContainer: React.FunctionComponent<
   }
 
   useEffect(() => {
-    const id = InterfaceController.addListener(
-      ListenEvent.SelectionDragging,
-      setIsDragging,
+    const ids = [];
+    ids.push(
+      InterfaceController.addListener(
+        ListenEvent.SelectionDragging,
+        setIsDragging,
+      ),
+      InterfaceController.addListener(
+        ListenEvent.onNodeStatusChanged,
+        (node) => {
+          if (node.id === selectedNode.id) {
+            console.log('This nodes status changed');
+          }
+        },
+      ),
     );
+
     return () => {
-      InterfaceController.removeListener(id);
+      ids.forEach((id) => InterfaceController.removeListener(id));
     };
-  });
+  }, []);
 
   useEffect(() => {
     const newSelectedNode =
@@ -532,7 +544,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
     }));
   };
 
-  const onUpdateNow = (event) => {
+  const onUpdateNow = () => {
     props.selectedNodes.forEach((selectedNode) => {
       selectedNode.executeOptimizedChain();
     });

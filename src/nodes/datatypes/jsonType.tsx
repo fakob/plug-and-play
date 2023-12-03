@@ -56,21 +56,18 @@ export class JSONType extends AbstractType {
   parse(data: any): TParseType {
     let parsedData;
     const warnings: SocketParsingWarning[] = [];
-
-    if (typeof data === 'string') {
+    if (typeof data === 'string' || this.strictParsing) {
+      try {
+        parsedData = JSON.parse(data);
+      } catch (error) {}
+    }
+    if (parsedData == undefined) {
       try {
         parsedData = JSON.parse(JSON.stringify(data));
       } catch (error) {
-        if (this.strictParsing) {
-          parsedData = {};
-          warnings.push(new SocketParsingWarning('Not a JSON. {} is returned'));
-        }
+        parsedData = {};
+        warnings.push(new SocketParsingWarning('Not a JSON. {} is returned'));
       }
-    } else {
-      parsedData = data;
-      warnings.push(
-        new SocketParsingWarning('Not a JSON string. Data is returned'),
-      );
     }
 
     return {

@@ -20,7 +20,12 @@ import {
   URL_PARAMETER_NAME,
 } from './constants';
 import { GraphDatabase } from './indexedDB';
-import { SerializedSelection, TNodeId, TSocketType } from './interfaces';
+import {
+  SerializedSelection,
+  TNodeId,
+  TSocketId,
+  TSocketType,
+} from './interfaces';
 import { Viewport } from 'pixi-viewport';
 import { AbstractType } from '../nodes/datatypes/abstractType';
 import { NodeExecutionWarning, PNPSuccess } from '../classes/ErrorClass';
@@ -852,7 +857,7 @@ export const constructSocketId = (
   nodeId: TNodeId,
   socketType: TSocketType,
   socketName: string,
-) => {
+): TSocketId => {
   return `${nodeId}-${socketType}-${socketName}`;
 };
 
@@ -917,7 +922,16 @@ export const parseValueAndAttachWarnings = (
   } else {
     warnings.forEach((warning) => {
       if (nodeOrSocket instanceof PPSocket) {
-        nodeOrSocket.getNode()?.setStatus(new NodeExecutionWarning(), true);
+        nodeOrSocket
+          .getNode()
+          .setStatus(
+            new NodeExecutionWarning(
+              `Parsing warning on ${
+                nodeOrSocket.isInput ? 'input' : 'output'
+              }: ${nodeOrSocket.name}`,
+            ),
+            true,
+          );
       }
       nodeOrSocket.setStatus(warning);
     });

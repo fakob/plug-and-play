@@ -28,6 +28,7 @@ import {
 import { AbstractType, DataTypeProps } from '../nodes/datatypes/abstractType';
 import { dataToType, serializeType } from '../nodes/datatypes/typehelper';
 import {
+  constructSocketId,
   getCurrentCursorPosition,
   parseValueAndAttachWarnings,
 } from '../utils/utils';
@@ -149,6 +150,10 @@ export default class Socket extends PIXI.Container implements Tooltipable {
     if (currentMessage !== newMessage) {
       this.status = status;
       this.redraw();
+      InterfaceController.notifyListeners(
+        ListenEvent.onSocketStatusChanged,
+        this.getSocketId(),
+      );
       if (!status.isError()) {
         this.getNode().doSocketsHaveErrors();
       }
@@ -370,7 +375,7 @@ export default class Socket extends PIXI.Container implements Tooltipable {
   }
 
   getSocketId(): TSocketId {
-    return `${this.getNode().id}-${this.socketType}-${this.name}`;
+    return constructSocketId(this.getNode().id, this.socketType, this.name);
   }
 
   public getPreferredNodes(): string[] {

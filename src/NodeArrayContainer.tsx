@@ -463,14 +463,19 @@ export const NodeArrayContainer: React.FunctionComponent<
     return order;
   };
 
-  const updateNodesAndInfo = useCallback(() => {
-    const currentGraph = PPGraph.currentGraph;
-    if (currentGraph) {
-      setConfigData(getConfigData(currentGraph));
-      updateNodes(currentGraph);
-      filterNodes(nodesInGraph);
-    }
-  }, [PPGraph.currentGraph]);
+  const updateNodesAndInfo = useCallback(
+    (includeInfo = true) => {
+      const currentGraph = PPGraph.currentGraph;
+      if (currentGraph) {
+        if (includeInfo) {
+          setConfigData(getConfigData(currentGraph));
+        }
+        updateNodes(currentGraph);
+        filterNodes(nodesInGraph);
+      }
+    },
+    [PPGraph.currentGraph],
+  );
 
   useEffect(() => {
     // data has id and name
@@ -478,6 +483,9 @@ export const NodeArrayContainer: React.FunctionComponent<
     ids.push(
       InterfaceController.addListener(ListenEvent.GraphChanged, () => {
         updateNodesAndInfo();
+      }),
+      InterfaceController.addListener(ListenEvent.onNodeStatusChanged, () => {
+        updateNodesAndInfo(false);
       }),
     );
 

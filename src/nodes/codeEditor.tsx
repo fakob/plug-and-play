@@ -38,6 +38,10 @@ export class CodeEditor extends HybridNode2 {
     return ['Widget'].concat(super.getTags());
   }
 
+  public getRoundedCorners(): boolean {
+    return false;
+  }
+
   protected getDefaultIO(): PPSocket[] {
     return [
       new PPSocket(

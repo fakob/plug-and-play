@@ -1,6 +1,7 @@
 /* eslint-disable */
 import * as PIXI from 'pixi.js';
 import { hri } from 'human-readable-ids';
+import throttle from 'lodash/throttle';
 import {
   CustomArgs,
   NodeStatus,
@@ -43,7 +44,6 @@ import { AbstractType } from '../nodes/datatypes/abstractType';
 import { AnyType } from '../nodes/datatypes/anyType';
 import { TriggerType } from '../nodes/datatypes/triggerType';
 import { deSerializeType } from '../nodes/datatypes/typehelper';
-import throttle from 'lodash/throttle';
 import FlowLogic from './FlowLogic';
 import InterfaceController, { ListenEvent } from '../InterfaceController';
 import { TextStyle } from 'pixi.js';
@@ -64,6 +64,7 @@ export default class PPNode extends PIXI.Container {
   _BackgroundGraphicsRef: PIXI.Graphics;
   _CommentRef: PIXI.Graphics;
   _StatusesRef: PIXI.Graphics;
+  _ErrorBoundaryRef: PIXI.Graphics;
   _ForegroundRef: PIXI.Container;
 
   clickedSocketRef: Socket;
@@ -127,6 +128,7 @@ export default class PPNode extends PIXI.Container {
 
     this._NodeNameRef = this._BackgroundRef.addChild(this._NodeTextStringRef);
     this._CommentRef = this._BackgroundRef.addChild(new PIXI.Graphics());
+    this._ErrorBoundaryRef = this._BackgroundRef.addChild(new PIXI.Graphics());
     this._StatusesRef = this._BackgroundRef.addChild(new PIXI.Graphics());
 
     // only get default updateBehaviour when newly added
@@ -657,19 +659,22 @@ export default class PPNode extends PIXI.Container {
   }
 
   public drawErrorBoundary(): void {
-    const status = this.status.node.isError()
-      ? this.status.node
-      : this.status.socket;
+    this._ErrorBoundaryRef.clear();
+    if (this.status.node.isError() || this.status.socket.isError()) {
+      const status = this.status.node.isError()
+        ? this.status.node
+        : this.status.socket;
 
-    this._BackgroundGraphicsRef.lineStyle(3, status.getColor().hexNumber(), 1);
-    this._BackgroundGraphicsRef.drawRoundedRect(
-      NODE_MARGIN - 3,
-      -3,
-      this.nodeWidth + 6,
-      this.nodeHeight + 6,
-      this.getRoundedCorners() ? NODE_CORNERRADIUS + 3 : 0,
-    );
-    this._BackgroundGraphicsRef.lineStyle();
+      this._ErrorBoundaryRef.lineStyle(3, status.getColor().hexNumber(), 1);
+      this._ErrorBoundaryRef.drawRoundedRect(
+        NODE_MARGIN - 3,
+        -3,
+        this.nodeWidth + 6,
+        this.nodeHeight + 6,
+        this.getRoundedCorners() ? NODE_CORNERRADIUS + 3 : 0,
+      );
+      this._ErrorBoundaryRef.lineStyle();
+    }
   }
 
   public drawBackground(): void {
@@ -767,9 +772,7 @@ export default class PPNode extends PIXI.Container {
     // update selection
 
     this._BackgroundGraphicsRef.clear();
-    if (this.status.node.isError() || this.status.socket.isError()) {
-      this.drawErrorBoundary();
-    }
+    this.drawErrorBoundary();
     this.drawBackground();
 
     this.drawTriggers();
@@ -820,12 +823,17 @@ export default class PPNode extends PIXI.Container {
 
   public setStatus(status: PNPStatus, typeSocket = false) {
     const currentMessage = JSON.stringify(
-      typeSocket ? this.status.socket : this.status.node.message,
+      typeSocket ? this.status.socket.message : this.status.node.message,
     );
     const newMessage = JSON.stringify(status.message);
     if (currentMessage !== newMessage) {
       this.status[typeSocket ? 'socket' : 'node'] = status;
-      this.drawNodeShape();
+      this.drawComment();
+      this.drawErrorBoundary();
+      InterfaceController.notifyListeners(
+        ListenEvent.onNodeStatusChanged,
+        this,
+      );
     }
   }
 
@@ -835,7 +843,11 @@ export default class PPNode extends PIXI.Container {
     );
     if (!hasErrors) {
       this.setStatus(new PNPSuccess(), true);
-      this.drawNodeShape();
+      this.drawErrorBoundary();
+      InterfaceController.notifyListeners(
+        ListenEvent.onNodeStatusChanged,
+        this,
+      );
     }
   }
 
@@ -1035,7 +1047,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
       } else {
         this.setStatus(new NodeExecutionError(error.stack));
       }
-      console.log(
+      console.warn(
         `Node ${this.name}(${this.id}) execution error:  ${error.stack}`,
       );
     }
