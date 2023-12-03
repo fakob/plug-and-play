@@ -20,12 +20,12 @@ export class ArrayMethod extends PPNode {
     });
 
     this.onOptionChange = (value) => {
-      this.nodeName = 'Array.' + value;
+      this.setNodeName('Array.' + value);
     };
 
     this.onExecute = async function (
       inputObject: any,
-      outputObject: Record<string, unknown>
+      outputObject: Record<string, unknown>,
     ) {
       const array = inputObject['Array'];
       const arrayMethod = inputObject['Method'];
@@ -64,14 +64,14 @@ export class ArrayMethod extends PPNode {
         'Method',
         new EnumType(arrayMethodsArrayOptions, this.onOptionChange),
         'map',
-        false
+        false,
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
         'Callback',
         new CodeType(),
         '(item, index) => `${index}: ${item}`',
-        false
+        false,
       ),
       new PPSocket(SOCKET_TYPE.OUT, 'Output', new AnyType()),
     ].concat(super.getDefaultIO());

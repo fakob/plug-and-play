@@ -205,7 +205,7 @@ export default class PPNode extends PIXI.Container {
   constructor(type: string, customArgs?: CustomArgs) {
     super();
     this.id = customArgs?.overrideId || hri.random();
-    this.name = this.getName();
+    this.setNodeName(this.getName());
     this.type = type;
     this.nodeTriggerSocketArray = [];
     this.inputSocketArray = [];
@@ -275,7 +275,7 @@ export default class PPNode extends PIXI.Container {
     return this.name;
   }
 
-  set nodeName(text: string) {
+  public setNodeName(text: string) {
     this.name = text;
     if (this.hasBeenAdded) {
       this._NodeNameRef.text = this.getNodeTextString();
@@ -418,7 +418,7 @@ export default class PPNode extends PIXI.Container {
     this.y = nodeConfig.y;
     this.nodeWidth = nodeConfig.width || this.getMinNodeWidth();
     this.nodeHeight = nodeConfig.height || this.getMinNodeHeight();
-    this.nodeName = nodeConfig.name;
+    this.setNodeName(nodeConfig.name);
     this.updateBehaviour = new UpdateBehaviourClass(
       nodeConfig.updateBehaviour.update,
       nodeConfig.updateBehaviour.interval,

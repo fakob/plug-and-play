@@ -484,7 +484,7 @@ export class Comparison extends PPNode {
 
   protected getDefaultIO(): PPSocket[] {
     const onOptionChange = (value) => {
-      this.nodeName = value;
+      this.setNodeName(value);
     };
 
     return [
@@ -531,7 +531,7 @@ export class IsValid extends PPNode {
 
   protected getDefaultIO(): PPSocket[] {
     const onOptionChange = (value) => {
-      this.nodeName = value;
+      this.setNodeName(value);
     };
 
     return [

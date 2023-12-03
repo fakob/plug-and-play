@@ -69,7 +69,7 @@ function InspectorHeader(props) {
               disabled={props.selectedNodes.length !== 1}
               onChange={(event) => {
                 const value = event.target.value;
-                props.selectedNodes[0].nodeName = value;
+                props.selectedNodes[0].setNodeName(value);
                 setNodeName(value);
               }}
               onKeyDown={(event) => {
