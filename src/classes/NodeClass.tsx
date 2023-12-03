@@ -114,8 +114,8 @@ export default class PPNode extends PIXI.Container {
     this._NodeTextStringRef.y = NODE_PADDING_TOP + NODE_HEADER_TEXTMARGIN_TOP;
     this._NodeTextStringRef.resolution = 8;
 
-    const backgroundContainer = new PIXI.Container();
-    this._BackgroundRef = this.addChild(backgroundContainer);
+    this._BackgroundRef = new PIXI.Container();
+    this.addChild(this._BackgroundRef);
     this._BackgroundRef.name = 'background';
     const backgroundGraphics = new PIXI.Graphics();
     this._BackgroundGraphicsRef =
@@ -148,24 +148,26 @@ export default class PPNode extends PIXI.Container {
     if (!this.getShowLabels()) {
       this._NodeNameRef.alpha = 0;
     }
-    this.getAllSockets().forEach((socket) =>
-      this._BackgroundRef.addChild(socket),
-    );
 
-    const foregroundContainer = new PIXI.Container();
-    this._ForegroundRef = this.addChild(foregroundContainer);
+    this._ForegroundRef = new PIXI.Container();
+    this.addChild(this._ForegroundRef);
     this._ForegroundRef.name = 'foreground';
+
+    this.hasBeenAdded = true;
+    this.getAllSockets().forEach((socket) =>
+    {
+      this._BackgroundRef.addChild(socket);
+      socket.onNodeAdded();
+    }
+    );
+    if (this.executeOnPlace()) {
+      await this.executeOptimizedChain();
+    }
     this.eventMode = 'dynamic';
     this.isDraggingNode = false;
     this._doubleClicked = false;
 
     this._addListeners();
-
-    this.hasBeenAdded = true;
-    this.getAllSockets().forEach((socket) => socket.onNodeAdded());
-    if (this.executeOnPlace()) {
-      await this.executeOptimizedChain();
-    }
     this.resizeAndDraw();
   }
 
@@ -288,6 +290,7 @@ export default class PPNode extends PIXI.Container {
   addSocket(socket: Socket): void {
     if (this.hasBeenAdded) {
       this._BackgroundRef.addChild(socket);
+      socket.onNodeAdded();
     }
     switch (socket.socketType) {
       case SOCKET_TYPE.TRIGGER: {
