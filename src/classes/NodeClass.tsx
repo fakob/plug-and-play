@@ -160,7 +160,7 @@ export default class PPNode extends PIXI.Container {
       socket.onNodeAdded();
     }
     );
-    if (this.executeOnPlace()) {
+    if (this.executeOnPlace() || this.updateBehaviour.update) {
       await this.executeOptimizedChain();
     }
     this.eventMode = 'dynamic';
