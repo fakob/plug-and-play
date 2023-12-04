@@ -558,7 +558,7 @@ export const CodeWidget: React.FunctionComponent<CodeTypeProps> = (props) => (
       }
       return value;
     }}
-    errorMessage="Invalid JSON!"
+    errorMessage="Invalid Code!"
   />
 );
 
