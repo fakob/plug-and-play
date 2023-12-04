@@ -442,24 +442,12 @@ export const PropertyArrayContainer: React.FunctionComponent<
   }
 
   useEffect(() => {
-    const ids = [];
-    ids.push(
-      InterfaceController.addListener(
-        ListenEvent.SelectionDragging,
-        setIsDragging,
-      ),
-      InterfaceController.addListener(
-        ListenEvent.onNodeStatusChanged,
-        (node) => {
-          if (node.id === selectedNode.id) {
-            console.log('This nodes status changed');
-          }
-        },
-      ),
+    const id = InterfaceController.addListener(
+      ListenEvent.SelectionDragging,
+      setIsDragging,
     );
-
     return () => {
-      ids.forEach((id) => InterfaceController.removeListener(id));
+      InterfaceController.removeListener(id);
     };
   }, []);
 

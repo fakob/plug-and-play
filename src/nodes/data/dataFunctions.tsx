@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-this-alias */
 import PPNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
+import { PNPCustomStatus } from '../../classes/ErrorClass';
 import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../../utils/constants';
 import { CustomArgs, TNodeSource, TRgba } from '../../utils/interfaces';
 import {
@@ -386,15 +387,14 @@ export class CustomFunction extends PPNode {
     // this might seem unused but it actually isn't, its used inside the eval in many cases but we can't see what's inside it from here
     const node = this;
 
-    this.statuses = [];
+    this.status.custom = [];
     if (
       this.showModifiedBanner() &&
       this.getDefaultFunction() !== inputObject['Code']
     ) {
-      this.statuses.push({
-        color: this.getColor().multiply(0.8),
-        statusText: 'Modified',
-      });
+      this.status.custom.push(
+        new PNPCustomStatus('Modified', this.getColor().multiply(0.8)),
+      );
     }
 
     const finalized = 'async () => ' + functionWithVariablesFromInputObject;

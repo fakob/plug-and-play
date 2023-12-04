@@ -49,7 +49,7 @@ export class Twitter extends HTTPNode {
     inputObject: any,
     outputObject: Record<string, unknown>,
   ): Promise<void> {
-    this.statuses = [];
+    this.status.custom = [];
 
     outputObject[outputContentName] = await HTTPNode.sendThroughCompanion(
       inputObject[sendThroughCompanionAddress],

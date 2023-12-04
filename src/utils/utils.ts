@@ -922,16 +922,15 @@ export const parseValueAndAttachWarnings = (
   } else {
     warnings.forEach((warning) => {
       if (nodeOrSocket instanceof PPSocket) {
-        nodeOrSocket
-          .getNode()
-          .setStatus(
-            new NodeExecutionWarning(
-              `Parsing warning on ${
-                nodeOrSocket.isInput ? 'input' : 'output'
-              }: ${nodeOrSocket.name}`,
-            ),
-            true,
-          );
+        nodeOrSocket.getNode().setStatus(
+          new NodeExecutionWarning(
+            `Parsing warning on ${
+              nodeOrSocket.isInput() ? 'input' : 'output'
+            }: ${nodeOrSocket.name}
+${warning.message}`,
+          ),
+          true,
+        );
       }
       nodeOrSocket.setStatus(warning);
     });

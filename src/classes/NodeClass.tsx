@@ -4,7 +4,6 @@ import { hri } from 'human-readable-ids';
 import throttle from 'lodash/throttle';
 import {
   CustomArgs,
-  NodeStatus,
   SerializedNode,
   SerializedSocket,
   TRgba,
@@ -81,9 +80,10 @@ export default class PPNode extends PIXI.Container {
   nodeSelectionHeader: NodeHeaderClass;
   lastTimeTicked = 0;
 
-  status: { node: PNPStatus; socket: PNPStatus } = {
+  status: { node: PNPStatus; socket: PNPStatus; custom: PNPStatus[] } = {
     node: new PNPSuccess(),
     socket: new PNPSuccess(),
+    custom: [],
   };
 
   inputSocketArray: Socket[] = [];
@@ -92,7 +92,6 @@ export default class PPNode extends PIXI.Container {
 
   _doubleClicked: boolean;
   isDraggingNode: boolean;
-  protected statuses: NodeStatus[] = []; // you can add statuses into this and they will be rendered on the node
   listenId: string[] = [];
 
   // supported callbacks
@@ -735,33 +734,48 @@ export default class PPNode extends PIXI.Container {
     this._StatusesRef.clear();
     this._StatusesRef.removeChildren();
 
-    this.statuses.forEach((nStatus, index) => {
-      const color = nStatus.color;
+    let flattenedStatus = [];
+    for (const key in this.status) {
+      if (Array.isArray(this.status[key])) {
+        flattenedStatus = this.status[key].concat(flattenedStatus);
+      } else if (this.status[key].isError()) {
+        flattenedStatus.push(this.status[key]);
+      }
+    }
 
-      const height = 30;
-      const merging = 5;
-      const inlet = 60;
+    const padding = 5;
+    let startY = this.countOfVisibleOutputSockets * SOCKET_HEIGHT + 40;
+    const startX = this.nodeWidth - 60;
 
-      const startY = this.countOfVisibleOutputSockets * SOCKET_HEIGHT + 50;
+    flattenedStatus.forEach((nStatus, index) => {
+      const color = nStatus.getColor();
+
+      let shortenedMessage = nStatus.message;
+      const lines = nStatus.message.split('\n');
+      const maxLines = 3;
+      if (lines.length > maxLines) {
+        shortenedMessage = lines.slice(0, maxLines).join('\n');
+      }
 
       const text = new PIXI.Text(
-        nStatus.statusText,
+        shortenedMessage,
         new TextStyle({
           fontSize: 18,
           fill: COLOR_MAIN,
         }),
       );
-      text.x = this.nodeWidth - inlet + 5; // - width;
-      text.y = startY + 5 + index * (height - merging);
+      text.x = startX + padding;
+      text.y = startY + padding;
       this._StatusesRef.addChild(text);
       this._StatusesRef.beginFill(color.hexNumber());
       this._StatusesRef.drawRoundedRect(
-        this.nodeWidth - inlet, // - width,
-        startY + index * (height - merging),
-        text.width + 10,
-        height,
-        NODE_CORNERRADIUS,
+        startX,
+        startY,
+        text.width + padding * 2,
+        text.height + padding * 2,
+        nStatus.isError() ? 0 : NODE_CORNERRADIUS,
       );
+      startY += text.height + padding;
     });
   }
 
@@ -828,7 +842,7 @@ export default class PPNode extends PIXI.Container {
     const newMessage = JSON.stringify(status.message);
     if (currentMessage !== newMessage) {
       this.status[typeSocket ? 'socket' : 'node'] = status;
-      this.drawComment();
+      this.drawStatuses();
       this.drawErrorBoundary();
       InterfaceController.notifyListeners(
         ListenEvent.onNodeStatusChanged,
@@ -843,6 +857,7 @@ export default class PPNode extends PIXI.Container {
     );
     if (!hasErrors) {
       this.setStatus(new PNPSuccess(), true);
+      this.drawStatuses();
       this.drawErrorBoundary();
       InterfaceController.notifyListeners(
         ListenEvent.onNodeStatusChanged,
@@ -881,14 +896,6 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
 
       this._CommentRef.addChild(debugText);
       this._CommentRef.addChild(nodeComment);
-    }
-    if (this.status.node.isError()) {
-      const errorText = new PIXI.Text(this.status.node.message);
-      errorText.x = -50;
-      errorText.y = this.nodeHeight;
-      errorText.style.fill = this.status.node.getColor().hexNumber();
-      errorText.style.fontSize = 18;
-      this._CommentRef.addChild(errorText);
     }
   }
 

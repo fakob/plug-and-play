@@ -1,5 +1,6 @@
 import PPNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
+import { PNPCustomStatus } from '../../classes/ErrorClass';
 import { wrapDownloadLink } from '../../utils/utils';
 import {
   ERROR_COLOR,
@@ -58,7 +59,7 @@ export class HTTPNode extends PPNode {
   }
 
   public socketShouldAutomaticallyAdapt(socket: Socket): boolean {
-    return !socket.isInput()
+    return !socket.isInput();
   }
 
   protected getDefaultIO(): Socket[] {
@@ -106,10 +107,12 @@ export class HTTPNode extends PPNode {
   }
 
   protected pushStatusCode(statusCode: number): void {
-    this.statuses.push({
-      color: statusCode > 400 ? ERROR_COLOR : SUCCESS_COLOR,
-      statusText: 'Status: ' + statusCode,
-    });
+    this.status.custom.push(
+      new PNPCustomStatus(
+        'Status: ' + statusCode,
+        statusCode > 400 ? ERROR_COLOR : SUCCESS_COLOR,
+      ),
+    );
     this.drawStatuses();
   }
 
@@ -118,13 +121,12 @@ export class HTTPNode extends PPNode {
     outputObject: Record<string, unknown>,
   ): Promise<void> {
     const usingCompanion: boolean = inputObject[sendThroughCompanionName];
-    this.statuses = [];
+    this.status.custom = [];
     let returnResponse = {};
     if (usingCompanion) {
-      this.statuses.push({
-        color: TRgba.white().multiply(0.5),
-        statusText: 'Companion',
-      });
+      this.status.custom.push(
+        new PNPCustomStatus('Companion', TRgba.white().multiply(0.5)),
+      );
       //console.log('awaitedres: ' + (await (await res).text()));
       const companionRes = await HTTPNode.sendThroughCompanion(
         inputObject[sendThroughCompanionAddress],

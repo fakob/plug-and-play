@@ -61,6 +61,31 @@ export class PNPSuccess extends PNPStatus {
   }
 }
 
+export class PNPCustomStatus extends PNPStatus {
+  color: TRgba;
+  public isError(): boolean {
+    return false;
+  }
+
+  constructor(message?: string, color = TRgba.black()) {
+    super(message);
+    Object.setPrototypeOf(this, PNPCustomStatus.prototype);
+    this.color = color;
+  }
+
+  public getName(): string {
+    return 'Custom status';
+  }
+
+  public getDescription(): string {
+    return 'Custom status';
+  }
+
+  public getColor(): TRgba {
+    return this.color;
+  }
+}
+
 export class FatalError extends PNPError {
   constructor(message?: string) {
     super(message);

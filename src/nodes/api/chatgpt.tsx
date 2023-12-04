@@ -1,5 +1,6 @@
 import Socket from '../../classes/SocketClass';
 import UpdateBehaviourClass from '../../classes/UpdateBehaviourClass';
+import { PNPCustomStatus } from '../../classes/ErrorClass';
 import { SOCKET_TYPE, NODE_TYPE_COLOR } from '../../utils/constants';
 import { TRgba } from '../../utils/interfaces';
 import { wrapDownloadLink } from '../../utils/utils';
@@ -77,12 +78,11 @@ export class ChatGPTNode extends HTTPNode {
     inputObject: any,
     outputObject: Record<string, unknown>,
   ): Promise<void> {
-    this.statuses = [];
+    this.status.custom = [];
     let returnResponse = {};
-    this.statuses.push({
-      color: TRgba.white().multiply(0.5),
-      statusText: 'Companion',
-    });
+    this.status.custom.push(
+      new PNPCustomStatus('Companion', TRgba.white().multiply(0.5)),
+    );
     try {
       const finalOptions = JSON.parse(
         JSON.stringify(inputObject[chatGPTOptionsName]),

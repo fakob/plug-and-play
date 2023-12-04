@@ -138,11 +138,6 @@ export type SerializedSocket = {
   visible: boolean;
 };
 
-export type NodeStatus = {
-  color: TRgba;
-  statusText: string;
-};
-
 export type TNodeSource = (typeof NODE_SOURCE)[keyof typeof NODE_SOURCE];
 
 export type TAlignOptions = (typeof ALIGNOPTIONS)[keyof typeof ALIGNOPTIONS];

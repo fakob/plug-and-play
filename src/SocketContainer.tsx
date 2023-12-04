@@ -60,9 +60,7 @@ export const SocketContainer: React.FunctionComponent<SocketContainerProps> = (
     props.property.dataType = entry;
     setDataTypeValue(entry);
     props.property.getNode().metaInfoChanged();
-    setTimeout(() => {
-      setHasError(props.property.status.isError());
-    }, 100);
+    setHasError(props.property.status.isError());
   };
 
   const socketStatusChanged = (socketId: TSocketId) => {
