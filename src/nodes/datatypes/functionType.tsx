@@ -22,4 +22,8 @@ export class FunctionType extends AbstractType {
   recommendedInputNodeWidgets(): string[] {
     return ['CodeEditor', 'Constant'];
   }
+
+  allowedToAutomaticallyAdapt(): boolean {
+    return false;
+  }
 }

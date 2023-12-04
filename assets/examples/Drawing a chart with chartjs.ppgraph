@@ -291,27 +291,27 @@
           "socketType": "in",
           "name": "Code",
           "dataType": "{\"class\":\"CodeType\",\"type\":{}}",
-          "data": "//define your function here, node will adapt to inputs automatically\n(chartjs, data) => {\n  const { Chart, registerables } = chartjs;\n\n  Chart.register(...registerables);\n\n\tconst ctx = document.getElementById('kind-ape-68').contentWindow.document.getElementById('myChart2');\n\nlet chartStatus = Chart.getChart(ctx); // <canvas> id\nif (chartStatus != undefined) {\n  chartStatus.destroy();\n}\n\n  const myChart = new Chart(ctx, {\n    type: 'bar',\n    data: data,\n    options: {\n      scales: {\n        y: {\n          beginAtZero: true\n        }\n      }\n    }\n  });\n}",
+          "data": "//define your function here, node will adapt to inputs automatically\n(chartjs, data) => {\n  const { Chart, registerables } = chartjs;\n\n  Chart.register(...registerables);\n\n\tconst ctx = document.getElementById('kind-ape-68').contentWindow.document.getElementById('myChart2');\n\n  let chartStatus = Chart.getChart(ctx); // <canvas> id\n  if (chartStatus != undefined) {\n    chartStatus.destroy();\n  }\n\n  const myChart = new Chart(ctx, {\n    type: 'bar',\n    data: data,\n    options: {\n      scales: {\n        y: {\n          beginAtZero: true\n        }\n      }\n    }\n  });\n\n  return data;\n}",
           "visible": false
         },
         {
           "socketType": "in",
           "name": "chartjs",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"FunctionType\",\"type\":{}}",
           "defaultData": {},
           "visible": true
         },
         {
           "socketType": "in",
           "name": "data",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "defaultData": {},
           "visible": true
         },
         {
           "socketType": "out",
           "name": "OutData",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "visible": true
         }
       ],
@@ -506,7 +506,7 @@
         {
           "socketType": "out",
           "name": "NpmPackage",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"FunctionType\",\"type\":{}}",
           "visible": true
         }
       ],

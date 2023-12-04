@@ -341,4 +341,8 @@ export class LoadNPM extends CustomFunction {
 	return npmPackage;
 }`;
   }
+
+  public socketShouldAutomaticallyAdapt(): boolean {
+    return false;
+  }
 }
