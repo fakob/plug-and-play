@@ -45,6 +45,7 @@ import {
 import styles from './utils/style.module.css';
 import { TRgba } from './utils/interfaces';
 import { DataTypeProps } from './nodes/datatypes/abstractType';
+import { ArrayTypeProps } from './nodes/datatypes/arrayType';
 import { BooleanTypeProps } from './nodes/datatypes/booleanType';
 import { CodeTypeProps } from './nodes/datatypes/codeType';
 import { ColorTypeProps } from './nodes/datatypes/colorType';
@@ -475,69 +476,100 @@ export const FileBrowserWidget: React.FunctionComponent<FileTypeProps> = (
   );
 };
 
-export const CodeWidget: React.FunctionComponent<CodeTypeProps> = (props) => {
-  const [data, setData] = useState(convertToString(props.property.data));
+export interface DataEditorWidgetProps {
+  property: Socket;
+  randomMainColor: string;
+  parseData: (value: string) => any;
+  errorMessage: string;
+}
 
-  useInterval(() => {
-    const formattedData = convertToString(props.property.data);
-    if (data !== formattedData) {
-      setData(formattedData);
-    }
-  }, 100);
-  return (
-    <CodeEditor
-      value={data}
-      randomMainColor={props.randomMainColor}
-      editable={true}
-      onChange={(value) => {
-        potentiallyUpdateSocketData(props.property, value);
-        setData(value);
-      }}
-    />
-  );
-};
-
-export const JSONWidget: React.FunctionComponent<JSONTypeProps> = (props) => {
-  const [data, setData] = useState(props.property.data);
+export const DataEditorWidget: React.FunctionComponent<
+  DataEditorWidgetProps
+> = ({ property, randomMainColor, parseData, errorMessage }) => {
+  const [data, setData] = useState(property.data);
   const [displayedString, setDisplayedString] = useState(
-    convertToString(props.property.data),
+    convertToString(property.data),
   );
-  const [validJSON, setValidJSON] = useState(true);
+  const [isValid, setIsValid] = useState(true);
 
   useInterval(() => {
-    const formattedData = convertToString(props.property.data);
+    const formattedData = convertToString(property.data);
     if (data !== formattedData) {
       setData(formattedData);
     }
   }, 100);
+
+  const onChange = (value: string) => {
+    try {
+      setDisplayedString(value);
+      const parsedData = parseData(value);
+      if (parsedData) {
+        setData(parsedData);
+        potentiallyUpdateSocketData(property, parsedData);
+        setIsValid(true);
+      } else {
+        setIsValid(false);
+      }
+    } catch (error) {
+      console.warn(error);
+      setIsValid(false);
+    }
+  };
 
   return (
     <Box>
       <CodeEditor
         value={displayedString || ''}
-        randomMainColor={props.randomMainColor}
+        randomMainColor={randomMainColor}
         editable={true}
-        onChange={(value) => {
-          try {
-            setDisplayedString(value);
-            const parsedJSON = parseJSON(value);
-            if (parsedJSON) {
-              setData(parsedJSON as any);
-              potentiallyUpdateSocketData(props.property, parsedJSON);
-              setValidJSON(true);
-            } else {
-              setValidJSON(false);
-            }
-          } catch (error) {
-            console.warn(error);
-            setValidJSON(false);
-          }
-        }}
+        onChange={onChange}
       />
-      {!validJSON && <Alert severity="error">Invalid JSON!</Alert>}
+      {!isValid && <Alert severity="error">{errorMessage}</Alert>}
     </Box>
   );
 };
+
+export const ArrayWidget: React.FunctionComponent<ArrayTypeProps> = (props) => (
+  <DataEditorWidget
+    property={props.property}
+    randomMainColor={props.randomMainColor}
+    parseData={(value) => {
+      if (Array.isArray(value)) {
+        return value;
+      } else if (typeof value === 'string') {
+        const parsedData = JSON.parse(value);
+        if (!Array.isArray(parsedData)) {
+          return undefined;
+        }
+        return parsedData;
+      }
+    }}
+    errorMessage="Invalid Array!"
+  />
+);
+
+export const CodeWidget: React.FunctionComponent<CodeTypeProps> = (props) => (
+  <DataEditorWidget
+    property={props.property}
+    randomMainColor={props.randomMainColor}
+    parseData={(value) => {
+      if (typeof value !== 'string') {
+        return convertToString(value);
+      }
+      return value;
+    }}
+    errorMessage="Invalid JSON!"
+  />
+);
+
+export const JSONWidget: React.FunctionComponent<JSONTypeProps> = (props) => (
+  <DataEditorWidget
+    property={props.property}
+    randomMainColor={props.randomMainColor}
+    parseData={(value) => parseJSON(value)}
+    errorMessage="Invalid JSON!"
+  />
+);
 
 export const TriggerWidget: React.FunctionComponent<TriggerTypeProps> = (
   props,
