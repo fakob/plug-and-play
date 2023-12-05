@@ -20,7 +20,6 @@ import {
   allDataTypes,
   dropDownSelectableTypes,
 } from './nodes/datatypes/dataTypesMap';
-import { TSocketId } from './utils/interfaces';
 
 type SocketContainerProps = {
   triggerScrollIntoView: boolean;

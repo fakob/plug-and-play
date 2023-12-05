@@ -1,10 +1,10 @@
 import * as PIXI from 'pixi.js';
+import Color from 'color';
 import PPSelection from '../classes/SelectionClass';
 import PPNode from '../classes/NodeClass';
 import PPSocket from '../classes/SocketClass';
-import { PNPStatus } from '../classes/ErrorClass';
+import { PNPStatus, SocketParsingWarning } from '../classes/ErrorClass';
 import { IUpdateBehaviour } from '../classes/UpdateBehaviourClass';
-import { SocketParsingWarning } from '../classes/ErrorClass';
 import {
   ALIGNOPTIONS,
   COLOR_DARK,
@@ -12,7 +12,6 @@ import {
   SOCKET_TYPE,
   NODE_SOURCE,
 } from './constants';
-import Color from 'color';
 
 export type RegisteredNodeTypes = Record<
   string,
