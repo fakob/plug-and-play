@@ -22,8 +22,6 @@ export enum ListenEvent {
   GlobalPointerUpAndUpOutside, // data = event: PIXI.FederatedPointerEvent
   GraphChanged, // data = {id,name}
   ToggleInspectorWithFocus, // (data: Node, Filter or Socket) => void: called when inspector should be opened with focus
-  onNodeStatusChanged, // data = node
-  onSocketStatusChanged, // data = socketId
   EscapeKeyUsed,
   UnsavedChanges, // data = Boolean
   ResourceUpdated, // data = {id}
@@ -44,8 +42,6 @@ export default class InterfaceController {
     10: {},
     11: {},
     12: {},
-    13: {},
-    14: {},
   }; // not sure why this one is so messed up and needs these defined by default, very annoying
 
   // we use this listener structure here as there can be multiple listeners, not needed for everything (sometimes there is just one listener)

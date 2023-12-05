@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import useInterval from 'use-interval';
 import {
   Box,
   Button,
@@ -29,7 +30,6 @@ import Socket from './classes/SocketClass';
 import { SocketContainer } from './SocketContainer';
 import { CodeEditor } from './components/Editor';
 import InterfaceController, { ListenEvent } from './InterfaceController';
-import useInterval from 'use-interval';
 
 type FilterContentProps = {
   handleFilter: (

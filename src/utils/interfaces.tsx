@@ -2,6 +2,7 @@ import * as PIXI from 'pixi.js';
 import PPSelection from '../classes/SelectionClass';
 import PPNode from '../classes/NodeClass';
 import PPSocket from '../classes/SocketClass';
+import { PNPStatus } from '../classes/ErrorClass';
 import { IUpdateBehaviour } from '../classes/UpdateBehaviourClass';
 import { SocketParsingWarning } from '../classes/ErrorClass';
 import {
@@ -128,6 +129,10 @@ export type TParseType = {
   value: any;
   warnings: SocketParsingWarning[];
 };
+
+export interface IWarningHandler {
+  setStatus(status: PNPStatus): void;
+}
 
 export type SerializedSocket = {
   socketType: TSocketType;

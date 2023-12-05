@@ -4,6 +4,7 @@ import React from 'react';
 import { Box } from '@mui/material';
 import { SocketBody } from '../SocketContainer';
 import {
+  IWarningHandler,
   SerializedSocket,
   TRgba,
   TSocketId,
@@ -32,9 +33,12 @@ import {
   getCurrentCursorPosition,
   parseValueAndAttachWarnings,
 } from '../utils/utils';
-import { PNPStatus, PNPSuccess } from './ErrorClass';
+import { NodeExecutionWarning, PNPStatus, PNPSuccess } from './ErrorClass';
 
-export default class Socket extends PIXI.Container implements Tooltipable {
+export default class Socket
+  extends PIXI.Container
+  implements Tooltipable, IWarningHandler
+{
   onNodeAdded(): void {
     this.eventMode = 'static';
     this.addEventListener('pointerover', this.onPointerOver.bind(this));
@@ -145,17 +149,23 @@ export default class Socket extends PIXI.Container implements Tooltipable {
   }
 
   public setStatus(status: PNPStatus) {
-    const currentMessage = JSON.stringify(this.status.message);
-    const newMessage = JSON.stringify(status.message);
+    const currentMessage = this.status.message;
+    const newMessage = status.message;
     if (currentMessage !== newMessage) {
       this.status = status;
       this.redraw();
-      InterfaceController.notifyListeners(
-        ListenEvent.onSocketStatusChanged,
-        this.getSocketId(),
-      );
       if (!status.isError()) {
-        this.getNode().doSocketsHaveErrors();
+        this.getNode().adaptToSocketErrors();
+      } else {
+        this.getNode().setStatus(
+          new NodeExecutionWarning(
+            `Parsing warning on ${this.isInput() ? 'input' : 'output'}: ${
+              this.name
+            }
+${newMessage}`,
+          ),
+          'socket',
+        );
       }
     }
   }

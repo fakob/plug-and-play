@@ -387,12 +387,11 @@ export class CustomFunction extends PPNode {
     // this might seem unused but it actually isn't, its used inside the eval in many cases but we can't see what's inside it from here
     const node = this;
 
-    this.status.custom = [];
     if (
       this.showModifiedBanner() &&
       this.getDefaultFunction() !== inputObject['Code']
     ) {
-      this.status.custom.push(
+      this.pushExclusiveCustomStatus(
         new PNPCustomStatus('Modified', this.getColor().multiply(0.8)),
       );
     }

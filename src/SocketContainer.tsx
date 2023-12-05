@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import useInterval from 'use-interval';
 import Color from 'color';
 import { Box, IconButton, Menu, MenuItem, ToggleButton } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -8,7 +9,7 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import WarningIcon from '@mui/icons-material/Warning';
 import DashboardCustomizeIcon from '@mui/icons-material/DashboardCustomize';
-import InterfaceController, { ListenEvent } from './InterfaceController';
+import InterfaceController from './InterfaceController';
 import { COLOR_WARNING } from './utils/constants';
 import { writeDataToClipboard } from './utils/utils';
 import styles from './utils/style.module.css';
@@ -40,6 +41,7 @@ export const SocketContainer: React.FunctionComponent<SocketContainerProps> = (
   const [hasError, setHasError] = useState(props.property.status.isError());
 
   const [dataTypeValue, setDataTypeValue] = useState(props.dataType);
+
   const baseProps: DataTypeProps = {
     key: props.dataType.getName(),
     property: props.property,
@@ -63,21 +65,12 @@ export const SocketContainer: React.FunctionComponent<SocketContainerProps> = (
     setHasError(props.property.status.isError());
   };
 
-  const socketStatusChanged = (socketId: TSocketId) => {
-    if (socketId === props.property.getSocketId()) {
+  useInterval(() => {
+    const newHasError = props.property.status.isError();
+    if (hasError !== newHasError) {
       setHasError(props.property.status.isError());
     }
-  };
-
-  useEffect(() => {
-    const id = InterfaceController.addListener(
-      ListenEvent.onSocketStatusChanged,
-      socketStatusChanged,
-    );
-    return () => {
-      InterfaceController.removeListener(id);
-    };
-  }, []);
+  }, 100);
 
   useEffect(() => {
     if (props.triggerScrollIntoView) {

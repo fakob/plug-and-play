@@ -78,11 +78,12 @@ export class ChatGPTNode extends HTTPNode {
     inputObject: any,
     outputObject: Record<string, unknown>,
   ): Promise<void> {
-    this.status.custom = [];
     let returnResponse = {};
-    this.status.custom.push(
+
+    this.pushExclusiveCustomStatus(
       new PNPCustomStatus('Companion', TRgba.white().multiply(0.5)),
     );
+
     try {
       const finalOptions = JSON.parse(
         JSON.stringify(inputObject[chatGPTOptionsName]),

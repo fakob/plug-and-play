@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import useInterval from 'use-interval';
 import {
   Box,
   Button,
@@ -98,8 +99,21 @@ const NodesContent = (props) => {
 };
 
 const NodeItem = (props) => {
-  const nodeStatus = props.property.status.node as PNPStatus;
-  const socketStatus = props.property.status.socket as PNPStatus;
+  const [nodeStatus, setNodeStatus] = useState(
+    props.property.status.node as PNPStatus,
+  );
+  const [socketStatus, setSocketStatus] = useState(
+    props.property.status.socket as PNPStatus,
+  );
+
+  useInterval(() => {
+    const newNnodeStatus = props.property.status.node as PNPStatus;
+    const newSocketStatus = props.property.status.node as PNPStatus;
+    if (socketStatus !== newSocketStatus || nodeStatus !== newNnodeStatus) {
+      setNodeStatus(props.property.status.node as PNPStatus);
+      setSocketStatus(props.property.status.socket as PNPStatus);
+    }
+  }, 100);
 
   return (
     <ListItem
@@ -483,9 +497,6 @@ export const NodeArrayContainer: React.FunctionComponent<
     ids.push(
       InterfaceController.addListener(ListenEvent.GraphChanged, () => {
         updateNodesAndInfo();
-      }),
-      InterfaceController.addListener(ListenEvent.onNodeStatusChanged, () => {
-        updateNodesAndInfo(false);
       }),
     );
 

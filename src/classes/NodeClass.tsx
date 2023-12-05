@@ -4,6 +4,7 @@ import { hri } from 'human-readable-ids';
 import throttle from 'lodash/throttle';
 import {
   CustomArgs,
+  IWarningHandler,
   SerializedNode,
   SerializedSocket,
   TRgba,
@@ -56,7 +57,7 @@ import {
 } from './ErrorClass';
 
 // export default class PPNode extends PIXI.Container implements Tooltipable {
-export default class PPNode extends PIXI.Container {
+export default class PPNode extends PIXI.Container implements IWarningHandler {
   _NodeNameRef: PIXI.Text;
   _BackgroundRef: PIXI.Container;
   _NodeTextStringRef: PIXI.Text;
@@ -835,34 +836,29 @@ export default class PPNode extends PIXI.Container {
     });
   }
 
-  public setStatus(status: PNPStatus, typeSocket = false) {
-    const currentMessage = JSON.stringify(
-      typeSocket ? this.status.socket.message : this.status.node.message,
-    );
+  public setStatus(status: PNPStatus, type: 'node' | 'socket' = 'node') {
+    const currentMessage = JSON.stringify(this.status[type].message);
     const newMessage = JSON.stringify(status.message);
     if (currentMessage !== newMessage) {
-      this.status[typeSocket ? 'socket' : 'node'] = status;
+      this.status[type] = status;
       this.drawStatuses();
       this.drawErrorBoundary();
-      InterfaceController.notifyListeners(
-        ListenEvent.onNodeStatusChanged,
-        this,
-      );
     }
   }
 
-  doSocketsHaveErrors(): void {
+  public pushExclusiveCustomStatus(status: PNPStatus) {
+    this.status.custom = [];
+    this.status.custom.push(status);
+  }
+
+  adaptToSocketErrors(): void {
     const hasErrors = this.getAllSockets().some((socket) =>
       socket.status.isError(),
     );
     if (!hasErrors) {
-      this.setStatus(new PNPSuccess(), true);
+      this.setStatus(new PNPSuccess(), 'socket');
       this.drawStatuses();
       this.drawErrorBoundary();
-      InterfaceController.notifyListeners(
-        ListenEvent.onNodeStatusChanged,
-        this,
-      );
     }
   }
 

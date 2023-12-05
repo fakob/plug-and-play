@@ -21,6 +21,7 @@ import {
 } from './constants';
 import { GraphDatabase } from './indexedDB';
 import {
+  IWarningHandler,
   SerializedSelection,
   TNodeId,
   TSocketId,
@@ -28,7 +29,7 @@ import {
 } from './interfaces';
 import { Viewport } from 'pixi-viewport';
 import { AbstractType } from '../nodes/datatypes/abstractType';
-import { NodeExecutionWarning, PNPSuccess } from '../classes/ErrorClass';
+import { PNPSuccess } from '../classes/ErrorClass';
 
 export function isFunction(funcOrClass: any): boolean {
   const propertyNames = Object.getOwnPropertyNames(funcOrClass);
@@ -912,7 +913,7 @@ export const sortByDate = (a, b) =>
   new Date(b.date).getTime() - new Date(a.date).getTime();
 
 export const parseValueAndAttachWarnings = (
-  nodeOrSocket: PPNode | PPSocket,
+  nodeOrSocket: IWarningHandler,
   dataType: AbstractType,
   data: any,
 ): any => {
@@ -921,20 +922,8 @@ export const parseValueAndAttachWarnings = (
     nodeOrSocket.setStatus(new PNPSuccess());
   } else {
     warnings.forEach((warning) => {
-      if (nodeOrSocket instanceof PPSocket) {
-        nodeOrSocket.getNode().setStatus(
-          new NodeExecutionWarning(
-            `Parsing warning on ${
-              nodeOrSocket.isInput() ? 'input' : 'output'
-            }: ${nodeOrSocket.name}
-${warning.message}`,
-          ),
-          true,
-        );
-      }
       nodeOrSocket.setStatus(warning);
     });
   }
-
   return value;
 };
