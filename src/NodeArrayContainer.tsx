@@ -107,9 +107,9 @@ const NodeItem = (props) => {
   );
 
   useInterval(() => {
-    const newNnodeStatus = props.property.status.node as PNPStatus;
+    const newNodeStatus = props.property.status.node as PNPStatus;
     const newSocketStatus = props.property.status.node as PNPStatus;
-    if (socketStatus !== newSocketStatus || nodeStatus !== newNnodeStatus) {
+    if (socketStatus !== newSocketStatus || nodeStatus !== newNodeStatus) {
       setNodeStatus(props.property.status.node as PNPStatus);
       setSocketStatus(props.property.status.socket as PNPStatus);
     }
