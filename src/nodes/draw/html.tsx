@@ -15,24 +15,27 @@ import {
 } from '../../utils/constants';
 import HybridNode2 from '../../classes/HybridNode2';
 
-const inputSocketName = 'Html';
+const inputSocketNameHeader = 'Header';
+const inputSocketNameHtml = 'Html';
 const reloadSocketName = 'Reload';
-const defaultCode = `<h2>HTML Node</h2>
-<p>Embed an iframe or write your own HTML</p>
+const defaultHeader = '<script src="https://cdn.tailwindcss.com"></script>';
+const defaultCode = `<div class="p-4">
+<h2>HTML Node</h2>
+<p class="mb-2 text-sky-500 dark:text-sky-400">Embed an iframe or write your own HTML</p>
 <form>
-  <button
-  formtarget="_blank" formaction="https://github.com/fakob/plug-and-play/">Click me!</button>
+  <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" formtarget="_blank" formaction="https://github.com/fakob/plug-and-play/">Click me!</button>
 </form>
+</div>
 `;
 
 export class HtmlRenderer extends HybridNode2 {
   eventTarget: EventTarget;
 
   public onNodeAdded = async (source: TNodeSource): Promise<void> => {
-    await super.onNodeAdded(source);
     this.eventTarget = new EventTarget();
+    await super.onNodeAdded(source);
     if (this.initialData) {
-      this.setInputData(inputSocketName, this.initialData);
+      this.setInputData(inputSocketNameHtml, this.initialData);
     }
   };
 
@@ -53,11 +56,11 @@ export class HtmlRenderer extends HybridNode2 {
   }
 
   getOpacity(): number {
-    return 0.05;
+    return 0.001;
   }
 
   getPreferredInputSocketName(): string {
-    return inputSocketName;
+    return inputSocketNameHtml;
   }
 
   getColor(): TRgba {
@@ -68,7 +71,14 @@ export class HtmlRenderer extends HybridNode2 {
     return [
       new PPSocket(
         SOCKET_TYPE.IN,
-        inputSocketName,
+        inputSocketNameHeader,
+        new CodeType(),
+        defaultHeader,
+        false,
+      ),
+      new PPSocket(
+        SOCKET_TYPE.IN,
+        inputSocketNameHtml,
         new CodeType(),
         defaultCode,
         false,
@@ -103,7 +113,8 @@ export class HtmlRenderer extends HybridNode2 {
   protected getParentComponent(props: any): React.ReactElement {
     const node = props.node;
     const iframeRef = useRef();
-    const [htmlData, setHtmlData] = useState(props[inputSocketName]);
+    const [headerData, setHeaderData] = useState(props[inputSocketNameHeader]);
+    const [htmlData, setHtmlData] = useState(props[inputSocketNameHtml]);
     const [reload, setReload] = useState(props[reloadSocketName]);
 
     useEffect(() => {
@@ -116,9 +127,14 @@ export class HtmlRenderer extends HybridNode2 {
     }, []);
 
     useEffect(() => {
+      console.log('headerData has changed');
+      setHeaderData(props[inputSocketNameHeader]);
+    }, [props[inputSocketNameHeader]]);
+
+    useEffect(() => {
       console.log('htmlData has changed');
-      setHtmlData(props[inputSocketName]);
-    }, [props[inputSocketName]]);
+      setHtmlData(props[inputSocketNameHtml]);
+    }, [props[inputSocketNameHtml]]);
 
     const callReload = () => {
       setReload(Math.random());
@@ -130,6 +146,7 @@ export class HtmlRenderer extends HybridNode2 {
           id={props.node.id}
           theme={customTheme}
           iframeRef={iframeRef}
+          headerData={headerData}
           htmlData={htmlData}
           reload={reload}
         />
@@ -142,6 +159,7 @@ const MemoizedComponent = memo<any>(function MemoizedComponent({
   id,
   iframeRef,
   theme,
+  headerData,
   htmlData,
   reload,
 }) {
@@ -155,7 +173,7 @@ const MemoizedComponent = memo<any>(function MemoizedComponent({
         height: '100%',
         borderWidth: 0,
       }}
-      initialContent="<!DOCTYPE html><html><head><style>* {border: none;}</style></head><body style='overflow:auto; border-width: 0px; background: white;'><div></div></body></html>"
+      initialContent={`<!DOCTYPE html><html><head><style>* {border: none;}</style>${headerData}</head><body style='overflow:auto; border-width: 0px; background: white;'><div></div></body></html>`}
     >
       <ThemeProvider theme={theme}>
         <Box
@@ -190,7 +208,7 @@ export class EmbedWebsite extends HtmlRenderer {
   protected getDefaultIO(): PPSocket[] {
     const codeSocket = super
       .getDefaultIO()
-      .find((socket) => socket.name === inputSocketName);
+      .find((socket) => socket.name === inputSocketNameHtml);
     codeSocket.data = `<iframe src="https://en.wikipedia.org/wiki/Special:Random" style="width: 100%; height: 100%;"></iframe>`;
     return super.getDefaultIO();
   }
