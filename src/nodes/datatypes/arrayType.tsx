@@ -1,5 +1,11 @@
+import React from 'react';
+import { ArrayWidget } from '../../widgets';
 import { TRgba } from '../../utils/interfaces';
-import { AbstractType } from './abstractType';
+import { AbstractType, DataTypeProps } from './abstractType';
+
+export interface ArrayTypeProps extends DataTypeProps {
+  dataType: ArrayType;
+}
 
 export class ArrayType extends AbstractType {
   constructor() {
@@ -8,6 +14,11 @@ export class ArrayType extends AbstractType {
   getName(): string {
     return 'Array';
   }
+
+  getInputWidget = (props: DataTypeProps): any => {
+    props.dataType = this;
+    return <ArrayWidget {...props} />;
+  };
 
   getDefaultWidgetSize(): any {
     return {

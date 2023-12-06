@@ -104,7 +104,7 @@ export class Table extends HybridNode2 {
     return PPGraph.currentGraph.dynamicImports['xlsx'];
   }
 
-  public onNodeAdded = async (source?: TNodeSource): Promise<void> => {
+  public onNodeAdded = async (source: TNodeSource): Promise<void> => {
     await super.onNodeAdded(source);
     this.workBook = this.getXLSXModule().utils.book_new();
     const storedWorkBookData = this.getInputData(workBookInputSocketName);

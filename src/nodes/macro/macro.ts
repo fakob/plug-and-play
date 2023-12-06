@@ -13,7 +13,6 @@ import {
   drawDottedLine,
   ensureVisible,
   getObjectsInsideBounds,
-  smoothMoveViewport,
 } from '../../pixi/utils-pixi';
 import { anyCodeName, CustomFunction } from '../data/dataFunctions';
 import UpdateBehaviourClass from '../../classes/UpdateBehaviourClass';
@@ -218,8 +217,28 @@ export class Macro extends PPNode {
     this.drawNodeShape();
   }
 
-  public nameChanged(newName: string): void {
-    this.drawNodeShape();
+  // make sure there are no name collisions with other macros
+  public setNodeName(text: string): void {
+    const existingMacros = PPGraph.currentGraph.macros;
+    let nameToUse = text;
+    let lastFound = Object.values(existingMacros).find(
+      (macro) => macro.nodeName == nameToUse,
+    );
+    for (
+      let i = 0;
+      nameToUse == 'Macro' || (lastFound !== undefined && lastFound !== this);
+      i++
+    ) {
+      nameToUse = text + i.toString();
+      lastFound = Object.values(existingMacros).find(
+        (macro) => macro.nodeName == nameToUse,
+      );
+    }
+    this.name = nameToUse;
+    if (this.hasBeenAdded) {
+      this._NodeNameRef.text = this.getNodeTextString();
+      this.drawNodeShape();
+    }
   }
 
   public getShrinkOnSocketRemove(): boolean {

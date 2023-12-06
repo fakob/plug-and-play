@@ -6,6 +6,7 @@ import ErrorFallback from '../components/ErrorFallback';
 import MonacoEditor from 'react-monaco-editor';
 import PPSocket from '../classes/SocketClass';
 import { CodeType } from './datatypes/codeType';
+import { TNodeSource } from '../utils/interfaces';
 import {
   convertToString,
   downloadFile,
@@ -56,8 +57,8 @@ export class CodeEditor extends HybridNode2 {
     ];
   }
 
-  public onNodeAdded = async (): Promise<void> => {
-    await super.onNodeAdded();
+  public onNodeAdded = async (source: TNodeSource): Promise<void> => {
+    await super.onNodeAdded(source);
     if (this.initialData) {
       this.setInputData(inputSocketName, this.initialData);
     }

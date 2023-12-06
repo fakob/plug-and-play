@@ -2,11 +2,9 @@
 import * as PIXI from 'pixi.js';
 import PPGraph from '../../classes/GraphClass';
 import UpdateBehaviourClass from '../../classes/UpdateBehaviourClass';
-import { CustomArgs, TRgba } from '../../utils/interfaces';
+import { CustomArgs, TNodeSource, TRgba } from '../../utils/interfaces';
 import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../../utils/constants';
 import Socket from '../../classes/SocketClass';
-import { AnyType } from '../datatypes/anyType';
-import { ArrayType } from '../datatypes/arrayType';
 import { CodeType } from '../datatypes/codeType';
 import { inputHeightName, inputWidthName } from '../draw/draw';
 import { NumberType } from '../datatypes/numberType';
@@ -137,8 +135,8 @@ export class Shader extends DRAW_Base {
     return TRgba.fromString(NODE_TYPE_COLOR.SHADER);
   }
 
-  public async onNodeAdded(): Promise<void> {
-    await super.onNodeAdded();
+  public async onNodeAdded(source: TNodeSource): Promise<void> {
+    await super.onNodeAdded(source);
     this.canvas = PPGraph.currentGraph.viewport.getChildByName(
       'backgroundCanvas',
     ) as PIXI.Container;

@@ -24,7 +24,7 @@ export const CodeEditor: React.FunctionComponent<CodeEditorProps> = (props) => {
 
   const [loadAll, setLoadAll] = useState(shouldLoadAll(props.value));
   const [loadedValue, setLoadedValue] = useState(
-    getLoadedValue(props.value, loadAll),
+    getLoadedValue(convertToString(props.value), loadAll),
   );
   const [editorHeight, setEditorHeight] = useState(48);
 
@@ -64,7 +64,7 @@ export const CodeEditor: React.FunctionComponent<CodeEditorProps> = (props) => {
   useEffect(() => {
     const load = shouldLoadAll(props.value);
     setLoadAll(load);
-    setLoadedValue(getLoadedValue(props.value, load));
+    setLoadedValue(getLoadedValue(convertToString(props.value), load));
   }, [props.value]);
 
   useEffect(() => {

@@ -422,7 +422,7 @@ export default class PPGraph {
 
   async addNode<T extends PPNode = PPNode>(
     node: T,
-    source: TNodeSource = NODE_SOURCE.SERIALIZED,
+    source: TNodeSource,
   ): Promise<T> {
     if (!node) {
       return;
@@ -458,7 +458,7 @@ export default class PPGraph {
     const node = this.createNode(newNodeType ?? serialized.type, customArgs);
 
     node.configure(serialized, newNodeType === undefined);
-    await this.addNode(node);
+    await this.addNode(node, NODE_SOURCE.SERIALIZED);
     return node;
   }
 
@@ -545,7 +545,7 @@ export default class PPGraph {
       newType,
     );
     if (newType && newSerializedNode === undefined) {
-      newNode.nodeName = newType;
+      newNode.setNodeName(newType);
     }
     this.reconnectLinksToNewNode(this.nodes[oldId], newNode);
     newNode.executeOptimizedChain();
@@ -871,7 +871,7 @@ export default class PPGraph {
       backwardMapping[newNodes[i].id] = sourceNodes[i];
     }
     const macroNode: PPNode = await this.addNewNode('Macro');
-    macroNode.nodeName = hri.random();
+    macroNode.setNodeName(hri.random());
     // add extending inputs
     const inputs: PPSocket[] = sourceNodes.reduce((list, node) => {
       return list.concat(

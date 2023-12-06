@@ -2,7 +2,9 @@
 
 A visual toolkit for creative prototyping to explore, transform or visualise data.
 
-Work in progress - https://plugandplayground.dev
+https://plugandplayground.dev
+
+You can also access specific versions and run them locally to the right under "Releases", running these locally comes with some minor issues like missing icons. In addition, any potential hotloaded dependencies in a graph will require an internet connection (for example the table node).
 
 ## Problems to solve
 
@@ -31,7 +33,7 @@ Work in progress - https://plugandplayground.dev
 ## Resources:
 
 - https://github.com/magnificus/pnp-companion-2 - a companion application which provides a way to get around CORS issues and handles things like authentication to API's when applicable.
-- https://github.com/magnificus/pnp-headless - running PNP graphs in headless mode.
+- https://github.com/magnificus/pnp-headless - running PNP graphs in headless mode. Requires hosting locally, either compile yoursel
 
 ## Licenses of third party packages:
 
