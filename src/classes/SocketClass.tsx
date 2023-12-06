@@ -1,8 +1,10 @@
 import * as PIXI from 'pixi.js';
+import { TextStyle } from 'pixi.js';
 import React from 'react';
 import { Box } from '@mui/material';
 import { SocketBody } from '../SocketContainer';
 import {
+  IWarningHandler,
   SerializedSocket,
   TRgba,
   TSocketId,
@@ -14,23 +16,29 @@ import PPLink from './LinkClass';
 import { Tooltipable } from '../components/Tooltip';
 import InterfaceController, { ListenEvent } from '../InterfaceController';
 import {
-  SOCKET_CORNERRADIUS,
+  COLOR_DARK,
+  COLOR_WHITE_TEXT,
   SOCKET_TEXTMARGIN_TOP,
   SOCKET_TEXTMARGIN,
-  SOCKET_TEXTSTYLE,
   SOCKET_TYPE,
   SOCKET_WIDTH,
   TEXT_RESOLUTION,
   TOOLTIP_DISTANCE,
   TOOLTIP_WIDTH,
-  COLOR_MAIN,
 } from '../utils/constants';
 import { AbstractType, DataTypeProps } from '../nodes/datatypes/abstractType';
 import { dataToType, serializeType } from '../nodes/datatypes/typehelper';
-import { getCurrentCursorPosition } from '../utils/utils';
-import { TextStyle } from 'pixi.js';
+import {
+  constructSocketId,
+  getCurrentCursorPosition,
+  parseValueAndAttachWarnings,
+} from '../utils/utils';
+import { NodeExecutionWarning, PNPStatus, PNPSuccess } from './ErrorClass';
 
-export default class Socket extends PIXI.Container implements Tooltipable {
+export default class Socket
+  extends PIXI.Container
+  implements Tooltipable, IWarningHandler
+{
   onNodeAdded(): void {
     this.eventMode = 'static';
     this.addEventListener('pointerover', this.onPointerOver.bind(this));
@@ -51,8 +59,10 @@ export default class Socket extends PIXI.Container implements Tooltipable {
   _SocketRef: PIXI.Graphics;
   _TextRef: PIXI.Text;
   _SelectionBox: PIXI.Graphics;
+  _ErrorBox: PIXI.Graphics;
   _MetaText: PIXI.Text;
   _ValueSpecificGraphics: PIXI.Graphics;
+  status: PNPStatus = new PNPSuccess();
 
   _socketType: TSocketType;
   _dataType: AbstractType;
@@ -119,53 +129,85 @@ export default class Socket extends PIXI.Container implements Tooltipable {
 
   redrawMetaText() {
     this.removeChild(this._MetaText);
-    this._MetaText.text = this.dataType.getMetaText(this.data);
+    this._MetaText.text = this.dataType.getMetaText(this._data);
     this._MetaText.x = this.getSocketLocation().x + (this.isInput() ? 14 : -14);
     this._MetaText.y = this.getSocketLocation().y + 5;
     this.addChild(this._MetaText);
   }
+
   redrawValueSpecificGraphics() {
     this.removeChild(this._ValueSpecificGraphics);
     this._ValueSpecificGraphics.clear();
     this._ValueSpecificGraphics.removeChildren();
     this.dataType.drawValueSpecificGraphics(
       this._ValueSpecificGraphics,
-      this.data,
+      this._data,
     );
     this._ValueSpecificGraphics.x = this.getSocketLocation().x;
     this._ValueSpecificGraphics.y = this.getSocketLocation().y;
     this.addChild(this._ValueSpecificGraphics);
   }
 
+  public setStatus(status: PNPStatus) {
+    const currentMessage = this.status.message;
+    const newMessage = status.message;
+    if (currentMessage !== newMessage) {
+      this.status = status;
+      this.redraw();
+      if (!status.isError()) {
+        this.getNode().adaptToSocketErrors();
+      } else {
+        this.getNode().setStatus(
+          new NodeExecutionWarning(
+            `Parsing warning on ${this.isInput() ? 'input' : 'output'}: ${
+              this.name
+            }
+${newMessage}`,
+          ),
+          'socket',
+        );
+      }
+    }
+  }
+
   redraw(): void {
     this.removeChildren();
+    const color = this.status.isError()
+      ? TRgba.fromString(COLOR_DARK).hex()
+      : TRgba.fromString(COLOR_WHITE_TEXT).hex();
     this._MetaText = new PIXI.Text(
       '',
       new TextStyle({
         fontSize: 8,
-        fill: COLOR_MAIN,
+        fill: color,
       }),
     );
     if (!this.isInput()) {
       this._MetaText.anchor.set(1, 0);
     }
+    this._ErrorBox = new PIXI.Graphics();
     this._SocketRef = new PIXI.Graphics();
     this._SelectionBox = new PIXI.Graphics();
     this._ValueSpecificGraphics = new PIXI.Graphics();
     this.dataType.drawBox(
+      this._ErrorBox,
       this._SocketRef,
       this._SelectionBox,
       this.getSocketLocation(),
-      this.data,
+      this.isInput(),
+      this.status,
     );
     this.redrawMetaText();
+    this.addChild(this._ErrorBox);
     this.addChild(this._SocketRef);
     this.addChild(this._SelectionBox);
-
     if (this.showLabel) {
       this._TextRef = new PIXI.Text(
         this.getNode()?.getSocketDisplayName(this),
-        SOCKET_TEXTSTYLE,
+        new TextStyle({
+          fontSize: 12,
+          fill: color,
+        }),
       );
       if (this.socketType === SOCKET_TYPE.OUT) {
         this._TextRef.anchor.set(1, 0);
@@ -219,7 +261,7 @@ export default class Socket extends PIXI.Container implements Tooltipable {
   get data(): any {
     const dataToReturn = this._data;
     // allow the type to potentially sanitize the data before passing it on
-    return this.dataType.parse(dataToReturn);
+    return parseValueAndAttachWarnings(this, this.dataType, dataToReturn);
   }
 
   // for inputs: set data is called only on the socket where the change is being made
@@ -343,7 +385,7 @@ export default class Socket extends PIXI.Container implements Tooltipable {
   }
 
   getSocketId(): TSocketId {
-    return `${this.getNode().id}-${this.socketType}-${this.name}`;
+    return constructSocketId(this.getNode().id, this.socketType, this.name);
   }
 
   public getPreferredNodes(): string[] {

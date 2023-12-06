@@ -57,7 +57,7 @@ abstract class Jira_Get extends Jira_Base {
     inputObject: any,
     outputObject: Record<string, unknown>,
   ): Promise<void> {
-    this.statuses = [];
+    this.status.custom = [];
 
     outputObject[outputContentName] = await HTTPNode.sendThroughCompanion(
       inputObject[sendThroughCompanionAddress],

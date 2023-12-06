@@ -1,6 +1,6 @@
 import Socket from '../../../classes/SocketClass';
 import { SOCKET_TYPE } from '../../../utils/constants';
-import { ArrayType } from '../../datatypes/arrayType';
+import { parseValueAndAttachWarnings } from '../../../utils/utils';
 import { NumberType } from '../../datatypes/numberType';
 import * as PIXI from 'pixi.js';
 import { BooleanType } from '../../datatypes/booleanType';
@@ -165,7 +165,9 @@ export class GRAPH_LINE extends DRAW_Base {
     const scaleX = inputObject[inputWidthName] / Math.max(1, points.length - 1);
 
     const graphics: PIXI.Graphics = new PIXI.Graphics();
-    const selectedColor: TRgba = new ColorType().parse(
+    const selectedColor = parseValueAndAttachWarnings(
+      this,
+      new ColorType(),
       inputObject[inputColorName],
     );
     graphics.alpha = selectedColor.a;

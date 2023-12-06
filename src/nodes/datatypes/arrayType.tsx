@@ -1,6 +1,7 @@
 import React from 'react';
 import { ArrayWidget } from '../../widgets';
-import { TRgba } from '../../utils/interfaces';
+import { SocketParsingWarning } from '../../classes/ErrorClass';
+import { TParseType, TRgba } from '../../utils/interfaces';
 import { AbstractType, DataTypeProps } from './abstractType';
 
 export interface ArrayTypeProps extends DataTypeProps {
@@ -43,15 +44,29 @@ export class ArrayType extends AbstractType {
     );
   }
 
-  parse(data: any): any {
-    if (typeof data === 'string') {
+  parse(data: any): TParseType {
+    let parsedData;
+    const warnings: SocketParsingWarning[] = [];
+
+    if (Array.isArray(data)) {
+      parsedData = data;
+    } else if (typeof data === 'string') {
       try {
-        return JSON.parse(data);
-      } catch (error) {
-        return data;
-      }
+        parsedData = JSON.parse(data);
+        if (!Array.isArray(parsedData)) {
+          parsedData = undefined;
+        }
+      } catch (error) {}
     }
-    return data;
+    if (parsedData == undefined) {
+      parsedData = [];
+      warnings.push(new SocketParsingWarning('Not an array. [] is returned'));
+    }
+
+    return {
+      value: parsedData,
+      warnings: warnings,
+    };
   }
 
   recommendedOutputNodeWidgets(): string[] {

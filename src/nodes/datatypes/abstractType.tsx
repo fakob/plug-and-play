@@ -4,9 +4,14 @@ import React from 'react';
 import { inspect } from 'util';
 import Socket from '../../classes/SocketClass';
 import { DefaultOutputWidget, CodeWidget } from '../../widgets';
-import { TRgba } from '../../utils/interfaces';
-import { SOCKET_COLOR_HEX, SOCKET_CORNERRADIUS, SOCKET_WIDTH } from '../../utils/constants';
+import { TParseType, TRgba } from '../../utils/interfaces';
+import {
+  SOCKET_COLOR_HEX,
+  SOCKET_CORNERRADIUS,
+  SOCKET_WIDTH,
+} from '../../utils/constants';
 import * as PIXI from 'pixi.js';
+import { PNPStatus } from '../../classes/ErrorClass';
 
 const widgetSize = {
   w: 2,
@@ -26,9 +31,7 @@ export interface DataTypeProps {
 }
 
 export class AbstractType {
-  drawValueSpecificGraphics(graphics: PIXI.Graphics, data: any) {
-
-  }
+  drawValueSpecificGraphics(graphics: PIXI.Graphics, data: any) {}
   onDataSet(data: any, socket: Socket) {}
 
   // override any and all of these in child classes
@@ -81,8 +84,8 @@ export class AbstractType {
     return TRgba.fromString(SOCKET_COLOR_HEX);
   }
 
-  parse(data: any): any {
-    return data;
+  parse(data: any): TParseType {
+    return { value: data, warnings: [] };
   }
 
   // these nodes need to cater for initialData to be a socket
@@ -110,10 +113,7 @@ export class AbstractType {
     return true;
   }
 
-  protected drawSocket(
-    graphics: PIXI.Graphics,
-    data: any
-  ) {
+  protected drawSocket(graphics: PIXI.Graphics) {
     graphics.drawRoundedRect(
       0,
       0,
@@ -123,16 +123,32 @@ export class AbstractType {
     );
   }
 
-  public drawBox(socketRef: PIXI.Graphics,
+  public drawBox(
+    errorBox: PIXI.Graphics,
+    socketRef: PIXI.Graphics,
     selectionBox: PIXI.Graphics,
     location: PIXI.Point,
-    data: any)
-    {
+    isInput: boolean,
+    status: PNPStatus,
+  ) {
+    if (status.isError()) {
+      errorBox.beginFill(status.getColor().hex());
+      const errorBoxWidth = SOCKET_WIDTH * 2 - SOCKET_WIDTH / 2;
+      errorBox.drawRoundedRect(
+        location.x +
+          (isInput ? -errorBoxWidth - SOCKET_WIDTH / 4 : SOCKET_WIDTH / 4),
+        -SOCKET_WIDTH / 4,
+        errorBoxWidth,
+        SOCKET_WIDTH + SOCKET_WIDTH / 2,
+        0,
+      );
+      errorBox.endFill();
+    }
     socketRef.beginFill(this.getColor().hexNumber());
     socketRef.x = location.x;
     socketRef.y = location.y;
     socketRef.pivot = new PIXI.Point(SOCKET_WIDTH / 2, SOCKET_WIDTH / 2);
-    this.drawSocket(socketRef, data);
+    this.drawSocket(socketRef);
     // add bigger invisible box underneath
     selectionBox.beginFill(this.getColor().hexNumber());
     selectionBox.alpha = 0.01;
@@ -140,10 +156,10 @@ export class AbstractType {
     selectionBox.y = location.y;
     selectionBox.scale = new PIXI.Point(9, 2);
     selectionBox.pivot = new PIXI.Point(SOCKET_WIDTH / 2, SOCKET_WIDTH / 2);
-    this.drawSocket(selectionBox, data);
+    this.drawSocket(selectionBox);
 
     socketRef.endFill();
     socketRef.name = 'SocketRef';
     socketRef.eventMode = 'static';
-    }
+  }
 }

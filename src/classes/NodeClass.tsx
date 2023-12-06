@@ -1,9 +1,10 @@
 /* eslint-disable */
 import * as PIXI from 'pixi.js';
 import { hri } from 'human-readable-ids';
+import throttle from 'lodash/throttle';
 import {
   CustomArgs,
-  NodeStatus,
+  IWarningHandler,
   SerializedNode,
   SerializedSocket,
   TRgba,
@@ -43,7 +44,6 @@ import { AbstractType } from '../nodes/datatypes/abstractType';
 import { AnyType } from '../nodes/datatypes/anyType';
 import { TriggerType } from '../nodes/datatypes/triggerType';
 import { deSerializeType } from '../nodes/datatypes/typehelper';
-import throttle from 'lodash/throttle';
 import FlowLogic from './FlowLogic';
 import InterfaceController, { ListenEvent } from '../InterfaceController';
 import { TextStyle } from 'pixi.js';
@@ -57,13 +57,14 @@ import {
 } from './ErrorClass';
 
 // export default class PPNode extends PIXI.Container implements Tooltipable {
-export default class PPNode extends PIXI.Container {
+export default class PPNode extends PIXI.Container implements IWarningHandler {
   _NodeNameRef: PIXI.Text;
   _BackgroundRef: PIXI.Container;
   _NodeTextStringRef: PIXI.Text;
   _BackgroundGraphicsRef: PIXI.Graphics;
   _CommentRef: PIXI.Graphics;
   _StatusesRef: PIXI.Graphics;
+  _ErrorBoundaryRef: PIXI.Graphics;
   _ForegroundRef: PIXI.Container;
 
   clickedSocketRef: Socket;
@@ -80,7 +81,11 @@ export default class PPNode extends PIXI.Container {
   nodeSelectionHeader: NodeHeaderClass;
   lastTimeTicked = 0;
 
-  status: PNPStatus = new PNPSuccess();
+  status: { node: PNPStatus; socket: PNPStatus; custom: PNPStatus[] } = {
+    node: new PNPSuccess(),
+    socket: new PNPSuccess(),
+    custom: [],
+  };
 
   inputSocketArray: Socket[] = [];
   nodeTriggerSocketArray: Socket[] = [];
@@ -88,7 +93,6 @@ export default class PPNode extends PIXI.Container {
 
   _doubleClicked: boolean;
   isDraggingNode: boolean;
-  protected statuses: NodeStatus[] = []; // you can add statuses into this and they will be rendered on the node
   listenId: string[] = [];
 
   // supported callbacks
@@ -124,6 +128,7 @@ export default class PPNode extends PIXI.Container {
 
     this._NodeNameRef = this._BackgroundRef.addChild(this._NodeTextStringRef);
     this._CommentRef = this._BackgroundRef.addChild(new PIXI.Graphics());
+    this._ErrorBoundaryRef = this._BackgroundRef.addChild(new PIXI.Graphics());
     this._StatusesRef = this._BackgroundRef.addChild(new PIXI.Graphics());
 
     // only get default updateBehaviour when newly added
@@ -654,17 +659,22 @@ export default class PPNode extends PIXI.Container {
   }
 
   public drawErrorBoundary(): void {
-    this._BackgroundGraphicsRef.beginFill(
-      this.status.getColor().hexNumber(),
-      this.getOpacity(),
-    );
-    this._BackgroundGraphicsRef.drawRoundedRect(
-      NODE_MARGIN - 3,
-      -3,
-      this.nodeWidth + 6,
-      this.nodeHeight + 6,
-      this.getRoundedCorners() ? NODE_CORNERRADIUS : 0,
-    );
+    this._ErrorBoundaryRef.clear();
+    if (this.status.node.isError() || this.status.socket.isError()) {
+      const status = this.status.node.isError()
+        ? this.status.node
+        : this.status.socket;
+
+      this._ErrorBoundaryRef.lineStyle(3, status.getColor().hexNumber(), 1);
+      this._ErrorBoundaryRef.drawRoundedRect(
+        NODE_MARGIN - 3,
+        -3,
+        this.nodeWidth + 6,
+        this.nodeHeight + 6,
+        this.getRoundedCorners() ? NODE_CORNERRADIUS + 3 : 0,
+      );
+      this._ErrorBoundaryRef.lineStyle();
+    }
   }
 
   public drawBackground(): void {
@@ -725,33 +735,48 @@ export default class PPNode extends PIXI.Container {
     this._StatusesRef.clear();
     this._StatusesRef.removeChildren();
 
-    this.statuses.forEach((nStatus, index) => {
-      const color = nStatus.color;
+    let flattenedStatus = [];
+    for (const key in this.status) {
+      if (Array.isArray(this.status[key])) {
+        flattenedStatus = this.status[key].concat(flattenedStatus);
+      } else if (this.status[key].isError()) {
+        flattenedStatus.push(this.status[key]);
+      }
+    }
 
-      const height = 30;
-      const merging = 5;
-      const inlet = 60;
+    const padding = 5;
+    let startY = this.countOfVisibleOutputSockets * SOCKET_HEIGHT + 40;
+    const startX = this.nodeWidth - 60;
 
-      const startY = this.countOfVisibleOutputSockets * SOCKET_HEIGHT + 50;
+    flattenedStatus.forEach((nStatus, index) => {
+      const color = nStatus.getColor();
+
+      let shortenedMessage = nStatus.message;
+      const lines = nStatus.message.split('\n');
+      const maxLines = 3;
+      if (lines.length > maxLines) {
+        shortenedMessage = lines.slice(0, maxLines).join('\n');
+      }
 
       const text = new PIXI.Text(
-        nStatus.statusText,
+        shortenedMessage,
         new TextStyle({
           fontSize: 18,
           fill: COLOR_MAIN,
         }),
       );
-      text.x = this.nodeWidth - inlet + 5; // - width;
-      text.y = startY + 5 + index * (height - merging);
+      text.x = startX + padding;
+      text.y = startY + padding;
       this._StatusesRef.addChild(text);
       this._StatusesRef.beginFill(color.hexNumber());
       this._StatusesRef.drawRoundedRect(
-        this.nodeWidth - inlet, // - width,
-        startY + index * (height - merging),
-        text.width + 10,
-        height,
-        NODE_CORNERRADIUS,
+        startX,
+        startY,
+        text.width + padding * 2,
+        text.height + padding * 2,
+        nStatus.isError() ? 0 : NODE_CORNERRADIUS,
       );
+      startY += text.height + padding;
     });
   }
 
@@ -762,9 +787,7 @@ export default class PPNode extends PIXI.Container {
     // update selection
 
     this._BackgroundGraphicsRef.clear();
-    if (this.status.isError()) {
-      this.drawErrorBoundary();
-    }
+    this.drawErrorBoundary();
     this.drawBackground();
 
     this.drawTriggers();
@@ -813,12 +836,29 @@ export default class PPNode extends PIXI.Container {
     });
   }
 
-  protected setStatus(status: PNPStatus) {
-    if (
-      JSON.stringify(this.status.message) !== JSON.stringify(status.message)
-    ) {
-      this.status = status;
-      this.drawNodeShape();
+  public setStatus(status: PNPStatus, type: 'node' | 'socket' = 'node') {
+    const currentMessage = JSON.stringify(this.status[type].message);
+    const newMessage = JSON.stringify(status.message);
+    if (currentMessage !== newMessage) {
+      this.status[type] = status;
+      this.drawStatuses();
+      this.drawErrorBoundary();
+    }
+  }
+
+  public pushExclusiveCustomStatus(status: PNPStatus) {
+    this.status.custom = [];
+    this.status.custom.push(status);
+  }
+
+  adaptToSocketErrors(): void {
+    const hasErrors = this.getAllSockets().some((socket) =>
+      socket.status.isError(),
+    );
+    if (!hasErrors) {
+      this.setStatus(new PNPSuccess(), 'socket');
+      this.drawStatuses();
+      this.drawErrorBoundary();
     }
   }
 
@@ -852,14 +892,6 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
 
       this._CommentRef.addChild(debugText);
       this._CommentRef.addChild(nodeComment);
-    }
-    if (this.status.isError()) {
-      const errorText = new PIXI.Text(this.status.message);
-      errorText.x = -50;
-      errorText.y = this.nodeHeight;
-      errorText.style.fill = this.status.getColor().hexNumber();
-      errorText.style.fontSize = 18;
-      this._CommentRef.addChild(errorText);
     }
   }
 
@@ -984,7 +1016,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
       setTimeout(() => {
         activeExecution.clear();
         activeExecution.beginFill(
-          this.status.getColor().hexNumber(),
+          this.status.node.getColor().hexNumber(),
           0.4 - i * (0.4 / iterations),
         );
 
@@ -1018,7 +1050,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
       } else {
         this.setStatus(new NodeExecutionError(error.stack));
       }
-      console.log(
+      console.warn(
         `Node ${this.name}(${this.id}) execution error:  ${error.stack}`,
       );
     }

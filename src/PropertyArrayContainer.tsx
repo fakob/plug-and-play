@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import useInterval from 'use-interval';
 import {
   Box,
   Button,
@@ -29,7 +30,6 @@ import Socket from './classes/SocketClass';
 import { SocketContainer } from './SocketContainer';
 import { CodeEditor } from './components/Editor';
 import InterfaceController, { ListenEvent } from './InterfaceController';
-import useInterval from 'use-interval';
 
 type FilterContentProps = {
   handleFilter: (
@@ -449,7 +449,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
     return () => {
       InterfaceController.removeListener(id);
     };
-  });
+  }, []);
 
   useEffect(() => {
     const newSelectedNode =
@@ -532,7 +532,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
     }));
   };
 
-  const onUpdateNow = (event) => {
+  const onUpdateNow = () => {
     props.selectedNodes.forEach((selectedNode) => {
       selectedNode.executeOptimizedChain();
     });

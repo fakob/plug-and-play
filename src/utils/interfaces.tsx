@@ -1,7 +1,9 @@
 import * as PIXI from 'pixi.js';
+import Color from 'color';
 import PPSelection from '../classes/SelectionClass';
 import PPNode from '../classes/NodeClass';
 import PPSocket from '../classes/SocketClass';
+import { PNPStatus, SocketParsingWarning } from '../classes/ErrorClass';
 import { IUpdateBehaviour } from '../classes/UpdateBehaviourClass';
 import {
   ALIGNOPTIONS,
@@ -10,7 +12,6 @@ import {
   SOCKET_TYPE,
   NODE_SOURCE,
 } from './constants';
-import Color from 'color';
 
 export type RegisteredNodeTypes = Record<
   string,
@@ -80,6 +81,10 @@ export interface INodeSearch {
   isNew?: boolean;
 }
 
+export interface ILayouts {
+  [key: string]: ILayoutItem[];
+}
+
 export interface ILayoutItem {
   w: number;
   h: number;
@@ -119,6 +124,15 @@ export type TSocketId =
 
 export type TSocketType = (typeof SOCKET_TYPE)[keyof typeof SOCKET_TYPE];
 
+export type TParseType = {
+  value: any;
+  warnings: SocketParsingWarning[];
+};
+
+export interface IWarningHandler {
+  setStatus(status: PNPStatus): void;
+}
+
 export type SerializedSocket = {
   socketType: TSocketType;
   name: string;
@@ -126,11 +140,6 @@ export type SerializedSocket = {
   data: any;
   defaultData?: any;
   visible: boolean;
-};
-
-export type NodeStatus = {
-  color: TRgba;
-  statusText: string;
 };
 
 export type TNodeSource = (typeof NODE_SOURCE)[keyof typeof NODE_SOURCE];

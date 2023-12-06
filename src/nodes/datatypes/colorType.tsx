@@ -1,6 +1,8 @@
 import React from 'react';
 import * as PIXI from 'pixi.js';
-import { TRgba } from '../../utils/interfaces';
+import { SocketParsingWarning } from '../../classes/ErrorClass';
+import { TParseType, TRgba } from '../../utils/interfaces';
+import { COLOR_WARNING } from '../../utils/constants';
 import { ColorWidget } from '../../widgets';
 import { AbstractType, DataTypeProps } from './abstractType';
 
@@ -28,13 +30,31 @@ export class ColorType extends AbstractType {
     return TRgba.randomColor(); //TRgba.fromString('#ff3700');
   }
 
-  parse(data: any): any {
+  parse(data: any): TParseType {
+    let parsedData;
+    const warnings: SocketParsingWarning[] = [];
+
     if (typeof data === 'string') {
-      return TRgba.fromString(data);
+      try {
+        parsedData = TRgba.fromString(data);
+      } catch (error) {}
     } else {
-      const color = Object.assign(new TRgba(), data);
-      return color;
+      parsedData = Object.assign(new TRgba(), data);
+      if (!TRgba.isTRgba(parsedData)) {
+        parsedData = undefined;
+      }
     }
+    if (parsedData == undefined) {
+      parsedData = TRgba.fromString(COLOR_WARNING);
+      warnings.push(
+        new SocketParsingWarning('Not a color. Default color is returned'),
+      );
+    }
+
+    return {
+      value: parsedData as TRgba,
+      warnings: warnings,
+    };
   }
 
   getInputWidget = (props: ColorTypeProps): any => {
@@ -66,8 +86,10 @@ export class ColorType extends AbstractType {
   drawValueSpecificGraphics(graphics: PIXI.Graphics, data: any) {
     super.drawValueSpecificGraphics(graphics, data);
     if (data) {
-      graphics.beginFill(data.hexNumber());
-      graphics.drawCircle(0, 0, 4);
+      try {
+        graphics.beginFill(data.hexNumber());
+        graphics.drawCircle(0, 0, 4);
+      } catch (error) {}
     }
   }
 }

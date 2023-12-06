@@ -1,5 +1,6 @@
 import React from 'react';
-import { TRgba } from '../../utils/interfaces';
+import { SocketParsingWarning } from '../../classes/ErrorClass';
+import { TParseType, TRgba } from '../../utils/interfaces';
 import { TextWidget } from '../../widgets';
 import { AbstractType, DataTypeProps } from './abstractType';
 
@@ -43,11 +44,8 @@ export class StringType extends AbstractType {
     return new TRgba(148, 250, 148);
   }
 
-  parse(data: any): any {
-    if (typeof data == 'object' || Array.isArray(data)) {
-      return JSON.stringify(data);
-    }
-    return data;
+  parse(data: any): TParseType {
+    return parseString(data);
   }
 
   recommendedOutputNodeWidgets(): string[] {
@@ -58,3 +56,27 @@ export class StringType extends AbstractType {
     return ['Label', 'Constant', 'TextEditor'];
   }
 }
+
+export const parseString = (data: any): TParseType => {
+  let parsedData;
+  const warnings: SocketParsingWarning[] = [];
+
+  if (typeof data == 'object' || Array.isArray(data)) {
+    try {
+      parsedData = JSON.stringify(data);
+    } catch (error) {}
+  } else {
+    parsedData = String(data);
+  }
+  if (parsedData == undefined) {
+    parsedData = '';
+    warnings.push(
+      new SocketParsingWarning('Not a string. Empty string is returned'),
+    );
+  }
+
+  return {
+    value: parsedData,
+    warnings: warnings,
+  };
+};

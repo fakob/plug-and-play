@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import useInterval from 'use-interval';
 import Color from 'color';
 import { Box, IconButton, Menu, MenuItem, ToggleButton } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -6,8 +7,10 @@ import LockIcon from '@mui/icons-material/Lock';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import WarningIcon from '@mui/icons-material/Warning';
 import DashboardCustomizeIcon from '@mui/icons-material/DashboardCustomize';
 import InterfaceController from './InterfaceController';
+import { COLOR_WARNING } from './utils/constants';
 import { writeDataToClipboard } from './utils/utils';
 import styles from './utils/style.module.css';
 import PPNode from './classes/NodeClass';
@@ -34,8 +37,10 @@ export const SocketContainer: React.FunctionComponent<SocketContainerProps> = (
   props,
 ) => {
   const myRef = useRef(null);
+  const [hasError, setHasError] = useState(props.property.status.isError());
 
   const [dataTypeValue, setDataTypeValue] = useState(props.dataType);
+
   const baseProps: DataTypeProps = {
     key: props.dataType.getName(),
     property: props.property,
@@ -53,11 +58,18 @@ export const SocketContainer: React.FunctionComponent<SocketContainerProps> = (
   const onChangeDropdown = (event) => {
     const { myValue } = event.currentTarget.dataset;
     const entry = new allDataTypes[myValue]();
-    console.log(myValue, entry);
     props.property.dataType = entry;
     setDataTypeValue(entry);
     props.property.getNode().metaInfoChanged();
+    setHasError(props.property.status.isError());
   };
+
+  useInterval(() => {
+    const newHasError = props.property.status.isError();
+    if (hasError !== newHasError) {
+      setHasError(props.property.status.isError());
+    }
+  }, 100);
 
   useEffect(() => {
     if (props.triggerScrollIntoView) {
@@ -78,11 +90,15 @@ export const SocketContainer: React.FunctionComponent<SocketContainerProps> = (
     <Box
       id={`inspector-socket-${props.dataType.getName()}`}
       ref={myRef}
-      sx={{ bgcolor: 'background.default', opacity: locked ? 0.75 : 1 }}
+      sx={{
+        bgcolor: hasError ? COLOR_WARNING : 'background.default',
+        opacity: locked && !hasError ? 0.75 : 1,
+      }}
     >
       <SocketHeader
         key={`SocketHeader-${props.dataType.getName()}`}
         property={props.property}
+        hasError={hasError}
         index={props.index}
         isSelected={props.triggerScrollIntoView}
         isInput={props.isInput}
@@ -93,7 +109,7 @@ export const SocketContainer: React.FunctionComponent<SocketContainerProps> = (
       <Box
         sx={{
           px: 1,
-          py: 1,
+          pb: 1,
         }}
         className={styles.propertyContainerContent}
       >
@@ -116,6 +132,7 @@ type SocketHeaderProps = {
   property: Socket;
   index: number;
   isSelected: boolean;
+  hasError: boolean;
   isInput: boolean;
   hasLink: boolean;
   onChangeDropdown: (event) => void;
@@ -143,8 +160,9 @@ const SocketHeader: React.FunctionComponent<SocketHeaderProps> = (props) => {
         display: 'flex',
         flexWrap: 'nowrap',
         width: '100%',
-        bgcolor: props.isSelected && 'secondary.dark',
+        bgcolor: props.isSelected && !props.hasError && 'secondary.dark',
       }}
+      title={`${props.hasError ? props.property.status.message : ''}`}
     >
       {locked ? (
         <Box sx={{ p: 1, opacity: 0.75, width: '40px', textAlign: 'center' }}>
@@ -194,25 +212,34 @@ const SocketHeader: React.FunctionComponent<SocketHeaderProps> = (props) => {
           >
             <DashboardCustomizeIcon sx={{ fontSize: '24px' }} />
           </IconButton>
-          <Box sx={{ pl: 0.5, color: 'text.primary' }}>
-            {props.property.name}
-          </Box>
           <IconButton
             size="small"
-            title="Copy data to clipboard"
+            title="Copy to clipboard"
             onClick={() => {
               InterfaceController.showSnackBar('Data copied to clipboard');
               writeDataToClipboard(props.property?.data);
             }}
             sx={{
+              pl: 0.5,
               borderRadius: 0,
             }}
           >
-            <ContentCopyIcon sx={{ fontSize: '12px' }} />
+            <ContentCopyIcon sx={{ fontSize: '16px' }} />
           </IconButton>
+          <Box sx={{ p: 0.5, color: 'text.primary' }}>
+            {props.property.name}
+          </Box>
+          {props.hasError && (
+            <WarningIcon
+              sx={{
+                fontSize: '24px',
+                pl: 0.5,
+              }}
+            />
+          )}
         </Box>
         <IconButton
-          title={`Property type: ${props.property.dataType.constructor.name}`}
+          title={props.property.dataType.constructor.name}
           aria-label="more"
           id="select-type"
           aria-controls="long-menu"

@@ -20,8 +20,16 @@ import {
   URL_PARAMETER_NAME,
 } from './constants';
 import { GraphDatabase } from './indexedDB';
-import { SerializedSelection, TNodeId, TSocketType } from './interfaces';
+import {
+  IWarningHandler,
+  SerializedSelection,
+  TNodeId,
+  TSocketId,
+  TSocketType,
+} from './interfaces';
 import { Viewport } from 'pixi-viewport';
+import { AbstractType } from '../nodes/datatypes/abstractType';
+import { PNPSuccess } from '../classes/ErrorClass';
 
 export function isFunction(funcOrClass: any): boolean {
   const propertyNames = Object.getOwnPropertyNames(funcOrClass);
@@ -850,7 +858,7 @@ export const constructSocketId = (
   nodeId: TNodeId,
   socketType: TSocketType,
   socketName: string,
-) => {
+): TSocketId => {
   return `${nodeId}-${socketType}-${socketName}`;
 };
 
@@ -903,3 +911,19 @@ export const loadGraph = (urlParams: URLSearchParams) => {
 
 export const sortByDate = (a, b) =>
   new Date(b.date).getTime() - new Date(a.date).getTime();
+
+export const parseValueAndAttachWarnings = (
+  nodeOrSocket: IWarningHandler,
+  dataType: AbstractType,
+  data: any,
+): any => {
+  const { value, warnings } = dataType.parse(data);
+  if (warnings.length === 0) {
+    nodeOrSocket.setStatus(new PNPSuccess());
+  } else {
+    warnings.forEach((warning) => {
+      nodeOrSocket.setStatus(warning);
+    });
+  }
+  return value;
+};

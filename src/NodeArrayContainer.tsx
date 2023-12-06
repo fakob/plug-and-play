@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import useInterval from 'use-interval';
 import {
   Box,
   Button,
@@ -21,16 +22,13 @@ import styles from './utils/style.module.css';
 import InterfaceController, { ListenEvent } from './InterfaceController';
 import { getConfigData, writeTextToClipboard } from './utils/utils';
 import { ensureVisible, zoomToFitNodes } from './pixi/utils-pixi';
-import {
-  ERROR_COLOR,
-  ONCLICK_DOUBLECLICK,
-  ONCLICK_TRIPPLECLICK,
-} from './utils/constants';
+import { ONCLICK_DOUBLECLICK, ONCLICK_TRIPPLECLICK } from './utils/constants';
 import { SerializedGraph, TRgba } from './utils/interfaces';
 import { CodeEditor } from './components/Editor';
 import PPGraph from './classes/GraphClass';
 import PPNode from './classes/NodeClass';
 import PPStorage from './PPStorage';
+import { PNPStatus } from './classes/ErrorClass';
 
 type FilterContentProps = {
   handleFilter: (
@@ -101,6 +99,22 @@ const NodesContent = (props) => {
 };
 
 const NodeItem = (props) => {
+  const [nodeStatus, setNodeStatus] = useState(
+    props.property.status.node as PNPStatus,
+  );
+  const [socketStatus, setSocketStatus] = useState(
+    props.property.status.socket as PNPStatus,
+  );
+
+  useInterval(() => {
+    const newNodeStatus = props.property.status.node as PNPStatus;
+    const newSocketStatus = props.property.status.node as PNPStatus;
+    if (socketStatus !== newSocketStatus || nodeStatus !== newNodeStatus) {
+      setNodeStatus(props.property.status.node as PNPStatus);
+      setSocketStatus(props.property.status.socket as PNPStatus);
+    }
+  }, 100);
+
   return (
     <ListItem
       key={props.property.id}
@@ -173,25 +187,6 @@ ${props.property
                 flexGrow: 1,
               }}
             >
-              {props.property.status.isError() && (
-                <Box
-                  title={JSON.stringify(
-                    props.property.status.getName(),
-                    Object.getOwnPropertyNames(props.property.status.message),
-                  )}
-                  sx={{
-                    fontSize: '16px',
-                    background: ERROR_COLOR.hex(),
-                    marginRight: '8px',
-                    px: 0.5,
-                    py: '2px',
-                    display: 'inline',
-                    fontWeight: 400,
-                  }}
-                >
-                  Error
-                </Box>
-              )}
               <Box
                 sx={{
                   display: 'inline',
@@ -199,6 +194,12 @@ ${props.property
               >
                 {props.property.name}
               </Box>
+              {nodeStatus.isError() && (
+                <StatusTag name="Node" status={nodeStatus} />
+              )}
+              {socketStatus.isError() && (
+                <StatusTag name="Socket" status={socketStatus} />
+              )}
             </Box>
             <Box>
               {props.property.getTags().map((part, index) => (
@@ -288,6 +289,26 @@ ${props.property
         </IconButton>
       </ListItemSecondaryAction>
     </ListItem>
+  );
+};
+
+const StatusTag = (props) => {
+  return (
+    <Box
+      title={`${props.status.getName()}
+${props.status.message}`}
+      sx={{
+        fontSize: '12px',
+        background: props.status.getColor().hex(),
+        marginLeft: '8px',
+        px: 0.5,
+        py: '2px',
+        display: 'inline',
+        fontWeight: 400,
+      }}
+    >
+      {props.name}
+    </Box>
   );
 };
 
@@ -449,20 +470,26 @@ export const NodeArrayContainer: React.FunctionComponent<
 
   const customSort = (a: PPNode, b: PPNode) => {
     const order =
-      (+b.status.isError() - +a.status.isError()) * 100 +
+      (+b.status.node.isError() - +a.status.node.isError()) * 1000 +
+        (+b.status.socket.isError() - +a.status.socket.isError()) * 100 +
         (+(b.type === 'Macro') - +(a.type === 'Macro')) * 10 ||
       a.name.localeCompare(b.name);
     return order;
   };
 
-  const updateNodesAndInfo = useCallback(() => {
-    const currentGraph = PPGraph.currentGraph;
-    if (currentGraph) {
-      setConfigData(getConfigData(currentGraph));
-      updateNodes(currentGraph);
-      filterNodes(nodesInGraph);
-    }
-  }, [PPGraph.currentGraph]);
+  const updateNodesAndInfo = useCallback(
+    (includeInfo = true) => {
+      const currentGraph = PPGraph.currentGraph;
+      if (currentGraph) {
+        if (includeInfo) {
+          setConfigData(getConfigData(currentGraph));
+        }
+        updateNodes(currentGraph);
+        filterNodes(nodesInGraph);
+      }
+    },
+    [PPGraph.currentGraph],
+  );
 
   useEffect(() => {
     // data has id and name

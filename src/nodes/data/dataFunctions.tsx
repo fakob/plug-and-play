@@ -1,9 +1,13 @@
 /* eslint-disable @typescript-eslint/no-this-alias */
 import PPNode from '../../classes/NodeClass';
 import Socket from '../../classes/SocketClass';
+import { PNPCustomStatus } from '../../classes/ErrorClass';
 import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../../utils/constants';
 import { CustomArgs, TNodeSource, TRgba } from '../../utils/interfaces';
-import { updateDataIfDefault } from '../../utils/utils';
+import {
+  parseValueAndAttachWarnings,
+  updateDataIfDefault,
+} from '../../utils/utils';
 import { AbstractType } from '../datatypes/abstractType';
 import { AnyType } from '../datatypes/anyType';
 import { ArrayType } from '../datatypes/arrayType';
@@ -181,9 +185,11 @@ export class ParseArray extends PPNode {
     outputObject: Record<string, unknown>,
   ): Promise<void> {
     const inputArray = inputObject[arrayName];
-    outputObject[arrayOutName] = inputArray.map((element) =>
-      this.getSocketByName(typeName).dataType.parse(element),
-    );
+    outputObject[arrayOutName] = inputArray.map((element) => {
+      const socket = this.getSocketByName(typeName);
+      const value = parseValueAndAttachWarnings(this, socket.dataType, element);
+      return value;
+    });
   }
 }
 
@@ -381,15 +387,13 @@ export class CustomFunction extends PPNode {
     // this might seem unused but it actually isn't, its used inside the eval in many cases but we can't see what's inside it from here
     const node = this;
 
-    this.statuses = [];
     if (
       this.showModifiedBanner() &&
       this.getDefaultFunction() !== inputObject['Code']
     ) {
-      this.statuses.push({
-        color: this.getColor().multiply(0.8),
-        statusText: 'Modified',
-      });
+      this.pushExclusiveCustomStatus(
+        new PNPCustomStatus('Modified', this.getColor().multiply(0.8)),
+      );
     }
 
     const finalized = 'async () => ' + functionWithVariablesFromInputObject;
