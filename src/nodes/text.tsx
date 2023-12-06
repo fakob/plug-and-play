@@ -2,7 +2,7 @@ import * as PIXI from 'pixi.js';
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
 import PPSocket from '../classes/SocketClass';
-import { CustomArgs, TNodeSource, TRgba } from '../utils/interfaces';
+import { TNodeSource, TRgba } from '../utils/interfaces';
 import {
   NODE_SOURCE,
   NODE_TYPE_COLOR,
@@ -24,20 +24,12 @@ const fontSizeSocketName = 'fontSize';
 const widthSocketName = 'Width';
 const labelDefaultText = '';
 const defaultNodeWidth = 128;
+const defaultFontSize = 32;
 
 export class Label extends PPNode {
   PIXIText: PIXI.Text;
   PIXITextStyle: PIXI.TextStyle;
   HTMLTextComponent: HTMLDivElement;
-  initialData: any;
-
-  constructor(name: string, customArgs?: CustomArgs) {
-    super(name, {
-      ...customArgs,
-    });
-
-    this.initialData = customArgs?.initialData;
-  }
 
   public getName(): string {
     return 'Label';
@@ -68,11 +60,16 @@ export class Label extends PPNode {
   }
 
   protected getDefaultIO(): PPSocket[] {
-    const fontSize = 32;
     const fillColor = NODE_TYPE_COLOR.OUTPUT;
 
     return [
-      new PPSocket(SOCKET_TYPE.OUT, outputSocketName, new StringType(), false),
+      new PPSocket(
+        SOCKET_TYPE.OUT,
+        outputSocketName,
+        new StringType(),
+        false,
+        false,
+      ),
       new PPSocket(
         SOCKET_TYPE.IN,
         inputSocketName,
@@ -84,7 +81,7 @@ export class Label extends PPNode {
         SOCKET_TYPE.IN,
         fontSizeSocketName,
         new NumberType(true, 1),
-        fontSize,
+        defaultFontSize,
         false,
       ),
       new PPSocket(
@@ -111,22 +108,24 @@ export class Label extends PPNode {
     );
   }
 
+  getOpacity(): number {
+    return Math.max(0.001, this.getInputData(backgroundColorName).a) || 1;
+  }
+
   public onNodeAdded = async (source: TNodeSource) => {
-    await super.onNodeAdded(source);
     this.PIXITextStyle = new PIXI.TextStyle();
     this.PIXITextStyle.breakWords = true;
-    const basicText = new PIXI.Text(labelDefaultText, this.PIXITextStyle);
-    this.PIXIText = this._ForegroundRef.addChild(basicText);
+    this.PIXIText = new PIXI.Text(labelDefaultText, this.PIXITextStyle);
+
+    await super.onNodeAdded(source);
+    this._ForegroundRef.addChild(this.PIXIText);
+
     if (source === NODE_SOURCE.NEW) {
       this.HTMLVisible();
     } else {
       this.PIXIVisible();
     }
   };
-
-  //public executeOnPlace(): boolean {
-  //  return true;
-  //}
 
   public HTMLVisible() {
     this.PIXIText.visible = false;
@@ -349,5 +348,55 @@ export class Label extends PPNode {
     );
     updateDataIfDefault(this, inputSocketName, labelDefaultText, dataToUpdate);
     await super.outputPlugged();
+  }
+}
+
+export class Text extends Label {
+  public getName(): string {
+    return 'Text';
+  }
+
+  public getDescription(): string {
+    return 'Label with transparent background and hidden sockets';
+  }
+
+  protected getDefaultIO(): PPSocket[] {
+    return [
+      new PPSocket(
+        SOCKET_TYPE.OUT,
+        outputSocketName,
+        new StringType(),
+        false,
+        false,
+      ),
+      new PPSocket(
+        SOCKET_TYPE.IN,
+        inputSocketName,
+        new StringType(),
+        'Text',
+        false,
+      ),
+      new PPSocket(
+        SOCKET_TYPE.IN,
+        fontSizeSocketName,
+        new NumberType(true, 1),
+        defaultFontSize,
+        false,
+      ),
+      new PPSocket(
+        SOCKET_TYPE.IN,
+        widthSocketName,
+        new NumberType(true, 0, defaultNodeWidth * 10),
+        undefined,
+        false,
+      ),
+      new PPSocket(
+        SOCKET_TYPE.IN,
+        backgroundColorName,
+        new ColorType(),
+        new TRgba(255, 255, 255, 0.001),
+        false,
+      ),
+    ];
   }
 }

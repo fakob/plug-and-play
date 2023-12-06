@@ -4,7 +4,11 @@ import { OptionsObject, SnackbarKey, SnackbarMessage } from 'notistack';
 import * as PIXI from 'pixi.js';
 import Socket from './classes/SocketClass';
 import { v4 as uuid } from 'uuid';
-import { isEventComingFromWithinTextInput, isMac } from './utils/utils';
+import {
+  getCurrentCursorPosition,
+  isEventComingFromWithinTextInput,
+  isMac,
+} from './utils/utils';
 import PPGraph from './classes/GraphClass';
 import PPStorage from './PPStorage';
 import { ActionHandler } from './utils/actionHandler';
@@ -116,7 +120,7 @@ export default class InterfaceController {
   static isTypingInConsole = false;
   static consoleBeingTyped = '';
 
-  static keysDown = (e: KeyboardEvent): void => {
+  static keysDown = async (e: KeyboardEvent): Promise<void> => {
     const modKey = isMac() ? e.metaKey : e.ctrlKey;
     if (!isEventComingFromWithinTextInput(e)) {
       if (modKey) {
@@ -206,6 +210,14 @@ export default class InterfaceController {
           case 'Digit3':
             e.preventDefault();
             this.toggleRightSideDrawer();
+            break;
+          case 'KeyT':
+            e.preventDefault();
+            const currPos = getCurrentCursorPosition();
+            await PPGraph.currentGraph.addNewNode('Text', {
+              nodePosX: currPos.x,
+              nodePosY: currPos.y,
+            });
             break;
         }
       }
