@@ -109,7 +109,7 @@ export class Label extends PPNode {
   }
 
   getOpacity(): number {
-    return this.getInputData(backgroundColorName).a || 1;
+    return Math.max(0.001, this.getInputData(backgroundColorName).a) || 1;
   }
 
   public onNodeAdded = async (source: TNodeSource) => {
