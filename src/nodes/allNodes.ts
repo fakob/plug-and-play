@@ -154,6 +154,7 @@ export const getAllNodesInDetail = (): any[] => {
         });
 
         const updateBehaviour = [
+          node.updateBehaviour.load,
           node.updateBehaviour.update,
           node.updateBehaviour.interval,
           node.updateBehaviour.intervalFrequency,

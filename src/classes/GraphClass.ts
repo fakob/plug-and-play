@@ -1114,6 +1114,9 @@ export default class PPGraph {
         (node) => !node.getHasDependencies() && node.updateBehaviour.update,
       ),
     );
+    await FlowLogic.executeOptimizedChainBatch(
+      nodes.filter((node) => node.updateBehaviour.load),
+    );
   }
 
   getInputSocket(nodeID: string, socketName: string): PPSocket {

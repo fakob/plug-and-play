@@ -227,7 +227,7 @@ export class Shader extends DRAW_Base {
   }
 
   protected getUpdateBehaviour(): UpdateBehaviourClass {
-    return new UpdateBehaviourClass(true, false, 16, this);
+    return new UpdateBehaviourClass(false, true, false, 16, this);
   }
 }
 

@@ -88,7 +88,7 @@ export class Jira_GetProjects extends Jira_Get {
   }
 
   protected getUpdateBehaviour(): UpdateBehaviourClass {
-    return new UpdateBehaviourClass(false, false, 1000, this);
+    return new UpdateBehaviourClass(false, false, false, 1000, this);
   }
 }
 
@@ -116,6 +116,6 @@ export class Jira_GetIssues extends Jira_Get {
   }
 
   protected getUpdateBehaviour(): UpdateBehaviourClass {
-    return new UpdateBehaviourClass(false, false, 1000, this);
+    return new UpdateBehaviourClass(false, false, false, 1000, this);
   }
 }

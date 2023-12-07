@@ -11,6 +11,7 @@ import {
 } from '../utils/constants';
 
 export interface IUpdateBehaviour {
+  load: boolean;
   update: boolean;
   interval: boolean;
   intervalFrequency: number;
@@ -20,6 +21,7 @@ export default class UpdateBehaviourClass extends PIXI.Container {
   _frequencyRef: PIXI.Text;
   _updateRef: PIXI.Sprite;
   _noUpdateRef: PIXI.Sprite;
+  private _load: boolean;
   private _update: boolean;
   private _interval: boolean;
   private _intervalFrequency: number;
@@ -28,6 +30,7 @@ export default class UpdateBehaviourClass extends PIXI.Container {
   node: PPNode;
 
   constructor(
+    inLoad: boolean,
     inUpdate: boolean,
     inInterval: boolean,
     inIntervalFrequency: number,
@@ -35,6 +38,7 @@ export default class UpdateBehaviourClass extends PIXI.Container {
   ) {
     super();
 
+    this._load = inLoad;
     this._update = inUpdate;
     this._interval = inInterval;
     this._intervalFrequency = inIntervalFrequency;
@@ -120,10 +124,12 @@ export default class UpdateBehaviourClass extends PIXI.Container {
   }
 
   setUpdateBehaviour(
+    newLoad: boolean,
     newUpdate: boolean,
     newInterval: boolean,
     newIntervalFrequency: number,
   ): void {
+    this._load = newLoad;
     this._update = newUpdate;
     this._interval = newInterval;
     this._intervalFrequency = newIntervalFrequency;
@@ -132,12 +138,21 @@ export default class UpdateBehaviourClass extends PIXI.Container {
 
   // GETTERS & SETTERS
 
+  get load(): boolean {
+    return this._load;
+  }
+
+  set load(newLoad: boolean) {
+    this._load = newLoad;
+    this.redrawAnythingChanging();
+  }
+
   get update(): boolean {
     return this._update;
   }
 
-  set update(newInterval: boolean) {
-    this._update = newInterval;
+  set update(newUpdate: boolean) {
+    this._update = newUpdate;
     this.redrawAnythingChanging();
   }
 

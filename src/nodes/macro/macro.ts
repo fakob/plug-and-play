@@ -62,7 +62,7 @@ export class Macro extends PPNode {
   }
 
   protected getUpdateBehaviour(): UpdateBehaviourClass {
-    return new UpdateBehaviourClass(true, false, 1000, this);
+    return new UpdateBehaviourClass(false, true, false, 1000, this);
   }
 
   async onRemoved(): Promise<void> {
