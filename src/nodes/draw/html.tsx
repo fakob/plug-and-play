@@ -111,49 +111,53 @@ export class HtmlRenderer extends HybridNode2 {
 
   // small presentational component
   protected getParentComponent(props: any): React.ReactElement {
-    const node = props.node;
-    const iframeRef = useRef();
-    const [headerData, setHeaderData] = useState(props[inputSocketNameHeader]);
-    const [htmlData, setHtmlData] = useState(props[inputSocketNameHtml]);
-    const [reload, setReload] = useState(props[reloadSocketName]);
-
-    useEffect(() => {
-      if (iframeRef.current) {
-        (iframeRef.current as any).focus();
-      }
-      node.eventTarget.addEventListener('callReload', () => {
-        callReload();
-      });
-    }, []);
-
-    useEffect(() => {
-      console.log('headerData has changed');
-      setHeaderData(props[inputSocketNameHeader]);
-    }, [props[inputSocketNameHeader]]);
-
-    useEffect(() => {
-      console.log('htmlData has changed');
-      setHtmlData(props[inputSocketNameHtml]);
-    }, [props[inputSocketNameHtml]]);
-
-    const callReload = () => {
-      setReload(Math.random());
-    };
-
-    return (
-      <ErrorBoundary FallbackComponent={ErrorFallback}>
-        <MemoizedComponent
-          id={props.node.id}
-          theme={customTheme}
-          iframeRef={iframeRef}
-          headerData={headerData}
-          htmlData={htmlData}
-          reload={reload}
-        />
-      </ErrorBoundary>
-    );
+    return <MyFunctionalComponent {...props} />;
   }
 }
+
+const MyFunctionalComponent = (props): React.ReactElement => {
+  const node = props.node;
+  const iframeRef = useRef();
+  const [headerData, setHeaderData] = useState(props[inputSocketNameHeader]);
+  const [htmlData, setHtmlData] = useState(props[inputSocketNameHtml]);
+  const [reload, setReload] = useState(props[reloadSocketName]);
+
+  useEffect(() => {
+    if (iframeRef.current) {
+      (iframeRef.current as any).focus();
+    }
+    node.eventTarget.addEventListener('callReload', () => {
+      callReload();
+    });
+  }, []);
+
+  useEffect(() => {
+    console.log('headerData has changed');
+    setHeaderData(props[inputSocketNameHeader]);
+  }, [props[inputSocketNameHeader]]);
+
+  useEffect(() => {
+    console.log('htmlData has changed');
+    setHtmlData(props[inputSocketNameHtml]);
+  }, [props[inputSocketNameHtml]]);
+
+  const callReload = () => {
+    setReload(Math.random());
+  };
+
+  return (
+    <ErrorBoundary FallbackComponent={ErrorFallback}>
+      <MemoizedComponent
+        id={props.node.id}
+        theme={customTheme}
+        iframeRef={iframeRef}
+        headerData={headerData}
+        htmlData={htmlData}
+        reload={reload}
+      />
+    </ErrorBoundary>
+  );
+};
 
 const MemoizedComponent = memo<any>(function MemoizedComponent({
   id,
