@@ -968,10 +968,10 @@ export default class PPGraph {
     );
   }
 
-  serialize(): SerializedGraph {
+  serialize(includeSocketInfo = true): SerializedGraph {
     // get serialized nodes
     const nodesSerialized = Object.values(this.nodes).map((node) =>
-      node.serialize(),
+      node.serialize(includeSocketInfo),
     );
 
     // get serialized links

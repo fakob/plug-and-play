@@ -398,8 +398,8 @@ ${newMessage}`,
     );
   }
 
-  //create serialization object
-  serialize(): SerializedSocket {
+  // includeSocketInfo is here for performance reasons, interface is calling this, dont want to overwhelm it with data
+  serialize(includeSocketInfo = true): SerializedSocket {
     // ignore data for output sockets and input sockets with links
     // for input sockets with links store defaultData
     let data;
@@ -415,8 +415,8 @@ ${newMessage}`,
       socketType: this.socketType,
       name: this.name,
       dataType: serializeType(this._dataType), // do not use this.dataType as, for linked inputs, it would save the linked output type
-      ...{ data: data },
-      ...{ defaultData: defaultData },
+      ...{ data: includeSocketInfo ? data : undefined },
+      ...{ defaultData: includeSocketInfo ? defaultData : undefined },
       visible: this.visible,
     };
   }
