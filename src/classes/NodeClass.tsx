@@ -1291,6 +1291,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   }
 
   onPointerOut(): void {
+    this.isHovering = false;
     this.removeEventListener('pointermove', this.pointerOverMoving);
     this.updateBehaviour.redrawAnythingChanging();
     this.nodeSelectionHeader.redrawAnythingChanging(false);
