@@ -426,8 +426,7 @@ export const PropertyArrayContainer: React.FunctionComponent<
   PropertyArrayContainerProps
 > = (props) => {
   const [dragging, setIsDragging] = useState(
-    false,
-    // PPGraph.currentGraph.selection.isDraggingSelection
+    PPGraph.currentGraph.selection.isDraggingSelection,
   );
 
   const singleNode = props.selectedNodes.length ? props.selectedNodes[0] : null;

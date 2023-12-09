@@ -92,7 +92,6 @@ export default class PPNode extends PIXI.Container implements IWarningHandler {
   outputSocketArray: Socket[] = [];
 
   _doubleClicked: boolean;
-  isDraggingNode: boolean;
   listenId: string[] = [];
 
   // supported callbacks
@@ -169,7 +168,6 @@ export default class PPNode extends PIXI.Container implements IWarningHandler {
       await this.executeOptimizedChain();
     }
     this.eventMode = 'dynamic';
-    this.isDraggingNode = false;
     this._doubleClicked = false;
 
     this._addListeners();
@@ -1293,9 +1291,6 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   }
 
   onPointerOut(): void {
-    if (!this.isDraggingNode) {
-      this.isHovering = false;
-    }
     this.removeEventListener('pointermove', this.pointerOverMoving);
     this.updateBehaviour.redrawAnythingChanging();
     this.nodeSelectionHeader.redrawAnythingChanging(false);
