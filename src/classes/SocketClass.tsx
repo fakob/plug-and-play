@@ -75,6 +75,7 @@ export default class Socket
 
   showLabel = false;
   hasBeenAdded = false;
+  cachedParsedData = undefined;
   visibilityCondition: () => boolean = () => true;
 
   // TODO get rid of custom here it is very ugly
@@ -258,15 +259,22 @@ ${newMessage}`,
     this._links = newLink;
   }
 
+  // we do parsing here, because it might be that values are set to sockets that are never retrieved, if so we dont need to parse, only parse when someone asks, but then keep it for next asker
   get data(): any {
-    const dataToReturn = this._data;
-    // allow the type to potentially sanitize the data before passing it on
-    return parseValueAndAttachWarnings(this, this.dataType, dataToReturn);
+    if (this.cachedParsedData == undefined) {
+      this.cachedParsedData = parseValueAndAttachWarnings(
+        this,
+        this.dataType,
+        this._data,
+      );
+    }
+    return this.cachedParsedData;
   }
 
   // for inputs: set data is called only on the socket where the change is being made
   set data(newData: any) {
     this._data = newData;
+    this.cachedParsedData = undefined;
     if (!this.hasBeenAdded) {
       return;
     }
