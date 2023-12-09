@@ -25,6 +25,7 @@ const inputFillGraph = 'Fill Graph';
 const inputAxisGranularity = 'Axis granularity';
 const inputShouldShowValues = 'Show values';
 const inputShowValuesFontSize = 'Font size';
+const inputShowNames = 'Show names';
 const inputColorName = 'Color';
 const inputLineWidthName = 'Line Width';
 
@@ -127,13 +128,8 @@ export class GRAPH_LINE extends DRAW_Base {
         true,
         false,
       ),
-      Socket.getOptionalVisibilitySocket(
-        SOCKET_TYPE.IN,
-        inputShowValuesFontSize,
-        new NumberType(),
-        12,
-        () => this.getInputData(inputShouldShowValues),
-      ),
+      new Socket(SOCKET_TYPE.IN, inputShowValuesFontSize, new NumberType(), 12),
+      new Socket(SOCKET_TYPE.IN, inputShowNames, new BooleanType(), true),
       new Socket(SOCKET_TYPE.IN, inputColorName, new ColorType()),
     ].concat(super.getDefaultIO());
   }
@@ -258,7 +254,7 @@ export class GRAPH_LINE extends DRAW_Base {
         }
         graphics.addChild(basicText);
       }
-      if (point.Name) {
+      if (point.Name && inputObject[inputShowNames]) {
         const basicText = new PIXI.Text(point.Name, textStyle);
         basicText.x = scaledX - fontSize * 0.5;
         basicText.y = 30;
