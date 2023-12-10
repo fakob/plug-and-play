@@ -3,7 +3,6 @@ import React from 'react';
 import { SocketParsingWarning } from '../../classes/ErrorClass';
 import { JSONWidget } from '../../widgets';
 import { AbstractType, DataTypeProps } from './abstractType';
-import { convertToString } from '../../utils/utils';
 import { TParseType, TRgba } from '../../utils/interfaces';
 
 export interface JSONTypeProps extends DataTypeProps {

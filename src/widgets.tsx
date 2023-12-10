@@ -325,22 +325,22 @@ export const BooleanWidget: React.FunctionComponent<BooleanTypeProps> = (
 };
 
 export const TextWidget: React.FunctionComponent<StringTypeProps> = (props) => {
-  const dataLength = convertToString(props.property.data)?.length;
+  const dataLength = props.property.getStringifiedData()?.length;
   const [loadAll, setLoadAll] = useState(dataLength < MAX_STRING_LENGTH);
 
   const [loadedData, setLoadedData] = useState(
-    getLoadedValue(convertToString(props.property.data), loadAll),
+    getLoadedValue(props.property.getStringifiedData(), loadAll),
   );
 
   const onLoadAll = () => {
-    setLoadedData(convertToString(props.property.data));
+    setLoadedData(props.property.getStringifiedData());
     setLoadAll(true);
   };
 
   useInterval(() => {
     if (loadedData !== props.property.data) {
       setLoadedData(
-        getLoadedValue(convertToString(props.property.data), loadAll),
+        getLoadedValue(props.property.getStringifiedData(), loadAll),
       );
     }
   }, 100);
@@ -413,7 +413,7 @@ export const FileBrowserWidget: React.FunctionComponent<FileTypeProps> = (
   useInterval(() => {
     if (filename !== props.property.data) {
       setFilterExtensions(props.dataType.filterExtensions);
-      setFilename(convertToString(props.property.data));
+      setFilename(props.property.getStringifiedData());
       onOpen();
     }
   }, 100);
@@ -488,14 +488,14 @@ export const DataEditorWidget: React.FunctionComponent<
 > = ({ property, randomMainColor, parseData, errorMessage }) => {
   let lastSetTime = property.lastSetTime;
   const [displayedString, setDisplayedString] = useState(
-    convertToString(property.data),
+    property.getStringifiedData(),
   );
   const [isValid, setIsValid] = useState(true);
 
   useInterval(() => {
     if (lastSetTime < property.lastSetTime) {
       lastSetTime = property.lastSetTime;
-      setDisplayedString(convertToString(property.data));
+      setDisplayedString(property.getStringifiedData());
     }
   }, 100);
 
@@ -734,7 +734,7 @@ export const DefaultOutputWidget: React.FunctionComponent<DataTypeProps> = (
   useInterval(() => {
     if (lastSetTime < props.property.lastSetTime) {
       lastSetTime = props.property.lastSetTime;
-      const formattedData = convertToString(props.property.data);
+      const formattedData = props.property.getStringifiedData();
       setData(formattedData);
     }
   }, 100);

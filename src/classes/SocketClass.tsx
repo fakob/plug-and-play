@@ -30,6 +30,7 @@ import { AbstractType, DataTypeProps } from '../nodes/datatypes/abstractType';
 import { dataToType, serializeType } from '../nodes/datatypes/typehelper';
 import {
   constructSocketId,
+  convertToString,
   getCurrentCursorPosition,
   parseValueAndAttachWarnings,
 } from '../utils/utils';
@@ -75,7 +76,10 @@ export default class Socket
 
   showLabel = false;
   hasBeenAdded = false;
+
+  // cached data, for performance reasons (mostly UI related)
   cachedParsedData = undefined;
+  cachedStringifiedData = undefined;
   lastSetTime = new Date().getTime();
   visibilityCondition: () => boolean = () => true;
 
@@ -272,10 +276,17 @@ ${newMessage}`,
     return this.cachedParsedData;
   }
 
-  // for inputs: set data is called only on the socket where the change is being made
+  getStringifiedData(): string {
+    if (this.cachedStringifiedData == undefined) {
+      this.cachedStringifiedData = convertToString(this.data);
+    }
+    return this.cachedStringifiedData;
+  }
+
   set data(newData: any) {
     this._data = newData;
     this.cachedParsedData = undefined;
+    this.cachedStringifiedData = undefined;
     this.lastSetTime = new Date().getTime();
     if (!this.hasBeenAdded) {
       return;
