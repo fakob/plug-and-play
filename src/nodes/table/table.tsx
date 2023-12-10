@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as PIXI from 'pixi.js';
 import React, {
   useCallback,
@@ -281,46 +282,56 @@ export class Table extends HybridNode2 {
     }
   }
 
-  onExport(selectedExportIndex: number) {
-    this.getXLSXModule().writeFile(
-      this.workBook,
-      `${this.name}.${exportOptions[selectedExportIndex]}`,
-      {
-        sheet: this.workBook.SheetNames[this.getIndex()],
-      },
-    );
+  static onExport(node: Table, selectedExportIndex: number) {
+    node
+      .getXLSXModule()
+      .writeFile(
+        node.workBook,
+        `${node.name}.${exportOptions[selectedExportIndex]}`,
+        {
+          sheet: node.workBook.SheetNames[node.getIndex()],
+        },
+      );
   }
 
+  static getCols(arrayOfArrays: any[]): GridColumn[] {
+    const firstRow: [] = arrayOfArrays[0];
+    const longestArrayInArray = getLongestArrayInArray(arrayOfArrays);
+    if (!firstRow) {
+      return [
+        {
+          title: 'Name',
+          id: 'name',
+        },
+      ];
+    }
+    const gridColumn = [];
+    for (let index = 0; index < longestArrayInArray; index++) {
+      const col = firstRow[index];
+      gridColumn.push({
+        title: String(col || indexToAlphaNumName(index)),
+        id: String(col || indexToAlphaNumName(index)).toLowerCase(),
+        hasMenu: true,
+      });
+    }
+    return gridColumn;
+  }
+
+  static saveAndOutput(node: Table, arrayOfArrays) {
+    const worksheet = node.getXLSXModule().utils.aoa_to_sheet(arrayOfArrays);
+    const sheetIndex = node.getIndex();
+    node.workBook.Sheets[node.workBook.SheetNames[sheetIndex]] = worksheet;
+    node.setInputData(workBookInputSocketName, node.workBook);
+    node.setAllOutputData(node.workBook);
+    node.executeChildren();
+  }
   protected getParentComponent(props: any): React.ReactElement {
     const node = props.node;
-
-    const getCols = (): GridColumn[] => {
-      const firstRow: [] = arrayOfArrays[0];
-      const longestArrayInArray = getLongestArrayInArray(arrayOfArrays);
-      if (!firstRow) {
-        return [
-          {
-            title: 'Name',
-            id: 'name',
-          },
-        ];
-      }
-      const gridColumn = [];
-      for (let index = 0; index < longestArrayInArray; index++) {
-        const col = firstRow[index];
-        gridColumn.push({
-          title: String(col || indexToAlphaNumName(index)),
-          id: String(col || indexToAlphaNumName(index)).toLowerCase(),
-          hasMenu: true,
-        });
-      }
-      return gridColumn;
-    };
 
     const ref = useRef<DataEditorRef | null>(null);
     const [arrayOfArrays, setArrayOfArrays] = useState([]);
     node.setArrayOfArrays = setArrayOfArrays;
-    const [colsMap, setColsMap] = useState(() => getCols());
+    const [colsMap, setColsMap] = useState(() => Table.getCols(arrayOfArrays));
     const [colMenu, setColMenu] = useState<{
       col: number;
       pos: PIXI.Point;
@@ -388,11 +399,11 @@ export class Table extends HybridNode2 {
     }, [props[workBookInputSocketName], props[sheetIndexInputSocketName]]);
 
     useEffect(() => {
-      setColsMap(() => getCols());
+      setColsMap(() => Table.getCols(arrayOfArrays));
     }, [arrayOfArrays.length, props[sheetIndexInputSocketName]]);
 
     useEffect(() => {
-      saveAndOutput();
+      Table.saveAndOutput(node, arrayOfArrays);
     }, [arrayOfArrays, colsMap]);
 
     useEffect(() => {
@@ -413,27 +424,13 @@ export class Table extends HybridNode2 {
             });
             setArrayOfArrays(toJson);
           }
-          setColsMap(() => getCols());
-          saveAndOutput();
+          setColsMap(() => Table.getCols(arrayOfArrays));
+          Table.saveAndOutput(node, arrayOfArrays);
         } catch (error) {
           setArrayOfArrays([[], []]);
         }
       }
     }, [props[inputSocketName]]);
-
-    const saveAndOutput = useCallback((): void => {
-      const worksheet = node.getXLSXModule().utils.aoa_to_sheet(arrayOfArrays);
-      const sheetIndex = node.getIndex();
-      node.workBook.Sheets[node.workBook.SheetNames[sheetIndex]] = worksheet;
-      node.setInputData(workBookInputSocketName, node.workBook);
-      node.setAllOutputData(node.workBook);
-      node.executeChildren();
-    }, [
-      arrayOfArrays,
-      colsMap,
-      arrayOfArrays.length,
-      props[sheetIndexInputSocketName],
-    ]);
 
     const getContent = useCallback(
       (cell: Item): GridCell => {
@@ -485,7 +482,7 @@ export class Table extends HybridNode2 {
           setArrayOfArrays(arrayOfArrays.concat(arrayToAppend));
         }
         // update column names and width if needed
-        setColsMap(() => getCols());
+        setColsMap(() => Table.getCols(arrayOfArrays));
         return true;
       },
       [arrayOfArrays.length, props[sheetIndexInputSocketName]],
@@ -500,9 +497,9 @@ export class Table extends HybridNode2 {
       const [col, row] = cell;
       arrayOfArrays[row][col] = newValue.data;
 
-      saveAndOutput();
+      Table.saveAndOutput(node, arrayOfArrays);
       // update column names and width if needed
-      setColsMap(() => getCols());
+      setColsMap(() => Table.getCols(arrayOfArrays));
     };
 
     const onColumnResize = useCallback(
@@ -618,7 +615,7 @@ export class Table extends HybridNode2 {
               >
                 {exportOptions[selectedExportIndex]}
               </Button>
-              <Button onClick={() => this.onExport(selectedExportIndex)}>
+              <Button onClick={() => Table.onExport(node, selectedExportIndex)}>
                 <DownloadIcon sx={{ ml: 0.5, fontSize: '16px' }} />{' '}
               </Button>
             </ButtonGroup>
@@ -716,7 +713,7 @@ export class Table extends HybridNode2 {
                     arrayOfArrays,
                     getLongestArrayInArray(arrayOfArrays),
                   );
-                  setColsMap(() => getCols());
+                  setColsMap(() => Table.getCols(arrayOfArrays));
                 }}
               >
                 <AddIcon sx={{ fontSize: '16px' }} />
@@ -785,7 +782,7 @@ export class Table extends HybridNode2 {
           <MenuItem
             onClick={() => {
               addColumnToArrayOfArrays(arrayOfArrays, colMenu.col);
-              setColsMap(() => getCols());
+              setColsMap(() => Table.getCols(arrayOfArrays));
               setColMenu(undefined);
             }}
           >
@@ -797,7 +794,7 @@ export class Table extends HybridNode2 {
           <MenuItem
             onClick={() => {
               addColumnToArrayOfArrays(arrayOfArrays, colMenu.col + 1);
-              setColsMap(() => getCols());
+              setColsMap(() => Table.getCols(arrayOfArrays));
               setColMenu(undefined);
             }}
           >
@@ -810,7 +807,7 @@ export class Table extends HybridNode2 {
           <MenuItem
             onClick={() => {
               removeColumnFromArrayOfArrays(arrayOfArrays, colMenu.col);
-              setColsMap(() => getCols());
+              setColsMap(() => Table.getCols(arrayOfArrays));
               setColMenu(undefined);
             }}
           >
