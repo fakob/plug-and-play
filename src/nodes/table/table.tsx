@@ -73,6 +73,7 @@ const rowObjectsNames = 'Array of objects';
 const workBookInputSocketName = 'Initial data';
 const sheetIndexInputSocketName = 'Sheet index';
 
+const exportOptions = ['xlsx', 'csv', 'txt', 'html', 'rtf'];
 export class Table extends HybridNode2 {
   _imageRef: PIXI.Sprite;
   _imageRefClone: PIXI.Sprite;
@@ -280,20 +281,18 @@ export class Table extends HybridNode2 {
     }
   }
 
+  onExport(selectedExportIndex: number) {
+    this.getXLSXModule().writeFile(
+      this.workBook,
+      `${this.name}.${exportOptions[selectedExportIndex]}`,
+      {
+        sheet: this.workBook.SheetNames[this.getIndex()],
+      },
+    );
+  }
+
   protected getParentComponent(props: any): React.ReactElement {
     const node = props.node;
-
-    const onExport = () => {
-      node
-        .getXLSXModule()
-        .writeFile(
-          node.workBook,
-          `${node.name}.${exportOptions[selectedExportIndex]}`,
-          {
-            sheet: node.workBook.SheetNames[node.getIndex()],
-          },
-        );
-    };
 
     const getCols = (): GridColumn[] => {
       const firstRow: [] = arrayOfArrays[0];
@@ -330,7 +329,6 @@ export class Table extends HybridNode2 {
       cell: Item;
       pos: PIXI.Point;
     }>();
-    const exportOptions = ['xlsx', 'csv', 'txt', 'html', 'rtf'];
 
     const [hoverRow, setHoverRow] = useState<number | undefined>(undefined);
     const [openExportFormat, setExportFormatOpen] = useState(false);
@@ -620,7 +618,7 @@ export class Table extends HybridNode2 {
               >
                 {exportOptions[selectedExportIndex]}
               </Button>
-              <Button onClick={onExport}>
+              <Button onClick={() => this.onExport(selectedExportIndex)}>
                 <DownloadIcon sx={{ ml: 0.5, fontSize: '16px' }} />{' '}
               </Button>
             </ButtonGroup>
