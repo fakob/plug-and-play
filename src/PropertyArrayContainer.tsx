@@ -454,7 +454,6 @@ export const PropertyArrayContainer: React.FunctionComponent<
     const newSelectedNode =
       props.selectedNodes.length > 0 ? props.selectedNodes?.[0] : null;
     setSelectedNode(newSelectedNode);
-    setConfigData(getConfigData(newSelectedNode));
     setUpdatebehaviour(getUpdateBehaviourStateForArray());
     switchFilterBasedOnSelectedSocket(props.socketToInspect);
   }, [props.selectedNodes]);

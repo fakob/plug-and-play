@@ -412,7 +412,7 @@ ${newMessage}`,
     // for input sockets with links store defaultData
     let data;
     let defaultData;
-    if (this.isInput()) {
+    if (this.isInput() && includeSocketInfo) {
       if (!this.hasLink()) {
         data = this.data;
       } else {
