@@ -291,10 +291,10 @@ ${newMessage}`,
     if (!this.hasBeenAdded) {
       return;
     }
-    console.log(
-      'setting data innit: ' + this.getNode().getName() + ', ' + this.name,
-    );
-    console.trace();
+    //console.log(
+    //  'setting data innit: ' + this.getNode().getName() + ', ' + this.name,
+    //);
+    //console.trace();
 
     this.redrawMetaText();
     this.redrawValueSpecificGraphics();
