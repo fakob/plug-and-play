@@ -50,11 +50,13 @@ type GraphInspectorContainerProps = {
 const GraphInspectorContainer: React.FunctionComponent<
   GraphInspectorContainerProps
 > = (props) => {
+  // it was loading the entire graph from DB when panel was opened before
+  /*
   const [graphName, setGraphName] = React.useState('');
 
   useEffect(() => {
     const graphId = PPGraph.currentGraph?.id;
-    if (graphId) {
+    if (graphId && graphName) {
       PPStorage.getInstance()
         .getGraphNameFromDB(graphId)
         .then((name) => {
@@ -63,6 +65,7 @@ const GraphInspectorContainer: React.FunctionComponent<
         });
     }
   }, [PPGraph.currentGraph?.id]);
+  */
 
   return (
     <ThemeProvider theme={customTheme}>
@@ -77,11 +80,11 @@ const GraphInspectorContainer: React.FunctionComponent<
         }}
       >
         <GraphInspectorHeader
-          graphName={graphName}
+          graphName={PPGraph.currentGraph?.name}
           randomMainColor={props.randomMainColor}
         />
         <NodeArrayContainer
-          graphName={graphName}
+          graphName={PPGraph.currentGraph?.name}
           graphId={PPGraph.currentGraph?.id}
           selectedNodes={props.selectedNodes}
           randomMainColor={props.randomMainColor}

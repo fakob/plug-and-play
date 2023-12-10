@@ -902,7 +902,8 @@ export const loadGraph = (urlParams: URLSearchParams) => {
     PPStorage.getInstance()
       .getLocallyProvidedGraph(fetchFromLocalServer)
       .then((serializedGraph) => {
-        PPGraph.currentGraph.configure(serializedGraph, hri.random());
+        const nameID = hri.random();
+        PPGraph.currentGraph.configure(serializedGraph, hri.random(), nameID);
       });
   } else if (!createEmptyGraph) {
     PPStorage.getInstance().loadGraphFromDB();
