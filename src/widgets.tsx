@@ -486,16 +486,16 @@ export interface DataEditorWidgetProps {
 export const DataEditorWidget: React.FunctionComponent<
   DataEditorWidgetProps
 > = ({ property, randomMainColor, parseData, errorMessage }) => {
-  const [data, setData] = useState(property.data);
+  let lastSetTime = property.lastSetTime;
   const [displayedString, setDisplayedString] = useState(
     convertToString(property.data),
   );
   const [isValid, setIsValid] = useState(true);
 
   useInterval(() => {
-    const formattedData = convertToString(property.data);
-    if (data !== formattedData) {
-      setData(formattedData);
+    if (lastSetTime < property.lastSetTime) {
+      lastSetTime = property.lastSetTime;
+      setDisplayedString(convertToString(property.data));
     }
   }, 100);
 
@@ -504,7 +504,6 @@ export const DataEditorWidget: React.FunctionComponent<
       setDisplayedString(value);
       const parsedData = parseData(value);
       if (parsedData) {
-        setData(parsedData);
         potentiallyUpdateSocketData(property, parsedData);
         setIsValid(true);
       } else {
@@ -730,10 +729,12 @@ export const DefaultOutputWidget: React.FunctionComponent<DataTypeProps> = (
   props,
 ) => {
   const [data, setData] = useState(props.property.data);
+  let lastSetTime = props.property.lastSetTime;
 
   useInterval(() => {
-    const formattedData = convertToString(props.property.data);
-    if (data !== formattedData) {
+    if (lastSetTime < props.property.lastSetTime) {
+      lastSetTime = props.property.lastSetTime;
+      const formattedData = convertToString(props.property.data);
       setData(formattedData);
     }
   }, 100);

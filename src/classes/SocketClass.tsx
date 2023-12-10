@@ -76,6 +76,7 @@ export default class Socket
   showLabel = false;
   hasBeenAdded = false;
   cachedParsedData = undefined;
+  lastSetTime = new Date().getTime();
   visibilityCondition: () => boolean = () => true;
 
   // TODO get rid of custom here it is very ugly
@@ -275,9 +276,15 @@ ${newMessage}`,
   set data(newData: any) {
     this._data = newData;
     this.cachedParsedData = undefined;
+    this.lastSetTime = new Date().getTime();
     if (!this.hasBeenAdded) {
       return;
     }
+    console.log(
+      'setting data innit: ' + this.getNode().getName() + ', ' + this.name,
+    );
+    console.trace();
+
     this.redrawMetaText();
     this.redrawValueSpecificGraphics();
     if (
