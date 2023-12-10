@@ -240,10 +240,6 @@ export class Table extends HybridNode2 {
     return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
   }
 
-  protected onHybridNodeExit(): void {
-    this.executeOptimizedChain();
-  }
-
   public getMinNodeWidth(): number {
     return 200;
   }

@@ -23,9 +23,6 @@ export class JSONType extends AbstractType {
 
   getInputWidget = (props: JSONTypeProps): any => {
     props.dataType = this;
-    if (typeof props.property.data !== 'string') {
-      props.property.data = convertToString(props.property.data);
-    }
     return <JSONWidget {...props} />;
   };
 
