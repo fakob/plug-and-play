@@ -398,13 +398,14 @@ export class Table extends HybridNode2 {
       node.loadSheet();
     }, [props[workBookInputSocketName], props[sheetIndexInputSocketName]]);
 
+    // it seems like these are called multiple times
     useEffect(() => {
       setColsMap(() => Table.getCols(arrayOfArrays));
     }, [arrayOfArrays.length, props[sheetIndexInputSocketName]]);
 
-    useEffect(() => {
-      Table.saveAndOutput(node, arrayOfArrays);
-    }, [arrayOfArrays, colsMap]);
+    //useEffect(() => {
+    //  Table.saveAndOutput(node, arrayOfArrays);
+    //}, [arrayOfArrays, colsMap]);
 
     useEffect(() => {
       if (
