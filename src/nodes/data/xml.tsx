@@ -12,6 +12,11 @@ const inputSocketName = 'Input';
 const IMPORT_NAME = 'xml2js';
 
 export class XMLReader extends PPNode {
+  public onNodeAdded = async (source: TNodeSource): Promise<void> => {
+    await super.onNodeAdded(source);
+    await this.executeOptimizedChain();
+  };
+
   public getName(): string {
     return 'XML reader';
   }
@@ -26,10 +31,6 @@ export class XMLReader extends PPNode {
 
   getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
-  }
-
-  public executeOnPlace(): boolean {
-    return true;
   }
 
   protected getDefaultIO(): PPSocket[] {

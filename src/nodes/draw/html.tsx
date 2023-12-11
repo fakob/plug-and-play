@@ -29,6 +29,7 @@ export class HtmlRenderer extends HybridNode2 {
       this.setInputData(inputSocketNameHtml, this.initialData);
       this.executeOptimizedChain();
     }
+    await this.executeOptimizedChain();
   };
 
   public getName(): string {

@@ -221,10 +221,6 @@ export default abstract class HybridNode2 extends PPNode {
     this.execute();
   }
 
-  public executeOnPlace(): boolean {
-    return true;
-  }
-
   public getShrinkOnSocketRemove(): boolean {
     return false;
   }

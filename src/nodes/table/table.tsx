@@ -932,10 +932,6 @@ export class Table extends HybridNode2 {
     );
   }
 
-  public executeOnPlace(): boolean {
-    return false;
-  }
-
   getJSON(sheet: XLSX.WorkSheet): any {
     const data = this.getXLSXModule().utils.sheet_to_json(sheet);
     return data;

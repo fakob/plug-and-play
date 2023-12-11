@@ -29,7 +29,7 @@ import ColorizeIcon from '@mui/icons-material/Colorize';
 import { SketchPicker } from 'react-color';
 import Socket from '../../classes/SocketClass';
 import { WidgetBase, WidgetHybridBase } from './abstract';
-import { TRgba } from '../../utils/interfaces';
+import { TNodeSource, TRgba } from '../../utils/interfaces';
 import {
   limitRange,
   parseValueAndAttachWarnings,
@@ -226,6 +226,11 @@ const radioDefaultValue = ['A', 'B', 'C'];
 export class WidgetRadio extends WidgetBase {
   radio: RadioGroup | undefined = undefined;
 
+  public onNodeAdded = async (source: TNodeSource): Promise<void> => {
+    await super.onNodeAdded(source);
+    await this.executeOptimizedChain();
+  };
+
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(
@@ -382,10 +387,6 @@ export class WidgetRadio extends WidgetBase {
 
   public allowResize(): boolean {
     return false;
-  }
-
-  public executeOnPlace(): boolean {
-    return true;
   }
 
   public async outputPlugged(): Promise<void> {

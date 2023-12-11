@@ -162,9 +162,6 @@ export default class PPNode extends PIXI.Container implements IWarningHandler {
       this._BackgroundRef.addChild(socket);
       socket.onNodeAdded();
     });
-    if (this.executeOnPlace()) {
-      await this.executeOptimizedChain();
-    }
     this.eventMode = 'dynamic';
     this._doubleClicked = false;
 
@@ -1367,10 +1364,6 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
 
   protected getDefaultIO(): Socket[] {
     return [];
-  }
-
-  public executeOnPlace(): boolean {
-    return false;
   }
 
   ////////////////////////////// Meant to be overriden for visual/behavioral needs

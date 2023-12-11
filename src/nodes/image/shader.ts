@@ -135,14 +135,15 @@ export class Shader extends DRAW_Base {
     return TRgba.fromString(NODE_TYPE_COLOR.SHADER);
   }
 
-  public async onNodeAdded(source: TNodeSource): Promise<void> {
+  public onNodeAdded = async (source: TNodeSource): Promise<void> => {
     await super.onNodeAdded(source);
     this.canvas = PPGraph.currentGraph.viewport.getChildByName(
       'backgroundCanvas',
     ) as PIXI.Container;
 
     this.shader = PIXI.Shader.from(this.prevVertex, this.prevFragment);
-  }
+    await this.executeOptimizedChain();
+  };
 
   constructor(name: string, customArgs: CustomArgs) {
     super(name, {

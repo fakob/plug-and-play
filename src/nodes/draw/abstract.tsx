@@ -12,7 +12,7 @@ import * as PIXI from 'pixi.js';
 import { NumberType } from '../datatypes/numberType';
 import { BooleanType } from '../datatypes/booleanType';
 import { ArrayType } from '../datatypes/arrayType';
-import { TRgba } from '../../utils/interfaces';
+import { TNodeSource, TRgba } from '../../utils/interfaces';
 import { DisplayObject } from 'pixi.js';
 import { getCurrentCursorPosition } from '../../utils/utils';
 import { ActionHandler } from '../../utils/actionHandler';
@@ -43,6 +43,11 @@ export abstract class DRAW_Base extends PPNode {
   listenIDUp = '';
   listenIDMove = '';
   isDragging = false;
+
+  public onNodeAdded = async (source: TNodeSource): Promise<void> => {
+    await super.onNodeAdded(source);
+    await this.executeOptimizedChain();
+  };
 
   public getName(): string {
     return 'Draw';
@@ -321,10 +326,6 @@ export abstract class DRAW_Base extends PPNode {
   }
 
   protected allowMovingDirectly(): boolean {
-    return true;
-  }
-
-  public executeOnPlace(): boolean {
     return true;
   }
 }
