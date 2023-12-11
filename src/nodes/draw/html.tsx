@@ -18,15 +18,6 @@ import HybridNode2 from '../../classes/HybridNode2';
 const inputSocketNameHeader = 'Header';
 const inputSocketNameHtml = 'Html';
 const reloadSocketName = 'Reload';
-const defaultHeader = '<script src="https://cdn.tailwindcss.com"></script>';
-const defaultCode = `<div class="p-4">
-<h2>HTML Node</h2>
-<p class="mb-2 text-sky-500 dark:text-sky-400">Embed an iframe or write your own HTML</p>
-<form>
-  <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" formtarget="_blank" formaction="https://github.com/fakob/plug-and-play/">Click me!</button>
-</form>
-</div>
-`;
 
 export class HtmlRenderer extends HybridNode2 {
   eventTarget: EventTarget;
@@ -36,6 +27,7 @@ export class HtmlRenderer extends HybridNode2 {
     await super.onNodeAdded(source);
     if (this.initialData) {
       this.setInputData(inputSocketNameHtml, this.initialData);
+      this.executeOptimizedChain();
     }
   };
 
@@ -67,20 +59,35 @@ export class HtmlRenderer extends HybridNode2 {
     return TRgba.fromString(NODE_TYPE_COLOR.OUTPUT);
   }
 
+  getDefaultHeader(): string {
+    return '<script src="https://cdn.tailwindcss.com"></script>';
+  }
+
+  getDefaultHTMLCode(): string {
+    return `<div class="p-4">
+<h2>HTML Node</h2>
+<p class="mb-2 text-sky-500 dark:text-sky-400">Embed an iframe or write your own HTML</p>
+<form>
+  <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" formtarget="_blank" formaction="https://github.com/fakob/plug-and-play/">Click me!</button>
+</form>
+</div>
+`;
+  }
+
   protected getDefaultIO(): PPSocket[] {
     return [
       new PPSocket(
         SOCKET_TYPE.IN,
         inputSocketNameHeader,
         new CodeType(),
-        defaultHeader,
+        this.getDefaultHeader(),
         false,
       ),
       new PPSocket(
         SOCKET_TYPE.IN,
         inputSocketNameHtml,
         new CodeType(),
-        defaultCode,
+        this.getDefaultHTMLCode(),
         false,
       ),
       new PPSocket(
@@ -123,9 +130,7 @@ const MyFunctionalComponent = (props): React.ReactElement => {
   const [reload, setReload] = useState(props[reloadSocketName]);
 
   useEffect(() => {
-    if (iframeRef.current) {
-      (iframeRef.current as any).focus();
-    }
+    (iframeRef.current as any).focus();
     node.eventTarget.addEventListener('callReload', () => {
       callReload();
     });
@@ -209,11 +214,11 @@ export class EmbedWebsite extends HtmlRenderer {
     return 400;
   }
 
-  protected getDefaultIO(): PPSocket[] {
-    const codeSocket = super
-      .getDefaultIO()
-      .find((socket) => socket.name === inputSocketNameHtml);
-    codeSocket.data = `<iframe src="https://en.wikipedia.org/wiki/Special:Random" style="width: 100%; height: 100%;"></iframe>`;
-    return super.getDefaultIO();
+  public getDefaultHeader(): string {
+    return '';
+  }
+
+  public getDefaultHTMLCode(): string {
+    return '<iframe src="https://en.wikipedia.org/wiki/Special:Random" style="width: 100%; height: 100%;"></iframe>';
   }
 }
