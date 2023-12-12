@@ -166,7 +166,6 @@ export abstract class DRAW_Base extends PPNode {
     inputObject: any,
     outputObject: Record<string, unknown>,
   ): Promise<void> {
-    console.trace(this.name);
     const drawingFunction = (container, executions) => {
       if (container) {
         this.drawOnContainer(inputObject, container, executions);
