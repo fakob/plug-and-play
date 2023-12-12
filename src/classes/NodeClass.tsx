@@ -162,11 +162,16 @@ export default class PPNode extends PIXI.Container implements IWarningHandler {
       this._BackgroundRef.addChild(socket);
       socket.onNodeAdded();
     });
+
     this.eventMode = 'dynamic';
     this._doubleClicked = false;
 
     this._addListeners();
     this.resizeAndDraw();
+
+    if (this.updateBehaviour.load) {
+      await this.executeOptimizedChain();
+    }
   }
 
   public getMinNodeWidth(): number {

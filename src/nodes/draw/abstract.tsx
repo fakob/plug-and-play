@@ -1,6 +1,7 @@
 import PPNode from '../../classes/NodeClass';
 import PPGraph from '../../classes/GraphClass';
 import Socket from '../../classes/SocketClass';
+import UpdateBehaviourClass from '../../classes/UpdateBehaviourClass';
 import {
   NODE_TYPE_COLOR,
   PIXI_PIVOT_OPTIONS,
@@ -12,7 +13,7 @@ import * as PIXI from 'pixi.js';
 import { NumberType } from '../datatypes/numberType';
 import { BooleanType } from '../datatypes/booleanType';
 import { ArrayType } from '../datatypes/arrayType';
-import { TNodeSource, TRgba } from '../../utils/interfaces';
+import { TRgba } from '../../utils/interfaces';
 import { DisplayObject } from 'pixi.js';
 import { getCurrentCursorPosition } from '../../utils/utils';
 import { ActionHandler } from '../../utils/actionHandler';
@@ -44,11 +45,6 @@ export abstract class DRAW_Base extends PPNode {
   listenIDMove = '';
   isDragging = false;
 
-  public onNodeAdded = async (source: TNodeSource): Promise<void> => {
-    await super.onNodeAdded(source);
-    await this.executeOptimizedChain();
-  };
-
   public getName(): string {
     return 'Draw';
   }
@@ -68,6 +64,10 @@ export abstract class DRAW_Base extends PPNode {
   onNodeRemoved = (): void => {
     this._ForegroundRef.removeChild(this.deferredGraphics);
   };
+
+  protected getUpdateBehaviour(): UpdateBehaviourClass {
+    return new UpdateBehaviourClass(true, false, false, 1000, this);
+  }
 
   // you probably want to maintain this output in children
   protected getDefaultIO(): Socket[] {
@@ -166,6 +166,7 @@ export abstract class DRAW_Base extends PPNode {
     inputObject: any,
     outputObject: Record<string, unknown>,
   ): Promise<void> {
+    console.trace(this.name);
     const drawingFunction = (container, executions) => {
       if (container) {
         this.drawOnContainer(inputObject, container, executions);

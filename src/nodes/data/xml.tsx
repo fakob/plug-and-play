@@ -1,7 +1,8 @@
 import PPSocket from '../../classes/SocketClass';
-import { TNodeSource, TRgba } from '../../utils/interfaces';
+import { TRgba } from '../../utils/interfaces';
 import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../../utils/constants';
 import PPNode from '../../classes/NodeClass';
+import UpdateBehaviourClass from '../../classes/UpdateBehaviourClass';
 import { JSONType } from '../datatypes/jsonType';
 import { CodeType } from '../datatypes/codeType';
 import PPGraph from '../../classes/GraphClass';
@@ -12,11 +13,6 @@ const inputSocketName = 'Input';
 const IMPORT_NAME = 'xml2js';
 
 export class XMLReader extends PPNode {
-  public onNodeAdded = async (source: TNodeSource): Promise<void> => {
-    await super.onNodeAdded(source);
-    await this.executeOptimizedChain();
-  };
-
   public getName(): string {
     return 'XML reader';
   }
@@ -31,6 +27,10 @@ export class XMLReader extends PPNode {
 
   getColor(): TRgba {
     return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
+  }
+
+  protected getUpdateBehaviour(): UpdateBehaviourClass {
+    return new UpdateBehaviourClass(true, true, false, 1000, this);
   }
 
   protected getDefaultIO(): PPSocket[] {

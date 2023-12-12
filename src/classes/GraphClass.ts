@@ -1115,7 +1115,10 @@ export default class PPGraph {
       ),
     );
     await FlowLogic.executeOptimizedChainBatch(
-      nodes.filter((node) => node.updateBehaviour.load),
+      nodes.filter((node) => {
+        console.log(node.name);
+        return node.updateBehaviour.load;
+      }),
     );
   }
 

@@ -80,15 +80,19 @@ export class Shader extends DRAW_Base {
   protected getDefaultImages(): Record<string, string> {
     return {};
   }
+
   getCanAddInput(): boolean {
     return true;
   }
+
   public getDescription(): string {
     return 'Draws a shader';
   }
+
   public getName(): string {
     return 'Draw shader';
   }
+
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(
@@ -228,7 +232,7 @@ export class Shader extends DRAW_Base {
   }
 
   protected getUpdateBehaviour(): UpdateBehaviourClass {
-    return new UpdateBehaviourClass(false, true, false, 16, this);
+    return new UpdateBehaviourClass(true, true, false, 16, this);
   }
 }
 
