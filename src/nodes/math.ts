@@ -14,6 +14,17 @@ import { CustomFunction } from './data/dataFunctions';
 import { AbstractType } from './datatypes/abstractType';
 import * as PIXI from 'pixi.js';
 import { TextStyle } from 'pixi.js';
+import { DynamicInputNode } from './abstract/DynamicInputNode';
+
+const addedOutputName = 'Added';
+const subtractedOutputName = 'Subtracted';
+const dividedOutputName = 'Divided';
+const multipliedOutputName = 'Multiplied';
+const remainderOutputName = 'Remainder';
+const squareRootOutputName = 'Root';
+const singleNumberName = 'Number';
+const number1Name = 'Number 1';
+const number2Name = 'Number 2';
 
 export class MathFunction extends PPNode {
   constructor(name: string, customArgs: CustomArgs) {
@@ -115,202 +126,183 @@ export class MathFunction extends PPNode {
     ];
   }
 }
-
-abstract class SimpleMathOperation extends CustomFunction {
-  public getColor(): TRgba {
-    return TRgba.fromString(NODE_TYPE_COLOR.TRANSFORM);
-  }
-
+export class Add extends DynamicInputNode {
   public getName(): string {
-    return 'MathOperation';
-  }
-  public getDescription(): string {
-    return 'Performs a math operation to two numbers or strings';
-  }
-  public getParallelInputsOutputs(): boolean {
-    return true;
-  }
-
-  protected getDefaultParameterValues(): Record<string, any> {
-    return { Input1: 1, Input2: 1 };
-  }
-  protected getDefaultParameterTypes(): Record<string, any> {
-    return { Input1: new NumberType(), Input2: new NumberType() };
-  }
-  protected getOutputParameterType(): AbstractType {
-    return new NumberType();
-  }
-  protected getOutputParameterName(): string {
-    return 'Result';
-  }
-
-  protected getDefaultFunction(): string {
-    return (
-      '(Input1, Input2) => {\n\treturn Input1 ' +
-      this.getOperator() +
-      ' Input2;\n}'
-    );
-  }
-
-  public drawBackground(): void {
-    const centerX = this.nodeWidth / 2;
-    const centerY = this.nodeHeight / 2;
-    this._BackgroundGraphicsRef.removeChildren();
-    this._BackgroundGraphicsRef.beginFill(
-      this.getColor().hexNumber(),
-      this.getOpacity(),
-    );
-    this._BackgroundGraphicsRef.drawRoundedRect(
-      NODE_MARGIN,
-      0,
-      this.nodeWidth,
-      this.nodeHeight,
-      this.getRoundedCorners() ? NODE_CORNERRADIUS : 0,
-    );
-
-    //this._BackgroundGraphicsRef.drawCircle(NODE_MARGIN, 0, this.nodeWidth / 2);
-
-    const fontSize = 70;
-    const text = new PIXI.Text(
-      this.getOperatorSign(),
-      new TextStyle({
-        fontSize: fontSize,
-        fill: this.getSocketByName('Input1')
-          ? this.getSocketByName('Input1').dataType.getColor().hex()
-          : COLOR_MAIN,
-      }),
-    );
-    text.x = centerX - fontSize / 4;
-    text.y = centerY - fontSize / 2;
-    this._BackgroundGraphicsRef.addChild(text);
-  }
-
-  public socketTypeChanged(): void {
-    super.socketTypeChanged();
-    this.drawNodeShape();
-  }
-
-  public getNodeTextString(): string {
-    return '';
-  }
-
-  protected getOperator(): string {
-    return '';
-  }
-  protected getOperatorSign(): string {
-    return this.getOperator();
-  }
-  public getTags(): string[] {
-    return ['Math', this.getOperator(), this.getOperatorSign()].concat(
-      super.getTags(),
-    );
-  }
-
-  public executeOnPlace(): boolean {
-    return true;
-  }
-}
-
-export class Add extends SimpleMathOperation {
-  public getName(): string {
-    return 'Add';
+    return 'Add (+)';
   }
 
   public getDescription(): string {
-    return 'Adds numbers or concatenates strings';
-  }
-
-  protected getOperator(): string {
-    return '+';
+    return 'Adds numbers';
   }
 
   public hasExample(): boolean {
     return true;
   }
+
+  protected async onExecute(input, output): Promise<void> {
+    output[addedOutputName] = this.getAllNonDefaultSockets().reduce(
+      (prevValue, socket) => socket.data + prevValue,
+      0,
+    );
+  }
+
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(SOCKET_TYPE.OUT, addedOutputName, new NumberType()),
+    ].concat(super.getDefaultIO());
+  }
+
+  public getTags(): string[] {
+    return ['Math', '+'].concat(super.getTags());
+  }
 }
 
-export class Subtract extends SimpleMathOperation {
+export class Subtract extends PPNode {
   public getName(): string {
-    return 'Subtract';
+    return 'Subtract (-)';
   }
 
   public getDescription(): string {
-    return 'Subtracts two numbers';
+    return 'Subtracts one number from another';
   }
 
-  protected getOperator(): string {
-    return '-';
+  public hasExample(): boolean {
+    return true;
+  }
+
+  protected async onExecute(input, output): Promise<void> {
+    output[subtractedOutputName] = input[number1Name] - input[number2Name];
+  }
+
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(SOCKET_TYPE.IN, number1Name, new NumberType()),
+      new Socket(SOCKET_TYPE.IN, number2Name, new NumberType()),
+      new Socket(SOCKET_TYPE.OUT, subtractedOutputName, new NumberType()),
+    ].concat(super.getDefaultIO());
+  }
+
+  public getTags(): string[] {
+    return ['Math', '-'].concat(super.getTags());
   }
 }
 
-export class Multiply extends SimpleMathOperation {
+export class Multiply extends DynamicInputNode {
   public getName(): string {
-    return 'Multiply';
+    return 'Multiply (*)';
   }
 
   public getDescription(): string {
-    return 'Multiplies two numbers';
+    return 'Multiplies numbers';
   }
 
-  protected getOperator(): string {
-    return '*';
+  public hasExample(): boolean {
+    return true;
   }
 
-  protected getOperatorSign(): string {
-    return '×';
+  protected async onExecute(input, output): Promise<void> {
+    output[multipliedOutputName] = this.getAllNonDefaultSockets().reduce(
+      (prevValue, socket) => socket.data * prevValue,
+      1,
+    );
+  }
+
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(SOCKET_TYPE.OUT, multipliedOutputName, new NumberType()),
+    ].concat(super.getDefaultIO());
+  }
+
+  public getTags(): string[] {
+    return ['Math', '+'].concat(super.getTags());
   }
 }
 
-export class Divide extends SimpleMathOperation {
+export class Divide extends PPNode {
   public getName(): string {
-    return 'Divide';
+    return 'Divide (/)';
   }
 
   public getDescription(): string {
-    return 'Divides two numbers';
+    return 'Divides one number by another';
   }
 
-  protected getOperator(): string {
-    return '/';
+  public hasExample(): boolean {
+    return true;
   }
 
-  protected getOperatorSign(): string {
-    return '÷';
+  protected async onExecute(input, output): Promise<void> {
+    output[dividedOutputName] = input[number1Name] / input[number2Name];
+  }
+
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(SOCKET_TYPE.IN, number1Name, new NumberType()),
+      new Socket(SOCKET_TYPE.IN, number2Name, new NumberType(), 1),
+      new Socket(SOCKET_TYPE.OUT, dividedOutputName, new NumberType()),
+    ].concat(super.getDefaultIO());
+  }
+
+  public getTags(): string[] {
+    return ['Math', '/'].concat(super.getTags());
   }
 }
 
-export class Remainder extends SimpleMathOperation {
+export class Remainder extends PPNode {
   public getName(): string {
-    return 'Remainder';
+    return 'Remainder (%)';
   }
 
   public getDescription(): string {
-    return 'The remainder (%) or modulo operator returns the remainder left over when one operand is divided by a second operand (takes the sign of the dividend)';
+    return 'The remainder of one number divided by another';
   }
 
-  protected getOperator(): string {
-    return '%';
+  public hasExample(): boolean {
+    return true;
   }
 
-  protected getOperatorSign(): string {
-    return '%';
+  protected async onExecute(input, output): Promise<void> {
+    output[remainderOutputName] = input[number1Name] % input[number2Name];
+  }
+
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(SOCKET_TYPE.IN, number1Name, new NumberType()),
+      new Socket(SOCKET_TYPE.IN, number2Name, new NumberType()),
+      new Socket(SOCKET_TYPE.OUT, remainderOutputName, new NumberType()),
+    ].concat(super.getDefaultIO());
+  }
+
+  public getTags(): string[] {
+    return ['Math', '%'].concat(super.getTags());
   }
 }
 
-export class Sqrt extends SimpleMathOperation {
+export class Sqrt extends PPNode {
   public getName(): string {
     return 'Square root';
   }
 
   public getDescription(): string {
-    return 'Square root of number';
+    return 'The square root of a number';
   }
 
-  protected getOperatorSign(): string {
-    return '√';
+  public hasExample(): boolean {
+    return true;
   }
 
-  protected getDefaultFunction(): string {
-    return '(Input1) => {\n\treturn Math.sqrt(Input1);\n}';
+  protected async onExecute(input, output): Promise<void> {
+    output[squareRootOutputName] = Math.sqrt(input[singleNumberName]);
+  }
+
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(SOCKET_TYPE.IN, singleNumberName, new NumberType(), 1),
+      new Socket(SOCKET_TYPE.OUT, squareRootOutputName, new NumberType()),
+    ].concat(super.getDefaultIO());
+  }
+
+  public getTags(): string[] {
+    return ['Math', '√', 'sqrt'].concat(super.getTags());
   }
 }
