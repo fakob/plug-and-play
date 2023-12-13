@@ -84,7 +84,6 @@ const GraphInspectorContainer: React.FunctionComponent<
           randomMainColor={props.randomMainColor}
         />
         <NodeArrayContainer
-          graphName={PPGraph.currentGraph?.name}
           graphId={PPGraph.currentGraph?.id}
           selectedNodes={props.selectedNodes}
           randomMainColor={props.randomMainColor}
