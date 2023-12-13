@@ -81,6 +81,11 @@ export default class Socket
   cachedParsedData = undefined;
   cachedStringifiedData = undefined;
   lastSetTime = new Date().getTime();
+
+  // special mode for sockets that are given a function to get the value instead of the actual value, to save performance in case no one asks for it, requires manual work node side to update needsToReFetchValue
+  lazyEvaluationFunction = () => undefined;
+  private needsToReFetchValue = true;
+
   visibilityCondition: () => boolean = () => true;
 
   // TODO get rid of custom here it is very ugly
@@ -91,6 +96,8 @@ export default class Socket
     data = null,
     visible = true,
     custom?: Record<string, any>,
+    lazyEvaluation = false,
+    lazyEvaluationFunction = () => {},
   ) {
     super();
     if (socketType !== SOCKET_TYPE.OUT) {
@@ -109,6 +116,9 @@ export default class Socket
     this.visible = visible;
     this._custom = custom;
     this._links = [];
+
+    this.lazyEvaluationFunction = lazyEvaluationFunction;
+    this.needsToReFetchValue = lazyEvaluation;
   }
 
   static getOptionalVisibilitySocket(
@@ -264,8 +274,19 @@ ${newMessage}`,
     this._links = newLink;
   }
 
-  // we do parsing here, because it might be that values are set to sockets that are never retrieved, if so we dont need to parse, only parse when someone asks, but then keep it for next asker
+  // only applicable for lazily evaluated socket values, called when parents data has changed
+  public valueNeedsRefresh(): void {
+    this.needsToReFetchValue = true;
+    if (this.isOutput() && this.links) {
+      this.data = this.lazyEvaluationFunction();
+    }
+  }
+
   get data(): any {
+    if (this.needsToReFetchValue) {
+      this._data = this.lazyEvaluationFunction();
+      this.needsToReFetchValue = false;
+    }
     if (this.cachedParsedData == undefined) {
       this.cachedParsedData = parseValueAndAttachWarnings(
         this,
