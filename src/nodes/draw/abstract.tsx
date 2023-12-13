@@ -1,6 +1,7 @@
 import PPNode from '../../classes/NodeClass';
 import PPGraph from '../../classes/GraphClass';
 import Socket from '../../classes/SocketClass';
+import UpdateBehaviourClass from '../../classes/UpdateBehaviourClass';
 import {
   NODE_TYPE_COLOR,
   PIXI_PIVOT_OPTIONS,
@@ -63,6 +64,10 @@ export abstract class DRAW_Base extends PPNode {
   onNodeRemoved = (): void => {
     this._ForegroundRef.removeChild(this.deferredGraphics);
   };
+
+  protected getUpdateBehaviour(): UpdateBehaviourClass {
+    return new UpdateBehaviourClass(true, false, false, 1000, this);
+  }
 
   // you probably want to maintain this output in children
   protected getDefaultIO(): Socket[] {
@@ -321,10 +326,6 @@ export abstract class DRAW_Base extends PPNode {
   }
 
   protected allowMovingDirectly(): boolean {
-    return true;
-  }
-
-  public executeOnPlace(): boolean {
     return true;
   }
 }

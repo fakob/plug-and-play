@@ -8,6 +8,7 @@ import { Button } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import PPGraph from './GraphClass';
 import PPNode from './NodeClass';
+import UpdateBehaviourClass from './UpdateBehaviourClass';
 import InterfaceController, { ListenEvent } from '../InterfaceController';
 import styles from '../utils/style.module.css';
 import { CustomArgs, TNodeSource, TRgba } from '../utils/interfaces';
@@ -51,6 +52,10 @@ export default abstract class HybridNode2 extends PPNode {
     );
     this.addChildAt(this.shadowPlane, 0);
     await super.onNodeAdded(source);
+  }
+
+  protected getUpdateBehaviour(): UpdateBehaviourClass {
+    return new UpdateBehaviourClass(true, true, false, 1000, this);
   }
 
   redraw({ screenX = 0, screenY = 0, scale = 1 }) {
@@ -219,10 +224,6 @@ export default abstract class HybridNode2 extends PPNode {
     this.container.classList.remove(styles.hybridContainerFocused);
     this.drawBackground();
     this.execute();
-  }
-
-  public executeOnPlace(): boolean {
-    return true;
   }
 
   public getShrinkOnSocketRemove(): boolean {

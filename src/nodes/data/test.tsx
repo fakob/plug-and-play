@@ -154,7 +154,7 @@ export class TestDataTypes extends PPNode {
   }
 
   protected getUpdateBehaviour(): UpdateBehaviourClass {
-    return new UpdateBehaviourClass(true, true, 1000, this);
+    return new UpdateBehaviourClass(false, true, true, 1000, this);
   }
 
   getColor(): TRgba {

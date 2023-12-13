@@ -100,9 +100,10 @@ function FilterContainer(props: FilterContentProps) {
 
 type CommonContentProps = {
   hasTriggerSocket: boolean;
+  load: boolean;
+  update: boolean;
   interval: boolean;
   intervalFrequency: number;
-  update: boolean;
   onCheckboxChange: (event) => void;
   onFrequencyChange: (event) => void;
   onUpdateNow: (event) => void;
@@ -123,6 +124,17 @@ function CommonContent(props: CommonContentProps) {
             Update now
           </Button>
         </FormGroup>
+        <FormControlLabel
+          control={
+            <Checkbox
+              name="load"
+              checked={props.load}
+              indeterminate={props.load === null}
+              onChange={props.onCheckboxChange}
+            />
+          }
+          label="Update on load"
+        />
         <FormControlLabel
           control={
             <Checkbox
@@ -475,32 +487,31 @@ export const PropertyArrayContainer: React.FunctionComponent<
   // if its value is not the same throughout the array
   // else it returns the value
   const getUpdateBehaviourStateForArray = () => {
-    const areAllIntervalsTheSame = props.selectedNodes.every(
-      (node) =>
-        node.updateBehaviour.interval ===
-        props.selectedNodes[0].updateBehaviour.interval,
-    );
-    const areAllFrequenciesTheSame = props.selectedNodes.every(
-      (node) =>
-        node.updateBehaviour.intervalFrequency ===
-        props.selectedNodes[0].updateBehaviour.intervalFrequency,
-    );
-    const areAllUpdatesTheSame = props.selectedNodes.every(
-      (node) =>
-        node.updateBehaviour.update ===
-        props.selectedNodes[0].updateBehaviour.update,
-    );
+    const isPropertyUniform = (property) => {
+      return props.selectedNodes.every(
+        (node) =>
+          node.updateBehaviour[property] ===
+          props.selectedNodes[0].updateBehaviour[property],
+      );
+    };
+
+    const areAllLoadsTheSame = isPropertyUniform('load');
+    const areAllUpdatesTheSame = isPropertyUniform('update');
+    const areAllIntervalsTheSame = isPropertyUniform('interval');
+    const areAllFrequenciesTheSame = isPropertyUniform('intervalFrequency');
+
+    const firstNodeUpdateBehaviour = props.selectedNodes[0].updateBehaviour;
     const updateBehaviourObject = {
+      load: areAllLoadsTheSame ? firstNodeUpdateBehaviour.load : null,
+      update: areAllUpdatesTheSame ? firstNodeUpdateBehaviour.update : null,
       interval: areAllIntervalsTheSame
-        ? props.selectedNodes[0].updateBehaviour.interval
+        ? firstNodeUpdateBehaviour.interval
         : null,
       intervalFrequency: areAllFrequenciesTheSame
-        ? props.selectedNodes[0].updateBehaviour.intervalFrequency
-        : null,
-      update: areAllUpdatesTheSame
-        ? props.selectedNodes[0].updateBehaviour.update
+        ? firstNodeUpdateBehaviour.intervalFrequency
         : null,
     };
+
     return updateBehaviourObject;
   };
 
@@ -570,9 +581,10 @@ export const PropertyArrayContainer: React.FunctionComponent<
             props.filter == null) && (
             <CommonContent
               hasTriggerSocket={selectedNode.nodeTriggerSocketArray.length > 0}
+              load={updateBehaviour.load}
+              update={updateBehaviour.update}
               interval={updateBehaviour.interval}
               intervalFrequency={updateBehaviour.intervalFrequency}
-              update={updateBehaviour.update}
               onCheckboxChange={onCheckboxChange}
               onFrequencyChange={onFrequencyChange}
               onUpdateNow={onUpdateNow}

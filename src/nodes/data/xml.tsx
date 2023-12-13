@@ -1,7 +1,8 @@
 import PPSocket from '../../classes/SocketClass';
-import { TNodeSource, TRgba } from '../../utils/interfaces';
+import { TRgba } from '../../utils/interfaces';
 import { NODE_TYPE_COLOR, SOCKET_TYPE } from '../../utils/constants';
 import PPNode from '../../classes/NodeClass';
+import UpdateBehaviourClass from '../../classes/UpdateBehaviourClass';
 import { JSONType } from '../datatypes/jsonType';
 import { CodeType } from '../datatypes/codeType';
 import PPGraph from '../../classes/GraphClass';
@@ -28,8 +29,8 @@ export class XMLReader extends PPNode {
     return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
   }
 
-  public executeOnPlace(): boolean {
-    return true;
+  protected getUpdateBehaviour(): UpdateBehaviourClass {
+    return new UpdateBehaviourClass(true, true, false, 1000, this);
   }
 
   protected getDefaultIO(): PPSocket[] {

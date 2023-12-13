@@ -4,6 +4,7 @@ import { ErrorBoundary } from 'react-error-boundary';
 import Frame from 'react-frame-component';
 import ErrorFallback from '../../components/ErrorFallback';
 import PPSocket from '../../classes/SocketClass';
+import UpdateBehaviourClass from '../../classes/UpdateBehaviourClass';
 import { CodeType } from '../datatypes/codeType';
 import { TriggerType } from '../datatypes/triggerType';
 import { TNodeSource, TRgba } from '../../utils/interfaces';
@@ -72,6 +73,10 @@ export class HtmlRenderer extends HybridNode2 {
 </form>
 </div>
 `;
+  }
+
+  protected getUpdateBehaviour(): UpdateBehaviourClass {
+    return new UpdateBehaviourClass(true, true, false, 1000, this);
   }
 
   protected getDefaultIO(): PPSocket[] {
