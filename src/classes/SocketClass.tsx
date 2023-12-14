@@ -323,7 +323,7 @@ ${newMessage}`,
       this.getNode()?.socketShouldAutomaticallyAdapt(this) &&
       this.dataType.allowedToAutomaticallyAdapt()
     ) {
-      const proposedType = dataToType(this.data);
+      const proposedType = dataToType(newData);
       if (this.dataType.getName() !== proposedType.getName()) {
         this.dataType = proposedType;
         this.redraw();
