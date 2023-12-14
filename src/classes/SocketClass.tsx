@@ -323,7 +323,7 @@ ${newMessage}`,
       this.getNode()?.socketShouldAutomaticallyAdapt(this) &&
       this.dataType.allowedToAutomaticallyAdapt()
     ) {
-      const proposedType = dataToType(newData);
+      const proposedType = dataToType(this.data);
       if (this.dataType.getName() !== proposedType.getName()) {
         this.dataType = proposedType;
         this.redraw();
@@ -335,7 +335,7 @@ ${newMessage}`,
     }
     if (this.isInput()) {
       if (!this.hasLink()) {
-        this._defaultData = newData;
+        this._defaultData = this.data;
       } else if (PPGraph.currentGraph.showExecutionVisualisation) {
         this.links[0].renderOutlineThrottled();
       }
@@ -345,10 +345,10 @@ ${newMessage}`,
     } else {
       // if output, set all inputs im linking to
       this.links.forEach((link) => {
-        link.target.data = newData;
+        link.target.data = this.data;
       });
     }
-    this.dataType.onDataSet(newData, this);
+    this.dataType.onDataSet(this.data, this);
   }
 
   get defaultData(): any {
