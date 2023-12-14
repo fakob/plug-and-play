@@ -2,12 +2,11 @@
   "version": 0.1,
   "graphSettings": {
     "showExecutionVisualisation": true,
-    "showNonPresentationNodes": true,
     "viewportCenterPosition": {
-      "x": -1625.2759053267582,
-      "y": -6562.822971543002
+      "x": -1626.1665975980668,
+      "y": -6443.438278031383
     },
-    "viewportScale": 0.37806188642837885
+    "viewportScale": 0.30634988609407443
   },
   "nodes": [
     {
@@ -50,7 +49,7 @@
         {
           "socketType": "in",
           "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": {},
           "visible": false
         },
@@ -62,6 +61,7 @@
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -86,7 +86,7 @@
         {
           "socketType": "in",
           "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": {},
           "visible": false
         },
@@ -98,6 +98,7 @@
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -134,7 +135,7 @@
         {
           "socketType": "in",
           "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": {},
           "visible": false
         },
@@ -146,6 +147,7 @@
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -155,8 +157,8 @@
       "id": "ugly-falcon-33",
       "name": "CodeEditor",
       "type": "CodeEditor",
-      "x": -2366.937705986062,
-      "y": -6527.029485798454,
+      "x": -2365.461980442018,
+      "y": -6750.871008614404,
       "width": 205.37162565860444,
       "height": 150.46339818294655,
       "socketArray": [
@@ -170,7 +172,7 @@
         {
           "socketType": "in",
           "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": {},
           "visible": false
         },
@@ -182,69 +184,7 @@
         }
       ],
       "updateBehaviour": {
-        "update": true,
-        "interval": false,
-        "intervalFrequency": 1000
-      }
-    },
-    {
-      "id": "dangerous-vampirebat-72",
-      "name": "Image",
-      "type": "Image",
-      "x": -2481.5660803274577,
-      "y": -6352.500801921269,
-      "width": 320,
-      "height": 306.9090909090909,
-      "socketArray": [
-        {
-          "socketType": "in",
-          "name": "Image",
-          "dataType": "{\"class\":\"ImageType\",\"type\":{}}",
-          "data": "data:image/jpeg;base64,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",
-          "visible": true
-        },
-        {
-          "socketType": "in",
-          "name": "Object fit",
-          "dataType": "{\"class\":\"EnumType\",\"type\":{\"options\":[{\"text\":\"contain\"},{\"text\":\"cover\"},{\"text\":\"fill\"},{\"text\":\"none\"},{\"text\":\"scale-down\"}]}}",
-          "data": "cover",
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Reset size",
-          "dataType": "{\"class\":\"TriggerType\",\"type\":{\"triggerType\":\"positiveFlank\",\"customFunctionString\":\"resetNodeSize\",\"previousData\":0}}",
-          "data": 0,
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Save image",
-          "dataType": "{\"class\":\"TriggerType\",\"type\":{\"triggerType\":\"positiveFlank\",\"customFunctionString\":\"saveImage\",\"previousData\":0}}",
-          "data": 0,
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
-          "data": {},
-          "visible": false
-        },
-        {
-          "socketType": "out",
-          "name": "Image",
-          "dataType": "{\"class\":\"ImageType\",\"type\":{}}",
-          "visible": true
-        },
-        {
-          "socketType": "out",
-          "name": "Details",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
-          "visible": false
-        }
-      ],
-      "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -254,8 +194,8 @@
       "id": "friendly-swan-55",
       "name": "CodeEditor",
       "type": "CodeEditor",
-      "x": -2449.9769040923843,
-      "y": -6021.52642531794,
+      "x": -2448.5011785483402,
+      "y": -6245.367948133891,
       "width": 288.4108237649266,
       "height": 150.6069884304734,
       "socketArray": [
@@ -263,17 +203,13 @@
           "socketType": "in",
           "name": "input",
           "dataType": "{\"class\":\"CodeType\",\"type\":{}}",
-          "data": {
-            "MOUSE": "Mouse",
-            "TRACKPAD": "Trackpad",
-            "AUTO": "Auto detect"
-          },
+          "data": "{\n  \"id\": \"e651be1f-8c78-4a7e-bd7c-5d9a4c6f1a81\",\n  \"created\": \"2023-11-18T12:00:00Z\",\n  \"isActive\": true,\n  \"picture\": \"https://example.com/profile_picture.jpg\",\n  \"age\": 28,\n  \"eyeColor\": \"blue\",\n  \"name\": \"Cornelius Quillfeather\",\n  \"email\": \"cornelius@example.com\",\n  \"favoriteAnimals\": [\n    \"Elephant\",\n    \"Penguin\",\n    \"Dragon\"\n  ],\n  \"favoriteFruit\": \"Kiwi\",\n  \"canCountTo\": null,\n  \"past\": null,\n  \"friends\": [\n    {\n      \"id\": \"1a9fe1b0-64e6-4f45-ae8c-0e56ffec83fb\",\n      \"name\": \"Penelope Pumpernickel\"\n    },\n    {\n      \"id\": \"3c46aeba-f07e-4cc4-8480-d4fe235a1d5f\",\n      \"name\": \"Bartholomew Bumblesnatch\"\n    },\n    {\n      \"id\": \"bfd3f801-75de-4e22-9883-23ef3f77a6f3\",\n      \"name\": \"Prudence Plumthorn\"\n    }\n  ]\n}",
           "visible": true
         },
         {
           "socketType": "in",
           "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": {},
           "visible": false
         },
@@ -285,6 +221,7 @@
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -294,8 +231,8 @@
       "id": "silent-owl-94",
       "name": "WidgetSlider",
       "type": "WidgetSlider",
-      "x": -2361.5660803274577,
-      "y": -5846.854151193229,
+      "x": -2360.090354783413,
+      "y": -6070.695674009179,
       "width": 200,
       "height": 104,
       "socketArray": [
@@ -337,7 +274,7 @@
         {
           "socketType": "in",
           "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": {},
           "visible": false
         },
@@ -349,6 +286,7 @@
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -358,8 +296,8 @@
       "id": "nice-bat-84",
       "name": "Label",
       "type": "Label",
-      "x": -3232.2483719941247,
-      "y": -5718.788865498991,
+      "x": -3230.77264645008,
+      "y": -5942.630388314941,
       "width": 1070.6822916666667,
       "height": 69,
       "socketArray": [
@@ -399,7 +337,7 @@
         {
           "socketType": "in",
           "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": {},
           "visible": false
         },
@@ -411,6 +349,7 @@
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -420,8 +359,8 @@
       "id": "evil-eagle-59",
       "name": "WidgetButton",
       "type": "WidgetButton",
-      "x": -2361.5660803274577,
-      "y": -5625.723579804753,
+      "x": -2360.090354783413,
+      "y": -5849.565102620703,
       "width": 200,
       "height": 104,
       "socketArray": [
@@ -449,7 +388,7 @@
         {
           "socketType": "in",
           "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": {},
           "visible": false
         },
@@ -461,6 +400,7 @@
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": false,
         "interval": false,
         "intervalFrequency": 1000
@@ -470,8 +410,8 @@
       "id": "bright-earwig-88",
       "name": "Label",
       "type": "Label",
-      "x": -1100.9857303260574,
-      "y": -7472.881428389072,
+      "x": -1100.3550952570706,
+      "y": -7701.632172066651,
       "width": 160,
       "height": 69,
       "socketArray": [
@@ -511,7 +451,7 @@
         {
           "socketType": "in",
           "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": {},
           "visible": false
         },
@@ -523,6 +463,7 @@
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -532,8 +473,8 @@
       "id": "terrible-seahorse-0",
       "name": "Label",
       "type": "Label",
-      "x": -1100.9857303260574,
-      "y": -7238.86447476213,
+      "x": -1100.3550952570706,
+      "y": -7467.615218439709,
       "width": 160,
       "height": 69,
       "socketArray": [
@@ -573,7 +514,7 @@
         {
           "socketType": "in",
           "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": {},
           "visible": false
         },
@@ -585,6 +526,7 @@
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -594,8 +536,8 @@
       "id": "pink-rabbit-8",
       "name": "CodeEditor",
       "type": "CodeEditor",
-      "x": -1100.9857303260574,
-      "y": -7139.355997948659,
+      "x": -1100.3550952570706,
+      "y": -7368.106741626238,
       "width": 410.34497249506273,
       "height": 152.70913661886425,
       "socketArray": [
@@ -609,7 +551,7 @@
         {
           "socketType": "in",
           "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": {},
           "visible": false
         },
@@ -621,6 +563,7 @@
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -630,8 +573,8 @@
       "id": "polite-newt-51",
       "name": "Label",
       "type": "Label",
-      "x": -1100.9857303260574,
-      "y": -6956.138384516324,
+      "x": -1100.3550952570706,
+      "y": -7184.889128193903,
       "width": 441.3697916666667,
       "height": 69,
       "socketArray": [
@@ -671,7 +614,7 @@
         {
           "socketType": "in",
           "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": {},
           "visible": false
         },
@@ -683,6 +626,7 @@
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -692,8 +636,8 @@
       "id": "honest-frog-54",
       "name": "DRAW_Image",
       "type": "DRAW_Image",
-      "x": -1100.9857303260574,
-      "y": -6714.121430889381,
+      "x": -1100.3550952570706,
+      "y": -6942.872174566961,
       "width": 160,
       "height": 112,
       "socketArray": [
@@ -784,7 +728,7 @@
         {
           "socketType": "in",
           "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": {},
           "visible": false
         },
@@ -796,6 +740,7 @@
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -805,15 +750,15 @@
       "id": "mighty-mayfly-45",
       "name": "Break",
       "type": "Break",
-      "x": -1100.9857303260574,
-      "y": -6571.61295407591,
+      "x": -1100.3550952570706,
+      "y": -6799.741300490647,
       "width": 160,
-      "height": 136,
+      "height": 376,
       "socketArray": [
         {
           "socketType": "in",
           "name": "JSON",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "defaultData": {},
           "visible": true
         },
@@ -827,30 +772,91 @@
         {
           "socketType": "in",
           "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": {},
           "visible": false
         },
         {
           "socketType": "out",
-          "name": "MOUSE",
+          "name": "id",
           "dataType": "{\"class\":\"StringType\",\"type\":{}}",
           "visible": true
         },
         {
           "socketType": "out",
-          "name": "TRACKPAD",
+          "name": "created",
           "dataType": "{\"class\":\"StringType\",\"type\":{}}",
           "visible": true
         },
         {
           "socketType": "out",
-          "name": "AUTO",
+          "name": "isActive",
+          "dataType": "{\"class\":\"BooleanType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "picture",
           "dataType": "{\"class\":\"StringType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "age",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "eyeColor",
+          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "name",
+          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "email",
+          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "favoriteAnimals",
+          "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "favoriteFruit",
+          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "canCountTo",
+          "dataType": "{\"class\":\"AnyType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "past",
+          "dataType": "{\"class\":\"AnyType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "friends",
+          "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
           "visible": true
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -860,9 +866,9 @@
       "id": "shaggy-turtle-89",
       "name": "Label",
       "type": "Label",
-      "x": -1100.9857303260574,
-      "y": -6405.104477262439,
-      "width": 160,
+      "x": -1103.248284194739,
+      "y": -6388.479386661006,
+      "width": 265.1197916666667,
       "height": 69,
       "socketArray": [
         {
@@ -901,7 +907,7 @@
         {
           "socketType": "in",
           "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": {},
           "visible": false
         },
@@ -913,6 +919,7 @@
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -922,8 +929,8 @@
       "id": "short-panda-53",
       "name": "Label",
       "type": "Label",
-      "x": -1100.9857303260574,
-      "y": -6305.596000448968,
+      "x": -1104.2428404127206,
+      "y": -6297.543618352224,
       "width": 1070.6822916666667,
       "height": 69,
       "socketArray": [
@@ -963,7 +970,7 @@
         {
           "socketType": "in",
           "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": {},
           "visible": false
         },
@@ -975,6 +982,7 @@
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -984,8 +992,8 @@
       "id": "lucky-gecko-9",
       "name": "WidgetDropdown",
       "type": "WidgetDropdown",
-      "x": -1100.9857303260574,
-      "y": -7373.372951575601,
+      "x": -1100.3550952570706,
+      "y": -7602.12369525318,
       "width": 200,
       "height": 104,
       "socketArray": [
@@ -1003,7 +1011,7 @@
         {
           "socketType": "in",
           "name": "Selected Option",
-          "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
+          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
           "data": "Edith Carlmar",
           "visible": false
         },
@@ -1024,7 +1032,7 @@
         {
           "socketType": "in",
           "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": {},
           "visible": false
         },
@@ -1036,284 +1044,7 @@
         }
       ],
       "updateBehaviour": {
-        "update": true,
-        "interval": false,
-        "intervalFrequency": 1000
-      }
-    },
-    {
-      "id": "proud-earwig-29",
-      "name": "WidgetRadio",
-      "type": "WidgetRadio",
-      "x": -2321.5660803274577,
-      "y": -6761.0947714926915,
-      "width": 160,
-      "height": 210,
-      "socketArray": [
-        {
-          "socketType": "in",
-          "name": "Options",
-          "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
-          "data": [
-            "A",
-            "B",
-            "C"
-          ],
-          "visible": true
-        },
-        {
-          "socketType": "in",
-          "name": "Selected Index",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":0,\"maxValue\":10,\"stepSize\":0.01}}",
-          "data": 0,
-          "visible": true
-        },
-        {
-          "socketType": "in",
-          "name": "Background Color",
-          "dataType": "{\"class\":\"ColorType\",\"type\":{}}",
-          "data": {
-            "r": 255,
-            "g": 255,
-            "b": 255,
-            "a": 1
-          },
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Foreground Color",
-          "dataType": "{\"class\":\"ColorType\",\"type\":{}}",
-          "data": {
-            "r": 0,
-            "g": 0,
-            "b": 0,
-            "a": 1
-          },
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Text Color",
-          "dataType": "{\"class\":\"ColorType\",\"type\":{}}",
-          "data": {
-            "r": 255,
-            "g": 255,
-            "b": 255,
-            "a": 1
-          },
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
-          "data": {},
-          "visible": false
-        },
-        {
-          "socketType": "out",
-          "name": "Selected Option",
-          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
-          "visible": true
-        }
-      ],
-      "updateBehaviour": {
-        "update": true,
-        "interval": false,
-        "intervalFrequency": 1000
-      }
-    },
-    {
-      "id": "ancient-stingray-85",
-      "name": "TestDataTypes",
-      "type": "TestDataTypes",
-      "x": -1648.7188250564466,
-      "y": -7013.1307683008945,
-      "width": 160,
-      "height": 616,
-      "socketArray": [
-        {
-          "socketType": "in",
-          "name": "Any",
-          "dataType": "{\"class\":\"AnyType\",\"type\":{}}",
-          "data": 0,
-          "visible": true
-        },
-        {
-          "socketType": "in",
-          "name": "Array",
-          "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
-          "defaultData": [
-            "Edith Carlmar",
-            "Shirin Neshat",
-            "Olga Preobrazhenskaya",
-            "Alice Guy-Blaché",
-            "Lois Weber"
-          ],
-          "visible": true
-        },
-        {
-          "socketType": "in",
-          "name": "Boolean",
-          "dataType": "{\"class\":\"BooleanType\",\"type\":{}}",
-          "defaultData": true,
-          "visible": true
-        },
-        {
-          "socketType": "in",
-          "name": "Code",
-          "dataType": "{\"class\":\"CodeType\",\"type\":{}}",
-          "defaultData": "// Ctrl-Enter to update node\n// Change function name to create new node\nfunction customFunctionNode(a, b) {\n  return a * b;\n}",
-          "visible": true
-        },
-        {
-          "socketType": "in",
-          "name": "Color",
-          "dataType": "{\"class\":\"ColorType\",\"type\":{}}",
-          "defaultData": {
-            "r": 96.76797625418783,
-            "g": 159.5987211625316,
-            "b": 214.02616306088544,
-            "a": 1
-          },
-          "visible": true
-        },
-        {
-          "socketType": "in",
-          "name": "DeferredPixiType",
-          "dataType": "{\"class\":\"DeferredPixiType\",\"type\":{}}",
-          "defaultData": {},
-          "visible": true
-        },
-        {
-          "socketType": "in",
-          "name": "Enum",
-          "dataType": "{\"class\":\"EnumType\",\"type\":{\"options\":[{\"text\":\"text\",\"value\":\"value\"}]}}",
-          "defaultData": {},
-          "visible": true
-        },
-        {
-          "socketType": "in",
-          "name": "Function",
-          "dataType": "{\"class\":\"FunctionType\",\"type\":{}}",
-          "defaultData": {},
-          "visible": true
-        },
-        {
-          "socketType": "in",
-          "name": "Image",
-          "dataType": "{\"class\":\"ImageType\",\"type\":{}}",
-          "defaultData": "data:image/jpeg;base64,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",
-          "visible": true
-        },
-        {
-          "socketType": "in",
-          "name": "JSONType",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
-          "defaultData": {
-            "MOUSE": "Mouse",
-            "TRACKPAD": "Trackpad",
-            "AUTO": "Auto detect"
-          },
-          "visible": true
-        },
-        {
-          "socketType": "in",
-          "name": "Number",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
-          "defaultData": 42,
-          "visible": true
-        },
-        {
-          "socketType": "in",
-          "name": "String",
-          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
-          "defaultData": "In the midst of winter, I found there was, within me, an invincible summer",
-          "visible": true
-        },
-        {
-          "socketType": "in",
-          "name": "Trigger",
-          "dataType": "{\"class\":\"TriggerType\",\"type\":{\"triggerType\":\"positiveFlank\",\"customFunctionString\":\"\",\"previousData\":0}}",
-          "defaultData": 0,
-          "visible": true
-        },
-        {
-          "socketType": "in",
-          "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
-          "data": {},
-          "visible": false
-        },
-        {
-          "socketType": "out",
-          "name": "Any-Out",
-          "dataType": "{\"class\":\"AnyType\",\"type\":{}}",
-          "visible": true
-        },
-        {
-          "socketType": "out",
-          "name": "Array-Out",
-          "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
-          "visible": true
-        },
-        {
-          "socketType": "out",
-          "name": "Boolean-Out",
-          "dataType": "{\"class\":\"BooleanType\",\"type\":{}}",
-          "visible": true
-        },
-        {
-          "socketType": "out",
-          "name": "Code-Out",
-          "dataType": "{\"class\":\"CodeType\",\"type\":{}}",
-          "visible": true
-        },
-        {
-          "socketType": "out",
-          "name": "Color-Out",
-          "dataType": "{\"class\":\"ColorType\",\"type\":{}}",
-          "visible": true
-        },
-        {
-          "socketType": "out",
-          "name": "DeferredPixiType-Out",
-          "dataType": "{\"class\":\"DeferredPixiType\",\"type\":{}}",
-          "visible": true
-        },
-        {
-          "socketType": "out",
-          "name": "Function-Out",
-          "dataType": "{\"class\":\"FunctionType\",\"type\":{}}",
-          "visible": true
-        },
-        {
-          "socketType": "out",
-          "name": "Image-Out",
-          "dataType": "{\"class\":\"ImageType\",\"type\":{}}",
-          "visible": true
-        },
-        {
-          "socketType": "out",
-          "name": "JSONType-Out",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
-          "visible": true
-        },
-        {
-          "socketType": "out",
-          "name": "Number-Out",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
-          "visible": true
-        },
-        {
-          "socketType": "out",
-          "name": "String-Out",
-          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
-          "visible": true
-        }
-      ],
-      "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -1344,7 +1075,7 @@
         {
           "socketType": "in",
           "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": {},
           "visible": false
         },
@@ -1356,6 +1087,7 @@
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -1490,7 +1222,7 @@
         {
           "socketType": "in",
           "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": {},
           "visible": false
         },
@@ -1502,6 +1234,7 @@
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -1511,8 +1244,8 @@
       "id": "wicked-penguin-49",
       "name": "DRAW_Passthrough",
       "type": "DRAW_Passthrough",
-      "x": -1100.9857303260574,
-      "y": -6856.6299077028525,
+      "x": -1100.3550952570706,
+      "y": -7085.380651380432,
       "width": 160,
       "height": 112,
       "socketArray": [
@@ -1603,7 +1336,7 @@
         {
           "socketType": "in",
           "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": {},
           "visible": false
         },
@@ -1615,6 +1348,869 @@
         }
       ],
       "updateBehaviour": {
+        "load": false,
+        "update": true,
+        "interval": false,
+        "intervalFrequency": 1000
+      }
+    },
+    {
+      "id": "light-cougar-64",
+      "name": "Test data types",
+      "type": "TestDataTypes",
+      "x": -1854.9976846325785,
+      "y": -7240.1521462059845,
+      "width": 160,
+      "height": 736,
+      "socketArray": [
+        {
+          "socketType": "in",
+          "name": "Any",
+          "dataType": "{\"class\":\"AnyType\",\"type\":{}}",
+          "data": 0,
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Array",
+          "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
+          "defaultData": [
+            "Edith Carlmar",
+            "Shirin Neshat",
+            "Olga Preobrazhenskaya",
+            "Alice Guy-Blaché",
+            "Lois Weber"
+          ],
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Boolean",
+          "dataType": "{\"class\":\"BooleanType\",\"type\":{}}",
+          "defaultData": false,
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Code",
+          "dataType": "{\"class\":\"CodeType\",\"type\":{}}",
+          "defaultData": "// Ctrl-Enter to update node\n// Change function name to create new node\nfunction customFunctionNode(a, b) {\n  return a * b;\n}",
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Color",
+          "dataType": "{\"class\":\"ColorType\",\"type\":{}}",
+          "defaultData": {
+            "r": 84,
+            "g": 155,
+            "b": 224,
+            "a": 1
+          },
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "DeferredPixiType",
+          "dataType": "{\"class\":\"DeferredPixiType\",\"type\":{}}",
+          "defaultData": {},
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Enum",
+          "dataType": "{\"class\":\"EnumType\",\"type\":{\"options\":[{\"text\":\"text\",\"value\":\"value\"}]}}",
+          "data": "text",
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "File",
+          "dataType": "{\"class\":\"FileType\",\"type\":{\"filterExtensions\":[]}}",
+          "data": "",
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Function",
+          "dataType": "{\"class\":\"FunctionType\",\"type\":{}}",
+          "defaultData": {},
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Image",
+          "dataType": "{\"class\":\"ImageType\",\"type\":{}}",
+          "defaultData": "data:image/jpeg;base64,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",
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "JSONType",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "defaultData": "{\n  \"id\": \"e651be1f-8c78-4a7e-bd7c-5d9a4c6f1a81\",\n  \"created\": \"2023-11-18T12:00:00Z\",\n  \"isActive\": true,\n  \"picture\": \"https://example.com/profile_picture.jpg\",\n  \"age\": 28,\n  \"eyeColor\": \"blue\",\n  \"name\": \"Cornelius Quillfeather\",\n  \"email\": \"cornelius@example.com\",\n  \"favoriteAnimals\": [\n    \"Elephant\",\n    \"Penguin\",\n    \"Dragon\"\n  ],\n  \"favoriteFruit\": \"Kiwi\",\n  \"canCountTo\": null,\n  \"past\": null,\n  \"friends\": [\n    {\n      \"id\": \"1a9fe1b0-64e6-4f45-ae8c-0e56ffec83fb\",\n      \"name\": \"Penelope Pumpernickel\"\n    },\n    {\n      \"id\": \"3c46aeba-f07e-4cc4-8480-d4fe235a1d5f\",\n      \"name\": \"Bartholomew Bumblesnatch\"\n    },\n    {\n      \"id\": \"bfd3f801-75de-4e22-9883-23ef3f77a6f3\",\n      \"name\": \"Prudence Plumthorn\"\n    }\n  ]\n}",
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Number (float)",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
+          "data": 3.14159265359,
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Number (int)",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
+          "defaultData": 42,
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "String",
+          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
+          "defaultData": "In the midst of winter, I found there was, within me, an invincible summer",
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Trigger",
+          "dataType": "{\"class\":\"TriggerType\",\"type\":{\"triggerType\":\"positiveFlank\",\"customFunctionString\":\"\",\"previousData\":0}}",
+          "defaultData": 0,
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Meta",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "data": {},
+          "visible": false
+        },
+        {
+          "socketType": "out",
+          "name": "Any-Out",
+          "dataType": "{\"class\":\"AnyType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "Array-Out",
+          "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "Boolean-Out",
+          "dataType": "{\"class\":\"BooleanType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "Code-Out",
+          "dataType": "{\"class\":\"CodeType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "Color-Out",
+          "dataType": "{\"class\":\"ColorType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "DeferredPixiType-Out",
+          "dataType": "{\"class\":\"DeferredPixiType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "Function-Out",
+          "dataType": "{\"class\":\"FunctionType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "Image-Out",
+          "dataType": "{\"class\":\"ImageType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "JSONType-Out",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "Number-Float-Out",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "Number-Int-Out",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "String-Out",
+          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "Test data loop-Out",
+          "dataType": "{\"class\":\"AnyType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "Test data loop-Type",
+          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
+          "visible": true
+        }
+      ],
+      "updateBehaviour": {
+        "load": false,
+        "update": true,
+        "interval": true,
+        "intervalFrequency": 1000
+      }
+    },
+    {
+      "id": "ancient-firefox-19",
+      "name": "Code editor",
+      "type": "CodeEditor",
+      "x": -1852.0237808612655,
+      "y": -6341.27318805483,
+      "width": 400,
+      "height": 300,
+      "socketArray": [
+        {
+          "socketType": "in",
+          "name": "input",
+          "dataType": "{\"class\":\"CodeType\",\"type\":{}}",
+          "defaultData": "// javascript code editor\n// to run this code, plug it into a CustomFunction node\n(a) => {\nreturn a;\n}",
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Meta",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "data": {},
+          "visible": false
+        },
+        {
+          "socketType": "out",
+          "name": "output",
+          "dataType": "{\"class\":\"CodeType\",\"type\":{}}",
+          "visible": true
+        }
+      ],
+      "updateBehaviour": {
+        "load": false,
+        "update": true,
+        "interval": false,
+        "intervalFrequency": 1000
+      }
+    },
+    {
+      "id": "honest-sloth-74",
+      "name": "Label",
+      "type": "Label",
+      "x": -1848.783295487498,
+      "y": -6447.156405907702,
+      "width": 197.38541666666666,
+      "height": 69,
+      "socketArray": [
+        {
+          "socketType": "in",
+          "name": "Input",
+          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
+          "defaultData": "",
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "fontSize",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":1,\"maxValue\":100,\"stepSize\":0.01}}",
+          "data": 32,
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Width",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":0,\"maxValue\":1280,\"stepSize\":0.01}}",
+          "data": 0,
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "backgroundColor",
+          "dataType": "{\"class\":\"ColorType\",\"type\":{}}",
+          "data": {
+            "r": 84,
+            "g": 155,
+            "b": 224,
+            "a": 1
+          },
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Meta",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "data": {},
+          "visible": false
+        },
+        {
+          "socketType": "out",
+          "name": "Output",
+          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
+          "visible": true
+        }
+      ],
+      "updateBehaviour": {
+        "load": false,
+        "update": true,
+        "interval": false,
+        "intervalFrequency": 1000
+      }
+    },
+    {
+      "id": "wonderful-bulldog-91",
+      "name": "Constant",
+      "type": "Constant",
+      "x": -1103.1971431249117,
+      "y": -5401.434886002536,
+      "width": 160,
+      "height": 88,
+      "socketArray": [
+        {
+          "socketType": "in",
+          "name": "In",
+          "dataType": "{\"class\":\"FunctionType\",\"type\":{}}",
+          "defaultData": 0,
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Meta",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "data": {},
+          "visible": false
+        },
+        {
+          "socketType": "out",
+          "name": "Out",
+          "dataType": "{\"class\":\"FunctionType\",\"type\":{}}",
+          "visible": true
+        }
+      ],
+      "updateBehaviour": {
+        "load": false,
+        "update": true,
+        "interval": false,
+        "intervalFrequency": 1000
+      }
+    },
+    {
+      "id": "plastic-octopus-20",
+      "name": "Test data types",
+      "type": "TestDataTypes",
+      "x": -807.4309227089634,
+      "y": -5901.744231844018,
+      "width": 160,
+      "height": 736,
+      "socketArray": [
+        {
+          "socketType": "in",
+          "name": "Any",
+          "dataType": "{\"class\":\"AnyType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Array",
+          "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Boolean",
+          "dataType": "{\"class\":\"BooleanType\",\"type\":{}}",
+          "defaultData": true,
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Code",
+          "dataType": "{\"class\":\"CodeType\",\"type\":{}}",
+          "defaultData": "() => console.log('TESTDATA.FUNCTION: This is a function call.')",
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Color",
+          "dataType": "{\"class\":\"ColorType\",\"type\":{}}",
+          "defaultData": {
+            "r": 0,
+            "g": 0,
+            "b": 0,
+            "a": 1
+          },
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "DeferredPixiType",
+          "dataType": "{\"class\":\"DeferredPixiType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Enum",
+          "dataType": "{\"class\":\"EnumType\",\"type\":{\"options\":[{\"text\":\"text\",\"value\":\"value\"}]}}",
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "File",
+          "dataType": "{\"class\":\"FileType\",\"type\":{\"filterExtensions\":[]}}",
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Function",
+          "dataType": "{\"class\":\"FunctionType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Image",
+          "dataType": "{\"class\":\"ImageType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "JSONType",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "defaultData": "() => console.log('TESTDATA.FUNCTION: This is a function call.')",
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Number (float)",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Number (int)",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "String",
+          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Trigger",
+          "dataType": "{\"class\":\"TriggerType\",\"type\":{\"triggerType\":\"positiveFlank\",\"customFunctionString\":\"\",\"previousData\":false}}",
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Meta",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "data": {},
+          "visible": false
+        },
+        {
+          "socketType": "out",
+          "name": "Any-Out",
+          "dataType": "{\"class\":\"AnyType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "Array-Out",
+          "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "Boolean-Out",
+          "dataType": "{\"class\":\"BooleanType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "Code-Out",
+          "dataType": "{\"class\":\"CodeType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "Color-Out",
+          "dataType": "{\"class\":\"ColorType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "DeferredPixiType-Out",
+          "dataType": "{\"class\":\"DeferredPixiType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "Function-Out",
+          "dataType": "{\"class\":\"FunctionType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "Image-Out",
+          "dataType": "{\"class\":\"ImageType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "JSONType-Out",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "Number-Float-Out",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "Number-Int-Out",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "String-Out",
+          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "Test data loop-Out",
+          "dataType": "{\"class\":\"AnyType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "Test data loop-Type",
+          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
+          "visible": true
+        }
+      ],
+      "updateBehaviour": {
+        "load": false,
+        "update": true,
+        "interval": true,
+        "intervalFrequency": 1000
+      }
+    },
+    {
+      "id": "moody-otter-96",
+      "name": "Test data types",
+      "type": "TestDataTypes",
+      "x": -1103.1971431249117,
+      "y": -6192.102514061527,
+      "width": 160,
+      "height": 736,
+      "socketArray": [
+        {
+          "socketType": "in",
+          "name": "Any",
+          "dataType": "{\"class\":\"AnyType\",\"type\":{}}",
+          "defaultData": 0,
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Array",
+          "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
+          "defaultData": [
+            "Edith Carlmar",
+            "Shirin Neshat",
+            "Olga Preobrazhenskaya",
+            "Alice Guy-Blaché",
+            "Lois Weber"
+          ],
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Boolean",
+          "dataType": "{\"class\":\"BooleanType\",\"type\":{}}",
+          "defaultData": false,
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Code",
+          "dataType": "{\"class\":\"CodeType\",\"type\":{}}",
+          "defaultData": "// Ctrl-Enter to update node\n// Change function name to create new node\nfunction customFunctionNode(a, b) {\n  return a * b;\n}",
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Color",
+          "dataType": "{\"class\":\"ColorType\",\"type\":{}}",
+          "defaultData": {
+            "r": 84,
+            "g": 155,
+            "b": 224,
+            "a": 1
+          },
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "DeferredPixiType",
+          "dataType": "{\"class\":\"DeferredPixiType\",\"type\":{}}",
+          "defaultData": {},
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Enum",
+          "dataType": "{\"class\":\"EnumType\",\"type\":{\"options\":[{\"text\":\"option 1\",\"value\":1},{\"text\":\"option 2\",\"value\":2},{\"text\":\"option 3\",\"value\":3}]}}",
+          "defaultData": "",
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "File",
+          "dataType": "{\"class\":\"FileType\",\"type\":{\"filterExtensions\":[]}}",
+          "defaultData": "",
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Function",
+          "dataType": "{\"class\":\"FunctionType\",\"type\":{}}",
+          "defaultData": {},
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Image",
+          "dataType": "{\"class\":\"ImageType\",\"type\":{}}",
+          "defaultData": "data:image/jpeg;base64,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",
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "JSONType",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "defaultData": "{\n  \"id\": \"e651be1f-8c78-4a7e-bd7c-5d9a4c6f1a81\",\n  \"created\": \"2023-11-18T12:00:00Z\",\n  \"isActive\": true,\n  \"picture\": \"https://example.com/profile_picture.jpg\",\n  \"age\": 28,\n  \"eyeColor\": \"blue\",\n  \"name\": \"Cornelius Quillfeather\",\n  \"email\": \"cornelius@example.com\",\n  \"favoriteAnimals\": [\n    \"Elephant\",\n    \"Penguin\",\n    \"Dragon\"\n  ],\n  \"favoriteFruit\": \"Kiwi\",\n  \"canCountTo\": null,\n  \"past\": null,\n  \"friends\": [\n    {\n      \"id\": \"1a9fe1b0-64e6-4f45-ae8c-0e56ffec83fb\",\n      \"name\": \"Penelope Pumpernickel\"\n    },\n    {\n      \"id\": \"3c46aeba-f07e-4cc4-8480-d4fe235a1d5f\",\n      \"name\": \"Bartholomew Bumblesnatch\"\n    },\n    {\n      \"id\": \"bfd3f801-75de-4e22-9883-23ef3f77a6f3\",\n      \"name\": \"Prudence Plumthorn\"\n    }\n  ]\n}",
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Number (float)",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
+          "defaultData": 3.14159265359,
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Number (int)",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
+          "defaultData": 42,
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "String",
+          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
+          "defaultData": "In the midst of winter, I found there was, within me, an invincible summer",
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Trigger",
+          "dataType": "{\"class\":\"TriggerType\",\"type\":{\"triggerType\":\"positiveFlank\",\"customFunctionString\":\"\",\"previousData\":false}}",
+          "defaultData": 0,
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Meta",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "data": {},
+          "visible": false
+        },
+        {
+          "socketType": "out",
+          "name": "Any-Out",
+          "dataType": "{\"class\":\"AnyType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "Array-Out",
+          "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "Boolean-Out",
+          "dataType": "{\"class\":\"BooleanType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "Code-Out",
+          "dataType": "{\"class\":\"CodeType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "Color-Out",
+          "dataType": "{\"class\":\"ColorType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "DeferredPixiType-Out",
+          "dataType": "{\"class\":\"DeferredPixiType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "Function-Out",
+          "dataType": "{\"class\":\"FunctionType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "Image-Out",
+          "dataType": "{\"class\":\"ImageType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "JSONType-Out",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "Number-Float-Out",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "Number-Int-Out",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "String-Out",
+          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "Test data loop-Out",
+          "dataType": "{\"class\":\"AnyType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "Test data loop-Type",
+          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
+          "visible": true
+        }
+      ],
+      "updateBehaviour": {
+        "load": false,
+        "update": true,
+        "interval": true,
+        "intervalFrequency": 1000
+      }
+    },
+    {
+      "id": "dangerous-vampirebat-72",
+      "name": "Image",
+      "type": "Image",
+      "x": -2480.090354783413,
+      "y": -6576.342324737219,
+      "width": 320,
+      "height": 306.9090909090909,
+      "socketArray": [
+        {
+          "socketType": "in",
+          "name": "Image",
+          "dataType": "{\"class\":\"ImageType\",\"type\":{}}",
+          "data": "data:image/jpeg;base64,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",
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Object fit",
+          "dataType": "{\"class\":\"EnumType\",\"type\":{\"options\":[{\"text\":\"contain\"},{\"text\":\"cover\"},{\"text\":\"fill\"},{\"text\":\"none\"},{\"text\":\"scale-down\"}]}}",
+          "data": "cover",
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Reset size",
+          "dataType": "{\"class\":\"TriggerType\",\"type\":{\"triggerType\":\"positiveFlank\",\"customFunctionString\":\"resetNodeSize\",\"previousData\":0}}",
+          "data": 0,
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Save image",
+          "dataType": "{\"class\":\"TriggerType\",\"type\":{\"triggerType\":\"positiveFlank\",\"customFunctionString\":\"saveImage\",\"previousData\":0}}",
+          "data": 0,
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Meta",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "data": {},
+          "visible": false
+        },
+        {
+          "socketType": "out",
+          "name": "Image",
+          "dataType": "{\"class\":\"ImageType\",\"type\":{}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "Details",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "visible": false
+        },
+        {
+          "socketType": "out",
+          "name": "Exif",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "visible": false
+        }
+      ],
+      "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -1623,158 +2219,385 @@
   ],
   "links": [
     {
-      "id": "7d064b93-e5f2-48a3-a761-bf2c11f89926",
-      "sourceNodeId": "ancient-stingray-85",
+      "id": "a3125ead-7e0d-4867-b39d-331d89bae27a",
+      "sourceNodeId": "light-cougar-64",
       "sourceSocketName": "Any-Out",
       "targetNodeId": "bright-earwig-88",
       "targetSocketName": "Input"
     },
     {
-      "id": "db9ef925-6c2d-401e-a7a2-1004ab19c217",
-      "sourceNodeId": "ancient-stingray-85",
+      "id": "ff204af9-b4b8-4469-8c64-2c609237efdb",
+      "sourceNodeId": "light-cougar-64",
       "sourceSocketName": "Boolean-Out",
       "targetNodeId": "terrible-seahorse-0",
       "targetSocketName": "Input"
     },
     {
-      "id": "378b0db6-1090-4ac2-a6f4-555b2132feac",
-      "sourceNodeId": "ancient-stingray-85",
+      "id": "919d16d5-9508-4666-b2db-f0d0b5b55ff5",
+      "sourceNodeId": "light-cougar-64",
       "sourceSocketName": "Code-Out",
       "targetNodeId": "pink-rabbit-8",
       "targetSocketName": "input"
     },
     {
-      "id": "9b7e42bc-a43e-4ee9-9c85-8e54fff965e9",
-      "sourceNodeId": "ancient-stingray-85",
+      "id": "e2c69465-b0d4-487e-8a28-58e6abd6816a",
+      "sourceNodeId": "light-cougar-64",
       "sourceSocketName": "Color-Out",
       "targetNodeId": "polite-newt-51",
       "targetSocketName": "Input"
     },
     {
-      "id": "8b66dc30-edcb-452a-907c-2fa26c91952a",
-      "sourceNodeId": "ancient-stingray-85",
+      "id": "47a12fc9-d29b-45fd-9ba4-4f081f31ff67",
+      "sourceNodeId": "light-cougar-64",
       "sourceSocketName": "Image-Out",
       "targetNodeId": "honest-frog-54",
       "targetSocketName": "Image"
     },
     {
-      "id": "1ba93c55-0286-451f-a6fb-e4aa5cfd98ab",
-      "sourceNodeId": "ancient-stingray-85",
+      "id": "e8021ea0-94b6-40ec-b030-0cfb009e1c6d",
+      "sourceNodeId": "light-cougar-64",
       "sourceSocketName": "JSONType-Out",
       "targetNodeId": "mighty-mayfly-45",
       "targetSocketName": "JSON"
     },
     {
-      "id": "90af0dc2-98c9-411b-a6f3-341cf7cd6242",
-      "sourceNodeId": "ancient-stingray-85",
-      "sourceSocketName": "Number-Out",
+      "id": "43f8308a-ea5a-45fb-ad8a-f96e68fba390",
+      "sourceNodeId": "light-cougar-64",
+      "sourceSocketName": "Number-Float-Out",
       "targetNodeId": "shaggy-turtle-89",
       "targetSocketName": "Input"
     },
     {
-      "id": "cc28be24-ae99-4894-89e9-a8ea493ab8cc",
-      "sourceNodeId": "ancient-stingray-85",
+      "id": "a4afaefe-660a-4d77-bdf4-3217dd8cd3b5",
+      "sourceNodeId": "light-cougar-64",
       "sourceSocketName": "String-Out",
       "targetNodeId": "short-panda-53",
       "targetSocketName": "Input"
     },
     {
-      "id": "07a9d415-3e8b-432f-8d44-e9a49088cca2",
-      "sourceNodeId": "ancient-stingray-85",
+      "id": "c705591d-ef8d-4611-97ee-43af57271eb8",
+      "sourceNodeId": "light-cougar-64",
       "sourceSocketName": "Array-Out",
       "targetNodeId": "lucky-gecko-9",
       "targetSocketName": "Options"
     },
     {
-      "id": "58e7feec-06e0-4652-b6f9-d0a7d1660359",
-      "sourceNodeId": "heavy-cheetah-64",
-      "sourceSocketName": "output",
-      "targetNodeId": "ancient-stingray-85",
-      "targetSocketName": "Array"
-    },
-    {
-      "id": "6bbea11f-9403-4426-a9c0-9b20521393ca",
-      "sourceNodeId": "popular-lion-37",
-      "sourceSocketName": "Out",
-      "targetNodeId": "ancient-stingray-85",
-      "targetSocketName": "Boolean"
-    },
-    {
-      "id": "14d909c3-d926-4028-9355-4cd937f4b1e5",
-      "sourceNodeId": "fresh-sloth-100",
-      "sourceSocketName": "output",
-      "targetNodeId": "ancient-stingray-85",
-      "targetSocketName": "Code"
-    },
-    {
-      "id": "e16d127e-dc14-4faa-8f04-591b47d76b1b",
-      "sourceNodeId": "unlucky-fireant-57",
-      "sourceSocketName": "Out",
-      "targetNodeId": "ancient-stingray-85",
-      "targetSocketName": "Color"
-    },
-    {
-      "id": "e001f395-08ec-4590-bc95-7c6945a7bc09",
-      "sourceNodeId": "slimy-bear-4",
-      "sourceSocketName": "Graphics",
-      "targetNodeId": "ancient-stingray-85",
-      "targetSocketName": "DeferredPixiType"
-    },
-    {
-      "id": "517f4a32-d660-428a-b17d-94e4767a3cbd",
-      "sourceNodeId": "proud-earwig-29",
-      "sourceSocketName": "Selected Option",
-      "targetNodeId": "ancient-stingray-85",
-      "targetSocketName": "Enum"
-    },
-    {
-      "id": "db724c56-9cbe-4989-910a-a8afefc86499",
-      "sourceNodeId": "ugly-falcon-33",
-      "sourceSocketName": "output",
-      "targetNodeId": "ancient-stingray-85",
-      "targetSocketName": "Function"
-    },
-    {
-      "id": "f38f9b43-7ede-4cef-9d7d-5dce65daf5dc",
-      "sourceNodeId": "dangerous-vampirebat-72",
-      "sourceSocketName": "Image",
-      "targetNodeId": "ancient-stingray-85",
-      "targetSocketName": "Image"
-    },
-    {
-      "id": "c6f1f911-9b9e-4ab2-9311-942768feb4f1",
-      "sourceNodeId": "friendly-swan-55",
-      "sourceSocketName": "output",
-      "targetNodeId": "ancient-stingray-85",
-      "targetSocketName": "JSONType"
-    },
-    {
-      "id": "f02c3ed6-432f-4f72-aa85-c3934bf071a8",
-      "sourceNodeId": "silent-owl-94",
-      "sourceSocketName": "Out",
-      "targetNodeId": "ancient-stingray-85",
-      "targetSocketName": "Number"
-    },
-    {
-      "id": "df42f6f0-cfeb-4735-bbb5-53aae03da254",
-      "sourceNodeId": "nice-bat-84",
-      "sourceSocketName": "Output",
-      "targetNodeId": "ancient-stingray-85",
-      "targetSocketName": "String"
-    },
-    {
-      "id": "7cae5041-175f-4323-9325-541a5fa6596c",
-      "sourceNodeId": "evil-eagle-59",
-      "sourceSocketName": "Out",
-      "targetNodeId": "ancient-stingray-85",
-      "targetSocketName": "Trigger"
-    },
-    {
-      "id": "0418d4e6-f125-472f-b4d0-914af07bcabe",
-      "sourceNodeId": "ancient-stingray-85",
+      "id": "f4e6f89f-24dc-4be5-9ad1-7d4b442fc86f",
+      "sourceNodeId": "light-cougar-64",
       "sourceSocketName": "DeferredPixiType-Out",
       "targetNodeId": "wicked-penguin-49",
       "targetSocketName": "Graphics"
+    },
+    {
+      "id": "5f812f3f-84b0-42ce-b66a-c2537a9ff424",
+      "sourceNodeId": "heavy-cheetah-64",
+      "sourceSocketName": "output",
+      "targetNodeId": "light-cougar-64",
+      "targetSocketName": "Array"
+    },
+    {
+      "id": "dce51fc1-8241-49c8-a800-857bd7bcc9c4",
+      "sourceNodeId": "popular-lion-37",
+      "sourceSocketName": "Out",
+      "targetNodeId": "light-cougar-64",
+      "targetSocketName": "Boolean"
+    },
+    {
+      "id": "cad8b48d-71a8-4fee-9b67-c3b02a8cdc42",
+      "sourceNodeId": "fresh-sloth-100",
+      "sourceSocketName": "output",
+      "targetNodeId": "light-cougar-64",
+      "targetSocketName": "Code"
+    },
+    {
+      "id": "f3eb3ae2-3613-426d-b783-06af16b0c7a6",
+      "sourceNodeId": "unlucky-fireant-57",
+      "sourceSocketName": "Out",
+      "targetNodeId": "light-cougar-64",
+      "targetSocketName": "Color"
+    },
+    {
+      "id": "6a5b6c2b-e04e-4228-b30e-4665ccacbebf",
+      "sourceNodeId": "slimy-bear-4",
+      "sourceSocketName": "Graphics",
+      "targetNodeId": "light-cougar-64",
+      "targetSocketName": "DeferredPixiType"
+    },
+    {
+      "id": "10a2e8e9-4684-48da-91d4-a5809d1bbeed",
+      "sourceNodeId": "ugly-falcon-33",
+      "sourceSocketName": "output",
+      "targetNodeId": "light-cougar-64",
+      "targetSocketName": "Function"
+    },
+    {
+      "id": "aed4c5da-ca48-48be-92ed-3df16c6cf2ff",
+      "sourceNodeId": "dangerous-vampirebat-72",
+      "sourceSocketName": "Image",
+      "targetNodeId": "light-cougar-64",
+      "targetSocketName": "Image"
+    },
+    {
+      "id": "32fefff8-1ff5-46d3-8c91-3f119c6eb9c9",
+      "sourceNodeId": "friendly-swan-55",
+      "sourceSocketName": "output",
+      "targetNodeId": "light-cougar-64",
+      "targetSocketName": "JSONType"
+    },
+    {
+      "id": "f718b2af-e055-4e7c-87eb-24e04dc98739",
+      "sourceNodeId": "silent-owl-94",
+      "sourceSocketName": "Out",
+      "targetNodeId": "light-cougar-64",
+      "targetSocketName": "Number (int)"
+    },
+    {
+      "id": "1bcfd231-7112-44c5-8087-56bd7c04a3c2",
+      "sourceNodeId": "nice-bat-84",
+      "sourceSocketName": "Output",
+      "targetNodeId": "light-cougar-64",
+      "targetSocketName": "String"
+    },
+    {
+      "id": "8a12e3f0-ad98-47b4-9cec-006bc5872dbb",
+      "sourceNodeId": "evil-eagle-59",
+      "sourceSocketName": "Out",
+      "targetNodeId": "light-cougar-64",
+      "targetSocketName": "Trigger"
+    },
+    {
+      "id": "685d27a7-aaaa-4850-9dc9-4697c6378e44",
+      "sourceNodeId": "light-cougar-64",
+      "sourceSocketName": "Test data loop-Out",
+      "targetNodeId": "ancient-firefox-19",
+      "targetSocketName": "input"
+    },
+    {
+      "id": "d4cf3425-7964-486d-bea3-0e5863491983",
+      "sourceNodeId": "light-cougar-64",
+      "sourceSocketName": "Test data loop-Type",
+      "targetNodeId": "honest-sloth-74",
+      "targetSocketName": "Input"
+    },
+    {
+      "id": "d3b9df37-7f90-45bb-8069-998581d443f7",
+      "sourceNodeId": "light-cougar-64",
+      "sourceSocketName": "Test data loop-Out",
+      "targetNodeId": "wonderful-bulldog-91",
+      "targetSocketName": "In"
+    },
+    {
+      "id": "712c34ef-39c4-450f-ad12-270c13886da4",
+      "sourceNodeId": "wonderful-bulldog-91",
+      "sourceSocketName": "Out",
+      "targetNodeId": "plastic-octopus-20",
+      "targetSocketName": "Any"
+    },
+    {
+      "id": "8961458a-61e8-4c84-8e3e-f5cb014c1045",
+      "sourceNodeId": "wonderful-bulldog-91",
+      "sourceSocketName": "Out",
+      "targetNodeId": "plastic-octopus-20",
+      "targetSocketName": "Array"
+    },
+    {
+      "id": "08be93e9-8e13-4850-ba26-5512a4543491",
+      "sourceNodeId": "wonderful-bulldog-91",
+      "sourceSocketName": "Out",
+      "targetNodeId": "plastic-octopus-20",
+      "targetSocketName": "Boolean"
+    },
+    {
+      "id": "a93615fc-0356-4869-8f5e-353498eb30f0",
+      "sourceNodeId": "wonderful-bulldog-91",
+      "sourceSocketName": "Out",
+      "targetNodeId": "plastic-octopus-20",
+      "targetSocketName": "Code"
+    },
+    {
+      "id": "8433e354-2e4c-4e6e-ad83-49431bda2dcb",
+      "sourceNodeId": "wonderful-bulldog-91",
+      "sourceSocketName": "Out",
+      "targetNodeId": "plastic-octopus-20",
+      "targetSocketName": "Color"
+    },
+    {
+      "id": "50fffb1b-1281-42ff-8af6-a8482756f992",
+      "sourceNodeId": "wonderful-bulldog-91",
+      "sourceSocketName": "Out",
+      "targetNodeId": "plastic-octopus-20",
+      "targetSocketName": "DeferredPixiType"
+    },
+    {
+      "id": "f17daabe-51ff-47de-b10f-65eb39c0743f",
+      "sourceNodeId": "wonderful-bulldog-91",
+      "sourceSocketName": "Out",
+      "targetNodeId": "plastic-octopus-20",
+      "targetSocketName": "Enum"
+    },
+    {
+      "id": "68704c67-8af0-4cab-9d09-977276e28eb5",
+      "sourceNodeId": "wonderful-bulldog-91",
+      "sourceSocketName": "Out",
+      "targetNodeId": "plastic-octopus-20",
+      "targetSocketName": "File"
+    },
+    {
+      "id": "9e8780e3-81e7-42e8-b55f-89e90e8f7c86",
+      "sourceNodeId": "wonderful-bulldog-91",
+      "sourceSocketName": "Out",
+      "targetNodeId": "plastic-octopus-20",
+      "targetSocketName": "Function"
+    },
+    {
+      "id": "74f899a4-8f7e-455e-afb7-b021c4fb6ddc",
+      "sourceNodeId": "wonderful-bulldog-91",
+      "sourceSocketName": "Out",
+      "targetNodeId": "plastic-octopus-20",
+      "targetSocketName": "Image"
+    },
+    {
+      "id": "50186a43-8a8e-473f-ac0d-e9412c197ba0",
+      "sourceNodeId": "wonderful-bulldog-91",
+      "sourceSocketName": "Out",
+      "targetNodeId": "plastic-octopus-20",
+      "targetSocketName": "JSONType"
+    },
+    {
+      "id": "611853ba-8bda-46f6-9f66-3dd9b1f6bb46",
+      "sourceNodeId": "wonderful-bulldog-91",
+      "sourceSocketName": "Out",
+      "targetNodeId": "plastic-octopus-20",
+      "targetSocketName": "Number (float)"
+    },
+    {
+      "id": "1d81da32-fe4a-440b-82bc-211e61342c49",
+      "sourceNodeId": "wonderful-bulldog-91",
+      "sourceSocketName": "Out",
+      "targetNodeId": "plastic-octopus-20",
+      "targetSocketName": "Number (int)"
+    },
+    {
+      "id": "7c7cf4c3-02b7-4d38-91e2-aa9daed9d263",
+      "sourceNodeId": "wonderful-bulldog-91",
+      "sourceSocketName": "Out",
+      "targetNodeId": "plastic-octopus-20",
+      "targetSocketName": "String"
+    },
+    {
+      "id": "3f45a46d-14ab-4782-8139-76a094a1cd57",
+      "sourceNodeId": "wonderful-bulldog-91",
+      "sourceSocketName": "Out",
+      "targetNodeId": "plastic-octopus-20",
+      "targetSocketName": "Trigger"
+    },
+    {
+      "id": "d661d887-fd0a-4228-ab57-2dccaa3b65d4",
+      "sourceNodeId": "light-cougar-64",
+      "sourceSocketName": "Test data loop-Out",
+      "targetNodeId": "moody-otter-96",
+      "targetSocketName": "Any"
+    },
+    {
+      "id": "5d62c66a-4887-489f-bc90-5e18285488db",
+      "sourceNodeId": "light-cougar-64",
+      "sourceSocketName": "Test data loop-Out",
+      "targetNodeId": "moody-otter-96",
+      "targetSocketName": "Array"
+    },
+    {
+      "id": "552cb549-9e44-491e-acfe-04d0b00eb078",
+      "sourceNodeId": "light-cougar-64",
+      "sourceSocketName": "Test data loop-Out",
+      "targetNodeId": "moody-otter-96",
+      "targetSocketName": "Boolean"
+    },
+    {
+      "id": "89f424eb-698b-449b-994a-706088225789",
+      "sourceNodeId": "light-cougar-64",
+      "sourceSocketName": "Test data loop-Out",
+      "targetNodeId": "moody-otter-96",
+      "targetSocketName": "Code"
+    },
+    {
+      "id": "187af84f-9603-445a-9fd3-9052384aa5c4",
+      "sourceNodeId": "light-cougar-64",
+      "sourceSocketName": "Test data loop-Out",
+      "targetNodeId": "moody-otter-96",
+      "targetSocketName": "Color"
+    },
+    {
+      "id": "384c76b3-d4c0-4a26-b849-99aff776d9b4",
+      "sourceNodeId": "light-cougar-64",
+      "sourceSocketName": "Test data loop-Out",
+      "targetNodeId": "moody-otter-96",
+      "targetSocketName": "DeferredPixiType"
+    },
+    {
+      "id": "a373bd7a-3529-46e0-86e0-1e849cf686d0",
+      "sourceNodeId": "light-cougar-64",
+      "sourceSocketName": "Test data loop-Out",
+      "targetNodeId": "moody-otter-96",
+      "targetSocketName": "Enum"
+    },
+    {
+      "id": "cc1a6a91-5663-4be1-a74a-f813b9f2c558",
+      "sourceNodeId": "light-cougar-64",
+      "sourceSocketName": "Test data loop-Out",
+      "targetNodeId": "moody-otter-96",
+      "targetSocketName": "File"
+    },
+    {
+      "id": "67169b4f-3d46-45bb-b505-321b1dc4ef7e",
+      "sourceNodeId": "light-cougar-64",
+      "sourceSocketName": "Test data loop-Out",
+      "targetNodeId": "moody-otter-96",
+      "targetSocketName": "Function"
+    },
+    {
+      "id": "70304a06-ab75-44f7-a89c-16f31c810cb5",
+      "sourceNodeId": "light-cougar-64",
+      "sourceSocketName": "Test data loop-Out",
+      "targetNodeId": "moody-otter-96",
+      "targetSocketName": "Image"
+    },
+    {
+      "id": "0303a258-2ec3-4a37-9d6c-56258afd00bf",
+      "sourceNodeId": "light-cougar-64",
+      "sourceSocketName": "Test data loop-Out",
+      "targetNodeId": "moody-otter-96",
+      "targetSocketName": "JSONType"
+    },
+    {
+      "id": "41ba3ccf-e4b6-439e-8826-7fd6c6ea137f",
+      "sourceNodeId": "light-cougar-64",
+      "sourceSocketName": "Test data loop-Out",
+      "targetNodeId": "moody-otter-96",
+      "targetSocketName": "Number (float)"
+    },
+    {
+      "id": "e163462e-ee08-4b38-b7d7-6a628280ace3",
+      "sourceNodeId": "light-cougar-64",
+      "sourceSocketName": "Test data loop-Out",
+      "targetNodeId": "moody-otter-96",
+      "targetSocketName": "Number (int)"
+    },
+    {
+      "id": "355a312b-2683-4ab4-8d79-b03b3ba0812a",
+      "sourceNodeId": "light-cougar-64",
+      "sourceSocketName": "Test data loop-Out",
+      "targetNodeId": "moody-otter-96",
+      "targetSocketName": "String"
+    },
+    {
+      "id": "fca1919a-1d53-4171-90e2-a4838fd00618",
+      "sourceNodeId": "light-cougar-64",
+      "sourceSocketName": "Test data loop-Out",
+      "targetNodeId": "moody-otter-96",
+      "targetSocketName": "Trigger"
     }
-  ]
+  ],
+  "layouts": {
+    "default": []
+  }
 }

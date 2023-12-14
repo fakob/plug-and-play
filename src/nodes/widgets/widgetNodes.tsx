@@ -1131,7 +1131,6 @@ const formatSelected = (
   selected: unknown,
   multiSelect: boolean,
 ): string | string[] => {
-  console.log(selected, typeof selected);
   if (multiSelect && !Array.isArray(selected)) {
     return String(selected).split(',');
   } else if (!multiSelect && Array.isArray(selected)) {
