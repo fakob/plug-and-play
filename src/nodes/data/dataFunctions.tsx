@@ -301,7 +301,7 @@ export class CustomFunction extends PPNode {
     return false;
   }
   public getAllNonDefaultSockets(): Socket[] {
-    return this.getAllInputSockets().filter(
+    return this.inputSocketArray.filter(
       (socket) => socket.name !== anyCodeName,
     );
   }
