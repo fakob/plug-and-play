@@ -2,12 +2,11 @@
   "version": 0.1,
   "graphSettings": {
     "showExecutionVisualisation": true,
-    "showNonPresentationNodes": true,
     "viewportCenterPosition": {
-      "x": -1625.3020201650022,
-      "y": -6836.664904382929
+      "x": -1215.1972748234425,
+      "y": -6654.332444035328
     },
-    "viewportScale": 0.5879685965248368
+    "viewportScale": 0.3679164134412014
   },
   "nodes": [
     {
@@ -22,7 +21,7 @@
         {
           "socketType": "in",
           "name": "JSON",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{\"valueChangedListeners\":{}}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false,\"valueChangedListeners\":{}}}",
           "defaultData": {},
           "visible": true
         },
@@ -36,7 +35,7 @@
         {
           "socketType": "in",
           "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": {},
           "visible": false
         },
@@ -85,17 +84,18 @@
         {
           "socketType": "out",
           "name": "hourly_units",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "visible": true
         },
         {
           "socketType": "out",
           "name": "hourly",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "visible": true
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -113,7 +113,7 @@
         {
           "socketType": "in",
           "name": "JSON",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{\"valueChangedListeners\":{}}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false,\"valueChangedListeners\":{}}}",
           "visible": true
         },
         {
@@ -126,7 +126,7 @@
         {
           "socketType": "in",
           "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": {},
           "visible": false
         },
@@ -144,6 +144,7 @@
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -177,9 +178,16 @@
           "name": "Length",
           "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
           "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "Code",
+          "dataType": "{\"class\":\"CodeType\",\"type\":{}}",
+          "visible": false
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -204,14 +212,14 @@
         {
           "socketType": "in",
           "name": "lat",
-          "dataType": "{\"class\":\"StringType\",\"type\":{\"valueChangedListeners\":{}}}",
+          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
           "defaultData": "",
           "visible": true
         },
         {
           "socketType": "in",
           "name": "long",
-          "dataType": "{\"class\":\"StringType\",\"type\":{\"valueChangedListeners\":{}}}",
+          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
           "defaultData": "",
           "visible": true
         },
@@ -220,9 +228,16 @@
           "name": "OutData",
           "dataType": "{\"class\":\"StringType\",\"type\":{}}",
           "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "Code",
+          "dataType": "{\"class\":\"CodeType\",\"type\":{}}",
+          "visible": false
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -247,7 +262,7 @@
         {
           "socketType": "in",
           "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": {},
           "visible": false
         },
@@ -259,6 +274,7 @@
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -271,12 +287,12 @@
       "x": 37.04981608838898,
       "y": -7074.648643559531,
       "width": 247.55964604954056,
-      "height": 140,
+      "height": 160,
       "socketArray": [
         {
           "socketType": "in",
           "name": "textJSON",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{\"valueChangedListeners\":{}}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false,\"valueChangedListeners\":{}}}",
           "data": [
             {
               "type": "paragraph",
@@ -292,7 +308,7 @@
                       "text": ""
                     }
                   ],
-                  "reactiveText": "Tokyo"
+                  "reactiveText": "Santa Fe"
                 },
                 {
                   "text": " which lies in "
@@ -305,7 +321,7 @@
                       "text": ""
                     }
                   ],
-                  "reactiveText": "Japan"
+                  "reactiveText": "United States"
                 },
                 {
                   "text": ""
@@ -343,7 +359,7 @@
         {
           "socketType": "in",
           "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": {},
           "visible": false
         },
@@ -357,7 +373,7 @@
         {
           "socketType": "out",
           "name": "Output",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{\"valueChangedListeners\":{}}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false,\"valueChangedListeners\":{}}}",
           "visible": false
         },
         {
@@ -368,6 +384,7 @@
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -379,8 +396,8 @@
       "type": "Label",
       "x": -1003.7495278370866,
       "y": -6925.620921180018,
-      "width": 758.2708333333334,
-      "height": 35,
+      "width": 763.5989583333334,
+      "height": 40,
       "socketArray": [
         {
           "socketType": "in",
@@ -398,6 +415,13 @@
         },
         {
           "socketType": "in",
+          "name": "Width",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":0,\"maxValue\":1280,\"stepSize\":0.01}}",
+          "data": 0,
+          "visible": false
+        },
+        {
+          "socketType": "in",
           "name": "backgroundColor",
           "dataType": "{\"class\":\"ColorType\",\"type\":{}}",
           "data": {
@@ -410,16 +434,16 @@
         },
         {
           "socketType": "in",
-          "name": "min-width",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":1,\"maxValue\":100,\"stepSize\":0.01}}",
-          "data": 128,
+          "name": "Meta",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "data": {},
           "visible": false
         },
         {
           "socketType": "in",
-          "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
-          "data": {},
+          "name": "min-width",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":1,\"maxValue\":100,\"stepSize\":0.01}}",
+          "data": 128,
           "visible": false
         },
         {
@@ -430,6 +454,7 @@
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -442,27 +467,30 @@
       "x": -300.4899715558495,
       "y": -6685.553550443108,
       "width": 160,
-      "height": 232,
+      "height": 280,
       "socketArray": [
         {
           "socketType": "in",
-          "name": "Points X",
-          "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
+          "name": "Input Data",
+          "dataType": "{\"class\":\"GraphInputType\",\"type\":{}}",
           "defaultData": [
-            0,
-            1,
-            5,
-            10,
-            7
-          ],
-          "visible": true
-        },
-        {
-          "socketType": "in",
-          "name": "Labels",
-          "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
-          "data": [
-            "From 7 days ago until now"
+            {
+              "Value": 0,
+              "Name": "First"
+            },
+            {
+              "Value": 1,
+              "Name": "Second"
+            },
+            {
+              "Value": 5
+            },
+            {
+              "Value": 10
+            },
+            {
+              "Value": 7
+            }
           ],
           "visible": true
         },
@@ -559,6 +587,13 @@
         },
         {
           "socketType": "in",
+          "name": "Show names",
+          "dataType": "{\"class\":\"BooleanType\",\"type\":{}}",
+          "data": true,
+          "visible": true
+        },
+        {
+          "socketType": "in",
           "name": "Color",
           "dataType": "{\"class\":\"ColorType\",\"type\":{}}",
           "data": {
@@ -649,9 +684,25 @@
         {
           "socketType": "in",
           "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": {},
           "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Points X",
+          "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
+          "data": [],
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Labels",
+          "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
+          "data": [
+            "From 7 days ago until now"
+          ],
+          "visible": true
         },
         {
           "socketType": "out",
@@ -661,6 +712,7 @@
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -720,7 +772,7 @@
         {
           "socketType": "in",
           "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": {},
           "visible": false
         },
@@ -732,6 +784,7 @@
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -749,7 +802,7 @@
         {
           "socketType": "in",
           "name": "JSON",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "defaultData": {},
           "visible": true
         },
@@ -763,7 +816,7 @@
         {
           "socketType": "in",
           "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": {},
           "visible": false
         },
@@ -817,6 +870,7 @@
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -847,6 +901,13 @@
         },
         {
           "socketType": "in",
+          "name": "Width",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":0,\"maxValue\":1280,\"stepSize\":0.01}}",
+          "data": 0,
+          "visible": false
+        },
+        {
+          "socketType": "in",
           "name": "backgroundColor",
           "dataType": "{\"class\":\"ColorType\",\"type\":{}}",
           "data": {
@@ -859,16 +920,16 @@
         },
         {
           "socketType": "in",
-          "name": "min-width",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":1,\"maxValue\":100,\"stepSize\":0.01}}",
-          "data": 128,
+          "name": "Meta",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "data": {},
           "visible": false
         },
         {
           "socketType": "in",
-          "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
-          "data": {},
+          "name": "min-width",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":1,\"maxValue\":100,\"stepSize\":0.01}}",
+          "data": 128,
           "visible": false
         },
         {
@@ -879,6 +940,7 @@
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -903,7 +965,7 @@
         {
           "socketType": "in",
           "name": "Headers",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": {},
           "visible": true
         },
@@ -917,7 +979,7 @@
         {
           "socketType": "in",
           "name": "Body",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": {},
           "visible": true
         },
@@ -937,18 +999,19 @@
         {
           "socketType": "in",
           "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": {},
           "visible": false
         },
         {
           "socketType": "out",
           "name": "Content",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "visible": true
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -987,11 +1050,90 @@
         {
           "socketType": "out",
           "name": "Element",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "Code",
+          "dataType": "{\"class\":\"CodeType\",\"type\":{}}",
+          "visible": false
+        }
+      ],
+      "updateBehaviour": {
+        "load": false,
+        "update": true,
+        "interval": false,
+        "intervalFrequency": 1000
+      }
+    },
+    {
+      "id": "ancient-treefrog-100",
+      "name": "WidgetSlider",
+      "type": "WidgetSlider",
+      "x": -2184.5766811648764,
+      "y": -6852.509978941442,
+      "width": 200,
+      "height": 104,
+      "socketArray": [
+        {
+          "socketType": "in",
+          "name": "Initial Value",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
+          "data": 1505.4,
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Min",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
+          "data": 0,
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Max",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
+          "defaultData": 100,
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Round",
+          "dataType": "{\"class\":\"BooleanType\",\"type\":{}}",
+          "data": true,
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Label",
+          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
+          "data": "Slider",
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Meta",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "data": {},
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Initial value",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
+          "data": 0,
+          "visible": false
+        },
+        {
+          "socketType": "out",
+          "name": "Out",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
           "visible": true
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -1009,7 +1151,7 @@
         {
           "socketType": "in",
           "name": "Initial data",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": {
             "SheetNames": [
               "Filtered view"
@@ -152305,7 +152447,7 @@
         {
           "socketType": "in",
           "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": {},
           "visible": false
         },
@@ -152323,70 +152465,7 @@
         }
       ],
       "updateBehaviour": {
-        "update": true,
-        "interval": false,
-        "intervalFrequency": 1000
-      }
-    },
-    {
-      "id": "ancient-treefrog-100",
-      "name": "WidgetSlider",
-      "type": "WidgetSlider",
-      "x": -2184.5766811648764,
-      "y": -6852.509978941442,
-      "width": 200,
-      "height": 104,
-      "socketArray": [
-        {
-          "socketType": "in",
-          "name": "Initial value",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
-          "data": 0,
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Min",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
-          "data": 0,
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Max",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
-          "defaultData": 100,
-          "visible": true
-        },
-        {
-          "socketType": "in",
-          "name": "Round",
-          "dataType": "{\"class\":\"BooleanType\",\"type\":{}}",
-          "data": true,
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Label",
-          "dataType": "{\"class\":\"StringType\",\"type\":{}}",
-          "data": "Slider",
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
-          "data": {},
-          "visible": false
-        },
-        {
-          "socketType": "out",
-          "name": "Out",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
-          "visible": true
-        }
-      ],
-      "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -152395,116 +152474,119 @@
   ],
   "links": [
     {
-      "id": "b7e8b96e-0232-454d-b0df-d6834044184d",
+      "id": "0447dafa-64be-49b3-bcae-f60c36b557b6",
       "sourceNodeId": "rare-pug-27",
       "sourceSocketName": "Content",
       "targetNodeId": "plastic-snail-68",
       "targetSocketName": "JSON"
     },
     {
-      "id": "b8f5fd34-5550-43a8-bd05-679b55963179",
+      "id": "aca2dbb7-4dc4-4d73-9aad-a72bc293f493",
       "sourceNodeId": "plastic-snail-68",
       "sourceSocketName": "hourly",
       "targetNodeId": "sour-crab-27",
       "targetSocketName": "JSON"
     },
     {
-      "id": "c2089707-1104-4683-a0fc-f84ccc575bae",
+      "id": "f400400a-56f1-43f4-829e-5ff0071edc6d",
       "sourceNodeId": "lazy-swan-93",
       "sourceSocketName": "Array of objects",
       "targetNodeId": "warm-horse-40",
       "targetSocketName": "ArrayIn"
     },
     {
-      "id": "bfaa0dcd-a96c-46df-8987-e6767b8cbeba",
+      "id": "b8ea177d-c5e2-402f-8a7a-efb99ff2c53f",
       "sourceNodeId": "curvy-owl-11",
       "sourceSocketName": "lat",
       "targetNodeId": "tricky-liger-17",
       "targetSocketName": "lat"
     },
     {
-      "id": "350f35ce-de1c-46db-b7f1-6864931279a7",
+      "id": "79d062f6-b28b-4069-87f2-9c8f48a4c2d8",
       "sourceNodeId": "curvy-owl-11",
       "sourceSocketName": "lng",
       "targetNodeId": "tricky-liger-17",
       "targetSocketName": "long"
     },
     {
-      "id": "6d0d4d42-6dea-4280-8fd9-3f0cf8c2710c",
+      "id": "85609061-5784-4390-b221-6d03c7f08427",
       "sourceNodeId": "bright-fly-82",
       "sourceSocketName": "Element",
       "targetNodeId": "moody-donkey-74",
       "targetSocketName": "input"
     },
     {
-      "id": "03baefe1-1548-4a89-9c3f-c482a4ed3ace",
+      "id": "4bd2e7d0-99a8-43a3-b936-d0e0d202b778",
       "sourceNodeId": "curvy-owl-11",
       "sourceSocketName": "country",
       "targetNodeId": "stale-bat-9",
       "targetSocketName": "Input 1"
     },
     {
-      "id": "437b9689-d95a-4bb6-9673-3ee0b26f8210",
+      "id": "2c4fb337-b737-4250-9fb1-e54151b2ebba",
       "sourceNodeId": "curvy-owl-11",
       "sourceSocketName": "city",
       "targetNodeId": "stale-bat-9",
       "targetSocketName": "Input 2"
     },
     {
-      "id": "fd071bd5-2524-42ff-96ac-f7ab910ae6df",
+      "id": "989ceb01-49bc-445d-80d8-5f9d57801c96",
       "sourceNodeId": "tricky-liger-17",
       "sourceSocketName": "OutData",
       "targetNodeId": "lovely-cobra-97",
       "targetSocketName": "Input"
     },
     {
-      "id": "d2f219e0-049a-4f6c-b3d8-481332c41cea",
+      "id": "4252cb13-0965-4246-9fe2-2b61d77b03c2",
       "sourceNodeId": "sour-crab-27",
       "sourceSocketName": "temperature_2m",
       "targetNodeId": "curly-turkey-98",
-      "targetSocketName": "Points X"
+      "targetSocketName": "Input Data"
     },
     {
-      "id": "d02745ed-17a6-43b2-ae11-e91858cd08af",
+      "id": "0256ce4e-0110-425b-a260-1054cd3927be",
       "sourceNodeId": "ancient-treefrog-100",
       "sourceSocketName": "Out",
       "targetNodeId": "strong-lion-20",
       "targetSocketName": "In"
     },
     {
-      "id": "926b45a4-da07-4a5e-a960-d732e4fbfcf2",
+      "id": "de8c3731-f728-479c-b329-a1bba72dcd00",
       "sourceNodeId": "bright-fly-82",
       "sourceSocketName": "Element",
       "targetNodeId": "curvy-owl-11",
       "targetSocketName": "JSON"
     },
     {
-      "id": "724355d6-e342-4391-be72-fa5bdeeda9a2",
+      "id": "0c67e667-c1b8-46c6-9330-d8c1342c75c6",
       "sourceNodeId": "tricky-liger-17",
       "sourceSocketName": "OutData",
       "targetNodeId": "rare-pug-27",
       "targetSocketName": "URL"
     },
     {
-      "id": "d47dcb08-b77e-4e30-9fc2-18a1c411d9ab",
+      "id": "65e9fb28-ac2a-41a6-8134-2e274070f658",
       "sourceNodeId": "lazy-swan-93",
       "sourceSocketName": "Array of objects",
       "targetNodeId": "bright-fly-82",
       "targetSocketName": "ArrayIn"
     },
     {
-      "id": "aebe549a-2a8e-4d2d-b2b3-84d4855910e8",
+      "id": "fdc82330-408b-4b87-99c0-cafb0fcc4f1f",
       "sourceNodeId": "strong-lion-20",
       "sourceSocketName": "Out",
       "targetNodeId": "bright-fly-82",
       "targetSocketName": "Index"
     },
     {
-      "id": "018e0017-bc0b-4133-abae-2cff42e65713",
+      "id": "eae03371-d6fd-4530-ab30-b41c18e9f2c1",
       "sourceNodeId": "warm-horse-40",
       "sourceSocketName": "Length",
       "targetNodeId": "ancient-treefrog-100",
       "targetSocketName": "Max"
     }
-  ]
+  ],
+  "layouts": {
+    "default": []
+  }
 }
