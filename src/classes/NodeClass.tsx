@@ -158,20 +158,20 @@ export default class PPNode extends PIXI.Container implements IWarningHandler {
     this._ForegroundRef.name = 'foreground';
 
     this.hasBeenAdded = true;
-    this.getAllSockets().forEach((socket) =>
-    {
+    this.getAllSockets().forEach((socket) => {
       this._BackgroundRef.addChild(socket);
       socket.onNodeAdded();
-    }
-    );
-    if (this.executeOnPlace() || this.updateBehaviour.update) {
-      await this.executeOptimizedChain();
-    }
+    });
+
     this.eventMode = 'dynamic';
     this._doubleClicked = false;
 
     this._addListeners();
     this.resizeAndDraw();
+
+    if (this.updateBehaviour.load) {
+      await this.executeOptimizedChain();
+    }
   }
 
   public getMinNodeWidth(): number {
@@ -406,6 +406,7 @@ export default class PPNode extends PIXI.Container implements IWarningHandler {
       height: this.nodeHeight,
       socketArray: this.getAllSockets().map((socket) => socket.serialize()),
       updateBehaviour: {
+        load: this.updateBehaviour.load,
         update: this.updateBehaviour.update,
         interval: this.updateBehaviour.interval,
         intervalFrequency: this.updateBehaviour.intervalFrequency,
@@ -423,6 +424,7 @@ export default class PPNode extends PIXI.Container implements IWarningHandler {
     this.nodeHeight = nodeConfig.height || this.getMinNodeHeight();
     this.setNodeName(nodeConfig.name);
     this.updateBehaviour = new UpdateBehaviourClass(
+      nodeConfig.updateBehaviour.load ?? false,
       nodeConfig.updateBehaviour.update,
       nodeConfig.updateBehaviour.interval,
       nodeConfig.updateBehaviour.intervalFrequency,
@@ -1350,7 +1352,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   }
 
   protected getUpdateBehaviour(): UpdateBehaviourClass {
-    return new UpdateBehaviourClass(true, false, 1000, this);
+    return new UpdateBehaviourClass(false, true, false, 1000, this);
   }
 
   public allowResize(): boolean {
@@ -1367,10 +1369,6 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
 
   protected getDefaultIO(): Socket[] {
     return [];
-  }
-
-  public executeOnPlace(): boolean {
-    return false;
   }
 
   ////////////////////////////// Meant to be overriden for visual/behavioral needs

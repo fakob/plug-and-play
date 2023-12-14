@@ -958,10 +958,6 @@ export class Table extends HybridNode2 {
     );
   }
 
-  public executeOnPlace(): boolean {
-    return false;
-  }
-
   getJSON(sheet: XLSX.WorkSheet): any {
     console.time('get_json');
     const data = this.getXLSXModule().utils.sheet_to_json(sheet);

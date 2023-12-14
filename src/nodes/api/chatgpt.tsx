@@ -35,7 +35,7 @@ export class ChatGPTNode extends HTTPNode {
   }
 
   protected getUpdateBehaviour(): UpdateBehaviourClass {
-    return new UpdateBehaviourClass(false, false, 1000, this);
+    return new UpdateBehaviourClass(false, false, false, 1000, this);
   }
 
   protected getDefaultIO(): Socket[] {

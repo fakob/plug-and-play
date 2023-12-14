@@ -342,7 +342,7 @@ export class RandomArray extends PPNode {
   }
 
   protected getUpdateBehaviour(): UpdateBehaviourClass {
-    return new UpdateBehaviourClass(false, false, 10000, this);
+    return new UpdateBehaviourClass(false, false, false, 10000, this);
   }
 
   protected getDefaultIO(): PPSocket[] {

@@ -1106,7 +1106,9 @@ export default class PPGraph {
   async executeAllSeedNodes(nodes: PPNode[]): Promise<void> {
     await FlowLogic.executeOptimizedChainBatch(
       nodes.filter(
-        (node) => !node.getHasDependencies() && node.updateBehaviour.update,
+        (node) =>
+          (!node.getHasDependencies() && node.updateBehaviour.update) ||
+          node.updateBehaviour.load,
       ),
     );
   }

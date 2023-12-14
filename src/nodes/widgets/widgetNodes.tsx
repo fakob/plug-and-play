@@ -112,7 +112,7 @@ export class WidgetButton extends WidgetBase {
   }
 
   protected getUpdateBehaviour(): UpdateBehaviourClass {
-    return new UpdateBehaviourClass(false, false, 1000, this);
+    return new UpdateBehaviourClass(false, false, false, 1000, this);
   }
 
   protected getDefaultIO(): Socket[] {
@@ -225,6 +225,10 @@ const radioDefaultValue = ['A', 'B', 'C'];
 
 export class WidgetRadio extends WidgetBase {
   radio: RadioGroup | undefined = undefined;
+
+  protected getUpdateBehaviour(): UpdateBehaviourClass {
+    return new UpdateBehaviourClass(true, false, false, 1000, this);
+  }
 
   protected getDefaultIO(): Socket[] {
     return [
@@ -382,10 +386,6 @@ export class WidgetRadio extends WidgetBase {
 
   public allowResize(): boolean {
     return false;
-  }
-
-  public executeOnPlace(): boolean {
-    return true;
   }
 
   public async outputPlugged(): Promise<void> {
