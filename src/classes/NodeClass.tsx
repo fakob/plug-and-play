@@ -494,11 +494,11 @@ export default class PPNode extends PIXI.Container implements IWarningHandler {
     }
   }
 
-  // for when you dont want to execute your own node (you probably already did in some fashion), but run all children
+  // for when you dont want to execute your own node (you probably already did in some fashion), but run all children that react to updates
   async executeChildren(): Promise<void> {
     this.drawComment();
     await FlowLogic.executeOptimizedChainBatch(
-      Object.values(this.getDirectDependents()),
+      Object.values(this.getDirectDependents()).filter(node => node.updateBehaviour.update),
     );
   }
 

@@ -228,7 +228,7 @@ export default class PPStorage {
   async loadGraphFromData(fileData: SerializedGraph, id: string, name: string) {
     if (checkForUnsavedChanges()) {
       try {
-        PPGraph.currentGraph.configure(fileData, id);
+        PPGraph.currentGraph.configure(fileData, id, name);
 
         InterfaceController.notifyListeners(ListenEvent.GraphChanged, {
           id,
@@ -308,7 +308,11 @@ export default class PPStorage {
     // see if we found something to load
     if (loadedGraph !== undefined) {
       const graphData: SerializedGraph = loadedGraph.graphData;
-      await PPGraph.currentGraph.configure(graphData, loadedGraph.id, false);
+      await PPGraph.currentGraph.configure(
+        graphData,
+        loadedGraph.id,
+        loadedGraph.name,
+      );
 
       InterfaceController.notifyListeners(ListenEvent.GraphChanged, {
         id: loadedGraph.id,
@@ -390,7 +394,8 @@ export default class PPStorage {
   async cloneRemoteGraph(nameOfFileToClone) {
     if (checkForUnsavedChanges()) {
       const fileData = await this.getRemoteGraph(nameOfFileToClone);
-      PPGraph.currentGraph.configure(fileData, hri.random());
+      const nameID = hri.random();
+      PPGraph.currentGraph.configure(fileData, nameID, nameID);
 
       const newName = `${removeExtension(nameOfFileToClone)} - copy`; // remove .ppgraph extension and add copy
       InterfaceController.showSnackBar('Remote playground was loaded', {

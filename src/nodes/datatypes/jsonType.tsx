@@ -3,7 +3,6 @@ import React from 'react';
 import { SocketParsingWarning } from '../../classes/ErrorClass';
 import { JSONWidget } from '../../widgets';
 import { AbstractType, DataTypeProps } from './abstractType';
-import { convertToString } from '../../utils/utils';
 import { TParseType, TRgba } from '../../utils/interfaces';
 
 export interface JSONTypeProps extends DataTypeProps {
@@ -23,9 +22,6 @@ export class JSONType extends AbstractType {
 
   getInputWidget = (props: JSONTypeProps): any => {
     props.dataType = this;
-    if (typeof props.property.data !== 'string') {
-      props.property.data = convertToString(props.property.data);
-    }
     return <JSONWidget {...props} />;
   };
 

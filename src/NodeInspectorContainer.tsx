@@ -179,19 +179,11 @@ const NodeInspectorContainer: React.FunctionComponent<
           paddingRight: 0,
         }}
       >
-        {props.selectedNodes.length === 1 ? (
-          <InspectorHeader
-            isEditable={true}
-            selectedNodes={props.selectedNodes}
-            randomMainColor={props.randomMainColor}
-          />
-        ) : (
-          <InspectorHeader
-            isEditable={false}
-            selectedNodes={props.selectedNodes}
-            randomMainColor={props.randomMainColor}
-          />
-        )}
+        <InspectorHeader
+          isEditable={props.selectedNodes.length === 1}
+          selectedNodes={props.selectedNodes}
+          randomMainColor={props.randomMainColor}
+        />
         <PropertyArrayContainer
           selectedNodes={props.selectedNodes}
           socketToInspect={props.socketToInspect}

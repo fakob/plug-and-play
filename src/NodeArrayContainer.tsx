@@ -2,8 +2,6 @@ import React, { useCallback, useEffect, useState } from 'react';
 import useInterval from 'use-interval';
 import {
   Box,
-  Button,
-  ButtonGroup,
   IconButton,
   List,
   ListItem,
@@ -15,20 +13,16 @@ import {
   ToggleButtonGroup,
 } from '@mui/material';
 import ClearIcon from '@mui/icons-material/Clear';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import LockIcon from '@mui/icons-material/Lock';
 import Color from 'color';
-import styles from './utils/style.module.css';
-import InterfaceController, { ListenEvent } from './InterfaceController';
-import { getConfigData, writeTextToClipboard } from './utils/utils';
-import { ensureVisible, zoomToFitNodes } from './pixi/utils-pixi';
-import { ONCLICK_DOUBLECLICK, ONCLICK_TRIPPLECLICK } from './utils/constants';
-import { SerializedGraph, TRgba } from './utils/interfaces';
-import { CodeEditor } from './components/Editor';
 import PPGraph from './classes/GraphClass';
 import PPNode from './classes/NodeClass';
-import PPStorage from './PPStorage';
+import { SourceContent } from './SourceContent';
 import { PNPStatus } from './classes/ErrorClass';
+import InterfaceController, { ListenEvent } from './InterfaceController';
+import styles from './utils/style.module.css';
+import { ensureVisible, zoomToFitNodes } from './pixi/utils-pixi';
+import { ONCLICK_DOUBLECLICK, ONCLICK_TRIPPLECLICK } from './utils/constants';
+import { TRgba } from './utils/interfaces';
 
 type FilterContentProps = {
   handleFilter: (
@@ -352,67 +346,7 @@ function InfoContent(props: InfoContentProps) {
   );
 }
 
-type SourceContentProps = {
-  header: string;
-  graphName: string;
-  editable: boolean;
-  sourceCode: string;
-  randomMainColor: string;
-  onChange?: (value) => void;
-  replaceClick?: (value) => void;
-  selectedNode?: PPNode;
-};
-
-function SourceContent(props: SourceContentProps) {
-  return (
-    <Box
-      id={`inspector-source-content-${props.header}`}
-      sx={{ bgcolor: 'background.paper' }}
-    >
-      <Box
-        sx={{
-          flexGrow: 1,
-          display: 'inline-flex',
-          alignItems: 'center',
-          py: 1,
-        }}
-      >
-        <Box sx={{ pl: 2, color: 'text.primary' }}>{props.header}</Box>
-        {!props.editable && (
-          <LockIcon sx={{ pl: '2px', fontSize: '16px', opacity: 0.5 }} />
-        )}
-        <IconButton
-          size="small"
-          onClick={() => writeTextToClipboard(props.sourceCode)}
-        >
-          <ContentCopyIcon sx={{ pl: 1, fontSize: '16px' }} />
-        </IconButton>
-      </Box>
-      <CodeEditor
-        value={props.sourceCode}
-        randomMainColor={props.randomMainColor}
-        editable={props.editable}
-        onChange={props.onChange}
-      />
-      {props.onChange && (
-        <Box
-          sx={{
-            m: 1,
-          }}
-        >
-          <ButtonGroup variant="outlined" size="small" fullWidth>
-            <Button onClick={() => props.replaceClick(props.sourceCode)}>
-              Replace playground with this config
-            </Button>
-          </ButtonGroup>
-        </Box>
-      )}
-    </Box>
-  );
-}
-
 type NodeArrayContainerProps = {
-  graphName: string;
   graphId: string;
   selectedNodes: PPNode[];
   randomMainColor: string;
@@ -427,7 +361,6 @@ export const NodeArrayContainer: React.FunctionComponent<
 > = (props) => {
   const [nodesInGraph, setNodesInGraph] = useState<PPNode[]>([]);
   const [filteredNodes, setFilteredNodes] = useState<PPNode[]>([]);
-  const [configData, setConfigData] = useState('');
   const showNodes = props.filter === 'nodes' || props.filter == null;
   const showGraphInfo = props.filter === 'graph-info' || props.filter == null;
 
@@ -477,19 +410,13 @@ export const NodeArrayContainer: React.FunctionComponent<
     return order;
   };
 
-  const updateNodesAndInfo = useCallback(
-    (includeInfo = true) => {
-      const currentGraph = PPGraph.currentGraph;
-      if (currentGraph) {
-        if (includeInfo) {
-          setConfigData(getConfigData(currentGraph));
-        }
-        updateNodes(currentGraph);
-        filterNodes(nodesInGraph);
-      }
-    },
-    [PPGraph.currentGraph],
-  );
+  const updateNodesAndInfo = useCallback(() => {
+    const currentGraph = PPGraph.currentGraph;
+    if (currentGraph) {
+      updateNodes(currentGraph);
+      filterNodes(nodesInGraph);
+    }
+  }, [PPGraph.currentGraph]);
 
   useEffect(() => {
     // data has id and name
@@ -514,10 +441,6 @@ export const NodeArrayContainer: React.FunctionComponent<
     PPGraph.currentGraph?.nodes !== undefined &&
       Object.keys(PPGraph.currentGraph?.nodes).length,
   ]);
-
-  useEffect(() => {
-    setConfigData(getConfigData(PPGraph.currentGraph));
-  }, [PPGraph.currentGraph?.id]);
 
   useEffect(() => {
     filterNodes(nodesInGraph);
@@ -578,24 +501,9 @@ export const NodeArrayContainer: React.FunctionComponent<
             <InfoContent graph={PPGraph.currentGraph} />
             <SourceContent
               header="Config"
-              graphName={props.graphName}
               editable={true}
-              sourceCode={configData}
+              source={PPGraph.currentGraph}
               randomMainColor={props.randomMainColor}
-              onChange={(value) => {
-                setConfigData(value);
-              }}
-              replaceClick={(value) => {
-                const sourceCode = value;
-                const newSerializedGraph = JSON.parse(
-                  sourceCode,
-                ) as SerializedGraph;
-                PPStorage.getInstance().loadGraphFromData(
-                  newSerializedGraph,
-                  props.graphId,
-                  props.graphName,
-                );
-              }}
             />
           </Stack>
         )}

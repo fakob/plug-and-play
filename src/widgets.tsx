@@ -325,22 +325,22 @@ export const BooleanWidget: React.FunctionComponent<BooleanTypeProps> = (
 };
 
 export const TextWidget: React.FunctionComponent<StringTypeProps> = (props) => {
-  const dataLength = convertToString(props.property.data)?.length;
+  const dataLength = props.property.getStringifiedData()?.length;
   const [loadAll, setLoadAll] = useState(dataLength < MAX_STRING_LENGTH);
 
   const [loadedData, setLoadedData] = useState(
-    getLoadedValue(convertToString(props.property.data), loadAll),
+    getLoadedValue(props.property.getStringifiedData(), loadAll),
   );
 
   const onLoadAll = () => {
-    setLoadedData(convertToString(props.property.data));
+    setLoadedData(props.property.getStringifiedData());
     setLoadAll(true);
   };
 
   useInterval(() => {
     if (loadedData !== props.property.data) {
       setLoadedData(
-        getLoadedValue(convertToString(props.property.data), loadAll),
+        getLoadedValue(props.property.getStringifiedData(), loadAll),
       );
     }
   }, 100);
@@ -413,7 +413,7 @@ export const FileBrowserWidget: React.FunctionComponent<FileTypeProps> = (
   useInterval(() => {
     if (filename !== props.property.data) {
       setFilterExtensions(props.dataType.filterExtensions);
-      setFilename(convertToString(props.property.data));
+      setFilename(props.property.getStringifiedData());
       onOpen();
     }
   }, 100);
@@ -486,16 +486,16 @@ export interface DataEditorWidgetProps {
 export const DataEditorWidget: React.FunctionComponent<
   DataEditorWidgetProps
 > = ({ property, randomMainColor, parseData, errorMessage }) => {
-  const [data, setData] = useState(property.data);
+  let lastSetTime = property.lastSetTime;
   const [displayedString, setDisplayedString] = useState(
-    convertToString(property.data),
+    property.getStringifiedData(),
   );
   const [isValid, setIsValid] = useState(true);
 
   useInterval(() => {
-    const formattedData = convertToString(property.data);
-    if (data !== formattedData) {
-      setData(formattedData);
+    if (lastSetTime < property.lastSetTime) {
+      lastSetTime = property.lastSetTime;
+      setDisplayedString(property.getStringifiedData());
     }
   }, 100);
 
@@ -504,7 +504,6 @@ export const DataEditorWidget: React.FunctionComponent<
       setDisplayedString(value);
       const parsedData = parseData(value);
       if (parsedData) {
-        setData(parsedData);
         potentiallyUpdateSocketData(property, parsedData);
         setIsValid(true);
       } else {
@@ -730,10 +729,12 @@ export const DefaultOutputWidget: React.FunctionComponent<DataTypeProps> = (
   props,
 ) => {
   const [data, setData] = useState(props.property.data);
+  let lastSetTime = props.property.lastSetTime;
 
   useInterval(() => {
-    const formattedData = convertToString(props.property.data);
-    if (data !== formattedData) {
+    if (lastSetTime < props.property.lastSetTime) {
+      lastSetTime = props.property.lastSetTime;
+      const formattedData = props.property.getStringifiedData();
       setData(formattedData);
     }
   }, 100);

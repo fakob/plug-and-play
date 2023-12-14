@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as PIXI from 'pixi.js';
 import React, {
   useCallback,
@@ -73,6 +74,7 @@ const rowObjectsNames = 'Array of objects';
 const workBookInputSocketName = 'Initial data';
 const sheetIndexInputSocketName = 'Sheet index';
 
+const exportOptions = ['xlsx', 'csv', 'txt', 'html', 'rtf'];
 export class Table extends HybridNode2 {
   _imageRef: PIXI.Sprite;
   _imageRefClone: PIXI.Sprite;
@@ -102,20 +104,26 @@ export class Table extends HybridNode2 {
   }
 
   public onNodeAdded = async (source: TNodeSource): Promise<void> => {
+    console.time('table_added');
     await super.onNodeAdded(source);
     this.workBook = this.getXLSXModule().utils.book_new();
     const storedWorkBookData = this.getInputData(workBookInputSocketName);
     if (this.initialData) {
       // load initialData from import
+      console.time('load_initial_data');
       this.workBook = this.getXLSXModule().read(this.initialData);
       this.setInputData(workBookInputSocketName, this.workBook);
+      console.timeEnd('load_initial_data');
     } else if (
       storedWorkBookData !== undefined &&
       Object.keys(storedWorkBookData).length !== 0
     ) {
       // load saved data
+      console.time('load_saved_data');
       this.workBook = this.createWorkBookFromJSON(storedWorkBookData);
+      console.timeEnd('load_saved_data');
     } else {
+      console.time('load_new_data');
       // create workbook with an empty worksheet
       this.workBook = this.getXLSXModule().utils.book_new();
       const ws_data = new Array(7).fill(Array(7).fill(''));
@@ -125,9 +133,11 @@ export class Table extends HybridNode2 {
         worksheet,
         'Sheet1',
       );
+      console.timeEnd('load_new_data');
     }
-    this.setAllOutputData(this.workBook);
+    this.setAllOutputData();
     this.loadSheet();
+    console.timeEnd('table_added');
   };
 
   getColumn = async (nameOfColumn) => {
@@ -214,8 +224,26 @@ export class Table extends HybridNode2 {
 
   protected getDefaultIO(): PPSocket[] {
     return [
-      new PPSocket(SOCKET_TYPE.OUT, rowObjectsNames, new ArrayType()),
-      new PPSocket(SOCKET_TYPE.OUT, arrayOfArraysSocketName, new ArrayType()),
+      new PPSocket(
+        SOCKET_TYPE.OUT,
+        rowObjectsNames,
+        new ArrayType(),
+        [],
+        true,
+        {},
+        true,
+        () => this.getJSON(this.getSheet()),
+      ),
+      new PPSocket(
+        SOCKET_TYPE.OUT,
+        arrayOfArraysSocketName,
+        new ArrayType(),
+        [],
+        true,
+        {},
+        true,
+        () => this.getArrayOfArrays(this.getSheet()),
+      ),
       new PPSocket(
         SOCKET_TYPE.IN,
         workBookInputSocketName,
@@ -238,10 +266,6 @@ export class Table extends HybridNode2 {
     return TRgba.fromString(NODE_TYPE_COLOR.INPUT);
   }
 
-  protected onHybridNodeExit(): void {
-    this.executeOptimizedChain();
-  }
-
   public getMinNodeWidth(): number {
     return 200;
   }
@@ -261,7 +285,8 @@ export class Table extends HybridNode2 {
   // hack, set further down
   private setArrayOfArrays = (any) => {};
 
-  private loadSheet() {
+  public loadSheet() {
+    console.time('load_sheet');
     const sheetIndex = this.getIndex();
     const workSheet =
       this.workBook.Sheets[this.workBook.SheetNames[sheetIndex]];
@@ -278,50 +303,59 @@ export class Table extends HybridNode2 {
     } catch (error) {
       this.setArrayOfArrays([[], []]);
     }
+    console.timeEnd('load_sheet');
   }
 
+  static onExport(node: Table, selectedExportIndex: number) {
+    node
+      .getXLSXModule()
+      .writeFile(
+        node.workBook,
+        `${node.name}.${exportOptions[selectedExportIndex]}`,
+        {
+          sheet: node.workBook.SheetNames[node.getIndex()],
+        },
+      );
+  }
+
+  static getCols(arrayOfArrays: any[]): GridColumn[] {
+    const firstRow: [] = arrayOfArrays[0];
+    const longestArrayInArray = getLongestArrayInArray(arrayOfArrays);
+    if (!firstRow) {
+      return [
+        {
+          title: 'Name',
+          id: 'name',
+        },
+      ];
+    }
+    const gridColumn = [];
+    for (let index = 0; index < longestArrayInArray; index++) {
+      const col = firstRow[index];
+      gridColumn.push({
+        title: String(col || indexToAlphaNumName(index)),
+        id: String(col || indexToAlphaNumName(index)).toLowerCase(),
+        hasMenu: true,
+      });
+    }
+    return gridColumn;
+  }
+
+  static saveAndOutput(node: Table, arrayOfArrays) {
+    const worksheet = node.getXLSXModule().utils.aoa_to_sheet(arrayOfArrays);
+    const sheetIndex = node.getIndex();
+    node.workBook.Sheets[node.workBook.SheetNames[sheetIndex]] = worksheet;
+    node.setInputData(workBookInputSocketName, node.workBook);
+    node.setAllOutputData();
+  }
   protected getParentComponent(props: any): React.ReactElement {
+    console.time('table_parent_component');
     const node = props.node;
-
-    const onExport = () => {
-      node
-        .getXLSXModule()
-        .writeFile(
-          node.workBook,
-          `${node.name}.${exportOptions[selectedExportIndex]}`,
-          {
-            sheet: node.workBook.SheetNames[node.getIndex()],
-          },
-        );
-    };
-
-    const getCols = (): GridColumn[] => {
-      const firstRow: [] = arrayOfArrays[0];
-      const longestArrayInArray = getLongestArrayInArray(arrayOfArrays);
-      if (!firstRow) {
-        return [
-          {
-            title: 'Name',
-            id: 'name',
-          },
-        ];
-      }
-      const gridColumn = [];
-      for (let index = 0; index < longestArrayInArray; index++) {
-        const col = firstRow[index];
-        gridColumn.push({
-          title: String(col || indexToAlphaNumName(index)),
-          id: String(col || indexToAlphaNumName(index)).toLowerCase(),
-          hasMenu: true,
-        });
-      }
-      return gridColumn;
-    };
 
     const ref = useRef<DataEditorRef | null>(null);
     const [arrayOfArrays, setArrayOfArrays] = useState([]);
     node.setArrayOfArrays = setArrayOfArrays;
-    const [colsMap, setColsMap] = useState(() => getCols());
+    const [colsMap, setColsMap] = useState(() => Table.getCols(arrayOfArrays));
     const [colMenu, setColMenu] = useState<{
       col: number;
       pos: PIXI.Point;
@@ -330,7 +364,6 @@ export class Table extends HybridNode2 {
       cell: Item;
       pos: PIXI.Point;
     }>();
-    const exportOptions = ['xlsx', 'csv', 'txt', 'html', 'rtf'];
 
     const [hoverRow, setHoverRow] = useState<number | undefined>(undefined);
     const [openExportFormat, setExportFormatOpen] = useState(false);
@@ -389,13 +422,14 @@ export class Table extends HybridNode2 {
       node.loadSheet();
     }, [props[workBookInputSocketName], props[sheetIndexInputSocketName]]);
 
+    // it seems like these are called multiple times
     useEffect(() => {
-      setColsMap(() => getCols());
+      setColsMap(() => Table.getCols(arrayOfArrays));
     }, [arrayOfArrays.length, props[sheetIndexInputSocketName]]);
 
-    useEffect(() => {
-      saveAndOutput();
-    }, [arrayOfArrays, colsMap]);
+    //useEffect(() => {
+    //  Table.saveAndOutput(node, arrayOfArrays);
+    //}, [arrayOfArrays, colsMap]);
 
     useEffect(() => {
       if (
@@ -415,27 +449,13 @@ export class Table extends HybridNode2 {
             });
             setArrayOfArrays(toJson);
           }
-          setColsMap(() => getCols());
-          saveAndOutput();
+          setColsMap(() => Table.getCols(arrayOfArrays));
+          Table.saveAndOutput(node, arrayOfArrays);
         } catch (error) {
           setArrayOfArrays([[], []]);
         }
       }
     }, [props[inputSocketName]]);
-
-    const saveAndOutput = useCallback((): void => {
-      const worksheet = node.getXLSXModule().utils.aoa_to_sheet(arrayOfArrays);
-      const sheetIndex = node.getIndex();
-      node.workBook.Sheets[node.workBook.SheetNames[sheetIndex]] = worksheet;
-      node.setInputData(workBookInputSocketName, node.workBook);
-      node.setAllOutputData(node.workBook);
-      node.executeChildren();
-    }, [
-      arrayOfArrays,
-      colsMap,
-      arrayOfArrays.length,
-      props[sheetIndexInputSocketName],
-    ]);
 
     const getContent = useCallback(
       (cell: Item): GridCell => {
@@ -487,7 +507,7 @@ export class Table extends HybridNode2 {
           setArrayOfArrays(arrayOfArrays.concat(arrayToAppend));
         }
         // update column names and width if needed
-        setColsMap(() => getCols());
+        setColsMap(() => Table.getCols(arrayOfArrays));
         return true;
       },
       [arrayOfArrays.length, props[sheetIndexInputSocketName]],
@@ -502,9 +522,9 @@ export class Table extends HybridNode2 {
       const [col, row] = cell;
       arrayOfArrays[row][col] = newValue.data;
 
-      saveAndOutput();
+      Table.saveAndOutput(node, arrayOfArrays);
       // update column names and width if needed
-      setColsMap(() => getCols());
+      setColsMap(() => Table.getCols(arrayOfArrays));
     };
 
     const onColumnResize = useCallback(
@@ -598,6 +618,8 @@ export class Table extends HybridNode2 {
       [],
     );
 
+    console.timeEnd('table_parent_component');
+
     return (
       <Box sx={{ position: 'relative' }}>
         {props.doubleClicked && (
@@ -620,7 +642,7 @@ export class Table extends HybridNode2 {
               >
                 {exportOptions[selectedExportIndex]}
               </Button>
-              <Button onClick={onExport}>
+              <Button onClick={() => Table.onExport(node, selectedExportIndex)}>
                 <DownloadIcon sx={{ ml: 0.5, fontSize: '16px' }} />{' '}
               </Button>
             </ButtonGroup>
@@ -718,7 +740,7 @@ export class Table extends HybridNode2 {
                     arrayOfArrays,
                     getLongestArrayInArray(arrayOfArrays),
                   );
-                  setColsMap(() => getCols());
+                  setColsMap(() => Table.getCols(arrayOfArrays));
                 }}
               >
                 <AddIcon sx={{ fontSize: '16px' }} />
@@ -787,7 +809,7 @@ export class Table extends HybridNode2 {
           <MenuItem
             onClick={() => {
               addColumnToArrayOfArrays(arrayOfArrays, colMenu.col);
-              setColsMap(() => getCols());
+              setColsMap(() => Table.getCols(arrayOfArrays));
               setColMenu(undefined);
             }}
           >
@@ -799,7 +821,7 @@ export class Table extends HybridNode2 {
           <MenuItem
             onClick={() => {
               addColumnToArrayOfArrays(arrayOfArrays, colMenu.col + 1);
-              setColsMap(() => getCols());
+              setColsMap(() => Table.getCols(arrayOfArrays));
               setColMenu(undefined);
             }}
           >
@@ -812,7 +834,7 @@ export class Table extends HybridNode2 {
           <MenuItem
             onClick={() => {
               removeColumnFromArrayOfArrays(arrayOfArrays, colMenu.col);
-              setColsMap(() => getCols());
+              setColsMap(() => Table.getCols(arrayOfArrays));
               setColMenu(undefined);
             }}
           >
@@ -924,6 +946,10 @@ export class Table extends HybridNode2 {
     return workBook;
   }
 
+  getSheet(): XLSX.WorkSheet {
+    return this.workBook.Sheets[this.workBook.SheetNames[this.getIndex()]];
+  }
+
   getIndex(): number {
     return limitRange(
       this.getInputData(sheetIndexInputSocketName),
@@ -933,14 +959,18 @@ export class Table extends HybridNode2 {
   }
 
   getJSON(sheet: XLSX.WorkSheet): any {
+    console.time('get_json');
     const data = this.getXLSXModule().utils.sheet_to_json(sheet);
+    console.timeEnd('get_json');
     return data;
   }
 
   getArrayOfArrays(sheet: XLSX.WorkSheet): any {
+    console.time('get_array_of_arrays');
     const data = this.getXLSXModule().utils.sheet_to_json(sheet, {
       header: 1,
     });
+    console.timeEnd('get_array_of_arrays');
     return data;
   }
 
@@ -949,11 +979,12 @@ export class Table extends HybridNode2 {
     return data;
   }
 
-  setAllOutputData(workBook: XLSX.WorkBook): any {
-    const currentSheetIndex = this.getIndex();
-    const sheet = workBook.Sheets[workBook.SheetNames[currentSheetIndex]];
-    this.setOutputData(rowObjectsNames, this.getJSON(sheet));
-    this.setOutputData(arrayOfArraysSocketName, this.getArrayOfArrays(sheet));
+  setAllOutputData(): any {
+    console.time('set_output_data');
+    this.getOutputSocketByName(rowObjectsNames).valueNeedsRefresh();
+    this.getOutputSocketByName(arrayOfArraysSocketName).valueNeedsRefresh();
+    console.timeEnd('set_output_data');
+    this.executeChildren();
   }
 
   public getDynamicImports(): string[] {

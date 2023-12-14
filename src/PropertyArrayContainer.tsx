@@ -3,7 +3,6 @@ import useInterval from 'use-interval';
 import {
   Box,
   Button,
-  ButtonGroup,
   Checkbox,
   FormControlLabel,
   FormGroup,
@@ -13,22 +12,14 @@ import {
   ToggleButton,
   ToggleButtonGroup,
 } from '@mui/material';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import LockIcon from '@mui/icons-material/Lock';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import styles from './utils/style.module.css';
-import {
-  getConfigData,
-  getLoadNodeExampleURL,
-  writeTextToClipboard,
-} from './utils/utils';
-import { SerializedNode, SerializedSelection } from './utils/interfaces';
-import { PP_VERSION } from './utils/constants';
+import { getLoadNodeExampleURL } from './utils/utils';
 import PPGraph from './classes/GraphClass';
 import PPNode from './classes/NodeClass';
 import Socket from './classes/SocketClass';
+import { SourceContent } from './SourceContent';
 import { SocketContainer } from './SocketContainer';
-import { CodeEditor } from './components/Editor';
 import InterfaceController, { ListenEvent } from './InterfaceController';
 
 type FilterContentProps = {
@@ -333,85 +324,6 @@ function InfoContent(props: InfoContentProps) {
   );
 }
 
-type SourceContentProps = {
-  header: string;
-  editable: boolean;
-  sourceCode: string;
-  randomMainColor: string;
-  onChange?: (value) => void;
-  selectedNode?: PPNode;
-};
-
-function SourceContent(props: SourceContentProps) {
-  return (
-    <Box
-      id={`inspector-source-content-${props.header}`}
-      sx={{ bgcolor: 'background.paper' }}
-    >
-      <Box
-        sx={{
-          flexGrow: 1,
-          display: 'inline-flex',
-          alignItems: 'center',
-          py: 1,
-        }}
-      >
-        <Box sx={{ pl: 2, color: 'text.primary' }}>{props.header}</Box>
-        {!props.editable && (
-          <LockIcon sx={{ pl: '2px', fontSize: '16px', opacity: 0.5 }} />
-        )}
-        <IconButton
-          size="small"
-          onClick={() => writeTextToClipboard(props.sourceCode)}
-        >
-          <ContentCopyIcon sx={{ pl: 1, fontSize: '16px' }} />
-        </IconButton>
-      </Box>
-      <CodeEditor
-        value={props.sourceCode}
-        randomMainColor={props.randomMainColor}
-        editable={props.editable}
-        onChange={props.onChange}
-      />
-      {props.onChange && (
-        <Box
-          sx={{
-            m: 1,
-          }}
-        >
-          <ButtonGroup variant="outlined" size="small" fullWidth>
-            <Button
-              onClick={() => {
-                const sourceCode = props.sourceCode;
-                const newSerializedNode = JSON.parse(
-                  sourceCode,
-                ) as SerializedNode;
-                PPGraph.currentGraph.action_ReplaceNode(
-                  props.selectedNode.serialize(),
-                  newSerializedNode,
-                );
-              }}
-            >
-              Replace
-            </Button>
-            <Button
-              onClick={() => {
-                const sourceCode = props.sourceCode;
-                const newSerializedSelection = JSON.parse(
-                  `{"version": ${PP_VERSION},"nodes": [${sourceCode}],"links": []}`,
-                ) as SerializedSelection;
-                PPGraph.currentGraph.action_pasteNodes(newSerializedSelection);
-              }}
-            >
-              Create new
-            </Button>
-          </ButtonGroup>
-        </Box>
-      )}
-    </Box>
-  );
-}
-
 type PropertyArrayContainerProps = {
   selectedNodes: PPNode[];
   socketToInspect: Socket;
@@ -444,8 +356,6 @@ export const PropertyArrayContainer: React.FunctionComponent<
   const singleNode = props.selectedNodes.length ? props.selectedNodes[0] : null;
   const [selectedNode, setSelectedNode] = useState(singleNode);
 
-  const [configData, setConfigData] = useState(getConfigData(singleNode));
-
   function switchFilterBasedOnSelectedSocket(socket: Socket) {
     if (socket) {
       props.setFilter(socket.socketType);
@@ -466,7 +376,6 @@ export const PropertyArrayContainer: React.FunctionComponent<
     const newSelectedNode =
       props.selectedNodes.length > 0 ? props.selectedNodes?.[0] : null;
     setSelectedNode(newSelectedNode);
-    setConfigData(getConfigData(newSelectedNode));
     setUpdatebehaviour(getUpdateBehaviourStateForArray());
     switchFilterBasedOnSelectedSocket(props.socketToInspect);
   }, [props.selectedNodes]);
@@ -623,17 +532,13 @@ export const PropertyArrayContainer: React.FunctionComponent<
                   <SourceContent
                     header="Config"
                     editable={true}
-                    sourceCode={configData}
+                    source={selectedNode}
                     randomMainColor={props.randomMainColor}
-                    onChange={(value) => {
-                      setConfigData(value);
-                    }}
-                    selectedNode={selectedNode}
                   />
                   <SourceContent
                     header="Class"
                     editable={false}
-                    sourceCode={selectedNode.getSourceCode()}
+                    source={selectedNode.getSourceCode()}
                     randomMainColor={props.randomMainColor}
                   />
                 </Stack>

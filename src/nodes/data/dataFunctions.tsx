@@ -450,7 +450,11 @@ class ArrayFunction extends CustomFunction {
     return { ArrayIn: [], InnerCode: this.getInnerCode() };
   }
   protected getDefaultParameterTypes(): Record<string, any> {
-    return { ArrayIn: new ArrayType(), InnerCode: new CodeType() };
+    return {
+      ArrayIn: new ArrayType(),
+      InnerCode: new CodeType(),
+      Index: new NumberType(true),
+    };
   }
   protected getOutputParameterName(): string {
     return 'Out';

@@ -30,6 +30,7 @@ import { AbstractType, DataTypeProps } from '../nodes/datatypes/abstractType';
 import { dataToType, serializeType } from '../nodes/datatypes/typehelper';
 import {
   constructSocketId,
+  convertToString,
   getCurrentCursorPosition,
   parseValueAndAttachWarnings,
 } from '../utils/utils';
@@ -75,6 +76,16 @@ export default class Socket
 
   showLabel = false;
   hasBeenAdded = false;
+
+  // cached data, for performance reasons (mostly UI related)
+  cachedParsedData = undefined;
+  cachedStringifiedData = undefined;
+  lastSetTime = new Date().getTime();
+
+  // special mode for sockets that are given a function to get the value instead of the actual value, to save performance in case no one asks for it, requires manual work node side to update needsToReFetchValue
+  lazyEvaluationFunction = () => undefined;
+  private needsToReFetchValue = true;
+
   visibilityCondition: () => boolean = () => true;
 
   // TODO get rid of custom here it is very ugly
@@ -85,6 +96,8 @@ export default class Socket
     data = null,
     visible = true,
     custom?: Record<string, any>,
+    lazyEvaluation = false,
+    lazyEvaluationFunction = () => {},
   ) {
     super();
     if (socketType !== SOCKET_TYPE.OUT) {
@@ -103,6 +116,9 @@ export default class Socket
     this.visible = visible;
     this._custom = custom;
     this._links = [];
+
+    this.lazyEvaluationFunction = lazyEvaluationFunction;
+    this.needsToReFetchValue = lazyEvaluation;
   }
 
   static getOptionalVisibilitySocket(
@@ -258,18 +274,49 @@ ${newMessage}`,
     this._links = newLink;
   }
 
-  get data(): any {
-    const dataToReturn = this._data;
-    // allow the type to potentially sanitize the data before passing it on
-    return parseValueAndAttachWarnings(this, this.dataType, dataToReturn);
+  // only applicable for lazily evaluated socket values, called when parents data has changed
+  public valueNeedsRefresh(): void {
+    this.needsToReFetchValue = true;
+    if (this.links.length) {
+      this.data = this.lazyEvaluationFunction();
+    }
   }
 
-  // for inputs: set data is called only on the socket where the change is being made
+  get data(): any {
+    if (this.needsToReFetchValue) {
+      this._data = this.lazyEvaluationFunction();
+      this.needsToReFetchValue = false;
+    }
+    if (this.cachedParsedData == undefined) {
+      this.cachedParsedData = parseValueAndAttachWarnings(
+        this,
+        this.dataType,
+        this._data,
+      );
+    }
+    return this.cachedParsedData;
+  }
+
+  getStringifiedData(): string {
+    if (this.cachedStringifiedData == undefined) {
+      this.cachedStringifiedData = convertToString(this.data);
+    }
+    return this.cachedStringifiedData;
+  }
+
   set data(newData: any) {
     this._data = newData;
+    this.cachedParsedData = undefined;
+    this.cachedStringifiedData = undefined;
+    this.lastSetTime = new Date().getTime();
     if (!this.hasBeenAdded) {
       return;
     }
+    //console.log(
+    //  'setting data innit: ' + this.getNode().getName() + ', ' + this.name,
+    //);
+    //console.trace();
+
     this.redrawMetaText();
     this.redrawValueSpecificGraphics();
     if (
@@ -288,7 +335,7 @@ ${newMessage}`,
     }
     if (this.isInput()) {
       if (!this.hasLink()) {
-        this._defaultData = newData;
+        this._defaultData = this.data;
       } else if (PPGraph.currentGraph.showExecutionVisualisation) {
         this.links[0].renderOutlineThrottled();
       }
@@ -298,10 +345,10 @@ ${newMessage}`,
     } else {
       // if output, set all inputs im linking to
       this.links.forEach((link) => {
-        link.target.data = newData;
+        link.target.data = this.data;
       });
     }
-    this.dataType.onDataSet(newData, this);
+    this.dataType.onDataSet(this.data, this);
   }
 
   get defaultData(): any {
@@ -398,7 +445,7 @@ ${newMessage}`,
     );
   }
 
-  //create serialization object
+  // includeSocketInfo is here for performance reasons, interface is calling this, dont want to overwhelm it with data
   serialize(): SerializedSocket {
     // ignore data for output sockets and input sockets with links
     // for input sockets with links store defaultData

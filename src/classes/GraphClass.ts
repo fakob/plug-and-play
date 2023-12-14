@@ -58,6 +58,7 @@ export default class PPGraph {
   layouts: ILayouts;
   foregroundCanvas: PIXI.Container;
   id: string;
+  name: string;
 
   tempConnection: PIXI.Graphics;
   selection: PPSelection;
@@ -666,12 +667,7 @@ export default class PPGraph {
     //add link to input
     input.links = [link];
 
-    // set input data from output data, if undefined use socket type default value
-    // use _data directly without parsing
-    input.data =
-      output._data === undefined
-        ? output.dataType.getDefaultValue()
-        : output._data;
+    input.data = output.data;
 
     this.connectionContainer.addChild(link);
 
@@ -958,10 +954,10 @@ export default class PPGraph {
     // this is a heavy-handed way of making this undoable, save the complete graph before and after operation
     ActionHandler.performAction(
       async () => {
-        PPGraph.currentGraph.configure(graphAfter, this.id, false);
+        PPGraph.currentGraph.configure(graphAfter, this.id, this.name);
       },
       async () => {
-        PPGraph.currentGraph.configure(graphPre, this.id, false);
+        PPGraph.currentGraph.configure(graphPre, this.id, this.name);
       },
       'Turn nodes into macro',
       false,
@@ -1057,14 +1053,13 @@ export default class PPGraph {
   async configure(
     data: SerializedGraph,
     id: string,
-    keep_old = false,
+    name: string,
   ): Promise<boolean> {
     this.allowExecution = false;
     this.id = id;
+    this.name = name;
 
-    if (!keep_old) {
-      this.clear();
-    }
+    this.clear();
 
     // position and scale viewport
     const newX = data.graphSettings.viewportCenterPosition.x ?? 0;
