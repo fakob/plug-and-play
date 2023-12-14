@@ -277,7 +277,7 @@ ${newMessage}`,
   // only applicable for lazily evaluated socket values, called when parents data has changed
   public valueNeedsRefresh(): void {
     this.needsToReFetchValue = true;
-    if (this.isOutput() && this.links) {
+    if (this.links.length) {
       this.data = this.lazyEvaluationFunction();
     }
   }
@@ -446,12 +446,12 @@ ${newMessage}`,
   }
 
   // includeSocketInfo is here for performance reasons, interface is calling this, dont want to overwhelm it with data
-  serialize(includeSocketInfo = true): SerializedSocket {
+  serialize(): SerializedSocket {
     // ignore data for output sockets and input sockets with links
     // for input sockets with links store defaultData
     let data;
     let defaultData;
-    if (this.isInput() && includeSocketInfo) {
+    if (this.isInput()) {
       if (!this.hasLink()) {
         data = this.data;
       } else {
@@ -462,8 +462,8 @@ ${newMessage}`,
       socketType: this.socketType,
       name: this.name,
       dataType: serializeType(this._dataType), // do not use this.dataType as, for linked inputs, it would save the linked output type
-      ...{ data: includeSocketInfo ? data : undefined },
-      ...{ defaultData: includeSocketInfo ? defaultData : undefined },
+      ...{ data: data },
+      ...{ defaultData: defaultData },
       visible: this.visible,
     };
   }

@@ -834,7 +834,7 @@ export const getObjectAtPoint = (point): PIXI.DisplayObject => {
 
 export function getConfigData(selectedNodeOrGraph: PPNode | PPGraph) {
   return JSON.stringify(
-    selectedNodeOrGraph?.serialize(false),
+    selectedNodeOrGraph?.serialize(),
     getCircularReplacer(),
     2,
   );

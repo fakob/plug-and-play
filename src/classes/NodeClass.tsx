@@ -394,7 +394,7 @@ export default class PPNode extends PIXI.Container implements IWarningHandler {
     }
   }
 
-  serialize(includeSocketInfo = true): SerializedNode {
+  serialize(): SerializedNode {
     //create serialization object
     const node: SerializedNode = {
       id: this.id,
@@ -404,7 +404,7 @@ export default class PPNode extends PIXI.Container implements IWarningHandler {
       y: this.y,
       width: this.nodeWidth,
       height: this.nodeHeight,
-      socketArray: this.getAllSockets().map((socket) => socket.serialize(includeSocketInfo)),
+      socketArray: this.getAllSockets().map((socket) => socket.serialize()),
       updateBehaviour: {
         update: this.updateBehaviour.update,
         interval: this.updateBehaviour.interval,
