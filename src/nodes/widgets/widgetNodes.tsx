@@ -963,7 +963,7 @@ export class WidgetDropdown extends WidgetHybridBase {
       new Socket(
         SOCKET_TYPE.IN,
         selectedOptionName,
-        new ArrayType(),
+        new StringType(),
         undefined,
         false,
       ),
@@ -1131,6 +1131,7 @@ const formatSelected = (
   selected: unknown,
   multiSelect: boolean,
 ): string | string[] => {
+  console.log(selected, typeof selected);
   if (multiSelect && !Array.isArray(selected)) {
     return String(selected).split(',');
   } else if (!multiSelect && Array.isArray(selected)) {
