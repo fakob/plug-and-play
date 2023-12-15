@@ -288,22 +288,21 @@ export class CustomFunction extends PPNode {
   protected getDefaultParameterValues(): Record<string, any> {
     return {};
   }
+
   protected getDefaultParameterTypes(): Record<string, any> {
     return {};
   }
+
   protected getOutputParameterType(): AbstractType {
     return new AnyType();
   }
+
   protected getOutputParameterName(): string {
     return outDataName;
   }
+
   protected getOutputCodeVisibleByDefault(): boolean {
     return false;
-  }
-  public getAllNonDefaultSockets(): Socket[] {
-    return this.inputSocketArray.filter(
-      (socket) => socket.name !== anyCodeName,
-    );
   }
 
   protected getDefaultFunction(): string {
@@ -407,7 +406,7 @@ export class CustomFunction extends PPNode {
   protected adaptInputs(code: string): boolean {
     const codeArguments = getArgumentsFromFunction(code);
     // remove all non existing arguments and add all missing (based on the definition we just got)
-    const currentInputSockets = this.getAllNonDefaultSockets();
+    const currentInputSockets = this.getAllNonDefaultInputSockets();
     const socketsToBeRemoved = currentInputSockets.filter(
       (socket) => !codeArguments.some((argument) => socket.name === argument),
     );
@@ -581,7 +580,7 @@ export class ArrayCreate extends DynamicInputNode {
   }
 
   protected async onExecute(input, output): Promise<void> {
-    output[arrayName] = this.getAllNonDefaultSockets().map(
+    output[arrayName] = this.getAllNonDefaultInputSockets().map(
       (socket) => socket.data,
     );
   }

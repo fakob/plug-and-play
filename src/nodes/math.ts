@@ -140,7 +140,7 @@ export class Add extends DynamicInputNode {
   }
 
   protected async onExecute(input, output): Promise<void> {
-    output[addedOutputName] = this.getAllNonDefaultSockets().reduce(
+    output[addedOutputName] = this.getAllNonDefaultInputSockets().reduce(
       (prevValue, socket) => socket.data + prevValue,
       0,
     );
@@ -201,7 +201,7 @@ export class Multiply extends DynamicInputNode {
   }
 
   protected async onExecute(input, output): Promise<void> {
-    output[multipliedOutputName] = this.getAllNonDefaultSockets().reduce(
+    output[multipliedOutputName] = this.getAllNonDefaultInputSockets().reduce(
       (prevValue, socket) => socket.data * prevValue,
       1,
     );
