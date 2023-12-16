@@ -35,7 +35,7 @@ export class DynamicInputNodeFunctions {
   static async inputUnplugged(node: PPNode): Promise<void> {
     // remove all input sockets without connections
     const toRemove = node
-      .getAllNonDefaultSockets()
+      .getAllNonDefaultInputSockets()
       .filter((socket) => !socket.links.length);
     toRemove.forEach((socket) => node.removeSocket(socket));
     await node.executeOptimizedChain();
