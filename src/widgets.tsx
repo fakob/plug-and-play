@@ -728,7 +728,7 @@ export const ColorWidget: React.FunctionComponent<ColorTypeProps> = (props) => {
 export const DefaultOutputWidget: React.FunctionComponent<DataTypeProps> = (
   props,
 ) => {
-  const [data, setData] = useState(props.property.data);
+  const [data, setData] = useState(props.property.getStringifiedData());
   let lastSetTime = props.property.lastSetTime;
 
   useInterval(() => {
