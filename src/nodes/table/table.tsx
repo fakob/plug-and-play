@@ -307,6 +307,7 @@ export class Table extends HybridNode2 {
   }
 
   static getCols(arrayOfArrays: any[]): GridColumn[] {
+    console.time('table_get_cols');
     const firstRow: [] = arrayOfArrays[0];
     const longestArrayInArray = getLongestArrayInArray(arrayOfArrays);
     if (!firstRow) {
@@ -326,6 +327,7 @@ export class Table extends HybridNode2 {
         hasMenu: true,
       });
     }
+    console.timeEnd('table_get_cols');
     return gridColumn;
   }
 
@@ -337,7 +339,6 @@ export class Table extends HybridNode2 {
     node.setAllOutputData();
   }
   protected getParentComponent(props: any): React.ReactElement {
-    console.time('table_parent_component');
     const node = props.node;
 
     const ref = useRef<DataEditorRef | null>(null);
@@ -420,6 +421,7 @@ export class Table extends HybridNode2 {
     //}, [arrayOfArrays, colsMap]);
 
     useEffect(() => {
+      console.time('table_set_array_output_stuff');
       if (
         Array.isArray(props[inputSocketName]) &&
         props[inputSocketName][0] !== undefined
@@ -443,6 +445,7 @@ export class Table extends HybridNode2 {
           setArrayOfArrays([[], []]);
         }
       }
+      console.timeEnd('table_set_array_output_stuff');
     }, [props[inputSocketName]]);
 
     const getContent = useCallback(
@@ -605,8 +608,6 @@ export class Table extends HybridNode2 {
       },
       [],
     );
-
-    console.timeEnd('table_parent_component');
 
     return (
       <Box sx={{ position: 'relative' }}>
