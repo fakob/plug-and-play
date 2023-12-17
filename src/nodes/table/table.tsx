@@ -157,30 +157,18 @@ export class Table extends HybridNode2 {
     added.executeOptimizedChain();
   };
 
-  getRowAsArray = async (nameOfRow) => {
+  async addNewArrayGetAndConnect(nameOfRow: string, targetSocketName: string) {
     const added: PPNode = await PPGraph.currentGraph.addNewNode('ArrayGet', {
       nodePosX: this.x + (this.width + 40),
       nodePosY: this.y,
     });
 
-    connectNodeToSocket(
-      this.getOutputSocketByName(arrayOfArraysSocketName),
+    await connectNodeToSocket(
+      this.getOutputSocketByName(targetSocketName),
       added,
     );
     added.getSocketByName('Index').data = nameOfRow;
-    added.executeOptimizedChain();
-  };
-
-  getRowAsObject = async (nameOfRow) => {
-    const added: PPNode = await PPGraph.currentGraph.addNewNode('ArrayGet', {
-      nodePosX: this.x + (this.width + 40),
-      nodePosY: this.y,
-    });
-
-    connectNodeToSocket(this.getOutputSocketByName(rowObjectsNames), added);
-    added.getSocketByName('Index').data = nameOfRow;
-    added.executeOptimizedChain();
-  };
+  }
 
   getCell = async (cell: Item) => {
     const added: PPNode = await PPGraph.currentGraph.addNewNode('ArrayGet', {
@@ -876,7 +864,10 @@ export class Table extends HybridNode2 {
           </MenuItem>
           <MenuItem
             onClick={() => {
-              node.getRowAsArray(rowMenu.cell[1]);
+              node.addNewArrayGetAndConnect(
+                rowMenu.cell[1],
+                arrayOfArraysSocketName,
+              );
               setRowMenu(undefined);
             }}
           >
@@ -887,7 +878,10 @@ export class Table extends HybridNode2 {
           </MenuItem>
           <MenuItem
             onClick={() => {
-              node.getRowAsObject(rowMenu.cell[1] - 1);
+              node.addNewArrayGetAndConnect(
+                rowMenu.cell[1] - 1,
+                rowObjectsNames,
+              );
               setRowMenu(undefined);
             }}
             disabled={rowMenu?.cell?.[1] === 0}
