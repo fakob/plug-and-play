@@ -84,7 +84,7 @@ export const SocketContainer: React.FunctionComponent<SocketContainerProps> = (
     setDataTypeValue(props.dataType);
   }, [props.dataType]);
 
-  const locked = !props.isInput || props.hasLink;
+  const disabled = !props.isInput || props.hasLink;
 
   return (
     <Box
@@ -92,7 +92,7 @@ export const SocketContainer: React.FunctionComponent<SocketContainerProps> = (
       ref={myRef}
       sx={{
         bgcolor: hasError ? COLOR_WARNING : 'background.default',
-        opacity: locked && !hasError ? 0.75 : 1,
+        opacity: disabled && !hasError ? 0.75 : 1,
       }}
     >
       <SocketHeader
@@ -143,7 +143,6 @@ const SocketHeader: React.FunctionComponent<SocketHeaderProps> = (props) => {
   const [visible, setVisible] = useState(props.property.visible);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
-  const locked = !props.isInput || props.hasLink;
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -164,7 +163,7 @@ const SocketHeader: React.FunctionComponent<SocketHeaderProps> = (props) => {
       }}
       title={`${props.hasError ? props.property.status.message : ''}`}
     >
-      {locked ? (
+      {props.hasLink ? (
         <Box sx={{ p: 1, opacity: 0.75, width: '40px', textAlign: 'center' }}>
           <LockIcon sx={{ fontSize: '16px' }} />
         </Box>
