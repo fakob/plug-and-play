@@ -14,6 +14,7 @@ import PPStorage from './PPStorage';
 import { ActionHandler } from './utils/actionHandler';
 import { zoomToFitNodes } from './pixi/utils-pixi';
 import { IGraphSearch, TSocketId } from './utils/interfaces';
+import { pixiReactVisualize } from './testHelpers';
 
 export enum ListenEvent {
   SelectionChanged, // data = PPNode[]
@@ -246,7 +247,11 @@ class ConsoleController {
       case 'clear': {
         PPGraph.currentGraph.clear();
       }
-      case 'resetbgcolor': {
+      case 'pixiReactVisualizeEnable': {
+        pixiReactVisualize(true);
+      }
+      case 'pixiReactVisualizeDisable': {
+        pixiReactVisualize(false);
       }
     }
   }
