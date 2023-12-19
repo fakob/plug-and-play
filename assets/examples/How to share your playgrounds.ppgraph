@@ -394,7 +394,7 @@
               "type": "heading-four",
               "children": [
                 {
-                  "text": "Click the share button on the top left"
+                  "text": "Click the Share current button on the top left"
                 }
               ],
               "align": "left"

@@ -2075,6 +2075,7 @@
         }
       ],
       "updateBehaviour": {
+        "load": true,
         "update": false,
         "interval": false,
         "intervalFrequency": 10000
@@ -2147,6 +2148,7 @@
         }
       ],
       "updateBehaviour": {
+        "load": true,
         "update": false,
         "interval": false,
         "intervalFrequency": 10000

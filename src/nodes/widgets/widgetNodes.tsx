@@ -227,7 +227,7 @@ export class WidgetRadio extends WidgetBase {
   radio: RadioGroup | undefined = undefined;
 
   protected getUpdateBehaviour(): UpdateBehaviourClass {
-    return new UpdateBehaviourClass(true, false, false, 1000, this);
+    return new UpdateBehaviourClass(true, true, false, 1000, this);
   }
 
   protected getDefaultIO(): Socket[] {

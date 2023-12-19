@@ -4583,6 +4583,7 @@
         }
       ],
       "updateBehaviour": {
+        "load": true,
         "update": false,
         "interval": true,
         "intervalFrequency": 10000

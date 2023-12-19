@@ -2,12 +2,11 @@
   "version": 0.1,
   "graphSettings": {
     "showExecutionVisualisation": true,
-    "showNonPresentationNodes": true,
     "viewportCenterPosition": {
-      "x": -615.3636836358833,
-      "y": 795.3268514207562
+      "x": -624.3636836358819,
+      "y": 798.5571908121224
     },
-    "viewportScale": 0.3667530479887084
+    "viewportScale": 0.3671126247275572
   },
   "nodes": [
     {
@@ -22,7 +21,7 @@
         {
           "socketType": "in",
           "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": {},
           "visible": false
         },
@@ -64,6 +63,7 @@
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": true,
         "intervalFrequency": 100
@@ -111,7 +111,7 @@
         {
           "socketType": "in",
           "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": {},
           "visible": false
         },
@@ -123,6 +123,7 @@
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -160,7 +161,7 @@
         {
           "socketType": "in",
           "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": {},
           "visible": false
         },
@@ -172,6 +173,7 @@
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -190,6 +192,7 @@
           "socketType": "in",
           "name": "count",
           "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
+          "defaultData": 0,
           "visible": true
         },
         {
@@ -219,7 +222,7 @@
         {
           "socketType": "in",
           "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": {},
           "visible": false
         },
@@ -231,6 +234,7 @@
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -255,7 +259,7 @@
         {
           "socketType": "in",
           "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": {},
           "visible": false
         },
@@ -267,6 +271,7 @@
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -284,7 +289,7 @@
         {
           "socketType": "in",
           "name": "textJSON",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": [
             {
               "type": "heading-four",
@@ -327,7 +332,7 @@
         {
           "socketType": "in",
           "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": {},
           "visible": false
         },
@@ -346,7 +351,7 @@
         {
           "socketType": "out",
           "name": "Output",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "visible": false
         },
         {
@@ -358,11 +363,12 @@
         {
           "socketType": "out",
           "name": "output",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "visible": false
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -386,8 +392,16 @@
         },
         {
           "socketType": "in",
+          "name": "Meta",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "data": {},
+          "visible": false
+        },
+        {
+          "socketType": "in",
           "name": "ArrayIn",
           "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
+          "defaultData": [],
           "visible": true
         },
         {
@@ -404,6 +418,7 @@
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -427,8 +442,16 @@
         },
         {
           "socketType": "in",
+          "name": "Meta",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "data": {},
+          "visible": false
+        },
+        {
+          "socketType": "in",
           "name": "ArrayIn",
           "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
+          "defaultData": [],
           "visible": true
         },
         {
@@ -445,6 +468,7 @@
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -468,8 +492,16 @@
         },
         {
           "socketType": "in",
+          "name": "Meta",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "data": {},
+          "visible": false
+        },
+        {
+          "socketType": "in",
           "name": "ArrayIn",
           "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
+          "defaultData": [],
           "visible": true
         },
         {
@@ -486,6 +518,7 @@
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -509,8 +542,16 @@
         },
         {
           "socketType": "in",
+          "name": "Meta",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "data": {},
+          "visible": false
+        },
+        {
+          "socketType": "in",
           "name": "ArrayIn",
           "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
+          "defaultData": [],
           "visible": true
         },
         {
@@ -527,6 +568,7 @@
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -550,8 +592,16 @@
         },
         {
           "socketType": "in",
+          "name": "Meta",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "data": {},
+          "visible": false
+        },
+        {
+          "socketType": "in",
           "name": "ArrayIn",
           "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
+          "defaultData": [],
           "visible": true
         },
         {
@@ -568,6 +618,7 @@
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -620,7 +671,7 @@
         {
           "socketType": "in",
           "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": {},
           "visible": false
         },
@@ -639,6 +690,7 @@
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -656,7 +708,7 @@
         {
           "socketType": "in",
           "name": "textJSON",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": [
             {
               "type": "heading-four",
@@ -725,7 +777,7 @@
         {
           "socketType": "in",
           "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": {},
           "visible": false
         },
@@ -744,7 +796,7 @@
         {
           "socketType": "out",
           "name": "Output",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "visible": false
         },
         {
@@ -756,11 +808,12 @@
         {
           "socketType": "out",
           "name": "output",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "visible": false
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -778,7 +831,7 @@
         {
           "socketType": "in",
           "name": "textJSON",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": [
             {
               "type": "heading-four",
@@ -794,7 +847,7 @@
                       "text": ""
                     }
                   ],
-                  "reactiveText": "32"
+                  "reactiveText": "40"
                 },
                 {
                   "text": " x "
@@ -807,7 +860,7 @@
                       "text": ""
                     }
                   ],
-                  "reactiveText": "18"
+                  "reactiveText": "14"
                 },
                 {
                   "text": " grid rectangles with a color gradient"
@@ -856,7 +909,7 @@
         {
           "socketType": "in",
           "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": {},
           "visible": false
         },
@@ -882,7 +935,7 @@
         {
           "socketType": "out",
           "name": "Output",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "visible": false
         },
         {
@@ -894,11 +947,12 @@
         {
           "socketType": "out",
           "name": "output",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "visible": false
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -908,8 +962,8 @@
       "id": "tender-stingray-81",
       "name": "Math.round",
       "type": "MathFunction",
-      "x": -1137.0625105914537,
-      "y": 1631.361266752068,
+      "x": -1137.5495558979846,
+      "y": 1626.0724330563576,
       "width": 160,
       "height": 112,
       "socketArray": [
@@ -917,6 +971,7 @@
           "socketType": "in",
           "name": "Input",
           "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":-10,\"maxValue\":10,\"stepSize\":0.01}}",
+          "defaultData": 0,
           "visible": true
         },
         {
@@ -936,7 +991,7 @@
         {
           "socketType": "in",
           "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": {},
           "visible": false
         },
@@ -948,6 +1003,7 @@
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -958,7 +1014,7 @@
       "name": "Math.round",
       "type": "MathFunction",
       "x": -1137.5495558979846,
-      "y": 1756.5285661945575,
+      "y": 1756.5285661945572,
       "width": 160,
       "height": 112,
       "socketArray": [
@@ -966,6 +1022,7 @@
           "socketType": "in",
           "name": "Input",
           "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":-10,\"maxValue\":10,\"stepSize\":0.01}}",
+          "defaultData": 0,
           "visible": true
         },
         {
@@ -985,7 +1042,7 @@
         {
           "socketType": "in",
           "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": {},
           "visible": false
         },
@@ -997,6 +1054,7 @@
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -1131,7 +1189,7 @@
         {
           "socketType": "in",
           "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": {},
           "visible": false
         },
@@ -1143,6 +1201,7 @@
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -1155,7 +1214,7 @@
       "x": -288.3153071187694,
       "y": -247.41419412157637,
       "width": 160,
-      "height": 328,
+      "height": 352,
       "socketArray": [
         {
           "socketType": "in",
@@ -1197,6 +1256,13 @@
           "name": "Spacing Y",
           "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":0,\"maxValue\":1000,\"stepSize\":0.01}}",
           "data": 40,
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Clickable objects",
+          "dataType": "{\"class\":\"BooleanType\",\"type\":{}}",
+          "data": false,
           "visible": true
         },
         {
@@ -1279,7 +1345,7 @@
         {
           "socketType": "in",
           "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": {},
           "visible": false
         },
@@ -1315,6 +1381,7 @@
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -1449,7 +1516,7 @@
         {
           "socketType": "in",
           "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": {},
           "visible": false
         },
@@ -1461,6 +1528,7 @@
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -1595,7 +1663,7 @@
         {
           "socketType": "in",
           "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": {},
           "visible": false
         },
@@ -1607,6 +1675,7 @@
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -1741,7 +1810,7 @@
         {
           "socketType": "in",
           "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": {},
           "visible": false
         },
@@ -1753,6 +1822,7 @@
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -1765,20 +1835,13 @@
       "x": -729.5879430877695,
       "y": 473.0000068483779,
       "width": 160,
-      "height": 136,
+      "height": 160,
       "socketArray": [
         {
           "socketType": "in",
-          "name": "Foreground",
-          "dataType": "{\"class\":\"DeferredPixiType\",\"type\":{}}",
-          "defaultData": {},
-          "visible": true
-        },
-        {
-          "socketType": "in",
-          "name": "Background",
-          "dataType": "{\"class\":\"DeferredPixiType\",\"type\":{}}",
-          "defaultData": {},
+          "name": "Reverse Direction",
+          "dataType": "{\"class\":\"BooleanType\",\"type\":{}}",
+          "data": false,
           "visible": true
         },
         {
@@ -1861,32 +1924,10 @@
         {
           "socketType": "in",
           "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": {},
           "visible": false
         },
-        {
-          "socketType": "out",
-          "name": "Graphics",
-          "dataType": "{\"class\":\"DeferredPixiType\",\"type\":{}}",
-          "visible": true
-        }
-      ],
-      "updateBehaviour": {
-        "update": true,
-        "interval": false,
-        "intervalFrequency": 1000
-      }
-    },
-    {
-      "id": "rude-rat-33",
-      "name": "DRAW_Combine",
-      "type": "DRAW_Combine",
-      "x": -517.6616620956914,
-      "y": 554.7451616497681,
-      "width": 160,
-      "height": 136,
-      "socketArray": [
         {
           "socketType": "in",
           "name": "Foreground",
@@ -1899,6 +1940,36 @@
           "name": "Background",
           "dataType": "{\"class\":\"DeferredPixiType\",\"type\":{}}",
           "defaultData": {},
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "Graphics",
+          "dataType": "{\"class\":\"DeferredPixiType\",\"type\":{}}",
+          "visible": true
+        }
+      ],
+      "updateBehaviour": {
+        "load": false,
+        "update": true,
+        "interval": false,
+        "intervalFrequency": 1000
+      }
+    },
+    {
+      "id": "rude-rat-33",
+      "name": "DRAW_Combine",
+      "type": "DRAW_Combine",
+      "x": -517.6616620956914,
+      "y": 554.7451616497681,
+      "width": 160,
+      "height": 160,
+      "socketArray": [
+        {
+          "socketType": "in",
+          "name": "Reverse Direction",
+          "dataType": "{\"class\":\"BooleanType\",\"type\":{}}",
+          "data": false,
           "visible": true
         },
         {
@@ -1981,9 +2052,23 @@
         {
           "socketType": "in",
           "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": {},
           "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Foreground",
+          "dataType": "{\"class\":\"DeferredPixiType\",\"type\":{}}",
+          "defaultData": {},
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Background",
+          "dataType": "{\"class\":\"DeferredPixiType\",\"type\":{}}",
+          "defaultData": {},
+          "visible": true
         },
         {
           "socketType": "out",
@@ -1993,6 +2078,7 @@
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -2005,7 +2091,7 @@
       "x": -299.05994720414014,
       "y": 554.3961002373813,
       "width": 160,
-      "height": 328,
+      "height": 352,
       "socketArray": [
         {
           "socketType": "in",
@@ -2047,6 +2133,13 @@
           "name": "Spacing Y",
           "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":0,\"maxValue\":1000,\"stepSize\":0.01}}",
           "data": 300,
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Clickable objects",
+          "dataType": "{\"class\":\"BooleanType\",\"type\":{}}",
+          "data": false,
           "visible": true
         },
         {
@@ -2129,7 +2222,7 @@
         {
           "socketType": "in",
           "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": {},
           "visible": false
         },
@@ -2165,6 +2258,7 @@
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -2188,9 +2282,16 @@
         },
         {
           "socketType": "in",
+          "name": "Meta",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "data": {},
+          "visible": false
+        },
+        {
+          "socketType": "in",
           "name": "ArrayOfArraysIn",
           "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
-          "defaultData": 0,
+          "defaultData": [],
           "visible": true
         },
         {
@@ -2214,6 +2315,7 @@
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -2237,9 +2339,16 @@
         },
         {
           "socketType": "in",
+          "name": "Meta",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "data": {},
+          "visible": false
+        },
+        {
+          "socketType": "in",
           "name": "ArrayOfArraysIn",
           "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
-          "defaultData": 0,
+          "defaultData": [],
           "visible": true
         },
         {
@@ -2263,6 +2372,7 @@
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -2286,6 +2396,13 @@
         },
         {
           "socketType": "in",
+          "name": "Meta",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "data": {},
+          "visible": false
+        },
+        {
+          "socketType": "in",
           "name": "ArrayIn",
           "dataType": "{\"class\":\"ArrayType\",\"type\":{}}",
           "defaultData": [],
@@ -2305,6 +2422,7 @@
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -2439,7 +2557,7 @@
         {
           "socketType": "in",
           "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": {},
           "visible": false
         },
@@ -2451,6 +2569,7 @@
         }
       ],
       "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -2463,7 +2582,7 @@
       "x": -288.2105451168942,
       "y": 1323.6102510612948,
       "width": 160,
-      "height": 328,
+      "height": 352,
       "socketArray": [
         {
           "socketType": "in",
@@ -2505,6 +2624,13 @@
           "name": "Spacing Y",
           "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":true,\"minValue\":0,\"maxValue\":1000,\"stepSize\":0.01}}",
           "data": 17,
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Clickable objects",
+          "dataType": "{\"class\":\"BooleanType\",\"type\":{}}",
+          "data": false,
           "visible": true
         },
         {
@@ -2587,7 +2713,7 @@
         {
           "socketType": "in",
           "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": {},
           "visible": false
         },
@@ -2623,153 +2749,7 @@
         }
       ],
       "updateBehaviour": {
-        "update": true,
-        "interval": false,
-        "intervalFrequency": 1000
-      }
-    },
-    {
-      "id": "fuzzy-dodo-45",
-      "name": "Divide",
-      "type": "Divide",
-      "x": -1507.6972669617453,
-      "y": 1430.4816701264085,
-      "width": 160,
-      "height": 112,
-      "socketArray": [
-        {
-          "socketType": "in",
-          "name": "Code",
-          "dataType": "{\"class\":\"CodeType\",\"type\":{}}",
-          "data": "(Input1, Input2) => {\n\treturn Input1 / Input2;\n}",
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Input1",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
-          "defaultData": 1,
-          "visible": true
-        },
-        {
-          "socketType": "in",
-          "name": "Input2",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
-          "defaultData": 1,
-          "visible": true
-        },
-        {
-          "socketType": "out",
-          "name": "Result",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
-          "visible": true
-        },
-        {
-          "socketType": "out",
-          "name": "Code",
-          "dataType": "{\"class\":\"CodeType\",\"type\":{}}",
-          "visible": false
-        }
-      ],
-      "updateBehaviour": {
-        "update": true,
-        "interval": false,
-        "intervalFrequency": 1000
-      }
-    },
-    {
-      "id": "quick-turtle-10",
-      "name": "Divide",
-      "type": "Divide",
-      "x": -1507.8434947763662,
-      "y": 1573.5970943658851,
-      "width": 160,
-      "height": 112,
-      "socketArray": [
-        {
-          "socketType": "in",
-          "name": "Code",
-          "dataType": "{\"class\":\"CodeType\",\"type\":{}}",
-          "data": "(Input1, Input2) => {\n\treturn Input1 / Input2;\n}",
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Input1",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
-          "defaultData": 1,
-          "visible": true
-        },
-        {
-          "socketType": "in",
-          "name": "Input2",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
-          "defaultData": 1,
-          "visible": true
-        },
-        {
-          "socketType": "out",
-          "name": "Result",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
-          "visible": true
-        },
-        {
-          "socketType": "out",
-          "name": "Code",
-          "dataType": "{\"class\":\"CodeType\",\"type\":{}}",
-          "visible": false
-        }
-      ],
-      "updateBehaviour": {
-        "update": true,
-        "interval": false,
-        "intervalFrequency": 1000
-      }
-    },
-    {
-      "id": "great-badger-6",
-      "name": "Multiply",
-      "type": "Multiply",
-      "x": -1135.5415191041054,
-      "y": 1495.261532205213,
-      "width": 160,
-      "height": 112,
-      "socketArray": [
-        {
-          "socketType": "in",
-          "name": "Code",
-          "dataType": "{\"class\":\"CodeType\",\"type\":{}}",
-          "data": "(Input1, Input2) => {\n\treturn Input1 * Input2;\n}",
-          "visible": false
-        },
-        {
-          "socketType": "in",
-          "name": "Input1",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
-          "defaultData": 1,
-          "visible": true
-        },
-        {
-          "socketType": "in",
-          "name": "Input2",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
-          "defaultData": 1,
-          "visible": true
-        },
-        {
-          "socketType": "out",
-          "name": "Result",
-          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
-          "visible": true
-        },
-        {
-          "socketType": "out",
-          "name": "Code",
-          "dataType": "{\"class\":\"CodeType\",\"type\":{}}",
-          "visible": false
-        }
-      ],
-      "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -2787,7 +2767,7 @@
         {
           "socketType": "in",
           "name": "Initial data",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": {
             "SheetNames": [
               "Sheet1"
@@ -2821,1783 +2801,2228 @@
                 },
                 "A2": {
                   "v": " 1",
-                  "t": "s"
+                  "t": "s",
+                  "w": " 1"
                 },
                 "B2": {
                   "v": "1928",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1928"
                 },
                 "C2": {
                   "v": "22",
-                  "t": "s"
+                  "t": "s",
+                  "w": "22"
                 },
                 "D2": {
                   "v": "Janet Gaynor",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Janet Gaynor"
                 },
                 "E2": {
                   "v": "Seventh Heaven, Street Angel and Sunrise: A Song of Two Humans",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Seventh Heaven, Street Angel and Sunrise: A Song of Two Humans"
                 },
                 "A3": {
                   "v": " 2",
-                  "t": "s"
+                  "t": "s",
+                  "w": " 2"
                 },
                 "B3": {
                   "v": "1929",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1929"
                 },
                 "C3": {
                   "v": "37",
-                  "t": "s"
+                  "t": "s",
+                  "w": "37"
                 },
                 "D3": {
                   "v": "Mary Pickford",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Mary Pickford"
                 },
                 "E3": {
                   "v": "Coquette",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Coquette"
                 },
                 "A4": {
                   "v": " 3",
-                  "t": "s"
+                  "t": "s",
+                  "w": " 3"
                 },
                 "B4": {
                   "v": "1930",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1930"
                 },
                 "C4": {
                   "v": "28",
-                  "t": "s"
+                  "t": "s",
+                  "w": "28"
                 },
                 "D4": {
                   "v": "Norma Shearer",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Norma Shearer"
                 },
                 "E4": {
                   "v": "The Divorcee\t",
-                  "t": "s"
+                  "t": "s",
+                  "w": "The Divorcee\t"
                 },
                 "A5": {
                   "v": " 4",
-                  "t": "s"
+                  "t": "s",
+                  "w": " 4"
                 },
                 "B5": {
                   "v": "1931",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1931"
                 },
                 "C5": {
                   "v": "63",
-                  "t": "s"
+                  "t": "s",
+                  "w": "63"
                 },
                 "D5": {
                   "v": "Marie Dressler",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Marie Dressler"
                 },
                 "E5": {
                   "v": "Min and Bill",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Min and Bill"
                 },
                 "A6": {
                   "v": " 5",
-                  "t": "s"
+                  "t": "s",
+                  "w": " 5"
                 },
                 "B6": {
                   "v": "1932",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1932"
                 },
                 "C6": {
                   "v": "32",
-                  "t": "s"
+                  "t": "s",
+                  "w": "32"
                 },
                 "D6": {
                   "v": "Helen Hayes",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Helen Hayes"
                 },
                 "E6": {
                   "v": "The Sin of Madelon Claudet\t",
-                  "t": "s"
+                  "t": "s",
+                  "w": "The Sin of Madelon Claudet\t"
                 },
                 "A7": {
                   "v": " 6",
-                  "t": "s"
+                  "t": "s",
+                  "w": " 6"
                 },
                 "B7": {
                   "v": "1933",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1933"
                 },
                 "C7": {
                   "v": "26",
-                  "t": "s"
+                  "t": "s",
+                  "w": "26"
                 },
                 "D7": {
                   "v": "Katharine Hepburn",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Katharine Hepburn"
                 },
                 "E7": {
                   "v": "Morning Glory",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Morning Glory"
                 },
                 "A8": {
                   "v": " 7",
-                  "t": "s"
+                  "t": "s",
+                  "w": " 7"
                 },
                 "B8": {
                   "v": "1934",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1934"
                 },
                 "C8": {
                   "v": "31",
-                  "t": "s"
+                  "t": "s",
+                  "w": "31"
                 },
                 "D8": {
                   "v": "Claudette Colbert",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Claudette Colbert"
                 },
                 "E8": {
                   "v": "It Happened One Night",
-                  "t": "s"
+                  "t": "s",
+                  "w": "It Happened One Night"
                 },
                 "A9": {
                   "v": " 8",
-                  "t": "s"
+                  "t": "s",
+                  "w": " 8"
                 },
                 "B9": {
                   "v": "1935",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1935"
                 },
                 "C9": {
                   "v": "27",
-                  "t": "s"
+                  "t": "s",
+                  "w": "27"
                 },
                 "D9": {
                   "v": "Bette Davis",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Bette Davis"
                 },
                 "E9": {
                   "v": "Dangerous",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Dangerous"
                 },
                 "A10": {
                   "v": " 9",
-                  "t": "s"
+                  "t": "s",
+                  "w": " 9"
                 },
                 "B10": {
                   "v": "1936",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1936"
                 },
                 "C10": {
                   "v": "27",
-                  "t": "s"
+                  "t": "s",
+                  "w": "27"
                 },
                 "D10": {
                   "v": "Luise Rainer",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Luise Rainer"
                 },
                 "E10": {
                   "v": "The Great Ziegfeld",
-                  "t": "s"
+                  "t": "s",
+                  "w": "The Great Ziegfeld"
                 },
                 "A11": {
                   "v": "10",
-                  "t": "s"
+                  "t": "s",
+                  "w": "10"
                 },
                 "B11": {
                   "v": "1937",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1937"
                 },
                 "C11": {
                   "v": "28",
-                  "t": "s"
+                  "t": "s",
+                  "w": "28"
                 },
                 "D11": {
                   "v": "Luise Rainer",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Luise Rainer"
                 },
                 "E11": {
                   "v": "The Good Earth",
-                  "t": "s"
+                  "t": "s",
+                  "w": "The Good Earth"
                 },
                 "A12": {
                   "v": "11",
-                  "t": "s"
+                  "t": "s",
+                  "w": "11"
                 },
                 "B12": {
                   "v": "1938",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1938"
                 },
                 "C12": {
                   "v": "30",
-                  "t": "s"
+                  "t": "s",
+                  "w": "30"
                 },
                 "D12": {
                   "v": "Bette Davis",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Bette Davis"
                 },
                 "E12": {
                   "v": "Jezebel",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Jezebel"
                 },
                 "A13": {
                   "v": "12",
-                  "t": "s"
+                  "t": "s",
+                  "w": "12"
                 },
                 "B13": {
                   "v": "1939",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1939"
                 },
                 "C13": {
                   "v": "26",
-                  "t": "s"
+                  "t": "s",
+                  "w": "26"
                 },
                 "D13": {
                   "v": "Vivien Leigh",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Vivien Leigh"
                 },
                 "E13": {
                   "v": "Gone with the Wind",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Gone with the Wind"
                 },
                 "A14": {
                   "v": "13",
-                  "t": "s"
+                  "t": "s",
+                  "w": "13"
                 },
                 "B14": {
                   "v": "1940",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1940"
                 },
                 "C14": {
                   "v": "29",
-                  "t": "s"
+                  "t": "s",
+                  "w": "29"
                 },
                 "D14": {
                   "v": "Ginger Rogers",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Ginger Rogers"
                 },
                 "E14": {
                   "v": "Kitty Foyle",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Kitty Foyle"
                 },
                 "A15": {
                   "v": "14",
-                  "t": "s"
+                  "t": "s",
+                  "w": "14"
                 },
                 "B15": {
                   "v": "1941",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1941"
                 },
                 "C15": {
                   "v": "24",
-                  "t": "s"
+                  "t": "s",
+                  "w": "24"
                 },
                 "D15": {
                   "v": "Joan Fontaine",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Joan Fontaine"
                 },
                 "E15": {
                   "v": "Suspicion\t",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Suspicion\t"
                 },
                 "A16": {
                   "v": "15",
-                  "t": "s"
+                  "t": "s",
+                  "w": "15"
                 },
                 "B16": {
                   "v": "1942",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1942"
                 },
                 "C16": {
                   "v": "38",
-                  "t": "s"
+                  "t": "s",
+                  "w": "38"
                 },
                 "D16": {
                   "v": "Greer Garson",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Greer Garson"
                 },
                 "E16": {
                   "v": "Mrs. Miniver",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Mrs. Miniver"
                 },
                 "A17": {
                   "v": "16",
-                  "t": "s"
+                  "t": "s",
+                  "w": "16"
                 },
                 "B17": {
                   "v": "1943",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1943"
                 },
                 "C17": {
                   "v": "25",
-                  "t": "s"
+                  "t": "s",
+                  "w": "25"
                 },
                 "D17": {
                   "v": "Jennifer Jones",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Jennifer Jones"
                 },
                 "E17": {
                   "v": "The Song of Bernadette",
-                  "t": "s"
+                  "t": "s",
+                  "w": "The Song of Bernadette"
                 },
                 "A18": {
                   "v": "17",
-                  "t": "s"
+                  "t": "s",
+                  "w": "17"
                 },
                 "B18": {
                   "v": "1944",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1944"
                 },
                 "C18": {
                   "v": "29",
-                  "t": "s"
+                  "t": "s",
+                  "w": "29"
                 },
                 "D18": {
                   "v": "Ingrid Bergman",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Ingrid Bergman"
                 },
                 "E18": {
                   "v": "Gaslight",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Gaslight"
                 },
                 "A19": {
                   "v": "18",
-                  "t": "s"
+                  "t": "s",
+                  "w": "18"
                 },
                 "B19": {
                   "v": "1945",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1945"
                 },
                 "C19": {
                   "v": "40",
-                  "t": "s"
+                  "t": "s",
+                  "w": "40"
                 },
                 "D19": {
                   "v": "Joan Crawford",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Joan Crawford"
                 },
                 "E19": {
                   "v": "Mildred Pierce",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Mildred Pierce"
                 },
                 "A20": {
                   "v": "19",
-                  "t": "s"
+                  "t": "s",
+                  "w": "19"
                 },
                 "B20": {
                   "v": "1946",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1946"
                 },
                 "C20": {
                   "v": "30",
-                  "t": "s"
+                  "t": "s",
+                  "w": "30"
                 },
                 "D20": {
                   "v": "Olivia de Havilland",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Olivia de Havilland"
                 },
                 "E20": {
                   "v": "To Each His Own",
-                  "t": "s"
+                  "t": "s",
+                  "w": "To Each His Own"
                 },
                 "A21": {
                   "v": "20",
-                  "t": "s"
+                  "t": "s",
+                  "w": "20"
                 },
                 "B21": {
                   "v": "1947",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1947"
                 },
                 "C21": {
                   "v": "35",
-                  "t": "s"
+                  "t": "s",
+                  "w": "35"
                 },
                 "D21": {
                   "v": "Loretta Young",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Loretta Young"
                 },
                 "E21": {
                   "v": "The Farmer's Daughter",
-                  "t": "s"
+                  "t": "s",
+                  "w": "The Farmer's Daughter"
                 },
                 "A22": {
                   "v": "21",
-                  "t": "s"
+                  "t": "s",
+                  "w": "21"
                 },
                 "B22": {
                   "v": "1948",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1948"
                 },
                 "C22": {
                   "v": "32",
-                  "t": "s"
+                  "t": "s",
+                  "w": "32"
                 },
                 "D22": {
                   "v": "Jane Wyman",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Jane Wyman"
                 },
                 "E22": {
                   "v": "Johnny Belinda",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Johnny Belinda"
                 },
                 "A23": {
                   "v": "22",
-                  "t": "s"
+                  "t": "s",
+                  "w": "22"
                 },
                 "B23": {
                   "v": "1949",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1949"
                 },
                 "C23": {
                   "v": "33",
-                  "t": "s"
+                  "t": "s",
+                  "w": "33"
                 },
                 "D23": {
                   "v": "Olivia de Havilland",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Olivia de Havilland"
                 },
                 "E23": {
                   "v": "The Heiress",
-                  "t": "s"
+                  "t": "s",
+                  "w": "The Heiress"
                 },
                 "A24": {
                   "v": "23",
-                  "t": "s"
+                  "t": "s",
+                  "w": "23"
                 },
                 "B24": {
                   "v": "1950",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1950"
                 },
                 "C24": {
                   "v": "29",
-                  "t": "s"
+                  "t": "s",
+                  "w": "29"
                 },
                 "D24": {
                   "v": "Judy Holliday",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Judy Holliday"
                 },
                 "E24": {
                   "v": "Born Yesterday",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Born Yesterday"
                 },
                 "A25": {
                   "v": "24",
-                  "t": "s"
+                  "t": "s",
+                  "w": "24"
                 },
                 "B25": {
                   "v": "1951",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1951"
                 },
                 "C25": {
                   "v": "38",
-                  "t": "s"
+                  "t": "s",
+                  "w": "38"
                 },
                 "D25": {
                   "v": "Vivien Leigh",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Vivien Leigh"
                 },
                 "E25": {
                   "v": "A Streetcar Named Desire",
-                  "t": "s"
+                  "t": "s",
+                  "w": "A Streetcar Named Desire"
                 },
                 "A26": {
                   "v": "25",
-                  "t": "s"
+                  "t": "s",
+                  "w": "25"
                 },
                 "B26": {
                   "v": "1952",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1952"
                 },
                 "C26": {
                   "v": "54",
-                  "t": "s"
+                  "t": "s",
+                  "w": "54"
                 },
                 "D26": {
                   "v": "Shirley Booth",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Shirley Booth"
                 },
                 "E26": {
                   "v": "Come Back, Little Sheba",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Come Back, Little Sheba"
                 },
                 "A27": {
                   "v": "26",
-                  "t": "s"
+                  "t": "s",
+                  "w": "26"
                 },
                 "B27": {
                   "v": "1953",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1953"
                 },
                 "C27": {
                   "v": "24",
-                  "t": "s"
+                  "t": "s",
+                  "w": "24"
                 },
                 "D27": {
                   "v": "Audrey Hepburn",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Audrey Hepburn"
                 },
                 "E27": {
                   "v": "Roman Holiday",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Roman Holiday"
                 },
                 "A28": {
                   "v": "27",
-                  "t": "s"
+                  "t": "s",
+                  "w": "27"
                 },
                 "B28": {
                   "v": "1954",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1954"
                 },
                 "C28": {
                   "v": "25",
-                  "t": "s"
+                  "t": "s",
+                  "w": "25"
                 },
                 "D28": {
                   "v": "Grace Kelly",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Grace Kelly"
                 },
                 "E28": {
                   "v": "The Country Girl",
-                  "t": "s"
+                  "t": "s",
+                  "w": "The Country Girl"
                 },
                 "A29": {
                   "v": "28",
-                  "t": "s"
+                  "t": "s",
+                  "w": "28"
                 },
                 "B29": {
                   "v": "1955",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1955"
                 },
                 "C29": {
                   "v": "48",
-                  "t": "s"
+                  "t": "s",
+                  "w": "48"
                 },
                 "D29": {
                   "v": "Anna Magnani",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Anna Magnani"
                 },
                 "E29": {
                   "v": "The Rose Tattoo",
-                  "t": "s"
+                  "t": "s",
+                  "w": "The Rose Tattoo"
                 },
                 "A30": {
                   "v": "29",
-                  "t": "s"
+                  "t": "s",
+                  "w": "29"
                 },
                 "B30": {
                   "v": "1956",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1956"
                 },
                 "C30": {
                   "v": "41",
-                  "t": "s"
+                  "t": "s",
+                  "w": "41"
                 },
                 "D30": {
                   "v": "Ingrid Bergman",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Ingrid Bergman"
                 },
                 "E30": {
                   "v": "Anastasia",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Anastasia"
                 },
                 "A31": {
                   "v": "30",
-                  "t": "s"
+                  "t": "s",
+                  "w": "30"
                 },
                 "B31": {
                   "v": "1957",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1957"
                 },
                 "C31": {
                   "v": "28",
-                  "t": "s"
+                  "t": "s",
+                  "w": "28"
                 },
                 "D31": {
                   "v": "Joanne Woodward",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Joanne Woodward"
                 },
                 "E31": {
                   "v": "The Three Faces of Eve",
-                  "t": "s"
+                  "t": "s",
+                  "w": "The Three Faces of Eve"
                 },
                 "A32": {
                   "v": "31",
-                  "t": "s"
+                  "t": "s",
+                  "w": "31"
                 },
                 "B32": {
                   "v": "1958",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1958"
                 },
                 "C32": {
                   "v": "41",
-                  "t": "s"
+                  "t": "s",
+                  "w": "41"
                 },
                 "D32": {
                   "v": "Susan Hayward",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Susan Hayward"
                 },
                 "E32": {
                   "v": "I Want to Live!",
-                  "t": "s"
+                  "t": "s",
+                  "w": "I Want to Live!"
                 },
                 "A33": {
                   "v": "32",
-                  "t": "s"
+                  "t": "s",
+                  "w": "32"
                 },
                 "B33": {
                   "v": "1959",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1959"
                 },
                 "C33": {
                   "v": "39",
-                  "t": "s"
+                  "t": "s",
+                  "w": "39"
                 },
                 "D33": {
                   "v": "Simone Signoret",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Simone Signoret"
                 },
                 "E33": {
                   "v": "Room at the Top",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Room at the Top"
                 },
                 "A34": {
                   "v": "33",
-                  "t": "s"
+                  "t": "s",
+                  "w": "33"
                 },
                 "B34": {
                   "v": "1960",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1960"
                 },
                 "C34": {
                   "v": "29",
-                  "t": "s"
+                  "t": "s",
+                  "w": "29"
                 },
                 "D34": {
                   "v": "Elizabeth Taylor",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Elizabeth Taylor"
                 },
                 "E34": {
                   "v": "BUtterfield 8",
-                  "t": "s"
+                  "t": "s",
+                  "w": "BUtterfield 8"
                 },
                 "A35": {
                   "v": "34",
-                  "t": "s"
+                  "t": "s",
+                  "w": "34"
                 },
                 "B35": {
                   "v": "1961",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1961"
                 },
                 "C35": {
                   "v": "27",
-                  "t": "s"
+                  "t": "s",
+                  "w": "27"
                 },
                 "D35": {
                   "v": "Sophia Loren",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Sophia Loren"
                 },
                 "E35": {
                   "v": "Two Women",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Two Women"
                 },
                 "A36": {
                   "v": "35",
-                  "t": "s"
+                  "t": "s",
+                  "w": "35"
                 },
                 "B36": {
                   "v": "1962",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1962"
                 },
                 "C36": {
                   "v": "31",
-                  "t": "s"
+                  "t": "s",
+                  "w": "31"
                 },
                 "D36": {
                   "v": "Anne Bancroft",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Anne Bancroft"
                 },
                 "E36": {
                   "v": "The Miracle Worker",
-                  "t": "s"
+                  "t": "s",
+                  "w": "The Miracle Worker"
                 },
                 "A37": {
                   "v": "36",
-                  "t": "s"
+                  "t": "s",
+                  "w": "36"
                 },
                 "B37": {
                   "v": "1963",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1963"
                 },
                 "C37": {
                   "v": "31",
-                  "t": "s"
+                  "t": "s",
+                  "w": "31"
                 },
                 "D37": {
                   "v": "Patricia Neal",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Patricia Neal"
                 },
                 "E37": {
                   "v": "Hud",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Hud"
                 },
                 "A38": {
                   "v": "37",
-                  "t": "s"
+                  "t": "s",
+                  "w": "37"
                 },
                 "B38": {
                   "v": "1964",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1964"
                 },
                 "C38": {
                   "v": "29",
-                  "t": "s"
+                  "t": "s",
+                  "w": "29"
                 },
                 "D38": {
                   "v": "Julie Andrews",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Julie Andrews"
                 },
                 "E38": {
                   "v": "Mary Poppins",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Mary Poppins"
                 },
                 "A39": {
                   "v": "38",
-                  "t": "s"
+                  "t": "s",
+                  "w": "38"
                 },
                 "B39": {
                   "v": "1965",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1965"
                 },
                 "C39": {
                   "v": "25",
-                  "t": "s"
+                  "t": "s",
+                  "w": "25"
                 },
                 "D39": {
                   "v": "Julie Christie",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Julie Christie"
                 },
                 "E39": {
                   "v": "Darling",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Darling"
                 },
                 "A40": {
                   "v": "39",
-                  "t": "s"
+                  "t": "s",
+                  "w": "39"
                 },
                 "B40": {
                   "v": "1966",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1966"
                 },
                 "C40": {
                   "v": "35",
-                  "t": "s"
+                  "t": "s",
+                  "w": "35"
                 },
                 "D40": {
                   "v": "Elizabeth Taylor",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Elizabeth Taylor"
                 },
                 "E40": {
                   "v": "Who's Afraid of Virginia Woolf?",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Who's Afraid of Virginia Woolf?"
                 },
                 "A41": {
                   "v": "40",
-                  "t": "s"
+                  "t": "s",
+                  "w": "40"
                 },
                 "B41": {
                   "v": "1967",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1967"
                 },
                 "C41": {
                   "v": "60",
-                  "t": "s"
+                  "t": "s",
+                  "w": "60"
                 },
                 "D41": {
                   "v": "Katharine Hepburn",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Katharine Hepburn"
                 },
                 "E41": {
                   "v": "Guess Who's Coming to Dinner",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Guess Who's Coming to Dinner"
                 },
                 "A42": {
                   "v": "41",
-                  "t": "s"
+                  "t": "s",
+                  "w": "41"
                 },
                 "B42": {
                   "v": "1968",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1968"
                 },
                 "C42": {
                   "v": "61",
-                  "t": "s"
+                  "t": "s",
+                  "w": "61"
                 },
                 "D42": {
                   "v": "Katharine Hepburn",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Katharine Hepburn"
                 },
                 "E42": {
                   "v": "The Lion in Winter",
-                  "t": "s"
+                  "t": "s",
+                  "w": "The Lion in Winter"
                 },
                 "A43": {
                   "v": "42",
-                  "t": "s"
+                  "t": "s",
+                  "w": "42"
                 },
                 "B43": {
                   "v": "1969",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1969"
                 },
                 "C43": {
                   "v": "26",
-                  "t": "s"
+                  "t": "s",
+                  "w": "26"
                 },
                 "D43": {
                   "v": "Barbra Streisand",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Barbra Streisand"
                 },
                 "E43": {
                   "v": "Funny Girl",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Funny Girl"
                 },
                 "A44": {
                   "v": "43",
-                  "t": "s"
+                  "t": "s",
+                  "w": "43"
                 },
                 "B44": {
                   "v": "1970",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1970"
                 },
                 "C44": {
                   "v": "35",
-                  "t": "s"
+                  "t": "s",
+                  "w": "35"
                 },
                 "D44": {
                   "v": "Maggie Smith",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Maggie Smith"
                 },
                 "E44": {
                   "v": "The Prime of Miss Jean Brodie",
-                  "t": "s"
+                  "t": "s",
+                  "w": "The Prime of Miss Jean Brodie"
                 },
                 "A45": {
                   "v": "44",
-                  "t": "s"
+                  "t": "s",
+                  "w": "44"
                 },
                 "B45": {
                   "v": "1971",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1971"
                 },
                 "C45": {
                   "v": "34",
-                  "t": "s"
+                  "t": "s",
+                  "w": "34"
                 },
                 "D45": {
                   "v": "Glenda Jackson",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Glenda Jackson"
                 },
                 "E45": {
                   "v": "Women in Love",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Women in Love"
                 },
                 "A46": {
                   "v": "45",
-                  "t": "s"
+                  "t": "s",
+                  "w": "45"
                 },
                 "B46": {
                   "v": "1972",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1972"
                 },
                 "C46": {
                   "v": "34",
-                  "t": "s"
+                  "t": "s",
+                  "w": "34"
                 },
                 "D46": {
                   "v": "Jane Fonda",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Jane Fonda"
                 },
                 "E46": {
                   "v": "Klute",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Klute"
                 },
                 "A47": {
                   "v": "46",
-                  "t": "s"
+                  "t": "s",
+                  "w": "46"
                 },
                 "B47": {
                   "v": "1973",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1973"
                 },
                 "C47": {
                   "v": "27",
-                  "t": "s"
+                  "t": "s",
+                  "w": "27"
                 },
                 "D47": {
                   "v": "Liza Minnelli",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Liza Minnelli"
                 },
                 "E47": {
                   "v": "Cabaret",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Cabaret"
                 },
                 "A48": {
                   "v": "47",
-                  "t": "s"
+                  "t": "s",
+                  "w": "47"
                 },
                 "B48": {
                   "v": "1974",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1974"
                 },
                 "C48": {
                   "v": "37",
-                  "t": "s"
+                  "t": "s",
+                  "w": "37"
                 },
                 "D48": {
                   "v": "Glenda Jackson",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Glenda Jackson"
                 },
                 "E48": {
                   "v": "A Touch of Class",
-                  "t": "s"
+                  "t": "s",
+                  "w": "A Touch of Class"
                 },
                 "A49": {
                   "v": "48",
-                  "t": "s"
+                  "t": "s",
+                  "w": "48"
                 },
                 "B49": {
                   "v": "1975",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1975"
                 },
                 "C49": {
                   "v": "42",
-                  "t": "s"
+                  "t": "s",
+                  "w": "42"
                 },
                 "D49": {
                   "v": "Ellen Burstyn",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Ellen Burstyn"
                 },
                 "E49": {
                   "v": "Alice Doesn't Live Here Anymore\t",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Alice Doesn't Live Here Anymore\t"
                 },
                 "A50": {
                   "v": "49",
-                  "t": "s"
+                  "t": "s",
+                  "w": "49"
                 },
                 "B50": {
                   "v": "1976",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1976"
                 },
                 "C50": {
                   "v": "41",
-                  "t": "s"
+                  "t": "s",
+                  "w": "41"
                 },
                 "D50": {
                   "v": "Louise Fletcher",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Louise Fletcher"
                 },
                 "E50": {
                   "v": "One Flew Over the Cuckoo's Nest",
-                  "t": "s"
+                  "t": "s",
+                  "w": "One Flew Over the Cuckoo's Nest"
                 },
                 "A51": {
                   "v": "50",
-                  "t": "s"
+                  "t": "s",
+                  "w": "50"
                 },
                 "B51": {
                   "v": "1977",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1977"
                 },
                 "C51": {
                   "v": "36",
-                  "t": "s"
+                  "t": "s",
+                  "w": "36"
                 },
                 "D51": {
                   "v": "Faye Dunaway",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Faye Dunaway"
                 },
                 "E51": {
                   "v": "Network",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Network"
                 },
                 "A52": {
                   "v": "51",
-                  "t": "s"
+                  "t": "s",
+                  "w": "51"
                 },
                 "B52": {
                   "v": "1978",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1978"
                 },
                 "C52": {
                   "v": "32",
-                  "t": "s"
+                  "t": "s",
+                  "w": "32"
                 },
                 "D52": {
                   "v": "Diane Keaton",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Diane Keaton"
                 },
                 "E52": {
                   "v": "Annie Hall",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Annie Hall"
                 },
                 "A53": {
                   "v": "52",
-                  "t": "s"
+                  "t": "s",
+                  "w": "52"
                 },
                 "B53": {
                   "v": "1979",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1979"
                 },
                 "C53": {
                   "v": "41",
-                  "t": "s"
+                  "t": "s",
+                  "w": "41"
                 },
                 "D53": {
                   "v": "Jane Fonda",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Jane Fonda"
                 },
                 "E53": {
                   "v": "Coming Home",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Coming Home"
                 },
                 "A54": {
                   "v": "53",
-                  "t": "s"
+                  "t": "s",
+                  "w": "53"
                 },
                 "B54": {
                   "v": "1980",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1980"
                 },
                 "C54": {
                   "v": "33",
-                  "t": "s"
+                  "t": "s",
+                  "w": "33"
                 },
                 "D54": {
                   "v": "Sally Field",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Sally Field"
                 },
                 "E54": {
                   "v": "Norma Rae",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Norma Rae"
                 },
                 "A55": {
                   "v": "54",
-                  "t": "s"
+                  "t": "s",
+                  "w": "54"
                 },
                 "B55": {
                   "v": "1981",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1981"
                 },
                 "C55": {
                   "v": "31",
-                  "t": "s"
+                  "t": "s",
+                  "w": "31"
                 },
                 "D55": {
                   "v": "Sissy Spacek",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Sissy Spacek"
                 },
                 "E55": {
                   "v": "Coal Miner's Daughter\t",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Coal Miner's Daughter\t"
                 },
                 "A56": {
                   "v": "55",
-                  "t": "s"
+                  "t": "s",
+                  "w": "55"
                 },
                 "B56": {
                   "v": "1982",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1982"
                 },
                 "C56": {
                   "v": "74",
-                  "t": "s"
+                  "t": "s",
+                  "w": "74"
                 },
                 "D56": {
                   "v": "Katharine Hepburn",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Katharine Hepburn"
                 },
                 "E56": {
                   "v": "On Golden Pond",
-                  "t": "s"
+                  "t": "s",
+                  "w": "On Golden Pond"
                 },
                 "A57": {
                   "v": "56",
-                  "t": "s"
+                  "t": "s",
+                  "w": "56"
                 },
                 "B57": {
                   "v": "1983",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1983"
                 },
                 "C57": {
                   "v": "33",
-                  "t": "s"
+                  "t": "s",
+                  "w": "33"
                 },
                 "D57": {
                   "v": "Meryl Streep",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Meryl Streep"
                 },
                 "E57": {
                   "v": "Sophie's Choice",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Sophie's Choice"
                 },
                 "A58": {
                   "v": "57",
-                  "t": "s"
+                  "t": "s",
+                  "w": "57"
                 },
                 "B58": {
                   "v": "1984",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1984"
                 },
                 "C58": {
                   "v": "49",
-                  "t": "s"
+                  "t": "s",
+                  "w": "49"
                 },
                 "D58": {
                   "v": "Shirley MacLaine",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Shirley MacLaine"
                 },
                 "E58": {
                   "v": "Terms of Endearment\t",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Terms of Endearment\t"
                 },
                 "A59": {
                   "v": "58",
-                  "t": "s"
+                  "t": "s",
+                  "w": "58"
                 },
                 "B59": {
                   "v": "1985",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1985"
                 },
                 "C59": {
                   "v": "38",
-                  "t": "s"
+                  "t": "s",
+                  "w": "38"
                 },
                 "D59": {
                   "v": "Sally Field",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Sally Field"
                 },
                 "E59": {
                   "v": "Places in the Heart",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Places in the Heart"
                 },
                 "A60": {
                   "v": "59",
-                  "t": "s"
+                  "t": "s",
+                  "w": "59"
                 },
                 "B60": {
                   "v": "1986",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1986"
                 },
                 "C60": {
                   "v": "61",
-                  "t": "s"
+                  "t": "s",
+                  "w": "61"
                 },
                 "D60": {
                   "v": "Geraldine Page",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Geraldine Page"
                 },
                 "E60": {
                   "v": "The Trip to Bountiful\t",
-                  "t": "s"
+                  "t": "s",
+                  "w": "The Trip to Bountiful\t"
                 },
                 "A61": {
                   "v": "60",
-                  "t": "s"
+                  "t": "s",
+                  "w": "60"
                 },
                 "B61": {
                   "v": "1987",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1987"
                 },
                 "C61": {
                   "v": "21",
-                  "t": "s"
+                  "t": "s",
+                  "w": "21"
                 },
                 "D61": {
                   "v": "Marlee Matlin",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Marlee Matlin"
                 },
                 "E61": {
                   "v": "Children of a Lesser God",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Children of a Lesser God"
                 },
                 "A62": {
                   "v": "61",
-                  "t": "s"
+                  "t": "s",
+                  "w": "61"
                 },
                 "B62": {
                   "v": "1988",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1988"
                 },
                 "C62": {
                   "v": "41",
-                  "t": "s"
+                  "t": "s",
+                  "w": "41"
                 },
                 "D62": {
                   "v": "Cher",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Cher"
                 },
                 "E62": {
                   "v": "Moonstruck",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Moonstruck"
                 },
                 "A63": {
                   "v": "62",
-                  "t": "s"
+                  "t": "s",
+                  "w": "62"
                 },
                 "B63": {
                   "v": "1989",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1989"
                 },
                 "C63": {
                   "v": "26",
-                  "t": "s"
+                  "t": "s",
+                  "w": "26"
                 },
                 "D63": {
                   "v": "Jodie Foster",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Jodie Foster"
                 },
                 "E63": {
                   "v": "The Accused",
-                  "t": "s"
+                  "t": "s",
+                  "w": "The Accused"
                 },
                 "A64": {
                   "v": "63",
-                  "t": "s"
+                  "t": "s",
+                  "w": "63"
                 },
                 "B64": {
                   "v": "1990",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1990"
                 },
                 "C64": {
                   "v": "80",
-                  "t": "s"
+                  "t": "s",
+                  "w": "80"
                 },
                 "D64": {
                   "v": "Jessica Tandy",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Jessica Tandy"
                 },
                 "E64": {
                   "v": "Driving Miss Daisy",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Driving Miss Daisy"
                 },
                 "A65": {
                   "v": "64",
-                  "t": "s"
+                  "t": "s",
+                  "w": "64"
                 },
                 "B65": {
                   "v": "1991",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1991"
                 },
                 "C65": {
                   "v": "42",
-                  "t": "s"
+                  "t": "s",
+                  "w": "42"
                 },
                 "D65": {
                   "v": "Kathy Bates",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Kathy Bates"
                 },
                 "E65": {
                   "v": "Misery",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Misery"
                 },
                 "A66": {
                   "v": "65",
-                  "t": "s"
+                  "t": "s",
+                  "w": "65"
                 },
                 "B66": {
                   "v": "1992",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1992"
                 },
                 "C66": {
                   "v": "29",
-                  "t": "s"
+                  "t": "s",
+                  "w": "29"
                 },
                 "D66": {
                   "v": "Jodie Foster",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Jodie Foster"
                 },
                 "E66": {
                   "v": "The Silence of the Lambs",
-                  "t": "s"
+                  "t": "s",
+                  "w": "The Silence of the Lambs"
                 },
                 "A67": {
                   "v": "66",
-                  "t": "s"
+                  "t": "s",
+                  "w": "66"
                 },
                 "B67": {
                   "v": "1993",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1993"
                 },
                 "C67": {
                   "v": "33",
-                  "t": "s"
+                  "t": "s",
+                  "w": "33"
                 },
                 "D67": {
                   "v": "Emma Thompson",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Emma Thompson"
                 },
                 "E67": {
                   "v": "Howards End",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Howards End"
                 },
                 "A68": {
                   "v": "67",
-                  "t": "s"
+                  "t": "s",
+                  "w": "67"
                 },
                 "B68": {
                   "v": "1994",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1994"
                 },
                 "C68": {
                   "v": "36",
-                  "t": "s"
+                  "t": "s",
+                  "w": "36"
                 },
                 "D68": {
                   "v": "Holly Hunter",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Holly Hunter"
                 },
                 "E68": {
                   "v": "The Piano",
-                  "t": "s"
+                  "t": "s",
+                  "w": "The Piano"
                 },
                 "A69": {
                   "v": "68",
-                  "t": "s"
+                  "t": "s",
+                  "w": "68"
                 },
                 "B69": {
                   "v": "1995",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1995"
                 },
                 "C69": {
                   "v": "45",
-                  "t": "s"
+                  "t": "s",
+                  "w": "45"
                 },
                 "D69": {
                   "v": "Jessica Lange",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Jessica Lange"
                 },
                 "E69": {
                   "v": "Blue Sky",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Blue Sky"
                 },
                 "A70": {
                   "v": "69",
-                  "t": "s"
+                  "t": "s",
+                  "w": "69"
                 },
                 "B70": {
                   "v": "1996",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1996"
                 },
                 "C70": {
                   "v": "49",
-                  "t": "s"
+                  "t": "s",
+                  "w": "49"
                 },
                 "D70": {
                   "v": "Susan Sarandon",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Susan Sarandon"
                 },
                 "E70": {
                   "v": "Dead Man Walking",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Dead Man Walking"
                 },
                 "A71": {
                   "v": "70",
-                  "t": "s"
+                  "t": "s",
+                  "w": "70"
                 },
                 "B71": {
                   "v": "1997",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1997"
                 },
                 "C71": {
                   "v": "39",
-                  "t": "s"
+                  "t": "s",
+                  "w": "39"
                 },
                 "D71": {
                   "v": "Frances McDormand",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Frances McDormand"
                 },
                 "E71": {
                   "v": "Fargo",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Fargo"
                 },
                 "A72": {
                   "v": "71",
-                  "t": "s"
+                  "t": "s",
+                  "w": "71"
                 },
                 "B72": {
                   "v": "1998",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1998"
                 },
                 "C72": {
                   "v": "34",
-                  "t": "s"
+                  "t": "s",
+                  "w": "34"
                 },
                 "D72": {
                   "v": "Helen Hunt",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Helen Hunt"
                 },
                 "E72": {
                   "v": "As Good as It Gets",
-                  "t": "s"
+                  "t": "s",
+                  "w": "As Good as It Gets"
                 },
                 "A73": {
                   "v": "72",
-                  "t": "s"
+                  "t": "s",
+                  "w": "72"
                 },
                 "B73": {
                   "v": "1999",
-                  "t": "s"
+                  "t": "s",
+                  "w": "1999"
                 },
                 "C73": {
                   "v": "26",
-                  "t": "s"
+                  "t": "s",
+                  "w": "26"
                 },
                 "D73": {
                   "v": "Gwyneth Paltrow",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Gwyneth Paltrow"
                 },
                 "E73": {
                   "v": "Shakespeare in Love",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Shakespeare in Love"
                 },
                 "A74": {
                   "v": "73",
-                  "t": "s"
+                  "t": "s",
+                  "w": "73"
                 },
                 "B74": {
                   "v": "2000",
-                  "t": "s"
+                  "t": "s",
+                  "w": "2000"
                 },
                 "C74": {
                   "v": "25",
-                  "t": "s"
+                  "t": "s",
+                  "w": "25"
                 },
                 "D74": {
                   "v": "Hilary Swank",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Hilary Swank"
                 },
                 "E74": {
                   "v": "Boys Don't Cry",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Boys Don't Cry"
                 },
                 "A75": {
                   "v": "74",
-                  "t": "s"
+                  "t": "s",
+                  "w": "74"
                 },
                 "B75": {
                   "v": "2001",
-                  "t": "s"
+                  "t": "s",
+                  "w": "2001"
                 },
                 "C75": {
                   "v": "33",
-                  "t": "s"
+                  "t": "s",
+                  "w": "33"
                 },
                 "D75": {
                   "v": "Julia Roberts",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Julia Roberts"
                 },
                 "E75": {
                   "v": "Erin Brockovich",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Erin Brockovich"
                 },
                 "A76": {
                   "v": "75",
-                  "t": "s"
+                  "t": "s",
+                  "w": "75"
                 },
                 "B76": {
                   "v": "2002",
-                  "t": "s"
+                  "t": "s",
+                  "w": "2002"
                 },
                 "C76": {
                   "v": "35",
-                  "t": "s"
+                  "t": "s",
+                  "w": "35"
                 },
                 "D76": {
                   "v": "Halle Berry",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Halle Berry"
                 },
                 "E76": {
                   "v": "Monster's Ball",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Monster's Ball"
                 },
                 "A77": {
                   "v": "76",
-                  "t": "s"
+                  "t": "s",
+                  "w": "76"
                 },
                 "B77": {
                   "v": "2003",
-                  "t": "s"
+                  "t": "s",
+                  "w": "2003"
                 },
                 "C77": {
                   "v": "35",
-                  "t": "s"
+                  "t": "s",
+                  "w": "35"
                 },
                 "D77": {
                   "v": "Nicole Kidman",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Nicole Kidman"
                 },
                 "E77": {
                   "v": "The Hours",
-                  "t": "s"
+                  "t": "s",
+                  "w": "The Hours"
                 },
                 "A78": {
                   "v": "77",
-                  "t": "s"
+                  "t": "s",
+                  "w": "77"
                 },
                 "B78": {
                   "v": "2004",
-                  "t": "s"
+                  "t": "s",
+                  "w": "2004"
                 },
                 "C78": {
                   "v": "28",
-                  "t": "s"
+                  "t": "s",
+                  "w": "28"
                 },
                 "D78": {
                   "v": "Charlize Theron",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Charlize Theron"
                 },
                 "E78": {
                   "v": "Monster",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Monster"
                 },
                 "A79": {
                   "v": "78",
-                  "t": "s"
+                  "t": "s",
+                  "w": "78"
                 },
                 "B79": {
                   "v": "2005",
-                  "t": "s"
+                  "t": "s",
+                  "w": "2005"
                 },
                 "C79": {
                   "v": "30",
-                  "t": "s"
+                  "t": "s",
+                  "w": "30"
                 },
                 "D79": {
                   "v": "Hilary Swank",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Hilary Swank"
                 },
                 "E79": {
                   "v": "Million Dollar Baby",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Million Dollar Baby"
                 },
                 "A80": {
                   "v": "79",
-                  "t": "s"
+                  "t": "s",
+                  "w": "79"
                 },
                 "B80": {
                   "v": "2006",
-                  "t": "s"
+                  "t": "s",
+                  "w": "2006"
                 },
                 "C80": {
                   "v": "29",
-                  "t": "s"
+                  "t": "s",
+                  "w": "29"
                 },
                 "D80": {
                   "v": "Reese Witherspoon",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Reese Witherspoon"
                 },
                 "E80": {
                   "v": "Walk the Line",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Walk the Line"
                 },
                 "A81": {
                   "v": "80",
-                  "t": "s"
+                  "t": "s",
+                  "w": "80"
                 },
                 "B81": {
                   "v": "2007",
-                  "t": "s"
+                  "t": "s",
+                  "w": "2007"
                 },
                 "C81": {
                   "v": "61",
-                  "t": "s"
+                  "t": "s",
+                  "w": "61"
                 },
                 "D81": {
                   "v": "Helen Mirren",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Helen Mirren"
                 },
                 "E81": {
                   "v": "The Queen",
-                  "t": "s"
+                  "t": "s",
+                  "w": "The Queen"
                 },
                 "A82": {
                   "v": "81",
-                  "t": "s"
+                  "t": "s",
+                  "w": "81"
                 },
                 "B82": {
                   "v": "2008",
-                  "t": "s"
+                  "t": "s",
+                  "w": "2008"
                 },
                 "C82": {
                   "v": "32",
-                  "t": "s"
+                  "t": "s",
+                  "w": "32"
                 },
                 "D82": {
                   "v": "Marion Cotillard",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Marion Cotillard"
                 },
                 "E82": {
                   "v": "La Vie en rose",
-                  "t": "s"
+                  "t": "s",
+                  "w": "La Vie en rose"
                 },
                 "A83": {
                   "v": "82",
-                  "t": "s"
+                  "t": "s",
+                  "w": "82"
                 },
                 "B83": {
                   "v": "2009",
-                  "t": "s"
+                  "t": "s",
+                  "w": "2009"
                 },
                 "C83": {
                   "v": "33",
-                  "t": "s"
+                  "t": "s",
+                  "w": "33"
                 },
                 "D83": {
                   "v": "Kate Winslet",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Kate Winslet"
                 },
                 "E83": {
                   "v": "The Reader",
-                  "t": "s"
+                  "t": "s",
+                  "w": "The Reader"
                 },
                 "A84": {
                   "v": "83",
-                  "t": "s"
+                  "t": "s",
+                  "w": "83"
                 },
                 "B84": {
                   "v": "2010",
-                  "t": "s"
+                  "t": "s",
+                  "w": "2010"
                 },
                 "C84": {
                   "v": "45",
-                  "t": "s"
+                  "t": "s",
+                  "w": "45"
                 },
                 "D84": {
                   "v": "Sandra Bullock",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Sandra Bullock"
                 },
                 "E84": {
                   "v": "The Blind Side",
-                  "t": "s"
+                  "t": "s",
+                  "w": "The Blind Side"
                 },
                 "A85": {
                   "v": "84",
-                  "t": "s"
+                  "t": "s",
+                  "w": "84"
                 },
                 "B85": {
                   "v": "2011",
-                  "t": "s"
+                  "t": "s",
+                  "w": "2011"
                 },
                 "C85": {
                   "v": "29",
-                  "t": "s"
+                  "t": "s",
+                  "w": "29"
                 },
                 "D85": {
                   "v": "Natalie Portman",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Natalie Portman"
                 },
                 "E85": {
                   "v": "Black Swan",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Black Swan"
                 },
                 "A86": {
                   "v": "85",
-                  "t": "s"
+                  "t": "s",
+                  "w": "85"
                 },
                 "B86": {
                   "v": "2012",
-                  "t": "s"
+                  "t": "s",
+                  "w": "2012"
                 },
                 "C86": {
                   "v": "62",
-                  "t": "s"
+                  "t": "s",
+                  "w": "62"
                 },
                 "D86": {
                   "v": "Meryl Streep",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Meryl Streep"
                 },
                 "E86": {
                   "v": "The Iron Lady",
-                  "t": "s"
+                  "t": "s",
+                  "w": "The Iron Lady"
                 },
                 "A87": {
                   "v": "86",
-                  "t": "s"
+                  "t": "s",
+                  "w": "86"
                 },
                 "B87": {
                   "v": "2013",
-                  "t": "s"
+                  "t": "s",
+                  "w": "2013"
                 },
                 "C87": {
                   "v": "22",
-                  "t": "s"
+                  "t": "s",
+                  "w": "22"
                 },
                 "D87": {
                   "v": "Jennifer Lawrence",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Jennifer Lawrence"
                 },
                 "E87": {
                   "v": "Silver Linings Playbook",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Silver Linings Playbook"
                 },
                 "A88": {
                   "v": "87",
-                  "t": "s"
+                  "t": "s",
+                  "w": "87"
                 },
                 "B88": {
                   "v": "2014",
-                  "t": "s"
+                  "t": "s",
+                  "w": "2014"
                 },
                 "C88": {
                   "v": "44",
-                  "t": "s"
+                  "t": "s",
+                  "w": "44"
                 },
                 "D88": {
                   "v": "Cate Blanchett",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Cate Blanchett"
                 },
                 "E88": {
                   "v": "Blue Jasmine",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Blue Jasmine"
                 },
                 "A89": {
                   "v": "88",
-                  "t": "s"
+                  "t": "s",
+                  "w": "88"
                 },
                 "B89": {
                   "v": "2015",
-                  "t": "s"
+                  "t": "s",
+                  "w": "2015"
                 },
                 "C89": {
                   "v": "54",
-                  "t": "s"
+                  "t": "s",
+                  "w": "54"
                 },
                 "D89": {
                   "v": "Julianne Moore",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Julianne Moore"
                 },
                 "E89": {
                   "v": "Still Alice",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Still Alice"
                 },
                 "A90": {
                   "v": "89",
-                  "t": "s"
+                  "t": "s",
+                  "w": "89"
                 },
                 "B90": {
                   "v": "2016",
-                  "t": "s"
+                  "t": "s",
+                  "w": "2016"
                 },
                 "C90": {
                   "v": "26",
-                  "t": "s"
+                  "t": "s",
+                  "w": "26"
                 },
                 "D90": {
                   "v": "Brie Larson",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Brie Larson"
                 },
                 "E90": {
                   "v": "Room",
-                  "t": "s"
+                  "t": "s",
+                  "w": "Room"
                 },
                 "!ref": "A1:E90"
               }
@@ -4622,7 +5047,7 @@
         {
           "socketType": "in",
           "name": "Meta",
-          "dataType": "{\"class\":\"JSONType\",\"type\":{}}",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
           "data": {},
           "visible": false
         },
@@ -4640,6 +5065,139 @@
         }
       ],
       "updateBehaviour": {
+        "load": false,
+        "update": true,
+        "interval": false,
+        "intervalFrequency": 1000
+      }
+    },
+    {
+      "id": "spotty-earwig-69",
+      "name": "Multiply (*)",
+      "type": "Multiply",
+      "x": -1137.5495558979846,
+      "y": 1495.616299918158,
+      "width": 160,
+      "height": 112,
+      "socketArray": [
+        {
+          "socketType": "in",
+          "name": "Meta",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "data": {},
+          "visible": false
+        },
+        {
+          "socketType": "in",
+          "name": "Result",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
+          "defaultData": 0,
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Divided",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
+          "defaultData": 0,
+          "visible": true
+        },
+        {
+          "socketType": "out",
+          "name": "Multiplied",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
+          "visible": true
+        }
+      ],
+      "updateBehaviour": {
+        "load": false,
+        "update": true,
+        "interval": false,
+        "intervalFrequency": 1000
+      }
+    },
+    {
+      "id": "tasty-firefox-90",
+      "name": "Divide (/)",
+      "type": "Divide",
+      "x": -1484.8695517649535,
+      "y": 1460.3096753268005,
+      "width": 160,
+      "height": 112,
+      "socketArray": [
+        {
+          "socketType": "in",
+          "name": "Number 1",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
+          "defaultData": 0,
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Number 2",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
+          "defaultData": 1,
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Meta",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "data": {},
+          "visible": false
+        },
+        {
+          "socketType": "out",
+          "name": "Divided",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
+          "visible": true
+        }
+      ],
+      "updateBehaviour": {
+        "load": false,
+        "update": true,
+        "interval": false,
+        "intervalFrequency": 1000
+      }
+    },
+    {
+      "id": "sour-cougar-93",
+      "name": "Divide (/)",
+      "type": "Divide",
+      "x": -1484.8695517649535,
+      "y": 1588.2035377792586,
+      "width": 160,
+      "height": 112,
+      "socketArray": [
+        {
+          "socketType": "in",
+          "name": "Number 1",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
+          "defaultData": 664,
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Number 2",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
+          "defaultData": 32,
+          "visible": true
+        },
+        {
+          "socketType": "in",
+          "name": "Meta",
+          "dataType": "{\"class\":\"JSONType\",\"type\":{\"strictParsing\":false}}",
+          "data": {},
+          "visible": false
+        },
+        {
+          "socketType": "out",
+          "name": "Divided",
+          "dataType": "{\"class\":\"NumberType\",\"type\":{\"round\":false,\"minValue\":0,\"maxValue\":100,\"stepSize\":0.01}}",
+          "visible": true
+        }
+      ],
+      "updateBehaviour": {
+        "load": false,
         "update": true,
         "interval": false,
         "intervalFrequency": 1000
@@ -4648,284 +5206,287 @@
   ],
   "links": [
     {
-      "id": "b3c7633a-7bb9-4b12-855b-ddc9e3676297",
+      "id": "f04e248d-8541-4823-8450-778610f904cb",
       "sourceNodeId": "old-fireant-57",
       "sourceSocketName": "Output",
       "targetNodeId": "spicy-moose-59",
       "targetSocketName": "count"
     },
     {
-      "id": "7d15ff92-b8e5-487f-9654-c12cd5a7af98",
+      "id": "8618f60e-1560-4c64-b339-d15e1f3cafd5",
       "sourceNodeId": "massive-deer-31",
       "sourceSocketName": "Out",
       "targetNodeId": "old-fireant-57",
       "targetSocketName": "Input"
     },
     {
-      "id": "29ecee5e-3255-4078-b105-de7500ae7267",
-      "sourceNodeId": "great-badger-6",
-      "sourceSocketName": "Result",
+      "id": "ff1c3b8d-6299-4ef5-abc5-27f130f125cd",
+      "sourceNodeId": "spotty-earwig-69",
+      "sourceSocketName": "Multiplied",
       "targetNodeId": "blue-ladybug-41",
       "targetSocketName": "count"
     },
     {
-      "id": "88b13a30-9f07-4864-bbd9-27348ce82220",
+      "id": "4a453034-c8fe-46e0-bb0c-8a6be5e1e5f6",
       "sourceNodeId": "spicy-moose-59",
       "sourceSocketName": "color-array",
       "targetNodeId": "sharp-stingray-42",
       "targetSocketName": "ArrayIn"
     },
     {
-      "id": "42745345-2b3f-4c54-a607-b3e8fb89dbc1",
+      "id": "c2b16677-205e-4e1b-a73b-463939ffe9a2",
       "sourceNodeId": "old-falcon-50",
       "sourceSocketName": "OutData",
       "targetNodeId": "nasty-ladybug-80",
       "targetSocketName": "ArrayIn"
     },
     {
-      "id": "3699ad94-f66e-4461-9750-c34e2edd64df",
+      "id": "46197557-f0d0-4432-9aa0-671eefca2e18",
       "sourceNodeId": "old-falcon-50",
       "sourceSocketName": "OutData",
       "targetNodeId": "horrible-skunk-39",
       "targetSocketName": "ArrayIn"
     },
     {
-      "id": "8f3ac166-8299-470c-bf8a-6ed49adb026d",
+      "id": "d746ad4b-b69c-4a7d-b38f-81d22cacd80f",
       "sourceNodeId": "white-catfish-6",
       "sourceSocketName": "OutData",
       "targetNodeId": "odd-bullfrog-9",
       "targetSocketName": "ArrayIn"
     },
     {
-      "id": "c09e8090-2a81-43ea-aa7f-864b92cdfda1",
+      "id": "7a99c291-dc1f-4523-8f37-e9f57e834d18",
       "sourceNodeId": "blue-ladybug-41",
       "sourceSocketName": "color-array",
       "targetNodeId": "mighty-wasp-43",
       "targetSocketName": "ArrayIn"
     },
     {
-      "id": "3b828e64-1af5-40fc-ba01-eb8d0fb9a37f",
+      "id": "6c38d87a-50d5-497d-b0af-d37e3df1095e",
       "sourceNodeId": "massive-deer-31",
       "sourceSocketName": "Out",
       "targetNodeId": "silent-wasp-52",
       "targetSocketName": "Input 1"
     },
     {
-      "id": "8fb3b737-ff0e-42df-bf8c-64a42fb8d6d8",
+      "id": "d180e1ad-edf2-4b78-a8a1-e1c0594fef2b",
       "sourceNodeId": "tender-stingray-81",
       "sourceSocketName": "Output",
       "targetNodeId": "empty-hound-87",
       "targetSocketName": "Input 1"
     },
     {
-      "id": "975a34a9-805a-4351-8c45-523e31328c3b",
+      "id": "714f901e-81af-4550-b3c4-578ef3d611f8",
       "sourceNodeId": "tricky-eagle-15",
       "sourceSocketName": "Output",
       "targetNodeId": "empty-hound-87",
       "targetSocketName": "Input 2"
     },
     {
-      "id": "a270ca7b-885e-4d78-90cf-bf18b3e4b318",
-      "sourceNodeId": "fuzzy-dodo-45",
-      "sourceSocketName": "Result",
+      "id": "048d372a-8ebd-4d7e-8e42-9a1e895ac10e",
+      "sourceNodeId": "tasty-firefox-90",
+      "sourceSocketName": "Divided",
       "targetNodeId": "tender-stingray-81",
       "targetSocketName": "Input"
     },
     {
-      "id": "8707fda8-9e79-4269-b444-7d34062441f9",
-      "sourceNodeId": "quick-turtle-10",
-      "sourceSocketName": "Result",
+      "id": "daca0efa-b424-487a-8077-2c36d39e1108",
+      "sourceNodeId": "sour-cougar-93",
+      "sourceSocketName": "Divided",
       "targetNodeId": "tricky-eagle-15",
       "targetSocketName": "Input"
     },
     {
-      "id": "c049999f-aa15-4de8-984f-0b04ba9846f6",
+      "id": "2405b294-5a4e-4865-8404-138b5b1b9558",
       "sourceNodeId": "sharp-stingray-42",
       "sourceSocketName": "Out",
       "targetNodeId": "ancient-panther-61",
       "targetSocketName": "Injected Data"
     },
     {
-      "id": "ccabd7a1-c954-4f67-bb18-7c3d92d30bf3",
+      "id": "e451ced7-f1d0-407d-9bba-c8c351d1a659",
       "sourceNodeId": "ancient-panther-61",
       "sourceSocketName": "Graphics",
       "targetNodeId": "wet-panda-73",
       "targetSocketName": "Graphics"
     },
     {
-      "id": "19fbc093-d625-4980-a2ac-f46e51ee0e60",
+      "id": "94f92cf0-e347-4ea8-932a-4ce534a3b1bd",
       "sourceNodeId": "old-fireant-57",
       "sourceSocketName": "Output",
       "targetNodeId": "wet-panda-73",
       "targetSocketName": "Total Number"
     },
     {
-      "id": "21bc5740-ce41-43e3-a2e2-1890e4430e12",
+      "id": "20d17f1a-7e1d-4168-8c3a-cc2eeae9a192",
       "sourceNodeId": "massive-deer-31",
       "sourceSocketName": "Out",
       "targetNodeId": "wet-panda-73",
       "targetSocketName": "Number Per Column/Row"
     },
     {
-      "id": "f63918c7-a501-461d-afdd-b58ff2a4c3d7",
+      "id": "8074d5da-1f9d-46ef-8d09-6e2ef8e4e1be",
       "sourceNodeId": "nasty-ladybug-80",
       "sourceSocketName": "Out",
       "targetNodeId": "fast-fox-82",
       "targetSocketName": "Injected Data"
     },
     {
-      "id": "2ebf071e-904d-4f52-a870-1f7a3bf1b0e5",
+      "id": "49577e25-6d4e-430a-80d3-dc07808c41cf",
       "sourceNodeId": "odd-bullfrog-9",
       "sourceSocketName": "Out",
       "targetNodeId": "stale-donkey-21",
       "targetSocketName": "Injected Data"
     },
     {
-      "id": "01a2f98d-b3e2-4747-8d18-57e129b18291",
+      "id": "8a73813c-96df-49f8-94fe-7d1a6621f74b",
       "sourceNodeId": "horrible-skunk-39",
       "sourceSocketName": "Out",
       "targetNodeId": "thin-eel-19",
       "targetSocketName": "Injected Data"
     },
     {
-      "id": "0460d86d-5eff-4fa0-8f0f-f378ac1d0380",
+      "id": "0fabb10c-fbd4-4402-a859-1e060779e5d7",
       "sourceNodeId": "fast-fox-82",
       "sourceSocketName": "Graphics",
       "targetNodeId": "soft-mule-83",
       "targetSocketName": "Foreground"
     },
     {
-      "id": "2609fd6b-206a-45b9-89ba-33ee5964904a",
+      "id": "669cfc1c-3952-4d48-a9e6-7ccb6ad9e142",
       "sourceNodeId": "stale-donkey-21",
       "sourceSocketName": "Graphics",
       "targetNodeId": "soft-mule-83",
       "targetSocketName": "Background"
     },
     {
-      "id": "92887fa0-1f34-47e0-9cb6-0e79cf89b6ce",
+      "id": "89d60aa8-d2c3-4473-bf99-1bc04107b292",
       "sourceNodeId": "soft-mule-83",
       "sourceSocketName": "Graphics",
       "targetNodeId": "rude-rat-33",
       "targetSocketName": "Foreground"
     },
     {
-      "id": "caa1e7d1-aea0-405b-b9aa-2671e2f11dde",
+      "id": "d7909dff-a6b3-4c97-99b3-33ce1b27e4e4",
       "sourceNodeId": "thin-eel-19",
       "sourceSocketName": "Graphics",
       "targetNodeId": "rude-rat-33",
       "targetSocketName": "Background"
     },
     {
-      "id": "33d8534f-f33e-41ac-9531-7d9c7abef9dd",
+      "id": "ed6a6fd7-096d-40c3-ab88-ddcaf8ca2c25",
       "sourceNodeId": "rude-rat-33",
       "sourceSocketName": "Graphics",
       "targetNodeId": "spotty-penguin-48",
       "targetSocketName": "Graphics"
     },
     {
-      "id": "2f35d6fa-ba49-4480-a900-23049d257c24",
+      "id": "7b3a4da6-dfaf-406b-8f94-d3b329b58b19",
       "sourceNodeId": "proud-dingo-13",
       "sourceSocketName": "Length",
       "targetNodeId": "spotty-penguin-48",
       "targetSocketName": "Total Number"
     },
     {
-      "id": "ada51382-fbad-4712-8c03-290e462ad655",
+      "id": "d5f9b972-6116-4ba3-8509-c66d06778d3f",
       "sourceNodeId": "proud-dingo-13",
       "sourceSocketName": "Length",
       "targetNodeId": "spotty-penguin-48",
       "targetSocketName": "Number Per Column/Row"
     },
     {
-      "id": "2d3d9b96-7a05-473a-9d62-aa7eed5c1e59",
+      "id": "691f61c0-c76a-4b05-a643-4a38ff82d6b2",
       "sourceNodeId": "dull-fly-8",
       "sourceSocketName": "Array of arrays",
       "targetNodeId": "white-catfish-6",
       "targetSocketName": "ArrayOfArraysIn"
     },
     {
-      "id": "c8715931-d415-4583-af88-f75752b91e2e",
+      "id": "14a0103d-7140-4b7c-b9d6-e20e2a089da1",
       "sourceNodeId": "dull-fly-8",
       "sourceSocketName": "Array of arrays",
       "targetNodeId": "old-falcon-50",
       "targetSocketName": "ArrayOfArraysIn"
     },
     {
-      "id": "b13766eb-da0c-47c6-81db-49f6de87e4fb",
+      "id": "c7a2ea2c-e98c-4056-a62c-1ed29b919b69",
       "sourceNodeId": "white-catfish-6",
       "sourceSocketName": "OutData",
       "targetNodeId": "proud-dingo-13",
       "targetSocketName": "ArrayIn"
     },
     {
-      "id": "df78da68-37bc-48f4-ae4a-340d79f2a20f",
+      "id": "5531a39e-c2cb-4926-8e00-5d7622801132",
       "sourceNodeId": "mighty-wasp-43",
       "sourceSocketName": "Out",
       "targetNodeId": "shaggy-chicken-45",
       "targetSocketName": "Injected Data"
     },
     {
-      "id": "5fa3db54-7cd4-45aa-a71c-f8cddc5228f3",
+      "id": "5b999d85-f86f-48d6-ba6c-6d16b3ba942c",
       "sourceNodeId": "shaggy-chicken-45",
       "sourceSocketName": "Graphics",
       "targetNodeId": "blue-cougar-38",
       "targetSocketName": "Graphics"
     },
     {
-      "id": "ed18ae11-ac19-43ba-89b6-9fc90e5aee71",
-      "sourceNodeId": "great-badger-6",
-      "sourceSocketName": "Result",
+      "id": "cb903d93-2c84-427e-9d80-8686f241ac24",
+      "sourceNodeId": "spotty-earwig-69",
+      "sourceSocketName": "Multiplied",
       "targetNodeId": "blue-cougar-38",
       "targetSocketName": "Total Number"
     },
     {
-      "id": "e2a938a1-c743-409f-b59c-cdb02de7b3ef",
+      "id": "f89b83b1-a50f-4107-ab16-3ed9669fb26f",
       "sourceNodeId": "tricky-eagle-15",
       "sourceSocketName": "Output",
       "targetNodeId": "blue-cougar-38",
       "targetSocketName": "Number Per Column/Row"
     },
     {
-      "id": "4322bd3a-4d0f-40f7-ae0e-786b89aca76e",
+      "id": "ef70aa92-ea75-4d24-a9f8-4c2f46d91656",
+      "sourceNodeId": "tasty-firefox-90",
+      "sourceSocketName": "Divided",
+      "targetNodeId": "spotty-earwig-69",
+      "targetSocketName": "Result"
+    },
+    {
+      "id": "56133895-1020-484f-81b5-dba1c62c1c3a",
+      "sourceNodeId": "sour-cougar-93",
+      "sourceSocketName": "Divided",
+      "targetNodeId": "spotty-earwig-69",
+      "targetSocketName": "Divided"
+    },
+    {
+      "id": "879d9424-cbda-4883-a572-b94a2121809e",
       "sourceNodeId": "friendly-shrimp-27",
       "sourceSocketName": "screen-x",
-      "targetNodeId": "fuzzy-dodo-45",
-      "targetSocketName": "Input1"
+      "targetNodeId": "tasty-firefox-90",
+      "targetSocketName": "Number 1"
     },
     {
-      "id": "015cdce4-718b-4df7-aab3-bf1744cc4c26",
+      "id": "5ed88411-446f-4b7c-bce6-2607f863c844",
       "sourceNodeId": "stupid-treefrog-84",
       "sourceSocketName": "Out",
-      "targetNodeId": "fuzzy-dodo-45",
-      "targetSocketName": "Input2"
+      "targetNodeId": "tasty-firefox-90",
+      "targetSocketName": "Number 2"
     },
     {
-      "id": "81b59aaf-3403-4f76-b602-0c998b047572",
+      "id": "facd4ae2-b3a3-4305-b49e-739286d2248a",
       "sourceNodeId": "friendly-shrimp-27",
       "sourceSocketName": "screen-y",
-      "targetNodeId": "quick-turtle-10",
-      "targetSocketName": "Input1"
+      "targetNodeId": "sour-cougar-93",
+      "targetSocketName": "Number 1"
     },
     {
-      "id": "bf74fe1a-7c05-4958-89e8-160bd2dda286",
+      "id": "24bb0d7c-debf-493b-b573-c71f8770133d",
       "sourceNodeId": "stupid-treefrog-84",
       "sourceSocketName": "Out",
-      "targetNodeId": "quick-turtle-10",
-      "targetSocketName": "Input2"
-    },
-    {
-      "id": "3acc9228-fa6a-492d-b048-76a2f3688588",
-      "sourceNodeId": "fuzzy-dodo-45",
-      "sourceSocketName": "Result",
-      "targetNodeId": "great-badger-6",
-      "targetSocketName": "Input1"
-    },
-    {
-      "id": "f9818fa5-253c-4fac-bbd5-084645f6759a",
-      "sourceNodeId": "quick-turtle-10",
-      "sourceSocketName": "Result",
-      "targetNodeId": "great-badger-6",
-      "targetSocketName": "Input2"
+      "targetNodeId": "sour-cougar-93",
+      "targetSocketName": "Number 2"
     }
-  ]
+  ],
+  "layouts": {
+    "default": []
+  }
 }

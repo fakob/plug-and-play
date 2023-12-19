@@ -66,7 +66,7 @@ export abstract class DRAW_Base extends PPNode {
   };
 
   protected getUpdateBehaviour(): UpdateBehaviourClass {
-    return new UpdateBehaviourClass(true, false, false, 1000, this);
+    return new UpdateBehaviourClass(true, true, false, 1000, this);
   }
 
   // you probably want to maintain this output in children
