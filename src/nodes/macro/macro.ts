@@ -226,7 +226,8 @@ export class Macro extends PPNode {
     );
     for (
       let i = 0;
-      nameToUse == 'Macro' || (lastFound !== undefined && lastFound !== this);
+      nameToUse == 'Macro' ||
+      (lastFound !== undefined && lastFound.id !== this.id);
       i++
     ) {
       nameToUse = text + i.toString();
