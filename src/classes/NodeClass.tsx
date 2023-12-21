@@ -169,7 +169,7 @@ export default class PPNode extends PIXI.Container implements IWarningHandler {
     this._addListeners();
     this.resizeAndDraw();
 
-    if (this.updateBehaviour.load) {
+    if (this.updateBehaviour.load || this.updateBehaviour.update) {
       await this.executeOptimizedChain();
     }
   }
