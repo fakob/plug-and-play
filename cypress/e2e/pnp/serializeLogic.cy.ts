@@ -1,4 +1,3 @@
-// TODO implement
 describe('serializeLogic', () => {
 
     let serialized = undefined;

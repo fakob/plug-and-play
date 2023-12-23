@@ -1,0 +1,4 @@
+// TODO implement
+describe('inspectorContainer', () => {
+
+});
