@@ -476,10 +476,8 @@ export default class PPGraph {
       await this.connect(outputRef, inputRef, false);
     } else {
       console.warn(
-        `Link could not be created between ${link.sourceNodeId}/${
-          link.sourceSocketName
-        }${outputRef === undefined ? '-MISSING' : ''} and ${
-          link.targetNodeId
+        `Link could not be created between ${link.sourceNodeId}/${link.sourceSocketName
+        }${outputRef === undefined ? '-MISSING' : ''} and ${link.targetNodeId
         }/${link.targetSocketName}${inputRef === undefined ? '-MISSING' : ''}`,
       );
       InterfaceController.showSnackBar(

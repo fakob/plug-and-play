@@ -80,4 +80,12 @@ export default class TestController {
       node.y + socket.y + socket._SocketRef.y + socket._SocketRef.height / 2,
     ];
   }
+
+  getNodes(): PPNode[] {
+    return Object.values(PPGraph.currentGraph.nodes);
+  }
+
+  getGraph(): PPGraph {
+    return PPGraph.currentGraph;
+  }
 }
