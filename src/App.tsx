@@ -75,6 +75,7 @@ import { ActionHandler } from './utils/actionHandler';
 import InterfaceController, { ListenEvent } from './InterfaceController';
 import PPStorage from './PPStorage';
 import PPSelection from './classes/SelectionClass';
+import TestController from './TestController';
 
 const randomMainColorLightHex = new PIXI.Color(
   Color(RANDOMMAINCOLOR).mix(Color('white'), 0.9).hex(),
@@ -90,6 +91,7 @@ fetch('/listExamples')
   .then((data) => console.log(data))
   .catch((error) => console.error(error));
 
+(window as any).testController = new TestController(); // this is for cypress tests to be able to access everything in here
 const App = (): JSX.Element => {
   console.log('FULL APP REDRAW');
   document.title = 'Your Plug and Playground';
