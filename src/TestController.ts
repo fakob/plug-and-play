@@ -68,13 +68,14 @@ export default class TestController {
   getNodeOutputValue(id: string, outputSocketName: string): any {
     return this.getNodeByID(id).getOutputData(outputSocketName);
   }
-  getSocketByIDandName(id: string, socketName: string, socketType: TSocketType): Socket {
-    const node = this.getNodeByID(id);
-    switch (socketType) {
-      case SOCKET_TYPE.IN: return node.getInputSocketByName(socketName);
-      case SOCKET_TYPE.TRIGGER: return node.getNodeTriggerSocketByName(socketName);
-      case SOCKET_TYPE.OUT: return node.getOutputSocketByName(socketName);
-    }
+  getInputSocketByIDandName(id: string, socketName: string): Socket {
+    return this.getNodeByID(id).getInputSocketByName(socketName);
+  }
+  getTriggerSocketByIDandName(id: string, socketName: string): Socket {
+    return this.getNodeByID(id).getNodeTriggerSocketByName(socketName);
+  }
+  getOutputSocketByIDandName(id: string, socketName: string): Socket {
+    return this.getNodeByID(id).getOutputSocketByName(socketName);
   }
 
   executeNodeByID(id: string) {
