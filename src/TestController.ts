@@ -2,6 +2,9 @@ import PPGraph from './classes/GraphClass';
 import PPLink from './classes/LinkClass';
 import PPNode from './classes/NodeClass';
 import { hri } from 'human-readable-ids';
+import Socket from './classes/SocketClass';
+import { TSocketType } from './utils/interfaces';
+import { SOCKET_TYPE } from './utils/constants';
 
 export default class TestController {
   identify(): string {
@@ -64,6 +67,14 @@ export default class TestController {
   }
   getNodeOutputValue(id: string, outputSocketName: string): any {
     return this.getNodeByID(id).getOutputData(outputSocketName);
+  }
+  getSocketByIDandName(id: string, socketName: string, socketType: TSocketType): Socket {
+    const node = this.getNodeByID(id);
+    switch (socketType) {
+      case SOCKET_TYPE.IN: return node.getInputSocketByName(socketName);
+      case SOCKET_TYPE.TRIGGER: return node.getNodeTriggerSocketByName(socketName);
+      case SOCKET_TYPE.OUT: return node.getOutputSocketByName(socketName);
+    }
   }
 
   executeNodeByID(id: string) {
