@@ -100,4 +100,10 @@ export default class TestController {
   getGraph(): PPGraph {
     return PPGraph.currentGraph;
   }
+
+  selectNodesById(nodeIDs: string[]): PPNode[] {
+    const nodes = nodeIDs.map(id => this.getNodeByID(id));
+    this.getGraph().selection.selectNodes(nodes, false, true);
+    return nodes;
+  }
 }
