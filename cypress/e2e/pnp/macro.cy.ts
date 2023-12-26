@@ -1,6 +1,5 @@
 import { doWithTestController } from "./helpers";
 
-// TODO implement
 describe('macro', () => {
 
     it('Add macro nodes', () => {
