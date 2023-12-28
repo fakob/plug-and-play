@@ -5,6 +5,7 @@ import { hri } from 'human-readable-ids';
 import Socket from './classes/SocketClass';
 import { TSocketType } from './utils/interfaces';
 import { SOCKET_TYPE } from './utils/constants';
+import { getAllNodeTypes } from './nodes/allNodes';
 
 export default class TestController {
   identify(): string {
@@ -97,6 +98,10 @@ export default class TestController {
     return Object.values(PPGraph.currentGraph.nodes);
   }
 
+  getAllDefinedNodeTypes(): string[] {
+    return Object.keys(getAllNodeTypes());
+  }
+
   getGraph(): PPGraph {
     return PPGraph.currentGraph;
   }
@@ -105,5 +110,10 @@ export default class TestController {
     const nodes = nodeIDs.map(id => this.getNodeByID(id));
     this.getGraph().selection.selectNodes(nodes, false, true);
     return nodes;
+  }
+
+  doesNodeHaveError(nodeID: string): boolean {
+    const node = this.getNodeByID(nodeID);
+    return node.status.node.isError() || node.status.socket.isError();
   }
 }

@@ -177,7 +177,7 @@ export class ParseArray extends PPNode {
   protected getDefaultIO(): Socket[] {
     return [
       new Socket(SOCKET_TYPE.IN, arrayName, new ArrayType(), []),
-      new Socket(SOCKET_TYPE.IN, typeName, new NumberType(), []),
+      new Socket(SOCKET_TYPE.IN, typeName, new NumberType(), 1),
       new Socket(SOCKET_TYPE.OUT, arrayOutName, new ArrayType()),
     ];
   }
@@ -212,11 +212,11 @@ export class ConsolePrint extends PPNode {
   }
 
   protected getDefaultIO(): Socket[] {
-    return [new Socket(SOCKET_TYPE.IN, constantInName, new ArrayType(), 0)];
+    return [new Socket(SOCKET_TYPE.IN, constantInName, new StringType(), "Hello from console")];
   }
 
   protected async onExecute(inputObject: any): Promise<void> {
-    console.log(inputObject?.[constantInName]);
+    console.log(inputObject[constantInName]);
   }
 }
 

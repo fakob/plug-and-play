@@ -46,7 +46,7 @@ export default class PPGraph {
   lastSelectedSocketWasInput = false;
   overrideNodeCursorPosition: null | PIXI.Point = null;
   overInputRef: null | PPSocket;
-  pointerEvent: PIXI.FederatedPointerEvent;
+  pointerEvent: PIXI.FederatedPointerEvent = null; // lets try to get rid of this
   dragSourcePoint: PIXI.Point;
 
   backgroundTempContainer: PIXI.Container;

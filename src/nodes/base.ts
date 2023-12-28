@@ -94,8 +94,8 @@ export class Mouse extends PPNode {
 }
 
 export class Keyboard extends PPNode {
-  onKeyDownHandler: (event?: KeyboardEvent) => void = () => {};
-  onKeyUpHandler: (event?: KeyboardEvent) => void = () => {};
+  onKeyDownHandler: (event?: KeyboardEvent) => void = () => { };
+  onKeyUpHandler: (event?: KeyboardEvent) => void = () => { };
   onKeyDown = (event: KeyboardEvent): void => {
     this.setOutputData('key', event.key);
     this.setOutputData('code', event.code);
