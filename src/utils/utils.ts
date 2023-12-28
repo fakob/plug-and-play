@@ -595,19 +595,30 @@ export const removeColumnFromArrayOfArrays = (
   return newArrayOfArrays;
 };
 
+// TODO this function sometimes returns 0,0 (before graph has gotten event), fix this (and function below)
 export function getCurrentCursorPosition(): PIXI.Point {
-  const event = PPGraph.currentGraph.pointerEvent;
-  let pointerPosition: PIXI.Point = JSON.parse(
-    JSON.stringify(new PIXI.Point(event.clientX, event.clientY)),
-  );
-  const viewport = PPGraph.currentGraph.viewport;
+  if (PPGraph.currentGraph.pointerEvent) {
+    const event = PPGraph.currentGraph.pointerEvent;
+    let pointerPosition: PIXI.Point = JSON.parse(
+      JSON.stringify(new PIXI.Point(event.clientX, event.clientY)),
+    );
+    const viewport = PPGraph.currentGraph.viewport;
 
-  pointerPosition = viewport.toWorld(pointerPosition);
-  return pointerPosition;
+    pointerPosition = viewport.toWorld(pointerPosition);
+    return pointerPosition;
+  } else {
+    console.warn("Failed to get cursor event (probably not set yet), returning 0,0");
+    return new PIXI.Point(0, 0);
+  }
 }
 
 export function getCurrentButtons(): number {
-  return PPGraph.currentGraph.pointerEvent.buttons;
+  if (PPGraph.currentGraph.pointerEvent.buttons) {
+    return PPGraph.currentGraph.pointerEvent.buttons;
+  } else {
+    console.warn("Failed to get cursor event (probably not set yet), returning 0");
+    return 0;
+  }
 }
 
 export function sortCompare(a: string, b: string, desc: boolean): number {
@@ -744,15 +755,13 @@ export function getLoadedValue(value, shouldLoadAll) {
 }
 
 export const getExampleURL = (path: string, fileName: string): string => {
-  return `${
-    window.location.origin
-  }/assets/examples/${path}/${encodeURIComponent(fileName)}.ppgraph`;
+  return `${window.location.origin
+    }/assets/examples/${path}/${encodeURIComponent(fileName)}.ppgraph`;
 };
 
 export const getLoadExampleURL = (path: string, fileName: string): string => {
-  const fullPath = `${window.location.origin}${
-    window.location.pathname
-  }?loadURL=${getExampleURL(path, fileName)}`;
+  const fullPath = `${window.location.origin}${window.location.pathname
+    }?loadURL=${getExampleURL(path, fileName)}`;
   return fullPath;
 };
 
@@ -795,9 +804,8 @@ export function useIsSmallScreen(): boolean {
 }
 
 export const wrapDownloadLink = (URL: string, text = '') => {
-  return `<a style="color:#E154BB;text-decoration:none;" href="${URL}" target="_blank">${
-    text || URL
-  }</a>`;
+  return `<a style="color:#E154BB;text-decoration:none;" href="${URL}" target="_blank">${text || URL
+    }</a>`;
 };
 
 export const saveBase64AsImage = async (base64, fileName) => {

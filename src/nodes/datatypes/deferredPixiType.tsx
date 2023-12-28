@@ -24,6 +24,11 @@ export class DeferredPixiType extends FunctionType {
     return 'Deferred Pixi';
   }
 
+  // TODO replace this with something more interesting
+  getDefaultValue(): any {
+    return () => { };
+  }
+
   getComment(commentData: any): string {
     return commentData ? 'Graphics' : 'null';
   }

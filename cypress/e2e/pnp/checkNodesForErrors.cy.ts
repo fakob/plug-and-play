@@ -23,14 +23,14 @@ describe('checkNodesForErrors', () => {
         doWithTestController(testController => {
             cy.wait(1000);
             allNodeTypes.forEach((nodeType, index) => {
-                if (index < 20) {
+                if (index < 65) {
                     cy.log("adding node: " + nodeType);
                     testController.addNode(nodeType, nodeType);
                 }
             });
         });
     });
-    it("check all for errors", () => {
+    it("check all for errors after placement", () => {
         cy.wait(1000);
         doWithTestController(testController => {
             const allNodes = testController.getNodes();
