@@ -3,9 +3,7 @@ import { doWithTestController } from "./helpers";
 describe('macro', () => {
 
     it('Add macro nodes', () => {
-
         cy.visit('http://127.0.0.1:8080/?new=true');
-
         // add the nodes
         cy.wait(100);
         doWithTestController(testController => {
@@ -19,7 +17,6 @@ describe('macro', () => {
 
     it("Connect macro nodes", () => {
         cy.wait(100);
-
         // connect up inside macro
         doWithTestController(testController => {
             testController.moveNodeByID("Add", 200, 100);
