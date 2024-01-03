@@ -42,8 +42,23 @@ describe('connectLogic', () => {
     cy.wait(100);
     doWithTestController(testController => {
       expect(testController.getNodeOutputValue("Add", "Added")).to.eq(10);
-
+      expect(testController.getSocketLinks("Constant", "Out").length).to.eq(1);
     });
+  });
+
+
+  it("disconnect nodes", () => {
+    cy.wait(100);
+    doWithTestController(testController => {
+      testController.disconnectLink("Add", "Out");
+    });
+
+    cy.wait(100);
+    doWithTestController(testController => {
+      expect(testController.getNodeOutputValue("Add", "Added")).to.eq(0);
+      expect(testController.getSocketLinks("Constant", "Out").length).to.eq(0);
+    });
+
   });
 
 });
