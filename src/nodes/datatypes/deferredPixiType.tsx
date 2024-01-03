@@ -24,7 +24,7 @@ export class DeferredPixiType extends FunctionType {
     return 'Deferred Pixi';
   }
 
-  // TODO replace this with something more interesting
+  // TODO replace this with something more interesting (maybe drawing something basic?)
   getDefaultValue(): any {
     return () => { };
   }

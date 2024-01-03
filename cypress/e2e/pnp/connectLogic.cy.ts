@@ -61,5 +61,21 @@ describe('connectLogic', () => {
 
   });
 
+
+  it("delete nodes", () => {
+    cy.wait(100);
+    doWithTestController(testController => {
+      testController.removeNode("Add");
+      testController.removeNode("Subtract");
+      testController.removeNode("Constant");
+    });
+
+    cy.wait(100);
+    doWithTestController(testController => {
+      expect(testController.getNodes().length).to.eq(0);
+    });
+
+  });
+
 });
 

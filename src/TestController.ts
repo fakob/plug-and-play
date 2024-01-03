@@ -59,10 +59,9 @@ export default class TestController {
   async disconnectLink(endNodeID: string, inputSocketName: string): Promise<void> {
     await PPGraph.currentGraph.linkDisconnect(endNodeID, inputSocketName, true);
   }
-  getSocketLinks(nodeID: string, socketName: string) {
+  getSocketLinks(nodeID: string, socketName: string): PPLink[] {
     return this.getNodeByID(nodeID).getSocketByName(socketName).links;
   }
-
 
   getInputSocketLinkNamesForType(nodeType: string, socketName: string) {
     const n = this.getNodeByType(nodeType);
@@ -112,6 +111,10 @@ export default class TestController {
 
   getGraph(): PPGraph {
     return PPGraph.currentGraph;
+  }
+
+  removeNode(nodeID: string): void {
+    PPGraph.currentGraph.removeNode(PPGraph.currentGraph.nodes[nodeID]);
   }
 
   selectNodesById(nodeIDs: string[]): PPNode[] {
