@@ -438,8 +438,7 @@ export default class PPNode extends PIXI.Container implements IWarningHandler {
             item.socketType,
           );
           if (matchingSocket !== undefined) {
-            matchingSocket.dataType = deSerializeType(item.dataType);
-            this.initializeType(item.name, matchingSocket.dataType);
+            //matchingSocket.dataType = deSerializeType(item.dataType); // dont override with base serialized type, it kills dynamic enum type, just keep the old one
             matchingSocket.data = item.data;
             matchingSocket.defaultData = item.defaultData ?? item.data;
             matchingSocket.visible = item.visible;
@@ -865,7 +864,7 @@ export default class PPNode extends PIXI.Container implements IWarningHandler {
   }
 
   drawComment(): void {
-    this._CommentRef.removeChildren();
+    this._CommentRef?.removeChildren();
     if (PPGraph.currentGraph._showComments) {
       let commentData = this.outputSocketArray[0]?.dataType?.getComment(
         this.outputSocketArray[0]?.data,
@@ -1521,9 +1520,6 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   public nodeKeyEvent(e: KeyboardEvent): void {
     // override if you care about this event
   }
-
-  // kinda hacky but some cant easily serialize functions in JS
-  protected initializeType(socketName: string, datatype: any) {}
 
   // these are imported before node is added to the graph
   public getDynamicImports(): string[] {

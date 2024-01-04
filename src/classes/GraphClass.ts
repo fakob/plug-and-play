@@ -54,7 +54,6 @@ export default class PPGraph {
   connectionContainer: PIXI.Container;
   nodeContainer: PIXI.Container;
   nodes: { [key: string]: PPNode } = {};
-  macros: { [key: string]: Macro } = {};
   layouts: ILayouts;
   foregroundCanvas: PIXI.Container;
   id: string;
@@ -476,8 +475,10 @@ export default class PPGraph {
       await this.connect(outputRef, inputRef, false);
     } else {
       console.warn(
-        `Link could not be created between ${link.sourceNodeId}/${link.sourceSocketName
-        }${outputRef === undefined ? '-MISSING' : ''} and ${link.targetNodeId
+        `Link could not be created between ${link.sourceNodeId}/${
+          link.sourceSocketName
+        }${outputRef === undefined ? '-MISSING' : ''} and ${
+          link.targetNodeId
         }/${link.targetSocketName}${inputRef === undefined ? '-MISSING' : ''}`,
       );
       InterfaceController.showSnackBar(
@@ -1206,8 +1207,8 @@ export default class PPGraph {
     ActionHandler.performAction(action, undoAction, 'Delete node(s)');
   }
 
-  getMacroWithName(name: string) {
-    return Object.values(this.macros).find((node) => node.name === name);
+  getMacroWithName(name: string): Macro {
+    return this.macros.find((node) => node.name === name) as Macro;
   }
 
   async invokeMacro(name: string, args: any[]): Promise<any> {
@@ -1220,5 +1221,10 @@ export default class PPGraph {
 
   public sendKeyEvent(e: KeyboardEvent): void {
     Object.values(this.nodes).forEach((node) => node.nodeKeyEvent(e));
+  }
+  get macros(): Macro[] {
+    return Object.values(this.nodes).filter(
+      (node) => node instanceof Macro,
+    ) as Macro[];
   }
 }

@@ -149,14 +149,6 @@ export class JumpToNode extends WidgetButton {
       ),
     ].concat(super.getDefaultIO());
   }
-
-  protected initializeType(socketName: string, datatype: any) {
-    switch (socketName) {
-      case selectNodeName:
-        datatype.getOptions = getNodeArrayOptions;
-        datatype.widgetTrigger = this.onWidgetTrigger;
-    }
-  }
 }
 
 const dataToCopyName = 'Input';

@@ -34,7 +34,7 @@ describe('macro', () => {
             // if this breaks, maybe ID has changed
             cy.get('#drawer-toggle-inspector > .MuiButtonBase-root').click();
             cy.get('.MuiSelect-select').click();
-            cy.get("body").contains("Macro1").click();
+            cy.get("body").contains("Macro0").click();
 
         });
     });

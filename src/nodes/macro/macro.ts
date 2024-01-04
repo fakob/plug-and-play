@@ -30,13 +30,6 @@ export class Macro extends PPNode {
   executingFromOutside = 0;
   textRef: PIXI.Text = undefined;
 
-  constructor(name: string, customArgs: CustomArgs) {
-    super(name, {
-      ...customArgs,
-    });
-    PPGraph.currentGraph.macros[this.id] = this;
-  }
-
   public getName(): string {
     return 'Macro';
   }
@@ -63,11 +56,6 @@ export class Macro extends PPNode {
 
   protected getUpdateBehaviour(): UpdateBehaviourClass {
     return new UpdateBehaviourClass(false, true, false, 1000, this);
-  }
-
-  async onRemoved(): Promise<void> {
-    await super.onRemoved();
-    delete PPGraph.currentGraph.macros[this.id];
   }
 
   getColor(): TRgba {
@@ -311,11 +299,9 @@ function buildDefaultMacroFunction(macroName: string) {
 }
 export class ExecuteMacro extends CustomFunction {
   static getOptions = () =>
-    Object.values(PPGraph.currentGraph.nodes)
-      .filter((node) => node instanceof Macro)
-      .map((node) => {
-        return { text: node.nodeName };
-      });
+    Object.values(PPGraph.currentGraph.macros).map((macro) => {
+      return { text: macro.nodeName };
+    });
 
   public getName(): string {
     return 'Execute Macro';
@@ -343,17 +329,6 @@ export class ExecuteMacro extends CustomFunction {
     return macroColor;
   }
 
-  protected getDefaultParameterTypes(): Record<string, any> {
-    return {
-      MacroName: new DynamicEnumType(ExecuteMacro.getOptions, () =>
-        this.generateUseNewCode(),
-      ),
-    };
-  }
-  protected getDefaultParameterValues(): Record<string, any> {
-    return { MacroName: 'ExampleMacro' };
-  }
-
   protected getDefaultFunction(): string {
     return 'async (MacroName, Parameter) => {\n\
 \treturn await macro(MacroName,Parameter);\
@@ -377,14 +352,6 @@ export class ExecuteMacro extends CustomFunction {
     );
   }
 
-  protected initializeType(socketName: string, datatype: any) {
-    switch (socketName) {
-      case 'MacroName':
-        datatype.getOptions = ExecuteMacro.getOptions;
-        datatype.onChange = this.generateUseNewCode;
-    }
-  }
-
   public isCallingMacro(macroName: string): boolean {
     return (
       super.isCallingMacro(macroName) ||
@@ -405,5 +372,15 @@ export class ExecuteMacro extends CustomFunction {
   }
   protected getOutputCodeVisibleByDefault(): boolean {
     return true;
+  }
+
+  protected getDefaultIO(): Socket[] {
+    return [
+      new Socket(
+        SOCKET_TYPE.IN,
+        'MacroName',
+        new DynamicEnumType(ExecuteMacro.getOptions, this.generateUseNewCode),
+      ),
+    ].concat(super.getDefaultIO());
   }
 }
