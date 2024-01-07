@@ -22,6 +22,8 @@ const buildInfo = {
 };
 
 const app = express();
+app.disable("x-powered-by");
+
 
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
