@@ -169,6 +169,7 @@ const SocketHeader: React.FunctionComponent<SocketHeaderProps> = (props) => {
         </Box>
       ) : (
         <ToggleButton
+          data-cy="socket-visible-button"
           value="check"
           size="small"
           selected={!visible}

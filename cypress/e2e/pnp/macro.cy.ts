@@ -6,7 +6,7 @@ describe('macro', () => {
         doWithTestController(testController => {
             testController.selectNodesById(["ExecuteMacro"]);
             // if this breaks, maybe ID has changed
-            cy.get('#drawer-toggle-inspector > .MuiButtonBase-root').click();
+            cy.get('[data-cy="inspector-container-toggle-button"]').click();
             cy.get('.MuiSelect-select').click();
             cy.get("body").contains("Macro0").click();
 
@@ -67,7 +67,7 @@ describe('macro', () => {
         cy.wait(4000);
         doWithTestController(testController => {
           testController.selectNodesById(["ExecuteMacro"]);
-          cy.get('#drawer-toggle-inspector > .MuiButtonBase-root').click();
+          cy.get('[data-cy="inspector-container-toggle-button"]').click();
           cy.contains("Macro0").click();
           cy.get("body").type("{enter}");
         });

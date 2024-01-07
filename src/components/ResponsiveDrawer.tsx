@@ -18,8 +18,9 @@ function DrawerToggleInspector(props) {
   const smallScreen = useIsSmallScreen();
 
   return (
-    <Box id="drawer-toggle-inspector">
+    <Box id="drawer-toggle-inspector" data-cy="inspector-container">
       <Button
+        data-cy="inspector-container-toggle-button"
         title={`${props.open ? 'Close node inspector' : 'Open node inspector'}`}
         size="small"
         onClick={() => {
