@@ -43,7 +43,8 @@ app.use(express.json()); // needs to be after bodyParser
 
 app.use(cookieParser());
 
-app.use(cors());
+// see if disabling this causes any issues
+//app.use(cors());
 
 app.use(
   session({
