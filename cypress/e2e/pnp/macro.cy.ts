@@ -2,6 +2,17 @@ import { doWithTestController } from "./helpers";
 
 describe('macro', () => {
 
+  const checkDropdownWorks= () => {
+        doWithTestController(testController => {
+            testController.selectNodesById(["ExecuteMacro"]);
+            // if this breaks, maybe ID has changed
+            cy.get('#drawer-toggle-inspector > .MuiButtonBase-root').click();
+            cy.get('.MuiSelect-select').click();
+            cy.get("body").contains("Macro0").click();
+
+        });
+  }
+
     it('Add macro nodes', () => {
         cy.visit('http://127.0.0.1:8080/?new=true');
         // add the nodes
@@ -29,14 +40,7 @@ describe('macro', () => {
     });
 
     it("Select executemacro and select macro from dropdown", () => {
-        doWithTestController(testController => {
-            testController.selectNodesById(["ExecuteMacro"]);
-            // if this breaks, maybe ID has changed
-            cy.get('#drawer-toggle-inspector > .MuiButtonBase-root').click();
-            cy.get('.MuiSelect-select').click();
-            cy.get("body").contains("Macro0").click();
-
-        });
+      checkDropdownWorks();
     });
 
     it("Set up macro caller env", () => {
@@ -52,6 +56,20 @@ describe('macro', () => {
         doWithTestController(testController => {
             expect(testController.getNodeOutputValue("ExecuteMacro", "OutData", 10)).to.eq(10);
         });
+    });
+    it("Save graph", () => {
+        cy.wait(100);
+        cy.get("body").type("{ctrl}s");
+    });
 
+    it("See that dropdown still works after reload", () => {
+        cy.visit('http://127.0.0.1:8080');
+        cy.wait(1000);
+        doWithTestController(testController => {
+          testController.selectNodesById(["ExecuteMacro"]);
+          cy.get('#drawer-toggle-inspector > .MuiButtonBase-root').click();
+          cy.contains("Macro0").click();
+          cy.get("body").type("{enter}");
+        });
     });
 });
