@@ -55,6 +55,10 @@ export class StringType extends AbstractType {
   recommendedInputNodeWidgets(): string[] {
     return ['Label', 'Constant', 'TextEditor'];
   }
+
+  prefersToChangeAwayFromThisType(): boolean {
+    return true;
+  }
 }
 
 export const parseString = (data: any): TParseType => {

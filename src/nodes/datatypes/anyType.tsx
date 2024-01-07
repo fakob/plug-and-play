@@ -28,6 +28,10 @@ export class AnyType extends AbstractType {
     return ['Label', 'CodeEditor', 'LogViewer', 'ConsolePrint'];
   }
 
+  prefersToChangeAwayFromThisType(): boolean {
+    return true;
+  }
+
   recommendedInputNodeWidgets(): string[] {
     return [
       'CodeEditor',

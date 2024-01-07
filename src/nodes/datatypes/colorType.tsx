@@ -30,6 +30,10 @@ export class ColorType extends AbstractType {
     return TRgba.randomColor(); //TRgba.fromString('#ff3700');
   }
 
+  dataIsCompatible(data: any): boolean {
+    return typeof data === 'string' || typeof data == 'object';
+  }
+
   parse(data: any): TParseType {
     let parsedData;
     const warnings: SocketParsingWarning[] = [];

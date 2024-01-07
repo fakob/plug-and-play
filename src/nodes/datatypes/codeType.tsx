@@ -15,6 +15,10 @@ export class CodeType extends AbstractType {
     return 'Code';
   }
 
+  dataIsCompatible(data: any): boolean {
+    return typeof data === 'string';
+  }
+
   getInputWidget = (props: CodeTypeProps): any => {
     props.dataType = this;
     return <CodeWidget {...props} />;

@@ -26,7 +26,7 @@ export class DeferredPixiType extends FunctionType {
 
   // TODO replace this with something more interesting (maybe drawing something basic?)
   getDefaultValue(): any {
-    return () => { };
+    return () => {};
   }
 
   getComment(commentData: any): string {

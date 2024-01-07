@@ -113,6 +113,15 @@ export class AbstractType {
     return true;
   }
 
+  // decides whether socket, if choosing datatype itself, agrees that this data is compatible, if not then datatype of socket might be changed (if using dynamic type)
+  dataIsCompatible(data: any): boolean {
+    return true;
+  }
+
+  prefersToChangeAwayFromThisType(): boolean {
+    return false;
+  }
+
   protected drawSocket(graphics: PIXI.Graphics) {
     graphics.drawRoundedRect(
       0,

@@ -304,6 +304,15 @@ ${newMessage}`,
     return this.cachedStringifiedData;
   }
 
+  changeSocketDataType(newType: AbstractType) {
+    this.dataType = newType;
+    this.redraw();
+    this.getNode().socketTypeChanged();
+    if (this.isOutput()) {
+      this.links.forEach((link) => link.updateConnection());
+    }
+  }
+
   set data(newData: any) {
     this._data = newData;
     this.cachedParsedData = undefined;
@@ -320,17 +329,14 @@ ${newMessage}`,
     this.redrawMetaText();
     this.redrawValueSpecificGraphics();
     if (
+      !this.dataType.dataIsCompatible(newData) &&
       this.getNode()?.socketShouldAutomaticallyAdapt(this) &&
-      this.dataType.allowedToAutomaticallyAdapt()
+      (this.dataType.allowedToAutomaticallyAdapt() ||
+        this.dataType.prefersToChangeAwayFromThisType())
     ) {
       const proposedType = dataToType(newData);
       if (this.dataType.getName() !== proposedType.getName()) {
-        this.dataType = proposedType;
-        this.redraw();
-        this.getNode().socketTypeChanged();
-        if (this.isOutput()) {
-          this.links.forEach((link) => link.updateConnection());
-        }
+        this.changeSocketDataType(proposedType);
       }
     }
     if (this.isInput()) {

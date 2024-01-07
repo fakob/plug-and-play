@@ -43,6 +43,9 @@ export class ArrayType extends AbstractType {
       '(' + (Array.isArray(data) ? data.length.toString() : 'Invalid') + ')'
     );
   }
+  dataIsCompatible(data: any): boolean {
+    return Array.isArray(data) || typeof data === 'string';
+  }
 
   parse(data: any): TParseType {
     let parsedData;

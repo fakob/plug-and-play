@@ -49,6 +49,10 @@ export class JSONType extends AbstractType {
     return 'null';
   }
 
+  dataIsCompatible(data: any): boolean {
+    return typeof data === 'string' || typeof data == 'object';
+  }
+
   parse(data: any): TParseType {
     let parsedData;
     const warnings: SocketParsingWarning[] = [];

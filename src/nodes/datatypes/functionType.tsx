@@ -23,6 +23,10 @@ export class FunctionType extends AbstractType {
     return ['CodeEditor', 'Constant'];
   }
 
+  dataIsCompatible(data: any): boolean {
+    return typeof data === 'function';
+  }
+
   allowedToAutomaticallyAdapt(): boolean {
     return false;
   }
