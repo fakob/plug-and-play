@@ -329,9 +329,9 @@ ${newMessage}`,
     this.redrawMetaText();
     this.redrawValueSpecificGraphics();
     if (
-      !this.dataType.dataIsCompatible(newData) &&
       this.getNode()?.socketShouldAutomaticallyAdapt(this) &&
-      (this.dataType.allowedToAutomaticallyAdapt() ||
+      ((!this.dataType.dataIsCompatible(newData) &&
+        this.dataType.allowedToAutomaticallyAdapt()) ||
         this.dataType.prefersToChangeAwayFromThisType())
     ) {
       const proposedType = dataToType(newData);
