@@ -64,7 +64,7 @@ describe('macro', () => {
 
     it("See that dropdown still works after reload", () => {
         cy.visit('http://127.0.0.1:8080');
-        cy.wait(1000);
+        cy.wait(4000);
         doWithTestController(testController => {
           testController.selectNodesById(["ExecuteMacro"]);
           cy.get('#drawer-toggle-inspector > .MuiButtonBase-root').click();
