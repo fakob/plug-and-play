@@ -306,6 +306,7 @@ ${newMessage}`,
 
   changeSocketDataType(newType: AbstractType) {
     this.dataType = newType;
+    this.clearCachedData();
     this.redraw();
     this.getNode().socketTypeChanged();
     if (this.isOutput()) {
@@ -313,10 +314,14 @@ ${newMessage}`,
     }
   }
 
-  set data(newData: any) {
-    this._data = newData;
+  clearCachedData(): void {
     this.cachedParsedData = undefined;
     this.cachedStringifiedData = undefined;
+  }
+
+  set data(newData: any) {
+    this._data = newData;
+    this.clearCachedData();
     this.lastSetTime = new Date().getTime();
     if (!this.hasBeenAdded) {
       return;
