@@ -48,4 +48,23 @@ describe('dataTypes', () => {
       testController.connectNodesByID("Label", "CustomFunction", "Output");
     });
   });
+  it ("see that customfunction input and output are now of string type", () => {
+    cy.wait(100);
+    doWithTestController(testController => {
+      expect(testController.getInputSocketType("CustomFunction", "a")).to.eq("String");
+      expect(testController.getOutputSocketType("CustomFunction", "OutData")).to.eq("String");
+    });
+  });
+  it ("connect slider with customfunction node", () => {
+    doWithTestController(testController => {
+      testController.connectNodesByID("Slider", "CustomFunction", "Out");
+    });
+  });
+  it ("see that customfunction input and output are now of number type", () => {
+    cy.wait(100);
+    doWithTestController(testController => {
+      expect(testController.getInputSocketType("CustomFunction", "a")).to.eq("Number");
+      expect(testController.getOutputSocketType("CustomFunction", "OutData")).to.eq("Number");
+    });
+  });
  });

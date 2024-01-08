@@ -63,6 +63,11 @@ export default class TestController {
       .getInputSocketByName(socketName)
       .dataType.getName();
   }
+  getOutputSocketType(nodeID: string, socketName: string) {
+    return this.getNodeByID(nodeID)
+      .getOutputSocketByName(socketName)
+      .dataType.getName();
+  }
 
   getInputSocketLinkNamesForID(nodeType: string, socketName: string) {
     const n = this.getNodeByID(nodeType);
