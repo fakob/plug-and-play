@@ -26,8 +26,4 @@ export class FunctionType extends AbstractType {
   dataIsCompatible(data: any): boolean {
     return typeof data === 'function';
   }
-
-  allowedToAutomaticallyAdapt(): boolean {
-    return false;
-  }
 }

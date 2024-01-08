@@ -328,11 +328,14 @@ ${newMessage}`,
 
     this.redrawMetaText();
     this.redrawValueSpecificGraphics();
-    if (
+    const adaptationAcceptable =
       this.getNode()?.socketShouldAutomaticallyAdapt(this) &&
-      ((!this.dataType.dataIsCompatible(newData) &&
-        this.dataType.allowedToAutomaticallyAdapt()) ||
-        this.dataType.prefersToChangeAwayFromThisType())
+      this.dataType.allowedToAutomaticallyAdapt();
+    const socketWantsToAdapt = this.dataType.prefersToChangeAwayFromThisType();
+    const incompatibleData = !this.dataType.dataIsCompatible(newData);
+    if (
+      adaptationAcceptable &&
+      (incompatibleData || socketWantsToAdapt || this.isOutput())
     ) {
       const proposedType = dataToType(newData);
       if (this.dataType.getName() !== proposedType.getName()) {

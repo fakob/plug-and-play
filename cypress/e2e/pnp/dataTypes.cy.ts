@@ -1,19 +1,21 @@
 import { doWithTestController } from "./helpers";
 
-// TODO implement, check data type logic stuff
+// TODO expand
 describe('dataTypes', () => {
-    it("setup some nodes", () => {
+  it("setup some nodes", () => {
     cy.visit('http://127.0.0.1:8080/?new=true');
     cy.wait(200);
     doWithTestController(testController => {
       expect(testController.addNode("WidgetSlider", "Slider")).to.eq(true);
       expect(testController.addNode("Label", "Label")).to.eq(true);
+      expect(testController.addNode("CustomFunction", "CustomFunction")).to.eq(true);
     });
   });
   it ("expose label output", () => {
     cy.wait(100);
     doWithTestController(testController => {
       testController.moveNodeByID("Slider", 0, 100);
+      testController.moveNodeByID("CustomFunction", 200, 0);
       // expose output on label
       testController.selectNodesById(["Label"]);
       cy.get('[data-cy="inspector-container-toggle-button"]').click();
@@ -22,10 +24,28 @@ describe('dataTypes', () => {
     });
     });
 
-  it ("write some text in the label node", () => {
+  it ("write some text in the label node, see that it registers", () => {
     cy.wait(100);
     doWithTestController(testController => {
-      testController.selectNodesById(["Label"]);
+      const [x,y] = testController.getNodeCenter("Label");
+      cy.get("body").dblclick(x, y);
+      cy.get("body").type("testin");
     });
+    cy.wait(100);
+    doWithTestController(testController => {
+      const value = testController.getNodeOutputValue("Label", "Output");
+      expect(value).to.eq("testin");
     });
+  });
+  it ("see that the customfunction input is of type 'any'", () => {
+    doWithTestController(testController => {
+      const type = testController.getInputSocketType("CustomFunction", "a");
+      expect(type).to.eq("Any");
+    });
+  });
+  it ("connect label node with customfunction node", () => {
+    doWithTestController(testController => {
+      testController.connectNodesByID("Label", "CustomFunction", "Output");
+    });
+  });
  });
