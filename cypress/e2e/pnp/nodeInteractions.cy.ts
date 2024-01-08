@@ -7,7 +7,7 @@ describe('nodeInteractions', () => {
 
     cy.wait(100);
     doWithTestController(testController => {
-      expect(testController.addNode("Add")).to.eq(true);
+      expect(testController.addNode("Add", "Add")).to.eq(true);
     });
     cy.wait(100);
     doWithTestController(testController => {
@@ -18,7 +18,7 @@ describe('nodeInteractions', () => {
   it("Click socket and open menu", () => {
 
     doWithTestController(testController => {
-      const coordinates = testController.getSocketCenterByNodeTypeAndSocketName("Add", "Added");
+      const coordinates = testController.getSocketCenterByNodeIDAndSocketName("Add", "Added");
       console.log("coordinates: " + coordinates[0])
       cy.get('body').click(coordinates[0], coordinates[1]);
       cy.get("body").should("contain", "Shift+Click to add to dashboard");

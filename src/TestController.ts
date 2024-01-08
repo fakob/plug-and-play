@@ -18,21 +18,17 @@ export default class TestController {
   }
 
   getNodeByID(id: string): PPNode {
-    return Object.values(PPGraph.currentGraph.nodes).find(node => node.id == id);
+    return Object.values(PPGraph.currentGraph.nodes).find(
+      (node) => node.id == id,
+    );
   }
 
   getNodeCenter(node: PPNode): [number, number] {
     return [node.x + node.width / 2, node.y + node.height / 2];
   }
 
-  getNodeByType(nodeType: string): PPNode {
-    const nodes = Object.values(PPGraph.currentGraph.nodes);
-    return nodes.find((node) => node.type == nodeType);
-  }
-
-
-  getNodeCenterByType(nodeType: string): [number, number] {
-    const toReturn = this.getNodeByType(nodeType);
+  getNodeCenterById(nodeType: string): [number, number] {
+    const toReturn = this.getNodeByID(nodeType);
     return this.getNodeCenter(toReturn);
   }
 
@@ -42,11 +38,7 @@ export default class TestController {
     node.y += y;
   }
 
-  connectNodesByID(
-    node1ID: string,
-    node2ID: string,
-    node1Socket: string,
-  ) {
+  connectNodesByID(node1ID: string, node2ID: string, node1Socket: string) {
     const n1 = this.getNodeByID(node1ID);
     const n2 = this.getNodeByID(node2ID);
     const originSocket = n1.getOutputSocketByName(node1Socket);
@@ -56,15 +48,18 @@ export default class TestController {
     );
   }
 
-  async disconnectLink(endNodeID: string, inputSocketName: string): Promise<void> {
+  async disconnectLink(
+    endNodeID: string,
+    inputSocketName: string,
+  ): Promise<void> {
     await PPGraph.currentGraph.linkDisconnect(endNodeID, inputSocketName, true);
   }
   getSocketLinks(nodeID: string, socketName: string): PPLink[] {
     return this.getNodeByID(nodeID).getSocketByName(socketName).links;
   }
 
-  getInputSocketLinkNamesForType(nodeType: string, socketName: string) {
-    const n = this.getNodeByType(nodeType);
+  getInputSocketLinkNamesForID(nodeType: string, socketName: string) {
+    const n = this.getNodeByID(nodeType);
     return n
       .getSocketByName(socketName)
       .links.map((link: PPLink) => link.getSource().name);
@@ -90,8 +85,8 @@ export default class TestController {
     this.getNodeByID(id).executeOptimizedChain();
   }
 
-  getSocketCenterByNodeTypeAndSocketName(nodeType: string, socketName: string) {
-    const node = this.getNodeByType(nodeType);
+  getSocketCenterByNodeIDAndSocketName(nodeID: string, socketName: string) {
+    const node = this.getNodeByID(nodeID);
     const socket = node
       .getAllSockets()
       .find((socket) => socket.name == socketName);
@@ -118,7 +113,7 @@ export default class TestController {
   }
 
   selectNodesById(nodeIDs: string[]): PPNode[] {
-    const nodes = nodeIDs.map(id => this.getNodeByID(id));
+    const nodes = nodeIDs.map((id) => this.getNodeByID(id));
     this.getGraph().selection.selectNodes(nodes, false, true);
     return nodes;
   }
