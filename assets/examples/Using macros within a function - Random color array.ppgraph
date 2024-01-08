@@ -747,7 +747,7 @@
           "socketType": "in",
           "name": "Code",
           "dataType": "{\"class\":\"CodeType\",\"type\":{}}",
-          "data": "(Colors, Size) => {\n\tconst toReturn = [];\n\tfor (let i = 0; i < Colors.length; i++){\n\t\ttoReturn.push(await macro(\"ColorBox\", Colors[i], Size));\n\t}\n\treturn toReturn;\n}",
+          "data": "(Colors, Size) => {\n\tconst toReturn = [];\n\tfor (let i = 0; i < Colors.length; i++){\n\t\ttoReturn.push(await macro(\"ColorBox0\", Colors[i], Size));\n\t}\n\treturn toReturn;\n}",
           "visible": false
         },
         {
