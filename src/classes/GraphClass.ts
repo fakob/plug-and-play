@@ -1212,6 +1212,10 @@ export default class PPGraph {
   }
 
   async invokeMacro(name: string, args: any[]): Promise<any> {
+    // warning - hack
+    if (name == 'EmptyDefault') {
+      return;
+    }
     return await this.getMacroWithName(name).executeMacro(args);
   }
 
