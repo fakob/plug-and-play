@@ -62,11 +62,15 @@ export class JSONType extends AbstractType {
       } catch (error) {}
     }
     if (parsedData == undefined) {
-      try {
-        parsedData = JSON.parse(JSON.stringify(data));
-      } catch (error) {
-        parsedData = {};
-        warnings.push(new SocketParsingWarning('Not a JSON. {} is returned'));
+      if (typeof data == 'object') {
+        parsedData = data;
+      } else {
+        try {
+          parsedData = JSON.parse(JSON.stringify(data));
+        } catch (error) {
+          parsedData = {};
+          warnings.push(new SocketParsingWarning('Not a JSON. {} is returned'));
+        }
       }
     }
 
