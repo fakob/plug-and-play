@@ -113,6 +113,10 @@ export class AbstractType {
     return true;
   }
 
+  prepareDataForSaving(data: any){
+    return data;
+  }
+
   // decides whether socket, if choosing datatype itself, agrees that this data is compatible, if not then datatype of socket might be changed (if using dynamic type)
   dataIsCompatible(data: any): boolean {
     return true;

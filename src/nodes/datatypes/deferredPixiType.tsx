@@ -54,4 +54,8 @@ export class DeferredPixiType extends FunctionType {
       'DRAW_Polygon',
     ];
   }
+  // cannot save this
+  prepareDataForSaving(data: any) {
+    return undefined;
+  }
 }

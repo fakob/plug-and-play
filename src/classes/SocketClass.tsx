@@ -467,9 +467,9 @@ ${newMessage}`,
     let defaultData;
     if (this.isInput()) {
       if (!this.hasLink()) {
-        data = this.data;
+        data = this.dataType.prepareDataForSaving(this.data);
       } else {
-        defaultData = this.defaultData;
+        defaultData = this.dataType.prepareDataForSaving(this.defaultData);
       }
     }
     return {
