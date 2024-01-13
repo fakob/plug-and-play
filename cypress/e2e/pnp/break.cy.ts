@@ -64,7 +64,7 @@ describe('break', () => {
     it ("load it again", () => {
       cy.visit('http://127.0.0.1:8080');
 
-      cy.wait(1000);
+      cy.wait(3000);
       doWithTestController(testController => {
         // see that we get an object out
         expect(testController.getNodes().length).to.eq(2);
