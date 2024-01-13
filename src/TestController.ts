@@ -6,6 +6,7 @@ import Socket from './classes/SocketClass';
 import { TSocketType } from './utils/interfaces';
 import { SOCKET_TYPE } from './utils/constants';
 import { getAllNodeTypes } from './nodes/allNodes';
+import { ActionHandler } from './utils/actionHandler';
 
 export default class TestController {
   identify(): string {
@@ -135,5 +136,13 @@ export default class TestController {
   doesNodeHaveError(nodeID: string): boolean {
     const node = this.getNodeByID(nodeID);
     return node.status.node.isError() || node.status.socket.isError();
+  }
+
+  undo() {
+    ActionHandler.undo();
+  }
+
+  redo() {
+    ActionHandler.redo();
   }
 }

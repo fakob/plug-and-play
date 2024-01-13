@@ -236,16 +236,20 @@ export abstract class DRAW_Base extends PPNode {
     InterfaceController.removeListener(this.listenIDMove);
     InterfaceController.removeListener(this.listenIDUp);
 
+    const id = this.id;
     // allow undoing
     ActionHandler.performAction(
       async () =>
-        this.setOffsets(
+        (ActionHandler.getSafeNode(id) as DRAW_Base).setOffsets(
           new PIXI.Point(
             currPos.x - originalCursorPos.x,
             currPos.y - originalCursorPos.y,
           ),
         ),
-      async () => this.setOffsets(originalOffsets),
+      async () =>
+        (ActionHandler.getSafeNode(id) as DRAW_Base).setOffsets(
+          originalOffsets,
+        ),
       'Move Graphics',
       false,
     );
