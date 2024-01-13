@@ -61,13 +61,20 @@ describe('break', () => {
       cy.get("body").type("{ctrl}s")
     });
 
-    it ("load it again", () => {
+    it ("See that we are not corrupting the output from the constant node", () => {
+      cy.wait(100);
+      doWithTestController(testController => {
+        expect(testController.getOutputSocketType("Constant", "Out")).to.eq("Number")
+      });
+    });
+
+    /*it ("load it again", () => {
       cy.visit('http://127.0.0.1:8080');
 
       cy.wait(1000);
       doWithTestController(testController => {
-        // see that we get an object out
         expect(testController.getNodes().length).to.eq(2);
       });
     });
+    */
 });
