@@ -59,7 +59,9 @@ export class JSONType extends AbstractType {
     if (typeof data === 'string' || this.strictParsing) {
       try {
         parsedData = JSON.parse(data);
-      } catch (error) {}
+      } catch (error) {
+        warnings.push(new SocketParsingWarning('Unable to parse JSON'));
+      }
     }
     if (parsedData == undefined) {
       if (typeof data == 'object') {

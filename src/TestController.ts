@@ -82,6 +82,9 @@ export default class TestController {
   getNodeOutputValue(id: string, outputSocketName: string): any {
     return this.getNodeByID(id).getOutputData(outputSocketName);
   }
+  getOutputSockets(id: string) {
+    return this.getNodeByID(id).outputSocketArray;
+  }
   getInputSocketByIDandName(id: string, socketName: string): Socket {
     return this.getNodeByID(id).getInputSocketByName(socketName);
   }

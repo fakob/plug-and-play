@@ -27,7 +27,7 @@ describe('importing third party libraries and using', () => {
     });
     cy.wait(300);
     doWithTestController(testController => {
-        expect(testController.getNodeOutputValue("CustomFunction","OutData").defaults).to.not.be.undefined; // we check that this function has survived through all this
+        expect(testController.getNodeOutputValue("CustomFunction","OutData").Chart.register).to.not.be.undefined; // we check that this function has survived through all this
     });
   });
 });
