@@ -100,14 +100,17 @@ const addShallowContainerEventListeners = (
 
   shallowContainer.addEventListener('pointerdown', (e) => {
     node.setOutputData(outputMultiplierIndex, index);
-    node.setOutputData(
-      outputMultiplierInjected,
-      node.getInputData(injectedDataName)?.[index],
-    );
+    const injectedData = node.getInputData(injectedDataName);
+    if (injectedData.length > 0) {
+      node.setOutputData(outputMultiplierInjected, injectedData[index]);
+    }
     node.setOutputData(outputMultiplierPointerDown, true);
     // tell all children when something is pressed
     node.executeChildren();
-    console.log('pressed: ' + shallowContainer.x + ' : ' + shallowContainer.y);
+    console.log(
+      `Pressed ${index}: ${shallowContainer.x}, ${shallowContainer.y}`,
+    );
+
     shallowContainer.alpha = alphaPre * 0.6;
   });
 
