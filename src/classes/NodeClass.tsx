@@ -1525,4 +1525,8 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
   public getDynamicImports(): string[] {
     return [];
   }
+
+  public getPurpose() : string{
+    return "";
+  }
 }
