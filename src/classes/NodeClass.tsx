@@ -438,9 +438,11 @@ export default class PPNode extends PIXI.Container implements IWarningHandler {
             item.socketType,
           );
           if (matchingSocket !== undefined) {
-            //matchingSocket.dataType = deSerializeType(item.dataType); // dont override with base serialized type, it kills dynamic enum type, just keep the old one
-            matchingSocket.data = item.data;
-            matchingSocket.defaultData = item.defaultData ?? item.data;
+            // ignore output sockets as no data is stored for them
+            if (item.socketType !== SOCKET_TYPE.OUT) {
+              matchingSocket.data = item.data;
+              matchingSocket.defaultData = item.defaultData ?? item.data;
+            }
             matchingSocket.visible = item.visible;
           } else {
             // add socket if it does not exist yet
@@ -497,7 +499,9 @@ export default class PPNode extends PIXI.Container implements IWarningHandler {
   async executeChildren(): Promise<void> {
     this.drawComment();
     await FlowLogic.executeOptimizedChainBatch(
-      Object.values(this.getDirectDependents()).filter(node => node.updateBehaviour.update),
+      Object.values(this.getDirectDependents()).filter(
+        (node) => node.updateBehaviour.update,
+      ),
     );
   }
 

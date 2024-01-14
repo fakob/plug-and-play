@@ -343,7 +343,7 @@ export abstract class DRAW_Interactive_Base extends DRAW_Base {
         SOCKET_TYPE.OUT,
         outputMultiplierIndex,
         new NumberType(true),
-        0,
+        -1,
         () => this.getInputData(objectsInteractive),
       ),
       Socket.getOptionalVisibilitySocket(

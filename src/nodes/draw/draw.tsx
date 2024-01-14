@@ -100,14 +100,17 @@ const addShallowContainerEventListeners = (
 
   shallowContainer.addEventListener('pointerdown', (e) => {
     node.setOutputData(outputMultiplierIndex, index);
-    node.setOutputData(
-      outputMultiplierInjected,
-      node.getInputData(injectedDataName)?.[index],
-    );
+    const injectedData = node.getInputData(injectedDataName);
+    if (injectedData.length > 0) {
+      node.setOutputData(outputMultiplierInjected, injectedData[index]);
+    }
     node.setOutputData(outputMultiplierPointerDown, true);
     // tell all children when something is pressed
     node.executeChildren();
-    console.log('pressed: ' + shallowContainer.x + ' : ' + shallowContainer.y);
+    console.log(
+      `Pressed ${index}: ${shallowContainer.x}, ${shallowContainer.y}`,
+    );
+
     shallowContainer.alpha = alphaPre * 0.6;
   });
 
@@ -460,7 +463,6 @@ export class DRAW_COMBINE_ARRAY extends DRAW_Interactive_Base {
       }
       shallowContainer.x = x * spacingSize.width;
       shallowContainer.y = y * spacingSize.height;
-
       if (inputObject[objectsInteractive]) {
         addShallowContainerEventListeners(
           shallowContainer,
@@ -547,7 +549,6 @@ export class DRAW_Multiplier extends DRAW_Interactive_Base {
       }
       shallowContainer.x = x * inputObject[spacingXName];
       shallowContainer.y = y * inputObject[spacingYName];
-
       addShallowContainerEventListeners(shallowContainer, this, i, executions);
 
       myContainer.addChild(shallowContainer);
@@ -597,7 +598,6 @@ export class DRAW_Multipy_Along extends DRAW_Interactive_Base {
         inputObject[inputGraphicsName](shallowContainer, executions);
       shallowContainer.x = x;
       shallowContainer.y = y;
-
       addShallowContainerEventListeners(shallowContainer, this, i, executions);
 
       myContainer.addChild(shallowContainer);
