@@ -1,5 +1,6 @@
 import FlowLogic from '../classes/FlowLogic';
 import PPGraph from '../classes/GraphClass';
+import PPLink from '../classes/LinkClass';
 import PPNode from '../classes/NodeClass';
 
 // pretty cool function isnt it
@@ -32,7 +33,13 @@ function getNodeDetails(node: PPNode) {
   });
 }
 
-function extractChainExplanation(nodes: PPNode[]) {
+function getNodeExplanations(node: PPNode) {}
+
+function getConnectionExplanation(link: PPLink) {
+  return 'nothin';
+}
+
+function extractDependencyPyramid(nodes: PPNode[]) {
   const dependencyDepths = nodes.map(findNodeDependencyDepth);
   const maxLevel = dependencyDepths.reduce((a, b) => Math.max(a, b), 0);
   let dependencyPyramid = '';
@@ -44,21 +51,13 @@ function extractChainExplanation(nodes: PPNode[]) {
     dependencyPyramid += onThisLevel.join(',');
     dependencyPyramid += '\n';
   }
-  console.log('Dependency Pyramid: \n' + dependencyPyramid);
-  return nodes.map((node) => {
-    return JSON.stringify({
-      Name: node.getName(),
-      Depth: findNodeDependencyDepth(node),
-      asciiArt: dependencyPyramid,
-    });
-  });
+  return dependencyPyramid;
 }
 
 export function extractExplanation(graph: PPGraph): string {
-  const numNodes = Object.values(graph.nodes).length;
-  const seedNodes = Object.values(graph.nodes).filter(
-    (node) => !node.getHasDependencies(),
-  );
+  const nodes = Object.values(graph.nodes);
+  const numNodes = nodes.length;
+  const seedNodes = nodes.filter((node) => !node.getHasDependencies());
 
   const found = new Set();
   const uniqueChains: PPNode[][] = [];
@@ -74,6 +73,13 @@ export function extractExplanation(graph: PPGraph): string {
       inThisChain.forEach((node) => found.add(node.id));
     }
   });
+  const links = nodes.map((node) =>
+    node
+      .getAllInputSockets()
+      .filter((socket) => socket.hasLink())
+      .map((socket) => socket.links[0])
+      .flat(Infinity),
+  );
 
   const toReturn = {
     'Number of nodes': numNodes,
@@ -81,7 +87,8 @@ export function extractExplanation(graph: PPGraph): string {
       Number: seedNodes.length,
       Names: seedNodes.map((node) => node.getName()).join(','),
     },
-    Chains: uniqueChains.map(extractChainExplanation),
+    'Dependency Pyramids': uniqueChains.map(extractDependencyPyramid),
+    //Connections: links.map((link) => getConnectionExplanation(link)),
   };
 
   console.log(JSON.stringify(toReturn));
