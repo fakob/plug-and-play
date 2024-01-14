@@ -249,8 +249,8 @@ export class Video extends HybridNode2 {
   }
 
   public onNodeAdded = async (source: TNodeSource): Promise<void> => {
-    await super.onNodeAdded(source);
     this.eventTarget = new EventTarget();
+    await super.onNodeAdded(source);
 
     this.restartWorker();
   };
