@@ -56,6 +56,7 @@ import styles from '../utils/style.module.css';
 import PPGraph from '../classes/GraphClass';
 import PPNode from '../classes/NodeClass';
 import PPStorage from '../PPStorage';
+import { extractExplanation } from '../utils/graphExplainer';
 
 const useStyles = makeStyles((theme) =>
   createStyles({
@@ -378,6 +379,13 @@ export const GraphContextMenu = (props) => {
           <Typography variant="body2" color="text.secondary">
             {`${props.controlOrMetaKey}+Shift+Y`}
           </Typography>
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            extractExplanation(PPGraph.currentGraph);
+          }}
+        >
+          <ListItemText>{'Extract graph explanation'}</ListItemText>
         </MenuItem>
       </MenuList>
     </Paper>

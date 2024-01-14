@@ -1,9 +1,11 @@
-/*import FlowLogic from '../classes/FlowLogic';
+import FlowLogic from '../classes/FlowLogic';
 import PPGraph from '../classes/GraphClass';
 
 export function extractExplanation(graph: PPGraph): string {
   const numNodes = Object.values(graph.nodes).length;
-  const seedNodes = PPGraph.getSeedNodes(Object.values(graph.nodes), false);
+  const seedNodes = Object.values(graph.nodes).filter(
+    (node) => !node.getHasDependencies(),
+  );
 
   const found = new Set();
   const uniqueChains = [];
@@ -41,5 +43,3 @@ export function extractExplanation(graph: PPGraph): string {
   //console.log(result);
   return JSON.stringify(toReturn);
 }
-
-*/
