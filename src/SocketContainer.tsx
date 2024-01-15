@@ -239,6 +239,7 @@ const SocketHeader: React.FunctionComponent<SocketHeaderProps> = (props) => {
           )}
         </Box>
         <IconButton
+          data-cy={props.property.name + '-type-selector-button'}
           title={props.property.dataType.constructor.name}
           aria-label="more"
           id="select-type"
@@ -291,7 +292,10 @@ const SocketHeader: React.FunctionComponent<SocketHeaderProps> = (props) => {
                     value={name}
                     data-my-value={name}
                     selected={props.property.dataType.constructor.name === name}
-                    onClick={props.onChangeDropdown}
+                    onClick={(event) => {
+                      props.onChangeDropdown(event);
+                      handleClose();
+                    }}
                     sx={{
                       '&.Mui-selected': {
                         backgroundColor: `${Color(

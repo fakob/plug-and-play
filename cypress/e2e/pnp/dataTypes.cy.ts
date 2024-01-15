@@ -67,4 +67,20 @@ describe('dataTypes', () => {
       expect(testController.getOutputSocketType("CustomFunction", "OutData")).to.eq("Number");
     });
   });
+  it ("customfunction, manually change the type and see that it propagates and parses", () => {
+    cy.wait(100);
+    doWithTestController(testController => {
+      testController.selectNodesById(["CustomFunction"]);
+      cy.get('#inspector-filter-in').click();
+      cy.get('[data-cy="a-type-selector-button"]').click();
+      cy.get('[value="StringType"]').click();
+      cy.get('#inspector-filter-common').click();
+      cy.get('[data-cy="update-now-button"]').click();
+      cy.get('#inspector-filter-out').click();
+      cy.get('[data-cy="OutData-type-selector-button"]').should("contain","String");
+
+      //expect(testController.getInputSocketType("CustomFunction", "a")).to.eq("Number");
+      //expect(testController.getOutputSocketType("CustomFunction", "OutData")).to.eq("Number");
+    });
+  });
  });

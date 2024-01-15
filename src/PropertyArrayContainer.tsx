@@ -111,7 +111,11 @@ function CommonContent(props: CommonContentProps) {
         }}
       >
         <FormGroup>
-          <Button variant="contained" onClick={props.onUpdateNow}>
+          <Button
+            variant="contained"
+            onClick={props.onUpdateNow}
+            data-cy="update-now-button"
+          >
             Update now
           </Button>
         </FormGroup>
