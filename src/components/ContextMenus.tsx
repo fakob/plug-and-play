@@ -481,9 +481,8 @@ const AlignOptionMenuItem = (props) => {
 };
 
 export const NodeContextMenu = (props) => {
-  const [selectionCount, setSelectionCount] = useState(
-    PPGraph.currentGraph.selection.selectedNodes.length,
-  );
+  const selectedNodes: PPNode[] = PPGraph.currentGraph.selection.selectedNodes;
+
   useEffect(() => {
     window.addEventListener('contextmenu', handleContextMenu);
   });
@@ -493,10 +492,6 @@ export const NodeContextMenu = (props) => {
       window.removeEventListener('contextmenu', handleContextMenu);
     };
   }, []);
-
-  useEffect(() => {
-    setSelectionCount(PPGraph.currentGraph.selection.selectedNodes.length);
-  }, [PPGraph.currentGraph.selection.selectedNodes.length]);
 
   function handleContextMenu(e: Event) {
     e.preventDefault();
@@ -542,7 +537,7 @@ export const NodeContextMenu = (props) => {
           </Typography>
         </MenuItem>
         <Divider />
-        {selectionCount === 1 && (
+        {selectedNodes.length === 1 && (
           <MenuItem
             onClick={() => {
               InterfaceController.openNodeSearch();
@@ -554,7 +549,7 @@ export const NodeContextMenu = (props) => {
             <ListItemText>Replace with ...</ListItemText>
           </MenuItem>
         )}
-        {selectionCount > 1 &&
+        {selectedNodes.length > 1 &&
           (useIsSmallScreen() ? (
             [
               <Divider
@@ -612,7 +607,7 @@ export const NodeContextMenu = (props) => {
           </ListItemIcon>
           <ListItemText>Add Trigger Input</ListItemText>
         </MenuItem>
-        {selectionCount > 1 && (
+        {selectedNodes.length > 1 && (
           <MenuItem
             onClick={() => {
               PPGraph.currentGraph.extractToMacro();
@@ -624,9 +619,9 @@ export const NodeContextMenu = (props) => {
             <ListItemText>Extract to Macro</ListItemText>
           </MenuItem>
         )}
-        {PPGraph.currentGraph && selectionCount > 0
+        {PPGraph.currentGraph && selectedNodes.length > 0
           ? constructListOptions(
-              PPGraph.currentGraph.selection.selectedNodes[0].getAdditionalRightClickOptions(),
+              selectedNodes[0].getAdditionalRightClickOptions(),
             )
           : ''}
       </MenuList>
