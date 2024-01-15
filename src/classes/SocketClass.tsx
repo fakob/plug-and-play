@@ -379,6 +379,7 @@ ${newMessage}`,
 
   set dataType(newType: AbstractType) {
     this._dataType = newType;
+    this.clearCachedData();
   }
 
   get custom(): any {
