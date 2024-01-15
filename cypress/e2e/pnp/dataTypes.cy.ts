@@ -1,6 +1,12 @@
 import { doWithTestController } from "./helpers";
 
-// TODO expand
+
+function exposeSelectedLabelOutput(){
+      cy.get('[data-cy="inspector-container-toggle-button"]').click();
+      cy.get('#inspector-filter-out').click();
+      cy.get('[data-cy="socket-visible-button"]').click();
+}
+
 describe('dataTypes', () => {
   it("setup some nodes", () => {
     cy.visit('http://127.0.0.1:8080/?new=true');
@@ -18,9 +24,7 @@ describe('dataTypes', () => {
       testController.moveNodeByID("CustomFunction", 200, 0);
       // expose output on label
       testController.selectNodesById(["Label"]);
-      cy.get('[data-cy="inspector-container-toggle-button"]').click();
-      cy.get('#inspector-filter-out').click();
-      cy.get('[data-cy="socket-visible-button"]').click();
+      exposeSelectedLabelOutput();
     });
     });
 
@@ -79,8 +83,49 @@ describe('dataTypes', () => {
       cy.get('#inspector-filter-out').click();
       cy.get('[data-cy="OutData-type-selector-button"]').should("contain","String");
 
-      //expect(testController.getInputSocketType("CustomFunction", "a")).to.eq("Number");
-      //expect(testController.getOutputSocketType("CustomFunction", "OutData")).to.eq("Number");
     });
+  });
+
+  it ("see that macro adapts as expected when changing the type going out of it", () => {
+    cy.visit('http://127.0.0.1:8080/?new=true');
+    cy.wait(200);
+
+    doWithTestController(testController => {
+      testController.addNode("Macro","Macro");
+      testController.addNode("Label","Label");
+    });
+    cy.wait(100);
+    // we first expect the output to be "any"
+    doWithTestController(testController => {
+      expect(testController.getInputSocketType("Macro", "Output")).to.eq("Any");
+      testController.selectNodesById(["Label"]);
+    });
+    cy.wait(100);
+    // we first expect the output to be "any"
+    doWithTestController(testController => {
+      exposeSelectedLabelOutput();
+    });
+    cy.wait(100);
+    doWithTestController(testController => {
+      testController.connectNodesByID("Label", "Macro", "Output");
+    });
+    cy.wait(100);
+    // then when i connect string into it, to change into string
+    doWithTestController(testController => {
+      expect(testController.getInputSocketType("Macro", "Output")).to.eq("String");
+      testController.disconnectLink("Macro","Output");
+    });
+    cy.wait(100);
+    // when when disconnecting, and going back to default value which is 0, to number
+    doWithTestController(testController => {
+      expect(testController.getInputSocketType("Macro", "Output")).to.eq("Number");
+      testController.connectNodesByID("Label", "Macro", "Output");
+    });
+    cy.wait(100);
+    // then back to string
+    doWithTestController(testController => {
+      expect(testController.getInputSocketType("Macro", "Output")).to.eq("String");
+    });
+
   });
  });

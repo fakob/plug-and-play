@@ -88,6 +88,10 @@ export class NumberType extends AbstractType {
   recommendedInputNodeWidgets(): string[] {
     return ['WidgetSlider', 'Constant'];
   }
+
+  prefersToChangeAwayFromThisType(): boolean {
+    return true;
+  }
 }
 
 const parseNumber = (data): TParseType => {
