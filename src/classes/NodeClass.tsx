@@ -587,16 +587,21 @@ export default class PPNode extends PIXI.Container implements IWarningHandler {
     this.resizeAndDraw(this.getDefaultNodeWidth(), this.getDefaultNodeHeight());
   }
 
-  // get all sockets that are not part of the base kit for the node
-  // do not include trigger sockets regardless of if they are default or not
-  public getAllNonDefaultInputSockets(): Socket[] {
+  public getAllNonDefaultSockets(input: boolean): Socket[]{
     const defaultIONames = this.getAllInitialSockets()
-      .filter((socket) => socket.isInput())
+      .filter((socket) => socket.isInput() == input )
       .map((socket) => socket.name);
-    const nonDefault = this.inputSocketArray.filter(
+    const nonDefault = (input ? this.inputSocketArray : this.outputSocketArray).filter(
       (socket) => !defaultIONames.includes(socket.name),
     );
     return nonDefault;
+  }
+
+  public getAllNonDefaultInputSockets(): Socket[] {
+    return this.getAllNonDefaultSockets(true);
+  }
+  public getAllNonDefaultOutputSockets(): Socket[] {
+    return this.getAllNonDefaultSockets(false);
   }
 
   public getAllInputSockets(): Socket[] {

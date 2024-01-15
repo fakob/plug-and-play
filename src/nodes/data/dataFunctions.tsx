@@ -24,7 +24,8 @@ const typeName = 'Type';
 const arrayOutName = 'Out';
 
 export const anyCodeName = 'Code';
-const outDataName = 'OutData';
+const outDataDefaultName = 'OutData';
+const outputNameName = 'Output Name';
 
 const constantInName = 'In';
 const constantOutName = 'Out';
@@ -212,7 +213,14 @@ export class ConsolePrint extends PPNode {
   }
 
   protected getDefaultIO(): Socket[] {
-    return [new Socket(SOCKET_TYPE.IN, constantInName, new StringType(), "Hello from console")];
+    return [
+      new Socket(
+        SOCKET_TYPE.IN,
+        constantInName,
+        new StringType(),
+        'Hello from console',
+      ),
+    ];
   }
 
   protected async onExecute(inputObject: any): Promise<void> {
@@ -266,9 +274,11 @@ export class CustomFunction extends PPNode {
         false,
       ),
       new Socket(
-        SOCKET_TYPE.OUT,
+        SOCKET_TYPE.IN,
+        outputNameName,
+        new StringType(),
         this.getOutputParameterName(),
-        this.getOutputParameterType(),
+        false,
       ),
       new Socket(
         SOCKET_TYPE.OUT,
@@ -299,7 +309,7 @@ export class CustomFunction extends PPNode {
   }
 
   protected getOutputParameterName(): string {
-    return outDataName;
+    return outDataDefaultName;
   }
 
   protected getOutputCodeVisibleByDefault(): boolean {
@@ -319,7 +329,10 @@ export class CustomFunction extends PPNode {
     this.modifiedBanner = this._StatusesRef.addChild(new PIXI.Graphics());
     // added this to make sure all sockets are in place before anything happens (caused visual issues on load before)
     if (this.getInputData(anyCodeName) !== undefined) {
-      this.adaptInputs(this.getInputData(anyCodeName));
+      this.adaptInputsAndOutput(
+        this.getInputData(anyCodeName),
+        this.getInputData(outputNameName),
+      );
     }
   }
 
@@ -363,11 +376,17 @@ export class CustomFunction extends PPNode {
     outputObject: Record<string, unknown>,
   ): Promise<void> {
     // before every execute, re-evaluate inputs
-    const changeFound = this.adaptInputs(inputObject[anyCodeName]);
+    console.log('evaluating inputs');
+    const changeFound = this.adaptInputsAndOutput(
+      inputObject[anyCodeName],
+      inputObject[outputNameName],
+    );
+    console.log('done evaluating inputs');
     if (changeFound) {
       // there might be new inputs, so re-run rawexecute
       return await this.rawExecute();
     }
+    console.log('executon');
 
     const replacedMacros = this.replaceMacros(inputObject[anyCodeName]);
 
@@ -383,6 +402,7 @@ export class CustomFunction extends PPNode {
       '{',
       '{' + defineAllVariablesFromInputObject,
     );
+    console.log('replaced macarons');
 
     // this might seem unused but it actually isn't, its used inside the eval in many cases but we can't see what's inside it from here
     const node = this;
@@ -397,20 +417,35 @@ export class CustomFunction extends PPNode {
     }
 
     const finalized = 'async () => ' + functionWithVariablesFromInputObject;
+    console.log('just before eval');
     const res = await eval(finalized);
-    outputObject[this.getOutputParameterName()] = await res();
+    console.log('now after eval');
+    outputObject[inputObject[outputNameName]] = await res();
+    outputObject['OutData'] = await res();
     outputObject[anyCodeName] =
       this.potentiallyModifyOutgoingCode(replacedMacros);
   }
 
   // returns true if there was a change
-  protected adaptInputs(code: string): boolean {
+  protected adaptInputsAndOutput(code: string, outputName: string): boolean {
     const codeArguments = getArgumentsFromFunction(code);
     // remove all non existing arguments and add all missing (based on the definition we just got)
     const currentInputSockets = this.getAllNonDefaultInputSockets();
-    const socketsToBeRemoved = currentInputSockets.filter(
-      (socket) => !codeArguments.some((argument) => socket.name === argument),
+    const currentOutputSockets = this.getAllNonDefaultOutputSockets();
+    const outputsToBeRemoved = currentOutputSockets.filter(
+      (socket) => socket.name !== outputName,
     );
+    const outputsToBeAdded =
+      currentOutputSockets.find((socket) => socket.name == outputName) ==
+      undefined
+        ? [new Socket(SOCKET_TYPE.OUT, outputName, new AnyType(), 0, true)]
+        : [];
+
+    const socketsToBeRemoved = currentInputSockets
+      .filter(
+        (socket) => !codeArguments.some((argument) => socket.name === argument),
+      )
+      .concat(outputsToBeRemoved);
     const argumentsToBeAdded = codeArguments.filter(
       (argument) =>
         !this.getAllInputSockets().some((socket) => socket.name === argument),
@@ -418,6 +453,7 @@ export class CustomFunction extends PPNode {
     socketsToBeRemoved.forEach((socket) => {
       this.removeSocket(socket);
     });
+    outputsToBeAdded.forEach((output) => this.addSocket(output));
     argumentsToBeAdded.forEach((argument) => {
       this.addInput(
         argument,
@@ -428,10 +464,18 @@ export class CustomFunction extends PPNode {
         false,
       );
     });
-    if (socketsToBeRemoved.length > 0 || argumentsToBeAdded.length > 0) {
+
+    if (
+      socketsToBeRemoved.length +
+        argumentsToBeAdded.length +
+        outputsToBeAdded.length +
+        outputsToBeRemoved.length >
+      0
+    ) {
       this.metaInfoChanged();
       return true;
     }
+
     return false;
   }
   // adapt all nodes apart from the code one
