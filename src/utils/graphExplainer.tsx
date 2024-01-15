@@ -2,6 +2,7 @@ import FlowLogic from '../classes/FlowLogic';
 import PPGraph from '../classes/GraphClass';
 import PPLink from '../classes/LinkClass';
 import PPNode from '../classes/NodeClass';
+import { getCircularReplacer } from './utils';
 
 // pretty cool function isnt it
 // assumes no circular dependencies
@@ -36,7 +37,16 @@ function getNodeDetails(node: PPNode) {
 function getNodeExplanations(node: PPNode) {}
 
 function getConnectionExplanation(link: PPLink) {
-  return 'nothin';
+  const stringified = link.getSource().getStringifiedData();
+  let truncated = stringified;
+  if (stringified.length > 60) {
+    truncated = stringified.substring(0, 60) + '...';
+  }
+  return {
+    To: link.getTarget().getNode().id,
+    From: link.getSource().getNode().id,
+    Data: truncated,
+  };
 }
 
 function extractDependencyPyramid(nodes: PPNode[]) {
@@ -73,13 +83,14 @@ export function extractExplanation(graph: PPGraph): string {
       inThisChain.forEach((node) => found.add(node.id));
     }
   });
-  const links = nodes.map((node) =>
-    node
-      .getAllInputSockets()
-      .filter((socket) => socket.hasLink())
-      .map((socket) => socket.links[0])
-      .flat(Infinity),
-  );
+  const links = nodes
+    .map((node) =>
+      node
+        .getAllInputSockets()
+        .filter((socket) => socket.hasLink())
+        .map((socket) => socket.links[0]),
+    )
+    .flat();
 
   const toReturn = {
     'Number of nodes': numNodes,
@@ -88,7 +99,7 @@ export function extractExplanation(graph: PPGraph): string {
       Names: seedNodes.map((node) => node.getName()).join(','),
     },
     'Dependency Pyramids': uniqueChains.map(extractDependencyPyramid),
-    //Connections: links.map((link) => getConnectionExplanation(link)),
+    Connections: links.map(getConnectionExplanation),
   };
 
   console.log(JSON.stringify(toReturn));
