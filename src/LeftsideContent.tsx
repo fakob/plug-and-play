@@ -39,7 +39,10 @@ import {
   useIsSmallScreen,
   writeTextToClipboard,
 } from './utils/utils';
-import { getAllNodeTypes } from './nodes/allNodes';
+import {
+  getAllNodeTypes,
+  getAllNodesFormattedForInterface,
+} from './nodes/allNodes';
 import MDXCreate from './help/help.mdx';
 import MDXAbout from './help/about.mdx';
 
@@ -120,7 +123,6 @@ const LeftsideContent = (props) => {
   >([{ id: '', name: '' }]);
   const [graphSearchActiveItem, setGraphSearchActiveItem] =
     useState<IGraphSearch | null>(null);
-  const [nodesCached, setNodesCached] = useState([]);
 
   const handleFilter = (
     event: React.MouseEvent<HTMLElement>,
@@ -201,36 +203,6 @@ const LeftsideContent = (props) => {
     InterfaceController.onGraphListChanged = updateGraphSearchItems;
 
     updateGraphSearchItems();
-
-    setTimeout(() => {
-      const allNodeTypes = Object.entries(getAllNodeTypes());
-      if (allNodeTypes) {
-        setNodesCached(
-          allNodeTypes
-            .map(([title, obj]) => {
-              return {
-                title,
-                name: obj.name,
-                key: title,
-                description: obj.description,
-                hasInputs: obj.hasInputs,
-                tags: obj.tags,
-                hasExample: obj.hasExample,
-                group: obj.tags[0],
-              };
-            })
-            .sort((a, b) =>
-              a.name.localeCompare(b.name, 'en', { sensitivity: 'base' }),
-            )
-            .sort(
-              (a, b) =>
-                a.group?.localeCompare(b.group, 'en', {
-                  sensitivity: 'base',
-                }),
-            ),
-        );
-      }
-    }, 1000);
   }, []);
 
   return (
@@ -277,10 +249,7 @@ const LeftsideContent = (props) => {
         )}
         {(props.filter === 'nodes' || props.filter == null) && (
           <Item>
-            <NodesContent
-              nodesCached={nodesCached}
-              randomMainColor={props.randomMainColor}
-            />
+            <NodesContent randomMainColor={props.randomMainColor} />
           </Item>
         )}
         {(props.filter === 'about' || props.filter == null) && (
@@ -540,7 +509,7 @@ const NodesContent = (props) => {
         }}
         subheader={<li />}
       >
-        {props.nodesCached.map((property) => {
+        {getAllNodesFormattedForInterface().map((property) => {
           return (
             <NodeItem
               property={property}

@@ -38,6 +38,7 @@ import * as chatgpt from './api/chatgpt';
 import * as twitter from './api/twitter';
 
 let allNodesCached = undefined;
+let allNodesFormatted = undefined;
 
 // TODO get rid of copy pasting here
 
@@ -105,6 +106,34 @@ export const getAllNodeTypes = (): RegisteredNodeTypes => {
     allNodesCached = toReturn;
   }
   return allNodesCached;
+};
+
+export const getAllNodesFormattedForInterface = (): any[] => {
+  if (allNodesFormatted == undefined) {
+    allNodesFormatted = Object.entries(getAllNodeTypes())
+      .map(([title, obj]) => {
+        return {
+          title,
+          name: obj.name,
+          key: title,
+          description: obj.description,
+          hasInputs: obj.hasInputs,
+          tags: obj.tags,
+          hasExample: obj.hasExample,
+          group: obj.tags[0],
+        };
+      })
+      .sort((a, b) =>
+        a.name.localeCompare(b.name, 'en', { sensitivity: 'base' }),
+      )
+      .sort(
+        (a, b) =>
+          a.group?.localeCompare(b.group, 'en', {
+            sensitivity: 'base',
+          }),
+      );
+  }
+  return allNodesFormatted;
 };
 
 export const getAllNodesInDetail = (): any[] => {
