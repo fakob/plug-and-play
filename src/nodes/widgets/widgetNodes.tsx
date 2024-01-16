@@ -387,25 +387,6 @@ export class WidgetRadio extends WidgetBase {
   public allowResize(): boolean {
     return false;
   }
-
-  public async outputPlugged(): Promise<void> {
-    const target =
-      this.getSocketByName(selectedOptionName).links[0].getTarget();
-    const data = parseValueAndAttachWarnings(
-      this,
-      new ArrayType(),
-      target.defaultData,
-    );
-
-    if (
-      JSON.stringify(radioDefaultValue) ===
-      JSON.stringify(this.getInputData(optionsName))
-    ) {
-      this.setInputData(optionsName, data);
-      this.executeOptimizedChain();
-    }
-    await super.outputPlugged();
-  }
 }
 
 const pickerDefaultName = 'Pick a color';
@@ -942,6 +923,8 @@ export class WidgetSlider extends WidgetBase {
   }
 }
 
+const dropDownDefaultName = 'Dropdown';
+
 export class WidgetDropdown extends WidgetHybridBase {
   public getName(): string {
     return 'Dropdown';
@@ -978,7 +961,7 @@ export class WidgetDropdown extends WidgetHybridBase {
         SOCKET_TYPE.IN,
         labelName,
         new StringType(),
-        'Dropdown',
+        dropDownDefaultName,
         false,
       ),
       new Socket(SOCKET_TYPE.OUT, outName, new AnyType()),
@@ -995,17 +978,8 @@ export class WidgetDropdown extends WidgetHybridBase {
 
   public async outputPlugged(): Promise<void> {
     const target = this.getSocketByName(outName).links[0].getTarget();
-    const data = parseValueAndAttachWarnings(
-      this,
-      new ArrayType(),
-      target.defaultData,
-    );
 
-    if (
-      JSON.stringify(defaultOptions) ===
-      JSON.stringify(this.getInputData(optionsName))
-    ) {
-      this.setInputData(optionsName, data);
+    if (dropDownDefaultName === this.getInputData(labelName)) {
       this.setInputData(labelName, target.name);
       this.executeOptimizedChain();
     }
