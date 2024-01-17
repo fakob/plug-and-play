@@ -175,6 +175,7 @@ export default class PPGraph {
       event.stopPropagation();
       const target = event.target;
       if (target instanceof Viewport) {
+        this.overrideNodeCursorPosition = this.viewport.toWorld(event.global);
         InterfaceController.openNodeSearch();
       }
     }
