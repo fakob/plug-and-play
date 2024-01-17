@@ -13,7 +13,7 @@ import PPGraph from './classes/GraphClass';
 import PPStorage from './PPStorage';
 import { ActionHandler } from './utils/actionHandler';
 import { zoomToFitNodes } from './pixi/utils-pixi';
-import { IGraphSearch, TSocketId } from './utils/interfaces';
+import { IGraphSearch, INodeSearch, TSocketId } from './utils/interfaces';
 
 export enum ListenEvent {
   SelectionChanged, // data = PPNode[]
@@ -115,6 +115,9 @@ export default class InterfaceController {
   static setShowGraphDelete: (show: boolean) => void = () => {};
   static setBackgroundColor: (number) => void = () => {};
   static setShowSharePlayground: (show: boolean) => void = () => {};
+  static setNodeSearchActiveItem: (
+    updateFunction: (oldArray: INodeSearch[]) => INodeSearch[],
+  ) => void = () => {};
 
   /////////////////////////////////////////////////////////////////////////////
   static isTypingInConsole = false;

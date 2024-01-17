@@ -148,16 +148,15 @@ export class Constant extends PPNode {
     return true;
   }
 
-  public async outputPlugged(): Promise<void> {
-    const dataToUpdate =
-      this.getSocketByName(constantOutName).links[0].getTarget().defaultData;
+  public async populateDefaults(socket): Promise<void> {
+    const dataToUpdate = socket.links[0].getTarget().defaultData;
     updateDataIfDefault(
       this,
       constantInName,
       constantDefaultData,
       dataToUpdate,
     );
-    await super.outputPlugged();
+    await super.populateDefaults(socket);
   }
 }
 
@@ -212,7 +211,14 @@ export class ConsolePrint extends PPNode {
   }
 
   protected getDefaultIO(): Socket[] {
-    return [new Socket(SOCKET_TYPE.IN, constantInName, new StringType(), "Hello from console")];
+    return [
+      new Socket(
+        SOCKET_TYPE.IN,
+        constantInName,
+        new StringType(),
+        'Hello from console',
+      ),
+    ];
   }
 
   protected async onExecute(inputObject: any): Promise<void> {
