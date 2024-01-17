@@ -672,9 +672,12 @@ export default class PPGraph {
 
     // send notification pulse
     if (notify) {
-      await link.getSource().getNode().outputPlugged();
-      await link.getTarget().getNode().inputPlugged();
-      await link.getTarget().getNode().executeOptimizedChain();
+      const node = link.getSource().getNode();
+      await node.outputPlugged();
+      await node.inputPlugged();
+      if (node.updateBehaviour.update) {
+        await link.getTarget().getNode().executeOptimizedChain();
+      }
     }
 
     return link;
