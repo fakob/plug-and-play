@@ -1,4 +1,6 @@
 import { Viewport } from 'pixi-viewport';
+import TimeAgo from 'javascript-time-ago';
+import en from 'javascript-time-ago/locale/en';
 import InterfaceController, { ListenEvent } from './InterfaceController';
 import { GESTUREMODE, GET_STARTED_GRAPH } from './utils/constants';
 import { ActionHandler } from './utils/actionHandler';
@@ -19,8 +21,11 @@ import PPGraph from './classes/GraphClass';
 import { hri } from 'human-readable-ids';
 import { Button } from '@mui/material';
 import React from 'react';
-import { SerializedGraph } from './utils/interfaces';
+import { IGraphSearch, SerializedGraph } from './utils/interfaces';
 import { Graph } from './utils/indexedDB';
+
+TimeAgo.addDefaultLocale(en);
+const timeAgo = new TimeAgo('en-US');
 
 (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__ &&
   (window as any).__PIXI_INSPECTOR_GLOBAL_HOOK__.register({ PIXI: PIXI });
@@ -412,10 +417,18 @@ export default class PPStorage {
     }
   }
 
-  async getGraphs(): Promise<any[]> {
-    return await PPStorage.getInstance()
+  async getGraphsList(): Promise<any[]> {
+    const graphs = await PPStorage.getInstance()
       .db.graphs.toCollection()
+      .reverse()
       .sortBy('date');
+    return graphs.map((graph) => {
+      return {
+        id: graph.id,
+        name: graph.name,
+        label: `saved ${timeAgo.format(graph.date)}`,
+      } as IGraphSearch;
+    });
   }
 
   async getResources(): Promise<any[]> {
