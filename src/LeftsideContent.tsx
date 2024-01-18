@@ -23,8 +23,6 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import LinkIcon from '@mui/icons-material/Link';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import ShareIcon from '@mui/icons-material/Share';
-import TimeAgo from 'javascript-time-ago';
-import en from 'javascript-time-ago/locale/en';
 import styles from './utils/style.module.css';
 import PPGraph from './classes/GraphClass';
 import PPStorage from './PPStorage';
@@ -35,19 +33,12 @@ import {
   getLoadGraphExampleURL,
   getLoadNodeExampleURL,
   removeExtension,
-  sortByDate,
   useIsSmallScreen,
   writeTextToClipboard,
 } from './utils/utils';
-import {
-  getAllNodeTypes,
-  getAllNodesFormattedForInterface,
-} from './nodes/allNodes';
+import { getAllNodesFormattedForInterface } from './nodes/allNodes';
 import MDXCreate from './help/help.mdx';
 import MDXAbout from './help/about.mdx';
-
-TimeAgo.addDefaultLocale(en);
-const timeAgo = new TimeAgo('en-US');
 
 type FilterContentProps = {
   readonly handleFilter: (
@@ -158,17 +149,11 @@ const LeftsideContent = (props) => {
         });
       }
 
-      const graphs: any[] = await PPStorage.getInstance().getGraphs();
-      const newGraphSearchItems = graphs.sort(sortByDate).map((graph) => {
-        return {
-          id: graph.id,
-          name: graph.name,
-          label: `saved ${timeAgo.format(graph.date)}`,
-        } as IGraphSearch;
-      });
+      const newGraphSearchItems: IGraphSearch[] =
+        await PPStorage.getInstance().getGraphsList();
 
       // add local header entry
-      if (graphs.length > 0) {
+      if (newGraphSearchItems.length > 0) {
         newGraphSearchItems.unshift({
           id: `local-header`,
           name: 'Local playgrounds',
