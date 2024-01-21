@@ -6,6 +6,7 @@ import {
   TRIGGER_TYPE_OPTIONS,
 } from '../../utils/constants';
 import PPStorage from '../../PPStorage';
+import { NodeExecutionWarning } from '../../classes/ErrorClass';
 import PPNode from '../../classes/NodeClass';
 import InterfaceController, { ListenEvent } from '../../InterfaceController';
 import { ArrayType } from '../datatypes/arrayType';
@@ -84,13 +85,14 @@ export class SqliteReader extends PPNode {
         defaultSqlQuery,
         true,
       ),
-      new PPSocket(SOCKET_TYPE.OUT, outputTableSocketName, new ArrayType()),
+      new PPSocket(SOCKET_TYPE.OUT, outputTableSocketName, new ArrayType(), []),
       new PPSocket(
         SOCKET_TYPE.OUT,
         outputColumnNamesSocketName,
         new ArrayType(),
+        [],
       ),
-      new PPSocket(SOCKET_TYPE.OUT, outputQuerySocketName, new ArrayType()),
+      new PPSocket(SOCKET_TYPE.OUT, outputQuerySocketName, new ArrayType(), []),
     ];
   }
 
@@ -149,7 +151,7 @@ export class SqliteReader extends PPNode {
         this.executeQuery();
         return this.db;
       }
-      return Promise.reject(new Error('No database loaded'));
+      this.setStatus(new NodeExecutionWarning('No database loaded'));
     } catch (error) {
       return Promise.reject(new Error(error));
     }

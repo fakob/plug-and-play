@@ -184,7 +184,7 @@ export class Image extends PPNode {
 
   onNodeResize = (newWidth, newHeight) => {
     // make sure node has been added
-    if (this.maskRef) {
+    if (this.maskRef && this.texture) {
       const objectFit = this.getInputData(imageObjectFit);
       this.doFitAndPosition(newWidth, newHeight, objectFit);
       this.maskRef.width = newWidth;
@@ -219,31 +219,33 @@ export class Image extends PPNode {
   };
 
   updateTexture = async (base64: string): Promise<void> => {
-    this.setInputData(imageOutputName, base64);
-    const texture = await PIXI.Assets.load(base64);
+    if (this.sprite) {
+      this.setInputData(imageOutputName, base64);
+      const texture = await PIXI.Assets.load(base64);
 
-    // this.texture.baseTexture.destroy();
-    // need to find a way to check if a baseTexture is used elsewhere
-    // until then baseTextures are kept
+      // this.texture.baseTexture.destroy();
+      // need to find a way to check if a baseTexture is used elsewhere
+      // until then baseTextures are kept
 
-    this.texture = new PIXI.Texture(texture);
-    this.sprite.texture = this.texture;
-    this.sprite.texture.update();
+      this.texture = new PIXI.Texture(texture);
+      this.sprite.texture = this.texture;
+      this.sprite.texture.update();
 
-    const arrayBuffer = await fetch(base64).then((b) => b.arrayBuffer());
-    const tags = PPGraph.currentGraph.dynamicImports[IMPORT_NAME].load(
-      arrayBuffer,
-      { expanded: true },
-    );
+      const arrayBuffer = await fetch(base64).then((b) => b.arrayBuffer());
+      const tags = PPGraph.currentGraph.dynamicImports[IMPORT_NAME].load(
+        arrayBuffer,
+        { expanded: true },
+      );
 
-    this.setOutputData(imageOutputName, base64);
-    this.setOutputData(imageOutputDetails, {
-      textureWidth: this.texture.width,
-      textureHeight: this.texture.height,
-      width: Math.round(this.maskRef.width),
-      height: Math.round(this.maskRef.height),
-    });
-    this.setOutputData(imageOutputExif, JSON.stringify(tags));
+      this.setOutputData(imageOutputName, base64);
+      this.setOutputData(imageOutputDetails, {
+        textureWidth: this.texture.width,
+        textureHeight: this.texture.height,
+        width: Math.round(this.maskRef.width),
+        height: Math.round(this.maskRef.height),
+      });
+      this.setOutputData(imageOutputExif, JSON.stringify(tags));
+    }
   };
 
   updateAndExecute = async (base64: string): Promise<void> => {
