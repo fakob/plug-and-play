@@ -29,7 +29,7 @@ const GraphOverlayDrawer: React.FunctionComponent<GraphOverlayDrawerProps> = (
   }, [rightDrawerWidth, leftDrawerWidth, props.toggle, props.toggleLeft]);
 
   return (
-    <Box>
+    <Box sx={{ position: 'relative' }}>
       <Box
         className={props.toggleLeft ? styles.fadeEnter : styles.fadeExit}
         sx={{
