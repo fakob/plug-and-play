@@ -38,6 +38,29 @@ export abstract class PNPError extends PNPStatus {
   }
 }
 
+export abstract class PNPWarning extends PNPStatus {
+  constructor(message?: string) {
+    super(message);
+    Object.setPrototypeOf(this, PNPError.prototype);
+  }
+
+  public isError(): boolean {
+    return false;
+  }
+
+  public getName(): string {
+    return 'Warning';
+  }
+
+  public getDescription(): string {
+    return 'Nondescript warning';
+  }
+
+  public getColor(): TRgba {
+    return TRgba.white();
+  }
+}
+
 export class PNPSuccess extends PNPStatus {
   public isError(): boolean {
     return false;
@@ -143,7 +166,7 @@ export class NodeConfigurationError extends PNPError {
   }
 }
 
-export class NodeExecutionWarning extends PNPError {
+export class NodeExecutionWarning extends PNPWarning {
   constructor(message?: string) {
     super(message);
     Object.setPrototypeOf(this, NodeExecutionWarning.prototype);
@@ -162,7 +185,7 @@ export class NodeExecutionWarning extends PNPError {
   }
 }
 
-export class SocketParsingWarning extends PNPError {
+export class SocketParsingWarning extends PNPWarning {
   constructor(message?: string) {
     super(message);
     Object.setPrototypeOf(this, SocketParsingWarning.prototype);
