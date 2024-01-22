@@ -798,7 +798,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
                 }
                 groupBy={(option) => option.group}
                 options={getNodes(nodeSearchActiveItem)}
-                onChange={PPGraph.currentGraph.action_AddOrReplaceNode}
+                onChange={PPGraph.currentGraph.addOrReplaceNode}
                 filterOptions={(options, state) => {
                   const filteredOptions = filterOptionsNode(options, state);
                   nodeSearchCountRef.current = filteredOptions.length;
