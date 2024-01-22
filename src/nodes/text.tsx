@@ -342,12 +342,12 @@ export class Label extends PPNode {
     return false;
   }
 
-  public async outputPlugged(): Promise<void> {
+  public async populateDefaults(socket): Promise<void> {
     const dataToUpdate = convertToString(
-      this.getSocketByName(outputSocketName).links[0].getTarget().defaultData,
+      socket.links[0].getTarget().defaultData,
     );
     updateDataIfDefault(this, inputSocketName, labelDefaultText, dataToUpdate);
-    await super.outputPlugged();
+    await super.populateDefaults(socket);
   }
 }
 

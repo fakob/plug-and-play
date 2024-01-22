@@ -213,11 +213,10 @@ export class WidgetButton extends WidgetBase {
     this._refLabel.text = text;
   };
 
-  public async outputPlugged(): Promise<void> {
-    const dataToUpdate =
-      this.getSocketByName(outName).links[0].getTarget().name;
+  public async populateDefaults(socket): Promise<void> {
+    const dataToUpdate = socket.links[0].getTarget().name;
     updateDataIfDefault(this, labelName, buttonDefaultName, dataToUpdate);
-    await super.outputPlugged();
+    await super.populateDefaults(socket);
   }
 }
 
@@ -428,8 +427,8 @@ export class WidgetColorPicker extends WidgetHybridBase {
     return 104;
   }
 
-  public async outputPlugged(): Promise<void> {
-    const target = this.getSocketByName(outName).links[0].getTarget();
+  public async populateDefaults(socket): Promise<void> {
+    const target = socket.links[0].getTarget();
     const data = parseValueAndAttachWarnings(
       this,
       new ColorType(),
@@ -444,7 +443,7 @@ export class WidgetColorPicker extends WidgetHybridBase {
       this.setInputData(labelName, target.name);
       this.executeOptimizedChain();
     }
-    await super.outputPlugged();
+    await super.populateDefaults(socket);
   }
 
   setFinalColor: any = () => {};
@@ -615,8 +614,8 @@ export class WidgetSwitch extends WidgetHybridBase {
     return 104;
   }
 
-  public async outputPlugged(): Promise<void> {
-    const target = this.getSocketByName(outName).links[0].getTarget();
+  public async populateDefaults(socket): Promise<void> {
+    const target = socket.links[0].getTarget();
     if (
       switchDefaultName === this.getInputData(labelName) &&
       switchDefaultData === this.getInputData(selectedName)
@@ -625,7 +624,7 @@ export class WidgetSwitch extends WidgetHybridBase {
       this.setInputData(labelName, target.name);
       this.executeOptimizedChain();
     }
-    await super.outputPlugged();
+    await super.populateDefaults(socket);
   }
 
   // kept here to be accessed by redo undo
@@ -905,8 +904,8 @@ export class WidgetSlider extends WidgetBase {
     this.setOutputDataAndText(limitRange(value, minValue, maxValue));
   };
 
-  public async outputPlugged(): Promise<void> {
-    const target = this.getSocketByName(outName).links[0].getTarget();
+  public async populateDefaults(socket): Promise<void> {
+    const target = socket.links[0].getTarget();
     if (
       target.dataType.constructor === new NumberType().constructor &&
       sliderDefaultValue === this.getInputData(initialValueName)
@@ -919,7 +918,7 @@ export class WidgetSlider extends WidgetBase {
       this.setInputData(labelName, target.name);
       this.executeOptimizedChain();
     }
-    await super.outputPlugged();
+    await super.populateDefaults(socket);
   }
 }
 
@@ -976,14 +975,14 @@ export class WidgetDropdown extends WidgetHybridBase {
     return 104;
   }
 
-  public async outputPlugged(): Promise<void> {
-    const target = this.getSocketByName(outName).links[0].getTarget();
+  public async populateDefaults(socket): Promise<void> {
+    const target = socket.links[0].getTarget();
 
     if (dropDownDefaultName === this.getInputData(labelName)) {
       this.setInputData(labelName, target.name);
       this.executeOptimizedChain();
     }
-    await super.outputPlugged();
+    await super.populateDefaults(socket);
   }
 
   setSelectedOption: any = () => {};

@@ -88,11 +88,10 @@ export class CodeEditor extends HybridNode2 {
     return 300;
   }
 
-  public async outputPlugged(): Promise<void> {
-    const dataToUpdate =
-      this.getSocketByName(outputSocketName).links[0].getTarget().defaultData;
+  public async populateDefaults(socket): Promise<void> {
+    const dataToUpdate = socket.links[0].getTarget().defaultData;
     updateDataIfDefault(this, inputSocketName, codeDefaultData, dataToUpdate);
-    await super.outputPlugged();
+    await super.populateDefaults(socket);
   }
 
   protected getParentComponent(props: any): React.ReactElement {

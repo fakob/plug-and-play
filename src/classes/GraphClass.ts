@@ -15,6 +15,7 @@ import {
   SerializedLink,
   SerializedNode,
   SerializedSelection,
+  INodeSearch,
   TNodeSource,
   TPastePos,
 } from '../utils/interfaces';
@@ -32,7 +33,10 @@ import FlowLogic from './FlowLogic';
 import InterfaceController, { ListenEvent } from '../InterfaceController';
 import { v4 as uuid } from 'uuid';
 import { dynamicImport } from '../utils/dynamicImport';
-import { ONCLICK_DOUBLECLICK } from '../utils/constants';
+import {
+  MAX_LATEST_NODES_IN_SEARCH,
+  ONCLICK_DOUBLECLICK,
+} from '../utils/constants';
 
 export default class PPGraph {
   static currentGraph: PPGraph;
@@ -171,6 +175,7 @@ export default class PPGraph {
       event.stopPropagation();
       const target = event.target;
       if (target instanceof Viewport) {
+        this.overrideNodeCursorPosition = this.viewport.toWorld(event.global);
         InterfaceController.openNodeSearch();
       }
     }
@@ -689,6 +694,125 @@ export default class PPGraph {
     this.selectedSourceSocket = null;
   }
 
+  addOrReplaceNode = async (event, selected: INodeSearch) => {
+    if (!selected) return;
+
+    const referenceID = hri.random();
+    const addLink = PPGraph.currentGraph.selectedSourceSocket;
+    const setActiveItemArray = () =>
+      InterfaceController.setNodeSearchActiveItem((oldArray: INodeSearch[]) => {
+        selected.group = 'Latest';
+        const newArray: INodeSearch[] = [selected, ...oldArray];
+        if (newArray.length > MAX_LATEST_NODES_IN_SEARCH) {
+          newArray.pop();
+        }
+        console.log(newArray.length, newArray);
+        return newArray;
+      });
+
+    if (PPGraph.currentGraph.selection.selectedNodes.length === 1 && !addLink) {
+      await this.action_replaceSingleNode(
+        selected,
+        referenceID,
+        setActiveItemArray,
+      );
+    } else {
+      await this.action_addNewNode(
+        selected,
+        referenceID,
+        setActiveItemArray,
+        addLink,
+      );
+    }
+  };
+
+  action_replaceSingleNode = async (
+    selected: INodeSearch,
+    referenceID: string,
+    setActiveItemArray,
+  ) => {
+    // replace node if there is exactly one node selected
+    const newNodeType = selected.title;
+    const oldNode = PPGraph.currentGraph.selection.selectedNodes[0];
+    const serializedNode = oldNode.serialize();
+
+    const action = async () => {
+      const newNode = await PPGraph.currentGraph.replaceNode(
+        serializedNode,
+        serializedNode.id,
+        referenceID,
+        newNodeType,
+      );
+      InterfaceController.notifyListeners(ListenEvent.SelectionChanged, [
+        newNode,
+      ]);
+      setActiveItemArray();
+      InterfaceController.setIsNodeSearchVisible(false);
+    };
+    const undoAction = async () => {
+      const previousNode = await PPGraph.currentGraph.replaceNode(
+        serializedNode,
+        referenceID,
+        serializedNode.id,
+      );
+      InterfaceController.notifyListeners(ListenEvent.SelectionChanged, [
+        previousNode,
+      ]);
+    };
+    await ActionHandler.performAction(action, undoAction, 'Replace node');
+  };
+
+  action_addNewNode = async (
+    selected: INodeSearch,
+    referenceID: string,
+    setActiveItemArray,
+    addLink,
+  ) => {
+    // add node
+    const nodePos = this.overrideNodeCursorPosition;
+
+    const action = async () => {
+      let addedNode: PPNode;
+      const nodeExists = getAllNodeTypes()[selected?.title] !== undefined;
+      if (nodeExists) {
+        addedNode = await this.addNewNode(
+          selected.title,
+          {
+            overrideId: referenceID,
+            nodePosX: nodePos.x,
+            nodePosY: nodePos.y,
+          },
+          addLink ? NODE_SOURCE.NEWCONNECTED : NODE_SOURCE.NEW,
+        );
+      } else {
+        addedNode = await this.addNewNode(
+          'CustomFunction',
+          {
+            overrideId: referenceID,
+            nodePosX: nodePos.x,
+            nodePosY: nodePos.y,
+          },
+          addLink ? NODE_SOURCE.NEWCONNECTED : NODE_SOURCE.NEW,
+        );
+        addedNode.setNodeName(selected.title);
+      }
+      if (addLink) {
+        connectNodeToSocket(addLink, addedNode).then(() => {
+          if (addLink.isInput()) {
+            addedNode.populateDefaults(addLink);
+          }
+        });
+      }
+
+      setActiveItemArray();
+      InterfaceController.setIsNodeSearchVisible(false);
+    };
+    const undoAction = async () => {
+      this.removeNode(ActionHandler.getSafeNode(referenceID));
+    };
+    await ActionHandler.performAction(action, undoAction, 'Add node');
+  };
+
   async action_addWidgetNode(
     socket: PPSocket,
     newNodeType: string,
@@ -703,12 +827,15 @@ export default class PPGraph {
           overrideId: referenceID,
           nodePosX: node.x + (socket.isInput() ? 0 : node.width + 40),
           nodePosY: node.y + socket.y,
-          initialData: socket.isInput() ? socket.data : undefined,
         },
         NODE_SOURCE.NEWCONNECTED,
       );
       socket.isInput() && newNode.setPosition(-(newNode.width + 40), 0, true);
-      connectNodeToSocket(socket, newNode);
+      await connectNodeToSocket(socket, newNode);
+      if (socket.isInput()) {
+        newNode.populateDefaults(socket);
+        newNode.executeOptimizedChain();
+      }
     };
 
     const undoAction = async () => {

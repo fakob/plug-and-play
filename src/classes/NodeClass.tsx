@@ -1525,6 +1525,10 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     // override if you care about this event
   }
 
+  public populateDefaults(socket: Socket): void {
+    // override if you care about this event
+  }
+
   // these are imported before node is added to the graph
   public getDynamicImports(): string[] {
     return [];
