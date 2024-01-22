@@ -33,7 +33,15 @@ export class Table_GetColumnByName extends ExcelHelper {
 }`;
   }
   protected getDefaultParameterValues(): Record<string, any> {
-    return { ColumnName: 'ExampleColumn' };
+    return {
+      ArrayOfArraysIn: [
+        ['ID', 'Name'],
+        [0, 'Penelope Pumpernickel'],
+        [1, 'Bartholomew Bumblesnatch'],
+        [2, 'Prudence Plumthorn'],
+      ],
+      ColumnName: 'Name',
+    };
   }
   protected getDefaultParameterTypes(): Record<string, any> {
     return { ArrayOfArraysIn: new ArrayType(), ColumnName: new StringType() };

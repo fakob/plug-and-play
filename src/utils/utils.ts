@@ -24,12 +24,13 @@ import {
   IWarningHandler,
   SerializedSelection,
   TNodeId,
+  TParseType,
   TSocketId,
   TSocketType,
 } from './interfaces';
 import { Viewport } from 'pixi-viewport';
 import { AbstractType } from '../nodes/datatypes/abstractType';
-import { PNPSuccess } from '../classes/ErrorClass';
+import { PNPSuccess, SocketParsingWarning } from '../classes/ErrorClass';
 
 export function isFunction(funcOrClass: any): boolean {
   const propertyNames = Object.getOwnPropertyNames(funcOrClass);
@@ -418,7 +419,7 @@ export const replacePartOfObject = (
   value: any,
 ): any => {
   let objValue = value;
-  const parsedJSON = parseJSON(value);
+  const parsedJSON = parseJSON(value).value;
   if (parsedJSON) {
     objValue = parsedJSON;
   } else {
@@ -447,21 +448,31 @@ export const replacePartOfObject = (
   return obj;
 };
 
-export const parseJSON = (jsonToParse: any): { [key: string]: any } => {
-  let jsonObj: any;
-  switch (typeof jsonToParse) {
-    case 'string':
-      jsonObj = JSON5.parse(jsonToParse);
-      break;
-    case 'object':
-      jsonObj = jsonToParse;
-      break;
-
-    default:
-      jsonObj = {};
-      break;
+export const parseJSON = (data: any, strictParsing = false): TParseType => {
+  let parsedData;
+  const warnings: SocketParsingWarning[] = [];
+  if (typeof data === 'string' || strictParsing) {
+    try {
+      parsedData = JSON5.parse(data);
+    } catch (error) {}
   }
-  return jsonObj;
+  if (parsedData == undefined) {
+    if (typeof data == 'object') {
+      parsedData = data;
+    } else {
+      try {
+        parsedData = JSON.parse(JSON.stringify(data));
+      } catch (error) {
+        parsedData = {};
+        warnings.push(new SocketParsingWarning('Not a JSON. {} is returned'));
+      }
+    }
+  }
+
+  return {
+    value: parsedData,
+    warnings: warnings,
+  };
 };
 
 export const compare = (
@@ -607,7 +618,9 @@ export function getCurrentCursorPosition(): PIXI.Point {
     pointerPosition = viewport.toWorld(pointerPosition);
     return pointerPosition;
   } else {
-    console.warn("Failed to get cursor event (probably not set yet), returning 0,0");
+    console.warn(
+      'Failed to get cursor event (probably not set yet), returning 0,0',
+    );
     return new PIXI.Point(0, 0);
   }
 }
@@ -616,7 +629,9 @@ export function getCurrentButtons(): number {
   if (PPGraph.currentGraph.pointerEvent.buttons) {
     return PPGraph.currentGraph.pointerEvent.buttons;
   } else {
-    console.warn("Failed to get cursor event (probably not set yet), returning 0");
+    console.warn(
+      'Failed to get cursor event (probably not set yet), returning 0',
+    );
     return 0;
   }
 }
@@ -755,13 +770,15 @@ export function getLoadedValue(value, shouldLoadAll) {
 }
 
 export const getExampleURL = (path: string, fileName: string): string => {
-  return `${window.location.origin
-    }/assets/examples/${path}/${encodeURIComponent(fileName)}.ppgraph`;
+  return `${
+    window.location.origin
+  }/assets/examples/${path}/${encodeURIComponent(fileName)}.ppgraph`;
 };
 
 export const getLoadExampleURL = (path: string, fileName: string): string => {
-  const fullPath = `${window.location.origin}${window.location.pathname
-    }?loadURL=${getExampleURL(path, fileName)}`;
+  const fullPath = `${window.location.origin}${
+    window.location.pathname
+  }?loadURL=${getExampleURL(path, fileName)}`;
   return fullPath;
 };
 
@@ -804,8 +821,9 @@ export function useIsSmallScreen(): boolean {
 }
 
 export const wrapDownloadLink = (URL: string, text = '') => {
-  return `<a style="color:#E154BB;text-decoration:none;" href="${URL}" target="_blank">${text || URL
-    }</a>`;
+  return `<a style="color:#E154BB;text-decoration:none;" href="${URL}" target="_blank">${
+    text || URL
+  }</a>`;
 };
 
 export const saveBase64AsImage = async (base64, fileName) => {

@@ -565,7 +565,7 @@ export const JSONWidget: React.FunctionComponent<JSONTypeProps> = (props) => (
   <DataEditorWidget
     property={props.property}
     randomMainColor={props.randomMainColor}
-    parseData={(value) => parseJSON(value)}
+    parseData={(value) => parseJSON(value).value}
     errorMessage="Invalid JSON!"
   />
 );

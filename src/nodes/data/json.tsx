@@ -75,7 +75,7 @@ export class JSONGet extends PPNode {
     inputObject: unknown,
     outputObject: Record<string, unknown>,
   ): Promise<void> {
-    const parsedJSON = parseJSON(inputObject[JSONName]);
+    const parsedJSON = parseJSON(inputObject[JSONName]).value;
     if (parsedJSON) {
       outputObject[outValueName] = JSONPath({
         path: inputObject[JSONParamName],
@@ -110,13 +110,13 @@ export class JSONSet extends PPNode {
   }
   protected getDefaultIO(): Socket[] {
     return [
-      new Socket(SOCKET_TYPE.IN, JSONName, new JSONType()),
+      new Socket(SOCKET_TYPE.IN, JSONName, new JSONType(), {}),
       new Socket(
         SOCKET_TYPE.IN,
         JSONParamName,
         new StringType(),
-        undefined,
-        undefined,
+        'propertyName',
+        true,
         {
           inspectorInjection: {
             reactComponent: FloatingJsonPathPicker,
@@ -127,7 +127,7 @@ export class JSONSet extends PPNode {
           },
         },
       ),
-      new Socket(SOCKET_TYPE.IN, JSONInsert, new AnyType(), 'newValueOrObject'),
+      new Socket(SOCKET_TYPE.IN, JSONInsert, new AnyType(), 'propertyValue'),
       new Socket(SOCKET_TYPE.OUT, outValueName, new JSONType()),
     ];
   }
@@ -135,7 +135,7 @@ export class JSONSet extends PPNode {
     inputObject: unknown,
     outputObject: Record<string, unknown>,
   ): Promise<void> {
-    const parsedJSON = parseJSON(inputObject[JSONName]);
+    const parsedJSON = parseJSON(inputObject[JSONName]).value;
     if (parsedJSON) {
       outputObject[outValueName] = replacePartOfObject(
         parsedJSON,

@@ -1,9 +1,9 @@
 import { inspect } from 'util';
 import React from 'react';
-import { SocketParsingWarning } from '../../classes/ErrorClass';
 import { JSONWidget } from '../../widgets';
 import { AbstractType, DataTypeProps } from './abstractType';
 import { TParseType, TRgba } from '../../utils/interfaces';
+import { parseJSON } from '../../utils/utils';
 
 export interface JSONTypeProps extends DataTypeProps {
   dataType: JSONType;
@@ -54,30 +54,7 @@ export class JSONType extends AbstractType {
   }
 
   parse(data: any): TParseType {
-    let parsedData;
-    const warnings: SocketParsingWarning[] = [];
-    if (typeof data === 'string' || this.strictParsing) {
-      try {
-        parsedData = JSON.parse(data);
-      } catch (error) {}
-    }
-    if (parsedData == undefined) {
-      if (typeof data == 'object') {
-        parsedData = data;
-      } else {
-        try {
-          parsedData = JSON.parse(JSON.stringify(data));
-        } catch (error) {
-          parsedData = {};
-          warnings.push(new SocketParsingWarning('Not a JSON. {} is returned'));
-        }
-      }
-    }
-
-    return {
-      value: parsedData,
-      warnings: warnings,
-    };
+    return parseJSON(data, this.strictParsing);
   }
 
   recommendedOutputNodeWidgets(): string[] {

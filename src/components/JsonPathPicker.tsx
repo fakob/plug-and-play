@@ -73,7 +73,7 @@ export class JsonPathPicker extends React.PureComponent<P, unknown> {
   render() {
     let parsedJSON: any;
     try {
-      parsedJSON = parseJSON(this.props.json);
+      parsedJSON = parseJSON(this.props.json).value;
     } catch (error) {
       console.warn(error);
       return (
@@ -111,7 +111,7 @@ function json2Jsx(
   choosenPath: string,
   jsonObj: any,
   isLast = true,
-  pathKey = ''
+  pathKey = '',
 ): React.ReactElement<any> {
   if (jsonObj === null) {
     return renderNull(choosenPath, isLast, pathKey);
@@ -136,13 +136,13 @@ function json2Jsx(
 function renderNull(
   choosenPath: string,
   isLast: boolean,
-  pathKey: string
+  pathKey: string,
 ): React.ReactElement<any> {
   return (
     <MyValueSpan
       data-pathkey={pathKey}
       className={`json-literal json-value ${getPickerStyle(
-        getRelationship(choosenPath, pathKey)
+        getRelationship(choosenPath, pathKey),
       )}`}
     >
       {'null'}
@@ -154,13 +154,13 @@ function renderNull(
 function renderUndefined(
   choosenPath: string,
   isLast: boolean,
-  pathKey: string
+  pathKey: string,
 ): React.ReactElement<any> {
   return (
     <MyValueSpan
       data-pathkey={pathKey}
       className={`json-literal json-value ${getPickerStyle(
-        getRelationship(choosenPath, pathKey)
+        getRelationship(choosenPath, pathKey),
       )}`}
     >
       {'undefined'}
@@ -173,7 +173,7 @@ function renderString(
   choosenPath: string,
   isLast: boolean,
   pathKey: string,
-  str: string
+  str: string,
 ): React.ReactElement<any> {
   str = escape(str);
   if (isUrl(str)) {
@@ -181,7 +181,7 @@ function renderString(
       <MyValueLinkSpan
         data-pathkey={pathKey}
         className={`json-literal json-value ${getPickerStyle(
-          getRelationship(choosenPath, pathKey)
+          getRelationship(choosenPath, pathKey),
         )}`}
         target="_blank"
         href={str}
@@ -196,7 +196,7 @@ function renderString(
       <MyValueSpan
         data-pathkey={pathKey}
         className={`json-literal json-value ${getPickerStyle(
-          getRelationship(choosenPath, pathKey)
+          getRelationship(choosenPath, pathKey),
         )}`}
       >
         <MySeparatorSpan>"</MySeparatorSpan>
@@ -211,13 +211,13 @@ function renderNumber(
   choosenPath: string,
   isLast: boolean,
   pathKey: string,
-  num: number
+  num: number,
 ): React.ReactElement<any> {
   return (
     <MyValueSpan
       data-pathkey={pathKey}
       className={`json-literal json-value ${getPickerStyle(
-        getRelationship(choosenPath, pathKey)
+        getRelationship(choosenPath, pathKey),
       )}`}
     >
       {num}
@@ -230,13 +230,13 @@ function renderBoolean(
   choosenPath: string,
   isLast: boolean,
   pathKey: string,
-  bool: boolean
+  bool: boolean,
 ): React.ReactElement<any> {
   return (
     <MyValueSpan
       data-pathkey={pathKey}
       className={`json-literal json-value ${getPickerStyle(
-        getRelationship(choosenPath, pathKey)
+        getRelationship(choosenPath, pathKey),
       )}`}
     >
       {bool}
@@ -249,7 +249,7 @@ function renderObject(
   choosenPath: string,
   isLast: boolean,
   pathKey: string,
-  obj: any
+  obj: any,
 ): React.ReactElement<any> {
   const relation = getRelationship(choosenPath, pathKey);
 
@@ -278,7 +278,7 @@ function renderObject(
                 <MyKeySpan
                   data-pathkey={nextPathKey}
                   className={`json-literal json-key ${getPickerStyle(
-                    getRelationship(choosenPath, nextPathKey)
+                    getRelationship(choosenPath, nextPathKey),
                   )}`}
                 >
                   {key}
@@ -288,7 +288,7 @@ function renderObject(
                   choosenPath,
                   obj[key],
                   idx == length - 1 ? true : false,
-                  nextPathKey
+                  nextPathKey,
                 )}
               </li>
             );
@@ -320,7 +320,7 @@ function renderArray(
   choosenPath: string,
   isLast: boolean,
   pathKey: string,
-  arr: any[]
+  arr: any[],
 ): React.ReactElement<any> {
   const relation = getRelationship(choosenPath, pathKey);
 
@@ -355,7 +355,7 @@ function renderArray(
                   choosenPath,
                   value,
                   idx == length - 1 ? true : false,
-                  nextPathKey
+                  nextPathKey,
                 )}
               </li>
             );
