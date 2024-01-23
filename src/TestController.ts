@@ -3,8 +3,6 @@ import PPLink from './classes/LinkClass';
 import PPNode from './classes/NodeClass';
 import { hri } from 'human-readable-ids';
 import Socket from './classes/SocketClass';
-import { TSocketType } from './utils/interfaces';
-import { SOCKET_TYPE } from './utils/constants';
 import { getAllNodeTypes } from './nodes/allNodes';
 import { ActionHandler } from './utils/actionHandler';
 

@@ -1,14 +1,14 @@
 /* eslint-disable prettier/prettier */
+import { controlOrMetaKey } from './helpers';
 
 describe('fundamentals', () => {
-  const controlOrMetaKey = Cypress.platform === 'darwin' ? '{meta}' : '{ctrl}';
   const myGraphName = 'Bingus';
 
   function openInspectorAndCheckForName(nameOfNode) {
-    cy.get('body').type(`${controlOrMetaKey}3`); // open inspector
+    cy.get('body').type(`${controlOrMetaKey()}3`); // open inspector
     cy.get('#inspector-filter-common').contains('Common').should('exist');
     // cy.get('#:ri:').contains(nameOfNode).should('exist');
-    cy.get('body').type(`${controlOrMetaKey}3`);
+    cy.get('body').type(`${controlOrMetaKey()}3`);
   }
 
   function checkToastForMessage(messageToSearchFor) {
@@ -31,12 +31,12 @@ describe('fundamentals', () => {
     cy.visit('http://127.0.0.1:8080/?new=true');
     cy.get('#pixi-container > canvas').dblclick();
     cy.focused().type('Add{enter}');
-    cy.get('body').type(`${controlOrMetaKey}a`); // select all
+    cy.get('body').type(`${controlOrMetaKey()}a`); // select all
     openInspectorAndCheckForName('Add');
   });
 
   it('Add node with shortcut', () => {
-    cy.get('body').type(`${controlOrMetaKey}f`); // node search
+    cy.get('body').type(`${controlOrMetaKey()}f`); // node search
     cy.get('body').type('Subtract{enter}');
     openInspectorAndCheckForName('Subtract');
   });
@@ -55,12 +55,12 @@ describe('fundamentals', () => {
 
   it('Save Graph', () => {
     cy.wait(3000);
-    cy.get('body').type(`${controlOrMetaKey}s`);
+    cy.get('body').type(`${controlOrMetaKey()}s`);
     checkToastForMessage('was saved');
   });
 
   it('Rename Graph', () => {
-    cy.get('body').type(`${controlOrMetaKey}e`);
+    cy.get('body').type(`${controlOrMetaKey()}e`);
     cy.get('#playground-name-input').clear().type(`${myGraphName}{enter}`);
     cy.wait(1000)
       .get('.notistack-SnackbarContainer')
@@ -80,7 +80,7 @@ describe('fundamentals', () => {
   });
 
   it('Load graph example', () => {
-    cy.get('body').type(`${controlOrMetaKey}o`);
+    cy.get('body').type(`${controlOrMetaKey()}o`);
     cy.wait(1000).get('#graphs-list').contains('li', 'z test node').click();
     checkToastForMessage('Remote playground was loaded');
   });
