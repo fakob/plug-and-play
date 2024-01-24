@@ -7,6 +7,7 @@ import { NumberType } from '../datatypes/numberType';
 import { StringType } from '../datatypes/stringType';
 import {
   HTTPNode,
+  HTTPNodeCompanionMode,
   companionDefaultAddress,
   outputContentName,
   sendThroughCompanionAddress,
@@ -39,6 +40,9 @@ abstract class Jira_Base extends HTTPNode {
       ),
       new Socket(SOCKET_TYPE.OUT, outputContentName, new JSONType(), {}),
     ];
+  }
+  protected getCompanionMode() {
+    return HTTPNodeCompanionMode.Always;
   }
 
   protected static getAuthorizationHeader(inputObject: any) {

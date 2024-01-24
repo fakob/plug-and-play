@@ -72,6 +72,10 @@ export class HTTPNode extends PPNode {
     return HTTPNodeCompanionMode.Optional;
   }
 
+  protected getDefaultURL() {
+    return 'https://jsonplaceholder.typicode.com/posts';
+  }
+
   protected getDefaultIO(): Socket[] {
     // if the node wants to expose a choice between companion and not we offer two extra sockets
     const companionSockets =
@@ -98,7 +102,7 @@ export class HTTPNode extends PPNode {
         SOCKET_TYPE.IN,
         urlInputName,
         new StringType(),
-        'https://jsonplaceholder.typicode.com/posts',
+        this.getDefaultURL(),
       ),
       new Socket(
         SOCKET_TYPE.IN,
