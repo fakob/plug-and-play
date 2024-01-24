@@ -143,7 +143,7 @@ export class JumpToNode extends WidgetButton {
       new Socket(
         SOCKET_TYPE.IN,
         selectNodeName,
-        new DynamicEnumType(getNodeArrayOptions),
+        new DynamicEnumType(getNodeArrayOptions, () => {}),
         undefined,
         false,
       ),

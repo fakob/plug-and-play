@@ -379,7 +379,9 @@ export class ExecuteMacro extends CustomFunction {
       new Socket(
         SOCKET_TYPE.IN,
         'MacroName',
-        new DynamicEnumType(ExecuteMacro.getOptions, this.generateUseNewCode),
+        new DynamicEnumType(ExecuteMacro.getOptions, () =>
+          this.generateUseNewCode(),
+        ),
         'EmptyDefault',
       ),
     ].concat(super.getDefaultIO());
