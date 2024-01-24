@@ -27,8 +27,12 @@ describe('fundamentals', () => {
     }).as('listExamples');
   });
 
-  it('Add node with double click', () => {
+  it ("visit page", () => {
     cy.visit('http://127.0.0.1:8080/?new=true');
+    cy.wait(100);
+  });
+
+  it('Add node with double click', () => {
     cy.get('#pixi-container > canvas').dblclick();
     cy.focused().type('Add{enter}');
     cy.get('body').type(`${controlOrMetaKey()}a`); // select all
