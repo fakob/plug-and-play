@@ -245,9 +245,7 @@ export const SelectWidget: React.FunctionComponent<
     const value = event.target.value;
     potentiallyUpdateSocketData(props.property, value);
     setData(value);
-    if (props.onChange) {
-      props.onChange(value);
-    }
+    props.onChange(value);
     if (props.property.getNode()) {
       props.property.getNode().metaInfoChanged();
     }

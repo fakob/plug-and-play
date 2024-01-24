@@ -14,7 +14,7 @@ export interface DynamicEnumTypeProps extends DataTypeProps {
 export class DynamicEnumType extends AbstractType {
   getOptions = () => [];
   onChange = () => {};
-  constructor(getOptions, onChange = () => {}) {
+  constructor(getOptions, onChange) {
     super();
     this.getOptions = getOptions;
     this.onChange = onChange;
