@@ -33,6 +33,12 @@ export const HTTPMethodOptions: EnumStructure = [
   return { text: val, value: val };
 });
 
+export enum HTTPNodeCompanionMode {
+  Optional,
+  Always,
+  Never,
+}
+
 export interface CompanionResponse {
   status: number;
   response: string;
@@ -62,7 +68,31 @@ export class HTTPNode extends PPNode {
     return !socket.isInput();
   }
 
+  protected getCompanionMode() {
+    return HTTPNodeCompanionMode.Optional;
+  }
+
   protected getDefaultIO(): Socket[] {
+    // if the node wants to expose a choice between companion and not we offer two extra sockets
+    const companionSockets =
+      this.getCompanionMode() == HTTPNodeCompanionMode.Optional
+        ? [
+            new Socket(
+              SOCKET_TYPE.IN,
+              sendThroughCompanionName,
+              new BooleanType(),
+              false,
+            ),
+            Socket.getOptionalVisibilitySocket(
+              SOCKET_TYPE.IN,
+              sendThroughCompanionAddress,
+              new StringType(),
+              companionDefaultAddress,
+              () => this.getInputData(sendThroughCompanionName),
+            ),
+          ]
+        : [];
+
     return [
       new Socket(
         SOCKET_TYPE.IN,
@@ -89,21 +119,10 @@ export class HTTPNode extends PPNode {
         {},
         () => this.getInputData(methodName) !== 'Get',
       ),
-      new Socket(
-        SOCKET_TYPE.IN,
-        sendThroughCompanionName,
-        new BooleanType(),
-        false,
-      ),
-      Socket.getOptionalVisibilitySocket(
-        SOCKET_TYPE.IN,
-        sendThroughCompanionAddress,
-        new StringType(),
-        companionDefaultAddress,
-        () => this.getInputData(sendThroughCompanionName),
-      ),
       new Socket(SOCKET_TYPE.OUT, outputContentName, new JSONType(), {}),
-    ];
+    ]
+      .concat(companionSockets)
+      .concat(super.getDefaultIO());
   }
 
   protected pushStatusCode(statusCode: number): void {
@@ -120,7 +139,13 @@ export class HTTPNode extends PPNode {
     inputObject: any,
     outputObject: Record<string, unknown>,
   ): Promise<void> {
-    const usingCompanion: boolean = inputObject[sendThroughCompanionName];
+    const nodeCompanionMode = this.getCompanionMode();
+    let usingCompanion = false;
+    if (nodeCompanionMode == HTTPNodeCompanionMode.Optional) {
+      usingCompanion = inputObject[sendThroughCompanionName];
+    } else if (nodeCompanionMode == HTTPNodeCompanionMode.Always) {
+      usingCompanion = true;
+    }
     this.status.custom = [];
     let returnResponse = {};
     if (usingCompanion) {
