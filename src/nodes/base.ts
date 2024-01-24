@@ -94,8 +94,8 @@ export class Mouse extends PPNode {
 }
 
 export class Keyboard extends PPNode {
-  onKeyDownHandler: (event?: KeyboardEvent) => void = () => { };
-  onKeyUpHandler: (event?: KeyboardEvent) => void = () => { };
+  onKeyDownHandler: (event?: KeyboardEvent) => void = () => {};
+  onKeyUpHandler: (event?: KeyboardEvent) => void = () => {};
   onKeyDown = (event: KeyboardEvent): void => {
     this.setOutputData('key', event.key);
     this.setOutputData('code', event.code);
@@ -494,7 +494,7 @@ export class Comparison extends PPNode {
         SOCKET_TYPE.IN,
         'Operator',
         new EnumType(COMPARISON_OPTIONS, onOptionChange),
-        COMPARISON_OPTIONS[0].value,
+        COMPARISON_OPTIONS[0].text,
         false,
       ),
       new PPSocket(SOCKET_TYPE.OUT, 'Output', new BooleanType()),
@@ -507,7 +507,9 @@ export class Comparison extends PPNode {
   ): Promise<void> {
     const inputA = inputObject['A'];
     const inputB = inputObject['B'];
-    const operator = inputObject['Operator'];
+    const operator = COMPARISON_OPTIONS.find(
+      (option) => option.text === inputObject['Operator'],
+    ).value;
     outputObject['Output'] = compare(inputA, operator, inputB);
   }
 }
