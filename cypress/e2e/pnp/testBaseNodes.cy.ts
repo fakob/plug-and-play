@@ -51,4 +51,60 @@ describe('testBaseNodes', () => {
       );
     });
   });
+
+  it('IsValid', () => {
+    cy.visit('http://127.0.0.1:8080/?new=true');
+    cy.wait(100);
+    doWithTestController((testController) => {
+      expect(testController.addNode('IsValid', 'IsValid')).to.eq(true);
+    });
+    cy.wait(100);
+    doWithTestController((testController) => {
+      testController.setNodeInputValue('IsValid', 'A', null);
+      testController.executeNodeByID('IsValid');
+    });
+    cy.wait(100);
+    doWithTestController((testController) => {
+      expect(testController.getNodeOutputValue('IsValid', 'Output')).to.eq(
+        true,
+      );
+      testController.setNodeInputValue('IsValid', 'A', undefined);
+      testController.executeNodeByID('IsValid');
+    });
+    cy.wait(100);
+    doWithTestController((testController) => {
+      expect(testController.getNodeOutputValue('IsValid', 'Output')).to.eq(
+        true,
+      );
+      testController.setNodeInputValue('IsValid', 'A', 1);
+      testController.executeNodeByID('IsValid');
+    });
+    cy.wait(100);
+    doWithTestController((testController) => {
+      expect(testController.getNodeOutputValue('IsValid', 'Output')).to.eq(
+        false,
+      );
+      testController.setNodeInputValue(
+        'IsValid',
+        'Condition',
+        'is NOT undefined',
+      );
+      testController.setNodeInputValue('IsValid', 'A', undefined);
+      testController.executeNodeByID('IsValid');
+    });
+    cy.wait(100);
+    doWithTestController((testController) => {
+      expect(testController.getNodeOutputValue('IsValid', 'Output')).to.eq(
+        false,
+      );
+      testController.setNodeInputValue('IsValid', 'A', true);
+      testController.executeNodeByID('IsValid');
+    });
+    cy.wait(100);
+    doWithTestController((testController) => {
+      expect(testController.getNodeOutputValue('IsValid', 'Output')).to.eq(
+        true,
+      );
+    });
+  });
 });
