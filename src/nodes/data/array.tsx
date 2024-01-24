@@ -62,7 +62,9 @@ export class ArrayMethod extends PPNode {
       new PPSocket(
         SOCKET_TYPE.IN,
         'Method',
-        new EnumType(arrayMethodsArrayOptions, this.onOptionChange),
+        new EnumType(arrayMethodsArrayOptions, (value) =>
+          this.onOptionChange(value),
+        ),
         'map',
         false,
       ),

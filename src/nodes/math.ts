@@ -118,7 +118,7 @@ export class MathFunction extends PPNode {
       new Socket(
         SOCKET_TYPE.IN,
         'Option',
-        new EnumType(mathOptions, onOptionChange),
+        new EnumType(mathOptions, (value) => onOptionChange(value)),
         'abs',
         false,
       ),
