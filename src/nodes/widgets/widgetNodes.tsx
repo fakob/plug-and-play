@@ -1104,13 +1104,21 @@ const formatSelected = (
   selected: unknown,
   multiSelect: boolean,
 ): string | string[] => {
-  if (multiSelect && !Array.isArray(selected)) {
-    return String(selected).split(',');
-  } else if (!multiSelect && Array.isArray(selected)) {
-    return selected.join(', ');
-  } else if (!Array.isArray(selected)) {
-    return String(selected);
+  let parsedSelected = selected;
+
+  if (typeof selected === 'string') {
+    try {
+      parsedSelected = JSON.parse(selected);
+    } catch (e) {
+      parsedSelected = selected;
+    }
+  }
+
+  if (Array.isArray(parsedSelected)) {
+    return multiSelect ? parsedSelected : parsedSelected.join(',');
   } else {
-    return selected;
+    return multiSelect
+      ? String(parsedSelected).split(',')
+      : String(parsedSelected);
   }
 };

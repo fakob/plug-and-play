@@ -37,14 +37,20 @@ export default class TestController {
     node.y += y;
   }
 
-  connectNodesByID(node1ID: string, node2ID: string, node1Socket: string) {
+  connectNodesByID(
+    node1ID: string,
+    node2ID: string,
+    node1Socket: string,
+    node2Socket: string,
+  ) {
     const n1 = this.getNodeByID(node1ID);
     const n2 = this.getNodeByID(node2ID);
     const originSocket = n1.getOutputSocketByName(node1Socket);
-    PPGraph.currentGraph.connect(
-      originSocket,
-      n2.getSocketForNewConnection(originSocket),
-    );
+    const targetSocket =
+      node2Socket === undefined
+        ? n2.getSocketForNewConnection(originSocket)
+        : n2.getInputSocketByName(node2Socket);
+    PPGraph.currentGraph.connect(originSocket, targetSocket);
   }
 
   async disconnectLink(
