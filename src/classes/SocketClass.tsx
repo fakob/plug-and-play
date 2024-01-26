@@ -25,6 +25,7 @@ import {
   TEXT_RESOLUTION,
   TOOLTIP_DISTANCE,
   TOOLTIP_WIDTH,
+  STATUS_SEVERITY,
 } from '../utils/constants';
 import { AbstractType, DataTypeProps } from '../nodes/datatypes/abstractType';
 import { dataToType, serializeType } from '../nodes/datatypes/typehelper';
@@ -170,9 +171,7 @@ export default class Socket
     if (currentMessage !== newMessage) {
       this.status = status;
       this.redraw();
-      if (!status.isError()) {
-        this.getNode().adaptToSocketErrors();
-      } else {
+      if (status.getSeverity() >= STATUS_SEVERITY.WARNING) {
         this.getNode().setStatus(
           new NodeExecutionWarning(
             `Parsing warning on ${this.isInput() ? 'input' : 'output'}: ${
@@ -182,15 +181,18 @@ ${newMessage}`,
           ),
           'socket',
         );
+      } else {
+        this.getNode().adaptToSocketErrors();
       }
     }
   }
 
   redraw(): void {
     this.removeChildren();
-    const color = this.status.isError()
-      ? TRgba.fromString(COLOR_DARK).hex()
-      : TRgba.fromString(COLOR_WHITE_TEXT).hex();
+    const color =
+      this.status.getSeverity() >= STATUS_SEVERITY.WARNING
+        ? TRgba.fromString(COLOR_DARK).hex()
+        : TRgba.fromString(COLOR_WHITE_TEXT).hex();
     this._MetaText = new PIXI.Text(
       '',
       new TextStyle({
