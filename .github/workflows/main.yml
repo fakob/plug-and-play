@@ -31,10 +31,9 @@ jobs:
       #      - name: Build
       #        run: yarn build
       - name: Start Server
-        run: |
-          yarn dev &
+        run: yarn dev &
           npx wait-on http://localhost:3000
-      - name: run tests
+      - name: Run tests
         run: yarn test
 
       - name: Archive test results
