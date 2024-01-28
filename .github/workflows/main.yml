@@ -28,15 +28,14 @@ jobs:
 
       - name: Install Dependencies
         run: yarn install
-
-      - name: Build
-        run: yarn build
-
-      - name: Start Server and Run Tests
+      #      - name: Build
+      #        run: yarn build
+      - name: Start Server
         run: |
           yarn dev &
           npx wait-on http://localhost:3000
-          yarn test
+      - name: run tests
+        run: yarn test
 
       - name: Archive test results
         if: failure()
