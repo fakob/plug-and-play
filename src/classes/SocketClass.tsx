@@ -542,6 +542,22 @@ ${newMessage}`,
     );
   }
 
+  screenPointSocketCenter(): PIXI.Point {
+    const socketRefPos = this._SocketRef.getGlobalPosition();
+    return PPGraph.currentGraph.viewport.toScreen(
+      socketRefPos.x,
+      socketRefPos.y,
+    );
+  }
+
+  screenPointSocketLabelCenter(): PIXI.Point {
+    const textRefPos = this._TextRef.getGlobalPosition();
+    const factor = this.isInput() ? 1 : -1;
+    const x = textRefPos.x + (factor * this._TextRef.width) / 2;
+    const y = textRefPos.y + this._TextRef.height / 2;
+    return PPGraph.currentGraph.viewport.toScreen(x, y);
+  }
+
   getTooltipPosition(): PIXI.Point {
     const scale = PPGraph.currentGraph.viewportScaleX;
     const distanceX = TOOLTIP_DISTANCE * scale;

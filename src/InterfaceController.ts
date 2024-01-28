@@ -174,6 +174,9 @@ export default class InterfaceController {
         }
       } else if (e.shiftKey) {
         switch (e.code) {
+          case 'Digit0':
+            PPGraph.currentGraph.viewport.setZoom(1);
+            break;
           case 'Digit1':
             zoomToFitNodes();
             break;

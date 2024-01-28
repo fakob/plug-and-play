@@ -23,11 +23,12 @@ export default class TestController {
   }
 
   getNodeCenter(node: PPNode): [number, number] {
-    return [node.x + node.width / 2, node.y + node.height / 2];
+    const pos = node.screenPointBackgroundRectCenter();
+    return [pos.x, pos.y];
   }
 
-  getNodeCenterById(nodeType: string): [number, number] {
-    const toReturn = this.getNodeByID(nodeType);
+  getNodeCenterById(nodeId: string): [number, number] {
+    const toReturn = this.getNodeByID(nodeId);
     return this.getNodeCenter(toReturn);
   }
 
@@ -104,15 +105,24 @@ export default class TestController {
     this.getNodeByID(id).executeOptimizedChain();
   }
 
-  getSocketCenterByNodeIDAndSocketName(nodeID: string, socketName: string) {
+  getSocketByNodeIDAndSocketName(nodeID: string, socketName: string) {
     const node = this.getNodeByID(nodeID);
-    const socket = node
-      .getAllSockets()
-      .find((socket) => socket.name == socketName);
-    return [
-      node.x + socket.x + socket._SocketRef.x + socket._SocketRef.width / 2,
-      node.y + socket.y + socket._SocketRef.y + socket._SocketRef.height / 2,
-    ];
+    return node.getAllSockets().find((socket) => socket.name == socketName);
+  }
+
+  getSocketCenterByNodeIDAndSocketName(nodeID: string, socketName: string) {
+    const socket = this.getSocketByNodeIDAndSocketName(nodeID, socketName);
+    const pos = socket.screenPointSocketCenter();
+    return [pos.x, pos.y];
+  }
+
+  getSocketLabelCenterByNodeIDAndSocketName(
+    nodeID: string,
+    socketName: string,
+  ) {
+    const socket = this.getSocketByNodeIDAndSocketName(nodeID, socketName);
+    const pos = socket.screenPointSocketLabelCenter();
+    return [pos.x, pos.y];
   }
 
   getNodes(): PPNode[] {
@@ -129,6 +139,10 @@ export default class TestController {
 
   removeNode(nodeID: string): void {
     PPGraph.currentGraph.removeNode(PPGraph.currentGraph.nodes[nodeID]);
+  }
+
+  getSelectedNodes(): PPNode[] {
+    return this.getGraph().selection.selectedNodes;
   }
 
   selectNodesById(nodeIDs: string[]): PPNode[] {

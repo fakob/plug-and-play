@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
-    "target": "ES2022",
-    "lib": ["ES2022", "dom"],
+    "lib": ["dom", "ES2022"],
     "sourceMap": false,
-    "types": ["cypress", "node"]
+    "target": "ES2022",
+    "types": ["cypress", "cypress-real-events", "node"]
   },
   "include": ["**/*.ts"]
 }
