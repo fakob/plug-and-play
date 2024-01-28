@@ -142,6 +142,10 @@ export default class TestController {
     return node.status.node.isError() || node.status.socket.isError();
   }
 
+  getNodeCustomStatuses(nodeID: string) {
+    return this.getNodeByID(nodeID).status.custom;
+  }
+
   undo() {
     ActionHandler.undo();
   }

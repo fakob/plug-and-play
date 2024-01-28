@@ -106,14 +106,22 @@ export class HTTPNode extends PPNode {
     ];
   }
 
+  protected pushExclusiveStatus(status: PNPCustomStatus) {
+    this.status.custom = this.status.custom.filter(
+      (existingStatus) => status.id !== existingStatus.id,
+    );
+    this.status.custom.push(status);
+    this.drawStatuses();
+  }
+
   protected pushStatusCode(statusCode: number): void {
-    this.status.custom.push(
+    this.pushExclusiveStatus(
       new PNPCustomStatus(
         'Status: ' + statusCode,
-        statusCode > 400 ? ERROR_COLOR : SUCCESS_COLOR,
+        statusCode >= 400 ? ERROR_COLOR : SUCCESS_COLOR,
+        'statuscode',
       ),
     );
-    this.drawStatuses();
   }
 
   protected async onExecute(
@@ -121,40 +129,61 @@ export class HTTPNode extends PPNode {
     outputObject: Record<string, unknown>,
   ): Promise<void> {
     const usingCompanion: boolean = inputObject[sendThroughCompanionName];
+    outputObject[outputContentName] = await this.request(
+      inputObject[headersInputName],
+      inputObject[bodyInputName],
+      inputObject[urlInputName],
+      inputObject[methodName],
+      usingCompanion,
+      inputObject[sendThroughCompanionAddress],
+    );
+  }
+
+  protected async request(
+    headers: HeadersInit,
+    body: BodyInit,
+    url: string,
+    method: 'Get' | 'Post',
+    usingCompanion = false,
+    companionAddress = '',
+  ): Promise<object> {
     this.status.custom = [];
     let returnResponse = {};
-    if (usingCompanion) {
-      this.status.custom.push(
-        new PNPCustomStatus('Companion', TRgba.white().multiply(0.5)),
-      );
-      //console.log('awaitedres: ' + (await (await res).text()));
-      const companionRes = await HTTPNode.sendThroughCompanion(
-        inputObject[sendThroughCompanionAddress],
-        inputObject[headersInputName],
-        inputObject[bodyInputName],
-        inputObject[urlInputName],
-        inputObject[methodName],
-      );
+    try {
+      if (usingCompanion) {
+        this.status.custom.push(
+          new PNPCustomStatus('Companion', TRgba.white().multiply(0.5)),
+        );
+        const companionRes = await HTTPNode.sendThroughCompanion(
+          companionAddress,
+          headers,
+          body,
+          url,
+          method,
+        );
 
-      returnResponse = companionRes.response;
-      this.pushStatusCode(companionRes.status);
-    } else {
-      // no body if Get
-      const body =
-        inputObject[methodName] !== 'Get'
-          ? inputObject[bodyInputName]
-          : undefined;
-      const res = fetch(inputObject[urlInputName], {
-        method: inputObject[methodName],
-        headers: inputObject[headersInputName],
-        body: body,
-      });
-      const awaitedRes = await res;
-      returnResponse = await awaitedRes.json();
-      this.pushStatusCode(awaitedRes.status);
+        this.pushStatusCode(companionRes.status);
+        returnResponse = companionRes.response;
+        return JSON.parse(companionRes.response);
+      } else {
+        // no body if Get
+        const bodyToUse: BodyInit = method !== 'Get' ? body : undefined;
+        const res = fetch(url, {
+          method: method,
+          headers: headers,
+          body: bodyToUse,
+        });
+        const awaitedRes = await res;
+        this.pushStatusCode(awaitedRes.status);
+        returnResponse = await awaitedRes.json();
+        return returnResponse;
+      }
+    } catch (error) {
+      console.trace(error);
+      // something went terribly wrong with the request
+      this.pushStatusCode(400);
+      return {};
     }
-
-    outputObject[outputContentName] = returnResponse;
   }
 
   static async sendThroughCompanion(
@@ -167,7 +196,7 @@ export class HTTPNode extends PPNode {
     try {
       const companionSpecific = {
         finalHeaders: headers,
-        finalBody: method == 'Post' ? JSON.stringify(body) : undefined,
+        finalBody: method == 'Post' ? JSON.stringify(body) : '{}',
         finalURL: URL,
         finalMethod: method,
       };
