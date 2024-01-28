@@ -20,7 +20,7 @@
     "core-js": "^3.33.2",
     "cors": "^2.8.5",
     "css-minimizer-webpack-plugin": "^5.0.1",
-    "cypress": "^13.6.3",
+    "cypress": "^13.4.0",
     "dexie": "^3.2.4",
     "dotenv-webpack": "^8.0.1",
     "eslint-webpack-plugin": "^4.0.1",
