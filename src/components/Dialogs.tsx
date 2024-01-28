@@ -26,21 +26,21 @@ export const ShareDialog = (props) => {
 
     const description = (
       document.getElementById(
-        'share-playground-description-input'
+        'share-playground-description-input',
       ) as HTMLInputElement
     ).value;
 
     const fileName =
       (
         document.getElementById(
-          'share-playground-fileName-input'
+          'share-playground-fileName-input',
         ) as HTMLInputElement
       ).value + '.ppgraph';
 
     const fileContent = JSON.stringify(
       PPGraph.currentGraph.serialize(),
       null,
-      2
+      2,
     );
 
     createGist(description, fileName, fileContent, isPublic)
@@ -82,7 +82,7 @@ export const ShareDialog = (props) => {
                 </Button>
               </>
             ),
-          }
+          },
         );
       })
       .catch((error) => {
@@ -187,7 +187,9 @@ Public gists are visible to everyone.`}
                       <Button
                         variant="text"
                         onClick={() => {
-                          PPStorage.getInstance().downloadGraph();
+                          PPStorage.getInstance().downloadGraph(
+                            PPGraph.currentGraph.id,
+                          );
                         }}
                       >
                         Download playground
