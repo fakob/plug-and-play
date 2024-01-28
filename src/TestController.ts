@@ -1,6 +1,7 @@
 import PPGraph from './classes/GraphClass';
 import PPLink from './classes/LinkClass';
 import PPNode from './classes/NodeClass';
+import InterfaceController from './InterfaceController';
 import { hri } from 'human-readable-ids';
 import Socket from './classes/SocketClass';
 import { getAllNodeTypes } from './nodes/allNodes';
@@ -162,5 +163,9 @@ export default class TestController {
 
   redo() {
     ActionHandler.redo();
+  }
+
+  setShowUnsavedChangesWarning(show: boolean) {
+    return (InterfaceController.showUnsavedChangesWarning = show);
   }
 }

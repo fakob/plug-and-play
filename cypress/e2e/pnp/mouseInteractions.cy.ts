@@ -1,3 +1,4 @@
+import { start } from 'repl';
 import {
   areCoordinatesClose,
   controlOrMetaKey,
@@ -5,12 +6,23 @@ import {
 } from './helpers';
 
 describe('mouseInteractions', () => {
+  const dragFromAtoB = (startX, startY, endX, endY, wait = false) => {
+    cy.get('body')
+      .realMouseMove(startX, startY)
+      .wait(wait ? 500 : 0) // adds waiting time when dragging connections
+      .realMouseDown({ x: startX, y: startY })
+      .realMouseMove(endX, endY)
+      .realMouseUp({ x: endX, y: endY });
+    cy.wait(1000);
+  };
+
   beforeEach(() => {
     cy.visit('http://127.0.0.1:8080/?new=true');
     cy.wait(1000);
     // cy.get('body').type(`${controlOrMetaKey()}{shift}Y`); // enable debug view
     cy.get('body').type('1'); // enable debug view
     doWithTestController((testController) => {
+      testController.setShowUnsavedChangesWarning(false);
       expect(testController.addNode('Constant', 'Constant1')).to.eq(true);
       expect(testController.addNode('Constant', 'Constant2')).to.eq(true);
     });
@@ -44,14 +56,8 @@ describe('mouseInteractions', () => {
     const endY = 460;
 
     doWithTestController((testController) => {
-      cy.get('body')
-        .realMouseMove(startX, startY)
-        .realMouseDown({ x: startX, y: startY })
-        .realMouseMove(endX, endY)
-        .realMouseUp({ x: endX, y: endY });
+      dragFromAtoB(startX, startY, endX, endY);
     });
-
-    cy.wait(1000);
     doWithTestController((testController) => {
       expect(testController.getSelectedNodes().length).to.eq(2);
     });
@@ -79,15 +85,9 @@ describe('mouseInteractions', () => {
     const startY = 100;
 
     doWithTestController((testController) => {
-      const [x, y] = testController.getNodeCenterById('Constant2');
-      cy.get('body')
-        .realMouseMove(startX, startY)
-        .realMouseDown({ x: startX, y: startY })
-        .realMouseMove(x, y)
-        .realMouseUp({ x: x, y: y });
+      const [endX, endY] = testController.getNodeCenterById('Constant2');
+      dragFromAtoB(startX, startY, endX, endY);
     });
-
-    cy.wait(1000);
     doWithTestController((testController) => {
       expect(testController.getSelectedNodes().length).to.eq(2);
       cy.get('body').should('contain', '2 nodes selected');
@@ -99,18 +99,12 @@ describe('mouseInteractions', () => {
     const startY = 100;
 
     doWithTestController((testController) => {
-      const [x, y] = testController.getSocketCenterByNodeIDAndSocketName(
+      const [endX, endY] = testController.getSocketCenterByNodeIDAndSocketName(
         'Constant2',
         'In',
       );
-      cy.get('body')
-        .realMouseMove(startX, startY)
-        .realMouseDown({ x: startX, y: startY })
-        .realMouseMove(x, y)
-        .realMouseUp({ x: x, y: y });
+      dragFromAtoB(startX, startY, endX, endY);
     });
-
-    cy.wait(1000);
     doWithTestController((testController) => {
       expect(testController.getSelectedNodes().length).to.eq(2);
       cy.get('body').should('contain', '2 nodes selected');
@@ -124,12 +118,7 @@ describe('mouseInteractions', () => {
 
     doWithTestController((testController) => {
       const [startX, startY] = testController.getNodeCenterById('Constant1');
-      cy.wait(100);
-      cy.get('body')
-        .realMouseMove(startX, startY)
-        .realMouseDown({ x: startX, y: startY })
-        .realMouseMove(endX, endY)
-        .realMouseUp({ x: endX, y: endY });
+      dragFromAtoB(startX, startY, endX, endY);
     });
     doWithTestController((testController) => {
       const [newX, newY] = testController.getNodeCenterById('Constant1');
@@ -146,12 +135,7 @@ describe('mouseInteractions', () => {
       const endPos = testController.getNodeCenterById('Constant2');
       endX = endPos[0] + 20;
       endY = endPos[1] + 20;
-      cy.wait(100);
-      cy.get('body')
-        .realMouseMove(startX, startY)
-        .realMouseDown({ x: startX, y: startY })
-        .realMouseMove(endX, endY)
-        .realMouseUp({ x: endX, y: endY });
+      dragFromAtoB(startX, startY, endX, endY);
     });
     doWithTestController((testController) => {
       const [newX, newY] = testController.getNodeCenterById('Constant1');
@@ -183,12 +167,7 @@ describe('mouseInteractions', () => {
       );
       endX = endPos[0];
       endY = endPos[1];
-      cy.wait(100);
-      cy.get('body')
-        .realMouseMove(startX, startY)
-        .realMouseDown({ x: startX, y: startY })
-        .realMouseMove(endX, endY)
-        .realMouseUp({ x: endX, y: endY });
+      dragFromAtoB(startX, startY, endX, endY);
     });
     doWithTestController((testController) => {
       const [newX, newY] = testController.getNodeCenterById('Constant1');
@@ -215,18 +194,10 @@ describe('mouseInteractions', () => {
     const endY = 200;
 
     doWithTestController((testController) => {
-      const [x, y] = testController.getSocketCenterByNodeIDAndSocketName(
-        'Constant2',
-        'Out',
-      );
-      cy.get('body')
-        .realMouseMove(x, y)
-        .wait(500)
-        .realMouseDown({ x: x, y: y })
-        .realMouseMove(endX, endY)
-        .realMouseUp({ x: endX, y: endY });
+      const [startX, startY] =
+        testController.getSocketCenterByNodeIDAndSocketName('Constant2', 'Out');
+      dragFromAtoB(startX, startY, endX, endY, true);
     });
-    cy.wait(1000);
     cy.get('#node-search[placeholder*="Search nodes"]').should('be.visible');
     cy.get('#node-search[placeholder*="Search nodes"]').type('{enter}');
     cy.wait(100);
@@ -247,19 +218,11 @@ describe('mouseInteractions', () => {
     });
     cy.wait(100);
     doWithTestController((testController) => {
-      const [x, y] = testController.getSocketCenterByNodeIDAndSocketName(
-        'Constant3',
-        'Out',
-      );
+      const [startX, startY] =
+        testController.getSocketCenterByNodeIDAndSocketName('Constant3', 'Out');
       const [endX, endY] = testController.getNodeCenterById('Constant4');
-      cy.get('body')
-        .realMouseMove(x, y)
-        .wait(500)
-        .realMouseDown({ x: x, y: y })
-        .realMouseMove(endX, endY)
-        .realMouseUp({ x: endX, y: endY });
+      dragFromAtoB(startX, startY, endX, endY, true);
     });
-    cy.wait(1000);
     doWithTestController((testController) => {
       expect(
         testController.getSocketLinks('Constant4', 'In')[0].source.getNode().id,
@@ -279,22 +242,14 @@ describe('mouseInteractions', () => {
     });
     cy.wait(100);
     doWithTestController((testController) => {
-      const [x, y] = testController.getSocketCenterByNodeIDAndSocketName(
-        'Constant3',
-        'Out',
-      );
+      const [startX, startY] =
+        testController.getSocketCenterByNodeIDAndSocketName('Constant3', 'Out');
       const [endX, endY] = testController.getSocketCenterByNodeIDAndSocketName(
         'Constant4',
         'In',
       );
-      cy.get('body')
-        .realMouseMove(x, y)
-        .wait(500)
-        .realMouseDown({ x: x, y: y })
-        .realMouseMove(endX, endY)
-        .realMouseUp({ x: endX, y: endY });
+      dragFromAtoB(startX, startY, endX, endY, true);
     });
-    cy.wait(1000);
     doWithTestController((testController) => {
       expect(
         testController.getSocketLinks('Constant4', 'In')[0].source.getNode().id,
@@ -315,22 +270,14 @@ describe('mouseInteractions', () => {
     });
     cy.wait(100);
     doWithTestController((testController) => {
-      const [x, y] = testController.getSocketCenterByNodeIDAndSocketName(
-        'Constant3',
-        'Out',
-      );
+      const [startX, startY] =
+        testController.getSocketCenterByNodeIDAndSocketName('Constant3', 'Out');
       const [endX, endY] = testController.getSocketCenterByNodeIDAndSocketName(
         'Constant2',
         'In',
       );
-      cy.get('body')
-        .realMouseMove(x, y)
-        .wait(500)
-        .realMouseDown({ x: x, y: y })
-        .realMouseMove(endX, endY)
-        .realMouseUp({ x: endX, y: endY });
+      dragFromAtoB(startX, startY, endX, endY, true);
     });
-    cy.wait(1000);
     doWithTestController((testController) => {
       expect(
         testController.getSocketLinks('Constant2', 'In')[0].source.getNode().id,
@@ -350,18 +297,10 @@ describe('mouseInteractions', () => {
       testController.moveNodeByID('Constant3', 0, -100);
     });
     doWithTestController((testController) => {
-      const [x, y] = testController.getSocketCenterByNodeIDAndSocketName(
-        'Constant3',
-        'Out',
-      );
-      cy.get('body')
-        .realMouseMove(x, y)
-        .wait(500)
-        .realMouseDown({ x: x, y: y })
-        .realMouseMove(x + moveX, y + moveY)
-        .realMouseUp({ x: x + moveX, y: y + moveY });
+      const [startX, startY] =
+        testController.getSocketCenterByNodeIDAndSocketName('Constant3', 'Out');
+      dragFromAtoB(startX, startY, startX + moveX, startY + moveY, true);
     });
-    cy.wait(1000);
     cy.get('#node-search[placeholder*="Search nodes"]').should(
       'not.be.visible',
     );
@@ -373,19 +312,10 @@ describe('mouseInteractions', () => {
     const endY = 200;
 
     doWithTestController((testController) => {
-      const [x, y] = testController.getSocketCenterByNodeIDAndSocketName(
-        'Constant1',
-        'Out',
-      );
-      cy.get('body')
-        .realMouseMove(x, y)
-        .wait(500)
-        .realMouseDown({ x: x, y: y })
-        .realMouseMove(endX, endY)
-        .realMouseUp({ x: endX, y: endY });
+      const [startX, startY] =
+        testController.getSocketCenterByNodeIDAndSocketName('Constant1', 'Out');
+      dragFromAtoB(startX, startY, endX, endY, true);
     });
-
-    cy.wait(1000);
     cy.get('#node-search[placeholder*="Search nodes"]').should('be.visible');
     cy.get('#node-search[placeholder*="Search nodes"]').type('{enter}');
     doWithTestController((testController) => {
@@ -403,19 +333,11 @@ describe('mouseInteractions', () => {
     });
     cy.wait(100);
     doWithTestController((testController) => {
-      const [x, y] = testController.getSocketCenterByNodeIDAndSocketName(
-        'Constant1',
-        'Out',
-      );
+      const [startX, startY] =
+        testController.getSocketCenterByNodeIDAndSocketName('Constant1', 'Out');
       const [endX, endY] = testController.getNodeCenterById('Constant4');
-      cy.get('body')
-        .realMouseMove(x, y)
-        .wait(500)
-        .realMouseDown({ x: x, y: y })
-        .realMouseMove(endX, endY)
-        .realMouseUp({ x: endX, y: endY });
+      dragFromAtoB(startX, startY, endX, endY, true);
     });
-    cy.wait(1000);
     doWithTestController((testController) => {
       expect(
         testController.getSocketLinks('Constant4', 'In')[0].source.getNode().id,
@@ -433,22 +355,14 @@ describe('mouseInteractions', () => {
     });
     cy.wait(100);
     doWithTestController((testController) => {
-      const [x, y] = testController.getSocketCenterByNodeIDAndSocketName(
-        'Constant1',
-        'Out',
-      );
+      const [startX, startY] =
+        testController.getSocketCenterByNodeIDAndSocketName('Constant1', 'Out');
       const [endX, endY] = testController.getSocketCenterByNodeIDAndSocketName(
         'Constant4',
         'In',
       );
-      cy.get('body')
-        .realMouseMove(x, y)
-        .wait(500)
-        .realMouseDown({ x: x, y: y })
-        .realMouseMove(endX, endY)
-        .realMouseUp({ x: endX, y: endY });
+      dragFromAtoB(startX, startY, endX, endY, true);
     });
-    cy.wait(1000);
     doWithTestController((testController) => {
       expect(
         testController.getSocketLinks('Constant4', 'In')[0].source.getNode().id,
@@ -469,22 +383,14 @@ describe('mouseInteractions', () => {
     });
     cy.wait(100);
     doWithTestController((testController) => {
-      const [x, y] = testController.getSocketCenterByNodeIDAndSocketName(
-        'Constant1',
-        'Out',
-      );
+      const [startX, startY] =
+        testController.getSocketCenterByNodeIDAndSocketName('Constant1', 'Out');
       const [endX, endY] = testController.getSocketCenterByNodeIDAndSocketName(
         'Constant4',
         'In',
       );
-      cy.get('body')
-        .realMouseMove(x, y)
-        .wait(500)
-        .realMouseDown({ x: x, y: y })
-        .realMouseMove(endX, endY)
-        .realMouseUp({ x: endX, y: endY });
+      dragFromAtoB(startX, startY, endX, endY, true);
     });
-    cy.wait(1000);
     doWithTestController((testController) => {
       expect(
         testController.getSocketLinks('Constant4', 'In')[0].source.getNode().id,
@@ -499,18 +405,10 @@ describe('mouseInteractions', () => {
     const moveY = 5;
 
     doWithTestController((testController) => {
-      const [x, y] = testController.getSocketCenterByNodeIDAndSocketName(
-        'Constant1',
-        'Out',
-      );
-      cy.get('body')
-        .realMouseMove(x, y)
-        .wait(500)
-        .realMouseDown({ x: x, y: y })
-        .realMouseMove(x + moveX, y + moveY)
-        .realMouseUp({ x: x + moveX, y: y + moveY });
+      const [startX, startY] =
+        testController.getSocketCenterByNodeIDAndSocketName('Constant1', 'Out');
+      dragFromAtoB(startX, startY, startX + moveX, startY + moveY, true);
     });
-    cy.wait(1000);
     doWithTestController((testController) => {
       expect(
         testController.getSocketLinks('Constant2', 'In')[0].source.getNode().id,
@@ -532,18 +430,10 @@ describe('mouseInteractions', () => {
     });
     cy.wait(100);
     doWithTestController((testController) => {
-      const [x, y] = testController.getSocketCenterByNodeIDAndSocketName(
-        'Constant4',
-        'In',
-      );
-      cy.get('body')
-        .realMouseMove(x, y)
-        .wait(500)
-        .realMouseDown({ x: x, y: y })
-        .realMouseMove(x - 100, y)
-        .realMouseUp({ x: x - 100, y: y });
+      const [startX, startY] =
+        testController.getSocketCenterByNodeIDAndSocketName('Constant4', 'In');
+      dragFromAtoB(startX, startY, startX - 100, startY, true);
     });
-    cy.wait(1000);
     doWithTestController((testController) => {
       cy.get('#node-search[placeholder*="Search nodes"]').should('be.visible');
     });
@@ -561,19 +451,11 @@ describe('mouseInteractions', () => {
     });
     cy.wait(100);
     doWithTestController((testController) => {
-      const [x, y] = testController.getSocketCenterByNodeIDAndSocketName(
-        'Constant4',
-        'In',
-      );
+      const [startX, startY] =
+        testController.getSocketCenterByNodeIDAndSocketName('Constant4', 'In');
       const [endX, endY] = testController.getNodeCenterById('Constant3');
-      cy.get('body')
-        .realMouseMove(x, y)
-        .wait(500)
-        .realMouseDown({ x: x, y: y })
-        .realMouseMove(endX, endY)
-        .realMouseUp({ x: endX, y: endY });
+      dragFromAtoB(startX, startY, endX, endY, true);
     });
-    cy.wait(1000);
     doWithTestController((testController) => {
       expect(
         testController.getSocketLinks('Constant4', 'In')[0].source.getNode().id,
@@ -593,22 +475,14 @@ describe('mouseInteractions', () => {
     });
     cy.wait(100);
     doWithTestController((testController) => {
-      const [x, y] = testController.getSocketCenterByNodeIDAndSocketName(
-        'Constant4',
-        'In',
-      );
+      const [startX, startY] =
+        testController.getSocketCenterByNodeIDAndSocketName('Constant4', 'In');
       const [endX, endY] = testController.getSocketCenterByNodeIDAndSocketName(
         'Constant3',
         'Out',
       );
-      cy.get('body')
-        .realMouseMove(x, y)
-        .wait(500)
-        .realMouseDown({ x: x, y: y })
-        .realMouseMove(endX, endY)
-        .realMouseUp({ x: endX, y: endY });
+      dragFromAtoB(startX, startY, endX, endY, true);
     });
-    cy.wait(1000);
     doWithTestController((testController) => {
       expect(
         testController.getSocketLinks('Constant4', 'In')[0].source.getNode().id,
@@ -626,22 +500,14 @@ describe('mouseInteractions', () => {
     });
     cy.wait(100);
     doWithTestController((testController) => {
-      const [x, y] = testController.getSocketCenterByNodeIDAndSocketName(
-        'Constant4',
-        'In',
-      );
+      const [startX, startY] =
+        testController.getSocketCenterByNodeIDAndSocketName('Constant4', 'In');
       const [endX, endY] = testController.getSocketCenterByNodeIDAndSocketName(
         'Constant1',
         'Out',
       );
-      cy.get('body')
-        .realMouseMove(x, y)
-        .wait(500)
-        .realMouseDown({ x: x, y: y })
-        .realMouseMove(endX, endY)
-        .realMouseUp({ x: endX, y: endY });
+      dragFromAtoB(startX, startY, endX, endY, true);
     });
-    cy.wait(1000);
     doWithTestController((testController) => {
       expect(
         testController.getSocketLinks('Constant4', 'In')[0].source.getNode().id,
@@ -662,18 +528,10 @@ describe('mouseInteractions', () => {
       testController.moveNodeByID('Constant3', 0, -100);
     });
     doWithTestController((testController) => {
-      const [x, y] = testController.getSocketCenterByNodeIDAndSocketName(
-        'Constant3',
-        'In',
-      );
-      cy.get('body')
-        .realMouseMove(x, y)
-        .wait(500)
-        .realMouseDown({ x: x, y: y })
-        .realMouseMove(x + moveX, y + moveY)
-        .realMouseUp({ x: x + moveX, y: y + moveY });
+      const [startX, startY] =
+        testController.getSocketCenterByNodeIDAndSocketName('Constant3', 'In');
+      dragFromAtoB(startX, startY, startX + moveX, startY + moveY, true);
     });
-    cy.wait(1000);
     cy.get('#node-search[placeholder*="Search nodes"]').should(
       'not.be.visible',
     );
@@ -685,18 +543,10 @@ describe('mouseInteractions', () => {
     const endY = 200;
 
     doWithTestController((testController) => {
-      const [x, y] = testController.getSocketCenterByNodeIDAndSocketName(
-        'Constant2',
-        'In',
-      );
-      cy.get('body')
-        .realMouseMove(x, y)
-        .wait(500)
-        .realMouseDown({ x: x, y: y })
-        .realMouseMove(endX, endY)
-        .realMouseUp({ x: endX, y: endY });
+      const [startX, startY] =
+        testController.getSocketCenterByNodeIDAndSocketName('Constant2', 'In');
+      dragFromAtoB(startX, startY, endX, endY, true);
     });
-    cy.wait(1000);
     doWithTestController((testController) => {
       cy.get('#node-search[placeholder*="Search nodes"]').should(
         'not.be.visible',
@@ -716,19 +566,11 @@ describe('mouseInteractions', () => {
     });
     cy.wait(100);
     doWithTestController((testController) => {
-      const [x, y] = testController.getSocketCenterByNodeIDAndSocketName(
-        'Constant2',
-        'In',
-      );
+      const [startX, startY] =
+        testController.getSocketCenterByNodeIDAndSocketName('Constant2', 'In');
       const [endX, endY] = testController.getNodeCenterById('Constant4');
-      cy.get('body')
-        .realMouseMove(x, y)
-        .wait(500)
-        .realMouseDown({ x: x, y: y })
-        .realMouseMove(endX, endY)
-        .realMouseUp({ x: endX, y: endY });
+      dragFromAtoB(startX, startY, endX, endY, true);
     });
-    cy.wait(1000);
     doWithTestController((testController) => {
       expect(
         testController.getSocketLinks('Constant4', 'In')[0].source.getNode().id,
@@ -747,22 +589,14 @@ describe('mouseInteractions', () => {
     });
     cy.wait(100);
     doWithTestController((testController) => {
-      const [x, y] = testController.getSocketCenterByNodeIDAndSocketName(
-        'Constant2',
-        'In',
-      );
+      const [startX, startY] =
+        testController.getSocketCenterByNodeIDAndSocketName('Constant2', 'In');
       const [endX, endY] = testController.getSocketCenterByNodeIDAndSocketName(
         'Constant4',
         'In',
       );
-      cy.get('body')
-        .realMouseMove(x, y)
-        .wait(500)
-        .realMouseDown({ x: x, y: y })
-        .realMouseMove(endX, endY)
-        .realMouseUp({ x: endX, y: endY });
+      dragFromAtoB(startX, startY, endX, endY, true);
     });
-    cy.wait(1000);
     doWithTestController((testController) => {
       expect(
         testController.getSocketLinks('Constant4', 'In')[0].source.getNode().id,
@@ -784,22 +618,14 @@ describe('mouseInteractions', () => {
     });
     cy.wait(100);
     doWithTestController((testController) => {
-      const [x, y] = testController.getSocketCenterByNodeIDAndSocketName(
-        'Constant2',
-        'In',
-      );
+      const [startX, startY] =
+        testController.getSocketCenterByNodeIDAndSocketName('Constant2', 'In');
       const [endX, endY] = testController.getSocketCenterByNodeIDAndSocketName(
         'Constant4',
         'In',
       );
-      cy.get('body')
-        .realMouseMove(x, y)
-        .wait(500)
-        .realMouseDown({ x: x, y: y })
-        .realMouseMove(endX, endY)
-        .realMouseUp({ x: endX, y: endY });
+      dragFromAtoB(startX, startY, endX, endY, true);
     });
-    cy.wait(1000);
     doWithTestController((testController) => {
       expect(
         testController.getSocketLinks('Constant4', 'In')[0].source.getNode().id,
@@ -819,22 +645,14 @@ describe('mouseInteractions', () => {
     });
     cy.wait(100);
     doWithTestController((testController) => {
-      const [x, y] = testController.getSocketCenterByNodeIDAndSocketName(
-        'Constant2',
-        'In',
-      );
+      const [startX, startY] =
+        testController.getSocketCenterByNodeIDAndSocketName('Constant2', 'In');
       const [endX, endY] = testController.getSocketCenterByNodeIDAndSocketName(
         'Constant3',
         'Out',
       );
-      cy.get('body')
-        .realMouseMove(x, y)
-        .wait(500)
-        .realMouseDown({ x: x, y: y })
-        .realMouseMove(endX, endY)
-        .realMouseUp({ x: endX, y: endY });
+      dragFromAtoB(startX, startY, endX, endY, true);
     });
-    cy.wait(1000);
     doWithTestController((testController) => {
       expect(testController.getSocketLinks('Constant3', 'Out').length).to.eq(0);
       expect(testController.getSocketLinks('Constant2', 'In').length).to.eq(0);
@@ -855,22 +673,14 @@ describe('mouseInteractions', () => {
     });
     cy.wait(100);
     doWithTestController((testController) => {
-      const [x, y] = testController.getSocketCenterByNodeIDAndSocketName(
-        'Constant2',
-        'In',
-      );
+      const [startX, startY] =
+        testController.getSocketCenterByNodeIDAndSocketName('Constant2', 'In');
       const [endX, endY] = testController.getSocketCenterByNodeIDAndSocketName(
         'Constant3',
         'Out',
       );
-      cy.get('body')
-        .realMouseMove(x, y)
-        .wait(500)
-        .realMouseDown({ x: x, y: y })
-        .realMouseMove(endX, endY)
-        .realMouseUp({ x: endX, y: endY });
+      dragFromAtoB(startX, startY, endX, endY, true);
     });
-    cy.wait(1000);
     doWithTestController((testController) => {
       expect(
         testController.getSocketLinks('Constant4', 'In')[0].source.getNode().id,
@@ -885,16 +695,9 @@ describe('mouseInteractions', () => {
     const moveY = -5;
 
     doWithTestController((testController) => {
-      const [x, y] = testController.getSocketCenterByNodeIDAndSocketName(
-        'Constant2',
-        'In',
-      );
-      cy.get('body')
-        .realMouseMove(x, y)
-        .wait(500)
-        .realMouseDown({ x: x, y: y })
-        .realMouseMove(x + moveX, y + moveY)
-        .realMouseUp({ x: x + moveX, y: y + moveY });
+      const [startX, startY] =
+        testController.getSocketCenterByNodeIDAndSocketName('Constant2', 'In');
+      dragFromAtoB(startX, startY, startX + moveX, startY + moveY, true);
     });
     cy.wait(1000);
     doWithTestController((testController) => {

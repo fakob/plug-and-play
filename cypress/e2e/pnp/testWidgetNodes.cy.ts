@@ -46,18 +46,18 @@ describe('testWidgetNodes', () => {
       testController.setNodeInputValue('Constant', 'In', true);
       testController.executeNodeByID('Constant');
     });
-    cy.wait(100);
+    cy.wait(500);
     doWithTestController((testController) => {
       expect(testController.getNodeOutputValue('Label', 'Output')).to.eq(
         '["Option2"]',
       );
     });
-    cy.wait(100);
+    cy.wait(500);
     doWithTestController((testController) => {
       testController.setNodeInputValue('Constant', 'In', false);
       testController.executeNodeByID('Constant');
     });
-    cy.wait(100);
+    cy.wait(500);
     doWithTestController((testController) => {
       const out = testController.getNodeOutputValue('WidgetDropdown', 'Out');
       expect(testController.getNodeOutputValue('WidgetDropdown', 'Out')).to.eq(

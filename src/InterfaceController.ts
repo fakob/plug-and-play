@@ -122,6 +122,7 @@ export default class InterfaceController {
   /////////////////////////////////////////////////////////////////////////////
   static isTypingInConsole = false;
   static consoleBeingTyped = '';
+  static showUnsavedChangesWarning = true;
 
   static keysDown = async (e: KeyboardEvent): Promise<void> => {
     const modKey = isMac() ? e.metaKey : e.ctrlKey;
@@ -246,6 +247,7 @@ export default class InterfaceController {
   };
   static onOpenFileBrowser: () => void = () => {};
 }
+
 class ConsoleController {
   static executeCommand(command: string): void {
     switch (command.toLowerCase()) {
