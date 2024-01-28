@@ -32,7 +32,7 @@ jobs:
       #        run: yarn build
       - name: Start Server
         run: yarn dev &
-          npx wait-on http://localhost:3000
+          npx wait-on http://localhost:8080
       - name: Run tests
         run: yarn test
 
