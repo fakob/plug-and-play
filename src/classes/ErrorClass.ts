@@ -20,7 +20,6 @@ export abstract class PNPStatus extends Error {
   public abstract getName(): string;
   public abstract getDescription(): string;
   public abstract getColor(): TRgba;
-  public abstract isError(): boolean;
   public abstract getSeverity(): STATUS_SEVERITY;
 }
 
@@ -28,10 +27,6 @@ export abstract class PNPError extends PNPStatus {
   constructor(message?: string) {
     super(message);
     Object.setPrototypeOf(this, PNPError.prototype);
-  }
-
-  public isError(): boolean {
-    return true;
   }
 
   public getSeverity(): number {
@@ -57,10 +52,6 @@ export abstract class PNPWarning extends PNPStatus {
     Object.setPrototypeOf(this, PNPError.prototype);
   }
 
-  public isError(): boolean {
-    return false;
-  }
-
   public getSeverity(): number {
     return STATUS_SEVERITY.WARNING;
   }
@@ -82,10 +73,6 @@ export class PNPSuccess extends PNPStatus {
   constructor(message?: string) {
     super(message);
     Object.setPrototypeOf(this, PNPSuccess.prototype);
-  }
-
-  public isError(): boolean {
-    return false;
   }
 
   public getSeverity(): number {
@@ -112,10 +99,6 @@ export class PNPCustomStatus extends PNPStatus {
     super(message, id);
     Object.setPrototypeOf(this, PNPCustomStatus.prototype);
     this.color = color;
-  }
-
-  public isError(): boolean {
-    return false;
   }
 
   public getSeverity(): number {

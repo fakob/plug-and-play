@@ -864,10 +864,10 @@ export default class PPNode extends PIXI.Container implements IWarningHandler {
   }
 
   adaptToSocketErrors(): void {
-    const hasErrors = this.getAllSockets().some((socket) =>
-      socket.status.isError(),
+    const hasWarningsOrErrors = this.getAllSockets().some(
+      (socket) => socket.status.getSeverity() >= STATUS_SEVERITY.WARNING,
     );
-    if (!hasErrors) {
+    if (!hasWarningsOrErrors) {
       this.setStatus(new PNPSuccess(), 'socket');
       this.drawStatuses();
       this.drawErrorBoundary();
