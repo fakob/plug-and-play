@@ -164,7 +164,7 @@ export class HTTPNode extends PPNode {
 
         this.pushStatusCode(companionRes.status);
         returnResponse = companionRes.response;
-        return {};
+        return JSON.parse(companionRes.response);
       } else {
         // no body if Get
         const bodyToUse: BodyInit = method !== 'Get' ? body : undefined;
@@ -196,7 +196,7 @@ export class HTTPNode extends PPNode {
     try {
       const companionSpecific = {
         finalHeaders: headers,
-        finalBody: method == 'Post' ? JSON.stringify(body) : undefined,
+        finalBody: method == 'Post' ? JSON.stringify(body) : '{}',
         finalURL: URL,
         finalMethod: method,
       };
