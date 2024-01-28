@@ -14,9 +14,10 @@ jobs:
         with:
           node-version: "lts/*"
           cache: "yarn"
+          cache-dependency-path: "**/yarn.lock"
 
       - name: Install Dependencies
-        run: yarn install
+        run: yarn install --verbose
 
       - name: Build
         run: yarn build
