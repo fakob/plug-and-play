@@ -32,7 +32,8 @@ describe('dataTypes', () => {
   it('write some text in the label node, see that it registers', () => {
     cy.wait(100);
     doWithTestController((testController) => {
-      const [x, y] = testController.getNodeCenter('Label');
+      const [x, y] = testController.getNodeCenterById('Label');
+      cy.wait(100);
       cy.get('body').dblclick(x, y);
       cy.get('body').type('testin');
     });

@@ -44,7 +44,7 @@ describe('mouseInteractions', () => {
   it('Opens node browser on double clicking', () => {
     doWithTestController((testController) => {
       cy.get('body').dblclick(400, 200);
-      cy.wait(100);
+      cy.wait(500);
       cy.get('#node-search[placeholder*="Search nodes"]').should('be.visible');
     });
   });
@@ -198,6 +198,7 @@ describe('mouseInteractions', () => {
         testController.getSocketCenterByNodeIDAndSocketName('Constant2', 'Out');
       dragFromAtoB(startX, startY, endX, endY, true);
     });
+    cy.wait(1000);
     cy.get('#node-search[placeholder*="Search nodes"]').should('be.visible');
     cy.get('#node-search[placeholder*="Search nodes"]').type('{enter}');
     cy.wait(100);
@@ -316,6 +317,7 @@ describe('mouseInteractions', () => {
         testController.getSocketCenterByNodeIDAndSocketName('Constant1', 'Out');
       dragFromAtoB(startX, startY, endX, endY, true);
     });
+    cy.wait(1000);
     cy.get('#node-search[placeholder*="Search nodes"]').should('be.visible');
     cy.get('#node-search[placeholder*="Search nodes"]').type('{enter}');
     doWithTestController((testController) => {
@@ -434,6 +436,7 @@ describe('mouseInteractions', () => {
         testController.getSocketCenterByNodeIDAndSocketName('Constant4', 'In');
       dragFromAtoB(startX, startY, startX - 100, startY, true);
     });
+    cy.wait(1000);
     doWithTestController((testController) => {
       cy.get('#node-search[placeholder*="Search nodes"]').should('be.visible');
     });
