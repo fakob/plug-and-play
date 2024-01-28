@@ -1,10 +1,18 @@
 import { TRgba } from '../utils/interfaces';
-import { COLOR_ERROR, COLOR_WARNING } from '../utils/constants';
+import {
+  COLOR_ERROR,
+  COLOR_WARNING,
+  STATUS_SEVERITY,
+} from '../utils/constants';
 
 export abstract class PNPStatus extends Error {
-  constructor(message?: string) {
+  severity: STATUS_SEVERITY;
+  id: string;
+  constructor(message?: string, id = message) {
     super(message);
     this.name = this.getName();
+    this.severity = this.getSeverity();
+    this.id = id;
 
     // This is necessary for the instanceof check to work correctly in transpiled ES5/ES6 code.
     Object.setPrototypeOf(this, PNPStatus.prototype);
@@ -12,7 +20,7 @@ export abstract class PNPStatus extends Error {
   public abstract getName(): string;
   public abstract getDescription(): string;
   public abstract getColor(): TRgba;
-  public abstract isError(): boolean;
+  public abstract getSeverity(): STATUS_SEVERITY;
 }
 
 export abstract class PNPError extends PNPStatus {
@@ -21,8 +29,8 @@ export abstract class PNPError extends PNPStatus {
     Object.setPrototypeOf(this, PNPError.prototype);
   }
 
-  public isError(): boolean {
-    return true;
+  public getSeverity(): number {
+    return STATUS_SEVERITY.ERROR;
   }
 
   public getName(): string {
@@ -44,8 +52,8 @@ export abstract class PNPWarning extends PNPStatus {
     Object.setPrototypeOf(this, PNPError.prototype);
   }
 
-  public isError(): boolean {
-    return false;
+  public getSeverity(): number {
+    return STATUS_SEVERITY.WARNING;
   }
 
   public getName(): string {
@@ -62,13 +70,13 @@ export abstract class PNPWarning extends PNPStatus {
 }
 
 export class PNPSuccess extends PNPStatus {
-  public isError(): boolean {
-    return false;
-  }
-
   constructor(message?: string) {
     super(message);
     Object.setPrototypeOf(this, PNPSuccess.prototype);
+  }
+
+  public getSeverity(): number {
+    return STATUS_SEVERITY.SUCCESS;
   }
 
   public getName(): string {
@@ -86,14 +94,15 @@ export class PNPSuccess extends PNPStatus {
 
 export class PNPCustomStatus extends PNPStatus {
   color: TRgba;
-  public isError(): boolean {
-    return false;
-  }
 
-  constructor(message?: string, color = TRgba.black()) {
-    super(message);
+  constructor(message?: string, color = TRgba.black(), id = message) {
+    super(message, id);
     Object.setPrototypeOf(this, PNPCustomStatus.prototype);
     this.color = color;
+  }
+
+  public getSeverity(): number {
+    return STATUS_SEVERITY.SUCCESS;
   }
 
   public getName(): string {
@@ -113,6 +122,10 @@ export class FatalError extends PNPError {
   constructor(message?: string) {
     super(message);
     Object.setPrototypeOf(this, FatalError.prototype);
+  }
+
+  public getSeverity(): number {
+    return STATUS_SEVERITY.FATAL;
   }
 
   public getName(): string {

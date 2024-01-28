@@ -27,6 +27,7 @@ import {
   NODE_TEXTSTYLE,
   NODE_WIDTH,
   ONCLICK_DOUBLECLICK,
+  STATUS_SEVERITY,
   SOCKET_HEIGHT,
   SOCKET_TYPE,
 } from '../utils/constants';
@@ -665,10 +666,14 @@ export default class PPNode extends PIXI.Container implements IWarningHandler {
 
   public drawErrorBoundary(): void {
     this._ErrorBoundaryRef.clear();
-    if (this.status.node.isError() || this.status.socket.isError()) {
-      const status = this.status.node.isError()
-        ? this.status.node
-        : this.status.socket;
+    if (
+      this.status.node.getSeverity() >= STATUS_SEVERITY.WARNING ||
+      this.status.socket.getSeverity() >= STATUS_SEVERITY.WARNING
+    ) {
+      const status =
+        this.status.node.getSeverity() >= STATUS_SEVERITY.WARNING
+          ? this.status.node
+          : this.status.socket;
 
       this._ErrorBoundaryRef.lineStyle(3, status.getColor().hexNumber(), 1);
       this._ErrorBoundaryRef.drawRoundedRect(
@@ -744,7 +749,7 @@ export default class PPNode extends PIXI.Container implements IWarningHandler {
     for (const key in this.status) {
       if (Array.isArray(this.status[key])) {
         flattenedStatus = this.status[key].concat(flattenedStatus);
-      } else if (this.status[key].isError()) {
+      } else if (this.status[key].getSeverity() >= STATUS_SEVERITY.WARNING) {
         flattenedStatus.push(this.status[key]);
       }
     }
@@ -779,7 +784,9 @@ export default class PPNode extends PIXI.Container implements IWarningHandler {
         startY,
         text.width + padding * 2,
         text.height + padding * 2,
-        nStatus.isError() ? 0 : NODE_CORNERRADIUS,
+        nStatus.getSeverity() >= STATUS_SEVERITY.WARNING
+          ? 0
+          : NODE_CORNERRADIUS,
       );
       startY += text.height + padding;
     });
@@ -857,10 +864,10 @@ export default class PPNode extends PIXI.Container implements IWarningHandler {
   }
 
   adaptToSocketErrors(): void {
-    const hasErrors = this.getAllSockets().some((socket) =>
-      socket.status.isError(),
+    const hasWarningsOrErrors = this.getAllSockets().some(
+      (socket) => socket.status.getSeverity() >= STATUS_SEVERITY.WARNING,
     );
-    if (!hasErrors) {
+    if (!hasWarningsOrErrors) {
       this.setStatus(new PNPSuccess(), 'socket');
       this.drawStatuses();
       this.drawErrorBoundary();

@@ -3,10 +3,9 @@ import Socket from '../../classes/SocketClass';
 import UpdateBehaviourClass from '../../classes/UpdateBehaviourClass';
 import { SOCKET_TYPE } from '../../utils/constants';
 import { AnyType } from '../datatypes/anyType';
-import { ImageType } from '../datatypes/imageType';
 import { JSONType } from '../datatypes/jsonType';
-import { NumberType } from '../datatypes/numberType';
 import { StringType } from '../datatypes/stringType';
+import { HTTPNode, urlInputName } from './http';
 
 const targetName = 'Target';
 const nameName = 'Name';
@@ -14,13 +13,10 @@ const methodName = 'Method';
 const paramsName = 'Params';
 const valueName = 'Value';
 const outputContentName = 'Content';
-const nodeName = 'Node';
-const scaleName = 'Scale';
-const addressName = 'Address';
 
 const gatewayAddressDefault = 'http://localhost:16208/gateway/2.0.0/publish';
 
-export class PixotopeGatewayGet extends PPNode {
+export class PixotopeGatewayGet extends HTTPNode {
   public getName(): string {
     return 'Pixotope Get';
   }
@@ -37,7 +33,7 @@ export class PixotopeGatewayGet extends PPNode {
     return [
       new Socket(
         SOCKET_TYPE.IN,
-        addressName,
+        urlInputName,
         new StringType(),
         gatewayAddressDefault,
         false,
@@ -53,25 +49,27 @@ export class PixotopeGatewayGet extends PPNode {
   ): Promise<void> {
     const target = inputObject[targetName];
     const name = inputObject[nameName];
-    const address = inputObject[addressName];
-    const res = await fetch(address, {
-      method: 'POST',
-      body: JSON.stringify({
-        Topic: {
-          Type: 'Get',
-          Target: target,
-          Name: name,
-          RespondTo: 'PlugAndPlay',
-        },
-        Message: {},
-      }),
-    });
-    const JSONRes = await res.json();
-    outputObject[outputContentName] = JSONRes[0]?.Message?.Value;
+    const address = inputObject[urlInputName];
+    const body = {
+      Topic: {
+        Type: 'Get',
+        Target: target,
+        Name: name,
+        RespondTo: 'PlugAndPlay',
+      },
+      Message: {},
+    };
+    const response = await this.request(
+      {},
+      JSON.stringify(body),
+      address,
+      'Post',
+    );
+    outputObject[outputContentName] = response[0]?.Message?.Value;
   }
 }
 
-export class PixotopeGatewaySet extends PPNode {
+export class PixotopeGatewaySet extends HTTPNode {
   public getName(): string {
     return 'Pixotope Set';
   }
@@ -92,7 +90,7 @@ export class PixotopeGatewaySet extends PPNode {
     return [
       new Socket(
         SOCKET_TYPE.IN,
-        addressName,
+        urlInputName,
         new StringType(),
         gatewayAddressDefault,
         false,
@@ -104,7 +102,7 @@ export class PixotopeGatewaySet extends PPNode {
         new StringType(),
         'State.ThirdParty.PlugAndPlaygroundSettable',
       ),
-      new Socket(SOCKET_TYPE.IN, valueName, new AnyType(), 'TempValue'),
+      new Socket(SOCKET_TYPE.IN, valueName, new AnyType(), 'ExampleValue'),
     ];
   }
   protected async onExecute(
@@ -114,18 +112,20 @@ export class PixotopeGatewaySet extends PPNode {
     const target = inputObject[targetName];
     const name = inputObject[nameName];
     const value = inputObject[valueName];
-    const address = inputObject[addressName];
-    fetch(address, {
-      method: 'POST',
-      body: JSON.stringify({
+    const address = inputObject[urlInputName];
+    await this.request(
+      {},
+      JSON.stringify({
         Topic: { Type: 'Set', Target: target, Name: name },
         Message: { Value: value },
       }),
-    });
+      address,
+      'Post',
+    );
   }
 }
 
-export class PixotopeGatewayCall extends PPNode {
+export class PixotopeGatewayCall extends HTTPNode {
   public getName(): string {
     return 'Pixotope Call';
   }
@@ -142,13 +142,13 @@ export class PixotopeGatewayCall extends PPNode {
     return [
       new Socket(
         SOCKET_TYPE.IN,
-        addressName,
+        urlInputName,
         new StringType(),
         gatewayAddressDefault,
         false,
       ),
       new Socket(SOCKET_TYPE.IN, targetName, new StringType(), 'Store'),
-      new Socket(SOCKET_TYPE.IN, methodName, new StringType(), 'VideoIO'),
+      new Socket(SOCKET_TYPE.IN, methodName, new StringType(), 'GetAllStates'),
       new Socket(SOCKET_TYPE.IN, paramsName, new JSONType(), {
         Fingerprint: 'Playground',
         Name: 'PlaygroundCamera',
@@ -160,17 +160,22 @@ export class PixotopeGatewayCall extends PPNode {
     inputObject: any,
     outputObject: Record<string, unknown>,
   ): Promise<void> {
+    this.status.custom = [];
     const target = inputObject[targetName];
     const method = inputObject[methodName];
     const params = inputObject[paramsName];
-    const address = inputObject[addressName];
-    const res = await fetch(address, {
-      method: 'POST',
-      body: JSON.stringify({
+    const address = inputObject[urlInputName];
+
+    const res = await this.request(
+      {},
+      JSON.stringify({
         Topic: { Type: 'Call', Target: target, Method: method },
         Message: { Params: params },
       }),
-    });
-    outputObject[outputContentName] = (await res.json())[0]?.Message?.Result;
+      address,
+      'Post',
+    );
+
+    outputObject[outputContentName] = res[0]?.Message?.Result;
   }
 }

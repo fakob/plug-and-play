@@ -17,7 +17,10 @@ export class EnumType extends AbstractType {
   options: EnumStructure;
   onChange?: (value: string) => void;
 
-  constructor(inOptions: EnumStructure, onChange?: (value: string) => void) {
+  constructor(
+    inOptions: EnumStructure,
+    onChange: (value: string) => void = () => {},
+  ) {
     super();
     this.options = inOptions;
     this.onChange = onChange;

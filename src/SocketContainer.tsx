@@ -10,7 +10,7 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import WarningIcon from '@mui/icons-material/Warning';
 import DashboardCustomizeIcon from '@mui/icons-material/DashboardCustomize';
 import InterfaceController from './InterfaceController';
-import { COLOR_WARNING } from './utils/constants';
+import { COLOR_WARNING, STATUS_SEVERITY } from './utils/constants';
 import { writeDataToClipboard } from './utils/utils';
 import styles from './utils/style.module.css';
 import PPNode from './classes/NodeClass';
@@ -37,7 +37,9 @@ export const SocketContainer: React.FunctionComponent<SocketContainerProps> = (
   props,
 ) => {
   const myRef = useRef(null);
-  const [hasError, setHasError] = useState(props.property.status.isError());
+  const [hasError, setHasError] = useState(
+    props.property.status.getSeverity() >= STATUS_SEVERITY.WARNING,
+  );
 
   const [dataTypeValue, setDataTypeValue] = useState(props.dataType);
 
@@ -61,13 +63,16 @@ export const SocketContainer: React.FunctionComponent<SocketContainerProps> = (
     props.property.dataType = entry;
     setDataTypeValue(entry);
     props.property.getNode().metaInfoChanged();
-    setHasError(props.property.status.isError());
+    setHasError(props.property.status.getSeverity() >= STATUS_SEVERITY.WARNING);
   };
 
   useInterval(() => {
-    const newHasError = props.property.status.isError();
+    const newHasError =
+      props.property.status.getSeverity() >= STATUS_SEVERITY.WARNING;
     if (hasError !== newHasError) {
-      setHasError(props.property.status.isError());
+      setHasError(
+        props.property.status.getSeverity() >= STATUS_SEVERITY.WARNING,
+      );
     }
   }, 100);
 

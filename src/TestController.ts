@@ -5,6 +5,7 @@ import { hri } from 'human-readable-ids';
 import Socket from './classes/SocketClass';
 import { getAllNodeTypes } from './nodes/allNodes';
 import { ActionHandler } from './utils/actionHandler';
+import { STATUS_SEVERITY } from './utils/constants';
 
 export default class TestController {
   identify(): string {
@@ -139,7 +140,14 @@ export default class TestController {
 
   doesNodeHaveError(nodeID: string): boolean {
     const node = this.getNodeByID(nodeID);
-    return node.status.node.isError() || node.status.socket.isError();
+    return (
+      node.status.node.getSeverity() >= STATUS_SEVERITY.ERROR ||
+      node.status.socket.getSeverity() >= STATUS_SEVERITY.ERROR
+    );
+  }
+
+  getNodeCustomStatuses(nodeID: string) {
+    return this.getNodeByID(nodeID).status.custom;
   }
 
   undo() {
