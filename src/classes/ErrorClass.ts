@@ -2,9 +2,11 @@ import { TRgba } from '../utils/interfaces';
 import { COLOR_ERROR, COLOR_WARNING } from '../utils/constants';
 
 export abstract class PNPStatus extends Error {
-  constructor(message?: string) {
+  id: string;
+  constructor(message?: string, id = message) {
     super(message);
     this.name = this.getName();
+    this.id = id;
 
     // This is necessary for the instanceof check to work correctly in transpiled ES5/ES6 code.
     Object.setPrototypeOf(this, PNPStatus.prototype);
@@ -90,8 +92,8 @@ export class PNPCustomStatus extends PNPStatus {
     return false;
   }
 
-  constructor(message?: string, color = TRgba.black()) {
-    super(message);
+  constructor(message?: string, color = TRgba.black(), id = message) {
+    super(message, id);
     Object.setPrototypeOf(this, PNPCustomStatus.prototype);
     this.color = color;
   }
