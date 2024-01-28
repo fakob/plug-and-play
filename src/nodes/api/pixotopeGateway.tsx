@@ -69,7 +69,7 @@ export class PixotopeGatewayGet extends HTTPNode {
   }
 }
 
-export class PixotopeGatewaySet extends PPNode {
+export class PixotopeGatewaySet extends HTTPNode {
   public getName(): string {
     return 'Pixotope Set';
   }
@@ -102,7 +102,7 @@ export class PixotopeGatewaySet extends PPNode {
         new StringType(),
         'State.ThirdParty.PlugAndPlaygroundSettable',
       ),
-      new Socket(SOCKET_TYPE.IN, valueName, new AnyType(), 'TempValue'),
+      new Socket(SOCKET_TYPE.IN, valueName, new AnyType(), 'ExampleValue'),
     ];
   }
   protected async onExecute(
@@ -113,13 +113,15 @@ export class PixotopeGatewaySet extends PPNode {
     const name = inputObject[nameName];
     const value = inputObject[valueName];
     const address = inputObject[urlInputName];
-    fetch(address, {
-      method: 'POST',
-      body: JSON.stringify({
+    await this.request(
+      {},
+      JSON.stringify({
         Topic: { Type: 'Set', Target: target, Name: name },
         Message: { Value: value },
       }),
-    });
+      address,
+      'Post',
+    );
   }
 }
 
@@ -146,7 +148,7 @@ export class PixotopeGatewayCall extends HTTPNode {
         false,
       ),
       new Socket(SOCKET_TYPE.IN, targetName, new StringType(), 'Store'),
-      new Socket(SOCKET_TYPE.IN, methodName, new StringType(), 'VideoIO'),
+      new Socket(SOCKET_TYPE.IN, methodName, new StringType(), 'GetAllStates'),
       new Socket(SOCKET_TYPE.IN, paramsName, new JSONType(), {
         Fingerprint: 'Playground',
         Name: 'PlaygroundCamera',
@@ -164,19 +166,16 @@ export class PixotopeGatewayCall extends HTTPNode {
     const params = inputObject[paramsName];
     const address = inputObject[urlInputName];
 
-    try {
-      const res = await fetch(address, {
-        method: 'POST',
-        body: JSON.stringify({
-          Topic: { Type: 'Call', Target: target, Method: method },
-          Message: { Params: params },
-        }),
-      });
-      outputObject[outputContentName] = (await res.json())[0]?.Message?.Result;
-      this.pushStatusCode(200);
-    } catch (error) {
-      this.pushStatusCode(404);
-      outputObject[outputContentName] = error;
-    }
+    const res = await this.request(
+      {},
+      JSON.stringify({
+        Topic: { Type: 'Call', Target: target, Method: method },
+        Message: { Params: params },
+      }),
+      address,
+      'Post',
+    );
+
+    outputObject[outputContentName] = res[0]?.Message?.Result;
   }
 }

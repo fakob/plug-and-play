@@ -8,9 +8,7 @@ describe('checkNodesForErrors', () => {
     cy.wait(100);
     let allNodeTypes = [];
     const nodesWithKnownErrors: string[] = [
-      'PixotopeGatewayCall',
       'DRAW_Shape',
-      'PixotopeGatewayGet',
     ]; // TODO FIX THESE !!!!
     let goodNodes = [];
 

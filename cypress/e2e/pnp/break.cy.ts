@@ -1,6 +1,5 @@
 import { controlOrMetaKey, doWithTestController } from './helpers';
 
-// TODO implement
 describe('break', () => {
   it('add break node', () => {
     cy.visit('http://127.0.0.1:8080/?new=true');
