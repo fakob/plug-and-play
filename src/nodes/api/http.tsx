@@ -118,7 +118,7 @@ export class HTTPNode extends PPNode {
     this.pushExclusiveStatus(
       new PNPCustomStatus(
         'Status: ' + statusCode,
-        statusCode > 400 ? ERROR_COLOR : SUCCESS_COLOR,
+        statusCode >= 400 ? ERROR_COLOR : SUCCESS_COLOR,
         'statuscode',
       ),
     );
@@ -129,7 +129,7 @@ export class HTTPNode extends PPNode {
     outputObject: Record<string, unknown>,
   ): Promise<void> {
     const usingCompanion: boolean = inputObject[sendThroughCompanionName];
-    outputObject[outputContentName] = this.request(
+    outputObject[outputContentName] = await this.request(
       inputObject[headersInputName],
       inputObject[bodyInputName],
       inputObject[urlInputName],
@@ -146,35 +146,43 @@ export class HTTPNode extends PPNode {
     method: 'Get' | 'Post',
     usingCompanion = false,
     companionAddress = '',
-  ) {
+  ): Promise<object> {
     this.status.custom = [];
     let returnResponse = {};
-    if (usingCompanion) {
-      this.status.custom.push(
-        new PNPCustomStatus('Companion', TRgba.white().multiply(0.5)),
-      );
-      const companionRes = await HTTPNode.sendThroughCompanion(
-        companionAddress,
-        headers,
-        body,
-        url,
-        method,
-      );
+    try {
+      if (usingCompanion) {
+        this.status.custom.push(
+          new PNPCustomStatus('Companion', TRgba.white().multiply(0.5)),
+        );
+        const companionRes = await HTTPNode.sendThroughCompanion(
+          companionAddress,
+          headers,
+          body,
+          url,
+          method,
+        );
 
-      returnResponse = companionRes.response;
-      this.pushStatusCode(companionRes.status);
-    } else {
-      // no body if Get
-      const bodyToUse: BodyInit = method !== 'Get' ? body : undefined;
-      const res = fetch(url, {
-        method: method,
-        headers: headers,
-        body: bodyToUse,
-      });
-      const awaitedRes = await res;
-      returnResponse = await awaitedRes.json();
-      this.pushStatusCode(awaitedRes.status);
-      return returnResponse;
+        this.pushStatusCode(companionRes.status);
+        returnResponse = companionRes.response;
+        return {};
+      } else {
+        // no body if Get
+        const bodyToUse: BodyInit = method !== 'Get' ? body : undefined;
+        const res = fetch(url, {
+          method: method,
+          headers: headers,
+          body: bodyToUse,
+        });
+        const awaitedRes = await res;
+        this.pushStatusCode(awaitedRes.status);
+        returnResponse = await awaitedRes.json();
+        return returnResponse;
+      }
+    } catch (error) {
+      console.trace(error);
+      // something went terribly wrong with the request
+      this.pushStatusCode(400);
+      return {};
     }
   }
 

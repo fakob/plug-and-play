@@ -16,7 +16,7 @@ const outputContentName = 'Content';
 
 const gatewayAddressDefault = 'http://localhost:16208/gateway/2.0.0/publish';
 
-export class PixotopeGatewayGet extends PPNode {
+export class PixotopeGatewayGet extends HTTPNode {
   public getName(): string {
     return 'Pixotope Get';
   }
@@ -50,20 +50,22 @@ export class PixotopeGatewayGet extends PPNode {
     const target = inputObject[targetName];
     const name = inputObject[nameName];
     const address = inputObject[urlInputName];
-    const res = await fetch(address, {
-      method: 'POST',
-      body: JSON.stringify({
-        Topic: {
-          Type: 'Get',
-          Target: target,
-          Name: name,
-          RespondTo: 'PlugAndPlay',
-        },
-        Message: {},
-      }),
-    });
-    const JSONRes = await res.json();
-    outputObject[outputContentName] = JSONRes[0]?.Message?.Value;
+    const body = {
+      Topic: {
+        Type: 'Get',
+        Target: target,
+        Name: name,
+        RespondTo: 'PlugAndPlay',
+      },
+      Message: {},
+    };
+    const response = await this.request(
+      {},
+      JSON.stringify(body),
+      address,
+      'Post',
+    );
+    outputObject[outputContentName] = response[0]?.Message?.Value;
   }
 }
 
