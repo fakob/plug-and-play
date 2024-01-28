@@ -162,12 +162,12 @@ export class HTTPNode extends PPNode {
     headers,
     body,
     URL,
-    method,
+    method: 'Get' | 'Post',
   ): Promise<CompanionResponse> {
     try {
       const companionSpecific = {
         finalHeaders: headers,
-        finalBody: JSON.stringify(body),
+        finalBody: method == 'Post' ? JSON.stringify(body) : undefined,
         finalURL: URL,
         finalMethod: method,
       };
@@ -176,7 +176,11 @@ export class HTTPNode extends PPNode {
         headers: headers,
         body: JSON.stringify(companionSpecific),
       });
-      const companionRes: CompanionResponse = await (await res).json();
+      const awaitedRes = await res;
+      if (!(await res).ok) {
+        return { status: awaitedRes.status, response: awaitedRes.statusText };
+      }
+      const companionRes: CompanionResponse = await awaitedRes.json();
       return companionRes;
     } catch (error) {
       return { status: 404, response: error };
