@@ -293,27 +293,29 @@ export default class PPStorage {
 
     // see if we found something to load
     if (loadedGraphMeta !== undefined) {
-      const graphData: SerializedGraph = (
-        await this.getGraphFromDB(loadedGraphMeta.id)
-      ).graphData;
-      await PPGraph.currentGraph.configure(
-        graphData,
-        loadedGraphMeta.id,
-        loadedGraphMeta.name,
-      );
+      const loadedStoredGraph = await this.getGraphFromDB(loadedGraphMeta.id);
 
-      InterfaceController.notifyListeners(ListenEvent.GraphChanged, {
-        id: loadedGraphMeta.id,
-        name: loadedGraphMeta.name,
-      });
+      // might be undefined in transition period between DB schemas, remove later
+      if (loadedStoredGraph !== undefined) {
+        const graphData: SerializedGraph = loadedStoredGraph.graphData;
+        await PPGraph.currentGraph.configure(
+          graphData,
+          loadedGraphMeta.id,
+          loadedGraphMeta.name,
+        );
 
-      InterfaceController.showSnackBar(
-        <span>
-          <b>{loadedGraphMeta.name}</b> was loaded
-        </span>,
-      );
+        InterfaceController.notifyListeners(ListenEvent.GraphChanged, {
+          id: loadedGraphMeta.id,
+          name: loadedGraphMeta.name,
+        });
 
-      updateLocalIdInURL(loadedGraphMeta.id);
+        InterfaceController.showSnackBar(
+          <span>
+            <b>{loadedGraphMeta.name}</b> was loaded
+          </span>,
+        );
+        updateLocalIdInURL(loadedGraphMeta.id);
+      }
     } else {
       this.loadGraphFromURL(getExampleURL('', GET_STARTED_GRAPH));
     }
