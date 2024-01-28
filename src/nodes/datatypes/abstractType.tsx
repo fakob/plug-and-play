@@ -6,6 +6,7 @@ import Socket from '../../classes/SocketClass';
 import { DefaultOutputWidget, CodeWidget } from '../../widgets';
 import { TParseType, TRgba } from '../../utils/interfaces';
 import {
+  STATUS_SEVERITY,
   SOCKET_COLOR_HEX,
   SOCKET_CORNERRADIUS,
   SOCKET_WIDTH,
@@ -113,7 +114,7 @@ export class AbstractType {
     return true;
   }
 
-  prepareDataForSaving(data: any){
+  prepareDataForSaving(data: any) {
     return data;
   }
 
@@ -144,7 +145,7 @@ export class AbstractType {
     isInput: boolean,
     status: PNPStatus,
   ) {
-    if (status.isError()) {
+    if (status.getSeverity() >= STATUS_SEVERITY.WARNING) {
       errorBox.beginFill(status.getColor().hex());
       const errorBoxWidth = SOCKET_WIDTH * 2 - SOCKET_WIDTH / 2;
       errorBox.drawRoundedRect(

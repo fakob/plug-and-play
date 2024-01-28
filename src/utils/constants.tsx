@@ -220,6 +220,13 @@ export const NODE_SOURCE = {
   SERIALIZED: 'Serialized',
 } as const;
 
+export enum STATUS_SEVERITY {
+  SUCCESS = 1,
+  WARNING = 2,
+  ERROR = 3,
+  FATAL = 4,
+}
+
 export const COMMENT_TEXTSTYLE = new TextStyle({
   fontSize: 12,
   fill: COLOR_COMMENT,

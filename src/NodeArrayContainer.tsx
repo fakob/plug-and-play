@@ -21,7 +21,11 @@ import { PNPStatus } from './classes/ErrorClass';
 import InterfaceController, { ListenEvent } from './InterfaceController';
 import styles from './utils/style.module.css';
 import { ensureVisible, zoomToFitNodes } from './pixi/utils-pixi';
-import { ONCLICK_DOUBLECLICK, ONCLICK_TRIPPLECLICK } from './utils/constants';
+import {
+  ONCLICK_DOUBLECLICK,
+  ONCLICK_TRIPPLECLICK,
+  STATUS_SEVERITY,
+} from './utils/constants';
 import { TRgba } from './utils/interfaces';
 
 type FilterContentProps = {
@@ -188,10 +192,10 @@ ${props.property
               >
                 {props.property.name}
               </Box>
-              {nodeStatus.isError() && (
+              {nodeStatus.getSeverity() >= STATUS_SEVERITY.WARNING && (
                 <StatusTag name="Node" status={nodeStatus} />
               )}
-              {socketStatus.isError() && (
+              {socketStatus.getSeverity() >= STATUS_SEVERITY.WARNING && (
                 <StatusTag name="Socket" status={socketStatus} />
               )}
             </Box>
@@ -403,8 +407,8 @@ export const NodeArrayContainer: React.FunctionComponent<
 
   const customSort = (a: PPNode, b: PPNode) => {
     const order =
-      (+b.status.node.isError() - +a.status.node.isError()) * 1000 +
-        (+b.status.socket.isError() - +a.status.socket.isError()) * 100 +
+      (b.status.node.getSeverity() - a.status.node.getSeverity()) * 1000 +
+        (b.status.socket.getSeverity() - a.status.socket.getSeverity()) * 100 +
         (+(b.type === 'Macro') - +(a.type === 'Macro')) * 10 ||
       a.name.localeCompare(b.name);
     return order;
