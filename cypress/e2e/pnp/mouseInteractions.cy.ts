@@ -1,9 +1,4 @@
-import { start } from 'repl';
-import {
-  areCoordinatesClose,
-  controlOrMetaKey,
-  doWithTestController,
-} from './helpers';
+import { areCoordinatesClose, doWithTestController } from './helpers';
 
 describe('mouseInteractions', () => {
   const dragFromAtoB = (startX, startY, endX, endY, wait = false) => {

@@ -166,6 +166,6 @@ export default class TestController {
   }
 
   setShowUnsavedChangesWarning(show: boolean) {
-    return (InterfaceController.showUnsavedChangesWarning = show);
+    InterfaceController.showUnsavedChangesWarning = show;
   }
 }
