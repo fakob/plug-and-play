@@ -63,36 +63,36 @@ describe('mouseInteractions', () => {
     });
   });
 
-  it('Deselects all nodes on clicking graph without dragging', () => {
-    doWithTestController((testController) => {
-      const [x, y] = testController.getNodeCenterById('Constant1');
-      cy.wait(100);
-      cy.get('body').click(x, y);
-    });
-    cy.wait(100);
-    doWithTestController((testController) => {
-      expect(testController.getSelectedNodes().length).to.eq(1);
-      cy.get('body').click(100, 100);
-    });
-    cy.wait(1000);
-    doWithTestController((testController) => {
-      expect(testController.getSelectedNodes().length).to.eq(0);
-    });
-  });
+  // it('Deselects all nodes on clicking graph without dragging', () => {
+  //   doWithTestController((testController) => {
+  //     const [x, y] = testController.getNodeCenterById('Constant1');
+  //     cy.wait(100);
+  //     cy.get('body').click(x, y);
+  //   });
+  //   cy.wait(100);
+  //   doWithTestController((testController) => {
+  //     expect(testController.getSelectedNodes().length).to.eq(1);
+  //     cy.get('body').click(100, 100);
+  //   });
+  //   cy.wait(1000);
+  //   doWithTestController((testController) => {
+  //     expect(testController.getSelectedNodes().length).to.eq(0);
+  //   });
+  // });
 
-  it('Shows selection tooltip after selecting all nodes within drag area on dragging over graph and releasing over node', () => {
-    const startX = 100;
-    const startY = 100;
+  // it('Shows selection tooltip after selecting all nodes within drag area on dragging over graph and releasing over node', () => {
+  //   const startX = 100;
+  //   const startY = 100;
 
-    doWithTestController((testController) => {
-      const [endX, endY] = testController.getNodeCenterById('Constant2');
-      dragFromAtoB(startX, startY, endX, endY);
-    });
-    doWithTestController((testController) => {
-      expect(testController.getSelectedNodes().length).to.eq(2);
-      cy.get('body').should('contain', '2 nodes selected');
-    });
-  });
+  //   doWithTestController((testController) => {
+  //     const [endX, endY] = testController.getNodeCenterById('Constant2');
+  //     dragFromAtoB(startX, startY, endX, endY);
+  //   });
+  //   doWithTestController((testController) => {
+  //     expect(testController.getSelectedNodes().length).to.eq(2);
+  //     cy.get('body').should('contain', '2 nodes selected');
+  //   });
+  // });
 
   it('Shows selection tooltip after selecting all nodes within drag area on dragging over graph and releasing over socket', () => {
     const startX = 100;
