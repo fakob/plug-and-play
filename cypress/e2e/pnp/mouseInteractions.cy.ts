@@ -18,7 +18,7 @@ describe('mouseInteractions', () => {
 
   beforeEach(() => {
     cy.visit('http://127.0.0.1:8080/?new=true');
-    cy.wait(1000);
+    cy.wait(2000);
     // cy.get('body').type(`${controlOrMetaKey()}{shift}Y`); // enable debug view
     cy.get('body').type('1'); // enable debug view
     doWithTestController((testController) => {
