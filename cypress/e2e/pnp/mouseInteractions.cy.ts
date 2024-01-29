@@ -190,15 +190,15 @@ describe('mouseInteractions', () => {
 
   // Output socket with no connection
   it('Opens node browser on dragging from unconnected output socket to graph', () => {
-    const endX = 660;
-    const endY = 200;
+    const endX = 460;
+    const endY = 150;
 
     doWithTestController((testController) => {
       const [startX, startY] =
         testController.getSocketCenterByNodeIDAndSocketName('Constant2', 'Out');
       dragFromAtoB(startX, startY, endX, endY, true);
     });
-    cy.wait(1000);
+    cy.wait(2000);
     cy.get('#node-search[placeholder*="Search nodes"]').should('be.visible');
     cy.get('#node-search[placeholder*="Search nodes"]').type('{enter}');
     cy.wait(100);
