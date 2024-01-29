@@ -303,7 +303,7 @@ describe('mouseInteractions', () => {
   });
 
   // Output socket with connection
-  it.only('Opens node browser on dragging from connected output socket to graph', () => {
+  it('Opens node browser on dragging from connected output socket to graph', () => {
     const endX = 460;
     const endY = 150;
 
@@ -417,7 +417,7 @@ describe('mouseInteractions', () => {
   });
 
   // Input socket with no connection
-  it.only('Opens node browser on dragging from unconnected input socket to graph', () => {
+  it('Opens node browser on dragging from unconnected input socket to graph', () => {
     doWithTestController((testController) => {
       expect(testController.addNode('Constant', 'Constant4')).to.eq(true);
     });
