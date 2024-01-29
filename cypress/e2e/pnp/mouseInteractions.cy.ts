@@ -11,6 +11,22 @@ describe('mouseInteractions', () => {
     cy.wait(1000);
   };
 
+  const addTwoNodes = () => {
+    doWithTestController((testController) => {
+      expect(testController.addNode('Constant', 'Constant3')).to.eq(true);
+      expect(testController.addNode('Constant', 'Constant4')).to.eq(true);
+    });
+    cy.wait(100);
+  };
+
+  const moveTwoNodes = () => {
+    doWithTestController((testController) => {
+      testController.moveNodeByID('Constant3', 0, -100);
+      testController.moveNodeByID('Constant4', 230, -100);
+    });
+    cy.wait(100);
+  };
+
   beforeEach(() => {
     cy.visit('http://127.0.0.1:8080/?new=true');
     cy.wait(1000);
@@ -192,6 +208,7 @@ describe('mouseInteractions', () => {
       const [startX, startY] =
         testController.getSocketCenterByNodeIDAndSocketName('Constant2', 'Out');
       dragFromAtoB(startX, startY, endX, endY, true);
+      cy.get('body').realMouseUp(); // tests occasionally fail as the first mouse up is not registered
     });
     cy.wait(2000);
     cy.get('#node-search[placeholder*="Search nodes"]').should('be.visible');
@@ -203,16 +220,8 @@ describe('mouseInteractions', () => {
   });
 
   it('Creates a connection to preferred socket on dragging from unconnected output socket to node', () => {
-    doWithTestController((testController) => {
-      expect(testController.addNode('Constant', 'Constant3')).to.eq(true);
-      expect(testController.addNode('Constant', 'Constant4')).to.eq(true);
-    });
-    cy.wait(100);
-    doWithTestController((testController) => {
-      testController.moveNodeByID('Constant3', 0, -100);
-      testController.moveNodeByID('Constant4', 230, -100);
-    });
-    cy.wait(100);
+    addTwoNodes();
+    moveTwoNodes();
     doWithTestController((testController) => {
       const [startX, startY] =
         testController.getSocketCenterByNodeIDAndSocketName('Constant3', 'Out');
@@ -227,16 +236,8 @@ describe('mouseInteractions', () => {
   });
 
   it('Creates a connection on dragging from unconnected output socket to input socket without a connection', () => {
-    doWithTestController((testController) => {
-      expect(testController.addNode('Constant', 'Constant3')).to.eq(true);
-      expect(testController.addNode('Constant', 'Constant4')).to.eq(true);
-    });
-    cy.wait(100);
-    doWithTestController((testController) => {
-      testController.moveNodeByID('Constant3', 0, -100);
-      testController.moveNodeByID('Constant4', 230, -100);
-    });
-    cy.wait(100);
+    addTwoNodes();
+    moveTwoNodes();
     doWithTestController((testController) => {
       const [startX, startY] =
         testController.getSocketCenterByNodeIDAndSocketName('Constant3', 'Out');
@@ -311,6 +312,7 @@ describe('mouseInteractions', () => {
       const [startX, startY] =
         testController.getSocketCenterByNodeIDAndSocketName('Constant1', 'Out');
       dragFromAtoB(startX, startY, endX, endY, true);
+      cy.get('body').realMouseUp(); // tests occasionally fail as the first mouse up is not registered
     });
     cy.wait(2000);
     cy.get('#node-search[placeholder*="Search nodes"]').should('be.visible');
@@ -368,14 +370,9 @@ describe('mouseInteractions', () => {
   });
 
   it('Creates a connection on dragging from connected output socket to input socket with a connection', () => {
+    addTwoNodes();
+    moveTwoNodes();
     doWithTestController((testController) => {
-      expect(testController.addNode('Constant', 'Constant3')).to.eq(true);
-      expect(testController.addNode('Constant', 'Constant4')).to.eq(true);
-    });
-    cy.wait(100);
-    doWithTestController((testController) => {
-      testController.moveNodeByID('Constant3', 0, -100);
-      testController.moveNodeByID('Constant4', 230, -100);
       testController.connectNodesByID('Constant3', 'Constant4', 'Out', 'In');
     });
     cy.wait(100);
@@ -430,6 +427,7 @@ describe('mouseInteractions', () => {
       const [startX, startY] =
         testController.getSocketCenterByNodeIDAndSocketName('Constant4', 'In');
       dragFromAtoB(startX, startY, startX - 150, startY - 200, true);
+      cy.get('body').realMouseUp(); // tests occasionally fail as the first mouse up is not registered
     });
     cy.wait(2000);
     doWithTestController((testController) => {
@@ -438,16 +436,8 @@ describe('mouseInteractions', () => {
   });
 
   it('Creates a connection to preferred socket on dragging from unconnected input socket to node', () => {
-    doWithTestController((testController) => {
-      expect(testController.addNode('Constant', 'Constant3')).to.eq(true);
-      expect(testController.addNode('Constant', 'Constant4')).to.eq(true);
-    });
-    cy.wait(100);
-    doWithTestController((testController) => {
-      testController.moveNodeByID('Constant3', 0, -100);
-      testController.moveNodeByID('Constant4', 230, -100);
-    });
-    cy.wait(100);
+    addTwoNodes();
+    moveTwoNodes();
     doWithTestController((testController) => {
       const [startX, startY] =
         testController.getSocketCenterByNodeIDAndSocketName('Constant4', 'In');
@@ -462,16 +452,8 @@ describe('mouseInteractions', () => {
   });
 
   it('Creates a connection on dragging from unconnected input socket to output socket without a connection', () => {
-    doWithTestController((testController) => {
-      expect(testController.addNode('Constant', 'Constant3')).to.eq(true);
-      expect(testController.addNode('Constant', 'Constant4')).to.eq(true);
-    });
-    cy.wait(100);
-    doWithTestController((testController) => {
-      testController.moveNodeByID('Constant3', 0, -100);
-      testController.moveNodeByID('Constant4', 230, -100);
-    });
-    cy.wait(100);
+    addTwoNodes();
+    moveTwoNodes();
     doWithTestController((testController) => {
       const [startX, startY] =
         testController.getSocketCenterByNodeIDAndSocketName('Constant4', 'In');
@@ -604,14 +586,9 @@ describe('mouseInteractions', () => {
   });
 
   it('Moves connection and removes previous one on dragging from connected input socket to output socket with a connection', () => {
+    addTwoNodes();
+    moveTwoNodes();
     doWithTestController((testController) => {
-      expect(testController.addNode('Constant', 'Constant3')).to.eq(true);
-      expect(testController.addNode('Constant', 'Constant4')).to.eq(true);
-    });
-    cy.wait(100);
-    doWithTestController((testController) => {
-      testController.moveNodeByID('Constant3', 0, -100);
-      testController.moveNodeByID('Constant4', 230, -100);
       testController.connectNodesByID('Constant3', 'Constant4', 'Out', 'In');
     });
     cy.wait(100);
@@ -659,14 +636,9 @@ describe('mouseInteractions', () => {
   });
 
   it('Removes connection on dragging from connected input socket to output socket with a connection', () => {
+    addTwoNodes();
+    moveTwoNodes();
     doWithTestController((testController) => {
-      expect(testController.addNode('Constant', 'Constant3')).to.eq(true);
-      expect(testController.addNode('Constant', 'Constant4')).to.eq(true);
-    });
-    cy.wait(100);
-    doWithTestController((testController) => {
-      testController.moveNodeByID('Constant3', 0, -100);
-      testController.moveNodeByID('Constant4', 230, -100);
       testController.connectNodesByID('Constant3', 'Constant4', 'Out', 'In');
     });
     cy.wait(100);
@@ -706,6 +678,39 @@ describe('mouseInteractions', () => {
       expect(testController.getSocketLinks('Constant2', 'In').length).to.eq(1);
     });
   });
+
+  // it('Does nothing on clicking connected and dynamic input socket without or minimal dragging', () => {
+  //   const moveX = 0;
+  //   const moveY = 0;
+  //   doWithTestController((testController) => {
+  //     expect(testController.addNode('Add', 'Add')).to.eq(true);
+  //   });
+  //   cy.wait(100);
+  //   doWithTestController((testController) => {
+  //     testController.moveNodeByID('Add', 230, -100);
+  //   });
+  //   cy.wait(100);
+  //   doWithTestController((testController) => {
+  //     const [startX, startY] =
+  //       testController.getSocketCenterByNodeIDAndSocketName('Constant1', 'Out');
+  //     const [endX, endY] = testController.getNodeCenterById('Add');
+  //     dragFromAtoB(startX, startY, endX, endY, true);
+  //   });
+
+  //   doWithTestController((testController) => {
+  //     const [startX, startY] =
+  //       testController.getSocketCenterByNodeIDAndSocketName('Add', 'Out');
+  //     dragFromAtoB(startX, startY, startX + moveX, startY + moveY, true);
+  //   });
+  //   cy.wait(1000);
+  //   doWithTestController((testController) => {
+  //     cy.get('#node-search[placeholder*="Search nodes"]').should(
+  //       'not.be.visible',
+  //     );
+  //     expect(testController.getSocketLinks('Constant1', 'Out').length).to.eq(2);
+  //     expect(testController.getSocketLinks('Constant2', 'In').length).to.eq(1);
+  //   });
+  // });
 
   // Context menu
   it('Opens graph context menu on right-clicking graph', () => {
