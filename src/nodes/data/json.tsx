@@ -257,10 +257,10 @@ export class Break extends PPNode {
     }
 
     const socketsToBeRemoved = this.outputSocketArray.filter(
-      (socket) => !(socket.name in json),
+      (socket) => !(socket.name.split(JSON_SEPARATOR)[0] in json),
     );
     const argumentsToBeAdded = Object.keys(json).filter(
-      (key) => !this.outputSocketArray.some((socket) => socket.name === key),
+      (key) => !this.outputSocketArray.some((socket) => socket.name.split(JSON_SEPARATOR)[0] === key),
     );
     socketsToBeRemoved.forEach((socket) => {
       this.removeSocket(socket);
