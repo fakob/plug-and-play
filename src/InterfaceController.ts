@@ -32,6 +32,8 @@ export enum ListenEvent {
 }
 
 export default class InterfaceController {
+  static _showUnsavedChangesWarning = true;
+
   static listeners: Record<ListenEvent, Record<string, (data: any) => void>> = {
     0: {},
     1: {},
@@ -122,7 +124,13 @@ export default class InterfaceController {
   /////////////////////////////////////////////////////////////////////////////
   static isTypingInConsole = false;
   static consoleBeingTyped = '';
-  static showUnsavedChangesWarning = true;
+
+  static get showUnsavedChangesWarning() {
+    return this._showUnsavedChangesWarning;
+  }
+  static set showUnsavedChangesWarning(value) {
+    this._showUnsavedChangesWarning = value;
+  }
 
   static keysDown = async (e: KeyboardEvent): Promise<void> => {
     const modKey = isMac() ? e.metaKey : e.ctrlKey;

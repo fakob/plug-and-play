@@ -22,7 +22,7 @@ jobs:
       - name: Wait for server to start
         run: sleep 30
       - name: run tests
-        run: yarn test-debug
+        run: yarn test
       - name: Archive test results
         if: always() # This ensures that the results are always uploaded, even if the tests fail
         uses: actions/upload-artifact@v2
