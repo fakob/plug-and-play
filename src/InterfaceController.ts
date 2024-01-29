@@ -32,6 +32,8 @@ export enum ListenEvent {
 }
 
 export default class InterfaceController {
+  static _showUnsavedChangesWarning = true;
+
   static listeners: Record<ListenEvent, Record<string, (data: any) => void>> = {
     0: {},
     1: {},
@@ -123,6 +125,13 @@ export default class InterfaceController {
   static isTypingInConsole = false;
   static consoleBeingTyped = '';
 
+  static get showUnsavedChangesWarning() {
+    return this._showUnsavedChangesWarning;
+  }
+  static set showUnsavedChangesWarning(value) {
+    this._showUnsavedChangesWarning = value;
+  }
+
   static keysDown = async (e: KeyboardEvent): Promise<void> => {
     const modKey = isMac() ? e.metaKey : e.ctrlKey;
     if (!isEventComingFromWithinTextInput(e)) {
@@ -174,6 +183,9 @@ export default class InterfaceController {
         }
       } else if (e.shiftKey) {
         switch (e.code) {
+          case 'Digit0':
+            PPGraph.currentGraph.viewport.setZoom(1);
+            break;
           case 'Digit1':
             zoomToFitNodes();
             break;
@@ -243,6 +255,7 @@ export default class InterfaceController {
   };
   static onOpenFileBrowser: () => void = () => {};
 }
+
 class ConsoleController {
   static executeCommand(command: string): void {
     switch (command.toLowerCase()) {

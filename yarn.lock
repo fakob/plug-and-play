@@ -3290,13 +3290,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^18.17.5":
-  version: 18.18.3
-  resolution: "@types/node@npm:18.18.3"
-  checksum: ed97a832179e0cfbb93738021fe16d0bc5c0f34bea35269c23c9dd5f0ecc8be93dbe5efd51630189a099b31786a47c1bde115508831a7245613a55c3ad1a7d6b
-  languageName: node
-  linkType: hard
-
 "@types/node@npm:^20.8.10":
   version: 20.8.10
   resolution: "@types/node@npm:20.8.10"
@@ -5788,6 +5781,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"cypress-real-events@npm:^1.11.0":
+  version: 1.11.0
+  resolution: "cypress-real-events@npm:1.11.0"
+  peerDependencies:
+    cypress: ^4.x || ^5.x || ^6.x || ^7.x || ^8.x || ^9.x || ^10.x || ^11.x || ^12.x || ^13.x
+  checksum: 899246ba110d4d186d483a56871df0da58baed0c69f1a7005d4c4dda44dbffba1088c83a1765bbb8029fc6e1f98787e1dee57b05be9a5267c207ead6aaf22ff3
+  languageName: node
+  linkType: hard
+
 "cypress@npm:*":
   version: 12.17.3
   resolution: "cypress@npm:12.17.3"
@@ -5840,13 +5842,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cypress@npm:^13.4.0":
-  version: 13.4.0
-  resolution: "cypress@npm:13.4.0"
+"cypress@npm:^13.6.3":
+  version: 13.6.3
+  resolution: "cypress@npm:13.6.3"
   dependencies:
     "@cypress/request": ^3.0.0
     "@cypress/xvfb": ^1.2.4
-    "@types/node": ^18.17.5
     "@types/sinonjs__fake-timers": 8.1.1
     "@types/sizzle": ^2.3.2
     arch: ^2.2.0
@@ -5889,7 +5890,7 @@ __metadata:
     yauzl: ^2.10.0
   bin:
     cypress: bin/cypress
-  checksum: d64495105a61ed1fb41a5189d5015cfa80314c84d1004595e9c4019eedd394f83509409b6f8489a18e92ea96c6b66ffbb918f41ab97c3eaed34abe107c0846aa
+  checksum: 1c8a23f56cf26b3273379046240f3c0739fb6ca5f297c84ffa13c3911475ff77d107a3bca3790b854dc2d2b24a892fd522c5724cbf0d9eded9f3de45f5b9846b
   languageName: node
   linkType: hard
 
@@ -10786,7 +10787,8 @@ __metadata:
     cors: ^2.8.5
     css-loader: ^6.8.1
     css-minimizer-webpack-plugin: ^5.0.1
-    cypress: ^13.4.0
+    cypress: ^13.6.3
+    cypress-real-events: ^1.11.0
     del-cli: ^5.1.0
     dexie: ^3.2.4
     dotenv-webpack: ^8.0.1

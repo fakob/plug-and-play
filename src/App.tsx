@@ -138,9 +138,8 @@ const App = (): JSX.Element => {
     const viewportScreenX = Math.round(viewport.current.x);
     const viewportScreenY = Math.round(viewport.current.y);
     const viewportScale = roundNumber(viewport.current.scale.x);
-    pixiDebugRef.text = `Mouse position (world): ${mousePosition.x}, ${
-      mousePosition.y
-    } (${mouseWorldX}, ${mouseWorldY})
+    pixiDebugRef.text = `Mouse position: ${mousePosition.x}, ${mousePosition.y}
+Mouse position world: ${mouseWorldX}, ${mouseWorldY}
 Viewport position (scale): ${viewportScreenX}, ${Math.round(
       viewportScreenY,
     )} (${viewportScale})`;
