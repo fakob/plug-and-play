@@ -226,9 +226,7 @@ export const GraphContextMenu = (props) => {
           </Typography>
         </MenuItem>
         <MenuItem
-          onClick={() =>
-            PPStorage.getInstance().downloadGraph(PPGraph.currentGraph.id)
-          }
+          onClick={() => PPStorage.getInstance().downloadCurrentGraph()}
         >
           <ListItemIcon>
             <DownloadIcon fontSize="small" />

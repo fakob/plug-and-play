@@ -507,10 +507,11 @@ export default class PPNode extends PIXI.Container implements IWarningHandler {
   }
 
   public refreshNodeDragOrViewportMove() {
-    const screenPoint = this.screenPoint();
+    const screenPointBackgroundRectTopLeft =
+      this.screenPointBackgroundRectTopLeft();
     this.onNodeDragOrViewportMove({
-      screenX: screenPoint.x,
-      screenY: screenPoint.y,
+      screenX: screenPointBackgroundRectTopLeft.x,
+      screenY: screenPointBackgroundRectTopLeft.y,
       scale: PPGraph.currentGraph.viewportScaleX,
     });
   }
@@ -907,8 +908,15 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     }
   }
 
-  screenPoint(): PIXI.Point {
+  screenPointBackgroundRectTopLeft(): PIXI.Point {
     return PPGraph.currentGraph.viewport.toScreen(this.x + NODE_MARGIN, this.y);
+  }
+
+  screenPointBackgroundRectCenter(): PIXI.Point {
+    return PPGraph.currentGraph.viewport.toScreen(
+      this.x + NODE_MARGIN + this._BackgroundGraphicsRef.width / 2,
+      this.y + this._BackgroundGraphicsRef.height / 2,
+    );
   }
 
   // avoid calling this directly when possible
@@ -1263,10 +1271,11 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
 
   protected onViewportMove(): void {
     if (this.onNodeDragOrViewportMove) {
-      const screenPoint = this.screenPoint();
+      const screenPointBackgroundRectTopLeft =
+        this.screenPointBackgroundRectTopLeft();
       this.onNodeDragOrViewportMove({
-        screenX: screenPoint.x,
-        screenY: screenPoint.y,
+        screenX: screenPointBackgroundRectTopLeft.x,
+        screenY: screenPointBackgroundRectTopLeft.y,
         scale: PPGraph.currentGraph.viewportScaleX,
       });
     }

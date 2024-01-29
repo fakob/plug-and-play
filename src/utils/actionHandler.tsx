@@ -126,14 +126,16 @@ export class ActionHandler {
   static setUnsavedChange(state: boolean): void {
     InterfaceController.notifyListeners(ListenEvent.UnsavedChanges, state);
     this.graphHasUnsavedChanges = state;
-    if (this.graphHasUnsavedChanges) {
-      window.addEventListener('beforeunload', this.onBeforeUnload, {
-        capture: true,
-      });
-    } else {
-      window.removeEventListener('beforeunload', this.onBeforeUnload, {
-        capture: true,
-      });
+    if (InterfaceController.showUnsavedChangesWarning) {
+      if (this.graphHasUnsavedChanges) {
+        window.addEventListener('beforeunload', this.onBeforeUnload, {
+          capture: true,
+        });
+      } else {
+        window.removeEventListener('beforeunload', this.onBeforeUnload, {
+          capture: true,
+        });
+      }
     }
   }
 

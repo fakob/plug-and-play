@@ -177,21 +177,38 @@ export default class PPStorage {
     }
   };
 
+  downloadSerializedGraph(graph: SerializedGraph, name: string) {
+    downloadFile(
+      JSON.stringify(graph, null, 2),
+      `${name} - ${formatDate()}.ppgraph`,
+      'text/plain',
+    );
+  }
+
+  async downloadCurrentGraph() {
+    const serializedCurrentGraph = PPGraph.currentGraph.serialize();
+    this.downloadSerializedGraph(
+      serializedCurrentGraph,
+      PPGraph.currentGraph.name,
+    );
+  }
+
   async downloadGraph(graphId: string) {
     const meta = await this.db.graphs_meta.get(graphId);
     const data = await this.db.graphs_data.get(graphId);
 
-    downloadFile(
-      JSON.stringify(data.graphData, null, 2),
-      `${meta.name} - ${formatDate()}.ppgraph`,
-      'text/plain',
-    );
-
-    InterfaceController.showSnackBar(
-      <span>
-        Playground <b>{meta.name}</b> was saved to your Download folder
-      </span>,
-    );
+    if (meta !== undefined && data !== undefined) {
+      this.downloadSerializedGraph(data.graphData, meta.name);
+      InterfaceController.showSnackBar(
+        <span>
+          Playground <b>{meta.name}</b> was saved to your Download folder
+        </span>,
+      );
+    } else {
+      console.error(
+        "Unable to download graph, not found in database (this shouldn't happen unless its a migration thing!)",
+      );
+    }
   }
 
   deleteGraph(graphId: string): void {
@@ -263,69 +280,55 @@ export default class PPStorage {
     }
   }
 
-  async getGraphMetaFromDB(id: string): Promise<undefined | GraphMeta> {
-    try {
-      const loadedGraph = await this.db.graphs_meta.get(id);
-      return loadedGraph;
-    } catch (e) {
-      console.log(e.stack || e);
-      return undefined;
-    }
-  }
-
-  async getGraphFromDB(id: string): Promise<undefined | StoredGraph> {
-    try {
-      const loadedGraph = await this.db.graphs_data.get(id);
-      return loadedGraph;
-    } catch (e) {
-      console.log(e.stack || e);
-      return undefined;
-    }
-  }
-
   async loadGraphFromDB(id = PPGraph.currentGraph.id): Promise<void> {
-    let loadedGraphMeta = await this.getGraphMetaFromDB(id);
-    // check if graph exists and load last saved graph if it does not
-    if (loadedGraphMeta === undefined) {
-      const graphs = await this.db.graphs_meta.toArray();
-      loadedGraphMeta = graphs.sort(sortByDate)?.[0];
-    }
+    if (checkForUnsavedChanges()) {
+      let foundGraphToLoad = false;
+      let loadedGraphMeta = await this.db.graphs_meta.get(id); //await this.getGraphFromDB(id);
 
-    // see if we found something to load
-    if (loadedGraphMeta !== undefined) {
-      const loadedStoredGraph = await this.getGraphFromDB(loadedGraphMeta.id);
-
-      // might be undefined in transition period between DB schemas, remove later
-      if (loadedStoredGraph !== undefined) {
-        const graphData: SerializedGraph = loadedStoredGraph.graphData;
-        await PPGraph.currentGraph.configure(
-          graphData,
-          loadedGraphMeta.id,
-          loadedGraphMeta.name,
-        );
-
-        InterfaceController.notifyListeners(ListenEvent.GraphChanged, {
-          id: loadedGraphMeta.id,
-          name: loadedGraphMeta.name,
-        });
-
-        InterfaceController.showSnackBar(
-          <span>
-            <b>{loadedGraphMeta.name}</b> was loaded
-          </span>,
-        );
-        updateLocalIdInURL(loadedGraphMeta.id);
+      // check if graph exists and load last saved graph if it does not
+      if (loadedGraphMeta === undefined) {
+        loadedGraphMeta = (
+          await this.db.graphs_meta.toCollection().sortBy('date')
+        ).at(0);
       }
-    } else {
-      this.loadGraphFromURL(getExampleURL('', GET_STARTED_GRAPH));
-    }
 
-    ActionHandler.setUnsavedChange(false);
+      // see if we found something to load
+      if (loadedGraphMeta !== undefined) {
+        const storedGraph = await this.db.graphs_data.get(loadedGraphMeta.id);
+        if (storedGraph !== undefined) {
+          foundGraphToLoad = true;
+          const graphData: SerializedGraph = storedGraph.graphData;
+          await PPGraph.currentGraph.configure(
+            graphData,
+            loadedGraphMeta.id,
+            loadedGraphMeta.name,
+          );
+
+          InterfaceController.notifyListeners(ListenEvent.GraphChanged, {
+            id: loadedGraphMeta.id,
+            name: loadedGraphMeta.name,
+          });
+
+          InterfaceController.showSnackBar(
+            <span>
+              <b>{loadedGraphMeta.name}</b> was loaded
+            </span>,
+          );
+
+          updateLocalIdInURL(loadedGraphMeta.id);
+        }
+      }
+      if (!foundGraphToLoad) {
+        this.loadGraphFromURL(getExampleURL('', GET_STARTED_GRAPH));
+      }
+
+      ActionHandler.setUnsavedChange(false);
+    }
   }
 
   async renameGraph(graphId: string, newName: string) {
-    const loadedGraph = await this.getGraphMetaFromDB(graphId);
-    if (loadedGraph.name !== newName) {
+    const loadedGraph = await this.db.graphs_meta.get(graphId);
+    if (loadedGraph !== undefined && loadedGraph.name !== newName) {
       await this.db.graphs_meta.update(graphId, { name: newName });
       InterfaceController.onGraphListChanged();
       InterfaceController.showSnackBar(
@@ -340,7 +343,7 @@ export default class PPStorage {
     const serializedGraph = PPGraph.currentGraph.serialize();
     const loadedGraphId = PPGraph.currentGraph.id;
     const existingGraph: GraphMeta =
-      await this.getGraphMetaFromDB(loadedGraphId);
+      await this.db.graphs_meta.get(loadedGraphId);
 
     if (saveNew || existingGraph === undefined) {
       const newId = hri.random();
