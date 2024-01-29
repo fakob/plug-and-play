@@ -303,39 +303,41 @@ export default class PPStorage {
   }
 
   async loadGraphFromDB(id = PPGraph.currentGraph.id): Promise<void> {
-    let loadedGraph = await this.getGraphFromDB(id);
-    // check if graph exists and load last saved graph if it does not
-    if (loadedGraph === undefined) {
-      const graphs = await this.db.graphs.toArray();
-      loadedGraph = graphs.sort(sortByDate)?.[0];
+    if (checkForUnsavedChanges()) {
+      let loadedGraph = await this.getGraphFromDB(id);
+      // check if graph exists and load last saved graph if it does not
+      if (loadedGraph === undefined) {
+        const graphs = await this.db.graphs.toArray();
+        loadedGraph = graphs.sort(sortByDate)?.[0];
+      }
+
+      // see if we found something to load
+      if (loadedGraph !== undefined) {
+        const graphData: SerializedGraph = loadedGraph.graphData;
+        await PPGraph.currentGraph.configure(
+          graphData,
+          loadedGraph.id,
+          loadedGraph.name,
+        );
+
+        InterfaceController.notifyListeners(ListenEvent.GraphChanged, {
+          id: loadedGraph.id,
+          name: loadedGraph.name,
+        });
+
+        InterfaceController.showSnackBar(
+          <span>
+            <b>{loadedGraph.name}</b> was loaded
+          </span>,
+        );
+
+        updateLocalIdInURL(loadedGraph.id);
+      } else {
+        this.loadGraphFromURL(getExampleURL('', GET_STARTED_GRAPH));
+      }
+
+      ActionHandler.setUnsavedChange(false);
     }
-
-    // see if we found something to load
-    if (loadedGraph !== undefined) {
-      const graphData: SerializedGraph = loadedGraph.graphData;
-      await PPGraph.currentGraph.configure(
-        graphData,
-        loadedGraph.id,
-        loadedGraph.name,
-      );
-
-      InterfaceController.notifyListeners(ListenEvent.GraphChanged, {
-        id: loadedGraph.id,
-        name: loadedGraph.name,
-      });
-
-      InterfaceController.showSnackBar(
-        <span>
-          <b>{loadedGraph.name}</b> was loaded
-        </span>,
-      );
-
-      updateLocalIdInURL(loadedGraph.id);
-    } else {
-      this.loadGraphFromURL(getExampleURL('', GET_STARTED_GRAPH));
-    }
-
-    ActionHandler.setUnsavedChange(false);
   }
 
   async renameGraph(graphId: string, newName: string) {
