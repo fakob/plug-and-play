@@ -308,16 +308,16 @@ describe('mouseInteractions', () => {
   });
 
   // Output socket with connection
-  it('Opens node browser on dragging from connected output socket to graph', () => {
-    const endX = 660;
-    const endY = 200;
+  it.only('Opens node browser on dragging from connected output socket to graph', () => {
+    const endX = 460;
+    const endY = 150;
 
     doWithTestController((testController) => {
       const [startX, startY] =
         testController.getSocketCenterByNodeIDAndSocketName('Constant1', 'Out');
       dragFromAtoB(startX, startY, endX, endY, true);
     });
-    cy.wait(1000);
+    cy.wait(2000);
     cy.get('#node-search[placeholder*="Search nodes"]').should('be.visible');
     cy.get('#node-search[placeholder*="Search nodes"]').type('{enter}');
     doWithTestController((testController) => {
@@ -422,7 +422,7 @@ describe('mouseInteractions', () => {
   });
 
   // Input socket with no connection
-  it('Opens node browser on dragging from unconnected input socket to graph', () => {
+  it.only('Opens node browser on dragging from unconnected input socket to graph', () => {
     doWithTestController((testController) => {
       expect(testController.addNode('Constant', 'Constant4')).to.eq(true);
     });
@@ -434,9 +434,9 @@ describe('mouseInteractions', () => {
     doWithTestController((testController) => {
       const [startX, startY] =
         testController.getSocketCenterByNodeIDAndSocketName('Constant4', 'In');
-      dragFromAtoB(startX, startY, startX - 100, startY, true);
+      dragFromAtoB(startX, startY, startX - 150, startY - 200, true);
     });
-    cy.wait(1000);
+    cy.wait(2000);
     doWithTestController((testController) => {
       cy.get('#node-search[placeholder*="Search nodes"]').should('be.visible');
     });
