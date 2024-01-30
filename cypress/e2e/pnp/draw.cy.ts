@@ -20,8 +20,9 @@ describe('draw', () => {
   });
 
   it('save the graph', () => {
-    cy.wait(300);
+    cy.wait(100);
     cy.get('body').type(`${controlOrMetaKey()}s`);
+    cy.wait(200);
   });
 
   it('open it again, see that everything is still there', () => {

@@ -61,6 +61,7 @@ describe('macro', () => {
   it('Save graph', () => {
     cy.wait(100);
     cy.get('body').type(`${controlOrMetaKey()}s`);
+    cy.wait(200);
   });
 
   it('See that dropdown still works after reload', () => {
