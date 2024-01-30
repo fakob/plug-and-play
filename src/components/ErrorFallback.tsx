@@ -6,7 +6,7 @@ function ErrorFallback({ error, resetErrorBoundary }) {
     <div role="alert" style={{ color: 'white' }}>
       <p>Something went wrong:</p>
       <pre>{error.message}</pre>
-      <button onClick={() => PPStorage.getInstance().saveNewGraph()}>
+      <button onClick={() => PPStorage.getInstance().saveGraphAction(true)}>
         Save a backup
       </button>
       <button onClick={resetErrorBoundary}>Try again</button>

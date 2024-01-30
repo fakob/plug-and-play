@@ -234,7 +234,7 @@ export default class PPStorage {
           action: (key) => (
             <SaveOrDismiss
               saveClick={() => {
-                this.saveNewGraph();
+                this.saveGraphAction(true);
                 InterfaceController.hideSnackBar(key);
               }}
               dismissClick={() => InterfaceController.hideSnackBar(key)}
@@ -328,6 +328,10 @@ export default class PPStorage {
     }
   }
 
+  idToGraphName(id: string): string {
+    return id.substring(0, id.lastIndexOf('-')).replace('-', ' ');
+  }
+
   async renameGraph(graphId: string, newName: string) {
     const loadedGraph = await this.db.graphs_meta.get(graphId);
     if (loadedGraph !== undefined && loadedGraph.name !== newName) {
@@ -342,18 +346,19 @@ export default class PPStorage {
     }
   }
 
-  async saveGraphAction(saveNew = false, newName = undefined) {
+  async saveGraphAction(
+    saveNew = false,
+    name = this.idToGraphName(PPGraph.currentGraph.id),
+  ) {
     const serializedGraph = PPGraph.currentGraph.serialize();
     const loadedGraphId = PPGraph.currentGraph.id;
     const existingGraph: GraphMeta =
       await this.db.graphs_meta.get(loadedGraphId);
 
-    if (saveNew || existingGraph === undefined) {
+    if (saveNew) {
       const newId = hri.random();
-      const name =
-        newName ?? newId.substring(0, newId.lastIndexOf('-')).replace('-', ' ');
-      await this.saveGraphToDabase(newId, serializedGraph, name);
       PPGraph.currentGraph.id = newId;
+      PPGraph.currentGraph.name = name;
       InterfaceController.onGraphListChanged();
       InterfaceController.notifyListeners(ListenEvent.GraphChanged, {
         id: newId,
@@ -385,23 +390,19 @@ export default class PPStorage {
     );
   }
 
-  saveNewGraph(newName = undefined) {
-    this.saveGraphAction(true, newName);
-  }
-
   async cloneRemoteGraph(nameOfFileToClone) {
     if (checkForUnsavedChanges()) {
       const fileData = await this.getRemoteGraph(nameOfFileToClone);
       const nameID = hri.random();
-      PPGraph.currentGraph.configure(fileData, nameID, nameID);
-
       const newName = `${removeExtension(nameOfFileToClone)} - copy`; // remove .ppgraph extension and add copy
+      PPGraph.currentGraph.configure(fileData, nameID, newName);
+
       InterfaceController.showSnackBar('Remote playground was loaded', {
         variant: 'default',
         autoHideDuration: 5000,
         action: (key) => (
           <SaveOrDismiss
-            saveClick={() => this.saveNewGraph(newName)}
+            saveClick={() => this.saveGraphAction(true, newName)}
             dismissClick={() => InterfaceController.hideSnackBar(key)}
           />
         ),
