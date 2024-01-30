@@ -355,10 +355,11 @@ export default class PPStorage {
     const existingGraph: GraphMeta =
       await this.db.graphs_meta.get(loadedGraphId);
 
-    if (saveNew) {
+    if (saveNew || existingGraph === undefined) {
       const newId = hri.random();
       PPGraph.currentGraph.id = newId;
       PPGraph.currentGraph.name = name;
+      await this.saveGraphToDabase(newId, serializedGraph, name);
       InterfaceController.onGraphListChanged();
       InterfaceController.notifyListeners(ListenEvent.GraphChanged, {
         id: newId,
