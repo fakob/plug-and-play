@@ -1,4 +1,4 @@
-import { controlOrMetaKey, doWithTestController } from './helpers';
+import { controlOrMetaKey, doWithTestController, saveGraph } from './helpers';
 
 describe('draw', () => {
   it('add draw shape and multiply nodes, connect them', () => {
@@ -21,8 +21,8 @@ describe('draw', () => {
 
   it('save the graph', () => {
     cy.wait(100);
-    cy.get('body').type(`${controlOrMetaKey()}s`);
-    cy.wait(200);
+    saveGraph();
+    cy.wait(100);
   });
 
   it('open it again, see that everything is still there', () => {

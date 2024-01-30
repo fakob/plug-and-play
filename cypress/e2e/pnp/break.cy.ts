@@ -1,4 +1,4 @@
-import { controlOrMetaKey, doWithTestController } from './helpers';
+import { controlOrMetaKey, doWithTestController, saveGraph } from './helpers';
 
 describe('break', () => {
   it('add break node', () => {
@@ -59,7 +59,7 @@ describe('break', () => {
     doWithTestController((testController) => {
       testController.connectNodesByID('Constant', 'Break', 'Out');
     });
-    cy.get('body').type(`${controlOrMetaKey()}s`);
+    saveGraph();
   });
 
   it('load it again', () => {

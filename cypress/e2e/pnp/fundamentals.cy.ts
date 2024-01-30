@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { controlOrMetaKey } from './helpers';
+import { controlOrMetaKey, saveGraph } from './helpers';
 
 describe('fundamentals', () => {
   const myGraphName = 'Bingus';
@@ -59,7 +59,7 @@ describe('fundamentals', () => {
 
   it('Save Graph', () => {
     cy.wait(3000);
-    cy.get('body').type(`${controlOrMetaKey()}s`);
+    saveGraph();
     checkToastForMessage('was saved');
   });
 

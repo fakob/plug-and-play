@@ -289,7 +289,9 @@ export default class PPStorage {
       if (loadedGraphMeta === undefined) {
         loadedGraphMeta = (
           await this.db.graphs_meta.toCollection().sortBy('date')
-        ).at(0);
+        )
+          .reverse()
+          .at(0);
       }
 
       // see if we found something to load
@@ -330,6 +332,7 @@ export default class PPStorage {
     const loadedGraph = await this.db.graphs_meta.get(graphId);
     if (loadedGraph !== undefined && loadedGraph.name !== newName) {
       await this.db.graphs_meta.update(graphId, { name: newName });
+      loadedGraph.name = newName;
       InterfaceController.onGraphListChanged();
       InterfaceController.showSnackBar(
         <span>

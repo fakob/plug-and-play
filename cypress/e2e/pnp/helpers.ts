@@ -13,3 +13,7 @@ export function areCoordinatesClose(x1, y1, x2, y2, marginOfError = 1) {
   const distance = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
   return distance <= marginOfError;
 }
+
+export function saveGraph(){
+    cy.get('body').type(`${controlOrMetaKey()}s`);
+}
