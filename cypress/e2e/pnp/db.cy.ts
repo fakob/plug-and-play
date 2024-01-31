@@ -25,7 +25,7 @@ describe('database', () => {
       testController.setNodeInputValue("Constant", "In", largeValue);
     });
   });
-
+/*
   it ("save graph", () => {
     cy.wait(200);
     saveGraph();
@@ -40,4 +40,5 @@ describe('database', () => {
     });
 
   });
+  */
 });

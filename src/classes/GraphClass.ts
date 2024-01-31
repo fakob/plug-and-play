@@ -1184,6 +1184,7 @@ export default class PPGraph {
     id: string,
     name: string,
   ): Promise<boolean> {
+    console.time('graph_configure');
     this.allowExecution = false;
     this.id = id;
     this.name = name;
@@ -1229,6 +1230,7 @@ export default class PPGraph {
 
     this.allowExecution = true;
 
+    console.timeEnd('graph_configure');
     return true;
   }
 

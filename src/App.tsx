@@ -72,6 +72,7 @@ import PPStorage from './PPStorage';
 import PPSelection from './classes/SelectionClass';
 import TestController from './TestController';
 
+console.time('first_startup');
 const randomMainColorLightHex = new PIXI.Color(
   Color(RANDOMMAINCOLOR).mix(Color('white'), 0.9).hex(),
 ).toNumber();
@@ -191,6 +192,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
 
   // on mount
   useEffect(() => {
+    console.time('main_app_mount');
     if (process.env.NODE_ENV !== 'development') {
       (async function () {
         const res = await fetch('/api/me', {
@@ -448,6 +450,7 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
     });
 
     window.dispatchEvent(new Event('pointermove')); // to initialise event values
+    console.timeEnd('main_app_mount');
   }, []);
 
   useEffect(() => {
@@ -826,4 +829,5 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
   );
 };
 
+console.timeEnd('first_startup');
 export default App;
