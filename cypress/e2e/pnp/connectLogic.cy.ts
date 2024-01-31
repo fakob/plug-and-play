@@ -50,7 +50,7 @@ describe('connectLogic', () => {
   it("disconnect nodes", () => {
     cy.wait(100);
     doWithTestController(testController => {
-      testController.disconnectLink("Add", "Addend");
+      testController.disconnectLink("Add", "Addend 3");
     });
 
     cy.wait(100);

@@ -16,6 +16,8 @@ import * as PIXI from 'pixi.js';
 import { TextStyle } from 'pixi.js';
 import { DynamicInputNode } from './abstract/DynamicInputNode';
 
+const addendName = 'Addend';
+const factorName = 'Factor';
 const addedOutputName = 'Added';
 const subtractedOutputName = 'Subtracted';
 const dividedOutputName = 'Divided';
@@ -151,6 +153,8 @@ export class Add extends DynamicInputNode {
 
   protected getDefaultIO(): Socket[] {
     return [
+      new Socket(SOCKET_TYPE.IN, addendName, new NumberType(), 0),
+      new Socket(SOCKET_TYPE.IN, addendName + ' 2', new NumberType(), 0),
       new Socket(SOCKET_TYPE.OUT, addedOutputName, new NumberType()),
     ].concat(super.getDefaultIO());
   }
@@ -215,6 +219,8 @@ export class Multiply extends DynamicInputNode {
 
   protected getDefaultIO(): Socket[] {
     return [
+      new Socket(SOCKET_TYPE.IN, factorName, new NumberType(), 1),
+      new Socket(SOCKET_TYPE.IN, factorName + ' 2', new NumberType(), 1),
       new Socket(SOCKET_TYPE.OUT, multipliedOutputName, new NumberType()),
     ].concat(super.getDefaultIO());
   }
