@@ -240,9 +240,9 @@ export default class InterfaceController {
     if (modKey && e.key.toLowerCase() === 's') {
       e.preventDefault();
       if (e.shiftKey) {
-        PPStorage.getInstance().saveNewGraph();
+        PPStorage.getInstance().saveGraphAction(true);
       } else {
-        PPStorage.getInstance().saveGraphAction(false);
+        PPStorage.getInstance().saveGraphAction();
       }
     } else if (e.key === 'Escape') {
       InterfaceController.notifyListeners(ListenEvent.EscapeKeyUsed, e);

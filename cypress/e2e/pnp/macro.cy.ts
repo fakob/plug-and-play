@@ -1,4 +1,4 @@
-import { controlOrMetaKey, doWithTestController } from './helpers';
+import { controlOrMetaKey, doWithTestController, saveGraph } from './helpers';
 
 describe('macro', () => {
   const checkDropdownWorks = () => {
@@ -60,7 +60,8 @@ describe('macro', () => {
   });
   it('Save graph', () => {
     cy.wait(100);
-    cy.get('body').type(`${controlOrMetaKey()}s`);
+    saveGraph();
+    cy.wait(100);
   });
 
   it('See that dropdown still works after reload', () => {

@@ -39,6 +39,7 @@ import {
 import { getAllNodesFormattedForInterface } from './nodes/allNodes';
 import MDXCreate from './help/help.mdx';
 import MDXAbout from './help/about.mdx';
+import { hri } from 'human-readable-ids';
 
 type FilterContentProps = {
   readonly handleFilter: (
@@ -278,7 +279,8 @@ const GraphsContent = (props) => {
           onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
             event.stopPropagation();
             PPGraph.currentGraph.clear();
-            PPStorage.getInstance().saveNewGraph();
+            PPGraph.currentGraph.id = hri.random();
+            PPStorage.getInstance().saveGraphAction();
           }}
           sx={{
             color: TRgba.fromString(props.randomMainColor)

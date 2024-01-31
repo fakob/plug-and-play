@@ -14,6 +14,9 @@ export function areCoordinatesClose(x1, y1, x2, y2, marginOfError = 1) {
   return distance <= marginOfError;
 }
 
+export function saveGraph(){
+    cy.get('body').type(`${controlOrMetaKey()}s`);
+}
 export const dragFromAtoB = (startX, startY, endX, endY, wait = false) => {
   cy.get('body')
     .realMouseMove(startX, startY)

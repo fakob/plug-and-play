@@ -665,10 +665,10 @@ Viewport position (scale): ${viewportScreenX}, ${Math.round(
               <Button
                 onClick={() => {
                   setShowDeleteGraph(false);
-                  const deletedGraphID = PPStorage.getInstance().deleteGraph(
-                    graphToBeModified.id,
-                  );
-                  if (graphToBeModified.id == deletedGraphID) {
+                  const currentGraphID = PPGraph.currentGraph.id;
+                  const graphToBeModifiedID = graphToBeModified.id;
+                  PPStorage.getInstance().deleteGraph(graphToBeModifiedID);
+                  if (graphToBeModifiedID == currentGraphID) {
                     PPStorage.getInstance().loadGraphFromDB();
                   }
                 }}

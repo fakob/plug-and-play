@@ -4,7 +4,7 @@ import en from 'javascript-time-ago/locale/en';
 import InterfaceController, { ListenEvent } from './InterfaceController';
 import { GESTUREMODE, GET_STARTED_GRAPH } from './utils/constants';
 import { ActionHandler } from './utils/actionHandler';
-import { GraphDatabase } from './utils/indexedDB';
+import { GraphDatabase, StoredGraph } from './utils/indexedDB';
 import {
   downloadFile,
   formatDate,
@@ -22,7 +22,7 @@ import { hri } from 'human-readable-ids';
 import { Button } from '@mui/material';
 import React from 'react';
 import { IGraphSearch, SerializedGraph } from './utils/interfaces';
-import { Graph } from './utils/indexedDB';
+import { GraphMeta } from './utils/indexedDB';
 
 TimeAgo.addDefaultLocale(en);
 const timeAgo = new TimeAgo('en-US');
@@ -177,57 +177,45 @@ export default class PPStorage {
     }
   };
 
-  async downloadGraph(graphId = undefined) {
-    this.db
-      .transaction('rw', this.db.graphs, this.db.settings, async () => {
-        let serializedGraph;
-        let graphName;
-
-        const loadedGraphId = PPGraph.currentGraph.id;
-
-        const graph = await this.db.graphs
-          .where('id')
-          .equals(graphId || loadedGraphId)
-          .first();
-
-        if (graphId && graph) {
-          serializedGraph = graph.graphData;
-          graphName = graph.name;
-        } else {
-          serializedGraph = PPGraph.currentGraph.serialize();
-          graphName = graph ? graph.name : PPGraph.currentGraph.id;
-        }
-
-        downloadFile(
-          JSON.stringify(serializedGraph, null, 2),
-          `${graphName} - ${formatDate()}.ppgraph`,
-          'text/plain',
-        );
-
-        InterfaceController.showSnackBar(
-          <span>
-            Playground <b>{graphName}</b> was saved to your Download folder
-          </span>,
-        );
-      })
-      .catch((e) => {
-        console.log(e.stack || e);
-      });
+  downloadSerializedGraph(graph: SerializedGraph, name: string) {
+    downloadFile(
+      JSON.stringify(graph, null, 2),
+      `${name} - ${formatDate()}.ppgraph`,
+      'text/plain',
+    );
   }
 
-  deleteGraph(graphId: string): string {
-    this.db
-      .transaction('rw', this.db.graphs, this.db.settings, async () => {
-        const id = await this.db.graphs.where('id').equals(graphId).delete();
-        console.log(`Deleted graph: ${id}`);
-        InterfaceController.onGraphListChanged();
-        InterfaceController.showSnackBar('Playground was deleted');
-      })
-      .catch((e) => {
-        console.log(e.stack || e);
-        return undefined;
-      });
-    return undefined;
+  async downloadCurrentGraph() {
+    const serializedCurrentGraph = PPGraph.currentGraph.serialize();
+    this.downloadSerializedGraph(
+      serializedCurrentGraph,
+      PPGraph.currentGraph.name,
+    );
+  }
+
+  async downloadGraph(graphId: string) {
+    const meta = await this.db.graphs_meta.get(graphId);
+    const data = await this.db.graphs_data.get(graphId);
+
+    if (meta !== undefined && data !== undefined) {
+      this.downloadSerializedGraph(data.graphData, meta.name);
+      InterfaceController.showSnackBar(
+        <span>
+          Playground <b>{meta.name}</b> was saved to your Download folder
+        </span>,
+      );
+    } else {
+      console.error(
+        "Unable to download graph, not found in database (this shouldn't happen unless its a migration thing!)",
+      );
+    }
+  }
+
+  deleteGraph(graphId: string): void {
+    this.db.graphs_data.delete(graphId);
+    this.db.graphs_meta.delete(graphId);
+    InterfaceController.onGraphListChanged();
+    InterfaceController.showSnackBar('Playground was deleted');
   }
 
   async loadGraphFromData(fileData: SerializedGraph, id: string, name: string) {
@@ -246,7 +234,7 @@ export default class PPStorage {
           action: (key) => (
             <SaveOrDismiss
               saveClick={() => {
-                this.saveNewGraph();
+                this.saveGraphAction(true);
                 InterfaceController.hideSnackBar(key);
               }}
               dismissClick={() => InterfaceController.hideSnackBar(key)}
@@ -284,7 +272,7 @@ export default class PPStorage {
 
   async getGraphNameFromDB(graphId: string): Promise<undefined | string> {
     try {
-      const graph = await this.db.graphs.get(graphId);
+      const graph = await this.db.graphs_meta.get(graphId);
       return graph.name;
     } catch (e) {
       console.log(e.stack || e);
@@ -292,47 +280,47 @@ export default class PPStorage {
     }
   }
 
-  async getGraphFromDB(id: string): Promise<undefined | Graph> {
-    try {
-      const loadedGraph = await this.db.graphs.get(id);
-      return loadedGraph;
-    } catch (e) {
-      console.log(e.stack || e);
-      return undefined;
-    }
-  }
-
   async loadGraphFromDB(id = PPGraph.currentGraph.id): Promise<void> {
     if (checkForUnsavedChanges()) {
-      let loadedGraph = await this.getGraphFromDB(id);
+      let foundGraphToLoad = false;
+      let loadedGraphMeta = await this.db.graphs_meta.get(id); //await this.getGraphFromDB(id);
+
       // check if graph exists and load last saved graph if it does not
-      if (loadedGraph === undefined) {
-        const graphs = await this.db.graphs.toArray();
-        loadedGraph = graphs.sort(sortByDate)?.[0];
+      if (loadedGraphMeta === undefined) {
+        loadedGraphMeta = (
+          await this.db.graphs_meta.toCollection().sortBy('date')
+        )
+          .reverse()
+          .at(0);
       }
 
       // see if we found something to load
-      if (loadedGraph !== undefined) {
-        const graphData: SerializedGraph = loadedGraph.graphData;
-        await PPGraph.currentGraph.configure(
-          graphData,
-          loadedGraph.id,
-          loadedGraph.name,
-        );
+      if (loadedGraphMeta !== undefined) {
+        const storedGraph = await this.db.graphs_data.get(loadedGraphMeta.id);
+        if (storedGraph !== undefined) {
+          foundGraphToLoad = true;
+          const graphData: SerializedGraph = storedGraph.graphData;
+          await PPGraph.currentGraph.configure(
+            graphData,
+            loadedGraphMeta.id,
+            loadedGraphMeta.name,
+          );
 
-        InterfaceController.notifyListeners(ListenEvent.GraphChanged, {
-          id: loadedGraph.id,
-          name: loadedGraph.name,
-        });
+          InterfaceController.notifyListeners(ListenEvent.GraphChanged, {
+            id: loadedGraphMeta.id,
+            name: loadedGraphMeta.name,
+          });
 
-        InterfaceController.showSnackBar(
-          <span>
-            <b>{loadedGraph.name}</b> was loaded
-          </span>,
-        );
+          InterfaceController.showSnackBar(
+            <span>
+              <b>{loadedGraphMeta.name}</b> was loaded
+            </span>,
+          );
 
-        updateLocalIdInURL(loadedGraph.id);
-      } else {
+          updateLocalIdInURL(loadedGraphMeta.id);
+        }
+      }
+      if (!foundGraphToLoad) {
         this.loadGraphFromURL(getExampleURL('', GET_STARTED_GRAPH));
       }
 
@@ -340,10 +328,15 @@ export default class PPStorage {
     }
   }
 
+  idToGraphName(id: string): string {
+    return id.substring(0, id.lastIndexOf('-')).replace('-', ' ');
+  }
+
   async renameGraph(graphId: string, newName: string) {
-    const loadedGraph = await this.getGraphFromDB(graphId);
-    if (loadedGraph.name !== newName) {
-      await this.db.graphs.update(graphId, { name: newName });
+    const loadedGraph = await this.db.graphs_meta.get(graphId);
+    if (loadedGraph !== undefined && loadedGraph.name !== newName) {
+      await this.db.graphs_meta.update(graphId, { name: newName });
+      loadedGraph.name = newName;
       InterfaceController.onGraphListChanged();
       InterfaceController.showSnackBar(
         <span>
@@ -353,17 +346,20 @@ export default class PPStorage {
     }
   }
 
-  async saveGraphAction(saveNew = false, newName = undefined) {
+  async saveGraphAction(
+    saveNew = false,
+    name = this.idToGraphName(PPGraph.currentGraph.id),
+  ) {
     const serializedGraph = PPGraph.currentGraph.serialize();
     const loadedGraphId = PPGraph.currentGraph.id;
-    const existingGraph: Graph = await this.getGraphFromDB(loadedGraphId);
+    const existingGraph: GraphMeta =
+      await this.db.graphs_meta.get(loadedGraphId);
 
     if (saveNew || existingGraph === undefined) {
       const newId = hri.random();
-      const name =
-        newName ?? newId.substring(0, newId.lastIndexOf('-')).replace('-', ' ');
-      await this.saveGraphToDabase(newId, serializedGraph, name);
       PPGraph.currentGraph.id = newId;
+      PPGraph.currentGraph.name = name;
+      await this.saveGraphToDabase(newId, serializedGraph, name);
       InterfaceController.onGraphListChanged();
       InterfaceController.notifyListeners(ListenEvent.GraphChanged, {
         id: newId,
@@ -381,12 +377,13 @@ export default class PPStorage {
   }
 
   async saveGraphToDabase(id: string, graphData: SerializedGraph, name) {
-    await this.db.graphs.put({
+    await this.db.graphs_meta.put({
       id,
       name: name,
-      graphData,
       date: new Date(),
     });
+    await this.db.graphs_data.put({ id, graphData });
+
     InterfaceController.showSnackBar(
       <span>
         Playground <b>{name}</b> was saved
@@ -394,23 +391,19 @@ export default class PPStorage {
     );
   }
 
-  saveNewGraph(newName = undefined) {
-    this.saveGraphAction(true, newName);
-  }
-
   async cloneRemoteGraph(nameOfFileToClone) {
     if (checkForUnsavedChanges()) {
       const fileData = await this.getRemoteGraph(nameOfFileToClone);
       const nameID = hri.random();
-      PPGraph.currentGraph.configure(fileData, nameID, nameID);
-
       const newName = `${removeExtension(nameOfFileToClone)} - copy`; // remove .ppgraph extension and add copy
+      PPGraph.currentGraph.configure(fileData, nameID, newName);
+
       InterfaceController.showSnackBar('Remote playground was loaded', {
         variant: 'default',
         autoHideDuration: 5000,
         action: (key) => (
           <SaveOrDismiss
-            saveClick={() => this.saveNewGraph(newName)}
+            saveClick={() => this.saveGraphAction(true, newName)}
             dismissClick={() => InterfaceController.hideSnackBar(key)}
           />
         ),
@@ -419,9 +412,9 @@ export default class PPStorage {
     }
   }
 
-  async getGraphsList(): Promise<any[]> {
+  async getGraphsList(): Promise<IGraphSearch[]> {
     const graphs = await PPStorage.getInstance()
-      .db.graphs.toCollection()
+      .db.graphs_meta.toCollection()
       .reverse()
       .sortBy('date');
     return graphs.map((graph) => {

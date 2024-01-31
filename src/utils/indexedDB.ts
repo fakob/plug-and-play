@@ -1,10 +1,13 @@
 import Dexie from 'dexie';
 import { SerializedGraph } from './interfaces';
 
-export interface Graph {
+export interface StoredGraph {
+  id: string;
+  graphData: SerializedGraph;
+}
+export interface GraphMeta {
   id: string;
   date: Date;
-  graphData: SerializedGraph;
   editorData?: string;
   name?: string;
 }
@@ -24,18 +27,21 @@ interface LocalResource {
 
 // Declare Database
 export class GraphDatabase extends Dexie {
-  public graphs: Dexie.Table<Graph, string>;
+  public graphs_data: Dexie.Table<StoredGraph, string>;
+  public graphs_meta: Dexie.Table<GraphMeta, string>;
   public settings: Dexie.Table<Settings, string>;
   public localResources: Dexie.Table<LocalResource, string>;
 
   public constructor() {
     super('GraphDatabase');
-    this.version(2).stores({
-      graphs: 'id',
+    this.version(4).stores({
+      graphs_data: '&id',
+      graphs_meta: '&id',
       settings: '&name',
       localResources: '&id',
     });
-    this.graphs = this.table('graphs');
+    this.graphs_meta = this.table('graphs_meta');
+    this.graphs_data = this.table('graphs_data');
     this.settings = this.table('settings');
     this.localResources = this.table('localResources');
   }

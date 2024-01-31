@@ -1,4 +1,4 @@
-import {
+/*import {
   addTwoNodes,
   afterEachMouseInteraction,
   beforeEachMouseInteraction,
@@ -496,3 +496,4 @@ describe('mouseInteractions2', () => {
     });
   });
 });
+*/

@@ -6,32 +6,39 @@ jobs:
   cypress-run:
     runs-on: ubuntu-latest
     steps:
-      - name: Set up Node.js 16
-        uses: actions/setup-node@v2
-        with:
-          node-version: '16'
       - name: Checkout
         uses: actions/checkout@v3
-      - name: install PNP
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "18"
+
+      - name: Cache Yarn Dependencies
+        uses: actions/cache@v2
+        with:
+          path: |
+            .yarn/cache
+            .yarn/unplugged
+            .yarn/build-state.yml
+            .yarn/install-state.gz
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: Install Dependencies
         run: yarn install
-      - name: build PNP
-        run: yarn build
-      - name: run PNP
+      #      - name: Build
+      #        run: yarn build
+      - name: Start Server
         run: yarn dev &
-        # Allow some time for the server to start
-      - name: Wait for server to start
-        run: sleep 30
-      - name: run tests
+          npx wait-on http://localhost:8080
+      - name: Run tests
         run: yarn test
+
       - name: Archive test results
-        if: always() # This ensures that the results are always uploaded, even if the tests fail
+        if: failure()
         uses: actions/upload-artifact@v2
         with:
           name: cypress-results
           path: cypress/videos/*.mp4
-      # Install NPM dependencies, cache them correctly
-      # and run all Cypress tests
-      #- name: Cypress run
-      #  uses: cypress-io/github-action@v5
-      #  with:
-      #    start: yarn test
