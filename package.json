@@ -124,7 +124,8 @@
     "prettier:check": "yarn run prettier -- -c ./src/**/*.ts",
     "prettier:format": "yarn run prettier -- --write src/**/*.ts",
     "start": "node ./server.js",
-    "test": "yarn cypress run --spec cypress/e2e/pnp/*.ts",
+    "test": "yarn cypress run --spec 'cypress/e2e/pnp/*.ts'",
+    "test-debug": "DEBUG='cypress:*' yarn cypress run --spec 'cypress/e2e/pnp/*.ts'",
     "test-editor": "yarn cypress open",
     "webpack": "webpack",
     "webpack-dev-server": "webpack serve --hot --open"
