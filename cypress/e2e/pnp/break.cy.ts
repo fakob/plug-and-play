@@ -92,10 +92,6 @@ describe('break', () => {
     cy.wait(100);
   });
 
-  it("add another one", () => {
-
-  });
-
   it('load it again', () => {
     cy.visit('http://127.0.0.1:8080');
 
