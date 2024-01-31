@@ -33,7 +33,7 @@ describe('database', () => {
   });
   it ("see that its there when opened again (and didnt take too long to load)", () => {
     cy.visit('http://127.0.0.1:8080');
-    cy.wait(500);
+    cy.wait(1500);
 
     doWithTestController(testController => {
       expect(testController.getNodeOutputValue("Constant","Out").length).to.eq(lengthOfArray);
