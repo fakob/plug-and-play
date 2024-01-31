@@ -32,7 +32,6 @@ import * as utility from './utility/utility';
 import * as widgetNodes from './widgets/widgetNodes';
 import * as recordNodes from './interactivity/record';
 import { RegisteredNodeTypes } from '../utils/interfaces';
-import * as simpleBarChart from './graphSegments/simpleBarGraph';
 import * as jira from './api/jira';
 import * as chatgpt from './api/chatgpt';
 import * as twitter from './api/twitter';
@@ -77,7 +76,6 @@ export const getAllNodeTypes = (): RegisteredNodeTypes => {
       utility,
       widgetNodes,
       recordNodes,
-      simpleBarChart,
       jira,
       chatgpt,
       twitter,
@@ -166,7 +164,6 @@ export const getAllNodesInDetail = (): any[] => {
     utility,
     widgetNodes,
     recordNodes,
-    simpleBarChart,
   };
   const start = Date.now();
   const toReturn = [];
