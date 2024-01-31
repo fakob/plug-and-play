@@ -1188,7 +1188,7 @@ ${Math.round(this._bounds.minX)}, ${Math.round(
     let count: number = 2;
     // find a new param name that is unique
     while (existing.find((param) => param.name === newParamName)) {
-      newParamName = preferredName + '_' + count;
+      newParamName = preferredName + ' ' + count;
       count += 1;
     }
     return newParamName;

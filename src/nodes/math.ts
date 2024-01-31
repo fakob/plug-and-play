@@ -138,6 +138,9 @@ export class Add extends DynamicInputNode {
   public hasExample(): boolean {
     return true;
   }
+  public getNewInputSocketName() {
+    return super.getNewInputSocketName('Addend');
+  }
 
   protected async onExecute(input, output): Promise<void> {
     output[addedOutputName] = this.getAllNonDefaultInputSockets().reduce(
@@ -194,6 +197,9 @@ export class Multiply extends DynamicInputNode {
 
   public getDescription(): string {
     return 'Multiplies numbers';
+  }
+  public getNewInputSocketName() {
+    return super.getNewInputSocketName('Factor');
   }
 
   public hasExample(): boolean {
