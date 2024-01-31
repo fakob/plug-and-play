@@ -17,8 +17,8 @@ describe('break', () => {
     cy.wait(100);
     doWithTestController((testController) => {
       testController.moveNodeByID('Break', 200, 0);
-      testController.moveNodeByID('Break2', 200, 0);
-      testController.moveNodeByID('Constant2', 200, 0);
+      testController.moveNodeByID('Break2', 200, -200);
+      testController.moveNodeByID('Constant2', 0, -200);
     });
   });
   it('try a massive break node input, see that it results in 100 output sockets', () => {
@@ -68,9 +68,9 @@ describe('break', () => {
     cy.wait(100);
   });
 
-  it("add another one", () => {
-
-  })
+  //it("add another one", () => {
+//
+ // })
 
   it('load it again', () => {
     cy.visit('http://127.0.0.1:8080');
@@ -78,7 +78,7 @@ describe('break', () => {
     cy.wait(3000);
     doWithTestController((testController) => {
       // see that we get an object out
-      expect(testController.getNodes().length).to.eq(2);
+      expect(testController.getNodes().length).to.eq(4);
     });
   });
 });
