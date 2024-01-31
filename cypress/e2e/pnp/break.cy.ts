@@ -21,6 +21,7 @@ describe('break', () => {
       testController.moveNodeByID('Constant2', 0, -200);
     });
   });
+
   it('try a massive break node input, see that it results in 100 output sockets', () => {
     doWithTestController((testController) => {
       const breakInput = {};
@@ -28,6 +29,7 @@ describe('break', () => {
         breakInput[i.toString()] = i;
       }
       testController.setNodeInputValue('Break', 'JSON', breakInput);
+      testController.setNodeInputValue("Constant2", "In",{first:{second:"hello"}});
       testController.executeNodeByID('Break');
     });
 
@@ -60,17 +62,39 @@ describe('break', () => {
     });
   });
 
-  it('try the output from constant', () => {
+  it('connect links', () => {
     doWithTestController((testController) => {
       testController.connectNodesByID('Constant', 'Break', 'Out');
+      testController.connectNodesByID('Constant2', 'Break2', 'Out');
+
     });
+  });
+
+  // at some point there was a bug where the links disconnected when source nodes executed, so this should test for that
+  it ("execute the source nodes", () => {
+    cy.wait(100);
+    doWithTestController((testController) => {
+      testController.executeNodeByID("Constant2");
+    });
+
+  });
+
+  it ("check the arrow json value is still cool and connected", () => {
+    cy.wait(200);
+    doWithTestController((testController) => {
+      expect(testController.getNodeOutputValue("Break2", "first→second")).to.eq("hello");
+      expect(testController.getSocketLinks("Break2", "JSON").length).to.eq(1);
+    });
+  })
+
+  it("save graph", () => {
     saveGraph();
     cy.wait(100);
   });
 
-  //it("add another one", () => {
-//
- // })
+  it("add another one", () => {
+
+  });
 
   it('load it again', () => {
     cy.visit('http://127.0.0.1:8080');

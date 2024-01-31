@@ -24,7 +24,7 @@ const JSONParamName = 'Path';
 const JSONInsert = 'New value';
 const outValueName = 'Value';
 
-const JSON_SEPARATOR = '->';
+const JSON_SEPARATOR = '→';
 
 export class JSONGet extends PPNode {
   constructor(name: string, customArgs: CustomArgs) {
