@@ -1,12 +1,15 @@
 import { controlOrMetaKey, doWithTestController, saveGraph } from './helpers';
 
 describe('break', () => {
-  it('add break node', () => {
+  it('add break nodes', () => {
     cy.visit('http://127.0.0.1:8080/?new=true');
     cy.wait(100);
     doWithTestController((testController) => {
       testController.addNode('Constant', 'Constant');
       testController.addNode('Break', 'Break');
+
+      testController.addNode('Constant', 'Constant2');
+      testController.addNode('Break', 'Break2');
     });
   });
 
@@ -14,6 +17,8 @@ describe('break', () => {
     cy.wait(100);
     doWithTestController((testController) => {
       testController.moveNodeByID('Break', 200, 0);
+      testController.moveNodeByID('Break2', 200, 0);
+      testController.moveNodeByID('Constant2', 200, 0);
     });
   });
   it('try a massive break node input, see that it results in 100 output sockets', () => {
@@ -60,7 +65,12 @@ describe('break', () => {
       testController.connectNodesByID('Constant', 'Break', 'Out');
     });
     saveGraph();
+    cy.wait(100);
   });
+
+  it("add another one", () => {
+
+  })
 
   it('load it again', () => {
     cy.visit('http://127.0.0.1:8080');
