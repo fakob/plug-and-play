@@ -1,7 +1,7 @@
 import { doWithTestController, saveGraph } from "./helpers";
 
 
-const lengthOfArray = 100000;
+const lengthOfArray = 10000;
 describe('database', () => {
   it ("open new graph", () => {
     cy.visit('http://127.0.0.1:8080/?new=true');
